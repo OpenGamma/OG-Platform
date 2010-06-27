@@ -8,7 +8,7 @@ package com.opengamma.math.interpolation;
 import org.apache.commons.lang.Validate;
 
 /**
- * A one-dimensional linear interpolator. The interpolated value of the function
+ * A one-dimensional interpolator. The interpolated value of the function
  * <i>y</i> at <i>x</i> between two data points <i>(x<sub>1</sub>,
  * y<sub>1</sub>)</i> and <i>(x<sub>2</sub>, y<sub>2</sub>)</i> is given by:<br>
  * <i>y = y<sub>1</sub> (y<sub>2</sub> / y<sub>1</sub>) ^ ((x - x<sub>1</sub>) /
@@ -18,12 +18,12 @@ import org.apache.commons.lang.Validate;
  * 
  */
 
-public class LogLinearInterpolator1D extends Interpolator1D<Interpolator1DModel, InterpolationResult> {
+public class LogLinearInterpolator1D extends Interpolator1D<Interpolator1DDataBundle, InterpolationResult> {
 
   @Override
-  public InterpolationResult interpolate(final Interpolator1DModel model, final Double value) {
-    Validate.notNull(value, "Value to be interpolated must not be null");
-    Validate.notNull(model, "Model must not be null");
+  public InterpolationResult interpolate(final Interpolator1DDataBundle model, final Double value) {
+    Validate.notNull(value, "value");
+    Validate.notNull(model, "data bundle");
     checkValue(model, value);
     final InterpolationBoundedValues boundedValues = model.getBoundedValues(value);
     final Double x1 = boundedValues.getLowerBoundKey();

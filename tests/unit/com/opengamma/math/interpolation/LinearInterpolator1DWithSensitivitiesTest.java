@@ -17,7 +17,7 @@ import com.opengamma.math.function.Function1D;
 public class LinearInterpolator1DWithSensitivitiesTest {
 
   private static final double EPS = 1e-15;
-  private static final Interpolator1DWithSensitivities<Interpolator1DModel> INTERPOLATOR = new LinearInterpolator1DWithSensitivities();
+  private static final Interpolator1DWithSensitivities<Interpolator1DDataBundle> INTERPOLATOR = new LinearInterpolator1DWithSensitivities();
   private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
     @Override
     public Double evaluate(final Double x) {
@@ -25,7 +25,7 @@ public class LinearInterpolator1DWithSensitivitiesTest {
     }
   };
 
-  private static final Interpolator1DModel MODEL;
+  private static final Interpolator1DDataBundle MODEL;
 
   static {
     final double[] x = new double[10];
@@ -34,7 +34,7 @@ public class LinearInterpolator1DWithSensitivitiesTest {
       x[i] = Double.valueOf(i);
       y[i] = FUNCTION.evaluate(x[i]);
     }
-    MODEL = Interpolator1DModelFactory.fromSortedArrays(x, y);
+    MODEL = Interpolator1DDataBundleFactory.fromSortedArrays(x, y);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -61,19 +61,19 @@ public class LinearInterpolator1DWithSensitivitiesTest {
   public void test() {
     InterpolationResultWithSensitivities result = INTERPOLATOR.interpolate(MODEL, 3.4);
     assertEquals(result.getResult(), FUNCTION.evaluate(3.4), EPS);
-    double[] sense = result.getSensitivities();
-    assertEquals(0.0, sense[2], EPS);
-    assertEquals(0.6, sense[3], EPS);
-    assertEquals(0.4, sense[4], EPS);
-    assertEquals(0.0, sense[5], EPS);
+    double[] sensitivity = result.getSensitivities();
+    assertEquals(0.0, sensitivity[2], EPS);
+    assertEquals(0.6, sensitivity[3], EPS);
+    assertEquals(0.4, sensitivity[4], EPS);
+    assertEquals(0.0, sensitivity[5], EPS);
 
     result = INTERPOLATOR.interpolate(MODEL, 7.0);
     assertEquals(result.getResult(), FUNCTION.evaluate(7.0), EPS);
-    sense = result.getSensitivities();
+    sensitivity = result.getSensitivities();
 
-    assertEquals(0.0, sense[6], EPS);
-    assertEquals(1.0, sense[7], EPS);
-    assertEquals(0.0, sense[8], EPS);
+    assertEquals(0.0, sensitivity[6], EPS);
+    assertEquals(1.0, sensitivity[7], EPS);
+    assertEquals(0.0, sensitivity[8], EPS);
 
   }
 

@@ -10,7 +10,7 @@ package com.opengamma.math.interpolation;
  * for interpolation on an {@link Interpolator1D}.
  * 
  */
-public interface Interpolator1DModel {
+public interface Interpolator1DDataBundle {
   
   Double getLowerBoundKey(Double value);
   

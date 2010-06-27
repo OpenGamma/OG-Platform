@@ -10,14 +10,14 @@ import org.apache.commons.lang.Validate;
 /**
  * 
  */
-public class StepInterpolator1D extends Interpolator1D<Interpolator1DModel, InterpolationResult> {
+public class StepInterpolator1D extends Interpolator1D<Interpolator1DDataBundle, InterpolationResult> {
 
   @Override
-  public InterpolationResult interpolate(final Interpolator1DModel model, final Double value) {
-    Validate.notNull(value, "Value to be interpolated must not be null");
-    Validate.notNull(model, "Model must not be null");
-    checkValue(model, value);
-    return new InterpolationResult(model.get(model.getLowerBoundKey(value)));
+  public InterpolationResult interpolate(final Interpolator1DDataBundle data, final Double value) {
+    Validate.notNull(value, "value");
+    Validate.notNull(data, "data bundle");
+    checkValue(data, value);
+    return new InterpolationResult(data.get(data.getLowerBoundKey(value)));
   }
 
 }

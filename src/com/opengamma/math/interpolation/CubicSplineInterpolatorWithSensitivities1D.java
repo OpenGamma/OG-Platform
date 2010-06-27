@@ -12,7 +12,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 /**
  * 
  */
-public class CubicSplineInterpolatorWithSensitivities1D extends Interpolator1DWithSensitivities<Interpolator1DCubicSplineWthSensitivitiesModel> {
+public class CubicSplineInterpolatorWithSensitivities1D extends Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> {
 
   /**
    * @param interpolator
@@ -20,11 +20,10 @@ public class CubicSplineInterpolatorWithSensitivities1D extends Interpolator1DWi
   @SuppressWarnings("unchecked")
   public CubicSplineInterpolatorWithSensitivities1D() {
     super((Interpolator1D) new NaturalCubicSplineInterpolator1D());
-    // TODO Auto-generated constructor stub
   }
 
   @Override
-  public InterpolationResultWithSensitivities interpolate(Interpolator1DCubicSplineWthSensitivitiesModel model, Double value) {
+  public InterpolationResultWithSensitivities interpolate(Interpolator1DCubicSplineWithSensitivitiesDataBundle model, Double value) {
     Validate.notNull(value, "Value to be interpolated must not be null");
     Validate.notNull(model, "Model must not be null");
     checkValue(model, value);
@@ -34,10 +33,10 @@ public class CubicSplineInterpolatorWithSensitivities1D extends Interpolator1DWi
     final double[] xData = model.getKeys();
     final double[] yData = model.getValues();
 
-    double[] sense = new double[n + 1];
+    double[] sensitivity = new double[n + 1];
     if (model.getLowerBoundIndex(value) == n) {
-      sense[n] = 1.0;
-      return new InterpolationResultWithSensitivities(yData[n], sense);
+      sensitivity[n] = 1.0;
+      return new InterpolationResultWithSensitivities(yData[n], sensitivity);
     }
     final double delta = xData[high] - xData[low];
     if (Math.abs(delta) < getEPS()) {
@@ -48,15 +47,15 @@ public class CubicSplineInterpolatorWithSensitivities1D extends Interpolator1DWi
     final double c = a * (a * a - 1) * delta * delta / 6.0;
     final double d = b * (b * b - 1) * delta * delta / 6.0;
 
-    final DoubleMatrix2D y2Sense = model.getSecondDerivativiesSensitivities();
+    final DoubleMatrix2D y2Sensitivities = model.getSecondDerivativesSensitivities();
 
     for (int i = 0; i <= n; i++) {
-      sense[i] = c * y2Sense.getEntry(low, i) + d * y2Sense.getEntry(high, i);
+      sensitivity[i] = c * y2Sensitivities.getEntry(low, i) + d * y2Sensitivities.getEntry(high, i);
     }
-    sense[low] += a;
-    sense[high] += b;
+    sensitivity[low] += a;
+    sensitivity[high] += b;
 
-    return new InterpolationResultWithSensitivities(getUnderlyingInterpolator().interpolate(model, value).getResult(), sense);
+    return new InterpolationResultWithSensitivities(getUnderlyingInterpolator().interpolate(model, value).getResult(), sensitivity);
 
   }
 

@@ -12,14 +12,14 @@ import java.util.NavigableMap;
 import org.apache.commons.lang.Validate;
 
 /**
- * An implementation of {@link Interpolator1DModel} backed by a
+ * An implementation of {@link Interpolator1DDataBundle} backed by a
  * {@link NavigableMap}.
  * 
  */
-public class NavigableMapInterpolator1DModel implements Interpolator1DModel {
+public class NavigableMapInterpolator1DDataBundle implements Interpolator1DDataBundle {
   private final NavigableMap<Double, Double> _backingMap;
 
-  public NavigableMapInterpolator1DModel(final NavigableMap<Double, Double> backingMap) {
+  public NavigableMapInterpolator1DDataBundle(final NavigableMap<Double, Double> backingMap) {
     Validate.notNull(backingMap, "Backing map");
     _backingMap = backingMap;
   }
@@ -144,7 +144,7 @@ public class NavigableMapInterpolator1DModel implements Interpolator1DModel {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final NavigableMapInterpolator1DModel other = (NavigableMapInterpolator1DModel) obj;
+    final NavigableMapInterpolator1DDataBundle other = (NavigableMapInterpolator1DDataBundle) obj;
     if (_backingMap == null) {
       if (other._backingMap != null) {
         return false;

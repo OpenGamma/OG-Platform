@@ -10,23 +10,23 @@ import org.apache.commons.lang.Validate;
 /**
  * 
  */
-public class LinearInterpolator1DWithSensitivities extends Interpolator1DWithSensitivities<Interpolator1DModel> {
+public class LinearInterpolator1DWithSensitivities extends Interpolator1DWithSensitivities<Interpolator1DDataBundle> {
 
   public LinearInterpolator1DWithSensitivities() {
     super(new LinearInterpolator1D());
   }
 
   @Override
-  public InterpolationResultWithSensitivities interpolate(final Interpolator1DModel model, final Double value) {
-    Validate.notNull(value, "Value to be interpolated must not be null");
-    Validate.notNull(model, "Model must not be null");
-    final double interpolatedValue = getUnderlyingInterpolator().interpolate(model, value).getResult();
-    final int n = model.size();
-    final InterpolationBoundedValues boundedValues = model.getBoundedValues(value);
+  public InterpolationResultWithSensitivities interpolate(final Interpolator1DDataBundle data, final Double value) {
+    Validate.notNull(value, "value");
+    Validate.notNull(data, "data bundle");
+    final double interpolatedValue = getUnderlyingInterpolator().interpolate(data, value).getResult();
+    final int n = data.size();
+    final InterpolationBoundedValues boundedValues = data.getBoundedValues(value);
     if (boundedValues.getHigherBoundKey() == null) {
       return new InterpolationResultWithSensitivities(boundedValues.getLowerBoundValue(), new double[] {1.});
     }
-    final int index = model.getLowerBoundIndex(value);
+    final int index = data.getLowerBoundIndex(value);
     final double[] sensitivities = new double[n];
     final double x1 = boundedValues.getLowerBoundKey();
     final double x2 = boundedValues.getHigherBoundKey();

@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.math.interpolation.InterpolationResult;
 import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.math.interpolation.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.Interpolator1DModel;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -36,7 +36,8 @@ public class InterpolatedYieldCurve extends InterpolatedYieldAndDiscountCurve {
    *           Thrown if the data map is null or empty, or if it contains a
    *           negative time to maturity.
    */
-  public InterpolatedYieldCurve(final Map<Double, Double> data, final Interpolator1D<? extends Interpolator1DModel, ? extends InterpolationResult> interpolator) {
+  public InterpolatedYieldCurve(final Map<Double, Double> data,
+      final Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult> interpolator) {
     super(data, interpolator);
   }
 
@@ -55,7 +56,8 @@ public class InterpolatedYieldCurve extends InterpolatedYieldAndDiscountCurve {
    *           Thrown if the data map is null or empty, or if it contains a
    *           negative time to maturity.
    */
-  public InterpolatedYieldCurve(final Map<Double, Double> data, final Map<Double, Interpolator1D<? extends Interpolator1DModel, ? extends InterpolationResult>> interpolators) {
+  public InterpolatedYieldCurve(final Map<Double, Double> data,
+      final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> interpolators) {
     super(data, interpolators);
   }
 
@@ -72,14 +74,15 @@ public class InterpolatedYieldCurve extends InterpolatedYieldAndDiscountCurve {
     Validate.notNull(t);
     ArgumentChecker.notNegative(t, "time");
     if (getInterpolators().size() == 1) {
-      final Interpolator1D<Interpolator1DModel, ? extends InterpolationResult> interpolator = (Interpolator1D<Interpolator1DModel, ? extends InterpolationResult>) getInterpolators()
-          .values().iterator().next();
-      return interpolator.interpolate(getModels().values().iterator().next(), t).getResult();
+      final Interpolator1D<Interpolator1DDataBundle, ? extends InterpolationResult> interpolator =
+          (Interpolator1D<Interpolator1DDataBundle, ? extends InterpolationResult>) getInterpolators().values().iterator().next();
+      return interpolator.interpolate(getDataBundles().values().iterator().next(), t).getResult();
     }
-    final Map<Double, Interpolator1D<? extends Interpolator1DModel, ? extends InterpolationResult>> tail = getInterpolators().tailMap(t);
+    final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> tail = getInterpolators().tailMap(t);
     final Double key = tail.isEmpty() ? getInterpolators().lastKey() : getInterpolators().tailMap(t).firstKey();
-    final Interpolator1D<Interpolator1DModel, ? extends InterpolationResult> interpolator = (Interpolator1D<Interpolator1DModel, InterpolationResult>) getInterpolators().get(key);
-    return interpolator.interpolate(getModels().get(key), t).getResult();
+    final Interpolator1D<Interpolator1DDataBundle, ? extends InterpolationResult> interpolator =
+        (Interpolator1D<Interpolator1DDataBundle, InterpolationResult>) getInterpolators().get(key);
+    return interpolator.interpolate(getDataBundles().get(key), t).getResult();
   }
 
   /**
@@ -153,7 +156,7 @@ public class InterpolatedYieldCurve extends InterpolatedYieldAndDiscountCurve {
     final StringBuilder sb = new StringBuilder();
     sb.append("InterpolatedYieldCurve[");
     sb.append("interpolators={");
-    for (final Map.Entry<Double, Interpolator1D<? extends Interpolator1DModel, ? extends InterpolationResult>> e : getInterpolators().entrySet()) {
+    for (final Map.Entry<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> e : getInterpolators().entrySet()) {
       sb.append(e.getKey()).append('=').append(Interpolator1DFactory.getInterpolatorName(e.getValue())).append(',');
     }
     sb.append("},rate_data={");

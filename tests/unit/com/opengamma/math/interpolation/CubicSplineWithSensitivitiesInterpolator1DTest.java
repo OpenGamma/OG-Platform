@@ -22,10 +22,11 @@ import com.opengamma.math.function.Function1D;
 public class CubicSplineWithSensitivitiesInterpolator1DTest {
 
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  private static final Interpolator1D<Interpolator1DWithSecondDerivativeModel, InterpolationResult> INTERPOLATOR1 = new NaturalCubicSplineInterpolator1D();
-  private static final Interpolator1D<Interpolator1DCubicSplineWthSensitivitiesModel, InterpolationResultWithSensitivities> INTERPOLATOR2 = new CubicSplineInterpolatorWithSensitivities1D();
-  private static final Interpolator1DWithSecondDerivativeModel MODEL1;
-  private static final Interpolator1DCubicSplineWthSensitivitiesModel MODEL2;
+  private static final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> INTERPOLATOR1 = new NaturalCubicSplineInterpolator1D();
+  private static final Interpolator1D<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> INTERPOLATOR2 =
+      new CubicSplineInterpolatorWithSensitivities1D();
+  private static final Interpolator1DCubicSplineDataBundle MODEL1;
+  private static final Interpolator1DCubicSplineWithSensitivitiesDataBundle MODEL2;
   private static final double EPS = 1e-8;
   private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
 
@@ -42,14 +43,14 @@ public class CubicSplineWithSensitivitiesInterpolator1DTest {
   };
 
   static {
-    double[] t = new double[] { 0.0, 0.5, 1.0, 2.0, 3.0, 5.0, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0 };
+    double[] t = new double[] {0.0, 0.5, 1.0, 2.0, 3.0, 5.0, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0};
     int n = t.length;
     double[] r = new double[n];
     for (int i = 0; i < n; i++) {
       r[i] = FUNCTION.evaluate(t[i]);
     }
-    MODEL1 = (Interpolator1DWithSecondDerivativeModel) Interpolator1DModelFactory.fromSortedArrays(t, r, INTERPOLATOR1);
-    MODEL2 = (Interpolator1DCubicSplineWthSensitivitiesModel) Interpolator1DModelFactory.fromSortedArrays(t, r, INTERPOLATOR2);
+    MODEL1 = (Interpolator1DCubicSplineDataBundle) Interpolator1DDataBundleFactory.fromSortedArrays(t, r, INTERPOLATOR1);
+    MODEL2 = (Interpolator1DCubicSplineWithSensitivitiesDataBundle) Interpolator1DDataBundleFactory.fromSortedArrays(t, r, INTERPOLATOR2);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -95,15 +96,15 @@ public class CubicSplineWithSensitivitiesInterpolator1DTest {
     double tmax = MODEL2.lastKey();
     for (int i = 0; i < 100; i++) {
       final double t = tmax * RANDOM.nextDouble();
-      double[] sense = INTERPOLATOR2.interpolate(MODEL2, t).getSensitivities();
-      for (int j = 0; j < sense.length; j++) {
-        assertEquals(getSensitivity(MODEL1, INTERPOLATOR1, t, j), sense[j], EPS);
+      double[] sensitivity = INTERPOLATOR2.interpolate(MODEL2, t).getSensitivities();
+      for (int j = 0; j < sensitivity.length; j++) {
+        assertEquals(getSensitivity(MODEL1, INTERPOLATOR1, t, j), sensitivity[j], EPS);
       }
     }
   }
 
   @SuppressWarnings("unchecked")
-  private <T extends Interpolator1DModel> double getSensitivity(T model, Interpolator1D<T, ? extends InterpolationResult> interpolator, double t, int node) {
+  private <T extends Interpolator1DDataBundle> double getSensitivity(T model, Interpolator1D<T, ? extends InterpolationResult> interpolator, double t, int node) {
     double[] x = model.getKeys();
     double[] y = model.getValues();
     int n = y.length;
@@ -113,8 +114,8 @@ public class CubicSplineWithSensitivitiesInterpolator1DTest {
     yDown = Arrays.copyOf(y, n);
     yUp[node] += EPS;
     yDown[node] -= EPS;
-    T modelUp = (T) Interpolator1DModelFactory.fromSortedArrays(x, yUp, interpolator);
-    T modelDown = (T) Interpolator1DModelFactory.fromSortedArrays(x, yDown, interpolator);
+    T modelUp = (T) Interpolator1DDataBundleFactory.fromSortedArrays(x, yUp, interpolator);
+    T modelDown = (T) Interpolator1DDataBundleFactory.fromSortedArrays(x, yDown, interpolator);
     double up = interpolator.interpolate(modelUp, t).getResult();
     double down = interpolator.interpolate(modelDown, t).getResult();
     return (up - down) / 2.0 / EPS;

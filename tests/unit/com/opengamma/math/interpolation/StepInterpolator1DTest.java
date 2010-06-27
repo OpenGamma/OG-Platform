@@ -16,8 +16,8 @@ import org.junit.Test;
  * 
  */
 public class StepInterpolator1DTest {
-  private static final Interpolator1D<Interpolator1DModel, InterpolationResult> INTERPOLATOR = new StepInterpolator1D();
-  private static final Interpolator1DModel DATA;
+  private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> INTERPOLATOR = new StepInterpolator1D();
+  private static final Interpolator1DDataBundle DATA;
   private static final double EPS = 1e-13;
 
   static {
@@ -25,12 +25,12 @@ public class StepInterpolator1DTest {
     map.put(1., 4.5);
     map.put(2., 4.3);
     map.put(3., 6.7);
-    DATA = Interpolator1DModelFactory.fromMap(map);
+    DATA = Interpolator1DDataBundleFactory.fromMap(map);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
-    INTERPOLATOR.interpolate((Interpolator1DModel) null, 2.);
+    INTERPOLATOR.interpolate((Interpolator1DDataBundle) null, 2.);
   }
 
   @Test(expected = IllegalArgumentException.class)

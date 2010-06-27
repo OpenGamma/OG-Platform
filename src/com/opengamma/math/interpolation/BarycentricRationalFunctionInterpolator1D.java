@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 /**
  * 
  */
-public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D<Interpolator1DModel, InterpolationResult> {
+public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D<Interpolator1DDataBundle, InterpolationResult> {
   private final int _degree;
 
   public BarycentricRationalFunctionInterpolator1D(final int degree) {
@@ -21,17 +21,17 @@ public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D<In
   }
 
   @Override
-  public InterpolationResult interpolate(final Interpolator1DModel model, final Double value) {
-    Validate.notNull(value, "Value to be interpolated must not be null");
-    Validate.notNull(model, "Model must not be null");
-    checkValue(model, value);
-    if (model.size() < _degree) {
-      throw new InterpolationException("Cannot interpolate " + model.size() + " data points with rational functions of degree " + _degree);
+  public InterpolationResult interpolate(final Interpolator1DDataBundle data, final Double value) {
+    Validate.notNull(value, "value");
+    Validate.notNull(data, "data bundle");
+    checkValue(data, value);
+    if (data.size() < _degree) {
+      throw new InterpolationException("Cannot interpolate " + data.size() + " data points with rational functions of degree " + _degree);
     }
-    final int m = model.size();
-    final double[] x = model.getKeys();
-    final double[] y = model.getValues();
-    if (model.getLowerBoundIndex(value) == m - 1) {
+    final int m = data.size();
+    final double[] x = data.getKeys();
+    final double[] y = data.getValues();
+    if (data.getLowerBoundIndex(value) == m - 1) {
       return new InterpolationResult(y[m - 1]);
     }
     final double[] w = getWeights(x);

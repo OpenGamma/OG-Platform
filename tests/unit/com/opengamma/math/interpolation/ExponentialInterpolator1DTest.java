@@ -17,27 +17,27 @@ import org.junit.Test;
  * 
  */
 public class ExponentialInterpolator1DTest {
-  private static final Interpolator1D<Interpolator1DModel, InterpolationResult> INTERPOLATOR = new ExponentialInterpolator1D();
+  private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> INTERPOLATOR = new ExponentialInterpolator1D();
   private static final double EPS = 1e-4;
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNullModel() {
+  public void testNullDataBundle() {
     INTERPOLATOR.interpolate(null, 2.);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
-    INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromMap(Collections.<Double, Double>emptyMap()), null);
+    INTERPOLATOR.interpolate(Interpolator1DDataBundleFactory.fromMap(Collections.<Double, Double>emptyMap()), null);
   }
 
   @Test(expected = InterpolationException.class)
   public void testLowValue() {
-    INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromSortedArrays(new double[] {1, 2}, new double[] {1, 2}), -4.);
+    INTERPOLATOR.interpolate(Interpolator1DDataBundleFactory.fromSortedArrays(new double[] {1, 2}, new double[] {1, 2}), -4.);
   }
 
   @Test(expected = InterpolationException.class)
   public void testHgihValue() {
-    INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromSortedArrays(new double[] {1, 2}, new double[] {1, 2}), -4.);
+    INTERPOLATOR.interpolate(Interpolator1DDataBundleFactory.fromSortedArrays(new double[] {1, 2}, new double[] {1, 2}), -4.);
   }
 
   @Test
@@ -49,6 +49,6 @@ public class ExponentialInterpolator1DTest {
     final double df2 = 0.7572;
     data.put(t1, df1);
     data.put(t2, df2);
-    assertEquals(0.7957, INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromMap(data), 3.5).getResult(), EPS);
+    assertEquals(0.7957, INTERPOLATOR.interpolate(Interpolator1DDataBundleFactory.fromMap(data), 3.5).getResult(), EPS);
   }
 }

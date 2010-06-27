@@ -10,18 +10,17 @@ import org.apache.commons.lang.Validate;
 /**
  * 
  */
-public class Interpolator1DWithSecondDerivativeModel implements Interpolator1DModel {
-  //TODO rename this class 
-  private final Interpolator1DModel _underlyingData;
+public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBundle {
+  private final Interpolator1DDataBundle _underlyingData;
   private final double[] _secondDerivatives;
 
-  public Interpolator1DWithSecondDerivativeModel(final Interpolator1DModel underlyingData) {
+  public Interpolator1DCubicSplineDataBundle(final Interpolator1DDataBundle underlyingData) {
     Validate.notNull(underlyingData);
     _underlyingData = underlyingData;
     _secondDerivatives = getSecondDerivative(underlyingData);
   }
 
-  private double[] getSecondDerivative(final Interpolator1DModel underlyingData) {
+  private double[] getSecondDerivative(final Interpolator1DDataBundle underlyingData) {
     final double[] x = underlyingData.getKeys();
     final double[] y = underlyingData.getValues();
     final int n = x.length;

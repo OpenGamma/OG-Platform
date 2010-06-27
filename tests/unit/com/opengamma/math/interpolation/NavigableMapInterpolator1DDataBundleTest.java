@@ -13,20 +13,20 @@ import org.junit.Test;
 /**
  * 
  */
-public class NavigableMapInterpolator1DModelTest extends Interpolator1DModelTestCase {
+public class NavigableMapInterpolator1DDataBundleTest extends Interpolator1DDataBundleTestCase {
 
   @Override
-  protected Interpolator1DModel createModel(double[] keys, double[] values) {
+  protected Interpolator1DDataBundle createDataBundle(double[] keys, double[] values) {
     NavigableMap<Double, Double> map = new TreeMap<Double, Double>();
     for (int i = 0; i < keys.length; i++) {
       map.put(keys[i], values[i]);
     }
-    return new NavigableMapInterpolator1DModel(map);
+    return new NavigableMapInterpolator1DDataBundle(map);
   }
-  
-  @Test(expected=IllegalArgumentException.class)
+
+  @Test(expected = IllegalArgumentException.class)
   public void nullInputs() {
-    new NavigableMapInterpolator1DModel(null);
+    new NavigableMapInterpolator1DDataBundle(null);
   }
 
 }

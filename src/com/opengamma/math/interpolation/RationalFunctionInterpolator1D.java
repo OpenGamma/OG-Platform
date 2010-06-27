@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 /**
  * 
  */
-public class RationalFunctionInterpolator1D extends Interpolator1D<Interpolator1DModel, InterpolationResult> {
+public class RationalFunctionInterpolator1D extends Interpolator1D<Interpolator1DDataBundle, InterpolationResult> {
   private final int _degree;
 
   public RationalFunctionInterpolator1D(final int degree) {
@@ -21,18 +21,18 @@ public class RationalFunctionInterpolator1D extends Interpolator1D<Interpolator1
   }
 
   @Override
-  public InterpolationResult interpolate(final Interpolator1DModel model, final Double value) {
-    Validate.notNull(value, "Value to be interpolated must not be null");
-    Validate.notNull(model, "Model must not be null");
-    checkValue(model, value);
+  public InterpolationResult interpolate(final Interpolator1DDataBundle data, final Double value) {
+    Validate.notNull(value, "value");
+    Validate.notNull(value, "data bundle");
+    checkValue(data, value);
     final int m = _degree + 1;
-    if (model.size() < m) {
+    if (data.size() < m) {
       throw new IllegalArgumentException("Need at least " + (_degree + 1) + " data points to perform this interpolation");
     }
-    final double[] xArray = model.getKeys();
-    final double[] yArray = model.getValues();
-    final int n = model.size() - 1;
-    if (model.getLowerBoundIndex(value) == n) {
+    final double[] xArray = data.getKeys();
+    final double[] yArray = data.getValues();
+    final int n = data.size() - 1;
+    if (data.getLowerBoundIndex(value) == n) {
       return new InterpolationResult(yArray[n]);
     }
     double diff = Math.abs(value - xArray[0]);

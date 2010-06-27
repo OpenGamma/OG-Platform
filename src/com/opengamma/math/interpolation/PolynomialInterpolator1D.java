@@ -19,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
  * Interpolates between data points using a polynomial. The method used is
  * Neville's algorithm.
  */
-public class PolynomialInterpolator1D extends Interpolator1D<Interpolator1DModel, InterpolationResult> {
+public class PolynomialInterpolator1D extends Interpolator1D<Interpolator1DDataBundle, InterpolationResult> {
   private final NevilleInterpolator _interpolator = new NevilleInterpolator();
   private final int _degree;
   private final int _offset;
@@ -41,20 +41,20 @@ public class PolynomialInterpolator1D extends Interpolator1D<Interpolator1DModel
   }
 
   @Override
-  public InterpolationResult interpolate(final Interpolator1DModel model, final Double value) {
-    Validate.notNull(value, "Value to be interpolated must not be null");
-    Validate.notNull(model, "Model must not be null");
-    checkValue(model, value);
-    final int n = model.size();
-    final double[] keys = model.getKeys();
-    final double[] values = model.getValues();
+  public InterpolationResult interpolate(final Interpolator1DDataBundle data, final Double value) {
+    Validate.notNull(value, "value");
+    Validate.notNull(data, "data bundle");
+    checkValue(data, value);
+    final int n = data.size();
+    final double[] keys = data.getKeys();
+    final double[] values = data.getValues();
     if (n <= _degree) {
       throw new InterpolationException("Need at least " + (_degree + 1) + " data points to perform polynomial interpolation of degree " + _degree);
     }
-    if (model.getLowerBoundIndex(value) == n - 1) {
+    if (data.getLowerBoundIndex(value) == n - 1) {
       return new InterpolationResult(values[n - 1]);
     }
-    final int lower = model.getLowerBoundIndex(value);
+    final int lower = data.getLowerBoundIndex(value);
     final int lowerBound = lower - _offset;
     final int upperBound = _degree + 1 + lowerBound;
     if (lowerBound < 0) {

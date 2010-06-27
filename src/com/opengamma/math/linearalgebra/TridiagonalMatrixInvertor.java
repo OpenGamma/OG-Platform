@@ -6,31 +6,21 @@
 package com.opengamma.math.linearalgebra;
 
 import com.opengamma.math.MathException;
+import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
  * Direct inversion of a tridiagonal matrix using the formula from
  * "R. Usmani, Inversion of a tridiagonal Jacobi matrix, Linear Algebra Appl. 212/213 (1994) 413-414."
  */
-public class TridiagonalMatrixInvertor {
+public class TridiagonalMatrixInvertor extends Function1D<TridiagonalMatrix, DoubleMatrix2D> {
 
-  /**
-   * An N by N matrix is in tridiagonal form if the main diagonal and the diagonals immediately above and below the main diagonal have non-zero entries, while every other entry is zero 
-   * @param a the main diagonal of length N
-   * @param b the sub-diagonal above the main diagonal of length N-1 
-   * @param c the sub-diagonal below the main diagonal of length N-1 
-   * @return the inverse of the tridiagonal matrix 
-   */
-  public static DoubleMatrix2D getInverse(final double[] a, final double[] b, final double[] c) {
-    if (a == null || b == null || c == null) {
-      throw new IllegalArgumentException("some of the diagonals are null");
-    }
-
+  @Override
+  public DoubleMatrix2D evaluate(TridiagonalMatrix x) {
+    double[] a = x.getDiagonal();
+    double[] b = x.getUpperSubDiagonal();
+    double[] c = x.getLowerSubDiagonal();
     int n = a.length;
-    if (b.length != n - 1 || c.length != n - 1) {
-      throw new IllegalArgumentException("length of subdiagonals is wrong");
-    }
-
     int i, j, k;
     double[] theta = new double[n + 1];
     double[] phi = new double[n];

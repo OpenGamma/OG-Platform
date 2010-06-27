@@ -14,12 +14,12 @@ import org.apache.commons.lang.Validate;
  * <i>y = y<sub>1</sub> + (x - x<sub>1</sub>) * (y<sub>2</sub> - y<sub>1</sub>)
  * / (x<sub>2</sub> - x<sub>1</sub>)</i>
  */
-public class LinearInterpolator1D extends Interpolator1D<Interpolator1DModel, InterpolationResult> {
+public class LinearInterpolator1D extends Interpolator1D<Interpolator1DDataBundle, InterpolationResult> {
 
   @Override
-  public InterpolationResult interpolate(final Interpolator1DModel model, final Double value) {
+  public InterpolationResult interpolate(final Interpolator1DDataBundle model, final Double value) {
     Validate.notNull(value, "Value to be interpolated must not be null");
-    Validate.notNull(model, "Model must not be null");
+    Validate.notNull(model, "Data bundle must not be null");
     checkValue(model, value);
     final InterpolationBoundedValues boundedValues = model.getBoundedValues(value);
     final double x1 = boundedValues.getLowerBoundKey();

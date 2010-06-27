@@ -15,61 +15,57 @@ import org.junit.Test;
 /**
  * 
  */
-public abstract class Interpolator1DModelTestCase {
-  /**
-   * 
-   */
+public abstract class Interpolator1DDataBundleTestCase {
   private static final double EPS = 1e-10;
   private static final double[] KEYS1 = new double[] {5., 1., 4., 2., 3.};
   private static final double[] VALUES1 = new double[] {50., 10., 40., 20., 30.};
-  
-  protected abstract Interpolator1DModel createModel(double[] keys, double[] values);
-  
+
+  protected abstract Interpolator1DDataBundle createDataBundle(double[] keys, double[] values);
+
   @Test
   public void size() {
-    Interpolator1DModel model = createModel(KEYS1, VALUES1);
-    
+    Interpolator1DDataBundle model = createDataBundle(KEYS1, VALUES1);
     assertEquals(5, model.size());
   }
-  
+
   @Test
   public void lowerBounds() {
-    Interpolator1DModel model = createModel(KEYS1, VALUES1);
-    
+    Interpolator1DDataBundle model = createDataBundle(KEYS1, VALUES1);
+
     assertEquals(1., model.getLowerBoundKey(1.5), EPS);
     assertEquals(5., model.getLowerBoundKey(100.), EPS);
     assertNull(model.getLowerBoundKey(0.5));
   }
-  
+
   @Test
   public void lowerBoundIndices() {
-    Interpolator1DModel model = createModel(KEYS1, VALUES1);
+    Interpolator1DDataBundle model = createDataBundle(KEYS1, VALUES1);
 
     assertEquals(0, model.getLowerBoundIndex(1.5));
     assertEquals(4, model.getLowerBoundIndex(100.));
     assertEquals(3, model.getLowerBoundIndex(4.));
   }
-  
+
   @Test
   public void firstKeyValue() {
-    Interpolator1DModel model = createModel(KEYS1, VALUES1);
-    
+    Interpolator1DDataBundle model = createDataBundle(KEYS1, VALUES1);
+
     assertEquals(1., model.firstKey(), EPS);
     assertEquals(10., model.firstValue(), EPS);
   }
-  
+
   @Test
   public void lastKeyValue() {
-    Interpolator1DModel model = createModel(KEYS1, VALUES1);
-    
+    Interpolator1DDataBundle model = createDataBundle(KEYS1, VALUES1);
+
     assertEquals(5., model.lastKey(), EPS);
     assertEquals(50., model.lastValue(), EPS);
   }
-  
+
   @Test
   public void higherKeyValue() {
-    Interpolator1DModel model = createModel(KEYS1, VALUES1);
-    
+    Interpolator1DDataBundle model = createDataBundle(KEYS1, VALUES1);
+
     assertEquals(1., model.higherKey(0.5), EPS);
     assertEquals(10., model.higherValue(0.5), EPS);
     assertEquals(5., model.higherKey(4.5), EPS);
@@ -77,11 +73,11 @@ public abstract class Interpolator1DModelTestCase {
     assertNull(model.higherKey(5.5));
     assertNull(model.higherValue(5.5));
   }
-  
+
   @Test
   public void pointLookup() {
-    Interpolator1DModel model = createModel(KEYS1, VALUES1);
-    
+    Interpolator1DDataBundle model = createDataBundle(KEYS1, VALUES1);
+
     assertEquals(10., model.get(1.), EPS);
     assertEquals(20., model.get(2.), EPS);
     assertEquals(30., model.get(3.), EPS);
@@ -90,11 +86,11 @@ public abstract class Interpolator1DModelTestCase {
     assertNull(model.get(4.5));
     assertNull(model.get(6.));
   }
-  
+
   @Test
   public void containsKey() {
-    Interpolator1DModel model = createModel(KEYS1, VALUES1);
-    
+    Interpolator1DDataBundle model = createDataBundle(KEYS1, VALUES1);
+
     assertTrue(model.containsKey(1.));
     assertTrue(model.containsKey(2.));
     assertTrue(model.containsKey(3.));
@@ -102,10 +98,10 @@ public abstract class Interpolator1DModelTestCase {
     assertTrue(model.containsKey(5.));
     assertFalse(model.containsKey(1.5));
   }
-  
+
   @Test
   public void keys() {
-    Interpolator1DModel model = createModel(KEYS1, VALUES1);
+    Interpolator1DDataBundle model = createDataBundle(KEYS1, VALUES1);
     double[] keys = model.getKeys();
     assertEquals(1., keys[0], EPS);
     assertEquals(2., keys[1], EPS);
@@ -114,10 +110,10 @@ public abstract class Interpolator1DModelTestCase {
     assertEquals(5., keys[4], EPS);
     assertEquals(5, keys.length);
   }
-  
+
   @Test
   public void values() {
-    Interpolator1DModel model = createModel(KEYS1, VALUES1);
+    Interpolator1DDataBundle model = createDataBundle(KEYS1, VALUES1);
     double[] values = model.getValues();
     assertEquals(10., values[0], EPS);
     assertEquals(20., values[1], EPS);
@@ -126,5 +122,5 @@ public abstract class Interpolator1DModelTestCase {
     assertEquals(50., values[4], EPS);
     assertEquals(5, values.length);
   }
-  
+
 }

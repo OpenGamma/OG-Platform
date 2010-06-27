@@ -24,12 +24,12 @@ import com.opengamma.math.function.PolynomialFunction1D;
 public class NaturalCubicSplineInterpolator1DTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
 
-  private static final double[] COEFF = new double[] { -0.4, 0.05, 0.2, 1. };
+  private static final double[] COEFF = new double[] {-0.4, 0.05, 0.2, 1.};
 
-  private static final Interpolator1D<Interpolator1DWithSecondDerivativeModel, InterpolationResult> INTERPOLATOR = new NaturalCubicSplineInterpolator1D();
+  private static final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> INTERPOLATOR = new NaturalCubicSplineInterpolator1D();
   private static final Function1D<Double, Double> CUBIC = new PolynomialFunction1D(COEFF);
   private static final double EPS = 1e-2;
-  private static final Interpolator1DWithSecondDerivativeModel MODEL;
+  private static final Interpolator1DCubicSplineDataBundle MODEL;
 
   static {
     final Map<Double, Double> data = new HashMap<Double, Double>();
@@ -37,12 +37,12 @@ public class NaturalCubicSplineInterpolator1DTest {
       final double x = i / 10.;
       data.put(x, CUBIC.evaluate(x));
     }
-    MODEL = (Interpolator1DWithSecondDerivativeModel) Interpolator1DModelFactory.fromMap(data, INTERPOLATOR);
+    MODEL = (Interpolator1DCubicSplineDataBundle) Interpolator1DDataBundleFactory.fromMap(data, INTERPOLATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void nullInputMap() {
-    INTERPOLATOR.interpolate((Interpolator1DWithSecondDerivativeModel) null, 3.);
+    INTERPOLATOR.interpolate((Interpolator1DCubicSplineDataBundle) null, 3.);
   }
 
   @Test(expected = IllegalArgumentException.class)

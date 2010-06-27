@@ -10,18 +10,18 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 
 /**
- * An implementation of {@link Interpolator1DModel} which holds all data in two
+ * An implementation of {@link Interpolator1DDataBundle} which holds all data in two
  * parallel-sorted double arrays.
  */
-public class ArrayInterpolator1DModel implements Interpolator1DModel {
+public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
   private final double[] _keys;
   private final double[] _values;
 
-  public ArrayInterpolator1DModel(final double[] keys, final double[] values) {
+  public ArrayInterpolator1DDataBundle(final double[] keys, final double[] values) {
     this(keys, values, false);
   }
 
-  public ArrayInterpolator1DModel(final double[] keys, final double[] values, final boolean inputsSorted) {
+  public ArrayInterpolator1DDataBundle(final double[] keys, final double[] values, final boolean inputsSorted) {
     Validate.notNull(keys, "Keys must not be null.");
     Validate.notNull(values, "Values must not be null.");
     Validate.isTrue((keys.length == values.length), "keys and values must be same length.");
@@ -221,7 +221,7 @@ public class ArrayInterpolator1DModel implements Interpolator1DModel {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final ArrayInterpolator1DModel other = (ArrayInterpolator1DModel) obj;
+    final ArrayInterpolator1DDataBundle other = (ArrayInterpolator1DDataBundle) obj;
     if (!Arrays.equals(_keys, other._keys)) {
       return false;
     }

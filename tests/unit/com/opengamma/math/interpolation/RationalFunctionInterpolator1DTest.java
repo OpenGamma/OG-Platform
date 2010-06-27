@@ -21,8 +21,8 @@ import com.opengamma.math.function.PolynomialFunction1D;
 public class RationalFunctionInterpolator1DTest {
   //TODO this test doesn't test answers properly - look at EPS
   private static final Function1D<Double, Double> F = new PolynomialFunction1D(new double[] {-0.87, 3.4, 1., -5.});
-  private static final Interpolator1D<Interpolator1DModel, InterpolationResult> INTERPOLATOR = new RationalFunctionInterpolator1D(3);
-  private static final Interpolator1DModel MODEL;
+  private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> INTERPOLATOR = new RationalFunctionInterpolator1D(3);
+  private static final Interpolator1DDataBundle MODEL;
   private static final double EPS = 1;
 
   static {
@@ -32,11 +32,11 @@ public class RationalFunctionInterpolator1DTest {
       x = Double.valueOf(i) / 10.;
       data.put(x, F.evaluate(x));
     }
-    MODEL = Interpolator1DModelFactory.fromMap(data);
+    MODEL = Interpolator1DDataBundleFactory.fromMap(data);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNullModel() {
+  public void testNullDataBundle() {
     INTERPOLATOR.interpolate(null, 2.);
   }
 

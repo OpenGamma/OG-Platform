@@ -7,6 +7,7 @@ package com.opengamma.math.interpolation;
 
 import static com.opengamma.math.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
 
+import com.opengamma.math.linearalgebra.TridiagonalMatrix;
 import com.opengamma.math.linearalgebra.TridiagonalMatrixInvertor;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -14,15 +15,16 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 /**
  * 
  */
-public class Interpolator1DCubicSplineWthSensitivitiesModel extends Interpolator1DWithSecondDerivativeModel {
+public class Interpolator1DCubicSplineWithSensitivitiesDataBundle extends Interpolator1DCubicSplineDataBundle {
+  private final TridiagonalMatrixInvertor _invertor = new TridiagonalMatrixInvertor();
   private final DoubleMatrix1D _secondDerivatives;
-  private final DoubleMatrix2D _secondDevSensitivities;
+  private final DoubleMatrix2D _secondDerivativesSensitivities;
   private final double _leftFirstDev = 0;
   private final double _rightFirstDev = 0;
   private final boolean _leftNatural = true;
   private final boolean _rightNatural = true;
 
-  public Interpolator1DCubicSplineWthSensitivitiesModel(Interpolator1DWithSecondDerivativeModel underlyingData) {
+  public Interpolator1DCubicSplineWithSensitivitiesDataBundle(Interpolator1DCubicSplineDataBundle underlyingData) {
     super(underlyingData);
     final double[] x = underlyingData.getKeys();
     final double[] y = underlyingData.getValues();
@@ -37,14 +39,14 @@ public class Interpolator1DCubicSplineWthSensitivitiesModel extends Interpolator
       deltaYOverDeltaX[i] = (y[i + 1] - y[i]) * oneOverDeltaX[i];
     }
 
-    DoubleMatrix2D inverseTriDiag = getInverseTriDiag(deltaX);
+    DoubleMatrix2D inverseTriDiag = getInverseTridiagonalMatrix(deltaX);
     DoubleMatrix2D rhsMatrix = getRHSMatrix(oneOverDeltaX);
     DoubleMatrix1D rhsVector = getRHSVector(deltaYOverDeltaX);
-    _secondDevSensitivities = (DoubleMatrix2D) OG_ALGEBRA.multiply(inverseTriDiag, rhsMatrix);
+    _secondDerivativesSensitivities = (DoubleMatrix2D) OG_ALGEBRA.multiply(inverseTriDiag, rhsMatrix);
     _secondDerivatives = (DoubleMatrix1D) OG_ALGEBRA.multiply(inverseTriDiag, rhsVector);
   }
 
-  private DoubleMatrix2D getInverseTriDiag(double[] deltaX) {
+  private DoubleMatrix2D getInverseTridiagonalMatrix(double[] deltaX) {
 
     final int n = deltaX.length + 1;
 
@@ -75,7 +77,7 @@ public class Interpolator1DCubicSplineWthSensitivitiesModel extends Interpolator
       c[n - 2] = deltaX[n - 2] / 6.0;
     }
 
-    return TridiagonalMatrixInvertor.getInverse(a, b, c);
+    return _invertor.evaluate(new TridiagonalMatrix(a, b, c));
   }
 
   private DoubleMatrix2D getRHSMatrix(double[] oneOverDeltaX) {
@@ -121,7 +123,7 @@ public class Interpolator1DCubicSplineWthSensitivitiesModel extends Interpolator
     return _secondDerivatives.getData();
   }
 
-  public DoubleMatrix2D getSecondDerivativiesSensitivities() {
-    return _secondDevSensitivities;
+  public DoubleMatrix2D getSecondDerivativesSensitivities() {
+    return _secondDerivativesSensitivities;
   }
 }

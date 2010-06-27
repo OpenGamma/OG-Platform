@@ -11,11 +11,11 @@ import com.opengamma.util.CompareUtils;
 
 /**
  * A base class for interpolation in one dimension.
- * @param <T> Type of Interpolator1DModel
+ * @param <T> Type of Interpolator1DDataBundle
  * @param <U> Type of InterpolationResult
  */
 
-public abstract class Interpolator1D<T extends Interpolator1DModel, U extends InterpolationResult> implements Interpolator<T, Double, U>, Serializable {
+public abstract class Interpolator1D<T extends Interpolator1DDataBundle, U extends InterpolationResult> implements Interpolator<T, Double, U>, Serializable {
   /**
    * Default accuracy
    */

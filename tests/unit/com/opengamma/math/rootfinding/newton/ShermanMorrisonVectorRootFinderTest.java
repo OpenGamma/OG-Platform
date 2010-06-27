@@ -16,8 +16,8 @@ public class ShermanMorrisonVectorRootFinderTest extends VectorRootFinderTest {
   private static final NewtonVectorRootFinder DEFAULT = new ShermanMorrisonVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS);
   private static final NewtonVectorRootFinder SV = new ShermanMorrisonVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, new SVDecompositionCommons());
   private static final NewtonVectorRootFinder DEFAULT_JACOBIAN_2D = new ShermanMorrisonVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, JACOBIAN2D_CALCULATOR);
-  private static final NewtonVectorRootFinder SV_JACOBIAN_2D =
-      new ShermanMorrisonVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, JACOBIAN2D_CALCULATOR, new SVDecompositionCommons());
+  //private static final NewtonVectorRootFinder SV_JACOBIAN_2D =
+  //     new ShermanMorrisonVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, JACOBIAN2D_CALCULATOR, new SVDecompositionCommons());
   private static final NewtonVectorRootFinder DEFAULT_JACOBIAN_3D = new ShermanMorrisonVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, JACOBIAN3D_CALCULATOR);
   private static final NewtonVectorRootFinder SV_JACOBIAN_3D =
       new ShermanMorrisonVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, JACOBIAN3D_CALCULATOR, new SVDecompositionCommons());

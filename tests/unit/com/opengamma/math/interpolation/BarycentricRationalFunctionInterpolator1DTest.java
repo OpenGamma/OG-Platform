@@ -24,24 +24,24 @@ import com.opengamma.math.function.PolynomialFunction1D;
  */
 public class BarycentricRationalFunctionInterpolator1DTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  private static final Function1D<Double, Double> F = new PolynomialFunction1D(new double[] {RANDOM.nextDouble(), RANDOM.nextDouble(), RANDOM.nextDouble(), RANDOM.nextDouble(),
-      RANDOM.nextDouble()});
-  private static final Interpolator1D<Interpolator1DModel, InterpolationResult> INTERPOLATOR = new BarycentricRationalFunctionInterpolator1D(5);
+  private static final Function1D<Double, Double> F =
+      new PolynomialFunction1D(new double[] {RANDOM.nextDouble(), RANDOM.nextDouble(), RANDOM.nextDouble(), RANDOM.nextDouble(), RANDOM.nextDouble()});
+  private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> INTERPOLATOR = new BarycentricRationalFunctionInterpolator1D(5);
   private static final double EPS = 1;
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNullModel() {
+  public void testNullDataBundle() {
     INTERPOLATOR.interpolate(null, 2.);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullValue() {
-    INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromMap(Collections.<Double, Double>emptyMap()), null);
+    INTERPOLATOR.interpolate(Interpolator1DDataBundleFactory.fromMap(Collections.<Double, Double>emptyMap()), null);
   }
 
   @Test(expected = InterpolationException.class)
   public void testInsufficentData() {
-    INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromArrays(new double[] {1, 2}, new double[] {3, 4}), 1.5);
+    INTERPOLATOR.interpolate(Interpolator1DDataBundleFactory.fromArrays(new double[] {1, 2}, new double[] {3, 4}), 1.5);
   }
 
   @Test
@@ -53,7 +53,7 @@ public class BarycentricRationalFunctionInterpolator1DTest {
       data.put(x, F.evaluate(x));
     }
     x = 0.9;
-    assertEquals(F.evaluate(x), INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromMap(data), x).getResult(), EPS);
+    assertEquals(F.evaluate(x), INTERPOLATOR.interpolate(Interpolator1DDataBundleFactory.fromMap(data), x).getResult(), EPS);
   }
 
 }

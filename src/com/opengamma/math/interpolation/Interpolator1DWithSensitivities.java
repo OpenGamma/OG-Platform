@@ -6,9 +6,9 @@
 package com.opengamma.math.interpolation;
 
 /**
- * @param <T> Type of the Interpolator1DModel
+ * @param <T> Type of the Interpolator1DDataBundle
  */
-public abstract class Interpolator1DWithSensitivities<T extends Interpolator1DModel> extends Interpolator1D<T, InterpolationResultWithSensitivities> {
+public abstract class Interpolator1DWithSensitivities<T extends Interpolator1DDataBundle> extends Interpolator1D<T, InterpolationResultWithSensitivities> {
   private final Interpolator1D<T, InterpolationResult> _interpolator;
 
   public Interpolator1DWithSensitivities(final Interpolator1D<T, InterpolationResult> interpolator) {
@@ -16,7 +16,7 @@ public abstract class Interpolator1DWithSensitivities<T extends Interpolator1DMo
   }
 
   @Override
-  public abstract InterpolationResultWithSensitivities interpolate(T model, Double value);
+  public abstract InterpolationResultWithSensitivities interpolate(T data, Double value);
 
   protected Interpolator1D<T, InterpolationResult> getUnderlyingInterpolator() {
     return _interpolator;

@@ -18,8 +18,8 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 public class LogLinearInterpolator1DTest {
-  private static final Interpolator1D<Interpolator1DModel, InterpolationResult> LINEAR = new LinearInterpolator1D();
-  private static final Interpolator1D<Interpolator1DModel, InterpolationResult> INTERPOLATOR = new LogLinearInterpolator1D();
+  private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> LINEAR = new LinearInterpolator1D();
+  private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> INTERPOLATOR = new LogLinearInterpolator1D();
   private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
 
     @Override
@@ -27,8 +27,8 @@ public class LogLinearInterpolator1DTest {
       return 2 * x - 7;
     }
   };
-  private static final Interpolator1DModel MODEL;
-  private static final Interpolator1DModel TRANSFORMED_MODEL;
+  private static final Interpolator1DDataBundle MODEL;
+  private static final Interpolator1DDataBundle TRANSFORMED_MODEL;
   private static final double EPS = 1e-9;
 
   static {
@@ -40,12 +40,12 @@ public class LogLinearInterpolator1DTest {
       data.put(x, FUNCTION.evaluate(x));
       transformedData.put(x, Math.log(FUNCTION.evaluate(x)));
     }
-    MODEL = Interpolator1DModelFactory.fromMap(data);
-    TRANSFORMED_MODEL = Interpolator1DModelFactory.fromMap(transformedData);
+    MODEL = Interpolator1DDataBundleFactory.fromMap(data);
+    TRANSFORMED_MODEL = Interpolator1DDataBundleFactory.fromMap(transformedData);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNullModel() {
+  public void testNullDataBundle() {
     INTERPOLATOR.interpolate(null, 3.4);
   }
 

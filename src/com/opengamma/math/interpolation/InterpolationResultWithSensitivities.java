@@ -11,6 +11,7 @@ import java.util.Arrays;
  * 
  */
 public class InterpolationResultWithSensitivities extends InterpolationResult {
+  // REVIEW elaine 27-06-10 relies on ordering of inputs into interpolation
   private final double[] _sensitivities;
 
   public InterpolationResultWithSensitivities(final double result, final double[] sensitivities) {

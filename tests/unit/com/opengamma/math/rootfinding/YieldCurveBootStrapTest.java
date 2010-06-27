@@ -28,9 +28,9 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CubicSplineInterpolatorWithSensitivities1D;
 import com.opengamma.math.interpolation.InterpolationResult;
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.Interpolator1DCubicSplineWthSensitivitiesModel;
-import com.opengamma.math.interpolation.Interpolator1DModel;
-import com.opengamma.math.interpolation.Interpolator1DWithSecondDerivativeModel;
+import com.opengamma.math.interpolation.Interpolator1DCubicSplineDataBundle;
+import com.opengamma.math.interpolation.Interpolator1DCubicSplineWithSensitivitiesDataBundle;
+import com.opengamma.math.interpolation.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.Interpolator1DWithSensitivities;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
@@ -53,9 +53,10 @@ public class YieldCurveBootStrapTest {
   private static final int HOTSPOT_WARMUP_CYCLES = 0;
   private static final int BENCHMARK_CYCLES = 1;
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  protected static final Interpolator1D<? extends Interpolator1DWithSecondDerivativeModel, InterpolationResult> CUBIC = new NaturalCubicSplineInterpolator1D();
-  protected static final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWthSensitivitiesModel> CUBIC_WITH_SENSE = new CubicSplineInterpolatorWithSensitivities1D();
-  protected static final Interpolator1D<Interpolator1DModel, InterpolationResult> LINEAR = new LinearInterpolator1D();
+  protected static final Interpolator1D<? extends Interpolator1DCubicSplineDataBundle, InterpolationResult> CUBIC = new NaturalCubicSplineInterpolator1D();
+  protected static final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> CUBIC_WITH_SENSITIVITY =
+      new CubicSplineInterpolatorWithSensitivities1D();
+  protected static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> LINEAR = new LinearInterpolator1D();
   protected static List<InterestRateDerivative> SWAPS;
   protected static double[] SWAP_VALUES;
   protected static final double[] TIME_GRID;
@@ -177,7 +178,7 @@ public class YieldCurveBootStrapTest {
   /*  private void doTestWithJacobian(final NewtonRootFinderImpl rootFinder) {
 
       final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = new SingleCurveFinder(SWAPS, SWAP_VALUES, SPOT_RATE, TIME_GRID, CUBIC);
-      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac = new SingleCurveJacobian(SWAPS, SPOT_RATE, TIME_GRID, CUBIC_WITH_SENSE);
+      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac = new SingleCurveJacobian(SWAPS, SPOT_RATE, TIME_GRID, CUBIC_WITH_SENSITIVITY);
       final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(func, jac, X0);
       final YieldAndDiscountCurve curve = makeYieldCurve(yieldCurveNodes.getData(), TIME_GRID, CUBIC);
 
@@ -218,7 +219,7 @@ public class YieldCurveBootStrapTest {
       // double[] timeGrid = new double[] { 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5,
       // 4.0, 4.5, 5.0, 10, 20, 31 };
       final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = new SingleCurveFinder(SWAPS, SWAP_VALUES, SPOT_RATE, TIME_GRID, CUBIC);
-      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianExact = new SingleCurveJacobian(SWAPS, SPOT_RATE, TIME_GRID, CUBIC_WITH_SENSE);
+      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianExact = new SingleCurveJacobian(SWAPS, SPOT_RATE, TIME_GRID, CUBIC_WITH_SENSITIVITY);
       final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFD = new JacobianCalculator(func);
       final DoubleMatrix2D jacExact = jacobianExact.evaluate(X0);
       final DoubleMatrix2D jacFD = jacobianFD.evaluate(X0);
@@ -232,7 +233,7 @@ public class YieldCurveBootStrapTest {
       final double[] fundTimes = new double[] {1.0, 2.0, 5.0, 10.0, 20.0, 31.0};
 
       final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = new DoubleCurveFinder(SWAPS, SWAP_VALUES, SPOT_RATE, fwdTimes, fundTimes, null, null, CUBIC, CUBIC);
-      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianExact = new DoubleCurveJacobian(SWAPS, SPOT_RATE, fwdTimes, fundTimes, CUBIC_WITH_SENSE, CUBIC_WITH_SENSE);
+      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianExact = new DoubleCurveJacobian(SWAPS, SPOT_RATE, fwdTimes, fundTimes, CUBIC_WITH_SENSITIVITY, CUBIC_WITH_SENSITIVITY);
       final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFD = new JacobianCalculator(func);
       final DoubleMatrix2D jacExact = jacobianExact.evaluate(X0);
       final DoubleMatrix2D jacFD = jacobianFD.evaluate(X0);
@@ -288,7 +289,7 @@ public class YieldCurveBootStrapTest {
     }*/
 
   private static YieldAndDiscountCurve makeYieldCurve(final double[] yields, final double[] times,
-      final Interpolator1D<? extends Interpolator1DWithSecondDerivativeModel, InterpolationResult> interpolator) {
+      final Interpolator1D<? extends Interpolator1DCubicSplineDataBundle, InterpolationResult> interpolator) {
     final int n = yields.length;
     if (n != times.length) {
       throw new IllegalArgumentException("rates and times different lengths");
@@ -317,11 +318,11 @@ public class YieldCurveBootStrapTest {
     protected double[] _marketRates;
     protected double _spotRate;
     protected final double[] _timeGrid;
-    protected final Interpolator1D<? extends Interpolator1DModel, InterpolationResult> _interpolator;
+    protected final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> _interpolator;
     int n;
 
     public SingleCurveFinder(final List<InterestRateDerivative> irds, final double[] marketRates, final double spotRate, final double[] timeGrid,
-        final Interpolator1D<? extends Interpolator1DModel, InterpolationResult> interpolator) {
+        final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> interpolator) {
 
       _irds = irds;
       _marketRates = marketRates;
@@ -353,11 +354,11 @@ public class YieldCurveBootStrapTest {
     protected List<InterestRateDerivative> _irds;
     protected double _spotRate;
     protected final double[] _timeGrid;
-    protected final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWthSensitivitiesModel> _interpolator;
+    protected final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> _interpolator;
     int _nRows, _nCols;
 
     public SingleCurveJacobian(final List<InterestRateDerivative> irds, final double spotRate, final double[] timeGrid,
-        final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWthSensitivitiesModel> interpolator) {
+        final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> interpolator) {
 
       _irds = irds;
       _spotRate = spotRate;
@@ -374,30 +375,31 @@ public class YieldCurveBootStrapTest {
         data.put(_timeGrid[i], x.getEntry(i));
       }
       final InterpolatedYieldAndDiscountCurve curve = new InterpolatedYieldCurve(data, _interpolator);
-      final Interpolator1DCubicSplineWthSensitivitiesModel model = (Interpolator1DCubicSplineWthSensitivitiesModel) curve.getModels().values().iterator().next();
+      final Interpolator1DCubicSplineWithSensitivitiesDataBundle model =
+          (Interpolator1DCubicSplineWithSensitivitiesDataBundle) curve.getDataBundles().values().iterator().next();
 
       final double[][] res = new double[_nRows][_nCols];
       for (int i = 0; i < _nRows; i++) {
         final ToySwap swap = (ToySwap) _irds.get(i);
-        final List<Pair<Double, Double>> fwdSense = swap.getForwardCurveSensitivities(curve, curve);
-        final List<Pair<Double, Double>> fundSense = swap.getFundingCurveSensitivities(curve, curve);
-        final int n = fwdSense.size() + fundSense.size();
-        final double[][] sense = new double[n][];
+        final List<Pair<Double, Double>> fwdSensitivity = swap.getForwardCurveSensitivities(curve, curve);
+        final List<Pair<Double, Double>> fundSensitivity = swap.getFundingCurveSensitivities(curve, curve);
+        final int n = fwdSensitivity.size() + fundSensitivity.size();
+        final double[][] sensitivity = new double[n][];
         int k = 0;
-        for (final Pair<Double, Double> timeAndDF : fwdSense) {
-          sense[k++] = _interpolator.interpolate(model, timeAndDF.getFirst()).getSensitivities();
+        for (final Pair<Double, Double> timeAndDF : fwdSensitivity) {
+          sensitivity[k++] = _interpolator.interpolate(model, timeAndDF.getFirst()).getSensitivities();
         }
-        for (final Pair<Double, Double> timeAndDF : fundSense) {
-          sense[k++] = _interpolator.interpolate(model, timeAndDF.getFirst()).getSensitivities();
+        for (final Pair<Double, Double> timeAndDF : fundSensitivity) {
+          sensitivity[k++] = _interpolator.interpolate(model, timeAndDF.getFirst()).getSensitivities();
         }
         for (int j = 0; j < _nCols; j++) {
           double temp = 0.0;
           k = 0;
-          for (final Pair<Double, Double> timeAndDF : fwdSense) {
-            temp += timeAndDF.getSecond() * sense[k++][j + 1];
+          for (final Pair<Double, Double> timeAndDF : fwdSensitivity) {
+            temp += timeAndDF.getSecond() * sensitivity[k++][j + 1];
           }
-          for (final Pair<Double, Double> timeAndDF : fundSense) {
-            temp += timeAndDF.getSecond() * sense[k++][j + 1];
+          for (final Pair<Double, Double> timeAndDF : fundSensitivity) {
+            temp += timeAndDF.getSecond() * sensitivity[k++][j + 1];
           }
           res[i][j] = temp;
         }
@@ -414,13 +416,13 @@ public class YieldCurveBootStrapTest {
     protected double _spotRate;
     protected final double[] _fwdTimeGrid;
     protected final double[] _fundTimeGrid;
-    protected final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWthSensitivitiesModel> _fwdInterpolator;
-    protected final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWthSensitivitiesModel> _fundInterpolator;
+    protected final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> _fwdInterpolator;
+    protected final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> _fundInterpolator;
     int nSwaps, _nFwdNodes, _nFundNodes;
 
     public DoubleCurveJacobian(final List<InterestRateDerivative> irds, final double spotRate, final double[] forwardTimeGrid, final double[] fundingTimeGrid,
-        final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWthSensitivitiesModel> fwdInterpolator,
-        final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWthSensitivitiesModel> fundingInterpolator) {
+        final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> fwdInterpolator,
+        final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> fundingInterpolator) {
 
       _irds = irds;
       _spotRate = spotRate;
@@ -455,40 +457,42 @@ public class YieldCurveBootStrapTest {
       }
       final InterpolatedYieldAndDiscountCurve fundCurve = new InterpolatedYieldCurve(fundData, _fundInterpolator);
 
-      final Interpolator1DCubicSplineWthSensitivitiesModel fwdModel = (Interpolator1DCubicSplineWthSensitivitiesModel) fwdCurve.getModels().values().iterator().next();
-      final Interpolator1DCubicSplineWthSensitivitiesModel fundModel = (Interpolator1DCubicSplineWthSensitivitiesModel) fundCurve.getModels().values().iterator().next();
+      final Interpolator1DCubicSplineWithSensitivitiesDataBundle fwdModel =
+          (Interpolator1DCubicSplineWithSensitivitiesDataBundle) fwdCurve.getDataBundles().values().iterator().next();
+      final Interpolator1DCubicSplineWithSensitivitiesDataBundle fundModel =
+          (Interpolator1DCubicSplineWithSensitivitiesDataBundle) fundCurve.getDataBundles().values().iterator().next();
 
       final int n = _nFundNodes + _nFwdNodes;
       final double[][] res = new double[n][n];
       for (int i = 0; i < n; i++) {
         final ToySwap swap = (ToySwap) _irds.get(i);
-        final List<Pair<Double, Double>> fwdSense = swap.getForwardCurveSensitivities(fwdCurve, fundCurve);
-        final List<Pair<Double, Double>> fundSense = swap.getFundingCurveSensitivities(fwdCurve, fundCurve);
+        final List<Pair<Double, Double>> fwdSensitivity = swap.getForwardCurveSensitivities(fwdCurve, fundCurve);
+        final List<Pair<Double, Double>> fundSensitivity = swap.getFundingCurveSensitivities(fwdCurve, fundCurve);
 
-        double[][] sense = new double[fwdSense.size()][];
+        double[][] sensitivity = new double[fwdSensitivity.size()][];
         int k = 0;
-        for (final Pair<Double, Double> timeAndDF : fwdSense) {
-          sense[k++] = _fwdInterpolator.interpolate(fwdModel, timeAndDF.getFirst()).getSensitivities();
+        for (final Pair<Double, Double> timeAndDF : fwdSensitivity) {
+          sensitivity[k++] = _fwdInterpolator.interpolate(fwdModel, timeAndDF.getFirst()).getSensitivities();
         }
         for (int j = 0; j < _nFwdNodes; j++) {
           double temp = 0.0;
           k = 0;
-          for (final Pair<Double, Double> timeAndDF : fwdSense) {
-            temp += timeAndDF.getSecond() * sense[k++][j + 1];
+          for (final Pair<Double, Double> timeAndDF : fwdSensitivity) {
+            temp += timeAndDF.getSecond() * sensitivity[k++][j + 1];
           }
           res[i][j] = temp;
         }
 
-        sense = new double[fundSense.size()][];
+        sensitivity = new double[fundSensitivity.size()][];
         k = 0;
-        for (final Pair<Double, Double> timeAndDF : fundSense) {
-          sense[k++] = _fundInterpolator.interpolate(fundModel, timeAndDF.getFirst()).getSensitivities();
+        for (final Pair<Double, Double> timeAndDF : fundSensitivity) {
+          sensitivity[k++] = _fundInterpolator.interpolate(fundModel, timeAndDF.getFirst()).getSensitivities();
         }
         for (int j = 0; j < _nFundNodes; j++) {
           double temp = 0.0;
           k = 0;
-          for (final Pair<Double, Double> timeAndDF : fundSense) {
-            temp += timeAndDF.getSecond() * sense[k++][j + 1];
+          for (final Pair<Double, Double> timeAndDF : fundSensitivity) {
+            temp += timeAndDF.getSecond() * sensitivity[k++][j + 1];
           }
           res[i][j + _nFwdNodes] = temp;
         }
@@ -509,8 +513,8 @@ public class YieldCurveBootStrapTest {
     protected YieldAndDiscountCurve _fwdCurve;
     protected YieldAndDiscountCurve _fundCurve;
 
-    protected final Interpolator1D<? extends Interpolator1DModel, InterpolationResult> _forwardInterpolator;
-    protected final Interpolator1D<? extends Interpolator1DModel, InterpolationResult> _fundingInterpolator;
+    protected final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> _forwardInterpolator;
+    protected final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> _fundingInterpolator;
     int nSwaps, nFwdNodes, nFundNodes;
 
     /**
@@ -525,9 +529,10 @@ public class YieldCurveBootStrapTest {
      * @param forwardInterpolator
      * @param fundingInterpolator
      */
-    public DoubleCurveFinder(final List<InterestRateDerivative> swaps, final double[] swapValues, final double spotRate, final double[] forwardTimeGrid, final double[] fundingTimeGrid,
-        final YieldAndDiscountCurve forwardCurve, final YieldAndDiscountCurve fundCurve, final Interpolator1D<? extends Interpolator1DModel, InterpolationResult> forwardInterpolator,
-        final Interpolator1D<? extends Interpolator1DModel, InterpolationResult> fundingInterpolator) {
+    public DoubleCurveFinder(final List<InterestRateDerivative> swaps, final double[] swapValues, final double spotRate, final double[] forwardTimeGrid,
+        final double[] fundingTimeGrid, final YieldAndDiscountCurve forwardCurve, final YieldAndDiscountCurve fundCurve,
+        final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> forwardInterpolator,
+        final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> fundingInterpolator) {
       _swaps = swaps;
       _swapValues = swapValues;
       _spotRate = spotRate;
@@ -746,11 +751,15 @@ public class YieldCurveBootStrapTest {
       Pair<Double, Double> temp;
 
       for (int i = 0; i < _nFix; i++) {
-        temp = new DoublesPair(_fixedPaymentTimes[i], -_fixedPaymentTimes[i] * fundingCurve.getDiscountFactor(_fixedPaymentTimes[i]) * _fixedYearFractions[i] * floatOverAnnSq);
+        temp =
+            new DoublesPair(_fixedPaymentTimes[i], -_fixedPaymentTimes[i] * fundingCurve.getDiscountFactor(_fixedPaymentTimes[i]) * _fixedYearFractions[i]
+                * floatOverAnnSq);
         results.add(temp);
       }
       for (int i = 0; i < _nFloat; i++) {
-        temp = new DoublesPair(_floatPaymentTimes[i], -_floatPaymentTimes[i] * fundingCurve.getDiscountFactor(_floatPaymentTimes[i]) * libors[i] * _floatYearFractions[i] / annuity);
+        temp =
+            new DoublesPair(_floatPaymentTimes[i], -_floatPaymentTimes[i] * fundingCurve.getDiscountFactor(_floatPaymentTimes[i]) * libors[i]
+                * _floatYearFractions[i] / annuity);
         results.add(temp);
       }
       return results;
