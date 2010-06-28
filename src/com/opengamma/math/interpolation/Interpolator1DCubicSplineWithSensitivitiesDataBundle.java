@@ -47,19 +47,15 @@ public class Interpolator1DCubicSplineWithSensitivitiesDataBundle extends Interp
   }
 
   private DoubleMatrix2D getInverseTridiagonalMatrix(double[] deltaX) {
-
     final int n = deltaX.length + 1;
-
     double[] a = new double[n];
     double[] b = new double[n - 1];
     double[] c = new double[n - 1];
-
     for (int i = 1; i < n - 1; i++) {
       a[i] = (deltaX[i - 1] + deltaX[i]) / 3.0;
       b[i] = deltaX[i] / 6.0;
       c[i - 1] = deltaX[i - 1] / 6.0;
     }
-
     //Boundary condition
     if (_leftNatural) {
       a[0] = 1.0;
@@ -68,7 +64,6 @@ public class Interpolator1DCubicSplineWithSensitivitiesDataBundle extends Interp
       a[0] = -deltaX[0] / 3.0;
       b[0] = deltaX[0] / 6.0;
     }
-
     if (_rightNatural) {
       a[n - 1] = 1.0;
       c[n - 2] = 0.0;
@@ -76,8 +71,8 @@ public class Interpolator1DCubicSplineWithSensitivitiesDataBundle extends Interp
       a[n - 1] = deltaX[n - 2] / 3.0;
       c[n - 2] = deltaX[n - 2] / 6.0;
     }
-
-    return _invertor.evaluate(new TridiagonalMatrix(a, b, c));
+    TridiagonalMatrix tridiagonal = new TridiagonalMatrix(a, b, c);
+    return _invertor.evaluate(tridiagonal);
   }
 
   private DoubleMatrix2D getRHSMatrix(double[] oneOverDeltaX) {

@@ -20,13 +20,12 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 public class CubicSplineWithSensitivitiesInterpolator1DTest {
-
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> INTERPOLATOR1 = new NaturalCubicSplineInterpolator1D();
   private static final Interpolator1D<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> INTERPOLATOR2 =
       new CubicSplineInterpolatorWithSensitivities1D();
-  private static final Interpolator1DCubicSplineDataBundle MODEL1;
-  private static final Interpolator1DCubicSplineWithSensitivitiesDataBundle MODEL2;
+  private static final Interpolator1DCubicSplineDataBundle DATA1;
+  private static final Interpolator1DCubicSplineWithSensitivitiesDataBundle DATA2;
   private static final double EPS = 1e-8;
   private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
 
@@ -49,8 +48,8 @@ public class CubicSplineWithSensitivitiesInterpolator1DTest {
     for (int i = 0; i < n; i++) {
       r[i] = FUNCTION.evaluate(t[i]);
     }
-    MODEL1 = (Interpolator1DCubicSplineDataBundle) Interpolator1DDataBundleFactory.fromSortedArrays(t, r, INTERPOLATOR1);
-    MODEL2 = (Interpolator1DCubicSplineWithSensitivitiesDataBundle) Interpolator1DDataBundleFactory.fromSortedArrays(t, r, INTERPOLATOR2);
+    DATA1 = (Interpolator1DCubicSplineDataBundle) Interpolator1DDataBundleFactory.fromSortedArrays(t, r, INTERPOLATOR1);
+    DATA2 = (Interpolator1DCubicSplineWithSensitivitiesDataBundle) Interpolator1DDataBundleFactory.fromSortedArrays(t, r, INTERPOLATOR2);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -60,45 +59,45 @@ public class CubicSplineWithSensitivitiesInterpolator1DTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void nullInterpolateValue() {
-    INTERPOLATOR2.interpolate(MODEL2, null);
+    INTERPOLATOR2.interpolate(DATA2, null);
   }
 
   @Test(expected = InterpolationException.class)
   public void testHighValue() {
-    INTERPOLATOR2.interpolate(MODEL2, 31.);
+    INTERPOLATOR2.interpolate(DATA2, 31.);
   }
 
   @Test(expected = InterpolationException.class)
   public void testLowValue() {
-    INTERPOLATOR2.interpolate(MODEL2, -1.);
+    INTERPOLATOR2.interpolate(DATA2, -1.);
   }
 
   @Test
   public void test() {
-    double tmax = MODEL2.lastKey();
+    double tmax = DATA2.lastKey();
     for (int i = 0; i < 100; i++) {
       final double t = tmax * RANDOM.nextDouble();
-      assertEquals(FUNCTION.evaluate(t), INTERPOLATOR2.interpolate(MODEL2, t).getResult(), 1e-4);
+      assertEquals(FUNCTION.evaluate(t), INTERPOLATOR2.interpolate(DATA2, t).getResult(), 1e-4);
     }
   }
 
   @Test
   public void testAgainstNaturalCubicSplineInterpolator1D() {
-    double tmax = MODEL2.lastKey();
+    double tmax = DATA2.lastKey();
     for (int i = 0; i < 100; i++) {
       final double t = tmax * RANDOM.nextDouble();
-      assertEquals(INTERPOLATOR1.interpolate(MODEL1, t).getResult(), INTERPOLATOR2.interpolate(MODEL2, t).getResult(), EPS);
+      assertEquals(INTERPOLATOR1.interpolate(DATA1, t).getResult(), INTERPOLATOR2.interpolate(DATA2, t).getResult(), EPS);
     }
   }
 
   @Test
   public void testSensitivities() {
-    double tmax = MODEL2.lastKey();
+    double tmax = DATA2.lastKey();
     for (int i = 0; i < 100; i++) {
       final double t = tmax * RANDOM.nextDouble();
-      double[] sensitivity = INTERPOLATOR2.interpolate(MODEL2, t).getSensitivities();
+      double[] sensitivity = INTERPOLATOR2.interpolate(DATA2, t).getSensitivities();
       for (int j = 0; j < sensitivity.length; j++) {
-        assertEquals(getSensitivity(MODEL1, INTERPOLATOR1, t, j), sensitivity[j], EPS);
+        assertEquals(getSensitivity(DATA1, INTERPOLATOR1, t, j), sensitivity[j], EPS);
       }
     }
   }

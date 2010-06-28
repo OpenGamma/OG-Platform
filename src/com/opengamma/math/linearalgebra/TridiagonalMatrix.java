@@ -12,10 +12,11 @@ import org.apache.commons.lang.Validate;
 /**
  * 
  */
+//TODO extends DoubleMatrix2D
 public class TridiagonalMatrix {
-  private double[] _a;
-  private double[] _b;
-  private double[] _c;
+  private final double[] _a;
+  private final double[] _b;
+  private final double[] _c;
 
   public TridiagonalMatrix(double[] a, double[] b, double[] c) {
     Validate.notNull(a, "a");
@@ -28,6 +29,9 @@ public class TridiagonalMatrix {
     if (c.length != n - 1) {
       throw new IllegalArgumentException("Length of subdiagonal c is incorrect");
     }
+    _a = a;
+    _b = b;
+    _c = c;
   }
 
   public double[] getDiagonal() {

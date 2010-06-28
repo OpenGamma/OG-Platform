@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.linearalgebra;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -17,6 +19,7 @@ public class TridiagonalMatrixInvertor extends Function1D<TridiagonalMatrix, Dou
 
   @Override
   public DoubleMatrix2D evaluate(TridiagonalMatrix x) {
+    Validate.notNull(x);
     double[] a = x.getDiagonal();
     double[] b = x.getUpperSubDiagonal();
     double[] c = x.getLowerSubDiagonal();

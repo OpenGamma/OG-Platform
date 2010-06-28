@@ -23,7 +23,7 @@ public class RationalFunctionInterpolator1D extends Interpolator1D<Interpolator1
   @Override
   public InterpolationResult interpolate(final Interpolator1DDataBundle data, final Double value) {
     Validate.notNull(value, "value");
-    Validate.notNull(value, "data bundle");
+    Validate.notNull(data, "data bundle");
     checkValue(data, value);
     final int m = _degree + 1;
     if (data.size() < m) {

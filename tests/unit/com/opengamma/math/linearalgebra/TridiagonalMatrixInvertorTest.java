@@ -16,10 +16,11 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
  * 
  */
 public class TridiagonalMatrixInvertorTest {
-
-  private static final double[] A = new double[] { 1.0, 2.4, -0.4, -0.8, 1.5, 7.8, -5.0 };
-  private static final double[] B = new double[] { 1.56, 0.33, 0.42, -0.23, 0.276, 4.76 };
-  private static final double[] C = new double[] { 0.56, 0.63, -0.42, -0.23, 0.76, 1.76 };
+  private static final TridiagonalMatrixInvertor INVERTOR = new TridiagonalMatrixInvertor();
+  private static final double[] A = new double[] {1.0, 2.4, -0.4, -0.8, 1.5, 7.8, -5.0};
+  private static final double[] B = new double[] {1.56, 0.33, 0.42, -0.23, 0.276, 4.76};
+  private static final double[] C = new double[] {0.56, 0.63, -0.42, -0.23, 0.76, 1.76};
+  private static final TridiagonalMatrix MATRIX = new TridiagonalMatrix(A, B, C);
   private static final double EPS = 1e-15;
   DoubleMatrix2D tri;
 
@@ -42,12 +43,7 @@ public class TridiagonalMatrixInvertorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullArray() {
-    TridiagonalMatrixInvertor.getInverse(A, B, null);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testWrongLengths() {
-    TridiagonalMatrixInvertor.getInverse(A, B, new double[A.length]);
+    INVERTOR.evaluate((TridiagonalMatrix) null);
   }
 
   @Test
@@ -61,7 +57,7 @@ public class TridiagonalMatrixInvertorTest {
     for (i = 0; i < n; i++) {
       a[i] = 1.0;
     }
-    DoubleMatrix2D res = TridiagonalMatrixInvertor.getInverse(a, b, c);
+    DoubleMatrix2D res = INVERTOR.evaluate(new TridiagonalMatrix(a, b, c));
     for (i = 0; i < n; i++) {
       for (j = 0; j < i; j++) {
         assertEquals((i == j ? 1.0 : 0.0), res.getEntry(i, j), EPS);
@@ -72,7 +68,7 @@ public class TridiagonalMatrixInvertorTest {
 
   @Test
   public void TestInvert() {
-    DoubleMatrix2D res = TridiagonalMatrixInvertor.getInverse(A, B, C);
+    DoubleMatrix2D res = INVERTOR.evaluate(MATRIX);
     DoubleMatrix2D idet = (DoubleMatrix2D) OG_ALGEBRA.multiply(tri, res);
 
     int n = idet.getNumberOfRows();
