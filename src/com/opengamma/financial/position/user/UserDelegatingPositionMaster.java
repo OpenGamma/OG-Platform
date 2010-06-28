@@ -23,7 +23,7 @@ public class UserDelegatingPositionMaster extends DelegatingPositionMaster {
    */
   public UserDelegatingPositionMaster(UserPositionMaster userMaster, PositionMaster defaultMaster) {
     super(defaultMaster);
-    registerPositionMaster(UserUniqueIdentifierUtils.getUserScheme(), userMaster);
+    registerDelegate(UserUniqueIdentifierUtils.getUserScheme(), userMaster);
   }
   
 }
