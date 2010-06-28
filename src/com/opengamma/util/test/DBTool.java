@@ -326,6 +326,9 @@ public class DBTool extends Task {
   
   private File[] getScriptDirs() {
     final File file = new File(_basedir, DATABASE_FOLDER + File.separatorChar + _dialect.getDatabaseName());
+    if (!file.exists()) {
+      throw new OpenGammaRuntimeException("Directory " + file.getAbsolutePath() + " does not exist");
+    }
     final File[] scriptDirs = file.listFiles(new FileFilter() {
       @Override
       public boolean accept(File pathname) {

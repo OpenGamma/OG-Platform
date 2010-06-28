@@ -17,6 +17,8 @@ import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.ISOChronology;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
+import javax.time.calendar.OffsetDateTime;
+import javax.time.calendar.OffsetTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 import javax.time.calendar.format.DateTimeFormatter;
@@ -463,4 +465,15 @@ public class DateUtil {
     return new java.sql.Date(date.atStartOfDayInZone(TimeZone.UTC).toInstant().toEpochMillisLong());
   }
 
+  /**
+   * Creates a SQL time from an OffsetTime.
+   * @param time  the time to convert, not null
+   * @return the SQL time, not null
+   */
+  public static java.sql.Time toSqlTime(OffsetTime time) {
+    return new java.sql.Time(OffsetDateTime.of(
+        LocalDate.ofEpochDays(0), 
+        time, 
+        time.getOffset()).toInstant().toEpochMillisLong());
+  }
 }
