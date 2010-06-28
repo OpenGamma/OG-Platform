@@ -35,22 +35,12 @@ public class LiveDataField {
   
   @Override
   public int hashCode() {
-    return new HashCodeBuilder().append(_id).toHashCode();
+    return HashCodeBuilder.reflectionHashCode(this);
   }
 
   @Override
   public boolean equals(Object obj) {
-    if (obj == null) {
-      return false;
-    }
-    if (obj == this) {
-      return true;
-    }
-    if (obj.getClass() != getClass()) {
-      return false;
-    }
-    LiveDataField rhs = (LiveDataField) obj;
-    return new EqualsBuilder().append(_id, rhs._id).isEquals();
+    return EqualsBuilder.reflectionEquals(this, obj);
   }
   
   @Override

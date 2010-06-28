@@ -5,6 +5,9 @@
  */
 package com.opengamma.engine.batch;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 import javax.time.calendar.format.CalendricalParseException;
@@ -27,6 +30,7 @@ import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.engine.view.ViewCalculationConfiguration;
 
 /**
  * The entry point for running OpenGamma batches. 
@@ -181,7 +185,7 @@ public class BatchJob implements Job, ComputationResultListener {
     return _runReason;
   }
 
-  private void setRunReason(String runReason) {
+  public void setRunReason(String runReason) {
     _runReason = runReason;
   }
 
@@ -189,7 +193,7 @@ public class BatchJob implements Job, ComputationResultListener {
     return _observationTime;
   }
 
-  private void setObservationTime(String observationTime) {
+  public void setObservationTime(String observationTime) {
     _observationTime = observationTime;
   }
 
@@ -197,7 +201,7 @@ public class BatchJob implements Job, ComputationResultListener {
     return _observationDate;
   }
 
-  private void setObservationDate(String observationDate) {
+  public void setObservationDate(String observationDate) {
     if (observationDate == null) {
       _observationDate = null;
     } else { 
@@ -209,7 +213,7 @@ public class BatchJob implements Job, ComputationResultListener {
     return _valuationTime;
   }
 
-  private void setValuationTime(String valuationTime) {
+  public void setValuationTime(String valuationTime) {
     if (valuationTime == null) {
       _valuationTime = null;
     } else {
@@ -221,7 +225,7 @@ public class BatchJob implements Job, ComputationResultListener {
     return _viewName;
   }
 
-  private void setViewName(String viewName) {
+  public void setViewName(String viewName) {
     _viewName = viewName;
   }
 
@@ -229,7 +233,7 @@ public class BatchJob implements Job, ComputationResultListener {
     return _viewDateTime;
   }
 
-  private void setViewDateTime(String viewDateTime) {
+  public void setViewDateTime(String viewDateTime) {
     if (viewDateTime == null) {
       _viewDateTime = null;            
     } else {
@@ -241,7 +245,7 @@ public class BatchJob implements Job, ComputationResultListener {
     return _snapshotObservationDate;
   }
 
-  private void setSnapshotObservationDate(String snapshotObservationDate) {
+  public void setSnapshotObservationDate(String snapshotObservationDate) {
     if (snapshotObservationDate == null) {
       _snapshotObservationDate = null;
     } else {
@@ -253,7 +257,7 @@ public class BatchJob implements Job, ComputationResultListener {
     return _snapshotObservationTime;
   }
   
-  private void setSnapshotObservationTime(String snapshotObservationTime) {
+  public void setSnapshotObservationTime(String snapshotObservationTime) {
     _snapshotObservationTime = snapshotObservationTime;
   }
   
@@ -277,6 +281,13 @@ public class BatchJob implements Job, ComputationResultListener {
     return _view;
   }
   
+  public Collection<ViewCalculationConfiguration> getCalculationConfigurations() {
+    if (getView() == null) {
+      return Collections.emptySet(); // remove as soon as we get real test views here
+    }
+    return getView().getDefinition().getAllCalculationConfigurations();
+  }
+  
   public int getViewOid() {
     return 123; // TODO
   }
@@ -293,10 +304,16 @@ public class BatchJob implements Job, ComputationResultListener {
     _dbHandle = dbHandle;
   }
   
+  public BatchDbManager getBatchDbManager() {
+    return _batchDbManager;
+  }
+
+  public void setBatchDbManager(BatchDbManager batchDbManager) {
+    _batchDbManager = batchDbManager;
+  }
 
   // --------------------------------------------------------------------------
   
-
   @Override
   public void computationResultAvailable(ViewComputationResultModel resultModel) {
     _batchDbManager.write(this, resultModel);    
@@ -311,7 +328,7 @@ public class BatchJob implements Job, ComputationResultListener {
   // --------------------------------------------------------------------------
 
   
-  private void init() throws OpenGammaRuntimeException {
+  public void init() throws OpenGammaRuntimeException {
     ZonedDateTime now = ZonedDateTime.nowSystemClock();
     
     if (_runReason == null) {
@@ -346,8 +363,6 @@ public class BatchJob implements Job, ComputationResultListener {
     if (_snapshotObservationTime == null) {
       _snapshotObservationTime = _observationTime;
     }
-    
-    _batchDbManager = null; // TODO
   }
   
   public Options getOptions() {
@@ -394,8 +409,6 @@ public class BatchJob implements Job, ComputationResultListener {
     setSnapshotObservationTime(line.getOptionValue("snapshotobservationtime"));
     setSnapshotObservationDate(line.getOptionValue("snapshotobservationdate"));
     setForceNewRun(line.hasOption("forcenewrun"));
-    
-    init();
   }
   
   public void execute() {
@@ -413,12 +426,14 @@ public class BatchJob implements Job, ComputationResultListener {
     
     try {
       job.parse(args);
+      job.init();
+      job.execute();
     } catch (Exception e) {
       System.out.println(e.getMessage());
       usage(job.getOptions());
       System.exit(-1);
     }
-
+    
     System.exit(0);
   }
   

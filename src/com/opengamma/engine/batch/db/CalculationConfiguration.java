@@ -15,7 +15,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 public class CalculationConfiguration {
   
   private int _id;
-  private RiskRun _run;
+  private RiskRun _riskRun;
   private String _name;
   
   public int getId() {
@@ -26,14 +26,14 @@ public class CalculationConfiguration {
     _id = id;
   }
   
-  public RiskRun getRun() {
-    return _run;
+  public RiskRun getRiskRun() {
+    return _riskRun;
   }
-  
-  public void setRun(RiskRun run) {
-    _run = run;
+
+  public void setRiskRun(RiskRun riskRun) {
+    _riskRun = riskRun;
   }
-  
+
   public String getName() {
     return _name;
   }
@@ -44,22 +44,12 @@ public class CalculationConfiguration {
   
   @Override
   public int hashCode() {
-    return new HashCodeBuilder().append(_id).toHashCode();
+    return HashCodeBuilder.reflectionHashCode(this);
   }
 
   @Override
   public boolean equals(Object obj) {
-    if (obj == null) {
-      return false;
-    }
-    if (obj == this) {
-      return true;
-    }
-    if (obj.getClass() != getClass()) {
-      return false;
-    }
-    CalculationConfiguration rhs = (CalculationConfiguration) obj;
-    return new EqualsBuilder().append(_id, rhs._id).isEquals();
+    return EqualsBuilder.reflectionEquals(this, obj);
   }
   
   @Override
