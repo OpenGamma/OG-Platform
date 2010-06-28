@@ -151,7 +151,7 @@ public class RiskRun {
   public void addCalculationConfiguration(ViewCalculationConfiguration viewCalcConf) {
     CalculationConfiguration calcConf = new CalculationConfiguration();
     calcConf.setName(viewCalcConf.getName());
-    calcConf.setRun(this);
+    calcConf.setRiskRun(this);
     _calculationConfigurations.add(calcConf);
   }
   
@@ -159,22 +159,12 @@ public class RiskRun {
   
   @Override
   public int hashCode() {
-    return new HashCodeBuilder().append(_id).toHashCode();
+    return HashCodeBuilder.reflectionHashCode(this);
   }
 
   @Override
   public boolean equals(Object obj) {
-    if (obj == null) {
-      return false;
-    }
-    if (obj == this) {
-      return true;
-    }
-    if (obj.getClass() != getClass()) {
-      return false;
-    }
-    RiskRun rhs = (RiskRun) obj;
-    return new EqualsBuilder().append(_id, rhs._id).isEquals();
+    return EqualsBuilder.reflectionEquals(this, obj);
   }
   
   @Override

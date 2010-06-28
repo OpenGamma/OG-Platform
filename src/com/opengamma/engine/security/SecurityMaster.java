@@ -18,10 +18,10 @@ public interface SecurityMaster {
 
   /**
    * Finds a specific security by identifier.
-   * @param identifier  the identifier, null returns null
+   * @param uid  the unique identifier, null returns null
    * @return the security, null if not found
    */
-  Security getSecurity(UniqueIdentifier identifier);
+  Security getSecurity(UniqueIdentifier uid);
 
   /**
    * Finds all securities that match the specified bundle of keys.
