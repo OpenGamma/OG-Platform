@@ -83,7 +83,12 @@ public class PortfoliosResource {
     _fudgeDeserializationContext = new FudgeDeserializationContext(fudgeContext);
     _fudgeSerializationContext = new FudgeSerializationContext(fudgeContext);
   }
-  
+
+  /**
+   * Creates the resource.
+   * @param uriInfo  the URI information, not null
+   * @param posMaster  the position master, not null
+   */
   public PortfoliosResource(UriInfo uriInfo, final ManagablePositionMaster posMaster) {
     this(posMaster);
     ArgumentChecker.notNull(uriInfo, "uriInfo");
