@@ -25,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
 public final class UpdatePositionRequest {
 
   /**
-   * The portfolio node uid.
+   * The position uid.
    */
   private UniqueIdentifier _uid;
   /**
