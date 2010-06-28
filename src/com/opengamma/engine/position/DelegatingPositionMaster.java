@@ -7,10 +7,9 @@ package com.opengamma.engine.position;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
+import com.opengamma.id.DelegateByScheme;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -19,11 +18,8 @@ import com.opengamma.util.ArgumentChecker;
  * which underlying {@link PositionMaster} will handle the request. If no scheme-specific handler has been registered,
  * a default is used.
  */
-public class DelegatingPositionMaster implements PositionMaster {
+public class DelegatingPositionMaster extends DelegateByScheme<PositionMaster> implements PositionMaster {
 
-  private final PositionMaster _defaultMaster;
-  private final Map<String, PositionMaster> _schemeToDelegateMap = new ConcurrentHashMap<String, PositionMaster>();
-  
   /**
    * Constructs a new {@link DelegatingPositionMaster}.
    * 
@@ -31,43 +27,31 @@ public class DelegatingPositionMaster implements PositionMaster {
    *                       an incoming UniqueIdentifier.
    */
   public DelegatingPositionMaster(PositionMaster defaultMaster) {
-    ArgumentChecker.notNull(defaultMaster, "defaultMaster");
-    _defaultMaster = defaultMaster;
+    super(defaultMaster);
   }
-  
-  public void registerPositionMaster(String scheme, PositionMaster positionMaster) {
-    ArgumentChecker.notNull(scheme, "scheme");
-    ArgumentChecker.notNull(positionMaster, "positionMaster");
-    _schemeToDelegateMap.put(scheme, positionMaster);
-  }
-  
-  private PositionMaster choosePositionMaster(UniqueIdentifier uid) {
-    PositionMaster schemeMaster = _schemeToDelegateMap.get(uid.getScheme());
-    return schemeMaster != null ? schemeMaster : _defaultMaster;
-  }
-  
+
   @Override
   public Portfolio getPortfolio(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
-    return choosePositionMaster(uid).getPortfolio(uid);
+    return chooseDelegate(uid).getPortfolio(uid);
   }
 
   @Override
   public PortfolioNode getPortfolioNode(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
-    return choosePositionMaster(uid).getPortfolioNode(uid);
+    return chooseDelegate(uid).getPortfolioNode(uid);
   }
 
   @Override
   public Position getPosition(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
-    return choosePositionMaster(uid).getPosition(uid);
+    return chooseDelegate(uid).getPosition(uid);
   }
 
   @Override
   public Set<UniqueIdentifier> getPortfolioIds() {
-    Set<UniqueIdentifier> result = new HashSet<UniqueIdentifier>(_defaultMaster.getPortfolioIds());
-    for (PositionMaster delegateMaster : _schemeToDelegateMap.values()) {
+    Set<UniqueIdentifier> result = new HashSet<UniqueIdentifier>(getDefaultDelegate().getPortfolioIds());
+    for (PositionMaster delegateMaster : getDelegates()) {
       result.addAll(delegateMaster.getPortfolioIds());
     }
     return Collections.unmodifiableSet(result);
