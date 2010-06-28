@@ -10,6 +10,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.opengamma.id.Identifier;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -30,6 +31,17 @@ public class LiveDataValue {
    * For example, 55.02
    */
   private double _value;
+  
+  public LiveDataValue(Identifier identifier,
+      String fieldName,
+      double value) {
+    ArgumentChecker.notNull(identifier, "Identifier");
+    ArgumentChecker.notNull(fieldName, "Field name");
+    
+    _identifier = identifier;
+    _fieldName = fieldName;
+    _value = value;
+  }
 
   public Identifier getIdentifier() {
     return _identifier;

@@ -8,15 +8,20 @@ package com.opengamma.engine.batch.db;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Set;
 
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.OffsetTime;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -24,14 +29,18 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.batch.BatchJob;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.id.Identifier;
 import com.opengamma.util.time.DateUtil;
 
 /**
- * This implementation uses Hibernate to write all static data, including snapshots.
+ * This implementation uses Hibernate to write all static data, including LiveData snapshots.
  * <p>
  * Risk itself is written using direct JDBC, however.
  */
 public class BatchDbManagerImpl implements BatchDbManager {
+  
+  private static final Logger s_logger = LoggerFactory
+    .getLogger(BatchDbManagerImpl.class);
   
   private HibernateTemplate _hibernateTemplate;
 
@@ -41,7 +50,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
   
   // --------------------------------------------------------------------------
   
-  private OpenGammaVersion getOpenGammaVersion(final BatchJob job) {
+  /*package*/ OpenGammaVersion getOpenGammaVersion(final BatchJob job) {
     OpenGammaVersion version = (OpenGammaVersion) _hibernateTemplate.execute(new HibernateCallback() {
       @Override
       public Object doInHibernate(Session session) throws HibernateException,
@@ -62,46 +71,55 @@ public class BatchDbManagerImpl implements BatchDbManager {
   }
   
   
-  private ObservationTime getObservationTime(final BatchJob job) {
+  /*package*/ ObservationTime getObservationTime(final BatchJob job) {
+    return getObservationTime(job.getObservationTime());
+  }
+  
+  /*package*/ ObservationTime getObservationTime(final String label) {
     ObservationTime observationTime = (ObservationTime) _hibernateTemplate.execute(new HibernateCallback() {
       @Override
       public Object doInHibernate(Session session) throws HibernateException,
           SQLException {
         Query query = session.getNamedQuery("ObservationTime.one.byLabel");
-        query.setString("label", job.getObservationTime());
+        query.setString("label", label);
         return query.uniqueResult();
       }
     });
     if (observationTime == null) {
       observationTime = new ObservationTime();
-      observationTime.setLabel(job.getObservationTime());
+      observationTime.setLabel(label);
       _hibernateTemplate.save(observationTime);
     }
     return observationTime;
   }
  
   
-  private ObservationDateTime getObservationDateTime(final BatchJob job) {
+  /*package*/ ObservationDateTime getObservationDateTime(final BatchJob job) {
+    return getObservationDateTime(job.getObservationDate(), job.getObservationTime());     
+  }
+  
+  /*package*/ ObservationDateTime getObservationDateTime(final LocalDate observationDate, final String observationTime) {
     ObservationDateTime dateTime = (ObservationDateTime) _hibernateTemplate.execute(new HibernateCallback() {
       @Override
       public Object doInHibernate(Session session) throws HibernateException,
           SQLException {
         Query query = session.getNamedQuery("ObservationDateTime.one.byDateAndTime");
-        query.setDate("date", DateUtil.toSqlDate(job.getObservationDate()));
-        query.setString("time", job.getObservationTime());
+        query.setDate("date", DateUtil.toSqlDate(observationDate));
+        query.setString("time", observationTime);
         return query.uniqueResult();
       }
     });
     if (dateTime == null) {
       dateTime = new ObservationDateTime();
-      dateTime.setDate(DateUtil.toSqlDate(job.getObservationDate()));
-      dateTime.setObservationTime(getObservationTime(job));
+      dateTime.setDate(DateUtil.toSqlDate(observationDate));
+      dateTime.setObservationTime(getObservationTime(observationTime));
+      _hibernateTemplate.save(dateTime);
     }
-    return dateTime; 
+    return dateTime;
   }
  
   
-  private ComputeHost getLocalComputeHost() {
+  /*package*/ ComputeHost getLocalComputeHost() {
     String tempHostName;
     try {
       tempHostName = InetAddress.getLocalHost().getHostName();
@@ -126,37 +144,101 @@ public class BatchDbManagerImpl implements BatchDbManager {
     }
     return computeHost;
   }
- 
   
-  private LiveDataSnapshot getLiveDataSnapshot(final BatchJob job) {
+  /*package*/ ComputeNode getLocalComputeNode() {
+    final ComputeHost host = getLocalComputeHost();
+    
+    // todo
+    ComputeNode node = (ComputeNode) _hibernateTemplate.execute(new HibernateCallback() {
+      @Override
+      public Object doInHibernate(Session session) throws HibernateException,
+          SQLException {
+        Query query = session.getNamedQuery("ComputeNode.one.byHostName");
+        query.setString("hostName", host.getHostName());
+        return query.uniqueResult();
+      }
+    });
+    if (node == null) {
+      node = new ComputeNode();
+      node.setComputeHost(host);
+      node.setConfigOid(1);
+      node.setConfigVersion(1);
+      node.setNodeName(host.getHostName());
+      _hibernateTemplate.save(node);
+    }
+    return node;
+  }
+  
+  /*package*/ LiveDataSnapshot getLiveDataSnapshot(final BatchJob job) {
+
+    LiveDataSnapshot liveDataSnapshot = getLiveDataSnapshot(
+        job.getSnapshotObservationDate(),
+        job.getSnapshotObservationTime());
+    
+    if (liveDataSnapshot == null) {
+      throw new IllegalArgumentException("Snapshot for " 
+          + job.getSnapshotObservationDate() 
+          + "/" 
+          + job.getSnapshotObservationTime() 
+          + " cannot be found");
+    }
+    
+    return liveDataSnapshot;
+  }
+  
+  /*package*/ LiveDataSnapshot getLiveDataSnapshot(final LocalDate observationDate, final String observationTime) {
     LiveDataSnapshot liveDataSnapshot = (LiveDataSnapshot) _hibernateTemplate.execute(new HibernateCallback() {
       @Override
       public Object doInHibernate(Session session) throws HibernateException,
           SQLException {
         Query query = session.getNamedQuery("LiveDataSnapshot.one.byDateAndTime");
-        query.setDate("date", DateUtil.toSqlDate(job.getSnapshotObservationDate()));
-        query.setString("time", job.getSnapshotObservationTime());
+        query.setDate("date", DateUtil.toSqlDate(observationDate));
+        query.setString("time", observationTime);
         return query.uniqueResult();
       }
     });
-    
-    if (liveDataSnapshot == null) {
-      throw new OpenGammaRuntimeException("Snapshot for date " 
-          + job.getSnapshotObservationDate() 
-          + " and time " 
-          + job.getSnapshotObservationTime() 
-          + " cannot be found");
-    }
-    
-    if (!liveDataSnapshot.isComplete()) {
-      throw new OpenGammaRuntimeException(liveDataSnapshot + " is not yet complete.");
-    }
-    
     return liveDataSnapshot;
   }
- 
   
-  private RiskRun getRiskRunFromDb(final BatchJob job) {
+  /*package*/ LiveDataField getLiveDataField(final String fieldName) {
+    LiveDataField field = (LiveDataField) _hibernateTemplate.execute(new HibernateCallback() {
+      @Override
+      public Object doInHibernate(Session session) throws HibernateException,
+          SQLException {
+        Query query = session.getNamedQuery("LiveDataField.one.byName");
+        query.setString("name", fieldName);
+        return query.uniqueResult();
+      }
+    });
+    if (field == null) {
+      field = new LiveDataField();
+      field.setName(fieldName);
+      _hibernateTemplate.save(field);
+    }
+    return field;
+  }
+  
+  /*package*/ LiveDataIdentifier getLiveDataIdentifier(final Identifier identifier) {
+    LiveDataIdentifier liveDataIdentifier = (LiveDataIdentifier) _hibernateTemplate.execute(new HibernateCallback() {
+      @Override
+      public Object doInHibernate(Session session) throws HibernateException,
+          SQLException {
+        Query query = session.getNamedQuery("LiveDataIdentifier.one.bySchemeAndValue");
+        query.setString("scheme", identifier.getScheme().getName());
+        query.setString("value", identifier.getValue());
+        return query.uniqueResult();
+      }
+    });
+    if (liveDataIdentifier == null) {
+      liveDataIdentifier = new LiveDataIdentifier();
+      liveDataIdentifier.setScheme(identifier.getScheme().getName());      
+      liveDataIdentifier.setValue(identifier.getValue());
+      _hibernateTemplate.save(liveDataIdentifier);
+    }
+    return liveDataIdentifier;
+  }
+  
+  /*package*/ RiskRun getRiskRunFromDb(final BatchJob job) {
     RiskRun riskRun = null;
     
     if (job.isForceNewRun() == false) {
@@ -177,9 +259,14 @@ public class BatchDbManagerImpl implements BatchDbManager {
     return riskRun;
   }
   
-  private RiskRun createRiskRun(final BatchJob job) {
+  /*package*/ RiskRun createRiskRun(final BatchJob job) {
     Instant now = Instant.nowSystemClock();
-
+    
+    LiveDataSnapshot snapshot = getLiveDataSnapshot(job);
+    if (!snapshot.isComplete()) {
+      throw new IllegalStateException(snapshot + " is not yet complete.");
+    }
+    
     RiskRun riskRun = new RiskRun();
     riskRun.setOpenGammaVersion(getOpenGammaVersion(job));
     riskRun.setMasterProcessHost(getLocalComputeHost());
@@ -188,26 +275,29 @@ public class BatchDbManagerImpl implements BatchDbManager {
     riskRun.setValuationTime(DateUtil.toSqlTimestamp(job.getValuationTime()));
     riskRun.setViewOid(job.getViewOid());
     riskRun.setViewVersion(job.getViewVersion());
-    riskRun.setLiveDataSnapshot(getLiveDataSnapshot(job));
+    riskRun.setLiveDataSnapshot(snapshot);
     riskRun.setCreateInstant(DateUtil.toSqlTimestamp(now));
+    riskRun.setStartInstant(DateUtil.toSqlTimestamp(now));
+    riskRun.setComplete(false);
     
-    for (ViewCalculationConfiguration calcConf : job.getView().getDefinition().getAllCalculationConfigurations()) {
+    for (ViewCalculationConfiguration calcConf : job.getCalculationConfigurations()) {
       riskRun.addCalculationConfiguration(calcConf);
     }
     
+    _hibernateTemplate.save(riskRun);
     return riskRun;
   }
   
-  private void startRun(RiskRun riskRun) {
+  /*package*/ void restartRun(RiskRun riskRun) {
     Instant now = Instant.nowSystemClock();
     
     riskRun.setStartInstant(DateUtil.toSqlTimestamp(now));
     riskRun.setComplete(false);
     
-    _hibernateTemplate.saveOrUpdate(riskRun);
+    _hibernateTemplate.update(riskRun);
   }
   
-  private void endRun(RiskRun riskRun) {
+  /*package*/ void endRun(RiskRun riskRun) {
     Instant now = Instant.nowSystemClock();
     
     riskRun.setEndInstant(DateUtil.toSqlTimestamp(now));
@@ -216,7 +306,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
     _hibernateTemplate.update(riskRun);
   }
   
-  private RiskRun getRiskRunFromHandle(BatchJob job) {
+  /*package*/ RiskRun getRiskRunFromHandle(BatchJob job) {
     Object handle = job.getDbHandle();
     if (handle == null) {
       throw new IllegalStateException("Job db handle is null");
@@ -232,14 +322,50 @@ public class BatchDbManagerImpl implements BatchDbManager {
 
   @Override
   public void addValuesToSnapshot(LocalDate observationDate, String observationTime, Set<LiveDataValue> values) {
-        
+    LiveDataSnapshot snapshot = getLiveDataSnapshot(observationDate, observationTime);
+    if (snapshot == null) {
+      throw new IllegalArgumentException("Snapshot for " + observationTime + "/" + observationTime + " does not exist.");
+    }
+    if (snapshot.isComplete()) {
+      throw new IllegalStateException("Snapshot for " + observationTime + "/" + observationTime + " is already complete.");
+    }
     
+    Collection<LiveDataSnapshotEntry> changedEntries = new ArrayList<LiveDataSnapshotEntry>();
+    for (LiveDataValue value : values) {
+      LiveDataSnapshotEntry entry = snapshot.getEntry(value.getIdentifier(), value.getFieldName());
+      if (entry != null) {
+        if (entry.getValue() != value.getValue()) {
+          entry.setValue(value.getValue());
+          changedEntries.add(entry);
+        }
+      } else {
+        entry = new LiveDataSnapshotEntry();
+        entry.setSnapshot(snapshot);
+        entry.setIdentifier(getLiveDataIdentifier(value.getIdentifier()));
+        entry.setField(getLiveDataField(value.getFieldName()));
+        entry.setValue(value.getValue());
+        snapshot.addEntry(entry);
+        changedEntries.add(entry);
+      }
+    }
+    _hibernateTemplate.saveOrUpdateAll(changedEntries);
   }
 
   @Override
   public void createLiveDataSnapshot(LocalDate observationDate, String observationTime) {
+    LiveDataSnapshot snapshot = getLiveDataSnapshot(observationDate, observationTime);
+    if (snapshot != null) {
+      s_logger.info("Snapshot for " + observationTime + "/" + observationTime + " already exists. No need to create.");
+      return;
+    }
     
+    snapshot = new LiveDataSnapshot();
+    snapshot.setComplete(false);
     
+    ObservationDateTime snapshotTime = getObservationDateTime(observationDate, observationTime);
+    snapshot.setSnapshotTime(snapshotTime);
+    
+    _hibernateTemplate.save(snapshot);
   }
 
   @Override
@@ -249,15 +375,39 @@ public class BatchDbManagerImpl implements BatchDbManager {
   }
 
   @Override
-  public void fixLiveDataSnapshotTime(LocalDate observationDate, String observationTime, Instant fix) {
+  public void fixLiveDataSnapshotTime(LocalDate observationDate, String observationTime, OffsetTime fix) {
+    LiveDataSnapshot snapshot = getLiveDataSnapshot(observationDate, observationTime);
     
+    if (snapshot == null) {
+      throw new IllegalArgumentException("Snapshot for " 
+          + observationDate 
+          + "/" 
+          + observationTime 
+          + " cannot be found");
+    }
     
+    snapshot.getSnapshotTime().setTime(DateUtil.toSqlTime(fix));
+    _hibernateTemplate.save(snapshot);
   }
 
   @Override
   public void markLiveDataSnapshotComplete(LocalDate observationDate, String observationTime) {
+    LiveDataSnapshot snapshot = getLiveDataSnapshot(observationDate, observationTime);
     
+    if (snapshot == null) {
+      throw new IllegalArgumentException("Snapshot for " 
+          + observationDate 
+          + "/" 
+          + observationTime 
+          + " cannot be found");
+    }
     
+    if (snapshot.isComplete()) {
+      throw new IllegalStateException(snapshot + " is already complete.");
+    }
+    
+    snapshot.setComplete(true);
+    _hibernateTemplate.save(snapshot);
   }
 
   @Override
@@ -265,8 +415,9 @@ public class BatchDbManagerImpl implements BatchDbManager {
     RiskRun run = getRiskRunFromDb(batch);
     if (run == null) {
       run = createRiskRun(batch);
+    } else {
+      restartRun(run);
     }
-    startRun(run);
     batch.setDbHandle(run);
   }
 
@@ -275,6 +426,24 @@ public class BatchDbManagerImpl implements BatchDbManager {
     
     
     
+  }
+  
+  public static Class<?>[] getHibernateMappingClasses() {
+    return new Class[] {
+      CalculationConfiguration.class,
+      ComputeHost.class,
+      ComputeNode.class,
+      LiveDataField.class,
+      LiveDataIdentifier.class,
+      LiveDataSnapshot.class,
+      LiveDataSnapshotEntry.class,
+      ObservationDateTime.class,
+      ObservationTime.class,
+      OpenGammaVersion.class,
+      RiskComputeFailure.class,
+      RiskRun.class,
+      RiskValueName.class
+    };
   }
   
 }

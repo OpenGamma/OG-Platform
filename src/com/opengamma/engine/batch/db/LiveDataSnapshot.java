@@ -5,11 +5,16 @@
  */
 package com.opengamma.engine.batch.db;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import com.opengamma.id.Identifier;
 
 /**
  * 
@@ -18,7 +23,9 @@ public class LiveDataSnapshot {
   
   private int _id;
   private ObservationDateTime _snapshotTime;
-  private Set<LiveDataSnapshotEntry> _snapshotEntries;
+  private Set<LiveDataSnapshotEntry> _snapshotEntries = new HashSet<LiveDataSnapshotEntry>();
+  private Map<Identifier, Map<String, LiveDataSnapshotEntry>> _id2FieldName2Entry = 
+    new HashMap<Identifier, Map<String, LiveDataSnapshotEntry>>();
   private boolean _complete;
   
   public int getId() {
@@ -43,6 +50,37 @@ public class LiveDataSnapshot {
   
   public void setSnapshotEntries(Set<LiveDataSnapshotEntry> snapshotEntries) {
     _snapshotEntries = snapshotEntries;
+    _id2FieldName2Entry.clear();
+    for (LiveDataSnapshotEntry entry : snapshotEntries) {
+      buildIndex(entry);
+    }
+  }
+  
+  public void addEntry(LiveDataSnapshotEntry entry) {
+    buildIndex(entry);
+    _snapshotEntries.add(entry);
+  }
+
+  private void buildIndex(LiveDataSnapshotEntry entry) {
+    Map<String, LiveDataSnapshotEntry> fieldName2Entry = _id2FieldName2Entry.get(entry.getIdentifier());
+    if (fieldName2Entry == null) {
+      fieldName2Entry = new HashMap<String, LiveDataSnapshotEntry>();
+      _id2FieldName2Entry.put(entry.getIdentifier().toOpenGammaIdentifier(), fieldName2Entry);
+    }
+
+    if (fieldName2Entry.get(entry.getField().getName()) != null) {
+      throw new IllegalArgumentException("Already has entry for " + 
+          entry.getIdentifier() + "/" + entry.getField().getName());
+    }
+    fieldName2Entry.put(entry.getField().getName(), entry);
+  }
+  
+  public LiveDataSnapshotEntry getEntry(Identifier identifier, String fieldName) {
+    Map<String, LiveDataSnapshotEntry> fieldName2Entry = _id2FieldName2Entry.get(identifier);
+    if (fieldName2Entry == null) {
+      return null;
+    }
+    return fieldName2Entry.get(fieldName);
   }
   
   public boolean isComplete() {
@@ -55,22 +93,12 @@ public class LiveDataSnapshot {
   
   @Override
   public int hashCode() {
-    return new HashCodeBuilder().append(_id).toHashCode();
+    return HashCodeBuilder.reflectionHashCode(this);
   }
 
   @Override
   public boolean equals(Object obj) {
-    if (obj == null) {
-      return false;
-    }
-    if (obj == this) {
-      return true;
-    }
-    if (obj.getClass() != getClass()) {
-      return false;
-    }
-    LiveDataSnapshot rhs = (LiveDataSnapshot) obj;
-    return new EqualsBuilder().append(_id, rhs._id).isEquals();
+    return EqualsBuilder.reflectionEquals(this, obj);
   }
   
   @Override
