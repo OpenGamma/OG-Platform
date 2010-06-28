@@ -3,9 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position;
-
-import java.math.BigDecimal;
+package com.opengamma.financial.security;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
@@ -15,37 +13,41 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.engine.security.Security;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A request to add a position.
+ * A request to update a security.
  */
-public final class UpdatePositionRequest {
+public final class UpdateSecurityRequest {
 
   /**
-   * The position uid.
+   * The security uid.
    */
   private UniqueIdentifier _uid;
   /**
-   * The quantity of the position.
-   */
-  private BigDecimal _quantity;
-  /**
    * The security.
    */
-  private IdentifierBundle _securityKey;
+  private Security _security;
 
   /**
    * Creates an instance.
    */
-  public UpdatePositionRequest() {
+  public UpdateSecurityRequest() {
+  }
+
+  /**
+   * Creates an instance.
+   * @param security  the security, not null
+   */
+  public UpdateSecurityRequest(Security security) {
+    setSecurity(security);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the position unique identifier.
+   * Gets the security unique identifier.
    * @return the unique identifier, not null
    */
   public UniqueIdentifier getUniqueIdentifier() {
@@ -53,7 +55,7 @@ public final class UpdatePositionRequest {
   }
 
   /**
-   * Sets the position unique identifier.
+   * Sets the security unique identifier.
    * @param uid  the unique identifier, not null
    */
   public void setUniqueIdentifier(UniqueIdentifier uid) {
@@ -63,38 +65,19 @@ public final class UpdatePositionRequest {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the amount of the position held in terms of the security.
-   * @return the amount of the position
+   * Gets the security field.
+   * @return the security
    */
-  public BigDecimal getQuantity() {
-    return _quantity;
+  public Security getSecurity() {
+    return _security;
   }
 
   /**
-   * Sets the amount of the position held in terms of the security.
-   * @param quantity  the amount of the position
+   * Sets the security field.
+   * @param security  the security
    */
-  public void setQuantity(BigDecimal quantity) {
-    _quantity = quantity;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets a key to the security being held.
-   * <p>
-   * This allows the security to be referenced without actually loading the security itself.
-   * @return the security key
-   */
-  public IdentifierBundle getSecurityKey() {
-    return _securityKey;
-  }
-
-  /**
-   * Sets the key to the security being held.
-   * @param securityKey  the security key
-   */
-  public void setSecurityKey(IdentifierBundle securityKey) {
-    _securityKey = securityKey;
+  public void setSecurity(Security security) {
+    _security = security;
   }
 
   //-------------------------------------------------------------------------
@@ -103,9 +86,8 @@ public final class UpdatePositionRequest {
    */
   public void checkValid() {
     Validate.notNull(getUniqueIdentifier(), "UniqueIdentifier must not be null");
-    Validate.isTrue(getUniqueIdentifier().isVersioned(), "UniqueIdentifier must be versioned");
-    Validate.notNull(getQuantity(), "Quantity must not be null");
-    Validate.notNull(getSecurityKey(), "Security key must not be null");
+//    Validate.isTrue(getUniqueIdentifier().isVersioned(), "UniqueIdentifier must be versioned");
+    Validate.notNull(getSecurity(), "Security must not be null");
   }
 
   //-------------------------------------------------------------------------
@@ -118,9 +100,7 @@ public final class UpdatePositionRequest {
   /** Field name. */
   private static final String UID_FIELD_NAME = "uid";
   /** Field name. */
-  private static final String QUANTITY_FIELD_NAME = "quantity";
-  /** Field name. */
-  private static final String SECURITY_KEY_FIELD_NAME = "securityKey";
+  private static final String SECURITY_FIELD_NAME = "security";
 
   /**
    * Serializes to a Fudge message.
@@ -132,11 +112,8 @@ public final class UpdatePositionRequest {
     if (_uid != null) {
       msg.add(UID_FIELD_NAME, _uid.toFudgeMsg(context));
     }
-    if (_quantity != null) {
-      msg.add(QUANTITY_FIELD_NAME, _quantity);
-    }
-    if (_securityKey != null) {
-      msg.add(SECURITY_KEY_FIELD_NAME, _securityKey.toFudgeMsg(context));
+    if (_security != null) {
+      context.objectToFudgeMsg(msg, SECURITY_FIELD_NAME, null, _security);
     }
     return msg;
   }
@@ -147,16 +124,13 @@ public final class UpdatePositionRequest {
    * @param msg  the Fudge message, not null
    * @return the pair, not null
    */
-  public static UpdatePositionRequest fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer msg) {
-    UpdatePositionRequest req = new UpdatePositionRequest();
+  public static UpdateSecurityRequest fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer msg) {
+    UpdateSecurityRequest req = new UpdateSecurityRequest();
     if (msg.hasField(UID_FIELD_NAME)) {
       req.setUniqueIdentifier(UniqueIdentifier.fromFudgeMsg(msg.getMessage(UID_FIELD_NAME)));
     }
-    if (msg.hasField(QUANTITY_FIELD_NAME)) {
-      req.setQuantity(msg.getValue(BigDecimal.class, QUANTITY_FIELD_NAME));
-    }
-    if (msg.hasField(SECURITY_KEY_FIELD_NAME)) {
-      req.setSecurityKey(IdentifierBundle.fromFudgeMsg(msg.getMessage(SECURITY_KEY_FIELD_NAME)));
+    if (msg.hasField(SECURITY_FIELD_NAME)) {
+      req.setSecurity(context.fieldValueToObject(Security.class, msg.getByName(SECURITY_FIELD_NAME)));
     }
     return req;
   }
