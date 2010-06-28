@@ -58,7 +58,7 @@ public class UserUniqueIdentifierUtils {
     if (details.getUsername().contains(SEPARATOR) || details.getClientId().contains(SEPARATOR) || details.getResourceType().contains(SEPARATOR)) {
       throw new IllegalArgumentException("Invalid character '" + SEPARATOR + "' found in the identifier details");
     }
-    return details.getUsername() + SEPARATOR + details.getClientId() + SEPARATOR + details.getResourceType();
+    return details.getUsername() + SEPARATOR + details.getClientId() + SEPARATOR + details.getResourceType() + SEPARATOR;
   }
   
 }

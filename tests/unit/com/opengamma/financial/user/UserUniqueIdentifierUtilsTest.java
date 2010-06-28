@@ -11,7 +11,6 @@ import org.junit.Test;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierTemplate;
-import com.opengamma.util.GUIDGenerator;
 
 /**
  * Tests {@link UserResourceDetails} 
@@ -21,10 +20,11 @@ public class UserUniqueIdentifierUtilsTest {
   @Test
   public void testGenerateParseCycle() {
     String username = "testUser";
-    String clientId = GUIDGenerator.generate().toString();
+    String clientId = "testClient";
     UserResourceDetails resourceDetails = new UserResourceDetails(username, clientId, "testResource");
     UniqueIdentifierTemplate template = UserUniqueIdentifierUtils.getTemplate(resourceDetails);
     UniqueIdentifier uid = template.uid("testValue");
+    assertEquals("testUser/testClient/testResource/testValue", uid.getValue());
     UserResourceDetails parsedDetails = UserUniqueIdentifierUtils.getDetails(uid);
     assertEquals(username, parsedDetails.getUsername());
     assertEquals(clientId, parsedDetails.getClientId());
