@@ -19,7 +19,7 @@ import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.security.DefaultSecurity;
-import com.opengamma.engine.security.InMemorySecurityMaster;
+import com.opengamma.engine.security.MockSecurityMaster;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -37,7 +37,7 @@ public class DefaultComputationTargetResolverTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_constructor() {
-    SecurityMaster secMaster = new InMemorySecurityMaster();
+    SecurityMaster secMaster = new MockSecurityMaster();
     PositionMaster posMaster = new InMemoryPositionMaster();
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secMaster, posMaster);
     assertEquals(secMaster, test.getSecurityMaster());
@@ -46,7 +46,7 @@ public class DefaultComputationTargetResolverTest {
 
   @Test(expected=NullPointerException.class)
   public void test_constructor_nullSecurityMaster() {
-    SecurityMaster secMaster = new InMemorySecurityMaster();
+    SecurityMaster secMaster = new MockSecurityMaster();
     new DefaultComputationTargetResolver(secMaster, null);
   }
 
@@ -59,7 +59,7 @@ public class DefaultComputationTargetResolverTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_resolve_portfolio() {
-    InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
+    MockSecurityMaster secMaster = new MockSecurityMaster();
     InMemoryPositionMaster posMaster = new InMemoryPositionMaster();
     posMaster.addPortfolio(PORTFOLIO);
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secMaster, posMaster);
@@ -70,7 +70,7 @@ public class DefaultComputationTargetResolverTest {
 
   @Test
   public void test_resolve_portfolioNode() {
-    InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
+    MockSecurityMaster secMaster = new MockSecurityMaster();
     InMemoryPositionMaster posMaster = new InMemoryPositionMaster();
     PortfolioImpl p = new PortfolioImpl(UniqueIdentifier.of("Test", "1"), "Name");
     p.getRootNode().addChildNode(NODE);
@@ -83,7 +83,7 @@ public class DefaultComputationTargetResolverTest {
 
   @Test
   public void test_resolve_position() {
-    InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
+    MockSecurityMaster secMaster = new MockSecurityMaster();
     InMemoryPositionMaster posMaster = new InMemoryPositionMaster();
     PortfolioImpl p = new PortfolioImpl(UniqueIdentifier.of("Test", "1"), "Name");
     p.getRootNode().addPosition(POSITION);
@@ -96,7 +96,7 @@ public class DefaultComputationTargetResolverTest {
 
   @Test
   public void test_resolve_security() {
-    InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
+    MockSecurityMaster secMaster = new MockSecurityMaster();
     InMemoryPositionMaster posMaster = new InMemoryPositionMaster();
     secMaster.addSecurity(SECURITY);
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secMaster, posMaster);
@@ -107,7 +107,7 @@ public class DefaultComputationTargetResolverTest {
 
   @Test
   public void test_resolve_primitive() {
-    InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
+    MockSecurityMaster secMaster = new MockSecurityMaster();
     InMemoryPositionMaster posMaster = new InMemoryPositionMaster();
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secMaster, posMaster);
     ComputationTargetSpecification spec = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, (UniqueIdentifier) null);
@@ -117,7 +117,7 @@ public class DefaultComputationTargetResolverTest {
 
   @Test(expected=NullPointerException.class)
   public void test_resolve_nullSpecification() {
-    InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
+    MockSecurityMaster secMaster = new MockSecurityMaster();
     InMemoryPositionMaster posMaster = new InMemoryPositionMaster();
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secMaster, posMaster);
     test.resolve(null);

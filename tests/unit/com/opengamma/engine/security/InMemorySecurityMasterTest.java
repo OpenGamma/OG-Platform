@@ -26,7 +26,7 @@ public class InMemorySecurityMasterTest {
  
   @Test
   public void empty() {
-    InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
+    MockSecurityMaster secMaster = new MockSecurityMaster();
     IdentifierBundle secKey = new IdentifierBundle(new Identifier(new IdentificationScheme("d1"), "v1"));
     assertNull(secMaster.getSecurity(secKey));
     Collection<Security> securities = secMaster.getSecurities(secKey);
@@ -36,7 +36,7 @@ public class InMemorySecurityMasterTest {
   
   @Test
   public void singleSecurity() {
-    InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
+    MockSecurityMaster secMaster = new MockSecurityMaster();
     Identifier secId1 = new Identifier(new IdentificationScheme("d1"), "v1");
     Identifier secId2 = new Identifier(new IdentificationScheme("d1"), "v2");
     IdentifierBundle secKey1 = new IdentifierBundle(secId1);
@@ -65,7 +65,7 @@ public class InMemorySecurityMasterTest {
   
   @Test
   public void multipleSecurities() {
-    InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
+    MockSecurityMaster secMaster = new MockSecurityMaster();
     Identifier secId1 = new Identifier(new IdentificationScheme("d1"), "v1");
     Identifier secId2 = new Identifier(new IdentificationScheme("d1"), "v2");
     IdentifierBundle secKey1 = new IdentifierBundle(secId1);
