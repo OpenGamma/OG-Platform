@@ -27,10 +27,10 @@ import com.opengamma.id.UniqueIdentifier;
  * This class is primarily useful in testing scenarios, or when operating
  * as a cache on top of a slower {@link SecurityMaster} implementation.
  */
-public class InMemorySecurityMaster implements SecurityMaster {
+public class MockSecurityMaster implements SecurityMaster {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(InMemorySecurityMaster.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(MockSecurityMaster.class);
 
   /**
    * The securities keyed by identifier.
@@ -44,14 +44,14 @@ public class InMemorySecurityMaster implements SecurityMaster {
   /**
    * Creates the security master.
    */
-  public InMemorySecurityMaster() {
+  public MockSecurityMaster() {
   }
 
   /**
    * Creates the security master from a collection of securities.
    * @param securities  the securities to start with, null ignored
    */
-  public InMemorySecurityMaster(Collection<? extends DefaultSecurity> securities) {
+  public MockSecurityMaster(Collection<? extends DefaultSecurity> securities) {
     if (securities != null) {
       for (DefaultSecurity sec : securities) {
         addSecurity(sec);

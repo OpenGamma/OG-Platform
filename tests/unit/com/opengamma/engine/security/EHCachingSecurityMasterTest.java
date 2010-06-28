@@ -39,7 +39,7 @@ public class EHCachingSecurityMasterTest {
 
   @Before
   public void setUp() throws Exception {    
-    _underlyingSecMaster = new InMemorySecurityMaster();
+    _underlyingSecMaster = new MockSecurityMaster();
     _cachingSecMaster = new EHCachingSecurityMaster(_underlyingSecMaster);
     
     _security1.addIdentifier(_secId1);
@@ -298,7 +298,7 @@ public class EHCachingSecurityMasterTest {
   }
   
   private void addSecuritiesToMemorySecurityMaster(DefaultSecurity ... securities) {
-    InMemorySecurityMaster secMaster = (InMemorySecurityMaster)_underlyingSecMaster;
+    MockSecurityMaster secMaster = (MockSecurityMaster)_underlyingSecMaster;
     for (DefaultSecurity security : securities) {
       secMaster.addSecurity(security);
     }
