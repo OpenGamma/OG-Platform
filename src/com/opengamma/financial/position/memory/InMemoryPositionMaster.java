@@ -42,6 +42,7 @@ import com.opengamma.financial.position.UpdatePortfolioRequest;
 import com.opengamma.financial.position.UpdatePositionRequest;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueIdentifierTemplate;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -71,25 +72,25 @@ public class InMemoryPositionMaster implements ManagablePositionMaster {
    */
   private final AtomicLong _nextIdentityKey = new AtomicLong();
   /**
-   * The scheme to use in any UniqueIdentifiers created by this {@link PositionMaster}.
+   * The template to use for {@link UniqueIdentifier} generation and parsing.
    */
-  private final String _scheme;
+  private final UniqueIdentifierTemplate _uidTemplate;
 
   /**
    * Creates an empty position master using the default scheme for any {@link UniqueIdentifier}s created.
    */
   public InMemoryPositionMaster() {
-    this(DEFAULT_UID_SCHEME);
+    this(new UniqueIdentifierTemplate(DEFAULT_UID_SCHEME));
   }
   
   /**
-   * Creates an empty position master using the specified scheme for any {@link UniqueIdentifier}s created.
+   * Creates an empty position master using the specified template for any {@link UniqueIdentifier}s created.
    * 
-   * @param uidScheme  the scheme to use for any {@link UniqueIdentifier}s created
+   * @param uidTemplate  the template to use for any {@link UniqueIdentifier}s created, not null
    */
-  public InMemoryPositionMaster(String uidScheme) {
-    ArgumentChecker.notNull(uidScheme, "Scheme");
-    _scheme = uidScheme;
+  public InMemoryPositionMaster(UniqueIdentifierTemplate uidTemplate) {
+    ArgumentChecker.notNull(uidTemplate, "uidTemplate");
+    _uidTemplate = uidTemplate;
   }
 
   //-------------------------------------------------------------------------
@@ -333,20 +334,22 @@ public class InMemoryPositionMaster implements ManagablePositionMaster {
   }
   
   private UniqueIdentifier getNextPortfolioUid() {
-    return UniqueIdentifier.of(_scheme, Long.toString(getNextId()));
+    return _uidTemplate.uid(Long.toString(getNextId()));
   }
   
   private UniqueIdentifier getNextInternalUid(UniqueIdentifier portfolioUid) {
-    return UniqueIdentifier.of(_scheme, portfolioUid.getValue() + "-" + getNextId());
+    String valueContent = portfolioUid.getValue() + "-" + getNextId();
+    return _uidTemplate.uid(valueContent);
   }
   
   private UniqueIdentifier extractPortfolioUid(UniqueIdentifier nodeUid) {
-    int pos = nodeUid.getValue().indexOf("-");
+    String valueContent = _uidTemplate.extractValueContent(nodeUid);
+    int pos = valueContent.indexOf("-");
     if (pos < 0) {
       throw new IllegalArgumentException("The specified UniqueIdentifier is not in the expected format");
     }
-    String portfolioValue = nodeUid.getValue().substring(0, pos);
-    return UniqueIdentifier.of(nodeUid.getScheme(), portfolioValue);
+    String portfolioValue = valueContent.substring(0, pos);
+    return _uidTemplate.uid(portfolioValue);
   }
   
   private PortfolioImpl getNewPortfolio(UniqueIdentifier portfolioUid, String portfolioName) {

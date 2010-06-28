@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.user.rest;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.ws.rs.Path;
@@ -40,13 +42,22 @@ public class ClientsResource {
   }
   
   @Path("{clientUid}")
-  public ClientResource get(@PathParam("clientUid") String clientName) {
+  public ClientResource getClient(@PathParam("clientUid") String clientName) {
     ClientResource freshClient = new ClientResource(this, clientName);
     ClientResource actualClient = _clientMap.putIfAbsent(clientName, freshClient);
     if (actualClient == null) {
       actualClient = freshClient;
     }
     return actualClient;
+  }
+  
+  /**
+   * Temporary method to get all clients. This should be accessible from an underlying UserMaster, when it exists.
+   * 
+   * @return  a collection of all clients, unmodifiable, not null
+   */
+  public Collection<ClientResource> getAllClients() {
+    return Collections.unmodifiableCollection(_clientMap.values());
   }
   
 }
