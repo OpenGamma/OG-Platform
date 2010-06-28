@@ -5,7 +5,14 @@
  */
 package com.opengamma.financial.position;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import org.fudgemsg.FudgeField;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.util.ArgumentChecker;
@@ -58,6 +65,42 @@ public final class SearchPositionsResult {
   @Override
   public String toString() {
     return getClass().getSimpleName() + "[positions=" + _positions.size() + ", paging=" + _paging + "]";
+  }
+
+  //-------------------------------------------------------------------------
+  /** Field name. */
+  private static final String PAGING_FIELD_NAME = "paging";
+  /** Field name. */
+  private static final String POSITION_FIELD_NAME = "position";
+
+  /**
+   * Serializes to a Fudge message.
+   * @param context  the Fudge context, not null
+   * @return the Fudge message, not null
+   */
+  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
+    MutableFudgeFieldContainer msg = context.newMessage();
+    context.objectToFudgeMsg(msg, PAGING_FIELD_NAME, null, _paging);
+    for (PositionSummary summary : _positions) {
+      context.objectToFudgeMsg(msg, POSITION_FIELD_NAME, null, summary);
+    }
+    return msg;
+  }
+
+  /**
+   * Deserializes from a Fudge message.
+   * @param context  the Fudge context, not null
+   * @param msg  the Fudge message, not null
+   * @return the pair, not null
+   */
+  public static SearchPositionsResult fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer msg) {
+    Paging paging = context.fieldValueToObject(Paging.class, msg.getByName(PAGING_FIELD_NAME));
+    List<PositionSummary> summaries = new ArrayList<PositionSummary>();
+    for (FudgeField field : msg.getAllByName(POSITION_FIELD_NAME)) {
+      PositionSummary summary = context.fieldValueToObject(PositionSummary.class, field);
+      summaries.add(summary);
+    }
+    return new SearchPositionsResult(paging, summaries);
   }
 
 }
