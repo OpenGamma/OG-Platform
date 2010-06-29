@@ -20,7 +20,7 @@ import org.fudgemsg.FudgeMsgEnvelope;
 /**
  * Register as a JAX-RS provider to support REST responses that are Fudge encoded messages. 
  */
-@Produces("application/vnd.fudgemsg")
+@Produces(FudgeRest.MEDIA)
 public class FudgeBinaryProducer extends FudgeProducer {
 
   /**

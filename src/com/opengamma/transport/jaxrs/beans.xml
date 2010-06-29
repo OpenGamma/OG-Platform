@@ -14,5 +14,6 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
   <bean id="fudgeToXml" class="com.opengamma.transport.jaxrs.FudgeXMLProducer" />
   <bean id="fudgeInput" class="com.opengamma.transport.jaxrs.FudgeBinaryConsumer" />
   <bean id="fudgeOutput" class="com.opengamma.transport.jaxrs.FudgeBinaryProducer" />
+  <bean id="fudgeObjectOutput" class="com.opengamma.transport.jaxrs.FudgeObjectBinaryProducer" />
 
 </beans>
