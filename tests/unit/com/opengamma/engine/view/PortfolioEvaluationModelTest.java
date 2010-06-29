@@ -27,7 +27,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.MockFunction;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
-import com.opengamma.engine.position.InMemoryPositionMaster;
+import com.opengamma.engine.position.MockPositionMaster;
 import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.PositionImpl;
@@ -56,7 +56,7 @@ public class PortfolioEvaluationModelTest {
     PortfolioImpl p = new PortfolioImpl(UniqueIdentifier.of("FOO", "BAR"), "portfolio");
     p.setRootNode(pn);
     
-    InMemoryPositionMaster positionMaster = new InMemoryPositionMaster();
+    MockPositionMaster positionMaster = new MockPositionMaster();
     positionMaster.addPortfolio(p);
     
     DefaultSecurity defSec = new DefaultSecurity();
@@ -99,7 +99,7 @@ public class PortfolioEvaluationModelTest {
     PortfolioImpl p = new PortfolioImpl(UniqueIdentifier.of("FOO", "BAR"), "portfolio");
     p.setRootNode(pn);
     
-    InMemoryPositionMaster positionMaster = new InMemoryPositionMaster();
+    MockPositionMaster positionMaster = new MockPositionMaster();
     positionMaster.addPortfolio(p);
     
     DefaultSecurity defSec = new DefaultSecurity();
@@ -158,7 +158,7 @@ public class PortfolioEvaluationModelTest {
     PortfolioImpl p = new PortfolioImpl(UniqueIdentifier.of("FOO", "BAR"), "portfolio");
     p.setRootNode(pn);
     
-    InMemoryPositionMaster positionMaster = new InMemoryPositionMaster();
+    MockPositionMaster positionMaster = new MockPositionMaster();
     positionMaster.addPortfolio(p);
     
     DefaultSecurity sec1 = new DefaultSecurity();
