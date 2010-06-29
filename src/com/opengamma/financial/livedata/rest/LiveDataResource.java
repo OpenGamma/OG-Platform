@@ -57,9 +57,12 @@ public class LiveDataResource {
     @GET
     public FudgeMsgEnvelope get() {
       final Object value = getLiveData().getValue(_valueRequirement);
+      if (value == null) {
+        return null;
+      }
       final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeContext());
       final MutableFudgeFieldContainer msg = context.newMessage();
-      msg.add("value", context.objectToFudgeMsg(value));
+      context.objectToFudgeMsg(msg, "value", null, value);
       return new FudgeMsgEnvelope(msg);
     }
 
