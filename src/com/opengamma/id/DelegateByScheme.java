@@ -27,6 +27,15 @@ public class DelegateByScheme<T> {
     _defaultDelegate = defaultDelegate;
   }
 
+  protected DelegateByScheme(final T defaultDelegate, final Map<String, T> delegates) {
+    ArgumentChecker.notNull(defaultDelegate, "defaultDelegate");
+    ArgumentChecker.notNull(delegates, "delegates");
+    _defaultDelegate = defaultDelegate;
+    for (Map.Entry<String, T> delegate : delegates.entrySet()) {
+      registerDelegate(delegate.getKey(), delegate.getValue());
+    }
+  }
+
   protected T chooseDelegate(final UniqueIdentifier uid) {
     final T delegate = _schemeToDelegateMap.get(uid.getScheme());
     return (delegate != null) ? delegate : _defaultDelegate;
