@@ -8,6 +8,8 @@ package com.opengamma.financial.user.rest;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.UriInfo;
 
+import com.opengamma.financial.livedata.rest.LiveDataResource;
+import com.opengamma.financial.livedata.user.InMemoryUserSnapshotProvider;
 import com.opengamma.financial.position.ManagablePositionMaster;
 import com.opengamma.financial.position.memory.InMemoryPositionMaster;
 import com.opengamma.financial.position.rest.PortfoliosResource;
@@ -26,8 +28,14 @@ public class ClientResource {
    */
   public static final String PORTFOLIOS_PATH = "portfolios";
   
+  /**
+   * The path used to retrieve user Live Data
+   */
+  public static final String LIVEDATA_PATH = "livedata";
+  
   private final ClientsResource _clientsResource;
   private final ManagablePositionMaster _positionMaster;
+  private final InMemoryUserSnapshotProvider _liveData;
   
   public ClientResource(ClientsResource clientsResource, String clientName) {
     _clientsResource = clientsResource;
@@ -35,6 +43,7 @@ public class ClientResource {
     UserResourceDetails resourceDetails = new UserResourceDetails(username, clientName, PORTFOLIOS_PATH);
     UniqueIdentifierTemplate uidTemplate = UserUniqueIdentifierUtils.getTemplate(resourceDetails);
     _positionMaster = new InMemoryPositionMaster(uidTemplate);
+    _liveData = new InMemoryUserSnapshotProvider(uidTemplate);
   }
   
   /**
@@ -52,6 +61,11 @@ public class ClientResource {
   @Path(PORTFOLIOS_PATH)
   public PortfoliosResource getPortfolios() {
     return new PortfoliosResource(getUriInfo(), _positionMaster);
+  }
+  
+  @Path(LIVEDATA_PATH)
+  public LiveDataResource getLiveDataResource() {
+    return new LiveDataResource(_liveData);
   }
   
 }

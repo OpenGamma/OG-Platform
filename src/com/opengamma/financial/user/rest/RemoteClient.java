@@ -9,6 +9,7 @@ import org.fudgemsg.FudgeContext;
 
 import com.opengamma.engine.view.server.EngineFudgeContextConfiguration;
 import com.opengamma.financial.FinancialFudgeContextConfiguration;
+import com.opengamma.financial.livedata.rest.RemoteUserLiveData;
 import com.opengamma.financial.position.ManagablePositionMaster;
 import com.opengamma.financial.position.rest.RemoteManagablePositionMaster;
 import com.opengamma.transport.jaxrs.RestTarget;
@@ -21,16 +22,22 @@ public class RemoteClient {
 
   private final FudgeContext _fudgeContext;
   private final RestTarget _positionMasterTarget;
+  private final RestTarget _userLiveDataTarget;
   
   public RemoteClient(FudgeContext fudgeContext, RestTarget baseTarget) {
     _fudgeContext = fudgeContext;
     _positionMasterTarget = baseTarget.resolve(ClientResource.PORTFOLIOS_PATH);
+    _userLiveDataTarget = baseTarget.resolveBase(ClientResource.LIVEDATA_PATH);
   }
   
   public ManagablePositionMaster getPositionMaster() {
     return new RemoteManagablePositionMaster(_fudgeContext, _positionMasterTarget);
   }
   
+  public RemoteUserLiveData getLiveData() {
+    return new RemoteUserLiveData(_fudgeContext, _userLiveDataTarget);
+  }
+
   /**
    * A hack to allow the Excel side to get hold of a RemoteClient without it having to be aware of the URI. Eventually
    * we will need a UserMaster to host users and their clients, and the entry point for Excel will be a
