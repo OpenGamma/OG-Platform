@@ -21,7 +21,7 @@ import org.fudgemsg.FudgeMsgEnvelope;
 /**
  * Register as a JAX-RS provider to support REST request payloads containing Fudge encoded messages.
  */
-@Consumes("application/vnd.fudgemsg")
+@Consumes(FudgeRest.MEDIA)
 public class FudgeBinaryConsumer extends FudgeBase implements MessageBodyReader<FudgeMsgEnvelope> {
 
   /**

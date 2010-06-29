@@ -399,10 +399,22 @@ public abstract class AbstractDBDialect implements DBDialect {
       String[] lines = statement.split("\r\n|\r|\n");
       StringBuffer fixedSql = new StringBuffer();
       for (String line : lines) {
-        if (line.startsWith("//") || line.startsWith("--")) {
-          continue; // exclude comment lines
+        String strippedLine = line;
+        
+        int commentIndex1 = line.indexOf("//"); 
+        int commentIndex2 = line.indexOf("--");
+        int firstCommentIndex = Integer.MAX_VALUE;
+        if (commentIndex1 != -1) {
+          firstCommentIndex = Math.min(firstCommentIndex, commentIndex1);
         }
-        fixedSql.append(line + " ");        
+        if (commentIndex2 != -1) {
+          firstCommentIndex = Math.min(firstCommentIndex, commentIndex2);
+        }
+        if (firstCommentIndex != Integer.MAX_VALUE) {
+          strippedLine = line.substring(0, firstCommentIndex);
+        }
+        
+        fixedSql.append(strippedLine + " ");        
       }
       
       String fixedSqlStr = fixedSql.toString().trim();
@@ -418,8 +430,11 @@ public abstract class AbstractDBDialect implements DBDialect {
       
       Statement statement = conn.createStatement();
       for (String sqlStatement : sqlStatements) {
-        //System.out.println ("Executing: " + sqlStatement);
-        statement.execute(sqlStatement.toString());
+        try {
+          statement.execute(sqlStatement);
+        } catch (SQLException e) {
+          throw new OpenGammaRuntimeException("Failed to execute statement " + sqlStatement, e);
+        }
       }
       statement.close();
       
