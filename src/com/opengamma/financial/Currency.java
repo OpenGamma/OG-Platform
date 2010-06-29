@@ -46,7 +46,7 @@ public final class Currency implements UniqueIdentifiable {
   public static Currency getInstance(String isoCode) {
     ArgumentChecker.notNull(isoCode, "ISO Code");
     if (isoCode.length() != 3) {
-      throw new IllegalArgumentException("Invalid ISO code");
+      throw new IllegalArgumentException("Invalid ISO code: "+isoCode);
     }
     isoCode = isoCode.toUpperCase(Locale.ENGLISH);
     s_instanceMap.putIfAbsent(isoCode, new Currency(isoCode));

@@ -3,10 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security;
+package com.opengamma.financial;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 
 import javax.time.calendar.LocalDate;
 
@@ -60,7 +62,7 @@ public interface RegionRepository {
    * @param type the type of the region object
    * @return a set of all the region objects in a hierarchy of the specified type
    */
-  Set<Region> getAllOfType(final LocalDate asOf, final String hierarchyName, final RegionType type);
+  SortedSet<Region> getAllOfType(final LocalDate asOf, final String hierarchyName, final RegionType type);
   
   /**
    * @param asOf the data returned is that considered correct as of the provided date
@@ -69,7 +71,7 @@ public interface RegionRepository {
    * @param value the value that the field must have to be returned
    * @return a set of Regions which have the appropriate field with the appropriate value
    */
-  Set<Region> getHierarchyNodes(final LocalDate asOf, final String hierarchyName, final String fieldName, final Object value);
+  SortedSet<Region> getHierarchyNodes(final LocalDate asOf, final String hierarchyName, final String fieldName, final Object value);
 
   /**
    * @param asOf the data returned is that considered correct as of the provided date
@@ -77,5 +79,5 @@ public interface RegionRepository {
    * @param fieldNameValuePairs 0..n name->value pairs that should match
    * @return a set of Regions which have the appropriate fields with the appropriate values
    */
-  Set<Region> getHierarchyNodes(LocalDate asOf, String hierarchyName, Pair<String, Object>... fieldNameValuePairs);
+  SortedSet<Region> getHierarchyNodes(LocalDate asOf, String hierarchyName, Pair<String, Object>... fieldNameValuePairs);
 }

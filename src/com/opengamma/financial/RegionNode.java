@@ -3,12 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security;
+package com.opengamma.financial;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
@@ -189,6 +191,10 @@ public class RegionNode implements Region {
   @Override
   public UniqueIdentifier getUniqueIdentifier() {
     return _uniqueIdentifier;
+  }
+  
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this);
   }
 
 }

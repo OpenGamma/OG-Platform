@@ -3,10 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security;
+package com.opengamma.financial;
 
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleMapper;
@@ -42,11 +43,24 @@ public class InMemoryExchangeRespository implements ExchangeRepository {
   }
 
   public Exchange putExchange(LocalDate asOf, IdentifierBundle identifiers, String name, UniqueIdentifier regionIdentifier) {
+    Exchange exchange = resolveExchange(asOf, identifiers);
     Region region = _regionRepo.getHierarchyNode(asOf, regionIdentifier);
-    Exchange partialExchange = new Exchange(identifiers, name, region);
-    UniqueIdentifier uid = _idMapper.add(identifiers, new Exchange(identifiers, name, region));
-    partialExchange.setUniqueIdentifier(uid);
-    Exchange completedExchange = partialExchange; // pointless, but trying to make a point that before we've set the uid, it's not 'safe'.
-    return completedExchange;
+    if (exchange == null) {
+      Exchange partialExchange = new Exchange(identifiers, name, region);
+      UniqueIdentifier uid = _idMapper.add(identifiers, partialExchange);
+      partialExchange.setUniqueIdentifier(uid);
+      Exchange completedExchange = partialExchange; // pointless, but trying to make a point that before we've set the uid, it's not 'safe'.
+      return completedExchange;
+    } else {
+      if (name.equals(exchange.getName()) &&
+        region.equals(exchange.getRegion())) {
+        _idMapper.add(identifiers, exchange);
+        IdentifierBundle identifierBundle = _idMapper.getIdentifierBundle(exchange);
+        exchange.setIdentifiers(identifierBundle);
+        return exchange;
+      } else {
+        throw new OpenGammaRuntimeException("supplied name [" + name + "] and region [" + region + "] conflicts with exchange [" + exchange + "] matching an id in the supplied bundle.");
+      }
+    }
   }
 }

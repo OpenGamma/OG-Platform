@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.security.swap;
 
-import com.opengamma.financial.Currency;
 import com.opengamma.id.Identifier;
 
 /**

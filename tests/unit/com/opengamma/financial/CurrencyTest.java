@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.securities;
+package com.opengamma.financial;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

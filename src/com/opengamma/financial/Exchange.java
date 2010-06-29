@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security;
+package com.opengamma.financial;
 
 import org.apache.commons.lang.ObjectUtils;
 
@@ -39,6 +39,13 @@ public class Exchange {
    */
   public IdentifierBundle getIdentifiers() {
     return _identifiers;
+  }
+  
+  /**
+   * @param identifiers
+   */
+  /*package*/ void setIdentifiers(IdentifierBundle identifiers) { 
+    _identifiers = identifiers;
   }
   
   /**
@@ -85,4 +92,17 @@ public class Exchange {
   public int hashCode() {
     return getIdentifiers().hashCode();
   }
+
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("Exchange[");
+    sb.append(_name);
+    sb.append(" in ");
+    sb.append(_region.getName());
+    sb.append("(uid:");
+    sb.append(_uniqueId);
+    sb.append(")");
+    return sb.toString();
+  }
+
 }

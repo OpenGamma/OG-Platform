@@ -3,26 +3,31 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.securities;
+package com.opengamma.financial;
 
 import java.io.File;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Set;
+
+import javax.time.calendar.LocalDate;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 
 import com.google.common.io.Resources;
-import com.opengamma.financial.security.Exchange;
-import com.opengamma.financial.security.ExchangeRepository;
-import com.opengamma.financial.security.InMemoryExchangeRespository;
-import com.opengamma.financial.security.InMemoryHolidayRepository;
-import com.opengamma.financial.security.InMemoryRegionRepository;
-import com.opengamma.financial.security.Region;
-import com.opengamma.financial.security.RegionRepository;
+import com.opengamma.financial.Currency;
+import com.opengamma.financial.Exchange;
+import com.opengamma.financial.ExchangeRepository;
+import com.opengamma.financial.HolidayType;
+import com.opengamma.financial.InMemoryExchangeRespository;
+import com.opengamma.financial.InMemoryHolidayRepository;
+import com.opengamma.financial.InMemoryRegionRepository;
+import com.opengamma.financial.Region;
+import com.opengamma.financial.RegionRepository;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 
@@ -30,10 +35,10 @@ import com.opengamma.id.IdentifierBundle;
  * Unit tests for {@see InMemoryHolidayRepository} and {@see InMemoryExchangeRepository}
  */
 public class InMemoryHolidayAndExchangeRespositoriesTest {
-  private static final String REGION_HIERARCHY = "Political";
+  private static final String REGION_HIERARCHY = InMemoryRegionRepository.POLITICAL_HIERARCHY_NAME;
   @Test
   public void testExchangeRepository() throws URISyntaxException {
-    URL countryCSV = Resources.getResource("com/opengamma/financial/securities/countrylist_test.csv");
+    URL countryCSV = Resources.getResource("com/opengamma/financial/countrylist_test.csv");
     RegionRepository regionRepo = new InMemoryRegionRepository(new File(countryCSV.toURI()));
     InMemoryExchangeRespository exchangeRepo = new InMemoryExchangeRespository(regionRepo);
     Set<Region> gbMatches = regionRepo.getHierarchyNodes(null, REGION_HIERARCHY, InMemoryRegionRepository.ISO_COUNTRY_2, "GB");
@@ -93,5 +98,31 @@ public class InMemoryHolidayAndExchangeRespositoriesTest {
     exchangeRepo.putExchange(null, euronextLiffeIDsWithExtra, euronextLiffeCCName.getValue(), uk.getUniqueIdentifier());
    
     Assert.assertEquals(4, exchangeRepo.resolveExchange(null, euronextLiffeExtra).getIdentifiers().size());
+  }
+  
+  @Test
+  public void testHolidayRespository() throws URISyntaxException {
+    URL countryCSV = Resources.getResource("com/opengamma/financial/countrylist_test.csv");
+    InMemoryRegionRepository regionRepo = new InMemoryRegionRepository(new File(countryCSV.toURI()));
+    InMemoryExchangeRespository exchangeRepo = new InMemoryExchangeRespository(regionRepo);
+    URI currenciesCSV = Resources.getResource("com/opengamma/financial/Currencies_20100610.csv").toURI();
+    URI financialCentresCSV = Resources.getResource("com/opengamma/financial/FinancialCentres_20100610.csv").toURI();
+    URI exchangeTradingCSV = Resources.getResource("com/opengamma/financial/ExchangeTrading_20100610.csv").toURI();
+    URI exchangeSettlementCSV = Resources.getResource("com/opengamma/financial/ExchangeSettlement_20100610.csv").toURI();
+    InMemoryHolidayRepository holidayRepo = new InMemoryHolidayRepository(regionRepo, exchangeRepo,
+                                                                          new File(currenciesCSV), new File(financialCentresCSV), 
+                                                                          new File(exchangeTradingCSV), new File(exchangeSettlementCSV));
+    Exchange euronextLiffe = exchangeRepo.resolveExchange(null, Identifier.of(ExchangeRepository.ISO_MIC, "XLIF"));
+    Assert.assertTrue(holidayRepo.isHoliday(null, euronextLiffe, LocalDate.of(2012, 06, 05), HolidayType.SETTLEMENT));
+    Assert.assertFalse(holidayRepo.isHoliday(null, euronextLiffe, LocalDate.of(2012, 06, 06), HolidayType.SETTLEMENT));
+    Assert.assertTrue(holidayRepo.isHoliday(null, euronextLiffe.getRegion(), LocalDate.of(2012, 06, 05), HolidayType.BANK));
+    Assert.assertFalse(holidayRepo.isHoliday(null, euronextLiffe.getRegion(), LocalDate.of(2012, 06, 06), HolidayType.BANK));
+    Assert.assertTrue(holidayRepo.isHoliday(null, euronextLiffe, LocalDate.of(2012, 06, 05), HolidayType.TRADING));
+    Assert.assertFalse(holidayRepo.isHoliday(null, euronextLiffe, LocalDate.of(2012, 06, 06), HolidayType.TRADING));
+    Assert.assertTrue(holidayRepo.isHoliday(null, euronextLiffe.getRegion(), LocalDate.of(2012, 06, 05), HolidayType.CURRENCY));
+    Assert.assertFalse(holidayRepo.isHoliday(null, euronextLiffe.getRegion(), LocalDate.of(2012, 06, 06), HolidayType.CURRENCY));
+    Currency currency = Currency.getInstance(euronextLiffe.getRegion().getData().getString(InMemoryRegionRepository.ISO_CURRENCY_3));
+    Assert.assertTrue(holidayRepo.isHoliday(null, currency, LocalDate.of(2012, 06, 05), HolidayType.CURRENCY));
+    Assert.assertFalse(holidayRepo.isHoliday(null, currency, LocalDate.of(2012, 06, 06), HolidayType.CURRENCY));
   }
 }

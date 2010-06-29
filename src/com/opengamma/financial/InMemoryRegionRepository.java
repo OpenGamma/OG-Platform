@@ -3,17 +3,20 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security;
+package com.opengamma.financial;
 
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.time.calendar.LocalDate;
 
@@ -26,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import au.com.bytecode.opencsv.CSVReader;
 
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
@@ -38,6 +42,21 @@ import com.opengamma.util.tuple.Pair;
  * In memory implementation of a region repository.  Repository is populated from a CSV file.
  */
 public class InMemoryRegionRepository implements RegionRepository {
+  private static final Comparator<Region> s_defaultRegionComparator = new Comparator<Region>() {
+    @Override
+    public int compare(Region r1, Region r2) {
+      int type = r1.getRegionType().compareTo(r2.getRegionType());
+      if (type != 0) { return type; }
+      int name = r1.getName().compareTo(r2.getName());
+      if (name != 0) { return name; }
+      if (r1.equals(r2)) {
+        return 0;
+      } else {
+        throw new OpenGammaRuntimeException("Non-unique name/region type present");
+      }
+    }
+  };
+  
   private static final Logger s_logger = LoggerFactory.getLogger(InMemoryRegionRepository.class);
 
   private static final String HIERARCHY_COLUMN = "Hierarchy";
@@ -54,17 +73,24 @@ public class InMemoryRegionRepository implements RegionRepository {
    */
   public static final String ISO_COUNTRY_2 = "ISO 3166-1 2 Letter Code";
   /**
+   * Name of the field used to hold the 3 letter ISO 3166-1 Country Code
+   */
+  public static final String ISO_CURRENCY_3 = "ISO 4217 Currency Code";
+  
+  /**
    * Name of the hierarchy used for basic political geographic regions (countries, dependencies, etc)
    */
   public static final String POLITICAL_HIERARCHY_NAME = "Political";
   
   private static final String SUB_REGIONS_COLUMN = "Sub Regions";
-  private static final IdentificationScheme DEFAULT_SCHEME = new IdentificationScheme("REGION_FILE_SCHEME");
+  private static final IdentificationScheme REGION_FILE_SCHEME = new IdentificationScheme("REGION_FILE_SCHEME");
+
+  private static final String REGION_SCHEME_PREFIX = "REGION_SCHEME_";
   
   private FudgeContext _fudgeContext;
   private Map<String, Region> _roots = new HashMap<String, Region>();
   private Map<String, IdentifierBundleMapper<Region>> _uniqueIdFactories = new HashMap<String, IdentifierBundleMapper<Region>>();
-  private Map<String, Map<Pair<String, Object>, Set<Region>>> _fieldIndex = new HashMap<String, Map<Pair<String, Object>, Set<Region>>>();
+  private Map<String, Map<Pair<String, Object>, SortedSet<Region>>> _fieldIndex = new HashMap<String, Map<Pair<String, Object>, SortedSet<Region>>>();
     
   public InMemoryRegionRepository(File file) {
     this(FudgeContext.GLOBAL_DEFAULT, file);
@@ -129,7 +155,7 @@ public class InMemoryRegionRepository implements RegionRepository {
                                               hierarchyName + ": " + regionDefinitions.toString());
         } else {
           String rootName = regionDefinitions.iterator().next();
-          IdentifierBundleMapper<Region> bundleMapper = new IdentifierBundleMapper<Region>("REGION_SCHEME_" + hierarchyName);
+          IdentifierBundleMapper<Region> bundleMapper = new IdentifierBundleMapper<Region>(REGION_SCHEME_PREFIX + hierarchyName);
           // Walk down, converting the name references in the definition into object references.  
           // At the same time, populating the identifiers and unique identifier fields from the bundleMapper.
           Region root = walkTree(rootName, nameToDef, bundleMapper);
@@ -145,16 +171,18 @@ public class InMemoryRegionRepository implements RegionRepository {
   
   private RegionNode walkTree(String currentName, Map<String, RegionDefinition> definitions, IdentifierBundleMapper<Region> bundleMapper) {
     RegionDefinition regionDefinition = definitions.get(currentName);
+    if (regionDefinition == null) {
+      throw new OpenGammaRuntimeException("Can't find region [" + currentName + "]");
+    }
     RegionNode regionNode = regionDefinition.getRegion();
-    
-    Set<Region> subRegions = new HashSet<Region>();
+    SortedSet<Region> subRegions = Sets.newTreeSet(s_defaultRegionComparator);
     for (String subRegionName : regionDefinition.getSubRegionNames()) {
       RegionNode subRegion = walkTree(subRegionName, definitions, bundleMapper);
       subRegion.setSuperRegion(regionNode);
       subRegions.add(subRegion);
     }
     regionNode.setSubRegions(subRegions);
-    regionNode.setIdentifiers(new IdentifierBundle(new Identifier(DEFAULT_SCHEME, currentName)));
+    regionNode.setIdentifiers(new IdentifierBundle(new Identifier(REGION_FILE_SCHEME, currentName)));
     UniqueIdentifier uniqueId = bundleMapper.add(regionNode.getIdentifiers(), regionNode);
     regionNode.setUniqueIdentifier(uniqueId);
     return regionNode;
@@ -164,14 +192,14 @@ public class InMemoryRegionRepository implements RegionRepository {
     System.err.println("indexing " + hierarchyName + " : " + root.getName());
     s_logger.info("Indexing {} : {}", hierarchyName, root.getName());
     if (!(_fieldIndex.containsKey(hierarchyName))) {
-      _fieldIndex.put(hierarchyName, new HashMap<Pair<String, Object>, Set<Region>>());
+      _fieldIndex.put(hierarchyName, new HashMap<Pair<String, Object>, SortedSet<Region>>());
     }
-    Map<Pair<String, Object>, Set<Region>> aFieldIndex = _fieldIndex.get(hierarchyName);
+    Map<Pair<String, Object>, SortedSet<Region>> aFieldIndex = _fieldIndex.get(hierarchyName);
     FudgeFieldContainer data = root.getData();
     for (FudgeField field : data) {
       Pair<String, Object> key = Pair.of(field.getName(), field.getValue());
       if (!aFieldIndex.containsKey(key)) {
-        aFieldIndex.put(key, new HashSet<Region>());
+        aFieldIndex.put(key, new TreeSet<Region>(s_defaultRegionComparator));
       }
       aFieldIndex.get(key).add(root);
     }   
@@ -181,7 +209,7 @@ public class InMemoryRegionRepository implements RegionRepository {
     keys.add(Pair.<String, Object>of(TYPE_COLUMN, root.getRegionType()));
     for (Pair<String, Object> key : keys) {
       if (!aFieldIndex.containsKey(key)) {
-        aFieldIndex.put(key, new HashSet<Region>());
+        aFieldIndex.put(key, new TreeSet<Region>(s_defaultRegionComparator));
       }
       aFieldIndex.get(key).add(root);
     }
@@ -222,13 +250,13 @@ public class InMemoryRegionRepository implements RegionRepository {
   }
   
   @Override
-  public Set<Region> getAllOfType(LocalDate asOf, final String hierarchyName, final RegionType type) {
+  public SortedSet<Region> getAllOfType(LocalDate asOf, final String hierarchyName, final RegionType type) {
     return getHierarchyNodes(asOf, hierarchyName, TYPE_COLUMN, type);
   }
     
   @Override
   public Region getHierarchyNode(LocalDate asOf, String hierarchyName, String nodeName) {
-    Set<Region> matches = getHierarchyNodes(asOf, hierarchyName, NAME_COLUMN, nodeName);
+    SortedSet<Region> matches = getHierarchyNodes(asOf, hierarchyName, NAME_COLUMN, nodeName);
     if (matches.size() == 1) {
       return matches.iterator().next();
     } else {
@@ -237,21 +265,20 @@ public class InMemoryRegionRepository implements RegionRepository {
   }
 
   @Override
-  public Set<Region> getHierarchyNodes(LocalDate asOf, String hierarchyName, String fieldName, Object value) {
-    Map<Pair<String, Object>, Set<Region>> index = _fieldIndex.get(hierarchyName);
+  public SortedSet<Region> getHierarchyNodes(LocalDate asOf, String hierarchyName, String fieldName, Object value) {
+    Map<Pair<String, Object>, SortedSet<Region>> index = _fieldIndex.get(hierarchyName);
     if (index != null) {
-      Set<Region> matches = index.get(Pair.<String, Object>of(fieldName, value));
+      SortedSet<Region> matches = index.get(Pair.<String, Object>of(fieldName, value));
       return matches;
     } else {
       throw new OpenGammaRuntimeException("No such hierarchy");
     }
   }
   
-  
-  public Set<Region> getHierarchyNodes(LocalDate asOf, String hierarchyName, Pair<String, Object>... fieldNameValuePairs) {
-    Set<Region> result = new HashSet<Region>();
-    for (Pair<String, Object> keyValuePair : fieldNameValuePairs) {
-      String fieldName = keyValuePair.getKey();
+  public SortedSet<Region> getHierarchyNodes(LocalDate asOf, String hierarchyName, Pair<String, Object>... fieldNameValuePairs) {
+    SortedSet<Region> result = new TreeSet<Region>(s_defaultRegionComparator);
+    for (Pair<?, ?> keyValuePair : fieldNameValuePairs) {
+      String fieldName = (String) keyValuePair.getKey();
       Object value = keyValuePair.getValue();
       if (result.isEmpty()) {
         result.addAll(getHierarchyNodes(asOf, hierarchyName, fieldName, value));
@@ -271,8 +298,8 @@ public class InMemoryRegionRepository implements RegionRepository {
   @Override
   public Region getHierarchyNode(LocalDate asOf, UniqueIdentifier uniqueId) {
     // scheme encodes which hierarchy to look in.
-    if (uniqueId.getScheme().startsWith(DEFAULT_SCHEME.getName())) {
-      String hierarchyName = uniqueId.getScheme().substring(DEFAULT_SCHEME.getName().length());
+    if (uniqueId.getScheme().startsWith(REGION_SCHEME_PREFIX)) {
+      String hierarchyName = uniqueId.getScheme().substring(REGION_SCHEME_PREFIX.length());
       if (_uniqueIdFactories.containsKey(hierarchyName)) {
         return _uniqueIdFactories.get(hierarchyName).get(uniqueId);
       } else {
@@ -296,7 +323,4 @@ public class InMemoryRegionRepository implements RegionRepository {
   public void updateIndex(String hierarchyName) {
     indexHierarchy(hierarchyName, _roots.get(hierarchyName));
   }
-
-
-
 }
