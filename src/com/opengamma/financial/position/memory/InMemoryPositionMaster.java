@@ -130,7 +130,7 @@ public class InMemoryPositionMaster implements ManagablePositionMaster {
     final UniqueIdentifier portfolioUid = getNextPortfolioUid();
     final PortfolioImpl portfolio = getNewPortfolio(portfolioUid, request.getName());
     if (request.getRootNode() != null) {
-      final PortfolioNodeImpl rootNode = buildNodeFromRequest(portfolio.getUniqueIdentifier(), request.getRootNode());
+      final PortfolioNodeImpl rootNode = buildNodeFromRequest(portfolioUid, request.getRootNode());
       portfolio.setRootNode(rootNode);
     }
     return portfolioUid;

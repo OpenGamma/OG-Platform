@@ -22,6 +22,7 @@ import com.opengamma.engine.security.Security;
 import com.opengamma.financial.security.AddSecurityRequest;
 import com.opengamma.financial.security.ManagableSecurityMaster;
 import com.opengamma.financial.security.UpdateSecurityRequest;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierTemplate;
@@ -98,7 +99,7 @@ public class InMemorySecurityMaster implements ManagableSecurityMaster {
     Validate.notNull(secKey, "IdentifierBundle must not be null");
     Set<Security> result = new HashSet<Security>();
     for (Security security : _securities.values()) {
-      if (security.getIdentifiers().equals(secKey)) {
+      if (security.getIdentifiers().containsAny(secKey)) {
         result.add(security);
       }
     }
@@ -108,8 +109,14 @@ public class InMemorySecurityMaster implements ManagableSecurityMaster {
   @Override
   public Security getSecurity(IdentifierBundle secKey) {
     Validate.notNull(secKey, "IdentifierBundle must not be null");
-    Collection<Security> all = getSecurities(secKey);
-    return (all.size() == 0 ? null : all.iterator().next());
+    for (Identifier secId : secKey.getIdentifiers()) {
+      for (Security sec : _securities.values()) {
+        if (sec.getIdentifiers().contains(secId)) {
+          return sec;
+        }
+      }
+    }
+    return null;
   }
 
   @Override

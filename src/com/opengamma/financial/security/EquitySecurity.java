@@ -10,7 +10,6 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.GICSCode;
-import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 
 /**
@@ -62,14 +61,15 @@ public class EquitySecurity extends FinancialSecurity {
   }
 
   /**
-   * This should be removed after the demo is fully Bloomberg modified.
+   * Creates a security.
    * 
-   * @param scheme
-   * @param value  the value
+   * @param scheme  the scheme of the equity identifier, not null
+   * @param value  the value of the equity identifier, not null
    */
   public EquitySecurity(String scheme, String value) {
+    // TODO: consider removal
     this();
-    addIdentifier(new Identifier(new IdentificationScheme(scheme), value));
+    addIdentifier(new Identifier(scheme, value));
   }
 
   //-------------------------------------------------------------------------
