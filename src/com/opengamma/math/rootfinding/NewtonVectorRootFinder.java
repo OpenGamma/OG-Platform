@@ -5,13 +5,8 @@
  */
 package com.opengamma.math.rootfinding;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.math.linearalgebra.Decomposition;
-import com.opengamma.math.linearalgebra.DecompositionResult;
 import com.opengamma.math.linearalgebra.LUDecompositionCommons;
-import com.opengamma.math.linearalgebra.SVDecompositionCommons;
-import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
@@ -21,17 +16,20 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 public class NewtonVectorRootFinder extends NewtonRootFinderImpl {
   private static final double DEF_TOL = 1e-7;
   private static final int MAX_STEPS = 100;
-  private Decomposition<?> _decomp;
+  private DoubleMatrix2D _jacobianEstimate;
+
+  //private Decomposition<?> _decomp;
 
   public NewtonVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps, final Decomposition<?> decomp) {
-    super(absoluteTol, relativeTol, maxSteps);
-    Validate.notNull(decomp);
-    _decomp = decomp;
+    super(absoluteTol, relativeTol, maxSteps, new JacobianDirectionFunction(decomp), new JacobianEstimateInitializationFunction(new FiniteDifferenceJacobianCalculator()), new DefaultUpdateFunction());
+    //Validate.notNull(decomp);
+    //_decomp = decomp;
   }
 
   public NewtonVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps) {
-    super(absoluteTol, relativeTol, maxSteps);
-    _decomp = new LUDecompositionCommons();
+    super(absoluteTol, relativeTol, maxSteps, new JacobianDirectionFunction(new LUDecompositionCommons()), new JacobianEstimateInitializationFunction(new FiniteDifferenceJacobianCalculator()),
+        new DefaultUpdateFunction());
+    //_decomp = new LUDecompositionCommons();
   }
 
   public NewtonVectorRootFinder() {
@@ -44,26 +42,40 @@ public class NewtonVectorRootFinder extends NewtonRootFinderImpl {
    * @param decompMethod The method used to solve for the Newton step
    * @throws IllegalArgumentException If the Decomposition is null 
    */
-  public void setDecompositionMethod(final Decomposition<?> decompMethod) {
-    Validate.notNull(decompMethod);
-    _decomp = decompMethod;
-  }
+  //public void setDecompositionMethod(final Decomposition<?> decompMethod) {
+  //  Validate.notNull(decompMethod);
+  //  _decomp = decompMethod;
+  //}
 
+  /*@SuppressWarnings("unchecked")
   @Override
-  protected DoubleMatrix1D getDirection() {
-    final DoubleMatrix2D jacobianEst = _jacobian.evaluate(_x);
+  protected DoubleMatrix1D getDirection(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function) {
+    final DoubleMatrix2D jacobianEst = _jacobianCalculator.evaluate(_x, function);
     final DecompositionResult res = _decomp.evaluate(jacobianEst);
     return res.solve(_y);
+  }*/
+
+  /*@Override
+  protected DoubleMatrix2D getEstimate(final Function1D<DoubleMatrix1D, DoubleMatrix1D> f) {
+    if (_jacobianEstimate == null) {
+      _jacobianEstimate = _jacobianCalculator.evaluate(_x, f);
+    }
+    return _jacobianEstimate;
   }
 
   @Override
-  protected void initializeMatrices() {
-    // no need to do anything
+  protected void setEstimate(final DoubleMatrix2D estimate) {
+    _jacobianEstimate = estimate;
   }
 
-  @Override
-  protected void updateMatrices() {
+  /*@Override
+  protected void initializeMatrices(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function) {
     // no need to do anything
-  }
+  }*/
+
+  /*@Override
+  protected void updateMatrices(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function) {
+    // no need to do anything
+  }*/
 
 }

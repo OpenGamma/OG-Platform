@@ -5,14 +5,13 @@
  */
 package com.opengamma.math.rootfinding;
 
-import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
  * 
  */
-public interface JacobianCalculator {
+public interface NewtonRootFinderDirectionFunction {
 
-  DoubleMatrix2D evaluate(final DoubleMatrix1D x, final Function1D<DoubleMatrix1D, DoubleMatrix1D>... functions);
+  DoubleMatrix1D getDirection(DoubleMatrix2D estimate, DoubleMatrix1D y);
 }

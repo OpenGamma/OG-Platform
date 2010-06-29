@@ -7,6 +7,10 @@ package com.opengamma.math.rootfinding;
 
 import com.opengamma.math.function.PolynomialFunction1D;
 
+/**
+ * 
+ * @param <T> Type of the polynomial function
+ */
 public interface Polynomial1DRootFinder<T> {
 
   T[] getRoots(PolynomialFunction1D function);

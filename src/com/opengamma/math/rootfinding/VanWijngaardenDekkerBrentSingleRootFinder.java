@@ -7,6 +7,9 @@ package com.opengamma.math.rootfinding;
 
 import com.opengamma.math.function.Function1D;
 
+/**
+ * 
+ */
 public class VanWijngaardenDekkerBrentSingleRootFinder extends RealSingleRootFinder {
   private final double _accuracy;
   private static final int MAX_ITER = 100;

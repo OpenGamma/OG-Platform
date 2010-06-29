@@ -12,7 +12,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 /**
  * 
  */
-public interface JacobianCalculator {
+public interface NewtonRootFinderMatrixUpdateFunction {
 
-  DoubleMatrix2D evaluate(final DoubleMatrix1D x, final Function1D<DoubleMatrix1D, DoubleMatrix1D>... functions);
+  DoubleMatrix2D getUpdatedMatrix(Function1D<DoubleMatrix1D, DoubleMatrix1D> f, DoubleMatrix1D deltaX, DoubleMatrix1D deltaY, DoubleMatrix2D matrix);
 }
