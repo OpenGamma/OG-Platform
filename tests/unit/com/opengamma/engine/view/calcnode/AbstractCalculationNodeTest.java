@@ -21,7 +21,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.MockFunction;
-import com.opengamma.engine.position.InMemoryPositionMaster;
+import com.opengamma.engine.position.MockPositionMaster;
 import com.opengamma.engine.security.MockSecurityMaster;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -67,7 +67,7 @@ public class AbstractCalculationNodeTest {
     //cache.putValue(inputValue);
     FunctionExecutionContext execContext = new FunctionExecutionContext();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(null);
-    ComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(new MockSecurityMaster(), new InMemoryPositionMaster());
+    ComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(new MockSecurityMaster(), new MockPositionMaster());
     
     TestCalculationNode calcNode = new TestCalculationNode(
         cacheSource,
@@ -112,7 +112,7 @@ public class AbstractCalculationNodeTest {
     
     FunctionExecutionContext execContext = new FunctionExecutionContext();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(null);
-    ComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(new MockSecurityMaster(), new InMemoryPositionMaster());
+    ComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(new MockSecurityMaster(), new MockPositionMaster());
     
     TestCalculationNode calcNode = new TestCalculationNode(
         cacheSource,
