@@ -27,7 +27,7 @@ public interface TimeSeries<DATE_TYPE, VALUE_TYPE> extends Iterable<Map.Entry<DA
   /**
    * Gets the data point on the (exact) moment in time provided. If no entry in
    * present
-   * in the time series, a NoSuchElementException will be thrown.
+   * in the time series, a null will be returned.  Note that this is not the same behaviour as getValueFast(), which throws an exception. 
    * 
    * @param instant the instant of the requested sample
    * @return the requested sample
