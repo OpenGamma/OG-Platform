@@ -27,11 +27,12 @@ import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSerie
 import com.opengamma.util.timeseries.fast.longint.object.FastMutableLongObjectTimeSeries;
 
 /**
- * @author jim
- *         Contains methods to make Primitive time series work with the normal
- *         non-primitive time series interface (where possible)
+ * Contains methods to make Primitive time series work with the normal
+ * non-primitive time series interface (where possible)
+ * @param <T>  type
  */
-public abstract class AbstractFastIntObjectTimeSeries<T> extends AbstractFastObjectTimeSeries<Integer, T> implements FastIntObjectTimeSeries<T> {
+public abstract class AbstractFastIntObjectTimeSeries<T>
+    extends AbstractFastObjectTimeSeries<Integer, T> implements FastIntObjectTimeSeries<T> {
 
   private final DateTimeNumericEncoding _encoding;
 
@@ -146,7 +147,7 @@ public abstract class AbstractFastIntObjectTimeSeries<T> extends AbstractFastObj
     final int[] aTimes = timesArrayFast();
     final T[] aValues = valuesArrayFast();
     final T[] results = (T[]) new Object[aValues.length]; // could modify in place, but will probably switch to in-place view of backing array.
-    for (int i=0; i<aValues.length; i++) {
+    for (int i = 0; i < aValues.length; i++) {
       results[i] = operator.operate(aValues[i]);
     }
     return newInstanceFast(aTimes, results);
@@ -157,7 +158,7 @@ public abstract class AbstractFastIntObjectTimeSeries<T> extends AbstractFastObj
     final int[] aTimes = timesArrayFast();
     final T[] aValues = valuesArrayFast();
     final T[] results = (T[]) new Object[aValues.length]; // could modify in place, but will probably switch to in-place view of backing array.
-    for (int i=0; i<aValues.length; i++) {
+    for (int i = 0; i < aValues.length; i++) {
       results[i] = operator.operate(aValues[i], other);
     }
     return newInstanceFast(aTimes, results);
@@ -169,9 +170,9 @@ public abstract class AbstractFastIntObjectTimeSeries<T> extends AbstractFastObj
   public FastIntObjectTimeSeries<T> operate(final FastBackedObjectTimeSeries<?, T> other, final BinaryOperator operator) {
     FastObjectTimeSeries<?, ?> fastSeries = other.getFastSeries();
     if (fastSeries instanceof FastIntObjectTimeSeries<?>) {
-      return operate((FastIntObjectTimeSeries<T>)fastSeries, operator);
+      return operate((FastIntObjectTimeSeries<T>) fastSeries, operator);
     } else { // if (fastSeries instanceof FastLongDoubleTimeSeries
-      return operate((FastLongObjectTimeSeries<T>)fastSeries, operator);
+      return operate((FastLongObjectTimeSeries<T>) fastSeries, operator);
     }
   }
   
@@ -185,11 +186,11 @@ public abstract class AbstractFastIntObjectTimeSeries<T> extends AbstractFastObj
     if (getEncoding() != other.getEncoding()) { // convert to a's format -- NOTE: if we switch to using an underlying array rather than a copy, we can't modify it in-place like we're doing here.
       DateTimeNumericEncoding aEncoding = getEncoding();
       DateTimeNumericEncoding bEncoding = other.getEncoding();
-      for (int i=0; i<bTimes.length; i++) {
+      for (int i = 0; i < bTimes.length; i++) {
         bTimes[i] = bEncoding.convertToInt(bTimesLong[i], aEncoding);
       }
     } else {
-      for (int i=0; i<bTimes.length; i++) {
+      for (int i = 0; i < bTimes.length; i++) {
         bTimes[i] = (int) bTimesLong[i];
       }      
     }
@@ -227,7 +228,7 @@ public abstract class AbstractFastIntObjectTimeSeries<T> extends AbstractFastObj
     if (getEncoding() != other.getEncoding()) { // convert to a's format -- NOTE: if we switch to using an underlying array rather than a copy, we can't modify it in-place like we're doing here.
       DateTimeNumericEncoding aEncoding = getEncoding();
       DateTimeNumericEncoding bEncoding = other.getEncoding();
-      for (int i=0; i<bTimes.length; i++) {
+      for (int i = 0; i < bTimes.length; i++) {
         bTimes[i] = bEncoding.convertToInt(bTimes[i], aEncoding);
       }
     }
@@ -260,9 +261,9 @@ public abstract class AbstractFastIntObjectTimeSeries<T> extends AbstractFastObj
   public FastIntObjectTimeSeries<T> unionOperate(final FastBackedObjectTimeSeries<?, T> other, final BinaryOperator<T> operator) {
     FastObjectTimeSeries<?, ?> fastSeries = other.getFastSeries();
     if (fastSeries instanceof FastIntObjectTimeSeries<?>) {
-      return unionOperate((FastIntObjectTimeSeries<T>)fastSeries, operator);
+      return unionOperate((FastIntObjectTimeSeries<T>) fastSeries, operator);
     } else { // if (fastSeries instanceof FastLongDoubleTimeSeries
-      return unionOperate((FastLongObjectTimeSeries<T>)fastSeries, operator);
+      return unionOperate((FastLongObjectTimeSeries<T>) fastSeries, operator);
     }
   }
   
@@ -275,7 +276,7 @@ public abstract class AbstractFastIntObjectTimeSeries<T> extends AbstractFastObj
     if (getEncoding() != other.getEncoding()) { // convert to a's format -- NOTE: if we switch to using an underlying array rather than a copy, we can't modify it in-place like we're doing here.
       DateTimeNumericEncoding aEncoding = getEncoding();
       DateTimeNumericEncoding bEncoding = other.getEncoding();
-      for (int i=0; i<bTimes.length; i++) {
+      for (int i = 0; i < bTimes.length; i++) {
         bTimes[i] = bEncoding.convertToInt(bTimes[i], aEncoding);
       }
     }
@@ -291,7 +292,7 @@ public abstract class AbstractFastIntObjectTimeSeries<T> extends AbstractFastObj
         System.arraycopy(bValues, bCount, resValues, resCount, bRemaining);
         resCount += bRemaining;
         break;
-      } else if (bCount >= bTimes.length){
+      } else if (bCount >= bTimes.length) {
         int aRemaining = aTimes.length - aCount;
         System.arraycopy(aTimes, aCount, resTimes, resCount, aRemaining);
         System.arraycopy(aValues, aCount, resValues, resCount, aRemaining);
@@ -332,11 +333,11 @@ public abstract class AbstractFastIntObjectTimeSeries<T> extends AbstractFastObj
     if (getEncoding() != other.getEncoding()) { // convert to a's format -- NOTE: if we switch to using an underlying array rather than a copy, we can't modify it in-place like we're doing here.
       DateTimeNumericEncoding aEncoding = getEncoding();
       DateTimeNumericEncoding bEncoding = other.getEncoding();
-      for (int i=0; i<bTimes.length; i++) {
+      for (int i = 0; i < bTimes.length; i++) {
         bTimes[i] = bEncoding.convertToInt(bTimesLong[i], aEncoding);
       }
     } else {
-      for (int i=0; i<bTimes.length; i++) {
+      for (int i = 0; i < bTimes.length; i++) {
         bTimes[i] = (int) bTimesLong[i];
       }
     }
@@ -352,7 +353,7 @@ public abstract class AbstractFastIntObjectTimeSeries<T> extends AbstractFastObj
         System.arraycopy(bValues, bCount, resValues, resCount, bRemaining);
         resCount += bRemaining;
         break;
-      } else if (bCount >= bTimes.length){
+      } else if (bCount >= bTimes.length) {
         int aRemaining = aTimes.length - aCount;
         System.arraycopy(aTimes, aCount, resTimes, resCount, aRemaining);
         System.arraycopy(aValues, aCount, resValues, resCount, aRemaining);

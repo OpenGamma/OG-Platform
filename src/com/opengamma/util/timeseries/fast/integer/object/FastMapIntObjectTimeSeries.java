@@ -173,7 +173,7 @@ public class FastMapIntObjectTimeSeries<T> extends AbstractFastMutableIntObjectT
   @SuppressWarnings("unchecked")
   @Override
   public T[] valuesArrayFast() {
-    return (T[])_map.values().toArray();
+    return (T[]) _map.values().toArray();
   }
 
   @Override
@@ -251,10 +251,12 @@ public class FastMapIntObjectTimeSeries<T> extends AbstractFastMutableIntObjectT
   @SuppressWarnings("unchecked")
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
+    }
     if (getClass() != obj.getClass()) {
       if (obj instanceof FastIntObjectTimeSeries<?>) {
         final FastIntObjectTimeSeries<T> other = (FastIntObjectTimeSeries<T>) obj;
