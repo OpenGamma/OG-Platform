@@ -48,7 +48,10 @@ public abstract class BondSecurity extends FinancialSecurity {
   private final double _parAmount;
   private final double _redemptionValue;
 
-  //CSOFF: We need lots of parameters
+  /**
+   * Creates a bond security.
+   */
+  // CSOFF: We need lots of parameters
   public BondSecurity(
       final String issuerName,
       final String issuerType,

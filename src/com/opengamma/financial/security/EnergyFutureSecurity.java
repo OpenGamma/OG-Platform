@@ -10,30 +10,60 @@ import com.opengamma.id.Identifier;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
- *
- * @author Andrew
+ * An energy commodity future.
  */
 public class EnergyFutureSecurity extends CommodityFutureSecurity {
+
+  /** The underlying identifier. */
   private final Identifier _underlyingIdentifier;
-  
-  public EnergyFutureSecurity(final Expiry expiry, final String tradingExchange, final String settlementExchange, final Currency currency, final String type, final Double unitNumber, final String unitName, Identifier underlyingIdentifier) {
+
+  /**
+   * Creates an energy commodity future.
+   * @param expiry  the expiry of the future
+   * @param tradingExchange  the exchange that the future is trading on
+   * @param settlementExchange  the exchange where the future is settled
+   * @param currency  the currency
+   * @param type  the type
+   * @param unitNumber  the unit number
+   * @param unitName  the unit name
+   * @param underlyingIdentifier  the underlying identifier
+   */
+  public EnergyFutureSecurity(
+      final Expiry expiry, final String tradingExchange, final String settlementExchange,
+      final Currency currency, final String type, final Double unitNumber, final String unitName, final Identifier underlyingIdentifier) {
     super(expiry, tradingExchange, settlementExchange, currency, type, unitNumber, unitName);
     _underlyingIdentifier = underlyingIdentifier;
   }
-  
-  public EnergyFutureSecurity(final Expiry expiry, final String tradingExchange, final String settlementExchange, final Currency currency, final String type, Identifier underlyingIdentifier) {
+
+  /**
+   * Creates an energy commodity future with no amount.
+   * @param expiry  the expiry of the future
+   * @param tradingExchange  the exchange that the future is trading on
+   * @param settlementExchange  the exchange where the future is settled
+   * @param currency  the currency
+   * @param type  the type
+   * @param underlyingIdentifier  the underlying identifier
+   */
+  public EnergyFutureSecurity(
+      final Expiry expiry, final String tradingExchange, final String settlementExchange,
+      final Currency currency, final String type, final Identifier underlyingIdentifier) {
     super(expiry, tradingExchange, settlementExchange, currency, type);
     _underlyingIdentifier = underlyingIdentifier;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the underlying identifier.
+   * @return the identifier
+   */
+  public Identifier getUnderlyingIdentityKey() {
+    return _underlyingIdentifier;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public <T> T accept(FutureSecurityVisitor<T> visitor) {
     return visitor.visitEnergyFutureSecurity(this);
   }
-  
-  public Identifier getUnderlyingIdentityKey() {
-    return _underlyingIdentifier;
-  }
-  
+
 }

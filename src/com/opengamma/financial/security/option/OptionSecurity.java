@@ -16,23 +16,29 @@ import com.opengamma.util.time.Expiry;
  */
 public abstract class OptionSecurity extends FinancialSecurity implements Option {
 
+  /** The option type. */
   private final OptionType _optionType;
+  /** The strike. */
   private final double _strike;
+  /** The expiry. */
   private final Expiry _expiry;
+  /** The underlying identifier. */
   private final Identifier _underlyingIdentifier;
+  /** The currency. */
   private final Currency _currency;
 
   /**
-   * Creates a security.
-   * @param securityType
-   * @param optionType
-   * @param strike
-   * @param expiry
-   * @param underlyingIdentifier
-   * @param currency
+   * Creates an option.
+   * @param securityType  the security type
+   * @param optionType  the option type
+   * @param strike  the strike
+   * @param expiry  the expiry
+   * @param underlyingIdentifier  the underlying identifier
+   * @param currency  the currency
    */
-  public OptionSecurity(final String securityType, final OptionType optionType,
-      final double strike, final Expiry expiry, final Identifier underlyingIdentifier, final Currency currency) {
+  public OptionSecurity(
+      final String securityType, final OptionType optionType, final double strike,
+      final Expiry expiry, final Identifier underlyingIdentifier, final Currency currency) {
     super(securityType);
     _optionType = optionType;
     _strike = strike;
@@ -43,13 +49,15 @@ public abstract class OptionSecurity extends FinancialSecurity implements Option
 
   //-------------------------------------------------------------------------
   /**
-   * @return the optionType
+   * Gets the option type.
+   * @return the option type
    */
   public OptionType getOptionType() {
     return _optionType;
   }
 
   /**
+   * Gets the strike.
    * @return the strike
    */
   public double getStrike() {
@@ -57,16 +65,25 @@ public abstract class OptionSecurity extends FinancialSecurity implements Option
   }
 
   /**
+   * Gets the expiry.
    * @return the expiry
    */
   public Expiry getExpiry() {
     return _expiry;
   }
 
+  /**
+   * Gets the underlying identifier.
+   * @return the underlying identifier
+   */
   public Identifier getUnderlyingIdentifier() {
     return _underlyingIdentifier;
   }
 
+  /**
+   * Gets the currency.
+   * @return the currency
+   */
   public Currency getCurrency() {
     return _currency;
   }
