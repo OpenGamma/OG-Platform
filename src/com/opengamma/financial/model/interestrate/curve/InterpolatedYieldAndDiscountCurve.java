@@ -6,6 +6,7 @@
 package com.opengamma.financial.model.interestrate.curve;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -29,9 +30,74 @@ public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscount
 
   /**
    * 
+   * @param t
+   *          An array containing maturities in years
+   * @param y
+   *          An array containing either interest rates
+   *          in percent (e.g. 3% = 0.03) or discount factors
+   * @param interpolator
+   *          An interpolator to get interest rates / discount factors for
+   *          maturities that fall in between nodes. This cannot be null.
+   * @throws IllegalArgumentException
+   *           Thrown if the arrays are null or empty, or if it contains a
+   *           negative time to maturity.
+   */
+  public InterpolatedYieldAndDiscountCurve(final double[] t, double[] y,
+      final Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult> interpolator) {
+    this(t, y, Collections.<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>>singletonMap(Double.POSITIVE_INFINITY,
+        interpolator));
+  }
+
+  /**
+   * 
+   * @param t
+   *          An array containing maturities in years
+   * @param y
+   *          An array containing either interest rates
+   *          in percent (e.g. 3% = 0.03) or discount factors
+   * @param interpolators
+   *          A map of times and interpolators. This allows different
+   *          interpolators to be used for different regions of the curve. The time value is
+   *          the maximum time in years for which an interpolator is valid.
+   * @throws IllegalArgumentException
+   *           Thrown if the arrays are null or empty, or if it contains a
+   *           negative time to maturity.
+   */
+  public InterpolatedYieldAndDiscountCurve(final double[] t, double[] y,
+      final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> interpolators) {
+    Validate.notNull(t);
+    Validate.notNull(y);
+    Validate.notNull(interpolators);
+    Validate.notEmpty(interpolators);
+    int n = t.length;
+    if (n < 2) {
+      throw new IllegalArgumentException("Need to have at least two data points for an interpolated curve");
+    }
+    if (n != y.length) {
+      throw new IllegalArgumentException("Need to have same number of values in x and y data");
+    }
+    assert ArgumentChecker.hasNegativeElement(interpolators.keySet()) == false;
+    assert ArgumentChecker.hasNullElement(interpolators.values()) == false;
+    Map<Double, Double> data = new HashMap<Double, Double>();
+    for (int i = 0; i < n; i++) {
+      assert (t[i] >= 0);
+      data.put(t[i], y[i]);
+    }
+    _data = Collections.<Double, Double>unmodifiableMap(data);
+    _interpolators =
+      Collections.<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>>
+          unmodifiableSortedMap(new TreeMap<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>>(interpolators));
+    final SortedMap<Double, Interpolator1DDataBundle> models = new TreeMap<Double, Interpolator1DDataBundle>();
+    for (final Map.Entry<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> entry : _interpolators.entrySet()) {
+      models.put(entry.getKey(), Interpolator1DDataBundleFactory.fromArrays(t, y, entry.getValue()));
+    }
+    _models = Collections.unmodifiableSortedMap(models);
+  }
+  /**
+   * 
    * @param data
-   *          A map containing pairs of maturities in years and interest rates
-   *          in percent (e.g. 3% = 0.03)
+   *          A map containing pairs of maturities in years and and either interest rates
+   *          in percent (e.g. 3% = 0.03) or discount factors
    * @param interpolator
    *          An interpolator to get interest rates / discount factors for
    *          maturities that fall in between nodes. This cannot be null.
@@ -48,8 +114,8 @@ public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscount
   /**
    * 
    * @param data
-   *          A map containing pairs of maturities in years and interest rates
-   *          in percent (e.g. 3% = 0.03)
+   *          A map containing pairs of maturities in years and and either interest rates
+   *          in percent (e.g. 3% = 0.03) or discount factors
    * @param interpolators
    *          A map of times and interpolators. This allows different
    *          interpolators
@@ -74,7 +140,7 @@ public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscount
     assert ArgumentChecker.hasNegativeElement(interpolators.keySet()) == false;
     assert ArgumentChecker.hasNullElement(interpolators.values()) == false;
     _data = Collections.<Double, Double>unmodifiableMap(data);
-    _interpolators = 
+    _interpolators =
       Collections.<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>>
           unmodifiableSortedMap(new TreeMap<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>>(interpolators));
     final SortedMap<Double, Interpolator1DDataBundle> models = new TreeMap<Double, Interpolator1DDataBundle>();
@@ -86,7 +152,7 @@ public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscount
 
   /**
    * 
-   * @return The data. 
+   * @return The data.
    */
   public Map<Double, Double> getData() {
     return _data;

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.interestrate.curve;
@@ -27,6 +27,43 @@ public class InterpolatedYieldCurve extends InterpolatedYieldAndDiscountCurve {
 
   /**
    * 
+   * @param t
+   *          An array containing the time in years to maturity
+   * @param df
+   *          An array containing the rate as a decimal
+   * @param interpolator
+   *          An interpolator to get interest rates / discount factors for
+   *          maturities that fall in between nodes. This cannot be null.
+   * @throws IllegalArgumentException
+   *           Thrown if the data map is null or empty, or if it contains a
+   *           negative time to maturity.
+   */
+  public InterpolatedYieldCurve(final double[] t, final double[] df, final Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult> interpolator) {
+    super(t, df, interpolator);
+  }
+
+  /**
+   * 
+   * @param t
+   *          An array containing the time in years to maturity
+   * @param df
+   *          An array containing the rate as a decimal
+   * @param interpolators
+   *          A map of times and interpolators. This allows different
+   *          interpolators
+   *          to be used for different regions of the curve. The time value is
+   *          the
+   *          maximum time in years for which an interpolator is valid.
+   * @throws IllegalArgumentException
+   *           Thrown if the data map is null or empty, or if it contains a
+   *           negative time to maturity.
+   */
+  public InterpolatedYieldCurve(final double[] t, final double[] df, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> interpolators) {
+    super(t, df, interpolators);
+  }
+
+  /**
+   * 
    * @param data
    *          A map containing pairs of maturities in years and rates as decimals (i.e. 4% = 0.04)
    * @param interpolator
@@ -36,8 +73,7 @@ public class InterpolatedYieldCurve extends InterpolatedYieldAndDiscountCurve {
    *           Thrown if the data map is null or empty, or if it contains a
    *           negative time to maturity.
    */
-  public InterpolatedYieldCurve(final Map<Double, Double> data,
-      final Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult> interpolator) {
+  public InterpolatedYieldCurve(final Map<Double, Double> data, final Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult> interpolator) {
     super(data, interpolator);
   }
 
@@ -56,8 +92,7 @@ public class InterpolatedYieldCurve extends InterpolatedYieldAndDiscountCurve {
    *           Thrown if the data map is null or empty, or if it contains a
    *           negative time to maturity.
    */
-  public InterpolatedYieldCurve(final Map<Double, Double> data,
-      final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> interpolators) {
+  public InterpolatedYieldCurve(final Map<Double, Double> data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> interpolators) {
     super(data, interpolators);
   }
 
@@ -74,14 +109,13 @@ public class InterpolatedYieldCurve extends InterpolatedYieldAndDiscountCurve {
     Validate.notNull(t);
     ArgumentChecker.notNegative(t, "time");
     if (getInterpolators().size() == 1) {
-      final Interpolator1D<Interpolator1DDataBundle, ? extends InterpolationResult> interpolator =
-          (Interpolator1D<Interpolator1DDataBundle, ? extends InterpolationResult>) getInterpolators().values().iterator().next();
+      final Interpolator1D<Interpolator1DDataBundle, ? extends InterpolationResult> interpolator = (Interpolator1D<Interpolator1DDataBundle, ? extends InterpolationResult>) getInterpolators()
+          .values().iterator().next();
       return interpolator.interpolate(getDataBundles().values().iterator().next(), t).getResult();
     }
     final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> tail = getInterpolators().tailMap(t);
     final Double key = tail.isEmpty() ? getInterpolators().lastKey() : getInterpolators().tailMap(t).firstKey();
-    final Interpolator1D<Interpolator1DDataBundle, ? extends InterpolationResult> interpolator =
-        (Interpolator1D<Interpolator1DDataBundle, InterpolationResult>) getInterpolators().get(key);
+    final Interpolator1D<Interpolator1DDataBundle, ? extends InterpolationResult> interpolator = (Interpolator1D<Interpolator1DDataBundle, InterpolationResult>) getInterpolators().get(key);
     return interpolator.interpolate(getDataBundles().get(key), t).getResult();
   }
 

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.interpolation;
@@ -48,10 +48,7 @@ public final class Interpolator1DDataBundleFactory {
     }
   }
 
-  private static Interpolator1DDataBundle augmentModel(
-      final Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult> interpolator,
-      Interpolator1DDataBundle baseModel) {
-
+  private static Interpolator1DDataBundle augmentModel(final Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult> interpolator, Interpolator1DDataBundle baseModel) {
     if (interpolator.getClass().equals(NaturalCubicSplineInterpolator1D.class)) {
       return new Interpolator1DCubicSplineDataBundle(baseModel);
     } else if (interpolator.getClass().equals(CubicSplineInterpolatorWithSensitivities1D.class)) {
@@ -60,8 +57,7 @@ public final class Interpolator1DDataBundleFactory {
     return baseModel;
   }
 
-  public static Interpolator1DDataBundle fromArrays(final double[] keys, final double[] values,
-      final Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult> interpolator) {
+  public static Interpolator1DDataBundle fromArrays(final double[] keys, final double[] values, final Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult> interpolator) {
     Interpolator1DDataBundle baseModel = fromArrays(keys, values);
     return augmentModel(interpolator, baseModel);
 
@@ -74,8 +70,7 @@ public final class Interpolator1DDataBundleFactory {
 
   }
 
-  public static Interpolator1DDataBundle fromMap(final Map<Double, Double> data,
-      final Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult> interpolator) {
+  public static Interpolator1DDataBundle fromMap(final Map<Double, Double> data, final Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult> interpolator) {
     Interpolator1DDataBundle baseModel = fromMap(data);
     return augmentModel(interpolator, baseModel);
 

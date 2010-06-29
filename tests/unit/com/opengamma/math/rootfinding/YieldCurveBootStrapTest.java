@@ -10,7 +10,6 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.TreeMap;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -52,8 +51,8 @@ import com.opengamma.util.monitor.OperationTimer;
  */
 public class YieldCurveBootStrapTest {
   private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveBootStrapTest.class);
-  private static final int HOTSPOT_WARMUP_CYCLES = 100;
-  private static final int BENCHMARK_CYCLES = 1000;
+  private static final int HOTSPOT_WARMUP_CYCLES = 0;
+  private static final int BENCHMARK_CYCLES = 1;
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   protected static final Interpolator1D<? extends Interpolator1DCubicSplineDataBundle, InterpolationResult> CUBIC = new NaturalCubicSplineInterpolator1D();
   protected static final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> CUBIC_WITH_SENSITIVITY = new CubicSplineInterpolatorWithSensitivities1D();
@@ -263,20 +262,15 @@ public class YieldCurveBootStrapTest {
     if (n != times.length) {
       throw new IllegalArgumentException("rates and times different lengths");
     }
-    final TreeMap<Double, Double> data = new TreeMap<Double, Double>();
-    data.put(0.0, SPOT_RATE);
+    double[] t = new double[n + 1];
+    double[] y = new double[n + 1];
+    t[0] = 0;
+    y[0] = SPOT_RATE;
     for (int i = 0; i < n; i++) {
-      data.put(times[i], yields[i]);
+      t[i + 1] = times[i];
+      y[i + 1] = yields[i];
     }
-    return new InterpolatedYieldCurve(data, interpolator);
-  }
-
-  public void checkConverged(final DoubleMatrix1D yieldCurveNodes, final double[] fwdTimes, final double[] fundTimes) {
-    final TreeMap<Double, Double> data = new TreeMap<Double, Double>();
-    data.put(0.0, SPOT_RATE);
-    for (int i = 0; i < TIME_GRID.length; i++) {
-      data.put(TIME_GRID[i], yieldCurveNodes.getEntry(i));
-    }
+    return new InterpolatedYieldCurve(t, y, interpolator);
   }
 
   private static Swap setupSwap(final int payments) {
