@@ -14,6 +14,7 @@ derby.log
 !src/com/opengamma/util/db/
 !tests/unit/com/opengamma/util/db/
 !db/*/create-db.sql
+.settings/
 /.fudge-proto-gitignore
 /MANIFEST.MF
 .clover/
