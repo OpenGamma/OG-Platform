@@ -106,7 +106,7 @@ public class CollectingLiveDataListener implements LiveDataListener {
       return Collections.emptyList();
     }
     
-    return Collections.unmodifiableList(updates);
+    return new ArrayList<LiveDataValueUpdate>(updates);
   }
   
   public boolean waitUntilAllResponsesReceived(long timeoutMs) {
