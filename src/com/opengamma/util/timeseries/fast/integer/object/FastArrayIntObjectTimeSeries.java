@@ -23,17 +23,22 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang.ArrayUtils;
 
-import com.opengamma.util.timeseries.AbstractFastBackedObjectTimeSeries;
-import com.opengamma.util.timeseries.FastBackedObjectTimeSeries;
 import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSeries;
 import com.opengamma.util.tuple.IntObjectPair;
 
+/**
+ * Time series.
+ * @param <T>  the type
+ */
 public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSeries<T> {
+  /** Empty time series. */
   public static final FastIntObjectTimeSeries<Object> EMPTY_SERIES = new FastArrayIntObjectTimeSeries<Object>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
 
+  /** The times. */
   protected final int[] _times;
+  /** The values. */
   protected final T[] _values;
 
   @SuppressWarnings("unchecked")
@@ -60,15 +65,17 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
   }
 
   private void init(final int[] times, final T[] values) {
-    if (times.length != values.length)
+    if (times.length != values.length) {
       throw new IllegalArgumentException("Arrays are of different sizes: " + times.length + ", " + values.length);
+    }
     System.arraycopy(times, 0, _times, 0, times.length);
     System.arraycopy(values, 0, _values, 0, values.length);
     // check dates are ordered
     int maxTime = Integer.MIN_VALUE;
     for (final int time : _times) {
-      if (time < maxTime)
+      if (time < maxTime) {
         throw new IllegalArgumentException("dates must be ordered");
+      }
       maxTime = time;
     }
   }
@@ -76,8 +83,9 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
   @SuppressWarnings("unchecked")
   public FastArrayIntObjectTimeSeries(final DateTimeNumericEncoding encoding, final List<Integer> times, final List<T> values) {
     super(encoding);
-    if (times.size() != values.size())
+    if (times.size() != values.size()) {
       throw new IllegalArgumentException("lists are of different sizes");
+    }
     _times = new int[times.size()];
     _values = (T[]) new Object[values.size()];
     final Iterator<T> iter = values.iterator();
@@ -106,7 +114,7 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
     super(encoding);
     DateTimeNumericEncoding sourceEncoding = dts.getEncoding();
     _times = dts.timesArrayFast();
-    for (int i=0; i<_times.length; i++) {
+    for (int i = 0; i < _times.length; i++) {
       _times[i] = sourceEncoding.convertToInt(_times[i], encoding);
     }
     _values = dts.valuesArrayFast();
@@ -121,7 +129,7 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
     DateTimeNumericEncoding otherEncoding = dts.getEncoding();
     long[] otherTimes = dts.timesArrayFast();
     _times = new int[otherTimes.length];
-    for (int i=0; i<otherTimes.length; i++) {
+    for (int i = 0; i < otherTimes.length; i++) {
       _times[i] = otherEncoding.convertToInt(otherTimes[i], encoding);
     }
     _values = dts.valuesArrayFast();
@@ -146,8 +154,9 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
   @SuppressWarnings("unchecked")
   @Override
   public FastIntObjectTimeSeries<T> subSeriesFast(final int startTime, final int endTime) {
-    if (isEmpty())
-      return new FastArrayIntObjectTimeSeries(getEncoding(), new int[0], (T[])new Object[0]);
+    if (isEmpty()) {
+      return new FastArrayIntObjectTimeSeries(getEncoding(), new int[0], (T[]) new Object[0]);
+    }
     // throw new NoSuchElementException("Series is empty")
     int startPos = Arrays.binarySearch(_times, startTime);
     int endPos = Arrays.binarySearch(_times, endTime);
@@ -176,18 +185,20 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
 
   @Override
   public int getEarliestTimeFast() {
-    if (_times.length > 0)
+    if (_times.length > 0) {
       return _times[0];
-    else
+    } else {
       throw new NoSuchElementException("Series is empty");
+    }
   }
 
   @Override
   public T getEarliestValueFast() {
-    if (_values.length > 0)
+    if (_values.length > 0) {
       return _values[0];
-    else
+    } else {
       throw new NoSuchElementException("Series is empty");
+    }
   }
 
   @Override
@@ -195,20 +206,23 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
     if (_times.length > 0) {
       final int index = _times.length - 1;
       return _times[index];
-    } else
+    } else {
       throw new NoSuchElementException("Series is empty");
+    }
   }
 
   @Override
   public T getLatestValueFast() {
-    if (_values.length > 0)
+    if (_values.length > 0) {
       return _values[_values.length - 1];
-    else
+    } else {
       throw new NoSuchElementException("Series is empty");
+    }
   }
 
+  //-------------------------------------------------------------------------
   /* package */class PrimitiveArrayObjectTimeSeriesIterator implements ObjectIterator<Int2ObjectMap.Entry<T>> {
-    private int _current = 0;
+    private int _current;
 
     @Override
     public boolean hasNext() {
@@ -253,8 +267,9 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
     return _times.length == 0;
   }
 
+  //-------------------------------------------------------------------------
   /* package */class PrimitiveArrayIntObjectTimeSeriesTimesIterator implements IntIterator {
-    private int _current = 0;
+    private int _current;
 
     @Override
     public boolean hasNext() {
@@ -299,8 +314,9 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
     }
   }
 
+  //-------------------------------------------------------------------------
   /* package */class PrimitiveArrayIntObjectTimeSeriesValuesIterator implements ObjectIterator<T> {
-    private int _current = 0;
+    private int _current;
 
     @Override
     public boolean hasNext() {
@@ -313,8 +329,9 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
         final T value = _values[_current];
         _current++;
         return value;
-      } else
+      } else {
         throw new NoSuchElementException();
+      }
     }
 
     @Override
@@ -359,8 +376,9 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
       System.arraycopy(_times, _times.length - numItems, times, 0, numItems);
       System.arraycopy(_values, _values.length - numItems, values, 0, numItems);
       return new FastArrayIntObjectTimeSeries(getEncoding(), times, values);
-    } else
+    } else {
       throw new NoSuchElementException("Not enough elements");
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -371,21 +389,26 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
       System.arraycopy(_times, 0, times, 0, numItems);
       System.arraycopy(_values, 0, values, 0, numItems);
       return new FastArrayIntObjectTimeSeries<T>(getEncoding(), times, values);
-    } else
+    } else {
       throw new NoSuchElementException("Not enough elements");
+    }
   }
 
   /**
    * Note that this is so complicated to try and provide optimal performance. A
    * much slower version would be quite short.
+   * @param obj  the objec to check
+   * @return true if equal
    */
   @SuppressWarnings("unchecked")
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
+    }
     if (getClass() != obj.getClass()) {
       if (obj instanceof FastIntObjectTimeSeries) {
         final FastIntObjectTimeSeries other = (FastIntObjectTimeSeries) obj;
@@ -476,10 +499,11 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
   @Override
   public T getValueFast(final int time) {
     final int binarySearch = Arrays.binarySearch(_times, time);
-    if (_times[binarySearch] == time)
+    if (_times[binarySearch] == time) {
       return _values[binarySearch];
-    else
+    } else {
       throw new NoSuchElementException();
+    }
   }
 
   @Override

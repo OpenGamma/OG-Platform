@@ -60,7 +60,7 @@ public class FastListIntObjectTimeSeries<T> extends AbstractFastMutableIntObject
   public FastListIntObjectTimeSeries(final FastIntObjectTimeSeries<T> dts) {
     super(dts.getEncoding());
     _times = new IntArrayList(dts.timesArrayFast());
-    _values = new ObjectArrayList<T>((T[])dts.valuesArrayFast());
+    _values = new ObjectArrayList<T>((T[]) dts.valuesArrayFast());
     // don't need to check here
   }
 
@@ -195,7 +195,9 @@ public class FastListIntObjectTimeSeries<T> extends AbstractFastMutableIntObject
     if (endIndex == -1) {
       endIndex = -(Collections.binarySearch(_times, endTime) + 1);
     }
-    if (startIndex == -1 || endIndex == -1) throw new NoSuchElementException();
+    if (startIndex == -1 || endIndex == -1) {
+      throw new NoSuchElementException();
+    }
     return new FastListIntObjectTimeSeries<T>(getEncoding(), _times.subList(startIndex, endIndex), _values.subList(startIndex, endIndex));
   }
 
@@ -322,14 +324,18 @@ public class FastListIntObjectTimeSeries<T> extends AbstractFastMutableIntObject
   /**
    * Note that this is so complicated to try and provide optimal performance. A
    * much slower version would be quite short.
+   * @param obj  the object to check
+   * @return true if equal
    */
   @SuppressWarnings("unchecked")
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
+    }
     if (getClass() != obj.getClass()) {
       if (obj instanceof FastIntObjectTimeSeries<?>) {
         final FastIntObjectTimeSeries<T> other = (FastIntObjectTimeSeries<T>) obj;
