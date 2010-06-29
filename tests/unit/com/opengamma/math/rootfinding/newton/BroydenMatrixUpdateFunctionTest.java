@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.rootfinding.newton;
@@ -29,21 +29,21 @@ public class BroydenMatrixUpdateFunctionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullFunction() {
-    UPDATE.getUpdatedMatrix(null, V, V, M);
+    UPDATE.getUpdatedMatrix(null, V, V, V, M);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullDeltaX() {
-    UPDATE.getUpdatedMatrix(F, null, V, M);
+    UPDATE.getUpdatedMatrix(F, V, null, V, M);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullDeltaY() {
-    UPDATE.getUpdatedMatrix(F, V, null, M);
+    UPDATE.getUpdatedMatrix(F, V, V, null, M);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullMatrix() {
-    UPDATE.getUpdatedMatrix(F, V, V, null);
+    UPDATE.getUpdatedMatrix(F, V, V, V, null);
   }
 }

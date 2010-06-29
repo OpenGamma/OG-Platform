@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.rootfinding.newton;
@@ -20,8 +20,7 @@ import com.opengamma.math.matrix.Matrix;
 public class BroydenMatrixUpdateFunction implements NewtonRootFinderMatrixUpdateFunction {
 
   @Override
-  public DoubleMatrix2D getUpdatedMatrix(final Function1D<DoubleMatrix1D, DoubleMatrix1D> f, final DoubleMatrix1D deltaX, final DoubleMatrix1D deltaY,
-      final DoubleMatrix2D matrix) {
+  public DoubleMatrix2D getUpdatedMatrix(final Function1D<DoubleMatrix1D, DoubleMatrix1D> f, DoubleMatrix1D x, final DoubleMatrix1D deltaX, final DoubleMatrix1D deltaY, final DoubleMatrix2D matrix) {
     Validate.notNull(f);
     Validate.notNull(deltaX);
     Validate.notNull(deltaY);

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.rootfinding.newton;
@@ -32,10 +32,8 @@ public class NewtonDefaultVectorRootFinder extends NewtonVectorRootFinder {
     this(absoluteTol, relativeTol, maxSteps, calculator, new LUDecompositionCommons());
   }
 
-  public NewtonDefaultVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps, JacobianCalculator calculator,
-      final Decomposition<?> decomp) {
-    super(absoluteTol, relativeTol, maxSteps, new JacobianDirectionFunction(decomp), new JacobianEstimateInitializationFunction(calculator),
-        new NewtonDefaultUpdateFunction());
+  public NewtonDefaultVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps, JacobianCalculator calculator, final Decomposition<?> decomp) {
+    super(absoluteTol, relativeTol, maxSteps, new JacobianDirectionFunction(decomp), new JacobianEstimateInitializationFunction(calculator), new NewtonDefaultUpdateFunction(calculator));
   }
 
 }

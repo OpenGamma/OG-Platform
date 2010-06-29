@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.rootfinding.newton;
@@ -15,12 +15,12 @@ import com.opengamma.math.rootfinding.VectorRootFinder;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Base implementation for for all Newton-Raphson style multi-dimensional root finding (i.e. using the Jacobian matrix as a basis for some iterative process)
+ * Base implementation for all Newton-Raphson style multi-dimensional root finding (i.e. using the Jacobian matrix as a basis for some iterative process)
  */
 public class NewtonVectorRootFinder extends VectorRootFinder {
   private static final double ALPHA = 1e-4;
   private static final double BETA = 1.5;
-  private static final int FULL_JACOBIAN_RECAL_FREQ = 20;
+  private static final int FULL_RECALC_FREQ = 20;
   private final double _absoluteTol, _relativeTol;
   private final int _maxSteps;
   private final NewtonRootFinderDirectionFunction _directionFunction;
@@ -28,9 +28,8 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
   private final NewtonRootFinderMatrixUpdateFunction _updateFunction;
   private final MatrixAlgebra _algebra = new OGMatrixAlgebra();
 
-  public NewtonVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps,
-      final NewtonRootFinderDirectionFunction directionFunction, final NewtonRootFinderMatrixInitializationFunction initializationFunction,
-      final NewtonRootFinderMatrixUpdateFunction updateFunction) {
+  public NewtonVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps, final NewtonRootFinderDirectionFunction directionFunction,
+      final NewtonRootFinderMatrixInitializationFunction initializationFunction, final NewtonRootFinderMatrixUpdateFunction updateFunction) {
     ArgumentChecker.notNegative(absoluteTol, "absolute tolerance");
     ArgumentChecker.notNegative(relativeTol, "relative tolerance");
     ArgumentChecker.notNegative(maxSteps, "maxSteps");
@@ -65,15 +64,15 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
     int count = 0;
     int jacReconCount = 1;
     while (!isConverged(data)) {
-      //Want to reset the Jacobian every so often even if backtracking is working 
-      if ((jacReconCount) % FULL_JACOBIAN_RECAL_FREQ == 0) {
+      // Want to reset the Jacobian every so often even if backtracking is working
+      if ((jacReconCount) % FULL_RECALC_FREQ == 0) {
         estimate = _initializationFunction.getInitializedMatrix(function, data.getX());
         jacReconCount = 1;
       } else {
-        estimate = _updateFunction.getUpdatedMatrix(function, data.getDeltaX(), data.getDeltaY(), estimate);
+        estimate = _updateFunction.getUpdatedMatrix(function, data.getX(), data.getDeltaX(), data.getDeltaY(), estimate);
         jacReconCount++;
       }
-      //if backtracking fails, could be that Jacobian estimate has drifted too far  
+      // if backtracking fails, could be that Jacobian estimate has drifted too far
       if (!getNextPosition(function, estimate, data)) {
         estimate = _initializationFunction.getInitializedMatrix(function, data.getX());
         jacReconCount = 1;
@@ -98,7 +97,7 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
     }
     updatePosition(p, function, data);
     final double g1 = data.getG1();
-    //the function is invalid at the new position, try to recover
+    // the function is invalid at the new position, try to recover
     if (Double.isInfinite(g1) || Double.isNaN(g1)) {
       bisectBacktrack(p, function, data);
     }
@@ -160,7 +159,7 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
     final double a = temp5 * (temp1 * temp3 - temp2 * temp4);
     final double b = temp5 * (-lambda1 * temp1 * temp3 + lambda0 * temp2 * temp4);
     double lambda = (-b + Math.sqrt(b * b + 6 * a * g0)) / 3 / a;
-    lambda = Math.min(Math.max(lambda, 0.01 * lambda0), 0.75 * lambda1); //make sure new lambda is between 1% & 75% of old value
+    lambda = Math.min(Math.max(lambda, 0.01 * lambda0), 0.75 * lambda1); // make sure new lambda is between 1% & 75% of old value
     data.swapLambdaAndReplace(lambda);
     updatePosition(p, function, data);
   }
