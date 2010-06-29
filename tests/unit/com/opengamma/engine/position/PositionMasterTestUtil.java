@@ -46,9 +46,9 @@ public class PositionMasterTestUtil {
     
     // Add some child nodes
     for (int i=0; i<2; i++) {
-      PortfolioNodeImpl childNode = new PortfolioNodeImpl();
+      PortfolioNodeImpl childNode = new PortfolioNodeImpl("Child " + discriminator + "-" + i);
       node.addChildNode(childNode);
-      populateNode(node, discriminator + "-" + i, depth - 1);
+      populateNode(childNode, discriminator + "-" + i, depth - 1);
     }
   }
   

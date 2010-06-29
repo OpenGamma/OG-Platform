@@ -9,8 +9,6 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import com.opengamma.id.Identifier;
-
 /**
  * 
  */
@@ -18,7 +16,7 @@ public class LiveDataSnapshotEntry {
   
   private long _id;
   private LiveDataSnapshot _snapshot;
-  private Identifier _identifier;
+  private LiveDataIdentifier _identifier;
   private LiveDataField _field;
   private double _value;
   
@@ -38,11 +36,11 @@ public class LiveDataSnapshotEntry {
     _snapshot = snapshot;
   }
   
-  public Identifier getIdentifier() {
+  public LiveDataIdentifier getIdentifier() {
     return _identifier;
   }
   
-  public void setIdentifier(Identifier identifier) {
+  public void setIdentifier(LiveDataIdentifier identifier) {
     _identifier = identifier;
   }
   
@@ -64,22 +62,12 @@ public class LiveDataSnapshotEntry {
   
   @Override
   public int hashCode() {
-    return new HashCodeBuilder().append(_id).toHashCode();
+    return HashCodeBuilder.reflectionHashCode(this);
   }
 
   @Override
   public boolean equals(Object obj) {
-    if (obj == null) {
-      return false;
-    }
-    if (obj == this) {
-      return true;
-    }
-    if (obj.getClass() != getClass()) {
-      return false;
-    }
-    LiveDataSnapshotEntry rhs = (LiveDataSnapshotEntry) obj;
-    return new EqualsBuilder().append(_id, rhs._id).isEquals();
+    return EqualsBuilder.reflectionEquals(this, obj);
   }
   
   @Override

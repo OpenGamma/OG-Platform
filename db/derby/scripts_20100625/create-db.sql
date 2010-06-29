@@ -1,28 +1,12 @@
--- assumes the tables are empty
-
-drop table if exists rsk_value cascade;
-drop table if exists rsk_compute_failure cascade;
-drop table if exists rsk_failure cascade;
-drop table if exists rsk_failure_reason cascade;
-drop table if exists rsk_value_name cascade;
-drop table if exists rsk_compute_node cascade;
-drop table if exists rsk_compute_host cascade;
-drop table if exists rsk_run cascade;
-drop table if exists rsk_calculation_configuration cascade;
-drop table if exists rsk_run_property cascade;
-drop table if exists rsk_opengamma_version cascade;
-drop table if exists rsk_observation_datetime cascade;
-drop table if exists rsk_observation_time cascade;
-drop table if exists rsk_live_data_snapshot cascade;
-drop table if exists rsk_live_data_snapshot_entry cascade;
-drop table if exists rsk_live_data_identifier cascade;
-drop table if exists rsk_live_data_field cascade;
-drop table if exists rsk_computation_target cascade;
-drop table if exists rsk_computation_target_type cascade;
-
 -------------------------------------
 -- Static data
 -------------------------------------
+
+    create table hibernate_sequence (
+         next_val bigint
+    );
+
+    insert into hibernate_sequence values ( 1 );
 
 create table rsk_observation_time (
     id int not null,
@@ -36,7 +20,7 @@ create table rsk_observation_time (
 create table rsk_observation_datetime (
 	id int not null,
 	date_part date not null,  
-	time_part time null,						-- null if time of LDN_CLOSE not fixed yet
+	time_part time,						-- null if time of LDN_CLOSE not fixed yet
 	observation_time_id int not null,    		  
 	
 	primary key (id),
@@ -137,7 +121,7 @@ create table rsk_live_data_field (
 create table rsk_live_data_snapshot (
 	id int not null,
 	observation_datetime_id int not null,
-	complete boolean not null,
+	complete smallint not null,
 	
 	primary key (id),
 	
@@ -180,8 +164,8 @@ create table rsk_run (
     live_data_snapshot_id int not null,
     create_instant timestamp not null,
     start_instant timestamp not null,       -- can be different from create_instant if is run is restarted
-    end_instant	timestamp not null,
-    complete boolean not null,
+    end_instant	timestamp,
+    complete smallint not null,
     
     primary key (id),
     
@@ -216,8 +200,8 @@ create table rsk_calculation_configuration (
 create table rsk_run_property (		
 	id int not null,
 	run_id int not null,
-	key varchar(255) not null,
-	value varchar(2000) not null,		    -- varchar(255) not enough
+	property_key varchar(255) not null,
+	property_value varchar(2000) not null,		    -- varchar(255) not enough
 	
 	primary key (id),
 
