@@ -25,6 +25,7 @@ import com.opengamma.financial.position.PortfolioNodeSummary;
 import com.opengamma.financial.position.PositionSummary;
 import com.opengamma.financial.position.UpdatePortfolioRequest;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -89,6 +90,12 @@ public class PortfolioResource {
   }
 
   //-------------------------------------------------------------------------
+  @GET
+  @Produces(FudgeRest.MEDIA)
+  public ManagedPortfolio getAsFudge() {
+    return getPositionMaster().getManagedPortfolio(_portfolioUid);
+  }
+
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getAsHtml() {

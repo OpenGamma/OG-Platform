@@ -11,6 +11,9 @@ import javax.ws.rs.core.UriInfo;
 import com.opengamma.financial.position.ManagablePositionMaster;
 import com.opengamma.financial.position.memory.InMemoryPositionMaster;
 import com.opengamma.financial.position.rest.PortfoliosResource;
+import com.opengamma.financial.user.UserResourceDetails;
+import com.opengamma.financial.user.UserUniqueIdentifierUtils;
+import com.opengamma.id.UniqueIdentifierTemplate;
 
 /**
  * Temporary RESTful resource representing a user's client session.
@@ -28,8 +31,10 @@ public class ClientResource {
   
   public ClientResource(ClientsResource clientsResource, String clientName) {
     _clientsResource = clientsResource;
-    String uidScheme = clientsResource.getUserResource().getUserName() + "-" + clientName;
-    _positionMaster = new InMemoryPositionMaster(uidScheme);
+    final String username = clientsResource.getUserResource().getUserName();
+    UserResourceDetails resourceDetails = new UserResourceDetails(username, clientName, PORTFOLIOS_PATH);
+    UniqueIdentifierTemplate uidTemplate = UserUniqueIdentifierUtils.getTemplate(resourceDetails);
+    _positionMaster = new InMemoryPositionMaster(uidTemplate);
   }
   
   /**
@@ -45,7 +50,7 @@ public class ClientResource {
   }
   
   @Path(PORTFOLIOS_PATH)
-  public PortfoliosResource getPositionMaster() {
+  public PortfoliosResource getPortfolios() {
     return new PortfoliosResource(getUriInfo(), _positionMaster);
   }
   

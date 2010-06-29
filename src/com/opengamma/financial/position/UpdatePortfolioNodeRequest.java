@@ -9,6 +9,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.id.UniqueIdentifier;
@@ -92,6 +96,45 @@ public final class UpdatePortfolioNodeRequest {
   @Override
   public String toString() {
     return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+
+  //-------------------------------------------------------------------------
+  /** Field name. */
+  private static final String UID_FIELD_NAME = "uid";
+  /** Field name. */
+  private static final String NAME_FIELD_NAME = "name";
+
+  /**
+   * Serializes to a Fudge message.
+   * @param context  the Fudge context, not null
+   * @return the Fudge message, not null
+   */
+  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
+    MutableFudgeFieldContainer msg = context.newMessage();
+    if (_uid != null) {
+      msg.add(UID_FIELD_NAME, _uid.toFudgeMsg(context));
+    }
+    if (_name != null) {
+      msg.add(NAME_FIELD_NAME, _name);
+    }
+    return msg;
+  }
+
+  /**
+   * Deserializes from a Fudge message.
+   * @param context  the Fudge context, not null
+   * @param msg  the Fudge message, not null
+   * @return the pair, not null
+   */
+  public static UpdatePortfolioNodeRequest fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer msg) {
+    UpdatePortfolioNodeRequest req = new UpdatePortfolioNodeRequest();
+    if (msg.hasField(UID_FIELD_NAME)) {
+      req.setUniqueIdentifier(UniqueIdentifier.fromFudgeMsg(msg.getMessage(UID_FIELD_NAME)));
+    }
+    if (msg.hasField(NAME_FIELD_NAME)) {
+      req.setName(msg.getString(NAME_FIELD_NAME));
+    }
+    return req;
   }
 
 }

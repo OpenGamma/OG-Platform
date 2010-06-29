@@ -7,7 +7,8 @@ package com.opengamma.financial.security;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.OpenGammaRuntimeException;
+import org.apache.commons.lang.NotImplementedException;
+
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -21,30 +22,9 @@ import com.opengamma.util.time.Expiry;
 public class CorporateBondSecurity extends BondSecurity {
 
   /**
-   * @param issuerName
-   * @param issuerType
-   * @param issuerDomicile
-   * @param market
-   * @param currency
-   * @param yieldConvention
-   * @param guaranteeType
-   * @param maturity
-   * @param couponType
-   * @param couponRate
-   * @param couponFrequency
-   * @param dayCountConvention
-   * @param businessDayConvention
-   * @param announcementDate
-   * @param interestAccrualDate
-   * @param settlementDate
-   * @param firstCouponDate
-   * @param issuancePrice
-   * @param totalAmountIssued
-   * @param minimumAmount
-   * @param minimumIncrement
-   * @param parAmount
-   * @param redemptionValue
+   * Constructor.
    */
+  // CSOFF: We need lots of parameters
   public CorporateBondSecurity(String issuerName, String issuerType,
       String issuerDomicile, String market, Currency currency,
       YieldConvention yieldConvention, String guaranteeType, Expiry maturity,
@@ -55,13 +35,14 @@ public class CorporateBondSecurity extends BondSecurity {
       double issuancePrice, 
       double totalAmountIssued, double minimumAmount, double minimumIncrement,
       double parAmount, double redemptionValue) {
+    // CSON: We need lots of parameters
     super(issuerName, issuerType, issuerDomicile, market, currency,
         yieldConvention, guaranteeType, maturity, couponType, couponRate,
         couponFrequency, dayCountConvention, businessDayConvention,
         announcementDate, interestAccrualDate, settlementDate, firstCouponDate,
         issuancePrice, totalAmountIssued, minimumAmount,
         minimumIncrement, parAmount, redemptionValue);
-    throw new OpenGammaRuntimeException("not implemented");
+    throw new NotImplementedException();
   }
 
   //-------------------------------------------------------------------------

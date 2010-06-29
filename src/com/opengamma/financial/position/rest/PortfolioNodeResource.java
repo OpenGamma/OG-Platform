@@ -31,6 +31,7 @@ import com.opengamma.financial.position.UpdatePortfolioNodeRequest;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -103,6 +104,12 @@ public class PortfolioNodeResource {
   }
 
   //-------------------------------------------------------------------------
+  @GET
+  @Produces(FudgeRest.MEDIA)
+  public ManagedPortfolioNode getAsFudge() {
+    return getPositionMaster().getManagedPortfolioNode(_nodeUid);
+  }
+
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getAsHtml() {

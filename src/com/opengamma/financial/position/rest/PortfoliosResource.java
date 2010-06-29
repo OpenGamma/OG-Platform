@@ -39,6 +39,7 @@ import com.opengamma.financial.position.PortfolioSummary;
 import com.opengamma.financial.position.SearchPortfoliosRequest;
 import com.opengamma.financial.position.SearchPortfoliosResult;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.PagingRequest;
 
@@ -82,7 +83,12 @@ public class PortfoliosResource {
     _fudgeDeserializationContext = new FudgeDeserializationContext(fudgeContext);
     _fudgeSerializationContext = new FudgeSerializationContext(fudgeContext);
   }
-  
+
+  /**
+   * Creates the resource.
+   * @param uriInfo  the URI information, not null
+   * @param posMaster  the position master, not null
+   */
   public PortfoliosResource(UriInfo uriInfo, final ManagablePositionMaster posMaster) {
     this(posMaster);
     ArgumentChecker.notNull(uriInfo, "uriInfo");
@@ -107,6 +113,20 @@ public class PortfoliosResource {
   }
 
   //-------------------------------------------------------------------------
+  @GET
+  @Produces(FudgeRest.MEDIA)
+  public SearchPortfoliosResult getAsFudge(
+      @QueryParam("page") int page,
+      @QueryParam("pageSize") int pageSize,
+      @QueryParam("name") String name,
+      @QueryParam("deleted") boolean deleted) {
+    PagingRequest paging = PagingRequest.of(page, pageSize);
+    SearchPortfoliosRequest request = new SearchPortfoliosRequest(paging);
+    request.setName(StringUtils.trimToNull(name));
+    request.setIncludeDeleted(deleted);
+    return getPositionMaster().searchPortfolios(request);
+  }
+
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getAsHtml(
@@ -180,7 +200,7 @@ public class PortfoliosResource {
     MutableFudgeFieldContainer responseMsg = _fudgeSerializationContext.objectToFudgeMsg(uid);
     return new FudgeMsgEnvelope(responseMsg);
   }
-  
+
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response postForm(@FormParam("name") String name) {

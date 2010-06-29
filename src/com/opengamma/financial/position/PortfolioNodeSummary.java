@@ -7,6 +7,10 @@ package com.opengamma.financial.position;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.id.UniqueIdentifier;
 
@@ -89,6 +93,49 @@ public final class PortfolioNodeSummary {
   @Override
   public String toString() {
     return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+
+  //-------------------------------------------------------------------------
+  /** Field name. */
+  private static final String UID_FIELD_NAME = "uid";
+  /** Field name. */
+  private static final String NAME_FIELD_NAME = "name";
+  /** Field name. */
+  private static final String TOTAL_POSITIONS_FIELD_NAME = "totalPositions";
+
+  /**
+   * Serializes to a Fudge message.
+   * @param context  the Fudge context, not null
+   * @return the Fudge message, not null
+   */
+  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
+    MutableFudgeFieldContainer msg = context.newMessage();
+    if (_uid != null) {
+      msg.add(UID_FIELD_NAME, _uid.toFudgeMsg(context));
+    }
+    if (_name != null) {
+      msg.add(NAME_FIELD_NAME, _name);
+    }
+    msg.add(TOTAL_POSITIONS_FIELD_NAME, _totalPositions);
+    return msg;
+  }
+
+  /**
+   * Deserializes from a Fudge message.
+   * @param context  the Fudge context, not null
+   * @param msg  the Fudge message, not null
+   * @return the pair, not null
+   */
+  public static PortfolioNodeSummary fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer msg) {
+    PortfolioNodeSummary summary = new PortfolioNodeSummary();
+    if (msg.hasField(UID_FIELD_NAME)) {
+      summary.setUniqueIdentifier(UniqueIdentifier.fromFudgeMsg(msg.getMessage(UID_FIELD_NAME)));
+    }
+    if (msg.hasField(NAME_FIELD_NAME)) {
+      summary.setName(msg.getString(NAME_FIELD_NAME));
+    }
+    summary.setTotalPositions(msg.getInt(TOTAL_POSITIONS_FIELD_NAME));
+    return summary;
   }
 
 }
