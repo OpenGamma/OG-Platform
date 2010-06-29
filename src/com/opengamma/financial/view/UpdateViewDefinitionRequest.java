@@ -3,9 +3,8 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position;
+package com.opengamma.financial.view;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -14,59 +13,41 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A request to add a portfolio node.
+ * A request to update a view definition.
  */
-public final class AddPortfolioNodeRequest {
+public final class UpdateViewDefinitionRequest {
 
   /**
-   * The parent node unique identifier.
-   */
-  private UniqueIdentifier _parentUid;
-  /**
-   * The portfolio node name.
+   * The view definition name
    */
   private String _name;
-
   /**
-   * Creates an instance.
+   * The view definition
    */
-  public AddPortfolioNodeRequest() {
+  private ViewDefinition _viewDefinition;
+  
+  /**
+   * Creates an instance
+   */
+  public UpdateViewDefinitionRequest() {
   }
-
+  
   /**
-   * Creates an instance.
-   * @param portfolioNode  the portfolio node to copy, not null
+   * Creates an instance
+   * 
+   * @param viewDefinition  the view definition
    */
-  public AddPortfolioNodeRequest(PortfolioNode portfolioNode) {
-    setName(portfolioNode.getName());
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the parent node unique identifier.
-   * @return the unique identifier, not null
-   */
-  public UniqueIdentifier getParentNode() {
-    return _parentUid;
-  }
-
-  /**
-   * Sets the parent node unique identifier.
-   * @param parentUid  the unique identifier, not null
-   */
-  public void setParentNode(UniqueIdentifier parentUid) {
-    ArgumentChecker.notNull(parentUid, "UniqueIdentifier");
-    _parentUid = parentUid;
+  public UpdateViewDefinitionRequest(ViewDefinition viewDefinition) {
+    setViewDefinition(viewDefinition);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the name to change to.
+   * Gets the name field.
    * @return the name
    */
   public String getName() {
@@ -74,20 +55,39 @@ public final class AddPortfolioNodeRequest {
   }
 
   /**
-   * Sets the name to change to.
+   * Sets the name field, not null
    * @param name  the name
    */
   public void setName(String name) {
-    _name = StringUtils.trim(name);
+    ArgumentChecker.notNull(name, "name");
+    _name = name;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the viewDefinition field.
+   * @return the viewDefinition
+   */
+  public ViewDefinition getViewDefinition() {
+    return _viewDefinition;
+  }
+
+  /**
+   * Sets the viewDefinition field, not null
+   * @param viewDefinition  the viewDefinition
+   */
+  public void setViewDefinition(ViewDefinition viewDefinition) {
+    ArgumentChecker.notNull(viewDefinition, "viewDefinition");
+    _viewDefinition = viewDefinition;
+  }
+  
   //-------------------------------------------------------------------------
   /**
    * Validates this request throwing an exception if not.
    */
   public void checkValid() {
-    Validate.notNull(getParentNode(), "Parent must not be null");
-    Validate.notEmpty(getName(), "Name must not be empty");
+    Validate.notNull(getName(), "Name must not be null");
+    Validate.notNull(getViewDefinition(), "View definition must not be null");
   }
 
   //-------------------------------------------------------------------------
@@ -95,12 +95,12 @@ public final class AddPortfolioNodeRequest {
   public String toString() {
     return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
-
+  
   //-------------------------------------------------------------------------
   /** Field name. */
   private static final String NAME_FIELD_NAME = "name";
   /** Field name. */
-  private static final String PARENT_NODE_FIELD_NAME = "parentNode";
+  private static final String VIEW_DEFINITION_FIELD_NAME = "viewDefinition";
 
   /**
    * Serializes to a Fudge message.
@@ -112,8 +112,8 @@ public final class AddPortfolioNodeRequest {
     if (_name != null) {
       msg.add(NAME_FIELD_NAME, _name);
     }
-    if (_parentUid != null) {
-      context.objectToFudgeMsg(msg, PARENT_NODE_FIELD_NAME, null, _parentUid);
+    if (_viewDefinition != null) {
+      context.objectToFudgeMsg(msg, VIEW_DEFINITION_FIELD_NAME, null, _viewDefinition);
     }
     return msg;
   }
@@ -124,15 +124,15 @@ public final class AddPortfolioNodeRequest {
    * @param msg  the Fudge message, not null
    * @return the pair, not null
    */
-  public static AddPortfolioNodeRequest fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer msg) {
-    AddPortfolioNodeRequest req = new AddPortfolioNodeRequest();
+  public static UpdateViewDefinitionRequest fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer msg) {
+    UpdateViewDefinitionRequest req = new UpdateViewDefinitionRequest();
     if (msg.hasField(NAME_FIELD_NAME)) {
       req.setName(msg.getString(NAME_FIELD_NAME));
     }
-    if (msg.hasField(PARENT_NODE_FIELD_NAME)) {
-      req.setParentNode(UniqueIdentifier.fromFudgeMsg((FudgeFieldContainer) msg.getMessage(PARENT_NODE_FIELD_NAME)));
+    if (msg.hasField(VIEW_DEFINITION_FIELD_NAME)) {
+      req.setViewDefinition(context.fieldValueToObject(ViewDefinition.class, msg.getByName(VIEW_DEFINITION_FIELD_NAME)));
     }
     return req;
   }
-
+  
 }

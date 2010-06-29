@@ -5,8 +5,9 @@
  */
 package com.opengamma.financial.user.rest;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -19,8 +20,8 @@ import javax.ws.rs.core.UriInfo;
  */
 @Path("/users")
 public class UsersResource {
-  
-  private final Map<String, UserResource> _userMap = new HashMap<String, UserResource>();
+   
+  private final ConcurrentHashMap<String, UserResource> _userMap = new ConcurrentHashMap<String, UserResource>();
   /**
    * Information about the URI injected by JSR-311.
    */
@@ -34,14 +35,23 @@ public class UsersResource {
   public UriInfo getUriInfo() {
     return _uriInfo;
   }
-  
+
   @Path("{username}")
-  public UserResource findUser(@PathParam("username") String username) {
-    UserResource user = _userMap.get(username);
-    if (user == null) {
-      user = new UserResource(this, username);
-      _userMap.put(username, user);
+  public UserResource getUser(@PathParam("username") String username) {
+    UserResource freshUser = new UserResource(this, username);
+    UserResource actualUser = _userMap.putIfAbsent(username, freshUser);
+    if (actualUser == null) {
+      actualUser = freshUser;
     }
-    return user;
+    return actualUser;
+  }
+  
+  /**
+   * Temporary method to get all users. This should be on an underlying UserMaster, when it exists.
+   * 
+   * @return  a collection of all users, unmodifiable, not null
+   */
+  public Collection<UserResource> getAllUsers() {
+    return Collections.unmodifiableCollection(_userMap.values());
   }
 }

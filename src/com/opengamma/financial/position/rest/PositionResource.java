@@ -28,6 +28,7 @@ import com.opengamma.financial.position.UpdatePositionRequest;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -100,6 +101,12 @@ public class PositionResource {
   }
 
   //-------------------------------------------------------------------------
+  @GET
+  @Produces(FudgeRest.MEDIA)
+  public ManagedPosition getAsFudge() {
+    return getPositionMaster().getManagedPosition(_positionUid);
+  }
+
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getAsHtml() {

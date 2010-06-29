@@ -3,8 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position;
+package com.opengamma.financial.security;
 
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeFieldContainer;
@@ -12,81 +13,81 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
+import com.opengamma.engine.security.Security;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * A summary of a node.
+ * A request to update a security.
  */
-public final class PortfolioNodeSummary {
+public final class UpdateSecurityRequest {
 
   /**
-   * The unique identifier.
+   * The security uid.
    */
   private UniqueIdentifier _uid;
   /**
-   * The node name.
+   * The security.
    */
-  private String _name;
-  /**
-   * The total number of positions at any depth.
-   */
-  private int _totalPositions;
+  private Security _security;
 
   /**
    * Creates an instance.
    */
-  public PortfolioNodeSummary() {
+  public UpdateSecurityRequest() {
+  }
+
+  /**
+   * Creates an instance.
+   * @param security  the security, not null
+   */
+  public UpdateSecurityRequest(Security security) {
+    setSecurity(security);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the unique identifier of the position.
-   * @return the unique identifier
+   * Gets the security unique identifier.
+   * @return the unique identifier, not null
    */
   public UniqueIdentifier getUniqueIdentifier() {
     return _uid;
   }
 
   /**
-   * Sets the unique identifier of the position.
-   * @param uid  the unique identifier
+   * Sets the security unique identifier.
+   * @param uid  the unique identifier, not null
    */
   public void setUniqueIdentifier(UniqueIdentifier uid) {
+    ArgumentChecker.notNull(uid, "UniqueIdentifier");
     _uid = uid;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the name.
-   * @return the name
+   * Gets the security field.
+   * @return the security
    */
-  public String getName() {
-    return _name;
+  public Security getSecurity() {
+    return _security;
   }
 
   /**
-   * Sets the name.
-   * @param name  the name
+   * Sets the security field.
+   * @param security  the security
    */
-  public void setName(String name) {
-    _name = name;
+  public void setSecurity(Security security) {
+    _security = security;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the total number of positions at any depth.
-   * @return the total number of positions
+   * Validates this request throwing an exception if not.
    */
-  public int getTotalPositions() {
-    return _totalPositions;
-  }
-
-  /**
-   * Sets the total number of positions at any depth.
-   * @param totalPositions  the total number of positions
-   */
-  public void setTotalPositions(int totalPositions) {
-    _totalPositions = totalPositions;
+  public void checkValid() {
+    Validate.notNull(getUniqueIdentifier(), "UniqueIdentifier must not be null");
+//    Validate.isTrue(getUniqueIdentifier().isVersioned(), "UniqueIdentifier must be versioned");
+    Validate.notNull(getSecurity(), "Security must not be null");
   }
 
   //-------------------------------------------------------------------------
@@ -99,9 +100,7 @@ public final class PortfolioNodeSummary {
   /** Field name. */
   private static final String UID_FIELD_NAME = "uid";
   /** Field name. */
-  private static final String NAME_FIELD_NAME = "name";
-  /** Field name. */
-  private static final String TOTAL_POSITIONS_FIELD_NAME = "totalPositions";
+  private static final String SECURITY_FIELD_NAME = "security";
 
   /**
    * Serializes to a Fudge message.
@@ -113,10 +112,9 @@ public final class PortfolioNodeSummary {
     if (_uid != null) {
       msg.add(UID_FIELD_NAME, _uid.toFudgeMsg(context));
     }
-    if (_name != null) {
-      msg.add(NAME_FIELD_NAME, _name);
+    if (_security != null) {
+      context.objectToFudgeMsg(msg, SECURITY_FIELD_NAME, null, _security);
     }
-    msg.add(TOTAL_POSITIONS_FIELD_NAME, _totalPositions);
     return msg;
   }
 
@@ -126,16 +124,15 @@ public final class PortfolioNodeSummary {
    * @param msg  the Fudge message, not null
    * @return the pair, not null
    */
-  public static PortfolioNodeSummary fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer msg) {
-    PortfolioNodeSummary summary = new PortfolioNodeSummary();
+  public static UpdateSecurityRequest fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer msg) {
+    UpdateSecurityRequest req = new UpdateSecurityRequest();
     if (msg.hasField(UID_FIELD_NAME)) {
-      summary.setUniqueIdentifier(UniqueIdentifier.fromFudgeMsg(msg.getMessage(UID_FIELD_NAME)));
+      req.setUniqueIdentifier(UniqueIdentifier.fromFudgeMsg(msg.getMessage(UID_FIELD_NAME)));
     }
-    if (msg.hasField(NAME_FIELD_NAME)) {
-      summary.setName(msg.getString(NAME_FIELD_NAME));
+    if (msg.hasField(SECURITY_FIELD_NAME)) {
+      req.setSecurity(context.fieldValueToObject(Security.class, msg.getByName(SECURITY_FIELD_NAME)));
     }
-    summary.setTotalPositions(msg.getInt(TOTAL_POSITIONS_FIELD_NAME));
-    return summary;
+    return req;
   }
 
 }
