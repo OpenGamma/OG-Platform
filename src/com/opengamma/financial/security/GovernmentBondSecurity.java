@@ -20,30 +20,9 @@ import com.opengamma.util.time.Expiry;
 public class GovernmentBondSecurity extends BondSecurity {
 
   /**
-   * @param issuerName
-   * @param issuerType
-   * @param issuerDomicile
-   * @param market
-   * @param currency
-   * @param yieldConvention
-   * @param guaranteeType
-   * @param maturity
-   * @param couponType
-   * @param couponRate
-   * @param couponFrequency
-   * @param dayCountConvention
-   * @param businessDayConvention
-   * @param announcementDate
-   * @param interestAccrualDate
-   * @param settlementDate
-   * @param firstCouponDate
-   * @param issuancePrice
-   * @param totalAmountIssued
-   * @param minimumAmount
-   * @param minimumIncrement
-   * @param parAmount
-   * @param redemptionValue
+   * Constructor.
    */
+  // CSOFF: We need lots of parameters
   public GovernmentBondSecurity(String issuerName, String issuerType,
       String issuerDomicile, String market, Currency currency,
       YieldConvention yieldConvention, String guaranteeType, Expiry maturity,
@@ -54,6 +33,7 @@ public class GovernmentBondSecurity extends BondSecurity {
       double issuancePrice, 
       double totalAmountIssued, double minimumAmount, double minimumIncrement,
       double parAmount, double redemptionValue) {
+    // CSON: We need lots of parameters
     super(issuerName, issuerType, issuerDomicile, market, currency,
         yieldConvention, guaranteeType, maturity, couponType, couponRate,
         couponFrequency, dayCountConvention, businessDayConvention,

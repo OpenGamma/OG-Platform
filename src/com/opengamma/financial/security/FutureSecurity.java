@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -39,10 +39,10 @@ public abstract class FutureSecurity extends FinancialSecurity {
 
   /**
    * Creates a future security.
-   * @param expiry
-   * @param tradingExchange
-   * @param settlementExchange
-   * @param currency
+   * @param expiry  the expiry of the future
+   * @param tradingExchange  the trading exchange
+   * @param settlementExchange  the settlement exchange
+   * @param currency  the currency
    */
   public FutureSecurity(final Expiry expiry, final String tradingExchange, final String settlementExchange, final Currency currency) {
     super(FUTURE_TYPE);
