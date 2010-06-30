@@ -40,7 +40,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * The position master.
    */
   private final PositionMaster _positionMaster;
-  
+
   /**
    * Delegate {@code ComputationTargetResolver} for resolving the security for a position, and underlying
    * nodes of multiple-positions. Defaults to this object, but can be changed to the {@code CachingComputationTargetResolver}
@@ -60,14 +60,14 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     _securityMaster = securityMaster;
     _positionMaster = positionMaster;
   }
-  
+
   //-------------------------------------------------------------------------
-  
+
   public void setRecursiveResolver(final ComputationTargetResolver recursiveResolver) {
     ArgumentChecker.notNull(recursiveResolver, "Computation Target Resolver");
     _recursiveResolver = recursiveResolver;
   }
-  
+
   public ComputationTargetResolver getRecursiveResolver() {
     return _recursiveResolver;
   }
@@ -124,25 +124,24 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
             s_logger.warn("Unable to resolve security ID {} for position UID {}", position.getSecurityKey(), uid);
           } else {
             s_logger.info("Resolved security ID {} to security {}", position.getSecurityKey(), security);
-            position = new PositionImpl(position.getUniqueIdentifier(), position.getQuantity(), position.getSecurityKey(), security);
+            position = new PositionImpl(position.getUniqueIdentifier(), position.getQuantity(), position
+                .getSecurityKey(), security);
           }
         }
         return new ComputationTarget(ComputationTargetType.POSITION, position);
       }
       case MULTIPLE_POSITIONS: {
-        try {
-          final PortfolioNode node = getPositionMaster().getPortfolioNode(uid);
-          if (node != null) {
-            s_logger.info("Resolved multiple-position UID {} to portfolio node {}", uid, node);
-            return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, resolvePortfolioNode(uid, node));
-          }
-        } catch (IllegalArgumentException ex) {
-          final Portfolio portfolio = getPositionMaster().getPortfolio(uid);
-          if (portfolio != null) {
-            s_logger.info("Resolved multiple-position UID {} to portfolio {}", uid, portfolio);
-            final PortfolioNode node = portfolio.getRootNode();
-            return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, new PortfolioImpl(portfolio.getUniqueIdentifier(), portfolio.getName(), resolvePortfolioNode(uid, node)));
-          }
+        PortfolioNode node = getPositionMaster().getPortfolioNode(uid);
+        if (node != null) {
+          s_logger.info("Resolved multiple-position UID {} to portfolio node {}", uid, node);
+          return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, resolvePortfolioNode(uid, node));
+        }
+        final Portfolio portfolio = getPositionMaster().getPortfolio(uid);
+        if (portfolio != null) {
+          s_logger.info("Resolved multiple-position UID {} to portfolio {}", uid, portfolio);
+          node = portfolio.getRootNode();
+          return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, new PortfolioImpl(portfolio
+              .getUniqueIdentifier(), portfolio.getName(), resolvePortfolioNode(uid, node)));
         }
         s_logger.info("Unable to resolve multiple-position UID {}", uid);
         return null;
@@ -152,26 +151,30 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
       }
     }
   }
-  
+
   private PortfolioNodeImpl resolvePortfolioNode(final UniqueIdentifier uid, final PortfolioNode node) {
     final PortfolioNodeImpl newNode = new PortfolioNodeImpl(node.getUniqueIdentifier(), node.getName());
     for (PortfolioNode child : node.getChildNodes()) {
-      final ComputationTarget resolvedChild = getRecursiveResolver().resolve(new ComputationTargetSpecification(ComputationTargetType.MULTIPLE_POSITIONS, child.getUniqueIdentifier()));
+      final ComputationTarget resolvedChild = getRecursiveResolver().resolve(
+          new ComputationTargetSpecification(ComputationTargetType.MULTIPLE_POSITIONS, child.getUniqueIdentifier()));
       if (resolvedChild == null) {
-        s_logger.warn("Portfolio node ID {} couldn't be resolved for portfolio node ID {}", child.getUniqueIdentifier(), uid);
+        s_logger.warn("Portfolio node ID {} couldn't be resolved for portfolio node ID {}",
+            child.getUniqueIdentifier(), uid);
       } else {
         newNode.addChildNode(resolvedChild.getPortfolioNode());
       }
     }
     for (Position position : node.getPositions()) {
-      final ComputationTarget resolvedPosition = getRecursiveResolver().resolve(new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueIdentifier()));
+      final ComputationTarget resolvedPosition = getRecursiveResolver().resolve(
+          new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueIdentifier()));
       if (resolvedPosition == null) {
-        s_logger.warn("Position ID {} couldn't be resolved for portfolio node ID {}", position.getUniqueIdentifier(), uid);
+        s_logger.warn("Position ID {} couldn't be resolved for portfolio node ID {}", position.getUniqueIdentifier(),
+            uid);
       } else {
         newNode.addPosition(resolvedPosition.getPosition());
       }
     }
     return newNode;
   }
-  
+
 }

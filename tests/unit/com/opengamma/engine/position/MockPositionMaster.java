@@ -16,7 +16,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * A simple mutable implementation of {@code PositionMaster}.
  */
-public class InMemoryPositionMaster implements PositionMaster {
+public class MockPositionMaster implements PositionMaster {
 
   /**
    * The default scheme used for any {@link UniqueIdentifier}s created by this {@link PositionMaster}.
@@ -46,7 +46,7 @@ public class InMemoryPositionMaster implements PositionMaster {
   /**
    * Creates an empty position master using the default scheme for any {@link UniqueIdentifier}s created.
    */
-  public InMemoryPositionMaster() {
+  public MockPositionMaster() {
     this(DEFAULT_UID_SCHEME);
   }
   
@@ -55,7 +55,7 @@ public class InMemoryPositionMaster implements PositionMaster {
    * 
    * @param uidScheme  the scheme to use for any {@link UniqueIdentifier}s created
    */
-  public InMemoryPositionMaster(String uidScheme) {
+  public MockPositionMaster(String uidScheme) {
     ArgumentChecker.notNull(uidScheme, "Scheme");
     _scheme = uidScheme;
   }

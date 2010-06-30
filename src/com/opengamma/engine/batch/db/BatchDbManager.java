@@ -7,8 +7,8 @@ package com.opengamma.engine.batch.db;
 
 import java.util.Set;
 
-import javax.time.Instant;
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.OffsetTime;
 
 import com.opengamma.engine.batch.BatchJob;
 import com.opengamma.engine.view.ViewComputationResultModel;
@@ -63,9 +63,9 @@ public interface BatchDbManager {
    * 
    * @param observationDate The date of the snapshot, not null
    * @param observationTime The time of the snapshot (e.g., LDN_CLOSE), not null
-   * @param fix The instant to which the observation time was fixed, not null
+   * @param fix The time to which the observation time was fixed, not null
    */
-  void fixLiveDataSnapshotTime(LocalDate observationDate, String observationTime, Instant fix);
+  void fixLiveDataSnapshotTime(LocalDate observationDate, String observationTime, OffsetTime fix);
   
   /**
    * Marks a LiveData snapshot complete. This releases the snapshot

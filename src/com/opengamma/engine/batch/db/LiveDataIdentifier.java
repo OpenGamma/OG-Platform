@@ -9,14 +9,16 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import com.opengamma.id.Identifier;
+
 /**
  * 
  */
-public class CalculationConfiguration {
+public class LiveDataIdentifier {
   
   private int _id;
-  private RiskRun _riskRun;
-  private String _name;
+  private String _scheme;
+  private String _value;
   
   public int getId() {
     return _id;
@@ -26,20 +28,20 @@ public class CalculationConfiguration {
     _id = id;
   }
   
-  public RiskRun getRiskRun() {
-    return _riskRun;
-  }
-
-  public void setRiskRun(RiskRun riskRun) {
-    _riskRun = riskRun;
-  }
-
-  public String getName() {
-    return _name;
+  public String getScheme() {
+    return _scheme;
   }
   
-  public void setName(String name) {
-    _name = name;
+  public void setScheme(String scheme) {
+    _scheme = scheme;
+  }
+  
+  public String getValue() {
+    return _value;
+  }
+  
+  public void setValue(String value) {
+    _value = value;
   }
   
   @Override
@@ -54,10 +56,12 @@ public class CalculationConfiguration {
   
   @Override
   public String toString() {
-    return new ToStringBuilder(this).
-      append("name", getName()).
-      toString();
+    return ToStringBuilder.reflectionToString(this);
   }
   
-
+  public Identifier toOpenGammaIdentifier() {
+    return new Identifier(getScheme(), getValue());
+  }
+  
+  
 }

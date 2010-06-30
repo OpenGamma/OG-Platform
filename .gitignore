@@ -13,3 +13,5 @@ lib/
 /.fudge-proto-gitignore
 /MANIFEST.MF
 .clover/
+derby.log
+db/derby/test_*

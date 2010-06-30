@@ -27,12 +27,12 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.MockFunction;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
-import com.opengamma.engine.position.InMemoryPositionMaster;
+import com.opengamma.engine.position.MockPositionMaster;
 import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.security.DefaultSecurity;
-import com.opengamma.engine.security.InMemorySecurityMaster;
+import com.opengamma.engine.security.MockSecurityMaster;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -56,13 +56,13 @@ public class PortfolioEvaluationModelTest {
     PortfolioImpl p = new PortfolioImpl(UniqueIdentifier.of("FOO", "BAR"), "portfolio");
     p.setRootNode(pn);
     
-    InMemoryPositionMaster positionMaster = new InMemoryPositionMaster();
+    MockPositionMaster positionMaster = new MockPositionMaster();
     positionMaster.addPortfolio(p);
     
     DefaultSecurity defSec = new DefaultSecurity();
     defSec.addIdentifier(secIdentifier);
     
-    InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
+    MockSecurityMaster secMaster = new MockSecurityMaster();
     secMaster.addSecurity(defSec);
     
     InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
@@ -99,14 +99,14 @@ public class PortfolioEvaluationModelTest {
     PortfolioImpl p = new PortfolioImpl(UniqueIdentifier.of("FOO", "BAR"), "portfolio");
     p.setRootNode(pn);
     
-    InMemoryPositionMaster positionMaster = new InMemoryPositionMaster();
+    MockPositionMaster positionMaster = new MockPositionMaster();
     positionMaster.addPortfolio(p);
     
     DefaultSecurity defSec = new DefaultSecurity();
     defSec.addIdentifier(secIdentifier);
     defSec.setSecurityType("My Sec");
     
-    InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
+    MockSecurityMaster secMaster = new MockSecurityMaster();
     secMaster.addSecurity(defSec);
     
     InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
@@ -163,7 +163,7 @@ public class PortfolioEvaluationModelTest {
     PortfolioImpl p = new PortfolioImpl(UniqueIdentifier.of("FOO", "BAR"), "portfolio");
     p.setRootNode(pn);
     
-    InMemoryPositionMaster positionMaster = new InMemoryPositionMaster();
+    MockPositionMaster positionMaster = new MockPositionMaster();
     positionMaster.addPortfolio(p);
     
     DefaultSecurity sec1 = new DefaultSecurity();
@@ -174,7 +174,7 @@ public class PortfolioEvaluationModelTest {
     sec2.addIdentifier(secIdentifier2);
     sec2.setSecurityType("Your Sec");
     
-    InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
+    MockSecurityMaster secMaster = new MockSecurityMaster();
     secMaster.addSecurity(sec1);
     secMaster.addSecurity(sec2);
     
