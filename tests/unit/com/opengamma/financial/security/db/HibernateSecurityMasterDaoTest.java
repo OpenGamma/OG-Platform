@@ -24,7 +24,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 
 import javax.mail.*;
@@ -103,6 +102,7 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
           String message = _queue.poll(160, TimeUnit.SECONDS);
           if (message != null) {
             if ((message.length() == 0) || (message.contains("finished"))) {
+
               return;
             } else {
               _debugMsg.append(message + "\n");
