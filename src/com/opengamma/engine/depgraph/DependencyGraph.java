@@ -17,6 +17,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -41,6 +42,7 @@ public class DependencyGraph {
   private final Set<ValueSpecification> _outputValues = new HashSet<ValueSpecification>();
 
   private final Set<ValueRequirement> _allRequiredLiveData = new HashSet<ValueRequirement>();
+  private final Set<ComputationTargetSpecification> _allComputationTargets = new HashSet<ComputationTargetSpecification>();
   
   public Set<DependencyNode> getRootNodes() {
     return Collections.unmodifiableSet(_rootNodes);
@@ -48,6 +50,10 @@ public class DependencyGraph {
 
   public Set<ValueSpecification> getOutputValues() {
     return Collections.unmodifiableSet(_outputValues);
+  }
+  
+  public Set<ComputationTargetSpecification> getAllComputationTargets() {
+    return  Collections.unmodifiableSet(_allComputationTargets);
   }
   
   public Set<ValueSpecification> getOutputValues(ComputationTargetType type) {
@@ -96,6 +102,7 @@ public class DependencyGraph {
     _dependencyNodes.add(node);
     _outputValues.addAll(node.getOutputValues());
     _allRequiredLiveData.addAll(node.getRequiredLiveData());
+    _allComputationTargets.add(node.getComputationTarget().toSpecification());
     
     List<DependencyNode> nodesByType = _computationTarget2DependencyNode.get(node.getComputationTarget().getType());
     if (nodesByType == null) {

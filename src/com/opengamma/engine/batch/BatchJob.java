@@ -20,17 +20,19 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.batch.db.BatchDbManager;
+import com.opengamma.engine.batch.db.BatchDbRiskContext;
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.View;
+import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.livedata.msg.UserPrincipal;
-import com.opengamma.engine.view.ViewCalculationConfiguration;
 
 /**
  * The entry point for running OpenGamma batches. 
@@ -281,11 +283,13 @@ public class BatchJob implements Job, ComputationResultListener {
     return _view;
   }
   
+  public void setView(View view) {
+    _view = view;
+  }
+  
   public Collection<ViewCalculationConfiguration> getCalculationConfigurations() {
-    if (getView() == null) {
-      return Collections.emptySet(); // remove as soon as we get real test views here
-    }
-    return getView().getDefinition().getAllCalculationConfigurations();
+    return Collections.emptySet();
+    //return getView().getDefinition().getAllCalculationConfigurations();
   }
   
   public int getViewOid() {
@@ -316,12 +320,18 @@ public class BatchJob implements Job, ComputationResultListener {
   
   @Override
   public void computationResultAvailable(ViewComputationResultModel resultModel) {
-    _batchDbManager.write(this, resultModel);    
+    BatchDbRiskContext context = getBatchDbManager().createLocalContext(this);
+    _batchDbManager.write(context, resultModel);    
   }
 
   @Override
   public UserPrincipal getUser() {
     return _user;
+  }
+  
+  @Override
+  public String toString() {
+    return new ToStringBuilder(this).append("Run reason", getRunReason()).toString(); 
   }
 
   
@@ -349,7 +359,7 @@ public class BatchJob implements Job, ComputationResultListener {
       _valuationTime = now; 
     }
     
-    if (_viewName == null) {
+    if (getViewName() == null && getView() == null) {
       throw new OpenGammaRuntimeException("Please specify view name.");
     }
     if (_viewDateTime == null) {
@@ -363,6 +373,8 @@ public class BatchJob implements Job, ComputationResultListener {
     if (_snapshotObservationTime == null) {
       _snapshotObservationTime = _observationTime;
     }
+    
+    //getView().addResultListener(this);
   }
   
   public Options getOptions() {
@@ -413,6 +425,7 @@ public class BatchJob implements Job, ComputationResultListener {
   
   public void execute() {
     _batchDbManager.startBatch(this);
+    getView().runOneCycle();
     _batchDbManager.endBatch(this);
   }
   

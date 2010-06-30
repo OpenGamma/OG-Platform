@@ -72,11 +72,16 @@ create table rsk_computation_target_type (
     primary key (id),
     
     constraint chk_rsk_cmpt_target_type check
-        ((id = 0 and name = 'PORTFOLIO_NODE)') or
+        ((id = 0 and name = 'PORTFOLIO_NODE') or
          (id = 1 and name = 'POSITION') or 
          (id = 2 and name = 'SECURITY') or
          (id = 3 and name = 'PRIMITIVE'))
 );
+
+insert into rsk_computation_target_type (id, name) values (0, 'PORTFOLIO_NODE');
+insert into rsk_computation_target_type (id, name) values (1, 'POSITION');
+insert into rsk_computation_target_type (id, name) values (2, 'SECURITY');
+insert into rsk_computation_target_type (id, name) values (3, 'PRIMITIVE');
 
 create table rsk_computation_target (
 	id int not null,

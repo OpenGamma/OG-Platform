@@ -8,6 +8,7 @@ package com.opengamma.engine.batch.db;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -28,8 +29,11 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import com.google.common.collect.Sets;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.batch.BatchJob;
 import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.test.HibernateTest;
 import com.opengamma.util.time.DateUtil;
 
@@ -427,6 +431,42 @@ public class BatchDbManagerImplTest extends HibernateTest {
           _batchJob.getSnapshotObservationTime());
       _dbManager.startBatch(_batchJob);
       _dbManager.startBatch(_batchJob);
+    }
+    
+    @Test
+    public void getComputationTarget() {
+      UniqueIdentifier uid = UniqueIdentifier.of("foo", "bar");
+      
+      ComputationTarget portfolio = _dbManager.getComputationTarget(
+          new ComputationTargetSpecification(ComputationTargetType.MULTIPLE_POSITIONS, uid));
+      assertNotNull(portfolio);
+      assertEquals(ComputationTargetType.MULTIPLE_POSITIONS.ordinal(), portfolio.getComputationTargetType());
+      assertEquals(uid.getScheme(), portfolio.getIdScheme());
+      assertEquals(uid.getValue(), portfolio.getIdValue());
+      
+      ComputationTarget position = _dbManager.getComputationTarget(
+          new ComputationTargetSpecification(ComputationTargetType.POSITION, uid));
+      assertEquals(ComputationTargetType.POSITION.ordinal(), position.getComputationTargetType());
+      
+      ComputationTarget security = _dbManager.getComputationTarget(
+          new ComputationTargetSpecification(ComputationTargetType.SECURITY, uid));
+      assertEquals(ComputationTargetType.SECURITY.ordinal(), security.getComputationTargetType());
+      
+      ComputationTarget primitive = _dbManager.getComputationTarget(
+          new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, uid));
+      assertEquals(ComputationTargetType.PRIMITIVE.ordinal(), primitive.getComputationTargetType());
+    }
+    
+    @Test
+    public void getValueName() {
+      // create
+      RiskValueName valueName1 = _dbManager.getRiskValueName("test_name");
+      assertNotNull(valueName1);
+      assertEquals("test_name", valueName1.getName());
+      
+      // get
+      RiskValueName valueName2 = _dbManager.getRiskValueName("test_name");
+      assertEquals(valueName1, valueName2);
     }
     
 }

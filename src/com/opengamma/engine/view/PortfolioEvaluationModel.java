@@ -44,6 +44,7 @@ import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -111,6 +112,16 @@ public class PortfolioEvaluationModel {
   
   public Set<String> getAllCalculationConfigurationNames() {
     return new TreeSet<String>(_graphsByConfiguration.keySet());
+  }
+  
+  public Set<String> getAllOutputValueNames() {
+    Set<String> valueNames = new HashSet<String>(); 
+    for (DependencyGraph graph : getAllDependencyGraphs()) {
+      for (ValueSpecification spec : graph.getOutputValues()) {
+        valueNames.add(spec.getRequirementSpecification().getValueName());        
+      }
+    }
+    return valueNames;
   }
   
   public Collection<DependencyGraph> getAllDependencyGraphs() {
@@ -389,15 +400,24 @@ public class PortfolioEvaluationModel {
     timer.finished();
   }
   
-  public synchronized Set<ValueRequirement> getAllLiveDataRequirements() {
+  public Set<ValueRequirement> getAllLiveDataRequirements() {
     return Collections.unmodifiableSet(_liveDataRequirements);    
   }
   
-  public synchronized void refreshLiveDataRequirements() {
+  public void refreshLiveDataRequirements() {
     for (DependencyGraph dependencyGraph : _graphsByConfiguration.values()) {
       Set<ValueRequirement> requiredLiveData = dependencyGraph.getAllRequiredLiveData();
       _liveDataRequirements.addAll(requiredLiveData);
     }
+  }
+  
+  public Set<ComputationTargetSpecification> getAllComputationTargets() {
+    Set<ComputationTargetSpecification> targets = new HashSet<ComputationTargetSpecification>();
+    for (DependencyGraph dependencyGraph : _graphsByConfiguration.values()) {
+      Set<ComputationTargetSpecification> requiredLiveData = dependencyGraph.getAllComputationTargets();
+      targets.addAll(requiredLiveData);
+    }
+    return targets;
   }
   
   /**
