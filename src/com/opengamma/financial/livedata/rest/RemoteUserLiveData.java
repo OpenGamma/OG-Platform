@@ -84,12 +84,39 @@ public class RemoteUserLiveData {
     return UniqueIdentifier.fromFudgeMsg(fme.getMessage().getFieldValue(FudgeFieldContainer.class, field));
   }
 
+  public UniqueIdentifier[] putValues(final String name, final ComputationTargetType type, final String[] identifier,
+      final Object[] value) {
+    assert (identifier.length == value.length);
+    // TODO: this is very inefficient; there should be a PUT request
+    final UniqueIdentifier[] result = new UniqueIdentifier[identifier.length];
+    for (int i = 0; i < identifier.length; i++) {
+      result[i] = putValue(name, type, identifier[i], value[i]);
+    }
+    return result;
+  }
+
   public Object getValue(final String name, final ComputationTargetType type, final String identifier) {
     return getRestClient().getSingleValue(Object.class, getValueTarget(name, type, identifier), "value");
   }
 
+  public Object[] getValues(final String name, final ComputationTargetType type, final String[] identifiers) {
+    // TODO: this is very inefficient; there should be a single GET request
+    final Object[] result = new Object[identifiers.length];
+    for (int i = 0; i < identifiers.length; i++) {
+      result[i] = getValue(name, type, identifiers[i]);
+    }
+    return result;
+  }
+
   public void deleteValue(final String name, final ComputationTargetType type, final String identifier) {
     getRestClient().delete(getValueTarget(name, type, identifier));
+  }
+
+  public void deleteValues(final String name, final ComputationTargetType type, final String[] identifiers) {
+    // TODO: this is very inefficient; there should be a single DELETE request
+    for (int i = 0; i < identifiers.length; i++) {
+      deleteValue(name, type, identifiers[i]);
+    }
   }
 
 }
