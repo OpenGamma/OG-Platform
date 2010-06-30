@@ -211,7 +211,7 @@ public class PortfolioEvaluationModelTest {
     viewDefinition.addValueDefinition("Fibble", "My Sec", "Req-1");
     viewDefinition.setComputePortfolioNodeCalculations(true);
     viewDefinition.setComputePositionNodeCalculations(false);
-    viewDefinition.setComputeSecurityNodeCalculations(true);
+    viewDefinition.setComputeSecurityNodeCalculations(false);
     PortfolioEvaluationModel pem = new PortfolioEvaluationModel(p);
     pem.init(vcs, viewDefinition);
     
