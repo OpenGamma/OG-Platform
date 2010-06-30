@@ -169,6 +169,7 @@
 			<cloverDb span="30 mins"  initstring="projects/OG-Security/tests/output/clover.db" />
 			<cloverDb span="30 mins"  initstring="projects/OG-TimeSeriesStorage/tests/output/clover.db" />
 			<cloverDb span="30 mins"  initstring="projects/OG-Reuters/tests/output/clover.db" />
+			<cloverDb span="30 mins"  initstring="projects/OG-Config/tests/output/clover.db" />
 		</clover-merge>
 		<clover-html-report
 			initstring="${clover.db.dir}"
@@ -191,6 +192,7 @@
 		<git-clone-pull repository="git@github.com:OpenGamma/OG-Security.git" dest="projects/OG-Security" />
 		<git-clone-pull repository="git@github.com:OpenGamma/OG-TimeSeriesStorage.git" dest="projects/OG-TimeSeriesStorage" />
 		<git-clone-pull repository="git@github.com:OpenGamma/OG-Reuters.git" dest="projects/OG-Reuters" />
+		<git-clone-pull repository="git@github.com:OpenGamma/OG-Config.git" dest="projects/OG-Config" />
 	</target>
 
 	<target name="pull" description="pull origin master all projects from git">
@@ -207,6 +209,7 @@
 		<git-pull dest="projects/OG-Security" />
 		<git-pull dest="projects/OG-TimeSeriesStorage" />
 		<git-pull dest="projects/OG-Reuters" />
+		<git-pull dest="projects/OG-Config" />
 	</target>
 
 	<target name="status" description="display the status of all projects from git">
@@ -223,6 +226,7 @@
 		<git-status dest="projects/OG-Security" displayName="OG-Security" />
 		<git-status dest="projects/OG-TimeSeriesStorage" displayName="OG-TimeSeriesStorage" />
 		<git-status dest="projects/OG-Reuters" displayName="OG-Reuters" />
+		<git-status dest="projects/OG-Config" displayName="OG-Config" />
 	</target>
 </project>
 
