@@ -22,7 +22,6 @@ import com.opengamma.util.test.DBTool.TableCreationCallback;
 /**
  * 
  *
- * @author pietari
  */
 @RunWith(Parameterized.class)
 abstract public class DBTest implements TableCreationCallback {

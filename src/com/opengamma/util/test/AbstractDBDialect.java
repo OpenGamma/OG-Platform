@@ -183,7 +183,7 @@ public abstract class AbstractDBDialect implements DBDialect {
   }
   
   @Override
-  public void clearTables(String catalog, String schema) {
+  public void clearTables(String catalog, String schema, Collection<String> ignoredTables) {
     LinkedList<String> script = new LinkedList<String>();
     
     Connection conn = null;
@@ -197,6 +197,10 @@ public abstract class AbstractDBDialect implements DBDialect {
       
       // Clear tables SQL
       for (String name : getAllTables(catalog, schema, statement)) {
+        if (ignoredTables.contains(name.toLowerCase())) {
+          continue;
+        }
+        
         Table table = new Table(name);
         script.add("DELETE FROM " + table.getQualifiedName(getHibernateDialect(), null, schema));
         

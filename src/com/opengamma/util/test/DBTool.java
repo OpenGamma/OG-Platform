@@ -10,7 +10,10 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
@@ -67,6 +70,12 @@ public class DBTool extends Task {
   private String _user;
   private String _password;
   
+  /** 
+   * Static as the parameterized JUnit test runner seems to create a new DBTool instance
+   * for each DBTest test case. This is clearly a hack.
+   * All strings will be lower case
+   */
+  private static final Collection<String> s_tablesThatShouldNotBeCleared = new HashSet<String>();
   
   public DBTool() {
   }
@@ -238,7 +247,7 @@ public class DBTool extends Task {
   }
   
   public void clearTables(String catalog, String schema) {
-    _dialect.clearTables(catalog, schema);    
+    _dialect.clearTables(catalog, schema, s_tablesThatShouldNotBeCleared);    
   }
   
   public String describeDatabase() {
@@ -286,7 +295,7 @@ public class DBTool extends Task {
     createTables(getTestCatalog(), callback);
   }
   
-  private void executeScript(String catalog, File file) {
+  private void executeCreateScript(String catalog, File file) {
     String sql;
     try {
       sql = FileUtils.readFileToString(file);
@@ -294,6 +303,38 @@ public class DBTool extends Task {
       throw new OpenGammaRuntimeException("Cannot read file " + file.getAbsolutePath(), e);      
     }
     executeSql(catalog, sql);
+    
+    // -- DBTOOLDONOTCLEAR
+    // create table rsk_computation_target_type (
+    //
+    // -> extract rsk_computation_target_type
+    
+    final String doNotClear = "DBTOOLDONOTCLEAR";
+    
+    int doNotClearIndex = sql.indexOf(doNotClear); 
+    while (doNotClearIndex != -1) {
+      int createTableOpenParenthesis = sql.indexOf('(', doNotClearIndex);
+      if (createTableOpenParenthesis == -1) {
+        throw new IllegalArgumentException("There is no CREATE TABLE xxx ( after " + doNotClear);        
+      }
+      String[] createTableSqls = sql.substring(
+          doNotClearIndex + doNotClear.length(), 
+          createTableOpenParenthesis).split("\r\n|\r|\n| ");
+      List<String> filteredCreateTableSqls = new ArrayList<String>();
+      for (String createTableSql : createTableSqls) {
+        if (!createTableSql.isEmpty()) {
+          filteredCreateTableSqls.add(createTableSql);                    
+        }
+      }
+      if (filteredCreateTableSqls.size() != 3) {
+        throw new IllegalArgumentException("There is no CREATE TABLE xxx ( after " + doNotClear);
+      }
+      
+      String tableName = filteredCreateTableSqls.get(2);
+      s_tablesThatShouldNotBeCleared.add(tableName.toLowerCase());
+      
+      doNotClearIndex = sql.indexOf(doNotClear, doNotClearIndex + doNotClear.length());
+    }
   }
   
   private void createTables(String catalog, File[] scriptDirs, int index, TableCreationCallback callback) {
@@ -306,7 +347,7 @@ public class DBTool extends Task {
         final File createFile = new File(scriptDirs[index], DATABASE_CREATE_SCRIPT);
         if (createFile.exists()) {
           System.out.println("Creating DB version " + version);
-          executeScript(catalog, createFile);
+          executeCreateScript(catalog, createFile);
           callback.tablesCreatedOrUpgraded(version);
           return;
         }
@@ -315,7 +356,7 @@ public class DBTool extends Task {
       final File upgradeFile = new File(scriptDirs[index], DATABASE_UPGRADE_SCRIPT);
       if (upgradeFile.exists()) {
         System.out.println("Upgrading to DB version " + version);
-        executeScript(catalog, upgradeFile);
+        executeCreateScript(catalog, upgradeFile);
         callback.tablesCreatedOrUpgraded(version);
         return;
       }
@@ -371,7 +412,7 @@ public class DBTool extends Task {
   }
   
   public void executeSql(String catalog, String sql) {
-    _dialect.executeSql(catalog, sql);    
+    _dialect.executeSql(catalog, sql);
   }
   
   @Override
@@ -459,7 +500,7 @@ public class DBTool extends Task {
     formatter.printHelp("java com.opengamma.util.test.DBTool [args]", options);
   }
   
-  public static void main(String[] args) {
+  public static void main(String[] args) { // CSIGNORE
     
     Options options = new Options();
     options.addOption("jdbcUrl", "jdbcUrl", true, "DB server URL + database - for example, jdbc:postgresql://localhost:1234/OpenGammaTests. You can use" +

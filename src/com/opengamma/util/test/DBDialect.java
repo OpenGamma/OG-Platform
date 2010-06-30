@@ -5,6 +5,8 @@
  */
 package com.opengamma.util.test;
 
+import java.util.Collection;
+
 import org.hibernate.dialect.Dialect;
 
 /**
@@ -54,8 +56,10 @@ public interface DBDialect {
    * 
    * @param catalog name. Not null.
    * @param schema name. May be null, in which case database default schema is used.
+   * @param ignoredTables Do not clear tables with these names. All strings
+   * must be lower case. Not null.
    */
-  void clearTables(String catalog, String schema);
+  void clearTables(String catalog, String schema, Collection<String> ignoredTables);
   
   /**
    * Executes SQL against a database.
