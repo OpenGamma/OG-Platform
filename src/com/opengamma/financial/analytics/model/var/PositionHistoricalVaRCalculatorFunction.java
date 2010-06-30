@@ -44,19 +44,19 @@ public class PositionHistoricalVaRCalculatorFunction extends AbstractFunction im
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs,
       ComputationTarget target, Set<ValueRequirement> desiredValues) {
     Object pnlSeriesObj= inputs.getValue(ValueRequirementNames.PNL_SERIES);
-    System.err.println("execute called");
+    //System.err.println("execute called");
     if (pnlSeriesObj instanceof DoubleTimeSeries<?>) {
       DoubleTimeSeries<?> pnlSeries = (DoubleTimeSeries<?>)pnlSeriesObj;
       LocalDateDoubleTimeSeries pnlSeriesLD = pnlSeries.toLocalDateDoubleTimeSeries();
       if (!pnlSeriesLD.isEmpty()) {
-        System.err.println("PnL Series not empty");
+        //System.err.println("PnL Series not empty");
         LocalDate earliest = pnlSeriesLD.getEarliestTime();
         LocalDate latest = pnlSeriesLD.getLatestTime();
         long days = latest.toEpochDays() - earliest.toEpochDays();
         NormalLinearVaRCalculator s_varCalculator = new NormalLinearVaRCalculator(1, (252 * days) / ONE_YEAR, CONFIDENCE_LEVEL);
         NormalStatistics<DoubleTimeSeries<?>> normalStats = new NormalStatistics<DoubleTimeSeries<?>>(s_meanCalculator, s_stdCalculator, pnlSeries);
         double var = s_varCalculator.evaluate(normalStats);
-        System.err.println("VaR="+var);
+        //System.err.println("VaR="+var);
         return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPosition())), var));
       }
     }

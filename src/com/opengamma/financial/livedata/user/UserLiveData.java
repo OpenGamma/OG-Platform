@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.livedata.user;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
@@ -25,6 +26,7 @@ import com.opengamma.livedata.msg.UserPrincipal;
 public class UserLiveData implements LiveDataAvailabilityProvider, LiveDataSnapshotProvider {
 
   private final UsersResource _userData;
+  private final Set<LiveDataSnapshotListener> _listeners = new HashSet<LiveDataSnapshotListener>();
 
   public UserLiveData(final UsersResource userData) {
     _userData = userData;
@@ -32,6 +34,10 @@ public class UserLiveData implements LiveDataAvailabilityProvider, LiveDataSnaps
 
   private UsersResource getUserData() {
     return _userData;
+  }
+
+  private Set<LiveDataSnapshotListener> getListeners() {
+    return _listeners;
   }
 
   private InMemoryUserSnapshotProvider findUserSnapshotProvider(final ValueRequirement valueRequirement) {
@@ -53,32 +59,39 @@ public class UserLiveData implements LiveDataAvailabilityProvider, LiveDataSnaps
 
   @Override
   public boolean isAvailable(ValueRequirement requirement) {
-    return false;
+    return findUserSnapshotProvider(requirement).isAvailable(requirement);
   }
 
   @Override
   public void addListener(LiveDataSnapshotListener listener) {
+    getListeners().add(listener);
   }
 
   @Override
   public void addSubscription(UserPrincipal user, ValueRequirement valueRequirement) {
+    // No action - all values provided externally
   }
 
   @Override
   public void addSubscription(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
+    for (ValueRequirement valueRequirement : valueRequirements) {
+      addSubscription(user, valueRequirement);
+    }
   }
 
   @Override
   public Object querySnapshot(long snapshot, ValueRequirement requirement) {
-    return null;
+    return findUserSnapshotProvider(requirement).querySnapshot(snapshot, requirement);
   }
 
   @Override
   public void releaseSnapshot(long snapshot) {
+    // TODO: propogate to ALL user live data stores
   }
 
   @Override
   public long snapshot() {
+    // TODO: propogate call to ALL user live data stores
     return 0;
   }
 
