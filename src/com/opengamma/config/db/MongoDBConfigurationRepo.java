@@ -36,8 +36,9 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.MongoDBConnectionSettings;
 
 /**
+ * General purpose configuration data loader backed by MongoDB
  * 
- *@param <T> Configuration Document EntityType
+ * @param <T> Configuration Document EntityType
  */
 public class MongoDBConfigurationRepo<T> implements ConfigurationDocumentRepo<T> {
 
@@ -233,7 +234,6 @@ public class MongoDBConfigurationRepo<T> implements ConfigurationDocumentRepo<T>
 
     BasicDBObject query = new BasicDBObject(OID_FUDGE_FIELD_NAME, oid);
     query.put(CREATION_INSTANT_FUDGE_FIELD_NAME, new BasicDBObject("$lte", end).append("$gte", new Date(startDate.toEpochMillisLong())));
-//    query.put(CREATION_INSTANT_FUDGE_FIELD_NAME, new BasicDBObject("$gte", new Date(startDate.toEpochMillisLong())));
     
     s_logger.debug("query = {}", query);
     
@@ -264,7 +264,8 @@ public class MongoDBConfigurationRepo<T> implements ConfigurationDocumentRepo<T>
 
   @Override
   public ConfigurationDocument<T> insertNewItem(String name, T value) {
-
+    ArgumentChecker.notNull(name, "name");
+    ArgumentChecker.notNull(value, "value");
     String objectId = ObjectId.get().toString();
     Date now = new Date();
     int version = 1;
@@ -293,7 +294,8 @@ public class MongoDBConfigurationRepo<T> implements ConfigurationDocumentRepo<T>
 
   @Override
   public ConfigurationDocument<T> insertNewVersion(String oid, T value) {
-
+    ArgumentChecker.notNull(oid, "oid");
+    ArgumentChecker.notNull(value, "value");
     //get latest version
     DBObject query = new BasicDBObject();
     query.put(OID_FUDGE_FIELD_NAME, oid);
@@ -309,17 +311,9 @@ public class MongoDBConfigurationRepo<T> implements ConfigurationDocumentRepo<T>
     int previousVersion = (Integer) previousDocObj.get(VERSION_FUDGE_FIELD_NAME);
     String name = (String) previousDocObj.get(NAME_FUDGE_FIELD_NAME);
     
-    
     return insertVersionDocument(oid, value, previousVersion, name);
   }
 
-  /**
-   * @param oid
-   * @param value
-   * @param previousVersion
-   * @param name
-   * @return
-   */
   private ConfigurationDocument<T> insertVersionDocument(String oid, T value, int previousVersion, String name) {
     DBCollection dbCollection;
     String objectId = ObjectId.get().toString();
@@ -350,6 +344,8 @@ public class MongoDBConfigurationRepo<T> implements ConfigurationDocumentRepo<T>
 
   @Override
   public ConfigurationDocument<T> insertNewVersion(String oid, String name, T value) {
+    ArgumentChecker.notNull(name, "name");
+    ArgumentChecker.notNull(value, "value");
     //get latest version
     DBObject query = new BasicDBObject();
     query.put(OID_FUDGE_FIELD_NAME, oid);
