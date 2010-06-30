@@ -8,7 +8,6 @@ package com.opengamma.engine.batch.db;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -32,6 +31,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.batch.BatchJob;
+import com.opengamma.engine.view.ViewTest;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.test.HibernateTest;
@@ -69,6 +69,7 @@ public class BatchDbManagerImplTest extends HibernateTest {
       _batchJob = new BatchJob();
       _batchJob.setBatchDbManager(_dbManager);
       _batchJob.setViewName("test_view");
+      _batchJob.setView(ViewTest.getMockView());
       _batchJob.init();
    }
     

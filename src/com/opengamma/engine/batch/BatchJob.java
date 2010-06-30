@@ -6,7 +6,6 @@
 package com.opengamma.engine.batch;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
@@ -288,8 +287,7 @@ public class BatchJob implements Job, ComputationResultListener {
   }
   
   public Collection<ViewCalculationConfiguration> getCalculationConfigurations() {
-    return Collections.emptySet();
-    //return getView().getDefinition().getAllCalculationConfigurations();
+    return getView().getDefinition().getAllCalculationConfigurations();
   }
   
   public int getViewOid() {
@@ -374,7 +372,7 @@ public class BatchJob implements Job, ComputationResultListener {
       _snapshotObservationTime = _observationTime;
     }
     
-    //getView().addResultListener(this);
+    getView().addResultListener(this);
   }
   
   public Options getOptions() {

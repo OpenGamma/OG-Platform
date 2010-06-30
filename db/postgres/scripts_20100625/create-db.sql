@@ -65,6 +65,7 @@ create table rsk_opengamma_version (
 	unique (version, hash)
 );
 
+-- DBTOOLDONOTCLEAR
 create table rsk_computation_target_type (
 	id int not null,	 	            
     name varchar(255) not null,
