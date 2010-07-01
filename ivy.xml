@@ -13,7 +13,6 @@
       	<dependency name="og-util" rev="latest.integration" conf="opengamma->*"/>
       	
       	<dependency org="org.ehcache" name="ehcache" rev="[1.6.0,2.0["/>
-      	<dependency org="org.springframework" name="spring" rev="2.5.6" conf="*->orm"/>
     	
     </dependencies>
 </ivy-module>
