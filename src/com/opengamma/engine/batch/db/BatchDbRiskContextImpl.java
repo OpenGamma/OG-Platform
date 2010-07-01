@@ -42,16 +42,16 @@ public class BatchDbRiskContextImpl implements BatchDbRiskContext, Serializable 
   private transient boolean _initialized; // = false;
   
   public void initialize() {
-    if (_session == null ||
-        _riskRunId == null ||
+    if (_riskRunId == null ||
         _computationTarget2Id == null ||
+        _calculationConfiguration2Id == null ||
         _riskValueName2Id == null ||
         _computeNodeId == null) {
       throw new IllegalStateException("Not all required arguments are set");
     }
     
     SessionFactoryImplementor implementor = (SessionFactoryImplementor) _sessionFactory;
-    IdentifierGenerator idGenerator = implementor.getIdentifierGenerator("RiskValue");
+    IdentifierGenerator idGenerator = implementor.getIdentifierGenerator(RiskValue.class.getName());
     if (idGenerator == null || !(idGenerator instanceof SequenceStyleGenerator)) {
       throw new IllegalArgumentException("The given SessionFactory must contain a RiskValue mapping with a SequenceStyleGenerator");      
     }
@@ -81,7 +81,11 @@ public class BatchDbRiskContextImpl implements BatchDbRiskContext, Serializable 
     
     _calculationConfiguration2Id = new HashMap<String, Integer>();
     for (CalculationConfiguration cc : riskRun.getCalculationConfigurations()) {
-      _calculationConfiguration2Id.put(cc.getName(), cc.getId());
+      int id = cc.getId();
+      if (id == -1) {
+        throw new IllegalArgumentException(cc + " is not initialized");
+      }
+      _calculationConfiguration2Id.put(cc.getName(), id);
     }
   }
 
@@ -92,7 +96,11 @@ public class BatchDbRiskContextImpl implements BatchDbRiskContext, Serializable 
     
     _computationTarget2Id = new HashMap<ComputationTargetSpecification, Integer>();
     for (ComputationTarget target : computationTargets) {
-      _computationTarget2Id.put(target.toSpec(), target.getId());      
+      int id = target.getId();
+      if (id == -1) {
+        throw new IllegalArgumentException(target + " is not initialized");
+      }
+      _computationTarget2Id.put(target.toSpec(), id);      
     }
   }
 

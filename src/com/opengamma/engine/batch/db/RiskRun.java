@@ -158,7 +158,12 @@ public class RiskRun {
   // --------------------------------------------------------------------------
   
   public void addCalculationConfiguration(ViewCalculationConfiguration viewCalcConf) {
-    CalculationConfiguration calcConf = new CalculationConfiguration();
+    CalculationConfiguration calcConf = getCalculationConfiguration(viewCalcConf.getName());
+    if (calcConf != null) {
+      throw new IllegalStateException("Already has calc conf " + viewCalcConf.getName());      
+    }
+
+    calcConf = new CalculationConfiguration();
     calcConf.setName(viewCalcConf.getName());
     calcConf.setRiskRun(this);
     _calculationConfigurations.add(calcConf);

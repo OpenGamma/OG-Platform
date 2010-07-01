@@ -18,7 +18,7 @@ import com.opengamma.id.UniqueIdentifier;
  */
 public class ComputationTarget {
   
-  private int _id;
+  private int _id = -1;
   private int _computationTargetType = -1;
   private String _idScheme;
   private String _idValue;

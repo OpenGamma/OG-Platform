@@ -19,13 +19,8 @@ import java.util.Set;
 
 import javax.time.calendar.OffsetTime;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.orm.hibernate3.HibernateTransactionManager;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -34,16 +29,14 @@ import com.opengamma.engine.batch.BatchJob;
 import com.opengamma.engine.view.ViewTest;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.test.HibernateTest;
+import com.opengamma.util.test.TransactionalHibernateTest;
 import com.opengamma.util.time.DateUtil;
 
 /**
  * 
  */
-public class BatchDbManagerImplTest extends HibernateTest {
+public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     
-    private PlatformTransactionManager _transactionManager;
-    private TransactionStatus _transaction;
     private BatchDbManagerImpl _dbManager;
     private BatchJob _batchJob;
     
@@ -60,9 +53,6 @@ public class BatchDbManagerImplTest extends HibernateTest {
     public void setUp() throws Exception {
       super.setUp();
       
-      _transactionManager = new HibernateTransactionManager(getSessionFactory());
-      _transaction = _transactionManager.getTransaction(new DefaultTransactionDefinition());
-      
       _dbManager = new BatchDbManagerImpl();
       _dbManager.setSessionFactory(getSessionFactory());
       
@@ -72,13 +62,6 @@ public class BatchDbManagerImplTest extends HibernateTest {
       _batchJob.setView(ViewTest.getMockView());
       _batchJob.init();
    }
-    
-    @After
-    public void tearDown() throws Exception {
-      if (_transaction != null && !_transaction.isRollbackOnly()) {
-        _transactionManager.commit(_transaction);
-      }
-    }
     
     @Test
     public void getVersion() {

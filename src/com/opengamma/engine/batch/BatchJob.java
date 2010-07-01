@@ -354,14 +354,14 @@ public class BatchJob implements Job, ComputationResultListener {
     }
     
     if (_valuationTime == null) {
-      _valuationTime = now; 
+      _valuationTime = ZonedDateTime.of(_observationDate, now, now.getZone()); 
     }
     
     if (getViewName() == null && getView() == null) {
       throw new OpenGammaRuntimeException("Please specify view name.");
     }
     if (_viewDateTime == null) {
-      _viewDateTime = now;      
+      _viewDateTime = _valuationTime;      
     }
     
     if (_snapshotObservationDate == null) {
@@ -386,12 +386,12 @@ public class BatchJob implements Job, ComputationResultListener {
     options.addOption("observationdate", "observationdate", true, 
         "Observation date. yyyyMMdd - for example, 20100621. Default - system clock date.");
     options.addOption("valuationtime", "valuationtime", true, 
-        "Valuation time. yyyyMMddHHmmss[Z] - for example, 20100621162200. Default - system clock datetime.");
+        "Valuation time. yyyyMMddHHmmss[Z] - for example, 20100621162200. Default - system clock on observation date.");
     
     options.addOption("view", "view", true, 
         "View name in configuration database. You must specify this.");
     options.addOption("viewdatetime", "viewdatetime", true, 
-        "Instant at which view should be loaded. yyyyMMddHHmmss[Z]. Default - system clock datetime.");
+        "Instant at which view should be loaded. yyyyMMddHHmmss[Z]. Default - same as valuationtime.");
     
     options.addOption("snapshotobservationtime", "snapshotobservationtime", true, 
         "Observation time of LiveData snapshot to use - for example, LDN_CLOSE. Default - same as observationtime.");
@@ -406,10 +406,15 @@ public class BatchJob implements Job, ComputationResultListener {
     return options;
   }
   
-  public void parse(String[] args) throws ParseException, CalendricalParseException, OpenGammaRuntimeException {
-    CommandLineParser parser = new PosixParser();
-    CommandLine line = parser.parse(getOptions(), args);
-    
+  public void parse(String[] args) throws CalendricalParseException, OpenGammaRuntimeException {
+    CommandLine line;
+    try {
+      CommandLineParser parser = new PosixParser();
+      line = parser.parse(getOptions(), args);
+    } catch (ParseException e) {
+      throw new OpenGammaRuntimeException("Could not parse command line", e);
+    }
+
     setRunReason(line.getOptionValue("reason"));
     setObservationTime(line.getOptionValue("observationtime"));
     setObservationDate(line.getOptionValue("observationdate"));
