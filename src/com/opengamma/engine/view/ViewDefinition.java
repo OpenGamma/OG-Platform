@@ -14,6 +14,12 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.fudgemsg.FudgeField;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMessageFactory;
+import org.fudgemsg.MutableFudgeFieldContainer;
+
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
@@ -23,6 +29,50 @@ import com.opengamma.util.ArgumentChecker;
  * and computed.
  */
 public class ViewDefinition implements Serializable {
+  
+  /**
+   * Fudge message key for the name.
+   */
+  public static final String NAME_KEY = "name";
+  /**
+   * Fudge message key for the portfolioId.
+   */
+  public static final String PORTFOLIO_ID_KEY = "portfolioId";
+  /**
+   * Fudge message key for the liveDataUser.
+   */
+  public static final String USER_KEY = "user";
+  /**
+   * Fudge message key for the name.
+   */
+  public static final String COMPUTE_PORTFOLIO_NODE_CALCULATIONS_KEY = "computePortfolioNodeCalculations";
+  /**
+   * Fudge message key for the portfolioId.
+   */
+  public static final String COMPUTE_POSITION_NODE_CALCULATIONS_KEY = "computePositionNodeCalculations";
+  /**
+   * Fudge message key for the liveDataUser.
+   */
+  public static final String COMPUTE_SECURITY_NODE_CALCULATIONS_KEY = "computeSecurityNodeCalculations";
+  /**
+   * Fudge message key for the liveDataUser.
+   */
+  public static final String COMPUTE_PRIMITIVE_NODE_CALCULATIONS_KEY = "computePrimitiveNodeCalculations";
+  /**
+   * Fudge message key for the portfolioId.
+   */
+  public static final String DELTA_RECALCULATION_PERIOD_KEY = "deltaRecalculationPeriod";
+  /**
+   * Fudge message key for the liveDataUser.
+   */
+  public static final String FULL_RECALCULATION_PERIOD_KEY = "fullRecalculationPeriod";
+  /**
+   * Fudge message key for the liveDataUser.
+   */
+  public static final String CALCULATION_CONFIGURATIONS_BY_NAME_KEY = "calculationConfigurationsByName";
+  
+  
+  
   private final String _name;
   private final UniqueIdentifier _portfolioId;
   private final UserPrincipal _liveDataUser;
@@ -225,6 +275,115 @@ public class ViewDefinition implements Serializable {
   public void setComputePrimitiveNodeCalculations(boolean computePrimitiveNodeCalculations) {
     _computePrimitiveNodeCalculations = computePrimitiveNodeCalculations;
   }
+  
+  /**
+   * Serializes this ViewDefinition to a Fudge message.
+   * @param factory  the Fudge context, not null
+   * @return the Fudge message, not null
+   */
+  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
+    ArgumentChecker.notNull(factory, "Fudge Context");
+    MutableFudgeFieldContainer msg = factory.newMessage();
+    msg.add(NAME_KEY, getName());
+    msg.add(PORTFOLIO_ID_KEY, getPortfolioId().toFudgeMsg(factory));
+    msg.add(USER_KEY, getLiveDataUser().toFudgeMsg(factory));
+    msg.add(COMPUTE_PORTFOLIO_NODE_CALCULATIONS_KEY, _computePortfolioNodeCalculations);
+    msg.add(COMPUTE_POSITION_NODE_CALCULATIONS_KEY, _computePositionNodeCalculations);
+    msg.add(COMPUTE_SECURITY_NODE_CALCULATIONS_KEY, _computeSecurityNodeCalculations);
+    msg.add(COMPUTE_PRIMITIVE_NODE_CALCULATIONS_KEY, _computePrimitiveNodeCalculations);
+    if (_deltaRecalculationPeriod != null) {
+      msg.add(DELTA_RECALCULATION_PERIOD_KEY, _deltaRecalculationPeriod);
+    }
+    if (_deltaRecalculationPeriod != null) {
+      msg.add(FULL_RECALCULATION_PERIOD_KEY, _fullRecalculationPeriod);
+    }
+    
+    for (ViewCalculationConfiguration calConfig : _calculationConfigurationsByName.values()) {
+      msg.add(CALCULATION_CONFIGURATIONS_BY_NAME_KEY, calConfig.toFudgeMsg(factory));
+    }
+    return msg;
+  }
+
+  /**
+   * Deserializes this ViewDefinition from a Fudge message.
+   * @param msg  the Fudge message, not null
+   * @return the ViewDefinition, not null
+   */
+  public static ViewDefinition fromFudgeMsg(FudgeFieldContainer msg) {
+    String name = msg.getString(NAME_KEY);
+    
+    FudgeFieldContainer portfolioIdMsg = msg.getMessage(PORTFOLIO_ID_KEY);
+    String scheme = portfolioIdMsg.getString(UniqueIdentifier.SCHEME_FUDGE_FIELD_NAME);
+    String value = portfolioIdMsg.getString(UniqueIdentifier.VALUE_FUDGE_FIELD_NAME);
+    String version = portfolioIdMsg.getString(UniqueIdentifier.VERSION_FUDGE_FIELD_NAME);
+    UniqueIdentifier portfolioId = UniqueIdentifier.of(scheme, value, version);
+    
+    FudgeFieldContainer userMessage = msg.getMessage(USER_KEY);
+    String userName = userMessage.getString(UserPrincipal.USERNAME_KEY);
+    String ipAddress = userMessage.getString(UserPrincipal.IPADDRESS_KEY);
+    
+    UserPrincipal liveDataUser = new UserPrincipal(userName, ipAddress);
+    ViewDefinition result = new ViewDefinition(name, portfolioId, liveDataUser);
+     
+    result._computePortfolioNodeCalculations = msg.getBoolean(COMPUTE_PORTFOLIO_NODE_CALCULATIONS_KEY);
+    result._computePositionNodeCalculations = msg.getBoolean(COMPUTE_POSITION_NODE_CALCULATIONS_KEY);
+    result._computePrimitiveNodeCalculations = msg.getBoolean(COMPUTE_PRIMITIVE_NODE_CALCULATIONS_KEY);
+    result._computeSecurityNodeCalculations = msg.getBoolean(COMPUTE_SECURITY_NODE_CALCULATIONS_KEY);
+    if (msg.hasField(DELTA_RECALCULATION_PERIOD_KEY)) {
+      result._deltaRecalculationPeriod = msg.getLong(DELTA_RECALCULATION_PERIOD_KEY);
+    }
+    if (msg.hasField(FULL_RECALCULATION_PERIOD_KEY)) {
+      result._fullRecalculationPeriod = msg.getLong(FULL_RECALCULATION_PERIOD_KEY);
+    }
+    for (FudgeField field : msg.getAllByName(CALCULATION_CONFIGURATIONS_BY_NAME_KEY)) {
+      FudgeFieldContainer calConfigMsg = (FudgeFieldContainer) field.getValue();
+      String calConfigName = calConfigMsg.getString(ViewCalculationConfiguration.NAME_KEY);
+      for (FudgeField reqBySecType : calConfigMsg.getAllByName(ViewCalculationConfiguration.REQUIREMENTS_BY_SECURITY_TYPE_KEY)) {
+        FudgeFieldContainer reqBySecTypeMsg = (FudgeFieldContainer) reqBySecType.getValue();
+        String securityType = reqBySecTypeMsg.getString(ViewCalculationConfiguration.SECURITY_TYPE_KEY);
+        for (FudgeField fudgeField : reqBySecTypeMsg.getAllByName(ViewCalculationConfiguration.DEFINITIONS_KEY)) {
+          String definition = (String) fudgeField.getValue();
+          result.addValueDefinition(calConfigName, securityType, definition);
+        }
+      }
+    }
+    
+    return result;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ObjectUtils.hashCode(getName());
+    result = prime * result + ObjectUtils.hashCode(getPortfolioId());
+    result = prime * result + ObjectUtils.hashCode(getLiveDataUser());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj instanceof ViewDefinition) {
+      ViewDefinition other = (ViewDefinition) obj;
+      return ObjectUtils.equals(getName(), other.getName()) 
+        && ObjectUtils.equals(getPortfolioId(), other.getPortfolioId())
+        && ObjectUtils.equals(getLiveDataUser(), other.getLiveDataUser())
+        && ObjectUtils.equals(_computePortfolioNodeCalculations, other._computePortfolioNodeCalculations)
+        && ObjectUtils.equals(_computePositionNodeCalculations, other._computePositionNodeCalculations)
+        && ObjectUtils.equals(_computePrimitiveNodeCalculations, other._computePrimitiveNodeCalculations)
+        && ObjectUtils.equals(_computeSecurityNodeCalculations, other._computeSecurityNodeCalculations)
+        && ObjectUtils.equals(_deltaRecalculationPeriod, other._deltaRecalculationPeriod)
+        && ObjectUtils.equals(_fullRecalculationPeriod, other._fullRecalculationPeriod)
+        && ObjectUtils.equals(getAllCalculationConfigurationNames(), other.getAllCalculationConfigurationNames())
+        && ObjectUtils.equals(getAllValueRequirements(), other.getAllValueRequirements());
+    }
+    return false;
+  }
+  
+  
 
 
 }

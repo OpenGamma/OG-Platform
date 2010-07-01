@@ -131,6 +131,11 @@ public class PortfolioEvaluationModelTest {
     ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, positionMaster, secMaster, functionCompilationContext, computationTargetResolver, executorService);
     
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
+    viewDefinition.setComputeSecurityNodeCalculations(false);
+    viewDefinition.setComputePortfolioNodeCalculations(true);
+    viewDefinition.setComputePositionNodeCalculations(false);
+    System.err.println(viewDefinition);
+    //viewDefinition.setComputePrimitiveNodeCalculations(true);
     viewDefinition.addValueDefinition("Fibble", "My Sec", "Req-1");
     
     PortfolioEvaluationModel pem = new PortfolioEvaluationModel(p);
@@ -204,7 +209,9 @@ public class PortfolioEvaluationModelTest {
     
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
     viewDefinition.addValueDefinition("Fibble", "My Sec", "Req-1");
-    
+    viewDefinition.setComputePortfolioNodeCalculations(true);
+    viewDefinition.setComputePositionNodeCalculations(false);
+    viewDefinition.setComputeSecurityNodeCalculations(false);
     PortfolioEvaluationModel pem = new PortfolioEvaluationModel(p);
     pem.init(vcs, viewDefinition);
     

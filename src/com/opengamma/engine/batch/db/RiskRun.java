@@ -137,6 +137,15 @@ public class RiskRun {
   public void setCalculationConfigurations(Set<CalculationConfiguration> calculationConfigurations) {
     _calculationConfigurations = calculationConfigurations;
   }
+  
+  public CalculationConfiguration getCalculationConfiguration(String calcConfName) {
+    for (CalculationConfiguration conf : getCalculationConfigurations()) {
+      if (conf.getName().equals(calcConfName)) {
+        return conf; 
+      }
+    }
+    return null;
+  }
 
   public boolean isComplete() {
     return _complete;
@@ -149,7 +158,12 @@ public class RiskRun {
   // --------------------------------------------------------------------------
   
   public void addCalculationConfiguration(ViewCalculationConfiguration viewCalcConf) {
-    CalculationConfiguration calcConf = new CalculationConfiguration();
+    CalculationConfiguration calcConf = getCalculationConfiguration(viewCalcConf.getName());
+    if (calcConf != null) {
+      throw new IllegalStateException("Already has calc conf " + viewCalcConf.getName());      
+    }
+
+    calcConf = new CalculationConfiguration();
     calcConf.setName(viewCalcConf.getName());
     calcConf.setRiskRun(this);
     _calculationConfigurations.add(calcConf);

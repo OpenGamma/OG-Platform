@@ -11,6 +11,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.Map.Entry;
+
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMessageFactory;
+import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -18,6 +23,24 @@ import com.opengamma.util.ArgumentChecker;
  * The configuration for one set of calculations on a particular view.
  */
 public class ViewCalculationConfiguration implements Serializable {
+  /**
+   * Fudge message key for the name
+   */
+  public static final String NAME_KEY = "name";
+  /**
+   * Fudge message key for the security type.
+   */
+  public static final String SECURITY_TYPE_KEY = "securityType";
+  /**
+   * Fudge message key for the definitions.
+   */
+  public static final String DEFINITIONS_KEY = "definitions";
+  /**
+   * Fudge message key for the requirementsBySecurityType.
+   */
+  public static final String REQUIREMENTS_BY_SECURITY_TYPE_KEY = "requirementsBySecurityType";
+  
+  
   private final ViewDefinition _definition;
   private final String _name;
   private final Map<String, Set<String>> _requirementsBySecurityType =
@@ -81,6 +104,28 @@ public class ViewCalculationConfiguration implements Serializable {
       requirements.addAll(secTypeDefinitions);
     }
     return requirements;
+  }
+
+  /**
+   * Serializes this ViewDefinition to a Fudge message.
+   * @param factory  the Fudge context, not null
+   * @return the Fudge message, not null
+   */
+  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
+    MutableFudgeFieldContainer result = factory.newMessage();
+    result.add(NAME_KEY, getName());
+    for (Entry<String, Set<String>> entry : _requirementsBySecurityType.entrySet()) {
+      MutableFudgeFieldContainer requirementMsg = factory.newMessage();
+      String securityType = entry.getKey();
+      Set<String> definitions = entry.getValue();
+      requirementMsg.add(SECURITY_TYPE_KEY, securityType);
+      requirementMsg.add(SECURITY_TYPE_KEY, securityType);
+      for (String definition : definitions) {
+        requirementMsg.add(DEFINITIONS_KEY, definition);
+      }
+      result.add(REQUIREMENTS_BY_SECURITY_TYPE_KEY, requirementMsg);
+    }
+    return result;
   }
 
 }

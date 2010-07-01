@@ -6,7 +6,6 @@
 package com.opengamma.engine.batch;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
@@ -20,17 +19,19 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.batch.db.BatchDbManager;
+import com.opengamma.engine.batch.db.BatchDbRiskContext;
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.View;
+import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.livedata.msg.UserPrincipal;
-import com.opengamma.engine.view.ViewCalculationConfiguration;
 
 /**
  * The entry point for running OpenGamma batches. 
@@ -281,10 +282,11 @@ public class BatchJob implements Job, ComputationResultListener {
     return _view;
   }
   
+  public void setView(View view) {
+    _view = view;
+  }
+  
   public Collection<ViewCalculationConfiguration> getCalculationConfigurations() {
-    if (getView() == null) {
-      return Collections.emptySet(); // remove as soon as we get real test views here
-    }
     return getView().getDefinition().getAllCalculationConfigurations();
   }
   
@@ -316,12 +318,18 @@ public class BatchJob implements Job, ComputationResultListener {
   
   @Override
   public void computationResultAvailable(ViewComputationResultModel resultModel) {
-    _batchDbManager.write(this, resultModel);    
+    BatchDbRiskContext context = getBatchDbManager().createLocalContext(this);
+    _batchDbManager.write(context, resultModel);    
   }
 
   @Override
   public UserPrincipal getUser() {
     return _user;
+  }
+  
+  @Override
+  public String toString() {
+    return new ToStringBuilder(this).append("Run reason", getRunReason()).toString(); 
   }
 
   
@@ -346,14 +354,14 @@ public class BatchJob implements Job, ComputationResultListener {
     }
     
     if (_valuationTime == null) {
-      _valuationTime = now; 
+      _valuationTime = ZonedDateTime.of(_observationDate, now, now.getZone()); 
     }
     
-    if (_viewName == null) {
+    if (getViewName() == null && getView() == null) {
       throw new OpenGammaRuntimeException("Please specify view name.");
     }
     if (_viewDateTime == null) {
-      _viewDateTime = now;      
+      _viewDateTime = _valuationTime;      
     }
     
     if (_snapshotObservationDate == null) {
@@ -363,6 +371,8 @@ public class BatchJob implements Job, ComputationResultListener {
     if (_snapshotObservationTime == null) {
       _snapshotObservationTime = _observationTime;
     }
+    
+    getView().addResultListener(this);
   }
   
   public Options getOptions() {
@@ -376,12 +386,12 @@ public class BatchJob implements Job, ComputationResultListener {
     options.addOption("observationdate", "observationdate", true, 
         "Observation date. yyyyMMdd - for example, 20100621. Default - system clock date.");
     options.addOption("valuationtime", "valuationtime", true, 
-        "Valuation time. yyyyMMddHHmmss[Z] - for example, 20100621162200. Default - system clock datetime.");
+        "Valuation time. yyyyMMddHHmmss[Z] - for example, 20100621162200. Default - system clock on observation date.");
     
     options.addOption("view", "view", true, 
         "View name in configuration database. You must specify this.");
     options.addOption("viewdatetime", "viewdatetime", true, 
-        "Instant at which view should be loaded. yyyyMMddHHmmss[Z]. Default - system clock datetime.");
+        "Instant at which view should be loaded. yyyyMMddHHmmss[Z]. Default - same as valuationtime.");
     
     options.addOption("snapshotobservationtime", "snapshotobservationtime", true, 
         "Observation time of LiveData snapshot to use - for example, LDN_CLOSE. Default - same as observationtime.");
@@ -396,10 +406,15 @@ public class BatchJob implements Job, ComputationResultListener {
     return options;
   }
   
-  public void parse(String[] args) throws ParseException, CalendricalParseException, OpenGammaRuntimeException {
-    CommandLineParser parser = new PosixParser();
-    CommandLine line = parser.parse(getOptions(), args);
-    
+  public void parse(String[] args) throws CalendricalParseException, OpenGammaRuntimeException {
+    CommandLine line;
+    try {
+      CommandLineParser parser = new PosixParser();
+      line = parser.parse(getOptions(), args);
+    } catch (ParseException e) {
+      throw new OpenGammaRuntimeException("Could not parse command line", e);
+    }
+
     setRunReason(line.getOptionValue("reason"));
     setObservationTime(line.getOptionValue("observationtime"));
     setObservationDate(line.getOptionValue("observationdate"));
@@ -413,6 +428,7 @@ public class BatchJob implements Job, ComputationResultListener {
   
   public void execute() {
     _batchDbManager.startBatch(this);
+    getView().runOneCycle();
     _batchDbManager.endBatch(this);
   }
   

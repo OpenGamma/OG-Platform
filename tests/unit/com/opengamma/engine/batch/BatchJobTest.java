@@ -5,19 +5,17 @@
  */
 package com.opengamma.engine.batch;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * 
  */
-@Ignore
 public class BatchJobTest {
   
   @Test
-  public void minimumCommandLine() throws Exception {
+  public void minimumCommandLine() {
     BatchJob job = new BatchJob();
     job.parse("-view TestPortfolio".split(" "));
   }
-
+  
 }

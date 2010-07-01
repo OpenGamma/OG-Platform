@@ -14,7 +14,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  */
 public class CalculationConfiguration {
   
-  private int _id;
+  private int _id = -1;
   private RiskRun _riskRun;
   private String _name;
   

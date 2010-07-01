@@ -10,24 +10,37 @@ import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import javax.sql.DataSource;
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 
+import org.fudgemsg.FudgeMsg;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.batch.BatchJob;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
+import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.time.DateUtil;
@@ -42,10 +55,30 @@ public class BatchDbManagerImpl implements BatchDbManager {
   private static final Logger s_logger = LoggerFactory
     .getLogger(BatchDbManagerImpl.class);
   
+  /**
+   * The template for Hibernate operations.
+   */
   private HibernateTemplate _hibernateTemplate;
-
+  
+  /**
+   * The template for direct JDBC operations.
+   */
+  private SimpleJdbcTemplate _jdbcTemplate;
+  
+  // --------------------------------------------------------------------------
+  
   public void setSessionFactory(SessionFactory sessionFactory) {
     _hibernateTemplate = new HibernateTemplate(sessionFactory);
+    _hibernateTemplate.setAllowCreate(false);
+  }
+  
+  public void setTransactionManager(DataSourceTransactionManager transactionManager) {
+    DataSource dataSource = transactionManager.getDataSource();
+    _jdbcTemplate = new SimpleJdbcTemplate(dataSource);
+  }
+  
+  public SessionFactory getSessionFactory() {
+    return _hibernateTemplate.getSessionFactory();
   }
   
   // --------------------------------------------------------------------------
@@ -238,6 +271,46 @@ public class BatchDbManagerImpl implements BatchDbManager {
     return liveDataIdentifier;
   }
   
+  /*package*/ ComputationTarget getComputationTarget(final ComputationTargetSpecification spec) {
+    ComputationTarget computationTarget = (ComputationTarget) _hibernateTemplate.execute(new HibernateCallback() {
+      @Override
+      public Object doInHibernate(Session session) throws HibernateException,
+          SQLException {
+        Query query = session.getNamedQuery("ComputationTarget.one.byTypeAndId");
+        query.setInteger("computationTargetType", ComputationTarget.getType(spec.getType()));
+        query.setString("idScheme", spec.getIdentifier().getScheme().getName());
+        query.setString("idValue", spec.getIdentifier().getValue());
+        return query.uniqueResult();
+      }
+    });
+    if (computationTarget == null) {
+      computationTarget = new ComputationTarget();
+      computationTarget.setComputationTargetType(spec.getType());
+      computationTarget.setIdScheme(spec.getIdentifier().getScheme().getName());      
+      computationTarget.setIdValue(spec.getIdentifier().getValue());
+      _hibernateTemplate.save(computationTarget);
+    }
+    return computationTarget;
+  }
+  
+  /*package*/ RiskValueName getRiskValueName(final String name) {
+    RiskValueName riskValueName = (RiskValueName) _hibernateTemplate.execute(new HibernateCallback() {
+      @Override
+      public Object doInHibernate(Session session) throws HibernateException,
+          SQLException {
+        Query query = session.getNamedQuery("RiskValueName.one.byName");
+        query.setString("name", name);
+        return query.uniqueResult();
+      }
+    });
+    if (riskValueName == null) {
+      riskValueName = new RiskValueName();
+      riskValueName.setName(name);
+      _hibernateTemplate.save(riskValueName);
+    }
+    return riskValueName;
+  }
+  
   /*package*/ RiskRun getRiskRunFromDb(final BatchJob job) {
     RiskRun riskRun = null;
     
@@ -254,7 +327,9 @@ public class BatchDbManagerImpl implements BatchDbManager {
           return query.uniqueResult();
         }
       });
-    }
+      
+      // here, if riskRun != null, we should check a hash of the configuration to see it's still the same as before  
+    } 
     
     return riskRun;
   }
@@ -285,6 +360,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
     }
     
     _hibernateTemplate.save(riskRun);
+    _hibernateTemplate.saveOrUpdateAll(riskRun.getCalculationConfigurations());
     return riskRun;
   }
   
@@ -307,14 +383,42 @@ public class BatchDbManagerImpl implements BatchDbManager {
   }
   
   /*package*/ RiskRun getRiskRunFromHandle(BatchJob job) {
+    return getDbHandle(job)._riskRun;
+  }
+  
+  private DbHandle getDbHandle(BatchJob job) {
     Object handle = job.getDbHandle();
     if (handle == null) {
       throw new IllegalStateException("Job db handle is null");
     }
-    if (!(handle instanceof RiskRun)) {
-      throw new IllegalStateException("Job db handle must be of type RiskRun, was " + handle.getClass());
+    if (!(handle instanceof DbHandle)) {
+      throw new IllegalStateException("Job db handle must be of type DbHandle, was " + handle.getClass());
     }
-    return (RiskRun) handle;
+    return (DbHandle) handle;
+  }
+  
+  /*package*/ Set<RiskValueName> populateRiskValueNames(BatchJob job) {
+    Set<RiskValueName> returnValue = new HashSet<RiskValueName>();
+    
+    Set<String> riskValueNames = job.getView().getPortfolioEvaluationModel().getAllOutputValueNames();
+    for (String name : riskValueNames) {
+      RiskValueName riskValueName = getRiskValueName(name);
+      returnValue.add(riskValueName);
+    }
+    
+    return returnValue;
+  }
+  
+  /*package*/ Set<ComputationTarget> populateComputationTargets(BatchJob job) {
+    Set<ComputationTarget> returnValue = new HashSet<ComputationTarget>();
+    
+    Set<ComputationTargetSpecification> computationTargets = job.getView().getAllComputationTargets();
+    for (ComputationTargetSpecification ct : computationTargets) {
+      ComputationTarget computationTarget = getComputationTarget(ct);
+      returnValue.add(computationTarget);
+    }
+    
+    return returnValue;
   }
   
   // --------------------------------------------------------------------------
@@ -322,112 +426,298 @@ public class BatchDbManagerImpl implements BatchDbManager {
 
   @Override
   public void addValuesToSnapshot(LocalDate observationDate, String observationTime, Set<LiveDataValue> values) {
-    LiveDataSnapshot snapshot = getLiveDataSnapshot(observationDate, observationTime);
-    if (snapshot == null) {
-      throw new IllegalArgumentException("Snapshot for " + observationTime + "/" + observationTime + " does not exist.");
-    }
-    if (snapshot.isComplete()) {
-      throw new IllegalStateException("Snapshot for " + observationTime + "/" + observationTime + " is already complete.");
-    }
+    s_logger.info("Adding {} values to LiveData snapshot {}/{}", new Object[] {values.size(), observationDate, observationTime});
     
-    Collection<LiveDataSnapshotEntry> changedEntries = new ArrayList<LiveDataSnapshotEntry>();
-    for (LiveDataValue value : values) {
-      LiveDataSnapshotEntry entry = snapshot.getEntry(value.getIdentifier(), value.getFieldName());
-      if (entry != null) {
-        if (entry.getValue() != value.getValue()) {
+    try {
+      getSessionFactory().getCurrentSession().beginTransaction();
+      
+      LiveDataSnapshot snapshot = getLiveDataSnapshot(observationDate, observationTime);
+      if (snapshot == null) {
+        throw new IllegalArgumentException("Snapshot for " + observationTime + "/" + observationTime + " does not exist.");
+      }
+      if (snapshot.isComplete()) {
+        throw new IllegalStateException("Snapshot for " + observationTime + "/" + observationTime + " is already complete.");
+      }
+      
+      Collection<LiveDataSnapshotEntry> changedEntries = new ArrayList<LiveDataSnapshotEntry>();
+      for (LiveDataValue value : values) {
+        LiveDataSnapshotEntry entry = snapshot.getEntry(value.getIdentifier(), value.getFieldName());
+        if (entry != null) {
+          if (entry.getValue() != value.getValue()) {
+            entry.setValue(value.getValue());
+            changedEntries.add(entry);
+          }
+        } else {
+          entry = new LiveDataSnapshotEntry();
+          entry.setSnapshot(snapshot);
+          entry.setIdentifier(getLiveDataIdentifier(value.getIdentifier()));
+          entry.setField(getLiveDataField(value.getFieldName()));
           entry.setValue(value.getValue());
+          snapshot.addEntry(entry);
           changedEntries.add(entry);
         }
-      } else {
-        entry = new LiveDataSnapshotEntry();
-        entry.setSnapshot(snapshot);
-        entry.setIdentifier(getLiveDataIdentifier(value.getIdentifier()));
-        entry.setField(getLiveDataField(value.getFieldName()));
-        entry.setValue(value.getValue());
-        snapshot.addEntry(entry);
-        changedEntries.add(entry);
       }
+      _hibernateTemplate.saveOrUpdateAll(changedEntries);
+      
+      getSessionFactory().getCurrentSession().getTransaction().commit();
+    } catch (RuntimeException e) {
+      getSessionFactory().getCurrentSession().getTransaction().rollback();
+      throw e;
     }
-    _hibernateTemplate.saveOrUpdateAll(changedEntries);
   }
 
   @Override
   public void createLiveDataSnapshot(LocalDate observationDate, String observationTime) {
-    LiveDataSnapshot snapshot = getLiveDataSnapshot(observationDate, observationTime);
-    if (snapshot != null) {
-      s_logger.info("Snapshot for " + observationTime + "/" + observationTime + " already exists. No need to create.");
-      return;
+    s_logger.info("Creating LiveData snapshot {}/{} ", new Object[] {observationDate, observationTime});
+    
+    try {
+      getSessionFactory().getCurrentSession().beginTransaction();
+
+      LiveDataSnapshot snapshot = getLiveDataSnapshot(observationDate, observationTime);
+      if (snapshot != null) {
+        s_logger.info("Snapshot for " + observationTime + "/" + observationTime + " already exists. No need to create.");
+        return;
+      }
+      
+      snapshot = new LiveDataSnapshot();
+      snapshot.setComplete(false);
+      
+      ObservationDateTime snapshotTime = getObservationDateTime(observationDate, observationTime);
+      snapshot.setSnapshotTime(snapshotTime);
+      
+      _hibernateTemplate.save(snapshot);
+      
+      getSessionFactory().getCurrentSession().getTransaction().commit();
+    } catch (RuntimeException e) {
+      getSessionFactory().getCurrentSession().getTransaction().rollback();
+      throw e;
     }
-    
-    snapshot = new LiveDataSnapshot();
-    snapshot.setComplete(false);
-    
-    ObservationDateTime snapshotTime = getObservationDateTime(observationDate, observationTime);
-    snapshot.setSnapshotTime(snapshotTime);
-    
-    _hibernateTemplate.save(snapshot);
   }
 
   @Override
   public void endBatch(BatchJob batch) {
-    RiskRun run = getRiskRunFromHandle(batch);
-    endRun(run);
+    s_logger.info("Ending batch {}", batch);
+    
+    try {
+      getSessionFactory().getCurrentSession().beginTransaction();
+
+      RiskRun run = getRiskRunFromHandle(batch);
+      endRun(run);
+    
+      getSessionFactory().getCurrentSession().getTransaction().commit();
+    } catch (RuntimeException e) {
+      getSessionFactory().getCurrentSession().getTransaction().rollback();
+      throw e;
+    }
   }
 
   @Override
   public void fixLiveDataSnapshotTime(LocalDate observationDate, String observationTime, OffsetTime fix) {
-    LiveDataSnapshot snapshot = getLiveDataSnapshot(observationDate, observationTime);
+    s_logger.info("Fixing LiveData snapshot {}/{} at {}", new Object[] {observationDate, observationTime, fix});
     
-    if (snapshot == null) {
-      throw new IllegalArgumentException("Snapshot for " 
-          + observationDate 
-          + "/" 
-          + observationTime 
-          + " cannot be found");
+    try {
+      getSessionFactory().getCurrentSession().beginTransaction();
+
+      LiveDataSnapshot snapshot = getLiveDataSnapshot(observationDate, observationTime);
+      
+      if (snapshot == null) {
+        throw new IllegalArgumentException("Snapshot for " 
+            + observationDate 
+            + "/" 
+            + observationTime 
+            + " cannot be found");
+      }
+      
+      snapshot.getSnapshotTime().setTime(DateUtil.toSqlTime(fix));
+      _hibernateTemplate.save(snapshot);
+      
+      getSessionFactory().getCurrentSession().getTransaction().commit();
+    } catch (RuntimeException e) {
+      getSessionFactory().getCurrentSession().getTransaction().rollback();
+      throw e;
     }
-    
-    snapshot.getSnapshotTime().setTime(DateUtil.toSqlTime(fix));
-    _hibernateTemplate.save(snapshot);
   }
 
   @Override
   public void markLiveDataSnapshotComplete(LocalDate observationDate, String observationTime) {
-    LiveDataSnapshot snapshot = getLiveDataSnapshot(observationDate, observationTime);
+    s_logger.info("Marking LiveData snapshot {}/{} complete", observationDate, observationTime);
     
-    if (snapshot == null) {
-      throw new IllegalArgumentException("Snapshot for " 
-          + observationDate 
-          + "/" 
-          + observationTime 
-          + " cannot be found");
+    try {
+      getSessionFactory().getCurrentSession().beginTransaction();
+
+      LiveDataSnapshot snapshot = getLiveDataSnapshot(observationDate, observationTime);
+      
+      if (snapshot == null) {
+        throw new IllegalArgumentException("Snapshot for " 
+            + observationDate 
+            + "/" 
+            + observationTime 
+            + " cannot be found");
+      }
+      
+      if (snapshot.isComplete()) {
+        throw new IllegalStateException(snapshot + " is already complete.");
+      }
+      
+      snapshot.setComplete(true);
+      _hibernateTemplate.update(snapshot);
+      
+      getSessionFactory().getCurrentSession().getTransaction().commit();
+    } catch (RuntimeException e) {
+      getSessionFactory().getCurrentSession().getTransaction().rollback();
+      throw e;
     }
-    
-    if (snapshot.isComplete()) {
-      throw new IllegalStateException(snapshot + " is already complete.");
-    }
-    
-    snapshot.setComplete(true);
-    _hibernateTemplate.save(snapshot);
   }
 
   @Override
   public void startBatch(BatchJob batch) {
-    RiskRun run = getRiskRunFromDb(batch);
-    if (run == null) {
-      run = createRiskRun(batch);
-    } else {
-      restartRun(run);
+    s_logger.info("Starting batch {}", batch);
+    
+    try {
+      getSessionFactory().getCurrentSession().beginTransaction();
+
+      RiskRun run = getRiskRunFromDb(batch);
+      if (run == null) {
+        run = createRiskRun(batch);
+      } else {
+        restartRun(run);
+      }
+      
+      Set<RiskValueName> riskValueNames = populateRiskValueNames(batch);
+      Set<ComputationTarget> computationTargets = populateComputationTargets(batch);
+      
+      DbHandle dbHandle = new DbHandle();
+      dbHandle._riskRun = run;
+      dbHandle._riskValueNames = riskValueNames;
+      dbHandle._computationTargets = computationTargets;
+      
+      batch.setDbHandle(dbHandle);
+      
+      getSessionFactory().getCurrentSession().getTransaction().commit();
+    } catch (RuntimeException e) {
+      getSessionFactory().getCurrentSession().getTransaction().rollback();
+      throw e;
     }
-    batch.setDbHandle(run);
+  }
+  
+  private static class DbHandle {
+    private RiskRun _riskRun;
+    private Set<RiskValueName> _riskValueNames;
+    private Set<ComputationTarget> _computationTargets;
+  }
+  
+  /**
+   * Gets the SQL for inserting risk into the database.
+   * @return the SQL, not null
+   */
+  private String sqlInsertRisk() {
+    return "INSERT INTO rsk_value " +
+              "(id, calculation_configuration_id, value_name_id, computation_target_id, run_id, value, " +
+              "eval_instant, compute_node_id) " +
+            "VALUES " +
+              "(:id, :calculation_configuration_id, :value_name_id, :computation_target_id, :run_id, :value," +
+              ":eval_instant, :compute_node_id)";
   }
 
   @Override
-  public void write(BatchJob batch, ViewComputationResultModel result) {
+  public void write(BatchDbRiskContext batchDbRiskContext, ViewComputationResultModel result) {
+    s_logger.info("Writing result {}", result);
     
+    if (!(batchDbRiskContext instanceof BatchDbRiskContextImpl)) {
+      throw new IllegalArgumentException("BatchDbRiskContext must be of type " + BatchDbRiskContextImpl.class.getName());      
+    }
     
+    BatchDbRiskContextImpl dbContext = (BatchDbRiskContextImpl) batchDbRiskContext;
+    dbContext.ensureInitialized();
     
+    List<SqlParameterSource> batchArgs = new ArrayList<SqlParameterSource>();
+    Date evalInstant = new Date(result.getResultTimestamp().toEpochMillisLong());
+    
+    int riskRunId = dbContext.getRiskRunId();
+    int computeNodeId = dbContext.getComputeNodeId();
+    
+    for (String calcConfName : result.getCalculationConfigurationNames()) {
+      ViewCalculationResultModel resultModel = result.getCalculationResult(calcConfName);
+      int calcConfId = dbContext.getCalculationConfigurationId(calcConfName);
+      
+      for (ComputationTargetSpecification spec : resultModel.getAllTargets()) {
+        int computationTargetId = dbContext.getComputationTargetId(spec);
+        
+        Map<String, ComputedValue> values = resultModel.getValues(spec);
+        for (Map.Entry<String, ComputedValue> entry : values.entrySet()) {
+          String key = entry.getKey();
+          ComputedValue value = entry.getValue();
+          if (!(value.getValue() instanceof Double)) {
+            throw new IllegalArgumentException("Can only insert Double values, got " + 
+                value.getValue().getClass() + " for " + calcConfName + "/" + spec + "/" + key);
+          }
+          Double valueAsDouble = (Double) value.getValue();
+          
+          int valueNameId = dbContext.getValueNameId(key);
+          long id = dbContext.generateUniqueId();
+          
+          MapSqlParameterSource args = new MapSqlParameterSource()
+            .addValue("id", id)
+            .addValue("calculation_configuration_id", calcConfId)
+            .addValue("value_name_id", valueNameId)
+            .addValue("computation_target_id", computationTargetId)
+            .addValue("run_id", riskRunId)
+            .addValue("value", valueAsDouble)
+            .addValue("eval_instant", evalInstant)
+            .addValue("compute_node_id", computeNodeId);
+          batchArgs.add(args);
+        }
+        
+      }
+    }
+    
+    SqlParameterSource[] batchArgsArray = batchArgs.toArray(new SqlParameterSource[0]);
+    s_logger.info("{}: Inserting {} risk rows into DB", result, batchArgsArray.length);
+    int[] counts = _jdbcTemplate.batchUpdate(sqlInsertRisk(), batchArgsArray);
+
+    int totalCount = 0;
+    for (int count : counts) {
+      totalCount += count;
+    }
+    s_logger.info("{}: Inserted {} risk rows into DB", result, totalCount);
+    if (totalCount != batchArgsArray.length) {
+      s_logger.warn("{}: Risk insert count is wrong", result);      
+    }
   }
   
+  @Override
+  public BatchDbRiskContext createLocalContext(BatchJob batch) {
+    try {
+      getSessionFactory().getCurrentSession().beginTransaction();
+
+      BatchDbRiskContextImpl context = new BatchDbRiskContextImpl();
+      
+      context.setRiskRun(getRiskRunFromHandle(batch));
+      context.setSessionFactory(_hibernateTemplate.getSessionFactory());
+      context.setComputeNode(getLocalComputeNode());
+      context.setComputationTargets(getDbHandle(batch)._computationTargets);
+      context.setRiskValueNames(getDbHandle(batch)._riskValueNames);
+      
+      context.initialize();
+      
+      getSessionFactory().getCurrentSession().getTransaction().commit();
+      return context;
+    } catch (RuntimeException e) {
+      getSessionFactory().getCurrentSession().getTransaction().rollback();
+      throw e;
+    }
+  }
+  
+  @Override
+  public FudgeMsg createFudgeContext(BatchJob batch, int remoteComputeNodeOid, int remoteComputeNodeVersion) {
+    throw new UnsupportedOperationException(); // TODO
+  }
+
+  @Override
+  public BatchDbRiskContext deserializeFudgeContext(FudgeMsg msg) {
+    throw new UnsupportedOperationException(); // TODO
+  }
+
   public static Class<?>[] getHibernateMappingClasses() {
     return new Class[] {
       CalculationConfiguration.class,
@@ -442,7 +732,9 @@ public class BatchDbManagerImpl implements BatchDbManager {
       OpenGammaVersion.class,
       RiskComputeFailure.class,
       RiskRun.class,
-      RiskValueName.class
+      RiskValueName.class,
+      ComputationTarget.class,
+      RiskValue.class
     };
   }
   

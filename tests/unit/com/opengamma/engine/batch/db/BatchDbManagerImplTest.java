@@ -19,27 +19,24 @@ import java.util.Set;
 
 import javax.time.calendar.OffsetTime;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.orm.hibernate3.HibernateTransactionManager;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import com.google.common.collect.Sets;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.batch.BatchJob;
+import com.opengamma.engine.view.ViewTest;
 import com.opengamma.id.Identifier;
-import com.opengamma.util.test.HibernateTest;
+import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.test.TransactionalHibernateTest;
 import com.opengamma.util.time.DateUtil;
 
 /**
  * 
  */
-public class BatchDbManagerImplTest extends HibernateTest {
+public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     
-    private PlatformTransactionManager _transactionManager;
-    private TransactionStatus _transaction;
     private BatchDbManagerImpl _dbManager;
     private BatchJob _batchJob;
     
@@ -56,24 +53,15 @@ public class BatchDbManagerImplTest extends HibernateTest {
     public void setUp() throws Exception {
       super.setUp();
       
-      _transactionManager = new HibernateTransactionManager(getSessionFactory());
-      _transaction = _transactionManager.getTransaction(new DefaultTransactionDefinition());
-      
       _dbManager = new BatchDbManagerImpl();
       _dbManager.setSessionFactory(getSessionFactory());
       
       _batchJob = new BatchJob();
       _batchJob.setBatchDbManager(_dbManager);
       _batchJob.setViewName("test_view");
+      _batchJob.setView(ViewTest.getMockView());
       _batchJob.init();
    }
-    
-    @After
-    public void tearDown() throws Exception {
-      if (_transaction != null && !_transaction.isRollbackOnly()) {
-        _transactionManager.commit(_transaction);
-      }
-    }
     
     @Test
     public void getVersion() {
@@ -427,6 +415,42 @@ public class BatchDbManagerImplTest extends HibernateTest {
           _batchJob.getSnapshotObservationTime());
       _dbManager.startBatch(_batchJob);
       _dbManager.startBatch(_batchJob);
+    }
+    
+    @Test
+    public void getComputationTarget() {
+      UniqueIdentifier uid = UniqueIdentifier.of("foo", "bar");
+      
+      ComputationTarget portfolio = _dbManager.getComputationTarget(
+          new ComputationTargetSpecification(ComputationTargetType.MULTIPLE_POSITIONS, uid));
+      assertNotNull(portfolio);
+      assertEquals(ComputationTargetType.MULTIPLE_POSITIONS.ordinal(), portfolio.getComputationTargetType());
+      assertEquals(uid.getScheme(), portfolio.getIdScheme());
+      assertEquals(uid.getValue(), portfolio.getIdValue());
+      
+      ComputationTarget position = _dbManager.getComputationTarget(
+          new ComputationTargetSpecification(ComputationTargetType.POSITION, uid));
+      assertEquals(ComputationTargetType.POSITION.ordinal(), position.getComputationTargetType());
+      
+      ComputationTarget security = _dbManager.getComputationTarget(
+          new ComputationTargetSpecification(ComputationTargetType.SECURITY, uid));
+      assertEquals(ComputationTargetType.SECURITY.ordinal(), security.getComputationTargetType());
+      
+      ComputationTarget primitive = _dbManager.getComputationTarget(
+          new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, uid));
+      assertEquals(ComputationTargetType.PRIMITIVE.ordinal(), primitive.getComputationTargetType());
+    }
+    
+    @Test
+    public void getValueName() {
+      // create
+      RiskValueName valueName1 = _dbManager.getRiskValueName("test_name");
+      assertNotNull(valueName1);
+      assertEquals("test_name", valueName1.getName());
+      
+      // get
+      RiskValueName valueName2 = _dbManager.getRiskValueName("test_name");
+      assertEquals(valueName1, valueName2);
     }
     
 }
