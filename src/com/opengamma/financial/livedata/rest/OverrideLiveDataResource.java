@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.livedata.rest;
 
+import java.util.Map;
+
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -19,7 +21,9 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.livedata.user.OverrideLiveData;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -104,7 +108,12 @@ public class OverrideLiveDataResource {
   public FudgeMsgEnvelope getAllValues() {
     final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeContext());
     final MutableFudgeFieldContainer message = context.newMessage();
-    context.objectToFudgeMsg(message, "livedata", null, getLiveData().getAllValues());
+    final MutableFudgeFieldContainer livedata = context.newMessage();
+    for (Map.Entry<ValueRequirement, Object> value : getLiveData().getAllValues().entrySet()) {
+      context.objectToFudgeMsg(livedata, null, null, new ComputedValue(new ValueSpecification(value.getKey()), value
+          .getValue()));
+    }
+    message.add("livedata", livedata);
     return new FudgeMsgEnvelope(message);
   }
 
