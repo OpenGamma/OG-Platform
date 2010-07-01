@@ -5,7 +5,6 @@
  */
 package com.opengamma.config.db;
 
-
 import java.util.Random;
 
 import org.junit.After;
@@ -16,13 +15,16 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.MongoDBConnectionSettings;
 import com.opengamma.util.test.MongoDBTestUtils;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * Test UniqueIdentifier as a configuration document
  *
  */
 public class UniqueIdentifierConfigDocsTest extends MongoConfigDocumentRepoTestcase<UniqueIdentifier> {
-  
+
   private Random _random = new Random();
+
   /**
    * @param entityType
    */
@@ -51,10 +53,6 @@ public class UniqueIdentifierConfigDocsTest extends MongoConfigDocumentRepoTestc
   @Override
   public ConfigurationDocumentRepo<UniqueIdentifier> createMongoConfigRepo() {
     MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings(null, true);
-//    settings.setHost("127.0.0.1");
-//    settings.setPort(27017);
-//    String dbName = System.getProperty("user.name") + "-unit";
-//    settings.setDatabase(dbName);
     _mongoSettings = settings;
     return new MongoDBConfigurationRepo<UniqueIdentifier>(UniqueIdentifier.class, settings, null);
   }
@@ -63,14 +61,20 @@ public class UniqueIdentifierConfigDocsTest extends MongoConfigDocumentRepoTestc
   public UniqueIdentifier makeTestConfigDoc(int version) {
     return UniqueIdentifier.of("TestScheme", "TestID", String.valueOf(version));
   }
-  
+
   public MongoDBConnectionSettings getMongoDBConnectionSettings() {
     return _mongoSettings;
   }
 
   @Override
   protected UniqueIdentifier makeRandomConfigDoc() {
-    return UniqueIdentifier.of("SCHEME" + _random.nextInt(), "ID" + _random.nextInt(), String.valueOf(_random.nextInt(100)));
+    return UniqueIdentifier.of("SCHEME" + _random.nextInt(), "ID" + _random.nextInt(), String.valueOf(_random
+        .nextInt(100)));
+  }
+
+  @Override
+  protected void assertConfigDocumentValue(UniqueIdentifier expected, UniqueIdentifier actual) {
+    assertEquals(expected.getValue(), actual.getValue());
   }
 
 }

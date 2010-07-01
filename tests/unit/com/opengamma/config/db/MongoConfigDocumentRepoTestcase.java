@@ -70,6 +70,7 @@ public abstract class MongoConfigDocumentRepoTestcase<T extends Serializable> {
   protected abstract T makeTestConfigDoc(int version);
   protected abstract MongoDBConnectionSettings getMongoDBConnectionSettings();
   protected abstract T makeRandomConfigDoc();
+  protected abstract void assertConfigDocumentValue(T expected, T actual);
   
   @Test
   public void insertNewItem() throws Exception {
@@ -98,16 +99,14 @@ public abstract class MongoConfigDocumentRepoTestcase<T extends Serializable> {
     assertConfigDoc(newDoc, findByName);
   }
 
-  /**
-   * @param newDoc
-   * @param findByName
-   */
   private void assertConfigDoc(ConfigurationDocument<T> expected, ConfigurationDocument<T> actual) {
     assertEquals(expected.getId(), actual.getId());
     assertEquals(expected.getName(), actual.getName());
     assertEquals(expected.getOid(), actual.getOid());
-    assertEquals(expected.getValue(), actual.getValue());
+//    assertEquals(expected.getValue(), actual.getValue());
+    assertConfigDocumentValue(expected.getValue(), actual.getValue());
     assertEquals(expected.getVersion(), actual.getVersion());
+    
   }
   
   @Test

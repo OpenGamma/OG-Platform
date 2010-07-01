@@ -87,6 +87,10 @@ public class MongoDBConfigurationRepo<T> implements ConfigurationDocumentRepo<T>
       final FudgeBuilder<T> messageBuilder) {
     this(documentClazz, mongoSettings, new FudgeContext(), messageBuilder);
   }
+  
+  public MongoDBConfigurationRepo(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings) {
+    this(documentClazz, mongoSettings, null);
+  }
 
   /**
    * @return the fudgeContext

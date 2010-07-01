@@ -29,7 +29,7 @@ public class ManagableViewDefinitionRepository implements ConfigurationDocumentR
    * @param mongoDBsettings mongo connection settings
    */
   public ManagableViewDefinitionRepository(MongoDBConnectionSettings mongoDBsettings) {
-    _viewDefinitionRepo = new MongoDBConfigurationRepo<ViewDefinition>(ViewDefinition.class, mongoDBsettings, null);
+    _viewDefinitionRepo = new MongoDBConfigurationRepo<ViewDefinition>(ViewDefinition.class, mongoDBsettings);
   }
 
   @Override

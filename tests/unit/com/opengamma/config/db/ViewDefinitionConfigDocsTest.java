@@ -5,11 +5,12 @@
  */
 package com.opengamma.config.db;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Random;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 
 import com.opengamma.config.ConfigurationDocumentRepo;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -21,10 +22,9 @@ import com.opengamma.util.MongoDBConnectionSettings;
 import com.opengamma.util.test.MongoDBTestUtils;
 
 /**
- * 
+ * TestCase for storing ViewDefinition config document in MongoDB
  *
  */
-@Ignore ("waiting for ViewDefinition.proto")
 public class ViewDefinitionConfigDocsTest extends MongoConfigDocumentRepoTestcase<ViewDefinition> {
   
   private Random _random = new Random();
@@ -86,6 +86,11 @@ public class ViewDefinitionConfigDocsTest extends MongoConfigDocumentRepoTestcas
     definition.addValueDefinition(configName, FutureOptionSecurity.FUTURE_OPTION_TYPE, ValueRequirementNames.RHO);
     definition.addValueDefinition(configName, FutureOptionSecurity.FUTURE_OPTION_TYPE, ValueRequirementNames.FAIR_VALUE);
     return definition;
+  }
+
+  @Override
+  protected void assertConfigDocumentValue(ViewDefinition expected, ViewDefinition actual) {
+    assertEquals(expected, actual);
   }
 
 }
