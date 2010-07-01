@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.interestrate.swap;
@@ -49,8 +49,7 @@ public class SingleCurveJacobian implements JacobianCalculator {
       data.put(_timeGrid[i], x.getEntry(i));
     }
     final InterpolatedYieldAndDiscountCurve curve = new InterpolatedYieldCurve(data, _interpolator);
-    final Interpolator1DCubicSplineWithSensitivitiesDataBundle model =
-        (Interpolator1DCubicSplineWithSensitivitiesDataBundle) curve.getDataBundles().values().iterator().next();
+    final Interpolator1DCubicSplineWithSensitivitiesDataBundle model = (Interpolator1DCubicSplineWithSensitivitiesDataBundle) curve.getDataBundles().values().iterator().next();
 
     final double[][] res = new double[_nRows][_nCols];
     for (int i = 0; i < _nRows; i++) {
@@ -70,7 +69,7 @@ public class SingleCurveJacobian implements JacobianCalculator {
         double temp = 0.0;
         k = 0;
         for (final Pair<Double, Double> timeAndDF : fwdSensitivity) {
-          temp += timeAndDF.getSecond() * sensitivity[k++][j + 1];
+          temp += timeAndDF.getSecond() * sensitivity[k++][j + 1];// changed from j+1
         }
         for (final Pair<Double, Double> timeAndDF : fundSensitivity) {
           temp += timeAndDF.getSecond() * sensitivity[k++][j + 1];

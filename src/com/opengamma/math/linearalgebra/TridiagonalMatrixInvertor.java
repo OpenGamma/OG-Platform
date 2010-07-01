@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.linearalgebra;
@@ -35,7 +35,7 @@ public class TridiagonalMatrixInvertor extends Function1D<TridiagonalMatrix, Dou
     }
 
     if (theta[n] == 0.0) {
-      throw new MathException("Zero determinate. Cannot invert the matrix");
+      throw new MathException("Zero determinant. Cannot invert the matrix");
     }
 
     phi[n - 1] = 1.0;
@@ -46,25 +46,22 @@ public class TridiagonalMatrixInvertor extends Function1D<TridiagonalMatrix, Dou
 
     double product;
     double[][] res = new double[n][n];
-    int sign = 1;
+
     for (j = 0; j < n; j++) {
       for (i = 0; i <= j; i++) {
         product = 1.0;
         for (k = i; k < j; k++) {
           product *= b[k];
         }
-        res[i][j] = sign * product * theta[i] * phi[j] / theta[n];
-        sign *= -1;
+        res[i][j] = ((i + j) % 2 == 0 ? 1 : -1) * product * theta[i] * phi[j] / theta[n];
       }
       for (i = j + 1; i < n; i++) {
         product = 1.0;
         for (k = j; k < i; k++) {
           product *= c[k];
         }
-        res[i][j] = sign * product * theta[j] * phi[i] / theta[n];
-        sign *= -1;
+        res[i][j] = ((i + j) % 2 == 0 ? 1 : -1) * product * theta[j] * phi[i] / theta[n];
       }
-      sign *= -1;
     }
 
     return new DoubleMatrix2D(res);

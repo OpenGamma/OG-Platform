@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.interpolation;
@@ -56,7 +56,7 @@ public class Interpolator1DCubicSplineWithSensitivitiesDataBundle extends Interp
       b[i] = deltaX[i] / 6.0;
       c[i - 1] = deltaX[i - 1] / 6.0;
     }
-    //Boundary condition
+    // Boundary condition
     if (_leftNatural) {
       a[0] = 1.0;
       b[0] = 0.0;
@@ -72,7 +72,10 @@ public class Interpolator1DCubicSplineWithSensitivitiesDataBundle extends Interp
       c[n - 2] = deltaX[n - 2] / 6.0;
     }
     TridiagonalMatrix tridiagonal = new TridiagonalMatrix(a, b, c);
-    return _invertor.evaluate(tridiagonal);
+    DoubleMatrix2D res = _invertor.evaluate(tridiagonal);
+
+    return res;
+
   }
 
   private DoubleMatrix2D getRHSMatrix(double[] oneOverDeltaX) {

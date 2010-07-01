@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.interestrate.swap;
@@ -34,9 +34,8 @@ public class DoubleCurveFinder extends Function1D<DoubleMatrix1D, DoubleMatrix1D
   private final int _nSwaps, _nFwdNodes, _nFundNodes;
   private final SwapRateCalculator _swapRateCalculator = new SwapRateCalculator();
 
-  public DoubleCurveFinder(final List<Swap> swaps, final double[] swapValues, final double spotRate, final double[] forwardTimeGrid,
-      final double[] fundingTimeGrid, final YieldAndDiscountCurve forwardCurve, final YieldAndDiscountCurve fundCurve,
-      final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> forwardInterpolator,
+  public DoubleCurveFinder(final List<Swap> swaps, final double[] swapValues, final double spotRate, final double[] forwardTimeGrid, final double[] fundingTimeGrid,
+      final YieldAndDiscountCurve forwardCurve, final YieldAndDiscountCurve fundCurve, final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> forwardInterpolator,
       final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> fundingInterpolator) {
     _swaps = swaps;
     _swapValues = swapValues;
@@ -57,6 +56,10 @@ public class DoubleCurveFinder extends Function1D<DoubleMatrix1D, DoubleMatrix1D
 
   @Override
   public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
+    if (x.getNumberOfElements() != (_nFwdNodes + _nFundNodes)) {
+      throw new IllegalArgumentException("fitting vector not same length as number of nodes");
+    }
+
     if (_nFwdNodes == 0) {
       if (_fwdCurve == null) {
         _fwdCurve = new ConstantYieldCurve(_spotRate);
