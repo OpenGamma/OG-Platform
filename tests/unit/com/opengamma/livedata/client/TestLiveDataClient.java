@@ -23,7 +23,6 @@ import com.opengamma.livedata.msg.UserPrincipal;
 /**
  * 
  *
- * @author pietari
  */
 public class TestLiveDataClient extends AbstractLiveDataClient {
   
