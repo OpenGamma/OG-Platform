@@ -13,6 +13,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.time.calendar.Period;
+
 import org.junit.Test;
 
 import com.opengamma.engine.ComputationTarget;
@@ -34,9 +36,9 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     Currency currency = Currency.getInstance("USD");
     String name = "Test Curve";
     InterpolatedYieldAndDiscountCurveDefinition definition = new InterpolatedYieldAndDiscountCurveDefinition(currency, name, Interpolator1DFactory.LINEAR);
-    definition.addStrip(new FixedIncomeStrip(1, UniqueIdentifier.of("Test", "USSW1 Curncy")));
-    definition.addStrip(new FixedIncomeStrip(2, UniqueIdentifier.of("Test", "USSW2 Curncy")));
-    definition.addStrip(new FixedIncomeStrip(3, UniqueIdentifier.of("Test", "USSW3 Curncy")));
+    definition.addStrip(new FixedIncomeStrip(Period.ofYears(1), UniqueIdentifier.of("Test", "USSW1 Curncy"), StripInstrument.SWAP));
+    definition.addStrip(new FixedIncomeStrip(Period.ofYears(2), UniqueIdentifier.of("Test", "USSW2 Curncy"), StripInstrument.SWAP));
+    definition.addStrip(new FixedIncomeStrip(Period.ofYears(3), UniqueIdentifier.of("Test", "USSW3 Curncy"), StripInstrument.SWAP));
     return definition;
   }
 
@@ -45,7 +47,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     InterpolatedYieldAndDiscountCurveDefinition definition = constructDefinition();
     DefaultInterpolatedYieldAndDiscountCurveSource curveSource = new DefaultInterpolatedYieldAndDiscountCurveSource();
     curveSource.addDefinition(Currency.getInstance("USD"), "DEFAULT", definition);
-    InterpolatedYieldAndDiscountCurveFunction function = new InterpolatedYieldAndDiscountCurveFunction(Currency
+    SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(Currency
         .getInstance("USD"), "DEFAULT", false);
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
@@ -76,7 +78,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     InterpolatedYieldAndDiscountCurveDefinition definition = constructDefinition();
     DefaultInterpolatedYieldAndDiscountCurveSource curveSource = new DefaultInterpolatedYieldAndDiscountCurveSource();
     curveSource.addDefinition(Currency.getInstance("USD"), "DEFAULT", definition);
-    InterpolatedYieldAndDiscountCurveFunction function = new InterpolatedYieldAndDiscountCurveFunction(Currency
+    SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(Currency
         .getInstance("USD"), "DEFAULT", true);
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
@@ -108,7 +110,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     InterpolatedYieldAndDiscountCurveDefinition definition = constructDefinition();
     DefaultInterpolatedYieldAndDiscountCurveSource curveSource = new DefaultInterpolatedYieldAndDiscountCurveSource();
     curveSource.addDefinition(Currency.getInstance("USD"), "DEFAULT", definition);
-    InterpolatedYieldAndDiscountCurveFunction function = new InterpolatedYieldAndDiscountCurveFunction(Currency
+    SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(Currency
         .getInstance("USD"), "DEFAULT", false);
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
@@ -128,7 +130,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     InterpolatedYieldAndDiscountCurveDefinition definition = constructDefinition();
     DefaultInterpolatedYieldAndDiscountCurveSource curveSource = new DefaultInterpolatedYieldAndDiscountCurveSource();
     curveSource.addDefinition(Currency.getInstance("USD"), "DEFAULT", definition);
-    InterpolatedYieldAndDiscountCurveFunction function = new InterpolatedYieldAndDiscountCurveFunction(Currency
+    SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(Currency
         .getInstance("USD"), "DEFAULT", true);
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();

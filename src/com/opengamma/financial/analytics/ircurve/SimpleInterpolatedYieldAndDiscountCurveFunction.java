@@ -11,6 +11,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.time.calendar.Clock;
+import javax.time.calendar.LocalDate;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeFieldContainer;
 
@@ -34,11 +37,12 @@ import com.opengamma.livedata.normalization.MarketDataFieldNames;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.DateUtil;
 
 /**
  * 
  */
-public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction implements FunctionInvoker {
+public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFunction implements FunctionInvoker {
   
   @SuppressWarnings("unchecked")
   private Interpolator1D _interpolator;
@@ -50,7 +54,7 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
   private String _curveName;
   private boolean _isYieldCurve;
   
-  public InterpolatedYieldAndDiscountCurveFunction(Currency currency, String name, boolean isYieldCurve) {
+  public SimpleInterpolatedYieldAndDiscountCurveFunction(Currency currency, String name, boolean isYieldCurve) {
     ArgumentChecker.notNull(currency, "Currency");
     ArgumentChecker.notNull(name, "Name");
     _definition = null;
@@ -142,12 +146,18 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
     // Note that this assumes that all strips are priced in decimal percent. We need to resolve
     // that ultimately in OG-LiveData normalization and pull out the OGRate key rather than
     // the crazy IndicativeValue name.
+    Clock snapshotClock = executionContext.getSnapshotClock();
+    LocalDate today = snapshotClock.today(); // TODO: change to times
     Map<Double, Double> timeInYearsToRates = new TreeMap<Double, Double>();
     boolean isFirst = true;
     for (FixedIncomeStrip strip : getDefinition().getStrips()) {
       ValueRequirement stripRequirement = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, strip.getMarketDataSpecification());
       FudgeFieldContainer fieldContainer = (FudgeFieldContainer) inputs.getValue(stripRequirement);
       Double price = fieldContainer.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
+      if (strip.getInstrumentType() == StripInstrument.FUTURE) {
+        price = (100d - price);
+      }
+      price /= 100d;
       if (_isYieldCurve) {
         if (isFirst) {
           //TODO This is here to avoid problems with instruments with expiry < 1 day 
@@ -158,15 +168,18 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
           timeInYearsToRates.put(0., 0.);
           isFirst = false;
         }
-        timeInYearsToRates.put(strip.getNumYears(), price);
+        double numYears = (strip.getEndDate().toEpochDays() - today.toEpochDays())/DateUtil.DAYS_PER_YEAR;
+        timeInYearsToRates.put(numYears, price);
       } else {
         if (isFirst) {
           timeInYearsToRates.put(0., 1.);
           isFirst = false;
         }
-        timeInYearsToRates.put(strip.getNumYears(), Math.exp(-price * strip.getNumYears()));
+        double numYears = (strip.getEndDate().toEpochDays() - today.toEpochDays())/DateUtil.DAYS_PER_YEAR;
+        timeInYearsToRates.put(numYears, Math.exp(-price * numYears));
       }
     }
+    System.err.println(timeInYearsToRates);
     // Bootstrap the yield curve
     YieldAndDiscountCurve curve = _isYieldCurve ? new InterpolatedYieldCurve(timeInYearsToRates, _interpolator)
         : new InterpolatedDiscountCurve(timeInYearsToRates, _interpolator);
