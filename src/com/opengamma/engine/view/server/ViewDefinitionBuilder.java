@@ -67,7 +67,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
       viewDefinition.setDeltaRecalculationPeriod(message.getLong(FIELD_DELTA_RECALC_PERIOD));
     }
     if (message.hasField(FIELD_FULL_RECALC_PERIOD)) {
-      viewDefinition.setDeltaRecalculationPeriod(message.getLong(FIELD_FULL_RECALC_PERIOD));
+      viewDefinition.setFullRecalculationPeriod(message.getLong(FIELD_FULL_RECALC_PERIOD));
     }
     final List<FudgeField> calcConfigs = message.getAllByName(FIELD_CALCULATIONCONFIGURATION);
     for (FudgeField calcConfigField : calcConfigs) {
