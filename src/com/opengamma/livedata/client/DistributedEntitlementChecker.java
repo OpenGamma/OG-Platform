@@ -56,9 +56,15 @@ public class DistributedEntitlementChecker {
       Collection<LiveDataSpecification> specifications) {
     s_logger.info("Checking entitlements by {} to {}", user, specifications);
 
+    final Map<LiveDataSpecification, Boolean> returnValue = new HashMap<LiveDataSpecification, Boolean>();
+    
+    if (specifications == null || specifications.size() == 0) {
+      // Nothing to check
+      return returnValue;
+    }
+    
     FudgeFieldContainer requestMessage = composeRequestMessage(user, specifications);
     
-    final Map<LiveDataSpecification, Boolean> returnValue = new HashMap<LiveDataSpecification, Boolean>();
     final CountDownLatch latch = new CountDownLatch(1);
     
     _requestSender.sendRequest(requestMessage, new FudgeMessageReceiver() {
