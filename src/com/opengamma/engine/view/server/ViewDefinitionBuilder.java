@@ -29,6 +29,8 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
   private static final String FIELD_NAME = "name";
   private static final String FIELD_IDENTIFIER = "identifier";
   private static final String FIELD_USER = "user";
+  private static final String FIELD_DELTA_RECALC_PERIOD = "deltaRecalcPeriod";
+  private static final String FIELD_FULL_RECALC_PERIOD = "fullRecalcPeriod";
   private static final String FIELD_CALCULATIONCONFIGURATION = "calculationConfiguration";
   private static final String FIELD_VALUEREQUIREMENTS = "valueRequirements";
 
@@ -38,6 +40,12 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
     message.add(FIELD_NAME, null, viewDefinition.getName());
     context.objectToFudgeMsg(message, FIELD_IDENTIFIER, null, viewDefinition.getPortfolioId());
     context.objectToFudgeMsg(message, FIELD_USER, null, viewDefinition.getLiveDataUser());
+    if (viewDefinition.getDeltaRecalculationPeriod() != null) {
+      message.add(FIELD_DELTA_RECALC_PERIOD, null, viewDefinition.getDeltaRecalculationPeriod());
+    }
+    if (viewDefinition.getFullRecalculationPeriod() != null) {
+      message.add(FIELD_FULL_RECALC_PERIOD, null, viewDefinition.getFullRecalculationPeriod());
+    }
     Map<String, ViewCalculationConfiguration> calculationConfigurations = viewDefinition.getAllCalculationConfigurationsByName();
     for (ViewCalculationConfiguration calculationConfiguration : calculationConfigurations.values()) {
       final MutableFudgeFieldContainer config = context.newMessage();
@@ -55,6 +63,12 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
         message.getFieldValue(String.class, message.getByName(FIELD_NAME)),
         context.fieldValueToObject(UniqueIdentifier.class, message.getByName(FIELD_IDENTIFIER)),
         context.fieldValueToObject(UserPrincipal.class, message.getByName(FIELD_USER)));
+    if (message.hasField(FIELD_DELTA_RECALC_PERIOD)) {
+      viewDefinition.setDeltaRecalculationPeriod(message.getLong(FIELD_DELTA_RECALC_PERIOD));
+    }
+    if (message.hasField(FIELD_FULL_RECALC_PERIOD)) {
+      viewDefinition.setDeltaRecalculationPeriod(message.getLong(FIELD_FULL_RECALC_PERIOD));
+    }
     final List<FudgeField> calcConfigs = message.getAllByName(FIELD_CALCULATIONCONFIGURATION);
     for (FudgeField calcConfigField : calcConfigs) {
       final FudgeFieldContainer calcConfig = message.getFieldValue(FudgeFieldContainer.class, calcConfigField);
