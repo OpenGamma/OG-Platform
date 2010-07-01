@@ -156,6 +156,10 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     return getDefinition().getName();
   }
   
+  public Set<ComputationTargetSpecification> getAllComputationTargets() {
+    return getPortfolioEvaluationModel().getAllComputationTargets();
+  }
+  
   public synchronized void init() {
     OperationTimer timer = new OperationTimer(s_logger, "Initializing view {}", getDefinition().getName());
     setCalculationState(ViewCalculationState.INITIALIZING);

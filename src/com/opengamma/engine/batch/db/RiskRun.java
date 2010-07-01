@@ -137,6 +137,15 @@ public class RiskRun {
   public void setCalculationConfigurations(Set<CalculationConfiguration> calculationConfigurations) {
     _calculationConfigurations = calculationConfigurations;
   }
+  
+  public CalculationConfiguration getCalculationConfiguration(String calcConfName) {
+    for (CalculationConfiguration conf : getCalculationConfigurations()) {
+      if (conf.getName().equals(calcConfName)) {
+        return conf; 
+      }
+    }
+    return null;
+  }
 
   public boolean isComplete() {
     return _complete;

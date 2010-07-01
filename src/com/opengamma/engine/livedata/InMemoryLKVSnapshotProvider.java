@@ -25,30 +25,28 @@ import com.opengamma.livedata.msg.UserPrincipal;
  * It is primarily useful for mock, testing, or demo scenarios.
  * 
  */
-public class InMemoryLKVSnapshotProvider extends AbstractLiveDataSnapshotProvider implements LiveDataAvailabilityProvider {
+public class InMemoryLKVSnapshotProvider extends AbstractLiveDataSnapshotProvider implements
+    LiveDataAvailabilityProvider {
   private static final Logger s_logger = LoggerFactory.getLogger(InMemoryLKVSnapshotProvider.class);
-  private final Map<ValueRequirement, ComputedValue> _lastKnownValues =
-    new ConcurrentHashMap<ValueRequirement, ComputedValue>();
-  private final Map<Long, Map<ValueRequirement, ComputedValue>> _snapshots =
-    new ConcurrentHashMap<Long, Map<ValueRequirement, ComputedValue>>();
+  private final Map<ValueRequirement, ComputedValue> _lastKnownValues = new ConcurrentHashMap<ValueRequirement, ComputedValue>();
+  private final Map<Long, Map<ValueRequirement, ComputedValue>> _snapshots = new ConcurrentHashMap<Long, Map<ValueRequirement, ComputedValue>>();
 
   @Override
   public void addSubscription(UserPrincipal user, ValueRequirement valueRequirement) {
     // Do nothing. All values are externally provided.
     s_logger.debug("Added subscription to {}", valueRequirement);
   }
-  
+
   @Override
   public void addSubscription(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
     for (ValueRequirement requirement : valueRequirements) {
-      addSubscription(user, requirement);      
+      addSubscription(user, requirement);
     }
   }
 
   @Override
   public Object querySnapshot(long snapshot, ValueRequirement requirement) {
-    Map<ValueRequirement, ComputedValue> snapshotValues =
-      _snapshots.get(snapshot);
+    Map<ValueRequirement, ComputedValue> snapshotValues = _snapshots.get(snapshot);
     if (snapshotValues == null) {
       return null;
     }
@@ -65,7 +63,7 @@ public class InMemoryLKVSnapshotProvider extends AbstractLiveDataSnapshotProvide
     snapshot(snapshotTime);
     return snapshotTime;
   }
-  
+
   /**
    * This method can be called directly to populate a historical
    * snapshot.
@@ -73,8 +71,7 @@ public class InMemoryLKVSnapshotProvider extends AbstractLiveDataSnapshotProvide
    * @param snapshotTime the time of the snapshot
    */
   public void snapshot(long snapshotTime) {
-    Map<ValueRequirement, ComputedValue> snapshotValues =
-      new HashMap<ValueRequirement, ComputedValue>(_lastKnownValues);
+    Map<ValueRequirement, ComputedValue> snapshotValues = new HashMap<ValueRequirement, ComputedValue>(_lastKnownValues);
     _snapshots.put(snapshotTime, snapshotValues);
   }
 
@@ -82,16 +79,21 @@ public class InMemoryLKVSnapshotProvider extends AbstractLiveDataSnapshotProvide
   public void releaseSnapshot(long snapshot) {
     _snapshots.remove(snapshot);
   }
-  
+
   public void addValue(ComputedValue value) {
     _lastKnownValues.put(value.getSpecification().getRequirementSpecification(), value);
-    super.valueChanged(value.getSpecification().getRequirementSpecification());    
+    super.valueChanged(value.getSpecification().getRequirementSpecification());
   }
-  
+
+  public void removeValue(final ValueRequirement valueRequirement) {
+    _lastKnownValues.remove(valueRequirement);
+    super.valueChanged(valueRequirement);
+  }
+
   public Collection<ValueRequirement> getAllValueKeys() {
     return Collections.unmodifiableCollection(_lastKnownValues.keySet());
   }
-  
+
   public ComputedValue getCurrentValue(ValueRequirement valueRequirement) {
     return _lastKnownValues.get(valueRequirement);
   }
