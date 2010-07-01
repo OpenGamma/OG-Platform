@@ -17,3 +17,4 @@ doc/
 /.fudge-proto-gitignore
 /MANIFEST.MF
 .clover/
+.DS_Store

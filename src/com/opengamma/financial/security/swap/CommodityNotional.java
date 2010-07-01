@@ -6,10 +6,8 @@
 package com.opengamma.financial.security.swap;
 
 /**
- * 
- *
- * @author jim
+ * This class defines a commodity notional of a swap leg. E.g. 2000 Bushels of corn.
  */
 public class CommodityNotional extends Notional {
-  
+  // TODO: fill in body.
 }

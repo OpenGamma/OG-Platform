@@ -8,6 +8,8 @@ package com.opengamma.financial.user.rest;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.UriInfo;
 
+import com.opengamma.financial.livedata.rest.LiveDataResource;
+import com.opengamma.financial.livedata.user.InMemoryUserSnapshotProvider;
 import com.opengamma.financial.position.ManagablePositionMaster;
 import com.opengamma.financial.position.memory.InMemoryPositionMaster;
 import com.opengamma.financial.position.rest.PortfoliosResource;
@@ -40,10 +42,16 @@ public class ClientResource {
    */
   public static final String VIEW_DEFINITIONS_PATH = "viewDefinitions";
   
+  /**
+   * The path used to retrieve user Live Data
+   */
+  public static final String LIVEDATA_PATH = "livedata";
+  
   private final ClientsResource _clientsResource;
   private final ManagablePositionMaster _positionMaster;
   private final ManagableSecurityMaster _securityMaster;
   private final ManagableViewDefinitionRepository _viewDefinitionRepository;
+  private final InMemoryUserSnapshotProvider _liveData;
   
   public ClientResource(ClientsResource clientsResource, String clientName) {
     _clientsResource = clientsResource;
@@ -51,6 +59,8 @@ public class ClientResource {
     _positionMaster = new InMemoryPositionMaster(getTemplate(username, clientName, PORTFOLIOS_PATH));
     _securityMaster = new InMemorySecurityMaster(getTemplate(username, clientName, SECURITIES_PATH));
     _viewDefinitionRepository = new InMemoryViewDefinitionRepository();
+    _positionMaster = new InMemoryPositionMaster(UserUniqueIdentifierUtils.getTemplate(new UserResourceDetails(username, clientName, PORTFOLIOS_PATH)));
+    _liveData = new InMemoryUserSnapshotProvider(UserUniqueIdentifierUtils.getTemplate(new UserResourceDetails(username, clientName, LIVEDATA_PATH)));
   }
 
   private UniqueIdentifierTemplate getTemplate(final String username, final String clientName, final String resourceType) {
@@ -83,6 +93,11 @@ public class ClientResource {
   @Path(VIEW_DEFINITIONS_PATH)
   public ViewDefinitionsResource getViewDefinitions() {
     return new ViewDefinitionsResource(_viewDefinitionRepository);
+  }
+  
+  @Path(LIVEDATA_PATH)
+  public LiveDataResource getLiveDataResource() {
+    return new LiveDataResource(_liveData);
   }
   
 }

@@ -5,10 +5,10 @@
  */
 package com.opengamma.financial.security.swap;
 
+import com.opengamma.financial.Region;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.security.Region;
 
 /**
  * Represents one leg of a swap.

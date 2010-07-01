@@ -15,15 +15,17 @@ import javax.time.calendar.ZonedDateTime;
 import org.fudgemsg.FudgeFieldContainer;
 import org.junit.Test;
 
+import com.opengamma.financial.Region;
+import com.opengamma.financial.RegionType;
 import com.opengamma.financial.convention.businessday.ModifiedBusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
-import com.opengamma.financial.security.Region;
-import com.opengamma.financial.security.RegionType;
 import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -141,6 +143,16 @@ public class SwapScheduleCalculatorTest {
 
     @Override
     public Region getSuperRegion() {
+      return null;
+    }
+
+    @Override
+    public IdentifierBundle getIdentifiers() {
+      return null;
+    }
+
+    @Override
+    public UniqueIdentifier getUniqueIdentifier() {
       return null;
     }
 

@@ -5,12 +5,12 @@
  */
 package com.opengamma.financial.security.swap;
 
-import com.opengamma.financial.Currency;
 
 /**
- * 
- *
- * @author jim
+ * Abstract base class representing the notional in a swap leg.  There can be various different kinds of notional
+ * {@see InterestRateNotional}
+ * {@see SecurityNotional}
+ * {@see CommodityNotional}
  */
 public abstract class Notional {
 
