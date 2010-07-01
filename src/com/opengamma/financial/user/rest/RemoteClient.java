@@ -37,17 +37,20 @@ public class RemoteClient {
     _positionMasterTarget = baseTarget.resolve(ClientResource.PORTFOLIOS_PATH);
     _securityMasterTarget = baseTarget.resolve(ClientResource.SECURITIES_PATH);
     _viewDefinitionRepositoryTarget = baseTarget.resolve(ClientResource.VIEW_DEFINITIONS_PATH);
-    _positionMasterTarget = baseTarget.resolve(ClientResource.PORTFOLIOS_PATH);
-    _userLiveDataTarget = liveDataHack;
     _userLiveDataTarget = baseTarget.resolveBase(ClientResource.LIVEDATA_PATH);
+  }
+
+  private RemoteClient(String clientId, FudgeContext fudgeContext, RestTarget baseTarget, RestTarget liveDataHack) {
+    _clientId = clientId;
+    _fudgeContext = fudgeContext;
+    _positionMasterTarget = baseTarget.resolve(ClientResource.PORTFOLIOS_PATH);
+    _securityMasterTarget = baseTarget.resolve(ClientResource.SECURITIES_PATH);
+    _viewDefinitionRepositoryTarget = baseTarget.resolve(ClientResource.VIEW_DEFINITIONS_PATH);
+    _userLiveDataTarget = liveDataHack;
   }
   
   public String getClientId() {
     return _clientId;
-  }
-
-  private RemoteClient(FudgeContext fudgeContext, RestTarget baseTarget, RestTarget liveDataHack) {
-    _fudgeContext = fudgeContext;
   }
   
   public ManagablePositionMaster getPositionMaster() {
@@ -82,7 +85,7 @@ public class RemoteClient {
     // Just use a GUID for the client ID
     String clientId = GUIDGenerator.generate().toString();
     RestTarget uri = usersUri.resolveBase(username).resolveBase("clients").resolveBase(clientId);
-    return new RemoteClient(fudgeContext, uri, usersUri.resolveBase("..").resolveBase(ClientResource.LIVEDATA_PATH));
+    return new RemoteClient(clientId, fudgeContext, uri, usersUri.resolveBase("..").resolveBase(ClientResource.LIVEDATA_PATH));
   }
   
 }

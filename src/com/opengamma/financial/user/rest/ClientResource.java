@@ -58,9 +58,8 @@ public class ClientResource {
     final String username = clientsResource.getUserResource().getUserName();
     _positionMaster = new InMemoryPositionMaster(getTemplate(username, clientName, PORTFOLIOS_PATH));
     _securityMaster = new InMemorySecurityMaster(getTemplate(username, clientName, SECURITIES_PATH));
+    _liveData = new InMemoryUserSnapshotProvider(getTemplate(username, clientName, LIVEDATA_PATH));
     _viewDefinitionRepository = new InMemoryViewDefinitionRepository();
-    _positionMaster = new InMemoryPositionMaster(UserUniqueIdentifierUtils.getTemplate(new UserResourceDetails(username, clientName, PORTFOLIOS_PATH)));
-    _liveData = new InMemoryUserSnapshotProvider(UserUniqueIdentifierUtils.getTemplate(new UserResourceDetails(username, clientName, LIVEDATA_PATH)));
   }
 
   private UniqueIdentifierTemplate getTemplate(final String username, final String clientName, final String resourceType) {
