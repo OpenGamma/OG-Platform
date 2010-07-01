@@ -22,12 +22,14 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.io.FileUtils;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.Dialect;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import com.opengamma.OpenGammaRuntimeException;
 
@@ -286,7 +288,19 @@ public class DBTool extends Task {
     configuration.setProperty(Environment.PASS, getPassword());
     configuration.setProperty(Environment.DIALECT, getHibernateDialect().getClass().getName());
     configuration.setProperty(Environment.SHOW_SQL, "true");
+    configuration.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
     return configuration;
+  }
+  
+  public DataSourceTransactionManager getTransactionManager(String jdbcUrl) {
+    BasicDataSource dataSource = new BasicDataSource();
+
+    dataSource.setDriverClassName(getJDBCDriverClass().getName());
+    dataSource.setUrl(jdbcUrl);
+    dataSource.setUsername(getUser());
+    dataSource.setPassword(getPassword());
+    
+    return new DataSourceTransactionManager(dataSource);
   }
   
   
