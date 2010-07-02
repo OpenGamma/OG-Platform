@@ -62,7 +62,7 @@ public class PortfolioHistoricalVaRCalculatorFunction extends AbstractFunction i
 
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    return target.getType() == ComputationTargetType.MULTIPLE_POSITIONS;
+    return target.getType() == ComputationTargetType.PORTFOLIO_NODE;
   }
 
   @Override
@@ -82,7 +82,7 @@ public class PortfolioHistoricalVaRCalculatorFunction extends AbstractFunction i
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.MULTIPLE_POSITIONS;
+    return ComputationTargetType.PORTFOLIO_NODE;
   }
 
 }
