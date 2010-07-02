@@ -32,6 +32,7 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
   private final VolatilitySurfaceModel<OptionDefinition, StandardOptionDataBundle> _bsmVolatilityModel = new BlackScholesMertonImpliedVolatilitySurfaceModel();
   private static final int DEGREE = 5;
   private final LeastSquaresRegression _regression;
+  private static final Double[] EMPTY_ARRAY = new Double[0];
   private final Function<Double, double[]> _independentVariableFunction = new Function2D<Double, double[]>() {
 
     @Override
@@ -66,9 +67,7 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
       k = entry.getKey().getStrike();
       t = entry.getKey().getTimeToExpiry(data.getDate());
       try {
-        sigma =
-            _bsmVolatilityModel.getSurface(Collections.<OptionDefinition, Double>singletonMap(entry.getKey(), entry.getValue()), data).getVolatility(
-                Pair.of(t, k));
+        sigma = _bsmVolatilityModel.getSurface(Collections.<OptionDefinition, Double> singletonMap(entry.getKey(), entry.getValue()), data).getVolatility(Pair.of(t, k));
         if (k != null && t != null && sigma != null) {
           kList.add(k);
           tList.add(t);
@@ -80,8 +79,7 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
         s_logger.info("Problem getting BSM volatility for " + entry.getKey() + ", not using this option in regression. Error was: ", e);
       }
     }
-    final Double[] emptyArray = new Double[0];
-    return getVolatilitySurfaceForRegression(getRegressionResult(kList.toArray(emptyArray), tList.toArray(emptyArray), sigmaList.toArray(emptyArray)));
+    return getVolatilitySurfaceForRegression(getRegressionResult(kList.toArray(EMPTY_ARRAY), tList.toArray(EMPTY_ARRAY), sigmaList.toArray(EMPTY_ARRAY)));
   }
 
   private LeastSquaresRegressionResult getRegressionResult(final Double[] kArray, final Double[] tArray, final Double[] sigmaArray) {

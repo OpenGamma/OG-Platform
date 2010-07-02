@@ -19,14 +19,14 @@ public class DownhillSimplexMinimizer extends MultidimensionalMinimizer {
   private static final int MAX_FUNCTION_EVAL = 5000;
 
   @Override
-  public Double[] minimize(final FunctionND<Double, Double> f, final Double[][] initialPoints) {
+  public double[] minimize(final FunctionND<Double, Double> f, final Double[][] initialPoints) {
     checkInputs(f, initialPoints, 1);
     final int dim = f.getDimension();
     final int n = dim + 1;
     final Double[][] p = getInitialSimplex(initialPoints, dim, n);
     final Double[] y = getFunctionValues(f, n, p);
     Double[] pSum = getPSum(p, dim, n);
-    final Double[] pMin = new Double[dim];
+    final double[] pMin = new double[dim];
     int evaluationCount = 0;
     int iHigh, iLow;
     double diff, newY, tempY;
@@ -93,8 +93,7 @@ public class DownhillSimplexMinimizer extends MultidimensionalMinimizer {
     return psum;
   }
 
-  private double getExtrapolatedValues(final Double[][] p, final Double[] y, final Double[] pSum, final int iHigh, final double scaleFactor,
-      final FunctionND<Double, Double> f, final int dim) {
+  private double getExtrapolatedValues(final Double[][] p, final Double[] y, final Double[] pSum, final int iHigh, final double scaleFactor, final FunctionND<Double, Double> f, final int dim) {
     final Double[] newP = new Double[dim];
     final double scaleFactor1 = (1 - scaleFactor) / dim;
     final double scaleFactor2 = scaleFactor1 - scaleFactor;

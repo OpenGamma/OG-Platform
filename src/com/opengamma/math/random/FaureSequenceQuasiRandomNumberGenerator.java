@@ -15,7 +15,7 @@ import com.opengamma.math.PrimeNumbers;
 public class FaureSequenceQuasiRandomNumberGenerator implements QuasiRandomNumberGenerator {
 
   @Override
-  public List<Double[]> getVectors(final int dimension, final int n) {
+  public List<double[]> getVectors(final int dimension, final int n) {
     if (dimension < 2) {
       throw new IllegalArgumentException("Dimension must be greater than one");
     }

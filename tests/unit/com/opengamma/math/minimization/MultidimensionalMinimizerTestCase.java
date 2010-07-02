@@ -32,7 +32,7 @@ public class MultidimensionalMinimizerTestCase {
 
   public void testInputs(final MultidimensionalMinimizer minimizer) {
     try {
-      minimizer.minimize(null, new Double[][] { new Double[] { 2., 3. } });
+      minimizer.minimize(null, new Double[][] {new Double[] {2., 3.}});
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
@@ -44,7 +44,7 @@ public class MultidimensionalMinimizerTestCase {
       // Expected
     }
     try {
-      minimizer.minimize(F_1D, new Double[][] { new Double[] { 2., 3. } });
+      minimizer.minimize(F_1D, new Double[][] {new Double[] {2., 3.}});
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
@@ -52,8 +52,8 @@ public class MultidimensionalMinimizerTestCase {
   }
 
   public void test(final MultidimensionalMinimizer minimizer) {
-    assertEquals(minimizer.minimize(F_1D, new Double[][] { new Double[] { 2. }, new Double[] { 4. } })[0], -3.5, EPS);
-    final Double[] r = minimizer.minimize(F_2D, new Double[][] { new Double[] { 10., 10. } });
+    assertEquals(minimizer.minimize(F_1D, new Double[][] {new Double[] {2.}, new Double[] {4.}})[0], -3.5, EPS);
+    final double[] r = minimizer.minimize(F_2D, new Double[][] {new Double[] {10., 10.}});
     assertEquals(r[0], -3.4, EPS);
     assertEquals(r[1], 1, EPS);
   }

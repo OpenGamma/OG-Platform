@@ -41,7 +41,7 @@ public class AutoregressiveTimeSeriesPACFOrderIdentifier {
     }
     final int n = ts.size();
     Integer order = null;
-    final Double[] data = ts.valuesArray();
+    final double[] data = ts.toFastLongDoubleTimeSeries().valuesArrayFast();
     for (int i = 1; i < _maxOrder; i++) {
       final double[] y = new double[n - i];
       final double[][] x = new double[n - i][i];

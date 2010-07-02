@@ -30,8 +30,8 @@ public class GaussianQuadratureIntegrator1D extends Integrator1D<Double, Functio
     Validate.notNull(lower);
     Validate.notNull(upper);
     final GaussianQuadratureFunction quadrature = _generator.generate(_n, new Double[] {lower, upper});
-    final Double[] ordinals = quadrature.evaluate(function);
-    final Double[] weights = quadrature.getWeights();
+    final double[] ordinals = quadrature.evaluate(function);
+    final double[] weights = quadrature.getWeights();
     double sum = 0;
     for (int i = 0; i < ordinals.length; i++) {
       sum += ordinals[i] * weights[i];

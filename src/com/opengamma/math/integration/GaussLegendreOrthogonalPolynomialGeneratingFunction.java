@@ -36,8 +36,8 @@ public class GaussLegendreOrthogonalPolynomialGeneratingFunction extends Orthogo
     final double xm = (upper + lower) / 2.;
     final double xl = (upper - lower) / 2.;
     double z, z1, p1, p2, p3, pp;
-    final Double[] x = new Double[n];
-    final Double[] w = new Double[n];
+    final double[] x = new double[n];
+    final double[] w = new double[n];
     for (int i = 0; i < m; i++) {
       z = Math.cos(Math.PI * (i + 0.75) / (n + 0.5));
       do {

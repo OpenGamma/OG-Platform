@@ -33,7 +33,7 @@ public class VanDerCorputQuasiRandomNumberGenerator implements QuasiRandomNumber
   }
 
   @Override
-  public List<Double[]> getVectors(final int dimension, final int n) {
+  public List<double[]> getVectors(final int dimension, final int n) {
     if (dimension < 0) {
       throw new IllegalArgumentException("Dimension must be greater than zero");
     }
@@ -43,8 +43,8 @@ public class VanDerCorputQuasiRandomNumberGenerator implements QuasiRandomNumber
     if (dimension != 1) {
       s_logger.info("Van der Corput sequences are one-dimensional only: ignoring other " + (dimension - 1) + " dimension(s)");
     }
-    final List<Double[]> result = new ArrayList<Double[]>();
-    Double x;
+    final List<double[]> result = new ArrayList<double[]>();
+    double x;
     for (int i = 1; i < n + 1; i++) {
       final int m = (int) Math.floor(Math.log(i) / Math.log(_base));
       final int[] a = new int[m + 1];
@@ -63,7 +63,7 @@ public class VanDerCorputQuasiRandomNumberGenerator implements QuasiRandomNumber
       for (int j = m; j >= 0; j--) {
         x += a[j] / power[j + 1];
       }
-      result.add(new Double[] {x});
+      result.add(new double[] {x});
     }
     return result;
   }

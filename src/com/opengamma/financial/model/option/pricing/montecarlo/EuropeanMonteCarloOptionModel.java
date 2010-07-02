@@ -21,13 +21,12 @@ import com.opengamma.math.random.RandomNumberGenerator;
  */
 public class EuropeanMonteCarloOptionModel extends MonteCarloOptionModel<OptionDefinition, StandardOptionDataBundle> {
 
-  public EuropeanMonteCarloOptionModel(final int n, final int steps, final StochasticProcess<OptionDefinition, StandardOptionDataBundle> process,
-      final RandomNumberGenerator generator) {
+  public EuropeanMonteCarloOptionModel(final int n, final int steps, final StochasticProcess<OptionDefinition, StandardOptionDataBundle> process, final RandomNumberGenerator generator) {
     super(n, steps, process, generator);
   }
 
-  public EuropeanMonteCarloOptionModel(final int n, final int steps, final StochasticProcess<OptionDefinition, StandardOptionDataBundle> process,
-      final RandomNumberGenerator generator, final AntitheticVariate<OptionDefinition, StandardOptionDataBundle> antitheticVariate) {
+  public EuropeanMonteCarloOptionModel(final int n, final int steps, final StochasticProcess<OptionDefinition, StandardOptionDataBundle> process, final RandomNumberGenerator generator,
+      final AntitheticVariate<OptionDefinition, StandardOptionDataBundle> antitheticVariate) {
     super(n, steps, process, generator, antitheticVariate);
   }
 
@@ -36,7 +35,7 @@ public class EuropeanMonteCarloOptionModel extends MonteCarloOptionModel<OptionD
     final OptionPayoffFunction<StandardOptionDataBundle> payoffFunction = definition.getPayoffFunction();
     final int steps = getSteps();
     final int n = getN();
-    final List<Double[]> randomNumbers = getGenerator().getVectors(steps, n);
+    final List<double[]> randomNumbers = getGenerator().getVectors(steps, n);
     final StochasticProcess<OptionDefinition, StandardOptionDataBundle> process = getProcess();
     final Function2D<Double, Double> accumulator = process.getPathAccumulationFunction();
     final boolean hasAntithetic = getAntitheticVariate() != null;
@@ -46,8 +45,8 @@ public class EuropeanMonteCarloOptionModel extends MonteCarloOptionModel<OptionD
       public Double evaluate(final StandardOptionDataBundle data) {
         final Function1D<Double, Double> generator = process.getPathGeneratingFunction(definition, data, steps);
         final Function1D<Double, Double> antithetic = hasAntithetic ? getAntitheticVariate().getVariateFunction(generator) : null;
-        final Iterator<Double[]> iter = randomNumbers.iterator();
-        Double[] e;
+        final Iterator<double[]> iter = randomNumbers.iterator();
+        double[] e;
         final double s0 = process.getInitialValue(definition, data);
         final int length = hasAntithetic ? 2 : 1;
         final double[] st = new double[length];

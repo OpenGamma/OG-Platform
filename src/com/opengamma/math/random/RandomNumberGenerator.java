@@ -11,5 +11,5 @@ import java.util.List;
  */
 public interface RandomNumberGenerator {
 
-  List<Double[]> getVectors(final int dimension, final int n);
+  List<double[]> getVectors(final int dimension, final int n);
 }

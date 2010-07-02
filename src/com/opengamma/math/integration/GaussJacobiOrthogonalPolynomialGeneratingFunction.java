@@ -54,8 +54,8 @@ public class GaussJacobiOrthogonalPolynomialGeneratingFunction extends Orthogona
     double alphaBeta2 = 2 + alphaBeta;
     int j;
     final int max = getMaxIterations();
-    final Double[] x = new Double[n];
-    final Double[] w = new Double[n];
+    final double[] x = new double[n];
+    final double[] w = new double[n];
     for (int i = 0; i < n; i++) {
       if (i == 0) {
         an = _alpha / n;
@@ -110,10 +110,8 @@ public class GaussJacobiOrthogonalPolynomialGeneratingFunction extends Orthogona
         throw new ConvergenceException("Could not converge in " + max + " iterations");
       }
       x[i] = z;
-      w[i] =
-          Math.exp(LOG_GAMMA_FUNCTION.evaluate(_alpha + n) + LOG_GAMMA_FUNCTION.evaluate(_beta + n) - LOG_GAMMA_FUNCTION.evaluate(n + 1.)
-              - LOG_GAMMA_FUNCTION.evaluate(n + alphaBeta + 1))
-              * alphaBeta2 * Math.pow(2, alphaBeta) / (pp * p2);
+      w[i] = Math.exp(LOG_GAMMA_FUNCTION.evaluate(_alpha + n) + LOG_GAMMA_FUNCTION.evaluate(_beta + n) - LOG_GAMMA_FUNCTION.evaluate(n + 1.) - LOG_GAMMA_FUNCTION.evaluate(n + alphaBeta + 1))
+          * alphaBeta2 * Math.pow(2, alphaBeta) / (pp * p2);
     }
     return new GaussianQuadratureFunction(x, w);
   }

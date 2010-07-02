@@ -20,7 +20,7 @@ public class BrentMinimizer1D extends Minimizer1D {
   private static final double ZERO = 1e-20;
 
   @Override
-  public Double[] minimize(final Function1D<Double, Double> f, final Double[] initialPoints) {
+  public double[] minimize(final Function1D<Double, Double> f, final Double[] initialPoints) {
     checkInputs(f, initialPoints);
     double a, b, etemp, fu, fv, fw, fx;
     double p, q, r, tol1, tol2, u, v, w, x, xm;
@@ -45,7 +45,7 @@ public class BrentMinimizer1D extends Minimizer1D {
       tol1 = EPS * Math.abs(x) + ZERO;
       tol2 = 2 * tol1;
       if (Math.abs(x - xm) <= tol2 - 0.5 * (b - a)) {
-        return new Double[] {x};
+        return new double[] {x};
       }
       if (Math.abs(e) > tol1) {
         r = (x - w) * (fx - fv);

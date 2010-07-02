@@ -21,7 +21,7 @@ public class GramCharlierSkewKurtosisBinomialOptionModelDefinition extends Binom
   @Override
   public RecombiningBinomialTree<Double> getUpProbabilityTree(final OptionDefinition option, final SkewKurtosisOptionDataBundle data, final int n, final int j) {
     final Double[][] rbTree = _rb.getUpProbabilityTree(option, data, n, j).getTree();
-    final Double[][] tree = new Double[n + 1][j];
+    final double[][] tree = new double[n + 1][j];
     final double skew = data.getAnnualizedSkew();
     final double kurtosis = data.getAnnualizedFisherKurtosis();
     double x, x2, x4, x6, p;

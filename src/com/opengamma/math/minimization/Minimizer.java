@@ -18,6 +18,6 @@ public interface Minimizer<S extends Function<Double, Double>, T> {
    */
   double TOLERANCE = 1e-12;
 
-  Double[] minimize(S f, T[] initialPoints);
+  double[] minimize(S f, T[] initialPoints);
 
 }

@@ -17,16 +17,16 @@ public class HaltonQuasiRandomNumberGenerator implements QuasiRandomNumberGenera
   private final VanDerCorputQuasiRandomNumberGenerator _vanDerCorput = new VanDerCorputQuasiRandomNumberGenerator(2);
 
   @Override
-  public List<Double[]> getVectors(final int dimension, final int n) {
+  public List<double[]> getVectors(final int dimension, final int n) {
     if (dimension < 2) {
       throw new IllegalArgumentException("Dimension must be greater than one");
     }
     if (n < 0) {
       throw new IllegalArgumentException("Number of values must be greater than zero");
     }
-    final Double[][] sequence = new Double[n][dimension];
-    final List<Double[]> result = new ArrayList<Double[]>(n);
-    List<Double[]> s;
+    final double[][] sequence = new double[n][dimension];
+    final List<double[]> result = new ArrayList<double[]>(n);
+    List<double[]> s;
     for (int i = 0; i < dimension; i++) {
       _vanDerCorput.setBase(PrimeNumbers.getNthPrime(i + 1));
       s = _vanDerCorput.getVectors(1, n);

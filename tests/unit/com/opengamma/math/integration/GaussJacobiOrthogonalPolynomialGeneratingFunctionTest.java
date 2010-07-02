@@ -30,18 +30,18 @@ public class GaussJacobiOrthogonalPolynomialGeneratingFunctionTest extends Ortho
     final GaussianQuadratureFunction f1 = GAUSS_LEGENDRE.generate(n, PARAMS);
     final GaussianQuadratureFunction f2 = GAUSS_JACOBI_GL_EQUIV.generate(n, PARAMS);
     final GaussianQuadratureFunction f3 = GAUSS_JACOBI_CHEBYSHEV_EQUIV.generate(n, PARAMS);
-    final Double[] w1 = f1.getWeights();
-    final Double[] w2 = f2.getWeights();
-    final Double[] x1 = f1.getAbscissas();
-    final Double[] x2 = f2.getAbscissas();
+    final double[] w1 = f1.getWeights();
+    final double[] w2 = f2.getWeights();
+    final double[] x1 = f1.getAbscissas();
+    final double[] x2 = f2.getAbscissas();
     assertTrue(w1.length == w2.length);
     assertTrue(x1.length == x2.length);
     for (int i = 0; i < n; i++) {
       assertEquals(w1[i], w2[i], EPS);
       assertEquals(x1[i], x2[n - 1 - i], EPS);
     }
-    final Double[] w3 = f3.getWeights();
-    final Double[] x3 = f3.getAbscissas();
+    final double[] w3 = f3.getWeights();
+    final double[] x3 = f3.getAbscissas();
     final double chebyshevWeight = Math.PI / n;
     final Function1D<Integer, Double> chebyshevAbscissa = new Function1D<Integer, Double>() {
 

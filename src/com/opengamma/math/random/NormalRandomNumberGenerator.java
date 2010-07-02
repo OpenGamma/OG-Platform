@@ -25,17 +25,17 @@ public class NormalRandomNumberGenerator implements RandomNumberGenerator {
   }
 
   @Override
-  public List<Double[]> getVectors(final int dimension, final int n) {
+  public List<double[]> getVectors(final int dimension, final int n) {
     if (dimension < 0) {
       throw new IllegalArgumentException("Dimension must be greater than zero");
     }
     if (n < 0) {
       throw new IllegalArgumentException("Number of values must be greater than zero");
     }
-    final List<Double[]> result = new ArrayList<Double[]>();
-    Double[] x;
+    final List<double[]> result = new ArrayList<double[]>();
+    double[] x;
     for (int i = 0; i < n; i++) {
-      x = new Double[dimension];
+      x = new double[dimension];
       for (int j = 0; j < dimension; j++) {
         x[j] = _normal.nextRandom();
       }

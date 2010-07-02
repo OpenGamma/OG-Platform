@@ -19,7 +19,7 @@ public class GoldenSectionMinimizer1D extends Minimizer1D {
   private static final double EPS = 1e-12;
 
   @Override
-  public Double[] minimize(final Function1D<Double, Double> f, final Double[] initialPoints) {
+  public double[] minimize(final Function1D<Double, Double> f, final Double[] initialPoints) {
     checkInputs(f, initialPoints);
     double x0, x1, x2, x3, f1, f2, temp;
     int i = 0;
@@ -57,8 +57,8 @@ public class GoldenSectionMinimizer1D extends Minimizer1D {
       }
     }
     if (f1 < f2) {
-      return new Double[] {x1};
+      return new double[] {x1};
     }
-    return new Double[] {x2};
+    return new double[] {x2};
   }
 }

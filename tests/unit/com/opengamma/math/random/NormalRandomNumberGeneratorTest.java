@@ -34,9 +34,9 @@ public class NormalRandomNumberGeneratorTest {
 
   @Test
   public void test() {
-    final List<Double[]> result = GENERATOR.getVectors(10, 50);
+    final List<double[]> result = GENERATOR.getVectors(10, 50);
     assertEquals(result.size(), 50);
-    for (final Double[] d : result) {
+    for (final double[] d : result) {
       assertEquals(d.length, 10);
     }
   }

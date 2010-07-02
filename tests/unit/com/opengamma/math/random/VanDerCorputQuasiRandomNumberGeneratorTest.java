@@ -42,16 +42,16 @@ public class VanDerCorputQuasiRandomNumberGeneratorTest {
   @Test
   public void test() {
     final double[] values = new double[] {.1, .2, .3, .4, .5, .6, .7, .8, .9, .01, .11, .21, .31, .41, .51, .61, .71, .81, .91, .02, .12, .22, .32};
-    final List<Double[]> data = new ArrayList<Double[]>();
+    final List<double[]> data = new ArrayList<double[]>();
     for (final double value : values) {
-      data.add(new Double[] {value});
+      data.add(new double[] {value});
     }
     test(GENERATOR.getVectors(1, values.length), data);
   }
 
-  private void test(final List<Double[]> result, final List<Double[]> data) {
+  private void test(final List<double[]> result, final List<double[]> data) {
     assertEquals(result.size(), data.size());
-    Double[] d1, d2;
+    double[] d1, d2;
     for (int i = 0; i < result.size(); i++) {
       d1 = result.get(i);
       d2 = data.get(i);

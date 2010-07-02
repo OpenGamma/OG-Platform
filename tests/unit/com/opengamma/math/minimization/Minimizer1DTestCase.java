@@ -54,7 +54,7 @@ public class Minimizer1DTestCase {
   }
 
   public void test(final Minimizer1D minimizer) {
-    Double[] result = minimizer.minimize(QUADRATIC, new Double[] {-10., 10.});
+    double[] result = minimizer.minimize(QUADRATIC, new Double[] {-10., 10.});
     assertEquals(result[0], -3.5, EPS);
     result = minimizer.minimize(QUINTIC, new Double[] {0.5, 2.});
     assertEquals(result[0], 1.06154, EPS);

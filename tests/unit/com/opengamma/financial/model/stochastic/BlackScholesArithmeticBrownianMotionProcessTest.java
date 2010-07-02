@@ -29,8 +29,7 @@ import com.opengamma.util.time.Expiry;
  */
 public class BlackScholesArithmeticBrownianMotionProcessTest {
   private static final RandomNumberGenerator GENERATOR = new NormalRandomNumberGenerator(0, 1);
-  private static final StochasticProcess<OptionDefinition, StandardOptionDataBundle> PROCESS =
-      new BlackScholesArithmeticBrownianMotionProcess<OptionDefinition, StandardOptionDataBundle>();
+  private static final StochasticProcess<OptionDefinition, StandardOptionDataBundle> PROCESS = new BlackScholesArithmeticBrownianMotionProcess<OptionDefinition, StandardOptionDataBundle>();
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1));
   private static final OptionDefinition CALL = new EuropeanVanillaOptionDefinition(100, EXPIRY, true);
@@ -59,15 +58,15 @@ public class BlackScholesArithmeticBrownianMotionProcessTest {
   public void testWithZeroVol() {
     final int steps = 100;
     final int dimension = 100;
-    final List<Double[]> randomNumbers = GENERATOR.getVectors(dimension, steps);
-    final List<Double[]> paths = PROCESS.getPaths(CALL, DATA, randomNumbers);
-    final Double[] zeroth = paths.get(0);
+    final List<double[]> randomNumbers = GENERATOR.getVectors(dimension, steps);
+    final List<double[]> paths = PROCESS.getPaths(CALL, DATA, randomNumbers);
+    final double[] zeroth = paths.get(0);
     final double s1 = S * Math.exp(B);
     assertEquals(zeroth[99], s1, EPS);
-    Double[] array;
+    double[] array;
     for (int i = 0; i < paths.size(); i++) {
       array = paths.get(i);
-      assertArrayEquals(array, zeroth);
+      assertArrayEquals(array, zeroth, EPS);
       assertEquals(array[99], s1, EPS);
     }
   }

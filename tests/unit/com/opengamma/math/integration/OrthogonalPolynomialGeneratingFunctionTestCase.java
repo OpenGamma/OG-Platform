@@ -45,11 +45,11 @@ public class OrthogonalPolynomialGeneratingFunctionTestCase {
   }
 
   protected void testResults(final GaussianQuadratureFunction f, final double[] x, final double[] w) {
-    final Double[] x1 = f.getAbscissas();
-    final Double[] w1 = f.getWeights();
+    final double[] x1 = f.getAbscissas();
+    final double[] w1 = f.getWeights();
     for (int i = 0; i < x.length; i++) {
-      assertEquals(x1[i].doubleValue(), x[i], EPS);
-      assertEquals(w1[i].doubleValue(), w[i], EPS);
+      assertEquals(x1[i], x[i], EPS);
+      assertEquals(w1[i], w[i], EPS);
     }
   }
 }

@@ -38,8 +38,8 @@ public class GaussHermiteOrthogonalPolynomialGeneratingFunction extends Orthogon
     if (n <= 0) {
       throw new IllegalArgumentException("Must have n > 0");
     }
-    final Double[] x = new Double[n];
-    final Double[] w = new Double[n];
+    final double[] x = new double[n];
+    final double[] w = new double[n];
     int m, j = 0;
     final int max = getMaxIterations();
     double p1, p2, p3, pp = 0, z = 0, z1;

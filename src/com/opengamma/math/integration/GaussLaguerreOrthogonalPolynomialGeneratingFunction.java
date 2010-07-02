@@ -50,8 +50,8 @@ public class GaussLaguerreOrthogonalPolynomialGeneratingFunction extends Orthogo
     double z = 0, z1 = 0, p1 = 0, p2 = 0, p3 = 0, pp = 0;
     int ai, j;
     final int max = getMaxIterations();
-    final Double[] x = new Double[n];
-    final Double[] w = new Double[n];
+    final double[] x = new double[n];
+    final double[] w = new double[n];
     for (int i = 0; i < n; i++) {
       if (i == 0) {
         z = (1 + _alpha) * (3 + 0.92 * _alpha) / (1 + 2.4 * n + 1.8 * _alpha);

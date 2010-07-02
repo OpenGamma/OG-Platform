@@ -18,11 +18,11 @@ import com.opengamma.math.function.Function2D;
  */
 public abstract class StochasticProcess<T, U> {
 
-  public Double[] getPath(final T t, final U u, final Double[] random) {
+  public double[] getPath(final T t, final U u, final double[] random) {
     final int n = random.length;
     final Function1D<Double, Double> f1 = getPathGeneratingFunction(t, u, n);
     final Function2D<Double, Double> f2 = getPathAccumulationFunction();
-    final Double[] path = new Double[n];
+    final double[] path = new double[n];
     path[0] = f2.evaluate(getInitialValue(t, u), f1.evaluate(random[0]));
     for (int i = 1; i < n; i++) {
       path[i] = f2.evaluate(path[i - 1], f1.evaluate(random[i]));
@@ -30,10 +30,10 @@ public abstract class StochasticProcess<T, U> {
     return path;
   }
 
-  public List<Double[]> getPaths(final T t, final U u, final List<Double[]> random) {
+  public List<double[]> getPaths(final T t, final U u, final List<double[]> random) {
     final int n = random.size();
-    final List<Double[]> paths = new ArrayList<Double[]>(n);
-    for (final Double[] r : random) {
+    final List<double[]> paths = new ArrayList<double[]>(n);
+    for (final double[] r : random) {
       paths.add(getPath(t, u, r));
     }
     return paths;

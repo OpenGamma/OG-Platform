@@ -28,10 +28,10 @@ public class AutocovarianceFunctionCalculator extends Function1D<DoubleTimeSerie
     final int h = x.size() - 1;
     final double[] result = new double[h];
     final double mean = _meanCalculator.evaluate(x);
-    Double[] x1 = null, x2 = null;
+    double[] x1 = null, x2 = null;
     final int n = x.size();
     double sum;
-    final Double[] x0 = x.valuesArray();
+    final double[] x0 = x.toFastLongDoubleTimeSeries().valuesArrayFast();
     for (int i = 0; i < h; i++) {
       x1 = Arrays.copyOfRange(x0, 0, n - i);
       x2 = Arrays.copyOfRange(x0, i, n);

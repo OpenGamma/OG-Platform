@@ -37,11 +37,11 @@ public class BlackDermanToyYieldOnlyInterestRateModel {
       @SuppressWarnings({ "unchecked", "synthetic-access" })
       @Override
       public RecombiningBinomialTree<Triple<Double, Double, Double>> evaluate(final BlackDermanToyDataBundle data) {
-        final Double[][] r = new Double[_n][_j];
-        final Double[][] q = new Double[_n][_j];
-        final Double[][] d = new Double[_n][_j];
-        final Double[] u = new Double[_n];
-        final Double[] p = new Double[_n + 1];
+        final double[][] r = new double[_n][_j];
+        final double[][] q = new double[_n][_j];
+        final double[][] d = new double[_n][_j];
+        final double[] u = new double[_n];
+        final double[] p = new double[_n + 1];
         final double t = DateUtil.getDifferenceInYears(data.getDate(), time);
         final double dt = t / (_n - 1);
         final double dtSqrt = Math.sqrt(dt);
@@ -81,13 +81,13 @@ public class BlackDermanToyYieldOnlyInterestRateModel {
     };
   }
 
-  protected Function1D<Double, Double> getMedian(final Double sigma, final int i, final Double dt, final Double[][] q, final Double p) {
-    return new Function1D<Double, Double>() {      
+  protected Function1D<Double, Double> getMedian(final double sigma, final int i, final double dt, final double[][] q, final double p) {
+    return new Function1D<Double, Double>() {
 
       @Override
       public Double evaluate(final Double u) {
         double sum = 0.;
-        double dtSqrt = Math.sqrt(dt);
+        final double dtSqrt = Math.sqrt(dt);
         for (int j = -i, k = 0; j <= i; j += 2, k++) {
           sum += q[i][k] * Math.pow(1 + u * Math.exp(sigma * j * dtSqrt), -dt);
 
