@@ -16,7 +16,7 @@ public class FloatingLegCalculator {
 
   public double getFloatLeg(final YieldAndDiscountCurve forwardCurve, final YieldAndDiscountCurve fundingCurve, Swap swap) {
     double floating = 0.0;
-    final double[] libors = _liborCalculator.getLibors(forwardCurve, swap);
+    final double[] libors = _liborCalculator.getLiborRate(forwardCurve, swap);
     int nFloat = swap.getNumberOfFloatingPayments();
     double[] floatYearFractions = swap.getFloatingYearFractions();
     double[] floatPaymentTimes = swap.getFloatingPaymentTimes();

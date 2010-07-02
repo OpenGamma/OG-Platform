@@ -51,8 +51,8 @@ import com.opengamma.util.monitor.OperationTimer;
  */
 public class YieldCurveBootStrapTest {
   private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveBootStrapTest.class);
-  private static final int HOTSPOT_WARMUP_CYCLES = 0;
-  private static final int BENCHMARK_CYCLES = 1;
+  private static final int HOTSPOT_WARMUP_CYCLES = 300;
+  private static final int BENCHMARK_CYCLES = 1000;
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   protected static final Interpolator1D<? extends Interpolator1DCubicSplineDataBundle, InterpolationResult> CUBIC = new NaturalCubicSplineInterpolator1D();
   protected static final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> CUBIC_WITH_SENSITIVITY = new CubicSplineInterpolatorWithSensitivities1D();
@@ -107,7 +107,7 @@ public class YieldCurveBootStrapTest {
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = new SingleCurveFinder(SWAPS, SWAP_VALUES, SPOT_RATE, TIME_GRID, CUBIC);
     VectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS);
     doHotSpot(rootFinder, "default Newton, finite difference", func);
-    JacobianCalculator jac = new SingleCurveJacobian(SWAPS, SPOT_RATE, TIME_GRID, CUBIC_WITH_SENSITIVITY);
+    final JacobianCalculator jac = new SingleCurveJacobian(SWAPS, SPOT_RATE, TIME_GRID, CUBIC_WITH_SENSITIVITY);
     rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, jac);
     doHotSpot(rootFinder, "default Newton, single curve", func);
     final double[] fwdTimes = new double[] {0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 31.0};
@@ -123,7 +123,7 @@ public class YieldCurveBootStrapTest {
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = new SingleCurveFinder(SWAPS, SWAP_VALUES, SPOT_RATE, TIME_GRID, CUBIC);
     VectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS);
     doHotSpot(rootFinder, "Sherman-Morrison, finite difference", func);
-    JacobianCalculator jac = new SingleCurveJacobian(SWAPS, SPOT_RATE, TIME_GRID, CUBIC_WITH_SENSITIVITY);
+    final JacobianCalculator jac = new SingleCurveJacobian(SWAPS, SPOT_RATE, TIME_GRID, CUBIC_WITH_SENSITIVITY);
     rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS, jac);
     doHotSpot(rootFinder, "Sherman-Morrison, single curve", func);
     final double[] fwdTimes = new double[] {0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 31.0};
@@ -139,7 +139,7 @@ public class YieldCurveBootStrapTest {
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = new SingleCurveFinder(SWAPS, SWAP_VALUES, SPOT_RATE, TIME_GRID, CUBIC);
     VectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
     doHotSpot(rootFinder, "Broyden, finite difference", func);
-    JacobianCalculator jac = new SingleCurveJacobian(SWAPS, SPOT_RATE, TIME_GRID, CUBIC_WITH_SENSITIVITY);
+    final JacobianCalculator jac = new SingleCurveJacobian(SWAPS, SPOT_RATE, TIME_GRID, CUBIC_WITH_SENSITIVITY);
     rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS, jac);
     doHotSpot(rootFinder, "Broyden, single curve", func);
     final double[] fwdTimes = new double[] {0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 31.0};
@@ -150,7 +150,7 @@ public class YieldCurveBootStrapTest {
     // doHotSpot(rootFinder, "Broyden, double curve", func1);
   }
 
-  private void doHotSpot(final VectorRootFinder rootFinder, String name, Function1D<DoubleMatrix1D, DoubleMatrix1D> functor) {
+  private void doHotSpot(final VectorRootFinder rootFinder, final String name, final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor) {
     for (int i = 0; i < HOTSPOT_WARMUP_CYCLES; i++) {
       doTest(rootFinder, functor);
     }
@@ -164,7 +164,7 @@ public class YieldCurveBootStrapTest {
 
   }
 
-  private void doTest(final VectorRootFinder rootFinder, Function1D<DoubleMatrix1D, DoubleMatrix1D> functor) {
+  private void doTest(final VectorRootFinder rootFinder, final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor) {
     final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(functor, X0);
     final YieldAndDiscountCurve curve = makeYieldCurve(yieldCurveNodes.getData(), TIME_GRID, CUBIC);
     for (int i = 0; i < SWAP_VALUES.length; i++) {
@@ -262,8 +262,8 @@ public class YieldCurveBootStrapTest {
     if (n != times.length) {
       throw new IllegalArgumentException("rates and times different lengths");
     }
-    double[] t = new double[n + 1];
-    double[] y = new double[n + 1];
+    final double[] t = new double[n + 1];
+    final double[] y = new double[n + 1];
     t[0] = 0;
     y[0] = SPOT_RATE;
     for (int i = 0; i < n; i++) {
@@ -291,9 +291,9 @@ public class YieldCurveBootStrapTest {
     return new Swap(fixed, floating, deltaStart, deltaEnd);
   }
 
-  private void assertMatrixEquals(DoubleMatrix2D m1, DoubleMatrix2D m2, double eps) {
-    int m = m1.getNumberOfRows();
-    int n = m1.getNumberOfColumns();
+  private void assertMatrixEquals(final DoubleMatrix2D m1, final DoubleMatrix2D m2, final double eps) {
+    final int m = m1.getNumberOfRows();
+    final int n = m1.getNumberOfColumns();
     assertEquals(m2.getNumberOfRows(), m);
     assertEquals(m2.getNumberOfColumns(), n);
     for (int i = 0; i < n; i++) {

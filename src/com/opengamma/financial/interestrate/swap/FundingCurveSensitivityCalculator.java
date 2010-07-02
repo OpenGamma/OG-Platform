@@ -22,7 +22,7 @@ public class FundingCurveSensitivityCalculator {
   private final FloatingLegCalculator _floatingLegCalculator = new FloatingLegCalculator();
 
   public List<Pair<Double, Double>> getFundingCurveSensitivities(YieldAndDiscountCurve forwardCurve, YieldAndDiscountCurve fundingCurve, Swap swap) {
-    final double[] libors = _liborCalculator.getLibors(forwardCurve, swap);
+    final double[] libors = _liborCalculator.getLiborRate(forwardCurve, swap);
     final double annuity = _annuityCalculator.getAnnuity(fundingCurve, swap);
     final double floating = _floatingLegCalculator.getFloatLeg(forwardCurve, fundingCurve, swap);
     final double floatOverAnnSq = -floating / annuity / annuity;

@@ -20,19 +20,20 @@ public class ForwardCurveSensitivityCalculator {
   private final AnnuityCalculator _annuityCalculator = new AnnuityCalculator();
 
   //TODO doesn't need to be a list - can see how many points are needed
-  public List<Pair<Double, Double>> getForwardCurveSensitivities(YieldAndDiscountCurve forwardCurve, YieldAndDiscountCurve fundingCurve, Swap swap) {
+  public List<Pair<Double, Double>> getForwardCurveSensitivities(final YieldAndDiscountCurve forwardCurve,
+      final YieldAndDiscountCurve fundingCurve, final Swap swap) {
     final double annuity = _annuityCalculator.getAnnuity(fundingCurve, swap);
     final List<Pair<Double, Double>> results = new ArrayList<Pair<Double, Double>>();
     double ta, tb;
     double temp1;
     double modDF, dfta, dftb;
     Pair<Double, Double> temp;
-    int nFloat = swap.getNumberOfFloatingPayments();
-    double[] floatPaymentTimes = swap.getFloatingPaymentTimes();
-    double[] deltaStart = swap.getDeltaStart();
-    double[] deltaEnd = swap.getDeltaEnd();
-    double[] floatYearFractions = swap.getFloatingYearFractions();
-    double[] liborYearFractions = swap.getLiborYearFractions();
+    final int nFloat = swap.getNumberOfFloatingPayments();
+    final double[] floatPaymentTimes = swap.getFloatingPaymentTimes();
+    final double[] deltaStart = swap.getDeltaStart();
+    final double[] deltaEnd = swap.getDeltaEnd();
+    final double[] floatYearFractions = swap.getFloatingYearFractions();
+    final double[] liborYearFractions = swap.getReferenceYearFractions();
     for (int i = 0; i < nFloat; i++) {
       ta = (i == 0 ? 0.0 : floatPaymentTimes[i - 1]) + deltaStart[i];
       tb = floatPaymentTimes[i] + deltaEnd[i];
