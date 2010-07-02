@@ -5,6 +5,11 @@
  */
 package com.opengamma.financial.security.option;
 
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
+
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
@@ -15,6 +20,27 @@ import com.opengamma.util.time.Expiry;
  * A security modeling an option.
  */
 public abstract class OptionSecurity extends FinancialSecurity implements Option {
+
+  /**
+   * 
+   */
+  protected static final String OPTIONTYPE_KEY = "optionType";
+  /**
+   * 
+   */
+  protected static final String STRIKE_KEY = "strike";
+  /**
+   * 
+   */
+  protected static final String EXPIRY_KEY = "expiry";
+  /**
+   * 
+   */
+  protected static final String UNDERLYINGIDENTIFIER_KEY = "underlyingIdentifier";
+  /**
+   * 
+   */
+  protected static final String CURRENCY_KEY = "currency";
 
   /** The option type. */
   private final OptionType _optionType;
@@ -96,6 +122,20 @@ public abstract class OptionSecurity extends FinancialSecurity implements Option
   @Override
   public final <T> T accept(final FinancialSecurityVisitor<T> visitor) {
     return accept((OptionSecurityVisitor<T>) visitor);
+  }
+
+  protected void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+    super.toFudgeMsg(context, message);
+    context.objectToFudgeMsg(message, OPTIONTYPE_KEY, null, getOptionType());
+    message.add(STRIKE_KEY, getStrike());
+    context.objectToFudgeMsg(message, EXPIRY_KEY, null, getExpiry());
+    context.objectToFudgeMsg(message, UNDERLYINGIDENTIFIER_KEY, null, getUnderlyingIdentifier());
+    context.objectToFudgeMsg(message, CURRENCY_KEY, null, getCurrency());
+  }
+
+  protected void fromFudgeMsgImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    super.fromFudgeMsgImpl(context, message);
+    // No additional fields
   }
 
 }

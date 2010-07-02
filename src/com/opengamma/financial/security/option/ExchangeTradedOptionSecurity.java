@@ -5,6 +5,11 @@
  */
 package com.opengamma.financial.security.option;
 
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
+
 import com.opengamma.financial.Currency;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.time.Expiry;
@@ -13,6 +18,15 @@ import com.opengamma.util.time.Expiry;
  * A security traded on an exchange.
  */
 public abstract class ExchangeTradedOptionSecurity extends OptionSecurity {
+
+  /**
+   * 
+   */
+  protected static final String EXCHANGE_KEY = "exchange";
+  /**
+   * 
+   */
+  protected static final String POINTVALUE_KEY = "pointValue";
 
   /**
    * The exchange that the security is traded on.
@@ -44,6 +58,17 @@ public abstract class ExchangeTradedOptionSecurity extends OptionSecurity {
   @Override
   public final <T> T accept(final OptionSecurityVisitor<T> visitor) {
     return accept((ExchangeTradedOptionSecurityVisitor<T>) visitor);
+  }
+
+  protected void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+    super.toFudgeMsg(context, message);
+    message.add(EXCHANGE_KEY, getExchange());
+    message.add(POINTVALUE_KEY, getPointValue());
+  }
+
+  protected void fromFudgeMsgImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    super.fromFudgeMsgImpl(context, message);
+    // No additional fields
   }
 
 }

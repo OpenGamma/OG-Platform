@@ -5,6 +5,11 @@
  */
 package com.opengamma.financial.security;
 
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
+
 import com.opengamma.engine.security.DefaultSecurity;
 
 /**
@@ -28,5 +33,15 @@ public abstract class FinancialSecurity extends DefaultSecurity {
    * @return the result
    */
   public abstract <T> T accept(FinancialSecurityVisitor<T> visitor);
+
+  protected void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+    super.toFudgeMsg(context, message);
+    // No additional fields
+  }
+
+  protected void fromFudgeMsgImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    super.fromFudgeMsgImpl(context, message);
+    // No additional fields
+  }
 
 }
