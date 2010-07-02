@@ -168,14 +168,14 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
           timeInYearsToRates.put(0., 0.);
           isFirst = false;
         }
-        double numYears = (strip.getEndDate().toEpochDays() - today.toEpochDays())/DateUtil.DAYS_PER_YEAR;
+        double numYears = (strip.getEndDate().toEpochDays() - today.toEpochDays()) / DateUtil.DAYS_PER_YEAR;
         timeInYearsToRates.put(numYears, price);
       } else {
         if (isFirst) {
           timeInYearsToRates.put(0., 1.);
           isFirst = false;
         }
-        double numYears = (strip.getEndDate().toEpochDays() - today.toEpochDays())/DateUtil.DAYS_PER_YEAR;
+        double numYears = (strip.getEndDate().toEpochDays() - today.toEpochDays()) / DateUtil.DAYS_PER_YEAR;
         timeInYearsToRates.put(numYears, Math.exp(-price * numYears));
       }
     }

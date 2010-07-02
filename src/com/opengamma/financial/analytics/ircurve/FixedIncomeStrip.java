@@ -21,7 +21,6 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.CompareUtils;
 
 /**
  * A fixed income strip.
@@ -39,7 +38,8 @@ public class FixedIncomeStrip implements Comparable<FixedIncomeStrip>, Serializa
    * @param startDate the startDate of the strip
    * @param endDate the endDate of the strip
    * @param marketDataKey the market data key, not null
-   * @param isFuture true if the marketDataKey refers to a future requiring 100-x rate adjustment
+   * @param instrumentType the instrument type
+   * @param dayCount the daycount for this instrument
    */
   public FixedIncomeStrip(LocalDate startDate, LocalDate endDate, UniqueIdentifier marketDataKey, StripInstrument instrumentType, DayCount dayCount) {
     ArgumentChecker.notNull(marketDataKey, "Market data key");
@@ -55,7 +55,7 @@ public class FixedIncomeStrip implements Comparable<FixedIncomeStrip>, Serializa
    * This constructor assumes that the DayCountConvention is NONE.
    * @param period from today when the strip ends
    * @param marketDataKey the market data key, not null
-   * @param isFuture true if the marketDataKey refers to a future requiring 100-x rate adjustment
+   * @param instrumentType the instrument type
    */
   public FixedIncomeStrip(Period period, UniqueIdentifier marketDataKey, StripInstrument instrumentType) {
     ArgumentChecker.notNull(marketDataKey, "Market data key");

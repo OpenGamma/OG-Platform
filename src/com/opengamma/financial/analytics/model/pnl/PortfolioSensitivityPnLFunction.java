@@ -62,7 +62,7 @@ public class PortfolioSensitivityPnLFunction extends AbstractFunction implements
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.MULTIPLE_POSITIONS;
+    return ComputationTargetType.PORTFOLIO_NODE;
   }
 
 }

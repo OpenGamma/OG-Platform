@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.swap;
@@ -37,7 +37,7 @@ public class SwapScheduleCalculatorTest {
   private static final ZonedDateTime MATURITY = DateUtil.getUTCDate(2020, 6, 1);
   private static final Region REGION = new MyRegion();
   private static final Notional NOTIONAL = new Notional() {
-    //don't need anything
+    // don't need anything
   };
   private static final DayCount DAY_COUNT = new DayCount() {
 
@@ -53,15 +53,12 @@ public class SwapScheduleCalculatorTest {
 
     @Override
     public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
-      return secondDate.getYear() - firstDate.getYear()
-          + ((double) secondDate.getMonthOfYear().getValue() - firstDate.getMonthOfYear().getValue()) / 12.;
+      return secondDate.getYear() - firstDate.getYear() + ((double) secondDate.getMonthOfYear().getValue() - firstDate.getMonthOfYear().getValue()) / 12.;
     }
 
   };
-  private static final SwapLeg PAY_LEG = new SwapLeg(DAY_COUNT, PeriodFrequency.SEMI_ANNUAL, REGION,
-      new ModifiedBusinessDayConvention(), NOTIONAL);
-  private static final SwapLeg RECEIVE_LEG = new SwapLeg(DAY_COUNT, PeriodFrequency.SEMI_ANNUAL, REGION,
-      new ModifiedBusinessDayConvention(), NOTIONAL);
+  private static final SwapLeg PAY_LEG = new SwapLeg(DAY_COUNT, PeriodFrequency.SEMI_ANNUAL, REGION, new ModifiedBusinessDayConvention(), NOTIONAL);
+  private static final SwapLeg RECEIVE_LEG = new SwapLeg(DAY_COUNT, PeriodFrequency.SEMI_ANNUAL, REGION, new ModifiedBusinessDayConvention(), NOTIONAL);
   private static final Calendar CALENDAR = new Calendar() {
 
     @Override
@@ -75,7 +72,7 @@ public class SwapScheduleCalculatorTest {
     }
 
   };
-  private static final SwapSecurity SECURITY = new SwapSecurity(EFFECTIVE, MATURITY, "", PAY_LEG, RECEIVE_LEG);
+  private static final SwapSecurity SECURITY = new SwapSecurity(EFFECTIVE, EFFECTIVE, MATURITY, "", PAY_LEG, RECEIVE_LEG);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullSecurity1() {

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.security.swap;
@@ -12,13 +12,12 @@ import org.apache.commons.lang.Validate;
 /**
  * 
  *
- * @author jim
  */
 public class ForwardSwapSecurity extends SwapSecurity {
-
-  private ZonedDateTime _forwardStartDate;
+  private final ZonedDateTime _forwardStartDate;
 
   /**
+   * @param tradeDate the trade date
    * @param effectiveDate the 'effective' or 'value' date
    * @param maturityDate the 'maturity' or 'termination' date
    * @param counterparty the counterparty
@@ -26,12 +25,12 @@ public class ForwardSwapSecurity extends SwapSecurity {
    * @param receiveLeg the receive leg
    * @param forwardStartDate the start date of the forward swap
    */
-  public ForwardSwapSecurity(ZonedDateTime effectiveDate, ZonedDateTime maturityDate, String counterparty,
-      SwapLeg payLeg, SwapLeg receiveLeg, ZonedDateTime forwardStartDate) {
-    super(effectiveDate, maturityDate, counterparty, payLeg, receiveLeg);
-    
+  public ForwardSwapSecurity(final ZonedDateTime tradeDate, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final String counterparty, final SwapLeg payLeg,
+      final SwapLeg receiveLeg, final ZonedDateTime forwardStartDate) {
+    super(tradeDate, effectiveDate, maturityDate, counterparty, payLeg, receiveLeg);
+
     Validate.notNull(forwardStartDate);
-    
+
     if (forwardStartDate.isBefore(effectiveDate)) {
       throw new IllegalArgumentException("Forward start date cannot be before effective date");
     }
