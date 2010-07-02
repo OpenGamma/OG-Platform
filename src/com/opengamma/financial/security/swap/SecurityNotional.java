@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.security.swap;
 
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+
 import com.opengamma.id.Identifier;
 
 /**
@@ -22,4 +25,10 @@ public class SecurityNotional extends Notional {
   public Identifier getNotionalIdentifier() {
     return _notionalIdentifier;
   }
+
+  public static SecurityNotional fromFudgeMsg(final FudgeDeserializationContext context,
+      final FudgeFieldContainer message) {
+    return new SecurityNotional(context.fieldValueToObject(Identifier.class, message.getByName("notionalIdentifier")));
+  }
+
 }

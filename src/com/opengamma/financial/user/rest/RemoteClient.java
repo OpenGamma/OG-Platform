@@ -7,8 +7,6 @@ package com.opengamma.financial.user.rest;
 
 import org.fudgemsg.FudgeContext;
 
-import com.opengamma.engine.view.server.EngineFudgeContextConfiguration;
-import com.opengamma.financial.FinancialFudgeContextConfiguration;
 import com.opengamma.financial.livedata.rest.RemoteUserLiveData;
 import com.opengamma.financial.position.ManagablePositionMaster;
 import com.opengamma.financial.position.rest.RemoteManagablePositionMaster;
@@ -53,10 +51,7 @@ public class RemoteClient {
    * @param username  the username
    * @return  a {@link RemoteClient} instance for the new client
    */
-  public static RemoteClient forNewClient(RestTarget usersUri, String username) {
-    FudgeContext fudgeContext = new FudgeContext();
-    EngineFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
-    FinancialFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
+  public static RemoteClient forNewClient(FudgeContext fudgeContext, RestTarget usersUri, String username) {
     // Just use a GUID for the client name
     String clientName = GUIDGenerator.generate().toString();
     RestTarget uri = usersUri.resolveBase(username).resolveBase("clients").resolveBase(clientName);

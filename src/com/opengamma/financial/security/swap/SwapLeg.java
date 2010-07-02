@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.security.swap;
 
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+
 import com.opengamma.financial.Region;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -139,6 +142,16 @@ public class SwapLeg {
     return "SwapLeg[Day count=" + _daycount.getConventionName() + "; frequency=" + _frequency.getConventionName()
         + "; region=" + _region.getName() + "; business day convention=" + _businessDayConvention.getConventionName()
         + "; notional=" + _notional + "]";
+  }
+
+  public static SwapLeg fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    final DayCount daycount = context.fieldValueToObject(DayCount.class, message.getByName("daycount"));
+    final Frequency frequency = context.fieldValueToObject(Frequency.class, message.getByName("frequency"));
+    final Region region = context.fieldValueToObject(Region.class, message.getByName("region"));
+    final BusinessDayConvention businessDayConvention = context.fieldValueToObject(BusinessDayConvention.class, message
+        .getByName("businessDayConvention"));
+    final Notional notional = context.fieldValueToObject(Notional.class, message.getByName("notional"));
+    return new SwapLeg(daycount, frequency, region, businessDayConvention, notional);
   }
 
 }
