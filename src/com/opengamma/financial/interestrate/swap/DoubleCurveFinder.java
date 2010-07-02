@@ -42,14 +42,16 @@ public class DoubleCurveFinder extends Function1D<DoubleMatrix1D, DoubleMatrix1D
       final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> fundingInterpolator) {
     Validate.notNull(swaps);
     Validate.notNull(swapValues);
-    Validate.notNull(forwardTimeGrid);
-    Validate.notNull(fundingTimeGrid);
-    Validate.notNull(forwardInterpolator);
-    Validate.notNull(fundingInterpolator);
+    if (forwardTimeGrid != null) {
+      Validate.notNull(forwardInterpolator);
+      ArgumentChecker.notEmpty(forwardTimeGrid, "forward time grid");
+    }
+    if (fundingTimeGrid != null) {
+      Validate.notNull(fundingInterpolator);
+      ArgumentChecker.notEmpty(fundingTimeGrid, "funding time grid");
+    }
     Validate.notEmpty(swaps);
     ArgumentChecker.notEmpty(swapValues, "swap values");
-    ArgumentChecker.notEmpty(forwardTimeGrid, "forward time grid");
-    ArgumentChecker.notEmpty(fundingTimeGrid, "funding time grid");
     _swaps = swaps;
     _swapValues = swapValues;
     _spotRate = spotRate;
@@ -67,6 +69,7 @@ public class DoubleCurveFinder extends Function1D<DoubleMatrix1D, DoubleMatrix1D
     }
   }
 
+  //TODO this needs to be split into 4 separate functions for the various combinations of null / not null inputs
   @Override
   public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
     Validate.notNull(x);
