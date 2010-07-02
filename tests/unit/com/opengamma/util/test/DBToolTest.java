@@ -24,7 +24,6 @@ import com.opengamma.OpenGammaRuntimeException;
 /**
  * 
  * 
- * @author pietari
  */
 public class DBToolTest {
 

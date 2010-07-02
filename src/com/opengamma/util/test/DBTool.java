@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -61,7 +62,8 @@ public class DBTool extends Task {
   private boolean _createTestDb;
   private boolean _createTables;
   private String _testDbType;
-  private String _basedir;
+  private String _testPropertiesDir;
+  private Collection<String> _dbScriptDirs = new ArrayList<String>();
   private String _targetVersion;
   private String _createVersion;
   
@@ -195,13 +197,34 @@ public class DBTool extends Task {
     _testDbType = testDbType;
   }
   
-  public String getBasedir() {
-    return _basedir;
+  public String getTestPropertiesDir() {
+    return _testPropertiesDir;
   }
 
-  public void setBasedir(String basedir) {
-    _basedir = basedir;
-    TestProperties.setBaseDir(_basedir);
+  public void setTestPropertiesDir(String testPropertiesDir) {
+    _testPropertiesDir = testPropertiesDir;
+  }
+
+  public Collection<String> getDbScriptDirs() {
+    return _dbScriptDirs;
+  }
+
+  public void setDbScriptDirs(Collection<String> dirs) {
+    _dbScriptDirs = dirs;
+  }
+  
+  public static String getWorkingDirectory() {
+    return System.getProperty("user.dir");
+  }
+  
+  /**
+   * @param directory If null -> working directory
+   */
+  public void addDbScriptDirectory(String directory) {
+    if (directory == null) {
+      directory = getWorkingDirectory();
+    }
+    _dbScriptDirs.add(directory);
   }
   
   public void setCreateVersion(final String createVersion) {
@@ -380,18 +403,22 @@ public class DBTool extends Task {
   }
   
   private File[] getScriptDirs() {
-    final File file = new File(_basedir, DATABASE_FOLDER + File.separatorChar + _dialect.getDatabaseName());
-    if (!file.exists()) {
-      throw new OpenGammaRuntimeException("Directory " + file.getAbsolutePath() + " does not exist");
-    }
-    final File[] scriptDirs = file.listFiles(new FileFilter() {
-      @Override
-      public boolean accept(File pathname) {
-        return pathname.getName().startsWith(DATABASE_SCRIPT_FOLDER_PREFIX);
+    final List<File> scriptDirs = new ArrayList<File>();
+    for (String scriptDir : _dbScriptDirs) {
+      final File file = new File(scriptDir, DATABASE_FOLDER + File.separatorChar + _dialect.getDatabaseName());
+      if (!file.exists()) {
+        throw new OpenGammaRuntimeException("Directory " + file.getAbsolutePath() + " does not exist");
       }
-    });
-    Arrays.sort(scriptDirs);
-    return scriptDirs;
+      final File[] scriptSubDirs = file.listFiles(new FileFilter() {
+        @Override
+        public boolean accept(File pathname) {
+          return pathname.getName().startsWith(DATABASE_SCRIPT_FOLDER_PREFIX);
+        }
+      });
+      scriptDirs.addAll(Arrays.asList(scriptSubDirs));
+    }
+    Collections.sort(scriptDirs);
+    return scriptDirs.toArray(new File[0]);
   }
   
   public void createTables(String catalog, final TableCreationCallback callback) {
@@ -485,6 +512,8 @@ public class DBTool extends Task {
     }
     
     if (_createTestDb) {
+      TestProperties.setBaseDir(_testPropertiesDir);
+      
       for (String dbType : TestProperties.getDatabaseTypes(_testDbType)) {
         System.out.println("Creating " + dbType + " test database...");
         
@@ -530,10 +559,13 @@ public class DBTool extends Task {
     options.addOption("createtestdb", "createtestdb", true, "Drops schema in database test_<user.name> and recreates it (including tables). " +
         "{dbtype} should be one of derby, postgres, all. Connection parameters are read from test.properties so you do not need " +
         "to specify server, user, or password.");
-    options.addOption("createtables", "createtables", true, "Runs {basedir}/db/{dbtype}/scripts_<latest version>/create-db.sql.");
+    options.addOption("createtables", "createtables", true, "Runs {dbscriptbasedir}/db/{dbtype}/scripts_<latest version>/create-db.sql.");
+    options.addOption("dbscriptbasedir", "dbscriptbasedir", true, "Directory for reading db create scripts. " +
+      "Optional. If not specified, the working directory is used.");
     options.addOption("targetversion", "targetversion", true, "Version number for the end result database. Optional. If not specified, assumes latest version.");
     options.addOption("createversion", "createversion", true, "Version number to run the creation script from. Optional. If not specified, defaults to {targetversion}.");
-    options.addOption("basedir", "basedir", true, "Base directory for reading create db scripts and property files. Optional. If not specified, the working directory is used.");
+    options.addOption("testpropertiesdir", "testpropertiesdir", true, "Directory for reading test.properties. Only used with the --createstdb option. " +
+      "Optional. If not specified, the working directory is used.");
     
     CommandLineParser parser = new PosixParser();
     CommandLine line = null;
@@ -557,7 +589,8 @@ public class DBTool extends Task {
     tool.setClear(line.hasOption("clear"));
     tool.setCreateTestDb(line.getOptionValue("createtestdb"));
     tool.setCreateTables(line.getOptionValue("createtables"));
-    tool.setBasedir(line.getOptionValue("basedir"));
+    tool.setTestPropertiesDir(line.getOptionValue("testpropertiesdir"));
+    tool.addDbScriptDirectory(line.getOptionValue("dbscriptbasedir"));
     tool.setTargetVersion(line.getOptionValue("targetversion"));
     tool.setCreateVersion(line.getOptionValue("createversion"));
     
