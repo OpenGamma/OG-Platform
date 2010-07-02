@@ -45,11 +45,11 @@ abstract public class DBTest implements TableCreationCallback {
    * such a good idea.
    */
   @Before
-  public void setUp () throws Exception {
-    String prevVersion = s_databaseTypeVersion.get (getDatabaseType ());
-    if ((prevVersion == null) || !prevVersion.equals (getDatabaseVersion ())) {
-      s_databaseTypeVersion.put (getDatabaseType (), getDatabaseVersion ());
-      _dbtool.setCreateVersion (getDatabaseVersion ());
+  public void setUp() throws Exception {
+    String prevVersion = s_databaseTypeVersion.get(getDatabaseType());
+    if ((prevVersion == null) || !prevVersion.equals(getDatabaseVersion())) {
+      s_databaseTypeVersion.put(getDatabaseType(), getDatabaseVersion ());
+      _dbtool.setCreateVersion(getDatabaseVersion());
       _dbtool.dropTestSchema();
       _dbtool.createTestSchema();
       _dbtool.createTestTables(this);

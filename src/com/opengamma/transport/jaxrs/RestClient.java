@@ -19,10 +19,16 @@ import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.params.ClientPNames;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.ClientConnectionManagerFactory;
+import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.AbstractHttpMessage;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.params.HttpParams;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
@@ -59,7 +65,21 @@ public class RestClient {
    * @return the RESTful client, not null
    */
   public static RestClient getInstance(FudgeContext fudgeContext, Map<String, String> securityCredentials) {
-    return new RestClient(fudgeContext, new DefaultHttpClient());
+    DefaultHttpClient dummyClient = new DefaultHttpClient();
+    HttpParams params = dummyClient.getParams();
+    params.setParameter(ClientPNames.CONNECTION_MANAGER_FACTORY_CLASS_NAME, TSCMFactory.class.getName());
+
+    return new RestClient(fudgeContext, new DefaultHttpClient(params));
+  }
+  
+  /**
+   * Factory for creating a thread-safe connection manager.
+   */
+  public static class TSCMFactory implements ClientConnectionManagerFactory {
+    @Override
+    public ClientConnectionManager newInstance(HttpParams params, SchemeRegistry schemeRegistry) {
+      return new ThreadSafeClientConnManager(params, schemeRegistry);
+    }
   }
 
   protected HttpClient getHttpClient() {
