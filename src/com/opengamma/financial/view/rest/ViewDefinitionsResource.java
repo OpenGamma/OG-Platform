@@ -19,7 +19,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 
 import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.engine.view.server.EngineFudgeContextConfiguration;
-import com.opengamma.financial.FinancialFudgeContextConfiguration;
+import com.opengamma.financial.fudgemsg.FinancialFudgeContextConfiguration;
 import com.opengamma.financial.view.AddViewDefinitionRequest;
 import com.opengamma.financial.view.ManagableViewDefinitionRepository;
 import com.opengamma.util.ArgumentChecker;

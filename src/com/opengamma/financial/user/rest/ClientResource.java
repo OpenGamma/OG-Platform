@@ -63,7 +63,7 @@ public class ClientResource {
   }
 
   private UniqueIdentifierTemplate getTemplate(final String username, final String clientName, final String resourceType) {
-    UserResourceDetails resourceDetails = new UserResourceDetails(username, clientName, PORTFOLIOS_PATH);
+    UserResourceDetails resourceDetails = new UserResourceDetails(username, clientName, resourceType);
     return UserUniqueIdentifierUtils.getTemplate(resourceDetails);
   }
   

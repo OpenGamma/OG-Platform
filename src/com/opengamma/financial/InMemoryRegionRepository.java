@@ -104,7 +104,7 @@ public class InMemoryRegionRepository implements RegionRepository {
   public InMemoryRegionRepository(FudgeContext fudgeContext, File file) {
     _fudgeContext = fudgeContext;
     try {
-      // Hierarchy Name -> (Region Name -> Region Defintion (Super/Sub name + data))
+      // Hierarchy Name -> (Region Name -> Region Definition (Super/Sub name + data))
       Map<String, Map<String, RegionDefinition>> roots = new HashMap<String, Map<String, RegionDefinition>>();
       
       // Open CSV file
@@ -122,7 +122,7 @@ public class InMemoryRegionRepository implements RegionRepository {
       while ((row = reader.readNext()) != null) {
         String hierarchy = row[hierarchyColumnNum].trim();
         String name = row[nameColumnNum].trim();
-        System.err.println(name);
+        //System.err.println(name);
         RegionType type = RegionType.valueOf(row[typeColumnNum].trim());
         // split semicolon separated list (somewhat stripped of whitespace) into array, convert to list and then to set. 
         Set<String> subRegions = new HashSet<String>(Arrays.asList(row[subRegionsColumnNum].split(";")));
@@ -194,8 +194,8 @@ public class InMemoryRegionRepository implements RegionRepository {
   }
   
   private void indexHierarchy(String hierarchyName, Region root) {
-    System.err.println("indexing " + hierarchyName + " : " + root.getName());
-    s_logger.info("Indexing {} : {}", hierarchyName, root.getName());
+    //System.err.println("indexing " + hierarchyName + " : " + root.getName());
+    //s_logger.info("Indexing {} : {}", hierarchyName, root.getName()); // AIWG: DO NOT CHECK THIS INTO GIT
     if (!(_fieldIndex.containsKey(hierarchyName))) {
       _fieldIndex.put(hierarchyName, new HashMap<Pair<String, Object>, SortedSet<Region>>());
     }

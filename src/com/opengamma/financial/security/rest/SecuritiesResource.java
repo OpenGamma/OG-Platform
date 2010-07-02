@@ -20,7 +20,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.view.server.EngineFudgeContextConfiguration;
-import com.opengamma.financial.FinancialFudgeContextConfiguration;
+import com.opengamma.financial.fudgemsg.FinancialFudgeContextConfiguration;
 import com.opengamma.financial.security.AddSecurityRequest;
 import com.opengamma.financial.security.ManagableSecurityMaster;
 import com.opengamma.id.UniqueIdentifier;
