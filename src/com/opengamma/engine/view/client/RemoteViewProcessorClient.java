@@ -25,17 +25,22 @@ import javax.jms.ConnectionFactory;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeFieldContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.jaxrs.RestClient;
+import com.opengamma.transport.jaxrs.RestRuntimeException;
 import com.opengamma.transport.jaxrs.RestTarget;
 
 /**
  * Implementation of a ViewProcessorClient for working with a remote engine
  */
 public class RemoteViewProcessorClient implements ViewProcessorClient {
+  
+  private static final Logger s_logger = LoggerFactory.getLogger(RemoteViewProcessorClient.class);
   
   private final RestClient _restClient;
   
@@ -95,7 +100,20 @@ public class RemoteViewProcessorClient implements ViewProcessorClient {
   public ViewClient getView(String viewName) {
     // asking the server for it's correct view name will validate the URI on object construction
     final RestTarget viewBase = _targetViewBase.resolveBase(viewName).resolve(VIEW_NAME);
-    viewName = getRestClient().getSingleValueNotNull(String.class, viewBase, VIEW_NAME);
+    s_logger.debug("Attempting to validate remote view '{}' using target '{}'", viewName, viewBase.getURI());
+    try {
+      viewName = getRestClient().getSingleValueNotNull(String.class, viewBase, VIEW_NAME);
+      s_logger.debug("Remote view '{}' validated", viewName);
+    } catch (RestRuntimeException e) {
+      if (e.getStatusCode() == 404) {
+        // Not found
+        s_logger.debug("Remote view '{}' does not exist", viewName);
+        return null;
+      }
+      // A genuine problem
+      s_logger.debug("Error validating remote view {}", viewName, e);
+      throw e;
+    }
     // we have the server's version of the name, so now lookup or create
     if (getRemoteViewClients().containsKey(viewName)) {
       return getRemoteViewClients().get(viewName);
