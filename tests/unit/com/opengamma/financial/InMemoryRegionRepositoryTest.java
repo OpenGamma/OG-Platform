@@ -23,6 +23,7 @@ import org.junit.Test;
 import com.google.common.io.Resources;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.InMemoryRegionRepository;
+import static com.opengamma.financial.InMemoryRegionRepository.REGIONS_FILE_PATH;
 import com.opengamma.financial.Region;
 import com.opengamma.financial.RegionRepository;
 import com.opengamma.financial.RegionType;
@@ -34,8 +35,7 @@ public class InMemoryRegionRepositoryTest {
 
   @Test
   public void testConstructor() throws URISyntaxException {
-    URL countryCSV = Resources.getResource("com/opengamma/financial/countrylist_test.csv");
-    RegionRepository regionRepository = new InMemoryRegionRepository(new File(countryCSV.toURI()));
+    RegionRepository regionRepository = new InMemoryRegionRepository(new File(REGIONS_FILE_PATH));
     System.err.println("Constructed and indexed");
     LocalDate now = LocalDate.now(Clock.system(TimeZone.UTC));
     System.err.println("Got now");
@@ -59,16 +59,14 @@ public class InMemoryRegionRepositoryTest {
   @Test(expected = OpenGammaRuntimeException.class)
   // TODO: check if this should throw exception or return null
   public void test_getHierarchyNode_unknownName() throws URISyntaxException {
-    URL countryCSV = Resources.getResource("com/opengamma/financial/countrylist_test.csv");
-    RegionRepository regionRepository = new InMemoryRegionRepository(new File(countryCSV.toURI()));
+    RegionRepository regionRepository = new InMemoryRegionRepository(new File(REGIONS_FILE_PATH));
     LocalDate now = LocalDate.now(Clock.system(TimeZone.UTC));
     regionRepository.getHierarchyNode(now, "Incorrect Name", "World");
   }
 
   @Test
   public void test_getHierarchyRoot_unknownName() throws URISyntaxException {
-    URL countryCSV = Resources.getResource("com/opengamma/financial/countrylist_test.csv");
-    RegionRepository regionRepository = new InMemoryRegionRepository(new File(countryCSV.toURI()));
+    RegionRepository regionRepository = new InMemoryRegionRepository(new File(REGIONS_FILE_PATH));
     LocalDate now = LocalDate.now(Clock.system(TimeZone.UTC));
     assertEquals(null, regionRepository.getHierarchyRoot(now, "Incorrect Name"));
   }

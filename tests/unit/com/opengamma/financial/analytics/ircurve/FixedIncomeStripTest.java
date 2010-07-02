@@ -12,7 +12,7 @@ import org.junit.Test;
  * Test FixedIncomeStrip.
  */
 public class FixedIncomeStripTest {
-//
+//  @Ignore
 //  @Test(expected = IllegalArgumentException.class)
 //  public void negativeYears() {
 //    new FixedIncomeStrip(Period.ofYears(-5), UniqueIdentifier.of("Test", "A"), StripInstrument.SWAP);
