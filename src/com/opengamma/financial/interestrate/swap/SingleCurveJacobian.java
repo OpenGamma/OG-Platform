@@ -42,7 +42,7 @@ public class SingleCurveJacobian implements JacobianCalculator {
   }
 
   @Override
-  public DoubleMatrix2D evaluate(final DoubleMatrix1D x, Function1D<DoubleMatrix1D, DoubleMatrix1D>... functions) {
+  public DoubleMatrix2D evaluate(final DoubleMatrix1D x, final Function1D<DoubleMatrix1D, DoubleMatrix1D>... functions) {
     final TreeMap<Double, Double> data = new TreeMap<Double, Double>();
     data.put(0.0, _spotRate);
     for (int i = 0; i < _timeGrid.length; i++) {
@@ -69,7 +69,7 @@ public class SingleCurveJacobian implements JacobianCalculator {
         double temp = 0.0;
         k = 0;
         for (final Pair<Double, Double> timeAndDF : fwdSensitivity) {
-          temp += timeAndDF.getSecond() * sensitivity[k++][j + 1];// changed from j+1
+          temp += timeAndDF.getSecond() * sensitivity[k++][j + 1];
         }
         for (final Pair<Double, Double> timeAndDF : fundSensitivity) {
           temp += timeAndDF.getSecond() * sensitivity[k++][j + 1];

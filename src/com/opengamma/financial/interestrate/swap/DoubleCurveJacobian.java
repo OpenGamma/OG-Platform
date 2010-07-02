@@ -20,7 +20,7 @@ import com.opengamma.math.rootfinding.newton.JacobianCalculator;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * @param <T> 
  */
 public class DoubleCurveJacobian<T extends Interpolator1DDataBundle> implements JacobianCalculator {
   private final ForwardCurveSensitivityCalculator _forwardSensitivities = new ForwardCurveSensitivityCalculator();
@@ -49,8 +49,9 @@ public class DoubleCurveJacobian<T extends Interpolator1DDataBundle> implements 
     }
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public DoubleMatrix2D evaluate(final DoubleMatrix1D x, Function1D<DoubleMatrix1D, DoubleMatrix1D>... functions) {
+  public DoubleMatrix2D evaluate(final DoubleMatrix1D x, final Function1D<DoubleMatrix1D, DoubleMatrix1D>... functions) {
     if (x.getNumberOfElements() != (_nFwdNodes + _nFundNodes)) {
       throw new IllegalArgumentException("fitting vector not same length as number of nodes");
     }
@@ -88,7 +89,7 @@ public class DoubleCurveJacobian<T extends Interpolator1DDataBundle> implements 
         double temp = 0.0;
         k = 0;
         for (final Pair<Double, Double> timeAndDF : fwdSensitivity) {
-          temp += timeAndDF.getSecond() * sensitivity[k++][j + 1];// changed from j+1
+          temp += timeAndDF.getSecond() * sensitivity[k++][j + 1];
         }
         res[i][j] = temp;
       }
