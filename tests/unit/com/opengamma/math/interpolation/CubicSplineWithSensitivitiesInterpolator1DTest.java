@@ -26,7 +26,7 @@ public class CubicSplineWithSensitivitiesInterpolator1DTest {
   private static final Interpolator1DWithSensitivities<Interpolator1DCubicSplineDataBundle> INTERPOLATOR3 = new Interpolator1DWithSensitivities<Interpolator1DCubicSplineDataBundle>(INTERPOLATOR1);
   private static final Interpolator1DCubicSplineDataBundle DATA1;
   private static final Interpolator1DCubicSplineWithSensitivitiesDataBundle DATA2;
-  private static final double EPS = 1e-8;
+  private static final double EPS = 1e-7;
   private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
 
     private static final double a = -0.045;
@@ -36,8 +36,8 @@ public class CubicSplineWithSensitivitiesInterpolator1DTest {
 
     @Override
     public Double evaluate(Double x) {
-      // return (a + b * x) * Math.exp(-c * x) + d;
-      return a + b * x + c * x * x + d * x * x * x;
+      return (a + b * x) * Math.exp(-c * x) + d;
+      // return a + b * x + c * x * x + d * x * x * x;
     }
 
   };
@@ -95,7 +95,7 @@ public class CubicSplineWithSensitivitiesInterpolator1DTest {
   @Test
   public void testSensitivities() {
     double tmax = DATA2.lastKey();
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 100; i++) {
       final double t = tmax * RANDOM.nextDouble();
       // double t = 0.25;
       double[] sensitivity = INTERPOLATOR2.interpolate(DATA2, t).getSensitivities();
