@@ -165,14 +165,19 @@ public class RestClient {
       final int sc = resp.getStatusLine().getStatusCode();
       if (sc >= 200 && sc < 300) {
         if (sc == 204) {
+          resp.getEntity().consumeContent();
           return FudgeContext.EMPTY_MESSAGE_ENVELOPE;
         } else {
           return decodeResponse(resp);
         }
-      } else if (sc == 404) {
-        return null;
       } else {
-        throw new RestRuntimeException("GET", target, sc, resp.getStatusLine().getReasonPhrase());
+        // Must consume any content so that the response can be released
+        resp.getEntity().consumeContent();
+        if (sc == 404) {
+          return null;
+        } else {
+          throw new RestRuntimeException("GET", target, sc, resp.getStatusLine().getReasonPhrase());
+        }
       }
     } catch (IOException ex) {
       throw new OpenGammaRuntimeException("I/O exception during GET request", ex);
