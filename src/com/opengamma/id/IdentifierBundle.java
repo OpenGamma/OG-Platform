@@ -103,6 +103,14 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   }
 
   /**
+   * Creates a bundle from a collection of identifiers.  Added for consistency with Identifier
+   * @param identifiers  the collection of identifiers, null returns an empty bundle
+   */
+  public static IdentifierBundle of(Identifier... identifiers) {
+    return new IdentifierBundle(identifiers);
+  }
+
+  /**
    * Recalculate the hash code on deserialization.
    * @param in  the input stream
    */
