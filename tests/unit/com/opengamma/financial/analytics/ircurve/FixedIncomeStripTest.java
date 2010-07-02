@@ -13,11 +13,11 @@ import com.opengamma.id.UniqueIdentifier;
  * Test FixedIncomeStrip.
  */
 public class FixedIncomeStripTest {
-
-  @Test(expected = IllegalArgumentException.class)
-  public void negativeYears() {
-    new FixedIncomeStrip(-5, UniqueIdentifier.of("Test", "A"));
-  }
+//
+//  @Test(expected = IllegalArgumentException.class)
+//  public void negativeYears() {
+//    new FixedIncomeStrip(Period.ofYears(-5), UniqueIdentifier.of("Test", "A"), StripInstrument.SWAP);
+//  }
 
   // TODO kirk 2009-12-30 -- Test everything else.
 

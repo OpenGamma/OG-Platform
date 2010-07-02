@@ -7,12 +7,18 @@ package com.opengamma.financial.analytics.ircurve;
 
 import java.io.Serializable;
 
+import javax.time.calendar.Clock;
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.Period;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
@@ -22,30 +28,60 @@ import com.opengamma.util.CompareUtils;
  */
 public class FixedIncomeStrip implements Comparable<FixedIncomeStrip>, Serializable {
 
-  private final double _numYears;
+  private final LocalDate _startDate;
+  private final LocalDate _endDate;
   private final UniqueIdentifier _marketDataKey;
+  private final StripInstrument _instrumentType;
+  private DayCount _dayCount;
 
   /**
-   * Creates the strip.
-   * @param numYears  the number of years, not negative
-   * @param marketDataKey  the market data key, not null
+   * Creates the strip.  REVIEW: jim 30-June-2010 -- we need to change the isFuture parameter to get OGLD to do it.
+   * @param startDate the startDate of the strip
+   * @param endDate the endDate of the strip
+   * @param marketDataKey the market data key, not null
+   * @param isFuture true if the marketDataKey refers to a future requiring 100-x rate adjustment
    */
-  public FixedIncomeStrip(double numYears, UniqueIdentifier marketDataKey) {
-    if (numYears < 0) {
-      throw new IllegalArgumentException("Fixed income strips cannot be in the future.");
-    }
+  public FixedIncomeStrip(LocalDate startDate, LocalDate endDate, UniqueIdentifier marketDataKey, StripInstrument instrumentType, DayCount dayCount) {
     ArgumentChecker.notNull(marketDataKey, "Market data key");
-    _numYears = numYears;
+    _startDate = startDate;
+    _endDate = endDate;
     _marketDataKey = marketDataKey;
+    _instrumentType = instrumentType;
+    _dayCount = dayCount;
+  }
+  
+  /**
+   * Creates the strip.  REVIEW: jim 30-June-2010 -- we need to change the isFuture parameter to get OGLD to do it.
+   * This constructor assumes that the DayCountConvention is NONE.
+   * @param period from today when the strip ends
+   * @param marketDataKey the market data key, not null
+   * @param isFuture true if the marketDataKey refers to a future requiring 100-x rate adjustment
+   */
+  public FixedIncomeStrip(Period period, UniqueIdentifier marketDataKey, StripInstrument instrumentType) {
+    ArgumentChecker.notNull(marketDataKey, "Market data key");
+    ArgumentChecker.notNegative(period.getDays(), "period");
+    _startDate = Clock.systemDefaultZone().today();
+    _endDate = _startDate.plus(period);
+    _marketDataKey = marketDataKey;
+    _instrumentType = instrumentType;
+    _dayCount = DayCountFactory.INSTANCE.getDayCount("NONE");
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the number of years.
-   * @return the number of years
+   * Gets the start date of the strip
+   * @return the start date
    */
-  public double getNumYears() {
-    return _numYears;
+  public LocalDate getStartDate() {
+    return _startDate;
+  }
+  
+  /**
+   * Gets the end date of the strip
+   * @return the end date
+   */
+  public LocalDate getEndDate() {
+    return _endDate;
   }
 
   /**
@@ -64,16 +100,29 @@ public class FixedIncomeStrip implements Comparable<FixedIncomeStrip>, Serializa
     // REVIEW kirk 2009-12-30 -- We might want to cache this on construction if it's called a lot.
     return new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, getMarketDataKey());
   }
-
+  
+  /**
+   * Returns the type of instrument used to construct the strip.
+   * should be removed as soon as we can put the appropriate instruments in as securities.
+   * @return an enum describing the instrument type used to construct this strip
+   */
+  public StripInstrument getInstrumentType() {
+    return _instrumentType;
+  }
+  
+  public DayCount getDayCount() {
+    return _dayCount;
+  }
+  
   //-------------------------------------------------------------------------
   @Override
   public int compareTo(FixedIncomeStrip other) {
-    if (getNumYears() < other.getNumYears()) {
-      return -1;
-    } else if (getNumYears() > other.getNumYears()) {
-      return 1;
+    int dates = getEndDate().compareTo(other.getEndDate());
+    if (dates != 0) {
+      return dates;
+    } else {
+      return getMarketDataKey().compareTo(other.getMarketDataKey());
     }
-    return getMarketDataKey().compareTo(other.getMarketDataKey());
   }
 
   @Override
@@ -83,20 +132,18 @@ public class FixedIncomeStrip implements Comparable<FixedIncomeStrip>, Serializa
     }
     if (obj instanceof FixedIncomeStrip) {
       FixedIncomeStrip other = (FixedIncomeStrip) obj;
-      return CompareUtils.closeEquals(_numYears, other._numYears) &&
-        ObjectUtils.equals(_marketDataKey, other._marketDataKey);
+      return ObjectUtils.equals(_startDate, other._startDate) &&
+             ObjectUtils.equals(_endDate, other._endDate) &&
+             ObjectUtils.equals(_marketDataKey, other._marketDataKey) &&
+             ObjectUtils.equals(_dayCount, other._dayCount) &&
+             _instrumentType == other._instrumentType;
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    int prime = 37;
-    int result = 1;
-    long numYearsBits = Double.doubleToLongBits(getNumYears());
-    result = (result * prime) + ((int) (numYearsBits ^ (numYearsBits >>> 32)));
-    result = (result * prime) + getMarketDataKey().hashCode();
-    return result;
+    return _startDate.hashCode();
   }
 
   @Override

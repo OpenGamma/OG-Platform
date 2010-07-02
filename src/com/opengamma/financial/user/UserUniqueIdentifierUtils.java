@@ -40,8 +40,8 @@ public class UserUniqueIdentifierUtils {
    */
   public static UserResourceDetails getDetails(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
-    String[] valueParts = uid.getValue().split(SEPARATOR, 3);
-    if (valueParts.length < 3) {
+    String[] valueParts = uid.getValue().split(SEPARATOR, 4);
+    if (valueParts.length < 4) {
       throw new IllegalArgumentException("The specified UniqueIdentifier was not in the expected format");
     }
     String username = valueParts[0];
