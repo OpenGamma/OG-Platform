@@ -18,7 +18,6 @@ import com.opengamma.OpenGammaRuntimeException;
 /**
  * 
  * 
- * @author pietari
  */
 public class TestProperties {
 
@@ -105,12 +104,35 @@ public class TestProperties {
     return password;
   }
   
+  public static Collection<String> getScriptDirs() {
+    Collection<String> dirs = new ArrayList<String>();
+
+    int i = 1;
+    String dir = getTestProperties().getProperty("db.script.dir." + i);
+    while (dir != null) {
+      dirs.add(dir); // may be null -> 
+      i++;
+      dir = getTestProperties().getProperty("db.script.dir." + i);
+    } 
+    
+    if (dirs.isEmpty()) {
+      dirs.add(_baseDir); // if _baseDir == null -> working directory
+    }
+    
+    return dirs;    
+  }
+  
   public static DBTool getDbTool(String databaseType) {
     String dbHost = getDbHost(databaseType);
     String user = getDbUsername(databaseType);
     String password = getDbPassword(databaseType);
     
     DBTool dbtool = new DBTool(dbHost, user, password);
+    
+    for (String scriptDir : getScriptDirs()) {
+      dbtool.addDbScriptDirectory(scriptDir);      
+    }
+    
     dbtool.initialise();
     return dbtool;
   }
