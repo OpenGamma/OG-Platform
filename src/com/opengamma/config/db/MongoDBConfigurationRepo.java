@@ -45,6 +45,8 @@ import com.opengamma.util.MongoDBConnectionSettings;
 
 /**
  * General purpose configuration data loader backed by MongoDB
+ * MongoDBConnectionSettings specifies mongo host, port, database and collectionName to use
+ * If collectionName is null, the document classname will be used
  * 
  * @param <T> Configuration Document EntityType
  */

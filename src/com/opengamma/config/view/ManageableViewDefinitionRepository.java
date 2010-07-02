@@ -18,17 +18,17 @@ import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.util.MongoDBConnectionSettings;
 
 /**
- * ManagableViewDefinitionRepository delegates all the work to  MongoDBConfigurationRepo<ViewDefinition>
- *
+ * ManageableViewDefinitionRepository delegates all the work to  MongoDBConfigurationRepo<ViewDefinition>
+ * 
  */
-public class ManagableViewDefinitionRepository implements ConfigurationDocumentRepo<ViewDefinition>, ViewDefinitionRepository {
+public class ManageableViewDefinitionRepository implements ConfigurationDocumentRepo<ViewDefinition>, ViewDefinitionRepository {
   
   private final MongoDBConfigurationRepo<ViewDefinition> _viewDefinitionRepo;
 
   /**
    * @param mongoDBsettings mongo connection settings
    */
-  public ManagableViewDefinitionRepository(MongoDBConnectionSettings mongoDBsettings) {
+  public ManageableViewDefinitionRepository(MongoDBConnectionSettings mongoDBsettings) {
     _viewDefinitionRepo = new MongoDBConfigurationRepo<ViewDefinition>(ViewDefinition.class, mongoDBsettings);
   }
 
