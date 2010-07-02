@@ -30,13 +30,13 @@ import com.opengamma.engine.view.ViewComputationResultModel;
  */
 public class ViewComputationResultModelBuilder implements FudgeBuilder<ViewComputationResultModel> {
   
-  private static final String FIELD_INPUTTS = "inputTS";
+  private static final String FIELD_VALUATIONTS = "valuationTS";
   private static final String FIELD_RESULTTS = "resultTS";
   private static final String FIELD_RESULTS = "results";
   
   protected static MutableFudgeFieldContainer createMessage(final FudgeSerializationContext context, final ViewComputationResultModel resultModel) {
     final MutableFudgeFieldContainer message = context.newMessage();
-    message.add(FIELD_INPUTTS, resultModel.getInputDataTimestamp());
+    message.add(FIELD_VALUATIONTS, resultModel.getValuationTime());
     message.add(FIELD_RESULTTS, resultModel.getResultTimestamp());
     final Collection<String> calculationConfigurations = resultModel.getCalculationConfigurationNames();
     final MutableFudgeFieldContainer resultMsg = context.newMessage();
@@ -54,7 +54,7 @@ public class ViewComputationResultModelBuilder implements FudgeBuilder<ViewCompu
   }
   
   protected static ViewComputationResultModel createObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    final Instant inputDataTimestamp = message.getFieldValue(Instant.class, message.getByName(FIELD_INPUTTS));
+    final Instant inputDataTimestamp = message.getFieldValue(Instant.class, message.getByName(FIELD_VALUATIONTS));
     final Instant resultTimestamp = message.getFieldValue(Instant.class, message.getByName(FIELD_RESULTTS));
     final Map<String, ViewCalculationResultModel> map = new HashMap<String, ViewCalculationResultModel>();
     final Queue<String> keys = new LinkedList<String>();
@@ -94,7 +94,7 @@ public class ViewComputationResultModelBuilder implements FudgeBuilder<ViewCompu
         return map.get(calcConfigurationName);
       }
       @Override
-      public Instant getInputDataTimestamp() {
+      public Instant getValuationTime() {
         return inputDataTimestamp;
       }
       @Override
@@ -103,7 +103,7 @@ public class ViewComputationResultModelBuilder implements FudgeBuilder<ViewCompu
       }
       @Override
       public String toString() {
-        return "ViewComputationResultModel, input timestamp=" + getInputDataTimestamp() + ", result timestamp=" + getResultTimestamp();
+        return "ViewComputationResultModel, valuation time=" + getValuationTime() + ", result timestamp=" + getResultTimestamp();
       }
     };
   }

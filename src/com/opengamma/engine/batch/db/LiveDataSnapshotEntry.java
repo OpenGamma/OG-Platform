@@ -9,6 +9,8 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import com.opengamma.engine.batch.LiveDataValue;
+
 /**
  * 
  */
@@ -73,6 +75,13 @@ public class LiveDataSnapshotEntry {
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this);
+  }
+  
+  public LiveDataValue toLiveDataValue() {
+    return new LiveDataValue(
+        getIdentifier().toOpenGammaIdentifier(),
+        getField().getName(),
+        getValue());
   }
   
 }

@@ -20,7 +20,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
  */
 public interface ViewComputationResultModel {
   
-  Instant getInputDataTimestamp();
+  Instant getValuationTime();
   
   Instant getResultTimestamp();
   

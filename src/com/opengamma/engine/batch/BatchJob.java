@@ -25,7 +25,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.batch.db.BatchDbManager;
 import com.opengamma.engine.batch.db.BatchDbRiskContext;
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.View;
@@ -428,7 +427,7 @@ public class BatchJob implements Job, ComputationResultListener {
   
   public void execute() {
     _batchDbManager.startBatch(this);
-    getView().runOneCycle();
+    getView().runOneCycle(getValuationTime().toInstant().toEpochMillisLong());
     _batchDbManager.endBatch(this);
   }
   

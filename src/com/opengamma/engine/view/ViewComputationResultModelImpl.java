@@ -25,21 +25,18 @@ import com.opengamma.engine.value.ComputedValue;
  */
 public class ViewComputationResultModelImpl implements
     ViewComputationResultModel, Serializable {
-  private Instant _inputDataTimestamp;
+  private Instant _valuationTime;
   private Instant _resultTimestamp;
   private final Map<String, ViewCalculationResultModelImpl> _resultModels =
     new TreeMap<String, ViewCalculationResultModelImpl>();
   
   @Override
-  public Instant getInputDataTimestamp() {
-    return _inputDataTimestamp;
+  public Instant getValuationTime() {
+    return _valuationTime;
   }
 
-  /**
-   * @param inputDataTimestamp the inputDataTimestamp to set
-   */
-  public void setInputDataTimestamp(Instant inputDataTimestamp) {
-    _inputDataTimestamp = inputDataTimestamp;
+  public void setValuationTime(Instant inputDataTimestamp) {
+    _valuationTime = inputDataTimestamp;
   }
 
   @Override
@@ -47,9 +44,6 @@ public class ViewComputationResultModelImpl implements
     return _resultTimestamp;
   }
 
-  /**
-   * @param resultTimestamp the resultTimestamp to set
-   */
   public void setResultTimestamp(Instant resultTimestamp) {
     _resultTimestamp = resultTimestamp;
   }

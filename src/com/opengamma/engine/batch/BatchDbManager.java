@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.batch.db;
+package com.opengamma.engine.batch;
 
 import java.util.Set;
 
@@ -12,7 +12,7 @@ import javax.time.calendar.OffsetTime;
 
 import org.fudgemsg.FudgeMsg;
 
-import com.opengamma.engine.batch.BatchJob;
+import com.opengamma.engine.batch.db.BatchDbRiskContext;
 import com.opengamma.engine.view.ViewComputationResultModel;
 
 /**
@@ -120,5 +120,14 @@ public interface BatchDbManager {
   void addValuesToSnapshot(LocalDate observationDate, 
       String observationTime,
       Set<LiveDataValue> values);
+  
+  /**
+   * Gets all market data fixings associated with an existing snapshot.
+   * 
+   * @param observationDate The date of the snapshot, not null
+   * @param observationTime The time of the snapshot (e.g., LDN_CLOSE), not null
+   * @return All market data fixings with this snapshot, not null
+   */
+  Set<LiveDataValue> getSnapshotValues(LocalDate observationDate, String observationTime);
   
 }

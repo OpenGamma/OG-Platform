@@ -62,8 +62,8 @@ public class ViewDeltaResultModelBuilder implements FudgeBuilder<ViewDeltaResult
       }
 
       @Override
-      public Instant getInputDataTimestamp() {
-        return parent.getInputDataTimestamp();
+      public Instant getValuationTime() {
+        return parent.getValuationTime();
       }
 
       @Override

@@ -37,8 +37,8 @@ public class ViewComputationResultModelImplTest {
   }
 
   public static void checkModel(ViewComputationResultModelImpl model) {
-    model.setInputDataTimestamp(Instant.ofEpochMillis(400));
-    assertEquals(Instant.ofEpochMillis(400), model.getInputDataTimestamp());
+    model.setValuationTime(Instant.ofEpochMillis(400));
+    assertEquals(Instant.ofEpochMillis(400), model.getValuationTime());
     model.setResultTimestamp(Instant.ofEpochMillis(500));
     assertEquals(Instant.ofEpochMillis(500), model.getResultTimestamp());
     

@@ -26,6 +26,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.batch.BatchJob;
+import com.opengamma.engine.batch.LiveDataValue;
 import com.opengamma.engine.view.ViewTest;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
@@ -226,8 +227,17 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
           _batchJob.getSnapshotObservationDate(), 
           _batchJob.getSnapshotObservationTime());
       
+      LiveDataValue value = new LiveDataValue(new Identifier("BUID", "EQ12345"), "BID", 11.22);
+      Set<LiveDataValue> values = Collections.singleton(value);
+      
       _dbManager.addValuesToSnapshot(_batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime(), Collections.<LiveDataValue>emptySet());
+          _batchJob.getSnapshotObservationTime(), values);
+      
+      Set<LiveDataValue> returnedValues = _dbManager.getSnapshotValues(
+          _batchJob.getSnapshotObservationDate(), 
+          _batchJob.getSnapshotObservationTime());
+      
+      assertEquals(values, returnedValues);
     }
     
     @Test

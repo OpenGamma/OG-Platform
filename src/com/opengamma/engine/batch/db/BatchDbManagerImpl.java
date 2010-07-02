@@ -37,7 +37,9 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.batch.BatchDbManager;
 import com.opengamma.engine.batch.BatchJob;
+import com.opengamma.engine.batch.LiveDataValue;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewCalculationResultModel;
@@ -563,6 +565,38 @@ public class BatchDbManagerImpl implements BatchDbManager {
       _hibernateTemplate.update(snapshot);
       
       getSessionFactory().getCurrentSession().getTransaction().commit();
+    } catch (RuntimeException e) {
+      getSessionFactory().getCurrentSession().getTransaction().rollback();
+      throw e;
+    }
+  }
+  
+  @Override
+  public Set<LiveDataValue> getSnapshotValues(LocalDate observationDate, String observationTime) {
+    s_logger.info("Getting LiveData snapshot {}/{}", observationDate, observationTime);
+    
+    try {
+      getSessionFactory().getCurrentSession().beginTransaction();
+
+      LiveDataSnapshot liveDataSnapshot = getLiveDataSnapshot(
+          observationDate,
+          observationTime);
+      
+      if (liveDataSnapshot == null) {
+        throw new IllegalArgumentException("Snapshot " 
+            + observationDate
+            + "/" 
+            + observationTime
+            + " cannot be found");
+      }
+      
+      Set<LiveDataValue> returnValues = new HashSet<LiveDataValue>();
+      for (LiveDataSnapshotEntry entry : liveDataSnapshot.getSnapshotEntries()) {
+        returnValues.add(entry.toLiveDataValue());      
+      }
+      
+      getSessionFactory().getCurrentSession().getTransaction().commit();
+      return returnValues;
     } catch (RuntimeException e) {
       getSessionFactory().getCurrentSession().getTransaction().rollback();
       throw e;

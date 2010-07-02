@@ -269,7 +269,7 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
       ViewComputationResultModelImpl previousResult,
       ViewComputationResultModelImpl result) {
     ViewDeltaResultModelImpl deltaModel = new ViewDeltaResultModelImpl();
-    deltaModel.setInputDataTimestamp(result.getInputDataTimestamp());
+    deltaModel.setValuationTime(result.getValuationTime());
     deltaModel.setResultTimestamp(result.getResultTimestamp());
     deltaModel.setPreviousResultTimestamp(previousResult.getResultTimestamp());
     for (ComputationTargetSpecification targetSpec : result.getAllTargets()) {
@@ -346,8 +346,8 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     runOneCycle(snapshotTime);
   }
   
-  public synchronized void runOneCycle(long snapshotTime) {
-    SingleComputationCycle cycle = createCycle(snapshotTime);
+  public synchronized void runOneCycle(long valuationTime) {
+    SingleComputationCycle cycle = createCycle(valuationTime);
     cycle.prepareInputs();
     cycle.executePlans();
     cycle.populateResultModel();
@@ -526,7 +526,7 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     return "View[" + getDefinition().getName() + "]";
   }
   
-  /*package*/ SingleComputationCycle createCycle(long snapshotTime) {
+  /*package*/ SingleComputationCycle createCycle(long valuationTime) {
     PortfolioEvaluationModel portfolioEvaluationModel = getPortfolioEvaluationModel();
     ViewComputationResultModelImpl result = new ViewComputationResultModelImpl();
     // REVIEW kirk 2010-03-29 -- Order here is important. This is lame and should be refactored into
@@ -540,7 +540,7 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
         portfolioEvaluationModel,
         result, 
         getDefinition(),
-        snapshotTime);
+        valuationTime);
     return cycle;
   }
 

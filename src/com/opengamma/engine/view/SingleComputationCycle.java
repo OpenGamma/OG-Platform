@@ -64,7 +64,7 @@ public class SingleComputationCycle {
   /**
    * Milliseconds, see System.currentTimeMillis()
    */
-  private final long _snapshotTime;
+  private final long _valuationTime;
   
   /**
    * Nanoseconds, see System.nanoTime()
@@ -87,7 +87,7 @@ public class SingleComputationCycle {
       PortfolioEvaluationModel portfolioEvaluationModel,
       ViewComputationResultModelImpl resultModel,
       ViewDefinition viewDefinition,
-      long snapshotTime) {
+      long valuationTime) {
     ArgumentChecker.notNull(viewName, "View name");
     ArgumentChecker.notNull(processingContext, "View processing context");
     ArgumentChecker.notNull(portfolioEvaluationModel, "Portfolio evaluation model");
@@ -100,16 +100,16 @@ public class SingleComputationCycle {
     _resultModel = resultModel;
     _startTime = System.nanoTime();
     _viewDefinition = viewDefinition;
-    _snapshotTime = snapshotTime;
+    _valuationTime = valuationTime;
     
     _state = State.CREATED;
   }
   
   /**
-   * @return the snapshotTime. Milliseconds from epoch
+   * @return Milliseconds from epoch
    */
-  public Long getSnapshotTime() {
-    return _snapshotTime;
+  public Long getValuationTime() {
+    return _valuationTime;
   }
 
   /**
@@ -165,18 +165,18 @@ public class SingleComputationCycle {
       throw new IllegalStateException("State must be " + State.CREATED);
     }
     
-    getResultModel().setInputDataTimestamp(Instant.ofEpochMillis(getSnapshotTime()));
+    getResultModel().setValuationTime(Instant.ofEpochMillis(getValuationTime()));
     
     createAllCaches();
     
     Set<ValueRequirement> allLiveDataRequirements = getPortfolioEvaluationModel().getAllLiveDataRequirements();
-    s_logger.debug("Populating {} market data items for snapshot {}", allLiveDataRequirements.size(), getSnapshotTime());
+    s_logger.debug("Populating {} market data items for snapshot {}", allLiveDataRequirements.size(), getValuationTime());
     
     Set<ValueRequirement> missingLiveData = new HashSet<ValueRequirement>();
     for (ValueRequirement liveDataRequirement : allLiveDataRequirements) {
-      Object data = getProcessingContext().getLiveDataSnapshotProvider().querySnapshot(getSnapshotTime(), liveDataRequirement);
+      Object data = getProcessingContext().getLiveDataSnapshotProvider().querySnapshot(getValuationTime(), liveDataRequirement);
       if (data == null) {
-        s_logger.debug("Unable to load live data value for {} at snapshot {}.", liveDataRequirement, getSnapshotTime());
+        s_logger.debug("Unable to load live data value for {} at snapshot {}.", liveDataRequirement, getValuationTime());
         missingLiveData.add(liveDataRequirement);
       } else {
         ComputedValue dataAsValue = new ComputedValue(new ValueSpecification(liveDataRequirement), data);
@@ -209,7 +209,7 @@ public class SingleComputationCycle {
    */
   private void createAllCaches() {
     for (String calcConfigurationName : getPortfolioEvaluationModel().getAllCalculationConfigurationNames()) {
-      ViewComputationCache cache =  getProcessingContext().getComputationCacheSource().getCache(getViewName(), calcConfigurationName, getSnapshotTime());
+      ViewComputationCache cache = getProcessingContext().getComputationCacheSource().getCache(getViewName(), calcConfigurationName, getValuationTime());
       _cachesByCalculationConfiguration.put(calcConfigurationName, cache);
     }
   }
@@ -306,7 +306,7 @@ public class SingleComputationCycle {
       completionService.submit(new Runnable() {
         @Override
         public void run() {
-          depGraphExecutor.executeGraph(getSnapshotTime(), _jobIdSource);
+          depGraphExecutor.executeGraph(getValuationTime(), _jobIdSource);
         }
       }, depGraphExecutor);
       nSubmitted++;
@@ -340,7 +340,7 @@ public class SingleComputationCycle {
           depGraph,
           getProcessingContext(),
           this);
-      depGraphExecutor.executeGraph(getSnapshotTime(), _jobIdSource);
+      depGraphExecutor.executeGraph(getValuationTime(), _jobIdSource);
     }
   }
   
@@ -374,8 +374,8 @@ public class SingleComputationCycle {
       throw new IllegalStateException("State must be " + State.FINISHED);
     }
     
-    getProcessingContext().getLiveDataSnapshotProvider().releaseSnapshot(getSnapshotTime());
-    getProcessingContext().getComputationCacheSource().releaseCaches(getViewName(), getSnapshotTime());
+    getProcessingContext().getLiveDataSnapshotProvider().releaseSnapshot(getValuationTime());
+    getProcessingContext().getComputationCacheSource().releaseCaches(getViewName(), getValuationTime());
     
     _state = State.CLEANED;
   }
