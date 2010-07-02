@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.linearalgebra;
@@ -9,10 +9,12 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.matrix.DoubleMatrix2D;
+
 /**
  * 
  */
-//TODO extends DoubleMatrix2D
+// TODO extends DoubleMatrix2D
 public class TridiagonalMatrix {
   private final double[] _a;
   private final double[] _b;
@@ -44,6 +46,24 @@ public class TridiagonalMatrix {
 
   public double[] getLowerSubDiagonal() {
     return _c;
+  }
+
+  public DoubleMatrix2D toDoubleMatrix2D() {
+    int n = _a.length;
+    int i;
+    double[][] data = new double[n][n];
+    for (i = 0; i < n; i++) {
+      data[i][i] = _a[i];
+    }
+    for (i = 1; i < n; i++) {
+      data[i - 1][i] = _b[i - 1];
+    }
+    for (i = 1; i < n; i++) {
+      data[i][i - 1] = _c[i - 1];
+    }
+
+    return new DoubleMatrix2D(data);
+
   }
 
   @Override

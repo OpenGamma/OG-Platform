@@ -53,7 +53,11 @@ public final class Interpolator1DDataBundleFactory {
       return new Interpolator1DCubicSplineDataBundle(baseModel);
     } else if (interpolator.getClass().equals(CubicSplineInterpolatorWithSensitivities1D.class)) {
       return new Interpolator1DCubicSplineWithSensitivitiesDataBundle(new Interpolator1DCubicSplineDataBundle(baseModel));
+    } else if (interpolator.getClass().equals(Interpolator1DWithSensitivities.class)) {
+      Interpolator1DWithSensitivities<? extends Interpolator1DDataBundle> interpolatorSense = (Interpolator1DWithSensitivities<? extends Interpolator1DDataBundle>) interpolator;
+      return augmentModel(interpolatorSense.getUnderlyingInterpolator(), baseModel);
     }
+
     return baseModel;
   }
 
