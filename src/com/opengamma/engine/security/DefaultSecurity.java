@@ -9,6 +9,11 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
+import org.fudgemsg.FudgeField;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -20,6 +25,23 @@ import com.opengamma.util.ArgumentChecker;
  * A simple mutable implementation of {@code Security}.
  */
 public class DefaultSecurity implements Security, MutableUniqueIdentifiable, Serializable {
+
+  /**
+   * 
+   */
+  protected static final String UNIQUEIDENTIFIER_KEY = "uniqueIdentifier";
+  /**
+   * 
+   */
+  protected static final String NAME_KEY = "name";
+  /**
+   * 
+   */
+  protected static final String SECURITYTYPE_KEY = "securityType";
+  /**
+   * 
+   */
+  protected static final String IDENTIFIERS_KEY = "identifiers";
 
   /**
    * The unique identifier.
@@ -112,7 +134,7 @@ public class DefaultSecurity implements Security, MutableUniqueIdentifiable, Ser
    */
   @Override
   public String getName() {
-    String name = _name;  // assign for thread-safety
+    String name = _name; // assign for thread-safety
     if (name != null) {
       return name;
     } else {
@@ -127,11 +149,11 @@ public class DefaultSecurity implements Security, MutableUniqueIdentifiable, Ser
    * @return a default display name
    */
   protected String buildDefaultDisplayName() {
-    final UniqueIdentifier identifier = getUniqueIdentifier();  // assign for thread-safety
+    final UniqueIdentifier identifier = getUniqueIdentifier(); // assign for thread-safety
     if (identifier != null) {
       return identifier.toString();
     }
-    final IdentifierBundle bundle = getIdentifiers();  // assign for thread-safety
+    final IdentifierBundle bundle = getIdentifiers(); // assign for thread-safety
     final Identifier first = (bundle.size() == 0 ? null : bundle.getIdentifiers().iterator().next());
     return ObjectUtils.toString(first);
   }
@@ -202,8 +224,8 @@ public class DefaultSecurity implements Security, MutableUniqueIdentifiable, Ser
     }
     if (obj instanceof DefaultSecurity) {
       final DefaultSecurity other = (DefaultSecurity) obj;
-      return ObjectUtils.equals(_identifiers, other._identifiers) &&
-              ObjectUtils.equals(_securityType, other._securityType);
+      return ObjectUtils.equals(_identifiers, other._identifiers)
+          && ObjectUtils.equals(_securityType, other._securityType);
     }
     return false;
   }
@@ -215,15 +237,48 @@ public class DefaultSecurity implements Security, MutableUniqueIdentifiable, Ser
 
   @Override
   public String toString() {
-    return new StrBuilder()
-      .append("Security[")
-      .append(getUniqueIdentifier())
-      .append(", ")
-      .append(getSecurityType())
-      .append(", ")
-      .append(getIdentifiers())
-      .append(']')
-      .toString();
+    return new StrBuilder().append("Security[").append(getUniqueIdentifier()).append(", ").append(getSecurityType())
+        .append(", ").append(getIdentifiers()).append(']').toString();
+  }
+
+  protected void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+    context.objectToFudgeMsg(message, UNIQUEIDENTIFIER_KEY, null, getUniqueIdentifier());
+    message.add(NAME_KEY, getName());
+    message.add(SECURITYTYPE_KEY, getName());
+    context.objectToFudgeMsg(message, IDENTIFIERS_KEY, null, getIdentifiers());
+  }
+
+  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
+    final MutableFudgeFieldContainer message = context.newMessage();
+    FudgeSerializationContext.addClassHeader(message, getClass());
+    toFudgeMsg(context, message);
+    return message;
+  }
+
+  protected void fromFudgeMsgImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    final FudgeField uniqueIdentifier = message.getByName(UNIQUEIDENTIFIER_KEY);
+    final String securityType = message.getString(SECURITYTYPE_KEY);
+    final FudgeField identifiers = message.getByName(IDENTIFIERS_KEY);
+    final String name = message.getString(NAME_KEY);
+    if (uniqueIdentifier != null) {
+      setUniqueIdentifier(context.fieldValueToObject(UniqueIdentifier.class, uniqueIdentifier));
+    }
+    if (securityType != null) {
+      setSecurityType(securityType);
+    }
+    if (identifiers != null) {
+      setIdentifiers(context.fieldValueToObject(IdentifierBundle.class, identifiers));
+    }
+    if (name != null) {
+      setName(name);
+    }
+  }
+
+  public static DefaultSecurity fromFudgeMsg(final FudgeDeserializationContext context,
+      final FudgeFieldContainer message) {
+    final DefaultSecurity security = new DefaultSecurity();
+    security.fromFudgeMsgImpl(context, message);
+    return security;
   }
 
 }
