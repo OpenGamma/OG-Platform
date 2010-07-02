@@ -38,6 +38,7 @@ public class FinancialFudgeContextConfiguration extends FudgeContextConfiguratio
     dictionary.addType(CurrencySecondaryType.INSTANCE);
     dictionary.addType(DayCountSecondaryType.INSTANCE);
     dictionary.addType(FrequencySecondaryType.INSTANCE);
+    dictionary.addType(GICSCodeSecondaryType.INSTANCE);
   }
 
   @Override

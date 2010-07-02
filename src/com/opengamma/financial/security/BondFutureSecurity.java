@@ -7,6 +7,11 @@ package com.opengamma.financial.security;
 
 import java.util.Set;
 
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
+
 import com.opengamma.financial.Currency;
 import com.opengamma.util.time.Expiry;
 
@@ -14,6 +19,15 @@ import com.opengamma.util.time.Expiry;
  * A bond future.
  */
 public class BondFutureSecurity extends FutureSecurity {
+
+  /**
+   * 
+   */
+  protected static final String BASKET_KEY = "basket";
+  /**
+   * 
+   */
+  protected static final String TYPE_KEY = "type";
 
   /** The basket of bonds that could be delivered to satisfy the contract. */
   private final Set<BondFutureDeliverable> _basket;
@@ -59,4 +73,32 @@ public class BondFutureSecurity extends FutureSecurity {
     return visitor.visitBondFutureSecurity(this);
   }
 
+  protected void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+    super.toFudgeMsg(context, message);
+    context.objectToFudgeMsg(message, BASKET_KEY, null, getBasket());
+    message.add(TYPE_KEY, getBondType());
+  }
+
+  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
+    final MutableFudgeFieldContainer message = context.newMessage();
+    FudgeSerializationContext.addClassHeader(message, getClass());
+    toFudgeMsg(context, message);
+    return message;
+  }
+
+  protected void fromFudgeMsgImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    super.fromFudgeMsgImpl(context, message);
+    // Everything set from constructor
+  }
+
+  @SuppressWarnings("unchecked")
+  public static BondFutureSecurity fromFudgeMsg(final FudgeDeserializationContext context,
+      final FudgeFieldContainer message) {
+    final BondFutureSecurity security = new BondFutureSecurity(context.fieldValueToObject(Expiry.class, message
+        .getByName(EXPIRY_KEY)), message.getString(TRADINGEXCHANGE_KEY), message.getString(SETTLEMENTEXCHANGE_KEY),
+        context.fieldValueToObject(Currency.class, message.getByName(CURRENCY_KEY)), message.getString(TYPE_KEY),
+        context.fieldValueToObject(Set.class, message.getByName(BASKET_KEY)));
+    security.fromFudgeMsgImpl(context, message);
+    return security;
+  }
 }

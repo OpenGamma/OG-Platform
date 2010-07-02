@@ -47,7 +47,6 @@ public class FudgeSecurityEncodingTest {
   }
 
   @Test
-  @Ignore("still working on this")
   public void testAAPLEquitySecurity() {
     roundTrip(HibernateSecurityMasterTestUtils.makeExpectedAAPLEquitySecurity());
   }
@@ -58,49 +57,43 @@ public class FudgeSecurityEncodingTest {
   }
 
   @Test
-  @Ignore("still working on this")
   public void testSPXIndexOptionSecurity() {
     roundTrip(HibernateSecurityMasterTestUtils.makeSPXIndexOptionSecurity());
   }
 
   @Test
-  @Ignore("still working on this")
   public void testWheatFuture() {
     roundTrip(HibernateSecurityMasterTestUtils.makeWheatFuture());
   }
 
   @Test
-  @Ignore("still working on this")
   public void testIndexFuture() {
     roundTrip(HibernateSecurityMasterTestUtils.makeIndexFuture());
   }
 
   @Test
-  @Ignore("still working on this")
   public void testAUDUSDCurrencyFuture() {
     roundTrip(HibernateSecurityMasterTestUtils.makeAUDUSDCurrencyFuture());
   }
 
   @Test
-  @Ignore("still working on this")
   public void testEuroBondFuture() {
     roundTrip(HibernateSecurityMasterTestUtils.makeEuroBondFuture());
   }
 
   @Test
-  @Ignore("still working on this")
   public void testSilverFuture() {
     roundTrip(HibernateSecurityMasterTestUtils.makeSilverFuture());
   }
 
   @Test
-  @Ignore("still working on this")
+  @Ignore("not finished")
   public void testEthanolFuture() {
     roundTrip(HibernateSecurityMasterTestUtils.makeEthanolFuture());
   }
 
   @Test
-  @Ignore("still working on this")
+  @Ignore("not finished")
   public void testInterestRateFuture() {
     roundTrip(HibernateSecurityMasterTestUtils.makeInterestRateFuture());
   }

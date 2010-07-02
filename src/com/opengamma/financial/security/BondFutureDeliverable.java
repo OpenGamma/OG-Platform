@@ -7,6 +7,10 @@ package com.opengamma.financial.security;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.id.IdentifierBundle;
 
@@ -16,6 +20,9 @@ import com.opengamma.id.IdentifierBundle;
  */
 public class BondFutureDeliverable {
   
+  protected static final String IDENTIFIERS_KEY = "identifiers";
+  protected static final String CONVERSIONFACTOR_KEY = "conversionFactor";
+
   private IdentifierBundle _identifiers;
   private double _conversionFactor;
  
@@ -95,5 +102,22 @@ public class BondFutureDeliverable {
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
+
+  protected void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+    context.objectToFudgeMsg(message, IDENTIFIERS_KEY, null, getIdentifiers());
+    message.add(CONVERSIONFACTOR_KEY, getConversionFactor());
+  }
     
+  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
+    final MutableFudgeFieldContainer message = context.newMessage();
+    FudgeSerializationContext.addClassHeader(message, getClass());
+    toFudgeMsg(context, message);
+    return message;
+  }
+
+  public static BondFutureDeliverable fromFudgeMsg(final FudgeDeserializationContext context,
+      final FudgeFieldContainer message) {
+    return new BondFutureDeliverable(context.fieldValueToObject(IdentifierBundle.class, message
+        .getByName(IDENTIFIERS_KEY)), message.getDouble(CONVERSIONFACTOR_KEY));
+  }
 }
