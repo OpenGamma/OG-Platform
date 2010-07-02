@@ -32,6 +32,10 @@ public class FileFactoryBean implements FactoryBean {
   public void setFile(final File file) {
     _file = file;
   }
+  
+  public void setFilename(final String filename) {
+    setFile(new File(filename));
+  }
 
   public void setResource(final String path) {
     try {
