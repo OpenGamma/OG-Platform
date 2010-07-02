@@ -5,10 +5,14 @@
  */
 package com.opengamma.financial;
 
+import static com.opengamma.financial.InMemoryHolidayRepository.CURRENCY_HOLIDAYS_FILE_PATH;
+import static com.opengamma.financial.InMemoryHolidayRepository.EXCHANGE_SETTLEMENT_HOLIDAYS_FILE_PATH;
+import static com.opengamma.financial.InMemoryHolidayRepository.EXCHANGE_TRADING_HOLIDAYS_FILE_PATH;
+import static com.opengamma.financial.InMemoryHolidayRepository.FINANCIAL_CENTRES_HOLIDAYS_FILE_PATH;
+import static com.opengamma.financial.InMemoryRegionRepository.REGIONS_FILE_PATH;
+
 import java.io.File;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -18,16 +22,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.google.common.io.Resources;
-import com.opengamma.financial.Currency;
-import com.opengamma.financial.Exchange;
-import com.opengamma.financial.ExchangeRepository;
-import com.opengamma.financial.HolidayType;
-import com.opengamma.financial.InMemoryExchangeRespository;
-import com.opengamma.financial.InMemoryHolidayRepository;
-import com.opengamma.financial.InMemoryRegionRepository;
-import com.opengamma.financial.Region;
-import com.opengamma.financial.RegionRepository;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 
@@ -36,10 +30,10 @@ import com.opengamma.id.IdentifierBundle;
  */
 public class InMemoryHolidayAndExchangeRespositoriesTest {
   private static final String REGION_HIERARCHY = InMemoryRegionRepository.POLITICAL_HIERARCHY_NAME;
+  
   @Test
   public void testExchangeRepository() throws URISyntaxException {
-    URL countryCSV = Resources.getResource("com/opengamma/financial/countrylist_test.csv");
-    RegionRepository regionRepo = new InMemoryRegionRepository(new File(countryCSV.toURI()));
+    RegionRepository regionRepo = new InMemoryRegionRepository(new File(REGIONS_FILE_PATH));
     InMemoryExchangeRespository exchangeRepo = new InMemoryExchangeRespository(regionRepo);
     Set<Region> gbMatches = regionRepo.getHierarchyNodes(null, REGION_HIERARCHY, InMemoryRegionRepository.ISO_COUNTRY_2, "GB");
     Assert.assertEquals(1, gbMatches.size());
@@ -102,16 +96,11 @@ public class InMemoryHolidayAndExchangeRespositoriesTest {
   
   @Test
   public void testHolidayRespository() throws URISyntaxException {
-    URL countryCSV = Resources.getResource("com/opengamma/financial/countrylist_test.csv");
-    InMemoryRegionRepository regionRepo = new InMemoryRegionRepository(new File(countryCSV.toURI()));
+    InMemoryRegionRepository regionRepo = new InMemoryRegionRepository(new File(REGIONS_FILE_PATH));
     InMemoryExchangeRespository exchangeRepo = new InMemoryExchangeRespository(regionRepo);
-    URI currenciesCSV = Resources.getResource("com/opengamma/financial/Currencies_20100610.csv").toURI();
-    URI financialCentresCSV = Resources.getResource("com/opengamma/financial/FinancialCentres_20100610.csv").toURI();
-    URI exchangeTradingCSV = Resources.getResource("com/opengamma/financial/ExchangeTrading_20100610.csv").toURI();
-    URI exchangeSettlementCSV = Resources.getResource("com/opengamma/financial/ExchangeSettlement_20100610.csv").toURI();
     InMemoryHolidayRepository holidayRepo = new InMemoryHolidayRepository(regionRepo, exchangeRepo,
-                                                                          new File(currenciesCSV), new File(financialCentresCSV), 
-                                                                          new File(exchangeTradingCSV), new File(exchangeSettlementCSV));
+                                                                          new File(CURRENCY_HOLIDAYS_FILE_PATH), new File(FINANCIAL_CENTRES_HOLIDAYS_FILE_PATH), 
+                                                                          new File(EXCHANGE_TRADING_HOLIDAYS_FILE_PATH), new File(EXCHANGE_SETTLEMENT_HOLIDAYS_FILE_PATH));
     Exchange euronextLiffe = exchangeRepo.resolveExchange(null, Identifier.of(ExchangeRepository.ISO_MIC, "XLIF"));
     Assert.assertTrue(holidayRepo.isHoliday(null, euronextLiffe, LocalDate.of(2012, 06, 05), HolidayType.SETTLEMENT));
     Assert.assertFalse(holidayRepo.isHoliday(null, euronextLiffe, LocalDate.of(2012, 06, 06), HolidayType.SETTLEMENT));
