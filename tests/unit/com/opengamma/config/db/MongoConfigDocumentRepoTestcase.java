@@ -88,22 +88,25 @@ public abstract class MongoConfigDocumentRepoTestcase<T extends Serializable> {
     
     Instant creationTime = newDoc.getCreationInstant();
     assertNotNull(creationTime);
+    Instant lastReadInstant = newDoc.getLastReadInstant();
+    assertNotNull(lastReadInstant);
     assertTrue(before.isBefore(creationTime));
+    assertEquals(creationTime, lastReadInstant);
     
     String oid = newDoc.getOid();
     assertNotNull(oid);
     assertEquals(1, newDoc.getVersion());
-    
+    Thread.sleep(1000);
     ConfigurationDocument<T> findByName = _configRepo.getByName(name);
     assertNotNull(findByName);
     assertConfigDoc(newDoc, findByName);
+    assertTrue(findByName.getLastReadInstant().isAfter(lastReadInstant));
   }
 
   private void assertConfigDoc(ConfigurationDocument<T> expected, ConfigurationDocument<T> actual) {
     assertEquals(expected.getId(), actual.getId());
     assertEquals(expected.getName(), actual.getName());
     assertEquals(expected.getOid(), actual.getOid());
-//    assertEquals(expected.getValue(), actual.getValue());
     assertConfigDocumentValue(expected.getValue(), actual.getValue());
     assertEquals(expected.getVersion(), actual.getVersion());
     
@@ -120,12 +123,16 @@ public abstract class MongoConfigDocumentRepoTestcase<T extends Serializable> {
     T doc2 = makeTestConfigDoc(2);
     Thread.sleep(1000);
     ConfigurationDocument<T> currentDoc = _configRepo.insertNewVersion(previousDoc.getOid(), doc2);
+    Instant lastReadInstant = currentDoc.getLastReadInstant();
     assertNotNull(currentDoc);
+    assertNotNull(lastReadInstant);
     
     //look up should return doc2 as current;
+    Thread.sleep(1000);
     ConfigurationDocument<T> findByName = _configRepo.getByName(name);
     assertNotNull(findByName);
     assertConfigDoc(currentDoc, findByName);
+    assertTrue(findByName.getLastReadInstant().isAfter(lastReadInstant));
     
   }
   
@@ -136,40 +143,53 @@ public abstract class MongoConfigDocumentRepoTestcase<T extends Serializable> {
     T doc1 = makeTestConfigDoc(1);
     String testName = "testName";
     ConfigurationDocument<T> configDoc1 = _configRepo.insertNewItem(testName, doc1);
-    Thread.sleep(1000);
     Instant after1 = Instant.nowSystemClock();
+    Thread.sleep(1000);
     
     T doc2 = makeTestConfigDoc(2);
     ConfigurationDocument<T> configDoc2 = _configRepo.insertNewVersion(configDoc1.getOid(), doc2);
-    Thread.sleep(1000);
     Instant after2 = Instant.nowSystemClock();
+    Thread.sleep(1000);
 
     //lets change the name
     T doc3 = makeTestConfigDoc(3);
     String changeOfName = "changeOfName";
     ConfigurationDocument<T> configDoc3 = _configRepo.insertNewVersion(configDoc2.getOid(), changeOfName, doc3);
-    Thread.sleep(1000);
     Instant after3 = Instant.nowSystemClock();
+    Thread.sleep(1000);
     
     //should return version3
     ConfigurationDocument<T> findByName = _configRepo.getByName(changeOfName, after3);
     assertNotNull(findByName);
     assertConfigDoc(configDoc3, findByName);
+    Instant lastReadInstant = findByName.getLastReadInstant();
+    assertNotNull(lastReadInstant);
+    assertTrue(lastReadInstant.isAfter(after3));
+    
     
     //should return version2
     findByName = _configRepo.getByName(testName, after3);
     assertNotNull(findByName);
     assertConfigDoc(configDoc2, findByName);
+    lastReadInstant = findByName.getLastReadInstant();
+    assertNotNull(lastReadInstant);
+    assertTrue(lastReadInstant.isAfter(after2));
     
     //should return version2
     findByName = _configRepo.getByName(testName, after2);
     assertNotNull(findByName);
     assertConfigDoc(configDoc2, findByName);
+    lastReadInstant = findByName.getLastReadInstant();
+    assertNotNull(lastReadInstant);
+    assertTrue(lastReadInstant.isAfter(after2));
     
     //should return version1
     findByName = _configRepo.getByName(testName, after1);
     assertNotNull(findByName);
     assertConfigDoc(configDoc1, findByName);
+    lastReadInstant = findByName.getLastReadInstant();
+    assertNotNull(lastReadInstant);
+    assertTrue(lastReadInstant.isAfter(after1));
     
     //should return null
     findByName = _configRepo.getByName(changeOfName, after1);

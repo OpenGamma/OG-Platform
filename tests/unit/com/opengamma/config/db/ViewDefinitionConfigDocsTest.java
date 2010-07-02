@@ -55,7 +55,8 @@ public class ViewDefinitionConfigDocsTest extends MongoConfigDocumentRepoTestcas
 
   @Override
   public ConfigurationDocumentRepo<ViewDefinition> createMongoConfigRepo() {
-    MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings(null, true);
+    //use className as collection so dont set collectionName
+    MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings(null, false);
     _mongoSettings = settings;
     return new MongoDBConfigurationRepo<ViewDefinition>(ViewDefinition.class, settings, null);
   }

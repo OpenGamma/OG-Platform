@@ -22,7 +22,8 @@ public class DefaultConfigurationDocument<T> implements ConfigurationDocument<T>
   private final int _version;
   private final String _name;
   private final Instant _creationInstant;
-  private T _value;
+  private final Instant _lastReadInstant;
+  private final T _value;
   
   /**
    * @param id the mongodb generated object id, not-null
@@ -30,20 +31,24 @@ public class DefaultConfigurationDocument<T> implements ConfigurationDocument<T>
    * @param version the version number, > 0
    * @param name the name of configuration document, not-null
    * @param creationInstant the creation time, not-null
+   * @param lastReadInstant the last accessed time, not -null
    * @param value the actual configuation type, not-null
    */
-  public DefaultConfigurationDocument(String id, String oid, int version, String name, Instant creationInstant, T value) {
+  public DefaultConfigurationDocument(String id, String oid, int version, String name, Instant creationInstant, Instant lastReadInstant, T value) {
     ArgumentChecker.notNull(id, "id");
     ArgumentChecker.notNull(oid, "oid");
     ArgumentChecker.isTrue(version > 0, "negative version not allowed");
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(creationInstant, "creationInstant");
+    ArgumentChecker.notNull(lastReadInstant, "lastReadInstant");
     ArgumentChecker.notNull(value, "value");
+    
     _id = id;
     _oid = oid;
     _version = version;
     _name = name;
     _creationInstant = creationInstant;
+    _lastReadInstant = lastReadInstant;
     _value = value;
   }
 
@@ -76,6 +81,13 @@ public class DefaultConfigurationDocument<T> implements ConfigurationDocument<T>
   public int getVersion() {
     return _version;
   }
+  
+  @Override
+  public Instant getLastReadInstant() {
+    return _lastReadInstant;
+  }
+  
+  
 
   @Override
   public int hashCode() {
@@ -100,6 +112,4 @@ public class DefaultConfigurationDocument<T> implements ConfigurationDocument<T>
     return false;
   }
   
-  
-
 }

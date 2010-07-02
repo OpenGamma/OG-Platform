@@ -20,28 +20,6 @@ import javax.time.Instant;
 public interface ConfigurationDocumentRepo<T> {
   
   /**
-   * Fudge message key for the oid.
-   */
-  String OID_FUDGE_FIELD_NAME = "OID";
-  /**
-   * Fudge message key for the version.
-   */
-  String VERSION_FUDGE_FIELD_NAME = "Version";
-  /**
-   * Fudge message key for the name.
-   */
-  String NAME_FUDGE_FIELD_NAME = "Name";
-  /**
-   * Fudge message key for the creationInstant.
-   */
-  String CREATION_INSTANT_FUDGE_FIELD_NAME = "CreationInstant";
-  /**
-   * Fudge message key for the value.
-   */
-  String VALUE_FUDGE_FIELD_NAME = "Value";
-  
-
-  /**
    * Load the current version of the document with the specified name
    * 
    * @param name The name of config document not-null
