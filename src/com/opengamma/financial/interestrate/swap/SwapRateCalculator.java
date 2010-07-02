@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.interestrate.swap;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
@@ -22,7 +24,10 @@ public class SwapRateCalculator {
    * @param swap The swap 
    * @return the swap rate
    */
-  public double getRate(final YieldAndDiscountCurve forwardCurve, final YieldAndDiscountCurve fundingCurve, Swap swap) {
+  public double getRate(final YieldAndDiscountCurve forwardCurve, final YieldAndDiscountCurve fundingCurve, final Swap swap) {
+    Validate.notNull(forwardCurve);
+    Validate.notNull(fundingCurve);
+    Validate.notNull(swap);
     final double annuity = _annuityCalculator.getAnnuity(fundingCurve, swap);
     final double floating = _floatLegCalculator.getFloatLeg(forwardCurve, fundingCurve, swap);
     return floating / annuity;

@@ -8,6 +8,8 @@ package com.opengamma.financial.interestrate.swap;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.tuple.DoublesPair;
@@ -20,8 +22,10 @@ public class ForwardCurveSensitivityCalculator {
   private final AnnuityCalculator _annuityCalculator = new AnnuityCalculator();
 
   //TODO doesn't need to be a list - can see how many points are needed
-  public List<Pair<Double, Double>> getForwardCurveSensitivities(final YieldAndDiscountCurve forwardCurve,
-      final YieldAndDiscountCurve fundingCurve, final Swap swap) {
+  public List<Pair<Double, Double>> getForwardCurveSensitivities(final YieldAndDiscountCurve forwardCurve, final YieldAndDiscountCurve fundingCurve, final Swap swap) {
+    Validate.notNull(forwardCurve);
+    Validate.notNull(fundingCurve);
+    Validate.notNull(swap);
     final double annuity = _annuityCalculator.getAnnuity(fundingCurve, swap);
     final List<Pair<Double, Double>> results = new ArrayList<Pair<Double, Double>>();
     double ta, tb;
@@ -41,10 +45,8 @@ public class ForwardCurveSensitivityCalculator {
       dfta = forwardCurve.getDiscountFactor(ta);
       dftb = forwardCurve.getDiscountFactor(tb);
       temp1 = modDF * dfta / dftb / annuity;
-
       temp = new DoublesPair(ta, -ta * temp1);
       results.add(temp);
-
       temp = new DoublesPair(tb, tb * temp1);
       results.add(temp);
     }

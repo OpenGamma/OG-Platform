@@ -8,6 +8,8 @@ package com.opengamma.financial.interestrate.swap;
 import java.util.List;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
@@ -17,6 +19,7 @@ import com.opengamma.math.interpolation.Interpolator1DWithSensitivities;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.newton.JacobianCalculator;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -25,20 +28,25 @@ import com.opengamma.util.tuple.Pair;
 public class SingleCurveJacobian implements JacobianCalculator {
   private final ForwardCurveSensitivityCalculator _forwardSensitivities = new ForwardCurveSensitivityCalculator();
   private final FundingCurveSensitivityCalculator _fundingSensitivities = new FundingCurveSensitivityCalculator();
-  private final List<Swap> _irds;
+  private final List<Swap> _swaps;
   private final double _spotRate;
   private final double[] _timeGrid;
   private final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> _interpolator;
   private final int _nRows, _nCols;
 
-  public SingleCurveJacobian(final List<Swap> irds, final double spotRate, final double[] timeGrid,
+  public SingleCurveJacobian(final List<Swap> swaps, final double spotRate, final double[] timeGrid,
       final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> interpolator) {
-    _irds = irds;
+    Validate.notNull(swaps);
+    Validate.notNull(timeGrid);
+    Validate.notNull(interpolator);
+    Validate.notEmpty(swaps);
+    ArgumentChecker.notEmpty(timeGrid, "time grid");
+    _swaps = swaps;
     _spotRate = spotRate;
     _timeGrid = timeGrid;
     _interpolator = interpolator;
-    _nRows = _irds.size();
-    _nCols = _irds.size();
+    _nRows = _swaps.size();
+    _nCols = _swaps.size();
   }
 
   @Override
@@ -53,7 +61,7 @@ public class SingleCurveJacobian implements JacobianCalculator {
 
     final double[][] res = new double[_nRows][_nCols];
     for (int i = 0; i < _nRows; i++) {
-      final Swap swap = _irds.get(i);
+      final Swap swap = _swaps.get(i);
       final List<Pair<Double, Double>> fwdSensitivity = _forwardSensitivities.getForwardCurveSensitivities(curve, curve, swap);
       final List<Pair<Double, Double>> fundSensitivity = _fundingSensitivities.getFundingCurveSensitivities(curve, curve, swap);
       final int n = fwdSensitivity.size() + fundSensitivity.size();

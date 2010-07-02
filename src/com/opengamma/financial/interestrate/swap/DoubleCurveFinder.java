@@ -8,6 +8,8 @@ package com.opengamma.financial.interestrate.swap;
 import java.util.List;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
@@ -17,6 +19,7 @@ import com.opengamma.math.interpolation.InterpolationResult;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DDataBundle;
 import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -37,6 +40,16 @@ public class DoubleCurveFinder extends Function1D<DoubleMatrix1D, DoubleMatrix1D
   public DoubleCurveFinder(final List<Swap> swaps, final double[] swapValues, final double spotRate, final double[] forwardTimeGrid, final double[] fundingTimeGrid,
       final YieldAndDiscountCurve forwardCurve, final YieldAndDiscountCurve fundCurve, final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> forwardInterpolator,
       final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> fundingInterpolator) {
+    Validate.notNull(swaps);
+    Validate.notNull(swapValues);
+    Validate.notNull(forwardTimeGrid);
+    Validate.notNull(fundingTimeGrid);
+    Validate.notNull(forwardInterpolator);
+    Validate.notNull(fundingInterpolator);
+    Validate.notEmpty(swaps);
+    ArgumentChecker.notEmpty(swapValues, "swap values");
+    ArgumentChecker.notEmpty(forwardTimeGrid, "forward time grid");
+    ArgumentChecker.notEmpty(fundingTimeGrid, "funding time grid");
     _swaps = swaps;
     _swapValues = swapValues;
     _spotRate = spotRate;
@@ -56,6 +69,7 @@ public class DoubleCurveFinder extends Function1D<DoubleMatrix1D, DoubleMatrix1D
 
   @Override
   public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
+    Validate.notNull(x);
     if (x.getNumberOfElements() != (_nFwdNodes + _nFundNodes)) {
       throw new IllegalArgumentException("fitting vector not same length as number of nodes");
     }

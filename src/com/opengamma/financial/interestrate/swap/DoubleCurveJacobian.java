@@ -8,6 +8,8 @@ package com.opengamma.financial.interestrate.swap;
 import java.util.List;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
@@ -17,6 +19,7 @@ import com.opengamma.math.interpolation.Interpolator1DWithSensitivities;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.newton.JacobianCalculator;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -25,7 +28,7 @@ import com.opengamma.util.tuple.Pair;
 public class DoubleCurveJacobian<T extends Interpolator1DDataBundle> implements JacobianCalculator {
   private final ForwardCurveSensitivityCalculator _forwardSensitivities = new ForwardCurveSensitivityCalculator();
   private final FundingCurveSensitivityCalculator _fundingSensitivities = new FundingCurveSensitivityCalculator();
-  private final List<Swap> _irds;
+  private final List<Swap> _swaps;
   private final double _spotRate;
   private final double[] _fwdTimeGrid;
   private final double[] _fundTimeGrid;
@@ -33,15 +36,23 @@ public class DoubleCurveJacobian<T extends Interpolator1DDataBundle> implements 
   private final Interpolator1DWithSensitivities<T> _fundInterpolator;
   private final int _nSwaps, _nFwdNodes, _nFundNodes;
 
-  public DoubleCurveJacobian(final List<Swap> irds, final double spotRate, final double[] forwardTimeGrid, final double[] fundingTimeGrid, final Interpolator1DWithSensitivities<T> fwdInterpolator,
-      final Interpolator1DWithSensitivities<T> fundingInterpolator) {
-    _irds = irds;
+  public DoubleCurveJacobian(final List<Swap> swaps, final double spotRate, final double[] forwardTimeGrid, final double[] fundingTimeGrid,
+      final Interpolator1DWithSensitivities<T> forwardInterpolator, final Interpolator1DWithSensitivities<T> fundingInterpolator) {
+    Validate.notNull(swaps);
+    Validate.notNull(forwardTimeGrid);
+    Validate.notNull(fundingTimeGrid);
+    Validate.notNull(forwardInterpolator);
+    Validate.notNull(fundingInterpolator);
+    Validate.notEmpty(swaps);
+    ArgumentChecker.notEmpty(forwardTimeGrid, "forward time grid");
+    ArgumentChecker.notEmpty(fundingTimeGrid, "funding time grid");
+    _swaps = swaps;
     _spotRate = spotRate;
     _fwdTimeGrid = forwardTimeGrid;
     _fundTimeGrid = fundingTimeGrid;
-    _fwdInterpolator = fwdInterpolator;
+    _fwdInterpolator = forwardInterpolator;
     _fundInterpolator = fundingInterpolator;
-    _nSwaps = _irds.size();
+    _nSwaps = _swaps.size();
     _nFwdNodes = (forwardTimeGrid == null ? 0 : forwardTimeGrid.length);
     _nFundNodes = (fundingTimeGrid == null ? 0 : fundingTimeGrid.length);
     if (_nSwaps != _nFwdNodes + _nFundNodes) {
@@ -52,6 +63,7 @@ public class DoubleCurveJacobian<T extends Interpolator1DDataBundle> implements 
   @SuppressWarnings("unchecked")
   @Override
   public DoubleMatrix2D evaluate(final DoubleMatrix1D x, final Function1D<DoubleMatrix1D, DoubleMatrix1D>... functions) {
+    Validate.notNull(x);
     if (x.getNumberOfElements() != (_nFwdNodes + _nFundNodes)) {
       throw new IllegalArgumentException("fitting vector not same length as number of nodes");
     }
@@ -74,7 +86,7 @@ public class DoubleCurveJacobian<T extends Interpolator1DDataBundle> implements 
     final int n = _nFundNodes + _nFwdNodes;
     final double[][] res = new double[n][n];
     for (int i = 0; i < n; i++) {
-      final Swap swap = _irds.get(i);
+      final Swap swap = _swaps.get(i);
       final List<Pair<Double, Double>> fwdSensitivity = _forwardSensitivities.getForwardCurveSensitivities(fwdCurve, fundCurve, swap);
 
       final List<Pair<Double, Double>> fundSensitivity = _fundingSensitivities.getFundingCurveSensitivities(fwdCurve, fundCurve, swap);
