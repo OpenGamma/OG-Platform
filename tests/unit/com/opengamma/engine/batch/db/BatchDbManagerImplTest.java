@@ -432,9 +432,9 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
       UniqueIdentifier uid = UniqueIdentifier.of("foo", "bar");
       
       ComputationTarget portfolio = _dbManager.getComputationTarget(
-          new ComputationTargetSpecification(ComputationTargetType.MULTIPLE_POSITIONS, uid));
+          new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, uid));
       assertNotNull(portfolio);
-      assertEquals(ComputationTargetType.MULTIPLE_POSITIONS.ordinal(), portfolio.getComputationTargetType());
+      assertEquals(ComputationTargetType.PORTFOLIO_NODE.ordinal(), portfolio.getComputationTargetType());
       assertEquals(uid.getScheme(), portfolio.getIdScheme());
       assertEquals(uid.getValue(), portfolio.getIdValue());
       

@@ -33,7 +33,7 @@ public class ComputationTargetTest {
   @Test
   public void test_constructor_Object_Portfolio() {
     ComputationTarget test = new ComputationTarget(PORTFOLIO);
-    assertEquals(ComputationTargetType.MULTIPLE_POSITIONS, test.getType());
+    assertEquals(ComputationTargetType.PORTFOLIO_NODE, test.getType());
     assertEquals(PORTFOLIO, test.getValue());
   }
 
@@ -47,8 +47,8 @@ public class ComputationTargetTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_constructor_Type_Object_ok() {
-    new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, PORTFOLIO);
-    new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, NODE);
+    new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, PORTFOLIO);
+    new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, NODE);
     new ComputationTarget(ComputationTargetType.POSITION, POSITION);
     new ComputationTarget(ComputationTargetType.SECURITY, SECURITY);
     new ComputationTarget(ComputationTargetType.PRIMITIVE, null);
@@ -68,8 +68,8 @@ public class ComputationTargetTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_getters_PortfolioNode() {
-    ComputationTarget test = new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, NODE);
-    assertEquals(ComputationTargetType.MULTIPLE_POSITIONS, test.getType());
+    ComputationTarget test = new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, NODE);
+    assertEquals(ComputationTargetType.PORTFOLIO_NODE, test.getType());
     assertEquals(NODE, test.getValue());
     assertEquals(NODE.getUniqueIdentifier(), test.getUniqueIdentifier());
     assertEquals(NODE, test.getPortfolioNode());

@@ -88,10 +88,10 @@ public class ComputationTarget implements Serializable {
   /**
    * Safely converts the target to a {@code PortfolioNode}.
    * @return the portfolio node, not null
-   * @throws IllegalStateException if the type is not MULTIPLE_POSITIONS
+   * @throws IllegalStateException if the type is not PORTFOLIO_NODE
    */
   public PortfolioNode getPortfolioNode() {
-    if (getType() != ComputationTargetType.MULTIPLE_POSITIONS) {
+    if (getType() != ComputationTargetType.PORTFOLIO_NODE) {
       throw new IllegalStateException("Requested a PortfolioNode for a target of type " + getType());
     }
     return (PortfolioNode) getValue();

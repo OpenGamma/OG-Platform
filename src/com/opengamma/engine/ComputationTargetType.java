@@ -19,7 +19,7 @@ public enum ComputationTargetType {
   /**
    * A set of positions (a portfolio node, or whole portfolio).
    */
-  MULTIPLE_POSITIONS,
+  PORTFOLIO_NODE,
   /**
    * A position.
    */
@@ -40,7 +40,7 @@ public enum ComputationTargetType {
    */
   public boolean isCompatible(Object target) {
     switch(this) {
-      case MULTIPLE_POSITIONS:
+      case PORTFOLIO_NODE:
         return (target instanceof PortfolioNode || target instanceof Portfolio);
       case POSITION:
         return (target instanceof Position);
@@ -64,10 +64,10 @@ public enum ComputationTargetType {
    */
   public static ComputationTargetType determineFromTarget(Object target) {
     if (target instanceof Portfolio) {
-      return MULTIPLE_POSITIONS;
+      return PORTFOLIO_NODE;
     }
     if (target instanceof PortfolioNode) {
-      return MULTIPLE_POSITIONS;
+      return PORTFOLIO_NODE;
     }
     if (target instanceof Position) {
       return POSITION;

@@ -35,8 +35,8 @@ public class ComputationTargetTypeTest {
 
   @Test
   public void determine() {
-    assertEquals(ComputationTargetType.MULTIPLE_POSITIONS, ComputationTargetType.determineFromTarget(NODE));
-    assertEquals(ComputationTargetType.MULTIPLE_POSITIONS, ComputationTargetType.determineFromTarget(PORTFOLIO));
+    assertEquals(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.determineFromTarget(NODE));
+    assertEquals(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.determineFromTarget(PORTFOLIO));
     
     assertEquals(ComputationTargetType.POSITION, ComputationTargetType.determineFromTarget(POSITION));
     
@@ -48,8 +48,8 @@ public class ComputationTargetTypeTest {
 
   @Test
   public void compatible() {
-    assertTrue(ComputationTargetType.MULTIPLE_POSITIONS.isCompatible(NODE));
-    assertTrue(ComputationTargetType.MULTIPLE_POSITIONS.isCompatible(PORTFOLIO));
+    assertTrue(ComputationTargetType.PORTFOLIO_NODE.isCompatible(NODE));
+    assertTrue(ComputationTargetType.PORTFOLIO_NODE.isCompatible(PORTFOLIO));
     
     assertTrue(ComputationTargetType.POSITION.isCompatible(POSITION));
     
@@ -60,8 +60,8 @@ public class ComputationTargetTypeTest {
 
   @Test
   public void notCompatible() {
-    assertFalse(ComputationTargetType.MULTIPLE_POSITIONS.isCompatible(POSITION));
-    assertFalse(ComputationTargetType.MULTIPLE_POSITIONS.isCompatible(SECURITY));
+    assertFalse(ComputationTargetType.PORTFOLIO_NODE.isCompatible(POSITION));
+    assertFalse(ComputationTargetType.PORTFOLIO_NODE.isCompatible(SECURITY));
     
     assertFalse(ComputationTargetType.POSITION.isCompatible(PORTFOLIO));
     assertFalse(ComputationTargetType.POSITION.isCompatible(NODE));

@@ -354,7 +354,7 @@ public class SingleComputationCycle {
       DependencyGraph depGraph = getPortfolioEvaluationModel().getDependencyGraph(calcConfigurationName);
 
       populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.POSITION);
-      populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.MULTIPLE_POSITIONS);
+      populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.PORTFOLIO_NODE);
     }
   }
   

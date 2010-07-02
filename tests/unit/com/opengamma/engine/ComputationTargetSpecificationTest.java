@@ -54,14 +54,14 @@ public class ComputationTargetSpecificationTest {
   @Test
   public void test_constructor_Object_Portfolio() {
     ComputationTargetSpecification test = new ComputationTargetSpecification(PORTFOLIO);
-    assertEquals(ComputationTargetType.MULTIPLE_POSITIONS, test.getType());
+    assertEquals(ComputationTargetType.PORTFOLIO_NODE, test.getType());
     assertEquals(PORTFOLIO.getUniqueIdentifier(), test.getUniqueIdentifier());
   }
 
   @Test
   public void test_constructor_Object_Node() {
     ComputationTargetSpecification test = new ComputationTargetSpecification(NODE);
-    assertEquals(ComputationTargetType.MULTIPLE_POSITIONS, test.getType());
+    assertEquals(ComputationTargetType.PORTFOLIO_NODE, test.getType());
     assertEquals(NODE.getUniqueIdentifier(), test.getUniqueIdentifier());
   }
 
@@ -110,7 +110,7 @@ public class ComputationTargetSpecificationTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_constructor_Type_UniqueIdentifier_ok() {
-    new ComputationTargetSpecification(ComputationTargetType.MULTIPLE_POSITIONS, UID);
+    new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, UID);
     new ComputationTargetSpecification(ComputationTargetType.POSITION, UID);
     new ComputationTargetSpecification(ComputationTargetType.SECURITY, UID);
     new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, (UniqueIdentifier) null);
@@ -123,14 +123,14 @@ public class ComputationTargetSpecificationTest {
 
   @Test(expected=NullPointerException.class)
   public void test_constructor_Type_UniqueIdentifier_nullId() {
-    new ComputationTargetSpecification(ComputationTargetType.MULTIPLE_POSITIONS, (UniqueIdentifier) null);
+    new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, (UniqueIdentifier) null);
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void test_getters_PortfolioNode() {
-    ComputationTargetSpecification test = new ComputationTargetSpecification(ComputationTargetType.MULTIPLE_POSITIONS, UID);
-    assertEquals(ComputationTargetType.MULTIPLE_POSITIONS, test.getType());
+    ComputationTargetSpecification test = new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, UID);
+    assertEquals(ComputationTargetType.PORTFOLIO_NODE, test.getType());
     assertEquals(UID.getScheme(), test.getIdentifier().getScheme().getName());
     assertEquals(UID.getValue(), test.getIdentifier().getValue());
   }

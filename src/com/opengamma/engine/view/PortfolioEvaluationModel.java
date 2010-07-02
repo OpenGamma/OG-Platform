@@ -176,13 +176,13 @@ public class PortfolioEvaluationModel {
           }
           return new ComputationTarget(ComputationTargetType.POSITION, position);
         }
-        case MULTIPLE_POSITIONS : {
+        case PORTFOLIO_NODE : {
           PortfolioNode portfolioNode = _portfolioNodeByUID.get(uid);
           s_logger.debug("PortfolioNode ID {} requested, pre-resolved to {}", uid, portfolioNode);
           if (portfolioNode == null) {
             break;
           }
-          return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, portfolioNode);
+          return new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, portfolioNode);
         }
       }
       return super.resolve(specification);
@@ -471,7 +471,7 @@ public class PortfolioEvaluationModel {
           for (String requiredOutput : requiredOutputs) {
             requirements.add(new ValueRequirement(requiredOutput, portfolioNode));
           }
-          _dependencyGraphBuilder.addTarget(new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, portfolioNode), requirements);
+          _dependencyGraphBuilder.addTarget(new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, portfolioNode), requirements);
         }
         // now do the position nodes targets, if they're needed
         if (_calculationConfiguration.getDefinition().isComputePositionNodeCalculations()) {

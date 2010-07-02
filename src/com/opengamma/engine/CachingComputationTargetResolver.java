@@ -51,7 +51,7 @@ public class CachingComputationTargetResolver implements ComputationTargetResolv
   public ComputationTarget resolve(final ComputationTargetSpecification specification) {
     switch (specification.getType()) {
       case POSITION :
-      case MULTIPLE_POSITIONS :
+      case PORTFOLIO_NODE :
         final Element e = _computationTarget.get(specification);
         if (e != null) {
           return (ComputationTarget) e.getValue();

@@ -130,17 +130,17 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
         }
         return new ComputationTarget(ComputationTargetType.POSITION, position);
       }
-      case MULTIPLE_POSITIONS: {
+      case PORTFOLIO_NODE: {
         PortfolioNode node = getPositionMaster().getPortfolioNode(uid);
         if (node != null) {
           s_logger.info("Resolved multiple-position UID {} to portfolio node {}", uid, node);
-          return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, resolvePortfolioNode(uid, node));
+          return new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, resolvePortfolioNode(uid, node));
         }
         final Portfolio portfolio = getPositionMaster().getPortfolio(uid);
         if (portfolio != null) {
           s_logger.info("Resolved multiple-position UID {} to portfolio {}", uid, portfolio);
           node = portfolio.getRootNode();
-          return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, new PortfolioImpl(portfolio
+          return new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, new PortfolioImpl(portfolio
               .getUniqueIdentifier(), portfolio.getName(), resolvePortfolioNode(uid, node)));
         }
         s_logger.info("Unable to resolve multiple-position UID {}", uid);
@@ -156,7 +156,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     final PortfolioNodeImpl newNode = new PortfolioNodeImpl(node.getUniqueIdentifier(), node.getName());
     for (PortfolioNode child : node.getChildNodes()) {
       final ComputationTarget resolvedChild = getRecursiveResolver().resolve(
-          new ComputationTargetSpecification(ComputationTargetType.MULTIPLE_POSITIONS, child.getUniqueIdentifier()));
+          new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, child.getUniqueIdentifier()));
       if (resolvedChild == null) {
         s_logger.warn("Portfolio node ID {} couldn't be resolved for portfolio node ID {}",
             child.getUniqueIdentifier(), uid);

@@ -56,7 +56,7 @@ public final class ComputationTargetSpecification implements Serializable {
   public ComputationTargetSpecification(Object target) {
     _type = ComputationTargetType.determineFromTarget(target);
     switch (_type) {
-      case MULTIPLE_POSITIONS:
+      case PORTFOLIO_NODE:
       case POSITION:
       case SECURITY: {
         _uid = ((UniqueIdentifiable) target).getUniqueIdentifier();
@@ -179,7 +179,7 @@ public final class ComputationTargetSpecification implements Serializable {
    * @throws OpenGammaRuntimeException If there is no LiveData directly corresponding
    * to this computation target. This will be the case, in particular, if 
    * this computation target is a {@link ComputationTargetType#POSITION} or 
-   * {@link ComputationTargetType#MULTIPLE_POSITIONS}, because
+   * {@link ComputationTargetType#PORTFOLIO_NODE}, because
    * there is no LiveData market data line that would directly value
    * positions or porfolios.    
    */
