@@ -7,14 +7,32 @@ package com.opengamma.util.time;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
+import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 
 /**
  * An indication of when something expires.
  */
 public class Expiry implements InstantProvider {
+
+  /**
+   * 
+   */
+  protected static final String EXPIRYINSTANT_KEY = "expiryInstant";
+  /**
+   * 
+   */
+  protected static final String EXPIRYZONE_KEY = "expiryZone";
+  /**
+   * 
+   */
+  protected static final String ACCURACY_KEY = "accuracy";
 
   /**
    * The expiry date-time.
@@ -91,4 +109,20 @@ public class Expiry implements InstantProvider {
     }
   }
 
+  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
+    final MutableFudgeFieldContainer message = context.newMessage();
+    FudgeSerializationContext.addClassHeader(message, getClass());
+    context.objectToFudgeMsg(message, EXPIRYINSTANT_KEY, null, getExpiry().toInstant());
+    context.objectToFudgeMsg(message, EXPIRYZONE_KEY, null, getExpiry().getZone());
+    context.objectToFudgeMsg(message, ACCURACY_KEY, null, getAccuracy());
+    return message;
+  }
+
+  public static Expiry fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    final InstantProvider expiryInstant = context.fieldValueToObject(InstantProvider.class, message
+        .getByName(EXPIRYINSTANT_KEY));
+    final TimeZone expiryZone = context.fieldValueToObject(TimeZone.class, message.getByName(EXPIRYZONE_KEY));
+    final ExpiryAccuracy accuracy = context.fieldValueToObject(ExpiryAccuracy.class, message.getByName(ACCURACY_KEY));
+    return new Expiry(ZonedDateTime.ofInstant(expiryInstant, expiryZone), accuracy);
+  }
 }
