@@ -6,6 +6,7 @@
 package com.opengamma.financial;
 
 import static com.opengamma.financial.InMemoryRegionRepository.ISO_COUNTRY_2;
+import static com.opengamma.financial.InMemoryRegionRepository.WORLD_DATA_DIR_PATH;
 import static com.opengamma.financial.InMemoryRegionRepository.POLITICAL_HIERARCHY_NAME;
 
 import java.io.File;
@@ -34,9 +35,30 @@ import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 /**
  * In-memory implementation of HolidayRepository that is populated from CSV files.
+ * THIS IMPLEMENTAION DOES NOT IMPLEMENT VERSIONING, DATES PASSED IN ARE IGNORED
  */
 public class InMemoryHolidayRepository implements HolidayRepository {
-
+  // TODO: jim 2-Jul-2010 -- Make this cope with versioning...
+  /**
+   * Path to copp-clark holiday files
+   */
+  public static final String HOLIDAYS_DIR_PATH = WORLD_DATA_DIR_PATH + File.separator + "holiday-calendars" + File.separator + "copp-clark";
+  /**
+   * Path to currency specific holiday calendars CSV file
+   */
+  public static final String CURRENCY_HOLIDAYS_FILE_PATH = HOLIDAYS_DIR_PATH + File.separator + "Currencies_20100610.csv";
+  /**
+   * Path to financial centres holiday calendars CSV file
+   */
+  public static final String FINANCIAL_CENTRES_HOLIDAYS_FILE_PATH = HOLIDAYS_DIR_PATH + File.separator + "FinancialCentres_20100610.csv";
+  /**
+   * Path to exchange settlement holiday calendars CSV file
+   */
+  public static final String EXCHANGE_SETTLEMENT_HOLIDAYS_FILE_PATH = HOLIDAYS_DIR_PATH + File.separator + "ExchangeSettlement_20100610.csv";
+  /**
+   * Path to exchange trading holiday calendars CSV file
+   */
+  public static final String EXCHANGE_TRADING_HOLIDAYS_FILE_PATH = HOLIDAYS_DIR_PATH + File.separator + "ExchangeTrading_20100610.csv";
 
   private InMemoryRegionRepository _regionRepo;
   private InMemoryExchangeRespository _exchangeRepo;
