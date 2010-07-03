@@ -42,21 +42,20 @@ import edu.emory.mathcs.backport.java.util.Collections;
 /**
  * 
  * 
- * @author emcleod
  */
 public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractFunction implements FunctionInvoker {
 
   @SuppressWarnings("unchecked")
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-      final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
     final OptionSecurity option = (OptionSecurity) target.getSecurity();
-    SecurityMaster securityMaster = executionContext.getSecurityMaster();
-    Security underlying = securityMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
+    final SecurityMaster securityMaster = executionContext.getSecurityMaster();
+    final Security underlying = securityMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
     final ValueRequirement optionDataRequirement = getOptionMarketDataRequirement(option.getUniqueIdentifier());
     final ValueRequirement underlyingDataRequirement = getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier());
     final ValueRequirement discountCurveDataRequirement = getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier());
+    @SuppressWarnings("unused")
     final FudgeFieldContainer optionData = (FudgeFieldContainer) inputs.getValue(optionDataRequirement);
     final FudgeFieldContainer underlyingData = (FudgeFieldContainer) inputs.getValue(underlyingDataRequirement);
     final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(discountCurveDataRequirement);
@@ -64,6 +63,7 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
     final Expiry expiry = option.getExpiry();
     final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
     final double b = discountCurve.getInterestRate(t); // TODO cost-of-carry model
+    @SuppressWarnings("unused")
     final StandardOptionDataBundle data = new StandardOptionDataBundle(discountCurve, b, null, spotPrice, now);
     // TODO Map<OptionDefinition, Double> of options that will be used to form surface
     final VolatilitySurface surface = null; // TODO
@@ -93,8 +93,8 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
       // TODO: the surface need only be calculated once per _underlying_, not individual option (as long as point 2
       // above holds)
       final Set<ValueRequirement> optionRequirements = new HashSet<ValueRequirement>();
-      SecurityMaster securityMaster = context.getSecurityMaster();
-      Security underlying = securityMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
+      final SecurityMaster securityMaster = context.getSecurityMaster();
+      final Security underlying = securityMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
       optionRequirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
       optionRequirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
       // TODO: add the other stuff

@@ -37,7 +37,7 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 public class OptionGreekToPositionGreekConverterFunction extends AbstractFunction implements FunctionInvoker {
-  private static final Logger s_Log = LoggerFactory.getLogger(OptionGreekToPositionGreekConverterFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(OptionGreekToPositionGreekConverterFunction.class);
   private final Function1D<GreekDataBundle, Map<PositionGreek, Double>> _converter = new GreekToPositionGreekConverter();
 
   @Override
@@ -55,7 +55,7 @@ public class OptionGreekToPositionGreekConverterFunction extends AbstractFunctio
       }
       greek = AvailableGreeks.getGreekForValueRequirementName(valueName);
       if (greekResult == null) {
-        s_Log.warn("Could not get value for " + valueName + ", continuing");
+        s_logger.warn("Could not get value for " + valueName + ", continuing");
       } else {
         greekResultCollection.put(greek, (Double) greekResult);
       }
