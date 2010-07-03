@@ -32,9 +32,7 @@ import com.opengamma.math.interpolation.InterpolationResult;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DCubicSplineDataBundle;
 import com.opengamma.math.interpolation.Interpolator1DCubicSplineWithSensitivitiesDataBundle;
-import com.opengamma.math.interpolation.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.Interpolator1DWithSensitivities;
-import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -54,26 +52,27 @@ public class YieldCurveBootStrapTest {
   private static final int HOTSPOT_WARMUP_CYCLES = 0;
   private static final int BENCHMARK_CYCLES = 1;
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  protected static final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> CUBIC = new NaturalCubicSplineInterpolator1D();
-  protected static final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> CUBIC_WITH_SENSITIVITY = new CubicSplineInterpolatorWithSensitivities1D();
+  private static final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> CUBIC = new NaturalCubicSplineInterpolator1D();
+  private static final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> CUBIC_WITH_SENSITIVITY = new CubicSplineInterpolatorWithSensitivities1D();
   private static final Interpolator1DWithSensitivities<Interpolator1DCubicSplineDataBundle> CUBIC_WITH_FD_SENSITIVITY = new Interpolator1DWithSensitivities<Interpolator1DCubicSplineDataBundle>(CUBIC);
-  protected static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> LINEAR = new LinearInterpolator1D();
-  protected static List<Swap> SWAPS;
-  protected static double[] SWAP_VALUES;
-  protected static final double[] TIME_GRID;
-  protected static final double[] FWD_NODE_TIMES;
-  protected static final double[] FUND_NODE_TIMES;
-  protected static final double SPOT_RATE;
-  protected static final double EPS = 1e-8;
-  protected static final int STEPS = 100;
-  protected static final DoubleMatrix1D X0;
-  protected static YieldAndDiscountCurve FUNDING_CURVE;
-  protected static YieldAndDiscountCurve FORWARD_CURVE;
+  private static List<Swap> SWAPS;
+  private static double[] SWAP_VALUES;
+  private static final double[] TIME_GRID;
+  private static final double[] FWD_NODE_TIMES;
+  private static final double[] FUND_NODE_TIMES;
+  private static final double SPOT_RATE;
+  private static final double EPS = 1e-8;
+  private static final int STEPS = 100;
+  private static final DoubleMatrix1D X0;
+  private static YieldAndDiscountCurve FUNDING_CURVE;
+  private static YieldAndDiscountCurve FORWARD_CURVE;
   private static final SwapRateCalculator SWAP_RATE_CALCULATOR = new SwapRateCalculator();
-  protected static final Function1D<DoubleMatrix1D, DoubleMatrix1D> SINGLE_CURVE_FINDER;
-  protected static final Function1D<DoubleMatrix1D, DoubleMatrix1D> DOUBLE_CURVE_FINDER;
-  protected static final JacobianCalculator SINGLE_CURVE_JACOBIAN;
-  protected static final JacobianCalculator DOUBLE_CURVE_JACOBIAN;
+  private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> SINGLE_CURVE_FINDER;
+  private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> DOUBLE_CURVE_FINDER;
+  private static final JacobianCalculator SINGLE_CURVE_JACOBIAN;
+  private static final JacobianCalculator DOUBLE_CURVE_JACOBIAN;
+  private static final JacobianCalculator SINGLE_CURVE_JACOBIAN_FD;
+  private static final JacobianCalculator DOUBLE_CURVE_JACOBIAN_FD;
 
   static {
     final int[] payments = new int[] {1, 2, 3, 4, 6, 8, 10, 14, 20, 30, 40, 50, 60};
@@ -102,11 +101,13 @@ public class YieldCurveBootStrapTest {
       rates[i] = 0.05;
     }
     X0 = new DoubleMatrix1D(rates);
-
     SINGLE_CURVE_FINDER = new SingleCurveFinder(SWAPS, SWAP_VALUES, SPOT_RATE, TIME_GRID, CUBIC);
     DOUBLE_CURVE_FINDER = new DoubleCurveFinder(SWAPS, SWAP_VALUES, SPOT_RATE, FWD_NODE_TIMES, FUND_NODE_TIMES, null, null, CUBIC, CUBIC);
-    SINGLE_CURVE_JACOBIAN = new SingleCurveJacobian(SWAPS, SPOT_RATE, TIME_GRID, CUBIC_WITH_SENSITIVITY);
-    DOUBLE_CURVE_JACOBIAN = new DoubleCurveJacobian(SWAPS, SPOT_RATE, FWD_NODE_TIMES, FUND_NODE_TIMES, CUBIC_WITH_SENSITIVITY, CUBIC_WITH_SENSITIVITY);
+    SINGLE_CURVE_JACOBIAN = new SingleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(SWAPS, SPOT_RATE, TIME_GRID, CUBIC_WITH_SENSITIVITY);
+    DOUBLE_CURVE_JACOBIAN = new DoubleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(SWAPS, SPOT_RATE, FWD_NODE_TIMES, FUND_NODE_TIMES, CUBIC_WITH_SENSITIVITY,
+        CUBIC_WITH_SENSITIVITY);
+    SINGLE_CURVE_JACOBIAN_FD = new SingleCurveJacobian<Interpolator1DCubicSplineDataBundle>(SWAPS, SPOT_RATE, TIME_GRID, CUBIC_WITH_FD_SENSITIVITY);
+    DOUBLE_CURVE_JACOBIAN_FD = new DoubleCurveJacobian<Interpolator1DCubicSplineDataBundle>(SWAPS, SPOT_RATE, FWD_NODE_TIMES, FUND_NODE_TIMES, CUBIC_WITH_FD_SENSITIVITY, CUBIC_WITH_FD_SENSITIVITY);
   }
 
   @Test
@@ -120,10 +121,14 @@ public class YieldCurveBootStrapTest {
     doHotSpot(rootFinder, "default Newton, finite difference", SINGLE_CURVE_FINDER);
     rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN);
     doHotSpot(rootFinder, "default Newton, single curve", SINGLE_CURVE_FINDER);
+    rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN_FD);
+    doHotSpot(rootFinder, "default Newton, single curve FD sensitivity", SINGLE_CURVE_FINDER);
     rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS);
     doHotSpot(rootFinder, "default Newton, double curve, finite difference", DOUBLE_CURVE_FINDER);
     rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN);
     doHotSpot(rootFinder, "default Newton, double curve", DOUBLE_CURVE_FINDER);
+    rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN_FD);
+    doHotSpot(rootFinder, "default Newton, double curve FD sensitivity", DOUBLE_CURVE_FINDER);
   }
 
   @Test
@@ -132,10 +137,14 @@ public class YieldCurveBootStrapTest {
     doHotSpot(rootFinder, "Sherman Morrison, finite difference", SINGLE_CURVE_FINDER);
     rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN);
     doHotSpot(rootFinder, "Sherman Morrison, single curve", SINGLE_CURVE_FINDER);
+    rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN_FD);
+    doHotSpot(rootFinder, "Sherman Morrison, single curve FD sensitivity", SINGLE_CURVE_FINDER);
     rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS);
     doHotSpot(rootFinder, "Sherman Morrisonn, double curve, finite difference", DOUBLE_CURVE_FINDER);
     rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN);
     doHotSpot(rootFinder, "Sherman Morrison, double curve", DOUBLE_CURVE_FINDER);
+    rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN_FD);
+    doHotSpot(rootFinder, "default Newton, double curve FD sensitivity", DOUBLE_CURVE_FINDER);
   }
 
   @Test
@@ -144,10 +153,14 @@ public class YieldCurveBootStrapTest {
     doHotSpot(rootFinder, "Broyden, finite difference", SINGLE_CURVE_FINDER);
     rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN);
     doHotSpot(rootFinder, "Broyden, single curve", SINGLE_CURVE_FINDER);
+    rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN_FD);
+    doHotSpot(rootFinder, "Broyden, single curve, FD sensitivity", SINGLE_CURVE_FINDER);
     rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
     doHotSpot(rootFinder, "Broyden, double curve, finite difference", DOUBLE_CURVE_FINDER);
     rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN);
     doHotSpot(rootFinder, "Broyden, double curve", DOUBLE_CURVE_FINDER);
+    rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN_FD);
+    doHotSpot(rootFinder, "default Newton, double curve FD sensitivity", DOUBLE_CURVE_FINDER);
   }
 
   private void doHotSpot(final VectorRootFinder rootFinder, final String name, final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor) {
@@ -177,7 +190,7 @@ public class YieldCurveBootStrapTest {
     final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(functor, X0);
     final YieldAndDiscountCurve curve = makeYieldCurve(yieldCurveNodes.getData(), TIME_GRID, CUBIC);
     for (int i = 0; i < SWAP_VALUES.length; i++) {
-      assertEquals(SWAP_VALUES[i], SWAP_RATE_CALCULATOR.getRate(curve, curve, SWAPS.get(i)), 1e-3);// TODO change this back to EPS
+      assertEquals(SWAP_VALUES[i], SWAP_RATE_CALCULATOR.getRate(curve, curve, SWAPS.get(i)), EPS);
     }
   }
 
@@ -217,15 +230,12 @@ public class YieldCurveBootStrapTest {
   @Test
   // TODO move this into SingleCurveJacobianTest
   public void testSingleCurveJacobian() {
-
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = new SingleCurveFinder(SWAPS, SWAP_VALUES, SPOT_RATE, TIME_GRID, CUBIC);
     final JacobianCalculator jacobianExact = new SingleCurveJacobian(SWAPS, SPOT_RATE, TIME_GRID, CUBIC_WITH_SENSITIVITY);
     final JacobianCalculator jacobianFD = new FiniteDifferenceJacobianCalculator(1e-6);
     final DoubleMatrix2D jacExact = jacobianExact.evaluate(X0, func);
     final DoubleMatrix2D jacFD = jacobianFD.evaluate(X0, func);
     assertMatrixEquals(jacExact, jacFD, 1e-8);
-    System.out.println(jacExact.toString());
-    System.out.println(jacFD.toString());
   }
 
   @SuppressWarnings("unchecked")
@@ -238,9 +248,7 @@ public class YieldCurveBootStrapTest {
     final JacobianCalculator jacobianFD = new FiniteDifferenceJacobianCalculator(1e-8);
     final DoubleMatrix2D jacExact = jacobianExact.evaluate(X0, func);
     final DoubleMatrix2D jacFD = jacobianFD.evaluate(X0, func);
-    // assertMatrixEquals(jacExact, jacFD, 1e-3);
-    System.out.println(jacExact.toString());
-    System.out.println(jacFD.toString());
+    assertMatrixEquals(jacExact, jacFD, 1e-7);
   }
 
   @Test

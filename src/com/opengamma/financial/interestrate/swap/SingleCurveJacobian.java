@@ -14,7 +14,7 @@ import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.Interpolator1DCubicSplineWithSensitivitiesDataBundle;
+import com.opengamma.math.interpolation.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.Interpolator1DWithSensitivities;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -23,19 +23,18 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * @param <T>
  */
-public class SingleCurveJacobian implements JacobianCalculator {
+public class SingleCurveJacobian<T extends Interpolator1DDataBundle> implements JacobianCalculator {
   private final ForwardCurveSensitivityCalculator _forwardSensitivities = new ForwardCurveSensitivityCalculator();
   private final FundingCurveSensitivityCalculator _fundingSensitivities = new FundingCurveSensitivityCalculator();
   private final List<Swap> _swaps;
   private final double _spotRate;
   private final double[] _timeGrid;
-  private final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> _interpolator;
+  private final Interpolator1DWithSensitivities<T> _interpolator;
   private final int _nRows, _nCols;
 
-  public SingleCurveJacobian(final List<Swap> swaps, final double spotRate, final double[] timeGrid,
-      final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> interpolator) {
+  public SingleCurveJacobian(final List<Swap> swaps, final double spotRate, final double[] timeGrid, final Interpolator1DWithSensitivities<T> interpolator) {
     Validate.notNull(swaps);
     Validate.notNull(timeGrid);
     Validate.notNull(interpolator);
@@ -49,6 +48,7 @@ public class SingleCurveJacobian implements JacobianCalculator {
     _nCols = _swaps.size();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public DoubleMatrix2D evaluate(final DoubleMatrix1D x, final Function1D<DoubleMatrix1D, DoubleMatrix1D>... functions) {
     final TreeMap<Double, Double> data = new TreeMap<Double, Double>();
@@ -57,7 +57,7 @@ public class SingleCurveJacobian implements JacobianCalculator {
       data.put(_timeGrid[i], x.getEntry(i));
     }
     final InterpolatedYieldAndDiscountCurve curve = new InterpolatedYieldCurve(data, _interpolator);
-    final Interpolator1DCubicSplineWithSensitivitiesDataBundle model = (Interpolator1DCubicSplineWithSensitivitiesDataBundle) curve.getDataBundles().values().iterator().next();
+    final T model = (T) curve.getDataBundles().values().iterator().next();
 
     final double[][] res = new double[_nRows][_nCols];
     for (int i = 0; i < _nRows; i++) {

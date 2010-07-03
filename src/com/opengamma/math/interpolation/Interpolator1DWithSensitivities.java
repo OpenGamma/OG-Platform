@@ -10,7 +10,7 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 
 /**
- * @param <T> Type of the Interpolator1DDataBundle
+ * @param <T> Type of the data bundle
  */
 public class Interpolator1DWithSensitivities<T extends Interpolator1DDataBundle> extends Interpolator1D<T, InterpolationResultWithSensitivities> {
   private final Interpolator1D<T, InterpolationResult> _interpolator;
@@ -45,7 +45,6 @@ public class Interpolator1DWithSensitivities<T extends Interpolator1DDataBundle>
       sensitivity[node] = (up - down) / 2.0 / EPS;
     }
     return new InterpolationResultWithSensitivities(getUnderlyingInterpolator().interpolate(data, value).getResult(), sensitivity);
-
   }
 
   protected Interpolator1D<T, InterpolationResult> getUnderlyingInterpolator() {
