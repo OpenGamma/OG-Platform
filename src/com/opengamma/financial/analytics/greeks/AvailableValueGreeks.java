@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.greeks;
@@ -70,23 +70,25 @@ public class AvailableValueGreeks {
   }
 
   public static ValueGreek getValueGreekForValueRequirementName(final String valueName) {
-    if (!AVAILABLE_VALUE_GREEKS.containsKey(valueName))
+    if (!AVAILABLE_VALUE_GREEKS.containsKey(valueName)) {
       throw new IllegalArgumentException("Could not get value greek for ValueRequirementName " + valueName);
+    }
     return AVAILABLE_VALUE_GREEKS.get(valueName);
   }
-  
+
   public static String getGreekRequirementNameForValueGreekName(final String valueName) {
-    ValueGreek valueGreek = AVAILABLE_VALUE_GREEKS.get(valueName);
+    final ValueGreek valueGreek = AVAILABLE_VALUE_GREEKS.get(valueName);
     if (valueGreek == null) {
-      throw new IllegalArgumentException("Could not get value greek for ValueRequirementName " + valueName); 
+      throw new IllegalArgumentException("Could not get value greek for ValueRequirementName " + valueName);
     }
     return AvailableGreeks.getValueRequirementNameForGreek(valueGreek.getUnderlyingGreek());
   }
 
   public static ValueGreek getValueGreekForValueRequirement(final ValueRequirement requirement) {
     final String greekName = requirement.getValueName();
-    if (!AVAILABLE_VALUE_GREEKS.containsKey(greekName))
+    if (!AVAILABLE_VALUE_GREEKS.containsKey(greekName)) {
       throw new IllegalArgumentException("Could not get value greek for ValueRequirement " + requirement.toString());
+    }
     return AVAILABLE_VALUE_GREEKS.get(greekName);
   }
 
