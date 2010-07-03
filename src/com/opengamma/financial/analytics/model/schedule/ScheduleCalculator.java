@@ -35,10 +35,10 @@ public class ScheduleCalculator {
     if (effectiveDate.isAfter(maturityDate)) {
       throw new IllegalArgumentException("Effective date was after maturity");
     }
-    return getUnadjustedDates(effectiveDate, effectiveDate, maturityDate, frequency);
+    return getUnadjustedDateSchedule(effectiveDate, effectiveDate, maturityDate, frequency);
   }
 
-  public static ZonedDateTime[] getUnadjustedDates(final ZonedDateTime effectiveDate, final ZonedDateTime accrualDate,
+  public static ZonedDateTime[] getUnadjustedDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime accrualDate,
       final ZonedDateTime maturityDate, final Frequency frequency) {
     Validate.notNull(effectiveDate);
     Validate.notNull(accrualDate);
