@@ -90,10 +90,8 @@ public final class Interpolator1DFactory {
   }
 
   public static Interpolator1D getInterpolator(final String interpolatorName) {
-    System.out.println("trying to get a " + interpolatorName + " " + s_staticInstances + " " + s_instanceNames);
     final Interpolator1D interpolator = s_staticInstances.get(interpolatorName);
     if (interpolator != null) {
-      System.out.println("got interpolator " + interpolator.toString());
       return interpolator;
     }
     // TODO kirk 2009-12-30 -- Deal with degree for Barycentric, Polynomial, and

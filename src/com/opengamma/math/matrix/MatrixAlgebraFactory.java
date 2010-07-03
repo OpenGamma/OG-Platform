@@ -52,7 +52,6 @@ public final class MatrixAlgebraFactory {
   }
 
   private MatrixAlgebraFactory() {
-    // cannot construct an instance
   }
 
   public static MatrixAlgebra getMatrixAlgebra(final String algebraName) {
@@ -63,9 +62,9 @@ public final class MatrixAlgebraFactory {
   }
 
   public static String getMatrixAlgebraName(final MatrixAlgebra algebra) {
-    if (s_instanceNames.containsKey(algebra.getClass())) {
-      return s_instanceNames.get(algebra.getClass());
+    if (algebra == null) {
+      return null;
     }
-    return null;
+    return s_instanceNames.get(algebra.getClass());
   }
 }

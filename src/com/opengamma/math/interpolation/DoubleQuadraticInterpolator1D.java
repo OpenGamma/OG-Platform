@@ -7,14 +7,15 @@ package com.opengamma.math.interpolation;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.function.Function1D;
+
 /**
  * 
  */
 public class DoubleQuadraticInterpolator1D extends Interpolator1D<Interpolator1DDataBundle, InterpolationResult> {
 
   @Override
-  public InterpolationResult interpolate(Interpolator1DDataBundle data, Double value) {
-
+  public InterpolationResult interpolate(final Interpolator1DDataBundle data, final Double value) {
     Validate.notNull(value, "value");
     Validate.notNull(data, "data bundle");
     checkValue(data, value);
@@ -23,75 +24,49 @@ public class DoubleQuadraticInterpolator1D extends Interpolator1D<Interpolator1D
     final int n = data.size() - 1;
     final double[] xData = data.getKeys();
     final double[] yData = data.getValues();
-
     if (low == 0) {
-      Coefficents coef = getCoeffcients(xData, yData, 1);
-      double x = value - xData[1];
-      return new InterpolationResult(coef.calculateValue(x));
+      final Coefficents coef = getCoeffcients(xData, yData, 1);
+      final double x = value - xData[1];
+      return new InterpolationResult(coef.evaluate(x));
     } else if (high == n) {
-      Coefficents coef = getCoeffcients(xData, yData, n - 1);
-      double x = value - xData[n - 1];
-      return new InterpolationResult(coef.calculateValue(x));
+      final Coefficents coef = getCoeffcients(xData, yData, n - 1);
+      final double x = value - xData[n - 1];
+      return new InterpolationResult(coef.evaluate(x));
     } else if (low == n) {
       return new InterpolationResult(yData[n]);
     }
-
-    Coefficents coef1 = getCoeffcients(xData, yData, low);
-    Coefficents coef2 = getCoeffcients(xData, yData, high);
-    double w = (xData[high] - value) / (xData[high] - xData[low]);
-
-    double res = w * coef1.calculateValue(value - xData[low]) + (1 - w) * coef2.calculateValue(value - xData[high]);
+    final Coefficents coef1 = getCoeffcients(xData, yData, low);
+    final Coefficents coef2 = getCoeffcients(xData, yData, high);
+    final double w = (xData[high] - value) / (xData[high] - xData[low]);
+    final double res = w * coef1.evaluate(value - xData[low]) + (1 - w) * coef2.evaluate(value - xData[high]);
     return new InterpolationResult(res);
   }
 
-  private Coefficents getCoeffcients(double[] x, double[] y, int index) {
-    double a = y[index];
-    double dx1 = x[index] - x[index - 1];
-    double dx2 = x[index + 1] - x[index];
-    double dy1 = y[index] - y[index - 1];
-    double dy2 = y[index + 1] - y[index];
-    double b = (dx1 * dy2 / dx2 + dx2 * dy1 / dx1) / (dx1 + dx2);
-    double c = (dy2 / dx2 - dy1 / dx1) / (dx1 + dx2);
+  private Coefficents getCoeffcients(final double[] x, final double[] y, final int index) {
+    final double a = y[index];
+    final double dx1 = x[index] - x[index - 1];
+    final double dx2 = x[index + 1] - x[index];
+    final double dy1 = y[index] - y[index - 1];
+    final double dy2 = y[index + 1] - y[index];
+    final double b = (dx1 * dy2 / dx2 + dx2 * dy1 / dx1) / (dx1 + dx2);
+    final double c = (dy2 / dx2 - dy1 / dx1) / (dx1 + dx2);
     return new Coefficents(a, b, c);
   }
 
-  private class Coefficents {
-    private double _a;
-    private double _b;
-    private double _c;
+  private class Coefficents extends Function1D<Double, Double> {
+    private final double _a;
+    private final double _b;
+    private final double _c;
 
-    public Coefficents(double a, double b, double c) {
+    public Coefficents(final double a, final double b, final double c) {
       _a = a;
       _b = b;
       _c = c;
     }
 
-    public double calculateValue(double x) {
+    @Override
+    public Double evaluate(final Double x) {
       return _a + _b * x + _c * x * x;
-    }
-
-    public double getA() {
-      return _a;
-    }
-
-    public double getB() {
-      return _b;
-    }
-
-    public double getC() {
-      return _c;
-    }
-
-    public void setA(double a) {
-      _a = a;
-    }
-
-    public void setB(double b) {
-      _b = b;
-    }
-
-    public void setC(double c) {
-      _c = c;
     }
   }
 

@@ -32,23 +32,17 @@ public class EuropeanVanillaOptionSkewKurtosisCrossModelPricingTest {
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
   @SuppressWarnings("unused")
-  private static final SkewKurtosisOptionDataBundle NORMAL_DATA =
-      new SkewKurtosisOptionDataBundle(new ConstantYieldCurve(0.08), 0.08, new ConstantVolatilitySurface(0.3), 10., DATE, 0., 3.);
+  private static final SkewKurtosisOptionDataBundle NORMAL_DATA = new SkewKurtosisOptionDataBundle(new ConstantYieldCurve(0.08), 0.08, new ConstantVolatilitySurface(0.3), 10., DATE, 0., 3.);
   @SuppressWarnings("unused")
-  private static final SkewKurtosisOptionDataBundle DATA =
-      new SkewKurtosisOptionDataBundle(new ConstantYieldCurve(0.08), 0.08, new ConstantVolatilitySurface(0.3), 10., DATE, 1., 3.);
+  private static final SkewKurtosisOptionDataBundle DATA = new SkewKurtosisOptionDataBundle(new ConstantYieldCurve(0.08), 0.08, new ConstantVolatilitySurface(0.3), 10., DATE, 1., 3.);
   @SuppressWarnings("unused")
   private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(Greek.FAIR_PRICE);
 
   @Test
   public void testNormal() {
-    @SuppressWarnings("unused")
     final OptionDefinition call = new EuropeanVanillaOptionDefinition(STRIKE, EXPIRY, true);
-    @SuppressWarnings("unused")
     final OptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> model1 = new ModifiedCorradoSuSkewnessKurtosisModel();
-    @SuppressWarnings("unused")
-    final OptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> model2 =
-        new BinomialOptionModel<SkewKurtosisOptionDataBundle>(10, new EdgeworthSkewKurtosisBinomialOptionModelDefinition());
+    final OptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> model2 = new BinomialOptionModel<SkewKurtosisOptionDataBundle>(10, new EdgeworthSkewKurtosisBinomialOptionModelDefinition());
     // System.out.println(model1.getGreeks(call, DATA, REQUIRED_GREEKS));
     // System.out.println(model2.getGreeks(call, DATA, REQUIRED_GREEKS));
     // System.out.println(new BlackScholesMertonModel().getGreeks(call, DATA,

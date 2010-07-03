@@ -24,8 +24,7 @@ import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
 
 public class HullWhiteStochasticVolatilityModelTest {
-  private static final AnalyticOptionModel<OptionDefinition, HullWhiteStochasticVolatilityModelOptionDataBundle> MODEL =
-      new HullWhiteStochasticVolatilityModel();
+  private static final AnalyticOptionModel<OptionDefinition, HullWhiteStochasticVolatilityModelOptionDataBundle> MODEL = new HullWhiteStochasticVolatilityModel();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.25));
@@ -50,9 +49,7 @@ public class HullWhiteStochasticVolatilityModelTest {
 
   @Test
   public void test() {
-    HullWhiteStochasticVolatilityModelOptionDataBundle data =
-        new HullWhiteStochasticVolatilityModelOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, SIGMA_LR, VOL_OF_VOL, -0.75);
-    @SuppressWarnings("unused")
+    HullWhiteStochasticVolatilityModelOptionDataBundle data = new HullWhiteStochasticVolatilityModelOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, SIGMA_LR, VOL_OF_VOL, -0.75);
     OptionDefinition definition = new EuropeanVanillaOptionDefinition(70, EXPIRY, false);
     // test(0.0904, definition, data);
     data = data.withCorrelation(-0.5);
@@ -79,8 +76,8 @@ public class HullWhiteStochasticVolatilityModelTest {
 
   @SuppressWarnings("unused")
   private void test(final double value, final OptionDefinition definition, final HullWhiteStochasticVolatilityModelOptionDataBundle data) {
-    final HullWhiteStochasticVolatilityModelOptionDataBundle bsmEquivalent =
-        new HullWhiteStochasticVolatilityModelOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, SURFACE.getVolatility(Pair.of(0., 0.)), VOL_OF_VOL, 0.);
+    final HullWhiteStochasticVolatilityModelOptionDataBundle bsmEquivalent = new HullWhiteStochasticVolatilityModelOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, SURFACE.getVolatility(Pair
+        .of(0., 0.)), VOL_OF_VOL, 0.);
     assertEquals(value, MODEL.getPricingFunction(definition).evaluate(data), EPS);
     assertEquals(BSM.getPricingFunction(definition).evaluate(bsmEquivalent), MODEL.getPricingFunction(definition).evaluate(bsmEquivalent), EPS);
   }
