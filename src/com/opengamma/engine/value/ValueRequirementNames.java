@@ -18,7 +18,7 @@ public interface ValueRequirementNames {
   // Standard Analytic Models:
   public static final String DISCOUNT_CURVE = "DiscountCurve";
   public static final String YIELD_CURVE = "YieldCurve";
-  public static final String VOLATILITY_SURFACE = "VolatilitySurface";
+  public static final String VOLATILITY_SURFACE = "VolatilitySurface";  
   
   //
   public static final String FAIR_VALUE = "FairValue";
@@ -176,5 +176,7 @@ public interface ValueRequirementNames {
   public static final String ISOLATED_VAR = "IsolatedVaR";
   public static final String INCREMENTAL_VAR = "IncrementalVaR";
 
+  public static final String FUNDING_CURVE = "FundingCurve";
+  public static final String FORWARD_CURVE = "ForwardCurve";
   // CSON: Because they're names that should be known by industry practitioners.
 }
