@@ -56,6 +56,14 @@ public final class Interpolator1DFactory {
   /**
    * 
    */
+  public static final String LINEAR_WITH_SENSITIVITIES = "LinearWithSensitivities";
+  /**
+   * 
+   */
+  public static final LinearInterpolator1DWithSensitivities LINEAR_WITH_SENSITIVITIES_INSTANCE = new LinearInterpolator1DWithSensitivities();
+  /**
+   * 
+   */
   public static final String BARYCENTRIC_RATIONAL_FUNCTION = "BarycentricRationalFunction";
   /**
    * 
@@ -65,6 +73,22 @@ public final class Interpolator1DFactory {
    * 
    */
   public static final String RATIONAL_FUNCTION = "RationalFunction";
+  /**
+   * 
+   */
+  public static final String STEP = "Step";
+  /**
+   * 
+   */
+  public static final StepInterpolator1D STEP_INSTANCE = new StepInterpolator1D();
+  /**
+   * 
+   */
+  public static final String DOUBLE_QUADRATIC = "DoubleQuadratic";
+  /**
+   * 
+   */
+  public static final DoubleQuadraticInterpolator1D DOUBLE_QUADRATIC_INSTANCE = new DoubleQuadraticInterpolator1D();
 
   private static final Map<String, Interpolator1D> s_staticInstances;
   private static final Map<Class<?>, String> s_instanceNames;
@@ -82,6 +106,12 @@ public final class Interpolator1DFactory {
     instanceNames.put(NaturalCubicSplineInterpolator1D.class, NATURAL_CUBIC_SPLINE);
     staticInstances.put(CUBIC_SPLINE_WITH_SENSITIVITIES, CUBIC_SPLINE_WITH_SENSITIVITIES_INSTANCE);
     instanceNames.put(CubicSplineInterpolatorWithSensitivities1D.class, CUBIC_SPLINE_WITH_SENSITIVITIES);
+    staticInstances.put(LINEAR_WITH_SENSITIVITIES, LINEAR_WITH_SENSITIVITIES_INSTANCE);
+    instanceNames.put(LinearInterpolator1DWithSensitivities.class, LINEAR_WITH_SENSITIVITIES);
+    staticInstances.put(DOUBLE_QUADRATIC, DOUBLE_QUADRATIC_INSTANCE);
+    instanceNames.put(DoubleQuadraticInterpolator1D.class, DOUBLE_QUADRATIC);
+    staticInstances.put(STEP, STEP_INSTANCE);
+    instanceNames.put(StepInterpolator1D.class, STEP);
     s_staticInstances = new HashMap<String, Interpolator1D>(staticInstances);
     s_instanceNames = new HashMap<Class<?>, String>(instanceNames);
   }
