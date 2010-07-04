@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.security.swap;
 
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+
 import com.opengamma.financial.Region;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -37,5 +40,15 @@ public class FixedInterestRateLeg extends InterestRateLeg {
    */
   public double getRate() {
     return _fixedRate;
+  }
+  
+  public static FixedInterestRateLeg fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    final DayCount daycount = context.fieldValueToObject(DayCount.class, message.getByName("daycount"));
+    final Frequency frequency = context.fieldValueToObject(Frequency.class, message.getByName("frequency"));
+    final Region region = context.fieldValueToObject(Region.class, message.getByName("region"));
+    final BusinessDayConvention businessDayConvention = context.fieldValueToObject(BusinessDayConvention.class, message.getByName("businessDayConvention"));
+    final InterestRateNotional interestRateNotional = context.fieldValueToObject(InterestRateNotional.class, message.getByName("notional"));
+    final double fixedRate = message.getDouble("rate");
+    return new FixedInterestRateLeg(daycount, frequency, region, businessDayConvention, interestRateNotional, fixedRate);
   }
 }
