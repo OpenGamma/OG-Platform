@@ -61,9 +61,9 @@ public class InMemoryHolidayRepository implements HolidayRepository {
   public static final String EXCHANGE_TRADING_HOLIDAYS_FILE_PATH = HOLIDAYS_DIR_PATH + File.separator + "ExchangeTrading_20100610.csv";
 
   private InMemoryRegionRepository _regionRepo;
-  private InMemoryExchangeRespository _exchangeRepo;
+  private InMemoryExchangeRepository _exchangeRepo;
 
-  public InMemoryHolidayRepository(InMemoryRegionRepository regionRepo, InMemoryExchangeRespository exchangeRepo, 
+  public InMemoryHolidayRepository(InMemoryRegionRepository regionRepo, InMemoryExchangeRepository exchangeRepo, 
                                    File currencies, File financialCenters, File exchangeSettlement, File exchangeTrading) {
     _regionRepo = regionRepo;
     _exchangeRepo = exchangeRepo;

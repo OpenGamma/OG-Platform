@@ -8,6 +8,7 @@ package com.opengamma.financial;
 import javax.time.calendar.LocalDate;
 
 
+
 /**
  * Interface for querying information on holidays
  */

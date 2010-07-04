@@ -34,7 +34,7 @@ public class InMemoryHolidayAndExchangeRespositoriesTest {
   @Test
   public void testExchangeRepository() throws URISyntaxException {
     RegionRepository regionRepo = new InMemoryRegionRepository(new File(REGIONS_FILE_PATH));
-    InMemoryExchangeRespository exchangeRepo = new InMemoryExchangeRespository(regionRepo);
+    InMemoryExchangeRepository exchangeRepo = new InMemoryExchangeRepository(regionRepo);
     Set<Region> gbMatches = regionRepo.getHierarchyNodes(null, REGION_HIERARCHY, InMemoryRegionRepository.ISO_COUNTRY_2, "GB");
     Assert.assertEquals(1, gbMatches.size());
     Region uk = gbMatches.iterator().next();
@@ -72,7 +72,7 @@ public class InMemoryHolidayAndExchangeRespositoriesTest {
     Exchange euronextLiffe = exchangeRepo.resolveExchange(null, euronextLiffeMIC);
     Assert.assertEquals(euronextLiffeCCName.getValue(), euronextLiffe.getName());
     Assert.assertEquals(uk, euronextLiffe.getRegion());
-    Assert.assertEquals(InMemoryExchangeRespository.EXCHANGE_SCHEME, euronextLiffe.getUniqueIdentifier().getScheme());
+    Assert.assertEquals(InMemoryExchangeRepository.EXCHANGE_SCHEME, euronextLiffe.getUniqueIdentifier().getScheme());
     Assert.assertEquals("1", euronextLiffe.getUniqueIdentifier().getValue());
     
     // try the other two ids in the bundle
@@ -97,7 +97,7 @@ public class InMemoryHolidayAndExchangeRespositoriesTest {
   @Test
   public void testHolidayRespository() throws URISyntaxException {
     InMemoryRegionRepository regionRepo = new InMemoryRegionRepository(new File(REGIONS_FILE_PATH));
-    InMemoryExchangeRespository exchangeRepo = new InMemoryExchangeRespository(regionRepo);
+    InMemoryExchangeRepository exchangeRepo = new InMemoryExchangeRepository(regionRepo);
     InMemoryHolidayRepository holidayRepo = new InMemoryHolidayRepository(regionRepo, exchangeRepo,
                                                                           new File(CURRENCY_HOLIDAYS_FILE_PATH), new File(FINANCIAL_CENTRES_HOLIDAYS_FILE_PATH), 
                                                                           new File(EXCHANGE_TRADING_HOLIDAYS_FILE_PATH), new File(EXCHANGE_SETTLEMENT_HOLIDAYS_FILE_PATH));
