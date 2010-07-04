@@ -20,6 +20,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
 
+import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.format.DateTimeFormatter;
 import javax.time.calendar.format.DateTimeFormatters;
@@ -278,7 +279,7 @@ public class InMemoryHolidayRepository implements HolidayRepository {
       }
       LocalDateDoubleTimeSeries dts = exchangeUIdToDTS.get(currency);
       Double value = dts.getValue(holidayDate);
-      if (value == null) {
+      if (value == null && (!isWeekend(holidayDate))) {
         return false; // REVIEW: jim 21-June-2010 -- this desperately needs a better fix than this.
       } else {
         return true;
@@ -300,7 +301,7 @@ public class InMemoryHolidayRepository implements HolidayRepository {
       }
       LocalDateDoubleTimeSeries dts = exchangeUIdToDTS.get(region.getUniqueIdentifier());
       Double value = dts.getValue(holidayDate);
-      if (value == null) {
+      if (value == null && (!isWeekend(holidayDate))) {
         return false; // REVIEW: jim 21-June-2010 -- this desperately needs a better fix than this.
       } else {
         return true;
@@ -325,7 +326,7 @@ public class InMemoryHolidayRepository implements HolidayRepository {
       }
       LocalDateDoubleTimeSeries dts = exchangeUIdToDTS.get(exchange.getUniqueIdentifier());
       Double value = dts.getValue(holidayDate);
-      if (value == null) {
+      if (value == null && (!isWeekend(holidayDate))) {
         return false; // REVIEW: jim 21-June-2010 -- this desperately needs a better fix than this.
       } else {
         return true;
@@ -333,5 +334,9 @@ public class InMemoryHolidayRepository implements HolidayRepository {
     } catch (NoSuchElementException nsee) { // actually, this shouldn't happen, but we keep it here in case we change the dts used.
       return false;
     }
+  }
+  
+  private boolean isWeekend(LocalDate holidayDate) {
+    return (holidayDate.getDayOfWeek() == DayOfWeek.SATURDAY) || (holidayDate.getDayOfWeek() == DayOfWeek.SUNDAY);
   }
 }

@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.ircurve;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -157,7 +158,16 @@ public class SwapImpliedYieldCurveFunction extends AbstractFunction implements F
         return false;
       }
     }
-    return false;
+    return true;
+  }
+  
+  public static Set<ValueRequirement> buildRequirements(final InterpolatedYieldAndDiscountCurveDefinition definition) {
+    final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
+    for (final FixedIncomeStrip strip : definition.getStrips()) {
+      final ValueRequirement requirement = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, strip.getMarketDataSpecification());
+      result.add(requirement);
+    }
+    return result;
   }
 
   private ValueRequirement getRequirement() {
