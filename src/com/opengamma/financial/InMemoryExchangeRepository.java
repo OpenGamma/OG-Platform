@@ -18,12 +18,12 @@ import com.opengamma.id.UniqueIdentifier;
  *
  * @author jim
  */
-public class InMemoryExchangeRespository implements ExchangeRepository {
+public class InMemoryExchangeRepository implements ExchangeRepository {
   public static final String EXCHANGE_SCHEME = "EXCHANGE_SCHEME"; // so the unit test can see it.
   private IdentifierBundleMapper<Exchange> _idMapper = new IdentifierBundleMapper<Exchange>(EXCHANGE_SCHEME);
   private RegionRepository _regionRepo;
   
-  public InMemoryExchangeRespository(RegionRepository regionRepo) {
+  public InMemoryExchangeRepository(RegionRepository regionRepo) {
     _regionRepo = regionRepo;
   }
   
