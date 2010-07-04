@@ -87,7 +87,7 @@ public class ScheduleCalculator {
     Validate.notNull(now);
     final int n = dates.length;
     final double[] result = new double[n];
-    for (int i = 1; i < n; i++) {
+    for (int i = 0; i < n; i++) {
       result[i] = dayCount.getDayCountFraction(now, dates[i]);
     }
     return result;

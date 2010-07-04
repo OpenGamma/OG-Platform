@@ -76,38 +76,43 @@ public class SwapScheduleCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullSecurity1() {
-    SwapScheduleCalculator.getPayLegPaymentTimes(null, CALENDAR);
+    SwapScheduleCalculator.getPayLegPaymentTimes(null, CALENDAR, EFFECTIVE);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullCalendar1() {
-    SwapScheduleCalculator.getPayLegPaymentTimes(SECURITY, null);
+    SwapScheduleCalculator.getPayLegPaymentTimes(SECURITY, null, EFFECTIVE);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullSecurity2() {
-    SwapScheduleCalculator.getReceiveLegPaymentTimes(null, CALENDAR);
+    SwapScheduleCalculator.getReceiveLegPaymentTimes(null, CALENDAR, EFFECTIVE);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullCalendar2() {
-    SwapScheduleCalculator.getReceiveLegPaymentTimes(SECURITY, null);
+    SwapScheduleCalculator.getReceiveLegPaymentTimes(SECURITY, null, EFFECTIVE);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullEffectiveDate() {
-    SwapScheduleCalculator.getPaymentTimes(null, MATURITY, PAY_LEG, CALENDAR);
+    SwapScheduleCalculator.getPaymentTimes(null, MATURITY, PAY_LEG, CALENDAR, EFFECTIVE);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullNow() {
+    SwapScheduleCalculator.getPaymentTimes(EFFECTIVE, MATURITY, PAY_LEG, CALENDAR, null);
   }
 
   @Test
   public void test() {
-    final double[] payTimes = SwapScheduleCalculator.getPayLegPaymentTimes(SECURITY, CALENDAR);
-    final double[] receiveTimes = SwapScheduleCalculator.getReceiveLegPaymentTimes(SECURITY, CALENDAR);
-    assertEquals(payTimes.length, 19);
+    final double[] payTimes = SwapScheduleCalculator.getPayLegPaymentTimes(SECURITY, CALENDAR, EFFECTIVE);
+    final double[] receiveTimes = SwapScheduleCalculator.getReceiveLegPaymentTimes(SECURITY, CALENDAR, EFFECTIVE);
+    assertEquals(payTimes.length, 20);
     assertEquals(payTimes.length, receiveTimes.length);
     for (int i = 0; i < payTimes.length; i++) {
       assertEquals(payTimes[i], receiveTimes[i], 1e-15);
-      assertEquals(payTimes[i], 0.5, 1e-15);
+      assertEquals(payTimes[i], 0.5 * (i + 1), 1e-15);
     }
   }
 
