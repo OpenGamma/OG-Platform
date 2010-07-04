@@ -17,8 +17,11 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.financial.Region;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -32,6 +35,8 @@ public class FixedIncomeStrip implements Comparable<FixedIncomeStrip>, Serializa
   private final UniqueIdentifier _marketDataKey;
   private final StripInstrument _instrumentType;
   private DayCount _dayCount;
+  private BusinessDayConvention _businessDayConvention;
+  private String _regionISO;
 
   /**
    * Creates the strip.  REVIEW: jim 30-June-2010 -- we need to change the isFuture parameter to get OGLD to do it.
@@ -40,14 +45,19 @@ public class FixedIncomeStrip implements Comparable<FixedIncomeStrip>, Serializa
    * @param marketDataKey the market data key, not null
    * @param instrumentType the instrument type
    * @param dayCount the daycount for this instrument
+   * @param businessDayConvention the business day convention for this instrument or null if not applicable
+   * @param regionISO the region ISO code for this instrument or null if not applicable
    */
-  public FixedIncomeStrip(LocalDate startDate, LocalDate endDate, UniqueIdentifier marketDataKey, StripInstrument instrumentType, DayCount dayCount) {
+  public FixedIncomeStrip(LocalDate startDate, LocalDate endDate, UniqueIdentifier marketDataKey, StripInstrument instrumentType, 
+                          DayCount dayCount, BusinessDayConvention businessDayConvention, String regionISO) {
     ArgumentChecker.notNull(marketDataKey, "Market data key");
     _startDate = startDate;
     _endDate = endDate;
     _marketDataKey = marketDataKey;
     _instrumentType = instrumentType;
     _dayCount = dayCount;
+    _businessDayConvention = businessDayConvention;
+    _regionISO = regionISO;
   }
   
   /**
@@ -109,9 +119,26 @@ public class FixedIncomeStrip implements Comparable<FixedIncomeStrip>, Serializa
   public StripInstrument getInstrumentType() {
     return _instrumentType;
   }
-  
+
+  /**
+   * @return the day count convention for this strip's instrument
+   */
   public DayCount getDayCount() {
     return _dayCount;
+  }
+  
+  /**
+   * @return the business day convention for this strips instrument
+   */
+  public BusinessDayConvention getBusinessDayConvention() {
+    return _businessDayConvention;
+  }
+  
+  /**
+   * @return the 2 digit ISO code for this strips country/region
+   */
+  public String getRegion() {
+    return _regionISO;
   }
   
   //-------------------------------------------------------------------------
@@ -136,6 +163,8 @@ public class FixedIncomeStrip implements Comparable<FixedIncomeStrip>, Serializa
              ObjectUtils.equals(_endDate, other._endDate) &&
              ObjectUtils.equals(_marketDataKey, other._marketDataKey) &&
              ObjectUtils.equals(_dayCount, other._dayCount) &&
+             ObjectUtils.equals(_businessDayConvention, other._businessDayConvention) &&
+             ObjectUtils.equals(_regionISO, other._regionISO) &&
              _instrumentType == other._instrumentType;
     }
     return false;
