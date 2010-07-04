@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.swap;
@@ -21,31 +21,28 @@ import com.opengamma.financial.security.swap.SwapSecurity;
  */
 public class SwapScheduleCalculator {
 
-  public static double[] getPayLegPaymentTimes(final SwapSecurity security, final Calendar calendar) {
+  public static double[] getPayLegPaymentTimes(final SwapSecurity security, final Calendar calendar, final ZonedDateTime now) {
     Validate.notNull(security);
     Validate.notNull(calendar);
-    return getPaymentTimes(security.getEffectiveDate(), security.getMaturityDate(), security.getPayLeg(), calendar);
+    return getPaymentTimes(security.getEffectiveDate(), security.getMaturityDate(), security.getPayLeg(), calendar, now);
   }
 
-  public static double[] getReceiveLegPaymentTimes(final SwapSecurity security, final Calendar calendar) {
+  public static double[] getReceiveLegPaymentTimes(final SwapSecurity security, final Calendar calendar, final ZonedDateTime now) {
     Validate.notNull(security);
     Validate.notNull(calendar);
-    return getPaymentTimes(security.getEffectiveDate(), security.getMaturityDate(), security.getReceiveLeg(), calendar);
+    return getPaymentTimes(security.getEffectiveDate(), security.getMaturityDate(), security.getReceiveLeg(), calendar, now);
   }
 
-  //TODO include accrual date as well
-  public static double[] getPaymentTimes(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate,
-      final SwapLeg leg, final Calendar calendar) {
+  // TODO include accrual date as well
+  public static double[] getPaymentTimes(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final SwapLeg leg, final Calendar calendar, final ZonedDateTime now) {
     Validate.notNull(effectiveDate);
     Validate.notNull(maturityDate);
     Validate.notNull(leg);
     Validate.notNull(calendar);
     final Frequency payFrequency = leg.getFrequency();
-    final ZonedDateTime[] adjusted = ScheduleCalculator
-        .getAdjustedDateSchedule(ScheduleCalculator
-            .getUnadjustedDateSchedule(effectiveDate, maturityDate, payFrequency), leg.getBusinessDayConvention(),
-            calendar);
-    return ScheduleCalculator.getTimes(adjusted, leg.getDaycount());
+    final ZonedDateTime[] adjusted = ScheduleCalculator.getAdjustedDateSchedule(ScheduleCalculator.getUnadjustedDateSchedule(effectiveDate, maturityDate, payFrequency),
+        leg.getBusinessDayConvention(), calendar);
+    return ScheduleCalculator.getTimes(adjusted, leg.getDaycount(), now);
   }
 
 }

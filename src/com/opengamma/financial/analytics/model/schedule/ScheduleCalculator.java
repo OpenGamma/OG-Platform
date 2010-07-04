@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.schedule;
@@ -27,8 +27,7 @@ import com.opengamma.financial.convention.frequency.SimpleFrequency;
 public class ScheduleCalculator {
   private static final ZonedDateTime[] EMPTY_ARRAY = new ZonedDateTime[0];
 
-  public static ZonedDateTime[] getUnadjustedDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate,
-      final Frequency frequency) {
+  public static ZonedDateTime[] getUnadjustedDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final Frequency frequency) {
     Validate.notNull(effectiveDate);
     Validate.notNull(maturityDate);
     Validate.notNull(frequency);
@@ -38,8 +37,7 @@ public class ScheduleCalculator {
     return getUnadjustedDateSchedule(effectiveDate, effectiveDate, maturityDate, frequency);
   }
 
-  public static ZonedDateTime[] getUnadjustedDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime accrualDate,
-      final ZonedDateTime maturityDate, final Frequency frequency) {
+  public static ZonedDateTime[] getUnadjustedDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime accrualDate, final ZonedDateTime maturityDate, final Frequency frequency) {
     Validate.notNull(effectiveDate);
     Validate.notNull(accrualDate);
     Validate.notNull(maturityDate);
@@ -50,7 +48,7 @@ public class ScheduleCalculator {
     if (accrualDate.isAfter(maturityDate)) {
       throw new IllegalArgumentException("Accrual date was after maturity");
     }
-    //TODO what if there's no valid date between accrual date and maturity date?
+    // TODO what if there's no valid date between accrual date and maturity date?
     PeriodFrequency periodFrequency;
     if (frequency instanceof PeriodFrequency) {
       periodFrequency = (PeriodFrequency) frequency;
@@ -61,16 +59,15 @@ public class ScheduleCalculator {
     }
     final Period period = periodFrequency.getPeriod();
     final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
-    ZonedDateTime date = effectiveDate; //TODO this is only correct if effective date = maturity date
-    while (date.isBefore(maturityDate)) { //REVIEW: could speed this up by working out how many periods between start and end date?
+    ZonedDateTime date = effectiveDate; // TODO this is only correct if effective date = maturity date
+    while (date.isBefore(maturityDate)) { // REVIEW: could speed this up by working out how many periods between start and end date?
       date = date.plus(period);
       dates.add(date);
     }
     return dates.toArray(EMPTY_ARRAY);
   }
 
-  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime[] dates, final BusinessDayConvention convention,
-      final Calendar calendar) {
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime[] dates, final BusinessDayConvention convention, final Calendar calendar) {
     Validate.notNull(dates);
     Validate.notEmpty(dates);
     Validate.notNull(convention);
@@ -83,14 +80,15 @@ public class ScheduleCalculator {
     return result;
   }
 
-  public static double[] getTimes(final ZonedDateTime[] dates, final DayCount dayCount) {
+  public static double[] getTimes(final ZonedDateTime[] dates, final DayCount dayCount, final ZonedDateTime now) {
     Validate.notNull(dates);
     Validate.notEmpty(dates);
     Validate.notNull(dayCount);
+    Validate.notNull(now);
     final int n = dates.length;
-    final double[] result = new double[n - 1];
+    final double[] result = new double[n];
     for (int i = 1; i < n; i++) {
-      result[i - 1] = dayCount.getDayCountFraction(dates[i - 1], dates[i]);
+      result[i] = dayCount.getDayCountFraction(now, dates[i]);
     }
     return result;
   }
