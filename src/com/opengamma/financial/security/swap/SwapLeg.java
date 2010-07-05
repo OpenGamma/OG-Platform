@@ -6,7 +6,9 @@
 package com.opengamma.financial.security.swap;
 
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.financial.Region;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -17,6 +19,28 @@ import com.opengamma.financial.convention.frequency.Frequency;
  * Represents one leg of a swap.
  */
 public class SwapLeg {
+
+  /**
+   * 
+   */
+  protected static final String DAYCOUNT_KEY = "dayCount";
+  /**
+   * 
+   */
+  protected static final String FREQUENCY_KEY = "frequency";
+  /**
+   * 
+   */
+  protected static final String REGION_KEY = "region";
+  /**
+   * 
+   */
+  protected static final String BUSINESSDAYCONVENTION_KEY = "businessDayConvention";
+  /**
+   * 
+   */
+  protected static final String NOTIONAL_KEY = "notional";
+
   private final DayCount _daycount;
   private final Frequency _frequency;
   private final Region _region;
@@ -144,14 +168,32 @@ public class SwapLeg {
         + "; notional=" + _notional + "]";
   }
 
-  public static SwapLeg fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    final DayCount daycount = context.fieldValueToObject(DayCount.class, message.getByName("daycount"));
-    final Frequency frequency = context.fieldValueToObject(Frequency.class, message.getByName("frequency"));
-    final Region region = context.fieldValueToObject(Region.class, message.getByName("region"));
-    final BusinessDayConvention businessDayConvention = context.fieldValueToObject(BusinessDayConvention.class, message
-        .getByName("businessDayConvention"));
-    final Notional notional = context.fieldValueToObject(Notional.class, message.getByName("notional"));
-    return new SwapLeg(daycount, frequency, region, businessDayConvention, notional);
+  protected void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+    context.objectToFudgeMsg(message, DAYCOUNT_KEY, null, getDaycount());
+    context.objectToFudgeMsg(message, FREQUENCY_KEY, null, getFrequency());
+    context.objectToFudgeMsg(message, REGION_KEY, null, getRegion());
+    context.objectToFudgeMsg(message, BUSINESSDAYCONVENTION_KEY, null, getBusinessDayConvention());
+    context.objectToFudgeMsg(message, NOTIONAL_KEY, null, getNotional());
   }
 
+  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
+    final MutableFudgeFieldContainer message = context.newMessage();
+    FudgeSerializationContext.addClassHeader(message, getClass());
+    toFudgeMsg(context, message);
+    return message;
+  }
+
+  protected void fromFudgeMsgImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    // Everything set by constructor
+  }
+
+  public static SwapLeg fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    final SwapLeg leg = new SwapLeg(context.fieldValueToObject(DayCount.class, message.getByName(DAYCOUNT_KEY)),
+        context.fieldValueToObject(Frequency.class, message.getByName(FREQUENCY_KEY)), context.fieldValueToObject(
+            Region.class, message.getByName(REGION_KEY)), context.fieldValueToObject(BusinessDayConvention.class,
+            message.getByName(BUSINESSDAYCONVENTION_KEY)), context.fieldValueToObject(Notional.class, message
+            .getByName(NOTIONAL_KEY)));
+    leg.fromFudgeMsgImpl(context, message);
+    return leg;
+  }
 }

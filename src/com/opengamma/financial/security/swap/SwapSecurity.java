@@ -1,8 +1,14 @@
 package com.opengamma.financial.security.swap;
 
+import javax.time.calendar.DateTimeProvider;
+import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
@@ -11,7 +17,35 @@ import com.opengamma.financial.security.FinancialSecurityVisitor;
  * Base class for swaps.
  */
 public class SwapSecurity extends FinancialSecurity {
-  private static final String SECURITY_TYPE = "SWAP";
+
+  /**
+   * 
+   */
+  protected static final String TRADEDATE_KEY = "tradeDate";
+  /**
+   * 
+   */
+  protected static final String EFFECTIVEDATE_KEY = "effectiveDate";
+  /**
+   * 
+   */
+  protected static final String MATURITYDATE_KEY = "maturityDate";
+  /**
+   * 
+   */
+  protected static final String COUNTERPARTY_KEY = "counterparty";
+  /**
+   * 
+   */
+  protected static final String PAYLEG_KEY = "payLeg";
+  /**
+   * 
+   */
+  protected static final String RECEIVELEG_KEY = "receiveLeg";
+  /**
+   * 
+   */
+  public static final String SECURITY_TYPE = "SWAP";
   private ZonedDateTime _tradeDate;
   private ZonedDateTime _effectiveDate;
   private ZonedDateTime _maturityDate;
@@ -27,7 +61,8 @@ public class SwapSecurity extends FinancialSecurity {
    * @param payLeg the pay leg
    * @param receiveLeg the receive leg
    */
-  public SwapSecurity(final ZonedDateTime tradeDate, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final String counterparty, final SwapLeg payLeg, final SwapLeg receiveLeg) {
+  public SwapSecurity(final ZonedDateTime tradeDate, final ZonedDateTime effectiveDate,
+      final ZonedDateTime maturityDate, final String counterparty, final SwapLeg payLeg, final SwapLeg receiveLeg) {
     super(SECURITY_TYPE);
     Validate.notNull(tradeDate);
     Validate.notNull(effectiveDate);
@@ -117,4 +152,41 @@ public class SwapSecurity extends FinancialSecurity {
   public <T> T accept(final FinancialSecurityVisitor<T> visitor) {
     return null;
   }
+
+  protected void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+    super.toFudgeMsg(context, message);
+    context.objectToFudgeMsg(message, TRADEDATE_KEY, null, getTradeDate());
+    context.objectToFudgeMsg(message, EFFECTIVEDATE_KEY, null, getEffectiveDate());
+    context.objectToFudgeMsg(message, MATURITYDATE_KEY, null, getMaturityDate());
+    message.add(COUNTERPARTY_KEY, getCounterparty());
+    context.objectToFudgeMsg(message, PAYLEG_KEY, null, getPayLeg());
+    context.objectToFudgeMsg(message, RECEIVELEG_KEY, null, getReceiveLeg());
+  }
+
+  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
+    final MutableFudgeFieldContainer message = context.newMessage();
+    FudgeSerializationContext.addClassHeader(message, getClass());
+    toFudgeMsg(context, message);
+    return message;
+  }
+
+  protected void fromFudgeMsgImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    super.fromFudgeMsgImpl(context, message);
+    setMaturityDate(ZonedDateTime.of(context.fieldValueToObject(DateTimeProvider.class, message
+        .getByName(MATURITYDATE_KEY)), TimeZone.UTC));
+    setTradeDate(ZonedDateTime.of(context.fieldValueToObject(DateTimeProvider.class, message.getByName(TRADEDATE_KEY)),
+        TimeZone.UTC));
+    setEffectiveDate(ZonedDateTime.of(context.fieldValueToObject(DateTimeProvider.class, message
+        .getByName(EFFECTIVEDATE_KEY)), TimeZone.UTC));
+    setCounterparty(message.getString(COUNTERPARTY_KEY));
+    setPayLeg(context.fieldValueToObject(SwapLeg.class, message.getByName(PAYLEG_KEY)));
+    setReceiveLeg(context.fieldValueToObject(SwapLeg.class, message.getByName(RECEIVELEG_KEY)));
+  }
+
+  public static SwapSecurity fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    final SwapSecurity security = new SwapSecurity();
+    security.fromFudgeMsgImpl(context, message);
+    return security;
+  }
+
 }

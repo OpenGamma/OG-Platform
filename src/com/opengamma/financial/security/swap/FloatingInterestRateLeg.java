@@ -7,7 +7,9 @@ package com.opengamma.financial.security.swap;
 
 import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.financial.Region;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -19,6 +21,20 @@ import com.opengamma.id.UniqueIdentifier;
  * Represents a floating interest rate leg of a swap.
  */
 public class FloatingInterestRateLeg extends InterestRateLeg {
+
+  /**
+   * 
+   */
+  protected static final String FLOATINGREFERENCERATEIDENTIFIER_KEY = "floatingReferenceRateIdentifier";
+  /**
+   * 
+   */
+  protected static final String INITIALFLOATINGRATE_KEY = "initialFloatingRate";
+  /**
+   * 
+   */
+  protected static final String SPREAD_KEY = "spread";
+
   private final UniqueIdentifier _floatingReferenceRateIdentifier;
   private final double _initialFloatingRate;
   private final double _spread;
@@ -71,18 +87,36 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
     return _spread;
   }
   
-  public static FloatingInterestRateLeg fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    final DayCount daycount = context.fieldValueToObject(DayCount.class, message.getByName("daycount"));
-    final Frequency frequency = context.fieldValueToObject(Frequency.class, message.getByName("frequency"));
-    final Region region = context.fieldValueToObject(Region.class, message.getByName("region"));
-    final BusinessDayConvention businessDayConvention = context.fieldValueToObject(BusinessDayConvention.class, message.getByName("businessDayConvention"));
-    final InterestRateNotional interestRateNotional = context.fieldValueToObject(InterestRateNotional.class, message.getByName("notional"));
-    final UniqueIdentifier floatingReferenceRateId = context.fieldValueToObject(UniqueIdentifier.class, message.getByName("floatingIdentifier"));
-    final double initialFloatingRate = message.getDouble("initialFloatingRate");
-    if (!message.hasField("spread")) {
-      return new FloatingInterestRateLeg(daycount, frequency, region, businessDayConvention, interestRateNotional, floatingReferenceRateId, initialFloatingRate);
-    }
-    final double spread = message.getDouble("spread");
-    return new FloatingInterestRateLeg(daycount, frequency, region, businessDayConvention, interestRateNotional, floatingReferenceRateId, initialFloatingRate, spread);
+  protected void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+    super.toFudgeMsg(context, message);
+    context.objectToFudgeMsg(message, FLOATINGREFERENCERATEIDENTIFIER_KEY, null, getFloatingIdentifier());
+    message.add(INITIALFLOATINGRATE_KEY, getInitialFloatingRate());
+    message.add(SPREAD_KEY, getSpread());
   }
+
+  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
+    final MutableFudgeFieldContainer message = context.newMessage();
+    FudgeSerializationContext.addClassHeader(message, getClass());
+    toFudgeMsg(context, message);
+    return message;
+  }
+
+  protected void fromFudgeMsgImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    super.fromFudgeMsgImpl(context, message);
+    // Everything set by constructor
+  }
+
+  public static FloatingInterestRateLeg fromFudgeMsg(final FudgeDeserializationContext context,
+      final FudgeFieldContainer message) {
+    final FloatingInterestRateLeg leg = new FloatingInterestRateLeg(context.fieldValueToObject(DayCount.class, message
+        .getByName(DAYCOUNT_KEY)), context.fieldValueToObject(Frequency.class, message.getByName(FREQUENCY_KEY)),
+        context.fieldValueToObject(Region.class, message.getByName(REGION_KEY)), context.fieldValueToObject(
+            BusinessDayConvention.class, message.getByName(BUSINESSDAYCONVENTION_KEY)), context.fieldValueToObject(
+            InterestRateNotional.class, message.getByName(NOTIONAL_KEY)), context.fieldValueToObject(
+            UniqueIdentifier.class, message.getByName(FLOATINGREFERENCERATEIDENTIFIER_KEY)), message
+            .getDouble(INITIALFLOATINGRATE_KEY), message.getDouble(SPREAD_KEY));
+    leg.fromFudgeMsgImpl(context, message);
+    return leg;
+  }
+
 }
