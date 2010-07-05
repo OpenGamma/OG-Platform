@@ -179,4 +179,6 @@ public interface ValueRequirementNames {
   public static final String FUNDING_CURVE = "FundingCurve";
   public static final String FORWARD_CURVE = "ForwardCurve";
   // CSON: Because they're names that should be known by industry practitioners.
+  
+  public static final String PRESENT_VALUE = "PresentValue";
 }
