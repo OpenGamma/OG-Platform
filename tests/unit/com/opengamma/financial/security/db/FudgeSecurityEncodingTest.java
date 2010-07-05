@@ -10,7 +10,6 @@ import static org.junit.Assert.assertEquals;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,13 +86,11 @@ public class FudgeSecurityEncodingTest {
   }
 
   @Test
-  @Ignore("not finished")
   public void testEthanolFuture() {
     roundTrip(HibernateSecurityMasterTestUtils.makeEthanolFuture());
   }
 
   @Test
-  @Ignore("not finished")
   public void testInterestRateFuture() {
     roundTrip(HibernateSecurityMasterTestUtils.makeInterestRateFuture());
   }
