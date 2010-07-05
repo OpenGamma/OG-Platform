@@ -176,9 +176,16 @@ public interface ValueRequirementNames {
   public static final String ISOLATED_VAR = "IsolatedVaR";
   public static final String INCREMENTAL_VAR = "IncrementalVaR";
 
+  //Yield curve specifics
+  public static final String FUNDING_AND_FORWARD_CURVE = "FundingAndForwardCurveJacobian";
   public static final String FUNDING_CURVE = "FundingCurve";
   public static final String FORWARD_CURVE = "ForwardCurve";
-  // CSON: Because they're names that should be known by industry practitioners.
+  public static final String FUNDING_AND_FORWARD_JACOBIAN = "FundingAndForwardCurveJacobian";
+  public static final String FUNDING_JACOBIAN = "FundingCurveJacobian";
+  public static final String FORWARD_JACOBIAN = "ForwardCurveJacobian";  
   
+  // CSON: Because they're names that should be known by industry practitioners.  
+  
+  // Fixed income analytics
   public static final String PRESENT_VALUE = "PresentValue";
 }
