@@ -9,12 +9,13 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
-public class Swap {
+public class Swap implements InterestRateDerivative {
   private final double[] _fixedPaymentTimes;
   private final double[] _floatPaymentTimes;
   private final double[] _deltaStart;

@@ -10,7 +10,7 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -25,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class DoubleCurveFinder extends Function1D<DoubleMatrix1D, DoubleMatrix1D> {
-  private final List<Swap> _swaps;
+  private final List<InterestRateDerivative> _derivatives;
   private final double[] _swapValues;
   private final double _spotRate;
   private final double[] _forwardTimeGrid;
@@ -34,13 +34,13 @@ public class DoubleCurveFinder extends Function1D<DoubleMatrix1D, DoubleMatrix1D
   private YieldAndDiscountCurve _fundCurve;
   private final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> _forwardInterpolator;
   private final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> _fundingInterpolator;
-  private final int _nSwaps, _nFwdNodes, _nFundNodes;
+  private final int _nInterestRateDerivatives, _nFwdNodes, _nFundNodes;
   private final SwapRateCalculator _swapRateCalculator = new SwapRateCalculator();
 
-  public DoubleCurveFinder(final List<Swap> swaps, final double[] swapValues, final double spotRate, final double[] forwardTimeGrid, final double[] fundingTimeGrid,
+  public DoubleCurveFinder(final List<InterestRateDerivative> derivatives, final double[] swapValues, final double spotRate, final double[] forwardTimeGrid, final double[] fundingTimeGrid,
       final YieldAndDiscountCurve forwardCurve, final YieldAndDiscountCurve fundCurve, final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> forwardInterpolator,
       final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> fundingInterpolator) {
-    Validate.notNull(swaps);
+    Validate.notNull(derivatives);
     Validate.notNull(swapValues);
     if (forwardTimeGrid != null) {
       Validate.notNull(forwardInterpolator);
@@ -50,21 +50,21 @@ public class DoubleCurveFinder extends Function1D<DoubleMatrix1D, DoubleMatrix1D
       Validate.notNull(fundingInterpolator);
       ArgumentChecker.notEmpty(fundingTimeGrid, "funding time grid");
     }
-    Validate.notEmpty(swaps);
+    Validate.notEmpty(derivatives);
     ArgumentChecker.notEmpty(swapValues, "swap values");
-    _swaps = swaps;
+    _derivatives = derivatives;
     _swapValues = swapValues;
     _spotRate = spotRate;
     _forwardTimeGrid = forwardTimeGrid;
     _fundingTimeGrid = fundingTimeGrid;
     _forwardInterpolator = forwardInterpolator;
     _fundingInterpolator = fundingInterpolator;
-    _nSwaps = _swaps.size();
+    _nInterestRateDerivatives = _derivatives.size();
     _nFwdNodes = (forwardTimeGrid == null ? 0 : forwardTimeGrid.length);
     _nFundNodes = (fundingTimeGrid == null ? 0 : fundingTimeGrid.length);
     _fwdCurve = forwardCurve;
     _fundCurve = fundCurve;
-    if (_nSwaps != _nFwdNodes + _nFundNodes) {
+    if (_nInterestRateDerivatives != _nFwdNodes + _nFundNodes) {
       throw new IllegalArgumentException("total number of nodes does not much number of instruments");
     }
   }
@@ -103,9 +103,9 @@ public class DoubleCurveFinder extends Function1D<DoubleMatrix1D, DoubleMatrix1D
       _fundCurve = new InterpolatedYieldCurve(fundData, _fundingInterpolator);
     }
 
-    final double[] res = new double[_nSwaps];
-    for (int i = 0; i < _nSwaps; i++) {
-      res[i] = _swapRateCalculator.getRate(_fwdCurve, _fundCurve, _swaps.get(i)) - _swapValues[i];
+    final double[] res = new double[_nInterestRateDerivatives];
+    for (int i = 0; i < _nInterestRateDerivatives; i++) {
+      res[i] = _swapRateCalculator.getRate(_fwdCurve, _fundCurve, _derivatives.get(i)) - _swapValues[i];
     }
     return new DoubleMatrix1D(res);
   }

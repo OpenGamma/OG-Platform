@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
+import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.swap.DoubleCurveFinder;
 import com.opengamma.financial.interestrate.swap.DoubleCurveJacobian;
 import com.opengamma.financial.interestrate.swap.SingleCurveFinder;
@@ -55,7 +56,7 @@ public class YieldCurveBootStrapTest {
   private static final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> CUBIC = new NaturalCubicSplineInterpolator1D();
   private static final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> CUBIC_WITH_SENSITIVITY = new CubicSplineInterpolatorWithSensitivities1D();
   private static final Interpolator1DWithSensitivities<Interpolator1DCubicSplineDataBundle> CUBIC_WITH_FD_SENSITIVITY = new Interpolator1DWithSensitivities<Interpolator1DCubicSplineDataBundle>(CUBIC);
-  private static List<Swap> SWAPS;
+  private static List<InterestRateDerivative> SWAPS;
   private static double[] SWAP_VALUES;
   private static final double[] TIME_GRID;
   private static final double[] FWD_NODE_TIMES;
@@ -88,7 +89,7 @@ public class YieldCurveBootStrapTest {
     final int n = payments.length;
     TIME_GRID = new double[n];
     SWAP_VALUES = new double[n];
-    SWAPS = new ArrayList<Swap>();
+    SWAPS = new ArrayList<InterestRateDerivative>();
     final double[] rates = new double[n];
     Swap swap;
     int nFloat;

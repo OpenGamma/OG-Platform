@@ -10,7 +10,7 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.math.function.Function1D;
@@ -28,24 +28,24 @@ import com.opengamma.util.tuple.Pair;
 public class SingleCurveJacobian<T extends Interpolator1DDataBundle> implements JacobianCalculator {
   private final ForwardCurveSensitivityCalculator _forwardSensitivities = new ForwardCurveSensitivityCalculator();
   private final FundingCurveSensitivityCalculator _fundingSensitivities = new FundingCurveSensitivityCalculator();
-  private final List<Swap> _swaps;
+  private final List<InterestRateDerivative> _derivatives;
   private final double _spotRate;
   private final double[] _timeGrid;
   private final Interpolator1DWithSensitivities<T> _interpolator;
   private final int _nRows, _nCols;
 
-  public SingleCurveJacobian(final List<Swap> swaps, final double spotRate, final double[] timeGrid, final Interpolator1DWithSensitivities<T> interpolator) {
-    Validate.notNull(swaps);
+  public SingleCurveJacobian(final List<InterestRateDerivative> derivatives, final double spotRate, final double[] timeGrid, final Interpolator1DWithSensitivities<T> interpolator) {
+    Validate.notNull(derivatives);
     Validate.notNull(timeGrid);
     Validate.notNull(interpolator);
-    Validate.notEmpty(swaps);
+    Validate.notEmpty(derivatives);
     ArgumentChecker.notEmpty(timeGrid, "time grid");
-    _swaps = swaps;
+    _derivatives = derivatives;
     _spotRate = spotRate;
     _timeGrid = timeGrid;
     _interpolator = interpolator;
-    _nRows = _swaps.size();
-    _nCols = _swaps.size();
+    _nRows = _derivatives.size();
+    _nCols = _derivatives.size();
   }
 
   @SuppressWarnings("unchecked")
@@ -61,7 +61,7 @@ public class SingleCurveJacobian<T extends Interpolator1DDataBundle> implements 
 
     final double[][] res = new double[_nRows][_nCols];
     for (int i = 0; i < _nRows; i++) {
-      final Swap swap = _swaps.get(i);
+      final InterestRateDerivative swap = _derivatives.get(i);
       final List<Pair<Double, Double>> fwdSensitivity = _forwardSensitivities.getForwardCurveSensitivities(curve, curve, swap);
       final List<Pair<Double, Double>> fundSensitivity = _fundingSensitivities.getFundingCurveSensitivities(curve, curve, swap);
       final int n = fwdSensitivity.size() + fundSensitivity.size();

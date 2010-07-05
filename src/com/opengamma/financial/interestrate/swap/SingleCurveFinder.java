@@ -10,7 +10,7 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.function.Function1D;
@@ -25,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 
 public class SingleCurveFinder extends Function1D<DoubleMatrix1D, DoubleMatrix1D> {
-  private final List<Swap> _swaps;
+  private final List<InterestRateDerivative> _derivatives;
   private final double[] _marketRates;
   private final double _spotRate;
   private final double[] _timeGrid;
@@ -33,21 +33,21 @@ public class SingleCurveFinder extends Function1D<DoubleMatrix1D, DoubleMatrix1D
   private final int _n;
   private final SwapRateCalculator _swapRateCalculator = new SwapRateCalculator();
 
-  public SingleCurveFinder(final List<Swap> swaps, final double[] marketRates, final double spotRate, final double[] timeGrid,
+  public SingleCurveFinder(final List<InterestRateDerivative> derivatives, final double[] marketRates, final double spotRate, final double[] timeGrid,
       final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> interpolator) {
-    Validate.notNull(swaps);
+    Validate.notNull(derivatives);
     Validate.notNull(marketRates);
     Validate.notNull(timeGrid);
     Validate.notNull(interpolator);
-    Validate.notEmpty(swaps);
+    Validate.notEmpty(derivatives);
     ArgumentChecker.notEmpty(marketRates, "market rates");
     ArgumentChecker.notEmpty(timeGrid, "time grid");
-    _swaps = swaps;
+    _derivatives = derivatives;
     _marketRates = marketRates;
     _spotRate = spotRate;
     _timeGrid = timeGrid;
     _interpolator = interpolator;
-    _n = _swaps.size();
+    _n = _derivatives.size();
 
   }
 
@@ -62,7 +62,7 @@ public class SingleCurveFinder extends Function1D<DoubleMatrix1D, DoubleMatrix1D
     final YieldAndDiscountCurve curve = new InterpolatedYieldCurve(data, _interpolator);
     final double[] res = new double[_n];
     for (int i = 0; i < _n; i++) {
-      res[i] = _swapRateCalculator.getRate(curve, curve, _swaps.get(i)) - _marketRates[i];
+      res[i] = _swapRateCalculator.getRate(curve, curve, _derivatives.get(i)) - _marketRates[i];
     }
     return new DoubleMatrix1D(res);
   }

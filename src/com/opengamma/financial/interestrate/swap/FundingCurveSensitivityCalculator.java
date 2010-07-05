@@ -10,6 +10,11 @@ import java.util.List;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.libor.Libor;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.tuple.DoublesPair;
@@ -23,7 +28,22 @@ public class FundingCurveSensitivityCalculator {
   private final LiborCalculator _liborCalculator = new LiborCalculator();
   private final FloatingLegCalculator _floatingLegCalculator = new FloatingLegCalculator();
 
-  public List<Pair<Double, Double>> getFundingCurveSensitivities(final YieldAndDiscountCurve forwardCurve, final YieldAndDiscountCurve fundingCurve, final Swap swap) {
+  public List<Pair<Double, Double>> getFundingCurveSensitivities(final YieldAndDiscountCurve forwardCurve, final YieldAndDiscountCurve fundingCurve, final InterestRateDerivative derivative) {
+    if (derivative instanceof Swap) {
+      return getSwapSensitivities(forwardCurve, fundingCurve, (Swap) derivative);
+    } else if (derivative instanceof Cash) {
+      return getCashSensitivities(fundingCurve, (Cash) derivative);
+    } else if (derivative instanceof ForwardRateAgreement) {
+      return getFRASensitivities(fundingCurve, (ForwardRateAgreement) derivative);
+    } else if (derivative instanceof InterestRateFuture) {
+      return getIRFutureSensitivities(fundingCurve, (InterestRateFuture) derivative);
+    } else if (derivative instanceof Libor) {
+      return getLiborSensitivities(fundingCurve, (Libor) derivative);
+    }
+    throw new IllegalArgumentException("Unhandled InterestRateDerivative type");
+  }
+
+  private List<Pair<Double, Double>> getSwapSensitivities(final YieldAndDiscountCurve forwardCurve, final YieldAndDiscountCurve fundingCurve, final Swap swap) {
     Validate.notNull(forwardCurve);
     Validate.notNull(fundingCurve);
     Validate.notNull(swap);
@@ -49,6 +69,32 @@ public class FundingCurveSensitivityCalculator {
     }
     return results;
   }
+
   //TODO doesn't need to be a list
 
+  private List<Pair<Double, Double>> getCashSensitivities(final YieldAndDiscountCurve fundingCurve, final Cash cash) {
+    Validate.notNull(cash);
+    Validate.notNull(fundingCurve);
+    final List<Pair<Double, Double>> result = new ArrayList<Pair<Double, Double>>();
+    result.add(new DoublesPair(cash.getFixedPaymentTime(), 1));
+    return result;
+  }
+
+  private List<Pair<Double, Double>> getFRASensitivities(final YieldAndDiscountCurve fundingCurve, final ForwardRateAgreement fra) {
+    Validate.notNull(fra);
+    Validate.notNull(fundingCurve);
+    return new ArrayList<Pair<Double, Double>>();
+  }
+
+  private List<Pair<Double, Double>> getIRFutureSensitivities(final YieldAndDiscountCurve fundingCurve, final InterestRateFuture interestRateFuture) {
+    Validate.notNull(interestRateFuture);
+    Validate.notNull(fundingCurve);
+    return new ArrayList<Pair<Double, Double>>();
+  }
+
+  private List<Pair<Double, Double>> getLiborSensitivities(final YieldAndDiscountCurve fundingCurve, final Libor libor) {
+    Validate.notNull(libor);
+    Validate.notNull(fundingCurve);
+    return new ArrayList<Pair<Double, Double>>();
+  }
 }
