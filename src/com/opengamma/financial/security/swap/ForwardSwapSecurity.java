@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.security.swap;
 
+import javax.time.calendar.DateTimeProvider;
+import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
@@ -35,8 +37,9 @@ public class ForwardSwapSecurity extends SwapSecurity {
    * @param receiveLeg the receive leg
    * @param forwardStartDate the start date of the forward swap
    */
-  public ForwardSwapSecurity(final ZonedDateTime tradeDate, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final String counterparty, final SwapLeg payLeg,
-      final SwapLeg receiveLeg, final ZonedDateTime forwardStartDate) {
+  public ForwardSwapSecurity(final ZonedDateTime tradeDate, final ZonedDateTime effectiveDate,
+      final ZonedDateTime maturityDate, final String counterparty, final SwapLeg payLeg, final SwapLeg receiveLeg,
+      final ZonedDateTime forwardStartDate) {
     super(tradeDate, effectiveDate, maturityDate, counterparty, payLeg, receiveLeg);
 
     Validate.notNull(forwardStartDate);
@@ -73,12 +76,13 @@ public class ForwardSwapSecurity extends SwapSecurity {
 
   public static ForwardSwapSecurity fromFudgeMsg(final FudgeDeserializationContext context,
       final FudgeFieldContainer message) {
-    final ForwardSwapSecurity security = new ForwardSwapSecurity(context.fieldValueToObject(ZonedDateTime.class,
-        message.getByName(TRADEDATE_KEY)), context.fieldValueToObject(ZonedDateTime.class, message
-        .getByName(EFFECTIVEDATE_KEY)), context.fieldValueToObject(ZonedDateTime.class, message
-        .getByName(MATURITYDATE_KEY)), message.getString(COUNTERPARTY_KEY), context.fieldValueToObject(SwapLeg.class,
-        message.getByName(PAYLEG_KEY)), context.fieldValueToObject(SwapLeg.class, message.getByName(RECEIVELEG_KEY)),
-        context.fieldValueToObject(ZonedDateTime.class, message.getByName(FORWARDSTARTDATE_KEY)));
+    final ForwardSwapSecurity security = new ForwardSwapSecurity(ZonedDateTime.of(context.fieldValueToObject(
+        DateTimeProvider.class, message.getByName(TRADEDATE_KEY)), TimeZone.UTC), ZonedDateTime.of(context
+        .fieldValueToObject(DateTimeProvider.class, message.getByName(EFFECTIVEDATE_KEY)), TimeZone.UTC), ZonedDateTime
+        .of(context.fieldValueToObject(DateTimeProvider.class, message.getByName(MATURITYDATE_KEY)), TimeZone.UTC),
+        message.getString(COUNTERPARTY_KEY), context.fieldValueToObject(SwapLeg.class, message.getByName(PAYLEG_KEY)),
+        context.fieldValueToObject(SwapLeg.class, message.getByName(RECEIVELEG_KEY)), context.fieldValueToObject(
+            ZonedDateTime.class, message.getByName(FORWARDSTARTDATE_KEY)));
     security.fromFudgeMsgImpl(context, message);
     return security;
   }

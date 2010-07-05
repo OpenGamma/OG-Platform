@@ -1,5 +1,7 @@
 package com.opengamma.financial.security.swap;
 
+import javax.time.calendar.DateTimeProvider;
+import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
@@ -57,7 +59,8 @@ public class SwapSecurity extends FinancialSecurity {
    * @param payLeg the pay leg
    * @param receiveLeg the receive leg
    */
-  public SwapSecurity(final ZonedDateTime tradeDate, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final String counterparty, final SwapLeg payLeg, final SwapLeg receiveLeg) {
+  public SwapSecurity(final ZonedDateTime tradeDate, final ZonedDateTime effectiveDate,
+      final ZonedDateTime maturityDate, final String counterparty, final SwapLeg payLeg, final SwapLeg receiveLeg) {
     super(SECURITY_TYPE);
     Validate.notNull(tradeDate);
     Validate.notNull(effectiveDate);
@@ -167,10 +170,13 @@ public class SwapSecurity extends FinancialSecurity {
 
   protected void fromFudgeMsgImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
     super.fromFudgeMsgImpl(context, message);
-    setMaturityDate(context.fieldValueToObject(ZonedDateTime.class, message.getByName(MATURITYDATE_KEY)));
-    setTradeDate(context.fieldValueToObject(ZonedDateTime.class, message.getByName(TRADEDATE_KEY)));
-    setEffectiveDate(context.fieldValueToObject(ZonedDateTime.class, message.getByName(EFFECTIVEDATE_KEY)));
-    setCounterparty (message.getString (COUNTERPARTY_KEY));
+    setMaturityDate(ZonedDateTime.of(context.fieldValueToObject(DateTimeProvider.class, message
+        .getByName(MATURITYDATE_KEY)), TimeZone.UTC));
+    setTradeDate(ZonedDateTime.of(context.fieldValueToObject(DateTimeProvider.class, message.getByName(TRADEDATE_KEY)),
+        TimeZone.UTC));
+    setEffectiveDate(ZonedDateTime.of(context.fieldValueToObject(DateTimeProvider.class, message
+        .getByName(EFFECTIVEDATE_KEY)), TimeZone.UTC));
+    setCounterparty(message.getString(COUNTERPARTY_KEY));
     setPayLeg(context.fieldValueToObject(SwapLeg.class, message.getByName(PAYLEG_KEY)));
     setReceiveLeg(context.fieldValueToObject(SwapLeg.class, message.getByName(RECEIVELEG_KEY)));
   }
