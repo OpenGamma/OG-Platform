@@ -8,6 +8,8 @@ package com.opengamma.financial.user.rest;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.UriInfo;
 
+import org.fudgemsg.FudgeContext;
+
 import com.opengamma.financial.livedata.rest.LiveDataResource;
 import com.opengamma.financial.livedata.user.InMemoryUserSnapshotProvider;
 import com.opengamma.financial.position.ManagablePositionMaster;
@@ -52,14 +54,16 @@ public class ClientResource {
   private final ManagableSecurityMaster _securityMaster;
   private final ManagableViewDefinitionRepository _viewDefinitionRepository;
   private final InMemoryUserSnapshotProvider _liveData;
+  private final FudgeContext _fudgeContext;
   
-  public ClientResource(ClientsResource clientsResource, String clientName) {
+  public ClientResource(ClientsResource clientsResource, String clientName, FudgeContext fudgeContext) {
     _clientsResource = clientsResource;
     final String username = clientsResource.getUserResource().getUserName();
     _positionMaster = new InMemoryPositionMaster(getTemplate(username, clientName, PORTFOLIOS_PATH));
     _securityMaster = new InMemorySecurityMaster(getTemplate(username, clientName, SECURITIES_PATH));
     _liveData = new InMemoryUserSnapshotProvider(getTemplate(username, clientName, LIVEDATA_PATH));
     _viewDefinitionRepository = new InMemoryViewDefinitionRepository();
+    _fudgeContext = fudgeContext;
   }
 
   private UniqueIdentifierTemplate getTemplate(final String username, final String clientName, final String resourceType) {
@@ -86,7 +90,7 @@ public class ClientResource {
   
   @Path(SECURITIES_PATH)
   public SecuritiesResource getSecurities() {
-    return new SecuritiesResource(_securityMaster);
+    return new SecuritiesResource(_securityMaster, _fudgeContext);
   }
   
   @Path(VIEW_DEFINITIONS_PATH)
