@@ -16,9 +16,9 @@ import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 public class IntDoublePair extends Pair<Integer, Double> implements Int2DoubleMap.Entry {
 
   /** The first element. */
-  private final int _first;
+  public final int first;  // CSIGNORE
   /** The second element. */
-  private final double _second;
+  public final double second;  // CSIGNORE
 
   /**
    * Constructor.
@@ -26,19 +26,19 @@ public class IntDoublePair extends Pair<Integer, Double> implements Int2DoubleMa
    * @param second  the second element
    */
   public IntDoublePair(final int first, final double second) {
-    _first = first;
-    _second = second;
+    this.first = first;
+    this.second = second;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public Integer getFirst() {
-    return _first;
+    return first;
   }
 
   @Override
   public Double getSecond() {
-    return _second;
+    return second;
   }
 
   /**
@@ -46,7 +46,7 @@ public class IntDoublePair extends Pair<Integer, Double> implements Int2DoubleMa
    * @return the primitive
    */
   public int getFirstInt() {
-    return _first;
+    return first;
   }
 
   /**
@@ -54,18 +54,18 @@ public class IntDoublePair extends Pair<Integer, Double> implements Int2DoubleMa
    * @return the primitive
    */
   public double getSecondDouble() {
-    return _second;
+    return second;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public int getIntKey() {
-    return _first;
+    return first;
   }
 
   @Override
   public double getDoubleValue() {
-    return _second;
+    return second;
   }
 
   @Override
@@ -81,7 +81,7 @@ public class IntDoublePair extends Pair<Integer, Double> implements Int2DoubleMa
     }
     if (obj instanceof IntDoublePair) {
       final IntDoublePair other = (IntDoublePair) obj;
-      return this.getFirstInt() == other.getFirstInt() && this.getSecondDouble() == other.getSecondDouble();
+      return this.first == other.first && this.second == other.second;
     }
     return super.equals(obj);
   }
@@ -89,8 +89,8 @@ public class IntDoublePair extends Pair<Integer, Double> implements Int2DoubleMa
   @Override
   public int hashCode() {
     // see Map.Entry API specification
-    final long d = Double.doubleToLongBits(getSecondDouble());
-    return getFirstInt() ^ ((int) (d ^ (d >>> 32)));
+    final long d = Double.doubleToLongBits(second);
+    return first ^ ((int) (d ^ (d >>> 32)));
   }
 
 }

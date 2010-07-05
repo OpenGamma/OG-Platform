@@ -16,9 +16,9 @@ import it.unimi.dsi.fastutil.longs.Long2DoubleMap;
 public class LongDoublePair extends Pair<Long, Double> implements Long2DoubleMap.Entry {
 
   /** The first element. */
-  private final long _first;
+  public final long first;  // CSIGNORE
   /** The second element. */
-  private final double _second;
+  public final double second;  // CSIGNORE
 
   /**
    * Constructor.
@@ -26,19 +26,19 @@ public class LongDoublePair extends Pair<Long, Double> implements Long2DoubleMap
    * @param second  the second element
    */
   public LongDoublePair(final long first, final double second) {
-    _first = first;
-    _second = second;
+    this.first = first;
+    this.second = second;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public Long getFirst() {
-    return _first;
+    return first;
   }
 
   @Override
   public Double getSecond() {
-    return _second;
+    return second;
   }
 
   /**
@@ -46,7 +46,7 @@ public class LongDoublePair extends Pair<Long, Double> implements Long2DoubleMap
    * @return the primitive
    */
   public long getFirstLong() {
-    return _first;
+    return first;
   }
 
   /**
@@ -54,18 +54,18 @@ public class LongDoublePair extends Pair<Long, Double> implements Long2DoubleMap
    * @return the primitive
    */
   public double getSecondDouble() {
-    return _second;
+    return second;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public long getLongKey() {
-    return _first;
+    return first;
   }
 
   @Override
   public double getDoubleValue() {
-    return _second;
+    return second;
   }
 
   @Override
@@ -81,7 +81,7 @@ public class LongDoublePair extends Pair<Long, Double> implements Long2DoubleMap
     }
     if (obj instanceof LongDoublePair) {
       final LongDoublePair other = (LongDoublePair) obj;
-      return this.getFirstLong() == other.getFirstLong() && this.getSecondDouble() == other.getSecondDouble();
+      return this.first == other.first && this.second == other.second;
     }
     return super.equals(obj);
   }
@@ -89,9 +89,8 @@ public class LongDoublePair extends Pair<Long, Double> implements Long2DoubleMap
   @Override
   public int hashCode() {
     // see Map.Entry API specification
-    final long f = getFirstLong();
-    final long s = Double.doubleToLongBits(getSecondDouble());
-    return ((int) (f ^ (f >>> 32))) ^ ((int) (s ^ (s >>> 32)));
+    final long s = Double.doubleToLongBits(second);
+    return ((int) (first ^ (first >>> 32))) ^ ((int) (s ^ (s >>> 32)));
   }
 
 }

@@ -21,9 +21,9 @@ import it.unimi.dsi.fastutil.doubles.Double2DoubleMap;
 public final class DoublesPair extends Pair<Double, Double> implements Double2DoubleMap.Entry {
 
   /** The first element. */
-  private final double _first;
+  public final double first;  // CSIGNORE
   /** The second element. */
-  private final double _second;
+  public final double second;  // CSIGNORE
 
   /**
    * Constructor.
@@ -31,19 +31,19 @@ public final class DoublesPair extends Pair<Double, Double> implements Double2Do
    * @param second  the second element
    */
   public DoublesPair(final double first, final double second) {
-    _first = first;
-    _second = second;
+    this.first = first;
+    this.second = second;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public Double getFirst() {
-    return _first;
+    return first;
   }
 
   @Override
   public Double getSecond() {
-    return _second;
+    return second;
   }
 
   /**
@@ -51,7 +51,7 @@ public final class DoublesPair extends Pair<Double, Double> implements Double2Do
    * @return the primitive
    */
   public double getFirstDouble() {
-    return _first;
+    return first;
   }
 
   /**
@@ -59,18 +59,18 @@ public final class DoublesPair extends Pair<Double, Double> implements Double2Do
    * @return the primitive
    */
   public double getSecondDouble() {
-    return _second;
+    return second;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public double getDoubleKey() {
-    return _first;
+    return first;
   }
 
   @Override
   public double getDoubleValue() {
-    return _second;
+    return second;
   }
 
   @Override
@@ -86,7 +86,7 @@ public final class DoublesPair extends Pair<Double, Double> implements Double2Do
     }
     if (obj instanceof DoublesPair) {
       final DoublesPair other = (DoublesPair) obj;
-      return this.getFirstDouble() == other.getFirstDouble() && this.getSecondDouble() == other.getSecondDouble();
+      return this.first == other.first && this.second == other.second;
     }
     return super.equals(obj);
   }
@@ -94,8 +94,8 @@ public final class DoublesPair extends Pair<Double, Double> implements Double2Do
   @Override
   public int hashCode() {
     // see Map.Entry API specification
-    final long f = Double.doubleToLongBits(getFirstDouble());
-    final long s = Double.doubleToLongBits(getSecondDouble());
+    final long f = Double.doubleToLongBits(first);
+    final long s = Double.doubleToLongBits(second);
     return ((int) (f ^ (f >>> 32))) ^ ((int) (s ^ (s >>> 32)));
   }
 

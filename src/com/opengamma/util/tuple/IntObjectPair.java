@@ -20,9 +20,9 @@ import org.apache.http.util.LangUtils;
 public class IntObjectPair<T> extends Pair<Integer, T> implements Int2ObjectMap.Entry<T> {
 
   /** The first element. */
-  private final int _first;
+  public final int first;  // CSIGNORE
   /** The second element. */
-  private final T _second;
+  public final T second;  // CSIGNORE
 
   /**
    * Constructor.
@@ -30,33 +30,33 @@ public class IntObjectPair<T> extends Pair<Integer, T> implements Int2ObjectMap.
    * @param second  the second element
    */
   public IntObjectPair(final int first, final T second) {
-    _first = first;
-    _second = second;
+    this.first = first;
+    this.second = second;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public Integer getFirst() {
-    return _first;
+    return first;
   }
 
   @Override
   public T getSecond() {
-    return _second;
+    return second;
   }
 
   public int getFirstInt() {
-    return _first;
+    return first;
   }
 
   public T getSecondObject() {
-    return _second;
+    return second;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public int getIntKey() {
-    return _first;
+    return first;
   }
 
   @Override
@@ -73,7 +73,7 @@ public class IntObjectPair<T> extends Pair<Integer, T> implements Int2ObjectMap.
     }
     if (obj instanceof IntObjectPair) {
       final IntObjectPair<T> other = (IntObjectPair<T>) obj;
-      return this.getFirstInt() == other.getFirstInt() && LangUtils.equals(this.getSecond(), other.getSecond());
+      return this.first == other.first && LangUtils.equals(this.second, other.second);
     }
     return super.equals(obj);
   }
@@ -81,7 +81,7 @@ public class IntObjectPair<T> extends Pair<Integer, T> implements Int2ObjectMap.
   @Override
   public int hashCode() {
     // see Map.Entry API specification
-    return getFirstInt() ^ _second.hashCode();
+    return first ^ second.hashCode();
   }
 
 }

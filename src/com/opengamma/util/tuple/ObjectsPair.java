@@ -12,6 +12,8 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 
 /**
  * An immutable pair consisting of two {@code Object} elements.
+ * <p>
+ * The pair is only immutable if the objects that are added are immutable, or treated as such.
  *
  * @param <A> the first element type
  * @param <B> the second element type
@@ -19,9 +21,9 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 public final class ObjectsPair<A, B> extends Pair<A, B> {
 
   /** The first element. */
-  private final A _first;
+  public final A first;  // CSIGNORE
   /** The second element. */
-  private final B _second;
+  public final B second;  // CSIGNORE
 
   /**
    * Creates a pair inferring the types.
@@ -41,19 +43,19 @@ public final class ObjectsPair<A, B> extends Pair<A, B> {
    * @param second  the second element, may be null
    */
   public ObjectsPair(A first, B second) {
-    _first = first;
-    _second = second;
+    this.first = first;
+    this.second = second;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public A getFirst() {
-    return _first;
+    return first;
   }
 
   @Override
   public B getSecond() {
-    return _second;
+    return second;
   }
 
   //-------------------------------------------------------------------------
@@ -65,8 +67,8 @@ public final class ObjectsPair<A, B> extends Pair<A, B> {
   public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
     final MutableFudgeFieldContainer msg = context.newMessage();
     msg.add(0, getClass().getName());
-    context.objectToFudgeMsg(msg, "first", null, getFirst());
-    context.objectToFudgeMsg(msg, "second", null, getSecond());
+    context.objectToFudgeMsg(msg, "first", null, first);
+    context.objectToFudgeMsg(msg, "second", null, second);
     return msg;
   }
 
