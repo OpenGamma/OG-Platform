@@ -5,6 +5,11 @@
  */
 package com.opengamma.financial.security;
 
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
+
 import com.opengamma.financial.Currency;
 import com.opengamma.util.time.Expiry;
 
@@ -15,6 +20,19 @@ import com.opengamma.util.time.Expiry;
  */
 public class FXFutureSecurity extends FutureSecurity {
   //TODO there's no reason why this shouldn't be used for FX cross futures, which means it will also need a currency for the trade itself
+
+  /**
+   * 
+   */
+  protected static final String NUMERATOR_KEY = "numerator";
+  /**
+   * 
+   */
+  protected static final String DENOMINATOR_KEY = "denominator";
+  /**
+   * 
+   */
+  protected static final String MULTIPLICATIONFACTOR_KEY = "multiplicationFactor";
 
   /** The numerator currency. */
   private final Currency _numerator;
@@ -88,4 +106,33 @@ public class FXFutureSecurity extends FutureSecurity {
     return visitor.visitFXFutureSecurity(this);
   }
 
+  protected void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+    super.toFudgeMsg(context, message);
+    context.objectToFudgeMsg(message, NUMERATOR_KEY, null, getNumerator());
+    context.objectToFudgeMsg(message, DENOMINATOR_KEY, null, getDenominator());
+    message.add(MULTIPLICATIONFACTOR_KEY, getMultiplicationFactor());
+  }
+
+  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
+    final MutableFudgeFieldContainer message = context.newMessage();
+    FudgeSerializationContext.addClassHeader(message, getClass());
+    toFudgeMsg(context, message);
+    return message;
+  }
+
+  protected void fromFudgeMsgImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    super.fromFudgeMsgImpl(context, message);
+    // Everything set through constructor
+  }
+
+  public static FXFutureSecurity fromFudgeMsg(final FudgeDeserializationContext context,
+      final FudgeFieldContainer message) {
+    final FXFutureSecurity security = new FXFutureSecurity(context.fieldValueToObject(Expiry.class, message
+        .getByName(EXPIRY_KEY)), message.getString(TRADINGEXCHANGE_KEY), message.getString(SETTLEMENTEXCHANGE_KEY),
+        context.fieldValueToObject(Currency.class, message.getByName(CURRENCY_KEY)), context.fieldValueToObject(
+            Currency.class, message.getByName(NUMERATOR_KEY)), context.fieldValueToObject(Currency.class, message
+            .getByName(DENOMINATOR_KEY)), message.getDouble(MULTIPLICATIONFACTOR_KEY));
+    security.fromFudgeMsgImpl(context, message);
+    return security;
+  }
 }
