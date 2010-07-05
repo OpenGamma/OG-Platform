@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.interestrate.swap;
@@ -64,14 +64,14 @@ public class SwapRateCalculator {
     Validate.notNull(fundingCurve);
     Validate.notNull(fra);
     final double delta = fra.getEndTime() - fra.getStartTime();
-    return (forwardCurve.getDiscountFactor(fra.getEndTime()) / forwardCurve.getDiscountFactor(fra.getStartTime()) - 1) / delta;
+    return (forwardCurve.getDiscountFactor(fra.getStartTime()) / forwardCurve.getDiscountFactor(fra.getEndTime()) - 1) / delta;
   }
 
   private double getRateFromIRFuture(final YieldAndDiscountCurve fundingCurve, final InterestRateFuture interestRateFuture) {
     Validate.notNull(fundingCurve);
     Validate.notNull(interestRateFuture);
     final double delta = interestRateFuture.getEndTime() - interestRateFuture.getStartTime();
-    return (fundingCurve.getDiscountFactor(interestRateFuture.getEndTime()) / fundingCurve.getDiscountFactor(interestRateFuture.getStartTime()) - 1) / delta;
+    return (fundingCurve.getDiscountFactor(interestRateFuture.getStartTime()) / fundingCurve.getDiscountFactor(interestRateFuture.getEndTime()) - 1) / delta;
   }
 
   private double getRateFromLibor(final YieldAndDiscountCurve forwardCurve, final Libor libor) {
