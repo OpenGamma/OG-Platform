@@ -19,8 +19,6 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.engine.view.server.EngineFudgeContextConfiguration;
-import com.opengamma.financial.fudgemsg.FinancialFudgeContextConfiguration;
 import com.opengamma.financial.security.AddSecurityRequest;
 import com.opengamma.financial.security.ManagableSecurityMaster;
 import com.opengamma.id.UniqueIdentifier;
@@ -55,14 +53,13 @@ public class SecuritiesResource {
   /**
    * Creates the resource.
    * @param secMaster  the security master, not null
+   * @param fudgeContext  the fudge context, not null
    */
-  public SecuritiesResource(final ManagableSecurityMaster secMaster) {
-    ArgumentChecker.notNull(secMaster, "SecurityMaster");
+  public SecuritiesResource(final ManagableSecurityMaster secMaster, final FudgeContext fudgeContext) {
+    ArgumentChecker.notNull(secMaster, "secMaster");
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _secMaster = secMaster;
     
-    FudgeContext fudgeContext = new FudgeContext();
-    EngineFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
-    FinancialFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
     _fudgeDeserializationContext = new FudgeDeserializationContext(fudgeContext);
     _fudgeSerializationContext = new FudgeSerializationContext(fudgeContext);
   }
@@ -71,9 +68,10 @@ public class SecuritiesResource {
    * Creates the resource.
    * @param uriInfo  the URI information, not null
    * @param secMaster  the security master, not null
+   * @param fudgeContext  the fudge context, not null
    */
-  public SecuritiesResource(UriInfo uriInfo, final ManagableSecurityMaster secMaster) {
-    this(secMaster);
+  public SecuritiesResource(UriInfo uriInfo, final ManagableSecurityMaster secMaster, FudgeContext fudgeContext) {
+    this(secMaster, fudgeContext);
     ArgumentChecker.notNull(uriInfo, "uriInfo");
     _uriInfo = uriInfo;
   }
