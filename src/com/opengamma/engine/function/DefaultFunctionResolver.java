@@ -8,6 +8,8 @@ package com.opengamma.engine.function;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueRequirement;
@@ -18,6 +20,7 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class DefaultFunctionResolver implements FunctionResolver {
+  private static final Logger s_logger = LoggerFactory.getLogger(DefaultFunctionResolver.class);
   
   private FunctionRepository _functionRepository;
 
@@ -39,6 +42,10 @@ public class DefaultFunctionResolver implements FunctionResolver {
           continue;
         }
         Set<ValueSpecification> resultSpecs = newFunction.getResults(context, target);
+        if (resultSpecs == null) {
+          s_logger.error("For function {} can apply to {} but results are null", newFunction.getClass(), target);
+          throw new NullPointerException("For function " + newFunction.getClass() + " can apply to target but results are null");
+        }
         for (ValueSpecification resultSpec : resultSpecs) {
           if (ObjectUtils.equals(resultSpec.getRequirementSpecification(), requirement)) {
             return Pair.of(newFunction, resultSpec);
