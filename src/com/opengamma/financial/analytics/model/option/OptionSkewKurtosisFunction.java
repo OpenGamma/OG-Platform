@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.option;
@@ -21,18 +21,25 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * 
  *
- * @author emcleod
  */
 public abstract class OptionSkewKurtosisFunction extends AbstractFunction implements FunctionInvoker {
+  /**
+   * 
+   */
   public static final String SKEW = "Skew";
+  /**
+   * 
+   */
   public static final String KURTOSIS = "Kurtosis";
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY)
+    if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
-    if (target.getSecurity() instanceof Option)
+    }
+    if (target.getSecurity() instanceof Option) {
       return true;
+    }
     return false;
   }
 

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.future;
@@ -46,6 +46,9 @@ import com.opengamma.financial.security.StockFutureSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.normalization.MarketDataFieldNames;
 
+/**
+ * 
+ */
 public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction implements FunctionInvoker {
   private final FutureModel<StandardFutureDataBundle> _model = new CostOfCarryFutureAsForwardModel();
   private final FutureSecurityVisitor<Identifier> _visitor = new UnderlyingFutureSecurityVisitor();
@@ -62,13 +65,15 @@ public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction im
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-      final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final FutureSecurity future = (FutureSecurity) target.getSecurity();
     final Identifier underlying = future.accept(_visitor);
-    if (underlying == null)
+    if (underlying == null) {
       throw new IllegalArgumentException("Could not get underlying identity key for " + future);
+    }
+    @SuppressWarnings("unused")
     final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
+    @SuppressWarnings("unused")
     final double spot = ((FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(underlying))).getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
     // final double yield = getYield();
     // final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(getDiscountCurveMarketDataRequirement());
@@ -80,8 +85,9 @@ public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction im
     Greek greek;
     for (final ValueRequirement v : desiredValues) {
       greek = AVAILABLE_GREEKS.get(v.getValueName());
-      if (greek == null)
+      if (greek == null) {
         throw new IllegalArgumentException("Told to calculate " + v + " but could not be mapped to a greek");
+      }
       requiredGreeks.add(greek);
     }
     final GreekResultCollection greeks = _model.getGreeks(definition, data, requiredGreeks);
@@ -99,10 +105,12 @@ public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction im
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY)
+    if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
-    if (SUPPORTED_FUTURES.contains(target.getSecurity().getClass()))
+    }
+    if (SUPPORTED_FUTURES.contains(target.getSecurity().getClass())) {
       return true;
+    }
     return false;
   }
 
@@ -111,8 +119,9 @@ public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction im
     if (canApplyTo(context, target)) {
       final FutureSecurity future = (FutureSecurity) target.getSecurity();
       final Identifier underlying = future.accept(_visitor);
-      if (underlying == null)
+      if (underlying == null) {
         throw new IllegalArgumentException("Could not get underlying identity key for " + future);
+      }
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       requirements.add(getUnderlyingMarketDataRequirement(underlying));
       // requirements.add(getDiscountCurveMarketDataRequirement(future.getCurrency()));

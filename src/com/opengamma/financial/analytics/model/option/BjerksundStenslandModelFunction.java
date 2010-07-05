@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.option;
@@ -38,7 +38,6 @@ import com.opengamma.util.time.Expiry;
 /**
  * 
  *
- * @author emcleod
  */
 public class BjerksundStenslandModelFunction extends AnalyticOptionModelFunction {
   private final AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> _model = new BjerksundStenslandModel();
@@ -46,9 +45,8 @@ public class BjerksundStenslandModelFunction extends AnalyticOptionModelFunction
   @Override
   protected StandardOptionDataBundle getDataBundle(final SecurityMaster secMaster, final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
     final ZonedDateTime now = relevantTime.zonedDateTime();
-    Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
-    final double spot = (((FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()))))
-        .getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
+    final Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
+    final double spot = (((FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier())))).getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
     final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
     final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
     // TODO cost of carry model
@@ -58,6 +56,7 @@ public class BjerksundStenslandModelFunction extends AnalyticOptionModelFunction
     return new StandardOptionDataBundle(discountCurve, b, volatilitySurface, spot, now);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   protected AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> getModel() {
     return _model;
@@ -83,9 +82,9 @@ public class BjerksundStenslandModelFunction extends AnalyticOptionModelFunction
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
       final OptionSecurity option = (OptionSecurity) target.getSecurity();
-      
-      SecurityMaster secMaster = context.getSecurityMaster();
-      Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
+
+      final SecurityMaster secMaster = context.getSecurityMaster();
+      final Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
       requirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));

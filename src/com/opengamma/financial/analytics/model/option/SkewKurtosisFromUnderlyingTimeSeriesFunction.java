@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.option;
@@ -24,7 +24,6 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 /**
  * 
  *
- * @author emcleod
  */
 public class SkewKurtosisFromUnderlyingTimeSeriesFunction extends OptionSkewKurtosisFunction {
   private final Function1D<DoubleTimeSeries<?>, Double> _skewCalculator;
@@ -36,14 +35,13 @@ public class SkewKurtosisFromUnderlyingTimeSeriesFunction extends OptionSkewKurt
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-      final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final OptionSecurity option = (OptionSecurity) target.getSecurity();
     final UniqueIdentifier uid = option.getUniqueIdentifier();
     // TODO finish this off
     // DoubleTimeSeries<?> ts = time series of underlying.
     final double skew = 0; // _skewCalculator.evaluate(ts);
-    final double kurtosis = 0;// _kurtosisCalculator.evaluate(ts);
+    final double kurtosis = 0; // _kurtosisCalculator.evaluate(ts);
     final Set<ComputedValue> results = new HashSet<ComputedValue>();
     results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(SKEW, ComputationTargetType.SECURITY, uid)), skew));
     results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(KURTOSIS, ComputationTargetType.SECURITY, uid)), kurtosis));

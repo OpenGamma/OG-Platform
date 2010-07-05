@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.greeks;
@@ -70,15 +70,17 @@ public class AvailablePositionGreeks {
   }
 
   public static PositionGreek getPositionGreekForValueRequirementName(final String valueName) {
-    if (!AVAILABLE_POSITION_GREEKS.containsKey(valueName))
+    if (!AVAILABLE_POSITION_GREEKS.containsKey(valueName)) {
       throw new IllegalArgumentException("Could not get position greek for ValueRequirementName " + valueName);
+    }
     return AVAILABLE_POSITION_GREEKS.get(valueName);
   }
 
   public static PositionGreek getPositionGreekForValueRequirement(final ValueRequirement requirement) {
     final String greekName = requirement.getValueName();
-    if (!AVAILABLE_POSITION_GREEKS.containsKey(greekName))
+    if (!AVAILABLE_POSITION_GREEKS.containsKey(greekName)) {
       throw new IllegalArgumentException("Could not get position greek for ValueRequirement " + requirement.toString());
+    }
     return AVAILABLE_POSITION_GREEKS.get(greekName);
   }
 

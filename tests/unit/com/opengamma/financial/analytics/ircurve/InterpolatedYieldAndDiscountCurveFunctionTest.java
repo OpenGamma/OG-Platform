@@ -121,7 +121,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("EUR")));
     assertNull(requirements);
     
-    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, new PortfolioNodeImpl()));
+    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, new PortfolioNodeImpl()));
     assertNull(requirements);
   }
 
@@ -142,7 +142,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
         .getInstance("EUR")));
     assertNull(requirements);
 
-    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS,
+    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE,
         new PortfolioNodeImpl()));
     assertNull(requirements);
   }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.pnl;
@@ -52,75 +52,67 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction i
   private final Set<ValueGreek> _valueGreeks;
   private final Set<String> _valueGreekRequirementNames;
   private final TimeSeriesReturnCalculator _returnCalculator = new ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.LENIENT);
-  
-  public PositionValueGreekSensitivityPnLFunction(String valueGreekRequirementName) {
-    this(new String[]{valueGreekRequirementName});
+
+  public PositionValueGreekSensitivityPnLFunction(final String valueGreekRequirementName) {
+    this(new String[] {valueGreekRequirementName});
   }
-  
-  public PositionValueGreekSensitivityPnLFunction(String valueGreekRequirementName1, String valueGreekRequirementName2) {
-    this(new String[]{valueGreekRequirementName1, valueGreekRequirementName2});
+
+  public PositionValueGreekSensitivityPnLFunction(final String valueGreekRequirementName1, final String valueGreekRequirementName2) {
+    this(new String[] {valueGreekRequirementName1, valueGreekRequirementName2});
   }
-  
-  public PositionValueGreekSensitivityPnLFunction(String... valueGreekRequirementNames) {
+
+  public PositionValueGreekSensitivityPnLFunction(final String... valueGreekRequirementNames) {
     _valueGreeks = new HashSet<ValueGreek>();
     _valueGreekRequirementNames = new HashSet<String>();
-    for (String valueGreekRequirementName : valueGreekRequirementNames) {
+    for (final String valueGreekRequirementName : valueGreekRequirementNames) {
       _valueGreekRequirementNames.add(valueGreekRequirementName);
       _valueGreeks.add(AvailableValueGreeks.getValueGreekForValueRequirementName(valueGreekRequirementName));
     }
   }
 
   @Override
-  public Set<ComputedValue> execute(
-      final FunctionExecutionContext executionContext,
-      final FunctionInputs inputs,
-      final ComputationTarget target,
-      final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
     final HistoricalDataProvider historicalDataProvider = OpenGammaExecutionContext.getHistoricalDataProvider(executionContext);
     final SecurityMaster securityMaster = OpenGammaExecutionContext.getSecurityMaster(executionContext);
-    
-    ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position));
-    Map<Sensitivity<?>, RiskFactorResult> sensitivities = new HashMap<Sensitivity<?>, RiskFactorResult>();
-    Map<Sensitivity<?>, Map<Object, DoubleTimeSeries<?>>> tsReturns = new HashMap<Sensitivity<?>, Map<Object, DoubleTimeSeries<?>>>();
-    for (String valueGreekRequirementName : _valueGreekRequirementNames) {
-       Object valueObj = inputs.getValue(valueGreekRequirementName);
-       if (valueObj instanceof Double) {
-         Double value = (Double) valueObj;
-         ValueGreek valueGreek = AvailableValueGreeks.getValueGreekForValueRequirementName(valueGreekRequirementName);
-         Sensitivity<?> sensitivity = new ValueGreekSensitivity(valueGreek, position.getUniqueIdentifier().toString());
-         RiskFactorResult riskFactorResult = new RiskFactorResult(value);
-         sensitivities.put(sensitivity, riskFactorResult);
-         Map<Object, DoubleTimeSeries<?>> underlyings = new HashMap<Object, DoubleTimeSeries<?>>();
-         LocalDateDoubleTimeSeries intersection = null;
-         for (UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
-           
-           LocalDateDoubleTimeSeries timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalDataProvider,
-                                                                                                 securityMaster, 
-                                                                                                 underlyingType, position.getSecurity());
-           if (intersection == null) {
-             intersection = timeSeries;
-           } else {
-             intersection = (LocalDateDoubleTimeSeries) intersection.intersectionFirstValue(timeSeries);
-           }
-         }
-         for (UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
-           
-           LocalDateDoubleTimeSeries timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalDataProvider,
-                                                                                                 securityMaster, 
-                                                                                                 underlyingType, position.getSecurity());
-           timeSeries = (LocalDateDoubleTimeSeries) timeSeries.intersectionFirstValue(intersection);
-           underlyings.put(underlyingType, _returnCalculator.evaluate(timeSeries));
-         }
-         tsReturns.put(sensitivity, underlyings);
-       } else {
-         throw new IllegalArgumentException("Got a value for greek "+valueObj+" that wasn't a Double");
-       }
+
+    final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position));
+    final Map<Sensitivity<?>, RiskFactorResult> sensitivities = new HashMap<Sensitivity<?>, RiskFactorResult>();
+    final Map<Sensitivity<?>, Map<Object, DoubleTimeSeries<?>>> tsReturns = new HashMap<Sensitivity<?>, Map<Object, DoubleTimeSeries<?>>>();
+    for (final String valueGreekRequirementName : _valueGreekRequirementNames) {
+      final Object valueObj = inputs.getValue(valueGreekRequirementName);
+      if (valueObj instanceof Double) {
+        final Double value = (Double) valueObj;
+        final ValueGreek valueGreek = AvailableValueGreeks.getValueGreekForValueRequirementName(valueGreekRequirementName);
+        final Sensitivity<?> sensitivity = new ValueGreekSensitivity(valueGreek, position.getUniqueIdentifier().toString());
+        final RiskFactorResult riskFactorResult = new RiskFactorResult(value);
+        sensitivities.put(sensitivity, riskFactorResult);
+        final Map<Object, DoubleTimeSeries<?>> underlyings = new HashMap<Object, DoubleTimeSeries<?>>();
+        LocalDateDoubleTimeSeries intersection = null;
+        for (final UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
+
+          final LocalDateDoubleTimeSeries timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalDataProvider, securityMaster, underlyingType, position.getSecurity());
+          if (intersection == null) {
+            intersection = timeSeries;
+          } else {
+            intersection = (LocalDateDoubleTimeSeries) intersection.intersectionFirstValue(timeSeries);
+          }
+        }
+        for (final UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
+
+          LocalDateDoubleTimeSeries timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalDataProvider, securityMaster, underlyingType, position.getSecurity());
+          timeSeries = (LocalDateDoubleTimeSeries) timeSeries.intersectionFirstValue(intersection);
+          underlyings.put(underlyingType, _returnCalculator.evaluate(timeSeries));
+        }
+        tsReturns.put(sensitivity, underlyings);
+      } else {
+        throw new IllegalArgumentException("Got a value for greek " + valueObj + " that wasn't a Double");
+      }
     }
-    PnLDataBundle dataBundle = new PnLDataBundle(sensitivities, tsReturns);
-    SensitivityPnLCalculator calculator = new SensitivityPnLCalculator();
-    DoubleTimeSeries<?> result = calculator.evaluate(dataBundle);
-    ComputedValue resultValue = new ComputedValue(resultSpecification, result);
+    final PnLDataBundle dataBundle = new PnLDataBundle(sensitivities, tsReturns);
+    final SensitivityPnLCalculator calculator = new SensitivityPnLCalculator();
+    final DoubleTimeSeries<?> result = calculator.evaluate(dataBundle);
+    final ComputedValue resultValue = new ComputedValue(resultSpecification, result);
     return Collections.singleton(resultValue);
   }
 
@@ -134,8 +126,8 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction i
     if (!canApplyTo(context, target)) {
       return null;
     }
-    Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    for (String valueGreekRequirementName : _valueGreekRequirementNames) {
+    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    for (final String valueGreekRequirementName : _valueGreekRequirementNames) {
       requirements.add(new ValueRequirement(valueGreekRequirementName, target.getPosition()));
     }
     return requirements;
@@ -146,7 +138,7 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction i
     if (!canApplyTo(context, target)) {
       return null;
     }
-    Set<ValueSpecification> results = new HashSet<ValueSpecification>();
+    final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
     results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition())));
     return results;
   }

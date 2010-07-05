@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.var;
@@ -26,6 +26,7 @@ import com.opengamma.financial.var.NormalLinearVaRCalculator;
 import com.opengamma.financial.var.NormalStatistics;
 import com.opengamma.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.math.statistics.descriptive.SampleStandardDeviationCalculator;
+import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
@@ -34,26 +35,24 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  *
  */
 public class PortfolioHistoricalVaRCalculatorFunction extends AbstractFunction implements FunctionInvoker {
-
-  private static double CONFIDENCE_LEVEL = 0.99;
-  private static double ONE_YEAR = 365.25;
+  private static final double CONFIDENCE_LEVEL = 0.99;
+  private static final double ONE_YEAR = DateUtil.DAYS_PER_YEAR;
   private static DoubleTimeSeriesStatisticsCalculator s_stdCalculator = new DoubleTimeSeriesStatisticsCalculator(new SampleStandardDeviationCalculator());
   private static DoubleTimeSeriesStatisticsCalculator s_meanCalculator = new DoubleTimeSeriesStatisticsCalculator(new MeanCalculator());
-  
+
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs,
-      ComputationTarget target, Set<ValueRequirement> desiredValues) {
-    Object pnlSeriesObj= inputs.getValue(ValueRequirementNames.PNL_SERIES);
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+    final Object pnlSeriesObj = inputs.getValue(ValueRequirementNames.PNL_SERIES);
     if (pnlSeriesObj instanceof DoubleTimeSeries<?>) {
-      DoubleTimeSeries<?> pnlSeries = (DoubleTimeSeries<?>)pnlSeriesObj;
-      LocalDateDoubleTimeSeries pnlSeriesLD = pnlSeries.toLocalDateDoubleTimeSeries();
+      final DoubleTimeSeries<?> pnlSeries = (DoubleTimeSeries<?>) pnlSeriesObj;
+      final LocalDateDoubleTimeSeries pnlSeriesLD = pnlSeries.toLocalDateDoubleTimeSeries();
       if (!pnlSeriesLD.isEmpty()) {
-        LocalDate earliest = pnlSeriesLD.getEarliestTime();
-        LocalDate latest = pnlSeriesLD.getLatestTime();
-        long days = latest.toEpochDays() - earliest.toEpochDays();
-        NormalLinearVaRCalculator s_varCalculator = new NormalLinearVaRCalculator(1, (252 * days) / ONE_YEAR, CONFIDENCE_LEVEL);
-        NormalStatistics<DoubleTimeSeries<?>> normalStats = new NormalStatistics<DoubleTimeSeries<?>>(s_meanCalculator, s_stdCalculator, pnlSeries);
-        double var = s_varCalculator.evaluate(normalStats);
+        final LocalDate earliest = pnlSeriesLD.getEarliestTime();
+        final LocalDate latest = pnlSeriesLD.getLatestTime();
+        final long days = latest.toEpochDays() - earliest.toEpochDays();
+        final NormalLinearVaRCalculator varCalculator = new NormalLinearVaRCalculator(1, (252 * days) / ONE_YEAR, CONFIDENCE_LEVEL);
+        final NormalStatistics<DoubleTimeSeries<?>> normalStats = new NormalStatistics<DoubleTimeSeries<?>>(s_meanCalculator, s_stdCalculator, pnlSeries);
+        final double var = varCalculator.evaluate(normalStats);
         return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPortfolioNode())), var));
       }
     }
@@ -61,17 +60,17 @@ public class PortfolioHistoricalVaRCalculatorFunction extends AbstractFunction i
   }
 
   @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    return target.getType() == ComputationTargetType.MULTIPLE_POSITIONS;
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    return target.getType() == ComputationTargetType.PORTFOLIO_NODE;
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
     return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPortfolioNode()));
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPortfolioNode())));
   }
 
@@ -82,7 +81,7 @@ public class PortfolioHistoricalVaRCalculatorFunction extends AbstractFunction i
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.MULTIPLE_POSITIONS;
+    return ComputationTargetType.PORTFOLIO_NODE;
   }
 
 }

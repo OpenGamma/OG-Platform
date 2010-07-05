@@ -64,12 +64,13 @@ public class AmericanVanillaEquityOptionSecurity extends EquityOptionSecurity im
 
   public static AmericanVanillaEquityOptionSecurity fromFudgeMsg(final FudgeDeserializationContext context,
       final FudgeFieldContainer message) {
-    final AmericanVanillaEquityOptionSecurity security = new AmericanVanillaEquityOptionSecurity(context
-        .fieldValueToObject(OptionType.class, message
-        .getByName(OPTIONTYPE_KEY)), message.getDouble(STRIKE_KEY), context.fieldValueToObject(Expiry.class, message
-        .getByName(EXPIRY_KEY)), context.fieldValueToObject(Identifier.class, message
-        .getByName(UNDERLYINGIDENTIFIER_KEY)), context.fieldValueToObject(Currency.class, message
-        .getByName(CURRENCY_KEY)), message.getDouble(POINTVALUE_KEY), message.getString(EXCHANGE_KEY));
+    final AmericanVanillaEquityOptionSecurity security = new AmericanVanillaEquityOptionSecurity(
+        context.fieldValueToObject(OptionType.class, message.getByName(OPTIONTYPE_KEY)),
+        message.getDouble(STRIKE_KEY),
+        context.fieldValueToObject(Expiry.class, message.getByName(EXPIRY_KEY)),
+        context.fieldValueToObject(Identifier.class, message.getByName(UNDERLYINGIDENTIFIER_KEY)),
+        context.fieldValueToObject(Currency.class, message.getByName(CURRENCY_KEY)),
+        message.getDouble(POINTVALUE_KEY), message.getString(EXCHANGE_KEY));
     security.fromFudgeMsgImpl(context, message);
     return security;
   }

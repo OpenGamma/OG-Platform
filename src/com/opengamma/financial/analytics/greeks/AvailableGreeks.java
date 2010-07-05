@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.greeks;
@@ -71,15 +71,17 @@ public class AvailableGreeks {
   }
 
   public static Greek getGreekForValueRequirementName(final String valueName) {
-    if (!AVAILABLE_GREEKS.containsKey(valueName))
+    if (!AVAILABLE_GREEKS.containsKey(valueName)) {
       throw new IllegalArgumentException("Could not get greek for ValueRequirementName " + valueName);
+    }
     return AVAILABLE_GREEKS.get(valueName);
   }
 
   public static Greek getGreekForValueRequirement(final ValueRequirement requirement) {
     final String greekName = requirement.getValueName();
-    if (!AVAILABLE_GREEKS.containsKey(greekName))
+    if (!AVAILABLE_GREEKS.containsKey(greekName)) {
       throw new IllegalArgumentException("Could not get greek for ValueRequirement " + requirement.toString());
+    }
     return AVAILABLE_GREEKS.get(greekName);
   }
 
@@ -90,8 +92,8 @@ public class AvailableGreeks {
   public static Map<String, Greek> getAllGreekNamesAndGreeks() {
     return AVAILABLE_GREEKS;
   }
-  
-  public static String getValueRequirementNameForGreek(Greek greek) {
+
+  public static String getValueRequirementNameForGreek(final Greek greek) {
     ArgumentChecker.notNull(greek, "greek");
     return AVAILABLE_GREEKS.inverse().get(greek);
   }

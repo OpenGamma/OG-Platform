@@ -88,7 +88,8 @@ public class InMemoryRegionRepository implements RegionRepository {
   public static final String POLITICAL_HIERARCHY_NAME = "Political";
   
   private static final String SUB_REGIONS_COLUMN = "Sub Regions";
-  private static final IdentificationScheme REGION_FILE_SCHEME = new IdentificationScheme("REGION_FILE_SCHEME");
+  public static final IdentificationScheme REGION_FILE_SCHEME = new IdentificationScheme("REGION_FILE_SCHEME");
+  public static final IdentificationScheme REGION_FILE_SCHEME_ISO2 = new IdentificationScheme("REGION_FILE_SCHEME_ISO2");
 
   private static final String REGION_SCHEME_PREFIX = "REGION_SCHEME_";
   

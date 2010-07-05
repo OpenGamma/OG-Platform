@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.equity;
@@ -28,26 +28,26 @@ import com.opengamma.livedata.normalization.MarketDataFieldNames;
 /**
  * 
  *
- * @author emcleod
  */
 public class StandardEquityModelFunction extends AbstractFunction implements FunctionInvoker {
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-      final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final EquitySecurity equity = (EquitySecurity) target.getSecurity();
-    final double price = (((FudgeFieldContainer) inputs.getValue(new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, equity
-        .getUniqueIdentifier())))).getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
-    return Collections.<ComputedValue> singleton(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY,
-        equity.getUniqueIdentifier())), price));
+    final double price = (((FudgeFieldContainer) inputs.getValue(new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, equity.getUniqueIdentifier()))))
+        .getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
+    return Collections.<ComputedValue>singleton(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity
+        .getUniqueIdentifier())), price));
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY)
+    if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
-    if (target.getSecurity() instanceof EquitySecurity)
+    }
+    if (target.getSecurity() instanceof EquitySecurity) {
       return true;
+    }
     return false;
   }
 
@@ -67,8 +67,7 @@ public class StandardEquityModelFunction extends AbstractFunction implements Fun
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
       final EquitySecurity equity = (EquitySecurity) target.getSecurity();
-      return Collections.<ValueSpecification> singleton(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity
-          .getUniqueIdentifier())));
+      return Collections.<ValueSpecification>singleton(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity.getUniqueIdentifier())));
     }
     return null;
   }

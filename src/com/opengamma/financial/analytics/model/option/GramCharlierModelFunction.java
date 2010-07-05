@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.option;
@@ -48,9 +48,8 @@ public class GramCharlierModelFunction extends AnalyticOptionModelFunction {
   protected SkewKurtosisOptionDataBundle getDataBundle(final SecurityMaster secMaster, final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
     final ZonedDateTime now = relevantTime.zonedDateTime();
     final UniqueIdentifier optionID = option.getUniqueIdentifier();
-    Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
-    final double spot = (((FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()))))
-        .getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
+    final Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
+    final double spot = (((FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier())))).getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
     final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
     final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(optionID));
     // TODO cost of carry model
@@ -62,6 +61,7 @@ public class GramCharlierModelFunction extends AnalyticOptionModelFunction {
     return new SkewKurtosisOptionDataBundle(discountCurve, b, volatilitySurface, spot, now, skew, kurtosis);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   protected AnalyticOptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> getModel() {
     return _model;
@@ -88,8 +88,8 @@ public class GramCharlierModelFunction extends AnalyticOptionModelFunction {
     if (canApplyTo(context, target)) {
       final OptionSecurity option = (OptionSecurity) target.getSecurity();
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      SecurityMaster securityMaster = context.getSecurityMaster();
-      Security underlying = securityMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
+      final SecurityMaster securityMaster = context.getSecurityMaster();
+      final Security underlying = securityMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
       requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
       requirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
       requirements.add(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
