@@ -135,6 +135,7 @@ public class RepositoryFactory {
     } catch (ClassNotFoundException e) {
       throw new OpenGammaRuntimeException("Unable to resolve classes", e);
     } catch (InstantiationException e) {
+      s_logger.error("Exception instantiating function", e);
       throw new OpenGammaRuntimeException("Unable to instantiate classes", e);
     } catch (IllegalAccessException e) {
       throw new OpenGammaRuntimeException("Unable to instantiate classes", e);
