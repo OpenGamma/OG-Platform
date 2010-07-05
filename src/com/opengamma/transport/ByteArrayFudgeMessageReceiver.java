@@ -7,6 +7,8 @@ package com.opengamma.transport;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -15,6 +17,7 @@ import com.opengamma.util.ArgumentChecker;
  * {@link BatchFudgeMessageReceiver}.
  */
 public class ByteArrayFudgeMessageReceiver implements ByteArrayMessageReceiver {
+  private static final Logger s_logger = LoggerFactory.getLogger(ByteArrayFudgeMessageReceiver.class);
 
   /**
    * The underlying Fudge receiver.
@@ -70,6 +73,7 @@ public class ByteArrayFudgeMessageReceiver implements ByteArrayMessageReceiver {
   @Override
   public void messageReceived(byte[] message) {
     FudgeMsgEnvelope msgEnvelope = getFudgeContext().deserialize(message);
+    s_logger.debug("Msg of size {} had {} fields", message.length, msgEnvelope.getMessage().getNumFields());
     getUnderlying().messageReceived(getFudgeContext(), msgEnvelope);
   }
 
