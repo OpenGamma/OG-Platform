@@ -375,7 +375,7 @@ public class SingleComputationCycle {
     for (ValueSpecification outputSpec : depGraph.getOutputValues(type)) {
       // REVIEW kirk 2010-07-05 -- WARNING! GROSS HACK!
       if ((outputSpec.getRequirementSpecification().getTargetSpecification().getType() == ComputationTargetType.PRIMITIVE)
-          && !ObjectUtils.equals(ValueRequirementNames.YIELD_CURVE, outputSpec.getRequirementSpecification().getValueName())) {
+          && !ObjectUtils.equals(ValueRequirementNames.FUNDING_CURVE, outputSpec.getRequirementSpecification().getValueName())) {
         continue;
       }
       Object value = computationCache.getValue(outputSpec);
