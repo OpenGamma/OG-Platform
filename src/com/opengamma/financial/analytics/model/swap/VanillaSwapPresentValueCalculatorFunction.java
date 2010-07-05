@@ -83,7 +83,7 @@ public class VanillaSwapPresentValueCalculatorFunction extends AbstractFunction 
       if (swap.getPayLeg() instanceof FixedInterestRateLeg && swap.getReceiveLeg() instanceof FloatingInterestRateLeg) {
         fixed = (FixedInterestRateLeg) swap.getPayLeg();
         floating = (FloatingInterestRateLeg) swap.getReceiveLeg();
-      } else if (swap.getPayLeg() instanceof FloatingInterestRateLeg && swap.getPayLeg() instanceof FixedInterestRateLeg) {
+      } else if (swap.getPayLeg() instanceof FloatingInterestRateLeg && swap.getReceiveLeg() instanceof FixedInterestRateLeg) {
         fixed = (FixedInterestRateLeg) swap.getReceiveLeg();
         floating = (FloatingInterestRateLeg) swap.getPayLeg();
       }
