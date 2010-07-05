@@ -152,7 +152,7 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     }
     final double[] forwardNodeTimes = new double[nForward];
     int j = 0;
-    for (final FixedIncomeStrip strip : fundingStrips) {
+    for (final FixedIncomeStrip strip : forwardStrips) {
       derivative = getInterestRateDerivative(strip, calendar, region, now, referenceFloatingRate);
       if (derivative == null) {
         throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
@@ -175,7 +175,7 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     }
     final DoubleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle> jacobianCalculator = new DoubleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(derivatives,
         spotRate, forwardNodeTimes, fundingNodeTimes, _forwardInterpolatorWithSensitivity, _fundingInterpolatorWithSensitivity);
-    final DoubleCurveFinder curveFinder = new DoubleCurveFinder(derivatives, marketRates, spotRate, forwardNodeTimes, forwardNodeTimes, null, null, _forwardInterpolator, _fundingInterpolator);
+    final DoubleCurveFinder curveFinder = new DoubleCurveFinder(derivatives, marketRates, spotRate, forwardNodeTimes, fundingNodeTimes, null, null, _forwardInterpolator, _fundingInterpolator);
     final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, jacobianCalculator, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
     final double[] yields = rootFinder.getRoot(curveFinder, new DoubleMatrix1D(initialRatesGuess)).getData();
     final double[] forwardYields = Arrays.copyOfRange(yields, 0, nForward);
