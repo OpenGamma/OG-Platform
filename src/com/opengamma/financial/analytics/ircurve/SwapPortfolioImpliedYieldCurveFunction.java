@@ -31,6 +31,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.analytics.model.swap.SwapScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.swap.SingleCurveFinder;
 import com.opengamma.financial.interestrate.swap.SingleCurveJacobian;
 import com.opengamma.financial.interestrate.swap.SwapRateCalculator;
@@ -84,7 +85,7 @@ public class SwapPortfolioImpliedYieldCurveFunction extends AbstractFunction imp
     ZonedDateTime effectiveDate, maturityDate;
     boolean payFixed;
     final int numberOfSwaps = node.getPositions().size();
-    final List<Swap> swaps = new ArrayList<Swap>();
+    final List<InterestRateDerivative> swaps = new ArrayList<InterestRateDerivative>();
     final double[] marketRates = new double[numberOfSwaps];
     final double[] nodeTimes = new double[numberOfSwaps];
     final double[] initialRatesGuess = new double[numberOfSwaps]; // TODO is this where the fixed rate should live?
@@ -162,7 +163,7 @@ public class SwapPortfolioImpliedYieldCurveFunction extends AbstractFunction imp
     }
     return true;
   }
-  
+
   public static Set<ValueRequirement> buildRequirements(final InterpolatedYieldAndDiscountCurveDefinition definition) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
     for (final FixedIncomeStrip strip : definition.getStrips()) {

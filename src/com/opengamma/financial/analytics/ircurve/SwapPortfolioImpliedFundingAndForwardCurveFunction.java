@@ -30,6 +30,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.analytics.model.swap.SwapScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.swap.DoubleCurveFinder;
 import com.opengamma.financial.interestrate.swap.DoubleCurveJacobian;
 import com.opengamma.financial.interestrate.swap.SwapRateCalculator;
@@ -89,7 +90,7 @@ public class SwapPortfolioImpliedFundingAndForwardCurveFunction extends Abstract
     ZonedDateTime effectiveDate, maturityDate;
     boolean payFixed;
     final int numberOfSwaps = node.getPositions().size();
-    final List<Swap> swaps = new ArrayList<Swap>();
+    final List<InterestRateDerivative> swaps = new ArrayList<InterestRateDerivative>();
     final double[] marketRates = new double[numberOfSwaps];
     final double[] fundingNodeTimes = new double[fundingCurve.getMaturities().size()];
     final double[] forwardNodeTimes = new double[forwardCurve.getMaturities().size()];
