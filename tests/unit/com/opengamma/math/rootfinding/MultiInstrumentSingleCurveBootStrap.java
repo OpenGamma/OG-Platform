@@ -1,0 +1,237 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
+package com.opengamma.math.rootfinding;
+
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
+
+import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.libor.Libor;
+import com.opengamma.financial.interestrate.swap.SingleCurveFinder;
+import com.opengamma.financial.interestrate.swap.SingleCurveJacobian;
+import com.opengamma.financial.interestrate.swap.SwapRateCalculator;
+import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.math.function.Function1D;
+import com.opengamma.math.interpolation.CubicSplineInterpolatorWithSensitivities1D;
+import com.opengamma.math.interpolation.InterpolationResult;
+import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.math.interpolation.Interpolator1DCubicSplineDataBundle;
+import com.opengamma.math.interpolation.Interpolator1DCubicSplineWithSensitivitiesDataBundle;
+import com.opengamma.math.interpolation.Interpolator1DWithSensitivities;
+import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
+import com.opengamma.math.linearalgebra.SVDecompositionCommons;
+import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.rootfinding.newton.FiniteDifferenceJacobianCalculator;
+import com.opengamma.math.rootfinding.newton.JacobianCalculator;
+import com.opengamma.math.rootfinding.newton.NewtonDefaultVectorRootFinder;
+import com.opengamma.util.monitor.OperationTimer;
+
+/**
+ * 
+ */
+public class MultiInstrumentSingleCurveBootStrap {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveBootStrapTest.class);
+  private static final int HOTSPOT_WARMUP_CYCLES = 0;
+  private static final int BENCHMARK_CYCLES = 1;
+  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
+
+  private static final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> CUBIC = new NaturalCubicSplineInterpolator1D();
+  private static final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> CUBIC_WITH_SENSITIVITY = new CubicSplineInterpolatorWithSensitivities1D();
+  private static List<InterestRateDerivative> INSTRUMENTS;
+  private static double[] MARKET_VALUES;
+  private static YieldAndDiscountCurve CURVE;
+
+  private static final double[] NODE_TIMES;
+
+  private static final double SPOT_RATE;
+  private static final double EPS = 1e-8;
+  private static final int STEPS = 100;
+  private static final DoubleMatrix1D X0;
+
+  private static final SwapRateCalculator SWAP_RATE_CALCULATOR = new SwapRateCalculator();
+  private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> SINGLE_CURVE_FINDER;
+  private static final JacobianCalculator SINGLE_CURVE_JACOBIAN;
+
+  protected static final Function1D<Double, Double> DUMMY_CURVE = new Function1D<Double, Double>() {
+
+    private static final double a = -0.0325;
+    private static final double b = 0.021;
+    private static final double c = 0.52;
+    private static final double d = 0.055;
+
+    @Override
+    public Double evaluate(final Double x) {
+      return (a + b * x) * Math.exp(-c * x) + d;
+    }
+  };
+
+  static {
+
+    INSTRUMENTS = new ArrayList<InterestRateDerivative>();
+
+    double[] liborMaturities = new double[] {3. / 12.};// note using 1m and 2m LIBOR tenors for what should be the 3m-libor curve is probably wrong
+    double[] fraMaturities = new double[] {0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0};
+    double[] cashMaturities = new double[] {1 / 365.25, 7 / 365.25, 1.0 / 12.0};
+    int[] swapSemiannualGrid = new int[] {4, 6, 8, 10, 12, 14, 16, 18, 20, 30, 40, 50, 60};
+    // int[] swapSemiannualGrid = new int[] {1, 2, 3, 4, 6, 8, 10, 14, 20, 30, 40, 50, 60};
+
+    int nNodes = liborMaturities.length + fraMaturities.length + cashMaturities.length + swapSemiannualGrid.length;
+
+    NODE_TIMES = new double[nNodes];
+    int index = 0;
+
+    InterestRateDerivative ird;
+
+    for (double t : liborMaturities) {
+      ird = new Libor(t);
+      INSTRUMENTS.add(ird);
+      NODE_TIMES[index++] = t;
+    }
+    for (double t : fraMaturities) {
+      ird = new ForwardRateAgreement(t - 0.25, t);
+      INSTRUMENTS.add(ird);
+      NODE_TIMES[index++] = t;
+    }
+
+    for (double t : cashMaturities) {
+      ird = new Cash(t);
+      INSTRUMENTS.add(ird);
+      NODE_TIMES[index++] = t;
+    }
+
+    for (int element : swapSemiannualGrid) {
+      Swap swap = setupSwap(element);
+      INSTRUMENTS.add(swap);
+      double t = swap.getFloatingPaymentTimes()[swap.getNumberOfFloatingPayments() - 1] + Math.max(0.0, swap.getDeltaEnd()[swap.getNumberOfFloatingPayments() - 1]);
+      NODE_TIMES[index++] = t;
+    }
+
+    if (INSTRUMENTS.size() != (nNodes)) {
+      throw new IllegalArgumentException("number of instruments not equal to number of nodes");
+    }
+
+    Arrays.sort(NODE_TIMES);
+
+    // set up curve to obtain "market" prices
+    double[] yields = new double[nNodes];
+
+    for (int i = 0; i < nNodes; i++) {
+      yields[i] = DUMMY_CURVE.evaluate(NODE_TIMES[i]);
+    }
+
+    SPOT_RATE = DUMMY_CURVE.evaluate(0.0);
+
+    CURVE = makeYieldCurve(yields, NODE_TIMES, CUBIC);
+
+    // now get market prices
+    MARKET_VALUES = new double[nNodes];
+    final double[] rates = new double[nNodes];
+
+    for (int i = 0; i < nNodes; i++) {
+      MARKET_VALUES[i] = SWAP_RATE_CALCULATOR.getRate(CURVE, CURVE, INSTRUMENTS.get(i));
+      rates[i] = 0.05;
+    }
+    X0 = new DoubleMatrix1D(rates);
+
+    SINGLE_CURVE_FINDER = new SingleCurveFinder(INSTRUMENTS, MARKET_VALUES, SPOT_RATE, NODE_TIMES, CUBIC);
+    SINGLE_CURVE_JACOBIAN = new SingleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(INSTRUMENTS, SPOT_RATE, NODE_TIMES, CUBIC_WITH_SENSITIVITY);
+
+  }
+
+  @Test
+  public void testNewton() {
+
+    // VectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS);
+    // doHotSpot(rootFinder, "default Newton FD , double curve", DOUBLE_CURVE_FINDER);
+    VectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN, new SVDecompositionCommons());
+    doHotSpot(rootFinder, "default Newton, single curve", SINGLE_CURVE_FINDER);
+    //
+
+  }
+
+  @Test
+  public void testSingleJacobian() {
+    final JacobianCalculator jacobianFD = new FiniteDifferenceJacobianCalculator(1e-8);
+    final DoubleMatrix2D jacExact = SINGLE_CURVE_JACOBIAN.evaluate(X0, SINGLE_CURVE_FINDER);
+    final DoubleMatrix2D jacFD = jacobianFD.evaluate(X0, SINGLE_CURVE_FINDER);
+    System.out.println("exact: " + jacExact.toString());
+    System.out.println("FD: " + jacFD.toString());
+
+    // assertMatrixEquals(jacExact, jacFD, 1e-7);
+  }
+
+  private void doHotSpot(final VectorRootFinder rootFinder, final String name, final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor) {
+    for (int i = 0; i < HOTSPOT_WARMUP_CYCLES; i++) {
+      doTest(rootFinder, (SingleCurveFinder) functor);
+    }
+    if (BENCHMARK_CYCLES > 0) {
+      final OperationTimer timer = new OperationTimer(s_logger, "processing {} cycles on " + name, BENCHMARK_CYCLES);
+      for (int i = 0; i < BENCHMARK_CYCLES; i++) {
+        doTest(rootFinder, (SingleCurveFinder) functor);
+      }
+      timer.finished();
+    }
+  }
+
+  private void doTest(final VectorRootFinder rootFinder, final SingleCurveFinder functor) {
+    final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(functor, X0);
+    final YieldAndDiscountCurve curve = makeYieldCurve(yieldCurveNodes.getData(), NODE_TIMES, CUBIC);
+    for (int i = 0; i < MARKET_VALUES.length; i++) {
+      assertEquals(MARKET_VALUES[i], SWAP_RATE_CALCULATOR.getRate(curve, curve, INSTRUMENTS.get(i)), EPS);
+    }
+  }
+
+  private static YieldAndDiscountCurve makeYieldCurve(final double[] yields, final double[] times, final Interpolator1D<? extends Interpolator1DCubicSplineDataBundle, InterpolationResult> interpolator) {
+    final int n = yields.length;
+    if (n != times.length) {
+      throw new IllegalArgumentException("rates and times different lengths");
+    }
+    final double[] t = new double[n + 1];
+    final double[] y = new double[n + 1];
+    t[0] = 0;
+    y[0] = SPOT_RATE;
+    for (int i = 0; i < n; i++) {
+      t[i + 1] = times[i];
+      y[i + 1] = yields[i];
+    }
+    return new InterpolatedYieldCurve(t, y, interpolator);
+  }
+
+  private static Swap setupSwap(final int payments) {
+    final double[] fixed = new double[payments];
+    final double[] floating = new double[2 * payments];
+    final double[] deltaStart = new double[2 * payments];
+    final double[] deltaEnd = new double[2 * payments];
+    for (int i = 0; i < payments; i++) {
+      floating[2 * i + 1] = fixed[i] = 0.5 * (1 + i) + 0.02 * (RANDOM.nextDouble() - 0.5);
+    }
+    for (int i = 0; i < 2 * payments; i++) {
+      if (i % 2 == 0) {
+        floating[i] = 0.25 * (1 + i) + 0.02 * (RANDOM.nextDouble() - 0.5);
+      }
+      deltaStart[i] = 0.02 * (i == 0 ? RANDOM.nextDouble() : (RANDOM.nextDouble() - 0.5));
+      deltaEnd[i] = 0.02 * (RANDOM.nextDouble() - 0.5);
+    }
+    return new Swap(fixed, floating, deltaStart, deltaEnd);
+  }
+
+}
