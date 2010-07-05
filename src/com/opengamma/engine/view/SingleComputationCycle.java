@@ -17,6 +17,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.time.Instant;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,7 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.util.ArgumentChecker;
@@ -352,15 +354,30 @@ public class SingleComputationCycle {
 
     for (String calcConfigurationName : getPortfolioEvaluationModel().getAllCalculationConfigurationNames()) {
       DependencyGraph depGraph = getPortfolioEvaluationModel().getDependencyGraph(calcConfigurationName);
-
-      populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.POSITION);
-      populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.PORTFOLIO_NODE);
+      
+      if (getViewDefinition().isComputePositionNodeCalculations()) {
+        populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.POSITION);
+      }
+      if (getViewDefinition().isComputePortfolioNodeCalculations()) {
+        populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.PORTFOLIO_NODE);
+      }
+      if (getViewDefinition().isComputeSecurityNodeCalculations()) {
+        populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.SECURITY);
+      }
+      if (getViewDefinition().isComputePrimitiveNodeCalculations()) {
+        populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.PRIMITIVE);
+      }
     }
   }
   
   protected void populateResultModel(String calcConfigurationName, DependencyGraph depGraph, ComputationTargetType type) {
     ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
     for (ValueSpecification outputSpec : depGraph.getOutputValues(type)) {
+      // REVIEW kirk 2010-07-05 -- WARNING! GROSS HACK!
+      if ((outputSpec.getRequirementSpecification().getTargetSpecification().getType() == ComputationTargetType.PRIMITIVE)
+          && !ObjectUtils.equals(ValueRequirementNames.YIELD_CURVE, outputSpec.getRequirementSpecification().getValueName())) {
+        continue;
+      }
       Object value = computationCache.getValue(outputSpec);
       
       if (value != null) {
