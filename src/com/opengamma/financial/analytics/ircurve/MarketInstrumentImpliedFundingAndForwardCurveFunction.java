@@ -353,8 +353,8 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
   }
 
   private double getLastSwapTime(final Swap swap) {
-    final int nFix = swap.getNumberOfFixedPayments();
-    final int nFloat = swap.getNumberOfFloatingPayments();
+    final int nFix = swap.getNumberOfFixedPayments() - 1;
+    final int nFloat = swap.getNumberOfFloatingPayments() - 1;
     return Math.max(swap.getFixedPaymentTimes()[nFix], swap.getFloatingPaymentTimes()[nFloat] + swap.getDeltaEnd()[nFloat]);
   }
 
