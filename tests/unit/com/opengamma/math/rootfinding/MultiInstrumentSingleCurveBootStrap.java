@@ -36,12 +36,13 @@ import com.opengamma.math.interpolation.Interpolator1DCubicSplineDataBundle;
 import com.opengamma.math.interpolation.Interpolator1DCubicSplineWithSensitivitiesDataBundle;
 import com.opengamma.math.interpolation.Interpolator1DWithSensitivities;
 import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
-import com.opengamma.math.linearalgebra.SVDecompositionCommons;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.FiniteDifferenceJacobianCalculator;
 import com.opengamma.math.rootfinding.newton.JacobianCalculator;
 import com.opengamma.math.rootfinding.newton.NewtonDefaultVectorRootFinder;
+import com.opengamma.math.rootfinding.newton.ShermanMorrisonVectorRootFinder;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
@@ -50,8 +51,8 @@ import com.opengamma.util.monitor.OperationTimer;
 public class MultiInstrumentSingleCurveBootStrap {
 
   private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveBootStrapTest.class);
-  private static final int HOTSPOT_WARMUP_CYCLES = 0;
-  private static final int BENCHMARK_CYCLES = 1;
+  private static final int HOTSPOT_WARMUP_CYCLES = 100;
+  private static final int BENCHMARK_CYCLES = 1000;
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
 
   private static final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> CUBIC = new NaturalCubicSplineInterpolator1D();
@@ -159,13 +160,20 @@ public class MultiInstrumentSingleCurveBootStrap {
 
   @Test
   public void testNewton() {
-
-    // VectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS);
-    // doHotSpot(rootFinder, "default Newton FD , double curve", DOUBLE_CURVE_FINDER);
-    VectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN, new SVDecompositionCommons());
+    VectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN);
     doHotSpot(rootFinder, "default Newton, single curve", SINGLE_CURVE_FINDER);
-    //
+  }
 
+  @Test
+  public void testBroyden() {
+    VectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN);
+    doHotSpot(rootFinder, "Broyden, single curve", SINGLE_CURVE_FINDER);
+  }
+
+  @Test
+  public void testShermanMorrison() {
+    VectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN);
+    doHotSpot(rootFinder, "Broyden, single curve", SINGLE_CURVE_FINDER);
   }
 
   @Test
