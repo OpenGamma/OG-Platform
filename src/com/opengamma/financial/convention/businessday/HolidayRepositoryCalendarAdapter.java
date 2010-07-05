@@ -38,6 +38,7 @@ public class HolidayRepositoryCalendarAdapter implements Calendar {
   }
   
   public HolidayRepositoryCalendarAdapter(HolidayRepository holidayRepo, Currency currency) {
+    _holidayRepo = holidayRepo;
     _currency = currency;
     _type = HolidayType.CURRENCY;
   }
