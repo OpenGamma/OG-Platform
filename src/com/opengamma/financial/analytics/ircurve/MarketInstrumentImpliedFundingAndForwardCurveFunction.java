@@ -144,7 +144,7 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
         throw new NullPointerException("Could not get market data for " + strip);
       }
       if (strip.getInstrumentType() == StripInstrument.FUTURE) {
-        rate = (rate - 100.) / 100.;
+        rate = (100. - rate) / 100.;
       }
       marketRates[i] = rate;
       fundingNodeTimes[i] = getLastTime(derivative);
