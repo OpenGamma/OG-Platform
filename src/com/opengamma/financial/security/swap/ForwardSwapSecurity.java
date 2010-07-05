@@ -8,12 +8,22 @@ package com.opengamma.financial.security.swap;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 
 /**
  * 
  *
  */
 public class ForwardSwapSecurity extends SwapSecurity {
+
+  /**
+   * 
+   */
+  protected static final String FORWARDSTARTDATE_KEY = "forwardStartDate";
+
   private final ZonedDateTime _forwardStartDate;
 
   /**
@@ -43,4 +53,34 @@ public class ForwardSwapSecurity extends SwapSecurity {
   public ZonedDateTime getForwardStartDate() {
     return _forwardStartDate;
   }
+
+  protected void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+    super.toFudgeMsg(context, message);
+    context.objectToFudgeMsg(message, FORWARDSTARTDATE_KEY, null, getForwardStartDate());
+  }
+
+  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
+    final MutableFudgeFieldContainer message = context.newMessage();
+    FudgeSerializationContext.addClassHeader(message, getClass());
+    toFudgeMsg(context, message);
+    return message;
+  }
+
+  protected void fromFudgeMsgImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    super.fromFudgeMsgImpl(context, message);
+    // Everything set by constructor
+  }
+
+  public static ForwardSwapSecurity fromFudgeMsg(final FudgeDeserializationContext context,
+      final FudgeFieldContainer message) {
+    final ForwardSwapSecurity security = new ForwardSwapSecurity(context.fieldValueToObject(ZonedDateTime.class,
+        message.getByName(TRADEDATE_KEY)), context.fieldValueToObject(ZonedDateTime.class, message
+        .getByName(EFFECTIVEDATE_KEY)), context.fieldValueToObject(ZonedDateTime.class, message
+        .getByName(MATURITYDATE_KEY)), message.getString(COUNTERPARTY_KEY), context.fieldValueToObject(SwapLeg.class,
+        message.getByName(PAYLEG_KEY)), context.fieldValueToObject(SwapLeg.class, message.getByName(RECEIVELEG_KEY)),
+        context.fieldValueToObject(ZonedDateTime.class, message.getByName(FORWARDSTARTDATE_KEY)));
+    security.fromFudgeMsgImpl(context, message);
+    return security;
+  }
+
 }
