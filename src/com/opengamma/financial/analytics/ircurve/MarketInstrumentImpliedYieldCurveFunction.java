@@ -33,6 +33,8 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.Currency;
+import com.opengamma.financial.HolidayRepository;
+import com.opengamma.financial.InMemoryRegionRepository;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.Region;
@@ -75,7 +77,7 @@ import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
  */
 public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction implements FunctionInvoker {
   private static final String SPOT_TICKER = "US00O/N Index"; //TODO shouldn't be hard-coded
-  private static final String FLOAT_REFERENCE_TICKER = ""; //TODO shouldn't be hard-coded
+  private static final String FLOAT_REFERENCE_TICKER = "US0006M Index"; //TODO shouldn't be hard-coded
   private final Currency _currency;
   private InterpolatedYieldAndDiscountCurveDefinition _definition;
   private UniqueIdentifier _referenceRateIdentifier;
@@ -89,6 +91,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> _interpolator = new NaturalCubicSplineInterpolator1D();
   // TODO this should depend on the type of _interpolator
   private final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> _interpolatorWithSensitivity = new CubicSplineInterpolatorWithSensitivities1D();
+  
+  // TODO kirk 2010-07-05 -- Must take in a curve definition name as well, rather than hard-coding to
+  // "ForwardAndFunding".
 
   public MarketInstrumentImpliedYieldCurveFunction(final Currency currency) {
     Validate.notNull(currency);
@@ -98,8 +103,13 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final LocalDate now = executionContext.getSnapshotClock().today();
-    final Calendar calendar = new HolidayRepositoryCalendarAdapter(OpenGammaExecutionContext.getHolidayRepository(executionContext), _currency);
-    final Region region = OpenGammaExecutionContext.getRegionRepository(executionContext).getHierarchyNode(now.toLocalDate(), _currency.getUniqueIdentifier());
+    HolidayRepository holidayRepository = OpenGammaExecutionContext.getHolidayRepository(executionContext);
+    if (holidayRepository == null) {
+      throw new IllegalStateException("Must have a holiday repository in the execution context");
+    }
+    final Calendar calendar = new HolidayRepositoryCalendarAdapter(holidayRepository, _currency);
+    final Region region = OpenGammaExecutionContext.getRegionRepository(executionContext).getHierarchyNodes(now.toLocalDate(), InMemoryRegionRepository.POLITICAL_HIERARCHY_NAME, InMemoryRegionRepository.ISO_CURRENCY_3, _currency.getISOCode()).iterator().next();
+    //final Region region = OpenGammaExecutionContext.getRegionRepository(executionContext).getHierarchyNode(now.toLocalDate(), _currency.getUniqueIdentifier());
     final List<InterestRateDerivative> derivatives = new ArrayList<InterestRateDerivative>();
     final Set<FixedIncomeStrip> strips = _definition.getStrips();
     final int n = strips.size();
@@ -127,7 +137,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
       }
       derivatives.add(derivative);
-      initialRatesGuess[i] = 0.05;
+      initialRatesGuess[i] = 0.01;
       stripRequirement = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, strip.getMarketDataSpecification());
       fudgeFields = (FudgeFieldContainer) inputs.getValue(stripRequirement);
       rate = fudgeFields.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
@@ -135,16 +145,26 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         throw new NullPointerException("Could not get market data for " + strip);
       }
       if (strip.getInstrumentType() == StripInstrument.FUTURE) {
-        rate = (rate - 100.) / 100.;
+        rate = (100. - rate) / 100.;
+      } else {
+        rate /= 100;
       }
       marketRates[i] = rate;
+      nodeTimes[i] = getLastTime(derivative);
       i++;
     }
     final SingleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle> jacobian = new SingleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(derivatives, spotRate,
         nodeTimes, _interpolatorWithSensitivity);
     final SingleCurveFinder curveFinder = new SingleCurveFinder(derivatives, marketRates, spotRate, nodeTimes, _interpolator);
-    final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, jacobian, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
-    final double[] yields = rootFinder.getRoot(curveFinder, new DoubleMatrix1D(initialRatesGuess)).getData();
+    NewtonVectorRootFinder rootFinder; 
+    double[] yields = null;
+    try {
+     rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, jacobian, DecompositionFactory.getDecomposition(DecompositionFactory.LU_COMMONS_NAME));
+     yields = rootFinder.getRoot(curveFinder, new DoubleMatrix1D(initialRatesGuess)).getData();
+    } catch(IllegalArgumentException e) {
+      rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, jacobian, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
+      yields = rootFinder.getRoot(curveFinder, new DoubleMatrix1D(initialRatesGuess)).getData();
+    }
     final YieldAndDiscountCurve curve = new InterpolatedYieldCurve(nodeTimes, yields, _interpolator);
     final DoubleMatrix2D jacobianMatrix = jacobian.evaluate(new DoubleMatrix1D(yields), (Function1D<DoubleMatrix1D, DoubleMatrix1D>[]) null);
     return Sets.newHashSet(new ComputedValue(_curveResult, curve), new ComputedValue(_jacobianResult, jacobianMatrix.getData()));
@@ -297,5 +317,41 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       delta[i] = 0;
     }
     return new Swap(swapPaymentDates, swapPaymentDates, delta, delta);
+  }
+  private double getLastTime(final InterestRateDerivative derivative) {
+    if (derivative instanceof Swap) {
+      return getLastSwapTime((Swap) derivative);
+    } else if (derivative instanceof Cash) {
+      return getLastCashTime((Cash) derivative);
+    } else if (derivative instanceof ForwardRateAgreement) {
+      return getLastFRATime((ForwardRateAgreement) derivative);
+    } else if (derivative instanceof InterestRateFuture) {
+      return getLastIRFutureTime((InterestRateFuture) derivative);
+    } else if (derivative instanceof Libor) {
+      return getLastLiborTime((Libor) derivative);
+    }
+    throw new IllegalArgumentException("This should never happen");
+  }
+
+  private double getLastSwapTime(final Swap swap) {
+    final int nFix = swap.getNumberOfFixedPayments() - 1;
+    final int nFloat = swap.getNumberOfFloatingPayments() - 1;
+    return Math.max(swap.getFixedPaymentTimes()[nFix], swap.getFloatingPaymentTimes()[nFloat] + swap.getDeltaEnd()[nFloat]);
+  }
+
+  private double getLastCashTime(final Cash cash) {
+    return cash.getFixedPaymentTime();
+  }
+
+  private double getLastLiborTime(final Libor libor) {
+    return libor.getPaymentTime();
+  }
+
+  private double getLastFRATime(final ForwardRateAgreement fra) {
+    return fra.getEndTime();
+  }
+
+  private double getLastIRFutureTime(final InterestRateFuture irFuture) {
+    return irFuture.getEndTime();
   }
 }
