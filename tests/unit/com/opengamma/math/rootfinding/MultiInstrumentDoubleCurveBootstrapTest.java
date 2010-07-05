@@ -25,7 +25,6 @@ import com.opengamma.financial.interestrate.libor.Libor;
 import com.opengamma.financial.interestrate.swap.DoubleCurveFinder;
 import com.opengamma.financial.interestrate.swap.DoubleCurveJacobian;
 import com.opengamma.financial.interestrate.swap.SingleCurveFinder;
-import com.opengamma.financial.interestrate.swap.SingleCurveJacobian;
 import com.opengamma.financial.interestrate.swap.SwapRateCalculator;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
@@ -38,14 +37,18 @@ import com.opengamma.math.interpolation.Interpolator1DCubicSplineDataBundle;
 import com.opengamma.math.interpolation.Interpolator1DCubicSplineWithSensitivitiesDataBundle;
 import com.opengamma.math.interpolation.Interpolator1DWithSensitivities;
 import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
+import com.opengamma.math.linearalgebra.SVDecompositionCommons;
 import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.rootfinding.newton.FiniteDifferenceJacobianCalculator;
 import com.opengamma.math.rootfinding.newton.JacobianCalculator;
+import com.opengamma.math.rootfinding.newton.NewtonDefaultVectorRootFinder;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
  * 
  */
-public class MultiInstrumentBootstrapTest {
+public class MultiInstrumentDoubleCurveBootstrapTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveBootStrapTest.class);
   private static final int HOTSPOT_WARMUP_CYCLES = 0;
@@ -59,7 +62,6 @@ public class MultiInstrumentBootstrapTest {
   private static YieldAndDiscountCurve FUNDING_CURVE;
   private static YieldAndDiscountCurve FORWARD_CURVE;
 
-  private static final double[] NODE_TIMES;
   private static final double[] FWD_NODE_TIMES;
   private static final double[] FUND_NODE_TIMES;
   private static final double SPOT_RATE;
@@ -68,8 +70,7 @@ public class MultiInstrumentBootstrapTest {
   private static final DoubleMatrix1D X0;
 
   private static final SwapRateCalculator SWAP_RATE_CALCULATOR = new SwapRateCalculator();
-  private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> SINGLE_CURVE_FINDER;
-  private static final JacobianCalculator SINGLE_CURVE_JACOBIAN;
+
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> DOUBLE_CURVE_FINDER;
   private static final JacobianCalculator DOUBLE_CURVE_JACOBIAN;
 
@@ -104,25 +105,21 @@ public class MultiInstrumentBootstrapTest {
     INSTRUMENTS = new ArrayList<InterestRateDerivative>();
 
     double[] liborMaturities = new double[] {1. / 12., 2. / 12., 3. / 12.};// note using 1m and 2m LIBOR tenors for what should be the 3m-libor curve is probably wrong
-    double[] fraMaturities = new double[] {};// {0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0};
-    double[] cashMaturities = new double[] {1 / 365.25, 7 / 365.25, 1 / 12., 3 / 12., 6 / 12., 1.0};
-    int[] swapSemiannualGrid = new int[] {};// {4, 6, 8, 10, 12, 14, 16, 18, 20, 30, 40, 50, 60};
-    // int[] swapSemiannualGrid = new int[] {1, 2, 3, 4, 6, 8, 10, 14, 20, 30, 40, 50, 60};
+    double[] fraMaturities = new double[] {0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0};
+    double[] cashMaturities = new double[] {1 / 365.25, 7 / 365.25, 1.1 / 12.0, 3.1 / 12., 6 / 12., 1.0};
+    int[] swapSemiannualGrid = new int[] {4, 6, 8, 10, 12, 14, 16, 18, 20, 30, 40, 50, 60};
 
-    double[] remainingFwdNodes = new double[] {};// {3.0, 5.0, 7.0, 10.0, 20.0, 30.01};
-    double[] remainingFundNodes = new double[] {};// {2.0, 3.0, 5.0, 7.0, 10.0, 20.0, 30.01};
-    // double[] remainingFwdNodes = new double[] {0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 31.0};
-    // double[] remainingFundNodes = new double[] {1.0, 2.0, 5.0, 10.0, 20.0, 31.0};
+    double[] remainingFwdNodes = new double[] {3.0, 5.0, 7.0, 10.0, 20.0, 30.01};
+    double[] remainingFundNodes = new double[] {2.0, 3.0, 5.0, 7.0, 10.0, 20.0, 30.01};
 
     int nFwdNodes = liborMaturities.length + fraMaturities.length + remainingFwdNodes.length;
     int nFundNodes = cashMaturities.length + remainingFundNodes.length;
 
     FWD_NODE_TIMES = new double[nFwdNodes];
     FUND_NODE_TIMES = new double[nFundNodes];
-    NODE_TIMES = new double[nFundNodes + nFwdNodes];
+
     int fwdIndex = 0;
     int fundIndex = 0;
-    int index = 0;
 
     InterestRateDerivative ird;
 
@@ -130,27 +127,23 @@ public class MultiInstrumentBootstrapTest {
       ird = new Libor(t);
       INSTRUMENTS.add(ird);
       FWD_NODE_TIMES[fwdIndex++] = t;
-      NODE_TIMES[index++] = t;
     }
     for (double t : fraMaturities) {
       ird = new ForwardRateAgreement(t - 0.25, t);
       INSTRUMENTS.add(ird);
       FWD_NODE_TIMES[fwdIndex++] = t;
-      NODE_TIMES[index++] = t;
     }
 
     for (double t : cashMaturities) {
       ird = new Cash(t);
       INSTRUMENTS.add(ird);
       FUND_NODE_TIMES[fundIndex++] = t;
-      NODE_TIMES[index++] = t;
     }
 
     for (int element : swapSemiannualGrid) {
       Swap swap = setupSwap(element);
       INSTRUMENTS.add(swap);
       double t = swap.getFloatingPaymentTimes()[swap.getNumberOfFloatingPayments() - 1] + Math.max(0.0, swap.getDeltaEnd()[swap.getNumberOfFloatingPayments() - 1]);
-      NODE_TIMES[index++] = t;
     }
 
     if (INSTRUMENTS.size() != (nFwdNodes + nFundNodes)) {
@@ -165,7 +158,6 @@ public class MultiInstrumentBootstrapTest {
       FUND_NODE_TIMES[fundIndex++] = t;
     }
 
-    Arrays.sort(NODE_TIMES);
     Arrays.sort(FWD_NODE_TIMES);
     Arrays.sort(FUND_NODE_TIMES);
 
@@ -185,10 +177,6 @@ public class MultiInstrumentBootstrapTest {
 
     SPOT_RATE = DUMMY_FUND_CURVE.evaluate(0.0);
 
-    // fwdYields = new double[] {0.01, 0.02, 0.035, 0.06, 0.055, 0.05, 0.045};
-    // fundYields = new double[] {0.021, 0.036, 0.06, 0.054, 0.049, 0.044};
-    // SPOT_RATE = 0.005;
-
     FORWARD_CURVE = makeYieldCurve(fwdYields, FWD_NODE_TIMES, CUBIC);
     FUNDING_CURVE = makeYieldCurve(fundYields, FUND_NODE_TIMES, CUBIC);
 
@@ -196,15 +184,11 @@ public class MultiInstrumentBootstrapTest {
     MARKET_VALUES = new double[n];
     final double[] rates = new double[n];
 
-    // SINGLE CURVE
     for (int i = 0; i < n; i++) {
       MARKET_VALUES[i] = SWAP_RATE_CALCULATOR.getRate(FORWARD_CURVE, FUNDING_CURVE, INSTRUMENTS.get(i));
       rates[i] = 0.05;
     }
     X0 = new DoubleMatrix1D(rates);
-
-    SINGLE_CURVE_FINDER = new SingleCurveFinder(INSTRUMENTS, MARKET_VALUES, SPOT_RATE, NODE_TIMES, CUBIC);
-    SINGLE_CURVE_JACOBIAN = new SingleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(INSTRUMENTS, SPOT_RATE, NODE_TIMES, CUBIC_WITH_SENSITIVITY);
 
     DOUBLE_CURVE_FINDER = new DoubleCurveFinder(INSTRUMENTS, MARKET_VALUES, SPOT_RATE, FWD_NODE_TIMES, FUND_NODE_TIMES, null, null, CUBIC, CUBIC);
     DOUBLE_CURVE_JACOBIAN = new DoubleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(INSTRUMENTS, SPOT_RATE, FWD_NODE_TIMES, FUND_NODE_TIMES, CUBIC_WITH_SENSITIVITY,
@@ -217,68 +201,23 @@ public class MultiInstrumentBootstrapTest {
 
     // VectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS);
     // doHotSpot(rootFinder, "default Newton FD , double curve", DOUBLE_CURVE_FINDER);
-    // VectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN, new SVDecompositionCommons());
-    // doHotSpot(rootFinder, "default Newton, double curve", SINGLE_CURVE_FINDER);
-    //
-    // rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN, new SVDecompositionCommons());
-    // doHotSpot(rootFinder, "default Newton, double curve", DOUBLE_CURVE_FINDER);
+
+    VectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN, new SVDecompositionCommons());
+    doHotSpot(rootFinder, "default Newton, double curve", DOUBLE_CURVE_FINDER);
 
   }
 
+  //
   @Test
-  public void testSingleJacobian() {
-    // final JacobianCalculator jacobianFD = new FiniteDifferenceJacobianCalculator(1e-8);
-    // final DoubleMatrix2D jacExact = SINGLE_CURVE_JACOBIAN.evaluate(X0, SINGLE_CURVE_FINDER);
-    // final DoubleMatrix2D jacFD = jacobianFD.evaluate(X0, SINGLE_CURVE_FINDER);
-    // System.out.println("exact: " + jacExact.toString());
-    // System.out.println("FD: " + jacFD.toString());
+  public void testJacobian() {
+    final JacobianCalculator jacobianFD = new FiniteDifferenceJacobianCalculator(1e-8);
+    final DoubleMatrix2D jacExact = DOUBLE_CURVE_JACOBIAN.evaluate(X0, DOUBLE_CURVE_FINDER);
+    final DoubleMatrix2D jacFD = jacobianFD.evaluate(X0, DOUBLE_CURVE_FINDER);
+    System.out.println("exact: " + jacExact.toString());
+    System.out.println("FD: " + jacFD.toString());
 
     // assertMatrixEquals(jacExact, jacFD, 1e-7);
   }
-
-  //
-  // @Test
-  // public void testJacobian() {
-  // final JacobianCalculator jacobianFD = new FiniteDifferenceJacobianCalculator(1e-8);
-  // final DoubleMatrix2D jacExact = DOUBLE_CURVE_JACOBIAN.evaluate(X0, DOUBLE_CURVE_FINDER);
-  // final DoubleMatrix2D jacFD = jacobianFD.evaluate(X0, DOUBLE_CURVE_FINDER);
-  // System.out.println("exact: " + jacExact.toString());
-  // System.out.println("FD: " + jacFD.toString());
-  //
-  // // assertMatrixEquals(jacExact, jacFD, 1e-7);
-  // }
-
-  // @Test
-  // public void testShermanMorrison() {
-  // VectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS);
-  // doHotSpot(rootFinder, "Sherman Morrison, finite difference", SINGLE_CURVE_FINDER);
-  // rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN);
-  // doHotSpot(rootFinder, "Sherman Morrison, single curve", SINGLE_CURVE_FINDER);
-  // rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN_FD);
-  // doHotSpot(rootFinder, "Sherman Morrison, single curve FD sensitivity", SINGLE_CURVE_FINDER);
-  // rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS);
-  // doHotSpot(rootFinder, "Sherman Morrisonn, double curve, finite difference", DOUBLE_CURVE_FINDER);
-  // rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN);
-  // doHotSpot(rootFinder, "Sherman Morrison, double curve", DOUBLE_CURVE_FINDER);
-  // rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN_FD);
-  // doHotSpot(rootFinder, "default Newton, double curve FD sensitivity", DOUBLE_CURVE_FINDER);
-  // }
-  //
-  // @Test
-  // public void testBroyden() {
-  // VectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
-  // doHotSpot(rootFinder, "Broyden, finite difference", SINGLE_CURVE_FINDER);
-  // rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN);
-  // doHotSpot(rootFinder, "Broyden, single curve", SINGLE_CURVE_FINDER);
-  // rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN_FD);
-  // doHotSpot(rootFinder, "Broyden, single curve, FD sensitivity", SINGLE_CURVE_FINDER);
-  // rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
-  // doHotSpot(rootFinder, "Broyden, double curve, finite difference", DOUBLE_CURVE_FINDER);
-  // rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN);
-  // doHotSpot(rootFinder, "Broyden, double curve", DOUBLE_CURVE_FINDER);
-  // rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN_FD);
-  // doHotSpot(rootFinder, "default Newton, double curve FD sensitivity", DOUBLE_CURVE_FINDER);
-  // }
 
   private void doHotSpot(final VectorRootFinder rootFinder, final String name, final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor) {
     for (int i = 0; i < HOTSPOT_WARMUP_CYCLES; i++) {
@@ -304,11 +243,11 @@ public class MultiInstrumentBootstrapTest {
   }
 
   private void doTestForSingleCurve(final VectorRootFinder rootFinder, final SingleCurveFinder functor) {
-    final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(functor, X0);
-    final YieldAndDiscountCurve curve = makeYieldCurve(yieldCurveNodes.getData(), NODE_TIMES, CUBIC);
-    for (int i = 0; i < MARKET_VALUES.length; i++) {
-      assertEquals(MARKET_VALUES[i], SWAP_RATE_CALCULATOR.getRate(curve, curve, INSTRUMENTS.get(i)), EPS);
-    }
+    // final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(functor, X0);
+    // final YieldAndDiscountCurve curve = makeYieldCurve(yieldCurveNodes.getData(), NODE_TIMES, CUBIC);
+    // for (int i = 0; i < MARKET_VALUES.length; i++) {
+    // assertEquals(MARKET_VALUES[i], SWAP_RATE_CALCULATOR.getRate(curve, curve, INSTRUMENTS.get(i)), EPS);
+    // }
   }
 
   private void doTestForDoubleCurve(final VectorRootFinder rootFinder, final DoubleCurveFinder functor) {
