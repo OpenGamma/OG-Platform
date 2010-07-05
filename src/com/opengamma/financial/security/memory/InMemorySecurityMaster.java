@@ -18,6 +18,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.position.PositionMaster;
+import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.Security;
 import com.opengamma.financial.security.AddSecurityRequest;
 import com.opengamma.financial.security.ManagableSecurityMaster;
@@ -135,6 +136,11 @@ public class InMemorySecurityMaster implements ManagableSecurityMaster {
     request.checkValid();
     
     final UniqueIdentifier uid = getNextSecurityUid();
+    Security security = request.getSecurity();
+    if (security instanceof DefaultSecurity) {
+      DefaultSecurity defaultSecurity = (DefaultSecurity) security;
+      defaultSecurity.setUniqueIdentifier(uid);
+    }
     _securities.put(uid, request.getSecurity());
     return uid;
   }
