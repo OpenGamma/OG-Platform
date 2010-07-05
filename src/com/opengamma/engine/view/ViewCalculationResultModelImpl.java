@@ -60,13 +60,26 @@ public class ViewCalculationResultModelImpl implements Serializable,
       recursiveAddPortfolio(child);
     }
   }
+  
+  // Add in a .addPrimitive() method here.
 
   public void addValue(ComputedValue value) {
     ComputationTargetSpecification targetSpec = value.getSpecification().getRequirementSpecification().getTargetSpecification();
-    if (!(_values.containsKey(targetSpec))) {
+    // TODO kirk 2010-07-05 -- Not sure if this is the right approach.
+    // The check was based on recursiveAddPortfolio(), and not having to make sure that we
+    // don't have the inner Map<> already. This needs to be reviewed and the design
+    // of this class potentially changed.
+    /*if (!(_values.containsKey(targetSpec))) {
       throw new IllegalArgumentException("Target spec " + targetSpec + " not reachable from initialization in recursiveAddPortfolio");
     }
     _values.get(targetSpec).put(value.getSpecification().getRequirementSpecification().getValueName(), value);
+    */
+    Map<String, ComputedValue> targetSpecificValues = _values.get(targetSpec);
+    if (targetSpecificValues == null) {
+      targetSpecificValues = new HashMap<String, ComputedValue>();
+      _values.put(targetSpec, targetSpecificValues);
+    }
+    targetSpecificValues.put(value.getSpecification().getRequirementSpecification().getValueName(), value);
   }
 
 }
