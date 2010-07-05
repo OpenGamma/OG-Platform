@@ -5,13 +5,13 @@
  */
 package com.opengamma.financial;
 
+import static com.opengamma.financial.InMemoryRegionRepository.REGIONS_FILE_PATH;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
@@ -20,13 +20,7 @@ import javax.time.calendar.TimeZone;
 
 import org.junit.Test;
 
-import com.google.common.io.Resources;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.InMemoryRegionRepository;
-import static com.opengamma.financial.InMemoryRegionRepository.REGIONS_FILE_PATH;
-import com.opengamma.financial.Region;
-import com.opengamma.financial.RegionRepository;
-import com.opengamma.financial.RegionType;
 
 /**
  * Test InMemoryRegionRepository.
