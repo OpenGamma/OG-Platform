@@ -42,8 +42,10 @@ public class SwapSecurity extends FinancialSecurity {
    * 
    */
   protected static final String RECEIVELEG_KEY = "receiveLeg";
-
-  private static final String SECURITY_TYPE = "SWAP";
+  /**
+   * 
+   */
+  public static final String SECURITY_TYPE = "SWAP";
   private ZonedDateTime _tradeDate;
   private ZonedDateTime _effectiveDate;
   private ZonedDateTime _maturityDate;
