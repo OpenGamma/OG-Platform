@@ -10,6 +10,10 @@ package com.opengamma.financial.analytics.ircurve;
  */
 public enum StripInstrument {
   /**
+   * Libor rate
+   */
+  LIBOR,
+  /**
    * Cash rate
    */
   CASH,
