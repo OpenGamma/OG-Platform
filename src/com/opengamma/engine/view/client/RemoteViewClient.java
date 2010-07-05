@@ -115,7 +115,12 @@ import com.opengamma.util.ArgumentChecker;
           @Override
           public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
             s_logger.debug("Message received on {}", topicName);
-            dispatchComputationResult(fudgeContext.fromFudgeMsg(ViewComputationResultModel.class, msgEnvelope.getMessage()));
+            try {
+              dispatchComputationResult(fudgeContext.fromFudgeMsg(ViewComputationResultModel.class, msgEnvelope.getMessage()));
+            } catch (RuntimeException e) {
+              s_logger.warn("Unable to deserialize ViewComputationResultModel", e);
+              throw e;
+            }
           }
         }, getFudgeContext())));
         _resultListenerContainer.setDestinationName(topicName);
@@ -133,13 +138,13 @@ import com.opengamma.util.ArgumentChecker;
     synchronized (_deltaListeners) {
       if (_deltaListeners.isEmpty()) {
         final String topicName = getRestClient().getSingleValueNotNull(String.class, _targetDeltaResult, VIEW_DELTARESULT);
-        s_logger.info("Set up JMS subscription to {}", topicName);
+        s_logger.info("Set up Delta JMS subscription to {}", topicName);
         _deltaListenerContainer = new DefaultMessageListenerContainer();
         _deltaListenerContainer.setConnectionFactory(getViewProcessorClient().getJmsTemplate().getConnectionFactory());
         _deltaListenerContainer.setMessageListener(new JmsByteArrayMessageDispatcher(new ByteArrayFudgeMessageReceiver(new FudgeMessageReceiver() {
           @Override
           public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
-            s_logger.debug("Message received on {}", topicName);
+            s_logger.debug("Delta message received on {}", topicName);
             dispatchDeltaResult(fudgeContext.fromFudgeMsg(ViewDeltaResultModel.class, msgEnvelope.getMessage()));
           }
         }, getFudgeContext())));
@@ -181,6 +186,7 @@ import com.opengamma.util.ArgumentChecker;
   }
   
   protected void dispatchComputationResult(ViewComputationResultModel resultModel) {
+    s_logger.debug("Received a result model {}", resultModel.getResultTimestamp());
     for (ComputationResultListener listener : _resultListeners) {
       listener.computationResultAvailable(resultModel);
     }
