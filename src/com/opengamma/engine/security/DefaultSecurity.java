@@ -244,7 +244,7 @@ public class DefaultSecurity implements Security, MutableUniqueIdentifiable, Ser
   protected void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
     context.objectToFudgeMsg(message, UNIQUEIDENTIFIER_KEY, null, getUniqueIdentifier());
     message.add(NAME_KEY, getName());
-    message.add(SECURITYTYPE_KEY, getName());
+    message.add(SECURITYTYPE_KEY, getSecurityType());
     context.objectToFudgeMsg(message, IDENTIFIERS_KEY, null, getIdentifiers());
   }
 
