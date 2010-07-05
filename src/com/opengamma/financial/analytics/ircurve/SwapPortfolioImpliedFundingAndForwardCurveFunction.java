@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.ircurve;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -31,8 +30,9 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.analytics.model.swap.SwapScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.interestrate.swap.SingleCurveFinder;
-import com.opengamma.financial.interestrate.swap.SingleCurveJacobian;
+import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.swap.DoubleCurveFinder;
+import com.opengamma.financial.interestrate.swap.DoubleCurveJacobian;
 import com.opengamma.financial.interestrate.swap.SwapRateCalculator;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
@@ -57,35 +57,43 @@ import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
 /**
  * 
  */
-public class SwapImpliedYieldCurveFunction extends AbstractFunction implements FunctionInvoker {
+public class SwapPortfolioImpliedFundingAndForwardCurveFunction extends AbstractFunction implements FunctionInvoker {
   private final Currency _currency;
-  private final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> _interpolator = new NaturalCubicSplineInterpolator1D(); // TODO this should not be hard-coded
-  // TODO this should depend on the type of _interpolator
-  private final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> _interpolatorWithSensitivity = new CubicSplineInterpolatorWithSensitivities1D();
+  private final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> _fundingInterpolator = new NaturalCubicSplineInterpolator1D(); // TODO this should not be hard-coded
+  // TODO this should depend on the type of _fundingInterpolator
+  private final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> _fundingInterpolatorWithSensitivity = new CubicSplineInterpolatorWithSensitivities1D();
+  private final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> _forwardInterpolator = new NaturalCubicSplineInterpolator1D(); // TODO this should not be hard-coded
+  // TODO this should depend on the type of _forwardInterpolator
+  private final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> _forwardInterpolatorWithSensitivity = new CubicSplineInterpolatorWithSensitivities1D();
   private final double _spotRate = 0.01; // TODO this needs to be changed - it is the "instantaneous" interest rate. Possibly the O/N rate for the currency is the best proxy
   private final SwapRateCalculator _swapRateCalculator = new SwapRateCalculator();
-  private final String _curveName;
+  private final String _fundingCurveName;
+  private final String _forwardCurveName;
 
-  public SwapImpliedYieldCurveFunction(final Currency currency) {
+  public SwapPortfolioImpliedFundingAndForwardCurveFunction(final Currency currency) {
     Validate.notNull(currency);
     _currency = currency;
-    // TODO this should depend on what will be parameters: rootfinder type and jacobian calculation method
-    _curveName = ValueRequirementNames.YIELD_CURVE + "_" + _currency + "_Broyden_AnalyticJacobian_SingleCurveCalculation";
+    // TODO these should depend on what will be parameters: rootfinder type and jacobian calculation method
+    _fundingCurveName = ValueRequirementNames.YIELD_CURVE + "_" + _currency + "_Broyden_AnalyticJacobian_FundingCurve";
+    _forwardCurveName = ValueRequirementNames.YIELD_CURVE + "_" + _currency + "_Broyden_AnalyticJacobian_ForwardCurve";
   }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+    final ZonedDateTime now = executionContext.getSnapshotClock().zonedDateTime();
     final PortfolioNode node = target.getPortfolioNode();
-    final YieldAndDiscountCurve inputCurve = (YieldAndDiscountCurve) inputs.getValue(getRequirement());
+    final YieldAndDiscountCurve fundingCurve = (YieldAndDiscountCurve) inputs.getValue(getFundingCurveRequirement());
+    final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) inputs.getValue(getFundingCurveRequirement());
     final Calendar calendar = null; // TODO where does this live?
     SwapSecurity swapSecurity;
     SwapLeg payLeg, receiveLeg;
     ZonedDateTime effectiveDate, maturityDate;
     boolean payFixed;
     final int numberOfSwaps = node.getPositions().size();
-    final List<Swap> swaps = new ArrayList<Swap>();
+    final List<InterestRateDerivative> swaps = new ArrayList<InterestRateDerivative>();
     final double[] marketRates = new double[numberOfSwaps];
-    final double[] nodeTimes = new double[numberOfSwaps];
+    final double[] fundingNodeTimes = new double[fundingCurve.getMaturities().size()];
+    final double[] forwardNodeTimes = new double[forwardCurve.getMaturities().size()];
     final double[] initialRatesGuess = new double[numberOfSwaps]; // TODO is this where the fixed rate should live?
     int i = 0, nFix, nFloat;
     // final ZonedDateTime[] referenceRatePaymentDates; TODO use this when the offsets are actually calculated
@@ -95,8 +103,8 @@ public class SwapImpliedYieldCurveFunction extends AbstractFunction implements F
       receiveLeg = swapSecurity.getReceiveLeg();
       effectiveDate = swapSecurity.getEffectiveDate();
       maturityDate = swapSecurity.getMaturityDate();
-      final double[] payLegPaymentTimes = SwapScheduleCalculator.getPaymentTimes(effectiveDate, maturityDate, payLeg, calendar);
-      final double[] receiveLegPaymentTimes = SwapScheduleCalculator.getPaymentTimes(effectiveDate, maturityDate, receiveLeg, calendar);
+      final double[] payLegPaymentTimes = SwapScheduleCalculator.getPaymentTimes(effectiveDate, maturityDate, payLeg, calendar, now);
+      final double[] receiveLegPaymentTimes = SwapScheduleCalculator.getPaymentTimes(effectiveDate, maturityDate, receiveLeg, calendar, now);
       payFixed = payLeg instanceof FixedInterestRateLeg;
       Swap swap;
       double[] fixedPaymentTimes;
@@ -119,22 +127,26 @@ public class SwapImpliedYieldCurveFunction extends AbstractFunction implements F
         forwardEndOffsets = new double[nFloat];
       }
       swap = new Swap(fixedPaymentTimes, floatPaymentTimes, forwardStartOffsets, forwardEndOffsets);
-      marketRates[i] = _swapRateCalculator.getRate(inputCurve, inputCurve, swap);
-      nodeTimes[i] = Math.max(fixedPaymentTimes[nFix - 1], floatPaymentTimes[nFloat - 1] + forwardEndOffsets[nFloat - 1]);
+      // swap rates from bbg
+      marketRates[i] = _swapRateCalculator.getRate(fundingCurve, fundingCurve, swap);
+      fundingNodeTimes[i] = Math.max(fixedPaymentTimes[nFix - 1], floatPaymentTimes[nFloat - 1] + forwardEndOffsets[nFloat - 1]);
+      // forwardNodeTimes[i] = somethign
       initialRatesGuess[i] = 0.05;
       swaps.add(swap);
       i++;
     }
-    final SingleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle> jacobian = new SingleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(swaps, _spotRate,
-        nodeTimes, _interpolatorWithSensitivity);
-    final SingleCurveFinder curveFinder = new SingleCurveFinder(swaps, marketRates, _spotRate, nodeTimes, _interpolator);
+    final DoubleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle> jacobian = new DoubleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(swaps, _spotRate,
+        forwardNodeTimes, fundingNodeTimes, _fundingInterpolatorWithSensitivity, _forwardInterpolatorWithSensitivity);
+    final DoubleCurveFinder curveFinder = new DoubleCurveFinder(swaps, marketRates, _spotRate, forwardNodeTimes, fundingNodeTimes, forwardCurve, fundingCurve, _fundingInterpolator,
+        _forwardInterpolator);
     // TODO this should not be hard-coded
     final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, jacobian, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
     final double[] yields = rootFinder.getRoot(curveFinder, new DoubleMatrix1D(initialRatesGuess)).getData();
-    final YieldAndDiscountCurve curve = new InterpolatedYieldCurve(nodeTimes, yields, _interpolator);
-    final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(_curveName, target));
-    final ComputedValue result = new ComputedValue(resultSpecification, curve);
-    return Sets.newHashSet(result);
+    final YieldAndDiscountCurve fundingResult = new InterpolatedYieldCurve(fundingNodeTimes, yields, _fundingInterpolator);
+    final YieldAndDiscountCurve forwardResult = new InterpolatedYieldCurve(forwardNodeTimes, yields, _fundingInterpolator);
+    final ValueSpecification fundingCurveSpecification = new ValueSpecification(new ValueRequirement(_fundingCurveName, target));
+    final ValueSpecification forwardCurveSpecification = new ValueSpecification(new ValueRequirement(_forwardCurveName, target));
+    return Sets.newHashSet(new ComputedValue(fundingCurveSpecification, fundingResult), new ComputedValue(forwardCurveSpecification, forwardResult));
   }
 
   @Override
@@ -158,26 +170,22 @@ public class SwapImpliedYieldCurveFunction extends AbstractFunction implements F
         return false;
       }
     }
-    return true;
-  }
-  
-  public static Set<ValueRequirement> buildRequirements(final InterpolatedYieldAndDiscountCurveDefinition definition) {
-    final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
-    for (final FixedIncomeStrip strip : definition.getStrips()) {
-      final ValueRequirement requirement = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, strip.getMarketDataSpecification());
-      result.add(requirement);
-    }
-    return result;
+    return false;
   }
 
-  private ValueRequirement getRequirement() {
+  private ValueRequirement getFundingCurveRequirement() {
     // TODO make sure that the definition is actually called a funding curve
     return new ValueRequirement(ValueRequirementNames.FUNDING_CURVE, ComputationTargetType.PRIMITIVE, _currency.getUniqueIdentifier());
   }
 
+  private ValueRequirement getForwardCurveRequirement() {
+    // TODO make sure that the definition is actually called a forward curve
+    return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, ComputationTargetType.PRIMITIVE, _currency.getUniqueIdentifier());
+  }
+
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Sets.newHashSet(getRequirement());
+    return Sets.newHashSet(getFundingCurveRequirement(), getForwardCurveRequirement());
   }
 
   @Override
@@ -188,14 +196,14 @@ public class SwapImpliedYieldCurveFunction extends AbstractFunction implements F
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(_curveName, target)));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(_fundingCurveName, target)), new ValueSpecification(new ValueRequirement(_forwardCurveName, target)));
     }
     return null;
   }
 
   @Override
   public String getShortName() {
-    return "SwapImpliedYieldCurveFunction" + _currency;
+    return "SwapImpliedFundingAndForwardCurveFunction" + _currency;
   }
 
   @Override

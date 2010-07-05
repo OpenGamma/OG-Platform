@@ -5,6 +5,11 @@
  */
 package com.opengamma.financial.security.option;
 
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
+
 import com.opengamma.financial.Currency;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.time.Expiry;
@@ -38,6 +43,34 @@ public class EuropeanVanillaEquityOptionSecurity extends EquityOptionSecurity im
   @Override
   public <T> T accept(final EquityOptionSecurityVisitor<T> visitor) {
     return visitor.visitEuropeanVanillaEquityOptionSecurity(this);
+  }
+
+  protected void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+    super.toFudgeMsg(context, message);
+    // No additional fields
+  }
+
+  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
+    final MutableFudgeFieldContainer message = context.newMessage();
+    FudgeSerializationContext.addClassHeader(message, getClass());
+    toFudgeMsg(context, message);
+    return message;
+  }
+
+  protected void fromFudgeMsgImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    super.fromFudgeMsgImpl(context, message);
+    // No additional fields
+  }
+
+  public static EuropeanVanillaEquityOptionSecurity fromFudgeMsg(final FudgeDeserializationContext context,
+      final FudgeFieldContainer message) {
+    final EuropeanVanillaEquityOptionSecurity security = new EuropeanVanillaEquityOptionSecurity(context
+        .fieldValueToObject(OptionType.class, message.getByName(OPTIONTYPE_KEY)), message.getDouble(STRIKE_KEY),
+        context.fieldValueToObject(Expiry.class, message.getByName(EXPIRY_KEY)), context.fieldValueToObject(
+            Identifier.class, message.getByName(UNDERLYINGIDENTIFIER_KEY)), context.fieldValueToObject(Currency.class,
+            message.getByName(CURRENCY_KEY)), message.getDouble(POINTVALUE_KEY), message.getString(EXCHANGE_KEY));
+    security.fromFudgeMsgImpl(context, message);
+    return security;
   }
 
 }

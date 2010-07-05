@@ -7,6 +7,11 @@ package com.opengamma.financial.security;
 
 import javax.time.calendar.MonthOfYear;
 
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
+
 import com.opengamma.financial.Currency;
 import com.opengamma.util.time.Expiry;
 
@@ -14,6 +19,23 @@ import com.opengamma.util.time.Expiry;
  * A {@code Security} used to model futures.
  */
 public abstract class FutureSecurity extends FinancialSecurity {
+
+  /**
+   * 
+   */
+  protected static final String EXPIRY_KEY = "expiry";
+  /**
+   * 
+   */
+  protected static final String TRADINGEXCHANGE_KEY = "tradingExchange";
+  /**
+   * 
+   */
+  protected static final String SETTLEMENTEXCHANGE_KEY = "settlementExchange";
+  /**
+   * 
+   */
+  protected static final String CURRENCY_KEY = "currency";
 
   /**
    * The security type of equity.
@@ -100,6 +122,19 @@ public abstract class FutureSecurity extends FinancialSecurity {
 
   public final <T> T accept(FinancialSecurityVisitor<T> visitor) {
     return accept((FutureSecurityVisitor<T>) visitor);
+  }
+
+  protected void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+    super.toFudgeMsg(context, message);
+    context.objectToFudgeMsg(message, EXPIRY_KEY, null, getExpiry());
+    message.add(TRADINGEXCHANGE_KEY, getTradingExchange());
+    message.add(SETTLEMENTEXCHANGE_KEY, getSettlementExchange());
+    context.objectToFudgeMsg(message, CURRENCY_KEY, null, getCurrency());
+  }
+
+  protected void fromFudgeMsgImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    super.fromFudgeMsgImpl(context, message);
+    // Everything set through constructor
   }
 
 }

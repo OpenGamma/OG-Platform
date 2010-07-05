@@ -11,6 +11,7 @@ import org.fudgemsg.mapping.FudgeObjectDictionary;
 
 import com.opengamma.financial.Region;
 import com.opengamma.financial.RegionRepository;
+import com.opengamma.util.time.ExpiryFieldType;
 
 /**
  * Registers custom builders for the OG-Financial library.
@@ -34,10 +35,14 @@ public class FinancialFudgeContextConfiguration extends FudgeContextConfiguratio
 
   @Override
   public void configureFudgeTypeDictionary(final FudgeTypeDictionary dictionary) {
+    // Secondary types from this package
     dictionary.addType(BusinessDayConventionSecondaryType.INSTANCE);
     dictionary.addType(CurrencySecondaryType.INSTANCE);
     dictionary.addType(DayCountSecondaryType.INSTANCE);
     dictionary.addType(FrequencySecondaryType.INSTANCE);
+    dictionary.addType(GICSCodeSecondaryType.INSTANCE);
+    // Plus standard ones from OG-Util
+    dictionary.addType(ExpiryFieldType.INSTANCE);
   }
 
   @Override
