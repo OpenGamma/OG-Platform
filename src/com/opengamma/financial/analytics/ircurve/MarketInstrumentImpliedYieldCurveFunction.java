@@ -155,8 +155,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final InterpolatedYieldAndDiscountCurveSource curveSource = OpenGammaCompilationContext.getDiscountCurveSource(context);
     _definition = curveSource.getDefinition(_currency, "ForwardAndFunding");
     _requirements = Collections.unmodifiableSet(buildRequirements(_definition));
-    _curveResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FUNDING_AND_FORWARD_CURVE, _currency));
-    _jacobianResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FUNDING_AND_FORWARD_CURVE, _currency));
+    _curveResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FUNDING_CURVE, _currency));
+    _jacobianResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FUNDING_AND_FORWARD_JACOBIAN, _currency));
     _results = Sets.newHashSet(_curveResult, _jacobianResult);
   }
 
