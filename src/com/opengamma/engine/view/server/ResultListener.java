@@ -7,6 +7,7 @@
 package com.opengamma.engine.view.server;
 
 import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +51,9 @@ import com.opengamma.transport.jms.JmsByteArrayMessageSender;
   @Override
   public void computationResultAvailable(ViewComputationResultModel resultModel) {
     s_logger.info("Write {} to JMS {}", resultModel, _computationResults);
-    final byte[] fudgeMsg = getFudgeContext().toByteArray(getFudgeSerializationContext().objectToFudgeMsg(resultModel));
+    FudgeFieldContainer resultModelMsg = getFudgeSerializationContext().objectToFudgeMsg(resultModel);
+    s_logger.debug("Results in Fudge msg {}", resultModelMsg);
+    final byte[] fudgeMsg = getFudgeContext().toByteArray(resultModelMsg);
     s_logger.debug("Writing {} bytes data", fudgeMsg.length);
     _computationResults.send(fudgeMsg);
   }
