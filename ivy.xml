@@ -8,8 +8,6 @@
 		<artifact name="og-config" type="jar"/>
 	</publications>
 	<dependencies>
-        <dependency name="og-engine" rev="latest.integration" conf="opengamma->*"/>
-        <dependency name="og-financial" rev="latest.integration" conf="opengamma->*"/>
         <dependency name="og-util" rev="latest.integration" conf="opengamma->*"/>
         
 		<dependency org="org.apache.commons" name="commons-lang" rev="2.4"/>
