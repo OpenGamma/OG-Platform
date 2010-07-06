@@ -6,6 +6,7 @@
 package com.opengamma.financial.interestrate.libor;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -14,6 +15,7 @@ public class Libor implements InterestRateDerivative {
   private final double _paymentTime;
 
   public Libor(final double paymentTime) {
+    ArgumentChecker.notNegative(paymentTime, "payment time");
     _paymentTime = paymentTime;
   }
 

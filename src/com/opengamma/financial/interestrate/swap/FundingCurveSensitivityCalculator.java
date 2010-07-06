@@ -76,7 +76,7 @@ public class FundingCurveSensitivityCalculator {
     Validate.notNull(cash);
     Validate.notNull(fundingCurve);
     final List<Pair<Double, Double>> result = new ArrayList<Pair<Double, Double>>();
-    result.add(new DoublesPair(cash.getFixedPaymentTime(), 1));
+    result.add(new DoublesPair(cash.getPaymentTime(), 1));
     return result;
   }
 

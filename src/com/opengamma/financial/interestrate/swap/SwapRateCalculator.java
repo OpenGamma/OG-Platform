@@ -56,7 +56,7 @@ public class SwapRateCalculator {
   private double getRateFromCash(final YieldAndDiscountCurve fundingCurve, final Cash cash) {
     Validate.notNull(fundingCurve);
     Validate.notNull(cash);
-    return fundingCurve.getInterestRate(cash.getFixedPaymentTime());
+    return fundingCurve.getInterestRate(cash.getPaymentTime());
   }
 
   private double getRateFromFRA(final YieldAndDiscountCurve forwardCurve, final YieldAndDiscountCurve fundingCurve, final ForwardRateAgreement fra) {

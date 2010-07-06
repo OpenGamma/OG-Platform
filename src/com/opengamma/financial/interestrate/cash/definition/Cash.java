@@ -12,15 +12,15 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class Cash implements InterestRateDerivative {
-  private final double _fixedPaymentTime;
+  private final double _paymentTime;
 
-  public Cash(final double fixedPaymentTime) {
-    ArgumentChecker.notNegative(fixedPaymentTime, "fixed payment time");
-    _fixedPaymentTime = fixedPaymentTime;
+  public Cash(final double paymentTime) {
+    ArgumentChecker.notNegative(paymentTime, "payment time");
+    _paymentTime = paymentTime;
   }
 
-  public double getFixedPaymentTime() {
-    return _fixedPaymentTime;
+  public double getPaymentTime() {
+    return _paymentTime;
   }
 
   @Override
@@ -28,7 +28,7 @@ public class Cash implements InterestRateDerivative {
     final int prime = 31;
     int result = 1;
     long temp;
-    temp = Double.doubleToLongBits(_fixedPaymentTime);
+    temp = Double.doubleToLongBits(_paymentTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
@@ -45,7 +45,7 @@ public class Cash implements InterestRateDerivative {
       return false;
     }
     final Cash other = (Cash) obj;
-    if (Double.doubleToLongBits(_fixedPaymentTime) != Double.doubleToLongBits(other._fixedPaymentTime)) {
+    if (Double.doubleToLongBits(_paymentTime) != Double.doubleToLongBits(other._paymentTime)) {
       return false;
     }
     return true;
