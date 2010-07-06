@@ -15,7 +15,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 public class ComputeNode {
   
   private int _id;
-  private int _configOid;
+  private String _configOid;
   private int _configVersion;
   private ComputeHost _computeHost;
   private String _nodeName;
@@ -28,11 +28,11 @@ public class ComputeNode {
     _id = id;
   }
   
-  public int getConfigOid() {
+  public String getConfigOid() {
     return _configOid;
   }
   
-  public void setConfigOid(int configOid) {
+  public void setConfigOid(String configOid) {
     _configOid = configOid;
   }
   

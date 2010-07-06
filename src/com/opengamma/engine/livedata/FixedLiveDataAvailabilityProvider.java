@@ -14,7 +14,6 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  *
- * @author kirk
  */
 public class FixedLiveDataAvailabilityProvider implements
     LiveDataAvailabilityProvider {

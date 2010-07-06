@@ -7,7 +7,6 @@ package com.opengamma.engine.batch;
 
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 
 import org.fudgemsg.FudgeMsg;
@@ -58,7 +57,7 @@ public interface BatchDbManager {
    * @param remoteComputeNodeVersion Reference to OpenGamma Configuration Database
    * @return A context for use in method {@link #write}. Not null.
    */
-  FudgeMsg createFudgeContext(BatchJob batch, int remoteComputeNodeOid, int remoteComputeNodeVersion);
+  FudgeMsg createFudgeContext(BatchJob batch, String remoteComputeNodeOid, int remoteComputeNodeVersion);
   
   /**
    * Deserializes a context sent from the Engine Master Process VM.
@@ -84,50 +83,43 @@ public interface BatchDbManager {
    * Before it is actually used, you must add entries to it
    * and then mark it complete.
    * 
-   * @param observationDate The date of the snapshot, not null
-   * @param observationTime The time of the snapshot (e.g., LDN_CLOSE), not null
+   * @param snapshotId The date and time of the snapshot, not null
    */
-  void createLiveDataSnapshot(LocalDate observationDate, String observationTime);
+  void createLiveDataSnapshot(SnapshotId snapshotId);
   
   /**
    * Fixes the time of a LiveData snapshot in the database.
    * For example, the head trader may set the time of LDN_CLOSE every day.
    * One day he may set it at 17:31, the next at 17:44. 
    * 
-   * @param observationDate The date of the snapshot, not null
-   * @param observationTime The time of the snapshot (e.g., LDN_CLOSE), not null
+   * @param snapshotId The date and time of the snapshot, not null
    * @param fix The time to which the observation time was fixed, not null
    */
-  void fixLiveDataSnapshotTime(LocalDate observationDate, String observationTime, OffsetTime fix);
+  void fixLiveDataSnapshotTime(SnapshotId snapshotId, OffsetTime fix);
   
   /**
    * Marks a LiveData snapshot complete. This releases the snapshot
    * for use in batches.
    * 
-   * @param observationDate The date of the snapshot, not null
-   * @param observationTime The time of the snapshot (e.g., LDN_CLOSE), not null
+   * @param snapshotId The date and time of the snapshot, not null
    */
-  void markLiveDataSnapshotComplete(LocalDate observationDate, String observationTime);
+  void markLiveDataSnapshotComplete(SnapshotId snapshotId);
   
   /**
    * Adds market data fixings to an existing LiveData snapshot. The
    * snapshot must already exist.
    * 
-   * @param observationDate The date of the snapshot, not null
-   * @param observationTime The time of the snapshot (e.g., LDN_CLOSE), not null
+   * @param snapshotId The date and time of the snapshot, not null
    * @param values The fixings, not null
    */
-  void addValuesToSnapshot(LocalDate observationDate, 
-      String observationTime,
-      Set<LiveDataValue> values);
+  void addValuesToSnapshot(SnapshotId snapshotId, Set<LiveDataValue> values);
   
   /**
    * Gets all market data fixings associated with an existing snapshot.
    * 
-   * @param observationDate The date of the snapshot, not null
-   * @param observationTime The time of the snapshot (e.g., LDN_CLOSE), not null
-   * @return All market data fixings with this snapshot, not null
+   * @param snapshotId The date and time of the snapshot, not null
+   * @return The fixings associated with this snapshot, not null
    */
-  Set<LiveDataValue> getSnapshotValues(LocalDate observationDate, String observationTime);
+  Set<LiveDataValue> getSnapshotValues(SnapshotId snapshotId);
   
 }

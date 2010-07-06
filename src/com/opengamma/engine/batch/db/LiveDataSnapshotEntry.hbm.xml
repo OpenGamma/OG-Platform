@@ -14,8 +14,8 @@
     <many-to-one name="snapshot" 
     	column="snapshot_id" 
     	not-null="true"/>
-  	<many-to-one name="identifier" 
-    	column="live_data_identifier_id" 
+  	<many-to-one name="computationTarget" 
+    	column="computation_target_id" 
     	not-null="true"/>
   	<many-to-one name="field" 
     	column="field_id" 

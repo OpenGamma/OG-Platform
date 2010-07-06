@@ -18,7 +18,7 @@ public class LiveDataSnapshotEntry {
   
   private long _id;
   private LiveDataSnapshot _snapshot;
-  private LiveDataIdentifier _identifier;
+  private ComputationTarget _computationTarget;
   private LiveDataField _field;
   private double _value;
   
@@ -38,14 +38,14 @@ public class LiveDataSnapshotEntry {
     _snapshot = snapshot;
   }
   
-  public LiveDataIdentifier getIdentifier() {
-    return _identifier;
+  public ComputationTarget getComputationTarget() {
+    return _computationTarget;
   }
-  
-  public void setIdentifier(LiveDataIdentifier identifier) {
-    _identifier = identifier;
+
+  public void setComputationTarget(ComputationTarget computationTarget) {
+    _computationTarget = computationTarget;
   }
-  
+
   public LiveDataField getField() {
     return _field;
   }
@@ -79,7 +79,7 @@ public class LiveDataSnapshotEntry {
   
   public LiveDataValue toLiveDataValue() {
     return new LiveDataValue(
-        getIdentifier().toOpenGammaIdentifier(),
+        getComputationTarget().toSpec(),
         getField().getName(),
         getValue());
   }

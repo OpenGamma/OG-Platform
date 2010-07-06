@@ -37,7 +37,7 @@ public class DelegatingLiveDataAvailabilityProvider extends DelegateByScheme<Liv
 
   @Override
   public boolean isAvailable(ValueRequirement requirement) {
-    s_logger.debug ("isAvailable {}", requirement);
+    s_logger.debug("isAvailable {}", requirement);
     return chooseDelegate(requirement.getTargetSpecification().getUniqueIdentifier()).isAvailable(requirement);
   }
 

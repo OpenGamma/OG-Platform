@@ -142,9 +142,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     
     @Test
     public void markSnapshotComplete() {
-      _dbManager.createLiveDataSnapshot(
-          _batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime());
+      _dbManager.createLiveDataSnapshot(_batchJob.getSnapshotId()); 
       
       LiveDataSnapshot snapshot = _dbManager.getLiveDataSnapshot(_batchJob);
       assertNotNull(snapshot);
@@ -155,33 +153,23 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
       assertFalse(snapshot.isComplete());
       assertTrue(snapshot.getSnapshotEntries().isEmpty());
 
-      _dbManager.markLiveDataSnapshotComplete(
-          _batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime());
+      _dbManager.markLiveDataSnapshotComplete(_batchJob.getSnapshotId());
 
       assertTrue(snapshot.isComplete());
     }
     
     @Test(expected=IllegalArgumentException.class) 
     public void tryToMarkNonExistentSnapshotComplete() {
-      _dbManager.markLiveDataSnapshotComplete(
-          _batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime());
+      _dbManager.markLiveDataSnapshotComplete(_batchJob.getSnapshotId());
     }
     
     @Test(expected=IllegalStateException.class) 
     public void tryToMarkSnapshotCompleteTwice() {
-      _dbManager.createLiveDataSnapshot(
-          _batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime());
+      _dbManager.createLiveDataSnapshot(_batchJob.getSnapshotId());
 
-      _dbManager.markLiveDataSnapshotComplete(
-          _batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime());
+      _dbManager.markLiveDataSnapshotComplete(_batchJob.getSnapshotId());
       
-      _dbManager.markLiveDataSnapshotComplete(
-          _batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime());
+      _dbManager.markLiveDataSnapshotComplete(_batchJob.getSnapshotId());
     }
     
     @Test 
@@ -196,162 +184,114 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
       assertEquals(field1, field2);
     }
     
-    @Test 
-    public void getLiveDataIdentifier() {
-      Identifier identifier = new Identifier("BUID", "EQ12345");
-      
-      // create
-      LiveDataIdentifier id1 = _dbManager.getLiveDataIdentifier(identifier);
-      assertNotNull(id1);
-      assertEquals(identifier.getScheme().getName(), id1.getScheme());
-      assertEquals(identifier.getValue(), id1.getValue());
-      
-      // get
-      LiveDataIdentifier id2 = _dbManager.getLiveDataIdentifier(identifier);
-      assertEquals(id1, id2);
-    }
-    
     @Test(expected=IllegalArgumentException.class)
     public void addValuesToNonexistentSnapshot() {
-      _dbManager.addValuesToSnapshot(_batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime(), Collections.<LiveDataValue>emptySet());
+      _dbManager.addValuesToSnapshot(_batchJob.getSnapshotId(), Collections.<LiveDataValue>emptySet());
     }
     
     @Test(expected=IllegalStateException.class)
     public void addValuesToCompleteSnapshot() {
-      _dbManager.createLiveDataSnapshot(
-          _batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime());
+      _dbManager.createLiveDataSnapshot(_batchJob.getSnapshotId());
             
-      _dbManager.markLiveDataSnapshotComplete(
-          _batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime());
+      _dbManager.markLiveDataSnapshotComplete(_batchJob.getSnapshotId());
       
-      LiveDataValue value = new LiveDataValue(new Identifier("BUID", "EQ12345"), "BID", 11.22);
+      LiveDataValue value = new LiveDataValue(new ComputationTargetSpecification(
+          new Identifier("BUID", "EQ12345")), "BID", 11.22);
       Set<LiveDataValue> values = Collections.singleton(value);
       
-      _dbManager.addValuesToSnapshot(_batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime(), values);
+      _dbManager.addValuesToSnapshot(_batchJob.getSnapshotId(), values);
       
-      Set<LiveDataValue> returnedValues = _dbManager.getSnapshotValues(
-          _batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime());
+      Set<LiveDataValue> returnedValues = _dbManager.getSnapshotValues(_batchJob.getSnapshotId());
       
       assertEquals(values, returnedValues);
     }
     
     @Test
     public void addValuesToIncompleteSnapshot() {
-      _dbManager.createLiveDataSnapshot(
-          _batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime());
+      _dbManager.createLiveDataSnapshot(_batchJob.getSnapshotId());
       
-      _dbManager.addValuesToSnapshot(_batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime(), Collections.<LiveDataValue>emptySet());
+      _dbManager.addValuesToSnapshot(_batchJob.getSnapshotId(), Collections.<LiveDataValue>emptySet());
       
       LiveDataSnapshot snapshot = _dbManager.getLiveDataSnapshot(_batchJob);
       assertNotNull(snapshot);
       assertEquals(0, snapshot.getSnapshotEntries().size());
       
-      Set<Identifier> identifiers = Sets.newHashSet();
-      identifiers.add(new Identifier("BUID", "EQ12345"));
-      identifiers.add(new Identifier("BUID", "EQ12346"));
-      identifiers.add(new Identifier("BUID", "EQ12347"));
+      Set<ComputationTargetSpecification> specs = Sets.newHashSet();
+      specs.add(new ComputationTargetSpecification(new Identifier("BUID", "EQ12345")));
+      specs.add(new ComputationTargetSpecification(new Identifier("BUID", "EQ12346")));
+      specs.add(new ComputationTargetSpecification(new Identifier("BUID", "EQ12347")));
       
       Set<LiveDataValue> values = new HashSet<LiveDataValue>();
-      for (Identifier id : identifiers) {
-        values.add(new LiveDataValue(id, "field_name", 123.45));
+      for (ComputationTargetSpecification spec : specs) {
+        values.add(new LiveDataValue(spec, "field_name", 123.45));
       }
       
-      _dbManager.addValuesToSnapshot(_batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime(), values);
+      _dbManager.addValuesToSnapshot(_batchJob.getSnapshotId(), values);
       
       snapshot = _dbManager.getLiveDataSnapshot(_batchJob);
-      assertEquals(identifiers.size(), snapshot.getSnapshotEntries().size());
-      for (Identifier id : identifiers) {
-        LiveDataSnapshotEntry entry = snapshot.getEntry(id, "field_name");
+      assertEquals(specs.size(), snapshot.getSnapshotEntries().size());
+      for (ComputationTargetSpecification spec : specs) {
+        LiveDataSnapshotEntry entry = snapshot.getEntry(spec, "field_name");
         assertNotNull(entry);
         assertEquals(snapshot, entry.getSnapshot());
-        assertEquals(id, entry.getIdentifier().toOpenGammaIdentifier());
+        assertEquals(spec, entry.getComputationTarget().toSpec());
         assertEquals("field_name", entry.getField().getName());
         assertEquals(123.45, entry.getValue(), 0.000001);
       }
       
       // should not add anything extra
-      _dbManager.addValuesToSnapshot(_batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime(), values);
+      _dbManager.addValuesToSnapshot(_batchJob.getSnapshotId(), values);
       snapshot = _dbManager.getLiveDataSnapshot(_batchJob);
       assertEquals(3, snapshot.getSnapshotEntries().size());
       
       // should update 1, add 1
       values = new HashSet<LiveDataValue>();
-      values.add(new LiveDataValue(new Identifier("BUID", "EQ12347"), "field_name", 123.46));
-      values.add(new LiveDataValue(new Identifier("BUID", "EQ12348"), "field_name", 123.45));
+      values.add(new LiveDataValue(new ComputationTargetSpecification(new Identifier("BUID", "EQ12347")), "field_name", 123.46));
+      values.add(new LiveDataValue(new ComputationTargetSpecification(new Identifier("BUID", "EQ12348")), "field_name", 123.45));
       
-      _dbManager.addValuesToSnapshot(_batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime(), values);
+      _dbManager.addValuesToSnapshot(_batchJob.getSnapshotId(), values);
       snapshot = _dbManager.getLiveDataSnapshot(_batchJob);
       assertEquals(4, snapshot.getSnapshotEntries().size());
     }
     
     @Test
     public void fixLiveDataSnapshotTime() {
-      _dbManager.createLiveDataSnapshot(
-          _batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime());
+      _dbManager.createLiveDataSnapshot(_batchJob.getSnapshotId());
       
-      _dbManager.fixLiveDataSnapshotTime(
-          _batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime(),
+      _dbManager.fixLiveDataSnapshotTime(_batchJob.getSnapshotId(),
           OffsetTime.nowSystemClock());
     }
     
     @Test(expected=IllegalArgumentException.class)
     public void tryToFixNonexistentLiveDataSnapshotTime() {
-      _dbManager.fixLiveDataSnapshotTime(
-          _batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime(),
+      _dbManager.fixLiveDataSnapshotTime(_batchJob.getSnapshotId(),
           OffsetTime.nowSystemClock());
     }
     
     @Test
     public void fixCompleteLiveDataSnapshotTime() {
-      _dbManager.createLiveDataSnapshot(
-          _batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime());
+      _dbManager.createLiveDataSnapshot(_batchJob.getSnapshotId());
       
-      _dbManager.markLiveDataSnapshotComplete(
-          _batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime());
+      _dbManager.markLiveDataSnapshotComplete(_batchJob.getSnapshotId());
       
       // this is OK
-      _dbManager.fixLiveDataSnapshotTime(
-          _batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime(),
+      _dbManager.fixLiveDataSnapshotTime(_batchJob.getSnapshotId(),
           OffsetTime.nowSystemClock());
     }
     
     @Test
     public void createLiveDataSnapshotMultipleTimes() {
-      _dbManager.createLiveDataSnapshot(
-          _batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime());
+      _dbManager.createLiveDataSnapshot(_batchJob.getSnapshotId());
       
-      _dbManager.createLiveDataSnapshot(
-          _batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime());
+      _dbManager.createLiveDataSnapshot(_batchJob.getSnapshotId());
       
       assertNotNull(_dbManager.getLiveDataSnapshot(_batchJob));
     }
     
     @Test
     public void createThenGetRiskRun() {
-      _dbManager.createLiveDataSnapshot(
-          _batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime());
-      _dbManager.markLiveDataSnapshotComplete(
-          _batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime());
+      _dbManager.createLiveDataSnapshot(_batchJob.getSnapshotId());
+      _dbManager.markLiveDataSnapshotComplete(_batchJob.getSnapshotId());
       RiskRun run = _dbManager.createRiskRun(_batchJob);
       
       assertNotNull(run);
@@ -379,20 +319,14 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     
     @Test(expected=IllegalStateException.class)
     public void tryToStartBatchWithoutMarkingSnapshotComplete() {
-      _dbManager.createLiveDataSnapshot(
-          _batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime());
+      _dbManager.createLiveDataSnapshot(_batchJob.getSnapshotId());
       _dbManager.startBatch(_batchJob);
     }
     
     @Test
     public void startAndEndBatch() {
-      _dbManager.createLiveDataSnapshot(
-          _batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime());
-      _dbManager.markLiveDataSnapshotComplete(
-          _batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime());
+      _dbManager.createLiveDataSnapshot(_batchJob.getSnapshotId());
+      _dbManager.markLiveDataSnapshotComplete(_batchJob.getSnapshotId());
       _dbManager.startBatch(_batchJob);
       
       RiskRun run1 = _dbManager.getRiskRunFromDb(_batchJob);
@@ -417,12 +351,8 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     
     @Test
     public void startBatchTwice() {
-      _dbManager.createLiveDataSnapshot(
-          _batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime());
-      _dbManager.markLiveDataSnapshotComplete(
-          _batchJob.getSnapshotObservationDate(), 
-          _batchJob.getSnapshotObservationTime());
+      _dbManager.createLiveDataSnapshot(_batchJob.getSnapshotId());
+      _dbManager.markLiveDataSnapshotComplete(_batchJob.getSnapshotId());
       _dbManager.startBatch(_batchJob);
       _dbManager.startBatch(_batchJob);
     }

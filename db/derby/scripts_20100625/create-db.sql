@@ -45,7 +45,7 @@ create table rsk_compute_host (
 
 create table rsk_compute_node (
 	id int not null,
-	config_oid int not null,
+	config_oid varchar(255) not null,
 	config_version int not null,
 	compute_host_id int not null,
 	node_name varchar(255) not null,
@@ -105,16 +105,6 @@ create table rsk_computation_target (
 -- LiveData inputs
 -------------------------------------
 
-create table rsk_live_data_identifier (
-	id int not null,
-	id_scheme varchar(255) not null,          -- what the engine asks for          
-	id_value varchar(255) not null,           -- what the engine asks for
-	
-	primary key (id),
-	
-	unique (id_scheme, id_value)
-);
-
 create table rsk_live_data_field (
 	id int not null,
 	name varchar(255) not null,
@@ -140,7 +130,7 @@ create table rsk_live_data_snapshot (
 create table rsk_live_data_snapshot_entry (
 	id bigint not null,
 	snapshot_id int not null,
-    live_data_identifier_id int not null,
+	computation_target_id int not null,
 	field_id int not null,
 	value double precision,
 	
@@ -148,10 +138,10 @@ create table rsk_live_data_snapshot_entry (
 	
 	constraint fk_rsk_snpsht_entry2snpsht
 		foreign key (snapshot_id) references rsk_live_data_snapshot (id),
-	constraint fk_rsk_spsht_entry2lv_data_id
-	    foreign key (live_data_identifier_id) references rsk_live_data_identifier (id),
+	constraint fk_rsk_spsht_entry2cmp_target
+	    foreign key (computation_target_id) references rsk_computation_target (id),
 	    
-	unique (snapshot_id, live_data_identifier_id, field_id) 	
+	unique (snapshot_id, computation_target_id, field_id) 	
 );
 
 -------------------------------------
@@ -165,7 +155,7 @@ create table rsk_run (
     run_reason varchar(255) not null,       -- 15 June main overnight batch run
     run_time_id int not null,
     valuation_time timestamp not null,	 	-- 15 June 2010 17:00:00 - 'T'
-    view_oid int not null,
+    view_oid varchar(255) not null,
     view_version int not null,
     live_data_snapshot_id int not null,
     create_instant timestamp not null,

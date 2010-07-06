@@ -6,6 +6,11 @@
 package com.opengamma.engine.batch;
 
 import java.util.Collection;
+import java.util.Set;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
@@ -20,17 +25,45 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.config.ConfigurationDocument;
+import com.opengamma.config.ConfigurationDocumentRepo;
+import com.opengamma.config.db.MongoDBConfigurationRepo;
+import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.batch.db.BatchDbRiskContext;
+import com.opengamma.engine.function.DefaultFunctionResolver;
+import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.function.FunctionRepository;
+import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
+import com.opengamma.engine.position.PositionMaster;
+import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.ViewProcessingContext;
+import com.opengamma.engine.view.cache.MapViewComputationCacheSource;
+import com.opengamma.engine.view.calcnode.CalculationNodeRequestReceiver;
+import com.opengamma.engine.view.calcnode.FudgeJobRequestSender;
+import com.opengamma.engine.view.calcnode.JobRequestSender;
+import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
+import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
+import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.transport.InMemoryRequestConduit;
+import com.opengamma.util.MongoDBConnectionSettings;
+import com.opengamma.util.NamedThreadPoolFactory;
 
 /**
  * The entry point for running OpenGamma batches. 
@@ -45,7 +78,7 @@ public class BatchJob implements Job, ComputationResultListener {
   public static final String AD_HOC_OBSERVATION_TIME = "AD_HOC_RUN";
   
   // --------------------------------------------------------------------------
-  // Variables initialized at construction time
+  // Variables automatically initialized at construction time
   // --------------------------------------------------------------------------
   
   /** yyyyMMddHHmmss[Z] */
@@ -60,6 +93,36 @@ public class BatchJob implements Job, ComputationResultListener {
    * Not null.
    */
   private final UserPrincipal _user;
+  
+  // --------------------------------------------------------------------------
+  // Variables YOU should set - whether by using Spring property-based injection,
+  // or manually by calling setters in tests
+  // --------------------------------------------------------------------------
+  
+  /**
+   * Used to load a ViewDefinition (whose name will be given on the command line)
+   */
+  private MongoDBConnectionSettings _configDbConnectionSettings;
+  
+  /**
+   * Used to load Functions (needed for building the dependency graph)
+   */
+  private FunctionRepository _functionRepository;
+  
+  /**
+   * Used to load Securities (needed for building the dependency graph)
+   */
+  private SecurityMaster _securityMaster;
+  
+  /**
+   * Used to load Positions (needed for building the dependency graph)
+   */
+  private PositionMaster _positionMaster;
+  
+  /**
+   * Used to write stuff to the batch database
+   */
+  private BatchDbManager _batchDbManager;
   
   // --------------------------------------------------------------------------
   // Variables initialized from command line input
@@ -141,18 +204,29 @@ public class BatchJob implements Job, ComputationResultListener {
    */
   private boolean _forceNewRun; // = false
   
-  /**
-   * Used to populate the batch database
-   */
-  private BatchDbManager _batchDbManager;
-  
   // --------------------------------------------------------------------------
   // Variables initialized during the batch run
   // --------------------------------------------------------------------------
+  
+  /**
+   * Used to load a ViewDefinition
+   */
+  private ConfigurationDocumentRepo<ViewDefinition> _configDb;
+  
+  /** 
+   * Object ID of ViewDefinition loaded from config DB
+   */
+  private String _viewOid = "UNDEFINED";
+  
+  /**
+   * Version of ViewDefinition loaded from config DB
+   */
+  private int _viewVersion = -1;
 
   /**
-   * View loaded from the configuration database.
-   * The view will define the portfolio of trades the batch should be run for.
+   * To initialize _view, you need a ViewDefinition, but also
+   * many other properties - positions loaded from a position master, 
+   * securities from security master, etc.
    */
   private View _view;
   
@@ -252,7 +326,7 @@ public class BatchJob implements Job, ComputationResultListener {
       _snapshotObservationDate = _dateFormatter.parse(snapshotObservationDate, LocalDate.rule());
     }
   }
-
+  
   public String getSnapshotObservationTime() {
     return _snapshotObservationTime;
   }
@@ -261,6 +335,10 @@ public class BatchJob implements Job, ComputationResultListener {
     _snapshotObservationTime = snapshotObservationTime;
   }
   
+  public SnapshotId getSnapshotId() {
+    return new SnapshotId(getSnapshotObservationDate(), getSnapshotObservationTime());
+  }
+
   public boolean isForceNewRun() {
     return _forceNewRun;
   }
@@ -289,12 +367,12 @@ public class BatchJob implements Job, ComputationResultListener {
     return getView().getDefinition().getAllCalculationConfigurations();
   }
   
-  public int getViewOid() {
-    return 123; // TODO
+  public String getViewOid() {
+    return _viewOid; 
   }
   
   public int getViewVersion() {
-    return 1; // TODO    
+    return _viewVersion;    
   }
   
   public Object getDbHandle() {
@@ -305,10 +383,44 @@ public class BatchJob implements Job, ComputationResultListener {
     _dbHandle = dbHandle;
   }
   
+  // --------------------------------------------------------------------------
+  
+  public MongoDBConnectionSettings getConfigDbConnectionSettings() {
+    return _configDbConnectionSettings;
+  }
+
+  public void setConfigDbConnectionSettings(MongoDBConnectionSettings configDbConnectionSettings) {
+    _configDbConnectionSettings = configDbConnectionSettings;
+  }
+
+  public FunctionRepository getFunctionRepository() {
+    return _functionRepository;
+  }
+
+  public void setFunctionRepository(FunctionRepository functionRepository) {
+    _functionRepository = functionRepository;
+  }
+
+  public SecurityMaster getSecurityMaster() {
+    return _securityMaster;
+  }
+
+  public void setSecurityMaster(SecurityMaster securityMaster) {
+    _securityMaster = securityMaster;
+  }
+
+  public PositionMaster getPositionMaster() {
+    return _positionMaster;
+  }
+
+  public void setPositionMaster(PositionMaster positionMaster) {
+    _positionMaster = positionMaster;
+  }
+  
   public BatchDbManager getBatchDbManager() {
     return _batchDbManager;
   }
-
+  
   public void setBatchDbManager(BatchDbManager batchDbManager) {
     _batchDbManager = batchDbManager;
   }
@@ -333,9 +445,80 @@ public class BatchJob implements Job, ComputationResultListener {
 
   
   // --------------------------------------------------------------------------
-
   
-  public void init() throws OpenGammaRuntimeException {
+  public InMemoryLKVSnapshotProvider getSnapshotProvider() {
+    InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
+    
+    Set<LiveDataValue> liveDataValues = _batchDbManager.getSnapshotValues(getSnapshotId());
+    
+    for (LiveDataValue value : liveDataValues) {
+      ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("MarketDataHeader", 
+          value.getComputationTargetSpecification()));
+      MutableFudgeFieldContainer container = FudgeContext.GLOBAL_DEFAULT.newMessage();
+      container.add(value.getFieldName(), value.getValue());
+      ComputedValue computedValue = new ComputedValue(valueSpec, container);
+      snapshotProvider.addValue(computedValue);
+    }
+    
+    return snapshotProvider;
+  }
+  
+  public void initView() {
+    
+    if (getViewName() == null) {
+      throw new IllegalStateException("Please specify view name.");
+    }
+    
+    if (_viewDateTime == null) {
+      _viewDateTime = _valuationTime;      
+    }
+    
+    if (_configDbConnectionSettings == null) {
+      throw new IllegalStateException("Config DB connection settings not given.");            
+    }
+    _configDb = new MongoDBConfigurationRepo<ViewDefinition>(ViewDefinition.class, 
+        getConfigDbConnectionSettings());
+
+    ConfigurationDocument<ViewDefinition> viewDefinitionDoc = _configDb.getByName(getViewName(), _viewDateTime.toInstant());
+    if (viewDefinitionDoc == null) {
+      throw new IllegalStateException("Config DB does not contain ViewDefinition with name " + getViewName() + " at " + _viewDateTime);      
+    }
+    _viewOid = viewDefinitionDoc.getOid();
+    _viewVersion = viewDefinitionDoc.getVersion();
+    
+    InMemoryLKVSnapshotProvider snapshotProvider = getSnapshotProvider();
+    
+    DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(getSecurityMaster(), getPositionMaster());
+    MapViewComputationCacheSource cacheFactory = new MapViewComputationCacheSource();
+    FunctionExecutionContext executionContext = new FunctionExecutionContext(); // TODO
+    
+    ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
+    ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
+    CalculationNodeRequestReceiver calcRequestReceiver = new CalculationNodeRequestReceiver(cacheFactory, getFunctionRepository(), executionContext, targetResolver, viewProcessorQuerySender);
+    JobRequestSender calcRequestSender = new FudgeJobRequestSender(InMemoryRequestConduit.create(calcRequestReceiver));
+    
+    ThreadFactory threadFactory = new NamedThreadPoolFactory("BatchJob-" + System.currentTimeMillis(), true);
+    ThreadPoolExecutor executor = new ThreadPoolExecutor(0, 1, 5L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), threadFactory);
+    
+    ViewProcessingContext vpc = new ViewProcessingContext(
+        new PermissiveLiveDataEntitlementChecker(),
+        snapshotProvider,  
+        snapshotProvider,
+        getFunctionRepository(), 
+        new DefaultFunctionResolver(getFunctionRepository()),
+        getPositionMaster(), 
+        getSecurityMaster(), 
+        cacheFactory, 
+        calcRequestSender, 
+        viewProcessorQueryReceiver,
+        new FunctionCompilationContext(), // TODO 
+        executor);
+    
+    _view = new View(viewDefinitionDoc.getValue(), vpc);
+    _view.init();
+  }
+  
+  public void init() {
     ZonedDateTime now = ZonedDateTime.nowSystemClock();
     
     if (_runReason == null) {
@@ -356,19 +539,16 @@ public class BatchJob implements Job, ComputationResultListener {
       _valuationTime = ZonedDateTime.of(_observationDate, now, now.getZone()); 
     }
     
-    if (getViewName() == null && getView() == null) {
-      throw new OpenGammaRuntimeException("Please specify view name.");
-    }
-    if (_viewDateTime == null) {
-      _viewDateTime = _valuationTime;      
-    }
-    
     if (_snapshotObservationDate == null) {
       _snapshotObservationDate = _observationDate;
     }
     
     if (_snapshotObservationTime == null) {
       _snapshotObservationTime = _observationTime;
+    }
+    
+    if (getView() == null) {
+      initView();
     }
     
     getView().addResultListener(this);

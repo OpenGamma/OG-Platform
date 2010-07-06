@@ -9,7 +9,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -18,9 +18,9 @@ import com.opengamma.util.ArgumentChecker;
 public class LiveDataValue {
   
   /**
-   * For example, BLOOMBERG_BUID:EQ1251521510000.
+   * A security (for example - AAPL stock) or a primitive (for example - EUR/USD exchange rate)
    */
-  private Identifier _identifier;
+  private ComputationTargetSpecification _computationTargetSpecification;
   
   /**
    * For example, IndicativeValue
@@ -32,41 +32,29 @@ public class LiveDataValue {
    */
   private double _value;
   
-  public LiveDataValue(Identifier identifier,
+  public LiveDataValue(ComputationTargetSpecification computationTargetSpecification,
       String fieldName,
       double value) {
-    ArgumentChecker.notNull(identifier, "Identifier");
+    ArgumentChecker.notNull(computationTargetSpecification, "Computation target specification");
     ArgumentChecker.notNull(fieldName, "Field name");
     
-    _identifier = identifier;
+    _computationTargetSpecification = computationTargetSpecification;
     _fieldName = fieldName;
     _value = value;
   }
 
-  public Identifier getIdentifier() {
-    return _identifier;
-  }
-
-  public void setIdentifier(Identifier identifier) {
-    _identifier = identifier;
+  public ComputationTargetSpecification getComputationTargetSpecification() {
+    return _computationTargetSpecification;
   }
 
   public String getFieldName() {
     return _fieldName;
   }
 
-  public void setFieldName(String fieldName) {
-    _fieldName = fieldName;
-  }
-
   public double getValue() {
     return _value;
   }
 
-  public void setValue(double value) {
-    _value = value;
-  }
-  
   @Override
   public int hashCode() {
     return HashCodeBuilder.reflectionHashCode(this);

@@ -40,11 +40,11 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.batch.BatchDbManager;
 import com.opengamma.engine.batch.BatchJob;
 import com.opengamma.engine.batch.LiveDataValue;
+import com.opengamma.engine.batch.SnapshotId;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.id.Identifier;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -196,7 +196,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
     if (node == null) {
       node = new ComputeNode();
       node.setComputeHost(host);
-      node.setConfigOid(1);
+      node.setConfigOid("UNDEFINED"); // TODO
       node.setConfigVersion(1);
       node.setNodeName(host.getHostName());
       _hibernateTemplate.save(node);
@@ -253,26 +253,6 @@ public class BatchDbManagerImpl implements BatchDbManager {
     return field;
   }
   
-  /*package*/ LiveDataIdentifier getLiveDataIdentifier(final Identifier identifier) {
-    LiveDataIdentifier liveDataIdentifier = (LiveDataIdentifier) _hibernateTemplate.execute(new HibernateCallback() {
-      @Override
-      public Object doInHibernate(Session session) throws HibernateException,
-          SQLException {
-        Query query = session.getNamedQuery("LiveDataIdentifier.one.bySchemeAndValue");
-        query.setString("scheme", identifier.getScheme().getName());
-        query.setString("value", identifier.getValue());
-        return query.uniqueResult();
-      }
-    });
-    if (liveDataIdentifier == null) {
-      liveDataIdentifier = new LiveDataIdentifier();
-      liveDataIdentifier.setScheme(identifier.getScheme().getName());      
-      liveDataIdentifier.setValue(identifier.getValue());
-      _hibernateTemplate.save(liveDataIdentifier);
-    }
-    return liveDataIdentifier;
-  }
-  
   /*package*/ ComputationTarget getComputationTarget(final ComputationTargetSpecification spec) {
     ComputationTarget computationTarget = (ComputationTarget) _hibernateTemplate.execute(new HibernateCallback() {
       @Override
@@ -322,7 +302,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
         public Object doInHibernate(Session session) throws HibernateException,
             SQLException {
           Query query = session.getNamedQuery("RiskRun.one.byViewAndRunTime");
-          query.setInteger("viewOid", job.getViewOid());
+          query.setString("viewOid", job.getViewOid());
           query.setInteger("viewVersion", job.getViewVersion());
           query.setDate("runDate", DateUtil.toSqlDate(job.getObservationDate()));
           query.setString("runTime", job.getObservationTime());
@@ -427,23 +407,23 @@ public class BatchDbManagerImpl implements BatchDbManager {
   
 
   @Override
-  public void addValuesToSnapshot(LocalDate observationDate, String observationTime, Set<LiveDataValue> values) {
-    s_logger.info("Adding {} values to LiveData snapshot {}/{}", new Object[] {values.size(), observationDate, observationTime});
+  public void addValuesToSnapshot(SnapshotId snapshotId, Set<LiveDataValue> values) {
+    s_logger.info("Adding {} values to LiveData snapshot {}", values.size(), snapshotId);
     
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
       
-      LiveDataSnapshot snapshot = getLiveDataSnapshot(observationDate, observationTime);
+      LiveDataSnapshot snapshot = getLiveDataSnapshot(snapshotId.getObservationDate(), snapshotId.getObservationTime());
       if (snapshot == null) {
-        throw new IllegalArgumentException("Snapshot for " + observationTime + "/" + observationTime + " does not exist.");
+        throw new IllegalArgumentException("Snapshot " + snapshotId + " cannot be found");
       }
       if (snapshot.isComplete()) {
-        throw new IllegalStateException("Snapshot for " + observationTime + "/" + observationTime + " is already complete.");
+        throw new IllegalStateException("Snapshot " + snapshotId + " is already complete.");
       }
       
       Collection<LiveDataSnapshotEntry> changedEntries = new ArrayList<LiveDataSnapshotEntry>();
       for (LiveDataValue value : values) {
-        LiveDataSnapshotEntry entry = snapshot.getEntry(value.getIdentifier(), value.getFieldName());
+        LiveDataSnapshotEntry entry = snapshot.getEntry(value.getComputationTargetSpecification(), value.getFieldName());
         if (entry != null) {
           if (entry.getValue() != value.getValue()) {
             entry.setValue(value.getValue());
@@ -452,7 +432,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
         } else {
           entry = new LiveDataSnapshotEntry();
           entry.setSnapshot(snapshot);
-          entry.setIdentifier(getLiveDataIdentifier(value.getIdentifier()));
+          entry.setComputationTarget(getComputationTarget(value.getComputationTargetSpecification()));
           entry.setField(getLiveDataField(value.getFieldName()));
           entry.setValue(value.getValue());
           snapshot.addEntry(entry);
@@ -469,22 +449,24 @@ public class BatchDbManagerImpl implements BatchDbManager {
   }
 
   @Override
-  public void createLiveDataSnapshot(LocalDate observationDate, String observationTime) {
-    s_logger.info("Creating LiveData snapshot {}/{} ", new Object[] {observationDate, observationTime});
+  public void createLiveDataSnapshot(SnapshotId snapshotId) {
+    s_logger.info("Creating LiveData snapshot {} ", snapshotId);
     
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
 
-      LiveDataSnapshot snapshot = getLiveDataSnapshot(observationDate, observationTime);
+      LiveDataSnapshot snapshot = getLiveDataSnapshot(snapshotId.getObservationDate(), snapshotId.getObservationTime());
       if (snapshot != null) {
-        s_logger.info("Snapshot for " + observationTime + "/" + observationTime + " already exists. No need to create.");
+        s_logger.info("Snapshot " + snapshotId + " already exists. No need to create.");
         return;
       }
       
       snapshot = new LiveDataSnapshot();
       snapshot.setComplete(false);
       
-      ObservationDateTime snapshotTime = getObservationDateTime(observationDate, observationTime);
+      ObservationDateTime snapshotTime = getObservationDateTime(
+          snapshotId.getObservationDate(), 
+          snapshotId.getObservationTime());
       snapshot.setSnapshotTime(snapshotTime);
       
       _hibernateTemplate.save(snapshot);
@@ -514,20 +496,16 @@ public class BatchDbManagerImpl implements BatchDbManager {
   }
 
   @Override
-  public void fixLiveDataSnapshotTime(LocalDate observationDate, String observationTime, OffsetTime fix) {
-    s_logger.info("Fixing LiveData snapshot {}/{} at {}", new Object[] {observationDate, observationTime, fix});
+  public void fixLiveDataSnapshotTime(SnapshotId snapshotId, OffsetTime fix) {
+    s_logger.info("Fixing LiveData snapshot {} at {}", snapshotId, fix);
     
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
 
-      LiveDataSnapshot snapshot = getLiveDataSnapshot(observationDate, observationTime);
+      LiveDataSnapshot snapshot = getLiveDataSnapshot(snapshotId.getObservationDate(), snapshotId.getObservationTime());
       
       if (snapshot == null) {
-        throw new IllegalArgumentException("Snapshot for " 
-            + observationDate 
-            + "/" 
-            + observationTime 
-            + " cannot be found");
+        throw new IllegalArgumentException("Snapshot " + snapshotId + " cannot be found");
       }
       
       snapshot.getSnapshotTime().setTime(DateUtil.toSqlTime(fix));
@@ -541,20 +519,16 @@ public class BatchDbManagerImpl implements BatchDbManager {
   }
 
   @Override
-  public void markLiveDataSnapshotComplete(LocalDate observationDate, String observationTime) {
-    s_logger.info("Marking LiveData snapshot {}/{} complete", observationDate, observationTime);
+  public void markLiveDataSnapshotComplete(SnapshotId snapshotId) {
+    s_logger.info("Marking LiveData snapshot {} complete", snapshotId);
     
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
 
-      LiveDataSnapshot snapshot = getLiveDataSnapshot(observationDate, observationTime);
+      LiveDataSnapshot snapshot = getLiveDataSnapshot(snapshotId.getObservationDate(), snapshotId.getObservationTime());
       
       if (snapshot == null) {
-        throw new IllegalArgumentException("Snapshot for " 
-            + observationDate 
-            + "/" 
-            + observationTime 
-            + " cannot be found");
+        throw new IllegalArgumentException("Snapshot " + snapshotId + " cannot be found");
       }
       
       if (snapshot.isComplete()) {
@@ -572,22 +546,18 @@ public class BatchDbManagerImpl implements BatchDbManager {
   }
   
   @Override
-  public Set<LiveDataValue> getSnapshotValues(LocalDate observationDate, String observationTime) {
-    s_logger.info("Getting LiveData snapshot {}/{}", observationDate, observationTime);
+  public Set<LiveDataValue> getSnapshotValues(SnapshotId snapshotId) {
+    s_logger.info("Getting LiveData snapshot {}", snapshotId);
     
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
 
       LiveDataSnapshot liveDataSnapshot = getLiveDataSnapshot(
-          observationDate,
-          observationTime);
+          snapshotId.getObservationDate(), 
+          snapshotId.getObservationTime());
       
       if (liveDataSnapshot == null) {
-        throw new IllegalArgumentException("Snapshot " 
-            + observationDate
-            + "/" 
-            + observationTime
-            + " cannot be found");
+        throw new IllegalArgumentException("Snapshot " + snapshotId + " cannot be found");
       }
       
       Set<LiveDataValue> returnValues = new HashSet<LiveDataValue>();
@@ -743,7 +713,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
   }
   
   @Override
-  public FudgeMsg createFudgeContext(BatchJob batch, int remoteComputeNodeOid, int remoteComputeNodeVersion) {
+  public FudgeMsg createFudgeContext(BatchJob batch, String remoteComputeNodeOid, int remoteComputeNodeVersion) {
     throw new UnsupportedOperationException(); // TODO
   }
 
@@ -758,7 +728,6 @@ public class BatchDbManagerImpl implements BatchDbManager {
       ComputeHost.class,
       ComputeNode.class,
       LiveDataField.class,
-      LiveDataIdentifier.class,
       LiveDataSnapshot.class,
       LiveDataSnapshotEntry.class,
       ObservationDateTime.class,
