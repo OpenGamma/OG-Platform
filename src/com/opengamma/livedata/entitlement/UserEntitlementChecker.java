@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.security.user.User;
 import com.opengamma.security.user.UserManager;
@@ -27,19 +28,21 @@ import com.opengamma.util.ArgumentChecker;
  * LiveData/Reuters/&#42;, access is granted. But if the user has no
  * compatible <code>Authority</code>, access is denied.
  * 
- * @author pietari
  */
-public class UserEntitlementChecker implements LiveDataEntitlementChecker {
+public class UserEntitlementChecker extends DistributionSpecEntitlementChecker {
   
   private static final Logger s_logger = LoggerFactory.getLogger(UserEntitlementChecker.class);
 
   private final UserManager _userManager;
   
   /**
+   * @param resolver 
    * @param userManager
    *          Used to load users (their permissions really)
    */
-  public UserEntitlementChecker(UserManager userManager) {
+  public UserEntitlementChecker(UserManager userManager, DistributionSpecificationResolver resolver) {
+    super(resolver);
+    
     ArgumentChecker.notNull(userManager, "User manager");
     _userManager = userManager;
   }

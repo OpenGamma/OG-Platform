@@ -8,18 +8,21 @@ package com.opengamma.livedata.server;
 /**
  * 
  *
- * @author pietari
  */
 public interface SubscriptionListener {
   
   /**
    * Called on initial subscription. 
+   * 
+   * @param subscription New subscription
    */
-  public void subscribed(Subscription subscription);
+  void subscribed(Subscription subscription);
   
   /**
    * Called on unsubscription.
+   * 
+   * @param subscription Subscription that was just stopped
    */
-  public void unsubscribed(Subscription subscription);
+  void unsubscribed(Subscription subscription);
 
 }

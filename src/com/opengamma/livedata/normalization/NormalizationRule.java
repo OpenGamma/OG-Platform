@@ -12,7 +12,6 @@ import com.opengamma.livedata.server.FieldHistoryStore;
 /**
  *  
  *
- * @author pietari
  */
 public interface NormalizationRule {
   
@@ -32,7 +31,7 @@ public interface NormalizationRule {
    * @return The normalized message. The method may modify and 
    * return the input parameter <code>msg</code> if desired. 
    */
-  public MutableFudgeFieldContainer apply(
+  MutableFudgeFieldContainer apply(
       MutableFudgeFieldContainer msg,
       FieldHistoryStore fieldHistory);
 

@@ -10,13 +10,13 @@ import com.opengamma.livedata.normalization.NormalizationRuleSet;
 /**
  * 
  *
- * @author pietari
  */
 public interface NormalizationRuleResolver {
   
   /**
+   * @param ruleSetId Rule set ID to resolve
    * @return The rule set corresponding to the given ID. Null if not found.
    */
-  public NormalizationRuleSet resolve(String ruleSetId);
+  NormalizationRuleSet resolve(String ruleSetId);
 
 }

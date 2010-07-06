@@ -10,7 +10,6 @@ import java.util.Collections;
 /**
  * Normalization rules that are known to be part of the OpenGamma standard package.
  *
- * @author pietari
  */
 public class StandardRules {
   
@@ -20,7 +19,7 @@ public class StandardRules {
         Collections.<NormalizationRule>emptyList());
   
   /**
-   * Will include:
+   * @return Will include:
    * 
    * <ul>
    * <li>IndicativeValue

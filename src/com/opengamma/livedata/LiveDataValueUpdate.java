@@ -15,10 +15,15 @@ import org.fudgemsg.FudgeFieldContainer;
  */
 public interface LiveDataValueUpdate {
   
-  public static final long SEQUENCE_START = 0; 
+  /**
+   * The first sequence number in a series of
+   * LiveData messages. See {@link #getSequenceNumber}.
+   */
+  long SEQUENCE_START = 0; 
   
   /**
-   * The sequence number starts from 0 and is incremented by 1 
+   * The sequence number starts from 0 ({@link #SEQUENCE_START})
+   * and is incremented by 1 
    * for each message the server sends to a JMS topic. The sequence 
    * number is specific to the topic, not global.
    * <p>
@@ -27,7 +32,7 @@ public interface LiveDataValueUpdate {
    * <p>
    * A message with sequence number = 0 must be a full update, not a delta.
    *
-   * @return
+   * @return The sequence number of the message
    */
   long getSequenceNumber();
   

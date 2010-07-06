@@ -25,7 +25,6 @@ import com.opengamma.transport.jms.ActiveMQTestUtil;
 /**
  * 
  *
- * @author pietari
  */
 public class LiveDataClientTestUtils {
   
@@ -73,7 +72,7 @@ public class LiveDataClientTestUtils {
     ByteArrayFudgeRequestSender entitlementRequestSender = new ByteArrayFudgeRequestSender(
         new InMemoryByteArrayRequestConduit(
             new FudgeRequestDispatcher(
-                new EntitlementServer(server.getEntitlementChecker(), server.getDistributionSpecificationResolver()))));
+                new EntitlementServer(server.getEntitlementChecker()))));
     return entitlementRequestSender;
   }
 

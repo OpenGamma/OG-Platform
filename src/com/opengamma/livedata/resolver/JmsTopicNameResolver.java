@@ -11,14 +11,15 @@ import com.opengamma.livedata.normalization.NormalizationRuleSet;
 /**
  * 
  *
- * @author pietari
  */
 public interface JmsTopicNameResolver {
   
   /** Separator for hierarchical topic names **/
-  static final String SEPARATOR = ".";
+  String SEPARATOR = ".";
   
   /**
+   * @param marketDataUniqueId What market data the server is going to publish
+   * @param normalizationRule What normalization rule will be applied to the raw market data
    * @return Must not return null.
    * @throws IllegalArgumentException If input data is invalid
    */

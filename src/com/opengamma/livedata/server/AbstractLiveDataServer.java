@@ -570,10 +570,8 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       try {
 
         // Check that this spec can be found
-        DistributionSpecification distributionSpec;
         try {
-          distributionSpec = getDistributionSpecificationResolver()
-            .getDistributionSpecification(requestedSpecification);
+          getDistributionSpecificationResolver().getDistributionSpecification(requestedSpecification);
         } catch (RuntimeException e) {
           s_logger.info("Unable to work out distribution spec for specification " + requestedSpecification, e);
           responses.add(new LiveDataSubscriptionResponse(
@@ -588,7 +586,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
 
         // Entitlement check
         if (!getEntitlementChecker().isEntitled(
-            subscriptionRequest.getUser(), distributionSpec)) {
+            subscriptionRequest.getUser(), requestedSpecification)) {
           String msg = subscriptionRequest.getUser() + " is not entitled to " + requestedSpecification;
           s_logger.info(msg);
           responses.add(new LiveDataSubscriptionResponse(

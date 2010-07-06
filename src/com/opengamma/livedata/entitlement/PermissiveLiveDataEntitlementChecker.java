@@ -5,21 +5,17 @@
  */
 package com.opengamma.livedata.entitlement;
 
+import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.UserPrincipal;
-import com.opengamma.livedata.server.DistributionSpecification;
 
 
 /**
  * 
- *
- * @author kirk
  */
-public class PermissiveLiveDataEntitlementChecker implements
-    LiveDataEntitlementChecker {
+public class PermissiveLiveDataEntitlementChecker extends AbstractEntitlementChecker {
 
   @Override
-  public boolean isEntitled(UserPrincipal user,
-      DistributionSpecification distributionSpec) {
+  public boolean isEntitled(UserPrincipal user, LiveDataSpecification requestedSpecification) {
     return true;
   }
 

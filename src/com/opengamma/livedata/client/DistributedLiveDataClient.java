@@ -34,7 +34,6 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  *
- * @author kirk
  */
 public class DistributedLiveDataClient extends AbstractLiveDataClient implements FudgeMessageReceiver {
   private static final Logger s_logger = LoggerFactory.getLogger(DistributedLiveDataClient.class);
@@ -44,7 +43,11 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
   
   private final DistributedEntitlementChecker _entitlementChecker;
   
-  private final long TIMEOUT = 30000;
+  /**
+   * An exception will be thrown when doing a snapshot if no reply is received from the server
+   * within this time. Milliseconds.
+   */
+  private static final long TIMEOUT = 30000;
   
   public DistributedLiveDataClient(
       FudgeRequestSender subscriptionRequestSender,
@@ -132,12 +135,12 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
    */
   private abstract class AbstractSubscriptionResponseReceiver implements FudgeMessageReceiver {
     
-    protected final Map<LiveDataSpecification, SubscriptionHandle> _spec2SubHandle;
+    private final Map<LiveDataSpecification, SubscriptionHandle> _spec2SubHandle;
     
-    protected final Map<SubscriptionHandle, LiveDataSubscriptionResponse> _successResponses = new HashMap<SubscriptionHandle, LiveDataSubscriptionResponse>();
-    protected final Map<SubscriptionHandle, LiveDataSubscriptionResponse> _failedResponses = new HashMap<SubscriptionHandle, LiveDataSubscriptionResponse>();
+    private final Map<SubscriptionHandle, LiveDataSubscriptionResponse> _successResponses = new HashMap<SubscriptionHandle, LiveDataSubscriptionResponse>();
+    private final Map<SubscriptionHandle, LiveDataSubscriptionResponse> _failedResponses = new HashMap<SubscriptionHandle, LiveDataSubscriptionResponse>();
     
-    protected UserPrincipal _user = null;
+    private UserPrincipal _user;
     
     public AbstractSubscriptionResponseReceiver(Collection<SubscriptionHandle> subHandles) {
       _spec2SubHandle = new HashMap<LiveDataSpecification, SubscriptionHandle>();
@@ -145,8 +148,27 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
         _spec2SubHandle.put(subHandle.getRequestedSpecification(), subHandle);        
       }
     }
-
     
+    public UserPrincipal getUser() {
+      return _user;
+    }
+
+    public void setUser(UserPrincipal user) {
+      _user = user;
+    }
+
+    public Map<LiveDataSpecification, SubscriptionHandle> getSpec2SubHandle() {
+      return _spec2SubHandle;
+    }
+
+    public Map<SubscriptionHandle, LiveDataSubscriptionResponse> getSuccessResponses() {
+      return _successResponses;
+    }
+
+    public Map<SubscriptionHandle, LiveDataSubscriptionResponse> getFailedResponses() {
+      return _failedResponses;
+    }
+
     @Override
     public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope envelope) {
       try {
@@ -166,7 +188,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
       } catch (Exception e) {
         s_logger.error("Failed to process response message", e);
         
-        for (SubscriptionHandle handle : _spec2SubHandle.values()) {
+        for (SubscriptionHandle handle : getSpec2SubHandle().values()) {
           if (handle.getSubscriptionType() != SubscriptionType.SNAPSHOT) {
             subscriptionRequestFailed(handle, new LiveDataSubscriptionResponse(
                 handle.getRequestedSpecification(), 
@@ -191,20 +213,20 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
     private void parseResponse(LiveDataSubscriptionResponseMsg responseMessage) {
       for (LiveDataSubscriptionResponse response : responseMessage.getResponses()) {
         
-        SubscriptionHandle handle = _spec2SubHandle.get(response.getRequestedSpecification());
+        SubscriptionHandle handle = getSpec2SubHandle().get(response.getRequestedSpecification());
         if (handle == null) {
           throw new OpenGammaRuntimeException("Could not find handle corresponding to request " + response.getRequestedSpecification());
         }
         
-        if (_user != null && !_user.equals(handle.getUser())) {
+        if (getUser() != null && !getUser().equals(handle.getUser())) {
           throw new OpenGammaRuntimeException("Not all usernames are equal");
         }
-        _user = handle.getUser();
+        setUser(handle.getUser());
         
         if (response.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
-          _successResponses.put(handle, response);
+          getSuccessResponses().put(handle, response);
         } else {
-          _failedResponses.put(handle, response);
+          getFailedResponses().put(handle, response);
         }
       }
     }
@@ -217,8 +239,8 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
     protected void sendResponse() {
       
       Map<SubscriptionHandle, LiveDataSubscriptionResponse> responses = new HashMap<SubscriptionHandle, LiveDataSubscriptionResponse>(); 
-      responses.putAll(_successResponses);
-      responses.putAll(_failedResponses);
+      responses.putAll(getSuccessResponses());
+      responses.putAll(getFailedResponses());
       
       for (Map.Entry<SubscriptionHandle, LiveDataSubscriptionResponse> successEntry : responses.entrySet()) {
         SubscriptionHandle handle = successEntry.getKey();
@@ -267,18 +289,18 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
         s_logger.error("Failed to process subscription response", e);
         
         // This is unexpected. Fail everything.
-        for (LiveDataSubscriptionResponse response : _successResponses.values()) {
+        for (LiveDataSubscriptionResponse response : getSuccessResponses().values()) {
           response.setSubscriptionResult(LiveDataSubscriptionResult.INTERNAL_ERROR);          
           response.setUserMessage(e.getMessage());
         }
         
-        _failedResponses.putAll(_successResponses);
-        _successResponses.clear();
+        getFailedResponses().putAll(getSuccessResponses());
+        getSuccessResponses().clear();
       }
     }
   
     private void startReceivingTicks() {
-      for (Map.Entry<SubscriptionHandle, LiveDataSubscriptionResponse> entry : _successResponses.entrySet()) {
+      for (Map.Entry<SubscriptionHandle, LiveDataSubscriptionResponse> entry : getSuccessResponses().entrySet()) {
         DistributedLiveDataClient.this.subscriptionStartingToReceiveTicks(entry.getKey(), entry.getValue());
         DistributedLiveDataClient.this.startReceivingTicks(entry.getValue().getTickDistributionSpecification());
       }
@@ -287,15 +309,15 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
     private void snapshot() {
       
       ArrayList<LiveDataSpecification> successLiveDataSpecs = new ArrayList<LiveDataSpecification>();
-      for (LiveDataSubscriptionResponse response : _successResponses.values()) {
+      for (LiveDataSubscriptionResponse response : getSuccessResponses().values()) {
         successLiveDataSpecs.add(response.getRequestedSpecification());                
       }
       
-      Collection<LiveDataSubscriptionResponse> snapshots = DistributedLiveDataClient.this.snapshot(_user, successLiveDataSpecs, TIMEOUT);
+      Collection<LiveDataSubscriptionResponse> snapshots = DistributedLiveDataClient.this.snapshot(getUser(), successLiveDataSpecs, TIMEOUT);
         
       for (LiveDataSubscriptionResponse response : snapshots) {
         
-        SubscriptionHandle handle = _spec2SubHandle.get(response.getRequestedSpecification());
+        SubscriptionHandle handle = getSpec2SubHandle().get(response.getRequestedSpecification());
         if (handle == null) {
           throw new OpenGammaRuntimeException("Could not find handle corresponding to request " + response.getRequestedSpecification());
         }
@@ -308,8 +330,8 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
           handle.addSnapshotOnHold(response.getSnapshot());
           
         } else {
-          _successResponses.remove(handle);
-          _failedResponses.put(handle, response);
+          getSuccessResponses().remove(handle);
+          getFailedResponses().put(handle, response);
         }
       }
     }
@@ -318,13 +340,13 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
     protected void sendResponse() {
       super.sendResponse();
       
-      for (Map.Entry<SubscriptionHandle, LiveDataSubscriptionResponse> successEntry : _successResponses.entrySet()) {
+      for (Map.Entry<SubscriptionHandle, LiveDataSubscriptionResponse> successEntry : getSuccessResponses().entrySet()) {
         SubscriptionHandle handle = successEntry.getKey();
         LiveDataSubscriptionResponse response = successEntry.getValue();
         subscriptionRequestSatisfied(handle, response);
       }
       
-      for (Map.Entry<SubscriptionHandle, LiveDataSubscriptionResponse> failedEntry : _failedResponses.entrySet()) {
+      for (Map.Entry<SubscriptionHandle, LiveDataSubscriptionResponse> failedEntry : getFailedResponses().entrySet()) {
         SubscriptionHandle handle = failedEntry.getKey();
         LiveDataSubscriptionResponse response = failedEntry.getValue();
         subscriptionRequestFailed(handle, response);
@@ -338,7 +360,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
   }
   
   /**
-   * @param tickDistributionSpecification
+   * @param tickDistributionSpecification JMS topic name
    */
   public void startReceivingTicks(String tickDistributionSpecification) {
     // Default no-op.

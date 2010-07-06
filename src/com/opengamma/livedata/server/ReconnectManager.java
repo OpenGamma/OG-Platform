@@ -22,13 +22,15 @@ import com.opengamma.util.ArgumentChecker;
  * This beans depends-on the Live Data Server, and any Spring configuration must reflect 
  * this. See {@link http://jira.springframework.org/browse/SPR-2325}.  
  *
- * @author pietari
  */
 public class ReconnectManager implements Lifecycle {
   
   private static final Logger s_logger = LoggerFactory
     .getLogger(ReconnectManager.class);
 
+  /**
+   * How often connection status should be checked. Milliseconds
+   */
   public static final long DEFAULT_CHECK_PERIOD = 5000;
   
   private final AbstractLiveDataServer _server;

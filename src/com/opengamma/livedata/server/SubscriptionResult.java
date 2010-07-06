@@ -10,6 +10,9 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.util.ArgumentChecker;
 
+/**
+ * A server-side subscription result.
+ */
 public class SubscriptionResult {
   
   private final LiveDataSpecification _specFromClient;

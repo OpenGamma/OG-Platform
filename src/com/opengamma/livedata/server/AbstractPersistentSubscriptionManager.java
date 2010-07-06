@@ -30,13 +30,15 @@ import com.opengamma.util.ArgumentChecker;
  * This beans depends-on the Live Data Server, and any Spring configuration must reflect 
  * this. See {@link http://jira.springframework.org/browse/SPR-2325}.
  * 
- * @author pietari
  */
 public abstract class AbstractPersistentSubscriptionManager implements Lifecycle {
 
   private static final Logger s_logger = LoggerFactory
       .getLogger(AbstractPersistentSubscriptionManager.class);
 
+  /**
+   * Default how often to save the persistent subscriptions to the database, milliseconds
+   */
   public static final long DEFAULT_SAVE_PERIOD = 60000L;
 
   private final AbstractLiveDataServer _server;
@@ -221,6 +223,8 @@ public abstract class AbstractPersistentSubscriptionManager implements Lifecycle
 
   /**
    * Saves entries to persistent storage (DB, flat file, ...)
+   * 
+   * @param newState Entries to be saved
    */
   public abstract void saveToStorage(Set<PersistentSubscription> newState);
 

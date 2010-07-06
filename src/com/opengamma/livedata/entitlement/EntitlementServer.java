@@ -19,29 +19,21 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.EntitlementRequest;
 import com.opengamma.livedata.msg.EntitlementResponse;
 import com.opengamma.livedata.msg.EntitlementResponseMsg;
-import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
-import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.transport.FudgeRequestReceiver;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Receives {@link EntitlementRequests EntitlementRequest}, passes them onto a delegate
- * {@link LiveDataEntitlementChecker}, and returns {@link EntitlementResponseMsgs EntitlementResponseMsg}. 
- *
- * @author pietari
+ * {@link LiveDataEntitlementChecker}, and returns {@link EntitlementResponseMsgs EntitlementResponseMsg}.
  */
 public class EntitlementServer implements FudgeRequestReceiver {
   
   private static final Logger s_logger = LoggerFactory.getLogger(EntitlementServer.class);
   private final LiveDataEntitlementChecker _delegate;
-  private final DistributionSpecificationResolver _distributionSpecResolver;
   
-  public EntitlementServer(LiveDataEntitlementChecker delegate,
-      DistributionSpecificationResolver distributionSpecResolver) {
+  public EntitlementServer(LiveDataEntitlementChecker delegate) {
     ArgumentChecker.notNull(delegate, "Delegate entitlement checker");
-    ArgumentChecker.notNull(distributionSpecResolver, "Distribution spec resolver");
     _delegate = delegate;
-    _distributionSpecResolver = distributionSpecResolver;
   }
   
   @Override
@@ -54,16 +46,7 @@ public class EntitlementServer implements FudgeRequestReceiver {
     ArrayList<EntitlementResponse> responses = new ArrayList<EntitlementResponse>();
     for (LiveDataSpecification spec : entitlementRequest.getLiveDataSpecifications()) {
       
-      DistributionSpecification distSpec;
-      try {
-        distSpec = _distributionSpecResolver.getDistributionSpecification(spec);
-      } catch (IllegalArgumentException e) {
-        s_logger.info("Could not build distribution spec", e);
-        responses.add(new EntitlementResponse(spec, false, e.getMessage()));
-        continue;
-      }
-      
-      boolean isEntitled = _delegate.isEntitled(entitlementRequest.getUser(), distSpec);
+      boolean isEntitled = _delegate.isEntitled(entitlementRequest.getUser(), spec);
       
       EntitlementResponse response;
       if (isEntitled) {

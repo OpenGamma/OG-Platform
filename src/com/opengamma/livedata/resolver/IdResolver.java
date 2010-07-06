@@ -10,7 +10,6 @@ import com.opengamma.id.IdentifierBundle;
 
 /**
  *
- * @author kirk
  */
 public interface IdResolver {
   
@@ -20,6 +19,7 @@ public interface IdResolver {
    * <p>
    * If the input is already a unique ID, it is returned as it is: no validation is performed.
    * 
+   * @param ids Input IDs
    * @return The unique ID. Null if it was not found.
    */
   Identifier resolve(IdentifierBundle ids);

@@ -19,12 +19,19 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Keeps track of all market data currently being published, and controls the
  * expiry by keeping track of heartbeat messages.
- *
- * @author kirk
  */
 public class ExpirationManager implements SubscriptionListener {
+  
+  /** 
+   * How long market data should live, by default. Milliseconds
+   */
   public static final long DEFAULT_TIMEOUT_EXTENSION = 3 * HeartbeatSender.DEFAULT_PERIOD;
+  
+  /**
+   * How often expiry task should run. Milliseconds
+   */
   public static final long DEFAULT_CHECK_PERIOD = HeartbeatSender.DEFAULT_PERIOD / 2;
+  
   private static final Logger s_logger = LoggerFactory.getLogger(ExpirationManager.class);
   // Injected Inputs:
   private final AbstractLiveDataServer _dataServer;
@@ -83,6 +90,9 @@ public class ExpirationManager implements SubscriptionListener {
     }
   }
 
+  /**
+   * A periodic task that calls {@link #expirationCheck()}  
+   */
   public class ExpirationCheckTimerTask extends TimerTask {
     @Override
     public void run() {

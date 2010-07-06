@@ -29,7 +29,7 @@ public class HeartbeatSender {
   /**
    * If not specified, send heartbeats every <em>5 minutes</em>.
    */
-  public static final long DEFAULT_PERIOD = 5 * 60 * 1000l;
+  public static final long DEFAULT_PERIOD = 5 * 60 * 1000L;
   private static final Logger s_logger = LoggerFactory.getLogger(HeartbeatSender.class);
   private final ByteArrayMessageSender _messageSender;
   private final ValueDistributor _valueDistributor;

@@ -9,7 +9,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import junit.framework.Assert;
@@ -18,9 +20,11 @@ import org.junit.Test;
 
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
+import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.livedata.normalization.NormalizationRuleSet;
 import com.opengamma.livedata.normalization.StandardRules;
+import com.opengamma.livedata.resolver.FixedDistributionSpecificationResolver;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.security.user.Authority;
 import com.opengamma.security.user.User;
@@ -57,8 +61,6 @@ public class UserEntitlementCheckerTest {
     UserManager userManager = mock(UserManager.class);
     when(userManager.getUser("john")).thenReturn(user);
     
-    UserEntitlementChecker userEntitlementChecker = new UserEntitlementChecker(userManager);
-    
     DistributionSpecification aaplOnBloomberg = new DistributionSpecification(
         new Identifier(IdentificationScheme.BLOOMBERG_BUID, "EQ12345"),
         StandardRules.getNoNormalization(),
@@ -89,19 +91,31 @@ public class UserEntitlementCheckerTest {
         new NormalizationRuleSet("MyWeirdNormalizationRule"),
         "LiveData.Bloomberg.FX.EURUSD.MyWeirdNormalizationRule");
     
+    Map<LiveDataSpecification, DistributionSpecification> fixes = new HashMap<LiveDataSpecification, DistributionSpecification>();
+    fixes.put(aaplOnBloomberg.getFullyQualifiedLiveDataSpecification(), aaplOnBloomberg);
+    fixes.put(aaplOnBloombergWithNormalization.getFullyQualifiedLiveDataSpecification(), aaplOnBloombergWithNormalization);
+    fixes.put(bondOnBloomberg.getFullyQualifiedLiveDataSpecification(), bondOnBloomberg);
+    fixes.put(bondOnBloombergWithNormalization.getFullyQualifiedLiveDataSpecification(), bondOnBloombergWithNormalization);
+    fixes.put(fxOnBloomberg.getFullyQualifiedLiveDataSpecification(), fxOnBloomberg);
+    fixes.put(fxOnBloombergWithNormalization.getFullyQualifiedLiveDataSpecification(), fxOnBloombergWithNormalization);
+    
+    FixedDistributionSpecificationResolver resolver = new FixedDistributionSpecificationResolver(fixes);
+    
+    LiveDataEntitlementChecker userEntitlementChecker = new UserEntitlementChecker(userManager, resolver);
+    
     UserPrincipal john = new UserPrincipal("john", "127.0.0.1");
     
-    Assert.assertTrue(userEntitlementChecker.isEntitled(john, aaplOnBloomberg));
-    Assert.assertTrue(userEntitlementChecker.isEntitled(john, aaplOnBloombergWithNormalization));
-    Assert.assertTrue(userEntitlementChecker.isEntitled(john, bondOnBloomberg));
-    Assert.assertFalse(userEntitlementChecker.isEntitled(john, bondOnBloombergWithNormalization));
-    Assert.assertFalse(userEntitlementChecker.isEntitled(john, fxOnBloomberg));
-    Assert.assertFalse(userEntitlementChecker.isEntitled(john, fxOnBloombergWithNormalization));
+    Assert.assertTrue(userEntitlementChecker.isEntitled(john, aaplOnBloomberg.getFullyQualifiedLiveDataSpecification()));
+    Assert.assertTrue(userEntitlementChecker.isEntitled(john, aaplOnBloombergWithNormalization.getFullyQualifiedLiveDataSpecification()));
+    Assert.assertTrue(userEntitlementChecker.isEntitled(john, bondOnBloomberg.getFullyQualifiedLiveDataSpecification()));
+    Assert.assertFalse(userEntitlementChecker.isEntitled(john, bondOnBloombergWithNormalization.getFullyQualifiedLiveDataSpecification()));
+    Assert.assertFalse(userEntitlementChecker.isEntitled(john, fxOnBloomberg.getFullyQualifiedLiveDataSpecification()));
+    Assert.assertFalse(userEntitlementChecker.isEntitled(john, fxOnBloombergWithNormalization.getFullyQualifiedLiveDataSpecification()));
     
     // non-existent user
     UserPrincipal mike = new UserPrincipal("mike", "127.0.0.1");
-    Assert.assertFalse(userEntitlementChecker.isEntitled(mike, aaplOnBloomberg)); 
-    Assert.assertFalse(userEntitlementChecker.isEntitled(mike, fxOnBloomberg)); 
+    Assert.assertFalse(userEntitlementChecker.isEntitled(mike, aaplOnBloomberg.getFullyQualifiedLiveDataSpecification())); 
+    Assert.assertFalse(userEntitlementChecker.isEntitled(mike, fxOnBloomberg.getFullyQualifiedLiveDataSpecification())); 
   }
 
 }

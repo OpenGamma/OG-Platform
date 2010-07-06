@@ -18,7 +18,6 @@ import com.opengamma.util.ArgumentChecker;
  * the distribution spec in a cache. If it doesn't find it, it will 
  * delegate to an underlying <code>DistributionSpecificationResolver</code>.
  *
- * @author pietari
  */
 public class CachingDistributionSpecificationResolver implements DistributionSpecificationResolver {
   
@@ -27,6 +26,8 @@ public class CachingDistributionSpecificationResolver implements DistributionSpe
   
   /**
    * The cache will contain a maximum of 100 entries, which do not expire.
+   * 
+   * @param underlying Underlying DistributionSpecificationResolver
    */
   public CachingDistributionSpecificationResolver(DistributionSpecificationResolver underlying) {
     this(underlying, new Cache("Distribution specification cache", 100, false, true, -1, -1));

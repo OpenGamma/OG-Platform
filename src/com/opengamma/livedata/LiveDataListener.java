@@ -12,8 +12,7 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
  * An interface through which clients can receive updates on their
  * live data subscriptions. This is the main interface you
  * need to implement in your LiveData client application.
- *
- * @author kirk
+ * 
  */
 public interface LiveDataListener {
   
@@ -26,7 +25,8 @@ public interface LiveDataListener {
    * {@link #valueUpdate(LiveDataValueUpdate)} corresponding to this specification
    * will come in after an invocation of this method.
    * 
-   * @param fullyQualifiedSpecification
+   * @param fullyQualifiedSpecification Matches the {@link LiveDataSubscriptionResponse#getFullyQualifiedSpecification()}
+   * in {@link #subscriptionResultReceived(LiveDataSubscriptionResponse)}.
    */
   void subscriptionStopped(LiveDataSpecification fullyQualifiedSpecification);
   

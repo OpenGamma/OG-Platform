@@ -38,7 +38,7 @@ public class SubscriptionHandle {
   private final LiveDataSpecification _requestedSpecification;
   private final LiveDataListener _listener;
   private final List<LiveDataValueUpdateBean> _ticksOnHold = new ArrayList<LiveDataValueUpdateBean>();
-  private LiveDataValueUpdateBean _snapshotOnHold = null;
+  private LiveDataValueUpdateBean _snapshotOnHold; // = null;
   
   public SubscriptionHandle(
       UserPrincipal user,

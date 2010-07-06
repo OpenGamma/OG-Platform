@@ -32,11 +32,14 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Checks entitlements against a LiveData server by sending the server a Fudge message.
- *
- * @author kirk
  */
 public class DistributedEntitlementChecker {
+  
+  /**
+   * If no response from server is received within this period of time, throw exception
+   */
   public static final long TIMEOUT_MS = 30000;
+  
   private static final Logger s_logger = LoggerFactory.getLogger(DistributedEntitlementChecker.class);
   private final FudgeRequestSender _requestSender;
   private final FudgeContext _fudgeContext;
@@ -84,7 +87,7 @@ public class DistributedEntitlementChecker {
     
     boolean success;
     try {
-       success = latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+      success = latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS);
     } catch (InterruptedException e) {
       Thread.interrupted();
       throw new OpenGammaRuntimeException("Interrupted", e);

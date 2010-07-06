@@ -20,7 +20,6 @@ import com.opengamma.livedata.LiveDataValueUpdateBean;
  * This is separate from all live data client instances as it needs to be
  * compact to be able to have efficient concurrency.
  *
- * @author kirk
  */
 public class ValueDistributor {
   private final ConcurrentMap<LiveDataSpecification, Set<LiveDataListener>> _listenersBySpec =
@@ -43,8 +42,8 @@ public class ValueDistributor {
   
   /**
    * 
-   * @param fullyQualifiedSpecification
-   * @param listener
+   * @param fullyQualifiedSpecification Fully qualified spec
+   * @param listener LiveDataListener
    * @return {@code true} iff there are still active listeners.
    */
   public boolean removeListener(LiveDataSpecification fullyQualifiedSpecification, LiveDataListener listener) {

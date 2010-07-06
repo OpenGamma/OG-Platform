@@ -20,8 +20,6 @@ import com.opengamma.util.ArgumentChecker;
  * <li>The format of the data (normalization)
  * <li>The destination of the data (JMS topic name)
  * </ul>
- *
- * @author pietari
  */
 public class DistributionSpecification {
   
@@ -92,7 +90,8 @@ public class DistributionSpecification {
   }
   
   /**
-   * @return A normalized message assuming there is no market data history.
+   * @param msg Message received from underlying market data API in its native format.
+   * @return A normalized message, calculated assuming there is no market data history.
    */
   public FudgeFieldContainer getNormalizedMessage(FudgeFieldContainer msg) {
     FieldHistoryStore history = new FieldHistoryStore(msg);

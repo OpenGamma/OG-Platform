@@ -14,14 +14,13 @@ import com.opengamma.util.TerminatableJob;
 /**
  * 
  *
- * @author pietari
  */
 public abstract class AbstractEventDispatcher extends TerminatableJob {
   
   private static final Logger s_logger = LoggerFactory
     .getLogger(AbstractEventDispatcher.class);
   
-  private final long MAX_WAIT_MILLISECONDS = 1000;
+  private static final long MAX_WAIT_MILLISECONDS = 1000;
   
   private AbstractLiveDataServer _server;
   

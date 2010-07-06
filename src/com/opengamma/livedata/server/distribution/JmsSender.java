@@ -44,7 +44,7 @@ public class JmsSender implements MarketDataSender {
   private final FieldHistoryStore _cumulativeDelta = new FieldHistoryStore();
   private long _lastSequenceNumber;
   
-  private volatile boolean _interrupted = false;
+  private volatile boolean _interrupted; // = false;
   private final Lock _lock = new ReentrantLock();
   
   public JmsSender(JmsTemplate jmsTemplate, MarketDataDistributor distributor) {

@@ -16,23 +16,22 @@ import org.fudgemsg.MutableFudgeFieldContainer;
  * This class could be extended in future to store the last N 
  * values, values at a certain interval for the last N minutes, etc. 
  *
- * @author pietari
  */
 public class FieldHistoryStore {
   
-  private final FudgeContext CONTEXT = FudgeContext.GLOBAL_DEFAULT;
+  private final FudgeContext _context = FudgeContext.GLOBAL_DEFAULT;
   private final MutableFudgeFieldContainer _lastKnownValues;
   
   public FieldHistoryStore() {
-    _lastKnownValues = CONTEXT.newMessage();
+    _lastKnownValues = _context.newMessage();
   }
   
   public FieldHistoryStore(FudgeFieldContainer history) {
-    _lastKnownValues = CONTEXT.newMessage(history);   
+    _lastKnownValues = _context.newMessage(history);   
   }
   
   public FieldHistoryStore(FieldHistoryStore original) {
-    _lastKnownValues = CONTEXT.newMessage(original._lastKnownValues);   
+    _lastKnownValues = _context.newMessage(original._lastKnownValues);   
   }
   
   public synchronized void liveDataReceived(FudgeFieldContainer msg) {

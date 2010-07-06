@@ -14,17 +14,13 @@ import static org.mockito.Mockito.when;
 import org.junit.Test;
 
 import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.normalization.StandardRules;
-import com.opengamma.livedata.resolver.CachingDistributionSpecificationResolver;
-import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.livedata.server.DistributionSpecification;
 
 /**
  * 
  *
- * @author pietari
  */
 public class CachingDistributionSpecificationResolverTest {
   

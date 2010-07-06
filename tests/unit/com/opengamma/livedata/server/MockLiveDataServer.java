@@ -29,8 +29,8 @@ public class MockLiveDataServer extends AbstractLiveDataServer {
   private final IdentificationScheme _domain;
   private final List<String> _subscriptions = new ArrayList<String>();
   private final List<String> _unsubscriptions = new ArrayList<String>();
-  private volatile int _numConnections = 0;
-  private volatile int _numDisconnections = 0;
+  private volatile int _numConnections; // = 0;
+  private volatile int _numDisconnections; // = 0;
   private final Map<String, FudgeFieldContainer> _uniqueId2MarketData;
   
   public MockLiveDataServer(IdentificationScheme domain) {
