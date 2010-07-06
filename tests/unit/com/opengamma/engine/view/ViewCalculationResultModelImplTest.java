@@ -44,11 +44,16 @@ public class ViewCalculationResultModelImplTest {
     PORTFOLIO_ROOT_NODE.addPosition(POSITION);
   }
   
+  // REVIEW jonathan 2010-07-06 -- see the TODO on the part this used to test. For the moment, we are allowing any
+  // requirement to be added, so this test makes no sense. It might be needed again depending on what happens with the
+  // TODO. 
+  /*
   @Test(expected=IllegalArgumentException.class)
   public void illegalAddValue() {
     ViewCalculationResultModelImpl calcResult = new ViewCalculationResultModelImpl();
     calcResult.addValue(COMPUTED_VALUE);
   }
+  */
   
   @Test
   public void addValue() {
