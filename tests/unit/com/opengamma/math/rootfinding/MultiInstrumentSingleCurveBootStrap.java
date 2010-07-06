@@ -121,7 +121,8 @@ public class MultiInstrumentSingleCurveBootStrap {
     for (int element : swapSemiannualGrid) {
       Swap swap = setupSwap(element);
       INSTRUMENTS.add(swap);
-      double t = swap.getFloatingPaymentTimes()[swap.getNumberOfFloatingPayments() - 1] + Math.max(0.0, swap.getDeltaEnd()[swap.getNumberOfFloatingPayments() - 1]);
+      double t = swap.getFloatingPaymentTimes()[swap.getNumberOfFloatingPayments() - 1]
+          + Math.max(0.0, swap.getDeltaEnd()[swap.getNumberOfFloatingPayments() - 1]);
       NODE_TIMES[index++] = t;
     }
 
@@ -153,7 +154,8 @@ public class MultiInstrumentSingleCurveBootStrap {
     X0 = new DoubleMatrix1D(rates);
 
     SINGLE_CURVE_FINDER = new SingleCurveFinder(INSTRUMENTS, MARKET_VALUES, SPOT_RATE, NODE_TIMES, CUBIC);
-    SINGLE_CURVE_JACOBIAN = new SingleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(INSTRUMENTS, SPOT_RATE, NODE_TIMES, CUBIC_WITH_SENSITIVITY);
+    SINGLE_CURVE_JACOBIAN = new SingleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(INSTRUMENTS,
+        SPOT_RATE, NODE_TIMES, CUBIC_WITH_SENSITIVITY);
 
   }
 
@@ -162,7 +164,8 @@ public class MultiInstrumentSingleCurveBootStrap {
 
     // VectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS);
     // doHotSpot(rootFinder, "default Newton FD , double curve", DOUBLE_CURVE_FINDER);
-    VectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN, new SVDecompositionCommons());
+    VectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN,
+        new SVDecompositionCommons());
     doHotSpot(rootFinder, "default Newton, single curve", SINGLE_CURVE_FINDER);
     //
 
@@ -173,13 +176,14 @@ public class MultiInstrumentSingleCurveBootStrap {
     final JacobianCalculator jacobianFD = new FiniteDifferenceJacobianCalculator(1e-8);
     final DoubleMatrix2D jacExact = SINGLE_CURVE_JACOBIAN.evaluate(X0, SINGLE_CURVE_FINDER);
     final DoubleMatrix2D jacFD = jacobianFD.evaluate(X0, SINGLE_CURVE_FINDER);
-    System.out.println("exact: " + jacExact.toString());
-    System.out.println("FD: " + jacFD.toString());
+    //System.out.println("exact: " + jacExact.toString());
+    //System.out.println("FD: " + jacFD.toString());
 
     // assertMatrixEquals(jacExact, jacFD, 1e-7);
   }
 
-  private void doHotSpot(final VectorRootFinder rootFinder, final String name, final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor) {
+  private void doHotSpot(final VectorRootFinder rootFinder, final String name,
+      final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor) {
     for (int i = 0; i < HOTSPOT_WARMUP_CYCLES; i++) {
       doTest(rootFinder, (SingleCurveFinder) functor);
     }
@@ -200,7 +204,8 @@ public class MultiInstrumentSingleCurveBootStrap {
     }
   }
 
-  private static YieldAndDiscountCurve makeYieldCurve(final double[] yields, final double[] times, final Interpolator1D<? extends Interpolator1DCubicSplineDataBundle, InterpolationResult> interpolator) {
+  private static YieldAndDiscountCurve makeYieldCurve(final double[] yields, final double[] times,
+      final Interpolator1D<? extends Interpolator1DCubicSplineDataBundle, InterpolationResult> interpolator) {
     final int n = yields.length;
     if (n != times.length) {
       throw new IllegalArgumentException("rates and times different lengths");
