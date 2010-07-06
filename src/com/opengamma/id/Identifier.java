@@ -169,6 +169,15 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   public Identifier getIdentityKey() {
     return this;
   }
+  
+  /**
+   * Converts this Identifier to a UniqueIdentifier.
+   * 
+   * @return A UniqueIdentifier with the same scheme and value as this Identifier
+   */
+  public UniqueIdentifier toUniqueIdentifier() {
+    return UniqueIdentifier.of(getScheme().getName(), getValue());
+  }
 
   //-------------------------------------------------------------------------
   /**

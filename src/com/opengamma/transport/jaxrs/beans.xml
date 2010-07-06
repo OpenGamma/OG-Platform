@@ -8,12 +8,26 @@ http://www.springframework.org/schema/beans/spring-beans.xsd
 http://cxf.apache.org/jaxrs
 http://cxf.apache.org/schemas/jaxrs.xsd">
 
-  <bean id="jsonToFudge" class="com.opengamma.transport.jaxrs.FudgeJSONConsumer" />
-  <bean id="fudgeToJson" class="com.opengamma.transport.jaxrs.FudgeJSONProducer" />
-  <bean id="xmlToFudge" class="com.opengamma.transport.jaxrs.FudgeXMLConsumer" />
-  <bean id="fudgeToXml" class="com.opengamma.transport.jaxrs.FudgeXMLProducer" />
-  <bean id="fudgeInput" class="com.opengamma.transport.jaxrs.FudgeBinaryConsumer" />
-  <bean id="fudgeOutput" class="com.opengamma.transport.jaxrs.FudgeBinaryProducer" />
-  <bean id="fudgeObjectOutput" class="com.opengamma.transport.jaxrs.FudgeObjectBinaryProducer" />
+  <bean id="jsonToFudge" class="com.opengamma.transport.jaxrs.FudgeJSONConsumer">
+    <property name="fudgeContext" ref="fudgeContext" />
+  </bean>
+  <bean id="fudgeToJson" class="com.opengamma.transport.jaxrs.FudgeJSONProducer">
+    <property name="fudgeContext" ref="fudgeContext" />
+  </bean>
+  <bean id="xmlToFudge" class="com.opengamma.transport.jaxrs.FudgeXMLConsumer">
+    <property name="fudgeContext" ref="fudgeContext" />
+  </bean>
+  <bean id="fudgeToXml" class="com.opengamma.transport.jaxrs.FudgeXMLProducer">
+    <property name="fudgeContext" ref="fudgeContext" />
+  </bean>
+  <bean id="fudgeInput" class="com.opengamma.transport.jaxrs.FudgeBinaryConsumer">
+    <property name="fudgeContext" ref="fudgeContext" />
+  </bean>
+  <bean id="fudgeOutput" class="com.opengamma.transport.jaxrs.FudgeBinaryProducer">
+    <property name="fudgeContext" ref="fudgeContext" />
+  </bean>
+  <bean id="fudgeObjectOutput" class="com.opengamma.transport.jaxrs.FudgeObjectBinaryProducer">
+    <property name="fudgeContext" ref="fudgeContext" />
+  </bean>
 
 </beans>
