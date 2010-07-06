@@ -3,14 +3,13 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.swap;
+package com.opengamma.financial.interestrate;
 
 import java.util.List;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;

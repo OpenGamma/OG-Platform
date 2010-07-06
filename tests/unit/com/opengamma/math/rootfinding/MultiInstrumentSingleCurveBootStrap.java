@@ -19,12 +19,12 @@ import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.SingleCurveFinder;
+import com.opengamma.financial.interestrate.SingleCurveJacobian;
+import com.opengamma.financial.interestrate.SwapRateCalculator;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.libor.Libor;
-import com.opengamma.financial.interestrate.swap.SingleCurveFinder;
-import com.opengamma.financial.interestrate.swap.SingleCurveJacobian;
-import com.opengamma.financial.interestrate.swap.SwapRateCalculator;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -38,8 +38,6 @@ import com.opengamma.math.interpolation.Interpolator1DWithSensitivities;
 import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.math.linearalgebra.SVDecompositionCommons;
 import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.rootfinding.newton.FiniteDifferenceJacobianCalculator;
 import com.opengamma.math.rootfinding.newton.JacobianCalculator;
 import com.opengamma.math.rootfinding.newton.NewtonDefaultVectorRootFinder;
 import com.opengamma.util.monitor.OperationTimer;
@@ -56,9 +54,9 @@ public class MultiInstrumentSingleCurveBootStrap {
 
   private static final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> CUBIC = new NaturalCubicSplineInterpolator1D();
   private static final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> CUBIC_WITH_SENSITIVITY = new CubicSplineInterpolatorWithSensitivities1D();
-  private static List<InterestRateDerivative> INSTRUMENTS;
-  private static double[] MARKET_VALUES;
-  private static YieldAndDiscountCurve CURVE;
+  private static final List<InterestRateDerivative> INSTRUMENTS;
+  private static final double[] MARKET_VALUES;
+  private static final YieldAndDiscountCurve CURVE;
 
   private static final double[] NODE_TIMES;
 
@@ -71,16 +69,16 @@ public class MultiInstrumentSingleCurveBootStrap {
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> SINGLE_CURVE_FINDER;
   private static final JacobianCalculator SINGLE_CURVE_JACOBIAN;
 
-  protected static final Function1D<Double, Double> DUMMY_CURVE = new Function1D<Double, Double>() {
+  private static final Function1D<Double, Double> DUMMY_CURVE = new Function1D<Double, Double>() {
 
-    private static final double a = -0.0325;
-    private static final double b = 0.021;
-    private static final double c = 0.52;
-    private static final double d = 0.055;
+    private static final double A = -0.0325;
+    private static final double B = 0.021;
+    private static final double C = 0.52;
+    private static final double D = 0.055;
 
     @Override
     public Double evaluate(final Double x) {
-      return (a + b * x) * Math.exp(-c * x) + d;
+      return (A + B * x) * Math.exp(-C * x) + D;
     }
   };
 
@@ -88,40 +86,41 @@ public class MultiInstrumentSingleCurveBootStrap {
 
     INSTRUMENTS = new ArrayList<InterestRateDerivative>();
 
-    double[] liborMaturities = new double[] {3. / 12.};// note using 1m and 2m LIBOR tenors for what should be the 3m-libor curve is probably wrong
-    double[] fraMaturities = new double[] {0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0};
-    double[] cashMaturities = new double[] {1 / 365.25, 7 / 365.25, 1.0 / 12.0};
-    int[] swapSemiannualGrid = new int[] {4, 6, 8, 10, 12, 14, 16, 18, 20, 30, 40, 50, 60};
+    final double[] liborMaturities = new double[] {3. / 12.}; // note using 1m and 2m LIBOR tenors for what should be the 3m-libor curve is probably wrong
+    final double[] fraMaturities = new double[] {0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0};
+    final double[] cashMaturities = new double[] {1 / 365.25, 7 / 365.25, 1.0 / 12.0};
+    final int[] swapSemiannualGrid = new int[] {4, 6, 8, 10, 12, 14, 16, 18, 20, 30, 40, 50, 60};
     // int[] swapSemiannualGrid = new int[] {1, 2, 3, 4, 6, 8, 10, 14, 20, 30, 40, 50, 60};
 
-    int nNodes = liborMaturities.length + fraMaturities.length + cashMaturities.length + swapSemiannualGrid.length;
+    final int nNodes = liborMaturities.length + fraMaturities.length + cashMaturities.length
+        + swapSemiannualGrid.length;
 
     NODE_TIMES = new double[nNodes];
     int index = 0;
 
     InterestRateDerivative ird;
 
-    for (double t : liborMaturities) {
+    for (final double t : liborMaturities) {
       ird = new Libor(t);
       INSTRUMENTS.add(ird);
       NODE_TIMES[index++] = t;
     }
-    for (double t : fraMaturities) {
+    for (final double t : fraMaturities) {
       ird = new ForwardRateAgreement(t - 0.25, t);
       INSTRUMENTS.add(ird);
       NODE_TIMES[index++] = t;
     }
 
-    for (double t : cashMaturities) {
+    for (final double t : cashMaturities) {
       ird = new Cash(t);
       INSTRUMENTS.add(ird);
       NODE_TIMES[index++] = t;
     }
 
-    for (int element : swapSemiannualGrid) {
-      Swap swap = setupSwap(element);
+    for (final int element : swapSemiannualGrid) {
+      final Swap swap = setupSwap(element);
       INSTRUMENTS.add(swap);
-      double t = swap.getFloatingPaymentTimes()[swap.getNumberOfFloatingPayments() - 1]
+      final double t = swap.getFloatingPaymentTimes()[swap.getNumberOfFloatingPayments() - 1]
           + Math.max(0.0, swap.getDeltaEnd()[swap.getNumberOfFloatingPayments() - 1]);
       NODE_TIMES[index++] = t;
     }
@@ -133,7 +132,7 @@ public class MultiInstrumentSingleCurveBootStrap {
     Arrays.sort(NODE_TIMES);
 
     // set up curve to obtain "market" prices
-    double[] yields = new double[nNodes];
+    final double[] yields = new double[nNodes];
 
     for (int i = 0; i < nNodes; i++) {
       yields[i] = DUMMY_CURVE.evaluate(NODE_TIMES[i]);
@@ -164,7 +163,7 @@ public class MultiInstrumentSingleCurveBootStrap {
 
     // VectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS);
     // doHotSpot(rootFinder, "default Newton FD , double curve", DOUBLE_CURVE_FINDER);
-    VectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN,
+    final VectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN,
         new SVDecompositionCommons());
     doHotSpot(rootFinder, "default Newton, single curve", SINGLE_CURVE_FINDER);
     //
@@ -173,10 +172,10 @@ public class MultiInstrumentSingleCurveBootStrap {
 
   @Test
   public void testSingleJacobian() {
-    final JacobianCalculator jacobianFD = new FiniteDifferenceJacobianCalculator(1e-8);
-    final DoubleMatrix2D jacExact = SINGLE_CURVE_JACOBIAN.evaluate(X0, SINGLE_CURVE_FINDER);
-    final DoubleMatrix2D jacFD = jacobianFD.evaluate(X0, SINGLE_CURVE_FINDER);
-    //System.out.println("exact: " + jacExact.toString());
+    //    final JacobianCalculator jacobianFD = new FiniteDifferenceJacobianCalculator(1e-8);
+    //    final DoubleMatrix2D jacExact = SINGLE_CURVE_JACOBIAN.evaluate(X0, SINGLE_CURVE_FINDER);
+    //    final DoubleMatrix2D jacFD = jacobianFD.evaluate(X0, SINGLE_CURVE_FINDER);
+    //    //System.out.println("exact: " + jacExact.toString());
     //System.out.println("FD: " + jacFD.toString());
 
     // assertMatrixEquals(jacExact, jacFD, 1e-7);
@@ -227,7 +226,8 @@ public class MultiInstrumentSingleCurveBootStrap {
     final double[] deltaStart = new double[2 * payments];
     final double[] deltaEnd = new double[2 * payments];
     for (int i = 0; i < payments; i++) {
-      floating[2 * i + 1] = fixed[i] = 0.5 * (1 + i) + 0.02 * (RANDOM.nextDouble() - 0.5);
+      fixed[i] = 0.5 * (1 + i) + 0.02 * (RANDOM.nextDouble() - 0.5);
+      floating[2 * i + 1] = fixed[i];
     }
     for (int i = 0; i < 2 * payments; i++) {
       if (i % 2 == 0) {
@@ -238,5 +238,4 @@ public class MultiInstrumentSingleCurveBootStrap {
     }
     return new Swap(fixed, floating, deltaStart, deltaEnd);
   }
-
 }

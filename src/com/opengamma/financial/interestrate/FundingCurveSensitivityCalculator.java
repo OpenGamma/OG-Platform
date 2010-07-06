@@ -3,18 +3,20 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.swap;
+package com.opengamma.financial.interestrate;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.libor.Libor;
+import com.opengamma.financial.interestrate.swap.AnnuityCalculator;
+import com.opengamma.financial.interestrate.swap.FloatingLegCalculator;
+import com.opengamma.financial.interestrate.swap.LiborCalculator;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.tuple.DoublesPair;
