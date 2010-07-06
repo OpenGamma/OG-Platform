@@ -43,13 +43,13 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.financial.interestrate.DoubleCurveFinder;
+import com.opengamma.financial.interestrate.DoubleCurveJacobian;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.libor.Libor;
-import com.opengamma.financial.interestrate.swap.DoubleCurveFinder;
-import com.opengamma.financial.interestrate.swap.DoubleCurveJacobian;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -359,7 +359,7 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
   }
 
   private double getLastCashTime(final Cash cash) {
-    return cash.getFixedPaymentTime();
+    return cash.getPaymentTime();
   }
 
   private double getLastLiborTime(final Libor libor) {
