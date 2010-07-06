@@ -208,6 +208,7 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
   @Test
   public void testBroyden() {
     VectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN);
+
     doHotSpot(rootFinder, "default Newton, double curve", DOUBLE_CURVE_FINDER);
   }
 
@@ -223,8 +224,8 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
     final JacobianCalculator jacobianFD = new FiniteDifferenceJacobianCalculator(1e-8);
     final DoubleMatrix2D jacExact = DOUBLE_CURVE_JACOBIAN.evaluate(X0, DOUBLE_CURVE_FINDER);
     final DoubleMatrix2D jacFD = jacobianFD.evaluate(X0, DOUBLE_CURVE_FINDER);
-    System.out.println("exact: " + jacExact.toString());
-    System.out.println("FD: " + jacFD.toString());
+    // System.out.println("exact: " + jacExact.toString());
+    // System.out.println("FD: " + jacFD.toString());
 
     // assertMatrixEquals(jacExact, jacFD, 1e-7);
   }
@@ -304,5 +305,4 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
     }
     return new Swap(fixed, floating, deltaStart, deltaEnd);
   }
-
 }

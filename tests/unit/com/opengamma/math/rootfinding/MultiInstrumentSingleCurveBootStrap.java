@@ -181,8 +181,8 @@ public class MultiInstrumentSingleCurveBootStrap {
     final JacobianCalculator jacobianFD = new FiniteDifferenceJacobianCalculator(1e-8);
     final DoubleMatrix2D jacExact = SINGLE_CURVE_JACOBIAN.evaluate(X0, SINGLE_CURVE_FINDER);
     final DoubleMatrix2D jacFD = jacobianFD.evaluate(X0, SINGLE_CURVE_FINDER);
-    System.out.println("exact: " + jacExact.toString());
-    System.out.println("FD: " + jacFD.toString());
+    // System.out.println("exact: " + jacExact.toString());
+    // System.out.println("FD: " + jacFD.toString());
 
     // assertMatrixEquals(jacExact, jacFD, 1e-7);
   }
