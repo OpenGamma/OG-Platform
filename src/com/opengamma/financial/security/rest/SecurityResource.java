@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.engine.security.Security;
-import com.opengamma.financial.security.ManagableSecurityMaster;
+import com.opengamma.financial.security.ManageableSecurityMaster;
 import com.opengamma.financial.security.UpdateSecurityRequest;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.jaxrs.FudgeRest;
@@ -71,7 +71,7 @@ public class SecurityResource {
    * Gets the security master.
    * @return the security master, not null
    */
-  public ManagableSecurityMaster getSecurityMaster() {
+  public ManageableSecurityMaster getSecurityMaster() {
     return getSecuritiesResource().getSecurityMaster();
   }
 

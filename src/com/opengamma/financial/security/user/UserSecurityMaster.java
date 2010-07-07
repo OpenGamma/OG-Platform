@@ -12,7 +12,7 @@ import java.util.Set;
 
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
-import com.opengamma.financial.security.ManagableSecurityMaster;
+import com.opengamma.financial.security.ManageableSecurityMaster;
 import com.opengamma.financial.user.UserResourceDetails;
 import com.opengamma.financial.user.UserUniqueIdentifierUtils;
 import com.opengamma.financial.user.rest.ClientResource;
@@ -39,7 +39,7 @@ public class UserSecurityMaster implements SecurityMaster {
     Set<String> result = new HashSet<String>();
     for (UserResource user : _underlying.getAllUsers()) {
       for (ClientResource client : user.getClients().getAllClients()) {
-        ManagableSecurityMaster securityMaster = client.getSecurities().getSecurityMaster();
+        ManageableSecurityMaster securityMaster = client.getSecurities().getSecurityMaster();
         result.addAll(securityMaster.getAllSecurityTypes());
       }
     }

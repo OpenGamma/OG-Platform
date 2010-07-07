@@ -12,15 +12,15 @@ import org.fudgemsg.FudgeContext;
 
 import com.opengamma.financial.livedata.rest.LiveDataResource;
 import com.opengamma.financial.livedata.user.InMemoryUserSnapshotProvider;
-import com.opengamma.financial.position.ManagablePositionMaster;
+import com.opengamma.financial.position.ManageablePositionMaster;
 import com.opengamma.financial.position.memory.InMemoryPositionMaster;
 import com.opengamma.financial.position.rest.PortfoliosResource;
-import com.opengamma.financial.security.ManagableSecurityMaster;
+import com.opengamma.financial.security.ManageableSecurityMaster;
 import com.opengamma.financial.security.memory.InMemorySecurityMaster;
 import com.opengamma.financial.security.rest.SecuritiesResource;
 import com.opengamma.financial.user.UserResourceDetails;
 import com.opengamma.financial.user.UserUniqueIdentifierUtils;
-import com.opengamma.financial.view.ManagableViewDefinitionRepository;
+import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository;
 import com.opengamma.financial.view.rest.ViewDefinitionsResource;
 import com.opengamma.id.UniqueIdentifierTemplate;
@@ -50,9 +50,9 @@ public class ClientResource {
   public static final String LIVEDATA_PATH = "livedata";
   
   private final ClientsResource _clientsResource;
-  private final ManagablePositionMaster _positionMaster;
-  private final ManagableSecurityMaster _securityMaster;
-  private final ManagableViewDefinitionRepository _viewDefinitionRepository;
+  private final ManageablePositionMaster _positionMaster;
+  private final ManageableSecurityMaster _securityMaster;
+  private final ManageableViewDefinitionRepository _viewDefinitionRepository;
   private final InMemoryUserSnapshotProvider _liveData;
   private final FudgeContext _fudgeContext;
   

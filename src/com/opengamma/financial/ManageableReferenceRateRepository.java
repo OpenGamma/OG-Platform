@@ -13,6 +13,8 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * Management interface for a reference rate repository implementation
  */
-public interface ManagableReferenceRateRepository extends ReferenceRateRepository {
+public interface ManageableReferenceRateRepository extends ReferenceRateRepository {
+
   UniqueIdentifier addReferenceRate(IdentifierBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, int settlementDays);
+
 }

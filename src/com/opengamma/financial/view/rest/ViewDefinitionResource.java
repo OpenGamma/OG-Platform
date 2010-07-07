@@ -14,7 +14,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.financial.view.ManagableViewDefinitionRepository;
+import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.UpdateViewDefinitionRequest;
 import com.opengamma.util.ArgumentChecker;
 
@@ -64,7 +64,7 @@ public class ViewDefinitionResource {
    * 
    * @return the view definition repository, not null
    */
-  public ManagableViewDefinitionRepository getViewDefinitionRepository() {
+  public ManageableViewDefinitionRepository getViewDefinitionRepository() {
     return getViewDefinitionsResource().getViewDefinitionRepository();
   }
   

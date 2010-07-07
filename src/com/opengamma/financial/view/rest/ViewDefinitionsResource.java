@@ -21,7 +21,7 @@ import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.engine.view.server.EngineFudgeContextConfiguration;
 import com.opengamma.financial.fudgemsg.FinancialFudgeContextConfiguration;
 import com.opengamma.financial.view.AddViewDefinitionRequest;
-import com.opengamma.financial.view.ManagableViewDefinitionRepository;
+import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -33,7 +33,7 @@ public class ViewDefinitionsResource {
   /**
    * The underlying repository.
    */
-  private final ManagableViewDefinitionRepository _repository;
+  private final ManageableViewDefinitionRepository _repository;
   /**
    * The fudge context to use when deserializing requests and serializing responses.
    */
@@ -49,7 +49,7 @@ public class ViewDefinitionsResource {
    * Creates the resource 
    * @param repository  the underlying repository, not null
    */
-  public ViewDefinitionsResource(ManagableViewDefinitionRepository repository) {
+  public ViewDefinitionsResource(ManageableViewDefinitionRepository repository) {
     ArgumentChecker.notNull(repository, "repository");
     _repository = repository;
     
@@ -63,7 +63,7 @@ public class ViewDefinitionsResource {
    * @param uriInfo  the URI information, not null
    * @param repository  the underlying repository, not null
    */
-  public ViewDefinitionsResource(UriInfo uriInfo, ManagableViewDefinitionRepository repository) {
+  public ViewDefinitionsResource(UriInfo uriInfo, ManageableViewDefinitionRepository repository) {
     this(repository);
     ArgumentChecker.notNull(uriInfo, "uriInfo");
     _uriInfo = uriInfo;
@@ -74,7 +74,7 @@ public class ViewDefinitionsResource {
    * Gets the security master.
    * @return the security master, not null
    */
-  public ManagableViewDefinitionRepository getViewDefinitionRepository() {
+  public ManageableViewDefinitionRepository getViewDefinitionRepository() {
     return _repository;
   }
 

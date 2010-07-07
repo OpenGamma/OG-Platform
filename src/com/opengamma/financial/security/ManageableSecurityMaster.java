@@ -22,7 +22,7 @@ import com.opengamma.id.UniqueIdentifier;
  * The security master provides a uniform view over a set of security definitions.
  * This interface provides methods that allow the master to be searched and updated.
  */
-public interface ManagableSecurityMaster extends SecurityMaster {
+public interface ManageableSecurityMaster extends SecurityMaster {
 
   /**
    * Checks if this security master manages the unique identifier.

@@ -15,15 +15,15 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.view.AddViewDefinitionRequest;
-import com.opengamma.financial.view.ManagableViewDefinitionRepository;
+import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.UpdateViewDefinitionRequest;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
 
 /**
- * Provides access to a remote {@link ManagableViewDefinitionRepository}.
+ * Provides access to a remote {@link ManageableViewDefinitionRepository}.
  */
-public class RemoteManagableViewDefinitionRepository implements ManagableViewDefinitionRepository {
+public class RemoteManagableViewDefinitionRepository implements ManageableViewDefinitionRepository {
 
   private final FudgeContext _fudgeContext;
   private final RestClient _restClient;

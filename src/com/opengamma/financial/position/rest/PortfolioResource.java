@@ -19,7 +19,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import com.opengamma.financial.position.ManagablePositionMaster;
+import com.opengamma.financial.position.ManageablePositionMaster;
 import com.opengamma.financial.position.ManagedPortfolio;
 import com.opengamma.financial.position.PortfolioNodeSummary;
 import com.opengamma.financial.position.PositionSummary;
@@ -77,7 +77,7 @@ public class PortfolioResource {
    * Gets the position master.
    * @return the position master, not null
    */
-  public ManagablePositionMaster getPositionMaster() {
+  public ManageablePositionMaster getPositionMaster() {
     return getPortfoliosResource().getPositionMaster();
   }
 

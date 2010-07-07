@@ -20,7 +20,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.financial.security.AddSecurityRequest;
-import com.opengamma.financial.security.ManagableSecurityMaster;
+import com.opengamma.financial.security.ManageableSecurityMaster;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -35,7 +35,7 @@ public class SecuritiesResource {
   /**
    * The injected security master.
    */
-  private final ManagableSecurityMaster _secMaster;
+  private final ManageableSecurityMaster _secMaster;
   /**
    * The fudge context to use when deserializing requests 
    */
@@ -55,7 +55,7 @@ public class SecuritiesResource {
    * @param secMaster  the security master, not null
    * @param fudgeContext  the fudge context, not null
    */
-  public SecuritiesResource(final ManagableSecurityMaster secMaster, final FudgeContext fudgeContext) {
+  public SecuritiesResource(final ManageableSecurityMaster secMaster, final FudgeContext fudgeContext) {
     ArgumentChecker.notNull(secMaster, "secMaster");
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _secMaster = secMaster;
@@ -70,7 +70,7 @@ public class SecuritiesResource {
    * @param secMaster  the security master, not null
    * @param fudgeContext  the fudge context, not null
    */
-  public SecuritiesResource(UriInfo uriInfo, final ManagableSecurityMaster secMaster, FudgeContext fudgeContext) {
+  public SecuritiesResource(UriInfo uriInfo, final ManageableSecurityMaster secMaster, FudgeContext fudgeContext) {
     this(secMaster, fudgeContext);
     ArgumentChecker.notNull(uriInfo, "uriInfo");
     _uriInfo = uriInfo;
@@ -81,7 +81,7 @@ public class SecuritiesResource {
    * Gets the security master.
    * @return the security master, not null
    */
-  public ManagableSecurityMaster getSecurityMaster() {
+  public ManageableSecurityMaster getSecurityMaster() {
     return _secMaster;
   }
 

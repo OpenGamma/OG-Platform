@@ -34,7 +34,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import com.opengamma.engine.view.server.EngineFudgeContextConfiguration;
 import com.opengamma.financial.fudgemsg.FinancialFudgeContextConfiguration;
 import com.opengamma.financial.position.AddPortfolioRequest;
-import com.opengamma.financial.position.ManagablePositionMaster;
+import com.opengamma.financial.position.ManageablePositionMaster;
 import com.opengamma.financial.position.PortfolioSummary;
 import com.opengamma.financial.position.SearchPortfoliosRequest;
 import com.opengamma.financial.position.SearchPortfoliosResult;
@@ -54,7 +54,7 @@ public class PortfoliosResource {
   /**
    * The injected position master.
    */
-  private final ManagablePositionMaster _posMaster;
+  private final ManageablePositionMaster _posMaster;
   /**
    * The fudge context to use when deserializing requests 
    */
@@ -73,7 +73,7 @@ public class PortfoliosResource {
    * Creates the resource.
    * @param posMaster  the position master, not null
    */
-  public PortfoliosResource(final ManagablePositionMaster posMaster) {
+  public PortfoliosResource(final ManageablePositionMaster posMaster) {
     ArgumentChecker.notNull(posMaster, "PositionMaster");
     _posMaster = posMaster;
     
@@ -89,7 +89,7 @@ public class PortfoliosResource {
    * @param uriInfo  the URI information, not null
    * @param posMaster  the position master, not null
    */
-  public PortfoliosResource(UriInfo uriInfo, final ManagablePositionMaster posMaster) {
+  public PortfoliosResource(UriInfo uriInfo, final ManageablePositionMaster posMaster) {
     this(posMaster);
     ArgumentChecker.notNull(uriInfo, "uriInfo");
     _uriInfo = uriInfo;
@@ -100,7 +100,7 @@ public class PortfoliosResource {
    * Gets the position master.
    * @return the position master, not null
    */
-  public ManagablePositionMaster getPositionMaster() {
+  public ManageablePositionMaster getPositionMaster() {
     return _posMaster;
   }
 

@@ -30,7 +30,7 @@ import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.financial.position.AddPortfolioNodeRequest;
 import com.opengamma.financial.position.AddPortfolioRequest;
 import com.opengamma.financial.position.AddPositionRequest;
-import com.opengamma.financial.position.ManagablePositionMaster;
+import com.opengamma.financial.position.ManageablePositionMaster;
 import com.opengamma.financial.position.ManagedPortfolio;
 import com.opengamma.financial.position.ManagedPortfolioNode;
 import com.opengamma.financial.position.ManagedPosition;
@@ -51,7 +51,7 @@ import com.opengamma.util.db.DbHelper;
  * holding them in a tree structure portfolio.
  * This class provides database storage for the entire tree.
  */
-public class DbPositionMaster implements ManagablePositionMaster {
+public class DbPositionMaster implements ManageablePositionMaster {
 
   /**
    * The scheme used for UniqueIdentifier objects.

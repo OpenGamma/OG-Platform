@@ -15,13 +15,13 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.view.AddViewDefinitionRequest;
-import com.opengamma.financial.view.ManagableViewDefinitionRepository;
+import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.UpdateViewDefinitionRequest;
 
 /**
- * A simple, in-memory implementation of {@link ManagableViewDefinitionRepository}.
+ * A simple, in-memory implementation of {@link ManageableViewDefinitionRepository}.
  */
-public class InMemoryViewDefinitionRepository implements ManagableViewDefinitionRepository {
+public class InMemoryViewDefinitionRepository implements ManageableViewDefinitionRepository {
 
   private final ConcurrentMap<String, ViewDefinition> _definitionsByName = new ConcurrentSkipListMap<String, ViewDefinition>();
   
