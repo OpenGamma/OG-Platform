@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.opengamma.financial.interestrate.ForwardCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.tuple.Pair;

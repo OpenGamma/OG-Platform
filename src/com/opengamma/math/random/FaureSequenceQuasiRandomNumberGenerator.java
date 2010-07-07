@@ -24,6 +24,7 @@ public class FaureSequenceQuasiRandomNumberGenerator implements QuasiRandomNumbe
     }
     final int base = PrimeNumbers.getNextPrime(dimension);
     final int[][] a = getFirstDimension(n, dimension, base);
+    @SuppressWarnings("unused")
     final int m = (int) Math.floor(Math.log(dimension) / Math.log(base));
     final double[][] coeff = getBinomialCoefficientMatrix(base + 1, base);
     int sum;

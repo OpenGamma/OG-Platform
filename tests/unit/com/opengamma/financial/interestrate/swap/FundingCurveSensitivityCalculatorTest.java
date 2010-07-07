@@ -7,6 +7,7 @@ package com.opengamma.financial.interestrate.swap;
 
 import org.junit.Test;
 
+import com.opengamma.financial.interestrate.FundingCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 

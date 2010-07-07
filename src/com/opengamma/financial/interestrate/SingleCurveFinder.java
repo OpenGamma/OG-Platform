@@ -3,14 +3,13 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.swap;
+package com.opengamma.financial.interestrate;
 
 import java.util.List;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.function.Function1D;
@@ -33,7 +32,8 @@ public class SingleCurveFinder extends Function1D<DoubleMatrix1D, DoubleMatrix1D
   private final int _n;
   private final SwapRateCalculator _swapRateCalculator = new SwapRateCalculator();
 
-  public SingleCurveFinder(final List<InterestRateDerivative> derivatives, final double[] marketRates, final double spotRate, final double[] timeGrid,
+  public SingleCurveFinder(final List<InterestRateDerivative> derivatives, final double[] marketRates,
+      final double spotRate, final double[] timeGrid,
       final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> interpolator) {
     Validate.notNull(derivatives);
     Validate.notNull(marketRates);

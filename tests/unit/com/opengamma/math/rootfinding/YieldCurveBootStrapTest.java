@@ -18,12 +18,12 @@ import org.slf4j.LoggerFactory;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
+import com.opengamma.financial.interestrate.DoubleCurveFinder;
+import com.opengamma.financial.interestrate.DoubleCurveJacobian;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.swap.DoubleCurveFinder;
-import com.opengamma.financial.interestrate.swap.DoubleCurveJacobian;
-import com.opengamma.financial.interestrate.swap.SingleCurveFinder;
-import com.opengamma.financial.interestrate.swap.SingleCurveJacobian;
-import com.opengamma.financial.interestrate.swap.SwapRateCalculator;
+import com.opengamma.financial.interestrate.SingleCurveFinder;
+import com.opengamma.financial.interestrate.SingleCurveJacobian;
+import com.opengamma.financial.interestrate.SwapRateCalculator;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;

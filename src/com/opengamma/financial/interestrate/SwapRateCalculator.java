@@ -3,15 +3,16 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.swap;
+package com.opengamma.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.libor.Libor;
+import com.opengamma.financial.interestrate.swap.AnnuityCalculator;
+import com.opengamma.financial.interestrate.swap.FloatingLegCalculator;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
@@ -56,7 +57,7 @@ public class SwapRateCalculator {
   private double getRateFromCash(final YieldAndDiscountCurve fundingCurve, final Cash cash) {
     Validate.notNull(fundingCurve);
     Validate.notNull(cash);
-    return fundingCurve.getInterestRate(cash.getFixedPaymentTime());
+    return fundingCurve.getInterestRate(cash.getPaymentTime());
   }
 
   private double getRateFromFRA(final YieldAndDiscountCurve forwardCurve, final YieldAndDiscountCurve fundingCurve, final ForwardRateAgreement fra) {
