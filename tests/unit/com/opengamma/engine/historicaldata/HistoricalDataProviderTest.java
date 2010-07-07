@@ -28,9 +28,7 @@ import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
- *
- * @author jim
+ * Test.
  */
 public class HistoricalDataProviderTest {
   private static final Logger s_logger = LoggerFactory.getLogger(HistoricalDataProviderTest.class);
@@ -83,8 +81,8 @@ public class HistoricalDataProviderTest {
   }
   
   private IdentifierBundle makeDomainSpecificIdentifiers() {
-    return new IdentifierBundle(new Identifier(IdentificationScheme.BLOOMBERG_TICKER, makeUniqueRandomId()),
-                                         new Identifier(IdentificationScheme.BLOOMBERG_BUID, makeUniqueRandomId()));
+    return IdentifierBundle.of(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, makeUniqueRandomId()),
+                                   Identifier.of(IdentificationScheme.BLOOMBERG_BUID, makeUniqueRandomId()));
   }
   
   private Pair<HistoricalDataProvider, Set<IdentifierBundle>> buildAndTestInMemoryProvider() {

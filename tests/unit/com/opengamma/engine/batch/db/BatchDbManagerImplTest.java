@@ -196,7 +196,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
       _dbManager.markLiveDataSnapshotComplete(_batchJob.getSnapshotId());
       
       LiveDataValue value = new LiveDataValue(new ComputationTargetSpecification(
-          new Identifier("BUID", "EQ12345")), "BID", 11.22);
+          Identifier.of("BUID", "EQ12345")), "BID", 11.22);
       Set<LiveDataValue> values = Collections.singleton(value);
       
       _dbManager.addValuesToSnapshot(_batchJob.getSnapshotId(), values);
@@ -217,9 +217,9 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
       assertEquals(0, snapshot.getSnapshotEntries().size());
       
       Set<ComputationTargetSpecification> specs = Sets.newHashSet();
-      specs.add(new ComputationTargetSpecification(new Identifier("BUID", "EQ12345")));
-      specs.add(new ComputationTargetSpecification(new Identifier("BUID", "EQ12346")));
-      specs.add(new ComputationTargetSpecification(new Identifier("BUID", "EQ12347")));
+      specs.add(new ComputationTargetSpecification(Identifier.of("BUID", "EQ12345")));
+      specs.add(new ComputationTargetSpecification(Identifier.of("BUID", "EQ12346")));
+      specs.add(new ComputationTargetSpecification(Identifier.of("BUID", "EQ12347")));
       
       Set<LiveDataValue> values = new HashSet<LiveDataValue>();
       for (ComputationTargetSpecification spec : specs) {
@@ -246,8 +246,8 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
       
       // should update 1, add 1
       values = new HashSet<LiveDataValue>();
-      values.add(new LiveDataValue(new ComputationTargetSpecification(new Identifier("BUID", "EQ12347")), "field_name", 123.46));
-      values.add(new LiveDataValue(new ComputationTargetSpecification(new Identifier("BUID", "EQ12348")), "field_name", 123.45));
+      values.add(new LiveDataValue(new ComputationTargetSpecification(Identifier.of("BUID", "EQ12347")), "field_name", 123.46));
+      values.add(new LiveDataValue(new ComputationTargetSpecification(Identifier.of("BUID", "EQ12348")), "field_name", 123.45));
       
       _dbManager.addValuesToSnapshot(_batchJob.getSnapshotId(), values);
       snapshot = _dbManager.getLiveDataSnapshot(_batchJob);

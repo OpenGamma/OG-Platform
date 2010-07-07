@@ -141,14 +141,14 @@ public class PortfolioNodeImplTest {
   @Test(expected=UnsupportedOperationException.class)
   public void test_getPositions_immutable() {
     PortfolioNodeImpl test = new PortfolioNodeImpl();
-    PositionImpl child = new PositionImpl(BigDecimal.ONE, new Identifier("K", "V"));
+    PositionImpl child = new PositionImpl(BigDecimal.ONE, Identifier.of("K", "V"));
     test.getPositions().add(child);
   }
 
   @Test
   public void test_addPosition() {
     PortfolioNodeImpl test = new PortfolioNodeImpl();
-    PositionImpl child = new PositionImpl(BigDecimal.ONE, new Identifier("K", "V"));
+    PositionImpl child = new PositionImpl(BigDecimal.ONE, Identifier.of("K", "V"));
     test.addPosition(child);
     assertEquals(1, test.getPositions().size());
     assertEquals(child, test.getPositions().get(0));
@@ -159,8 +159,8 @@ public class PortfolioNodeImplTest {
   @Test
   public void test_addPositions() {
     PortfolioNodeImpl test = new PortfolioNodeImpl();
-    PositionImpl child0 = new PositionImpl(BigDecimal.ONE, new Identifier("K", "V"));
-    PositionImpl child1 = new PositionImpl(BigDecimal.ONE, new Identifier("K", "V"));
+    PositionImpl child0 = new PositionImpl(BigDecimal.ONE, Identifier.of("K", "V"));
+    PositionImpl child1 = new PositionImpl(BigDecimal.ONE, Identifier.of("K", "V"));
     test.addPositions(Arrays.asList(child0, child1));
     assertEquals(2, test.getPositions().size());
     assertEquals(child0, test.getPositions().get(0));
@@ -172,7 +172,7 @@ public class PortfolioNodeImplTest {
   @Test
   public void test_removePosition_match() {
     PortfolioNodeImpl test = new PortfolioNodeImpl();
-    PositionImpl child = new PositionImpl(BigDecimal.ONE, new Identifier("K", "V"));
+    PositionImpl child = new PositionImpl(BigDecimal.ONE, Identifier.of("K", "V"));
     test.addPosition(child);
     assertEquals(1, test.getPositions().size());
     test.removePosition(child);
@@ -182,8 +182,8 @@ public class PortfolioNodeImplTest {
   @Test
   public void test_removePosition_noMatch() {
     PortfolioNodeImpl test = new PortfolioNodeImpl();
-    PositionImpl child = new PositionImpl(BigDecimal.ONE, new Identifier("K", "V"));
-    PositionImpl removing = new PositionImpl(BigDecimal.ONE, new Identifier("K", "OTHER"));
+    PositionImpl child = new PositionImpl(BigDecimal.ONE, Identifier.of("K", "V"));
+    PositionImpl removing = new PositionImpl(BigDecimal.ONE, Identifier.of("K", "OTHER"));
     test.addPosition(child);
     assertEquals(1, test.getPositions().size());
     test.removePosition(removing);
@@ -196,7 +196,7 @@ public class PortfolioNodeImplTest {
   public void test_size() {
     PortfolioNodeImpl test = new PortfolioNodeImpl();
     PortfolioNodeImpl child1 = new PortfolioNodeImpl();
-    PositionImpl child2 = new PositionImpl(BigDecimal.ONE, new Identifier("K", "V"));
+    PositionImpl child2 = new PositionImpl(BigDecimal.ONE, Identifier.of("K", "V"));
     test.addChildNode(child1);
     test.addPosition(child2);
     assertEquals(1, test.getChildNodes().size());

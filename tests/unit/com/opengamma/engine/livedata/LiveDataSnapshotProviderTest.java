@@ -59,10 +59,10 @@ public class LiveDataSnapshotProviderTest {
     MutableFudgeFieldContainer msg3b = new FudgeContext().newMessage();
     msg3b.add("Foo", 52.17);
     
-    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), new Identifier("testdomain", "test1")), msg1);
-    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), new Identifier("testdomain", "test2")), msg2);
-    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), new Identifier("testdomain", "test3")), msg3a);
-    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), new Identifier("testdomain", "test3")), msg3b);
+    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), Identifier.of("testdomain", "test1")), msg1);
+    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), Identifier.of("testdomain", "test2")), msg2);
+    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), Identifier.of("testdomain", "test3")), msg3a);
+    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), Identifier.of("testdomain", "test3")), msg3b);
     
     long time = snapshotter.snapshot();
     
