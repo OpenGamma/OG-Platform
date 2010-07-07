@@ -29,9 +29,9 @@ public class InMemorySecurityMasterTest {
   private static final UniqueIdentifier UID = UniqueIdentifier.of("U", "1");
   private static final Identifier ID1 = Identifier.of("A", "B");
   private static final Identifier ID2 = Identifier.of("A", "C");
-  private static final IdentifierBundle BUNDLE1 = new IdentifierBundle(ID1);
-  private static final IdentifierBundle BUNDLE2 = new IdentifierBundle(ID2);
-  private static final IdentifierBundle BUNDLE1AND2 = new IdentifierBundle(ID1, ID2);
+  private static final IdentifierBundle BUNDLE1 = IdentifierBundle.of(ID1);
+  private static final IdentifierBundle BUNDLE2 = IdentifierBundle.of(ID2);
+  private static final IdentifierBundle BUNDLE1AND2 = IdentifierBundle.of(ID1, ID2);
 
   @Test
   public void test_empty() {
