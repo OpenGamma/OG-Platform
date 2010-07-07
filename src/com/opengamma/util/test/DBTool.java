@@ -41,7 +41,7 @@ import com.opengamma.OpenGammaRuntimeException;
 public class DBTool extends Task {
   
   private static final String DATABASE_FOLDER = "db";
-  private static final String DATABASE_SCRIPT_FOLDER_PREFIX = "scripts_";
+  private static final String DATABASE_SCRIPT_FOLDER_PREFIX = "patch_";
   private static final String DATABASE_UPGRADE_SCRIPT = "upgrade-db.sql";
   private static final String DATABASE_CREATE_SCRIPT = "create-db.sql";
   
