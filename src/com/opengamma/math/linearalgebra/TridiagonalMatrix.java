@@ -14,17 +14,18 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 /**
  * 
  */
-// TODO extends DoubleMatrix2D
+// TODO should be an instance of DoubleMatrix2D?
 public class TridiagonalMatrix {
   private final double[] _a;
   private final double[] _b;
   private final double[] _c;
+  private final DoubleMatrix2D _matrix;
 
-  public TridiagonalMatrix(double[] a, double[] b, double[] c) {
+  public TridiagonalMatrix(final double[] a, final double[] b, final double[] c) {
     Validate.notNull(a, "a");
     Validate.notNull(b, "b");
     Validate.notNull(c, "c");
-    int n = a.length;
+    final int n = a.length;
     if (b.length != n - 1) {
       throw new IllegalArgumentException("Length of subdiagonal b is incorrect");
     }
@@ -34,6 +35,18 @@ public class TridiagonalMatrix {
     _a = a;
     _b = b;
     _c = c;
+    int i;
+    final double[][] data = new double[n][n];
+    for (i = 0; i < n; i++) {
+      data[i][i] = _a[i];
+    }
+    for (i = 1; i < n; i++) {
+      data[i - 1][i] = _b[i - 1];
+    }
+    for (i = 1; i < n; i++) {
+      data[i][i - 1] = _c[i - 1];
+    }
+    _matrix = new DoubleMatrix2D(data);
   }
 
   public double[] getDiagonal() {
@@ -49,21 +62,7 @@ public class TridiagonalMatrix {
   }
 
   public DoubleMatrix2D toDoubleMatrix2D() {
-    int n = _a.length;
-    int i;
-    double[][] data = new double[n][n];
-    for (i = 0; i < n; i++) {
-      data[i][i] = _a[i];
-    }
-    for (i = 1; i < n; i++) {
-      data[i - 1][i] = _b[i - 1];
-    }
-    for (i = 1; i < n; i++) {
-      data[i][i - 1] = _c[i - 1];
-    }
-
-    return new DoubleMatrix2D(data);
-
+    return _matrix;
   }
 
   @Override
@@ -77,7 +76,7 @@ public class TridiagonalMatrix {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -87,7 +86,7 @@ public class TridiagonalMatrix {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    TridiagonalMatrix other = (TridiagonalMatrix) obj;
+    final TridiagonalMatrix other = (TridiagonalMatrix) obj;
     if (!Arrays.equals(_a, other._a)) {
       return false;
     }
