@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  * 
  * Please see distribution for license.
  */
@@ -19,7 +19,7 @@ import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonM
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.SingleRootFinder;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
@@ -48,7 +48,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
   private class MyBisectionSingleRootFinder implements SingleRootFinder<StandardOptionDataBundle, Double> {
     private final StandardOptionDataBundle _data;
     private final double _price;
-    private final Pair<Double, Double> _origin = Pair.of(0., 0.);
+    private final DoublesPair _origin = DoublesPair.of(0., 0.);
     private static final double ACCURACY = 1e-12;
     private static final double ZERO = 1e-16;
     private static final int MAX_ATTEMPTS = 10000;

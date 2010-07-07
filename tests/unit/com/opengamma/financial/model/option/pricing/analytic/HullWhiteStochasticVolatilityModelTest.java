@@ -21,7 +21,7 @@ import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurfac
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
 
 public class HullWhiteStochasticVolatilityModelTest {
   private static final AnalyticOptionModel<OptionDefinition, HullWhiteStochasticVolatilityModelOptionDataBundle> MODEL = new HullWhiteStochasticVolatilityModel();
@@ -76,8 +76,8 @@ public class HullWhiteStochasticVolatilityModelTest {
 
   @SuppressWarnings("unused")
   private void test(final double value, final OptionDefinition definition, final HullWhiteStochasticVolatilityModelOptionDataBundle data) {
-    final HullWhiteStochasticVolatilityModelOptionDataBundle bsmEquivalent = new HullWhiteStochasticVolatilityModelOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, SURFACE.getVolatility(Pair
-        .of(0., 0.)), VOL_OF_VOL, 0.);
+    final HullWhiteStochasticVolatilityModelOptionDataBundle bsmEquivalent = new HullWhiteStochasticVolatilityModelOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA,
+        SURFACE.getVolatility(DoublesPair.of(0., 0.)), VOL_OF_VOL, 0.);
     assertEquals(value, MODEL.getPricingFunction(definition).evaluate(data), EPS);
     assertEquals(BSM.getPricingFunction(definition).evaluate(bsmEquivalent), MODEL.getPricingFunction(definition).evaluate(bsmEquivalent), EPS);
   }
