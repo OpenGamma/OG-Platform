@@ -9,26 +9,18 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.orm.hibernate3.HibernateTransactionManager;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-import com.opengamma.util.test.HibernateTest;
+import com.opengamma.util.test.TransactionalHibernateTest;
 
 /**
  * 
  *
- * @author pietari
  */
-public class HibernateUserManagerTest extends HibernateTest {
+public class HibernateUserManagerTest extends TransactionalHibernateTest {
   
-  private PlatformTransactionManager _transactionManager;
-  private TransactionStatus _transaction;
   private HibernateUserManager _userManager;
   
   public HibernateUserManagerTest(String databaseType, final String databaseVersion) {
@@ -44,26 +36,14 @@ public class HibernateUserManagerTest extends HibernateTest {
   public void setUp() throws Exception {
     super.setUp();
     
-    _transactionManager = new HibernateTransactionManager(getSessionFactory());
-    _transaction = _transactionManager.getTransaction(new DefaultTransactionDefinition());
-    
     _userManager = new HibernateUserManager();
     _userManager.setSessionFactory(getSessionFactory());
     
     System.err.println("User Manager initialization complete:" + _userManager);
   }
   
-  @After
-  public void tearDown() throws Exception {
-    if (_transaction != null && !_transaction.isRollbackOnly()) {
-      _transactionManager.commit(_transaction);
-    }
-  }
-  
   @Test
   public void testUserManagement() {
-    _transactionManager.getTransaction(new DefaultTransactionDefinition());
-    
     // Try to get non-existent
     User user = _userManager.getUser("nonexistentuser");
     Assert.assertNull(user);
