@@ -13,16 +13,16 @@ import org.apache.http.util.LangUtils;
  * An immutable pair consisting of an {@code long} and {@code double}.
  * <p>
  * The class provides direct access to the primitive types and implements
- * the relevant fastutil longerface.
+ * the relevant fastutil interface.
  *
  * @param <T> The entity type for the Second side of the underlying Pair.
  */
 public class LongObjectPair<T> extends Pair<Long, T> implements Long2ObjectMap.Entry<T> {
 
   /** The first element. */
-  private final long _first;
+  public final long first;  // CSIGNORE
   /** The second element. */
-  private final T _second;
+  public final T second;  // CSIGNORE
 
   /**
    * Constructor.
@@ -30,33 +30,33 @@ public class LongObjectPair<T> extends Pair<Long, T> implements Long2ObjectMap.E
    * @param second  the second element
    */
   public LongObjectPair(final long first, final T second) {
-    _first = first;
-    _second = second;
+    this.first = first;
+    this.second = second;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public Long getFirst() {
-    return _first;
+    return first;
   }
 
   @Override
   public T getSecond() {
-    return _second;
+    return second;
   }
 
   public long getFirstLong() {
-    return _first;
+    return first;
   }
 
   public T getSecondObject() {
-    return _second;
+    return second;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public long getLongKey() {
-    return _first;
+    return first;
   }
 
   @Override
@@ -73,7 +73,7 @@ public class LongObjectPair<T> extends Pair<Long, T> implements Long2ObjectMap.E
     }
     if (obj instanceof LongObjectPair) {
       final LongObjectPair<T> other = (LongObjectPair<T>) obj;
-      return this.getFirstLong() == other.getFirstLong() && LangUtils.equals(this.getSecond(), other.getSecond());
+      return this.first == other.first && LangUtils.equals(this.second, other.second);
     }
     return super.equals(obj);
   }
@@ -81,7 +81,7 @@ public class LongObjectPair<T> extends Pair<Long, T> implements Long2ObjectMap.E
   @Override
   public int hashCode() {
     // see Map.Entry API specification
-    return (int) (getFirstLong() ^ _second.hashCode());
+    return ((int) (first ^ (first >>> 32))) ^ second.hashCode();
   }
 
 }
