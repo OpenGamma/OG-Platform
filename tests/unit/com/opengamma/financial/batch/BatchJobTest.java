@@ -10,7 +10,7 @@ import org.junit.Test;
 import com.opengamma.config.db.MongoDBConfigurationRepo;
 import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewTest;
+import com.opengamma.engine.view.ViewTestUtils;
 import com.opengamma.util.MongoDBConnectionSettings;
 import com.opengamma.util.test.MongoDBTestUtils;
 
@@ -27,7 +27,7 @@ public class BatchJobTest {
   
   @Test
   public void initViewFromMongo() {
-    View testView = ViewTest.getMockView();
+    View testView = ViewTestUtils.getMockView();
     
     MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings(null, false);
     MongoDBConfigurationRepo<ViewDefinition> configRepo = new MongoDBConfigurationRepo<ViewDefinition>(ViewDefinition.class, settings, null);
