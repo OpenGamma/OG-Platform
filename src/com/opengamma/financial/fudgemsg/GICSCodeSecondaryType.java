@@ -5,15 +5,15 @@
  */
 package com.opengamma.financial.fudgemsg;
 
+import org.fudgemsg.types.PrimitiveFieldTypes;
 import org.fudgemsg.types.SecondaryFieldType;
-import org.fudgemsg.types.StringFieldType;
 
 import com.opengamma.financial.GICSCode;
 
 /**
- * Converts GICSCode instances to/from a Fudge string type.
+ * Converts GICSCode instances to/from a Fudge integer type.
  */
-public final class GICSCodeSecondaryType extends SecondaryFieldType<GICSCode, String> {
+public final class GICSCodeSecondaryType extends SecondaryFieldType<GICSCode, Integer> {
 
   /**
    * Singleton instance of the type.
@@ -21,17 +21,22 @@ public final class GICSCodeSecondaryType extends SecondaryFieldType<GICSCode, St
   public static final GICSCodeSecondaryType INSTANCE = new GICSCodeSecondaryType();
 
   private GICSCodeSecondaryType() {
-    super(StringFieldType.INSTANCE, GICSCode.class);
+    super(PrimitiveFieldTypes.INT_TYPE, GICSCode.class);
   }
 
   @Override
-  public String secondaryToPrimary(GICSCode object) {
-    return object.toString();
+  public Integer secondaryToPrimary(GICSCode object) {
+    return object.getCode();
   }
 
   @Override
-  public GICSCode primaryToSecondary(final String code) {
+  public GICSCode primaryToSecondary(final Integer code) {
     return GICSCode.getInstance(code);
+  }
+
+  @Override
+  public boolean canConvertPrimary(Class<? extends Integer> clazz) {
+    return Integer.class.isAssignableFrom(clazz) || Integer.TYPE.isAssignableFrom(clazz);
   }
 
 }

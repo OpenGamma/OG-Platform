@@ -9,6 +9,7 @@ import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.types.StringFieldType;
 
 import com.opengamma.financial.Currency;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * Converts Currency instances to/from a Fudge string type.
@@ -30,8 +31,20 @@ public final class CurrencySecondaryType extends SecondaryFieldType<Currency, St
   }
 
   @Override
-  public Currency primaryToSecondary(final String isoCode) {
-    return Currency.getInstance(isoCode);
+  public Currency primaryToSecondary(final String isoCodeOrUniqueIdentifier) {
+    if (isoCodeOrUniqueIdentifier.length() == 3) {
+      // 3 letters means ISO code
+      return Currency.getInstance(isoCodeOrUniqueIdentifier);
+    } else {
+      // Otherwise, try as a UID
+      final UniqueIdentifier uid = UniqueIdentifier.parse(isoCodeOrUniqueIdentifier);
+      if (Currency.IDENTIFICATION_DOMAIN.equals(uid.getScheme())) {
+        return Currency.getInstance(uid.getValue());
+      } else {
+        throw new IllegalArgumentException("Not a unique identifier or currency ISO code - '"
+            + isoCodeOrUniqueIdentifier + "'");
+      }
+    }
   }
 
 }
