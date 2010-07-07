@@ -234,7 +234,7 @@ public abstract class WritableSecurityMasterTestCase extends HibernateTest {
     final LocalDate interestAccrualDate = LocalDate.of(2010, 3, 4);
     final LocalDate settlementDate = LocalDate.of(2012, 11, 1);
     final LocalDate firstCouponDate = LocalDate.of(2009, 1, 1);
-    final Identifier governmentId = new Identifier("BLOOMBERG", "government bond");
+    final Identifier governmentId = Identifier.of("BLOOMBERG", "government bond");
     final BondSecurity bond = new GovernmentBondSecurity("issuer name", "issuer type", "issuer domicile", "market", dollar, usStreet, "guarantee type", expiry, "coupon type", 0.5,
         annual, act360, following, announcementDate, interestAccrualDate, settlementDate, firstCouponDate, 10.0, 100d, 10d, 1d, 10d, 15d);
     bond.setIdentifiers(new IdentifierBundle(governmentId));
@@ -281,7 +281,7 @@ public abstract class WritableSecurityMasterTestCase extends HibernateTest {
     final LocalDate interestAccrualDate = LocalDate.of(2010, 3, 4);
     final LocalDate settlementDate = LocalDate.of(2012, 11, 1);
     final LocalDate firstCouponDate = LocalDate.of(2009, 1, 1);
-    final Identifier governmentId = new Identifier("BLOOMBERG", "government bond");
+    final Identifier governmentId = Identifier.of("BLOOMBERG", "government bond");
     final BondSecurity bond = new GovernmentBondSecurity("issuer name", "issuer type", "issuer domicile", "market", dollar, usStreet, "guarantee type", expiry, "coupon type", 0.5,
         annual, act360, following, announcementDate, interestAccrualDate, settlementDate, firstCouponDate, 10.0, 100d, 10d, 1d, 10d, 15d);
     bond.setIdentifiers(new IdentifierBundle(governmentId));
@@ -320,7 +320,7 @@ public abstract class WritableSecurityMasterTestCase extends HibernateTest {
   public void currencyFuture() throws Exception {
     final FXFutureSecurity currencyFuture = makeAUDUSDCurrencyFuture();
     _secMaster.putSecurity(new Date(), currencyFuture);
-    final IdentifierBundle  id = new IdentifierBundle (new Identifier(IdentificationScheme.BLOOMBERG_TICKER, "LNM0 Curncy"));
+    final IdentifierBundle  id = new IdentifierBundle (Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "LNM0 Curncy"));
     final Security security = _secMaster.getSecurity(id);
     assertNotNull(security);
     assertTrue(security instanceof FXFutureSecurity);
@@ -331,7 +331,7 @@ public abstract class WritableSecurityMasterTestCase extends HibernateTest {
   public void euroBondFuture() throws Exception {
     final BondFutureSecurity euroBondFuture = makeEuroBondFuture();
     _secMaster.putSecurity(new Date(), euroBondFuture);
-    final IdentifierBundle  id = new IdentifierBundle (new Identifier(IdentificationScheme.BLOOMBERG_TICKER, "RXU0 Comdty"));
+    final IdentifierBundle  id = new IdentifierBundle (Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "RXU0 Comdty"));
     final Security security = _secMaster.getSecurity(id);
     assertNotNull(security);
     assertTrue(security instanceof BondFutureSecurity);
@@ -420,8 +420,8 @@ public abstract class WritableSecurityMasterTestCase extends HibernateTest {
           "EXCHN" + String.valueOf(_random.nextInt()));
 
       final Set<Identifier> identifiers = new HashSet<Identifier>();
-      identifiers.add(new Identifier(IdentificationScheme.BLOOMBERG_TICKER, "TICKER" + String.valueOf(_random.nextInt())));
-      identifiers.add(new Identifier(IdentificationScheme.BLOOMBERG_BUID, "BUID" + String.valueOf(_random.nextInt())));
+      identifiers.add(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "TICKER" + String.valueOf(_random.nextInt())));
+      identifiers.add(Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "BUID" + String.valueOf(_random.nextInt())));
       security.setIdentifiers(new IdentifierBundle(identifiers));
       security.setName("NAME" + String.valueOf(_random.nextInt()));
       _secMaster.putSecurity(new Date(), security);
@@ -438,8 +438,8 @@ public abstract class WritableSecurityMasterTestCase extends HibernateTest {
           "EXCHN" + String.valueOf(_random.nextInt()));
 
       final Set<Identifier> identifiers = new HashSet<Identifier>();
-      identifiers.add(new Identifier(IdentificationScheme.BLOOMBERG_BUID, "BUID" + String.valueOf(_random.nextInt())));
-      identifiers.add(new Identifier(IdentificationScheme.BLOOMBERG_TICKER, "TICKER" + String.valueOf(_random.nextInt())));
+      identifiers.add(Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "BUID" + String.valueOf(_random.nextInt())));
+      identifiers.add(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "TICKER" + String.valueOf(_random.nextInt())));
       security.setIdentifiers(new IdentifierBundle(identifiers));
       security.setName("NAME" + String.valueOf(_random.nextInt()));
       _secMaster.putSecurity(new Date(), security);
@@ -459,9 +459,9 @@ public abstract class WritableSecurityMasterTestCase extends HibernateTest {
       final AgricultureFutureSecurity sec = new AgricultureFutureSecurity(expiry, exchange, exchange, currency, category, 100.0, "tonnes");
       sec.setName("NAME" + String.valueOf(_random.nextInt()));
       final Set<Identifier> identifiers = new HashSet<Identifier>();
-      identifiers.add(new Identifier(IdentificationScheme.BLOOMBERG_BUID, "BUID" + String.valueOf(_random.nextInt())));
-      identifiers.add(new Identifier(IdentificationScheme.CUSIP, "CUSIP" + String.valueOf(_random.nextInt())));
-      identifiers.add(new Identifier(IdentificationScheme.BLOOMBERG_TICKER, "TICKER" + String.valueOf(_random.nextInt())));
+      identifiers.add(Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "BUID" + String.valueOf(_random.nextInt())));
+      identifiers.add(Identifier.of(IdentificationScheme.CUSIP, "CUSIP" + String.valueOf(_random.nextInt())));
+      identifiers.add(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "TICKER" + String.valueOf(_random.nextInt())));
       sec.setIdentifiers(new IdentifierBundle(identifiers));
       _secMaster.putSecurity(new Date(), sec);
     }
@@ -470,11 +470,11 @@ public abstract class WritableSecurityMasterTestCase extends HibernateTest {
   private void addRandomEquities() {
     for (int i = 0; i < TEST_FILLER_SIZE; i++) {
       final EquitySecurity equitySecurity = new EquitySecurity();
-      equitySecurity.addIdentifier(new Identifier(IdentificationScheme.BLOOMBERG_TICKER, "TICKER" + String.valueOf(_random.nextInt())));
-      equitySecurity.addIdentifier(new Identifier(IdentificationScheme.BLOOMBERG_BUID, "BUID" + String.valueOf(_random.nextInt())));
-      equitySecurity.addIdentifier(new Identifier(IdentificationScheme.CUSIP, "CUSIP" + String.valueOf(_random.nextInt())));
-      equitySecurity.addIdentifier(new Identifier(IdentificationScheme.ISIN, "ISIN" + String.valueOf(_random.nextInt())));
-      equitySecurity.addIdentifier(new Identifier(IdentificationScheme.SEDOL1, "SEDOL1" + String.valueOf(_random.nextInt())));
+      equitySecurity.addIdentifier(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "TICKER" + String.valueOf(_random.nextInt())));
+      equitySecurity.addIdentifier(Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "BUID" + String.valueOf(_random.nextInt())));
+      equitySecurity.addIdentifier(Identifier.of(IdentificationScheme.CUSIP, "CUSIP" + String.valueOf(_random.nextInt())));
+      equitySecurity.addIdentifier(Identifier.of(IdentificationScheme.ISIN, "ISIN" + String.valueOf(_random.nextInt())));
+      equitySecurity.addIdentifier(Identifier.of(IdentificationScheme.SEDOL1, "SEDOL1" + String.valueOf(_random.nextInt())));
       equitySecurity.setCompanyName("CNAME" + String.valueOf(_random.nextInt()));
       equitySecurity.setTicker("TICKER" + String.valueOf(_random.nextInt()));
       equitySecurity.setExchange("EXCHN" + String.valueOf(_random.nextInt()));

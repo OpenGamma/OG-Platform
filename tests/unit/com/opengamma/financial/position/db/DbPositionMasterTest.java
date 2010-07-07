@@ -901,9 +901,9 @@ public class DbPositionMasterTest extends DBTest {
     base.getRootNode().addChildNode(node1);
     final PortfolioNodeImpl node2 = new PortfolioNodeImpl("Second");
     node1.addChildNode(node2);
-    final PositionImpl position1 = new PositionImpl(BigDecimal.TEN, new IdentifierBundle(Identifier.of("A", "1")));
+    final PositionImpl position1 = new PositionImpl(BigDecimal.TEN, IdentifierBundle.of(Identifier.of("A", "1")));
     node1.addPosition(position1);
-    final PositionImpl position2 = new PositionImpl(BigDecimal.TEN, new IdentifierBundle(Identifier.of("A", "2"), Identifier.of("A", "3")));
+    final PositionImpl position2 = new PositionImpl(BigDecimal.TEN, IdentifierBundle.of(Identifier.of("A", "2"), Identifier.of("A", "3")));
     node2.addPosition(position2);
     UniqueIdentifier baseUid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
     
@@ -1013,7 +1013,7 @@ public class DbPositionMasterTest extends DBTest {
     AddPositionRequest request = new AddPositionRequest();
     request.setParentNode(parentUid);
     request.setQuantity(BigDecimal.TEN);
-    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    request.setSecurityKey(IdentifierBundle.of(Identifier.of("TEST", "1")));
     UniqueIdentifier positionUid = _posMaster.addPosition(request);
     
     final PortfolioNode testOldParent = _posMaster.getPortfolioNode(parentUid);
@@ -1027,14 +1027,14 @@ public class DbPositionMasterTest extends DBTest {
     final ManagedPosition testPosition = _posMaster.getManagedPosition(positionUid);
     assertNotNull(testPosition);
     assertEquals(BigDecimal.TEN, testPosition.getQuantity());
-    assertEquals(new IdentifierBundle(Identifier.of("TEST", "1")), testPosition.getSecurityKey());
+    assertEquals(IdentifierBundle.of(Identifier.of("TEST", "1")), testPosition.getSecurityKey());
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void test_addPosition_noParent() {
     AddPositionRequest request = new AddPositionRequest();
     request.setQuantity(BigDecimal.TEN);
-    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    request.setSecurityKey(IdentifierBundle.of(Identifier.of("TEST", "1")));
     _posMaster.addPosition(request);
   }
 
@@ -1042,7 +1042,7 @@ public class DbPositionMasterTest extends DBTest {
   public void test_addPosition_noQuantity() {
     AddPositionRequest request = new AddPositionRequest();
     request.setParentNode(UniqueIdentifier.of("DbPos", "N1-1", "1"));
-    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    request.setSecurityKey(IdentifierBundle.of(Identifier.of("TEST", "1")));
     _posMaster.addPosition(request);
   }
 
@@ -1061,7 +1061,7 @@ public class DbPositionMasterTest extends DBTest {
     AddPositionRequest request = new AddPositionRequest();
     request.setParentNode(UniqueIdentifier.of(uid.getScheme(), "N1-1", "0"));  // version 0
     request.setQuantity(BigDecimal.TEN);
-    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    request.setSecurityKey(IdentifierBundle.of(Identifier.of("TEST", "1")));
     _posMaster.addPosition(request);
   }
 
@@ -1073,7 +1073,7 @@ public class DbPositionMasterTest extends DBTest {
     AddPositionRequest request = new AddPositionRequest();
     request.setParentNode(UniqueIdentifier.of(uid.getScheme(), "N123456-123456", "1"));  // invalid id
     request.setQuantity(BigDecimal.TEN);
-    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    request.setSecurityKey(IdentifierBundle.of(Identifier.of("TEST", "1")));
     _posMaster.addPosition(request);
   }
 
@@ -1088,7 +1088,7 @@ public class DbPositionMasterTest extends DBTest {
     UpdatePositionRequest request = new UpdatePositionRequest();
     request.setUniqueIdentifier(uid1);
     request.setQuantity(BigDecimal.TEN);
-    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    request.setSecurityKey(IdentifierBundle.of(Identifier.of("TEST", "1")));
     final UniqueIdentifier uid2 = _posMaster.updatePosition(request);
     
     final ManagedPosition testOld = _posMaster.getManagedPosition(uid1);
@@ -1100,7 +1100,7 @@ public class DbPositionMasterTest extends DBTest {
     assertNotNull(testPosition);
     assertNotNull(testPosition);
     assertEquals(BigDecimal.TEN, testPosition.getQuantity());
-    assertEquals(new IdentifierBundle(Identifier.of("TEST", "1")), testPosition.getSecurityKey());
+    assertEquals(IdentifierBundle.of(Identifier.of("TEST", "1")), testPosition.getSecurityKey());
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -1110,7 +1110,7 @@ public class DbPositionMasterTest extends DBTest {
     final UpdatePositionRequest request = new UpdatePositionRequest();
     request.setUniqueIdentifier(uid.toLatest());  // latest
     request.setQuantity(BigDecimal.TEN);
-    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    request.setSecurityKey(IdentifierBundle.of(Identifier.of("TEST", "1")));
     _posMaster.updatePosition(request);
   }
 
@@ -1120,7 +1120,7 @@ public class DbPositionMasterTest extends DBTest {
     _posMaster.addPortfolio(new AddPortfolioRequest(base));
     final UpdatePositionRequest request = new UpdatePositionRequest();
     request.setQuantity(BigDecimal.TEN);
-    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    request.setSecurityKey(IdentifierBundle.of(Identifier.of("TEST", "1")));
     _posMaster.updatePosition(request);
   }
 
@@ -1130,7 +1130,7 @@ public class DbPositionMasterTest extends DBTest {
     _posMaster.addPortfolio(new AddPortfolioRequest(base));
     final UpdatePositionRequest request = new UpdatePositionRequest();
     request.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "P1-1", "1"));
-    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    request.setSecurityKey(IdentifierBundle.of(Identifier.of("TEST", "1")));
     _posMaster.updatePosition(request);
   }
 
@@ -1151,7 +1151,7 @@ public class DbPositionMasterTest extends DBTest {
     final UpdatePositionRequest request = new UpdatePositionRequest();
     request.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "N1-1", "1"));
     request.setQuantity(BigDecimal.TEN);
-    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    request.setSecurityKey(IdentifierBundle.of(Identifier.of("TEST", "1")));
     _posMaster.updatePosition(request);
   }
 
@@ -1162,7 +1162,7 @@ public class DbPositionMasterTest extends DBTest {
     final UpdatePositionRequest request = new UpdatePositionRequest();
     request.setUniqueIdentifier(UniqueIdentifier.of(uid.getScheme(), "P1-1", "0"));  // version 0
     request.setQuantity(BigDecimal.TEN);
-    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    request.setSecurityKey(IdentifierBundle.of(Identifier.of("TEST", "1")));
     _posMaster.updatePosition(request);
   }
 
@@ -1174,7 +1174,7 @@ public class DbPositionMasterTest extends DBTest {
     final UpdatePositionRequest request = new UpdatePositionRequest();
     request.setUniqueIdentifier(UniqueIdentifier.of(uid.getScheme(), "P123456-123456", "1"));  // invalid id
     request.setQuantity(BigDecimal.TEN);
-    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    request.setSecurityKey(IdentifierBundle.of(Identifier.of("TEST", "1")));
     _posMaster.updatePosition(request);
   }
 
@@ -1320,7 +1320,7 @@ public class DbPositionMasterTest extends DBTest {
     node.addPosition(new PositionImpl(new BigDecimal(12), Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "T US 05/22/10 C22 Equity")));
     node.addPosition(new PositionImpl(new BigDecimal(14), Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "T US 05/22/10 C23 Equity")));
     node.addPosition(new PositionImpl(new BigDecimal(16), Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "T US 05/22/10 C24 Equity")));
-    IdentifierBundle bundle = new IdentifierBundle(
+    IdentifierBundle bundle = IdentifierBundle.of(
         Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "T US 05/22/10 C25 Equity"),
         Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "3456789"));
     PositionImpl position = new PositionImpl(new BigDecimal(18), bundle);
