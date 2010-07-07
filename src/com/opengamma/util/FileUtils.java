@@ -5,6 +5,8 @@
  */
 package com.opengamma.util;
 
+import java.io.File;
+
 /**
  * Collection of file utils
  * REVIEW: jim 7-July-2009 - there's almost certainly something that I can do this, this shouldn't be in here long term anyway. 
@@ -15,7 +17,7 @@ public class FileUtils {
     if (System.getProperty("os.name").contains("Windows")) {
       return "O:";
     } else {
-      return "";
+      return File.separator + "ogdev";
     }
   }
 }
