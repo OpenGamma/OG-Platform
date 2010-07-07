@@ -2,9 +2,6 @@
 -- Static data
 -------------------------------------
 
-create sequence hibernate_sequence start 1 increment 1;
-
-
 create table rsk_observation_time (
     id int not null,
     label varchar(255) not null,                -- LDN_CLOSE
