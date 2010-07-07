@@ -52,8 +52,8 @@ import com.opengamma.util.monitor.OperationTimer;
 public class MultiInstrumentDoubleCurveBootstrapTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveBootStrapTest.class);
-  private static final int HOTSPOT_WARMUP_CYCLES = 100;
-  private static final int BENCHMARK_CYCLES = 1000;
+  private static final int HOTSPOT_WARMUP_CYCLES = 0;
+  private static final int BENCHMARK_CYCLES = 1;
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
 
   private static final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> CUBIC = new NaturalCubicSplineInterpolator1D();
@@ -105,16 +105,16 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
 
     INSTRUMENTS = new ArrayList<InterestRateDerivative>();
 
-    double[] liborMaturities = new double[] {1. / 12., 2. / 12., 3. / 12.};// note using 1m and 2m LIBOR tenors for what should be the 3m-libor curve is probably wrong
-    double[] fraMaturities = new double[] {0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0};
-    double[] cashMaturities = new double[] {1 / 365.25, 7 / 365.25, 1.1 / 12.0, 3.1 / 12., 6 / 12., 1.0};
-    int[] swapSemiannualGrid = new int[] {4, 6, 8, 10, 12, 14, 16, 18, 20, 30, 40, 50, 60};
+    final double[] liborMaturities = new double[] {1. / 12., 2. / 12., 3. / 12.};// note using 1m and 2m LIBOR tenors for what should be the 3m-libor curve is probably wrong
+    final double[] fraMaturities = new double[] {0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0};
+    final double[] cashMaturities = new double[] {1 / 365.25, 7 / 365.25, 1.1 / 12.0, 3.1 / 12., 6 / 12., 1.0};
+    final int[] swapSemiannualGrid = new int[] {4, 6, 8, 10, 12, 14, 16, 18, 20, 30, 40, 50, 60};
 
-    double[] remainingFwdNodes = new double[] {3.0, 5.0, 7.0, 10.0, 20.0, 30.01};
-    double[] remainingFundNodes = new double[] {2.0, 3.0, 5.0, 7.0, 10.0, 20.0, 30.01};
+    final double[] remainingFwdNodes = new double[] {3.0, 5.0, 7.0, 10.0, 20.0, 30.01};
+    final double[] remainingFundNodes = new double[] {2.0, 3.0, 5.0, 7.0, 10.0, 20.0, 30.01};
 
-    int nFwdNodes = liborMaturities.length + fraMaturities.length + remainingFwdNodes.length;
-    int nFundNodes = cashMaturities.length + remainingFundNodes.length;
+    final int nFwdNodes = liborMaturities.length + fraMaturities.length + remainingFwdNodes.length;
+    final int nFundNodes = cashMaturities.length + remainingFundNodes.length;
 
     FWD_NODE_TIMES = new double[nFwdNodes];
     FUND_NODE_TIMES = new double[nFundNodes];
@@ -124,38 +124,38 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
 
     InterestRateDerivative ird;
 
-    for (double t : liborMaturities) {
+    for (final double t : liborMaturities) {
       ird = new Libor(t);
       INSTRUMENTS.add(ird);
       FWD_NODE_TIMES[fwdIndex++] = t;
     }
-    for (double t : fraMaturities) {
+    for (final double t : fraMaturities) {
       ird = new ForwardRateAgreement(t - 0.25, t);
       INSTRUMENTS.add(ird);
       FWD_NODE_TIMES[fwdIndex++] = t;
     }
 
-    for (double t : cashMaturities) {
+    for (final double t : cashMaturities) {
       ird = new Cash(t);
       INSTRUMENTS.add(ird);
       FUND_NODE_TIMES[fundIndex++] = t;
     }
 
-    for (int element : swapSemiannualGrid) {
-      Swap swap = setupSwap(element);
+    for (final int element : swapSemiannualGrid) {
+      final Swap swap = setupSwap(element);
       INSTRUMENTS.add(swap);
-      double t = swap.getFloatingPaymentTimes()[swap.getNumberOfFloatingPayments() - 1] + Math.max(0.0, swap.getDeltaEnd()[swap.getNumberOfFloatingPayments() - 1]);
+      final double t = swap.getFloatingPaymentTimes()[swap.getNumberOfFloatingPayments() - 1] + Math.max(0.0, swap.getDeltaEnd()[swap.getNumberOfFloatingPayments() - 1]);
     }
 
     if (INSTRUMENTS.size() != (nFwdNodes + nFundNodes)) {
       throw new IllegalArgumentException("number of instruments not equal to number of nodes");
     }
 
-    for (double t : remainingFwdNodes) {
+    for (final double t : remainingFwdNodes) {
       FWD_NODE_TIMES[fwdIndex++] = t;
     }
 
-    for (double t : remainingFundNodes) {
+    for (final double t : remainingFundNodes) {
       FUND_NODE_TIMES[fundIndex++] = t;
     }
 
@@ -165,8 +165,8 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
     final int n = INSTRUMENTS.size();
 
     // set up curves to obtain "market" prices
-    double[] fwdYields = new double[FWD_NODE_TIMES.length];
-    double[] fundYields = new double[FUND_NODE_TIMES.length];
+    final double[] fwdYields = new double[FWD_NODE_TIMES.length];
+    final double[] fundYields = new double[FUND_NODE_TIMES.length];
 
     for (int i = 0; i < FWD_NODE_TIMES.length; i++) {
       fwdYields[i] = DUMMY_FWD_CURVE.evaluate(FWD_NODE_TIMES[i]);
@@ -200,21 +200,21 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
   @Test
   public void testNewton() {
 
-    VectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN);
+    final VectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN);
     doHotSpot(rootFinder, "default Newton, double curve", DOUBLE_CURVE_FINDER);
 
   }
 
   @Test
   public void testBroyden() {
-    VectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN);
+    final VectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN);
 
     doHotSpot(rootFinder, "default Newton, double curve", DOUBLE_CURVE_FINDER);
   }
 
   @Test
   public void ShermanMorrison() {
-    VectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN);
+    final VectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN);
     doHotSpot(rootFinder, "default Newton, double curve", DOUBLE_CURVE_FINDER);
   }
 

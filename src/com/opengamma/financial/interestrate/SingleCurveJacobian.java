@@ -76,10 +76,10 @@ public class SingleCurveJacobian<T extends Interpolator1DDataBundle> implements 
         double temp = 0.0;
         k = 0;
         for (final Pair<Double, Double> timeAndDF : fwdSensitivity) {
-          temp += timeAndDF.getSecond() * sensitivity[k++][j + 1];
+          temp += timeAndDF.getSecond() * sensitivity[k++][j + 1]; //TODO change to j when we don't add t=0
         }
         for (final Pair<Double, Double> timeAndDF : fundSensitivity) {
-          temp += timeAndDF.getSecond() * sensitivity[k++][j + 1];
+          temp += timeAndDF.getSecond() * sensitivity[k++][j + 1]; //TODO change to j when we don't add t=0
         }
         res[i][j] = temp;
       }

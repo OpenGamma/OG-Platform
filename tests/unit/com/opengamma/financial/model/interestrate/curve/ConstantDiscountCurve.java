@@ -3,20 +3,24 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.swap;
+package com.opengamma.financial.model.interestrate.curve;
 
 import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
-class ConstantDiscountCurve extends YieldAndDiscountCurve {
+public class ConstantDiscountCurve extends YieldAndDiscountCurve {
   private final double _df;
 
   public ConstantDiscountCurve(final double df) {
+    if (!ArgumentChecker.isInRangeExcludingLow(0, 1, df)) {
+      throw new IllegalArgumentException("Discount factor must be < 0 and >= 1");
+    }
     _df = df;
   }
 

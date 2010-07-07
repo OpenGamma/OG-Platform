@@ -77,6 +77,21 @@ public class SingleCurveFinderTest {
     new SingleCurveFinder(DERIVATIVES, MARKET_RATES, SPOT_RATE, new double[0], INTERPOLATOR);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testMismatchingData() {
+    new SingleCurveFinder(DERIVATIVES, new double[] {1, 2}, SPOT_RATE, NODES, INTERPOLATOR);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullVector() {
+    FINDER.evaluate((DoubleMatrix1D) null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testMismatchingVector() {
+    FINDER.evaluate(new DoubleMatrix1D(new double[] {1, 2, 3, 4, 5, 6, 7, 8}));
+  }
+
   @Test
   public void test() {
     final DoubleMatrix1D results = FINDER.evaluate(new DoubleMatrix1D(MARKET_RATES));

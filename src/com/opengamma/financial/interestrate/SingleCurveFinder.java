@@ -31,9 +31,9 @@ public class SingleCurveFinder extends Function1D<DoubleMatrix1D, DoubleMatrix1D
   private final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> _interpolator;
   private final int _n;
   private final SwapRateCalculator _swapRateCalculator = new SwapRateCalculator();
+  private final int _m;
 
-  public SingleCurveFinder(final List<InterestRateDerivative> derivatives, final double[] marketRates,
-      final double spotRate, final double[] timeGrid,
+  public SingleCurveFinder(final List<InterestRateDerivative> derivatives, final double[] marketRates, final double spotRate, final double[] timeGrid,
       final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> interpolator) {
     Validate.notNull(derivatives);
     Validate.notNull(marketRates);
@@ -42,21 +42,28 @@ public class SingleCurveFinder extends Function1D<DoubleMatrix1D, DoubleMatrix1D
     Validate.notEmpty(derivatives);
     ArgumentChecker.notEmpty(marketRates, "market rates");
     ArgumentChecker.notEmpty(timeGrid, "time grid");
+    if (derivatives.size() != marketRates.length) {
+      throw new IllegalArgumentException("Must have same number of market rates as instruments");
+    }
     _derivatives = derivatives;
     _marketRates = marketRates;
     _spotRate = spotRate;
     _timeGrid = timeGrid;
     _interpolator = interpolator;
     _n = _derivatives.size();
+    _m = _timeGrid.length;
 
   }
 
   @Override
   public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
     Validate.notNull(x);
+    if (x.getNumberOfElements() != _m) {
+      throw new IllegalArgumentException("Length of x and number of nodes must be equal");
+    }
     final TreeMap<Double, Double> data = new TreeMap<Double, Double>();
     data.put(0.0, _spotRate);
-    for (int i = 0; i < _timeGrid.length; i++) {
+    for (int i = 0; i < _m; i++) {
       data.put(_timeGrid[i], x.getEntry(i));
     }
     final YieldAndDiscountCurve curve = new InterpolatedYieldCurve(data, _interpolator);
