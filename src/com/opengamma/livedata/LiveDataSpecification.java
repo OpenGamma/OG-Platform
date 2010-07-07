@@ -38,7 +38,7 @@ public class LiveDataSpecification {
   }
   
   public LiveDataSpecification(String normalizationRuleSetId, Identifier... identifiers) {
-    this(normalizationRuleSetId, new IdentifierBundle(identifiers));
+    this(normalizationRuleSetId, IdentifierBundle.of(identifiers));
   }
   
   public LiveDataSpecification(String normalizationRuleSetId, Collection<? extends Identifier> identifiers) {
@@ -46,7 +46,7 @@ public class LiveDataSpecification {
   }
   
   public LiveDataSpecification(String normalizationRuleSetId, Identifier identifier) {
-    this(normalizationRuleSetId, new IdentifierBundle(identifier));
+    this(normalizationRuleSetId, IdentifierBundle.of(identifier));
   }
   
   public LiveDataSpecification(String normalizationRuleSetId, IdentifierBundle domainSpecificIdentifiers) {

@@ -32,7 +32,7 @@ public class SubscriptionHandleTest {
     LiveDataSpecification requestedSpecification =
       new LiveDataSpecification(
           "NormalizationId1",
-          new Identifier("Domain1", "Value1"));
+          Identifier.of("Domain1", "Value1"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     SubscriptionHandle handle1 = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, requestedSpecification, listener);
     SubscriptionHandle handle2 = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, requestedSpecification,  listener);
@@ -44,7 +44,7 @@ public class SubscriptionHandleTest {
     LiveDataSpecification requestedSpecification =
       new LiveDataSpecification(
           "NormalizationId1",
-          new Identifier("Domain1", "Value1"));
+          Identifier.of("Domain1", "Value1"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     SubscriptionHandle handle1 = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, requestedSpecification, listener);
     SubscriptionHandle handle2 = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, requestedSpecification, listener);
@@ -56,7 +56,7 @@ public class SubscriptionHandleTest {
     LiveDataSpecification spec =
       new LiveDataSpecification(
           "NormalizationId1",
-          new Identifier("Domain1", "Value1"));
+          Identifier.of("Domain1", "Value1"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     SubscriptionHandle handle = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, spec, listener);
     
@@ -76,7 +76,7 @@ public class SubscriptionHandleTest {
     LiveDataSpecification spec =
       new LiveDataSpecification(
           "NormalizationId1",
-          new Identifier("Domain1", "Value1"));
+          Identifier.of("Domain1", "Value1"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     SubscriptionHandle handle = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, spec, listener);
     
@@ -98,7 +98,7 @@ public class SubscriptionHandleTest {
     LiveDataSpecification spec =
       new LiveDataSpecification(
           "NormalizationId1",
-          new Identifier("Domain1", "Value1"));
+          Identifier.of("Domain1", "Value1"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     SubscriptionHandle handle = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, spec, listener);
     

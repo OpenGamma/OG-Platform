@@ -27,11 +27,11 @@ public class CachingDistributionSpecificationResolverTest {
   @Test
   public void testCaching() {
     
-    Identifier id = new Identifier("foo", "bar");
+    Identifier id = Identifier.of("foo", "bar");
     
     LiveDataSpecification request = new LiveDataSpecification(
         "TestNormalization",
-        new Identifier("foo", "bar"));
+        Identifier.of("foo", "bar"));
     
     DistributionSpecification returnValue = new DistributionSpecification(
         id,

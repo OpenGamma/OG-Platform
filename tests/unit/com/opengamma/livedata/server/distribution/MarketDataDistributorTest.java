@@ -26,7 +26,7 @@ public class MarketDataDistributorTest {
   
   public static MarketDataDistributor getTestDistributor(MarketDataSenderFactory factory) {
     return new MarketDataDistributor(new DistributionSpecification(
-        new Identifier("RIC", "AAPL.O"),
+        Identifier.of("RIC", "AAPL.O"),
         StandardRules.getNoNormalization(),
         "LiveData.Bloomberg.Equity.AAPL"),
         new Subscription("", factory),
