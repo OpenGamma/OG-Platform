@@ -493,7 +493,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
       public Identifier mapRow(ResultSet rs, int rowNum) throws SQLException {
         String domain = rs.getString(NAME_COLUMN);
         String identifier = rs.getString(IDENTIFIER_COLUMN);
-        return new Identifier(domain, identifier);
+        return Identifier.of(domain, identifier);
       }
     }, parameterSource);  
     return new IdentifierBundle(queryResult);
