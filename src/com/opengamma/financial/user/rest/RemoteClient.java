@@ -8,11 +8,11 @@ package com.opengamma.financial.user.rest;
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.financial.livedata.rest.RemoteUserLiveData;
-import com.opengamma.financial.position.ManagablePositionMaster;
+import com.opengamma.financial.position.ManageablePositionMaster;
 import com.opengamma.financial.position.rest.RemoteManagablePositionMaster;
-import com.opengamma.financial.security.ManagableSecurityMaster;
+import com.opengamma.financial.security.ManageableSecurityMaster;
 import com.opengamma.financial.security.rest.RemoteManagableSecurityMaster;
-import com.opengamma.financial.view.ManagableViewDefinitionRepository;
+import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.rest.RemoteManagableViewDefinitionRepository;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.GUIDGenerator;
@@ -51,15 +51,15 @@ public class RemoteClient {
     return _clientId;
   }
   
-  public ManagablePositionMaster getPositionMaster() {
+  public ManageablePositionMaster getPositionMaster() {
     return new RemoteManagablePositionMaster(_fudgeContext, _positionMasterTarget);
   }
 
-  public ManagableSecurityMaster getSecurityMaster() {
+  public ManageableSecurityMaster getSecurityMaster() {
     return new RemoteManagableSecurityMaster(_fudgeContext, _securityMasterTarget);
   }
   
-  public ManagableViewDefinitionRepository getViewDefinitionRepository() {
+  public ManageableViewDefinitionRepository getViewDefinitionRepository() {
     return new RemoteManagableViewDefinitionRepository(_fudgeContext, _viewDefinitionRepositoryTarget);
   }
   

@@ -19,6 +19,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.financial.Region;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.id.Identifier;
@@ -74,7 +75,9 @@ public class FixedIncomeStrip implements Comparable<FixedIncomeStrip>, Serializa
     _endDate = _startDate.plus(period);
     _marketDataKey = marketDataKey;
     _instrumentType = instrumentType;
-    _dayCount = DayCountFactory.INSTANCE.getDayCount("NONE");
+    _dayCount = DayCountFactory.INSTANCE.getDayCount("30/360");
+    _businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified");
+    _regionISO = "US";
   }
 
   //-------------------------------------------------------------------------

@@ -27,7 +27,7 @@ import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.financial.position.AddPortfolioNodeRequest;
 import com.opengamma.financial.position.AddPortfolioRequest;
 import com.opengamma.financial.position.AddPositionRequest;
-import com.opengamma.financial.position.ManagablePositionMaster;
+import com.opengamma.financial.position.ManageablePositionMaster;
 import com.opengamma.financial.position.ManagedPortfolio;
 import com.opengamma.financial.position.ManagedPortfolioNode;
 import com.opengamma.financial.position.ManagedPosition;
@@ -49,7 +49,7 @@ import com.opengamma.util.ArgumentChecker;
  * A simple, in-memory implementation of {@code ManagablePositionMaster}. This implementation does not support
  * versioning or resurrection of portfolios.
  */
-public class InMemoryPositionMaster implements ManagablePositionMaster {
+public class InMemoryPositionMaster implements ManageablePositionMaster {
 
   /**
    * The default scheme used for any {@link UniqueIdentifier}s created by this {@link PositionMaster}.

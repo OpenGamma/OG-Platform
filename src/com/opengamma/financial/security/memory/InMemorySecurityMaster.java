@@ -18,9 +18,10 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.position.PositionMaster;
+import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.Security;
 import com.opengamma.financial.security.AddSecurityRequest;
-import com.opengamma.financial.security.ManagableSecurityMaster;
+import com.opengamma.financial.security.ManageableSecurityMaster;
 import com.opengamma.financial.security.UpdateSecurityRequest;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -32,7 +33,7 @@ import com.opengamma.util.ArgumentChecker;
  * A simple, in-memory implementation of {@code ManagableSecurityMaster}.
  * This implementation does not support versioning or resurrection of securities.
  */
-public class InMemorySecurityMaster implements ManagableSecurityMaster {
+public class InMemorySecurityMaster implements ManageableSecurityMaster {
 
   /**
    * The default scheme used for any {@link UniqueIdentifier}s created by this {@link PositionMaster}.
@@ -135,6 +136,11 @@ public class InMemorySecurityMaster implements ManagableSecurityMaster {
     request.checkValid();
     
     final UniqueIdentifier uid = getNextSecurityUid();
+    Security security = request.getSecurity();
+    if (security instanceof DefaultSecurity) {
+      DefaultSecurity defaultSecurity = (DefaultSecurity) security;
+      defaultSecurity.setUniqueIdentifier(uid);
+    }
     _securities.put(uid, request.getSecurity());
     return uid;
   }

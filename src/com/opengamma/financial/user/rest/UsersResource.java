@@ -14,6 +14,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
+import org.fudgemsg.FudgeContext;
+
 /**
  * Temporary RESTful resource which isn't backed by any user objects, just to host /users. Any user requested will
  * magically exist.
@@ -21,12 +23,17 @@ import javax.ws.rs.core.UriInfo;
 @Path("/users")
 public class UsersResource {
    
+  private final FudgeContext _fudgeContext;
   private final ConcurrentHashMap<String, UserResource> _userMap = new ConcurrentHashMap<String, UserResource>();
   /**
    * Information about the URI injected by JSR-311.
    */
   @Context
   private UriInfo _uriInfo;
+  
+  public UsersResource(FudgeContext fudgeContext) {
+    _fudgeContext = fudgeContext;
+  }
   
   /**
    * Gets the URI info.
@@ -38,7 +45,7 @@ public class UsersResource {
 
   @Path("{username}")
   public UserResource getUser(@PathParam("username") String username) {
-    UserResource freshUser = new UserResource(this, username);
+    UserResource freshUser = new UserResource(this, username, _fudgeContext);
     UserResource actualUser = _userMap.putIfAbsent(username, freshUser);
     if (actualUser == null) {
       actualUser = freshUser;

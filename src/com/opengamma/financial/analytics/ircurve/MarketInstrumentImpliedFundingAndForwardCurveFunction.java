@@ -43,13 +43,13 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.financial.interestrate.DoubleCurveFinder;
+import com.opengamma.financial.interestrate.DoubleCurveJacobian;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.libor.Libor;
-import com.opengamma.financial.interestrate.swap.DoubleCurveFinder;
-import com.opengamma.financial.interestrate.swap.DoubleCurveJacobian;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -144,7 +144,7 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
         throw new NullPointerException("Could not get market data for " + strip);
       }
       if (strip.getInstrumentType() == StripInstrument.FUTURE) {
-        rate = (rate - 100.) / 100.;
+        rate = (100. - rate) / 100.;
       }
       marketRates[i] = rate;
       fundingNodeTimes[i] = getLastTime(derivative);
@@ -152,7 +152,7 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     }
     final double[] forwardNodeTimes = new double[nForward];
     int j = 0;
-    for (final FixedIncomeStrip strip : fundingStrips) {
+    for (final FixedIncomeStrip strip : forwardStrips) {
       derivative = getInterestRateDerivative(strip, calendar, region, now, referenceFloatingRate);
       if (derivative == null) {
         throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
@@ -175,7 +175,7 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     }
     final DoubleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle> jacobianCalculator = new DoubleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(derivatives,
         spotRate, forwardNodeTimes, fundingNodeTimes, _forwardInterpolatorWithSensitivity, _fundingInterpolatorWithSensitivity);
-    final DoubleCurveFinder curveFinder = new DoubleCurveFinder(derivatives, marketRates, spotRate, forwardNodeTimes, forwardNodeTimes, null, null, _forwardInterpolator, _fundingInterpolator);
+    final DoubleCurveFinder curveFinder = new DoubleCurveFinder(derivatives, marketRates, spotRate, forwardNodeTimes, fundingNodeTimes, null, null, _forwardInterpolator, _fundingInterpolator);
     final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, jacobianCalculator, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
     final double[] yields = rootFinder.getRoot(curveFinder, new DoubleMatrix1D(initialRatesGuess)).getData();
     final double[] forwardYields = Arrays.copyOfRange(yields, 0, nForward);
@@ -359,7 +359,7 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
   }
 
   private double getLastCashTime(final Cash cash) {
-    return cash.getFixedPaymentTime();
+    return cash.getPaymentTime();
   }
 
   private double getLastLiborTime(final Libor libor) {

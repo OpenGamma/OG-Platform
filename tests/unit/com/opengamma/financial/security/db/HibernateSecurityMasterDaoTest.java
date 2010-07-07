@@ -932,11 +932,11 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     assertEquals(gicsCodeBean, persistedAAPLBean.getGICSCode());
     
     //add identifiers
-    Identifier aaplTicker = new Identifier(IdentificationScheme.BLOOMBERG_TICKER, "AAPL US Equity");
-    Identifier aaplBuid = new Identifier(IdentificationScheme.BLOOMBERG_BUID, "EQ0010169500001000");
-    Identifier cusip = new Identifier(IdentificationScheme.CUSIP, "037833100");
-    Identifier isin = new Identifier(IdentificationScheme.ISIN, "US0378331005");
-    Identifier sedol1 = new Identifier(IdentificationScheme.SEDOL1, "2046251");
+    Identifier aaplTicker = Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "AAPL US Equity");
+    Identifier aaplBuid = Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "EQ0010169500001000");
+    Identifier cusip = Identifier.of(IdentificationScheme.CUSIP, "037833100");
+    Identifier isin = Identifier.of(IdentificationScheme.ISIN, "US0378331005");
+    Identifier sedol1 = Identifier.of(IdentificationScheme.SEDOL1, "2046251");
     
     _hibernateSecurityMasterDao.associateOrUpdateIdentifierWithSecurity(now, aaplTicker, persistSecurityBean);
     _hibernateSecurityMasterDao.associateOrUpdateIdentifierWithSecurity(now, aaplBuid, persistSecurityBean);
@@ -945,14 +945,14 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     _hibernateSecurityMasterDao.associateOrUpdateIdentifierWithSecurity(now, sedol1, persistSecurityBean);
     
     //search using identifiers
-    IdentifierBundle aaplIdentifierBundle = new IdentifierBundle(aaplTicker, aaplBuid, cusip, isin, sedol1);
+    IdentifierBundle aaplIdentifierBundle = IdentifierBundle.of(aaplTicker, aaplBuid, cusip, isin, sedol1);
     SecurityBean securityBean = _hibernateSecurityMasterDao.getSecurityBean(now, aaplIdentifierBundle);
     assertNotNull(securityBean);
     assertEquals(persistedAAPLBean, securityBean);
     //search using individual identifier
     Set<Identifier> identifiers = aaplIdentifierBundle.getIdentifiers();
     for (Identifier identifier : identifiers) {
-      SecurityBean securityBeanByIdentifier = _hibernateSecurityMasterDao.getSecurityBean(now, new IdentifierBundle(identifier));
+      SecurityBean securityBeanByIdentifier = _hibernateSecurityMasterDao.getSecurityBean(now, IdentifierBundle.of(identifier));
       assertNotNull(securityBeanByIdentifier);
       assertEquals(persistedAAPLBean, securityBeanByIdentifier);
     }

@@ -41,27 +41,27 @@ public class InMemoryHolidayAndExchangeRespositoriesTest {
     Set<Region> usMatches = regionRepo.getHierarchyNodes(null, REGION_HIERARCHY, InMemoryRegionRepository.ISO_COUNTRY_2, "FR");
     Assert.assertEquals(1, usMatches.size());
     Region us = usMatches.iterator().next();
-    Identifier euronextLiffeMIC = new Identifier(ExchangeRepository.ISO_MIC, "XLIF");
-    Identifier euronextLiffeCCID = new Identifier(ExchangeRepository.COPP_CLARK_CENTER_ID, "979");
-    Identifier euronextLiffeCCName = new Identifier(ExchangeRepository.COPP_CLARK_NAME, "Euronext LIFFE (UK contracts)");
-    Identifier euronextLiffeExtra = new Identifier("TEST_SCHEME", "EURONEXT LIFFE");
+    Identifier euronextLiffeMIC = Identifier.of(ExchangeRepository.ISO_MIC, "XLIF");
+    Identifier euronextLiffeCCID = Identifier.of(ExchangeRepository.COPP_CLARK_CENTER_ID, "979");
+    Identifier euronextLiffeCCName = Identifier.of(ExchangeRepository.COPP_CLARK_NAME, "Euronext LIFFE (UK contracts)");
+    Identifier euronextLiffeExtra = Identifier.of("TEST_SCHEME", "EURONEXT LIFFE");
     IdentifierBundle euronextLiffeIDs = new IdentifierBundle(Arrays.asList(new Identifier[] { euronextLiffeMIC, euronextLiffeCCID, euronextLiffeCCName }));
     IdentifierBundle euronextLiffeIDsWithExtra = new IdentifierBundle(Arrays.asList(new Identifier[] { euronextLiffeExtra, euronextLiffeMIC, euronextLiffeCCName }));
     
-    Identifier gemmaMIC = new Identifier(ExchangeRepository.ISO_MIC, "GEMX");
-    Identifier gemmaCCID = new Identifier(ExchangeRepository.COPP_CLARK_CENTER_ID, "1063");
-    Identifier gemmaCCName = new Identifier(ExchangeRepository.COPP_CLARK_CENTER_ID, "GEMMA Gilt Edged Market Makers Association");
+    Identifier gemmaMIC = Identifier.of(ExchangeRepository.ISO_MIC, "GEMX");
+    Identifier gemmaCCID = Identifier.of(ExchangeRepository.COPP_CLARK_CENTER_ID, "1063");
+    Identifier gemmaCCName = Identifier.of(ExchangeRepository.COPP_CLARK_CENTER_ID, "GEMMA Gilt Edged Market Makers Association");
     IdentifierBundle gemmaIDs = new IdentifierBundle(Arrays.asList(new Identifier[] { gemmaMIC, gemmaCCID, gemmaCCName }));
     
-    Identifier americanStockExchangeMIC = new Identifier(ExchangeRepository.ISO_MIC, "XASE");
-    Identifier americanStockExchangeCCID = new Identifier(ExchangeRepository.COPP_CLARK_CENTER_ID, "784");
-    Identifier americanStockExchangeCCName = new Identifier(ExchangeRepository.COPP_CLARK_NAME, "American Stock Exchange");
+    Identifier americanStockExchangeMIC = Identifier.of(ExchangeRepository.ISO_MIC, "XASE");
+    Identifier americanStockExchangeCCID = Identifier.of(ExchangeRepository.COPP_CLARK_CENTER_ID, "784");
+    Identifier americanStockExchangeCCName = Identifier.of(ExchangeRepository.COPP_CLARK_NAME, "American Stock Exchange");
     IdentifierBundle americanStockExchangeIDs = new IdentifierBundle(
         Arrays.asList(new Identifier[] { americanStockExchangeMIC, americanStockExchangeCCID, americanStockExchangeCCName }));
     
-    Identifier batsMIC = new Identifier(ExchangeRepository.ISO_MIC, "BATO");
-    Identifier batsCCID = new Identifier(ExchangeRepository.COPP_CLARK_CENTER_ID, "1331");
-    Identifier batsCCName = new Identifier(ExchangeRepository.COPP_CLARK_NAME, "BATS Exchange Options Market");
+    Identifier batsMIC = Identifier.of(ExchangeRepository.ISO_MIC, "BATO");
+    Identifier batsCCID = Identifier.of(ExchangeRepository.COPP_CLARK_CENTER_ID, "1331");
+    Identifier batsCCName = Identifier.of(ExchangeRepository.COPP_CLARK_NAME, "BATS Exchange Options Market");
     IdentifierBundle batsIDs = new IdentifierBundle(Arrays.asList(new Identifier[] { batsMIC, batsCCID, batsCCName }));
     
     IdentifierBundle notRightIDs = new IdentifierBundle(Arrays.asList(new Identifier[] { batsMIC, gemmaMIC, euronextLiffeCCName }));

@@ -19,7 +19,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.security.Security;
 import com.opengamma.financial.security.AddSecurityRequest;
-import com.opengamma.financial.security.ManagableSecurityMaster;
+import com.opengamma.financial.security.ManageableSecurityMaster;
 import com.opengamma.financial.security.UpdateSecurityRequest;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -27,9 +27,9 @@ import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
 
 /**
- * Provides access to a remote {@link ManagableSecurityMaster}.
+ * Provides access to a remote {@link ManageableSecurityMaster}.
  */
-public class RemoteManagableSecurityMaster implements ManagableSecurityMaster {
+public class RemoteManagableSecurityMaster implements ManageableSecurityMaster {
 
   private final FudgeContext _fudgeContext;
   private final RestTarget _baseTarget;

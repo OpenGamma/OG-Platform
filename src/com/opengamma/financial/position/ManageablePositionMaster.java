@@ -21,7 +21,7 @@ import com.opengamma.id.UniqueIdentifier;
  * holding them in a tree structure portfolio. This interface provides methods
  * that allow the master to be searched and updated.
  */
-public interface ManagablePositionMaster extends PositionMaster {
+public interface ManageablePositionMaster extends PositionMaster {
 
   /**
    * Checks if this position master manages the unique identifier.

@@ -99,7 +99,7 @@ public class EquitySecurity extends FinancialSecurity {
   public EquitySecurity(String scheme, String value) {
     // TODO: consider removal
     this();
-    addIdentifier(new Identifier(scheme, value));
+    addIdentifier(Identifier.of(scheme, value));
   }
 
   //-------------------------------------------------------------------------

@@ -11,7 +11,7 @@ import com.opengamma.engine.view.ViewDefinitionRepository;
 /**
  * A view definition repository that can be managed. 
  */
-public interface ManagableViewDefinitionRepository extends ViewDefinitionRepository {
+public interface ManageableViewDefinitionRepository extends ViewDefinitionRepository {
 
   /**
    * Checks whether this view definition repository allows modification of the underlying data source.

@@ -21,7 +21,7 @@ import com.opengamma.engine.position.Position;
 import com.opengamma.financial.position.AddPortfolioNodeRequest;
 import com.opengamma.financial.position.AddPortfolioRequest;
 import com.opengamma.financial.position.AddPositionRequest;
-import com.opengamma.financial.position.ManagablePositionMaster;
+import com.opengamma.financial.position.ManageablePositionMaster;
 import com.opengamma.financial.position.ManagedPortfolio;
 import com.opengamma.financial.position.ManagedPortfolioNode;
 import com.opengamma.financial.position.ManagedPosition;
@@ -37,9 +37,9 @@ import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
 
 /**
- * Provides access to a remote {@link ManagablePositionMaster}.
+ * Provides access to a remote {@link ManageablePositionMaster}.
  */
-public class RemoteManagablePositionMaster implements ManagablePositionMaster {
+public class RemoteManagablePositionMaster implements ManageablePositionMaster {
 
   private final FudgeContext _fudgeContext;
   private final RestTarget _baseTarget;

@@ -8,17 +8,19 @@ package com.opengamma.financial.user.rest;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.UriInfo;
 
+import org.fudgemsg.FudgeContext;
+
 import com.opengamma.financial.livedata.rest.LiveDataResource;
 import com.opengamma.financial.livedata.user.InMemoryUserSnapshotProvider;
-import com.opengamma.financial.position.ManagablePositionMaster;
+import com.opengamma.financial.position.ManageablePositionMaster;
 import com.opengamma.financial.position.memory.InMemoryPositionMaster;
 import com.opengamma.financial.position.rest.PortfoliosResource;
-import com.opengamma.financial.security.ManagableSecurityMaster;
+import com.opengamma.financial.security.ManageableSecurityMaster;
 import com.opengamma.financial.security.memory.InMemorySecurityMaster;
 import com.opengamma.financial.security.rest.SecuritiesResource;
 import com.opengamma.financial.user.UserResourceDetails;
 import com.opengamma.financial.user.UserUniqueIdentifierUtils;
-import com.opengamma.financial.view.ManagableViewDefinitionRepository;
+import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository;
 import com.opengamma.financial.view.rest.ViewDefinitionsResource;
 import com.opengamma.id.UniqueIdentifierTemplate;
@@ -48,18 +50,20 @@ public class ClientResource {
   public static final String LIVEDATA_PATH = "livedata";
   
   private final ClientsResource _clientsResource;
-  private final ManagablePositionMaster _positionMaster;
-  private final ManagableSecurityMaster _securityMaster;
-  private final ManagableViewDefinitionRepository _viewDefinitionRepository;
+  private final ManageablePositionMaster _positionMaster;
+  private final ManageableSecurityMaster _securityMaster;
+  private final ManageableViewDefinitionRepository _viewDefinitionRepository;
   private final InMemoryUserSnapshotProvider _liveData;
+  private final FudgeContext _fudgeContext;
   
-  public ClientResource(ClientsResource clientsResource, String clientName) {
+  public ClientResource(ClientsResource clientsResource, String clientName, FudgeContext fudgeContext) {
     _clientsResource = clientsResource;
     final String username = clientsResource.getUserResource().getUserName();
     _positionMaster = new InMemoryPositionMaster(getTemplate(username, clientName, PORTFOLIOS_PATH));
     _securityMaster = new InMemorySecurityMaster(getTemplate(username, clientName, SECURITIES_PATH));
     _liveData = new InMemoryUserSnapshotProvider(getTemplate(username, clientName, LIVEDATA_PATH));
     _viewDefinitionRepository = new InMemoryViewDefinitionRepository();
+    _fudgeContext = fudgeContext;
   }
 
   private UniqueIdentifierTemplate getTemplate(final String username, final String clientName, final String resourceType) {
@@ -86,7 +90,7 @@ public class ClientResource {
   
   @Path(SECURITIES_PATH)
   public SecuritiesResource getSecurities() {
-    return new SecuritiesResource(_securityMaster);
+    return new SecuritiesResource(_securityMaster, _fudgeContext);
   }
   
   @Path(VIEW_DEFINITIONS_PATH)

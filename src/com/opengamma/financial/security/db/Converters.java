@@ -51,7 +51,7 @@ import com.opengamma.util.time.ExpiryAccuracy;
     if (identifierBean == null) {
       return null;
     }
-    return new Identifier(identifierBean.getScheme(), identifierBean.getIdentifier());
+    return Identifier.of(identifierBean.getScheme(), identifierBean.getIdentifier());
   }
   
   protected static IdentifierBean identifierToIdentifierBean(final Identifier identifier) {

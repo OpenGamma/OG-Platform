@@ -22,7 +22,7 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
-import com.opengamma.financial.position.ManagablePositionMaster;
+import com.opengamma.financial.position.ManageablePositionMaster;
 import com.opengamma.financial.position.ManagedPosition;
 import com.opengamma.financial.position.UpdatePositionRequest;
 import com.opengamma.id.Identifier;
@@ -88,7 +88,7 @@ public class PositionResource {
    * Gets the position master.
    * @return the position master, not null
    */
-  public ManagablePositionMaster getPositionMaster() {
+  public ManageablePositionMaster getPositionMaster() {
     return getPositionsResource().getPositionMaster();
   }
 

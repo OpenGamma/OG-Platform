@@ -19,7 +19,7 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * An in-memory, statically initialized repository of reference rates and their meta-data
  */
-public class InMemoryReferenceRateRepository implements ManagableReferenceRateRepository {
+public class InMemoryReferenceRateRepository implements ManageableReferenceRateRepository {
   /**
    * IdentificationScheme to use when specifying rates with simple descriptions e.g. 'LIBOR O/N', 'LIBOR 1w' etc.
    */

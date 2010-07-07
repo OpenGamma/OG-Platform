@@ -23,7 +23,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.opengamma.financial.position.AddPortfolioNodeRequest;
 import com.opengamma.financial.position.AddPositionRequest;
-import com.opengamma.financial.position.ManagablePositionMaster;
+import com.opengamma.financial.position.ManageablePositionMaster;
 import com.opengamma.financial.position.ManagedPortfolioNode;
 import com.opengamma.financial.position.PortfolioNodeSummary;
 import com.opengamma.financial.position.PositionSummary;
@@ -91,7 +91,7 @@ public class PortfolioNodeResource {
    * Gets the position master.
    * @return the position master, not null
    */
-  public ManagablePositionMaster getPositionMaster() {
+  public ManageablePositionMaster getPositionMaster() {
     return getPortfolioNodesResource().getPositionMaster();
   }
 
