@@ -23,6 +23,8 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.junit.Test;
 
+import com.google.common.collect.Sets;
+
 /**
  * Test IdentifierBundle.
  */
@@ -38,23 +40,109 @@ public class IdentifierBundleTest {
     assertEquals(0, IdentifierBundle.EMPTY.size());
   }
 
+  //-------------------------------------------------------------------------
   @Test
-  public void noIdentifiers() {
-    IdentifierBundle dsi1 = new IdentifierBundle();
-    IdentifierBundle dsi2 = new IdentifierBundle();
-    
-    assertTrue(dsi1.equals(dsi1));
-    assertTrue(dsi1.equals(dsi2));
+  public void factory_of_varargs_noIdentifiers() {
+    IdentifierBundle test = IdentifierBundle.of();
+    assertEquals(0, test.size());
   }
 
   @Test
-  public void singleIdentifier() {
-    assertTrue(new IdentifierBundle(_id11).equals(new IdentifierBundle(_id11)));
-    assertFalse(new IdentifierBundle(_id11).equals(new IdentifierBundle(_id21)));
-    assertFalse(new IdentifierBundle(_id11).equals(new IdentifierBundle(_id12)));
-    assertFalse(new IdentifierBundle(_id11).equals(new IdentifierBundle(_id22)));
+  public void factory_of_varargs_oneIdentifier() {
+    IdentifierBundle test = IdentifierBundle.of(_id11);
+    assertEquals(1, test.size());
+    assertEquals(Sets.newHashSet(_id11), test.getIdentifiers());
   }
 
+  @Test
+  public void factory_of_varargs_twoIdentifiers() {
+    IdentifierBundle test = IdentifierBundle.of(_id11, _id12);
+    assertEquals(2, test.size());
+    assertEquals(Sets.newHashSet(_id11, _id12), test.getIdentifiers());
+  }
+
+  @Test(expected=NullPointerException.class)
+  public void factory_of_varargs_null() {
+    IdentifierBundle.of((Identifier[]) null);
+  }
+
+  @Test(expected=NullPointerException.class)
+  public void factory_of_varargs_noNulls() {
+    IdentifierBundle.of(_id11, null, _id12);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void constructor_noargs() {
+    IdentifierBundle test = new IdentifierBundle();
+    assertEquals(0, test.size());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void constructor_Identifier() {
+    IdentifierBundle test = new IdentifierBundle(_id11);
+    assertEquals(1, test.size());
+    assertEquals(Sets.newHashSet(_id11), test.getIdentifiers());
+  }
+
+  @Test
+  public void constructor_Identifier_null() {
+    IdentifierBundle test = new IdentifierBundle((Identifier) null);
+    assertEquals(0, test.size());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void constructor_varargs_empty() {
+    IdentifierBundle test = new IdentifierBundle(new Identifier[0]);
+    assertEquals(0, test.size());
+  }
+
+  @Test
+  public void constructor_varargs_two() {
+    IdentifierBundle test = new IdentifierBundle(_id11, _id12);
+    assertEquals(2, test.size());
+    assertEquals(Sets.newHashSet(_id11, _id12), test.getIdentifiers());
+  }
+
+  @Test
+  public void constructor_varargs_null() {
+    IdentifierBundle test = new IdentifierBundle((Identifier[]) null);
+    assertEquals(0, test.size());
+  }
+
+  @Test(expected=NullPointerException.class)
+  public void constructor_varargs_noNulls() {
+    new IdentifierBundle(_id11, null, _id12);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void constructor_Collection_empty() {
+    IdentifierBundle test = new IdentifierBundle(new ArrayList<Identifier>());
+    assertEquals(0, test.size());
+  }
+
+  @Test
+  public void constructor_Collection_two() {
+    IdentifierBundle test = new IdentifierBundle(Arrays.asList(_id11, _id12));
+    assertEquals(2, test.size());
+    assertEquals(Sets.newHashSet(_id11, _id12), test.getIdentifiers());
+  }
+
+  @Test
+  public void constructor_Collection_null() {
+    IdentifierBundle test = new IdentifierBundle((Collection<Identifier>) null);
+    assertEquals(0, test.size());
+  }
+
+  @Test(expected=NullPointerException.class)
+  public void constructor_Collection_noNulls() {
+    new IdentifierBundle(Arrays.asList(_id11, null, _id12));
+  }
+
+  //-------------------------------------------------------------------------
   @Test
   public void singleIdentifierDifferentConstructors() {
     assertTrue(new IdentifierBundle(_id11).equals(new IdentifierBundle(Collections.singleton(_id11))));
@@ -66,39 +154,7 @@ public class IdentifierBundleTest {
     assertFalse(new IdentifierBundle(_id11, _id12).equals(new IdentifierBundle(_id11)));
   }
 
-  @Test
-  public void multipleIdentifier() {
-    assertTrue(new IdentifierBundle(_id11, _id12).equals(new IdentifierBundle(_id11, _id12)));
-    assertFalse(new IdentifierBundle(_id11, _id22).equals(new IdentifierBundle(_id11, _id12)));
-    assertFalse(new IdentifierBundle(_id21, _id22).equals(new IdentifierBundle(_id11, _id12)));
-  }
-
-  @Test(expected=NullPointerException.class)
-  public void multipleIdentifier_noNulls() {
-    new IdentifierBundle(_id11, null, _id12);
-  }
-
-  @Test
-  public void nullIdentifierConstructor() {
-    IdentifierBundle bundle = new IdentifierBundle((Identifier)null);
-    assertNotNull(bundle.getIdentifiers());
-    assertTrue(bundle.getIdentifiers().isEmpty());
-  }
-
-  @Test
-  public void emptyIdentifierArrayConstructor() {
-    IdentifierBundle bundle = new IdentifierBundle(new Identifier[0]);
-    assertNotNull(bundle.getIdentifiers());
-    assertTrue(bundle.getIdentifiers().isEmpty());
-  }
-
-  @Test
-  public void nullIdentifierCollectionConstructor() {
-    IdentifierBundle bundle = new IdentifierBundle((Collection<Identifier>) null);
-    assertNotNull(bundle.getIdentifiers());
-    assertTrue(bundle.getIdentifiers().isEmpty());
-  }
-  
+  //-------------------------------------------------------------------------
   @Test
   public void mapForm() {
     IdentifierBundle input = new IdentifierBundle(_id11, _id22);

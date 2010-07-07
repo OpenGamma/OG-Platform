@@ -90,7 +90,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
 
   /**
    * Creates a bundle from a collection of identifiers.
-   * @param identifiers  the collection of identifiers, null returns an empty bundle
+   * @param identifiers  the collection of identifiers, null returns an empty bundle, no nulls in array
    */
   public IdentifierBundle(Collection<? extends Identifier> identifiers) {
     if (identifiers == null) {
@@ -103,10 +103,12 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   }
 
   /**
-   * Creates a bundle from a collection of identifiers.  Added for consistency with Identifier
-   * @param identifiers  the collection of identifiers, null returns an empty bundle
+   * Creates a bundle from a collection of identifiers.
+   * @param identifiers  the collection of identifiers, not null, no nulls in array
+   * @return the identifier bundle, not null
    */
   public static IdentifierBundle of(Identifier... identifiers) {
+    ArgumentChecker.notNull(identifiers, "identifiers");
     return new IdentifierBundle(identifiers);
   }
 
