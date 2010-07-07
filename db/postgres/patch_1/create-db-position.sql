@@ -1,12 +1,3 @@
-
--- upgrade-db-position.sql: Position Master
-
-drop table pos_securitykey;
-drop table pos_position;
-drop table pos_nodetree;
-drop table pos_node;
-drop table pos_portfolio;
-
 create table pos_portfolio (
     oid bigint not null,
     version bigint not null,
