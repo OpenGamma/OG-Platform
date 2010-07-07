@@ -36,8 +36,7 @@ import com.opengamma.util.NamedThreadPoolFactory;
 /**
  * 
  */
-@Ignore
-public class ViewTest {
+public class ViewTestUtils {
   
   public static View getMockView() {
     UniqueIdentifier portfolioId = UniqueIdentifier.of("foo", "bar");
@@ -60,7 +59,7 @@ public class ViewTest {
     CalculationNodeRequestReceiver calcRequestReceiver = new CalculationNodeRequestReceiver(cacheFactory, functionRepo, executionContext, targetResolver, viewProcessorQuerySender);
     JobRequestSender calcRequestSender = new FudgeJobRequestSender(InMemoryRequestConduit.create(calcRequestReceiver));
     
-    ThreadFactory threadFactory = new NamedThreadPoolFactory("ViewTest-" + System.currentTimeMillis(), true);
+    ThreadFactory threadFactory = new NamedThreadPoolFactory("ViewTestUtils-" + System.currentTimeMillis(), true);
     ThreadPoolExecutor executor = new ThreadPoolExecutor(0, 1, 5l, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), threadFactory);
     
     ViewProcessingContext vpc = new ViewProcessingContext(
