@@ -202,6 +202,36 @@ public abstract class MongoConfigDocumentRepoTestcase<T extends Serializable> {
   }
   
   @Test
+  public void getByOid() throws Exception {
+    addRandomDocs();
+    
+    T doc = makeTestConfigDoc(1);
+    String name = "testName";
+    ConfigurationDocument<T> configDoc1 = _configRepo.insertNewItem(name, doc);
+    assertNotNull(configDoc1);
+    
+    ConfigurationDocument<T> byOid = _configRepo.getByOid(configDoc1.getOid(), configDoc1.getVersion());
+    assertNotNull(byOid);
+    assertConfigDoc(configDoc1, byOid);
+    Instant lastReadInstant = byOid.getLastReadInstant();
+    assertNotNull(lastReadInstant);
+    assertTrue(lastReadInstant.isAfter(configDoc1.getLastReadInstant()));
+    
+    T doc2 = makeTestConfigDoc(2);
+    Thread.sleep(1000);
+    ConfigurationDocument<T> configDoc2 = _configRepo.insertNewVersion(configDoc1.getOid(), doc2);
+    assertNotNull(configDoc1);
+    
+    byOid = _configRepo.getByOid(configDoc2.getOid(), configDoc2.getVersion());
+    assertNotNull(byOid);
+    assertConfigDoc(configDoc2, byOid);
+    lastReadInstant = byOid.getLastReadInstant();
+    assertNotNull(lastReadInstant);
+    assertTrue(lastReadInstant.isAfter(configDoc2.getLastReadInstant()));
+    
+  }
+  
+  @Test
   public void getSequence() throws Exception {
     addRandomDocs();
     
@@ -280,7 +310,6 @@ public abstract class MongoConfigDocumentRepoTestcase<T extends Serializable> {
     assertEquals(expectedNames, fromDbNames);
     
   }
-
   
   private void addRandomDocs() {
     for (int i = 0; i < 10; i++) {

@@ -55,7 +55,7 @@ public class UniqueIdentifierConfigDocsTest extends MongoConfigDocumentRepoTestc
     //use className as collection so dont set collectionName
     MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings(null, false);
     _mongoSettings = settings;
-    return new MongoDBConfigurationRepo<UniqueIdentifier>(UniqueIdentifier.class, settings, null);
+    return new MongoDBConfigurationRepo<UniqueIdentifier>(UniqueIdentifier.class, settings, true);
   }
 
   @Override

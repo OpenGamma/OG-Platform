@@ -23,10 +23,10 @@ public interface ConfigurationDocumentRepo<T> {
    * Load the current version of the document with the specified name
    * 
    * @param name The name of config document not-null
-   * @return the Config Document,  null if not found
+   * @return the config Document,  null if not found
    */
   ConfigurationDocument<T> getByName(String name);
-
+  
   /**
    * Load version of the document which <em>currently</em> has the name provided
    * as of the point in time provided.
@@ -36,6 +36,14 @@ public interface ConfigurationDocumentRepo<T> {
    * @return the Config Document,  null if not found
    */
   ConfigurationDocument<T> getByName(String currentName, Instant effectiveInstant);
+  
+  /**
+   * Load the document with specified oid and version
+   * @param oid the object identifier, not-null
+   * @param version the document version
+   * @return the config document, null if not found
+   */
+  ConfigurationDocument<T> getByOid(String oid, int version);
 
   /**
    * Obtain all versions of the document with the specified OID in between
