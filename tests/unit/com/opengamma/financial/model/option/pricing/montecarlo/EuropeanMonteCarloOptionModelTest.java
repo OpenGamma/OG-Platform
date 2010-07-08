@@ -34,7 +34,9 @@ public class EuropeanMonteCarloOptionModelTest {
 
   @Test
   public void test() {
+    @SuppressWarnings("unused")
     final EuropeanMonteCarloOptionModel model = new EuropeanMonteCarloOptionModel(200000, 100, new BlackScholesGeometricBrownianMotionProcess<OptionDefinition, StandardOptionDataBundle>(), GENERATOR);
+    @SuppressWarnings("unused")
     final EuropeanMonteCarloOptionModel model1 = new EuropeanMonteCarloOptionModel(200000, 100, new BlackScholesGeometricBrownianMotionProcess<OptionDefinition, StandardOptionDataBundle>(),
         GENERATOR, new AntitheticVariate<OptionDefinition, StandardOptionDataBundle>());
   }

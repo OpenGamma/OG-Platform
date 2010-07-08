@@ -40,8 +40,11 @@ public class EuropeanVanillaOptionSkewKurtosisCrossModelPricingTest {
 
   @Test
   public void testNormal() {
+    @SuppressWarnings("unused")
     final OptionDefinition call = new EuropeanVanillaOptionDefinition(STRIKE, EXPIRY, true);
+    @SuppressWarnings("unused")
     final OptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> model1 = new ModifiedCorradoSuSkewnessKurtosisModel();
+    @SuppressWarnings("unused")
     final OptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> model2 = new BinomialOptionModel<SkewKurtosisOptionDataBundle>(10, new EdgeworthSkewKurtosisBinomialOptionModelDefinition());
     // System.out.println(model1.getGreeks(call, DATA, REQUIRED_GREEKS));
     // System.out.println(model2.getGreeks(call, DATA, REQUIRED_GREEKS));

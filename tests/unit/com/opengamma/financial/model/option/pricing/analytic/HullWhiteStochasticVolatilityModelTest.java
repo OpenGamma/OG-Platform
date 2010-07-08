@@ -50,6 +50,7 @@ public class HullWhiteStochasticVolatilityModelTest {
   @Test
   public void test() {
     HullWhiteStochasticVolatilityModelOptionDataBundle data = new HullWhiteStochasticVolatilityModelOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, SIGMA_LR, VOL_OF_VOL, -0.75);
+    @SuppressWarnings("unused")
     OptionDefinition definition = new EuropeanVanillaOptionDefinition(70, EXPIRY, false);
     // test(0.0904, definition, data);
     data = data.withCorrelation(-0.5);
@@ -76,8 +77,8 @@ public class HullWhiteStochasticVolatilityModelTest {
 
   @SuppressWarnings("unused")
   private void test(final double value, final OptionDefinition definition, final HullWhiteStochasticVolatilityModelOptionDataBundle data) {
-    final HullWhiteStochasticVolatilityModelOptionDataBundle bsmEquivalent = new HullWhiteStochasticVolatilityModelOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA,
-        SURFACE.getVolatility(DoublesPair.of(0., 0.)), VOL_OF_VOL, 0.);
+    final HullWhiteStochasticVolatilityModelOptionDataBundle bsmEquivalent = new HullWhiteStochasticVolatilityModelOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, SURFACE
+        .getVolatility(DoublesPair.of(0., 0.)), VOL_OF_VOL, 0.);
     assertEquals(value, MODEL.getPricingFunction(definition).evaluate(data), EPS);
     assertEquals(BSM.getPricingFunction(definition).evaluate(bsmEquivalent), MODEL.getPricingFunction(definition).evaluate(bsmEquivalent), EPS);
   }
