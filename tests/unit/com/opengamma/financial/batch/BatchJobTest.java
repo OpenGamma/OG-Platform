@@ -7,7 +7,7 @@ package com.opengamma.financial.batch;
 
 import org.junit.Test;
 
-import com.opengamma.config.db.MongoDBConfigurationRepo;
+import com.opengamma.config.db.MongoDBConfigRepository;
 import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewTestUtils;
@@ -30,7 +30,7 @@ public class BatchJobTest {
     View testView = ViewTestUtils.getMockView();
     
     MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings(null, false);
-    MongoDBConfigurationRepo<ViewDefinition> configRepo = new MongoDBConfigurationRepo<ViewDefinition>(ViewDefinition.class, settings, null);
+    MongoDBConfigRepository<ViewDefinition> configRepo = new MongoDBConfigRepository<ViewDefinition>(ViewDefinition.class, settings);
     configRepo.insertNewItem("MyView", testView.getDefinition());
 
     BatchJob job = new BatchJob();

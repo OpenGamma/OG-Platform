@@ -33,9 +33,9 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.config.ConfigurationDocument;
-import com.opengamma.config.ConfigurationDocumentRepo;
-import com.opengamma.config.db.MongoDBConfigurationRepo;
+import com.opengamma.config.ConfigDocument;
+import com.opengamma.config.ConfigDocumentRepository;
+import com.opengamma.config.db.MongoDBConfigRepository;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.DefaultFunctionResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -216,7 +216,7 @@ public class BatchJob implements Job, ComputationResultListener {
   /**
    * Used to load a ViewDefinition
    */
-  private ConfigurationDocumentRepo<ViewDefinition> _configDb;
+  private ConfigDocumentRepository<ViewDefinition> _configDb;
   
   /** 
    * Object ID of ViewDefinition loaded from config DB
@@ -494,10 +494,10 @@ public class BatchJob implements Job, ComputationResultListener {
     if (_configDbConnectionSettings == null) {
       throw new IllegalStateException("Config DB connection settings not given.");            
     }
-    _configDb = new MongoDBConfigurationRepo<ViewDefinition>(ViewDefinition.class, 
+    _configDb = new MongoDBConfigRepository<ViewDefinition>(ViewDefinition.class, 
         getConfigDbConnectionSettings());
 
-    ConfigurationDocument<ViewDefinition> viewDefinitionDoc = _configDb.getByName(getViewName(), _viewDateTime.toInstant());
+    ConfigDocument<ViewDefinition> viewDefinitionDoc = _configDb.getByName(getViewName(), _viewDateTime.toInstant());
     if (viewDefinitionDoc == null) {
       throw new IllegalStateException("Config DB does not contain ViewDefinition with name " + getViewName() + " at " + _viewDateTime);      
     }
