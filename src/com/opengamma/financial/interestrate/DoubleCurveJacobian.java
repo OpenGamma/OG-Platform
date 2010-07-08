@@ -18,7 +18,6 @@ import com.opengamma.math.interpolation.Interpolator1DWithSensitivities;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.newton.JacobianCalculator;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -38,25 +37,21 @@ public class DoubleCurveJacobian<T extends Interpolator1DDataBundle> implements 
   public DoubleCurveJacobian(final List<InterestRateDerivative> derivatives, final double spotRate, final double[] forwardTimeGrid, final double[] fundingTimeGrid,
       final Interpolator1DWithSensitivities<T> forwardInterpolator, final Interpolator1DWithSensitivities<T> fundingInterpolator) {
     Validate.notNull(derivatives);
-    Validate.notNull(forwardTimeGrid);
-    Validate.notNull(fundingTimeGrid);
     Validate.notNull(forwardInterpolator);
     Validate.notNull(fundingInterpolator);
     Validate.notEmpty(derivatives);
-    ArgumentChecker.notEmpty(forwardTimeGrid, "forward time grid");
-    ArgumentChecker.notEmpty(fundingTimeGrid, "funding time grid");
+    _nSwaps = derivatives.size();
+    _nFwdNodes = (forwardTimeGrid == null ? 0 : forwardTimeGrid.length);
+    _nFundNodes = (fundingTimeGrid == null ? 0 : fundingTimeGrid.length);
+    if (_nSwaps != _nFwdNodes + _nFundNodes) {
+      throw new IllegalArgumentException("total number of nodes does not match number of instruments");
+    }
     _derivatives = derivatives;
     _spotRate = spotRate;
     _fwdTimeGrid = forwardTimeGrid;
     _fundTimeGrid = fundingTimeGrid;
     _fwdInterpolator = forwardInterpolator;
     _fundInterpolator = fundingInterpolator;
-    _nSwaps = _derivatives.size();
-    _nFwdNodes = (forwardTimeGrid == null ? 0 : forwardTimeGrid.length);
-    _nFundNodes = (fundingTimeGrid == null ? 0 : fundingTimeGrid.length);
-    if (_nSwaps != _nFwdNodes + _nFundNodes) {
-      throw new IllegalArgumentException("total number of nodes does not much number of instruments");
-    }
   }
 
   @SuppressWarnings("unchecked")
@@ -66,7 +61,6 @@ public class DoubleCurveJacobian<T extends Interpolator1DDataBundle> implements 
     if (x.getNumberOfElements() != (_nFwdNodes + _nFundNodes)) {
       throw new IllegalArgumentException("fitting vector not same length as number of nodes");
     }
-
     final TreeMap<Double, Double> fwdData = new TreeMap<Double, Double>();
     fwdData.put(0.0, _spotRate);
     for (int i = 0; i < _nFwdNodes; i++) {
@@ -74,11 +68,10 @@ public class DoubleCurveJacobian<T extends Interpolator1DDataBundle> implements 
     }
     final InterpolatedYieldAndDiscountCurve fwdCurve = new InterpolatedYieldCurve(fwdData, _fwdInterpolator);
     final TreeMap<Double, Double> fundData = new TreeMap<Double, Double>();
-    fundData.put(-0., _spotRate);
+    fundData.put(0., _spotRate);
     for (int i = 0; i < _nFundNodes; i++) {
       fundData.put(_fundTimeGrid[i], x.getEntry(i + _nFwdNodes));
     }
-
     final InterpolatedYieldAndDiscountCurve fundCurve = new InterpolatedYieldCurve(fundData, _fundInterpolator);
     final T fwdModel = (T) fwdCurve.getDataBundles().values().iterator().next();
     final T fundModel = (T) fundCurve.getDataBundles().values().iterator().next();
@@ -87,20 +80,17 @@ public class DoubleCurveJacobian<T extends Interpolator1DDataBundle> implements 
     for (int i = 0; i < n; i++) {
       final InterestRateDerivative derivative = _derivatives.get(i);
       final List<Pair<Double, Double>> fwdSensitivity = _forwardSensitivities.getForwardCurveSensitivities(fwdCurve, fundCurve, derivative);
-
       final List<Pair<Double, Double>> fundSensitivity = _fundingSensitivities.getFundingCurveSensitivities(fwdCurve, fundCurve, derivative);
-
       double[][] sensitivity = new double[fwdSensitivity.size()][];
       int k = 0;
       for (final Pair<Double, Double> timeAndDF : fwdSensitivity) {
         sensitivity[k++] = _fwdInterpolator.interpolate(fwdModel, timeAndDF.getFirst()).getSensitivities();
       }
-
       for (int j = 0; j < _nFwdNodes; j++) {
         double temp = 0.0;
         k = 0;
         for (final Pair<Double, Double> timeAndDF : fwdSensitivity) {
-          temp += timeAndDF.getSecond() * sensitivity[k++][j + 1];
+          temp += timeAndDF.getSecond() * sensitivity[k++][j + 1]; //TODO remove j+1 
         }
         res[i][j] = temp;
       }
@@ -109,18 +99,15 @@ public class DoubleCurveJacobian<T extends Interpolator1DDataBundle> implements 
       for (final Pair<Double, Double> timeAndDF : fundSensitivity) {
         sensitivity[k++] = _fundInterpolator.interpolate(fundModel, timeAndDF.getFirst()).getSensitivities();
       }
-
       for (int j = 0; j < _nFundNodes; j++) {
         double temp = 0.0;
         k = 0;
         for (final Pair<Double, Double> timeAndDF : fundSensitivity) {
-          temp += timeAndDF.getSecond() * sensitivity[k++][j + 1];
+          temp += timeAndDF.getSecond() * sensitivity[k++][j + 1]; //TODO remove j+1
         }
         res[i][j + _nFwdNodes] = temp;
       }
-
     }
     return new DoubleMatrix2D(res);
   }
-
 }

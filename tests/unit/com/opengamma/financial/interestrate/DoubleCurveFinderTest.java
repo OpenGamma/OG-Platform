@@ -129,7 +129,12 @@ public class DoubleCurveFinderTest {
       assertEquals(result.getEntry(i), 0, 0);
     }
     finder = new DoubleCurveFinder(DERIVATIVES, MARKET_RATES, SPOT_RATE, FORWARD_NODES, FUNDING_NODES, null, null, INTERPOLATOR, INTERPOLATOR);
-    //TODO what should the answer here be? cash only has sensitivity to the funding curve so should the first n entries be 0? 
-    //System.out.println(finder.evaluate(x));
+    result = finder.evaluate(x);
+    assertEquals(result.getNumberOfElements(), 2 * N);
+    assertEquals(result.getEntry(0), SPOT_RATE - MARKET_RATES[0], 0);
+    assertEquals(result.getEntry(1), (SPOT_RATE - MARKET_RATES[1]) / 2, 0);
+    for (int i = 2; i < 2 * N; i++) {
+      assertEquals(result.getEntry(i), 0, 0);
+    }
   }
 }
