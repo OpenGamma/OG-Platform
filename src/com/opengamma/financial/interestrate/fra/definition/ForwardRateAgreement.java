@@ -6,6 +6,7 @@
 package com.opengamma.financial.interestrate.fra.definition;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -31,6 +32,10 @@ public class ForwardRateAgreement implements InterestRateDerivative {
 
   public double getEndTime() {
     return _endTime;
+  }
+
+  public <T> T accept(final InterestRateDerivativeVisitor<T> visitor) {
+    return visitor.visitForwardRateAgreement(this);
   }
 
   @Override
