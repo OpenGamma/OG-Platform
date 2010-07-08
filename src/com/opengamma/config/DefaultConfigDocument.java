@@ -15,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
  * Default Implementation of ConfigurationDocument 
  *@param <T> The configuaration type
  */
-public class DefaultConfigurationDocument<T> implements ConfigurationDocument<T> {
+public class DefaultConfigDocument<T> implements ConfigDocument<T> {
   
   private final String _id;
   private final String _oid;
@@ -34,7 +34,7 @@ public class DefaultConfigurationDocument<T> implements ConfigurationDocument<T>
    * @param lastReadInstant the last accessed time, not -null
    * @param value the actual configuation type, not-null
    */
-  public DefaultConfigurationDocument(String id, String oid, int version, String name, Instant creationInstant, Instant lastReadInstant, T value) {
+  public DefaultConfigDocument(String id, String oid, int version, String name, Instant creationInstant, Instant lastReadInstant, T value) {
     ArgumentChecker.notNull(id, "id");
     ArgumentChecker.notNull(oid, "oid");
     ArgumentChecker.isTrue(version > 0, "negative version not allowed");
@@ -105,8 +105,8 @@ public class DefaultConfigurationDocument<T> implements ConfigurationDocument<T>
     if (this == obj) {
       return true;
     }
-    if (obj instanceof DefaultConfigurationDocument) {
-      DefaultConfigurationDocument other = (DefaultConfigurationDocument) obj;
+    if (obj instanceof DefaultConfigDocument) {
+      DefaultConfigDocument other = (DefaultConfigDocument) obj;
       return ObjectUtils.equals(getOid(), other.getOid()) && ObjectUtils.equals(getVersion(), other.getVersion()) && ObjectUtils.equals(getValue(), other.getValue());
     }
     return false;

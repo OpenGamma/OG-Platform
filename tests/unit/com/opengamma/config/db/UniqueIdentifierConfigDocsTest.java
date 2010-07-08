@@ -10,7 +10,7 @@ import java.util.Random;
 import org.junit.After;
 import org.junit.Before;
 
-import com.opengamma.config.ConfigurationDocumentRepo;
+import com.opengamma.config.ConfigDocumentRepository;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.MongoDBConnectionSettings;
 import com.opengamma.util.test.MongoDBTestUtils;
@@ -51,11 +51,11 @@ public class UniqueIdentifierConfigDocsTest extends MongoConfigDocumentRepoTestc
   }
 
   @Override
-  public ConfigurationDocumentRepo<UniqueIdentifier> createMongoConfigRepo() {
+  public ConfigDocumentRepository<UniqueIdentifier> createMongoConfigRepo() {
     //use className as collection so dont set collectionName
     MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings(null, false);
     _mongoSettings = settings;
-    return new MongoDBConfigurationRepo<UniqueIdentifier>(UniqueIdentifier.class, settings, true);
+    return new MongoDBConfigRepository<UniqueIdentifier>(UniqueIdentifier.class, settings, true);
   }
 
   @Override

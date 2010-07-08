@@ -5,12 +5,12 @@
  */
 package com.opengamma.config.db;
 
-import static com.opengamma.config.ConfigurationDocument.CREATION_INSTANT_FUDGE_FIELD_NAME;
-import static com.opengamma.config.ConfigurationDocument.LAST_READ_INSTANT_FUDGE_FIELD_NAME;
-import static com.opengamma.config.ConfigurationDocument.NAME_FUDGE_FIELD_NAME;
-import static com.opengamma.config.ConfigurationDocument.OID_FUDGE_FIELD_NAME;
-import static com.opengamma.config.ConfigurationDocument.VALUE_FUDGE_FIELD_NAME;
-import static com.opengamma.config.ConfigurationDocument.VERSION_FUDGE_FIELD_NAME;
+import static com.opengamma.config.ConfigDocument.CREATION_INSTANT_FUDGE_FIELD_NAME;
+import static com.opengamma.config.ConfigDocument.LAST_READ_INSTANT_FUDGE_FIELD_NAME;
+import static com.opengamma.config.ConfigDocument.NAME_FUDGE_FIELD_NAME;
+import static com.opengamma.config.ConfigDocument.OID_FUDGE_FIELD_NAME;
+import static com.opengamma.config.ConfigDocument.VALUE_FUDGE_FIELD_NAME;
+import static com.opengamma.config.ConfigDocument.VERSION_FUDGE_FIELD_NAME;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,9 +39,9 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.ObjectId;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.config.ConfigurationDocument;
-import com.opengamma.config.ConfigurationDocumentRepo;
-import com.opengamma.config.DefaultConfigurationDocument;
+import com.opengamma.config.ConfigDocument;
+import com.opengamma.config.ConfigDocumentRepository;
+import com.opengamma.config.DefaultConfigDocument;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.MongoDBConnectionSettings;
 
@@ -52,9 +52,9 @@ import com.opengamma.util.MongoDBConnectionSettings;
  * 
  * @param <T> Configuration Document EntityType
  */
-public class MongoDBConfigurationRepo<T> implements ConfigurationDocumentRepo<T> {
+public class MongoDBConfigRepository<T> implements ConfigDocumentRepository<T> {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(MongoDBConfigurationRepo.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(MongoDBConfigRepository.class);
 
   private static final String[] INDICES = {OID_FUDGE_FIELD_NAME, NAME_FUDGE_FIELD_NAME, CREATION_INSTANT_FUDGE_FIELD_NAME, LAST_READ_INSTANT_FUDGE_FIELD_NAME};
   
@@ -73,7 +73,7 @@ public class MongoDBConfigurationRepo<T> implements ConfigurationDocumentRepo<T>
    */
   private TimeSource _timeSource = TimeSource.system();
 
-  public MongoDBConfigurationRepo(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings,
+  public MongoDBConfigRepository(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings,
       final FudgeContext fudgeContext, boolean updateLastRead, final FudgeBuilder<T> messageBuilder) {
     ArgumentChecker.notNull(documentClazz, "document class");
     ArgumentChecker.notNull(mongoSettings, "MongoDB settings");
@@ -123,12 +123,16 @@ public class MongoDBConfigurationRepo<T> implements ConfigurationDocumentRepo<T>
     }
   }
 
-  public MongoDBConfigurationRepo(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings, boolean updateLastRead, final FudgeBuilder<T> messageBuilder) {
+  public MongoDBConfigRepository(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings, boolean updateLastRead, final FudgeBuilder<T> messageBuilder) {
     this(documentClazz, mongoSettings, new FudgeContext(), updateLastRead, messageBuilder);
   }
 
-  public MongoDBConfigurationRepo(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings, boolean updateLastRead) {
+  public MongoDBConfigRepository(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings, boolean updateLastRead) {
     this(documentClazz, mongoSettings, updateLastRead, null);
+  }
+  
+  public MongoDBConfigRepository(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings) {
+    this(documentClazz, mongoSettings, true);
   }
 
   /**
@@ -190,7 +194,7 @@ public class MongoDBConfigurationRepo<T> implements ConfigurationDocumentRepo<T>
   }
 
   @Override
-  public ConfigurationDocument<T> getByName(String name) {
+  public ConfigDocument<T> getByName(String name) {
     ArgumentChecker.notNull(name, "name");
     //get latest version by name
     DBObject queryObj = new BasicDBObject(NAME_FUDGE_FIELD_NAME, name);
@@ -211,7 +215,7 @@ public class MongoDBConfigurationRepo<T> implements ConfigurationDocumentRepo<T>
     }
   }
 
-  private ConfigurationDocument<T> findWithoutUpdate(DBObject queryObj, BasicDBObject sortObj) {
+  private ConfigDocument<T> findWithoutUpdate(DBObject queryObj, BasicDBObject sortObj) {
     s_logger.debug("findWithoutUpdate  queryObj={} sortObj={}", queryObj, sortObj);
     DBCollection dbCollection = getMongoDB().getCollection(getCollectionName());
     DBCursor cursor = null;
@@ -228,7 +232,7 @@ public class MongoDBConfigurationRepo<T> implements ConfigurationDocumentRepo<T>
     return null;
   }
 
-  private ConfigurationDocument<T> dBObjectToConficDoc(DBObject dbObject) {
+  private ConfigDocument<T> dBObjectToConficDoc(DBObject dbObject) {
     s_logger.debug("converting dbOject = {} to config doc", dbObject);
     DBObject valueData = (DBObject) dbObject.get(VALUE_FUDGE_FIELD_NAME);
     FudgeSerializationContext fsc = new FudgeSerializationContext(getFudgeContext());
@@ -241,12 +245,12 @@ public class MongoDBConfigurationRepo<T> implements ConfigurationDocumentRepo<T>
     int version = (Integer) dbObject.get(VERSION_FUDGE_FIELD_NAME);
     Date creationTime = (Date) dbObject.get(CREATION_INSTANT_FUDGE_FIELD_NAME);
     Date lastRead = (Date) dbObject.get(LAST_READ_INSTANT_FUDGE_FIELD_NAME);
-    return new DefaultConfigurationDocument<T>(objectId, oid, version, name, Instant.ofEpochMillis(creationTime
+    return new DefaultConfigDocument<T>(objectId, oid, version, name, Instant.ofEpochMillis(creationTime
         .getTime()), Instant.ofEpochMillis(lastRead.getTime()), value);
   }
 
-  private ConfigurationDocument<T> findAndUpdateLastRead(DBObject queryObj, BasicDBObject sortObj) {
-    ConfigurationDocument<T> result = null;
+  private ConfigDocument<T> findAndUpdateLastRead(DBObject queryObj, BasicDBObject sortObj) {
+    ConfigDocument<T> result = null;
     Date now = new Date(_timeSource.instant().toEpochMillisLong());
     DBObject updateObj = new BasicDBObject("$set", new BasicDBObject(LAST_READ_INSTANT_FUDGE_FIELD_NAME, now));
 
@@ -276,7 +280,7 @@ public class MongoDBConfigurationRepo<T> implements ConfigurationDocumentRepo<T>
   }
 
   @Override
-  public ConfigurationDocument<T> getByName(String currentName, Instant effectiveInstant) {
+  public ConfigDocument<T> getByName(String currentName, Instant effectiveInstant) {
     ArgumentChecker.notNull(currentName, "currentName");
     ArgumentChecker.notNull(effectiveInstant, "effectiveInstant");
 
@@ -304,7 +308,7 @@ public class MongoDBConfigurationRepo<T> implements ConfigurationDocumentRepo<T>
   }
 
   @Override
-  public List<ConfigurationDocument<T>> getSequence(String oid, Instant startDate, Instant endDate) {
+  public List<ConfigDocument<T>> getSequence(String oid, Instant startDate, Instant endDate) {
     ArgumentChecker.notNull(oid, "oid");
     ArgumentChecker.notNull(startDate, "startDate");
     Date end = null;
@@ -314,7 +318,7 @@ public class MongoDBConfigurationRepo<T> implements ConfigurationDocumentRepo<T>
       end = new Date(endDate.toEpochMillisLong());
     }
 
-    List<ConfigurationDocument<T>> result = new ArrayList<ConfigurationDocument<T>>();
+    List<ConfigDocument<T>> result = new ArrayList<ConfigDocument<T>>();
 
     BasicDBObject query = new BasicDBObject(OID_FUDGE_FIELD_NAME, oid);
     query.put(CREATION_INSTANT_FUDGE_FIELD_NAME, new BasicDBObject("$lte", end).append("$gte", new Date(startDate
@@ -327,7 +331,7 @@ public class MongoDBConfigurationRepo<T> implements ConfigurationDocumentRepo<T>
 
     while (cursor.hasNext()) {
       DBObject next = cursor.next();
-      ConfigurationDocument<T> conficDoc = dBObjectToConficDoc(next);
+      ConfigDocument<T> conficDoc = dBObjectToConficDoc(next);
       result.add(conficDoc);
     }
 
@@ -335,7 +339,7 @@ public class MongoDBConfigurationRepo<T> implements ConfigurationDocumentRepo<T>
   }
 
   @Override
-  public ConfigurationDocument<T> insertNewItem(String name, T value) {
+  public ConfigDocument<T> insertNewItem(String name, T value) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(value, "value");
     String objectId = ObjectId.get().toString();
@@ -362,12 +366,12 @@ public class MongoDBConfigurationRepo<T> implements ConfigurationDocumentRepo<T>
     }
 
     Instant creationInstant = Instant.ofEpochMillis(now.getTime());
-    return new DefaultConfigurationDocument<T>(objectId, objectId, version, name, creationInstant, creationInstant,
+    return new DefaultConfigDocument<T>(objectId, objectId, version, name, creationInstant, creationInstant,
         value);
   }
 
   @Override
-  public ConfigurationDocument<T> insertNewVersion(String oid, T value) {
+  public ConfigDocument<T> insertNewVersion(String oid, T value) {
     ArgumentChecker.notNull(oid, "oid");
     ArgumentChecker.notNull(value, "value");
     //get latest version
@@ -388,7 +392,7 @@ public class MongoDBConfigurationRepo<T> implements ConfigurationDocumentRepo<T>
     return insertVersionDocument(oid, value, previousVersion, name);
   }
 
-  private ConfigurationDocument<T> insertVersionDocument(String oid, T value, int previousVersion, String name) {
+  private ConfigDocument<T> insertVersionDocument(String oid, T value, int previousVersion, String name) {
     DBCollection dbCollection;
     String objectId = ObjectId.get().toString();
     Date now = new Date(_timeSource.instant().toEpochMillisLong());
@@ -413,12 +417,12 @@ public class MongoDBConfigurationRepo<T> implements ConfigurationDocumentRepo<T>
       throw new OpenGammaRuntimeException("Error: " + lastErr.toString());
     }
     Instant creationInstant = Instant.ofEpochMillis(now.getTime());
-    return new DefaultConfigurationDocument<T>(objectId, oid, previousVersion, name, creationInstant, creationInstant,
+    return new DefaultConfigDocument<T>(objectId, oid, previousVersion, name, creationInstant, creationInstant,
         value);
   }
 
   @Override
-  public ConfigurationDocument<T> insertNewVersion(String oid, String name, T value) {
+  public ConfigDocument<T> insertNewVersion(String oid, String name, T value) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(value, "value");
     //get latest version
@@ -453,7 +457,7 @@ public class MongoDBConfigurationRepo<T> implements ConfigurationDocumentRepo<T>
   }
 
   @Override
-  public ConfigurationDocument<T> getByOid(String oid, int version) {
+  public ConfigDocument<T> getByOid(String oid, int version) {
     ArgumentChecker.notNull(oid, "oid");
     ArgumentChecker.isTrue(version > 0, "Version cannot be negative");
 

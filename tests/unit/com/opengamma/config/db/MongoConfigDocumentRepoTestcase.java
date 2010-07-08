@@ -26,8 +26,8 @@ import org.junit.Test;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
-import com.opengamma.config.ConfigurationDocument;
-import com.opengamma.config.ConfigurationDocumentRepo;
+import com.opengamma.config.ConfigDocument;
+import com.opengamma.config.ConfigDocumentRepository;
 import com.opengamma.util.MongoDBConnectionSettings;
 
 /**
@@ -37,7 +37,7 @@ import com.opengamma.util.MongoDBConnectionSettings;
  */
 public abstract class MongoConfigDocumentRepoTestcase<T extends Serializable> {
   
-  private ConfigurationDocumentRepo<T> _configRepo;
+  private ConfigDocumentRepository<T> _configRepo;
   private Class<?> _entityType;
   private Random _random = new Random();
   
@@ -66,7 +66,7 @@ public abstract class MongoConfigDocumentRepoTestcase<T extends Serializable> {
     collection.drop();
   }
   
-  protected abstract ConfigurationDocumentRepo<T> createMongoConfigRepo();
+  protected abstract ConfigDocumentRepository<T> createMongoConfigRepo();
   protected abstract T makeTestConfigDoc(int version);
   protected abstract MongoDBConnectionSettings getMongoDBConnectionSettings();
   protected abstract T makeRandomConfigDoc();
@@ -81,7 +81,7 @@ public abstract class MongoConfigDocumentRepoTestcase<T extends Serializable> {
     
     T doc = makeTestConfigDoc(1);
     String name = "testName";
-    ConfigurationDocument<T> newDoc = _configRepo.insertNewItem(name, doc);
+    ConfigDocument<T> newDoc = _configRepo.insertNewItem(name, doc);
     
     assertNotNull(newDoc);
     assertEquals(name, newDoc.getName());
@@ -97,13 +97,13 @@ public abstract class MongoConfigDocumentRepoTestcase<T extends Serializable> {
     assertNotNull(oid);
     assertEquals(1, newDoc.getVersion());
     Thread.sleep(1000);
-    ConfigurationDocument<T> findByName = _configRepo.getByName(name);
+    ConfigDocument<T> findByName = _configRepo.getByName(name);
     assertNotNull(findByName);
     assertConfigDoc(newDoc, findByName);
     assertTrue(findByName.getLastReadInstant().isAfter(lastReadInstant));
   }
 
-  private void assertConfigDoc(ConfigurationDocument<T> expected, ConfigurationDocument<T> actual) {
+  private void assertConfigDoc(ConfigDocument<T> expected, ConfigDocument<T> actual) {
     assertEquals(expected.getId(), actual.getId());
     assertEquals(expected.getName(), actual.getName());
     assertEquals(expected.getOid(), actual.getOid());
@@ -118,18 +118,18 @@ public abstract class MongoConfigDocumentRepoTestcase<T extends Serializable> {
     
     T doc = makeTestConfigDoc(1);
     String name = "testName";
-    ConfigurationDocument<T> previousDoc = _configRepo.insertNewItem(name, doc);
+    ConfigDocument<T> previousDoc = _configRepo.insertNewItem(name, doc);
     assertNotNull(previousDoc);
     T doc2 = makeTestConfigDoc(2);
     Thread.sleep(1000);
-    ConfigurationDocument<T> currentDoc = _configRepo.insertNewVersion(previousDoc.getOid(), doc2);
+    ConfigDocument<T> currentDoc = _configRepo.insertNewVersion(previousDoc.getOid(), doc2);
     Instant lastReadInstant = currentDoc.getLastReadInstant();
     assertNotNull(currentDoc);
     assertNotNull(lastReadInstant);
     
     //look up should return doc2 as current;
     Thread.sleep(1000);
-    ConfigurationDocument<T> findByName = _configRepo.getByName(name);
+    ConfigDocument<T> findByName = _configRepo.getByName(name);
     assertNotNull(findByName);
     assertConfigDoc(currentDoc, findByName);
     assertTrue(findByName.getLastReadInstant().isAfter(lastReadInstant));
@@ -142,24 +142,24 @@ public abstract class MongoConfigDocumentRepoTestcase<T extends Serializable> {
     
     T doc1 = makeTestConfigDoc(1);
     String testName = "testName";
-    ConfigurationDocument<T> configDoc1 = _configRepo.insertNewItem(testName, doc1);
+    ConfigDocument<T> configDoc1 = _configRepo.insertNewItem(testName, doc1);
     Instant after1 = Instant.nowSystemClock();
     Thread.sleep(1000);
     
     T doc2 = makeTestConfigDoc(2);
-    ConfigurationDocument<T> configDoc2 = _configRepo.insertNewVersion(configDoc1.getOid(), doc2);
+    ConfigDocument<T> configDoc2 = _configRepo.insertNewVersion(configDoc1.getOid(), doc2);
     Instant after2 = Instant.nowSystemClock();
     Thread.sleep(1000);
 
     //lets change the name
     T doc3 = makeTestConfigDoc(3);
     String changeOfName = "changeOfName";
-    ConfigurationDocument<T> configDoc3 = _configRepo.insertNewVersion(configDoc2.getOid(), changeOfName, doc3);
+    ConfigDocument<T> configDoc3 = _configRepo.insertNewVersion(configDoc2.getOid(), changeOfName, doc3);
     Instant after3 = Instant.nowSystemClock();
     Thread.sleep(1000);
     
     //should return version3
-    ConfigurationDocument<T> findByName = _configRepo.getByName(changeOfName, after3);
+    ConfigDocument<T> findByName = _configRepo.getByName(changeOfName, after3);
     assertNotNull(findByName);
     assertConfigDoc(configDoc3, findByName);
     Instant lastReadInstant = findByName.getLastReadInstant();
@@ -207,10 +207,10 @@ public abstract class MongoConfigDocumentRepoTestcase<T extends Serializable> {
     
     T doc = makeTestConfigDoc(1);
     String name = "testName";
-    ConfigurationDocument<T> configDoc1 = _configRepo.insertNewItem(name, doc);
+    ConfigDocument<T> configDoc1 = _configRepo.insertNewItem(name, doc);
     assertNotNull(configDoc1);
     
-    ConfigurationDocument<T> byOid = _configRepo.getByOid(configDoc1.getOid(), configDoc1.getVersion());
+    ConfigDocument<T> byOid = _configRepo.getByOid(configDoc1.getOid(), configDoc1.getVersion());
     assertNotNull(byOid);
     assertConfigDoc(configDoc1, byOid);
     Instant lastReadInstant = byOid.getLastReadInstant();
@@ -219,7 +219,7 @@ public abstract class MongoConfigDocumentRepoTestcase<T extends Serializable> {
     
     T doc2 = makeTestConfigDoc(2);
     Thread.sleep(1000);
-    ConfigurationDocument<T> configDoc2 = _configRepo.insertNewVersion(configDoc1.getOid(), doc2);
+    ConfigDocument<T> configDoc2 = _configRepo.insertNewVersion(configDoc1.getOid(), doc2);
     assertNotNull(configDoc1);
     
     byOid = _configRepo.getByOid(configDoc2.getOid(), configDoc2.getVersion());
@@ -239,21 +239,21 @@ public abstract class MongoConfigDocumentRepoTestcase<T extends Serializable> {
     Thread.sleep(1000);
     String name = "testName";
     T doc1 = makeTestConfigDoc(1);
-    ConfigurationDocument<T> configDoc1 = _configRepo.insertNewItem(name, doc1);
+    ConfigDocument<T> configDoc1 = _configRepo.insertNewItem(name, doc1);
     Thread.sleep(1000);
     Instant after1 = Instant.nowSystemClock();
     
     T doc2 = makeTestConfigDoc(2);
-    ConfigurationDocument<T> configDoc2 = _configRepo.insertNewVersion(configDoc1.getOid(), doc2);
+    ConfigDocument<T> configDoc2 = _configRepo.insertNewVersion(configDoc1.getOid(), doc2);
     Thread.sleep(1000);
     Instant after2 = Instant.nowSystemClock();
 
     T doc3 = makeTestConfigDoc(3);
-    ConfigurationDocument<T> configDoc3 = _configRepo.insertNewVersion(configDoc2.getOid(), doc3);
+    ConfigDocument<T> configDoc3 = _configRepo.insertNewVersion(configDoc2.getOid(), doc3);
     Thread.sleep(1000);
     Instant after3 = Instant.nowSystemClock();
     
-    List<ConfigurationDocument<T>> allDocs = _configRepo.getSequence(configDoc1.getOid(), start, after3);
+    List<ConfigDocument<T>> allDocs = _configRepo.getSequence(configDoc1.getOid(), start, after3);
     assertNotNull(allDocs);
     assertEquals(3, allDocs.size());
     assertTrue(allDocs.contains(configDoc1));

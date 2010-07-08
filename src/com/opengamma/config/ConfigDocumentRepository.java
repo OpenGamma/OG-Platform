@@ -17,7 +17,7 @@ import javax.time.Instant;
  *
  * 
  */
-public interface ConfigurationDocumentRepo<T> {
+public interface ConfigDocumentRepository<T> {
   
   /**
    * Load the current version of the document with the specified name
@@ -25,7 +25,7 @@ public interface ConfigurationDocumentRepo<T> {
    * @param name The name of config document not-null
    * @return the config Document,  null if not found
    */
-  ConfigurationDocument<T> getByName(String name);
+  ConfigDocument<T> getByName(String name);
   
   /**
    * Load version of the document which <em>currently</em> has the name provided
@@ -35,7 +35,7 @@ public interface ConfigurationDocumentRepo<T> {
    * @param effectiveInstant effective time after name change, not-null
    * @return the Config Document,  null if not found
    */
-  ConfigurationDocument<T> getByName(String currentName, Instant effectiveInstant);
+  ConfigDocument<T> getByName(String currentName, Instant effectiveInstant);
   
   /**
    * Load the document with specified oid and version
@@ -43,7 +43,7 @@ public interface ConfigurationDocumentRepo<T> {
    * @param version the document version
    * @return the config document, null if not found
    */
-  ConfigurationDocument<T> getByOid(String oid, int version);
+  ConfigDocument<T> getByOid(String oid, int version);
 
   /**
    * Obtain all versions of the document with the specified OID in between
@@ -54,7 +54,7 @@ public interface ConfigurationDocumentRepo<T> {
    * @param endDate the endDate, null for current date
    * @return the list of config documents, not-null empty if not found
    */
-  List<ConfigurationDocument<T>> getSequence(String oid, Instant startDate, Instant endDate);
+  List<ConfigDocument<T>> getSequence(String oid, Instant startDate, Instant endDate);
 
   /**
    * 
@@ -62,7 +62,7 @@ public interface ConfigurationDocumentRepo<T> {
    * @param value The config document, not-null
    * @return created config document, null if can not be created
    */
-  ConfigurationDocument<T> insertNewItem(String name, T value);
+  ConfigDocument<T> insertNewItem(String name, T value);
   
   /**
    * 
@@ -70,7 +70,7 @@ public interface ConfigurationDocumentRepo<T> {
    * @param value the config document, not-null 
    * @return created config document, null if can not be created
    */
-  ConfigurationDocument<T> insertNewVersion(String oid, T value);
+  ConfigDocument<T> insertNewVersion(String oid, T value);
   
   /**
    * Insert new version with a different name
@@ -79,7 +79,7 @@ public interface ConfigurationDocumentRepo<T> {
    * @param value the config document, not-null 
    * @return created config document, null if can not be created
    */
-  ConfigurationDocument<T> insertNewVersion(String oid, String name, T value);
+  ConfigDocument<T> insertNewVersion(String oid, String name, T value);
   
   /**
    * @return all names for config documents

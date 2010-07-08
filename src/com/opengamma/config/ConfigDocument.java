@@ -12,7 +12,7 @@ import javax.time.Instant;
  *
  * @param <T> the type of Config Document
  */
-public interface ConfigurationDocument<T> {
+public interface ConfigDocument<T> {
 
   /**
    * Fudge message key for the oid.
