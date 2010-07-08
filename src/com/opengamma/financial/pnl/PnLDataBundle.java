@@ -82,14 +82,21 @@ public class PnLDataBundle {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((_encoding == null) ? 0 : _encoding.hashCode());
-    result = prime * result + ((_returns == null) ? 0 : _returns.hashCode());
+    if (_returns == null) {
+      result = prime * result;
+    } else {
+      result = prime * result + ((_returns == null) ? 0 : _returns.keySet().hashCode());
+      for (final Map<Object, double[]> data : _returns.values()) {
+        result = prime * result + data.keySet().hashCode();
+      }
+    }
     result = prime * result + ((_sensitivities == null) ? 0 : _sensitivities.hashCode());
     result = prime * result + Arrays.hashCode(_times);
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -99,7 +106,7 @@ public class PnLDataBundle {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    PnLDataBundle other = (PnLDataBundle) obj;
+    final PnLDataBundle other = (PnLDataBundle) obj;
     if (_encoding == null) {
       if (other._encoding != null) {
         return false;
@@ -111,8 +118,20 @@ public class PnLDataBundle {
       if (other._returns != null) {
         return false;
       }
-    } else if (!_returns.equals(other._returns)) {
-      return false;
+    } else {
+      if (!_returns.keySet().equals(other._returns.keySet())) {
+        return false;
+      }
+      for (final Map.Entry<Sensitivity<?>, Map<Object, double[]>> entry : _returns.entrySet()) {
+        if (!entry.getValue().keySet().equals(other._returns.get(entry.getKey()).keySet())) {
+          return false;
+        }
+        for (final Object o : entry.getValue().keySet()) {
+          if (!Arrays.equals(entry.getValue().get(o), other._returns.get(entry.getKey()).get(o))) {
+            return false;
+          }
+        }
+      }
     }
     if (_sensitivities == null) {
       if (other._sensitivities != null) {
@@ -126,5 +145,4 @@ public class PnLDataBundle {
     }
     return true;
   }
-
 }
