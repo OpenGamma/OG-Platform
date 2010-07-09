@@ -37,10 +37,10 @@ public class HullWhiteTwoFactorInterestRateModel {
         final double r3 = data.getInterestRate(t3);
         final double p2 = Math.exp(-r2 * t2);
         final double p3 = Math.exp(-r3 * t3);
-        final double alpha = data.getSpeed1();
-        final double beta = data.getSpeed2();
-        final double sigma1 = data.getVolatility1(t1);
-        final double sigma2 = data.getVolatility2(t1);
+        final double alpha = data.getFirstSpeed();
+        final double beta = data.getSecondSpeed();
+        final double sigma1 = data.getFirstVolatility(t1);
+        final double sigma2 = data.getSecondVolatility(t1);
         final double rho = data.getRho();
         final double eta = getEta(t1, t2, t3, alpha, beta, sigma1, sigma2, rho);
         final double b = getB(t3 - t2, alpha);

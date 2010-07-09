@@ -25,4 +25,5 @@ public abstract class VolatilityCurve implements VolatilityModel<Double> {
   public abstract VolatilityCurve withSingleShift(Double x, Double shift);
 
   public abstract VolatilityCurve withMultipleShifts(Map<Double, Double> shifts);
+
 }

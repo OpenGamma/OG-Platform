@@ -27,14 +27,14 @@ public class NormalDistribution implements ProbabilityDistribution<Double> {
   private final Normal _normal;
 
   public NormalDistribution(final double mean, final double standardDeviation) {
-    ArgumentChecker.notNegative(standardDeviation, "standard deviation");
+    ArgumentChecker.notNegativeOrZero(standardDeviation, "standard deviation");
     _mean = mean;
     _standardDeviation = standardDeviation;
     _normal = new Normal(mean, standardDeviation, _randomEngine);
   }
 
   public NormalDistribution(final double mean, final double standardDeviation, final RandomEngine randomEngine) {
-    ArgumentChecker.notNegative(standardDeviation, "standard deviation");
+    ArgumentChecker.notNegativeOrZero(standardDeviation, "standard deviation");
     Validate.notNull(randomEngine);
     _mean = mean;
     _standardDeviation = standardDeviation;

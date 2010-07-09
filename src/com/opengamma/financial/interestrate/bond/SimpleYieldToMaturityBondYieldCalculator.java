@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.model.bond;
+package com.opengamma.financial.interestrate.bond;
 
 import org.apache.commons.lang.Validate;
 
@@ -12,7 +12,7 @@ import com.opengamma.util.timeseries.yearoffset.YearOffsetDoubleTimeSeries;
 /**
  *
  */
-public class CurrentYieldBondYieldCalculator {
+public class SimpleYieldToMaturityBondYieldCalculator {
 
   public double calculate(final YearOffsetDoubleTimeSeries cashFlows, final double cleanPrice) {
     Validate.notNull(cashFlows, "cash flows");
@@ -25,6 +25,6 @@ public class CurrentYieldBondYieldCalculator {
     if (cashFlows.size() < 1) {
       throw new IllegalArgumentException("Need at least one cash flow to calculate current yield");
     }
-    return cashFlows.getEarliestValue() / cleanPrice * 100;
+    return (cashFlows.getEarliestValue() * 100 + (100 - cleanPrice) / cashFlows.getLatestTime()) / cleanPrice;
   }
 }

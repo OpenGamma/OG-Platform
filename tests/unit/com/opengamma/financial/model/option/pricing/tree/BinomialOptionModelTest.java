@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -23,7 +23,7 @@ import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurfac
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
@@ -60,58 +60,56 @@ public class BinomialOptionModelTest {
       };
   private static final BinomialOptionModel<StandardOptionDataBundle> BINOMIAL_THREE_STEPS = new BinomialOptionModel<StandardOptionDataBundle>(3, DUMMY);
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testEuropeanCallTree() {
     final ZonedDateTime date = DateUtil.getUTCDate(2009, 1, 1);
     final StandardOptionDataBundle data = new StandardOptionDataBundle(new ConstantYieldCurve(0.06), 0., new ConstantVolatilitySurface(0.), 100., date);
     final OptionDefinition option = new EuropeanVanillaOptionDefinition(100, new Expiry(DateUtil.getDateOffsetWithYearFraction(date, 1)), true);
-    final Function1D<StandardOptionDataBundle, RecombiningBinomialTree<Pair<Double, Double>>> f = BINOMIAL_THREE_STEPS.getTreeGeneratingFunction(option);
-    final Pair<Double, Double>[][] result = f.evaluate(data).getTree();
-    final Pair<Double, Double>[][] expected = new Pair[4][4];
-    expected[0][0] = Pair.of(100., 10.1457);
-    expected[1][0] = Pair.of(90.91, 3.2545);
-    expected[1][1] = Pair.of(110., 15.4471);
-    expected[2][0] = Pair.of(82.64, 0.);
-    expected[2][1] = Pair.of(100., 5.7048);
-    expected[2][2] = Pair.of(121., 22.9801);
-    expected[3][0] = Pair.of(75.13, 0.);
-    expected[3][1] = Pair.of(90.91, 0.);
-    expected[3][2] = Pair.of(110., 10.);
-    expected[3][3] = Pair.of(133.1, 33.1);
+    final Function1D<StandardOptionDataBundle, RecombiningBinomialTree<DoublesPair>> f = BINOMIAL_THREE_STEPS.getTreeGeneratingFunction(option);
+    final DoublesPair[][] result = f.evaluate(data).getTree();
+    final DoublesPair[][] expected = new DoublesPair[4][4];
+    expected[0][0] = DoublesPair.of(100., 10.1457);
+    expected[1][0] = DoublesPair.of(90.91, 3.2545);
+    expected[1][1] = DoublesPair.of(110., 15.4471);
+    expected[2][0] = DoublesPair.of(82.64, 0.);
+    expected[2][1] = DoublesPair.of(100., 5.7048);
+    expected[2][2] = DoublesPair.of(121., 22.9801);
+    expected[3][0] = DoublesPair.of(75.13, 0.);
+    expected[3][1] = DoublesPair.of(90.91, 0.);
+    expected[3][2] = DoublesPair.of(110., 10.);
+    expected[3][3] = DoublesPair.of(133.1, 33.1);
     testTrees(expected, result, 4);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testAmericanPutTree() {
     final ZonedDateTime date = DateUtil.getUTCDate(2009, 1, 1);
     final StandardOptionDataBundle data = new StandardOptionDataBundle(new ConstantYieldCurve(0.06), 0., new ConstantVolatilitySurface(0.), 100., date);
     final OptionDefinition option = new AmericanVanillaOptionDefinition(100, new Expiry(DateUtil.getDateOffsetWithYearFraction(date, 1)), false);
-    final Function1D<StandardOptionDataBundle, RecombiningBinomialTree<Pair<Double, Double>>> f = BINOMIAL_THREE_STEPS.getTreeGeneratingFunction(option);
-    final Pair<Double, Double>[][] result = f.evaluate(data).getTree();
-    final Pair<Double, Double>[][] expected = new Pair[4][4];
-    expected[0][0] = Pair.of(100., 4.6546);
-    expected[1][0] = Pair.of(90.91, 9.2356);
-    expected[1][1] = Pair.of(110., 1.5261);
-    expected[2][0] = Pair.of(82.64, 17.3554);
-    expected[2][1] = Pair.of(100., 3.7247);
-    expected[2][2] = Pair.of(121., 0.);
-    expected[3][0] = Pair.of(75.13, 24.8685);
-    expected[3][1] = Pair.of(90.91, 9.0909);
-    expected[3][2] = Pair.of(110., 0.);
-    expected[3][3] = Pair.of(133.1, 0.);
+    final Function1D<StandardOptionDataBundle, RecombiningBinomialTree<DoublesPair>> f = BINOMIAL_THREE_STEPS.getTreeGeneratingFunction(option);
+    final DoublesPair[][] result = f.evaluate(data).getTree();
+    final DoublesPair[][] expected = new DoublesPair[4][4];
+    expected[0][0] = DoublesPair.of(100., 4.6546);
+    expected[1][0] = DoublesPair.of(90.91, 9.2356);
+    expected[1][1] = DoublesPair.of(110., 1.5261);
+    expected[2][0] = DoublesPair.of(82.64, 17.3554);
+    expected[2][1] = DoublesPair.of(100., 3.7247);
+    expected[2][2] = DoublesPair.of(121., 0.);
+    expected[3][0] = DoublesPair.of(75.13, 24.8685);
+    expected[3][1] = DoublesPair.of(90.91, 9.0909);
+    expected[3][2] = DoublesPair.of(110., 0.);
+    expected[3][3] = DoublesPair.of(133.1, 0.);
     testTrees(expected, result, 4);
   }
 
-  private void testTrees(final Pair<Double, Double>[][] expected, final Pair<Double, Double>[][] result, final int n) {
+  private void testTrees(final DoublesPair[][] expected, final DoublesPair[][] result, final int n) {
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < n; j++) {
         if (expected[i][j] == null) {
           assertTrue(result[i][j] == null);
         } else {
-          assertEquals(expected[i][j].getFirst(), result[i][j].getFirst(), 1e-2);
-          assertEquals(expected[i][j].getSecond(), result[i][j].getSecond(), 1e-4);
+          assertEquals(expected[i][j].first, result[i][j].first, 1e-2);
+          assertEquals(expected[i][j].second, result[i][j].second, 1e-4);
         }
       }
     }

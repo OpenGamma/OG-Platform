@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.model.bond;
+package com.opengamma.financial.interestrate.bond;
 
 import static org.junit.Assert.assertEquals;
 
@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.opengamma.financial.interestrate.bond.BondYieldCalculator;
 import com.opengamma.financial.model.cashflow.ContinuousCompoundingPresentValueCalculator;
 import com.opengamma.financial.model.cashflow.DiscreteCompoundingPresentValueCalculator;
 import com.opengamma.financial.model.cashflow.PresentValueCalculator;

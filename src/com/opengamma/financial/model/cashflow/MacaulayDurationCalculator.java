@@ -9,7 +9,7 @@ import java.util.Iterator;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.model.bond.BondYieldCalculator;
+import com.opengamma.financial.interestrate.bond.BondYieldCalculator;
 import com.opengamma.financial.model.interestrate.InterestRateModel;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateModel;
 import com.opengamma.util.timeseries.DoubleTimeSeries;

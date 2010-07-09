@@ -50,7 +50,9 @@ public class DoubleCurveFinder extends Function1D<DoubleMatrix1D, DoubleMatrix1D
       ArgumentChecker.notEmpty(fundingTimeGrid, "funding time grid");
     }
     Validate.notEmpty(derivatives);
-    ArgumentChecker.notEmpty(swapValues, "swap values");
+    if (derivatives.size() != swapValues.length) {
+      throw new IllegalArgumentException("Must be same number of market data points as derivatives");
+    }
     _derivatives = derivatives;
     _swapValues = swapValues;
     _spotRate = spotRate;
@@ -64,7 +66,7 @@ public class DoubleCurveFinder extends Function1D<DoubleMatrix1D, DoubleMatrix1D
     _fwdCurve = forwardCurve;
     _fundCurve = fundCurve;
     if (_nInterestRateDerivatives != _nFwdNodes + _nFundNodes) {
-      throw new IllegalArgumentException("total number of nodes does not much number of instruments");
+      throw new IllegalArgumentException("total number of nodes does not match number of instruments");
     }
   }
 

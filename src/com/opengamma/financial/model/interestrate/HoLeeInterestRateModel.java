@@ -17,7 +17,6 @@ import com.opengamma.util.time.DateUtil;
  * 
  */
 public class HoLeeInterestRateModel {
-  private final double _delta = 0.1;
 
   public Function1D<HoLeeDataBundle, Double> getInterestRateFunction(final ZonedDateTime time, final ZonedDateTime maturity) {
     Validate.notNull(time);
@@ -32,13 +31,11 @@ public class HoLeeInterestRateModel {
         final double b = s - t;
         final double sigma = data.getVolatility(t);
         final double rT = data.getInterestRate(t);
-        final double rs = data.getInterestRate(s);
+        final double rS = data.getInterestRate(s);
         final double pT = Math.exp(-rT * t);
-        final double ps = Math.exp(-rs * s);
-        final double upT = t + _delta;
-        final double downT = t - _delta;
-        final double dlnPdt = (-data.getInterestRate(upT) * upT + data.getInterestRate(downT) * downT) / (2 * _delta);
-        final double lnA = Math.log(ps / pT) - b * dlnPdt - 0.5 * sigma * sigma * b * b;
+        final double pS = Math.exp(-rS * s);
+        final double dlnPdt = -rT;
+        final double lnA = Math.log(pS / pT) - b * dlnPdt - 0.5 * sigma * sigma * b * b;
         return Math.exp(lnA - b * rT);
       }
     };

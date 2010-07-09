@@ -48,4 +48,51 @@ public class BlackDermanToyDataBundle {
   public Double getVolatility(final Double t) {
     return getVolatilityCurve().getVolatility(t);
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_date == null) ? 0 : _date.hashCode());
+    result = prime * result + ((_volatilityCurve == null) ? 0 : _volatilityCurve.hashCode());
+    result = prime * result + ((_yieldCurve == null) ? 0 : _yieldCurve.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    BlackDermanToyDataBundle other = (BlackDermanToyDataBundle) obj;
+    if (_date == null) {
+      if (other._date != null) {
+        return false;
+      }
+    } else if (!_date.equals(other._date)) {
+      return false;
+    }
+    if (_volatilityCurve == null) {
+      if (other._volatilityCurve != null) {
+        return false;
+      }
+    } else if (!_volatilityCurve.equals(other._volatilityCurve)) {
+      return false;
+    }
+    if (_yieldCurve == null) {
+      if (other._yieldCurve != null) {
+        return false;
+      }
+    } else if (!_yieldCurve.equals(other._yieldCurve)) {
+      return false;
+    }
+    return true;
+  }
+
 }

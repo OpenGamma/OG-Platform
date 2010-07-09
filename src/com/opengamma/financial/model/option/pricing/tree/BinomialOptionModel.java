@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  * 
  * Please see distribution for license.
  */
@@ -18,7 +18,7 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.FiniteDifferenceGreekVisitor;
 import com.opengamma.financial.model.tree.RecombiningBinomialTree;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
@@ -42,7 +42,7 @@ public class BinomialOptionModel<T extends StandardOptionDataBundle> extends Tre
   }
 
   public GreekResultCollection getGreeks(final OptionDefinition definition, final T data, final Set<Greek> requiredGreeks) {
-    final Function1D<T, RecombiningBinomialTree<Pair<Double, Double>>> treeFunction = getTreeGeneratingFunction(definition);
+    final Function1D<T, RecombiningBinomialTree<DoublesPair>> treeFunction = getTreeGeneratingFunction(definition);
     final GreekResultCollection results = new GreekResultCollection();
     final GreekVisitor<Double> visitor = getGreekVisitor(treeFunction, data, definition);
     for (final Greek greek : requiredGreeks) {
@@ -52,13 +52,13 @@ public class BinomialOptionModel<T extends StandardOptionDataBundle> extends Tre
     return results;
   }
 
-  public GreekVisitor<Double> getGreekVisitor(final Function1D<T, RecombiningBinomialTree<Pair<Double, Double>>> treeFunction, final T data,
+  public GreekVisitor<Double> getGreekVisitor(final Function1D<T, RecombiningBinomialTree<DoublesPair>> treeFunction, final T data,
       final OptionDefinition definition) {
     final Function1D<T, Double> function = new Function1D<T, Double>() {
 
       @Override
       public Double evaluate(final T t) {
-        return treeFunction.evaluate(t).getNode(0, 0).getSecond();
+        return treeFunction.evaluate(t).getNode(0, 0).second;
       }
 
     };
@@ -66,13 +66,13 @@ public class BinomialOptionModel<T extends StandardOptionDataBundle> extends Tre
   }
 
   @Override
-  public Function1D<T, RecombiningBinomialTree<Pair<Double, Double>>> getTreeGeneratingFunction(final OptionDefinition definition) {
-    return new Function1D<T, RecombiningBinomialTree<Pair<Double, Double>>>() {
+  public Function1D<T, RecombiningBinomialTree<DoublesPair>> getTreeGeneratingFunction(final OptionDefinition definition) {
+    return new Function1D<T, RecombiningBinomialTree<DoublesPair>>() {
 
       @SuppressWarnings({ "unchecked", "synthetic-access" })
       @Override
-      public RecombiningBinomialTree<Pair<Double, Double>> evaluate(final T data) {
-        final Pair<Double, Double>[][] spotAndOptionPrices = new Pair[_n + 1][_j];
+      public RecombiningBinomialTree<DoublesPair> evaluate(final T data) {
+        final DoublesPair[][] spotAndOptionPrices = new DoublesPair[_n + 1][_j];
         final OptionPayoffFunction<T> payoffFunction = definition.getPayoffFunction();
         final OptionExerciseFunction<T> exerciseFunction = definition.getExerciseFunction();
         final double u = _model.getUpFactor(definition, data, _n, _j);
@@ -83,24 +83,24 @@ public class BinomialOptionModel<T extends StandardOptionDataBundle> extends Tre
         final double r = data.getInterestRate(t);
         double newSpot = spot * Math.pow(d, _n);
         for (int i = 0; i < _j; i++) {
-          spotAndOptionPrices[_n][i] = Pair.of(newSpot, payoffFunction.getPayoff((T) data.withSpot(newSpot), 0.));
+          spotAndOptionPrices[_n][i] = DoublesPair.of(newSpot, payoffFunction.getPayoff((T) data.withSpot(newSpot), 0.));
           newSpot *= u / d;
         }
         final double df = Math.exp(-r * t / _n);
-        Double optionValue, spotValue;
+        double optionValue, spotValue;
         T newData;
         double p;
         for (int i = _n - 1; i >= 0; i--) {
           for (int j = 0; j < RecombiningBinomialTree.NODES.evaluate(i); j++) {
             p = pTree.getNode(i, j);
-            optionValue = df * ((1 - p) * spotAndOptionPrices[i + 1][j].getSecond() + p * spotAndOptionPrices[i + 1][j + 1].getSecond());
-            spotValue = spotAndOptionPrices[i + 1][j].getFirst() / d;
+            optionValue = df * ((1 - p) * spotAndOptionPrices[i + 1][j].second + p * spotAndOptionPrices[i + 1][j + 1].second);
+            spotValue = spotAndOptionPrices[i + 1][j].first / d;
             newData = (T) data.withSpot(spotValue);
             spotAndOptionPrices[i][j] =
-                Pair.of(spotValue, exerciseFunction.shouldExercise(newData, optionValue) ? payoffFunction.getPayoff(newData, optionValue) : optionValue);
+              DoublesPair.of(spotValue, exerciseFunction.shouldExercise(newData, optionValue) ? payoffFunction.getPayoff(newData, optionValue) : optionValue);
           }
         }
-        return new RecombiningBinomialTree<Pair<Double, Double>>(spotAndOptionPrices);
+        return new RecombiningBinomialTree<DoublesPair>(spotAndOptionPrices);
       }
     };
   }
@@ -109,11 +109,11 @@ public class BinomialOptionModel<T extends StandardOptionDataBundle> extends Tre
    * 
    */
   protected class BinomialModelFiniteDifferenceGreekVisitor extends FiniteDifferenceGreekVisitor<T, OptionDefinition> {
-    private final RecombiningBinomialTree<Pair<Double, Double>> _tree;
+    private final RecombiningBinomialTree<DoublesPair> _tree;
     private final double _dt;
 
     @SuppressWarnings("synthetic-access")
-    public BinomialModelFiniteDifferenceGreekVisitor(final RecombiningBinomialTree<Pair<Double, Double>> tree, final Function1D<T, Double> function,
+    public BinomialModelFiniteDifferenceGreekVisitor(final RecombiningBinomialTree<DoublesPair> tree, final Function1D<T, Double> function,
         final T data, final OptionDefinition definition) {
       super(function, data, definition);
       _tree = tree;
@@ -122,29 +122,29 @@ public class BinomialOptionModel<T extends StandardOptionDataBundle> extends Tre
 
     @Override
     public Double visitDelta() {
-      final Pair<Double, Double> node11 = _tree.getNode(1, 1);
-      final Pair<Double, Double> node10 = _tree.getNode(1, 0);
-      final double delta = (node11.getSecond() - node10.getSecond()) / (node11.getFirst() - node10.getFirst());
+      final DoublesPair node11 = _tree.getNode(1, 1);
+      final DoublesPair node10 = _tree.getNode(1, 0);
+      final double delta = (node11.second - node10.second) / (node11.first - node10.first);
       return delta;
     }
 
     @Override
     public Double visitGamma() {
-      final Pair<Double, Double> node22 = _tree.getNode(2, 2);
-      final Pair<Double, Double> node21 = _tree.getNode(2, 1);
-      final Pair<Double, Double> node20 = _tree.getNode(2, 0);
+      final DoublesPair node22 = _tree.getNode(2, 2);
+      final DoublesPair node21 = _tree.getNode(2, 1);
+      final DoublesPair node20 = _tree.getNode(2, 0);
       double gamma =
-          (node22.getSecond() - node21.getSecond()) / (node22.getFirst() - node21.getFirst()) - (node21.getSecond() - node20.getSecond())
-              / (node21.getFirst() - node20.getFirst());
-      gamma /= 0.5 * (node22.getFirst() - node20.getFirst());
+          (node22.second - node21.second) / (node22.first - node21.first) - (node21.second - node20.second)
+              / (node21.first - node20.first);
+      gamma /= 0.5 * (node22.first - node20.first);
       return gamma;
     }
 
     @Override
     public Double visitTheta() {
-      final Pair<Double, Double> node21 = _tree.getNode(2, 1);
-      final Pair<Double, Double> node00 = _tree.getNode(0, 0);
-      return (node21.getSecond() - node00.getSecond()) / (2 * _dt);
+      final DoublesPair node21 = _tree.getNode(2, 1);
+      final DoublesPair node00 = _tree.getNode(0, 0);
+      return (node21.second - node00.second) / (2 * _dt);
     }
   }
 }

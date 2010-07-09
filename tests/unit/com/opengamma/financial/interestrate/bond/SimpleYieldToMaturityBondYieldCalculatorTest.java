@@ -3,26 +3,30 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.model.bond;
+package com.opengamma.financial.interestrate.bond;
 
 import static org.junit.Assert.assertEquals;
 
+import javax.time.Instant;
+import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
+import com.opengamma.financial.interestrate.bond.SimpleYieldToMaturityBondYieldCalculator;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
+import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.yearoffset.ArrayYearOffsetDoubleTimeSeries;
 import com.opengamma.util.timeseries.yearoffset.YearOffsetDoubleTimeSeries;
-import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
 /**
  *
  */
-public class CurrentYieldBondYieldCalculatorTest {
-  private static final CurrentYieldBondYieldCalculator CALCULATOR = new CurrentYieldBondYieldCalculator();
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 4, 1);
+public class SimpleYieldToMaturityBondYieldCalculatorTest {
+  private static final SimpleYieldToMaturityBondYieldCalculator CALCULATOR = new SimpleYieldToMaturityBondYieldCalculator();
+  private static final ZonedDateTime DATE = ZonedDateTime.ofInstant(Instant.EPOCH, TimeZone.UTC);
   private static final YearOffsetDoubleTimeSeries CF1;
   private static final YearOffsetDoubleTimeSeries CF2;
   private static final double EPS = 1e-9;
@@ -30,9 +34,9 @@ public class CurrentYieldBondYieldCalculatorTest {
   private static final double COUPON = 0.05;
 
   static {
-    final DoubleTimeSeries<ZonedDateTime> dts1 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtil.getUTCDate(2011, 4, 1)}, new double[] {1});
-    final DoubleTimeSeries<ZonedDateTime> dts2 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtil.getUTCDate(2011, 4, 1), DateUtil.getUTCDate(2012, 4, 1)},
-        new double[] {COUPON, COUPON + 1});
+    final DoubleTimeSeries<Long> dts1 = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new long[] {DateUtil.MILLISECONDS_PER_YEAR}, new double[] {1});
+    final DoubleTimeSeries<Long> dts2 = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new long[] {DateUtil.MILLISECONDS_PER_YEAR,
+        DateUtil.MILLISECONDS_PER_YEAR * 5}, new double[] {COUPON, COUPON + 1});
     CF1 = new ArrayYearOffsetDoubleTimeSeries(DATE, dts1.toFastLongDoubleTimeSeries());
     CF2 = new ArrayYearOffsetDoubleTimeSeries(DATE, dts2.toFastLongDoubleTimeSeries());
   }
@@ -54,7 +58,9 @@ public class CurrentYieldBondYieldCalculatorTest {
 
   @Test
   public void test() {
-    assertEquals(CALCULATOR.calculate(CF1, PAR), 1, EPS);
-    assertEquals(CALCULATOR.calculate(CF2, PAR), 0.05, EPS);
+    final double discount = 9;
+    assertEquals(CALCULATOR.calculate(CF1, PAR - discount), (PAR + discount) / (PAR - discount), EPS);
+    assertEquals(CALCULATOR.calculate(CF2, PAR), COUPON / PAR * 100, EPS);
   }
+
 }

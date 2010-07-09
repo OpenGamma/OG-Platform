@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  * 
  * Please see distribution for license.
  */
@@ -10,7 +10,7 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.OptionModel;
 import com.opengamma.financial.model.tree.RecombiningTree;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
@@ -19,5 +19,5 @@ import com.opengamma.util.tuple.Pair;
  */
 public abstract class TreeOptionModel<T extends OptionDefinition, U extends StandardOptionDataBundle> implements OptionModel<T, U> {
 
-  public abstract Function1D<U, ? extends RecombiningTree<Pair<Double, Double>>> getTreeGeneratingFunction(T definition);
+  public abstract Function1D<U, ? extends RecombiningTree<DoublesPair>> getTreeGeneratingFunction(T definition);
 }

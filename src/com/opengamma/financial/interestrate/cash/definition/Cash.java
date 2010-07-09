@@ -6,6 +6,7 @@
 package com.opengamma.financial.interestrate.cash.definition;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -21,6 +22,10 @@ public class Cash implements InterestRateDerivative {
 
   public double getPaymentTime() {
     return _paymentTime;
+  }
+
+  public <T> T accept(final InterestRateDerivativeVisitor<T> visitor) {
+    return visitor.visitCash(this);
   }
 
   @Override

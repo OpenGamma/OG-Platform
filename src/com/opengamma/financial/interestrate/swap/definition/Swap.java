@@ -10,6 +10,7 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -96,6 +97,10 @@ public class Swap implements InterestRateDerivative {
 
   public int getNumberOfFloatingPayments() {
     return _nFloat;
+  }
+
+  public <T> T accept(final InterestRateDerivativeVisitor<T> visitor) {
+    return visitor.visitSwap(this);
   }
 
   @Override

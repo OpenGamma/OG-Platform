@@ -48,7 +48,7 @@ import com.opengamma.util.monitor.OperationTimer;
 /**
  * 
  */
-public class MultiInstrumentSingleCurveBootStrap {
+public class MultiInstrumentSingleCurveBootStrapTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveBootStrapTest.class);
   private static final int HOTSPOT_WARMUP_CYCLES = 0;

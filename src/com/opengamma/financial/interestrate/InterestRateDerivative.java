@@ -10,4 +10,5 @@ package com.opengamma.financial.interestrate;
  */
 public interface InterestRateDerivative {
 
+  <T> T accept(InterestRateDerivativeVisitor<T> visitor);
 }
