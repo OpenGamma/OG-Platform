@@ -7,7 +7,7 @@ package com.opengamma.financial.model.cashflow;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.model.bond.BondYieldCalculator;
+import com.opengamma.financial.interestrate.bond.BondYieldCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**

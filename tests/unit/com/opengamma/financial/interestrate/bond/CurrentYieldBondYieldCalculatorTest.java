@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.model.bond;
+package com.opengamma.financial.interestrate.bond;
 
 import static org.junit.Assert.assertEquals;
 
@@ -11,6 +11,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
+import com.opengamma.financial.interestrate.bond.CurrentYieldBondYieldCalculator;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.yearoffset.ArrayYearOffsetDoubleTimeSeries;
@@ -20,19 +21,19 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
 /**
  *
  */
-public class CouponYieldBondYieldCalculatorTest {
-  private static final CouponYieldBondYieldCalculator CALCULATOR = new CouponYieldBondYieldCalculator();
+public class CurrentYieldBondYieldCalculatorTest {
+  private static final CurrentYieldBondYieldCalculator CALCULATOR = new CurrentYieldBondYieldCalculator();
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 4, 1);
   private static final YearOffsetDoubleTimeSeries CF1;
   private static final YearOffsetDoubleTimeSeries CF2;
   private static final double EPS = 1e-9;
   private static final double PAR = 100;
-  private static final double COUPON = 0.07;
+  private static final double COUPON = 0.05;
 
   static {
-    final DoubleTimeSeries<ZonedDateTime> dts1 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtil.getUTCDate(2011, 4, 1)}, new double[] {PAR});
+    final DoubleTimeSeries<ZonedDateTime> dts1 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtil.getUTCDate(2011, 4, 1)}, new double[] {1});
     final DoubleTimeSeries<ZonedDateTime> dts2 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtil.getUTCDate(2011, 4, 1), DateUtil.getUTCDate(2012, 4, 1)},
-        new double[] {PAR * COUPON, PAR * (COUPON + 1)});
+        new double[] {COUPON, COUPON + 1});
     CF1 = new ArrayYearOffsetDoubleTimeSeries(DATE, dts1.toFastLongDoubleTimeSeries());
     CF2 = new ArrayYearOffsetDoubleTimeSeries(DATE, dts2.toFastLongDoubleTimeSeries());
   }
@@ -54,8 +55,7 @@ public class CouponYieldBondYieldCalculatorTest {
 
   @Test
   public void test() {
-    final double discount = 3;
     assertEquals(CALCULATOR.calculate(CF1, PAR), 1, EPS);
-    assertEquals(CALCULATOR.calculate(CF2, PAR - discount), PAR * COUPON / (PAR - discount), EPS);
+    assertEquals(CALCULATOR.calculate(CF2, PAR), 0.05, EPS);
   }
 }
