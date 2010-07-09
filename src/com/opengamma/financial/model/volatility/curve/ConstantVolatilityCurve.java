@@ -5,13 +5,21 @@
  */
 package com.opengamma.financial.model.volatility.curve;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
 public class ConstantVolatilityCurve extends VolatilityCurve {
+  private static final Logger s_logger = LoggerFactory.getLogger(ConstantVolatilityCurve.class);
   private final double _sigma;
 
   public ConstantVolatilityCurve(final double sigma) {
@@ -25,26 +33,66 @@ public class ConstantVolatilityCurve extends VolatilityCurve {
 
   @Override
   public Set<Double> getXData() {
-    // TODO Auto-generated method stub
-    return null;
+    return Collections.<Double>emptySet();
   }
 
   @Override
   public VolatilityCurve withMultipleShifts(final Map<Double, Double> shifts) {
-    // TODO Auto-generated method stub
-    return null;
+    Validate.notNull(shifts);
+    if (shifts.isEmpty()) {
+      s_logger.info("Shift map was empty; returning unchanged curve");
+      return new ConstantVolatilityCurve(_sigma);
+    }
+    if (shifts.size() != 1) {
+      s_logger.warn("Shift map contained more than one element - only using first");
+    }
+    final Map.Entry<Double, Double> firstEntry = shifts.entrySet().iterator().next();
+    Validate.notNull(firstEntry);
+    ArgumentChecker.notNegative(firstEntry.getKey(), "time");
+    Validate.notNull(firstEntry.getValue());
+    return new ConstantVolatilityCurve(_sigma + firstEntry.getValue());
   }
 
   @Override
   public VolatilityCurve withParallelShift(final Double shift) {
-    // TODO Auto-generated method stub
-    return null;
+    Validate.notNull(shift);
+    return new ConstantVolatilityCurve(_sigma + shift);
   }
 
   @Override
   public VolatilityCurve withSingleShift(final Double x, final Double shift) {
-    // TODO Auto-generated method stub
-    return null;
+    Validate.notNull(x);
+    Validate.notNull(shift);
+    ArgumentChecker.notNegative(x, "time");
+    return new ConstantVolatilityCurve(_sigma + shift);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(_sigma);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    ConstantVolatilityCurve other = (ConstantVolatilityCurve) obj;
+    if (Double.doubleToLongBits(_sigma) != Double.doubleToLongBits(other._sigma)) {
+      return false;
+    }
+    return true;
   }
 
 }

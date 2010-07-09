@@ -7,18 +7,21 @@ package com.opengamma.financial.model.interestrate.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.Validate;
+
 /**
  * 
  */
 public class VasicekDataBundle {
+  //TODO if this is refactored to use volatility curves and surfaces then it can extend a StandardInterestRateDataBundle
   private final double _shortRate;
   private final double _longTermInterestRate;
   private final double _reversionSpeed;
   private final double _shortRateVolatility;
   private final ZonedDateTime _date;
 
-  public VasicekDataBundle(final double shortRate, final double longTermInterestRate, final double reversionSpeed, final double shortRateVolatility,
-      final ZonedDateTime date) {
+  public VasicekDataBundle(final double shortRate, final double longTermInterestRate, final double reversionSpeed, final double shortRateVolatility, final ZonedDateTime date) {
+    Validate.notNull(date);
     _shortRate = shortRate;
     _longTermInterestRate = longTermInterestRate;
     _reversionSpeed = reversionSpeed;
