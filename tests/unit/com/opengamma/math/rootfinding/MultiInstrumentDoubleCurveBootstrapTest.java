@@ -21,7 +21,6 @@ import cern.jet.random.engine.RandomEngine;
 import com.opengamma.financial.interestrate.DoubleCurveFinder;
 import com.opengamma.financial.interestrate.DoubleCurveJacobian;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.SingleCurveFinder;
 import com.opengamma.financial.interestrate.SwapRateCalculator;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
@@ -52,8 +51,8 @@ import com.opengamma.util.monitor.OperationTimer;
 public class MultiInstrumentDoubleCurveBootstrapTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveBootStrapTest.class);
-  private static final int HOTSPOT_WARMUP_CYCLES = 100;
-  private static final int BENCHMARK_CYCLES = 1000;
+  private static final int HOTSPOT_WARMUP_CYCLES = 0;
+  private static final int BENCHMARK_CYCLES = 1;
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
 
   private static final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> CUBIC = new NaturalCubicSplineInterpolator1D();
@@ -144,7 +143,6 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
     for (int element : swapSemiannualGrid) {
       Swap swap = setupSwap(element);
       INSTRUMENTS.add(swap);
-      double t = swap.getFloatingPaymentTimes()[swap.getNumberOfFloatingPayments() - 1] + Math.max(0.0, swap.getDeltaEnd()[swap.getNumberOfFloatingPayments() - 1]);
     }
 
     if (INSTRUMENTS.size() != (nFwdNodes + nFundNodes)) {
@@ -219,6 +217,7 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
   }
 
   //
+  @SuppressWarnings("unchecked")
   @Test
   public void testJacobian() {
     final JacobianCalculator jacobianFD = new FiniteDifferenceJacobianCalculator(1e-8);
@@ -227,41 +226,23 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
     // System.out.println("exact: " + jacExact.toString());
     // System.out.println("FD: " + jacFD.toString());
 
-    // assertMatrixEquals(jacExact, jacFD, 1e-7);
+    assertMatrixEquals(jacExact, jacFD, 1e-7);
   }
 
   private void doHotSpot(final VectorRootFinder rootFinder, final String name, final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor) {
     for (int i = 0; i < HOTSPOT_WARMUP_CYCLES; i++) {
-      doTest(rootFinder, functor);
+      doTest(rootFinder, (DoubleCurveFinder) functor);
     }
     if (BENCHMARK_CYCLES > 0) {
       final OperationTimer timer = new OperationTimer(s_logger, "processing {} cycles on " + name, BENCHMARK_CYCLES);
       for (int i = 0; i < BENCHMARK_CYCLES; i++) {
-        doTest(rootFinder, functor);
+        doTest(rootFinder, (DoubleCurveFinder) functor);
       }
       timer.finished();
     }
   }
 
-  private void doTest(final VectorRootFinder rootFinder, final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor) {
-    if (functor.getClass().equals(SingleCurveFinder.class)) {
-      doTestForSingleCurve(rootFinder, (SingleCurveFinder) functor);
-    } else if (functor.getClass().equals(DoubleCurveFinder.class)) {
-      doTestForDoubleCurve(rootFinder, (DoubleCurveFinder) functor);
-    } else {
-      throw new IllegalArgumentException("functor must be a SingleCurveFinder or DoubleCurveFinder");
-    }
-  }
-
-  private void doTestForSingleCurve(final VectorRootFinder rootFinder, final SingleCurveFinder functor) {
-    // final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(functor, X0);
-    // final YieldAndDiscountCurve curve = makeYieldCurve(yieldCurveNodes.getData(), NODE_TIMES, CUBIC);
-    // for (int i = 0; i < MARKET_VALUES.length; i++) {
-    // assertEquals(MARKET_VALUES[i], SWAP_RATE_CALCULATOR.getRate(curve, curve, INSTRUMENTS.get(i)), EPS);
-    // }
-  }
-
-  private void doTestForDoubleCurve(final VectorRootFinder rootFinder, final DoubleCurveFinder functor) {
+  private void doTest(final VectorRootFinder rootFinder, final DoubleCurveFinder functor) {
     final double[] yieldCurveNodes = rootFinder.getRoot(functor, X0).getData();
     final double[] fwdYields = Arrays.copyOfRange(yieldCurveNodes, 0, FWD_NODE_TIMES.length);
     final YieldAndDiscountCurve fwdCurve = makeYieldCurve(fwdYields, FWD_NODE_TIMES, CUBIC);
@@ -304,5 +285,17 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
       deltaEnd[i] = 0.02 * (RANDOM.nextDouble() - 0.5);
     }
     return new Swap(fixed, floating, deltaStart, deltaEnd);
+  }
+
+  private void assertMatrixEquals(final DoubleMatrix2D m1, final DoubleMatrix2D m2, final double eps) {
+    final int m = m1.getNumberOfRows();
+    final int n = m1.getNumberOfColumns();
+    assertEquals(m2.getNumberOfRows(), m);
+    assertEquals(m2.getNumberOfColumns(), n);
+    for (int i = 0; i < n; i++) {
+      for (int j = 0; j < m; j++) {
+        assertEquals(m1.getEntry(i, j), m2.getEntry(i, j), eps);
+      }
+    }
   }
 }
