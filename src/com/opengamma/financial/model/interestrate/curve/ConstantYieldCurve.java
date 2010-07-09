@@ -8,6 +8,7 @@ package com.opengamma.financial.model.interestrate.curve;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
@@ -45,7 +46,7 @@ public class ConstantYieldCurve extends YieldAndDiscountCurve {
 
   @Override
   public Set<Double> getMaturities() {
-    return Collections.<Double>emptySet();
+    return Collections.emptySet();
   }
 
   @Override
@@ -70,9 +71,10 @@ public class ConstantYieldCurve extends YieldAndDiscountCurve {
       return new ConstantYieldCurve(_rate);
     }
     if (shifts.size() != 1) {
-      s_logger.warn("Shift map contained more than one element - only using first");
+      s_logger.warn("Shift map contained more than one element - only using first in time");
     }
-    final Map.Entry<Double, Double> firstEntry = shifts.entrySet().iterator().next();
+    Map<Double, Double> sorted = new TreeMap<Double, Double>(shifts);
+    final Map.Entry<Double, Double> firstEntry = sorted.entrySet().iterator().next();
     Validate.notNull(firstEntry);
     ArgumentChecker.notNegative(firstEntry.getKey(), "time");
     Validate.notNull(firstEntry.getValue());

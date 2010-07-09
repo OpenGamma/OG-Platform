@@ -8,6 +8,7 @@ package com.opengamma.financial.model.volatility.curve;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
@@ -23,17 +24,20 @@ public class ConstantVolatilityCurve extends VolatilityCurve {
   private final double _sigma;
 
   public ConstantVolatilityCurve(final double sigma) {
+    ArgumentChecker.notNegative(sigma, "sigma");
     _sigma = sigma;
   }
 
   @Override
   public Double getVolatility(final Double t) {
+    Validate.notNull(t, "t");
+    ArgumentChecker.notNegative(t, "t");
     return _sigma;
   }
 
   @Override
   public Set<Double> getXData() {
-    return Collections.<Double>emptySet();
+    return Collections.emptySet();
   }
 
   @Override
@@ -44,9 +48,10 @@ public class ConstantVolatilityCurve extends VolatilityCurve {
       return new ConstantVolatilityCurve(_sigma);
     }
     if (shifts.size() != 1) {
-      s_logger.warn("Shift map contained more than one element - only using first");
+      s_logger.warn("Shift map contained more than one element - only using first in time");
     }
-    final Map.Entry<Double, Double> firstEntry = shifts.entrySet().iterator().next();
+    Map<Double, Double> sorted = new TreeMap<Double, Double>(shifts);
+    final Map.Entry<Double, Double> firstEntry = sorted.entrySet().iterator().next();
     Validate.notNull(firstEntry);
     ArgumentChecker.notNegative(firstEntry.getKey(), "time");
     Validate.notNull(firstEntry.getValue());
