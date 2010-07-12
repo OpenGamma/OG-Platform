@@ -9,6 +9,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * 
  */
@@ -22,6 +24,7 @@ public class VasicekDataBundle {
 
   public VasicekDataBundle(final double shortRate, final double longTermInterestRate, final double reversionSpeed, final double shortRateVolatility, final ZonedDateTime date) {
     Validate.notNull(date);
+    ArgumentChecker.notZero(reversionSpeed, 1e-15, "reversion speed");
     _shortRate = shortRate;
     _longTermInterestRate = longTermInterestRate;
     _reversionSpeed = reversionSpeed;

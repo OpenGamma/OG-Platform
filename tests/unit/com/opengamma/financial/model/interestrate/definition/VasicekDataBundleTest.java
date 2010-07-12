@@ -30,6 +30,11 @@ public class VasicekDataBundleTest {
     new VasicekDataBundle(SHORT_RATE, LONG_RATE, SPEED, SIGMA, null);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testZeroSpeed() {
+    new VasicekDataBundle(SHORT_RATE, LONG_RATE, 0, SIGMA, DATE);
+  }
+
   @Test
   public void testGetters() {
     assertEquals(DATA.getShortRate(), SHORT_RATE, 0);
