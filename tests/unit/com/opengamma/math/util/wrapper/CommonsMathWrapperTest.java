@@ -110,7 +110,6 @@ public class CommonsMathWrapperTest {
 
   @Test
   public void test1DFunction() throws FunctionEvaluationException {
-    final double x;
     final UnivariateRealFunction commons = CommonsMathWrapper.wrap(OG_FUNCTION_1D);
     for (int i = 0; i < 100; i++) {
       assertEquals(OG_FUNCTION_1D.evaluate((double) i), commons.value(i), 1e-15);
