@@ -5,6 +5,7 @@
  */
 package com.opengamma.math.util.wrapper;
 
+import org.apache.commons.lang.Validate;
 import org.apache.commons.math.FunctionEvaluationException;
 import org.apache.commons.math.analysis.MultivariateRealFunction;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
@@ -34,6 +35,7 @@ public final class CommonsMathWrapper {
   }
 
   public static UnivariateRealFunction wrap(final Function1D<Double, Double> f) {
+    Validate.notNull(f);
     return new UnivariateRealFunction() {
 
       @Override
@@ -44,6 +46,7 @@ public final class CommonsMathWrapper {
   }
 
   public static MultivariateRealFunction wrap(final FunctionND<Double, Double> f) {
+    Validate.notNull(f);
     return new MultivariateRealFunction() {
 
       @Override
@@ -59,10 +62,12 @@ public final class CommonsMathWrapper {
   }
 
   public static RealMatrix wrap(final DoubleMatrix2D x) {
+    Validate.notNull(x);
     return new Array2DRowRealMatrix(x.getData());
   }
 
   public static RealMatrix wrapAsMatrix(final DoubleMatrix1D x) {
+    Validate.notNull(x);
     final int n = x.getNumberOfElements();
     final double[][] y = new double[n][1];
     for (int i = 0; i < n; i++) {
@@ -72,22 +77,27 @@ public final class CommonsMathWrapper {
   }
 
   public static DoubleMatrix2D unwrap(final RealMatrix x) {
+    Validate.notNull(x);
     return new DoubleMatrix2D(x.getData());
   }
 
   public static RealVector wrap(final DoubleMatrix1D x) {
+    Validate.notNull(x);
     return new ArrayRealVector(x.getData());
   }
 
   public static DoubleMatrix1D unwrap(final RealVector x) {
+    Validate.notNull(x);
     return new DoubleMatrix1D(x.getData());
   }
 
   public static Complex wrap(final ComplexNumber z) {
+    Validate.notNull(z);
     return new Complex(z.getReal(), z.getImaginary());
   }
 
   public static Function1D<Double, Double> unwrap(final PolynomialFunctionLagrangeForm lagrange) {
+    Validate.notNull(lagrange);
     return new Function1D<Double, Double>() {
 
       @Override
@@ -103,6 +113,7 @@ public final class CommonsMathWrapper {
   }
 
   public static double[] unwrap(final RealPointValuePair x) {
-    return x.getPointRef();
+    Validate.notNull(x);
+    return x.getPoint();
   }
 }

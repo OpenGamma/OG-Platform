@@ -23,6 +23,7 @@ public class NelderMeadDownhillSimplexMinimizer extends MultidimensionalMinimize
   private static final MultivariateRealOptimizer OPTIMIZER = new NelderMead();
   private static final GoalType MINIMIZER = GoalType.MINIMIZE;
 
+  //TODO doesn't work for 1D functions
   @Override
   public double[] minimize(final FunctionND<Double, Double> f, final double[] initialPoint) {
     checkInputs(f, initialPoint);
