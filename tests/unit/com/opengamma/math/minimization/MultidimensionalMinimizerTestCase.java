@@ -57,7 +57,7 @@ public class MultidimensionalMinimizerTestCase {
     double[] r = minimizer.minimize(F_2D, new double[] {10., 10.});
     assertEquals(r[0], -3.4, EPS);
     assertEquals(r[1], 1, EPS);
-    r = (minimizer.minimize(ROSENBROCK, new double[] {1000, -1020}));
+    r = (minimizer.minimize(ROSENBROCK, new double[] {10, -5}));
     assertEquals(r[0], 1, EPS);
     assertEquals(r[1], 1, EPS);
   }

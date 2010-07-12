@@ -18,26 +18,11 @@ public class ExtendedTrapezoidIntegrator1DTest extends Integrator1DTestCase {
   }
 
   @Override
-  @Test(expected = IllegalArgumentException.class)
-  public void testNullFunction() {
-    super.testNullFunction();
-  }
-
-  @Override
-  @Test(expected = IllegalArgumentException.class)
-  public void testNullLowerBound() {
-    super.testNullLowerBound();
-  }
-
-  @Override
-  @Test(expected = IllegalArgumentException.class)
-  public void testNullUpperBound() {
-    super.testNullUpperBound();
-  }
-
-  @Override
   @Test
   public void test() {
+    super.testNullFunction();
+    super.testNullLowerBound();
+    super.testNullUpperBound();
     super.test();
   }
 }
