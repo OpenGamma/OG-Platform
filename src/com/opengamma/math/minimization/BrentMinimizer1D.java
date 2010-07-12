@@ -24,12 +24,12 @@ public class BrentMinimizer1D extends Minimizer1D {
   private static final AbstractUnivariateRealOptimizer OPTIMIZER = new BrentOptimizer();
 
   @Override
-  public double[] minimize(final Function1D<Double, Double> f, final Double[] initialPoints) {
+  public double[] minimize(final Function1D<Double, Double> f, final double[] initialPoints) {
     checkInputs(f, initialPoints);
+    final UnivariateRealFunction commonsFunction = CommonsMathWrapper.wrap(f);
+    final double a = initialPoints[0];
+    final double b = initialPoints[1];
     try {
-      final UnivariateRealFunction commonsFunction = CommonsMathWrapper.wrap(f);
-      final double a = initialPoints[0];
-      final double b = initialPoints[1];
       return new double[] {OPTIMIZER.optimize(commonsFunction, MINIMIZE, a, b)};
     } catch (final FunctionEvaluationException e) {
       throw new MathException(e);

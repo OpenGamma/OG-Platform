@@ -19,11 +19,11 @@ public class GoldenSectionMinimizer1D extends Minimizer1D {
   private static final double EPS = 1e-12;
 
   @Override
-  public double[] minimize(final Function1D<Double, Double> f, final Double[] initialPoints) {
-    checkInputs(f, initialPoints);
+  public double[] minimize(final Function1D<Double, Double> f, final double[] initialPoint) {
+    checkInputs(f, initialPoint);
     double x0, x1, x2, x3, f1, f2, temp;
     int i = 0;
-    final Double[] triplet = BRACKETER.getBracketedPoints(f, initialPoints[0], initialPoints[1]);
+    final Double[] triplet = BRACKETER.getBracketedPoints(f, initialPoint[0], initialPoint[1]);
     x0 = triplet[0];
     x3 = triplet[2];
     if (Math.abs(triplet[2] - triplet[1]) > Math.abs(triplet[1] - triplet[0])) {

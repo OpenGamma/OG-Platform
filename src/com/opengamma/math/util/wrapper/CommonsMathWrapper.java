@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.util.wrapper;
 
+import org.apache.commons.math.FunctionEvaluationException;
+import org.apache.commons.math.analysis.MultivariateRealFunction;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
 import org.apache.commons.math.analysis.polynomials.PolynomialFunctionLagrangeForm;
 import org.apache.commons.math.complex.Complex;
@@ -12,9 +14,11 @@ import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.ArrayRealVector;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.RealVector;
+import org.apache.commons.math.optimization.RealPointValuePair;
 
 import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.function.FunctionND;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.number.ComplexNumber;
@@ -27,7 +31,6 @@ import com.opengamma.math.number.ComplexNumber;
 public final class CommonsMathWrapper {
 
   private CommonsMathWrapper() {
-    // Can't instantiate this class
   }
 
   public static UnivariateRealFunction wrap(final Function1D<Double, Double> f) {
@@ -36,6 +39,21 @@ public final class CommonsMathWrapper {
       @Override
       public double value(final double x) {
         return f.evaluate(x);
+      }
+    };
+  }
+
+  public static MultivariateRealFunction wrap(final FunctionND<Double, Double> f) {
+    return new MultivariateRealFunction() {
+
+      @Override
+      public double value(final double[] point) throws FunctionEvaluationException, IllegalArgumentException {
+        final int n = point.length;
+        final Double[] coordinate = new Double[n];
+        for (int i = 0; i < n; i++) {
+          coordinate[i] = point[i];
+        }
+        return f.evaluate(coordinate);
       }
     };
   }
@@ -53,7 +71,7 @@ public final class CommonsMathWrapper {
     return new Array2DRowRealMatrix(x.getData());
   }
 
-  public static DoubleMatrix2D wrap(final RealMatrix x) {
+  public static DoubleMatrix2D unwrap(final RealMatrix x) {
     return new DoubleMatrix2D(x.getData());
   }
 
@@ -61,7 +79,7 @@ public final class CommonsMathWrapper {
     return new ArrayRealVector(x.getData());
   }
 
-  public static DoubleMatrix1D wrap(final RealVector x) {
+  public static DoubleMatrix1D unwrap(final RealVector x) {
     return new DoubleMatrix1D(x.getData());
   }
 
@@ -69,7 +87,7 @@ public final class CommonsMathWrapper {
     return new Complex(z.getReal(), z.getImaginary());
   }
 
-  public static Function1D<Double, Double> wrap(final PolynomialFunctionLagrangeForm lagrange) {
+  public static Function1D<Double, Double> unwrap(final PolynomialFunctionLagrangeForm lagrange) {
     return new Function1D<Double, Double>() {
 
       @Override
@@ -82,5 +100,9 @@ public final class CommonsMathWrapper {
       }
 
     };
+  }
+
+  public static double[] unwrap(final RealPointValuePair x) {
+    return x.getPointRef();
   }
 }

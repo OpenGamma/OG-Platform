@@ -45,7 +45,7 @@ public class StudentTDistributionMaximumLikelihoodEstimator extends Distribution
       }
 
     };
-    return new StudentTDistribution(_minimizer.minimize(f, new Double[] {3., 10.})[0]);
+    return new StudentTDistribution(_minimizer.minimize(f, new double[] {3., 10.})[0]);
   }
 
   protected double[] getStandardizedData(final double[] x) {

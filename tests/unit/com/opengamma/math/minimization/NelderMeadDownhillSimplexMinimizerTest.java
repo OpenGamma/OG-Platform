@@ -7,11 +7,11 @@ package com.opengamma.math.minimization;
 
 import org.junit.Test;
 
-public class DownhillSimplexMinimizerTest extends MultidimensionalMinimizerTestCase {
+public class NelderMeadDownhillSimplexMinimizerTest extends MultidimensionalMinimizerTestCase {
 
   @Test
   public void test() {
-    final MultidimensionalMinimizer MINIMIZER = new DownhillSimplexMinimizer();
+    final MultidimensionalMinimizer MINIMIZER = new NelderMeadDownhillSimplexMinimizer();
     super.testInputs(MINIMIZER);
     super.test(MINIMIZER);
   }

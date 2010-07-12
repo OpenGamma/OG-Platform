@@ -67,7 +67,7 @@ public class PolynomialInterpolator1D extends Interpolator1D<Interpolator1DDataB
     final double[] y = Arrays.copyOfRange(values, lowerBound, upperBound);
     try {
       final PolynomialFunctionLagrangeForm lagrange = _interpolator.interpolate(x, y);
-      return new InterpolationResult(CommonsMathWrapper.wrap(lagrange).evaluate(value));
+      return new InterpolationResult(CommonsMathWrapper.unwrap(lagrange).evaluate(value));
     } catch (final MathException e) {
       throw new InterpolationException(e);
     }

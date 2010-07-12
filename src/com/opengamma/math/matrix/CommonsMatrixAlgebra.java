@@ -59,7 +59,7 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
       final RealMatrix temp = CommonsMathWrapper.wrap((DoubleMatrix2D) m);
       final LUDecomposition lud = new LUDecompositionImpl(temp);
       final RealMatrix inv = lud.getSolver().getInverse();
-      return CommonsMathWrapper.wrap(inv);
+      return CommonsMathWrapper.unwrap(inv);
     }
     throw new IllegalArgumentException("Can only find inverse of DoubleMatrix2D; have " + m.getClass());
   }
@@ -120,7 +120,7 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
     if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
       final RealVector t1 = CommonsMathWrapper.wrap((DoubleMatrix1D) m1);
       final RealVector t2 = CommonsMathWrapper.wrap((DoubleMatrix1D) m2);
-      return CommonsMathWrapper.wrap(t1.outerProduct(t2));
+      return CommonsMathWrapper.unwrap(t1.outerProduct(t2));
     }
     throw new IllegalArgumentException("Can only find outer product of DoubleMatrix1D; have " + m1.getClass() + " and " + m2.getClass());
   }
@@ -153,7 +153,7 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
         }
       }
       final RealMatrix res = eigen.getV().multiply((new Array2DRowRealMatrix(d)).multiply(eigen.getVT()));
-      return CommonsMathWrapper.wrap(res);
+      return CommonsMathWrapper.unwrap(res);
     }
     throw new IllegalArgumentException("Can only find pow of DoubleMatrix2D; have " + m.getClass());
   }
@@ -171,7 +171,7 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
   public DoubleMatrix2D getTranspose(final Matrix<?> m) {
     if (m instanceof DoubleMatrix2D) {
       final RealMatrix temp = CommonsMathWrapper.wrap((DoubleMatrix2D) m);
-      return CommonsMathWrapper.wrap(temp.transpose());
+      return CommonsMathWrapper.unwrap(temp.transpose());
     }
     throw new IllegalArgumentException("Can only find transpose of DoubleMatrix2D; have " + m.getClass());
   }
@@ -192,7 +192,7 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
       } else {
         throw new IllegalArgumentException("Can only have 1D or 2D matrix as second argument");
       }
-      return CommonsMathWrapper.wrap(t1.multiply(t2));
+      return CommonsMathWrapper.unwrap(t1.multiply(t2));
     }
     throw new IllegalArgumentException("Can only multiply 2D and 1D matrices");
   }
