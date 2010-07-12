@@ -35,12 +35,12 @@ public class SVDecompositionCommonsResult implements SVDecompositionResult {
     _condition = svd.getConditionNumber();
     _norm = svd.getNorm();
     _rank = svd.getRank();
-    _s = CommonsMathWrapper.wrap(svd.getS());
+    _s = CommonsMathWrapper.unwrap(svd.getS());
     _singularValues = svd.getSingularValues();
-    _u = CommonsMathWrapper.wrap(svd.getU());
-    _uTranspose = CommonsMathWrapper.wrap(svd.getUT());
-    _v = CommonsMathWrapper.wrap(svd.getV());
-    _vTranspose = CommonsMathWrapper.wrap(svd.getVT());
+    _u = CommonsMathWrapper.unwrap(svd.getU());
+    _uTranspose = CommonsMathWrapper.unwrap(svd.getUT());
+    _v = CommonsMathWrapper.unwrap(svd.getV());
+    _vTranspose = CommonsMathWrapper.unwrap(svd.getVT());
     _solver = svd.getSolver();
   }
 
@@ -92,7 +92,7 @@ public class SVDecompositionCommonsResult implements SVDecompositionResult {
   @Override
   public DoubleMatrix1D solve(final DoubleMatrix1D b) {
     Validate.notNull(b);
-    return CommonsMathWrapper.wrap(_solver.solve(CommonsMathWrapper.wrap(b)));
+    return CommonsMathWrapper.unwrap(_solver.solve(CommonsMathWrapper.wrap(b)));
   }
 
   @Override
@@ -104,6 +104,6 @@ public class SVDecompositionCommonsResult implements SVDecompositionResult {
   @Override
   public DoubleMatrix2D solve(final DoubleMatrix2D b) {
     Validate.notNull(b);
-    return CommonsMathWrapper.wrap(_solver.solve(CommonsMathWrapper.wrap(b)));
+    return CommonsMathWrapper.unwrap(_solver.solve(CommonsMathWrapper.wrap(b)));
   }
 }

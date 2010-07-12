@@ -29,11 +29,11 @@ public class LUDecompositionCommonsResult implements LUDecompositionResult {
       throw new IllegalArgumentException("Matrix is singular; could not perform LU decomposition");
     }
     _determinant = lu.getDeterminant();
-    _l = CommonsMathWrapper.wrap(lu.getL());
-    _p = CommonsMathWrapper.wrap(lu.getP());
+    _l = CommonsMathWrapper.unwrap(lu.getL());
+    _p = CommonsMathWrapper.unwrap(lu.getP());
     _pivot = lu.getPivot();
     _solver = lu.getSolver();
-    _u = CommonsMathWrapper.wrap(lu.getU());
+    _u = CommonsMathWrapper.unwrap(lu.getU());
   }
 
   @Override
@@ -64,7 +64,7 @@ public class LUDecompositionCommonsResult implements LUDecompositionResult {
   @Override
   public DoubleMatrix1D solve(final DoubleMatrix1D b) {
     Validate.notNull(b);
-    return CommonsMathWrapper.wrap(_solver.solve(CommonsMathWrapper.wrap(b)));
+    return CommonsMathWrapper.unwrap(_solver.solve(CommonsMathWrapper.wrap(b)));
   }
 
   @Override
@@ -76,7 +76,7 @@ public class LUDecompositionCommonsResult implements LUDecompositionResult {
   @Override
   public DoubleMatrix2D solve(final DoubleMatrix2D b) {
     Validate.notNull(b);
-    return CommonsMathWrapper.wrap(_solver.solve(CommonsMathWrapper.wrap(b)));
+    return CommonsMathWrapper.unwrap(_solver.solve(CommonsMathWrapper.wrap(b)));
   }
 
 }

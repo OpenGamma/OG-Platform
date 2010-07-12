@@ -26,9 +26,9 @@ public class QRDecompositionCommonsResult implements QRDecompositionResult {
 
   public QRDecompositionCommonsResult(final QRDecomposition qr) {
     Validate.notNull(qr);
-    _h = CommonsMathWrapper.wrap(qr.getH());
-    _q = CommonsMathWrapper.wrap(qr.getQ());
-    _r = CommonsMathWrapper.wrap(qr.getR());
+    _h = CommonsMathWrapper.unwrap(qr.getH());
+    _q = CommonsMathWrapper.unwrap(qr.getQ());
+    _r = CommonsMathWrapper.unwrap(qr.getR());
     _qTranspose = DoubleMatrixUtils.getTranspose(_q);
     _solver = qr.getSolver();
   }
@@ -56,7 +56,7 @@ public class QRDecompositionCommonsResult implements QRDecompositionResult {
   @Override
   public DoubleMatrix1D solve(final DoubleMatrix1D b) {
     Validate.notNull(b);
-    return CommonsMathWrapper.wrap(_solver.solve(CommonsMathWrapper.wrap(b)));
+    return CommonsMathWrapper.unwrap(_solver.solve(CommonsMathWrapper.wrap(b)));
   }
 
   @Override
@@ -68,7 +68,7 @@ public class QRDecompositionCommonsResult implements QRDecompositionResult {
   @Override
   public DoubleMatrix2D solve(final DoubleMatrix2D b) {
     Validate.notNull(b);
-    return CommonsMathWrapper.wrap(_solver.solve(CommonsMathWrapper.wrap(b)));
+    return CommonsMathWrapper.unwrap(_solver.solve(CommonsMathWrapper.wrap(b)));
   }
 
 }
