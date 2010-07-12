@@ -51,6 +51,8 @@ public final class Interpolator1DDataBundleFactory {
   private static Interpolator1DDataBundle augmentModel(final Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult> interpolator, final Interpolator1DDataBundle baseModel) {
     if (interpolator.getClass().equals(NaturalCubicSplineInterpolator1D.class)) {
       return new Interpolator1DCubicSplineDataBundle(baseModel);
+    } else if (interpolator.getClass().equals(DoubleQuadraticInterpolator1D.class)) {
+      return new Interpolator1DDoubleQuadraticDataBundle(baseModel);
     } else if (interpolator.getClass().equals(CubicSplineInterpolatorWithSensitivities1D.class)) {
       return new Interpolator1DCubicSplineWithSensitivitiesDataBundle(new Interpolator1DCubicSplineDataBundle(baseModel));
     } else if (interpolator.getClass().equals(Interpolator1DWithSensitivities.class)) {
