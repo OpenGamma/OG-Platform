@@ -21,6 +21,16 @@ public class MultidimensionalMinimizerTestCase {
     }
 
   };
+  private static final FunctionND<Double, Double> ROSENBROCK = new FunctionND<Double, Double>(2) {
+
+    @Override
+    protected Double evaluateFunction(final Double[] coord) {
+      final double x = coord[0];
+      final double y = coord[1];
+      return (1 - x) * (1 - x) + 100 * (y - x * x) * (y - x * x);
+    }
+
+  };
 
   public void testInputs(final MultidimensionalMinimizer minimizer) {
     try {
@@ -44,8 +54,11 @@ public class MultidimensionalMinimizerTestCase {
   }
 
   public void test(final MultidimensionalMinimizer minimizer) {
-    final double[] r = minimizer.minimize(F_2D, new double[] {10., 10.});
+    double[] r = minimizer.minimize(F_2D, new double[] {10., 10.});
     assertEquals(r[0], -3.4, EPS);
+    assertEquals(r[1], 1, EPS);
+    r = (minimizer.minimize(ROSENBROCK, new double[] {10, -5}));
+    assertEquals(r[0], 1, EPS);
     assertEquals(r[1], 1, EPS);
   }
 }

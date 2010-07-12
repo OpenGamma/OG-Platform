@@ -6,6 +6,7 @@
 package com.opengamma.math.integration;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import com.opengamma.math.function.Function1D;
 
@@ -31,15 +32,27 @@ public abstract class Integrator1DTestCase {
   private static final double EPS = 1e-5;
 
   public void testNullFunction() {
-    getIntegrator().integrate(null, LOWER, UPPER);
+    try {
+      getIntegrator().integrate(null, LOWER, UPPER);
+      fail();
+    } catch (final IllegalArgumentException e) {
+    }
   }
 
   public void testNullLowerBound() {
-    getIntegrator().integrate(DF, null, UPPER);
+    try {
+      getIntegrator().integrate(DF, null, UPPER);
+      fail();
+    } catch (final IllegalArgumentException e) {
+    }
   }
 
   public void testNullUpperBound() {
-    getIntegrator().integrate(DF, LOWER, null);
+    try {
+      getIntegrator().integrate(DF, LOWER, null);
+      fail();
+    } catch (final IllegalArgumentException e) {
+    }
   }
 
   public void test() {

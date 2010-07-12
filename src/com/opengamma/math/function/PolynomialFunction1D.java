@@ -7,6 +7,8 @@ package com.opengamma.math.function;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * 
  */
@@ -25,17 +27,13 @@ public class PolynomialFunction1D extends Function1D<Double, Double> {
    */
   public PolynomialFunction1D(final double[] coefficients) {
     Validate.notNull(coefficients);
-    if (coefficients.length == 0) {
-      throw new IllegalArgumentException("Coefficient array was empty");
-    }
+    ArgumentChecker.notEmpty(coefficients, "coefficients");
     _coefficients = coefficients;
   }
 
   @Override
   public Double evaluate(final Double x) {
-    if (x == null) {
-      throw new IllegalArgumentException("Null argument");
-    }
+    Validate.notNull(x, "x");
     final int n = _coefficients.length;
     double y = _coefficients[n - 1];
     for (int i = n - 2; i >= 0; i--) {
