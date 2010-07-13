@@ -45,11 +45,9 @@ import com.opengamma.util.tuple.Pair;
  */
 public class InMemoryRegionRepository implements RegionRepository {
   // TODO: jim 2-Jul-2010 -- Make this cope with versioning...
-  public static final String WORLD_DATA_DIR_PATH = FileUtils.getSharedDrivePrefix() + File.separator +  "ogdev" + File.separator + "world-data";
+  public static final String WORLD_DATA_DIR_PATH = FileUtils.getSharedDrivePrefix() + File.separator + "world-data";
   public static final String REGIONS_FILE_PATH = WORLD_DATA_DIR_PATH + File.separator + "regions" + File.separator + "countrylist_test.csv";
-  
 
-  
   private static final Comparator<Region> s_defaultRegionComparator = new Comparator<Region>() {
     @Override
     public int compare(Region r1, Region r2) {
