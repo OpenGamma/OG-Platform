@@ -13,7 +13,13 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public abstract class MultidimensionalMinimizer implements Minimizer<FunctionND<Double, Double>> {
+public abstract class SimplexMinimizer implements Minimizer<FunctionND<Double, Double>, double[]> {
+
+  public double[] minimize(final FunctionND<Double, Double> f, final double[] points1, final double[] points2) {
+    return minimize(f, points1);
+  }
+
+  public abstract double[] minimize(FunctionND<Double, Double> f, double[] initalPoints);
 
   protected void checkInputs(final FunctionND<Double, Double> f, final double[] initialPoint) {
     Validate.notNull(f, "function");

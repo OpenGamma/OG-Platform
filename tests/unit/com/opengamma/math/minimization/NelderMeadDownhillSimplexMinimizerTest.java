@@ -11,7 +11,7 @@ public class NelderMeadDownhillSimplexMinimizerTest extends MultidimensionalMini
 
   @Test
   public void test() {
-    final MultidimensionalMinimizer MINIMIZER = new NelderMeadDownhillSimplexMinimizer();
+    final SimplexMinimizer MINIMIZER = new NelderMeadDownhillSimplexMinimizer();
     super.testInputs(MINIMIZER);
     super.test(MINIMIZER);
   }

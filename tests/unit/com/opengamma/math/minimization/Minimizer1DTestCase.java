@@ -34,19 +34,7 @@ public class Minimizer1DTestCase {
 
   public void testInputs(final Minimizer1D minimizer) {
     try {
-      minimizer.minimize(null, new double[] {2., 3.});
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      minimizer.minimize(QUADRATIC, null);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      minimizer.minimize(QUADRATIC, new double[] {1.});
+      minimizer.minimize(null, 2., 3.);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
@@ -54,9 +42,9 @@ public class Minimizer1DTestCase {
   }
 
   public void test(final Minimizer1D minimizer) {
-    double[] result = minimizer.minimize(QUADRATIC, new double[] {-10., 10.});
-    assertEquals(result[0], -3.5, EPS);
-    result = minimizer.minimize(QUINTIC, new double[] {0.5, 2.});
-    assertEquals(result[0], 1.06154, EPS);
+    double result = minimizer.minimize(QUADRATIC, -10., 10.);
+    assertEquals(result, -3.5, EPS);
+    result = minimizer.minimize(QUINTIC, 0.5, 2.);
+    assertEquals(result, 1.06154, EPS);
   }
 }

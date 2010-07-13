@@ -5,6 +5,7 @@
  */
 package com.opengamma.math.minimization;
 
+import org.apache.commons.lang.Validate;
 import org.apache.commons.math.FunctionEvaluationException;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
 import org.apache.commons.math.optimization.GoalType;
@@ -24,13 +25,11 @@ public class BrentMinimizer1D extends Minimizer1D {
   private static final AbstractUnivariateRealOptimizer OPTIMIZER = new BrentOptimizer();
 
   @Override
-  public double[] minimize(final Function1D<Double, Double> f, final double[] initialPoints) {
-    checkInputs(f, initialPoints);
+  public Double minimize(final Function1D<Double, Double> f, final Double point1, final Double point2) {
+    Validate.notNull(f, "function");
     final UnivariateRealFunction commonsFunction = CommonsMathWrapper.wrap(f);
-    final double a = initialPoints[0];
-    final double b = initialPoints[1];
     try {
-      return new double[] {OPTIMIZER.optimize(commonsFunction, MINIMIZE, a, b)};
+      return OPTIMIZER.optimize(commonsFunction, MINIMIZE, point1, point2);
     } catch (final FunctionEvaluationException e) {
       throw new MathException(e);
     } catch (final org.apache.commons.math.ConvergenceException e) {

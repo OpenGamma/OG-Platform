@@ -32,7 +32,7 @@ public class MultidimensionalMinimizerTestCase {
 
   };
 
-  public void testInputs(final MultidimensionalMinimizer minimizer) {
+  public void testInputs(final SimplexMinimizer minimizer) {
     try {
       minimizer.minimize(null, new double[] {2., 3.});
       fail();
@@ -53,7 +53,7 @@ public class MultidimensionalMinimizerTestCase {
     }
   }
 
-  public void test(final MultidimensionalMinimizer minimizer) {
+  public void test(final SimplexMinimizer minimizer) {
     double[] r = minimizer.minimize(F_2D, new double[] {10., 10.});
     assertEquals(r[0], -3.4, EPS);
     assertEquals(r[1], 1, EPS);

@@ -34,15 +34,23 @@ public class AsymmetricPowerOptionModelTest {
   private static final YieldAndDiscountCurve CURVE = new ConstantYieldCurve(0.08);
   private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(0.1);
   private static final StandardOptionDataBundle BUNDLE = new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE);
-
   private static final AnalyticOptionModel<AsymmetricPowerOptionDefinition, StandardOptionDataBundle> MODEL = new AsymmetricPowerOptionModel();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BS_MODEL = new BlackScholesMertonModel();
   private static final Set<Greek> REQUIRED_GREEKS = Collections.singleton(Greek.FAIR_PRICE);
   private static final double EPS = 1e-4;
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullDefinition() {
+    MODEL.getPricingFunction(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullData() {
+    MODEL.getPricingFunction(new AsymmetricPowerOptionDefinition(STRIKE, EXPIRY, 1, true)).evaluate((StandardOptionDataBundle) null);
+  }
+
   @Test
   public void test() {
-    //Magic numbers are dirty 
     assertEquals(getPrice(1.9, true), 0.3102, EPS);
     assertEquals(getPrice(1.95, true), 1.9320, EPS);
     assertEquals(getPrice(2., true), 6.7862, EPS);
@@ -66,8 +74,8 @@ public class AsymmetricPowerOptionModelTest {
   }
 
   private double getBSPrice(final double power, final boolean isCall) {
-    final StandardOptionDataBundle bs_bundle = getModifiedDataBundle(BUNDLE, power);
-    return BS_MODEL.getGreeks(getDefinition(power, isCall), bs_bundle, REQUIRED_GREEKS).get(Greek.FAIR_PRICE);
+    final StandardOptionDataBundle bsBundle = getModifiedDataBundle(BUNDLE, power);
+    return BS_MODEL.getGreeks(getDefinition(power, isCall), bsBundle, REQUIRED_GREEKS).get(Greek.FAIR_PRICE);
   }
 
   private AsymmetricPowerOptionDefinition getDefinition(final double power, final boolean isCall) {
@@ -75,14 +83,11 @@ public class AsymmetricPowerOptionModelTest {
   }
 
   private StandardOptionDataBundle getModifiedDataBundle(final StandardOptionDataBundle data, final double p) {
-
     final double t = DateUtil.getDifferenceInYears(DATE, EXPIRY);
     final double spot = Math.pow(data.getSpot(), p);
     double sigma = data.getVolatility(t, STRIKE);
     final double b = p * (data.getCostOfCarry() + (p - 1) * sigma * sigma * 0.5);
-
     sigma *= p;
-
     return new StandardOptionDataBundle(CURVE, b, new ConstantVolatilitySurface(sigma), spot, DATE);
 
   }
