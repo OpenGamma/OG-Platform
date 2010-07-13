@@ -15,8 +15,8 @@ public class DoubleQuadraticInterpolatorWithSensitivities1D extends Interpolator
   /**
    * @param interpolator
    */
-  public DoubleQuadraticInterpolatorWithSensitivities1D(Interpolator1D<Interpolator1DDoubleQuadraticDataBundle, InterpolationResult> interpolator) {
-    super(interpolator);
+  public DoubleQuadraticInterpolatorWithSensitivities1D() {
+    super(new DoubleQuadraticInterpolator1D());
   }
 
   @Override
@@ -65,7 +65,7 @@ public class DoubleQuadraticInterpolatorWithSensitivities1D extends Interpolator
     double h1 = xData[i] - xData[i - 1];
     double h2 = xData[i + 1] - xData[i];
     res[0] = deltaX * (deltaX - h2) / h1 / (h1 + h2);
-    res[1] = 1 + deltaX * (h2 - h1 + deltaX) / h1 / h2;
+    res[1] = 1 + deltaX * (h2 - h1 - deltaX) / h1 / h2;
     res[2] = deltaX * (h1 + deltaX) / (h1 + h2) / h2;
     return res;
   }
