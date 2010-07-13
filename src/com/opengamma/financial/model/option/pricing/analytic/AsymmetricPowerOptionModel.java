@@ -9,9 +9,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.option.definition.AsymmetricPowerOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.financial.model.option.pricing.OptionPricingException;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.InterpolationException;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
@@ -31,24 +29,20 @@ public class AsymmetricPowerOptionModel extends AnalyticOptionModel<AsymmetricPo
       @Override
       public Double evaluate(final StandardOptionDataBundle data) {
         Validate.notNull(data);
-        try {
-          final double s = data.getSpot();
-          final double k = definition.getStrike();
-          final double t = definition.getTimeToExpiry(data.getDate());
-          final double sigma = data.getVolatility(t, k);
-          final double r = data.getInterestRate(t);
-          final double b = data.getCostOfCarry();
-          final double power = definition.getPower();
-          final double sigmaT = sigma * Math.sqrt(t);
-          final double d1 = (Math.log(s / Math.pow(k, 1. / power)) + t * (b + sigma * sigma * (power - 0.5))) / sigmaT;
-          final double d2 = d1 - power * sigmaT;
-          final int sign = definition.isCall() ? 1 : -1;
-          final double df1 = Math.exp(((power - 1) * (r + power * sigma * sigma * 0.5) - power * (r - b)) * t);
-          final double df2 = Math.exp(-r * t);
-          return sign * (Math.pow(s, power) * df1 * NORMAL.getCDF(sign * d1) - df2 * k * NORMAL.getCDF(sign * d2));
-        } catch (final InterpolationException e) {
-          throw new OptionPricingException(e);
-        }
+        final double s = data.getSpot();
+        final double k = definition.getStrike();
+        final double t = definition.getTimeToExpiry(data.getDate());
+        final double sigma = data.getVolatility(t, k);
+        final double r = data.getInterestRate(t);
+        final double b = data.getCostOfCarry();
+        final double power = definition.getPower();
+        final double sigmaT = sigma * Math.sqrt(t);
+        final double d1 = (Math.log(s / Math.pow(k, 1. / power)) + t * (b + sigma * sigma * (power - 0.5))) / sigmaT;
+        final double d2 = d1 - power * sigmaT;
+        final int sign = definition.isCall() ? 1 : -1;
+        final double df1 = Math.exp(((power - 1) * (r + power * sigma * sigma * 0.5) - power * (r - b)) * t);
+        final double df2 = Math.exp(-r * t);
+        return sign * (Math.pow(s, power) * df1 * NORMAL.getCDF(sign * d1) - df2 * k * NORMAL.getCDF(sign * d2));
       }
     };
     return pricingFunction;
