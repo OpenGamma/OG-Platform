@@ -9,6 +9,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister64;
+
 import com.opengamma.math.statistics.distribution.LaplaceDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
@@ -32,8 +34,8 @@ public class LaplaceDistributionMaximumLikelihoodEstimatorTest {
   public void test() {
     final double mu = 0.367;
     final double b = 1.4;
-    final ProbabilityDistribution<Double> distribution = new LaplaceDistribution(mu, b);
-    final int n = 100000;
+    final ProbabilityDistribution<Double> distribution = new LaplaceDistribution(mu, b, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED));
+    final int n = 500000;
     final double[] x = new double[n];
     for (int i = 0; i < n; i++) {
       x[i] = distribution.nextRandom();
