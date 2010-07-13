@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Collections;
 import java.util.Set;
 
@@ -23,44 +25,34 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
-@SuppressWarnings("unused")
 public class CappedPowerOptionModelTest {
   private static final double B = 0.02;
-  private static final double SPOT = 10;
+  private static final double DELTA = 90;
   private static final double STRIKE = 100;
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
   private static final YieldAndDiscountCurve CURVE = new ConstantYieldCurve(0.08);
   private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(0.1);
-  private static final StandardOptionDataBundle BUNDLE = new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE);
+  private static final StandardOptionDataBundle BUNDLE = new StandardOptionDataBundle(CURVE, B, SURFACE, STRIKE - DELTA, DATE);
   private static final AnalyticOptionModel<CappedPowerOptionDefinition, StandardOptionDataBundle> CAPPED_MODEL = new CappedPowerOptionModel();
   private static final AnalyticOptionModel<AsymmetricPowerOptionDefinition, StandardOptionDataBundle> UNCAPPED_MODEL = new AsymmetricPowerOptionModel();
   private static final Set<Greek> REQUIRED_GREEKS = Collections.singleton(Greek.FAIR_PRICE);
-  private static final double HIGH_CAP = 1e20;
+  private static final double CALL_CAP = 500;
+  private static final double PUT_CAP = STRIKE;
   private static final double EPS = 1e-4;
 
   @Test
   public void test() {
-    // assertEquals(getCappedPrice(1.9, HIGH_CAP, true), getUncappedPrice(1.9,
-    // true), EPS);
-    // assertEquals(getCappedPrice(1.95, HIGH_CAP, true), getUncappedPrice(1.95,
-    // true), EPS);
-    // assertEquals(getCappedPrice(2., HIGH_CAP, true), getUncappedPrice(2.,
-    // true), EPS);
-    // assertEquals(getCappedPrice(2.05, HIGH_CAP, true), getUncappedPrice(2.05,
-    // true), EPS);
-    // assertEquals(getCappedPrice(2.1, HIGH_CAP, true), getUncappedPrice(2.1,
-    // true), EPS);
-    // assertEquals(getCappedPrice(1.9, HIGH_CAP, false), getUncappedPrice(1.9,
-    // false), EPS);
-    // assertEquals(getCappedPrice(1.95, HIGH_CAP, false),
-    // getUncappedPrice(1.95, false), EPS);
-    // assertEquals(getCappedPrice(2., HIGH_CAP, false), getUncappedPrice(2.,
-    // false), EPS);
-    // assertEquals(getCappedPrice(2.05, HIGH_CAP, false),
-    // getUncappedPrice(2.05, false), EPS);
-    // assertEquals(getCappedPrice(2.1, HIGH_CAP, false), getUncappedPrice(2.1,
-    // false), EPS);
+    assertEquals(getCappedPrice(1.9, CALL_CAP, true), getUncappedPrice(1.9, true), EPS);
+    assertEquals(getCappedPrice(1.95, CALL_CAP, true), getUncappedPrice(1.95, true), EPS);
+    assertEquals(getCappedPrice(2., CALL_CAP, true), getUncappedPrice(2., true), EPS);
+    assertEquals(getCappedPrice(2.05, CALL_CAP, true), getUncappedPrice(2.05, true), EPS);
+    assertEquals(getCappedPrice(2.1, CALL_CAP, true), getUncappedPrice(2.1, true), EPS);
+    assertEquals(getCappedPrice(1.9, PUT_CAP, false), getUncappedPrice(1.9, false), EPS);
+    assertEquals(getCappedPrice(1.95, PUT_CAP, false), getUncappedPrice(1.95, false), EPS);
+    assertEquals(getCappedPrice(2., PUT_CAP, false), getUncappedPrice(2., false), EPS);
+    assertEquals(getCappedPrice(2.05, PUT_CAP, false), getUncappedPrice(2.05, false), EPS);
+    assertEquals(getCappedPrice(2.1, PUT_CAP, false), getUncappedPrice(2.1, false), EPS);
   }
 
   private double getCappedPrice(final double power, final double cap, final boolean isCall) {

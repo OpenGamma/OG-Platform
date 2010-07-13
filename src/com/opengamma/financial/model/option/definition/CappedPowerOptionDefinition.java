@@ -46,6 +46,9 @@ public class CappedPowerOptionDefinition extends OptionDefinition {
   public CappedPowerOptionDefinition(final double strike, final Expiry expiry, final double power, final double cap, final boolean isCall) {
     super(strike, expiry, isCall);
     ArgumentChecker.notNegative(cap, "cap");
+    if (!isCall && cap > strike) {
+      throw new IllegalArgumentException("Cannot have cap larger than strike for a put");
+    }
     _power = power;
     _cap = cap;
   }
