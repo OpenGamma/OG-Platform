@@ -19,7 +19,7 @@ import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 /**
  * 
  */
-public class NelderMeadDownhillSimplexMinimizer extends MultidimensionalMinimizer {
+public class NelderMeadDownhillSimplexMinimizer extends SimplexMinimizer {
   private static final MultivariateRealOptimizer OPTIMIZER = new NelderMead();
   private static final GoalType MINIMIZER = GoalType.MINIMIZE;
 

@@ -14,7 +14,7 @@ public class MultiDirectionalSimplexMinimizerTest extends MultidimensionalMinimi
 
   @Test
   public void test() {
-    final MultidimensionalMinimizer MINIMIZER = new MultiDirectionalSimplexMinimizer();
+    final SimplexMinimizer MINIMIZER = new MultiDirectionalSimplexMinimizer();
     super.testInputs(MINIMIZER);
     super.test(MINIMIZER);
   }

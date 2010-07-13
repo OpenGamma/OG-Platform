@@ -10,13 +10,14 @@ import com.opengamma.math.function.Function;
 /**
  * 
  * @param <S>
+ * @param <T>
  */
-public interface Minimizer<S extends Function<Double, Double>> {
+public interface Minimizer<S extends Function<Double, Double>, T> {
   /**
    * 
    */
   double TOLERANCE = 1e-12;
 
-  double[] minimize(S f, double[] initialPoint);
+  T minimize(S f, T point1, T point2);
 
 }

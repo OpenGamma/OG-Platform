@@ -19,7 +19,7 @@ import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 /**
  * 
  */
-public class MultiDirectionalSimplexMinimizer extends MultidimensionalMinimizer {
+public class MultiDirectionalSimplexMinimizer extends SimplexMinimizer {
   private static final MultivariateRealOptimizer OPTIMIZER = new MultiDirectional();
   private static final GoalType MINIMIZER = GoalType.MINIMIZE;
 
