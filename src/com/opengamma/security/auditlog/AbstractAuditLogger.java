@@ -53,13 +53,13 @@ public abstract class AbstractAuditLogger implements AuditLogger {
   }
 
   @Override
-  final public void log(String user, String object, String operation,
+  public final void log(String user, String object, String operation,
       String description, boolean success) {
     log(user, _originatingSystem, object, operation, description, success);
   }
 
   @Override
-  final public void log(String user, String object, String operation,
+  public final void log(String user, String object, String operation,
       boolean success) {
     log(user, object, operation, null, success);
   }

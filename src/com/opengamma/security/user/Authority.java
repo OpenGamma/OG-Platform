@@ -75,18 +75,23 @@ public class Authority {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     Authority other = (Authority) obj;
     if (_id == null) {
-      if (other._id != null)
+      if (other._id != null) {
         return false;
-    } else if (!_id.equals(other._id))
+      }
+    } else if (!_id.equals(other._id)) {
       return false;
+    }
     return true;
   }
 

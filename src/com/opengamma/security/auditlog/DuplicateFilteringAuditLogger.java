@@ -84,40 +84,54 @@ public class DuplicateFilteringAuditLogger extends AbstractAuditLogger {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
         return true;
-      if (obj == null)
+      }
+      if (obj == null) {
         return false;
-      if (getClass() != obj.getClass())
+      }
+      if (getClass() != obj.getClass()) {
         return false;
+      }
       CacheKey other = (CacheKey) obj;
       if (_description == null) {
-        if (other._description != null)
+        if (other._description != null) {
           return false;
-      } else if (!_description.equals(other._description))
+        }
+      } else if (!_description.equals(other._description)) {
         return false;
+      }
       if (_object == null) {
-        if (other._object != null)
+        if (other._object != null) {
           return false;
-      } else if (!_object.equals(other._object))
+        }
+      } else if (!_object.equals(other._object)) {
         return false;
+      }
       if (_operation == null) {
-        if (other._operation != null)
+        if (other._operation != null) {
           return false;
-      } else if (!_operation.equals(other._operation))
+        }
+      } else if (!_operation.equals(other._operation)) {
         return false;
+      }
       if (_originatingSystem == null) {
-        if (other._originatingSystem != null)
+        if (other._originatingSystem != null) {
           return false;
-      } else if (!_originatingSystem.equals(other._originatingSystem))
+        }
+      } else if (!_originatingSystem.equals(other._originatingSystem)) {
         return false;
-      if (_success != other._success)
+      }
+      if (_success != other._success) {
         return false;
+      }
       if (_user == null) {
-        if (other._user != null)
+        if (other._user != null) {
           return false;
-      } else if (!_user.equals(other._user))
+        }
+      } else if (!_user.equals(other._user)) {
         return false;
+      }
       return true;
     }
   }
