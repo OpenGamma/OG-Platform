@@ -18,13 +18,13 @@ import com.opengamma.util.tuple.Pair;
  */
 public class StandardOptionDataBundle {
   private final YieldAndDiscountCurve _discountCurve;
-  private final Double _b;
+  private final double _b;
   private final VolatilitySurface _volatilitySurface;
-  private final Double _spot;
+  private final double _spot;
   private final ZonedDateTime _date;
 
   // TODO need a cost of carry model
-  public StandardOptionDataBundle(final YieldAndDiscountCurve discountCurve, final Double b, final VolatilitySurface volatilitySurface, final Double spot, final ZonedDateTime date) {
+  public StandardOptionDataBundle(final YieldAndDiscountCurve discountCurve, final double b, final VolatilitySurface volatilitySurface, final double spot, final ZonedDateTime date) {
     _discountCurve = discountCurve;
     _b = b;
     _volatilitySurface = volatilitySurface;
@@ -41,19 +41,19 @@ public class StandardOptionDataBundle {
     _date = data.getDate();
   }
 
-  public Double getInterestRate(final Double t) {
+  public double getInterestRate(final double t) {
     return getDiscountCurve().getInterestRate(t);
   }
 
-  public Double getCostOfCarry() {
+  public double getCostOfCarry() {
     return _b;
   }
 
-  public Double getVolatility(final Double timeToExpiry, final Double strike) {
+  public double getVolatility(final double timeToExpiry, final double strike) {
     return getVolatilitySurface().getVolatility(Pair.of(timeToExpiry, strike));
   }
 
-  public Double getSpot() {
+  public double getSpot() {
     return _spot;
   }
 
@@ -73,7 +73,7 @@ public class StandardOptionDataBundle {
     return new StandardOptionDataBundle(curve, getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate());
   }
 
-  public StandardOptionDataBundle withCostOfCarry(final Double costOfCarry) {
+  public StandardOptionDataBundle withCostOfCarry(final double costOfCarry) {
     return new StandardOptionDataBundle(getDiscountCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate());
   }
 
@@ -85,7 +85,7 @@ public class StandardOptionDataBundle {
     return new StandardOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), date);
   }
 
-  public StandardOptionDataBundle withSpot(final Double spot) {
+  public StandardOptionDataBundle withSpot(final double spot) {
     return new StandardOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate());
   }
 
@@ -93,11 +93,14 @@ public class StandardOptionDataBundle {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + (_b == null ? 0 : _b.hashCode());
-    result = prime * result + (_date == null ? 0 : _date.hashCode());
-    result = prime * result + (_discountCurve == null ? 0 : _discountCurve.hashCode());
-    result = prime * result + (_spot == null ? 0 : _spot.hashCode());
-    result = prime * result + (_volatilitySurface == null ? 0 : _volatilitySurface.hashCode());
+    long temp;
+    temp = Double.doubleToLongBits(_b);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_date == null) ? 0 : _date.hashCode());
+    result = prime * result + ((_discountCurve == null) ? 0 : _discountCurve.hashCode());
+    temp = Double.doubleToLongBits(_spot);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_volatilitySurface == null) ? 0 : _volatilitySurface.hashCode());
     return result;
   }
 
@@ -113,11 +116,7 @@ public class StandardOptionDataBundle {
       return false;
     }
     final StandardOptionDataBundle other = (StandardOptionDataBundle) obj;
-    if (_b == null) {
-      if (other._b != null) {
-        return false;
-      }
-    } else if (!_b.equals(other._b)) {
+    if (Double.doubleToLongBits(_b) != Double.doubleToLongBits(other._b)) {
       return false;
     }
     if (_date == null) {
@@ -134,11 +133,7 @@ public class StandardOptionDataBundle {
     } else if (!_discountCurve.equals(other._discountCurve)) {
       return false;
     }
-    if (_spot == null) {
-      if (other._spot != null) {
-        return false;
-      }
-    } else if (!_spot.equals(other._spot)) {
+    if (Double.doubleToLongBits(_spot) != Double.doubleToLongBits(other._spot)) {
       return false;
     }
     if (_volatilitySurface == null) {

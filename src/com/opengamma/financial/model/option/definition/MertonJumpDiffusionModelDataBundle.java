@@ -50,7 +50,7 @@ public class MertonJumpDiffusionModelDataBundle extends StandardOptionDataBundle
   }
 
   @Override
-  public MertonJumpDiffusionModelDataBundle withCostOfCarry(final Double costOfCarry) {
+  public MertonJumpDiffusionModelDataBundle withCostOfCarry(final double costOfCarry) {
     return new MertonJumpDiffusionModelDataBundle(getDiscountCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate(), getLambda(), getGamma());
   }
 
@@ -65,15 +65,15 @@ public class MertonJumpDiffusionModelDataBundle extends StandardOptionDataBundle
   }
 
   @Override
-  public MertonJumpDiffusionModelDataBundle withSpot(final Double spot) {
+  public MertonJumpDiffusionModelDataBundle withSpot(final double spot) {
     return new MertonJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate(), getLambda(), getGamma());
   }
 
-  public MertonJumpDiffusionModelDataBundle withLambda(final Double lambda) {
+  public MertonJumpDiffusionModelDataBundle withLambda(final double lambda) {
     return new MertonJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), lambda, getGamma());
   }
 
-  public MertonJumpDiffusionModelDataBundle withGamma(final Double gamma) {
+  public MertonJumpDiffusionModelDataBundle withGamma(final double gamma) {
     return new MertonJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getLambda(), gamma);
   }
 
@@ -83,9 +83,9 @@ public class MertonJumpDiffusionModelDataBundle extends StandardOptionDataBundle
     int result = super.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_gamma);
-    result = prime * result + (int) (temp ^ temp >>> 32);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_lambda);
-    result = prime * result + (int) (temp ^ temp >>> 32);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 

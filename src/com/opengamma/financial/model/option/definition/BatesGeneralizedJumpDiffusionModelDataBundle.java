@@ -18,9 +18,8 @@ public class BatesGeneralizedJumpDiffusionModelDataBundle extends StandardOption
   private final double _expectedJumpSize;
   private final double _delta;
 
-  public BatesGeneralizedJumpDiffusionModelDataBundle(final YieldAndDiscountCurve discountCurve, final double b,
-      final VolatilitySurface volatilitySurface, final double spot, final ZonedDateTime date, final double lambda, final double expectedJumpSize,
-      final double delta) {
+  public BatesGeneralizedJumpDiffusionModelDataBundle(final YieldAndDiscountCurve discountCurve, final double b, final VolatilitySurface volatilitySurface, final double spot,
+      final ZonedDateTime date, final double lambda, final double expectedJumpSize, final double delta) {
     super(discountCurve, b, volatilitySurface, spot, date);
     _lambda = lambda;
     _expectedJumpSize = expectedJumpSize;
@@ -34,8 +33,7 @@ public class BatesGeneralizedJumpDiffusionModelDataBundle extends StandardOption
     _delta = data.getDelta();
   }
 
-  public BatesGeneralizedJumpDiffusionModelDataBundle(final StandardOptionDataBundle data, final double lambda, final double expectedJumpSize,
-      final double delta) {
+  public BatesGeneralizedJumpDiffusionModelDataBundle(final StandardOptionDataBundle data, final double lambda, final double expectedJumpSize, final double delta) {
     super(data);
     _lambda = lambda;
     _expectedJumpSize = expectedJumpSize;
@@ -56,47 +54,39 @@ public class BatesGeneralizedJumpDiffusionModelDataBundle extends StandardOption
 
   @Override
   public BatesGeneralizedJumpDiffusionModelDataBundle withDiscountCurve(final YieldAndDiscountCurve curve) {
-    return new BatesGeneralizedJumpDiffusionModelDataBundle(curve, getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getLambda(),
-        getExpectedJumpSize(), getDelta());
+    return new BatesGeneralizedJumpDiffusionModelDataBundle(curve, getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getLambda(), getExpectedJumpSize(), getDelta());
   }
 
   @Override
-  public BatesGeneralizedJumpDiffusionModelDataBundle withCostOfCarry(final Double costOfCarry) {
-    return new BatesGeneralizedJumpDiffusionModelDataBundle(getDiscountCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate(), getLambda(),
-        getExpectedJumpSize(), getDelta());
+  public BatesGeneralizedJumpDiffusionModelDataBundle withCostOfCarry(final double costOfCarry) {
+    return new BatesGeneralizedJumpDiffusionModelDataBundle(getDiscountCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate(), getLambda(), getExpectedJumpSize(), getDelta());
   }
 
   @Override
   public BatesGeneralizedJumpDiffusionModelDataBundle withVolatilitySurface(final VolatilitySurface surface) {
-    return new BatesGeneralizedJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), surface, getSpot(), getDate(), getLambda(),
-        getExpectedJumpSize(), getDelta());
+    return new BatesGeneralizedJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), surface, getSpot(), getDate(), getLambda(), getExpectedJumpSize(), getDelta());
   }
 
   @Override
   public BatesGeneralizedJumpDiffusionModelDataBundle withDate(final ZonedDateTime date) {
-    return new BatesGeneralizedJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), date, getLambda(),
-        getExpectedJumpSize(), getDelta());
+    return new BatesGeneralizedJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), date, getLambda(), getExpectedJumpSize(), getDelta());
   }
 
   @Override
-  public BatesGeneralizedJumpDiffusionModelDataBundle withSpot(final Double spot) {
-    return new BatesGeneralizedJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate(), getLambda(),
-        getExpectedJumpSize(), getDelta());
+  public BatesGeneralizedJumpDiffusionModelDataBundle withSpot(final double spot) {
+    return new BatesGeneralizedJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate(), getLambda(), getExpectedJumpSize(), getDelta());
   }
 
-  public BatesGeneralizedJumpDiffusionModelDataBundle withLambda(final Double lambda) {
-    return new BatesGeneralizedJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), lambda,
-        getExpectedJumpSize(), getDelta());
+  public BatesGeneralizedJumpDiffusionModelDataBundle withLambda(final double lambda) {
+    return new BatesGeneralizedJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), lambda, getExpectedJumpSize(), getDelta());
   }
 
-  public BatesGeneralizedJumpDiffusionModelDataBundle withExpectedJumpSize(final Double expectedJumpSize) {
-    return new BatesGeneralizedJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(),
-        getLambda(), expectedJumpSize, getDelta());
+  public BatesGeneralizedJumpDiffusionModelDataBundle withExpectedJumpSize(final double expectedJumpSize) {
+    return new BatesGeneralizedJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getLambda(), expectedJumpSize, getDelta());
   }
 
-  public BatesGeneralizedJumpDiffusionModelDataBundle withDelta(final Double delta) {
-    return new BatesGeneralizedJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(),
-        getLambda(), getExpectedJumpSize(), delta);
+  public BatesGeneralizedJumpDiffusionModelDataBundle withDelta(final double delta) {
+    return new BatesGeneralizedJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getLambda(), getExpectedJumpSize(), delta);
   }
 
   @Override
@@ -105,11 +95,11 @@ public class BatesGeneralizedJumpDiffusionModelDataBundle extends StandardOption
     int result = super.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_delta);
-    result = prime * result + (int) (temp ^ temp >>> 32);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_expectedJumpSize);
-    result = prime * result + (int) (temp ^ temp >>> 32);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_lambda);
-    result = prime * result + (int) (temp ^ temp >>> 32);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 
