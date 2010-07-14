@@ -159,9 +159,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     NewtonVectorRootFinder rootFinder; 
     double[] yields = null;
     try {
-     rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, jacobian, DecompositionFactory.getDecomposition(DecompositionFactory.LU_COMMONS_NAME));
-     yields = rootFinder.getRoot(curveFinder, new DoubleMatrix1D(initialRatesGuess)).getData();
-    } catch(IllegalArgumentException e) {
+      rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, jacobian, DecompositionFactory.getDecomposition(DecompositionFactory.LU_COMMONS_NAME));
+      yields = rootFinder.getRoot(curveFinder, new DoubleMatrix1D(initialRatesGuess)).getData();
+    } catch (IllegalArgumentException e) {
       rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, jacobian, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
       yields = rootFinder.getRoot(curveFinder, new DoubleMatrix1D(initialRatesGuess)).getData();
     }

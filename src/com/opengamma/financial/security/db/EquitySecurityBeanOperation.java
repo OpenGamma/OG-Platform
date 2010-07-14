@@ -14,7 +14,7 @@ import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.financial.security.EquitySecurity;
 
-/* package */ class EquitySecurityBeanOperation extends AbstractBeanOperation<EquitySecurity, EquitySecurityBean> {
+/* package */ final class EquitySecurityBeanOperation extends AbstractBeanOperation<EquitySecurity, EquitySecurityBean> {
   
   public static final EquitySecurityBeanOperation INSTANCE = new EquitySecurityBeanOperation();
   
