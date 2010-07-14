@@ -25,9 +25,6 @@ public class SampleMomentCalculator extends Function1D<double[], Double> {
   public Double evaluate(final double[] x) {
     Validate.notNull(x, "x");
     ArgumentChecker.notEmpty(x, "x");
-    if (x.length == 0) {
-      throw new IllegalArgumentException("Array was empty");
-    }
     if (_n == 0) {
       return 1.;
     }

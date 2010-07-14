@@ -150,4 +150,12 @@ public class LaplaceDistribution implements ProbabilityDistribution<Double> {
     final double u = _engine.nextDouble() - 0.5;
     return _mu - _b * Math.signum(u) * Math.log(1 - 2 * Math.abs(u));
   }
+
+  public double getMu() {
+    return _mu;
+  }
+
+  public double getB() {
+    return _b;
+  }
 }
