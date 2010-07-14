@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.interestrate;
@@ -41,7 +41,7 @@ public class ForwardCurveSensitivityCalculator {
     throw new IllegalArgumentException("Unhandled InterestRateDerivative type");
   }
 
-  //TODO doesn't need to be a list - can see how many points are needed
+  // TODO doesn't need to be a list - can see how many points are needed
   private List<Pair<Double, Double>> getSwapSensitivities(final YieldAndDiscountCurve forwardCurve, final YieldAndDiscountCurve fundingCurve, final Swap swap) {
     Validate.notNull(forwardCurve);
     Validate.notNull(fundingCurve);
