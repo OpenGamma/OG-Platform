@@ -196,7 +196,9 @@ public class FastListIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTim
     if (endIndex == -1) {
       endIndex = -(Collections.binarySearch(_times, endTime) + 1);
     }
-    if (startIndex == -1 || endIndex == -1) throw new NoSuchElementException();
+    if (startIndex == -1 || endIndex == -1) {
+      throw new NoSuchElementException();
+    }
     return new FastListIntDoubleTimeSeries(getEncoding(), _times.subList(startIndex, endIndex), _values.subList(startIndex, endIndex));
   }
 
@@ -325,10 +327,12 @@ public class FastListIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTim
    */
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
+    }
     if (getClass() != obj.getClass()) {
       if (obj instanceof FastIntDoubleTimeSeries) {
         final FastIntDoubleTimeSeries other = (FastIntDoubleTimeSeries) obj;

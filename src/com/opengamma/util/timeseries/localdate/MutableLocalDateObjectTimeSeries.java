@@ -21,7 +21,7 @@ import com.opengamma.util.timeseries.fast.longint.object.FastMutableLongObjectTi
  */
 public interface MutableLocalDateObjectTimeSeries<T> extends LocalDateObjectTimeSeries<T>, MutableObjectTimeSeries<LocalDate, T> {
 
-  public static abstract class Integer<T> extends AbstractMutableIntObjectTimeSeries<LocalDate, T> implements MutableLocalDateObjectTimeSeries<T> {
+  public abstract static class Integer<T> extends AbstractMutableIntObjectTimeSeries<LocalDate, T> implements MutableLocalDateObjectTimeSeries<T> {
     public Integer(final DateTimeConverter<LocalDate> converter, final FastMutableIntObjectTimeSeries<T> timeSeries) {
       super(converter, timeSeries);
     }

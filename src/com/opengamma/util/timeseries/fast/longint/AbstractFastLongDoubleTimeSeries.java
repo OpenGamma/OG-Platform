@@ -140,7 +140,7 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
     final long[] aTimes = timesArrayFast();
     final double[] aValues = valuesArrayFast();
     final double[] results = new double[aValues.length]; // could modify in place, but will probably switch to in-place view of backing array.
-    for (int i=0; i<aValues.length; i++) {
+    for (int i = 0; i < aValues.length; i++) {
       results[i] = operator.operate(aValues[i]);
     }
     return newInstanceFast(aTimes, results);
@@ -150,7 +150,7 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
     final long[] aTimes = timesArrayFast();
     final double[] aValues = valuesArrayFast();
     final double[] results = new double[aValues.length]; // could modify in place, but will probably switch to in-place view of backing array.
-    for (int i=0; i<aValues.length; i++) {
+    for (int i = 0; i < aValues.length; i++) {
       results[i] = operator.operate(aValues[i], other);
     }
     return newInstanceFast(aTimes, results);
@@ -159,9 +159,9 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
   public FastLongDoubleTimeSeries operate(final FastBackedDoubleTimeSeries<?> other, final BinaryOperator operator) {
     FastTimeSeries<?> fastSeries = other.getFastSeries();
     if (fastSeries instanceof FastIntDoubleTimeSeries) {
-      return operate((FastIntDoubleTimeSeries)fastSeries, operator);
+      return operate((FastIntDoubleTimeSeries) fastSeries, operator);
     } else { // if (fastSeries instanceof FastLongDoubleTimeSeries
-      return operate((FastLongDoubleTimeSeries)fastSeries, operator);
+      return operate((FastLongDoubleTimeSeries) fastSeries, operator);
     }
   }
   
@@ -173,7 +173,7 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
     if (getEncoding() != other.getEncoding()) { // convert to a's format -- NOTE: if we switch to using an underlying array rather than a copy, we can't modify it in-place like we're doing here.
       DateTimeNumericEncoding aEncoding = getEncoding();
       DateTimeNumericEncoding bEncoding = other.getEncoding();
-      for (int i=0; i<bTimes.length; i++) {
+      for (int i = 0; i < bTimes.length; i++) {
         bTimes[i] = bEncoding.convertToLong(bTimes[i], aEncoding);
       }
     }
@@ -211,11 +211,11 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
     if (getEncoding() != other.getEncoding()) { // convert to a's format -- NOTE: if we switch to using an underlying array rather than a copy, we can't modify it in-place like we're doing here.
       DateTimeNumericEncoding aEncoding = getEncoding();
       DateTimeNumericEncoding bEncoding = other.getEncoding();
-      for (int i=0; i<bTimesInt.length; i++) {
+      for (int i = 0; i < bTimesInt.length; i++) {
         bTimes[i] = bEncoding.convertToLong(bTimesInt[i], aEncoding);
       }
     } else {
-      for (int i=0; i<bTimesInt.length; i++) {
+      for (int i = 0; i < bTimesInt.length; i++) {
         bTimes[i] = bTimesInt[i];
       }      
     }
@@ -247,9 +247,9 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
   public FastLongDoubleTimeSeries unionOperate(final FastBackedDoubleTimeSeries<?> other, final BinaryOperator operator) {
     FastTimeSeries<?> fastSeries = other.getFastSeries();
     if (fastSeries instanceof FastIntDoubleTimeSeries) {
-      return unionOperate((FastIntDoubleTimeSeries)fastSeries, operator);
+      return unionOperate((FastIntDoubleTimeSeries) fastSeries, operator);
     } else { // if (fastSeries instanceof FastLongDoubleTimeSeries
-      return unionOperate((FastLongDoubleTimeSeries)fastSeries, operator);
+      return unionOperate((FastLongDoubleTimeSeries) fastSeries, operator);
     }
   }
   
@@ -262,11 +262,11 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
     if (getEncoding() != other.getEncoding()) { // convert to a's format -- NOTE: if we switch to using an underlying array rather than a copy, we can't modify it in-place like we're doing here.
       DateTimeNumericEncoding aEncoding = getEncoding();
       DateTimeNumericEncoding bEncoding = other.getEncoding();
-      for (int i=0; i<bTimes.length; i++) {
+      for (int i = 0; i < bTimes.length; i++) {
         bTimes[i] = bEncoding.convertToLong(bTimesInt[i], aEncoding);
       }
     } else {
-      for (int i=0; i<bTimes.length; i++) {
+      for (int i = 0; i < bTimes.length; i++) {
         bTimes[i] = bTimesInt[i];
       }
     }
@@ -282,7 +282,7 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
         System.arraycopy(bValues, bCount, resValues, resCount, bRemaining);
         resCount += bRemaining;
         break;
-      } else if (bCount >= bTimes.length){
+      } else if (bCount >= bTimes.length) {
         int aRemaining = aTimes.length - aCount;
         System.arraycopy(aTimes, aCount, resTimes, resCount, aRemaining);
         System.arraycopy(aValues, aCount, resValues, resCount, aRemaining);
@@ -321,7 +321,7 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
     if (getEncoding() != other.getEncoding()) { // convert to a's format -- NOTE: if we switch to using an underlying array rather than a copy, we can't modify it in-place like we're doing here.
       DateTimeNumericEncoding aEncoding = getEncoding();
       DateTimeNumericEncoding bEncoding = other.getEncoding();
-      for (int i=0; i<bTimes.length; i++) {
+      for (int i = 0; i < bTimes.length; i++) {
         bTimes[i] = bEncoding.convertToLong(bTimes[i], aEncoding);
       }
     }
@@ -337,7 +337,7 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
         System.arraycopy(bValues, bCount, resValues, resCount, bRemaining);
         resCount += bRemaining;
         break;
-      } else if (bCount >= bTimes.length){
+      } else if (bCount >= bTimes.length) {
         int aRemaining = aTimes.length - aCount;
         System.arraycopy(aTimes, aCount, resTimes, resCount, aRemaining);
         System.arraycopy(aValues, aCount, resValues, resCount, aRemaining);

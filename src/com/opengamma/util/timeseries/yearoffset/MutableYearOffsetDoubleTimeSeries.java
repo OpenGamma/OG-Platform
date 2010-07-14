@@ -21,7 +21,7 @@ import com.opengamma.util.timeseries.fast.longint.FastMutableLongDoubleTimeSerie
  * 
  */
 public interface MutableYearOffsetDoubleTimeSeries extends YearOffsetDoubleTimeSeries, MutableDoubleTimeSeries<Double> {
-  public static abstract class Integer extends AbstractMutableIntDoubleTimeSeries<Double> implements MutableYearOffsetDoubleTimeSeries, DoubleTimeSeries<Double> {
+  public abstract static class Integer extends AbstractMutableIntDoubleTimeSeries<Double> implements MutableYearOffsetDoubleTimeSeries, DoubleTimeSeries<Double> {
     public Integer(final DateTimeConverter<Double> converter, final FastMutableIntDoubleTimeSeries timeSeries) {
       super(converter, timeSeries);
     }

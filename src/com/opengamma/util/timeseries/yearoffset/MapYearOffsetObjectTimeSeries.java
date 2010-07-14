@@ -48,7 +48,7 @@ public class MapYearOffsetObjectTimeSeries<T> extends MutableYearOffsetObjectTim
 
   // convenience method.
   public MapYearOffsetObjectTimeSeries(final YearOffsetObjectTimeSeries<T> dts) {
-    super(new YearOffsetEpochMillisConverter(((YearOffsetEpochMillisConverter)dts.getConverter()).getZonedOffset()), (FastMutableLongObjectTimeSeries<T>) new YearOffsetEpochMillisConverter(((YearOffsetEpochMillisConverter)dts.getConverter()).getZonedOffset()).convertToLong(new FastMapLongObjectTimeSeries<T>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));
+    super(new YearOffsetEpochMillisConverter(((YearOffsetEpochMillisConverter) dts.getConverter()).getZonedOffset()), (FastMutableLongObjectTimeSeries<T>) new YearOffsetEpochMillisConverter(((YearOffsetEpochMillisConverter) dts.getConverter()).getZonedOffset()).convertToLong(new FastMapLongObjectTimeSeries<T>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));
   }
 
   @SuppressWarnings("unchecked")

@@ -19,7 +19,7 @@ import com.opengamma.util.timeseries.fast.longint.object.FastMutableLongObjectTi
  * 
  */
 public interface MutableYearOffsetObjectTimeSeries<T> extends YearOffsetObjectTimeSeries<T>, MutableObjectTimeSeries<Double, T> {
-  public static abstract class Integer<T> extends AbstractMutableIntObjectTimeSeries<Double, T> implements MutableYearOffsetObjectTimeSeries<T>, ObjectTimeSeries<Double, T> {
+  public abstract static class Integer<T> extends AbstractMutableIntObjectTimeSeries<Double, T> implements MutableYearOffsetObjectTimeSeries<T>, ObjectTimeSeries<Double, T> {
     public Integer(final DateTimeConverter<Double> converter, final FastMutableIntObjectTimeSeries<T> timeSeries) {
       super(converter, timeSeries);
     }

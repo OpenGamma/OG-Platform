@@ -164,11 +164,11 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
   public FastBackedDoubleTimeSeries<DATE_TYPE> multiply(DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
-      return operate((FastBackedDoubleTimeSeries<?>)other, MULTIPLY_OPERATOR);
+      return operate((FastBackedDoubleTimeSeries<?>) other, MULTIPLY_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
-      return operate((FastIntDoubleTimeSeries)other, MULTIPLY_OPERATOR);
+      return operate((FastIntDoubleTimeSeries) other, MULTIPLY_OPERATOR);
     } else { // if (other instanceof FastLongDoubleTimeSeries) {
-      return operate((FastLongDoubleTimeSeries)other, MULTIPLY_OPERATOR);
+      return operate((FastLongDoubleTimeSeries) other, MULTIPLY_OPERATOR);
     }
   }
   public FastBackedDoubleTimeSeries<DATE_TYPE> multiply(FastBackedDoubleTimeSeries<?> other) {
@@ -341,11 +341,11 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
   public FastBackedDoubleTimeSeries<DATE_TYPE> unionMaximum(DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
-      return unionOperate((FastBackedDoubleTimeSeries<?>)other, MAXIMUM_OPERATOR);
+      return unionOperate((FastBackedDoubleTimeSeries<?>) other, MAXIMUM_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
-      return unionOperate((FastIntDoubleTimeSeries)other, MAXIMUM_OPERATOR);
+      return unionOperate((FastIntDoubleTimeSeries) other, MAXIMUM_OPERATOR);
     } else { // if (other instanceof FastLongDoubleTimeSeries) {
-      return unionOperate((FastLongDoubleTimeSeries)other, MAXIMUM_OPERATOR);
+      return unionOperate((FastLongDoubleTimeSeries) other, MAXIMUM_OPERATOR);
     }
   }
   public FastBackedDoubleTimeSeries<DATE_TYPE> unionMaximum(FastBackedDoubleTimeSeries<?> other) {

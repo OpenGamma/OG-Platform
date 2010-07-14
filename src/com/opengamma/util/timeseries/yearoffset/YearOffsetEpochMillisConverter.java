@@ -196,7 +196,7 @@ public class YearOffsetEpochMillisConverter implements DateTimeConverter<Double>
     while (iterator.hasNext()) {
       final Entry<Long, Double> entry = iterator.next();
       
-      final Double date = (double) ((entry.getKey() - _offset)/MILLIS_PER_YEAR);
+      final Double date = (double) ((entry.getKey() - _offset) / MILLIS_PER_YEAR);
       dateTimes[i] = date;
       values[i] = entry.getValue();
       i++;
@@ -214,7 +214,7 @@ public class YearOffsetEpochMillisConverter implements DateTimeConverter<Double>
     while (iterator.hasNext()) {
       final Entry<Long, T> entry = iterator.next();
       
-      final Double date = (double) ((entry.getKey() - _offset)/MILLIS_PER_YEAR);
+      final Double date = (double) ((entry.getKey() - _offset) / MILLIS_PER_YEAR);
       dateTimes[i] = date;
       values[i] = entry.getValue();
       i++;

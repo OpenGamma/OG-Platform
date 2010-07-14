@@ -76,8 +76,9 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
   @SuppressWarnings("unchecked")
   public FastArrayLongObjectTimeSeries(final DateTimeNumericEncoding encoding, final List<Long> times, final List<T> values) {
     super(encoding);
-    if (times.size() != values.size())
+    if (times.size() != values.size()) {
       throw new IllegalArgumentException("lists are of different sizes");
+    }
     _times = new long[times.size()];
     _values = (T[]) new Object[values.size()];
     final Iterator<T> iter = values.iterator();

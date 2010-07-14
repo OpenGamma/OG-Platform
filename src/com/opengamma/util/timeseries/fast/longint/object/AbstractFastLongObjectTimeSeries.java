@@ -138,7 +138,7 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
     final long[] aTimes = timesArrayFast();
     final T[] aValues = valuesArrayFast();
     final T[] results = (T[]) new Object[aValues.length]; // could modify in place, but will probably switch to in-place view of backing array.
-    for (int i=0; i<aValues.length; i++) {
+    for (int i = 0; i < aValues.length; i++) {
       results[i] = operator.operate(aValues[i]);
     }
     return newInstanceFast(aTimes, results);
@@ -149,7 +149,7 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
     final long[] aTimes = timesArrayFast();
     final T[] aValues = valuesArrayFast();
     final T[] results = (T[]) new Object[aValues.length]; // could modify in place, but will probably switch to in-place view of backing array.
-    for (int i=0; i<aValues.length; i++) {
+    for (int i = 0; i < aValues.length; i++) {
       results[i] = operator.operate(aValues[i], other);
     }
     return newInstanceFast(aTimes, results);
@@ -159,9 +159,9 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
   public FastLongObjectTimeSeries<T> operate(final FastBackedObjectTimeSeries<?, T> other, final BinaryOperator<T> operator) {
     FastObjectTimeSeries<?, T> fastSeries = other.getFastSeries();
     if (fastSeries instanceof FastIntObjectTimeSeries<?>) {
-      return operate((FastIntObjectTimeSeries<T>)fastSeries, operator);
+      return operate((FastIntObjectTimeSeries<T>) fastSeries, operator);
     } else { // if (fastSeries instanceof FastLongObjectTimeSeries<T>
-      return operate((FastLongObjectTimeSeries<T>)fastSeries, operator);
+      return operate((FastLongObjectTimeSeries<T>) fastSeries, operator);
     }
   }
   
@@ -174,7 +174,7 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
     if (getEncoding() != other.getEncoding()) { // convert to a's format -- NOTE: if we switch to using an underlying array rather than a copy, we can't modify it in-place like we're doing here.
       DateTimeNumericEncoding aEncoding = getEncoding();
       DateTimeNumericEncoding bEncoding = other.getEncoding();
-      for (int i=0; i<bTimes.length; i++) {
+      for (int i = 0; i < bTimes.length; i++) {
         bTimes[i] = bEncoding.convertToLong(bTimes[i], aEncoding);
       }
     }
@@ -197,7 +197,7 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
       }
     }
     long[] trimmedTimes = new long[resCount];
-    T[] trimmedValues = (T[])new Object[resCount];
+    T[] trimmedValues = (T[]) new Object[resCount];
     System.arraycopy(resTimes, 0, trimmedTimes, 0, resCount);
     System.arraycopy(resValues, 0, trimmedValues, 0, resCount);
     return newInstanceFast(trimmedTimes, trimmedValues);
@@ -213,11 +213,11 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
     if (getEncoding() != other.getEncoding()) { // convert to a's format -- NOTE: if we switch to using an underlying array rather than a copy, we can't modify it in-place like we're doing here.
       DateTimeNumericEncoding aEncoding = getEncoding();
       DateTimeNumericEncoding bEncoding = other.getEncoding();
-      for (int i=0; i<bTimesInt.length; i++) {
+      for (int i = 0; i < bTimesInt.length; i++) {
         bTimes[i] = bEncoding.convertToLong(bTimesInt[i], aEncoding);
       }
     } else {
-      for (int i=0; i<bTimesInt.length; i++) {
+      for (int i = 0; i < bTimesInt.length; i++) {
         bTimes[i] = bTimesInt[i];
       }      
     }
@@ -250,9 +250,9 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
   public FastLongObjectTimeSeries<T> unionOperate(final FastBackedObjectTimeSeries<?, T> other, final BinaryOperator<T> operator) {
     FastObjectTimeSeries<?, T> fastSeries = other.getFastSeries();
     if (fastSeries instanceof FastIntObjectTimeSeries<?>) {
-      return unionOperate((FastIntObjectTimeSeries<T>)fastSeries, operator);
+      return unionOperate((FastIntObjectTimeSeries<T>) fastSeries, operator);
     } else { // if (fastSeries instanceof FastLongObjectTimeSeries<T>
-      return unionOperate((FastLongObjectTimeSeries<T>)fastSeries, operator);
+      return unionOperate((FastLongObjectTimeSeries<T>) fastSeries, operator);
     }
   }
   
@@ -266,11 +266,11 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
     if (getEncoding() != other.getEncoding()) { // convert to a's format -- NOTE: if we switch to using an underlying array rather than a copy, we can't modify it in-place like we're doing here.
       DateTimeNumericEncoding aEncoding = getEncoding();
       DateTimeNumericEncoding bEncoding = other.getEncoding();
-      for (int i=0; i<bTimes.length; i++) {
+      for (int i = 0; i < bTimes.length; i++) {
         bTimes[i] = bEncoding.convertToLong(bTimesInt[i], aEncoding);
       }
     } else {
-      for (int i=0; i<bTimes.length; i++) {
+      for (int i = 0; i < bTimes.length; i++) {
         bTimes[i] = bTimesInt[i];
       }
     }
@@ -286,7 +286,7 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
         System.arraycopy(bValues, bCount, resValues, resCount, bRemaining);
         resCount += bRemaining;
         break;
-      } else if (bCount >= bTimes.length){
+      } else if (bCount >= bTimes.length) {
         int aRemaining = aTimes.length - aCount;
         System.arraycopy(aTimes, aCount, resTimes, resCount, aRemaining);
         System.arraycopy(aValues, aCount, resValues, resCount, aRemaining);
@@ -311,7 +311,7 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
       }
     }
     long[] trimmedTimes = new long[resCount];
-    T[] trimmedValues = (T[])new Object[resCount];
+    T[] trimmedValues = (T[]) new Object[resCount];
     System.arraycopy(resTimes, 0, trimmedTimes, 0, resCount);
     System.arraycopy(resValues, 0, trimmedValues, 0, resCount);
     return newInstanceFast(trimmedTimes, trimmedValues);
@@ -326,14 +326,14 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
     if (getEncoding() != other.getEncoding()) { // convert to a's format -- NOTE: if we switch to using an underlying array rather than a copy, we can't modify it in-place like we're doing here.
       DateTimeNumericEncoding aEncoding = getEncoding();
       DateTimeNumericEncoding bEncoding = other.getEncoding();
-      for (int i=0; i<bTimes.length; i++) {
+      for (int i = 0; i < bTimes.length; i++) {
         bTimes[i] = bEncoding.convertToLong(bTimes[i], aEncoding);
       }
     }
     final T[] bValues = other.valuesArrayFast();
     int bCount = 0;
     final long[] resTimes = new long[aTimes.length + bTimes.length];
-    final T[] resValues = (T[])new Object[resTimes.length];
+    final T[] resValues = (T[]) new Object[resTimes.length];
     int resCount = 0;
     while (aCount < aTimes.length || bCount < bTimes.length) {
       if (aCount >= aTimes.length) {
@@ -342,7 +342,7 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
         System.arraycopy(bValues, bCount, resValues, resCount, bRemaining);
         resCount += bRemaining;
         break;
-      } else if (bCount >= bTimes.length){
+      } else if (bCount >= bTimes.length) {
         int aRemaining = aTimes.length - aCount;
         System.arraycopy(aTimes, aCount, resTimes, resCount, aRemaining);
         System.arraycopy(aValues, aCount, resValues, resCount, aRemaining);
@@ -367,7 +367,7 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
       }
     }
     long[] trimmedTimes = new long[resCount];
-    T[] trimmedValues = (T[])new Object[resCount];
+    T[] trimmedValues = (T[]) new Object[resCount];
     System.arraycopy(resTimes, 0, trimmedTimes, 0, resCount);
     System.arraycopy(resValues, 0, trimmedValues, 0, resCount);
     return newInstanceFast(trimmedTimes, trimmedValues);
@@ -382,13 +382,13 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
     } else if (days < 0) {
       long[] resultTimes = new long[times.length + days]; // remember days is -ve
       System.arraycopy(times, 0, resultTimes, 0, times.length + days);
-      T[] resultValues = (T[])new Object[times.length + days];
+      T[] resultValues = (T[]) new Object[times.length + days];
       System.arraycopy(values, -days, resultValues, 0, times.length + days);
       return newInstanceFast(times, values);
     } else { // if (days > 0) {
       long[] resultTimes = new long[times.length - days]; // remember days is +ve
       System.arraycopy(times, days, resultTimes, 0, times.length - days);
-      T[] resultValues = (T[])new Object[times.length - days];
+      T[] resultValues = (T[]) new Object[times.length - days];
       System.arraycopy(values, 0, resultValues, 0, times.length - days);
       return newInstanceFast(times, values);
     }

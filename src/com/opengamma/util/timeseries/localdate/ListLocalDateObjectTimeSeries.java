@@ -54,12 +54,12 @@ public class ListLocalDateObjectTimeSeries<T> extends MutableLocalDateObjectTime
 
   @SuppressWarnings("unchecked")
   public ListLocalDateObjectTimeSeries(final ObjectTimeSeries<LocalDate, T> dts) {
-    super(s_converter, (FastMutableIntObjectTimeSeries<T>)s_converter.convertToInt((FastIntObjectTimeSeries<T>)TIMESERIES_TEMPLATE, dts));
+    super(s_converter, (FastMutableIntObjectTimeSeries<T>) s_converter.convertToInt((FastIntObjectTimeSeries<T>) TIMESERIES_TEMPLATE, dts));
   }
 
   @SuppressWarnings("unchecked")
   public ListLocalDateObjectTimeSeries(final TimeZone timeZone, final LocalDateObjectTimeSeries<T> dts) {
-    super(new LocalDateEpochDaysConverter(timeZone), (FastMutableIntObjectTimeSeries<T>) new LocalDateEpochDaysConverter(timeZone).convertToInt((FastIntObjectTimeSeries<T>)TIMESERIES_TEMPLATE, dts));
+    super(new LocalDateEpochDaysConverter(timeZone), (FastMutableIntObjectTimeSeries<T>) new LocalDateEpochDaysConverter(timeZone).convertToInt((FastIntObjectTimeSeries<T>) TIMESERIES_TEMPLATE, dts));
   }
 
   public ListLocalDateObjectTimeSeries(final FastMutableIntObjectTimeSeries<T> pmidts) {

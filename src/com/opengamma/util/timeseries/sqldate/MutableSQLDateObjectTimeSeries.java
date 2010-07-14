@@ -21,7 +21,7 @@ import com.opengamma.util.timeseries.fast.longint.object.FastMutableLongObjectTi
  */
 public interface MutableSQLDateObjectTimeSeries<T> extends SQLDateObjectTimeSeries<T>, MutableObjectTimeSeries<Date, T> {
 
-  public static abstract class Integer<T> extends AbstractMutableIntObjectTimeSeries<Date, T> implements MutableSQLDateObjectTimeSeries<T> {
+  public abstract static class Integer<T> extends AbstractMutableIntObjectTimeSeries<Date, T> implements MutableSQLDateObjectTimeSeries<T> {
     public Integer(final DateTimeConverter<Date> converter, final FastMutableIntObjectTimeSeries<T> timeSeries) {
       super(converter, timeSeries);
     }

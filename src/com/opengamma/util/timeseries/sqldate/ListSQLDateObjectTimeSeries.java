@@ -53,12 +53,12 @@ public class ListSQLDateObjectTimeSeries<T> extends MutableSQLDateObjectTimeSeri
 
   @SuppressWarnings("unchecked")
   public ListSQLDateObjectTimeSeries(final ObjectTimeSeries<Date, T> dts) {
-    super(s_converter, (FastMutableIntObjectTimeSeries<T>) s_converter.convertToInt((FastIntObjectTimeSeries<T>)TIMESERIES_TEMPLATE, dts));
+    super(s_converter, (FastMutableIntObjectTimeSeries<T>) s_converter.convertToInt((FastIntObjectTimeSeries<T>) TIMESERIES_TEMPLATE, dts));
   }
 
   @SuppressWarnings("unchecked")
   public ListSQLDateObjectTimeSeries(final TimeZone timeZone, final ObjectTimeSeries<Date, T> dts) {
-    super(new SQLDateEpochDaysConverter(timeZone), (FastMutableIntObjectTimeSeries<T>) new SQLDateEpochDaysConverter(timeZone).convertToInt((FastIntObjectTimeSeries<T>)TIMESERIES_TEMPLATE, dts));
+    super(new SQLDateEpochDaysConverter(timeZone), (FastMutableIntObjectTimeSeries<T>) new SQLDateEpochDaysConverter(timeZone).convertToInt((FastIntObjectTimeSeries<T>) TIMESERIES_TEMPLATE, dts));
   }
 
   public ListSQLDateObjectTimeSeries(final FastMutableIntObjectTimeSeries<T> pmidts) {

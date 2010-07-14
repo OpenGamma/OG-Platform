@@ -27,7 +27,8 @@ public class ArrayYearOffsetObjectTimeSeries<T> extends YearOffsetObjectTimeSeri
   }
 
   public ArrayYearOffsetObjectTimeSeries(final ZonedDateTime zeroDate, final Double[] dates, final T[] values) {
-    super(new YearOffsetEpochMillisConverter(zeroDate), new FastArrayLongObjectTimeSeries<T>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, new YearOffsetEpochMillisConverter(zeroDate).convertToLong(dates), values));
+    super(new YearOffsetEpochMillisConverter(zeroDate),
+        new FastArrayLongObjectTimeSeries<T>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, new YearOffsetEpochMillisConverter(zeroDate).convertToLong(dates), values));
   }
 
   public ArrayYearOffsetObjectTimeSeries(final java.util.TimeZone timeZone, final Date zeroDate, final Double[] dates, final T[] values) {
@@ -36,7 +37,8 @@ public class ArrayYearOffsetObjectTimeSeries<T> extends YearOffsetObjectTimeSeri
   }
 
   public ArrayYearOffsetObjectTimeSeries(final ZonedDateTime zeroDate, final List<Double> dates, final List<T> values) {
-    super(new YearOffsetEpochMillisConverter(zeroDate), new FastArrayLongObjectTimeSeries<T>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, new YearOffsetEpochMillisConverter(zeroDate).convertToLong(dates), values));
+    super(new YearOffsetEpochMillisConverter(zeroDate),
+         new FastArrayLongObjectTimeSeries<T>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, new YearOffsetEpochMillisConverter(zeroDate).convertToLong(dates), values));
   }
 
   public ArrayYearOffsetObjectTimeSeries(final java.util.TimeZone timeZone, final Date zeroDate, final List<Double> dates, final List<T> values) {
@@ -46,12 +48,13 @@ public class ArrayYearOffsetObjectTimeSeries<T> extends YearOffsetObjectTimeSeri
 
   @SuppressWarnings("unchecked")
   public ArrayYearOffsetObjectTimeSeries(final ZonedDateTime zeroDate, final YearOffsetObjectTimeSeries<T> dts) {
-    super(new YearOffsetEpochMillisConverter(zeroDate), new YearOffsetEpochMillisConverter(zeroDate).convertToLong((FastListLongObjectTimeSeries<T>)DEFAULT_SERIES_TEMPLATE, dts));
+    super(new YearOffsetEpochMillisConverter(zeroDate),
+        new YearOffsetEpochMillisConverter(zeroDate).convertToLong((FastListLongObjectTimeSeries<T>) DEFAULT_SERIES_TEMPLATE, dts));
   }
 
   @SuppressWarnings("unchecked")
   public ArrayYearOffsetObjectTimeSeries(final java.util.TimeZone timeZone, final Date zeroDate, final YearOffsetObjectTimeSeries<T> dts) {
-    super(new YearOffsetEpochMillisConverter(timeZone, zeroDate), new YearOffsetEpochMillisConverter(timeZone, zeroDate).convertToLong((FastListLongObjectTimeSeries<T>)DEFAULT_SERIES_TEMPLATE, dts));
+    super(new YearOffsetEpochMillisConverter(timeZone, zeroDate), new YearOffsetEpochMillisConverter(timeZone, zeroDate).convertToLong((FastListLongObjectTimeSeries<T>) DEFAULT_SERIES_TEMPLATE, dts));
   }
 
   public ArrayYearOffsetObjectTimeSeries(final ZonedDateTime zeroDate, final FastLongObjectTimeSeries<T> pidts) {

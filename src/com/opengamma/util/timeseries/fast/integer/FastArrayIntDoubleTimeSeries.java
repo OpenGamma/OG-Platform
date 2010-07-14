@@ -58,23 +58,26 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
   }
 
   private void init(final int[] times, final double[] values) {
-    if (times.length != values.length)
+    if (times.length != values.length) {
       throw new IllegalArgumentException("Arrays are of different sizes: " + times.length + ", " + values.length);
+    }
     System.arraycopy(times, 0, _times, 0, times.length);
     System.arraycopy(values, 0, _values, 0, values.length);
     // check dates are ordered
     int maxTime = Integer.MIN_VALUE;
     for (final int time : _times) {
-      if (time < maxTime)
+      if (time < maxTime) {
         throw new IllegalArgumentException("dates must be ordered");
+      }
       maxTime = time;
     }
   }
 
   public FastArrayIntDoubleTimeSeries(final DateTimeNumericEncoding encoding, final List<Integer> times, final List<Double> values) {
     super(encoding);
-    if (times.size() != values.size())
+    if (times.size() != values.size()) {
       throw new IllegalArgumentException("lists are of different sizes");
+    }
     _times = new int[times.size()];
     _values = new double[values.size()];
     final Iterator<Double> iter = values.iterator();
@@ -103,7 +106,7 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
     super(encoding);
     DateTimeNumericEncoding sourceEncoding = dts.getEncoding();
     _times = dts.timesArrayFast();
-    for (int i=0; i<_times.length; i++) {
+    for (int i = 0; i < _times.length; i++) {
       _times[i] = sourceEncoding.convertToInt(_times[i], encoding);
     }
     _values = dts.valuesArrayFast();
@@ -118,7 +121,7 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
     DateTimeNumericEncoding otherEncoding = dts.getEncoding();
     long[] otherTimes = dts.timesArrayFast();
     _times = new int[otherTimes.length];
-    for (int i=0; i<otherTimes.length; i++) {
+    for (int i = 0; i < otherTimes.length; i++) {
       _times[i] = otherEncoding.convertToInt(otherTimes[i], encoding);
     }
     _values = dts.valuesArrayFast();
@@ -141,8 +144,9 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
 
   @Override
   public FastIntDoubleTimeSeries subSeriesFast(final int startTime, final int endTime) {
-    if (isEmpty())
+    if (isEmpty()) {
       return EMPTY_SERIES;
+    }
     // throw new NoSuchElementException("Series is empty")
     int startPos = Arrays.binarySearch(_times, startTime);
     int endPos = Arrays.binarySearch(_times, endTime);
@@ -171,18 +175,20 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
 
   @Override
   public int getEarliestTimeFast() {
-    if (_times.length > 0)
+    if (_times.length > 0) {
       return _times[0];
-    else
+    } else {
       throw new NoSuchElementException("Series is empty");
+    }
   }
 
   @Override
   public double getEarliestValueFast() {
-    if (_values.length > 0)
+    if (_values.length > 0) {
       return _values[0];
-    else
+    } else {
       throw new NoSuchElementException("Series is empty");
+    }
   }
 
   @Override
@@ -190,20 +196,22 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
     if (_times.length > 0) {
       final int index = _times.length - 1;
       return _times[index];
-    } else
+    } else {
       throw new NoSuchElementException("Series is empty");
+    }
   }
 
   @Override
   public double getLatestValueFast() {
-    if (_values.length > 0)
+    if (_values.length > 0) {
       return _values[_values.length - 1];
-    else
+    } else {
       throw new NoSuchElementException("Series is empty");
+    }
   }
 
   /* package */class PrimitiveArrayDoubleTimeSeriesIterator implements ObjectIterator<Int2DoubleMap.Entry> {
-    private int _current = 0;
+    private int _current;
 
     @Override
     public boolean hasNext() {
@@ -294,7 +302,7 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
   }
 
   /* package */class PrimitiveArrayIntDoubleTimeSeriesValuesIterator implements DoubleIterator {
-    private int _current = 0;
+    private int _current;
 
     @Override
     public boolean hasNext() {
@@ -307,8 +315,9 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
         final Double value = _values[_current];
         _current++;
         return value;
-      } else
+      } else {
         throw new NoSuchElementException();
+      }
     }
 
     public double nextDouble() {
@@ -316,8 +325,9 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
         final double value = _values[_current];
         _current++;
         return value;
-      } else
+      } else {
         throw new NoSuchElementException();
+      }
     }
 
     @Override
@@ -361,8 +371,9 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
       System.arraycopy(_times, _times.length - numItems, times, 0, numItems);
       System.arraycopy(_values, _values.length - numItems, values, 0, numItems);
       return new FastArrayIntDoubleTimeSeries(getEncoding(), times, values);
-    } else
+    } else {
       throw new NoSuchElementException("Not enough elements");
+    }
   }
 
   public FastIntDoubleTimeSeries headFast(final int numItems) {
@@ -372,8 +383,9 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
       System.arraycopy(_times, 0, times, 0, numItems);
       System.arraycopy(_values, 0, values, 0, numItems);
       return new FastArrayIntDoubleTimeSeries(getEncoding(), times, values);
-    } else
+    } else {
       throw new NoSuchElementException("Not enough elements");
+    }
   }
 
   /**
@@ -382,10 +394,12 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
    */
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
+    }
     if (getClass() != obj.getClass()) {
       if (obj instanceof FastIntDoubleTimeSeries) {
         final FastIntDoubleTimeSeries other = (FastIntDoubleTimeSeries) obj;
@@ -476,10 +490,11 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
   @Override
   public double getValueFast(final int time) {
     final int binarySearch = Arrays.binarySearch(_times, time);
-    if (_times[binarySearch] == time)
+    if (_times[binarySearch] == time) {
       return _values[binarySearch];
-    else
+    } else {
       throw new NoSuchElementException();
+    }
   }
 
   @Override

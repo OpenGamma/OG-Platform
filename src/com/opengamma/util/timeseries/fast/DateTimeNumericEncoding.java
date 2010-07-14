@@ -41,21 +41,21 @@ public enum DateTimeNumericEncoding {
     @Override
     public long convertToLong(final long sourceValue, final DateTimeNumericEncoding targetEncoding) {
       switch (targetEncoding) {
-      case DATE_DDMMYYYY:
-        final Calendar calendar = _calendar.get();
-        calendar.setTimeInMillis(sourceValue / 1000);
-        long value = calendar.get(Calendar.YEAR) * 10000;
-        value += (calendar.get(Calendar.MONTH) + 1) * 100;
-        value += calendar.get(Calendar.DAY_OF_MONTH);
-        return value;
-      case DATE_EPOCH_DAYS:
-        return sourceValue / NANOS_PER_DAY;
-      case TIME_EPOCH_SECONDS:
-        return sourceValue / NANOS_PER_SECOND;
-      case TIME_EPOCH_MILLIS:
-        return sourceValue / NANOS_PER_MILLI;
-      case TIME_EPOCH_NANOS:
-        return sourceValue;
+        case DATE_DDMMYYYY:
+          final Calendar calendar = _calendar.get();
+          calendar.setTimeInMillis(sourceValue / 1000);
+          long value = calendar.get(Calendar.YEAR) * 10000;
+          value += (calendar.get(Calendar.MONTH) + 1) * 100;
+          value += calendar.get(Calendar.DAY_OF_MONTH);
+          return value;
+        case DATE_EPOCH_DAYS:
+          return sourceValue / NANOS_PER_DAY;
+        case TIME_EPOCH_SECONDS:
+          return sourceValue / NANOS_PER_SECOND;
+        case TIME_EPOCH_MILLIS:
+          return sourceValue / NANOS_PER_MILLI;
+        case TIME_EPOCH_NANOS:
+          return sourceValue;
       }
       throw new OpenGammaRuntimeException("Impossible");
     }
@@ -85,21 +85,21 @@ public enum DateTimeNumericEncoding {
     @Override
     public long convertToLong(final long sourceValue, final DateTimeNumericEncoding targetEncoding) {
       switch (targetEncoding) {
-      case DATE_DDMMYYYY:
-        final Calendar calendar = _calendar.get();
-        calendar.setTimeInMillis(sourceValue);
-        long value = calendar.get(Calendar.YEAR) * 10000;
-        value += (calendar.get(Calendar.MONTH) + 1) * 100;
-        value += calendar.get(Calendar.DAY_OF_MONTH);
-        return value;
-      case DATE_EPOCH_DAYS:
-        return sourceValue / MILLIS_PER_DAY;
-      case TIME_EPOCH_SECONDS:
-        return sourceValue / MILLIS_PER_SECOND;
-      case TIME_EPOCH_MILLIS:
-        return sourceValue;
-      case TIME_EPOCH_NANOS:
-        return sourceValue * NANOS_PER_MILLI;
+        case DATE_DDMMYYYY:
+          final Calendar calendar = _calendar.get();
+          calendar.setTimeInMillis(sourceValue);
+          long value = calendar.get(Calendar.YEAR) * 10000;
+          value += (calendar.get(Calendar.MONTH) + 1) * 100;
+          value += calendar.get(Calendar.DAY_OF_MONTH);
+          return value;
+        case DATE_EPOCH_DAYS:
+          return sourceValue / MILLIS_PER_DAY;
+        case TIME_EPOCH_SECONDS:
+          return sourceValue / MILLIS_PER_SECOND;
+        case TIME_EPOCH_MILLIS:
+          return sourceValue;
+        case TIME_EPOCH_NANOS:
+          return sourceValue * NANOS_PER_MILLI;
       }
       throw new OpenGammaRuntimeException("Impossible");
     }
@@ -128,21 +128,21 @@ public enum DateTimeNumericEncoding {
     @Override
     public long convertToLong(final long sourceValue, final DateTimeNumericEncoding targetEncoding) {
       switch (targetEncoding) {
-      case DATE_DDMMYYYY:
-        final Calendar calendar = _calendar.get();
-        calendar.setTimeInMillis(sourceValue * 1000);
-        long value = calendar.get(Calendar.YEAR) * 10000;
-        value += (calendar.get(Calendar.MONTH) + 1) * 100;
-        value += calendar.get(Calendar.DAY_OF_MONTH);
-        return value;
-      case DATE_EPOCH_DAYS:
-        return sourceValue / SECONDS_PER_DAY;
-      case TIME_EPOCH_SECONDS:
-        return sourceValue;
-      case TIME_EPOCH_MILLIS:
-        return sourceValue * MILLIS_PER_SECOND;
-      case TIME_EPOCH_NANOS:
-        return sourceValue * NANOS_PER_SECOND;
+        case DATE_DDMMYYYY:
+          final Calendar calendar = _calendar.get();
+          calendar.setTimeInMillis(sourceValue * 1000);
+          long value = calendar.get(Calendar.YEAR) * 10000;
+          value += (calendar.get(Calendar.MONTH) + 1) * 100;
+          value += calendar.get(Calendar.DAY_OF_MONTH);
+          return value;
+        case DATE_EPOCH_DAYS:
+          return sourceValue / SECONDS_PER_DAY;
+        case TIME_EPOCH_SECONDS:
+          return sourceValue;
+        case TIME_EPOCH_MILLIS:
+          return sourceValue * MILLIS_PER_SECOND;
+        case TIME_EPOCH_NANOS:
+          return sourceValue * NANOS_PER_SECOND;
       }
       throw new OpenGammaRuntimeException("Impossible");
     }
@@ -171,27 +171,27 @@ public enum DateTimeNumericEncoding {
     @Override
     public long convertToLong(final long sourceValue, final DateTimeNumericEncoding targetEncoding) {
       switch (targetEncoding) {
-      case DATE_DDMMYYYY:
-        final Calendar calendar = _calendar.get();
-        calendar.setTimeInMillis(sourceValue * MILLIS_PER_DAY);
-        long value = calendar.get(Calendar.YEAR) * 10000;
-        value += (calendar.get(Calendar.MONTH) + 1) * 100;
-        value += calendar.get(Calendar.DAY_OF_MONTH);
-        return value;
-      case DATE_EPOCH_DAYS:
-        return sourceValue;
-      case TIME_EPOCH_SECONDS:
-        return sourceValue * SECONDS_PER_DAY;
-      case TIME_EPOCH_MILLIS:
-        return sourceValue * MILLIS_PER_DAY;
-      case TIME_EPOCH_NANOS:
-        return sourceValue * NANOS_PER_DAY;
+        case DATE_DDMMYYYY:
+          final Calendar calendar = _calendar.get();
+          calendar.setTimeInMillis(sourceValue * MILLIS_PER_DAY);
+          long value = calendar.get(Calendar.YEAR) * 10000;
+          value += (calendar.get(Calendar.MONTH) + 1) * 100;
+          value += calendar.get(Calendar.DAY_OF_MONTH);
+          return value;
+        case DATE_EPOCH_DAYS:
+          return sourceValue;
+        case TIME_EPOCH_SECONDS:
+          return sourceValue * SECONDS_PER_DAY;
+        case TIME_EPOCH_MILLIS:
+          return sourceValue * MILLIS_PER_DAY;
+        case TIME_EPOCH_NANOS:
+          return sourceValue * NANOS_PER_DAY;
       }
       throw new OpenGammaRuntimeException("Impossible");
     }
   },
   DATE_DDMMYYYY {
-    private final static long MILLIS_PER_DAY = 3600 * 24 * 1000;
+    private static final long MILLIS_PER_DAY = 3600 * 24 * 1000;
     private static final long MILLIS_PER_SECOND = 1000;
     private static final long NANOS_PER_MILLI = 1000;
     private final ThreadLocal<Calendar> _calendar = new ThreadLocal<Calendar>() {
@@ -226,14 +226,14 @@ public enum DateTimeNumericEncoding {
         cal.set(Calendar.DAY_OF_MONTH, day);
         final long timeInMillis = cal.getTimeInMillis();
         switch (targetEncoding) {
-        case DATE_EPOCH_DAYS:
-          return timeInMillis / MILLIS_PER_DAY;
-        case TIME_EPOCH_SECONDS:
-          return timeInMillis / MILLIS_PER_SECOND;
-        case TIME_EPOCH_MILLIS:
-          return timeInMillis;
-        case TIME_EPOCH_NANOS:
-          return timeInMillis * NANOS_PER_MILLI;
+          case DATE_EPOCH_DAYS:
+            return timeInMillis / MILLIS_PER_DAY;
+          case TIME_EPOCH_SECONDS:
+            return timeInMillis / MILLIS_PER_SECOND;
+          case TIME_EPOCH_MILLIS:
+            return timeInMillis;
+          case TIME_EPOCH_NANOS:
+            return timeInMillis * NANOS_PER_MILLI;
         }
         throw new OpenGammaRuntimeException("Impossible");
       }

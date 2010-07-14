@@ -85,9 +85,9 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   public FastTimeSeries<T> operate(final FastBackedDoubleTimeSeries<?> other, final BinaryOperator operator) {
     FastTimeSeries<?> fastSeries = other.getFastSeries();
     if (fastSeries instanceof FastIntDoubleTimeSeries) {
-      return operate((FastIntDoubleTimeSeries)fastSeries, operator);  
+      return operate((FastIntDoubleTimeSeries) fastSeries, operator);  
     } else { // if (fastSeries instanceof FastLongDoubleTimeSeries
-      return operate((FastLongDoubleTimeSeries)fastSeries, operator);
+      return operate((FastLongDoubleTimeSeries) fastSeries, operator);
     }   
   }
 
@@ -98,19 +98,19 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   public FastTimeSeries<T> unionOperate(final FastBackedDoubleTimeSeries<?> other, final BinaryOperator operator) {
     FastTimeSeries<?> fastSeries = other.getFastSeries();
     if (fastSeries instanceof FastIntDoubleTimeSeries) {
-      return unionOperate((FastIntDoubleTimeSeries)fastSeries, operator);  
+      return unionOperate((FastIntDoubleTimeSeries) fastSeries, operator);  
     } else { // if (fastSeries instanceof FastLongDoubleTimeSeries
-      return unionOperate((FastLongDoubleTimeSeries)fastSeries, operator);
+      return unionOperate((FastLongDoubleTimeSeries) fastSeries, operator);
     }   
   }
 
   public FastTimeSeries<T> add(DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
-      return operate((FastBackedDoubleTimeSeries<?>)other, ADD_OPERATOR);
+      return operate((FastBackedDoubleTimeSeries<?>) other, ADD_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
-      return operate((FastIntDoubleTimeSeries)other, ADD_OPERATOR);
+      return operate((FastIntDoubleTimeSeries) other, ADD_OPERATOR);
     } else { // if (other instanceof FastLongDoubleTimeSeries) {
-      return operate((FastLongDoubleTimeSeries)other, ADD_OPERATOR);
+      return operate((FastLongDoubleTimeSeries) other, ADD_OPERATOR);
     }
   }
   public FastTimeSeries<T> add(FastBackedDoubleTimeSeries<?> other) {
@@ -127,11 +127,11 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   }
   public FastTimeSeries<T> unionAdd(DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
-      return unionOperate((FastBackedDoubleTimeSeries<?>)other, ADD_OPERATOR);
+      return unionOperate((FastBackedDoubleTimeSeries<?>) other, ADD_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
-      return unionOperate((FastIntDoubleTimeSeries)other, ADD_OPERATOR);
+      return unionOperate((FastIntDoubleTimeSeries) other, ADD_OPERATOR);
     } else { // if (other instanceof FastLongDoubleTimeSeries) {
-      return unionOperate((FastLongDoubleTimeSeries)other, ADD_OPERATOR);
+      return unionOperate((FastLongDoubleTimeSeries) other, ADD_OPERATOR);
     }
   }
   public FastTimeSeries<T> unionAdd(FastBackedDoubleTimeSeries<?> other) {
@@ -145,11 +145,11 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   }
   public FastTimeSeries<T> subtract(DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
-      return operate((FastBackedDoubleTimeSeries<?>)other, SUBTRACT_OPERATOR);
+      return operate((FastBackedDoubleTimeSeries<?>) other, SUBTRACT_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
-      return operate((FastIntDoubleTimeSeries)other, SUBTRACT_OPERATOR);
+      return operate((FastIntDoubleTimeSeries) other, SUBTRACT_OPERATOR);
     } else { // if (other instanceof FastLongDoubleTimeSeries) {
-      return operate((FastLongDoubleTimeSeries)other, SUBTRACT_OPERATOR);
+      return operate((FastLongDoubleTimeSeries) other, SUBTRACT_OPERATOR);
     }
   }
   public FastTimeSeries<T> subtract(FastBackedDoubleTimeSeries<?> other) {
@@ -166,11 +166,11 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   }
   public FastTimeSeries<T> unionSubtract(DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
-      return unionOperate((FastBackedDoubleTimeSeries<?>)other, SUBTRACT_OPERATOR);
+      return unionOperate((FastBackedDoubleTimeSeries<?>) other, SUBTRACT_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
-      return unionOperate((FastIntDoubleTimeSeries)other, SUBTRACT_OPERATOR);
+      return unionOperate((FastIntDoubleTimeSeries) other, SUBTRACT_OPERATOR);
     } else { // if (other instanceof FastLongDoubleTimeSeries) {
-      return unionOperate((FastLongDoubleTimeSeries)other, SUBTRACT_OPERATOR);
+      return unionOperate((FastLongDoubleTimeSeries) other, SUBTRACT_OPERATOR);
     }
   }
   public FastTimeSeries<T> unionSubtract(FastBackedDoubleTimeSeries<?> other) {
@@ -184,11 +184,11 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   }
   public FastTimeSeries<T> multiply(DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
-      return operate((FastBackedDoubleTimeSeries<?>)other, MULTIPLY_OPERATOR);
+      return operate((FastBackedDoubleTimeSeries<?>) other, MULTIPLY_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
-      return operate((FastIntDoubleTimeSeries)other, MULTIPLY_OPERATOR);
+      return operate((FastIntDoubleTimeSeries) other, MULTIPLY_OPERATOR);
     } else { // if (other instanceof FastLongDoubleTimeSeries) {
-      return operate((FastLongDoubleTimeSeries)other, MULTIPLY_OPERATOR);
+      return operate((FastLongDoubleTimeSeries) other, MULTIPLY_OPERATOR);
     }
   }
   public FastTimeSeries<T> multiply(FastBackedDoubleTimeSeries<?> other) {
@@ -205,11 +205,11 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   }
   public FastTimeSeries<T> unionMultiply(DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
-      return unionOperate((FastBackedDoubleTimeSeries<?>)other, MULTIPLY_OPERATOR);
+      return unionOperate((FastBackedDoubleTimeSeries<?>) other, MULTIPLY_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
-      return unionOperate((FastIntDoubleTimeSeries)other, MULTIPLY_OPERATOR);
+      return unionOperate((FastIntDoubleTimeSeries) other, MULTIPLY_OPERATOR);
     } else { // if (other instanceof FastLongDoubleTimeSeries) {
-      return unionOperate((FastLongDoubleTimeSeries)other, MULTIPLY_OPERATOR);
+      return unionOperate((FastLongDoubleTimeSeries) other, MULTIPLY_OPERATOR);
     }
   }
   public FastTimeSeries<T> unionMultiply(FastBackedDoubleTimeSeries<?> other) {
@@ -223,11 +223,11 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   }
   public FastTimeSeries<T> divide(DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
-      return operate((FastBackedDoubleTimeSeries<?>)other, DIVIDE_OPERATOR);
+      return operate((FastBackedDoubleTimeSeries<?>) other, DIVIDE_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
-      return operate((FastIntDoubleTimeSeries)other, DIVIDE_OPERATOR);
+      return operate((FastIntDoubleTimeSeries) other, DIVIDE_OPERATOR);
     } else { // if (other instanceof FastLongDoubleTimeSeries) {
-      return operate((FastLongDoubleTimeSeries)other, DIVIDE_OPERATOR);
+      return operate((FastLongDoubleTimeSeries) other, DIVIDE_OPERATOR);
     }
   }
   public FastTimeSeries<T> divide(FastBackedDoubleTimeSeries<?> other) {
@@ -244,11 +244,11 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   }
   public FastTimeSeries<T> unionDivide(DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
-      return unionOperate((FastBackedDoubleTimeSeries<?>)other, DIVIDE_OPERATOR);
+      return unionOperate((FastBackedDoubleTimeSeries<?>) other, DIVIDE_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
-      return unionOperate((FastIntDoubleTimeSeries)other, DIVIDE_OPERATOR);
+      return unionOperate((FastIntDoubleTimeSeries) other, DIVIDE_OPERATOR);
     } else { // if (other instanceof FastLongDoubleTimeSeries) {
-      return unionOperate((FastLongDoubleTimeSeries)other, DIVIDE_OPERATOR);
+      return unionOperate((FastLongDoubleTimeSeries) other, DIVIDE_OPERATOR);
     }
   }
   public FastTimeSeries<T> unionDivide(FastBackedDoubleTimeSeries<?> other) {
@@ -262,11 +262,11 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   }
   public FastTimeSeries<T> power(DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
-      return operate((FastBackedDoubleTimeSeries<?>)other, POWER_OPERATOR);
+      return operate((FastBackedDoubleTimeSeries<?>) other, POWER_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
-      return operate((FastIntDoubleTimeSeries)other, POWER_OPERATOR);
+      return operate((FastIntDoubleTimeSeries) other, POWER_OPERATOR);
     } else { // if (other instanceof FastLongDoubleTimeSeries) {
-      return operate((FastLongDoubleTimeSeries)other, POWER_OPERATOR);
+      return operate((FastLongDoubleTimeSeries) other, POWER_OPERATOR);
     }
   }
   public FastTimeSeries<T> power(FastBackedDoubleTimeSeries<?> other) {
@@ -283,11 +283,11 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   }
   public FastTimeSeries<T> unionPower(DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
-      return unionOperate((FastBackedDoubleTimeSeries<?>)other, POWER_OPERATOR);
+      return unionOperate((FastBackedDoubleTimeSeries<?>) other, POWER_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
-      return unionOperate((FastIntDoubleTimeSeries)other, POWER_OPERATOR);
+      return unionOperate((FastIntDoubleTimeSeries) other, POWER_OPERATOR);
     } else { // if (other instanceof FastLongDoubleTimeSeries) {
-      return unionOperate((FastLongDoubleTimeSeries)other, POWER_OPERATOR);
+      return unionOperate((FastLongDoubleTimeSeries) other, POWER_OPERATOR);
     }
   }
   public FastTimeSeries<T> unionPower(FastBackedDoubleTimeSeries<?> other) {
@@ -301,11 +301,11 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   }
   public FastTimeSeries<T> minimum(DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
-      return operate((FastBackedDoubleTimeSeries<?>)other, MINIMUM_OPERATOR);
+      return operate((FastBackedDoubleTimeSeries<?>) other, MINIMUM_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
-      return operate((FastIntDoubleTimeSeries)other, MINIMUM_OPERATOR);
+      return operate((FastIntDoubleTimeSeries) other, MINIMUM_OPERATOR);
     } else { // if (other instanceof FastLongDoubleTimeSeries) {
-      return operate((FastLongDoubleTimeSeries)other, MINIMUM_OPERATOR);
+      return operate((FastLongDoubleTimeSeries) other, MINIMUM_OPERATOR);
     }
   }
   public FastTimeSeries<T> minimum(FastBackedDoubleTimeSeries<?> other) {
@@ -322,11 +322,11 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   }
   public FastTimeSeries<T> unionMinimum(DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
-      return unionOperate((FastBackedDoubleTimeSeries<?>)other, MINIMUM_OPERATOR);
+      return unionOperate((FastBackedDoubleTimeSeries<?>) other, MINIMUM_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
-      return unionOperate((FastIntDoubleTimeSeries)other, MINIMUM_OPERATOR);
+      return unionOperate((FastIntDoubleTimeSeries) other, MINIMUM_OPERATOR);
     } else { // if (other instanceof FastLongDoubleTimeSeries) {
-      return unionOperate((FastLongDoubleTimeSeries)other, MINIMUM_OPERATOR);
+      return unionOperate((FastLongDoubleTimeSeries) other, MINIMUM_OPERATOR);
     }
   }
   public FastTimeSeries<T> unionMinimum(FastBackedDoubleTimeSeries<?> other) {
@@ -340,11 +340,11 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   }
   public FastTimeSeries<T> maximum(DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
-      return operate((FastBackedDoubleTimeSeries<?>)other, MAXIMUM_OPERATOR);
+      return operate((FastBackedDoubleTimeSeries<?>) other, MAXIMUM_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
-      return operate((FastIntDoubleTimeSeries)other, MAXIMUM_OPERATOR);
+      return operate((FastIntDoubleTimeSeries) other, MAXIMUM_OPERATOR);
     } else { // if (other instanceof FastLongDoubleTimeSeries) {
-      return operate((FastLongDoubleTimeSeries)other, MAXIMUM_OPERATOR);
+      return operate((FastLongDoubleTimeSeries) other, MAXIMUM_OPERATOR);
     }
   }
   public FastTimeSeries<T> maximum(FastBackedDoubleTimeSeries<?> other) {
@@ -361,11 +361,11 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   }
   public FastTimeSeries<T> unionMaximum(DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
-      return unionOperate((FastBackedDoubleTimeSeries<?>)other, MAXIMUM_OPERATOR);
+      return unionOperate((FastBackedDoubleTimeSeries<?>) other, MAXIMUM_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
-      return unionOperate((FastIntDoubleTimeSeries)other, MAXIMUM_OPERATOR);
+      return unionOperate((FastIntDoubleTimeSeries) other, MAXIMUM_OPERATOR);
     } else { // if (other instanceof FastLongDoubleTimeSeries) {
-      return unionOperate((FastLongDoubleTimeSeries)other, MAXIMUM_OPERATOR);
+      return unionOperate((FastLongDoubleTimeSeries) other, MAXIMUM_OPERATOR);
     }
   }
   public FastTimeSeries<T> unionMaximum(FastBackedDoubleTimeSeries<?> other) {
@@ -379,11 +379,11 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   }
   public FastTimeSeries<T> average(DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
-      return operate((FastBackedDoubleTimeSeries<?>)other, AVERAGE_OPERATOR);
+      return operate((FastBackedDoubleTimeSeries<?>) other, AVERAGE_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
-      return operate((FastIntDoubleTimeSeries)other, AVERAGE_OPERATOR);
+      return operate((FastIntDoubleTimeSeries) other, AVERAGE_OPERATOR);
     } else { // if (other instanceof FastLongDoubleTimeSeries) {
-      return operate((FastLongDoubleTimeSeries)other, AVERAGE_OPERATOR);
+      return operate((FastLongDoubleTimeSeries) other, AVERAGE_OPERATOR);
     }
   }
   public FastTimeSeries<T> average(FastBackedDoubleTimeSeries<?> other) {
@@ -400,11 +400,11 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   }
   public FastTimeSeries<T> unionAverage(DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
-      return unionOperate((FastBackedDoubleTimeSeries<?>)other, AVERAGE_OPERATOR);
+      return unionOperate((FastBackedDoubleTimeSeries<?>) other, AVERAGE_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
-      return unionOperate((FastIntDoubleTimeSeries)other, AVERAGE_OPERATOR);
+      return unionOperate((FastIntDoubleTimeSeries) other, AVERAGE_OPERATOR);
     } else { // if (other instanceof FastLongDoubleTimeSeries) {
-      return unionOperate((FastLongDoubleTimeSeries)other, AVERAGE_OPERATOR);
+      return unionOperate((FastLongDoubleTimeSeries) other, AVERAGE_OPERATOR);
     }
   }
   public FastTimeSeries<T> unionAverage(FastBackedDoubleTimeSeries<?> other) {
@@ -418,11 +418,11 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   }
   public FastTimeSeries<T> intersectionFirstValue(DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
-      return operate((FastBackedDoubleTimeSeries<?>)other, FIRST_OPERATOR);
+      return operate((FastBackedDoubleTimeSeries<?>) other, FIRST_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
-      return operate((FastIntDoubleTimeSeries)other, FIRST_OPERATOR);
+      return operate((FastIntDoubleTimeSeries) other, FIRST_OPERATOR);
     } else { // if (other instanceof FastLongDoubleTimeSeries) {
-      return operate((FastLongDoubleTimeSeries)other, FIRST_OPERATOR);
+      return operate((FastLongDoubleTimeSeries) other, FIRST_OPERATOR);
     }
   }
   public FastTimeSeries<T> intersectionFirstValue(FastBackedDoubleTimeSeries<?> other) {
@@ -436,11 +436,11 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   }
   public FastTimeSeries<T> intersectionSecondValue(DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
-      return operate((FastBackedDoubleTimeSeries<?>)other, SECOND_OPERATOR);
+      return operate((FastBackedDoubleTimeSeries<?>) other, SECOND_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
-      return operate((FastIntDoubleTimeSeries)other, SECOND_OPERATOR);
+      return operate((FastIntDoubleTimeSeries) other, SECOND_OPERATOR);
     } else { // if (other instanceof FastLongDoubleTimeSeries) {
-      return operate((FastLongDoubleTimeSeries)other, SECOND_OPERATOR);
+      return operate((FastLongDoubleTimeSeries) other, SECOND_OPERATOR);
     }
   }
   public FastTimeSeries<T> intersectionSecondValue(FastBackedDoubleTimeSeries<?> other) {
@@ -477,7 +477,7 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
     }
     double[] values = valuesArrayFast();
     double max = Double.MIN_VALUE;
-    for (int i=0; i< values.length; i++) {
+    for (int i = 0; i < values.length; i++) {
       if (values[i] > max) {
         max = values[i];
       }
@@ -490,7 +490,7 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
     }
     double[] values = valuesArrayFast();
     double min = Double.MAX_VALUE;
-    for (int i=0; i< values.length; i++) {
+    for (int i = 0; i < values.length; i++) {
       if (values[i] < min) {
         min = values[i];
       }

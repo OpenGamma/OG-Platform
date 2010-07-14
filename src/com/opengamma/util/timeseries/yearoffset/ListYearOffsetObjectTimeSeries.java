@@ -25,7 +25,8 @@ public class ListYearOffsetObjectTimeSeries<T> extends MutableYearOffsetObjectTi
   }
 
   public ListYearOffsetObjectTimeSeries(final ZonedDateTime zeroDate, final Double[] dates, final T[] values) {
-    super(new YearOffsetEpochMillisConverter(zeroDate), new FastListLongObjectTimeSeries<T>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, new YearOffsetEpochMillisConverter(zeroDate).convertToLong(dates), values));
+    super(new YearOffsetEpochMillisConverter(zeroDate),
+        new FastListLongObjectTimeSeries<T>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, new YearOffsetEpochMillisConverter(zeroDate).convertToLong(dates), values));
   }
 
   public ListYearOffsetObjectTimeSeries(final java.util.TimeZone timeZone, final Date zeroDate, final Double[] dates, final T[] values) {
@@ -34,7 +35,8 @@ public class ListYearOffsetObjectTimeSeries<T> extends MutableYearOffsetObjectTi
   }
 
   public ListYearOffsetObjectTimeSeries(final ZonedDateTime zeroDate, final List<Double> dates, final List<T> values) {
-    super(new YearOffsetEpochMillisConverter(zeroDate), new FastListLongObjectTimeSeries<T>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, new YearOffsetEpochMillisConverter(zeroDate).convertToLong(dates), values));
+    super(new YearOffsetEpochMillisConverter(zeroDate),
+        new FastListLongObjectTimeSeries<T>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, new YearOffsetEpochMillisConverter(zeroDate).convertToLong(dates), values));
   }
 
   public ListYearOffsetObjectTimeSeries(final java.util.TimeZone timeZone, final Date zeroDate, final List<Double> dates, final List<T> values) {
@@ -45,8 +47,8 @@ public class ListYearOffsetObjectTimeSeries<T> extends MutableYearOffsetObjectTi
   // REVIEW jim 8-Mar-2010 -- we could probably just resuse the converter from dts - should be immutable...
   @SuppressWarnings("unchecked")
   public ListYearOffsetObjectTimeSeries(final YearOffsetObjectTimeSeries<T> dts) {
-    super(new YearOffsetEpochMillisConverter(((YearOffsetEpochMillisConverter)dts.getConverter()).getZonedOffset()), 
-        (FastMutableLongObjectTimeSeries<T>) new YearOffsetEpochMillisConverter(((YearOffsetEpochMillisConverter)dts.getConverter()).getZonedOffset()).convertToLong(new FastListLongObjectTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));
+    super(new YearOffsetEpochMillisConverter(((YearOffsetEpochMillisConverter) dts.getConverter()).getZonedOffset()), 
+        (FastMutableLongObjectTimeSeries<T>) new YearOffsetEpochMillisConverter(((YearOffsetEpochMillisConverter) dts.getConverter()).getZonedOffset()).convertToLong(new FastListLongObjectTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));
   }
   
   @SuppressWarnings("unchecked")

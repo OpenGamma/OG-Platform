@@ -62,23 +62,26 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
   }
 
   private void init(final long[] times, final double[] values) {
-    if (times.length != values.length)
+    if (times.length != values.length) {
       throw new IllegalArgumentException("Arrays are of different sizes: " + times.length + ", " + values.length);
+    }
     System.arraycopy(times, 0, _times, 0, times.length);
     System.arraycopy(values, 0, _values, 0, values.length);
     // check dates are ordered
     long maxTime = Long.MIN_VALUE;
     for (final long time : _times) {
-      if (time < maxTime)
+      if (time < maxTime) {
         throw new IllegalArgumentException("dates must be ordered");
+      }
       maxTime = time;
     }
   }
 
   public FastArrayLongDoubleTimeSeries(final DateTimeNumericEncoding encoding, final List<Long> times, final List<Double> values) {
     super(encoding);
-    if (times.size() != values.size())
+    if (times.size() != values.size()) {
       throw new IllegalArgumentException("lists are of different sizes");
+    }
     _times = new long[times.size()];
     _values = new double[values.size()];
     final Iterator<Double> iter = values.iterator();
@@ -107,7 +110,7 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
     super(dts.getEncoding());
     DateTimeNumericEncoding otherEncoding = dts.getEncoding();
     _times = dts.timesArrayFast();
-    for (int i=0; i<_times.length; i++) {
+    for (int i = 0; i < _times.length; i++) {
       _times[i] = otherEncoding.convertToLong(_times[i], encoding);
     }
     _values = dts.valuesArrayFast();
@@ -119,7 +122,7 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
     int[] timesArrayFast = dts.timesArrayFast();
     _values = dts.valuesArrayFast();
     _times = new long[timesArrayFast.length];
-    for (int i=0; i<timesArrayFast.length; i++) {
+    for (int i = 0; i < timesArrayFast.length; i++) {
       _times[i] = encoding.convertToLong(timesArrayFast[i], encoding);
     }
   }
@@ -130,7 +133,7 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
     int[] timesArrayFast = dts.timesArrayFast();
     _values = dts.valuesArrayFast();
     _times = new long[timesArrayFast.length];
-    for (int i=0; i<timesArrayFast.length; i++) {
+    for (int i = 0; i < timesArrayFast.length; i++) {
       _times[i] = otherEncoding.convertToLong(timesArrayFast[i], encoding);
     }
   }
@@ -152,8 +155,9 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
 
   @Override
   public FastLongDoubleTimeSeries subSeriesFast(final long startTime, final long endTime) {
-    if (isEmpty())
+    if (isEmpty()) {
       return EMPTY_SERIES;
+    }
     // throw new NoSuchElementException("Series is empty")
     int startPos = Arrays.binarySearch(_times, startTime);
     int endPos = Arrays.binarySearch(_times, endTime);
@@ -182,18 +186,20 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
 
   @Override
   public long getEarliestTimeFast() {
-    if (_times.length > 0)
+    if (_times.length > 0) {
       return _times[0];
-    else
+    } else {
       throw new NoSuchElementException("Series is empty");
+    }
   }
 
   @Override
   public double getEarliestValueFast() {
-    if (_values.length > 0)
+    if (_values.length > 0) {
       return _values[0];
-    else
+    } else {
       throw new NoSuchElementException("Series is empty");
+    }
   }
 
   @Override
@@ -201,20 +207,22 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
     if (_times.length > 0) {
       final int index = _times.length - 1;
       return _times[index];
-    } else
+    } else {
       throw new NoSuchElementException("Series is empty");
+    }
   }
 
   @Override
   public double getLatestValueFast() {
-    if (_values.length > 0)
+    if (_values.length > 0) {
       return _values[_values.length - 1];
-    else
+    } else {
       throw new NoSuchElementException("Series is empty");
+    }
   }
 
   /* package */class PrimitiveArrayDoubleTimeSeriesIterator implements ObjectIterator<Long2DoubleMap.Entry> {
-    private int _current = 0;
+    private int _current;
 
     @Override
     public boolean hasNext() {
@@ -259,7 +267,7 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
   }
 
   /* package */class PrimitiveArrayDoubleTimeSeriesTimesIterator implements LongIterator {
-    private int _current = 0;
+    private int _current;
 
     @Override
     public boolean hasNext() {
@@ -305,7 +313,7 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
   }
 
   /* package */class PrimitiveArrayDoubleTimeSeriesValuesIterator implements DoubleIterator {
-    private int _current = 0;
+    private int _current;
 
     @Override
     public boolean hasNext() {
@@ -318,8 +326,9 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
         final Double value = _values[_current];
         _current++;
         return value;
-      } else
+      } else {
         throw new NoSuchElementException();
+      }
     }
 
     public double nextDouble() {
@@ -327,8 +336,9 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
         final double value = _values[_current];
         _current++;
         return value;
-      } else
+      } else {
         throw new NoSuchElementException();
+      }
     }
 
     @Override
@@ -372,8 +382,9 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
       System.arraycopy(_times, _times.length - numItems, times, 0, numItems);
       System.arraycopy(_values, _values.length - numItems, values, 0, numItems);
       return new FastArrayLongDoubleTimeSeries(getEncoding(), times, values);
-    } else
+    } else {
       throw new NoSuchElementException("Not enough elements");
+    }
   }
 
   @Override
@@ -388,8 +399,9 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
       System.arraycopy(_times, 0, times, 0, numItems);
       System.arraycopy(_values, 0, values, 0, numItems);
       return new FastArrayLongDoubleTimeSeries(getEncoding(), times, values);
-    } else
+    } else {
       throw new NoSuchElementException("Not enough elements");
+    }
   }
 
   @Override
@@ -403,10 +415,12 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
    */
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
+    }
     if (getClass() != obj.getClass()) {
       if (obj instanceof FastLongDoubleTimeSeries) {
         final FastLongDoubleTimeSeries other = (FastLongDoubleTimeSeries) obj;
@@ -497,10 +511,11 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
   @Override
   public double getValueFast(final long time) {
     final int binarySearch = Arrays.binarySearch(_times, time);
-    if (_times[binarySearch] == time)
+    if (_times[binarySearch] == time) {
       return _values[binarySearch];
-    else
+    } else {
       throw new NoSuchElementException();
+    }
   }
 
   @Override
@@ -547,7 +562,7 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
   
   // Temporary hack to get the remote view client working
   public static FastArrayLongDoubleTimeSeries fromFudgeMsg(final FudgeFieldContainer message) {
-    return new FastArrayLongDoubleTimeSeries(message.getValue(DateTimeNumericEncoding.class, "encoding"), (long[]) message.getValue ("times"), (double[]) message.getValue("values"));
+    return new FastArrayLongDoubleTimeSeries(message.getValue(DateTimeNumericEncoding.class, "encoding"), (long[]) message.getValue("times"), (double[]) message.getValue("values"));
   }
 
 }

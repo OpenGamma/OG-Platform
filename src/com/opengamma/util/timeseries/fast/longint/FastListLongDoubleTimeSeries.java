@@ -71,7 +71,7 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
     super(encoding);
     long[] timesArrayFast = dts.timesArrayFast(); // NOTE: we can't do it this way if we change to returning the backing array.
     DateTimeNumericEncoding sourceEncoding = dts.getEncoding();
-    for (int i=0; i<timesArrayFast.length; i++) {
+    for (int i = 0; i < timesArrayFast.length; i++) {
       timesArrayFast[i] = sourceEncoding.convertToLong(timesArrayFast[i], encoding);
     }
     _times = new LongArrayList(timesArrayFast);
@@ -82,7 +82,7 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
     super(dts.getEncoding());
     int[] timesArrayFast = dts.timesArrayFast();
     _times = new LongArrayList();
-    for (int i=0; i<timesArrayFast.length; i++) {
+    for (int i = 0; i < timesArrayFast.length; i++) {
       _times.add(getEncoding().convertToLong(timesArrayFast[i], getEncoding()));
     }
     _values = new DoubleArrayList(dts.valuesArrayFast());
@@ -94,7 +94,7 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
     DateTimeNumericEncoding sourceEncoding = dts.getEncoding();
     int[] timesArrayFast = dts.timesArrayFast();
     _times = new LongArrayList();
-    for (int i=0; i<timesArrayFast.length; i++) {
+    for (int i = 0; i < timesArrayFast.length; i++) {
       _times.add(sourceEncoding.convertToLong(timesArrayFast[i], getEncoding()));
     }
     _values = new DoubleArrayList(dts.valuesArrayFast());
@@ -199,8 +199,12 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
     if (endIndex == -1) {
       endIndex = -(Collections.binarySearch(_times, endTime) + 1);
     }
-    if (startIndex == -1 || endIndex == -1) throw new NoSuchElementException();
-    if (startIndex == -1 || endIndex == -1) throw new NoSuchElementException();
+    if (startIndex == -1 || endIndex == -1) {
+      throw new NoSuchElementException();
+    }
+    if (startIndex == -1 || endIndex == -1) {
+      throw new NoSuchElementException();
+    }
     return new FastListLongDoubleTimeSeries(getEncoding(), _times.subList(startIndex, endIndex), _values.subList(startIndex, endIndex));
   }
 
@@ -336,10 +340,12 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
    */
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
+    }
     if (getClass() != obj.getClass()) {
       if (obj instanceof FastLongDoubleTimeSeries) {
         final FastLongDoubleTimeSeries other = (FastLongDoubleTimeSeries) obj;
