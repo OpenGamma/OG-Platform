@@ -123,15 +123,12 @@ public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvid
   }
 
   @Override
-  public void subscriptionResultReceived(
-      LiveDataSubscriptionResponse subscriptionResult) {
-    Set<ValueRequirement> valueRequirements = _liveDataSpec2ValueRequirements.get(subscriptionResult.getRequestedSpecification());
+  public void subscriptionResultReceived(LiveDataSubscriptionResponse subscriptionResult) {
+    Set<ValueRequirement> valueRequirements = _liveDataSpec2ValueRequirements.remove(subscriptionResult.getRequestedSpecification());
     if (valueRequirements == null) {
       s_logger.warn("Received subscription result for which no corresponding set of value requirements was found: {}", subscriptionResult);
       return;
     }
-    _liveDataSpec2ValueRequirements.remove(subscriptionResult.getRequestedSpecification());
-    
     if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
       _liveDataSpec2ValueRequirements.put(subscriptionResult.getFullyQualifiedSpecification(), valueRequirements);
       s_logger.info("Subscription made to {}", subscriptionResult.getRequestedSpecification());
@@ -163,8 +160,15 @@ public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvid
     FudgeFieldContainer msg = valueUpdate.getFields();
     
     for (ValueRequirement valueRequirement : valueRequirements) {
-      ComputedValue value = new ComputedValue(new ValueSpecification(valueRequirement), msg);
-      getUnderlyingProvider().addValue(value);
+      // We assume all market data can be represented as a Double. The request for the field as a Double also ensures
+      // that we consistently provide a Double downstream, even if the value has been represented as a more efficient
+      // type in the message.
+      Double value = msg.getDouble(valueRequirement.getValueName());
+      if (value == null) {
+        continue;
+      }
+      ComputedValue computedValue = new ComputedValue(new ValueSpecification(valueRequirement), value);
+      getUnderlyingProvider().addValue(computedValue);
     }
     
     super.valueChanged(valueRequirements);
