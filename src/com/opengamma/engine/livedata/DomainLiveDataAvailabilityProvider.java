@@ -5,16 +5,13 @@
  */
 package com.opengamma.engine.livedata;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-
-import org.apache.commons.lang.ObjectUtils;
+import java.util.Set;
 
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.ArgumentChecker;
@@ -29,35 +26,33 @@ public class DomainLiveDataAvailabilityProvider implements LiveDataAvailabilityP
    */
   private final SecurityMaster _securityMaster;
   /**
-   * The list of acceptable schemes.
+   * The set of acceptable schemes.
    */
-  private final Collection<IdentificationScheme> _acceptableSchemes;
+  private final Set<IdentificationScheme> _acceptableSchemes;
+  /**
+   * The set of acceptable market data fields.
+   */
+  private final Set<String> _validMarketDataRequirementNames;
 
   /**
    * Creates a provider.
+   * 
    * @param secMaster  the security master, not null
    * @param acceptableSchemes  the acceptable schemes, not null
+   * @param validMarketDataRequirementNames  the valid market data requirement names, not null
    */
-  public DomainLiveDataAvailabilityProvider(SecurityMaster secMaster, IdentificationScheme... acceptableSchemes) {
-    this (secMaster, Arrays.asList(acceptableSchemes));
-  }
-  
-  /**
-   * Creates a provider.
-   * @param secMaster the security master, not null
-   * @param acceptableSchemes the acceptable schemes, not null
-   */
-  public DomainLiveDataAvailabilityProvider(final SecurityMaster secMaster, final Collection<IdentificationScheme> acceptableSchemes) {
+  public DomainLiveDataAvailabilityProvider(final SecurityMaster secMaster, final Collection<IdentificationScheme> acceptableSchemes, final Collection<String> validMarketDataRequirementNames) {
     ArgumentChecker.notNull(secMaster, "Security master");
     ArgumentChecker.notNull(acceptableSchemes, "Acceptable schemes");
     _securityMaster = secMaster;
     _acceptableSchemes = new HashSet<IdentificationScheme>(acceptableSchemes);
+    _validMarketDataRequirementNames = new HashSet<String>(validMarketDataRequirementNames);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public boolean isAvailable(ValueRequirement requirement) {
-    if (!ObjectUtils.equals(ValueRequirementNames.MARKET_DATA_HEADER, requirement.getValueName())) {
+    if (!_validMarketDataRequirementNames.contains(requirement.getValueName())) {
       return false;
     }
     switch (requirement.getTargetSpecification().getType()) {
