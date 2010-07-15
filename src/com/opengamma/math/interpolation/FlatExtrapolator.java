@@ -8,18 +8,18 @@ package com.opengamma.math.interpolation;
 /**
  * 
  */
-public class FlatExtrapolator implements ExtrapolatorMethod {
+public class FlatExtrapolator<T extends Interpolator1DDataBundle, U extends InterpolationResult> implements ExtrapolatorMethod<T, U> {
 
+  @SuppressWarnings("unchecked")
   @Override
-  public InterpolationResult interpolate(Interpolator1DDataBundle model, Double value, Interpolator1D interpolator) {
-    final InterpolationBoundedValues boundedValues = model.getBoundedValues(value);
-    if (boundedValues.getHigherBoundKey() == null || boundedValues.getHigherBoundKey() < 0) {
-      return new InterpolationResult(model.lastValue());
-    }
-    if (boundedValues.getLowerBoundKey() == null || boundedValues.getLowerBoundKey() < 0) {
-      return new InterpolationResult(model.firstValue());
-    }
-    throw new IllegalArgumentException("value was not not of range");
+  public U leftExtrapolate(T model, Double value, Interpolator1D<T, U> interpolator) {
+    return (U) new InterpolationResult(model.firstValue());
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public U rightExtrapolate(T model, Double value, Interpolator1D<T, U> interpolator) {
+    return (U) new InterpolationResult(model.lastValue());
   }
 
 }

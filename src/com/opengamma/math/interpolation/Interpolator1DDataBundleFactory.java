@@ -49,15 +49,21 @@ public final class Interpolator1DDataBundleFactory {
 
   @SuppressWarnings("unchecked")
   private static Interpolator1DDataBundle augmentModel(final Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult> interpolator, final Interpolator1DDataBundle baseModel) {
+    // basis interpolators
+
     if (interpolator.getClass().equals(NaturalCubicSplineInterpolator1D.class)) {
       return new Interpolator1DCubicSplineDataBundle(baseModel);
     } else if (interpolator.getClass().equals(DoubleQuadraticInterpolator1D.class)) {
       return new Interpolator1DDoubleQuadraticDataBundle(baseModel);
     } else if (interpolator.getClass().equals(CubicSplineInterpolatorWithSensitivities1D.class)) {
       return new Interpolator1DCubicSplineWithSensitivitiesDataBundle(new Interpolator1DCubicSplineDataBundle(baseModel));
-    } else if (interpolator.getClass().equals(Interpolator1DWithSensitivities.class)) {
-      final Interpolator1DWithSensitivities<? extends Interpolator1DDataBundle> interpolatorSense = (Interpolator1DWithSensitivities<? extends Interpolator1DDataBundle>) interpolator;
-      return augmentModel(interpolatorSense.getUnderlyingInterpolator(), baseModel);
+      //
+      // } else if (interpolator.getClass().equals(Interpolator1DWithSensitivities.class)) {
+      // final Interpolator1DWithSensitivities<? extends Interpolator1DDataBundle> interpolatorSense = (Interpolator1DWithSensitivities<? extends Interpolator1DDataBundle>) interpolator;
+      // return augmentModel(interpolatorSense.getUnderlyingInterpolator(), baseModel);
+    } else if (interpolator instanceof WrappedInterpolator) {
+      final WrappedInterpolator wrapped = (WrappedInterpolator) interpolator;
+      return augmentModel((Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>) wrapped.getUnderlyingInterpolator(), baseModel);
     }
 
     return baseModel;

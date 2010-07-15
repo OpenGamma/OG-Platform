@@ -8,7 +8,7 @@ package com.opengamma.math.interpolation;
 /**
  * 
  */
-public class Extrapolator1D<T extends Interpolator1DDataBundle, U extends InterpolationResult> extends Interpolator1D<T, U> {
+public class Extrapolator1D<T extends Interpolator1DDataBundle, U extends InterpolationResult> extends Interpolator1D<T, U> implements WrappedInterpolator {
 
   private final Interpolator1D<T, U> _interpolator;
   private final ExtrapolatorMethod<T, U> _leftExtrapolator;
@@ -30,12 +30,16 @@ public class Extrapolator1D<T extends Interpolator1DDataBundle, U extends Interp
   public U interpolate(T model, Double value) {
     final InterpolationBoundedValues boundedValues = model.getBoundedValues(value);
     if (boundedValues.getHigherBoundKey() == null || boundedValues.getHigherBoundKey() < 0) {
-      return _rightExtrapolator.interpolate(model, value, _interpolator);
+      return _rightExtrapolator.rightExtrapolate(model, value, _interpolator);
     }
     if (boundedValues.getLowerBoundKey() == null || boundedValues.getLowerBoundKey() < 0) {
-      return _leftExtrapolator.interpolate(model, value, _interpolator);
+      return _leftExtrapolator.leftExtrapolate(model, value, _interpolator);
     }
     return _interpolator.interpolate(model, value);
+  }
+
+  public Interpolator1D<T, U> getUnderlyingInterpolator() {
+    return _interpolator;
   }
 
 }
