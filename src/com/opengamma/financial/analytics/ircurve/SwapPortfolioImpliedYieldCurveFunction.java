@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.ircurve;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -34,7 +33,6 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.SingleCurveFinder;
 import com.opengamma.financial.interestrate.SingleCurveJacobian;
-import com.opengamma.financial.interestrate.SwapRateCalculator;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -64,7 +62,6 @@ public class SwapPortfolioImpliedYieldCurveFunction extends AbstractFunction imp
   // TODO this should depend on the type of _interpolator
   private final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> _interpolatorWithSensitivity = new CubicSplineInterpolatorWithSensitivities1D();
   private final double _spotRate = 0.01; // TODO this needs to be changed - it is the "instantaneous" interest rate. Possibly the O/N rate for the currency is the best proxy
-  private final SwapRateCalculator _swapRateCalculator = new SwapRateCalculator();
   private final String _curveName;
 
   public SwapPortfolioImpliedYieldCurveFunction(final Currency currency) {
@@ -162,15 +159,6 @@ public class SwapPortfolioImpliedYieldCurveFunction extends AbstractFunction imp
       }
     }
     return true;
-  }
-
-  public static Set<ValueRequirement> buildRequirements(final InterpolatedYieldAndDiscountCurveDefinition definition) {
-    final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
-    for (final FixedIncomeStrip strip : definition.getStrips()) {
-      final ValueRequirement requirement = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, strip.getMarketDataSpecification());
-      result.add(requirement);
-    }
-    return result;
   }
 
   private ValueRequirement getRequirement() {

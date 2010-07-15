@@ -12,8 +12,6 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import org.fudgemsg.FudgeFieldContainer;
-
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -33,7 +31,7 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.livedata.normalization.MarketDataFieldNames;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -52,14 +50,10 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
     final OptionSecurity option = (OptionSecurity) target.getSecurity();
     final SecurityMaster securityMaster = executionContext.getSecurityMaster();
     final Security underlying = securityMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
-    final ValueRequirement optionDataRequirement = getOptionMarketDataRequirement(option.getUniqueIdentifier());
-    final ValueRequirement underlyingDataRequirement = getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier());
+    final ValueRequirement underlyingPriceRequirement = getPriceRequirement(underlying.getUniqueIdentifier());
     final ValueRequirement discountCurveDataRequirement = getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier());
-    @SuppressWarnings("unused")
-    final FudgeFieldContainer optionData = (FudgeFieldContainer) inputs.getValue(optionDataRequirement);
-    final FudgeFieldContainer underlyingData = (FudgeFieldContainer) inputs.getValue(underlyingDataRequirement);
     final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(discountCurveDataRequirement);
-    final double spotPrice = underlyingData.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
+    final double spotPrice = (Double) inputs.getValue(underlyingPriceRequirement);
     final Expiry expiry = option.getExpiry();
     final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
     final double b = discountCurve.getInterestRate(t); // TODO cost-of-carry model
@@ -95,7 +89,7 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
       final Set<ValueRequirement> optionRequirements = new HashSet<ValueRequirement>();
       final SecurityMaster securityMaster = context.getSecurityMaster();
       final Security underlying = securityMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
-      optionRequirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
+      optionRequirements.add(getPriceRequirement(underlying.getUniqueIdentifier()));
       optionRequirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
       // TODO: add the other stuff
       return optionRequirements;
@@ -128,12 +122,8 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
     return resultSpec;
   }
 
-  private ValueRequirement getOptionMarketDataRequirement(final UniqueIdentifier uid) {
-    return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, uid);
-  }
-
-  private ValueRequirement getUnderlyingMarketDataRequirement(final UniqueIdentifier uid) {
-    return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, uid);
+  private ValueRequirement getPriceRequirement(final UniqueIdentifier uid) {
+    return new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, ComputationTargetType.SECURITY, uid);
   }
 
   private ValueRequirement getDiscountCurveMarketDataRequirement(final UniqueIdentifier uid) {

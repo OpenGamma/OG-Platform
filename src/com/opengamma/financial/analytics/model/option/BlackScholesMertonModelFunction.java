@@ -11,7 +11,6 @@ import java.util.Set;
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
-import org.fudgemsg.FudgeFieldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +32,6 @@ import com.opengamma.financial.security.option.Option;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.livedata.normalization.MarketDataFieldNames;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -93,10 +91,9 @@ public class BlackScholesMertonModelFunction extends AnalyticOptionModelFunction
   protected StandardOptionDataBundle getDataBundle(final SecurityMaster secMaster, final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
     final ZonedDateTime now = relevantTime.zonedDateTime();
     Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
-    final FudgeFieldContainer underlyingLiveData = (FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
-    final Double spotAsObject = underlyingLiveData.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
+    final Double spotAsObject = (Double) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
     if (spotAsObject == null) {
-      s_logger.warn("Didn't have indicative value for {}, did have {}", option.getUnderlyingIdentifier(), underlyingLiveData);
+      s_logger.warn("Didn't have indicative value for {}", option.getUnderlyingIdentifier());
       throw new NullPointerException("No spot value for underlying instrument.");
     }
     final double spot = spotAsObject;

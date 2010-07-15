@@ -18,7 +18,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
-import org.fudgemsg.FudgeFieldContainer;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
@@ -55,7 +54,7 @@ import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.livedata.normalization.MarketDataFieldNames;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CubicSplineInterpolatorWithSensitivities1D;
 import com.opengamma.math.interpolation.InterpolationResult;
@@ -117,14 +116,12 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     final double[] fundingNodeTimes = new double[nFund];
     InterestRateDerivative derivative;
     ValueRequirement stripRequirement;
-    FudgeFieldContainer fudgeFields = (FudgeFieldContainer) inputs.getValue(_spotRateRequirement);
-    Double rate = fudgeFields.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
+    Double rate = (Double) inputs.getValue(_spotRateRequirement);
     if (rate == null) {
       throw new NullPointerException("Could not get spot rate for " + _currency);
     }
     final double spotRate = rate;
-    fudgeFields = (FudgeFieldContainer) inputs.getValue(_referenceRateRequirement);
-    rate = fudgeFields.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
+    rate = (Double) inputs.getValue(_referenceRateRequirement);
     if (rate == null) {
       throw new NullPointerException("Could not get first floating rate for " + _currency);
     }
@@ -137,9 +134,8 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
       }
       derivatives.add(derivative);
       initialRatesGuess[i] = 0.05;
-      stripRequirement = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, strip.getMarketDataSpecification());
-      fudgeFields = (FudgeFieldContainer) inputs.getValue(stripRequirement);
-      rate = fudgeFields.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
+      stripRequirement = new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, strip.getMarketDataSpecification());
+      rate = (Double) inputs.getValue(stripRequirement);
       if (rate == null) {
         throw new NullPointerException("Could not get market data for " + strip);
       }
@@ -159,9 +155,8 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
       }
       derivatives.add(derivative);
       initialRatesGuess[i] = 0.05;
-      stripRequirement = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, strip.getMarketDataSpecification());
-      fudgeFields = (FudgeFieldContainer) inputs.getValue(stripRequirement);
-      rate = fudgeFields.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
+      stripRequirement = new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, strip.getMarketDataSpecification());
+      rate = (Double) inputs.getValue(stripRequirement);
       if (rate == null) {
         throw new NullPointerException("Could not get market data for " + strip);
       }
@@ -201,7 +196,7 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
   public Set<ValueRequirement> buildRequirements(final InterpolatedYieldAndDiscountCurveDefinition definition) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
     for (final FixedIncomeStrip strip : definition.getStrips()) {
-      final ValueRequirement requirement = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, strip.getMarketDataSpecification());
+      final ValueRequirement requirement = new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, strip.getMarketDataSpecification());
       result.add(requirement);
     }
 
@@ -210,8 +205,8 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     _referenceRateIdentifier = UniqueIdentifier.of(scheme, FLOAT_REFERENCE_TICKER);
     final FixedIncomeStrip referenceRate = new FixedIncomeStrip(Period.ofMonths(6), _referenceRateIdentifier, StripInstrument.LIBOR);
     final FixedIncomeStrip spotRate = new FixedIncomeStrip(Period.ofDays(1), UniqueIdentifier.of(scheme, SPOT_TICKER), StripInstrument.CASH);
-    _referenceRateRequirement = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, referenceRate.getMarketDataSpecification());
-    _spotRateRequirement = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, spotRate.getMarketDataSpecification());
+    _referenceRateRequirement = new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, referenceRate.getMarketDataSpecification());
+    _spotRateRequirement = new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, spotRate.getMarketDataSpecification());
     result.add(_referenceRateRequirement);
     result.add(_spotRateRequirement);
     return result;

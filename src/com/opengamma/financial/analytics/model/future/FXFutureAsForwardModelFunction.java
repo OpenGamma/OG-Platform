@@ -34,6 +34,7 @@ import com.opengamma.financial.model.future.pricing.FutureModel;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.future.FXFutureSecurity;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
  * 
@@ -130,7 +131,7 @@ public class FXFutureAsForwardModelFunction extends AbstractFunction implements 
   }
 
   protected ValueRequirement getUnderlyingMarketDataRequirement(final UniqueIdentifier uid) {
-    return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, uid);
+    return new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, ComputationTargetType.SECURITY, uid);
   }
 
   protected ValueRequirement getDiscountCurveMarketDataRequirement(final UniqueIdentifier uid) {

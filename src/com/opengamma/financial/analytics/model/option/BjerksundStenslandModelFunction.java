@@ -11,8 +11,6 @@ import java.util.Set;
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
-import org.fudgemsg.FudgeFieldContainer;
-
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -31,7 +29,6 @@ import com.opengamma.financial.security.option.Option;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.livedata.normalization.MarketDataFieldNames;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -46,7 +43,7 @@ public class BjerksundStenslandModelFunction extends AnalyticOptionModelFunction
   protected StandardOptionDataBundle getDataBundle(final SecurityMaster secMaster, final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
     final ZonedDateTime now = relevantTime.zonedDateTime();
     final Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
-    final double spot = (((FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier())))).getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
+    final double spot = (Double) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
     final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
     final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
     // TODO cost of carry model

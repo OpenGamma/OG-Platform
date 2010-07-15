@@ -11,8 +11,6 @@ import java.util.Set;
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
-import org.fudgemsg.FudgeFieldContainer;
-
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -33,7 +31,6 @@ import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.livedata.normalization.MarketDataFieldNames;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -49,7 +46,7 @@ public class GramCharlierModelFunction extends AnalyticOptionModelFunction {
     final ZonedDateTime now = relevantTime.zonedDateTime();
     final UniqueIdentifier optionID = option.getUniqueIdentifier();
     final Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
-    final double spot = (((FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier())))).getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
+    final double spot = (Double) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
     final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
     final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(optionID));
     // TODO cost of carry model
