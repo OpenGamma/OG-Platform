@@ -22,9 +22,9 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.Currency;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 
 /**
@@ -61,7 +61,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     Set<UniqueIdentifier> foundKeys = new TreeSet<UniqueIdentifier>();
     for (ValueRequirement requirement : requirements) {
       assertNotNull(requirement);
-      assertEquals(ValueRequirementNames.MARKET_DATA_HEADER, requirement.getValueName());
+      assertEquals(MarketDataRequirementNames.INDICATIVE_VALUE, requirement.getValueName());
       assertNotNull(requirement.getTargetSpecification());
       assertEquals(ComputationTargetType.PRIMITIVE, requirement.getTargetSpecification().getType());
       foundKeys.add(requirement.getTargetSpecification().getUniqueIdentifier());
@@ -93,7 +93,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     Set<UniqueIdentifier> foundKeys = new TreeSet<UniqueIdentifier>();
     for (ValueRequirement requirement : requirements) {
       assertNotNull(requirement);
-      assertEquals(ValueRequirementNames.MARKET_DATA_HEADER, requirement.getValueName());
+      assertEquals(MarketDataRequirementNames.INDICATIVE_VALUE, requirement.getValueName());
       assertNotNull(requirement.getTargetSpecification());
       assertEquals(ComputationTargetType.PRIMITIVE, requirement.getTargetSpecification().getType());
       foundKeys.add(requirement.getTargetSpecification().getUniqueIdentifier());

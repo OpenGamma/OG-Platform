@@ -9,8 +9,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.fudgemsg.FudgeFieldContainer;
-
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -23,7 +21,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.EquitySecurity;
-import com.opengamma.livedata.normalization.MarketDataFieldNames;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
  * 
@@ -34,8 +32,7 @@ public class StandardEquityModelFunction extends AbstractFunction implements Fun
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final EquitySecurity equity = (EquitySecurity) target.getSecurity();
-    final double price = (((FudgeFieldContainer) inputs.getValue(new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, equity.getUniqueIdentifier()))))
-        .getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
+    final double price = (Double) inputs.getValue(new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, ComputationTargetType.SECURITY, equity.getUniqueIdentifier()));
     return Collections.<ComputedValue>singleton(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity
         .getUniqueIdentifier())), price));
   }
@@ -56,7 +53,7 @@ public class StandardEquityModelFunction extends AbstractFunction implements Fun
     if (canApplyTo(context, target)) {
       final EquitySecurity equity = (EquitySecurity) target.getSecurity();
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      requirements.add(new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, equity.getUniqueIdentifier()));
+      requirements.add(new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, ComputationTargetType.SECURITY, equity.getUniqueIdentifier()));
       // TODO need to consider fx here?
       return requirements;
     }

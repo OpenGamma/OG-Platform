@@ -14,8 +14,6 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import org.fudgemsg.FudgeFieldContainer;
-
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -44,7 +42,7 @@ import com.opengamma.financial.security.InterestRateFutureSecurity;
 import com.opengamma.financial.security.MetalFutureSecurity;
 import com.opengamma.financial.security.StockFutureSecurity;
 import com.opengamma.id.Identifier;
-import com.opengamma.livedata.normalization.MarketDataFieldNames;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
  * 
@@ -74,7 +72,7 @@ public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction im
     @SuppressWarnings("unused")
     final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
     @SuppressWarnings("unused")
-    final double spot = ((FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(underlying))).getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
+    final double spot = (Double) inputs.getValue(getUnderlyingMarketDataRequirement(underlying));
     // final double yield = getYield();
     // final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(getDiscountCurveMarketDataRequirement());
     // final double storageCost = getStorageCost();
@@ -156,7 +154,7 @@ public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction im
   }
 
   private ValueRequirement getUnderlyingMarketDataRequirement(final Identifier id) {
-    return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, id);
+    return new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, id);
   }
 
   private class UnderlyingFutureSecurityVisitor implements FutureSecurityVisitor<Identifier> {

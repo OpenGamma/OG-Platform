@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.fudgemsg.FudgeFieldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +35,6 @@ import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.riskfactor.GreekDataBundle;
 import com.opengamma.financial.riskfactor.GreekToValueGreekConverter;
 import com.opengamma.financial.sensitivity.ValueGreek;
-import com.opengamma.livedata.normalization.MarketDataFieldNames;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.ArgumentChecker;
 
@@ -68,7 +66,6 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction i
     final Map<Object, Double> underlyingData = new HashMap<Object, Double>();
     Greek greek;
     Underlying order;
-    FudgeFieldContainer liveUnderlying;
     Set<UnderlyingType> underlyings;
     final String underlyingGreekRequirementName = AvailableValueGreeks.getGreekRequirementNameForValueGreekName(getRequirementName());
     final Double greekResult = (Double) inputs.getValue(new ValueRequirement(underlyingGreekRequirementName, security));
@@ -85,11 +82,11 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction i
     order = greek.getUnderlying();
     underlyings = order.getUnderlyings();
     for (final UnderlyingType underlying : underlyings) {
-      liveUnderlying = (FudgeFieldContainer) inputs.getValue(UnderlyingTypeToValueRequirementMapper.getValueRequirement(executionContext.getSecurityMaster(), underlying, security));
-      if (liveUnderlying == null) {
+      Double underlyingValue = (Double) inputs.getValue(UnderlyingTypeToValueRequirementMapper.getValueRequirement(executionContext.getSecurityMaster(), underlying, security));
+      if (underlyingValue == null) {
         s_logger.warn("Could not get value for " + underlying + " for security " + security);
       } else {
-        underlyingData.put(underlying, liveUnderlying.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD));
+        underlyingData.put(underlying, underlyingValue);
       }
     }
 

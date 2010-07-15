@@ -15,6 +15,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
  * 
@@ -30,8 +31,7 @@ public class UnderlyingTypeToValueRequirementMapper {
       Security optionUnderlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
       switch (underlying) {
         case SPOT_PRICE:
-          
-          return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, optionUnderlying.getUniqueIdentifier());
+          return new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, ComputationTargetType.SECURITY, optionUnderlying.getUniqueIdentifier());
         case SPOT_VOLATILITY:
           throw new NotImplementedException("Don't know how to get spot volatility for " + option.getUniqueIdentifier());
         case IMPLIED_VOLATILITY:
