@@ -5,12 +5,12 @@
  */
 package com.opengamma.livedata.normalization;
 
-import static com.opengamma.livedata.normalization.MarketDataFieldNames.ASK_IMPLIED_VOLATILITY_FIELD;
-import static com.opengamma.livedata.normalization.MarketDataFieldNames.BEST_IMPLIED_VOLATILITY_FIELD;
-import static com.opengamma.livedata.normalization.MarketDataFieldNames.BID_IMPLIED_VOLATILITY_FIELD;
-import static com.opengamma.livedata.normalization.MarketDataFieldNames.IMPLIED_VOLATILITY_FIELD;
-import static com.opengamma.livedata.normalization.MarketDataFieldNames.LAST_IMPLIED_VOLATILITY_FIELD;
-import static com.opengamma.livedata.normalization.MarketDataFieldNames.MID_IMPLIED_VOLATILITY_FIELD;
+import static com.opengamma.livedata.normalization.MarketDataRequirementNames.ASK_IMPLIED_VOLATILITY;
+import static com.opengamma.livedata.normalization.MarketDataRequirementNames.BEST_IMPLIED_VOLATILITY;
+import static com.opengamma.livedata.normalization.MarketDataRequirementNames.BID_IMPLIED_VOLATILITY;
+import static com.opengamma.livedata.normalization.MarketDataRequirementNames.IMPLIED_VOLATILITY;
+import static com.opengamma.livedata.normalization.MarketDataRequirementNames.LAST_IMPLIED_VOLATILITY;
+import static com.opengamma.livedata.normalization.MarketDataRequirementNames.MID_IMPLIED_VOLATILITY;
 
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
@@ -29,37 +29,37 @@ public class ImpliedVolatilityCalculator implements NormalizationRule {
       MutableFudgeFieldContainer msg,
       FieldHistoryStore fieldHistory) {
     
-    Double impliedVolatility = msg.getDouble(BEST_IMPLIED_VOLATILITY_FIELD);
+    Double impliedVolatility = msg.getDouble(BEST_IMPLIED_VOLATILITY);
     if (impliedVolatility != null) {
-      msg.add(MarketDataFieldNames.IMPLIED_VOLATILITY_FIELD, impliedVolatility);
+      msg.add(MarketDataRequirementNames.IMPLIED_VOLATILITY, impliedVolatility);
       return msg;
     }
     
-    impliedVolatility = msg.getDouble(MID_IMPLIED_VOLATILITY_FIELD);
+    impliedVolatility = msg.getDouble(MID_IMPLIED_VOLATILITY);
     if (impliedVolatility != null) {
-      msg.add(MarketDataFieldNames.IMPLIED_VOLATILITY_FIELD, impliedVolatility);
+      msg.add(MarketDataRequirementNames.IMPLIED_VOLATILITY, impliedVolatility);
       return msg;
     }
     
-    impliedVolatility = msg.getDouble(LAST_IMPLIED_VOLATILITY_FIELD);
+    impliedVolatility = msg.getDouble(LAST_IMPLIED_VOLATILITY);
     if (impliedVolatility != null) {
-      msg.add(MarketDataFieldNames.IMPLIED_VOLATILITY_FIELD, impliedVolatility);
+      msg.add(MarketDataRequirementNames.IMPLIED_VOLATILITY, impliedVolatility);
       return msg;
     }
     
-    Double impliedVolatilityBid = msg.getDouble(BID_IMPLIED_VOLATILITY_FIELD);
-    Double impliedVolatilityAsk = msg.getDouble(ASK_IMPLIED_VOLATILITY_FIELD);
+    Double impliedVolatilityBid = msg.getDouble(BID_IMPLIED_VOLATILITY);
+    Double impliedVolatilityAsk = msg.getDouble(ASK_IMPLIED_VOLATILITY);
     
     if (impliedVolatilityBid != null && impliedVolatilityAsk != null) {
       impliedVolatility = (impliedVolatilityBid + impliedVolatilityAsk) / 2;
-      msg.add(MarketDataFieldNames.IMPLIED_VOLATILITY_FIELD, impliedVolatility);
+      msg.add(MarketDataRequirementNames.IMPLIED_VOLATILITY, impliedVolatility);
       return msg;
     }
     
     FudgeFieldContainer lkv = fieldHistory.getLastKnownValues();
-    impliedVolatility = lkv.getDouble(IMPLIED_VOLATILITY_FIELD);
+    impliedVolatility = lkv.getDouble(IMPLIED_VOLATILITY);
     if (impliedVolatility != null) {
-      msg.add(MarketDataFieldNames.IMPLIED_VOLATILITY_FIELD, impliedVolatility);
+      msg.add(MarketDataRequirementNames.IMPLIED_VOLATILITY, impliedVolatility);
       return msg;
     }
     

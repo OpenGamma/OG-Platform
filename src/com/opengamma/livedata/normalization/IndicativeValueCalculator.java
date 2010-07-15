@@ -5,7 +5,7 @@
  */
 package com.opengamma.livedata.normalization;
 
-import static com.opengamma.livedata.normalization.MarketDataFieldNames.*;
+import static com.opengamma.livedata.normalization.MarketDataRequirementNames.*;
 
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
@@ -29,14 +29,14 @@ public class IndicativeValueCalculator implements NormalizationRule {
     
     FudgeFieldContainer lkv = fieldHistory.getLastKnownValues();
     
-    Double lastKnownBid = lkv.getDouble(BID_FIELD);
-    Double lastKnownAsk = lkv.getDouble(ASK_FIELD);
+    Double lastKnownBid = lkv.getDouble(BID);
+    Double lastKnownAsk = lkv.getDouble(ASK);
     
     // If we have seen bid & ask in the past, use bid & ask midpoint.
     if (lastKnownBid != null && lastKnownAsk != null) {
       
-      Double bid = msg.getDouble(BID_FIELD);
-      Double ask = msg.getDouble(ASK_FIELD);
+      Double bid = msg.getDouble(BID);
+      Double ask = msg.getDouble(ASK);
       
       // Not a bid/ask update at all?
       if (bid == null && ask == null) {
@@ -54,33 +54,33 @@ public class IndicativeValueCalculator implements NormalizationRule {
       // Too big of a spread for midpoint to be meaningful?
       if (Math.abs(bid) > TOLERANCE && (Math.abs(ask - bid) / Math.abs(bid) > MAX_ACCEPTABLE_SPREAD_TO_USE_MIDPOINT)) {
         // Try to resort to last, though if this fails use midpoint anyway.
-        Double last = lkv.getDouble(LAST_FIELD);
+        Double last = lkv.getDouble(LAST);
         if (last != null) {
           // Ok, last was found. But let's make sure that it's within the bid/ask boundaries.
           if (last < bid) {
-            msg.add(MarketDataFieldNames.INDICATIVE_VALUE_FIELD, bid);
+            msg.add(MarketDataRequirementNames.INDICATIVE_VALUE, bid);
           } else if (last > ask) {
-            msg.add(MarketDataFieldNames.INDICATIVE_VALUE_FIELD, ask);
+            msg.add(MarketDataRequirementNames.INDICATIVE_VALUE, ask);
           } else {
-            msg.add(MarketDataFieldNames.INDICATIVE_VALUE_FIELD, last);
+            msg.add(MarketDataRequirementNames.INDICATIVE_VALUE, last);
           }
           return msg;
         }
       }
       
       double indicativeValue = (bid + ask) / 2.0;
-      msg.add(MarketDataFieldNames.INDICATIVE_VALUE_FIELD, indicativeValue);
+      msg.add(MarketDataRequirementNames.INDICATIVE_VALUE, indicativeValue);
       return msg;
     }
     
     // Since we've not seen a bid & ask for this market data in the past,
     // try using LAST.
-    Double last = msg.getDouble(LAST_FIELD);
+    Double last = msg.getDouble(LAST);
     if (last == null) {
       return lastKnownIndicativeValue(msg, fieldHistory);
     }
     
-    msg.add(MarketDataFieldNames.INDICATIVE_VALUE_FIELD, last);
+    msg.add(MarketDataRequirementNames.INDICATIVE_VALUE, last);
     return msg;
   }
   
@@ -93,12 +93,12 @@ public class IndicativeValueCalculator implements NormalizationRule {
     
     FudgeFieldContainer lkv = fieldHistory.getLastKnownValues();
     
-    Double lastKnownIndicativeValue = lkv.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
+    Double lastKnownIndicativeValue = lkv.getDouble(MarketDataRequirementNames.INDICATIVE_VALUE);
     if (lastKnownIndicativeValue == null) {
       return msg;      
     }
     
-    msg.add(MarketDataFieldNames.INDICATIVE_VALUE_FIELD, lastKnownIndicativeValue);
+    msg.add(MarketDataRequirementNames.INDICATIVE_VALUE, lastKnownIndicativeValue);
     return msg;
   }
 
