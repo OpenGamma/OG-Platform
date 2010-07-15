@@ -378,7 +378,8 @@ public abstract class Greek implements Comparable<Greek> {
   /**
    * Third-order sensitivity; first with respect to time, second with respect to spot
    */
-  public static final Greek ZOMMA = new Greek(new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.TIME), new NthOrderUnderlying(2, UnderlyingType.SPOT_PRICE))), "Zomma") {
+  public static final Greek ZOMMA = new Greek(new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.TIME), 
+      new NthOrderUnderlying(2, UnderlyingType.SPOT_PRICE))), "Zomma") {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {

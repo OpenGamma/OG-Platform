@@ -30,6 +30,7 @@ public class GreekTest {
     other = new MyGreek(new NthOrderUnderlying(2, UnderlyingType.SPOT_PRICE), NAME);
     assertFalse(other.equals(greek));
     other = new MyGreek(UNDERLYING, "OTHER");
+    assertFalse(other.equals(greek));
   }
 
   private static class MyGreek extends Greek {
