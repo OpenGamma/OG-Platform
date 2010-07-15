@@ -3,7 +3,8 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security;
+package com.opengamma.financial.security.bond;
+
 
 public interface BondSecurityVisitor<T> {
   T visitCorporateBondSecurity(CorporateBondSecurity security);

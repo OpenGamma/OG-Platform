@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security;
+package com.opengamma.financial.security.future;
 
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
@@ -11,55 +11,51 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.financial.Currency;
-import com.opengamma.id.Identifier;
 import com.opengamma.util.time.Expiry;
 
 /**
- * An index future.
+ * An interest rate future.
  */
-public class IndexFutureSecurity extends FutureSecurity {
+public class InterestRateFutureSecurity extends FutureSecurity {
+
+  protected static final String CASHRATETYPE_KEY = "cashRateType";
+
+  /** The cash rate type. */
+  private final String _cashRateType; // REVIEW: jim 28-May-2010 -- we might want to make this UniqueIdentifier like FloatingInterestRateLeg...
 
   /**
-   * 
-   */
-  protected static final String UNDERLYINGIDENTIFIER_KEY = "underlyingIdentifier";
-
-  /** The underlying identifier. */
-  private final Identifier _underlyingIdentifier;
-
-  /**
-   * Creates an index future.
+   * Creates an interest rate future.
    * @param expiry  the expiry of the future
    * @param tradingExchange  the exchange that the future is trading on
    * @param settlementExchange  the exchange where the future is settled
    * @param currency  the currency
-   * @param underlyingIdentifier  the underlying identifier
+   * @param cashRateType  the cash rate type
    */
-  public IndexFutureSecurity(
+  public InterestRateFutureSecurity(
       final Expiry expiry, final String tradingExchange, final String settlementExchange,
-      final Currency currency, final Identifier underlyingIdentifier) {
+      final Currency currency, final String cashRateType) {
     super(expiry, tradingExchange, settlementExchange, currency);
-    _underlyingIdentifier = underlyingIdentifier;
+    _cashRateType = cashRateType;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the underlying identifier.
-   * @return the identifier
+   * Gets the cash rate type.
+   * @return the cash rate type
    */
-  public Identifier getUnderlyingIdentityKey() {
-    return _underlyingIdentifier;
+  public String getCashRateType() {
+    return _cashRateType;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public <T> T accept(final FutureSecurityVisitor<T> visitor) {
-    return visitor.visitIndexFutureSecurity(this);
+  public <T> T accept(FutureSecurityVisitor<T> visitor) {
+    return visitor.visitInterestRateFutureSecurity(this);
   }
 
   protected void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
     super.toFudgeMsg(context, message);
-    context.objectToFudgeMsg(message, UNDERLYINGIDENTIFIER_KEY, null, getUnderlyingIdentityKey());
+    message.add(CASHRATETYPE_KEY, getCashRateType());
   }
 
   public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
@@ -74,12 +70,15 @@ public class IndexFutureSecurity extends FutureSecurity {
     // Everything set by constructor
   }
 
-  public static IndexFutureSecurity fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    final IndexFutureSecurity security = new IndexFutureSecurity(context.fieldValueToObject(Expiry.class, message
-        .getByName(EXPIRY_KEY)), message.getString(TRADINGEXCHANGE_KEY), message.getString(SETTLEMENTEXCHANGE_KEY),
-        context.fieldValueToObject(Currency.class, message.getByName(CURRENCY_KEY)), context.fieldValueToObject(
-            Identifier.class, message.getByName(UNDERLYINGIDENTIFIER_KEY)));
+  public static InterestRateFutureSecurity fromFudgeMsg(final FudgeDeserializationContext context,
+      final FudgeFieldContainer message) {
+    final InterestRateFutureSecurity security = new InterestRateFutureSecurity(context.fieldValueToObject(Expiry.class,
+        message.getByName(EXPIRY_KEY)), message.getString(TRADINGEXCHANGE_KEY), message
+        .getString(SETTLEMENTEXCHANGE_KEY),
+        context.fieldValueToObject(Currency.class, message.getByName(CURRENCY_KEY)), message
+            .getString(CASHRATETYPE_KEY));
     security.fromFudgeMsgImpl(context, message);
     return security;
   }
+
 }

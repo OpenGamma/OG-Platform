@@ -12,7 +12,7 @@ import java.util.Date;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.financial.security.EquitySecurity;
+import com.opengamma.financial.security.equity.EquitySecurity;
 
 /* package */ final class EquitySecurityBeanOperation extends AbstractBeanOperation<EquitySecurity, EquitySecurityBean> {
   

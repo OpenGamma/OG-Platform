@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security;
+package com.opengamma.financial.security.future;
 
 import javax.time.calendar.MonthOfYear;
 
@@ -13,6 +13,8 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.financial.Currency;
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.util.time.Expiry;
 
 /**

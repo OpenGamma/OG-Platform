@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.security;
 
+import com.opengamma.financial.security.bond.BondSecurityVisitor;
+import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.future.FutureSecurityVisitor;
 import com.opengamma.financial.security.option.OptionSecurityVisitor;
 
 /**

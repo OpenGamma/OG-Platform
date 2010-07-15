@@ -32,7 +32,7 @@ import com.opengamma.financial.model.future.definition.FutureDefinition;
 import com.opengamma.financial.model.future.pricing.FXFutureAsForwardModel;
 import com.opengamma.financial.model.future.pricing.FutureModel;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.security.FXFutureSecurity;
+import com.opengamma.financial.security.future.FXFutureSecurity;
 import com.opengamma.id.UniqueIdentifier;
 
 /**

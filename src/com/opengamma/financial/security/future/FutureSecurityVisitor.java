@@ -3,7 +3,8 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security;
+package com.opengamma.financial.security.future;
+
 
 public interface FutureSecurityVisitor<T> {
   public T visitAgricultureFutureSecurity(AgricultureFutureSecurity security);

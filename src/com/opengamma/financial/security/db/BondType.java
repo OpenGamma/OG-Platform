@@ -6,11 +6,11 @@
 package com.opengamma.financial.security.db;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.security.BondSecurity;
-import com.opengamma.financial.security.BondSecurityVisitor;
-import com.opengamma.financial.security.CorporateBondSecurity;
-import com.opengamma.financial.security.GovernmentBondSecurity;
-import com.opengamma.financial.security.MunicipalBondSecurity;
+import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.bond.BondSecurityVisitor;
+import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 
 public enum BondType {
   CORPORATE,

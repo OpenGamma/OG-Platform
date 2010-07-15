@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security;
+package com.opengamma.financial.security.equity;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -15,6 +15,8 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.GICSCode;
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.Identifier;
 
 /**

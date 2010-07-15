@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security;
+package com.opengamma.financial.security.future;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
@@ -15,9 +15,6 @@ import com.opengamma.financial.Currency;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.time.Expiry;
 
-/**
- * An energy commodity future.
- */
 public class EnergyFutureSecurity extends CommodityFutureSecurity {
 
   protected static final String UNDERLYINGIDENTIFIER_KEY = "underlyingIdentifier";
