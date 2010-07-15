@@ -7,6 +7,7 @@ package com.opengamma.financial.model.forward.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -71,13 +72,6 @@ public class FXForwardDataBundle extends ForwardDataBundle {
       return false;
     }
     final FXForwardDataBundle other = (FXForwardDataBundle) obj;
-    if (_foreignCurve == null) {
-      if (other._foreignCurve != null) {
-        return false;
-      }
-    } else if (!_foreignCurve.equals(other._foreignCurve)) {
-      return false;
-    }
-    return true;
+    return ObjectUtils.equals(_foreignCurve, other._foreignCurve);
   }
 }

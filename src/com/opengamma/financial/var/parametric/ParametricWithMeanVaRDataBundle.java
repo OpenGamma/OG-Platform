@@ -7,6 +7,7 @@ package com.opengamma.financial.var.parametric;
 
 import java.util.Map;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -69,14 +70,7 @@ public class ParametricWithMeanVaRDataBundle extends ParametricVaRDataBundle {
       return false;
     }
     ParametricWithMeanVaRDataBundle other = (ParametricWithMeanVaRDataBundle) obj;
-    if (_mean == null) {
-      if (other._mean != null) {
-        return false;
-      }
-    } else if (!_mean.equals(other._mean)) {
-      return false;
-    }
-    return true;
+    return ObjectUtils.equals(_mean, other._mean);
   }
 
 }

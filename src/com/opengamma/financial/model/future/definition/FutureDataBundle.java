@@ -7,6 +7,7 @@ package com.opengamma.financial.model.future.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -71,24 +72,6 @@ public abstract class FutureDataBundle {
       return false;
     }
     final FutureDataBundle other = (FutureDataBundle) obj;
-    if (_date == null) {
-      if (other._date != null) {
-        return false;
-      }
-    } else if (!_date.equals(other._date)) {
-      return false;
-    }
-    if (_discountCurve == null) {
-      if (other._discountCurve != null) {
-        return false;
-      }
-    } else if (!_discountCurve.equals(other._discountCurve)) {
-      return false;
-    }
-    if (Double.doubleToLongBits(_spot) != Double.doubleToLongBits(other._spot)) {
-      return false;
-    }
-    return true;
+    return ObjectUtils.equals(_date, other._date) && ObjectUtils.equals(_discountCurve, other._discountCurve) && Double.doubleToLongBits(_spot) == Double.doubleToLongBits(other._spot);
   }
-
 }

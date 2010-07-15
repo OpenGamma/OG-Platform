@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.timeseries.filter;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -52,20 +53,6 @@ public class FilteredTimeSeries {
       return false;
     }
     final FilteredTimeSeries other = (FilteredTimeSeries) obj;
-    if (_filteredTS == null) {
-      if (other._filteredTS != null) {
-        return false;
-      }
-    } else if (!_filteredTS.equals(other._filteredTS)) {
-      return false;
-    }
-    if (_rejectedTS == null) {
-      if (other._rejectedTS != null) {
-        return false;
-      }
-    } else if (!_rejectedTS.equals(other._rejectedTS)) {
-      return false;
-    }
-    return true;
+    return ObjectUtils.equals(_filteredTS, other._filteredTS) && ObjectUtils.equals(_rejectedTS, other._rejectedTS);
   }
 }

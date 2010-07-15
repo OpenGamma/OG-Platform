@@ -8,6 +8,7 @@ package com.opengamma.financial.var.parametric;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -114,21 +115,7 @@ public class ParametricVaRDataBundle {
       return false;
     }
     ParametricVaRDataBundle other = (ParametricVaRDataBundle) obj;
-    if (_covariances == null) {
-      if (other._covariances != null) {
-        return false;
-      }
-    } else if (!_covariances.equals(other._covariances)) {
-      return false;
-    }
-    if (_sensitivities == null) {
-      if (other._sensitivities != null) {
-        return false;
-      }
-    } else if (!_sensitivities.equals(other._sensitivities)) {
-      return false;
-    }
-    return true;
+    return ObjectUtils.equals(_covariances, other._covariances) && ObjectUtils.equals(_sensitivities, other._sensitivities);
   }
 
 }

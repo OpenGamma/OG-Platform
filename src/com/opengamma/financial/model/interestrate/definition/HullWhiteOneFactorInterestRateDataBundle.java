@@ -7,6 +7,7 @@ package com.opengamma.financial.model.interestrate.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -80,31 +81,8 @@ public class HullWhiteOneFactorInterestRateDataBundle {
       return false;
     }
     HullWhiteOneFactorInterestRateDataBundle other = (HullWhiteOneFactorInterestRateDataBundle) obj;
-    if (_date == null) {
-      if (other._date != null) {
-        return false;
-      }
-    } else if (!_date.equals(other._date)) {
-      return false;
-    }
-    if (Double.doubleToLongBits(_speed) != Double.doubleToLongBits(other._speed)) {
-      return false;
-    }
-    if (_volatilityCurve == null) {
-      if (other._volatilityCurve != null) {
-        return false;
-      }
-    } else if (!_volatilityCurve.equals(other._volatilityCurve)) {
-      return false;
-    }
-    if (_yieldCurve == null) {
-      if (other._yieldCurve != null) {
-        return false;
-      }
-    } else if (!_yieldCurve.equals(other._yieldCurve)) {
-      return false;
-    }
-    return true;
+    return ObjectUtils.equals(_date, other._date) && ObjectUtils.equals(_volatilityCurve, other._volatilityCurve) && ObjectUtils.equals(_yieldCurve, other._yieldCurve)
+        && Double.doubleToLongBits(_speed) == Double.doubleToLongBits(other._speed);
   }
 
 }

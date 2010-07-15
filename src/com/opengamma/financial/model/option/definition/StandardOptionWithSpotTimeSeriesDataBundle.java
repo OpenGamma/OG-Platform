@@ -7,6 +7,8 @@ package com.opengamma.financial.model.option.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -86,13 +88,6 @@ public class StandardOptionWithSpotTimeSeriesDataBundle extends StandardOptionDa
       return false;
     }
     final StandardOptionWithSpotTimeSeriesDataBundle other = (StandardOptionWithSpotTimeSeriesDataBundle) obj;
-    if (_spotTS == null) {
-      if (other._spotTS != null) {
-        return false;
-      }
-    } else if (!_spotTS.equals(other._spotTS)) {
-      return false;
-    }
-    return true;
+    return ObjectUtils.equals(_spotTS, other._spotTS);
   }
 }

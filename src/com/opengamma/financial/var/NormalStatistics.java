@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.var;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
@@ -57,11 +58,7 @@ public class NormalStatistics<T> {
       return false;
     }
     NormalStatistics<?> other = (NormalStatistics<?>) obj;
-    if (_mean == null) {
-      if (other._mean != null) {
-        return false;
-      }
-    } else if (!_mean.equals(other._mean)) {
+    if (!ObjectUtils.equals(_mean, other._mean)) {
       return false;
     }
     if (Double.doubleToLongBits(_standardDeviation) != Double.doubleToLongBits(other._standardDeviation)) {

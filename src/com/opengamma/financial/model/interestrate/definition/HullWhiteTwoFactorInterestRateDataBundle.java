@@ -7,6 +7,7 @@ package com.opengamma.financial.model.interestrate.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -149,28 +150,7 @@ public class HullWhiteTwoFactorInterestRateDataBundle {
     if (Double.doubleToLongBits(_u) != Double.doubleToLongBits(other._u)) {
       return false;
     }
-    if (_volatilityCurve1 == null) {
-      if (other._volatilityCurve1 != null) {
-        return false;
-      }
-    } else if (!_volatilityCurve1.equals(other._volatilityCurve1)) {
-      return false;
-    }
-    if (_volatilityCurve2 == null) {
-      if (other._volatilityCurve2 != null) {
-        return false;
-      }
-    } else if (!_volatilityCurve2.equals(other._volatilityCurve2)) {
-      return false;
-    }
-    if (_yieldCurve == null) {
-      if (other._yieldCurve != null) {
-        return false;
-      }
-    } else if (!_yieldCurve.equals(other._yieldCurve)) {
-      return false;
-    }
-    return true;
+    return ObjectUtils.equals(_volatilityCurve1, other._volatilityCurve1) && ObjectUtils.equals(_volatilityCurve2, other._volatilityCurve2) && ObjectUtils.equals(_yieldCurve, other._yieldCurve);
   }
 
 }

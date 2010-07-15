@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.var.historical;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -44,14 +45,7 @@ public class HistoricalVaRDataBundle {
       return false;
     }
     HistoricalVaRDataBundle other = (HistoricalVaRDataBundle) obj;
-    if (_pnl == null) {
-      if (other._pnl != null) {
-        return false;
-      }
-    } else if (!_pnl.equals(other._pnl)) {
-      return false;
-    }
-    return true;
+    return ObjectUtils.equals(_pnl, other._pnl);
   }
 
 }

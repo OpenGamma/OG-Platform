@@ -8,6 +8,7 @@ package com.opengamma.financial.model.option.definition;
 import java.util.Collections;
 import java.util.Set;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.greeks.Greek;
@@ -138,27 +139,13 @@ public class ComplexChooserOptionDefinition extends OptionDefinition {
       return false;
     }
     final ComplexChooserOptionDefinition other = (ComplexChooserOptionDefinition) obj;
-    if (_callExpiry == null) {
-      if (other._callExpiry != null) {
-        return false;
-      }
-    } else if (!_callExpiry.equals(other._callExpiry)) {
-      return false;
-    }
     if (Double.doubleToLongBits(_callStrike) != Double.doubleToLongBits(other._callStrike)) {
-      return false;
-    }
-    if (_putExpiry == null) {
-      if (other._putExpiry != null) {
-        return false;
-      }
-    } else if (!_putExpiry.equals(other._putExpiry)) {
       return false;
     }
     if (Double.doubleToLongBits(_putStrike) != Double.doubleToLongBits(other._putStrike)) {
       return false;
     }
-    return true;
+    return ObjectUtils.equals(_callExpiry, other._callExpiry) && ObjectUtils.equals(_putExpiry, other._putExpiry);
   }
 
 }

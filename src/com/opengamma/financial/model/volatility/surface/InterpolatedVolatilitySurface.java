@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,8 +61,8 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
     for (final Map.Entry<Pair<Double, Double>, Double> entry : data.entrySet()) {
       sortedVariance.put(entry.getKey(), entry.getValue() * entry.getValue());
     }
-    _volatilityData = Collections.<Pair<Double, Double>, Double>unmodifiableSortedMap(sortedVolatility);
-    _varianceData = Collections.<Pair<Double, Double>, Double>unmodifiableSortedMap(sortedVariance);
+    _volatilityData = Collections.<Pair<Double, Double>, Double> unmodifiableSortedMap(sortedVolatility);
+    _varianceData = Collections.<Pair<Double, Double>, Double> unmodifiableSortedMap(sortedVariance);
     _interpolator = interpolator;
   }
 
@@ -171,20 +172,6 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
       return false;
     }
     final InterpolatedVolatilitySurface other = (InterpolatedVolatilitySurface) obj;
-    if (_volatilityData == null) {
-      if (other._volatilityData != null) {
-        return false;
-      }
-    } else if (!_volatilityData.equals(other._volatilityData)) {
-      return false;
-    }
-    if (_interpolator == null) {
-      if (other._interpolator != null) {
-        return false;
-      }
-    } else if (!_interpolator.equals(other._interpolator)) {
-      return false;
-    }
-    return true;
+    return ObjectUtils.equals(_volatilityData, other._volatilityData) && ObjectUtils.equals(_interpolator, other._interpolator);
   }
 }
