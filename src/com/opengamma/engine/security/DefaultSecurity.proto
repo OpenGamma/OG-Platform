@@ -1,0 +1,50 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.engine.security {
+
+  /**
+   * A simple mutable implementation of {@code Security}.
+   */
+  message DefaultSecurity {
+  
+    optional com.opengamma.id.UniqueIdentifier uniqueIdentifier;
+    required string name [default=""];
+    required string securityType [default=""];
+    required com.opengamma.id.IdentifierBundle identifiers [default=()];
+    
+    // TODO: getName - used to call buildDefaultDisplayName if no name was given
+
+    binding Java {
+      implements "Security, com.opengamma.id.MutableUniqueIdentifiable";
+      body <<<JAVA
+        /**
+         * Dynamically determines a 'default' display name if one hasn't been explicitly set.
+         * This implementation constructs one from the identity key or identifiers.
+         * 
+         * @return a default display name
+         */
+        protected String buildDefaultDisplayName() {
+          final com.opengamma.id.UniqueIdentifier identifier = getUniqueIdentifier(); // assign for thread-safety
+          if (identifier != null) {
+            return identifier.toString();
+          }
+          final com.opengamma.id.IdentifierBundle bundle = getIdentifiers(); // assign for thread-safety
+          final com.opengamma.id.Identifier first = (bundle.size() == 0 ? null : bundle.getIdentifiers().iterator().next());
+          return org.apache.commons.lang.ObjectUtils.toString(first);
+        }
+        
+        /**
+         * Add an identifier to the bundle.
+         */
+        public void addIdentifier (final com.opengamma.id.Identifier identifier) {
+          setIdentifiers (getIdentifiers ().withIdentifier (identifier));
+        }
+JAVA;
+    }
+  }
+
+}

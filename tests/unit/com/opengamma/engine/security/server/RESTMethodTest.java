@@ -52,9 +52,13 @@ public class RESTMethodTest {
     MockSecurityMaster secMaster = new MockSecurityMaster();
     Identifier secId1 = new Identifier(new IdentificationScheme("d1"), "v1");
     Identifier secId2 = new Identifier(new IdentificationScheme("d2"), "v2");
-    DefaultSecurity sec1 = new DefaultSecurity("t1", new IdentifierBundle(secId1));
+    DefaultSecurity sec1 = new DefaultSecurity();
+    sec1.setSecurityType ("t1");
+    sec1.setIdentifiers (new IdentifierBundle(secId1));
     secMaster.addSecurity(sec1);
-    DefaultSecurity sec2 = new DefaultSecurity("t2", new IdentifierBundle(secId2));
+    DefaultSecurity sec2 = new DefaultSecurity();
+    sec2.setSecurityType ("t2");
+    sec2.setIdentifiers (new IdentifierBundle(secId2));
     secMaster.addSecurity(sec2);
     getSecurityMasterService ().setSecurityMaster (secMaster);
     _uid1 = sec1.getUniqueIdentifier();
