@@ -19,8 +19,10 @@ public class YieldConventionBean extends EnumBean {
   }
   
   /* package */ YieldConvention toYieldConvention() {
-    final YieldConvention yieldConvention = YieldConventionFactory.INSTANCE.getYieldConvention (getName ());
-    if (yieldConvention == null) throw new OpenGammaRuntimeException ("Bad value for yieldConventionBean (" + getName () + ")");
+    final YieldConvention yieldConvention = YieldConventionFactory.INSTANCE.getYieldConvention(getName());
+    if (yieldConvention == null) {
+      throw new OpenGammaRuntimeException("Bad value for yieldConventionBean (" + getName() + ")");
+    }
     return yieldConvention;
   }
   

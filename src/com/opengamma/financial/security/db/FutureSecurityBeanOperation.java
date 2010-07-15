@@ -33,7 +33,7 @@ import com.opengamma.financial.security.MetalFutureSecurity;
 import com.opengamma.financial.security.StockFutureSecurity;
 import com.opengamma.id.Identifier;
 
-/* package */ class FutureSecurityBeanOperation extends AbstractBeanOperation<FutureSecurity, FutureSecurityBean> {
+/* package */ final class FutureSecurityBeanOperation extends AbstractBeanOperation<FutureSecurity, FutureSecurityBean> {
   
   public static final FutureSecurityBeanOperation INSTANCE = new FutureSecurityBeanOperation();
   

@@ -89,15 +89,24 @@ public enum FutureType {
   
   public <T> T accept(final Visitor<T> visitor) {
     switch (this) {
-    case AGRICULTURE : return visitor.visitAgricultureFutureType();
-    case BOND : return visitor.visitBondFutureType();
-    case ENERGY : return visitor.visitEnergyFutureType();
-    case FX : return visitor.visitFXFutureType();
-    case INTEREST_RATE : return visitor.visitInterestRateFutureType();
-    case METAL : return visitor.visitMetalFutureType();
-    case INDEX : return visitor.visitIndexFutureType();
-    case STOCK : return visitor.visitStockFutureType();
-    default : throw new OpenGammaRuntimeException("unexpected FutureType: " + this);
+      case AGRICULTURE:
+        return visitor.visitAgricultureFutureType();
+      case BOND:
+        return visitor.visitBondFutureType();
+      case ENERGY:
+        return visitor.visitEnergyFutureType();
+      case FX:
+        return visitor.visitFXFutureType();
+      case INTEREST_RATE:
+        return visitor.visitInterestRateFutureType();
+      case METAL:
+        return visitor.visitMetalFutureType();
+      case INDEX:
+        return visitor.visitIndexFutureType();
+      case STOCK:
+        return visitor.visitStockFutureType();
+      default:
+        throw new OpenGammaRuntimeException("unexpected FutureType: " + this);
     }
   }
   

@@ -47,10 +47,14 @@ public enum BondType {
   
   public <T> T accept(final Visitor<T> visitor) {
     switch (this) {
-      case CORPORATE : return visitor.visitCorporateBondType();
-      case GOVERNMENT : return visitor.visitGovernmentBondType();
-      case MUNICIPAL : return visitor.visitMunicipalBondType();
-      default : throw new OpenGammaRuntimeException("unexpected BondType: " + this);
+      case CORPORATE:
+        return visitor.visitCorporateBondType();
+      case GOVERNMENT:
+        return visitor.visitGovernmentBondType();
+      case MUNICIPAL:
+        return visitor.visitMunicipalBondType();
+      default:
+        throw new OpenGammaRuntimeException("unexpected BondType: " + this);
     } 
   }
   

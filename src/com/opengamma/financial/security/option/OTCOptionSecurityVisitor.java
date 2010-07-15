@@ -7,6 +7,6 @@ package com.opengamma.financial.security.option;
 
 public interface OTCOptionSecurityVisitor<T> {
   
-  public T visitFXOptionSecurity (FXOptionSecurity security);
+  T visitFXOptionSecurity(FXOptionSecurity security);
   
 }
