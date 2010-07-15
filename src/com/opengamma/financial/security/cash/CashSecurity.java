@@ -20,9 +20,13 @@ public class CashSecurity extends FinancialSecurity {
     super(SECURITY_TYPE);
   }
 
+  public <T> T accept(CashSecurityVisitor<T> visitor) {
+    return visitor.visitCashSecurity(this);
+  }
+
   @Override
-  public <T> T accept(final FinancialSecurityVisitor<T> visitor) {
-    return null;
+  public final <T> T accept(final FinancialSecurityVisitor<T> visitor) {
+    return visitor.visitCashSecurity(this);
   }
 
 }

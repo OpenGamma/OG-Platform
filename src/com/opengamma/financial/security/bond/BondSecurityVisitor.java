@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.security.bond;
 
-
 public interface BondSecurityVisitor<T> {
   T visitCorporateBondSecurity(CorporateBondSecurity security);
   T visitGovernmentBondSecurity(GovernmentBondSecurity security);

@@ -5,11 +5,6 @@
  */
 package com.opengamma.financial.security.option;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
-
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
@@ -121,21 +116,7 @@ public abstract class OptionSecurity extends FinancialSecurity implements Option
 
   @Override
   public final <T> T accept(final FinancialSecurityVisitor<T> visitor) {
-    return accept((OptionSecurityVisitor<T>) visitor);
-  }
-
-  protected void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
-    super.toFudgeMsg(context, message);
-    context.objectToFudgeMsg(message, OPTIONTYPE_KEY, null, getOptionType());
-    message.add(STRIKE_KEY, getStrike());
-    context.objectToFudgeMsg(message, EXPIRY_KEY, null, getExpiry());
-    context.objectToFudgeMsg(message, UNDERLYINGIDENTIFIER_KEY, null, getUnderlyingIdentifier());
-    context.objectToFudgeMsg(message, CURRENCY_KEY, null, getCurrency());
-  }
-
-  protected void fromFudgeMsgImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    super.fromFudgeMsgImpl(context, message);
-    // No additional fields
+    return visitor.visitOptionSecurity(this);
   }
 
 }

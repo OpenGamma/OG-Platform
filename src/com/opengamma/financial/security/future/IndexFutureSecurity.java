@@ -5,11 +5,6 @@
  */
 package com.opengamma.financial.security.future;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
-
 import com.opengamma.financial.Currency;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.time.Expiry;
@@ -57,29 +52,4 @@ public class IndexFutureSecurity extends FutureSecurity {
     return visitor.visitIndexFutureSecurity(this);
   }
 
-  protected void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
-    super.toFudgeMsg(context, message);
-    context.objectToFudgeMsg(message, UNDERLYINGIDENTIFIER_KEY, null, getUnderlyingIdentityKey());
-  }
-
-  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
-    final MutableFudgeFieldContainer message = context.newMessage();
-    FudgeSerializationContext.addClassHeader(message, getClass());
-    toFudgeMsg(context, message);
-    return message;
-  }
-
-  protected void fromFudgeMsgImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    super.fromFudgeMsgImpl(context, message);
-    // Everything set by constructor
-  }
-
-  public static IndexFutureSecurity fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    final IndexFutureSecurity security = new IndexFutureSecurity(context.fieldValueToObject(Expiry.class, message
-        .getByName(EXPIRY_KEY)), message.getString(TRADINGEXCHANGE_KEY), message.getString(SETTLEMENTEXCHANGE_KEY),
-        context.fieldValueToObject(Currency.class, message.getByName(CURRENCY_KEY)), context.fieldValueToObject(
-            Identifier.class, message.getByName(UNDERLYINGIDENTIFIER_KEY)));
-    security.fromFudgeMsgImpl(context, message);
-    return security;
-  }
 }

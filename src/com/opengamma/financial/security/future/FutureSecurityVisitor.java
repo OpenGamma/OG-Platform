@@ -7,19 +7,21 @@ package com.opengamma.financial.security.future;
 
 
 public interface FutureSecurityVisitor<T> {
-  public T visitAgricultureFutureSecurity(AgricultureFutureSecurity security);
 
-  public T visitBondFutureSecurity(BondFutureSecurity security);
+  T visitAgricultureFutureSecurity(AgricultureFutureSecurity security);
 
-  public T visitEnergyFutureSecurity(EnergyFutureSecurity security);
+  T visitBondFutureSecurity(BondFutureSecurity security);
 
-  public T visitFXFutureSecurity(FXFutureSecurity security);
+  T visitEnergyFutureSecurity(EnergyFutureSecurity security);
 
-  public T visitIndexFutureSecurity(IndexFutureSecurity security);
+  T visitFXFutureSecurity(FXFutureSecurity security);
 
-  public T visitInterestRateFutureSecurity(InterestRateFutureSecurity security);
+  T visitIndexFutureSecurity(IndexFutureSecurity security);
 
-  public T visitMetalFutureSecurity(MetalFutureSecurity security);
+  T visitInterestRateFutureSecurity(InterestRateFutureSecurity security);
 
-  public T visitStockFutureSecurity(StockFutureSecurity security);
+  T visitMetalFutureSecurity(MetalFutureSecurity security);
+
+  T visitStockFutureSecurity(StockFutureSecurity security);
+
 }

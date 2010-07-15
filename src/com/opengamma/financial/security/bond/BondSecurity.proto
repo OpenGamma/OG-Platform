@@ -1,0 +1,52 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.financial.security.bond {
+
+  /**
+   * A {@code Security} used to model bonds.
+   */
+  abstract message BondSecurity extends FinancialSecurity {
+  
+    required string securityType [default="BOND"];
+    
+    readonly required string issuerName;
+    readonly required string issuerType;
+    readonly required string issuerDomicile;
+    readonly required string market;
+    readonly required com.opengamma.financial.Currency currency; /* string */
+    readonly required com.opengamma.financial.convention.yield.YieldConvention yieldConvention; /* string */
+    readonly required string guaranteeType;
+    readonly required com.opengamma.util.time.Expiry maturity; /* datetime */
+    readonly required string couponType;
+    readonly required double couponRate;
+    readonly required com.opengamma.financial.convention.frequency.Frequency couponFrequency; /* string */
+    readonly required com.opengamma.financial.convention.daycount.DayCount dayCountConvention; /* string */
+    readonly required com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention; /* string */
+    readonly required date announcementDate;
+    readonly required date interestAccrualDate;
+    readonly required date settlementDate;
+    readonly required date firstCouponDate;
+    readonly required double issuancePrice;
+    readonly required double totalAmountIssued;
+    readonly required double minimumAmount;
+    readonly required double minimumIncrement;
+    readonly required double parAmount;
+    readonly required double redemptionValue;
+    
+    binding Java {
+      body <<<JAVA
+        public abstract <T> T accept(BondSecurityVisitor<T> visitor);
+
+        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) {
+          return visitor.visitBondSecurity(this);
+        }
+JAVA;
+    }
+  
+  }
+
+}

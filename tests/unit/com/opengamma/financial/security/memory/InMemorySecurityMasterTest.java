@@ -77,11 +77,11 @@ public class InMemorySecurityMasterTest {
   public void test_multipleSecurities() {
     InMemorySecurityMaster test = new InMemorySecurityMaster();
     
-    DefaultSecurity sec1 = new DefaultSecurity();
+    DefaultSecurity sec1 = new DefaultSecurity("");
     sec1.addIdentifier(ID1);
     test.addSecurity(new AddSecurityRequest(sec1));
     
-    DefaultSecurity sec2 = new DefaultSecurity();
+    DefaultSecurity sec2 = new DefaultSecurity("");
     sec2.addIdentifier(ID2);
     test.addSecurity(new AddSecurityRequest(sec2));
     

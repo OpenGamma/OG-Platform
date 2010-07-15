@@ -1,0 +1,24 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
+ 
+/**
+ * Introduce arbitrary elements from the package to Fudge-Proto. These are hand coded
+ * Java classes that reduce to standard Fudge types or an arbitrary message definition.
+ */
+namespace com.opengamma.financial.convention {
+  namespace businessday {
+    extern message BusinessDayConvention;
+  }  
+  namespace daycount {
+    extern message DayCount;
+  }
+  namespace frequency {
+    extern message Frequency;
+  }
+  namespace yield {
+    extern message YieldConvention;
+  }
+}

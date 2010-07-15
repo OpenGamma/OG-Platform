@@ -7,11 +7,6 @@ package com.opengamma.financial.security.equity;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.GICSCode;
@@ -232,60 +227,14 @@ public class EquitySecurity extends FinancialSecurity {
   }
 
   //-------------------------------------------------------------------------
+
   @Override
-  public <T> T accept(FinancialSecurityVisitor<T> visitor) {
+  public final <T> T accept(FinancialSecurityVisitor<T> visitor) {
     return visitor.visitEquitySecurity(this);
   }
 
-  protected void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
-    super.toFudgeMsg(context, message);
-    context.objectToFudgeMsg(message, TICKER_KEY, null, getTicker());
-    context.objectToFudgeMsg(message, EXCHANGE_KEY, null, getExchange());
-    context.objectToFudgeMsg(message, EXCHANGECODE_KEY, null, getExchangeCode());
-    context.objectToFudgeMsg(message, COMPANYNAME_KEY, null, getCompanyName());
-    context.objectToFudgeMsg(message, CURRENCY_KEY, null, getCurrency());
-    context.objectToFudgeMsg(message, GICSCODE_KEY, null, getGICSCode());
-  }
-
-  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
-    final MutableFudgeFieldContainer message = context.newMessage();
-    FudgeSerializationContext.addClassHeader(message, getClass());
-    toFudgeMsg(context, message);
-    return message;
-  }
-
-  protected void fromFudgeMsgImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    super.fromFudgeMsgImpl(context, message);
-    final FudgeField ticker = message.getByName(TICKER_KEY);
-    final FudgeField exchange = message.getByName(EXCHANGE_KEY);
-    final FudgeField exchangeCode = message.getByName(EXCHANGECODE_KEY);
-    final FudgeField companyName = message.getByName(COMPANYNAME_KEY);
-    final FudgeField currency = message.getByName(CURRENCY_KEY);
-    final FudgeField gicsCode = message.getByName(GICSCODE_KEY);
-    if (ticker != null) {
-      setTicker(context.fieldValueToObject(String.class, ticker));
-    }
-    if (exchange != null) {
-      setExchange(context.fieldValueToObject(String.class, exchange));
-    }
-    if (exchangeCode != null) {
-      setExchangeCode(context.fieldValueToObject(String.class, exchangeCode));
-    }
-    if (companyName != null) {
-      setCompanyName(context.fieldValueToObject(String.class, companyName));
-    }
-    if (currency != null) {
-      setCurrency(context.fieldValueToObject(Currency.class, currency));
-    }
-    if (gicsCode != null) {
-      setGICSCode(context.fieldValueToObject(GICSCode.class, gicsCode));
-    }
-  }
-
-  public static EquitySecurity fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    final EquitySecurity security = new EquitySecurity();
-    security.fromFudgeMsgImpl(context, message);
-    return security;
+  public <T> T accept(EquitySecurityVisitor<T> visitor) {
+    return visitor.visitEquitySecurity(this);
   }
 
 }

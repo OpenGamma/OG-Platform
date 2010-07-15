@@ -8,15 +8,22 @@ package com.opengamma.financial.aggregation;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.bond.BondSecurityVisitor;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
+import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cash.CashSecurityVisitor;
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.equity.EquitySecurityVisitor;
+import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.FRASecurityVisitor;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FutureSecurityVisitor;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
@@ -26,7 +33,11 @@ import com.opengamma.financial.security.option.AmericanVanillaFutureOptionSecuri
 import com.opengamma.financial.security.option.EuropeanVanillaEquityOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanVanillaFutureOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.OptionSecurityVisitor;
 import com.opengamma.financial.security.option.PoweredEquityOptionSecurity;
+import com.opengamma.financial.security.swap.ForwardSwapSecurity;
+import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.SwapSecurityVisitor;
 
 /**
  * 
@@ -34,54 +45,75 @@ import com.opengamma.financial.security.option.PoweredEquityOptionSecurity;
  * @author jim
  */
 public class DetailedAssetClassAggregationFunction implements AggregationFunction<String> {
-  /*package*/ static final String POWERED_EQUITY_OPTION_SECURITY = "Powered Equity Options";
-  /*package*/ static final String EUROPEAN_VANILLA_EQUITY_OPTIONS = "European Vanilla Equity Options";
-  /*package*/ static final String EQUITIES = "Equities";
-  /*package*/ static final String AMERICAN_VANILLA_EQUITY_OPTIONS = "American Vanilla Equity Options";
-  /*package*/ static final String GOVERNMENT_BONDS = "Government Bonds";
-  /*package*/ static final String MUNICIPAL_BONDS = "Municipal Bonds";
-  /*package*/ static final String CORPORATE_BONDS = "Corporate Bonds";
-  /*package*/ static final String BOND_FUTURES = "Bond Futures";
-  /*package*/ static final String CURRENCY_FUTURES = "Currency Futures";
-  /*package*/ static final String INTEREST_RATE_FUTURES = "Interest Rate Futures";
-  /*package*/ static final String UNKNOWN = "Unknown Security Type";
-  /*package*/ static final String NAME = "Detailed Asset Class";
-  /*package*/ static final String AGRICULTURAL_FUTURES = "Agriculture Futures";
-  /*package*/ static final String METAL_FUTURES = "Metal Futures";
-  /*package*/ static final String ENERGY_FUTURES = "Energy Futures";
-  /*package*/ static final String INDEX_FUTURES = "Index Futures";
-  /*package*/ static final String STOCK_FUTURES = "Stock Futures";
-  /*package*/ static final String AMERICAN_VANILLA_FUTURE_OPTIONS = "American Vanilla Future Options";
-  /*package*/ static final String EUROPEAN_VANILLA_FUTURE_OPTIONS = "European Vanilla Future Options";
-  /*package*/ static final String FX_OPTIONS = "FX Options";
-  
+  /*package*/static final String POWERED_EQUITY_OPTION_SECURITY = "Powered Equity Options";
+  /*package*/static final String EUROPEAN_VANILLA_EQUITY_OPTIONS = "European Vanilla Equity Options";
+  /*package*/static final String EQUITIES = "Equities";
+  /*package*/static final String AMERICAN_VANILLA_EQUITY_OPTIONS = "American Vanilla Equity Options";
+  /*package*/static final String GOVERNMENT_BONDS = "Government Bonds";
+  /*package*/static final String MUNICIPAL_BONDS = "Municipal Bonds";
+  /*package*/static final String CORPORATE_BONDS = "Corporate Bonds";
+  /*package*/static final String BOND_FUTURES = "Bond Futures";
+  /*package*/static final String CURRENCY_FUTURES = "Currency Futures";
+  /*package*/static final String INTEREST_RATE_FUTURES = "Interest Rate Futures";
+  /*package*/static final String UNKNOWN = "Unknown Security Type";
+  /*package*/static final String NAME = "Detailed Asset Class";
+  /*package*/static final String AGRICULTURAL_FUTURES = "Agriculture Futures";
+  /*package*/static final String METAL_FUTURES = "Metal Futures";
+  /*package*/static final String ENERGY_FUTURES = "Energy Futures";
+  /*package*/static final String INDEX_FUTURES = "Index Futures";
+  /*package*/static final String STOCK_FUTURES = "Stock Futures";
+  /*package*/static final String AMERICAN_VANILLA_FUTURE_OPTIONS = "American Vanilla Future Options";
+  /*package*/static final String EUROPEAN_VANILLA_FUTURE_OPTIONS = "European Vanilla Future Options";
+  /*package*/static final String FX_OPTIONS = "FX Options";
+  /*package*/static final String CASH = "Cash";
+  /*package*/static final String FRAS = "FRAs";
+  /*package*/static final String SWAPS = "Swaps";
+  /*package*/static final String FORWARD_SWAPS = "Forward Swaps";
+
   @Override
   public String classifyPosition(Position position) {
     Security security = position.getSecurity();
     if (security instanceof FinancialSecurity) {
       FinancialSecurity finSec = (FinancialSecurity) security;
-      return finSec.accept(new FinancialSecurityVisitor<String>() {
+      return finSec.accept(new FinancialSecurityVisitorAdapter<String>(new BondSecurityVisitor<String>() {
         @Override
-        public String visitAmericanVanillaEquityOptionSecurity(
-            AmericanVanillaEquityOptionSecurity security) {
-          return AMERICAN_VANILLA_EQUITY_OPTIONS;
+        public String visitCorporateBondSecurity(CorporateBondSecurity security) {
+          return CORPORATE_BONDS;
         }
+
+        @Override
+        public String visitGovernmentBondSecurity(GovernmentBondSecurity security) {
+          return GOVERNMENT_BONDS;
+        }
+
+        @Override
+        public String visitMunicipalBondSecurity(MunicipalBondSecurity security) {
+          return MUNICIPAL_BONDS;
+        }
+      }, new CashSecurityVisitor<String>() {
+
+        @Override
+        public String visitCashSecurity(CashSecurity security) {
+          return CASH;
+        }
+
+      }, new EquitySecurityVisitor<String>() {
 
         @Override
         public String visitEquitySecurity(EquitySecurity security) {
           return EQUITIES;
         }
+      }, new FRASecurityVisitor<String>() {
 
         @Override
-        public String visitEuropeanVanillaEquityOptionSecurity(
-            EuropeanVanillaEquityOptionSecurity security) {
-          return EUROPEAN_VANILLA_EQUITY_OPTIONS;
+        public String visitFRASecurity(FRASecurity security) {
+          return FRAS;
         }
+      }, new FutureSecurityVisitor<String>() {
 
         @Override
-        public String visitPoweredEquityOptionSecurity(
-            PoweredEquityOptionSecurity security) {
-          return POWERED_EQUITY_OPTION_SECURITY;
+        public String visitAgricultureFutureSecurity(AgricultureFutureSecurity security) {
+          return AGRICULTURAL_FUTURES;
         }
 
         @Override
@@ -90,8 +122,8 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         }
 
         @Override
-        public String visitCorporateBondSecurity(CorporateBondSecurity security) {
-          return CORPORATE_BONDS;
+        public String visitEnergyFutureSecurity(EnergyFutureSecurity security) {
+          return ENERGY_FUTURES;
         }
 
         @Override
@@ -100,31 +132,13 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         }
 
         @Override
-        public String visitGovernmentBondSecurity(
-            GovernmentBondSecurity security) {
-          return GOVERNMENT_BONDS;
+        public String visitIndexFutureSecurity(IndexFutureSecurity security) {
+          return INDEX_FUTURES;
         }
 
         @Override
-        public String visitMunicipalBondSecurity(MunicipalBondSecurity security) {
-          return MUNICIPAL_BONDS;
-        }
-
-        @Override
-        public String visitInterestRateFutureSecurity(
-            InterestRateFutureSecurity security) {
+        public String visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
           return INTEREST_RATE_FUTURES;
-        }
-
-        @Override
-        public String visitAgricultureFutureSecurity(
-            AgricultureFutureSecurity security) {
-          return AGRICULTURAL_FUTURES;
-        }
-
-        @Override
-        public String visitEnergyFutureSecurity(EnergyFutureSecurity security) {
-          return ENERGY_FUTURES;
         }
 
         @Override
@@ -133,24 +147,33 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         }
 
         @Override
-        public String visitIndexFutureSecurity(IndexFutureSecurity security) {
-          return INDEX_FUTURES;
-        }
-
-        @Override
         public String visitStockFutureSecurity(StockFutureSecurity security) {
           return STOCK_FUTURES;
         }
+      }, new OptionSecurityVisitor<String>() {
 
         @Override
-        public String visitAmericanVanillaFutureOptionSecurity(
-            AmericanVanillaFutureOptionSecurity security) {
+        public String visitAmericanVanillaEquityOptionSecurity(AmericanVanillaEquityOptionSecurity security) {
+          return AMERICAN_VANILLA_EQUITY_OPTIONS;
+        }
+
+        @Override
+        public String visitEuropeanVanillaEquityOptionSecurity(EuropeanVanillaEquityOptionSecurity security) {
+          return EUROPEAN_VANILLA_EQUITY_OPTIONS;
+        }
+
+        @Override
+        public String visitPoweredEquityOptionSecurity(PoweredEquityOptionSecurity security) {
+          return POWERED_EQUITY_OPTION_SECURITY;
+        }
+
+        @Override
+        public String visitAmericanVanillaFutureOptionSecurity(AmericanVanillaFutureOptionSecurity security) {
           return AMERICAN_VANILLA_FUTURE_OPTIONS;
         }
 
         @Override
-        public String visitEuropeanVanillaFutureOptionSecurity(
-            EuropeanVanillaFutureOptionSecurity security) {
+        public String visitEuropeanVanillaFutureOptionSecurity(EuropeanVanillaFutureOptionSecurity security) {
           return EUROPEAN_VANILLA_FUTURE_OPTIONS;
         }
 
@@ -158,12 +181,23 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         public String visitFXOptionSecurity(FXOptionSecurity security) {
           return FX_OPTIONS;
         }
-      });
+      }, new SwapSecurityVisitor<String>() {
+
+        @Override
+        public String visitForwardSwapSecurity(ForwardSwapSecurity security) {
+          return FORWARD_SWAPS;
+        }
+
+        @Override
+        public String visitSwapSecurity(SwapSecurity security) {
+          return SWAPS;
+        }
+      }));
     } else {
       return UNKNOWN;
     }
   }
-  
+
   public String getName() {
     return NAME;
   }

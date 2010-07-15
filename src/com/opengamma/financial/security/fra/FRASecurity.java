@@ -48,8 +48,12 @@ public class FRASecurity extends FinancialSecurity {
   }
 
   @Override
-  public <T> T accept(final FinancialSecurityVisitor<T> visitor) {
-    return null;
+  public final <T> T accept(final FinancialSecurityVisitor<T> visitor) {
+    return visitor.visitFRASecurity(this);
+  }
+
+  public <T> T accept(final FRASecurityVisitor<T> visitor) {
+    return visitor.visitFRASecurity(this);
   }
 
 }

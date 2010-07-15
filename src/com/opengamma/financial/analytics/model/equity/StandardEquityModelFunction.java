@@ -21,6 +21,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
  * 

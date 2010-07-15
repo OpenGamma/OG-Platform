@@ -7,11 +7,6 @@ package com.opengamma.financial.security.future;
 
 import javax.time.calendar.MonthOfYear;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
-
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
@@ -123,20 +118,7 @@ public abstract class FutureSecurity extends FinancialSecurity {
   public abstract <T> T accept(FutureSecurityVisitor<T> visitor);
 
   public final <T> T accept(FinancialSecurityVisitor<T> visitor) {
-    return accept((FutureSecurityVisitor<T>) visitor);
-  }
-
-  protected void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
-    super.toFudgeMsg(context, message);
-    context.objectToFudgeMsg(message, EXPIRY_KEY, null, getExpiry());
-    message.add(TRADINGEXCHANGE_KEY, getTradingExchange());
-    message.add(SETTLEMENTEXCHANGE_KEY, getSettlementExchange());
-    context.objectToFudgeMsg(message, CURRENCY_KEY, null, getCurrency());
-  }
-
-  protected void fromFudgeMsgImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    super.fromFudgeMsgImpl(context, message);
-    // Everything set through constructor
+    return visitor.visitFutureSecurity(this);
   }
 
 }

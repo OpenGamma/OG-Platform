@@ -5,11 +5,6 @@
  */
 package com.opengamma.financial.security.future;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
-
 import com.opengamma.financial.Currency;
 import com.opengamma.util.time.Expiry;
 
@@ -94,18 +89,6 @@ public abstract class CommodityFutureSecurity extends FutureSecurity {
    */
   public String getUnitName() {
     return _unitName;
-  }
-
-  protected void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
-    super.toFudgeMsg(context, message);
-    message.add(COMMODITYTYPE_KEY, getCommodityType());
-    message.add(UNITNUMBER_KEY, getUnitNumber());
-    message.add(UNITNAME_KEY, getUnitName());
-  }
-
-  protected void fromFudgeMsgImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    super.fromFudgeMsgImpl(context, message);
-    // Everything set through constructor
   }
 
 }
