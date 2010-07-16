@@ -51,7 +51,7 @@ public class DelegatingPositionMaster extends DelegateByScheme<PositionMaster> i
   @Override
   public Set<UniqueIdentifier> getPortfolioIds() {
     Set<UniqueIdentifier> result = new HashSet<UniqueIdentifier>(getDefaultDelegate().getPortfolioIds());
-    for (PositionMaster delegateMaster : getDelegates()) {
+    for (PositionMaster delegateMaster : getDelegates().values()) {
       result.addAll(delegateMaster.getPortfolioIds());
     }
     return Collections.unmodifiableSet(result);

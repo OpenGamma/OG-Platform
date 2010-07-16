@@ -71,7 +71,7 @@ public class DelegatingLiveDataSnapshotProvider extends DelegateByScheme<LiveDat
       final Map<LiveDataSnapshotProvider, Long> providerMap = new HashMap<LiveDataSnapshotProvider, Long>();
       LiveDataSnapshotProvider defaultDelegate = getDefaultDelegate();
       providerMap.put(defaultDelegate, defaultDelegate.snapshot());
-      for (LiveDataSnapshotProvider delegate : getDelegates()) {
+      for (LiveDataSnapshotProvider delegate : getDelegates().values()) {
         providerMap.put(delegate, delegate.snapshot());
       }
       final long snapshotTime = System.currentTimeMillis();

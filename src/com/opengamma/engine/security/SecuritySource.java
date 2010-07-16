@@ -11,12 +11,16 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * A master structure of all securities used by the organization.
+ * A source of securities as accessed by the engine.
+ * <p>
+ * This interface provides a simple view of securities as needed by the engine.
+ * This may be backed by a full-featured security master, or by a much simpler data structure.
  */
 public interface SecuritySource {
 
   /**
    * Finds a specific security by identifier.
+   * 
    * @param uid  the unique identifier, null returns null
    * @return the security, null if not found
    */
@@ -24,8 +28,9 @@ public interface SecuritySource {
 
   /**
    * Finds all securities that match the specified bundle of keys.
-   * If there are none specified, this method must return an
-   * empty collection, and not {@code null}.
+   * <p>
+   * The result should consist of all securities that match each specified key.
+   * 
    * @param secKey  the bundle keys to match, not null
    * @return all securities matching the specified key, empty if no matches, not null
    */
@@ -36,6 +41,7 @@ public interface SecuritySource {
    * <p>
    * It is entirely the responsibility of the implementation to determine which
    * security matches best for any given bundle of keys.
+   * 
    * @param secKey  the bundle keys to match, not null
    * @return the single security matching the bundle of keys, null if not found
    */

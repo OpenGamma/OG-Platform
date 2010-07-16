@@ -25,8 +25,9 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.EHCacheUtils;
 
 /**
- * A security master implementation that caches another.
- * This uses the EHCache library.
+ * A cache decorating a {@code SecuritySource}.
+ * <p>
+ * The cache is implemented using {@code EHCache}.
  */
 public class EHCachingSecuritySource implements SecuritySource {
 
@@ -148,6 +149,7 @@ public class EHCachingSecuritySource implements SecuritySource {
   //-------------------------------------------------------------------------
   @Override
   public synchronized Security getSecurity(UniqueIdentifier uid) {
+    ArgumentChecker.notNull(uid, "uid");
     Element e = _uidCache.get(uid);
     Security result = null;
     if (e != null) {
@@ -170,6 +172,7 @@ public class EHCachingSecuritySource implements SecuritySource {
   @SuppressWarnings("unchecked")
   @Override
   public Collection<Security> getSecurities(IdentifierBundle securityKey) {
+    ArgumentChecker.notNull(securityKey, "securityKey");
     Element e = _bundleCache.get(securityKey);
     Collection<Security> result = new HashSet<Security>();
     if (e != null) {
@@ -192,8 +195,9 @@ public class EHCachingSecuritySource implements SecuritySource {
   }
 
   @Override
-  public synchronized Security getSecurity(IdentifierBundle secKey) {
-    Collection<Security> matched = getSecurities(secKey);
+  public synchronized Security getSecurity(IdentifierBundle securityKey) {
+    ArgumentChecker.notNull(securityKey, "securityKey");
+    Collection<Security> matched = getSecurities(securityKey);
     if (matched.isEmpty()) {
       return null;
     }
@@ -203,12 +207,12 @@ public class EHCachingSecuritySource implements SecuritySource {
   //-------------------------------------------------------------------------
   /**
    * Refreshes the value for the specified security key.
-   * @param secKey  the security key, not null
+   * @param securityKey  the security key, not null
    */
   @SuppressWarnings("unchecked")
-  public void refresh(Object secKey) {
-    ArgumentChecker.notNull(secKey, "Security Key");
-    Element element = _bundleCache.get(secKey);
+  public void refresh(Object securityKey) {
+    ArgumentChecker.notNull(securityKey, "securityKey");
+    Element element = _bundleCache.get(securityKey);
     if (element != null) {
       Serializable value = element.getValue();
       if (value instanceof Collection<?>) {
@@ -217,9 +221,9 @@ public class EHCachingSecuritySource implements SecuritySource {
           _uidCache.remove(sec.getUniqueIdentifier());
         }
       }
-      _bundleCache.remove(secKey);
+      _bundleCache.remove(securityKey);
     } else {
-      _uidCache.remove(secKey);
+      _uidCache.remove(securityKey);
     }
   }
 

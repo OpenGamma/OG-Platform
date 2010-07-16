@@ -10,16 +10,17 @@ import java.util.Date;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * A security master that can allows update as well as retrieval.
+ * A source of securities that can be updated.
  */
 public interface WritableSecuritySource extends SecuritySource {
+  // TODO: this should disappear with the new SecurityMaster
 
   /**
    * Persist the given security.
    * 
    * @param instant  the instant at which the security is to be stored, null if no historical storage
    * @param security  the security to store, not null
-   * @return The identifier for the newly stored security
+   * @return the unique identifier for the newly stored security, not null
    */
   UniqueIdentifier putSecurity(final Date instant, final Security security);
 

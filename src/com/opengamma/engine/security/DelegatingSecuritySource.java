@@ -21,12 +21,11 @@ import com.opengamma.util.ArgumentChecker;
 public class DelegatingSecuritySource extends DelegateByScheme<SecuritySource> implements SecuritySource {
 
   /**
-   * Constructs a new security master.
-   * 
-   * @param defaultMaster  the default master to fall back to, not null
+   * Creates a new instance with a default source of securities.
+   * @param defaultSource  the default source to fall back to, not null
    */
-  public DelegatingSecuritySource(SecuritySource defaultMaster) {
-    super(defaultMaster);
+  public DelegatingSecuritySource(SecuritySource defaultSource) {
+    super(defaultSource);
   }
 
   //-------------------------------------------------------------------------
@@ -37,14 +36,15 @@ public class DelegatingSecuritySource extends DelegateByScheme<SecuritySource> i
   }
 
   @Override
-  public Collection<Security> getSecurities(IdentifierBundle secKey) {
+  public Collection<Security> getSecurities(IdentifierBundle securityKey) {
+    ArgumentChecker.notNull(securityKey, "securityKey");
     // TODO: this implementation is poor, but API limits us
-    Collection<Security> result = getDefaultDelegate().getSecurities(secKey);
+    Collection<Security> result = getDefaultDelegate().getSecurities(securityKey);
     if (result != null) {
       return result;
     }
-    for (SecuritySource delegateMaster : getDelegates()) {
-      result = delegateMaster.getSecurities(secKey);
+    for (SecuritySource delegateMaster : getDelegates().values()) {
+      result = delegateMaster.getSecurities(securityKey);
       if (result != null) {
         return result;
       }
@@ -53,14 +53,15 @@ public class DelegatingSecuritySource extends DelegateByScheme<SecuritySource> i
   }
 
   @Override
-  public Security getSecurity(IdentifierBundle secKey) {
+  public Security getSecurity(IdentifierBundle securityKey) {
+    ArgumentChecker.notNull(securityKey, "securityKey");
     // TODO: this implementation is poor, but API limits us
-    Security result = getDefaultDelegate().getSecurity(secKey);
+    Security result = getDefaultDelegate().getSecurity(securityKey);
     if (result != null) {
       return result;
     }
-    for (SecuritySource delegateMaster : getDelegates()) {
-      result = delegateMaster.getSecurity(secKey);
+    for (SecuritySource delegateMaster : getDelegates().values()) {
+      result = delegateMaster.getSecurity(securityKey);
       if (result != null) {
         return result;
       }

@@ -7,37 +7,37 @@ package com.opengamma.engine.security;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * A simple purely in-memory implementation of the security master.
+ * A simple mutable implementation of a source of securities.
  * <p>
- * This class is primarily useful in testing scenarios, or when operating
- * as a cache on top of a slower {@link SecuritySource} implementation.
+ * This class is intended for testing scenarios.
+ * It is not thread-safe and must not be used in production.
  */
 public class MockSecuritySource implements SecuritySource {
+  // this is currently public for indirect use by another project via ViewTestUtils
 
-  /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(MockSecuritySource.class);
-
+  /**
+   * The default scheme used for each {@link UniqueIdentifier}.
+   */
+  public static final String DEFAULT_UID_SCHEME = "Mock";
   /**
    * The securities keyed by identifier.
    */
-  private final ConcurrentMap<UniqueIdentifier, Security> _securities = new ConcurrentHashMap<UniqueIdentifier, Security>();
+  private final Map<UniqueIdentifier, Security> _securities = new HashMap<UniqueIdentifier, Security>();
   /**
    * The next index for the identifier.
    */
-  private final AtomicLong _nextIdentityKey = new AtomicLong();
+  private final AtomicLong _nextIdentifier = new AtomicLong();
 
   /**
    * Creates the security master.
@@ -45,62 +45,31 @@ public class MockSecuritySource implements SecuritySource {
   public MockSecuritySource() {
   }
 
-  /**
-   * Creates the security master from a collection of securities.
-   * @param securities  the securities to start with, null ignored
-   */
-  public MockSecuritySource(Collection<? extends DefaultSecurity> securities) {
-    if (securities != null) {
-      for (DefaultSecurity sec : securities) {
-        addSecurity(sec);
-      }
-    }
-  }
-
   //-------------------------------------------------------------------------
-  /**
-   * Finds a specific security by identifier.
-   * @param identifier  the identifier, null returns null
-   * @return the security, null if not found
-   */
+  @Override
   public Security getSecurity(UniqueIdentifier identifier) {
     return identifier == null ? null : _securities.get(identifier);
   }
 
-  /**
-   * Finds all securities that match the specified bundle of keys.
-   * If there are none specified, this method must return an
-   * empty collection, and not {@code null}.
-   * @param securityKey  the bundle keys to match, not null
-   * @return all securities matching the specified key, empty if no matches, not null
-   */
+  @Override
   public Collection<Security> getSecurities(IdentifierBundle securityKey) {
+    ArgumentChecker.notNull(securityKey, "securityKey");
     List<Security> result = new ArrayList<Security>();
-    if (securityKey != null) {
-      for (Security sec : _securities.values()) {
-        if (sec.getIdentifiers().containsAny(securityKey)) {
-          result.add(sec);
-        }
+    for (Security sec : _securities.values()) {
+      if (sec.getIdentifiers().containsAny(securityKey)) {
+        result.add(sec);
       }
     }
     return result;
   }
 
-  /**
-   * Finds the single best-fit security that matches the specified bundle of keys.
-   * <p>
-   * This implementation loops through each identifier in the supplied bundle
-   * and searches for a matching security returning the first match.
-   * @param securityKey  the bundle keys to match, not null
-   * @return the single security matching the bundle of keys, null if not found
-   */
+  @Override
   public Security getSecurity(IdentifierBundle securityKey) {
-    if (securityKey != null) {
-      for (Identifier secId : securityKey.getIdentifiers()) {
-        for (Security sec : _securities.values()) {
-          if (sec.getIdentifiers().contains(secId)) {
-            return sec;
-          }
+    ArgumentChecker.notNull(securityKey, "securityKey");
+    for (Identifier secId : securityKey.getIdentifiers()) {
+      for (Security sec : _securities.values()) {
+        if (sec.getIdentifiers().contains(secId)) {
+          return sec;
         }
       }
     }
@@ -113,12 +82,10 @@ public class MockSecuritySource implements SecuritySource {
    * @param security  the security to add, not null
    */
   public void addSecurity(DefaultSecurity security) {
-    if (security.getSecurityType() == null) {
-      s_logger.warn("Security {} lacks a security type", security);
-    }
-    UniqueIdentifier identifier = UniqueIdentifier.of("Memory", Long.toString(_nextIdentityKey.incrementAndGet()));
+    ArgumentChecker.notNull(security, "security");
+    UniqueIdentifier identifier = UniqueIdentifier.of(DEFAULT_UID_SCHEME, Long.toString(_nextIdentifier.incrementAndGet()));
     security.setUniqueIdentifier(identifier);
-    _securities.putIfAbsent(security.getUniqueIdentifier(), security);
+    _securities.put(security.getUniqueIdentifier(), security);
   }
 
 }

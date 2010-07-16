@@ -14,14 +14,18 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A simple mutable implementation of {@code PositionMaster}.
+ * A simple mutable implementation of a source of positions.
+ * <p>
+ * This class is intended for testing scenarios.
+ * It is not thread-safe and must not be used in production.
  */
 public class MockPositionMaster implements PositionMaster {
+  // this is currently public for indirect use by another project via ViewTestUtils
 
   /**
-   * The default scheme used for any {@link UniqueIdentifier}s created by this {@link PositionMaster}.
+   * The default scheme used for each {@link UniqueIdentifier}.
    */
-  public static final String DEFAULT_UID_SCHEME = "Memory";
+  public static final String DEFAULT_UID_SCHEME = "Mock";
   /**
    * The portfolios.
    */
@@ -37,27 +41,12 @@ public class MockPositionMaster implements PositionMaster {
   /**
    * The next index for the identifier.
    */
-  private final AtomicLong _nextIdentityKey = new AtomicLong();
-  /**
-   * The scheme to use in any UniqueIdentifiers created by this {@link PositionMaster}.
-   */
-  private final String _scheme;
+  private final AtomicLong _nextIdentifier = new AtomicLong();
 
   /**
-   * Creates an empty position master using the default scheme for any {@link UniqueIdentifier}s created.
+   * Creates an instance using the default scheme for each {@link UniqueIdentifier} created.
    */
   public MockPositionMaster() {
-    this(DEFAULT_UID_SCHEME);
-  }
-  
-  /**
-   * Creates an empty position master using the specified scheme for any {@link UniqueIdentifier}s created.
-   * 
-   * @param uidScheme  the scheme to use for any {@link UniqueIdentifier}s created
-   */
-  public MockPositionMaster(String uidScheme) {
-    ArgumentChecker.notNull(uidScheme, "Scheme");
-    _scheme = uidScheme;
   }
 
   //-------------------------------------------------------------------------
@@ -117,7 +106,7 @@ public class MockPositionMaster implements PositionMaster {
     // node
     if (node instanceof PortfolioNodeImpl) {
       PortfolioNodeImpl nodeImpl = (PortfolioNodeImpl) node;
-      UniqueIdentifier identifier = UniqueIdentifier.of(_scheme, portfolioId + "-" + _nextIdentityKey.incrementAndGet());
+      UniqueIdentifier identifier = UniqueIdentifier.of(DEFAULT_UID_SCHEME, portfolioId + "-" + _nextIdentifier.incrementAndGet());
       nodeImpl.setUniqueIdentifier(identifier);
     }
     _nodes.put(node.getUniqueIdentifier(), node);
@@ -126,7 +115,7 @@ public class MockPositionMaster implements PositionMaster {
     for (Position position : node.getPositions()) {
       if (position instanceof PositionImpl) {
         PositionImpl positionImpl = (PositionImpl) position;
-        UniqueIdentifier identifier = UniqueIdentifier.of(_scheme, portfolioId + "-" + _nextIdentityKey.incrementAndGet());
+        UniqueIdentifier identifier = UniqueIdentifier.of(DEFAULT_UID_SCHEME, portfolioId + "-" + _nextIdentifier.incrementAndGet());
         positionImpl.setUniqueIdentifier(identifier);
       }
       _positions.put(position.getUniqueIdentifier(), position);
@@ -137,7 +126,7 @@ public class MockPositionMaster implements PositionMaster {
       addToCache(portfolioId, child);
     }
   }
-  
+
   /**
    * Removes a portfolio from the master.
    * 
@@ -148,7 +137,7 @@ public class MockPositionMaster implements PositionMaster {
     _portfolios.remove(portfolio.getUniqueIdentifier());
     removeFromCache(portfolio.getRootNode());
   }
-  
+
   /**
    * Removes a node from the cache
    * 
@@ -159,7 +148,6 @@ public class MockPositionMaster implements PositionMaster {
     for (Position position : node.getPositions()) {
       _positions.remove(position.getUniqueIdentifier());
     }
-    
     for (PortfolioNode child : node.getChildNodes()) {
       removeFromCache(child);
     }
