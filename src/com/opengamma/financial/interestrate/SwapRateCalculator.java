@@ -65,7 +65,9 @@ public class SwapRateCalculator {
     Validate.notNull(fundingCurve);
     Validate.notNull(fra);
     final double delta = fra.getEndTime() - fra.getStartTime();
-    return (forwardCurve.getDiscountFactor(fra.getStartTime()) / forwardCurve.getDiscountFactor(fra.getEndTime()) - 1) / delta;
+    final double pa = forwardCurve.getDiscountFactor(fra.getStartTime());
+    final double pb = forwardCurve.getDiscountFactor(fra.getEndTime());
+    return (pa / pb - 1) / delta;
   }
 
   private double getRateFromIRFuture(final YieldAndDiscountCurve fundingCurve, final InterestRateFuture interestRateFuture) {

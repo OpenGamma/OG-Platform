@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.riskfactor.RiskFactorResult;
@@ -107,11 +108,7 @@ public class PnLDataBundle {
       return false;
     }
     final PnLDataBundle other = (PnLDataBundle) obj;
-    if (_encoding == null) {
-      if (other._encoding != null) {
-        return false;
-      }
-    } else if (!_encoding.equals(other._encoding)) {
+    if (!ObjectUtils.equals(_encoding, other._encoding)) {
       return false;
     }
     if (_returns == null) {
@@ -133,11 +130,7 @@ public class PnLDataBundle {
         }
       }
     }
-    if (_sensitivities == null) {
-      if (other._sensitivities != null) {
-        return false;
-      }
-    } else if (!_sensitivities.equals(other._sensitivities)) {
+    if (!ObjectUtils.equals(_sensitivities, other._sensitivities)) {
       return false;
     }
     if (!Arrays.equals(_times, other._times)) {

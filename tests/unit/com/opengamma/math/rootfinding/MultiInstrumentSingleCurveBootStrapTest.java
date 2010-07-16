@@ -74,14 +74,20 @@ public class MultiInstrumentSingleCurveBootStrapTest {
 
   private static final Function1D<Double, Double> DUMMY_CURVE = new Function1D<Double, Double>() {
 
-    private static final double A = -0.0325;
-    private static final double B = 0.021;
-    private static final double C = 0.52;
-    private static final double D = 0.055;
+    // private static final double A = -0.0325;
+    // private static final double B = 0.021;
+    // private static final double C = 0.52;
+    // private static final double D = 0.055;
+
+    private static final double A = 0;
+    private static final double B = 0.004148649;
+    private static final double C = 0.056397936;
+    private static final double D = 0.004457019;
+    private static final double E = 0.000429628;
 
     @Override
     public Double evaluate(final Double x) {
-      return (A + B * x) * Math.exp(-C * x) + D;
+      return (A + B * x) * Math.exp(-C * x) + E * x + D;
     }
   };
 
@@ -89,12 +95,19 @@ public class MultiInstrumentSingleCurveBootStrapTest {
 
     INSTRUMENTS = new ArrayList<InterestRateDerivative>();
 
-    final double[] liborMaturities = new double[] {3. / 12.}; // note using 1m and 2m LIBOR tenors for what should be the 3m-libor curve is probably wrong
-    final double[] fraMaturities = new double[] {0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0};
-    final double[] cashMaturities = new double[] {1 / 365.25, 7 / 365.25, 1.0 / 12.0};
-    final int[] swapSemiannualGrid = new int[] {4, 6, 8, 10, 12, 14, 16, 18, 20, 30, 40, 50, 60};
+    // final double[] liborMaturities = new double[] {};// {3. / 12.}; // note using 1m and 2m LIBOR tenors for what should be the 3m-libor curve is probably wrong
+    // final double[] fraMaturities = new double[] {0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0};
+    // final double[] cashMaturities = new double[] {};// {1 / 365.25, 7 / 365.25, 1.0 / 12.0};
+    // final int[] swapSemiannualGrid = new int[] {};// 4, 6, 8, 10, 12, 14, 16, 18, 20, 30, 40, 50, 60};
+    //    
+    final double[] liborMaturities = new double[] {0.013888889, 0.033333333, 0.052777778, 0.088888889, 0.166666667, 0.261111111, 0.336111111, 0.416666667, 0.508333333, 0.583333333, 0.666666667,
+        0.761111111, 0.838888889, 0.916666667, 1.011111111}; // 
+    final double[] fraMaturities = new double[] {1.491666667, 1.744444444, 1.997222222};
+    final double[] cashMaturities = new double[] {};
+    final double[] swapMaturities = new double[] {2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15, 20.00277778, 25.00555556, 30.00555556, 35.00833333, 50.01388889};
 
-    final int nNodes = liborMaturities.length + fraMaturities.length + cashMaturities.length + swapSemiannualGrid.length;
+    // final int nNodes = liborMaturities.length + fraMaturities.length + cashMaturities.length + swapSemiannualGrid.length;
+    final int nNodes = liborMaturities.length + fraMaturities.length + cashMaturities.length + swapMaturities.length;
 
     NODE_TIMES = new double[nNodes];
     int index = 0;
@@ -118,11 +131,17 @@ public class MultiInstrumentSingleCurveBootStrapTest {
       NODE_TIMES[index++] = t;
     }
 
-    for (final int element : swapSemiannualGrid) {
-      final Swap swap = setupSwap(element);
-      INSTRUMENTS.add(swap);
+    // for (final int element : swapSemiannualGrid) {
+    // final Swap swap = setupSwap(element);
+    // INSTRUMENTS.add(swap);
+    //
+    // final double t = swap.getFloatingPaymentTimes()[swap.getNumberOfFloatingPayments() - 1] + Math.max(0.0, swap.getDeltaEnd()[swap.getNumberOfFloatingPayments() - 1]);
+    // NODE_TIMES[index++] = t;
+    // }
 
-      final double t = swap.getFloatingPaymentTimes()[swap.getNumberOfFloatingPayments() - 1] + Math.max(0.0, swap.getDeltaEnd()[swap.getNumberOfFloatingPayments() - 1]);
+    for (final double t : swapMaturities) {
+      final Swap swap = setupSwap(t);
+      INSTRUMENTS.add(swap);
       NODE_TIMES[index++] = t;
     }
 
@@ -203,6 +222,9 @@ public class MultiInstrumentSingleCurveBootStrapTest {
   private void doTest(final VectorRootFinder rootFinder, final SingleCurveFinder functor) {
     final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(functor, X0);
     final YieldAndDiscountCurve curve = makeYieldCurve(yieldCurveNodes.getData(), NODE_TIMES, CUBIC);
+    // System.out.println("times: " + (new DoubleMatrix1D(NODE_TIMES)).toString());
+    // System.out.println("market rates: " + (new DoubleMatrix1D(MARKET_VALUES)).toString());
+    // System.out.println("yields: " + yieldCurveNodes.toString());
     for (int i = 0; i < MARKET_VALUES.length; i++) {
       assertEquals(MARKET_VALUES[i], SWAP_RATE_CALCULATOR.getRate(curve, curve, INSTRUMENTS.get(i)), EPS);
     }
@@ -224,21 +246,27 @@ public class MultiInstrumentSingleCurveBootStrapTest {
     return new InterpolatedYieldCurve(t, y, interpolator);
   }
 
+  private static Swap setupSwap(final double time) {
+    int index = (int) Math.round(2 * time);
+    return setupSwap(index);
+  }
+
   private static Swap setupSwap(final int payments) {
     final double[] fixed = new double[payments];
     final double[] floating = new double[2 * payments];
     final double[] deltaStart = new double[2 * payments];
     final double[] deltaEnd = new double[2 * payments];
+    final double sigma = 0.0 / 365.0;
     for (int i = 0; i < payments; i++) {
-      fixed[i] = 0.5 * (1 + i) + 0.02 * (RANDOM.nextDouble() - 0.5);
+      fixed[i] = 0.5 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
       floating[2 * i + 1] = fixed[i];
     }
     for (int i = 0; i < 2 * payments; i++) {
       if (i % 2 == 0) {
-        floating[i] = 0.25 * (1 + i) + 0.02 * (RANDOM.nextDouble() - 0.5);
+        floating[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
       }
-      deltaStart[i] = 0.02 * (i == 0 ? RANDOM.nextDouble() : (RANDOM.nextDouble() - 0.5));
-      deltaEnd[i] = 0.02 * (RANDOM.nextDouble() - 0.5);
+      deltaStart[i] = sigma * (i == 0 ? RANDOM.nextDouble() : (RANDOM.nextDouble() - 0.5));
+      deltaEnd[i] = sigma * (RANDOM.nextDouble() - 0.5);
     }
     return new Swap(fixed, floating, deltaStart, deltaEnd);
   }

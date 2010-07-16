@@ -7,6 +7,7 @@ package com.opengamma.financial.model.option.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -119,28 +120,16 @@ public class StandardOptionDataBundle {
     if (Double.doubleToLongBits(_b) != Double.doubleToLongBits(other._b)) {
       return false;
     }
-    if (_date == null) {
-      if (other._date != null) {
-        return false;
-      }
-    } else if (!_date.equals(other._date)) {
+    if (!(ObjectUtils.equals(_date, other._date))) {
       return false;
     }
-    if (_discountCurve == null) {
-      if (other._discountCurve != null) {
-        return false;
-      }
-    } else if (!_discountCurve.equals(other._discountCurve)) {
+    if (!(ObjectUtils.equals(_discountCurve, other._discountCurve))) {
       return false;
     }
     if (Double.doubleToLongBits(_spot) != Double.doubleToLongBits(other._spot)) {
       return false;
     }
-    if (_volatilitySurface == null) {
-      if (other._volatilitySurface != null) {
-        return false;
-      }
-    } else if (!_volatilitySurface.equals(other._volatilitySurface)) {
+    if (!(ObjectUtils.equals(_volatilitySurface, other._volatilitySurface))) {
       return false;
     }
     return true;

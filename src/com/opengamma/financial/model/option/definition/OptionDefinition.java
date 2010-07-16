@@ -7,6 +7,7 @@ package com.opengamma.financial.model.option.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.util.ArgumentChecker;
@@ -116,27 +117,6 @@ public abstract class OptionDefinition {
       return false;
     }
     final OptionDefinition other = (OptionDefinition) obj;
-    if (_expiry == null) {
-      if (other._expiry != null) {
-        return false;
-      }
-    } else if (!_expiry.equals(other._expiry)) {
-      return false;
-    }
-    if (_isCall == null) {
-      if (other._isCall != null) {
-        return false;
-      }
-    } else if (!_isCall.equals(other._isCall)) {
-      return false;
-    }
-    if (_strike == null) {
-      if (other._strike != null) {
-        return false;
-      }
-    } else if (!_strike.equals(other._strike)) {
-      return false;
-    }
-    return true;
+    return ObjectUtils.equals(_expiry, other._expiry) && ObjectUtils.equals(_isCall, other._isCall) && ObjectUtils.equals(_strike, other._strike);
   }
 }

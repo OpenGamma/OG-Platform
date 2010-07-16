@@ -7,6 +7,7 @@ package com.opengamma.financial.riskfactor;
 
 import java.util.Map;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.greeks.Greek;
@@ -74,20 +75,6 @@ public class GreekDataBundle {
       return false;
     }
     final GreekDataBundle other = (GreekDataBundle) obj;
-    if (_greekValues == null) {
-      if (other._greekValues != null) {
-        return false;
-      }
-    } else if (!_greekValues.equals(other._greekValues)) {
-      return false;
-    }
-    if (_underlyingData == null) {
-      if (other._underlyingData != null) {
-        return false;
-      }
-    } else if (!_underlyingData.equals(other._underlyingData)) {
-      return false;
-    }
-    return true;
+    return ObjectUtils.equals(_greekValues, other._greekValues) && ObjectUtils.equals(_underlyingData, other._underlyingData);
   }
 }

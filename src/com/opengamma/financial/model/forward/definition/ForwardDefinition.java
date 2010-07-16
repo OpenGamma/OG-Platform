@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.model.forward.definition;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.util.time.Expiry;
@@ -44,13 +45,6 @@ public class ForwardDefinition {
       return false;
     }
     final ForwardDefinition other = (ForwardDefinition) obj;
-    if (_expiry == null) {
-      if (other._expiry != null) {
-        return false;
-      }
-    } else if (!_expiry.equals(other._expiry)) {
-      return false;
-    }
-    return true;
+    return ObjectUtils.equals(_expiry, other._expiry);
   }
 }

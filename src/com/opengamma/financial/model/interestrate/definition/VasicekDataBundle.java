@@ -7,6 +7,7 @@ package com.opengamma.financial.model.interestrate.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.util.ArgumentChecker;
@@ -81,13 +82,6 @@ public class VasicekDataBundle {
       return false;
     }
     VasicekDataBundle other = (VasicekDataBundle) obj;
-    if (_date == null) {
-      if (other._date != null) {
-        return false;
-      }
-    } else if (!_date.equals(other._date)) {
-      return false;
-    }
     if (Double.doubleToLongBits(_longTermInterestRate) != Double.doubleToLongBits(other._longTermInterestRate)) {
       return false;
     }
@@ -100,6 +94,6 @@ public class VasicekDataBundle {
     if (Double.doubleToLongBits(_shortRateVolatility) != Double.doubleToLongBits(other._shortRateVolatility)) {
       return false;
     }
-    return true;
+    return ObjectUtils.equals(_date, other._date);
   }
 }

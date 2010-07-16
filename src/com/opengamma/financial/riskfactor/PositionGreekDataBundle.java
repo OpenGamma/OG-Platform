@@ -7,6 +7,7 @@ package com.opengamma.financial.riskfactor;
 
 import java.util.Map;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.sensitivity.PositionGreek;
@@ -71,21 +72,7 @@ public class PositionGreekDataBundle {
       return false;
     }
     final PositionGreekDataBundle other = (PositionGreekDataBundle) obj;
-    if (_riskFactors == null) {
-      if (other._riskFactors != null) {
-        return false;
-      }
-    } else if (!_riskFactors.equals(other._riskFactors)) {
-      return false;
-    }
-    if (_underlyingData == null) {
-      if (other._underlyingData != null) {
-        return false;
-      }
-    } else if (!_underlyingData.equals(other._underlyingData)) {
-      return false;
-    }
-    return true;
+    return ObjectUtils.equals(_riskFactors, other._riskFactors) && ObjectUtils.equals(_underlyingData, other._underlyingData);
   }
 
 }

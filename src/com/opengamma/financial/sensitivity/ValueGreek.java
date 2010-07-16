@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.sensitivity;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.greeks.Greek;
@@ -44,14 +45,7 @@ public class ValueGreek {
       return false;
     }
     final ValueGreek other = (ValueGreek) obj;
-    if (_underlyingGreek == null) {
-      if (other._underlyingGreek != null) {
-        return false;
-      }
-    } else if (!_underlyingGreek.equals(other._underlyingGreek)) {
-      return false;
-    }
-    return true;
+    return ObjectUtils.equals(_underlyingGreek, other._underlyingGreek);
   }
 
   @Override
