@@ -19,7 +19,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 /**
  * 
  */
-public class SwapRateCalculator {
+public class InterestRateCalculator {
   private final AnnuityCalculator _annuityCalculator = new AnnuityCalculator();
   private final FloatingLegCalculator _floatLegCalculator = new FloatingLegCalculator();
 
@@ -80,6 +80,12 @@ public class SwapRateCalculator {
   private double getRateFromLibor(final YieldAndDiscountCurve forwardCurve, final Libor libor) {
     Validate.notNull(libor);
     Validate.notNull(forwardCurve);
+    double t = libor.getPaymentTime();
+    // avoid divide by zero when t very small
+    if (t < 0.01) {
+      double r = forwardCurve.getInterestRate(t);
+      return r * (1 + r * t / 2);
+    }
     return (1. / forwardCurve.getDiscountFactor(libor.getPaymentTime()) - 1) / libor.getPaymentTime();
   }
 }

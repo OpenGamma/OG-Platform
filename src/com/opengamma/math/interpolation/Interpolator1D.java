@@ -33,13 +33,13 @@ public abstract class Interpolator1D<T extends Interpolator1DDataBundle, U exten
     return _eps;
   }
 
-  protected void checkValue(final T model, final Double value) {
-    final InterpolationBoundedValues boundedValues = model.getBoundedValues(value);
-    if ((boundedValues.getHigherBoundKey() == null || boundedValues.getHigherBoundKey() < 0) && !CompareUtils.closeEquals(value, model.lastKey(), _eps)) {
-      throw new InterpolationException(value + " was greater than maximum value of the data " + model.lastKey());
+  protected void checkValue(final T data, final Double value) {
+    final InterpolationBoundedValues boundedValues = data.getBoundedValues(value);
+    if ((boundedValues.getHigherBoundKey() == null || boundedValues.getHigherBoundKey() < 0) && !CompareUtils.closeEquals(value, data.lastKey(), _eps)) {
+      throw new InterpolationException(value + " was greater than maximum value of the data " + data.lastKey());
     }
-    if ((boundedValues.getLowerBoundKey() == null || boundedValues.getLowerBoundKey() < 0) && !CompareUtils.closeEquals(value, model.firstKey(), _eps)) {
-      throw new InterpolationException(value + " was less than minimum value of the data " + model.firstKey());
+    if ((boundedValues.getLowerBoundKey() == null || boundedValues.getLowerBoundKey() < 0) && !CompareUtils.closeEquals(value, data.firstKey(), _eps)) {
+      throw new InterpolationException(value + " was less than minimum value of the data " + data.firstKey());
     }
   }
 

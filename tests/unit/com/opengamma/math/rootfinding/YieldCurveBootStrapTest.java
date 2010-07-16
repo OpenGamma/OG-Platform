@@ -20,20 +20,27 @@ import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.financial.interestrate.DoubleCurveFinder;
 import com.opengamma.financial.interestrate.DoubleCurveJacobian;
+import com.opengamma.financial.interestrate.InterestRateCalculator;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.SingleCurveFinder;
 import com.opengamma.financial.interestrate.SingleCurveJacobian;
-import com.opengamma.financial.interestrate.SwapRateCalculator;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CubicSplineInterpolatorWithSensitivities1D;
+import com.opengamma.math.interpolation.Extrapolator1D;
+import com.opengamma.math.interpolation.ExtrapolatorMethod;
+import com.opengamma.math.interpolation.FlatExtrapolator;
+import com.opengamma.math.interpolation.FlatExtrapolatorWithSensitivities;
 import com.opengamma.math.interpolation.InterpolationResult;
+import com.opengamma.math.interpolation.InterpolationResultWithSensitivities;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DCubicSplineDataBundle;
 import com.opengamma.math.interpolation.Interpolator1DCubicSplineWithSensitivitiesDataBundle;
 import com.opengamma.math.interpolation.Interpolator1DWithSensitivities;
+import com.opengamma.math.interpolation.LinearExtrapolator;
+import com.opengamma.math.interpolation.LinearExtrapolatorWithSensitivity;
 import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -53,21 +60,22 @@ public class YieldCurveBootStrapTest {
   private static final int HOTSPOT_WARMUP_CYCLES = 0;
   private static final int BENCHMARK_CYCLES = 1;
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  private static final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> CUBIC = new NaturalCubicSplineInterpolator1D();
-  private static final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> CUBIC_WITH_SENSITIVITY = new CubicSplineInterpolatorWithSensitivities1D();
-  private static final Interpolator1DWithSensitivities<Interpolator1DCubicSplineDataBundle> CUBIC_WITH_FD_SENSITIVITY = new Interpolator1DWithSensitivities<Interpolator1DCubicSplineDataBundle>(CUBIC);
+
+  private static final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> EXTRAPOLATOR;
+  private static final Interpolator1D<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> EXTRAPOLATOR_WITH_SENSITIVITY;
+  private static final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResultWithSensitivities> EXTRAPOLATOR_WITH_FD_SENSITIVITY;
+
   private static List<InterestRateDerivative> INSTRUMENTS;
   private static double[] SWAP_VALUES;
   private static final double[] TIME_GRID;
   private static final double[] FWD_NODE_TIMES;
   private static final double[] FUND_NODE_TIMES;
-  private static final double SPOT_RATE;
   private static final double EPS = 1e-8;
   private static final int STEPS = 100;
   private static final DoubleMatrix1D X0;
   private static YieldAndDiscountCurve FUNDING_CURVE;
   private static YieldAndDiscountCurve FORWARD_CURVE;
-  private static final SwapRateCalculator SWAP_RATE_CALCULATOR = new SwapRateCalculator();
+  private static final InterestRateCalculator SWAP_RATE_CALCULATOR = new InterestRateCalculator();
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> SINGLE_CURVE_FINDER;
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> DOUBLE_CURVE_FINDER;
   private static final JacobianCalculator SINGLE_CURVE_JACOBIAN;
@@ -77,20 +85,16 @@ public class YieldCurveBootStrapTest {
 
   static {
     final int[] payments = new int[] {1, 2, 3, 4, 6, 8, 10, 14, 20, 30, 40, 50, 60};
-    SPOT_RATE = 0.005;
     FWD_NODE_TIMES = new double[] {0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 31.0};
     final double[] fwdYields = new double[] {0.01, 0.02, 0.035, 0.06, 0.055, 0.05, 0.045};
     FUND_NODE_TIMES = new double[] {1.0, 2.0, 5.0, 10.0, 20.0, 31.0};
     final double[] fundYields = new double[] {0.021, 0.036, 0.06, 0.054, 0.049, 0.044};
 
-    FORWARD_CURVE = makeYieldCurve(fwdYields, FWD_NODE_TIMES, CUBIC);
-    FUNDING_CURVE = makeYieldCurve(fundYields, FUND_NODE_TIMES, CUBIC);
-
     final int n = payments.length;
     TIME_GRID = new double[n];
     SWAP_VALUES = new double[n];
     INSTRUMENTS = new ArrayList<InterestRateDerivative>();
-    final double[] rates = new double[n];
+
     Swap swap;
     int nFloat;
     for (int i = 0; i < n; i++) {
@@ -98,18 +102,47 @@ public class YieldCurveBootStrapTest {
       INSTRUMENTS.add(swap);
       nFloat = swap.getNumberOfFloatingPayments();
       TIME_GRID[i] = Math.max(swap.getFixedPaymentTimes()[swap.getNumberOfFixedPayments() - 1], swap.getFloatingPaymentTimes()[nFloat - 1] + swap.getDeltaEnd()[nFloat - 1]);
-      SWAP_VALUES[i] = SWAP_RATE_CALCULATOR.getRate(FORWARD_CURVE, FUNDING_CURVE, swap);
-      rates[i] = 0.05;
     }
+
+    final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> cubicInterpolator = new NaturalCubicSplineInterpolator1D();
+    final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> cubicInterpolatorWithSense = new CubicSplineInterpolatorWithSensitivities1D();
+    final ExtrapolatorMethod<Interpolator1DCubicSplineDataBundle, InterpolationResult> linear_em = new LinearExtrapolator<Interpolator1DCubicSplineDataBundle, InterpolationResult>();
+    final ExtrapolatorMethod<Interpolator1DCubicSplineDataBundle, InterpolationResult> flat_em = new FlatExtrapolator<Interpolator1DCubicSplineDataBundle, InterpolationResult>();
+    final ExtrapolatorMethod<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> linear_em_sense = new LinearExtrapolatorWithSensitivity<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities>();
+    final ExtrapolatorMethod<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> flat_em_sense = new FlatExtrapolatorWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities>();
+    EXTRAPOLATOR = new Extrapolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult>(linear_em, flat_em, cubicInterpolator);
+    EXTRAPOLATOR_WITH_SENSITIVITY = new Extrapolator1D<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities>(linear_em_sense, flat_em_sense,
+        cubicInterpolatorWithSense);
+    EXTRAPOLATOR_WITH_FD_SENSITIVITY = new Interpolator1DWithSensitivities<Interpolator1DCubicSplineDataBundle>(EXTRAPOLATOR);
+
+    SINGLE_CURVE_FINDER = new SingleCurveFinder(INSTRUMENTS, SWAP_VALUES, TIME_GRID, EXTRAPOLATOR);
+    DOUBLE_CURVE_FINDER = new DoubleCurveFinder(INSTRUMENTS, SWAP_VALUES, FWD_NODE_TIMES, FUND_NODE_TIMES, null, null, EXTRAPOLATOR, EXTRAPOLATOR);
+    SINGLE_CURVE_JACOBIAN = new SingleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(INSTRUMENTS, TIME_GRID, EXTRAPOLATOR_WITH_SENSITIVITY);
+    DOUBLE_CURVE_JACOBIAN = new DoubleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(INSTRUMENTS, FWD_NODE_TIMES, FUND_NODE_TIMES, EXTRAPOLATOR_WITH_SENSITIVITY,
+        EXTRAPOLATOR_WITH_SENSITIVITY);
+    SINGLE_CURVE_JACOBIAN_FD = new SingleCurveJacobian<Interpolator1DCubicSplineDataBundle>(INSTRUMENTS, TIME_GRID, EXTRAPOLATOR_WITH_FD_SENSITIVITY);
+    DOUBLE_CURVE_JACOBIAN_FD = new DoubleCurveJacobian<Interpolator1DCubicSplineDataBundle>(INSTRUMENTS, FWD_NODE_TIMES, FUND_NODE_TIMES, EXTRAPOLATOR_WITH_FD_SENSITIVITY,
+        EXTRAPOLATOR_WITH_FD_SENSITIVITY);
+
+    FORWARD_CURVE = makeYieldCurve(fwdYields, FWD_NODE_TIMES, EXTRAPOLATOR);
+    FUNDING_CURVE = makeYieldCurve(fundYields, FUND_NODE_TIMES, EXTRAPOLATOR);
+
+    final double[] rates = new double[n];
+    for (int i = 0; i < n; i++) {
+      SWAP_VALUES[i] = SWAP_RATE_CALCULATOR.getRate(FORWARD_CURVE, FUNDING_CURVE, INSTRUMENTS.get(i));
+      // rates[i] = 0.05;
+    }
+
+    for (int i = 0; i < fwdYields.length; i++) {
+      rates[i] = fwdYields[i] + 0.03;
+    }
+
+    for (int i = 0; i < fundYields.length; i++) {
+      rates[i + fwdYields.length] = 0.05;// fundYields[i] + 0.03;
+    }
+
     X0 = new DoubleMatrix1D(rates);
-    SINGLE_CURVE_FINDER = new SingleCurveFinder(INSTRUMENTS, SWAP_VALUES, SPOT_RATE, TIME_GRID, CUBIC);
-    DOUBLE_CURVE_FINDER = new DoubleCurveFinder(INSTRUMENTS, SWAP_VALUES, SPOT_RATE, FWD_NODE_TIMES, FUND_NODE_TIMES, null, null, CUBIC, CUBIC);
-    SINGLE_CURVE_JACOBIAN = new SingleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(INSTRUMENTS, SPOT_RATE, TIME_GRID, CUBIC_WITH_SENSITIVITY);
-    DOUBLE_CURVE_JACOBIAN = new DoubleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(INSTRUMENTS, SPOT_RATE, FWD_NODE_TIMES, FUND_NODE_TIMES, CUBIC_WITH_SENSITIVITY,
-        CUBIC_WITH_SENSITIVITY);
-    SINGLE_CURVE_JACOBIAN_FD = new SingleCurveJacobian<Interpolator1DCubicSplineDataBundle>(INSTRUMENTS, SPOT_RATE, TIME_GRID, CUBIC_WITH_FD_SENSITIVITY);
-    DOUBLE_CURVE_JACOBIAN_FD = new DoubleCurveJacobian<Interpolator1DCubicSplineDataBundle>(INSTRUMENTS, SPOT_RATE, FWD_NODE_TIMES, FUND_NODE_TIMES, CUBIC_WITH_FD_SENSITIVITY,
-        CUBIC_WITH_FD_SENSITIVITY);
+
   }
 
   @Test
@@ -190,7 +223,7 @@ public class YieldCurveBootStrapTest {
 
   private void doTestForSingleCurve(final VectorRootFinder rootFinder, final SingleCurveFinder functor) {
     final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(functor, X0);
-    final YieldAndDiscountCurve curve = makeYieldCurve(yieldCurveNodes.getData(), TIME_GRID, CUBIC);
+    final YieldAndDiscountCurve curve = makeYieldCurve(yieldCurveNodes.getData(), TIME_GRID, EXTRAPOLATOR);
     for (int i = 0; i < SWAP_VALUES.length; i++) {
       assertEquals(SWAP_VALUES[i], SWAP_RATE_CALCULATOR.getRate(curve, curve, INSTRUMENTS.get(i)), EPS);
     }
@@ -199,9 +232,9 @@ public class YieldCurveBootStrapTest {
   private void doTestForDoubleCurve(final VectorRootFinder rootFinder, final DoubleCurveFinder functor) {
     final double[] yieldCurveNodes = rootFinder.getRoot(functor, X0).getData();
     final double[] fwdYields = Arrays.copyOfRange(yieldCurveNodes, 0, FWD_NODE_TIMES.length);
-    final YieldAndDiscountCurve fwdCurve = makeYieldCurve(fwdYields, FWD_NODE_TIMES, CUBIC);
+    final YieldAndDiscountCurve fwdCurve = makeYieldCurve(fwdYields, FWD_NODE_TIMES, EXTRAPOLATOR);
     final double[] fundYields = Arrays.copyOfRange(yieldCurveNodes, FWD_NODE_TIMES.length, yieldCurveNodes.length);
-    final YieldAndDiscountCurve fundCurve = makeYieldCurve(fundYields, FUND_NODE_TIMES, CUBIC);
+    final YieldAndDiscountCurve fundCurve = makeYieldCurve(fundYields, FUND_NODE_TIMES, EXTRAPOLATOR);
     for (int i = 0; i < SWAP_VALUES.length; i++) {
       assertEquals(SWAP_VALUES[i], SWAP_RATE_CALCULATOR.getRate(fwdCurve, fundCurve, INSTRUMENTS.get(i)), EPS);
     }
@@ -219,9 +252,9 @@ public class YieldCurveBootStrapTest {
       for (int i = 0; i < SWAP_VALUES.length; i++) {
         swapRates[i] *= Math.exp(-0.5 * sigma * sigma + sigma * normDist.nextRandom());
       }
-      final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new SingleCurveFinder(INSTRUMENTS, swapRates, SPOT_RATE, TIME_GRID, CUBIC);
+      final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new SingleCurveFinder(INSTRUMENTS, swapRates, TIME_GRID, EXTRAPOLATOR);
       yieldCurveNodes = rootFinder.getRoot(functor, yieldCurveNodes);
-      curve = makeYieldCurve(yieldCurveNodes.getData(), TIME_GRID, CUBIC);
+      curve = makeYieldCurve(yieldCurveNodes.getData(), TIME_GRID, EXTRAPOLATOR);
       for (int i = 0; i < swapRates.length; i++) {
         assertEquals(swapRates[i], SWAP_RATE_CALCULATOR.getRate(curve, curve, INSTRUMENTS.get(i)), EPS);
       }
@@ -232,12 +265,12 @@ public class YieldCurveBootStrapTest {
   @Test
   // TODO move this into SingleCurveJacobianTest
   public void testSingleCurveJacobian() {
-    final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = new SingleCurveFinder(INSTRUMENTS, SWAP_VALUES, SPOT_RATE, TIME_GRID, CUBIC);
-    final JacobianCalculator jacobianExact = new SingleCurveJacobian(INSTRUMENTS, SPOT_RATE, TIME_GRID, CUBIC_WITH_SENSITIVITY);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = new SingleCurveFinder(INSTRUMENTS, SWAP_VALUES, TIME_GRID, EXTRAPOLATOR);
+    final JacobianCalculator jacobianExact = new SingleCurveJacobian(INSTRUMENTS, TIME_GRID, EXTRAPOLATOR_WITH_SENSITIVITY);
     final JacobianCalculator jacobianFD = new FiniteDifferenceJacobianCalculator(1e-6);
     final DoubleMatrix2D jacExact = jacobianExact.evaluate(X0, func);
     final DoubleMatrix2D jacFD = jacobianFD.evaluate(X0, func);
-    assertMatrixEquals(jacExact, jacFD, 1e-8);
+    assertMatrixEquals(jacExact, jacFD, 1e-6);
   }
 
   @SuppressWarnings("unchecked")
@@ -245,20 +278,20 @@ public class YieldCurveBootStrapTest {
   public void testDoubleCurveJacobian() {
     final double[] fwdTimes = new double[] {0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 31.0};
     final double[] fundTimes = new double[] {1.0, 2.0, 5.0, 10.0, 20.0, 31.0};
-    final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = new DoubleCurveFinder(INSTRUMENTS, SWAP_VALUES, SPOT_RATE, fwdTimes, fundTimes, null, null, CUBIC, CUBIC);
-    final JacobianCalculator jacobianExact = new DoubleCurveJacobian(INSTRUMENTS, SPOT_RATE, fwdTimes, fundTimes, CUBIC_WITH_SENSITIVITY, CUBIC_WITH_SENSITIVITY);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = new DoubleCurveFinder(INSTRUMENTS, SWAP_VALUES, fwdTimes, fundTimes, null, null, EXTRAPOLATOR, EXTRAPOLATOR);
+    final JacobianCalculator jacobianExact = new DoubleCurveJacobian(INSTRUMENTS, fwdTimes, fundTimes, EXTRAPOLATOR_WITH_SENSITIVITY, EXTRAPOLATOR_WITH_SENSITIVITY);
     final JacobianCalculator jacobianFD = new FiniteDifferenceJacobianCalculator(1e-8);
     final DoubleMatrix2D jacExact = jacobianExact.evaluate(X0, func);
     final DoubleMatrix2D jacFD = jacobianFD.evaluate(X0, func);
-    assertMatrixEquals(jacExact, jacFD, 1e-7);
+    assertMatrixEquals(jacExact, jacFD, 1e-5);
   }
 
   @Test
   public void testForwardCurveOnly() {
-    final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new DoubleCurveFinder(INSTRUMENTS, SWAP_VALUES, SPOT_RATE, TIME_GRID, null, null, FUNDING_CURVE, CUBIC, null);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new DoubleCurveFinder(INSTRUMENTS, SWAP_VALUES, TIME_GRID, null, null, FUNDING_CURVE, EXTRAPOLATOR, null);
     final VectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
     final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(functor, X0);
-    final YieldAndDiscountCurve fwdCurve = makeYieldCurve(yieldCurveNodes.getData(), TIME_GRID, CUBIC);
+    final YieldAndDiscountCurve fwdCurve = makeYieldCurve(yieldCurveNodes.getData(), TIME_GRID, EXTRAPOLATOR);
     for (int i = 0; i < SWAP_VALUES.length; i++) {
       assertEquals(SWAP_VALUES[i], SWAP_RATE_CALCULATOR.getRate(fwdCurve, FUNDING_CURVE, INSTRUMENTS.get(i)), EPS);
     }
@@ -266,10 +299,10 @@ public class YieldCurveBootStrapTest {
 
   @Test
   public void testFundingCurveOnly() {
-    final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new DoubleCurveFinder(INSTRUMENTS, SWAP_VALUES, SPOT_RATE, null, TIME_GRID, FORWARD_CURVE, null, null, CUBIC);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new DoubleCurveFinder(INSTRUMENTS, SWAP_VALUES, null, TIME_GRID, FORWARD_CURVE, null, null, EXTRAPOLATOR);
     final VectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
     final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(functor, X0);
-    final YieldAndDiscountCurve fundCurve = makeYieldCurve(yieldCurveNodes.getData(), TIME_GRID, CUBIC);
+    final YieldAndDiscountCurve fundCurve = makeYieldCurve(yieldCurveNodes.getData(), TIME_GRID, EXTRAPOLATOR);
     for (int i = 0; i < SWAP_VALUES.length; i++) {
       assertEquals(SWAP_VALUES[i], SWAP_RATE_CALCULATOR.getRate(FORWARD_CURVE, fundCurve, INSTRUMENTS.get(i)), EPS);
     }
@@ -279,13 +312,13 @@ public class YieldCurveBootStrapTest {
   public void testFindingTwoCurves() {
     final double[] fwdTimes = new double[] {0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 31.0};
     final double[] fundTimes = new double[] {1.0, 2.0, 5.0, 10.0, 20.0, 31.0};
-    final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new DoubleCurveFinder(INSTRUMENTS, SWAP_VALUES, SPOT_RATE, fwdTimes, fundTimes, null, null, CUBIC, CUBIC);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new DoubleCurveFinder(INSTRUMENTS, SWAP_VALUES, fwdTimes, fundTimes, null, null, EXTRAPOLATOR, EXTRAPOLATOR);
     final VectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
     final double[] yieldCurveNodes = rootFinder.getRoot(functor, X0).getData();
     final double[] fwdYields = Arrays.copyOfRange(yieldCurveNodes, 0, fwdTimes.length);
-    final YieldAndDiscountCurve fwdCurve = makeYieldCurve(fwdYields, fwdTimes, CUBIC);
+    final YieldAndDiscountCurve fwdCurve = makeYieldCurve(fwdYields, fwdTimes, EXTRAPOLATOR);
     final double[] fundYields = Arrays.copyOfRange(yieldCurveNodes, fwdTimes.length, yieldCurveNodes.length);
-    final YieldAndDiscountCurve fundCurve = makeYieldCurve(fundYields, fundTimes, CUBIC);
+    final YieldAndDiscountCurve fundCurve = makeYieldCurve(fundYields, fundTimes, EXTRAPOLATOR);
     for (int i = 0; i < SWAP_VALUES.length; i++) {
       assertEquals(SWAP_VALUES[i], SWAP_RATE_CALCULATOR.getRate(fwdCurve, fundCurve, INSTRUMENTS.get(i)), EPS);
     }
@@ -296,15 +329,7 @@ public class YieldCurveBootStrapTest {
     if (n != times.length) {
       throw new IllegalArgumentException("rates and times different lengths");
     }
-    final double[] t = new double[n + 1];
-    final double[] y = new double[n + 1];
-    t[0] = 0;
-    y[0] = SPOT_RATE;
-    for (int i = 0; i < n; i++) {
-      t[i + 1] = times[i];
-      y[i + 1] = yields[i];
-    }
-    return new InterpolatedYieldCurve(t, y, interpolator);
+    return new InterpolatedYieldCurve(times, yields, interpolator);
   }
 
   private static Swap setupSwap(final int payments) {

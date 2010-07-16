@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.interestrate;
@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.Interpolator1DWithSensitivities;
@@ -26,16 +27,15 @@ public class DoubleCurveJacobianTest {
   private static final List<InterestRateDerivative> CASH;
   private static final List<InterestRateDerivative> FRA;
   private static final List<InterestRateDerivative> MIXED_INSTRUMENT;
-  private static final double SPOT_RATE = 0.04;
   private static final double[] FORWARD_NODES;
   private static final double[] FUNDING_NODES;
   private static final Interpolator1DWithSensitivities<Interpolator1DDataBundle> INTERPOLATOR = new LinearInterpolator1DWithSensitivities();
   private static final DoubleMatrix1D X0;
-  //  private static final DoubleMatrix1D X1;
-  //  private static final DoubleMatrix1D X2;
+  // private static final DoubleMatrix1D X1;
+  // private static final DoubleMatrix1D X2;
   private static final JacobianCalculator CASH_ONLY;
-  //  private static final JacobianCalculator FRA_ONLY;
-  //  private static final JacobianCalculator MIXED;
+  // private static final JacobianCalculator FRA_ONLY;
+  // private static final JacobianCalculator MIXED;
   private static final int N = 10;
   private static final int M = 5;
 
@@ -63,36 +63,36 @@ public class DoubleCurveJacobianTest {
       data1[i] = Math.random() / 10;
       data2[i + N] = data1[i];
     }
-    //    X1 = new DoubleMatrix1D(data1);
-    //    X2 = new DoubleMatrix1D(data2);
-    CASH_ONLY = new DoubleCurveJacobian<Interpolator1DDataBundle>(CASH, SPOT_RATE, null, FUNDING_NODES, INTERPOLATOR, INTERPOLATOR);
-    //    FRA_ONLY = new DoubleCurveJacobian<Interpolator1DDataBundle>(FRA, SPOT_RATE, FORWARD_NODES, null, INTERPOLATOR, INTERPOLATOR);
-    //    MIXED = new DoubleCurveJacobian<Interpolator1DDataBundle>(MIXED_INSTRUMENT, SPOT_RATE, FORWARD_NODES, FUNDING_NODES, INTERPOLATOR, INTERPOLATOR);
+    // X1 = new DoubleMatrix1D(data1);
+    // X2 = new DoubleMatrix1D(data2);
+    CASH_ONLY = new DoubleCurveJacobian<Interpolator1DDataBundle>(CASH, null, FUNDING_NODES, new ConstantYieldCurve(0.05), null, INTERPOLATOR, INTERPOLATOR);
+    // FRA_ONLY = new DoubleCurveJacobian<Interpolator1DDataBundle>(FRA, SPOT_RATE, FORWARD_NODES, null, INTERPOLATOR, INTERPOLATOR);
+    // MIXED = new DoubleCurveJacobian<Interpolator1DDataBundle>(MIXED_INSTRUMENT, SPOT_RATE, FORWARD_NODES, FUNDING_NODES, INTERPOLATOR, INTERPOLATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullDerivatives() {
-    new DoubleCurveJacobian<Interpolator1DDataBundle>(null, SPOT_RATE, FORWARD_NODES, FUNDING_NODES, INTERPOLATOR, INTERPOLATOR);
+    new DoubleCurveJacobian<Interpolator1DDataBundle>(null, FORWARD_NODES, FUNDING_NODES, INTERPOLATOR, INTERPOLATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullForwardInterpolator() {
-    new DoubleCurveJacobian<Interpolator1DDataBundle>(MIXED_INSTRUMENT, SPOT_RATE, FORWARD_NODES, FUNDING_NODES, null, INTERPOLATOR);
+    new DoubleCurveJacobian<Interpolator1DDataBundle>(MIXED_INSTRUMENT, FORWARD_NODES, FUNDING_NODES, null, INTERPOLATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullFundingInterpolator() {
-    new DoubleCurveJacobian<Interpolator1DDataBundle>(MIXED_INSTRUMENT, SPOT_RATE, FORWARD_NODES, FUNDING_NODES, INTERPOLATOR, null);
+    new DoubleCurveJacobian<Interpolator1DDataBundle>(MIXED_INSTRUMENT, FORWARD_NODES, FUNDING_NODES, INTERPOLATOR, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyDerivatives() {
-    new DoubleCurveJacobian<Interpolator1DDataBundle>(new ArrayList<InterestRateDerivative>(), SPOT_RATE, FORWARD_NODES, FUNDING_NODES, INTERPOLATOR, INTERPOLATOR);
+    new DoubleCurveJacobian<Interpolator1DDataBundle>(new ArrayList<InterestRateDerivative>(), FORWARD_NODES, FUNDING_NODES, INTERPOLATOR, INTERPOLATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongNumberOfNodes() {
-    new DoubleCurveJacobian<Interpolator1DDataBundle>(MIXED_INSTRUMENT, SPOT_RATE, FORWARD_NODES, FORWARD_NODES, INTERPOLATOR, INTERPOLATOR);
+    new DoubleCurveJacobian<Interpolator1DDataBundle>(MIXED_INSTRUMENT, FORWARD_NODES, FORWARD_NODES, INTERPOLATOR, INTERPOLATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)

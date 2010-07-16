@@ -27,6 +27,7 @@ public class Extrapolator1DWithSensitivityTest {
 
   // private static final Extrapolator1D<Interpolator1DDataBundle, InterpolationResult> FLAT_EXTRAPOLATOR = new Extrapolator1D(FLAT_EM, INTERPOLATOR);
   private static final Extrapolator1D<Interpolator1DDataBundle, InterpolationResult> EXTRAPOLATOR = new Extrapolator1D(LINEAR_EM, LINEAR_EM, INTERPOLATOR);
+  private static final Extrapolator1D<Interpolator1DDataBundle, InterpolationResultWithSensitivities> EXTRAPOLATOR_FLAT_SENSE = new Extrapolator1D(FLAT_EM_SENSE, INTERPOLATOR);
   private static final Extrapolator1D<Interpolator1DDataBundle, InterpolationResultWithSensitivities> EXTRAPOLATOR_SENSE = new Extrapolator1D(LINEAR_EM_SENSE, LINEAR_EM_SENSE, INTERPOLATOR);
   private static final Interpolator1DWithSensitivities<Interpolator1DDataBundle> EXTRAPOLATOR_FD = new Interpolator1DWithSensitivities<Interpolator1DDataBundle>(EXTRAPOLATOR);
   private static final Interpolator1DCubicSplineDataBundle MODEL;
@@ -55,13 +56,48 @@ public class Extrapolator1DWithSensitivityTest {
     MODEL = (Interpolator1DCubicSplineDataBundle) Interpolator1DDataBundleFactory.fromSortedArrays(t, r, EXTRAPOLATOR);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void nullInputMap() {
+    EXTRAPOLATOR_SENSE.interpolate(null, 3.);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void nullInterpolateValue() {
+    EXTRAPOLATOR_SENSE.interpolate(MODEL, null);
+  }
+
+  @Test
+  public void testFlatSensitivities() {
+    double min = 30.0;
+    double max = 40.0;
+    for (int i = 0; i < 10; i++) {
+      final double t = RANDOM.nextDouble() * (max - min) + min;
+      double[] sensitivity = EXTRAPOLATOR_FLAT_SENSE.interpolate(MODEL, t).getSensitivities();
+      for (int j = 0; j < sensitivity.length - 1; j++) {
+        assertEquals(0.0, sensitivity[j], EPS);
+      }
+      assertEquals(1.0, sensitivity[sensitivity.length - 1], EPS);
+    }
+    min = -10;
+    max = 0.0;
+    for (int i = 0; i < 10; i++) {
+      final double t = RANDOM.nextDouble() * (max - min) + min;
+      double[] sensitivity = EXTRAPOLATOR_FLAT_SENSE.interpolate(MODEL, t).getSensitivities();
+      for (int j = 1; j < sensitivity.length; j++) {
+        assertEquals(0.0, sensitivity[j], EPS);
+      }
+      assertEquals(1.0, sensitivity[0], EPS);
+    }
+
+  }
+
   @Test
   public void testSensitivities() {
     double min = -10.0;
     double max = 40.0;
     for (int i = 0; i < 100; i++) {
-      final double t = RANDOM.nextDouble() * (max - min) - min;
-      // double t = 0.25;
+      final double t = RANDOM.nextDouble() * (max - min) + min;
+
       double[] sensitivity_FD = EXTRAPOLATOR_FD.interpolate(MODEL, t).getSensitivities();
       double[] sensitivity = EXTRAPOLATOR_SENSE.interpolate(MODEL, t).getSensitivities();
 

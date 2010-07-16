@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.interestrate;
@@ -25,7 +25,6 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
 public class SingleCurveFinderTest {
   private static final List<InterestRateDerivative> DERIVATIVES;
   private static final double[] MARKET_RATES;
-  private static final double SPOT_RATE = 0.05;
   private static final double[] NODES;
   private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> INTERPOLATOR = new LinearInterpolator1D();
   private static final SingleCurveFinder FINDER;
@@ -36,50 +35,50 @@ public class SingleCurveFinderTest {
     NODES = new double[n];
     for (int i = 0; i < n; i++) {
       DERIVATIVES.add(new Cash(i));
-      MARKET_RATES[i] = Math.random() / .9 * SPOT_RATE;
+      MARKET_RATES[i] = Math.random() / .9 * 0.05;
       NODES[i] = i;
     }
-    FINDER = new SingleCurveFinder(DERIVATIVES, MARKET_RATES, SPOT_RATE, NODES, INTERPOLATOR);
+    FINDER = new SingleCurveFinder(DERIVATIVES, MARKET_RATES, NODES, INTERPOLATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullDerivatives() {
-    new SingleCurveFinder(null, MARKET_RATES, SPOT_RATE, NODES, INTERPOLATOR);
+    new SingleCurveFinder(null, MARKET_RATES, NODES, INTERPOLATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullMarketRates() {
-    new SingleCurveFinder(DERIVATIVES, null, SPOT_RATE, NODES, INTERPOLATOR);
+    new SingleCurveFinder(DERIVATIVES, null, NODES, INTERPOLATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullTimes() {
-    new SingleCurveFinder(DERIVATIVES, MARKET_RATES, SPOT_RATE, null, INTERPOLATOR);
+    new SingleCurveFinder(DERIVATIVES, MARKET_RATES, null, INTERPOLATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullInterpolator() {
-    new SingleCurveFinder(DERIVATIVES, MARKET_RATES, SPOT_RATE, NODES, null);
+    new SingleCurveFinder(DERIVATIVES, MARKET_RATES, NODES, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyDerivatives() {
-    new SingleCurveFinder(new ArrayList<InterestRateDerivative>(), MARKET_RATES, SPOT_RATE, NODES, INTERPOLATOR);
+    new SingleCurveFinder(new ArrayList<InterestRateDerivative>(), MARKET_RATES, NODES, INTERPOLATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyRates() {
-    new SingleCurveFinder(DERIVATIVES, new double[0], SPOT_RATE, NODES, INTERPOLATOR);
+    new SingleCurveFinder(DERIVATIVES, new double[0], NODES, INTERPOLATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyTimes() {
-    new SingleCurveFinder(DERIVATIVES, MARKET_RATES, SPOT_RATE, new double[0], INTERPOLATOR);
+    new SingleCurveFinder(DERIVATIVES, MARKET_RATES, new double[0], INTERPOLATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testMismatchingData() {
-    new SingleCurveFinder(DERIVATIVES, new double[] {1, 2}, SPOT_RATE, NODES, INTERPOLATOR);
+    new SingleCurveFinder(DERIVATIVES, new double[] {1, 2}, NODES, INTERPOLATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)

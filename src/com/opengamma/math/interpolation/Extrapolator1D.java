@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.interpolation;
 
+import org.apache.commons.lang.Validate;
+
 /**
  * 
  */
@@ -27,15 +29,17 @@ public class Extrapolator1D<T extends Interpolator1DDataBundle, U extends Interp
   }
 
   @Override
-  public U interpolate(T model, Double value) {
-    final InterpolationBoundedValues boundedValues = model.getBoundedValues(value);
+  public U interpolate(T data, Double value) {
+    Validate.notNull(value, "value");
+    Validate.notNull(data, "data bundle");
+    final InterpolationBoundedValues boundedValues = data.getBoundedValues(value);
     if (boundedValues.getHigherBoundKey() == null || boundedValues.getHigherBoundKey() < 0) {
-      return _rightExtrapolator.rightExtrapolate(model, value, _interpolator);
+      return _rightExtrapolator.rightExtrapolate(data, value, _interpolator);
     }
     if (boundedValues.getLowerBoundKey() == null || boundedValues.getLowerBoundKey() < 0) {
-      return _leftExtrapolator.leftExtrapolate(model, value, _interpolator);
+      return _leftExtrapolator.leftExtrapolate(data, value, _interpolator);
     }
-    return _interpolator.interpolate(model, value);
+    return _interpolator.interpolate(data, value);
   }
 
   public Interpolator1D<T, U> getUnderlyingInterpolator() {

@@ -7,7 +7,7 @@ package com.opengamma.financial.interestrate.swap;
 
 import org.junit.Test;
 
-import com.opengamma.financial.interestrate.SwapRateCalculator;
+import com.opengamma.financial.interestrate.InterestRateCalculator;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.ConstantDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
@@ -19,7 +19,7 @@ import com.opengamma.math.interpolation.LinearInterpolator1D;
  */
 public class SwapRateCalculatorTest {
   private static final double DF_1 = 0.95;
-  private static final SwapRateCalculator CALCULATOR = new SwapRateCalculator();
+  private static final InterestRateCalculator CALCULATOR = new InterestRateCalculator();
   private static final YieldAndDiscountCurve FUNDING_CURVE = new ConstantDiscountCurve(DF_1);
   private static final YieldAndDiscountCurve FORWARD_CURVE;
   private static final Swap SWAP;

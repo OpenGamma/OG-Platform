@@ -18,10 +18,10 @@ import org.slf4j.LoggerFactory;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
+import com.opengamma.financial.interestrate.InterestRateCalculator;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.SingleCurveFinder;
 import com.opengamma.financial.interestrate.SingleCurveJacobian;
-import com.opengamma.financial.interestrate.SwapRateCalculator;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.libor.Libor;
@@ -30,11 +30,19 @@ import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CubicSplineInterpolatorWithSensitivities1D;
+import com.opengamma.math.interpolation.Extrapolator1D;
+import com.opengamma.math.interpolation.ExtrapolatorMethod;
+import com.opengamma.math.interpolation.FlatExtrapolator;
+import com.opengamma.math.interpolation.FlatExtrapolatorWithSensitivities;
 import com.opengamma.math.interpolation.InterpolationResult;
+import com.opengamma.math.interpolation.InterpolationResultWithSensitivities;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DCubicSplineDataBundle;
 import com.opengamma.math.interpolation.Interpolator1DCubicSplineWithSensitivitiesDataBundle;
+import com.opengamma.math.interpolation.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.Interpolator1DWithSensitivities;
+import com.opengamma.math.interpolation.LinearExtrapolator;
+import com.opengamma.math.interpolation.LinearExtrapolatorWithSensitivity;
 import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -55,20 +63,19 @@ public class MultiInstrumentSingleCurveBootStrapTest {
   private static final int BENCHMARK_CYCLES = 1;
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
 
-  private static final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> CUBIC = new NaturalCubicSplineInterpolator1D();
-  private static final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> CUBIC_WITH_SENSITIVITY = new CubicSplineInterpolatorWithSensitivities1D();
+  private static final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> EXTRAPOLATOR;
+  private static final Interpolator1D<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> EXTRAPOLATOR_WITH_SENSITIVITY;
   private static final List<InterestRateDerivative> INSTRUMENTS;
   private static final double[] MARKET_VALUES;
   private static final YieldAndDiscountCurve CURVE;
 
   private static final double[] NODE_TIMES;
 
-  private static final double SPOT_RATE;
   private static final double EPS = 1e-8;
   private static final int STEPS = 100;
   private static final DoubleMatrix1D X0;
 
-  private static final SwapRateCalculator SWAP_RATE_CALCULATOR = new SwapRateCalculator();
+  private static final InterestRateCalculator SWAP_RATE_CALCULATOR = new InterestRateCalculator();
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> SINGLE_CURVE_FINDER;
   private static final JacobianCalculator SINGLE_CURVE_JACOBIAN;
 
@@ -151,6 +158,16 @@ public class MultiInstrumentSingleCurveBootStrapTest {
 
     Arrays.sort(NODE_TIMES);
 
+    final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> cubicInterpolator = new NaturalCubicSplineInterpolator1D();
+    final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> cubicInterpolatorWithSense = new CubicSplineInterpolatorWithSensitivities1D();
+    final ExtrapolatorMethod<Interpolator1DCubicSplineDataBundle, InterpolationResult> linear_em = new LinearExtrapolator<Interpolator1DCubicSplineDataBundle, InterpolationResult>();
+    final ExtrapolatorMethod<Interpolator1DCubicSplineDataBundle, InterpolationResult> flat_em = new FlatExtrapolator<Interpolator1DCubicSplineDataBundle, InterpolationResult>();
+    final ExtrapolatorMethod<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> linear_em_sense = new LinearExtrapolatorWithSensitivity<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities>();
+    final ExtrapolatorMethod<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> flat_em_sense = new FlatExtrapolatorWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities>();
+    EXTRAPOLATOR = new Extrapolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult>(linear_em, flat_em, cubicInterpolator);
+    EXTRAPOLATOR_WITH_SENSITIVITY = new Extrapolator1D<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities>(linear_em_sense, flat_em_sense,
+        cubicInterpolatorWithSense);
+
     // set up curve to obtain "market" prices
     final double[] yields = new double[nNodes];
 
@@ -158,9 +175,7 @@ public class MultiInstrumentSingleCurveBootStrapTest {
       yields[i] = DUMMY_CURVE.evaluate(NODE_TIMES[i]);
     }
 
-    SPOT_RATE = DUMMY_CURVE.evaluate(0.0);
-
-    CURVE = makeYieldCurve(yields, NODE_TIMES, CUBIC);
+    CURVE = makeYieldCurve(yields, NODE_TIMES, EXTRAPOLATOR);
 
     // now get market prices
     MARKET_VALUES = new double[nNodes];
@@ -172,8 +187,8 @@ public class MultiInstrumentSingleCurveBootStrapTest {
     }
     X0 = new DoubleMatrix1D(rates);
 
-    SINGLE_CURVE_FINDER = new SingleCurveFinder(INSTRUMENTS, MARKET_VALUES, SPOT_RATE, NODE_TIMES, CUBIC);
-    SINGLE_CURVE_JACOBIAN = new SingleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(INSTRUMENTS, SPOT_RATE, NODE_TIMES, CUBIC_WITH_SENSITIVITY);
+    SINGLE_CURVE_FINDER = new SingleCurveFinder(INSTRUMENTS, MARKET_VALUES, NODE_TIMES, EXTRAPOLATOR);
+    SINGLE_CURVE_JACOBIAN = new SingleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(INSTRUMENTS, NODE_TIMES, EXTRAPOLATOR_WITH_SENSITIVITY);
 
   }
 
@@ -221,7 +236,7 @@ public class MultiInstrumentSingleCurveBootStrapTest {
 
   private void doTest(final VectorRootFinder rootFinder, final SingleCurveFinder functor) {
     final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(functor, X0);
-    final YieldAndDiscountCurve curve = makeYieldCurve(yieldCurveNodes.getData(), NODE_TIMES, CUBIC);
+    final YieldAndDiscountCurve curve = makeYieldCurve(yieldCurveNodes.getData(), NODE_TIMES, EXTRAPOLATOR);
     // System.out.println("times: " + (new DoubleMatrix1D(NODE_TIMES)).toString());
     // System.out.println("market rates: " + (new DoubleMatrix1D(MARKET_VALUES)).toString());
     // System.out.println("yields: " + yieldCurveNodes.toString());
@@ -230,20 +245,8 @@ public class MultiInstrumentSingleCurveBootStrapTest {
     }
   }
 
-  private static YieldAndDiscountCurve makeYieldCurve(final double[] yields, final double[] times, final Interpolator1D<? extends Interpolator1DCubicSplineDataBundle, InterpolationResult> interpolator) {
-    final int n = yields.length;
-    if (n != times.length) {
-      throw new IllegalArgumentException("rates and times different lengths");
-    }
-    final double[] t = new double[n + 1];
-    final double[] y = new double[n + 1];
-    t[0] = 0;
-    y[0] = SPOT_RATE;
-    for (int i = 0; i < n; i++) {
-      t[i + 1] = times[i];
-      y[i + 1] = yields[i];
-    }
-    return new InterpolatedYieldCurve(t, y, interpolator);
+  private static YieldAndDiscountCurve makeYieldCurve(final double[] yields, final double[] times, final Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult> interpolator) {
+    return new InterpolatedYieldCurve(times, yields, interpolator);
   }
 
   private static Swap setupSwap(final double time) {
