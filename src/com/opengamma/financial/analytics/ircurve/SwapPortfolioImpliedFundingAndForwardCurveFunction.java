@@ -33,7 +33,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.interestrate.DoubleCurveFinder;
 import com.opengamma.financial.interestrate.DoubleCurveJacobian;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.SwapRateCalculator;
+import com.opengamma.financial.interestrate.InterestRateCalculator;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -66,7 +66,7 @@ public class SwapPortfolioImpliedFundingAndForwardCurveFunction extends Abstract
   // TODO this should depend on the type of _forwardInterpolator
   private final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> _forwardInterpolatorWithSensitivity = new CubicSplineInterpolatorWithSensitivities1D();
   private final double _spotRate = 0.01; // TODO this needs to be changed - it is the "instantaneous" interest rate. Possibly the O/N rate for the currency is the best proxy
-  private final SwapRateCalculator _swapRateCalculator = new SwapRateCalculator();
+  private final InterestRateCalculator _swapRateCalculator = new InterestRateCalculator();
   private final String _fundingCurveName;
   private final String _forwardCurveName;
 
