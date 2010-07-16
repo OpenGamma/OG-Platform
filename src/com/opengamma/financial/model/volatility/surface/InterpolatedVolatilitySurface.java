@@ -61,8 +61,8 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
     for (final Map.Entry<Pair<Double, Double>, Double> entry : data.entrySet()) {
       sortedVariance.put(entry.getKey(), entry.getValue() * entry.getValue());
     }
-    _volatilityData = Collections.<Pair<Double, Double>, Double> unmodifiableSortedMap(sortedVolatility);
-    _varianceData = Collections.<Pair<Double, Double>, Double> unmodifiableSortedMap(sortedVariance);
+    _volatilityData = Collections.<Pair<Double, Double>, Double>unmodifiableSortedMap(sortedVolatility);
+    _varianceData = Collections.<Pair<Double, Double>, Double>unmodifiableSortedMap(sortedVariance);
     _interpolator = interpolator;
   }
 
