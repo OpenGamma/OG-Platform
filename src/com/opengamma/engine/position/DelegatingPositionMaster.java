@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.opengamma.id.DelegateByScheme;
+import com.opengamma.id.UniqueIdentifierSchemeDelegator;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -18,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
  * which underlying {@link PositionMaster} will handle the request. If no scheme-specific handler has been registered,
  * a default is used.
  */
-public class DelegatingPositionMaster extends DelegateByScheme<PositionMaster> implements PositionMaster {
+public class DelegatingPositionMaster extends UniqueIdentifierSchemeDelegator<PositionMaster> implements PositionMaster {
 
   /**
    * Constructs a new {@link DelegatingPositionMaster}.

@@ -7,7 +7,7 @@ package com.opengamma.engine.security;
 
 import java.util.Collection;
 
-import com.opengamma.id.DelegateByScheme;
+import com.opengamma.id.UniqueIdentifierSchemeDelegator;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -18,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * If no scheme-specific handler has been registered, a default is used.
  */
-public class DelegatingSecuritySource extends DelegateByScheme<SecuritySource> implements SecuritySource {
+public class DelegatingSecuritySource extends UniqueIdentifierSchemeDelegator<SecuritySource> implements SecuritySource {
 
   /**
    * Creates a new instance with a default source of securities.
