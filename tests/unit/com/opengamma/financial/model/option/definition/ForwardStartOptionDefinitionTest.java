@@ -22,13 +22,18 @@ import com.opengamma.util.time.Expiry;
  * 
  */
 public class ForwardStartOptionDefinitionTest {
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 1, 1);
+  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 6, 10);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getUTCDate(2010, 7, 1));
   private static final Expiry START = new Expiry(DateUtil.getUTCDate(2010, 6, 1));
   private static final double PERCENT = 0.4;
   private static final Moneyness MONEYNESS = Moneyness.ATM;
   private static final double SPOT = 100;
   private static final ForwardStartOptionDefinition ATM_CALL = new ForwardStartOptionDefinition(EXPIRY, true, START, PERCENT, MONEYNESS);
+  private static final ForwardStartOptionDefinition ATM_PUT = new ForwardStartOptionDefinition(EXPIRY, false, START, PERCENT, MONEYNESS);
+  private static final ForwardStartOptionDefinition ITM_CALL = new ForwardStartOptionDefinition(EXPIRY, true, START, PERCENT, Moneyness.ITM);
+  private static final ForwardStartOptionDefinition ITM_PUT = new ForwardStartOptionDefinition(EXPIRY, false, START, PERCENT, Moneyness.ITM);
+  private static final ForwardStartOptionDefinition OTM_CALL = new ForwardStartOptionDefinition(EXPIRY, true, START, PERCENT, Moneyness.OTM);
+  private static final ForwardStartOptionDefinition OTM_PUT = new ForwardStartOptionDefinition(EXPIRY, false, START, PERCENT, Moneyness.OTM);
   private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new ConstantYieldCurve(0.03), 0, new ConstantVolatilitySurface(0.2), SPOT, DATE);
 
   @Test(expected = IllegalArgumentException.class)
@@ -83,10 +88,30 @@ public class ForwardStartOptionDefinitionTest {
   @Test
   public void testAlpha() {
     assertEquals(ATM_CALL.getAlpha(), 1, 0);
-    assertEquals(new ForwardStartOptionDefinition(EXPIRY, false, START, PERCENT, MONEYNESS).getAlpha(), 1, 0);
-    assertEquals(new ForwardStartOptionDefinition(EXPIRY, true, START, PERCENT, Moneyness.ITM).getAlpha(), 0.6, 0);
-    assertEquals(new ForwardStartOptionDefinition(EXPIRY, false, START, PERCENT, Moneyness.ITM).getAlpha(), 1.4, 0);
-    assertEquals(new ForwardStartOptionDefinition(EXPIRY, true, START, PERCENT, Moneyness.OTM).getAlpha(), 1.4, 0);
-    assertEquals(new ForwardStartOptionDefinition(EXPIRY, false, START, PERCENT, Moneyness.OTM).getAlpha(), 0.6, 0);
+    assertEquals(ATM_PUT.getAlpha(), 1, 0);
+    assertEquals(ITM_CALL.getAlpha(), 0.6, 0);
+    assertEquals(ITM_PUT.getAlpha(), 1.4, 0);
+    assertEquals(OTM_CALL.getAlpha(), 1.4, 0);
+    assertEquals(OTM_PUT.getAlpha(), 0.6, 0);
+  }
+
+  @Test
+  public void testPayoffFunction() {
+    assertEquals(ATM_CALL.getPayoffFunction().getPayoff(DATA, 0.), 0, 0);
+    assertEquals(ATM_PUT.getPayoffFunction().getPayoff(DATA, 0.), 0, 0);
+    assertEquals(ITM_CALL.getPayoffFunction().getPayoff(DATA, 0.), SPOT * PERCENT, 0);
+    assertEquals(ITM_PUT.getPayoffFunction().getPayoff(DATA, 0.), SPOT * PERCENT, 0);
+    assertEquals(OTM_CALL.getPayoffFunction().getPayoff(DATA, 0.), 0, 0);
+    assertEquals(OTM_CALL.getPayoffFunction().getPayoff(DATA, 0.), 0, 0);
+  }
+
+  @Test
+  public void testExerciseFunction() {
+    assertFalse(ATM_CALL.getExerciseFunction().shouldExercise(DATA, 0.));
+    assertFalse(ATM_PUT.getExerciseFunction().shouldExercise(DATA, 0.));
+    assertFalse(ITM_CALL.getExerciseFunction().shouldExercise(DATA, 0.));
+    assertFalse(ITM_PUT.getExerciseFunction().shouldExercise(DATA, 0.));
+    assertFalse(OTM_CALL.getExerciseFunction().shouldExercise(DATA, 0.));
+    assertFalse(OTM_PUT.getExerciseFunction().shouldExercise(DATA, 0.));
   }
 }
