@@ -45,7 +45,7 @@ public class StandardOptionWithSpotTimeSeriesDataBundle extends StandardOptionDa
   }
 
   @Override
-  public StandardOptionWithSpotTimeSeriesDataBundle withCostOfCarry(final Double costOfCarry) {
+  public StandardOptionWithSpotTimeSeriesDataBundle withCostOfCarry(final double costOfCarry) {
     return new StandardOptionWithSpotTimeSeriesDataBundle(getDiscountCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate(), getSpotTimeSeries());
   }
 
@@ -60,7 +60,7 @@ public class StandardOptionWithSpotTimeSeriesDataBundle extends StandardOptionDa
   }
 
   @Override
-  public StandardOptionWithSpotTimeSeriesDataBundle withSpot(final Double spot) {
+  public StandardOptionWithSpotTimeSeriesDataBundle withSpot(final double spot) {
     return new StandardOptionWithSpotTimeSeriesDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate(), getSpotTimeSeries());
   }
 

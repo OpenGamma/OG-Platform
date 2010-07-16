@@ -10,7 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
-import com.opengamma.financial.model.option.definition.HullWhiteStochasticVolatilityModelOptionDataBundle;
+import com.opengamma.financial.model.option.definition.HullWhiteStochasticVolatilityModelDataBundle;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
@@ -23,19 +23,19 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  * 
  */
 
-public class HullWhiteStochasticVolatilityModel extends AnalyticOptionModel<OptionDefinition, HullWhiteStochasticVolatilityModelOptionDataBundle> {
+public class HullWhiteStochasticVolatilityModel extends AnalyticOptionModel<OptionDefinition, HullWhiteStochasticVolatilityModelDataBundle> {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
   private static final BlackScholesMertonModel BSM = new BlackScholesMertonModel();
   private static final double ZERO = 1e-4;
 
   @Override
-  public Function1D<HullWhiteStochasticVolatilityModelOptionDataBundle, Double> getPricingFunction(final OptionDefinition definition) {
+  public Function1D<HullWhiteStochasticVolatilityModelDataBundle, Double> getPricingFunction(final OptionDefinition definition) {
     Validate.notNull(definition);
-    final Function1D<HullWhiteStochasticVolatilityModelOptionDataBundle, Double> pricingFunction = new Function1D<HullWhiteStochasticVolatilityModelOptionDataBundle, Double>() {
+    final Function1D<HullWhiteStochasticVolatilityModelDataBundle, Double> pricingFunction = new Function1D<HullWhiteStochasticVolatilityModelDataBundle, Double>() {
 
       @SuppressWarnings("synthetic-access")
       @Override
-      public Double evaluate(final HullWhiteStochasticVolatilityModelOptionDataBundle data) {
+      public Double evaluate(final HullWhiteStochasticVolatilityModelDataBundle data) {
         Validate.notNull(data);
         final ZonedDateTime date = data.getDate();
         final double s = data.getSpot();

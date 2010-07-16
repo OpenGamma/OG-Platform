@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.option.definition.BatesGeneralizedJumpDiffusionModelOptionDataBundle;
+import com.opengamma.financial.model.option.definition.BatesGeneralizedJumpDiffusionModelDataBundle;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
@@ -26,7 +26,7 @@ import com.opengamma.util.time.Expiry;
  * 
  */
 public class BatesGeneralizedJumpDiffusionModelTest {
-  private static final AnalyticOptionModel<OptionDefinition, BatesGeneralizedJumpDiffusionModelOptionDataBundle> MODEL = new BatesGeneralizedJumpDiffusionModel();
+  private static final AnalyticOptionModel<OptionDefinition, BatesGeneralizedJumpDiffusionModelDataBundle> MODEL = new BatesGeneralizedJumpDiffusionModel();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   private static final YieldAndDiscountCurve CURVE = new ConstantYieldCurve(0.08);
   private static final double B = 0.08;
@@ -46,13 +46,13 @@ public class BatesGeneralizedJumpDiffusionModelTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
-    MODEL.getPricingFunction(new EuropeanVanillaOptionDefinition(100, EXPIRY1, true)).evaluate((BatesGeneralizedJumpDiffusionModelOptionDataBundle) null);
+    MODEL.getPricingFunction(new EuropeanVanillaOptionDefinition(100, EXPIRY1, true)).evaluate((BatesGeneralizedJumpDiffusionModelDataBundle) null);
   }
 
   @Test
   public void test() {
     OptionDefinition call = new EuropeanVanillaOptionDefinition(80, EXPIRY1, true);
-    BatesGeneralizedJumpDiffusionModelOptionDataBundle data = new BatesGeneralizedJumpDiffusionModelOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, 0., -0.04, 0.);
+    BatesGeneralizedJumpDiffusionModelDataBundle data = new BatesGeneralizedJumpDiffusionModelDataBundle(CURVE, B, SURFACE, SPOT, DATE, 0., -0.04, 0.);
     assertEquals(BSM.getPricingFunction(call).evaluate(data), MODEL.getPricingFunction(call).evaluate(data), EPS2);
     call = new EuropeanVanillaOptionDefinition(80, EXPIRY1, true);
     data = data.withLambda(1.).withDelta(0.1);

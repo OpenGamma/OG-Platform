@@ -14,7 +14,7 @@ import org.junit.Test;
 import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
-import com.opengamma.financial.model.option.definition.MertonJumpDiffusionModelOptionDataBundle;
+import com.opengamma.financial.model.option.definition.MertonJumpDiffusionModelDataBundle;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
@@ -26,7 +26,7 @@ import com.opengamma.util.time.Expiry;
  * 
  */
 public class MertonJumpDiffusionModelTest {
-  private static final AnalyticOptionModel<OptionDefinition, MertonJumpDiffusionModelOptionDataBundle> MODEL = new MertonJumpDiffusionModel();
+  private static final AnalyticOptionModel<OptionDefinition, MertonJumpDiffusionModelDataBundle> MODEL = new MertonJumpDiffusionModel();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   private static final YieldAndDiscountCurve CURVE = new ConstantYieldCurve(0.08);
   private static final double B = 0.08;
@@ -46,13 +46,13 @@ public class MertonJumpDiffusionModelTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
-    MODEL.getPricingFunction(new EuropeanVanillaOptionDefinition(100, EXPIRY1, true)).evaluate((MertonJumpDiffusionModelOptionDataBundle) null);
+    MODEL.getPricingFunction(new EuropeanVanillaOptionDefinition(100, EXPIRY1, true)).evaluate((MertonJumpDiffusionModelDataBundle) null);
   }
 
   @Test
   public void test() {
     OptionDefinition call = new EuropeanVanillaOptionDefinition(80, EXPIRY1, true);
-    MertonJumpDiffusionModelOptionDataBundle data = new MertonJumpDiffusionModelOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, 1., 0.);
+    MertonJumpDiffusionModelDataBundle data = new MertonJumpDiffusionModelDataBundle(CURVE, B, SURFACE, SPOT, DATE, 1., 0.);
     assertEquals(BSM.getPricingFunction(call).evaluate(data), MODEL.getPricingFunction(call).evaluate(data), EPS2);
     call = new EuropeanVanillaOptionDefinition(80, EXPIRY1, true);
     data = data.withLambda(1.).withGamma(0.25);

@@ -38,26 +38,23 @@ public class PractitionerBlackScholesVolatilitySurfaceModelTest {
   private static final double SPOT = 100;
   private static final boolean IS_CALL = true;
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
-  private static final Expiry[] EXPIRY =
-      new Expiry[] {new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.25)), new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5)),
-          new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.75)), new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1))};
+  private static final Expiry[] EXPIRY = new Expiry[] {new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.25)), new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5)),
+      new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.75)), new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1))};
   private static final double[] OFFSET = new double[] {0.05, 0.1, 0.125};
-  private static final Expiry[] TEST_EXPIRY =
-      new Expiry[] {new Expiry(DateUtil.getDateOffsetWithYearFraction(EXPIRY[0].getExpiry(), OFFSET[0])),
-          new Expiry(DateUtil.getDateOffsetWithYearFraction(EXPIRY[1].getExpiry(), OFFSET[1])),
-          new Expiry(DateUtil.getDateOffsetWithYearFraction(EXPIRY[2].getExpiry(), OFFSET[2]))};
+  private static final Expiry[] TEST_EXPIRY = new Expiry[] {new Expiry(DateUtil.getDateOffsetWithYearFraction(EXPIRY[0].getExpiry(), OFFSET[0])),
+      new Expiry(DateUtil.getDateOffsetWithYearFraction(EXPIRY[1].getExpiry(), OFFSET[1])), new Expiry(DateUtil.getDateOffsetWithYearFraction(EXPIRY[2].getExpiry(), OFFSET[2]))};
   private static final double[] STRIKE = new double[] {80, 86, 100, 101, 110};
   private static final double[] TEST_STRIKE = new double[] {85, 95, 104};
   private static final double EPS = 1e-9;
 
   @Test(expected = IllegalArgumentException.class)
   public void testPriceInput() {
-    MODEL.getSurface(null, new StandardOptionDataBundle(null, null, null, null, null));
+    MODEL.getSurface(null, new StandardOptionDataBundle(null, 0, null, 0, null));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testDataInput() {
-    MODEL.getSurface(Collections.<OptionDefinition, Double>emptyMap(), null);
+    MODEL.getSurface(Collections.<OptionDefinition, Double> emptyMap(), null);
   }
 
   public void testFlatSurface() {

@@ -54,7 +54,7 @@ public class SkewKurtosisOptionDataBundle extends StandardOptionDataBundle {
   }
 
   @Override
-  public SkewKurtosisOptionDataBundle withCostOfCarry(final Double costOfCarry) {
+  public SkewKurtosisOptionDataBundle withCostOfCarry(final double costOfCarry) {
     return new SkewKurtosisOptionDataBundle(getDiscountCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate(), getAnnualizedSkew(), getAnnualizedPearsonKurtosis());
   }
 
@@ -69,15 +69,15 @@ public class SkewKurtosisOptionDataBundle extends StandardOptionDataBundle {
   }
 
   @Override
-  public SkewKurtosisOptionDataBundle withSpot(final Double spot) {
+  public SkewKurtosisOptionDataBundle withSpot(final double spot) {
     return new SkewKurtosisOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate(), getAnnualizedSkew(), getAnnualizedPearsonKurtosis());
   }
 
-  public SkewKurtosisOptionDataBundle withSkew(final Double skew) {
+  public SkewKurtosisOptionDataBundle withSkew(final double skew) {
     return new SkewKurtosisOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), skew, getAnnualizedPearsonKurtosis());
   }
 
-  public SkewKurtosisOptionDataBundle withKurtosis(final Double kurtosis) {
+  public SkewKurtosisOptionDataBundle withKurtosis(final double kurtosis) {
     return new SkewKurtosisOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getAnnualizedSkew(), kurtosis);
   }
 
@@ -87,9 +87,9 @@ public class SkewKurtosisOptionDataBundle extends StandardOptionDataBundle {
     int result = super.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_annualizedPearsonKurtosis);
-    result = prime * result + (int) (temp ^ temp >>> 32);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_annualizedSkew);
-    result = prime * result + (int) (temp ^ temp >>> 32);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 

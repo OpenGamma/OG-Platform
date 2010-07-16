@@ -9,7 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.model.option.definition.MertonJumpDiffusionModelOptionDataBundle;
+import com.opengamma.financial.model.option.definition.MertonJumpDiffusionModelDataBundle;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
@@ -20,18 +20,18 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 
-public class MertonJumpDiffusionModel extends AnalyticOptionModel<OptionDefinition, MertonJumpDiffusionModelOptionDataBundle> {
+public class MertonJumpDiffusionModel extends AnalyticOptionModel<OptionDefinition, MertonJumpDiffusionModelDataBundle> {
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   private static final int N = 50;
 
   @Override
-  public Function1D<MertonJumpDiffusionModelOptionDataBundle, Double> getPricingFunction(final OptionDefinition definition) {
+  public Function1D<MertonJumpDiffusionModelDataBundle, Double> getPricingFunction(final OptionDefinition definition) {
     Validate.notNull(definition);
-    final Function1D<MertonJumpDiffusionModelOptionDataBundle, Double> pricingFunction = new Function1D<MertonJumpDiffusionModelOptionDataBundle, Double>() {
+    final Function1D<MertonJumpDiffusionModelDataBundle, Double> pricingFunction = new Function1D<MertonJumpDiffusionModelDataBundle, Double>() {
 
       @SuppressWarnings("synthetic-access")
       @Override
-      public Double evaluate(final MertonJumpDiffusionModelOptionDataBundle data) {
+      public Double evaluate(final MertonJumpDiffusionModelDataBundle data) {
         Validate.notNull(data);
         final ZonedDateTime date = data.getDate();
         final double k = definition.getStrike();

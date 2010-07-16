@@ -21,7 +21,7 @@ import com.opengamma.util.time.DateUtil;
 /**
  * 
  */
-public class MertonJumpDiffusionModelOptionDataBundleTest {
+public class MertonJumpDiffusionModelDataBundleTest {
   private static final double R = 0.01;
   private static final double SIGMA = 0.3;
   private static final YieldAndDiscountCurve CURVE = new ConstantYieldCurve(R);
@@ -38,11 +38,11 @@ public class MertonJumpDiffusionModelOptionDataBundleTest {
   private static final double OTHER_GAMMA = 0.5;
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 5, 1);
   private static final ZonedDateTime OTHER_DATE = DateUtil.getUTCDate(2011, 5, 1);
-  private static final MertonJumpDiffusionModelOptionDataBundle DATA = new MertonJumpDiffusionModelOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, GAMMA);
+  private static final MertonJumpDiffusionModelDataBundle DATA = new MertonJumpDiffusionModelDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, GAMMA);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullBundle() {
-    new MertonJumpDiffusionModelOptionDataBundle(null);
+    new MertonJumpDiffusionModelDataBundle(null);
   }
 
   @Test
@@ -64,31 +64,31 @@ public class MertonJumpDiffusionModelOptionDataBundleTest {
 
   @Test
   public void testEqualsAndHashCode() {
-    final MertonJumpDiffusionModelOptionDataBundle data1 = new MertonJumpDiffusionModelOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, GAMMA);
-    final MertonJumpDiffusionModelOptionDataBundle data2 = new MertonJumpDiffusionModelOptionDataBundle(DATA);
-    final MertonJumpDiffusionModelOptionDataBundle data3 = new MertonJumpDiffusionModelOptionDataBundle(new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE), LAMBDA, GAMMA);
+    final MertonJumpDiffusionModelDataBundle data1 = new MertonJumpDiffusionModelDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, GAMMA);
+    final MertonJumpDiffusionModelDataBundle data2 = new MertonJumpDiffusionModelDataBundle(DATA);
+    final MertonJumpDiffusionModelDataBundle data3 = new MertonJumpDiffusionModelDataBundle(new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE), LAMBDA, GAMMA);
     assertEquals(DATA, data1);
     assertEquals(DATA, data2);
     assertEquals(DATA, data3);
     assertEquals(DATA.hashCode(), data1.hashCode());
     assertEquals(DATA.hashCode(), data2.hashCode());
     assertEquals(DATA.hashCode(), data3.hashCode());
-    assertFalse(DATA.equals(new MertonJumpDiffusionModelOptionDataBundle(OTHER_CURVE, B, SURFACE, SPOT, DATE, LAMBDA, GAMMA)));
-    assertFalse(DATA.equals(new MertonJumpDiffusionModelOptionDataBundle(CURVE, OTHER_B, SURFACE, SPOT, DATE, LAMBDA, GAMMA)));
-    assertFalse(DATA.equals(new MertonJumpDiffusionModelOptionDataBundle(CURVE, B, OTHER_SURFACE, SPOT, DATE, LAMBDA, GAMMA)));
-    assertFalse(DATA.equals(new MertonJumpDiffusionModelOptionDataBundle(CURVE, B, SURFACE, OTHER_SPOT, DATE, LAMBDA, GAMMA)));
-    assertFalse(DATA.equals(new MertonJumpDiffusionModelOptionDataBundle(CURVE, B, SURFACE, SPOT, OTHER_DATE, OTHER_LAMBDA, GAMMA)));
-    assertFalse(DATA.equals(new MertonJumpDiffusionModelOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, OTHER_GAMMA)));
+    assertFalse(DATA.equals(new MertonJumpDiffusionModelDataBundle(OTHER_CURVE, B, SURFACE, SPOT, DATE, LAMBDA, GAMMA)));
+    assertFalse(DATA.equals(new MertonJumpDiffusionModelDataBundle(CURVE, OTHER_B, SURFACE, SPOT, DATE, LAMBDA, GAMMA)));
+    assertFalse(DATA.equals(new MertonJumpDiffusionModelDataBundle(CURVE, B, OTHER_SURFACE, SPOT, DATE, LAMBDA, GAMMA)));
+    assertFalse(DATA.equals(new MertonJumpDiffusionModelDataBundle(CURVE, B, SURFACE, OTHER_SPOT, DATE, LAMBDA, GAMMA)));
+    assertFalse(DATA.equals(new MertonJumpDiffusionModelDataBundle(CURVE, B, SURFACE, SPOT, OTHER_DATE, OTHER_LAMBDA, GAMMA)));
+    assertFalse(DATA.equals(new MertonJumpDiffusionModelDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, OTHER_GAMMA)));
   }
 
   @Test
   public void testBuilders() {
-    assertEquals(new MertonJumpDiffusionModelOptionDataBundle(OTHER_CURVE, B, SURFACE, SPOT, DATE, LAMBDA, GAMMA), DATA.withDiscountCurve(OTHER_CURVE));
-    assertEquals(new MertonJumpDiffusionModelOptionDataBundle(CURVE, OTHER_B, SURFACE, SPOT, DATE, LAMBDA, GAMMA), DATA.withCostOfCarry(OTHER_B));
-    assertEquals(new MertonJumpDiffusionModelOptionDataBundle(CURVE, B, OTHER_SURFACE, SPOT, DATE, LAMBDA, GAMMA), DATA.withVolatilitySurface(OTHER_SURFACE));
-    assertEquals(new MertonJumpDiffusionModelOptionDataBundle(CURVE, B, SURFACE, OTHER_SPOT, DATE, LAMBDA, GAMMA), DATA.withSpot(OTHER_SPOT));
-    assertEquals(new MertonJumpDiffusionModelOptionDataBundle(CURVE, B, SURFACE, SPOT, OTHER_DATE, LAMBDA, GAMMA), DATA.withDate(OTHER_DATE));
-    assertEquals(new MertonJumpDiffusionModelOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, OTHER_LAMBDA, GAMMA), DATA.withLambda(OTHER_LAMBDA));
-    assertEquals(new MertonJumpDiffusionModelOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, OTHER_GAMMA), DATA.withGamma(OTHER_GAMMA));
+    assertEquals(new MertonJumpDiffusionModelDataBundle(OTHER_CURVE, B, SURFACE, SPOT, DATE, LAMBDA, GAMMA), DATA.withDiscountCurve(OTHER_CURVE));
+    assertEquals(new MertonJumpDiffusionModelDataBundle(CURVE, OTHER_B, SURFACE, SPOT, DATE, LAMBDA, GAMMA), DATA.withCostOfCarry(OTHER_B));
+    assertEquals(new MertonJumpDiffusionModelDataBundle(CURVE, B, OTHER_SURFACE, SPOT, DATE, LAMBDA, GAMMA), DATA.withVolatilitySurface(OTHER_SURFACE));
+    assertEquals(new MertonJumpDiffusionModelDataBundle(CURVE, B, SURFACE, OTHER_SPOT, DATE, LAMBDA, GAMMA), DATA.withSpot(OTHER_SPOT));
+    assertEquals(new MertonJumpDiffusionModelDataBundle(CURVE, B, SURFACE, SPOT, OTHER_DATE, LAMBDA, GAMMA), DATA.withDate(OTHER_DATE));
+    assertEquals(new MertonJumpDiffusionModelDataBundle(CURVE, B, SURFACE, SPOT, DATE, OTHER_LAMBDA, GAMMA), DATA.withLambda(OTHER_LAMBDA));
+    assertEquals(new MertonJumpDiffusionModelDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, OTHER_GAMMA), DATA.withGamma(OTHER_GAMMA));
   }
 }
