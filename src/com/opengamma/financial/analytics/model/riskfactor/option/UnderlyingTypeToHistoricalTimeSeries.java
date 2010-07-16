@@ -9,7 +9,7 @@ import org.apache.commons.lang.NotImplementedException;
 
 import com.opengamma.engine.historicaldata.HistoricalDataProvider;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.id.IdentifierBundle;
@@ -24,7 +24,7 @@ public class UnderlyingTypeToHistoricalTimeSeries {
   @SuppressWarnings("unused")
   private static final String VOLUME = "VOLUME";
   
-  public static LocalDateDoubleTimeSeries getSeries(final HistoricalDataProvider dataProvider, final SecurityMaster secMaster, final UnderlyingType underlying, final Security security) {
+  public static LocalDateDoubleTimeSeries getSeries(final HistoricalDataProvider dataProvider, final SecuritySource secMaster, final UnderlyingType underlying, final Security security) {
     if (security instanceof OptionSecurity) {
       final OptionSecurity option = (OptionSecurity) security;
       switch (underlying) {

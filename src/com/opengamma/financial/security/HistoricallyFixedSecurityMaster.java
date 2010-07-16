@@ -11,7 +11,7 @@ import java.util.Set;
 import javax.time.InstantProvider;
 
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -19,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * This SecurityMaster retrieves all securities as of a fixed historical date.
  */
-public class HistoricallyFixedSecurityMaster implements SecurityMaster {
+public class HistoricallyFixedSecurityMaster implements SecuritySource {
   
   private final ManageableSecurityMaster _delegate;
   private final InstantProvider _fixTime;

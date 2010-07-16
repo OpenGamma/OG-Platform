@@ -16,7 +16,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.AmericanVanillaOptionDefinition;
@@ -40,7 +40,7 @@ public class BjerksundStenslandModelFunction extends AnalyticOptionModelFunction
   private final AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> _model = new BjerksundStenslandModel();
 
   @Override
-  protected StandardOptionDataBundle getDataBundle(final SecurityMaster secMaster, final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
+  protected StandardOptionDataBundle getDataBundle(final SecuritySource secMaster, final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
     final ZonedDateTime now = relevantTime.zonedDateTime();
     final Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
     final double spot = (Double) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
@@ -80,7 +80,7 @@ public class BjerksundStenslandModelFunction extends AnalyticOptionModelFunction
     if (canApplyTo(context, target)) {
       final OptionSecurity option = (OptionSecurity) target.getSecurity();
 
-      final SecurityMaster secMaster = context.getSecurityMaster();
+      final SecuritySource secMaster = context.getSecurityMaster();
       final Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));

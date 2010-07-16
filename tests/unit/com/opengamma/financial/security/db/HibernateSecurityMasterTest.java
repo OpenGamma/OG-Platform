@@ -11,7 +11,7 @@ import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.security.WritableSecurityMaster;
+import com.opengamma.engine.security.WritableSecuritySource;
 
 /**
  * 
@@ -56,7 +56,7 @@ public class HibernateSecurityMasterTest extends WritableSecurityMasterTestCase 
   }
 
   @Override
-  protected WritableSecurityMaster createSecurityMaster() {
+  protected WritableSecuritySource createSecurityMaster() {
     HibernateSecurityMaster secMaster = new HibernateSecurityMaster();
     secMaster.setSessionFactory(getSessionFactory());
     s_logger.debug("SecMaster initialization complete {}", secMaster);

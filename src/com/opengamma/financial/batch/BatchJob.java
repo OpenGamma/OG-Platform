@@ -43,7 +43,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.position.PositionMaster;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -117,7 +117,7 @@ public class BatchJob implements Job, ComputationResultListener {
   /**
    * Used to load Securities (needed for building the dependency graph)
    */
-  private SecurityMaster _securityMaster;
+  private SecuritySource _securityMaster;
   
   /**
    * Used to load Positions (needed for building the dependency graph)
@@ -419,11 +419,11 @@ public class BatchJob implements Job, ComputationResultListener {
     _functionRepository = functionRepository;
   }
 
-  public SecurityMaster getSecurityMaster() {
+  public SecuritySource getSecurityMaster() {
     return _securityMaster;
   }
 
-  public void setSecurityMaster(SecurityMaster securityMaster) {
+  public void setSecurityMaster(SecuritySource securityMaster) {
     _securityMaster = securityMaster;
   }
 
@@ -506,8 +506,8 @@ public class BatchJob implements Job, ComputationResultListener {
     
     InMemoryLKVSnapshotProvider snapshotProvider = getSnapshotProvider();
     
-    SecurityMaster underlyingSecurityMaster = getSecurityMaster();
-    SecurityMaster securityMaster;
+    SecuritySource underlyingSecurityMaster = getSecurityMaster();
+    SecuritySource securityMaster;
     if (underlyingSecurityMaster instanceof ManageableSecurityMaster) {
       securityMaster = new HistoricallyFixedSecurityMaster(
           (ManageableSecurityMaster) underlyingSecurityMaster, 

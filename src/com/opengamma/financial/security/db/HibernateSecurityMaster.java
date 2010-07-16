@@ -23,7 +23,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.WritableSecurityMaster;
+import com.opengamma.engine.security.WritableSecuritySource;
 import com.opengamma.financial.Currency;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -32,7 +32,7 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * 
  */
-public class HibernateSecurityMaster implements WritableSecurityMaster {
+public class HibernateSecurityMaster implements WritableSecuritySource {
 
   private static final Logger s_logger = LoggerFactory.getLogger(HibernateSecurityMaster.class);
   private static final Set<String> SUPPORTED_SECURITY_TYPES = new HashSet<String>();

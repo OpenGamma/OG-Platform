@@ -12,7 +12,7 @@ import javax.time.InstantProvider;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -22,7 +22,7 @@ import com.opengamma.id.UniqueIdentifier;
  * The security master provides a uniform view over a set of security definitions.
  * This interface provides methods that allow the master to be searched and updated.
  */
-public interface ManageableSecurityMaster extends SecurityMaster {
+public interface ManageableSecurityMaster extends SecuritySource {
 
   /**
    * Checks if this security master manages the unique identifier.
