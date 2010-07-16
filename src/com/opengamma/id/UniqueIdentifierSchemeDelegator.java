@@ -19,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
  * 
  * @param <T>  the type of the delegate
  */
-public class DelegateByScheme<T> {
+public class UniqueIdentifierSchemeDelegator<T> {
 
   /**
    * The default delegate.
@@ -34,7 +34,7 @@ public class DelegateByScheme<T> {
    * Creates an instance specifying the default delegate.
    * @param defaultDelegate  the delegate to use when no scheme matches, not null
    */
-  protected DelegateByScheme(final T defaultDelegate) {
+  protected UniqueIdentifierSchemeDelegator(final T defaultDelegate) {
     ArgumentChecker.notNull(defaultDelegate, "defaultDelegate");
     _defaultDelegate = defaultDelegate;
   }
@@ -44,7 +44,7 @@ public class DelegateByScheme<T> {
    * @param defaultDelegate  the delegate to use when no scheme matches, not null
    * @param delegates  the map of delegates by scheme to switch on, not null
    */
-  protected DelegateByScheme(final T defaultDelegate, final Map<String, T> delegates) {
+  protected UniqueIdentifierSchemeDelegator(final T defaultDelegate, final Map<String, T> delegates) {
     ArgumentChecker.notNull(defaultDelegate, "defaultDelegate");
     ArgumentChecker.notNull(delegates, "delegates");
     _defaultDelegate = defaultDelegate;
