@@ -16,7 +16,7 @@ import com.opengamma.engine.function.FunctionResolver;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PositionMaster;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calcnode.JobRequestSender;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
@@ -33,7 +33,7 @@ public class ViewProcessingContext {
   private final FunctionRepository _functionRepository;
   private final FunctionResolver _functionResolver;
   private final PositionMaster _positionMaster;
-  private final SecurityMaster _securityMaster;
+  private final SecuritySource _securityMaster;
   private final ViewComputationCacheSource _computationCacheSource;
   private final JobRequestSender _computationJobRequestSender;
   private final ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
@@ -48,7 +48,7 @@ public class ViewProcessingContext {
       FunctionRepository functionRepository,
       FunctionResolver functionResolver,
       PositionMaster positionMaster,
-      SecurityMaster securityMaster,
+      SecuritySource securityMaster,
       ViewComputationCacheSource computationCacheSource,
       JobRequestSender computationJobRequestSender,
       ViewProcessorQueryReceiver viewProcessorQueryReceiver,
@@ -130,7 +130,7 @@ public class ViewProcessingContext {
   /**
    * @return the securityMaster
    */
-  public SecurityMaster getSecurityMaster() {
+  public SecuritySource getSecurityMaster() {
     return _securityMaster;
   }
 

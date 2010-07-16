@@ -32,7 +32,7 @@ import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.security.DefaultSecurity;
-import com.opengamma.engine.security.MockSecurityMaster;
+import com.opengamma.engine.security.MockSecuritySource;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -62,7 +62,7 @@ public class PortfolioEvaluationModelTest {
     DefaultSecurity defSec = new DefaultSecurity();
     defSec.addIdentifier(secIdentifier);
     
-    MockSecurityMaster secMaster = new MockSecurityMaster();
+    MockSecuritySource secMaster = new MockSecuritySource();
     secMaster.addSecurity(defSec);
     
     InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
@@ -106,7 +106,7 @@ public class PortfolioEvaluationModelTest {
     defSec.addIdentifier(secIdentifier);
     defSec.setSecurityType("My Sec");
     
-    MockSecurityMaster secMaster = new MockSecurityMaster();
+    MockSecuritySource secMaster = new MockSecuritySource();
     secMaster.addSecurity(defSec);
     
     InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
@@ -174,7 +174,7 @@ public class PortfolioEvaluationModelTest {
     sec2.addIdentifier(secIdentifier2);
     sec2.setSecurityType("Your Sec");
     
-    MockSecurityMaster secMaster = new MockSecurityMaster();
+    MockSecuritySource secMaster = new MockSecuritySource();
     secMaster.addSecurity(sec1);
     secMaster.addSecurity(sec2);
     

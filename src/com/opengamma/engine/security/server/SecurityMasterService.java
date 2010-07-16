@@ -16,12 +16,12 @@ import javax.ws.rs.PathParam;
 
 import org.fudgemsg.FudgeContext;
 
-import com.opengamma.engine.security.RemoteSecurityMaster;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.RemoteSecuritySource;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * RESTful backend for {@link RemoteSecurityMaster}.
+ * RESTful backend for {@link RemoteSecuritySource}.
  */
 @Path ("securityMaster")
 public class SecurityMasterService {
@@ -51,18 +51,18 @@ public class SecurityMasterService {
     getSecurityMasterMap().put(name, securityMasterResource);
   }
   
-  protected void addSecurityMaster(final String name, final SecurityMaster securityMaster) {
+  protected void addSecurityMaster(final String name, final SecuritySource securityMaster) {
     addSecurityMaster(name, new SecurityMasterResource(getFudgeContext(), securityMaster));
   }
   
-  public void setSecurityMaster(final SecurityMaster securityMaster) {
+  public void setSecurityMaster(final SecuritySource securityMaster) {
     addSecurityMaster(DEFAULT_SECURITYMASTER_NAME, securityMaster);
   }
   
-  public void setSecurityMasterMap(Map<String, SecurityMaster> securityMasters) {
+  public void setSecurityMasterMap(Map<String, SecuritySource> securityMasters) {
     final ConcurrentMap<String, SecurityMasterResource> map = getSecurityMasterMap();
     map.clear();
-    for (Map.Entry<String, SecurityMaster> entry : securityMasters.entrySet()) {
+    for (Map.Entry<String, SecuritySource> entry : securityMasters.entrySet()) {
       addSecurityMaster(entry.getKey(), entry.getValue());
     }
   }

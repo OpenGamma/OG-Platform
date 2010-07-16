@@ -21,7 +21,7 @@ import com.opengamma.engine.livedata.FixedLiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.position.MockPositionMaster;
 import com.opengamma.engine.position.PortfolioImpl;
-import com.opengamma.engine.security.MockSecurityMaster;
+import com.opengamma.engine.security.MockSecuritySource;
 import com.opengamma.engine.view.cache.MapViewComputationCacheSource;
 import com.opengamma.engine.view.calcnode.CalculationNodeRequestReceiver;
 import com.opengamma.engine.view.calcnode.FudgeJobRequestSender;
@@ -43,7 +43,7 @@ public class ViewTestUtils {
     
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
     
-    MockSecurityMaster secMaster = new MockSecurityMaster();
+    MockSecuritySource secMaster = new MockSecuritySource();
 
     MockPositionMaster positionMaster = new MockPositionMaster();
     positionMaster.addPortfolio(new PortfolioImpl(portfolioId, "test_portfolio"));

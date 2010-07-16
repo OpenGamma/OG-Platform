@@ -14,7 +14,7 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * A master structure of all securities used by the organization.
  */
-public interface SecurityMaster {
+public interface SecuritySource {
 
   /**
    * Finds a specific security by identifier.

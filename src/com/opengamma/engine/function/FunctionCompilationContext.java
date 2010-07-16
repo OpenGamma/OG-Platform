@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.function;
 
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 
 
 /**
@@ -16,16 +16,16 @@ import com.opengamma.engine.security.SecurityMaster;
  */
 public class FunctionCompilationContext extends AbstractFunctionContext {
   /**
-   * The name under which an instance of {@link SecurityMaster} should be bound.
+   * The name under which an instance of {@link SecuritySource} should be bound.
    */
   public static final String SECURITY_MASTER_NAME = "securityMaster";
   
-  public void setSecurityMaster(SecurityMaster secMaster) {
+  public void setSecurityMaster(SecuritySource secMaster) {
     put(SECURITY_MASTER_NAME, secMaster);
   }
   
-  public SecurityMaster getSecurityMaster() {
-    return (SecurityMaster) get(SECURITY_MASTER_NAME);
+  public SecuritySource getSecurityMaster() {
+    return (SecuritySource) get(SECURITY_MASTER_NAME);
   }
   
 }

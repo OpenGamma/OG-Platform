@@ -28,10 +28,10 @@ import com.opengamma.util.EHCacheUtils;
  * A security master implementation that caches another.
  * This uses the EHCache library.
  */
-public class EHCachingSecurityMaster implements SecurityMaster {
+public class EHCachingSecuritySource implements SecuritySource {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(EHCachingSecurityMaster.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EHCachingSecuritySource.class);
   /** The single security cache key. */
   /* package for testing */ static final String SINGLE_SECURITY_CACHE = "single-security-cache";
   /** The multiple security cache key. */
@@ -40,7 +40,7 @@ public class EHCachingSecurityMaster implements SecurityMaster {
   /**
    * The underlying cache.
    */
-  private final SecurityMaster _underlying;
+  private final SecuritySource _underlying;
   /**
    * The cache manager.
    */
@@ -58,7 +58,7 @@ public class EHCachingSecurityMaster implements SecurityMaster {
    * Creates a cached security master.
    * @param underlying  the underlying security master, not null
    */
-  public EHCachingSecurityMaster(SecurityMaster underlying) {
+  public EHCachingSecuritySource(SecuritySource underlying) {
     ArgumentChecker.notNull(underlying, "Security Master");
     _underlying = underlying;
     CacheManager manager = EHCacheUtils.createCacheManager();
@@ -69,7 +69,7 @@ public class EHCachingSecurityMaster implements SecurityMaster {
     _manager = manager;
   }
 
-  public EHCachingSecurityMaster(SecurityMaster underlying,
+  public EHCachingSecuritySource(SecuritySource underlying,
       int maxElementsInMemory,
       MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
       boolean overflowToDisk, String diskStorePath, boolean eternal,
@@ -97,7 +97,7 @@ public class EHCachingSecurityMaster implements SecurityMaster {
    * @param underlying  the underlying security master, not null
    * @param manager  the cache manager, not null
    */
-  public EHCachingSecurityMaster(SecurityMaster underlying, CacheManager manager) {
+  public EHCachingSecuritySource(SecuritySource underlying, CacheManager manager) {
     ArgumentChecker.notNull(underlying, "Security Master");
     ArgumentChecker.notNull(manager, "CacheManager");
     _underlying = underlying;
@@ -114,7 +114,7 @@ public class EHCachingSecurityMaster implements SecurityMaster {
    * @param singleSecCache  the single security cache, not null
    * @param multiSecCache  the multiple security cache, not null
    */
-  public EHCachingSecurityMaster(SecurityMaster underlying,
+  public EHCachingSecuritySource(SecuritySource underlying,
       Cache singleSecCache, Cache multiSecCache) {
     ArgumentChecker.notNull(underlying, "Security Master");
     ArgumentChecker.notNull(singleSecCache, "Single Security Cache");
@@ -133,7 +133,7 @@ public class EHCachingSecurityMaster implements SecurityMaster {
    * Gets the underlying security master.
    * @return the underlying security master, not null
    */
-  public SecurityMaster getUnderlying() {
+  public SecuritySource getUnderlying() {
     return _underlying;
   }
 

@@ -21,14 +21,14 @@ import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * REST resource wrapper for a {@link SecurityMaster}.
+ * REST resource wrapper for a {@link SecuritySource}.
  */
 public class SecurityMasterResource {
 
@@ -39,14 +39,14 @@ public class SecurityMasterResource {
   /**
    * The underlying security master.
    */
-  private final SecurityMaster _securityMaster;
+  private final SecuritySource _securityMaster;
 
   /**
    * Creates a resource to expose a security master over REST.
    * @param fudgeContext  the context, not null
    * @param securityMaster  the security master, not null
    */
-  public SecurityMasterResource(final FudgeContext fudgeContext, final SecurityMaster securityMaster) {
+  public SecurityMasterResource(final FudgeContext fudgeContext, final SecuritySource securityMaster) {
     ArgumentChecker.notNull(fudgeContext, "fudge context");
     ArgumentChecker.notNull(securityMaster, "security master");
     _fudgeContext = fudgeContext;
@@ -66,7 +66,7 @@ public class SecurityMasterResource {
    * Gets the security master.
    * @return the security master, not null
    */
-  protected SecurityMaster getSecurityMaster() {
+  protected SecuritySource getSecurityMaster() {
     return _securityMaster;
   }
 

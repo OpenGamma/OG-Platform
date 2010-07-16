@@ -23,12 +23,12 @@ import com.opengamma.transport.jaxrs.RestTarget;
 /**
  * A remote implementation of security master.
  */
-public class RemoteSecurityMaster implements SecurityMaster {
+public class RemoteSecuritySource implements SecuritySource {
 
   private final RestClient _restClient;
   private final RestTarget _targetBase;
 
-  public RemoteSecurityMaster(final FudgeContext fudgeContext, final RestTarget baseTarget) {
+  public RemoteSecuritySource(final FudgeContext fudgeContext, final RestTarget baseTarget) {
     _restClient = RestClient.getInstance(fudgeContext, null);
     _targetBase = baseTarget;
   }

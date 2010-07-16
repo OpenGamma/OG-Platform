@@ -17,7 +17,7 @@ import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -35,7 +35,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
   /**
    * The security master.
    */
-  private final SecurityMaster _securityMaster;
+  private final SecuritySource _securityMaster;
   /**
    * The position master.
    */
@@ -54,7 +54,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * @param securityMaster  the security master, not null
    * @param positionMaster  the position master, not null
    */
-  public DefaultComputationTargetResolver(SecurityMaster securityMaster, PositionMaster positionMaster) {
+  public DefaultComputationTargetResolver(SecuritySource securityMaster, PositionMaster positionMaster) {
     ArgumentChecker.notNull(securityMaster, "Security Master");
     ArgumentChecker.notNull(positionMaster, "Position master");
     _securityMaster = securityMaster;
@@ -77,7 +77,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * Gets the security master which holds details of all securities in the system.
    * @return the security master, not null
    */
-  public SecurityMaster getSecurityMaster() {
+  public SecuritySource getSecurityMaster() {
     return _securityMaster;
   }
 

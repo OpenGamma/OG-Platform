@@ -42,7 +42,7 @@ import com.opengamma.engine.position.PortfolioNodeTraverser;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.IdentifierBundle;
@@ -271,14 +271,14 @@ public class PortfolioEvaluationModel {
   
   /**
    * A small job that can be run in an executor to resolve a security against
-   * a {@link SecurityMaster}.
+   * a {@link SecuritySource}.
    */
   protected class SecurityResolutionJob implements Runnable {
-    private final SecurityMaster _securityMaster;
+    private final SecuritySource _securityMaster;
     private final IdentifierBundle _securityKey;
     
     public SecurityResolutionJob(
-        SecurityMaster securityMaster,
+        SecuritySource securityMaster,
         IdentifierBundle securityKey) {
       _securityMaster = securityMaster;
       _securityKey = securityKey;

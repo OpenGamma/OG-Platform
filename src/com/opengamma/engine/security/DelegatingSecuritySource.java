@@ -21,14 +21,14 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * If no scheme-specific handler has been registered, a default is used.
  */
-public class DelegatingSecurityMaster extends DelegateByScheme<SecurityMaster> implements SecurityMaster {
+public class DelegatingSecuritySource extends DelegateByScheme<SecuritySource> implements SecuritySource {
 
   /**
    * Constructs a new security master.
    * 
    * @param defaultMaster  the default master to fall back to, not null
    */
-  public DelegatingSecurityMaster(SecurityMaster defaultMaster) {
+  public DelegatingSecuritySource(SecuritySource defaultMaster) {
     super(defaultMaster);
   }
 
@@ -46,7 +46,7 @@ public class DelegatingSecurityMaster extends DelegateByScheme<SecurityMaster> i
     if (result != null) {
       return result;
     }
-    for (SecurityMaster delegateMaster : getDelegates()) {
+    for (SecuritySource delegateMaster : getDelegates()) {
       result = delegateMaster.getSecurities(secKey);
       if (result != null) {
         return result;
@@ -62,7 +62,7 @@ public class DelegatingSecurityMaster extends DelegateByScheme<SecurityMaster> i
     if (result != null) {
       return result;
     }
-    for (SecurityMaster delegateMaster : getDelegates()) {
+    for (SecuritySource delegateMaster : getDelegates()) {
       result = delegateMaster.getSecurity(secKey);
       if (result != null) {
         return result;
@@ -74,7 +74,7 @@ public class DelegatingSecurityMaster extends DelegateByScheme<SecurityMaster> i
   @Override
   public Set<String> getAllSecurityTypes() {
     Set<String> result = new HashSet<String>(getDefaultDelegate().getAllSecurityTypes());
-    for (SecurityMaster delegateMaster : getDelegates()) {
+    for (SecuritySource delegateMaster : getDelegates()) {
       result.addAll(delegateMaster.getAllSecurityTypes());
     }
     return Collections.unmodifiableSet(result);

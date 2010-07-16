@@ -12,7 +12,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionResolver;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.position.PositionMaster;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.util.ArgumentChecker;
 
 // REVIEW kirk 2010-05-22 -- I don't like this name but couldn't come up with a better
@@ -25,7 +25,7 @@ public class ViewCompilationServices {
   private final LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private final FunctionResolver _functionResolver;
   private final PositionMaster _positionMaster;
-  private final SecurityMaster _securityMaster;
+  private final SecuritySource _securityMaster;
   private final ExecutorService _executorService;
   private final FunctionCompilationContext _compilationContext;
   private final ComputationTargetResolver _computationTargetResolver;
@@ -34,7 +34,7 @@ public class ViewCompilationServices {
       LiveDataAvailabilityProvider liveDataAvailabilityProvider,
       FunctionResolver functionResolver,
       PositionMaster positionMaster,
-      SecurityMaster securityMaster,
+      SecuritySource securityMaster,
       FunctionCompilationContext compilationContext,
       ComputationTargetResolver computationTargetResolver,
       ExecutorService executorService) {
@@ -79,7 +79,7 @@ public class ViewCompilationServices {
   /**
    * @return the securityMaster
    */
-  public SecurityMaster getSecurityMaster() {
+  public SecuritySource getSecurityMaster() {
     return _securityMaster;
   }
 

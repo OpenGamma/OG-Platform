@@ -16,7 +16,7 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -39,18 +39,18 @@ public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvid
   // Injected Inputs:
   private final LiveDataClient _liveDataClient;
   private final FudgeContext _fudgeContext;
-  private final SecurityMaster _securityMaster;
+  private final SecuritySource _securityMaster;
   
   // Runtime State:
   private final InMemoryLKVSnapshotProvider _underlyingProvider = new InMemoryLKVSnapshotProvider();
   private final Map<LiveDataSpecification, Set<ValueRequirement>> _liveDataSpec2ValueRequirements =
     new ConcurrentHashMap<LiveDataSpecification, Set<ValueRequirement>>();
   
-  public LiveDataSnapshotProviderImpl(LiveDataClient liveDataClient, SecurityMaster secMaster) {
+  public LiveDataSnapshotProviderImpl(LiveDataClient liveDataClient, SecuritySource secMaster) {
     this(liveDataClient, secMaster, new FudgeContext());
   }
   
-  public LiveDataSnapshotProviderImpl(LiveDataClient liveDataClient, SecurityMaster secMaster, FudgeContext fudgeContext) {
+  public LiveDataSnapshotProviderImpl(LiveDataClient liveDataClient, SecuritySource secMaster, FudgeContext fudgeContext) {
     ArgumentChecker.notNull(liveDataClient, "Live Data Client");
     ArgumentChecker.notNull(secMaster, "Security master");
     ArgumentChecker.notNull(fudgeContext, "Fudge Context");
@@ -69,7 +69,7 @@ public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvid
   /**
    * @return the secMaster
    */
-  public SecurityMaster getSecurityMaster() {
+  public SecuritySource getSecurityMaster() {
     return _securityMaster;
   }
 

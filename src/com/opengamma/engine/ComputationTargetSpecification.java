@@ -15,7 +15,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.id.Identifiable;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifiable;
@@ -183,7 +183,7 @@ public final class ComputationTargetSpecification implements Serializable {
    * there is no LiveData market data line that would directly value
    * positions or porfolios.    
    */
-  public LiveDataSpecification getRequiredLiveData(SecurityMaster securityMaster) {
+  public LiveDataSpecification getRequiredLiveData(SecuritySource securityMaster) {
     switch(getType()) {
       case PRIMITIVE:
         // Just use the identifier as given.

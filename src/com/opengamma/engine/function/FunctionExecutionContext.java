@@ -7,7 +7,7 @@ package com.opengamma.engine.function;
 
 import javax.time.calendar.Clock;
 
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuery;
 
@@ -29,7 +29,7 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
    */
   public static final String SNAPSHOT_CLOCK_NAME = "snapshotClock";
   /**
-   * The name under which an instance of {@link SecurityMaster} should be bound.
+   * The name under which an instance of {@link SecuritySource} should be bound.
    */
   public static final String SECURITY_MASTER_NAME = "securityMaster";
   
@@ -58,12 +58,12 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
     put(SNAPSHOT_CLOCK_NAME, snapshotClock);
   }
   
-  public void setSecurityMaster(SecurityMaster secMaster) {
+  public void setSecurityMaster(SecuritySource secMaster) {
     put(SECURITY_MASTER_NAME, secMaster);
   }
   
-  public SecurityMaster getSecurityMaster() {
-    return (SecurityMaster) get(SECURITY_MASTER_NAME);
+  public SecuritySource getSecurityMaster() {
+    return (SecuritySource) get(SECURITY_MASTER_NAME);
   }
   
 }

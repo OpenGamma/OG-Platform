@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
@@ -24,7 +24,7 @@ public class DomainLiveDataAvailabilityProvider implements LiveDataAvailabilityP
   /**
    * The security master to resolve against.
    */
-  private final SecurityMaster _securityMaster;
+  private final SecuritySource _securityMaster;
   /**
    * The set of acceptable schemes.
    */
@@ -41,7 +41,7 @@ public class DomainLiveDataAvailabilityProvider implements LiveDataAvailabilityP
    * @param acceptableSchemes  the acceptable schemes, not null
    * @param validMarketDataRequirementNames  the valid market data requirement names, not null
    */
-  public DomainLiveDataAvailabilityProvider(final SecurityMaster secMaster, final Collection<IdentificationScheme> acceptableSchemes, final Collection<String> validMarketDataRequirementNames) {
+  public DomainLiveDataAvailabilityProvider(final SecuritySource secMaster, final Collection<IdentificationScheme> acceptableSchemes, final Collection<String> validMarketDataRequirementNames) {
     ArgumentChecker.notNull(secMaster, "Security master");
     ArgumentChecker.notNull(acceptableSchemes, "Acceptable schemes");
     _securityMaster = secMaster;

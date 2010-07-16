@@ -31,7 +31,7 @@ import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PositionMaster;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calcnode.JobRequestSender;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
@@ -53,7 +53,7 @@ public class ViewProcessor implements Lifecycle {
   // Injected Inputs:
   private ViewDefinitionRepository _viewDefinitionRepository;
   private FunctionRepository _functionRepository;
-  private SecurityMaster _securityMaster;
+  private SecuritySource _securityMaster;
   private PositionMaster _positionMaster;
   private LiveDataClient _liveDataClient;
   private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
@@ -112,14 +112,14 @@ public class ViewProcessor implements Lifecycle {
   /**
    * @return the securityMaster
    */
-  public SecurityMaster getSecurityMaster() {
+  public SecuritySource getSecurityMaster() {
     return _securityMaster;
   }
 
   /**
    * @param securityMaster the securityMaster to set
    */
-  public void setSecurityMaster(SecurityMaster securityMaster) {
+  public void setSecurityMaster(SecuritySource securityMaster) {
     assertNotStarted();
     _securityMaster = securityMaster;
   }

@@ -20,7 +20,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -139,13 +139,13 @@ public final class ValueRequirement implements Serializable {
     return new ValueRequirement(valueName, targetSpecification);
   }
   
-  public LiveDataSpecification getRequiredLiveData(SecurityMaster securityMaster) {
+  public LiveDataSpecification getRequiredLiveData(SecuritySource securityMaster) {
     return getTargetSpecification().getRequiredLiveData(securityMaster);
   }
   
   public static Collection<LiveDataSpecification> getRequiredLiveData(
       Collection<ValueRequirement> valueRequirements, 
-      SecurityMaster securityMaster) {
+      SecuritySource securityMaster) {
     Set<LiveDataSpecification> returnValue = new HashSet<LiveDataSpecification>();
     for (ValueRequirement valueRequirement : valueRequirements) {
       returnValue.add(valueRequirement.getRequiredLiveData(securityMaster));      

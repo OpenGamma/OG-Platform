@@ -12,7 +12,7 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * A security master that can allows update as well as retrieval.
  */
-public interface WritableSecurityMaster extends SecurityMaster {
+public interface WritableSecuritySource extends SecuritySource {
 
   /**
    * Persist the given security.
