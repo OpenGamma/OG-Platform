@@ -6,7 +6,6 @@
 package com.opengamma.financial.security;
 
 import java.util.Collection;
-import java.util.Set;
 
 import javax.time.InstantProvider;
 
@@ -78,16 +77,6 @@ public interface ManageableSecurityMaster extends SecuritySource {
    */
   @Override
   Security getSecurity(IdentifierBundle secKey);
-
-  /**
-   * Obtain all the available security types in this security master.
-   * <p>
-   * The implementation should return the available types, however if this is
-   * not possible it may return all potential types.
-   * @return the set of available security types, not null
-   */
-  @Override
-  Set<String> getAllSecurityTypes();
 
 //  //-------------------------------------------------------------------------
 //  /**

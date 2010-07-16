@@ -120,15 +120,6 @@ public class InMemorySecurityMaster implements ManageableSecurityMaster {
     return null;
   }
 
-  @Override
-  public Set<String> getAllSecurityTypes() {
-    Set<String> result = new HashSet<String>();
-    for (Security security : _securities.values()) {
-      result.add(security.getSecurityType());
-    }
-    return result;
-  }
-
   //-------------------------------------------------------------------------
   @Override
   public UniqueIdentifier addSecurity(AddSecurityRequest request) {

@@ -6,7 +6,6 @@
 package com.opengamma.financial.security;
 
 import java.util.Collection;
-import java.util.Set;
 
 import javax.time.InstantProvider;
 
@@ -52,9 +51,4 @@ public class HistoricallyFixedSecurityMaster implements SecuritySource {
     return _delegate.getSecurity(secKey); // TODO
   }
 
-  @Override
-  public Set<String> getAllSecurityTypes() {
-    return _delegate.getAllSecurityTypes(); // TODO
-  }
-  
 }

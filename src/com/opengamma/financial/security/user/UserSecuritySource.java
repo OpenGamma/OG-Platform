@@ -7,12 +7,9 @@ package com.opengamma.financial.security.user;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecuritySource;
-import com.opengamma.financial.security.ManageableSecurityMaster;
 import com.opengamma.financial.user.UserResourceDetails;
 import com.opengamma.financial.user.UserUniqueIdentifierUtils;
 import com.opengamma.financial.user.rest.ClientResource;
@@ -29,23 +26,11 @@ import com.opengamma.id.UniqueIdentifier;
 public class UserSecuritySource implements SecuritySource {
 
   private final UsersResource _underlying;
-  
+
   public UserSecuritySource(UsersResource underlying) {
     _underlying = underlying;
   }
-  
-  @Override
-  public Set<String> getAllSecurityTypes() {
-    Set<String> result = new HashSet<String>();
-    for (UserResource user : _underlying.getAllUsers()) {
-      for (ClientResource client : user.getClients().getAllClients()) {
-        ManageableSecurityMaster securityMaster = client.getSecurities().getSecurityMaster();
-        result.addAll(securityMaster.getAllSecurityTypes());
-      }
-    }
-    return result;
-  }
-  
+
   private SecuritySource findSecurityMaster(UniqueIdentifier uid) {
     UserResourceDetails uidDetails = UserUniqueIdentifierUtils.getDetails(uid);
     UserResource userResource = _underlying.getUser(uidDetails.getUsername());
@@ -58,7 +43,7 @@ public class UserSecuritySource implements SecuritySource {
     }
     return clientResource.getSecurities().getSecurityMaster();
   }
-  
+
   @Override
   public Security getSecurity(UniqueIdentifier uid) {
     SecuritySource secMaster = findSecurityMaster(uid);
@@ -84,5 +69,5 @@ public class UserSecuritySource implements SecuritySource {
     String idValue = secKey.getIdentifier(new IdentificationScheme(userScheme));
     return UniqueIdentifier.of(userScheme, idValue);
   }
-  
+
 }
