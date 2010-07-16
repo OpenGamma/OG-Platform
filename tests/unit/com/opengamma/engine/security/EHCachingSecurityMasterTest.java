@@ -33,8 +33,8 @@ public class EHCachingSecurityMasterTest {
   private EHCachingSecurityMaster _cachingSecMaster = null;
   private Identifier _secId1 = Identifier.of("d1", "v1");
   private Identifier _secId2 = Identifier.of("d1", "v2");
-  private DefaultSecurity _security1 = new DefaultSecurity();
-  private DefaultSecurity _security2 = new DefaultSecurity();
+  private DefaultSecurity _security1 = new DefaultSecurity("");
+  private DefaultSecurity _security2 = new DefaultSecurity("");
 
   @Before
   public void setUp() throws Exception {    

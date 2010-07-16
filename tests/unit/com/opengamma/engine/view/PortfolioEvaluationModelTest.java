@@ -59,7 +59,7 @@ public class PortfolioEvaluationModelTest {
     MockPositionMaster positionMaster = new MockPositionMaster();
     positionMaster.addPortfolio(p);
     
-    DefaultSecurity defSec = new DefaultSecurity();
+    DefaultSecurity defSec = new DefaultSecurity("");
     defSec.addIdentifier(secIdentifier);
     
     MockSecurityMaster secMaster = new MockSecurityMaster();
@@ -102,9 +102,8 @@ public class PortfolioEvaluationModelTest {
     MockPositionMaster positionMaster = new MockPositionMaster();
     positionMaster.addPortfolio(p);
     
-    DefaultSecurity defSec = new DefaultSecurity();
+    DefaultSecurity defSec = new DefaultSecurity("My Sec");
     defSec.addIdentifier(secIdentifier);
-    defSec.setSecurityType("My Sec");
     
     MockSecurityMaster secMaster = new MockSecurityMaster();
     secMaster.addSecurity(defSec);
@@ -166,13 +165,11 @@ public class PortfolioEvaluationModelTest {
     MockPositionMaster positionMaster = new MockPositionMaster();
     positionMaster.addPortfolio(p);
     
-    DefaultSecurity sec1 = new DefaultSecurity();
+    DefaultSecurity sec1 = new DefaultSecurity("My Sec");
     sec1.addIdentifier(secIdentifier1);
-    sec1.setSecurityType("My Sec");
     
-    DefaultSecurity sec2 = new DefaultSecurity();
+    DefaultSecurity sec2 = new DefaultSecurity("Your Sec");
     sec2.addIdentifier(secIdentifier2);
-    sec2.setSecurityType("Your Sec");
     
     MockSecurityMaster secMaster = new MockSecurityMaster();
     secMaster.addSecurity(sec1);

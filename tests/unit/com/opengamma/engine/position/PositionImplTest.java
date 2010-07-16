@@ -119,8 +119,7 @@ public class PositionImplTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_construction_UniqueIdentifier_BigDecimal_Security() {
-    DefaultSecurity sec = new DefaultSecurity ();
-    sec.setSecurityType ("A");
+    DefaultSecurity sec = new DefaultSecurity ("A");
     sec.setIdentifiers (new IdentifierBundle (Identifier.of ("A", "B")));
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, sec);
     assertEquals(UniqueIdentifier.of("B", "C"), test.getUniqueIdentifier());
@@ -192,7 +191,7 @@ public class PositionImplTest {
   @Test
   public void test_setSecurity() {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
-    Security sec = new DefaultSecurity();
+    Security sec = new DefaultSecurity("");
     test.setSecurity(sec);
     assertSame(sec, test.getSecurity());
   }

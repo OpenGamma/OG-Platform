@@ -24,7 +24,7 @@ public class ComputedValueTest {
 
   @Test
   public void test_constructor_Object_Portfolio() {
-    ValueRequirement vreq = new ValueRequirement("DATA", new DefaultSecurity());
+    ValueRequirement vreq = new ValueRequirement("DATA", new DefaultSecurity(""));
     ValueSpecification vspec = new ValueSpecification(vreq);
     ComputedValue test = new ComputedValue(vspec, "HELLO");
     assertEquals("HELLO", test.getValue());

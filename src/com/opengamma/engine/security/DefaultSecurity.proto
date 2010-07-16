@@ -13,7 +13,7 @@ namespace com.opengamma.engine.security {
   
     optional com.opengamma.id.UniqueIdentifier uniqueIdentifier;
     required string name [default=""];
-    required string securityType [default=""];
+    required string securityType;
     required com.opengamma.id.IdentifierBundle identifiers [default=()];
     
     // TODO: getName - used to call buildDefaultDisplayName if no name was given
