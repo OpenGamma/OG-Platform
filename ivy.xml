@@ -17,7 +17,7 @@
 		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.0" />
 		<dependency org="org.apache.ant" name="ant" rev="[1.7.0,1.8.0[" conf="core->*" />
 		<dependency org="org.apache.cxf" name="cxf" rev="2.2.7" conf="*->jaxrs" />
-        <dependency org="org.joda" name="joda-beans" rev="0.2.20100714" />
+        <dependency org="org.joda" name="joda-beans" rev="0.2.20100715" />
 		<dependency org="org.junit" name="junit" rev="[4.7,5.0["/>
 		<dependency org="org.slf4j" name="slf4j" rev="[1.5.8,2.0[" conf="*->core"/>
 		<dependency org="ch.qos" name="logback" rev="[0.9.17,1.0[" conf="*->classic"/>
