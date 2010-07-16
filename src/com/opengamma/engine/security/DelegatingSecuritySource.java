@@ -6,9 +6,6 @@
 package com.opengamma.engine.security;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 import com.opengamma.id.DelegateByScheme;
 import com.opengamma.id.IdentifierBundle;
@@ -69,15 +66,6 @@ public class DelegatingSecuritySource extends DelegateByScheme<SecuritySource> i
       }
     }
     return null;
-  }
-
-  @Override
-  public Set<String> getAllSecurityTypes() {
-    Set<String> result = new HashSet<String>(getDefaultDelegate().getAllSecurityTypes());
-    for (SecuritySource delegateMaster : getDelegates()) {
-      result.addAll(delegateMaster.getAllSecurityTypes());
-    }
-    return Collections.unmodifiableSet(result);
   }
 
 }

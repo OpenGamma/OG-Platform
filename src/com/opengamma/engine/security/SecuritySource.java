@@ -6,7 +6,6 @@
 package com.opengamma.engine.security;
 
 import java.util.Collection;
-import java.util.Set;
 
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -41,14 +40,5 @@ public interface SecuritySource {
    * @return the single security matching the bundle of keys, null if not found
    */
   Security getSecurity(IdentifierBundle secKey);
-
-  /**
-   * Obtain all the available security types in this security master.
-   * <p>
-   * The implementation should return the available types, however if this is
-   * not possible it may return all potential types.
-   * @return the set of available security types, not null
-   */
-  Set<String> getAllSecurityTypes();
 
 }

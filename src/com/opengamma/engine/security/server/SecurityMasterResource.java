@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.security.server;
 
-import static com.opengamma.engine.security.server.SecurityMasterServiceNames.SECURITYMASTER_ALLSECURITYTYPES;
 import static com.opengamma.engine.security.server.SecurityMasterServiceNames.SECURITYMASTER_SECURITIES;
 import static com.opengamma.engine.security.server.SecurityMasterServiceNames.SECURITYMASTER_SECURITY;
 
@@ -115,15 +114,6 @@ public class SecurityMasterResource {
     final FudgeSerializationContext context = getFudgeSerializationContext();
     final MutableFudgeFieldContainer msg = context.newMessage();
     context.objectToFudgeMsg(msg, SECURITYMASTER_SECURITIES, null, getSecurityMaster().getSecurities(bundle));
-    return new FudgeMsgEnvelope(msg);
-  }
-
-  @GET
-  @Path("securities/types")
-  public FudgeMsgEnvelope getAllSecurityTypes() {
-    final FudgeSerializationContext context = getFudgeSerializationContext();
-    final MutableFudgeFieldContainer msg = context.newMessage();
-    context.objectToFudgeMsg(msg, SECURITYMASTER_ALLSECURITYTYPES, null, getSecurityMaster().getAllSecurityTypes());
     return new FudgeMsgEnvelope(msg);
   }
 

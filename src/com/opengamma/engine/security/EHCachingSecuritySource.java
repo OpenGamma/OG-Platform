@@ -200,11 +200,6 @@ public class EHCachingSecuritySource implements SecuritySource {
     return matched.iterator().next();
   }
 
-  @Override
-  public Set<String> getAllSecurityTypes() {
-    return getUnderlying().getAllSecurityTypes();
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Refreshes the value for the specified security key.

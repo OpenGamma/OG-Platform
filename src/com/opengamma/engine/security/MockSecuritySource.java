@@ -8,8 +8,6 @@ package com.opengamma.engine.security;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -107,24 +105,6 @@ public class MockSecuritySource implements SecuritySource {
       }
     }
     return null;
-  }
-
-  /**
-   * Obtain all the available security types in this security master.
-   * <p>
-   * The implementation should return the available types, however if this is
-   * not possible it may return all potential types.
-   * @return the set of available security types, not null
-   */
-  public Set<String> getAllSecurityTypes() {
-    Set<String> result = new TreeSet<String>();
-    for (Security security : _securities.values()) {
-      String securityType = security.getSecurityType();
-      if (securityType != null) {
-        result.add(securityType);
-      }
-    }
-    return result;
   }
 
   //-------------------------------------------------------------------------

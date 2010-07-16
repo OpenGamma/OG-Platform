@@ -6,7 +6,6 @@
 package com.opengamma.engine.security.server;
 
 import static com.opengamma.engine.security.server.SecurityMasterServiceNames.DEFAULT_SECURITYMASTER_NAME;
-import static com.opengamma.engine.security.server.SecurityMasterServiceNames.SECURITYMASTER_ALLSECURITYTYPES;
 import static com.opengamma.engine.security.server.SecurityMasterServiceNames.SECURITYMASTER_SECURITIES;
 import static com.opengamma.engine.security.server.SecurityMasterServiceNames.SECURITYMASTER_SECURITY;
 import static org.junit.Assert.assertEquals;
@@ -116,17 +115,4 @@ public class RESTMethodTest {
     assertEquals(2, securities.getNumFields());
   }
 
-  @Test
-  public void testGetAllSecurityTypes() {
-    final FudgeMsgEnvelope fme = getSecurityMasterResource().getAllSecurityTypes();
-    assertNotNull(fme);
-    final FudgeFieldContainer msg = fme.getMessage();
-    assertNotNull(msg);
-    FudgeMsgFormatter.outputToSystemOut(msg);
-    List<String> types = assertIsList(String.class, msg.getFieldValue(FudgeFieldContainer.class, msg.getByName(SECURITYMASTER_ALLSECURITYTYPES)));
-    assertEquals(2, types.size());
-    assertTrue(types.contains("t1"));
-    assertTrue(types.contains("t2"));
-  }
-  
 }

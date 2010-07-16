@@ -20,10 +20,6 @@ public final class SecurityMasterServiceNames {
    * Fudge key for a security.
    */
   public static final String SECURITYMASTER_SECURITY = "security";
-  /**
-   * Fudge key for all security types.
-   */
-  public static final String SECURITYMASTER_ALLSECURITYTYPES = "allSecurityTypes";
 
   /**
    * No instances.

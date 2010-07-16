@@ -5,13 +5,11 @@
  */
 package com.opengamma.engine.security;
 
-import static com.opengamma.engine.security.server.SecurityMasterServiceNames.SECURITYMASTER_ALLSECURITYTYPES;
 import static com.opengamma.engine.security.server.SecurityMasterServiceNames.SECURITYMASTER_SECURITIES;
 import static com.opengamma.engine.security.server.SecurityMasterServiceNames.SECURITYMASTER_SECURITY;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
 
@@ -55,13 +53,6 @@ public class RemoteSecuritySource implements SecuritySource {
   public Collection<Security> getSecurities(IdentifierBundle secKey) {
     final RestTarget target = _targetBase.resolveBase("securities").resolveQuery("id", secKey.toStringList());
     return getRestClient().getSingleValueNotNull(List.class, target, SECURITYMASTER_SECURITIES);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public Set<String> getAllSecurityTypes() {
-    final RestTarget target = _targetBase.resolveBase("securities").resolve("types");
-    return getRestClient().getSingleValueNotNull(Set.class, target, SECURITYMASTER_ALLSECURITYTYPES);
   }
 
 }
