@@ -14,22 +14,22 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A {@link PositionSource} implementation which allows the scheme of the incoming {@link UniqueIdentifier} to control
- * which underlying {@link PositionSource} will handle the request. If no scheme-specific handler has been registered,
- * a default is used.
+ * A source of positions that uses the scheme of the unique identifier to determine which
+ * underlying source should handle the request.
+ * <p>
+ * If no scheme-specific handler has been registered, a default is used.
  */
 public class DelegatingPositionSource extends UniqueIdentifierSchemeDelegator<PositionSource> implements PositionSource {
 
   /**
-   * Constructs a new {@link DelegatingPositionSource}.
-   * 
-   * @param defaultMaster  the {@link PositionSource} on which to fall back when no registered schemes match that of
-   *                       an incoming UniqueIdentifier.
+   * Creates a new instance with a default source of securities.
+   * @param defaultSource  the default source to fall back to, not null
    */
-  public DelegatingPositionSource(PositionSource defaultMaster) {
-    super(defaultMaster);
+  public DelegatingPositionSource(PositionSource defaultSource) {
+    super(defaultSource);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Portfolio getPortfolio(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
@@ -56,4 +56,5 @@ public class DelegatingPositionSource extends UniqueIdentifierSchemeDelegator<Po
     }
     return Collections.unmodifiableSet(result);
   }
+
 }

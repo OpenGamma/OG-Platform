@@ -41,21 +41,19 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * An implementation of {@code PositionMaster} based on CSV-formatted files.
+ * A source of positions based on CSV-formatted files.
  */
 public class CSVPositionSource implements PositionSource {
 
-  /**
-   * The logger.
-   */
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(CSVPositionSource.class);
 
   /**
-   * The logger.
+   * The base file directory.
    */
   private final File _baseDirectory;
   /**
-   * The map of portfolio files by identifier.
+   * The portfolio files by identifier.
    */
   private final ConcurrentMap<UniqueIdentifier, Object> _portfolios = new ConcurrentSkipListMap<UniqueIdentifier, Object>();
   /**
@@ -68,14 +66,14 @@ public class CSVPositionSource implements PositionSource {
   private final Map<UniqueIdentifier, Position> _positions = new TreeMap<UniqueIdentifier, Position>();
 
   /**
-   * Creates an empty CSV position master.
+   * Creates an empty CSV position source.
    */
   public CSVPositionSource() {
     _baseDirectory = null;
   }
 
   /**
-   * Creates a CSV position master using the specified directory.
+   * Creates a CSV position source using the specified directory.
    * @param baseDirectoryName  the directory name, not null
    */
   public CSVPositionSource(String baseDirectoryName) {
@@ -83,7 +81,7 @@ public class CSVPositionSource implements PositionSource {
   }
 
   /**
-   * Creates a CSV position master using the specified directory.
+   * Creates a CSV position source using the specified directory.
    * @param baseDirectory  the directory, not null
    */
   public CSVPositionSource(File baseDirectory) {
