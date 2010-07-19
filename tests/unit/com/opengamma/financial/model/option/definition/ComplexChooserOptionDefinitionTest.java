@@ -77,6 +77,16 @@ public class ComplexChooserOptionDefinitionTest {
     new ComplexChooserOptionDefinition(CHOOSE_DATE, CALL_STRIKE, CALL_EXPIRY, PUT_STRIKE, new Expiry(DateUtil.getDateOffsetWithYearFraction(CHOOSE_DATE.getExpiry(), -1)));
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testCallExpiryTime() {
+    CHOOSER.getTimeToCallExpiry(DateUtil.getDateOffsetWithYearFraction(DATE, 5));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testPutExpiryTime() {
+    CHOOSER.getTimeToPutExpiry(DateUtil.getDateOffsetWithYearFraction(DATE, 5));
+  }
+
   @Test
   public void testGetters() {
     assertEquals(CHOOSER.getCallExpiry(), CALL_EXPIRY);
@@ -85,6 +95,8 @@ public class ComplexChooserOptionDefinitionTest {
     assertEquals(CHOOSER.getPutStrike(), PUT_STRIKE, 0);
     assertEquals(CHOOSER.getCallDefinition(), VANILLA_CALL);
     assertEquals(CHOOSER.getPutDefinition(), VANILLA_PUT);
+    assertEquals(CHOOSER.getTimeToCallExpiry(DATE), 2, 0);
+    assertEquals(CHOOSER.getTimeToPutExpiry(DATE), 3, 0);
   }
 
   @Test

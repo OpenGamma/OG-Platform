@@ -8,6 +8,8 @@ package com.opengamma.financial.model.option.definition;
 import java.util.Collections;
 import java.util.Set;
 
+import javax.time.calendar.ZonedDateTime;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
@@ -15,6 +17,7 @@ import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -93,6 +96,20 @@ public class ComplexChooserOptionDefinition extends OptionDefinition {
 
   public Expiry getPutExpiry() {
     return _putExpiry;
+  }
+
+  public double getTimeToCallExpiry(final ZonedDateTime date) {
+    if (date.isAfter(getCallExpiry().getExpiry())) {
+      throw new IllegalArgumentException("Date " + date + " is after call expiry " + getCallExpiry());
+    }
+    return DateUtil.getDifferenceInYears(date, getCallExpiry().getExpiry());
+  }
+
+  public double getTimeToPutExpiry(final ZonedDateTime date) {
+    if (date.isAfter(getPutExpiry().getExpiry())) {
+      throw new IllegalArgumentException("Date " + date + " is after put expiry " + getPutExpiry());
+    }
+    return DateUtil.getDifferenceInYears(date, getPutExpiry().getExpiry());
   }
 
   public OptionDefinition getCallDefinition() {
