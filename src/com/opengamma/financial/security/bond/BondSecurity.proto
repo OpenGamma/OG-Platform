@@ -13,29 +13,29 @@ namespace com.opengamma.financial.security.bond {
   
     required string securityType [default="BOND"];
     
-    readonly required string issuerName;
-    readonly required string issuerType;
-    readonly required string issuerDomicile;
-    readonly required string market;
-    readonly required com.opengamma.financial.Currency currency; /* string */
-    readonly required com.opengamma.financial.convention.yield.YieldConvention yieldConvention; /* string */
-    readonly required string guaranteeType;
-    readonly required com.opengamma.util.time.Expiry maturity; /* datetime */
-    readonly required string couponType;
-    readonly required double couponRate;
-    readonly required com.opengamma.financial.convention.frequency.Frequency couponFrequency; /* string */
-    readonly required com.opengamma.financial.convention.daycount.DayCount dayCountConvention; /* string */
-    readonly required com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention; /* string */
-    readonly required date announcementDate;
-    readonly required date interestAccrualDate;
-    readonly required date settlementDate;
-    readonly required date firstCouponDate;
-    readonly required double issuancePrice;
-    readonly required double totalAmountIssued;
-    readonly required double minimumAmount;
-    readonly required double minimumIncrement;
-    readonly required double parAmount;
-    readonly required double redemptionValue;
+    required string issuerName;
+    required string issuerType;
+    required string issuerDomicile;
+    required string market;
+    required Currency currency;
+    required convention.yield.YieldConvention yieldConvention;
+    required string guaranteeType;
+    required util.time.Expiry maturity;
+    required string couponType;
+    required double couponRate;
+    required convention.frequency.Frequency couponFrequency;
+    required convention.daycount.DayCount dayCountConvention;
+    required convention.businessday.BusinessDayConvention businessDayConvention;
+    required date announcementDate;
+    required date interestAccrualDate;
+    required date settlementDate;
+    required date firstCouponDate;
+    required double issuancePrice;
+    required double totalAmountIssued;
+    required double minimumAmount;
+    required double minimumIncrement;
+    required double parAmount;
+    required double redemptionValue;
     
     binding Java {
       body <<<JAVA

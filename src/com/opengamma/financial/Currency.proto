@@ -9,6 +9,6 @@
  */
 namespace com.opengamma.financial {
 
-  extern message Currency;
+  extern typedef Currency = string;
 
 }

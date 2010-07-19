@@ -26,7 +26,9 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import javax.mail.*;
+import javax.mail.Message;
+import javax.mail.Session;
+import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
@@ -665,6 +667,8 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
       Date expiry = cal.getTime();
       
       OptionSecurityBean equityOptionBean = new OptionSecurityBean();
+      equityOptionBean.setOptionExerciseType(OptionExerciseType.AMERICAN);
+      equityOptionBean.setOptionPayoffStyle(OptionPayoffStyle.VANILLA);
       equityOptionBean.setOptionSecurityType(optionSecurityType);
       equityOptionBean.setOptionType(OptionType.CALL);
       equityOptionBean.setStrike(250.0);
@@ -712,6 +716,8 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
       cal.set(Calendar.YEAR, 2002);
       Date later = cal.getTime();
       equityOptionBean = new OptionSecurityBean();
+      equityOptionBean.setOptionExerciseType(OptionExerciseType.AMERICAN);
+      equityOptionBean.setOptionPayoffStyle(OptionPayoffStyle.VANILLA);
       equityOptionBean.setOptionSecurityType(optionSecurityType);
       equityOptionBean.setOptionType(OptionType.CALL);
       equityOptionBean.setStrike(250.0);

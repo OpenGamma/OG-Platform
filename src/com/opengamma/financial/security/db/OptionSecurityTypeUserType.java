@@ -5,20 +5,26 @@
  */
 package com.opengamma.financial.security.db;
 
+import com.opengamma.financial.security.option.BondOptionSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.FutureOptionSecurity;
+import com.opengamma.financial.security.option.OptionOptionSecurity;
+import com.opengamma.financial.security.option.OptionSecurityVisitor;
+import com.opengamma.financial.security.option.SwapOptionSecurity;
+
 
 /**
  * Custom Hibernate usertype for the EquityOptionType enum
- * 
- * @author andrew
  */
 public class OptionSecurityTypeUserType extends EnumUserType<OptionSecurityType> {
   
-  private static final String AMERICAN_EQUITY_OPTION_TYPE = "American equity";
-  private static final String AMERICAN_FUTURE_OPTION_TYPE = "American future";
-  private static final String EUROPEAN_EQUITY_OPTION_TYPE = "European equity";
-  private static final String EUROPEAN_FUTURE_OPTION_TYPE = "European future";
-  private static final String FX_OPTION_TYPE = "FX";
-  private static final String POWERED_EQUITY_OPTION_TYPE = "Powered equity";
+  private static final String BOND = "Bond";
+  private static final String EQUITY = "Equity";
+  private static final String FX = "FX";
+  private static final String FUTURE = "Future";
+  private static final String OPTION = "Option";
+  private static final String SWAP = "Swap";
 
   public OptionSecurityTypeUserType() {
     super(OptionSecurityType.class, OptionSecurityType.values());
@@ -26,36 +32,36 @@ public class OptionSecurityTypeUserType extends EnumUserType<OptionSecurityType>
 
   @Override
   protected String enumToStringNoCache(OptionSecurityType value) {
-    return value.accept(new OptionSecurityType.Visitor<String>() {
+    return value.accept(new OptionSecurityVisitor<String>() {
 
       @Override
-      public String visitAmericanEquityOptionType() {
-        return AMERICAN_EQUITY_OPTION_TYPE;
+      public String visitBondOptionSecurity(BondOptionSecurity security) {
+        return BOND;
       }
 
       @Override
-      public String visitEuropeanEquityOptionType() {
-        return EUROPEAN_EQUITY_OPTION_TYPE;
+      public String visitEquityOptionSecurity(EquityOptionSecurity security) {
+        return EQUITY;
       }
 
       @Override
-      public String visitPoweredEquityOptionType() {
-        return POWERED_EQUITY_OPTION_TYPE;
+      public String visitFXOptionSecurity(FXOptionSecurity security) {
+        return FX;
       }
 
       @Override
-      public String visitAmericanFutureOptionType() {
-        return AMERICAN_FUTURE_OPTION_TYPE;
+      public String visitFutureOptionSecurity(FutureOptionSecurity security) {
+        return FUTURE;
       }
 
       @Override
-      public String visitEuropeanFutureOptionType() {
-        return EUROPEAN_FUTURE_OPTION_TYPE;
+      public String visitOptionOptionSecurity(OptionOptionSecurity security) {
+        return OPTION;
       }
 
       @Override
-      public String visitFXOptionType() {
-        return FX_OPTION_TYPE;
+      public String visitSwapOptionSecurity(SwapOptionSecurity security) {
+        return SWAP;
       }
     });
   }

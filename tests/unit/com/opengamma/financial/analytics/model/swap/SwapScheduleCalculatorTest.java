@@ -13,6 +13,7 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMessageFactory;
 import org.junit.Test;
 
 import com.opengamma.financial.Region;
@@ -36,8 +37,14 @@ public class SwapScheduleCalculatorTest {
   private static final ZonedDateTime EFFECTIVE = DateUtil.getUTCDate(2010, 6, 1);
   private static final ZonedDateTime MATURITY = DateUtil.getUTCDate(2020, 6, 1);
   private static final Region REGION = new MyRegion();
-  private static final Notional NOTIONAL = new Notional() {
-    // don't need anything
+  private static final Notional NOTIONAL = new Notional () {
+
+    @Override
+    public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeContext) {
+      // Okay to return NULL as we're not doing any messaging with this
+      return null;
+    }
+
   };
   private static final DayCount DAY_COUNT = new DayCount() {
 

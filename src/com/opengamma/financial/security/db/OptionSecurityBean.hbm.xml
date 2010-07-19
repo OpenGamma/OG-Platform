@@ -5,6 +5,8 @@
 <hibernate-mapping package="com.opengamma.financial.security.db">
   <union-subclass name="OptionSecurityBean" extends="SecurityBean" table="sec_option">
     <property name="optionSecurityType" column="option_security_type" type="com.opengamma.financial.security.db.OptionSecurityTypeUserType" not-null="true" />
+    <property name="optionExerciseType" column="option_exercise_type" type="com.opengamma.financial.security.db.OptionExerciseTypeUserType" not-null="true" />
+    <property name="optionPayoffStyle" column="option_payoff_style" type="com.opengamma.financial.security.db.OptionPayoffStyleUserType" not-null="true" />
     <property name="optionType" column="option_type" type="com.opengamma.financial.security.db.OptionTypeUserType" not-null="true" />
     <property name="strike" type="double" not-null="true" />
     <property name="expiry" type="date" not-null="true" />
@@ -13,6 +15,7 @@
       <property name="identifier" column="underlying_identifier" type="string" />
     </component>
     <property name="power" type="double" />
+    <property name="cap" type="double" />
     <many-to-one name="currency" column="currency_id" class="CurrencyBean" not-null="true" />
     <many-to-one name="callCurrency" column="call_currency_id" class="CurrencyBean" />
     <many-to-one name="putCurrency" column="put_currency_id" class="CurrencyBean" />

@@ -171,7 +171,7 @@ public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction im
 
     @Override
     public Identifier visitEnergyFutureSecurity(final EnergyFutureSecurity security) {
-      return null;
+      return security.getUnderlyingIdentifier();
     }
 
     @Override
@@ -181,7 +181,7 @@ public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction im
 
     @Override
     public Identifier visitIndexFutureSecurity(final IndexFutureSecurity security) {
-      return security.getUnderlyingIdentityKey();
+      return security.getUnderlyingIdentifier();
     }
 
     @Override
@@ -191,12 +191,12 @@ public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction im
 
     @Override
     public Identifier visitMetalFutureSecurity(final MetalFutureSecurity security) {
-      return security.getUnderlyingIdentityKey();
+      return security.getUnderlyingIdentifier();
     }
 
     @Override
     public Identifier visitStockFutureSecurity(final StockFutureSecurity security) {
-      return security.getUnderlyingIdentityKey();
+      return security.getUnderlyingIdentifier();
     }
 
   }

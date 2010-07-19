@@ -1,0 +1,61 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.financial.security.option {
+
+  abstract message PayoffStyle {
+    binding Java {
+      body "public abstract <T> T accept (PayoffStyleVisitor<T> visitor);";
+    }
+  }
+  
+  message AsymmetricPoweredPayoffStyle extends PayoffStyle {
+    required readonly double power;
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitAsymmetricPoweredPayoffStyle (this); }";
+    }
+  }
+  
+  message BarrierPayoffStyle extends PayoffStyle {
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitBarrierPayoffStyle (this); }";
+    }
+  }
+  
+  message CappedPoweredPayoffStyle extends PayoffStyle {
+    required readonly double power;
+    required readonly double cap;
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitCappedPoweredPayoffStyle (this); }";
+    }
+  }
+  
+  message FixedStrikePayoffStyle extends PayoffStyle {
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitFixedStrikePayoffStyle (this); }";
+    }
+  }
+  
+  message PoweredPayoffStyle extends PayoffStyle {
+    required readonly double power;
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitPoweredPayoffStyle (this); }";
+    }
+  }
+  
+  message VanillaPayoffStyle extends PayoffStyle {
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitVanillaPayoffStyle (this); }";
+    }
+  }
+  
+}

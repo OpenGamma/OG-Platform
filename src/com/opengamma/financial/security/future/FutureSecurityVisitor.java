@@ -5,7 +5,11 @@
  */
 package com.opengamma.financial.security.future;
 
-
+/**
+ * Visitor for the FutureSecurity subclasses.
+ * 
+ * @param <T> visitor method return type
+ */
 public interface FutureSecurityVisitor<T> {
 
   T visitAgricultureFutureSecurity(AgricultureFutureSecurity security);

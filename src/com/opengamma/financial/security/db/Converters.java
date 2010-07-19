@@ -65,7 +65,8 @@ import com.opengamma.util.time.ExpiryAccuracy;
     }
     final Calendar c = Calendar.getInstance();
     c.setTime(date);
-    return new Expiry(ZonedDateTime.ofInstant(OffsetDateTime.ofMidnight(c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1, c.get(Calendar.DAY_OF_MONTH), ZoneOffset.UTC), TimeZone.UTC));
+    return new Expiry(ZonedDateTime.ofInstant(OffsetDateTime.ofMidnight(c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1, c.get(Calendar.DAY_OF_MONTH), ZoneOffset.UTC), TimeZone.UTC),
+        ExpiryAccuracy.DAY_MONTH_YEAR);
   }
   
   protected static Date expiryToDate(Expiry expiry) {

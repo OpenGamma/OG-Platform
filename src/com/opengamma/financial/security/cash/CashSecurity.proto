@@ -1,0 +1,24 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.financial.security.cash {
+
+  message CashSecurity extends FinancialSecurity {
+  
+    required string securityType [default="Cash"];
+    
+    /* No additional fields */
+    
+    binding Java {
+      body <<<JAVA
+        public <T> T accept(CashSecurityVisitor<T> visitor) { return visitor.visitCashSecurity(this); }
+        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitCashSecurity(this); }
+JAVA;
+    }
+  
+  }
+
+}

@@ -24,10 +24,10 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.BjerksundStenslandModel;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.financial.security.option.AmericanVanillaOption;
-import com.opengamma.financial.security.option.Option;
+import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
+import com.opengamma.financial.security.option.VanillaPayoffStyle;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
@@ -69,7 +69,11 @@ public class BjerksundStenslandModelFunction extends AnalyticOptionModelFunction
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    if (target.getSecurity() instanceof Option && (Option) target.getSecurity() instanceof AmericanVanillaOption) {
+    if (!(target.getSecurity() instanceof OptionSecurity)) {
+      return false;
+    }
+    final OptionSecurity optionSecurity = (OptionSecurity) target.getSecurity();
+    if ((optionSecurity.getExerciseType() instanceof AmericanExerciseType) && (optionSecurity.getPayoffStyle() instanceof VanillaPayoffStyle)) {
       return true;
     }
     return false;

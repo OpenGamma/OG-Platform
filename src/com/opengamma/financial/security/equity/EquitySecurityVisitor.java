@@ -6,6 +6,11 @@
 
 package com.opengamma.financial.security.equity;
 
+/**
+ * Visitor for the EquitySecurity subclasses.
+ * 
+ * @param <T> visitor method return type
+ */
 public interface EquitySecurityVisitor<T> {
 
   T visitEquitySecurity(EquitySecurity security);

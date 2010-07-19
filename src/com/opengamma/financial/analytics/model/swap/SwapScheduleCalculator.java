@@ -42,7 +42,7 @@ public class SwapScheduleCalculator {
     final Frequency payFrequency = leg.getFrequency();
     final ZonedDateTime[] adjusted = ScheduleCalculator.getAdjustedDateSchedule(ScheduleCalculator.getUnadjustedDateSchedule(effectiveDate, maturityDate, payFrequency),
         leg.getBusinessDayConvention(), calendar);
-    return ScheduleCalculator.getTimes(adjusted, leg.getDaycount(), now);
+    return ScheduleCalculator.getTimes(adjusted, leg.getDayCount(), now);
   }
 
 }

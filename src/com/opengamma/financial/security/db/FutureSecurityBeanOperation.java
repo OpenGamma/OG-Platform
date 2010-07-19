@@ -12,6 +12,7 @@ import static com.opengamma.financial.security.db.Converters.futureBundleBeanToB
 import static com.opengamma.financial.security.db.Converters.identifierBeanToIdentifier;
 import static com.opengamma.financial.security.db.Converters.identifierToIdentifierBean;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -54,25 +55,16 @@ import com.opengamma.id.Identifier;
             basket.add(futureBundleBeanToBondFutureDeliverable(basketBean));
           }
         }
-        return new BondFutureSecurity(
-            dateToExpiry(bean.getExpiry()),
-            bean.getTradingExchange().getName(),
-            bean.getSettlementExchange().getName(),
-            currencyBeanToCurrency(bean.getCurrency1()),
-            bean.getBondType().getName(),
-            basket);
+        return new BondFutureSecurity(dateToExpiry(bean.getExpiry()), bean.getTradingExchange().getName(), bean.getSettlementExchange().getName(), currencyBeanToCurrency(bean.getCurrency1()), basket,
+            bean.getBondType().getName());
       }
 
       @Override
       public FutureSecurity visitFXFutureType() {
-        return new FXFutureSecurity(
-            dateToExpiry(bean.getExpiry()),
-            bean.getTradingExchange().getName(),
-            bean.getSettlementExchange().getName(),
-            currencyBeanToCurrency(bean.getCurrency1()),
-            currencyBeanToCurrency(bean.getCurrency2()),
-            currencyBeanToCurrency(bean.getCurrency3()),
-            bean.getUnitNumber());
+        final FXFutureSecurity security = new FXFutureSecurity(dateToExpiry(bean.getExpiry()), bean.getTradingExchange().getName(), bean.getSettlementExchange().getName(), currencyBeanToCurrency(bean
+            .getCurrency1()), currencyBeanToCurrency(bean.getCurrency2()), currencyBeanToCurrency(bean.getCurrency3()));
+        security.setMultiplicationFactor(bean.getUnitNumber());
+        return security;
       }
 
       @Override
@@ -87,60 +79,59 @@ import com.opengamma.id.Identifier;
 
       @Override
       public FutureSecurity visitAgricultureFutureType() {
-        return new AgricultureFutureSecurity(
-            dateToExpiry(bean.getExpiry()),
-            bean.getTradingExchange().getName(),
-            bean.getSettlementExchange().getName(),
-            currencyBeanToCurrency(bean.getCurrency1()),
-            bean.getCommodityType().getName(),
-            bean.getUnitNumber(),
-            (bean.getUnitName() != null) ? bean.getUnitName().getName() : null);
+        final AgricultureFutureSecurity security = new AgricultureFutureSecurity(dateToExpiry(bean.getExpiry()), bean.getTradingExchange().getName(), bean.getSettlementExchange().getName(),
+            currencyBeanToCurrency(bean.getCurrency1()), bean.getCommodityType().getName());
+        security.setUnitNumber(bean.getUnitNumber());
+        if (bean.getUnitName() != null) {
+          security.setUnitName(bean.getUnitName().getName());
+        }
+        return security;
       }
 
       @Override
       public FutureSecurity visitEnergyFutureType() {
-        return new EnergyFutureSecurity(
-            dateToExpiry(bean.getExpiry()),
-            bean.getTradingExchange().getName(),
-            bean.getSettlementExchange().getName(),
-            currencyBeanToCurrency(bean.getCurrency1()),
-            bean.getCommodityType().getName(),
-            bean.getUnitNumber(),
-           (bean.getUnitName() != null) ? bean.getUnitName().getName() : null,
-            identifierBeanToIdentifier(bean.getUnderlying()));
+        final EnergyFutureSecurity security = new EnergyFutureSecurity(dateToExpiry(bean.getExpiry()), bean.getTradingExchange().getName(), bean.getSettlementExchange().getName(),
+            currencyBeanToCurrency(bean.getCurrency1()), bean.getCommodityType().getName());
+        security.setUnitNumber(bean.getUnitNumber());
+        if (bean.getUnitName() != null) {
+          security.setUnitName(bean.getUnitName().getName());
+        }
+        security.setUnderlyingIdentifier(identifierBeanToIdentifier(bean.getUnderlying()));
+        return security;
       }
 
       @Override
       public FutureSecurity visitMetalFutureType() {
-        return new MetalFutureSecurity(
-            dateToExpiry(bean.getExpiry()),
-            bean.getTradingExchange().getName(),
-            bean.getSettlementExchange().getName(),
-            currencyBeanToCurrency(bean.getCurrency1()),
-            bean.getCommodityType().getName(),
-            bean.getUnitNumber(),
-           (bean.getUnitName() != null) ? bean.getUnitName().getName() : null,               
-            identifierBeanToIdentifier(bean.getUnderlying()));
+        final MetalFutureSecurity security = new MetalFutureSecurity(dateToExpiry(bean.getExpiry()), bean.getTradingExchange().getName(), bean.getSettlementExchange().getName(),
+            currencyBeanToCurrency(bean.getCurrency1()), bean.getCommodityType().getName());
+        security.setUnitNumber(bean.getUnitNumber());
+        if (bean.getUnitName() != null) {
+          security.setUnitName(bean.getUnitName().getName());
+        }
+        security.setUnderlyingIdentifier(identifierBeanToIdentifier(bean.getUnderlying()));
+        return security;
       }
 
       @Override
       public FutureSecurity visitIndexFutureType() {
-        return new IndexFutureSecurity(
+        final IndexFutureSecurity security = new IndexFutureSecurity(
             dateToExpiry(bean.getExpiry()),
             bean.getTradingExchange().getName(),
             bean.getSettlementExchange().getName(),
-            currencyBeanToCurrency(bean.getCurrency1()),
-            identifierBeanToIdentifier(bean.getUnderlying()));
+            currencyBeanToCurrency(bean.getCurrency1()));
+        security.setUnderlyingIdentifier(identifierBeanToIdentifier(bean.getUnderlying()));
+        return security;
       }
 
       @Override
       public FutureSecurity visitStockFutureType() {
-        return new StockFutureSecurity(
+        final StockFutureSecurity security = new StockFutureSecurity(
             dateToExpiry(bean.getExpiry()),
             bean.getTradingExchange().getName(),
             bean.getSettlementExchange().getName(),
-            currencyBeanToCurrency(bean.getCurrency1()),
-            identifierBeanToIdentifier(bean.getUnderlying()));
+            currencyBeanToCurrency(bean.getCurrency1()));
+        security.setUnderlyingIdentifier(identifierBeanToIdentifier(bean.getUnderlying()));
+        return security;
       }
 
     });
@@ -300,7 +291,7 @@ import com.opengamma.id.Identifier;
         if (!ObjectUtils.equals(bean.getBondType().getName(), security.getBondType())) {
           return false;
         }
-        final Set<BondFutureDeliverable> basket = security.getBasket();
+        final Collection<BondFutureDeliverable> basket = security.getBasket();
         final Set<FutureBundleBean> beanBasket = bean.getBasket();
         if (basket == null) {
           if (beanBasket != null) {
@@ -323,8 +314,7 @@ import com.opengamma.id.Identifier;
 
       @Override
       public Boolean visitEnergyFutureSecurity(EnergyFutureSecurity security) {
-        return beanEquals(security)
-            && ObjectUtils.equals(identifierBeanToIdentifier(bean.getUnderlying()), security.getUnderlyingIdentityKey());
+        return beanEquals(security) && ObjectUtils.equals(identifierBeanToIdentifier(bean.getUnderlying()), security.getUnderlyingIdentifier());
       }
 
       @Override
@@ -346,20 +336,17 @@ import com.opengamma.id.Identifier;
 
       @Override
       public Boolean visitMetalFutureSecurity(MetalFutureSecurity security) {
-        return beanEquals(security)
-            && ObjectUtils.equals(identifierBeanToIdentifier(bean.getUnderlying()), security.getUnderlyingIdentityKey());
+        return beanEquals(security) && ObjectUtils.equals(identifierBeanToIdentifier(bean.getUnderlying()), security.getUnderlyingIdentifier());
       }
 
       @Override
       public Boolean visitIndexFutureSecurity(IndexFutureSecurity security) {
-        return beanEquals(security)
-            && ObjectUtils.equals(identifierBeanToIdentifier(bean.getUnderlying()), security.getUnderlyingIdentityKey());
+        return beanEquals(security) && ObjectUtils.equals(identifierBeanToIdentifier(bean.getUnderlying()), security.getUnderlyingIdentifier());
       }
 
       @Override
       public Boolean visitStockFutureSecurity(StockFutureSecurity security) {
-        return beanEquals(security)
-          && ObjectUtils.equals(identifierBeanToIdentifier(bean.getUnderlying()), security.getUnderlyingIdentityKey());
+        return beanEquals(security) && ObjectUtils.equals(identifierBeanToIdentifier(bean.getUnderlying()), security.getUnderlyingIdentifier());
       }
       
     });
@@ -403,7 +390,7 @@ import com.opengamma.id.Identifier;
           BondFutureSecurity security) {
         final FutureSecurityBean bean = createFutureBean(security);
         bean.setBondType(secMasterSession.getOrCreateBondFutureTypeBean(security.getBondType()));
-        final Set<BondFutureDeliverable> basket = security.getBasket();
+        final Collection<BondFutureDeliverable> basket = security.getBasket();
         final Set<FutureBundleBean> basketBeans = new HashSet<FutureBundleBean>(basket.size());
         for (BondFutureDeliverable deliverable : basket) {
           final FutureBundleBean deliverableBean = new FutureBundleBean();
@@ -425,7 +412,7 @@ import com.opengamma.id.Identifier;
       public FutureSecurityBean visitEnergyFutureSecurity(
           EnergyFutureSecurity security) {
         final FutureSecurityBean bean = createCommodityFutureBean(security);
-        Identifier underlying = security.getUnderlyingIdentityKey();
+        Identifier underlying = security.getUnderlyingIdentifier();
         if (underlying != null) {
           bean.setUnderlying(identifierToIdentifierBean(underlying));
         }
@@ -453,9 +440,9 @@ import com.opengamma.id.Identifier;
       public FutureSecurityBean visitMetalFutureSecurity(
           MetalFutureSecurity security) {
         final FutureSecurityBean bean = createCommodityFutureBean(security);
-        Identifier underlying = security.getUnderlyingIdentityKey();
+        Identifier underlying = security.getUnderlyingIdentifier();
         if (underlying != null) {
-          bean.setUnderlying(identifierToIdentifierBean(security.getUnderlyingIdentityKey()));
+          bean.setUnderlying(identifierToIdentifierBean(security.getUnderlyingIdentifier()));
         }
         return bean;
       }
@@ -463,14 +450,14 @@ import com.opengamma.id.Identifier;
       @Override
       public FutureSecurityBean visitIndexFutureSecurity(IndexFutureSecurity security) {
         final FutureSecurityBean bean = createFutureBean(security);
-        bean.setUnderlying(identifierToIdentifierBean(security.getUnderlyingIdentityKey()));
+        bean.setUnderlying(identifierToIdentifierBean(security.getUnderlyingIdentifier()));
         return bean;
       }
 
       @Override
       public FutureSecurityBean visitStockFutureSecurity(StockFutureSecurity security) {
         final FutureSecurityBean bean = createFutureBean(security);
-        bean.setUnderlying(identifierToIdentifierBean(security.getUnderlyingIdentityKey()));
+        bean.setUnderlying(identifierToIdentifierBean(security.getUnderlyingIdentifier()));
         return bean;
       }
     });
