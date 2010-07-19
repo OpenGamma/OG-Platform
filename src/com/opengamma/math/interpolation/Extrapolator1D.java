@@ -7,6 +7,8 @@ package com.opengamma.math.interpolation;
 
 /**
  * 
+ * @param <T> Type of data bundle
+ * @param <U> Type of interpolation result
  */
 public class Extrapolator1D<T extends Interpolator1DDataBundle, U extends InterpolationResult> extends Interpolator1D<T, U> implements WrappedInterpolator {
 
@@ -14,20 +16,20 @@ public class Extrapolator1D<T extends Interpolator1DDataBundle, U extends Interp
   private final ExtrapolatorMethod<T, U> _leftExtrapolator;
   private final ExtrapolatorMethod<T, U> _rightExtrapolator;
 
-  public Extrapolator1D(ExtrapolatorMethod<T, U> extrapolatorMethod, final Interpolator1D<T, U> interpolator) {
+  public Extrapolator1D(final ExtrapolatorMethod<T, U> extrapolatorMethod, final Interpolator1D<T, U> interpolator) {
     _interpolator = interpolator;
     _leftExtrapolator = extrapolatorMethod;
     _rightExtrapolator = extrapolatorMethod;
   }
 
-  public Extrapolator1D(ExtrapolatorMethod<T, U> leftExtrapolatorMethod, ExtrapolatorMethod<T, U> rightExtrapolatorMethod, final Interpolator1D<T, U> interpolator) {
+  public Extrapolator1D(final ExtrapolatorMethod<T, U> leftExtrapolatorMethod, final ExtrapolatorMethod<T, U> rightExtrapolatorMethod, final Interpolator1D<T, U> interpolator) {
     _interpolator = interpolator;
     _leftExtrapolator = leftExtrapolatorMethod;
     _rightExtrapolator = rightExtrapolatorMethod;
   }
 
   @Override
-  public U interpolate(T model, Double value) {
+  public U interpolate(final T model, final Double value) {
     final InterpolationBoundedValues boundedValues = model.getBoundedValues(value);
     if (boundedValues.getHigherBoundKey() == null || boundedValues.getHigherBoundKey() < 0) {
       return _rightExtrapolator.rightExtrapolate(model, value, _interpolator);

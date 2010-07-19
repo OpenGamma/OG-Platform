@@ -15,13 +15,13 @@ import cern.jet.random.engine.RandomEngine;
 /**
  * 
  */
+@SuppressWarnings("unchecked")
 public class Extrapolator1DTest {
 
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final Interpolator1D<Interpolator1DDoubleQuadraticDataBundle, InterpolationResult> INTERPOLATOR = new DoubleQuadraticInterpolator1D();
   private static final ExtrapolatorMethod<? extends Interpolator1DDataBundle, ? extends InterpolationResult> LINEAR_EM = new LinearExtrapolator<Interpolator1DDataBundle, InterpolationResult>();
   private static final ExtrapolatorMethod<? extends Interpolator1DDataBundle, ? extends InterpolationResult> FLAT_EM = new FlatExtrapolator<Interpolator1DDataBundle, InterpolationResult>();
-
   private static final Extrapolator1D<Interpolator1DDataBundle, InterpolationResult> FLAT_EXTRAPOLATOR = new Extrapolator1D(FLAT_EM, INTERPOLATOR);
   private static final Extrapolator1D<Interpolator1DDataBundle, InterpolationResult> EXTRAPOLATOR = new Extrapolator1D(LINEAR_EM, LINEAR_EM, INTERPOLATOR);
   private static final Interpolator1DDataBundle MODEL;
@@ -39,7 +39,7 @@ public class Extrapolator1DTest {
   @Test
   public void testFlatExtrapolation() {
     for (int i = 0; i < 100; i++) {
-      double x = RANDOM.nextDouble() * 20.0 - 10;
+      final double x = RANDOM.nextDouble() * 20.0 - 10;
       if (x < 0) {
         assertEquals(3.0, FLAT_EXTRAPOLATOR.interpolate(MODEL, x).getResult(), 1e-12);
       } else if (x > 5.0) {

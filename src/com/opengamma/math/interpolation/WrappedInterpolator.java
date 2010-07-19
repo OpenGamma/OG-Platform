@@ -10,5 +10,5 @@ package com.opengamma.math.interpolation;
  */
 public interface WrappedInterpolator {
 
-  Interpolator getUnderlyingInterpolator();
+  Interpolator<?, ?, ?> getUnderlyingInterpolator();
 }
