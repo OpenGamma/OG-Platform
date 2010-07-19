@@ -13,8 +13,8 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A security master that uses the scheme of the unique identifier to determine which
- * underlying security master should handle the request.
+ * A source of securities that uses the scheme of the unique identifier to determine which
+ * underlying source should handle the request.
  * <p>
  * If no scheme-specific handler has been registered, a default is used.
  */
