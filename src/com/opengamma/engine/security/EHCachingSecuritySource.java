@@ -131,10 +131,10 @@ public class EHCachingSecuritySource implements SecuritySource {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the underlying security master.
-   * @return the underlying security master, not null
+   * Gets the underlying source of securities.
+   * @return the underlying source of securities, not null
    */
-  public SecuritySource getUnderlying() {
+  protected SecuritySource getUnderlying() {
     return _underlying;
   }
 
@@ -142,7 +142,7 @@ public class EHCachingSecuritySource implements SecuritySource {
    * Gets the cache manager.
    * @return the cache manager, not null
    */
-  /* package for testing */ CacheManager getCacheManager() {
+  protected CacheManager getCacheManager() {
     return _manager;
   }
 
