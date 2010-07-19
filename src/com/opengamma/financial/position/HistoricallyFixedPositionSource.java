@@ -19,13 +19,13 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * This PositionMaster retrieves all positions as of a fixed historical date.
  */
-public class HistoricallyFixedPositionMaster implements PositionSource {
+public class HistoricallyFixedPositionSource implements PositionSource {
   
   private final ManageablePositionMaster _delegate;
   private final InstantProvider _fixTime;
   private final InstantProvider _asViewedAt;
   
-  public HistoricallyFixedPositionMaster(ManageablePositionMaster delegate,
+  public HistoricallyFixedPositionSource(ManageablePositionMaster delegate,
       InstantProvider fixTime,
       InstantProvider asViewedAt) {
     ArgumentChecker.notNull(delegate, "Delegate Position Master");

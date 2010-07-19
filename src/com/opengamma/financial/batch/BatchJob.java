@@ -60,7 +60,7 @@ import com.opengamma.engine.view.calcnode.JobRequestSender;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.financial.batch.db.BatchDbRiskContext;
-import com.opengamma.financial.position.HistoricallyFixedPositionMaster;
+import com.opengamma.financial.position.HistoricallyFixedPositionSource;
 import com.opengamma.financial.position.ManageablePositionMaster;
 import com.opengamma.financial.security.HistoricallyFixedSecurityMaster;
 import com.opengamma.financial.security.ManageableSecurityMaster;
@@ -520,7 +520,7 @@ public class BatchJob implements Job, ComputationResultListener {
     PositionSource underlyingPositionMaster = getPositionMaster();
     PositionSource positionMaster; 
     if (underlyingPositionMaster instanceof ManageablePositionMaster) {
-      positionMaster = new HistoricallyFixedPositionMaster(
+      positionMaster = new HistoricallyFixedPositionSource(
           (ManageablePositionMaster) underlyingPositionMaster, 
           getValuationTime().toInstant(), 
           getCreationTime());
