@@ -113,7 +113,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
   @Override
   public SecurityDocument add(final SecurityDocument document) {
     Validate.notNull(document, "document");
-    Validate.notNull(document.getSecurity(), "security");
+    Validate.notNull(document.getSecurity(), "document.security");
     
     final Security security = document.getSecurity();
     final UniqueIdentifier uid = _uidSupplier.get();
@@ -131,8 +131,8 @@ public class InMemorySecurityMaster implements SecurityMaster {
   @Override
   public SecurityDocument update(final SecurityDocument document) {
     Validate.notNull(document, "document");
-    Validate.notNull(document.getSecurity(), "security");
-    Validate.notNull(document.getUniqueIdentifier(), "uid");
+    Validate.notNull(document.getSecurity(), "document.security");
+    Validate.notNull(document.getUniqueIdentifier(), "document.uniqueIdentifier");
     
     final UniqueIdentifier uid = document.getUniqueIdentifier();
     final Instant now = Instant.nowSystemClock();
