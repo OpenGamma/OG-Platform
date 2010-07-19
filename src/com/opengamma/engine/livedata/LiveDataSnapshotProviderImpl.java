@@ -39,7 +39,7 @@ public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvid
   // Injected Inputs:
   private final LiveDataClient _liveDataClient;
   private final FudgeContext _fudgeContext;
-  private final SecuritySource _securityMaster;
+  private final SecuritySource _securitySource;
   
   // Runtime State:
   private final InMemoryLKVSnapshotProvider _underlyingProvider = new InMemoryLKVSnapshotProvider();
@@ -50,12 +50,12 @@ public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvid
     this(liveDataClient, secMaster, new FudgeContext());
   }
   
-  public LiveDataSnapshotProviderImpl(LiveDataClient liveDataClient, SecuritySource secMaster, FudgeContext fudgeContext) {
-    ArgumentChecker.notNull(liveDataClient, "Live Data Client");
-    ArgumentChecker.notNull(secMaster, "Security master");
-    ArgumentChecker.notNull(fudgeContext, "Fudge Context");
+  public LiveDataSnapshotProviderImpl(LiveDataClient liveDataClient, SecuritySource securitySource, FudgeContext fudgeContext) {
+    ArgumentChecker.notNull(liveDataClient, "liveDataClient");
+    ArgumentChecker.notNull(securitySource, "securitySource");
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _liveDataClient = liveDataClient;
-    _securityMaster = secMaster;
+    _securitySource = securitySource;
     _fudgeContext = fudgeContext;
   }
 
@@ -70,7 +70,7 @@ public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvid
    * @return the secMaster
    */
   public SecuritySource getSecurityMaster() {
-    return _securityMaster;
+    return _securitySource;
   }
 
   /**

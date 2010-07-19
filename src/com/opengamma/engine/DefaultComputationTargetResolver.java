@@ -33,9 +33,9 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
   private static final Logger s_logger = LoggerFactory.getLogger(DefaultComputationTargetResolver.class);
 
   /**
-   * The security master.
+   * The security source.
    */
-  private final SecuritySource _securityMaster;
+  private final SecuritySource _securitySource;
   /**
    * The position master.
    */
@@ -51,13 +51,13 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
 
   /**
    * Creates a resolver using a security and position master.
-   * @param securityMaster  the security master, not null
+   * @param securitySource  the security source, not null
    * @param positionMaster  the position master, not null
    */
-  public DefaultComputationTargetResolver(SecuritySource securityMaster, PositionMaster positionMaster) {
-    ArgumentChecker.notNull(securityMaster, "Security Master");
+  public DefaultComputationTargetResolver(SecuritySource securitySource, PositionMaster positionMaster) {
+    ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notNull(positionMaster, "Position master");
-    _securityMaster = securityMaster;
+    _securitySource = securitySource;
     _positionMaster = positionMaster;
   }
 
@@ -74,11 +74,11 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the security master which holds details of all securities in the system.
+   * Gets the security source which provides access to the securities.
    * @return the security master, not null
    */
   public SecuritySource getSecurityMaster() {
-    return _securityMaster;
+    return _securitySource;
   }
 
   /**

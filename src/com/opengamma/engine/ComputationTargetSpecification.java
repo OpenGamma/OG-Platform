@@ -173,7 +173,7 @@ public final class ComputationTargetSpecification implements Serializable {
   }
   
   /**
-   * @param securityMaster Used to look up {@link Security} objects
+   * @param securitySource Used to look up {@link Security} objects
    * @return LiveData market data line that directly produces a value for
    * this computation target.
    * @throws OpenGammaRuntimeException If there is no LiveData directly corresponding
@@ -183,13 +183,13 @@ public final class ComputationTargetSpecification implements Serializable {
    * there is no LiveData market data line that would directly value
    * positions or porfolios.    
    */
-  public LiveDataSpecification getRequiredLiveData(SecuritySource securityMaster) {
+  public LiveDataSpecification getRequiredLiveData(SecuritySource securitySource) {
     switch(getType()) {
       case PRIMITIVE:
         // Just use the identifier as given.
         return new LiveDataSpecification(StandardRules.getOpenGammaRuleSetId(), getIdentifier());
       case SECURITY:
-        Security security = securityMaster.getSecurity(getUniqueIdentifier());
+        Security security = securitySource.getSecurity(getUniqueIdentifier());
         if (security == null) {
           throw new OpenGammaRuntimeException("Unknown security in configured security master: " + getIdentifier());
         }

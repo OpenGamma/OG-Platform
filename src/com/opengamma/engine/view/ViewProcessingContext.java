@@ -27,13 +27,14 @@ import com.opengamma.util.ArgumentChecker;
  * A collection for everything relating to processing a particular view.
  */
 public class ViewProcessingContext {
+
   private final LiveDataEntitlementChecker _liveDataEntitlementChecker;
   private final LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private final LiveDataSnapshotProvider _liveDataSnapshotProvider;
   private final FunctionRepository _functionRepository;
   private final FunctionResolver _functionResolver;
   private final PositionMaster _positionMaster;
-  private final SecuritySource _securityMaster;
+  private final SecuritySource _securitySource;
   private final ViewComputationCacheSource _computationCacheSource;
   private final JobRequestSender _computationJobRequestSender;
   private final ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
@@ -48,7 +49,7 @@ public class ViewProcessingContext {
       FunctionRepository functionRepository,
       FunctionResolver functionResolver,
       PositionMaster positionMaster,
-      SecuritySource securityMaster,
+      SecuritySource securitySource,
       ViewComputationCacheSource computationCacheSource,
       JobRequestSender computationJobRequestSender,
       ViewProcessorQueryReceiver viewProcessorQueryReceiver,
@@ -60,7 +61,7 @@ public class ViewProcessingContext {
     ArgumentChecker.notNull(functionRepository, "FunctionRepository");
     ArgumentChecker.notNull(functionResolver, "FunctionResolver");
     ArgumentChecker.notNull(positionMaster, "PositionMaster");
-    ArgumentChecker.notNull(securityMaster, "SecurityMaster");
+    ArgumentChecker.notNull(securitySource, "SecuritySource");
     ArgumentChecker.notNull(computationCacheSource, "ComputationCacheSource");
     ArgumentChecker.notNull(computationJobRequestSender, "ComputationJobRequestSender");
     ArgumentChecker.notNull(viewProcessorQueryReceiver, "ViewProcessorQueryReceiver");
@@ -73,7 +74,7 @@ public class ViewProcessingContext {
     _functionRepository = functionRepository;
     _functionResolver = functionResolver;
     _positionMaster = positionMaster;
-    _securityMaster = securityMaster;
+    _securitySource = securitySource;
     _computationCacheSource = computationCacheSource;
     _computationJobRequestSender = computationJobRequestSender;
     _viewProcessorQueryReceiver = viewProcessorQueryReceiver;
@@ -81,75 +82,85 @@ public class ViewProcessingContext {
     _executorService = executorService;
     
     // REVIEW kirk 2010-05-22 -- This isn't the right place to wrap this.
-    _computationTargetResolver = new CachingComputationTargetResolver(new DefaultComputationTargetResolver(securityMaster, positionMaster));
+    _computationTargetResolver = new CachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionMaster));
   }
-  
-  
+
+  //-------------------------------------------------------------------------
   /**
-   * @return the liveDataEntitlementChecker
+   * Gets the live data entitlement checker.
+   * @return the live data entitlement checker, not null
    */
   public LiveDataEntitlementChecker getLiveDataEntitlementChecker() {
     return _liveDataEntitlementChecker;
   }
 
   /**
-   * @return the liveDataAvailabilityProvider
+   * Gets the live data.
+   * @return the live data availability provider, not null
    */
   public LiveDataAvailabilityProvider getLiveDataAvailabilityProvider() {
     return _liveDataAvailabilityProvider;
   }
 
   /**
-   * @return the liveDataSnapshotProvider
+   * Gets the live data snapshot provider.
+   * @return the live data snapshot provider, not null
    */
   public LiveDataSnapshotProvider getLiveDataSnapshotProvider() {
     return _liveDataSnapshotProvider;
   }
-  
+
   /**
-   * @return the analyticFunctionRepository
+   * Gets the function repository.
+   * @return the function repository, not null
    */
   public FunctionRepository getFunctionRepository() {
     return _functionRepository;
   }
-  
+
   /**
-   * @return the functionResolver
+   * Gets the function resolver.
+   * @return the function resolver, not null
    */
   public FunctionResolver getFunctionResolver() {
     return _functionResolver;
   }
 
   /**
-   * @return the positionMaster
+   * Gets the source of positions.
+   * @return the source of positions, not null
    */
   public PositionMaster getPositionMaster() {
     return _positionMaster;
   }
 
   /**
-   * @return the securityMaster
+   * Gets the source of securities.
+   * @return the source of securities, not null
    */
   public SecuritySource getSecurityMaster() {
-    return _securityMaster;
+    return _securitySource;
   }
 
   /**
-   * @return the computationCacheSource
+   * Gets the computation cache source.
+   * @return the computation cache source, not null
    */
   public ViewComputationCacheSource getComputationCacheSource() {
     return _computationCacheSource;
   }
 
   /**
-   * @return the computationJobRequestSender
+   * Gets the computation job request sender.
+   * @return the computation job request sender, not null
    */
   public JobRequestSender getComputationJobRequestSender() {
     return _computationJobRequestSender;
   }
-  
+
   /**
-   * @return the viewProcessorQueryReceiver
+   * Gets the view processor query receiver.
+   * @return the view processor query receiver, not null
    */
   public ViewProcessorQueryReceiver getViewProcessorQueryReceiver() {
     return _viewProcessorQueryReceiver;
@@ -160,26 +171,33 @@ public class ViewProcessingContext {
    * target resolver is capable of returning fully constructed portfolio graphs with all security and
    * internal references resolved.
    * 
-   * @return the computationTargetResolver
+   * @return the computationTargetResolver, not null
    */
   public ComputationTargetResolver getComputationTargetResolver() {
     return _computationTargetResolver;
   }
 
   /**
-   * @return the compilationContext
+   * Gets the compilation context.
+   * @return the compilation context, not null
    */
   public FunctionCompilationContext getCompilationContext() {
     return _compilationContext;
   }
 
   /**
-   * @return the executorService
+   * Gets the executor service.
+   * @return the executor service, not null
    */
   public ExecutorService getExecutorService() {
     return _executorService;
   }
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Converts this context to a {@code ViewCompliationServices}.
+   * @return the services, not null
+   */
   public ViewCompilationServices asCompilationServices() {
     return new ViewCompilationServices(
         getLiveDataAvailabilityProvider(),

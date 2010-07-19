@@ -22,9 +22,9 @@ import com.opengamma.util.ArgumentChecker;
 public class DomainLiveDataAvailabilityProvider implements LiveDataAvailabilityProvider {
 
   /**
-   * The security master to resolve against.
+   * The security source to resolve against.
    */
-  private final SecuritySource _securityMaster;
+  private final SecuritySource _securitySource;
   /**
    * The set of acceptable schemes.
    */
@@ -37,14 +37,14 @@ public class DomainLiveDataAvailabilityProvider implements LiveDataAvailabilityP
   /**
    * Creates a provider.
    * 
-   * @param secMaster  the security master, not null
+   * @param securitySource  the security source, not null
    * @param acceptableSchemes  the acceptable schemes, not null
    * @param validMarketDataRequirementNames  the valid market data requirement names, not null
    */
-  public DomainLiveDataAvailabilityProvider(final SecuritySource secMaster, final Collection<IdentificationScheme> acceptableSchemes, final Collection<String> validMarketDataRequirementNames) {
-    ArgumentChecker.notNull(secMaster, "Security master");
+  public DomainLiveDataAvailabilityProvider(final SecuritySource securitySource, final Collection<IdentificationScheme> acceptableSchemes, final Collection<String> validMarketDataRequirementNames) {
+    ArgumentChecker.notNull(securitySource, "Security master");
     ArgumentChecker.notNull(acceptableSchemes, "Acceptable schemes");
-    _securityMaster = secMaster;
+    _securitySource = securitySource;
     _acceptableSchemes = new HashSet<IdentificationScheme>(acceptableSchemes);
     _validMarketDataRequirementNames = new HashSet<String>(validMarketDataRequirementNames);
   }
@@ -61,7 +61,7 @@ public class DomainLiveDataAvailabilityProvider implements LiveDataAvailabilityP
         return _acceptableSchemes.contains(scheme);
       }
       case SECURITY: {
-        Security security = _securityMaster.getSecurity(requirement.getTargetSpecification().getUniqueIdentifier());
+        Security security = _securitySource.getSecurity(requirement.getTargetSpecification().getUniqueIdentifier());
         if (security != null) {
           for (Identifier identifier : security.getIdentifiers()) {
             if (_acceptableSchemes.contains(identifier.getScheme())) {

@@ -53,7 +53,7 @@ public class ViewProcessor implements Lifecycle {
   // Injected Inputs:
   private ViewDefinitionRepository _viewDefinitionRepository;
   private FunctionRepository _functionRepository;
-  private SecuritySource _securityMaster;
+  private SecuritySource _securitySource;
   private PositionMaster _positionMaster;
   private LiveDataClient _liveDataClient;
   private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
@@ -110,18 +110,18 @@ public class ViewProcessor implements Lifecycle {
   }
 
   /**
-   * @return the securityMaster
+   * @return the source of securities
    */
   public SecuritySource getSecurityMaster() {
-    return _securityMaster;
+    return _securitySource;
   }
 
   /**
-   * @param securityMaster the securityMaster to set
+   * @param securitySource the source of securities
    */
-  public void setSecurityMaster(SecuritySource securityMaster) {
+  public void setSecurityMaster(SecuritySource securitySource) {
     assertNotStarted();
-    _securityMaster = securityMaster;
+    _securitySource = securitySource;
   }
 
   /**

@@ -139,16 +139,16 @@ public final class ValueRequirement implements Serializable {
     return new ValueRequirement(valueName, targetSpecification);
   }
   
-  public LiveDataSpecification getRequiredLiveData(SecuritySource securityMaster) {
-    return getTargetSpecification().getRequiredLiveData(securityMaster);
+  public LiveDataSpecification getRequiredLiveData(SecuritySource securitySource) {
+    return getTargetSpecification().getRequiredLiveData(securitySource);
   }
   
   public static Collection<LiveDataSpecification> getRequiredLiveData(
       Collection<ValueRequirement> valueRequirements, 
-      SecuritySource securityMaster) {
+      SecuritySource securitySource) {
     Set<LiveDataSpecification> returnValue = new HashSet<LiveDataSpecification>();
     for (ValueRequirement valueRequirement : valueRequirements) {
-      returnValue.add(valueRequirement.getRequiredLiveData(securityMaster));      
+      returnValue.add(valueRequirement.getRequiredLiveData(securitySource));      
     }
     return returnValue;
   }
