@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.security.server;
 
-import static com.opengamma.engine.security.server.SecurityMasterServiceNames.SECURITYMASTER_SECURITIES;
-import static com.opengamma.engine.security.server.SecurityMasterServiceNames.SECURITYMASTER_SECURITY;
+import static com.opengamma.engine.security.server.SecuritySourceServiceNames.SECURITYSOURCE_SECURITIES;
+import static com.opengamma.engine.security.server.SecuritySourceServiceNames.SECURITYSOURCE_SECURITY;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * REST resource wrapper for a {@link SecuritySource}.
  */
-public class SecurityMasterResource {
+public class SecuritySourceResource {
 
   /**
    * The Fudge context.
@@ -45,7 +45,7 @@ public class SecurityMasterResource {
    * @param fudgeContext  the context, not null
    * @param securitySource  the security source, not null
    */
-  public SecurityMasterResource(final FudgeContext fudgeContext, final SecuritySource securitySource) {
+  public SecuritySourceResource(final FudgeContext fudgeContext, final SecuritySource securitySource) {
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     ArgumentChecker.notNull(securitySource, "securitySource");
     _fudgeContext = fudgeContext;
@@ -90,7 +90,7 @@ public class SecurityMasterResource {
     final UniqueIdentifier uid = UniqueIdentifier.parse(uidStr);
     final FudgeSerializationContext context = getFudgeSerializationContext();
     final MutableFudgeFieldContainer msg = context.newMessage();
-    context.objectToFudgeMsg(msg, SECURITYMASTER_SECURITY, null, getSecuritySource().getSecurity(uid));
+    context.objectToFudgeMsg(msg, SECURITYSOURCE_SECURITY, null, getSecuritySource().getSecurity(uid));
     return new FudgeMsgEnvelope(msg);
   }
 
@@ -109,7 +109,7 @@ public class SecurityMasterResource {
     }
     final FudgeSerializationContext context = getFudgeSerializationContext();
     final MutableFudgeFieldContainer msg = context.newMessage();
-    context.objectToFudgeMsg(msg, SECURITYMASTER_SECURITIES, null, getSecuritySource().getSecurities(bundle));
+    context.objectToFudgeMsg(msg, SECURITYSOURCE_SECURITIES, null, getSecuritySource().getSecurities(bundle));
     return new FudgeMsgEnvelope(msg);
   }
 
@@ -128,7 +128,7 @@ public class SecurityMasterResource {
     }
     final FudgeSerializationContext context = getFudgeSerializationContext();
     final MutableFudgeFieldContainer msg = context.newMessage();
-    context.objectToFudgeMsg(msg, SECURITYMASTER_SECURITY, null, getSecuritySource().getSecurity(bundle));
+    context.objectToFudgeMsg(msg, SECURITYSOURCE_SECURITY, null, getSecuritySource().getSecurity(bundle));
     return new FudgeMsgEnvelope(msg);
   }
 

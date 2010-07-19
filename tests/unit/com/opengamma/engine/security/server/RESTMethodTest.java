@@ -5,20 +5,15 @@
  */
 package com.opengamma.engine.security.server;
 
-import static com.opengamma.engine.security.server.SecurityMasterServiceNames.DEFAULT_SECURITYMASTER_NAME;
-import static com.opengamma.engine.security.server.SecurityMasterServiceNames.SECURITYMASTER_SECURITIES;
-import static com.opengamma.engine.security.server.SecurityMasterServiceNames.SECURITYMASTER_SECURITY;
+import static com.opengamma.engine.security.server.SecuritySourceServiceNames.DEFAULT_SECURITYSOURCE_NAME;
+import static com.opengamma.engine.security.server.SecuritySourceServiceNames.SECURITYSOURCE_SECURITIES;
+import static com.opengamma.engine.security.server.SecuritySourceServiceNames.SECURITYSOURCE_SECURITY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
-import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.FudgeMsgFormatter;
@@ -34,20 +29,20 @@ import com.opengamma.id.UniqueIdentifier;
 
 public class RESTMethodTest {
   
-  private final SecurityMasterService _securityMasterService = new SecurityMasterService();
+  private final SecuritySourceService _securitySourceService = new SecuritySourceService();
   private UniqueIdentifier _uid1;
   //private UniqueIdentifier _uid2;
-  
-  protected SecurityMasterService getSecurityMasterService () {
-    return _securityMasterService;
+
+  protected SecuritySourceService getSecuritySourceService () {
+    return _securitySourceService;
   }
-  
-  protected SecurityMasterResource getSecurityMasterResource () {
-    return getSecurityMasterService ().findSecuritySource (DEFAULT_SECURITYMASTER_NAME);
+
+  protected SecuritySourceResource getSecuritySourceResource () {
+    return getSecuritySourceService().findSecuritySource(DEFAULT_SECURITYSOURCE_NAME);
   }
-  
+
   @Before
-  public void configureService () {
+  public void configureService() {
     MockSecuritySource secMaster = new MockSecuritySource();
     Identifier secId1 = new Identifier(new IdentificationScheme("d1"), "v1");
     Identifier secId2 = new Identifier(new IdentificationScheme("d2"), "v2");
@@ -55,62 +50,62 @@ public class RESTMethodTest {
     secMaster.addSecurity(sec1);
     DefaultSecurity sec2 = new DefaultSecurity("t2", new IdentifierBundle(secId2));
     secMaster.addSecurity(sec2);
-    getSecurityMasterService ().setSecuritySource (secMaster);
+    getSecuritySourceService().setSecuritySource(secMaster);
     _uid1 = sec1.getUniqueIdentifier();
-    //_uid2 = sec2.getUniqueIdentifier();
+    // _uid2 = sec2.getUniqueIdentifier();
   }
-  
+
   @Test
-  public void testFindSecurityMaster () {
-    assertNull (getSecurityMasterService ().findSecuritySource ("woot"));
-    assertNotNull (getSecurityMasterResource ());
+  public void testFindSecuritySource() {
+    assertNull(getSecuritySourceService().findSecuritySource("woot"));
+    assertNotNull(getSecuritySourceResource());
   }
-  
-  private <T> List<T> assertIsList (final Class<T> clazz, final FudgeFieldContainer msg) {
-    if (msg.getNumFields () == 0) {
-      return Collections.emptyList ();
-    }
-    final List<T> list = new ArrayList<T> (msg.getNumFields ());
-    for (FudgeField f : msg) {
-      assertEquals (null, f.getName ());
-      assertTrue ((f.getOrdinal () == null) || (f.getOrdinal () == 1));
-      T value = msg.getFieldValue (clazz, f);
-      assertNotNull (value);
-      list.add (value);
-    }
-    return list;
-  }
+
+//  private <T> List<T> assertIsList (final Class<T> clazz, final FudgeFieldContainer msg) {
+//    if (msg.getNumFields () == 0) {
+//      return Collections.emptyList ();
+//    }
+//    final List<T> list = new ArrayList<T> (msg.getNumFields ());
+//    for (FudgeField f : msg) {
+//      assertEquals (null, f.getName ());
+//      assertTrue ((f.getOrdinal () == null) || (f.getOrdinal () == 1));
+//      T value = msg.getFieldValue (clazz, f);
+//      assertNotNull (value);
+//      list.add (value);
+//    }
+//    return list;
+//  }
   
   @Test
   public void testGetSecurityByIdentifier() {
-    final FudgeMsgEnvelope fme = getSecurityMasterResource().getSecurity(_uid1.toString());
+    final FudgeMsgEnvelope fme = getSecuritySourceResource().getSecurity(_uid1.toString());
     assertNotNull(fme);
     final FudgeFieldContainer msg = fme.getMessage();
     assertNotNull(msg);
     FudgeMsgFormatter.outputToSystemOut(msg);
-    final FudgeFieldContainer security = msg.getFieldValue(FudgeFieldContainer.class, msg.getByName(SECURITYMASTER_SECURITY));
+    final FudgeFieldContainer security = msg.getFieldValue(FudgeFieldContainer.class, msg.getByName(SECURITYSOURCE_SECURITY));
     assertNotNull(security);
   }
 
   @Test
   public void testGetSecurityByBundle() {
-    final FudgeMsgEnvelope fme = getSecurityMasterResource().getSecurity(Arrays.asList("d1::v1"));
+    final FudgeMsgEnvelope fme = getSecuritySourceResource().getSecurity(Arrays.asList("d1::v1"));
     assertNotNull(fme);
     final FudgeFieldContainer msg = fme.getMessage();
     assertNotNull(msg);
     FudgeMsgFormatter.outputToSystemOut(msg);
-    final FudgeFieldContainer security = msg.getFieldValue(FudgeFieldContainer.class, msg.getByName(SECURITYMASTER_SECURITY));
+    final FudgeFieldContainer security = msg.getFieldValue(FudgeFieldContainer.class, msg.getByName(SECURITYSOURCE_SECURITY));
     assertNotNull(security);
   }
 
   @Test
   public void testGetSecurities() {
-    final FudgeMsgEnvelope fme = getSecurityMasterResource().getSecurities(Arrays.asList("d1::v1", "d2::v2"));
+    final FudgeMsgEnvelope fme = getSecuritySourceResource().getSecurities(Arrays.asList("d1::v1", "d2::v2"));
     assertNotNull(fme);
     final FudgeFieldContainer msg = fme.getMessage();
     assertNotNull(msg);
     FudgeMsgFormatter.outputToSystemOut(msg);
-    final FudgeFieldContainer securities = msg.getFieldValue(FudgeFieldContainer.class, msg.getByName(SECURITYMASTER_SECURITIES));
+    final FudgeFieldContainer securities = msg.getFieldValue(FudgeFieldContainer.class, msg.getByName(SECURITYSOURCE_SECURITIES));
     assertNotNull(securities);
     assertEquals(2, securities.getNumFields());
   }

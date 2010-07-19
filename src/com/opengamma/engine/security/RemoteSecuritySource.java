@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.security;
 
-import static com.opengamma.engine.security.server.SecurityMasterServiceNames.SECURITYMASTER_SECURITIES;
-import static com.opengamma.engine.security.server.SecurityMasterServiceNames.SECURITYMASTER_SECURITY;
+import static com.opengamma.engine.security.server.SecuritySourceServiceNames.SECURITYSOURCE_SECURITIES;
+import static com.opengamma.engine.security.server.SecuritySourceServiceNames.SECURITYSOURCE_SECURITY;
 
 import java.util.Collection;
 import java.util.List;
@@ -70,7 +70,7 @@ public class RemoteSecuritySource implements SecuritySource {
   public Security getSecurity(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     final RestTarget target = _targetBase.resolveBase("securities").resolveBase("security").resolve(uid.toString());
-    return getRestClient().getSingleValueNotNull(Security.class, target, SECURITYMASTER_SECURITY);
+    return getRestClient().getSingleValueNotNull(Security.class, target, SECURITYSOURCE_SECURITY);
   }
 
   @SuppressWarnings("unchecked")
@@ -78,14 +78,14 @@ public class RemoteSecuritySource implements SecuritySource {
   public Collection<Security> getSecurities(IdentifierBundle securityKey) {
     ArgumentChecker.notNull(securityKey, "securityKey");
     final RestTarget target = _targetBase.resolveBase("securities").resolveQuery("id", securityKey.toStringList());
-    return getRestClient().getSingleValueNotNull(List.class, target, SECURITYMASTER_SECURITIES);
+    return getRestClient().getSingleValueNotNull(List.class, target, SECURITYSOURCE_SECURITIES);
   }
 
   @Override
   public Security getSecurity(IdentifierBundle securityKey) {
     ArgumentChecker.notNull(securityKey, "securityKey");
     final RestTarget target = _targetBase.resolveBase("securities").resolve("security").resolveQuery("id", securityKey.toStringList());
-    return getRestClient().getSingleValueNotNull(Security.class, target, SECURITYMASTER_SECURITY);
+    return getRestClient().getSingleValueNotNull(Security.class, target, SECURITYSOURCE_SECURITY);
   }
 
 }

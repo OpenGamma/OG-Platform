@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.security.server;
 
-import static com.opengamma.engine.security.server.SecurityMasterServiceNames.DEFAULT_SECURITYMASTER_NAME;
+import static com.opengamma.engine.security.server.SecuritySourceServiceNames.DEFAULT_SECURITYSOURCE_NAME;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,13 +24,13 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * RESTful backend for {@link RemoteSecuritySource}.
  */
-@Path("securityMaster")
-public class SecurityMasterService {
+@Path("securitySource")
+public class SecuritySourceService {
 
   /**
    * Map of security resources by name.
    */
-  private final ConcurrentMap<String, SecurityMasterResource> _securityResourceMap = new ConcurrentHashMap<String, SecurityMasterResource>();
+  private final ConcurrentMap<String, SecuritySourceResource> _securityResourceMap = new ConcurrentHashMap<String, SecuritySourceResource>();
   /**
    * The Fudge context.
    */
@@ -39,7 +39,7 @@ public class SecurityMasterService {
   /**
    * Creates an instance using the default Fudge context.
    */
-  public SecurityMasterService() {
+  public SecuritySourceService() {
     this(FudgeContext.GLOBAL_DEFAULT);
   }
 
@@ -47,7 +47,7 @@ public class SecurityMasterService {
    * Creates an instance using the specified Fudge context.
    * @param fudgeContext  the Fudge context, not null
    */
-  public SecurityMasterService(FudgeContext fudgeContext) {
+  public SecuritySourceService(FudgeContext fudgeContext) {
     Validate.notNull(fudgeContext, "FudgeContext must not be null");
     _fudgeContext = fudgeContext;
   }
@@ -65,7 +65,7 @@ public class SecurityMasterService {
    * Gets the map of security sources.
    * @return the map, unmodifiable, not null
    */
-  protected ConcurrentMap<String, SecurityMasterResource> getSecurityResourceMap() {
+  protected ConcurrentMap<String, SecuritySourceResource> getSecurityResourceMap() {
     return _securityResourceMap;
   }
 
@@ -75,7 +75,7 @@ public class SecurityMasterService {
    * @param name  the name, not null
    * @param resource  the resource, not null
    */
-  protected void addSecuritySource(final String name, final SecurityMasterResource resource) {
+  protected void addSecuritySource(final String name, final SecuritySourceResource resource) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(resource, "resource");
     getSecurityResourceMap().put(name, resource);
@@ -89,7 +89,7 @@ public class SecurityMasterService {
   protected void addSecuritySource(final String name, final SecuritySource source) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(source, "source");
-    addSecuritySource(name, new SecurityMasterResource(getFudgeContext(), source));
+    addSecuritySource(name, new SecuritySourceResource(getFudgeContext(), source));
   }
 
   /**
@@ -97,7 +97,7 @@ public class SecurityMasterService {
    * @param source  the source, not null
    */
   public void setSecuritySource(final SecuritySource source) {
-    addSecuritySource(DEFAULT_SECURITYMASTER_NAME, source);
+    addSecuritySource(DEFAULT_SECURITYSOURCE_NAME, source);
   }
 
   /**
@@ -105,7 +105,7 @@ public class SecurityMasterService {
    * @param sources  the source map, not null
    */
   public void setSecuritySourceMap(Map<String, SecuritySource> sources) {
-    final ConcurrentMap<String, SecurityMasterResource> map = getSecurityResourceMap();
+    final ConcurrentMap<String, SecuritySourceResource> map = getSecurityResourceMap();
     map.clear();
     for (Map.Entry<String, SecuritySource> entry : sources.entrySet()) {
       addSecuritySource(entry.getKey(), entry.getValue());
@@ -119,7 +119,7 @@ public class SecurityMasterService {
    * @return the resource, null if not found
    */
   @Path ("{name}")
-  public SecurityMasterResource findSecuritySource(@PathParam ("name") String name) {
+  public SecuritySourceResource findSecuritySource(@PathParam ("name") String name) {
     return getSecurityResourceMap().get(name);
   }
 
