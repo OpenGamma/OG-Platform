@@ -5,6 +5,9 @@
  */
 package com.opengamma.livedata.entitlement;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
@@ -20,6 +23,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 public abstract class DistributionSpecEntitlementChecker extends AbstractEntitlementChecker {
   
+  private static final Logger s_logger = LoggerFactory.getLogger(DistributionSpecEntitlementChecker.class);
+  
   private final DistributionSpecificationResolver _resolver;
   
   /**
@@ -33,7 +38,13 @@ public abstract class DistributionSpecEntitlementChecker extends AbstractEntitle
 
   @Override
   public boolean isEntitled(UserPrincipal user, LiveDataSpecification requestedSpecification) {
-    DistributionSpecification distributionSpecification = _resolver.getDistributionSpecification(requestedSpecification); 
+    DistributionSpecification distributionSpecification;
+    try {
+      distributionSpecification = _resolver.getDistributionSpecification(requestedSpecification);
+    } catch (IllegalArgumentException e) {
+      s_logger.info("User not entitled as distribution specification could not be built", e);
+      return false;
+    }
     return isEntitled(user, distributionSpecification);
   }
   

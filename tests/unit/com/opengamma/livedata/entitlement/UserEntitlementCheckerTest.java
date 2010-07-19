@@ -34,7 +34,6 @@ import com.opengamma.security.user.UserManager;
 /**
  * 
  *
- * @author pietari
  */
 public class UserEntitlementCheckerTest {
   
@@ -115,7 +114,13 @@ public class UserEntitlementCheckerTest {
     // non-existent user
     UserPrincipal mike = new UserPrincipal("mike", "127.0.0.1");
     Assert.assertFalse(userEntitlementChecker.isEntitled(mike, aaplOnBloomberg.getFullyQualifiedLiveDataSpecification())); 
-    Assert.assertFalse(userEntitlementChecker.isEntitled(mike, fxOnBloomberg.getFullyQualifiedLiveDataSpecification())); 
+    Assert.assertFalse(userEntitlementChecker.isEntitled(mike, fxOnBloomberg.getFullyQualifiedLiveDataSpecification()));
+    
+    // bogus spec
+    Assert.assertFalse(userEntitlementChecker.isEntitled(john, 
+        new LiveDataSpecification(
+            StandardRules.getOpenGammaRuleSetId(), 
+            new Identifier(IdentificationScheme.RIC, "bar"))));
   }
 
 }
