@@ -44,7 +44,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.WritableSecurityMaster;
+import com.opengamma.engine.security.WritableSecuritySource;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.GICSCode;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -97,7 +97,7 @@ public abstract class WritableSecurityMasterTestCase extends HibernateTest {
     super(databaseType, databaseVersion);
   }
 
-  private WritableSecurityMaster _secMaster = null;
+  private WritableSecuritySource _secMaster = null;
 
   /**
    * @throws java.lang.Exception
@@ -109,7 +109,7 @@ public abstract class WritableSecurityMasterTestCase extends HibernateTest {
     _secMaster = createSecurityMaster();
   }
 
-  protected abstract WritableSecurityMaster createSecurityMaster();
+  protected abstract WritableSecuritySource createSecurityMaster();
 
   /**
    * @throws java.lang.Exception

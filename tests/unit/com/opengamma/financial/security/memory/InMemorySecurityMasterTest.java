@@ -43,10 +43,6 @@ public class InMemorySecurityMasterTest {
     Collection<Security> secs = test.getSecurities(BUNDLE1);
     assertNotNull(secs);
     assertEquals(true, secs.isEmpty());
-    
-    Collection<String> types = test.getAllSecurityTypes();
-    assertNotNull(types);
-    assertEquals(true, types.isEmpty());
   }
 
   //-------------------------------------------------------------------------

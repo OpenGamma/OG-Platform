@@ -17,7 +17,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -30,6 +30,7 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
  * 
@@ -83,7 +84,7 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction imple
   }
 
   protected ValueRequirement getUnderlyingMarketDataRequirement(final UniqueIdentifier uid) {
-    return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, uid);
+    return new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, ComputationTargetType.SECURITY, uid);
   }
 
   protected ValueRequirement getDiscountCurveMarketDataRequirement(final UniqueIdentifier uid) {
@@ -103,5 +104,5 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction imple
 
   protected abstract OptionDefinition getOptionDefinition(OptionSecurity option);
 
-  protected abstract StandardOptionDataBundle getDataBundle(SecurityMaster secMaster, Clock relevantTime, OptionSecurity option, FunctionInputs inputs);
+  protected abstract StandardOptionDataBundle getDataBundle(SecuritySource secMaster, Clock relevantTime, OptionSecurity option, FunctionInputs inputs);
 }

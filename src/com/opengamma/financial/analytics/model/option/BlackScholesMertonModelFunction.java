@@ -11,7 +11,6 @@ import java.util.Set;
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
-import org.fudgemsg.FudgeFieldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +19,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
@@ -33,7 +32,6 @@ import com.opengamma.financial.security.option.Option;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.livedata.normalization.MarketDataFieldNames;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -61,7 +59,7 @@ public class BlackScholesMertonModelFunction extends AnalyticOptionModelFunction
     if (canApplyTo(context, target)) {
       final OptionSecurity option = (OptionSecurity) target.getSecurity();
       
-      SecurityMaster secMaster = context.getSecurityMaster();
+      SecuritySource secMaster = context.getSecurityMaster();
       Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
       
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
@@ -90,13 +88,12 @@ public class BlackScholesMertonModelFunction extends AnalyticOptionModelFunction
   }
 
   @Override
-  protected StandardOptionDataBundle getDataBundle(final SecurityMaster secMaster, final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
+  protected StandardOptionDataBundle getDataBundle(final SecuritySource secMaster, final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
     final ZonedDateTime now = relevantTime.zonedDateTime();
     Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
-    final FudgeFieldContainer underlyingLiveData = (FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
-    final Double spotAsObject = underlyingLiveData.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
+    final Double spotAsObject = (Double) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
     if (spotAsObject == null) {
-      s_logger.warn("Didn't have indicative value for {}, did have {}", option.getUnderlyingIdentifier(), underlyingLiveData);
+      s_logger.warn("Didn't have indicative value for {}", option.getUnderlyingIdentifier());
       throw new NullPointerException("No spot value for underlying instrument.");
     }
     final double spot = spotAsObject;

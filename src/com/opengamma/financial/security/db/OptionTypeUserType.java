@@ -15,16 +15,19 @@ import com.opengamma.financial.security.option.OptionType;
  */
 public class OptionTypeUserType extends EnumUserType<OptionType> {
 
-  public OptionTypeUserType () {
-    super (OptionType.class, OptionType.values ());
+  public OptionTypeUserType() {
+    super(OptionType.class, OptionType.values());
   }
 
   @Override
   protected String enumToStringNoCache(OptionType value) {
     switch (value) {
-    case CALL : return "call";
-    case PUT : return "put";
-    default : throw new OpenGammaRuntimeException ("unexpected value " + value);
+      case CALL:
+        return "call";
+      case PUT:
+        return "put";
+      default:
+        throw new OpenGammaRuntimeException("unexpected value " + value);
     }
   }
 

@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -23,7 +22,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.WritableSecurityMaster;
+import com.opengamma.engine.security.WritableSecuritySource;
 import com.opengamma.financial.Currency;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -32,21 +31,21 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * 
  */
-public class HibernateSecurityMaster implements WritableSecurityMaster {
+public class HibernateSecurityMaster implements WritableSecuritySource {
 
   private static final Logger s_logger = LoggerFactory.getLogger(HibernateSecurityMaster.class);
-  private static final Set<String> SUPPORTED_SECURITY_TYPES = new HashSet<String>();
   private static final ConcurrentMap<Class<?>, BeanOperation<?, ?>> BEAN_OPERATIONS_BY_SECURITY = new ConcurrentHashMap<Class<?>, BeanOperation<?, ?>>();
   private static final ConcurrentMap<Class<?>, BeanOperation<?, ?>> BEAN_OPERATIONS_BY_BEAN = new ConcurrentHashMap<Class<?>, BeanOperation<?, ?>>();
   public static final String IDENTIFIER_SCHEME_DEFAULT = "HibernateSecurityMaster";
   protected static final String MODIFIED_BY = "";
 
-  private HibernateTemplate _hibernateTemplate = null;
+  private HibernateTemplate _hibernateTemplate;
   private String _identifierScheme = IDENTIFIER_SCHEME_DEFAULT;
 
   /**
    * Creates a unique identifier.
    * @param id  the id, not null
+   * @return the created unique identifier, not null
    */
   public static UniqueIdentifier createUniqueIdentifier(String id) {
     // TODO: this static method is broken as it should use getIdentifierScheme()
@@ -54,7 +53,6 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
   }
 
   private static void loadBeanOperation(final BeanOperation<?, ?> beanOperation) {
-    SUPPORTED_SECURITY_TYPES.add(beanOperation.getSecurityType());
     BEAN_OPERATIONS_BY_SECURITY.put(beanOperation.getSecurityClass(), beanOperation);
     BEAN_OPERATIONS_BY_BEAN.put(beanOperation.getBeanClass(), beanOperation);
   }
@@ -114,6 +112,7 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
   /**
    * Creates a unique identifier.
    * @param dbBean  the securityBean, not null
+   * @return the created unique identifier, not null
    */
   public UniqueIdentifier createUniqueIdentifier(SecurityBean dbBean) {
     return UniqueIdentifier.of(getIdentifierScheme(), dbBean.getFirstVersion().getId().toString(), dbBean.getId().toString());
@@ -332,11 +331,6 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
       }
     }
     return null;
-  }
-
-  @Override
-  public Set<String> getAllSecurityTypes() {
-    return SUPPORTED_SECURITY_TYPES;
   }
 
 }

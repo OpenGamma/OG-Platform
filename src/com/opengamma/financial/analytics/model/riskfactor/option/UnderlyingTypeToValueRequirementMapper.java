@@ -9,12 +9,13 @@ import org.apache.commons.lang.NotImplementedException;
 
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
  * 
@@ -24,14 +25,13 @@ import com.opengamma.id.IdentifierBundle;
  */
 public class UnderlyingTypeToValueRequirementMapper {
 
-  public static ValueRequirement getValueRequirement(SecurityMaster secMaster, final UnderlyingType underlying, final Security security) {
+  public static ValueRequirement getValueRequirement(SecuritySource secMaster, final UnderlyingType underlying, final Security security) {
     if (security instanceof OptionSecurity) {
       final OptionSecurity option = (OptionSecurity) security;
       Security optionUnderlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
       switch (underlying) {
         case SPOT_PRICE:
-          
-          return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, optionUnderlying.getUniqueIdentifier());
+          return new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, ComputationTargetType.SECURITY, optionUnderlying.getUniqueIdentifier());
         case SPOT_VOLATILITY:
           throw new NotImplementedException("Don't know how to get spot volatility for " + option.getUniqueIdentifier());
         case IMPLIED_VOLATILITY:

@@ -33,9 +33,9 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.config.ConfigurationDocument;
-import com.opengamma.config.ConfigurationDocumentRepo;
-import com.opengamma.config.db.MongoDBConfigurationRepo;
+import com.opengamma.config.ConfigDocument;
+import com.opengamma.config.ConfigDocumentRepository;
+import com.opengamma.config.db.MongoDBConfigRepository;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.DefaultFunctionResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -43,7 +43,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.position.PositionMaster;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -117,7 +117,7 @@ public class BatchJob implements Job, ComputationResultListener {
   /**
    * Used to load Securities (needed for building the dependency graph)
    */
-  private SecurityMaster _securityMaster;
+  private SecuritySource _securityMaster;
   
   /**
    * Used to load Positions (needed for building the dependency graph)
@@ -223,7 +223,7 @@ public class BatchJob implements Job, ComputationResultListener {
   /**
    * Used to load a ViewDefinition
    */
-  private ConfigurationDocumentRepo<ViewDefinition> _configDb;
+  private ConfigDocumentRepository<ViewDefinition> _configDb;
   
   /** 
    * Object ID of ViewDefinition loaded from config DB
@@ -426,11 +426,11 @@ public class BatchJob implements Job, ComputationResultListener {
     _functionRepository = functionRepository;
   }
 
-  public SecurityMaster getSecurityMaster() {
+  public SecuritySource getSecurityMaster() {
     return _securityMaster;
   }
 
-  public void setSecurityMaster(SecurityMaster securityMaster) {
+  public void setSecurityMaster(SecuritySource securityMaster) {
     _securityMaster = securityMaster;
   }
 
@@ -544,10 +544,10 @@ public class BatchJob implements Job, ComputationResultListener {
     if (_configDbConnectionSettings == null) {
       throw new IllegalStateException("Config DB connection settings not given.");            
     }
-    _configDb = new MongoDBConfigurationRepo<ViewDefinition>(ViewDefinition.class, 
+    _configDb = new MongoDBConfigRepository<ViewDefinition>(ViewDefinition.class, 
         getConfigDbConnectionSettings());
 
-    ConfigurationDocument<ViewDefinition> viewDefinitionDoc = _configDb.getByName(getViewName(), _viewDateTime.toInstant());
+    ConfigDocument<ViewDefinition> viewDefinitionDoc = _configDb.getByName(getViewName(), _viewDateTime.toInstant());
     if (viewDefinitionDoc == null) {
       throw new IllegalStateException("Config DB does not contain ViewDefinition with name " + getViewName() + " at " + _viewDateTime);      
     }
@@ -556,8 +556,8 @@ public class BatchJob implements Job, ComputationResultListener {
     
     InMemoryLKVSnapshotProvider snapshotProvider = getSnapshotProvider();
     
-    SecurityMaster underlyingSecurityMaster = getSecurityMaster();
-    SecurityMaster securityMaster;
+    SecuritySource underlyingSecurityMaster = getSecurityMaster();
+    SecuritySource securityMaster;
     if (underlyingSecurityMaster instanceof ManageableSecurityMaster) {
       securityMaster = new HistoricallyFixedSecurityMaster(
           (ManageableSecurityMaster) underlyingSecurityMaster, 

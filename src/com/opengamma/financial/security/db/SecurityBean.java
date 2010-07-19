@@ -103,11 +103,11 @@ public abstract class SecurityBean {
     _firstVersion = firstVersion; 
   }
   
-  public void setDisplayName (final String displayName) {
+  public void setDisplayName(final String displayName) {
     _displayName = displayName;
   }
   
-  public String getDisplayName () {
+  public String getDisplayName() {
     return _displayName;
   }
   

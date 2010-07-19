@@ -20,13 +20,13 @@ public class OptionSecurityTypeUserType extends EnumUserType<OptionSecurityType>
   private static final String FX_OPTION_TYPE = "FX";
   private static final String POWERED_EQUITY_OPTION_TYPE = "Powered equity";
 
-  public OptionSecurityTypeUserType () {
-    super (OptionSecurityType.class, OptionSecurityType.values ());
+  public OptionSecurityTypeUserType() {
+    super(OptionSecurityType.class, OptionSecurityType.values());
   }
 
   @Override
   protected String enumToStringNoCache(OptionSecurityType value) {
-    return value.accept (new OptionSecurityType.Visitor<String> () {
+    return value.accept(new OptionSecurityType.Visitor<String>() {
 
       @Override
       public String visitAmericanEquityOptionType() {
