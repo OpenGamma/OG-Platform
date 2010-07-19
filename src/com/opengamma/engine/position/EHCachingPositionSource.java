@@ -16,9 +16,11 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.EHCacheUtils;
 
 /**
- * A position master implementation that caches another.
+ * A cache decorating a {@code PositionSource}.
+ * <p>
+ * The cache is implemented using {@code EHCache}.
  */
-public class CachingPositionSource implements PositionSource {
+public class EHCachingPositionSource implements PositionSource {
 
   /**
    * Cache key for portfolios.
@@ -58,7 +60,7 @@ public class CachingPositionSource implements PositionSource {
    * Creates the cache around an underlying position master.
    * @param underlying  the underlying data, not null
    */
-  public CachingPositionSource(final PositionSource underlying) {
+  public EHCachingPositionSource(final PositionSource underlying) {
     this (underlying, EHCacheUtils.createCacheManager());
   }
 
@@ -67,9 +69,9 @@ public class CachingPositionSource implements PositionSource {
    * @param underlying  the underlying data, not null
    * @param cacheManager  the cache manager, not null
    */
-  public CachingPositionSource(final PositionSource underlying, final CacheManager cacheManager) {
-    ArgumentChecker.notNull(underlying, "underlying Position Master");
-    ArgumentChecker.notNull(cacheManager, "EH cache manager");
+  public EHCachingPositionSource(final PositionSource underlying, final CacheManager cacheManager) {
+    ArgumentChecker.notNull(underlying, "underlying");
+    ArgumentChecker.notNull(cacheManager, "cacheManager");
     _underlying = underlying;
     _cacheManager = cacheManager;
     EHCacheUtils.addCache(cacheManager, PORTFOLIO_CACHE);
@@ -82,8 +84,8 @@ public class CachingPositionSource implements PositionSource {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the underlying position master.
-   * @return the underlying position master, not null
+   * Gets the underlying source of positions.
+   * @return the underlying source of positions, not null
    */
   protected PositionSource getUnderlying() {
     return _underlying;
