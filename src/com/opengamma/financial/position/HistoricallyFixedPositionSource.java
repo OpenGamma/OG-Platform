@@ -17,14 +17,14 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * This PositionMaster retrieves all positions as of a fixed historical date.
+ * A source of positions that fixes a historical instant.
  */
 public class HistoricallyFixedPositionSource implements PositionSource {
-  
+
   private final ManageablePositionMaster _delegate;
   private final InstantProvider _fixTime;
   private final InstantProvider _asViewedAt;
-  
+
   public HistoricallyFixedPositionSource(ManageablePositionMaster delegate,
       InstantProvider fixTime,
       InstantProvider asViewedAt) {
@@ -37,6 +37,7 @@ public class HistoricallyFixedPositionSource implements PositionSource {
     _asViewedAt = asViewedAt;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Set<UniqueIdentifier> getPortfolioIds() {
     return _delegate.getPortfolioIds(); // TODO
@@ -56,5 +57,5 @@ public class HistoricallyFixedPositionSource implements PositionSource {
   public Position getPosition(UniqueIdentifier uid) {
     return _delegate.getPosition(uid, _fixTime); // TODO
   }
-  
+
 }

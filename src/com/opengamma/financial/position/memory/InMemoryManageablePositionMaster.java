@@ -49,7 +49,7 @@ import com.opengamma.util.ArgumentChecker;
  * A simple, in-memory implementation of {@code ManagablePositionMaster}. This implementation does not support
  * versioning or resurrection of portfolios.
  */
-public class InMemoryPositionMaster implements ManageablePositionMaster {
+public class InMemoryManageablePositionMaster implements ManageablePositionMaster {
 
   /**
    * The default scheme used for any {@link UniqueIdentifier}s created by this {@link PositionSource}.
@@ -79,7 +79,7 @@ public class InMemoryPositionMaster implements ManageablePositionMaster {
   /**
    * Creates an empty position master using the default scheme for any {@link UniqueIdentifier}s created.
    */
-  public InMemoryPositionMaster() {
+  public InMemoryManageablePositionMaster() {
     this(new UniqueIdentifierTemplate(DEFAULT_UID_SCHEME));
   }
   
@@ -88,7 +88,7 @@ public class InMemoryPositionMaster implements ManageablePositionMaster {
    * 
    * @param uidTemplate  the template to use for any {@link UniqueIdentifier}s created, not null
    */
-  public InMemoryPositionMaster(UniqueIdentifierTemplate uidTemplate) {
+  public InMemoryManageablePositionMaster(UniqueIdentifierTemplate uidTemplate) {
     ArgumentChecker.notNull(uidTemplate, "uidTemplate");
     _uidTemplate = uidTemplate;
   }
