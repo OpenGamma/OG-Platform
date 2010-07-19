@@ -29,7 +29,7 @@ import com.opengamma.id.UniqueIdentifier;
  */
 public class EHCachingSecuritySourceTest {
 
-  private SecuritySource _underlyingSecuritySource = null;
+  private MockSecuritySource _underlyingSecuritySource = null;
   private EHCachingSecuritySource _cachingSecuritySource = null;
   private Identifier _secId1 = Identifier.of("d1", "v1");
   private Identifier _secId2 = Identifier.of("d1", "v2");
@@ -86,7 +86,7 @@ public class EHCachingSecuritySourceTest {
     Cache singleSecCache = cacheManager.getCache(EHCachingSecuritySource.SINGLE_SECURITY_CACHE);
     Cache multiSecCache = cacheManager.getCache(EHCachingSecuritySource.MULTI_SECURITIES_CACHE);
     
-    UniqueIdentifier uid = _security1.getUniqueIdentifier();
+    UniqueIdentifier uid = UniqueIdentifier.of("Mock", "99");
     Security cachedSec = _cachingSecuritySource.getSecurity(uid);
     assertNull(cachedSec);
     assertEquals(0, singleSecCache.getSize());
@@ -295,11 +295,10 @@ public class EHCachingSecuritySourceTest {
       assertEquals(i, multiElement.getHitCount());
     }
   }
-  
+
   private void addSecuritiesToMock(DefaultSecurity ... securities) {
-    MockSecuritySource secMaster = (MockSecuritySource)_underlyingSecuritySource;
     for (DefaultSecurity security : securities) {
-      secMaster.addSecurity(security);
+      _underlyingSecuritySource.addSecurity(security);
     }
   }
 
