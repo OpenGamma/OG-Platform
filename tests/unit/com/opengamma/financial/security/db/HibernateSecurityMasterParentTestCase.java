@@ -44,7 +44,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.WritableSecuritySource;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.GICSCode;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -78,11 +77,11 @@ import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
 /**
- * Generic TestCase for  WritableSecurityMaster
- *
- * 
+ * Generic TestCase for HibernateSecurityMaster.
  */
-public abstract class WritableSecurityMasterTestCase extends HibernateTest {
+public abstract class HibernateSecurityMasterParentTestCase extends HibernateTest {
+  // Originally written as a generic test case for WriteableSecurityMaster, which was deleted
+  // needs refactoring with subclass
 
   private static final String[] TEST_CURRENCIES = {"USD", "GBP", "YEN", "CHF"};
   private static final int TEST_FILLER_SIZE = 5;
@@ -93,11 +92,11 @@ public abstract class WritableSecurityMasterTestCase extends HibernateTest {
    * @param databaseType
    * @param databaseVersion
    */
-  public WritableSecurityMasterTestCase(final String databaseType, final String databaseVersion) {
+  public HibernateSecurityMasterParentTestCase(final String databaseType, final String databaseVersion) {
     super(databaseType, databaseVersion);
   }
 
-  private WritableSecuritySource _secMaster = null;
+  private HibernateSecurityMaster _secMaster = null;
 
   /**
    * @throws java.lang.Exception
@@ -109,7 +108,7 @@ public abstract class WritableSecurityMasterTestCase extends HibernateTest {
     _secMaster = createSecurityMaster();
   }
 
-  protected abstract WritableSecuritySource createSecurityMaster();
+  protected abstract HibernateSecurityMaster createSecurityMaster();
 
   /**
    * @throws java.lang.Exception
