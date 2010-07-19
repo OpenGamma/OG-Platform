@@ -74,7 +74,7 @@ public class MasterSecuritySourceTest {
     @Override
     public SecuritySearchResult search(SecuritySearchRequest request) {
       SecuritySearchResult result = new SecuritySearchResult();
-      result.setSecurityDocuments(Arrays.asList(DOCUMENT));
+      result.getDocuments().add(DOCUMENT);
       return result;
     }
     @Override
