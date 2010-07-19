@@ -80,7 +80,7 @@ public class BjerksundStenslandModelFunction extends AnalyticOptionModelFunction
     if (canApplyTo(context, target)) {
       final OptionSecurity option = (OptionSecurity) target.getSecurity();
 
-      final SecuritySource secMaster = context.getSecurityMaster();
+      final SecuritySource secMaster = context.getSecuritySource();
       final Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));

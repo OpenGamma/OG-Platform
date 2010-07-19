@@ -54,7 +54,7 @@ public class FakeSwapPricingFunction extends AbstractFunction implements Functio
     if (canApplyTo(context, target)) {
       final SwapSecurity swap = (SwapSecurity) target.getSecurity();
       
-      SecuritySource secMaster = context.getSecurityMaster();
+      SecuritySource secMaster = context.getSecuritySource();
 
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       requirements.add(getDiscountCurveMarketDataRequirement(Currency.getInstance("USD").getUniqueIdentifier()));

@@ -48,7 +48,7 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
     final OptionSecurity option = (OptionSecurity) target.getSecurity();
-    final SecuritySource securityMaster = executionContext.getSecurityMaster();
+    final SecuritySource securityMaster = executionContext.getSecuritySource();
     final Security underlying = securityMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
     final ValueRequirement underlyingPriceRequirement = getPriceRequirement(underlying.getUniqueIdentifier());
     final ValueRequirement discountCurveDataRequirement = getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier());
@@ -87,7 +87,7 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
       // TODO: the surface need only be calculated once per _underlying_, not individual option (as long as point 2
       // above holds)
       final Set<ValueRequirement> optionRequirements = new HashSet<ValueRequirement>();
-      final SecuritySource securityMaster = context.getSecurityMaster();
+      final SecuritySource securityMaster = context.getSecuritySource();
       final Security underlying = securityMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
       optionRequirements.add(getPriceRequirement(underlying.getUniqueIdentifier()));
       optionRequirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));

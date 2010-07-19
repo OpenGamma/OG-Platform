@@ -81,7 +81,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
       return null;
     }
     final OptionSecurity optionSec = (OptionSecurity) target.getSecurity();
-    SecuritySource securityMaster = context.getSecurityMaster();
+    SecuritySource securityMaster = context.getSecuritySource();
     Security underlying = securityMaster.getSecurity(new IdentifierBundle(optionSec.getUnderlyingIdentifier()));
     final ValueRequirement optionMarketDataReq = getPriceRequirement(optionSec.getUniqueIdentifier());
     final ValueRequirement underlyingMarketDataReq = getPriceRequirement(underlying.getUniqueIdentifier());
@@ -108,7 +108,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     final ZonedDateTime today = Clock.system(TimeZone.UTC).zonedDateTime();
     final OptionSecurity optionSec = (OptionSecurity) target.getSecurity();
     
-    SecuritySource secMaster = executionContext.getSecurityMaster();
+    SecuritySource secMaster = executionContext.getSecuritySource();
     Security underlying = secMaster.getSecurity(new IdentifierBundle(optionSec.getUnderlyingIdentifier()));
 
     // Get inputs:

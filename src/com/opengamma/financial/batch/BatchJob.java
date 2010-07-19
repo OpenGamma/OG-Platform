@@ -532,10 +532,10 @@ public class BatchJob implements Job, ComputationResultListener {
     MapViewComputationCacheSource cacheFactory = new MapViewComputationCacheSource();
     
     FunctionExecutionContext executionContext = new FunctionExecutionContext(); 
-    executionContext.setSecurityMaster(securityMaster);
+    executionContext.setSecuritySource(securityMaster);
     
     FunctionCompilationContext compilationContext = new FunctionCompilationContext();
-    compilationContext.setSecurityMaster(securityMaster);
+    compilationContext.setSecuritySource(securityMaster);
     
     ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));

@@ -85,7 +85,7 @@ public class GramCharlierModelFunction extends AnalyticOptionModelFunction {
     if (canApplyTo(context, target)) {
       final OptionSecurity option = (OptionSecurity) target.getSecurity();
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      final SecuritySource securityMaster = context.getSecurityMaster();
+      final SecuritySource securityMaster = context.getSecuritySource();
       final Security underlying = securityMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
       requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
       requirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));

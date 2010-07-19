@@ -59,7 +59,7 @@ public class BlackScholesMertonModelFunction extends AnalyticOptionModelFunction
     if (canApplyTo(context, target)) {
       final OptionSecurity option = (OptionSecurity) target.getSecurity();
       
-      SecuritySource secMaster = context.getSecurityMaster();
+      SecuritySource secMaster = context.getSecuritySource();
       Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
       
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
