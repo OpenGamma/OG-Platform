@@ -10,12 +10,12 @@ import java.util.Set;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * A master structure of all positions held by the organization.
+ * A source of portfolios and positions as accessed by the engine.
  * <p>
- * The master is structured into a number of portfolios, each of which holds
- * positions in a flexible tree structure.
+ * This interface provides a simple view of portfolios and positions as needed by the engine.
+ * This may be backed by a full-featured position master, or by a much simpler data structure.
  */
-public interface PositionMaster {
+public interface PositionSource {
 
   /**
    * Gets the list of all portfolio identifiers.

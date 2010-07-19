@@ -19,7 +19,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.livedata.FixedLiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
-import com.opengamma.engine.position.MockPositionMaster;
+import com.opengamma.engine.position.MockPositionSource;
 import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.security.MockSecuritySource;
 import com.opengamma.engine.view.cache.MapViewComputationCacheSource;
@@ -45,7 +45,7 @@ public class ViewTestUtils {
     
     MockSecuritySource secMaster = new MockSecuritySource();
 
-    MockPositionMaster positionMaster = new MockPositionMaster();
+    MockPositionSource positionMaster = new MockPositionSource();
     positionMaster.addPortfolio(new PortfolioImpl(portfolioId, "test_portfolio"));
     
     DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(secMaster, positionMaster);

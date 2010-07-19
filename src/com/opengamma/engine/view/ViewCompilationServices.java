@@ -11,7 +11,7 @@ import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionResolver;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
-import com.opengamma.engine.position.PositionMaster;
+import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.util.ArgumentChecker;
 
@@ -24,7 +24,7 @@ import com.opengamma.util.ArgumentChecker;
 public class ViewCompilationServices {
   private final LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private final FunctionResolver _functionResolver;
-  private final PositionMaster _positionMaster;
+  private final PositionSource _positionMaster;
   private final SecuritySource _securitySource;
   private final ExecutorService _executorService;
   private final FunctionCompilationContext _compilationContext;
@@ -33,7 +33,7 @@ public class ViewCompilationServices {
   public ViewCompilationServices(
       LiveDataAvailabilityProvider liveDataAvailabilityProvider,
       FunctionResolver functionResolver,
-      PositionMaster positionMaster,
+      PositionSource positionMaster,
       SecuritySource securitySource,
       FunctionCompilationContext compilationContext,
       ComputationTargetResolver computationTargetResolver,
@@ -76,7 +76,7 @@ public class ViewCompilationServices {
    * Gets the source of positions.
    * @return the source of positions, not null
    */
-  public PositionMaster getPositionMaster() {
+  public PositionSource getPositionMaster() {
     return _positionMaster;
   }
 

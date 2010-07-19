@@ -19,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
  * This class is intended for testing scenarios.
  * It is not thread-safe and must not be used in production.
  */
-public class MockPositionMaster implements PositionMaster {
+public class MockPositionSource implements PositionSource {
   // this is currently public for indirect use by another project via ViewTestUtils
 
   /**
@@ -42,7 +42,7 @@ public class MockPositionMaster implements PositionMaster {
   /**
    * Creates an instance using the default scheme for each {@link UniqueIdentifier} created.
    */
-  public MockPositionMaster() {
+  public MockPositionSource() {
     _uidSupplier = new UniqueIdentifierSupplier("Mock");
   }
 

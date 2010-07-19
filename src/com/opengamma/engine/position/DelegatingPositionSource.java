@@ -14,19 +14,19 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A {@link PositionMaster} implementation which allows the scheme of the incoming {@link UniqueIdentifier} to control
- * which underlying {@link PositionMaster} will handle the request. If no scheme-specific handler has been registered,
+ * A {@link PositionSource} implementation which allows the scheme of the incoming {@link UniqueIdentifier} to control
+ * which underlying {@link PositionSource} will handle the request. If no scheme-specific handler has been registered,
  * a default is used.
  */
-public class DelegatingPositionMaster extends UniqueIdentifierSchemeDelegator<PositionMaster> implements PositionMaster {
+public class DelegatingPositionSource extends UniqueIdentifierSchemeDelegator<PositionSource> implements PositionSource {
 
   /**
-   * Constructs a new {@link DelegatingPositionMaster}.
+   * Constructs a new {@link DelegatingPositionSource}.
    * 
-   * @param defaultMaster  the {@link PositionMaster} on which to fall back when no registered schemes match that of
+   * @param defaultMaster  the {@link PositionSource} on which to fall back when no registered schemes match that of
    *                       an incoming UniqueIdentifier.
    */
-  public DelegatingPositionMaster(PositionMaster defaultMaster) {
+  public DelegatingPositionSource(PositionSource defaultMaster) {
     super(defaultMaster);
   }
 
@@ -51,7 +51,7 @@ public class DelegatingPositionMaster extends UniqueIdentifierSchemeDelegator<Po
   @Override
   public Set<UniqueIdentifier> getPortfolioIds() {
     Set<UniqueIdentifier> result = new HashSet<UniqueIdentifier>(getDefaultDelegate().getPortfolioIds());
-    for (PositionMaster delegateMaster : getDelegates().values()) {
+    for (PositionSource delegateMaster : getDelegates().values()) {
       result.addAll(delegateMaster.getPortfolioIds());
     }
     return Collections.unmodifiableSet(result);

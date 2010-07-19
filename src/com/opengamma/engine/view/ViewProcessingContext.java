@@ -15,7 +15,7 @@ import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.FunctionResolver;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
-import com.opengamma.engine.position.PositionMaster;
+import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calcnode.JobRequestSender;
@@ -33,7 +33,7 @@ public class ViewProcessingContext {
   private final LiveDataSnapshotProvider _liveDataSnapshotProvider;
   private final FunctionRepository _functionRepository;
   private final FunctionResolver _functionResolver;
-  private final PositionMaster _positionMaster;
+  private final PositionSource _positionMaster;
   private final SecuritySource _securitySource;
   private final ViewComputationCacheSource _computationCacheSource;
   private final JobRequestSender _computationJobRequestSender;
@@ -48,7 +48,7 @@ public class ViewProcessingContext {
       LiveDataSnapshotProvider liveDataSnapshotProvider,
       FunctionRepository functionRepository,
       FunctionResolver functionResolver,
-      PositionMaster positionMaster,
+      PositionSource positionMaster,
       SecuritySource securitySource,
       ViewComputationCacheSource computationCacheSource,
       JobRequestSender computationJobRequestSender,
@@ -130,7 +130,7 @@ public class ViewProcessingContext {
    * Gets the source of positions.
    * @return the source of positions, not null
    */
-  public PositionMaster getPositionMaster() {
+  public PositionSource getPositionMaster() {
     return _positionMaster;
   }
 

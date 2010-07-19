@@ -11,13 +11,13 @@ import java.math.BigDecimal;
 
 import org.junit.Test;
 
-import com.opengamma.engine.position.MockPositionMaster;
+import com.opengamma.engine.position.MockPositionSource;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
-import com.opengamma.engine.position.PositionMaster;
+import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.MockSecuritySource;
 import com.opengamma.engine.security.SecuritySource;
@@ -38,7 +38,7 @@ public class DefaultComputationTargetResolverTest {
   @Test
   public void test_constructor() {
     SecuritySource secMaster = new MockSecuritySource();
-    PositionMaster posMaster = new MockPositionMaster();
+    PositionSource posMaster = new MockPositionSource();
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secMaster, posMaster);
     assertEquals(secMaster, test.getSecuritySource());
     assertEquals(posMaster, test.getPositionMaster());
@@ -52,7 +52,7 @@ public class DefaultComputationTargetResolverTest {
 
   @Test(expected=NullPointerException.class)
   public void test_constructor_nullPositionMaster() {
-    PositionMaster posMaster = new MockPositionMaster();
+    PositionSource posMaster = new MockPositionSource();
     new DefaultComputationTargetResolver(null, posMaster);
   }
 
@@ -60,7 +60,7 @@ public class DefaultComputationTargetResolverTest {
   @Test
   public void test_resolve_portfolio() {
     MockSecuritySource secMaster = new MockSecuritySource();
-    MockPositionMaster posMaster = new MockPositionMaster();
+    MockPositionSource posMaster = new MockPositionSource();
     posMaster.addPortfolio(PORTFOLIO);
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secMaster, posMaster);
     ComputationTargetSpecification spec = new ComputationTargetSpecification(PORTFOLIO);
@@ -71,7 +71,7 @@ public class DefaultComputationTargetResolverTest {
   @Test
   public void test_resolve_portfolioNode() {
     MockSecuritySource secMaster = new MockSecuritySource();
-    MockPositionMaster posMaster = new MockPositionMaster();
+    MockPositionSource posMaster = new MockPositionSource();
     PortfolioImpl p = new PortfolioImpl(UniqueIdentifier.of("Test", "1"), "Name");
     p.getRootNode().addChildNode(NODE);
     posMaster.addPortfolio(p);
@@ -84,7 +84,7 @@ public class DefaultComputationTargetResolverTest {
   @Test
   public void test_resolve_position() {
     MockSecuritySource secMaster = new MockSecuritySource();
-    MockPositionMaster posMaster = new MockPositionMaster();
+    MockPositionSource posMaster = new MockPositionSource();
     PortfolioImpl p = new PortfolioImpl(UniqueIdentifier.of("Test", "1"), "Name");
     p.getRootNode().addPosition(POSITION);
     posMaster.addPortfolio(p);
@@ -97,7 +97,7 @@ public class DefaultComputationTargetResolverTest {
   @Test
   public void test_resolve_security() {
     MockSecuritySource secMaster = new MockSecuritySource();
-    MockPositionMaster posMaster = new MockPositionMaster();
+    MockPositionSource posMaster = new MockPositionSource();
     secMaster.addSecurity(SECURITY);
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secMaster, posMaster);
     ComputationTargetSpecification spec = new ComputationTargetSpecification(SECURITY);
@@ -108,7 +108,7 @@ public class DefaultComputationTargetResolverTest {
   @Test
   public void test_resolve_primitive() {
     MockSecuritySource secMaster = new MockSecuritySource();
-    MockPositionMaster posMaster = new MockPositionMaster();
+    MockPositionSource posMaster = new MockPositionSource();
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secMaster, posMaster);
     ComputationTargetSpecification spec = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, (UniqueIdentifier) null);
     ComputationTarget expected = new ComputationTarget(ComputationTargetType.PRIMITIVE, null);
@@ -118,7 +118,7 @@ public class DefaultComputationTargetResolverTest {
   @Test(expected=NullPointerException.class)
   public void test_resolve_nullSpecification() {
     MockSecuritySource secMaster = new MockSecuritySource();
-    MockPositionMaster posMaster = new MockPositionMaster();
+    MockPositionSource posMaster = new MockPositionSource();
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secMaster, posMaster);
     test.resolve(null);
   }

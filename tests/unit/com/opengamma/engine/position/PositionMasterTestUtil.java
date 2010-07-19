@@ -52,14 +52,14 @@ public class PositionMasterTestUtil {
     }
   }
   
-  public static void testNodeLookup(PositionMaster pm, Portfolio portfolio, boolean isPresent) {
+  public static void testNodeLookup(PositionSource pm, Portfolio portfolio, boolean isPresent) {
     Portfolio expectedPortfolio = isPresent ? portfolio : null;
     assertEquals(expectedPortfolio, pm.getPortfolio(portfolio.getUniqueIdentifier()));
     
     testNodeLookup(pm, portfolio.getRootNode(), isPresent);
   }
     
-  private static void testNodeLookup(PositionMaster pm, PortfolioNode node, boolean isPresent) {
+  private static void testNodeLookup(PositionSource pm, PortfolioNode node, boolean isPresent) {
     PortfolioNode expectedNode = isPresent ? node : null;
     assertEquals(expectedNode, pm.getPortfolioNode(node.getUniqueIdentifier()));
     

@@ -33,17 +33,17 @@ public class CSVPositionMasterTest {
 
   @Test
   public void parseLineEmpty() {
-    assertNull(CSVPositionMaster.parseLine(new String[] {""}, ID));
+    assertNull(CSVPositionSource.parseLine(new String[] {""}, ID));
   }
 
   @Test
   public void parseLineTooShort() {
-    assertNull(CSVPositionMaster.parseLine(new String[] {"foo", "bar"}, ID));
+    assertNull(CSVPositionSource.parseLine(new String[] {"foo", "bar"}, ID));
   }
 
   @Test
   public void parseLineOneIdentifier() {
-    Position position = CSVPositionMaster.parseLine(new String[] {"98.4", "KIRK", "MY-ID"}, ID);
+    Position position = CSVPositionSource.parseLine(new String[] {"98.4", "KIRK", "MY-ID"}, ID);
     assertNotNull(position);
     
     assertEquals(ID, position.getUniqueIdentifier());
@@ -63,7 +63,7 @@ public class CSVPositionMasterTest {
 
   @Test
   public void parseLineThreeIdentifiers() {
-    Position position = CSVPositionMaster.parseLine(new String[] {"98.4", "Domain1", "Value1", "Domain2", "Value2", "Domain3", "Value3"}, ID);
+    Position position = CSVPositionSource.parseLine(new String[] {"98.4", "Domain1", "Value1", "Domain2", "Value2", "Domain3", "Value3"}, ID);
     assertNotNull(position);
     
     assertNotNull(position.getQuantity());
@@ -117,7 +117,7 @@ public class CSVPositionMasterTest {
   @Test
   public void testLoadPortfolios() throws IOException {
     String portfolioDirName = createTempTestPortfolioDirectory();
-    CSVPositionMaster pm = new CSVPositionMaster(portfolioDirName);
+    CSVPositionSource pm = new CSVPositionSource(portfolioDirName);
     
     assertEquals(2, pm.getPortfolioIds().size());
     
@@ -145,6 +145,6 @@ public class CSVPositionMasterTest {
   
   @Test(expected = IllegalArgumentException.class)
   public void testNonexistentPortfolioDirectory() {
-    new CSVPositionMaster(new File(getTempPortfolioDirectory()));
+    new CSVPositionSource(new File(getTempPortfolioDirectory()));
   }
 }

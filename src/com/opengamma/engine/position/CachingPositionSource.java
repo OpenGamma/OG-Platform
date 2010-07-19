@@ -18,7 +18,7 @@ import com.opengamma.util.EHCacheUtils;
 /**
  * A position master implementation that caches another.
  */
-public class CachingPositionMaster implements PositionMaster {
+public class CachingPositionSource implements PositionSource {
 
   /**
    * Cache key for portfolios.
@@ -36,7 +36,7 @@ public class CachingPositionMaster implements PositionMaster {
   /**
    * The underlying position master.
    */
-  private final PositionMaster _underlying;
+  private final PositionSource _underlying;
   /**
    * The cache manager.
    */
@@ -58,7 +58,7 @@ public class CachingPositionMaster implements PositionMaster {
    * Creates the cache around an underlying position master.
    * @param underlying  the underlying data, not null
    */
-  public CachingPositionMaster(final PositionMaster underlying) {
+  public CachingPositionSource(final PositionSource underlying) {
     this (underlying, EHCacheUtils.createCacheManager());
   }
 
@@ -67,7 +67,7 @@ public class CachingPositionMaster implements PositionMaster {
    * @param underlying  the underlying data, not null
    * @param cacheManager  the cache manager, not null
    */
-  public CachingPositionMaster(final PositionMaster underlying, final CacheManager cacheManager) {
+  public CachingPositionSource(final PositionSource underlying, final CacheManager cacheManager) {
     ArgumentChecker.notNull(underlying, "underlying Position Master");
     ArgumentChecker.notNull(cacheManager, "EH cache manager");
     _underlying = underlying;
@@ -85,7 +85,7 @@ public class CachingPositionMaster implements PositionMaster {
    * Gets the underlying position master.
    * @return the underlying position master, not null
    */
-  protected PositionMaster getUnderlying() {
+  protected PositionSource getUnderlying() {
     return _underlying;
   }
 

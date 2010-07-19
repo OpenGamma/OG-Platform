@@ -33,7 +33,7 @@ import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
-import com.opengamma.engine.position.PositionMaster;
+import com.opengamma.engine.position.PositionSource;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -43,12 +43,12 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * An implementation of {@code PositionMaster} based on CSV-formatted files.
  */
-public class CSVPositionMaster implements PositionMaster {
+public class CSVPositionSource implements PositionSource {
 
   /**
    * The logger.
    */
-  private static final Logger s_logger = LoggerFactory.getLogger(CSVPositionMaster.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(CSVPositionSource.class);
 
   /**
    * The logger.
@@ -70,7 +70,7 @@ public class CSVPositionMaster implements PositionMaster {
   /**
    * Creates an empty CSV position master.
    */
-  public CSVPositionMaster() {
+  public CSVPositionSource() {
     _baseDirectory = null;
   }
 
@@ -78,7 +78,7 @@ public class CSVPositionMaster implements PositionMaster {
    * Creates a CSV position master using the specified directory.
    * @param baseDirectoryName  the directory name, not null
    */
-  public CSVPositionMaster(String baseDirectoryName) {
+  public CSVPositionSource(String baseDirectoryName) {
     this(new File(baseDirectoryName));
   }
 
@@ -86,7 +86,7 @@ public class CSVPositionMaster implements PositionMaster {
    * Creates a CSV position master using the specified directory.
    * @param baseDirectory  the directory, not null
    */
-  public CSVPositionMaster(File baseDirectory) {
+  public CSVPositionSource(File baseDirectory) {
     ArgumentChecker.notNull(baseDirectory, "base directory");
     if (baseDirectory.exists() == false) {
       throw new IllegalArgumentException("Base directory must exist: " + baseDirectory);
