@@ -16,7 +16,7 @@ import com.opengamma.financial.position.ManageablePositionMaster;
 import com.opengamma.financial.position.memory.InMemoryPositionMaster;
 import com.opengamma.financial.position.rest.PortfoliosResource;
 import com.opengamma.financial.security.ManageableSecurityMaster;
-import com.opengamma.financial.security.memory.InMemorySecurityMaster;
+import com.opengamma.financial.security.memory.InMemoryManageableSecurityMaster;
 import com.opengamma.financial.security.rest.SecuritiesResource;
 import com.opengamma.financial.user.UserResourceDetails;
 import com.opengamma.financial.user.UserUniqueIdentifierUtils;
@@ -60,7 +60,7 @@ public class ClientResource {
     _clientsResource = clientsResource;
     final String username = clientsResource.getUserResource().getUserName();
     _positionMaster = new InMemoryPositionMaster(getTemplate(username, clientName, PORTFOLIOS_PATH));
-    _securityMaster = new InMemorySecurityMaster(getTemplate(username, clientName, SECURITIES_PATH));
+    _securityMaster = new InMemoryManageableSecurityMaster(getTemplate(username, clientName, SECURITIES_PATH));
     _liveData = new InMemoryUserSnapshotProvider(getTemplate(username, clientName, LIVEDATA_PATH));
     _viewDefinitionRepository = new InMemoryViewDefinitionRepository();
     _fudgeContext = fudgeContext;

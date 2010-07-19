@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.security.db;
 
 import java.sql.SQLException;
@@ -22,7 +27,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.WritableSecuritySource;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.financial.Currency;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -31,12 +36,18 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * 
  */
-public class HibernateSecurityMaster implements WritableSecuritySource {
+public class HibernateSecurityMaster implements SecuritySource {
 
   private static final Logger s_logger = LoggerFactory.getLogger(HibernateSecurityMaster.class);
   private static final ConcurrentMap<Class<?>, BeanOperation<?, ?>> BEAN_OPERATIONS_BY_SECURITY = new ConcurrentHashMap<Class<?>, BeanOperation<?, ?>>();
   private static final ConcurrentMap<Class<?>, BeanOperation<?, ?>> BEAN_OPERATIONS_BY_BEAN = new ConcurrentHashMap<Class<?>, BeanOperation<?, ?>>();
+  /**
+   * The scheme used by the master by default.
+   */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "HibernateSecurityMaster";
+  /**
+   * The modified by user.
+   */
   protected static final String MODIFIED_BY = "";
 
   private HibernateTemplate _hibernateTemplate;
@@ -192,8 +203,13 @@ public class HibernateSecurityMaster implements WritableSecuritySource {
       }
     });
   }
-  
-  @Override
+
+  /**
+   * Puts a security into the master.
+   * @param now  the instant to add at
+   * @param security  the security to add
+   * @return the created unique identifier
+   */
   public UniqueIdentifier putSecurity(final Date now, final Security security) {
     return (UniqueIdentifier) _hibernateTemplate.execute(new HibernateCallback() {
       @Override

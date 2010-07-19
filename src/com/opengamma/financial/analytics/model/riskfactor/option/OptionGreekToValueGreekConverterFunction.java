@@ -82,7 +82,7 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction i
     order = greek.getUnderlying();
     underlyings = order.getUnderlyings();
     for (final UnderlyingType underlying : underlyings) {
-      Double underlyingValue = (Double) inputs.getValue(UnderlyingTypeToValueRequirementMapper.getValueRequirement(executionContext.getSecurityMaster(), underlying, security));
+      Double underlyingValue = (Double) inputs.getValue(UnderlyingTypeToValueRequirementMapper.getValueRequirement(executionContext.getSecuritySource(), underlying, security));
       if (underlyingValue == null) {
         s_logger.warn("Could not get value for " + underlying + " for security " + security);
       } else {
@@ -135,7 +135,7 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction i
       // TODO what to do here? will only happen for the price
     } else {
       for (final UnderlyingType underlying : underlyings) {
-        requirements.add(UnderlyingTypeToValueRequirementMapper.getValueRequirement(context.getSecurityMaster(), underlying, security));
+        requirements.add(UnderlyingTypeToValueRequirementMapper.getValueRequirement(context.getSecuritySource(), underlying, security));
       }
     }
     return requirements;

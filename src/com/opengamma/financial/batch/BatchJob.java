@@ -42,7 +42,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
-import com.opengamma.engine.position.PositionMaster;
+import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -60,7 +60,7 @@ import com.opengamma.engine.view.calcnode.JobRequestSender;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.financial.batch.db.BatchDbRiskContext;
-import com.opengamma.financial.position.HistoricallyFixedPositionMaster;
+import com.opengamma.financial.position.HistoricallyFixedPositionSource;
 import com.opengamma.financial.position.ManageablePositionMaster;
 import com.opengamma.financial.security.HistoricallyFixedSecurityMaster;
 import com.opengamma.financial.security.ManageableSecurityMaster;
@@ -122,7 +122,7 @@ public class BatchJob implements Job, ComputationResultListener {
   /**
    * Used to load Positions (needed for building the dependency graph)
    */
-  private PositionMaster _positionMaster;
+  private PositionSource _positionMaster;
   
   /**
    * Used to write stuff to the batch database
@@ -434,11 +434,11 @@ public class BatchJob implements Job, ComputationResultListener {
     _securityMaster = securityMaster;
   }
 
-  public PositionMaster getPositionMaster() {
+  public PositionSource getPositionMaster() {
     return _positionMaster;
   }
 
-  public void setPositionMaster(PositionMaster positionMaster) {
+  public void setPositionMaster(PositionSource positionMaster) {
     _positionMaster = positionMaster;
   }
   
@@ -567,10 +567,10 @@ public class BatchJob implements Job, ComputationResultListener {
       securityMaster = underlyingSecurityMaster;      
     }
     
-    PositionMaster underlyingPositionMaster = getPositionMaster();
-    PositionMaster positionMaster; 
+    PositionSource underlyingPositionMaster = getPositionMaster();
+    PositionSource positionMaster; 
     if (underlyingPositionMaster instanceof ManageablePositionMaster) {
-      positionMaster = new HistoricallyFixedPositionMaster(
+      positionMaster = new HistoricallyFixedPositionSource(
           (ManageablePositionMaster) underlyingPositionMaster, 
           getPositionMasterTime(), 
           getPositionMasterAsViewedAtTime());
@@ -582,10 +582,10 @@ public class BatchJob implements Job, ComputationResultListener {
     MapViewComputationCacheSource cacheFactory = new MapViewComputationCacheSource();
     
     FunctionExecutionContext executionContext = new FunctionExecutionContext(); 
-    executionContext.setSecurityMaster(securityMaster);
+    executionContext.setSecuritySource(securityMaster);
     
     FunctionCompilationContext compilationContext = new FunctionCompilationContext();
-    compilationContext.setSecurityMaster(securityMaster);
+    compilationContext.setSecuritySource(securityMaster);
     
     ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));

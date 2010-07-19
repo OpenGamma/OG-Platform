@@ -36,7 +36,7 @@ public class BatchJobTest {
     BatchJob job = new BatchJob();
     job.setBatchDbManager(new DummyBatchDbManager());
     job.setPositionMaster(testView.getProcessingContext().getPositionMaster());
-    job.setSecurityMaster(testView.getProcessingContext().getSecurityMaster());
+    job.setSecurityMaster(testView.getProcessingContext().getSecuritySource());
     job.setFunctionRepository(testView.getProcessingContext().getFunctionRepository());
     job.setViewName("MyView");
     job.setConfigDbConnectionSettings(settings);

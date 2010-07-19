@@ -23,7 +23,7 @@ import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
-import com.opengamma.engine.position.PositionMaster;
+import com.opengamma.engine.position.PositionSource;
 import com.opengamma.financial.position.AddPortfolioNodeRequest;
 import com.opengamma.financial.position.AddPortfolioRequest;
 import com.opengamma.financial.position.AddPositionRequest;
@@ -52,7 +52,7 @@ import com.opengamma.util.ArgumentChecker;
 public class InMemoryPositionMaster implements ManageablePositionMaster {
 
   /**
-   * The default scheme used for any {@link UniqueIdentifier}s created by this {@link PositionMaster}.
+   * The default scheme used for any {@link UniqueIdentifier}s created by this {@link PositionSource}.
    */
   public static final String DEFAULT_UID_SCHEME = "Memory";
   /**
