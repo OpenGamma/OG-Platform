@@ -24,7 +24,7 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * Test InMemorySecurityMaster.
  */
-public class InMemorySecurityMasterTest {
+public class InMemoryManageableSecurityMasterTest {
 
   private static final UniqueIdentifier UID = UniqueIdentifier.of("U", "1");
   private static final Identifier ID1 = Identifier.of("A", "B");
@@ -35,7 +35,7 @@ public class InMemorySecurityMasterTest {
 
   @Test
   public void test_empty() {
-    InMemorySecurityMaster test = new InMemorySecurityMaster();
+    InMemoryManageableSecurityMaster test = new InMemoryManageableSecurityMaster();
     assertNull(test.getSecurity(UID));
     
     assertNull(test.getSecurity(BUNDLE1));
@@ -48,7 +48,7 @@ public class InMemorySecurityMasterTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_singleSecurity() {
-    InMemorySecurityMaster test = new InMemorySecurityMaster();
+    InMemoryManageableSecurityMaster test = new InMemoryManageableSecurityMaster();
     DefaultSecurity sec = new DefaultSecurity("TestType");
     sec.addIdentifier(ID1);
     test.addSecurity(new AddSecurityRequest(sec));
@@ -71,7 +71,7 @@ public class InMemorySecurityMasterTest {
 
   @Test
   public void test_multipleSecurities() {
-    InMemorySecurityMaster test = new InMemorySecurityMaster();
+    InMemoryManageableSecurityMaster test = new InMemoryManageableSecurityMaster();
     
     DefaultSecurity sec1 = new DefaultSecurity();
     sec1.addIdentifier(ID1);

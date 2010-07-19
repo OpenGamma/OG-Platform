@@ -33,7 +33,7 @@ import com.opengamma.util.ArgumentChecker;
  * A simple, in-memory implementation of {@code ManagableSecurityMaster}.
  * This implementation does not support versioning or resurrection of securities.
  */
-public class InMemorySecurityMaster implements ManageableSecurityMaster {
+public class InMemoryManageableSecurityMaster implements ManageableSecurityMaster {
 
   /**
    * The default scheme used for any {@link UniqueIdentifier}s created by this {@link PositionMaster}.
@@ -55,7 +55,7 @@ public class InMemorySecurityMaster implements ManageableSecurityMaster {
   /**
    * Creates an empty security master using the default scheme for any {@link UniqueIdentifier}s created.
    */
-  public InMemorySecurityMaster() {
+  public InMemoryManageableSecurityMaster() {
     this(new UniqueIdentifierTemplate(DEFAULT_UID_SCHEME));
   }
   
@@ -64,7 +64,7 @@ public class InMemorySecurityMaster implements ManageableSecurityMaster {
    * 
    * @param uidTemplate  the template to use for any {@link UniqueIdentifier}s created, not null
    */
-  public InMemorySecurityMaster(UniqueIdentifierTemplate uidTemplate) {
+  public InMemoryManageableSecurityMaster(UniqueIdentifierTemplate uidTemplate) {
     ArgumentChecker.notNull(uidTemplate, "uidTemplate");
     _uidTemplate = uidTemplate;
   }
