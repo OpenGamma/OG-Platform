@@ -110,16 +110,18 @@ public class ViewProcessor implements Lifecycle {
   }
 
   /**
+   * Gets the source of securities.
    * @return the source of securities
    */
-  public SecuritySource getSecurityMaster() {
+  public SecuritySource getSecuritySource() {
     return _securitySource;
   }
 
   /**
-   * @param securitySource the source of securities
+   * Sets the source of securities.
+   * @param securitySource  the source of securities
    */
-  public void setSecurityMaster(SecuritySource securitySource) {
+  public void setSecuritySource(SecuritySource securitySource) {
     assertNotStarted();
     _securitySource = securitySource;
   }
@@ -314,7 +316,7 @@ public class ViewProcessor implements Lifecycle {
     }
     // NOTE kirk 2010-03-02 -- We construct a bespoke ViewProcessingContext because the resolvers
     // might be based on the view definition (particularly for functions and the like).
-    getCompilationContext().setSecurityMaster(getSecurityMaster());
+    getCompilationContext().setSecuritySource(getSecuritySource());
     ViewProcessingContext vpc = new ViewProcessingContext(
         getLiveDataClient(),
         getLiveDataAvailabilityProvider(),
@@ -322,7 +324,7 @@ public class ViewProcessor implements Lifecycle {
         getFunctionRepository(),
         new DefaultFunctionResolver(getFunctionRepository()),
         getPositionMaster(),
-        getSecurityMaster(),
+        getSecuritySource(),
         getComputationCacheSource(),
         getComputationJobRequestSender(),
         getViewProcessorQueryReceiver(),
@@ -529,17 +531,17 @@ public class ViewProcessor implements Lifecycle {
       setLocalExecutorService(false);
     }
   }
-  
+
   protected void checkInjectedInputs() {
     s_logger.debug("Checking injected inputs.");
     ArgumentChecker.notNullInjected(getViewDefinitionRepository(), "viewDefinitionRepository");
     ArgumentChecker.notNullInjected(getFunctionRepository(), "functionRepository");
-    ArgumentChecker.notNullInjected(getSecurityMaster(), "securityMaster");
+    ArgumentChecker.notNullInjected(getSecuritySource(), "securitySource");
     ArgumentChecker.notNullInjected(getPositionMaster(), "positionMaster");
     ArgumentChecker.notNullInjected(getLiveDataAvailabilityProvider(), "liveDataAvailabilityProvider");
     ArgumentChecker.notNullInjected(getLiveDataSnapshotProvider(), "liveDataSnapshotProvider");
     ArgumentChecker.notNullInjected(getComputationCacheSource(), "computationCacheSource");
     ArgumentChecker.notNullInjected(getComputationJobRequestSender(), "computationJobRequestSender");
   }
-  
+
 }

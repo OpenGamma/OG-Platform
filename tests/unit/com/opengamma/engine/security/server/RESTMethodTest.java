@@ -43,7 +43,7 @@ public class RESTMethodTest {
   }
   
   protected SecurityMasterResource getSecurityMasterResource () {
-    return getSecurityMasterService ().findSecurityMaster (DEFAULT_SECURITYMASTER_NAME);
+    return getSecurityMasterService ().findSecuritySource (DEFAULT_SECURITYMASTER_NAME);
   }
   
   @Before
@@ -55,14 +55,14 @@ public class RESTMethodTest {
     secMaster.addSecurity(sec1);
     DefaultSecurity sec2 = new DefaultSecurity("t2", new IdentifierBundle(secId2));
     secMaster.addSecurity(sec2);
-    getSecurityMasterService ().setSecurityMaster (secMaster);
+    getSecurityMasterService ().setSecuritySource (secMaster);
     _uid1 = sec1.getUniqueIdentifier();
     //_uid2 = sec2.getUniqueIdentifier();
   }
   
   @Test
   public void testFindSecurityMaster () {
-    assertNull (getSecurityMasterService ().findSecurityMaster ("woot"));
+    assertNull (getSecurityMasterService ().findSecuritySource ("woot"));
     assertNotNull (getSecurityMasterResource ());
   }
   

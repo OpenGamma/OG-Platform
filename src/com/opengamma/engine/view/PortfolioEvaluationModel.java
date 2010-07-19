@@ -243,7 +243,7 @@ public class PortfolioEvaluationModel {
         failed = true;
         s_logger.warn("Had null security key in at least one position");
       } else {
-        completionService.submit(new SecurityResolutionJob(viewCompilationServices.getSecurityMaster(), secKey), secKey);
+        completionService.submit(new SecurityResolutionJob(viewCompilationServices.getSecuritySource(), secKey), secKey);
       }
     }
     for (int i = 0; i < securityKeys.size(); i++) {
@@ -274,13 +274,11 @@ public class PortfolioEvaluationModel {
    * a {@link SecuritySource}.
    */
   protected class SecurityResolutionJob implements Runnable {
-    private final SecuritySource _securityMaster;
+    private final SecuritySource _securitySource;
     private final IdentifierBundle _securityKey;
     
-    public SecurityResolutionJob(
-        SecuritySource securityMaster,
-        IdentifierBundle securityKey) {
-      _securityMaster = securityMaster;
+    public SecurityResolutionJob(SecuritySource securitySource, IdentifierBundle securityKey) {
+      _securitySource = securitySource;
       _securityKey = securityKey;
     }
     
@@ -288,7 +286,7 @@ public class PortfolioEvaluationModel {
     public void run() {
       Security security = null;
       try {
-        security = _securityMaster.getSecurity(_securityKey);
+        security = _securitySource.getSecurity(_securityKey);
       } catch (Exception e) {
         throw new OpenGammaRuntimeException("Exception while resolving SecurityKey " + _securityKey, e);
       }

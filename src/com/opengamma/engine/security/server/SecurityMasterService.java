@@ -75,7 +75,7 @@ public class SecurityMasterService {
    * @param name  the name, not null
    * @param resource  the resource, not null
    */
-  protected void addSecurityMaster(final String name, final SecurityMasterResource resource) {
+  protected void addSecuritySource(final String name, final SecurityMasterResource resource) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(resource, "resource");
     getSecurityResourceMap().put(name, resource);
@@ -86,29 +86,29 @@ public class SecurityMasterService {
    * @param name  the name, not null
    * @param source  the source, not null
    */
-  protected void addSecurityMaster(final String name, final SecuritySource source) {
+  protected void addSecuritySource(final String name, final SecuritySource source) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(source, "source");
-    addSecurityMaster(name, new SecurityMasterResource(getFudgeContext(), source));
+    addSecuritySource(name, new SecurityMasterResource(getFudgeContext(), source));
   }
 
   /**
    * Adds a security source using the default name.
    * @param source  the source, not null
    */
-  public void setSecurityMaster(final SecuritySource source) {
-    addSecurityMaster(DEFAULT_SECURITYMASTER_NAME, source);
+  public void setSecuritySource(final SecuritySource source) {
+    addSecuritySource(DEFAULT_SECURITYMASTER_NAME, source);
   }
 
   /**
    * Adds a map of security sources.
    * @param sources  the source map, not null
    */
-  public void setSecurityMasterMap(Map<String, SecuritySource> sources) {
+  public void setSecuritySourceMap(Map<String, SecuritySource> sources) {
     final ConcurrentMap<String, SecurityMasterResource> map = getSecurityResourceMap();
     map.clear();
     for (Map.Entry<String, SecuritySource> entry : sources.entrySet()) {
-      addSecurityMaster(entry.getKey(), entry.getValue());
+      addSecuritySource(entry.getKey(), entry.getValue());
     }
   }
 
@@ -119,7 +119,7 @@ public class SecurityMasterService {
    * @return the resource, null if not found
    */
   @Path ("{name}")
-  public SecurityMasterResource findSecurityMaster(@PathParam ("name") String name) {
+  public SecurityMasterResource findSecuritySource(@PathParam ("name") String name) {
     return getSecurityResourceMap().get(name);
   }
 

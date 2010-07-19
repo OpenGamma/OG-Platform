@@ -32,24 +32,25 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvider implements LiveDataListener 
-{
+public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvider implements LiveDataListener {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(LiveDataSnapshotProviderImpl.class);
-  
+
   // Injected Inputs:
   private final LiveDataClient _liveDataClient;
   private final FudgeContext _fudgeContext;
   private final SecuritySource _securitySource;
-  
+
   // Runtime State:
   private final InMemoryLKVSnapshotProvider _underlyingProvider = new InMemoryLKVSnapshotProvider();
   private final Map<LiveDataSpecification, Set<ValueRequirement>> _liveDataSpec2ValueRequirements =
     new ConcurrentHashMap<LiveDataSpecification, Set<ValueRequirement>>();
-  
+
   public LiveDataSnapshotProviderImpl(LiveDataClient liveDataClient, SecuritySource secMaster) {
     this(liveDataClient, secMaster, new FudgeContext());
   }
-  
+
   public LiveDataSnapshotProviderImpl(LiveDataClient liveDataClient, SecuritySource securitySource, FudgeContext fudgeContext) {
     ArgumentChecker.notNull(liveDataClient, "liveDataClient");
     ArgumentChecker.notNull(securitySource, "securitySource");
@@ -59,27 +60,32 @@ public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvid
     _fudgeContext = fudgeContext;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @return the underlyingProvider
+   * Gets the underlying snapshot provider.
+   * @return the underlying provider, not null
    */
   public InMemoryLKVSnapshotProvider getUnderlyingProvider() {
     return _underlyingProvider;
   }
 
   /**
-   * @return the secMaster
+   * Gets the source of securities.
+   * @return the source of securities, not null
    */
-  public SecuritySource getSecurityMaster() {
+  public SecuritySource getSecuritySource() {
     return _securitySource;
   }
 
   /**
-   * @return the fudgeContext
+   * Gets the Fudge context.
+   * @return the fudge context, not null
    */
   public FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public void addSubscription(UserPrincipal user, ValueRequirement requirement) {
     addSubscription(user, Collections.singleton(requirement));    
@@ -89,7 +95,7 @@ public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvid
   public void addSubscription(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
     Set<LiveDataSpecification> liveDataSpecs = new HashSet<LiveDataSpecification>();
     for (ValueRequirement requirement : valueRequirements) {
-      LiveDataSpecification liveDataSpec = requirement.getRequiredLiveData(getSecurityMaster());
+      LiveDataSpecification liveDataSpec = requirement.getRequiredLiveData(getSecuritySource());
       liveDataSpecs.add(liveDataSpec);
       Set<ValueRequirement> requirementsForSpec = _liveDataSpec2ValueRequirements.get(liveDataSpec);
       if (requirementsForSpec == null) {

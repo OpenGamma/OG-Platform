@@ -84,7 +84,7 @@ public class ViewCompilationServices {
    * Gets the source of securities.
    * @return the source of securities, not null
    */
-  public SecuritySource getSecurityMaster() {
+  public SecuritySource getSecuritySource() {
     return _securitySource;
   }
 

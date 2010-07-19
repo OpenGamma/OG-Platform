@@ -503,7 +503,7 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     Set<ValueRequirement> requiredValues = getPortfolioEvaluationModel().getAllLiveDataRequirements();
     Collection<LiveDataSpecification> requiredLiveData = ValueRequirement.getRequiredLiveData(
         requiredValues, 
-        getProcessingContext().getSecurityMaster());
+        getProcessingContext().getSecuritySource());
     
     s_logger.info("Checking that {} is entitled to the results of {}", user, this);
     Map<LiveDataSpecification, Boolean> entitlements = getProcessingContext().getLiveDataEntitlementChecker().isEntitled(user, requiredLiveData);

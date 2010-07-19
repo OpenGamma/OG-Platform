@@ -40,12 +40,12 @@ public class DefaultComputationTargetResolverTest {
     SecuritySource secMaster = new MockSecuritySource();
     PositionMaster posMaster = new MockPositionMaster();
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secMaster, posMaster);
-    assertEquals(secMaster, test.getSecurityMaster());
+    assertEquals(secMaster, test.getSecuritySource());
     assertEquals(posMaster, test.getPositionMaster());
   }
 
   @Test(expected=NullPointerException.class)
-  public void test_constructor_nullSecurityMaster() {
+  public void test_constructor_nullSecuritySource() {
     SecuritySource secMaster = new MockSecuritySource();
     new DefaultComputationTargetResolver(secMaster, null);
   }

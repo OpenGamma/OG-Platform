@@ -138,7 +138,7 @@ public class ViewProcessingContext {
    * Gets the source of securities.
    * @return the source of securities, not null
    */
-  public SecuritySource getSecurityMaster() {
+  public SecuritySource getSecuritySource() {
     return _securitySource;
   }
 
@@ -203,7 +203,7 @@ public class ViewProcessingContext {
         getLiveDataAvailabilityProvider(),
         getFunctionResolver(),
         getPositionMaster(),
-        getSecurityMaster(),
+        getSecuritySource(),
         getCompilationContext(),
         getComputationTargetResolver(),
         getExecutorService());

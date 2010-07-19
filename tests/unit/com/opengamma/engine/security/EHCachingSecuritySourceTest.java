@@ -57,7 +57,7 @@ public class EHCachingSecuritySourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void getSecurity_UniqueIdentifier() {
-    addSecuritiesToMemorySecurityMaster(_security1, _security2);
+    addSecuritiesToMock(_security1, _security2);
     
     UniqueIdentifier uid1 = _security1.getUniqueIdentifier();
     Security underlyingSec = _underlyingSecuritySource.getSecurity(uid1);
@@ -98,7 +98,7 @@ public class EHCachingSecuritySourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void getSecurities_IdentifierBundle() {
-    addSecuritiesToMemorySecurityMaster(_security1, _security2);
+    addSecuritiesToMock(_security1, _security2);
     IdentifierBundle secKey = IdentifierBundle.of(_secId1, _secId2);
     
     Collection<Security> underlyingSecurities = _underlyingSecuritySource.getSecurities(secKey);
@@ -148,7 +148,7 @@ public class EHCachingSecuritySourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void getSecurity_IdentifierBundle() {
-    addSecuritiesToMemorySecurityMaster(_security1, _security2);
+    addSecuritiesToMock(_security1, _security2);
     
     IdentifierBundle secKey1 = IdentifierBundle.of(_secId1);
     Security underlyingSec = _underlyingSecuritySource.getSecurity(secKey1);
@@ -195,7 +195,7 @@ public class EHCachingSecuritySourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void refreshGetSecurity_UniqueIdentity() {
-    addSecuritiesToMemorySecurityMaster(_security1, _security2);
+    addSecuritiesToMock(_security1, _security2);
     UniqueIdentifier uid1 = _security1.getUniqueIdentifier();
     _cachingSecuritySource.getSecurity(uid1);
     Cache singleSecCache = _cachingSecuritySource.getCacheManager().getCache(EHCachingSecuritySource.SINGLE_SECURITY_CACHE);
@@ -222,7 +222,7 @@ public class EHCachingSecuritySourceTest {
    
   @Test
   public void refreshGetSecurities_IdentifierBundle() {
-    addSecuritiesToMemorySecurityMaster(_security1, _security2);
+    addSecuritiesToMock(_security1, _security2);
     IdentifierBundle secKey = IdentifierBundle.of(_secId1, _secId2);
     _cachingSecuritySource.getSecurities(secKey);
     Cache singleSecCache = _cachingSecuritySource.getCacheManager().getCache(EHCachingSecuritySource.SINGLE_SECURITY_CACHE);
@@ -270,7 +270,7 @@ public class EHCachingSecuritySourceTest {
     
   @Test
   public void refreshGetSecurity_IdentifierBundle() {
-    addSecuritiesToMemorySecurityMaster(_security1, _security2);
+    addSecuritiesToMock(_security1, _security2);
     
     IdentifierBundle secKey1 = IdentifierBundle.of(_secId1);
     _cachingSecuritySource.getSecurity(secKey1);
@@ -296,7 +296,7 @@ public class EHCachingSecuritySourceTest {
     }
   }
   
-  private void addSecuritiesToMemorySecurityMaster(DefaultSecurity ... securities) {
+  private void addSecuritiesToMock(DefaultSecurity ... securities) {
     MockSecuritySource secMaster = (MockSecuritySource)_underlyingSecuritySource;
     for (DefaultSecurity security : securities) {
       secMaster.addSecurity(security);

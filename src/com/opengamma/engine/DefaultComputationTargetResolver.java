@@ -77,7 +77,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * Gets the security source which provides access to the securities.
    * @return the security master, not null
    */
-  public SecuritySource getSecurityMaster() {
+  public SecuritySource getSecuritySource() {
     return _securitySource;
   }
 
@@ -103,7 +103,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
         return new ComputationTarget(specification.getType(), uid);
       }
       case SECURITY: {
-        Security security = getSecurityMaster().getSecurity(uid);
+        Security security = getSecuritySource().getSecurity(uid);
         if (security == null) {
           s_logger.info("Unable to resolve security UID {}", uid);
           return null;
@@ -119,7 +119,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
         }
         s_logger.info("Resolved position UID {} to position {}", uid, position);
         if (position.getSecurity() == null) {
-          Security security = getSecurityMaster().getSecurity(position.getSecurityKey());
+          Security security = getSecuritySource().getSecurity(position.getSecurityKey());
           if (security == null) {
             s_logger.warn("Unable to resolve security ID {} for position UID {}", position.getSecurityKey(), uid);
           } else {

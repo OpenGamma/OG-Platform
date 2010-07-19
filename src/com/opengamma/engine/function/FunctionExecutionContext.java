@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -13,7 +13,6 @@ import com.opengamma.engine.view.calcnode.ViewProcessorQuery;
 
 /**
  * Holds values that will be provided to a {@link FunctionInvoker} during invocation.
- *
  */
 public class FunctionExecutionContext extends AbstractFunctionContext {
   /**
@@ -31,7 +30,7 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
   /**
    * The name under which an instance of {@link SecuritySource} should be bound.
    */
-  public static final String SECURITY_MASTER_NAME = "securityMaster";
+  public static final String SECURITY_SOURCE_NAME = "securitySource";
   
 
   public ViewProcessorQuery getViewProcessorQuery() {
@@ -58,12 +57,12 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
     put(SNAPSHOT_CLOCK_NAME, snapshotClock);
   }
   
-  public void setSecurityMaster(SecuritySource secMaster) {
-    put(SECURITY_MASTER_NAME, secMaster);
+  public void setSecuritySource(SecuritySource secMaster) {
+    put(SECURITY_SOURCE_NAME, secMaster);
   }
   
-  public SecuritySource getSecurityMaster() {
-    return (SecuritySource) get(SECURITY_MASTER_NAME);
+  public SecuritySource getSecuritySource() {
+    return (SecuritySource) get(SECURITY_SOURCE_NAME);
   }
   
 }
