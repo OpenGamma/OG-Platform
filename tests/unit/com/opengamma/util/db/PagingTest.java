@@ -7,6 +7,8 @@ package com.opengamma.util.db;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 
 /**
@@ -14,6 +16,23 @@ import org.junit.Test;
  */
 public final class PagingTest {
 
+  @Test
+  public void test_factory_Collection_empty() {
+    Paging test = Paging.of(Arrays.asList());
+    assertEquals(1, test.getPage());
+    assertEquals(Integer.MAX_VALUE, test.getPagingSize());
+    assertEquals(0, test.getTotalItems());
+  }
+
+  @Test
+  public void test_factory_Collection_sizeTwo() {
+    Paging test = Paging.of(Arrays.asList("Hello", "There"));
+    assertEquals(1, test.getPage());
+    assertEquals(Integer.MAX_VALUE, test.getPagingSize());
+    assertEquals(2, test.getTotalItems());
+  }
+
+  //-------------------------------------------------------------------------
   @Test
   public void test_constructor_3ints() {
     Paging test = new Paging(1, 20, 32);
