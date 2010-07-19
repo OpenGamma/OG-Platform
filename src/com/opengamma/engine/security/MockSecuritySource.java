@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueIdentifierSupplier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -27,22 +28,19 @@ public class MockSecuritySource implements SecuritySource {
   // this is currently public for indirect use by another project via ViewTestUtils
 
   /**
-   * The default scheme used for each {@link UniqueIdentifier}.
-   */
-  public static final String DEFAULT_UID_SCHEME = "Mock";
-  /**
    * The securities keyed by identifier.
    */
   private final Map<UniqueIdentifier, Security> _securities = new HashMap<UniqueIdentifier, Security>();
   /**
    * The next index for the identifier.
    */
-  private final AtomicLong _nextIdentifier = new AtomicLong();
+  private final UniqueIdentifierSupplier _uidSupplier;
 
   /**
    * Creates the security master.
    */
   public MockSecuritySource() {
+    _uidSupplier = new UniqueIdentifierSupplier("Mock");
   }
 
   //-------------------------------------------------------------------------
@@ -83,8 +81,7 @@ public class MockSecuritySource implements SecuritySource {
    */
   public void addSecurity(DefaultSecurity security) {
     ArgumentChecker.notNull(security, "security");
-    UniqueIdentifier identifier = UniqueIdentifier.of(DEFAULT_UID_SCHEME, Long.toString(_nextIdentifier.incrementAndGet()));
-    security.setUniqueIdentifier(identifier);
+    security.setUniqueIdentifier(_uidSupplier.get());
     _securities.put(security.getUniqueIdentifier(), security);
   }
 

@@ -8,9 +8,9 @@ package com.opengamma.engine.position;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueIdentifierSupplier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -22,10 +22,6 @@ import com.opengamma.util.ArgumentChecker;
 public class MockPositionMaster implements PositionMaster {
   // this is currently public for indirect use by another project via ViewTestUtils
 
-  /**
-   * The default scheme used for each {@link UniqueIdentifier}.
-   */
-  public static final String DEFAULT_UID_SCHEME = "Mock";
   /**
    * The portfolios.
    */
@@ -41,12 +37,13 @@ public class MockPositionMaster implements PositionMaster {
   /**
    * The next index for the identifier.
    */
-  private final AtomicLong _nextIdentifier = new AtomicLong();
+  private final UniqueIdentifierSupplier _uidSupplier;
 
   /**
    * Creates an instance using the default scheme for each {@link UniqueIdentifier} created.
    */
   public MockPositionMaster() {
+    _uidSupplier = new UniqueIdentifierSupplier("Mock");
   }
 
   //-------------------------------------------------------------------------
@@ -106,8 +103,7 @@ public class MockPositionMaster implements PositionMaster {
     // node
     if (node instanceof PortfolioNodeImpl) {
       PortfolioNodeImpl nodeImpl = (PortfolioNodeImpl) node;
-      UniqueIdentifier identifier = UniqueIdentifier.of(DEFAULT_UID_SCHEME, portfolioId + "-" + _nextIdentifier.incrementAndGet());
-      nodeImpl.setUniqueIdentifier(identifier);
+      nodeImpl.setUniqueIdentifier(_uidSupplier.getWithValuePrefix(portfolioId + "-"));
     }
     _nodes.put(node.getUniqueIdentifier(), node);
     
@@ -115,8 +111,7 @@ public class MockPositionMaster implements PositionMaster {
     for (Position position : node.getPositions()) {
       if (position instanceof PositionImpl) {
         PositionImpl positionImpl = (PositionImpl) position;
-        UniqueIdentifier identifier = UniqueIdentifier.of(DEFAULT_UID_SCHEME, portfolioId + "-" + _nextIdentifier.incrementAndGet());
-        positionImpl.setUniqueIdentifier(identifier);
+        positionImpl.setUniqueIdentifier(_uidSupplier.getWithValuePrefix(portfolioId + "-"));
       }
       _positions.put(position.getUniqueIdentifier(), position);
     }
