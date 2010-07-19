@@ -32,8 +32,8 @@ import com.opengamma.financial.analytics.model.swap.SwapScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.interestrate.DoubleCurveFinder;
 import com.opengamma.financial.interestrate.DoubleCurveJacobian;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateCalculator;
+import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -43,11 +43,18 @@ import com.opengamma.financial.security.swap.InterestRateLeg;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.math.interpolation.CubicSplineInterpolatorWithSensitivities1D;
+import com.opengamma.math.interpolation.Extrapolator1D;
+import com.opengamma.math.interpolation.ExtrapolatorMethod;
+import com.opengamma.math.interpolation.FlatExtrapolator;
+import com.opengamma.math.interpolation.FlatExtrapolatorWithSensitivities;
 import com.opengamma.math.interpolation.InterpolationResult;
+import com.opengamma.math.interpolation.InterpolationResultWithSensitivities;
 import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.math.interpolation.Interpolator1DCubicSplineDataBundle;
 import com.opengamma.math.interpolation.Interpolator1DCubicSplineWithSensitivitiesDataBundle;
-import com.opengamma.math.interpolation.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.Interpolator1DWithSensitivities;
+import com.opengamma.math.interpolation.LinearExtrapolator;
+import com.opengamma.math.interpolation.LinearExtrapolatorWithSensitivity;
 import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -59,13 +66,10 @@ import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
  */
 public class SwapPortfolioImpliedFundingAndForwardCurveFunction extends AbstractFunction implements FunctionInvoker {
   private final Currency _currency;
-  private final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> _fundingInterpolator = new NaturalCubicSplineInterpolator1D(); // TODO this should not be hard-coded
+  //TODO all interpolators should be passed in
+  private final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> _interpolator; // TODO this should not be hard-coded
   // TODO this should depend on the type of _fundingInterpolator
-  private final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> _fundingInterpolatorWithSensitivity = new CubicSplineInterpolatorWithSensitivities1D();
-  private final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> _forwardInterpolator = new NaturalCubicSplineInterpolator1D(); // TODO this should not be hard-coded
-  // TODO this should depend on the type of _forwardInterpolator
-  private final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> _forwardInterpolatorWithSensitivity = new CubicSplineInterpolatorWithSensitivities1D();
-  private final double _spotRate = 0.01; // TODO this needs to be changed - it is the "instantaneous" interest rate. Possibly the O/N rate for the currency is the best proxy
+  private final Interpolator1D<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> _interpolatorWithSensitivity;
   private final InterestRateCalculator _swapRateCalculator = new InterestRateCalculator();
   private final String _fundingCurveName;
   private final String _forwardCurveName;
@@ -76,6 +80,17 @@ public class SwapPortfolioImpliedFundingAndForwardCurveFunction extends Abstract
     // TODO these should depend on what will be parameters: rootfinder type and jacobian calculation method
     _fundingCurveName = ValueRequirementNames.YIELD_CURVE + "_" + _currency + "_Broyden_AnalyticJacobian_FundingCurve";
     _forwardCurveName = ValueRequirementNames.YIELD_CURVE + "_" + _currency + "_Broyden_AnalyticJacobian_ForwardCurve";
+    final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> cubicInterpolator = new NaturalCubicSplineInterpolator1D();
+    final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> cubicInterpolatorWithSense = new CubicSplineInterpolatorWithSensitivities1D();
+    final ExtrapolatorMethod<Interpolator1DCubicSplineDataBundle, InterpolationResult> linearExtrapolator = new LinearExtrapolator<Interpolator1DCubicSplineDataBundle, InterpolationResult>();
+    final ExtrapolatorMethod<Interpolator1DCubicSplineDataBundle, InterpolationResult> flatExtrapolator = new FlatExtrapolator<Interpolator1DCubicSplineDataBundle, InterpolationResult>();
+    final ExtrapolatorMethod<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> linearExtrapolatorWithSensitivities = 
+      new LinearExtrapolatorWithSensitivity<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities>();
+    final ExtrapolatorMethod<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> flatExtrapolatorWithSensitivities = 
+      new FlatExtrapolatorWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities>();
+    _interpolator = new Extrapolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult>(linearExtrapolator, flatExtrapolator, cubicInterpolator);
+    _interpolatorWithSensitivity = new Extrapolator1D<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities>(linearExtrapolatorWithSensitivities,
+        flatExtrapolatorWithSensitivities, cubicInterpolatorWithSense);
   }
 
   @Override
@@ -130,20 +145,20 @@ public class SwapPortfolioImpliedFundingAndForwardCurveFunction extends Abstract
       // swap rates from bbg
       marketRates[i] = _swapRateCalculator.getRate(fundingCurve, fundingCurve, swap);
       fundingNodeTimes[i] = Math.max(fixedPaymentTimes[nFix - 1], floatPaymentTimes[nFloat - 1] + forwardEndOffsets[nFloat - 1]);
-      // forwardNodeTimes[i] = somethign
+      // forwardNodeTimes[i] = something
       initialRatesGuess[i] = 0.05;
       swaps.add(swap);
       i++;
     }
-    final DoubleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle> jacobian = new DoubleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(swaps, _spotRate,
-        forwardNodeTimes, fundingNodeTimes, _fundingInterpolatorWithSensitivity, _forwardInterpolatorWithSensitivity);
-    final DoubleCurveFinder curveFinder = new DoubleCurveFinder(swaps, marketRates, _spotRate, forwardNodeTimes, fundingNodeTimes, forwardCurve, fundingCurve, _fundingInterpolator,
-        _forwardInterpolator);
+    final DoubleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle> jacobian = new DoubleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(swaps, 
+        forwardNodeTimes, fundingNodeTimes, _interpolatorWithSensitivity, _interpolatorWithSensitivity);
+    final DoubleCurveFinder curveFinder = new DoubleCurveFinder(swaps, marketRates, forwardNodeTimes, fundingNodeTimes, forwardCurve, fundingCurve, _interpolator,
+        _interpolator);
     // TODO this should not be hard-coded
     final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, jacobian, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
     final double[] yields = rootFinder.getRoot(curveFinder, new DoubleMatrix1D(initialRatesGuess)).getData();
-    final YieldAndDiscountCurve fundingResult = new InterpolatedYieldCurve(fundingNodeTimes, yields, _fundingInterpolator);
-    final YieldAndDiscountCurve forwardResult = new InterpolatedYieldCurve(forwardNodeTimes, yields, _fundingInterpolator);
+    final YieldAndDiscountCurve fundingResult = new InterpolatedYieldCurve(fundingNodeTimes, yields, _interpolator);
+    final YieldAndDiscountCurve forwardResult = new InterpolatedYieldCurve(forwardNodeTimes, yields, _interpolator);
     final ValueSpecification fundingCurveSpecification = new ValueSpecification(new ValueRequirement(_fundingCurveName, target));
     final ValueSpecification forwardCurveSpecification = new ValueSpecification(new ValueRequirement(_forwardCurveName, target));
     return Sets.newHashSet(new ComputedValue(fundingCurveSpecification, fundingResult), new ComputedValue(forwardCurveSpecification, forwardResult));

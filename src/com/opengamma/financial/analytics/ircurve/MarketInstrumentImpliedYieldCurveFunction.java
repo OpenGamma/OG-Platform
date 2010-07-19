@@ -59,11 +59,18 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CubicSplineInterpolatorWithSensitivities1D;
+import com.opengamma.math.interpolation.Extrapolator1D;
+import com.opengamma.math.interpolation.ExtrapolatorMethod;
+import com.opengamma.math.interpolation.FlatExtrapolator;
+import com.opengamma.math.interpolation.FlatExtrapolatorWithSensitivities;
 import com.opengamma.math.interpolation.InterpolationResult;
+import com.opengamma.math.interpolation.InterpolationResultWithSensitivities;
 import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.math.interpolation.Interpolator1DCubicSplineDataBundle;
 import com.opengamma.math.interpolation.Interpolator1DCubicSplineWithSensitivitiesDataBundle;
-import com.opengamma.math.interpolation.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.Interpolator1DWithSensitivities;
+import com.opengamma.math.interpolation.LinearExtrapolator;
+import com.opengamma.math.interpolation.LinearExtrapolatorWithSensitivity;
 import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -86,10 +93,10 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private ValueSpecification _curveResult;
   private ValueSpecification _jacobianResult;
   private Set<ValueSpecification> _results;
-  // TODO this should not be hard-coded
-  private final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResult> _interpolator = new NaturalCubicSplineInterpolator1D();
-  // TODO this should depend on the type of _interpolator
-  private final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> _interpolatorWithSensitivity = new CubicSplineInterpolatorWithSensitivities1D();
+  //TODO all interpolators should be passed in
+  private final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> _interpolator; // TODO this should not be hard-coded
+  // TODO this should depend on the type of _fundingInterpolator
+  private final Interpolator1D<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> _interpolatorWithSensitivity;
   
   // TODO kirk 2010-07-05 -- Must take in a curve definition name as well, rather than hard-coding to
   // "ForwardAndFunding".
@@ -97,6 +104,17 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   public MarketInstrumentImpliedYieldCurveFunction(final Currency currency) {
     Validate.notNull(currency);
     _currency = currency;
+    final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> cubicInterpolator = new NaturalCubicSplineInterpolator1D();
+    final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> cubicInterpolatorWithSense = new CubicSplineInterpolatorWithSensitivities1D();
+    final ExtrapolatorMethod<Interpolator1DCubicSplineDataBundle, InterpolationResult> linearExtrapolator = new LinearExtrapolator<Interpolator1DCubicSplineDataBundle, InterpolationResult>();
+    final ExtrapolatorMethod<Interpolator1DCubicSplineDataBundle, InterpolationResult> flatExtrapolator = new FlatExtrapolator<Interpolator1DCubicSplineDataBundle, InterpolationResult>();
+    final ExtrapolatorMethod<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> linearExtrapolatorWithSensitivities = 
+      new LinearExtrapolatorWithSensitivity<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities>();
+    final ExtrapolatorMethod<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> flatExtrapolatorWithSensitivities = 
+      new FlatExtrapolatorWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities>();
+    _interpolator = new Extrapolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult>(linearExtrapolator, flatExtrapolator, cubicInterpolator);
+    _interpolatorWithSensitivity = new Extrapolator1D<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities>(linearExtrapolatorWithSensitivities,
+        flatExtrapolatorWithSensitivities, cubicInterpolatorWithSense);
   }
 
   @Override
@@ -122,7 +140,6 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     if (rate == null) {
       throw new NullPointerException("Could not get spot rate for " + _currency);
     }
-    final double spotRate = rate;
     rate = (Double) inputs.getValue(_referenceRateRequirement);
     if (rate == null) {
       throw new NullPointerException("Could not get first floating rate for " + _currency);
@@ -150,9 +167,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       nodeTimes[i] = getLastTime(derivative);
       i++;
     }
-    final SingleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle> jacobian = new SingleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(derivatives, spotRate,
+    final SingleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle> jacobian = new SingleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(derivatives, 
         nodeTimes, _interpolatorWithSensitivity);
-    final SingleCurveFinder curveFinder = new SingleCurveFinder(derivatives, marketRates, spotRate, nodeTimes, _interpolator);
+    final SingleCurveFinder curveFinder = new SingleCurveFinder(derivatives, marketRates, nodeTimes, _interpolator);
     NewtonVectorRootFinder rootFinder; 
     double[] yields = null;
     try {
