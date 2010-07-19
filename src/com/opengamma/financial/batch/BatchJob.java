@@ -42,7 +42,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
-import com.opengamma.engine.position.PositionMaster;
+import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -122,7 +122,7 @@ public class BatchJob implements Job, ComputationResultListener {
   /**
    * Used to load Positions (needed for building the dependency graph)
    */
-  private PositionMaster _positionMaster;
+  private PositionSource _positionMaster;
   
   /**
    * Used to write stuff to the batch database
@@ -427,11 +427,11 @@ public class BatchJob implements Job, ComputationResultListener {
     _securityMaster = securityMaster;
   }
 
-  public PositionMaster getPositionMaster() {
+  public PositionSource getPositionMaster() {
     return _positionMaster;
   }
 
-  public void setPositionMaster(PositionMaster positionMaster) {
+  public void setPositionMaster(PositionSource positionMaster) {
     _positionMaster = positionMaster;
   }
   
@@ -517,8 +517,8 @@ public class BatchJob implements Job, ComputationResultListener {
       securityMaster = underlyingSecurityMaster;      
     }
     
-    PositionMaster underlyingPositionMaster = getPositionMaster();
-    PositionMaster positionMaster; 
+    PositionSource underlyingPositionMaster = getPositionMaster();
+    PositionSource positionMaster; 
     if (underlyingPositionMaster instanceof ManageablePositionMaster) {
       positionMaster = new HistoricallyFixedPositionMaster(
           (ManageablePositionMaster) underlyingPositionMaster, 
