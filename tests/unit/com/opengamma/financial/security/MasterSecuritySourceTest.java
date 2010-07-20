@@ -22,7 +22,7 @@ import com.opengamma.id.UniqueIdentifier;
  */
 public class MasterSecuritySourceTest {
 
-  private static final DefaultSecurity SECURITY = new DefaultSecurity();
+  private static final DefaultSecurity SECURITY = new DefaultSecurity("TEST");
   private static final SecurityDocument DOCUMENT = new SecurityDocument(SECURITY);
 
   @Test(expected = IllegalArgumentException.class)
