@@ -56,18 +56,11 @@ public class EHCachingSecuritySource implements SecuritySource {
   private final Cache _bundleCache;
 
   /**
-   * Creates a cached security master.
-   * @param underlying  the underlying security master, not null
+   * Creates an instance over an underlying source using a default cache manager.
+   * @param underlying  the underlying security source, not null
    */
-  public EHCachingSecuritySource(SecuritySource underlying) {
-    ArgumentChecker.notNull(underlying, "Security Master");
-    _underlying = underlying;
-    CacheManager manager = EHCacheUtils.createCacheManager();
-    EHCacheUtils.addCache(manager, SINGLE_SECURITY_CACHE);
-    EHCacheUtils.addCache(manager, MULTI_SECURITIES_CACHE);
-    _uidCache = EHCacheUtils.getCacheFromManager(manager, SINGLE_SECURITY_CACHE);
-    _bundleCache = EHCacheUtils.getCacheFromManager(manager, MULTI_SECURITIES_CACHE);
-    _manager = manager;
+  public EHCachingSecuritySource(final SecuritySource underlying) {
+    this(underlying, EHCacheUtils.createCacheManager());
   }
 
   public EHCachingSecuritySource(SecuritySource underlying,
@@ -77,7 +70,7 @@ public class EHCachingSecuritySource implements SecuritySource {
       long timeToLiveSeconds, long timeToIdleSeconds, boolean diskPersistent,
       long diskExpiryThreadIntervalSeconds,
       RegisteredEventListeners registeredEventListeners) {
-    ArgumentChecker.notNull(underlying, "Security Master");
+    ArgumentChecker.notNull(underlying, "underlying");
     _underlying = underlying;
     CacheManager manager = EHCacheUtils.createCacheManager();
     EHCacheUtils.addCache(manager, SINGLE_SECURITY_CACHE, maxElementsInMemory,
@@ -94,32 +87,32 @@ public class EHCachingSecuritySource implements SecuritySource {
   }
 
   /**
-   * Creates a cached security master.
-   * @param underlying  the underlying security master, not null
-   * @param manager  the cache manager, not null
+   * Creates an instance over an underlying source specifying the cache manager.
+   * @param underlying  the underlying security source, not null
+   * @param cacheManager  the cache manager, not null
    */
-  public EHCachingSecuritySource(SecuritySource underlying, CacheManager manager) {
-    ArgumentChecker.notNull(underlying, "Security Master");
-    ArgumentChecker.notNull(manager, "CacheManager");
+  public EHCachingSecuritySource(final SecuritySource underlying, final CacheManager cacheManager) {
+    ArgumentChecker.notNull(underlying, "underlying");
+    ArgumentChecker.notNull(cacheManager, "cacheManager");
     _underlying = underlying;
-    EHCacheUtils.addCache(manager, SINGLE_SECURITY_CACHE);
-    EHCacheUtils.addCache(manager, MULTI_SECURITIES_CACHE);
-    _uidCache = EHCacheUtils.getCacheFromManager(manager, SINGLE_SECURITY_CACHE);
-    _bundleCache = EHCacheUtils.getCacheFromManager(manager, MULTI_SECURITIES_CACHE);
-    _manager = manager;
+    EHCacheUtils.addCache(cacheManager, SINGLE_SECURITY_CACHE);
+    EHCacheUtils.addCache(cacheManager, MULTI_SECURITIES_CACHE);
+    _uidCache = EHCacheUtils.getCacheFromManager(cacheManager, SINGLE_SECURITY_CACHE);
+    _bundleCache = EHCacheUtils.getCacheFromManager(cacheManager, MULTI_SECURITIES_CACHE);
+    _manager = cacheManager;
   }
 
   /**
-   * Creates a cached security master.
-   * @param underlying  the underlying security master, not null
+   * Creates an instance over an underlying source specifying the caches.
+   * @param underlying  the underlying security source, not null
    * @param singleSecCache  the single security cache, not null
    * @param multiSecCache  the multiple security cache, not null
    */
   public EHCachingSecuritySource(SecuritySource underlying,
       Cache singleSecCache, Cache multiSecCache) {
     ArgumentChecker.notNull(underlying, "Security Master");
-    ArgumentChecker.notNull(singleSecCache, "Single Security Cache");
-    ArgumentChecker.notNull(multiSecCache, "Multi Security Cache");
+    ArgumentChecker.notNull(singleSecCache, "singleSecCache");
+    ArgumentChecker.notNull(multiSecCache, "multiSecCache");
     _underlying = underlying;
     CacheManager manager = EHCacheUtils.createCacheManager();
     EHCacheUtils.addCache(manager, singleSecCache);
