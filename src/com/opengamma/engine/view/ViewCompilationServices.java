@@ -24,7 +24,7 @@ import com.opengamma.util.ArgumentChecker;
 public class ViewCompilationServices {
   private final LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private final FunctionResolver _functionResolver;
-  private final PositionSource _positionMaster;
+  private final PositionSource _positionSource;
   private final SecuritySource _securitySource;
   private final ExecutorService _executorService;
   private final FunctionCompilationContext _compilationContext;
@@ -33,22 +33,22 @@ public class ViewCompilationServices {
   public ViewCompilationServices(
       LiveDataAvailabilityProvider liveDataAvailabilityProvider,
       FunctionResolver functionResolver,
-      PositionSource positionMaster,
+      PositionSource positionSource,
       SecuritySource securitySource,
       FunctionCompilationContext compilationContext,
       ComputationTargetResolver computationTargetResolver,
       ExecutorService executorService) {
-    ArgumentChecker.notNull(liveDataAvailabilityProvider, "LiveDataAvailabilityProvider");
-    ArgumentChecker.notNull(functionResolver, "FunctionResolver");
-    ArgumentChecker.notNull(positionMaster, "PositionMaster");
-    ArgumentChecker.notNull(securitySource, "SecuritySource");
-    ArgumentChecker.notNull(compilationContext, "CompilationContext");
-    ArgumentChecker.notNull(computationTargetResolver, "Computation target resolver");
-    ArgumentChecker.notNull(executorService, "ExecutorService");
+    ArgumentChecker.notNull(liveDataAvailabilityProvider, "liveDataAvailabilityProvider");
+    ArgumentChecker.notNull(functionResolver, "functionResolver");
+    ArgumentChecker.notNull(positionSource, "positionSource");
+    ArgumentChecker.notNull(securitySource, "securitySource");
+    ArgumentChecker.notNull(compilationContext, "compilationContext");
+    ArgumentChecker.notNull(computationTargetResolver, "computationTargetResolver");
+    ArgumentChecker.notNull(executorService, "executorService");
     
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
     _functionResolver = functionResolver;
-    _positionMaster = positionMaster;
+    _positionSource = positionSource;
     _securitySource = securitySource;
     _compilationContext = compilationContext;
     _executorService = executorService;
@@ -77,7 +77,7 @@ public class ViewCompilationServices {
    * @return the source of positions, not null
    */
   public PositionSource getPositionMaster() {
-    return _positionMaster;
+    return _positionSource;
   }
 
   /**

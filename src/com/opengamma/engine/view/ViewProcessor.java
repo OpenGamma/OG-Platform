@@ -54,7 +54,7 @@ public class ViewProcessor implements Lifecycle {
   private ViewDefinitionRepository _viewDefinitionRepository;
   private FunctionRepository _functionRepository;
   private SecuritySource _securitySource;
-  private PositionSource _positionMaster;
+  private PositionSource _positionSource;
   private LiveDataClient _liveDataClient;
   private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private LiveDataSnapshotProvider _liveDataSnapshotProvider;
@@ -127,18 +127,20 @@ public class ViewProcessor implements Lifecycle {
   }
 
   /**
-   * @return the positionMaster
+   * Gets the source of positions.
+   * @return the source of positions
    */
   public PositionSource getPositionMaster() {
-    return _positionMaster;
+    return _positionSource;
   }
 
   /**
-   * @param positionMaster the positionMaster to set
+   * Sets the source of positions.
+   * @param positionSource  the source of positions
    */
-  public void setPositionMaster(PositionSource positionMaster) {
+  public void setPositionMaster(PositionSource positionSource) {
     assertNotStarted();
-    _positionMaster = positionMaster;
+    _positionSource = positionSource;
   }
   
   public LiveDataClient getLiveDataClient() {
@@ -537,7 +539,7 @@ public class ViewProcessor implements Lifecycle {
     ArgumentChecker.notNullInjected(getViewDefinitionRepository(), "viewDefinitionRepository");
     ArgumentChecker.notNullInjected(getFunctionRepository(), "functionRepository");
     ArgumentChecker.notNullInjected(getSecuritySource(), "securitySource");
-    ArgumentChecker.notNullInjected(getPositionMaster(), "positionMaster");
+    ArgumentChecker.notNullInjected(getPositionMaster(), "positionSource");
     ArgumentChecker.notNullInjected(getLiveDataAvailabilityProvider(), "liveDataAvailabilityProvider");
     ArgumentChecker.notNullInjected(getLiveDataSnapshotProvider(), "liveDataSnapshotProvider");
     ArgumentChecker.notNullInjected(getComputationCacheSource(), "computationCacheSource");

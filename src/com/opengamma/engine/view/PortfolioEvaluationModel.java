@@ -304,7 +304,7 @@ public class PortfolioEvaluationModel {
     for (Position position : node.getPositions()) {
       if (position.getSecurity() != null) {
         // Nothing to do here; they pre-resolved the security.
-        s_logger.debug("Security pre-resolved by PositionMaster for {}", position.getUniqueIdentifier());
+        s_logger.debug("Security pre-resolved by PositionSource for {}", position.getUniqueIdentifier());
       } else if (position.getSecurityKey() != null) {
         result.add(position.getSecurityKey());
       } else {

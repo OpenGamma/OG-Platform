@@ -33,7 +33,7 @@ public class ViewProcessingContext {
   private final LiveDataSnapshotProvider _liveDataSnapshotProvider;
   private final FunctionRepository _functionRepository;
   private final FunctionResolver _functionResolver;
-  private final PositionSource _positionMaster;
+  private final PositionSource _positionSource;
   private final SecuritySource _securitySource;
   private final ViewComputationCacheSource _computationCacheSource;
   private final JobRequestSender _computationJobRequestSender;
@@ -48,32 +48,32 @@ public class ViewProcessingContext {
       LiveDataSnapshotProvider liveDataSnapshotProvider,
       FunctionRepository functionRepository,
       FunctionResolver functionResolver,
-      PositionSource positionMaster,
+      PositionSource positionSource,
       SecuritySource securitySource,
       ViewComputationCacheSource computationCacheSource,
       JobRequestSender computationJobRequestSender,
       ViewProcessorQueryReceiver viewProcessorQueryReceiver,
       FunctionCompilationContext compilationContext,
       ExecutorService executorService) {
-    ArgumentChecker.notNull(liveDataEntitlementChecker, "LiveDataEntitlementChecker");
-    ArgumentChecker.notNull(liveDataAvailabilityProvider, "LiveDataAvailabilityProvider");
-    ArgumentChecker.notNull(liveDataSnapshotProvider, "LiveDataSnapshotProvier");
-    ArgumentChecker.notNull(functionRepository, "FunctionRepository");
-    ArgumentChecker.notNull(functionResolver, "FunctionResolver");
-    ArgumentChecker.notNull(positionMaster, "PositionMaster");
-    ArgumentChecker.notNull(securitySource, "SecuritySource");
-    ArgumentChecker.notNull(computationCacheSource, "ComputationCacheSource");
-    ArgumentChecker.notNull(computationJobRequestSender, "ComputationJobRequestSender");
-    ArgumentChecker.notNull(viewProcessorQueryReceiver, "ViewProcessorQueryReceiver");
-    ArgumentChecker.notNull(compilationContext, "CompilationContext");
-    ArgumentChecker.notNull(executorService, "ExecutorService");
+    ArgumentChecker.notNull(liveDataEntitlementChecker, "liveDataEntitlementChecker");
+    ArgumentChecker.notNull(liveDataAvailabilityProvider, "liveDataAvailabilityProvider");
+    ArgumentChecker.notNull(liveDataSnapshotProvider, "liveDataSnapshotProvider");
+    ArgumentChecker.notNull(functionRepository, "functionRepository");
+    ArgumentChecker.notNull(functionResolver, "functionResolver");
+    ArgumentChecker.notNull(positionSource, "positionSource");
+    ArgumentChecker.notNull(securitySource, "securitySource");
+    ArgumentChecker.notNull(computationCacheSource, "computationCacheSource");
+    ArgumentChecker.notNull(computationJobRequestSender, "computationJobRequestSender");
+    ArgumentChecker.notNull(viewProcessorQueryReceiver, "viewProcessorQueryReceiver");
+    ArgumentChecker.notNull(compilationContext, "compilationContext");
+    ArgumentChecker.notNull(executorService, "executorService");
     
     _liveDataEntitlementChecker = liveDataEntitlementChecker;
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
     _liveDataSnapshotProvider = liveDataSnapshotProvider;
     _functionRepository = functionRepository;
     _functionResolver = functionResolver;
-    _positionMaster = positionMaster;
+    _positionSource = positionSource;
     _securitySource = securitySource;
     _computationCacheSource = computationCacheSource;
     _computationJobRequestSender = computationJobRequestSender;
@@ -82,7 +82,7 @@ public class ViewProcessingContext {
     _executorService = executorService;
     
     // REVIEW kirk 2010-05-22 -- This isn't the right place to wrap this.
-    _computationTargetResolver = new CachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionMaster));
+    _computationTargetResolver = new CachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource));
   }
 
   //-------------------------------------------------------------------------
@@ -131,7 +131,7 @@ public class ViewProcessingContext {
    * @return the source of positions, not null
    */
   public PositionSource getPositionMaster() {
-    return _positionMaster;
+    return _positionSource;
   }
 
   /**

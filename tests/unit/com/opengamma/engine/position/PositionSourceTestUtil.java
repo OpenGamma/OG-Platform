@@ -17,9 +17,9 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * 
+ * Utilities for working with PositionSource.
  */
-public class PositionMasterTestUtil {
+public class PositionSourceTestUtil {
 
   public static Portfolio constructTestPortfolio(UniqueIdentifier portfolioUid, String name) {
     PortfolioImpl portfolio = new PortfolioImpl(name);
@@ -51,27 +51,27 @@ public class PositionMasterTestUtil {
       populateNode(childNode, discriminator + "-" + i, depth - 1);
     }
   }
-  
-  public static void testNodeLookup(PositionSource pm, Portfolio portfolio, boolean isPresent) {
+
+  public static void testNodeLookup(PositionSource source, Portfolio portfolio, boolean isPresent) {
     Portfolio expectedPortfolio = isPresent ? portfolio : null;
-    assertEquals(expectedPortfolio, pm.getPortfolio(portfolio.getUniqueIdentifier()));
+    assertEquals(expectedPortfolio, source.getPortfolio(portfolio.getUniqueIdentifier()));
     
-    testNodeLookup(pm, portfolio.getRootNode(), isPresent);
+    testNodeLookup(source, portfolio.getRootNode(), isPresent);
   }
-    
-  private static void testNodeLookup(PositionSource pm, PortfolioNode node, boolean isPresent) {
+
+  private static void testNodeLookup(PositionSource source, PortfolioNode node, boolean isPresent) {
     PortfolioNode expectedNode = isPresent ? node : null;
-    assertEquals(expectedNode, pm.getPortfolioNode(node.getUniqueIdentifier()));
+    assertEquals(expectedNode, source.getPortfolioNode(node.getUniqueIdentifier()));
     
     for (Position position : node.getPositions()) {
       Position expectedPosition = isPresent ? position : null;
-      assertEquals(expectedPosition, pm.getPosition(position.getUniqueIdentifier()));
+      assertEquals(expectedPosition, source.getPosition(position.getUniqueIdentifier()));
     }
     for (PortfolioNode childNode : node.getChildNodes()) {
-      testNodeLookup(pm, childNode, isPresent);
+      testNodeLookup(source, childNode, isPresent);
     }
   }
-  
+
   /**
    * Tests whether two node structures are equivalent, ignoring IDs. Node at each level must have unique names, and 
    * positions at each level must have unique security keys.
@@ -104,5 +104,5 @@ public class PositionMasterTestUtil {
       assertEquals(expectedPosition.getQuantity(), actualPosition.getQuantity());
     }
   }
-  
+
 }

@@ -32,7 +32,7 @@ import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.NamedThreadPoolFactory;
 
 /**
- * 
+ * Utility to setup a View for testing.
  */
 public class ViewTestUtils {
   
@@ -43,10 +43,10 @@ public class ViewTestUtils {
     
     MockSecuritySource secMaster = new MockSecuritySource();
 
-    MockPositionSource positionMaster = new MockPositionSource();
-    positionMaster.addPortfolio(new PortfolioImpl(portfolioId, "test_portfolio"));
+    MockPositionSource positionSource = new MockPositionSource();
+    positionSource.addPortfolio(new PortfolioImpl(portfolioId, "test_portfolio"));
     
-    DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(secMaster, positionMaster);
+    DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(secMaster, positionSource);
     
     MapViewComputationCacheSource cacheFactory = new MapViewComputationCacheSource();
     
@@ -66,7 +66,7 @@ public class ViewTestUtils {
         new InMemoryLKVSnapshotProvider(), 
         functionRepo, 
         new DefaultFunctionResolver(functionRepo),
-        positionMaster, 
+        positionSource, 
         secMaster, 
         cacheFactory, 
         calcRequestSender, 

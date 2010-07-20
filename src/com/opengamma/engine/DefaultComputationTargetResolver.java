@@ -52,13 +52,13 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
   /**
    * Creates a resolver using a security and position source.
    * @param securitySource  the security source, not null
-   * @param positionMaster  the position source, not null
+   * @param positionSource  the position source, not null
    */
-  public DefaultComputationTargetResolver(SecuritySource securitySource, PositionSource positionMaster) {
+  public DefaultComputationTargetResolver(SecuritySource securitySource, PositionSource positionSource) {
     ArgumentChecker.notNull(securitySource, "securitySource");
-    ArgumentChecker.notNull(positionMaster, "positionMaster");
+    ArgumentChecker.notNull(positionSource, "positionSource");
     _securitySource = securitySource;
-    _positionSource = positionMaster;
+    _positionSource = positionSource;
   }
 
   //-------------------------------------------------------------------------

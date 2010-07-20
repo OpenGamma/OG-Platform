@@ -56,8 +56,8 @@ public class PortfolioEvaluationModelTest {
     PortfolioImpl p = new PortfolioImpl(UniqueIdentifier.of("FOO", "BAR"), "portfolio");
     p.setRootNode(pn);
     
-    MockPositionSource positionMaster = new MockPositionSource();
-    positionMaster.addPortfolio(p);
+    MockPositionSource positionSource = new MockPositionSource();
+    positionSource.addPortfolio(p);
     
     DefaultSecurity defSec = new DefaultSecurity();
     defSec.addIdentifier(secIdentifier);
@@ -69,13 +69,13 @@ public class PortfolioEvaluationModelTest {
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
     DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionRepo);
     
-    DefaultComputationTargetResolver computationTargetResolver = new DefaultComputationTargetResolver(secMaster, positionMaster);
+    DefaultComputationTargetResolver computationTargetResolver = new DefaultComputationTargetResolver(secMaster, positionSource);
     
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     
     FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
     
-    ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, positionMaster, secMaster, functionCompilationContext, computationTargetResolver, executorService);
+    ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, positionSource, secMaster, functionCompilationContext, computationTargetResolver, executorService);
     
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
     
@@ -99,8 +99,8 @@ public class PortfolioEvaluationModelTest {
     PortfolioImpl p = new PortfolioImpl(UniqueIdentifier.of("FOO", "BAR"), "portfolio");
     p.setRootNode(pn);
     
-    MockPositionSource positionMaster = new MockPositionSource();
-    positionMaster.addPortfolio(p);
+    MockPositionSource positionSource = new MockPositionSource();
+    positionSource.addPortfolio(p);
     
     DefaultSecurity defSec = new DefaultSecurity();
     defSec.addIdentifier(secIdentifier);
@@ -121,14 +121,14 @@ public class PortfolioEvaluationModelTest {
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
     functionRepo.addFunction(fn1, fn1);
     DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionRepo);
-    DefaultComputationTargetResolver computationTargetResolver = new DefaultComputationTargetResolver(secMaster, positionMaster);
+    DefaultComputationTargetResolver computationTargetResolver = new DefaultComputationTargetResolver(secMaster, positionSource);
     
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     
     FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
     functionCompilationContext.setSecuritySource(secMaster);
     
-    ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, positionMaster, secMaster, functionCompilationContext, computationTargetResolver, executorService);
+    ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, positionSource, secMaster, functionCompilationContext, computationTargetResolver, executorService);
     
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
     viewDefinition.setComputeSecurityNodeCalculations(false);
@@ -163,8 +163,8 @@ public class PortfolioEvaluationModelTest {
     PortfolioImpl p = new PortfolioImpl(UniqueIdentifier.of("FOO", "BAR"), "portfolio");
     p.setRootNode(pn);
     
-    MockPositionSource positionMaster = new MockPositionSource();
-    positionMaster.addPortfolio(p);
+    MockPositionSource positionSource = new MockPositionSource();
+    positionSource.addPortfolio(p);
     
     DefaultSecurity sec1 = new DefaultSecurity();
     sec1.addIdentifier(secIdentifier1);
@@ -199,13 +199,13 @@ public class PortfolioEvaluationModelTest {
     functionRepo.addFunction(fn1, fn1);
     functionRepo.addFunction(fn2, fn2);
     DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionRepo);
-    DefaultComputationTargetResolver computationTargetResolver = new DefaultComputationTargetResolver(secMaster, positionMaster);
+    DefaultComputationTargetResolver computationTargetResolver = new DefaultComputationTargetResolver(secMaster, positionSource);
     
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     
     FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
     
-    ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, positionMaster, secMaster, functionCompilationContext, computationTargetResolver, executorService);
+    ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, positionSource, secMaster, functionCompilationContext, computationTargetResolver, executorService);
     
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
     viewDefinition.addValueDefinition("Fibble", "My Sec", "Req-1");
