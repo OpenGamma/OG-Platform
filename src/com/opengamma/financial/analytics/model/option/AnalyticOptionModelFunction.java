@@ -17,7 +17,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -42,7 +42,7 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction imple
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) {
     final OptionSecurity option = (OptionSecurity) target.getSecurity();
-    final StandardOptionDataBundle data = getDataBundle(executionContext.getSecurityMaster(), executionContext.getSnapshotClock(), option, inputs);
+    final StandardOptionDataBundle data = getDataBundle(executionContext.getSecuritySource(), executionContext.getSnapshotClock(), option, inputs);
     final OptionDefinition definition = getOptionDefinition(option);
     final Set<Greek> requiredGreeks = new HashSet<Greek>();
     for (final ValueRequirement dV : desiredValues) {
@@ -104,5 +104,5 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction imple
 
   protected abstract OptionDefinition getOptionDefinition(OptionSecurity option);
 
-  protected abstract StandardOptionDataBundle getDataBundle(SecurityMaster secMaster, Clock relevantTime, OptionSecurity option, FunctionInputs inputs);
+  protected abstract StandardOptionDataBundle getDataBundle(SecuritySource secMaster, Clock relevantTime, OptionSecurity option, FunctionInputs inputs);
 }

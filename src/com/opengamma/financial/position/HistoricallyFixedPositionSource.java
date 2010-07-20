@@ -12,20 +12,20 @@ import javax.time.InstantProvider;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.PositionMaster;
+import com.opengamma.engine.position.PositionSource;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * This PositionMaster retrieves all positions as of a fixed historical date.
+ * A source of positions that fixes a historical instant.
  */
-public class HistoricallyFixedPositionMaster implements PositionMaster {
-  
+public class HistoricallyFixedPositionSource implements PositionSource {
+
   private final ManageablePositionMaster _delegate;
   private final InstantProvider _fixTime;
   private final InstantProvider _asViewedAt;
-  
-  public HistoricallyFixedPositionMaster(ManageablePositionMaster delegate,
+
+  public HistoricallyFixedPositionSource(ManageablePositionMaster delegate,
       InstantProvider fixTime,
       InstantProvider asViewedAt) {
     ArgumentChecker.notNull(delegate, "Delegate Position Master");
@@ -37,6 +37,7 @@ public class HistoricallyFixedPositionMaster implements PositionMaster {
     _asViewedAt = asViewedAt;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Set<UniqueIdentifier> getPortfolioIds() {
     return _delegate.getPortfolioIds(); // TODO
@@ -56,5 +57,5 @@ public class HistoricallyFixedPositionMaster implements PositionMaster {
   public Position getPosition(UniqueIdentifier uid) {
     return _delegate.getPosition(uid, _fixTime); // TODO
   }
-  
+
 }

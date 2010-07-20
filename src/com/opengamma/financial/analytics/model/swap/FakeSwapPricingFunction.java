@@ -18,7 +18,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -54,7 +54,7 @@ public class FakeSwapPricingFunction extends AbstractFunction implements Functio
     if (canApplyTo(context, target)) {
       final SwapSecurity swap = (SwapSecurity) target.getSecurity();
       
-      SecurityMaster secMaster = context.getSecurityMaster();
+      SecuritySource secMaster = context.getSecuritySource();
 
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       requirements.add(getDiscountCurveMarketDataRequirement(Currency.getInstance("USD").getUniqueIdentifier()));

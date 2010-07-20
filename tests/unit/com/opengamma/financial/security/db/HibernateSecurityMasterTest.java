@@ -5,21 +5,17 @@
  */
 package com.opengamma.financial.security.db;
 
-
 import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.security.WritableSecurityMaster;
-
 /**
- * 
- *
- * 
+ * Test HibernateSecurityMaster.
  */
-public class HibernateSecurityMasterTest extends WritableSecurityMasterTestCase {
+public class HibernateSecurityMasterTest extends HibernateSecurityMasterParentTestCase {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(HibernateSecurityMasterTest.class);
 
   /**
@@ -56,7 +52,7 @@ public class HibernateSecurityMasterTest extends WritableSecurityMasterTestCase 
   }
 
   @Override
-  protected WritableSecurityMaster createSecurityMaster() {
+  protected HibernateSecurityMaster createSecurityMaster() {
     HibernateSecurityMaster secMaster = new HibernateSecurityMaster();
     secMaster.setSessionFactory(getSessionFactory());
     s_logger.debug("SecMaster initialization complete {}", secMaster);

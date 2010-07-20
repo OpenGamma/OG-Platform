@@ -26,7 +26,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -80,7 +80,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
       return null;
     }
     final OptionSecurity optionSec = (OptionSecurity) target.getSecurity();
-    SecurityMaster securityMaster = context.getSecurityMaster();
+    SecuritySource securityMaster = context.getSecuritySource();
     Security underlying = securityMaster.getSecurity(new IdentifierBundle(optionSec.getUnderlyingIdentifier()));
     final ValueRequirement optionMarketDataReq = getPriceRequirement(optionSec.getUniqueIdentifier());
     final ValueRequirement underlyingMarketDataReq = getPriceRequirement(underlying.getUniqueIdentifier());
@@ -107,7 +107,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     final ZonedDateTime today = Clock.system(TimeZone.UTC).zonedDateTime();
     final OptionSecurity optionSec = (OptionSecurity) target.getSecurity();
     
-    SecurityMaster secMaster = executionContext.getSecurityMaster();
+    SecuritySource secMaster = executionContext.getSecuritySource();
     Security underlying = secMaster.getSecurity(new IdentifierBundle(optionSec.getUnderlyingIdentifier()));
 
     // Get inputs:

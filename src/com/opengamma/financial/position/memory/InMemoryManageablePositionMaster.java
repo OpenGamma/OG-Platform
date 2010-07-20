@@ -23,7 +23,7 @@ import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
-import com.opengamma.engine.position.PositionMaster;
+import com.opengamma.engine.position.PositionSource;
 import com.opengamma.financial.position.AddPortfolioNodeRequest;
 import com.opengamma.financial.position.AddPortfolioRequest;
 import com.opengamma.financial.position.AddPositionRequest;
@@ -49,10 +49,10 @@ import com.opengamma.util.ArgumentChecker;
  * A simple, in-memory implementation of {@code ManagablePositionMaster}. This implementation does not support
  * versioning or resurrection of portfolios.
  */
-public class InMemoryPositionMaster implements ManageablePositionMaster {
+public class InMemoryManageablePositionMaster implements ManageablePositionMaster {
 
   /**
-   * The default scheme used for any {@link UniqueIdentifier}s created by this {@link PositionMaster}.
+   * The default scheme used for any {@link UniqueIdentifier}s created by this {@link PositionSource}.
    */
   public static final String DEFAULT_UID_SCHEME = "Memory";
   /**
@@ -79,7 +79,7 @@ public class InMemoryPositionMaster implements ManageablePositionMaster {
   /**
    * Creates an empty position master using the default scheme for any {@link UniqueIdentifier}s created.
    */
-  public InMemoryPositionMaster() {
+  public InMemoryManageablePositionMaster() {
     this(new UniqueIdentifierTemplate(DEFAULT_UID_SCHEME));
   }
   
@@ -88,7 +88,7 @@ public class InMemoryPositionMaster implements ManageablePositionMaster {
    * 
    * @param uidTemplate  the template to use for any {@link UniqueIdentifier}s created, not null
    */
-  public InMemoryPositionMaster(UniqueIdentifierTemplate uidTemplate) {
+  public InMemoryManageablePositionMaster(UniqueIdentifierTemplate uidTemplate) {
     ArgumentChecker.notNull(uidTemplate, "uidTemplate");
     _uidTemplate = uidTemplate;
   }

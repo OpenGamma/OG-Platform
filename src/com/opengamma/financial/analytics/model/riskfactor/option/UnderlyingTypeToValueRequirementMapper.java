@@ -9,7 +9,7 @@ import org.apache.commons.lang.NotImplementedException;
 
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.pnl.UnderlyingType;
@@ -25,7 +25,7 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
  */
 public class UnderlyingTypeToValueRequirementMapper {
 
-  public static ValueRequirement getValueRequirement(SecurityMaster secMaster, final UnderlyingType underlying, final Security security) {
+  public static ValueRequirement getValueRequirement(SecuritySource secMaster, final UnderlyingType underlying, final Security security) {
     if (security instanceof OptionSecurity) {
       final OptionSecurity option = (OptionSecurity) security;
       Security optionUnderlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));

@@ -7,7 +7,7 @@ package com.opengamma.financial;
 
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.historicaldata.HistoricalDataProvider;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 
 /**
  * Utility methods to pull standard objects out of a {@link FunctionExecutionContext}.
@@ -22,7 +22,7 @@ public class OpenGammaExecutionContext {
   public static final String HISTORICAL_DATA_PROVIDER_NAME = "historicalDataProvider";
 
   /**
-   * The name under which an instance of {@link SecurityMaster} should be bound.
+   * The name under which an instance of {@link SecuritySource} should be bound.
    */
   public static final String SECURITY_MASTER_NAME = "securityMaster";
 
@@ -55,11 +55,11 @@ public class OpenGammaExecutionContext {
     context.put(HISTORICAL_DATA_PROVIDER_NAME, historicalDataProvider);
   }
   
-  public static SecurityMaster getSecurityMaster(FunctionExecutionContext context) {
-    return (SecurityMaster) context.get(SECURITY_MASTER_NAME);
+  public static SecuritySource getSecurityMaster(FunctionExecutionContext context) {
+    return (SecuritySource) context.get(SECURITY_MASTER_NAME);
   }
   
-  public static void setSecurityMaster(FunctionExecutionContext context, SecurityMaster secMaster) {
+  public static void setSecurityMaster(FunctionExecutionContext context, SecuritySource secMaster) {
     context.put(SECURITY_MASTER_NAME, secMaster);
   }
   

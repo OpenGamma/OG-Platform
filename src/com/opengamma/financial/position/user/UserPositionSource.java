@@ -12,7 +12,7 @@ import java.util.Set;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.PositionMaster;
+import com.opengamma.engine.position.PositionSource;
 import com.opengamma.financial.user.UserResourceDetails;
 import com.opengamma.financial.user.UserUniqueIdentifierUtils;
 import com.opengamma.financial.user.rest.ClientResource;
@@ -21,16 +21,15 @@ import com.opengamma.financial.user.rest.UsersResource;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * Implementation of {@link PositionMaster} which delegates to individual user and client {@link PositionMaster}s from
- * an underlying {@link UsersResource}.
- * <p>
- * When {@link UsersResource} is backed by a proper UserMaster, this should instead delegate to that.
+ * A source of positsions that delegates to individual user and client sources from
+ * an underlying user resource.
  */
-public class UserPositionMaster implements PositionMaster {
+public class UserPositionSource implements PositionSource {
+  // TODO: When UsersResource is backed by a proper UserMaster, this should instead delegate to that.
 
   private final UsersResource _underlying;
   
-  public UserPositionMaster(UsersResource underlying) {
+  public UserPositionSource(UsersResource underlying) {
     _underlying = underlying;
   }
   
@@ -40,7 +39,7 @@ public class UserPositionMaster implements PositionMaster {
    * @param uid  the unique identifier
    * @return  the position master from which the specified {@link UniqueIdentifier} was created, null if not found
    */
-  private PositionMaster findPositionMaster(UniqueIdentifier uid) {
+  private PositionSource findPositionMaster(UniqueIdentifier uid) {
     // TODO: replace with searches starting from a UserMaster
     UserResourceDetails uidDetails = UserUniqueIdentifierUtils.getDetails(uid);
     UserResource userResource = _underlying.getUser(uidDetails.getUsername());
@@ -56,7 +55,7 @@ public class UserPositionMaster implements PositionMaster {
 
   @Override
   public Portfolio getPortfolio(UniqueIdentifier uid) {
-    PositionMaster positionMaster = findPositionMaster(uid);
+    PositionSource positionMaster = findPositionMaster(uid);
     if (positionMaster == null) {
       return null;
     }
@@ -68,7 +67,7 @@ public class UserPositionMaster implements PositionMaster {
     Set<UniqueIdentifier> result = new HashSet<UniqueIdentifier>();
     for (UserResource user : _underlying.getAllUsers()) {
       for (ClientResource client : user.getClients().getAllClients()) {
-        PositionMaster positionMaster = client.getPortfolios().getPositionMaster();
+        PositionSource positionMaster = client.getPortfolios().getPositionMaster();
         result.addAll(positionMaster.getPortfolioIds());
       }
     }
@@ -77,7 +76,7 @@ public class UserPositionMaster implements PositionMaster {
 
   @Override
   public PortfolioNode getPortfolioNode(UniqueIdentifier uid) {
-    PositionMaster positionMaster = findPositionMaster(uid);
+    PositionSource positionMaster = findPositionMaster(uid);
     if (positionMaster == null) {
       return null;
     }
@@ -86,7 +85,7 @@ public class UserPositionMaster implements PositionMaster {
 
   @Override
   public Position getPosition(UniqueIdentifier uid) {
-    PositionMaster positionMaster = findPositionMaster(uid);
+    PositionSource positionMaster = findPositionMaster(uid);
     if (positionMaster == null) {
       return null;
     }

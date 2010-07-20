@@ -6,13 +6,12 @@
 package com.opengamma.financial.security;
 
 import java.util.Collection;
-import java.util.Set;
 
 import javax.time.InstantProvider;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -22,7 +21,7 @@ import com.opengamma.id.UniqueIdentifier;
  * The security master provides a uniform view over a set of security definitions.
  * This interface provides methods that allow the master to be searched and updated.
  */
-public interface ManageableSecurityMaster extends SecurityMaster {
+public interface ManageableSecurityMaster extends SecuritySource {
 
   /**
    * Checks if this security master manages the unique identifier.
@@ -78,16 +77,6 @@ public interface ManageableSecurityMaster extends SecurityMaster {
    */
   @Override
   Security getSecurity(IdentifierBundle secKey);
-
-  /**
-   * Obtain all the available security types in this security master.
-   * <p>
-   * The implementation should return the available types, however if this is
-   * not possible it may return all potential types.
-   * @return the set of available security types, not null
-   */
-  @Override
-  Set<String> getAllSecurityTypes();
 
 //  //-------------------------------------------------------------------------
 //  /**
