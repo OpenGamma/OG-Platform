@@ -23,6 +23,7 @@ public interface SecuritySource {
    * 
    * @param uid  the unique identifier, null returns null
    * @return the security, null if not found
+   * @throws IllegalArgumentException if the identifier is invalid
    */
   Security getSecurity(UniqueIdentifier uid);
 
@@ -33,6 +34,7 @@ public interface SecuritySource {
    * 
    * @param secKey  the bundle keys to match, not null
    * @return all securities matching the specified key, empty if no matches, not null
+   * @throws IllegalArgumentException if the identifier is invalid
    */
   Collection<Security> getSecurities(IdentifierBundle secKey);
 
@@ -44,6 +46,7 @@ public interface SecuritySource {
    * 
    * @param secKey  the bundle keys to match, not null
    * @return the single security matching the bundle of keys, null if not found
+   * @throws IllegalArgumentException if the identifier is invalid
    */
   Security getSecurity(IdentifierBundle secKey);
 
