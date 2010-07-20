@@ -17,6 +17,7 @@ import com.opengamma.financial.model.option.pricing.OptionModel;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.CompareUtils;
 
 /**
  * @param <T> The type of the option definition
@@ -44,7 +45,11 @@ public abstract class AnalyticOptionModel<T extends OptionDefinition, U extends 
   }
 
   protected double getD1(final double s, final double k, final double t, final double sigma, final double b) {
-    return (Math.log(s / k) + t * (b + sigma * sigma / 2)) / (sigma * Math.sqrt(t));
+    final double numerator = (Math.log(s / k) + t * (b + sigma * sigma / 2));
+    if (CompareUtils.closeEquals(numerator, 0, 1e-16)) {
+      return 0;
+    }
+    return numerator / (sigma * Math.sqrt(t));
   }
 
   protected double getD2(final double d1, final double sigma, final double t) {
