@@ -27,7 +27,7 @@ public interface PositionSource {
    * Finds a specific portfolio by identifier.
    * @param uid  the unique identifier, null returns null
    * @return the portfolio, null if not found
-   * @throws IllegalArgumentException if the identifier is not from this position master
+   * @throws IllegalArgumentException if the identifier is invalid
    */
   Portfolio getPortfolio(UniqueIdentifier uid);
 
@@ -35,7 +35,7 @@ public interface PositionSource {
    * Finds a specific node from any portfolio by identifier.
    * @param uid  the unique identifier, null returns null
    * @return the node, null if not found
-   * @throws IllegalArgumentException if the identifier is not from this position master
+   * @throws IllegalArgumentException if the identifier is invalid
    */
   PortfolioNode getPortfolioNode(UniqueIdentifier uid);
 
@@ -43,7 +43,7 @@ public interface PositionSource {
    * Finds a specific position from any portfolio by identifier.
    * @param uid  the unique identifier, null returns null
    * @return the position, null if not found
-   * @throws IllegalArgumentException if the identifier is not from this position master
+   * @throws IllegalArgumentException if the identifier is invalid
    */
   Position getPosition(UniqueIdentifier uid);
 

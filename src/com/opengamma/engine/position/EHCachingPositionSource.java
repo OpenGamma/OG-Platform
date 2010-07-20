@@ -36,7 +36,7 @@ public class EHCachingPositionSource implements PositionSource {
   private static final String POSITION_CACHE = "position";
 
   /**
-   * The underlying position master.
+   * The underlying position source.
    */
   private final PositionSource _underlying;
   /**
@@ -57,7 +57,7 @@ public class EHCachingPositionSource implements PositionSource {
   private final Cache _position;
 
   /**
-   * Creates the cache around an underlying position master.
+   * Creates the cache around an underlying position source.
    * @param underlying  the underlying data, not null
    */
   public EHCachingPositionSource(final PositionSource underlying) {
@@ -65,7 +65,7 @@ public class EHCachingPositionSource implements PositionSource {
   }
 
   /**
-   * Creates the cache around an underlying position master.
+   * Creates the cache around an underlying position source.
    * @param underlying  the underlying data, not null
    * @param cacheManager  the cache manager, not null
    */

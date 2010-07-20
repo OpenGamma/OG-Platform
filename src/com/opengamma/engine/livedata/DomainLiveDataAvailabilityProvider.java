@@ -42,8 +42,9 @@ public class DomainLiveDataAvailabilityProvider implements LiveDataAvailabilityP
    * @param validMarketDataRequirementNames  the valid market data requirement names, not null
    */
   public DomainLiveDataAvailabilityProvider(final SecuritySource securitySource, final Collection<IdentificationScheme> acceptableSchemes, final Collection<String> validMarketDataRequirementNames) {
-    ArgumentChecker.notNull(securitySource, "Security master");
-    ArgumentChecker.notNull(acceptableSchemes, "Acceptable schemes");
+    ArgumentChecker.notNull(securitySource, "securitySource");
+    ArgumentChecker.notNull(acceptableSchemes, "acceptableSchemes");
+    ArgumentChecker.notNull(validMarketDataRequirementNames, "validMarketDataRequirementNames");
     _securitySource = securitySource;
     _acceptableSchemes = new HashSet<IdentificationScheme>(acceptableSchemes);
     _validMarketDataRequirementNames = new HashSet<String>(validMarketDataRequirementNames);

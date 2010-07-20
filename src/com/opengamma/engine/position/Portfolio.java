@@ -11,7 +11,7 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * A portfolio of positions, typically having business-level meaning.
  * <p>
- * A portfolio is the primary element of business-level grouping within the position master.
+ * A portfolio is the primary element of business-level grouping within the source of positions.
  * It consists of a number of positions which are grouped using a flexible tree structure.
  * <p>
  * A portfolio typically has meta-data.

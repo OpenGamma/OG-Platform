@@ -178,7 +178,7 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     Portfolio portfolio = getProcessingContext().getPositionMaster().getPortfolio(getDefinition().getPortfolioId());
     if (portfolio == null) {
       throw new OpenGammaRuntimeException("Unable to resolve portfolio " + getDefinition().getPortfolioId() +
-          " in position master " + getProcessingContext().getPositionMaster());
+          " in position source " + getProcessingContext().getPositionMaster());
     }
     PortfolioEvaluationModel portfolioEvaluationModel = new PortfolioEvaluationModel(portfolio);
     portfolioEvaluationModel.init(

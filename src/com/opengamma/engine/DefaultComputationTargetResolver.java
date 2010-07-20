@@ -25,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
  * A standard implementation of {@code ComputationTargetResolver} that resolves
  * from a target specification to a real target.
  * <p>
- * This implementation satisfies results using an injected security and position master.
+ * This implementation satisfies results using an injected security and position sources.
  */
 public class DefaultComputationTargetResolver implements ComputationTargetResolver {
 
@@ -37,9 +37,9 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    */
   private final SecuritySource _securitySource;
   /**
-   * The position master.
+   * The position source.
    */
-  private final PositionSource _positionMaster;
+  private final PositionSource _positionSource;
 
   /**
    * Delegate {@code ComputationTargetResolver} for resolving the security for a position, and underlying
@@ -50,21 +50,21 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
   private ComputationTargetResolver _recursiveResolver = this;
 
   /**
-   * Creates a resolver using a security and position master.
+   * Creates a resolver using a security and position source.
    * @param securitySource  the security source, not null
-   * @param positionMaster  the position master, not null
+   * @param positionMaster  the position source, not null
    */
   public DefaultComputationTargetResolver(SecuritySource securitySource, PositionSource positionMaster) {
     ArgumentChecker.notNull(securitySource, "securitySource");
-    ArgumentChecker.notNull(positionMaster, "Position master");
+    ArgumentChecker.notNull(positionMaster, "positionMaster");
     _securitySource = securitySource;
-    _positionMaster = positionMaster;
+    _positionSource = positionMaster;
   }
 
   //-------------------------------------------------------------------------
 
   public void setRecursiveResolver(final ComputationTargetResolver recursiveResolver) {
-    ArgumentChecker.notNull(recursiveResolver, "Computation Target Resolver");
+    ArgumentChecker.notNull(recursiveResolver, "recursiveResolver");
     _recursiveResolver = recursiveResolver;
   }
 
@@ -75,23 +75,23 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
   //-------------------------------------------------------------------------
   /**
    * Gets the security source which provides access to the securities.
-   * @return the security master, not null
+   * @return the security source, not null
    */
   public SecuritySource getSecuritySource() {
     return _securitySource;
   }
 
   /**
-   * Gets the position master which holds details of all positions in the system.
-   * @return the position master, not null
+   * Gets the position source which holds details of all positions in the system.
+   * @return the position source, not null
    */
   public PositionSource getPositionMaster() {
-    return _positionMaster;
+    return _positionSource;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Resolves the specification using the security and position masters..
+   * Resolves the specification using the security and position sources..
    * @param specification  the specification to resolve, not null
    * @return the resolved target, null if not found
    */
