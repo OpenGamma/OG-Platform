@@ -242,20 +242,24 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Serializes this pair to a Fudge message.
-   * @param factory  the Fudge context, not null
-   * @return the Fudge message, not null
-   */
-  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
-    ArgumentChecker.notNull(factory, "Fudge Context");
-    MutableFudgeFieldContainer msg = factory.newMessage();
+  public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer msg) {
+    ArgumentChecker.notNull(factory, "FudgeMessageFactory");
+    ArgumentChecker.notNull(msg, "MutableFudgeFieldContainer");
     msg.add(SCHEME_FUDGE_FIELD_NAME, _scheme);
     msg.add(VALUE_FUDGE_FIELD_NAME, _value);
     if (_version != null) {
       msg.add(VERSION_FUDGE_FIELD_NAME, _version);
     }
     return msg;
+  }
+
+  /**
+   * Serializes this pair to a Fudge message.
+   * @param factory  the Fudge context, not null
+   * @return the Fudge message, not null
+   */
+  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
+    return toFudgeMsg(factory, factory.newMessage());
   }
 
   /**

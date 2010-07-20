@@ -221,17 +221,22 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   }
 
   //-------------------------------------------------------------------------
+
+  public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer message) {
+    ArgumentChecker.notNull(factory, "FudgeMessageFactory");
+    ArgumentChecker.notNull(message, "MutableFudgeFieldContainer");
+    message.add(SCHEME_FUDGE_FIELD_NAME, getScheme().getName());
+    message.add(VALUE_FUDGE_FIELD_NAME, getValue());
+    return message;
+  }
+
   /**
    * Serializes this pair to a Fudge message.
    * @param factory  the Fudge context, not null
    * @return the Fudge message, not null
    */
   public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
-    ArgumentChecker.notNull(factory, "Fudge Context");
-    MutableFudgeFieldContainer msg = factory.newMessage();
-    msg.add(SCHEME_FUDGE_FIELD_NAME, getScheme().getName());
-    msg.add(VALUE_FUDGE_FIELD_NAME, getValue());
-    return msg;
+    return toFudgeMsg(factory, factory.newMessage());
   }
 
   /**

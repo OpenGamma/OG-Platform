@@ -6,6 +6,6 @@
 
 namespace com.opengamma.id {
 
-  extern message Identifier;
+  message Identifier;
   
 }
