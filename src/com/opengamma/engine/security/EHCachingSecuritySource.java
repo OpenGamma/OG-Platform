@@ -13,8 +13,6 @@ import java.util.Set;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.event.RegisteredEventListeners;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,29 +59,6 @@ public class EHCachingSecuritySource implements SecuritySource {
    */
   public EHCachingSecuritySource(final SecuritySource underlying) {
     this(underlying, EHCacheUtils.createCacheManager());
-  }
-
-  public EHCachingSecuritySource(SecuritySource underlying,
-      int maxElementsInMemory,
-      MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
-      boolean overflowToDisk, String diskStorePath, boolean eternal,
-      long timeToLiveSeconds, long timeToIdleSeconds, boolean diskPersistent,
-      long diskExpiryThreadIntervalSeconds,
-      RegisteredEventListeners registeredEventListeners) {
-    ArgumentChecker.notNull(underlying, "underlying");
-    _underlying = underlying;
-    CacheManager manager = EHCacheUtils.createCacheManager();
-    EHCacheUtils.addCache(manager, SINGLE_SECURITY_CACHE, maxElementsInMemory,
-        memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal,
-        timeToLiveSeconds, timeToIdleSeconds, diskPersistent,
-        diskExpiryThreadIntervalSeconds, registeredEventListeners);
-    EHCacheUtils.addCache(manager, MULTI_SECURITIES_CACHE, maxElementsInMemory,
-        memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal,
-        timeToLiveSeconds, timeToIdleSeconds, diskPersistent,
-        diskExpiryThreadIntervalSeconds, registeredEventListeners);
-    _uidCache = EHCacheUtils.getCacheFromManager(manager, SINGLE_SECURITY_CACHE);
-    _bundleCache = EHCacheUtils.getCacheFromManager(manager, MULTI_SECURITIES_CACHE);
-    _manager = manager;
   }
 
   /**
