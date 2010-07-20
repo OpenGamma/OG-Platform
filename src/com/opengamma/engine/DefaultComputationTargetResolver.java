@@ -85,7 +85,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * Gets the position source which holds details of all positions in the system.
    * @return the position source, not null
    */
-  public PositionSource getPositionMaster() {
+  public PositionSource getPositionSource() {
     return _positionSource;
   }
 
@@ -112,7 +112,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
         return new ComputationTarget(ComputationTargetType.SECURITY, security);
       }
       case POSITION: {
-        Position position = getPositionMaster().getPosition(uid);
+        Position position = getPositionSource().getPosition(uid);
         if (position == null) {
           s_logger.info("Unable to resolve position UID {}", uid);
           return null;
@@ -131,12 +131,12 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
         return new ComputationTarget(ComputationTargetType.POSITION, position);
       }
       case PORTFOLIO_NODE: {
-        PortfolioNode node = getPositionMaster().getPortfolioNode(uid);
+        PortfolioNode node = getPositionSource().getPortfolioNode(uid);
         if (node != null) {
           s_logger.info("Resolved multiple-position UID {} to portfolio node {}", uid, node);
           return new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, resolvePortfolioNode(uid, node));
         }
-        final Portfolio portfolio = getPositionMaster().getPortfolio(uid);
+        final Portfolio portfolio = getPositionSource().getPortfolio(uid);
         if (portfolio != null) {
           s_logger.info("Resolved multiple-position UID {} to portfolio {}", uid, portfolio);
           node = portfolio.getRootNode();

@@ -76,7 +76,7 @@ public class ViewCompilationServices {
    * Gets the source of positions.
    * @return the source of positions, not null
    */
-  public PositionSource getPositionMaster() {
+  public PositionSource getPositionSource() {
     return _positionSource;
   }
 

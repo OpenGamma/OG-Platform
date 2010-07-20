@@ -130,7 +130,7 @@ public class ViewProcessingContext {
    * Gets the source of positions.
    * @return the source of positions, not null
    */
-  public PositionSource getPositionMaster() {
+  public PositionSource getPositionSource() {
     return _positionSource;
   }
 
@@ -202,7 +202,7 @@ public class ViewProcessingContext {
     return new ViewCompilationServices(
         getLiveDataAvailabilityProvider(),
         getFunctionResolver(),
-        getPositionMaster(),
+        getPositionSource(),
         getSecuritySource(),
         getCompilationContext(),
         getComputationTargetResolver(),

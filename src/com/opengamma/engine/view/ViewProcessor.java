@@ -130,7 +130,7 @@ public class ViewProcessor implements Lifecycle {
    * Gets the source of positions.
    * @return the source of positions
    */
-  public PositionSource getPositionMaster() {
+  public PositionSource getPositionSource() {
     return _positionSource;
   }
 
@@ -138,7 +138,7 @@ public class ViewProcessor implements Lifecycle {
    * Sets the source of positions.
    * @param positionSource  the source of positions
    */
-  public void setPositionMaster(PositionSource positionSource) {
+  public void setPositionSource(PositionSource positionSource) {
     assertNotStarted();
     _positionSource = positionSource;
   }
@@ -325,7 +325,7 @@ public class ViewProcessor implements Lifecycle {
         getLiveDataSnapshotProvider(),
         getFunctionRepository(),
         new DefaultFunctionResolver(getFunctionRepository()),
-        getPositionMaster(),
+        getPositionSource(),
         getSecuritySource(),
         getComputationCacheSource(),
         getComputationJobRequestSender(),
@@ -539,7 +539,7 @@ public class ViewProcessor implements Lifecycle {
     ArgumentChecker.notNullInjected(getViewDefinitionRepository(), "viewDefinitionRepository");
     ArgumentChecker.notNullInjected(getFunctionRepository(), "functionRepository");
     ArgumentChecker.notNullInjected(getSecuritySource(), "securitySource");
-    ArgumentChecker.notNullInjected(getPositionMaster(), "positionSource");
+    ArgumentChecker.notNullInjected(getPositionSource(), "positionSource");
     ArgumentChecker.notNullInjected(getLiveDataAvailabilityProvider(), "liveDataAvailabilityProvider");
     ArgumentChecker.notNullInjected(getLiveDataSnapshotProvider(), "liveDataSnapshotProvider");
     ArgumentChecker.notNullInjected(getComputationCacheSource(), "computationCacheSource");

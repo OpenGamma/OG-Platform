@@ -41,7 +41,7 @@ public class DefaultComputationTargetResolverTest {
     PositionSource posSource = new MockPositionSource();
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secSource, posSource);
     assertEquals(secSource, test.getSecuritySource());
-    assertEquals(posSource, test.getPositionMaster());
+    assertEquals(posSource, test.getPositionSource());
   }
 
   @Test(expected=NullPointerException.class)
