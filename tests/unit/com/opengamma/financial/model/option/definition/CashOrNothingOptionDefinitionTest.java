@@ -33,6 +33,11 @@ public class CashOrNothingOptionDefinitionTest {
     new CashOrNothingOptionDefinition(STRIKE, EXPIRY, IS_CALL, -PAYMENT);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullData() {
+    CALL.getPayoffFunction().getPayoff(null, null);
+  }
+
   @Test
   public void test() {
     assertEquals(CALL.getPayment(), PAYMENT, 0);

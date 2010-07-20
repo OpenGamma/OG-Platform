@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.option.definition;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
 
@@ -18,6 +20,7 @@ public class CashOrNothingOptionDefinition extends OptionDefinition {
     @SuppressWarnings("synthetic-access")
     @Override
     public double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
+      Validate.notNull(data, "data");
       final double s = data.getSpot();
       final double k = getStrike();
       return isCall() ? (s < k ? _payment : 0) : s > k ? _payment : 0;
