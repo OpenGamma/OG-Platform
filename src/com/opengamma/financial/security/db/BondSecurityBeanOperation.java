@@ -17,10 +17,10 @@ import static com.opengamma.financial.security.db.Converters.yieldConventionBean
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.financial.security.BondSecurity;
-import com.opengamma.financial.security.CorporateBondSecurity;
-import com.opengamma.financial.security.GovernmentBondSecurity;
-import com.opengamma.financial.security.MunicipalBondSecurity;
+import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 
 /* package */ final class BondSecurityBeanOperation extends AbstractBeanOperation<BondSecurity, BondSecurityBean> {
   

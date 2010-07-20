@@ -38,7 +38,6 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceModel;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurfaceModel;
-import com.opengamma.financial.security.option.Option;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.IdentifierBundle;
@@ -69,7 +68,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    if (target.getSecurity() instanceof Option) {
+    if (target.getSecurity() instanceof OptionSecurity) {
       return true;
     }
     return false;

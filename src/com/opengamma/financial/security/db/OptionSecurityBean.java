@@ -21,6 +21,8 @@ import com.opengamma.financial.security.option.OptionType;
  */
 public class OptionSecurityBean extends SecurityBean {
 
+  private OptionExerciseType _optionExerciseType;
+  private OptionPayoffStyle _optionPayoffStyle;
   private OptionSecurityType _optionSecurityType;
   private OptionType _optionType;
   private double _strike;
@@ -31,6 +33,7 @@ public class OptionSecurityBean extends SecurityBean {
   private ExchangeBean _exchange;
   private String _counterparty;
   private Double _power;
+  private Double _cap;
   private Boolean _margined;
   private Double _pointValue;
   private IdentifierBean _underlying;
@@ -45,6 +48,38 @@ public class OptionSecurityBean extends SecurityBean {
 
   public void setOptionSecurityType(OptionSecurityType equityOptionType) {
     _optionSecurityType = equityOptionType;
+  }
+
+  /**
+   * Gets the optionExerciseType field.
+   * @return the optionExerciseType
+   */
+  public OptionExerciseType getOptionExerciseType() {
+    return _optionExerciseType;
+  }
+
+  /**
+   * Sets the optionExerciseType field.
+   * @param optionExerciseType  the optionExerciseType
+   */
+  public void setOptionExerciseType(OptionExerciseType optionExerciseType) {
+    _optionExerciseType = optionExerciseType;
+  }
+
+  /**
+   * Gets the optionPayoffStyle field.
+   * @return the optionPayoffStyle
+   */
+  public OptionPayoffStyle getOptionPayoffStyle() {
+    return _optionPayoffStyle;
+  }
+
+  /**
+   * Sets the optionPayoffStyle field.
+   * @param optionPayoffStyle  the optionPayoffStyle
+   */
+  public void setOptionPayoffStyle(OptionPayoffStyle optionPayoffStyle) {
+    _optionPayoffStyle = optionPayoffStyle;
   }
 
   /**
@@ -230,6 +265,22 @@ public class OptionSecurityBean extends SecurityBean {
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this);
+  }
+
+  /**
+   * Sets the cap field.
+   * @param cap  the cap
+   */
+  public void setCap(Double cap) {
+    _cap = cap;
+  }
+
+  /**
+   * Gets the cap field.
+   * @return the cap
+   */
+  public Double getCap() {
+    return _cap;
   }
 
 }

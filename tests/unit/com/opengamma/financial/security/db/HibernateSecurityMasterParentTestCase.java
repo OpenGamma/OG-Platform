@@ -1,10 +1,9 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.security.db;
-
 
 import static com.opengamma.financial.security.db.HibernateSecurityMasterTestUtils.AAPL_EQUITY_TICKER;
 import static com.opengamma.financial.security.db.HibernateSecurityMasterTestUtils.APV_EQUITY_OPTION_TICKER;
@@ -25,9 +24,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -54,20 +57,22 @@ import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
-import com.opengamma.financial.security.AgricultureFutureSecurity;
-import com.opengamma.financial.security.BondFutureSecurity;
-import com.opengamma.financial.security.BondSecurity;
-import com.opengamma.financial.security.EnergyFutureSecurity;
-import com.opengamma.financial.security.EquitySecurity;
-import com.opengamma.financial.security.FXFutureSecurity;
-import com.opengamma.financial.security.GovernmentBondSecurity;
-import com.opengamma.financial.security.IndexFutureSecurity;
-import com.opengamma.financial.security.InterestRateFutureSecurity;
-import com.opengamma.financial.security.MetalFutureSecurity;
-import com.opengamma.financial.security.option.AmericanVanillaEquityOptionSecurity;
+import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.future.AgricultureFutureSecurity;
+import com.opengamma.financial.security.future.BondFutureDeliverable;
+import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.EnergyFutureSecurity;
+import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.IndexFutureSecurity;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.future.MetalFutureSecurity;
+import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.financial.security.option.EuropeanVanillaEquityOptionSecurity;
+import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.OptionType;
+import com.opengamma.financial.security.option.VanillaPayoffStyle;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -75,6 +80,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.test.HibernateTest;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
+import com.opengamma.util.time.ExpiryAccuracy;
 
 /**
  * Generic TestCase for HibernateSecurityMaster.
@@ -207,13 +213,11 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
     assertEquals(wheat, security);
   }
 
-
-
   @Test
   public void indexFuture() throws Exception {
     final IndexFutureSecurity indexFutureSecurity = makeIndexFuture();
     _secMaster.putSecurity(new Date(), indexFutureSecurity);
-    final IdentifierBundle id = new IdentifierBundle (new Identifier (IdentificationScheme.BLOOMBERG_TICKER, "SPM0 Index"));
+    final IdentifierBundle id = new IdentifierBundle(new Identifier(IdentificationScheme.BLOOMBERG_TICKER, "SPM0 Index"));
     final Security security = _secMaster.getSecurity(id);
     assertNotNull(security);
     assertTrue(security instanceof IndexFutureSecurity);
@@ -223,7 +227,7 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
   @Test
   public void governmentBondSecurityBean() {
     final Date now = new Date();
-    final Expiry expiry = new Expiry(ZonedDateTime.ofInstant(OffsetDateTime.ofMidnight(2012, 10, 30, ZoneOffset.UTC), TimeZone.UTC));
+    final Expiry expiry = new Expiry(ZonedDateTime.ofInstant(OffsetDateTime.ofMidnight(2012, 10, 30, ZoneOffset.UTC), TimeZone.UTC), ExpiryAccuracy.DAY_MONTH_YEAR);
     final Currency dollar = Currency.getInstance("USD");
     final YieldConvention usStreet = YieldConventionFactory.INSTANCE.getYieldConvention("US street");
     final SimpleFrequency annual = SimpleFrequencyFactory.INSTANCE.getFrequency("annual");
@@ -234,8 +238,8 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
     final LocalDate settlementDate = LocalDate.of(2012, 11, 1);
     final LocalDate firstCouponDate = LocalDate.of(2009, 1, 1);
     final Identifier governmentId = Identifier.of("BLOOMBERG", "government bond");
-    final BondSecurity bond = new GovernmentBondSecurity("issuer name", "issuer type", "issuer domicile", "market", dollar, usStreet, "guarantee type", expiry, "coupon type", 0.5,
-        annual, act360, following, announcementDate, interestAccrualDate, settlementDate, firstCouponDate, 10.0, 100d, 10d, 1d, 10d, 15d);
+    final BondSecurity bond = new GovernmentBondSecurity("issuer name", "issuer type", "issuer domicile", "market", dollar, usStreet, "guarantee type", expiry, "coupon type", 0.5, annual, act360,
+        following, announcementDate, interestAccrualDate, settlementDate, firstCouponDate, 10.0, 100d, 10d, 1d, 10d, 15d);
     bond.setIdentifiers(new IdentifierBundle(governmentId));
     final UniqueIdentifier bondUID = _secMaster.putSecurity(now, bond);
     final Security security = _secMaster.getSecurity(bondUID);
@@ -270,7 +274,7 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
   @Test
   public void testGovernmentBondSecurityBean() {
     final Date now = new Date();
-    final Expiry expiry = new Expiry(ZonedDateTime.ofInstant(OffsetDateTime.ofMidnight(2012, 10, 30, ZoneOffset.UTC), TimeZone.UTC));
+    final Expiry expiry = new Expiry(ZonedDateTime.ofInstant(OffsetDateTime.ofMidnight(2012, 10, 30, ZoneOffset.UTC), TimeZone.UTC), ExpiryAccuracy.DAY_MONTH_YEAR);
     final Currency dollar = Currency.getInstance("USD");
     final YieldConvention usStreet = YieldConventionFactory.INSTANCE.getYieldConvention("US street");
     final SimpleFrequency annual = SimpleFrequencyFactory.INSTANCE.getFrequency("annual");
@@ -281,8 +285,8 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
     final LocalDate settlementDate = LocalDate.of(2012, 11, 1);
     final LocalDate firstCouponDate = LocalDate.of(2009, 1, 1);
     final Identifier governmentId = Identifier.of("BLOOMBERG", "government bond");
-    final BondSecurity bond = new GovernmentBondSecurity("issuer name", "issuer type", "issuer domicile", "market", dollar, usStreet, "guarantee type", expiry, "coupon type", 0.5,
-        annual, act360, following, announcementDate, interestAccrualDate, settlementDate, firstCouponDate, 10.0, 100d, 10d, 1d, 10d, 15d);
+    final BondSecurity bond = new GovernmentBondSecurity("issuer name", "issuer type", "issuer domicile", "market", dollar, usStreet, "guarantee type", expiry, "coupon type", 0.5, annual, act360,
+        following, announcementDate, interestAccrualDate, settlementDate, firstCouponDate, 10.0, 100d, 10d, 1d, 10d, 15d);
     bond.setIdentifiers(new IdentifierBundle(governmentId));
     final UniqueIdentifier bondUID = _secMaster.putSecurity(now, bond);
     final Security security = _secMaster.getSecurity(bondUID);
@@ -319,21 +323,34 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
   public void currencyFuture() throws Exception {
     final FXFutureSecurity currencyFuture = makeAUDUSDCurrencyFuture();
     _secMaster.putSecurity(new Date(), currencyFuture);
-    final IdentifierBundle  id = new IdentifierBundle (Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "LNM0 Curncy"));
+    final IdentifierBundle id = new IdentifierBundle(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "LNM0 Curncy"));
     final Security security = _secMaster.getSecurity(id);
     assertNotNull(security);
     assertTrue(security instanceof FXFutureSecurity);
     assertEquals(currencyFuture, security);
   }
 
+  private void sortBondFutureDeliverable (final BondFutureSecurity security) {
+    List<BondFutureDeliverable> basket = new ArrayList<BondFutureDeliverable>(security.getBasket());
+    Collections.sort(basket, new Comparator<BondFutureDeliverable>() {
+      @Override
+      public int compare(BondFutureDeliverable o1, BondFutureDeliverable o2) {
+        return o1.getIdentifiers().compareTo(o2.getIdentifiers());
+      }
+    });
+    security.setBasket(basket);
+  }
+
   @Test
   public void euroBondFuture() throws Exception {
     final BondFutureSecurity euroBondFuture = makeEuroBondFuture();
     _secMaster.putSecurity(new Date(), euroBondFuture);
-    final IdentifierBundle  id = new IdentifierBundle (Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "RXU0 Comdty"));
+    final IdentifierBundle id = new IdentifierBundle(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "RXU0 Comdty"));
     final Security security = _secMaster.getSecurity(id);
     assertNotNull(security);
     assertTrue(security instanceof BondFutureSecurity);
+    sortBondFutureDeliverable(euroBondFuture);
+    sortBondFutureDeliverable((BondFutureSecurity) security);
     assertEquals(euroBondFuture, security);
   }
 
@@ -341,7 +358,7 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
   public void metalFuture() throws Exception {
     final MetalFutureSecurity silverFuture = makeSilverFuture();
     _secMaster.putSecurity(new Date(), silverFuture);
-    final IdentifierBundle  id = new IdentifierBundle (new Identifier (IdentificationScheme.BLOOMBERG_TICKER, "SIM0 Comdty"));
+    final IdentifierBundle id = new IdentifierBundle(new Identifier(IdentificationScheme.BLOOMBERG_TICKER, "SIM0 Comdty"));
     final Security security = _secMaster.getSecurity(id);
     assertNotNull(security);
     assertTrue(security instanceof MetalFutureSecurity);
@@ -352,7 +369,7 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
   public void energyFuture() throws Exception {
     final EnergyFutureSecurity ethanolFuture = makeEthanolFuture();
     _secMaster.putSecurity(new Date(), ethanolFuture);
-    final IdentifierBundle  id = new IdentifierBundle (new Identifier (IdentificationScheme.BLOOMBERG_TICKER, "DLM0 Comdty"));
+    final IdentifierBundle id = new IdentifierBundle(new Identifier(IdentificationScheme.BLOOMBERG_TICKER, "DLM0 Comdty"));
     final Security security = _secMaster.getSecurity(id);
     assertNotNull(security);
     assertTrue(security instanceof EnergyFutureSecurity);
@@ -363,7 +380,7 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
   public void interestRateFuture() throws Exception {
     final InterestRateFutureSecurity euroDollarFuture = makeInterestRateFuture();
     _secMaster.putSecurity(new Date(), euroDollarFuture);
-    final IdentifierBundle  id = new IdentifierBundle (new Identifier (IdentificationScheme.BLOOMBERG_TICKER, "EDM0 Comdty"));
+    final IdentifierBundle id = new IdentifierBundle(new Identifier(IdentificationScheme.BLOOMBERG_TICKER, "EDM0 Comdty"));
     final Security security = _secMaster.getSecurity(id);
     assertNotNull(security);
     assertTrue(security instanceof InterestRateFutureSecurity);
@@ -375,14 +392,10 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
     final Date date1 = new Date(System.currentTimeMillis() - 2000L);
     final Date date2 = new Date(date1.getTime() + 2000L);
 
-    final EquitySecurity sec = new EquitySecurity();
-    sec.setCompanyName("General Motors");
-    sec.setName("General Motors");
-    sec.setCurrency(USD);
-    sec.setExchangeCode("NYSE");
-    sec.setExchange("NEW YORK STOCK EXCHANGE");
+    final EquitySecurity sec = new EquitySecurity("NEW YORK STOCK EXCHANGE", "NYSE", "General Motors", USD);
+    sec.setGicsCode(GICSCode.getInstance(25102010));
     sec.setTicker("GM US Equity");
-    sec.setGICSCode(GICSCode.getInstance(25102010));
+    sec.setName("General Motors");
     sec.setIdentifiers(new IdentifierBundle(Identifier.of("BLOOMBERG", "GM US Equity")));
     final UniqueIdentifier uid1 = _secMaster.putSecurity(date1, sec);
 
@@ -402,20 +415,15 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
    * 
    */
   private void addRandomEquityOptions() {
-    //add some americanvanilla
+    // add some americanvanilla
     for (int i = 0; i < TEST_FILLER_SIZE; i++) {
       final OptionType optionType = OptionType.CALL;
       final double strike = _random.nextDouble() * 100;
       final Expiry expiry = new Expiry(DateUtil.getUTCDate(2010, 01, 16));
       final Identifier underlyingUniqueID = Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "BUID" + String.valueOf(_random.nextInt()));
       final int currIndex = _random.nextInt(TEST_CURRENCIES.length);
-      final AmericanVanillaEquityOptionSecurity security = new AmericanVanillaEquityOptionSecurity(
-          optionType,
-          strike,
-          expiry,
-          underlyingUniqueID,
-          Currency.getInstance(TEST_CURRENCIES[currIndex]),
-          1, //TODO change when point value is properly added
+      final EquityOptionSecurity security = new EquityOptionSecurity(new AmericanExerciseType(), new VanillaPayoffStyle(), optionType, strike, expiry, underlyingUniqueID, Currency
+          .getInstance(TEST_CURRENCIES[currIndex]), 1, // TODO change when point value is properly added
           "EXCHN" + String.valueOf(_random.nextInt()));
 
       final Set<Identifier> identifiers = new HashSet<Identifier>();
@@ -431,9 +439,8 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
       final Expiry expiry = new Expiry(DateUtil.getUTCDate(2010, 12, 18));
       final Identifier underlyingUniqueID = Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "BUID" + String.valueOf(_random.nextInt()));
       final int currIndex = _random.nextInt(TEST_CURRENCIES.length);
-      final EuropeanVanillaEquityOptionSecurity security = new EuropeanVanillaEquityOptionSecurity(
-          optionType, strike, expiry, underlyingUniqueID, Currency.getInstance(TEST_CURRENCIES[currIndex]),
-          1, //TODO change when the point value is properly added
+      final EquityOptionSecurity security = new EquityOptionSecurity(new EuropeanExerciseType(), new VanillaPayoffStyle(), optionType, strike, expiry, underlyingUniqueID, Currency
+          .getInstance(TEST_CURRENCIES[currIndex]), 1, // TODO change when the point value is properly added
           "EXCHN" + String.valueOf(_random.nextInt()));
 
       final Set<Identifier> identifiers = new HashSet<Identifier>();
@@ -447,7 +454,7 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
 
   private void addRandomAgricultureFutures() {
     for (int i = 0; i < TEST_FILLER_SIZE; i++) {
-      final int year = (int)(100 * _random.nextDouble() + 1900);
+      final int year = (int) (100 * _random.nextDouble() + 1900);
       final int month = 1 + _random.nextInt(11);
       final int day = 1 + _random.nextInt(27);
       final Expiry expiry = new Expiry(s_clock.zonedDateTime().withDate(year, month, day).withTime(17, 00));
@@ -455,7 +462,9 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
       final Currency currency = Currency.getInstance(TEST_CURRENCIES[currIndex]);
       final String exchange = "EXCHN" + String.valueOf(_random.nextInt());
       final String category = "CAT" + String.valueOf(_random.nextInt());
-      final AgricultureFutureSecurity sec = new AgricultureFutureSecurity(expiry, exchange, exchange, currency, category, 100.0, "tonnes");
+      final AgricultureFutureSecurity sec = new AgricultureFutureSecurity(expiry, exchange, exchange, currency, category);
+      sec.setUnitNumber(100.0);
+      sec.setUnitName("tonnes");
       sec.setName("NAME" + String.valueOf(_random.nextInt()));
       final Set<Identifier> identifiers = new HashSet<Identifier>();
       identifiers.add(Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "BUID" + String.valueOf(_random.nextInt())));
@@ -468,20 +477,17 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
 
   private void addRandomEquities() {
     for (int i = 0; i < TEST_FILLER_SIZE; i++) {
-      final EquitySecurity equitySecurity = new EquitySecurity();
+      final int currIndex = _random.nextInt(TEST_CURRENCIES.length);
+      final EquitySecurity equitySecurity = new EquitySecurity("EXCHN" + String.valueOf(_random.nextInt()), "EXCHC" + String.valueOf(_random.nextInt()), "CNAME" + String.valueOf(_random.nextInt()),
+          Currency.getInstance(TEST_CURRENCIES[currIndex]));
+      equitySecurity.setGicsCode(GICSCode.getInstance(String.valueOf(_random.nextInt(98) + 2)));
+      equitySecurity.setTicker("TICKER" + String.valueOf(_random.nextInt()));
       equitySecurity.addIdentifier(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "TICKER" + String.valueOf(_random.nextInt())));
       equitySecurity.addIdentifier(Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "BUID" + String.valueOf(_random.nextInt())));
       equitySecurity.addIdentifier(Identifier.of(IdentificationScheme.CUSIP, "CUSIP" + String.valueOf(_random.nextInt())));
       equitySecurity.addIdentifier(Identifier.of(IdentificationScheme.ISIN, "ISIN" + String.valueOf(_random.nextInt())));
       equitySecurity.addIdentifier(Identifier.of(IdentificationScheme.SEDOL1, "SEDOL1" + String.valueOf(_random.nextInt())));
-      equitySecurity.setCompanyName("CNAME" + String.valueOf(_random.nextInt()));
-      equitySecurity.setTicker("TICKER" + String.valueOf(_random.nextInt()));
-      equitySecurity.setExchange("EXCHN" + String.valueOf(_random.nextInt()));
-      equitySecurity.setExchangeCode("EXCHC" + String.valueOf(_random.nextInt()));
-      final int currIndex = _random.nextInt(TEST_CURRENCIES.length);
-      equitySecurity.setCurrency(Currency.getInstance(TEST_CURRENCIES[currIndex]));
       equitySecurity.setName("NAME" + String.valueOf(_random.nextInt()));
-      equitySecurity.setGICSCode(GICSCode.getInstance(String.valueOf(_random.nextInt(98) + 2)));
       _secMaster.putSecurity(new Date(), equitySecurity);
     }
   }
@@ -509,7 +515,9 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
   private static void assertAmericanVanillaEquityOptionSecurity(final EquityOptionSecurity expectedOption, final Security sec) {
     // check specific bits we want to spot failures on quickly
     assertNotNull(sec);
-    assertTrue(sec instanceof AmericanVanillaEquityOptionSecurity);
+    assertTrue(sec instanceof EquityOptionSecurity);
+    assertTrue(((EquityOptionSecurity) sec).getExerciseType() instanceof AmericanExerciseType);
+    assertTrue(((EquityOptionSecurity) sec).getPayoffStyle() instanceof VanillaPayoffStyle);
     assertEquityOptionSecurity(expectedOption, sec);
   }
 
@@ -533,7 +541,9 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
   private static void assertEuropeanVanillaEquityOptionSecurity(final EquityOptionSecurity expectedOption, final Security sec) {
     // check specific bits we want to spot failures on quickly
     assertNotNull(sec);
-    assertTrue(sec instanceof EuropeanVanillaEquityOptionSecurity);
+    assertTrue(sec instanceof EquityOptionSecurity);
+    assertTrue(((EquityOptionSecurity) sec).getExerciseType() instanceof EuropeanExerciseType);
+    assertTrue(((EquityOptionSecurity) sec).getPayoffStyle() instanceof VanillaPayoffStyle);
     assertEquityOptionSecurity(expectedOption, sec);
   }
 

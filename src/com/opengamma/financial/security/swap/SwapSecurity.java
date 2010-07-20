@@ -150,10 +150,14 @@ public class SwapSecurity extends FinancialSecurity {
 
   @Override
   public <T> T accept(final FinancialSecurityVisitor<T> visitor) {
-    return null;
+    return visitor.visitSwapSecurity(this);
   }
 
-  protected void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+  public <T> T accept(final SwapSecurityVisitor<T> visitor) {
+    return visitor.visitSwapSecurity(this);
+  }
+
+  public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
     super.toFudgeMsg(context, message);
     context.objectToFudgeMsg(message, TRADEDATE_KEY, null, getTradeDate());
     context.objectToFudgeMsg(message, EFFECTIVEDATE_KEY, null, getEffectiveDate());
@@ -171,7 +175,6 @@ public class SwapSecurity extends FinancialSecurity {
   }
 
   protected void fromFudgeMsgImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    super.fromFudgeMsgImpl(context, message);
     setMaturityDate(ZonedDateTime.of(context.fieldValueToObject(DateTimeProvider.class, message
         .getByName(MATURITYDATE_KEY)), TimeZone.UTC));
     setTradeDate(ZonedDateTime.of(context.fieldValueToObject(DateTimeProvider.class, message.getByName(TRADEDATE_KEY)),

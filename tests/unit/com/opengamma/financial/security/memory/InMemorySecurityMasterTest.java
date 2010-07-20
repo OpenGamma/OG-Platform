@@ -35,8 +35,8 @@ public class InMemorySecurityMasterTest {
   private static final IdentifierBundle BUNDLE1 = IdentifierBundle.of(ID1);
   private static final IdentifierBundle BUNDLE2 = IdentifierBundle.of(ID2);
   private static final IdentifierBundle BUNDLE1AND2 = IdentifierBundle.of(ID1, ID2);
-  private static final Security SEC1 = new DefaultSecurity("TYPE1", BUNDLE1);
-  private static final Security SEC2 = new DefaultSecurity("TYPE2", BUNDLE2);
+  private static final Security SEC1 = new DefaultSecurity(UniqueIdentifier.of ("Test", "sec1"), "Test 1", "TYPE1", BUNDLE1);
+  private static final Security SEC2 = new DefaultSecurity(UniqueIdentifier.of ("Test", "sec2"), "Test 2", "TYPE2", BUNDLE2);
   private static final SecurityDocument DOC1 = new SecurityDocument(SEC1);
   private static final SecurityDocument DOC2 = new SecurityDocument(SEC2);
 

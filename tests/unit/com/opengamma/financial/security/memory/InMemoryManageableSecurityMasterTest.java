@@ -73,11 +73,11 @@ public class InMemoryManageableSecurityMasterTest {
   public void test_multipleSecurities() {
     InMemoryManageableSecurityMaster test = new InMemoryManageableSecurityMaster();
     
-    DefaultSecurity sec1 = new DefaultSecurity();
+    DefaultSecurity sec1 = new DefaultSecurity("TEST");
     sec1.addIdentifier(ID1);
     test.addSecurity(new AddSecurityRequest(sec1));
     
-    DefaultSecurity sec2 = new DefaultSecurity();
+    DefaultSecurity sec2 = new DefaultSecurity("TEST");
     sec2.addIdentifier(ID2);
     test.addSecurity(new AddSecurityRequest(sec2));
     

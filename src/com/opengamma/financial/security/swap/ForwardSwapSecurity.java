@@ -57,7 +57,12 @@ public class ForwardSwapSecurity extends SwapSecurity {
     return _forwardStartDate;
   }
 
-  protected void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+  @Override
+  public <T> T accept(SwapSecurityVisitor<T> visitor) {
+    return visitor.visitForwardSwapSecurity(this);
+  }
+
+  public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
     super.toFudgeMsg(context, message);
     context.objectToFudgeMsg(message, FORWARDSTARTDATE_KEY, null, getForwardStartDate());
   }
