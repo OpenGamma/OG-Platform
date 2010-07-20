@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.ComputationTargetResolverAdapter;
+import com.opengamma.engine.ForwardingComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -132,7 +132,7 @@ public class PortfolioEvaluationModel {
     return _graphsByConfiguration.get(calcConfigName);
   }
   
-  private class ResolvedSecurityComputationTargetResolver extends ComputationTargetResolverAdapter {
+  private class ResolvedSecurityComputationTargetResolver extends ForwardingComputationTargetResolver {
     
     private final Map<UniqueIdentifier, Position> _positionsByUID = new HashMap<UniqueIdentifier, Position>();
     private final Map<UniqueIdentifier, Security> _securitiesByUID = new HashMap<UniqueIdentifier, Security>();

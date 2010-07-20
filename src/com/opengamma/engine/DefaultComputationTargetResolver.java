@@ -22,10 +22,10 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A standard implementation of {@code ComputationTargetResolver} that resolves
- * from a target specification to a real target.
+ * A computation target resolver implementation that resolves using a security and position source.
  * <p>
- * This implementation satisfies results using an injected security and position sources.
+ * This is the standard implementation that resolves from a target specification to a real target.
+ * It provides results using a security and position source.
  */
 public class DefaultComputationTargetResolver implements ComputationTargetResolver {
 
@@ -40,7 +40,6 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * The position source.
    */
   private final PositionSource _positionSource;
-
   /**
    * Delegate {@code ComputationTargetResolver} for resolving the security for a position, and underlying
    * nodes of multiple-positions. Defaults to this object, but can be changed to the {@code CachingComputationTargetResolver}
@@ -54,7 +53,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * @param securitySource  the security source, not null
    * @param positionSource  the position source, not null
    */
-  public DefaultComputationTargetResolver(SecuritySource securitySource, PositionSource positionSource) {
+  public DefaultComputationTargetResolver(final SecuritySource securitySource, final PositionSource positionSource) {
     ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notNull(positionSource, "positionSource");
     _securitySource = securitySource;
@@ -62,14 +61,22 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the recursive resolver.
+   * @return the recursive resolver, not null
+   */
+  public ComputationTargetResolver getRecursiveResolver() {
+    return _recursiveResolver;
+  }
 
+  /**
+   * Sets the recursive resolver.
+   * This might be used to add a caching resolver.
+   * @param recursiveResolver  the recursive resolver, not null
+   */
   public void setRecursiveResolver(final ComputationTargetResolver recursiveResolver) {
     ArgumentChecker.notNull(recursiveResolver, "recursiveResolver");
     _recursiveResolver = recursiveResolver;
-  }
-
-  public ComputationTargetResolver getRecursiveResolver() {
-    return _recursiveResolver;
   }
 
   //-------------------------------------------------------------------------
@@ -82,7 +89,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
   }
 
   /**
-   * Gets the position source which holds details of all positions in the system.
+   * Gets the position source which provides access to the positions.
    * @return the position source, not null
    */
   public PositionSource getPositionSource() {
@@ -91,19 +98,19 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
 
   //-------------------------------------------------------------------------
   /**
-   * Resolves the specification using the security and position sources..
+   * Resolves the specification using the security and position sources.
    * @param specification  the specification to resolve, not null
    * @return the resolved target, null if not found
    */
   @Override
-  public ComputationTarget resolve(ComputationTargetSpecification specification) {
+  public ComputationTarget resolve(final ComputationTargetSpecification specification) {
     UniqueIdentifier uid = specification.getUniqueIdentifier();
     switch (specification.getType()) {
       case PRIMITIVE: {
         return new ComputationTarget(specification.getType(), uid);
       }
       case SECURITY: {
-        Security security = getSecuritySource().getSecurity(uid);
+        final Security security = getSecuritySource().getSecurity(uid);
         if (security == null) {
           s_logger.info("Unable to resolve security UID {}", uid);
           return null;

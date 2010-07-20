@@ -38,7 +38,7 @@ public enum ComputationTargetType {
    * @param target The target to check for compatibility
    * @return true if compatible
    */
-  public boolean isCompatible(Object target) {
+  public boolean isCompatible(final Object target) {
     switch(this) {
       case PORTFOLIO_NODE:
         return (target instanceof PortfolioNode || target instanceof Portfolio);
@@ -62,7 +62,7 @@ public enum ComputationTargetType {
    * @param target  the target to introspect, may be null
    * @return the type, not null
    */
-  public static ComputationTargetType determineFromTarget(Object target) {
+  public static ComputationTargetType determineFromTarget(final Object target) {
     if (target instanceof Portfolio) {
       return PORTFOLIO_NODE;
     }
