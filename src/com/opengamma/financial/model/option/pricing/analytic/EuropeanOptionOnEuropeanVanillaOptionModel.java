@@ -80,6 +80,7 @@ public class EuropeanOptionOnEuropeanVanillaOptionModel extends AnalyticOptionMo
   private double getCriticalValue(final OptionDefinition definition, final StandardOptionDataBundle data, final double k) {
     final Function1D<Double, Double> f = new Function1D<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double x) {
         return k - BSM.getPricingFunction(definition).evaluate(data.withSpot(x));
