@@ -21,12 +21,11 @@ import com.opengamma.financial.user.rest.UsersResource;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * Implementation of {@link PositionSource} which delegates to individual user and client {@link PositionSource}s from
- * an underlying {@link UsersResource}.
- * <p>
- * When {@link UsersResource} is backed by a proper UserMaster, this should instead delegate to that.
+ * A source of positsions that delegates to individual user and client sources from
+ * an underlying user resource.
  */
 public class UserPositionSource implements PositionSource {
+  // TODO: When UsersResource is backed by a proper UserMaster, this should instead delegate to that.
 
   private final UsersResource _underlying;
   
