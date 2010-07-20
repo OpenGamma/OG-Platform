@@ -57,8 +57,8 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
     put(SNAPSHOT_CLOCK_NAME, snapshotClock);
   }
   
-  public void setSecuritySource(SecuritySource secMaster) {
-    put(SECURITY_SOURCE_NAME, secMaster);
+  public void setSecuritySource(SecuritySource securitySource) {
+    put(SECURITY_SOURCE_NAME, securitySource);
   }
   
   public SecuritySource getSecuritySource() {

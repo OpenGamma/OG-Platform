@@ -47,8 +47,8 @@ public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvid
   private final Map<LiveDataSpecification, Set<ValueRequirement>> _liveDataSpec2ValueRequirements =
     new ConcurrentHashMap<LiveDataSpecification, Set<ValueRequirement>>();
 
-  public LiveDataSnapshotProviderImpl(LiveDataClient liveDataClient, SecuritySource secMaster) {
-    this(liveDataClient, secMaster, new FudgeContext());
+  public LiveDataSnapshotProviderImpl(LiveDataClient liveDataClient, SecuritySource securitySource) {
+    this(liveDataClient, securitySource, new FudgeContext());
   }
 
   public LiveDataSnapshotProviderImpl(LiveDataClient liveDataClient, SecuritySource securitySource, FudgeContext fudgeContext) {

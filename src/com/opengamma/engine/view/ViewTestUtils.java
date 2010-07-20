@@ -41,12 +41,12 @@ public class ViewTestUtils {
     
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
     
-    MockSecuritySource secMaster = new MockSecuritySource();
+    MockSecuritySource securitySource = new MockSecuritySource();
 
     MockPositionSource positionSource = new MockPositionSource();
     positionSource.addPortfolio(new PortfolioImpl(portfolioId, "test_portfolio"));
     
-    DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(secMaster, positionSource);
+    DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
     
     MapViewComputationCacheSource cacheFactory = new MapViewComputationCacheSource();
     
@@ -67,7 +67,7 @@ public class ViewTestUtils {
         functionRepo, 
         new DefaultFunctionResolver(functionRepo),
         positionSource, 
-        secMaster, 
+        securitySource, 
         cacheFactory, 
         calcRequestSender, 
         viewProcessorQueryReceiver,

@@ -62,20 +62,20 @@ public class PortfolioEvaluationModelTest {
     DefaultSecurity defSec = new DefaultSecurity();
     defSec.addIdentifier(secIdentifier);
     
-    MockSecuritySource secMaster = new MockSecuritySource();
-    secMaster.addSecurity(defSec);
+    MockSecuritySource securitySource = new MockSecuritySource();
+    securitySource.addSecurity(defSec);
     
     InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
     DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionRepo);
     
-    DefaultComputationTargetResolver computationTargetResolver = new DefaultComputationTargetResolver(secMaster, positionSource);
+    DefaultComputationTargetResolver computationTargetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
     
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     
     FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
     
-    ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, positionSource, secMaster, functionCompilationContext, computationTargetResolver, executorService);
+    ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, positionSource, securitySource, functionCompilationContext, computationTargetResolver, executorService);
     
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
     
@@ -106,8 +106,8 @@ public class PortfolioEvaluationModelTest {
     defSec.addIdentifier(secIdentifier);
     defSec.setSecurityType("My Sec");
     
-    MockSecuritySource secMaster = new MockSecuritySource();
-    secMaster.addSecurity(defSec);
+    MockSecuritySource securitySource = new MockSecuritySource();
+    securitySource.addSecurity(defSec);
     
     InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
     
@@ -121,14 +121,14 @@ public class PortfolioEvaluationModelTest {
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
     functionRepo.addFunction(fn1, fn1);
     DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionRepo);
-    DefaultComputationTargetResolver computationTargetResolver = new DefaultComputationTargetResolver(secMaster, positionSource);
+    DefaultComputationTargetResolver computationTargetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
     
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     
     FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
-    functionCompilationContext.setSecuritySource(secMaster);
+    functionCompilationContext.setSecuritySource(securitySource);
     
-    ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, positionSource, secMaster, functionCompilationContext, computationTargetResolver, executorService);
+    ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, positionSource, securitySource, functionCompilationContext, computationTargetResolver, executorService);
     
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
     viewDefinition.setComputeSecurityNodeCalculations(false);
@@ -174,9 +174,9 @@ public class PortfolioEvaluationModelTest {
     sec2.addIdentifier(secIdentifier2);
     sec2.setSecurityType("Your Sec");
     
-    MockSecuritySource secMaster = new MockSecuritySource();
-    secMaster.addSecurity(sec1);
-    secMaster.addSecurity(sec2);
+    MockSecuritySource securitySource = new MockSecuritySource();
+    securitySource.addSecurity(sec1);
+    securitySource.addSecurity(sec2);
     
     InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
     
@@ -199,13 +199,13 @@ public class PortfolioEvaluationModelTest {
     functionRepo.addFunction(fn1, fn1);
     functionRepo.addFunction(fn2, fn2);
     DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionRepo);
-    DefaultComputationTargetResolver computationTargetResolver = new DefaultComputationTargetResolver(secMaster, positionSource);
+    DefaultComputationTargetResolver computationTargetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
     
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     
     FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
     
-    ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, positionSource, secMaster, functionCompilationContext, computationTargetResolver, executorService);
+    ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, positionSource, securitySource, functionCompilationContext, computationTargetResolver, executorService);
     
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
     viewDefinition.addValueDefinition("Fibble", "My Sec", "Req-1");
