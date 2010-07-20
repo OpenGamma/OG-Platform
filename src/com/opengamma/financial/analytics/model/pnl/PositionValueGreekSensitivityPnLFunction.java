@@ -74,7 +74,7 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction i
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
     final HistoricalDataProvider historicalDataProvider = OpenGammaExecutionContext.getHistoricalDataProvider(executionContext);
-    final SecuritySource securityMaster = OpenGammaExecutionContext.getSecurityMaster(executionContext);
+    final SecuritySource securityMaster = OpenGammaExecutionContext.getSecuritySource(executionContext);
 
     final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position));
     final Map<Sensitivity<?>, RiskFactorResult> sensitivities = new HashMap<Sensitivity<?>, RiskFactorResult>();
