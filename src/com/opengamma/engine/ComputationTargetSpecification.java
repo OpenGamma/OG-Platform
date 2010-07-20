@@ -191,7 +191,7 @@ public final class ComputationTargetSpecification implements Serializable {
       case SECURITY:
         Security security = securitySource.getSecurity(getUniqueIdentifier());
         if (security == null) {
-          throw new OpenGammaRuntimeException("Unknown security in configured security master: " + getIdentifier());
+          throw new OpenGammaRuntimeException("Unknown security in configured security source: " + getIdentifier());
         }
         // Package up the other identifiers
         return new LiveDataSpecification(StandardRules.getOpenGammaRuleSetId(), security.getIdentifiers());
