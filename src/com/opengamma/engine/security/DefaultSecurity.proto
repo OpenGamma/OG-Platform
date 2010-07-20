@@ -20,6 +20,7 @@ namespace com.opengamma.engine.security {
 
     binding Java {
       implements "Security, com.opengamma.id.MutableUniqueIdentifiable";
+      methods "equals,hashCode";
       body <<<JAVA
         /**
          * Dynamically determines a 'default' display name if one hasn't been explicitly set.
