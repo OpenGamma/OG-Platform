@@ -209,6 +209,13 @@ public class BatchJob implements Job, ComputationResultListener {
    */
   private boolean _forceNewRun; // = false
   
+  /**
+   * Historical time used for loading entities out of PositionMaster.
+   * 
+   * Not null.
+   */
+  private ZonedDateTime _positionMasterTime;
+  
   // --------------------------------------------------------------------------
   // Variables initialized during the batch run
   // --------------------------------------------------------------------------
@@ -481,6 +488,49 @@ public class BatchJob implements Job, ComputationResultListener {
     return snapshotProvider;
   }
   
+  /**
+   * @return Historical time used for loading entities out of PositionMaster.
+   * and SecurityMaster. 
+   */
+  public ZonedDateTime getPositionMasterTime() {
+    return _positionMasterTime; 
+  }
+  
+  public void setPositionMasterTime(ZonedDateTime positionMasterTime) {
+    _positionMasterTime = positionMasterTime;
+  }
+  
+  public void setPositionMasterTime(String positionMasterTime) {
+    if (positionMasterTime == null) {
+      _positionMasterTime = null;
+    } else {
+      _positionMasterTime = _dateTimeFormatter.parse(positionMasterTime, ZonedDateTime.rule()); 
+    }
+  }
+
+  /**
+   * Some static data masters may have the capability for
+   * their users to modify the historical record. For the purposes of batch,
+   * we want the data returned from the masters to be 100% fixed.
+   * Therefore, we also have the concept of "as viewed at" time,
+   * which ensures that the historical data will always be the same.
+   * 
+   * @return At the moment, the "as viewed at" time
+   * is simply the (original) creation time of the batch. This ensures
+   * that even if the batch is restarted, data will not change. 
+   */
+  public Instant getPositionMasterAsViewedAtTime() {
+    return getCreationTime();        
+  }
+  
+  public ZonedDateTime getSecurityMasterTime() {
+    return getPositionMasterTime(); // assume this for now
+  }
+  
+  public Instant getSecurityMasterAsViewedAtTime() {
+    return getPositionMasterAsViewedAtTime(); // assume this for now
+  }
+  
   public void initView() {
     
     if (getViewName() == null) {
@@ -511,8 +561,8 @@ public class BatchJob implements Job, ComputationResultListener {
     if (underlyingSecurityMaster instanceof ManageableSecurityMaster) {
       securityMaster = new HistoricallyFixedSecurityMaster(
           (ManageableSecurityMaster) underlyingSecurityMaster, 
-          getValuationTime().toInstant(), 
-          getCreationTime());
+          getSecurityMasterTime(),
+          getSecurityMasterAsViewedAtTime());
     } else {
       securityMaster = underlyingSecurityMaster;      
     }
@@ -522,8 +572,8 @@ public class BatchJob implements Job, ComputationResultListener {
     if (underlyingPositionMaster instanceof ManageablePositionMaster) {
       positionMaster = new HistoricallyFixedPositionSource(
           (ManageablePositionMaster) underlyingPositionMaster, 
-          getValuationTime().toInstant(), 
-          getCreationTime());
+          getPositionMasterTime(), 
+          getPositionMasterAsViewedAtTime());
     } else {
       positionMaster = underlyingPositionMaster;      
     }
@@ -591,6 +641,10 @@ public class BatchJob implements Job, ComputationResultListener {
     if (_snapshotObservationTime == null) {
       _snapshotObservationTime = _observationTime;
     }
+    
+    if (_positionMasterTime == null) {
+      _positionMasterTime = _valuationTime;
+    }
   }
   
   public Options getOptions() {
@@ -621,6 +675,9 @@ public class BatchJob implements Job, ComputationResultListener {
         "in the database for the given view (including the same version) with the same observation date and time. " +
         "If there is, that run is reused.");
     
+    options.addOption("positionmastertime", "positionmastertime", true, 
+      "Instant at which positions should be loaded. yyyyMMddHHmmss[Z]. Default - same as valuationtime.");
+    
     return options;
   }
   
@@ -642,6 +699,7 @@ public class BatchJob implements Job, ComputationResultListener {
     setSnapshotObservationTime(line.getOptionValue("snapshotobservationtime"));
     setSnapshotObservationDate(line.getOptionValue("snapshotobservationdate"));
     setForceNewRun(line.hasOption("forcenewrun"));
+    setPositionMasterTime(line.getOptionValue("positionmastertime"));
   }
   
   public void execute() {
