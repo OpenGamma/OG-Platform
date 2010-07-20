@@ -77,7 +77,7 @@
 	<target name="buildlist" depends="load-ivy">
 		<ivy:buildlist reference="build-path">
 			<fileset dir="projects">
-				<include name="**/build.xml" />
+				<include name="*/build.xml" />
 				<exclude name="Fudge-CSharp/**" />
 				<exclude name="fudgemsg-dist/**" />
 				<exclude name="Hermit/**" />
@@ -193,6 +193,7 @@
 		<git-clone-pull repository="git@github.com:OpenGamma/OG-TimeSeriesStorage.git" dest="projects/OG-TimeSeriesStorage" />
 		<git-clone-pull repository="git@github.com:OpenGamma/OG-Reuters.git" dest="projects/OG-Reuters" />
 		<git-clone-pull repository="git@github.com:OpenGamma/OG-Config.git" dest="projects/OG-Config" />
+		<git-clone-pull repository="git@github.com:OpenGamma/OG-Excel.git" dest="projects/OG-Excel" />
 	</target>
 
 	<target name="pull" description="pull origin master all projects from git">
@@ -210,6 +211,7 @@
 		<git-pull dest="projects/OG-TimeSeriesStorage" />
 		<git-pull dest="projects/OG-Reuters" />
 		<git-pull dest="projects/OG-Config" />
+		<git-pull dest="projects/OG-Excel" />
 	</target>
 
 	<target name="status" description="display the status of all projects from git">
@@ -227,6 +229,7 @@
 		<git-status dest="projects/OG-TimeSeriesStorage" displayName="OG-TimeSeriesStorage" />
 		<git-status dest="projects/OG-Reuters" displayName="OG-Reuters" />
 		<git-status dest="projects/OG-Config" displayName="OG-Config" />
+		<git-status dest="projects/OG-Excel" displayName="OG-Excel" />
 	</target>
 </project>
 
