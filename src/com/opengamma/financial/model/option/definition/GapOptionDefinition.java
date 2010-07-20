@@ -1,0 +1,79 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.financial.model.option.definition;
+
+import org.apache.commons.lang.Validate;
+
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.Expiry;
+
+/**
+ * 
+ */
+public class GapOptionDefinition extends OptionDefinition {
+  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();
+  private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {
+
+    @Override
+    public double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
+      Validate.notNull(data);
+      final double s = data.getSpot();
+      final double k = getStrike();
+      final double x = getPayoffStrike();
+      return isCall() ? s <= k ? 0 : s - x : s >= k ? 0 : x - s;
+    }
+  };
+  private final double _payoffStrike;
+
+  public GapOptionDefinition(final double strike, final Expiry expiry, final boolean isCall, final double payoffStrike) {
+    super(strike, expiry, isCall);
+    ArgumentChecker.notNegative(payoffStrike, "payoff strike");
+    _payoffStrike = payoffStrike;
+  }
+
+  @Override
+  public OptionExerciseFunction<StandardOptionDataBundle> getExerciseFunction() {
+    return _exerciseFunction;
+  }
+
+  @Override
+  public OptionPayoffFunction<StandardOptionDataBundle> getPayoffFunction() {
+    return _payoffFunction;
+  }
+
+  public double getPayoffStrike() {
+    return _payoffStrike;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_payoffStrike);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final GapOptionDefinition other = (GapOptionDefinition) obj;
+    if (Double.doubleToLongBits(_payoffStrike) != Double.doubleToLongBits(other._payoffStrike)) {
+      return false;
+    }
+    return true;
+  }
+
+}
