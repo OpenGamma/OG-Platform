@@ -33,7 +33,7 @@ import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
-import com.opengamma.engine.position.PositionMaster;
+import com.opengamma.engine.position.PositionSource;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -41,21 +41,19 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * An implementation of {@code PositionMaster} based on CSV-formatted files.
+ * A source of positions based on CSV-formatted files.
  */
-public class CSVPositionMaster implements PositionMaster {
+public class CSVPositionSource implements PositionSource {
+
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(CSVPositionSource.class);
 
   /**
-   * The logger.
-   */
-  private static final Logger s_logger = LoggerFactory.getLogger(CSVPositionMaster.class);
-
-  /**
-   * The logger.
+   * The base file directory.
    */
   private final File _baseDirectory;
   /**
-   * The map of portfolio files by identifier.
+   * The portfolio files by identifier.
    */
   private final ConcurrentMap<UniqueIdentifier, Object> _portfolios = new ConcurrentSkipListMap<UniqueIdentifier, Object>();
   /**
@@ -68,25 +66,25 @@ public class CSVPositionMaster implements PositionMaster {
   private final Map<UniqueIdentifier, Position> _positions = new TreeMap<UniqueIdentifier, Position>();
 
   /**
-   * Creates an empty CSV position master.
+   * Creates an empty CSV position source.
    */
-  public CSVPositionMaster() {
+  public CSVPositionSource() {
     _baseDirectory = null;
   }
 
   /**
-   * Creates a CSV position master using the specified directory.
+   * Creates a CSV position source using the specified directory.
    * @param baseDirectoryName  the directory name, not null
    */
-  public CSVPositionMaster(String baseDirectoryName) {
+  public CSVPositionSource(String baseDirectoryName) {
     this(new File(baseDirectoryName));
   }
 
   /**
-   * Creates a CSV position master using the specified directory.
+   * Creates a CSV position source using the specified directory.
    * @param baseDirectory  the directory, not null
    */
-  public CSVPositionMaster(File baseDirectory) {
+  public CSVPositionSource(File baseDirectory) {
     ArgumentChecker.notNull(baseDirectory, "base directory");
     if (baseDirectory.exists() == false) {
       throw new IllegalArgumentException("Base directory must exist: " + baseDirectory);

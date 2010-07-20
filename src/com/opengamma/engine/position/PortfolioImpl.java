@@ -69,7 +69,7 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
   //-------------------------------------------------------------------------
   /**
    * Gets the unique identifier of the portfolio.
-   * @return the identifier, null if not from a position master
+   * @return the identifier, null if not from a position source
    */
   @Override
   public UniqueIdentifier getUniqueIdentifier() {

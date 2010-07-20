@@ -5,27 +5,33 @@
  */
 package com.opengamma.engine.function;
 
-import com.opengamma.engine.security.SecurityMaster;
-
+import com.opengamma.engine.security.SecuritySource;
 
 /**
  * Contains objects useful to {@link FunctionDefinition} instances
  * during expression compilation.
- *
- * @author kirk
  */
 public class FunctionCompilationContext extends AbstractFunctionContext {
+
   /**
-   * The name under which an instance of {@link SecurityMaster} should be bound.
+   * The name under which an instance of {@link SecuritySource} should be bound.
    */
-  public static final String SECURITY_MASTER_NAME = "securityMaster";
-  
-  public void setSecurityMaster(SecurityMaster secMaster) {
-    put(SECURITY_MASTER_NAME, secMaster);
+  public static final String SECURITY_SOURCE_NAME = "securitySource";
+
+  /**
+   * Gets the source of securities.
+   * @return the source of securities
+   */
+  public SecuritySource getSecuritySource() {
+    return (SecuritySource) get(SECURITY_SOURCE_NAME);
   }
-  
-  public SecurityMaster getSecurityMaster() {
-    return (SecurityMaster) get(SECURITY_MASTER_NAME);
+
+  /**
+   * Sets the source of securities.
+   * @param securitySource  the source of securities
+   */
+  public void setSecuritySource(SecuritySource securitySource) {
+    put(SECURITY_SOURCE_NAME, securitySource);
   }
-  
+
 }

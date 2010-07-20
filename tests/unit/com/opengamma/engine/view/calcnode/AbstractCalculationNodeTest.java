@@ -8,7 +8,6 @@ package com.opengamma.engine.view.calcnode;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -21,8 +20,8 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.MockFunction;
-import com.opengamma.engine.position.MockPositionMaster;
-import com.opengamma.engine.security.MockSecurityMaster;
+import com.opengamma.engine.position.MockPositionSource;
+import com.opengamma.engine.security.MockSecuritySource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -67,7 +66,7 @@ public class AbstractCalculationNodeTest {
     //cache.putValue(inputValue);
     FunctionExecutionContext execContext = new FunctionExecutionContext();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(null);
-    ComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(new MockSecurityMaster(), new MockPositionMaster());
+    ComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(new MockSecuritySource(), new MockPositionSource());
     
     TestCalculationNode calcNode = new TestCalculationNode(
         cacheSource,
@@ -112,7 +111,7 @@ public class AbstractCalculationNodeTest {
     
     FunctionExecutionContext execContext = new FunctionExecutionContext();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(null);
-    ComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(new MockSecurityMaster(), new MockPositionMaster());
+    ComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(new MockSecuritySource(), new MockPositionSource());
     
     TestCalculationNode calcNode = new TestCalculationNode(
         cacheSource,

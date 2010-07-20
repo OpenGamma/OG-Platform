@@ -13,8 +13,6 @@ import java.util.Set;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.event.RegisteredEventListeners;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,13 +23,14 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.EHCacheUtils;
 
 /**
- * A security master implementation that caches another.
- * This uses the EHCache library.
+ * A cache decorating a {@code SecuritySource}.
+ * <p>
+ * The cache is implemented using {@code EHCache}.
  */
-public class EHCachingSecurityMaster implements SecurityMaster {
+public class EHCachingSecuritySource implements SecuritySource {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(EHCachingSecurityMaster.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EHCachingSecuritySource.class);
   /** The single security cache key. */
   /* package for testing */ static final String SINGLE_SECURITY_CACHE = "single-security-cache";
   /** The multiple security cache key. */
@@ -40,7 +39,7 @@ public class EHCachingSecurityMaster implements SecurityMaster {
   /**
    * The underlying cache.
    */
-  private final SecurityMaster _underlying;
+  private final SecuritySource _underlying;
   /**
    * The cache manager.
    */
@@ -55,70 +54,40 @@ public class EHCachingSecurityMaster implements SecurityMaster {
   private final Cache _bundleCache;
 
   /**
-   * Creates a cached security master.
-   * @param underlying  the underlying security master, not null
+   * Creates an instance over an underlying source using a default cache manager.
+   * @param underlying  the underlying security source, not null
    */
-  public EHCachingSecurityMaster(SecurityMaster underlying) {
-    ArgumentChecker.notNull(underlying, "Security Master");
-    _underlying = underlying;
-    CacheManager manager = EHCacheUtils.createCacheManager();
-    EHCacheUtils.addCache(manager, SINGLE_SECURITY_CACHE);
-    EHCacheUtils.addCache(manager, MULTI_SECURITIES_CACHE);
-    _uidCache = EHCacheUtils.getCacheFromManager(manager, SINGLE_SECURITY_CACHE);
-    _bundleCache = EHCacheUtils.getCacheFromManager(manager, MULTI_SECURITIES_CACHE);
-    _manager = manager;
-  }
-
-  public EHCachingSecurityMaster(SecurityMaster underlying,
-      int maxElementsInMemory,
-      MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
-      boolean overflowToDisk, String diskStorePath, boolean eternal,
-      long timeToLiveSeconds, long timeToIdleSeconds, boolean diskPersistent,
-      long diskExpiryThreadIntervalSeconds,
-      RegisteredEventListeners registeredEventListeners) {
-    ArgumentChecker.notNull(underlying, "Security Master");
-    _underlying = underlying;
-    CacheManager manager = EHCacheUtils.createCacheManager();
-    EHCacheUtils.addCache(manager, SINGLE_SECURITY_CACHE, maxElementsInMemory,
-        memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal,
-        timeToLiveSeconds, timeToIdleSeconds, diskPersistent,
-        diskExpiryThreadIntervalSeconds, registeredEventListeners);
-    EHCacheUtils.addCache(manager, MULTI_SECURITIES_CACHE, maxElementsInMemory,
-        memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal,
-        timeToLiveSeconds, timeToIdleSeconds, diskPersistent,
-        diskExpiryThreadIntervalSeconds, registeredEventListeners);
-    _uidCache = EHCacheUtils.getCacheFromManager(manager, SINGLE_SECURITY_CACHE);
-    _bundleCache = EHCacheUtils.getCacheFromManager(manager, MULTI_SECURITIES_CACHE);
-    _manager = manager;
+  public EHCachingSecuritySource(final SecuritySource underlying) {
+    this(underlying, EHCacheUtils.createCacheManager());
   }
 
   /**
-   * Creates a cached security master.
-   * @param underlying  the underlying security master, not null
-   * @param manager  the cache manager, not null
+   * Creates an instance over an underlying source specifying the cache manager.
+   * @param underlying  the underlying security source, not null
+   * @param cacheManager  the cache manager, not null
    */
-  public EHCachingSecurityMaster(SecurityMaster underlying, CacheManager manager) {
-    ArgumentChecker.notNull(underlying, "Security Master");
-    ArgumentChecker.notNull(manager, "CacheManager");
+  public EHCachingSecuritySource(final SecuritySource underlying, final CacheManager cacheManager) {
+    ArgumentChecker.notNull(underlying, "underlying");
+    ArgumentChecker.notNull(cacheManager, "cacheManager");
     _underlying = underlying;
-    EHCacheUtils.addCache(manager, SINGLE_SECURITY_CACHE);
-    EHCacheUtils.addCache(manager, MULTI_SECURITIES_CACHE);
-    _uidCache = EHCacheUtils.getCacheFromManager(manager, SINGLE_SECURITY_CACHE);
-    _bundleCache = EHCacheUtils.getCacheFromManager(manager, MULTI_SECURITIES_CACHE);
-    _manager = manager;
+    EHCacheUtils.addCache(cacheManager, SINGLE_SECURITY_CACHE);
+    EHCacheUtils.addCache(cacheManager, MULTI_SECURITIES_CACHE);
+    _uidCache = EHCacheUtils.getCacheFromManager(cacheManager, SINGLE_SECURITY_CACHE);
+    _bundleCache = EHCacheUtils.getCacheFromManager(cacheManager, MULTI_SECURITIES_CACHE);
+    _manager = cacheManager;
   }
 
   /**
-   * Creates a cached security master.
-   * @param underlying  the underlying security master, not null
+   * Creates an instance over an underlying source specifying the caches.
+   * @param underlying  the underlying security source, not null
    * @param singleSecCache  the single security cache, not null
    * @param multiSecCache  the multiple security cache, not null
    */
-  public EHCachingSecurityMaster(SecurityMaster underlying,
+  public EHCachingSecuritySource(SecuritySource underlying,
       Cache singleSecCache, Cache multiSecCache) {
     ArgumentChecker.notNull(underlying, "Security Master");
-    ArgumentChecker.notNull(singleSecCache, "Single Security Cache");
-    ArgumentChecker.notNull(multiSecCache, "Multi Security Cache");
+    ArgumentChecker.notNull(singleSecCache, "singleSecCache");
+    ArgumentChecker.notNull(multiSecCache, "multiSecCache");
     _underlying = underlying;
     CacheManager manager = EHCacheUtils.createCacheManager();
     EHCacheUtils.addCache(manager, singleSecCache);
@@ -130,10 +99,10 @@ public class EHCachingSecurityMaster implements SecurityMaster {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the underlying security master.
-   * @return the underlying security master, not null
+   * Gets the underlying source of securities.
+   * @return the underlying source of securities, not null
    */
-  public SecurityMaster getUnderlying() {
+  protected SecuritySource getUnderlying() {
     return _underlying;
   }
 
@@ -141,13 +110,14 @@ public class EHCachingSecurityMaster implements SecurityMaster {
    * Gets the cache manager.
    * @return the cache manager, not null
    */
-  /* package for testing */ CacheManager getCacheManager() {
+  protected CacheManager getCacheManager() {
     return _manager;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public synchronized Security getSecurity(UniqueIdentifier uid) {
+    ArgumentChecker.notNull(uid, "uid");
     Element e = _uidCache.get(uid);
     Security result = null;
     if (e != null) {
@@ -170,6 +140,7 @@ public class EHCachingSecurityMaster implements SecurityMaster {
   @SuppressWarnings("unchecked")
   @Override
   public Collection<Security> getSecurities(IdentifierBundle securityKey) {
+    ArgumentChecker.notNull(securityKey, "securityKey");
     Element e = _bundleCache.get(securityKey);
     Collection<Security> result = new HashSet<Security>();
     if (e != null) {
@@ -192,28 +163,24 @@ public class EHCachingSecurityMaster implements SecurityMaster {
   }
 
   @Override
-  public synchronized Security getSecurity(IdentifierBundle secKey) {
-    Collection<Security> matched = getSecurities(secKey);
+  public synchronized Security getSecurity(IdentifierBundle securityKey) {
+    ArgumentChecker.notNull(securityKey, "securityKey");
+    Collection<Security> matched = getSecurities(securityKey);
     if (matched.isEmpty()) {
       return null;
     }
     return matched.iterator().next();
   }
 
-  @Override
-  public Set<String> getAllSecurityTypes() {
-    return getUnderlying().getAllSecurityTypes();
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Refreshes the value for the specified security key.
-   * @param secKey  the security key, not null
+   * @param securityKey  the security key, not null
    */
   @SuppressWarnings("unchecked")
-  public void refresh(Object secKey) {
-    ArgumentChecker.notNull(secKey, "Security Key");
-    Element element = _bundleCache.get(secKey);
+  public void refresh(Object securityKey) {
+    ArgumentChecker.notNull(securityKey, "securityKey");
+    Element element = _bundleCache.get(securityKey);
     if (element != null) {
       Serializable value = element.getValue();
       if (value instanceof Collection<?>) {
@@ -222,9 +189,9 @@ public class EHCachingSecurityMaster implements SecurityMaster {
           _uidCache.remove(sec.getUniqueIdentifier());
         }
       }
-      _bundleCache.remove(secKey);
+      _bundleCache.remove(securityKey);
     } else {
-      _uidCache.remove(secKey);
+      _uidCache.remove(securityKey);
     }
   }
 

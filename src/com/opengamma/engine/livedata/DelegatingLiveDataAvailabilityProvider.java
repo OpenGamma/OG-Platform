@@ -11,14 +11,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.DelegateByScheme;
+import com.opengamma.id.UniqueIdentifierSchemeDelegator;
 
 /**
  * A {@link LiveDataAvailabilityProvider} implementation which allows the scheme of any requested {@link ValueRequirement}
  * to control which underlying {@code LiveDataAvailabilityProvider} is used. If the scheme is not recognized, a default
  * is used.
  */
-public class DelegatingLiveDataAvailabilityProvider extends DelegateByScheme<LiveDataAvailabilityProvider> implements
+public class DelegatingLiveDataAvailabilityProvider extends UniqueIdentifierSchemeDelegator<LiveDataAvailabilityProvider> implements
     LiveDataAvailabilityProvider {
   
   private static final Logger s_logger = LoggerFactory.getLogger(DelegatingLiveDataAvailabilityProvider.class);

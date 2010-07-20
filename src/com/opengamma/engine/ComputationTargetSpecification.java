@@ -15,7 +15,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.id.Identifiable;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifiable;
@@ -53,7 +53,7 @@ public final class ComputationTargetSpecification implements Serializable {
    * 
    * @param target  the target to create a specification for, may be null
    */
-  public ComputationTargetSpecification(Object target) {
+  public ComputationTargetSpecification(final Object target) {
     _type = ComputationTargetType.determineFromTarget(target);
     switch (_type) {
       case PORTFOLIO_NODE:
@@ -66,10 +66,10 @@ public final class ComputationTargetSpecification implements Serializable {
         if (target instanceof UniqueIdentifiable) {
           _uid = ((UniqueIdentifiable) target).getUniqueIdentifier();
         } else if (target instanceof Identifiable) {
-          Identifier id = ((Identifiable) target).getIdentityKey();
+          final Identifier id = ((Identifiable) target).getIdentityKey();
           _uid = UniqueIdentifier.of(id.getScheme().getName(), id.getValue());
         } else if (target instanceof Identifier) {
-          Identifier id = (Identifier) target;
+          final Identifier id = (Identifier) target;
           _uid = UniqueIdentifier.of(id.getScheme().getName(), id.getValue());
         } else {
           _uid = null;
@@ -86,7 +86,7 @@ public final class ComputationTargetSpecification implements Serializable {
    * @param targetType the type of the target, not null
    * @param uid  the target identifier, may be null
    */
-  public ComputationTargetSpecification(ComputationTargetType targetType, UniqueIdentifier uid) {
+  public ComputationTargetSpecification(final ComputationTargetType targetType, final UniqueIdentifier uid) {
     ArgumentChecker.notNull(targetType, "target type");
     if (targetType != ComputationTargetType.PRIMITIVE) {
       ArgumentChecker.notNull(uid, "identifier");
@@ -124,15 +124,43 @@ public final class ComputationTargetSpecification implements Serializable {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the required live data specification.
+   * <p>
+   * This method can only be called for primitives and securities.
+   * For positions and nodes, there is no live data market line that would directly value
+   * positions or porfolios.
+   * 
+   * @param securitySource  the source used to look up {@link Security} objects, not null
+   * @return the specification of live data that directly produces a value for this computation target, not null
+   * @throws OpenGammaRuntimeException If there is no live data directly corresponding to the target
+   */
+  public LiveDataSpecification getRequiredLiveData(final SecuritySource securitySource) {
+    switch(getType()) {
+      case PRIMITIVE:
+        // Just use the identifier as given.
+        return new LiveDataSpecification(StandardRules.getOpenGammaRuleSetId(), getIdentifier());
+      case SECURITY:
+        final Security security = securitySource.getSecurity(getUniqueIdentifier());
+        if (security == null) {
+          throw new OpenGammaRuntimeException("Unknown security in configured security source: " + getIdentifier());
+        }
+        // Package up the other identifiers
+        return new LiveDataSpecification(StandardRules.getOpenGammaRuleSetId(), security.getIdentifiers());
+      default:
+        throw new OpenGammaRuntimeException("No LiveData is needed to for " + this);
+    }
+  }
+
+  //-------------------------------------------------------------------------
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
     if (obj instanceof ComputationTargetSpecification) {
       ComputationTargetSpecification other = (ComputationTargetSpecification) obj;
-      return _type == other._type &&
-          ObjectUtils.equals(_uid, other._uid);
+      return _type == other._type && ObjectUtils.equals(_uid, other._uid);
     }
     return false;
   }
@@ -160,44 +188,20 @@ public final class ComputationTargetSpecification implements Serializable {
   }
 
   //-------------------------------------------------------------------------
-  public void toFudgeMsg(FudgeMessageFactory fudgeContext, MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg(final FudgeMessageFactory fudgeContext, final MutableFudgeFieldContainer msg) {
     msg.add(TYPE_FIELD_NAME, _type.name());
-    FudgeFieldContainer identifierMsg = _uid.toFudgeMsg(fudgeContext);
-    msg.add(IDENTIFIER_FIELD_NAME, identifierMsg);
+    if (_uid != null) {
+      msg.add(IDENTIFIER_FIELD_NAME, _uid.toFudgeMsg(fudgeContext));
+    }
   }
 
-  public static ComputationTargetSpecification fromFudgeMsg(FudgeFieldContainer msg) {
-    ComputationTargetType type = ComputationTargetType.valueOf(msg.getString(TYPE_FIELD_NAME));
-    UniqueIdentifier uid = UniqueIdentifier.fromFudgeMsg(msg.getMessage(IDENTIFIER_FIELD_NAME));
-    return new ComputationTargetSpecification(type, uid);
-  }
-  
-  /**
-   * @param securityMaster Used to look up {@link Security} objects
-   * @return LiveData market data line that directly produces a value for
-   * this computation target.
-   * @throws OpenGammaRuntimeException If there is no LiveData directly corresponding
-   * to this computation target. This will be the case, in particular, if 
-   * this computation target is a {@link ComputationTargetType#POSITION} or 
-   * {@link ComputationTargetType#PORTFOLIO_NODE}, because
-   * there is no LiveData market data line that would directly value
-   * positions or porfolios.    
-   */
-  public LiveDataSpecification getRequiredLiveData(SecurityMaster securityMaster) {
-    switch(getType()) {
-      case PRIMITIVE:
-        // Just use the identifier as given.
-        return new LiveDataSpecification(StandardRules.getOpenGammaRuleSetId(), getIdentifier());
-      case SECURITY:
-        Security security = securityMaster.getSecurity(getUniqueIdentifier());
-        if (security == null) {
-          throw new OpenGammaRuntimeException("Unknown security in configured security master: " + getIdentifier());
-        }
-        // Package up the other identifiers
-        return new LiveDataSpecification(StandardRules.getOpenGammaRuleSetId(), security.getIdentifiers());
-      default:
-        throw new OpenGammaRuntimeException("No LiveData is needed to for " + this);
+  public static ComputationTargetSpecification fromFudgeMsg(final FudgeFieldContainer msg) {
+    final ComputationTargetType type = ComputationTargetType.valueOf(msg.getString(TYPE_FIELD_NAME));
+    UniqueIdentifier uid = null;
+    if (msg.hasField(IDENTIFIER_FIELD_NAME)) {
+      uid = UniqueIdentifier.fromFudgeMsg(msg.getMessage(IDENTIFIER_FIELD_NAME));
     }
+    return new ComputationTargetSpecification(type, uid);
   }
 
 }

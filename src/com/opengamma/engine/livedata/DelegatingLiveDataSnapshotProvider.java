@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.DelegateByScheme;
+import com.opengamma.id.UniqueIdentifierSchemeDelegator;
 import com.opengamma.livedata.msg.UserPrincipal;
 
 /**
@@ -22,7 +22,7 @@ import com.opengamma.livedata.msg.UserPrincipal;
  * to control which underlying {@code LiveDataSnapshotProvider} is used for subscriptions. If the scheme is not recognized,
  * a default is used. When a snapshot is taken, a composite of all underlying {@code LiveDataSnapshotProvider}s is taken.
  */
-public class DelegatingLiveDataSnapshotProvider extends DelegateByScheme<LiveDataSnapshotProvider> implements
+public class DelegatingLiveDataSnapshotProvider extends UniqueIdentifierSchemeDelegator<LiveDataSnapshotProvider> implements
     LiveDataSnapshotProvider {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DelegatingLiveDataSnapshotProvider.class);
@@ -71,7 +71,7 @@ public class DelegatingLiveDataSnapshotProvider extends DelegateByScheme<LiveDat
       final Map<LiveDataSnapshotProvider, Long> providerMap = new HashMap<LiveDataSnapshotProvider, Long>();
       LiveDataSnapshotProvider defaultDelegate = getDefaultDelegate();
       providerMap.put(defaultDelegate, defaultDelegate.snapshot());
-      for (LiveDataSnapshotProvider delegate : getDelegates()) {
+      for (LiveDataSnapshotProvider delegate : getDelegates().values()) {
         providerMap.put(delegate, delegate.snapshot());
       }
       final long snapshotTime = System.currentTimeMillis();

@@ -175,10 +175,10 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
    */
   public void reloadPortfolio() {
     OperationTimer timer = new OperationTimer(s_logger, "Reloading portfolio {}", getDefinition().getPortfolioId());
-    Portfolio portfolio = getProcessingContext().getPositionMaster().getPortfolio(getDefinition().getPortfolioId());
+    Portfolio portfolio = getProcessingContext().getPositionSource().getPortfolio(getDefinition().getPortfolioId());
     if (portfolio == null) {
       throw new OpenGammaRuntimeException("Unable to resolve portfolio " + getDefinition().getPortfolioId() +
-          " in position master " + getProcessingContext().getPositionMaster());
+          " in position source " + getProcessingContext().getPositionSource());
     }
     PortfolioEvaluationModel portfolioEvaluationModel = new PortfolioEvaluationModel(portfolio);
     portfolioEvaluationModel.init(
@@ -503,7 +503,7 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     Set<ValueRequirement> requiredValues = getPortfolioEvaluationModel().getAllLiveDataRequirements();
     Collection<LiveDataSpecification> requiredLiveData = ValueRequirement.getRequiredLiveData(
         requiredValues, 
-        getProcessingContext().getSecurityMaster());
+        getProcessingContext().getSecuritySource());
     
     s_logger.info("Checking that {} is entitled to the results of {}", user, this);
     Map<LiveDataSpecification, Boolean> entitlements = getProcessingContext().getLiveDataEntitlementChecker().isEntitled(user, requiredLiveData);

@@ -15,17 +15,17 @@ import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
-import com.opengamma.engine.position.PositionMaster;
+import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A standard implementation of {@code ComputationTargetResolver} that resolves
- * from a target specification to a real target.
+ * A computation target resolver implementation that resolves using a security and position source.
  * <p>
- * This implementation satisfies results using an injected security and position master.
+ * This is the standard implementation that resolves from a target specification to a real target.
+ * It provides results using a security and position source.
  */
 public class DefaultComputationTargetResolver implements ComputationTargetResolver {
 
@@ -33,14 +33,13 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
   private static final Logger s_logger = LoggerFactory.getLogger(DefaultComputationTargetResolver.class);
 
   /**
-   * The security master.
+   * The security source.
    */
-  private final SecurityMaster _securityMaster;
+  private final SecuritySource _securitySource;
   /**
-   * The position master.
+   * The position source.
    */
-  private final PositionMaster _positionMaster;
-
+  private final PositionSource _positionSource;
   /**
    * Delegate {@code ComputationTargetResolver} for resolving the security for a position, and underlying
    * nodes of multiple-positions. Defaults to this object, but can be changed to the {@code CachingComputationTargetResolver}
@@ -50,60 +49,68 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
   private ComputationTargetResolver _recursiveResolver = this;
 
   /**
-   * Creates a resolver using a security and position master.
-   * @param securityMaster  the security master, not null
-   * @param positionMaster  the position master, not null
+   * Creates a resolver using a security and position source.
+   * @param securitySource  the security source, not null
+   * @param positionSource  the position source, not null
    */
-  public DefaultComputationTargetResolver(SecurityMaster securityMaster, PositionMaster positionMaster) {
-    ArgumentChecker.notNull(securityMaster, "Security Master");
-    ArgumentChecker.notNull(positionMaster, "Position master");
-    _securityMaster = securityMaster;
-    _positionMaster = positionMaster;
+  public DefaultComputationTargetResolver(final SecuritySource securitySource, final PositionSource positionSource) {
+    ArgumentChecker.notNull(securitySource, "securitySource");
+    ArgumentChecker.notNull(positionSource, "positionSource");
+    _securitySource = securitySource;
+    _positionSource = positionSource;
   }
 
   //-------------------------------------------------------------------------
-
-  public void setRecursiveResolver(final ComputationTargetResolver recursiveResolver) {
-    ArgumentChecker.notNull(recursiveResolver, "Computation Target Resolver");
-    _recursiveResolver = recursiveResolver;
-  }
-
+  /**
+   * Gets the recursive resolver.
+   * @return the recursive resolver, not null
+   */
   public ComputationTargetResolver getRecursiveResolver() {
     return _recursiveResolver;
   }
 
-  //-------------------------------------------------------------------------
   /**
-   * Gets the security master which holds details of all securities in the system.
-   * @return the security master, not null
+   * Sets the recursive resolver.
+   * This might be used to add a caching resolver.
+   * @param recursiveResolver  the recursive resolver, not null
    */
-  public SecurityMaster getSecurityMaster() {
-    return _securityMaster;
-  }
-
-  /**
-   * Gets the position master which holds details of all positions in the system.
-   * @return the position master, not null
-   */
-  public PositionMaster getPositionMaster() {
-    return _positionMaster;
+  public void setRecursiveResolver(final ComputationTargetResolver recursiveResolver) {
+    ArgumentChecker.notNull(recursiveResolver, "recursiveResolver");
+    _recursiveResolver = recursiveResolver;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Resolves the specification using the security and position masters..
+   * Gets the security source which provides access to the securities.
+   * @return the security source, not null
+   */
+  public SecuritySource getSecuritySource() {
+    return _securitySource;
+  }
+
+  /**
+   * Gets the position source which provides access to the positions.
+   * @return the position source, not null
+   */
+  public PositionSource getPositionSource() {
+    return _positionSource;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Resolves the specification using the security and position sources.
    * @param specification  the specification to resolve, not null
    * @return the resolved target, null if not found
    */
   @Override
-  public ComputationTarget resolve(ComputationTargetSpecification specification) {
+  public ComputationTarget resolve(final ComputationTargetSpecification specification) {
     UniqueIdentifier uid = specification.getUniqueIdentifier();
     switch (specification.getType()) {
       case PRIMITIVE: {
         return new ComputationTarget(specification.getType(), uid);
       }
       case SECURITY: {
-        Security security = getSecurityMaster().getSecurity(uid);
+        final Security security = getSecuritySource().getSecurity(uid);
         if (security == null) {
           s_logger.info("Unable to resolve security UID {}", uid);
           return null;
@@ -112,14 +119,14 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
         return new ComputationTarget(ComputationTargetType.SECURITY, security);
       }
       case POSITION: {
-        Position position = getPositionMaster().getPosition(uid);
+        Position position = getPositionSource().getPosition(uid);
         if (position == null) {
           s_logger.info("Unable to resolve position UID {}", uid);
           return null;
         }
         s_logger.info("Resolved position UID {} to position {}", uid, position);
         if (position.getSecurity() == null) {
-          Security security = getSecurityMaster().getSecurity(position.getSecurityKey());
+          Security security = getSecuritySource().getSecurity(position.getSecurityKey());
           if (security == null) {
             s_logger.warn("Unable to resolve security ID {} for position UID {}", position.getSecurityKey(), uid);
           } else {
@@ -131,12 +138,12 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
         return new ComputationTarget(ComputationTargetType.POSITION, position);
       }
       case PORTFOLIO_NODE: {
-        PortfolioNode node = getPositionMaster().getPortfolioNode(uid);
+        PortfolioNode node = getPositionSource().getPortfolioNode(uid);
         if (node != null) {
           s_logger.info("Resolved multiple-position UID {} to portfolio node {}", uid, node);
           return new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, resolvePortfolioNode(uid, node));
         }
-        final Portfolio portfolio = getPositionMaster().getPortfolio(uid);
+        final Portfolio portfolio = getPositionSource().getPortfolio(uid);
         if (portfolio != null) {
           s_logger.info("Resolved multiple-position UID {} to portfolio {}", uid, portfolio);
           node = portfolio.getRootNode();

@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.ComputationTargetResolverAdapter;
+import com.opengamma.engine.ForwardingComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -42,7 +42,7 @@ import com.opengamma.engine.position.PortfolioNodeTraverser;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.IdentifierBundle;
@@ -132,7 +132,7 @@ public class PortfolioEvaluationModel {
     return _graphsByConfiguration.get(calcConfigName);
   }
   
-  private class ResolvedSecurityComputationTargetResolver extends ComputationTargetResolverAdapter {
+  private class ResolvedSecurityComputationTargetResolver extends ForwardingComputationTargetResolver {
     
     private final Map<UniqueIdentifier, Position> _positionsByUID = new HashMap<UniqueIdentifier, Position>();
     private final Map<UniqueIdentifier, Security> _securitiesByUID = new HashMap<UniqueIdentifier, Security>();
@@ -243,7 +243,7 @@ public class PortfolioEvaluationModel {
         failed = true;
         s_logger.warn("Had null security key in at least one position");
       } else {
-        completionService.submit(new SecurityResolutionJob(viewCompilationServices.getSecurityMaster(), secKey), secKey);
+        completionService.submit(new SecurityResolutionJob(viewCompilationServices.getSecuritySource(), secKey), secKey);
       }
     }
     for (int i = 0; i < securityKeys.size(); i++) {
@@ -271,16 +271,14 @@ public class PortfolioEvaluationModel {
   
   /**
    * A small job that can be run in an executor to resolve a security against
-   * a {@link SecurityMaster}.
+   * a {@link SecuritySource}.
    */
   protected class SecurityResolutionJob implements Runnable {
-    private final SecurityMaster _securityMaster;
+    private final SecuritySource _securitySource;
     private final IdentifierBundle _securityKey;
     
-    public SecurityResolutionJob(
-        SecurityMaster securityMaster,
-        IdentifierBundle securityKey) {
-      _securityMaster = securityMaster;
+    public SecurityResolutionJob(SecuritySource securitySource, IdentifierBundle securityKey) {
+      _securitySource = securitySource;
       _securityKey = securityKey;
     }
     
@@ -288,7 +286,7 @@ public class PortfolioEvaluationModel {
     public void run() {
       Security security = null;
       try {
-        security = _securityMaster.getSecurity(_securityKey);
+        security = _securitySource.getSecurity(_securityKey);
       } catch (Exception e) {
         throw new OpenGammaRuntimeException("Exception while resolving SecurityKey " + _securityKey, e);
       }
@@ -306,7 +304,7 @@ public class PortfolioEvaluationModel {
     for (Position position : node.getPositions()) {
       if (position.getSecurity() != null) {
         // Nothing to do here; they pre-resolved the security.
-        s_logger.debug("Security pre-resolved by PositionMaster for {}", position.getUniqueIdentifier());
+        s_logger.debug("Security pre-resolved by PositionSource for {}", position.getUniqueIdentifier());
       } else if (position.getSecurityKey() != null) {
         result.add(position.getSecurityKey());
       } else {

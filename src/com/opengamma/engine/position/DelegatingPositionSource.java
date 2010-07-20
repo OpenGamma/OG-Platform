@@ -9,27 +9,27 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.opengamma.id.DelegateByScheme;
+import com.opengamma.id.UniqueIdentifierSchemeDelegator;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A {@link PositionMaster} implementation which allows the scheme of the incoming {@link UniqueIdentifier} to control
- * which underlying {@link PositionMaster} will handle the request. If no scheme-specific handler has been registered,
- * a default is used.
+ * A source of positions that uses the scheme of the unique identifier to determine which
+ * underlying source should handle the request.
+ * <p>
+ * If no scheme-specific handler has been registered, a default is used.
  */
-public class DelegatingPositionMaster extends DelegateByScheme<PositionMaster> implements PositionMaster {
+public class DelegatingPositionSource extends UniqueIdentifierSchemeDelegator<PositionSource> implements PositionSource {
 
   /**
-   * Constructs a new {@link DelegatingPositionMaster}.
-   * 
-   * @param defaultMaster  the {@link PositionMaster} on which to fall back when no registered schemes match that of
-   *                       an incoming UniqueIdentifier.
+   * Creates a new instance with a default source of securities.
+   * @param defaultSource  the default source to fall back to, not null
    */
-  public DelegatingPositionMaster(PositionMaster defaultMaster) {
-    super(defaultMaster);
+  public DelegatingPositionSource(PositionSource defaultSource) {
+    super(defaultSource);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Portfolio getPortfolio(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
@@ -51,9 +51,10 @@ public class DelegatingPositionMaster extends DelegateByScheme<PositionMaster> i
   @Override
   public Set<UniqueIdentifier> getPortfolioIds() {
     Set<UniqueIdentifier> result = new HashSet<UniqueIdentifier>(getDefaultDelegate().getPortfolioIds());
-    for (PositionMaster delegateMaster : getDelegates()) {
+    for (PositionSource delegateMaster : getDelegates().values()) {
       result.addAll(delegateMaster.getPortfolioIds());
     }
     return Collections.unmodifiableSet(result);
   }
+
 }
