@@ -54,5 +54,8 @@ public class RelativeOutperformanceOptionModelTest {
     option = new RelativeOutperformanceOptionDefinition(0.5, EXPIRY, true);
     data = data.withCorrelation(0);
     assertEquals(MODEL.getPricingFunction(option).evaluate(data), 0.8449, EPS);
+    option = new RelativeOutperformanceOptionDefinition(1, EXPIRY, true);
+    data = data.withCorrelation(0.5);
+    assertEquals(MODEL.getPricingFunction(option).evaluate(data), 0.3382, EPS);
   }
 }

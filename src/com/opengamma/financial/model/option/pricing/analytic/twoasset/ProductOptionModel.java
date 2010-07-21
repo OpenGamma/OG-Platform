@@ -7,7 +7,7 @@ package com.opengamma.financial.model.option.pricing.analytic.twoasset;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.model.option.definition.twoasset.RelativeOutperformanceOptionDefinition;
+import com.opengamma.financial.model.option.definition.twoasset.ProductOptionDefinition;
 import com.opengamma.financial.model.option.definition.twoasset.StandardTwoAssetOptionDataBundle;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
@@ -16,11 +16,11 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 /**
  * 
  */
-public class RelativeOutperformanceOptionModel extends TwoAssetAnalyticOptionModel<RelativeOutperformanceOptionDefinition, StandardTwoAssetOptionDataBundle> {
+public class ProductOptionModel extends TwoAssetAnalyticOptionModel<ProductOptionDefinition, StandardTwoAssetOptionDataBundle> {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   @Override
-  public Function1D<StandardTwoAssetOptionDataBundle, Double> getPricingFunction(final RelativeOutperformanceOptionDefinition definition) {
+  public Function1D<StandardTwoAssetOptionDataBundle, Double> getPricingFunction(final ProductOptionDefinition definition) {
     Validate.notNull(definition, "definition");
     return new Function1D<StandardTwoAssetOptionDataBundle, Double>() {
 
@@ -38,15 +38,15 @@ public class RelativeOutperformanceOptionModel extends TwoAssetAnalyticOptionMod
         final double sigma1 = data.getFirstVolatility(t, k);
         final double sigma2 = data.getSecondVolatility(t, k);
         final double rho = data.getCorrelation();
-        final double sigma = Math.sqrt(sigma1 * sigma1 + sigma2 * sigma2 - 2 * rho * sigma1 * sigma2);
+        final double sigma = Math.sqrt(sigma1 * sigma1 + sigma2 * sigma2 + 2 * rho * sigma1 * sigma2);
         final double sigmaT = sigma * Math.sqrt(t);
-        final double f = s1 * Math.exp(t * (b1 - b2 + sigma2 * sigma2 - rho * sigma1 * sigma2)) / s2;
+        final double f = s1 * s2 * Math.exp(t * (b1 + b2 + rho * sigma1 * sigma2));
         final double d1 = (Math.log(f / k) + t * sigma * sigma / 2) / sigmaT;
         final double d2 = d1 - sigmaT;
         final int sign = definition.isCall() ? 1 : -1;
         return Math.exp(-r * t) * sign * (f * NORMAL.getCDF(sign * d1) - k * NORMAL.getCDF(sign * d2));
       }
+
     };
   }
-
 }
