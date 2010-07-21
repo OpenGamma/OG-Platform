@@ -523,6 +523,12 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       DistributionSpecification distributionSpec = getDistributionSpecificationResolver()
         .getDistributionSpecification(liveDataSpecFromClient);
       FudgeFieldContainer normalizedMsg = distributionSpec.getNormalizedMessage(msg);
+      if (normalizedMsg == null) {
+        throw new IllegalArgumentException("When snapshot for " + securityUniqueId + 
+            " was run through normalization, the message disappeared. This indicates there" +
+            " are buggy normalization rules in place, or that buggy (or unexpected) data was received from" +
+            " the underlying market data API. Check your normalization rules. Raw, unnormalized msg = " + msg);
+      }
       
       LiveDataValueUpdateBean snapshot = new LiveDataValueUpdateBean(0, distributionSpec.getFullyQualifiedLiveDataSpecification(), normalizedMsg);
       returnValue.put(liveDataSpecFromClient, snapshot);
