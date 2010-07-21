@@ -29,32 +29,27 @@ public class IndicativeValueCalculator implements NormalizationRule {
     
     FudgeFieldContainer lkv = fieldHistory.getLastKnownValues();
     
-    Double lastKnownBid = lkv.getDouble(BID);
-    Double lastKnownAsk = lkv.getDouble(ASK);
+    Double bid = msg.getDouble(BID);
+    if (bid == null) {
+      bid = lkv.getDouble(BID);
+    }
+    
+    Double ask = msg.getDouble(ASK);
+    if (ask == null) {
+      ask = lkv.getDouble(ASK);
+    }
     
     // If we have seen bid & ask in the past, use bid & ask midpoint.
-    if (lastKnownBid != null && lastKnownAsk != null) {
-      
-      Double bid = msg.getDouble(BID);
-      Double ask = msg.getDouble(ASK);
-      
-      // Not a bid/ask update at all?
-      if (bid == null && ask == null) {
-        return lastKnownIndicativeValue(msg, fieldHistory);
-      }
-      
-      // If only bid or ask was updated, fill in the other one from history.
-      if (bid == null) {
-        bid = lastKnownBid;
-      }
-      if (ask == null) {
-        ask = lastKnownAsk;
-      }
+    if (bid != null && ask != null) {
       
       // Too big of a spread for midpoint to be meaningful?
       if (Math.abs(bid) > TOLERANCE && (Math.abs(ask - bid) / Math.abs(bid) > MAX_ACCEPTABLE_SPREAD_TO_USE_MIDPOINT)) {
         // Try to resort to last, though if this fails use midpoint anyway.
         Double last = lkv.getDouble(LAST);
+        if (last == null) {
+          last = msg.getDouble(LAST);
+        }
+        
         if (last != null) {
           // Ok, last was found. But let's make sure that it's within the bid/ask boundaries.
           if (last < bid) {

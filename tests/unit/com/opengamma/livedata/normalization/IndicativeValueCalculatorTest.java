@@ -16,7 +16,6 @@ import com.opengamma.livedata.server.FieldHistoryStore;
 /**
  * 
  *
- * @author pietari
  */
 public class IndicativeValueCalculatorTest {
   
@@ -86,6 +85,25 @@ public class IndicativeValueCalculatorTest {
   }
   
   @Test
+  public void bigSpreadHistory() {
+    IndicativeValueCalculator calculator = new IndicativeValueCalculator();
+    
+    MutableFudgeFieldContainer historicalMsg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    historicalMsg.add(MarketDataRequirementNames.LAST, 50.52);
+    
+    FieldHistoryStore store = new FieldHistoryStore();
+    store.liveDataReceived(historicalMsg);
+    
+    MutableFudgeFieldContainer msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    msg.add(MarketDataRequirementNames.BID, 50.0);
+    msg.add(MarketDataRequirementNames.ASK, 100.0);
+    
+    MutableFudgeFieldContainer normalized = calculator.apply(msg, store);
+    assertEquals(3, normalized.getAllFields().size());
+    assertEquals(50.52, normalized.getDouble(MarketDataRequirementNames.INDICATIVE_VALUE), 0.0001);
+  }
+  
+  @Test
   public void bigSpreadLowLast() {
     IndicativeValueCalculator calculator = new IndicativeValueCalculator();
     
@@ -120,7 +138,7 @@ public class IndicativeValueCalculatorTest {
   }
   
   @Test
-  public void useHistoricalIndicativeValue() {
+  public void useHistoricalBidAsk() {
     IndicativeValueCalculator calculator = new IndicativeValueCalculator();
     
     MutableFudgeFieldContainer historicalMsg = FudgeContext.GLOBAL_DEFAULT.newMessage();
@@ -136,7 +154,7 @@ public class IndicativeValueCalculatorTest {
     
     MutableFudgeFieldContainer normalized = calculator.apply(newMsg, store);
     assertEquals(2, normalized.getAllFields().size());
-    assertEquals(50.52, normalized.getDouble(MarketDataRequirementNames.INDICATIVE_VALUE), 0.0001);
+    assertEquals(50.5, normalized.getDouble(MarketDataRequirementNames.INDICATIVE_VALUE), 0.0001);
   }
   
   @Test

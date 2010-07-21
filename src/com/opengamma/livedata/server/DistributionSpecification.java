@@ -94,7 +94,7 @@ public class DistributionSpecification {
    * @return A normalized message, calculated assuming there is no market data history.
    */
   public FudgeFieldContainer getNormalizedMessage(FudgeFieldContainer msg) {
-    FieldHistoryStore history = new FieldHistoryStore(msg);
+    FieldHistoryStore history = new FieldHistoryStore();
     return getNormalizedMessage(msg, history);  
   }
   
