@@ -350,26 +350,18 @@ public class SecurityMasterTestCase implements SecurityMasterTestCaseMethods {
   @Test
   @Override
   public void update() {
-
     final EquitySecurity sec = new EquitySecurity("NEW YORK STOCK EXCHANGE", "NYSE", "General Motors", SecurityTestUtils.USD);
     sec.setGicsCode(GICSCode.getInstance(25102010));
     sec.setTicker("GM US Equity");
     sec.setName("General Motors");
     sec.setIdentifiers(new IdentifierBundle(Identifier.of("BLOOMBERG", "GM US Equity")));
-
-    // TODO: THIS IS WRONG!!! an update is not two puts, there are separate add and update methods on the interface
-
     final UniqueIdentifier uid1 = putSecurity(sec);
-
     sec.setCompanyName("Big Motors");
-
     final SecurityDocument update = new SecurityDocument();
     update.setSecurity(sec);
     update.setUniqueIdentifier(uid1);
     final UniqueIdentifier uid2 = _secMaster.update(update).getUniqueIdentifier();
-
     assertEquals(uid1.toLatest(), uid2.toLatest());
-
     final EquitySecurity loaded1 = (EquitySecurity) getSecurity(uid1);
     assertEquals("General Motors", loaded1.getCompanyName());
 

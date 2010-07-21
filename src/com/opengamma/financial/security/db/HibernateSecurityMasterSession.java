@@ -12,6 +12,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.security.Security;
+import com.opengamma.financial.security.db.bond.CouponTypeBean;
+import com.opengamma.financial.security.db.bond.GuaranteeTypeBean;
+import com.opengamma.financial.security.db.bond.IssuerTypeBean;
+import com.opengamma.financial.security.db.bond.MarketBean;
+import com.opengamma.financial.security.db.bond.YieldConventionBean;
+import com.opengamma.financial.security.db.equity.GICSCodeBean;
+import com.opengamma.financial.security.db.future.BondFutureTypeBean;
+import com.opengamma.financial.security.db.future.CashRateTypeBean;
+import com.opengamma.financial.security.db.future.CommodityFutureTypeBean;
+import com.opengamma.financial.security.db.future.FutureBundleBean;
+import com.opengamma.financial.security.db.future.FutureSecurityBean;
+import com.opengamma.financial.security.db.future.UnitBean;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;

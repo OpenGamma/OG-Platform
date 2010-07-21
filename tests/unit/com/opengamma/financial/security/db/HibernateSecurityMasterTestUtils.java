@@ -8,6 +8,8 @@ package com.opengamma.financial.security.db;
 import java.util.Date;
 
 import com.opengamma.financial.security.SecurityTestUtils;
+import com.opengamma.financial.security.db.equity.EquitySecurityBean;
+import com.opengamma.financial.security.db.equity.GICSCodeBean;
 
 /**
  * Utility class that creates Test Objects 
@@ -32,9 +34,7 @@ import com.opengamma.financial.security.SecurityTestUtils;
   }
 
   public static GICSCodeBean makeGICSCodeBean(String name, String description) {
-    GICSCodeBean gicsCodeBean = new GICSCodeBean();
-    gicsCodeBean.setName(name);
-    gicsCodeBean.setDescription(description);
+    GICSCodeBean gicsCodeBean = new GICSCodeBean(name, description);
     return gicsCodeBean;
   }
 
