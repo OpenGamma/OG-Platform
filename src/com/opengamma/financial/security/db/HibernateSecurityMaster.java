@@ -31,9 +31,12 @@ import com.opengamma.financial.security.SecurityDocument;
 import com.opengamma.financial.security.SecuritySearchHistoricRequest;
 import com.opengamma.financial.security.SecuritySearchHistoricResult;
 import com.opengamma.financial.security.db.bond.BondSecurityBeanOperation;
+import com.opengamma.financial.security.db.cash.CashSecurityBeanOperation;
 import com.opengamma.financial.security.db.equity.EquitySecurityBeanOperation;
+import com.opengamma.financial.security.db.fra.FRASecurityBeanOperation;
 import com.opengamma.financial.security.db.future.FutureSecurityBeanOperation;
 import com.opengamma.financial.security.db.option.OptionSecurityBeanOperation;
+import com.opengamma.financial.security.db.swap.SwapSecurityBeanOperation;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
@@ -100,10 +103,14 @@ public class HibernateSecurityMaster extends AbstractSecurityMaster {
   }
 
   static {
+    // TODO 2010-07-21 Should we load these from a .properties file like the other factories
     loadBeanOperation(BondSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(CashSecurityBeanOperation.INSTANCE);
     loadBeanOperation(EquitySecurityBeanOperation.INSTANCE);
+    loadBeanOperation(FRASecurityBeanOperation.INSTANCE);
     loadBeanOperation(OptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(FutureSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(SwapSecurityBeanOperation.INSTANCE);
   }
 
   public void setSessionFactory(SessionFactory sessionFactory) {
