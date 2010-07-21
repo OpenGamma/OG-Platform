@@ -11,7 +11,9 @@ namespace com.opengamma.financial.security.fra {
     required string securityType [default = "FRA"];
     
     required datetime startDate;
+    required string startDate_zone [default = "UTC"];
     required datetime endDate;
+    required string endDate_zone [default = "UTC"];
 
     binding Java {
       body <<<JAVA

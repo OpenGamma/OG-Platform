@@ -1,0 +1,35 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.financial.security.swap {
+
+  /**
+   * Base class for swaps.
+   */
+  message SwapSecurity extends FinancialSecurity {
+  
+    required string securityType [default = "SWAP"];
+    
+    required datetime tradeDate;
+    required string tradeDate_zone [default = "UTC"];
+    required datetime effectiveDate;
+    required string effectiveDate_zone [default = "UTC"];
+    required datetime maturityDate;
+    required string maturityDate_zone [default = "UTC"];
+    required string counterparty;
+    required SwapLeg payLeg;
+    required SwapLeg receiveLeg;
+    
+    binding Java {
+      body <<<JAVA
+        public <T> T accept (SwapSecurityVisitor<T> visitor) { return visitor.visitSwapSecurity (this); }
+        public <T> T accept (com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitSwapSecurity (this); }
+JAVA;
+    }
+
+  }
+
+}

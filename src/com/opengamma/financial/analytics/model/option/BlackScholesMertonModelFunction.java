@@ -60,7 +60,7 @@ public class BlackScholesMertonModelFunction extends AnalyticOptionModelFunction
       
       SecuritySource secMaster = context.getSecuritySource();
       Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
-      
+
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
       requirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));

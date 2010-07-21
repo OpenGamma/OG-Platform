@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
@@ -116,8 +117,8 @@ public class SwapPortfolioImpliedFundingAndForwardCurveFunction extends Abstract
       swapSecurity = (SwapSecurity) position;
       payLeg = swapSecurity.getPayLeg();
       receiveLeg = swapSecurity.getReceiveLeg();
-      effectiveDate = swapSecurity.getEffectiveDate();
-      maturityDate = swapSecurity.getMaturityDate();
+      effectiveDate = ZonedDateTime.of(swapSecurity.getEffectiveDate(), TimeZone.of(swapSecurity.getEffectiveDate_zone()));
+      maturityDate = ZonedDateTime.of(swapSecurity.getMaturityDate(), TimeZone.of(swapSecurity.getMaturityDate_zone()));
       final double[] payLegPaymentTimes = SwapScheduleCalculator.getPaymentTimes(effectiveDate, maturityDate, payLeg, calendar, now);
       final double[] receiveLegPaymentTimes = SwapScheduleCalculator.getPaymentTimes(effectiveDate, maturityDate, receiveLeg, calendar, now);
       payFixed = payLeg instanceof FixedInterestRateLeg;
