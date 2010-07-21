@@ -50,9 +50,10 @@ public class FixedStrikeLookbackOptionModel extends AnalyticOptionModel<FixedStr
         final int sign = isCall ? 1 : -1;
         final double d1 = getD1(s, x, t, sigma, b);
         final double d2 = getD2(d1, sigma, t);
+        final double cdf1 = NORMAL.getCDF(sign * d1);
         return sign
-            * (df2 * (x - k) + s * df1 * NORMAL.getCDF(sign * d1) - x * df2 * NORMAL.getCDF(sign * d2) - s * df2 * sigma * sigma
-                * (Math.pow(s / x, -2 * b / sigma / sigma) * NORMAL.getCDF(sign * (d1 - 2 * b * Math.sqrt(t) / sigma)) - Math.exp(b * t) * NORMAL.getCDF(sign * d1)) / 2 / b);
+            * (df2 * (x - k) + s * df1 * cdf1 - x * df2 * NORMAL.getCDF(sign * d2) - s * df2 * sigma * sigma
+                * (Math.pow(s / x, -2 * b / sigma / sigma) * NORMAL.getCDF(sign * (d1 - 2 * b * Math.sqrt(t) / sigma)) - Math.exp(b * t) * cdf1) / 2 / b);
       }
 
     };
