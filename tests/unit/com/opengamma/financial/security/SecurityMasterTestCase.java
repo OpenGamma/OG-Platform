@@ -3,29 +3,13 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.security.db;
+package com.opengamma.financial.security;
 
-import static com.opengamma.financial.security.db.HibernateSecurityMasterTestUtils.AAPL_EQUITY_TICKER;
-import static com.opengamma.financial.security.db.HibernateSecurityMasterTestUtils.APV_EQUITY_OPTION_TICKER;
-import static com.opengamma.financial.security.db.HibernateSecurityMasterTestUtils.SPX_INDEX_OPTION_TICKER;
-import static com.opengamma.financial.security.db.HibernateSecurityMasterTestUtils.USD;
-import static com.opengamma.financial.security.db.HibernateSecurityMasterTestUtils.makeAPVLEquityOptionSecurity;
-import static com.opengamma.financial.security.db.HibernateSecurityMasterTestUtils.makeAUDUSDCurrencyFuture;
-import static com.opengamma.financial.security.db.HibernateSecurityMasterTestUtils.makeBloombergTickerIdentifier;
-import static com.opengamma.financial.security.db.HibernateSecurityMasterTestUtils.makeEthanolFuture;
-import static com.opengamma.financial.security.db.HibernateSecurityMasterTestUtils.makeEuroBondFuture;
-import static com.opengamma.financial.security.db.HibernateSecurityMasterTestUtils.makeExpectedAAPLEquitySecurity;
-import static com.opengamma.financial.security.db.HibernateSecurityMasterTestUtils.makeIndexFuture;
-import static com.opengamma.financial.security.db.HibernateSecurityMasterTestUtils.makeInterestRateFuture;
-import static com.opengamma.financial.security.db.HibernateSecurityMasterTestUtils.makeSPXIndexOptionSecurity;
-import static com.opengamma.financial.security.db.HibernateSecurityMasterTestUtils.makeSilverFuture;
-import static com.opengamma.financial.security.db.HibernateSecurityMasterTestUtils.makeWheatFuture;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -41,8 +25,6 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZoneOffset;
 import javax.time.calendar.ZonedDateTime;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -77,154 +59,133 @@ import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.test.HibernateTest;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 
 /**
- * Generic TestCase for HibernateSecurityMaster.
+ * Generic TestCase for a SecurityMaster implementation.
  */
-public abstract class HibernateSecurityMasterParentTestCase extends HibernateTest {
-  // Originally written as a generic test case for WriteableSecurityMaster, which was deleted
-  // needs refactoring with subclass
+public class SecurityMasterTestCase implements SecurityMasterTestCaseMethods {
 
   private static final String[] TEST_CURRENCIES = {"USD", "GBP", "YEN", "CHF"};
   private static final int TEST_FILLER_SIZE = 5;
   private final Random _random = new Random();
   private static final Clock s_clock = Clock.system(TimeZone.UTC);
 
-  /**
-   * @param databaseType
-   * @param databaseVersion
-   */
-  public HibernateSecurityMasterParentTestCase(final String databaseType, final String databaseVersion) {
-    super(databaseType, databaseVersion);
+  private final SecurityMaster _secMaster;
+
+  public SecurityMasterTestCase(final SecurityMaster secMaster) {
+    _secMaster = secMaster;
   }
 
-  private HibernateSecurityMaster _secMaster = null;
-
-  /**
-   * @throws java.lang.Exception
-   */
-  @Override
-  @Before
-  public void setUp() throws Exception {
-    super.setUp();
-    _secMaster = createSecurityMaster();
+  private final Security getSecurity(final IdentifierBundle identifiers) {
+    final SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setIdentifiers(identifiers);
+    final SecuritySearchResult result = _secMaster.search(request);
+    assertNotNull(result);
+    final List<SecurityDocument> documents = result.getDocuments();
+    assertNotNull(documents);
+    assertEquals(1, documents.size());
+    final SecurityDocument document = documents.get(0);
+    assertNotNull(document);
+    final Security security = document.getSecurity();
+    assertNotNull(security);
+    return security;
   }
 
-  protected abstract HibernateSecurityMaster createSecurityMaster();
+  private final Security getSecurity(final UniqueIdentifier uniqueIdentifier) {
+    final SecurityDocument document = _secMaster.get(uniqueIdentifier);
+    assertNotNull(document);
+    final Security security = document.getSecurity();
+    assertNotNull(security);
+    return security;
+  }
 
-  /**
-   * @throws java.lang.Exception
-   */
-  @Override
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-    _secMaster = null;
+  private final UniqueIdentifier putSecurity(final Security security) {
+    final SecurityDocument document = _secMaster.add(new SecurityDocument(security));
+    assertNotNull(document);
+    return document.getUniqueIdentifier();
   }
 
   @Test
+  @Override
   public void aaplEquityByBbgTicker() throws Exception {
     addRandomEquities();
-    final EquitySecurity aaplEquitySecurity = makeExpectedAAPLEquitySecurity();
-    _secMaster.putSecurity(new Date(), aaplEquitySecurity);
-    final IdentifierBundle equityKey = makeBloombergTickerIdentifier(AAPL_EQUITY_TICKER);
-    final Security security = _secMaster.getSecurity(equityKey);
+    final EquitySecurity aaplEquitySecurity = SecurityTestUtils.makeExpectedAAPLEquitySecurity();
+    putSecurity(aaplEquitySecurity);
+    final IdentifierBundle equityKey = SecurityTestUtils.makeBloombergTickerIdentifier(SecurityTestUtils.AAPL_EQUITY_TICKER);
+    final Security security = getSecurity(equityKey);
     assertEquitySecurity(aaplEquitySecurity, security);
   }
 
   @Test
+  @Override
   public void aaplEquityByUniqueIdentifier() throws Exception {
     addRandomEquities();
-    final EquitySecurity aaplEquitySecurity = makeExpectedAAPLEquitySecurity();
-    final UniqueIdentifier uniqueIdentifier = _secMaster.putSecurity(new Date(), aaplEquitySecurity);
-    final Security sec = _secMaster.getSecurity(uniqueIdentifier);
+    final EquitySecurity aaplEquitySecurity = SecurityTestUtils.makeExpectedAAPLEquitySecurity();
+    final UniqueIdentifier uniqueIdentifier = putSecurity(aaplEquitySecurity);
+    final Security sec = getSecurity(uniqueIdentifier);
     assertEquitySecurity(aaplEquitySecurity, sec);
   }
 
   @Test
-  public void aaplEquitiesByBbgTicker() throws Exception {
-    addRandomEquities();
-    final EquitySecurity aaplEquitySecurity = makeExpectedAAPLEquitySecurity();
-    _secMaster.putSecurity(new Date(), aaplEquitySecurity);
-    final IdentifierBundle equityKey = makeBloombergTickerIdentifier(AAPL_EQUITY_TICKER);
-    final Collection<Security> securities = _secMaster.getSecurities(equityKey);
-    assertNotNull(securities);
-    assertEquals(1, securities.size());
-    final Security sec = securities.iterator().next();
-    assertEquitySecurity(aaplEquitySecurity, sec);
-  }
-
-  @Test
+  @Override
   public void apvEquityOptionByBbgTicker() throws Exception {
     addRandomEquityOptions();
-    final EquityOptionSecurity expectedOption = makeAPVLEquityOptionSecurity();
-    _secMaster.putSecurity(new Date(), expectedOption);
-    final IdentifierBundle equityOptionKey = new IdentifierBundle(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, APV_EQUITY_OPTION_TICKER));
-    final Security sec = _secMaster.getSecurity(equityOptionKey);
+    final EquityOptionSecurity expectedOption = SecurityTestUtils.makeAPVLEquityOptionSecurity();
+    putSecurity(expectedOption);
+    final IdentifierBundle equityOptionKey = SecurityTestUtils.makeBloombergTickerIdentifier(SecurityTestUtils.APV_EQUITY_OPTION_TICKER);
+    final Security sec = getSecurity(equityOptionKey);
     assertAmericanVanillaEquityOptionSecurity(expectedOption, sec);
   }
 
   @Test
+  @Override
   public void spxIndexOptionByBbgTicker() throws Exception {
     addRandomEquityOptions();
-    final EquityOptionSecurity spxIndexOptionSecurity = makeSPXIndexOptionSecurity();
-    _secMaster.putSecurity(new Date(), spxIndexOptionSecurity);
-    final IdentifierBundle indexOptionKey = new IdentifierBundle(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, SPX_INDEX_OPTION_TICKER));
-    final Security sec = _secMaster.getSecurity(indexOptionKey);
+    final EquityOptionSecurity spxIndexOptionSecurity = SecurityTestUtils.makeSPXIndexOptionSecurity();
+    putSecurity(spxIndexOptionSecurity);
+    final IdentifierBundle indexOptionKey = SecurityTestUtils.makeBloombergTickerIdentifier(SecurityTestUtils.SPX_INDEX_OPTION_TICKER);
+    final Security sec = getSecurity(indexOptionKey);
     assertEuropeanVanillaEquityOptionSecurity(spxIndexOptionSecurity, sec);
   }
 
   @Test
+  @Override
   public void spxIndexOptionByBbgUnique() throws Exception {
     addRandomEquityOptions();
-    final EquityOptionSecurity spxIndexOptionSecurity = makeSPXIndexOptionSecurity();
-    final UniqueIdentifier uniqueIdentifier = _secMaster.putSecurity(new Date(), spxIndexOptionSecurity);
-    final Security sec = _secMaster.getSecurity(uniqueIdentifier);
+    final EquityOptionSecurity spxIndexOptionSecurity = SecurityTestUtils.makeSPXIndexOptionSecurity();
+    final UniqueIdentifier uniqueIdentifier = putSecurity(spxIndexOptionSecurity);
+    final Security sec = getSecurity(uniqueIdentifier);
     assertEuropeanVanillaEquityOptionSecurity(spxIndexOptionSecurity, sec);
   }
 
   @Test
-  // note that this code will roll over in 18-12-2010, the test values need to change
-  public void spxIndexOptionsByBbgTicker() throws Exception {
-    addRandomEquityOptions();
-    final EquityOptionSecurity spxIndexOptionSecurity = makeSPXIndexOptionSecurity();
-    _secMaster.putSecurity(new Date(), spxIndexOptionSecurity);
-    final IdentifierBundle indexOptionKey = new IdentifierBundle(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, SPX_INDEX_OPTION_TICKER));
-    final Collection<Security> securities = _secMaster.getSecurities(indexOptionKey);
-    assertNotNull(securities);
-    assertEquals(1, securities.size());
-    final Security sec = securities.iterator().next();
-    assertEuropeanVanillaEquityOptionSecurity(spxIndexOptionSecurity, sec);
-  }
-
-  @Test
+  @Override
   public void agricultureFuture() throws Exception {
     addRandomAgricultureFutures();
-    final AgricultureFutureSecurity wheat = makeWheatFuture();
-    _secMaster.putSecurity(new Date(), wheat);
+    final AgricultureFutureSecurity wheat = SecurityTestUtils.makeWheatFuture();
+    putSecurity(wheat);
     final IdentifierBundle identifiers = wheat.getIdentifiers();
-    final Security security = _secMaster.getSecurity(identifiers);
-    assertNotNull(security);
+    final Security security = getSecurity(identifiers);
     assertTrue(security instanceof AgricultureFutureSecurity);
     assertEquals(wheat, security);
   }
 
   @Test
+  @Override
   public void indexFuture() throws Exception {
-    final IndexFutureSecurity indexFutureSecurity = makeIndexFuture();
-    _secMaster.putSecurity(new Date(), indexFutureSecurity);
-    final IdentifierBundle id = new IdentifierBundle(new Identifier(IdentificationScheme.BLOOMBERG_TICKER, "SPM0 Index"));
-    final Security security = _secMaster.getSecurity(id);
-    assertNotNull(security);
+    final IndexFutureSecurity indexFutureSecurity = SecurityTestUtils.makeIndexFuture();
+    putSecurity(indexFutureSecurity);
+    final IdentifierBundle id = SecurityTestUtils.makeBloombergTickerIdentifier("SPM0 Index");
+    final Security security = getSecurity(id);
     assertTrue(security instanceof IndexFutureSecurity);
     assertEquals(indexFutureSecurity, security);
   }
 
   @Test
+  @Override
   public void governmentBondSecurityBean() {
     final Date now = new Date();
     final Expiry expiry = new Expiry(ZonedDateTime.ofInstant(OffsetDateTime.ofMidnight(2012, 10, 30, ZoneOffset.UTC), TimeZone.UTC), ExpiryAccuracy.DAY_MONTH_YEAR);
@@ -241,9 +202,8 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
     final BondSecurity bond = new GovernmentBondSecurity("issuer name", "issuer type", "issuer domicile", "market", dollar, usStreet, "guarantee type", expiry, "coupon type", 0.5, annual, act360,
         following, announcementDate, interestAccrualDate, settlementDate, firstCouponDate, 10.0, 100d, 10d, 1d, 10d, 15d);
     bond.setIdentifiers(new IdentifierBundle(governmentId));
-    final UniqueIdentifier bondUID = _secMaster.putSecurity(now, bond);
-    final Security security = _secMaster.getSecurity(bondUID);
-    assertNotNull(security);
+    final UniqueIdentifier bondUID = putSecurity(bond);
+    final Security security = getSecurity(bondUID);
     assertTrue(security instanceof GovernmentBondSecurity);
     final GovernmentBondSecurity government = (GovernmentBondSecurity) security;
     assertEquals("issuer name", government.getIssuerName());
@@ -272,6 +232,7 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
   }
 
   @Test
+  @Override
   public void testGovernmentBondSecurityBean() {
     final Date now = new Date();
     final Expiry expiry = new Expiry(ZonedDateTime.ofInstant(OffsetDateTime.ofMidnight(2012, 10, 30, ZoneOffset.UTC), TimeZone.UTC), ExpiryAccuracy.DAY_MONTH_YEAR);
@@ -288,9 +249,8 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
     final BondSecurity bond = new GovernmentBondSecurity("issuer name", "issuer type", "issuer domicile", "market", dollar, usStreet, "guarantee type", expiry, "coupon type", 0.5, annual, act360,
         following, announcementDate, interestAccrualDate, settlementDate, firstCouponDate, 10.0, 100d, 10d, 1d, 10d, 15d);
     bond.setIdentifiers(new IdentifierBundle(governmentId));
-    final UniqueIdentifier bondUID = _secMaster.putSecurity(now, bond);
-    final Security security = _secMaster.getSecurity(bondUID);
-    assertNotNull(security);
+    final UniqueIdentifier bondUID = putSecurity(bond);
+    final Security security = getSecurity(bondUID);
     assertTrue(security instanceof GovernmentBondSecurity);
     final GovernmentBondSecurity government = (GovernmentBondSecurity) security;
     assertEquals("issuer name", government.getIssuerName());
@@ -320,17 +280,17 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
 
   @Test
   @Ignore
+  @Override
   public void currencyFuture() throws Exception {
-    final FXFutureSecurity currencyFuture = makeAUDUSDCurrencyFuture();
-    _secMaster.putSecurity(new Date(), currencyFuture);
-    final IdentifierBundle id = new IdentifierBundle(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "LNM0 Curncy"));
-    final Security security = _secMaster.getSecurity(id);
-    assertNotNull(security);
+    final FXFutureSecurity currencyFuture = SecurityTestUtils.makeAUDUSDCurrencyFuture();
+    putSecurity(currencyFuture);
+    final IdentifierBundle id = SecurityTestUtils.makeBloombergTickerIdentifier("LNM0 Curncy");
+    final Security security = getSecurity(id);
     assertTrue(security instanceof FXFutureSecurity);
     assertEquals(currencyFuture, security);
   }
 
-  private void sortBondFutureDeliverable (final BondFutureSecurity security) {
+  private void sortBondFutureDeliverable(final BondFutureSecurity security) {
     List<BondFutureDeliverable> basket = new ArrayList<BondFutureDeliverable>(security.getBasket());
     Collections.sort(basket, new Comparator<BondFutureDeliverable>() {
       @Override
@@ -342,12 +302,12 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
   }
 
   @Test
+  @Override
   public void euroBondFuture() throws Exception {
-    final BondFutureSecurity euroBondFuture = makeEuroBondFuture();
-    _secMaster.putSecurity(new Date(), euroBondFuture);
-    final IdentifierBundle id = new IdentifierBundle(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "RXU0 Comdty"));
-    final Security security = _secMaster.getSecurity(id);
-    assertNotNull(security);
+    final BondFutureSecurity euroBondFuture = SecurityTestUtils.makeEuroBondFuture();
+    putSecurity(euroBondFuture);
+    final IdentifierBundle id = SecurityTestUtils.makeBloombergTickerIdentifier("RXU0 Comdty");
+    final Security security = getSecurity(id);
     assertTrue(security instanceof BondFutureSecurity);
     sortBondFutureDeliverable(euroBondFuture);
     sortBondFutureDeliverable((BondFutureSecurity) security);
@@ -355,59 +315,65 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
   }
 
   @Test
+  @Override
   public void metalFuture() throws Exception {
-    final MetalFutureSecurity silverFuture = makeSilverFuture();
-    _secMaster.putSecurity(new Date(), silverFuture);
-    final IdentifierBundle id = new IdentifierBundle(new Identifier(IdentificationScheme.BLOOMBERG_TICKER, "SIM0 Comdty"));
-    final Security security = _secMaster.getSecurity(id);
-    assertNotNull(security);
+    final MetalFutureSecurity silverFuture = SecurityTestUtils.makeSilverFuture();
+    putSecurity(silverFuture);
+    final IdentifierBundle id = SecurityTestUtils.makeBloombergTickerIdentifier("SIM0 Comdty");
+    final Security security = getSecurity(id);
     assertTrue(security instanceof MetalFutureSecurity);
     assertEquals(silverFuture, security);
   }
 
   @Test
+  @Override
   public void energyFuture() throws Exception {
-    final EnergyFutureSecurity ethanolFuture = makeEthanolFuture();
-    _secMaster.putSecurity(new Date(), ethanolFuture);
-    final IdentifierBundle id = new IdentifierBundle(new Identifier(IdentificationScheme.BLOOMBERG_TICKER, "DLM0 Comdty"));
-    final Security security = _secMaster.getSecurity(id);
-    assertNotNull(security);
+    final EnergyFutureSecurity ethanolFuture = SecurityTestUtils.makeEthanolFuture();
+    putSecurity(ethanolFuture);
+    final IdentifierBundle id = SecurityTestUtils.makeBloombergTickerIdentifier("DLM0 Comdty");
+    final Security security = getSecurity(id);
     assertTrue(security instanceof EnergyFutureSecurity);
     assertEquals(ethanolFuture, security);
   }
 
   @Test
+  @Override
   public void interestRateFuture() throws Exception {
-    final InterestRateFutureSecurity euroDollarFuture = makeInterestRateFuture();
-    _secMaster.putSecurity(new Date(), euroDollarFuture);
-    final IdentifierBundle id = new IdentifierBundle(new Identifier(IdentificationScheme.BLOOMBERG_TICKER, "EDM0 Comdty"));
-    final Security security = _secMaster.getSecurity(id);
-    assertNotNull(security);
+    final InterestRateFutureSecurity euroDollarFuture = SecurityTestUtils.makeInterestRateFuture();
+    putSecurity(euroDollarFuture);
+    final IdentifierBundle id = SecurityTestUtils.makeBloombergTickerIdentifier("EDM0 Comdty");
+    final Security security = getSecurity(id);
     assertTrue(security instanceof InterestRateFutureSecurity);
     assertEquals(euroDollarFuture, security);
   }
 
   @Test
+  @Override
   public void update() {
-    final Date date1 = new Date(System.currentTimeMillis() - 2000L);
-    final Date date2 = new Date(date1.getTime() + 2000L);
 
-    final EquitySecurity sec = new EquitySecurity("NEW YORK STOCK EXCHANGE", "NYSE", "General Motors", USD);
+    final EquitySecurity sec = new EquitySecurity("NEW YORK STOCK EXCHANGE", "NYSE", "General Motors", SecurityTestUtils.USD);
     sec.setGicsCode(GICSCode.getInstance(25102010));
     sec.setTicker("GM US Equity");
     sec.setName("General Motors");
     sec.setIdentifiers(new IdentifierBundle(Identifier.of("BLOOMBERG", "GM US Equity")));
-    final UniqueIdentifier uid1 = _secMaster.putSecurity(date1, sec);
+
+    // TODO: THIS IS WRONG!!! an update is not two puts, there are separate add and update methods on the interface
+
+    final UniqueIdentifier uid1 = putSecurity(sec);
 
     sec.setCompanyName("Big Motors");
-    final UniqueIdentifier uid2 = _secMaster.putSecurity(date2, sec);
+
+    final SecurityDocument update = new SecurityDocument();
+    update.setSecurity(sec);
+    update.setUniqueIdentifier(uid1);
+    final UniqueIdentifier uid2 = _secMaster.update(update).getUniqueIdentifier();
 
     assertEquals(uid1.toLatest(), uid2.toLatest());
 
-    final EquitySecurity loaded1 = (EquitySecurity) _secMaster.getSecurity(uid1);
+    final EquitySecurity loaded1 = (EquitySecurity) getSecurity(uid1);
     assertEquals("General Motors", loaded1.getCompanyName());
 
-    final EquitySecurity loaded2 = (EquitySecurity) _secMaster.getSecurity(uid2);
+    final EquitySecurity loaded2 = (EquitySecurity) getSecurity(uid2);
     assertEquals("Big Motors", loaded2.getCompanyName());
   }
 
@@ -431,7 +397,7 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
       identifiers.add(Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "BUID" + String.valueOf(_random.nextInt())));
       security.setIdentifiers(new IdentifierBundle(identifiers));
       security.setName("NAME" + String.valueOf(_random.nextInt()));
-      _secMaster.putSecurity(new Date(), security);
+      putSecurity(security);
     }
     for (int i = 0; i < TEST_FILLER_SIZE; i++) {
       final OptionType optionType = OptionType.PUT;
@@ -448,7 +414,7 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
       identifiers.add(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "TICKER" + String.valueOf(_random.nextInt())));
       security.setIdentifiers(new IdentifierBundle(identifiers));
       security.setName("NAME" + String.valueOf(_random.nextInt()));
-      _secMaster.putSecurity(new Date(), security);
+      putSecurity(security);
     }
   }
 
@@ -471,7 +437,7 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
       identifiers.add(Identifier.of(IdentificationScheme.CUSIP, "CUSIP" + String.valueOf(_random.nextInt())));
       identifiers.add(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "TICKER" + String.valueOf(_random.nextInt())));
       sec.setIdentifiers(new IdentifierBundle(identifiers));
-      _secMaster.putSecurity(new Date(), sec);
+      putSecurity(sec);
     }
   }
 
@@ -488,7 +454,7 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
       equitySecurity.addIdentifier(Identifier.of(IdentificationScheme.ISIN, "ISIN" + String.valueOf(_random.nextInt())));
       equitySecurity.addIdentifier(Identifier.of(IdentificationScheme.SEDOL1, "SEDOL1" + String.valueOf(_random.nextInt())));
       equitySecurity.setName("NAME" + String.valueOf(_random.nextInt()));
-      _secMaster.putSecurity(new Date(), equitySecurity);
+      putSecurity(equitySecurity);
     }
   }
 
@@ -530,7 +496,7 @@ public abstract class HibernateSecurityMasterParentTestCase extends HibernateTes
     assertEquals(expectedOption.getSecurityType(), actualOption.getSecurityType());
     assertEquals(expectedOption.getCurrency(), actualOption.getCurrency());
     assertEquals(expectedOption.getOptionType(), actualOption.getOptionType());
-    assertTrue(expectedOption.getStrike() == actualOption.getStrike());
+    assertEquals(expectedOption.getStrike(), actualOption.getStrike(), 0);
     assertEquals(expectedOption.getExpiry(), actualOption.getExpiry());
     assertEquals(expectedOption.getUnderlyingIdentifier(), actualOption.getUnderlyingIdentifier());
     assertEquals(expectedOption.getName(), actualOption.getName());

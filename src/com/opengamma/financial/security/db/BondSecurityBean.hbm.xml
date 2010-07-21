@@ -29,4 +29,7 @@
     <property name="parAmount" column="paramount" type="double" not-null="true" />
     <property name="redemptionValue" column="redemptionvalue" type="double" not-null="true" />
   </union-subclass>
+  <query name="BondSecurityBean.all">
+    from BondSecurityBean
+  </query>
 </hibernate-mapping>

@@ -21,4 +21,7 @@
     </component>
     <property name="unitNumber" column="unitnumber" type="double" />
   </union-subclass>
+  <query name="FutureSecurityBean.all">
+    from FutureSecurityBean
+  </query>
 </hibernate-mapping>

@@ -115,27 +115,10 @@ public interface HibernateSecurityMasterDao {
 
   SecurityBean persistSecurityBean(final SecurityBean bean);
 
-  // Equities
-  // Internal query methods for equities
-  List<EquitySecurityBean> getEquitySecurityBeans();
+  // Debug/testing
+  <T extends SecurityBean> List<T> getAllSecurityBeans(Class<T> beanClass);
 
-  List<EquitySecurityBean> getAllVersionsOfEquitySecurityBean(EquitySecurityBean firstVersion);
-
-  EquitySecurityBean getCurrentEquitySecurityBean(Date now, ExchangeBean exchange, String companyName,
-      CurrencyBean currency);
-
-  EquitySecurityBean getCurrentEquitySecurityBean(Date now, EquitySecurityBean firstVersion);
-
-  EquitySecurityBean getCurrentLiveEquitySecurityBean(Date now, ExchangeBean exchange,
-      String companyName, CurrencyBean currency);
-
-  EquitySecurityBean getCurrentLiveEquitySecurityBean(Date now, EquitySecurityBean firstVersion);
-
-  // Equity options
-  List<OptionSecurityBean> getEquityOptionSecurityBeans();
-  
-  //Options
-  List<OptionSecurityBean> getOptionSecurityBeans();
+  // Helpers for Futures
 
   List<FutureBundleBean> getFutureBundleBeans(Date now, FutureSecurityBean future);
 
