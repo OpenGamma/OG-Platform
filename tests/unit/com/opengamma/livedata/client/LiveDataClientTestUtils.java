@@ -64,6 +64,7 @@ public class LiveDataClientTestUtils {
     server.setMarketDataSenderFactory(factory);
     
     liveDataClient.setFudgeContext(liveDataClient.getFudgeContext());
+    liveDataClient.start();
     
     return liveDataClient;
   }
