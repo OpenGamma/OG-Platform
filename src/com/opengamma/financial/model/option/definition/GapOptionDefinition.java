@@ -34,11 +34,13 @@ public class GapOptionDefinition extends OptionDefinition {
     _payoffStrike = payoffStrike;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public OptionExerciseFunction<StandardOptionDataBundle> getExerciseFunction() {
     return _exerciseFunction;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public OptionPayoffFunction<StandardOptionDataBundle> getPayoffFunction() {
     return _payoffFunction;

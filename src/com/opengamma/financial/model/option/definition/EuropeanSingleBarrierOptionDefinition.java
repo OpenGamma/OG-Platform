@@ -23,12 +23,14 @@ public class EuropeanSingleBarrierOptionDefinition extends OptionDefinition {
     return _underlyingOption;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public OptionExerciseFunction<StandardOptionDataBundle> getExerciseFunction() {
     // TODO Auto-generated method stub
     return null;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public OptionPayoffFunction<StandardOptionDataBundle> getPayoffFunction() {
     // TODO Auto-generated method stub

@@ -7,9 +7,9 @@ package com.opengamma.financial.model.option.definition;
 
 /**
  * 
- * @param <S> Extends StandardOptionDataBundle: is never used.
+ * @param <S> Never used.
  */
-public class EuropeanExerciseFunction<S extends StandardOptionDataBundle> implements OptionExerciseFunction<S> {
+public class EuropeanExerciseFunction<S> implements OptionExerciseFunction<S> {
 
   @Override
   public boolean shouldExercise(final S data, final Double optionPrice) {

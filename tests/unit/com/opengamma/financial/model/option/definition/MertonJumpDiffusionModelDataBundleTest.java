@@ -49,7 +49,7 @@ public class MertonJumpDiffusionModelDataBundleTest {
   public void testGetters() {
     assertEquals(DATA.getCostOfCarry(), B, 0);
     assertEquals(DATA.getDate(), DATE);
-    assertEquals(DATA.getDiscountCurve(), CURVE);
+    assertEquals(DATA.getInterestRateCurve(), CURVE);
     assertEquals(DATA.getGamma(), GAMMA, 0);
     assertEquals(DATA.getLambda(), LAMBDA, 0);
     assertEquals(DATA.getSpot(), SPOT, 0);
@@ -83,7 +83,7 @@ public class MertonJumpDiffusionModelDataBundleTest {
 
   @Test
   public void testBuilders() {
-    assertEquals(new MertonJumpDiffusionModelDataBundle(OTHER_CURVE, B, SURFACE, SPOT, DATE, LAMBDA, GAMMA), DATA.withDiscountCurve(OTHER_CURVE));
+    assertEquals(new MertonJumpDiffusionModelDataBundle(OTHER_CURVE, B, SURFACE, SPOT, DATE, LAMBDA, GAMMA), DATA.withInterestRateCurve(OTHER_CURVE));
     assertEquals(new MertonJumpDiffusionModelDataBundle(CURVE, OTHER_B, SURFACE, SPOT, DATE, LAMBDA, GAMMA), DATA.withCostOfCarry(OTHER_B));
     assertEquals(new MertonJumpDiffusionModelDataBundle(CURVE, B, OTHER_SURFACE, SPOT, DATE, LAMBDA, GAMMA), DATA.withVolatilitySurface(OTHER_SURFACE));
     assertEquals(new MertonJumpDiffusionModelDataBundle(CURVE, B, SURFACE, OTHER_SPOT, DATE, LAMBDA, GAMMA), DATA.withSpot(OTHER_SPOT));

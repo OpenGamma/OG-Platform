@@ -55,7 +55,7 @@ public class HullWhiteStochasticVolatilityModelDataBundleTest {
     assertEquals(DATA.getCorrelation(), RHO, 0);
     assertEquals(DATA.getCostOfCarry(), B, 0);
     assertEquals(DATA.getDate(), DATE);
-    assertEquals(DATA.getDiscountCurve(), CURVE);
+    assertEquals(DATA.getInterestRateCurve(), CURVE);
     assertEquals(DATA.getHalfLife(), LAMBDA, 0);
     assertEquals(DATA.getLongRunVolatility(), SIGMA_LR, 0);
     assertEquals(DATA.getSpot(), SPOT, 0);
@@ -93,7 +93,7 @@ public class HullWhiteStochasticVolatilityModelDataBundleTest {
 
   @Test
   public void testBuilders() {
-    assertEquals(new HullWhiteStochasticVolatilityModelDataBundle(OTHER_CURVE, B, SURFACE, SPOT, DATE, LAMBDA, SIGMA_LR, VOL_OF_VOL, RHO), DATA.withDiscountCurve(OTHER_CURVE));
+    assertEquals(new HullWhiteStochasticVolatilityModelDataBundle(OTHER_CURVE, B, SURFACE, SPOT, DATE, LAMBDA, SIGMA_LR, VOL_OF_VOL, RHO), DATA.withInterestRateCurve(OTHER_CURVE));
     assertEquals(new HullWhiteStochasticVolatilityModelDataBundle(CURVE, OTHER_B, SURFACE, SPOT, DATE, LAMBDA, SIGMA_LR, VOL_OF_VOL, RHO), DATA.withCostOfCarry(OTHER_B));
     assertEquals(new HullWhiteStochasticVolatilityModelDataBundle(CURVE, B, OTHER_SURFACE, SPOT, DATE, LAMBDA, SIGMA_LR, VOL_OF_VOL, RHO), DATA.withVolatilitySurface(OTHER_SURFACE));
     assertEquals(new HullWhiteStochasticVolatilityModelDataBundle(CURVE, B, SURFACE, OTHER_SPOT, DATE, LAMBDA, SIGMA_LR, VOL_OF_VOL, RHO), DATA.withSpot(OTHER_SPOT));

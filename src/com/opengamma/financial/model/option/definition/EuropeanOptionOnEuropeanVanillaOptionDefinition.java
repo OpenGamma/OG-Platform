@@ -43,11 +43,13 @@ public class EuropeanOptionOnEuropeanVanillaOptionDefinition extends OptionDefin
     _underlyingOption = underlyingOption;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public OptionExerciseFunction<StandardOptionDataBundle> getExerciseFunction() {
     return _exerciseFunction;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public OptionPayoffFunction<StandardOptionDataBundle> getPayoffFunction() {
     return _payoffFunction;
