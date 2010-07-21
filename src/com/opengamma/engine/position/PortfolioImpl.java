@@ -124,27 +124,6 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Finds a specific node from this portfolio by identifier.
-   * @param identifier  the identifier, null returns null
-   * @return the node, null if not found
-   */
-  @Override
-  public PortfolioNode getNode(UniqueIdentifier identifier) {
-    return _rootNode.getNode(identifier);
-  }
-
-  /**
-   * Finds a specific position from this portfolio by identifier.
-   * @param identifier  the identifier, null returns null
-   * @return the position, null if not found
-   */
-  @Override
-  public Position getPosition(UniqueIdentifier identifier) {
-    return _rootNode.getPosition(identifier);
-  }
-
-  //-------------------------------------------------------------------------
   @Override
   public String toString() {
     return new StrBuilder()
@@ -153,19 +132,19 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
       .append("]")
       .toString();
   }
-  
+
   @Override
-  public boolean equals(final Object o) {
-    if (o == this) {
+  public boolean equals(final Object obj) {
+    if (obj == this) {
       return true;
     }
-    if (!(o instanceof PortfolioImpl)) {
-      return false;
+    if (obj instanceof PortfolioImpl) {
+      final PortfolioImpl other = (PortfolioImpl) obj;
+      return ObjectUtils.equals(getUniqueIdentifier(), other.getUniqueIdentifier())
+          && ObjectUtils.equals(getName(), other.getName())
+          && ObjectUtils.equals(getRootNode(), other.getRootNode());
     }
-    final PortfolioImpl other = (PortfolioImpl) o;
-    return ObjectUtils.equals(getUniqueIdentifier(), other.getUniqueIdentifier())
-        && ObjectUtils.equals(getName(), other.getName())
-        && ObjectUtils.equals(getRootNode(), other.getRootNode());
+    return false;
   }
 
   @Override
@@ -181,7 +160,5 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
     // Intentionally skip the root node; no need for it.
     return result;
   }
-  
-  
 
 }

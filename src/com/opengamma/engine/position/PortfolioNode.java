@@ -49,19 +49,4 @@ public interface PortfolioNode extends UniqueIdentifiable {
    */
   List<Position> getPositions();
 
-  /**
-   * Recursively finds a specific node from this node by identifier.
-   * If this node matches it is returned.
-   * @param identifier  the identifier, null returns null
-   * @return the node, null if not found
-   */
-  PortfolioNode getNode(UniqueIdentifier identifier);
-
-  /**
-   * Recursively finds a specific position from this node by identifier.
-   * @param identifier  the identifier, null returns null
-   * @return the position, null if not found
-   */
-  Position getPosition(UniqueIdentifier identifier);
-
 }

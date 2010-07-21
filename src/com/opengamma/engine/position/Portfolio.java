@@ -39,18 +39,4 @@ public interface Portfolio extends UniqueIdentifiable {
    */
   PortfolioNode getRootNode();
 
-  /**
-   * Finds a specific node from this portfolio by identifier.
-   * @param identifier  the identifier, null returns null
-   * @return the node, null if not found
-   */
-  PortfolioNode getNode(UniqueIdentifier identifier);
-
-  /**
-   * Finds a specific position from this portfolio by identifier.
-   * @param identifier  the identifier, null returns null
-   * @return the position, null if not found
-   */
-  Position getPosition(UniqueIdentifier identifier);
-
 }
