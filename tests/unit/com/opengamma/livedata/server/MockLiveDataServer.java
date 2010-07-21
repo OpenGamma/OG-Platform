@@ -7,10 +7,10 @@ package com.opengamma.livedata.server;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
@@ -34,7 +34,7 @@ public class MockLiveDataServer extends AbstractLiveDataServer {
   private final Map<String, FudgeFieldContainer> _uniqueId2MarketData;
   
   public MockLiveDataServer(IdentificationScheme domain) {
-    this(domain, Collections.<String, FudgeFieldContainer>emptyMap());
+    this(domain, new ConcurrentHashMap<String, FudgeFieldContainer>());
   }
   
   public MockLiveDataServer(IdentificationScheme domain,
@@ -43,6 +43,10 @@ public class MockLiveDataServer extends AbstractLiveDataServer {
     ArgumentChecker.notNull(uniqueId2Snapshot, "Snapshot map");
     _domain = domain;
     _uniqueId2MarketData = uniqueId2Snapshot;
+  }
+  
+  public void addMarketDataMapping(String key, FudgeFieldContainer value) {
+    _uniqueId2MarketData.put(key, value);        
   }
   
   @Override

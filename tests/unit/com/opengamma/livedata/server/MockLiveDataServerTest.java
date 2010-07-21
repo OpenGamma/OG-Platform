@@ -14,6 +14,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,7 +34,6 @@ import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 /**
  * 
  *
- * @author pietari
  */
 public class MockLiveDataServerTest {
   
@@ -199,6 +201,37 @@ public class MockLiveDataServerTest {
     assertEquals(null, response.getResponses().get(0).getSnapshot()); 
     assertEquals(requestedSpec.getIdentifiers().toString(), response.getResponses().get(0).getTickDistributionSpecification());
     assertEquals(null, response.getResponses().get(0).getUserMessage());
+  }
+  
+  @Test
+  public void snapshot() {
+    UserPrincipal user = new UserPrincipal("mark", "1.1.1.1");
+    
+    LiveDataSpecification requestedSpec = new LiveDataSpecification(
+        StandardRules.getNoNormalization().getId(), 
+        new Identifier(_domain, "testsub"));
+    
+    LiveDataSubscriptionRequest request = new LiveDataSubscriptionRequest(
+        user,
+        SubscriptionType.SNAPSHOT, 
+        Collections.singleton(requestedSpec));
+    
+    LiveDataSubscriptionResponseMsg response = _server.subscriptionRequestMade(request);
+    
+    assertEquals(user, response.getRequestingUser());
+    assertEquals(1, response.getResponses().size());
+    assertEquals(requestedSpec, response.getResponses().get(0).getRequestedSpecification());
+    assertNull(response.getResponses().get(0).getFullyQualifiedSpecification());
+    assertEquals(LiveDataSubscriptionResult.INTERNAL_ERROR, response.getResponses().get(0).getSubscriptionResult());
+    assertNull(response.getResponses().get(0).getSnapshot()); 
+    assertNull(response.getResponses().get(0).getTickDistributionSpecification());
+    assertEquals("When snapshot for testsub was run through normalization, the message disappeared. " +
+    		"This indicates there are buggy normalization rules in place, or that buggy (or unexpected) data was " +
+    		"received from the underlying market data API. Check your normalization rules. " +
+    		"Raw, unnormalized msg = FudgeMsg[]",
+    		response.getResponses().get(0).getUserMessage());
+    
+    assertFalse(_server.unsubscribe("testsub"));
   }
   
 }
