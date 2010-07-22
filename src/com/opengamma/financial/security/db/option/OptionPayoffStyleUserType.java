@@ -6,6 +6,7 @@
 package com.opengamma.financial.security.db.option;
 
 import com.opengamma.financial.security.db.EnumUserType;
+import com.opengamma.financial.security.option.AssetOrNothingPayoffStyle;
 import com.opengamma.financial.security.option.AsymmetricPoweredPayoffStyle;
 import com.opengamma.financial.security.option.BarrierPayoffStyle;
 import com.opengamma.financial.security.option.CappedPoweredPayoffStyle;
@@ -25,6 +26,7 @@ public class OptionPayoffStyleUserType extends EnumUserType<OptionPayoffStyle> {
   private static final String FIXED_STRIKE = "Fixed Strike";
   private static final String POWERED = "Powered";
   private static final String VANILLA = "Vanilla";
+  private static final String ASSET_OR_NOTHING = "Asset or Nothing";
 
   public OptionPayoffStyleUserType() {
     super(OptionPayoffStyle.class, OptionPayoffStyle.values());
@@ -62,6 +64,11 @@ public class OptionPayoffStyleUserType extends EnumUserType<OptionPayoffStyle> {
       @Override
       public String visitVanillaPayoffStyle(VanillaPayoffStyle payoffStyle) {
         return VANILLA;
+      }
+
+      @Override
+      public String visitAssetOrNothingPayoffStyle(AssetOrNothingPayoffStyle payoffStyle) {
+        return ASSET_OR_NOTHING;
       }
 
     });

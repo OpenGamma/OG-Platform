@@ -23,5 +23,7 @@ public interface PayoffStyleVisitor<T> {
   T visitPoweredPayoffStyle(PoweredPayoffStyle payoffStyle);
 
   T visitVanillaPayoffStyle(VanillaPayoffStyle payoffStyle);
+  
+  T visitAssetOrNothingPayoffStyle(AssetOrNothingPayoffStyle payoffStyle);
 
 }

@@ -24,7 +24,9 @@ public enum OptionPayoffStyle {
   /** Powered */
   POWERED,
   /** Vanilla */
-  VANILLA;
+  VANILLA,
+  /** Asset or Nothing */
+  ASSET_OR_NOTHING;
 
   public <T> T accept(final PayoffStyleVisitor<T> visitor) {
     switch (this) {

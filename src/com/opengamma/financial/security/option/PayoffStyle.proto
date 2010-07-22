@@ -16,14 +16,14 @@ namespace com.opengamma.financial.security.option {
     required readonly double power;
     binding Java {
       method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitAsymmetricPoweredPayoffStyle (this); }";
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitAsymmetricPoweredPayoffStyle(this); }";
     }
   }
   
   message BarrierPayoffStyle extends PayoffStyle {
     binding Java {
       method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitBarrierPayoffStyle (this); }";
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitBarrierPayoffStyle(this); }";
     }
   }
   
@@ -32,14 +32,14 @@ namespace com.opengamma.financial.security.option {
     required readonly double cap;
     binding Java {
       method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitCappedPoweredPayoffStyle (this); }";
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitCappedPoweredPayoffStyle(this); }";
     }
   }
   
   message FixedStrikePayoffStyle extends PayoffStyle {
     binding Java {
       method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitFixedStrikePayoffStyle (this); }";
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitFixedStrikePayoffStyle(this); }";
     }
   }
   
@@ -47,15 +47,21 @@ namespace com.opengamma.financial.security.option {
     required readonly double power;
     binding Java {
       method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitPoweredPayoffStyle (this); }";
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitPoweredPayoffStyle(this); }";
     }
   }
   
   message VanillaPayoffStyle extends PayoffStyle {
     binding Java {
       method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitVanillaPayoffStyle (this); }";
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitVanillaPayoffStyle(this); }";
     }
   }
-  
+
+  message AssetOrNothingPayoffStyle extends PayoffStyle {
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitAssetOrNothingPayoffStyle(this); }";  
+    }
+  }
 }

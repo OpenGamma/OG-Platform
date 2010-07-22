@@ -13,6 +13,7 @@ import com.opengamma.financial.security.db.AbstractBeanOperation;
 import com.opengamma.financial.security.db.HibernateSecurityMasterDao;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
+import com.opengamma.financial.security.option.AssetOrNothingPayoffStyle;
 import com.opengamma.financial.security.option.AsymmetricPoweredPayoffStyle;
 import com.opengamma.financial.security.option.BarrierPayoffStyle;
 import com.opengamma.financial.security.option.BermudanExerciseType;
@@ -102,6 +103,11 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
       @Override
       public PayoffStyle visitVanillaPayoffStyle(VanillaPayoffStyle payoffStyle) {
         return new VanillaPayoffStyle();
+      }
+
+      @Override
+      public PayoffStyle visitAssetOrNothingPayoffStyle(AssetOrNothingPayoffStyle payoffStyle) {
+        return new AssetOrNothingPayoffStyle();
       }
     });
     OptionSecurity sec = bean.getOptionSecurityType().accept(new OptionSecurityVisitor<OptionSecurity>() {
@@ -249,6 +255,11 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
           @Override
           public OptionPayoffStyle visitVanillaPayoffStyle(VanillaPayoffStyle payoffStyle) {
             return OptionPayoffStyle.VANILLA;
+          }
+
+          @Override
+          public OptionPayoffStyle visitAssetOrNothingPayoffStyle(AssetOrNothingPayoffStyle payoffStyle) {
+            return OptionPayoffStyle.ASSET_OR_NOTHING;
           }
         }));
         bean.setOptionSecurityType(OptionSecurityType.identify(security));
