@@ -12,6 +12,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.security.Security;
+import com.opengamma.financial.security.db.bond.CouponTypeBean;
+import com.opengamma.financial.security.db.bond.GuaranteeTypeBean;
+import com.opengamma.financial.security.db.bond.IssuerTypeBean;
+import com.opengamma.financial.security.db.bond.MarketBean;
+import com.opengamma.financial.security.db.bond.YieldConventionBean;
+import com.opengamma.financial.security.db.equity.GICSCodeBean;
+import com.opengamma.financial.security.db.future.BondFutureTypeBean;
+import com.opengamma.financial.security.db.future.CashRateTypeBean;
+import com.opengamma.financial.security.db.future.CommodityFutureTypeBean;
+import com.opengamma.financial.security.db.future.FutureBundleBean;
+import com.opengamma.financial.security.db.future.FutureSecurityBean;
+import com.opengamma.financial.security.db.future.UnitBean;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -505,83 +517,103 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
     return bean;
   }
 
+  // Debug/testing
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T extends SecurityBean> List<T> getAllSecurityBeans(final Class<T> beanClass) {
+    String beanName = beanClass.getName();
+    beanName = beanName.substring(beanName.lastIndexOf('.') + 1);
+    return getSession().getNamedQuery(beanName + ".all").list();
+  }
+
   // Equities
   // Internal query methods for equities
-  @SuppressWarnings("unchecked")
-  @Override
-  public List<EquitySecurityBean> getEquitySecurityBeans() {
-    Query query = getSession().getNamedQuery("EquitySecurityBean.all");
-    return query.list();
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public List<EquitySecurityBean> getAllVersionsOfEquitySecurityBean(
-      EquitySecurityBean firstVersion) {
-    Query query = getSession().getNamedQuery(
-        "EquitySecurityBean.many.allVersionsByFirstVersion");
-    query.setParameter("firstVersion", firstVersion);
-    return query.list();
-  }
-
-  @Override
-  public EquitySecurityBean getCurrentEquitySecurityBean(Date now,
-      ExchangeBean exchange, String companyName, CurrencyBean currency) {
-    Query query = getSession().getNamedQuery(
-        "EquitySecurityBean.one.byExchangeCompanyNameCurrencyDate");
-    query.setDate("now", now);
-    query.setParameter("exchange", exchange);
-    query.setString("companyName", companyName);
-    query.setParameter("currency", currency);
-    return (EquitySecurityBean) query.uniqueResult();
-  }
-
-  @Override
-  public EquitySecurityBean getCurrentEquitySecurityBean(Date now,
-      EquitySecurityBean firstVersion) {
-    Query query = getSession().getNamedQuery(
-        "EquitySecurityBean.one.byFirstVersionDate");
-    query.setParameter("firstVersion", firstVersion);
-    query.setDate("now", now);
-    return (EquitySecurityBean) query.uniqueResult();
-  }
-
-  @Override
-  public EquitySecurityBean getCurrentLiveEquitySecurityBean(Date now,
-      ExchangeBean exchange, String companyName, CurrencyBean currency) {
-    Query query = getSession().getNamedQuery(
-        "EquitySecurityBean.one.liveByExchangeCompanyNameCurrencyDate");
-    query.setParameter("exchange", exchange);
-    query.setString("companyName", companyName);
-    query.setParameter("currency", currency);
-    query.setDate("now", now);
-    return (EquitySecurityBean) query.uniqueResult();
-  }
-
-  @Override
-  public EquitySecurityBean getCurrentLiveEquitySecurityBean(Date now,
-      EquitySecurityBean firstVersion) {
-    Query query = getSession().getNamedQuery(
-        "EquitySecurityBean.one.liveByFirstVersionDate");
-    query.setParameter("firstVersion", firstVersion);
-    query.setDate("now", now);
-    return (EquitySecurityBean) query.uniqueResult();
-  }
+  /*
+   * @SuppressWarnings("unchecked")
+   * 
+   * @Override
+   * public List<EquitySecurityBean> getEquitySecurityBeans() {
+   * Query query = getSession().getNamedQuery("EquitySecurityBean.all");
+   * return query.list();
+   * }
+   * 
+   * @SuppressWarnings("unchecked")
+   * 
+   * @Override
+   * public List<EquitySecurityBean> getAllVersionsOfEquitySecurityBean(
+   * EquitySecurityBean firstVersion) {
+   * Query query = getSession().getNamedQuery(
+   * "EquitySecurityBean.many.allVersionsByFirstVersion");
+   * query.setParameter("firstVersion", firstVersion);
+   * return query.list();
+   * }
+   * 
+   * @Override
+   * public EquitySecurityBean getCurrentEquitySecurityBean(Date now,
+   * ExchangeBean exchange, String companyName, CurrencyBean currency) {
+   * Query query = getSession().getNamedQuery(
+   * "EquitySecurityBean.one.byExchangeCompanyNameCurrencyDate");
+   * query.setDate("now", now);
+   * query.setParameter("exchange", exchange);
+   * query.setString("companyName", companyName);
+   * query.setParameter("currency", currency);
+   * return (EquitySecurityBean) query.uniqueResult();
+   * }
+   * 
+   * @Override
+   * public EquitySecurityBean getCurrentEquitySecurityBean(Date now,
+   * EquitySecurityBean firstVersion) {
+   * Query query = getSession().getNamedQuery(
+   * "EquitySecurityBean.one.byFirstVersionDate");
+   * query.setParameter("firstVersion", firstVersion);
+   * query.setDate("now", now);
+   * return (EquitySecurityBean) query.uniqueResult();
+   * }
+   * 
+   * @Override
+   * public EquitySecurityBean getCurrentLiveEquitySecurityBean(Date now,
+   * ExchangeBean exchange, String companyName, CurrencyBean currency) {
+   * Query query = getSession().getNamedQuery(
+   * "EquitySecurityBean.one.liveByExchangeCompanyNameCurrencyDate");
+   * query.setParameter("exchange", exchange);
+   * query.setString("companyName", companyName);
+   * query.setParameter("currency", currency);
+   * query.setDate("now", now);
+   * return (EquitySecurityBean) query.uniqueResult();
+   * }
+   * 
+   * @Override
+   * public EquitySecurityBean getCurrentLiveEquitySecurityBean(Date now,
+   * EquitySecurityBean firstVersion) {
+   * Query query = getSession().getNamedQuery(
+   * "EquitySecurityBean.one.liveByFirstVersionDate");
+   * query.setParameter("firstVersion", firstVersion);
+   * query.setDate("now", now);
+   * return (EquitySecurityBean) query.uniqueResult();
+   * }
+   */
 
   // Equity options
-  @SuppressWarnings("unchecked")
-  @Override
-  public List<OptionSecurityBean> getEquityOptionSecurityBeans() {
-    Query query = getSession().getNamedQuery("EquityOptionSecurityBean.all");
-    return query.list();
-  }
+  /*
+   * @SuppressWarnings("unchecked")
+   * 
+   * @Override
+   * public List<OptionSecurityBean> getEquityOptionSecurityBeans() {
+   * Query query = getSession().getNamedQuery("EquityOptionSecurityBean.all");
+   * return query.list();
+   * }
+   */
   
-  @SuppressWarnings("unchecked")
-  @Override
-  public List<OptionSecurityBean> getOptionSecurityBeans() {
-    Query query = getSession().getNamedQuery("OptionSecurityBean.all");
-    return query.list();
-  }
+  /*
+   * @SuppressWarnings("unchecked")
+   * 
+   * @Override
+   * public List<OptionSecurityBean> getOptionSecurityBeans() {
+   * Query query = getSession().getNamedQuery("OptionSecurityBean.all");
+   * return query.list();
+   * }
+   */
   
   // Futures
   

@@ -23,13 +23,9 @@ import com.opengamma.id.UniqueIdentifier;
  *
  */
 public abstract class OptionSkewKurtosisFunction extends AbstractFunction implements FunctionInvoker {
-  /**
-   * 
-   */
+  /** */
   public static final String SKEW = "Skew";
-  /**
-   * 
-   */
+  /** */
   public static final String KURTOSIS = "Kurtosis";
 
   @Override

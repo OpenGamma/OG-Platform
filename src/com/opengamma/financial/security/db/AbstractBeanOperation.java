@@ -14,7 +14,7 @@ import com.opengamma.engine.security.Security;
  * @param <S> Security
  * @param <SBean> SecurityBean
  */
-public abstract class AbstractBeanOperation<S extends Security, SBean extends SecurityBean> implements BeanOperation<S, SBean> {
+public abstract class AbstractBeanOperation<S extends Security, SBean extends SecurityBean> extends Converters implements BeanOperation<S, SBean> {
   
   private final Class<? extends SBean> _beanClass;
   private final Class<? extends S> _securityClass;

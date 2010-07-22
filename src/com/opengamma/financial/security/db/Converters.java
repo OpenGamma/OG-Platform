@@ -28,6 +28,9 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
+import com.opengamma.financial.security.db.bond.YieldConventionBean;
+import com.opengamma.financial.security.db.equity.GICSCodeBean;
+import com.opengamma.financial.security.db.future.FutureBundleBean;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -36,10 +39,8 @@ import com.opengamma.util.time.ExpiryAccuracy;
 
 /**
  * Utility methods for simple conversions.
- * 
- * @author Andrew Griffin
  */
-/* package */ final class Converters {
+/* package */class Converters {
 
   protected static Currency currencyBeanToCurrency(CurrencyBean currencyBean) {
     if (currencyBean == null) {
