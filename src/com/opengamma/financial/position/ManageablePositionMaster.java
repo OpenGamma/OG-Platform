@@ -11,7 +11,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.PositionMaster;
+import com.opengamma.engine.position.PositionSource;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -21,7 +21,7 @@ import com.opengamma.id.UniqueIdentifier;
  * holding them in a tree structure portfolio. This interface provides methods
  * that allow the master to be searched and updated.
  */
-public interface ManageablePositionMaster extends PositionMaster {
+public interface ManageablePositionMaster extends PositionSource {
 
   /**
    * Checks if this position master manages the unique identifier.

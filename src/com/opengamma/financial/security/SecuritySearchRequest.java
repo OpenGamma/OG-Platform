@@ -28,9 +28,10 @@ public class SecuritySearchRequest extends DirectBean {
 
   /**
    * The request for paging.
+   * By default all matching items will be returned.
    */
   @PropertyDefinition
-  private PagingRequest _pagingRequest = new PagingRequest();
+  private PagingRequest _pagingRequest = PagingRequest.ALL;
   /**
    * The name, wildcards allowed, null to not match on name.
    */
@@ -104,6 +105,7 @@ public class SecuritySearchRequest extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the request for paging.
+   * By default all matching items will be returned.
    * @return the value of the property
    */
   public PagingRequest getPagingRequest() {
@@ -112,6 +114,7 @@ public class SecuritySearchRequest extends DirectBean {
 
   /**
    * Sets the request for paging.
+   * By default all matching items will be returned.
    * @param pagingRequest  the new value of the property
    */
   public void setPagingRequest(PagingRequest pagingRequest) {
@@ -120,6 +123,7 @@ public class SecuritySearchRequest extends DirectBean {
 
   /**
    * Gets the the {@code pagingRequest} property.
+   * By default all matching items will be returned.
    * @return the property, not null
    */
   public final Property<PagingRequest> pagingRequest() {

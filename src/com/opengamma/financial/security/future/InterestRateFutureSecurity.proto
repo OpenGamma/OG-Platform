@@ -1,0 +1,22 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.financial.security.future {
+
+  /**
+   * An interest rate future.
+   */
+  message InterestRateFutureSecurity extends FutureSecurity {
+  
+    required string cashRateType; // REVIEW: jim 28-May-2010 -- we might want to make this UniqueIdentifier like FloatingInterestRateLeg...
+   
+    binding Java {
+      body "public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitInterestRateFutureSecurity (this); }";
+    }   
+    
+  }
+
+}

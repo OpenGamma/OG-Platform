@@ -22,11 +22,6 @@ public class OpenGammaExecutionContext {
   public static final String HISTORICAL_DATA_PROVIDER_NAME = "historicalDataProvider";
 
   /**
-   * The name under which an instance of {@link SecuritySource} should be bound.
-   */
-  public static final String SECURITY_MASTER_NAME = "securityMaster";
-
-  /**
    * The name under which an instance of {@link RegionRepository} should be bound.
    */
   public static final String REGION_REPOSITORY_NAME = "regionRepository";
@@ -55,12 +50,12 @@ public class OpenGammaExecutionContext {
     context.put(HISTORICAL_DATA_PROVIDER_NAME, historicalDataProvider);
   }
   
-  public static SecuritySource getSecurityMaster(FunctionExecutionContext context) {
-    return (SecuritySource) context.get(SECURITY_MASTER_NAME);
+  public static SecuritySource getSecuritySource(FunctionExecutionContext context) {
+    return context.getSecuritySource();
   }
   
-  public static void setSecurityMaster(FunctionExecutionContext context, SecuritySource secMaster) {
-    context.put(SECURITY_MASTER_NAME, secMaster);
+  public static void setSecuritySource(FunctionExecutionContext context, SecuritySource secSource) {
+    context.setSecuritySource(secSource);
   }
   
   public static RegionRepository getRegionRepository(FunctionExecutionContext context) {

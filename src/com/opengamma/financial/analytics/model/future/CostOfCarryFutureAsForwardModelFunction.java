@@ -31,16 +31,16 @@ import com.opengamma.financial.model.future.definition.FutureDefinition;
 import com.opengamma.financial.model.future.definition.StandardFutureDataBundle;
 import com.opengamma.financial.model.future.pricing.CostOfCarryFutureAsForwardModel;
 import com.opengamma.financial.model.future.pricing.FutureModel;
-import com.opengamma.financial.security.AgricultureFutureSecurity;
-import com.opengamma.financial.security.BondFutureSecurity;
-import com.opengamma.financial.security.EnergyFutureSecurity;
-import com.opengamma.financial.security.FXFutureSecurity;
-import com.opengamma.financial.security.FutureSecurity;
-import com.opengamma.financial.security.FutureSecurityVisitor;
-import com.opengamma.financial.security.IndexFutureSecurity;
-import com.opengamma.financial.security.InterestRateFutureSecurity;
-import com.opengamma.financial.security.MetalFutureSecurity;
-import com.opengamma.financial.security.StockFutureSecurity;
+import com.opengamma.financial.security.future.AgricultureFutureSecurity;
+import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.EnergyFutureSecurity;
+import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.financial.security.future.FutureSecurityVisitor;
+import com.opengamma.financial.security.future.IndexFutureSecurity;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.future.MetalFutureSecurity;
+import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
@@ -171,7 +171,7 @@ public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction im
 
     @Override
     public Identifier visitEnergyFutureSecurity(final EnergyFutureSecurity security) {
-      return null;
+      return security.getUnderlyingIdentifier();
     }
 
     @Override
@@ -181,7 +181,7 @@ public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction im
 
     @Override
     public Identifier visitIndexFutureSecurity(final IndexFutureSecurity security) {
-      return security.getUnderlyingIdentityKey();
+      return security.getUnderlyingIdentifier();
     }
 
     @Override
@@ -191,12 +191,12 @@ public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction im
 
     @Override
     public Identifier visitMetalFutureSecurity(final MetalFutureSecurity security) {
-      return security.getUnderlyingIdentityKey();
+      return security.getUnderlyingIdentifier();
     }
 
     @Override
     public Identifier visitStockFutureSecurity(final StockFutureSecurity security) {
-      return security.getUnderlyingIdentityKey();
+      return security.getUnderlyingIdentifier();
     }
 
   }

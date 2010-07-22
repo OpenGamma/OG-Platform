@@ -21,13 +21,14 @@ import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.engine.security.Security;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
  * A document used to pass into and out of the security master.
  */
 @BeanDefinition
-public class SecurityDocument extends DirectBean {
+public class SecurityDocument extends DirectBean implements UniqueIdentifiable {
 
   /**
    * The security unique identifier.

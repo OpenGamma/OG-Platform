@@ -1,0 +1,20 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.financial.security.bond {
+
+  /**
+   * A {@code Security} used to model corporate bonds. NOT YET IMPLEMENTED.
+   */
+  message CorporateBondSecurity extends BondSecurity {
+  
+    binding Java {
+      body "public <T> T accept (BondSecurityVisitor<T> visitor) { return visitor.visitCorporateBondSecurity (this); }";
+    }
+  
+  }
+  
+}

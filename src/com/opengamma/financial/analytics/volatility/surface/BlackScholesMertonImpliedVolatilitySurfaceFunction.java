@@ -11,8 +11,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.slf4j.Logger;
@@ -38,7 +36,6 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceModel;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurfaceModel;
-import com.opengamma.financial.security.option.Option;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.IdentifierBundle;
@@ -69,7 +66,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    if (target.getSecurity() instanceof Option) {
+    if (target.getSecurity() instanceof OptionSecurity) {
       return true;
     }
     return false;
@@ -105,7 +102,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) {
-    final ZonedDateTime today = Clock.system(TimeZone.UTC).zonedDateTime();
+    final ZonedDateTime today = executionContext.getSnapshotClock().zonedDateTime();
     final OptionSecurity optionSec = (OptionSecurity) target.getSecurity();
     
     SecuritySource secMaster = executionContext.getSecuritySource();

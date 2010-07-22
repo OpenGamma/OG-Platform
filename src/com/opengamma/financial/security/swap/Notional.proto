@@ -1,0 +1,38 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.financial.security.swap {
+
+  /**
+   * Abstract base class representing the notional in a swap leg.
+   */
+  abstract message Notional {
+  }
+ 
+  /**
+   * A commodity notional of a swap leg. E.g. 2000 bushels of corn.
+   */
+  message CommodityNotional extends Notional {
+    // TODO
+  }
+  
+  /**
+   * Represents the notional value of an interest rate leg of a swap
+   */
+  message InterestRateNotional extends Notional {
+    required readonly Currency currency;
+    required readonly double amount;
+  }
+  
+  /**
+   * A notional that holds a unique id to identify a security to use as a notional.
+   *  e.g. an Index or an Equity.
+   */
+  message SecurityNotional extends Notional {
+    required readonly id.Identifier notionalIdentifier;
+  }
+
+}

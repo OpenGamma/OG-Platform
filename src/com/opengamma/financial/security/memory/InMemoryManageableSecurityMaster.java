@@ -17,14 +17,14 @@ import javax.time.InstantProvider;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.engine.position.PositionMaster;
-import com.opengamma.engine.security.DefaultSecurity;
+import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.security.Security;
 import com.opengamma.financial.security.AddSecurityRequest;
 import com.opengamma.financial.security.ManageableSecurityMaster;
 import com.opengamma.financial.security.UpdateSecurityRequest;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifiables;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierTemplate;
 import com.opengamma.util.ArgumentChecker;
@@ -36,7 +36,7 @@ import com.opengamma.util.ArgumentChecker;
 public class InMemoryManageableSecurityMaster implements ManageableSecurityMaster {
 
   /**
-   * The default scheme used for any {@link UniqueIdentifier}s created by this {@link PositionMaster}.
+   * The default scheme used for any {@link UniqueIdentifier}s created by this {@link PositionSource}.
    */
   public static final String DEFAULT_UID_SCHEME = "Memory";
   /**
@@ -128,10 +128,7 @@ public class InMemoryManageableSecurityMaster implements ManageableSecurityMaste
     
     final UniqueIdentifier uid = getNextSecurityUid();
     Security security = request.getSecurity();
-    if (security instanceof DefaultSecurity) {
-      DefaultSecurity defaultSecurity = (DefaultSecurity) security;
-      defaultSecurity.setUniqueIdentifier(uid);
-    }
+    UniqueIdentifiables.setInto(security, uid);
     _securities.put(uid, request.getSecurity());
     return uid;
   }

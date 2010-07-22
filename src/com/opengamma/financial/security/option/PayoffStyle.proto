@@ -1,0 +1,120 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.financial.security.option {
+
+  abstract message PayoffStyle {
+    binding Java {
+      body "public abstract <T> T accept (PayoffStyleVisitor<T> visitor);";
+    }
+  }
+  
+  message AssetOrNothingPayoffStyle extends PayoffStyle {
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitAssetOrNothingPayoffStyle(this); }";  
+    }
+  }
+
+  message AsymmetricPoweredPayoffStyle extends PayoffStyle {
+    required readonly double power;
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitAsymmetricPoweredPayoffStyle(this); }";
+    }
+  }
+  
+  message BarrierPayoffStyle extends PayoffStyle {
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitBarrierPayoffStyle(this); }";
+    }
+  }
+  
+  message CappedPoweredPayoffStyle extends PayoffStyle {
+    required readonly double power;
+    required readonly double cap;
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitCappedPoweredPayoffStyle(this); }";
+    }
+  }
+  
+  message CashOrNothingPayoffStyle extends PayoffStyle {
+    required readonly double payment;
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitCashOrNothingPayoffStyle(this); }";
+    }
+  }
+  
+  message FadeInPayoffStyle extends PayoffStyle {
+    required readonly double lowerBound;
+    required readonly double upperBound;
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitFadeInPayoffStyle(this); }";
+    }
+  }
+    
+  message FixedStrikeLookbackPayoffStyle extends PayoffStyle {
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitFixedStrikeLookbackPayoffStyle(this); }";
+    }
+  }
+  
+  message FloatingStrikeLookbackPayoffStyle extends PayoffStyle {
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitFloatingStrikeLookbackPayoffStyle(this); }";
+    }
+  }
+  
+  message GapPayoffStyle extends PayoffStyle {
+    required readonly double payment;
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitGapPayoffStyle(this); }";
+    }
+  }
+  
+  message PoweredPayoffStyle extends PayoffStyle {
+    required readonly double power;
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitPoweredPayoffStyle(this); }";
+    }
+  }
+  
+  message SimpleChooserPayoffStyle extends PayoffStyle {
+    required readonly datetime chooseDate;
+    required readonly string chooseDate_zone [default = "UTC"];
+    required readonly double underlyingStrike;
+    required readonly datetime underlyingExpiry;
+    required readonly string underlyingExpiry_zone [default = "UTC"];
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitSimpleChooserPayoffStyle(this); }";
+    }
+  }
+  
+  message SupersharePayoffStyle extends PayoffStyle {
+    required readonly double lowerBound;
+    required readonly double upperBound;
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitSupersharePayoffStyle(this); }";
+    }
+  }
+    
+  message VanillaPayoffStyle extends PayoffStyle {
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitVanillaPayoffStyle(this); }";
+    }
+  }
+}

@@ -9,13 +9,15 @@ import static org.junit.Assert.assertEquals;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.security.Security;
 import com.opengamma.financial.fudgemsg.FinancialFudgeContextConfiguration;
+import com.opengamma.financial.security.FinancialSecurity;
 
 public class FudgeSecurityEncodingTest {
 
@@ -36,9 +38,11 @@ public class FudgeSecurityEncodingTest {
     assertEquals(expectedMsg, actualMsg);
   }
 
-  private void roundTrip(final Security security) {
-    final FudgeMsgEnvelope fme = s_fudgeContext.toFudgeMsg(security);
-    final FudgeFieldContainer message = fme.getMessage();
+  private void roundTrip(final FinancialSecurity security) {
+    final FudgeSerializationContext context = new FudgeSerializationContext(s_fudgeContext);
+    final MutableFudgeFieldContainer message = context.newMessage();
+    security.toFudgeMsg(context, message);
+    FudgeSerializationContext.addClassHeader(message, security.getClass());
     s_logger.debug("Security {} encoded to {}", security, message);
     final Security decoded = s_fudgeContext.fromFudgeMsg(Security.class, message);
     s_logger.debug("Message {} decoded to {}", message, decoded);

@@ -1,0 +1,50 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.financial.security.future {
+
+  /**
+   * Base for a commodity future.
+   */
+  abstract message CommodityFutureSecurity extends FutureSecurity {
+  
+    required string commodityType;
+    optional double unitNumber;
+    optional string unitName;
+
+  }
+  
+  message AgricultureFutureSecurity extends CommodityFutureSecurity {
+  
+    // No additional fields
+    
+    binding Java {
+      body "public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitAgricultureFutureSecurity (this); }";
+    }
+    
+  }
+  
+  message EnergyFutureSecurity extends CommodityFutureSecurity {
+  
+    optional id.Identifier underlyingIdentifier;
+  
+    binding Java {
+      body "public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitEnergyFutureSecurity (this); }";
+    }
+
+  }
+  
+  message MetalFutureSecurity extends CommodityFutureSecurity {
+
+    optional id.Identifier underlyingIdentifier;
+    
+    binding Java {
+      body "public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitMetalFutureSecurity (this); }";
+    }
+
+  }
+
+}

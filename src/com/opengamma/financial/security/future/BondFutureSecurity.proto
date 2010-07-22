@@ -1,0 +1,31 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.financial.security.future {
+
+  /**
+   * A bond that can be delivered to satisfy a bond future contract.  Typically held in a set representing
+   * the 'deliverable basket'.
+   */
+  message BondFutureDeliverable {
+    required id.IdentifierBundle identifiers;
+    required double conversionFactor;
+  }
+
+  /**
+   * A bond future
+   */
+  message BondFutureSecurity extends FutureSecurity {
+  
+    required repeated BondFutureDeliverable basket;
+    required string bondType;
+    
+    binding Java {
+      body "public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitBondFutureSecurity (this); }";
+    }
+    
+  }
+}

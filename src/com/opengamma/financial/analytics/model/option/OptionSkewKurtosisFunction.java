@@ -15,7 +15,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.security.option.Option;
+import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -23,13 +23,9 @@ import com.opengamma.id.UniqueIdentifier;
  *
  */
 public abstract class OptionSkewKurtosisFunction extends AbstractFunction implements FunctionInvoker {
-  /**
-   * 
-   */
+  /** */
   public static final String SKEW = "Skew";
-  /**
-   * 
-   */
+  /** */
   public static final String KURTOSIS = "Kurtosis";
 
   @Override
@@ -37,7 +33,7 @@ public abstract class OptionSkewKurtosisFunction extends AbstractFunction implem
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    if (target.getSecurity() instanceof Option) {
+    if (target.getSecurity() instanceof OptionSecurity) {
       return true;
     }
     return false;

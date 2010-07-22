@@ -22,7 +22,7 @@ import com.opengamma.id.UniqueIdentifier;
  */
 public class MasterSecuritySourceTest {
 
-  private static final DefaultSecurity SECURITY = new DefaultSecurity();
+  private static final DefaultSecurity SECURITY = new DefaultSecurity("TEST");
   private static final SecurityDocument DOCUMENT = new SecurityDocument(SECURITY);
 
   @Test(expected = IllegalArgumentException.class)
@@ -74,7 +74,7 @@ public class MasterSecuritySourceTest {
     @Override
     public SecuritySearchResult search(SecuritySearchRequest request) {
       SecuritySearchResult result = new SecuritySearchResult();
-      result.setSecurityDocuments(Arrays.asList(DOCUMENT));
+      result.getDocuments().add(DOCUMENT);
       return result;
     }
     @Override
