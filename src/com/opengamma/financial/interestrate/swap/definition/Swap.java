@@ -1,33 +1,45 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.interestrate.swap.definition;
 
-import java.util.Arrays;
-
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.LiborAnnuity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
 public class Swap implements InterestRateDerivative {
-  private final double[] _fixedPaymentTimes;
-  private final double[] _floatPaymentTimes;
-  private final double[] _deltaStart;
-  private final double[] _deltaEnd;
-  private final double[] _fixedYearFractions;
-  private final double[] _floatYearFractions;
-  private final double[] _referenceRateYearFractions;
-  private final int _nFix;
-  private final int _nFloat;
 
-  public Swap(final double[] fixedPaymentTimes, final double[] floatingPaymentTimes, final double[] fwdStartOffsets, final double[] fwdEndOffsets) {
+  private final FixedAnnuity _fixedLeg;
+  private final LiborAnnuity _floatingLeg;
+
+  public Swap(final FixedAnnuity fixedLeg, final LiborAnnuity floatingLeg) {
+    Validate.notNull(fixedLeg);
+    Validate.notNull(floatingLeg);
+    _fixedLeg = fixedLeg;
+    _floatingLeg = floatingLeg;
+  }
+
+  /**
+   * This sets up a payer swap (i.e. pay the fixed leg and receive the floating leg) with notional of 1.0
+   * @param fixedPaymentTimes
+   * @param floatingPaymentTimes
+   * @param fwdStartOffsets
+   * @param fwdEndOffsets
+   * @param fundingCurveName
+   * @param liborCurveName
+   */
+  public Swap(final double[] fixedPaymentTimes, final double[] floatingPaymentTimes, final double[] fwdStartOffsets, final double[] fwdEndOffsets, String fundingCurveName, String liborCurveName) {
     Validate.notNull(fixedPaymentTimes);
     Validate.notNull(floatingPaymentTimes);
     Validate.notNull(fwdStartOffsets);
@@ -36,86 +48,24 @@ public class Swap implements InterestRateDerivative {
     ArgumentChecker.notEmpty(floatingPaymentTimes, "floatingPaymentTime");
     ArgumentChecker.notEmpty(fwdStartOffsets, "fwdStartOffsets");
     ArgumentChecker.notEmpty(fwdEndOffsets, "fwdEndOffsets");
-    _nFix = fixedPaymentTimes.length;
-    _nFloat = floatingPaymentTimes.length;
-    if (fwdStartOffsets.length != _nFloat) {
-      throw new IllegalArgumentException("list of floatingPaymentTimes not the same length as start offsets");
-    }
-    if (fwdEndOffsets.length != _nFloat) {
-      throw new IllegalArgumentException("list of floatingPaymentTimes not the same length as end offsets");
-    }
-    _fixedPaymentTimes = fixedPaymentTimes;
-    _floatPaymentTimes = floatingPaymentTimes;
-    _deltaStart = fwdStartOffsets;
-    _deltaEnd = fwdEndOffsets;
-    Arrays.sort(_fixedPaymentTimes);
-    Arrays.sort(_floatPaymentTimes);
-    _fixedYearFractions = new double[_nFix];
-    _fixedYearFractions[0] = _fixedPaymentTimes[0];
-    for (int i = 1; i < _nFix; i++) {
-      _fixedYearFractions[i] = _fixedPaymentTimes[i] - _fixedPaymentTimes[i - 1];
-    }
-    _floatYearFractions = new double[_nFloat];
-    _floatYearFractions[0] = _floatPaymentTimes[0];
-    for (int i = 1; i < _nFloat; i++) {
-      _floatYearFractions[i] = _floatPaymentTimes[i] - _floatPaymentTimes[i - 1];
-    }
-    _referenceRateYearFractions = Arrays.copyOf(_floatYearFractions, _nFloat);
-  }
+    Validate.notNull(fundingCurveName);
+    Validate.notNull(liborCurveName);
 
-  public double[] getFixedPaymentTimes() {
-    return _fixedPaymentTimes;
-  }
-
-  public double[] getFixedYearFractions() {
-    return _fixedYearFractions;
-  }
-
-  public double[] getFloatingPaymentTimes() {
-    return _floatPaymentTimes;
-  }
-
-  public double[] getFloatingYearFractions() {
-    return _floatYearFractions;
-  }
-
-  public double[] getDeltaStart() {
-    return _deltaStart;
-  }
-
-  public double[] getDeltaEnd() {
-    return _deltaEnd;
-  }
-
-  public double[] getReferenceYearFractions() {
-    return _referenceRateYearFractions;
-  }
-
-  public int getNumberOfFixedPayments() {
-    return _nFix;
-  }
-
-  public int getNumberOfFloatingPayments() {
-    return _nFloat;
-  }
-
-  public <T> T accept(final InterestRateDerivativeVisitor<T> visitor) {
-    return visitor.visitSwap(this);
+    _fixedLeg = new FixedAnnuity(fixedPaymentTimes, fundingCurveName);
+    _floatingLeg = new LiborAnnuity(floatingPaymentTimes, 1.0, fwdStartOffsets, fwdEndOffsets, fundingCurveName, liborCurveName);
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + Arrays.hashCode(_deltaEnd);
-    result = prime * result + Arrays.hashCode(_deltaStart);
-    result = prime * result + Arrays.hashCode(_fixedPaymentTimes);
-    result = prime * result + Arrays.hashCode(_floatPaymentTimes);
+    result = prime * result + ((_fixedLeg == null) ? 0 : _fixedLeg.hashCode());
+    result = prime * result + ((_floatingLeg == null) ? 0 : _floatingLeg.hashCode());
     return result;
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -125,20 +75,36 @@ public class Swap implements InterestRateDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final Swap other = (Swap) obj;
-    if (!Arrays.equals(_deltaEnd, other._deltaEnd)) {
+    Swap other = (Swap) obj;
+    if (!ObjectUtils.equals(_fixedLeg, other._fixedLeg)) {
       return false;
     }
-    if (!Arrays.equals(_deltaStart, other._deltaStart)) {
-      return false;
-    }
-    if (!Arrays.equals(_fixedPaymentTimes, other._fixedPaymentTimes)) {
-      return false;
-    }
-    if (!Arrays.equals(_floatPaymentTimes, other._floatPaymentTimes)) {
+    // if (_fixedLeg == null) {
+    // if (other._fixedLeg != null)
+    // return false;
+    // } else if (!_fixedLeg.equals(other._fixedLeg))
+    // return false;
+    if (_floatingLeg == null) {
+      if (other._floatingLeg != null) {
+        return false;
+      }
+    } else if (!_floatingLeg.equals(other._floatingLeg)) {
       return false;
     }
     return true;
+  }
+
+  public FixedAnnuity getFixedLeg() {
+    return _fixedLeg;
+  }
+
+  public LiborAnnuity getFloatingLeg() {
+    return _floatingLeg;
+  }
+
+  @Override
+  public <T> T accept(InterestRateDerivativeVisitor<T> visitor, YieldCurveBundle curves) {
+    return visitor.visitSwap(this, curves);
   }
 
 }

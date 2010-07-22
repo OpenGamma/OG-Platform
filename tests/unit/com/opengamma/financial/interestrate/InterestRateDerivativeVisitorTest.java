@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.interestrate;
@@ -19,49 +19,52 @@ import com.opengamma.financial.interestrate.swap.definition.Swap;
  * 
  */
 public class InterestRateDerivativeVisitorTest {
+  private static final String CURVE_NAME = "Test";
+
   private static final InterestRateDerivativeVisitor<Class<?>> VISITOR = new InterestRateDerivativeVisitor<Class<?>>() {
 
-    private Class<?> visit(final InterestRateDerivative derivative) {
+    private Class<?> visit(final InterestRateDerivative derivative, YieldCurveBundle curves) {
       return derivative.getClass();
     }
 
     @Override
-    public Class<?> visitSwap(final Swap swap) {
-      return visit(swap);
+    public Class<?> visitCash(Cash cash, YieldCurveBundle curves) {
+      return visit(cash, curves);
     }
 
     @Override
-    public Class<?> visitLibor(final Libor libor) {
-      return visit(libor);
+    public Class<?> visitForwardRateAgreement(ForwardRateAgreement fra, YieldCurveBundle curves) {
+      return visit(fra, curves);
     }
 
     @Override
-    public Class<?> visitInterestRateFuture(final InterestRateFuture future) {
-      return visit(future);
+    public Class<?> visitInterestRateFuture(InterestRateFuture future, YieldCurveBundle curves) {
+      return visit(future, curves);
     }
 
     @Override
-    public Class<?> visitForwardRateAgreement(final ForwardRateAgreement fra) {
-      return visit(fra);
+    public Class<?> visitLibor(Libor libor, YieldCurveBundle curves) {
+      return visit(libor, curves);
     }
 
     @Override
-    public Class<?> visitCash(final Cash cash) {
-      return visit(cash);
+    public Class<?> visitSwap(Swap swap, YieldCurveBundle curves) {
+      return visit(swap, curves);
     }
   };
 
   @Test
   public void test() {
-    final Cash cash = new Cash(1);
-    final ForwardRateAgreement fra = new ForwardRateAgreement(0, 1);
-    final InterestRateFuture future = new InterestRateFuture(0, 1);
-    final Libor libor = new Libor(1);
-    final Swap swap = new Swap(new double[] {1}, new double[] {1}, new double[] {0}, new double[] {0});
-    assertEquals(cash.accept(VISITOR), Cash.class);
-    assertEquals(fra.accept(VISITOR), ForwardRateAgreement.class);
-    assertEquals(future.accept(VISITOR), InterestRateFuture.class);
-    assertEquals(libor.accept(VISITOR), Libor.class);
-    assertEquals(swap.accept(VISITOR), Swap.class);
+    YieldCurveBundle curves = new YieldCurveBundle();
+    final Cash cash = new Cash(1, CURVE_NAME);
+    final ForwardRateAgreement fra = new ForwardRateAgreement(0, 1, CURVE_NAME);
+    final InterestRateFuture future = new InterestRateFuture(0, 1, CURVE_NAME);
+    final Libor libor = new Libor(1, CURVE_NAME);
+    final Swap swap = new Swap(new double[] {1}, new double[] {1}, new double[] {0}, new double[] {0}, CURVE_NAME, CURVE_NAME);
+    assertEquals(cash.accept(VISITOR, curves), Cash.class);
+    assertEquals(fra.accept(VISITOR, curves), ForwardRateAgreement.class);
+    assertEquals(future.accept(VISITOR, curves), InterestRateFuture.class);
+    assertEquals(libor.accept(VISITOR, curves), Libor.class);
+    assertEquals(swap.accept(VISITOR, curves), Swap.class);
   }
 }

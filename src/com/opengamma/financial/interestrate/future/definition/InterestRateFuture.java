@@ -1,12 +1,15 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.interestrate.future.definition;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -15,13 +18,16 @@ import com.opengamma.util.ArgumentChecker;
 public class InterestRateFuture implements InterestRateDerivative {
   private final double _startTime;
   private final double _endTime;
+  private final String _curveName;
 
-  public InterestRateFuture(final double startTime, final double endTime) {
+  public InterestRateFuture(final double startTime, final double endTime, final String yieldCurveName) {
     ArgumentChecker.notNegative(startTime, "start time");
     ArgumentChecker.notNegative(endTime, "end time");
+    Validate.notNull(yieldCurveName);
     if (startTime >= endTime) {
       throw new IllegalArgumentException("Start time must be before end time");
     }
+    _curveName = yieldCurveName;
     _startTime = startTime;
     _endTime = endTime;
   }
@@ -34,14 +40,15 @@ public class InterestRateFuture implements InterestRateDerivative {
     return _endTime;
   }
 
-  public <T> T accept(final InterestRateDerivativeVisitor<T> visitor) {
-    return visitor.visitInterestRateFuture(this);
+  public String getCurveName() {
+    return _curveName;
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
+    result = prime * result + ((_curveName == null) ? 0 : _curveName.hashCode());
     long temp;
     temp = Double.doubleToLongBits(_endTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -51,7 +58,7 @@ public class InterestRateFuture implements InterestRateDerivative {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -61,7 +68,14 @@ public class InterestRateFuture implements InterestRateDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final InterestRateFuture other = (InterestRateFuture) obj;
+    InterestRateFuture other = (InterestRateFuture) obj;
+    if (_curveName == null) {
+      if (other._curveName != null) {
+        return false;
+      }
+    } else if (!_curveName.equals(other._curveName)) {
+      return false;
+    }
     if (Double.doubleToLongBits(_endTime) != Double.doubleToLongBits(other._endTime)) {
       return false;
     }
@@ -69,6 +83,11 @@ public class InterestRateFuture implements InterestRateDerivative {
       return false;
     }
     return true;
+  }
+
+  @Override
+  public <T> T accept(InterestRateDerivativeVisitor<T> visitor, YieldCurveBundle curves) {
+    return visitor.visitInterestRateFuture(this, curves);
   }
 
 }

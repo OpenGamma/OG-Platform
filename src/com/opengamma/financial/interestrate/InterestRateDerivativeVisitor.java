@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.interestrate;
@@ -16,14 +16,16 @@ import com.opengamma.financial.interestrate.swap.definition.Swap;
  */
 public interface InterestRateDerivativeVisitor<T> {
 
-  T visitCash(Cash cash);
+  T visitCash(Cash cash, YieldCurveBundle curves);
 
-  T visitForwardRateAgreement(ForwardRateAgreement fra);
+  T visitForwardRateAgreement(ForwardRateAgreement fra, YieldCurveBundle curves);
 
-  T visitInterestRateFuture(InterestRateFuture future);
+  T visitInterestRateFuture(InterestRateFuture future, YieldCurveBundle curves);
 
-  T visitLibor(Libor libor);
+  T visitLibor(Libor libor, YieldCurveBundle curves);
 
-  T visitSwap(final Swap swap);
+  T visitSwap(final Swap swap, YieldCurveBundle curves);
+
+  // T visitFixedAnnuity(final Annuity annuity, YieldCurveBundle curves);
 
 }
