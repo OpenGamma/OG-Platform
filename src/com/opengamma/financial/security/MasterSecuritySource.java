@@ -13,7 +13,6 @@ import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.db.PagingRequest;
 
 /**
  * A {@code SecuritySource} implemented using an underlying {@code SecurityMaster}.
@@ -49,7 +48,6 @@ public class MasterSecuritySource implements SecuritySource {
   public Collection<Security> getSecurities(final IdentifierBundle securityKey) {
     Validate.notNull(securityKey, "securityKey");
     final SecuritySearchRequest req = new SecuritySearchRequest();
-    req.setPagingRequest(PagingRequest.ALL);
     req.setIdentifiers(securityKey);
     return _securityMaster.search(req).getSecurities();
   }
