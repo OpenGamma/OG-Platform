@@ -9,6 +9,18 @@ import java.util.Date;
 import java.util.List;
 
 import com.opengamma.engine.security.Security;
+import com.opengamma.financial.security.db.bond.CouponTypeBean;
+import com.opengamma.financial.security.db.bond.GuaranteeTypeBean;
+import com.opengamma.financial.security.db.bond.IssuerTypeBean;
+import com.opengamma.financial.security.db.bond.MarketBean;
+import com.opengamma.financial.security.db.bond.YieldConventionBean;
+import com.opengamma.financial.security.db.equity.GICSCodeBean;
+import com.opengamma.financial.security.db.future.BondFutureTypeBean;
+import com.opengamma.financial.security.db.future.CashRateTypeBean;
+import com.opengamma.financial.security.db.future.CommodityFutureTypeBean;
+import com.opengamma.financial.security.db.future.FutureBundleBean;
+import com.opengamma.financial.security.db.future.FutureSecurityBean;
+import com.opengamma.financial.security.db.future.UnitBean;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -115,27 +127,10 @@ public interface HibernateSecurityMasterDao {
 
   SecurityBean persistSecurityBean(final SecurityBean bean);
 
-  // Equities
-  // Internal query methods for equities
-  List<EquitySecurityBean> getEquitySecurityBeans();
+  // Debug/testing
+  <T extends SecurityBean> List<T> getAllSecurityBeans(Class<T> beanClass);
 
-  List<EquitySecurityBean> getAllVersionsOfEquitySecurityBean(EquitySecurityBean firstVersion);
-
-  EquitySecurityBean getCurrentEquitySecurityBean(Date now, ExchangeBean exchange, String companyName,
-      CurrencyBean currency);
-
-  EquitySecurityBean getCurrentEquitySecurityBean(Date now, EquitySecurityBean firstVersion);
-
-  EquitySecurityBean getCurrentLiveEquitySecurityBean(Date now, ExchangeBean exchange,
-      String companyName, CurrencyBean currency);
-
-  EquitySecurityBean getCurrentLiveEquitySecurityBean(Date now, EquitySecurityBean firstVersion);
-
-  // Equity options
-  List<OptionSecurityBean> getEquityOptionSecurityBeans();
-  
-  //Options
-  List<OptionSecurityBean> getOptionSecurityBeans();
+  // Helpers for Futures
 
   List<FutureBundleBean> getFutureBundleBeans(Date now, FutureSecurityBean future);
 

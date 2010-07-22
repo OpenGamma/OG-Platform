@@ -17,10 +17,10 @@
          meta-type="string"
 	     id-type="long"
 	     cascade="save-update">
-	    <meta-value value="BOND" class="BondSecurityBean" />
-	    <meta-value value="EQUITY" class="EquitySecurityBean"/>
-	    <meta-value value="FUTURE" class="FutureSecurityBean" />
-      <meta-value value="OPTION" class="OptionSecurityBean" />
+	    <meta-value value="BOND" class="com.opengamma.financial.security.db.bond.BondSecurityBean" />
+	    <meta-value value="EQUITY" class="com.opengamma.financial.security.db.equity.EquitySecurityBean"/>
+	    <meta-value value="FUTURE" class="com.opengamma.financial.security.db.future.FutureSecurityBean" />
+      <meta-value value="OPTION" class="com.opengamma.financial.security.db.option.OptionSecurityBean" />
 	    <!--  insert more subclasses of SecurityBean here -->
 	    <!--  note the order is important here -->
 	    <column name="first_version_descriminator"/> 

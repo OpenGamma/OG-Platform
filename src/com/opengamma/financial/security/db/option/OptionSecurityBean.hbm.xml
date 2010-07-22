@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.financial.security.db.option">
+  <union-subclass name="OptionSecurityBean" extends="com.opengamma.financial.security.db.SecurityBean" table="sec_option">
+    <property name="optionSecurityType" column="option_security_type" type="com.opengamma.financial.security.db.option.OptionSecurityTypeUserType" not-null="true" />
+    <property name="optionExerciseType" column="option_exercise_type" type="com.opengamma.financial.security.db.option.OptionExerciseTypeUserType" not-null="true" />
+    <property name="optionPayoffStyle" column="option_payoff_style" type="com.opengamma.financial.security.db.option.OptionPayoffStyleUserType" not-null="true" />
+    <property name="optionType" column="option_type" type="com.opengamma.financial.security.db.option.OptionTypeUserType" not-null="true" />
+    <property name="strike" type="double" not-null="true" />
+    <property name="expiry" type="date" not-null="true" />
+    <component name="underlying" class="com.opengamma.financial.security.db.IdentifierBean">
+      <property name="scheme" column="underlying_scheme" type="string" />
+      <property name="identifier" column="underlying_identifier" type="string" />
+    </component>
+    <property name="power" type="double" />
+    <property name="cap" type="double" />
+    <many-to-one name="currency" column="currency_id" class="com.opengamma.financial.security.db.CurrencyBean" not-null="true" />
+    <many-to-one name="callCurrency" column="call_currency_id" class="com.opengamma.financial.security.db.CurrencyBean" />
+    <many-to-one name="putCurrency" column="put_currency_id" class="com.opengamma.financial.security.db.CurrencyBean" />
+    <many-to-one name="exchange" column="exchange_id" class="com.opengamma.financial.security.db.ExchangeBean" />
+    <property name="counterparty" type="string" />
+    <property name="margined" type="boolean" />
+    <property name="pointValue" type="double" />
+  </union-subclass>
+  <query name="OptionSecurityBean.all">
+    from OptionSecurityBean
+  </query>
+</hibernate-mapping>

@@ -41,6 +41,25 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
+import com.opengamma.financial.security.db.bond.BondSecurityBean;
+import com.opengamma.financial.security.db.bond.CouponTypeBean;
+import com.opengamma.financial.security.db.bond.GuaranteeTypeBean;
+import com.opengamma.financial.security.db.bond.IssuerTypeBean;
+import com.opengamma.financial.security.db.bond.MarketBean;
+import com.opengamma.financial.security.db.bond.YieldConventionBean;
+import com.opengamma.financial.security.db.equity.EquitySecurityBean;
+import com.opengamma.financial.security.db.equity.EquitySecurityBeanOperation;
+import com.opengamma.financial.security.db.equity.GICSCodeBean;
+import com.opengamma.financial.security.db.future.BondFutureTypeBean;
+import com.opengamma.financial.security.db.future.CashRateTypeBean;
+import com.opengamma.financial.security.db.future.CommodityFutureTypeBean;
+import com.opengamma.financial.security.db.future.FutureBundleBean;
+import com.opengamma.financial.security.db.future.FutureSecurityBean;
+import com.opengamma.financial.security.db.future.UnitBean;
+import com.opengamma.financial.security.db.option.OptionExerciseType;
+import com.opengamma.financial.security.db.option.OptionPayoffStyle;
+import com.opengamma.financial.security.db.option.OptionSecurityBean;
+import com.opengamma.financial.security.db.option.OptionSecurityType;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
@@ -762,14 +781,14 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
       assertEquals(gbpBean, persistedSecondVersion.getCurrency());
       assertEquals(exchangeBean, persistedSecondVersion.getExchange());
       
-      List<OptionSecurityBean> optionSecurityBeans = _hibernateSecurityMasterDao.getOptionSecurityBeans();
+      List<OptionSecurityBean> optionSecurityBeans = _hibernateSecurityMasterDao.getAllSecurityBeans(OptionSecurityBean.class);
       assertNotNull(optionSecurityBeans);
       assertTrue(optionSecurityBeans.contains(persistedFirstVersion));
       assertTrue(optionSecurityBeans.contains(persistedSecondVersion));
     }
     
     //get all beans so far and test
-    List<OptionSecurityBean> optionSecurityBeans = _hibernateSecurityMasterDao.getOptionSecurityBeans();
+    List<OptionSecurityBean> optionSecurityBeans = _hibernateSecurityMasterDao.getAllSecurityBeans(OptionSecurityBean.class);
     assertNotNull(optionSecurityBeans);
     assertTrue(optionSecurityBeans.size() == optionSecurityTypes.length * 2);
     log("optionSecurityBean: finished");
@@ -805,7 +824,7 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     String displayName = equityBean.getDisplayName();
     
     _hibernateSecurityMasterDao.persistSecurityBean(equityBean);
-    List<EquitySecurityBean> equitySecurityBeans = _hibernateSecurityMasterDao.getEquitySecurityBeans();
+    List<EquitySecurityBean> equitySecurityBeans = _hibernateSecurityMasterDao.getAllSecurityBeans(EquitySecurityBean.class);
     assertNotNull(equitySecurityBeans);
     assertEquals(1, equitySecurityBeans.size());
     EquitySecurityBean persistedFirstVersion = equitySecurityBeans.get(0);
@@ -853,52 +872,12 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     assertEquals(gicsCodeBean, persistedSecondVersion.getGICSCode());
        
     //test get all equity beans
-    equitySecurityBeans = _hibernateSecurityMasterDao.getEquitySecurityBeans();
+    equitySecurityBeans = _hibernateSecurityMasterDao.getAllSecurityBeans(EquitySecurityBean.class);
     assertNotNull(equitySecurityBeans);
     assertEquals(2, equitySecurityBeans.size());
     assertTrue(equitySecurityBeans.contains(persistedFirstVersion));
     assertTrue(equitySecurityBeans.contains(persistedSecondVersion));
     
-    //test get all version
-    List<EquitySecurityBean> allVersions = _hibernateSecurityMasterDao.getAllVersionsOfEquitySecurityBean((EquitySecurityBean) persistedFirstVersion);
-    assertNotNull(allVersions);
-    assertTrue(allVersions.size() == 2);
-    assertTrue(allVersions.contains(persistedFirstVersion));
-    assertTrue(allVersions.contains(persistedSecondVersion));
-    
-    //test get current bean
-    EquitySecurityBean firstVersion = (EquitySecurityBean) persistedFirstVersion;
-    EquitySecurityBean secondVersion = (EquitySecurityBean) persistedSecondVersion;
-    cal.set(Calendar.YEAR, 1990);
-    EquitySecurityBean result = _hibernateSecurityMasterDao.getCurrentLiveEquitySecurityBean(cal.getTime(), firstVersion);
-    assertNull(result);
-    
-    
-    cal.set(Calendar.YEAR, 2001);
-    result = _hibernateSecurityMasterDao.getCurrentLiveEquitySecurityBean(cal.getTime(), firstVersion);
-    assertNotNull(result);
-    assertEquals(firstVersion, result);
-    result = _hibernateSecurityMasterDao.getCurrentLiveEquitySecurityBean(cal.getTime(), firstVersion.getExchange(), firstVersion.getCompanyName(), firstVersion.getCurrency());
-    assertEquals(firstVersion, result);
-    
-    result = _hibernateSecurityMasterDao.getCurrentEquitySecurityBean(cal.getTime(), firstVersion);
-    assertNotNull(result);
-    assertEquals(firstVersion, result);
-    result = _hibernateSecurityMasterDao.getCurrentEquitySecurityBean(cal.getTime(), firstVersion.getExchange(), firstVersion.getCompanyName(), firstVersion.getCurrency());
-    assertEquals(firstVersion, result);
-    
-    cal.set(Calendar.YEAR, 2003);
-    result = _hibernateSecurityMasterDao.getCurrentLiveEquitySecurityBean(cal.getTime(), firstVersion);
-    assertNotNull(result);
-    assertEquals(secondVersion, result);
-    result = _hibernateSecurityMasterDao.getCurrentLiveEquitySecurityBean(cal.getTime(), secondVersion.getExchange(), secondVersion.getCompanyName(), secondVersion.getCurrency());
-    assertEquals(secondVersion, result);
-    
-    result = _hibernateSecurityMasterDao.getCurrentEquitySecurityBean(cal.getTime(), firstVersion);
-    assertNotNull(result);
-    assertEquals(secondVersion, result);
-    result = _hibernateSecurityMasterDao.getCurrentEquitySecurityBean(cal.getTime(), secondVersion.getExchange(), secondVersion.getCompanyName(), secondVersion.getCurrency());
-    assertEquals(secondVersion, result);
     log("equitySecurityBean: finished");
   }
 
@@ -999,7 +978,7 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     _hibernateSecurityMasterDao.associateOrUpdateIdentifierWithSecurity(later, sedol1, persistedSecondVersion);
        
     //get all equity beans
-    List<EquitySecurityBean> equitySecurityBeans = _hibernateSecurityMasterDao.getEquitySecurityBeans();
+    List<EquitySecurityBean> equitySecurityBeans = _hibernateSecurityMasterDao.getAllSecurityBeans(EquitySecurityBean.class);
     assertNotNull(equitySecurityBeans);
     assertTrue(equitySecurityBeans.contains(persistSecurityBean));
     assertTrue(equitySecurityBeans.contains(persistedSecondVersion));
@@ -1124,7 +1103,7 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
    * 
    */
   private void assertNoPersistedEquites() {
-    List<EquitySecurityBean> equitySecurityBeans = _hibernateSecurityMasterDao.getEquitySecurityBeans();
+    List<EquitySecurityBean> equitySecurityBeans = _hibernateSecurityMasterDao.getAllSecurityBeans(EquitySecurityBean.class);
     assertNotNull(equitySecurityBeans);
     assertTrue(equitySecurityBeans.isEmpty());
     assertNoPersistedDependentBeans();
@@ -1151,7 +1130,7 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
    * 
    */
   private void assertNoPersistedOptions() {
-    List<OptionSecurityBean> optionSecurityBeans = _hibernateSecurityMasterDao.getOptionSecurityBeans();
+    List<OptionSecurityBean> optionSecurityBeans = _hibernateSecurityMasterDao.getAllSecurityBeans(OptionSecurityBean.class);
     assertNotNull(optionSecurityBeans);
     assertTrue(optionSecurityBeans.isEmpty());
     assertNoPersistedDependentBeans();
