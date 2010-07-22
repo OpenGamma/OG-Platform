@@ -32,6 +32,8 @@ public interface PayoffStyleVisitor<T> {
   
   T visitPoweredPayoffStyle(PoweredPayoffStyle payoffStyle);
 
+  T visitSupersharePayoffStyle(SupersharePayoffStyle payoffStyle);
+  
   T visitVanillaPayoffStyle(VanillaPayoffStyle payoffStyle);
   
 }

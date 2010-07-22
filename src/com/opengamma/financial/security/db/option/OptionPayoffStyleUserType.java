@@ -17,6 +17,7 @@ import com.opengamma.financial.security.option.FloatingStrikeLookbackPayoffStyle
 import com.opengamma.financial.security.option.GapPayoffStyle;
 import com.opengamma.financial.security.option.PayoffStyleVisitor;
 import com.opengamma.financial.security.option.PoweredPayoffStyle;
+import com.opengamma.financial.security.option.SupersharePayoffStyle;
 import com.opengamma.financial.security.option.VanillaPayoffStyle;
 
 /**
@@ -34,6 +35,7 @@ public class OptionPayoffStyleUserType extends EnumUserType<OptionPayoffStyle> {
   private static final String FLOATING_STRIKE_LOOKBACK = "Floating-Strike Lookback";
   private static final String GAP = "Gap";
   private static final String POWERED = "Powered";
+  private static final String SUPERSHARE = "Supershare";
   private static final String VANILLA = "Vanilla";
 
   public OptionPayoffStyleUserType() {
@@ -94,6 +96,11 @@ public class OptionPayoffStyleUserType extends EnumUserType<OptionPayoffStyle> {
         return POWERED;
       }
 
+      @Override
+      public String visitSupersharePayoffStyle(SupersharePayoffStyle payoffStyle) {
+        return SUPERSHARE;
+      }
+      
       @Override
       public String visitVanillaPayoffStyle(VanillaPayoffStyle payoffStyle) {
         return VANILLA;

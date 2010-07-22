@@ -36,6 +36,7 @@ import com.opengamma.financial.security.option.OptionSecurityVisitor;
 import com.opengamma.financial.security.option.PayoffStyle;
 import com.opengamma.financial.security.option.PayoffStyleVisitor;
 import com.opengamma.financial.security.option.PoweredPayoffStyle;
+import com.opengamma.financial.security.option.SupersharePayoffStyle;
 import com.opengamma.financial.security.option.SwapOptionSecurity;
 import com.opengamma.financial.security.option.VanillaPayoffStyle;
 
@@ -129,6 +130,11 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
         return new PoweredPayoffStyle(bean.getPower());
       }
 
+      @Override
+      public PayoffStyle visitSupersharePayoffStyle(SupersharePayoffStyle payoffStyle) {
+        return new SupersharePayoffStyle(bean.getLowerBound(), bean.getUpperBound());
+      }
+      
       @Override
       public PayoffStyle visitVanillaPayoffStyle(VanillaPayoffStyle payoffStyle) {
         return new VanillaPayoffStyle();
@@ -279,6 +285,8 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
 
           @Override
           public OptionPayoffStyle visitFadeInPayoffStyle(FadeInPayoffStyle payoffStyle) {
+            bean.setLowerBound(payoffStyle.getLowerBound());
+            bean.setUpperBound(payoffStyle.getUpperBound());
             return OptionPayoffStyle.FADE_IN;
           }
 
@@ -294,6 +302,7 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
 
           @Override
           public OptionPayoffStyle visitGapPayoffStyle(GapPayoffStyle payoffStyle) {
+            bean.setPayment(payoffStyle.getPayment());
             return OptionPayoffStyle.GAP;
           }
           
@@ -303,6 +312,13 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
             return OptionPayoffStyle.POWERED;
           }
 
+          @Override
+          public OptionPayoffStyle visitSupersharePayoffStyle(SupersharePayoffStyle payoffStyle) {
+            bean.setLowerBound(payoffStyle.getLowerBound());
+            bean.setUpperBound(payoffStyle.getUpperBound());
+            return OptionPayoffStyle.SUPERSHARE;
+          }
+          
           @Override
           public OptionPayoffStyle visitVanillaPayoffStyle(VanillaPayoffStyle payoffStyle) {
             return OptionPayoffStyle.VANILLA;

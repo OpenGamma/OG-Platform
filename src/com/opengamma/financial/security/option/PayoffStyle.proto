@@ -90,6 +90,15 @@ namespace com.opengamma.financial.security.option {
     }
   }
   
+  message SupersharePayoffStyle extends PayoffStyle {
+    required readonly double lowerBound;
+    required readonly double upperBound;
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitSupersharePayoffStyle(this); }";
+    }
+  }
+    
   message VanillaPayoffStyle extends PayoffStyle {
     binding Java {
       method equals;
