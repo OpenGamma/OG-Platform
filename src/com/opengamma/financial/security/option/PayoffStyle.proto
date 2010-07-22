@@ -51,6 +51,15 @@ namespace com.opengamma.financial.security.option {
     }
   }
   
+  message FadeInPayoffStyle extends PayoffStyle {
+    required readonly double lowerBound;
+    required readonly double upperBound;
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitFadeInPayoffStyle(this); }";
+    }
+  }
+  
   message FixedStrikePayoffStyle extends PayoffStyle {
     binding Java {
       method equals;

@@ -23,6 +23,8 @@ public enum OptionPayoffStyle {
   CAPPED_POWERED,
   /** Cash-or-Nothing*/
   CASH_OR_NOTHING,
+  /** Fade-in */
+  FADE_IN,
   /** Fixed Strike */
   FIXED_STRIKE,
   /** Powered */
@@ -42,6 +44,8 @@ public enum OptionPayoffStyle {
         return visitor.visitCappedPoweredPayoffStyle(null);
       case CASH_OR_NOTHING:
         return visitor.visitCashOrNothingPayoffStyle(null);
+      case FADE_IN:
+        return visitor.visitFadeInPayoffStyle(null);
       case FIXED_STRIKE:
         return visitor.visitFixedStrikePayoffStyle(null);
       case POWERED:

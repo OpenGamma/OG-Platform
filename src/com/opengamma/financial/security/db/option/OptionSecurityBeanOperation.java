@@ -25,6 +25,7 @@ import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.ExerciseTypeVisitor;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.FadeInPayoffStyle;
 import com.opengamma.financial.security.option.FixedStrikePayoffStyle;
 import com.opengamma.financial.security.option.FutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionOptionSecurity;
@@ -37,7 +38,7 @@ import com.opengamma.financial.security.option.SwapOptionSecurity;
 import com.opengamma.financial.security.option.VanillaPayoffStyle;
 
 /**
- * Conversion operation for OptionSecurity to/from OptionSecurityBean 
+ * Conversion operation for OptionSecurity to/from OptionSecurityBean
  */
 public final class OptionSecurityBeanOperation extends AbstractBeanOperation<OptionSecurity, OptionSecurityBean> {
 
@@ -99,6 +100,11 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
       @Override
       public PayoffStyle visitCashOrNothingPayoffStyle(CashOrNothingPayoffStyle payoffStyle) {
         return new CashOrNothingPayoffStyle(bean.getPayment());
+      }
+
+      @Override
+      public PayoffStyle visitFadeInPayoffStyle(FadeInPayoffStyle payoffStyle) {
+        return new FadeInPayoffStyle(bean.getLowerBound(), bean.getUpperBound());
       }
 
       @Override
@@ -164,9 +170,9 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
 
       private Boolean beanEquals(final OptionSecurity security) {
         return ObjectUtils.equals(bean.getOptionExerciseType(), security.getExerciseType()) && ObjectUtils.equals(bean.getOptionPayoffStyle(), security.getPayoffStyle())
-            && ObjectUtils.equals(bean.getOptionSecurityType(), OptionSecurityType.identify(security)) && ObjectUtils.equals(bean.getOptionType(), security.getOptionType())
-            && ObjectUtils.equals(bean.getStrike(), security.getStrike()) && ObjectUtils.equals(dateToExpiry(bean.getExpiry()), security.getExpiry())
-            && ObjectUtils.equals(bean.getUnderlying(), security.getUnderlyingIdentifier()) && ObjectUtils.equals(currencyBeanToCurrency(bean.getCurrency()), security.getCurrency());
+        && ObjectUtils.equals(bean.getOptionSecurityType(), OptionSecurityType.identify(security)) && ObjectUtils.equals(bean.getOptionType(), security.getOptionType())
+        && ObjectUtils.equals(bean.getStrike(), security.getStrike()) && ObjectUtils.equals(dateToExpiry(bean.getExpiry()), security.getExpiry())
+        && ObjectUtils.equals(bean.getUnderlying(), security.getUnderlyingIdentifier()) && ObjectUtils.equals(currencyBeanToCurrency(bean.getCurrency()), security.getCurrency());
       }
 
       @Override
@@ -175,7 +181,7 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
           return false;
         }
         return ObjectUtils.equals(bean.getCounterparty(), security.getCounterparty()) && ObjectUtils.equals(currencyBeanToCurrency(bean.getPutCurrency()), security.getPutCurrency())
-            && ObjectUtils.equals(currencyBeanToCurrency(bean.getCallCurrency()), security.getCallCurrency());
+        && ObjectUtils.equals(currencyBeanToCurrency(bean.getCallCurrency()), security.getCallCurrency());
       }
 
       @Override
@@ -200,7 +206,7 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
           return false;
         }
         return ObjectUtils.equals(bean.getPointValue(), security.getPointValue()) && ObjectUtils.equals(bean.getExchange(), security.getExchange())
-            && ObjectUtils.equals(bean.isMargined(), security.getIsMargined());
+        && ObjectUtils.equals(bean.isMargined(), security.getIsMargined());
       }
 
       @Override
@@ -252,11 +258,16 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
             bean.setCap(payoffStyle.getCap());
             return OptionPayoffStyle.CAPPED_POWERED;
           }
-          
+
           @Override
           public OptionPayoffStyle visitCashOrNothingPayoffStyle(CashOrNothingPayoffStyle payoffStyle) {
             bean.setPayment(payoffStyle.getPayment());
             return OptionPayoffStyle.CASH_OR_NOTHING;
+          }
+
+          @Override
+          public OptionPayoffStyle visitFadeInPayoffStyle(FadeInPayoffStyle payoffStyle) {
+            return OptionPayoffStyle.FADE_IN;
           }
 
           @Override

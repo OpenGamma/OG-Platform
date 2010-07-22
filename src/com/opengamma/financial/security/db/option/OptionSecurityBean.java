@@ -41,6 +41,8 @@ public class OptionSecurityBean extends SecurityBean {
   private Boolean _margined;
   private Double _pointValue;
   private Double _payment;
+  private Double _lowerBound;
+  private Double _upperBound;
   private IdentifierBean _underlying;
 
   public OptionSecurityBean() {
@@ -159,19 +161,19 @@ public class OptionSecurityBean extends SecurityBean {
   public void setCurrency(CurrencyBean currency) {
     _currency = currency;
   }
-  
+
   public CurrencyBean getPutCurrency() {
     return _putCurrency;
   }
-  
+
   public void setPutCurrency(final CurrencyBean currency) {
     _putCurrency = currency;
   }
-  
+
   public CurrencyBean getCallCurrency() {
     return _callCurrency;
   }
-  
+
   public void setCallCurrency(final CurrencyBean currency) {
     _callCurrency = currency;
   }
@@ -182,11 +184,11 @@ public class OptionSecurityBean extends SecurityBean {
   public ExchangeBean getExchange() {
     return _exchange;
   }
-  
+
   public void setCounterparty(final String counterparty) {
     _counterparty = counterparty;
   }
-  
+
   public String getCounterparty() {
     return _counterparty;
   }
@@ -198,19 +200,19 @@ public class OptionSecurityBean extends SecurityBean {
   public void setExchange(ExchangeBean exchange) {
     _exchange = exchange;
   }
-  
+
   public Double getPower() {
     return _power;
   }
-  
+
   public void setPower(final Double power) {
     _power = power;
   }
-  
+
   public Boolean isMargined() {
     return _margined;
   }
-  
+
   public void setMargined(final Boolean margined) {
     _margined = margined;
   }
@@ -218,65 +220,85 @@ public class OptionSecurityBean extends SecurityBean {
   public Double getPointValue() {
     return _pointValue;
   }
-  
+
   public void setPointValue(Double pointValue) {
     _pointValue = pointValue;
   }
-  
+
   public Double getPayment() {
     return _payment;
   }
-  
+
   public void setPayment(Double payment) {
     _payment = payment;
   }
-  
+
+  public Double getLowerBound() {
+    return _lowerBound;
+  }
+
+  public void setLowerBound(Double lowerBound) {
+    _lowerBound = lowerBound;
+  }
+
+  public Double getUpperBound() {
+    return _upperBound;
+  }
+
+  public void setUpperBound(Double upperBound) {
+    _upperBound = upperBound;
+  }
+
   @Override
   public boolean equals(final Object other) {
     if (!(other instanceof OptionSecurityBean)) {
       return false;
     }
     OptionSecurityBean option = (OptionSecurityBean) other;
-//    if (getId() != -1 && option.getId() != -1) {
-//      return getId().longValue() == option.getId().longValue();
-//    }
+    //    if (getId() != -1 && option.getId() != -1) {
+    //      return getId().longValue() == option.getId().longValue();
+    //    }
     return new EqualsBuilder()
-        .append(getId(), option.getId())
-        .append(getOptionType(), option.getOptionType())
-        .append(getStrike(), option.getStrike())
-        .append(getExpiry(), option.getExpiry())
-        .append(getUnderlying(), option.getUnderlying())
-        .append(getCurrency(), option.getCurrency())
-        .append(getPutCurrency(), option.getPutCurrency())
-        .append(getCallCurrency(), option.getCallCurrency())
-        .append(getExchange(), option.getExchange())
-        .append(getCounterparty(), option.getCounterparty())
-        .append(getPower(), option.getPower())
-        .append(isMargined(), option.isMargined())
-        .append(getPointValue(), option.getPointValue())
-        .append(getPayment(), option.getPayment())
-        .append(getCap(), option.getCap())
-        .isEquals();
+      .append(getId(), option.getId())
+      .append(getOptionType(), option.getOptionType())
+      .append(getStrike(), option.getStrike())
+      .append(getExpiry(), option.getExpiry())
+      .append(getUnderlying(), option.getUnderlying())
+      .append(getCurrency(), option.getCurrency())
+      .append(getPutCurrency(), option.getPutCurrency())
+      .append(getCallCurrency(), option.getCallCurrency())
+      .append(getExchange(), option.getExchange())
+      .append(getCounterparty(), option.getCounterparty())
+      .append(getPower(), option.getPower())
+      .append(isMargined(), option.isMargined())
+      .append(getPointValue(), option.getPointValue())
+      .append(getPayment(), option.getPayment())
+      .append(getCap(), option.getCap())
+      .append(getLowerBound(), option.getLowerBound())
+      .append(getUpperBound(), option.getUpperBound())
+      .isEquals();
   }
 
   @Override
   public int hashCode() {
     return new HashCodeBuilder()
-        .append(getOptionType())
-        .append(getStrike())
-        .append(getExpiry())
-        .append(getUnderlying())
-        .append(getCurrency())
-        .append(getPutCurrency())
-        .append(getCallCurrency())
-        .append(getExchange())
-        .append(getCounterparty())
-        .append(getPower())
-        .append(isMargined())
-        .append(getPointValue())
-        .append(getPayment())
-        .append(getCap())
-        .toHashCode();
+      .append(getOptionType())
+      .append(getStrike())
+      .append(getExpiry())
+      .append(getUnderlying())
+      .append(getCurrency())
+      .append(getPutCurrency())
+      .append(getCallCurrency())
+      .append(getExchange())
+      .append(getCounterparty())
+      .append(getPower())
+      .append(isMargined())
+      .append(getPointValue())
+      .append(getPayment())
+      .append(getCap())
+      .append(getLowerBound())
+      .append(getUpperBound())
+      .toHashCode();
   }
 
   @Override
