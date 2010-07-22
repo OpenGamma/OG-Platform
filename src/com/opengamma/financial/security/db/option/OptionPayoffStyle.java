@@ -13,29 +13,35 @@ import com.opengamma.financial.security.option.PayoffStyleVisitor;
  */
 public enum OptionPayoffStyle {
 
+  /** Asset or Nothing */
+  ASSET_OR_NOTHING,
   /** Asymmetric powered */
   ASYMMETRIC_POWERED,
   /** Barrier */
   BARRIER,
   /** Capped Powered*/
   CAPPED_POWERED,
+  /** Cash-or-Nothing*/
+  CASH_OR_NOTHING,
   /** Fixed Strike */
   FIXED_STRIKE,
   /** Powered */
   POWERED,
   /** Vanilla */
-  VANILLA,
-  /** Asset or Nothing */
-  ASSET_OR_NOTHING;
+  VANILLA;
 
   public <T> T accept(final PayoffStyleVisitor<T> visitor) {
     switch (this) {
+      case ASSET_OR_NOTHING:
+        return visitor.visitAssetOrNothingPayoffStyle(null);
       case ASYMMETRIC_POWERED:
         return visitor.visitAsymmetricPoweredPayoffStyle(null);
       case BARRIER:
         return visitor.visitBarrierPayoffStyle(null);
       case CAPPED_POWERED:
         return visitor.visitCappedPoweredPayoffStyle(null);
+      case CASH_OR_NOTHING:
+        return visitor.visitCashOrNothingPayoffStyle(null);
       case FIXED_STRIKE:
         return visitor.visitFixedStrikePayoffStyle(null);
       case POWERED:

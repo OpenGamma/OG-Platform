@@ -12,6 +12,13 @@ namespace com.opengamma.financial.security.option {
     }
   }
   
+  message AssetOrNothingPayoffStyle extends PayoffStyle {
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitAssetOrNothingPayoffStyle(this); }";  
+    }
+  }
+
   message AsymmetricPoweredPayoffStyle extends PayoffStyle {
     required readonly double power;
     binding Java {
@@ -36,6 +43,14 @@ namespace com.opengamma.financial.security.option {
     }
   }
   
+  message CashOrNothingPayoffStyle extends PayoffStyle {
+    required readonly double payment;
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitCashOrNothingPayoffStyle(this); }";
+    }
+  }
+  
   message FixedStrikePayoffStyle extends PayoffStyle {
     binding Java {
       method equals;
@@ -55,13 +70,6 @@ namespace com.opengamma.financial.security.option {
     binding Java {
       method equals;
       body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitVanillaPayoffStyle(this); }";
-    }
-  }
-
-  message AssetOrNothingPayoffStyle extends PayoffStyle {
-    binding Java {
-      method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitAssetOrNothingPayoffStyle(this); }";  
     }
   }
 }

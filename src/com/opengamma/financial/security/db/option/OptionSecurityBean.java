@@ -40,6 +40,7 @@ public class OptionSecurityBean extends SecurityBean {
   private Double _cap;
   private Boolean _margined;
   private Double _pointValue;
+  private Double _payment;
   private IdentifierBean _underlying;
 
   public OptionSecurityBean() {
@@ -222,6 +223,14 @@ public class OptionSecurityBean extends SecurityBean {
     _pointValue = pointValue;
   }
   
+  public Double getPayment() {
+    return _payment;
+  }
+  
+  public void setPayment(Double payment) {
+    _payment = payment;
+  }
+  
   @Override
   public boolean equals(final Object other) {
     if (!(other instanceof OptionSecurityBean)) {
@@ -245,6 +254,8 @@ public class OptionSecurityBean extends SecurityBean {
         .append(getPower(), option.getPower())
         .append(isMargined(), option.isMargined())
         .append(getPointValue(), option.getPointValue())
+        .append(getPayment(), option.getPayment())
+        .append(getCap(), option.getCap())
         .isEquals();
   }
 
@@ -263,6 +274,8 @@ public class OptionSecurityBean extends SecurityBean {
         .append(getPower())
         .append(isMargined())
         .append(getPointValue())
+        .append(getPayment())
+        .append(getCap())
         .toHashCode();
   }
 

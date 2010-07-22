@@ -19,6 +19,7 @@ import com.opengamma.financial.security.option.BarrierPayoffStyle;
 import com.opengamma.financial.security.option.BermudanExerciseType;
 import com.opengamma.financial.security.option.BondOptionSecurity;
 import com.opengamma.financial.security.option.CappedPoweredPayoffStyle;
+import com.opengamma.financial.security.option.CashOrNothingPayoffStyle;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
@@ -76,6 +77,11 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
     final PayoffStyle payoffStyle = bean.getOptionPayoffStyle().accept(new PayoffStyleVisitor<PayoffStyle>() {
 
       @Override
+      public PayoffStyle visitAssetOrNothingPayoffStyle(AssetOrNothingPayoffStyle payoffStyle) {
+        return new AssetOrNothingPayoffStyle();
+      }
+
+      @Override
       public PayoffStyle visitAsymmetricPoweredPayoffStyle(AsymmetricPoweredPayoffStyle payoffStyle) {
         return new AsymmetricPoweredPayoffStyle(bean.getPower());
       }
@@ -88,6 +94,11 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
       @Override
       public PayoffStyle visitCappedPoweredPayoffStyle(CappedPoweredPayoffStyle payoffStyle) {
         return new CappedPoweredPayoffStyle(bean.getPower(), bean.getCap());
+      }
+
+      @Override
+      public PayoffStyle visitCashOrNothingPayoffStyle(CashOrNothingPayoffStyle payoffStyle) {
+        return new CashOrNothingPayoffStyle(bean.getPayment());
       }
 
       @Override
@@ -105,10 +116,6 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
         return new VanillaPayoffStyle();
       }
 
-      @Override
-      public PayoffStyle visitAssetOrNothingPayoffStyle(AssetOrNothingPayoffStyle payoffStyle) {
-        return new AssetOrNothingPayoffStyle();
-      }
     });
     OptionSecurity sec = bean.getOptionSecurityType().accept(new OptionSecurityVisitor<OptionSecurity>() {
 
@@ -224,6 +231,11 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
         bean.setOptionPayoffStyle(security.getPayoffStyle().accept(new PayoffStyleVisitor<OptionPayoffStyle>() {
 
           @Override
+          public OptionPayoffStyle visitAssetOrNothingPayoffStyle(AssetOrNothingPayoffStyle payoffStyle) {
+            return OptionPayoffStyle.ASSET_OR_NOTHING;
+          }
+
+          @Override
           public OptionPayoffStyle visitAsymmetricPoweredPayoffStyle(AsymmetricPoweredPayoffStyle payoffStyle) {
             bean.setPower(payoffStyle.getPower());
             return OptionPayoffStyle.ASYMMETRIC_POWERED;
@@ -237,8 +249,14 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
           @Override
           public OptionPayoffStyle visitCappedPoweredPayoffStyle(CappedPoweredPayoffStyle payoffStyle) {
             bean.setPower(payoffStyle.getPower());
-            bean.setPower(payoffStyle.getCap());
+            bean.setCap(payoffStyle.getCap());
             return OptionPayoffStyle.CAPPED_POWERED;
+          }
+          
+          @Override
+          public OptionPayoffStyle visitCashOrNothingPayoffStyle(CashOrNothingPayoffStyle payoffStyle) {
+            bean.setPayment(payoffStyle.getPayment());
+            return OptionPayoffStyle.CASH_OR_NOTHING;
           }
 
           @Override
@@ -257,10 +275,6 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
             return OptionPayoffStyle.VANILLA;
           }
 
-          @Override
-          public OptionPayoffStyle visitAssetOrNothingPayoffStyle(AssetOrNothingPayoffStyle payoffStyle) {
-            return OptionPayoffStyle.ASSET_OR_NOTHING;
-          }
         }));
         bean.setOptionSecurityType(OptionSecurityType.identify(security));
         bean.setOptionType(security.getOptionType());

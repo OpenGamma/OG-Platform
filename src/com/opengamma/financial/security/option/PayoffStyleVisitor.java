@@ -12,18 +12,20 @@ package com.opengamma.financial.security.option;
  */
 public interface PayoffStyleVisitor<T> {
 
+  T visitAssetOrNothingPayoffStyle(AssetOrNothingPayoffStyle payoffStyle);
+
   T visitAsymmetricPoweredPayoffStyle(AsymmetricPoweredPayoffStyle payoffStyle);
 
   T visitBarrierPayoffStyle(BarrierPayoffStyle payoffStyle);
 
   T visitCappedPoweredPayoffStyle(CappedPoweredPayoffStyle payoffStyle);
 
+  T visitCashOrNothingPayoffStyle(CashOrNothingPayoffStyle payoffStyle);
+  
   T visitFixedStrikePayoffStyle(FixedStrikePayoffStyle payoffStyle);
 
   T visitPoweredPayoffStyle(PoweredPayoffStyle payoffStyle);
 
   T visitVanillaPayoffStyle(VanillaPayoffStyle payoffStyle);
   
-  T visitAssetOrNothingPayoffStyle(AssetOrNothingPayoffStyle payoffStyle);
-
 }
