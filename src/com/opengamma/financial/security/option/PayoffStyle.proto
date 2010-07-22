@@ -51,6 +51,16 @@ namespace com.opengamma.financial.security.option {
     }
   }
   
+  message ExtremeSpreadPayoffStyle extends PayoffStyle {
+    required readonly datetime periodEnd;
+    required readonly string periodEndTimeZone;
+    required readonly boolean isReverse;
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitExtremeSpreadPayoffStyle(this); }";
+    }
+  }
+  
   message FadeInPayoffStyle extends PayoffStyle {
     required readonly double lowerBound;
     required readonly double upperBound;

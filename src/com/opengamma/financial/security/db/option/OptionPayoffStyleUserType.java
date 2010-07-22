@@ -11,6 +11,7 @@ import com.opengamma.financial.security.option.AsymmetricPoweredPayoffStyle;
 import com.opengamma.financial.security.option.BarrierPayoffStyle;
 import com.opengamma.financial.security.option.CappedPoweredPayoffStyle;
 import com.opengamma.financial.security.option.CashOrNothingPayoffStyle;
+import com.opengamma.financial.security.option.ExtremeSpreadPayoffStyle;
 import com.opengamma.financial.security.option.FadeInPayoffStyle;
 import com.opengamma.financial.security.option.FixedStrikeLookbackPayoffStyle;
 import com.opengamma.financial.security.option.FloatingStrikeLookbackPayoffStyle;
@@ -31,6 +32,7 @@ public class OptionPayoffStyleUserType extends EnumUserType<OptionPayoffStyle> {
   private static final String BARRIER = "Barrier";
   private static final String CAPPED_POWERED = "Capped Powered";
   private static final String CASH_OR_NOTHING = "Cash-or-Nothing";
+  private static final String EXTREME_SPREAD = "Extreme Spread";
   private static final String FADE_IN = "Fade-In";
   private static final String FIXED_STRIKE_LOOKBACK = "Fixed-Strike Lookback";
   private static final String FLOATING_STRIKE_LOOKBACK = "Floating-Strike Lookback";
@@ -73,6 +75,11 @@ public class OptionPayoffStyleUserType extends EnumUserType<OptionPayoffStyle> {
         return CASH_OR_NOTHING;
       }
 
+      @Override
+      public String visitExtremeSpreadPayoffStyle(final ExtremeSpreadPayoffStyle payoffStyle) {
+        return EXTREME_SPREAD;
+      }
+      
       @Override
       public String visitFadeInPayoffStyle(final FadeInPayoffStyle payoffStyle) {
         return FADE_IN;

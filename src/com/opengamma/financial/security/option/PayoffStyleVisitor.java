@@ -22,6 +22,8 @@ public interface PayoffStyleVisitor<T> {
 
   T visitCashOrNothingPayoffStyle(CashOrNothingPayoffStyle payoffStyle);
 
+  T visitExtremeSpreadPayoffStyle(ExtremeSpreadPayoffStyle payoffStyle);
+  
   T visitFadeInPayoffStyle(FadeInPayoffStyle payoffStyle);
 
   T visitFixedStrikeLookbackPayoffStyle(FixedStrikeLookbackPayoffStyle payoffStyle);

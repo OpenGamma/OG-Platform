@@ -7,9 +7,6 @@ package com.opengamma.financial.security.db.option;
 
 import java.util.Date;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.financial.security.db.AbstractBeanOperation;
@@ -27,6 +24,7 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.ExerciseTypeVisitor;
+import com.opengamma.financial.security.option.ExtremeSpreadPayoffStyle;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.FadeInPayoffStyle;
 import com.opengamma.financial.security.option.FixedStrikeLookbackPayoffStyle;
@@ -109,6 +107,11 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
         return new CashOrNothingPayoffStyle(bean.getPayment());
       }
 
+      @Override
+      public PayoffStyle visitExtremeSpreadPayoffStyle(ExtremeSpreadPayoffStyle payoffStyle) {
+        return new ExtremeSpreadPayoffStyle(bean.getPeriodEnd(), bean.getPeriodEndTimeZone(), bean.isReverse());
+      }
+      
       @Override
       public PayoffStyle visitFadeInPayoffStyle(FadeInPayoffStyle payoffStyle) {
         return new FadeInPayoffStyle(bean.getLowerBound(), bean.getUpperBound());
@@ -291,6 +294,14 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
           public OptionPayoffStyle visitCashOrNothingPayoffStyle(CashOrNothingPayoffStyle payoffStyle) {
             bean.setPayment(payoffStyle.getPayment());
             return OptionPayoffStyle.CASH_OR_NOTHING;
+          }
+          
+          @Override
+          public OptionPayoffStyle visitExtremeSpreadPayoffStyle(ExtremeSpreadPayoffStyle payoffStyle) {
+            bean.setPeriodEnd(payoffStyle.getPeriodEnd());
+            bean.setPeriodEndTimeZone(payoffStyle.getPeriodEndTimeZone());
+            bean.setReverse(payoffStyle.getIsReverse());
+            return OptionPayoffStyle.EXTREME_SPREAD;
           }
 
           @Override
