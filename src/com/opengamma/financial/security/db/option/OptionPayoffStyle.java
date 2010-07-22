@@ -25,8 +25,12 @@ public enum OptionPayoffStyle {
   CASH_OR_NOTHING,
   /** Fade-in */
   FADE_IN,
-  /** Fixed Strike */
-  FIXED_STRIKE,
+  /** Fixed-strike lookback*/
+  FIXED_STRIKE_LOOKBACK,
+  /** Floating-strike lookback*/
+  FLOATING_STRIKE_LOOKBACK,
+  /** Gap */
+  GAP,
   /** Powered */
   POWERED,
   /** Vanilla */
@@ -46,8 +50,12 @@ public enum OptionPayoffStyle {
         return visitor.visitCashOrNothingPayoffStyle(null);
       case FADE_IN:
         return visitor.visitFadeInPayoffStyle(null);
-      case FIXED_STRIKE:
-        return visitor.visitFixedStrikePayoffStyle(null);
+      case FIXED_STRIKE_LOOKBACK:
+        return visitor.visitFixedStrikeLookbackPayoffStyle(null);
+      case FLOATING_STRIKE_LOOKBACK:
+        return visitor.visitFloatingStrikeLookbackPayoffStyle(null);
+      case GAP:
+        return visitor.visitGapPayoffStyle(null);
       case POWERED:
         return visitor.visitPoweredPayoffStyle(null);
       case VANILLA:

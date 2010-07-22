@@ -12,7 +12,9 @@ import com.opengamma.financial.security.option.BarrierPayoffStyle;
 import com.opengamma.financial.security.option.CappedPoweredPayoffStyle;
 import com.opengamma.financial.security.option.CashOrNothingPayoffStyle;
 import com.opengamma.financial.security.option.FadeInPayoffStyle;
-import com.opengamma.financial.security.option.FixedStrikePayoffStyle;
+import com.opengamma.financial.security.option.FixedStrikeLookbackPayoffStyle;
+import com.opengamma.financial.security.option.FloatingStrikeLookbackPayoffStyle;
+import com.opengamma.financial.security.option.GapPayoffStyle;
 import com.opengamma.financial.security.option.PayoffStyleVisitor;
 import com.opengamma.financial.security.option.PoweredPayoffStyle;
 import com.opengamma.financial.security.option.VanillaPayoffStyle;
@@ -28,7 +30,9 @@ public class OptionPayoffStyleUserType extends EnumUserType<OptionPayoffStyle> {
   private static final String CAPPED_POWERED = "Capped Powered";
   private static final String CASH_OR_NOTHING = "Cash-or-Nothing";
   private static final String FADE_IN = "Fade-In";
-  private static final String FIXED_STRIKE = "Fixed Strike";
+  private static final String FIXED_STRIKE_LOOKBACK = "Fixed-Strike Lookback";
+  private static final String FLOATING_STRIKE_LOOKBACK = "Floating-Strike Lookback";
+  private static final String GAP = "Gap";
   private static final String POWERED = "Powered";
   private static final String VANILLA = "Vanilla";
 
@@ -71,10 +75,20 @@ public class OptionPayoffStyleUserType extends EnumUserType<OptionPayoffStyle> {
       }
 
       @Override
-      public String visitFixedStrikePayoffStyle(FixedStrikePayoffStyle payoffStyle) {
-        return FIXED_STRIKE;
+      public String visitFixedStrikeLookbackPayoffStyle(FixedStrikeLookbackPayoffStyle payoffStyle) {
+        return FIXED_STRIKE_LOOKBACK;
+      }
+      
+      @Override
+      public String visitFloatingStrikeLookbackPayoffStyle(FloatingStrikeLookbackPayoffStyle payoffStyle) {
+        return FLOATING_STRIKE_LOOKBACK;
       }
 
+      @Override
+      public String visitGapPayoffStyle(GapPayoffStyle payoffStyle) {
+        return GAP;
+      }
+      
       @Override
       public String visitPoweredPayoffStyle(PoweredPayoffStyle payoffStyle) {
         return POWERED;

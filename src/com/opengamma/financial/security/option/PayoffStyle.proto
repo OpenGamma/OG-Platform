@@ -59,11 +59,26 @@ namespace com.opengamma.financial.security.option {
       body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitFadeInPayoffStyle(this); }";
     }
   }
-  
-  message FixedStrikePayoffStyle extends PayoffStyle {
+    
+  message FixedStrikeLookbackPayoffStyle extends PayoffStyle {
     binding Java {
       method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitFixedStrikePayoffStyle(this); }";
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitFixedStrikeLookbackPayoffStyle(this); }";
+    }
+  }
+  
+  message FloatingStrikeLookbackPayoffStyle extends PayoffStyle {
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitFloatingStrikeLookbackPayoffStyle(this); }";
+    }
+  }
+  
+  message GapPayoffStyle extends PayoffStyle {
+    required readonly double payment;
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitGapPayoffStyle(this); }";
     }
   }
   

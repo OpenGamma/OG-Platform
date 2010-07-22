@@ -24,8 +24,12 @@ public interface PayoffStyleVisitor<T> {
   
   T visitFadeInPayoffStyle(FadeInPayoffStyle payoffStyle);
   
-  T visitFixedStrikePayoffStyle(FixedStrikePayoffStyle payoffStyle);
+  T visitFixedStrikeLookbackPayoffStyle(FixedStrikeLookbackPayoffStyle payoffStyle);
 
+  T visitFloatingStrikeLookbackPayoffStyle(FloatingStrikeLookbackPayoffStyle payoffStyle);
+
+  T visitGapPayoffStyle(GapPayoffStyle payoffStyle);
+  
   T visitPoweredPayoffStyle(PoweredPayoffStyle payoffStyle);
 
   T visitVanillaPayoffStyle(VanillaPayoffStyle payoffStyle);

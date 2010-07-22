@@ -26,8 +26,10 @@ import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.ExerciseTypeVisitor;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.FadeInPayoffStyle;
-import com.opengamma.financial.security.option.FixedStrikePayoffStyle;
+import com.opengamma.financial.security.option.FixedStrikeLookbackPayoffStyle;
+import com.opengamma.financial.security.option.FloatingStrikeLookbackPayoffStyle;
 import com.opengamma.financial.security.option.FutureOptionSecurity;
+import com.opengamma.financial.security.option.GapPayoffStyle;
 import com.opengamma.financial.security.option.OptionOptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurityVisitor;
@@ -108,10 +110,20 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
       }
 
       @Override
-      public PayoffStyle visitFixedStrikePayoffStyle(FixedStrikePayoffStyle payoffStyle) {
-        return new FixedStrikePayoffStyle();
+      public PayoffStyle visitFixedStrikeLookbackPayoffStyle(FixedStrikeLookbackPayoffStyle payoffStyle) {
+        return new FixedStrikeLookbackPayoffStyle();
+      }
+      
+      @Override
+      public PayoffStyle visitFloatingStrikeLookbackPayoffStyle(FloatingStrikeLookbackPayoffStyle payoffStyle) {
+        return new FloatingStrikeLookbackPayoffStyle();
       }
 
+      @Override
+      public PayoffStyle visitGapPayoffStyle(GapPayoffStyle payoffStyle) {
+        return new GapPayoffStyle(bean.getPayment());
+      }
+      
       @Override
       public PayoffStyle visitPoweredPayoffStyle(PoweredPayoffStyle payoffStyle) {
         return new PoweredPayoffStyle(bean.getPower());
@@ -170,9 +182,9 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
 
       private Boolean beanEquals(final OptionSecurity security) {
         return ObjectUtils.equals(bean.getOptionExerciseType(), security.getExerciseType()) && ObjectUtils.equals(bean.getOptionPayoffStyle(), security.getPayoffStyle())
-        && ObjectUtils.equals(bean.getOptionSecurityType(), OptionSecurityType.identify(security)) && ObjectUtils.equals(bean.getOptionType(), security.getOptionType())
-        && ObjectUtils.equals(bean.getStrike(), security.getStrike()) && ObjectUtils.equals(dateToExpiry(bean.getExpiry()), security.getExpiry())
-        && ObjectUtils.equals(bean.getUnderlying(), security.getUnderlyingIdentifier()) && ObjectUtils.equals(currencyBeanToCurrency(bean.getCurrency()), security.getCurrency());
+          && ObjectUtils.equals(bean.getOptionSecurityType(), OptionSecurityType.identify(security)) && ObjectUtils.equals(bean.getOptionType(), security.getOptionType())
+          && ObjectUtils.equals(bean.getStrike(), security.getStrike()) && ObjectUtils.equals(dateToExpiry(bean.getExpiry()), security.getExpiry())
+          && ObjectUtils.equals(bean.getUnderlying(), security.getUnderlyingIdentifier()) && ObjectUtils.equals(currencyBeanToCurrency(bean.getCurrency()), security.getCurrency());
       }
 
       @Override
@@ -181,7 +193,7 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
           return false;
         }
         return ObjectUtils.equals(bean.getCounterparty(), security.getCounterparty()) && ObjectUtils.equals(currencyBeanToCurrency(bean.getPutCurrency()), security.getPutCurrency())
-        && ObjectUtils.equals(currencyBeanToCurrency(bean.getCallCurrency()), security.getCallCurrency());
+          && ObjectUtils.equals(currencyBeanToCurrency(bean.getCallCurrency()), security.getCallCurrency());
       }
 
       @Override
@@ -206,7 +218,7 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
           return false;
         }
         return ObjectUtils.equals(bean.getPointValue(), security.getPointValue()) && ObjectUtils.equals(bean.getExchange(), security.getExchange())
-        && ObjectUtils.equals(bean.isMargined(), security.getIsMargined());
+          && ObjectUtils.equals(bean.isMargined(), security.getIsMargined());
       }
 
       @Override
@@ -271,10 +283,20 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
           }
 
           @Override
-          public OptionPayoffStyle visitFixedStrikePayoffStyle(FixedStrikePayoffStyle payoffStyle) {
-            return OptionPayoffStyle.FIXED_STRIKE;
+          public OptionPayoffStyle visitFixedStrikeLookbackPayoffStyle(FixedStrikeLookbackPayoffStyle payoffStyle) {
+            return OptionPayoffStyle.FIXED_STRIKE_LOOKBACK;
+          }
+          
+          @Override
+          public OptionPayoffStyle visitFloatingStrikeLookbackPayoffStyle(FloatingStrikeLookbackPayoffStyle payoffStyle) {
+            return OptionPayoffStyle.FLOATING_STRIKE_LOOKBACK;
           }
 
+          @Override
+          public OptionPayoffStyle visitGapPayoffStyle(GapPayoffStyle payoffStyle) {
+            return OptionPayoffStyle.GAP;
+          }
+          
           @Override
           public OptionPayoffStyle visitPoweredPayoffStyle(PoweredPayoffStyle payoffStyle) {
             bean.setPower(payoffStyle.getPower());
