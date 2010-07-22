@@ -53,40 +53,40 @@ public class BatesGeneralizedJumpDiffusionModelDataBundle extends StandardOption
   }
 
   @Override
-  public BatesGeneralizedJumpDiffusionModelDataBundle withDiscountCurve(final YieldAndDiscountCurve curve) {
+  public BatesGeneralizedJumpDiffusionModelDataBundle withInterestRateCurve(final YieldAndDiscountCurve curve) {
     return new BatesGeneralizedJumpDiffusionModelDataBundle(curve, getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getLambda(), getExpectedJumpSize(), getDelta());
   }
 
   @Override
   public BatesGeneralizedJumpDiffusionModelDataBundle withCostOfCarry(final double costOfCarry) {
-    return new BatesGeneralizedJumpDiffusionModelDataBundle(getDiscountCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate(), getLambda(), getExpectedJumpSize(), getDelta());
+    return new BatesGeneralizedJumpDiffusionModelDataBundle(getInterestRateCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate(), getLambda(), getExpectedJumpSize(), getDelta());
   }
 
   @Override
   public BatesGeneralizedJumpDiffusionModelDataBundle withVolatilitySurface(final VolatilitySurface surface) {
-    return new BatesGeneralizedJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), surface, getSpot(), getDate(), getLambda(), getExpectedJumpSize(), getDelta());
+    return new BatesGeneralizedJumpDiffusionModelDataBundle(getInterestRateCurve(), getCostOfCarry(), surface, getSpot(), getDate(), getLambda(), getExpectedJumpSize(), getDelta());
   }
 
   @Override
   public BatesGeneralizedJumpDiffusionModelDataBundle withDate(final ZonedDateTime date) {
-    return new BatesGeneralizedJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), date, getLambda(), getExpectedJumpSize(), getDelta());
+    return new BatesGeneralizedJumpDiffusionModelDataBundle(getInterestRateCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), date, getLambda(), getExpectedJumpSize(), getDelta());
   }
 
   @Override
   public BatesGeneralizedJumpDiffusionModelDataBundle withSpot(final double spot) {
-    return new BatesGeneralizedJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate(), getLambda(), getExpectedJumpSize(), getDelta());
+    return new BatesGeneralizedJumpDiffusionModelDataBundle(getInterestRateCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate(), getLambda(), getExpectedJumpSize(), getDelta());
   }
 
   public BatesGeneralizedJumpDiffusionModelDataBundle withLambda(final double lambda) {
-    return new BatesGeneralizedJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), lambda, getExpectedJumpSize(), getDelta());
+    return new BatesGeneralizedJumpDiffusionModelDataBundle(getInterestRateCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), lambda, getExpectedJumpSize(), getDelta());
   }
 
   public BatesGeneralizedJumpDiffusionModelDataBundle withExpectedJumpSize(final double expectedJumpSize) {
-    return new BatesGeneralizedJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getLambda(), expectedJumpSize, getDelta());
+    return new BatesGeneralizedJumpDiffusionModelDataBundle(getInterestRateCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getLambda(), expectedJumpSize, getDelta());
   }
 
   public BatesGeneralizedJumpDiffusionModelDataBundle withDelta(final double delta) {
-    return new BatesGeneralizedJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getLambda(), getExpectedJumpSize(), delta);
+    return new BatesGeneralizedJumpDiffusionModelDataBundle(getInterestRateCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getLambda(), getExpectedJumpSize(), delta);
   }
 
   @Override

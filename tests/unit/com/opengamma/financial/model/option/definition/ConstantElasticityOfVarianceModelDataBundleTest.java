@@ -47,7 +47,7 @@ public class ConstantElasticityOfVarianceModelDataBundleTest {
   public void testGetters() {
     assertEquals(DATA.getCostOfCarry(), B, 0);
     assertEquals(DATA.getDate(), DATE);
-    assertEquals(DATA.getDiscountCurve(), CURVE);
+    assertEquals(DATA.getInterestRateCurve(), CURVE);
     assertEquals(DATA.getElasticity(), ELASTICITY, 0);
     assertEquals(DATA.getSpot(), SPOT, 0);
     assertEquals(DATA.getVolatilitySurface(), SURFACE);

@@ -32,32 +32,32 @@ public class ConstantElasticityOfVarianceModelDataBundle extends StandardOptionD
   }
 
   @Override
-  public ConstantElasticityOfVarianceModelDataBundle withDiscountCurve(final YieldAndDiscountCurve curve) {
+  public ConstantElasticityOfVarianceModelDataBundle withInterestRateCurve(final YieldAndDiscountCurve curve) {
     return new ConstantElasticityOfVarianceModelDataBundle(curve, getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getElasticity());
   }
 
   @Override
   public ConstantElasticityOfVarianceModelDataBundle withCostOfCarry(final double costOfCarry) {
-    return new ConstantElasticityOfVarianceModelDataBundle(getDiscountCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate(), getElasticity());
+    return new ConstantElasticityOfVarianceModelDataBundle(getInterestRateCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate(), getElasticity());
   }
 
   @Override
   public ConstantElasticityOfVarianceModelDataBundle withVolatilitySurface(final VolatilitySurface surface) {
-    return new ConstantElasticityOfVarianceModelDataBundle(getDiscountCurve(), getCostOfCarry(), surface, getSpot(), getDate(), getElasticity());
+    return new ConstantElasticityOfVarianceModelDataBundle(getInterestRateCurve(), getCostOfCarry(), surface, getSpot(), getDate(), getElasticity());
   }
 
   @Override
   public ConstantElasticityOfVarianceModelDataBundle withDate(final ZonedDateTime date) {
-    return new ConstantElasticityOfVarianceModelDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), date, getElasticity());
+    return new ConstantElasticityOfVarianceModelDataBundle(getInterestRateCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), date, getElasticity());
   }
 
   @Override
   public ConstantElasticityOfVarianceModelDataBundle withSpot(final double spot) {
-    return new ConstantElasticityOfVarianceModelDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate(), getElasticity());
+    return new ConstantElasticityOfVarianceModelDataBundle(getInterestRateCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate(), getElasticity());
   }
 
   public ConstantElasticityOfVarianceModelDataBundle withElasticity(final double elasticity) {
-    return new ConstantElasticityOfVarianceModelDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), elasticity);
+    return new ConstantElasticityOfVarianceModelDataBundle(getInterestRateCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), elasticity);
   }
 
   @Override

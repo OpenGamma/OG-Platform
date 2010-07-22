@@ -51,8 +51,8 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
           final double temp = s;
           s = k;
           k = temp;
-          final YieldAndDiscountCurve curve = data.getDiscountCurve().withParallelShift(-b);
-          newData = data.withDiscountCurve(curve).withSpot(s);
+          final YieldAndDiscountCurve curve = data.getInterestRateCurve().withParallelShift(-b);
+          newData = data.withInterestRateCurve(curve).withSpot(s);
         }
         if (b >= r) {
           final OptionDefinition european = new EuropeanVanillaOptionDefinition(k, definition.getExpiry(), definition.isCall());

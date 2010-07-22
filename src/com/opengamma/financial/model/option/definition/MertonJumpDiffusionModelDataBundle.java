@@ -45,36 +45,36 @@ public class MertonJumpDiffusionModelDataBundle extends StandardOptionDataBundle
   }
 
   @Override
-  public MertonJumpDiffusionModelDataBundle withDiscountCurve(final YieldAndDiscountCurve curve) {
+  public MertonJumpDiffusionModelDataBundle withInterestRateCurve(final YieldAndDiscountCurve curve) {
     return new MertonJumpDiffusionModelDataBundle(curve, getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getLambda(), getGamma());
   }
 
   @Override
   public MertonJumpDiffusionModelDataBundle withCostOfCarry(final double costOfCarry) {
-    return new MertonJumpDiffusionModelDataBundle(getDiscountCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate(), getLambda(), getGamma());
+    return new MertonJumpDiffusionModelDataBundle(getInterestRateCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate(), getLambda(), getGamma());
   }
 
   @Override
   public MertonJumpDiffusionModelDataBundle withVolatilitySurface(final VolatilitySurface surface) {
-    return new MertonJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), surface, getSpot(), getDate(), getLambda(), getGamma());
+    return new MertonJumpDiffusionModelDataBundle(getInterestRateCurve(), getCostOfCarry(), surface, getSpot(), getDate(), getLambda(), getGamma());
   }
 
   @Override
   public MertonJumpDiffusionModelDataBundle withDate(final ZonedDateTime date) {
-    return new MertonJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), date, getLambda(), getGamma());
+    return new MertonJumpDiffusionModelDataBundle(getInterestRateCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), date, getLambda(), getGamma());
   }
 
   @Override
   public MertonJumpDiffusionModelDataBundle withSpot(final double spot) {
-    return new MertonJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate(), getLambda(), getGamma());
+    return new MertonJumpDiffusionModelDataBundle(getInterestRateCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate(), getLambda(), getGamma());
   }
 
   public MertonJumpDiffusionModelDataBundle withLambda(final double lambda) {
-    return new MertonJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), lambda, getGamma());
+    return new MertonJumpDiffusionModelDataBundle(getInterestRateCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), lambda, getGamma());
   }
 
   public MertonJumpDiffusionModelDataBundle withGamma(final double gamma) {
-    return new MertonJumpDiffusionModelDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getLambda(), gamma);
+    return new MertonJumpDiffusionModelDataBundle(getInterestRateCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getLambda(), gamma);
   }
 
   @Override

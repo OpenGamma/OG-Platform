@@ -49,36 +49,36 @@ public class SkewKurtosisOptionDataBundle extends StandardOptionDataBundle {
   }
 
   @Override
-  public SkewKurtosisOptionDataBundle withDiscountCurve(final YieldAndDiscountCurve curve) {
+  public SkewKurtosisOptionDataBundle withInterestRateCurve(final YieldAndDiscountCurve curve) {
     return new SkewKurtosisOptionDataBundle(curve, getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getAnnualizedSkew(), getAnnualizedPearsonKurtosis());
   }
 
   @Override
   public SkewKurtosisOptionDataBundle withCostOfCarry(final double costOfCarry) {
-    return new SkewKurtosisOptionDataBundle(getDiscountCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate(), getAnnualizedSkew(), getAnnualizedPearsonKurtosis());
+    return new SkewKurtosisOptionDataBundle(getInterestRateCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate(), getAnnualizedSkew(), getAnnualizedPearsonKurtosis());
   }
 
   @Override
   public SkewKurtosisOptionDataBundle withVolatilitySurface(final VolatilitySurface surface) {
-    return new SkewKurtosisOptionDataBundle(getDiscountCurve(), getCostOfCarry(), surface, getSpot(), getDate(), getAnnualizedSkew(), getAnnualizedPearsonKurtosis());
+    return new SkewKurtosisOptionDataBundle(getInterestRateCurve(), getCostOfCarry(), surface, getSpot(), getDate(), getAnnualizedSkew(), getAnnualizedPearsonKurtosis());
   }
 
   @Override
   public SkewKurtosisOptionDataBundle withDate(final ZonedDateTime date) {
-    return new SkewKurtosisOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), date, getAnnualizedSkew(), getAnnualizedPearsonKurtosis());
+    return new SkewKurtosisOptionDataBundle(getInterestRateCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), date, getAnnualizedSkew(), getAnnualizedPearsonKurtosis());
   }
 
   @Override
   public SkewKurtosisOptionDataBundle withSpot(final double spot) {
-    return new SkewKurtosisOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate(), getAnnualizedSkew(), getAnnualizedPearsonKurtosis());
+    return new SkewKurtosisOptionDataBundle(getInterestRateCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate(), getAnnualizedSkew(), getAnnualizedPearsonKurtosis());
   }
 
   public SkewKurtosisOptionDataBundle withSkew(final double skew) {
-    return new SkewKurtosisOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), skew, getAnnualizedPearsonKurtosis());
+    return new SkewKurtosisOptionDataBundle(getInterestRateCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), skew, getAnnualizedPearsonKurtosis());
   }
 
   public SkewKurtosisOptionDataBundle withKurtosis(final double kurtosis) {
-    return new SkewKurtosisOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getAnnualizedSkew(), kurtosis);
+    return new SkewKurtosisOptionDataBundle(getInterestRateCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getAnnualizedSkew(), kurtosis);
   }
 
   @Override

@@ -87,13 +87,13 @@ public abstract class OptionDefinition {
    * @param <T> The data bundle type
    * @return The exercise function.
    */
-  public abstract <T extends StandardOptionDataBundle> OptionExerciseFunction<T> getExerciseFunction();
+  public abstract <T> OptionExerciseFunction<T> getExerciseFunction();
 
   /**  
    * @param <T> The data bundle type
    * @return The payoff function.
    */
-  public abstract <T extends StandardOptionDataBundle> OptionPayoffFunction<T> getPayoffFunction();
+  public abstract <T> OptionPayoffFunction<T> getPayoffFunction();
 
   @Override
   public int hashCode() {

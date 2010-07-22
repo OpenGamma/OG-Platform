@@ -48,7 +48,7 @@ public class StandardOptionWithSpotTimeSeriesDataBundleTest {
 
   @Test
   public void testGetters() {
-    assertEquals(DATA.getDiscountCurve(), CURVE);
+    assertEquals(DATA.getInterestRateCurve(), CURVE);
     assertEquals(DATA.getCostOfCarry(), B, 0);
     assertEquals(DATA.getDate(), DATE);
     assertEquals(DATA.getSpot(), SPOT, 0);
@@ -91,7 +91,7 @@ public class StandardOptionWithSpotTimeSeriesDataBundleTest {
 
   @Test
   public void testBuilders() {
-    assertEquals(new StandardOptionWithSpotTimeSeriesDataBundle(OTHER_CURVE, B, SURFACE, SPOT, DATE, TS), DATA.withDiscountCurve(OTHER_CURVE));
+    assertEquals(new StandardOptionWithSpotTimeSeriesDataBundle(OTHER_CURVE, B, SURFACE, SPOT, DATE, TS), DATA.withInterestRateCurve(OTHER_CURVE));
     assertEquals(new StandardOptionWithSpotTimeSeriesDataBundle(CURVE, OTHER_B, SURFACE, SPOT, DATE, TS), DATA.withCostOfCarry(OTHER_B));
     assertEquals(new StandardOptionWithSpotTimeSeriesDataBundle(CURVE, B, OTHER_SURFACE, SPOT, DATE, TS), DATA.withVolatilitySurface(OTHER_SURFACE));
     assertEquals(new StandardOptionWithSpotTimeSeriesDataBundle(CURVE, B, SURFACE, OTHER_SPOT, DATE, TS), DATA.withSpot(OTHER_SPOT));

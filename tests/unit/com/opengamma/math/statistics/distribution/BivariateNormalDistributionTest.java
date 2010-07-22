@@ -43,6 +43,10 @@ public class BivariateNormalDistributionTest {
 
   @Test
   public void test() {
+    assertEquals(DIST.getCDF(new double[] {Double.POSITIVE_INFINITY, Math.random(), Math.random()}), 1, 0);
+    assertEquals(DIST.getCDF(new double[] {Math.random(), Double.POSITIVE_INFINITY, Math.random()}), 1, 0);
+    assertEquals(DIST.getCDF(new double[] {Double.NEGATIVE_INFINITY, Math.random(), Math.random()}), 0, 0);
+    assertEquals(DIST.getCDF(new double[] {Math.random(), Double.NEGATIVE_INFINITY, Math.random()}), 0, 0);
     assertEquals(DIST.getCDF(new double[] {0.0, 0.0, 0.0}), 0.25, EPS);
     assertEquals(DIST.getCDF(new double[] {0.0, 0.0, -0.5}), 1. / 6, EPS);
     assertEquals(DIST.getCDF(new double[] {0.0, 0.0, 0.5}), 1. / 3, EPS);

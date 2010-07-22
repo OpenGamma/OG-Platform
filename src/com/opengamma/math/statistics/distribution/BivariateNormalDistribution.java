@@ -29,6 +29,12 @@ public class BivariateNormalDistribution implements ProbabilityDistribution<doub
     final double a = x[0];
     double b = x[1];
     final double rho = x[2];
+    if (a == Double.POSITIVE_INFINITY || b == Double.POSITIVE_INFINITY) {
+      return 1;
+    }
+    if (a == Double.NEGATIVE_INFINITY || b == Double.NEGATIVE_INFINITY) {
+      return 0;
+    }
     final double sumSq = (a * a + b * b) / 2.;
     double rho1, rho2, rho3, ab, absDiff, h5, c, d, mult = 0, rho3Sq, eab, e, result;
     if (Math.abs(rho) >= 0.7) {
