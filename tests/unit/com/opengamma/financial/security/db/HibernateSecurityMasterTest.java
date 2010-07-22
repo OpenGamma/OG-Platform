@@ -5,12 +5,18 @@
  */
 package com.opengamma.financial.security.db;
 
+import static com.opengamma.financial.InMemoryRegionRepository.REGIONS_FILE_PATH;
+
+import java.io.File;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.financial.InMemoryRegionRepository;
+import com.opengamma.financial.RegionRepository;
 import com.opengamma.financial.security.SecurityMasterTestCase;
 import com.opengamma.financial.security.SecurityMasterTestCaseMethods;
 import com.opengamma.financial.security.db.bond.BondSecurityBean;
@@ -19,8 +25,10 @@ import com.opengamma.financial.security.db.bond.GuaranteeTypeBean;
 import com.opengamma.financial.security.db.bond.IssuerTypeBean;
 import com.opengamma.financial.security.db.bond.MarketBean;
 import com.opengamma.financial.security.db.bond.YieldConventionBean;
+import com.opengamma.financial.security.db.cash.CashSecurityBean;
 import com.opengamma.financial.security.db.equity.EquitySecurityBean;
 import com.opengamma.financial.security.db.equity.GICSCodeBean;
+import com.opengamma.financial.security.db.fra.FRASecurityBean;
 import com.opengamma.financial.security.db.future.BondFutureTypeBean;
 import com.opengamma.financial.security.db.future.CashRateTypeBean;
 import com.opengamma.financial.security.db.future.CommodityFutureTypeBean;
@@ -28,6 +36,7 @@ import com.opengamma.financial.security.db.future.FutureBundleBean;
 import com.opengamma.financial.security.db.future.FutureSecurityBean;
 import com.opengamma.financial.security.db.future.UnitBean;
 import com.opengamma.financial.security.db.option.OptionSecurityBean;
+import com.opengamma.financial.security.db.swap.SwapSecurityBean;
 import com.opengamma.util.test.HibernateTest;
 
 /**
@@ -51,10 +60,10 @@ public class HibernateSecurityMasterTest extends HibernateTest implements Securi
 
   @Override
   public Class<?>[] getHibernateMappingClasses() {
-    return new Class<?>[] { BondFutureTypeBean.class, BondSecurityBean.class, BusinessDayConventionBean.class, CashRateTypeBean.class, CommodityFutureTypeBean.class,
-        CouponTypeBean.class, CurrencyBean.class, DayCountBean.class, EquitySecurityBean.class, ExchangeBean.class, FrequencyBean.class, FutureBundleBean.class,
-        FutureSecurityBean.class, GICSCodeBean.class, GuaranteeTypeBean.class, IdentifierAssociationBean.class, IssuerTypeBean.class, MarketBean.class, OptionSecurityBean.class,
-        SecurityBean.class, UnitBean.class, YieldConventionBean.class };
+    return new Class<?>[] {BondFutureTypeBean.class, BondSecurityBean.class, BusinessDayConventionBean.class, CashRateTypeBean.class, CommodityFutureTypeBean.class, CouponTypeBean.class,
+        CurrencyBean.class, DayCountBean.class, EquitySecurityBean.class, ExchangeBean.class, FrequencyBean.class, FutureBundleBean.class, FutureSecurityBean.class, GICSCodeBean.class,
+        GuaranteeTypeBean.class, IdentifierAssociationBean.class, IssuerTypeBean.class, MarketBean.class, OptionSecurityBean.class, SecurityBean.class, UnitBean.class, YieldConventionBean.class,
+        CashSecurityBean.class, SwapSecurityBean.class, FRASecurityBean.class};
   }
   
   /**
@@ -63,7 +72,8 @@ public class HibernateSecurityMasterTest extends HibernateTest implements Securi
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    _testCase = new SecurityMasterTestCase(createSecurityMaster());
+    final RegionRepository regionRepository = new InMemoryRegionRepository(new File(REGIONS_FILE_PATH));
+    _testCase = new SecurityMasterTestCase(createSecurityMaster(regionRepository), regionRepository);
   }
 
   /**
@@ -74,8 +84,9 @@ public class HibernateSecurityMasterTest extends HibernateTest implements Securi
     super.tearDown();
   }
 
-  private HibernateSecurityMaster createSecurityMaster() {
+  private HibernateSecurityMaster createSecurityMaster(final RegionRepository regionRepository) {
     HibernateSecurityMaster secMaster = new HibernateSecurityMaster();
+    secMaster.setRegionRepository(regionRepository);
     secMaster.setSessionFactory(getSessionFactory());
     s_logger.debug("SecMaster initialization complete {}", secMaster);
     return secMaster;
@@ -169,6 +180,30 @@ public class HibernateSecurityMasterTest extends HibernateTest implements Securi
   @Test
   public void update() throws Exception {
     _testCase.update();
+  }
+
+  @Override
+  @Test
+  public void cashSecurity() throws Exception {
+    _testCase.cashSecurity();
+  }
+
+  @Override
+  @Test
+  public void forwardSwapSecurity() throws Exception {
+    _testCase.forwardSwapSecurity();
+  }
+
+  @Override
+  @Test
+  public void fraSecurity() throws Exception {
+    _testCase.fraSecurity();
+  }
+
+  @Override
+  @Test
+  public void swapSecurity() throws Exception {
+    _testCase.swapSecurity();
   }
 
 }

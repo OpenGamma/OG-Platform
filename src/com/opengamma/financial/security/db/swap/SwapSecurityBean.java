@@ -16,6 +16,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
  */
 public class SwapSecurityBean extends SecurityBean {
 
+  private SwapType _swapType;
   private Date _tradeDate;
   private Date _effectiveDate;
   private Date _maturityDate;
@@ -23,6 +24,14 @@ public class SwapSecurityBean extends SecurityBean {
   private String _counterparty;
   private SwapLegBean _payLeg;
   private SwapLegBean _receiveLeg;
+
+  public SwapType getSwapType() {
+    return _swapType;
+  }
+
+  public void setSwapType(final SwapType swapType) {
+    _swapType = swapType;
+  }
 
   /**
    * Gets the tradeDate field.
@@ -70,6 +79,14 @@ public class SwapSecurityBean extends SecurityBean {
    */
   public void setMaturityDate(Date maturityDate) {
     _maturityDate = maturityDate;
+  }
+
+  public Date getForwardStartDate() {
+    return _forwardStartDate;
+  }
+
+  public void setForwardStartDate(Date forwardStartDate) {
+    _forwardStartDate = forwardStartDate;
   }
 
   /**

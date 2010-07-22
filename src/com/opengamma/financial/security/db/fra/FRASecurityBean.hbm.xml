@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.financial.security.db.fra">
+  <union-subclass name="FRASecurityBean" extends="com.opengamma.financial.security.db.SecurityBean" table="sec_fra">
+    <property name="startDate" column="startdate" type="date" not-null="true" />
+    <property name="endDate" column="enddate" type="date" not-null="true" />
+  </union-subclass>
+  <query name="FRASecurityBean.all">
+    from FRASecurityBean
+  </query>
+</hibernate-mapping>

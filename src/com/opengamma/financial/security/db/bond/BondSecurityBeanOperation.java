@@ -5,29 +5,60 @@
  */
 package com.opengamma.financial.security.db.bond;
 
+import static com.opengamma.financial.security.db.Converters.businessDayConventionBeanToBusinessDayConvention;
+import static com.opengamma.financial.security.db.Converters.currencyBeanToCurrency;
+import static com.opengamma.financial.security.db.Converters.dateToExpiry;
+import static com.opengamma.financial.security.db.Converters.dateToLocalDate;
+import static com.opengamma.financial.security.db.Converters.dayCountBeanToDayCount;
+import static com.opengamma.financial.security.db.Converters.expiryToDate;
+import static com.opengamma.financial.security.db.Converters.frequencyBeanToFrequency;
+import static com.opengamma.financial.security.db.Converters.localDateToDate;
+
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.convention.yield.YieldConvention;
+import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.bond.BondSecurityVisitor;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.db.AbstractBeanOperation;
 import com.opengamma.financial.security.db.HibernateSecurityMasterDao;
+import com.opengamma.financial.security.db.OperationContext;
 
+/**
+ * 
+ */
 public final class BondSecurityBeanOperation extends AbstractBeanOperation<BondSecurity, BondSecurityBean> {
   
+  /**
+   * Singleton.
+   */
   public static final BondSecurityBeanOperation INSTANCE = new BondSecurityBeanOperation();
   
   private BondSecurityBeanOperation() {
     super("BOND", BondSecurity.class, BondSecurityBean.class);
   }
   
+  public static YieldConvention yieldConventionBeanToYieldConvention(final YieldConventionBean yieldConventionBean) {
+    if (yieldConventionBean == null) {
+      return null;
+    }
+    final YieldConvention yc = YieldConventionFactory.INSTANCE.getYieldConvention(yieldConventionBean.getName());
+    if (yc == null) {
+      throw new OpenGammaRuntimeException("Bad value for yieldConventionBean (" + yieldConventionBean.getName() + ")");
+    }
+    return yc;
+  }
+
   @Override
-  public BondSecurity createSecurity(final BondSecurityBean bean) {
-    BondSecurity sec = bean.getBondType().accept(new BondType.Visitor<BondSecurity>() {
+  public BondSecurity createSecurity(final OperationContext context, final BondSecurityBean bean) {
+    return bean.getBondType().accept(new BondSecurityVisitor<BondSecurity>() {
 
       @Override
-      public BondSecurity visitCorporateBondType() {
+      public BondSecurity visitCorporateBondSecurity(CorporateBondSecurity bond) {
         return new CorporateBondSecurity(
             bean.getIssuerName(),
             bean.getIssuerType().getName(),
@@ -55,7 +86,7 @@ public final class BondSecurityBeanOperation extends AbstractBeanOperation<BondS
       }
 
       @Override
-      public BondSecurity visitGovernmentBondType() {
+      public BondSecurity visitGovernmentBondSecurity(GovernmentBondSecurity bond) {
         return new GovernmentBondSecurity(
             bean.getIssuerName(),
             bean.getIssuerType().getName(),
@@ -83,7 +114,7 @@ public final class BondSecurityBeanOperation extends AbstractBeanOperation<BondS
       }
 
       @Override
-      public BondSecurity visitMunicipalBondType() {
+      public BondSecurity visitMunicipalBondSecurity(MunicipalBondSecurity bond) {
         return new MunicipalBondSecurity(
             bean.getIssuerName(),
             bean.getIssuerType().getName(),
@@ -111,11 +142,10 @@ public final class BondSecurityBeanOperation extends AbstractBeanOperation<BondS
       }
       
     });
-    return sec;
   }
 
   @Override
-  public boolean beanEquals(BondSecurityBean bean, BondSecurity security) {
+  public boolean beanEquals(final OperationContext context, BondSecurityBean bean, BondSecurity security) {
     return
         ObjectUtils.equals(bean.getBondType(), BondType.identify(security)) &&
         ObjectUtils.equals(bean.getIssuerName(), security.getIssuerName()) &&
@@ -144,7 +174,7 @@ public final class BondSecurityBeanOperation extends AbstractBeanOperation<BondS
   }
 
   @Override
-  public BondSecurityBean createBean(final HibernateSecurityMasterDao secMasterSession, final BondSecurity security) {
+  public BondSecurityBean createBean(final OperationContext context, final HibernateSecurityMasterDao secMasterSession, final BondSecurity security) {
     final BondSecurityBean bond = new BondSecurityBean();
     bond.setBondType(BondType.identify(security));
     bond.setIssuerName(security.getIssuerName());

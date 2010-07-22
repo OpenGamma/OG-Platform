@@ -40,4 +40,12 @@ public interface SecurityMasterTestCaseMethods {
 
   void update() throws Exception;
 
+  void cashSecurity() throws Exception;
+
+  void fraSecurity() throws Exception;
+
+  void swapSecurity() throws Exception;
+
+  void forwardSwapSecurity() throws Exception;
+
 }

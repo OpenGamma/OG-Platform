@@ -31,6 +31,7 @@ import org.junit.Test;
 import com.opengamma.engine.security.Security;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.GICSCode;
+import com.opengamma.financial.RegionRepository;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -41,7 +42,9 @@ import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;
@@ -55,6 +58,8 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.financial.security.option.VanillaPayoffStyle;
+import com.opengamma.financial.security.swap.ForwardSwapSecurity;
+import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -64,7 +69,8 @@ import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 
 /**
- * Generic TestCase for a SecurityMaster implementation.
+ * Generic TestCase for a SecurityMaster implementation. Either inherit from it, or
+ * delegate through the SecurityMasterTestCaseMethods interface.
  */
 public class SecurityMasterTestCase implements SecurityMasterTestCaseMethods {
 
@@ -74,9 +80,11 @@ public class SecurityMasterTestCase implements SecurityMasterTestCaseMethods {
   private static final Clock s_clock = Clock.system(TimeZone.UTC);
 
   private final SecurityMaster _secMaster;
+  private final RegionRepository _regionSource;
 
-  public SecurityMasterTestCase(final SecurityMaster secMaster) {
+  public SecurityMasterTestCase(final SecurityMaster secMaster, final RegionRepository regionSource) {
     _secMaster = secMaster;
+    _regionSource = regionSource;
   }
 
   private final Security getSecurity(final IdentifierBundle identifiers) {
@@ -503,6 +511,46 @@ public class SecurityMasterTestCase implements SecurityMasterTestCaseMethods {
     assertTrue(((EquityOptionSecurity) sec).getExerciseType() instanceof EuropeanExerciseType);
     assertTrue(((EquityOptionSecurity) sec).getPayoffStyle() instanceof VanillaPayoffStyle);
     assertEquityOptionSecurity(expectedOption, sec);
+  }
+
+  @Override
+  @Test
+  public void cashSecurity() throws Exception {
+    final CashSecurity expected = SecurityTestUtils.makeCashSecurity();
+    putSecurity(expected);
+    final IdentifierBundle id = new IdentifierBundle(Identifier.of("TEST", "CASH"));
+    final Security security = getSecurity(id);
+    assertEquals(expected, security);
+  }
+
+  @Override
+  @Test
+  public void forwardSwapSecurity() throws Exception {
+    final ForwardSwapSecurity expected = SecurityTestUtils.makeForwardSwapSecurity(_regionSource);
+    putSecurity(expected);
+    final IdentifierBundle id = new IdentifierBundle(Identifier.of("TEST", "FORWARDSWAP"));
+    final Security security = getSecurity(id);
+    assertEquals(expected, security);
+  }
+
+  @Override
+  @Test
+  public void fraSecurity() throws Exception {
+    final FRASecurity expected = SecurityTestUtils.makeFRASecurity();
+    putSecurity(expected);
+    final IdentifierBundle id = new IdentifierBundle(Identifier.of("TEST", "FRA"));
+    final Security security = getSecurity(id);
+    assertEquals(expected, security);
+  }
+
+  @Override
+  @Test
+  public void swapSecurity() throws Exception {
+    final SwapSecurity expected = SecurityTestUtils.makeSwapSecurity(_regionSource);
+    putSecurity(expected);
+    final IdentifierBundle id = new IdentifierBundle(Identifier.of("TEST", "SWAP"));
+    final Security security = getSecurity(id);
+    assertEquals(expected, security);
   }
 
 }

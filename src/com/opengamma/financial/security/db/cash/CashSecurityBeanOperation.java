@@ -9,6 +9,7 @@ package com.opengamma.financial.security.db.cash;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.db.AbstractBeanOperation;
 import com.opengamma.financial.security.db.HibernateSecurityMasterDao;
+import com.opengamma.financial.security.db.OperationContext;
 
 /**
  * Bean/security conversion operations.
@@ -25,21 +26,20 @@ public final class CashSecurityBeanOperation extends AbstractBeanOperation<CashS
   }
 
   @Override
-  public boolean beanEquals(CashSecurityBean bean, CashSecurity security) {
-    // TODO
-    throw new UnsupportedOperationException();
+  public boolean beanEquals(final OperationContext context, CashSecurityBean bean, CashSecurity security) {
+    return true;
   }
 
   @Override
-  public CashSecurityBean createBean(HibernateSecurityMasterDao secMasterSession, CashSecurity security) {
-    // TODO
-    throw new UnsupportedOperationException();
+  public CashSecurityBean createBean(final OperationContext context, HibernateSecurityMasterDao secMasterSession, CashSecurity security) {
+    final CashSecurityBean bean = new CashSecurityBean();
+    return bean;
   }
 
   @Override
-  public CashSecurity createSecurity(CashSecurityBean bean) {
-    // TODO
-    throw new UnsupportedOperationException();
+  public CashSecurity createSecurity(final OperationContext context, CashSecurityBean bean) {
+    final CashSecurity security = new CashSecurity();
+    return security;
   }
 
 }

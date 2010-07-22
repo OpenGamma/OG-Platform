@@ -481,28 +481,22 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
   
   // Specific securities through BeanOperation
   @Override
-  public <S extends Security, SBean extends SecurityBean> SBean createSecurityBean(
-      final BeanOperation<S, SBean> beanOperation,
-      final Date effectiveDateTime,
-      final boolean deleted,
-      final Date lastModified,
-      final String modifiedBy,
-      final SBean firstVersion,
-      final S security) {
-    final SBean bean = beanOperation.createBean(this, security);
+  public <S extends Security, SBean extends SecurityBean> SBean createSecurityBean(final OperationContext context, final BeanOperation<S, SBean> beanOperation, final Date effectiveDateTime,
+      final boolean deleted, final Date lastModified, final String modifiedBy, final SBean firstVersion, final S security) {
+    final SBean bean = beanOperation.createBean(context, this, security);
     bean.setEffectiveDateTime(effectiveDateTime);
     bean.setDeleted(deleted);
     bean.setLastModifiedDateTime(lastModified);
     bean.setLastModifiedBy(modifiedBy);
     bean.setFirstVersion(firstVersion);
     bean.setDisplayName(security.getName());
-    persistSecurityBean(bean);
-    beanOperation.postPersistBean(this, effectiveDateTime, bean);
+    persistSecurityBean(context, bean);
+    beanOperation.postPersistBean(context, this, effectiveDateTime, bean);
     return bean;
   }
   
   @Override
-  public SecurityBean persistSecurityBean(final SecurityBean bean) {
+  public SecurityBean persistSecurityBean(final OperationContext context, final SecurityBean bean) {
     if (bean.getFirstVersion() == null) {
       // link to itself as a parent
       final Long id = (Long) getSession().save(bean);

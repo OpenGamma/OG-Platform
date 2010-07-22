@@ -16,9 +16,18 @@ import com.opengamma.financial.security.swap.Notional;
 public class NotionalBean {
 
   // No identifier as this will be a component of the SwapLeg bean
+  private NotionalType _notionalType;
   private CurrencyBean _currency;
   private double _amount;
   private IdentifierBean _identifier;
+
+  public NotionalType getNotionalType() {
+    return _notionalType;
+  }
+
+  public void setNotionalType(final NotionalType notionalType) {
+    _notionalType = notionalType;
+  }
 
   /**
    * Gets the currency field.

@@ -17,7 +17,8 @@ import com.opengamma.financial.security.swap.SwapLeg;
  */
 public class SwapLegBean {
 
-  private Long _id;
+  // No identifier as this will be part of a SwapSecurityBean
+  private SwapLegType _swapLegType;
   private DayCountBean _dayCount;
   private FrequencyBean _frequency;
   private IdentifierBean _region;
@@ -27,20 +28,12 @@ public class SwapLegBean {
   private double _spread;
   private IdentifierBean _rateIdentifier;
 
-  /**
-   * Gets the id field.
-   * @return the id
-   */
-  public Long getId() {
-    return _id;
+  public SwapLegType getSwapLegType() {
+    return _swapLegType;
   }
 
-  /**
-   * Sets the id field.
-   * @param id  the id
-   */
-  public void setId(Long id) {
-    _id = id;
+  public void setSwapLegType(final SwapLegType swapLegType) {
+    _swapLegType = swapLegType;
   }
 
   /**
@@ -121,6 +114,54 @@ public class SwapLegBean {
    */
   public void setNotional(NotionalBean notional) {
     _notional = notional;
+  }
+
+  /**
+   * Gets the rate field.
+   * @return the rate
+   */
+  public double getRate() {
+    return _rate;
+  }
+
+  /**
+   * Sets the rate field.
+   * @param rate  the rate
+   */
+  public void setRate(double rate) {
+    _rate = rate;
+  }
+
+  /**
+   * Gets the spread field.
+   * @return the spread
+   */
+  public double getSpread() {
+    return _spread;
+  }
+
+  /**
+   * Sets the spread field.
+   * @param spread  the spread
+   */
+  public void setSpread(double spread) {
+    _spread = spread;
+  }
+
+  /**
+   * Gets the rateIdentifier field.
+   * @return the rateIdentifier
+   */
+  public IdentifierBean getRateIdentifier() {
+    return _rateIdentifier;
+  }
+
+  /**
+   * Sets the rateIdentifier field.
+   * @param rateIdentifier  the rateIdentifier
+   */
+  public void setRateIdentifier(IdentifierBean rateIdentifier) {
+    _rateIdentifier = rateIdentifier;
   }
 
 }

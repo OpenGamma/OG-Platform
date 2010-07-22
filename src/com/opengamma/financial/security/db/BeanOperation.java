@@ -33,28 +33,28 @@ import com.opengamma.engine.security.Security;
    * Create a bean representation of the security. Does not need to set the base properties
    * of SecurityBean.
    */
-  SBean createBean(HibernateSecurityMasterDao secMasterSession, S security);
+  SBean createBean(OperationContext context, HibernateSecurityMasterDao secMasterSession, S security);
   
   /**
    * Convert a bean representation to a security.
    */
-  S createSecurity(SBean bean);
+  S createSecurity(OperationContext context, SBean bean);
   
   /**
    * Test a bean and security representation for equality.
    */
-  boolean beanEquals(SBean bean, S security);
+  boolean beanEquals(OperationContext context, SBean bean, S security);
   
   /**
    * Loads additional (deep) data for a security bean. For example to implement date constrained relationships
    * that Hibernate alone can't deal with. May update the supplied bean, and return it, or return a new bean.
    */
-  SBean resolve(HibernateSecurityMasterDao secMasterSession, Date now, SBean bean);
+  SBean resolve(OperationContext context, HibernateSecurityMasterDao secMasterSession, Date now, SBean bean);
   
   /**
    * Additional persistence required after the main bean has been passed to Hibernate. Used with resolve to
    * store data Hibernate alone can't deal with.
    */
-  void postPersistBean(HibernateSecurityMasterDao secMasterSession, Date effectiveDate, SBean bean); 
+  void postPersistBean(OperationContext context, HibernateSecurityMasterDao secMasterSession, Date effectiveDate, SBean bean);
   
 }

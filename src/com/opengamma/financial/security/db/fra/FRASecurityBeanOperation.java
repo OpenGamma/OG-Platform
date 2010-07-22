@@ -6,8 +6,14 @@
 
 package com.opengamma.financial.security.db.fra;
 
+import static com.opengamma.financial.security.db.Converters.dateToLocalDate;
+import static com.opengamma.financial.security.db.Converters.localDateToDate;
+
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.financial.security.db.AbstractBeanOperation;
 import com.opengamma.financial.security.db.HibernateSecurityMasterDao;
+import com.opengamma.financial.security.db.OperationContext;
 import com.opengamma.financial.security.fra.FRASecurity;
 
 /**
@@ -25,21 +31,21 @@ public final class FRASecurityBeanOperation extends AbstractBeanOperation<FRASec
   }
 
   @Override
-  public boolean beanEquals(FRASecurityBean bean, FRASecurity security) {
-    // TODO
-    throw new UnsupportedOperationException();
+  public boolean beanEquals(final OperationContext context, FRASecurityBean bean, FRASecurity security) {
+    return ObjectUtils.equals(dateToLocalDate(bean.getStartDate()), security.getStartDate()) && ObjectUtils.equals(dateToLocalDate(bean.getEndDate()), security.getEndDate());
   }
 
   @Override
-  public FRASecurityBean createBean(HibernateSecurityMasterDao secMasterSession, FRASecurity security) {
-    // TODO
-    throw new UnsupportedOperationException();
+  public FRASecurityBean createBean(final OperationContext context, HibernateSecurityMasterDao secMasterSession, FRASecurity security) {
+    final FRASecurityBean bean = new FRASecurityBean();
+    bean.setStartDate(localDateToDate(security.getStartDate()));
+    bean.setEndDate(localDateToDate(security.getEndDate()));
+    return bean;
   }
 
   @Override
-  public FRASecurity createSecurity(FRASecurityBean bean) {
-    // TODO
-    throw new UnsupportedOperationException();
+  public FRASecurity createSecurity(final OperationContext context, FRASecurityBean bean) {
+    return new FRASecurity(dateToLocalDate(bean.getStartDate()).atMidnight(), dateToLocalDate(bean.getEndDate()).atMidnight());
   }
 
 }

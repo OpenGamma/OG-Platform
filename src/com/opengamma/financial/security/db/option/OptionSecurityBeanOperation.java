@@ -5,12 +5,18 @@
  */
 package com.opengamma.financial.security.db.option;
 
+import static com.opengamma.financial.security.db.Converters.currencyBeanToCurrency;
+import static com.opengamma.financial.security.db.Converters.dateToExpiry;
+import static com.opengamma.financial.security.db.Converters.identifierBeanToIdentifier;
+import static com.opengamma.financial.security.db.Converters.identifierToIdentifierBean;
+
 import java.util.Date;
 
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.financial.security.db.AbstractBeanOperation;
 import com.opengamma.financial.security.db.HibernateSecurityMasterDao;
+import com.opengamma.financial.security.db.OperationContext;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
 import com.opengamma.financial.security.option.AsymmetricPoweredPayoffStyle;
@@ -49,7 +55,7 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
   }
 
   @Override
-  public OptionSecurity createSecurity(final OptionSecurityBean bean) {
+  public OptionSecurity createSecurity(final OperationContext context, final OptionSecurityBean bean) {
     final ExerciseType exerciseType = bean.getOptionExerciseType().accept(new ExerciseTypeVisitor<ExerciseType>() {
 
       @Override
@@ -146,7 +152,7 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
   }
 
   @Override
-  public boolean beanEquals(final OptionSecurityBean bean, final OptionSecurity security) {
+  public boolean beanEquals(final OperationContext context, final OptionSecurityBean bean, final OptionSecurity security) {
     return security.accept(new OptionSecurityVisitor<Boolean>() {
 
       private Boolean beanEquals(final OptionSecurity security) {
@@ -209,7 +215,7 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
   }
 
   @Override
-  public OptionSecurityBean createBean(final HibernateSecurityMasterDao secMasterSession, final OptionSecurity security) {
+  public OptionSecurityBean createBean(final OperationContext context, final HibernateSecurityMasterDao secMasterSession, final OptionSecurity security) {
     return security.accept(new OptionSecurityVisitor<OptionSecurityBean>() {
 
       private OptionSecurityBean createSecurityBean(final OptionSecurity security) {

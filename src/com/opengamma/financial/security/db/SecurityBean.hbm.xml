@@ -18,9 +18,12 @@
 	     id-type="long"
 	     cascade="save-update">
 	    <meta-value value="BOND" class="com.opengamma.financial.security.db.bond.BondSecurityBean" />
+      <meta-value value="CASH" class="com.opengamma.financial.security.db.cash.CashSecurityBean" />
 	    <meta-value value="EQUITY" class="com.opengamma.financial.security.db.equity.EquitySecurityBean"/>
+      <meta-value value="FRA" class="com.opengamma.financial.security.db.fra.FRASecurityBean" />
 	    <meta-value value="FUTURE" class="com.opengamma.financial.security.db.future.FutureSecurityBean" />
       <meta-value value="OPTION" class="com.opengamma.financial.security.db.option.OptionSecurityBean" />
+      <meta-value value="SWAP" class="com.opengamma.financial.security.db.swap.SwapSecurityBean" />
 	    <!--  insert more subclasses of SecurityBean here -->
 	    <!--  note the order is important here -->
 	    <column name="first_version_descriminator"/> 
