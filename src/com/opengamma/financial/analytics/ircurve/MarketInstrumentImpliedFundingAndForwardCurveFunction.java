@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.ircurve;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -42,9 +43,9 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
-import com.opengamma.financial.interestrate.DoubleCurveFinder;
-import com.opengamma.financial.interestrate.DoubleCurveJacobian;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
+import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
@@ -59,6 +60,7 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CubicSplineInterpolatorWithSensitivities1D;
 import com.opengamma.math.interpolation.Extrapolator1D;
 import com.opengamma.math.interpolation.ExtrapolatorMethod;
+import com.opengamma.math.interpolation.FixedNodeInterpolator1D;
 import com.opengamma.math.interpolation.FlatExtrapolator;
 import com.opengamma.math.interpolation.FlatExtrapolatorWithSensitivities;
 import com.opengamma.math.interpolation.InterpolationResult;
@@ -74,6 +76,7 @@ import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
+import com.opengamma.math.rootfinding.newton.JacobianCalculator;
 import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
@@ -84,6 +87,9 @@ import edu.emory.mathcs.backport.java.util.Arrays;
 public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends AbstractFunction implements FunctionInvoker {
   private static final String SPOT_TICKER = "US00O/N Index"; //TODO shouldn't be hard-coded
   private static final String FLOAT_REFERENCE_TICKER = ""; //TODO shouldn't be hard-coded
+  private static final String FUNDING_CURVE_NAME = "Funding Curve";
+  private static final String LIBOR_CURVE_NAME = "Libor Curve";
+  
   private final Currency _currency;
   private InterpolatedYieldAndDiscountCurveDefinition _fundingDefinition;
   private InterpolatedYieldAndDiscountCurveDefinition _forwardDefinition;
@@ -182,16 +188,29 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
       i++;
       j++;
     }
-    final DoubleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle> jacobianCalculator = new DoubleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(derivatives,
-        forwardNodeTimes, fundingNodeTimes, null, null, _interpolatorWithSensitivity, _interpolatorWithSensitivity);
-    final DoubleCurveFinder curveFinder = new DoubleCurveFinder(derivatives, marketRates, forwardNodeTimes, fundingNodeTimes, null, null, _interpolator, _interpolator);
-    final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, jacobianCalculator, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
+   
+    LinkedHashMap<String, FixedNodeInterpolator1D> unknownCurves = new LinkedHashMap<String, FixedNodeInterpolator1D>();
+    FixedNodeInterpolator1D fnInterpolator = new FixedNodeInterpolator1D(forwardNodeTimes, _interpolatorWithSensitivity);
+    unknownCurves.put(LIBOR_CURVE_NAME, fnInterpolator);
+    fnInterpolator = new FixedNodeInterpolator1D(fundingNodeTimes, _interpolatorWithSensitivity);
+    unknownCurves.put(FUNDING_CURVE_NAME, fnInterpolator);
+    final JacobianCalculator jacobian = new MultipleYieldCurveFinderJacobian(derivatives, unknownCurves, null);
+   
+    unknownCurves = new LinkedHashMap<String, FixedNodeInterpolator1D>();
+    fnInterpolator = new FixedNodeInterpolator1D(forwardNodeTimes, _interpolator);
+    unknownCurves.put(LIBOR_CURVE_NAME, fnInterpolator);
+    fnInterpolator = new FixedNodeInterpolator1D(fundingNodeTimes, _interpolator);
+    unknownCurves.put(FUNDING_CURVE_NAME, fnInterpolator);
+    final Function1D<DoubleMatrix1D,DoubleMatrix1D> curveFinder = new MultipleYieldCurveFinderFunction(derivatives, marketRates, unknownCurves, null);
+    
+    
+    final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, jacobian, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
     final double[] yields = rootFinder.getRoot(curveFinder, new DoubleMatrix1D(initialRatesGuess)).getData();
     final double[] forwardYields = Arrays.copyOfRange(yields, 0, nForward);
     final double[] fundingYields = Arrays.copyOfRange(yields, nForward, yields.length);
     final YieldAndDiscountCurve fundingCurve = new InterpolatedYieldCurve(fundingNodeTimes, fundingYields, _interpolator);
     final YieldAndDiscountCurve forwardCurve = new InterpolatedYieldCurve(forwardNodeTimes, forwardYields, _interpolator);
-    final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(yields), (Function1D<DoubleMatrix1D, DoubleMatrix1D>[]) null);
+    final DoubleMatrix2D jacobianMatrix = jacobian.evaluate(new DoubleMatrix1D(yields), (Function1D<DoubleMatrix1D, DoubleMatrix1D>[]) null);
     return Sets.newHashSet(new ComputedValue(_fundingCurveResult, fundingCurve), new ComputedValue(_forwardCurveResult, forwardCurve), new ComputedValue(_jacobianResult, jacobianMatrix.getData()));
   }
 
@@ -289,7 +308,7 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     final ZonedDateTime startAdjusted = convention.adjustDate(calendar, start);
     final ZonedDateTime endAdjusted = convention.adjustDate(calendar, end);
     final double t = dayCount.getDayCountFraction(startAdjusted, endAdjusted);
-    return new Cash(t);
+    return new Cash(t,FUNDING_CURVE_NAME);
   }
 
   private ForwardRateAgreement getFRA(final FixedIncomeStrip fraStrip, final Calendar calendar, final LocalDate now) {
@@ -302,7 +321,7 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     final ZonedDateTime nowWithTime = now.atStartOfDayInZone(TimeZone.UTC);
     final double startTime = dayCount.getDayCountFraction(nowWithTime, startAdjusted);
     final double endTime = dayCount.getDayCountFraction(nowWithTime, endAdjusted);
-    return new ForwardRateAgreement(startTime, endTime);
+    return new ForwardRateAgreement(startTime, endTime,LIBOR_CURVE_NAME);
   }
 
   private InterestRateFuture getIRFuture(final FixedIncomeStrip irFutureStrip, final Calendar calendar, final LocalDate now) {
@@ -315,7 +334,7 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     final ZonedDateTime nowWithTime = now.atStartOfDayInZone(TimeZone.UTC);
     final double startTime = dayCount.getDayCountFraction(nowWithTime, startAdjusted);
     final double endTime = dayCount.getDayCountFraction(nowWithTime, endAdjusted);
-    return new InterestRateFuture(startTime, endTime);
+    return new InterestRateFuture(startTime, endTime,LIBOR_CURVE_NAME);
   }
 
   private Libor getLibor(final FixedIncomeStrip liborStrip, final Calendar calendar, final LocalDate now) {
@@ -326,7 +345,7 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     final ZonedDateTime startAdjusted = convention.adjustDate(calendar, start);
     final ZonedDateTime endAdjusted = convention.adjustDate(calendar, end);
     final double t = dayCount.getDayCountFraction(startAdjusted, endAdjusted);
-    return new Libor(t);
+    return new Libor(t,LIBOR_CURVE_NAME);
   }
 
   private Swap getSwap(final FixedIncomeStrip swapStrip, final Calendar calendar, final Region region, final LocalDate now, final double floatingRate) {
@@ -343,7 +362,7 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     for (int i = 0; i < n; i++) {
       delta[i] = 0;
     }
-    return new Swap(swapPaymentDates, swapPaymentDates, delta, delta);
+    return new Swap(swapPaymentDates, swapPaymentDates, delta, delta,FUNDING_CURVE_NAME,LIBOR_CURVE_NAME);
   }
 
   private double getLastTime(final InterestRateDerivative derivative) {
@@ -362,9 +381,9 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
   }
 
   private double getLastSwapTime(final Swap swap) {
-    final int nFix = swap.getNumberOfFixedPayments() - 1;
-    final int nFloat = swap.getNumberOfFloatingPayments() - 1;
-    return Math.max(swap.getFixedPaymentTimes()[nFix], swap.getFloatingPaymentTimes()[nFloat] + swap.getDeltaEnd()[nFloat]);
+    final int nFix = swap.getFixedLeg().getNumberOfPayments() - 1;
+    final int nFloat = swap.getFloatingLeg().getNumberOfPayments() - 1;
+    return Math.max(swap.getFixedLeg().getPaymentTimes()[nFix], swap.getFloatingLeg().getPaymentTimes()[nFloat] + swap.getFloatingLeg().getDeltaEnd()[nFloat]);
   }
 
   private double getLastCashTime(final Cash cash) {
