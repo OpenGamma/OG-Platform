@@ -86,8 +86,8 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     
     private void sendMail() {
       final String smtpServer = "localhost";
-      final String to = "jim@opengamma.com";
-      final String from = "jim@opengamma.com";
+      final String to = "pietari@opengamma.com";
+      final String from = "pietari@opengamma.com";
       final String subject = "Test failure";
       Properties props = new Properties();
       props.put("mail.smtp.host", smtpServer);
@@ -171,7 +171,7 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     //log("running test for databaseType=" + databaseType + " databaseVersion=" + databaseVersion);
   }
 
-  private HibernateSecurityMasterDao _hibernateSecurityMasterDao;
+  private HibernateSecurityMasterSession _hibernateSecurityMasterDao;
 
   /**
    * @throws java.lang.Exception
@@ -188,9 +188,11 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
    */
   @After
   public void tearDown() throws Exception {
+    _hibernateSecurityMasterDao.getSession().close();
+    _hibernateSecurityMasterDao = null;
+
     super.tearDown();
     log("finished");
-    _hibernateSecurityMasterDao = null;
   }
 
   @Override

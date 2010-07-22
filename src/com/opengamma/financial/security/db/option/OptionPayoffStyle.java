@@ -13,31 +13,55 @@ import com.opengamma.financial.security.option.PayoffStyleVisitor;
  */
 public enum OptionPayoffStyle {
 
+  /** Asset or Nothing */
+  ASSET_OR_NOTHING,
   /** Asymmetric powered */
   ASYMMETRIC_POWERED,
   /** Barrier */
   BARRIER,
   /** Capped Powered*/
   CAPPED_POWERED,
-  /** Fixed Strike */
-  FIXED_STRIKE,
+  /** Cash-or-Nothing*/
+  CASH_OR_NOTHING,
+  /** Fade-in */
+  FADE_IN,
+  /** Fixed-strike lookback*/
+  FIXED_STRIKE_LOOKBACK,
+  /** Floating-strike lookback*/
+  FLOATING_STRIKE_LOOKBACK,
+  /** Gap */
+  GAP,
   /** Powered */
   POWERED,
+  /** Supershare */
+  SUPERSHARE,
   /** Vanilla */
   VANILLA;
 
   public <T> T accept(final PayoffStyleVisitor<T> visitor) {
     switch (this) {
+      case ASSET_OR_NOTHING:
+        return visitor.visitAssetOrNothingPayoffStyle(null);
       case ASYMMETRIC_POWERED:
         return visitor.visitAsymmetricPoweredPayoffStyle(null);
       case BARRIER:
         return visitor.visitBarrierPayoffStyle(null);
       case CAPPED_POWERED:
         return visitor.visitCappedPoweredPayoffStyle(null);
-      case FIXED_STRIKE:
-        return visitor.visitFixedStrikePayoffStyle(null);
+      case CASH_OR_NOTHING:
+        return visitor.visitCashOrNothingPayoffStyle(null);
+      case FADE_IN:
+        return visitor.visitFadeInPayoffStyle(null);
+      case FIXED_STRIKE_LOOKBACK:
+        return visitor.visitFixedStrikeLookbackPayoffStyle(null);
+      case FLOATING_STRIKE_LOOKBACK:
+        return visitor.visitFloatingStrikeLookbackPayoffStyle(null);
+      case GAP:
+        return visitor.visitGapPayoffStyle(null);
       case POWERED:
         return visitor.visitPoweredPayoffStyle(null);
+      case SUPERSHARE:
+        return visitor.visitSupersharePayoffStyle(null);
       case VANILLA:
         return visitor.visitVanillaPayoffStyle(null);
       default:

@@ -12,18 +12,25 @@ namespace com.opengamma.financial.security.option {
     }
   }
   
+  message AssetOrNothingPayoffStyle extends PayoffStyle {
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitAssetOrNothingPayoffStyle(this); }";  
+    }
+  }
+
   message AsymmetricPoweredPayoffStyle extends PayoffStyle {
     required readonly double power;
     binding Java {
       method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitAsymmetricPoweredPayoffStyle (this); }";
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitAsymmetricPoweredPayoffStyle(this); }";
     }
   }
   
   message BarrierPayoffStyle extends PayoffStyle {
     binding Java {
       method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitBarrierPayoffStyle (this); }";
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitBarrierPayoffStyle(this); }";
     }
   }
   
@@ -32,14 +39,46 @@ namespace com.opengamma.financial.security.option {
     required readonly double cap;
     binding Java {
       method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitCappedPoweredPayoffStyle (this); }";
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitCappedPoweredPayoffStyle(this); }";
     }
   }
   
-  message FixedStrikePayoffStyle extends PayoffStyle {
+  message CashOrNothingPayoffStyle extends PayoffStyle {
+    required readonly double payment;
     binding Java {
       method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitFixedStrikePayoffStyle (this); }";
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitCashOrNothingPayoffStyle(this); }";
+    }
+  }
+  
+  message FadeInPayoffStyle extends PayoffStyle {
+    required readonly double lowerBound;
+    required readonly double upperBound;
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitFadeInPayoffStyle(this); }";
+    }
+  }
+    
+  message FixedStrikeLookbackPayoffStyle extends PayoffStyle {
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitFixedStrikeLookbackPayoffStyle(this); }";
+    }
+  }
+  
+  message FloatingStrikeLookbackPayoffStyle extends PayoffStyle {
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitFloatingStrikeLookbackPayoffStyle(this); }";
+    }
+  }
+  
+  message GapPayoffStyle extends PayoffStyle {
+    required readonly double payment;
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitGapPayoffStyle(this); }";
     }
   }
   
@@ -47,15 +86,23 @@ namespace com.opengamma.financial.security.option {
     required readonly double power;
     binding Java {
       method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitPoweredPayoffStyle (this); }";
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitPoweredPayoffStyle(this); }";
     }
   }
   
+  message SupersharePayoffStyle extends PayoffStyle {
+    required readonly double lowerBound;
+    required readonly double upperBound;
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitSupersharePayoffStyle(this); }";
+    }
+  }
+    
   message VanillaPayoffStyle extends PayoffStyle {
     binding Java {
       method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitVanillaPayoffStyle (this); }";
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitVanillaPayoffStyle(this); }";
     }
   }
-  
 }
