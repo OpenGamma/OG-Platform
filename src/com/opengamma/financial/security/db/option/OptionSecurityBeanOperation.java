@@ -7,6 +7,9 @@ package com.opengamma.financial.security.db.option;
 
 import java.util.Date;
 
+import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZonedDateTime;
+
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.financial.security.db.AbstractBeanOperation;
@@ -36,6 +39,7 @@ import com.opengamma.financial.security.option.OptionSecurityVisitor;
 import com.opengamma.financial.security.option.PayoffStyle;
 import com.opengamma.financial.security.option.PayoffStyleVisitor;
 import com.opengamma.financial.security.option.PoweredPayoffStyle;
+import com.opengamma.financial.security.option.SimpleChooserPayoffStyle;
 import com.opengamma.financial.security.option.SupersharePayoffStyle;
 import com.opengamma.financial.security.option.SwapOptionSecurity;
 import com.opengamma.financial.security.option.VanillaPayoffStyle;
@@ -130,6 +134,12 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
         return new PoweredPayoffStyle(bean.getPower());
       }
 
+      @Override
+      public PayoffStyle visitSimpleChooserPayoffStyle(SimpleChooserPayoffStyle payoffStyle) {
+        return new SimpleChooserPayoffStyle(bean.getChooseDate(), bean.getChooseDateTimeZone(), bean.getUnderlyingStrike(), 
+            bean.getUnderlyingExpiry(), bean.getUnderlyingExpiryTimeZone());
+      }
+      
       @Override
       public PayoffStyle visitSupersharePayoffStyle(SupersharePayoffStyle payoffStyle) {
         return new SupersharePayoffStyle(bean.getLowerBound(), bean.getUpperBound());
@@ -312,6 +322,16 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
             return OptionPayoffStyle.POWERED;
           }
 
+          @Override
+          public OptionPayoffStyle visitSimpleChooserPayoffStyle(SimpleChooserPayoffStyle payoffStyle) {
+            bean.setChooseDate(payoffStyle.getChooseDate());
+            bean.setChooseDateTimeZone(payoffStyle.getChooseDate_zone());
+            bean.setUnderlyingStrike(payoffStyle.getUnderlyingStrike());
+            bean.setUnderlyingExpiry(payoffStyle.getUnderlyingExpiry());
+            bean.setUnderlyingExpiryTimeZone(payoffStyle.getUnderlyingExpiry_zone());
+            return OptionPayoffStyle.SIMPLE_CHOOSER;
+          }
+          
           @Override
           public OptionPayoffStyle visitSupersharePayoffStyle(SupersharePayoffStyle payoffStyle) {
             bean.setLowerBound(payoffStyle.getLowerBound());

@@ -90,6 +90,18 @@ namespace com.opengamma.financial.security.option {
     }
   }
   
+  message SimpleChooserPayoffStyle extends PayoffStyle {
+    required readonly datetime chooseDate;
+    required readonly string chooseDate_zone [default = "UTC"];
+    required readonly double underlyingStrike;
+    required readonly datetime underlyingExpiry;
+    required readonly string underlyingExpiry_zone [default = "UTC"];
+    binding Java {
+      method equals;
+      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitSimpleChooserPayoffStyle(this); }";
+    }
+  }
+  
   message SupersharePayoffStyle extends PayoffStyle {
     required readonly double lowerBound;
     required readonly double upperBound;

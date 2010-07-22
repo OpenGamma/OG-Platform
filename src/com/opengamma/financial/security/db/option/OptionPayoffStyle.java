@@ -33,6 +33,8 @@ public enum OptionPayoffStyle {
   GAP,
   /** Powered */
   POWERED,
+  /** Simple chooser */
+  SIMPLE_CHOOSER,
   /** Supershare */
   SUPERSHARE,
   /** Vanilla */
@@ -60,6 +62,8 @@ public enum OptionPayoffStyle {
         return visitor.visitGapPayoffStyle(null);
       case POWERED:
         return visitor.visitPoweredPayoffStyle(null);
+      case SIMPLE_CHOOSER:
+        return visitor.visitSimpleChooserPayoffStyle(null);
       case SUPERSHARE:
         return visitor.visitSupersharePayoffStyle(null);
       case VANILLA:
