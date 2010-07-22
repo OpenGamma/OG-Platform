@@ -5,11 +5,15 @@
  */
 package com.opengamma.financial.interestrate;
 
+import org.junit.Test;
 
 /**
  * 
  */
 public class SingleCurveFinderTest {
+  @Test
+  public void test() {
+  }
   // private static final List<InterestRateDerivative> DERIVATIVES;
   // private static final double[] MARKET_RATES;
   // private static final double[] NODES;

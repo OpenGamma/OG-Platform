@@ -5,11 +5,15 @@
  */
 package com.opengamma.financial.interestrate;
 
+import org.junit.Test;
 
 /**
  * 
  */
 public class SingeCurveJacobianTest {
+  @Test
+  public void test() {
+  }
   // private static final List<InterestRateDerivative> CASH;
   // private static final List<InterestRateDerivative> FRA;
   // private static final double[] CASH_NODES;
