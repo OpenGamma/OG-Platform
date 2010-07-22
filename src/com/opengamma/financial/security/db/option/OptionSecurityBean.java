@@ -50,6 +50,9 @@ public class OptionSecurityBean extends SecurityBean {
   private Double _underlyingStrike;
   private DateTimeProvider _underlyingExpiry;
   private String _underlyingExpiryTimeZone;
+  private DateTimeProvider _periodEnd; // TODO seems unnecessary with choose date in here 
+  private String _periodEndTimeZone; // TODO same comment as above
+  private boolean _isReverse;
   private IdentifierBean _underlying;
   
 
@@ -297,6 +300,38 @@ public class OptionSecurityBean extends SecurityBean {
     _underlyingExpiryTimeZone = underlyingExpiryTimeZone;
   }
 
+  public String getChooseDateTimeProviderZone() {
+    return _chooseDateTimeProviderZone;
+  }
+
+  public void setChooseDateTimeProviderZone(String chooseDateTimeProviderZone) {
+    _chooseDateTimeProviderZone = chooseDateTimeProviderZone;
+  }
+
+  public DateTimeProvider getPeriodEnd() {
+    return _periodEnd;
+  }
+
+  public void setPeriodEnd(DateTimeProvider periodEnd) {
+    _periodEnd = periodEnd;
+  }
+
+  public String getPeriodEndTimeZone() {
+    return _periodEndTimeZone;
+  }
+
+  public void setPeriodEndTimeZone(String periodEndTimeZone) {
+    _periodEndTimeZone = periodEndTimeZone;
+  }
+
+  public boolean isReverse() {
+    return _isReverse;
+  }
+
+  public void setReverse(boolean isReverse) {
+    _isReverse = isReverse;
+  }
+
   @Override
   public boolean equals(final Object other) {
     if (!(other instanceof OptionSecurityBean)) {
@@ -329,6 +364,9 @@ public class OptionSecurityBean extends SecurityBean {
       .append(getUnderlyingExpiry(), option.getUnderlyingExpiry())
       .append(getUnderlyingExpiryTimeZone(), option.getUnderlyingExpiryTimeZone())
       .append(getChooseDateTimeZone(), option.getChooseDateTimeZone())
+      .append(getPeriodEnd(), option.getPeriodEnd())
+      .append(getPeriodEndTimeZone(), option.getPeriodEndTimeZone())
+      .append(isReverse(), option.isReverse())
       .isEquals();
   }
 
@@ -356,6 +394,9 @@ public class OptionSecurityBean extends SecurityBean {
       .append(getUnderlyingExpiry())
       .append(getUnderlyingExpiryTimeZone())
       .append(getChooseDateTimeZone())
+      .append(getPeriodEnd())
+      .append(getPeriodEndTimeZone())
+      .append(isReverse())
       .toHashCode();
   }
 
