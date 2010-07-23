@@ -37,7 +37,7 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
@@ -129,7 +129,7 @@ public class SwapPortfolioImpliedFundingAndForwardCurveFunction extends Abstract
       final double[] payLegPaymentTimes = SwapScheduleCalculator.getPaymentTimes(effectiveDate, maturityDate, payLeg, calendar, now);
       final double[] receiveLegPaymentTimes = SwapScheduleCalculator.getPaymentTimes(effectiveDate, maturityDate, receiveLeg, calendar, now);
       payFixed = payLeg instanceof FixedInterestRateLeg;
-      Swap swap;
+      FixedFloatSwap swap;
       double[] fixedPaymentTimes;
       double[] floatPaymentTimes;
       double[] forwardStartOffsets;
@@ -149,7 +149,7 @@ public class SwapPortfolioImpliedFundingAndForwardCurveFunction extends Abstract
         forwardStartOffsets = new double[nFloat];
         forwardEndOffsets = new double[nFloat];
       }
-      swap = new Swap(fixedPaymentTimes, floatPaymentTimes, forwardStartOffsets, forwardEndOffsets,FUNDING_CURVE_NAME,LIBOR_CURVE_NAME);
+      swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, forwardStartOffsets, forwardEndOffsets,FUNDING_CURVE_NAME,LIBOR_CURVE_NAME);
       YieldCurveBundle bundle = new YieldCurveBundle();
       bundle.setCurve(FUNDING_CURVE_NAME, fundingCurve);
       bundle.setCurve(LIBOR_CURVE_NAME, forwardCurve);

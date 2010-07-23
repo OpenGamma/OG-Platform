@@ -50,7 +50,7 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.libor.Libor;
-import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.id.IdentificationScheme;
@@ -348,7 +348,7 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     return new Libor(t,LIBOR_CURVE_NAME);
   }
 
-  private Swap getSwap(final FixedIncomeStrip swapStrip, final Calendar calendar, final Region region, final LocalDate now, final double floatingRate) {
+  private FixedFloatSwap getSwap(final FixedIncomeStrip swapStrip, final Calendar calendar, final Region region, final LocalDate now, final double floatingRate) {
     final BusinessDayConvention convention = swapStrip.getBusinessDayConvention();
     final ZonedDateTime effectiveDate = swapStrip.getStartDate().atStartOfDayInZone(TimeZone.UTC); //TODO change this
     final ZonedDateTime maturityDate = swapStrip.getEndDate().atStartOfDayInZone(TimeZone.UTC); //TODO change this
@@ -362,12 +362,12 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     for (int i = 0; i < n; i++) {
       delta[i] = 0;
     }
-    return new Swap(swapPaymentDates, swapPaymentDates, delta, delta,FUNDING_CURVE_NAME,LIBOR_CURVE_NAME);
+    return new FixedFloatSwap(swapPaymentDates, swapPaymentDates, delta, delta,FUNDING_CURVE_NAME,LIBOR_CURVE_NAME);
   }
 
   private double getLastTime(final InterestRateDerivative derivative) {
-    if (derivative instanceof Swap) {
-      return getLastSwapTime((Swap) derivative);
+    if (derivative instanceof FixedFloatSwap) {
+      return getLastSwapTime((FixedFloatSwap) derivative);
     } else if (derivative instanceof Cash) {
       return getLastCashTime((Cash) derivative);
     } else if (derivative instanceof ForwardRateAgreement) {
@@ -380,7 +380,7 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     throw new IllegalArgumentException("This should never happen");
   }
 
-  private double getLastSwapTime(final Swap swap) {
+  private double getLastSwapTime(final FixedFloatSwap swap) {
     final int nFix = swap.getFixedLeg().getNumberOfPayments() - 1;
     final int nFloat = swap.getFloatingLeg().getNumberOfPayments() - 1;
     return Math.max(swap.getFixedLeg().getPaymentTimes()[nFix], swap.getFloatingLeg().getPaymentTimes()[nFloat] + swap.getFloatingLeg().getDeltaEnd()[nFloat]);

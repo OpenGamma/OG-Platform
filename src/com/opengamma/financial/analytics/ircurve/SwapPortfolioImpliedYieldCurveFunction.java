@@ -35,7 +35,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
-import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
@@ -121,7 +121,7 @@ public class SwapPortfolioImpliedYieldCurveFunction extends AbstractFunction imp
       final double[] payLegPaymentTimes = SwapScheduleCalculator.getPaymentTimes(effectiveDate, maturityDate, payLeg, calendar, now);
       final double[] receiveLegPaymentTimes = SwapScheduleCalculator.getPaymentTimes(effectiveDate, maturityDate, receiveLeg, calendar, now);
       payFixed = payLeg instanceof FixedInterestRateLeg;
-      Swap swap;
+      FixedFloatSwap swap;
       double[] fixedPaymentTimes;
       double[] floatPaymentTimes;
       double[] forwardStartOffsets;
@@ -141,7 +141,7 @@ public class SwapPortfolioImpliedYieldCurveFunction extends AbstractFunction imp
         forwardStartOffsets = new double[nFloat];
         forwardEndOffsets = new double[nFloat];
       }
-      swap = new Swap(fixedPaymentTimes, floatPaymentTimes, forwardStartOffsets, forwardEndOffsets,CURVE_NAME,CURVE_NAME);
+      swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, forwardStartOffsets, forwardEndOffsets,CURVE_NAME,CURVE_NAME);
       // marketRates = swap rate from bloomberg
       // marketRates[i] = _swapRateCalculator.getRate(inputCurve, inputCurve, swap);
       nodeTimes[i] = Math.max(fixedPaymentTimes[nFix - 1], floatPaymentTimes[nFloat - 1] + forwardEndOffsets[nFloat - 1]);
