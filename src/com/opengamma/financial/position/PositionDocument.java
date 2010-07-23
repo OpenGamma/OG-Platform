@@ -33,17 +33,17 @@ public class PositionDocument extends DirectBean {
    * The portfolio unique identifier.
    */
   @PropertyDefinition
-  private UniqueIdentifier _portfolioUid;
+  private UniqueIdentifier _portfolioId;
   /**
    * The parent node unique identifier.
    */
   @PropertyDefinition
-  private UniqueIdentifier _parentNodeUid;
+  private UniqueIdentifier _parentNodeId;
   /**
    * The position unique identifier.
    */
   @PropertyDefinition
-  private UniqueIdentifier _positionUid;
+  private UniqueIdentifier _positionId;
   /**
    * The instant that the position is valid from.
    */
@@ -77,7 +77,7 @@ public class PositionDocument extends DirectBean {
    */
   public PositionDocument(final Position position) {
     ArgumentChecker.notNull(position, "position");
-    setPortfolioUid(position.getUniqueIdentifier());
+    setPortfolioId(position.getUniqueIdentifier());
     setPosition(position);
   }
 
@@ -98,12 +98,12 @@ public class PositionDocument extends DirectBean {
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
-      case -160767512:  // portfolioUid
-        return getPortfolioUid();
-      case -1692130588:  // parentNodeUid
-        return getParentNodeUid();
-      case -137447833:  // positionUid
-        return getPositionUid();
+      case -5186429:  // portfolioId
+        return getPortfolioId();
+      case 915246087:  // parentNodeId
+        return getParentNodeId();
+      case 1381039140:  // positionId
+        return getPositionId();
       case -3992261:  // validFromInstant
         return getValidFromInstant();
       case -1035122102:  // validToInstant
@@ -119,14 +119,14 @@ public class PositionDocument extends DirectBean {
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
-      case -160767512:  // portfolioUid
-        setPortfolioUid((UniqueIdentifier) newValue);
+      case -5186429:  // portfolioId
+        setPortfolioId((UniqueIdentifier) newValue);
         return;
-      case -1692130588:  // parentNodeUid
-        setParentNodeUid((UniqueIdentifier) newValue);
+      case 915246087:  // parentNodeId
+        setParentNodeId((UniqueIdentifier) newValue);
         return;
-      case -137447833:  // positionUid
-        setPositionUid((UniqueIdentifier) newValue);
+      case 1381039140:  // positionId
+        setPositionId((UniqueIdentifier) newValue);
         return;
       case -3992261:  // validFromInstant
         setValidFromInstant((Instant) newValue);
@@ -149,24 +149,24 @@ public class PositionDocument extends DirectBean {
    * Gets the portfolio unique identifier.
    * @return the value of the property
    */
-  public UniqueIdentifier getPortfolioUid() {
-    return _portfolioUid;
+  public UniqueIdentifier getPortfolioId() {
+    return _portfolioId;
   }
 
   /**
    * Sets the portfolio unique identifier.
-   * @param portfolioUid  the new value of the property
+   * @param portfolioId  the new value of the property
    */
-  public void setPortfolioUid(UniqueIdentifier portfolioUid) {
-    this._portfolioUid = portfolioUid;
+  public void setPortfolioId(UniqueIdentifier portfolioId) {
+    this._portfolioId = portfolioId;
   }
 
   /**
-   * Gets the the {@code portfolioUid} property.
+   * Gets the the {@code portfolioId} property.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> portfolioUid() {
-    return metaBean().portfolioUid().createProperty(this);
+  public final Property<UniqueIdentifier> portfolioId() {
+    return metaBean().portfolioId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -174,24 +174,24 @@ public class PositionDocument extends DirectBean {
    * Gets the parent node unique identifier.
    * @return the value of the property
    */
-  public UniqueIdentifier getParentNodeUid() {
-    return _parentNodeUid;
+  public UniqueIdentifier getParentNodeId() {
+    return _parentNodeId;
   }
 
   /**
    * Sets the parent node unique identifier.
-   * @param parentNodeUid  the new value of the property
+   * @param parentNodeId  the new value of the property
    */
-  public void setParentNodeUid(UniqueIdentifier parentNodeUid) {
-    this._parentNodeUid = parentNodeUid;
+  public void setParentNodeId(UniqueIdentifier parentNodeId) {
+    this._parentNodeId = parentNodeId;
   }
 
   /**
-   * Gets the the {@code parentNodeUid} property.
+   * Gets the the {@code parentNodeId} property.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> parentNodeUid() {
-    return metaBean().parentNodeUid().createProperty(this);
+  public final Property<UniqueIdentifier> parentNodeId() {
+    return metaBean().parentNodeId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -199,24 +199,24 @@ public class PositionDocument extends DirectBean {
    * Gets the position unique identifier.
    * @return the value of the property
    */
-  public UniqueIdentifier getPositionUid() {
-    return _positionUid;
+  public UniqueIdentifier getPositionId() {
+    return _positionId;
   }
 
   /**
    * Sets the position unique identifier.
-   * @param positionUid  the new value of the property
+   * @param positionId  the new value of the property
    */
-  public void setPositionUid(UniqueIdentifier positionUid) {
-    this._positionUid = positionUid;
+  public void setPositionId(UniqueIdentifier positionId) {
+    this._positionId = positionId;
   }
 
   /**
-   * Gets the the {@code positionUid} property.
+   * Gets the the {@code positionId} property.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> positionUid() {
-    return metaBean().positionUid().createProperty(this);
+  public final Property<UniqueIdentifier> positionId() {
+    return metaBean().positionId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -330,17 +330,17 @@ public class PositionDocument extends DirectBean {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code portfolioUid} property.
+     * The meta-property for the {@code portfolioId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _portfolioUid = DirectMetaProperty.ofReadWrite(this, "portfolioUid", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _portfolioId = DirectMetaProperty.ofReadWrite(this, "portfolioId", UniqueIdentifier.class);
     /**
-     * The meta-property for the {@code parentNodeUid} property.
+     * The meta-property for the {@code parentNodeId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _parentNodeUid = DirectMetaProperty.ofReadWrite(this, "parentNodeUid", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _parentNodeId = DirectMetaProperty.ofReadWrite(this, "parentNodeId", UniqueIdentifier.class);
     /**
-     * The meta-property for the {@code positionUid} property.
+     * The meta-property for the {@code positionId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _positionUid = DirectMetaProperty.ofReadWrite(this, "positionUid", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _positionId = DirectMetaProperty.ofReadWrite(this, "positionId", UniqueIdentifier.class);
     /**
      * The meta-property for the {@code validFromInstant} property.
      */
@@ -365,9 +365,9 @@ public class PositionDocument extends DirectBean {
     @SuppressWarnings("unchecked")
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
-      temp.put("portfolioUid", _portfolioUid);
-      temp.put("parentNodeUid", _parentNodeUid);
-      temp.put("positionUid", _positionUid);
+      temp.put("portfolioId", _portfolioId);
+      temp.put("parentNodeId", _parentNodeId);
+      temp.put("positionId", _positionId);
       temp.put("validFromInstant", _validFromInstant);
       temp.put("validToInstant", _validToInstant);
       temp.put("lastModifiedInstant", _lastModifiedInstant);
@@ -392,27 +392,27 @@ public class PositionDocument extends DirectBean {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code portfolioUid} property.
+     * The meta-property for the {@code portfolioId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> portfolioUid() {
-      return _portfolioUid;
+    public final MetaProperty<UniqueIdentifier> portfolioId() {
+      return _portfolioId;
     }
 
     /**
-     * The meta-property for the {@code parentNodeUid} property.
+     * The meta-property for the {@code parentNodeId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> parentNodeUid() {
-      return _parentNodeUid;
+    public final MetaProperty<UniqueIdentifier> parentNodeId() {
+      return _parentNodeId;
     }
 
     /**
-     * The meta-property for the {@code positionUid} property.
+     * The meta-property for the {@code positionId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> positionUid() {
-      return _positionUid;
+    public final MetaProperty<UniqueIdentifier> positionId() {
+      return _positionId;
     }
 
     /**

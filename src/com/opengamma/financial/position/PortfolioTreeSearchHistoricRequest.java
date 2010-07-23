@@ -58,7 +58,7 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
    * The portfolio object identifier to match.
    */
   @PropertyDefinition
-  private UniqueIdentifier _portfolioOid;
+  private UniqueIdentifier _portfolioId;
   /**
    * The instant to retrieve versions on or after (inclusive).
    * A null value will retrieve values starting from the earliest version.
@@ -127,7 +127,7 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
    * @param correctedToInstantProvider  the instant that the data should be corrected to, null for latest correction
    */
   public PortfolioTreeSearchHistoricRequest(final UniqueIdentifier uid, InstantProvider versionInstantProvider, InstantProvider correctedToInstantProvider) {
-    setPortfolioOid(uid);
+    setPortfolioId(uid);
     if (versionInstantProvider != null) {
       final Instant versionInstant = Instant.of(versionInstantProvider);
       setVersionsFromInstant(versionInstant);
@@ -159,8 +159,8 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
     switch (propertyName.hashCode()) {
       case -2092032669:  // pagingRequest
         return getPagingRequest();
-      case -160773278:  // portfolioOid
-        return getPortfolioOid();
+      case -5186429:  // portfolioId
+        return getPortfolioId();
       case 825630012:  // versionsFromInstant
         return getVersionsFromInstant();
       case 288644747:  // versionsToInstant
@@ -181,8 +181,8 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
       case -2092032669:  // pagingRequest
         setPagingRequest((PagingRequest) newValue);
         return;
-      case -160773278:  // portfolioOid
-        setPortfolioOid((UniqueIdentifier) newValue);
+      case -5186429:  // portfolioId
+        setPortfolioId((UniqueIdentifier) newValue);
         return;
       case 825630012:  // versionsFromInstant
         setVersionsFromInstant((Instant) newValue);
@@ -236,24 +236,24 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
    * Gets the portfolio object identifier to match.
    * @return the value of the property
    */
-  public UniqueIdentifier getPortfolioOid() {
-    return _portfolioOid;
+  public UniqueIdentifier getPortfolioId() {
+    return _portfolioId;
   }
 
   /**
    * Sets the portfolio object identifier to match.
-   * @param portfolioOid  the new value of the property
+   * @param portfolioId  the new value of the property
    */
-  public void setPortfolioOid(UniqueIdentifier portfolioOid) {
-    this._portfolioOid = portfolioOid;
+  public void setPortfolioId(UniqueIdentifier portfolioId) {
+    this._portfolioId = portfolioId;
   }
 
   /**
-   * Gets the the {@code portfolioOid} property.
+   * Gets the the {@code portfolioId} property.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> portfolioOid() {
-    return metaBean().portfolioOid().createProperty(this);
+  public final Property<UniqueIdentifier> portfolioId() {
+    return metaBean().portfolioId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -426,9 +426,9 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
      */
     private final MetaProperty<PagingRequest> _pagingRequest = DirectMetaProperty.ofReadWrite(this, "pagingRequest", PagingRequest.class);
     /**
-     * The meta-property for the {@code portfolioOid} property.
+     * The meta-property for the {@code portfolioId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _portfolioOid = DirectMetaProperty.ofReadWrite(this, "portfolioOid", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _portfolioId = DirectMetaProperty.ofReadWrite(this, "portfolioId", UniqueIdentifier.class);
     /**
      * The meta-property for the {@code versionsFromInstant} property.
      */
@@ -458,7 +458,7 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("pagingRequest", _pagingRequest);
-      temp.put("portfolioOid", _portfolioOid);
+      temp.put("portfolioId", _portfolioId);
       temp.put("versionsFromInstant", _versionsFromInstant);
       temp.put("versionsToInstant", _versionsToInstant);
       temp.put("correctionsFromInstant", _correctionsFromInstant);
@@ -492,11 +492,11 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code portfolioOid} property.
+     * The meta-property for the {@code portfolioId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> portfolioOid() {
-      return _portfolioOid;
+    public final MetaProperty<UniqueIdentifier> portfolioId() {
+      return _portfolioId;
     }
 
     /**

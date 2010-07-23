@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.time.Instant;
+
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -36,6 +38,18 @@ public class PortfolioTreeSearchRequest extends DirectBean {
    */
   @PropertyDefinition
   private String _name;
+  /**
+   * The instant to search for a version at.
+   * Null is treated as the latest version.
+   */
+  @PropertyDefinition
+  private Instant _versionAsOfInstant;
+  /**
+   * The instant to search for corrections for.
+   * Null is treated as the latest correction.
+   */
+  @PropertyDefinition
+  private Instant _correctedToInstant;
   /**
    * The depth of nodes to return.
    * A value of zero returns no nodes, one returns the root node, two returns the
@@ -72,6 +86,10 @@ public class PortfolioTreeSearchRequest extends DirectBean {
         return getPagingRequest();
       case 3373707:  // name
         return getName();
+      case 598802432:  // versionAsOfInstant
+        return getVersionAsOfInstant();
+      case -28367267:  // correctedToInstant
+        return getCorrectedToInstant();
       case 95472323:  // depth
         return getDepth();
     }
@@ -86,6 +104,12 @@ public class PortfolioTreeSearchRequest extends DirectBean {
         return;
       case 3373707:  // name
         setName((String) newValue);
+        return;
+      case 598802432:  // versionAsOfInstant
+        setVersionAsOfInstant((Instant) newValue);
+        return;
+      case -28367267:  // correctedToInstant
+        setCorrectedToInstant((Instant) newValue);
         return;
       case 95472323:  // depth
         setDepth((int) (Integer) newValue);
@@ -149,6 +173,62 @@ public class PortfolioTreeSearchRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the instant to search for a version at.
+   * Null is treated as the latest version.
+   * @return the value of the property
+   */
+  public Instant getVersionAsOfInstant() {
+    return _versionAsOfInstant;
+  }
+
+  /**
+   * Sets the instant to search for a version at.
+   * Null is treated as the latest version.
+   * @param versionAsOfInstant  the new value of the property
+   */
+  public void setVersionAsOfInstant(Instant versionAsOfInstant) {
+    this._versionAsOfInstant = versionAsOfInstant;
+  }
+
+  /**
+   * Gets the the {@code versionAsOfInstant} property.
+   * Null is treated as the latest version.
+   * @return the property, not null
+   */
+  public final Property<Instant> versionAsOfInstant() {
+    return metaBean().versionAsOfInstant().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the instant to search for corrections for.
+   * Null is treated as the latest correction.
+   * @return the value of the property
+   */
+  public Instant getCorrectedToInstant() {
+    return _correctedToInstant;
+  }
+
+  /**
+   * Sets the instant to search for corrections for.
+   * Null is treated as the latest correction.
+   * @param correctedToInstant  the new value of the property
+   */
+  public void setCorrectedToInstant(Instant correctedToInstant) {
+    this._correctedToInstant = correctedToInstant;
+  }
+
+  /**
+   * Gets the the {@code correctedToInstant} property.
+   * Null is treated as the latest correction.
+   * @return the property, not null
+   */
+  public final Property<Instant> correctedToInstant() {
+    return metaBean().correctedToInstant().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the depth of nodes to return.
    * A value of zero returns no nodes, one returns the root node, two returns the
    * root node and immediate children, and so on.
@@ -200,6 +280,14 @@ public class PortfolioTreeSearchRequest extends DirectBean {
      */
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", String.class);
     /**
+     * The meta-property for the {@code versionAsOfInstant} property.
+     */
+    private final MetaProperty<Instant> _versionAsOfInstant = DirectMetaProperty.ofReadWrite(this, "versionAsOfInstant", Instant.class);
+    /**
+     * The meta-property for the {@code correctedToInstant} property.
+     */
+    private final MetaProperty<Instant> _correctedToInstant = DirectMetaProperty.ofReadWrite(this, "correctedToInstant", Instant.class);
+    /**
      * The meta-property for the {@code depth} property.
      */
     private final MetaProperty<Integer> _depth = DirectMetaProperty.ofReadWrite(this, "depth", Integer.TYPE);
@@ -213,6 +301,8 @@ public class PortfolioTreeSearchRequest extends DirectBean {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("pagingRequest", _pagingRequest);
       temp.put("name", _name);
+      temp.put("versionAsOfInstant", _versionAsOfInstant);
+      temp.put("correctedToInstant", _correctedToInstant);
       temp.put("depth", _depth);
       _map = Collections.unmodifiableMap(temp);
     }
@@ -247,6 +337,22 @@ public class PortfolioTreeSearchRequest extends DirectBean {
      */
     public final MetaProperty<String> name() {
       return _name;
+    }
+
+    /**
+     * The meta-property for the {@code versionAsOfInstant} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Instant> versionAsOfInstant() {
+      return _versionAsOfInstant;
+    }
+
+    /**
+     * The meta-property for the {@code correctedToInstant} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Instant> correctedToInstant() {
+      return _correctedToInstant;
     }
 
     /**

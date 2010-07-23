@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.time.Instant;
+
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -64,6 +66,18 @@ public class PositionSearchRequest extends DirectBean {
    */
   @PropertyDefinition
   private Identifier _securityKey;
+  /**
+   * The instant to search for a version at.
+   * Null is treated as the latest version.
+   */
+  @PropertyDefinition
+  private Instant _versionAsOfInstant;
+  /**
+   * The instant to search for corrections for.
+   * Null is treated as the latest correction.
+   */
+  @PropertyDefinition
+  private Instant _correctedToInstant;
 
   /**
    * Creates an instance.
@@ -102,6 +116,10 @@ public class PositionSearchRequest extends DirectBean {
         return getMaxQuantity();
       case 1550083839:  // securityKey
         return getSecurityKey();
+      case 598802432:  // versionAsOfInstant
+        return getVersionAsOfInstant();
+      case -28367267:  // correctedToInstant
+        return getCorrectedToInstant();
     }
     return super.propertyGet(propertyName);
   }
@@ -129,6 +147,12 @@ public class PositionSearchRequest extends DirectBean {
         return;
       case 1550083839:  // securityKey
         setSecurityKey((Identifier) newValue);
+        return;
+      case 598802432:  // versionAsOfInstant
+        setVersionAsOfInstant((Instant) newValue);
+        return;
+      case -28367267:  // correctedToInstant
+        setCorrectedToInstant((Instant) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -314,6 +338,62 @@ public class PositionSearchRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the instant to search for a version at.
+   * Null is treated as the latest version.
+   * @return the value of the property
+   */
+  public Instant getVersionAsOfInstant() {
+    return _versionAsOfInstant;
+  }
+
+  /**
+   * Sets the instant to search for a version at.
+   * Null is treated as the latest version.
+   * @param versionAsOfInstant  the new value of the property
+   */
+  public void setVersionAsOfInstant(Instant versionAsOfInstant) {
+    this._versionAsOfInstant = versionAsOfInstant;
+  }
+
+  /**
+   * Gets the the {@code versionAsOfInstant} property.
+   * Null is treated as the latest version.
+   * @return the property, not null
+   */
+  public final Property<Instant> versionAsOfInstant() {
+    return metaBean().versionAsOfInstant().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the instant to search for corrections for.
+   * Null is treated as the latest correction.
+   * @return the value of the property
+   */
+  public Instant getCorrectedToInstant() {
+    return _correctedToInstant;
+  }
+
+  /**
+   * Sets the instant to search for corrections for.
+   * Null is treated as the latest correction.
+   * @param correctedToInstant  the new value of the property
+   */
+  public void setCorrectedToInstant(Instant correctedToInstant) {
+    this._correctedToInstant = correctedToInstant;
+  }
+
+  /**
+   * Gets the the {@code correctedToInstant} property.
+   * Null is treated as the latest correction.
+   * @return the property, not null
+   */
+  public final Property<Instant> correctedToInstant() {
+    return metaBean().correctedToInstant().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code PositionSearchRequest}.
    */
   public static class Meta extends BasicMetaBean {
@@ -351,6 +431,14 @@ public class PositionSearchRequest extends DirectBean {
      */
     private final MetaProperty<Identifier> _securityKey = DirectMetaProperty.ofReadWrite(this, "securityKey", Identifier.class);
     /**
+     * The meta-property for the {@code versionAsOfInstant} property.
+     */
+    private final MetaProperty<Instant> _versionAsOfInstant = DirectMetaProperty.ofReadWrite(this, "versionAsOfInstant", Instant.class);
+    /**
+     * The meta-property for the {@code correctedToInstant} property.
+     */
+    private final MetaProperty<Instant> _correctedToInstant = DirectMetaProperty.ofReadWrite(this, "correctedToInstant", Instant.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map;
@@ -365,6 +453,8 @@ public class PositionSearchRequest extends DirectBean {
       temp.put("minQuantity", _minQuantity);
       temp.put("maxQuantity", _maxQuantity);
       temp.put("securityKey", _securityKey);
+      temp.put("versionAsOfInstant", _versionAsOfInstant);
+      temp.put("correctedToInstant", _correctedToInstant);
       _map = Collections.unmodifiableMap(temp);
     }
 
@@ -438,6 +528,22 @@ public class PositionSearchRequest extends DirectBean {
      */
     public final MetaProperty<Identifier> securityKey() {
       return _securityKey;
+    }
+
+    /**
+     * The meta-property for the {@code versionAsOfInstant} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Instant> versionAsOfInstant() {
+      return _versionAsOfInstant;
+    }
+
+    /**
+     * The meta-property for the {@code correctedToInstant} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Instant> correctedToInstant() {
+      return _correctedToInstant;
     }
 
   }

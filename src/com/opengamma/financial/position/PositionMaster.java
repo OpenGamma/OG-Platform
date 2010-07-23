@@ -8,6 +8,7 @@ package com.opengamma.financial.position;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
+import com.opengamma.engine.position.Position;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -19,109 +20,112 @@ import com.opengamma.id.UniqueIdentifier;
 public interface PositionMaster {
 
   /**
-  * Searches for portfolio trees matching the specified search criteria.
-  * <p>
-  * The result will never contain positions, and may contain the node tree depending
-  * on the depth parameter in the request.
-  * 
-  * @param request  the search request, not null
-  * @return the search result, not null
-  */
+   * Searches for portfolio trees matching the specified search criteria.
+   * <p>
+   * The result will never contain positions, and may contain the node tree depending
+   * on the depth parameter in the request.
+   * 
+   * @param request  the search request, not null
+   * @return the search result, not null
+   * @throws IllegalArgumentException if the request is invalid
+   */
   PortfolioTreeSearchResult searchPortfolioTrees(PortfolioTreeSearchRequest request);
 
   /**
-  * Gets a portfolio tree, excluding positions, by unique identifier.
-  * <p>
-  * To obtain the positions, use {@link #searchPositions}.
-  * <p>
-  * A full position master will store detailed historic information on portfolios,
-  * including a full version history.
-  * The version in the identifier allows access to these historic versions.
-  * 
-  * @param uid  the unique identifier, not null
-  * @return the tree document, null if not found
-  * @throws IllegalArgumentException if the identifier is not from this position master
-  */
+   * Gets a portfolio tree, excluding positions, by unique identifier.
+   * <p>
+   * To obtain the positions, use {@link #searchPositions}.
+   * <p>
+   * A full position master will store detailed historic information on portfolios,
+   * including a full version history.
+   * The version in the identifier allows access to these historic versions.
+   * 
+   * @param uid  the unique identifier, not null
+   * @return the tree document, null if not found
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if there is no portfolio with that unique identifier
+   */
   PortfolioTreeDocument getPortfolioTree(UniqueIdentifier uid);
 
   /**
-  * Adds a portfolio tree, excluding positions, to the data store.
-  * <p>
-  * The specified document must contain the portfolio tree.
-  * It must not contain the unique identifier.
-  * 
-  * @param document  the document, not null
-  * @return the updated tree document, not null
-  * @throws IllegalArgumentException if the request is invalid
-  */
+   * Adds a portfolio tree, excluding positions, to the data store.
+   * <p>
+   * The specified document must contain the portfolio tree.
+   * It must not contain the unique identifier.
+   * 
+   * @param document  the document, not null
+   * @return the updated tree document, not null
+   * @throws IllegalArgumentException if the request is invalid
+   */
   PortfolioTreeDocument addPortfolioTree(PortfolioTreeDocument document);
 
   /**
-  * Updates a portfolio tree, excluding positions, in the data store.
-  * <p>
-  * This will replace the entire the entire portfolio tree with that specified.
-  * Any node in the input document that has a null unique identifier will be added.
-  * Any node that already has a unique identifier will be updated.
-  * Any positions on nodes that are removed will be removed.
-  * <p>
-  * The specified document must contain the portfolio tree and the unique identifier.
-  * If the identifier has a version it must be the latest version.
-  * <p>
-  * A full position master will store detailed historic information on portfolios,
-  * including a full version history.
-  * Older versions can be accessed using a versioned identifier or {@link #searchHistoric}.
-  * 
-  * @param document  the document, not null
-  * @return the updated tree document, not null
-  * @throws IllegalArgumentException if the request is invalid
-  * @throws DataNotFoundException if the node is not found
-  */
+   * Updates a portfolio tree, excluding positions, in the data store.
+   * <p>
+   * This will replace the entire the entire portfolio tree with that specified.
+   * Any node in the input document that has a null unique identifier will be added.
+   * Any node that already has a unique identifier will be updated.
+   * Any positions on nodes that are removed will be removed.
+   * <p>
+   * The specified document must contain the portfolio tree and the unique identifier.
+   * If the identifier has a version it must be the latest version.
+   * <p>
+   * A full position master will store detailed historic information on portfolios,
+   * including a full version history.
+   * Older versions can be accessed using a versioned identifier or {@link #searchHistoric}.
+   * 
+   * @param document  the document, not null
+   * @return the updated tree document, not null
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if the node is not found
+   */
   PortfolioTreeDocument updatePortfolioTree(PortfolioTreeDocument document);
 
   /**
-  * Removes a portfolio from the data store.
-  * <p>
-  * This will remove the entire portfolio and any associated positions.
-  * <p>
-  * A full position master will store detailed historic information on portfolios.
-  * Thus, a removal does not prevent retrieval or correction of an earlier version.
-  * <p>
-  * If the identifier has a version it must be the latest version.
-  * 
-  * @param uid  the portfolio unique identifier to remove, not null
-  * @throws IllegalArgumentException if the request is invalid
-  * @throws DataNotFoundException if the node is not found
-  */
+   * Removes a portfolio from the data store.
+   * <p>
+   * This will remove the entire portfolio and any associated positions.
+   * <p>
+   * A full position master will store detailed historic information on portfolios.
+   * Thus, a removal does not prevent retrieval or correction of an earlier version.
+   * <p>
+   * If the identifier has a version it must be the latest version.
+   * 
+   * @param uid  the portfolio unique identifier to remove, not null
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if the node is not found
+   */
   void removePortfolioTree(final UniqueIdentifier uid);
 
   /**
-  * Searches for portfolio trees matching the specified search criteria.
-  * <p>
-  * The result will never contain positions, and may contain the node tree depending
-  * on the depth parameter in the request.
-  * 
-  * @param request  the search request, not null
-  * @return the search result, not null
-  */
+   * Searches for portfolio trees matching the specified search criteria.
+   * <p>
+   * The result will never contain positions, and may contain the node tree depending
+   * on the depth parameter in the request.
+   * 
+   * @param request  the search request, not null
+   * @return the search result, not null
+   * @throws IllegalArgumentException if the request is invalid
+   */
   PortfolioTreeSearchHistoricResult searchPortfolioTreeHistoric(PortfolioTreeSearchHistoricRequest request);
 
   /**
-  * Corrects a portfolio tree in the data store.
-  * <p>
-  * A full position master will store detailed historic information on portfolios
-  * and will support correction of each node.
-  * To update the node with a new version, use {@link #update}.
-  * To correct a previously stored version, use this method.
-  * Older versions and corrections can be accessed using a versioned identifier or {@link #searchHistoric}.
-  * <p>
-  * The specified document must contain the portfolio tree and the portfolio unique identifier.
-  * The unique identifier must specify the last correction of a specific version of the portfolio.
-  * 
-  * @param document  the document, not null
-  * @return the updated tree document, not null
-  * @throws IllegalArgumentException if the request is invalid
-  * @throws DataNotFoundException if the node is not found
-  */
+   * Corrects a portfolio tree in the data store.
+   * <p>
+   * A full position master will store detailed historic information on portfolios
+   * and will support correction of each node.
+   * To update the node with a new version, use {@link #update}.
+   * To correct a previously stored version, use this method.
+   * Older versions and corrections can be accessed using a versioned identifier or {@link #searchHistoric}.
+   * <p>
+   * The specified document must contain the portfolio tree and the portfolio unique identifier.
+   * The unique identifier must specify the last correction of a specific version of the portfolio.
+   * 
+   * @param document  the document, not null
+   * @return the updated tree document, not null
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if the node is not found
+   */
   PortfolioTreeDocument correctPortfolioTree(PortfolioTreeDocument document);
 
   //-------------------------------------------------------------------------
@@ -130,6 +134,7 @@ public interface PositionMaster {
    * 
    * @param request  the search request, not null
    * @return the search result, not null
+   * @throws IllegalArgumentException if the request is invalid
    */
   PositionSearchResult searchPositions(PositionSearchRequest request);
 
@@ -142,7 +147,8 @@ public interface PositionMaster {
    * 
    * @param uid  the unique identifier, not null
    * @return the position document, null if not found
-   * @throws IllegalArgumentException if the identifier is not from this position master
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if there is no position with that unique identifier
    */
   PositionDocument getPosition(UniqueIdentifier uid);
 
@@ -196,6 +202,7 @@ public interface PositionMaster {
    * 
    * @param request  the search request, not null
    * @return the search result, not null
+   * @throws IllegalArgumentException if the request is invalid
    */
   PositionSearchHistoricResult searchPositionHistoric(PositionSearchHistoricRequest request);
 
@@ -226,8 +233,8 @@ public interface PositionMaster {
    * It is intended for fast access to the structure.
    * 
    * @param request  the request, not null
-   * @return the portfolio document, null if not found
-   * @throws IllegalArgumentException if the identifier is not from this portfolio master
+   * @return the portfolio, null if not found
+   * @throws IllegalArgumentException if the request is invalid
    */
   Portfolio getFullPortfolio(FullPortfolioGetRequest request);
 
@@ -238,9 +245,21 @@ public interface PositionMaster {
    * It is intended for fast access to the structure.
    * 
    * @param request  the request, not null
-   * @return the node document, null if not found
-   * @throws IllegalArgumentException if the identifier is not from this position master
+   * @return the node, null if not found
+   * @throws IllegalArgumentException if the request is invalid
    */
   PortfolioNode getFullPortfolioNode(FullPortfolioNodeGetRequest request);
+
+  /**
+   * Gets a single position with full detail.
+   * <p>
+   * This allows direct access to the position.
+   * It is intended for fast access to the structure.
+   * 
+   * @param request  the request, not null
+   * @return the position, null if not found
+   * @throws IllegalArgumentException if the request is invalid
+   */
+  Position getFullPosition(FullPositionGetRequest request);
 
 }
