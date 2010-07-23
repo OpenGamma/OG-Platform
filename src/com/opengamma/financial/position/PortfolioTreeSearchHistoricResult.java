@@ -24,9 +24,10 @@ import com.opengamma.engine.position.Portfolio;
 import com.opengamma.util.db.Paging;
 
 /**
- * Result from searching for historic portfolios.
+ * Result from searching for historic portfolio trees.
  * <p>
- * This returns multiple instances of the entire tree, which may be a large response.
+ * This returns multiple instances of the tree excluding positions, which may be a large response.
+ * The depth parameter in the request allows the size of the result to be controlled.
  */
 @BeanDefinition
 public class PortfolioTreeSearchHistoricResult extends DirectBean {
@@ -37,7 +38,7 @@ public class PortfolioTreeSearchHistoricResult extends DirectBean {
   @PropertyDefinition
   private Paging _paging;
   /**
-   * The list of matched portfolio documents.
+   * The list of matched portfolio tree documents.
    */
   @PropertyDefinition(readWrite = PropertyReadWrite.READ_ONLY)
   private List<PortfolioTreeDocument> _documents = new ArrayList<PortfolioTreeDocument>();
@@ -126,7 +127,7 @@ public class PortfolioTreeSearchHistoricResult extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the list of matched portfolio documents.
+   * Gets the list of matched portfolio tree documents.
    * @return the value of the property
    */
   public List<PortfolioTreeDocument> getDocuments() {

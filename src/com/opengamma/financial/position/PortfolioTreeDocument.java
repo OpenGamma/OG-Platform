@@ -21,7 +21,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.google.common.collect.Maps;
 import com.opengamma.engine.position.Portfolio;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -32,13 +31,13 @@ import com.opengamma.util.ArgumentChecker;
  * To find the positions on a node, it must be individually retrieved.
  */
 @BeanDefinition
-public class PortfolioTreeDocument extends DirectBean implements UniqueIdentifiable {
+public class PortfolioTreeDocument extends DirectBean {
 
   /**
    * The portfolio unique identifier.
    */
   @PropertyDefinition
-  private UniqueIdentifier _uniqueIdentifier;
+  private UniqueIdentifier _portfolioUid;
   /**
    * The instant that the portfolio is valid from.
    */
@@ -77,7 +76,7 @@ public class PortfolioTreeDocument extends DirectBean implements UniqueIdentifia
    */
   public PortfolioTreeDocument(final Portfolio portfolio) {
     ArgumentChecker.notNull(portfolio, "portfolio");
-    setUniqueIdentifier(portfolio.getUniqueIdentifier());
+    setPortfolioUid(portfolio.getUniqueIdentifier());
     setPortfolio(portfolio);
   }
 
@@ -98,8 +97,8 @@ public class PortfolioTreeDocument extends DirectBean implements UniqueIdentifia
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
-      case -125484198:  // uniqueIdentifier
-        return getUniqueIdentifier();
+      case -160767512:  // portfolioUid
+        return getPortfolioUid();
       case -3992261:  // validFromInstant
         return getValidFromInstant();
       case -1035122102:  // validToInstant
@@ -118,8 +117,8 @@ public class PortfolioTreeDocument extends DirectBean implements UniqueIdentifia
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
-      case -125484198:  // uniqueIdentifier
-        setUniqueIdentifier((UniqueIdentifier) newValue);
+      case -160767512:  // portfolioUid
+        setPortfolioUid((UniqueIdentifier) newValue);
         return;
       case -3992261:  // validFromInstant
         setValidFromInstant((Instant) newValue);
@@ -145,24 +144,24 @@ public class PortfolioTreeDocument extends DirectBean implements UniqueIdentifia
    * Gets the portfolio unique identifier.
    * @return the value of the property
    */
-  public UniqueIdentifier getUniqueIdentifier() {
-    return _uniqueIdentifier;
+  public UniqueIdentifier getPortfolioUid() {
+    return _portfolioUid;
   }
 
   /**
    * Sets the portfolio unique identifier.
-   * @param uniqueIdentifier  the new value of the property
+   * @param portfolioUid  the new value of the property
    */
-  public void setUniqueIdentifier(UniqueIdentifier uniqueIdentifier) {
-    this._uniqueIdentifier = uniqueIdentifier;
+  public void setPortfolioUid(UniqueIdentifier portfolioUid) {
+    this._portfolioUid = portfolioUid;
   }
 
   /**
-   * Gets the the {@code uniqueIdentifier} property.
+   * Gets the the {@code portfolioUid} property.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> uniqueIdentifier() {
-    return metaBean().uniqueIdentifier().createProperty(this);
+  public final Property<UniqueIdentifier> portfolioUid() {
+    return metaBean().portfolioUid().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -301,9 +300,9 @@ public class PortfolioTreeDocument extends DirectBean implements UniqueIdentifia
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code uniqueIdentifier} property.
+     * The meta-property for the {@code portfolioUid} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueIdentifier = DirectMetaProperty.ofReadWrite(this, "uniqueIdentifier", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _portfolioUid = DirectMetaProperty.ofReadWrite(this, "portfolioUid", UniqueIdentifier.class);
     /**
      * The meta-property for the {@code validFromInstant} property.
      */
@@ -333,7 +332,7 @@ public class PortfolioTreeDocument extends DirectBean implements UniqueIdentifia
     @SuppressWarnings("unchecked")
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
-      temp.put("uniqueIdentifier", _uniqueIdentifier);
+      temp.put("portfolioUid", _portfolioUid);
       temp.put("validFromInstant", _validFromInstant);
       temp.put("validToInstant", _validToInstant);
       temp.put("lastModifiedInstant", _lastModifiedInstant);
@@ -359,11 +358,11 @@ public class PortfolioTreeDocument extends DirectBean implements UniqueIdentifia
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code uniqueIdentifier} property.
+     * The meta-property for the {@code portfolioUid} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> uniqueIdentifier() {
-      return _uniqueIdentifier;
+    public final MetaProperty<UniqueIdentifier> portfolioUid() {
+      return _portfolioUid;
     }
 
     /**

@@ -38,12 +38,12 @@ public class PositionSearchRequest extends DirectBean {
    * The portfolio unique identifier, null to search all portfolios.
    */
   @PropertyDefinition
-  private UniqueIdentifier _portfolio;
+  private UniqueIdentifier _portfolioUid;
   /**
    * The node to search within, null to search all nodes.
    */
   @PropertyDefinition
-  private UniqueIdentifier _parentNode;
+  private UniqueIdentifier _parentNodeUid;
   /**
    * The name, wildcards allowed, null to not match on name.
    */
@@ -90,10 +90,10 @@ public class PositionSearchRequest extends DirectBean {
     switch (propertyName.hashCode()) {
       case -2092032669:  // pagingRequest
         return getPagingRequest();
-      case 1121781064:  // portfolio
-        return getPortfolio();
-      case -244857396:  // parentNode
-        return getParentNode();
+      case -160767512:  // portfolioUid
+        return getPortfolioUid();
+      case -1692130588:  // parentNodeUid
+        return getParentNodeUid();
       case 3373707:  // name
         return getName();
       case 69860605:  // minQuantity
@@ -112,11 +112,11 @@ public class PositionSearchRequest extends DirectBean {
       case -2092032669:  // pagingRequest
         setPagingRequest((PagingRequest) newValue);
         return;
-      case 1121781064:  // portfolio
-        setPortfolio((UniqueIdentifier) newValue);
+      case -160767512:  // portfolioUid
+        setPortfolioUid((UniqueIdentifier) newValue);
         return;
-      case -244857396:  // parentNode
-        setParentNode((UniqueIdentifier) newValue);
+      case -1692130588:  // parentNodeUid
+        setParentNodeUid((UniqueIdentifier) newValue);
         return;
       case 3373707:  // name
         setName((String) newValue);
@@ -167,24 +167,24 @@ public class PositionSearchRequest extends DirectBean {
    * Gets the portfolio unique identifier, null to search all portfolios.
    * @return the value of the property
    */
-  public UniqueIdentifier getPortfolio() {
-    return _portfolio;
+  public UniqueIdentifier getPortfolioUid() {
+    return _portfolioUid;
   }
 
   /**
    * Sets the portfolio unique identifier, null to search all portfolios.
-   * @param portfolio  the new value of the property
+   * @param portfolioUid  the new value of the property
    */
-  public void setPortfolio(UniqueIdentifier portfolio) {
-    this._portfolio = portfolio;
+  public void setPortfolioUid(UniqueIdentifier portfolioUid) {
+    this._portfolioUid = portfolioUid;
   }
 
   /**
-   * Gets the the {@code portfolio} property.
+   * Gets the the {@code portfolioUid} property.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> portfolio() {
-    return metaBean().portfolio().createProperty(this);
+  public final Property<UniqueIdentifier> portfolioUid() {
+    return metaBean().portfolioUid().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -192,24 +192,24 @@ public class PositionSearchRequest extends DirectBean {
    * Gets the node to search within, null to search all nodes.
    * @return the value of the property
    */
-  public UniqueIdentifier getParentNode() {
-    return _parentNode;
+  public UniqueIdentifier getParentNodeUid() {
+    return _parentNodeUid;
   }
 
   /**
    * Sets the node to search within, null to search all nodes.
-   * @param parentNode  the new value of the property
+   * @param parentNodeUid  the new value of the property
    */
-  public void setParentNode(UniqueIdentifier parentNode) {
-    this._parentNode = parentNode;
+  public void setParentNodeUid(UniqueIdentifier parentNodeUid) {
+    this._parentNodeUid = parentNodeUid;
   }
 
   /**
-   * Gets the the {@code parentNode} property.
+   * Gets the the {@code parentNodeUid} property.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> parentNode() {
-    return metaBean().parentNode().createProperty(this);
+  public final Property<UniqueIdentifier> parentNodeUid() {
+    return metaBean().parentNodeUid().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -327,13 +327,13 @@ public class PositionSearchRequest extends DirectBean {
      */
     private final MetaProperty<PagingRequest> _pagingRequest = DirectMetaProperty.ofReadWrite(this, "pagingRequest", PagingRequest.class);
     /**
-     * The meta-property for the {@code portfolio} property.
+     * The meta-property for the {@code portfolioUid} property.
      */
-    private final MetaProperty<UniqueIdentifier> _portfolio = DirectMetaProperty.ofReadWrite(this, "portfolio", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _portfolioUid = DirectMetaProperty.ofReadWrite(this, "portfolioUid", UniqueIdentifier.class);
     /**
-     * The meta-property for the {@code parentNode} property.
+     * The meta-property for the {@code parentNodeUid} property.
      */
-    private final MetaProperty<UniqueIdentifier> _parentNode = DirectMetaProperty.ofReadWrite(this, "parentNode", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _parentNodeUid = DirectMetaProperty.ofReadWrite(this, "parentNodeUid", UniqueIdentifier.class);
     /**
      * The meta-property for the {@code name} property.
      */
@@ -359,8 +359,8 @@ public class PositionSearchRequest extends DirectBean {
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("pagingRequest", _pagingRequest);
-      temp.put("portfolio", _portfolio);
-      temp.put("parentNode", _parentNode);
+      temp.put("portfolioUid", _portfolioUid);
+      temp.put("parentNodeUid", _parentNodeUid);
       temp.put("name", _name);
       temp.put("minQuantity", _minQuantity);
       temp.put("maxQuantity", _maxQuantity);
@@ -393,19 +393,19 @@ public class PositionSearchRequest extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code portfolio} property.
+     * The meta-property for the {@code portfolioUid} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> portfolio() {
-      return _portfolio;
+    public final MetaProperty<UniqueIdentifier> portfolioUid() {
+      return _portfolioUid;
     }
 
     /**
-     * The meta-property for the {@code parentNode} property.
+     * The meta-property for the {@code parentNodeUid} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> parentNode() {
-      return _parentNode;
+    public final MetaProperty<UniqueIdentifier> parentNodeUid() {
+      return _parentNodeUid;
     }
 
     /**

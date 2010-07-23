@@ -55,11 +55,10 @@ public class PositionSearchHistoricRequest extends DirectBean {
   @PropertyDefinition
   private PagingRequest _pagingRequest = PagingRequest.ALL;
   /**
-   * The object identifier to match.
-   * The unique identifier must not contain a version.
+   * The position object identifier to match.
    */
   @PropertyDefinition
-  private UniqueIdentifier _objectIdentifier;
+  private UniqueIdentifier _positionOid;
   /**
    * The instant to retrieve versions on or after (inclusive).
    * A null value will retrieve values starting from the earliest version.
@@ -120,7 +119,7 @@ public class PositionSearchHistoricRequest extends DirectBean {
    * @param correctedToInstantProvider  the instant that the data should be corrected to, null for latest correction
    */
   public PositionSearchHistoricRequest(final UniqueIdentifier uid, InstantProvider versionInstantProvider, InstantProvider correctedToInstantProvider) {
-    setObjectIdentifier(uid);
+    setPositionOid(uid);
     if (versionInstantProvider != null) {
       final Instant versionInstant = Instant.of(versionInstantProvider);
       setVersionsFromInstant(versionInstant);
@@ -152,8 +151,8 @@ public class PositionSearchHistoricRequest extends DirectBean {
     switch (propertyName.hashCode()) {
       case -2092032669:  // pagingRequest
         return getPagingRequest();
-      case 1534290248:  // objectIdentifier
-        return getObjectIdentifier();
+      case -137453599:  // positionOid
+        return getPositionOid();
       case 825630012:  // versionsFromInstant
         return getVersionsFromInstant();
       case 288644747:  // versionsToInstant
@@ -172,8 +171,8 @@ public class PositionSearchHistoricRequest extends DirectBean {
       case -2092032669:  // pagingRequest
         setPagingRequest((PagingRequest) newValue);
         return;
-      case 1534290248:  // objectIdentifier
-        setObjectIdentifier((UniqueIdentifier) newValue);
+      case -137453599:  // positionOid
+        setPositionOid((UniqueIdentifier) newValue);
         return;
       case 825630012:  // versionsFromInstant
         setVersionsFromInstant((Instant) newValue);
@@ -221,30 +220,27 @@ public class PositionSearchHistoricRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the object identifier to match.
-   * The unique identifier must not contain a version.
+   * Gets the position object identifier to match.
    * @return the value of the property
    */
-  public UniqueIdentifier getObjectIdentifier() {
-    return _objectIdentifier;
+  public UniqueIdentifier getPositionOid() {
+    return _positionOid;
   }
 
   /**
-   * Sets the object identifier to match.
-   * The unique identifier must not contain a version.
-   * @param objectIdentifier  the new value of the property
+   * Sets the position object identifier to match.
+   * @param positionOid  the new value of the property
    */
-  public void setObjectIdentifier(UniqueIdentifier objectIdentifier) {
-    this._objectIdentifier = objectIdentifier;
+  public void setPositionOid(UniqueIdentifier positionOid) {
+    this._positionOid = positionOid;
   }
 
   /**
-   * Gets the the {@code objectIdentifier} property.
-   * The unique identifier must not contain a version.
+   * Gets the the {@code positionOid} property.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> objectIdentifier() {
-    return metaBean().objectIdentifier().createProperty(this);
+  public final Property<UniqueIdentifier> positionOid() {
+    return metaBean().positionOid().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -383,9 +379,9 @@ public class PositionSearchHistoricRequest extends DirectBean {
      */
     private final MetaProperty<PagingRequest> _pagingRequest = DirectMetaProperty.ofReadWrite(this, "pagingRequest", PagingRequest.class);
     /**
-     * The meta-property for the {@code objectIdentifier} property.
+     * The meta-property for the {@code positionOid} property.
      */
-    private final MetaProperty<UniqueIdentifier> _objectIdentifier = DirectMetaProperty.ofReadWrite(this, "objectIdentifier", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _positionOid = DirectMetaProperty.ofReadWrite(this, "positionOid", UniqueIdentifier.class);
     /**
      * The meta-property for the {@code versionsFromInstant} property.
      */
@@ -411,7 +407,7 @@ public class PositionSearchHistoricRequest extends DirectBean {
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("pagingRequest", _pagingRequest);
-      temp.put("objectIdentifier", _objectIdentifier);
+      temp.put("positionOid", _positionOid);
       temp.put("versionsFromInstant", _versionsFromInstant);
       temp.put("versionsToInstant", _versionsToInstant);
       temp.put("correctionsFromInstant", _correctionsFromInstant);
@@ -444,11 +440,11 @@ public class PositionSearchHistoricRequest extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code objectIdentifier} property.
+     * The meta-property for the {@code positionOid} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> objectIdentifier() {
-      return _objectIdentifier;
+    public final MetaProperty<UniqueIdentifier> positionOid() {
+      return _positionOid;
     }
 
     /**

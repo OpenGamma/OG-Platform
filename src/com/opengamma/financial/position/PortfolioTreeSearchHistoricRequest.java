@@ -24,7 +24,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.db.PagingRequest;
 
 /**
- * Request for searching for historic portfolios.
+ * Request for searching for historic portfolio trees.
  * <p>
  * A full position master implements historical storage of data.
  * History can be stored in two dimensions and this request provides searching.
@@ -55,11 +55,10 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
   @PropertyDefinition
   private PagingRequest _pagingRequest = PagingRequest.ALL;
   /**
-   * The object identifier to match.
-   * The unique identifier must not contain a version.
+   * The portfolio object identifier to match.
    */
   @PropertyDefinition
-  private UniqueIdentifier _objectIdentifier;
+  private UniqueIdentifier _portfolioOid;
   /**
    * The instant to retrieve versions on or after (inclusive).
    * A null value will retrieve values starting from the earliest version.
@@ -87,6 +86,14 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
    */
   @PropertyDefinition
   private Instant _correctionsToInstant;
+  /**
+   * The depth of nodes to return.
+   * A value of zero returns no nodes, one returns the root node, two returns the
+   * root node and immediate children, and so on.
+   * By default this is zero to save space in the response.
+   */
+  @PropertyDefinition
+  private int _depth;
 
   /**
    * Creates an instance.
@@ -120,7 +127,7 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
    * @param correctedToInstantProvider  the instant that the data should be corrected to, null for latest correction
    */
   public PortfolioTreeSearchHistoricRequest(final UniqueIdentifier uid, InstantProvider versionInstantProvider, InstantProvider correctedToInstantProvider) {
-    setObjectIdentifier(uid);
+    setPortfolioOid(uid);
     if (versionInstantProvider != null) {
       final Instant versionInstant = Instant.of(versionInstantProvider);
       setVersionsFromInstant(versionInstant);
@@ -152,8 +159,8 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
     switch (propertyName.hashCode()) {
       case -2092032669:  // pagingRequest
         return getPagingRequest();
-      case 1534290248:  // objectIdentifier
-        return getObjectIdentifier();
+      case -160773278:  // portfolioOid
+        return getPortfolioOid();
       case 825630012:  // versionsFromInstant
         return getVersionsFromInstant();
       case 288644747:  // versionsToInstant
@@ -162,6 +169,8 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
         return getCorrectionsFromInstant();
       case -1241747055:  // correctionsToInstant
         return getCorrectionsToInstant();
+      case 95472323:  // depth
+        return getDepth();
     }
     return super.propertyGet(propertyName);
   }
@@ -172,8 +181,8 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
       case -2092032669:  // pagingRequest
         setPagingRequest((PagingRequest) newValue);
         return;
-      case 1534290248:  // objectIdentifier
-        setObjectIdentifier((UniqueIdentifier) newValue);
+      case -160773278:  // portfolioOid
+        setPortfolioOid((UniqueIdentifier) newValue);
         return;
       case 825630012:  // versionsFromInstant
         setVersionsFromInstant((Instant) newValue);
@@ -186,6 +195,9 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
         return;
       case -1241747055:  // correctionsToInstant
         setCorrectionsToInstant((Instant) newValue);
+        return;
+      case 95472323:  // depth
+        setDepth((int) (Integer) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -221,30 +233,27 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the object identifier to match.
-   * The unique identifier must not contain a version.
+   * Gets the portfolio object identifier to match.
    * @return the value of the property
    */
-  public UniqueIdentifier getObjectIdentifier() {
-    return _objectIdentifier;
+  public UniqueIdentifier getPortfolioOid() {
+    return _portfolioOid;
   }
 
   /**
-   * Sets the object identifier to match.
-   * The unique identifier must not contain a version.
-   * @param objectIdentifier  the new value of the property
+   * Sets the portfolio object identifier to match.
+   * @param portfolioOid  the new value of the property
    */
-  public void setObjectIdentifier(UniqueIdentifier objectIdentifier) {
-    this._objectIdentifier = objectIdentifier;
+  public void setPortfolioOid(UniqueIdentifier portfolioOid) {
+    this._portfolioOid = portfolioOid;
   }
 
   /**
-   * Gets the the {@code objectIdentifier} property.
-   * The unique identifier must not contain a version.
+   * Gets the the {@code portfolioOid} property.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> objectIdentifier() {
-    return metaBean().objectIdentifier().createProperty(this);
+  public final Property<UniqueIdentifier> portfolioOid() {
+    return metaBean().portfolioOid().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -370,6 +379,40 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the depth of nodes to return.
+   * A value of zero returns no nodes, one returns the root node, two returns the
+   * root node and immediate children, and so on.
+   * By default this is zero to save space in the response.
+   * @return the value of the property
+   */
+  public int getDepth() {
+    return _depth;
+  }
+
+  /**
+   * Sets the depth of nodes to return.
+   * A value of zero returns no nodes, one returns the root node, two returns the
+   * root node and immediate children, and so on.
+   * By default this is zero to save space in the response.
+   * @param depth  the new value of the property
+   */
+  public void setDepth(int depth) {
+    this._depth = depth;
+  }
+
+  /**
+   * Gets the the {@code depth} property.
+   * A value of zero returns no nodes, one returns the root node, two returns the
+   * root node and immediate children, and so on.
+   * By default this is zero to save space in the response.
+   * @return the property, not null
+   */
+  public final Property<Integer> depth() {
+    return metaBean().depth().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code PortfolioTreeSearchHistoricRequest}.
    */
   public static class Meta extends BasicMetaBean {
@@ -383,9 +426,9 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
      */
     private final MetaProperty<PagingRequest> _pagingRequest = DirectMetaProperty.ofReadWrite(this, "pagingRequest", PagingRequest.class);
     /**
-     * The meta-property for the {@code objectIdentifier} property.
+     * The meta-property for the {@code portfolioOid} property.
      */
-    private final MetaProperty<UniqueIdentifier> _objectIdentifier = DirectMetaProperty.ofReadWrite(this, "objectIdentifier", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _portfolioOid = DirectMetaProperty.ofReadWrite(this, "portfolioOid", UniqueIdentifier.class);
     /**
      * The meta-property for the {@code versionsFromInstant} property.
      */
@@ -403,6 +446,10 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
      */
     private final MetaProperty<Instant> _correctionsToInstant = DirectMetaProperty.ofReadWrite(this, "correctionsToInstant", Instant.class);
     /**
+     * The meta-property for the {@code depth} property.
+     */
+    private final MetaProperty<Integer> _depth = DirectMetaProperty.ofReadWrite(this, "depth", Integer.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map;
@@ -411,11 +458,12 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("pagingRequest", _pagingRequest);
-      temp.put("objectIdentifier", _objectIdentifier);
+      temp.put("portfolioOid", _portfolioOid);
       temp.put("versionsFromInstant", _versionsFromInstant);
       temp.put("versionsToInstant", _versionsToInstant);
       temp.put("correctionsFromInstant", _correctionsFromInstant);
       temp.put("correctionsToInstant", _correctionsToInstant);
+      temp.put("depth", _depth);
       _map = Collections.unmodifiableMap(temp);
     }
 
@@ -444,11 +492,11 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code objectIdentifier} property.
+     * The meta-property for the {@code portfolioOid} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> objectIdentifier() {
-      return _objectIdentifier;
+    public final MetaProperty<UniqueIdentifier> portfolioOid() {
+      return _portfolioOid;
     }
 
     /**
@@ -481,6 +529,14 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
      */
     public final MetaProperty<Instant> correctionsToInstant() {
       return _correctionsToInstant;
+    }
+
+    /**
+     * The meta-property for the {@code depth} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> depth() {
+      return _depth;
     }
 
   }

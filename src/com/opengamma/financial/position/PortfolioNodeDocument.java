@@ -21,7 +21,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.google.common.collect.Maps;
 import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -29,23 +28,23 @@ import com.opengamma.util.ArgumentChecker;
  * A document used to pass into and out of the position master.
  */
 @BeanDefinition
-public class PortfolioNodeDocument extends DirectBean implements UniqueIdentifiable {
+public class PortfolioNodeDocument extends DirectBean {
 
   /**
    * The portfolio unique identifier.
    */
   @PropertyDefinition
-  private UniqueIdentifier _portfolio;
+  private UniqueIdentifier _portfolioUid;
   /**
    * The parent node unique identifier.
    */
   @PropertyDefinition
-  private UniqueIdentifier _parentNode;
+  private UniqueIdentifier _parentNodeUid;
   /**
    * The portfolio node unique identifier.
    */
   @PropertyDefinition
-  private UniqueIdentifier _uniqueIdentifier;
+  private UniqueIdentifier _portfolioNodeUid;
   /**
    * The instant that the portfolio node is valid from.
    */
@@ -62,7 +61,7 @@ public class PortfolioNodeDocument extends DirectBean implements UniqueIdentifia
   @PropertyDefinition
   private Instant _lastModifiedInstant;
   /**
-   * The portfolio node including positions, and the immediate children excluding positions.
+   * The portfolio node.
    */
   @PropertyDefinition
   private PortfolioNode _portfolioNode;
@@ -84,7 +83,7 @@ public class PortfolioNodeDocument extends DirectBean implements UniqueIdentifia
    */
   public PortfolioNodeDocument(final PortfolioNode portfolioNode) {
     ArgumentChecker.notNull(portfolioNode, "portfolioNode");
-    setUniqueIdentifier(portfolioNode.getUniqueIdentifier());
+    setPortfolioNodeUid(portfolioNode.getUniqueIdentifier());
     setPortfolioNode(portfolioNode);
   }
 
@@ -105,12 +104,12 @@ public class PortfolioNodeDocument extends DirectBean implements UniqueIdentifia
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
-      case 1121781064:  // portfolio
-        return getPortfolio();
-      case -244857396:  // parentNode
-        return getParentNode();
-      case -125484198:  // uniqueIdentifier
-        return getUniqueIdentifier();
+      case -160767512:  // portfolioUid
+        return getPortfolioUid();
+      case -1692130588:  // parentNodeUid
+        return getParentNodeUid();
+      case -1191683962:  // portfolioNodeUid
+        return getPortfolioNodeUid();
       case -3992261:  // validFromInstant
         return getValidFromInstant();
       case -1035122102:  // validToInstant
@@ -129,14 +128,14 @@ public class PortfolioNodeDocument extends DirectBean implements UniqueIdentifia
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
-      case 1121781064:  // portfolio
-        setPortfolio((UniqueIdentifier) newValue);
+      case -160767512:  // portfolioUid
+        setPortfolioUid((UniqueIdentifier) newValue);
         return;
-      case -244857396:  // parentNode
-        setParentNode((UniqueIdentifier) newValue);
+      case -1692130588:  // parentNodeUid
+        setParentNodeUid((UniqueIdentifier) newValue);
         return;
-      case -125484198:  // uniqueIdentifier
-        setUniqueIdentifier((UniqueIdentifier) newValue);
+      case -1191683962:  // portfolioNodeUid
+        setPortfolioNodeUid((UniqueIdentifier) newValue);
         return;
       case -3992261:  // validFromInstant
         setValidFromInstant((Instant) newValue);
@@ -162,24 +161,24 @@ public class PortfolioNodeDocument extends DirectBean implements UniqueIdentifia
    * Gets the portfolio unique identifier.
    * @return the value of the property
    */
-  public UniqueIdentifier getPortfolio() {
-    return _portfolio;
+  public UniqueIdentifier getPortfolioUid() {
+    return _portfolioUid;
   }
 
   /**
    * Sets the portfolio unique identifier.
-   * @param portfolio  the new value of the property
+   * @param portfolioUid  the new value of the property
    */
-  public void setPortfolio(UniqueIdentifier portfolio) {
-    this._portfolio = portfolio;
+  public void setPortfolioUid(UniqueIdentifier portfolioUid) {
+    this._portfolioUid = portfolioUid;
   }
 
   /**
-   * Gets the the {@code portfolio} property.
+   * Gets the the {@code portfolioUid} property.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> portfolio() {
-    return metaBean().portfolio().createProperty(this);
+  public final Property<UniqueIdentifier> portfolioUid() {
+    return metaBean().portfolioUid().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -187,24 +186,24 @@ public class PortfolioNodeDocument extends DirectBean implements UniqueIdentifia
    * Gets the parent node unique identifier.
    * @return the value of the property
    */
-  public UniqueIdentifier getParentNode() {
-    return _parentNode;
+  public UniqueIdentifier getParentNodeUid() {
+    return _parentNodeUid;
   }
 
   /**
    * Sets the parent node unique identifier.
-   * @param parentNode  the new value of the property
+   * @param parentNodeUid  the new value of the property
    */
-  public void setParentNode(UniqueIdentifier parentNode) {
-    this._parentNode = parentNode;
+  public void setParentNodeUid(UniqueIdentifier parentNodeUid) {
+    this._parentNodeUid = parentNodeUid;
   }
 
   /**
-   * Gets the the {@code parentNode} property.
+   * Gets the the {@code parentNodeUid} property.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> parentNode() {
-    return metaBean().parentNode().createProperty(this);
+  public final Property<UniqueIdentifier> parentNodeUid() {
+    return metaBean().parentNodeUid().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -212,24 +211,24 @@ public class PortfolioNodeDocument extends DirectBean implements UniqueIdentifia
    * Gets the portfolio node unique identifier.
    * @return the value of the property
    */
-  public UniqueIdentifier getUniqueIdentifier() {
-    return _uniqueIdentifier;
+  public UniqueIdentifier getPortfolioNodeUid() {
+    return _portfolioNodeUid;
   }
 
   /**
    * Sets the portfolio node unique identifier.
-   * @param uniqueIdentifier  the new value of the property
+   * @param portfolioNodeUid  the new value of the property
    */
-  public void setUniqueIdentifier(UniqueIdentifier uniqueIdentifier) {
-    this._uniqueIdentifier = uniqueIdentifier;
+  public void setPortfolioNodeUid(UniqueIdentifier portfolioNodeUid) {
+    this._portfolioNodeUid = portfolioNodeUid;
   }
 
   /**
-   * Gets the the {@code uniqueIdentifier} property.
+   * Gets the the {@code portfolioNodeUid} property.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> uniqueIdentifier() {
-    return metaBean().uniqueIdentifier().createProperty(this);
+  public final Property<UniqueIdentifier> portfolioNodeUid() {
+    return metaBean().portfolioNodeUid().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -309,7 +308,7 @@ public class PortfolioNodeDocument extends DirectBean implements UniqueIdentifia
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the portfolio node including positions, and the immediate children excluding positions.
+   * Gets the portfolio node.
    * @return the value of the property
    */
   public PortfolioNode getPortfolioNode() {
@@ -317,7 +316,7 @@ public class PortfolioNodeDocument extends DirectBean implements UniqueIdentifia
   }
 
   /**
-   * Sets the portfolio node including positions, and the immediate children excluding positions.
+   * Sets the portfolio node.
    * @param portfolioNode  the new value of the property
    */
   public void setPortfolioNode(PortfolioNode portfolioNode) {
@@ -368,17 +367,17 @@ public class PortfolioNodeDocument extends DirectBean implements UniqueIdentifia
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code portfolio} property.
+     * The meta-property for the {@code portfolioUid} property.
      */
-    private final MetaProperty<UniqueIdentifier> _portfolio = DirectMetaProperty.ofReadWrite(this, "portfolio", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _portfolioUid = DirectMetaProperty.ofReadWrite(this, "portfolioUid", UniqueIdentifier.class);
     /**
-     * The meta-property for the {@code parentNode} property.
+     * The meta-property for the {@code parentNodeUid} property.
      */
-    private final MetaProperty<UniqueIdentifier> _parentNode = DirectMetaProperty.ofReadWrite(this, "parentNode", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _parentNodeUid = DirectMetaProperty.ofReadWrite(this, "parentNodeUid", UniqueIdentifier.class);
     /**
-     * The meta-property for the {@code uniqueIdentifier} property.
+     * The meta-property for the {@code portfolioNodeUid} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueIdentifier = DirectMetaProperty.ofReadWrite(this, "uniqueIdentifier", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _portfolioNodeUid = DirectMetaProperty.ofReadWrite(this, "portfolioNodeUid", UniqueIdentifier.class);
     /**
      * The meta-property for the {@code validFromInstant} property.
      */
@@ -408,9 +407,9 @@ public class PortfolioNodeDocument extends DirectBean implements UniqueIdentifia
     @SuppressWarnings("unchecked")
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
-      temp.put("portfolio", _portfolio);
-      temp.put("parentNode", _parentNode);
-      temp.put("uniqueIdentifier", _uniqueIdentifier);
+      temp.put("portfolioUid", _portfolioUid);
+      temp.put("parentNodeUid", _parentNodeUid);
+      temp.put("portfolioNodeUid", _portfolioNodeUid);
       temp.put("validFromInstant", _validFromInstant);
       temp.put("validToInstant", _validToInstant);
       temp.put("lastModifiedInstant", _lastModifiedInstant);
@@ -436,27 +435,27 @@ public class PortfolioNodeDocument extends DirectBean implements UniqueIdentifia
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code portfolio} property.
+     * The meta-property for the {@code portfolioUid} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> portfolio() {
-      return _portfolio;
+    public final MetaProperty<UniqueIdentifier> portfolioUid() {
+      return _portfolioUid;
     }
 
     /**
-     * The meta-property for the {@code parentNode} property.
+     * The meta-property for the {@code parentNodeUid} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> parentNode() {
-      return _parentNode;
+    public final MetaProperty<UniqueIdentifier> parentNodeUid() {
+      return _parentNodeUid;
     }
 
     /**
-     * The meta-property for the {@code uniqueIdentifier} property.
+     * The meta-property for the {@code portfolioNodeUid} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> uniqueIdentifier() {
-      return _uniqueIdentifier;
+    public final MetaProperty<UniqueIdentifier> portfolioNodeUid() {
+      return _portfolioNodeUid;
     }
 
     /**
