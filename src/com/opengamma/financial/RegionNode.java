@@ -9,8 +9,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
@@ -194,7 +192,21 @@ public class RegionNode implements Region {
   }
   
   public String toString() {
-    return ToStringBuilder.reflectionToString(this);
+    // Don't use ToStringBuilder or we will get the full object graph
+    final StringBuilder sb = new StringBuilder();
+    sb.append("RegionNode[");
+    sb.append("_name=").append(_name);
+    sb.append(",_regionType=").append(_regionType);
+    sb.append(",_subRegion={");
+    for (Region region : _subRegions) {
+      sb.append(region.getUniqueIdentifier());
+    }
+    sb.append("},_superRegion=").append((_superRegion != null) ? _superRegion.getUniqueIdentifier() : "<null>");
+    sb.append(",_uniqueIdentifier=").append(_uniqueIdentifier);
+    sb.append(",_data=").append(_data);
+    sb.append(",_uniqueIdentifier=").append(_uniqueIdentifier);
+    sb.append(",_identifiers=").append(_identifiers);
+    return sb.append(']').toString();
   }
 
 }

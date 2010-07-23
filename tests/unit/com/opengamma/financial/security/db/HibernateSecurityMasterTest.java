@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.financial.InMemoryRegionRepository;
 import com.opengamma.financial.RegionRepository;
 import com.opengamma.financial.security.SecurityMasterTestCase;
-import com.opengamma.financial.security.SecurityMasterTestCaseMethods;
+import com.opengamma.financial.security.SecurityTestCaseMethods;
 import com.opengamma.financial.security.db.bond.BondSecurityBean;
 import com.opengamma.financial.security.db.bond.CouponTypeBean;
 import com.opengamma.financial.security.db.bond.GuaranteeTypeBean;
@@ -42,7 +42,7 @@ import com.opengamma.util.test.HibernateTest;
 /**
  * Test HibernateSecurityMaster.
  */
-public class HibernateSecurityMasterTest extends HibernateTest implements SecurityMasterTestCaseMethods {
+public class HibernateSecurityMasterTest extends HibernateTest implements SecurityTestCaseMethods {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(HibernateSecurityMasterTest.class);
@@ -73,7 +73,7 @@ public class HibernateSecurityMasterTest extends HibernateTest implements Securi
   public void setUp() throws Exception {
     super.setUp();
     final RegionRepository regionRepository = new InMemoryRegionRepository(new File(REGIONS_FILE_PATH));
-    _testCase = new SecurityMasterTestCase(createSecurityMaster(regionRepository), regionRepository);
+    _testCase = new SecurityMasterTestCase(createSecurityMaster(regionRepository));
   }
 
   /**
@@ -92,118 +92,138 @@ public class HibernateSecurityMasterTest extends HibernateTest implements Securi
     return secMaster;
   }
 
+  // SecurityMasterTestCaseMethods
+
   @Override
   @Test
-  public void aaplEquityByBbgTicker() throws Exception {
-    _testCase.aaplEquityByBbgTicker();
+  public void testAgricultureFutureSecurity() {
+    _testCase.testAgricultureFutureSecurity();
   }
 
   @Override
   @Test
-  public void aaplEquityByUniqueIdentifier() throws Exception {
-    _testCase.aaplEquityByUniqueIdentifier();
+  public void testBondFutureSecurity() {
+    _testCase.testBondFutureSecurity();
   }
 
   @Override
   @Test
-  public void agricultureFuture() throws Exception {
-    _testCase.agricultureFuture();
+  public void testBondOptionSecurity() {
+    _testCase.testBondOptionSecurity();
   }
 
   @Override
   @Test
-  public void apvEquityOptionByBbgTicker() throws Exception {
-    _testCase.apvEquityOptionByBbgTicker();
+  public void testCashSecurity() {
+    _testCase.testCashSecurity();
   }
 
   @Override
   @Test
-  public void currencyFuture() throws Exception {
-    _testCase.currencyFuture();
+  public void testCorporateBondSecurity() {
+    _testCase.testCorporateBondSecurity();
   }
 
   @Override
   @Test
-  public void energyFuture() throws Exception {
-    _testCase.energyFuture();
+  public void testEnergyFutureSecurity() {
+    _testCase.testEnergyFutureSecurity();
   }
 
   @Override
   @Test
-  public void euroBondFuture() throws Exception {
-    _testCase.euroBondFuture();
+  public void testEquityOptionSecurity() {
+    _testCase.testEquityOptionSecurity();
   }
 
   @Override
   @Test
-  public void governmentBondSecurityBean() {
-    _testCase.governmentBondSecurityBean();
+  public void testEquitySecurity() {
+    _testCase.testEquitySecurity();
   }
 
   @Override
   @Test
-  public void indexFuture() throws Exception {
-    _testCase.indexFuture();
+  public void testFRASecurity() {
+    _testCase.testFRASecurity();
   }
 
   @Override
   @Test
-  public void interestRateFuture() throws Exception {
-    _testCase.interestRateFuture();
+  public void testFXFutureSecurity() {
+    _testCase.testFXFutureSecurity();
   }
 
   @Override
   @Test
-  public void metalFuture() throws Exception {
-    _testCase.metalFuture();
+  public void testFXOptionSecurity() {
+    _testCase.testFXOptionSecurity();
   }
 
   @Override
   @Test
-  public void spxIndexOptionByBbgTicker() throws Exception {
-    _testCase.spxIndexOptionByBbgTicker();
+  public void testForwardSwapSecurity() {
+    _testCase.testForwardSwapSecurity();
   }
 
   @Override
   @Test
-  public void spxIndexOptionByBbgUnique() throws Exception {
-    _testCase.spxIndexOptionByBbgUnique();
+  public void testFutureOptionSecurity() {
+    _testCase.testFutureOptionSecurity();
   }
 
   @Override
   @Test
-  public void testGovernmentBondSecurityBean() {
-    _testCase.testGovernmentBondSecurityBean();
+  public void testGovernmentBondSecurity() {
+    _testCase.testGovernmentBondSecurity();
   }
 
   @Override
   @Test
-  public void update() throws Exception {
-    _testCase.update();
+  public void testIndexFutureSecurity() {
+    _testCase.testIndexFutureSecurity();
   }
 
   @Override
   @Test
-  public void cashSecurity() throws Exception {
-    _testCase.cashSecurity();
+  public void testInterestRateFutureSecurity() {
+    _testCase.testInterestRateFutureSecurity();
   }
 
   @Override
   @Test
-  public void forwardSwapSecurity() throws Exception {
-    _testCase.forwardSwapSecurity();
+  public void testMetalFutureSecurity() {
+    _testCase.testMetalFutureSecurity();
   }
 
   @Override
   @Test
-  public void fraSecurity() throws Exception {
-    _testCase.fraSecurity();
+  public void testMunicipalBondSecurity() {
+    _testCase.testMunicipalBondSecurity();
   }
 
   @Override
   @Test
-  public void swapSecurity() throws Exception {
-    _testCase.swapSecurity();
+  public void testOptionOptionSecurity() {
+    _testCase.testOptionOptionSecurity();
+  }
+
+  @Override
+  @Test
+  public void testStockFutureSecurity() {
+    _testCase.testStockFutureSecurity();
+  }
+
+  @Override
+  @Test
+  public void testSwapOptionSecurity() {
+    _testCase.testSwapOptionSecurity();
+  }
+
+  @Override
+  @Test
+  public void testSwapSecurity() {
+    _testCase.testSwapSecurity();
   }
 
 }
