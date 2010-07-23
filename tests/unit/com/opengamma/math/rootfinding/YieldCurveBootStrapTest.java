@@ -126,7 +126,7 @@ public class YieldCurveBootStrapTest {
         cubicInterpolatorWithSense);
     EXTRAPOLATOR_WITH_FD_SENSITIVITY = new Interpolator1DWithSensitivities<Interpolator1DCubicSplineDataBundle>(EXTRAPOLATOR);
 
-    YieldCurveBundle curveBundle = new YieldCurveBundle();
+    final YieldCurveBundle curveBundle = new YieldCurveBundle();
     FUNDING_CURVE = makeYieldCurve(FUNDING_YIELDS, FUNDING_CURVE_TIMES, EXTRAPOLATOR);
     LIBOR_CURVE = makeYieldCurve(LIBOR_YIELDS, LIBOR_CURVE_TIMES, EXTRAPOLATOR);
     curveBundle.setCurve(FUNDING_CURVE_NAME, FUNDING_CURVE);
@@ -234,7 +234,7 @@ public class YieldCurveBootStrapTest {
     doHotSpot(rootFinder, name, functor, false);
   }
 
-  private void doHotSpot(final VectorRootFinder rootFinder, final String name, final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor, Boolean doubleCurveTest) {
+  private void doHotSpot(final VectorRootFinder rootFinder, final String name, final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor, final Boolean doubleCurveTest) {
     for (int i = 0; i < HOTSPOT_WARMUP_CYCLES; i++) {
       doTest(rootFinder, functor, doubleCurveTest);
     }
@@ -247,7 +247,7 @@ public class YieldCurveBootStrapTest {
     }
   }
 
-  private void doTest(final VectorRootFinder rootFinder, final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor, Boolean doubleCurveTest) {
+  private void doTest(final VectorRootFinder rootFinder, final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor, final Boolean doubleCurveTest) {
     if (doubleCurveTest) {
       doTestForDoubleCurve(rootFinder, functor);
     } else {
@@ -264,7 +264,7 @@ public class YieldCurveBootStrapTest {
     }
 
     final YieldAndDiscountCurve curve = makeYieldCurve(yieldCurveNodes.getData(), TIME_GRID, EXTRAPOLATOR);
-    YieldCurveBundle bundle = new YieldCurveBundle();
+    final YieldCurveBundle bundle = new YieldCurveBundle();
     bundle.setCurve(LIBOR_CURVE_NAME, curve);
     for (int i = 0; i < SWAP_VALUES.length; i++) {
       assertEquals(SWAP_VALUES[i], SWAP_RATE_CALCULATOR.getRate(SINGLE_CURVE_INSTRUMENTS.get(i), bundle), EPS);
@@ -280,8 +280,8 @@ public class YieldCurveBootStrapTest {
       assertEquals(0.0, instrumentPVs.getEntry(i), EPS);
     }
 
-    double[] fundingYields = Arrays.copyOfRange(yieldCurveNodes.getData(), 0, FUNDING_CURVE_TIMES.length);
-    double[] liborYields = Arrays.copyOfRange(yieldCurveNodes.getData(), FUNDING_CURVE_TIMES.length, yieldCurveNodes.getNumberOfElements());
+    final double[] fundingYields = Arrays.copyOfRange(yieldCurveNodes.getData(), 0, FUNDING_CURVE_TIMES.length);
+    final double[] liborYields = Arrays.copyOfRange(yieldCurveNodes.getData(), FUNDING_CURVE_TIMES.length, yieldCurveNodes.getNumberOfElements());
     for (int i = 0; i < FUNDING_CURVE_TIMES.length; i++) {
       assertEquals(FUNDING_YIELDS[i], fundingYields[i], EPS);
     }
@@ -291,7 +291,7 @@ public class YieldCurveBootStrapTest {
 
     final YieldAndDiscountCurve fundingCurve = makeYieldCurve(fundingYields, FUNDING_CURVE_TIMES, EXTRAPOLATOR);
     final YieldAndDiscountCurve liborCurve = makeYieldCurve(liborYields, LIBOR_CURVE_TIMES, EXTRAPOLATOR);
-    YieldCurveBundle bundle = new YieldCurveBundle();
+    final YieldCurveBundle bundle = new YieldCurveBundle();
     bundle.setCurve(LIBOR_CURVE_NAME, liborCurve);
     bundle.setCurve(FUNDING_CURVE_NAME, fundingCurve);
 
@@ -304,8 +304,8 @@ public class YieldCurveBootStrapTest {
   public void testTickingSwapRates() {
     final NormalDistribution normDist = new NormalDistribution(0, 1.0, RANDOM);
 
-    LinkedHashMap<String, FixedNodeInterpolator1D> name_extrapolator_map = new LinkedHashMap<String, FixedNodeInterpolator1D>();
-    FixedNodeInterpolator1D fnInterpolator = new FixedNodeInterpolator1D(TIME_GRID, EXTRAPOLATOR);
+    final LinkedHashMap<String, FixedNodeInterpolator1D> name_extrapolator_map = new LinkedHashMap<String, FixedNodeInterpolator1D>();
+    final FixedNodeInterpolator1D fnInterpolator = new FixedNodeInterpolator1D(TIME_GRID, EXTRAPOLATOR);
     name_extrapolator_map.put(LIBOR_CURVE_NAME, fnInterpolator);
 
     final VectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN);
@@ -320,7 +320,7 @@ public class YieldCurveBootStrapTest {
       final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new MultipleYieldCurveFinderFunction(SINGLE_CURVE_INSTRUMENTS, swapRates, name_extrapolator_map, null);
       yieldCurveNodes = rootFinder.getRoot(functor, yieldCurveNodes);
       curve = makeYieldCurve(yieldCurveNodes.getData(), TIME_GRID, EXTRAPOLATOR);
-      YieldCurveBundle bundle = new YieldCurveBundle();
+      final YieldCurveBundle bundle = new YieldCurveBundle();
       bundle.setCurve(LIBOR_CURVE_NAME, curve);
       for (int i = 0; i < swapRates.length; i++) {
         assertEquals(swapRates[i], SWAP_RATE_CALCULATOR.getRate(SINGLE_CURVE_INSTRUMENTS.get(i), bundle), EPS);
@@ -336,9 +336,9 @@ public class YieldCurveBootStrapTest {
     final DoubleMatrix2D jacExact = SINGLE_CURVE_JACOBIAN.evaluate(X0, SINGLE_CURVE_FINDER);
     final DoubleMatrix2D jacFD_sense = SINGLE_CURVE_JACOBIAN_FD.evaluate(X0, SINGLE_CURVE_FINDER);
     final DoubleMatrix2D jacFD = jacobianFD.evaluate(X0, SINGLE_CURVE_FINDER);
-    System.out.println(jacExact.toString());
-    System.out.println(jacFD.toString());
-    System.out.println(jacFD_sense.toString());
+    //System.out.println(jacExact.toString());
+    //System.out.println(jacFD.toString());
+    //System.out.println(jacFD_sense.toString());
 
     assertMatrixEquals(jacExact, jacFD, 1e-6);
   }
@@ -350,8 +350,8 @@ public class YieldCurveBootStrapTest {
     final DoubleMatrix2D jacExact = DOUBLE_CURVE_JACOBIAN.evaluate(X0, DOUBLE_CURVE_FINDER);
     // final DoubleMatrix2D jacFD_sense = SINGLE_CURVE_JACOBIAN_FD.evaluate(X0, SINGLE_CURVE_FINDER);
     final DoubleMatrix2D jacFD = jacobianFD.evaluate(X0, DOUBLE_CURVE_FINDER);
-    System.out.println(jacExact.toString());
-    System.out.println(jacFD.toString());
+    //System.out.println(jacExact.toString());
+    //System.out.println(jacFD.toString());
     // System.out.println(jacFD_sense.toString());
 
     assertMatrixEquals(jacExact, jacFD, 1e-6);
@@ -359,7 +359,7 @@ public class YieldCurveBootStrapTest {
 
   @Test
   public void testForwardCurveOnly() {
-    YieldCurveBundle knownCurves = new YieldCurveBundle();
+    final YieldCurveBundle knownCurves = new YieldCurveBundle();
     knownCurves.setCurve(FUNDING_CURVE_NAME, FUNDING_CURVE);
 
     LinkedHashMap<String, FixedNodeInterpolator1D> unknownCurves = new LinkedHashMap<String, FixedNodeInterpolator1D>();
@@ -383,7 +383,7 @@ public class YieldCurveBootStrapTest {
 
   // @Test
   public void testFundingCurveOnly() {
-    YieldCurveBundle knownCurves = new YieldCurveBundle();
+    final YieldCurveBundle knownCurves = new YieldCurveBundle();
     knownCurves.setCurve(LIBOR_CURVE_NAME, LIBOR_CURVE);
 
     LinkedHashMap<String, FixedNodeInterpolator1D> unknownCurves = new LinkedHashMap<String, FixedNodeInterpolator1D>();
@@ -426,7 +426,7 @@ public class YieldCurveBootStrapTest {
     final double[] floating = new double[2 * payments];
     final double[] deltaStart = new double[2 * payments];
     final double[] deltaEnd = new double[2 * payments];
-    double sigma = 0.0;
+    final double sigma = 0.0;
     for (int i = 0; i < payments; i++) {
       floating[2 * i + 1] = fixed[i] = 0.5 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
     }

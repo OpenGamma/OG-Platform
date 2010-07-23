@@ -36,13 +36,14 @@ public class JarrowRuddSkewnessKurtosisModel extends AnalyticOptionModel<OptionD
         final double r = data.getInterestRate(t);
         final double b = data.getCostOfCarry();
         final double skew = data.getAnnualizedSkew();
-        final double kurtosis = data.getAnnualizedFisherKurtosis();
+        final double kurtosis = data.getAnnualizedPearsonKurtosis();
         final OptionDefinition callDefinition = definition.isCall() ? definition : new EuropeanVanillaOptionDefinition(k, definition.getExpiry(), true);
         final Function1D<StandardOptionDataBundle, Double> bsm = BSM.getPricingFunction(callDefinition);
         final double bsmCall = bsm.evaluate(data);
         final double d2 = getD2(getD1(s, k, t, sigma, b), sigma, t);
-        final double a = getA(d2, k, sigma, t);
-        final double call = bsmCall + getLambda1(sigma, t, skew) * getQ3(s, k, sigma, t, r, a, d2) + getLambda2(sigma, t, kurtosis) * getQ4(s, k, sigma, t, r, a, d2);
+        final double sigmaT = sigma * Math.sqrt(t);
+        final double a = getA(d2, k, sigmaT);
+        final double call = bsmCall + getLambda1(sigma, t, skew) * getQ3(s, k, sigmaT, t, r, a, d2) + getLambda2(sigma, t, kurtosis) * getQ4(s, k, sigmaT, t, r, a, d2);
         if (!definition.isCall()) {
           return call - s * Math.exp((b - r) * t) + k * Math.exp(-r * t);
         }
@@ -52,36 +53,34 @@ public class JarrowRuddSkewnessKurtosisModel extends AnalyticOptionModel<OptionD
     return pricingFunction;
   }
 
-  double getA(final double d2, final double k, final double sigma, final double t) {
-    return Math.exp(-d2 * d2 / 2.) / (k * sigma * Math.sqrt(2 * Math.PI * t));
+  private double getA(final double d2, final double k, final double sigmaT) {
+    return Math.exp(-d2 * d2 / 2.) / k / sigmaT / Math.sqrt(2 * Math.PI);
   }
 
-  double getLambda1(final double sigma, final double t, final double skew) {
+  private double getLambda1(final double sigma, final double t, final double skew) {
     final double q = Math.sqrt(Math.exp(sigma * sigma * t) - 1);
     final double skewDistribution = q * (3 + q * q);
     return skew - skewDistribution;
   }
 
-  double getLambda2(final double sigma, final double t, final double kurtosis) {
+  private double getLambda2(final double sigma, final double t, final double kurtosis) {
     final double q = Math.sqrt(Math.exp(sigma * sigma * t) - 1);
     final double q2 = q * q;
     final double q4 = q2 * q2;
     final double q6 = q4 * q2;
     final double q8 = q6 * q2;
-    final double kurtosisDistribution = 16 * q2 + 15 * q4 + 6 * q6 + q8;
+    final double kurtosisDistribution = 16 * q2 + 15 * q4 + 6 * q6 + q8 + 3;
     return kurtosis - kurtosisDistribution;
   }
 
-  double getQ3(final double s, final double k, final double sigma, final double t, final double r, final double a, final double d2) {
-    final double sigmaT = sigma * Math.sqrt(t);
+  private double getQ3(final double s, final double k, final double sigmaT, final double t, final double r, final double a, final double d2) {
     final double da = a * (d2 - sigmaT) / (k * sigmaT);
     final double df = Math.exp(-r * t);
     return -Math.pow(s * df, 3) * Math.pow(Math.exp(sigmaT * sigmaT - 1), 1.5) * df * da / 6.;
   }
 
-  double getQ4(final double s, final double k, final double sigma, final double t, final double r, final double a, final double d2) {
-    final double sigmaT = sigma * Math.sqrt(t);
-    final double sigmaTSq = sigma * sigma * t;
+  private double getQ4(final double s, final double k, final double sigmaT, final double t, final double r, final double a, final double d2) {
+    final double sigmaTSq = sigmaT * sigmaT;
     final double x = d2 - sigmaT;
     final double da2 = a * (x * x - sigmaT * x - 1) / (k * k * sigmaTSq);
     final double df = Math.exp(-r * t);

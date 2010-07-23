@@ -16,24 +16,28 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 public class SkewKurtosisOptionDataBundle extends StandardOptionDataBundle {
   private final double _annualizedSkew;
   private final double _annualizedPearsonKurtosis;
+  private final double _annualizedFisherKurtosis;
 
   public SkewKurtosisOptionDataBundle(final YieldAndDiscountCurve discountCurve, final double b, final VolatilitySurface volatilitySurface, final double spot, final ZonedDateTime date,
       final double annualizedSkew, final double annualizedPearsonKurtosis) {
     super(discountCurve, b, volatilitySurface, spot, date);
     _annualizedSkew = annualizedSkew;
     _annualizedPearsonKurtosis = annualizedPearsonKurtosis;
+    _annualizedFisherKurtosis = _annualizedPearsonKurtosis - 3;
   }
 
   public SkewKurtosisOptionDataBundle(final SkewKurtosisOptionDataBundle data) {
     super(data);
     _annualizedSkew = data.getAnnualizedSkew();
     _annualizedPearsonKurtosis = data.getAnnualizedPearsonKurtosis();
+    _annualizedFisherKurtosis = _annualizedPearsonKurtosis - 3;
   }
 
   public SkewKurtosisOptionDataBundle(final StandardOptionDataBundle data, final double annualizedSkew, final double annualizedPearsonKurtosis) {
     super(data);
     _annualizedSkew = annualizedSkew;
     _annualizedPearsonKurtosis = annualizedPearsonKurtosis;
+    _annualizedFisherKurtosis = annualizedPearsonKurtosis - 3;
   }
 
   public double getAnnualizedSkew() {
@@ -41,7 +45,7 @@ public class SkewKurtosisOptionDataBundle extends StandardOptionDataBundle {
   }
 
   public double getAnnualizedFisherKurtosis() {
-    return _annualizedPearsonKurtosis - 3;
+    return _annualizedFisherKurtosis;
   }
 
   public double getAnnualizedPearsonKurtosis() {
