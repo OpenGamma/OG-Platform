@@ -9,11 +9,13 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.libor.Libor;
-import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.financial.interestrate.swap.definition.BasisSwap;
+import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 
 /**
  * 
@@ -48,7 +50,12 @@ public class InterestRateDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitSwap(Swap swap, YieldCurveBundle curves) {
+    public Class<?> visitSwap(FixedFloatSwap swap, YieldCurveBundle curves) {
+      return visit(swap, curves);
+    }
+
+    @Override
+    public Class<?> visitBasisSwap(BasisSwap swap, YieldCurveBundle curves) {
       return visit(swap, curves);
     }
   };
@@ -60,11 +67,14 @@ public class InterestRateDerivativeVisitorTest {
     final ForwardRateAgreement fra = new ForwardRateAgreement(0, 1, CURVE_NAME);
     final InterestRateFuture future = new InterestRateFuture(0, 1, CURVE_NAME);
     final Libor libor = new Libor(1, CURVE_NAME);
-    final Swap swap = new Swap(new double[] {1}, new double[] {1}, new double[] {0}, new double[] {0}, CURVE_NAME, CURVE_NAME);
+    final FixedFloatSwap swap = new FixedFloatSwap(new double[] {1}, new double[] {1}, new double[] {0}, new double[] {0}, CURVE_NAME, CURVE_NAME);
+    VariableAnnuity payLeg = new VariableAnnuity(new double[] {1}, CURVE_NAME, CURVE_NAME);
+    final BasisSwap bSwap = new BasisSwap(payLeg, payLeg);
     assertEquals(cash.accept(VISITOR, curves), Cash.class);
     assertEquals(fra.accept(VISITOR, curves), ForwardRateAgreement.class);
     assertEquals(future.accept(VISITOR, curves), InterestRateFuture.class);
     assertEquals(libor.accept(VISITOR, curves), Libor.class);
-    assertEquals(swap.accept(VISITOR, curves), Swap.class);
+    assertEquals(swap.accept(VISITOR, curves), FixedFloatSwap.class);
+    assertEquals(bSwap.accept(VISITOR, curves), BasisSwap.class);
   }
 }

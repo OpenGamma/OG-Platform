@@ -23,7 +23,7 @@ import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.libor.Libor;
-import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.function.Function1D;
@@ -176,12 +176,12 @@ public class MarketDataImpliedYieldCurveTest {
     }
   }
 
-  private static Swap setupSwap(final double time, final String fundCurveName, final String liborCurveName) {
+  private static FixedFloatSwap setupSwap(final double time, final String fundCurveName, final String liborCurveName) {
     int index = (int) Math.round(2 * time);
     return setupSwap(index, fundCurveName, liborCurveName);
   }
 
-  private static Swap setupSwap(final int payments, final String fundCurveName, final String liborCurveName) {
+  private static FixedFloatSwap setupSwap(final int payments, final String fundCurveName, final String liborCurveName) {
     final double[] fixed = new double[payments];
     final double[] floating = new double[2 * payments];
     final double[] deltaStart = new double[2 * payments];
@@ -198,7 +198,7 @@ public class MarketDataImpliedYieldCurveTest {
       deltaStart[i] = sigma * (i == 0 ? RANDOM.nextDouble() : (RANDOM.nextDouble() - 0.5));
       deltaEnd[i] = sigma * (RANDOM.nextDouble() - 0.5);
     }
-    return new Swap(fixed, floating, deltaStart, deltaEnd, fundCurveName, liborCurveName);
+    return new FixedFloatSwap(fixed, floating, deltaStart, deltaEnd, fundCurveName, liborCurveName);
   }
 
 }

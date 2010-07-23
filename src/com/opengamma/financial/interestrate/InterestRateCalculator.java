@@ -11,7 +11,8 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.libor.Libor;
-import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.financial.interestrate.swap.definition.BasisSwap;
+import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
@@ -70,10 +71,20 @@ public class InterestRateCalculator implements InterestRateDerivativeVisitor<Dou
   }
 
   @Override
-  public Double visitSwap(Swap swap, YieldCurveBundle curves) {
+  public Double visitSwap(FixedFloatSwap swap, YieldCurveBundle curves) {
     double pvFloat = _pvCalculator.getLiborAnnuity(swap.getFloatingLeg(), curves);
     double pvFixed = _pvCalculator.getFixedAnnuity(swap.getFixedLeg(), curves);
     return pvFloat / pvFixed;
+  }
+
+  @Override
+  public Double visitBasisSwap(BasisSwap swap, YieldCurveBundle curves) {
+
+    double pvPay = _pvCalculator.getLiborAnnuity(swap.getPayLeg(), curves);
+    double pvRecieve = _pvCalculator.getLiborAnnuity(swap.getRecieveLeg(), curves);
+    double pvSpread = _pvCalculator.getFixedAnnuity(swap.getSpreadLeg(), curves);
+
+    return (pvRecieve - pvPay) / pvSpread;
   }
 
 }

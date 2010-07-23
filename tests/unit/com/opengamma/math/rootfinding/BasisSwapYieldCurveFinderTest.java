@@ -13,8 +13,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
@@ -24,9 +22,11 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.libor.Libor;
+import com.opengamma.financial.interestrate.swap.definition.BasisSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -42,109 +42,139 @@ import com.opengamma.math.interpolation.InterpolationResultWithSensitivities;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DCubicSplineDataBundle;
 import com.opengamma.math.interpolation.Interpolator1DCubicSplineWithSensitivitiesDataBundle;
-import com.opengamma.math.interpolation.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.Interpolator1DWithSensitivities;
 import com.opengamma.math.interpolation.LinearExtrapolator;
 import com.opengamma.math.interpolation.LinearExtrapolatorWithSensitivity;
 import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
-import com.opengamma.math.rootfinding.newton.FiniteDifferenceJacobianCalculator;
 import com.opengamma.math.rootfinding.newton.JacobianCalculator;
 import com.opengamma.math.rootfinding.newton.NewtonDefaultVectorRootFinder;
-import com.opengamma.math.rootfinding.newton.ShermanMorrisonVectorRootFinder;
-import com.opengamma.util.monitor.OperationTimer;
 
 /**
  * 
  */
-public class MultiInstrumentSingleCurveBootStrapTest {
-
-  private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveBootStrapTest.class);
-  private static final int HOTSPOT_WARMUP_CYCLES = 0;
-  private static final int BENCHMARK_CYCLES = 1;
+public class BasisSwapYieldCurveFinderTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
 
   private static final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> EXTRAPOLATOR;
   private static final Interpolator1D<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> EXTRAPOLATOR_WITH_SENSITIVITY;
-  private static final List<InterestRateDerivative> INSTRUMENTS;
-  private static final double[] MARKET_VALUES;
-  private static final String CURVE_NAME = "Libor_3m_GBP";
-  private static final YieldAndDiscountCurve CURVE;
 
-  private static final double[] NODE_TIMES;
+  private static List<InterestRateDerivative> INSTRUMENTS;
+  private static double[] MARKET_VALUES;
+  private static YieldAndDiscountCurve TREASURY_CURVE;
+  private static YieldAndDiscountCurve LIBOR_CURVE;
 
+  private static String TREASURY_CURVE_NAME = "Treasury";
+  private static String LIBOR_CURVE_NAME = "Libor_3m_USD";
+
+  private static final double[] LIBOR_NODE_TIMES;
+  private static final double[] TREASURY_NODE_TIMES;
   private static final double EPS = 1e-8;
   private static final int STEPS = 100;
   private static final DoubleMatrix1D X0;
 
   private static final InterestRateCalculator RATE_CALCULATOR = new InterestRateCalculator();
-  private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> SINGLE_CURVE_FINDER;
-  private static final JacobianCalculator SINGLE_CURVE_JACOBIAN;
 
-  private static final Function1D<Double, Double> DUMMY_CURVE = new Function1D<Double, Double>() {
+  private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> DOUBLE_CURVE_FINDER;
+  private static final JacobianCalculator DOUBLE_CURVE_JACOBIAN;
 
-    // private static final double A = -0.0325;
-    // private static final double B = 0.021;
-    // private static final double C = 0.52;
-    // private static final double D = 0.055;
+  protected static final Function1D<Double, Double> DUMMY_TREAURY_CURVE = new Function1D<Double, Double>() {
 
-    private static final double A = 0;
-    private static final double B = 0.004148649;
-    private static final double C = 0.056397936;
-    private static final double D = 0.004457019;
-    private static final double E = 0.000429628;
+    private static final double a = -0.0325;
+    private static final double b = 0.021;
+    private static final double c = 0.52;
+    private static final double d = 0.055;
 
     @Override
     public Double evaluate(final Double x) {
-      return (A + B * x) * Math.exp(-C * x) + E * x + D;
+      return (a + b * x) * Math.exp(-c * x) + d;
+    }
+  };
+
+  protected static final Function1D<Double, Double> DUMMY_SPEAD_CURVE = new Function1D<Double, Double>() {
+
+    private static final double a = 0.0025;
+    private static final double b = 0.0021;
+    private static final double c = 0.2;
+    private static final double d = 0.0;
+
+    @Override
+    public Double evaluate(final Double x) {
+      return (a + b * x) * Math.exp(-c * x) + d;
     }
   };
 
   static {
+
     INSTRUMENTS = new ArrayList<InterestRateDerivative>();
 
     final double[] liborMaturities = new double[] {1. / 12, 2. / 12, 3. / 12}; // 
     final double[] fraMaturities = new double[] {0.5, 0.75};
-    final double[] cashMaturities = new double[] {1. / 365, 7. / 52, 2. / 52.};
+    final double[] cashMaturities = new double[] {1. / 365, 1. / 52., 2. / 52., 1. / 12, 3. / 12, 6. / 12};
     final double[] swapMaturities = new double[] {1.00, 2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15, 20.00277778, 25.00555556, 30.00555556, 35.00833333, 50.01388889};
+    final double[] basisSwapMaturities = new double[] {1, 2, 5, 10, 20, 30, 50};
 
-    final int nNodes = liborMaturities.length + fraMaturities.length + cashMaturities.length + swapMaturities.length;
+    final int nNodes = liborMaturities.length + fraMaturities.length + cashMaturities.length + swapMaturities.length + basisSwapMaturities.length;
 
-    NODE_TIMES = new double[nNodes];
-    int index = 0;
+    final int nLiborNodes = liborMaturities.length + fraMaturities.length + swapMaturities.length;
+    final int nTreasuryNodes = cashMaturities.length + basisSwapMaturities.length;
+
+    LIBOR_NODE_TIMES = new double[nLiborNodes];
+    TREASURY_NODE_TIMES = new double[nTreasuryNodes];
+
+    int liborIndex = 0;
+    int fundIndex = 0;
 
     InterestRateDerivative ird;
 
     for (final double t : liborMaturities) {
-      ird = new Libor(t, CURVE_NAME);
+      ird = new Libor(t, LIBOR_CURVE_NAME);
       INSTRUMENTS.add(ird);
-      NODE_TIMES[index++] = t;
+      LIBOR_NODE_TIMES[liborIndex++] = t;
     }
     for (final double t : fraMaturities) {
-      ird = new ForwardRateAgreement(t - 0.25, t, CURVE_NAME);
+      ird = new ForwardRateAgreement(t - 0.25, t, LIBOR_CURVE_NAME);
       INSTRUMENTS.add(ird);
-      NODE_TIMES[index++] = t;
+      LIBOR_NODE_TIMES[liborIndex++] = t;
     }
 
     for (final double t : cashMaturities) {
-      ird = new Cash(t, CURVE_NAME);
+      ird = new Cash(t, TREASURY_CURVE_NAME);
       INSTRUMENTS.add(ird);
-      NODE_TIMES[index++] = t;
+      TREASURY_NODE_TIMES[fundIndex++] = t;
     }
 
     for (final double t : swapMaturities) {
-      final FixedFloatSwap swap = setupSwap(t, CURVE_NAME, CURVE_NAME);
-      INSTRUMENTS.add(swap);
-      NODE_TIMES[index++] = t;
+      ird = setupSwap(t, TREASURY_CURVE_NAME, LIBOR_CURVE_NAME);
+      INSTRUMENTS.add(ird);
+      LIBOR_NODE_TIMES[liborIndex++] = t;
+    }
+    for (final double t : basisSwapMaturities) {
+      ird = setupBasisSwap(t, TREASURY_CURVE_NAME, TREASURY_CURVE_NAME, LIBOR_CURVE_NAME);
+      INSTRUMENTS.add(ird);
+      TREASURY_NODE_TIMES[fundIndex++] = t;
     }
 
-    if (INSTRUMENTS.size() != (nNodes)) {
+    if (INSTRUMENTS.size() != (nLiborNodes + nTreasuryNodes)) {
       throw new IllegalArgumentException("number of instruments not equal to number of nodes");
     }
 
-    Arrays.sort(NODE_TIMES);
+    Arrays.sort(LIBOR_NODE_TIMES);
+    Arrays.sort(TREASURY_NODE_TIMES);
+
+    final int n = INSTRUMENTS.size();
+
+    // set up curves to obtain "market" prices
+    final double[] liborYields = new double[LIBOR_NODE_TIMES.length];
+    final double[] treasuryYields = new double[TREASURY_NODE_TIMES.length];
+
+    for (int i = 0; i < TREASURY_NODE_TIMES.length; i++) {
+      treasuryYields[i] = DUMMY_TREAURY_CURVE.evaluate(TREASURY_NODE_TIMES[i]);
+    }
+
+    for (int i = 0; i < LIBOR_NODE_TIMES.length; i++) {
+      liborYields[i] = DUMMY_TREAURY_CURVE.evaluate(LIBOR_NODE_TIMES[i]) + DUMMY_SPEAD_CURVE.evaluate(LIBOR_NODE_TIMES[i]);
+    }
 
     final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> cubicInterpolator = new NaturalCubicSplineInterpolator1D();
     final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> cubicInterpolatorWithSense = new CubicSplineInterpolatorWithSensitivities1D();
@@ -156,96 +186,70 @@ public class MultiInstrumentSingleCurveBootStrapTest {
     EXTRAPOLATOR_WITH_SENSITIVITY = new Extrapolator1D<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities>(linear_em_sense, flat_em_sense,
         cubicInterpolatorWithSense);
 
-    // set up curve to obtain "market" prices
-    final double[] yields = new double[nNodes];
+    LIBOR_CURVE = new InterpolatedYieldCurve(LIBOR_NODE_TIMES, liborYields, EXTRAPOLATOR);
+    TREASURY_CURVE = new InterpolatedYieldCurve(TREASURY_NODE_TIMES, treasuryYields, EXTRAPOLATOR);
 
-    for (int i = 0; i < nNodes; i++) {
-      yields[i] = DUMMY_CURVE.evaluate(NODE_TIMES[i]);
-    }
+    YieldCurveBundle bundle = new YieldCurveBundle();
+    bundle.setCurve(LIBOR_CURVE_NAME, LIBOR_CURVE);
+    bundle.setCurve(TREASURY_CURVE_NAME, TREASURY_CURVE);
 
     // now get market prices
-    MARKET_VALUES = new double[nNodes];
-    final double[] rates = new double[nNodes];
-    CURVE = makeYieldCurve(yields, NODE_TIMES, EXTRAPOLATOR);
-    YieldCurveBundle bundle = new YieldCurveBundle();
-    bundle.setCurve(CURVE_NAME, CURVE);
+    MARKET_VALUES = new double[n];
+    final double[] rates = new double[n];
 
-    for (int i = 0; i < nNodes; i++) {
+    for (int i = 0; i < n; i++) {
       MARKET_VALUES[i] = RATE_CALCULATOR.getRate(INSTRUMENTS.get(i), bundle);
       rates[i] = 0.05;
     }
+
     X0 = new DoubleMatrix1D(rates);
 
     LinkedHashMap<String, FixedNodeInterpolator1D> unknownCurves = new LinkedHashMap<String, FixedNodeInterpolator1D>();
-    FixedNodeInterpolator1D fnInterpolator = new FixedNodeInterpolator1D(NODE_TIMES, EXTRAPOLATOR);
-    unknownCurves.put(CURVE_NAME, fnInterpolator);
-    SINGLE_CURVE_FINDER = new MultipleYieldCurveFinderFunction(INSTRUMENTS, MARKET_VALUES, unknownCurves, null);
+    FixedNodeInterpolator1D fnInterpolator = new FixedNodeInterpolator1D(TREASURY_NODE_TIMES, EXTRAPOLATOR);
+    unknownCurves.put(TREASURY_CURVE_NAME, fnInterpolator);
+    fnInterpolator = new FixedNodeInterpolator1D(LIBOR_NODE_TIMES, EXTRAPOLATOR);
+    unknownCurves.put(LIBOR_CURVE_NAME, fnInterpolator);
+    DOUBLE_CURVE_FINDER = new MultipleYieldCurveFinderFunction(INSTRUMENTS, MARKET_VALUES, unknownCurves, null);
 
     unknownCurves = new LinkedHashMap<String, FixedNodeInterpolator1D>();
-    fnInterpolator = new FixedNodeInterpolator1D(NODE_TIMES, EXTRAPOLATOR_WITH_SENSITIVITY);
-    unknownCurves.put(CURVE_NAME, fnInterpolator);
-    SINGLE_CURVE_JACOBIAN = new MultipleYieldCurveFinderJacobian(INSTRUMENTS, unknownCurves, null);
-
+    fnInterpolator = new FixedNodeInterpolator1D(TREASURY_NODE_TIMES, EXTRAPOLATOR_WITH_SENSITIVITY);
+    unknownCurves.put(TREASURY_CURVE_NAME, fnInterpolator);
+    fnInterpolator = new FixedNodeInterpolator1D(LIBOR_NODE_TIMES, EXTRAPOLATOR_WITH_SENSITIVITY);
+    unknownCurves.put(LIBOR_CURVE_NAME, fnInterpolator);
+    DOUBLE_CURVE_JACOBIAN = new MultipleYieldCurveFinderJacobian(INSTRUMENTS, unknownCurves, null);
   }
 
   @Test
   public void testNewton() {
-    VectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN);
-    doHotSpot(rootFinder, "default Newton, single curve", SINGLE_CURVE_FINDER);
-  }
-
-  @Test
-  public void testBroyden() {
-    VectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN);
-    doHotSpot(rootFinder, "Broyden, single curve", SINGLE_CURVE_FINDER);
-  }
-
-  @Test
-  public void testShermanMorrison() {
-    VectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN);
-    doHotSpot(rootFinder, "Broyden, single curve", SINGLE_CURVE_FINDER);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Test
-  public void testSingleJacobian() {
-    final JacobianCalculator jacobianFD = new FiniteDifferenceJacobianCalculator(1e-8);
-    final DoubleMatrix2D jacExact = SINGLE_CURVE_JACOBIAN.evaluate(X0, SINGLE_CURVE_FINDER);
-    final DoubleMatrix2D jacFD = jacobianFD.evaluate(X0, SINGLE_CURVE_FINDER);
-    // System.out.println("exact: " + jacExact.toString());
-    // System.out.println("FD: " + jacFD.toString());
-    assertMatrixEquals(jacExact, jacFD, 1e-7);
-  }
-
-  private void doHotSpot(final VectorRootFinder rootFinder, final String name, final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor) {
-    for (int i = 0; i < HOTSPOT_WARMUP_CYCLES; i++) {
-      doTest(rootFinder, functor);
-    }
-    if (BENCHMARK_CYCLES > 0) {
-      final OperationTimer timer = new OperationTimer(s_logger, "processing {} cycles on " + name, BENCHMARK_CYCLES);
-      for (int i = 0; i < BENCHMARK_CYCLES; i++) {
-        doTest(rootFinder, functor);
-      }
-      timer.finished();
-    }
+    final VectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN);
+    doTest(rootFinder, DOUBLE_CURVE_FINDER);
   }
 
   private void doTest(final VectorRootFinder rootFinder, final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor) {
-    final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(functor, X0);
-    final YieldAndDiscountCurve curve = makeYieldCurve(yieldCurveNodes.getData(), NODE_TIMES, EXTRAPOLATOR);
-    // System.out.println("times: " + (new DoubleMatrix1D(NODE_TIMES)).toString());
-    // System.out.println("market rates: " + (new DoubleMatrix1D(MARKET_VALUES)).toString());
-    // System.out.println("yields: " + yieldCurveNodes.toString());
+    final double[] yieldCurveNodes = rootFinder.getRoot(functor, X0).getData();
+    final double[] fundYields = Arrays.copyOfRange(yieldCurveNodes, 0, TREASURY_NODE_TIMES.length);
+    final YieldAndDiscountCurve fundCurve = new InterpolatedYieldCurve(TREASURY_NODE_TIMES, fundYields, EXTRAPOLATOR);
+    final double[] liborYields = Arrays.copyOfRange(yieldCurveNodes, TREASURY_NODE_TIMES.length, yieldCurveNodes.length);
+    final YieldAndDiscountCurve liborCurve = new InterpolatedYieldCurve(LIBOR_NODE_TIMES, liborYields, EXTRAPOLATOR);
 
     YieldCurveBundle bundle = new YieldCurveBundle();
-    bundle.setCurve(CURVE_NAME, curve);
+    bundle.setCurve(TREASURY_CURVE_NAME, fundCurve);
+    bundle.setCurve(LIBOR_CURVE_NAME, liborCurve);
+
     for (int i = 0; i < MARKET_VALUES.length; i++) {
       assertEquals(MARKET_VALUES[i], RATE_CALCULATOR.getRate(INSTRUMENTS.get(i), bundle), EPS);
     }
   }
 
-  private static YieldAndDiscountCurve makeYieldCurve(final double[] yields, final double[] times, final Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult> interpolator) {
-    return new InterpolatedYieldCurve(times, yields, interpolator);
+  private static BasisSwap setupBasisSwap(final double time, final String fundCurveName, final String payCurveName, final String revieveCurveName) {
+    int index = (int) Math.round(4 * time);
+    final double[] paymentTimes = new double[index];
+    for (int i = 0; i < index; i++) {
+      paymentTimes[i] = 0.25 * (i + 1);
+    }
+    VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, fundCurveName, payCurveName);
+    VariableAnnuity recieveLeg = new VariableAnnuity(paymentTimes, fundCurveName, revieveCurveName);
+    return new BasisSwap(payLeg, recieveLeg);
   }
 
   private static FixedFloatSwap setupSwap(final double time, final String fundCurveName, final String liborCurveName) {
@@ -273,15 +277,4 @@ public class MultiInstrumentSingleCurveBootStrapTest {
     return new FixedFloatSwap(fixed, floating, deltaStart, deltaEnd, fundCurveName, liborCurveName);
   }
 
-  private void assertMatrixEquals(final DoubleMatrix2D m1, final DoubleMatrix2D m2, final double eps) {
-    final int m = m1.getNumberOfRows();
-    final int n = m1.getNumberOfColumns();
-    assertEquals(m2.getNumberOfRows(), m);
-    assertEquals(m2.getNumberOfColumns(), n);
-    for (int i = 0; i < n; i++) {
-      for (int j = 0; j < m; j++) {
-        assertEquals(m1.getEntry(i, j), m2.getEntry(i, j), eps);
-      }
-    }
-  }
 }

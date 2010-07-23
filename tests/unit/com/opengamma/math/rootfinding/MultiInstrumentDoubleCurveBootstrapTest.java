@@ -27,7 +27,7 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.libor.Libor;
-import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.function.Function1D;
@@ -265,8 +265,8 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
     final JacobianCalculator jacobianFD = new FiniteDifferenceJacobianCalculator(1e-8);
     final DoubleMatrix2D jacExact = DOUBLE_CURVE_JACOBIAN.evaluate(X0, DOUBLE_CURVE_FINDER);
     final DoubleMatrix2D jacFD = jacobianFD.evaluate(X0, DOUBLE_CURVE_FINDER);
-    //System.out.println("exact: " + jacExact.toString());
-    //System.out.println("FD: " + jacFD.toString());
+    // System.out.println("exact: " + jacExact.toString());
+    // System.out.println("FD: " + jacFD.toString());
 
     assertMatrixEquals(jacExact, jacFD, 1e-6);
   }
@@ -308,12 +308,12 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
     return new InterpolatedYieldCurve(times, yields, interpolator);
   }
 
-  private static Swap setupSwap(final double time, final String fundCurveName, final String liborCurveName) {
-    final int index = (int) Math.round(2 * time);
+  private static FixedFloatSwap setupSwap(final double time, final String fundCurveName, final String liborCurveName) {
+    int index = (int) Math.round(2 * time);
     return setupSwap(index, fundCurveName, liborCurveName);
   }
 
-  private static Swap setupSwap(final int payments, final String fundCurveName, final String liborCurveName) {
+  private static FixedFloatSwap setupSwap(final int payments, final String fundCurveName, final String liborCurveName) {
     final double[] fixed = new double[payments];
     final double[] floating = new double[2 * payments];
     final double[] deltaStart = new double[2 * payments];
@@ -330,7 +330,7 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
       deltaStart[i] = sigma * (i == 0 ? RANDOM.nextDouble() : (RANDOM.nextDouble() - 0.5));
       deltaEnd[i] = sigma * (RANDOM.nextDouble() - 0.5);
     }
-    return new Swap(fixed, floating, deltaStart, deltaEnd, fundCurveName, liborCurveName);
+    return new FixedFloatSwap(fixed, floating, deltaStart, deltaEnd, fundCurveName, liborCurveName);
   }
 
   private void assertMatrixEquals(final DoubleMatrix2D m1, final DoubleMatrix2D m2, final double eps) {

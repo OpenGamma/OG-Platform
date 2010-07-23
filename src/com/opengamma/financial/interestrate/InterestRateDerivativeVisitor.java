@@ -9,7 +9,8 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.libor.Libor;
-import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.financial.interestrate.swap.definition.BasisSwap;
+import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 
 /**
  * @param <T> Type of visitor
@@ -24,7 +25,9 @@ public interface InterestRateDerivativeVisitor<T> {
 
   T visitLibor(Libor libor, YieldCurveBundle curves);
 
-  T visitSwap(final Swap swap, YieldCurveBundle curves);
+  T visitSwap(final FixedFloatSwap swap, YieldCurveBundle curves);
+
+  T visitBasisSwap(final BasisSwap swap, YieldCurveBundle curves);
 
   // T visitFixedAnnuity(final Annuity annuity, YieldCurveBundle curves);
 
