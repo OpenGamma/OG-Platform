@@ -9,6 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -20,18 +21,21 @@ public class MertonJumpDiffusionModelDataBundle extends StandardOptionDataBundle
   public MertonJumpDiffusionModelDataBundle(final YieldAndDiscountCurve discountCurve, final double b, final VolatilitySurface volatilitySurface, final double spot, final ZonedDateTime date,
       final double lambda, final double gamma) {
     super(discountCurve, b, volatilitySurface, spot, date);
+    ArgumentChecker.notZero(lambda, 1e-15, "lambda");
     _lambda = lambda;
     _gamma = gamma;
   }
 
   public MertonJumpDiffusionModelDataBundle(final MertonJumpDiffusionModelDataBundle data) {
     super(data);
+    ArgumentChecker.notZero(data.getLambda(), 1e-15, "lambda");
     _lambda = data.getLambda();
     _gamma = data.getGamma();
   }
 
   public MertonJumpDiffusionModelDataBundle(final StandardOptionDataBundle data, final double lambda, final double gamma) {
     super(data);
+    ArgumentChecker.notZero(lambda, 1e-15, "lambda");
     _lambda = lambda;
     _gamma = gamma;
   }
@@ -70,6 +74,7 @@ public class MertonJumpDiffusionModelDataBundle extends StandardOptionDataBundle
   }
 
   public MertonJumpDiffusionModelDataBundle withLambda(final double lambda) {
+    ArgumentChecker.notZero(lambda, 1e-15, "lambda");
     return new MertonJumpDiffusionModelDataBundle(getInterestRateCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), lambda, getGamma());
   }
 

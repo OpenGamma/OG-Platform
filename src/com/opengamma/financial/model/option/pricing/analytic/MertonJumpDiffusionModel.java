@@ -40,9 +40,6 @@ public class MertonJumpDiffusionModel extends AnalyticOptionModel<OptionDefiniti
         final double lambda = data.getLambda();
         final double gamma = data.getGamma();
         final double sigmaSq = sigma * sigma;
-        if (lambda == 0) {
-          throw new IllegalArgumentException("Cannot have lambda of zero");
-        }
         final double delta = Math.sqrt(gamma * sigmaSq / lambda);
         final double z = Math.sqrt(sigmaSq - lambda * delta * delta);
         final double zSq = z * z;

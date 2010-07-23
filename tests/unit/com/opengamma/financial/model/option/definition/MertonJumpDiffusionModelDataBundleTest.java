@@ -45,6 +45,21 @@ public class MertonJumpDiffusionModelDataBundleTest {
     new MertonJumpDiffusionModelDataBundle(null);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testZeroLambda1() {
+    new MertonJumpDiffusionModelDataBundle(CURVE, B, SURFACE, SPOT, DATE, 0, GAMMA);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testZeroLambda2() {
+    new MertonJumpDiffusionModelDataBundle(new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE), 0, GAMMA);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testZeroLambda3() {
+    DATA.withLambda(0);
+  }
+
   @Test
   public void testGetters() {
     assertEquals(DATA.getCostOfCarry(), B, 0);
