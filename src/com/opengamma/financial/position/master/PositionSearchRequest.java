@@ -20,7 +20,7 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.db.PagingRequest;
 
@@ -47,11 +47,6 @@ public class PositionSearchRequest extends DirectBean {
   @PropertyDefinition
   private UniqueIdentifier _parentNodeUid;
   /**
-   * The name, wildcards allowed, null to not match on name.
-   */
-  @PropertyDefinition
-  private String _name;
-  /**
    * The minimum quantity, inclusive, null for no minimum.
    */
   @PropertyDefinition
@@ -65,7 +60,7 @@ public class PositionSearchRequest extends DirectBean {
    * The security key to match, null to not match on security key.
    */
   @PropertyDefinition
-  private Identifier _securityKey;
+  private IdentifierBundle _securityKey;
   /**
    * The instant to search for a version at.
    * Null is treated as the latest version.
@@ -108,8 +103,6 @@ public class PositionSearchRequest extends DirectBean {
         return getPortfolioUid();
       case -1692130588:  // parentNodeUid
         return getParentNodeUid();
-      case 3373707:  // name
-        return getName();
       case 69860605:  // minQuantity
         return getMinQuantity();
       case 747293199:  // maxQuantity
@@ -136,9 +129,6 @@ public class PositionSearchRequest extends DirectBean {
       case -1692130588:  // parentNodeUid
         setParentNodeUid((UniqueIdentifier) newValue);
         return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
       case 69860605:  // minQuantity
         setMinQuantity((BigDecimal) newValue);
         return;
@@ -146,7 +136,7 @@ public class PositionSearchRequest extends DirectBean {
         setMaxQuantity((BigDecimal) newValue);
         return;
       case 1550083839:  // securityKey
-        setSecurityKey((Identifier) newValue);
+        setSecurityKey((IdentifierBundle) newValue);
         return;
       case 598802432:  // versionAsOfInstant
         setVersionAsOfInstant((Instant) newValue);
@@ -238,31 +228,6 @@ public class PositionSearchRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the name, wildcards allowed, null to not match on name.
-   * @return the value of the property
-   */
-  public String getName() {
-    return _name;
-  }
-
-  /**
-   * Sets the name, wildcards allowed, null to not match on name.
-   * @param name  the new value of the property
-   */
-  public void setName(String name) {
-    this._name = name;
-  }
-
-  /**
-   * Gets the the {@code name} property.
-   * @return the property, not null
-   */
-  public final Property<String> name() {
-    return metaBean().name().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the minimum quantity, inclusive, null for no minimum.
    * @return the value of the property
    */
@@ -316,7 +281,7 @@ public class PositionSearchRequest extends DirectBean {
    * Gets the security key to match, null to not match on security key.
    * @return the value of the property
    */
-  public Identifier getSecurityKey() {
+  public IdentifierBundle getSecurityKey() {
     return _securityKey;
   }
 
@@ -324,7 +289,7 @@ public class PositionSearchRequest extends DirectBean {
    * Sets the security key to match, null to not match on security key.
    * @param securityKey  the new value of the property
    */
-  public void setSecurityKey(Identifier securityKey) {
+  public void setSecurityKey(IdentifierBundle securityKey) {
     this._securityKey = securityKey;
   }
 
@@ -332,7 +297,7 @@ public class PositionSearchRequest extends DirectBean {
    * Gets the the {@code securityKey} property.
    * @return the property, not null
    */
-  public final Property<Identifier> securityKey() {
+  public final Property<IdentifierBundle> securityKey() {
     return metaBean().securityKey().createProperty(this);
   }
 
@@ -415,10 +380,6 @@ public class PositionSearchRequest extends DirectBean {
      */
     private final MetaProperty<UniqueIdentifier> _parentNodeUid = DirectMetaProperty.ofReadWrite(this, "parentNodeUid", UniqueIdentifier.class);
     /**
-     * The meta-property for the {@code name} property.
-     */
-    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", String.class);
-    /**
      * The meta-property for the {@code minQuantity} property.
      */
     private final MetaProperty<BigDecimal> _minQuantity = DirectMetaProperty.ofReadWrite(this, "minQuantity", BigDecimal.class);
@@ -429,7 +390,7 @@ public class PositionSearchRequest extends DirectBean {
     /**
      * The meta-property for the {@code securityKey} property.
      */
-    private final MetaProperty<Identifier> _securityKey = DirectMetaProperty.ofReadWrite(this, "securityKey", Identifier.class);
+    private final MetaProperty<IdentifierBundle> _securityKey = DirectMetaProperty.ofReadWrite(this, "securityKey", IdentifierBundle.class);
     /**
      * The meta-property for the {@code versionAsOfInstant} property.
      */
@@ -449,7 +410,6 @@ public class PositionSearchRequest extends DirectBean {
       temp.put("pagingRequest", _pagingRequest);
       temp.put("portfolioUid", _portfolioUid);
       temp.put("parentNodeUid", _parentNodeUid);
-      temp.put("name", _name);
       temp.put("minQuantity", _minQuantity);
       temp.put("maxQuantity", _maxQuantity);
       temp.put("securityKey", _securityKey);
@@ -499,14 +459,6 @@ public class PositionSearchRequest extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code name} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> name() {
-      return _name;
-    }
-
-    /**
      * The meta-property for the {@code minQuantity} property.
      * @return the meta-property, not null
      */
@@ -526,7 +478,7 @@ public class PositionSearchRequest extends DirectBean {
      * The meta-property for the {@code securityKey} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Identifier> securityKey() {
+    public final MetaProperty<IdentifierBundle> securityKey() {
       return _securityKey;
     }
 

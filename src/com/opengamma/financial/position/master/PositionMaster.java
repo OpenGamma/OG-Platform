@@ -41,7 +41,7 @@ public interface PositionMaster {
    * The version in the identifier allows access to these historic versions.
    * 
    * @param uid  the unique identifier, not null
-   * @return the tree document, null if not found
+   * @return the tree document, not null
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no portfolio with that unique identifier
    */
@@ -77,7 +77,7 @@ public interface PositionMaster {
    * @param document  the document, not null
    * @return the updated tree document, not null
    * @throws IllegalArgumentException if the request is invalid
-   * @throws DataNotFoundException if the node is not found
+   * @throws DataNotFoundException if there is no portfolio with that unique identifier
    */
   PortfolioTreeDocument updatePortfolioTree(PortfolioTreeDocument document);
 
@@ -93,7 +93,7 @@ public interface PositionMaster {
    * 
    * @param uid  the portfolio unique identifier to remove, not null
    * @throws IllegalArgumentException if the request is invalid
-   * @throws DataNotFoundException if the node is not found
+   * @throws DataNotFoundException if there is no portfolio with that unique identifier
    */
   void removePortfolioTree(final UniqueIdentifier uid);
 
@@ -124,7 +124,7 @@ public interface PositionMaster {
    * @param document  the document, not null
    * @return the updated tree document, not null
    * @throws IllegalArgumentException if the request is invalid
-   * @throws DataNotFoundException if the node is not found
+   * @throws DataNotFoundException if there is no portfolio with that unique identifier
    */
   PortfolioTreeDocument correctPortfolioTree(PortfolioTreeDocument document);
 
@@ -146,7 +146,7 @@ public interface PositionMaster {
    * The version in the identifier allows access to these historic versions.
    * 
    * @param uid  the unique identifier, not null
-   * @return the position document, null if not found
+   * @return the position document, not null
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no position with that unique identifier
    */
@@ -177,7 +177,7 @@ public interface PositionMaster {
    * @param document  the document, not null
    * @return the updated position document, not null
    * @throws IllegalArgumentException if the request is invalid
-   * @throws DataNotFoundException if the position is not found
+   * @throws DataNotFoundException if there is no position with that unique identifier
    */
   PositionDocument updatePosition(PositionDocument document);
 
@@ -191,7 +191,7 @@ public interface PositionMaster {
    * 
    * @param uid  the position unique identifier to remove, not null
    * @throws IllegalArgumentException if the request is invalid
-   * @throws DataNotFoundException if the position is not found
+   * @throws DataNotFoundException if there is no position with that unique identifier
    */
   void removePosition(final UniqueIdentifier uid);
 
@@ -221,7 +221,7 @@ public interface PositionMaster {
    * @param document  the document, not null
    * @return the updated position document, not null
    * @throws IllegalArgumentException if the request is invalid
-   * @throws DataNotFoundException if the position is not found
+   * @throws DataNotFoundException if there is no position with that unique identifier
    */
   PositionDocument correctPosition(PositionDocument document);
 

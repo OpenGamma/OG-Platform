@@ -15,6 +15,7 @@ import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.PropertyReadWrite;
 import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
@@ -61,7 +62,7 @@ public class PortfolioTreeDocument extends DirectBean {
   /**
    * The map of node unique identifier to the count of positions directly on that node.
    */
-  @PropertyDefinition
+  @PropertyDefinition(readWrite = PropertyReadWrite.READ_ONLY)
   private Map<UniqueIdentifier, Integer> _positionCounts = Maps.newHashMap();
 
   /**
@@ -113,7 +114,6 @@ public class PortfolioTreeDocument extends DirectBean {
     return super.propertyGet(propertyName);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
@@ -133,8 +133,7 @@ public class PortfolioTreeDocument extends DirectBean {
         setPortfolio((Portfolio) newValue);
         return;
       case -2113727539:  // positionCounts
-        setPositionCounts((Map<UniqueIdentifier, Integer>) newValue);
-        return;
+        throw new UnsupportedOperationException("Property cannot be written: positionCounts");
     }
     super.propertySet(propertyName, newValue);
   }
@@ -274,14 +273,6 @@ public class PortfolioTreeDocument extends DirectBean {
   }
 
   /**
-   * Sets the map of node unique identifier to the count of positions directly on that node.
-   * @param positionCounts  the new value of the property
-   */
-  public void setPositionCounts(Map<UniqueIdentifier, Integer> positionCounts) {
-    this._positionCounts = positionCounts;
-  }
-
-  /**
    * Gets the the {@code positionCounts} property.
    * @return the property, not null
    */
@@ -323,7 +314,7 @@ public class PortfolioTreeDocument extends DirectBean {
      * The meta-property for the {@code positionCounts} property.
      */
     @SuppressWarnings("unchecked")
-    private final MetaProperty<Map<UniqueIdentifier, Integer>> _positionCounts = DirectMetaProperty.ofReadWrite(this, "positionCounts", (Class) Map.class);
+    private final MetaProperty<Map<UniqueIdentifier, Integer>> _positionCounts = DirectMetaProperty.ofReadOnly(this, "positionCounts", (Class) Map.class);
     /**
      * The meta-properties.
      */
