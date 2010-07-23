@@ -38,7 +38,11 @@ public class MultipleYieldCurveFinderFunction extends Function1D<DoubleMatrix1D,
     Validate.notNull(derivatives);
     Validate.noNullElements(derivatives);
     Validate.notNull(marketRates);
+    Validate.isTrue(marketRates.length > 0, "No market rates");
     Validate.notEmpty(unknownCurves, "No curves to solve for");
+
+    _nPoints = derivatives.size();
+    Validate.isTrue(marketRates.length == _nPoints, "wrong number of market rates");
 
     if (knownCurves != null) {
       for (String name : knownCurves.getAllNames()) {
@@ -48,7 +52,7 @@ public class MultipleYieldCurveFinderFunction extends Function1D<DoubleMatrix1D,
       }
       _knownCurves = knownCurves;
     }
-    _nPoints = derivatives.size();
+
     _marketValues = marketRates;
     _derivatives = derivatives;
 
@@ -65,6 +69,8 @@ public class MultipleYieldCurveFinderFunction extends Function1D<DoubleMatrix1D,
 
   @Override
   public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+    Validate.notNull(x);
+
     if (x.getNumberOfElements() != _nPoints) {
       throw new IllegalArgumentException("vector is wrong length");
     }

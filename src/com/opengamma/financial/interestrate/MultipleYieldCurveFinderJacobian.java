@@ -69,6 +69,8 @@ public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
   @SuppressWarnings("unchecked")
   @Override
   public DoubleMatrix2D evaluate(DoubleMatrix1D x, Function1D<DoubleMatrix1D, DoubleMatrix1D>... functions) {
+    Validate.notNull(x);
+
     if (x.getNumberOfElements() != _nPoints) {
       throw new IllegalArgumentException("vector is wrong length");
     }
