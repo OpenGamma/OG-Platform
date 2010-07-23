@@ -7,6 +7,8 @@ package com.opengamma.financial.security.db.option;
 
 import java.util.Date;
 
+import javax.time.calendar.DateTimeProvider;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -43,7 +45,16 @@ public class OptionSecurityBean extends SecurityBean {
   private Double _payment;
   private Double _lowerBound;
   private Double _upperBound;
+  private DateTimeProvider _chooseDate;
+  private String _chooseDateTimeProviderZone;
+  private Double _underlyingStrike;
+  private DateTimeProvider _underlyingExpiry;
+  private String _underlyingExpiryTimeZone;
+  private DateTimeProvider _periodEnd; // TODO seems unnecessary with choose date in here 
+  private String _periodEndTimeZone; // TODO same comment as above
+  private boolean _isReverse;
   private IdentifierBean _underlying;
+  
 
   public OptionSecurityBean() {
     super();
@@ -53,7 +64,7 @@ public class OptionSecurityBean extends SecurityBean {
     return _optionSecurityType;
   }
 
-  public void setOptionSecurityType(OptionSecurityType equityOptionType) {
+  public void setOptionSecurityType(final OptionSecurityType equityOptionType) {
     _optionSecurityType = equityOptionType;
   }
 
@@ -69,7 +80,7 @@ public class OptionSecurityBean extends SecurityBean {
    * Sets the optionExerciseType field.
    * @param optionExerciseType  the optionExerciseType
    */
-  public void setOptionExerciseType(OptionExerciseType optionExerciseType) {
+  public void setOptionExerciseType(final OptionExerciseType optionExerciseType) {
     _optionExerciseType = optionExerciseType;
   }
 
@@ -85,7 +96,7 @@ public class OptionSecurityBean extends SecurityBean {
    * Sets the optionPayoffStyle field.
    * @param optionPayoffStyle  the optionPayoffStyle
    */
-  public void setOptionPayoffStyle(OptionPayoffStyle optionPayoffStyle) {
+  public void setOptionPayoffStyle(final OptionPayoffStyle optionPayoffStyle) {
     _optionPayoffStyle = optionPayoffStyle;
   }
 
@@ -93,7 +104,7 @@ public class OptionSecurityBean extends SecurityBean {
    * @param optionType
    *          the optionType to set
    */
-  public void setOptionType(OptionType optionType) {
+  public void setOptionType(final OptionType optionType) {
     _optionType = optionType;
   }
 
@@ -115,7 +126,7 @@ public class OptionSecurityBean extends SecurityBean {
    * @param strike
    *          the strike to set
    */
-  public void setStrike(double strike) {
+  public void setStrike(final double strike) {
     _strike = strike;
   }
 
@@ -130,7 +141,7 @@ public class OptionSecurityBean extends SecurityBean {
    * @param expiry
    *          the expiry to set
    */
-  public void setExpiry(Date expiry) {
+  public void setExpiry(final Date expiry) {
     _expiry = expiry;
   }
 
@@ -144,7 +155,7 @@ public class OptionSecurityBean extends SecurityBean {
   /**
    * @param underlying the underlyingIdentifier to set
    */
-  public void setUnderlying(IdentifierBean underlying) {
+  public void setUnderlying(final IdentifierBean underlying) {
     _underlying = underlying;
   }
 
@@ -158,7 +169,7 @@ public class OptionSecurityBean extends SecurityBean {
   /**
    * @param currency the currency to set
    */
-  public void setCurrency(CurrencyBean currency) {
+  public void setCurrency(final CurrencyBean currency) {
     _currency = currency;
   }
 
@@ -197,7 +208,7 @@ public class OptionSecurityBean extends SecurityBean {
    * @param exchange
    *          the exchange to set
    */
-  public void setExchange(ExchangeBean exchange) {
+  public void setExchange(final ExchangeBean exchange) {
     _exchange = exchange;
   }
 
@@ -221,7 +232,7 @@ public class OptionSecurityBean extends SecurityBean {
     return _pointValue;
   }
 
-  public void setPointValue(Double pointValue) {
+  public void setPointValue(final Double pointValue) {
     _pointValue = pointValue;
   }
 
@@ -229,7 +240,7 @@ public class OptionSecurityBean extends SecurityBean {
     return _payment;
   }
 
-  public void setPayment(Double payment) {
+  public void setPayment(final Double payment) {
     _payment = payment;
   }
 
@@ -237,7 +248,7 @@ public class OptionSecurityBean extends SecurityBean {
     return _lowerBound;
   }
 
-  public void setLowerBound(Double lowerBound) {
+  public void setLowerBound(final Double lowerBound) {
     _lowerBound = lowerBound;
   }
 
@@ -245,8 +256,80 @@ public class OptionSecurityBean extends SecurityBean {
     return _upperBound;
   }
 
-  public void setUpperBound(Double upperBound) {
+  public void setUpperBound(final Double upperBound) {
     _upperBound = upperBound;
+  }
+
+  public DateTimeProvider getChooseDate() {
+    return _chooseDate;
+  }
+  
+  public void setChooseDate(DateTimeProvider chooseDate) {
+    _chooseDate = chooseDate;
+  }
+  
+  public Double getUnderlyingStrike() {
+    return _underlyingStrike;
+  }
+  
+  public void setUnderlyingStrike(Double underlyingStrike) {
+    _underlyingStrike = underlyingStrike;
+  }
+  
+  public DateTimeProvider getUnderlyingExpiry() {
+    return _underlyingExpiry;
+  }
+  
+  public void setUnderlyingExpiry(DateTimeProvider underlyingExpiry) {
+    _underlyingExpiry = underlyingExpiry;
+  }
+  
+  public String getChooseDateTimeZone() {
+    return _chooseDateTimeProviderZone;
+  }
+
+  public void setChooseDateTimeZone(String chooseDateTimeProviderZone) {
+    _chooseDateTimeProviderZone = chooseDateTimeProviderZone;
+  }
+
+  public String getUnderlyingExpiryTimeZone() {
+    return _underlyingExpiryTimeZone;
+  }
+
+  public void setUnderlyingExpiryTimeZone(String underlyingExpiryTimeZone) {
+    _underlyingExpiryTimeZone = underlyingExpiryTimeZone;
+  }
+
+  public String getChooseDateTimeProviderZone() {
+    return _chooseDateTimeProviderZone;
+  }
+
+  public void setChooseDateTimeProviderZone(String chooseDateTimeProviderZone) {
+    _chooseDateTimeProviderZone = chooseDateTimeProviderZone;
+  }
+
+  public DateTimeProvider getPeriodEnd() {
+    return _periodEnd;
+  }
+
+  public void setPeriodEnd(DateTimeProvider periodEnd) {
+    _periodEnd = periodEnd;
+  }
+
+  public String getPeriodEndTimeZone() {
+    return _periodEndTimeZone;
+  }
+
+  public void setPeriodEndTimeZone(String periodEndTimeZone) {
+    _periodEndTimeZone = periodEndTimeZone;
+  }
+
+  public boolean isReverse() {
+    return _isReverse;
+  }
+
+  public void setReverse(boolean isReverse) {
+    _isReverse = isReverse;
   }
 
   @Override
@@ -254,7 +337,7 @@ public class OptionSecurityBean extends SecurityBean {
     if (!(other instanceof OptionSecurityBean)) {
       return false;
     }
-    OptionSecurityBean option = (OptionSecurityBean) other;
+    final OptionSecurityBean option = (OptionSecurityBean) other;
     //    if (getId() != -1 && option.getId() != -1) {
     //      return getId().longValue() == option.getId().longValue();
     //    }
@@ -276,6 +359,14 @@ public class OptionSecurityBean extends SecurityBean {
       .append(getCap(), option.getCap())
       .append(getLowerBound(), option.getLowerBound())
       .append(getUpperBound(), option.getUpperBound())
+      .append(getChooseDate(), option.getChooseDate())
+      .append(getUnderlyingStrike(), option.getUnderlyingStrike())
+      .append(getUnderlyingExpiry(), option.getUnderlyingExpiry())
+      .append(getUnderlyingExpiryTimeZone(), option.getUnderlyingExpiryTimeZone())
+      .append(getChooseDateTimeZone(), option.getChooseDateTimeZone())
+      .append(getPeriodEnd(), option.getPeriodEnd())
+      .append(getPeriodEndTimeZone(), option.getPeriodEndTimeZone())
+      .append(isReverse(), option.isReverse())
       .isEquals();
   }
 
@@ -298,6 +389,14 @@ public class OptionSecurityBean extends SecurityBean {
       .append(getCap())
       .append(getLowerBound())
       .append(getUpperBound())
+      .append(getChooseDate())
+      .append(getUnderlyingStrike())
+      .append(getUnderlyingExpiry())
+      .append(getUnderlyingExpiryTimeZone())
+      .append(getChooseDateTimeZone())
+      .append(getPeriodEnd())
+      .append(getPeriodEndTimeZone())
+      .append(isReverse())
       .toHashCode();
   }
 
@@ -310,7 +409,7 @@ public class OptionSecurityBean extends SecurityBean {
    * Sets the cap field.
    * @param cap  the cap
    */
-  public void setCap(Double cap) {
+  public void setCap(final Double cap) {
     _cap = cap;
   }
 

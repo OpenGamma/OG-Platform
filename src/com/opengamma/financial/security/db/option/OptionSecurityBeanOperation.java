@@ -24,6 +24,7 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.ExerciseTypeVisitor;
+import com.opengamma.financial.security.option.ExtremeSpreadPayoffStyle;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.FadeInPayoffStyle;
 import com.opengamma.financial.security.option.FixedStrikeLookbackPayoffStyle;
@@ -36,6 +37,7 @@ import com.opengamma.financial.security.option.OptionSecurityVisitor;
 import com.opengamma.financial.security.option.PayoffStyle;
 import com.opengamma.financial.security.option.PayoffStyleVisitor;
 import com.opengamma.financial.security.option.PoweredPayoffStyle;
+import com.opengamma.financial.security.option.SimpleChooserPayoffStyle;
 import com.opengamma.financial.security.option.SupersharePayoffStyle;
 import com.opengamma.financial.security.option.SwapOptionSecurity;
 import com.opengamma.financial.security.option.VanillaPayoffStyle;
@@ -106,6 +108,11 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
       }
 
       @Override
+      public PayoffStyle visitExtremeSpreadPayoffStyle(ExtremeSpreadPayoffStyle payoffStyle) {
+        return new ExtremeSpreadPayoffStyle(bean.getPeriodEnd(), bean.getPeriodEndTimeZone(), bean.isReverse());
+      }
+      
+      @Override
       public PayoffStyle visitFadeInPayoffStyle(FadeInPayoffStyle payoffStyle) {
         return new FadeInPayoffStyle(bean.getLowerBound(), bean.getUpperBound());
       }
@@ -130,6 +137,12 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
         return new PoweredPayoffStyle(bean.getPower());
       }
 
+      @Override
+      public PayoffStyle visitSimpleChooserPayoffStyle(SimpleChooserPayoffStyle payoffStyle) {
+        return new SimpleChooserPayoffStyle(bean.getChooseDate(), bean.getChooseDateTimeZone(), bean.getUnderlyingStrike(), 
+            bean.getUnderlyingExpiry(), bean.getUnderlyingExpiryTimeZone());
+      }
+      
       @Override
       public PayoffStyle visitSupersharePayoffStyle(SupersharePayoffStyle payoffStyle) {
         return new SupersharePayoffStyle(bean.getLowerBound(), bean.getUpperBound());
@@ -282,6 +295,14 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
             bean.setPayment(payoffStyle.getPayment());
             return OptionPayoffStyle.CASH_OR_NOTHING;
           }
+          
+          @Override
+          public OptionPayoffStyle visitExtremeSpreadPayoffStyle(ExtremeSpreadPayoffStyle payoffStyle) {
+            bean.setPeriodEnd(payoffStyle.getPeriodEnd());
+            bean.setPeriodEndTimeZone(payoffStyle.getPeriodEndTimeZone());
+            bean.setReverse(payoffStyle.getIsReverse());
+            return OptionPayoffStyle.EXTREME_SPREAD;
+          }
 
           @Override
           public OptionPayoffStyle visitFadeInPayoffStyle(FadeInPayoffStyle payoffStyle) {
@@ -312,6 +333,16 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
             return OptionPayoffStyle.POWERED;
           }
 
+          @Override
+          public OptionPayoffStyle visitSimpleChooserPayoffStyle(SimpleChooserPayoffStyle payoffStyle) {
+            bean.setChooseDate(payoffStyle.getChooseDate());
+            bean.setChooseDateTimeZone(payoffStyle.getChooseDate_zone());
+            bean.setUnderlyingStrike(payoffStyle.getUnderlyingStrike());
+            bean.setUnderlyingExpiry(payoffStyle.getUnderlyingExpiry());
+            bean.setUnderlyingExpiryTimeZone(payoffStyle.getUnderlyingExpiry_zone());
+            return OptionPayoffStyle.SIMPLE_CHOOSER;
+          }
+          
           @Override
           public OptionPayoffStyle visitSupersharePayoffStyle(SupersharePayoffStyle payoffStyle) {
             bean.setLowerBound(payoffStyle.getLowerBound());

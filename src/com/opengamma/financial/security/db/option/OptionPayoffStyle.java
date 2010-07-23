@@ -23,6 +23,8 @@ public enum OptionPayoffStyle {
   CAPPED_POWERED,
   /** Cash-or-Nothing*/
   CASH_OR_NOTHING,
+  /** Extreme spread*/
+  EXTREME_SPREAD,
   /** Fade-in */
   FADE_IN,
   /** Fixed-strike lookback*/
@@ -33,6 +35,8 @@ public enum OptionPayoffStyle {
   GAP,
   /** Powered */
   POWERED,
+  /** Simple chooser */
+  SIMPLE_CHOOSER,
   /** Supershare */
   SUPERSHARE,
   /** Vanilla */
@@ -50,6 +54,8 @@ public enum OptionPayoffStyle {
         return visitor.visitCappedPoweredPayoffStyle(null);
       case CASH_OR_NOTHING:
         return visitor.visitCashOrNothingPayoffStyle(null);
+      case EXTREME_SPREAD:
+        return visitor.visitExtremeSpreadPayoffStyle(null);
       case FADE_IN:
         return visitor.visitFadeInPayoffStyle(null);
       case FIXED_STRIKE_LOOKBACK:
@@ -60,6 +66,8 @@ public enum OptionPayoffStyle {
         return visitor.visitGapPayoffStyle(null);
       case POWERED:
         return visitor.visitPoweredPayoffStyle(null);
+      case SIMPLE_CHOOSER:
+        return visitor.visitSimpleChooserPayoffStyle(null);
       case SUPERSHARE:
         return visitor.visitSupersharePayoffStyle(null);
       case VANILLA:

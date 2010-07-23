@@ -21,19 +21,23 @@ public interface PayoffStyleVisitor<T> {
   T visitCappedPoweredPayoffStyle(CappedPoweredPayoffStyle payoffStyle);
 
   T visitCashOrNothingPayoffStyle(CashOrNothingPayoffStyle payoffStyle);
+
+  T visitExtremeSpreadPayoffStyle(ExtremeSpreadPayoffStyle payoffStyle);
   
   T visitFadeInPayoffStyle(FadeInPayoffStyle payoffStyle);
-  
+
   T visitFixedStrikeLookbackPayoffStyle(FixedStrikeLookbackPayoffStyle payoffStyle);
 
   T visitFloatingStrikeLookbackPayoffStyle(FloatingStrikeLookbackPayoffStyle payoffStyle);
 
   T visitGapPayoffStyle(GapPayoffStyle payoffStyle);
-  
+
   T visitPoweredPayoffStyle(PoweredPayoffStyle payoffStyle);
 
+  T visitSimpleChooserPayoffStyle(SimpleChooserPayoffStyle payoffStyle);
+
   T visitSupersharePayoffStyle(SupersharePayoffStyle payoffStyle);
-  
+
   T visitVanillaPayoffStyle(VanillaPayoffStyle payoffStyle);
-  
+
 }

@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.ircurve;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -31,10 +32,11 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.analytics.model.swap.SwapScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.interestrate.DoubleCurveFinder;
-import com.opengamma.financial.interestrate.DoubleCurveJacobian;
 import com.opengamma.financial.interestrate.InterestRateCalculator;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
+import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
+import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -43,9 +45,11 @@ import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateLeg;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CubicSplineInterpolatorWithSensitivities1D;
 import com.opengamma.math.interpolation.Extrapolator1D;
 import com.opengamma.math.interpolation.ExtrapolatorMethod;
+import com.opengamma.math.interpolation.FixedNodeInterpolator1D;
 import com.opengamma.math.interpolation.FlatExtrapolator;
 import com.opengamma.math.interpolation.FlatExtrapolatorWithSensitivities;
 import com.opengamma.math.interpolation.InterpolationResult;
@@ -60,12 +64,15 @@ import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
+import com.opengamma.math.rootfinding.newton.JacobianCalculator;
 import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
 
 /**
  * 
  */
 public class SwapPortfolioImpliedFundingAndForwardCurveFunction extends AbstractFunction implements FunctionInvoker {
+  private static final String FUNDING_CURVE_NAME = "Funding Curve";
+  private static final String LIBOR_CURVE_NAME = "Libor Curve";
   private final Currency _currency;
   //TODO all interpolators should be passed in
   private final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> _interpolator; // TODO this should not be hard-coded
@@ -142,19 +149,35 @@ public class SwapPortfolioImpliedFundingAndForwardCurveFunction extends Abstract
         forwardStartOffsets = new double[nFloat];
         forwardEndOffsets = new double[nFloat];
       }
-      swap = new Swap(fixedPaymentTimes, floatPaymentTimes, forwardStartOffsets, forwardEndOffsets);
+      swap = new Swap(fixedPaymentTimes, floatPaymentTimes, forwardStartOffsets, forwardEndOffsets,FUNDING_CURVE_NAME,LIBOR_CURVE_NAME);
+      YieldCurveBundle bundle = new YieldCurveBundle();
+      bundle.setCurve(FUNDING_CURVE_NAME, fundingCurve);
+      bundle.setCurve(LIBOR_CURVE_NAME, forwardCurve);
       // swap rates from bbg
-      marketRates[i] = _swapRateCalculator.getRate(fundingCurve, fundingCurve, swap);
+      marketRates[i] = _swapRateCalculator.getRate(swap,bundle);
       fundingNodeTimes[i] = Math.max(fixedPaymentTimes[nFix - 1], floatPaymentTimes[nFloat - 1] + forwardEndOffsets[nFloat - 1]);
       // forwardNodeTimes[i] = something
       initialRatesGuess[i] = 0.05;
       swaps.add(swap);
       i++;
     }
-    final DoubleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle> jacobian = new DoubleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(swaps, 
-        forwardNodeTimes, fundingNodeTimes, _interpolatorWithSensitivity, _interpolatorWithSensitivity);
-    final DoubleCurveFinder curveFinder = new DoubleCurveFinder(swaps, marketRates, forwardNodeTimes, fundingNodeTimes, forwardCurve, fundingCurve, _interpolator,
-        _interpolator);
+    
+
+    LinkedHashMap<String, FixedNodeInterpolator1D> unknownCurves = new LinkedHashMap<String, FixedNodeInterpolator1D>();
+    FixedNodeInterpolator1D fnInterpolator = new FixedNodeInterpolator1D(forwardNodeTimes, _interpolatorWithSensitivity);
+    unknownCurves.put(LIBOR_CURVE_NAME, fnInterpolator);
+    fnInterpolator = new FixedNodeInterpolator1D(fundingNodeTimes, _interpolatorWithSensitivity);
+    unknownCurves.put(FUNDING_CURVE_NAME, fnInterpolator);
+    final JacobianCalculator jacobian = new MultipleYieldCurveFinderJacobian(swaps, unknownCurves, null);
+   
+    unknownCurves = new LinkedHashMap<String, FixedNodeInterpolator1D>();
+    fnInterpolator = new FixedNodeInterpolator1D(forwardNodeTimes, _interpolator);
+    unknownCurves.put(LIBOR_CURVE_NAME, fnInterpolator);
+    fnInterpolator = new FixedNodeInterpolator1D(fundingNodeTimes, _interpolator);
+    unknownCurves.put(FUNDING_CURVE_NAME, fnInterpolator);
+    final Function1D<DoubleMatrix1D,DoubleMatrix1D> curveFinder = new MultipleYieldCurveFinderFunction(swaps, marketRates, unknownCurves, null);
+    
+   
     // TODO this should not be hard-coded
     final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, jacobian, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
     final double[] yields = rootFinder.getRoot(curveFinder, new DoubleMatrix1D(initialRatesGuess)).getData();
