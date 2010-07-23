@@ -28,9 +28,6 @@ public class NormalDistributionTest extends ProbabilityDistributionTestCase {
     testCDF(P, X, NORMAL);
     testPDF(Z, X, NORMAL);
     testInverseCDF(X, NORMAL);
-    final double a = -1. / 0;
-    System.out.println(a + " " + (a == Double.POSITIVE_INFINITY));
-    System.out.println(NORMAL.getCDF(Double.POSITIVE_INFINITY) + " " + NORMAL.getCDF(Double.NEGATIVE_INFINITY));
   }
 
 }

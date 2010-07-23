@@ -200,7 +200,7 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
     FORWARD_CURVE = makeYieldCurve(fwdYields, FWD_NODE_TIMES, EXTRAPOLATOR);
     FUNDING_CURVE = makeYieldCurve(fundYields, FUND_NODE_TIMES, EXTRAPOLATOR);
 
-    YieldCurveBundle bundle = new YieldCurveBundle();
+    final YieldCurveBundle bundle = new YieldCurveBundle();
     bundle.setCurve(FORWARD_CURVE_NAME, FORWARD_CURVE);
     bundle.setCurve(FUNDING_CURVE_NAME, FUNDING_CURVE);
 
@@ -265,8 +265,8 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
     final JacobianCalculator jacobianFD = new FiniteDifferenceJacobianCalculator(1e-8);
     final DoubleMatrix2D jacExact = DOUBLE_CURVE_JACOBIAN.evaluate(X0, DOUBLE_CURVE_FINDER);
     final DoubleMatrix2D jacFD = jacobianFD.evaluate(X0, DOUBLE_CURVE_FINDER);
-    System.out.println("exact: " + jacExact.toString());
-    System.out.println("FD: " + jacFD.toString());
+    //System.out.println("exact: " + jacExact.toString());
+    //System.out.println("FD: " + jacFD.toString());
 
     assertMatrixEquals(jacExact, jacFD, 1e-6);
   }
@@ -291,7 +291,7 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
     final double[] fwdYields = Arrays.copyOfRange(yieldCurveNodes, FUND_NODE_TIMES.length, yieldCurveNodes.length);
     final YieldAndDiscountCurve fwdCurve = makeYieldCurve(fwdYields, FWD_NODE_TIMES, EXTRAPOLATOR);
 
-    YieldCurveBundle bundle = new YieldCurveBundle();
+    final YieldCurveBundle bundle = new YieldCurveBundle();
     bundle.setCurve(FORWARD_CURVE_NAME, fwdCurve);
     bundle.setCurve(FUNDING_CURVE_NAME, fundCurve);
 
@@ -309,7 +309,7 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
   }
 
   private static Swap setupSwap(final double time, final String fundCurveName, final String liborCurveName) {
-    int index = (int) Math.round(2 * time);
+    final int index = (int) Math.round(2 * time);
     return setupSwap(index, fundCurveName, liborCurveName);
   }
 
