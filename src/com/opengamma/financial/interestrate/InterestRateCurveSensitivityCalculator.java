@@ -14,7 +14,8 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.libor.Libor;
-import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.financial.interestrate.swap.definition.BasisSwap;
+import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
@@ -93,7 +94,7 @@ public class InterestRateCurveSensitivityCalculator implements InterestRateDeriv
   }
 
   @Override
-  public Map<String, List<Pair<Double, Double>>> visitSwap(Swap swap, YieldCurveBundle curves) {
+  public Map<String, List<Pair<Double, Double>>> visitSwap(FixedFloatSwap swap, YieldCurveBundle curves) {
 
     double a = _pvCalculator.getFixedAnnuity(swap.getFixedLeg(), curves);
     double b = _pvCalculator.getLiborAnnuity(swap.getFloatingLeg(), curves);
@@ -116,6 +117,39 @@ public class InterestRateCurveSensitivityCalculator implements InterestRateDeriv
           double t = pair.getFirst();
           DoublesPair newPair = new DoublesPair(t, pair.getSecond() / a);
           temp.add(newPair);
+        }
+      }
+      result.put(name, temp);
+    }
+    return result;
+  }
+
+  @Override
+  public Map<String, List<Pair<Double, Double>>> visitBasisSwap(BasisSwap swap, YieldCurveBundle curves) {
+
+    double a = _pvCalculator.getLiborAnnuity(swap.getRecieveLeg(), curves);
+    double b = _pvCalculator.getLiborAnnuity(swap.getPayLeg(), curves);
+    double c = _pvCalculator.getFixedAnnuity(swap.getSpreadLeg(), curves);
+    Map<String, List<Pair<Double, Double>>> senseA = _pvCalculator.getLiborAnnuitySensitivity(swap.getRecieveLeg(), curves);
+    Map<String, List<Pair<Double, Double>>> senseB = _pvCalculator.getLiborAnnuitySensitivity(swap.getPayLeg(), curves);
+    Map<String, List<Pair<Double, Double>>> senseC = _pvCalculator.getFixedAnnuitySensitivity(swap.getSpreadLeg(), curves);
+    Map<String, List<Pair<Double, Double>>> result = new HashMap<String, List<Pair<Double, Double>>>();
+
+    for (String name : curves.getAllNames()) {
+      List<Pair<Double, Double>> temp = new ArrayList<Pair<Double, Double>>();
+      if (senseA.containsKey(name)) {
+        for (Pair<Double, Double> pair : senseA.get(name)) {
+          temp.add(new DoublesPair(pair.getFirst(), pair.getSecond() / c));
+        }
+      }
+      if (senseB.containsKey(name)) {
+        for (Pair<Double, Double> pair : senseB.get(name)) {
+          temp.add(new DoublesPair(pair.getFirst(), -pair.getSecond() / c));
+        }
+      }
+      if (senseC.containsKey(name)) {
+        for (Pair<Double, Double> pair : senseC.get(name)) {
+          temp.add(new DoublesPair(pair.getFirst(), (b - a) / c * pair.getSecond()));
         }
       }
       result.put(name, temp);

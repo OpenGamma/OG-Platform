@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import com.opengamma.financial.interestrate.InterestRateCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.ConstantDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -25,7 +25,7 @@ public class SwapRateCalculatorTest {
   private static final YieldAndDiscountCurve FORWARD_CURVE;
   private static final String FUNDING_CURVE_NAME = "Bill";
   private static final String FORWARD_CURVE_NAME = "Ben";
-  private static final Swap SWAP;
+  private static final FixedFloatSwap SWAP;
 
   static {
     final double[] t1 = new double[] {0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5};
@@ -37,7 +37,7 @@ public class SwapRateCalculatorTest {
       forward[i] = Math.pow(DF_1, t1[i]);
     }
     FORWARD_CURVE = new InterpolatedDiscountCurve(t1, forward, new LinearInterpolator1D());
-    SWAP = new Swap(t2, t2, delta, delta, FUNDING_CURVE_NAME, FORWARD_CURVE_NAME);
+    SWAP = new FixedFloatSwap(t2, t2, delta, delta, FUNDING_CURVE_NAME, FORWARD_CURVE_NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)

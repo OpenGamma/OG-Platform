@@ -12,18 +12,18 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.LiborAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
-public class Swap implements InterestRateDerivative {
+public class FixedFloatSwap implements InterestRateDerivative {
 
   private final FixedAnnuity _fixedLeg;
-  private final LiborAnnuity _floatingLeg;
+  private final VariableAnnuity _floatingLeg;
 
-  public Swap(final FixedAnnuity fixedLeg, final LiborAnnuity floatingLeg) {
+  public FixedFloatSwap(final FixedAnnuity fixedLeg, final VariableAnnuity floatingLeg) {
     Validate.notNull(fixedLeg);
     Validate.notNull(floatingLeg);
     _fixedLeg = fixedLeg;
@@ -32,14 +32,15 @@ public class Swap implements InterestRateDerivative {
 
   /**
    * This sets up a payer swap (i.e. pay the fixed leg and receive the floating leg) with notional of 1.0
-   * @param fixedPaymentTimes
-   * @param floatingPaymentTimes
-   * @param fwdStartOffsets
-   * @param fwdEndOffsets
-   * @param fundingCurveName
-   * @param liborCurveName
+   * @param fixedPaymentTimes Time in years of fixed payments 
+   * @param floatingPaymentTimes Time in Years of floating payments
+   * @param fwdStartOffsets offset in years of start of libor accruing period from <b>previous</b> floating payment time (or trade date if spot libor)
+   * @param fwdEndOffsets  offset in years of end of libor accruing period from floating payment time
+   * @param fundingCurveName Name of curve from which payments are discounted
+   * @param liborCurveName Name of curve from which forward rates are calculated
    */
-  public Swap(final double[] fixedPaymentTimes, final double[] floatingPaymentTimes, final double[] fwdStartOffsets, final double[] fwdEndOffsets, String fundingCurveName, String liborCurveName) {
+  public FixedFloatSwap(final double[] fixedPaymentTimes, final double[] floatingPaymentTimes, final double[] fwdStartOffsets, final double[] fwdEndOffsets, String fundingCurveName,
+      String liborCurveName) {
     Validate.notNull(fixedPaymentTimes);
     Validate.notNull(floatingPaymentTimes);
     Validate.notNull(fwdStartOffsets);
@@ -52,7 +53,7 @@ public class Swap implements InterestRateDerivative {
     Validate.notNull(liborCurveName);
 
     _fixedLeg = new FixedAnnuity(fixedPaymentTimes, fundingCurveName);
-    _floatingLeg = new LiborAnnuity(floatingPaymentTimes, 1.0, fwdStartOffsets, fwdEndOffsets, fundingCurveName, liborCurveName);
+    _floatingLeg = new VariableAnnuity(floatingPaymentTimes, 1.0, fwdStartOffsets, fwdEndOffsets, fundingCurveName, liborCurveName);
   }
 
   @Override
@@ -75,20 +76,11 @@ public class Swap implements InterestRateDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    Swap other = (Swap) obj;
+    FixedFloatSwap other = (FixedFloatSwap) obj;
     if (!ObjectUtils.equals(_fixedLeg, other._fixedLeg)) {
       return false;
     }
-    // if (_fixedLeg == null) {
-    // if (other._fixedLeg != null)
-    // return false;
-    // } else if (!_fixedLeg.equals(other._fixedLeg))
-    // return false;
-    if (_floatingLeg == null) {
-      if (other._floatingLeg != null) {
-        return false;
-      }
-    } else if (!_floatingLeg.equals(other._floatingLeg)) {
+    if (!ObjectUtils.equals(_floatingLeg, other._floatingLeg)) {
       return false;
     }
     return true;
@@ -98,7 +90,7 @@ public class Swap implements InterestRateDerivative {
     return _fixedLeg;
   }
 
-  public LiborAnnuity getFloatingLeg() {
+  public VariableAnnuity getFloatingLeg() {
     return _floatingLeg;
   }
 

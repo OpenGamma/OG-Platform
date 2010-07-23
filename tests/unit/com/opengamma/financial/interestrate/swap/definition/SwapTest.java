@@ -22,71 +22,71 @@ public class SwapTest {
   private static final double[] FLOAT_PAYMENTS = new double[] {1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
   private static final double[] FORWARD_START_OFFSETS = new double[] {0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1};
   private static final double[] FORWARD_END_OFFSETS = new double[] {0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2};
-  private static final Swap SWAP = new Swap(FIXED_PAYMENTS, FLOAT_PAYMENTS, FORWARD_START_OFFSETS, FORWARD_END_OFFSETS, CURVE_NAME, CURVE_NAME);
+  private static final FixedFloatSwap SWAP = new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, FORWARD_START_OFFSETS, FORWARD_END_OFFSETS, CURVE_NAME, CURVE_NAME);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullFixedPayments() {
-    new Swap(null, FLOAT_PAYMENTS, FORWARD_START_OFFSETS, FORWARD_END_OFFSETS, CURVE_NAME, CURVE_NAME);
+    new FixedFloatSwap(null, FLOAT_PAYMENTS, FORWARD_START_OFFSETS, FORWARD_END_OFFSETS, CURVE_NAME, CURVE_NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullFloatPayments() {
-    new Swap(FIXED_PAYMENTS, null, FORWARD_START_OFFSETS, FORWARD_END_OFFSETS, CURVE_NAME, CURVE_NAME);
+    new FixedFloatSwap(FIXED_PAYMENTS, null, FORWARD_START_OFFSETS, FORWARD_END_OFFSETS, CURVE_NAME, CURVE_NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullStartOffsets() {
-    new Swap(FIXED_PAYMENTS, FLOAT_PAYMENTS, null, FORWARD_END_OFFSETS, CURVE_NAME, CURVE_NAME);
+    new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, null, FORWARD_END_OFFSETS, CURVE_NAME, CURVE_NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullEndOffsets() {
-    new Swap(FIXED_PAYMENTS, FLOAT_PAYMENTS, FORWARD_START_OFFSETS, null, CURVE_NAME, CURVE_NAME);
+    new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, FORWARD_START_OFFSETS, null, CURVE_NAME, CURVE_NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyFixedPayments() {
-    new Swap(new double[0], FLOAT_PAYMENTS, FORWARD_START_OFFSETS, FORWARD_END_OFFSETS, CURVE_NAME, CURVE_NAME);
+    new FixedFloatSwap(new double[0], FLOAT_PAYMENTS, FORWARD_START_OFFSETS, FORWARD_END_OFFSETS, CURVE_NAME, CURVE_NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyFloatPayments() {
-    new Swap(FIXED_PAYMENTS, new double[0], FORWARD_START_OFFSETS, FORWARD_END_OFFSETS, CURVE_NAME, CURVE_NAME);
+    new FixedFloatSwap(FIXED_PAYMENTS, new double[0], FORWARD_START_OFFSETS, FORWARD_END_OFFSETS, CURVE_NAME, CURVE_NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyStartOffsets() {
-    new Swap(FIXED_PAYMENTS, FLOAT_PAYMENTS, new double[0], FORWARD_END_OFFSETS, CURVE_NAME, CURVE_NAME);
+    new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, new double[0], FORWARD_END_OFFSETS, CURVE_NAME, CURVE_NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyEndOffsets() {
-    new Swap(FIXED_PAYMENTS, FLOAT_PAYMENTS, FORWARD_START_OFFSETS, null, CURVE_NAME, CURVE_NAME);
+    new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, FORWARD_START_OFFSETS, null, CURVE_NAME, CURVE_NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongStartOffsets() {
-    new Swap(FIXED_PAYMENTS, FLOAT_PAYMENTS, new double[] {0.1, 0.1, 0.1}, FORWARD_END_OFFSETS, CURVE_NAME, CURVE_NAME);
+    new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, new double[] {0.1, 0.1, 0.1}, FORWARD_END_OFFSETS, CURVE_NAME, CURVE_NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongEndOffsets() {
-    new Swap(FIXED_PAYMENTS, FLOAT_PAYMENTS, FORWARD_START_OFFSETS, new double[] {0.1, 0.1}, CURVE_NAME, CURVE_NAME);
+    new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, FORWARD_START_OFFSETS, new double[] {0.1, 0.1}, CURVE_NAME, CURVE_NAME);
   }
 
   @Test
   public void testHashCodeAndEquals() {
-    Swap other = new Swap(Arrays.copyOf(FIXED_PAYMENTS, FIXED_PAYMENTS.length), Arrays.copyOf(FLOAT_PAYMENTS, FLOAT_PAYMENTS.length), Arrays
+    FixedFloatSwap other = new FixedFloatSwap(Arrays.copyOf(FIXED_PAYMENTS, FIXED_PAYMENTS.length), Arrays.copyOf(FLOAT_PAYMENTS, FLOAT_PAYMENTS.length), Arrays
         .copyOf(FORWARD_START_OFFSETS, FORWARD_START_OFFSETS.length), Arrays.copyOf(FORWARD_END_OFFSETS, FORWARD_END_OFFSETS.length), CURVE_NAME, CURVE_NAME);
     assertEquals(other, SWAP);
     assertEquals(other.hashCode(), SWAP.hashCode());
-    other = new Swap(new double[] {1, 2, 3, 4, 5, 6, 7}, FLOAT_PAYMENTS, FORWARD_START_OFFSETS, FORWARD_END_OFFSETS, CURVE_NAME, CURVE_NAME);
+    other = new FixedFloatSwap(new double[] {1, 2, 3, 4, 5, 6, 7}, FLOAT_PAYMENTS, FORWARD_START_OFFSETS, FORWARD_END_OFFSETS, CURVE_NAME, CURVE_NAME);
     assertFalse(other.equals(SWAP));
-    other = new Swap(FIXED_PAYMENTS, new double[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, FORWARD_START_OFFSETS, FORWARD_END_OFFSETS, CURVE_NAME, CURVE_NAME);
+    other = new FixedFloatSwap(FIXED_PAYMENTS, new double[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, FORWARD_START_OFFSETS, FORWARD_END_OFFSETS, CURVE_NAME, CURVE_NAME);
     assertFalse(other.equals(SWAP));
-    other = new Swap(FIXED_PAYMENTS, FLOAT_PAYMENTS, FORWARD_END_OFFSETS, FORWARD_END_OFFSETS, CURVE_NAME, CURVE_NAME);
+    other = new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, FORWARD_END_OFFSETS, FORWARD_END_OFFSETS, CURVE_NAME, CURVE_NAME);
     assertFalse(other.equals(SWAP));
-    other = new Swap(FIXED_PAYMENTS, FLOAT_PAYMENTS, FORWARD_START_OFFSETS, FORWARD_START_OFFSETS, CURVE_NAME, CURVE_NAME);
+    other = new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, FORWARD_START_OFFSETS, FORWARD_START_OFFSETS, CURVE_NAME, CURVE_NAME);
     assertFalse(other.equals(SWAP));
   }
 

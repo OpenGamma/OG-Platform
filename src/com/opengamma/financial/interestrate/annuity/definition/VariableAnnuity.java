@@ -14,7 +14,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class LiborAnnuity implements Annuity {
+public class VariableAnnuity implements Annuity {
 
   private final double[] _paymentTimes;
   private final double[] _yearFractions;
@@ -26,7 +26,30 @@ public class LiborAnnuity implements Annuity {
   private final String _fundingCurveName;
   private final String _liborCurveName;
 
-  public LiborAnnuity(final double[] paymentTimes, double notional, final double[] fwdStartOffsets, final double[] fwdEndOffsets, final String fundingCurveName, final String liborCurveName) {
+  public VariableAnnuity(final double[] paymentTimes, final String fundingCurveName, final String liborCurveName) {
+    this(paymentTimes, 1.0, fundingCurveName, liborCurveName);
+  }
+
+  public VariableAnnuity(final double[] paymentTimes, double notional, final String fundingCurveName, final String liborCurveName) {
+    Validate.notNull(paymentTimes);
+    Validate.notNull(fundingCurveName);
+    Validate.notNull(liborCurveName);
+    ArgumentChecker.notEmpty(paymentTimes, "paymentTime");
+    _notional = notional;
+    _n = paymentTimes.length;
+    _paymentTimes = paymentTimes;
+    _deltaStart = new double[_n];
+    _deltaEnd = new double[_n];
+    _yearFractions = new double[_n];
+    _yearFractions[0] = paymentTimes[0];
+    for (int i = 1; i < _n; i++) {
+      _yearFractions[i] = (paymentTimes[i] - paymentTimes[i - 1]);
+    }
+    _fundingCurveName = fundingCurveName;
+    _liborCurveName = liborCurveName;
+  }
+
+  public VariableAnnuity(final double[] paymentTimes, double notional, final double[] fwdStartOffsets, final double[] fwdEndOffsets, final String fundingCurveName, final String liborCurveName) {
     Validate.notNull(paymentTimes);
     Validate.notNull(fwdStartOffsets);
     Validate.notNull(fwdEndOffsets);
@@ -51,25 +74,12 @@ public class LiborAnnuity implements Annuity {
     _liborCurveName = liborCurveName;
   }
 
-  public double getNotiaonl() {
-    return _notional;
-  }
-
   public double[] getDeltaStart() {
     return _deltaStart;
   }
 
   public double[] getDeltaEnd() {
     return _deltaEnd;
-  }
-
-  @Override
-  public double[] getPaymentTimes() {
-    return _paymentTimes;
-  }
-
-  public double[] getYearFractions() {
-    return _yearFractions;
   }
 
   public String getFundingCurveName() {
@@ -81,8 +91,23 @@ public class LiborAnnuity implements Annuity {
   }
 
   @Override
+  public double[] getPaymentTimes() {
+    return _paymentTimes;
+  }
+
+  @Override
+  public double[] getYearFractions() {
+    return _yearFractions;
+  }
+
+  @Override
   public int getNumberOfPayments() {
     return _n;
+  }
+
+  @Override
+  public double getNotional() {
+    return _notional;
   }
 
   @Override
@@ -112,7 +137,7 @@ public class LiborAnnuity implements Annuity {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    LiborAnnuity other = (LiborAnnuity) obj;
+    VariableAnnuity other = (VariableAnnuity) obj;
     if (!Arrays.equals(_deltaEnd, other._deltaEnd)) {
       return false;
     }

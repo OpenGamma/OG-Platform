@@ -13,7 +13,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.LiborAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
@@ -53,7 +53,7 @@ public class PresentValueCalculator {
     return result;
   }
 
-  public double getLiborAnnuity(LiborAnnuity annuity, YieldCurveBundle curves) {
+  public double getLiborAnnuity(VariableAnnuity annuity, YieldCurveBundle curves) {
     Validate.notNull(annuity);
     Validate.notNull(curves);
     YieldAndDiscountCurve fundCurve = curves.getCurve(annuity.getFundingCurveName());
@@ -68,7 +68,7 @@ public class PresentValueCalculator {
     return res;
   }
 
-  public Map<String, List<Pair<Double, Double>>> getLiborAnnuitySensitivity(LiborAnnuity annuity, YieldCurveBundle curves) {
+  public Map<String, List<Pair<Double, Double>>> getLiborAnnuitySensitivity(VariableAnnuity annuity, YieldCurveBundle curves) {
 
     Validate.notNull(annuity);
     Validate.notNull(curves);
@@ -76,6 +76,7 @@ public class PresentValueCalculator {
     String liborCurveName = annuity.getLiborCurveName();
     YieldAndDiscountCurve fundCurve = curves.getCurve(fundingCurveName);
     YieldAndDiscountCurve liborCurve = curves.getCurve(liborCurveName);
+    double notional = annuity.getNotional();
     double[] libors = getLiborRates(annuity, curves);
     double[] t = annuity.getPaymentTimes();
     double[] deltaStart = annuity.getDeltaStart();
@@ -86,7 +87,7 @@ public class PresentValueCalculator {
     List<Pair<Double, Double>> temp = new ArrayList<Pair<Double, Double>>();
     DoublesPair s;
     for (int i = 0; i < n; i++) {
-      s = new DoublesPair(t[i], -t[i] * fundCurve.getDiscountFactor(t[i]) * libors[i]);
+      s = new DoublesPair(t[i], -t[i] * fundCurve.getDiscountFactor(t[i]) * libors[i] * notional);
       temp.add(s);
     }
 
@@ -102,7 +103,7 @@ public class PresentValueCalculator {
       df = fundCurve.getDiscountFactor(t[i]);
       dfa = liborCurve.getDiscountFactor(ta);
       dfb = liborCurve.getDiscountFactor(tb);
-      ratio = df * dfa / dfb;
+      ratio = notional * df * dfa / dfb;
       s = new DoublesPair(ta, -ta * ratio);
       temp.add(s);
       s = new DoublesPair(tb, tb * ratio);
@@ -117,7 +118,7 @@ public class PresentValueCalculator {
   /*
    * gets the libor rates multiplied by year fraction
    */
-  private double[] getLiborRates(final LiborAnnuity annuity, YieldCurveBundle curves) {
+  private double[] getLiborRates(final VariableAnnuity annuity, YieldCurveBundle curves) {
 
     YieldAndDiscountCurve curve = curves.getCurve(annuity.getLiborCurveName());
     final int n = annuity.getNumberOfPayments();

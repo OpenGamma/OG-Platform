@@ -29,7 +29,7 @@ public class InterpolatedYieldCurve extends InterpolatedYieldAndDiscountCurve {
    * 
    * @param t
    *          An array containing the time in years to maturity
-   * @param df
+   * @param yields
    *          An array containing the rate as a decimal
    * @param interpolator
    *          An interpolator to get interest rates / discount factors for
@@ -38,15 +38,15 @@ public class InterpolatedYieldCurve extends InterpolatedYieldAndDiscountCurve {
    *           Thrown if the data map is null or empty, or if it contains a
    *           negative time to maturity.
    */
-  public InterpolatedYieldCurve(final double[] t, final double[] df, final Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult> interpolator) {
-    super(t, df, interpolator);
+  public InterpolatedYieldCurve(final double[] t, final double[] yields, final Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult> interpolator) {
+    super(t, yields, interpolator);
   }
 
   /**
    * 
    * @param t
    *          An array containing the time in years to maturity
-   * @param df
+   * @param yields
    *          An array containing the rate as a decimal
    * @param interpolators
    *          A map of times and interpolators. This allows different
@@ -58,8 +58,8 @@ public class InterpolatedYieldCurve extends InterpolatedYieldAndDiscountCurve {
    *           Thrown if the data map is null or empty, or if it contains a
    *           negative time to maturity.
    */
-  public InterpolatedYieldCurve(final double[] t, final double[] df, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> interpolators) {
-    super(t, df, interpolators);
+  public InterpolatedYieldCurve(final double[] t, final double[] yields, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> interpolators) {
+    super(t, yields, interpolators);
   }
 
   /**
