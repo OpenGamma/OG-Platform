@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position;
+package com.opengamma.financial.position.master;
 
 import java.util.HashSet;
 import java.util.Set;

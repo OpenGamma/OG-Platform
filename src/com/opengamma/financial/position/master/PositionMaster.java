@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position;
+package com.opengamma.financial.position.master;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.position.Portfolio;
