@@ -29,36 +29,60 @@ import com.opengamma.util.tuple.DoublesPair;
  * 
  */
 public class BinomialOptionModelTest {
-  private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> DUMMY =
-      new BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle>() {
-        @Override
-        public double getDownFactor(final OptionDefinition option, final StandardOptionDataBundle data, final int n, final int j) {
-          return 1. / 1.1;
-        }
+  private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> DUMMY = new BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle>() {
+    @Override
+    public double getDownFactor(final OptionDefinition option, final StandardOptionDataBundle data, final int n, final int j) {
+      return 1. / 1.1;
+    }
 
-        @Override
-        public RecombiningBinomialTree<Double> getUpProbabilityTree(final OptionDefinition option, final StandardOptionDataBundle data, final int n, final int j) {
-          final double t = option.getTimeToExpiry(data.getDate());
-          final double dt = t / n;
-          final double r = data.getInterestRate(t);
-          final double u = getUpFactor(option, data, n, j);
-          final double d = getDownFactor(option, data, n, j);
-          final double p = (Math.exp(r * dt) - d) / (u - d);
-          final Double[][] tree = new Double[n + 1][j];
-          for (int i = 0; i <= n; i++) {
-            for (int ii = 0; ii < j; ii++) {
-              tree[i][ii] = p;
-            }
-          }
-          return new RecombiningBinomialTree<Double>(tree);
+    @Override
+    public RecombiningBinomialTree<Double> getUpProbabilityTree(final OptionDefinition option, final StandardOptionDataBundle data, final int n, final int j) {
+      final double t = option.getTimeToExpiry(data.getDate());
+      final double dt = t / n;
+      final double r = data.getInterestRate(t);
+      final double u = getUpFactor(option, data, n, j);
+      final double d = getDownFactor(option, data, n, j);
+      final double p = (Math.exp(r * dt) - d) / (u - d);
+      final Double[][] tree = new Double[n + 1][j];
+      for (int i = 0; i <= n; i++) {
+        for (int ii = 0; ii < j; ii++) {
+          tree[i][ii] = p;
         }
+      }
+      return new RecombiningBinomialTree<Double>(tree);
+    }
 
-        @Override
-        public double getUpFactor(final OptionDefinition option, final StandardOptionDataBundle data, final int n, final int j) {
-          return 1.1;
-        }
-      };
-  private static final BinomialOptionModel<StandardOptionDataBundle> BINOMIAL_THREE_STEPS = new BinomialOptionModel<StandardOptionDataBundle>(3, DUMMY);
+    @Override
+    public double getUpFactor(final OptionDefinition option, final StandardOptionDataBundle data, final int n, final int j) {
+      return 1.1;
+    }
+  };
+  private static final BinomialOptionModel<StandardOptionDataBundle> BINOMIAL_THREE_STEPS = new BinomialOptionModel<StandardOptionDataBundle>(DUMMY, 3);
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullDefinition() {
+    new BinomialOptionModel<StandardOptionDataBundle>(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeN() {
+    new BinomialOptionModel<StandardOptionDataBundle>(DUMMY, -3);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testZeroN() {
+    new BinomialOptionModel<StandardOptionDataBundle>(DUMMY, 0);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeDepth() {
+    new BinomialOptionModel<StandardOptionDataBundle>(DUMMY, 3, -3);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testInconsistentDepth() {
+    new BinomialOptionModel<StandardOptionDataBundle>(DUMMY, 3, 10);
+  }
 
   @Test
   public void testEuropeanCallTree() {
@@ -114,4 +138,5 @@ public class BinomialOptionModelTest {
       }
     }
   }
+
 }
