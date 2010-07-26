@@ -42,6 +42,7 @@ public class PositionHistoricalVaRCalculatorFunction extends AbstractFunction im
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+    //TODO this doesn't appear to be calculating return series at all
     final Object pnlSeriesObj = inputs.getValue(ValueRequirementNames.PNL_SERIES);
     // System.err.println("execute called");
     if (pnlSeriesObj instanceof DoubleTimeSeries<?>) {
