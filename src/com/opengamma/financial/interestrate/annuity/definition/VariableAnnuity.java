@@ -95,7 +95,6 @@ public class VariableAnnuity implements Annuity {
     return _paymentTimes;
   }
 
-  @Override
   public double[] getYearFractions() {
     return _yearFractions;
   }
@@ -105,7 +104,6 @@ public class VariableAnnuity implements Annuity {
     return _n;
   }
 
-  @Override
   public double getNotional() {
     return _notional;
   }

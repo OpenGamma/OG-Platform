@@ -12,10 +12,6 @@ public interface Annuity {
 
   double[] getPaymentTimes();
 
-  double[] getYearFractions();
-
   int getNumberOfPayments();
-
-  double getNotional();
 
 }
