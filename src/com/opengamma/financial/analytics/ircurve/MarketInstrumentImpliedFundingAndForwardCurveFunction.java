@@ -50,7 +50,7 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.libor.Libor;
-import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.id.IdentificationScheme;
@@ -89,7 +89,7 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
   private static final String FLOAT_REFERENCE_TICKER = ""; //TODO shouldn't be hard-coded
   private static final String FUNDING_CURVE_NAME = "Funding Curve";
   private static final String LIBOR_CURVE_NAME = "Libor Curve";
-  
+
   private final Currency _currency;
   private InterpolatedYieldAndDiscountCurveDefinition _fundingDefinition;
   private InterpolatedYieldAndDiscountCurveDefinition _forwardDefinition;
@@ -113,9 +113,9 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> cubicInterpolatorWithSense = new CubicSplineInterpolatorWithSensitivities1D();
     final ExtrapolatorMethod<Interpolator1DCubicSplineDataBundle, InterpolationResult> linearExtrapolator = new LinearExtrapolator<Interpolator1DCubicSplineDataBundle, InterpolationResult>();
     final ExtrapolatorMethod<Interpolator1DCubicSplineDataBundle, InterpolationResult> flatExtrapolator = new FlatExtrapolator<Interpolator1DCubicSplineDataBundle, InterpolationResult>();
-    final ExtrapolatorMethod<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> linearExtrapolatorWithSensitivities = 
+    final ExtrapolatorMethod<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> linearExtrapolatorWithSensitivities =
       new LinearExtrapolatorWithSensitivity<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities>();
-    final ExtrapolatorMethod<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> flatExtrapolatorWithSensitivities = 
+    final ExtrapolatorMethod<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> flatExtrapolatorWithSensitivities =
       new FlatExtrapolatorWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities>();
     _interpolator = new Extrapolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult>(linearExtrapolator, flatExtrapolator, cubicInterpolator);
     _interpolatorWithSensitivity = new Extrapolator1D<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities>(linearExtrapolatorWithSensitivities,
@@ -188,22 +188,22 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
       i++;
       j++;
     }
-   
+
     LinkedHashMap<String, FixedNodeInterpolator1D> unknownCurves = new LinkedHashMap<String, FixedNodeInterpolator1D>();
     FixedNodeInterpolator1D fnInterpolator = new FixedNodeInterpolator1D(forwardNodeTimes, _interpolatorWithSensitivity);
     unknownCurves.put(LIBOR_CURVE_NAME, fnInterpolator);
     fnInterpolator = new FixedNodeInterpolator1D(fundingNodeTimes, _interpolatorWithSensitivity);
     unknownCurves.put(FUNDING_CURVE_NAME, fnInterpolator);
     final JacobianCalculator jacobian = new MultipleYieldCurveFinderJacobian(derivatives, unknownCurves, null);
-   
+
     unknownCurves = new LinkedHashMap<String, FixedNodeInterpolator1D>();
     fnInterpolator = new FixedNodeInterpolator1D(forwardNodeTimes, _interpolator);
     unknownCurves.put(LIBOR_CURVE_NAME, fnInterpolator);
     fnInterpolator = new FixedNodeInterpolator1D(fundingNodeTimes, _interpolator);
     unknownCurves.put(FUNDING_CURVE_NAME, fnInterpolator);
     final Function1D<DoubleMatrix1D,DoubleMatrix1D> curveFinder = new MultipleYieldCurveFinderFunction(derivatives, marketRates, unknownCurves, null);
-    
-    
+
+
     final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, jacobian, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
     final double[] yields = rootFinder.getRoot(curveFinder, new DoubleMatrix1D(initialRatesGuess)).getData();
     final double[] forwardYields = Arrays.copyOfRange(yields, 0, nForward);
@@ -348,7 +348,7 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     return new Libor(t,LIBOR_CURVE_NAME);
   }
 
-  private Swap getSwap(final FixedIncomeStrip swapStrip, final Calendar calendar, final Region region, final LocalDate now, final double floatingRate) {
+  private FixedFloatSwap getSwap(final FixedIncomeStrip swapStrip, final Calendar calendar, final Region region, final LocalDate now, final double floatingRate) {
     final BusinessDayConvention convention = swapStrip.getBusinessDayConvention();
     final ZonedDateTime effectiveDate = swapStrip.getStartDate().atStartOfDayInZone(TimeZone.UTC); //TODO change this
     final ZonedDateTime maturityDate = swapStrip.getEndDate().atStartOfDayInZone(TimeZone.UTC); //TODO change this
@@ -362,12 +362,12 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     for (int i = 0; i < n; i++) {
       delta[i] = 0;
     }
-    return new Swap(swapPaymentDates, swapPaymentDates, delta, delta,FUNDING_CURVE_NAME,LIBOR_CURVE_NAME);
+    return new FixedFloatSwap(swapPaymentDates, swapPaymentDates, delta, delta, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
   }
 
   private double getLastTime(final InterestRateDerivative derivative) {
-    if (derivative instanceof Swap) {
-      return getLastSwapTime((Swap) derivative);
+    if (derivative instanceof FixedFloatSwap) {
+      return getLastSwapTime((FixedFloatSwap) derivative);
     } else if (derivative instanceof Cash) {
       return getLastCashTime((Cash) derivative);
     } else if (derivative instanceof ForwardRateAgreement) {
@@ -380,7 +380,7 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     throw new IllegalArgumentException("This should never happen");
   }
 
-  private double getLastSwapTime(final Swap swap) {
+  private double getLastSwapTime(final FixedFloatSwap swap) {
     final int nFix = swap.getFixedLeg().getNumberOfPayments() - 1;
     final int nFloat = swap.getFloatingLeg().getNumberOfPayments() - 1;
     return Math.max(swap.getFixedLeg().getPaymentTimes()[nFix], swap.getFloatingLeg().getPaymentTimes()[nFloat] + swap.getFloatingLeg().getDeltaEnd()[nFloat]);
