@@ -42,6 +42,7 @@ public class PortfolioHistoricalVaRCalculatorFunction extends AbstractFunction i
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+    //TODO this doesn't appear to be calculating return series at all
     final Object pnlSeriesObj = inputs.getValue(ValueRequirementNames.PNL_SERIES);
     if (pnlSeriesObj instanceof DoubleTimeSeries<?>) {
       final DoubleTimeSeries<?> pnlSeries = (DoubleTimeSeries<?>) pnlSeriesObj;
