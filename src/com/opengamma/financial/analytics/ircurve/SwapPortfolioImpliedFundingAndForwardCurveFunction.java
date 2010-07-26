@@ -154,7 +154,7 @@ public class SwapPortfolioImpliedFundingAndForwardCurveFunction extends Abstract
       bundle.setCurve(FUNDING_CURVE_NAME, fundingCurve);
       bundle.setCurve(LIBOR_CURVE_NAME, forwardCurve);
       // swap rates from bbg
-      marketRates[i] = _swapRateCalculator.getRate(swap,bundle);
+      marketRates[i] = _swapRateCalculator.getRate(swap, bundle);
       fundingNodeTimes[i] = Math.max(fixedPaymentTimes[nFix - 1], floatPaymentTimes[nFloat - 1] + forwardEndOffsets[nFloat - 1]);
       // forwardNodeTimes[i] = something
       initialRatesGuess[i] = 0.05;
@@ -175,7 +175,7 @@ public class SwapPortfolioImpliedFundingAndForwardCurveFunction extends Abstract
     unknownCurves.put(LIBOR_CURVE_NAME, fnInterpolator);
     fnInterpolator = new FixedNodeInterpolator1D(fundingNodeTimes, _interpolator);
     unknownCurves.put(FUNDING_CURVE_NAME, fnInterpolator);
-    final Function1D<DoubleMatrix1D,DoubleMatrix1D> curveFinder = new MultipleYieldCurveFinderFunction(swaps, marketRates, unknownCurves, null);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveFinder = new MultipleYieldCurveFinderFunction(swaps, marketRates, unknownCurves, null);
 
 
     // TODO this should not be hard-coded
