@@ -12,10 +12,6 @@ import static org.junit.Assert.fail;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.opengamma.security.user.Authority;
-import com.opengamma.security.user.User;
-import com.opengamma.security.user.UserGroup;
-
 /**
  * 
  *
@@ -45,7 +41,7 @@ public class UserTest {
   
   @Test
   public void password() {
-    String password = "crpty&@ö9,3 % (4/10)";
+    String password = "crpty&@\uFFFD9,3 % (4/10)";
     User user = new User();
     user.setPassword(password);
     try {
