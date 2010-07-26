@@ -6,8 +6,8 @@
 
 package com.opengamma.financial.security.db.swap;
 
-import static com.opengamma.financial.security.db.Converters.dateToLocalDate;
-import static com.opengamma.financial.security.db.Converters.localDateToDate;
+import static com.opengamma.financial.security.db.Converters.dateTimeWithZoneToZonedDateTimeBean;
+import static com.opengamma.financial.security.db.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
 import com.opengamma.financial.security.db.AbstractBeanOperation;
 import com.opengamma.financial.security.db.HibernateSecurityMasterDao;
@@ -43,9 +43,9 @@ public final class SwapSecurityBeanOperation extends AbstractBeanOperation<SwapS
       private SwapSecurityBean createSwapSecurityBean(final SwapSecurity security) {
         final SwapSecurityBean bean = new SwapSecurityBean();
         bean.setSwapType(SwapType.identify(security));
-        bean.setTradeDate(localDateToDate(security.getTradeDate()));
-        bean.setEffectiveDate(localDateToDate(security.getEffectiveDate()));
-        bean.setMaturityDate(localDateToDate(security.getMaturityDate()));
+        bean.setTradeDate(dateTimeWithZoneToZonedDateTimeBean(security.getTradeDate()));
+        bean.setEffectiveDate(dateTimeWithZoneToZonedDateTimeBean(security.getEffectiveDate()));
+        bean.setMaturityDate(dateTimeWithZoneToZonedDateTimeBean(security.getMaturityDate()));
         bean.setCounterparty(security.getCounterparty());
         bean.setPayLeg(SwapLegBeanOperation.createBean(secMasterSession, security.getPayLeg()));
         bean.setReceiveLeg(SwapLegBeanOperation.createBean(secMasterSession, security.getReceiveLeg()));
@@ -55,7 +55,7 @@ public final class SwapSecurityBeanOperation extends AbstractBeanOperation<SwapS
       @Override
       public SwapSecurityBean visitForwardSwapSecurity(ForwardSwapSecurity security) {
         final SwapSecurityBean bean = createSwapSecurityBean(security);
-        bean.setForwardStartDate(localDateToDate(security.getForwardStartDate()));
+        bean.setForwardStartDate(dateTimeWithZoneToZonedDateTimeBean(security.getForwardStartDate()));
         return bean;
       }
 
@@ -73,16 +73,16 @@ public final class SwapSecurityBeanOperation extends AbstractBeanOperation<SwapS
       
       @Override
       public SwapSecurity visitForwardSwapSecurity(ForwardSwapSecurity ignore) {
-        return new ForwardSwapSecurity(dateToLocalDate(bean.getTradeDate()).atMidnight(), dateToLocalDate(bean.getEffectiveDate()).atMidnight(), dateToLocalDate(bean.getMaturityDate()).atMidnight(),
-            bean.getCounterparty(), SwapLegBeanOperation.createSwapLeg(context.getRegionRepository(), bean.getPayLeg()), SwapLegBeanOperation.createSwapLeg(context.getRegionRepository(), bean
-                .getReceiveLeg()), dateToLocalDate(bean.getForwardStartDate()).atMidnight());
+        return new ForwardSwapSecurity(zonedDateTimeBeanToDateTimeWithZone(bean.getTradeDate()), zonedDateTimeBeanToDateTimeWithZone(bean.getEffectiveDate()), zonedDateTimeBeanToDateTimeWithZone(bean
+            .getMaturityDate()), bean.getCounterparty(), SwapLegBeanOperation.createSwapLeg(context.getRegionRepository(), bean.getPayLeg()), SwapLegBeanOperation.createSwapLeg(context
+            .getRegionRepository(), bean.getReceiveLeg()), zonedDateTimeBeanToDateTimeWithZone(bean.getForwardStartDate()));
       }
 
       @Override
       public SwapSecurity visitSwapSecurity(SwapSecurity ignore) {
-        return new SwapSecurity(dateToLocalDate(bean.getTradeDate()).atMidnight(), dateToLocalDate(bean.getEffectiveDate()).atMidnight(),
-            dateToLocalDate(bean.getMaturityDate()).atMidnight(), bean.getCounterparty(), SwapLegBeanOperation.createSwapLeg(context.getRegionRepository(), bean.getPayLeg()), SwapLegBeanOperation
-                .createSwapLeg(context.getRegionRepository(), bean.getReceiveLeg()));
+        return new SwapSecurity(zonedDateTimeBeanToDateTimeWithZone(bean.getTradeDate()), zonedDateTimeBeanToDateTimeWithZone(bean.getEffectiveDate()), zonedDateTimeBeanToDateTimeWithZone(bean
+            .getMaturityDate()), bean.getCounterparty(), SwapLegBeanOperation.createSwapLeg(context.getRegionRepository(), bean.getPayLeg()), SwapLegBeanOperation.createSwapLeg(context
+            .getRegionRepository(), bean.getReceiveLeg()));
       }
 
     });

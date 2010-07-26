@@ -23,6 +23,7 @@ import com.opengamma.financial.convention.businessday.ModifiedBusinessDayConvent
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.financial.security.DateTimeWithZone;
 import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.financial.security.swap.NotionalVisitor;
 import com.opengamma.financial.security.swap.SwapLeg;
@@ -116,7 +117,7 @@ public class SwapScheduleCalculatorTest {
     }
 
   };
-  private static final SwapSecurity SECURITY = new SwapSecurity(EFFECTIVE, EFFECTIVE, MATURITY, "", PAY_LEG, RECEIVE_LEG);
+  private static final SwapSecurity SECURITY = new SwapSecurity(new DateTimeWithZone(EFFECTIVE), new DateTimeWithZone(EFFECTIVE), new DateTimeWithZone(MATURITY), "", PAY_LEG, RECEIVE_LEG);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullSecurity1() {

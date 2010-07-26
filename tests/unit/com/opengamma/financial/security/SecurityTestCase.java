@@ -6,6 +6,7 @@
 package com.opengamma.financial.security;
 
 import static com.opengamma.financial.InMemoryRegionRepository.REGIONS_FILE_PATH;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -33,7 +34,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.security.Security;
+import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.GICSCode;
 import com.opengamma.financial.InMemoryRegionRepository;
@@ -51,6 +52,8 @@ import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.db.option.OptionExerciseType;
+import com.opengamma.financial.security.db.option.OptionPayoffStyle;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
@@ -74,6 +77,7 @@ import com.opengamma.financial.security.option.CashOrNothingPayoffStyle;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
+import com.opengamma.financial.security.option.ExerciseTypeVisitor;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.FadeInPayoffStyle;
 import com.opengamma.financial.security.option.FixedStrikeLookbackPayoffStyle;
@@ -82,6 +86,7 @@ import com.opengamma.financial.security.option.FutureOptionSecurity;
 import com.opengamma.financial.security.option.GapPayoffStyle;
 import com.opengamma.financial.security.option.OptionOptionSecurity;
 import com.opengamma.financial.security.option.PayoffStyle;
+import com.opengamma.financial.security.option.PayoffStyleVisitor;
 import com.opengamma.financial.security.option.PoweredPayoffStyle;
 import com.opengamma.financial.security.option.SupersharePayoffStyle;
 import com.opengamma.financial.security.option.SwapOptionSecurity;
@@ -176,6 +181,9 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
   }
 
   static {
+    final long seed = s_random.nextLong();
+    s_logger.info("Random seed = {}", seed);
+    s_random.setSeed(seed);
     TestDataProvider<?> provider;
     s_dataProviders.put(String.class, new TestDataProvider<String>() {
       @Override
@@ -237,12 +245,22 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
     s_dataProviders.put(Expiry.class, DefaultObjectPermute.of(Expiry.class));
     s_dataProviders.put(ZonedDateTime.class, new TestDataProvider<ZonedDateTime>() {
       private final TimeZone[] _timezones = new TimeZone[] {TimeZone.UTC, TimeZone.of("UTC-01:00"), TimeZone.of("UTC+01:00")};
+
       @Override
       public void getValues(final Collection<ZonedDateTime> values) {
         for (TimeZone timezone : _timezones) {
-          values.add(ZonedDateTime.now(Clock.system(timezone)));
+          values.add(ZonedDateTime.now(Clock.system(timezone)).withNanoOfSecond(0));
           // TODO: random date in the past
           // TODO: random date in the future
+        }
+      }
+    });
+    s_dataProviders.put(DateTimeWithZone.class, new TestDataProvider<DateTimeWithZone>() {
+      @Override
+      public void getValues(final Collection<DateTimeWithZone> values) {
+        final Collection<ZonedDateTime> dates = getTestObjects(ZonedDateTime.class, null);
+        for (ZonedDateTime date : dates) {
+          values.add(new DateTimeWithZone(date, date.getZone().getID()));
         }
       }
     });
@@ -257,7 +275,7 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
     s_dataProviders.put(TimeProvider.class, new TestDataProvider<TimeProvider>() {
       @Override
       public void getValues(final Collection<TimeProvider> values) {
-        values.add(LocalTime.nowSystemClock());
+        values.add(LocalTime.nowSystemClock().withNanoOfSecond(0));
         // TODO: random time in the past
         // TODO: random time in the future
       }
@@ -308,27 +326,100 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
     s_dataProviders.put(ExerciseType.class, new TestDataProvider<ExerciseType>() {
       @Override
       public void getValues(final Collection<ExerciseType> values) {
-        values.add(new AmericanExerciseType());
-        values.add(new AsianExerciseType());
-        values.add(new BermudanExerciseType());
-        values.add(new EuropeanExerciseType());
+        for (OptionExerciseType exerciseType : OptionExerciseType.values ()) {
+          values.add (exerciseType.accept (new ExerciseTypeVisitor<ExerciseType> () {
+
+            @Override
+            public ExerciseType visitAmericanExerciseType(AmericanExerciseType exerciseType) {
+              return new AmericanExerciseType();
+            }
+
+            @Override
+            public ExerciseType visitAsianExerciseType(AsianExerciseType exerciseType) {
+              return new AsianExerciseType();
+            }
+
+            @Override
+            public ExerciseType visitBermudanExerciseType(BermudanExerciseType exerciseType) {
+              return new BermudanExerciseType();
+            }
+
+            @Override
+            public ExerciseType visitEuropeanExerciseType(EuropeanExerciseType exerciseType) {
+              return new EuropeanExerciseType();
+            }
+          }));
+        }
       }
     });
     s_dataProviders.put(PayoffStyle.class, new TestDataProvider<PayoffStyle>() {
       @Override
       public void getValues(final Collection<PayoffStyle> values) {
-        values.add(new AssetOrNothingPayoffStyle());
-        values.add(new AsymmetricPoweredPayoffStyle(s_random.nextDouble()));
-        values.add(new BarrierPayoffStyle());
-        values.add(new CappedPoweredPayoffStyle(s_random.nextDouble(), s_random.nextDouble()));
-        values.add(new CashOrNothingPayoffStyle(s_random.nextDouble()));
-        values.add(new FadeInPayoffStyle(s_random.nextDouble(), s_random.nextDouble()));
-        values.add(new FixedStrikeLookbackPayoffStyle());
-        values.add(new FloatingStrikeLookbackPayoffStyle());
-        values.add(new GapPayoffStyle(s_random.nextDouble()));
-        values.add(new PoweredPayoffStyle(s_random.nextDouble()));
-        values.add(new SupersharePayoffStyle(s_random.nextDouble(), s_random.nextDouble()));
-        values.add(new VanillaPayoffStyle());
+        for (OptionPayoffStyle payoffStyle : OptionPayoffStyle.values()) {
+          values.add(payoffStyle.accept(new PayoffStyleVisitor<PayoffStyle>() {
+
+            @Override
+            public PayoffStyle visitAssetOrNothingPayoffStyle(AssetOrNothingPayoffStyle payoffStyle) {
+              return new AssetOrNothingPayoffStyle();
+            }
+
+            @Override
+            public PayoffStyle visitAsymmetricPoweredPayoffStyle(AsymmetricPoweredPayoffStyle payoffStyle) {
+              return new AsymmetricPoweredPayoffStyle(s_random.nextDouble());
+            }
+
+            @Override
+            public PayoffStyle visitBarrierPayoffStyle(BarrierPayoffStyle payoffStyle) {
+              return new BarrierPayoffStyle();
+            }
+
+            @Override
+            public PayoffStyle visitCappedPoweredPayoffStyle(CappedPoweredPayoffStyle payoffStyle) {
+              return new CappedPoweredPayoffStyle(s_random.nextDouble(), s_random.nextDouble());
+            }
+
+            @Override
+            public PayoffStyle visitCashOrNothingPayoffStyle(CashOrNothingPayoffStyle payoffStyle) {
+              return new CashOrNothingPayoffStyle(s_random.nextDouble());
+            }
+
+            @Override
+            public PayoffStyle visitFadeInPayoffStyle(FadeInPayoffStyle payoffStyle) {
+              return new FadeInPayoffStyle(s_random.nextDouble(), s_random.nextDouble());
+            }
+
+            @Override
+            public PayoffStyle visitFixedStrikeLookbackPayoffStyle(FixedStrikeLookbackPayoffStyle payoffStyle) {
+              return new FixedStrikeLookbackPayoffStyle();
+            }
+
+            @Override
+            public PayoffStyle visitFloatingStrikeLookbackPayoffStyle(FloatingStrikeLookbackPayoffStyle payoffStyle) {
+              return new FloatingStrikeLookbackPayoffStyle();
+            }
+
+            @Override
+            public PayoffStyle visitGapPayoffStyle(GapPayoffStyle payoffStyle) {
+              return new GapPayoffStyle(s_random.nextDouble());
+            }
+
+            @Override
+            public PayoffStyle visitPoweredPayoffStyle(PoweredPayoffStyle payoffStyle) {
+              return new PoweredPayoffStyle(s_random.nextDouble());
+            }
+
+            @Override
+            public PayoffStyle visitSupersharePayoffStyle(SupersharePayoffStyle payoffStyle) {
+              return new SupersharePayoffStyle(s_random.nextDouble(), s_random.nextDouble());
+            }
+
+            @Override
+            public PayoffStyle visitVanillaPayoffStyle(VanillaPayoffStyle payoffStyle) {
+              return new VanillaPayoffStyle();
+            }
+
+          }));
+        }
       }
     });
     s_dataProviders.put(Boolean.class, provider = new TestDataProvider<Boolean>() {
@@ -350,6 +441,7 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
       @Override
       public void getValues(final Collection<Region> values) {
         values.add(getRegionRepository().getHierarchyNodes(LocalDate.nowSystemClock(), InMemoryRegionRepository.POLITICAL_HIERARCHY_NAME, InMemoryRegionRepository.ISO_COUNTRY_2, "US").first());
+        values.add(getRegionRepository().getHierarchyNode(LocalDate.now(Clock.system(TimeZone.UTC)), InMemoryRegionRepository.POLITICAL_HIERARCHY_NAME, "United Kingdom"));
       }
     });
     s_dataProviders.put(Notional.class, new TestDataProvider<Notional>() {
@@ -432,19 +524,35 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
       }
       throw new IllegalArgumentException("couldn't create test objects");
     }
-    s_logger.debug("{} objects created for {}", objects.size(), clazz);
+    s_logger.info("{} objects created for {}", objects.size(), clazz);
+    for (Object o : objects) {
+      s_logger.debug("{}", o);
+    }
     return objects;
   }
 
-  protected abstract <T extends Security> void testSecurity(final Class<T> securityClass, final T security);
+  protected abstract <T extends DefaultSecurity> void testSecurity(final Class<T> securityClass, final T security);
 
-  public <T extends Security> void testSecurities(final Class<T> securityClass, final Collection<T> securities) {
+  public <T extends DefaultSecurity> void testSecurities(final Class<T> securityClass, final Collection<T> securities) {
+    String securityType = null;
+    Class<?> c = securityClass;
+    while (c != null) {
+      try {
+        securityType = (String) c.getDeclaredField("SECURITY_TYPE").get(null);
+      } catch (Throwable t) {
+        // Ignore
+      }
+      c = c.getSuperclass();
+    }
+    assertNotNull(securityType);
     for (T security : securities) {
+      // Force the security type to be a valid string; they're random nonsense otherwise
+      security.setSecurityType(securityType);
       testSecurity(securityClass, security);
     }
   }
   
-  public <T extends Security> void testSecurities (final Class<T> securityClass) {
+  public <T extends DefaultSecurity> void testSecurities(final Class<T> securityClass) {
     testSecurities(securityClass, permuteTestObjects(securityClass));
   }
 

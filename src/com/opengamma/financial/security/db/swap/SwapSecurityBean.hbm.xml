@@ -5,10 +5,22 @@
 <hibernate-mapping package="com.opengamma.financial.security.db.swap">
   <union-subclass name="SwapSecurityBean" extends="com.opengamma.financial.security.db.SecurityBean" table="sec_swap">
     <property name="swapType" column="swaptype" type="com.opengamma.financial.security.db.swap.SwapTypeUserType" not-null="true" />
-    <property name="tradeDate" column="tradedate" type="date" not-null="true" />
-    <property name="effectiveDate" column="effectivedate" type="date" not-null="true" />
-    <property name="maturityDate" column="maturitydate" type="date" not-null="true" />
-    <property name="forwardStartDate" column="forwardstartdate" type="date" />
+    <component name="tradeDate" class="com.opengamma.financial.security.db.ZonedDateTimeBean">
+      <property name="date" type="timestamp" column="trade_date" not-null="true" />
+      <property name="zone" type="string" column="trade_zone" not-null="true" />
+    </component>
+    <component name="effectiveDate" class="com.opengamma.financial.security.db.ZonedDateTimeBean">
+      <property name="date" type="timestamp" column="effective_date" not-null="true" />
+      <property name="zone" type="string" column="effective_zone" not-null="true" />
+    </component>
+    <component name="maturityDate" class="com.opengamma.financial.security.db.ZonedDateTimeBean">
+      <property name="date" type="timestamp" column="maturity_date" not-null="true" />
+      <property name="zone" type="string" column="maturity_zone" not-null="true" />
+    </component>
+    <component name="forwardStartDate" class="com.opengamma.financial.security.db.ZonedDateTimeBean">
+      <property name="date" type="timestamp" column="forwardstart_date" />
+      <property name="zone" type="string" column="forwardstart_zone" />
+    </component>
     <property name="counterparty" column="counterparty" type="string" not-null="true" />
     <component name="payLeg" class="SwapLegBean">
       <property name="swapLegType" type="com.opengamma.financial.security.db.swap.SwapLegTypeUserType" column="pay_legtype" not-null="true" />

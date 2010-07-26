@@ -46,8 +46,11 @@ public final class EquitySecurityBeanOperation extends AbstractBeanOperation<Equ
     if (security.getGicsCode() != null) {
       gicsCodeBean = secMasterSession.getOrCreateGICSCodeBean(security.getGicsCode().toString(), "");
     }
-    return createBean(secMasterSession.getOrCreateExchangeBean(security.getExchangeCode(), security.getExchange()), security.getCompanyName(), secMasterSession.getOrCreateCurrencyBean(security
+    final EquitySecurityBean bean = createBean(secMasterSession.getOrCreateExchangeBean(security.getExchangeCode(), security.getExchange()), security.getCompanyName(), secMasterSession
+        .getOrCreateCurrencyBean(security
         .getCurrency().getISOCode()), gicsCodeBean);
+    bean.setShortName(security.getShortName());
+    return bean;
   }
 
   public EquitySecurityBean createBean(final ExchangeBean exchange, final String companyName, final CurrencyBean currency, final GICSCodeBean gicsCode) {
@@ -78,13 +81,15 @@ public final class EquitySecurityBeanOperation extends AbstractBeanOperation<Equ
   @Override
   public EquitySecurity createSecurity(final OperationContext context, final EquitySecurityBean bean) {
     final EquitySecurity security = new EquitySecurity(bean.getExchange().getDescription(), bean.getExchange().getName(), bean.getCompanyName(), currencyBeanToCurrency(bean.getCurrency()));
+    security.setShortName(bean.getShortName());
     security.setGicsCode(gicsCodeBeanToGICSCode(bean.getGICSCode()));
     return security;
   }
 
   @Override
   public boolean beanEquals(final OperationContext context, EquitySecurityBean bean, EquitySecurity security) {
-    return ObjectUtils.equals(bean.getCompanyName(), security.getCompanyName()) && ObjectUtils.equals(currencyBeanToCurrency(bean.getCurrency()), security.getCurrency())
+    return ObjectUtils.equals(bean.getShortName(), security.getShortName()) && ObjectUtils.equals(bean.getCompanyName(), security.getCompanyName())
+        && ObjectUtils.equals(currencyBeanToCurrency(bean.getCurrency()), security.getCurrency())
         && ObjectUtils.equals(bean.getExchange().getName(), security.getExchange()) && ObjectUtils.equals(gicsCodeBeanToGICSCode(bean.getGICSCode()), security.getGicsCode());
   }
 

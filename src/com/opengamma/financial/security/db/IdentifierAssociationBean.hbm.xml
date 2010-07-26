@@ -7,8 +7,8 @@
     <id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
     </id>
-    <property name="validStartDate" type="date" not-null="false" />
-    <property name="validEndDate" type="date" not-null="false" />
+    <property name="validStartDate" type="timestamp" not-null="false" />
+    <property name="validEndDate" type="timestamp" not-null="false" />
     <!-- this is a special association that deals with the fact we've implemented
          securities with a table-per-concrete class model.  This means that whenever
          we have a polymorphic reference to the base class we need a discriminator to
@@ -69,6 +69,7 @@
     where
       a.identifier.scheme = :scheme and
       a.identifier.identifier = :identifier and
+      (a.validStartDate is null or a.validEndDate > a.validStartDate) and
       a.validEndDate = (select max(b.validEndDate) from IdentifierAssociationBean as b where b.identifier.scheme = :scheme and b.identifier.identifier = :identifier and b.validEndDate <= :now)
   ]]></query>
   <query name="IdentifierAssociationBean.one.nextAssociation"><![CDATA[ 
@@ -77,6 +78,7 @@
     where
       a.identifier.scheme = :scheme and 
       a.identifier.identifier = :identifier and 
+      (a.validStartDate is null or a.validEndDate > a.validStartDate) and
       a.validStartDate = (select min(b.validStartDate) from IdentifierAssociationBean as b where b.identifier.scheme = :scheme and b.identifier.identifier = :identifier and b.validStartDate > :now)
   ]]></query>
 </hibernate-mapping>

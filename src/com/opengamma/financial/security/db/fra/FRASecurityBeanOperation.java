@@ -6,8 +6,8 @@
 
 package com.opengamma.financial.security.db.fra;
 
-import static com.opengamma.financial.security.db.Converters.dateToLocalDate;
-import static com.opengamma.financial.security.db.Converters.localDateToDate;
+import static com.opengamma.financial.security.db.Converters.dateTimeWithZoneToZonedDateTimeBean;
+import static com.opengamma.financial.security.db.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
 import org.apache.commons.lang.ObjectUtils;
 
@@ -32,20 +32,21 @@ public final class FRASecurityBeanOperation extends AbstractBeanOperation<FRASec
 
   @Override
   public boolean beanEquals(final OperationContext context, FRASecurityBean bean, FRASecurity security) {
-    return ObjectUtils.equals(dateToLocalDate(bean.getStartDate()), security.getStartDate()) && ObjectUtils.equals(dateToLocalDate(bean.getEndDate()), security.getEndDate());
+    return ObjectUtils.equals(zonedDateTimeBeanToDateTimeWithZone(bean.getStartDate()), security.getStartDate())
+        && ObjectUtils.equals(zonedDateTimeBeanToDateTimeWithZone(bean.getEndDate()), security.getEndDate());
   }
 
   @Override
   public FRASecurityBean createBean(final OperationContext context, HibernateSecurityMasterDao secMasterSession, FRASecurity security) {
     final FRASecurityBean bean = new FRASecurityBean();
-    bean.setStartDate(localDateToDate(security.getStartDate()));
-    bean.setEndDate(localDateToDate(security.getEndDate()));
+    bean.setStartDate(dateTimeWithZoneToZonedDateTimeBean(security.getStartDate()));
+    bean.setEndDate(dateTimeWithZoneToZonedDateTimeBean(security.getEndDate()));
     return bean;
   }
 
   @Override
   public FRASecurity createSecurity(final OperationContext context, FRASecurityBean bean) {
-    return new FRASecurity(dateToLocalDate(bean.getStartDate()).atMidnight(), dateToLocalDate(bean.getEndDate()).atMidnight());
+    return new FRASecurity(zonedDateTimeBeanToDateTimeWithZone(bean.getStartDate()), zonedDateTimeBeanToDateTimeWithZone(bean.getEndDate()));
   }
 
 }

@@ -8,9 +8,9 @@
     <id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
     </id>
-    <property name="effectiveDateTime" type="date" not-null="true"/>
+    <property name="effectiveDateTime" type="timestamp" not-null="true"/>
     <property name="deleted" type="boolean" not-null="true"/>
-    <property name="lastModifiedDateTime" type="date" not-null="true"/>
+    <property name="lastModifiedDateTime" type="timestamp" not-null="true"/>
     <property name="lastModifiedBy" type="string" not-null="false"/>
     <property name="displayName" type="string" not-null="false"/>
     <any name="firstVersion"
@@ -34,41 +34,27 @@
     select 
       s
     from 
-      SecurityBean as s,
-      IdentifierAssociationBean as a
-    where
-      a.security = s.firstVersion and
-      (a.validStartDate is null or a.validStartDate <= s.effectiveDateTime) and
-      (a.validEndDate is null or a.validEndDate > s.effectiveDateTime) and
-      s.id = :securityUid
-  ]]></query>
-    <!-- NOTE: jim 21-May-2010 - changed effective date tests from < to <= because using dates rather than date times,
-       and so it doens't allow you to save something and use it on the same day (!) -->
-  <query name="SecurityBean.one.byDateOid"><![CDATA[
-    select 
-      s
-    from 
-      IdentifierAssociationBean as a,
       SecurityBean as s
     where
-      a.security = s.firstVersion and
-      (a.validStartDate is null or a.validStartDate <= :now) and
-      (a.validEndDate is null or a.validEndDate > :now) and
+      s.id = :securityUid
+  ]]></query>
+  <query name="SecurityBean.one.byDateOid"><![CDATA[
+    select
+      s
+    from
+      SecurityBean as s
+    where
       s.firstVersion.id = :securityOid and
       s.effectiveDateTime <= :now and
-      not exists (select 
+      not exists (select
                     latest.id
-                  from 
+                  from
                     SecurityBean as latest
                   where
-                    latest.effectiveDateTime <= :now and
+                    latest.firstVersion.id = :securityOid and
                     latest.effectiveDateTime > s.effectiveDateTime and
-                    latest.id <> s.id and
-                    latest.firstVersion = s.firstVersion)
+                    latest.effectiveDateTime <= :now)
   ]]></query>
-  <!-- note the s, and the 'in (:identifiers)' part of the where -->
-  <!-- NOTE: jim 21-May-2010 - changed effective date tests from < to <= because using dates rather than date times,
-       and so it doens't allow you to save something and use it on the same day (!) -->
   <query name="SecurityBean.one.byDateIdentifiers"><![CDATA[ 
     select 
       s
@@ -81,15 +67,13 @@
       (a.validEndDate is null or a.validEndDate > :now) and
       a.identifier.scheme = :scheme and
       a.identifier.identifier in (:identifiers) and
-      s.effectiveDateTime <= :now and
-      not exists (select 
+      not exists (select
                     latest.id
-                  from 
+                  from
                     SecurityBean as latest
                   where
-                    latest.effectiveDateTime <= :now and
+                    latest.firstVersion.id = s.firstVersion.id and
                     latest.effectiveDateTime > s.effectiveDateTime and
-                    latest.id <> s.id and
-                    latest.firstVersion = s.firstVersion)
+                    latest.effectiveDateTime <= :now)
   ]]></query>
 </hibernate-mapping>

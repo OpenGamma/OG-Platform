@@ -39,8 +39,7 @@ create table sec_identifier_association (
     identifier varchar(255) not null,
     validStartDate date,
     validEndDate date,
-    primary key (id),
-    unique (scheme, identifier, validStartDate, validEndDate)
+    primary key (id)
 );
 
 create table sec_exchange (
@@ -92,9 +91,9 @@ create table sec_option (
     option_type varchar(32) not null,
     strike double precision not null,
     expiry date not null,
-    underlying_scheme varchar(255),
-    underlying_identifier varchar(255),
-    currency_id bigint,
+    underlying_scheme varchar(255) not null,
+    underlying_identifier varchar(255) not null,
+    currency_id bigint not null,
     put_currency_id bigint,
     call_currency_id bigint,
     exchange_id bigint,

@@ -5,14 +5,13 @@
  */
 package com.opengamma.financial.security.db.option;
 
-import java.util.Date;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.opengamma.financial.security.db.CurrencyBean;
 import com.opengamma.financial.security.db.ExchangeBean;
+import com.opengamma.financial.security.db.ExpiryBean;
 import com.opengamma.financial.security.db.IdentifierBean;
 import com.opengamma.financial.security.db.SecurityBean;
 import com.opengamma.financial.security.option.OptionSecurity;
@@ -30,7 +29,7 @@ public class OptionSecurityBean extends SecurityBean {
   private OptionSecurityType _optionSecurityType;
   private OptionType _optionType;
   private double _strike;
-  private Date _expiry;
+  private ExpiryBean _expiry;
   private CurrencyBean _currency;
   private CurrencyBean _putCurrency;
   private CurrencyBean _callCurrency;
@@ -122,7 +121,7 @@ public class OptionSecurityBean extends SecurityBean {
   /**
    * @return the expiry
    */
-  public Date getExpiry() {
+  public ExpiryBean getExpiry() {
     return _expiry;
   }
 
@@ -130,7 +129,7 @@ public class OptionSecurityBean extends SecurityBean {
    * @param expiry
    *          the expiry to set
    */
-  public void setExpiry(Date expiry) {
+  public void setExpiry(ExpiryBean expiry) {
     _expiry = expiry;
   }
 

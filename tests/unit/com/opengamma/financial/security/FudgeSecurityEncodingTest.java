@@ -13,6 +13,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.Security;
 import com.opengamma.financial.fudgemsg.FinancialFudgeContextConfiguration;
 
@@ -29,7 +30,7 @@ public class FudgeSecurityEncodingTest extends SecurityTestCase {
   }
 
   @Override
-  protected <T extends Security> void testSecurity(Class<T> securityClass, T security) {
+  protected <T extends DefaultSecurity> void testSecurity(Class<T> securityClass, T security) {
     final FudgeSerializationContext context = new FudgeSerializationContext(s_fudgeContext);
     FudgeFieldContainer msg = context.objectToFudgeMsg(security);
     s_logger.debug("Security {}", security);

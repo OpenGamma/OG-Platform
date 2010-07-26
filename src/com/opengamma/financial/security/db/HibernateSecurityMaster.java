@@ -7,11 +7,15 @@ package com.opengamma.financial.security.db;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -27,10 +31,12 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.Security;
 import com.opengamma.financial.RegionRepository;
-import com.opengamma.financial.security.AbstractSecurityMaster;
 import com.opengamma.financial.security.SecurityDocument;
+import com.opengamma.financial.security.SecurityMaster;
 import com.opengamma.financial.security.SecuritySearchHistoricRequest;
 import com.opengamma.financial.security.SecuritySearchHistoricResult;
+import com.opengamma.financial.security.SecuritySearchRequest;
+import com.opengamma.financial.security.SecuritySearchResult;
 import com.opengamma.financial.security.db.bond.BondSecurityBeanOperation;
 import com.opengamma.financial.security.db.cash.CashSecurityBeanOperation;
 import com.opengamma.financial.security.db.equity.EquitySecurityBeanOperation;
@@ -46,7 +52,7 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * 
  */
-public class HibernateSecurityMaster extends AbstractSecurityMaster {
+public class HibernateSecurityMaster implements SecurityMaster {
 
   private static final Logger s_logger = LoggerFactory.getLogger(HibernateSecurityMaster.class);
   private static final ConcurrentMap<Class<?>, BeanOperation<?, ?>> BEAN_OPERATIONS_BY_SECURITY = new ConcurrentHashMap<Class<?>, BeanOperation<?, ?>>();
@@ -173,7 +179,7 @@ public class HibernateSecurityMaster extends AbstractSecurityMaster {
           if (populateWithOtherIdentifiers) {
             Query identifierQuery = session.getNamedQuery("IdentifierAssociationBean.many.byDateSecurity");
             identifierQuery.setParameter("security", security.getFirstVersion());
-            identifierQuery.setDate("now", now);
+            identifierQuery.setTimestamp("now", now);
             List<IdentifierAssociationBean> otherIdentifiers = identifierQuery.list();
             for (IdentifierAssociationBean associationBean : otherIdentifiers) {
               identifiers.add(Converters.identifierBeanToIdentifier(associationBean.getIdentifier()));
@@ -205,7 +211,7 @@ public class HibernateSecurityMaster extends AbstractSecurityMaster {
           if (populateWithOtherIdentifiers) {
             Query identifierQuery = session.getNamedQuery("IdentifierAssociationBean.many.byDateSecurity");
             identifierQuery.setParameter("security", security.getFirstVersion());
-            identifierQuery.setDate("now", now);
+            identifierQuery.setTimestamp("now", now);
             List<IdentifierAssociationBean> otherIdentifiers = identifierQuery.list();
             for (IdentifierAssociationBean associationBean : otherIdentifiers) {
               identifiers.add(Converters.identifierBeanToIdentifier(associationBean.getIdentifier()));
@@ -220,100 +226,9 @@ public class HibernateSecurityMaster extends AbstractSecurityMaster {
     });
   }
 
-  /**
-   * Puts a security into the master.
-   * @param now  the instant to add at
-   * @param security  the security to add
-   * @return the created unique identifier
-   */
-  /*
-   * public UniqueIdentifier putSecurity(final Date now, final Security security) {
-   * return (UniqueIdentifier) _hibernateTemplate.execute(new HibernateCallback() {
-   * 
-   * @Override
-   * public Object doInHibernate(final Session session) throws HibernateException, SQLException {
-   * HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
-   * BeanOperation<Security, SecurityBean> beanOperation = getBeanOperation(security);
-   * SecurityBean updatedDbBean;
-   * if (security.getUniqueIdentifier() == null ||
-   * security.getUniqueIdentifier().getScheme().equals(getIdentifierScheme()) == false) {
-   * // add security
-   * updatedDbBean = secMasterSession.createSecurityBean(beanOperation, now, false, now, null, null, security);
-   * for (Identifier identifier : security.getIdentifiers()) {
-   * secMasterSession.associateOrUpdateIdentifierWithSecurity(now, identifier, updatedDbBean);
-   * }
-   * } else {
-   * // update security
-   * SecurityBean origDbBean = secMasterSession.getSecurityBean(security.getUniqueIdentifier());
-   * if (beanOperation.getBeanClass().isAssignableFrom(origDbBean.getClass()) == false) {
-   * throw new OpenGammaRuntimeException("Security has changed type: " + security + "/" + origDbBean);
-   * }
-   * origDbBean = beanOperation.resolve(secMasterSession, now, origDbBean);
-   * if (beanOperation.beanEquals(origDbBean, security)) {
-   * // security is the same as the one in the database - no action
-   * return security.getUniqueIdentifier();
-   * }
-   * updatedDbBean = secMasterSession.createSecurityBean(beanOperation, now, false, now, MODIFIED_BY, origDbBean.getFirstVersion(), security);
-   * }
-   * UniqueIdentifier uid = createUniqueIdentifier(updatedDbBean);
-   * if (security instanceof DefaultSecurity) {
-   * ((DefaultSecurity) security).setUniqueIdentifier(uid);
-   * }
-   * return uid;
-   * }
-   * });
-   * }
-   */
-
-  /*
-   * @SuppressWarnings("unchecked")
-   * public List<String> getExchanges() {
-   * return (List<String>) _hibernateTemplate.executeFind(new HibernateCallback() {
-   * 
-   * @Override
-   * public Object doInHibernate(Session session) throws HibernateException,
-   * SQLException {
-   * HibernateSecurityMasterDao secMasterSession = new HibernateSecurityMasterSession(session);
-   * List<ExchangeBean> exchangeBeans = secMasterSession.getExchangeBeans();
-   * List<String> exchanges = new ArrayList<String>();
-   * if (exchangeBeans != null) {
-   * for (ExchangeBean exchangeBean : exchangeBeans) {
-   * exchanges.add(exchangeBean.getName());
-   * }
-   * }
-   * return exchanges;
-   * }
-   * });
-   * }
-   */
-
-  /*
-   * @SuppressWarnings("unchecked")
-   * public List<Currency> getCurrencies() {
-   * return (List<Currency>) _hibernateTemplate.execute(new HibernateCallback() {
-   * 
-   * @Override
-   * public Object doInHibernate(Session session) throws HibernateException,
-   * SQLException {
-   * HibernateSecurityMasterDao secMasterSession = new HibernateSecurityMasterSession(session);
-   * List<CurrencyBean> currencyBeans = secMasterSession.getCurrencyBeans();
-   * List<Currency> currencies = new ArrayList<Currency>();
-   * if (currencyBeans != null) {
-   * for (CurrencyBean currencyBean : currencyBeans) {
-   * currencies.add(Converters.currencyBeanToCurrency(currencyBean));
-   * }
-   * }
-   * return currencies;
-   * }
-   * });
-   * 
-   * }
-   */
-
   // -------------------------------------------------------------------------
-  @Override
   @SuppressWarnings("unchecked")
-  public Security getSecurity(final UniqueIdentifier uid) {
+  protected Security getSecurity(final UniqueIdentifier uid) {
     if (uid.isLatest()) {
       return getSecurity(new Date(), uid, true);
     }
@@ -337,7 +252,7 @@ public class HibernateSecurityMaster extends AbstractSecurityMaster {
         final List<Identifier> identifiers = new ArrayList<Identifier>();
         Query identifierQuery = session.getNamedQuery("IdentifierAssociationBean.many.byDateSecurity");
         identifierQuery.setParameter("security", security.getFirstVersion());
-        identifierQuery.setDate("now", security.getEffectiveDateTime());
+        identifierQuery.setTimestamp("now", security.getEffectiveDateTime());
         List<IdentifierAssociationBean> otherIdentifiers = identifierQuery.list();
         for (IdentifierAssociationBean associationBean : otherIdentifiers) {
           identifiers.add(Converters.identifierBeanToIdentifier(associationBean.getIdentifier()));
@@ -347,11 +262,6 @@ public class HibernateSecurityMaster extends AbstractSecurityMaster {
         return result;
       }
     });
-  }
-
-  @Override
-  public Security getSecurity(IdentifierBundle secKey) {
-    return getSecurity(new Date(), secKey, true);
   }
 
   // SecurityMaster
@@ -428,11 +338,18 @@ public class HibernateSecurityMaster extends AbstractSecurityMaster {
           throw new IllegalArgumentException("Security has changed type: " + security + "/" + origDbBean);
         }
         origDbBean = beanOperation.resolve(getOperationContext(), secMasterSession, now, origDbBean);
-        if (beanOperation.beanEquals(getOperationContext(), origDbBean, security)) {
-          // security is the same as the one in the database - no action
+        if (ObjectUtils.equals(origDbBean.getDisplayName(), security.getName()) && beanOperation.beanEquals(getOperationContext(), origDbBean, security)) {
+          // security is the same as the one in the database - update identifier if necessary
+          for (Identifier identifier : security.getIdentifiers()) {
+            secMasterSession.associateOrUpdateIdentifierWithSecurity(now, identifier, origDbBean);
+          }
+          s_logger.debug("Security same as one in database - {} vs {}", security, origDbBean);
           return document;
         }
         final SecurityBean updatedDbBean = secMasterSession.createSecurityBean(getOperationContext(), beanOperation, now, false, now, MODIFIED_BY, origDbBean.getFirstVersion(), security);
+        for (Identifier identifier : security.getIdentifiers()) {
+          secMasterSession.associateOrUpdateIdentifierWithSecurity(now, identifier, updatedDbBean);
+        }
         final UniqueIdentifier uniqueIdentifier = createUniqueIdentifier(updatedDbBean);
         document.setUniqueIdentifier(uniqueIdentifier);
         if (security instanceof MutableUniqueIdentifiable) {
@@ -441,6 +358,34 @@ public class HibernateSecurityMaster extends AbstractSecurityMaster {
         return document;
       }
     });
+  }
+
+  @Override
+  public SecurityDocument get(UniqueIdentifier uid) {
+    final Security security = getSecurity(uid);
+    if (security != null) {
+      return new SecurityDocument(security);
+    } else {
+      return null;
+    }
+  }
+
+  @Override
+  public SecuritySearchResult search(SecuritySearchRequest request) {
+    final SecuritySearchResult result = new SecuritySearchResult();
+    final Collection<SecurityDocument> resultDocuments = result.getDocuments();
+    final Set<Security> resultSecurities = new HashSet<Security>();
+    final Date now = new Date();
+    for (Identifier id : request.getIdentifiers()) {
+      final Security security = getSecurity(now, new IdentifierBundle(id), true);
+      if (security != null) {
+        if (resultSecurities.add(security)) {
+          // Use the set to avoid putting duplicates into the search results
+          resultDocuments.add(new SecurityDocument(security));
+        }
+      }
+    }
+    return result;
   }
 
 }

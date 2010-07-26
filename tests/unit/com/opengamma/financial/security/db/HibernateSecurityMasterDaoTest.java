@@ -65,6 +65,7 @@ import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.test.HibernateTest;
+import com.opengamma.util.time.ExpiryAccuracy;
 
 /**
  * Testcases for dao methods  for HibernateSecurityMasterDao
@@ -682,10 +683,12 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     OptionSecurityType[] optionSecurityTypes = OptionSecurityType.values();
     for (OptionSecurityType optionSecurityType : optionSecurityTypes) {
       final Calendar cal = Calendar.getInstance();
+      ExpiryBean expiry = new ExpiryBean();
       cal.set(Calendar.YEAR, 2010);
       cal.set(Calendar.MONTH, Calendar.OCTOBER);
       cal.set(Calendar.DAY_OF_MONTH, 16);
-      Date expiry = cal.getTime();
+      expiry.setDate(cal.getTime());
+      expiry.setAccuracy(ExpiryAccuracy.DAY_MONTH_YEAR);
       
       OptionSecurityBean equityOptionBean = new OptionSecurityBean();
       equityOptionBean.setOptionExerciseType(OptionExerciseType.AMERICAN);

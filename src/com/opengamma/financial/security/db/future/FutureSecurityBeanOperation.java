@@ -6,8 +6,8 @@
 package com.opengamma.financial.security.db.future;
 
 import static com.opengamma.financial.security.db.Converters.currencyBeanToCurrency;
-import static com.opengamma.financial.security.db.Converters.dateToExpiry;
-import static com.opengamma.financial.security.db.Converters.expiryToDate;
+import static com.opengamma.financial.security.db.Converters.expiryBeanToExpiry;
+import static com.opengamma.financial.security.db.Converters.expiryToExpiryBean;
 import static com.opengamma.financial.security.db.Converters.identifierBeanToIdentifier;
 import static com.opengamma.financial.security.db.Converters.identifierToIdentifierBean;
 
@@ -74,13 +74,15 @@ public final class FutureSecurityBeanOperation extends AbstractBeanOperation<Fut
             basket.add(futureBundleBeanToBondFutureDeliverable(basketBean));
           }
         }
-        return new BondFutureSecurity(dateToExpiry(bean.getExpiry()), bean.getTradingExchange().getName(), bean.getSettlementExchange().getName(), currencyBeanToCurrency(bean.getCurrency1()), basket,
+        return new BondFutureSecurity(expiryBeanToExpiry(bean.getExpiry()), bean.getTradingExchange().getName(), bean.getSettlementExchange().getName(), currencyBeanToCurrency(bean.getCurrency1()),
+            basket,
             bean.getBondType().getName());
       }
 
       @Override
       public FutureSecurity visitFXFutureType() {
-        final FXFutureSecurity security = new FXFutureSecurity(dateToExpiry(bean.getExpiry()), bean.getTradingExchange().getName(), bean.getSettlementExchange().getName(), currencyBeanToCurrency(bean
+        final FXFutureSecurity security = new FXFutureSecurity(expiryBeanToExpiry(bean.getExpiry()), bean.getTradingExchange().getName(), bean.getSettlementExchange().getName(),
+            currencyBeanToCurrency(bean
             .getCurrency1()), currencyBeanToCurrency(bean.getCurrency2()), currencyBeanToCurrency(bean.getCurrency3()));
         security.setMultiplicationFactor(bean.getUnitNumber());
         return security;
@@ -88,17 +90,13 @@ public final class FutureSecurityBeanOperation extends AbstractBeanOperation<Fut
 
       @Override
       public FutureSecurity visitInterestRateFutureType() {
-        return new InterestRateFutureSecurity(
-            dateToExpiry(bean.getExpiry()),
-            bean.getTradingExchange().getName(),
-            bean.getSettlementExchange().getName(),
-            currencyBeanToCurrency(bean.getCurrency1()),
-            bean.getCashRateType().getName());
+        return new InterestRateFutureSecurity(expiryBeanToExpiry(bean.getExpiry()), bean.getTradingExchange().getName(), bean.getSettlementExchange().getName(), currencyBeanToCurrency(bean
+            .getCurrency1()), bean.getCashRateType().getName());
       }
 
       @Override
       public FutureSecurity visitAgricultureFutureType() {
-        final AgricultureFutureSecurity security = new AgricultureFutureSecurity(dateToExpiry(bean.getExpiry()), bean.getTradingExchange().getName(), bean.getSettlementExchange().getName(),
+        final AgricultureFutureSecurity security = new AgricultureFutureSecurity(expiryBeanToExpiry(bean.getExpiry()), bean.getTradingExchange().getName(), bean.getSettlementExchange().getName(),
             currencyBeanToCurrency(bean.getCurrency1()), bean.getCommodityType().getName());
         security.setUnitNumber(bean.getUnitNumber());
         if (bean.getUnitName() != null) {
@@ -109,7 +107,7 @@ public final class FutureSecurityBeanOperation extends AbstractBeanOperation<Fut
 
       @Override
       public FutureSecurity visitEnergyFutureType() {
-        final EnergyFutureSecurity security = new EnergyFutureSecurity(dateToExpiry(bean.getExpiry()), bean.getTradingExchange().getName(), bean.getSettlementExchange().getName(),
+        final EnergyFutureSecurity security = new EnergyFutureSecurity(expiryBeanToExpiry(bean.getExpiry()), bean.getTradingExchange().getName(), bean.getSettlementExchange().getName(),
             currencyBeanToCurrency(bean.getCurrency1()), bean.getCommodityType().getName());
         security.setUnitNumber(bean.getUnitNumber());
         if (bean.getUnitName() != null) {
@@ -121,7 +119,7 @@ public final class FutureSecurityBeanOperation extends AbstractBeanOperation<Fut
 
       @Override
       public FutureSecurity visitMetalFutureType() {
-        final MetalFutureSecurity security = new MetalFutureSecurity(dateToExpiry(bean.getExpiry()), bean.getTradingExchange().getName(), bean.getSettlementExchange().getName(),
+        final MetalFutureSecurity security = new MetalFutureSecurity(expiryBeanToExpiry(bean.getExpiry()), bean.getTradingExchange().getName(), bean.getSettlementExchange().getName(),
             currencyBeanToCurrency(bean.getCurrency1()), bean.getCommodityType().getName());
         security.setUnitNumber(bean.getUnitNumber());
         if (bean.getUnitName() != null) {
@@ -133,10 +131,7 @@ public final class FutureSecurityBeanOperation extends AbstractBeanOperation<Fut
 
       @Override
       public FutureSecurity visitIndexFutureType() {
-        final IndexFutureSecurity security = new IndexFutureSecurity(
-            dateToExpiry(bean.getExpiry()),
-            bean.getTradingExchange().getName(),
-            bean.getSettlementExchange().getName(),
+        final IndexFutureSecurity security = new IndexFutureSecurity(expiryBeanToExpiry(bean.getExpiry()), bean.getTradingExchange().getName(), bean.getSettlementExchange().getName(),
             currencyBeanToCurrency(bean.getCurrency1()));
         security.setUnderlyingIdentifier(identifierBeanToIdentifier(bean.getUnderlying()));
         return security;
@@ -144,10 +139,7 @@ public final class FutureSecurityBeanOperation extends AbstractBeanOperation<Fut
 
       @Override
       public FutureSecurity visitStockFutureType() {
-        final StockFutureSecurity security = new StockFutureSecurity(
-            dateToExpiry(bean.getExpiry()),
-            bean.getTradingExchange().getName(),
-            bean.getSettlementExchange().getName(),
+        final StockFutureSecurity security = new StockFutureSecurity(expiryBeanToExpiry(bean.getExpiry()), bean.getTradingExchange().getName(), bean.getSettlementExchange().getName(),
             currencyBeanToCurrency(bean.getCurrency1()));
         security.setUnderlyingIdentifier(identifierBeanToIdentifier(bean.getUnderlying()));
         return security;
@@ -283,8 +275,7 @@ public final class FutureSecurityBeanOperation extends AbstractBeanOperation<Fut
     return security.accept(new FutureSecurityVisitor<Boolean>() {
       
       private boolean beanEquals(final FutureSecurity security) {
-        return ObjectUtils.equals(bean.getFutureType(), FutureType.identify(security))
-            && ObjectUtils.equals(dateToExpiry(bean.getExpiry()), security.getExpiry())
+        return ObjectUtils.equals(bean.getFutureType(), FutureType.identify(security)) && ObjectUtils.equals(expiryBeanToExpiry(bean.getExpiry()), security.getExpiry())
             && ObjectUtils.equals(bean.getTradingExchange().getName(), security.getTradingExchange())
             && ObjectUtils.equals(bean.getSettlementExchange().getName(), security.getSettlementExchange());
       }
@@ -378,7 +369,7 @@ public final class FutureSecurityBeanOperation extends AbstractBeanOperation<Fut
       private FutureSecurityBean createFutureBean(final FutureSecurity security) {
         final FutureSecurityBean bean = new FutureSecurityBean();
         bean.setFutureType(FutureType.identify(security));
-        bean.setExpiry(expiryToDate(security.getExpiry()));
+        bean.setExpiry(expiryToExpiryBean(security.getExpiry()));
         bean.setTradingExchange(secMasterSession.getOrCreateExchangeBean(security.getTradingExchange(), null));
         bean.setSettlementExchange(secMasterSession.getOrCreateExchangeBean(security.getSettlementExchange(), null));
         bean.setCurrency1(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getISOCode()));

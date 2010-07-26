@@ -6,9 +6,8 @@
 
 package com.opengamma.financial.security.db.fra;
 
-import java.util.Date;
-
 import com.opengamma.financial.security.db.SecurityBean;
+import com.opengamma.financial.security.db.ZonedDateTimeBean;
 import com.opengamma.financial.security.fra.FRASecurity;
 
 /**
@@ -16,22 +15,22 @@ import com.opengamma.financial.security.fra.FRASecurity;
  */
 public class FRASecurityBean extends SecurityBean {
 
-  private Date _startDate;
-  private Date _endDate;
+  private ZonedDateTimeBean _startDate;
+  private ZonedDateTimeBean _endDate;
 
-  public void setStartDate(final Date startDate) {
+  public void setStartDate(final ZonedDateTimeBean startDate) {
     _startDate = startDate;
   }
 
-  public Date getStartDate() {
+  public ZonedDateTimeBean getStartDate() {
     return _startDate;
   }
 
-  public void setEndDate(final Date endDate) {
+  public void setEndDate(final ZonedDateTimeBean endDate) {
     _endDate = endDate;
   }
 
-  public Date getEndDate() {
+  public ZonedDateTimeBean getEndDate() {
     return _endDate;
   }
 

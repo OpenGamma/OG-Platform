@@ -4,6 +4,7 @@
   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.financial.security.db.equity">
   <union-subclass name="EquitySecurityBean" extends="com.opengamma.financial.security.db.SecurityBean" table="sec_equity">
+    <property name="shortName" column="shortName" type="string" />
     <many-to-one name="exchange" column="exchange_id" class="com.opengamma.financial.security.db.ExchangeBean" not-null="true"/>  
     <property name="companyName" type="string" not-null="true"/>
     <many-to-one name="currency" column="currency_id" class="com.opengamma.financial.security.db.CurrencyBean" not-null="true"/>

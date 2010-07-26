@@ -6,9 +6,8 @@
 
 package com.opengamma.financial.security.db.swap;
 
-import java.util.Date;
-
 import com.opengamma.financial.security.db.SecurityBean;
+import com.opengamma.financial.security.db.ZonedDateTimeBean;
 import com.opengamma.financial.security.swap.SwapSecurity;
 
 /**
@@ -17,10 +16,10 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 public class SwapSecurityBean extends SecurityBean {
 
   private SwapType _swapType;
-  private Date _tradeDate;
-  private Date _effectiveDate;
-  private Date _maturityDate;
-  private Date _forwardStartDate;
+  private ZonedDateTimeBean _tradeDate;
+  private ZonedDateTimeBean _effectiveDate;
+  private ZonedDateTimeBean _maturityDate;
+  private ZonedDateTimeBean _forwardStartDate;
   private String _counterparty;
   private SwapLegBean _payLeg;
   private SwapLegBean _receiveLeg;
@@ -37,7 +36,7 @@ public class SwapSecurityBean extends SecurityBean {
    * Gets the tradeDate field.
    * @return the tradeDate
    */
-  public Date getTradeDate() {
+  public ZonedDateTimeBean getTradeDate() {
     return _tradeDate;
   }
 
@@ -45,7 +44,7 @@ public class SwapSecurityBean extends SecurityBean {
    * Sets the tradeDate field.
    * @param tradeDate  the tradeDate
    */
-  public void setTradeDate(Date tradeDate) {
+  public void setTradeDate(ZonedDateTimeBean tradeDate) {
     _tradeDate = tradeDate;
   }
 
@@ -53,7 +52,7 @@ public class SwapSecurityBean extends SecurityBean {
    * Gets the effectiveDate field.
    * @return the effectiveDate
    */
-  public Date getEffectiveDate() {
+  public ZonedDateTimeBean getEffectiveDate() {
     return _effectiveDate;
   }
 
@@ -61,7 +60,7 @@ public class SwapSecurityBean extends SecurityBean {
    * Sets the effectiveDate field.
    * @param effectiveDate  the effectiveDate
    */
-  public void setEffectiveDate(Date effectiveDate) {
+  public void setEffectiveDate(ZonedDateTimeBean effectiveDate) {
     _effectiveDate = effectiveDate;
   }
 
@@ -69,7 +68,7 @@ public class SwapSecurityBean extends SecurityBean {
    * Gets the maturityDate field.
    * @return the maturityDate
    */
-  public Date getMaturityDate() {
+  public ZonedDateTimeBean getMaturityDate() {
     return _maturityDate;
   }
 
@@ -77,15 +76,15 @@ public class SwapSecurityBean extends SecurityBean {
    * Sets the maturityDate field.
    * @param maturityDate  the maturityDate
    */
-  public void setMaturityDate(Date maturityDate) {
+  public void setMaturityDate(ZonedDateTimeBean maturityDate) {
     _maturityDate = maturityDate;
   }
 
-  public Date getForwardStartDate() {
+  public ZonedDateTimeBean getForwardStartDate() {
     return _forwardStartDate;
   }
 
-  public void setForwardStartDate(Date forwardStartDate) {
+  public void setForwardStartDate(ZonedDateTimeBean forwardStartDate) {
     _forwardStartDate = forwardStartDate;
   }
 

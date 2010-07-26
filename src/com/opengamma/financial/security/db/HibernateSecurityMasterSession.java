@@ -382,7 +382,7 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
     Query query = getSession().getNamedQuery("IdentifierAssociationBean.one.previousAssociation");
     query.setString("scheme", scheme);
     query.setString("identifier", identifier);
-    query.setDate("now", now);
+    query.setTimestamp("now", now);
     IdentifierAssociationBean other = (IdentifierAssociationBean) query.uniqueResult();
     if (other != null) {
       association.setValidStartDate(other.getValidEndDate());
@@ -390,7 +390,7 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
     query = getSession().getNamedQuery("IdentifierAssociationBean.one.nextAssociation");
     query.setString("scheme", scheme);
     query.setString("identifier", identifier);
-    query.setDate("now", now);
+    query.setTimestamp("now", now);
     other = (IdentifierAssociationBean) query.uniqueResult();
     if (other != null) {
       association.setValidEndDate(other.getValidEndDate());
@@ -408,7 +408,7 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
         "IdentifierAssociationBean.one.byDateIdentifier");
     query.setString("scheme", scheme);
     query.setString("identifier", identifier);
-    query.setDate("now", now);
+    query.setTimestamp("now", now);
     IdentifierAssociationBean association = (IdentifierAssociationBean) query.uniqueResult();
     if (association == null) {
       association = createIdentifierAssociationBean(now, scheme, identifier, security);
@@ -456,7 +456,7 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
   public SecurityBean getSecurityBean(Date now, final UniqueIdentifier uid) {
     Query query = getSession().getNamedQuery("SecurityBean.one.byDateOid");
     query.setLong("securityOid", Long.valueOf(uid.getValue()));
-    query.setDate("now", now);
+    query.setTimestamp("now", now);
     SecurityBean security = (SecurityBean) query.uniqueResult();
     return security;
   }
@@ -470,7 +470,7 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
       Query query = getSession().getNamedQuery("SecurityBean.one.byDateIdentifiers");
       query.setString("scheme", scheme);
       query.setParameterList("identifiers", ids);
-      query.setDate("now", now);
+      query.setTimestamp("now", now);
       SecurityBean security = (SecurityBean) query.uniqueResult();
       if (security != null) {
         return security;
@@ -617,7 +617,7 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
     Query query;
     if (now != null) {
       query = getSession().getNamedQuery("FutureBundleBean.many.byDateFuture");
-      query.setDate("now", now);
+      query.setTimestamp("now", now);
     } else {
       query = getSession().getNamedQuery("FutureBundleBean.many.byFuture");
     }
@@ -628,7 +628,7 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
   @Override
   public FutureBundleBean nextFutureBundleBean(Date now, FutureSecurityBean future) {
     Query query = getSession().getNamedQuery("FutureBundleBean.one.nextBundle");
-    query.setDate("now", now);
+    query.setTimestamp("now", now);
     query.setParameter("future", future);
     return (FutureBundleBean) query.uniqueResult();
   }
