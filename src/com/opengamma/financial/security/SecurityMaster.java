@@ -32,8 +32,9 @@ public interface SecurityMaster {
    * The version in the identifier allows access to these historic versions.
    * 
    * @param uid  the unique identifier, not null
-   * @return the security document, null if not found
+   * @return the security document, not null
    * @throws IllegalArgumentException if the identifier is not from this security master
+   * @throws DataNotFoundException if there is no security with that unique identifier
    */
   SecurityDocument get(UniqueIdentifier uid);
 
@@ -62,7 +63,7 @@ public interface SecurityMaster {
    * @param document  the document, not null
    * @return the updated security document, not null
    * @throws IllegalArgumentException if the request is invalid
-   * @throws DataNotFoundException if the security is not found
+   * @throws DataNotFoundException if there is no security with that unique identifier
    */
   SecurityDocument update(SecurityDocument document);
 
@@ -76,7 +77,7 @@ public interface SecurityMaster {
    * 
    * @param uid  the security unique identifier to remove, not null
    * @throws IllegalArgumentException if the request is invalid
-   * @throws DataNotFoundException if the security is not found
+   * @throws DataNotFoundException if there is no security with that unique identifier
    */
   void remove(final UniqueIdentifier uid);
 
@@ -106,7 +107,7 @@ public interface SecurityMaster {
    * @param document  the document, not null
    * @return the updated security document, not null
    * @throws IllegalArgumentException if the request is invalid
-   * @throws DataNotFoundException if the security is not found
+   * @throws DataNotFoundException if there is no security with that unique identifier
    */
   SecurityDocument correct(SecurityDocument document);
 

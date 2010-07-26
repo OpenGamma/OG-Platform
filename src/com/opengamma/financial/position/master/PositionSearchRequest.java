@@ -3,12 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position;
+package com.opengamma.financial.position.master;
 
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import javax.time.Instant;
 
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
@@ -18,7 +20,7 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.db.PagingRequest;
 
@@ -38,17 +40,12 @@ public class PositionSearchRequest extends DirectBean {
    * The portfolio unique identifier, null to search all portfolios.
    */
   @PropertyDefinition
-  private UniqueIdentifier _portfolio;
+  private UniqueIdentifier _portfolioUid;
   /**
    * The node to search within, null to search all nodes.
    */
   @PropertyDefinition
-  private UniqueIdentifier _parentNode;
-  /**
-   * The name, wildcards allowed, null to not match on name.
-   */
-  @PropertyDefinition
-  private String _name;
+  private UniqueIdentifier _parentNodeUid;
   /**
    * The minimum quantity, inclusive, null for no minimum.
    */
@@ -63,7 +60,19 @@ public class PositionSearchRequest extends DirectBean {
    * The security key to match, null to not match on security key.
    */
   @PropertyDefinition
-  private Identifier _securityKey;
+  private IdentifierBundle _securityKey;
+  /**
+   * The instant to search for a version at.
+   * Null is treated as the latest version.
+   */
+  @PropertyDefinition
+  private Instant _versionAsOfInstant;
+  /**
+   * The instant to search for corrections for.
+   * Null is treated as the latest correction.
+   */
+  @PropertyDefinition
+  private Instant _correctedToInstant;
 
   /**
    * Creates an instance.
@@ -90,18 +99,20 @@ public class PositionSearchRequest extends DirectBean {
     switch (propertyName.hashCode()) {
       case -2092032669:  // pagingRequest
         return getPagingRequest();
-      case 1121781064:  // portfolio
-        return getPortfolio();
-      case -244857396:  // parentNode
-        return getParentNode();
-      case 3373707:  // name
-        return getName();
+      case -160767512:  // portfolioUid
+        return getPortfolioUid();
+      case -1692130588:  // parentNodeUid
+        return getParentNodeUid();
       case 69860605:  // minQuantity
         return getMinQuantity();
       case 747293199:  // maxQuantity
         return getMaxQuantity();
       case 1550083839:  // securityKey
         return getSecurityKey();
+      case 598802432:  // versionAsOfInstant
+        return getVersionAsOfInstant();
+      case -28367267:  // correctedToInstant
+        return getCorrectedToInstant();
     }
     return super.propertyGet(propertyName);
   }
@@ -112,14 +123,11 @@ public class PositionSearchRequest extends DirectBean {
       case -2092032669:  // pagingRequest
         setPagingRequest((PagingRequest) newValue);
         return;
-      case 1121781064:  // portfolio
-        setPortfolio((UniqueIdentifier) newValue);
+      case -160767512:  // portfolioUid
+        setPortfolioUid((UniqueIdentifier) newValue);
         return;
-      case -244857396:  // parentNode
-        setParentNode((UniqueIdentifier) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
+      case -1692130588:  // parentNodeUid
+        setParentNodeUid((UniqueIdentifier) newValue);
         return;
       case 69860605:  // minQuantity
         setMinQuantity((BigDecimal) newValue);
@@ -128,7 +136,13 @@ public class PositionSearchRequest extends DirectBean {
         setMaxQuantity((BigDecimal) newValue);
         return;
       case 1550083839:  // securityKey
-        setSecurityKey((Identifier) newValue);
+        setSecurityKey((IdentifierBundle) newValue);
+        return;
+      case 598802432:  // versionAsOfInstant
+        setVersionAsOfInstant((Instant) newValue);
+        return;
+      case -28367267:  // correctedToInstant
+        setCorrectedToInstant((Instant) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -167,24 +181,24 @@ public class PositionSearchRequest extends DirectBean {
    * Gets the portfolio unique identifier, null to search all portfolios.
    * @return the value of the property
    */
-  public UniqueIdentifier getPortfolio() {
-    return _portfolio;
+  public UniqueIdentifier getPortfolioUid() {
+    return _portfolioUid;
   }
 
   /**
    * Sets the portfolio unique identifier, null to search all portfolios.
-   * @param portfolio  the new value of the property
+   * @param portfolioUid  the new value of the property
    */
-  public void setPortfolio(UniqueIdentifier portfolio) {
-    this._portfolio = portfolio;
+  public void setPortfolioUid(UniqueIdentifier portfolioUid) {
+    this._portfolioUid = portfolioUid;
   }
 
   /**
-   * Gets the the {@code portfolio} property.
+   * Gets the the {@code portfolioUid} property.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> portfolio() {
-    return metaBean().portfolio().createProperty(this);
+  public final Property<UniqueIdentifier> portfolioUid() {
+    return metaBean().portfolioUid().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -192,49 +206,24 @@ public class PositionSearchRequest extends DirectBean {
    * Gets the node to search within, null to search all nodes.
    * @return the value of the property
    */
-  public UniqueIdentifier getParentNode() {
-    return _parentNode;
+  public UniqueIdentifier getParentNodeUid() {
+    return _parentNodeUid;
   }
 
   /**
    * Sets the node to search within, null to search all nodes.
-   * @param parentNode  the new value of the property
+   * @param parentNodeUid  the new value of the property
    */
-  public void setParentNode(UniqueIdentifier parentNode) {
-    this._parentNode = parentNode;
+  public void setParentNodeUid(UniqueIdentifier parentNodeUid) {
+    this._parentNodeUid = parentNodeUid;
   }
 
   /**
-   * Gets the the {@code parentNode} property.
+   * Gets the the {@code parentNodeUid} property.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> parentNode() {
-    return metaBean().parentNode().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the name, wildcards allowed, null to not match on name.
-   * @return the value of the property
-   */
-  public String getName() {
-    return _name;
-  }
-
-  /**
-   * Sets the name, wildcards allowed, null to not match on name.
-   * @param name  the new value of the property
-   */
-  public void setName(String name) {
-    this._name = name;
-  }
-
-  /**
-   * Gets the the {@code name} property.
-   * @return the property, not null
-   */
-  public final Property<String> name() {
-    return metaBean().name().createProperty(this);
+  public final Property<UniqueIdentifier> parentNodeUid() {
+    return metaBean().parentNodeUid().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -292,7 +281,7 @@ public class PositionSearchRequest extends DirectBean {
    * Gets the security key to match, null to not match on security key.
    * @return the value of the property
    */
-  public Identifier getSecurityKey() {
+  public IdentifierBundle getSecurityKey() {
     return _securityKey;
   }
 
@@ -300,7 +289,7 @@ public class PositionSearchRequest extends DirectBean {
    * Sets the security key to match, null to not match on security key.
    * @param securityKey  the new value of the property
    */
-  public void setSecurityKey(Identifier securityKey) {
+  public void setSecurityKey(IdentifierBundle securityKey) {
     this._securityKey = securityKey;
   }
 
@@ -308,8 +297,64 @@ public class PositionSearchRequest extends DirectBean {
    * Gets the the {@code securityKey} property.
    * @return the property, not null
    */
-  public final Property<Identifier> securityKey() {
+  public final Property<IdentifierBundle> securityKey() {
     return metaBean().securityKey().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the instant to search for a version at.
+   * Null is treated as the latest version.
+   * @return the value of the property
+   */
+  public Instant getVersionAsOfInstant() {
+    return _versionAsOfInstant;
+  }
+
+  /**
+   * Sets the instant to search for a version at.
+   * Null is treated as the latest version.
+   * @param versionAsOfInstant  the new value of the property
+   */
+  public void setVersionAsOfInstant(Instant versionAsOfInstant) {
+    this._versionAsOfInstant = versionAsOfInstant;
+  }
+
+  /**
+   * Gets the the {@code versionAsOfInstant} property.
+   * Null is treated as the latest version.
+   * @return the property, not null
+   */
+  public final Property<Instant> versionAsOfInstant() {
+    return metaBean().versionAsOfInstant().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the instant to search for corrections for.
+   * Null is treated as the latest correction.
+   * @return the value of the property
+   */
+  public Instant getCorrectedToInstant() {
+    return _correctedToInstant;
+  }
+
+  /**
+   * Sets the instant to search for corrections for.
+   * Null is treated as the latest correction.
+   * @param correctedToInstant  the new value of the property
+   */
+  public void setCorrectedToInstant(Instant correctedToInstant) {
+    this._correctedToInstant = correctedToInstant;
+  }
+
+  /**
+   * Gets the the {@code correctedToInstant} property.
+   * Null is treated as the latest correction.
+   * @return the property, not null
+   */
+  public final Property<Instant> correctedToInstant() {
+    return metaBean().correctedToInstant().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -327,17 +372,13 @@ public class PositionSearchRequest extends DirectBean {
      */
     private final MetaProperty<PagingRequest> _pagingRequest = DirectMetaProperty.ofReadWrite(this, "pagingRequest", PagingRequest.class);
     /**
-     * The meta-property for the {@code portfolio} property.
+     * The meta-property for the {@code portfolioUid} property.
      */
-    private final MetaProperty<UniqueIdentifier> _portfolio = DirectMetaProperty.ofReadWrite(this, "portfolio", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _portfolioUid = DirectMetaProperty.ofReadWrite(this, "portfolioUid", UniqueIdentifier.class);
     /**
-     * The meta-property for the {@code parentNode} property.
+     * The meta-property for the {@code parentNodeUid} property.
      */
-    private final MetaProperty<UniqueIdentifier> _parentNode = DirectMetaProperty.ofReadWrite(this, "parentNode", UniqueIdentifier.class);
-    /**
-     * The meta-property for the {@code name} property.
-     */
-    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", String.class);
+    private final MetaProperty<UniqueIdentifier> _parentNodeUid = DirectMetaProperty.ofReadWrite(this, "parentNodeUid", UniqueIdentifier.class);
     /**
      * The meta-property for the {@code minQuantity} property.
      */
@@ -349,7 +390,15 @@ public class PositionSearchRequest extends DirectBean {
     /**
      * The meta-property for the {@code securityKey} property.
      */
-    private final MetaProperty<Identifier> _securityKey = DirectMetaProperty.ofReadWrite(this, "securityKey", Identifier.class);
+    private final MetaProperty<IdentifierBundle> _securityKey = DirectMetaProperty.ofReadWrite(this, "securityKey", IdentifierBundle.class);
+    /**
+     * The meta-property for the {@code versionAsOfInstant} property.
+     */
+    private final MetaProperty<Instant> _versionAsOfInstant = DirectMetaProperty.ofReadWrite(this, "versionAsOfInstant", Instant.class);
+    /**
+     * The meta-property for the {@code correctedToInstant} property.
+     */
+    private final MetaProperty<Instant> _correctedToInstant = DirectMetaProperty.ofReadWrite(this, "correctedToInstant", Instant.class);
     /**
      * The meta-properties.
      */
@@ -359,12 +408,13 @@ public class PositionSearchRequest extends DirectBean {
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("pagingRequest", _pagingRequest);
-      temp.put("portfolio", _portfolio);
-      temp.put("parentNode", _parentNode);
-      temp.put("name", _name);
+      temp.put("portfolioUid", _portfolioUid);
+      temp.put("parentNodeUid", _parentNodeUid);
       temp.put("minQuantity", _minQuantity);
       temp.put("maxQuantity", _maxQuantity);
       temp.put("securityKey", _securityKey);
+      temp.put("versionAsOfInstant", _versionAsOfInstant);
+      temp.put("correctedToInstant", _correctedToInstant);
       _map = Collections.unmodifiableMap(temp);
     }
 
@@ -393,27 +443,19 @@ public class PositionSearchRequest extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code portfolio} property.
+     * The meta-property for the {@code portfolioUid} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> portfolio() {
-      return _portfolio;
+    public final MetaProperty<UniqueIdentifier> portfolioUid() {
+      return _portfolioUid;
     }
 
     /**
-     * The meta-property for the {@code parentNode} property.
+     * The meta-property for the {@code parentNodeUid} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> parentNode() {
-      return _parentNode;
-    }
-
-    /**
-     * The meta-property for the {@code name} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> name() {
-      return _name;
+    public final MetaProperty<UniqueIdentifier> parentNodeUid() {
+      return _parentNodeUid;
     }
 
     /**
@@ -436,8 +478,24 @@ public class PositionSearchRequest extends DirectBean {
      * The meta-property for the {@code securityKey} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Identifier> securityKey() {
+    public final MetaProperty<IdentifierBundle> securityKey() {
       return _securityKey;
+    }
+
+    /**
+     * The meta-property for the {@code versionAsOfInstant} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Instant> versionAsOfInstant() {
+      return _versionAsOfInstant;
+    }
+
+    /**
+     * The meta-property for the {@code correctedToInstant} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Instant> correctedToInstant() {
+      return _correctedToInstant;
     }
 
   }

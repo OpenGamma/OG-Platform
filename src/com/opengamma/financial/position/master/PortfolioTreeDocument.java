@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position;
+package com.opengamma.financial.position.master;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -15,13 +15,13 @@ import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.PropertyReadWrite;
 import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.google.common.collect.Maps;
 import com.opengamma.engine.position.Portfolio;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -32,13 +32,13 @@ import com.opengamma.util.ArgumentChecker;
  * To find the positions on a node, it must be individually retrieved.
  */
 @BeanDefinition
-public class PortfolioTreeDocument extends DirectBean implements UniqueIdentifiable {
+public class PortfolioTreeDocument extends DirectBean {
 
   /**
    * The portfolio unique identifier.
    */
   @PropertyDefinition
-  private UniqueIdentifier _uniqueIdentifier;
+  private UniqueIdentifier _portfolioId;
   /**
    * The instant that the portfolio is valid from.
    */
@@ -62,8 +62,8 @@ public class PortfolioTreeDocument extends DirectBean implements UniqueIdentifia
   /**
    * The map of node unique identifier to the count of positions directly on that node.
    */
-  @PropertyDefinition
-  private Map<UniqueIdentifier, Integer> _positions = Maps.newHashMap();
+  @PropertyDefinition(readWrite = PropertyReadWrite.READ_ONLY)
+  private Map<UniqueIdentifier, Integer> _positionCounts = Maps.newHashMap();
 
   /**
    * Creates an instance.
@@ -77,7 +77,7 @@ public class PortfolioTreeDocument extends DirectBean implements UniqueIdentifia
    */
   public PortfolioTreeDocument(final Portfolio portfolio) {
     ArgumentChecker.notNull(portfolio, "portfolio");
-    setUniqueIdentifier(portfolio.getUniqueIdentifier());
+    setPortfolioId(portfolio.getUniqueIdentifier());
     setPortfolio(portfolio);
   }
 
@@ -98,8 +98,8 @@ public class PortfolioTreeDocument extends DirectBean implements UniqueIdentifia
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
-      case -125484198:  // uniqueIdentifier
-        return getUniqueIdentifier();
+      case -5186429:  // portfolioId
+        return getPortfolioId();
       case -3992261:  // validFromInstant
         return getValidFromInstant();
       case -1035122102:  // validToInstant
@@ -108,18 +108,17 @@ public class PortfolioTreeDocument extends DirectBean implements UniqueIdentifia
         return getLastModifiedInstant();
       case 1121781064:  // portfolio
         return getPortfolio();
-      case 1707117674:  // positions
-        return getPositions();
+      case -2113727539:  // positionCounts
+        return getPositionCounts();
     }
     return super.propertyGet(propertyName);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
-      case -125484198:  // uniqueIdentifier
-        setUniqueIdentifier((UniqueIdentifier) newValue);
+      case -5186429:  // portfolioId
+        setPortfolioId((UniqueIdentifier) newValue);
         return;
       case -3992261:  // validFromInstant
         setValidFromInstant((Instant) newValue);
@@ -133,9 +132,8 @@ public class PortfolioTreeDocument extends DirectBean implements UniqueIdentifia
       case 1121781064:  // portfolio
         setPortfolio((Portfolio) newValue);
         return;
-      case 1707117674:  // positions
-        setPositions((Map<UniqueIdentifier, Integer>) newValue);
-        return;
+      case -2113727539:  // positionCounts
+        throw new UnsupportedOperationException("Property cannot be written: positionCounts");
     }
     super.propertySet(propertyName, newValue);
   }
@@ -145,24 +143,24 @@ public class PortfolioTreeDocument extends DirectBean implements UniqueIdentifia
    * Gets the portfolio unique identifier.
    * @return the value of the property
    */
-  public UniqueIdentifier getUniqueIdentifier() {
-    return _uniqueIdentifier;
+  public UniqueIdentifier getPortfolioId() {
+    return _portfolioId;
   }
 
   /**
    * Sets the portfolio unique identifier.
-   * @param uniqueIdentifier  the new value of the property
+   * @param portfolioId  the new value of the property
    */
-  public void setUniqueIdentifier(UniqueIdentifier uniqueIdentifier) {
-    this._uniqueIdentifier = uniqueIdentifier;
+  public void setPortfolioId(UniqueIdentifier portfolioId) {
+    this._portfolioId = portfolioId;
   }
 
   /**
-   * Gets the the {@code uniqueIdentifier} property.
+   * Gets the the {@code portfolioId} property.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> uniqueIdentifier() {
-    return metaBean().uniqueIdentifier().createProperty(this);
+  public final Property<UniqueIdentifier> portfolioId() {
+    return metaBean().portfolioId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -270,24 +268,16 @@ public class PortfolioTreeDocument extends DirectBean implements UniqueIdentifia
    * Gets the map of node unique identifier to the count of positions directly on that node.
    * @return the value of the property
    */
-  public Map<UniqueIdentifier, Integer> getPositions() {
-    return _positions;
+  public Map<UniqueIdentifier, Integer> getPositionCounts() {
+    return _positionCounts;
   }
 
   /**
-   * Sets the map of node unique identifier to the count of positions directly on that node.
-   * @param positions  the new value of the property
-   */
-  public void setPositions(Map<UniqueIdentifier, Integer> positions) {
-    this._positions = positions;
-  }
-
-  /**
-   * Gets the the {@code positions} property.
+   * Gets the the {@code positionCounts} property.
    * @return the property, not null
    */
-  public final Property<Map<UniqueIdentifier, Integer>> positions() {
-    return metaBean().positions().createProperty(this);
+  public final Property<Map<UniqueIdentifier, Integer>> positionCounts() {
+    return metaBean().positionCounts().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -301,9 +291,9 @@ public class PortfolioTreeDocument extends DirectBean implements UniqueIdentifia
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code uniqueIdentifier} property.
+     * The meta-property for the {@code portfolioId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueIdentifier = DirectMetaProperty.ofReadWrite(this, "uniqueIdentifier", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _portfolioId = DirectMetaProperty.ofReadWrite(this, "portfolioId", UniqueIdentifier.class);
     /**
      * The meta-property for the {@code validFromInstant} property.
      */
@@ -321,10 +311,10 @@ public class PortfolioTreeDocument extends DirectBean implements UniqueIdentifia
      */
     private final MetaProperty<Portfolio> _portfolio = DirectMetaProperty.ofReadWrite(this, "portfolio", Portfolio.class);
     /**
-     * The meta-property for the {@code positions} property.
+     * The meta-property for the {@code positionCounts} property.
      */
     @SuppressWarnings("unchecked")
-    private final MetaProperty<Map<UniqueIdentifier, Integer>> _positions = DirectMetaProperty.ofReadWrite(this, "positions", (Class) Map.class);
+    private final MetaProperty<Map<UniqueIdentifier, Integer>> _positionCounts = DirectMetaProperty.ofReadOnly(this, "positionCounts", (Class) Map.class);
     /**
      * The meta-properties.
      */
@@ -333,12 +323,12 @@ public class PortfolioTreeDocument extends DirectBean implements UniqueIdentifia
     @SuppressWarnings("unchecked")
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
-      temp.put("uniqueIdentifier", _uniqueIdentifier);
+      temp.put("portfolioId", _portfolioId);
       temp.put("validFromInstant", _validFromInstant);
       temp.put("validToInstant", _validToInstant);
       temp.put("lastModifiedInstant", _lastModifiedInstant);
       temp.put("portfolio", _portfolio);
-      temp.put("positions", _positions);
+      temp.put("positionCounts", _positionCounts);
       _map = Collections.unmodifiableMap(temp);
     }
 
@@ -359,11 +349,11 @@ public class PortfolioTreeDocument extends DirectBean implements UniqueIdentifia
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code uniqueIdentifier} property.
+     * The meta-property for the {@code portfolioId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> uniqueIdentifier() {
-      return _uniqueIdentifier;
+    public final MetaProperty<UniqueIdentifier> portfolioId() {
+      return _portfolioId;
     }
 
     /**
@@ -399,11 +389,11 @@ public class PortfolioTreeDocument extends DirectBean implements UniqueIdentifia
     }
 
     /**
-     * The meta-property for the {@code positions} property.
+     * The meta-property for the {@code positionCounts} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Map<UniqueIdentifier, Integer>> positions() {
-      return _positions;
+    public final MetaProperty<Map<UniqueIdentifier, Integer>> positionCounts() {
+      return _positionCounts;
     }
 
   }
