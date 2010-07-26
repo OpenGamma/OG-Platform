@@ -45,7 +45,7 @@ public class EuropeanVanillaOptionSkewKurtosisCrossModelPricingTest {
     @SuppressWarnings("unused")
     final OptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> model1 = new ModifiedCorradoSuSkewnessKurtosisModel();
     @SuppressWarnings("unused")
-    final OptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> model2 = new BinomialOptionModel<SkewKurtosisOptionDataBundle>(10, new EdgeworthSkewKurtosisBinomialOptionModelDefinition());
+    final OptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> model2 = new BinomialOptionModel<SkewKurtosisOptionDataBundle>(new EdgeworthSkewKurtosisBinomialOptionModelDefinition(), 10);
     // System.out.println(model1.getGreeks(call, DATA, REQUIRED_GREEKS));
     // System.out.println(model2.getGreeks(call, DATA, REQUIRED_GREEKS));
     // System.out.println(new BlackScholesMertonModel().getGreeks(call, DATA,
