@@ -6,9 +6,7 @@
 package com.opengamma.financial.model.volatility.surface;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
@@ -38,11 +36,6 @@ public class ConstantVolatilitySurface extends VolatilitySurface implements Seri
     Validate.notNull(xy.getFirst(), "x value");
     Validate.notNull(xy.getSecond(), "y value");
     return _sigma;
-  }
-
-  @Override
-  public Set<Pair<Double, Double>> getXYData() {
-    return Collections.<Pair<Double, Double>>emptySet();
   }
 
   @Override

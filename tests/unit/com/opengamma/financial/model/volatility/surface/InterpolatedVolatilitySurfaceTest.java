@@ -29,7 +29,7 @@ public class InterpolatedVolatilitySurfaceTest {
   private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> LINEAR = new LinearInterpolator1D();
   private static final Interpolator2D INTERPOLATOR = new GridInterpolator2D(LINEAR, LINEAR);
   private static final Map<Pair<Double, Double>, Double> DATA = new HashMap<Pair<Double, Double>, Double>();
-  private static final VolatilitySurface SURFACE;
+  private static final InterpolatedVolatilitySurface SURFACE;
   private static final Pair<Double, Double> XY = Pair.of(0.5, 0.5);
   private static final double SHIFT = 0.05;
   private static final double EPS = 1e-15;
@@ -148,7 +148,7 @@ public class InterpolatedVolatilitySurfaceTest {
     final Pair<Double, Double> xy2 = Pair.of(1., 1.);
     shifts.put(xy1, SHIFT);
     shifts.put(xy2, -SHIFT);
-    final VolatilitySurface surface = SURFACE.withMultipleShifts(shifts);
+    final InterpolatedVolatilitySurface surface = (InterpolatedVolatilitySurface)SURFACE.withMultipleShifts(shifts);
     for (final Pair<Double, Double> pair : surface.getXYData()) {
       if (pair.equals(xy1)) {
         assertEquals(SIGMA + SHIFT, surface.getVolatility(pair), EPS);

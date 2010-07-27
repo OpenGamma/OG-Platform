@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
@@ -106,11 +105,6 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
       @Override
       public Double getVolatility(final Pair<Double, Double> tk) {
         return result.getPredictedValue(_independentVariableFunction.evaluate(tk.getFirst(), tk.getSecond()));
-      }
-
-      @Override
-      public Set<Pair<Double, Double>> getXYData() {
-        throw new UnsupportedOperationException();
       }
 
       @Override

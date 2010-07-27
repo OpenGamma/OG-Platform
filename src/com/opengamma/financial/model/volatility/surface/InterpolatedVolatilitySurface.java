@@ -96,7 +96,6 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
     return Math.sqrt(_interpolator.interpolate(_varianceData, xy));
   }
 
-  @Override
   public Set<Pair<Double, Double>> getXYData() {
     return _volatilityData.keySet();
   }

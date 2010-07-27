@@ -34,8 +34,6 @@ public class CoxRossRubinsteinBinomialOptionModelDefinition extends BinomialOpti
     final double dt = t / n;
     final double u = getUpFactor(option, data, n, j);
     final double d = getDownFactor(option, data, n, j);
-    System.out.println(u + " " + d + " " + b);
-    System.out.println((Math.exp(b * dt) - d) / (u - d));
     return new ConstantRecombiningBinomialTree<Double>((Math.exp(b * dt) - d) / (u - d));
   }
 }

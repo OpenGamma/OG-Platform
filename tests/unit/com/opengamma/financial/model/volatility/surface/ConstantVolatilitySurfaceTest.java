@@ -81,7 +81,6 @@ public class ConstantVolatilitySurfaceTest {
   @Test
   public void test() {
     assertEquals(SIGMA, SURFACE.getVolatility(XY), EPS);
-    assertEquals(Collections.<Pair<Double, Double>>emptySet(), SURFACE.getXYData());
   }
 
   @Test
