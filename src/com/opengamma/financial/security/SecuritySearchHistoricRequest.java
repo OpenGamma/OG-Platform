@@ -25,15 +25,35 @@ import com.opengamma.util.db.PagingRequest;
 
 /**
  * Request for searching for historic securities.
+ * <p>
+ * A full security master implements historical storage of data.
+ * History can be stored in two dimensions and this request provides searching.
+ * <p>
+ * The first historic dimension is the classic series of versions.
+ * Each new version is stored in such a manor that previous versions can be accessed.
+ * <p>
+ * The second historic dimension is corrections.
+ * A correction occurs when it is realized that the original data stored was incorrect.
+ * A simple security master might simply replace the original version with the corrected value.
+ * A full implementation will store the correction in such a manner that it is still possible
+ * to obtain the value before the correction was made.
+ * <p>
+ * For example, a security added on Monday and updated on Thursday has two versions.
+ * If it is realized on Friday that the version stored on Monday was incorrect, then a
+ * correction may be applied. There are now two versions, the first of which has one correction.
+ * This may continue, with multiple corrections allowed for each version.
+ * <p>
+ * Versions are represented by instants in the search.
  */
 @BeanDefinition
 public class SecuritySearchHistoricRequest extends DirectBean {
 
   /**
    * The request for paging.
+   * By default all matching items will be returned.
    */
   @PropertyDefinition
-  private PagingRequest _pagingRequest = new PagingRequest();
+  private PagingRequest _pagingRequest = PagingRequest.ALL;
   /**
    * The object identifier to match.
    * The unique identifier must not contain a version.
@@ -155,6 +175,7 @@ public class SecuritySearchHistoricRequest extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the request for paging.
+   * By default all matching items will be returned.
    * @return the value of the property
    */
   public PagingRequest getPagingRequest() {
@@ -163,6 +184,7 @@ public class SecuritySearchHistoricRequest extends DirectBean {
 
   /**
    * Sets the request for paging.
+   * By default all matching items will be returned.
    * @param pagingRequest  the new value of the property
    */
   public void setPagingRequest(PagingRequest pagingRequest) {
@@ -171,6 +193,7 @@ public class SecuritySearchHistoricRequest extends DirectBean {
 
   /**
    * Gets the the {@code pagingRequest} property.
+   * By default all matching items will be returned.
    * @return the property, not null
    */
   public final Property<PagingRequest> pagingRequest() {

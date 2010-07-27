@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.ircurve;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -31,9 +32,9 @@ import com.opengamma.financial.Currency;
 import com.opengamma.financial.analytics.model.swap.SwapScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.SingleCurveFinder;
-import com.opengamma.financial.interestrate.SingleCurveJacobian;
-import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
+import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
+import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
@@ -41,9 +42,11 @@ import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateLeg;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CubicSplineInterpolatorWithSensitivities1D;
 import com.opengamma.math.interpolation.Extrapolator1D;
 import com.opengamma.math.interpolation.ExtrapolatorMethod;
+import com.opengamma.math.interpolation.FixedNodeInterpolator1D;
 import com.opengamma.math.interpolation.FlatExtrapolator;
 import com.opengamma.math.interpolation.FlatExtrapolatorWithSensitivities;
 import com.opengamma.math.interpolation.InterpolationResult;
@@ -58,12 +61,14 @@ import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
+import com.opengamma.math.rootfinding.newton.JacobianCalculator;
 import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
 
 /**
  * 
  */
 public class SwapPortfolioImpliedYieldCurveFunction extends AbstractFunction implements FunctionInvoker {
+  private static final String CURVE_NAME = "Whatever";
   private final Currency _currency;
   //TODO all interpolators should be passed in
   private final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> _interpolator; // TODO this should not be hard-coded
@@ -80,9 +85,9 @@ public class SwapPortfolioImpliedYieldCurveFunction extends AbstractFunction imp
     final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> cubicInterpolatorWithSense = new CubicSplineInterpolatorWithSensitivities1D();
     final ExtrapolatorMethod<Interpolator1DCubicSplineDataBundle, InterpolationResult> linearExtrapolator = new LinearExtrapolator<Interpolator1DCubicSplineDataBundle, InterpolationResult>();
     final ExtrapolatorMethod<Interpolator1DCubicSplineDataBundle, InterpolationResult> flatExtrapolator = new FlatExtrapolator<Interpolator1DCubicSplineDataBundle, InterpolationResult>();
-    final ExtrapolatorMethod<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> linearExtrapolatorWithSensitivities = 
+    final ExtrapolatorMethod<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> linearExtrapolatorWithSensitivities =
       new LinearExtrapolatorWithSensitivity<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities>();
-    final ExtrapolatorMethod<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> flatExtrapolatorWithSensitivities = 
+    final ExtrapolatorMethod<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> flatExtrapolatorWithSensitivities =
       new FlatExtrapolatorWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities>();
     _interpolator = new Extrapolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult>(linearExtrapolator, flatExtrapolator, cubicInterpolator);
     _interpolatorWithSensitivity = new Extrapolator1D<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities>(linearExtrapolatorWithSensitivities,
@@ -93,7 +98,7 @@ public class SwapPortfolioImpliedYieldCurveFunction extends AbstractFunction imp
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ZonedDateTime now = executionContext.getSnapshotClock().zonedDateTime();
     final PortfolioNode node = target.getPortfolioNode();
-    final YieldAndDiscountCurve inputCurve = (YieldAndDiscountCurve) inputs.getValue(getRequirement());
+    //final YieldAndDiscountCurve inputCurve = (YieldAndDiscountCurve) inputs.getValue(getRequirement());
     final Calendar calendar = null; // TODO where does this live?
     SwapSecurity swapSecurity;
     SwapLeg payLeg, receiveLeg;
@@ -115,7 +120,7 @@ public class SwapPortfolioImpliedYieldCurveFunction extends AbstractFunction imp
       final double[] payLegPaymentTimes = SwapScheduleCalculator.getPaymentTimes(effectiveDate, maturityDate, payLeg, calendar, now);
       final double[] receiveLegPaymentTimes = SwapScheduleCalculator.getPaymentTimes(effectiveDate, maturityDate, receiveLeg, calendar, now);
       payFixed = payLeg instanceof FixedInterestRateLeg;
-      Swap swap;
+      FixedFloatSwap swap;
       double[] fixedPaymentTimes;
       double[] floatPaymentTimes;
       double[] forwardStartOffsets;
@@ -135,7 +140,7 @@ public class SwapPortfolioImpliedYieldCurveFunction extends AbstractFunction imp
         forwardStartOffsets = new double[nFloat];
         forwardEndOffsets = new double[nFloat];
       }
-      swap = new Swap(fixedPaymentTimes, floatPaymentTimes, forwardStartOffsets, forwardEndOffsets);
+      swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, forwardStartOffsets, forwardEndOffsets, CURVE_NAME, CURVE_NAME);
       // marketRates = swap rate from bloomberg
       // marketRates[i] = _swapRateCalculator.getRate(inputCurve, inputCurve, swap);
       nodeTimes[i] = Math.max(fixedPaymentTimes[nFix - 1], floatPaymentTimes[nFloat - 1] + forwardEndOffsets[nFloat - 1]);
@@ -143,9 +148,18 @@ public class SwapPortfolioImpliedYieldCurveFunction extends AbstractFunction imp
       swaps.add(swap);
       i++;
     }
-    final SingleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle> jacobian = new SingleCurveJacobian<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(swaps, 
-        nodeTimes, _interpolatorWithSensitivity);
-    final SingleCurveFinder curveFinder = new SingleCurveFinder(swaps, marketRates, nodeTimes, _interpolator);
+
+    LinkedHashMap<String, FixedNodeInterpolator1D> unknownCurves = new LinkedHashMap<String, FixedNodeInterpolator1D>();
+    FixedNodeInterpolator1D fnInterpolator = new FixedNodeInterpolator1D(nodeTimes, _interpolatorWithSensitivity);
+    unknownCurves.put(CURVE_NAME, fnInterpolator);
+    final JacobianCalculator jacobian = new MultipleYieldCurveFinderJacobian(swaps, unknownCurves, null);
+
+    unknownCurves = new LinkedHashMap<String, FixedNodeInterpolator1D>();
+    fnInterpolator = new FixedNodeInterpolator1D(nodeTimes, _interpolator);
+    unknownCurves.put(CURVE_NAME, fnInterpolator);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveFinder = new MultipleYieldCurveFinderFunction(swaps, marketRates, unknownCurves, null);
+
+
     // TODO this should not be hard-coded
     final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, jacobian, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
     final double[] yields = rootFinder.getRoot(curveFinder, new DoubleMatrix1D(initialRatesGuess)).getData();

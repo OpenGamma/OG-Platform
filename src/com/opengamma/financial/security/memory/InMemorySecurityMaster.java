@@ -35,6 +35,8 @@ import com.opengamma.util.db.Paging;
  * This security master does not support versioning of securities.
  */
 public class InMemorySecurityMaster implements SecurityMaster {
+  // TODO: This is not hardened for production, as the data in the master can
+  // be altered from outside as it is the same object
 
   /**
    * The default scheme used for each {@link UniqueIdentifier}.
