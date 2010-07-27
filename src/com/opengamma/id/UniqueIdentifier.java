@@ -241,6 +241,14 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
     return buf.toString();
   }
 
+  /**
+   * Returns a generic identifier representing the same scheme and value as this unique identifier.
+   * @return the identifier, not null
+   */
+  public Identifier toIdentifier() {
+    return Identifier.of(getSchemeObject(), getValue());
+  }
+
   //-------------------------------------------------------------------------
   public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer msg) {
     ArgumentChecker.notNull(factory, "FudgeMessageFactory");

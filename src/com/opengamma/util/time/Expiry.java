@@ -70,9 +70,28 @@ public class Expiry implements InstantProvider {
   //-------------------------------------------------------------------------
   @Override
   public boolean equals(final Object obj) {
-    if (obj instanceof Expiry) {
-      final Expiry other = (Expiry) obj;
-      return ObjectUtils.equals(other.getAccuracy(), getAccuracy()) && other.getExpiry().equals(getExpiry());
+    if (!(obj instanceof Expiry)) {
+      return false;
+    }
+    final Expiry other = (Expiry) obj;
+    if (!ObjectUtils.equals(other.getAccuracy(), getAccuracy())) {
+      return false;
+    }
+    if (getExpiry() == null) {
+      return (other.getExpiry() == null);
+    }
+    if (other.getExpiry() == null) {
+      return false;
+    }
+    // Only compare to the accuracy agreed
+    switch (getAccuracy()) {
+      case DAY_MONTH_YEAR:
+        return (getExpiry().getDayOfMonth() == other.getExpiry().getDayOfMonth()) && (getExpiry().getMonthOfYear() == other.getExpiry().getMonthOfYear())
+            && (getExpiry().getYear() == other.getExpiry().getYear());
+      case MONTH_YEAR:
+        return (getExpiry().getMonthOfYear() == other.getExpiry().getMonthOfYear()) && (getExpiry().getYear() == other.getExpiry().getYear());
+      case YEAR:
+        return (getExpiry().getYear() == other.getExpiry().getYear());
     }
     return false;
   }
