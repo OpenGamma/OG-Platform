@@ -16,9 +16,11 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.EHCacheUtils;
 
 /**
- * A position master implementation that caches another.
+ * A cache decorating a {@code PositionSource}.
+ * <p>
+ * The cache is implemented using {@code EHCache}.
  */
-public class CachingPositionMaster implements PositionMaster {
+public class EHCachingPositionSource implements PositionSource {
 
   /**
    * Cache key for portfolios.
@@ -34,9 +36,9 @@ public class CachingPositionMaster implements PositionMaster {
   private static final String POSITION_CACHE = "position";
 
   /**
-   * The underlying position master.
+   * The underlying position source.
    */
-  private final PositionMaster _underlying;
+  private final PositionSource _underlying;
   /**
    * The cache manager.
    */
@@ -55,21 +57,21 @@ public class CachingPositionMaster implements PositionMaster {
   private final Cache _position;
 
   /**
-   * Creates the cache around an underlying position master.
+   * Creates the cache around an underlying position source.
    * @param underlying  the underlying data, not null
    */
-  public CachingPositionMaster(final PositionMaster underlying) {
+  public EHCachingPositionSource(final PositionSource underlying) {
     this (underlying, EHCacheUtils.createCacheManager());
   }
 
   /**
-   * Creates the cache around an underlying position master.
+   * Creates the cache around an underlying position source.
    * @param underlying  the underlying data, not null
    * @param cacheManager  the cache manager, not null
    */
-  public CachingPositionMaster(final PositionMaster underlying, final CacheManager cacheManager) {
-    ArgumentChecker.notNull(underlying, "underlying Position Master");
-    ArgumentChecker.notNull(cacheManager, "EH cache manager");
+  public EHCachingPositionSource(final PositionSource underlying, final CacheManager cacheManager) {
+    ArgumentChecker.notNull(underlying, "underlying");
+    ArgumentChecker.notNull(cacheManager, "cacheManager");
     _underlying = underlying;
     _cacheManager = cacheManager;
     EHCacheUtils.addCache(cacheManager, PORTFOLIO_CACHE);
@@ -82,10 +84,10 @@ public class CachingPositionMaster implements PositionMaster {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the underlying position master.
-   * @return the underlying position master, not null
+   * Gets the underlying source of positions.
+   * @return the underlying source of positions, not null
    */
-  protected PositionMaster getUnderlying() {
+  protected PositionSource getUnderlying() {
     return _underlying;
   }
 

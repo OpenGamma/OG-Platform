@@ -35,7 +35,7 @@ public class ComputationTarget implements Serializable {
    * Creates a target for computation.
    * @param value  the target itself, may be null
    */
-  public ComputationTarget(Object value) {
+  public ComputationTarget(final Object value) {
     _type = ComputationTargetType.determineFromTarget(value);
     _value = value;
   }
@@ -46,7 +46,7 @@ public class ComputationTarget implements Serializable {
    * @param value  the target itself, may be null
    * @throws IllegalArgumentException if the value is invalid for the type
    */
-  public ComputationTarget(ComputationTargetType type, Object value) {
+  public ComputationTarget(final ComputationTargetType type, final Object value) {
     ArgumentChecker.notNull(type, "type");
     if (type.isCompatible(value) == false) {
       throw new IllegalArgumentException("Value is invalid for type: " + type);
@@ -77,7 +77,7 @@ public class ComputationTarget implements Serializable {
    * @return the unique identifier, may be null
    */
   public UniqueIdentifier getUniqueIdentifier() {
-    Object value = getValue();
+    final Object value = getValue();
     if (value instanceof UniqueIdentifiable) {
       return ((UniqueIdentifiable) value).getUniqueIdentifier();
     }
@@ -132,12 +132,12 @@ public class ComputationTarget implements Serializable {
 
   //-------------------------------------------------------------------------
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
     if (obj instanceof ComputationTarget) {
-      ComputationTarget other = (ComputationTarget) obj;
+      final ComputationTarget other = (ComputationTarget) obj;
       return _type == other._type &&
           ObjectUtils.equals(_value, other._value);
     }

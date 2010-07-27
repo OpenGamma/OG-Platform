@@ -14,7 +14,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import org.junit.Test;
 
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.security.MockSecurityMaster;
+import com.opengamma.engine.security.MockSecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
@@ -40,7 +40,7 @@ public class LiveDataSnapshotProviderTest {
   @Test
   public void snapshotting() {
     TestLiveDataClient client = new TestLiveDataClient();
-    LiveDataSnapshotProviderImpl snapshotter = new LiveDataSnapshotProviderImpl(client, new MockSecurityMaster());
+    LiveDataSnapshotProviderImpl snapshotter = new LiveDataSnapshotProviderImpl(client, new MockSecuritySource());
     
     snapshotter.addSubscription(TEST_USER, constructRequirement("test1"));
     snapshotter.addSubscription(TEST_USER, constructRequirement("test2"));

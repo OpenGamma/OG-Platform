@@ -6,29 +6,35 @@
 package com.opengamma.engine.security;
 
 import java.util.Collection;
-import java.util.Set;
 
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * A master structure of all securities used by the organization.
+ * A source of securities as accessed by the engine.
+ * <p>
+ * This interface provides a simple view of securities as needed by the engine.
+ * This may be backed by a full-featured security master, or by a much simpler data structure.
  */
-public interface SecurityMaster {
+public interface SecuritySource {
 
   /**
    * Finds a specific security by identifier.
+   * 
    * @param uid  the unique identifier, null returns null
    * @return the security, null if not found
+   * @throws IllegalArgumentException if the identifier is invalid
    */
   Security getSecurity(UniqueIdentifier uid);
 
   /**
    * Finds all securities that match the specified bundle of keys.
-   * If there are none specified, this method must return an
-   * empty collection, and not {@code null}.
+   * <p>
+   * The result should consist of all securities that match each specified key.
+   * 
    * @param secKey  the bundle keys to match, not null
    * @return all securities matching the specified key, empty if no matches, not null
+   * @throws IllegalArgumentException if the identifier is invalid
    */
   Collection<Security> getSecurities(IdentifierBundle secKey);
 
@@ -37,18 +43,11 @@ public interface SecurityMaster {
    * <p>
    * It is entirely the responsibility of the implementation to determine which
    * security matches best for any given bundle of keys.
+   * 
    * @param secKey  the bundle keys to match, not null
    * @return the single security matching the bundle of keys, null if not found
+   * @throws IllegalArgumentException if the identifier is invalid
    */
   Security getSecurity(IdentifierBundle secKey);
-
-  /**
-   * Obtain all the available security types in this security master.
-   * <p>
-   * The implementation should return the available types, however if this is
-   * not possible it may return all potential types.
-   * @return the set of available security types, not null
-   */
-  Set<String> getAllSecurityTypes();
 
 }

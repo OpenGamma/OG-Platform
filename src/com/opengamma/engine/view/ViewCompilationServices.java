@@ -11,8 +11,8 @@ import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionResolver;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
-import com.opengamma.engine.position.PositionMaster;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.position.PositionSource;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.util.ArgumentChecker;
 
 // REVIEW kirk 2010-05-22 -- I don't like this name but couldn't come up with a better
@@ -24,8 +24,8 @@ import com.opengamma.util.ArgumentChecker;
 public class ViewCompilationServices {
   private final LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private final FunctionResolver _functionResolver;
-  private final PositionMaster _positionMaster;
-  private final SecurityMaster _securityMaster;
+  private final PositionSource _positionSource;
+  private final SecuritySource _securitySource;
   private final ExecutorService _executorService;
   private final FunctionCompilationContext _compilationContext;
   private final ComputationTargetResolver _computationTargetResolver;
@@ -33,75 +33,83 @@ public class ViewCompilationServices {
   public ViewCompilationServices(
       LiveDataAvailabilityProvider liveDataAvailabilityProvider,
       FunctionResolver functionResolver,
-      PositionMaster positionMaster,
-      SecurityMaster securityMaster,
+      PositionSource positionSource,
+      SecuritySource securitySource,
       FunctionCompilationContext compilationContext,
       ComputationTargetResolver computationTargetResolver,
       ExecutorService executorService) {
-    ArgumentChecker.notNull(liveDataAvailabilityProvider, "LiveDataAvailabilityProvider");
-    ArgumentChecker.notNull(functionResolver, "FunctionResolver");
-    ArgumentChecker.notNull(positionMaster, "PositionMaster");
-    ArgumentChecker.notNull(securityMaster, "SecurityMaster");
-    ArgumentChecker.notNull(compilationContext, "CompilationContext");
-    ArgumentChecker.notNull(computationTargetResolver, "Computation target resolver");
-    ArgumentChecker.notNull(executorService, "ExecutorService");
+    ArgumentChecker.notNull(liveDataAvailabilityProvider, "liveDataAvailabilityProvider");
+    ArgumentChecker.notNull(functionResolver, "functionResolver");
+    ArgumentChecker.notNull(positionSource, "positionSource");
+    ArgumentChecker.notNull(securitySource, "securitySource");
+    ArgumentChecker.notNull(compilationContext, "compilationContext");
+    ArgumentChecker.notNull(computationTargetResolver, "computationTargetResolver");
+    ArgumentChecker.notNull(executorService, "executorService");
     
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
     _functionResolver = functionResolver;
-    _positionMaster = positionMaster;
-    _securityMaster = securityMaster;
+    _positionSource = positionSource;
+    _securitySource = securitySource;
     _compilationContext = compilationContext;
     _executorService = executorService;
     _computationTargetResolver = computationTargetResolver;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @return the liveDataAvailabilityProvider
+   * Gets the live data.
+   * @return the live data availability provider, not null
    */
   public LiveDataAvailabilityProvider getLiveDataAvailabilityProvider() {
     return _liveDataAvailabilityProvider;
   }
 
   /**
-   * @return the functionResolver
+   * Gets the function resolver.
+   * @return the function resolver, not null
    */
   public FunctionResolver getFunctionResolver() {
     return _functionResolver;
   }
 
   /**
-   * @return the positionMaster
+   * Gets the source of positions.
+   * @return the source of positions, not null
    */
-  public PositionMaster getPositionMaster() {
-    return _positionMaster;
+  public PositionSource getPositionSource() {
+    return _positionSource;
   }
 
   /**
-   * @return the securityMaster
+   * Gets the source of securities.
+   * @return the source of securities, not null
    */
-  public SecurityMaster getSecurityMaster() {
-    return _securityMaster;
+  public SecuritySource getSecuritySource() {
+    return _securitySource;
   }
 
   /**
-   * @return the executorService
+   * Gets the executor service.
+   * @return the executor service, not null
    */
   public ExecutorService getExecutorService() {
     return _executorService;
   }
 
   /**
-   * @return the compilationContext
+   * Gets the compilation context.
+   * @return the compilation context, not null
    */
   public FunctionCompilationContext getCompilationContext() {
     return _compilationContext;
   }
 
   /**
-   * @return the computationTargetResolver
+   * Gets the computation target resolver.
+   * @return the computation target resolver, not null
    */
   public ComputationTargetResolver getComputationTargetResolver() {
     return _computationTargetResolver;
   }
-  
+
 }

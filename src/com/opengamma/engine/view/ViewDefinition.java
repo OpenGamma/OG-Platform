@@ -319,8 +319,8 @@ public class ViewDefinition implements Serializable {
     UniqueIdentifier portfolioId = UniqueIdentifier.of(scheme, value, version);
     
     FudgeFieldContainer userMessage = msg.getMessage(USER_KEY);
-    String userName = userMessage.getString(UserPrincipal.USERNAME_KEY);
-    String ipAddress = userMessage.getString(UserPrincipal.IPADDRESS_KEY);
+    String userName = userMessage.getString(UserPrincipal.USER_NAME_KEY);
+    String ipAddress = userMessage.getString(UserPrincipal.IP_ADDRESS_KEY);
     
     UserPrincipal liveDataUser = new UserPrincipal(userName, ipAddress);
     ViewDefinition result = new ViewDefinition(name, portfolioId, liveDataUser);

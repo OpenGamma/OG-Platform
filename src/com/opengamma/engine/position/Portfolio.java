@@ -11,7 +11,7 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * A portfolio of positions, typically having business-level meaning.
  * <p>
- * A portfolio is the primary element of business-level grouping within the position master.
+ * A portfolio is the primary element of business-level grouping within the source of positions.
  * It consists of a number of positions which are grouped using a flexible tree structure.
  * <p>
  * A portfolio typically has meta-data.
@@ -38,19 +38,5 @@ public interface Portfolio extends UniqueIdentifiable {
    * @return the root node of the tree structure, not null
    */
   PortfolioNode getRootNode();
-
-  /**
-   * Finds a specific node from this portfolio by identifier.
-   * @param identifier  the identifier, null returns null
-   * @return the node, null if not found
-   */
-  PortfolioNode getNode(UniqueIdentifier identifier);
-
-  /**
-   * Finds a specific position from this portfolio by identifier.
-   * @param identifier  the identifier, null returns null
-   * @return the position, null if not found
-   */
-  Position getPosition(UniqueIdentifier identifier);
 
 }

@@ -46,7 +46,7 @@ public class ComputationTargetSpecificationTest {
   private static final Portfolio PORTFOLIO = new PortfolioImpl(UID, "Name");
   private static final PortfolioNodeImpl NODE = new PortfolioNodeImpl(UID, "Name");
   private static final Position POSITION = new PositionImpl(UID, new BigDecimal(1), new IdentifierBundle());
-  private static final DefaultSecurity SECURITY = new DefaultSecurity();
+  private static final DefaultSecurity SECURITY = new DefaultSecurity("");
   static {
     SECURITY.setUniqueIdentifier(UID);
   }

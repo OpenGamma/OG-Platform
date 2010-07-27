@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
@@ -22,9 +22,9 @@ import com.opengamma.util.ArgumentChecker;
 public class DomainLiveDataAvailabilityProvider implements LiveDataAvailabilityProvider {
 
   /**
-   * The security master to resolve against.
+   * The security source to resolve against.
    */
-  private final SecurityMaster _securityMaster;
+  private final SecuritySource _securitySource;
   /**
    * The set of acceptable schemes.
    */
@@ -37,14 +37,15 @@ public class DomainLiveDataAvailabilityProvider implements LiveDataAvailabilityP
   /**
    * Creates a provider.
    * 
-   * @param secMaster  the security master, not null
+   * @param securitySource  the security source, not null
    * @param acceptableSchemes  the acceptable schemes, not null
    * @param validMarketDataRequirementNames  the valid market data requirement names, not null
    */
-  public DomainLiveDataAvailabilityProvider(final SecurityMaster secMaster, final Collection<IdentificationScheme> acceptableSchemes, final Collection<String> validMarketDataRequirementNames) {
-    ArgumentChecker.notNull(secMaster, "Security master");
-    ArgumentChecker.notNull(acceptableSchemes, "Acceptable schemes");
-    _securityMaster = secMaster;
+  public DomainLiveDataAvailabilityProvider(final SecuritySource securitySource, final Collection<IdentificationScheme> acceptableSchemes, final Collection<String> validMarketDataRequirementNames) {
+    ArgumentChecker.notNull(securitySource, "securitySource");
+    ArgumentChecker.notNull(acceptableSchemes, "acceptableSchemes");
+    ArgumentChecker.notNull(validMarketDataRequirementNames, "validMarketDataRequirementNames");
+    _securitySource = securitySource;
     _acceptableSchemes = new HashSet<IdentificationScheme>(acceptableSchemes);
     _validMarketDataRequirementNames = new HashSet<String>(validMarketDataRequirementNames);
   }
@@ -61,7 +62,7 @@ public class DomainLiveDataAvailabilityProvider implements LiveDataAvailabilityP
         return _acceptableSchemes.contains(scheme);
       }
       case SECURITY: {
-        Security security = _securityMaster.getSecurity(requirement.getTargetSpecification().getUniqueIdentifier());
+        Security security = _securitySource.getSecurity(requirement.getTargetSpecification().getUniqueIdentifier());
         if (security != null) {
           for (Identifier identifier : security.getIdentifiers()) {
             if (_acceptableSchemes.contains(identifier.getScheme())) {
