@@ -12,25 +12,25 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  */
 public class FunctionalVolatilitySurface extends VolatilitySurface {
-  private final Function1D<Pair<Double, Double>, Double> _volatilityFunction;
+  private final Function1D<DoublesPair, Double> _volatilityFunction;
 
-  public FunctionalVolatilitySurface(final Function1D<Pair<Double, Double>, Double> volatilityFunction) {
+  public FunctionalVolatilitySurface(final Function1D<DoublesPair, Double> volatilityFunction) {
     Validate.notNull(volatilityFunction);
     _volatilityFunction = volatilityFunction;
   }
 
   @Override
-  public Double getVolatility(final Pair<Double, Double> xy) {
+  public Double getVolatility(final DoublesPair xy) {
     return _volatilityFunction.evaluate(xy);
   }
 
   @Override
-  public VolatilitySurface withMultipleShifts(final Map<Pair<Double, Double>, Double> shifts) {
+  public VolatilitySurface withMultipleShifts(final Map<DoublesPair, Double> shifts) {
     throw new NotImplementedException();
   }
 
@@ -40,11 +40,11 @@ public class FunctionalVolatilitySurface extends VolatilitySurface {
   }
 
   @Override
-  public VolatilitySurface withSingleShift(final Pair<Double, Double> xy, final double shift) {
+  public VolatilitySurface withSingleShift(final DoublesPair xy, final double shift) {
     throw new NotImplementedException();
   }
 
-  public Function1D<Pair<Double, Double>, Double> getVolatilityFunction() {
+  public Function1D<DoublesPair, Double> getVolatilityFunction() {
     return _volatilityFunction;
   }
 

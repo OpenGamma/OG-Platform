@@ -12,6 +12,7 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.FirstThenSecondPairComparator;
 import com.opengamma.util.tuple.Pair;
 
@@ -24,8 +25,7 @@ public class GridInterpolator2D extends Interpolator2D {
   private final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> _yInterpolator;
   private final FirstThenSecondPairComparator<Double, Double> _comparator;
 
-  public GridInterpolator2D(final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> xInterpolator,
-      final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> yInterpolator) {
+  public GridInterpolator2D(final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> xInterpolator, final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> yInterpolator) {
     Validate.notNull(xInterpolator);
     Validate.notNull(yInterpolator);
     _xInterpolator = xInterpolator;
@@ -34,7 +34,7 @@ public class GridInterpolator2D extends Interpolator2D {
   }
 
   @Override
-  public Double interpolate(final Map<Pair<Double, Double>, Double> data, final Pair<Double, Double> value) {
+  public Double interpolate(final Map<DoublesPair, Double> data, final DoublesPair value) {
     Validate.notNull(value);
     final Map<Double, Interpolator1DDataBundle> sorted = testData(data);
     final Map<Double, Double> xData = new HashMap<Double, Double>();
@@ -44,7 +44,7 @@ public class GridInterpolator2D extends Interpolator2D {
     return _xInterpolator.interpolate(Interpolator1DDataBundleFactory.fromMap(xData, _xInterpolator), value.getKey()).getResult();
   }
 
-  private Map<Double, Interpolator1DDataBundle> testData(final Map<Pair<Double, Double>, Double> data) {
+  private Map<Double, Interpolator1DDataBundle> testData(final Map<DoublesPair, Double> data) {
     Validate.notNull(data);
     if (data.size() < 4) {
       throw new IllegalArgumentException("Need at least four data points to perform 2D grid interpolation");

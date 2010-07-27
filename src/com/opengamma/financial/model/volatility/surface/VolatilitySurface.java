@@ -8,19 +8,19 @@ package com.opengamma.financial.model.volatility.surface;
 import java.util.Map;
 
 import com.opengamma.financial.model.volatility.VolatilityModel;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
  */
-public abstract class VolatilitySurface implements VolatilityModel<Pair<Double, Double>> {
+public abstract class VolatilitySurface implements VolatilityModel<DoublesPair> {
 
   @Override
-  public abstract Double getVolatility(Pair<Double, Double> xy);
+  public abstract Double getVolatility(DoublesPair xy);
 
   public abstract VolatilitySurface withParallelShift(double shift);
 
-  public abstract VolatilitySurface withSingleShift(Pair<Double, Double> xy, double shift);
+  public abstract VolatilitySurface withSingleShift(DoublesPair xy, double shift);
 
-  public abstract VolatilitySurface withMultipleShifts(Map<Pair<Double, Double>, Double> shifts);
+  public abstract VolatilitySurface withMultipleShifts(Map<DoublesPair, Double> shifts);
 }

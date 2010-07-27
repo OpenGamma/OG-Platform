@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.math.interpolation.Interpolator2D;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * @param <T>
@@ -24,10 +24,10 @@ public abstract class InterpolatedVolatilitySurfaceModel<T, U> implements Volati
 
   @Override
   public InterpolatedVolatilitySurface getSurface(final Map<T, Double> volatilityData, final U dataBundle) {
-    final Map<Pair<Double, Double>, Double> xyData = new HashMap<Pair<Double, Double>, Double>();
+    final Map<DoublesPair, Double> xyData = new HashMap<DoublesPair, Double>();
     for (final Map.Entry<T, Double> entry : volatilityData.entrySet()) {
       final T key = entry.getKey();
-      xyData.put(Pair.of(getXAxisFunctionValue(key, dataBundle), getYAxisFunctionValue(key, dataBundle)), entry.getValue());
+      xyData.put(DoublesPair.of(getXAxisFunctionValue(key, dataBundle), getYAxisFunctionValue(key, dataBundle)), entry.getValue());
     }
     return new InterpolatedVolatilitySurface(xyData, _interpolator);
   }
@@ -36,8 +36,8 @@ public abstract class InterpolatedVolatilitySurfaceModel<T, U> implements Volati
     return interpolator;
   }
 
-  protected abstract Double getXAxisFunctionValue(T t, U u);
+  protected abstract double getXAxisFunctionValue(T t, U u);
 
-  protected abstract Double getYAxisFunctionValue(T t, U u);
+  protected abstract double getYAxisFunctionValue(T t, U u);
 
 }

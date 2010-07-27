@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.math.interpolation.Interpolator2D;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
@@ -22,9 +22,9 @@ public class VolatilityInterpolator2D extends Interpolator2D {
   }
 
   @Override
-  public Double interpolate(final Map<Pair<Double, Double>, Double> data, final Pair<Double, Double> value) {
-    final Map<Pair<Double, Double>, Double> variances = new HashMap<Pair<Double, Double>, Double>();
-    for (final Map.Entry<Pair<Double, Double>, Double> entry : data.entrySet()) {
+  public Double interpolate(final Map<DoublesPair, Double> data, final DoublesPair value) {
+    final Map<DoublesPair, Double> variances = new HashMap<DoublesPair, Double>();
+    for (final Map.Entry<DoublesPair, Double> entry : data.entrySet()) {
       variances.put(entry.getKey(), entry.getValue() * entry.getValue());
     }
     return Math.sqrt(_interpolator.interpolate(variances, value));

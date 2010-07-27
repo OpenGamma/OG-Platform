@@ -6,18 +6,18 @@
 package com.opengamma.financial.model.volatility.surface;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
  */
 public class FunctionalVolatilitySurfaceTest {
-  private static final Function1D<Pair<Double, Double>, Double> F = new Function1D<Pair<Double, Double>, Double>() {
+  private static final Function1D<DoublesPair, Double> F = new Function1D<DoublesPair, Double>() {
 
     @Override
-    public Double evaluate(Pair<Double, Double> x) {
+    public Double evaluate(final DoublesPair x) {
       return null;
     }
-    
+
   };
 }

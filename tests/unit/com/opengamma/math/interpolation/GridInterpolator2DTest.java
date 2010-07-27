@@ -16,6 +16,7 @@ import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.math.function.Function2D;
+import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -23,7 +24,7 @@ import com.opengamma.util.tuple.Pair;
  */
 public class GridInterpolator2DTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  private static final Map<Pair<Double, Double>, Double> FLAT_DATA = new HashMap<Pair<Double, Double>, Double>();
+  private static final Map<DoublesPair, Double> FLAT_DATA = new HashMap<DoublesPair, Double>();
   private static final Function2D<Double, Double> F = new Function2D<Double, Double>() {
 
     @Override
@@ -37,18 +38,18 @@ public class GridInterpolator2DTest {
   private static final double EPS = 1e-9;
 
   static {
-    FLAT_DATA.put(Pair.of(1., 2.), 0.);
-    FLAT_DATA.put(Pair.of(1., 3.), 0.);
-    FLAT_DATA.put(Pair.of(1., 5.), 0.);
-    FLAT_DATA.put(Pair.of(1., 7.), 0.);
-    FLAT_DATA.put(Pair.of(2., 2.), 0.);
-    FLAT_DATA.put(Pair.of(2., 3.), 0.);
-    FLAT_DATA.put(Pair.of(2., 5.), 0.);
-    FLAT_DATA.put(Pair.of(2., 7.), 0.);
-    FLAT_DATA.put(Pair.of(5., 2.), 0.);
-    FLAT_DATA.put(Pair.of(5., 3.), 0.);
-    FLAT_DATA.put(Pair.of(5., 5.), 0.);
-    FLAT_DATA.put(Pair.of(5., 7.), 0.);
+    FLAT_DATA.put(DoublesPair.of(1., 2.), 0.);
+    FLAT_DATA.put(DoublesPair.of(1., 3.), 0.);
+    FLAT_DATA.put(DoublesPair.of(1., 5.), 0.);
+    FLAT_DATA.put(DoublesPair.of(1., 7.), 0.);
+    FLAT_DATA.put(DoublesPair.of(2., 2.), 0.);
+    FLAT_DATA.put(DoublesPair.of(2., 3.), 0.);
+    FLAT_DATA.put(DoublesPair.of(2., 5.), 0.);
+    FLAT_DATA.put(DoublesPair.of(2., 7.), 0.);
+    FLAT_DATA.put(DoublesPair.of(5., 2.), 0.);
+    FLAT_DATA.put(DoublesPair.of(5., 3.), 0.);
+    FLAT_DATA.put(DoublesPair.of(5., 5.), 0.);
+    FLAT_DATA.put(DoublesPair.of(5., 7.), 0.);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -73,35 +74,35 @@ public class GridInterpolator2DTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullPair() {
-    final Map<Pair<Double, Double>, Double> map = new HashMap<Pair<Double, Double>, Double>();
+    final Map<DoublesPair, Double> map = new HashMap<DoublesPair, Double>();
     map.put(Pair.of(1., 0.), null);
-    INTERPOLATOR_2D.interpolate(map, Pair.of(0.5, 0.5));
+    INTERPOLATOR_2D.interpolate(map, DoublesPair.of(0.5, 0.5));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testInputs() {
-    final Map<Pair<Double, Double>, Double> data = new HashMap<Pair<Double, Double>, Double>();
+    final Map<DoublesPair, Double> data = new HashMap<DoublesPair, Double>();
     data.put(Pair.of(0., 5.), 2.);
     data.put(Pair.of(0., 4.), 3.);
     data.put(Pair.of(0., -3.), 4.);
-    INTERPOLATOR_2D.interpolate(data, Pair.of(0., 2.));
+    INTERPOLATOR_2D.interpolate(data, DoublesPair.of(0., 2.));
   }
 
   @Test(expected = InterpolationException.class)
   public void testNonGrid() {
-    final Map<Pair<Double, Double>, Double> nonGrid = new HashMap<Pair<Double, Double>, Double>(FLAT_DATA);
+    final Map<DoublesPair, Double> nonGrid = new HashMap<DoublesPair, Double>(FLAT_DATA);
     nonGrid.put(Pair.of(5., 8.), 0.);
-    INTERPOLATOR_2D.interpolate(nonGrid, Pair.of(1.5, 4.));
+    INTERPOLATOR_2D.interpolate(nonGrid, DoublesPair.of(1.5, 4.));
   }
 
   @Test
   public void test() {
     assertEquals(INTERPOLATOR_2D.interpolate(FLAT_DATA, Pair.of(2.5, 5.4)), 0., EPS);
-    final Map<Pair<Double, Double>, Double> nonTrivial = new HashMap<Pair<Double, Double>, Double>();
-    for (final Pair<Double, Double> pair : FLAT_DATA.keySet()) {
+    final Map<DoublesPair, Double> nonTrivial = new HashMap<DoublesPair, Double>();
+    for (final DoublesPair pair : FLAT_DATA.keySet()) {
       nonTrivial.put(pair, F.evaluate(pair.getKey(), pair.getValue()));
     }
-    final Pair<Double, Double> pair = Pair.of(RANDOM.nextDouble() + 2, RANDOM.nextDouble() + 4);
+    final DoublesPair pair = Pair.of(RANDOM.nextDouble() + 2, RANDOM.nextDouble() + 4);
     assertEquals(INTERPOLATOR_2D.interpolate(nonTrivial, pair), F.evaluate(pair.getKey(), pair.getValue()), EPS);
   }
 }

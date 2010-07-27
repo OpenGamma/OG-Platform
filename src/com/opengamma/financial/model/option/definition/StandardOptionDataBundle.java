@@ -12,7 +12,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
@@ -51,7 +51,7 @@ public class StandardOptionDataBundle {
   }
 
   public double getVolatility(final double timeToExpiry, final double strike) {
-    return getVolatilitySurface().getVolatility(Pair.of(timeToExpiry, strike));
+    return getVolatilitySurface().getVolatility(DoublesPair.of(timeToExpiry, strike));
   }
 
   public double getSpot() {
