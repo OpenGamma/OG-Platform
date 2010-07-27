@@ -79,38 +79,37 @@ public class EuropeanStandardBarrierOptionDefinition extends OptionDefinition {
     return ObjectUtils.equals(_barrier, other._barrier) && Double.doubleToLongBits(_rebate) == Double.doubleToLongBits(other._rebate);
   }
 
+  //TODO promote to its own class
   private final class MyOptionPayoffFunction implements OptionPayoffFunction<StandardOptionDataBundle> {
     private boolean _isAlive;
-    @SuppressWarnings("hiding")
-    private final Barrier _barrier;
+    private final Barrier _b;
     private final EuropeanVanillaOptionDefinition _vanillaOption;
-    @SuppressWarnings("hiding")
-    private final double _rebate;
+    private final double _r;
 
     public MyOptionPayoffFunction(final Barrier barrier, final EuropeanVanillaOptionDefinition vanillaOption, final double rebate) {
       _isAlive = barrier.getKnockType() == KnockType.IN ? false : true;
-      _barrier = barrier;
+      _b = barrier;
       _vanillaOption = vanillaOption;
-      _rebate = rebate;
+      _r = rebate;
     }
 
     @Override
     public double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
       final double spot = data.getSpot();
-      if (_barrier.getKnockType() == KnockType.IN) {
-        if (_barrier.getBarrierType() == BarrierType.DOWN && spot <= _barrier.getBarrierLevel()) {
+      if (_b.getKnockType() == KnockType.IN) {
+        if (_b.getBarrierType() == BarrierType.DOWN && spot <= _b.getBarrierLevel()) {
           _isAlive = true;
-        } else if (_barrier.getBarrierType() == BarrierType.UP && spot >= _barrier.getBarrierLevel()) {
+        } else if (_b.getBarrierType() == BarrierType.UP && spot >= _b.getBarrierLevel()) {
           _isAlive = true;
         }
       } else {
-        if (_barrier.getBarrierType() == BarrierType.DOWN && spot < _barrier.getBarrierLevel()) {
+        if (_b.getBarrierType() == BarrierType.DOWN && spot < _b.getBarrierLevel()) {
           _isAlive = false;
-        } else if (_barrier.getBarrierType() == BarrierType.UP && spot > _barrier.getBarrierLevel()) {
+        } else if (_b.getBarrierType() == BarrierType.UP && spot > _b.getBarrierLevel()) {
           _isAlive = false;
         }
       }
-      return _isAlive ? _vanillaOption.getPayoffFunction().getPayoff(data, optionPrice) : _rebate;
+      return _isAlive ? _vanillaOption.getPayoffFunction().getPayoff(data, optionPrice) : _r;
     }
   }
 }
