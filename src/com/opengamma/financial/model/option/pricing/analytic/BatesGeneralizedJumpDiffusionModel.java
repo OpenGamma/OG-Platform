@@ -35,7 +35,7 @@ public class BatesGeneralizedJumpDiffusionModel extends AnalyticOptionModel<Opti
       public Double evaluate(final BatesGeneralizedJumpDiffusionModelDataBundle data) {
         Validate.notNull(data);
         final double s = data.getSpot();
-        final YieldAndDiscountCurve discountCurve = data.getDiscountCurve();
+        final YieldAndDiscountCurve discountCurve = data.getInterestRateCurve();
         final VolatilitySurface volSurface = data.getVolatilitySurface();
         final ZonedDateTime date = data.getDate();
         final double t = definition.getTimeToExpiry(date);

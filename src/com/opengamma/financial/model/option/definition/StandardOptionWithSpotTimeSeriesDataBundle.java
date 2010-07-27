@@ -40,32 +40,32 @@ public class StandardOptionWithSpotTimeSeriesDataBundle extends StandardOptionDa
   }
 
   @Override
-  public StandardOptionWithSpotTimeSeriesDataBundle withDiscountCurve(final YieldAndDiscountCurve curve) {
+  public StandardOptionWithSpotTimeSeriesDataBundle withInterestRateCurve(final YieldAndDiscountCurve curve) {
     return new StandardOptionWithSpotTimeSeriesDataBundle(curve, getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getSpotTimeSeries());
   }
 
   @Override
   public StandardOptionWithSpotTimeSeriesDataBundle withCostOfCarry(final double costOfCarry) {
-    return new StandardOptionWithSpotTimeSeriesDataBundle(getDiscountCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate(), getSpotTimeSeries());
+    return new StandardOptionWithSpotTimeSeriesDataBundle(getInterestRateCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate(), getSpotTimeSeries());
   }
 
   @Override
   public StandardOptionWithSpotTimeSeriesDataBundle withVolatilitySurface(final VolatilitySurface surface) {
-    return new StandardOptionWithSpotTimeSeriesDataBundle(getDiscountCurve(), getCostOfCarry(), surface, getSpot(), getDate(), getSpotTimeSeries());
+    return new StandardOptionWithSpotTimeSeriesDataBundle(getInterestRateCurve(), getCostOfCarry(), surface, getSpot(), getDate(), getSpotTimeSeries());
   }
 
   @Override
   public StandardOptionWithSpotTimeSeriesDataBundle withDate(final ZonedDateTime date) {
-    return new StandardOptionWithSpotTimeSeriesDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), date, getSpotTimeSeries());
+    return new StandardOptionWithSpotTimeSeriesDataBundle(getInterestRateCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), date, getSpotTimeSeries());
   }
 
   @Override
   public StandardOptionWithSpotTimeSeriesDataBundle withSpot(final double spot) {
-    return new StandardOptionWithSpotTimeSeriesDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate(), getSpotTimeSeries());
+    return new StandardOptionWithSpotTimeSeriesDataBundle(getInterestRateCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate(), getSpotTimeSeries());
   }
 
   public StandardOptionWithSpotTimeSeriesDataBundle withSpotTimeSeries(final DoubleTimeSeries<?> spotTS) {
-    return new StandardOptionWithSpotTimeSeriesDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), spotTS);
+    return new StandardOptionWithSpotTimeSeriesDataBundle(getInterestRateCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), spotTS);
   }
 
   @Override

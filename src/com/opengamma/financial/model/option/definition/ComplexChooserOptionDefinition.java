@@ -120,11 +120,13 @@ public class ComplexChooserOptionDefinition extends OptionDefinition {
     return _putDefinition;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public OptionExerciseFunction<StandardOptionDataBundle> getExerciseFunction() {
     return _exerciseFunction;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public OptionPayoffFunction<StandardOptionDataBundle> getPayoffFunction() {
     return _payoffFunction;

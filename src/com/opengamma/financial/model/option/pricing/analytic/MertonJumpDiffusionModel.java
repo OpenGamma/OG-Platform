@@ -40,16 +40,13 @@ public class MertonJumpDiffusionModel extends AnalyticOptionModel<OptionDefiniti
         final double lambda = data.getLambda();
         final double gamma = data.getGamma();
         final double sigmaSq = sigma * sigma;
-        if (lambda == 0) {
-          throw new IllegalArgumentException("Cannot have lambda of zero");
-        }
         final double delta = Math.sqrt(gamma * sigmaSq / lambda);
         final double z = Math.sqrt(sigmaSq - lambda * delta * delta);
         final double zSq = z * z;
         double sigmaAdjusted = z;
         final double lambdaT = lambda * t;
         double mult = Math.exp(-lambdaT);
-        final StandardOptionDataBundle bsmData = new StandardOptionDataBundle(data.getDiscountCurve(), data.getCostOfCarry(), new ConstantVolatilitySurface(sigmaAdjusted), data.getSpot(), date);
+        final StandardOptionDataBundle bsmData = new StandardOptionDataBundle(data.getInterestRateCurve(), data.getCostOfCarry(), new ConstantVolatilitySurface(sigmaAdjusted), data.getSpot(), date);
         final Function1D<StandardOptionDataBundle, Double> bsmFunction = BSM.getPricingFunction(definition);
         double price = mult * bsmFunction.evaluate(bsmData);
         for (int i = 1; i < N; i++) {

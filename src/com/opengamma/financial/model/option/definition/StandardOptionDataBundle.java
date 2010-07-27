@@ -18,7 +18,7 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class StandardOptionDataBundle {
-  private final YieldAndDiscountCurve _discountCurve;
+  private final YieldAndDiscountCurve _interestRateCurve;
   private final double _b;
   private final VolatilitySurface _volatilitySurface;
   private final double _spot;
@@ -26,7 +26,7 @@ public class StandardOptionDataBundle {
 
   // TODO need a cost of carry model
   public StandardOptionDataBundle(final YieldAndDiscountCurve discountCurve, final double b, final VolatilitySurface volatilitySurface, final double spot, final ZonedDateTime date) {
-    _discountCurve = discountCurve;
+    _interestRateCurve = discountCurve;
     _b = b;
     _volatilitySurface = volatilitySurface;
     _spot = spot;
@@ -35,7 +35,7 @@ public class StandardOptionDataBundle {
 
   public StandardOptionDataBundle(final StandardOptionDataBundle data) {
     Validate.notNull(data);
-    _discountCurve = data.getDiscountCurve();
+    _interestRateCurve = data.getInterestRateCurve();
     _b = data.getCostOfCarry();
     _volatilitySurface = data.getVolatilitySurface();
     _spot = data.getSpot();
@@ -43,7 +43,7 @@ public class StandardOptionDataBundle {
   }
 
   public double getInterestRate(final double t) {
-    return getDiscountCurve().getInterestRate(t);
+    return getInterestRateCurve().getInterestRate(t);
   }
 
   public double getCostOfCarry() {
@@ -58,8 +58,8 @@ public class StandardOptionDataBundle {
     return _spot;
   }
 
-  public YieldAndDiscountCurve getDiscountCurve() {
-    return _discountCurve;
+  public YieldAndDiscountCurve getInterestRateCurve() {
+    return _interestRateCurve;
   }
 
   public VolatilitySurface getVolatilitySurface() {
@@ -70,24 +70,24 @@ public class StandardOptionDataBundle {
     return _date;
   }
 
-  public StandardOptionDataBundle withDiscountCurve(final YieldAndDiscountCurve curve) {
+  public StandardOptionDataBundle withInterestRateCurve(final YieldAndDiscountCurve curve) {
     return new StandardOptionDataBundle(curve, getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate());
   }
 
   public StandardOptionDataBundle withCostOfCarry(final double costOfCarry) {
-    return new StandardOptionDataBundle(getDiscountCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate());
+    return new StandardOptionDataBundle(getInterestRateCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate());
   }
 
   public StandardOptionDataBundle withVolatilitySurface(final VolatilitySurface surface) {
-    return new StandardOptionDataBundle(getDiscountCurve(), getCostOfCarry(), surface, getSpot(), getDate());
+    return new StandardOptionDataBundle(getInterestRateCurve(), getCostOfCarry(), surface, getSpot(), getDate());
   }
 
   public StandardOptionDataBundle withDate(final ZonedDateTime date) {
-    return new StandardOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), date);
+    return new StandardOptionDataBundle(getInterestRateCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), date);
   }
 
   public StandardOptionDataBundle withSpot(final double spot) {
-    return new StandardOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate());
+    return new StandardOptionDataBundle(getInterestRateCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate());
   }
 
   @Override
@@ -98,7 +98,7 @@ public class StandardOptionDataBundle {
     temp = Double.doubleToLongBits(_b);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + ((_date == null) ? 0 : _date.hashCode());
-    result = prime * result + ((_discountCurve == null) ? 0 : _discountCurve.hashCode());
+    result = prime * result + ((_interestRateCurve == null) ? 0 : _interestRateCurve.hashCode());
     temp = Double.doubleToLongBits(_spot);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + ((_volatilitySurface == null) ? 0 : _volatilitySurface.hashCode());
@@ -123,7 +123,7 @@ public class StandardOptionDataBundle {
     if (!(ObjectUtils.equals(_date, other._date))) {
       return false;
     }
-    if (!(ObjectUtils.equals(_discountCurve, other._discountCurve))) {
+    if (!(ObjectUtils.equals(_interestRateCurve, other._interestRateCurve))) {
       return false;
     }
     if (Double.doubleToLongBits(_spot) != Double.doubleToLongBits(other._spot)) {

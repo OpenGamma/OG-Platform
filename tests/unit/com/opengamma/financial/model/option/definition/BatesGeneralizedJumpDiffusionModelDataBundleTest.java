@@ -52,7 +52,7 @@ public class BatesGeneralizedJumpDiffusionModelDataBundleTest {
     assertEquals(DATA.getCostOfCarry(), B, 0);
     assertEquals(DATA.getDate(), DATE);
     assertEquals(DATA.getDelta(), DELTA, 0);
-    assertEquals(DATA.getDiscountCurve(), CURVE);
+    assertEquals(DATA.getInterestRateCurve(), CURVE);
     assertEquals(DATA.getExpectedJumpSize(), JUMP, 0);
     assertEquals(DATA.getLambda(), LAMBDA, 0);
     assertEquals(DATA.getSpot(), SPOT, 0);
@@ -88,7 +88,7 @@ public class BatesGeneralizedJumpDiffusionModelDataBundleTest {
 
   @Test
   public void testBuilders() {
-    assertEquals(new BatesGeneralizedJumpDiffusionModelDataBundle(OTHER_CURVE, B, SURFACE, SPOT, DATE, LAMBDA, JUMP, DELTA), DATA.withDiscountCurve(OTHER_CURVE));
+    assertEquals(new BatesGeneralizedJumpDiffusionModelDataBundle(OTHER_CURVE, B, SURFACE, SPOT, DATE, LAMBDA, JUMP, DELTA), DATA.withInterestRateCurve(OTHER_CURVE));
     assertEquals(new BatesGeneralizedJumpDiffusionModelDataBundle(CURVE, OTHER_B, SURFACE, SPOT, DATE, LAMBDA, JUMP, DELTA), DATA.withCostOfCarry(OTHER_B));
     assertEquals(new BatesGeneralizedJumpDiffusionModelDataBundle(CURVE, B, OTHER_SURFACE, SPOT, DATE, LAMBDA, JUMP, DELTA), DATA.withVolatilitySurface(OTHER_SURFACE));
     assertEquals(new BatesGeneralizedJumpDiffusionModelDataBundle(CURVE, B, SURFACE, OTHER_SPOT, DATE, LAMBDA, JUMP, DELTA), DATA.withSpot(OTHER_SPOT));

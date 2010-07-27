@@ -52,11 +52,13 @@ public class AsymmetricPowerOptionDefinition extends OptionDefinition {
     return _power;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public OptionExerciseFunction<StandardOptionDataBundle> getExerciseFunction() {
     return _exerciseFunction;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public OptionPayoffFunction<StandardOptionDataBundle> getPayoffFunction() {
     return _payoffFunction;

@@ -85,11 +85,13 @@ public class OptionDefinitionTest {
       super(strike, expiry, isCall);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public OptionExerciseFunction<StandardOptionDataBundle> getExerciseFunction() {
       return EXERCISE;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public OptionPayoffFunction<StandardOptionDataBundle> getPayoffFunction() {
       return PAYOFF;

@@ -23,6 +23,7 @@ public class Extrapolator1DWithSensitivityTest {
   private static final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResultWithSensitivities> INTERPOLATOR = new CubicSplineInterpolatorWithSensitivities1D();
   private static final ExtrapolatorMethod<? extends Interpolator1DDataBundle, ? extends InterpolationResult> LINEAR_EM = new LinearExtrapolator<Interpolator1DDataBundle, InterpolationResult>();
   private static final ExtrapolatorMethod<? extends Interpolator1DDataBundle, ? extends InterpolationResultWithSensitivities> LINEAR_EM_SENSE = new LinearExtrapolatorWithSensitivity<Interpolator1DDataBundle, InterpolationResultWithSensitivities>();
+
   // private static final Extrapolator1D<Interpolator1DDataBundle, InterpolationResult> FLAT_EXTRAPOLATOR = new Extrapolator1D(FLAT_EM, INTERPOLATOR);
   private static final Extrapolator1D<Interpolator1DDataBundle, InterpolationResult> EXTRAPOLATOR = new Extrapolator1D(LINEAR_EM, LINEAR_EM, INTERPOLATOR);
   private static final Extrapolator1D<Interpolator1DDataBundle, InterpolationResultWithSensitivities> EXTRAPOLATOR_SENSE = new Extrapolator1D(LINEAR_EM_SENSE, LINEAR_EM_SENSE, INTERPOLATOR);

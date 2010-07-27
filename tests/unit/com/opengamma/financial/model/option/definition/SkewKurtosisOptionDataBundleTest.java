@@ -47,7 +47,7 @@ public class SkewKurtosisOptionDataBundleTest {
 
   @Test
   public void testGetters() {
-    assertEquals(DATA.getDiscountCurve(), CURVE);
+    assertEquals(DATA.getInterestRateCurve(), CURVE);
     assertEquals(DATA.getCostOfCarry(), B, 0);
     assertEquals(DATA.getDate(), DATE);
     assertEquals(DATA.getSpot(), SPOT, 0);
@@ -90,7 +90,7 @@ public class SkewKurtosisOptionDataBundleTest {
 
   @Test
   public void testBuilders() {
-    assertEquals(new SkewKurtosisOptionDataBundle(OTHER_CURVE, B, SURFACE, SPOT, DATE, SKEW, KURTOSIS), DATA.withDiscountCurve(OTHER_CURVE));
+    assertEquals(new SkewKurtosisOptionDataBundle(OTHER_CURVE, B, SURFACE, SPOT, DATE, SKEW, KURTOSIS), DATA.withInterestRateCurve(OTHER_CURVE));
     assertEquals(new SkewKurtosisOptionDataBundle(CURVE, OTHER_B, SURFACE, SPOT, DATE, SKEW, KURTOSIS), DATA.withCostOfCarry(OTHER_B));
     assertEquals(new SkewKurtosisOptionDataBundle(CURVE, B, OTHER_SURFACE, SPOT, DATE, SKEW, KURTOSIS), DATA.withVolatilitySurface(OTHER_SURFACE));
     assertEquals(new SkewKurtosisOptionDataBundle(CURVE, B, SURFACE, OTHER_SPOT, DATE, SKEW, KURTOSIS), DATA.withSpot(OTHER_SPOT));

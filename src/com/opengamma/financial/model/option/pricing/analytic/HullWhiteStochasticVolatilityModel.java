@@ -17,6 +17,7 @@ import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurfac
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.CompareUtils;
 
 /**
  * 
@@ -54,19 +55,19 @@ public class HullWhiteStochasticVolatilityModel extends AnalyticOptionModel<Opti
         final double alpha = -beta * sigmaLR * sigmaLR;
         final double delta = beta * t;
         final double eDelta = Math.exp(delta);
-        final boolean betaIsZero = Math.abs(beta) < ZERO;
+        final boolean betaIsZero = CompareUtils.closeEquals(beta, 0, ZERO);
         final double variance = sigma * sigma;
-        final double meanVariance = getMeanVariance(betaIsZero, variance, t, alpha, beta, eDelta, delta);
-        final double sDf = s * getDF(r, b, t);
+        final double meanVariance = getMeanVariance(betaIsZero, variance, alpha, t, beta, eDelta, delta);
+        final double df = getDF(r, b, t);
+        final double sDf = s * df;
         final double d1 = getD(s, k, b, meanVariance, t);
         final double d2 = d1 - Math.sqrt(meanVariance * t);
         final double nD1 = NORMAL.getPDF(d1);
         final double f0 = BSM.getPricingFunction(call).evaluate(bsmData.withVolatilitySurface(new ConstantVolatilitySurface(Math.sqrt(meanVariance))));
-        final double f1 = getF1(betaIsZero, variance, rho, alpha, t, beta, delta, eDelta, sDf, nD1, d1, meanVariance);
+        final double f1 = getF1(betaIsZero, variance, rho, alpha, t, beta, delta, eDelta, sDf, nD1, d2, meanVariance);
         final double f2 = getF2(betaIsZero, variance, rho, alpha, t, beta, delta, eDelta, sDf, nD1, d1, d2, meanVariance);
         final double callPrice = f0 + f1 * volOfSigma + f2 * volOfSigma * volOfSigma;
         if (!definition.isCall()) {
-          final double df = getDF(r, b, t);
           return callPrice - s * df + k * Math.exp(-r * t);
         }
         return callPrice;
@@ -135,8 +136,8 @@ public class HullWhiteStochasticVolatilityModel extends AnalyticOptionModel<Opti
   }
 
   double getF1(final boolean betaIsZero, final double variance, final double rho, final double alpha, final double t, final double beta, final double delta, final double eDelta, final double sDf,
-      final double nD1, final double d1, final double meanVariance) {
-    final double cSV = getCSV(sDf, nD1, d1, meanVariance);
+      final double nD1, final double d2, final double meanVariance) {
+    final double cSV = getCSV(sDf, nD1, d2, meanVariance);
     if (betaIsZero) {
       return rho * (variance + alpha * t / 3.) * t * cSV / 2.;
     }
