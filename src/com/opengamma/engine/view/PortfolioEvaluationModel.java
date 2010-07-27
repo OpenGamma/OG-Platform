@@ -216,7 +216,7 @@ public class PortfolioEvaluationModel {
       outputDependencyGraphs();
     }
     if (OUTPUT_LIVE_DATA_REQUIREMENTS) {
-      outputLiveDataRequirements(viewCompilationServices.getSecurityMaster());
+      outputLiveDataRequirements(viewCompilationServices.getSecuritySource());
     }
     refreshLiveDataRequirements();
   }
@@ -236,7 +236,7 @@ public class PortfolioEvaluationModel {
     s_logger.warn("Dependency Graphs -- \n{}", sb);
   }
   
-  private void outputLiveDataRequirements(SecurityMaster secMaster) {
+  private void outputLiveDataRequirements(SecuritySource secMaster) {
     StringBuilder sb = new StringBuilder();
     for (Map.Entry<String, DependencyGraph> entry : _graphsByConfiguration.entrySet()) {
       String configName = entry.getKey();
