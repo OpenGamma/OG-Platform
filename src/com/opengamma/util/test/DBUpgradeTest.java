@@ -50,10 +50,12 @@ abstract public class DBUpgradeTest extends DBTest {
   @Test
   public void testDatabaseUpgrade () {
     for (Triple<String,String,String> comparison : _comparisons) {
-      /*System.out.println (comparison.getFirst () + " expected:");
-      System.out.println (comparison.getSecond ());
-      System.out.println (comparison.getFirst () + " found:");
-      System.out.println (comparison.getThird ());*/
+      /*
+       * System.out.println(comparison.getFirst() + " expected:");
+       * System.out.println(comparison.getSecond());
+       * System.out.println(comparison.getFirst() + " found:");
+       * System.out.println(comparison.getThird());
+       */
       assertEquals (comparison.getFirst (), comparison.getSecond (), comparison.getThird ());
     }
   }
