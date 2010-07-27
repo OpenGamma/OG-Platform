@@ -79,8 +79,8 @@ public final class PlatformConfigUtils {
   /**
    * Sets and/or validates the system properties generally necessary for the platform to run. 
    * 
-   * @param dbType  the database type, possibly null. Allows this to be set from an external source such as the command
-   *                line. Only used if the database type has not been set directly.
+   * @param runMode  the database type, possibly null. Allows this to be set from an external source such as the
+   *                 command line. Only used if the database type has not been set directly.
    * @throws OpenGammaRuntimeException  if any property is missing or invalid and cannot be set automatically
    */
   public static void configureSystemProperties(RunMode runMode) {
