@@ -314,7 +314,7 @@ public class DBTool extends Task {
     configuration.setProperty(Environment.USER, getUser());
     configuration.setProperty(Environment.PASS, getPassword());
     configuration.setProperty(Environment.DIALECT, getHibernateDialect().getClass().getName());
-    configuration.setProperty(Environment.SHOW_SQL, "true");
+    configuration.setProperty(Environment.SHOW_SQL, "false");
     configuration.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
     return configuration;
   }
