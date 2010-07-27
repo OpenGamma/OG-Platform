@@ -18,6 +18,7 @@ import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
+import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calcnode.JobRequestSender;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
@@ -41,6 +42,7 @@ public class ViewProcessingContext {
   private final ComputationTargetResolver _computationTargetResolver;
   private final FunctionCompilationContext _compilationContext;
   private final ExecutorService _executorService;
+  private final DependencyGraphExecutorFactory _dependencyGraphExecutorFactory;
 
   public ViewProcessingContext(
       LiveDataEntitlementChecker liveDataEntitlementChecker,
@@ -54,7 +56,8 @@ public class ViewProcessingContext {
       JobRequestSender computationJobRequestSender,
       ViewProcessorQueryReceiver viewProcessorQueryReceiver,
       FunctionCompilationContext compilationContext,
-      ExecutorService executorService) {
+      ExecutorService executorService,
+      DependencyGraphExecutorFactory dependencyGraphExecutorFactory) {
     ArgumentChecker.notNull(liveDataEntitlementChecker, "liveDataEntitlementChecker");
     ArgumentChecker.notNull(liveDataAvailabilityProvider, "liveDataAvailabilityProvider");
     ArgumentChecker.notNull(liveDataSnapshotProvider, "liveDataSnapshotProvider");
@@ -67,6 +70,7 @@ public class ViewProcessingContext {
     ArgumentChecker.notNull(viewProcessorQueryReceiver, "viewProcessorQueryReceiver");
     ArgumentChecker.notNull(compilationContext, "compilationContext");
     ArgumentChecker.notNull(executorService, "executorService");
+    ArgumentChecker.notNull(dependencyGraphExecutorFactory, "dependencyGraphExecutorFactory");
     
     _liveDataEntitlementChecker = liveDataEntitlementChecker;
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
@@ -80,6 +84,7 @@ public class ViewProcessingContext {
     _viewProcessorQueryReceiver = viewProcessorQueryReceiver;
     _compilationContext = compilationContext;
     _executorService = executorService;
+    _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
     
     // REVIEW kirk 2010-05-22 -- This isn't the right place to wrap this.
     _computationTargetResolver = new CachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource));
@@ -191,6 +196,10 @@ public class ViewProcessingContext {
    */
   public ExecutorService getExecutorService() {
     return _executorService;
+  }
+  
+  public DependencyGraphExecutorFactory getDependencyGraphExecutorFactory() {
+    return _dependencyGraphExecutorFactory;
   }
 
   //-------------------------------------------------------------------------

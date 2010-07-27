@@ -21,6 +21,7 @@ import com.opengamma.engine.position.MockPositionSource;
 import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.security.MockSecuritySource;
 import com.opengamma.engine.view.cache.MapViewComputationCacheSource;
+import com.opengamma.engine.view.calc.AtomicExecutorFactory;
 import com.opengamma.engine.view.calcnode.CalculationNodeRequestReceiver;
 import com.opengamma.engine.view.calcnode.FudgeJobRequestSender;
 import com.opengamma.engine.view.calcnode.JobRequestSender;
@@ -72,7 +73,8 @@ public class ViewTestUtils {
         calcRequestSender, 
         viewProcessorQueryReceiver,
         new FunctionCompilationContext(), 
-        executor);
+        executor,
+        new AtomicExecutorFactory());
     
     ViewDefinition viewDefinition = new ViewDefinition("mock_view", portfolioId, "ViewTestUser");
 

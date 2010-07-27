@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.view;
+package com.opengamma.engine.view.calc;
 
 import java.util.Collections;
 import java.util.HashSet;

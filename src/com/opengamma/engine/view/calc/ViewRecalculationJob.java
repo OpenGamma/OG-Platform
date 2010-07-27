@@ -3,11 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.view;
+package com.opengamma.engine.view.calc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.view.View;
 import com.opengamma.util.TerminatableJob;
 
 /**
@@ -31,7 +32,7 @@ public class ViewRecalculationJob extends TerminatableJob {
   /**
    * Nanoseconds
    */
-  private double _totalTime;
+  private double _totalTimeNanos;
   
   public ViewRecalculationJob(View view) {
     if (view == null) {
@@ -117,11 +118,10 @@ public class ViewRecalculationJob extends TerminatableJob {
     cycle.executePlans();
     cycle.populateResultModel();
     
-    long endNanoTime = System.nanoTime();
-    long delta = endNanoTime - cycle.getStartTime();
-    _totalTime += delta;
+    long duration = cycle.getDurationNanos();
+    _totalTimeNanos += duration;
     _numExecutions += 1.0;
-    s_logger.info("Last latency was {} ms, Average latency is {} ms", delta / NANOS_PER_MILLISECOND, (_totalTime / _numExecutions) / NANOS_PER_MILLISECOND);
+    s_logger.info("Last latency was {} ms, Average latency is {} ms", duration / NANOS_PER_MILLISECOND, (_totalTimeNanos / _numExecutions) / NANOS_PER_MILLISECOND);
     getView().recalculationPerformed(cycle.getResultModel());
     
     if (_previousCycle != null) {
