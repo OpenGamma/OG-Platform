@@ -65,6 +65,7 @@ import com.opengamma.util.monitor.OperationTimer;
 public class PortfolioEvaluationModel {
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioEvaluationModel.class);
   private static final boolean OUTPUT_DEPENDENCY_GRAPHS = false;
+  private static final boolean OUTPUT_LIVE_DATA_REQUIREMENTS = false;
 
   private Portfolio _portfolio;
   
@@ -214,13 +215,17 @@ public class PortfolioEvaluationModel {
     if (OUTPUT_DEPENDENCY_GRAPHS) {
       outputDependencyGraphs();
     }
+    if (OUTPUT_LIVE_DATA_REQUIREMENTS) {
+      outputLiveDataRequirements(viewCompilationServices.getSecurityMaster());
+    }
     refreshLiveDataRequirements();
   }
   
   private void outputDependencyGraphs() {
     StringBuilder sb = new StringBuilder();
     for (Map.Entry<String, DependencyGraph> entry : _graphsByConfiguration.entrySet()) {
-      sb.append("DepGraph for ").append(entry.getKey());
+      String configName = entry.getKey();
+      sb.append("DepGraph for ").append(configName);
       
       DependencyGraph depGraph = entry.getValue();
       sb.append("\tProducing values ").append(depGraph.getOutputValues());
@@ -229,6 +234,23 @@ public class PortfolioEvaluationModel {
       }
     }
     s_logger.warn("Dependency Graphs -- \n{}", sb);
+  }
+  
+  private void outputLiveDataRequirements(SecurityMaster secMaster) {
+    StringBuilder sb = new StringBuilder();
+    for (Map.Entry<String, DependencyGraph> entry : _graphsByConfiguration.entrySet()) {
+      String configName = entry.getKey();
+      Collection<ValueRequirement> requiredLiveData = entry.getValue().getAllRequiredLiveData();
+      if (requiredLiveData.isEmpty()) {
+        sb.append(configName).append(" requires no live data.\n");
+      } else {
+        sb.append("Live data for ").append(configName).append("\n");
+        for (ValueRequirement liveRequirement : requiredLiveData) {
+          sb.append("\t").append(liveRequirement.getTargetSpecification().getRequiredLiveData(secMaster)).append("\n");
+        }
+      }
+    }
+    s_logger.warn("Live data requirements -- \n{}", sb);
   }
   
   protected void resolveSecurities(final ViewCompilationServices viewCompilationServices) {
