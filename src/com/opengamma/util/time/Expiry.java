@@ -84,6 +84,9 @@ public class Expiry implements InstantProvider {
       return false;
     }
     // Only compare to the accuracy agreed
+    if (getAccuracy() == null) {
+      return ObjectUtils.equals(getExpiry(), other.getExpiry());
+    }
     switch (getAccuracy()) {
       case DAY_MONTH_YEAR:
         return (getExpiry().getDayOfMonth() == other.getExpiry().getDayOfMonth()) && (getExpiry().getMonthOfYear() == other.getExpiry().getMonthOfYear())
