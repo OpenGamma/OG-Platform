@@ -60,14 +60,22 @@ public class UserSecuritySource implements SecuritySource {
   public Security getSecurity(IdentifierBundle secKey) {
     // TODO: improve
     UniqueIdentifier uid = getUid(secKey);
-    return getSecurity(uid);
+    if (uid != null) {
+      return getSecurity(uid);
+    } else {
+      return null;
+    }
   }
 
   private UniqueIdentifier getUid(IdentifierBundle secKey) {
     // TODO: improve
     final String userScheme = UserUniqueIdentifierUtils.getUserScheme();
     String idValue = secKey.getIdentifier(new IdentificationScheme(userScheme));
-    return UniqueIdentifier.of(userScheme, idValue);
+    if (idValue != null) {
+      return UniqueIdentifier.of(userScheme, idValue);
+    } else {
+      return null;
+    }
   }
 
 }
