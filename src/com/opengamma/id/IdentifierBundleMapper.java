@@ -25,7 +25,7 @@ public class IdentifierBundleMapper<T> {
   private Map<T, IdentifierBundle> _fromMap = new HashMap<T, IdentifierBundle>();
   private BiMap<UniqueIdentifier, T> _uniqueIdMap = HashBiMap.create();
   private final String _uniqueIdScheme;
-  private InMemoryUniqueIdentifierFactory _idFactory;
+  private UniqueIdentifierSupplier _idSupplier;
   
   /**
    * Constructor taking the name of the scheme to use for the unique ids that this class generates.  No
@@ -33,7 +33,7 @@ public class IdentifierBundleMapper<T> {
    */
   public IdentifierBundleMapper(String uniqueIdScheme) {
     _uniqueIdScheme = uniqueIdScheme;
-    _idFactory = new InMemoryUniqueIdentifierFactory(_uniqueIdScheme);
+    _idSupplier = new UniqueIdentifierSupplier(_uniqueIdScheme);
   }
   
   public synchronized UniqueIdentifier add(IdentifierBundle bundle, T obj) {
@@ -56,7 +56,7 @@ public class IdentifierBundleMapper<T> {
       return _uniqueIdMap.inverse().get(obj);
     } else {
       _fromMap.put(obj, bundle); // as it's not in the from map, we haven't seen it before so no existing other ids point to it.
-      UniqueIdentifier uid = _idFactory.getNextUniqueIdentifier();
+      UniqueIdentifier uid = _idSupplier.get();
       _uniqueIdMap.put(uid, obj);
       return uid;
     }    

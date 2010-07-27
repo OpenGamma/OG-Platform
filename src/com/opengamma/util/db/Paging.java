@@ -5,6 +5,8 @@
  */
 package com.opengamma.util.db;
 
+import java.util.Collection;
+
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -30,6 +32,17 @@ public final class Paging {
    */
   private final int _totalItems;
 
+  /**
+   * Creates an instance that indicates a single page over the specified collection.
+   * @param coll  the collection to generate 
+   * @return the created paging, not null
+   */
+  public static Paging of(final Collection<?> coll) {
+    ArgumentChecker.notNull(coll, "coll");
+    return new Paging(1, Integer.MAX_VALUE, coll.size());
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Creates an instance.
    * @param request  the paging request
