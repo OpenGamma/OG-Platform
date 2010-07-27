@@ -164,7 +164,7 @@ public class SwapPortfolioImpliedYieldCurveFunction extends AbstractFunction imp
     return true;
   }
 
-  public static Set<ValueRequirement> buildRequirements(final InterpolatedYieldAndDiscountCurveDefinition definition) {
+  public static Set<ValueRequirement> buildRequirements(final YieldCurveDefinition definition) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
     for (final FixedIncomeStrip strip : definition.getStrips()) {
       final ValueRequirement requirement = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, strip.getMarketDataSpecification());

@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.ircurve;
 /**
  * Temporary enum until we replace these with proper securities
  */
-public enum StripInstrument {
+public enum StripInstrumentType {
   /**
    * Libor rate
    */

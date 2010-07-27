@@ -8,47 +8,56 @@ package com.opengamma.financial.analytics.ircurve;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.financial.Currency;
+import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  *
  */
-public class InterpolatedYieldAndDiscountCurveDefinition implements Serializable {
+public class InterpolatedYieldCurveSpecification implements Serializable {
+  private final LocalDate _curveDate;
   private final Currency _currency;
   private final String _name;
-  private final String _interpolatorName;
-  private final SortedSet<FixedIncomeStrip> _strips = new TreeSet<FixedIncomeStrip>();
+  private final Interpolator1D<?, ?> _interpolator;
+  private final Set<ResolvedFixedIncomeStrip> _strips = new HashSet<ResolvedFixedIncomeStrip>();
   
-  public InterpolatedYieldAndDiscountCurveDefinition(Currency currency, String name, String interpolatorName) {
-    this(currency, name, interpolatorName, null);
-  }
-  
-  public InterpolatedYieldAndDiscountCurveDefinition(Currency currency, String name, String interpolatorName, Collection<? extends FixedIncomeStrip> strips) {
-    ArgumentChecker.notNull(currency, "Currency");
-    ArgumentChecker.notNull(interpolatorName, "Interpolator name");
+  public InterpolatedYieldCurveSpecification(LocalDate curveDate, String name, Currency currency,  Interpolator1D<?, ?> interpolator, Collection<ResolvedFixedIncomeStrip> resolvedStrips) {
+    Validate.notNull(curveDate, "CurveDate");
+    Validate.notNull(currency, "Currency");
+    Validate.notNull(interpolator, "Interpolator1D");
+    Validate.notNull(resolvedStrips, "ResolvedStrips");
     // Name can be null.
+    _curveDate = curveDate;
     _currency = currency;
     _name = name;
-    _interpolatorName = interpolatorName;
-    if (strips != null) {
-      for (FixedIncomeStrip strip : strips) {
-        addStrip(strip);
-      }
+    _interpolator = interpolator;
+    for (ResolvedFixedIncomeStrip strip : resolvedStrips) {
+      addStrip(strip);
     }
   }
   
-  public void addStrip(FixedIncomeStrip strip) {
+  public void addStrip(ResolvedFixedIncomeStrip strip) {
     ArgumentChecker.notNull(strip, "Strip");
     _strips.add(strip);
+  }
+  
+  /**
+   * @return the curve date
+   */
+  public LocalDate getCurveDate() {
+    return _curveDate;
   }
 
   /**
@@ -66,17 +75,17 @@ public class InterpolatedYieldAndDiscountCurveDefinition implements Serializable
   }
 
   /**
-   * @return the interpolatorName
+   * @return the interpolator
    */
-  public String getInterpolatorName() {
-    return _interpolatorName;
+  public Interpolator1D<?, ?> getInterpolator() {
+    return _interpolator;
   }
 
   /**
    * @return the strips
    */
-  public SortedSet<FixedIncomeStrip> getStrips() {
-    return Collections.unmodifiableSortedSet(_strips);
+  public Set<ResolvedFixedIncomeStrip> getStrips() {
+    return Collections.unmodifiableSet(_strips);
   }
 
   @Override
@@ -87,17 +96,17 @@ public class InterpolatedYieldAndDiscountCurveDefinition implements Serializable
     if (obj == null) {
       return false;
     }
-    if (!(obj instanceof InterpolatedYieldAndDiscountCurveDefinition)) {
+    if (!(obj instanceof InterpolatedYieldCurveSpecification)) {
       return false;
     }
-    InterpolatedYieldAndDiscountCurveDefinition other = (InterpolatedYieldAndDiscountCurveDefinition) obj;
+    InterpolatedYieldCurveSpecification other = (InterpolatedYieldCurveSpecification) obj;
     if (!ObjectUtils.equals(_currency, other._currency)) {
       return false;
     }
     if (!ObjectUtils.equals(_name, other._name)) {
       return false;
     }
-    if (!ObjectUtils.equals(_interpolatorName, other._interpolatorName)) {
+    if (!ObjectUtils.equals(_interpolator, other._interpolator)) {
       return false;
     }
     if (!ObjectUtils.equals(_strips, other._strips)) {
@@ -114,12 +123,7 @@ public class InterpolatedYieldAndDiscountCurveDefinition implements Serializable
     if (_name != null) {
       result = (result * prime) + _name.hashCode(); 
     }
-    if (_interpolatorName != null) {
-      result = (result * prime) + _interpolatorName.hashCode(); 
-    }
-    for (FixedIncomeStrip strip : _strips) {
-      result = (result * prime) + strip.hashCode();
-    }
+    // since currency/name/date are a candidate key we leave it at that.
     return result;
   }
 

@@ -32,19 +32,19 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
  */
 public class InterpolatedYieldAndDiscountCurveFunctionTest {
 
-  protected static InterpolatedYieldAndDiscountCurveDefinition constructDefinition() {
+  protected static YieldCurveDefinition constructDefinition() {
     Currency currency = Currency.getInstance("USD");
     String name = "Test Curve";
-    InterpolatedYieldAndDiscountCurveDefinition definition = new InterpolatedYieldAndDiscountCurveDefinition(currency, name, Interpolator1DFactory.LINEAR);
-    definition.addStrip(new FixedIncomeStrip(Period.ofYears(1), UniqueIdentifier.of("Test", "USSW1 Curncy"), StripInstrument.SWAP));
-    definition.addStrip(new FixedIncomeStrip(Period.ofYears(2), UniqueIdentifier.of("Test", "USSW2 Curncy"), StripInstrument.SWAP));
-    definition.addStrip(new FixedIncomeStrip(Period.ofYears(3), UniqueIdentifier.of("Test", "USSW3 Curncy"), StripInstrument.SWAP));
+    YieldCurveDefinition definition = new YieldCurveDefinition(currency, name, Interpolator1DFactory.LINEAR);
+    definition.addStrip(new FixedIncomeStrip(Period.ofYears(1), UniqueIdentifier.of("Test", "USSW1 Curncy"), StripInstrumentType.SWAP));
+    definition.addStrip(new FixedIncomeStrip(Period.ofYears(2), UniqueIdentifier.of("Test", "USSW2 Curncy"), StripInstrumentType.SWAP));
+    definition.addStrip(new FixedIncomeStrip(Period.ofYears(3), UniqueIdentifier.of("Test", "USSW3 Curncy"), StripInstrumentType.SWAP));
     return definition;
   }
 
   @Test
   public void discountCurveRequirements() {
-    InterpolatedYieldAndDiscountCurveDefinition definition = constructDefinition();
+    YieldCurveDefinition definition = constructDefinition();
     DefaultInterpolatedYieldAndDiscountCurveSource curveSource = new DefaultInterpolatedYieldAndDiscountCurveSource();
     curveSource.addDefinition(Currency.getInstance("USD"), "DEFAULT", definition);
     SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(Currency
@@ -75,7 +75,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
 
   @Test
   public void yieldCurveRequirements() {
-    InterpolatedYieldAndDiscountCurveDefinition definition = constructDefinition();
+    YieldCurveDefinition definition = constructDefinition();
     DefaultInterpolatedYieldAndDiscountCurveSource curveSource = new DefaultInterpolatedYieldAndDiscountCurveSource();
     curveSource.addDefinition(Currency.getInstance("USD"), "DEFAULT", definition);
     SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(Currency
@@ -107,7 +107,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
 
   @Test
   public void discountCurveNotMatchingRequirements() {
-    InterpolatedYieldAndDiscountCurveDefinition definition = constructDefinition();
+    YieldCurveDefinition definition = constructDefinition();
     DefaultInterpolatedYieldAndDiscountCurveSource curveSource = new DefaultInterpolatedYieldAndDiscountCurveSource();
     curveSource.addDefinition(Currency.getInstance("USD"), "DEFAULT", definition);
     SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(Currency
@@ -127,7 +127,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
 
   @Test
   public void yieldCurveNotMatchingRequirements() {
-    InterpolatedYieldAndDiscountCurveDefinition definition = constructDefinition();
+    YieldCurveDefinition definition = constructDefinition();
     DefaultInterpolatedYieldAndDiscountCurveSource curveSource = new DefaultInterpolatedYieldAndDiscountCurveSource();
     curveSource.addDefinition(Currency.getInstance("USD"), "DEFAULT", definition);
     SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(Currency

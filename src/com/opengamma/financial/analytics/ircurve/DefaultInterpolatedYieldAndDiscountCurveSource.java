@@ -5,30 +5,20 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.opengamma.config.db.MongoDBConfigRepository;
 import com.opengamma.financial.Currency;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.MongoDBConnectionSettings;
 
 /**
- * 
- *
+ * This class should be removed, it is here just to ease integration with existing tests. 
  */
-public class DefaultInterpolatedYieldAndDiscountCurveSource implements InterpolatedYieldAndDiscountCurveSource {
-
-  private Map<Pair<Currency, String>, InterpolatedYieldAndDiscountCurveDefinition> _map;
+public class DefaultInterpolatedYieldAndDiscountCurveSource extends ConfigDBInterpolatedYieldCurveDefinitionSource {
 
   public DefaultInterpolatedYieldAndDiscountCurveSource() {
-    _map = new HashMap<Pair<Currency, String>, InterpolatedYieldAndDiscountCurveDefinition>();
+    super(new MongoDBConfigRepository<YieldCurveDefinition>(YieldCurveDefinition.class, new MongoDBConnectionSettings()));
   }
-
-  @Override
-  public InterpolatedYieldAndDiscountCurveDefinition getDefinition(Currency currency, String name) {
-    return _map.get(Pair.of(currency, name));
-  }
-
-  public void addDefinition(Currency currency, String name, InterpolatedYieldAndDiscountCurveDefinition definition) {
-    _map.put(Pair.of(currency, name), definition);
+  
+  public void addDefinition(Currency currency, String name, YieldCurveDefinition definition) {
+    getRepo().insertNewItem(name + "_" + currency.getISOCode(), definition);
   }
 }

@@ -1,0 +1,34 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.financial.analytics.ircurve;
+
+import java.util.Map;
+
+import javax.time.calendar.LocalDate;
+
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.id.Identifier;
+import com.opengamma.util.time.Tenor;
+
+/**
+ * This should be pulled from the configuration.
+ */
+public class StaticCurveInstrumentProvider implements CurveInstrumentProvider {
+  private Identifier _identifier;
+  
+  public StaticCurveInstrumentProvider(Identifier identifier) {
+    _identifier = identifier;
+  }
+  @Override
+  public Identifier getInstrument(LocalDate curveDate, Tenor tenor) {
+    return _identifier;
+  }
+  
+  @Override
+  public Identifier getInstrument(LocalDate curveDate, Tenor tenor, int numQuarterlyFuturesFromTenor) {
+    throw new OpenGammaRuntimeException("futures not supported by this class");
+  }
+}
