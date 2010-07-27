@@ -9,6 +9,8 @@ import javax.time.Instant;
 import javax.time.InstantProvider;
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.ObjectUtils;
+
 /**
  * An indication of when something expires.
  */
