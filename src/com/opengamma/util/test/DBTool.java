@@ -222,6 +222,15 @@ public class DBTool extends Task {
   }
   
   /**
+   * Primarily for ant
+   * 
+   * @param directory  the script directory
+   */
+  public void setDbScriptDir(String directory) {
+    addDbScriptDirectory(directory);
+  }
+  
+  /**
    * @param directory If null -> working directory
    */
   public void addDbScriptDirectory(String directory) {
@@ -389,7 +398,9 @@ public class DBTool extends Task {
         if (createFile.exists()) {
           s_logger.info("Creating DB version " + version);
           executeCreateScript(catalog, createFile);
-          callback.tablesCreatedOrUpgraded(version);
+          if (callback != null) {
+            callback.tablesCreatedOrUpgraded(version);
+          }
           return;
         }
       }
@@ -398,7 +409,9 @@ public class DBTool extends Task {
       if (upgradeFile.exists()) {
         s_logger.info("Upgrading to DB version " + version);
         executeCreateScript(catalog, upgradeFile);
-        callback.tablesCreatedOrUpgraded(version);
+        if (callback != null) {
+          callback.tablesCreatedOrUpgraded(version);
+        }
         return;
       }
     } else {
