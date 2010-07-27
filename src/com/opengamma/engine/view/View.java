@@ -23,6 +23,8 @@ import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.view.calc.SingleComputationCycle;
+import com.opengamma.engine.view.calc.ViewRecalculationJob;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
@@ -526,21 +528,8 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     return "View[" + getDefinition().getName() + "]";
   }
   
-  /*package*/ SingleComputationCycle createCycle(long valuationTime) {
-    PortfolioEvaluationModel portfolioEvaluationModel = getPortfolioEvaluationModel();
-    ViewComputationResultModelImpl result = new ViewComputationResultModelImpl();
-    // REVIEW kirk 2010-03-29 -- Order here is important. This is lame and should be refactored into
-    // the constructor.
-    result.setCalculationConfigurationNames(portfolioEvaluationModel.getAllCalculationConfigurationNames());
-    result.setPortfolio(portfolioEvaluationModel.getPortfolio());
-    
-    SingleComputationCycle cycle = new SingleComputationCycle(
-        getDefinition().getName(),
-        getProcessingContext(),
-        portfolioEvaluationModel,
-        result, 
-        getDefinition(),
-        valuationTime);
+  public SingleComputationCycle createCycle(long valuationTime) {
+    SingleComputationCycle cycle = new SingleComputationCycle(this, valuationTime);
     return cycle;
   }
 

@@ -8,6 +8,7 @@ package com.opengamma.engine.view;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Collections;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +27,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.MapViewComputationCache;
 import com.opengamma.engine.view.cache.ViewComputationCache;
+import com.opengamma.engine.view.calc.LiveDataDeltaCalculator;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -66,10 +68,14 @@ public class LiveDataDeltaCalculatorTest {
     return requirement;
   }
   
-  private DependencyNode createNode(String name) {
+  private DependencyNode createNode(String name, Set<DependencyNode> inputNodes) {
     ComputationTarget target = getTarget(name); 
     FunctionDefinition function = new MockFunction(target, Collections.singleton(getValueRequirement(name)));
-    DependencyNode node = new DependencyNode(_context, function, target);
+    DependencyNode node = new DependencyNode(function, 
+        target, 
+        inputNodes, 
+        Collections.<ValueSpecification>emptySet(), 
+        Collections.<ValueSpecification>emptySet());
     return node;
   }
   
@@ -88,20 +94,13 @@ public class LiveDataDeltaCalculatorTest {
    *              
    */
   private DependencyGraph getTestGraph() {
-    DependencyGraph graph = new DependencyGraph();
+    DependencyGraph graph = new DependencyGraph("test");
     
-    _node0 = createNode("Node0");
-    _node1 = createNode("Node1");
-    _node2 = createNode("Node2");
-    _node3 = createNode("Node3");
-    
-    _node0.addInputNode(_node1);
-    _node0.addInputNode(_node2);
-    
-    _node1.addInputNode(_node3);
-    _node2.addInputNode(_node3);
-    
-    graph.addRootNode(_node0);
+    _node3 = createNode("Node3", Collections.<DependencyNode>emptySet());
+    _node1 = createNode("Node1", Sets.newHashSet(_node3));
+    _node2 = createNode("Node2", Sets.newHashSet(_node3));
+    _node0 = createNode("Node0", Sets.newHashSet(_node1, _node2));
+
     graph.addDependencyNode(_node0);
     graph.addDependencyNode(_node1);
     graph.addDependencyNode(_node2);

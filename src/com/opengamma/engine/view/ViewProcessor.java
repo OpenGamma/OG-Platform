@@ -33,6 +33,7 @@ import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
+import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calcnode.JobRequestSender;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.livedata.client.LiveDataClient;
@@ -61,6 +62,7 @@ public class ViewProcessor implements Lifecycle {
   private ViewComputationCacheSource _computationCacheSource;
   private JobRequestSender _computationJobRequestSender;
   private ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
+  private DependencyGraphExecutorFactory _dependencyGraphExecutorFactory;
   // State:
   private final ConcurrentMap<String, View> _viewsByName = new ConcurrentHashMap<String, View>();
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
@@ -226,6 +228,14 @@ public class ViewProcessor implements Lifecycle {
     assertNotStarted();
     _viewProcessorQueryReceiver = calcNodeQueryReceiver;
   }
+  
+  public DependencyGraphExecutorFactory getDependencyGraphExecutorFactory() {
+    return _dependencyGraphExecutorFactory;
+  }
+
+  public void setDependencyGraphExecutorFactory(DependencyGraphExecutorFactory dependencyGraphExecutorFactory) {
+    _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
+  }
 
   /**
    * @return the executorService
@@ -331,7 +341,8 @@ public class ViewProcessor implements Lifecycle {
         getComputationJobRequestSender(),
         getViewProcessorQueryReceiver(),
         getCompilationContext(),
-        getExecutorService());
+        getExecutorService(),
+        getDependencyGraphExecutorFactory());
     View freshView = new View(viewDefinition, vpc);
     View actualView = _viewsByName.putIfAbsent(viewName, freshView);
     if (actualView == null) {

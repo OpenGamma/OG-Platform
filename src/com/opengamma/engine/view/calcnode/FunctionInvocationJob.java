@@ -138,38 +138,8 @@ public class FunctionInvocationJob implements Runnable {
   
   @Override
   public void run() {
-    s_logger.debug("Invoking {} on target {}", getFunctionUniqueIdentifier(), getTarget());
-    FunctionInvoker invoker = getFunctionRepository().getInvoker(getFunctionUniqueIdentifier());
-    if (invoker == null) {
-      throw new NullPointerException("Unable to locate " + getFunctionUniqueIdentifier() + " in function repository.");
-    }
     
-    FunctionInputs functionInputs = assembleInputs();
-    getFunctionExecutionContext().setViewProcessorQuery(getViewProcessorQuery());
-    getFunctionExecutionContext().setSnapshotEpochTime(getJobSpecification().getIterationTimestamp());
-    getFunctionExecutionContext().setSnapshotClock(DateUtil.epochFixedClockUTC(getJobSpecification().getIterationTimestamp()));
-    Set<ComputedValue> results = invoker.execute(getFunctionExecutionContext(), functionInputs, getTarget(), getDesiredValues());
-    cacheResults(results);
   }
 
-  protected void cacheResults(Set<ComputedValue> results) {
-    for (ComputedValue resultValue : results) {
-      getComputationCache().putValue(resultValue);
-    }
-  }
-  
-  protected FunctionInputs assembleInputs() {
-    Collection<ComputedValue> inputs = new HashSet<ComputedValue>();
-    for (ValueSpecification inputSpec : getResolvedInputs()) {
-      Object input = getComputationCache().getValue(inputSpec);
-      if (input == null) {
-        s_logger.info("Not able to execute as missing input {}", inputSpec);
-        throw new MissingInputException(inputSpec, getFunctionUniqueIdentifier());
-      }
-      inputs.add(new ComputedValue(inputSpec, input));
-    }
-    FunctionInputs functionInputs = new FunctionInputsImpl(inputs);
-    return functionInputs;
-  }
 
 }

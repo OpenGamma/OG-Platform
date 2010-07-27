@@ -6,6 +6,7 @@
 package com.opengamma.engine.depgraph;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -35,7 +36,7 @@ public class DependencyGraphBuilder {
   private FunctionResolver _functionResolver;
   private FunctionCompilationContext _compilationContext;
   // State:
-  private DependencyGraph _graph = new DependencyGraph();
+  private DependencyGraph _graph;
     
   /**
    * @return the calculationConfigurationName
@@ -48,6 +49,7 @@ public class DependencyGraphBuilder {
    */
   public void setCalculationConfigurationName(String calculationConfigurationName) {
     _calculationConfigurationName = calculationConfigurationName;
+    _graph = new DependencyGraph(_calculationConfigurationName);
   }
   /**
    * @return the liveDataAvailabilityProvider
@@ -120,14 +122,12 @@ public class DependencyGraphBuilder {
     for (ValueRequirement requirement : requirements) {
       Pair<DependencyNode, ValueSpecification> requirementPair = addTargetRequirement(target, requirement);
       requirementPair.getFirst().addTerminalOutputValue(requirementPair.getSecond());
-      _graph.addRootNode(requirementPair.getFirst());
     }
   }
   
   protected Pair<DependencyNode, ValueSpecification> addTargetRequirement(ComputationTarget target, ValueRequirement requirement) {
     s_logger.info("Adding target requirement for {} on {}", requirement, target);
 
-    // getNodeProducing() is O(n) -> total algorithm is O(n^2) - need to optimize
     Pair<DependencyNode, ValueSpecification> existingNode = _graph.getNodeProducing(requirement);
     if (existingNode != null) {
       s_logger.debug("Existing Node : {} on {}", requirement, target);
@@ -137,7 +137,11 @@ public class DependencyGraphBuilder {
     if (getLiveDataAvailabilityProvider().isAvailable(requirement)) {
       s_logger.debug("Live Data : {} on {}", requirement, target);
       LiveDataSourcingFunction function = new LiveDataSourcingFunction(requirement);
-      DependencyNode node = new DependencyNode(getCompilationContext(), function, target);
+      DependencyNode node = new DependencyNode(function, 
+          target, 
+          Collections.<DependencyNode>emptySet(),
+          Collections.<ValueSpecification>emptySet(),
+          Collections.<ValueSpecification>emptySet());
       _graph.addDependencyNode(node);
       return Pair.of(node, function.getResult());
     }
@@ -148,18 +152,30 @@ public class DependencyGraphBuilder {
       // TODO kirk 2009-12-30 -- Gather up all the errors in some way.
       throw new UnsatisfiableDependencyGraphException("Could not satisfy requirement " + requirement + " for target " + target);
     }
-    DependencyNode node = new DependencyNode(getCompilationContext(), resolvedFunction.getFirst(), target);
-    _graph.addDependencyNode(node);
     
-    for (ValueRequirement inputRequirement : node.getInputRequirements()) {
+    FunctionDefinition functionDefinition = resolvedFunction.getFirst(); 
+    Set<ValueRequirement> inputRequirements = functionDefinition.getRequirements(getCompilationContext(), target);
+    Set<ValueSpecification> outputValues = functionDefinition.getResults(getCompilationContext(), target);
+    
+    Set<DependencyNode> inputNodes = new HashSet<DependencyNode>();
+    Set<ValueSpecification> inputValues = new HashSet<ValueSpecification>();
+    
+    for (ValueRequirement inputRequirement : inputRequirements) {
       ComputationTarget inputTarget = getTargetResolver().resolve(inputRequirement.getTargetSpecification());
       if (inputTarget == null) {
         throw new UnsatisfiableDependencyGraphException("Unable to resolve target for " + inputRequirement);
       }
       Pair<DependencyNode, ValueSpecification> resolvedInput = addTargetRequirement(inputTarget, inputRequirement);
-      node.addInputNode(resolvedInput.getFirst());
-      node.addRequirementMapping(inputRequirement, resolvedInput.getSecond());
+      inputNodes.add(resolvedInput.getFirst());
+      inputValues.add(resolvedInput.getSecond());
     }
+    
+    DependencyNode node = new DependencyNode(functionDefinition, 
+        target,
+        inputNodes,
+        inputValues,
+        outputValues);
+    _graph.addDependencyNode(node);
     
     return Pair.of(node, resolvedFunction.getSecond());
   }
