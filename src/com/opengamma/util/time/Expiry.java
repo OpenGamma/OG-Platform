@@ -9,8 +9,6 @@ import javax.time.Instant;
 import javax.time.InstantProvider;
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.ObjectUtils;
-
 /**
  * An indication of when something expires.
  */
@@ -74,14 +72,21 @@ public class Expiry implements InstantProvider {
       return false;
     }
     final Expiry other = (Expiry) obj;
-    if (!ObjectUtils.equals(other.getAccuracy(), getAccuracy())) {
-      return false;
-    }
     if (getExpiry() == null) {
       return (other.getExpiry() == null);
     }
     if (other.getExpiry() == null) {
       return false;
+    }
+    if (getAccuracy() == null) {
+      if (other.getAccuracy() != null) {
+        return false;
+      }
+      return getExpiry().equalInstant(other.getExpiry());
+    } else {
+      if (!getAccuracy().equals(other.getAccuracy())) {
+        return false;
+      }
     }
     // Only compare to the accuracy agreed
     switch (getAccuracy()) {
