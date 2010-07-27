@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
@@ -116,7 +115,10 @@ public class CalculationJobItem {
   
   @Override
   public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    return new ToStringBuilder(this)
+      .append("Function unique ID", getFunctionUniqueIdentifier())
+      .append("Computation target", getComputationTargetSpecification())
+      .toString();
   }
 
 }

@@ -104,34 +104,31 @@ public abstract class AbstractCalculationNode {
     ViewComputationCache cache = getCacheSource().getCache(spec.getViewName(), spec.getCalcConfigName(), spec.getIterationTimestamp());
     
     long startNanos = System.nanoTime();
-    Exception exception = null;
+    Exception lastException = null;
 
     Set<ComputedValue> results = new HashSet<ComputedValue>();
     for (CalculationJobItem jobItem : job.getJobItems()) {
     
       try {
         Set<ComputedValue> result = invoke(jobItem, cache);
+        cacheResults(cache, result);
         results.addAll(result);
       
       } catch (MissingInputException e) {
         // NOTE kirk 2009-10-20 -- We intentionally only do the message here so that we don't
         // litter the logs with stack traces.
         s_logger.info("Unable to invoke {} due to missing inputs: {}", jobItem, e.getMessage());
-        exception = e;
-        break;
+        lastException = e;
       
       } catch (Exception e) {
         s_logger.info("Invoking " + jobItem.getFunctionUniqueIdentifier() + " threw exception.", e);
-        exception = e;
-        break;
+        lastException = e;
       }
     }
     
-    cacheResults(cache, results);
-    
     long endNanos = System.nanoTime();
     long durationNanos = endNanos - startNanos;
-    InvocationResult invocationResult = (exception == null) ? InvocationResult.SUCCESS : InvocationResult.ERROR;
+    InvocationResult invocationResult = (lastException == null) ? InvocationResult.SUCCESS : InvocationResult.ERROR;
 
     CalculationJobResult jobResult = new CalculationJobResult(spec, invocationResult, durationNanos);
     return jobResult;
