@@ -6,10 +6,12 @@
 package com.opengamma.financial.security.db.option;
 
 import static com.opengamma.financial.security.db.Converters.currencyBeanToCurrency;
+import static com.opengamma.financial.security.db.Converters.dateTimeWithZoneToZonedDateTimeBean;
 import static com.opengamma.financial.security.db.Converters.expiryBeanToExpiry;
 import static com.opengamma.financial.security.db.Converters.expiryToExpiryBean;
 import static com.opengamma.financial.security.db.Converters.identifierBeanToIdentifier;
 import static com.opengamma.financial.security.db.Converters.identifierToIdentifierBean;
+import static com.opengamma.financial.security.db.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
 import org.apache.commons.lang.ObjectUtils;
 
@@ -114,7 +116,7 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
 
       @Override
       public PayoffStyle visitExtremeSpreadPayoffStyle(ExtremeSpreadPayoffStyle payoffStyle) {
-        return new ExtremeSpreadPayoffStyle(bean.getPeriodEnd(), bean.getPeriodEndTimeZone(), bean.isReverse());
+        return new ExtremeSpreadPayoffStyle(zonedDateTimeBeanToDateTimeWithZone(bean.getChooseDate()), bean.isReverse());
       }
       
       @Override
@@ -144,8 +146,7 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
 
       @Override
       public PayoffStyle visitSimpleChooserPayoffStyle(SimpleChooserPayoffStyle payoffStyle) {
-        return new SimpleChooserPayoffStyle(bean.getChooseDate(), bean.getChooseDateTimeZone(), bean.getUnderlyingStrike(), 
-            bean.getUnderlyingExpiry(), bean.getUnderlyingExpiryTimeZone());
+        return new SimpleChooserPayoffStyle(zonedDateTimeBeanToDateTimeWithZone(bean.getChooseDate()), bean.getUnderlyingStrike(), expiryBeanToExpiry(bean.getUnderlyingExpiry()));
       }
       
       @Override
@@ -303,8 +304,7 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
           
           @Override
           public OptionPayoffStyle visitExtremeSpreadPayoffStyle(ExtremeSpreadPayoffStyle payoffStyle) {
-            bean.setPeriodEnd(payoffStyle.getPeriodEnd());
-            bean.setPeriodEndTimeZone(payoffStyle.getPeriodEndTimeZone());
+            bean.setChooseDate(dateTimeWithZoneToZonedDateTimeBean(payoffStyle.getPeriodEnd()));
             bean.setReverse(payoffStyle.getIsReverse());
             return OptionPayoffStyle.EXTREME_SPREAD;
           }
@@ -340,11 +340,9 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
 
           @Override
           public OptionPayoffStyle visitSimpleChooserPayoffStyle(SimpleChooserPayoffStyle payoffStyle) {
-            bean.setChooseDate(payoffStyle.getChooseDate());
-            bean.setChooseDateTimeZone(payoffStyle.getChooseDate_zone());
+            bean.setChooseDate(dateTimeWithZoneToZonedDateTimeBean(payoffStyle.getChooseDate()));
             bean.setUnderlyingStrike(payoffStyle.getUnderlyingStrike());
-            bean.setUnderlyingExpiry(payoffStyle.getUnderlyingExpiry());
-            bean.setUnderlyingExpiryTimeZone(payoffStyle.getUnderlyingExpiry_zone());
+            bean.setUnderlyingExpiry(expiryToExpiryBean(payoffStyle.getUnderlyingExpiry()));
             return OptionPayoffStyle.SIMPLE_CHOOSER;
           }
           

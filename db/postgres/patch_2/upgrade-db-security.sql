@@ -17,7 +17,13 @@ ALTER TABLE sec_option
   ADD expiry_accuracy SMALLINT NOT NULL DEFAULT 3,
   ADD payment DOUBLE PRECISION,
   ADD lowerbound DOUBLE PRECISION,
-  ADD upperbound DOUBLE PRECISION;
+  ADD upperbound DOUBLE PRECISION,
+  ADD choose_date TIMESTAMP,
+  ADD choose_zone VARCHAR(50),
+  ADD underlyingstrike DOUBLE PRECISION,
+  ADD underlyingexpiry_date TIMESTAMP,
+  ADD underlyingexpiry_accuracy SMALLINT,
+  ADD reverse BOOL; 
 ALTER TABLE sec_option
   ALTER expiry_accuracy DROP DEFAULT;
 ALTER TABLE sec_option RENAME expiry TO expiry_date;

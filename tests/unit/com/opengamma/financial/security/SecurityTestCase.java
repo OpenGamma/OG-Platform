@@ -78,6 +78,7 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.ExerciseTypeVisitor;
+import com.opengamma.financial.security.option.ExtremeSpreadPayoffStyle;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.FadeInPayoffStyle;
 import com.opengamma.financial.security.option.FixedStrikeLookbackPayoffStyle;
@@ -88,6 +89,7 @@ import com.opengamma.financial.security.option.OptionOptionSecurity;
 import com.opengamma.financial.security.option.PayoffStyle;
 import com.opengamma.financial.security.option.PayoffStyleVisitor;
 import com.opengamma.financial.security.option.PoweredPayoffStyle;
+import com.opengamma.financial.security.option.SimpleChooserPayoffStyle;
 import com.opengamma.financial.security.option.SupersharePayoffStyle;
 import com.opengamma.financial.security.option.SwapOptionSecurity;
 import com.opengamma.financial.security.option.VanillaPayoffStyle;
@@ -104,6 +106,7 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.time.Expiry;
+import com.opengamma.util.time.ExpiryAccuracy;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -418,6 +421,18 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
               return new VanillaPayoffStyle();
             }
 
+            @Override
+            public PayoffStyle visitExtremeSpreadPayoffStyle(ExtremeSpreadPayoffStyle payoffStyle) {
+              return new ExtremeSpreadPayoffStyle(new DateTimeWithZone(ZonedDateTime.now(Clock.systemDefaultZone()).withNanoOfSecond(0)), s_random.nextBoolean());
+            }
+
+            @Override
+            public PayoffStyle visitSimpleChooserPayoffStyle(SimpleChooserPayoffStyle payoffStyle) {
+              return new SimpleChooserPayoffStyle(new DateTimeWithZone(ZonedDateTime.now(Clock.systemDefaultZone()).withNanoOfSecond(0)), s_random.nextDouble(), new Expiry(ZonedDateTime.now(Clock
+                  .systemDefaultZone()),
+                  ExpiryAccuracy.MONTH_YEAR));
+            }
+
           }));
         }
       }
@@ -489,10 +504,9 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
     }
     return constructors[bestIndex];
   }
-
-  private static <T> Collection<T> permuteTestObjects(final Class<T> clazz) {
+  
+  private static <T> Collection<T> permuteTestObjects (final Class<T> clazz, final Constructor<T> constructor) {
     final Collection<T> objects = new LinkedList<T>();
-    final Constructor<T> constructor = getBiggestConstructor (clazz);
     final Class<?>[] parameters = constructor.getParameterTypes();
     final List<?>[] parameterValues = new List<?>[parameters.length];
     final int[] parameterIndex = new int[parameters.length];
@@ -529,6 +543,10 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
       s_logger.debug("{}", o);
     }
     return objects;
+  }
+
+  private static <T> Collection<T> permuteTestObjects(final Class<T> clazz) {
+    return permuteTestObjects (clazz, getBiggestConstructor (clazz));
   }
 
   protected abstract <T extends DefaultSecurity> void testSecurity(final Class<T> securityClass, final T security);

@@ -29,6 +29,16 @@
     <property name="payment" type="double" />
     <property name="lowerBound" column="lowerbound" type="double" />
     <property name="upperBound" column="upperbound" type="double" />
+    <component name="chooseDate" class="com.opengamma.financial.security.db.ZonedDateTimeBean">
+      <property name="date" column="choose_date" type="timestamp" />
+      <property name="zone" column="choose_zone" type="string" />
+    </component>
+    <property name="underlyingStrike" column="underlyingstrike" type="double" />
+    <component name="underlyingExpiry" class="com.opengamma.financial.security.db.ExpiryBean">
+      <property name="date" column="underlyingexpiry_date" type="date" />
+      <property name="accuracy" column="underlyingexpiry_accuracy" type="com.opengamma.financial.security.db.ExpiryAccuracyUserType" />
+    </component>
+    <property name="reverse" column="reverse" type="boolean" />
   </union-subclass>
   <query name="OptionSecurityBean.all">
     from OptionSecurityBean

@@ -277,11 +277,11 @@ public class OptionSecurityBean extends SecurityBean {
     _underlyingExpiry = underlyingExpiry;
   }
   
-  public boolean isReverse() {
+  public Boolean isReverse() {
     return _reverse;
   }
 
-  public void setReverse(boolean reverse) {
+  public void setReverse(Boolean reverse) {
     _reverse = reverse;
   }
 

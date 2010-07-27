@@ -37,6 +37,12 @@ ALTER TABLE sec_option ALTER COLUMN expiry_accuracy DROP DEFAULT;
 ALTER TABLE sec_option ADD payment DOUBLE;
 ALTER TABLE sec_option ADD lowerbound DOUBLE;
 ALTER TABLE sec_option ADD upperbound DOUBLE;
+ALTER TABLE sec_option ADD choose_date TIMESTAMP;
+ALTER TABLE sec_option ADD choose_zone VARCHAR(50);
+ALTER TABLE sec_option ADD underlyingstrike DOUBLE;
+ALTER TABLE sec_option ADD underlyingexpiry_date TIMESTAMP;
+ALTER TABLE sec_option ADD underlyingexpiry_accuracy SMALLINT;
+ALTER TABLE sec_option ADD reverse SMALLINT;
 
 ALTER TABLE sec_bond ADD newEffectiveDateTime TIMESTAMP;
 ALTER TABLE sec_bond ADD newLastModifiedDateTime TIMESTAMP;
