@@ -110,7 +110,8 @@ public abstract class AbstractCalculationNode {
     for (CalculationJobItem jobItem : job.getJobItems()) {
     
       try {
-        invoke(jobItem, cache);
+        Set<ComputedValue> result = invoke(jobItem, cache);
+        results.addAll(result);
       
       } catch (MissingInputException e) {
         // NOTE kirk 2009-10-20 -- We intentionally only do the message here so that we don't

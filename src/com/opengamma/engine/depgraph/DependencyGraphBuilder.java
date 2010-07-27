@@ -108,6 +108,7 @@ public class DependencyGraphBuilder {
     ArgumentChecker.notNullInjected(getLiveDataAvailabilityProvider(), "liveDataAvailabilityProvider");
     ArgumentChecker.notNullInjected(getFunctionResolver(), "functionResolver");
     ArgumentChecker.notNullInjected(getTargetResolver(), "targetResolver");
+    ArgumentChecker.notNullInjected(getCalculationConfigurationName(), "calculationConfigurationName");
   }
   
   public void addTarget(ComputationTarget target, ValueRequirement requirement) {
@@ -125,7 +126,7 @@ public class DependencyGraphBuilder {
     }
   }
   
-  protected Pair<DependencyNode, ValueSpecification> addTargetRequirement(ComputationTarget target, ValueRequirement requirement) {
+  private Pair<DependencyNode, ValueSpecification> addTargetRequirement(ComputationTarget target, ValueRequirement requirement) {
     s_logger.info("Adding target requirement for {} on {}", requirement, target);
 
     Pair<DependencyNode, ValueSpecification> existingNode = _graph.getNodeProducing(requirement);
@@ -141,7 +142,7 @@ public class DependencyGraphBuilder {
           target, 
           Collections.<DependencyNode>emptySet(),
           Collections.<ValueSpecification>emptySet(),
-          Collections.<ValueSpecification>emptySet());
+          Collections.singleton(function.getResult()));
       _graph.addDependencyNode(node);
       return Pair.of(node, function.getResult());
     }
