@@ -26,6 +26,7 @@ public class FunctionalVolatilitySurface extends VolatilitySurface {
 
   @Override
   public Double getVolatility(final DoublesPair xy) {
+    Validate.notNull(xy, "xy");
     return _volatilityFunction.evaluate(xy);
   }
 
