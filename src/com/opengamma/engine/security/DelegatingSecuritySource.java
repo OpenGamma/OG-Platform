@@ -39,34 +39,28 @@ public class DelegatingSecuritySource extends UniqueIdentifierSchemeDelegator<Se
   public Collection<Security> getSecurities(IdentifierBundle securityKey) {
     ArgumentChecker.notNull(securityKey, "securityKey");
     // TODO: this implementation is poor, but API limits us
-    Collection<Security> result = getDefaultDelegate().getSecurities(securityKey);
-    if (result != null) {
-      return result;
-    }
+    Collection<Security> result; 
     for (SecuritySource delegateMaster : getDelegates().values()) {
       result = delegateMaster.getSecurities(securityKey);
       if (result != null) {
         return result;
       }
     }
-    return null;
+    return getDefaultDelegate().getSecurities(securityKey);
   }
 
   @Override
   public Security getSecurity(IdentifierBundle securityKey) {
     ArgumentChecker.notNull(securityKey, "securityKey");
     // TODO: this implementation is poor, but API limits us
-    Security result = getDefaultDelegate().getSecurity(securityKey);
-    if (result != null) {
-      return result;
-    }
+    Security result;
     for (SecuritySource delegateMaster : getDelegates().values()) {
       result = delegateMaster.getSecurity(securityKey);
       if (result != null) {
         return result;
       }
     }
-    return null;
+    return getDefaultDelegate().getSecurity(securityKey);
   }
 
 }

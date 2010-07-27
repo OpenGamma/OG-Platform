@@ -145,8 +145,8 @@ public class EHCachingSecuritySource implements SecuritySource {
     Collection<Security> result = new HashSet<Security>();
     if (e != null) {
       Serializable value = e.getValue();
-      if (value instanceof Set<?>) {
-        result.addAll((Set<Security>) value);
+      if (value instanceof Collection<?>) {
+        result.addAll((Collection<Security>) value);
       } else {
         s_logger.warn("returned object {} from cache is not a Set<Security>", value);
       }
