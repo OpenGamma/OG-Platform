@@ -15,6 +15,7 @@ import com.opengamma.financial.model.option.definition.Barrier.KnockType;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.CompareUtils;
 
 /**
  * 
@@ -25,12 +26,12 @@ public class EuropeanStandardBarrierOptionModel extends AnalyticOptionModel<Euro
   @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final EuropeanStandardBarrierOptionDefinition definition) {
     Validate.notNull(definition, "definition");
-    System.out.print(definition + "\t");
     final Barrier barrier = definition.getBarrier();
     final boolean isKnockIn = barrier.getKnockType() == KnockType.IN;
     final boolean isDown = barrier.getBarrierType() == BarrierType.DOWN;
     final double h = barrier.getBarrierLevel();
-    final int phi = isKnockIn ? 1 : -1;
+    final int phi = definition.isCall() ? 1 : -1;
+    final double eta = isDown ? 1 : -1;
     return new Function1D<StandardOptionDataBundle, Double>() {
 
       @SuppressWarnings("synthetic-access")
@@ -38,7 +39,6 @@ public class EuropeanStandardBarrierOptionModel extends AnalyticOptionModel<Euro
       public Double evaluate(final StandardOptionDataBundle data) {
         Validate.notNull(data, "data");
         final boolean isCall = definition.isCall();
-        final int eta = isCall ? 1 : -1;
         final double s = data.getSpot();
         final double b = data.getCostOfCarry();
         final double t = definition.getTimeToExpiry(data.getDate());
@@ -48,6 +48,9 @@ public class EuropeanStandardBarrierOptionModel extends AnalyticOptionModel<Euro
         final double sigma = data.getVolatility(t, h); //REVIEW emcleod 19-7-10 will only work if volatility is constant
         final double df1 = Math.exp(t * (b - r));
         final double df2 = Math.exp(-r * t);
+        if (CompareUtils.closeEquals(sigma, 0, 1e-16)) {
+          return df1 * definition.getPayoffFunction().getPayoff(data, null);
+        }
         final double sigmaSq = sigma * sigma;
         final double sigmaT = sigma * Math.sqrt(t);
         final double mu = (b - 0.5 * sigmaSq) / sigmaSq;
@@ -66,32 +69,24 @@ public class EuropeanStandardBarrierOptionModel extends AnalyticOptionModel<Euro
         if (isKnockIn) {
           if (isDown) {
             if (isCall) {
-              System.out.print("in and down call\t");
               return k > h ? xC + xE : xA - xB + xD + xE;
             }
-            System.out.print("in and down put\t");
             return k > h ? xB - xC + xD + xE : xA + xE;
           }
           if (isCall) {
-            System.out.print("in and up call\t");
             return k > h ? xA + xE : xB - xC + xD + xE;
           }
-          System.out.println("in and up put\t");
           return k > h ? xA - xB + xD + xE : xC + xE;
         }
         if (isDown) {
           if (isCall) {
-            System.out.println("out and down call\t");
             return k > h ? xA - xC + xE : xB - xD + xE;
           }
-          System.out.println("out and down put\t");
           return k > h ? xA - xB + xC - xD + xE : xE;
         }
         if (isCall) {
-          System.out.println("out and up call\t");
           return k > h ? xE : xA - xB + xC - xD + xE;
         }
-        System.out.println("out and up put\t");
         return k > h ? xB - xD + xE : xA - xC + xE;
       }
 
