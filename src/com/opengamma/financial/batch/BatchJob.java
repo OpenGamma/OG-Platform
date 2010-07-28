@@ -6,6 +6,7 @@
 package com.opengamma.financial.batch;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
@@ -34,8 +35,10 @@ import org.quartz.JobExecutionException;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigDocumentRepository;
-import com.opengamma.config.db.MongoDBConfigRepository;
+import com.opengamma.config.ConfigMaster;
+import com.opengamma.config.ConfigSearchRequest;
+import com.opengamma.config.ConfigSearchResult;
+import com.opengamma.config.db.MongoDBConfigMaster;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.DefaultFunctionResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -223,7 +226,7 @@ public class BatchJob implements Job, ComputationResultListener {
   /**
    * Used to load a ViewDefinition
    */
-  private ConfigDocumentRepository<ViewDefinition> _configDb;
+  private ConfigMaster<ViewDefinition> _configDb;
   
   /** 
    * Object ID of ViewDefinition loaded from config DB
@@ -544,10 +547,10 @@ public class BatchJob implements Job, ComputationResultListener {
     if (_configDbConnectionSettings == null) {
       throw new IllegalStateException("Config DB connection settings not given.");            
     }
-    _configDb = new MongoDBConfigRepository<ViewDefinition>(ViewDefinition.class, 
+    _configDb = new MongoDBConfigMaster<ViewDefinition>(ViewDefinition.class, 
         getConfigDbConnectionSettings());
 
-    ConfigDocument<ViewDefinition> viewDefinitionDoc = _configDb.getByName(getViewName(), _viewDateTime.toInstant());
+    ConfigDocument<ViewDefinition> viewDefinitionDoc = getViewByNameWithTime();
     if (viewDefinitionDoc == null) {
       throw new IllegalStateException("Config DB does not contain ViewDefinition with name " + getViewName() + " at " + _viewDateTime);      
     }
@@ -611,6 +614,18 @@ public class BatchJob implements Job, ComputationResultListener {
     
     _view = new View(viewDefinitionDoc.getValue(), vpc);
     _view.init();
+  }
+
+  /**
+   * 
+   */
+  private ConfigDocument<ViewDefinition> getViewByNameWithTime() {
+    ConfigSearchRequest searchRequest = new ConfigSearchRequest();
+    searchRequest.setName(getViewName());
+    searchRequest.setEffectiveTime(_viewDateTime.toInstant());
+    ConfigSearchResult<ViewDefinition> searchResult = _configDb.search(searchRequest);
+    List<ConfigDocument<ViewDefinition>> documents = searchResult.getDocuments();
+    return documents.get(0);
   }
   
   public void init() {
