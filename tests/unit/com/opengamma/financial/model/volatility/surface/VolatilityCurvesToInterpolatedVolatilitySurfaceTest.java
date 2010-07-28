@@ -6,17 +6,21 @@
 package com.opengamma.financial.model.volatility.surface;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.junit.Test;
 
+import com.opengamma.financial.model.volatility.curve.ConstantVolatilityCurve;
 import com.opengamma.financial.model.volatility.curve.FunctionalVolatilityCurve;
 import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
+import com.opengamma.math.interpolation.LogLinearInterpolator1D;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -52,7 +56,7 @@ public class VolatilityCurvesToInterpolatedVolatilitySurfaceTest {
   private static final double T2 = 7;
   private static final Map<Double, VolatilityCurve> CURVES = new HashMap<Double, VolatilityCurve>();
   private static final LinearInterpolator1D INTERPOLATOR = new LinearInterpolator1D();
-  private static final VolatilitySurface SURFACE;
+  private static final VolatilityCurvesToInterpolatedVolatilitySurface SURFACE;
   private static final double EPS = 1e-12;
 
   static {
@@ -86,6 +90,37 @@ public class VolatilityCurvesToInterpolatedVolatilitySurfaceTest {
   @Test(expected = IllegalArgumentException.class)
   public void testNullPair() {
     SURFACE.getVolatility(null);
+  }
+
+  @Test(expected = NotImplementedException.class)
+  public void testSingleShift() {
+    SURFACE.withSingleShift(null, 0);
+  }
+
+  @Test(expected = NotImplementedException.class)
+  public void testMultipleShifts() {
+    SURFACE.withMultipleShifts(null);
+  }
+
+  @Test(expected = NotImplementedException.class)
+  public void testParallelShift() {
+    SURFACE.withParallelShift(0.4);
+  }
+
+  @Test
+  public void testEqualsAndHashCode() {
+    VolatilityCurvesToInterpolatedVolatilitySurface other = new VolatilityCurvesToInterpolatedVolatilitySurface(CURVES, INTERPOLATOR);
+    assertEquals(other, SURFACE);
+    assertEquals(other.hashCode(), SURFACE.hashCode());
+    other = new VolatilityCurvesToInterpolatedVolatilitySurface(Collections.<Double, VolatilityCurve> singletonMap(1., new ConstantVolatilityCurve(0.3)), INTERPOLATOR);
+    assertFalse(other.equals(SURFACE));
+    other = new VolatilityCurvesToInterpolatedVolatilitySurface(CURVES, new LogLinearInterpolator1D());
+    assertFalse(other.equals(SURFACE));
+  }
+
+  @Test
+  public void testGetters() {
+    assertEquals(SURFACE.getCurves(), CURVES);
   }
 
   @Test
