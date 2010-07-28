@@ -24,6 +24,8 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -106,15 +108,6 @@ public class YieldCurveBootStrapTest {
     SINGLE_CURVE_INSTRUMENTS = new ArrayList<InterestRateDerivative>();
     DOUBLE_CURVE_INSTRUMENTS = new ArrayList<InterestRateDerivative>();
 
-    InterestRateDerivative instrument;
-    for (int i = 0; i < n; i++) {
-      instrument = setupSwap(payments[i], LIBOR_CURVE_NAME, LIBOR_CURVE_NAME);
-      SINGLE_CURVE_INSTRUMENTS.add(instrument);
-      instrument = setupSwap(payments[i], FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
-      DOUBLE_CURVE_INSTRUMENTS.add(instrument);
-      TIME_GRID[i] = payments[i] * 0.5;
-    }
-
     final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> cubicInterpolator = new NaturalCubicSplineInterpolator1D();
     final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> cubicInterpolatorWithSense = new CubicSplineInterpolatorWithSensitivities1D();
     final ExtrapolatorMethod<Interpolator1DCubicSplineDataBundle, InterpolationResult> linear_em = new LinearExtrapolator<Interpolator1DCubicSplineDataBundle, InterpolationResult>();
@@ -132,10 +125,17 @@ public class YieldCurveBootStrapTest {
     curveBundle.setCurve(FUNDING_CURVE_NAME, FUNDING_CURVE);
     curveBundle.setCurve(LIBOR_CURVE_NAME, LIBOR_CURVE);
 
-    final double[] rates = new double[n];
+    InterestRateDerivative instrument;
+    double swapRate;
     for (int i = 0; i < n; i++) {
-      SWAP_VALUES[i] = SWAP_RATE_CALCULATOR.getRate(DOUBLE_CURVE_INSTRUMENTS.get(i), curveBundle);
-      // rates[i] = 0.05;
+      instrument = setupSwap(payments[i], 0.0, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+      swapRate = SWAP_RATE_CALCULATOR.getRate(instrument, curveBundle);
+      instrument = setupSwap(payments[i], swapRate, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+      DOUBLE_CURVE_INSTRUMENTS.add(instrument);
+      instrument = setupSwap(payments[i], swapRate, LIBOR_CURVE_NAME, LIBOR_CURVE_NAME);
+      SINGLE_CURVE_INSTRUMENTS.add(instrument);
+      TIME_GRID[i] = payments[i] * 0.5;
+      SWAP_VALUES[i] = swapRate;
     }
 
     LinkedHashMap<String, FixedNodeInterpolator1D> name_extrapolator_map = new LinkedHashMap<String, FixedNodeInterpolator1D>();
@@ -167,6 +167,7 @@ public class YieldCurveBootStrapTest {
     name_extrapolator_map.put(LIBOR_CURVE_NAME, fnInterpolator);
     DOUBLE_CURVE_JACOBIAN = new MultipleYieldCurveFinderJacobian(DOUBLE_CURVE_INSTRUMENTS, name_extrapolator_map, null);
 
+    double[] rates = new double[TIME_GRID.length];
     for (int i = 0; i < FUNDING_YIELDS.length; i++) {
       rates[i] = 0.05;
     }
@@ -334,11 +335,11 @@ public class YieldCurveBootStrapTest {
   public void testSingleCurveJacobian() {
     final JacobianCalculator jacobianFD = new FiniteDifferenceJacobianCalculator(1e-6);
     final DoubleMatrix2D jacExact = SINGLE_CURVE_JACOBIAN.evaluate(X0, SINGLE_CURVE_FINDER);
-    final DoubleMatrix2D jacFD_sense = SINGLE_CURVE_JACOBIAN_FD.evaluate(X0, SINGLE_CURVE_FINDER);
+    // final DoubleMatrix2D jacFD_sense = SINGLE_CURVE_JACOBIAN_FD.evaluate(X0, SINGLE_CURVE_FINDER);
     final DoubleMatrix2D jacFD = jacobianFD.evaluate(X0, SINGLE_CURVE_FINDER);
-    //System.out.println(jacExact.toString());
-    //System.out.println(jacFD.toString());
-    //System.out.println(jacFD_sense.toString());
+    // System.out.println(jacExact.toString());
+    // System.out.println(jacFD.toString());
+    // System.out.println(jacFD_sense.toString());
 
     assertMatrixEquals(jacExact, jacFD, 1e-6);
   }
@@ -350,8 +351,8 @@ public class YieldCurveBootStrapTest {
     final DoubleMatrix2D jacExact = DOUBLE_CURVE_JACOBIAN.evaluate(X0, DOUBLE_CURVE_FINDER);
     // final DoubleMatrix2D jacFD_sense = SINGLE_CURVE_JACOBIAN_FD.evaluate(X0, SINGLE_CURVE_FINDER);
     final DoubleMatrix2D jacFD = jacobianFD.evaluate(X0, DOUBLE_CURVE_FINDER);
-    //System.out.println(jacExact.toString());
-    //System.out.println(jacFD.toString());
+    // System.out.println(jacExact.toString());
+    // System.out.println(jacFD.toString());
     // System.out.println(jacFD_sense.toString());
 
     assertMatrixEquals(jacExact, jacFD, 1e-6);
@@ -421,14 +422,18 @@ public class YieldCurveBootStrapTest {
    * @param liborCurveName
    * @return
    */
-  private static FixedFloatSwap setupSwap(final int payments, final String fundingCurveName, final String liborCurveName) {
+  private static FixedFloatSwap setupSwap(final int payments, final double swapRate, final String fundingCurveName, final String liborCurveName) {
     final double[] fixed = new double[payments];
+    final double[] coupons = new double[payments];
     final double[] floating = new double[2 * payments];
     final double[] deltaStart = new double[2 * payments];
     final double[] deltaEnd = new double[2 * payments];
+
     final double sigma = 0.0;
+
     for (int i = 0; i < payments; i++) {
       floating[2 * i + 1] = fixed[i] = 0.5 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
+      coupons[i] = swapRate;
     }
     for (int i = 0; i < 2 * payments; i++) {
       if (i % 2 == 0) {
@@ -437,7 +442,9 @@ public class YieldCurveBootStrapTest {
       deltaStart[i] = sigma * (i == 0 ? RANDOM.nextDouble() : (RANDOM.nextDouble() - 0.5));
       deltaEnd[i] = sigma * (RANDOM.nextDouble() - 0.5);
     }
-    return new FixedFloatSwap(fixed, floating, deltaStart, deltaEnd, fundingCurveName, liborCurveName);
+    FixedAnnuity fixedLeg = new FixedAnnuity(fixed, 1.0, coupons, fundingCurveName);
+    VariableAnnuity floatingLeg = new VariableAnnuity(floating, 1.0, deltaStart, deltaEnd, fundingCurveName, liborCurveName);
+    return new FixedFloatSwap(fixedLeg, floatingLeg);
   }
 
   private void assertMatrixEquals(final DoubleMatrix2D m1, final DoubleMatrix2D m2, final double eps) {

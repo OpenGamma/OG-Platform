@@ -5,12 +5,16 @@
  */
 package com.opengamma.financial.interestrate.annuity.definition;
 
+import com.opengamma.financial.interestrate.InterestRateDerivative;
+
 /**
  * 
  */
-public interface Annuity {
+public interface Annuity extends InterestRateDerivative {
 
   double[] getPaymentTimes();
+
+  double[] getYearFractions();
 
   int getNumberOfPayments();
 

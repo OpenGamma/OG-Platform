@@ -24,6 +24,8 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.libor.Libor;
@@ -48,9 +50,11 @@ import com.opengamma.math.interpolation.LinearExtrapolatorWithSensitivity;
 import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.FiniteDifferenceJacobianCalculator;
 import com.opengamma.math.rootfinding.newton.JacobianCalculator;
 import com.opengamma.math.rootfinding.newton.NewtonDefaultVectorRootFinder;
+import com.opengamma.math.rootfinding.newton.ShermanMorrisonVectorRootFinder;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
@@ -137,18 +141,18 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
     InterestRateDerivative ird;
 
     for (final double t : liborMaturities) {
-      ird = new Libor(t, FORWARD_CURVE_NAME);
+      ird = new Libor(t, 0.0, FORWARD_CURVE_NAME);
       INSTRUMENTS.add(ird);
       FWD_NODE_TIMES[fwdIndex++] = t;
     }
     for (final double t : fraMaturities) {
-      ird = new ForwardRateAgreement(t - 0.25, t, FORWARD_CURVE_NAME);
+      ird = new ForwardRateAgreement(t - 0.25, t, 0.0, FUNDING_CURVE_NAME, FORWARD_CURVE_NAME);
       INSTRUMENTS.add(ird);
       FWD_NODE_TIMES[fwdIndex++] = t;
     }
 
     for (final double t : cashMaturities) {
-      ird = new Cash(t, FUNDING_CURVE_NAME);
+      ird = new Cash(t, 0.0, FUNDING_CURVE_NAME);
       INSTRUMENTS.add(ird);
       FUND_NODE_TIMES[fundIndex++] = t;
     }
@@ -245,18 +249,18 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
 
   }
 
-  // @Test
-  // public void testBroyden() {
-  // final VectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN);
-  //
-  // doHotSpot(rootFinder, "default Newton, double curve", DOUBLE_CURVE_FINDER);
-  // }
-  //
-  // @Test
-  // public void ShermanMorrison() {
-  // final VectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN);
-  // doHotSpot(rootFinder, "default Newton, double curve", DOUBLE_CURVE_FINDER);
-  // }
+  @Test
+  public void testBroyden() {
+    final VectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN);
+
+    doHotSpot(rootFinder, "default Newton, double curve", DOUBLE_CURVE_FINDER);
+  }
+
+  @Test
+  public void ShermanMorrison() {
+    final VectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN);
+    doHotSpot(rootFinder, "default Newton, double curve", DOUBLE_CURVE_FINDER);
+  }
 
   //
   @SuppressWarnings("unchecked")
@@ -268,7 +272,7 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
     // System.out.println("exact: " + jacExact.toString());
     // System.out.println("FD: " + jacFD.toString());
 
-    assertMatrixEquals(jacExact, jacFD, 1e-6);
+    assertMatrixEquals(jacExact, jacFD, 1e-5);
   }
 
   private void doHotSpot(final VectorRootFinder rootFinder, final String name, final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor) {
@@ -315,6 +319,7 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
 
   private static FixedFloatSwap setupSwap(final int payments, final String fundCurveName, final String liborCurveName) {
     final double[] fixed = new double[payments];
+    final double[] coupons = new double[payments];
     final double[] floating = new double[2 * payments];
     final double[] deltaStart = new double[2 * payments];
     final double[] deltaEnd = new double[2 * payments];
@@ -330,7 +335,9 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
       deltaStart[i] = sigma * (i == 0 ? RANDOM.nextDouble() : (RANDOM.nextDouble() - 0.5));
       deltaEnd[i] = sigma * (RANDOM.nextDouble() - 0.5);
     }
-    return new FixedFloatSwap(fixed, floating, deltaStart, deltaEnd, fundCurveName, liborCurveName);
+    FixedAnnuity fixedLeg = new FixedAnnuity(fixed, 1.0, coupons, fundCurveName);
+    VariableAnnuity floatingLeg = new VariableAnnuity(floating, 1.0, deltaStart, deltaEnd, fundCurveName, liborCurveName);
+    return new FixedFloatSwap(fixedLeg, floatingLeg);
   }
 
   private void assertMatrixEquals(final DoubleMatrix2D m1, final DoubleMatrix2D m2, final double eps) {

@@ -16,14 +16,38 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class Cash implements InterestRateDerivative {
+  private final double _tradeTime;
   private final double _paymentTime;
+  private final double _yearFraction;
+  private final double _rate;
   private final String _curveName;
 
-  public Cash(final double paymentTime, final String yieldCurveName) {
-    ArgumentChecker.notNegative(paymentTime, "payment time");
-    Validate.notNull(yieldCurveName);
+  public Cash(final double paymentTime, final double rate, final String yieldCurveName) {
+    checkInputs(paymentTime, rate, yieldCurveName);
     _paymentTime = paymentTime;
     _curveName = yieldCurveName;
+    _tradeTime = 0.0;
+    _yearFraction = paymentTime;
+    _rate = rate;
+  }
+
+  public Cash(final double paymentTime, final double rate, final double tradeTime, final double yearFraction, final String yieldCurveName) {
+    checkInputs(paymentTime, rate, yieldCurveName);
+    ArgumentChecker.notNegative(tradeTime, "trade time");
+    ArgumentChecker.notNegative(yearFraction, "year fraction");
+    Validate.isTrue(tradeTime < paymentTime, "Trade time must be less that payment time");
+    _paymentTime = paymentTime;
+    _curveName = yieldCurveName;
+    _tradeTime = tradeTime;
+    _yearFraction = yearFraction;
+    _rate = rate;
+
+  }
+
+  private void checkInputs(final double paymentTime, final double rate, final String yieldCurveName) {
+    ArgumentChecker.notNegative(paymentTime, "payment time");
+    ArgumentChecker.notNegative(rate, "rate");
+    Validate.notNull(yieldCurveName);
   }
 
   public double getPaymentTime() {
@@ -32,6 +56,18 @@ public class Cash implements InterestRateDerivative {
 
   public String getYieldCurveName() {
     return _curveName;
+  }
+
+  public double getTradeTime() {
+    return _tradeTime;
+  }
+
+  public double getYearFraction() {
+    return _yearFraction;
+  }
+
+  public double getRate() {
+    return _rate;
   }
 
   public <T> T accept(final InterestRateDerivativeVisitor<T> visitor, final YieldCurveBundle curves) {
@@ -45,6 +81,12 @@ public class Cash implements InterestRateDerivative {
     result = prime * result + ((_curveName == null) ? 0 : _curveName.hashCode());
     long temp;
     temp = Double.doubleToLongBits(_paymentTime);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_rate);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_tradeTime);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_yearFraction);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
@@ -69,6 +111,15 @@ public class Cash implements InterestRateDerivative {
       return false;
     }
     if (Double.doubleToLongBits(_paymentTime) != Double.doubleToLongBits(other._paymentTime)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_rate) != Double.doubleToLongBits(other._rate)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_tradeTime) != Double.doubleToLongBits(other._tradeTime)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_yearFraction) != Double.doubleToLongBits(other._yearFraction)) {
       return false;
     }
     return true;

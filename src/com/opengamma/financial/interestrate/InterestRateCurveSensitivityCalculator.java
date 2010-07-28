@@ -10,12 +10,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.Validate;
+
+import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
+import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.libor.Libor;
 import com.opengamma.financial.interestrate.swap.definition.BasisSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
@@ -25,9 +30,12 @@ import com.opengamma.util.tuple.Pair;
  */
 public class InterestRateCurveSensitivityCalculator implements InterestRateDerivativeVisitor<Map<String, List<Pair<Double, Double>>>> {
 
-  PresentValueCalculator _pvCalculator = new PresentValueCalculator();
+  private final PresentValueCalculator _pvCalculator = new PresentValueCalculator();
+  private final PresentValueSensitivityCalculator _pvSenseCalculator = new PresentValueSensitivityCalculator();
 
   Map<String, List<Pair<Double, Double>>> getSensitivity(InterestRateDerivative instrument, YieldCurveBundle curves) {
+    Validate.notNull(instrument);
+    Validate.notNull(curves);
     return instrument.accept(this, curves);
   }
 
@@ -37,9 +45,22 @@ public class InterestRateCurveSensitivityCalculator implements InterestRateDeriv
   @Override
   public Map<String, List<Pair<Double, Double>>> visitCash(Cash cash, YieldCurveBundle curves) {
     String curveName = cash.getYieldCurveName();
-    final List<Pair<Double, Double>> temp = new ArrayList<Pair<Double, Double>>();
-    temp.add(new DoublesPair(cash.getPaymentTime(), 1.0));
+    YieldAndDiscountCurve curve = curves.getCurve(curveName);
+    double ta = cash.getTradeTime();
+    double tb = cash.getPaymentTime();
+    double yearFrac = cash.getYearFraction();
     Map<String, List<Pair<Double, Double>>> result = new HashMap<String, List<Pair<Double, Double>>>();
+    final List<Pair<Double, Double>> temp = new ArrayList<Pair<Double, Double>>();
+    if (yearFrac == 0.0) {
+      if (ta != tb) {
+        throw new IllegalArgumentException("year fraction is zero, but payment time not equal the trade time");
+      }
+      temp.add(new DoublesPair(ta, 1.0));
+    } else {
+      double ratio = curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) / yearFrac;
+      temp.add(new DoublesPair(ta, -ta * ratio));
+      temp.add(new DoublesPair(tb, tb * ratio));
+    }
     result.put(curveName, temp);
     return result;
   }
@@ -48,8 +69,8 @@ public class InterestRateCurveSensitivityCalculator implements InterestRateDeriv
   public Map<String, List<Pair<Double, Double>>> visitForwardRateAgreement(ForwardRateAgreement fra, YieldCurveBundle curves) {
     String curveName = fra.getLiborCurveName();
     YieldAndDiscountCurve curve = curves.getCurve(curveName);
-    final double ta = fra.getStartTime();
-    final double tb = fra.getEndTime();
+    final double ta = fra.getFixingDate();
+    final double tb = fra.getMaturity();
     final double delta = tb - ta;
     final double ratio = curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) / delta;
     final DoublesPair s1 = new DoublesPair(ta, -ta * ratio);
@@ -66,9 +87,10 @@ public class InterestRateCurveSensitivityCalculator implements InterestRateDeriv
   public Map<String, List<Pair<Double, Double>>> visitInterestRateFuture(InterestRateFuture future, YieldCurveBundle curves) {
     String curveName = future.getCurveName();
     YieldAndDiscountCurve curve = curves.getCurve(curveName);
-    final double ta = future.getStartTime();
-    final double tb = future.getEndTime();
-    final double delta = tb - ta;
+    final double ta = future.getSettlementDate();
+    final double delta = future.getYearFraction();
+    final double tb = ta + delta;
+
     final double ratio = curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) / delta;
     final DoublesPair s1 = new DoublesPair(ta, -ta * ratio);
     final DoublesPair s2 = new DoublesPair(tb, tb * ratio);
@@ -81,26 +103,18 @@ public class InterestRateCurveSensitivityCalculator implements InterestRateDeriv
   }
 
   @Override
-  public Map<String, List<Pair<Double, Double>>> visitLibor(Libor libor, YieldCurveBundle curves) {
-    String curveName = libor.getLiborCurveName();
-    YieldAndDiscountCurve curve = curves.getCurve(curveName);
-
-    final DoublesPair pair = new DoublesPair(libor.getPaymentTime(), 1 / curve.getDiscountFactor(libor.getPaymentTime()));
-    final List<Pair<Double, Double>> temp = new ArrayList<Pair<Double, Double>>();
-    temp.add(pair);
-    Map<String, List<Pair<Double, Double>>> result = new HashMap<String, List<Pair<Double, Double>>>();
-    result.put(curveName, temp);
-    return result;
+  public Map<String, List<Pair<Double, Double>>> visitSwap(Swap swap, YieldCurveBundle curves) {
+    return null;
   }
 
   @Override
-  public Map<String, List<Pair<Double, Double>>> visitSwap(FixedFloatSwap swap, YieldCurveBundle curves) {
-
-    double a = _pvCalculator.getFixedAnnuity(swap.getFixedLeg(), curves);
-    double b = _pvCalculator.getLiborAnnuity(swap.getFloatingLeg(), curves);
+  public Map<String, List<Pair<Double, Double>>> visitFixedFloatSwap(FixedFloatSwap swap, YieldCurveBundle curves) {
+    FixedAnnuity tempAnnuity = swap.getFixedLeg().makeUnitCouponVersion(swap.getFloatingLeg().getNotional());
+    double a = _pvCalculator.getPresentValue(tempAnnuity, curves);
+    double b = _pvCalculator.getPresentValue(swap.getFloatingLeg(), curves);
     double bOveraSq = b / a / a;
-    Map<String, List<Pair<Double, Double>>> senseA = _pvCalculator.getFixedAnnuitySensitivity(swap.getFixedLeg(), curves);
-    Map<String, List<Pair<Double, Double>>> senseB = _pvCalculator.getLiborAnnuitySensitivity(swap.getFloatingLeg(), curves);
+    Map<String, List<Pair<Double, Double>>> senseA = _pvSenseCalculator.getSensitivity(tempAnnuity, curves);
+    Map<String, List<Pair<Double, Double>>> senseB = _pvSenseCalculator.getSensitivity(swap.getFloatingLeg(), curves);
 
     Map<String, List<Pair<Double, Double>>> result = new HashMap<String, List<Pair<Double, Double>>>();
     for (String name : curves.getAllNames()) {
@@ -126,13 +140,15 @@ public class InterestRateCurveSensitivityCalculator implements InterestRateDeriv
 
   @Override
   public Map<String, List<Pair<Double, Double>>> visitBasisSwap(BasisSwap swap, YieldCurveBundle curves) {
-
-    double a = _pvCalculator.getLiborAnnuity(swap.getRecieveLeg(), curves);
-    double b = _pvCalculator.getLiborAnnuity(swap.getPayLeg(), curves);
-    double c = _pvCalculator.getFixedAnnuity(swap.getSpreadLeg(), curves);
-    Map<String, List<Pair<Double, Double>>> senseA = _pvCalculator.getLiborAnnuitySensitivity(swap.getRecieveLeg(), curves);
-    Map<String, List<Pair<Double, Double>>> senseB = _pvCalculator.getLiborAnnuitySensitivity(swap.getPayLeg(), curves);
-    Map<String, List<Pair<Double, Double>>> senseC = _pvCalculator.getFixedAnnuitySensitivity(swap.getSpreadLeg(), curves);
+    VariableAnnuity payLeg = swap.getPayLeg().makeZeroSpreadVersion();
+    VariableAnnuity receiveLeg = swap.getReceiveLeg().makeZeroSpreadVersion();
+    FixedAnnuity spreadLeg = swap.getPayLeg().makeUnitCouponVersion();
+    double a = _pvCalculator.getPresentValue(receiveLeg, curves);
+    double b = _pvCalculator.getPresentValue(payLeg, curves);
+    double c = _pvCalculator.getPresentValue(spreadLeg, curves);
+    Map<String, List<Pair<Double, Double>>> senseA = _pvSenseCalculator.getSensitivity(receiveLeg, curves);
+    Map<String, List<Pair<Double, Double>>> senseB = _pvSenseCalculator.getSensitivity(payLeg, curves);
+    Map<String, List<Pair<Double, Double>>> senseC = _pvSenseCalculator.getSensitivity(spreadLeg, curves);
     Map<String, List<Pair<Double, Double>>> result = new HashMap<String, List<Pair<Double, Double>>>();
 
     for (String name : curves.getAllNames()) {
@@ -155,6 +171,21 @@ public class InterestRateCurveSensitivityCalculator implements InterestRateDeriv
       result.put(name, temp);
     }
     return result;
+  }
+
+  @Override
+  public Map<String, List<Pair<Double, Double>>> visitBond(Bond bond, YieldCurveBundle curves) {
+    return null;
+  }
+
+  @Override
+  public Map<String, List<Pair<Double, Double>>> visitFixedAnnuity(FixedAnnuity annuity, YieldCurveBundle curves) {
+    return null;
+  }
+
+  @Override
+  public Map<String, List<Pair<Double, Double>>> visitVariableAnnuity(VariableAnnuity annuity, YieldCurveBundle curves) {
+    return null;
   }
 
 }

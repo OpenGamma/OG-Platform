@@ -5,12 +5,15 @@
  */
 package com.opengamma.financial.interestrate;
 
+import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
+import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.libor.Libor;
 import com.opengamma.financial.interestrate.swap.definition.BasisSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.financial.interestrate.swap.definition.Swap;
 
 /**
  * @param <T> Type of visitor
@@ -23,12 +26,15 @@ public interface InterestRateDerivativeVisitor<T> {
 
   T visitInterestRateFuture(InterestRateFuture future, YieldCurveBundle curves);
 
-  T visitLibor(Libor libor, YieldCurveBundle curves);
+  T visitSwap(final Swap swap, YieldCurveBundle curves);
 
-  T visitSwap(final FixedFloatSwap swap, YieldCurveBundle curves);
+  T visitFixedFloatSwap(final FixedFloatSwap swap, YieldCurveBundle curves);
 
   T visitBasisSwap(final BasisSwap swap, YieldCurveBundle curves);
 
-  // T visitFixedAnnuity(final Annuity annuity, YieldCurveBundle curves);
+  T visitFixedAnnuity(final FixedAnnuity annuity, YieldCurveBundle curves);
 
+  T visitVariableAnnuity(final VariableAnnuity annuity, YieldCurveBundle curves);
+
+  T visitBond(final Bond bond, YieldCurveBundle curves);
 }

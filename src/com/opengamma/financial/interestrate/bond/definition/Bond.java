@@ -84,6 +84,10 @@ public class Bond implements InterestRateDerivative {
     return _annuity.getFundingCurveName();
   }
 
+  public FixedAnnuity getFixedAnnuity() {
+    return _annuity;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -116,6 +120,6 @@ public class Bond implements InterestRateDerivative {
 
   @Override
   public <T> T accept(InterestRateDerivativeVisitor<T> visitor, YieldCurveBundle curves) {
-    return null;
+    return visitor.visitBond(this, curves);
   }
 }
