@@ -12,11 +12,7 @@ import static com.opengamma.config.ConfigDocument.OID_FUDGE_FIELD_NAME;
 import static com.opengamma.config.ConfigDocument.VALUE_FUDGE_FIELD_NAME;
 import static com.opengamma.config.ConfigDocument.VERSION_FUDGE_FIELD_NAME;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 import javax.time.Instant;
 import javax.time.TimeSource;
@@ -38,10 +34,16 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.ObjectId;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigDocumentRepository;
+import com.opengamma.config.ConfigMaster;
+import com.opengamma.config.ConfigSearchHistoricRequest;
+import com.opengamma.config.ConfigSearchHistoricResult;
+import com.opengamma.config.ConfigSearchRequest;
+import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.config.DefaultConfigDocument;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.MongoDBConnectionSettings;
 
@@ -52,12 +54,18 @@ import com.opengamma.util.MongoDBConnectionSettings;
  * 
  * @param <T> Configuration Document EntityType
  */
-public class MongoDBConfigRepository<T> implements ConfigDocumentRepository<T> {
-
-  private static final Logger s_logger = LoggerFactory.getLogger(MongoDBConfigRepository.class);
+public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
+  
+  private static final Logger s_logger = LoggerFactory.getLogger(MongoDBConfigMaster.class);
 
   private static final String[] INDICES = {OID_FUDGE_FIELD_NAME, NAME_FUDGE_FIELD_NAME, CREATION_INSTANT_FUDGE_FIELD_NAME, LAST_READ_INSTANT_FUDGE_FIELD_NAME};
   
+  /**
+   * The scheme used by the master by default.
+   */
+  public static final String IDENTIFIER_SCHEME_DEFAULT = "MongoConfigMaster";
+  
+  private String _identifierScheme = IDENTIFIER_SCHEME_DEFAULT;
   private final FudgeContext _fudgeContext;
 
   private Class<T> _entityClazz;
@@ -72,8 +80,10 @@ public class MongoDBConfigRepository<T> implements ConfigDocumentRepository<T> {
    * The time-source to use.
    */
   private TimeSource _timeSource = TimeSource.system();
+  
+  
 
-  public MongoDBConfigRepository(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings,
+  public MongoDBConfigMaster(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings,
       final FudgeContext fudgeContext, boolean updateLastRead, final FudgeBuilder<T> messageBuilder) {
     ArgumentChecker.notNull(documentClazz, "document class");
     ArgumentChecker.notNull(mongoSettings, "MongoDB settings");
@@ -108,7 +118,7 @@ public class MongoDBConfigRepository<T> implements ConfigDocumentRepository<T> {
     String status = _updateLastReadTime ? "updateLastReadTime" : "readWithoutUpdate";
     s_logger.info("creating MongoDBConfigurationRepo for {}", status);
   }
-
+  
   /**
    * 
    */
@@ -122,16 +132,16 @@ public class MongoDBConfigRepository<T> implements ConfigDocumentRepository<T> {
       dbCollection.ensureIndex(new BasicDBObject(field, -1), "ix_" + getCollectionName() + "_" + field + "_desc");
     }
   }
-
-  public MongoDBConfigRepository(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings, boolean updateLastRead, final FudgeBuilder<T> messageBuilder) {
+  
+  public MongoDBConfigMaster(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings, boolean updateLastRead, final FudgeBuilder<T> messageBuilder) {
     this(documentClazz, mongoSettings, new FudgeContext(), updateLastRead, messageBuilder);
   }
 
-  public MongoDBConfigRepository(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings, boolean updateLastRead) {
+  public MongoDBConfigMaster(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings, boolean updateLastRead) {
     this(documentClazz, mongoSettings, updateLastRead, null);
   }
   
-  public MongoDBConfigRepository(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings) {
+  public MongoDBConfigMaster(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings) {
     this(documentClazz, mongoSettings, true);
   }
 
@@ -194,10 +204,95 @@ public class MongoDBConfigRepository<T> implements ConfigDocumentRepository<T> {
   }
 
   @Override
-  public ConfigDocument<T> getByName(String name) {
-    ArgumentChecker.notNull(name, "name");
-    //get latest version by name
-    DBObject queryObj = new BasicDBObject(NAME_FUDGE_FIELD_NAME, name);
+  public ConfigDocument<T> add(ConfigDocument<T> document) {
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getName(), "document name");
+    ArgumentChecker.notNull(document.getValue(), "document value");
+    
+    String objectId = ObjectId.get().toString();
+    Date now = new Date(_timeSource.instant().toEpochMillisLong());
+    int version = 1;
+    MutableFudgeFieldContainer msg = _fudgeContext.newMessage();
+    String name = document.getName();
+    T value = document.getValue();
+    msg.add("_id", objectId);
+    msg.add(OID_FUDGE_FIELD_NAME, objectId);
+    msg.add(VERSION_FUDGE_FIELD_NAME, version);
+    msg.add(NAME_FUDGE_FIELD_NAME, name);
+    msg.add(CREATION_INSTANT_FUDGE_FIELD_NAME, now);
+    msg.add(LAST_READ_INSTANT_FUDGE_FIELD_NAME, now);
+    
+    msg.add(VALUE_FUDGE_FIELD_NAME, _fudgeContext.toFudgeMsg(value).getMessage());
+
+    DBCollection dbCollection = getMongoDB().getCollection(getCollectionName());
+    FudgeDeserializationContext fdc = new FudgeDeserializationContext(getFudgeContext());
+
+    DBObject doc = fdc.fudgeMsgToObject(DBObject.class, msg);
+    s_logger.debug("inserting new doc {}", doc);
+    dbCollection.insert(doc);
+    DBObject lastErr = getMongoDB().getLastError();
+    if (lastErr.get("err") != null) {
+      throw new OpenGammaRuntimeException("Error: " + lastErr.toString());
+    }
+
+    Instant creationInstant = Instant.ofEpochMillis(now.getTime());
+    return new DefaultConfigDocument<T>(objectId, objectId, version, name, creationInstant, creationInstant,
+        value);
+  }
+
+  @Override
+  public ConfigDocument<T> get(UniqueIdentifier uid) {
+    ArgumentChecker.notNull(uid, "uid");
+    ArgumentChecker.isTrue(uid.getScheme().equals(_identifierScheme), "Uid not for MongoDBConfigMaster");
+    ArgumentChecker.isTrue(uid.getValue() != null, "Uid value cannot be null");
+    ArgumentChecker.isTrue(uid.getVersion() != null, "Uid version cannot be null");
+
+    DBObject queryObj = new BasicDBObject();
+    queryObj.put(OID_FUDGE_FIELD_NAME, uid.getValue());
+    queryObj.put(VERSION_FUDGE_FIELD_NAME, Integer.parseInt(uid.getVersion()));
+
+    s_logger.debug("query = {}", queryObj);
+    DBCollection dbCollection = getMongoDB().getCollection(getCollectionName());
+    if (s_logger.isDebugEnabled()) {
+      DBCursor find = dbCollection.find(queryObj);
+      while (find.hasNext()) {
+        DBObject next = find.next();
+        s_logger.debug("found doc = {}", next);
+      }
+    }
+    ConfigDocument<T> result = null;
+    if (_updateLastReadTime) {
+      result = findAndUpdateLastRead(queryObj, null);
+    } else {
+      result = findWithoutUpdate(queryObj, null);
+    }
+    
+    if (result == null) {
+      throw new DataNotFoundException("No Config Doc with Uid " + uid);
+    }
+    
+    return result;
+  }
+
+  @Override
+  public void remove(UniqueIdentifier uid) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public ConfigSearchResult<T> search(ConfigSearchRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    String name = request.getName();
+    Instant effectiveTime = request.getEffectiveTime();
+    DBObject queryObj = new BasicDBObject();
+    queryObj.put(NAME_FUDGE_FIELD_NAME, name);
+    if (effectiveTime != null) {
+      DBObject filter = new BasicDBObject("$lte", new Date(effectiveTime.toEpochMillisLong()));
+      queryObj.put(CREATION_INSTANT_FUDGE_FIELD_NAME, filter);
+    }
+    
+    s_logger.debug("query = {}", queryObj);
 
     DBCollection dbCollection = getMongoDB().getCollection(getCollectionName());
     if (s_logger.isDebugEnabled()) {
@@ -208,13 +303,21 @@ public class MongoDBConfigRepository<T> implements ConfigDocumentRepository<T> {
       }
     }
     BasicDBObject sortObj = new BasicDBObject(CREATION_INSTANT_FUDGE_FIELD_NAME, -1);
+    
+    ConfigDocument<T> lookupByName = null;
+    
     if (_updateLastReadTime) {
-      return findAndUpdateLastRead(queryObj, sortObj);
+      lookupByName = findAndUpdateLastRead(queryObj, sortObj);
     } else {
-      return findWithoutUpdate(queryObj, sortObj);
+      lookupByName = findWithoutUpdate(queryObj, sortObj);
     }
+    
+    ConfigSearchResult<T> configSearchResult = new ConfigSearchResult<T>();
+    configSearchResult.getDocuments().add(lookupByName);
+    
+    return configSearchResult;
   }
-
+  
   private ConfigDocument<T> findWithoutUpdate(DBObject queryObj, BasicDBObject sortObj) {
     s_logger.debug("findWithoutUpdate  queryObj={} sortObj={}", queryObj, sortObj);
     DBCollection dbCollection = getMongoDB().getCollection(getCollectionName());
@@ -280,119 +383,51 @@ public class MongoDBConfigRepository<T> implements ConfigDocumentRepository<T> {
   }
 
   @Override
-  public ConfigDocument<T> getByName(String currentName, Instant effectiveInstant) {
-    ArgumentChecker.notNull(currentName, "currentName");
-    ArgumentChecker.notNull(effectiveInstant, "effectiveInstant");
-
-    DBObject queryObj = new BasicDBObject();
-    DBObject filter = new BasicDBObject("$lte", new Date(effectiveInstant.toEpochMillisLong()));
-    queryObj.put(CREATION_INSTANT_FUDGE_FIELD_NAME, filter);
-    queryObj.put(NAME_FUDGE_FIELD_NAME, currentName);
-
-    s_logger.debug("query = {}", queryObj);
-    DBCollection dbCollection = getMongoDB().getCollection(getCollectionName());
-    if (s_logger.isDebugEnabled()) {
-      DBCursor find = dbCollection.find(queryObj);
-      while (find.hasNext()) {
-        DBObject next = find.next();
-        s_logger.debug("found doc = {}", next);
-      }
-    }
-
-    BasicDBObject sortObj = new BasicDBObject(CREATION_INSTANT_FUDGE_FIELD_NAME, -1);
-    if (_updateLastReadTime) {
-      return findAndUpdateLastRead(queryObj, sortObj);
-    } else {
-      return findWithoutUpdate(queryObj, sortObj);
-    }
-  }
-
-  @Override
-  public List<ConfigDocument<T>> getSequence(String oid, Instant startDate, Instant endDate) {
-    ArgumentChecker.notNull(oid, "oid");
-    ArgumentChecker.notNull(startDate, "startDate");
+  public ConfigSearchHistoricResult<T> searchHistoric(ConfigSearchHistoricRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.isTrue(request.getOid() != null, "ConfigSearchHistoricRequest must have an object identifier ");
+    
     Date end = null;
-    if (endDate == null) {
+    Instant requestEndTime = request.getEndTime();
+    if (requestEndTime == null) {
       end = new Date(_timeSource.instant().toEpochMillisLong());
     } else {
-      end = new Date(endDate.toEpochMillisLong());
+      end = new Date(requestEndTime.toEpochMillisLong());
     }
 
-    List<ConfigDocument<T>> result = new ArrayList<ConfigDocument<T>>();
-
-    BasicDBObject query = new BasicDBObject(OID_FUDGE_FIELD_NAME, oid);
-    query.put(CREATION_INSTANT_FUDGE_FIELD_NAME, new BasicDBObject("$lte", end).append("$gte", new Date(startDate
-        .toEpochMillisLong())));
+    BasicDBObject query = new BasicDBObject(OID_FUDGE_FIELD_NAME, request.getOid());
+    BasicDBObject timeFilter = new BasicDBObject("$lte", end);
+    Instant requestStartTime = request.getStartTime();
+    if (requestStartTime != null) {
+      timeFilter.append("$gte", new Date(requestStartTime.toEpochMillisLong()));
+    }
+    query.put(CREATION_INSTANT_FUDGE_FIELD_NAME, timeFilter);
 
     s_logger.debug("query = {}", query);
 
     DBCollection dbCollection = getMongoDB().getCollection(getCollectionName());
     DBCursor cursor = dbCollection.find(query).sort(new BasicDBObject(CREATION_INSTANT_FUDGE_FIELD_NAME, -1));
 
+    ConfigSearchHistoricResult<T> searchResult = new ConfigSearchHistoricResult<T>();
     while (cursor.hasNext()) {
       DBObject next = cursor.next();
       ConfigDocument<T> conficDoc = dBObjectToConficDoc(next);
-      result.add(conficDoc);
+      searchResult.getDocuments().add(conficDoc);
     }
 
-    return result;
+    return searchResult;
   }
 
   @Override
-  public ConfigDocument<T> insertNewItem(String name, T value) {
-    ArgumentChecker.notNull(name, "name");
-    ArgumentChecker.notNull(value, "value");
-    String objectId = ObjectId.get().toString();
-    Date now = new Date(_timeSource.instant().toEpochMillisLong());
-    int version = 1;
-    MutableFudgeFieldContainer msg = _fudgeContext.newMessage();
-    msg.add("_id", objectId);
-    msg.add(OID_FUDGE_FIELD_NAME, objectId);
-    msg.add(VERSION_FUDGE_FIELD_NAME, version);
-    msg.add(NAME_FUDGE_FIELD_NAME, name);
-    msg.add(CREATION_INSTANT_FUDGE_FIELD_NAME, now);
-    msg.add(LAST_READ_INSTANT_FUDGE_FIELD_NAME, now);
-    msg.add(VALUE_FUDGE_FIELD_NAME, _fudgeContext.toFudgeMsg(value).getMessage());
+  public ConfigDocument<T> update(ConfigDocument<T> document) {
+    ArgumentChecker.notNull(document, "document");
+    
+    int previousVersion = document.getVersion();
+    s_logger.debug("previousVersion = {}", previousVersion);
+    String name = document.getName();
+    String oid = document.getOid();
+    T value = document.getValue();
 
-    DBCollection dbCollection = getMongoDB().getCollection(getCollectionName());
-    FudgeDeserializationContext fdc = new FudgeDeserializationContext(getFudgeContext());
-
-    DBObject doc = fdc.fudgeMsgToObject(DBObject.class, msg);
-    s_logger.debug("inserting new doc {}", doc);
-    dbCollection.insert(doc);
-    DBObject lastErr = getMongoDB().getLastError();
-    if (lastErr.get("err") != null) {
-      throw new OpenGammaRuntimeException("Error: " + lastErr.toString());
-    }
-
-    Instant creationInstant = Instant.ofEpochMillis(now.getTime());
-    return new DefaultConfigDocument<T>(objectId, objectId, version, name, creationInstant, creationInstant,
-        value);
-  }
-
-  @Override
-  public ConfigDocument<T> insertNewVersion(String oid, T value) {
-    ArgumentChecker.notNull(oid, "oid");
-    ArgumentChecker.notNull(value, "value");
-    //get latest version
-    DBObject query = new BasicDBObject();
-    query.put(OID_FUDGE_FIELD_NAME, oid);
-
-    DBCollection dbCollection = getMongoDB().getCollection(getCollectionName());
-    DBObject fields = new BasicDBObject();
-    fields.put(VERSION_FUDGE_FIELD_NAME, 1);
-    fields.put(NAME_FUDGE_FIELD_NAME, 1);
-    DBCursor cursor = dbCollection.find(query, fields).sort(new BasicDBObject(VERSION_FUDGE_FIELD_NAME, -1)).limit(1);
-
-    //should return the latest version
-    DBObject previousDocObj = cursor.next();
-    int previousVersion = (Integer) previousDocObj.get(VERSION_FUDGE_FIELD_NAME);
-    String name = (String) previousDocObj.get(NAME_FUDGE_FIELD_NAME);
-
-    return insertVersionDocument(oid, value, previousVersion, name);
-  }
-
-  private ConfigDocument<T> insertVersionDocument(String oid, T value, int previousVersion, String name) {
     DBCollection dbCollection;
     String objectId = ObjectId.get().toString();
     Date now = new Date(_timeSource.instant().toEpochMillisLong());
@@ -404,6 +439,8 @@ public class MongoDBConfigRepository<T> implements ConfigDocumentRepository<T> {
     msg.add(CREATION_INSTANT_FUDGE_FIELD_NAME, now);
     msg.add(LAST_READ_INSTANT_FUDGE_FIELD_NAME, now);
     msg.add(VALUE_FUDGE_FIELD_NAME, _fudgeContext.toFudgeMsg(value).getMessage());
+    
+    s_logger.debug("msg = {}", msg);
 
     dbCollection = getMongoDB().getCollection(getCollectionName());
     FudgeDeserializationContext fdc = new FudgeDeserializationContext(getFudgeContext());
@@ -420,66 +457,20 @@ public class MongoDBConfigRepository<T> implements ConfigDocumentRepository<T> {
     return new DefaultConfigDocument<T>(objectId, oid, previousVersion, name, creationInstant, creationInstant,
         value);
   }
-
-  @Override
-  public ConfigDocument<T> insertNewVersion(String oid, String name, T value) {
-    ArgumentChecker.notNull(name, "name");
-    ArgumentChecker.notNull(value, "value");
-    //get latest version
-    DBObject query = new BasicDBObject();
-    query.put(OID_FUDGE_FIELD_NAME, oid);
-
-    DBCollection dbCollection = getMongoDB().getCollection(getCollectionName());
-    DBObject fields = new BasicDBObject();
-    fields.put(VERSION_FUDGE_FIELD_NAME, 1);
-    DBCursor cursor = dbCollection.find(query, fields).sort(new BasicDBObject(VERSION_FUDGE_FIELD_NAME, -1)).limit(1);
-
-    //should return the latest version
-    DBObject previousDocObj = cursor.next();
-    int previousVersion = (Integer) previousDocObj.get(VERSION_FUDGE_FIELD_NAME);
-
-    return insertVersionDocument(oid, value, previousVersion, name);
-  }
-
-  @Override
-  public Set<String> getNames() {
-    Set<String> result = new TreeSet<String>();
-    DBObject fields = new BasicDBObject();
-    fields.put(NAME_FUDGE_FIELD_NAME, 1);
-    DBCollection dbCollection = getMongoDB().getCollection(getCollectionName());
-    DBCursor cursor = dbCollection.find(new BasicDBObject(), fields);
-    while (cursor.hasNext()) {
-      DBObject next = cursor.next();
-      s_logger.debug("returned obj = {}", next);
-      result.add((String) next.get(NAME_FUDGE_FIELD_NAME));
-    }
-    return result;
-  }
-
-  @Override
-  public ConfigDocument<T> getByOid(String oid, int version) {
-    ArgumentChecker.notNull(oid, "oid");
-    ArgumentChecker.isTrue(version > 0, "Version cannot be negative");
-
-    DBObject queryObj = new BasicDBObject();
-    queryObj.put(OID_FUDGE_FIELD_NAME, oid);
-    queryObj.put(VERSION_FUDGE_FIELD_NAME, version);
-
-    s_logger.debug("query = {}", queryObj);
-    DBCollection dbCollection = getMongoDB().getCollection(getCollectionName());
-    if (s_logger.isDebugEnabled()) {
-      DBCursor find = dbCollection.find(queryObj);
-      while (find.hasNext()) {
-        DBObject next = find.next();
-        s_logger.debug("found doc = {}", next);
-      }
-    }
-
-    if (_updateLastReadTime) {
-      return findAndUpdateLastRead(queryObj, null);
-    } else {
-      return findWithoutUpdate(queryObj, null);
-    }
-  }
+  
+//@Override
+//public Set<String> getNames() {
+//  Set<String> result = new TreeSet<String>();
+//  DBObject fields = new BasicDBObject();
+//  fields.put(NAME_FUDGE_FIELD_NAME, 1);
+//  DBCollection dbCollection = getMongoDB().getCollection(getCollectionName());
+//  DBCursor cursor = dbCollection.find(new BasicDBObject(), fields);
+//  while (cursor.hasNext()) {
+//    DBObject next = cursor.next();
+//    s_logger.debug("returned obj = {}", next);
+//    result.add((String) next.get(NAME_FUDGE_FIELD_NAME));
+//  }
+//  return result;
+//}
 
 }

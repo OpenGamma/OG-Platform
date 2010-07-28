@@ -7,6 +7,8 @@ package com.opengamma.config;
 
 import javax.time.Instant;
 
+import com.opengamma.id.UniqueIdentifier;
+
 /**
  * A configuration document type
  *
@@ -45,6 +47,8 @@ public interface ConfigDocument<T> {
   String getOid();
   
   int getVersion();
+  
+  UniqueIdentifier getUniqueIdentifier();
   
   String getName();
    

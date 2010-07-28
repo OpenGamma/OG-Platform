@@ -5,30 +5,32 @@
  */
 package com.opengamma.config.db;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Random;
 
 import org.junit.After;
 import org.junit.Before;
 
-import com.opengamma.config.ConfigDocumentRepository;
+import com.opengamma.config.ConfigDocument;
+import com.opengamma.config.ConfigMaster;
+import com.opengamma.config.DefaultConfigDocument;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.MongoDBConnectionSettings;
 import com.opengamma.util.test.MongoDBTestUtils;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Test UniqueIdentifier as a configuration document
  *
  */
-public class UniqueIdentifierConfigDocsTest extends MongoConfigDocumentRepoTestcase<UniqueIdentifier> {
+public class UniqueIdentifierConfigMasterTest extends MongoDBConfigMasterTestCase<UniqueIdentifier> {
 
   private Random _random = new Random();
 
   /**
    * @param entityType
    */
-  public UniqueIdentifierConfigDocsTest() {
+  public UniqueIdentifierConfigMasterTest() {
     super(UniqueIdentifier.class);
   }
 
@@ -51,16 +53,19 @@ public class UniqueIdentifierConfigDocsTest extends MongoConfigDocumentRepoTestc
   }
 
   @Override
-  public ConfigDocumentRepository<UniqueIdentifier> createMongoConfigRepo() {
-    //use className as collection so dont set collectionName
+  public ConfigMaster<UniqueIdentifier> createMongoConfigMaster() {
+    //use className as collection so do not set collectionName
     MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings(null, false);
     _mongoSettings = settings;
-    return new MongoDBConfigRepository<UniqueIdentifier>(UniqueIdentifier.class, settings, true);
+    return new MongoDBConfigMaster<UniqueIdentifier>(UniqueIdentifier.class, settings, true);
   }
 
   @Override
-  public UniqueIdentifier makeTestConfigDoc(int version) {
-    return UniqueIdentifier.of("TestScheme", "TestID", String.valueOf(version));
+  public ConfigDocument<UniqueIdentifier> makeTestConfigDoc(int version) {
+    DefaultConfigDocument<UniqueIdentifier> doc = new DefaultConfigDocument<UniqueIdentifier>();
+    doc.setName("TestName" + version);
+    doc.setValue(UniqueIdentifier.of("TestScheme", "TestID", String.valueOf(version)));
+    return doc;
   }
 
   public MongoDBConnectionSettings getMongoDBConnectionSettings() {
@@ -69,8 +74,7 @@ public class UniqueIdentifierConfigDocsTest extends MongoConfigDocumentRepoTestc
 
   @Override
   protected UniqueIdentifier makeRandomConfigDoc() {
-    return UniqueIdentifier.of("SCHEME" + _random.nextInt(), "ID" + _random.nextInt(), String.valueOf(_random
-        .nextInt(100)));
+    return UniqueIdentifier.of("SCHEME" + _random.nextInt(), "ID" + _random.nextInt(), String.valueOf(_random.nextInt(100)));
   }
 
   @Override

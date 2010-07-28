@@ -9,7 +9,7 @@ import javax.time.Instant;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * Default Implementation of ConfigurationDocument 
@@ -17,13 +17,16 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class DefaultConfigDocument<T> implements ConfigDocument<T> {
   
-  private final String _id;
-  private final String _oid;
-  private final int _version;
-  private final String _name;
-  private final Instant _creationInstant;
-  private final Instant _lastReadInstant;
-  private final T _value;
+  private String _id;
+  private String _oid;
+  private int _version;
+  private String _name;
+  private Instant _creationInstant;
+  private Instant _lastReadInstant;
+  private T _value;
+  
+  public DefaultConfigDocument() {
+  }
   
   /**
    * @param id the mongodb generated object id, not-null
@@ -35,13 +38,13 @@ public class DefaultConfigDocument<T> implements ConfigDocument<T> {
    * @param value the actual configuation type, not-null
    */
   public DefaultConfigDocument(String id, String oid, int version, String name, Instant creationInstant, Instant lastReadInstant, T value) {
-    ArgumentChecker.notNull(id, "id");
-    ArgumentChecker.notNull(oid, "oid");
-    ArgumentChecker.isTrue(version > 0, "negative version not allowed");
-    ArgumentChecker.notNull(name, "name");
-    ArgumentChecker.notNull(creationInstant, "creationInstant");
-    ArgumentChecker.notNull(lastReadInstant, "lastReadInstant");
-    ArgumentChecker.notNull(value, "value");
+//    ArgumentChecker.notNull(id, "id");
+//    ArgumentChecker.notNull(oid, "oid");
+//    ArgumentChecker.isTrue(version > 0, "negative version not allowed");
+//    ArgumentChecker.notNull(name, "name");
+//    ArgumentChecker.notNull(creationInstant, "creationInstant");
+//    ArgumentChecker.notNull(lastReadInstant, "lastReadInstant");
+//    ArgumentChecker.notNull(value, "value");
     
     _id = id;
     _oid = oid;
@@ -49,6 +52,57 @@ public class DefaultConfigDocument<T> implements ConfigDocument<T> {
     _name = name;
     _creationInstant = creationInstant;
     _lastReadInstant = lastReadInstant;
+    _value = value;
+  }
+  
+  
+
+  /**
+   * @param id the id to set
+   */
+  public void setId(String id) {
+    _id = id;
+  }
+
+  /**
+   * @param oid the oid to set
+   */
+  public void setOid(String oid) {
+    _oid = oid;
+  }
+
+  /**
+   * @param version the version to set
+   */
+  public void setVersion(int version) {
+    _version = version;
+  }
+
+  /**
+   * @param name the name to set
+   */
+  public void setName(String name) {
+    _name = name;
+  }
+
+  /**
+   * @param creationInstant the creationInstant to set
+   */
+  public void setCreationInstant(Instant creationInstant) {
+    _creationInstant = creationInstant;
+  }
+
+  /**
+   * @param lastReadInstant the lastReadInstant to set
+   */
+  public void setLastReadInstant(Instant lastReadInstant) {
+    _lastReadInstant = lastReadInstant;
+  }
+
+  /**
+   * @param value the value to set
+   */
+  public void setValue(T value) {
     _value = value;
   }
 
@@ -110,6 +164,12 @@ public class DefaultConfigDocument<T> implements ConfigDocument<T> {
       return ObjectUtils.equals(getOid(), other.getOid()) && ObjectUtils.equals(getVersion(), other.getVersion()) && ObjectUtils.equals(getValue(), other.getValue());
     }
     return false;
+  }
+
+  @Override
+  public UniqueIdentifier getUniqueIdentifier() {
+    // TODO Auto-generated method stub
+    return null;
   }
   
 }
