@@ -15,7 +15,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * @param <T>
  * @param <U>
  */
-public abstract class InterpolatedVolatilitySurfaceModel<T, U> implements VolatilitySurfaceModel<T, U> {
+public abstract class InterpolatedVolatilitySurfaceModel<T, U> implements VolatilitySurfaceModel<Map<T, Double>, U> {
   private final Interpolator2D _interpolator;
 
   public InterpolatedVolatilitySurfaceModel(final Interpolator2D interpolator) {

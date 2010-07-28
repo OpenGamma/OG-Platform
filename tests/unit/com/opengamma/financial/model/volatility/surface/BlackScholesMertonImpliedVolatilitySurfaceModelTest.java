@@ -32,7 +32,7 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class BlackScholesMertonImpliedVolatilitySurfaceModelTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  private static final VolatilitySurfaceModel<OptionDefinition, StandardOptionDataBundle> MODEL = new BlackScholesMertonImpliedVolatilitySurfaceModel();
+  private static final BlackScholesMertonImpliedVolatilitySurfaceModel MODEL = new BlackScholesMertonImpliedVolatilitySurfaceModel();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new ConstantYieldCurve(0.01), 0.1, new ConstantVolatilitySurface(0.01), 100., DateUtil.getUTCDate(2010, 1, 1));
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);

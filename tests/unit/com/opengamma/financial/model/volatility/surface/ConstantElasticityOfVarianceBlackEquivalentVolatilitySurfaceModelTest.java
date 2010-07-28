@@ -34,7 +34,7 @@ public class ConstantElasticityOfVarianceBlackEquivalentVolatilitySurfaceModelTe
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, T));
   private static final double BETA = 0.5;
   private static final ConstantElasticityOfVarianceModelDataBundle DATA = new ConstantElasticityOfVarianceModelDataBundle(CURVE, B, new ConstantVolatilitySurface(0.005), SPOT, DATE, BETA);
-  private static final VolatilitySurfaceModel<OptionDefinition, ConstantElasticityOfVarianceModelDataBundle> MODEL = new ConstantElasticityOfVarianceBlackEquivalentVolatilitySurfaceModel();
+  private static final ConstantElasticityOfVarianceBlackEquivalentVolatilitySurfaceModel MODEL = new ConstantElasticityOfVarianceBlackEquivalentVolatilitySurfaceModel();
   private static final BlackScholesMertonModel BSM = new BlackScholesMertonModel();
 
   @Test(expected = IllegalArgumentException.class)
