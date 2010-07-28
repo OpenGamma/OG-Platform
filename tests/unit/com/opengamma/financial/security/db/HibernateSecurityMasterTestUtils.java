@@ -7,7 +7,6 @@ package com.opengamma.financial.security.db;
 
 import java.util.Date;
 
-import com.opengamma.financial.security.SecurityTestUtils;
 import com.opengamma.financial.security.db.equity.EquitySecurityBean;
 import com.opengamma.financial.security.db.equity.GICSCodeBean;
 
@@ -15,7 +14,7 @@ import com.opengamma.financial.security.db.equity.GICSCodeBean;
  * Utility class that creates Test Objects 
  *
  */
-/* package */class HibernateSecurityMasterTestUtils extends SecurityTestUtils {
+/* package */class HibernateSecurityMasterTestUtils {
 
   private HibernateSecurityMasterTestUtils() {
   }

@@ -8,9 +8,6 @@ package com.opengamma.financial.analytics.model.swap;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,8 +89,7 @@ public class FakeSwapPricingFunction extends AbstractFunction implements Functio
       receiveAmount = irReceiveNotional.getAmount();
     }
     final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(getDiscountCurveMarketDataRequirement(Currency.getInstance("USD").getUniqueIdentifier()));
-    double rate = discountCurve.getInterestRate(DateUtil.getDifferenceInYears(ZonedDateTime.of(security.getEffectiveDate(), TimeZone.of(security.getEffectiveDate_zone())), ZonedDateTime.of(security
-        .getMaturityDate(), TimeZone.of(security.getMaturityDate_zone()))));
+    double rate = discountCurve.getInterestRate(DateUtil.getDifferenceInYears(security.getEffectiveDate().toZonedDateTime(), security.getMaturityDate().toZonedDateTime()));
     payAmount *= (1 + rate);
     receiveAmount *= (1 + 0.03); // 3% for some unknown reason
     double fv = payAmount - receiveAmount;

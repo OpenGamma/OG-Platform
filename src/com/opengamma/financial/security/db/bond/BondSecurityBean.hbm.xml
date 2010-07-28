@@ -12,16 +12,31 @@
     <many-to-one name="currency" column="currency_id" class="com.opengamma.financial.security.db.CurrencyBean" not-null="true" />
     <many-to-one name="yieldConvention" column="yieldconvention_id" class="YieldConventionBean" not-null="true" />
     <many-to-one name="guaranteeType" column="guaranteetype_id" class="GuaranteeTypeBean" not-null="true" />
-    <property name="maturity" column="maturity" type="date" not-null="true" />
+    <component name="maturity" class="com.opengamma.financial.security.db.ExpiryBean">
+      <property name="date" column="maturity_date" type="timestamp" not-null="true" />
+      <property name="accuracy" column="maturity_accuracy" type="com.opengamma.financial.security.db.ExpiryAccuracyUserType" not-null="true" />
+    </component>
     <many-to-one name="couponType" column="coupontype_id" class="CouponTypeBean" not-null="true" />
     <property name="couponRate" column="couponrate" type="double" not-null="true" />
     <many-to-one name="couponFrequency" column="couponfrequency_id" class="com.opengamma.financial.security.db.FrequencyBean" not-null="true" />
     <many-to-one name="dayCountConvention" column="daycountconvention_id" class="com.opengamma.financial.security.db.DayCountBean" not-null="true" />
     <many-to-one name="businessDayConvention" column="businessdayconvention_id" class="com.opengamma.financial.security.db.BusinessDayConventionBean" not-null="true" />
-    <property name="announcementDate" column="announcementdate" type="date" not-null="true" />
-    <property name="interestAccrualDate" column="interestaccrualdate" type="date" not-null="true" />
-    <property name="settlementDate" column="settlementdate" type="date" not-null="true" />
-    <property name="firstCouponDate" column="firstcoupondate" type="date" not-null="true" />
+    <component name="announcementDate" class="com.opengamma.financial.security.db.ZonedDateTimeBean">
+      <property name="date" column="announcement_date" type="timestamp" not-null="true" />
+      <property name="zone" column="announcement_zone" type="string" not-null="true" />
+    </component>
+    <component name="interestAccrualDate" class="com.opengamma.financial.security.db.ZonedDateTimeBean">
+      <property name="date" column="interestaccrual_date" type="timestamp" not-null="true" />
+      <property name="zone" column="interestaccrual_zone" type="string" not-null="true" />
+    </component>
+    <component name="settlementDate" class="com.opengamma.financial.security.db.ZonedDateTimeBean">
+      <property name="date" column="settlement_date" type="timestamp" not-null="true" />
+      <property name="zone" column="settlement_zone" type="string" not-null="true" />
+    </component>
+    <component name="firstCouponDate" class="com.opengamma.financial.security.db.ZonedDateTimeBean">
+      <property name="date" column="firstcoupon_date" type="timestamp" not-null="true" />
+      <property name="zone" column="firstcoupon_zone" type="string" not-null="true" />
+    </component>
     <property name="issuancePrice" column="issuanceprice" type="double" not-null="true" />
     <property name="totalAmountIssued" column="totalamountissued" type="double" not-null="true" />
     <property name="minimumAmount" column="minimumamount" type="double" not-null="true" />

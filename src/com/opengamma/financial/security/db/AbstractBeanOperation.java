@@ -14,7 +14,7 @@ import com.opengamma.engine.security.Security;
  * @param <S> Security
  * @param <SBean> SecurityBean
  */
-public abstract class AbstractBeanOperation<S extends Security, SBean extends SecurityBean> extends Converters implements BeanOperation<S, SBean> {
+public abstract class AbstractBeanOperation<S extends Security, SBean extends SecurityBean> implements BeanOperation<S, SBean> {
   
   private final Class<? extends SBean> _beanClass;
   private final Class<? extends S> _securityClass;
@@ -42,12 +42,12 @@ public abstract class AbstractBeanOperation<S extends Security, SBean extends Se
   }
   
   @Override
-  public SBean resolve(HibernateSecurityMasterDao secMasterSession, Date now, SBean bean) {
+  public SBean resolve(OperationContext context, HibernateSecurityMasterDao secMasterSession, Date now, SBean bean) {
     return bean;
   }
   
   @Override
-  public void postPersistBean(HibernateSecurityMasterDao secMasterSession, Date effectiveDate, SBean bean) {
+  public void postPersistBean(OperationContext context, HibernateSecurityMasterDao secMasterSession, Date effectiveDate, SBean bean) {
     // No op
   }
   

@@ -10,7 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
-import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
@@ -99,7 +98,7 @@ public class SwapPortfolioImpliedYieldCurveFunction extends AbstractFunction imp
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ZonedDateTime now = executionContext.getSnapshotClock().zonedDateTime();
     final PortfolioNode node = target.getPortfolioNode();
-    final YieldAndDiscountCurve inputCurve = (YieldAndDiscountCurve) inputs.getValue(getRequirement());
+    //final YieldAndDiscountCurve inputCurve = (YieldAndDiscountCurve) inputs.getValue(getRequirement());
     final Calendar calendar = null; // TODO where does this live?
     SwapSecurity swapSecurity;
     SwapLeg payLeg, receiveLeg;
@@ -116,8 +115,8 @@ public class SwapPortfolioImpliedYieldCurveFunction extends AbstractFunction imp
       swapSecurity = (SwapSecurity) position;
       payLeg = swapSecurity.getPayLeg();
       receiveLeg = swapSecurity.getReceiveLeg();
-      effectiveDate = ZonedDateTime.of(swapSecurity.getEffectiveDate(), TimeZone.of(swapSecurity.getEffectiveDate_zone()));
-      maturityDate = ZonedDateTime.of(swapSecurity.getMaturityDate(), TimeZone.of(swapSecurity.getMaturityDate_zone()));
+      effectiveDate = swapSecurity.getEffectiveDate().toZonedDateTime();
+      maturityDate = swapSecurity.getMaturityDate().toZonedDateTime();
       final double[] payLegPaymentTimes = SwapScheduleCalculator.getPaymentTimes(effectiveDate, maturityDate, payLeg, calendar, now);
       final double[] receiveLegPaymentTimes = SwapScheduleCalculator.getPaymentTimes(effectiveDate, maturityDate, receiveLeg, calendar, now);
       payFixed = payLeg instanceof FixedInterestRateLeg;
@@ -160,7 +159,7 @@ public class SwapPortfolioImpliedYieldCurveFunction extends AbstractFunction imp
     unknownCurves = new LinkedHashMap<String, FixedNodeInterpolator1D>();
     fnInterpolator = new FixedNodeInterpolator1D(nodeTimes, _interpolator);
     unknownCurves.put(CURVE_NAME, fnInterpolator);
-    final Function1D<DoubleMatrix1D,DoubleMatrix1D> curveFinder = new MultipleYieldCurveFinderFunction(swaps, marketRates, unknownCurves, null);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveFinder = new MultipleYieldCurveFinderFunction(swaps, marketRates, unknownCurves, null);
 
 
     // TODO this should not be hard-coded

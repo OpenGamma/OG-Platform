@@ -12,9 +12,21 @@ import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 
+/**
+ * 
+ */
 public enum BondType {
+  /**
+   * 
+   */
   CORPORATE,
+  /**
+   * 
+   */
   MUNICIPAL,
+  /**
+   * 
+   */
   GOVERNMENT;
   
   public static BondType identify(final BondSecurity object) {
@@ -39,20 +51,14 @@ public enum BondType {
     });
   }
   
-  public static interface Visitor<T> {
-    T visitCorporateBondType();
-    T visitGovernmentBondType();
-    T visitMunicipalBondType();
-  }
-  
-  public <T> T accept(final Visitor<T> visitor) {
+  public <T> T accept(final BondSecurityVisitor<T> visitor) {
     switch (this) {
       case CORPORATE:
-        return visitor.visitCorporateBondType();
+        return visitor.visitCorporateBondSecurity(null);
       case GOVERNMENT:
-        return visitor.visitGovernmentBondType();
+        return visitor.visitGovernmentBondSecurity(null);
       case MUNICIPAL:
-        return visitor.visitMunicipalBondType();
+        return visitor.visitMunicipalBondSecurity(null);
       default:
         throw new OpenGammaRuntimeException("unexpected BondType: " + this);
     } 

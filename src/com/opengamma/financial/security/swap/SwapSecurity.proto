@@ -13,12 +13,9 @@ namespace com.opengamma.financial.security.swap {
   
     required string securityType [default = "SWAP"];
     
-    required datetime tradeDate;
-    required string tradeDate_zone [default = "UTC"];
-    required datetime effectiveDate;
-    required string effectiveDate_zone [default = "UTC"];
-    required datetime maturityDate;
-    required string maturityDate_zone [default = "UTC"];
+    required DateTimeWithZone tradeDate;
+    required DateTimeWithZone effectiveDate;
+    required DateTimeWithZone maturityDate;
     required string counterparty;
     required SwapLeg payLeg;
     required SwapLeg receiveLeg;
