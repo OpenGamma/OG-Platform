@@ -21,6 +21,7 @@ import com.opengamma.financial.security.db.SecurityBean;
 
 public class EquitySecurityBean extends SecurityBean {
   private ExchangeBean _exchange;
+  private String _shortName;
   private String _companyName;
   private CurrencyBean _currency;
   private GICSCodeBean _gicsCode;
@@ -31,25 +32,12 @@ public class EquitySecurityBean extends SecurityBean {
   // - ISIN (in ISIN)
   // - Bloomberg Unique ID (in BbgUniqueId)
     
-  /**
-   * 
-   */
-  public EquitySecurityBean() {
-    super();
+  public void setShortName(final String shortName) {
+    _shortName = shortName;
   }
   
-  /**
-   * This should be removed after the demo is fully Bloomberg modified.
-   * 
-   * @param domain
-   * @param domainIdentifier
-   */
-  public EquitySecurityBean(ExchangeBean exchange, String companyName, CurrencyBean currency, GICSCodeBean gicsCode) {
-    this();
-    _exchange = exchange;
-    _companyName = companyName;
-    _currency = currency;
-    _gicsCode = gicsCode;
+  public String getShortName() {
+    return _shortName;
   }
 
   /**

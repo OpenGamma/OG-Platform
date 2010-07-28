@@ -9,8 +9,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
@@ -123,6 +121,14 @@ public class RegionNode implements Region {
   public int hashCode() {
     return _name.hashCode();
   }
+  
+  // REVIEW 2010-07-26 Andrew -- this is not a good solution to the equality problem below.
+  private static final ThreadLocal<Integer> s_stackDirection = new ThreadLocal<Integer>() {
+    @Override
+    protected Integer initialValue() {
+      return 0;
+    }
+  };
 
   @Override
   public boolean equals(Object obj) {
@@ -162,15 +168,31 @@ public class RegionNode implements Region {
       if (other._subRegions != null) {
         return false;
       }
-    } else if (!_subRegions.equals(other._subRegions)) {
-      return false;
+    } else {
+      final int stack = s_stackDirection.get();
+      if (stack >= 0) {
+        s_stackDirection.set(stack + 1);
+        final boolean cmp = _subRegions.equals(other._subRegions);
+        s_stackDirection.set(stack);
+        if (!cmp) {
+          return false;
+        }
+      }
     }
     if (_superRegion == null) {
       if (other._superRegion != null) {
         return false;
       }
-    } else if (!_superRegion.equals(other._superRegion)) {
-      return false;
+    } else {
+      final int stack = s_stackDirection.get();
+      if (stack <= 0) {
+        s_stackDirection.set(stack + 1);
+        final boolean cmp = _superRegion.equals(other._superRegion);
+        s_stackDirection.set(stack);
+        if (!cmp) {
+          return false;
+        }
+      }
     }
     return true;
   }
@@ -194,7 +216,21 @@ public class RegionNode implements Region {
   }
   
   public String toString() {
-    return ToStringBuilder.reflectionToString(this);
+    // Don't use ToStringBuilder or we will get the full object graph
+    final StringBuilder sb = new StringBuilder();
+    sb.append("RegionNode[");
+    sb.append("_name=").append(_name);
+    sb.append(",_regionType=").append(_regionType);
+    sb.append(",_subRegion={");
+    for (Region region : _subRegions) {
+      sb.append(region.getUniqueIdentifier());
+    }
+    sb.append("},_superRegion=").append((_superRegion != null) ? _superRegion.getUniqueIdentifier() : "<null>");
+    sb.append(",_uniqueIdentifier=").append(_uniqueIdentifier);
+    sb.append(",_data=").append(_data);
+    sb.append(",_uniqueIdentifier=").append(_uniqueIdentifier);
+    sb.append(",_identifiers=").append(_identifiers);
+    return sb.append(']').toString();
   }
 
 }

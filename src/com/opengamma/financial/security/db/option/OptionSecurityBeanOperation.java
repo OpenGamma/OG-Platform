@@ -5,12 +5,19 @@
  */
 package com.opengamma.financial.security.db.option;
 
-import java.util.Date;
+import static com.opengamma.financial.security.db.Converters.currencyBeanToCurrency;
+import static com.opengamma.financial.security.db.Converters.dateTimeWithZoneToZonedDateTimeBean;
+import static com.opengamma.financial.security.db.Converters.expiryBeanToExpiry;
+import static com.opengamma.financial.security.db.Converters.expiryToExpiryBean;
+import static com.opengamma.financial.security.db.Converters.identifierBeanToIdentifier;
+import static com.opengamma.financial.security.db.Converters.identifierToIdentifierBean;
+import static com.opengamma.financial.security.db.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.financial.security.db.AbstractBeanOperation;
 import com.opengamma.financial.security.db.HibernateSecurityMasterDao;
+import com.opengamma.financial.security.db.OperationContext;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
 import com.opengamma.financial.security.option.AssetOrNothingPayoffStyle;
@@ -57,7 +64,7 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
   }
 
   @Override
-  public OptionSecurity createSecurity(final OptionSecurityBean bean) {
+  public OptionSecurity createSecurity(final OperationContext context, final OptionSecurityBean bean) {
     final ExerciseType exerciseType = bean.getOptionExerciseType().accept(new ExerciseTypeVisitor<ExerciseType>() {
 
       @Override
@@ -109,7 +116,7 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
 
       @Override
       public PayoffStyle visitExtremeSpreadPayoffStyle(ExtremeSpreadPayoffStyle payoffStyle) {
-        return new ExtremeSpreadPayoffStyle(bean.getPeriodEnd(), bean.getPeriodEndTimeZone(), bean.isReverse());
+        return new ExtremeSpreadPayoffStyle(zonedDateTimeBeanToDateTimeWithZone(bean.getChooseDate()), bean.isReverse());
       }
       
       @Override
@@ -139,8 +146,7 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
 
       @Override
       public PayoffStyle visitSimpleChooserPayoffStyle(SimpleChooserPayoffStyle payoffStyle) {
-        return new SimpleChooserPayoffStyle(bean.getChooseDate(), bean.getChooseDateTimeZone(), bean.getUnderlyingStrike(), 
-            bean.getUnderlyingExpiry(), bean.getUnderlyingExpiryTimeZone());
+        return new SimpleChooserPayoffStyle(zonedDateTimeBeanToDateTimeWithZone(bean.getChooseDate()), bean.getUnderlyingStrike(), expiryBeanToExpiry(bean.getUnderlyingExpiry()));
       }
       
       @Override
@@ -158,37 +164,37 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
 
       @Override
       public OptionSecurity visitFXOptionSecurity(FXOptionSecurity security) {
-        return new FXOptionSecurity(exerciseType, payoffStyle, bean.getOptionType(), bean.getStrike(), dateToExpiry(bean.getExpiry()), identifierBeanToIdentifier(bean
+        return new FXOptionSecurity(exerciseType, payoffStyle, bean.getOptionType(), bean.getStrike(), expiryBeanToExpiry(bean.getExpiry()), identifierBeanToIdentifier(bean
             .getUnderlying()), currencyBeanToCurrency(bean.getCurrency()), bean.getCounterparty(), currencyBeanToCurrency(bean.getPutCurrency()), currencyBeanToCurrency(bean.getCallCurrency()));
       }
 
       @Override
       public OptionSecurity visitBondOptionSecurity(BondOptionSecurity security) {
-        return new BondOptionSecurity(exerciseType, payoffStyle, bean.getOptionType(), bean.getStrike(), dateToExpiry(bean.getExpiry()), identifierBeanToIdentifier(bean.getUnderlying()),
+        return new BondOptionSecurity(exerciseType, payoffStyle, bean.getOptionType(), bean.getStrike(), expiryBeanToExpiry(bean.getExpiry()), identifierBeanToIdentifier(bean.getUnderlying()),
             currencyBeanToCurrency(bean.getCurrency()));
       }
 
       @Override
       public OptionSecurity visitEquityOptionSecurity(EquityOptionSecurity security) {
-        return new EquityOptionSecurity(exerciseType, payoffStyle, bean.getOptionType(), bean.getStrike(), dateToExpiry(bean.getExpiry()), identifierBeanToIdentifier(bean.getUnderlying()),
+        return new EquityOptionSecurity(exerciseType, payoffStyle, bean.getOptionType(), bean.getStrike(), expiryBeanToExpiry(bean.getExpiry()), identifierBeanToIdentifier(bean.getUnderlying()),
             currencyBeanToCurrency(bean.getCurrency()), bean.getPointValue(), bean.getExchange().getName());
       }
 
       @Override
       public OptionSecurity visitFutureOptionSecurity(FutureOptionSecurity security) {
-        return new FutureOptionSecurity(exerciseType, payoffStyle, bean.getOptionType(), bean.getStrike(), dateToExpiry(bean.getExpiry()), identifierBeanToIdentifier(bean.getUnderlying()),
+        return new FutureOptionSecurity(exerciseType, payoffStyle, bean.getOptionType(), bean.getStrike(), expiryBeanToExpiry(bean.getExpiry()), identifierBeanToIdentifier(bean.getUnderlying()),
             currencyBeanToCurrency(bean.getCurrency()), bean.getPointValue(), bean.getExchange().getName(), bean.isMargined());
       }
 
       @Override
       public OptionSecurity visitOptionOptionSecurity(OptionOptionSecurity security) {
-        return new OptionOptionSecurity(exerciseType, payoffStyle, bean.getOptionType(), bean.getStrike(), dateToExpiry(bean.getExpiry()), identifierBeanToIdentifier(bean.getUnderlying()),
+        return new OptionOptionSecurity(exerciseType, payoffStyle, bean.getOptionType(), bean.getStrike(), expiryBeanToExpiry(bean.getExpiry()), identifierBeanToIdentifier(bean.getUnderlying()),
             currencyBeanToCurrency(bean.getCurrency()));
       }
 
       @Override
       public OptionSecurity visitSwapOptionSecurity(SwapOptionSecurity security) {
-        return new SwapOptionSecurity(exerciseType, payoffStyle, bean.getOptionType(), bean.getStrike(), dateToExpiry(bean.getExpiry()), identifierBeanToIdentifier(bean.getUnderlying()),
+        return new SwapOptionSecurity(exerciseType, payoffStyle, bean.getOptionType(), bean.getStrike(), expiryBeanToExpiry(bean.getExpiry()), identifierBeanToIdentifier(bean.getUnderlying()),
             currencyBeanToCurrency(bean.getCurrency()));
       }
     });
@@ -196,13 +202,13 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
   }
 
   @Override
-  public boolean beanEquals(final OptionSecurityBean bean, final OptionSecurity security) {
+  public boolean beanEquals(final OperationContext context, final OptionSecurityBean bean, final OptionSecurity security) {
     return security.accept(new OptionSecurityVisitor<Boolean>() {
 
       private Boolean beanEquals(final OptionSecurity security) {
         return ObjectUtils.equals(bean.getOptionExerciseType(), security.getExerciseType()) && ObjectUtils.equals(bean.getOptionPayoffStyle(), security.getPayoffStyle())
           && ObjectUtils.equals(bean.getOptionSecurityType(), OptionSecurityType.identify(security)) && ObjectUtils.equals(bean.getOptionType(), security.getOptionType())
-          && ObjectUtils.equals(bean.getStrike(), security.getStrike()) && ObjectUtils.equals(dateToExpiry(bean.getExpiry()), security.getExpiry())
+            && ObjectUtils.equals(bean.getStrike(), security.getStrike()) && ObjectUtils.equals(expiryBeanToExpiry(bean.getExpiry()), security.getExpiry())
           && ObjectUtils.equals(bean.getUnderlying(), security.getUnderlyingIdentifier()) && ObjectUtils.equals(currencyBeanToCurrency(bean.getCurrency()), security.getCurrency());
       }
 
@@ -259,7 +265,7 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
   }
 
   @Override
-  public OptionSecurityBean createBean(final HibernateSecurityMasterDao secMasterSession, final OptionSecurity security) {
+  public OptionSecurityBean createBean(final OperationContext context, final HibernateSecurityMasterDao secMasterSession, final OptionSecurity security) {
     return security.accept(new OptionSecurityVisitor<OptionSecurityBean>() {
 
       private OptionSecurityBean createSecurityBean(final OptionSecurity security) {
@@ -298,8 +304,7 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
           
           @Override
           public OptionPayoffStyle visitExtremeSpreadPayoffStyle(ExtremeSpreadPayoffStyle payoffStyle) {
-            bean.setPeriodEnd(payoffStyle.getPeriodEnd());
-            bean.setPeriodEndTimeZone(payoffStyle.getPeriodEndTimeZone());
+            bean.setChooseDate(dateTimeWithZoneToZonedDateTimeBean(payoffStyle.getPeriodEnd()));
             bean.setReverse(payoffStyle.getIsReverse());
             return OptionPayoffStyle.EXTREME_SPREAD;
           }
@@ -335,11 +340,9 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
 
           @Override
           public OptionPayoffStyle visitSimpleChooserPayoffStyle(SimpleChooserPayoffStyle payoffStyle) {
-            bean.setChooseDate(payoffStyle.getChooseDate());
-            bean.setChooseDateTimeZone(payoffStyle.getChooseDate_zone());
+            bean.setChooseDate(dateTimeWithZoneToZonedDateTimeBean(payoffStyle.getChooseDate()));
             bean.setUnderlyingStrike(payoffStyle.getUnderlyingStrike());
-            bean.setUnderlyingExpiry(payoffStyle.getUnderlyingExpiry());
-            bean.setUnderlyingExpiryTimeZone(payoffStyle.getUnderlyingExpiry_zone());
+            bean.setUnderlyingExpiry(expiryToExpiryBean(payoffStyle.getUnderlyingExpiry()));
             return OptionPayoffStyle.SIMPLE_CHOOSER;
           }
           
@@ -359,7 +362,7 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
         bean.setOptionSecurityType(OptionSecurityType.identify(security));
         bean.setOptionType(security.getOptionType());
         bean.setStrike(security.getStrike());
-        bean.setExpiry(new Date(security.getExpiry().toInstant().toEpochMillisLong()));
+        bean.setExpiry(expiryToExpiryBean(security.getExpiry()));
         bean.setUnderlying(identifierToIdentifierBean(security.getUnderlyingIdentifier()));
         bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getISOCode()));
         return bean;

@@ -5,13 +5,13 @@
  */
 package com.opengamma.financial.security.db.bond;
 
-import java.util.Date;
-
 import com.opengamma.financial.security.db.BusinessDayConventionBean;
 import com.opengamma.financial.security.db.CurrencyBean;
 import com.opengamma.financial.security.db.DayCountBean;
+import com.opengamma.financial.security.db.ExpiryBean;
 import com.opengamma.financial.security.db.FrequencyBean;
 import com.opengamma.financial.security.db.SecurityBean;
+import com.opengamma.financial.security.db.ZonedDateTimeBean;
 
 /**
  * 
@@ -27,16 +27,16 @@ public class BondSecurityBean extends SecurityBean {
   private CurrencyBean _currency;
   private YieldConventionBean _yieldConvention;
   private GuaranteeTypeBean _guaranteeType;
-  private Date _maturity;
+  private ExpiryBean _maturity;
   private CouponTypeBean _couponType;
   private double _couponRate;
   private FrequencyBean _couponFrequency;
   private DayCountBean _dayCountConvention;
   private BusinessDayConventionBean _businessDayConvention;
-  private Date _announcementDate;
-  private Date _interestAccrualDate;
-  private Date _settlementDate;
-  private Date _firstCouponDate;
+  private ZonedDateTimeBean _announcementDate;
+  private ZonedDateTimeBean _interestAccrualDate;
+  private ZonedDateTimeBean _settlementDate;
+  private ZonedDateTimeBean _firstCouponDate;
   private double _issuancePrice;
   private double _totalAmountIssued;
   private double _minimumAmount;
@@ -143,13 +143,13 @@ public class BondSecurityBean extends SecurityBean {
   /**
    * @return the maturity
    */
-  public Date getMaturity() {
+  public ExpiryBean getMaturity() {
     return _maturity;
   }
   /**
    * @param maturity the maturity to set
    */
-  public void setMaturity(Date maturity) {
+  public void setMaturity(ExpiryBean maturity) {
     _maturity = maturity;
   }
   /**
@@ -216,49 +216,49 @@ public class BondSecurityBean extends SecurityBean {
   /**
    * @return the announcementDate
    */
-  public Date getAnnouncementDate() {
+  public ZonedDateTimeBean getAnnouncementDate() {
     return _announcementDate;
   }
   /**
    * @param announcementDate the announcementDate to set
    */
-  public void setAnnouncementDate(Date announcementDate) {
+  public void setAnnouncementDate(ZonedDateTimeBean announcementDate) {
     _announcementDate = announcementDate;
   }
   /**
    * @return the interestAccrualDate
    */
-  public Date getInterestAccrualDate() {
+  public ZonedDateTimeBean getInterestAccrualDate() {
     return _interestAccrualDate;
   }
   /**
    * @param interestAccrualDate the interestAccrualDate to set
    */
-  public void setInterestAccrualDate(Date interestAccrualDate) {
+  public void setInterestAccrualDate(ZonedDateTimeBean interestAccrualDate) {
     _interestAccrualDate = interestAccrualDate;
   }
   /**
    * @return the settlementDate
    */
-  public Date getSettlementDate() {
+  public ZonedDateTimeBean getSettlementDate() {
     return _settlementDate;
   }
   /**
    * @param settlementDate the settlementDate to set
    */
-  public void setSettlementDate(Date settlementDate) {
+  public void setSettlementDate(ZonedDateTimeBean settlementDate) {
     _settlementDate = settlementDate;
   }
   /**
    * @return the firstCouponDate
    */
-  public Date getFirstCouponDate() {
+  public ZonedDateTimeBean getFirstCouponDate() {
     return _firstCouponDate;
   }
   /**
    * @param firstCouponDate the firstCouponDate to set
    */
-  public void setFirstCouponDate(Date firstCouponDate) {
+  public void setFirstCouponDate(ZonedDateTimeBean firstCouponDate) {
     _firstCouponDate = firstCouponDate;
   }
   /**

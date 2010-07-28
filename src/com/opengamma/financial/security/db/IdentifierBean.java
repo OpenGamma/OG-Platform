@@ -26,7 +26,7 @@ public class IdentifierBean {
     _scheme = scheme;
     _identifier = identifier;
   }
-  
+
   public String getScheme() {
     return _scheme;
   }

@@ -58,7 +58,7 @@ public abstract class EnumUserType<E extends Enum<E>> implements UserType {
 
   @Override
   public boolean equals(Object x, Object y) throws HibernateException {
-    // Is this first check necessary?
+    // Check for either being null for database null semantics which ObjectUtils won't give us
     if ((x == null) || (y == null)) {
       return false;
     }

@@ -5,7 +5,10 @@
 <hibernate-mapping package="com.opengamma.financial.security.db.future">
   <union-subclass name="FutureSecurityBean" extends="com.opengamma.financial.security.db.SecurityBean" table="sec_future">
     <property name="futureType" column="future_type" type="com.opengamma.financial.security.db.future.FutureTypeUserType" not-null="true" />
-    <property name="expiry" type="date" not-null="true" />
+    <component name="expiry" class="com.opengamma.financial.security.db.ExpiryBean">
+      <property name="date" column="expiry_date" type="date" not-null="true" />
+      <property name="accuracy" column="expiry_accuracy" type="com.opengamma.financial.security.db.ExpiryAccuracyUserType" not-null="true" />
+    </component>
     <many-to-one name="tradingExchange" column="tradingexchange_id" class="com.opengamma.financial.security.db.ExchangeBean" not-null="true" />
     <many-to-one name="settlementExchange" column="settlementexchange_id" class="com.opengamma.financial.security.db.ExchangeBean" not-null="true" />
     <many-to-one name="currency1" column="currency1_id" class="com.opengamma.financial.security.db.CurrencyBean" />
