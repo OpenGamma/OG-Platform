@@ -32,7 +32,6 @@ import com.opengamma.util.tuple.FirstThenSecondPairComparator;
 public class InterpolatedVolatilitySurface extends VolatilitySurface {
   private static final Logger s_logger = LoggerFactory.getLogger(InterpolatedVolatilitySurface.class);
   private final SortedMap<DoublesPair, Double> _volatilityData;
-  private final SortedMap<DoublesPair, Double> _varianceData;
   private final Interpolator2D _interpolator;
 
   /**
@@ -57,12 +56,7 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
     }
     final SortedMap<DoublesPair, Double> sortedVolatility = new TreeMap<DoublesPair, Double>(FirstThenSecondPairComparator.INSTANCE_DOUBLES);
     sortedVolatility.putAll(data);
-    final SortedMap<DoublesPair, Double> sortedVariance = new TreeMap<DoublesPair, Double>(FirstThenSecondPairComparator.INSTANCE_DOUBLES);
-    for (final Map.Entry<DoublesPair, Double> entry : data.entrySet()) {
-      sortedVariance.put(entry.getKey(), entry.getValue() * entry.getValue());
-    }
     _volatilityData = Collections.<DoublesPair, Double>unmodifiableSortedMap(sortedVolatility);
-    _varianceData = Collections.<DoublesPair, Double>unmodifiableSortedMap(sortedVariance);
     _interpolator = interpolator;
   }
 
@@ -91,7 +85,7 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
   @Override
   public Double getVolatility(final DoublesPair xy) {
     Validate.notNull(xy, "xy");
-    return Math.sqrt(_interpolator.interpolate(_varianceData, xy));
+    return _interpolator.interpolate(_volatilityData, xy);
   }
 
   public Set<DoublesPair> getXYData() {

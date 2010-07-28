@@ -24,7 +24,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * 
  */
-public class BlackScholesMertonImpliedVolatilitySurfaceModel implements VolatilitySurfaceModel<OptionDefinition, StandardOptionDataBundle> {
+public class BlackScholesMertonImpliedVolatilitySurfaceModel implements VolatilitySurfaceModel<Map<OptionDefinition, Double>, StandardOptionDataBundle> {
   private static final Logger s_logger = LoggerFactory.getLogger(BlackScholesMertonImpliedVolatilitySurfaceModel.class);
   private final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> _bsm = new BlackScholesMertonModel();
   private SingleRootFinder<StandardOptionDataBundle, Double> _rootFinder;
@@ -41,8 +41,8 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
     final Double price = entry.getValue();
     final Function1D<StandardOptionDataBundle, Double> pricingFunction = _bsm.getPricingFunction(entry.getKey());
     _rootFinder = new MyBisectionSingleRootFinder(optionDataBundle, price);
-    return _rootFinder.getRoot(pricingFunction, optionDataBundle.withVolatilitySurface(new ConstantVolatilitySurface(0)),
-        optionDataBundle.withVolatilitySurface(new ConstantVolatilitySurface(10))).getVolatilitySurface();
+    return _rootFinder.getRoot(pricingFunction, optionDataBundle.withVolatilitySurface(new ConstantVolatilitySurface(0)), optionDataBundle.withVolatilitySurface(new ConstantVolatilitySurface(10)))
+        .getVolatilitySurface();
   }
 
   private class MyBisectionSingleRootFinder implements SingleRootFinder<StandardOptionDataBundle, Double> {
@@ -59,8 +59,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
     }
 
     @Override
-    public StandardOptionDataBundle getRoot(final Function1D<StandardOptionDataBundle, Double> function, final StandardOptionDataBundle lowVolData,
-        final StandardOptionDataBundle highVolData) {
+    public StandardOptionDataBundle getRoot(final Function1D<StandardOptionDataBundle, Double> function, final StandardOptionDataBundle lowVolData, final StandardOptionDataBundle highVolData) {
       final Double lowPrice = function.evaluate(lowVolData) - _price;
       if (Math.abs(lowPrice) < ACCURACY) {
         return lowVolData;
@@ -69,8 +68,8 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
       if (Math.abs(highPrice) < ACCURACY) {
         return highVolData;
       }
-      double highVol = highVolData.getVolatilitySurface().getVolatility(_origin);
-      double lowVol = lowVolData.getVolatilitySurface().getVolatility(_origin);
+      final double highVol = highVolData.getVolatilitySurface().getVolatility(_origin);
+      final double lowVol = lowVolData.getVolatilitySurface().getVolatility(_origin);
       double dVol, midVol, rootVol;
       if (lowPrice < 0) {
         dVol = highVol - lowVol;

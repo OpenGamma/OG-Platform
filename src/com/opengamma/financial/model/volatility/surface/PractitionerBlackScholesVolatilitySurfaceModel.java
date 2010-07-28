@@ -26,9 +26,9 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * 
  */
-public class PractitionerBlackScholesVolatilitySurfaceModel implements VolatilitySurfaceModel<OptionDefinition, StandardOptionDataBundle> {
+public class PractitionerBlackScholesVolatilitySurfaceModel implements VolatilitySurfaceModel<Map<OptionDefinition, Double>, StandardOptionDataBundle> {
   private static final Logger s_logger = LoggerFactory.getLogger(PractitionerBlackScholesVolatilitySurfaceModel.class);
-  private final VolatilitySurfaceModel<OptionDefinition, StandardOptionDataBundle> _bsmVolatilityModel = new BlackScholesMertonImpliedVolatilitySurfaceModel();
+  private final VolatilitySurfaceModel<Map<OptionDefinition, Double>, StandardOptionDataBundle> _bsmVolatilityModel = new BlackScholesMertonImpliedVolatilitySurfaceModel();
   private static final int DEGREE = 5;
   private final LeastSquaresRegression _regression;
   private static final Double[] EMPTY_ARRAY = new Double[0];

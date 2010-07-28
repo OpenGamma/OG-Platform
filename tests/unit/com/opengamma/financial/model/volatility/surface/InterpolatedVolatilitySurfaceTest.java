@@ -28,7 +28,7 @@ import com.opengamma.util.tuple.Pair;
 public class InterpolatedVolatilitySurfaceTest {
   private static final double SIGMA = 0.4;
   private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> LINEAR = new LinearInterpolator1D();
-  private static final Interpolator2D INTERPOLATOR = new GridInterpolator2D(LINEAR, LINEAR);
+  private static final Interpolator2D INTERPOLATOR = new VolatilityInterpolator2D(new GridInterpolator2D(LINEAR, LINEAR));
   private static final Map<DoublesPair, Double> DATA = new HashMap<DoublesPair, Double>();
   private static final InterpolatedVolatilitySurface SURFACE;
   private static final DoublesPair XY = Pair.of(0.5, 0.5);

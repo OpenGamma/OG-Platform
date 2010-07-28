@@ -8,7 +8,6 @@ package com.opengamma.financial.model.volatility.curve;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,7 +39,6 @@ public class ConstantVolatilityCurveTest {
   @Test
   public void testGetters() {
     assertEquals(CURVE.getVolatility(1.), SIGMA, 0);
-    assertEquals(CURVE.getXData(), Collections.emptySet());
   }
 
   @Test
@@ -54,10 +52,10 @@ public class ConstantVolatilityCurveTest {
 
   @Test
   public void testBuilders() {
-    ConstantVolatilityCurve shifted = new ConstantVolatilityCurve(SIGMA + SHIFT);
+    final ConstantVolatilityCurve shifted = new ConstantVolatilityCurve(SIGMA + SHIFT);
     assertEquals(CURVE.withParallelShift(SHIFT), shifted);
     assertEquals(CURVE.withSingleShift(0.1, SHIFT), shifted);
-    Map<Double, Double> shifts = new HashMap<Double, Double>();
+    final Map<Double, Double> shifts = new HashMap<Double, Double>();
     shifts.put(0.1, SHIFT);
     assertEquals(CURVE.withMultipleShifts(shifts), shifted);
     shifts.put(0.2, 2 * SHIFT);
