@@ -149,8 +149,8 @@ public class SwapPortfolioImpliedFundingAndForwardCurveFunction extends Abstract
         forwardStartOffsets = new double[nFloat];
         forwardEndOffsets = new double[nFloat];
       }
-
-      swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, forwardStartOffsets, forwardEndOffsets,FUNDING_CURVE_NAME,LIBOR_CURVE_NAME);
+      final double[] dummyPayments = new double[fixedPaymentTimes.length];
+      swap = new FixedFloatSwap(fixedPaymentTimes,dummyPayments, floatPaymentTimes, forwardStartOffsets, forwardEndOffsets,FUNDING_CURVE_NAME,LIBOR_CURVE_NAME);
       YieldCurveBundle bundle = new YieldCurveBundle();
 
       bundle.setCurve(FUNDING_CURVE_NAME, fundingCurve);
