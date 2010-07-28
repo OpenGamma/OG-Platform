@@ -31,13 +31,14 @@ public class SwapRateCalculatorTest {
     final double[] t1 = new double[] {0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5};
     final int n = t1.length;
     final double[] t2 = new double[] {0.5, 1, 1.5, 2, 2.5, 3};
+    final double[] dummyPayments = new double[t2.length];
     final double[] delta = new double[] {0, 0, 0, 0, 0, 0};
     final double[] forward = new double[n];
     for (int i = 0; i < n; i++) {
       forward[i] = Math.pow(DF_1, t1[i]);
     }
     FORWARD_CURVE = new InterpolatedDiscountCurve(t1, forward, new LinearInterpolator1D());
-    SWAP = new FixedFloatSwap(t2, t2, delta, delta, FUNDING_CURVE_NAME, FORWARD_CURVE_NAME);
+    SWAP = new FixedFloatSwap(t2, dummyPayments, t2, delta, delta, FUNDING_CURVE_NAME, FORWARD_CURVE_NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)

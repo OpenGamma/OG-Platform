@@ -65,7 +65,7 @@ public class MultipleYieldCurveFinderJacobianTest {
     double[] dataM = new double[M];
     final double[] dataNpM = new double[N + M];
     for (int i = 0; i < N; i++) {
-      InterestRateDerivative ird = new ForwardRateAgreement(i, i + 0.5, FORWARD_CURVE_NAME);
+      InterestRateDerivative ird = new ForwardRateAgreement(i, i + 0.5, 0.0, FUNDING_CURVE_NAME, FORWARD_CURVE_NAME);
       FRA.add(ird);
       MIXED_INSTRUMENT.add(ird);
       FORWARD_NODES[i] = i + 1;
@@ -74,7 +74,7 @@ public class MultipleYieldCurveFinderJacobianTest {
     }
 
     for (int i = 0; i < M; i++) {
-      InterestRateDerivative ird = new Cash(i, FUNDING_CURVE_NAME);
+      InterestRateDerivative ird = new Cash(i, 0.0, FUNDING_CURVE_NAME);
       CASH.add(ird);
       MIXED_INSTRUMENT.add(ird);
       FUNDING_NODES[i] = i;
@@ -142,9 +142,9 @@ public class MultipleYieldCurveFinderJacobianTest {
     for (int i = 0; i < M; i++) {
       for (int j = 0; j < M; j++) {
         if (i == j) {
-          assertEquals(1.0, jacobian.getEntry(i, i), 0.0);
+          assertEquals(Math.exp(XM.getEntry(i) * i), jacobian.getEntry(i, i), 1e-8);
         } else {
-          assertEquals(0.0, jacobian.getEntry(i, j), 0.0);
+          assertEquals(0.0, jacobian.getEntry(i, j), 0);
         }
       }
     }
@@ -189,7 +189,7 @@ public class MultipleYieldCurveFinderJacobianTest {
     for (int i = N; i < N + M; i++) {
       for (int j = 0; j < N + M; j++) {
         if (i == j) {
-          assertEquals(1.0, jacobian.getEntry(i, i), 0.0);
+          assertEquals(Math.exp(XNM.getEntry(i) * (i - N)), jacobian.getEntry(i, i), 1e-8);
         } else {
           assertEquals(0.0, jacobian.getEntry(i, j), 0.0);
         }

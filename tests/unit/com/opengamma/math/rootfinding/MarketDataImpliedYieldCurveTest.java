@@ -21,6 +21,8 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.libor.Libor;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
@@ -94,7 +96,7 @@ public class MarketDataImpliedYieldCurveTest {
     for (int i = 0; i < liborMaturities.length; i++) {
       double t = liborMaturities[i];
       double r = liborRates[i];
-      ird = new Libor(t, CURVE_NAME);
+      ird = new Libor(t, r, CURVE_NAME);
       INSTRUMENTS.add(ird);
       NODE_TIMES[index] = t;
       MARKET_VALUES[index++] = r;
@@ -102,7 +104,7 @@ public class MarketDataImpliedYieldCurveTest {
     for (int i = 0; i < fraMaturities.length; i++) {
       double t = fraMaturities[i];
       double r = fraRates[i];
-      ird = new ForwardRateAgreement(t - 0.25, t, CURVE_NAME);
+      ird = new ForwardRateAgreement(t - 0.25, t, r, CURVE_NAME, CURVE_NAME);
       INSTRUMENTS.add(ird);
       NODE_TIMES[index] = t;
       MARKET_VALUES[index++] = r;
@@ -111,7 +113,7 @@ public class MarketDataImpliedYieldCurveTest {
     for (int i = 0; i < swapMaturities.length; i++) {
       double t = swapMaturities[i];
       double r = swapRates[i];
-      ird = setupSwap(t, CURVE_NAME, CURVE_NAME);
+      ird = setupSwap(t, r, CURVE_NAME, CURVE_NAME);
       INSTRUMENTS.add(ird);
       NODE_TIMES[index] = t;
       MARKET_VALUES[index++] = r;
@@ -176,13 +178,14 @@ public class MarketDataImpliedYieldCurveTest {
     }
   }
 
-  private static FixedFloatSwap setupSwap(final double time, final String fundCurveName, final String liborCurveName) {
+  private static FixedFloatSwap setupSwap(final double time, final double swapRate, final String fundCurveName, final String liborCurveName) {
     int index = (int) Math.round(2 * time);
-    return setupSwap(index, fundCurveName, liborCurveName);
+    return setupSwap(index, swapRate, fundCurveName, liborCurveName);
   }
 
-  private static FixedFloatSwap setupSwap(final int payments, final String fundCurveName, final String liborCurveName) {
+  private static FixedFloatSwap setupSwap(final int payments, final double swapRate, final String fundCurveName, final String liborCurveName) {
     final double[] fixed = new double[payments];
+    final double[] coupons = new double[payments];
     final double[] floating = new double[2 * payments];
     final double[] deltaStart = new double[2 * payments];
     final double[] deltaEnd = new double[2 * payments];
@@ -190,6 +193,7 @@ public class MarketDataImpliedYieldCurveTest {
     for (int i = 0; i < payments; i++) {
       fixed[i] = 0.5 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
       floating[2 * i + 1] = fixed[i];
+      coupons[i] = swapRate;
     }
     for (int i = 0; i < 2 * payments; i++) {
       if (i % 2 == 0) {
@@ -198,7 +202,9 @@ public class MarketDataImpliedYieldCurveTest {
       deltaStart[i] = sigma * (i == 0 ? RANDOM.nextDouble() : (RANDOM.nextDouble() - 0.5));
       deltaEnd[i] = sigma * (RANDOM.nextDouble() - 0.5);
     }
-    return new FixedFloatSwap(fixed, floating, deltaStart, deltaEnd, fundCurveName, liborCurveName);
+    FixedAnnuity fixedLeg = new FixedAnnuity(fixed, 1.0, coupons, fundCurveName);
+    VariableAnnuity floatingLeg = new VariableAnnuity(floating, 1.0, deltaStart, deltaEnd, fundCurveName, liborCurveName);
+    return new FixedFloatSwap(fixedLeg, floatingLeg);
   }
 
 }
