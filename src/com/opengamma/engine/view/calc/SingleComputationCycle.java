@@ -3,16 +3,17 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.view;
+package com.opengamma.engine.view.calc;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.time.Instant;
@@ -25,10 +26,16 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.DependencyNodeFilter;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.PortfolioEvaluationModel;
+import com.opengamma.engine.view.View;
+import com.opengamma.engine.view.ViewComputationResultModelImpl;
+import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.ViewProcessingContext;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.util.ArgumentChecker;
 
@@ -50,9 +57,10 @@ import com.opengamma.util.ArgumentChecker;
 public class SingleComputationCycle {
   private static final Logger s_logger = LoggerFactory.getLogger(SingleComputationCycle.class);
   // Injected Inputs:
-  private final String _viewName;
-  private final ViewProcessingContext _processingContext;
-  private final PortfolioEvaluationModel _portfolioEvaluationModel;
+  private final View _view;
+  private final Instant _valuationTime;
+  
+  private final DependencyGraphExecutor _dependencyGraphExecutor;
   
   // State:
   
@@ -64,17 +72,16 @@ public class SingleComputationCycle {
   private State _state;
   
   /**
-   * Milliseconds, see System.currentTimeMillis()
+   * Nanoseconds, see System.nanoTime()
    */
-  private final long _valuationTime;
+  private long _startTime;
   
   /**
    * Nanoseconds, see System.nanoTime()
    */
-  private final long _startTime;
-  private final AtomicLong _jobIdSource = new AtomicLong(0L);
+  private long _endTime;
+  
   private final ReentrantReadWriteLock _nodeExecutionLock = new ReentrantReadWriteLock();
-  private final ViewDefinition _viewDefinition;
   private final Set<DependencyNode> _executedNodes = new HashSet<DependencyNode>();
   private final Set<DependencyNode> _failedNodes = new HashSet<DependencyNode>();
   private final Map<String, ViewComputationCache> _cachesByCalculationConfiguration =
@@ -83,56 +90,49 @@ public class SingleComputationCycle {
   // Outputs:
   private final ViewComputationResultModelImpl _resultModel;
   
-  public SingleComputationCycle(
-      String viewName,
-      ViewProcessingContext processingContext,
-      PortfolioEvaluationModel portfolioEvaluationModel,
-      ViewComputationResultModelImpl resultModel,
-      ViewDefinition viewDefinition,
+  public SingleComputationCycle(View view,
       long valuationTime) {
-    ArgumentChecker.notNull(viewName, "View name");
-    ArgumentChecker.notNull(processingContext, "View processing context");
-    ArgumentChecker.notNull(portfolioEvaluationModel, "Portfolio evaluation model");
-    ArgumentChecker.notNull(resultModel, "Result model");
-    ArgumentChecker.notNull(viewDefinition, "View Definition");
-
-    _viewName = viewName;
-    _processingContext = processingContext;
-    _portfolioEvaluationModel = portfolioEvaluationModel;
-    _resultModel = resultModel;
-    _startTime = System.nanoTime();
-    _viewDefinition = viewDefinition;
-    _valuationTime = valuationTime;
+    ArgumentChecker.notNull(view, "View");
     
+    _view = view;
+    _valuationTime = Instant.ofEpochMillis(valuationTime);
+    
+    _resultModel =  new ViewComputationResultModelImpl();
+    _resultModel.setCalculationConfigurationNames(getPortfolioEvaluationModel().getAllCalculationConfigurationNames());
+    _resultModel.setPortfolio(getPortfolioEvaluationModel().getPortfolio());
+    
+    _dependencyGraphExecutor = getProcessingContext().getDependencyGraphExecutorFactory().createExecutor(this);
+
     _state = State.CREATED;
   }
   
-  /**
-   * @return Milliseconds from epoch
-   */
-  public Long getValuationTime() {
+  public View getView() {
+    return _view;
+  }
+  
+  public Instant getValuationTime() {
     return _valuationTime;
   }
-
+  
   /**
    * @return the viewName
    */
   public String getViewName() {
-    return _viewName;
+    return getView().getDefinition().getName();
   }
 
   /**
    * @return the processingContext
    */
   public ViewProcessingContext getProcessingContext() {
-    return _processingContext;
+    return getView().getProcessingContext();
   }
 
   /**
    * @return the portfolioEvaluationModel
    */
   public PortfolioEvaluationModel getPortfolioEvaluationModel() {
-    return _portfolioEvaluationModel;
+    return getView().getPortfolioEvaluationModel();
   }
 
   /**
@@ -141,6 +141,21 @@ public class SingleComputationCycle {
   public long getStartTime() {
     return _startTime;
   }
+  
+  /**
+   * @return the end time. Nanoseconds, see {@link System#nanoTime()}. 
+   */
+  public long getEndTime() {
+    return _endTime;
+  }
+  
+  /**
+   * @return How many nanoseconds the cycle took
+   */
+  public long getDurationNanos() {
+    return getEndTime() - getStartTime();  
+  }
+  
 
   /**
    * @return the resultModel
@@ -157,7 +172,11 @@ public class SingleComputationCycle {
    * @return the viewDefinition
    */
   public ViewDefinition getViewDefinition() {
-    return _viewDefinition;
+    return getView().getDefinition();
+  }
+  
+  public DependencyGraphExecutor getDependencyGraphExecutor() {
+    return _dependencyGraphExecutor;    
   }
   
   // --------------------------------------------------------------------------
@@ -167,7 +186,9 @@ public class SingleComputationCycle {
       throw new IllegalStateException("State must be " + State.CREATED);
     }
     
-    getResultModel().setValuationTime(Instant.ofEpochMillis(getValuationTime()));
+    _startTime = System.nanoTime();
+    
+    getResultModel().setValuationTime(getValuationTime());
     
     createAllCaches();
     
@@ -176,7 +197,7 @@ public class SingleComputationCycle {
     
     Set<ValueRequirement> missingLiveData = new HashSet<ValueRequirement>();
     for (ValueRequirement liveDataRequirement : allLiveDataRequirements) {
-      Object data = getProcessingContext().getLiveDataSnapshotProvider().querySnapshot(getValuationTime(), liveDataRequirement);
+      Object data = getProcessingContext().getLiveDataSnapshotProvider().querySnapshot(getValuationTime().toEpochMillisLong(), liveDataRequirement);
       if (data == null) {
         s_logger.debug("Unable to load live data value for {} at snapshot {}.", liveDataRequirement, getValuationTime());
         missingLiveData.add(liveDataRequirement);
@@ -211,7 +232,7 @@ public class SingleComputationCycle {
    */
   private void createAllCaches() {
     for (String calcConfigurationName : getPortfolioEvaluationModel().getAllCalculationConfigurationNames()) {
-      ViewComputationCache cache = getProcessingContext().getComputationCacheSource().getCache(getViewName(), calcConfigurationName, getValuationTime());
+      ViewComputationCache cache = getProcessingContext().getComputationCacheSource().getCache(getViewName(), calcConfigurationName, getValuationTime().toEpochMillisLong());
       _cachesByCalculationConfiguration.put(calcConfigurationName, cache);
     }
   }
@@ -278,72 +299,51 @@ public class SingleComputationCycle {
     }
     _state = State.EXECUTING;
     
-    // There are two ways to execute the different dependency graphs: sequentially or in parallel.
-    // Both are implemented, and both work.
-    // However, right now on the scope that we're working on, we don't actually need the parallel form,
-    // and the additional overhead of thread management slows us down, so I've hard coded it to the sequential
-    // form. This should ultimately change if we discover that as graphs get bigger we want to have them
-    // running in parallel.
-    executePlansSequential();
-    //executePlansParallel();
-    
-    _state = State.FINISHED;
-  }
-  
-  protected void executePlansParallel() {
-    ExecutorCompletionService<Object> completionService = new ExecutorCompletionService<Object>(getProcessingContext().getExecutorService());
-    int nSubmitted = 0;
+    LinkedList<Future<?>> futures = new LinkedList<Future<?>>();
     
     for (String calcConfigurationName : getPortfolioEvaluationModel().getAllCalculationConfigurationNames()) {
       s_logger.info("Executing plans for calculation configuration {}", calcConfigurationName);
-      DependencyGraph depGraph = getPortfolioEvaluationModel().getDependencyGraph(calcConfigurationName);
+      DependencyGraph depGraph = getDependencyGraph(calcConfigurationName);
       
-      s_logger.info("Submitting {} for execution", depGraph);
-      final DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(
-          getViewName(),
-          calcConfigurationName,
-          depGraph,
-          getProcessingContext(),
-          this);
-      completionService.submit(new Runnable() {
-        @Override
-        public void run() {
-          depGraphExecutor.executeGraph(getValuationTime(), _jobIdSource);
-        }
-      }, depGraphExecutor);
-      nSubmitted++;
+      s_logger.info("Submitting {} for execution by {}", depGraph, getDependencyGraphExecutor());
+      
+      Future<?> future = getDependencyGraphExecutor().execute(depGraph);
+      futures.add(future);
     }
 
-    for (int i = 0; i < nSubmitted; i++) {
-      Future<Object> result = null;
+    while (!futures.isEmpty()) {
+      Future<?> future = futures.poll();
       try {
-        result = completionService.take();
-        result.get();
+        future.get(5, TimeUnit.SECONDS);
+      } catch (TimeoutException e) {
+        s_logger.info("Waiting for " + future);
+        futures.add(future);
       } catch (InterruptedException e) {
         Thread.interrupted();
-        s_logger.info("Interrupted while waiting for completion of all execution plans");
+        s_logger.info("Interrupted while waiting for completion of " + future);
+        futures.add(future);
       } catch (ExecutionException e) {
         s_logger.error("Unable to execute dependency graph", e);
         // Should we be swallowing this or not?
         throw new OpenGammaRuntimeException("Unable to execute dependency graph", e);
       }
     }
+    
+    _state = State.FINISHED;
   }
 
-  protected void executePlansSequential() {
-    for (String calcConfigurationName : getPortfolioEvaluationModel().getAllCalculationConfigurationNames()) {
-      s_logger.info("Executing plans for calculation configuration {}", calcConfigurationName);
-      DependencyGraph depGraph = getPortfolioEvaluationModel().getDependencyGraph(calcConfigurationName);
-      
-      s_logger.info("Submitting {} for execution", depGraph);
-      final DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(
-          getViewName(),
-          calcConfigurationName,
-          depGraph,
-          getProcessingContext(),
-          this);
-      depGraphExecutor.executeGraph(getValuationTime(), _jobIdSource);
-    }
+  /**
+   * @return A dependency graph with nodes already executed stripped out.
+   * See {@link #computeDelta} and how it calls {@link #markExecuted}.
+   */
+  private DependencyGraph getDependencyGraph(String calcConfName) {
+    DependencyGraph originalDepGraph = getPortfolioEvaluationModel().getDependencyGraph(calcConfName);
+    DependencyGraph dependencyGraph = originalDepGraph.subGraph(new DependencyNodeFilter() {
+      public boolean accept(DependencyNode node) {
+        return !isExecuted(node);        
+      }
+    });
+    return dependencyGraph;
   }
   
   // --------------------------------------------------------------------------
@@ -368,6 +368,8 @@ public class SingleComputationCycle {
         populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.PRIMITIVE);
       }
     }
+    
+    _endTime = System.nanoTime();
   }
   
   protected void populateResultModel(String calcConfigurationName, DependencyGraph depGraph, ComputationTargetType type) {
@@ -391,16 +393,14 @@ public class SingleComputationCycle {
       throw new IllegalStateException("State must be " + State.FINISHED);
     }
     
-    getProcessingContext().getLiveDataSnapshotProvider().releaseSnapshot(getValuationTime());
-    getProcessingContext().getComputationCacheSource().releaseCaches(getViewName(), getValuationTime());
+    getProcessingContext().getLiveDataSnapshotProvider().releaseSnapshot(getValuationTime().toEpochMillisLong());
+    getProcessingContext().getComputationCacheSource().releaseCaches(getViewName(), getValuationTime().toEpochMillisLong());
     
     _state = State.CLEANED;
   }
   
   // --------------------------------------------------------------------------
   
-  // Dependency Node Maintenance:
-  // REVIEW kirk 2010-04-30 -- Is this good locking? I'm not entirely sure.
   public boolean isExecuted(DependencyNode node) {
     if (node == null) {
       return true;

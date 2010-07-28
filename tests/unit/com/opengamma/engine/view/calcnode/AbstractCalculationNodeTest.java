@@ -9,6 +9,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.junit.Test;
 
 import com.google.common.collect.Sets;
@@ -75,7 +78,12 @@ public class AbstractCalculationNodeTest {
         targetResolver,
         viewProcessorQuerySender);
 
-    CalculationJob calcJob = new CalculationJob(jobSpec, fn.getUniqueIdentifier(), target.toSpecification(), Sets.newHashSet(inputSpec), Sets.newHashSet(outputReq));
+    List<CalculationJobItem> jobItems = Collections.singletonList(
+        new CalculationJobItem(fn.getUniqueIdentifier(), 
+            target.toSpecification(), 
+            Sets.newHashSet(inputSpec), 
+            Sets.newHashSet(outputReq)));
+    CalculationJob calcJob = new CalculationJob(jobSpec, jobItems);
     
     long startTime = System.nanoTime();
     CalculationJobResult jobResult = calcNode.executeJob(calcJob);
@@ -119,8 +127,11 @@ public class AbstractCalculationNodeTest {
         execContext,
         targetResolver,
         viewProcessorQuerySender);
+    
+    List<CalculationJobItem> items = Collections.singletonList(
+        new CalculationJobItem(fn.getUniqueIdentifier(), target.toSpecification(), Sets.newHashSet(inputSpec), Sets.newHashSet(outputReq)));
 
-    CalculationJob calcJob = new CalculationJob(jobSpec, fn.getUniqueIdentifier(), target.toSpecification(), Sets.newHashSet(inputSpec), Sets.newHashSet(outputReq));
+    CalculationJob calcJob = new CalculationJob(jobSpec, items);
     
     CalculationJobResult jobResult = calcNode.executeJob(calcJob);
     assertNotNull(jobResult);
