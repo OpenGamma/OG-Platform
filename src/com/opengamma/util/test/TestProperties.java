@@ -133,7 +133,7 @@ public class TestProperties {
       dbtool.addDbScriptDirectory(scriptDir);      
     }
     
-    dbtool.initialise();
+    dbtool.initialize();
     return dbtool;
   }
 

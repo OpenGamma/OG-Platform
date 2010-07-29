@@ -96,7 +96,24 @@ public class DBTool extends Task {
     setPassword(password);
   }
   
-  public void initialise() {
+  public void initialize() {
+    if (_dbServerHost == null) {
+      // Parse the server host and catalog from a JDBC URL
+      if (_jdbcUrl != null) {
+    
+        int lastSlash = _jdbcUrl.lastIndexOf('/');
+        if (lastSlash == -1 || lastSlash == _jdbcUrl.length() - 1) {
+          throw new OpenGammaRuntimeException("JDBC URL must contain a slash separating the server host and the database name");
+        }
+        
+        _dbServerHost = _jdbcUrl.substring(0, lastSlash);
+        _catalog = _jdbcUrl.substring(lastSlash + 1);
+        
+      } else {
+        throw new OpenGammaRuntimeException("No DB server specified.");
+      }
+    }
+    
     if (_dbServerHost == null || _user == null || _password == null) {
       throw new OpenGammaRuntimeException("Server/user/password not initialised");
     }
@@ -304,7 +321,7 @@ public class DBTool extends Task {
     return null; // use default    
   }
   
-  public String getTestDatabaseURL() {
+  public String getTestDatabaseUrl() {
     return _dbServerHost + "/" + getTestCatalog();         
   }
   
@@ -316,23 +333,24 @@ public class DBTool extends Task {
     return _dialect.getJDBCDriverClass();
   }
   
-  public Configuration getHibernateConfiguration(String jdbcUrl) {
+  public Configuration getHibernateConfiguration() {
     Configuration configuration = new Configuration();
     configuration.setProperty(Environment.DRIVER, getJDBCDriverClass().getName());
-    configuration.setProperty(Environment.URL, jdbcUrl);
+    configuration.setProperty(Environment.URL, getJdbcUrl());
     configuration.setProperty(Environment.USER, getUser());
     configuration.setProperty(Environment.PASS, getPassword());
     configuration.setProperty(Environment.DIALECT, getHibernateDialect().getClass().getName());
     configuration.setProperty(Environment.SHOW_SQL, "false");
     configuration.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
+    configuration.setProperty(Environment.TRANSACTION_STRATEGY, "org.hibernate.transaction.JDBCTransactionFactory");
     return configuration;
   }
   
-  public DataSourceTransactionManager getTransactionManager(String jdbcUrl) {
+  public DataSourceTransactionManager getTransactionManager() {
     BasicDataSource dataSource = new BasicDataSource();
 
     dataSource.setDriverClassName(getJDBCDriverClass().getName());
-    dataSource.setUrl(jdbcUrl);
+    dataSource.setUrl(getJdbcUrl());
     dataSource.setUsername(getUser());
     dataSource.setPassword(getPassword());
     
@@ -476,25 +494,6 @@ public class DBTool extends Task {
   @Override
   public void execute() throws BuildException {
     if (!_createTestDb) {
-      
-      if (_dbServerHost == null) {
-        
-        // Parse the server host and catalog from a JDBC URL
-        if (_jdbcUrl != null) {
-      
-          int lastSlash = _jdbcUrl.lastIndexOf('/');
-          if (lastSlash == -1 || lastSlash == _jdbcUrl.length() - 1) {
-            throw new BuildException("JDBC URL must contain a slash separating the server host and the database name");
-          }
-          
-          _dbServerHost = _jdbcUrl.substring(0, lastSlash);
-          _catalog = _jdbcUrl.substring(lastSlash + 1);
-          
-        } else {
-          throw new BuildException("No DB server specified.");
-        }
-      }
-      
       if (_catalog == null) {
         throw new BuildException("No database on the DB server specified.");
       }
@@ -506,25 +505,25 @@ public class DBTool extends Task {
     
     if (_clear) {
       System.out.println("Clearing tables...");
-      initialise();
+      initialize();
       clearTables(_catalog, _schema);
     }
     
     if (_drop) {
       System.out.println("Dropping schema...");
-      initialise();
+      initialize();
       dropSchema(_catalog, _schema);
     }
 
     if (_create) {
       System.out.println("Creating schema...");
-      initialise();
+      initialize();
       createSchema(_catalog, _schema);      
     }
     
     if (_createTables) {
       System.out.println("Creating tables...");
-      initialise();
+      initialize();
       createTables(_catalog, null);
     }
     
@@ -542,7 +541,7 @@ public class DBTool extends Task {
         setUser(user);
         setPassword(password);
         
-        initialise();
+        initialize();
         dropTestSchema(); // make sure it's empty if it already existed
         createTestSchema();
         createTestTables(null);

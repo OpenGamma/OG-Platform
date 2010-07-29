@@ -12,7 +12,6 @@ import org.hibernate.dialect.Dialect;
 /**
  * Operations to create and clear databases.  
  *
- * @author pietari
  */
 public interface DBDialect {
   
