@@ -27,6 +27,8 @@ import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.financial.position.master.PositionSearchHistoricRequest;
 import com.opengamma.financial.position.master.PositionSearchHistoricResult;
+import com.opengamma.financial.position.master.PositionSearchRequest;
+import com.opengamma.financial.position.master.PositionSearchResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -41,6 +43,36 @@ public class GetPositionDbPositionMasterWorker extends DbPositionMasterWorker {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(GetPositionDbPositionMasterWorker.class);
+  /**
+   * SQL select.
+   */
+  protected static final String SELECT =
+      "SELECT " +
+        "p.id AS position_id, " +
+        "p.oid AS position_oid, " +
+        "p.portfolio_oid AS portfolio_oid, " +
+        "p.parent_node_oid AS parent_node_oid, " +
+        "p.ver_from_instant AS ver_from_instant, " +
+        "p.ver_to_instant AS ver_to_instant, " +
+        "p.corr_from_instant AS corr_from_instant, " +
+        "p.corr_to_instant AS corr_to_instant, " +
+        "p.quantity AS quantity, " +
+        "s.id_scheme AS seckey_scheme," +
+        "s.id_value AS seckey_value ";
+  /**
+   * SQL select count.
+   */
+  protected static final String SELECT_COUNT = "SELECT COUNT(*) ";
+  /**
+   * SQL from.
+   */
+  protected static final String FROM =
+      "FROM pos_position p LEFT JOIN pos_securitykey s ON (s.position_id = p.id) ";
+  /**
+   * SQL order by.
+   */
+  protected static final String ORDER_BY_VERSION_DESC_CORRECTION_DESC =
+      "ORDER BY p.ver_from_instant DESC, p.corr_from_instant DESC ";
 
   /**
    * Creates an instance.
@@ -100,37 +132,81 @@ public class GetPositionDbPositionMasterWorker extends DbPositionMasterWorker {
    */
   protected String sqlGetPositionById() {
     // TODO: validate portfolio/node still valid
-    return "SELECT " +
-              "p.id AS position_id, " +
-              "p.oid AS position_oid, " +
-              "p.portfolio_oid AS portfolio_oid, " +
-              "p.parent_node_oid AS parent_node_oid, " +
-              "p.ver_from_instant AS ver_from_instant, " +
-              "p.ver_to_instant AS ver_to_instant, " +
-              "p.corr_from_instant AS corr_from_instant, " +
-              "p.corr_to_instant AS corr_to_instant, " +
-              "p.quantity AS quantity, " +
-              "s.id_scheme AS seckey_scheme," +
-              "s.id_value AS seckey_value " +
-            "FROM pos_position p " +
-              "LEFT JOIN pos_securitykey s ON (s.position_id = p.id) " +
-            "WHERE p.id = :position_id ";
+    return SELECT + FROM + "WHERE p.id = :position_id ";
+  }
+
+  //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
+  @Override
+  protected PositionSearchResult searchPositions(PositionSearchRequest request) {
+    s_logger.debug("searchPositions: {}", request);
+    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+      .addTimestampNullIgnored("version_as_of_instant", request.getVersionAsOfInstant())
+      .addTimestampNullIgnored("corrected_to_instant", request.getCorrectedToInstant())
+      .addValueNullIgnored("min_quantity", request.getMinQuantity())
+      .addValueNullIgnored("max_quantity", request.getMaxQuantity());
+    if (request.getPortfolioId() != null) {
+      args.addValue("portfolio_oid", request.getPortfolioId().getValue());
+    }
+    if (request.getParentNodeId() != null) {
+      args.addValue("parent_node_oid", request.getParentNodeId().getValue());
+    }
+    // TODO: security key
+    final String[] sql = sqlSearchPositions(request);
+    final NamedParameterJdbcOperations namedJdbc = getTemplate().getNamedParameterJdbcOperations();
+    final int count = namedJdbc.queryForInt(sql[1], args);
+    final PositionSearchResult result = new PositionSearchResult();
+    result.setPaging(new Paging(request.getPagingRequest(), count));
+    if (count > 0) {
+      final PositionDocumentExtractor extractor = new PositionDocumentExtractor();
+      result.getDocuments().addAll((List<PositionDocument>) namedJdbc.query(sql[0], args, extractor));
+    }
+    return result;
+  }
+
+  /**
+   * Gets the SQL for searching the history of a position.
+   * @param request  the request, not null
+   * @return the SQL search and count, not null
+   */
+  protected String[] sqlSearchPositions(final PositionSearchRequest request) {
+    // TODO: validate portfolio/node still valid
+    String fromWhere = FROM + "WHERE TRUE ";
+    if (request.getPortfolioId() != null) {
+      fromWhere += "AND p.portfolio_oid = :portfolio_oid ";
+    }
+    if (request.getParentNodeId() != null) {
+      fromWhere += "AND p.parent_node_oid = :parent_node_oid ";
+    }
+    if (request.getVersionAsOfInstant() != null) {
+      fromWhere += "AND (p.ver_from_instant <= :version_as_of_instant AND p.ver_to_instant > :version_as_of_instant) ";
+    }
+    if (request.getCorrectedToInstant() != null) {
+      fromWhere += "AND (p.corr_from_instant <= :corrected_to_instant AND p.corr_to_instant > :corrected_to_instant) ";
+    }
+    if (request.getMinQuantity() != null) {
+      fromWhere += "AND p.quantity >= :min_quantity ";
+    }
+    if (request.getMaxQuantity() != null) {
+      fromWhere += "AND p.quantity < :max_quantity ";
+    }
+    String search = getDbHelper().sqlApplyPaging(SELECT + fromWhere, ORDER_BY_VERSION_DESC_CORRECTION_DESC, request.getPagingRequest());
+    String count = SELECT_COUNT + fromWhere;
+    return new String[] {search, count};
   }
 
   //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
   @Override
   protected PositionSearchHistoricResult searchPositionHistoric(final PositionSearchHistoricRequest request) {
-    final UniqueIdentifier oid = request.getPositionId().toLatest();
-    final Instant now = Instant.now(getTimeSource());
     s_logger.debug("searchPositionHistoric: {}", request);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("position_oid", oid.getValue())
+      .addValue("position_oid", request.getPositionId().getValue())
       .addTimestampNullIgnored("versions_from_instant", request.getVersionsFromInstant())
       .addTimestampNullIgnored("versions_to_instant", request.getVersionsToInstant())
       .addTimestampNullIgnored("corrections_from_instant", request.getCorrectionsFromInstant())
       .addTimestampNullIgnored("corrections_to_instant", request.getCorrectionsToInstant());
-    final String[] sql = sqlSearchPositions(request, now);
+    final String[] sql = sqlSearchPositionHistoric(request);
     final NamedParameterJdbcOperations namedJdbc = getTemplate().getNamedParameterJdbcOperations();
     final int count = namedJdbc.queryForInt(sql[1], args);
     final PositionSearchHistoricResult result = new PositionSearchHistoricResult();
@@ -145,27 +221,10 @@ public class GetPositionDbPositionMasterWorker extends DbPositionMasterWorker {
   /**
    * Gets the SQL for searching the history of a position.
    * @param request  the request, not null
-   * @param now  the current instant, not null
    * @return the SQL search and count, not null
    */
-  protected String[] sqlSearchPositions(final PositionSearchHistoricRequest request, final Instant now) {
-    // TODO: validate portfolio/node still valid
-    String select = "SELECT " +
-              "p.id AS position_id, " +
-              "p.oid AS position_oid, " +
-              "p.portfolio_oid AS portfolio_oid, " +
-              "p.parent_node_oid AS parent_node_oid, " +
-              "p.ver_from_instant AS ver_from_instant, " +
-              "p.ver_to_instant AS ver_to_instant, " +
-              "p.corr_from_instant AS corr_from_instant, " +
-              "p.corr_to_instant AS corr_to_instant, " +
-              "p.quantity AS quantity, " +
-              "s.id_scheme AS seckey_scheme," +
-              "s.id_value AS seckey_value ";
-    String fromWhere =
-            "FROM pos_position p " +
-              "LEFT JOIN pos_securitykey s ON (s.position_id = p.id) " +
-            "WHERE p.oid = :position_oid ";
+  protected String[] sqlSearchPositionHistoric(final PositionSearchHistoricRequest request) {
+    String fromWhere = FROM + "WHERE p.oid = :position_oid ";
     if (request.getVersionsFromInstant() != null && request.getVersionsFromInstant().equals(request.getVersionsToInstant())) {
       fromWhere += "AND (p.ver_from_instant <= :versions_from_instant AND p.ver_to_instant > :versions_from_instant) ";
     } else {
@@ -190,8 +249,8 @@ public class GetPositionDbPositionMasterWorker extends DbPositionMasterWorker {
                             "OR p.corr_to_instant < :corrections_to_instant) ";
       }
     }
-    String search = getDbHelper().sqlApplyPaging(select + fromWhere, "ORDER BY p.ver_from_instant DESC, p.corr_from_instant DESC ", request.getPagingRequest());
-    String count = "SELECT COUNT(*) " + fromWhere;
+    String search = getDbHelper().sqlApplyPaging(SELECT + fromWhere, ORDER_BY_VERSION_DESC_CORRECTION_DESC, request.getPagingRequest());
+    String count = SELECT_COUNT + fromWhere;
     return new String[] {search, count};
   }
 
