@@ -6,6 +6,7 @@
 package com.opengamma.financial.model.option.definition;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import javax.time.calendar.ZonedDateTime;
 
@@ -13,7 +14,6 @@ import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.option.definition.FXOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.util.time.DateUtil;
@@ -34,5 +34,22 @@ public class FXOptionDataBundleTest {
     assertEquals(DATA.getCostOfCarry(), -0.02, 1e-15);
     assertEquals(DATA.getForeignInterestRate(Math.random()), 0.05, 0);
     assertEquals(DATA.getForeignInterestRateCurve(), FOREIGN);
+  }
+
+  @Test
+  public void testEqualsAndHashCode() {
+    FXOptionDataBundle other = new FXOptionDataBundle(DOMESTIC, FOREIGN, SIGMA, SPOT, DATE);
+    assertEquals(other, DATA);
+    assertEquals(other.hashCode(), DATA.hashCode());
+    other = new FXOptionDataBundle(FOREIGN, FOREIGN, SIGMA, SPOT, DATE);
+    assertFalse(other.equals(DATA));
+    other = new FXOptionDataBundle(DOMESTIC, DOMESTIC, SIGMA, SPOT, DATE);
+    assertFalse(other.equals(DATA));
+    other = new FXOptionDataBundle(DOMESTIC, FOREIGN, new ConstantVolatilitySurface(0.2), SPOT, DATE);
+    assertFalse(other.equals(DATA));
+    other = new FXOptionDataBundle(DOMESTIC, FOREIGN, SIGMA, SPOT + 1, DATE);
+    assertFalse(other.equals(DATA));
+    other = new FXOptionDataBundle(DOMESTIC, FOREIGN, SIGMA, SPOT, DATE.plusDays(2));
+    assertFalse(other.equals(DATA));
   }
 }
