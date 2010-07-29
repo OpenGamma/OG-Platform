@@ -15,7 +15,7 @@
 		<property name="password" value="${derby.jdbc.password}"/>
 	</bean>
 	
-	<bean id="derbyDbPositionMaster" class="com.opengamma.financial.position.db.DbPositionMaster">
+	<bean id="derbyDbPositionMaster" class="com.opengamma.financial.position.master.db.DbPositionMaster">
 		<constructor-arg>
 			<bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 				<property name="dataSource" ref="derbyDataSource"/>
@@ -33,7 +33,7 @@
 		<property name="password" value="${postgres.jdbc.password}"/>
 	</bean>
 	
-    <bean id="postgresDbPositionMaster" class="com.opengamma.financial.position.db.DbPositionMaster">
+    <bean id="postgresDbPositionMaster" class="com.opengamma.financial.position.master.db.DbPositionMaster">
 		<constructor-arg>
 			<bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 				<property name="dataSource" ref="postgresDataSource"/>

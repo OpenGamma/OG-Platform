@@ -7,6 +7,7 @@
 -- Please do not modify it - modify the originals and recreate this using 'ant create-db-sql'.
 
 
+
 -- No upgrade operations required on COMMON
  
 
@@ -188,3 +189,15 @@ ALTER TABLE sec_swap ADD maturity_zone VARCHAR(50) NOT NULL DEFAULT 'UTC';
 ALTER TABLE sec_swap ALTER COLUMN maturity_zone DROP DEFAULT;
 ALTER TABLE sec_swap ADD forwardstart_zone VARCHAR(50);
 UPDATE sec_swap SET forwardstart_zone='UTC' WHERE forwardstart_date IS NOT NULL;
+
+
+-- Position master upgrade from patch_1
+
+drop table pos_securitykey;
+drop table pos_position;
+drop table pos_nodetree;
+drop table pos_node;
+drop table pos_portfolio;
+
+-- call create script...
+

@@ -7,6 +7,7 @@ package com.opengamma.financial.position.master.db;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.TimeZone;
@@ -27,16 +28,16 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.db.PagingRequest;
 
 /**
- * Tests Search Historic Positions DbPositionMasterWorker.
+ * Tests QueryPositionDbPositionMasterWorker.
  */
-public class SearchHistoricPositionsDbPositionMasterWorkerTest extends AbstractDbPositionMasterWorkerTest {
+public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest extends AbstractDbPositionMasterWorkerTest {
   // superclass sets up dummy database
 
-  private static final Logger s_logger = LoggerFactory.getLogger(SearchHistoricPositionsDbPositionMasterWorkerTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest.class);
 
-  private GetPositionDbPositionMasterWorker _worker;
+  private QueryPositionDbPositionMasterWorker _worker;
 
-  public SearchHistoricPositionsDbPositionMasterWorkerTest(String databaseType, String databaseVersion) {
+  public QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -45,7 +46,7 @@ public class SearchHistoricPositionsDbPositionMasterWorkerTest extends AbstractD
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    _worker = new GetPositionDbPositionMasterWorker();
+    _worker = new QueryPositionDbPositionMasterWorker();
     _worker.init(_posMaster);
   }
 
@@ -57,7 +58,7 @@ public class SearchHistoricPositionsDbPositionMasterWorkerTest extends AbstractD
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_searchHistoricPositions_documents() {
+  public void test_searchPositionHistoric_documents() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "221");
     PositionSearchHistoricRequest request = new PositionSearchHistoricRequest(oid);
     PositionSearchHistoricResult test = _worker.searchPositionHistoric(request);
@@ -99,9 +100,38 @@ public class SearchHistoricPositionsDbPositionMasterWorkerTest extends AbstractD
     assertEquals(Identifier.of("TICKER", "IBMC"), secKey1.getIdentifiers().iterator().next());
   }
 
+  @Test
+  public void test_searchPositionHistoric_documentCountWhenMultipleSecurities() {
+    UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "121");
+    PositionSearchHistoricRequest request = new PositionSearchHistoricRequest(oid);
+    PositionSearchHistoricResult test = _worker.searchPositionHistoric(request);
+    
+    assertEquals(1, test.getPaging().getTotalItems());
+    
+    assertEquals(1, test.getDocuments().size());
+    PositionDocument doc0 = test.getDocuments().get(0);  // new version
+    
+    assertEquals(UniqueIdentifier.of("DbPos", "121", "121"), doc0.getPositionId());
+    assertEquals(UniqueIdentifier.of("DbPos", "101"), doc0.getPortfolioId());
+    assertEquals(UniqueIdentifier.of("DbPos", "112"), doc0.getParentNodeId());
+    assertNotNull(doc0.getVersionFromInstant());
+    assertEquals(null, doc0.getVersionToInstant());
+    assertEquals(doc0.getVersionFromInstant(), doc0.getCorrectionFromInstant());
+    assertEquals(null, doc0.getCorrectionToInstant());
+    Position position0 = doc0.getPosition();
+    assertNotNull(position0);
+    assertEquals(UniqueIdentifier.of("DbPos", "121", "121"), position0.getUniqueIdentifier());
+    assertEquals(BigDecimal.valueOf(121.987), position0.getQuantity());
+    IdentifierBundle secKey0 = position0.getSecurityKey();
+    assertNotNull(secKey0);
+    assertEquals(2, secKey0.size());
+    assertTrue(secKey0.getIdentifiers().contains(Identifier.of("TICKER", "MSFT")));
+    assertTrue(secKey0.getIdentifiers().contains(Identifier.of("NASDAQ", "Micro")));
+  }
+
   //-------------------------------------------------------------------------
   @Test
-  public void test_searchHistoricPositions_noInstants() {
+  public void test_searchPositionHistoric_noInstants() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "221");
     PositionSearchHistoricRequest request = new PositionSearchHistoricRequest(oid);
     PositionSearchHistoricResult test = _worker.searchPositionHistoric(request);
@@ -119,7 +149,7 @@ public class SearchHistoricPositionsDbPositionMasterWorkerTest extends AbstractD
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_searchHistoricPositions_noInstants_pageOne() {
+  public void test_searchPositionHistoric_noInstants_pageOne() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "221");
     PositionSearchHistoricRequest request = new PositionSearchHistoricRequest(oid);
     request.setPagingRequest(new PagingRequest(1, 1));
@@ -135,7 +165,7 @@ public class SearchHistoricPositionsDbPositionMasterWorkerTest extends AbstractD
   }
 
   @Test
-  public void test_searchHistoricPositions_noInstants_pageTwo() {
+  public void test_searchPositionHistoric_noInstants_pageTwo() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "221");
     PositionSearchHistoricRequest request = new PositionSearchHistoricRequest(oid);
     request.setPagingRequest(new PagingRequest(2, 1));
@@ -155,25 +185,13 @@ public class SearchHistoricPositionsDbPositionMasterWorkerTest extends AbstractD
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_searchHistoricPositions_versionsFrom_preFirst() {
+  public void test_searchPositionHistoric_versionsFrom_preFirst() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "221");
     PositionSearchHistoricRequest request = new PositionSearchHistoricRequest(oid);
     request.setVersionsFromInstant(_version1Instant.minusSeconds(5));
     PositionSearchHistoricResult test = _worker.searchPositionHistoric(request);
     
-    assertEquals(2, test.getDocuments().size());
-    PositionDocument doc0 = test.getDocuments().get(0);
-    PositionDocument doc1 = test.getDocuments().get(1);
-    assertEquals(UniqueIdentifier.of("DbPos", "221", "222"), doc0.getPositionId());
-    assertEquals(UniqueIdentifier.of("DbPos", "221", "221"), doc1.getPositionId());
-  }
-
-  @Test
-  public void test_searchHistoricPositions_versionsFrom_firstToSecond() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "221");
-    PositionSearchHistoricRequest request = new PositionSearchHistoricRequest(oid);
-    request.setVersionsFromInstant(_version1Instant.plusSeconds(5));
-    PositionSearchHistoricResult test = _worker.searchPositionHistoric(request);
+    assertEquals(2, test.getPaging().getTotalItems());
     
     assertEquals(2, test.getDocuments().size());
     PositionDocument doc0 = test.getDocuments().get(0);
@@ -183,11 +201,29 @@ public class SearchHistoricPositionsDbPositionMasterWorkerTest extends AbstractD
   }
 
   @Test
-  public void test_searchHistoricPositions_versionsFrom_postSecond() {
+  public void test_searchPositionHistoric_versionsFrom_firstToSecond() {
+    UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "221");
+    PositionSearchHistoricRequest request = new PositionSearchHistoricRequest(oid);
+    request.setVersionsFromInstant(_version1Instant.plusSeconds(5));
+    PositionSearchHistoricResult test = _worker.searchPositionHistoric(request);
+    
+    assertEquals(2, test.getPaging().getTotalItems());
+    
+    assertEquals(2, test.getDocuments().size());
+    PositionDocument doc0 = test.getDocuments().get(0);
+    PositionDocument doc1 = test.getDocuments().get(1);
+    assertEquals(UniqueIdentifier.of("DbPos", "221", "222"), doc0.getPositionId());
+    assertEquals(UniqueIdentifier.of("DbPos", "221", "221"), doc1.getPositionId());
+  }
+
+  @Test
+  public void test_searchPositionHistoric_versionsFrom_postSecond() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "221");
     PositionSearchHistoricRequest request = new PositionSearchHistoricRequest(oid);
     request.setVersionsFromInstant(_version2Instant.plusSeconds(5));
     PositionSearchHistoricResult test = _worker.searchPositionHistoric(request);
+    
+    assertEquals(1, test.getPaging().getTotalItems());
     
     assertEquals(1, test.getDocuments().size());
     PositionDocument doc0 = test.getDocuments().get(0);
@@ -196,21 +232,25 @@ public class SearchHistoricPositionsDbPositionMasterWorkerTest extends AbstractD
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_searchHistoricPositions_versionsTo_preFirst() {
+  public void test_searchPositionHistoric_versionsTo_preFirst() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "221");
     PositionSearchHistoricRequest request = new PositionSearchHistoricRequest(oid);
     request.setVersionsToInstant(_version1Instant.minusSeconds(5));
     PositionSearchHistoricResult test = _worker.searchPositionHistoric(request);
     
+    assertEquals(0, test.getPaging().getTotalItems());
+    
     assertEquals(0, test.getDocuments().size());
   }
 
   @Test
-  public void test_searchHistoricPositions_versionsTo_firstToSecond() {
+  public void test_searchPositionHistoric_versionsTo_firstToSecond() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "221");
     PositionSearchHistoricRequest request = new PositionSearchHistoricRequest(oid);
     request.setVersionsToInstant(_version1Instant.plusSeconds(5));
     PositionSearchHistoricResult test = _worker.searchPositionHistoric(request);
+    
+    assertEquals(1, test.getPaging().getTotalItems());
     
     assertEquals(1, test.getDocuments().size());
     PositionDocument doc0 = test.getDocuments().get(0);
@@ -218,11 +258,13 @@ public class SearchHistoricPositionsDbPositionMasterWorkerTest extends AbstractD
   }
 
   @Test
-  public void test_searchHistoricPositions_versionsTo_postSecond() {
+  public void test_searchPositionHistoric_versionsTo_postSecond() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "221");
     PositionSearchHistoricRequest request = new PositionSearchHistoricRequest(oid);
     request.setVersionsToInstant(_version2Instant.plusSeconds(5));
     PositionSearchHistoricResult test = _worker.searchPositionHistoric(request);
+    
+    assertEquals(2, test.getPaging().getTotalItems());
     
     assertEquals(2, test.getDocuments().size());
     PositionDocument doc0 = test.getDocuments().get(0);

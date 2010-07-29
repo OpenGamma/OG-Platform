@@ -25,16 +25,16 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * Tests GetPositionDbPositionMasterWorker.
+ * Tests QueryPositionDbPositionMasterWorker.
  */
-public class GetPositionDbPositionMasterWorkerTest extends AbstractDbPositionMasterWorkerTest {
+public class QueryPositionDbPositionMasterWorkerGetPositionTest extends AbstractDbPositionMasterWorkerTest {
   // superclass sets up dummy database
 
-  private static final Logger s_logger = LoggerFactory.getLogger(GetPositionDbPositionMasterWorkerTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(QueryPositionDbPositionMasterWorkerGetPositionTest.class);
 
-  private GetPositionDbPositionMasterWorker _worker;
+  private QueryPositionDbPositionMasterWorker _worker;
 
-  public GetPositionDbPositionMasterWorkerTest(String databaseType, String databaseVersion) {
+  public QueryPositionDbPositionMasterWorkerGetPositionTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -43,7 +43,7 @@ public class GetPositionDbPositionMasterWorkerTest extends AbstractDbPositionMas
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    _worker = new GetPositionDbPositionMasterWorker();
+    _worker = new QueryPositionDbPositionMasterWorker();
     _worker.init(_posMaster);
   }
 

@@ -159,6 +159,7 @@ public interface PositionMaster {
    * @param document  the document, not null
    * @return the updated position document, not null
    * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if there is no parent node with the specified identifier
    */
   PositionDocument addPosition(PositionDocument document);
 

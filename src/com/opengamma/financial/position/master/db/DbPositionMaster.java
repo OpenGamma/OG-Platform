@@ -262,6 +262,7 @@ public class DbPositionMaster implements PositionMaster {
   //-------------------------------------------------------------------------
   @Override
   public void removePosition(UniqueIdentifier uid) {
+    ArgumentChecker.notNull(uid, "uid");
     
     getWorkers().getRemovePositionWorker().removePosition(uid);
   }

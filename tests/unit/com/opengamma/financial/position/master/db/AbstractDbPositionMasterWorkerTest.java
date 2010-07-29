@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.util.TimeZone;
 
 import javax.time.Instant;
+import javax.time.TimeSource;
 
 import org.junit.After;
 import org.junit.Before;
@@ -31,6 +32,8 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
   protected DbPositionMaster _posMaster;
   protected Instant _version1Instant;
   protected Instant _version2Instant;
+  protected int _totalPortfolios;
+  protected int _totalPositions;
 
   public AbstractDbPositionMasterWorkerTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
@@ -52,6 +55,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
 //    effective_instant timestamp not null,
 //    name varchar(255) not null,
     Instant now = Instant.nowSystemClock();
+    _posMaster.setTimeSource(TimeSource.fixed(now));
     _version1Instant = now.minusSeconds(100);
     _version2Instant = now.minusSeconds(50);
     s_logger.debug("test data now:   {}", _version1Instant);
@@ -61,6 +65,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
         101, 101, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, "TestPortfolio101");
     template.update("INSERT INTO pos_portfolio VALUES (?,?,?,?,?, ?,?)",
         201, 201, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, "TestPortfolio201");
+    _totalPortfolios = 2;
 //    id bigint not null,
 //    oid bigint not null,
 //    portfolio_id bigint not null,
@@ -90,6 +95,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
         221, 221, 201, 211, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.toSqlTimestamp(_version2Instant), DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, BigDecimal.valueOf(221.987));
     template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
         222, 221, 201, 211, DateUtil.toSqlTimestamp(_version2Instant), DateUtil.MAX_SQL_TIMESTAMP, DateUtil.toSqlTimestamp(_version2Instant), DateUtil.MAX_SQL_TIMESTAMP, BigDecimal.valueOf(222.987));
+    _totalPositions = 3;
 //    id bigint not null,
 //    position_id bigint not null,
 //    id_scheme varchar(255) not null,

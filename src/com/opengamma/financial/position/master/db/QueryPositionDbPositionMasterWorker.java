@@ -21,6 +21,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.position.PositionImpl;
@@ -39,10 +40,10 @@ import com.opengamma.util.time.DateUtil;
 /**
  * Position master worker to get the position.
  */
-public class GetPositionDbPositionMasterWorker extends DbPositionMasterWorker {
+public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(GetPositionDbPositionMasterWorker.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(QueryPositionDbPositionMasterWorker.class);
   /**
    * SQL select.
    */
@@ -60,24 +61,15 @@ public class GetPositionDbPositionMasterWorker extends DbPositionMasterWorker {
         "s.id_scheme AS seckey_scheme," +
         "s.id_value AS seckey_value ";
   /**
-   * SQL select count.
-   */
-  protected static final String SELECT_COUNT = "SELECT COUNT(*) ";
-  /**
    * SQL from.
    */
   protected static final String FROM =
       "FROM pos_position p LEFT JOIN pos_securitykey s ON (s.position_id = p.id) ";
-  /**
-   * SQL order by.
-   */
-  protected static final String ORDER_BY_VERSION_DESC_CORRECTION_DESC =
-      "ORDER BY p.ver_from_instant DESC, p.corr_from_instant DESC ";
 
   /**
    * Creates an instance.
    */
-  public GetPositionDbPositionMasterWorker() {
+  public QueryPositionDbPositionMasterWorker() {
     super();
   }
 
@@ -140,9 +132,10 @@ public class GetPositionDbPositionMasterWorker extends DbPositionMasterWorker {
   @Override
   protected PositionSearchResult searchPositions(PositionSearchRequest request) {
     s_logger.debug("searchPositions: {}", request);
+    final Instant now = Instant.now(getTimeSource());
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addTimestampNullIgnored("version_as_of_instant", request.getVersionAsOfInstant())
-      .addTimestampNullIgnored("corrected_to_instant", request.getCorrectedToInstant())
+      .addTimestamp("version_as_of_instant", Objects.firstNonNull(request.getVersionAsOfInstant(), now))
+      .addTimestamp("corrected_to_instant", Objects.firstNonNull(request.getCorrectedToInstant(), now))
       .addValueNullIgnored("min_quantity", request.getMinQuantity())
       .addValueNullIgnored("max_quantity", request.getMaxQuantity());
     if (request.getPortfolioId() != null) {
@@ -160,6 +153,7 @@ public class GetPositionDbPositionMasterWorker extends DbPositionMasterWorker {
     if (count > 0) {
       final PositionDocumentExtractor extractor = new PositionDocumentExtractor();
       result.getDocuments().addAll((List<PositionDocument>) namedJdbc.query(sql[0], args, extractor));
+      System.err.println(sql[0]);
     }
     return result;
   }
@@ -171,27 +165,25 @@ public class GetPositionDbPositionMasterWorker extends DbPositionMasterWorker {
    */
   protected String[] sqlSearchPositions(final PositionSearchRequest request) {
     // TODO: validate portfolio/node still valid
-    String fromWhere = FROM + "WHERE TRUE ";
+    String where = "WHERE (ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant) " +
+                "AND (corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant) ";
     if (request.getPortfolioId() != null) {
-      fromWhere += "AND p.portfolio_oid = :portfolio_oid ";
+      where += "AND portfolio_oid = :portfolio_oid ";
     }
     if (request.getParentNodeId() != null) {
-      fromWhere += "AND p.parent_node_oid = :parent_node_oid ";
-    }
-    if (request.getVersionAsOfInstant() != null) {
-      fromWhere += "AND (p.ver_from_instant <= :version_as_of_instant AND p.ver_to_instant > :version_as_of_instant) ";
-    }
-    if (request.getCorrectedToInstant() != null) {
-      fromWhere += "AND (p.corr_from_instant <= :corrected_to_instant AND p.corr_to_instant > :corrected_to_instant) ";
+      where += "AND parent_node_oid = :parent_node_oid ";
     }
     if (request.getMinQuantity() != null) {
-      fromWhere += "AND p.quantity >= :min_quantity ";
+      where += "AND quantity >= :min_quantity ";
     }
     if (request.getMaxQuantity() != null) {
-      fromWhere += "AND p.quantity < :max_quantity ";
+      where += "AND quantity < :max_quantity ";
     }
-    String search = getDbHelper().sqlApplyPaging(SELECT + fromWhere, ORDER_BY_VERSION_DESC_CORRECTION_DESC, request.getPagingRequest());
-    String count = SELECT_COUNT + fromWhere;
+    String selectFromWhereInner = "SELECT id FROM pos_position " + where;
+    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
+    String search = SELECT + FROM + "WHERE p.id IN (" + inner + ") ORDER BY id ";
+    System.err.println(search);
+    String count = "SELECT COUNT(*) FROM pos_position " + where;
     return new String[] {search, count};
   }
 
@@ -224,33 +216,35 @@ public class GetPositionDbPositionMasterWorker extends DbPositionMasterWorker {
    * @return the SQL search and count, not null
    */
   protected String[] sqlSearchPositionHistoric(final PositionSearchHistoricRequest request) {
-    String fromWhere = FROM + "WHERE p.oid = :position_oid ";
+    String where = "WHERE oid = :position_oid ";
     if (request.getVersionsFromInstant() != null && request.getVersionsFromInstant().equals(request.getVersionsToInstant())) {
-      fromWhere += "AND (p.ver_from_instant <= :versions_from_instant AND p.ver_to_instant > :versions_from_instant) ";
+      where += "AND (ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant) ";
     } else {
       if (request.getVersionsFromInstant() != null) {
-        fromWhere += "AND ((p.ver_from_instant <= :versions_from_instant AND p.ver_to_instant > :versions_from_instant) " +
-                            "OR p.ver_from_instant >= :versions_from_instant) ";
+        where += "AND ((ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant) " +
+                            "OR ver_from_instant >= :versions_from_instant) ";
       }
       if (request.getVersionsToInstant() != null) {
-        fromWhere += "AND ((p.ver_from_instant <= :versions_to_instant AND p.ver_to_instant > :versions_to_instant) " +
-                            "OR p.ver_to_instant < :versions_to_instant) ";
+        where += "AND ((ver_from_instant <= :versions_to_instant AND ver_to_instant > :versions_to_instant) " +
+                            "OR ver_to_instant < :versions_to_instant) ";
       }
     }
     if (request.getCorrectionsFromInstant() != null && request.getCorrectionsFromInstant().equals(request.getCorrectionsToInstant())) {
-      fromWhere += "AND (p.corr_from_instant <= :corrections_from_instant AND p.corr_to_instant > :corrections_from_instant) ";
+      where += "AND (corr_from_instant <= :corrections_from_instant AND corr_to_instant > :corrections_from_instant) ";
     } else {
       if (request.getCorrectionsFromInstant() != null) {
-        fromWhere += "AND ((p.corr_from_instant <= :corrections_from_instant AND p.corr_to_instant > :corrections_from_instant) " +
-                            "OR p.corr_from_instant >= :corrections_from_instant) ";
+        where += "AND ((corr_from_instant <= :corrections_from_instant AND corr_to_instant > :corrections_from_instant) " +
+                            "OR corr_from_instant >= :corrections_from_instant) ";
       }
       if (request.getCorrectionsToInstant() != null) {
-        fromWhere += "AND ((p.corr_from_instant <= :corrections_to_instant AND p.ver_to_instant > :corrections_to_instant) " +
-                            "OR p.corr_to_instant < :corrections_to_instant) ";
+        where += "AND ((corr_from_instant <= :corrections_to_instant AND ver_to_instant > :corrections_to_instant) " +
+                            "OR corr_to_instant < :corrections_to_instant) ";
       }
     }
-    String search = getDbHelper().sqlApplyPaging(SELECT + fromWhere, ORDER_BY_VERSION_DESC_CORRECTION_DESC, request.getPagingRequest());
-    String count = SELECT_COUNT + fromWhere;
+    String selectFromWhereInner = "SELECT id FROM pos_position " + where;
+    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY ver_from_instant DESC, corr_from_instant DESC ", request.getPagingRequest());
+    String search = SELECT + FROM + "WHERE p.id IN (" + inner + ") ORDER BY ver_from_instant DESC, corr_from_instant DESC";
+    String count = "SELECT COUNT(*) FROM pos_position " + where;
     return new String[] {search, count};
   }
 

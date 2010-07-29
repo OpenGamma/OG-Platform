@@ -156,36 +156,6 @@ public class DbPositionMasterWorker {
     return uid;
   }
 
-//  /**
-//   * Creates a unique identifier for a portfolio.
-//   * @param portfolioOid  the portfolio object identifier
-//   * @param rowId  the node unique row identifier, null if object identifier
-//   * @return the unique identifier, not null
-//   */
-//  protected UniqueIdentifier createPortfolioUniqueIdentifier(final long portfolioOid, final Long rowId) {
-//    return UniqueIdentifier.of(getIdentifierScheme(), Long.toString(portfolioOid), ObjectUtils.toString(rowId, null));
-//  }
-//
-//  /**
-//   * Creates a unique identifier for a portfolio node.
-//   * @param nodeOid  the node object identifier
-//   * @param rowId  the node unique row identifier, null if object identifier
-//   * @return the unique identifier, not null
-//   */
-//  protected UniqueIdentifier createNodeUniqueIdentifier(final long nodeOid, final Long rowId) {
-//    return UniqueIdentifier.of(getIdentifierScheme(), Long.toString(nodeOid), ObjectUtils.toString(rowId, null));
-//  }
-//
-//  /**
-//   * Creates a unique identifier for a position.
-//   * @param positionOid  the position object identifier
-//   * @param rowId  the node unique row identifier, null if object identifier
-//   * @return the unique identifier, not null
-//   */
-//  protected UniqueIdentifier createPositionUniqueIdentifier(final long positionOid, final Long rowId) {
-//    return UniqueIdentifier.of(getIdentifierScheme(), Long.toString(positionOid), ObjectUtils.toString(rowId, null));
-//  }
-
   //-------------------------------------------------------------------------
   protected PortfolioTreeSearchResult searchPortfolioTrees(PortfolioTreeSearchRequest request) {
     throw new UnsupportedOperationException();

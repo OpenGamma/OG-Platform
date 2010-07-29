@@ -62,14 +62,12 @@ public class PositionSearchRequest extends DirectBean {
   @PropertyDefinition
   private IdentifierBundle _securityKey;
   /**
-   * The instant to search for a version at.
-   * Null is treated as the latest version.
+   * The instant to search for a version at, null treated as the latest version.
    */
   @PropertyDefinition
   private Instant _versionAsOfInstant;
   /**
-   * The instant to search for corrections for.
-   * Null is treated as the latest correction.
+   * The instant to search for corrections for, null treated as the latest correction.
    */
   @PropertyDefinition
   private Instant _correctedToInstant;
@@ -303,8 +301,7 @@ public class PositionSearchRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the instant to search for a version at.
-   * Null is treated as the latest version.
+   * Gets the instant to search for a version at, null treated as the latest version.
    * @return the value of the property
    */
   public Instant getVersionAsOfInstant() {
@@ -312,8 +309,7 @@ public class PositionSearchRequest extends DirectBean {
   }
 
   /**
-   * Sets the instant to search for a version at.
-   * Null is treated as the latest version.
+   * Sets the instant to search for a version at, null treated as the latest version.
    * @param versionAsOfInstant  the new value of the property
    */
   public void setVersionAsOfInstant(Instant versionAsOfInstant) {
@@ -322,7 +318,6 @@ public class PositionSearchRequest extends DirectBean {
 
   /**
    * Gets the the {@code versionAsOfInstant} property.
-   * Null is treated as the latest version.
    * @return the property, not null
    */
   public final Property<Instant> versionAsOfInstant() {
@@ -331,8 +326,7 @@ public class PositionSearchRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the instant to search for corrections for.
-   * Null is treated as the latest correction.
+   * Gets the instant to search for corrections for, null treated as the latest correction.
    * @return the value of the property
    */
   public Instant getCorrectedToInstant() {
@@ -340,8 +334,7 @@ public class PositionSearchRequest extends DirectBean {
   }
 
   /**
-   * Sets the instant to search for corrections for.
-   * Null is treated as the latest correction.
+   * Sets the instant to search for corrections for, null treated as the latest correction.
    * @param correctedToInstant  the new value of the property
    */
   public void setCorrectedToInstant(Instant correctedToInstant) {
@@ -350,7 +343,6 @@ public class PositionSearchRequest extends DirectBean {
 
   /**
    * Gets the the {@code correctedToInstant} property.
-   * Null is treated as the latest correction.
    * @return the property, not null
    */
   public final Property<Instant> correctedToInstant() {
