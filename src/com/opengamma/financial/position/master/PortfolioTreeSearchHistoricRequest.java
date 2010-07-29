@@ -105,29 +105,29 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
   /**
    * Creates an instance.
    * With no further customization this will retrieve all versions and corrections.
-   * @param uid  the object identifier
+   * @param oid  the object identifier
    */
-  public PortfolioTreeSearchHistoricRequest(final UniqueIdentifier uid) {
-    this(uid, null, null);
+  public PortfolioTreeSearchHistoricRequest(final UniqueIdentifier oid) {
+    this(oid, null, null);
   }
 
   /**
    * Creates an instance.
-   * @param uid  the object identifier
+   * @param oid  the object identifier
    * @param versionInstantProvider  the version instant to retrieve, null for latest version
    */
-  public PortfolioTreeSearchHistoricRequest(final UniqueIdentifier uid, InstantProvider versionInstantProvider) {
-    this(uid, versionInstantProvider, null);
+  public PortfolioTreeSearchHistoricRequest(final UniqueIdentifier oid, InstantProvider versionInstantProvider) {
+    this(oid, versionInstantProvider, null);
   }
 
   /**
    * Creates an instance.
-   * @param uid  the object identifier
+   * @param oid  the object identifier
    * @param versionInstantProvider  the version instant to retrieve, null for latest version
    * @param correctedToInstantProvider  the instant that the data should be corrected to, null for latest correction
    */
-  public PortfolioTreeSearchHistoricRequest(final UniqueIdentifier uid, InstantProvider versionInstantProvider, InstantProvider correctedToInstantProvider) {
-    setPortfolioId(uid);
+  public PortfolioTreeSearchHistoricRequest(final UniqueIdentifier oid, InstantProvider versionInstantProvider, InstantProvider correctedToInstantProvider) {
+    setPortfolioId(oid);
     if (versionInstantProvider != null) {
       final Instant versionInstant = Instant.of(versionInstantProvider);
       setVersionsFromInstant(versionInstant);
