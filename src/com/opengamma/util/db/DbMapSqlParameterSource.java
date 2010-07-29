@@ -32,7 +32,7 @@ public class DbMapSqlParameterSource extends MapSqlParameterSource {
   /**
    * Adds an instant to this source.
    * @param name  the name, not null
-   * @param instantProvider  the instant, null is far future
+   * @param instantProvider  the instant, not null
    * @return this, for chaining, not null
    */
   public DbMapSqlParameterSource addTimestamp(final String name, final InstantProvider instantProvider) {

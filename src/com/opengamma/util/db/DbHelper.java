@@ -108,7 +108,7 @@ public abstract class DbHelper {
     }
     return sqlSelectFromWhere + sqlOrderBy +
       "OFFSET " + paging.getFirstItemIndex() + " ROWS " +
-      "FETCH FIRST " + paging.getPagingSize() + " ROWS ONLY ";
+      "FETCH NEXT " + paging.getPagingSize() + " ROWS ONLY ";
   }
 
   //-------------------------------------------------------------------------
