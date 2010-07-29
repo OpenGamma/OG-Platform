@@ -50,17 +50,17 @@ public class ForwardRateAgreement implements InterestRateDerivative {
    * @param settlement date (in years from today) at which the FRA is cash settled 
    * @param maturity date (in years from today) at which the reference rate expires 
    * @param fixingDate date (in years from today) at which the reference rate is determined (normally 2 days before the settlement date)
-   * @param forwardYearFrtaction year fraction, $\alpha$ used to determine the non-discounted payment, i.e. the hypothetical payment of (F-k) made at the maturity date  
+   * @param forwardYearFraction year fraction, $\alpha$ used to determine the non-discounted payment, i.e. the hypothetical payment of (F-k) made at the maturity date  
    * @param discountingYearFraction the year fraction used to discount the hypothetical payment at maturity, to an actual payment at settlement (these year fractions will often be the same) 
    * @param strike the agreed fixed payment of the FRA 
    * @param fundingCurveName The name of the curve used for discounting real payments, i.e. taking the PV of the payment made at the settlement date
    * @param liborCurveName The name of the curve used to calculate the reference rate 
    */
-  public ForwardRateAgreement(final double settlement, final double maturity, final double fixingDate, final double forwardYearFrtaction, final double discountingYearFraction, final double strike,
+  public ForwardRateAgreement(final double settlement, final double maturity, final double fixingDate, final double forwardYearFraction, final double discountingYearFraction, final double strike,
       final String fundingCurveName, final String liborCurveName) {
     checkInputs(settlement, maturity, strike, fundingCurveName, liborCurveName);
     ArgumentChecker.notNegative(fixingDate, "fixing Date");
-    ArgumentChecker.notNegative(forwardYearFrtaction, "forward year fraction");
+    ArgumentChecker.notNegative(forwardYearFraction, "forward year fraction");
     ArgumentChecker.notNegative(discountingYearFraction, "dicounting year fraction");
     Validate.isTrue(fixingDate <= settlement, "must have fixing date before or equal to settlement date");
 
@@ -70,7 +70,7 @@ public class ForwardRateAgreement implements InterestRateDerivative {
     _settlement = settlement;
     _maturity = maturity;
     _fixingDate = fixingDate;
-    _forwardYearFraction = forwardYearFrtaction;
+    _forwardYearFraction = forwardYearFraction;
     _discountingYearFraction = discountingYearFraction;
   }
 

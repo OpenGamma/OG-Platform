@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.interestrate.cash.definition;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
@@ -35,7 +36,7 @@ public class Cash implements InterestRateDerivative {
     checkInputs(paymentTime, rate, yieldCurveName);
     ArgumentChecker.notNegative(tradeTime, "trade time");
     ArgumentChecker.notNegative(yearFraction, "year fraction");
-    Validate.isTrue(tradeTime < paymentTime, "Trade time must be less that payment time");
+    Validate.isTrue(tradeTime < paymentTime, "Trade time must be less than payment time");
     _paymentTime = paymentTime;
     _curveName = yieldCurveName;
     _tradeTime = tradeTime;
@@ -92,7 +93,7 @@ public class Cash implements InterestRateDerivative {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -102,12 +103,8 @@ public class Cash implements InterestRateDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    Cash other = (Cash) obj;
-    if (_curveName == null) {
-      if (other._curveName != null) {
-        return false;
-      }
-    } else if (!_curveName.equals(other._curveName)) {
+    final Cash other = (Cash) obj;
+    if (!ObjectUtils.equals(_curveName, other._curveName)) {
       return false;
     }
     if (Double.doubleToLongBits(_paymentTime) != Double.doubleToLongBits(other._paymentTime)) {

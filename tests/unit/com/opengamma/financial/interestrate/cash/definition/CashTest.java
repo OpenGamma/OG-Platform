@@ -14,11 +14,45 @@ import org.junit.Test;
  * 
  */
 public class CashTest {
-  public static final String CURVE_NAME = "test";
+  private static final double T = 3;
+  private static final double R = 0.04;
+  private static final double TRADE_T = 0;
+  private static final double FRACTION = 3;
+  private static final String CURVE_NAME = "test";
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNegativeTime() {
-    new Cash(-3, 0.05, CURVE_NAME);
+  public void testNegativeTime1() {
+    new Cash(-T, R, CURVE_NAME);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeTime2() {
+    new Cash(-T, R, TRADE_T, FRACTION, CURVE_NAME);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeRate1() {
+    new Cash(T, -R, CURVE_NAME);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeRate2() {
+    new Cash(T, -R, TRADE_T, FRACTION, CURVE_NAME);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullName1() {
+    new Cash(T, R, null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullName2() {
+    new Cash(T, R, TRADE_T, FRACTION, null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testBadTradeTime() {
+    new Cash(T, R, T + 1, FRACTION, null);
   }
 
   @Test
@@ -29,6 +63,7 @@ public class CashTest {
     assertEquals(cash.getPaymentTime(), time, 0);
     assertEquals(cash.getYearFraction(), time, 0);
     assertEquals(cash.getRate(), rate, 0);
+    assertEquals(cash.getTradeTime(), 0, 0);
     assertEquals(cash.getYieldCurveName(), CURVE_NAME);
     Cash other = new Cash(time, rate, CURVE_NAME);
     assertEquals(other, cash);
@@ -45,6 +80,8 @@ public class CashTest {
     assertFalse(other.equals(cash));
     other = new Cash(time, rate, 1 / 365., time, CURVE_NAME);
     assertFalse(other.equals(cash));
+    other = new Cash(time, rate, 0, time, CURVE_NAME);
+    assertEquals(other, cash);
   }
 
 }
