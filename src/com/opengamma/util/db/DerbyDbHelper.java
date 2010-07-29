@@ -24,4 +24,10 @@ public class DerbyDbHelper extends DbHelper {
   public DerbyDbHelper() {
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public String sqlNextSequenceValueSelect(final String sequenceName) {
+    return "SELECT NEXT VALUE FOR " + sequenceName + " FROM sysibm.sysdummy1";
+  }
+
 }
