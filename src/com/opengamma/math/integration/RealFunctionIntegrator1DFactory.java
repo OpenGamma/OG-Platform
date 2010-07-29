@@ -44,8 +44,7 @@ public final class RealFunctionIntegrator1DFactory {
   private static final Map<Class<?>, String> s_instanceNames;
 
   static {
-    final Map<String, Integrator1D<Double, Function1D<Double, Double>, Double>> staticInstances =
-        new HashMap<String, Integrator1D<Double, Function1D<Double, Double>, Double>>();
+    final Map<String, Integrator1D<Double, Function1D<Double, Double>, Double>> staticInstances = new HashMap<String, Integrator1D<Double, Function1D<Double, Double>, Double>>();
     final Map<Class<?>, String> instanceNames = new HashMap<Class<?>, String>();
     staticInstances.put(ROMBERG, ROMBERG_INSTANCE);
     instanceNames.put(ROMBERG_INSTANCE.getClass(), ROMBERG);
@@ -73,6 +72,6 @@ public final class RealFunctionIntegrator1DFactory {
     if (integrator == null) {
       return null;
     }
-    return s_instanceNames.get(integrator);
+    return s_instanceNames.get(integrator.getClass());
   }
 }
