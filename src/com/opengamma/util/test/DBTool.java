@@ -30,6 +30,8 @@ import org.apache.tools.ant.Task;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.Dialect;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -40,6 +42,8 @@ import com.opengamma.OpenGammaRuntimeException;
  */
 public class DBTool extends Task {
   
+  private static final Logger s_logger = LoggerFactory.getLogger(DBTool.class);
+
   private static final String DATABASE_FOLDER = "db";
   private static final String DATABASE_SCRIPT_FOLDER_PREFIX = "patch_";
   private static final String DATABASE_UPGRADE_SCRIPT = "upgrade-db.sql";
@@ -218,6 +222,15 @@ public class DBTool extends Task {
   }
   
   /**
+   * Primarily for ant
+   * 
+   * @param directory  the script directory
+   */
+  public void setDbScriptDir(String directory) {
+    addDbScriptDirectory(directory);
+  }
+  
+  /**
    * @param directory If null -> working directory
    */
   public void addDbScriptDirectory(String directory) {
@@ -310,7 +323,7 @@ public class DBTool extends Task {
     configuration.setProperty(Environment.USER, getUser());
     configuration.setProperty(Environment.PASS, getPassword());
     configuration.setProperty(Environment.DIALECT, getHibernateDialect().getClass().getName());
-    configuration.setProperty(Environment.SHOW_SQL, "true");
+    configuration.setProperty(Environment.SHOW_SQL, "false");
     configuration.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
     return configuration;
   }
@@ -383,18 +396,22 @@ public class DBTool extends Task {
       if (getCreateVersion().compareTo(version) >= 0) {
         final File createFile = new File(scriptDirs[index], DATABASE_CREATE_SCRIPT);
         if (createFile.exists()) {
-          System.out.println("Creating DB version " + version);
+          s_logger.info("Creating DB version " + version);
           executeCreateScript(catalog, createFile);
-          callback.tablesCreatedOrUpgraded(version);
+          if (callback != null) {
+            callback.tablesCreatedOrUpgraded(version);
+          }
           return;
         }
       }
       createTables(catalog, scriptDirs, index - 1, callback);
       final File upgradeFile = new File(scriptDirs[index], DATABASE_UPGRADE_SCRIPT);
       if (upgradeFile.exists()) {
-        System.out.println("Upgrading to DB version " + version);
+        s_logger.info("Upgrading to DB version " + version);
         executeCreateScript(catalog, upgradeFile);
-        callback.tablesCreatedOrUpgraded(version);
+        if (callback != null) {
+          callback.tablesCreatedOrUpgraded(version);
+        }
         return;
       }
     } else {

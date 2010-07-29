@@ -36,7 +36,11 @@ public final class ExpiryFieldType extends SecondaryFieldType<Expiry, FudgeDate>
    */
   @Override
   public FudgeDate secondaryToPrimary(final Expiry object) {
-    switch (object.getAccuracy()) {
+    ExpiryAccuracy accuracy = object.getAccuracy();
+    if (accuracy == null) {
+      accuracy = ExpiryAccuracy.DAY_MONTH_YEAR;
+    }
+    switch (accuracy) {
       case DAY_MONTH_YEAR:
         return new FudgeDate(object.getExpiry().getYear(), object.getExpiry().getMonthOfYear().getValue(), object
             .getExpiry().getDayOfMonth());

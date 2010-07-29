@@ -70,9 +70,38 @@ public class Expiry implements InstantProvider {
   //-------------------------------------------------------------------------
   @Override
   public boolean equals(final Object obj) {
-    if (obj instanceof Expiry) {
-      final Expiry other = (Expiry) obj;
-      return ObjectUtils.equals(other.getAccuracy(), getAccuracy()) && other.getExpiry().equals(getExpiry());
+    if (!(obj instanceof Expiry)) {
+      return false;
+    }
+    final Expiry other = (Expiry) obj;
+    if (getExpiry() == null) {
+      return (other.getExpiry() == null);
+    }
+    if (other.getExpiry() == null) {
+      return false;
+    }
+    if (getAccuracy() == null) {
+      if (other.getAccuracy() != null) {
+        return false;
+      }
+      return getExpiry().equalInstant(other.getExpiry());
+    } else {
+      if (!getAccuracy().equals(other.getAccuracy())) {
+        return false;
+      }
+    }
+    // Only compare to the accuracy agreed
+    if (getAccuracy() == null) {
+      return ObjectUtils.equals(getExpiry(), other.getExpiry());
+    }
+    switch (getAccuracy()) {
+      case DAY_MONTH_YEAR:
+        return (getExpiry().getDayOfMonth() == other.getExpiry().getDayOfMonth()) && (getExpiry().getMonthOfYear() == other.getExpiry().getMonthOfYear())
+            && (getExpiry().getYear() == other.getExpiry().getYear());
+      case MONTH_YEAR:
+        return (getExpiry().getMonthOfYear() == other.getExpiry().getMonthOfYear()) && (getExpiry().getYear() == other.getExpiry().getYear());
+      case YEAR:
+        return (getExpiry().getYear() == other.getExpiry().getYear());
     }
     return false;
   }
