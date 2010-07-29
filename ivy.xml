@@ -27,7 +27,7 @@
 		<dependency org="org.apache.activemq" name="activemq" rev="5.3.0" conf="*->core"/>
 		<dependency org="com.google.common" name="guava" rev="r04"/>
 		<dependency org="org.hibernate" name="hibernate" rev="3.5.2" conf="*->default"/>
-		<dependency org="org.apache.derby" name="derby" rev="10.5+"/>
+		<dependency org="org.apache.derby" name="derby" rev="10.6+"/>
 		<dependency org="org.postgresql" name="postgresql-jdbc" rev="8.4-701"/>
 		<dependency org="org.mockito" name="mockito" rev="1.6"/>
 		<dependency org="it.unimi.dsi" name="fastutil" rev="5.1.5"/>

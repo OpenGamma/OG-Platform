@@ -7,6 +7,7 @@ package com.opengamma.util.time;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -240,6 +241,11 @@ public class DateUtilTest {
     Instant instant = DateUtil.fromSqlTimestamp(ts);
     assertEquals(ts.getTime(), instant.toEpochMillisLong());
     assertEquals(ts.getNanos(), instant.getNanoOfSecond());
+  }
+
+  @Test
+  public void testFromSqlTimestamp_max() {
+    assertNull(DateUtil.fromSqlTimestamp(DateUtil.MAX_SQL_TIMESTAMP));
   }
 
 }
