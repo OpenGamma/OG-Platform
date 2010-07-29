@@ -17,8 +17,8 @@ import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.ISOChronology;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.OffsetDateTime;
-import javax.time.calendar.OffsetTime;
+import javax.time.calendar.LocalTime;
+import javax.time.calendar.TimeProvider;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 import javax.time.calendar.format.DateTimeFormatter;
@@ -418,62 +418,61 @@ public class DateUtil {
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a time-stamp from an instant.
-   * @param instant  the instant to convert, not null
-   * @return the time-stamp, not null
+   * The maximum SQL time-stamp, used as far-future in the database.
    */
   @SuppressWarnings("deprecation")
   public static final Timestamp MAX_SQL_TIMESTAMP = new Timestamp(9999 - 1900, 11, 31, 23, 59, 59, 999999999);
+  /**
+   * The maximum instant, used as far-future in the database.
+   */
+  public static final Instant MAX_INSTANT = fromSqlTimestamp(MAX_SQL_TIMESTAMP);
 
   /**
    * Creates a time-stamp from an instant.
-   * @param instant  the instant to convert, not null
+   * @param instantProvider  the instant to convert, not null
    * @return the time-stamp, not null
    */
-  public static Timestamp toSqlTimestamp(Instant instant) {
-    Timestamp timestamp = new Timestamp(instant.getEpochSeconds() * 1000);
+  public static Timestamp toSqlTimestamp(InstantProvider instantProvider) {
+    Instant instant = Instant.of(instantProvider);
+    Timestamp timestamp = new Timestamp(instant.toEpochMillisLong());
     timestamp.setNanos(instant.getNanoOfSecond());
     return timestamp;
-  }
-  
-  /**
-   * Creates a time-stamp from a ZonedDateTime.
-   * @param zonedDateTime  the ZonedDateTime to convert, not null
-   * @return the time-stamp, not null
-   */
-  public static Timestamp toSqlTimestamp(ZonedDateTime zonedDateTime) {
-    return toSqlTimestamp(zonedDateTime.toInstant());
   }
 
   /**
    * Creates an instant from a time-stamp.
    * @param timestamp  the time-stamp to convert, not null
-   * @return the instant, not null
+   * @return the instant, null if latest
    */
   public static Instant fromSqlTimestamp(Timestamp timestamp) {
+    if (timestamp.equals(MAX_SQL_TIMESTAMP)) {
+      return null;
+    }
     long seconds = timestamp.getTime() / 1000;
     int nanos = timestamp.getNanos();
     return Instant.ofEpochSeconds(seconds, nanos);
   }
-  
+
   /**
    * Creates a SQL date from a LocalDate.
-   * @param date  the date to convert, not null
+   * @param dateProvider  the date to convert, not null
    * @return the SQL date, not null
    */
-  public static java.sql.Date toSqlDate(LocalDate date) {
-    return new java.sql.Date(date.atStartOfDayInZone(TimeZone.UTC).toInstant().toEpochMillisLong());
+  @SuppressWarnings("deprecation")
+  public static java.sql.Date toSqlDate(DateProvider dateProvider) {
+    LocalDate date = LocalDate.of(dateProvider);
+    return new java.sql.Date(date.getYear() - 1900, date.getMonthOfYear().getValue() - 1, date.getDayOfMonth());
   }
 
   /**
    * Creates a SQL time from an OffsetTime.
-   * @param time  the time to convert, not null
+   * @param timeProvider  the time to convert, not null
    * @return the SQL time, not null
    */
-  public static java.sql.Time toSqlTime(OffsetTime time) {
-    return new java.sql.Time(OffsetDateTime.of(
-        LocalDate.ofEpochDays(0), 
-        time, 
-        time.getOffset()).toInstant().toEpochMillisLong());
+  @SuppressWarnings("deprecation")
+  public static java.sql.Time toSqlTime(TimeProvider timeProvider) {
+    LocalTime time = LocalTime.of(timeProvider);
+    return new java.sql.Time(time.getHourOfDay(), time.getMinuteOfHour(), time.getSecondOfMinute());
   }
+
 }
