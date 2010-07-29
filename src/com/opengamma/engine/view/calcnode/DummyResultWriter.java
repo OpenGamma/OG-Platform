@@ -5,11 +5,13 @@
  */
 package com.opengamma.engine.view.calcnode;
 
+import java.io.Serializable;
+
 
 /**
  * 
  */
-public class DummyResultWriter implements ResultWriter {
+public class DummyResultWriter implements ResultWriter, Serializable {
 
   @Override
   public void write(AbstractCalculationNode node, CalculationJobResult result) {
