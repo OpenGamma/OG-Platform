@@ -73,7 +73,11 @@ public final class DerbyDialect extends AbstractDBDialect {
 
   @Override
   public String getAllSequencesSQL(String catalog, String schema) {
-    return null; // no sequences in Derby
+    String sql = "SELECT sequencename AS name FROM SYS.SYSSEQUENCES ";
+    if (schema != null) {
+      sql += " WHERE schemaid = (SELECT schemaid FROM SYS.SYSSCHEMAS WHERE schemaname = '" + schema + "')";
+    }
+    return sql;
   }
 
   @Override
@@ -87,7 +91,8 @@ public final class DerbyDialect extends AbstractDBDialect {
   
   @Override
   public String getAllColumnsSQL(String catalog, String schema, String table) {
-    StringBuilder sql = new StringBuilder("SELECT c.columnname AS name,c.columndatatype AS datatype,'' AS allowsnull,c.columndefault AS defaultvalue FROM SYS.SYSCOLUMNS AS c INNER JOIN SYS.SYSTABLES AS t ON c.referenceid=t.tableid WHERE t.tablename='");
+    StringBuilder sql = new StringBuilder("SELECT c.columnname AS name,c.columndatatype AS datatype,'' AS allowsnull,c.columndefault AS defaultvalue " +
+        "FROM SYS.SYSCOLUMNS AS c INNER JOIN SYS.SYSTABLES AS t ON c.referenceid=t.tableid WHERE t.tablename='");
     sql.append(table).append("'");
     if (schema != null) {
       sql.append(" AND t.schemaid=(SELECT schemaid FROM SYS.SYSSCHEMAS WHERE schemaname='").append(schema).append("')");
