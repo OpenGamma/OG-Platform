@@ -96,10 +96,10 @@ public class InterestRateCalculator implements InterestRateDerivativeVisitor<Dou
     final FixedAnnuity spreadLeg = swap.getPayLeg().toUnitCouponFixedAnnuity();
 
     final double pvPay = _pvCalculator.getPresentValue(payLeg, curves);
-    final double pvRecieve = _pvCalculator.getPresentValue(receiveLeg, curves);
+    final double pvReceive = _pvCalculator.getPresentValue(receiveLeg, curves);
     final double pvSpread = _pvCalculator.getPresentValue(spreadLeg, curves);
 
-    return (pvRecieve - pvPay) / pvSpread;
+    return (pvReceive - pvPay) / pvSpread;
   }
 
   @Override

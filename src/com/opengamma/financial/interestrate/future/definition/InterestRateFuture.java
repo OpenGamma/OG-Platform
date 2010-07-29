@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.interestrate.future.definition;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
@@ -32,7 +33,7 @@ public class InterestRateFuture implements InterestRateDerivative {
     ArgumentChecker.notNegative(settlementDate, "start time");
     ArgumentChecker.notNegative(yearFraction, "year fraction");
     ArgumentChecker.notNegative(price, "price");
-    Validate.isTrue(price <= 100, "price must be less thatn 100");
+    Validate.isTrue(price <= 100, "price must be less than 100");
     Validate.notNull(yieldCurveName);
 
     _curveName = yieldCurveName;
@@ -73,7 +74,7 @@ public class InterestRateFuture implements InterestRateDerivative {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -83,12 +84,8 @@ public class InterestRateFuture implements InterestRateDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    InterestRateFuture other = (InterestRateFuture) obj;
-    if (_curveName == null) {
-      if (other._curveName != null) {
-        return false;
-      }
-    } else if (!_curveName.equals(other._curveName)) {
+    final InterestRateFuture other = (InterestRateFuture) obj;
+    if (!ObjectUtils.equals(_curveName, other._curveName)) {
       return false;
     }
     if (Double.doubleToLongBits(_price) != Double.doubleToLongBits(other._price)) {
@@ -104,7 +101,7 @@ public class InterestRateFuture implements InterestRateDerivative {
   }
 
   @Override
-  public <T> T accept(InterestRateDerivativeVisitor<T> visitor, YieldCurveBundle curves) {
+  public <T> T accept(final InterestRateDerivativeVisitor<T> visitor, final YieldCurveBundle curves) {
     return visitor.visitInterestRateFuture(this, curves);
   }
 

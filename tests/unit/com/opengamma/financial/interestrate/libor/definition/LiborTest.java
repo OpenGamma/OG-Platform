@@ -45,10 +45,14 @@ public class LiborTest {
     assertEquals(libor.getStrike(), RATE, 0);
     assertEquals(libor.getLiborCurveName(), CURVE_NAME);
     assertEquals(libor.getFundingCurveName(), CURVE_NAME);
-
     Libor other = new Libor(time, RATE, CURVE_NAME);
     assertEquals(other, libor);
     assertEquals(other.hashCode(), libor.hashCode());
+    ////
+    other = new Libor(0, time, time, RATE, CURVE_NAME);
+    assertEquals(other, libor);
+    assertEquals(other.hashCode(), libor.hashCode());
+    ////
     other = new Libor(time + 0.01, RATE, CURVE_NAME);
     assertFalse(other.equals(libor));
     other = new Libor(time, RATE + 0.01, CURVE_NAME);

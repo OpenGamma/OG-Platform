@@ -247,8 +247,8 @@ public class BasisSwapYieldCurveFinderTest {
       paymentTimes[i] = 0.25 * (i + 1);
     }
     final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, fundCurveName, payCurveName);
-    final VariableAnnuity recieveLeg = new VariableAnnuity(paymentTimes, fundCurveName, revieveCurveName);
-    return new BasisSwap(payLeg, recieveLeg);
+    final VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, fundCurveName, revieveCurveName);
+    return new BasisSwap(payLeg, receiveLeg);
   }
 
   private static FixedFloatSwap setupSwap(final double time, final double swapRate, final String fundCurveName, final String liborCurveName) {

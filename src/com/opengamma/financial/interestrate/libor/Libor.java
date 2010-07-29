@@ -17,6 +17,6 @@ public class Libor extends ForwardRateAgreement {
   }
 
   public Libor(final double valueTime, final double maturity, final double yearFraction, final double rate, final String liborCurveName) {
-    super(valueTime, maturity, rate, valueTime, yearFraction, yearFraction, liborCurveName, liborCurveName);
+    super(valueTime, maturity, valueTime, yearFraction, yearFraction, rate, liborCurveName, liborCurveName);
   }
 }
