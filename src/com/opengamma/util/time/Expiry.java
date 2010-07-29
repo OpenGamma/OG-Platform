@@ -30,8 +30,7 @@ public class Expiry implements InstantProvider {
    * @param expiry  the expiry date-time
    */
   public Expiry(final ZonedDateTime expiry) {
-    _expiry = expiry;
-    _accuracy = null;
+    this(expiry, ExpiryAccuracy.DAY_MONTH_YEAR);
   }
 
   /**
