@@ -51,7 +51,6 @@ public interface PositionMaster {
    * Adds a portfolio tree, excluding positions, to the data store.
    * <p>
    * The specified document must contain the portfolio tree.
-   * It must not contain the unique identifier.
    * 
    * @param document  the document, not null
    * @return the updated tree document, not null
@@ -155,8 +154,7 @@ public interface PositionMaster {
   /**
    * Adds a position to the data store.
    * <p>
-   * The specified document must contain the position.
-   * It must not contain the unique identifier.
+   * The specified document must contain the position and parent node.
    * 
    * @param document  the document, not null
    * @return the updated position document, not null
