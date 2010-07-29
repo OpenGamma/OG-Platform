@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.interestrate.bond.definition;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
@@ -23,8 +24,9 @@ public class Bond implements InterestRateDerivative {
   public Bond(final double[] paymentTimes, final double couponRate, final String yieldCurveName) {
     Validate.notNull(paymentTimes, "payment times");
     ArgumentChecker.notEmpty(paymentTimes, "payment times");
-    int n = paymentTimes.length;
-    double[] paymentAmounts = new double[n];
+    Validate.notNull(yieldCurveName, "yield curve name");
+    final int n = paymentTimes.length;
+    final double[] paymentAmounts = new double[n];
     paymentAmounts[0] = couponRate * paymentTimes[0];
 
     for (int i = 1; i < n; i++) {
@@ -38,11 +40,12 @@ public class Bond implements InterestRateDerivative {
     Validate.notNull(coupons, "coupons");
     ArgumentChecker.notEmpty(paymentTimes, "payment times");
     ArgumentChecker.notEmpty(coupons, "coupons");
+    Validate.notNull(yieldCurveName, "yield curve name");
     if (paymentTimes.length != coupons.length) {
       throw new IllegalArgumentException("Must have a payment for each payment time");
     }
-    int n = paymentTimes.length;
-    double[] paymentAmounts = new double[n];
+    final int n = paymentTimes.length;
+    final double[] paymentAmounts = new double[n];
     paymentAmounts[0] = coupons[0] * paymentTimes[0];
     for (int i = 1; i < n; i++) {
       paymentAmounts[i] = coupons[i] * (paymentTimes[i] - paymentTimes[i - 1]) + (i == (n - 1) ? 1.0 : 0.0);
@@ -57,7 +60,8 @@ public class Bond implements InterestRateDerivative {
     ArgumentChecker.notEmpty(paymentTimes, "payment times");
     ArgumentChecker.notEmpty(coupons, "coupons");
     ArgumentChecker.notEmpty(yearFractions, "year fractions");
-    int n = paymentTimes.length;
+    Validate.notNull(yieldCurveName, "yield curve name");
+    final int n = paymentTimes.length;
     if (n != coupons.length) {
       throw new IllegalArgumentException("Must have a payment for each payment time");
     }
@@ -65,7 +69,7 @@ public class Bond implements InterestRateDerivative {
       throw new IllegalArgumentException("Must have a year fraction for each payment time");
     }
 
-    double[] paymentAmounts = new double[n];
+    final double[] paymentAmounts = new double[n];
     for (int i = 0; i < n; i++) {
       paymentAmounts[i] = coupons[i] * yearFractions[i] + (i == (n - 1) ? 1.0 : 0.0);
     }
@@ -97,7 +101,7 @@ public class Bond implements InterestRateDerivative {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -107,19 +111,15 @@ public class Bond implements InterestRateDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    Bond other = (Bond) obj;
-    if (_annuity == null) {
-      if (other._annuity != null) {
-        return false;
-      }
-    } else if (!_annuity.equals(other._annuity)) {
+    final Bond other = (Bond) obj;
+    if (!ObjectUtils.equals(_annuity, other._annuity)) {
       return false;
     }
     return true;
   }
 
   @Override
-  public <T> T accept(InterestRateDerivativeVisitor<T> visitor, YieldCurveBundle curves) {
+  public <T> T accept(final InterestRateDerivativeVisitor<T> visitor, final YieldCurveBundle curves) {
     return visitor.visitBond(this, curves);
   }
 }
