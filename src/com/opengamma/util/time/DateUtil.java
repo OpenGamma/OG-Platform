@@ -18,7 +18,6 @@ import javax.time.calendar.ISOChronology;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.LocalTime;
-import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.TimeProvider;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
@@ -440,24 +439,6 @@ public class DateUtil {
     return timestamp;
   }
   
-  /**
-   * Creates a time-stamp from a ZonedDateTime.
-   * @param zonedDateTime  the ZonedDateTime to convert, not null
-   * @return the time-stamp, not null
-   */
-  public static Timestamp toSqlTimestamp(ZonedDateTime zonedDateTime) {
-    return toSqlTimestamp(zonedDateTime.toInstant());
-  }
-  
-  /**
-   * Creates a time-stamp from a OffsetDateTime.
-   * @param offsetDateTime  the OffsetDateTime to convert, not null
-   * @return the time-stamp, not null
-   */
-  public static Timestamp toSqlTimestamp(OffsetDateTime offsetDateTime) {
-    return toSqlTimestamp(offsetDateTime.toInstant());
-  }
-
   /**
    * Creates an instant from a time-stamp.
    * @param timestamp  the time-stamp to convert, not null
