@@ -30,12 +30,12 @@ import com.opengamma.util.ArgumentChecker;
 public class PositionDocument extends DirectBean {
 
   /**
-   * The portfolio unique identifier.
+   * The portfolio object identifier.
    */
   @PropertyDefinition
   private UniqueIdentifier _portfolioId;
   /**
-   * The parent node unique identifier.
+   * The parent node object identifier.
    */
   @PropertyDefinition
   private UniqueIdentifier _parentNodeId;
@@ -45,20 +45,27 @@ public class PositionDocument extends DirectBean {
   @PropertyDefinition
   private UniqueIdentifier _positionId;
   /**
-   * The instant that the position is valid from.
+   * The start of an interval that the version of the position is accurate for.
    */
   @PropertyDefinition
-  private Instant _validFromInstant;
+  private Instant _versionFromInstant;
   /**
-   * The instant that the position is valid to.
+   * The end of an interval that the version of the position is accurate for.
+   * Null indicates this is the latest version.
    */
   @PropertyDefinition
-  private Instant _validToInstant;
+  private Instant _versionToInstant;
   /**
-   * The instant that the position was last modified.
+   * The start of an interval that the correction of the version of the position is accurate for.
    */
   @PropertyDefinition
-  private Instant _lastModifiedInstant;
+  private Instant _correctionFromInstant;
+  /**
+   * The end of an interval that the correction of the version of the position is accurate for.
+   * Null indicates this is the latest correction.
+   */
+  @PropertyDefinition
+  private Instant _correctionToInstant;
   /**
    * The position with the security unresolved.
    */
@@ -104,12 +111,14 @@ public class PositionDocument extends DirectBean {
         return getParentNodeId();
       case 1381039140:  // positionId
         return getPositionId();
-      case -3992261:  // validFromInstant
-        return getValidFromInstant();
-      case -1035122102:  // validToInstant
-        return getValidToInstant();
-      case 1792974178:  // lastModifiedInstant
-        return getLastModifiedInstant();
+      case 2006263519:  // versionFromInstant
+        return getVersionFromInstant();
+      case 1577022702:  // versionToInstant
+        return getVersionToInstant();
+      case 1808757913:  // correctionFromInstant
+        return getCorrectionFromInstant();
+      case 973465896:  // correctionToInstant
+        return getCorrectionToInstant();
       case 747804969:  // position
         return getPosition();
     }
@@ -128,14 +137,17 @@ public class PositionDocument extends DirectBean {
       case 1381039140:  // positionId
         setPositionId((UniqueIdentifier) newValue);
         return;
-      case -3992261:  // validFromInstant
-        setValidFromInstant((Instant) newValue);
+      case 2006263519:  // versionFromInstant
+        setVersionFromInstant((Instant) newValue);
         return;
-      case -1035122102:  // validToInstant
-        setValidToInstant((Instant) newValue);
+      case 1577022702:  // versionToInstant
+        setVersionToInstant((Instant) newValue);
         return;
-      case 1792974178:  // lastModifiedInstant
-        setLastModifiedInstant((Instant) newValue);
+      case 1808757913:  // correctionFromInstant
+        setCorrectionFromInstant((Instant) newValue);
+        return;
+      case 973465896:  // correctionToInstant
+        setCorrectionToInstant((Instant) newValue);
         return;
       case 747804969:  // position
         setPosition((Position) newValue);
@@ -146,7 +158,7 @@ public class PositionDocument extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the portfolio unique identifier.
+   * Gets the portfolio object identifier.
    * @return the value of the property
    */
   public UniqueIdentifier getPortfolioId() {
@@ -154,7 +166,7 @@ public class PositionDocument extends DirectBean {
   }
 
   /**
-   * Sets the portfolio unique identifier.
+   * Sets the portfolio object identifier.
    * @param portfolioId  the new value of the property
    */
   public void setPortfolioId(UniqueIdentifier portfolioId) {
@@ -171,7 +183,7 @@ public class PositionDocument extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the parent node unique identifier.
+   * Gets the parent node object identifier.
    * @return the value of the property
    */
   public UniqueIdentifier getParentNodeId() {
@@ -179,7 +191,7 @@ public class PositionDocument extends DirectBean {
   }
 
   /**
-   * Sets the parent node unique identifier.
+   * Sets the parent node object identifier.
    * @param parentNodeId  the new value of the property
    */
   public void setParentNodeId(UniqueIdentifier parentNodeId) {
@@ -221,77 +233,102 @@ public class PositionDocument extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the instant that the position is valid from.
+   * Gets the start of an interval that the version of the position is accurate for.
    * @return the value of the property
    */
-  public Instant getValidFromInstant() {
-    return _validFromInstant;
+  public Instant getVersionFromInstant() {
+    return _versionFromInstant;
   }
 
   /**
-   * Sets the instant that the position is valid from.
-   * @param validFromInstant  the new value of the property
+   * Sets the start of an interval that the version of the position is accurate for.
+   * @param versionFromInstant  the new value of the property
    */
-  public void setValidFromInstant(Instant validFromInstant) {
-    this._validFromInstant = validFromInstant;
+  public void setVersionFromInstant(Instant versionFromInstant) {
+    this._versionFromInstant = versionFromInstant;
   }
 
   /**
-   * Gets the the {@code validFromInstant} property.
+   * Gets the the {@code versionFromInstant} property.
    * @return the property, not null
    */
-  public final Property<Instant> validFromInstant() {
-    return metaBean().validFromInstant().createProperty(this);
+  public final Property<Instant> versionFromInstant() {
+    return metaBean().versionFromInstant().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the instant that the position is valid to.
+   * Gets the end of an interval that the version of the position is accurate for.
    * @return the value of the property
    */
-  public Instant getValidToInstant() {
-    return _validToInstant;
+  public Instant getVersionToInstant() {
+    return _versionToInstant;
   }
 
   /**
-   * Sets the instant that the position is valid to.
-   * @param validToInstant  the new value of the property
+   * Sets the end of an interval that the version of the position is accurate for.
+   * @param versionToInstant  the new value of the property
    */
-  public void setValidToInstant(Instant validToInstant) {
-    this._validToInstant = validToInstant;
+  public void setVersionToInstant(Instant versionToInstant) {
+    this._versionToInstant = versionToInstant;
   }
 
   /**
-   * Gets the the {@code validToInstant} property.
+   * Gets the the {@code versionToInstant} property.
    * @return the property, not null
    */
-  public final Property<Instant> validToInstant() {
-    return metaBean().validToInstant().createProperty(this);
+  public final Property<Instant> versionToInstant() {
+    return metaBean().versionToInstant().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the instant that the position was last modified.
+   * Gets the start of an interval that the corrected version of the position is accurate for.
    * @return the value of the property
    */
-  public Instant getLastModifiedInstant() {
-    return _lastModifiedInstant;
+  public Instant getCorrectionFromInstant() {
+    return _correctionFromInstant;
   }
 
   /**
-   * Sets the instant that the position was last modified.
-   * @param lastModifiedInstant  the new value of the property
+   * Sets the start of an interval that the corrected version of the position is accurate for.
+   * @param correctionFromInstant  the new value of the property
    */
-  public void setLastModifiedInstant(Instant lastModifiedInstant) {
-    this._lastModifiedInstant = lastModifiedInstant;
+  public void setCorrectionFromInstant(Instant correctionFromInstant) {
+    this._correctionFromInstant = correctionFromInstant;
   }
 
   /**
-   * Gets the the {@code lastModifiedInstant} property.
+   * Gets the the {@code correctionFromInstant} property.
    * @return the property, not null
    */
-  public final Property<Instant> lastModifiedInstant() {
-    return metaBean().lastModifiedInstant().createProperty(this);
+  public final Property<Instant> correctionFromInstant() {
+    return metaBean().correctionFromInstant().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the end of an interval that the corrected version of the position is accurate for.
+   * @return the value of the property
+   */
+  public Instant getCorrectionToInstant() {
+    return _correctionToInstant;
+  }
+
+  /**
+   * Sets the end of an interval that the corrected version of the position is accurate for.
+   * @param correctionToInstant  the new value of the property
+   */
+  public void setCorrectionToInstant(Instant correctionToInstant) {
+    this._correctionToInstant = correctionToInstant;
+  }
+
+  /**
+   * Gets the the {@code correctionToInstant} property.
+   * @return the property, not null
+   */
+  public final Property<Instant> correctionToInstant() {
+    return metaBean().correctionToInstant().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -342,17 +379,21 @@ public class PositionDocument extends DirectBean {
      */
     private final MetaProperty<UniqueIdentifier> _positionId = DirectMetaProperty.ofReadWrite(this, "positionId", UniqueIdentifier.class);
     /**
-     * The meta-property for the {@code validFromInstant} property.
+     * The meta-property for the {@code versionFromInstant} property.
      */
-    private final MetaProperty<Instant> _validFromInstant = DirectMetaProperty.ofReadWrite(this, "validFromInstant", Instant.class);
+    private final MetaProperty<Instant> _versionFromInstant = DirectMetaProperty.ofReadWrite(this, "versionFromInstant", Instant.class);
     /**
-     * The meta-property for the {@code validToInstant} property.
+     * The meta-property for the {@code versionToInstant} property.
      */
-    private final MetaProperty<Instant> _validToInstant = DirectMetaProperty.ofReadWrite(this, "validToInstant", Instant.class);
+    private final MetaProperty<Instant> _versionToInstant = DirectMetaProperty.ofReadWrite(this, "versionToInstant", Instant.class);
     /**
-     * The meta-property for the {@code lastModifiedInstant} property.
+     * The meta-property for the {@code correctionFromInstant} property.
      */
-    private final MetaProperty<Instant> _lastModifiedInstant = DirectMetaProperty.ofReadWrite(this, "lastModifiedInstant", Instant.class);
+    private final MetaProperty<Instant> _correctionFromInstant = DirectMetaProperty.ofReadWrite(this, "correctionFromInstant", Instant.class);
+    /**
+     * The meta-property for the {@code correctionToInstant} property.
+     */
+    private final MetaProperty<Instant> _correctionToInstant = DirectMetaProperty.ofReadWrite(this, "correctionToInstant", Instant.class);
     /**
      * The meta-property for the {@code position} property.
      */
@@ -368,9 +409,10 @@ public class PositionDocument extends DirectBean {
       temp.put("portfolioId", _portfolioId);
       temp.put("parentNodeId", _parentNodeId);
       temp.put("positionId", _positionId);
-      temp.put("validFromInstant", _validFromInstant);
-      temp.put("validToInstant", _validToInstant);
-      temp.put("lastModifiedInstant", _lastModifiedInstant);
+      temp.put("versionFromInstant", _versionFromInstant);
+      temp.put("versionToInstant", _versionToInstant);
+      temp.put("correctionFromInstant", _correctionFromInstant);
+      temp.put("correctionToInstant", _correctionToInstant);
       temp.put("position", _position);
       _map = Collections.unmodifiableMap(temp);
     }
@@ -416,27 +458,35 @@ public class PositionDocument extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code validFromInstant} property.
+     * The meta-property for the {@code versionFromInstant} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Instant> validFromInstant() {
-      return _validFromInstant;
+    public final MetaProperty<Instant> versionFromInstant() {
+      return _versionFromInstant;
     }
 
     /**
-     * The meta-property for the {@code validToInstant} property.
+     * The meta-property for the {@code versionToInstant} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Instant> validToInstant() {
-      return _validToInstant;
+    public final MetaProperty<Instant> versionToInstant() {
+      return _versionToInstant;
     }
 
     /**
-     * The meta-property for the {@code lastModifiedInstant} property.
+     * The meta-property for the {@code correctionFromInstant} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Instant> lastModifiedInstant() {
-      return _lastModifiedInstant;
+    public final MetaProperty<Instant> correctionFromInstant() {
+      return _correctionFromInstant;
+    }
+
+    /**
+     * The meta-property for the {@code correctionToInstant} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Instant> correctionToInstant() {
+      return _correctionToInstant;
     }
 
     /**
