@@ -35,7 +35,6 @@ import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceModel;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurfaceModel;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.IdentifierBundle;
@@ -49,7 +48,7 @@ import com.opengamma.util.time.Expiry;
  */
 public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends AbstractFunction implements FunctionInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(BlackScholesMertonImpliedVolatilitySurfaceFunction.class);
-  private final VolatilitySurfaceModel<OptionDefinition, StandardOptionDataBundle> _volatilitySurfaceModel;
+  private final BlackScholesMertonImpliedVolatilitySurfaceModel _volatilitySurfaceModel;
 
   public BlackScholesMertonImpliedVolatilitySurfaceFunction() {
     _volatilitySurfaceModel = new BlackScholesMertonImpliedVolatilitySurfaceModel();

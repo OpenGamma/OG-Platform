@@ -130,7 +130,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     }
     final Calendar calendar = new HolidayRepositoryCalendarAdapter(holidayRepository, _currency);
     final Region region = OpenGammaExecutionContext.getRegionRepository(executionContext)
-    .getHierarchyNodes(now.toLocalDate(), InMemoryRegionRepository.POLITICAL_HIERARCHY_NAME, InMemoryRegionRepository.ISO_CURRENCY_3, _currency.getISOCode()).iterator().next();
+        .getHierarchyNodes(now.toLocalDate(), InMemoryRegionRepository.POLITICAL_HIERARCHY_NAME, InMemoryRegionRepository.ISO_CURRENCY_3, _currency.getISOCode()).iterator().next();
     //final Region region = OpenGammaExecutionContext.getRegionRepository(executionContext).getHierarchyNode(now.toLocalDate(), _currency.getUniqueIdentifier());
     final List<InterestRateDerivative> derivatives = new ArrayList<InterestRateDerivative>();
     final Set<FixedIncomeStrip> strips = _definition.getStrips();
@@ -180,7 +180,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     unknownCurves = new LinkedHashMap<String, FixedNodeInterpolator1D>();
     fnInterpolator = new FixedNodeInterpolator1D(nodeTimes, _interpolator);
     unknownCurves.put(CURVE_NAME, fnInterpolator);
-    final Function1D<DoubleMatrix1D,DoubleMatrix1D> curveFinder = new MultipleYieldCurveFinderFunction(derivatives, marketRates, unknownCurves, null);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveFinder = new MultipleYieldCurveFinderFunction(derivatives, marketRates, unknownCurves, null);
     NewtonVectorRootFinder rootFinder;
     double[] yields = null;
     try {
@@ -287,7 +287,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final ZonedDateTime startAdjusted = convention.adjustDate(calendar, start);
     final ZonedDateTime endAdjusted = convention.adjustDate(calendar, end);
     final double t = dayCount.getDayCountFraction(startAdjusted, endAdjusted);
-    return new Cash(t,CURVE_NAME);
+
+    return new Cash(t,0.0,CURVE_NAME);
+
   }
 
   private ForwardRateAgreement getFRA(final FixedIncomeStrip fraStrip, final Calendar calendar, final LocalDate now) {
@@ -300,7 +302,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final ZonedDateTime nowWithTime = now.atStartOfDayInZone(TimeZone.UTC);
     final double startTime = dayCount.getDayCountFraction(nowWithTime, startAdjusted);
     final double endTime = dayCount.getDayCountFraction(nowWithTime, endAdjusted);
-    return new ForwardRateAgreement(startTime, endTime,CURVE_NAME);
+
+    return new ForwardRateAgreement(startTime, endTime,0.0,CURVE_NAME,CURVE_NAME);
+
   }
 
   private InterestRateFuture getIRFuture(final FixedIncomeStrip irFutureStrip, final Calendar calendar, final LocalDate now) {
@@ -313,7 +317,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final ZonedDateTime nowWithTime = now.atStartOfDayInZone(TimeZone.UTC);
     final double startTime = dayCount.getDayCountFraction(nowWithTime, startAdjusted);
     final double endTime = dayCount.getDayCountFraction(nowWithTime, endAdjusted);
-    return new InterestRateFuture(startTime, endTime,CURVE_NAME);
+
+    return new InterestRateFuture(startTime, endTime-startTime,0.0,CURVE_NAME);
+
   }
 
   private Libor getLibor(final FixedIncomeStrip liborStrip, final Calendar calendar, final LocalDate now) {
@@ -324,7 +330,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final ZonedDateTime startAdjusted = convention.adjustDate(calendar, start);
     final ZonedDateTime endAdjusted = convention.adjustDate(calendar, end);
     final double t = dayCount.getDayCountFraction(startAdjusted, endAdjusted);
-    return new Libor(t,CURVE_NAME);
+
+    return new Libor(t,0.0, CURVE_NAME);
+
   }
 
   private FixedFloatSwap getSwap(final FixedIncomeStrip swapStrip, final Calendar calendar, final Region region, final LocalDate now, final double floatingRate) {
@@ -338,10 +346,13 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final double[] swapPaymentDates = ScheduleCalculator.getTimes(adjustedDates, dayCount, now.atStartOfDayInZone(TimeZone.UTC));
     final int n = swapPaymentDates.length;
     final double[] delta = new double[n];
+    final double[] dummyPayments = new double[n];
     for (int i = 0; i < n; i++) {
       delta[i] = 0;
     }
-    return new FixedFloatSwap(swapPaymentDates, swapPaymentDates, delta, delta, CURVE_NAME, CURVE_NAME);
+
+    return new FixedFloatSwap(swapPaymentDates, dummyPayments, swapPaymentDates, delta, delta,CURVE_NAME,CURVE_NAME);
+
   }
   private double getLastTime(final InterestRateDerivative derivative) {
     if (derivative instanceof FixedFloatSwap) {
@@ -369,14 +380,14 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   }
 
   private double getLastLiborTime(final Libor libor) {
-    return libor.getPaymentTime();
+    return libor.getMaturity();
   }
 
   private double getLastFRATime(final ForwardRateAgreement fra) {
-    return fra.getEndTime();
+    return fra.getMaturity();
   }
 
   private double getLastIRFutureTime(final InterestRateFuture irFuture) {
-    return irFuture.getEndTime();
+    return irFuture.getSettlementDate()+irFuture.getYearFraction();
   }
 }

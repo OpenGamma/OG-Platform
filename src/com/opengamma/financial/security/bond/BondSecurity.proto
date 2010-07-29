@@ -26,10 +26,10 @@ namespace com.opengamma.financial.security.bond {
     required convention.frequency.Frequency couponFrequency;
     required convention.daycount.DayCount dayCountConvention;
     required convention.businessday.BusinessDayConvention businessDayConvention;
-    required date announcementDate;
-    required date interestAccrualDate;
-    required date settlementDate;
-    required date firstCouponDate;
+    required DateTimeWithZone announcementDate;
+    required DateTimeWithZone interestAccrualDate;
+    required DateTimeWithZone settlementDate;
+    required DateTimeWithZone firstCouponDate;
     required double issuancePrice;
     required double totalAmountIssued;
     required double minimumAmount;

@@ -5,18 +5,16 @@
  */
 package com.opengamma.financial.security.db.option;
 
-import java.util.Date;
-
-import javax.time.calendar.DateTimeProvider;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.opengamma.financial.security.db.CurrencyBean;
 import com.opengamma.financial.security.db.ExchangeBean;
+import com.opengamma.financial.security.db.ExpiryBean;
 import com.opengamma.financial.security.db.IdentifierBean;
 import com.opengamma.financial.security.db.SecurityBean;
+import com.opengamma.financial.security.db.ZonedDateTimeBean;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 
@@ -32,7 +30,7 @@ public class OptionSecurityBean extends SecurityBean {
   private OptionSecurityType _optionSecurityType;
   private OptionType _optionType;
   private double _strike;
-  private Date _expiry;
+  private ExpiryBean _expiry;
   private CurrencyBean _currency;
   private CurrencyBean _putCurrency;
   private CurrencyBean _callCurrency;
@@ -45,16 +43,11 @@ public class OptionSecurityBean extends SecurityBean {
   private Double _payment;
   private Double _lowerBound;
   private Double _upperBound;
-  private DateTimeProvider _chooseDate;
-  private String _chooseDateTimeProviderZone;
+  private ZonedDateTimeBean _chooseDate;
   private Double _underlyingStrike;
-  private DateTimeProvider _underlyingExpiry;
-  private String _underlyingExpiryTimeZone;
-  private DateTimeProvider _periodEnd; // TODO seems unnecessary with choose date in here 
-  private String _periodEndTimeZone; // TODO same comment as above
-  private boolean _isReverse;
+  private ExpiryBean _underlyingExpiry;
+  private Boolean _reverse;
   private IdentifierBean _underlying;
-  
 
   public OptionSecurityBean() {
     super();
@@ -133,7 +126,7 @@ public class OptionSecurityBean extends SecurityBean {
   /**
    * @return the expiry
    */
-  public Date getExpiry() {
+  public ExpiryBean getExpiry() {
     return _expiry;
   }
 
@@ -141,7 +134,7 @@ public class OptionSecurityBean extends SecurityBean {
    * @param expiry
    *          the expiry to set
    */
-  public void setExpiry(final Date expiry) {
+  public void setExpiry(ExpiryBean expiry) {
     _expiry = expiry;
   }
 
@@ -260,11 +253,11 @@ public class OptionSecurityBean extends SecurityBean {
     _upperBound = upperBound;
   }
 
-  public DateTimeProvider getChooseDate() {
+  public ZonedDateTimeBean getChooseDate() {
     return _chooseDate;
   }
   
-  public void setChooseDate(DateTimeProvider chooseDate) {
+  public void setChooseDate(ZonedDateTimeBean chooseDate) {
     _chooseDate = chooseDate;
   }
   
@@ -276,60 +269,20 @@ public class OptionSecurityBean extends SecurityBean {
     _underlyingStrike = underlyingStrike;
   }
   
-  public DateTimeProvider getUnderlyingExpiry() {
+  public ExpiryBean getUnderlyingExpiry() {
     return _underlyingExpiry;
   }
   
-  public void setUnderlyingExpiry(DateTimeProvider underlyingExpiry) {
+  public void setUnderlyingExpiry(ExpiryBean underlyingExpiry) {
     _underlyingExpiry = underlyingExpiry;
   }
   
-  public String getChooseDateTimeZone() {
-    return _chooseDateTimeProviderZone;
+  public Boolean isReverse() {
+    return _reverse;
   }
 
-  public void setChooseDateTimeZone(String chooseDateTimeProviderZone) {
-    _chooseDateTimeProviderZone = chooseDateTimeProviderZone;
-  }
-
-  public String getUnderlyingExpiryTimeZone() {
-    return _underlyingExpiryTimeZone;
-  }
-
-  public void setUnderlyingExpiryTimeZone(String underlyingExpiryTimeZone) {
-    _underlyingExpiryTimeZone = underlyingExpiryTimeZone;
-  }
-
-  public String getChooseDateTimeProviderZone() {
-    return _chooseDateTimeProviderZone;
-  }
-
-  public void setChooseDateTimeProviderZone(String chooseDateTimeProviderZone) {
-    _chooseDateTimeProviderZone = chooseDateTimeProviderZone;
-  }
-
-  public DateTimeProvider getPeriodEnd() {
-    return _periodEnd;
-  }
-
-  public void setPeriodEnd(DateTimeProvider periodEnd) {
-    _periodEnd = periodEnd;
-  }
-
-  public String getPeriodEndTimeZone() {
-    return _periodEndTimeZone;
-  }
-
-  public void setPeriodEndTimeZone(String periodEndTimeZone) {
-    _periodEndTimeZone = periodEndTimeZone;
-  }
-
-  public boolean isReverse() {
-    return _isReverse;
-  }
-
-  public void setReverse(boolean isReverse) {
-    _isReverse = isReverse;
+  public void setReverse(Boolean reverse) {
+    _reverse = reverse;
   }
 
   @Override
@@ -362,10 +315,6 @@ public class OptionSecurityBean extends SecurityBean {
       .append(getChooseDate(), option.getChooseDate())
       .append(getUnderlyingStrike(), option.getUnderlyingStrike())
       .append(getUnderlyingExpiry(), option.getUnderlyingExpiry())
-      .append(getUnderlyingExpiryTimeZone(), option.getUnderlyingExpiryTimeZone())
-      .append(getChooseDateTimeZone(), option.getChooseDateTimeZone())
-      .append(getPeriodEnd(), option.getPeriodEnd())
-      .append(getPeriodEndTimeZone(), option.getPeriodEndTimeZone())
       .append(isReverse(), option.isReverse())
       .isEquals();
   }
@@ -392,10 +341,6 @@ public class OptionSecurityBean extends SecurityBean {
       .append(getChooseDate())
       .append(getUnderlyingStrike())
       .append(getUnderlyingExpiry())
-      .append(getUnderlyingExpiryTimeZone())
-      .append(getChooseDateTimeZone())
-      .append(getPeriodEnd())
-      .append(getPeriodEndTimeZone())
       .append(isReverse())
       .toHashCode();
   }

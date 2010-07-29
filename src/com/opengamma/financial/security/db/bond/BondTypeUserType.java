@@ -5,13 +5,15 @@
  */
 package com.opengamma.financial.security.db.bond;
 
+import com.opengamma.financial.security.bond.BondSecurityVisitor;
+import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.db.EnumUserType;
 
 
 /**
  * Custom Hibernate usertype for the BondType enum
- * 
- * @author andrew
  */
 public class BondTypeUserType extends EnumUserType<BondType> {
   
@@ -25,20 +27,20 @@ public class BondTypeUserType extends EnumUserType<BondType> {
 
   @Override
   protected String enumToStringNoCache(BondType value) {
-    return value.accept(new BondType.Visitor<String>() {
+    return value.accept(new BondSecurityVisitor<String>() {
 
       @Override
-      public String visitCorporateBondType() {
+      public String visitCorporateBondSecurity(CorporateBondSecurity bond) {
         return CORPORATE_BOND_TYPE;
       }
 
       @Override
-      public String visitGovernmentBondType() {
+      public String visitGovernmentBondSecurity(GovernmentBondSecurity bond) {
         return GOVERNMENT_BOND_TYPE;
       }
 
       @Override
-      public String visitMunicipalBondType() {
+      public String visitMunicipalBondSecurity(MunicipalBondSecurity bond) {
         return MUNICIPAL_BOND_TYPE;
       }
     });

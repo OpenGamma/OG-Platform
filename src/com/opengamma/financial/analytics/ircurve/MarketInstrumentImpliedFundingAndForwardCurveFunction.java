@@ -201,7 +201,7 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     unknownCurves.put(LIBOR_CURVE_NAME, fnInterpolator);
     fnInterpolator = new FixedNodeInterpolator1D(fundingNodeTimes, _interpolator);
     unknownCurves.put(FUNDING_CURVE_NAME, fnInterpolator);
-    final Function1D<DoubleMatrix1D,DoubleMatrix1D> curveFinder = new MultipleYieldCurveFinderFunction(derivatives, marketRates, unknownCurves, null);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveFinder = new MultipleYieldCurveFinderFunction(derivatives, marketRates, unknownCurves, null);
 
 
     final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, jacobian, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
@@ -308,7 +308,9 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     final ZonedDateTime startAdjusted = convention.adjustDate(calendar, start);
     final ZonedDateTime endAdjusted = convention.adjustDate(calendar, end);
     final double t = dayCount.getDayCountFraction(startAdjusted, endAdjusted);
-    return new Cash(t,FUNDING_CURVE_NAME);
+
+    return new Cash(t,0.0,FUNDING_CURVE_NAME);
+
   }
 
   private ForwardRateAgreement getFRA(final FixedIncomeStrip fraStrip, final Calendar calendar, final LocalDate now) {
@@ -321,7 +323,9 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     final ZonedDateTime nowWithTime = now.atStartOfDayInZone(TimeZone.UTC);
     final double startTime = dayCount.getDayCountFraction(nowWithTime, startAdjusted);
     final double endTime = dayCount.getDayCountFraction(nowWithTime, endAdjusted);
-    return new ForwardRateAgreement(startTime, endTime,LIBOR_CURVE_NAME);
+
+    return new ForwardRateAgreement(startTime, endTime,0.0, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+
   }
 
   private InterestRateFuture getIRFuture(final FixedIncomeStrip irFutureStrip, final Calendar calendar, final LocalDate now) {
@@ -334,7 +338,9 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     final ZonedDateTime nowWithTime = now.atStartOfDayInZone(TimeZone.UTC);
     final double startTime = dayCount.getDayCountFraction(nowWithTime, startAdjusted);
     final double endTime = dayCount.getDayCountFraction(nowWithTime, endAdjusted);
-    return new InterestRateFuture(startTime, endTime,LIBOR_CURVE_NAME);
+
+    return new InterestRateFuture(startTime, endTime-startTime,100, LIBOR_CURVE_NAME);
+
   }
 
   private Libor getLibor(final FixedIncomeStrip liborStrip, final Calendar calendar, final LocalDate now) {
@@ -345,7 +351,9 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     final ZonedDateTime startAdjusted = convention.adjustDate(calendar, start);
     final ZonedDateTime endAdjusted = convention.adjustDate(calendar, end);
     final double t = dayCount.getDayCountFraction(startAdjusted, endAdjusted);
-    return new Libor(t,LIBOR_CURVE_NAME);
+
+    return new Libor(t,0.0,LIBOR_CURVE_NAME);
+
   }
 
   private FixedFloatSwap getSwap(final FixedIncomeStrip swapStrip, final Calendar calendar, final Region region, final LocalDate now, final double floatingRate) {
@@ -358,11 +366,14 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     final ZonedDateTime[] adjustedDates = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, convention, calendar);
     final double[] swapPaymentDates = ScheduleCalculator.getTimes(adjustedDates, dayCount, now.atStartOfDayInZone(TimeZone.UTC));
     final int n = swapPaymentDates.length;
+    final double[] dummyPayments = new double[n];
     final double[] delta = new double[n];
     for (int i = 0; i < n; i++) {
       delta[i] = 0;
     }
-    return new FixedFloatSwap(swapPaymentDates, swapPaymentDates, delta, delta, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+
+    return new FixedFloatSwap(swapPaymentDates,  dummyPayments, swapPaymentDates, delta, delta,FUNDING_CURVE_NAME,LIBOR_CURVE_NAME);
+
   }
 
   private double getLastTime(final InterestRateDerivative derivative) {
@@ -391,14 +402,14 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
   }
 
   private double getLastLiborTime(final Libor libor) {
-    return libor.getPaymentTime();
+    return libor.getMaturity();
   }
 
   private double getLastFRATime(final ForwardRateAgreement fra) {
-    return fra.getEndTime();
+    return fra.getMaturity();
   }
 
   private double getLastIRFutureTime(final InterestRateFuture irFuture) {
-    return irFuture.getEndTime();
+    return irFuture.getSettlementDate()+irFuture.getYearFraction();
   }
 }

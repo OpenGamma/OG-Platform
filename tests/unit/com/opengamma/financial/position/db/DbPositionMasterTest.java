@@ -79,6 +79,7 @@ public class DbPositionMasterTest extends DBTest {
   @After
   public void tearDown() throws Exception {
     _posMaster = null;
+    super.tearDown();
   }
 
   //-------------------------------------------------------------------------
