@@ -259,15 +259,19 @@ public class InMemoryPositionMaster implements PositionMaster {
   public PositionDocument addPosition(final PositionDocument document) {
     Validate.notNull(document, "document");
     Validate.notNull(document.getPosition(), "document.position");
+    Validate.notNull(document.getParentNodeId(), "document.parentNodeId");
     
-    final Position positoin = document.getPosition();
+    final Position position = document.getPosition();
     final UniqueIdentifier uid = _uidSupplier.get();
     final Instant now = Instant.nowSystemClock();
-    UniqueIdentifiables.setInto(positoin, uid);
-    final PositionDocument doc = new PositionDocument(positoin);
+    UniqueIdentifiables.setInto(position, uid);
+    final PositionDocument doc = new PositionDocument();
+    doc.setPosition(position);
     doc.setPortfolioId(uid);
-    doc.setValidFromInstant(now);
-    doc.setLastModifiedInstant(now);
+    doc.setParentNodeId(document.getParentNodeId());
+    doc.setPortfolioId(document.getPortfolioId());
+    doc.setVersionFromInstant(now);
+    doc.setCorrectionFromInstant(now);
     _positions.put(uid, doc);  // unique identifier should be unique
     return doc;
   }
@@ -278,15 +282,16 @@ public class InMemoryPositionMaster implements PositionMaster {
     Validate.notNull(document.getPosition(), "document.position");
     Validate.notNull(document.getPositionId(), "document.positionId");
     
-    final UniqueIdentifier uid = document.getPortfolioId();
+    final UniqueIdentifier uid = document.getPositionId();
     final Instant now = Instant.nowSystemClock();
     final PositionDocument storedDocument = _positions.get(uid);
     if (storedDocument == null) {
       throw new DataNotFoundException("Portfolio not found: " + uid);
     }
-    document.setValidFromInstant(storedDocument.getValidFromInstant());
-    document.setValidToInstant(storedDocument.getValidToInstant());
-    document.setLastModifiedInstant(now);
+    document.setVersionFromInstant(now);
+    document.setVersionToInstant(null);
+    document.setCorrectionFromInstant(now);
+    document.setCorrectionFromInstant(null);
     if (_positions.replace(uid, storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
