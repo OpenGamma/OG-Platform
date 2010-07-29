@@ -91,9 +91,9 @@ public class InterestRateCalculator implements InterestRateDerivativeVisitor<Dou
   @Override
   public Double visitBasisSwap(final BasisSwap swap, final YieldCurveBundle curves) {
 
-    final VariableAnnuity payLeg = swap.getPayLeg().makeZeroSpreadVersion();
-    final VariableAnnuity receiveLeg = swap.getReceiveLeg().makeZeroSpreadVersion();
-    final FixedAnnuity spreadLeg = swap.getPayLeg().makeUnitCouponVersion();
+    final VariableAnnuity payLeg = swap.getPayLeg().toZeroSpreadVariableAnnuity();
+    final VariableAnnuity receiveLeg = swap.getReceiveLeg().toZeroSpreadVariableAnnuity();
+    final FixedAnnuity spreadLeg = swap.getPayLeg().toUnitCouponFixedAnnuity();
 
     final double pvPay = _pvCalculator.getPresentValue(payLeg, curves);
     final double pvRecieve = _pvCalculator.getPresentValue(receiveLeg, curves);
@@ -113,7 +113,7 @@ public class InterestRateCalculator implements InterestRateDerivativeVisitor<Dou
 
   @Override
   public Double visitVariableAnnuity(final VariableAnnuity annuity, final YieldCurveBundle curves) {
-    final FixedAnnuity tempAnnuity = annuity.makeUnitCouponVersion();
+    final FixedAnnuity tempAnnuity = annuity.toUnitCouponFixedAnnuity();
     final double pvFloat = _pvCalculator.getPresentValue(annuity, curves);
     final double pvFixed = _pvCalculator.getPresentValue(tempAnnuity, curves);
     return pvFloat / pvFixed;

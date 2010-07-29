@@ -7,6 +7,7 @@ package com.opengamma.financial.interestrate.annuity.definition;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
@@ -46,7 +47,7 @@ public class VariableAnnuity implements Annuity {
    * @param fundingCurveName liborCurveName
    * @param liborCurveName Name of curve from which forward rates are calculated
    */
-  public VariableAnnuity(final double[] paymentTimes, double notional, final String fundingCurveName, final String liborCurveName) {
+  public VariableAnnuity(final double[] paymentTimes, final double notional, final String fundingCurveName, final String liborCurveName) {
     Validate.notNull(fundingCurveName);
     Validate.notNull(liborCurveName);
     Validate.notNull(paymentTimes);
@@ -75,7 +76,7 @@ public class VariableAnnuity implements Annuity {
    * @param fundingCurveName  Name of curve from which payments are discounted
    * @param liborCurveName Name of curve from which forward rates are calculated
    */
-  public VariableAnnuity(final double[] paymentTimes, double notional, final double[] fwdStartOffsets, final double[] fwdEndOffsets, final String fundingCurveName, final String liborCurveName) {
+  public VariableAnnuity(final double[] paymentTimes, final double notional, final double[] fwdStartOffsets, final double[] fwdEndOffsets, final String fundingCurveName, final String liborCurveName) {
     Validate.notNull(fundingCurveName);
     Validate.notNull(liborCurveName);
     Validate.notNull(paymentTimes);
@@ -113,7 +114,7 @@ public class VariableAnnuity implements Annuity {
    * @param fundingCurveName  Name of curve from which payments are discounted
    * @param liborCurveName Name of curve from which forward rates are calculated
    */
-  public VariableAnnuity(final double[] paymentTimes, double notional, final double[] fwdStartOffsets, final double[] fwdEndOffsets, final double[] yearFraction, final double[] spreads,
+  public VariableAnnuity(final double[] paymentTimes, final double notional, final double[] fwdStartOffsets, final double[] fwdEndOffsets, final double[] yearFraction, final double[] spreads,
       final String fundingCurveName, final String liborCurveName) {
 
     Validate.notNull(fundingCurveName);
@@ -182,12 +183,12 @@ public class VariableAnnuity implements Annuity {
     return _notional;
   }
 
-  public VariableAnnuity makeZeroSpreadVersion() {
+  public VariableAnnuity toZeroSpreadVariableAnnuity() {
     return new VariableAnnuity(getPaymentTimes(), getNotional(), getDeltaStart(), getDeltaEnd(), getYearFractions(), new double[getNumberOfPayments()], getFundingCurveName(), getLiborCurveName());
   }
 
-  public FixedAnnuity makeUnitCouponVersion() {
-    double[] coupons = new double[getNumberOfPayments()];
+  public FixedAnnuity toUnitCouponFixedAnnuity() {
+    final double[] coupons = new double[getNumberOfPayments()];
     for (int i = 0; i < getNumberOfPayments(); i++) {
       coupons[i] = 1.0;
     }
@@ -212,7 +213,7 @@ public class VariableAnnuity implements Annuity {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -222,25 +223,17 @@ public class VariableAnnuity implements Annuity {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    VariableAnnuity other = (VariableAnnuity) obj;
+    final VariableAnnuity other = (VariableAnnuity) obj;
     if (!Arrays.equals(_deltaEnd, other._deltaEnd)) {
       return false;
     }
     if (!Arrays.equals(_deltaStart, other._deltaStart)) {
       return false;
     }
-    if (_fundingCurveName == null) {
-      if (other._fundingCurveName != null) {
-        return false;
-      }
-    } else if (!_fundingCurveName.equals(other._fundingCurveName)) {
+    if (!ObjectUtils.equals(_fundingCurveName, other._fundingCurveName)) {
       return false;
     }
-    if (_liborCurveName == null) {
-      if (other._liborCurveName != null) {
-        return false;
-      }
-    } else if (!_liborCurveName.equals(other._liborCurveName)) {
+    if (!ObjectUtils.equals(_liborCurveName, other._liborCurveName)) {
       return false;
     }
     if (Double.doubleToLongBits(_notional) != Double.doubleToLongBits(other._notional)) {
@@ -259,7 +252,7 @@ public class VariableAnnuity implements Annuity {
   }
 
   @Override
-  public <T> T accept(InterestRateDerivativeVisitor<T> visitor, YieldCurveBundle curves) {
+  public <T> T accept(final InterestRateDerivativeVisitor<T> visitor, final YieldCurveBundle curves) {
     return visitor.visitVariableAnnuity(this, curves);
   }
 

@@ -140,9 +140,9 @@ public class InterestRateCurveSensitivityCalculator implements InterestRateDeriv
 
   @Override
   public Map<String, List<Pair<Double, Double>>> visitBasisSwap(BasisSwap swap, YieldCurveBundle curves) {
-    VariableAnnuity payLeg = swap.getPayLeg().makeZeroSpreadVersion();
-    VariableAnnuity receiveLeg = swap.getReceiveLeg().makeZeroSpreadVersion();
-    FixedAnnuity spreadLeg = swap.getPayLeg().makeUnitCouponVersion();
+    VariableAnnuity payLeg = swap.getPayLeg().toZeroSpreadVariableAnnuity();
+    VariableAnnuity receiveLeg = swap.getReceiveLeg().toZeroSpreadVariableAnnuity();
+    FixedAnnuity spreadLeg = swap.getPayLeg().toUnitCouponFixedAnnuity();
     double a = _pvCalculator.getPresentValue(receiveLeg, curves);
     double b = _pvCalculator.getPresentValue(payLeg, curves);
     double c = _pvCalculator.getPresentValue(spreadLeg, curves);

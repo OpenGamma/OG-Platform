@@ -135,6 +135,10 @@ public class FixedAnnuityTest {
     assertEquals(ANNUITY2, new FixedAnnuity(T, new double[] {0.5, 0.5, 0.5, 0.5}, CURVE_NAME));
     assertEquals(ANNUITY4, ANNUITY3);
     assertEquals(ANNUITY5, ANNUITY3);
+    assertEquals(ANNUITY1, ANNUITY2.toUnitCouponFixedAnnuity(NOTIONAL));
+    assertEquals(ANNUITY1, ANNUITY3.toUnitCouponFixedAnnuity(NOTIONAL));
+    assertEquals(ANNUITY1, ANNUITY4.toUnitCouponFixedAnnuity(NOTIONAL));
+    assertEquals(ANNUITY1, ANNUITY5.toUnitCouponFixedAnnuity(NOTIONAL));
     final double[] data = new double[] {1, 2, 3, 4};
     other = new FixedAnnuity(data, NOTIONAL, COUPONS, YEAR_FRACTIONS, CURVE_NAME);
     assertFalse(other.equals(ANNUITY5));
