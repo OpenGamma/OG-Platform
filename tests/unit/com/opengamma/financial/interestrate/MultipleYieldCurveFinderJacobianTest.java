@@ -9,6 +9,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -16,6 +17,8 @@ import org.junit.Test;
 
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Extrapolator1D;
 import com.opengamma.math.interpolation.ExtrapolatorMethod;
@@ -134,6 +137,11 @@ public class MultipleYieldCurveFinderJacobianTest {
     CASH_ONLY.evaluate(XN, (Function1D<DoubleMatrix1D, DoubleMatrix1D>[]) null);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testCurveAlreadyPresent() {
+    new MultipleYieldCurveFinderJacobian(CASH, CASH_CURVES, new YieldCurveBundle(Collections.<String, YieldAndDiscountCurve>singletonMap(FUNDING_CURVE_NAME, new ConstantYieldCurve(2.))));
+  }
+  
   @Test
   public void testCashOnly() {
     final DoubleMatrix2D jacobian = CASH_ONLY.evaluate(XM, (Function1D<DoubleMatrix1D, DoubleMatrix1D>[]) null);

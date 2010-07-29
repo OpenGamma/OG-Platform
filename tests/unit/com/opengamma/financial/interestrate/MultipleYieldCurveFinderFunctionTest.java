@@ -53,7 +53,7 @@ public class MultipleYieldCurveFinderFunctionTest {
     }
 
     UNKNOWN_CURVES = new LinkedHashMap<String, FixedNodeInterpolator1D>();
-    FixedNodeInterpolator1D fnInterpolator = new FixedNodeInterpolator1D(NODES, INTERPOLATOR);
+    final FixedNodeInterpolator1D fnInterpolator = new FixedNodeInterpolator1D(NODES, INTERPOLATOR);
     UNKNOWN_CURVES.put(CURVE_NAME, fnInterpolator);
     FINDER = new MultipleYieldCurveFinderFunction(DERIVATIVES, SIMPLE_RATES, UNKNOWN_CURVES, null);
   }
@@ -75,8 +75,8 @@ public class MultipleYieldCurveFinderFunctionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNameClash() {
-    YieldCurveBundle bundle = new YieldCurveBundle();
-    YieldAndDiscountCurve curve = new ConstantYieldCurve(0.05);
+    final YieldCurveBundle bundle = new YieldCurveBundle();
+    final YieldAndDiscountCurve curve = new ConstantYieldCurve(0.05);
     bundle.setCurve(CURVE_NAME, curve);
     new MultipleYieldCurveFinderFunction(DERIVATIVES, SIMPLE_RATES, UNKNOWN_CURVES, bundle);
   }
@@ -104,6 +104,14 @@ public class MultipleYieldCurveFinderFunctionTest {
   @Test(expected = IllegalArgumentException.class)
   public void testMismatchingVector() {
     FINDER.evaluate(new DoubleMatrix1D(new double[] {1, 2, 3, 4, 5, 6, 7, 8}));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testWrongNodeNumber() {
+    final List<InterestRateDerivative> list = new ArrayList<InterestRateDerivative>();
+    list.add(new Cash(1, 0.01, CURVE_NAME));
+    list.add(new Cash(0.5, 0.01, CURVE_NAME));
+    new MultipleYieldCurveFinderFunction(list, SIMPLE_RATES, UNKNOWN_CURVES, null);
   }
 
   @Test
