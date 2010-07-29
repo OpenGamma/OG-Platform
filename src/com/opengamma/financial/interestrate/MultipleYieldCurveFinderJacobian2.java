@@ -30,16 +30,16 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
+public class MultipleYieldCurveFinderJacobian2 implements JacobianCalculator {
 
-  private final InterestRateCurveSensitivityCalculator _rateSensitivityCalculator = new InterestRateCurveSensitivityCalculator();
+  private final PresentValueSensitivityCalculator _pvsCalculator = new PresentValueSensitivityCalculator();
   private final int _nPoints;
   private final Map<String, FixedNodeInterpolator1D> _unknownCurves;
   // private final Set<String> _unknownCurveNames;
   private YieldCurveBundle _knownCurves;
   private final List<InterestRateDerivative> _derivatives;
 
-  public MultipleYieldCurveFinderJacobian(final List<InterestRateDerivative> derivatives, LinkedHashMap<String, FixedNodeInterpolator1D> unknownCurves, YieldCurveBundle knownCurves) {
+  public MultipleYieldCurveFinderJacobian2(final List<InterestRateDerivative> derivatives, LinkedHashMap<String, FixedNodeInterpolator1D> unknownCurves, YieldCurveBundle knownCurves) {
     Validate.notNull(derivatives);
     Validate.noNullElements(derivatives);
     Validate.notEmpty(unknownCurves, "No curves to solve for");
@@ -97,7 +97,7 @@ public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
     double[][] res = new double[_nPoints][_nPoints];
 
     for (int i = 0; i < _nPoints; i++) { // loop over all instruments
-      Map<String, List<Pair<Double, Double>>> senseMap = _rateSensitivityCalculator.getSensitivity(_derivatives.get(i), curves);
+      Map<String, List<Pair<Double, Double>>> senseMap = _pvsCalculator.getSensitivity(_derivatives.get(i), curves);
 
       iterator = entrySet.iterator();
       int offset = 0;
@@ -133,5 +133,4 @@ public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
 
     return new DoubleMatrix2D(res);
   }
-
 }
