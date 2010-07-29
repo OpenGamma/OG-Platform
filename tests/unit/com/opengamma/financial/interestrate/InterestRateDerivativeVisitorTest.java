@@ -28,59 +28,59 @@ public class InterestRateDerivativeVisitorTest {
 
   private static final InterestRateDerivativeVisitor<Class<?>> VISITOR = new InterestRateDerivativeVisitor<Class<?>>() {
 
-    private Class<?> visit(final InterestRateDerivative derivative, YieldCurveBundle curves) {
+    private Class<?> visit(final InterestRateDerivative derivative, @SuppressWarnings("unused") final YieldCurveBundle curves) {
       return derivative.getClass();
     }
 
     @Override
-    public Class<?> visitCash(Cash cash, YieldCurveBundle curves) {
+    public Class<?> visitCash(final Cash cash, final YieldCurveBundle curves) {
       return visit(cash, curves);
     }
 
     @Override
-    public Class<?> visitForwardRateAgreement(ForwardRateAgreement fra, YieldCurveBundle curves) {
+    public Class<?> visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
       return visit(fra, curves);
     }
 
     @Override
-    public Class<?> visitInterestRateFuture(InterestRateFuture future, YieldCurveBundle curves) {
+    public Class<?> visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
       return visit(future, curves);
     }
 
     @Override
-    public Class<?> visitBasisSwap(BasisSwap swap, YieldCurveBundle curves) {
+    public Class<?> visitBasisSwap(final BasisSwap swap, final YieldCurveBundle curves) {
       return visit(swap, curves);
     }
 
     @Override
-    public Class<?> visitBond(Bond bond, YieldCurveBundle curves) {
+    public Class<?> visitBond(final Bond bond, final YieldCurveBundle curves) {
       return visit(bond, curves);
     }
 
     @Override
-    public Class<?> visitFixedAnnuity(FixedAnnuity annuity, YieldCurveBundle curves) {
+    public Class<?> visitFixedAnnuity(final FixedAnnuity annuity, final YieldCurveBundle curves) {
       return visit(annuity, curves);
     }
 
     @Override
-    public Class<?> visitFixedFloatSwap(FixedFloatSwap swap, YieldCurveBundle curves) {
+    public Class<?> visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle curves) {
       return visit(swap, curves);
     }
 
     @Override
-    public Class<?> visitSwap(Swap swap, YieldCurveBundle curves) {
+    public Class<?> visitSwap(final Swap swap, final YieldCurveBundle curves) {
       return visit(swap, curves);
     }
 
     @Override
-    public Class<?> visitVariableAnnuity(VariableAnnuity annuity, YieldCurveBundle curves) {
+    public Class<?> visitVariableAnnuity(final VariableAnnuity annuity, final YieldCurveBundle curves) {
       return visit(annuity, curves);
     }
   };
 
   @Test
   public void test() {
-    YieldCurveBundle curves = new YieldCurveBundle();
+    final YieldCurveBundle curves = new YieldCurveBundle();
     final Cash cash = new Cash(1, 0, CURVE_NAME);
     final ForwardRateAgreement fra = new ForwardRateAgreement(0, 1, 0, CURVE_NAME, CURVE_NAME);
     final InterestRateFuture future = new InterestRateFuture(0, 1, 0, CURVE_NAME);

@@ -124,8 +124,6 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
     final double[] cashMaturities = new double[] {1. / 365, 1. / 52., 2. / 52., 1. / 12, 3. / 12, 6. / 12};
     final double[] swapMaturities = new double[] {1.00, 2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15, 20.00277778, 25.00555556, 30.00555556, 35.00833333, 50.01388889};
 
-    final int nNodes = liborMaturities.length + fraMaturities.length + cashMaturities.length + swapMaturities.length;
-
     final double[] remainingFwdNodes = new double[] {3.0, 5.0, 7.0, 10.0, 20.0, 40.0};
     final double[] remainingFundNodes = new double[] {2.0, 3.0, 5.0, 7.0, 10.0, 20.0, 40.0};
 
@@ -313,7 +311,7 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
   }
 
   private static FixedFloatSwap setupSwap(final double time, final String fundCurveName, final String liborCurveName) {
-    int index = (int) Math.round(2 * time);
+    final int index = (int) Math.round(2 * time);
     return setupSwap(index, fundCurveName, liborCurveName);
   }
 
@@ -335,8 +333,8 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
       deltaStart[i] = sigma * (i == 0 ? RANDOM.nextDouble() : (RANDOM.nextDouble() - 0.5));
       deltaEnd[i] = sigma * (RANDOM.nextDouble() - 0.5);
     }
-    FixedAnnuity fixedLeg = new FixedAnnuity(fixed, 1.0, coupons, fundCurveName);
-    VariableAnnuity floatingLeg = new VariableAnnuity(floating, 1.0, deltaStart, deltaEnd, fundCurveName, liborCurveName);
+    final FixedAnnuity fixedLeg = new FixedAnnuity(fixed, 1.0, coupons, fundCurveName);
+    final VariableAnnuity floatingLeg = new VariableAnnuity(floating, 1.0, deltaStart, deltaEnd, fundCurveName, liborCurveName);
     return new FixedFloatSwap(fixedLeg, floatingLeg);
   }
 

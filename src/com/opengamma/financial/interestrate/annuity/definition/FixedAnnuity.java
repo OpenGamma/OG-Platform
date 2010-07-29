@@ -95,8 +95,8 @@ public class FixedAnnuity implements Annuity {
   }
 
   private static double[] setupActualActualYearFractions(final double[] paymentTimes) {
-    int n = paymentTimes.length;
-    double[] res = new double[n];
+    final int n = paymentTimes.length;
+    final double[] res = new double[n];
     res[0] = paymentTimes[0];
     for (int i = 1; i < n; i++) {
       res[i] = paymentTimes[i] - paymentTimes[i - 1];
@@ -106,11 +106,11 @@ public class FixedAnnuity implements Annuity {
 
   /**
    * used for calculating swap rates 
-   * @param notional
-   * @return
+   * @param notional The notional value
+   * @return A fixed annuity with all coupons set to zero
    */
-  public FixedAnnuity makeUnitCouponVersion(double notional) {
-    double[] coupons = new double[getNumberOfPayments()];
+  public FixedAnnuity toUnitCouponFixedAnnuity(final double notional) {
+    final double[] coupons = new double[getNumberOfPayments()];
     for (int i = 0; i < getNumberOfPayments(); i++) {
       coupons[i] = 1.0;
     }
@@ -152,7 +152,7 @@ public class FixedAnnuity implements Annuity {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -162,7 +162,7 @@ public class FixedAnnuity implements Annuity {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    FixedAnnuity other = (FixedAnnuity) obj;
+    final FixedAnnuity other = (FixedAnnuity) obj;
     if (_curveName == null) {
       if (other._curveName != null) {
         return false;
@@ -183,7 +183,7 @@ public class FixedAnnuity implements Annuity {
   }
 
   @Override
-  public <T> T accept(InterestRateDerivativeVisitor<T> visitor, YieldCurveBundle curves) {
+  public <T> T accept(final InterestRateDerivativeVisitor<T> visitor, final YieldCurveBundle curves) {
     return visitor.visitFixedAnnuity(this, curves);
   }
 

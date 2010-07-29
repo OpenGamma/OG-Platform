@@ -19,8 +19,8 @@ import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
- * Get the single fixed rate that makes the PV of the instrument zero. For  fixed-float swaps this is the swap rate, for FRAs it is the forward etc. For instruments that cannot PV to zero, e.g. bonds, a single payment of -1.0 
- * is assumed at zero (i.e. the bond must PV to 1.0)
+ * Get the single fixed rate that makes the PV of the instrument zero. For  fixed-float swaps this is the swap rate, for FRAs it is the forward etc. For instruments that 
+ * cannot PV to zero, e.g. bonds, a single payment of -1.0 is assumed at zero (i.e. the bond must PV to 1.0)
  */
 public class InterestRateCalculator implements InterestRateDerivativeVisitor<Double> {
 
@@ -33,27 +33,27 @@ public class InterestRateCalculator implements InterestRateDerivativeVisitor<Dou
   }
 
   @Override
-  public Double visitCash(Cash cash, YieldCurveBundle curves) {
-    YieldAndDiscountCurve curve = curves.getCurve(cash.getYieldCurveName());
-    double ta = cash.getTradeTime();
-    double tb = cash.getPaymentTime();
-    double yearFrac = cash.getYearFraction();
+  public Double visitCash(final Cash cash, final YieldCurveBundle curves) {
+    final YieldAndDiscountCurve curve = curves.getCurve(cash.getYieldCurveName());
+    final double ta = cash.getTradeTime();
+    final double tb = cash.getPaymentTime();
+    final double yearFrac = cash.getYearFraction();
     // TODO need a getForwardRate method on YieldAndDiscountCurve
     if (yearFrac == 0.0) {
       if (ta != tb) {
         throw new IllegalArgumentException("Year fraction is zero, but payment time greater than trade time");
       }
-      double eps = 1e-8;
-      double rate = curve.getInterestRate(ta);
-      double dRate = curve.getInterestRate(ta + eps);
+      final double eps = 1e-8;
+      final double rate = curve.getInterestRate(ta);
+      final double dRate = curve.getInterestRate(ta + eps);
       return rate + ta * (dRate - rate) / eps;
     }
     return (curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) - 1) / yearFrac;
   }
 
   @Override
-  public Double visitForwardRateAgreement(ForwardRateAgreement fra, YieldCurveBundle curves) {
-    YieldAndDiscountCurve curve = curves.getCurve(fra.getLiborCurveName());
+  public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
+    final YieldAndDiscountCurve curve = curves.getCurve(fra.getLiborCurveName());
     final double ta = fra.getFixingDate();
     final double tb = fra.getMaturity();
     final double yearFrac = fra.getForwardYearFraction();
@@ -64,8 +64,8 @@ public class InterestRateCalculator implements InterestRateDerivativeVisitor<Dou
   }
 
   @Override
-  public Double visitInterestRateFuture(InterestRateFuture future, YieldCurveBundle curves) {
-    YieldAndDiscountCurve curve = curves.getCurve(future.getCurveName());
+  public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
+    final YieldAndDiscountCurve curve = curves.getCurve(future.getCurveName());
     final double ta = future.getSettlementDate();
     final double delta = future.getYearFraction();
     final double tb = ta + delta;
@@ -76,52 +76,52 @@ public class InterestRateCalculator implements InterestRateDerivativeVisitor<Dou
   }
 
   @Override
-  public Double visitSwap(Swap swap, YieldCurveBundle curves) {
+  public Double visitSwap(final Swap swap, final YieldCurveBundle curves) {
     return null;
   }
 
   @Override
-  public Double visitFixedFloatSwap(FixedFloatSwap swap, YieldCurveBundle curves) {
-    FixedAnnuity tempAnnuity = swap.getFixedLeg().makeUnitCouponVersion(swap.getFloatingLeg().getNotional());
-    double pvFloat = _pvCalculator.getPresentValue(swap.getFloatingLeg(), curves);
-    double pvFixed = _pvCalculator.getPresentValue(tempAnnuity, curves);
+  public Double visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle curves) {
+    final FixedAnnuity tempAnnuity = swap.getFixedLeg().toUnitCouponFixedAnnuity(swap.getFloatingLeg().getNotional());
+    final double pvFloat = _pvCalculator.getPresentValue(swap.getFloatingLeg(), curves);
+    final double pvFixed = _pvCalculator.getPresentValue(tempAnnuity, curves);
     return pvFloat / pvFixed;
   }
 
   @Override
-  public Double visitBasisSwap(BasisSwap swap, YieldCurveBundle curves) {
+  public Double visitBasisSwap(final BasisSwap swap, final YieldCurveBundle curves) {
 
-    VariableAnnuity payLeg = swap.getPayLeg().makeZeroSpreadVersion();
-    VariableAnnuity receiveLeg = swap.getReceiveLeg().makeZeroSpreadVersion();
-    FixedAnnuity spreadLeg = swap.getPayLeg().makeUnitCouponVersion();
+    final VariableAnnuity payLeg = swap.getPayLeg().makeZeroSpreadVersion();
+    final VariableAnnuity receiveLeg = swap.getReceiveLeg().makeZeroSpreadVersion();
+    final FixedAnnuity spreadLeg = swap.getPayLeg().makeUnitCouponVersion();
 
-    double pvPay = _pvCalculator.getPresentValue(payLeg, curves);
-    double pvRecieve = _pvCalculator.getPresentValue(receiveLeg, curves);
-    double pvSpread = _pvCalculator.getPresentValue(spreadLeg, curves);
+    final double pvPay = _pvCalculator.getPresentValue(payLeg, curves);
+    final double pvRecieve = _pvCalculator.getPresentValue(receiveLeg, curves);
+    final double pvSpread = _pvCalculator.getPresentValue(spreadLeg, curves);
 
     return (pvRecieve - pvPay) / pvSpread;
   }
 
   @Override
-  public Double visitBond(Bond bond, YieldCurveBundle curves) {
-    YieldAndDiscountCurve curve = curves.getCurve(bond.getCurveName());
-    FixedAnnuity ann = bond.getFixedAnnuity().makeUnitCouponVersion(1.0);
-    double pvann = _pvCalculator.getPresentValue(ann, curves);
-    double maturity = bond.getPaymentTimes()[bond.getPaymentTimes().length - 1];
+  public Double visitBond(final Bond bond, final YieldCurveBundle curves) {
+    final YieldAndDiscountCurve curve = curves.getCurve(bond.getCurveName());
+    final FixedAnnuity ann = bond.getFixedAnnuity().toUnitCouponFixedAnnuity(1.0);
+    final double pvann = _pvCalculator.getPresentValue(ann, curves);
+    final double maturity = bond.getPaymentTimes()[bond.getPaymentTimes().length - 1];
     return (1 - curve.getDiscountFactor(maturity)) / pvann;
   }
 
   @Override
-  public Double visitVariableAnnuity(VariableAnnuity annuity, YieldCurveBundle curves) {
-    FixedAnnuity tempAnnuity = annuity.makeUnitCouponVersion();
-    double pvFloat = _pvCalculator.getPresentValue(annuity, curves);
-    double pvFixed = _pvCalculator.getPresentValue(tempAnnuity, curves);
+  public Double visitVariableAnnuity(final VariableAnnuity annuity, final YieldCurveBundle curves) {
+    final FixedAnnuity tempAnnuity = annuity.makeUnitCouponVersion();
+    final double pvFloat = _pvCalculator.getPresentValue(annuity, curves);
+    final double pvFixed = _pvCalculator.getPresentValue(tempAnnuity, curves);
     return pvFloat / pvFixed;
   }
 
   @Override
-  public Double visitFixedAnnuity(FixedAnnuity annuity, YieldCurveBundle curves) {
-    FixedAnnuity ann = annuity.makeUnitCouponVersion(1.0);
+  public Double visitFixedAnnuity(final FixedAnnuity annuity, final YieldCurveBundle curves) {
+    final FixedAnnuity ann = annuity.toUnitCouponFixedAnnuity(1.0);
     return 1.0 / _pvCalculator.getPresentValue(ann, curves);
   }
 

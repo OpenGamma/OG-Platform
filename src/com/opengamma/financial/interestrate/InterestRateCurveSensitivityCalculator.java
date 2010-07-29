@@ -109,7 +109,7 @@ public class InterestRateCurveSensitivityCalculator implements InterestRateDeriv
 
   @Override
   public Map<String, List<Pair<Double, Double>>> visitFixedFloatSwap(FixedFloatSwap swap, YieldCurveBundle curves) {
-    FixedAnnuity tempAnnuity = swap.getFixedLeg().makeUnitCouponVersion(swap.getFloatingLeg().getNotional());
+    FixedAnnuity tempAnnuity = swap.getFixedLeg().toUnitCouponFixedAnnuity(swap.getFloatingLeg().getNotional());
     double a = _pvCalculator.getPresentValue(tempAnnuity, curves);
     double b = _pvCalculator.getPresentValue(swap.getFloatingLeg(), curves);
     double bOveraSq = b / a / a;

@@ -115,8 +115,6 @@ public class BasisSwapYieldCurveFinderTest {
     final double[] swapMaturities = new double[] {1.00, 2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15, 20.00277778, 25.00555556, 30.00555556, 35.00833333, 50.01388889};
     final double[] basisSwapMaturities = new double[] {1, 2, 5, 10, 20, 30, 50};
 
-    final int nNodes = liborMaturities.length + fraMaturities.length + cashMaturities.length + swapMaturities.length + basisSwapMaturities.length;
-
     final int nLiborNodes = liborMaturities.length + fraMaturities.length + swapMaturities.length;
     final int nTreasuryNodes = cashMaturities.length + basisSwapMaturities.length;
 
@@ -190,7 +188,7 @@ public class BasisSwapYieldCurveFinderTest {
     LIBOR_CURVE = new InterpolatedYieldCurve(LIBOR_NODE_TIMES, liborYields, EXTRAPOLATOR);
     TREASURY_CURVE = new InterpolatedYieldCurve(TREASURY_NODE_TIMES, treasuryYields, EXTRAPOLATOR);
 
-    YieldCurveBundle bundle = new YieldCurveBundle();
+    final YieldCurveBundle bundle = new YieldCurveBundle();
     bundle.setCurve(LIBOR_CURVE_NAME, LIBOR_CURVE);
     bundle.setCurve(TREASURY_CURVE_NAME, TREASURY_CURVE);
 
@@ -233,7 +231,7 @@ public class BasisSwapYieldCurveFinderTest {
     final double[] liborYields = Arrays.copyOfRange(yieldCurveNodes, TREASURY_NODE_TIMES.length, yieldCurveNodes.length);
     final YieldAndDiscountCurve liborCurve = new InterpolatedYieldCurve(LIBOR_NODE_TIMES, liborYields, EXTRAPOLATOR);
 
-    YieldCurveBundle bundle = new YieldCurveBundle();
+    final YieldCurveBundle bundle = new YieldCurveBundle();
     bundle.setCurve(TREASURY_CURVE_NAME, fundCurve);
     bundle.setCurve(LIBOR_CURVE_NAME, liborCurve);
 
@@ -243,18 +241,18 @@ public class BasisSwapYieldCurveFinderTest {
   }
 
   private static BasisSwap setupBasisSwap(final double time, final String fundCurveName, final String payCurveName, final String revieveCurveName) {
-    int index = (int) Math.round(4 * time);
+    final int index = (int) Math.round(4 * time);
     final double[] paymentTimes = new double[index];
     for (int i = 0; i < index; i++) {
       paymentTimes[i] = 0.25 * (i + 1);
     }
-    VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, fundCurveName, payCurveName);
-    VariableAnnuity recieveLeg = new VariableAnnuity(paymentTimes, fundCurveName, revieveCurveName);
+    final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, fundCurveName, payCurveName);
+    final VariableAnnuity recieveLeg = new VariableAnnuity(paymentTimes, fundCurveName, revieveCurveName);
     return new BasisSwap(payLeg, recieveLeg);
   }
 
   private static FixedFloatSwap setupSwap(final double time, final double swapRate, final String fundCurveName, final String liborCurveName) {
-    int index = (int) Math.round(2 * time);
+    final int index = (int) Math.round(2 * time);
     return setupSwap(index, swapRate, fundCurveName, liborCurveName);
   }
 
@@ -277,8 +275,8 @@ public class BasisSwapYieldCurveFinderTest {
       deltaStart[i] = sigma * (i == 0 ? RANDOM.nextDouble() : (RANDOM.nextDouble() - 0.5));
       deltaEnd[i] = sigma * (RANDOM.nextDouble() - 0.5);
     }
-    FixedAnnuity fixedLeg = new FixedAnnuity(fixed, 1.0, coupons, fundCurveName);
-    VariableAnnuity floatingLeg = new VariableAnnuity(floating, 1.0, deltaStart, deltaEnd, fundCurveName, liborCurveName);
+    final FixedAnnuity fixedLeg = new FixedAnnuity(fixed, 1.0, coupons, fundCurveName);
+    final VariableAnnuity floatingLeg = new VariableAnnuity(floating, 1.0, deltaStart, deltaEnd, fundCurveName, liborCurveName);
     return new FixedFloatSwap(fixedLeg, floatingLeg);
   }
 
