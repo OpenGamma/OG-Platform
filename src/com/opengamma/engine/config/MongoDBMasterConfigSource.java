@@ -20,26 +20,20 @@ import com.opengamma.config.ConfigMaster;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.config.db.MongoDBConfigMaster;
-import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.MongoDBConnectionSettings;
 
 /**
- * 
+ * MongoDBMasterConfigSource is setup with all the supported ConfigMaster Types
+ * and delegates search and call methods to the appropiate ConfigMaster
  */
 public class MongoDBMasterConfigSource implements ConfigSource {
   
   private static final Logger s_logger = LoggerFactory.getLogger(MongoDBMasterConfigSource.class);
   
-  private final Map<Class<?>, MongoDBConfigMaster<?>> _configMasterMap = new ConcurrentHashMap<Class<?>, MongoDBConfigMaster<?>>();
+  private Map<Class<?>, MongoDBConfigMaster<?>> _configMasterMap = new ConcurrentHashMap<Class<?>, MongoDBConfigMaster<?>>();
   
-  /**
-   * @param mongoSettings the mongosettings, not-null
-   */
-  public MongoDBMasterConfigSource(MongoDBConnectionSettings mongoSettings) {
-    ArgumentChecker.notNull(mongoSettings, "mongoSettings");
-    _configMasterMap.put(ViewDefinition.class, new MongoDBConfigMaster<ViewDefinition>(ViewDefinition.class, mongoSettings));
+  public MongoDBMasterConfigSource() {
   }
 
   @Override
@@ -75,6 +69,26 @@ public class MongoDBMasterConfigSource implements ConfigSource {
       throw new OpenGammaRuntimeException("MongoDBMasterConfigSource not set up properly for " + clazz);
     }
     return configMaster;
+  }
+  
+  /**
+   * Add a type configMaster
+   * @param clazz the class of the config doc, not-null
+   * @param configMaster the mongodb configmaster, not-null
+   */
+  public void addConfigMaster(Class<?> clazz, MongoDBConfigMaster<?> configMaster) {
+    ArgumentChecker.notNull(clazz, "config doc class");
+    ArgumentChecker.notNull(configMaster, "configMaster");
+    _configMasterMap.put(clazz, configMaster);
+  }
+  
+  /**
+   * Set the underlying configMasters 
+   * @param configMasterMap the configMasterMap, not-null
+   */
+  public void setConfigMasterMap(Map<Class<?>, MongoDBConfigMaster<?>> configMasterMap) {
+    ArgumentChecker.notNull(configMasterMap, "configMasterMap");
+    _configMasterMap = configMasterMap;
   }
 
 }
