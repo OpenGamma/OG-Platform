@@ -18,6 +18,8 @@ import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.SkewKurtosisOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.math.statistics.descriptive.LognormalFisherKurtosisFromVolatilityCalculator;
+import com.opengamma.math.statistics.descriptive.LognormalSkewnessFromVolatilityCalculator;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -41,9 +43,8 @@ public class JarrowRuddSkewnessKurtosisModelTest {
   private static final SkewKurtosisOptionDataBundle NORMAL_DATA;
 
   static {
-    final double y = Math.sqrt(Math.exp(SIGMA * SIGMA * T) - 1);
-    SKEW = 3 * y + y * y * y;
-    KURTOSIS = y * y * (16 + y * y * (15 + y * y * (6 + y * y))) + 3;
+    SKEW = new LognormalSkewnessFromVolatilityCalculator().evaluate(SIGMA, T);
+    KURTOSIS = new LognormalFisherKurtosisFromVolatilityCalculator().evaluate(SIGMA, T) + 3;
     NORMAL_DATA = new SkewKurtosisOptionDataBundle(R, B, SURFACE, SPOT, DATE, SKEW, KURTOSIS);
   }
 

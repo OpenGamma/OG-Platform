@@ -104,7 +104,7 @@ public class VolatilityCurvesToInterpolatedVolatilitySurface extends VolatilityS
       return false;
     }
     final VolatilityCurvesToInterpolatedVolatilitySurface other = (VolatilityCurvesToInterpolatedVolatilitySurface) obj;
-    return ObjectUtils.equals(_curves, other._curves);
+    return ObjectUtils.equals(_curves, other._curves) && ObjectUtils.equals(_interpolator, other._interpolator);
   }
 
 }
