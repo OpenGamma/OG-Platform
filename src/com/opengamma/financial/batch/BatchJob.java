@@ -14,6 +14,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.LocalDateTime;
+import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.ZonedDateTime;
 import javax.time.calendar.format.CalendricalParseException;
 import javax.time.calendar.format.DateTimeFormatter;
@@ -26,8 +28,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.MutableFudgeFieldContainer;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -47,20 +47,18 @@ import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
-import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessingContext;
 import com.opengamma.engine.view.cache.MapViewComputationCacheSource;
-import com.opengamma.engine.view.calc.AtomicExecutorFactory;
+import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
 import com.opengamma.engine.view.calcnode.CalculationNodeRequestReceiver;
 import com.opengamma.engine.view.calcnode.FudgeJobRequestSender;
 import com.opengamma.engine.view.calcnode.JobRequestSender;
+import com.opengamma.engine.view.calcnode.ResultWriterFactory;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
-import com.opengamma.financial.batch.db.BatchDbRiskContext;
 import com.opengamma.financial.position.HistoricallyFixedPositionSource;
 import com.opengamma.financial.position.ManageablePositionMaster;
 import com.opengamma.financial.security.HistoricallyFixedSecurityMaster;
@@ -68,13 +66,14 @@ import com.opengamma.financial.security.ManageableSecurityMaster;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.InMemoryRequestConduit;
+import com.opengamma.util.InetAddressUtils;
 import com.opengamma.util.MongoDBConnectionSettings;
 import com.opengamma.util.NamedThreadPoolFactory;
 
 /**
  * The entry point for running OpenGamma batches. 
  */
-public class BatchJob implements Job, ComputationResultListener {
+public class BatchJob implements Job {
   
   /**
    * Used as a default "observation time" for ad hoc batches, i.e., batches that are
@@ -118,12 +117,12 @@ public class BatchJob implements Job, ComputationResultListener {
   /**
    * Used to load Securities (needed for building the dependency graph)
    */
-  private SecuritySource _securityMaster;
+  private SecuritySource _securitySource;
   
   /**
    * Used to load Positions (needed for building the dependency graph)
    */
-  private PositionSource _positionMaster;
+  private PositionSource _positionSource;
   
   /**
    * Used to write stuff to the batch database
@@ -164,7 +163,7 @@ public class BatchJob implements Job, ComputationResultListener {
    * 
    * Not null.
    */
-  private ZonedDateTime _valuationTime;
+  private OffsetDateTime _valuationTime;
   
   /**
    * This view name references the OpenGamma configuration database.
@@ -180,7 +179,7 @@ public class BatchJob implements Job, ComputationResultListener {
    * 
    * Not null.
    */
-  private ZonedDateTime _viewDateTime;
+  private OffsetDateTime _viewDateTime;
   
   /**
    * The batch will run against a defined set of market data.
@@ -215,7 +214,7 @@ public class BatchJob implements Job, ComputationResultListener {
    * 
    * Not null.
    */
-  private ZonedDateTime _positionMasterTime;
+  private OffsetDateTime _positionMasterTime;
   
   // --------------------------------------------------------------------------
   // Variables initialized during the batch run
@@ -269,6 +268,20 @@ public class BatchJob implements Job, ComputationResultListener {
     _user = UserPrincipal.getLocalUser();
   }
   
+  private OffsetDateTime parseDateTime(String dateTime) {
+    if (dateTime == null) {
+      return null;
+    }
+    try {
+      // try first to parse as if time zone explicitly provided, e.g., 20100621162200+0000
+      return _dateTimeFormatter.parse(dateTime, OffsetDateTime.rule());
+    } catch (CalendricalParseException e) {
+      // try to parse as if no time zone provided, e.g. 20100621162200. Use the system time zone. 
+      LocalDateTime localDateTime = _dateTimeFormatter.parse(dateTime, LocalDateTime.rule());
+      return OffsetDateTime.of(localDateTime, ZonedDateTime.nowSystemClock().toOffsetDateTime().getOffset());
+    }
+  }
+  
   @Override
   public void execute(JobExecutionContext context) throws JobExecutionException {
   }
@@ -301,16 +314,12 @@ public class BatchJob implements Job, ComputationResultListener {
     }
   }
 
-  public ZonedDateTime getValuationTime() {
+  public OffsetDateTime getValuationTime() {
     return _valuationTime;
   }
 
   public void setValuationTime(String valuationTime) {
-    if (valuationTime == null) {
-      _valuationTime = null;
-    } else {
-      _valuationTime = _dateTimeFormatter.parse(valuationTime, ZonedDateTime.rule()); 
-    }
+    _valuationTime = parseDateTime(valuationTime);
   }
 
   public String getViewName() {
@@ -321,16 +330,12 @@ public class BatchJob implements Job, ComputationResultListener {
     _viewName = viewName;
   }
 
-  public ZonedDateTime getViewDateTime() {
+  public OffsetDateTime getViewDateTime() {
     return _viewDateTime;
   }
 
   public void setViewDateTime(String viewDateTime) {
-    if (viewDateTime == null) {
-      _viewDateTime = null;            
-    } else {
-      _viewDateTime = _dateTimeFormatter.parse(viewDateTime, ZonedDateTime.rule());
-    }
+    _viewDateTime = parseDateTime(viewDateTime);
   }
 
   public LocalDate getSnapshotObservationDate() {
@@ -427,20 +432,20 @@ public class BatchJob implements Job, ComputationResultListener {
     _functionRepository = functionRepository;
   }
 
-  public SecuritySource getSecurityMaster() {
-    return _securityMaster;
+  public SecuritySource getSecuritySource() {
+    return _securitySource;
   }
 
-  public void setSecurityMaster(SecuritySource securityMaster) {
-    _securityMaster = securityMaster;
+  public void setSecuritySource(SecuritySource securityMaster) {
+    _securitySource = securityMaster;
   }
 
-  public PositionSource getPositionMaster() {
-    return _positionMaster;
+  public PositionSource getPositionSource() {
+    return _positionSource;
   }
 
-  public void setPositionMaster(PositionSource positionMaster) {
-    _positionMaster = positionMaster;
+  public void setPositionSource(PositionSource positionMaster) {
+    _positionSource = positionMaster;
   }
   
   public BatchDbManager getBatchDbManager() {
@@ -453,13 +458,6 @@ public class BatchJob implements Job, ComputationResultListener {
 
   // --------------------------------------------------------------------------
   
-  @Override
-  public void computationResultAvailable(ViewComputationResultModel resultModel) {
-    BatchDbRiskContext context = getBatchDbManager().createLocalContext(this);
-    _batchDbManager.write(context, resultModel);    
-  }
-
-  @Override
   public UserPrincipal getUser() {
     return _user;
   }
@@ -478,14 +476,14 @@ public class BatchJob implements Job, ComputationResultListener {
     Set<LiveDataValue> liveDataValues = _batchDbManager.getSnapshotValues(getSnapshotId());
     
     for (LiveDataValue value : liveDataValues) {
-      ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("MarketDataHeader", 
+      ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement(
+          value.getFieldName(), 
           value.getComputationTargetSpecification()));
-      MutableFudgeFieldContainer container = FudgeContext.GLOBAL_DEFAULT.newMessage();
-      container.add(value.getFieldName(), value.getValue());
-      ComputedValue computedValue = new ComputedValue(valueSpec, container);
+      ComputedValue computedValue = new ComputedValue(valueSpec, value.getValue());
       snapshotProvider.addValue(computedValue);
     }
     
+    snapshotProvider.snapshot(getValuationTime().toInstant().toEpochMillisLong());
     return snapshotProvider;
   }
   
@@ -493,20 +491,16 @@ public class BatchJob implements Job, ComputationResultListener {
    * @return Historical time used for loading entities out of PositionMaster.
    * and SecurityMaster. 
    */
-  public ZonedDateTime getPositionMasterTime() {
+  public OffsetDateTime getPositionMasterTime() {
     return _positionMasterTime; 
   }
   
-  public void setPositionMasterTime(ZonedDateTime positionMasterTime) {
+  public void setPositionMasterTime(OffsetDateTime positionMasterTime) {
     _positionMasterTime = positionMasterTime;
   }
   
   public void setPositionMasterTime(String positionMasterTime) {
-    if (positionMasterTime == null) {
-      _positionMasterTime = null;
-    } else {
-      _positionMasterTime = _dateTimeFormatter.parse(positionMasterTime, ZonedDateTime.rule()); 
-    }
+    _positionMasterTime = parseDateTime(positionMasterTime);
   }
 
   /**
@@ -524,7 +518,7 @@ public class BatchJob implements Job, ComputationResultListener {
     return getCreationTime();        
   }
   
-  public ZonedDateTime getSecurityMasterTime() {
+  public OffsetDateTime getSecurityMasterTime() {
     return getPositionMasterTime(); // assume this for now
   }
   
@@ -557,7 +551,7 @@ public class BatchJob implements Job, ComputationResultListener {
     
     InMemoryLKVSnapshotProvider snapshotProvider = getSnapshotProvider();
     
-    SecuritySource underlyingSecurityMaster = getSecurityMaster();
+    SecuritySource underlyingSecurityMaster = getSecuritySource();
     SecuritySource securityMaster;
     if (underlyingSecurityMaster instanceof ManageableSecurityMaster) {
       securityMaster = new HistoricallyFixedSecurityMaster(
@@ -568,7 +562,7 @@ public class BatchJob implements Job, ComputationResultListener {
       securityMaster = underlyingSecurityMaster;      
     }
     
-    PositionSource underlyingPositionMaster = getPositionMaster();
+    PositionSource underlyingPositionMaster = getPositionSource();
     PositionSource positionMaster; 
     if (underlyingPositionMaster instanceof ManageablePositionMaster) {
       positionMaster = new HistoricallyFixedPositionSource(
@@ -588,10 +582,20 @@ public class BatchJob implements Job, ComputationResultListener {
     FunctionCompilationContext compilationContext = new FunctionCompilationContext();
     compilationContext.setSecuritySource(securityMaster);
     
+    ResultWriterFactory resultWriterFactory = getBatchDbManager().createResultWriterFactory(this);
+    
     ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
-    CalculationNodeRequestReceiver calcRequestReceiver = new CalculationNodeRequestReceiver(cacheFactory, getFunctionRepository(), executionContext, targetResolver, viewProcessorQuerySender);
-    JobRequestSender calcRequestSender = new FudgeJobRequestSender(InMemoryRequestConduit.create(calcRequestReceiver));
+    CalculationNodeRequestReceiver calcRequestReceiver = new CalculationNodeRequestReceiver(cacheFactory, 
+        getFunctionRepository(), 
+        executionContext, 
+        targetResolver, 
+        viewProcessorQuerySender,
+        resultWriterFactory,
+        InetAddressUtils.getLocalHostName());
+    JobRequestSender calcRequestSender = new FudgeJobRequestSender(InMemoryRequestConduit.create(calcRequestReceiver),
+        resultWriterFactory,
+        null);
     
     ThreadFactory threadFactory = new NamedThreadPoolFactory("BatchJob-" + System.currentTimeMillis(), true);
     ThreadPoolExecutor executor = new ThreadPoolExecutor(0, 1, 5L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), threadFactory);
@@ -609,7 +613,8 @@ public class BatchJob implements Job, ComputationResultListener {
         viewProcessorQueryReceiver,
         compilationContext,  
         executor,
-        new AtomicExecutorFactory());
+        new SingleNodeExecutorFactory(),
+        resultWriterFactory);
     
     _view = new View(viewDefinitionDoc.getValue(), vpc);
     _view.init();
@@ -633,7 +638,7 @@ public class BatchJob implements Job, ComputationResultListener {
     }
     
     if (_valuationTime == null) {
-      _valuationTime = ZonedDateTime.of(_observationDate, now, now.getZone()); 
+      _valuationTime = OffsetDateTime.of(_observationDate, now, now.getOffset()); 
     }
     
     if (_snapshotObservationDate == null) {
@@ -660,7 +665,8 @@ public class BatchJob implements Job, ComputationResultListener {
     options.addOption("observationdate", "observationdate", true, 
         "Observation date. yyyyMMdd - for example, 20100621. Default - system clock date.");
     options.addOption("valuationtime", "valuationtime", true, 
-        "Valuation time. yyyyMMddHHmmss[Z] - for example, 20100621162200. Default - system clock on observation date.");
+        "Valuation time. yyyyMMddHHmmss[Z] - for example, 20100621162200+0000. If no time zone (e.g., +0000) " +
+        " is given, the system time zone is used. Default - system clock on observation date.");
     
     options.addOption("view", "view", true, 
         "View name in configuration database. You must specify this.");
@@ -705,13 +711,12 @@ public class BatchJob implements Job, ComputationResultListener {
   }
   
   public void execute() {
-    _batchDbManager.startBatch(this);
-    
     if (getView() == null) {
       initView();
     }
+
+    _batchDbManager.startBatch(this);
     
-    getView().addResultListener(this);
     getView().runOneCycle(getValuationTime().toInstant().toEpochMillisLong());
     
     _batchDbManager.endBatch(this);
