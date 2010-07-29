@@ -62,13 +62,8 @@ public interface ConfigMaster<T> {
 
   /**
    * Removes a config doc from the data store.
-   * <p>
-   * A full security master will store detailed historic information on securities.
-   * Thus, a removal does not prevent retrieval or correction of an earlier version.
-   * <p>
-   * If the identifier has a version it must be the latest version.
    * 
-   * @param uid  the security unique identifier to remove, not null
+   * @param uid  the config unique identifier to remove, not null
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no security with that unique identifier
    */
