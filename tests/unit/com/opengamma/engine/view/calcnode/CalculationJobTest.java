@@ -42,7 +42,7 @@ public class CalculationJobTest {
         Collections.<ValueSpecification>emptySet(), 
         Collections.<ValueRequirement>emptySet()));
     
-    CalculationJob inputJob = new CalculationJob(spec, items);
+    CalculationJob inputJob = new CalculationJob(spec, items, new DummyResultWriter());
     
     FudgeFieldContainer msg = inputJob.toFudgeMsg(new FudgeSerializationContext(context));
     msg = context.deserialize(context.toByteArray(msg)).getMessage();
@@ -76,7 +76,7 @@ public class CalculationJobTest {
         Sets.newHashSet(inputSpec),
         Sets.newHashSet(desiredValue)));
     
-    CalculationJob inputJob = new CalculationJob(spec, items);
+    CalculationJob inputJob = new CalculationJob(spec, items, new DummyResultWriter());
     
     FudgeFieldContainer msg = inputJob.toFudgeMsg(new FudgeSerializationContext(context));
     msg = context.deserialize(context.toByteArray(msg)).getMessage();

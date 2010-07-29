@@ -11,6 +11,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
@@ -35,7 +37,7 @@ public class CalculationJobItem {
   private final ComputationTargetSpecification _computationTargetSpecification;
   private final Set<ValueSpecification> _inputs = new HashSet<ValueSpecification>();
   private final Set<ValueRequirement> _desiredValues = new HashSet<ValueRequirement>();
-
+  
   public CalculationJobItem(
       String functionUniqueIdentifier,
       ComputationTargetSpecification computationTargetSpecification,
@@ -77,6 +79,7 @@ public class CalculationJobItem {
   
   public FudgeFieldContainer toFudgeMsg(FudgeSerializationContext fudgeContext) {
     MutableFudgeFieldContainer msg = fudgeContext.newMessage();
+    
     getComputationTargetSpecification().toFudgeMsg(fudgeContext, msg);
     msg.add(FUNCTION_UNIQUE_ID_FIELD_NAME, getFunctionUniqueIdentifier());
     
@@ -119,6 +122,16 @@ public class CalculationJobItem {
       .append("Function unique ID", getFunctionUniqueIdentifier())
       .append("Computation target", getComputationTargetSpecification())
       .toString();
+  }
+  
+  @Override
+  public int hashCode() {
+    return HashCodeBuilder.reflectionHashCode(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    return EqualsBuilder.reflectionEquals(this, obj);
   }
 
 }

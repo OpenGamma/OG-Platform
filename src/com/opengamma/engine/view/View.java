@@ -7,9 +7,9 @@ package com.opengamma.engine.view;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +45,8 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   private ViewCalculationState _calculationState = ViewCalculationState.NOT_INITIALIZED;
   private ViewRecalculationJob _recalcJob;
   private ViewComputationResultModelImpl _mostRecentResult;
-  private final Set<ComputationResultListener> _resultListeners = new HashSet<ComputationResultListener>();
-  private final Set<DeltaComputationResultListener> _deltaListeners = new HashSet<DeltaComputationResultListener>();
+  private final Set<ComputationResultListener> _resultListeners = new CopyOnWriteArraySet<ComputationResultListener>();
+  private final Set<DeltaComputationResultListener> _deltaListeners = new CopyOnWriteArraySet<DeltaComputationResultListener>();
 
   public View(ViewDefinition definition, ViewProcessingContext processingContext) {
     if (definition == null) {
@@ -343,6 +343,10 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     return getCalculationState() == ViewCalculationState.RUNNING;
   }
   
+  public boolean hasListeners() {
+    return !_resultListeners.isEmpty() || !_deltaListeners.isEmpty();
+  }
+  
   public synchronized void runOneCycle() {
     long snapshotTime = getProcessingContext().getLiveDataSnapshotProvider().snapshot();
     runOneCycle(snapshotTime);
@@ -352,8 +356,12 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     SingleComputationCycle cycle = createCycle(valuationTime);
     cycle.prepareInputs();
     cycle.executePlans();
-    cycle.populateResultModel();
-    recalculationPerformed(cycle.getResultModel());
+    
+    if (hasListeners()) {
+      cycle.populateResultModel();
+      recalculationPerformed(cycle.getResultModel());
+    }
+    
     cycle.releaseResources();
   }
 

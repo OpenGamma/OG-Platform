@@ -12,7 +12,7 @@ public class BatchExecutorFactory implements DependencyGraphExecutorFactory {
 
   @Override
   public DependencyGraphExecutor createExecutor(SingleComputationCycle cycle) {
-    return new BatchExecutor(new AtomicExecutor(cycle));
+    return new BatchExecutor(new SingleNodeExecutor(cycle));
   }
 
 }

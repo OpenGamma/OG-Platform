@@ -10,7 +10,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
-import java.util.List;
 
 import org.junit.Test;
 
@@ -31,6 +30,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.MapViewComputationCache;
 import com.opengamma.engine.view.cache.MapViewComputationCacheSource;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
+import com.opengamma.util.InetAddressUtils;
 
 /**
  * 
@@ -42,7 +42,12 @@ public class AbstractCalculationNodeTest {
     protected TestCalculationNode(ViewComputationCacheSource cacheSource, FunctionRepository functionRepository,
         FunctionExecutionContext functionExecutionContext, ComputationTargetResolver targetResolver,
         ViewProcessorQuerySender calcNodeQuerySender) {
-      super(cacheSource, functionRepository, functionExecutionContext, targetResolver, calcNodeQuerySender);
+      super(cacheSource, 
+          functionRepository, 
+          functionExecutionContext, 
+          targetResolver, 
+          calcNodeQuerySender, 
+          InetAddressUtils.getLocalHostName());
     }
   }
 
@@ -78,20 +83,22 @@ public class AbstractCalculationNodeTest {
         targetResolver,
         viewProcessorQuerySender);
 
-    List<CalculationJobItem> jobItems = Collections.singletonList(
-        new CalculationJobItem(fn.getUniqueIdentifier(), 
-            target.toSpecification(), 
-            Sets.newHashSet(inputSpec), 
-            Sets.newHashSet(outputReq)));
-    CalculationJob calcJob = new CalculationJob(jobSpec, jobItems);
+    CalculationJobItem calculationJobItem = new CalculationJobItem(fn.getUniqueIdentifier(), 
+        target.toSpecification(), 
+        Sets.newHashSet(inputSpec), 
+        Sets.newHashSet(outputReq));
+    CalculationJob calcJob = new CalculationJob(jobSpec, Collections.singletonList(calculationJobItem), new DummyResultWriter());
     
     long startTime = System.nanoTime();
     CalculationJobResult jobResult = calcNode.executeJob(calcJob);
     long endTime = System.nanoTime();
     assertNotNull(jobResult);
-    assertEquals(InvocationResult.ERROR, jobResult.getResult());
     assertTrue(jobResult.getDuration() >= 0);
     assertTrue(endTime - startTime >= jobResult.getDuration());
+    assertEquals(1, jobResult.getResultItems().size());
+    CalculationJobResultItem resultItem = jobResult.getResultItems().get(0);
+    assertEquals(calculationJobItem, resultItem.getItem());
+    assertEquals(InvocationResult.ERROR, resultItem.getResult());
   }
 
   @Test
@@ -128,14 +135,19 @@ public class AbstractCalculationNodeTest {
         targetResolver,
         viewProcessorQuerySender);
     
-    List<CalculationJobItem> items = Collections.singletonList(
-        new CalculationJobItem(fn.getUniqueIdentifier(), target.toSpecification(), Sets.newHashSet(inputSpec), Sets.newHashSet(outputReq)));
+    CalculationJobItem calculationJobItem = new CalculationJobItem(fn.getUniqueIdentifier(), 
+        target.toSpecification(), 
+        Sets.newHashSet(inputSpec), 
+        Sets.newHashSet(outputReq));
 
-    CalculationJob calcJob = new CalculationJob(jobSpec, items);
+    CalculationJob calcJob = new CalculationJob(jobSpec, Collections.singletonList(calculationJobItem), new DummyResultWriter());
     
     CalculationJobResult jobResult = calcNode.executeJob(calcJob);
     assertNotNull(jobResult);
-    assertEquals(InvocationResult.SUCCESS, jobResult.getResult());
+    assertEquals(1, jobResult.getResultItems().size());
+    CalculationJobResultItem resultItem = jobResult.getResultItems().get(0);
+    assertEquals(calculationJobItem, resultItem.getItem());
+    assertEquals(InvocationResult.SUCCESS, resultItem.getResult());
     assertEquals(2, cache.size());
     assertEquals("Nothing we care about", cache.getValue(outputSpec));
   }

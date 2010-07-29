@@ -6,6 +6,7 @@
 package com.opengamma.engine.view.calc;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,9 +21,9 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
-import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
+import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.InvocationResult;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
@@ -34,20 +35,18 @@ import com.opengamma.util.ArgumentChecker;
  * is the local machine or a remote machine on the grid depends on the
  * the {@link com.opengamma.engine.view.calcnode.JobRequestSender} configured in 
  * {@link com.opengamma.engine.view.ViewProcessingContext}.
- * <p>
- * The graph is executed atomically: the entire graph either succeeds or fails,
- * and there is no partial failure.  
+ * 
  */
-public class AtomicExecutor implements DependencyGraphExecutor, JobResultReceiver {
+public class SingleNodeExecutor implements DependencyGraphExecutor, JobResultReceiver {
   
-  private static final Logger s_logger = LoggerFactory.getLogger(AtomicExecutor.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(SingleNodeExecutor.class);
   
   private final SingleComputationCycle _cycle;
   
   private final Map<CalculationJobSpecification, AtomicExecutorFuture> _executingSpecifications =
     new ConcurrentHashMap<CalculationJobSpecification, AtomicExecutorFuture>();
   
-  public AtomicExecutor(SingleComputationCycle cycle) {
+  public SingleNodeExecutor(SingleComputationCycle cycle) {
     ArgumentChecker.notNull(cycle, "Computation cycle");
     _cycle = cycle;    
   }
@@ -64,6 +63,8 @@ public class AtomicExecutor implements DependencyGraphExecutor, JobResultReceive
     List<DependencyNode> order = graph.getExecutionOrder();
     
     List<CalculationJobItem> items = new ArrayList<CalculationJobItem>();
+    Map<CalculationJobItem, DependencyNode> item2Node = new HashMap<CalculationJobItem, DependencyNode>();
+    
     for (DependencyNode node : order) {
       // LiveData functions do not need to be computed. A little hacky. 
       if (node.getFunctionDefinition() instanceof LiveDataSourcingFunction) {
@@ -76,18 +77,16 @@ public class AtomicExecutor implements DependencyGraphExecutor, JobResultReceive
           node.getInputValues(), 
           node.getOutputRequirements());
       items.add(jobItem);
+      item2Node.put(jobItem, node);
     }
     
-    CalculationJob job = new CalculationJob(jobSpec, items);
+    s_logger.info("Enqueuing {} to invoke {} functions",
+        new Object[]{jobSpec, graph.getSize()});
     
-    s_logger.info("Enqueuing job {} to invoke {} functions",
-        new Object[]{jobId, graph.getSize()});
-    s_logger.debug("Enqueuing job {}", job);
-    
-    AtomicExecutorFuture future = new AtomicExecutorFuture(graph);
+    AtomicExecutorFuture future = new AtomicExecutorFuture(graph, item2Node);
     _executingSpecifications.put(jobSpec, future);
     _cycle.getProcessingContext().getViewProcessorQueryReceiver().addJob(jobSpec, graph);
-    _cycle.getProcessingContext().getComputationJobRequestSender().sendRequest(job, this);
+    _cycle.getProcessingContext().getComputationJobRequestSender().sendRequest(jobSpec, items, this);
     
     return future;
   }
@@ -105,11 +104,16 @@ public class AtomicExecutor implements DependencyGraphExecutor, JobResultReceive
       return;
     }
     
-    for (DependencyNode node : future._graph.getDependencyNodes()) {
+    for (CalculationJobResultItem item : result.getResultItems()) {
+      DependencyNode node = future._item2Node.get(item.getItem());
+      if (node == null) {
+        s_logger.error("Got unexpected item {}", item);
+        continue;
+      }
+      
       _cycle.markExecuted(node);
       
-      // atomicity: entire graph succeeds/fails
-      if (result.getResult() != InvocationResult.SUCCESS) {
+      if (item.getResult() != InvocationResult.SUCCESS) {
         _cycle.markFailed(node);
       }
     }
@@ -121,14 +125,16 @@ public class AtomicExecutor implements DependencyGraphExecutor, JobResultReceive
   private class AtomicExecutorFuture extends FutureTask<DependencyGraph> {
     
     private DependencyGraph _graph;
+    private Map<CalculationJobItem, DependencyNode> _item2Node;
     
-    public AtomicExecutorFuture(DependencyGraph graph) {
+    public AtomicExecutorFuture(DependencyGraph graph, Map<CalculationJobItem, DependencyNode> item2Node) {
       super(new Runnable() {
         @Override
         public void run() {
         }
       }, null);
       _graph = graph;
+      _item2Node = item2Node;
     }
 
     @Override
