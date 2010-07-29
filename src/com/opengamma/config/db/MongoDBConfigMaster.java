@@ -55,7 +55,6 @@ import com.opengamma.util.MongoDBConnectionSettings;
  * @param <T> Configuration Document EntityType
  */
 public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
-  
   private static final Logger s_logger = LoggerFactory.getLogger(MongoDBConfigMaster.class);
 
   private static final String[] INDICES = {OID_FUDGE_FIELD_NAME, NAME_FUDGE_FIELD_NAME, CREATION_INSTANT_FUDGE_FIELD_NAME, LAST_READ_INSTANT_FUDGE_FIELD_NAME};
@@ -64,6 +63,9 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
    * The scheme used by the master by default.
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "MongoConfigMaster";
+  private static final String ACTIVE_FIELD = "active";
+  private static final int ACTIVE_VALUE = 1;
+  private static final String LAST_MODIFIED_INSTANT = "lastModifiedInstant";
   
   private String _identifierScheme = IDENTIFIER_SCHEME_DEFAULT;
   private final FudgeContext _fudgeContext;
@@ -81,8 +83,6 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
    */
   private TimeSource _timeSource = TimeSource.system();
   
-  
-
   public MongoDBConfigMaster(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings,
       final FudgeContext fudgeContext, boolean updateLastRead, final FudgeBuilder<T> messageBuilder) {
     ArgumentChecker.notNull(documentClazz, "document class");
@@ -119,20 +119,6 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
     s_logger.info("creating MongoDBConfigurationRepo for {}", status);
   }
   
-  /**
-   * 
-   */
-  private void ensureIndices() {
-    //create necessary indices
-    DBCollection dbCollection = _mongoDB.getCollection(_collectionName);
-    for (String field : INDICES) {
-      s_logger.info("creating index for {} {}:{}", new Object[] {field, getMongoDB().getName(), getCollectionName()});
-      //create ascending and descending index
-      dbCollection.ensureIndex(new BasicDBObject(field, 1), "ix_" + getCollectionName() + "_" + field + "_asc");
-      dbCollection.ensureIndex(new BasicDBObject(field, -1), "ix_" + getCollectionName() + "_" + field + "_desc");
-    }
-  }
-  
   public MongoDBConfigMaster(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings, boolean updateLastRead, final FudgeBuilder<T> messageBuilder) {
     this(documentClazz, mongoSettings, new FudgeContext(), updateLastRead, messageBuilder);
   }
@@ -143,6 +129,17 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
   
   public MongoDBConfigMaster(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings) {
     this(documentClazz, mongoSettings, true);
+  }
+  
+  private void ensureIndices() {
+    //create necessary indices
+    DBCollection dbCollection = _mongoDB.getCollection(_collectionName);
+    for (String field : INDICES) {
+      s_logger.info("creating index for {} {}:{}", new Object[] {field, getMongoDB().getName(), getCollectionName()});
+      //create ascending and descending index
+      dbCollection.ensureIndex(new BasicDBObject(field, 1), "ix_" + getCollectionName() + "_" + field + "_asc");
+      dbCollection.ensureIndex(new BasicDBObject(field, -1), "ix_" + getCollectionName() + "_" + field + "_desc");
+    }
   }
 
   /**
@@ -228,6 +225,8 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
     FudgeDeserializationContext fdc = new FudgeDeserializationContext(getFudgeContext());
 
     DBObject doc = fdc.fudgeMsgToObject(DBObject.class, msg);
+    doc.put(ACTIVE_FIELD, ACTIVE_VALUE);
+    
     s_logger.debug("inserting new doc {}", doc);
     dbCollection.insert(doc);
     DBObject lastErr = getMongoDB().getLastError();
@@ -236,8 +235,9 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
     }
 
     Instant creationInstant = Instant.ofEpochMillis(now.getTime());
-    return new DefaultConfigDocument<T>(objectId, objectId, version, name, creationInstant, creationInstant,
-        value);
+    DefaultConfigDocument<T> configDocument = new DefaultConfigDocument<T>(objectId, objectId, version, name, creationInstant, creationInstant, value);
+    configDocument.setUniqueIdentifier(UniqueIdentifier.of(_identifierScheme, objectId, String.valueOf(version)));
+    return configDocument;
   }
 
   @Override
@@ -247,19 +247,11 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
     ArgumentChecker.isTrue(uid.getValue() != null, "Uid value cannot be null");
     ArgumentChecker.isTrue(uid.getVersion() != null, "Uid version cannot be null");
 
-    DBObject queryObj = new BasicDBObject();
+    DBObject queryObj = new BasicDBObject(ACTIVE_FIELD, ACTIVE_VALUE);
     queryObj.put(OID_FUDGE_FIELD_NAME, uid.getValue());
     queryObj.put(VERSION_FUDGE_FIELD_NAME, Integer.parseInt(uid.getVersion()));
 
     s_logger.debug("query = {}", queryObj);
-    DBCollection dbCollection = getMongoDB().getCollection(getCollectionName());
-    if (s_logger.isDebugEnabled()) {
-      DBCursor find = dbCollection.find(queryObj);
-      while (find.hasNext()) {
-        DBObject next = find.next();
-        s_logger.debug("found doc = {}", next);
-      }
-    }
     ConfigDocument<T> result = null;
     if (_updateLastReadTime) {
       result = findAndUpdateLastRead(queryObj, null);
@@ -276,7 +268,30 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
 
   @Override
   public void remove(UniqueIdentifier uid) {
-    // TODO Auto-generated method stub
+    ArgumentChecker.notNull(uid, "uid");
+    ArgumentChecker.isTrue(uid.getScheme().equals(_identifierScheme), "Uid not for MongoDBConfigMaster");
+    ArgumentChecker.isTrue(uid.getValue() != null, "Uid value cannot be null");
+    ArgumentChecker.isTrue(uid.getVersion() != null, "Uid version cannot be null");
+
+    DBObject queryObj = new BasicDBObject();
+    queryObj.put(OID_FUDGE_FIELD_NAME, uid.getValue());
+    queryObj.put(VERSION_FUDGE_FIELD_NAME, Integer.parseInt(uid.getVersion()));
+    Date now = new Date(_timeSource.instant().toEpochMillisLong());
+    DBObject updateFields = new BasicDBObject(ACTIVE_FIELD, 0);
+    updateFields.put(LAST_MODIFIED_INSTANT, now);
+    DBObject updateObj = new BasicDBObject("$set", updateFields);
+    
+    DBCollection dbCollection = getMongoDB().getCollection(getCollectionName());
+    dbCollection.update(queryObj, updateObj);
+    
+    DBObject lastError = getMongoDB().getLastError();
+    
+    s_logger.debug("after remove lastErro = {}", lastError.toString());
+    String errorMessage = (String) lastError.get("err");
+    if (errorMessage != null) {
+      s_logger.warn("mongo err = {} from removing uid = {}", errorMessage, uid);
+      throw new DataNotFoundException("No Config Doc with Uid " + uid);
+    }
     
   }
 
@@ -285,7 +300,7 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
     ArgumentChecker.notNull(request, "request");
     String name = request.getName();
     Instant effectiveTime = request.getEffectiveTime();
-    DBObject queryObj = new BasicDBObject();
+    DBObject queryObj = new BasicDBObject(ACTIVE_FIELD, ACTIVE_VALUE);
     queryObj.put(NAME_FUDGE_FIELD_NAME, name);
     if (effectiveTime != null) {
       DBObject filter = new BasicDBObject("$lte", new Date(effectiveTime.toEpochMillisLong()));
@@ -294,14 +309,6 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
     
     s_logger.debug("query = {}", queryObj);
 
-    DBCollection dbCollection = getMongoDB().getCollection(getCollectionName());
-    if (s_logger.isDebugEnabled()) {
-      DBCursor find = dbCollection.find(queryObj);
-      while (find.hasNext()) {
-        DBObject next = find.next();
-        s_logger.debug("found doc = {}", next);
-      }
-    }
     BasicDBObject sortObj = new BasicDBObject(CREATION_INSTANT_FUDGE_FIELD_NAME, -1);
     
     ConfigDocument<T> lookupByName = null;
@@ -446,6 +453,7 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
     FudgeDeserializationContext fdc = new FudgeDeserializationContext(getFudgeContext());
 
     DBObject doc = fdc.fudgeMsgToObject(DBObject.class, msg);
+    doc.put(ACTIVE_FIELD, ACTIVE_VALUE);
     s_logger.debug("inserting new version {}", doc);
     dbCollection.insert(doc);
 

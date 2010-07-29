@@ -119,8 +119,11 @@ public abstract class MongoDBConfigMasterTestCase<T extends Serializable> {
     request.setName(name);
     ConfigSearchResult<T> searchResult = _configMaster.search(request);
     List<ConfigDocument<T>> documents = searchResult.getDocuments();
-    assertTrue(documents.size() == 1);
-    return documents.get(0);
+    if (documents.size() == 1) {
+      return documents.get(0);
+    } else {
+      return null;
+    }
   }
 
   private void assertConfigDoc(ConfigDocument<T> expected, ConfigDocument<T> actual) {
@@ -134,7 +137,7 @@ public abstract class MongoDBConfigMasterTestCase<T extends Serializable> {
   
   @Test
   public void update() throws Exception {
-    addRandomDocs();
+//    addRandomDocs();
     
     ConfigDocument<T> version1 = makeTestConfigDoc(1);
     version1 = _configMaster.add(version1);
@@ -372,6 +375,30 @@ public abstract class MongoDBConfigMasterTestCase<T extends Serializable> {
     assertNotNull(allDocs);
     assertEquals(1, allDocs.size());
     assertTrue(allDocs.contains(doc2));
+  }
+  
+  @Test
+  public void remove() throws Exception {
+    
+    addRandomDocs();
+    
+    ConfigDocument<T> doc = makeTestConfigDoc(1);
+    String name = doc.getName();
+    assertNull(doc.getOid());
+    doc = _configMaster.add(doc);
+    assertNotNull(doc);
+    assertEquals(name, doc.getName());
+    assertNotNull(doc.getOid());
+    assertEquals(1, doc.getVersion());
+    
+    ConfigDocument<T> findByName = searchByName(name);
+    assertNotNull(findByName);
+    assertConfigDoc(doc, findByName);
+    
+    _configMaster.remove(doc.getUniqueIdentifier());
+    
+    findByName = searchByName(name);
+    assertNull(findByName);
   }
   
 //  @Test

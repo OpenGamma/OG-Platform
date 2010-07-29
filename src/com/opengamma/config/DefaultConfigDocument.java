@@ -24,6 +24,7 @@ public class DefaultConfigDocument<T> implements ConfigDocument<T> {
   private Instant _creationInstant;
   private Instant _lastReadInstant;
   private T _value;
+  private UniqueIdentifier _uniqueIdentifier;
   
   public DefaultConfigDocument() {
   }
@@ -168,8 +169,14 @@ public class DefaultConfigDocument<T> implements ConfigDocument<T> {
 
   @Override
   public UniqueIdentifier getUniqueIdentifier() {
-    // TODO Auto-generated method stub
-    return null;
+    return _uniqueIdentifier;
+  }
+
+  /**
+   * @param uid the uniqueIdentifier
+   */
+  public void setUniqueIdentifier(UniqueIdentifier uid) {
+    _uniqueIdentifier = uid;
   }
   
 }
