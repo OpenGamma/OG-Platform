@@ -31,6 +31,9 @@ public class ShermanMorrisonMatrixUpdateFunction implements NewtonRootFinderMatr
     Validate.notNull(matrix);
     DoubleMatrix1D v1 = (DoubleMatrix1D) _algebra.multiply(deltaX, matrix);
     final double length = _algebra.getInnerProduct(v1, deltaY);
+    if (length == 0) {
+      return matrix;
+    }
     v1 = (DoubleMatrix1D) _algebra.scale(v1, 1. / length);
     final DoubleMatrix1D v2 = (DoubleMatrix1D) _algebra.subtract(deltaX, _algebra.multiply(matrix, deltaY));
     final DoubleMatrix2D m = _algebra.getOuterProduct(v2, v1);
