@@ -123,7 +123,6 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
    * @return the SQL, not null
    */
   protected String sqlGetPositionById() {
-    // TODO: validate portfolio/node still valid
     return SELECT + FROM + "WHERE p.id = :position_id ";
   }
 
@@ -164,7 +163,6 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
    * @return the SQL search and count, not null
    */
   protected String[] sqlSearchPositions(final PositionSearchRequest request) {
-    // TODO: validate portfolio/node still valid
     String where = "WHERE (ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant) " +
                 "AND (corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant) ";
     if (request.getPortfolioId() != null) {
