@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
@@ -66,11 +65,6 @@ public class SingleNodeExecutor implements DependencyGraphExecutor, JobResultRec
     Map<CalculationJobItem, DependencyNode> item2Node = new HashMap<CalculationJobItem, DependencyNode>();
     
     for (DependencyNode node : order) {
-      // LiveData functions do not need to be computed. A little hacky. 
-      if (node.getFunctionDefinition() instanceof LiveDataSourcingFunction) {
-        continue;        
-      }
-      
       CalculationJobItem jobItem = new CalculationJobItem(
           node.getFunctionDefinition().getUniqueIdentifier(),
           node.getComputationTarget().toSpecification(),

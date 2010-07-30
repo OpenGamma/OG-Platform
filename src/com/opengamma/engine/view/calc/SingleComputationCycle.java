@@ -27,6 +27,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeFilter;
+import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -338,8 +339,14 @@ public class SingleComputationCycle {
    */
   private DependencyGraph getDependencyGraph(String calcConfName) {
     DependencyGraph originalDepGraph = getPortfolioEvaluationModel().getDependencyGraph(calcConfName);
+    
     DependencyGraph dependencyGraph = originalDepGraph.subGraph(new DependencyNodeFilter() {
       public boolean accept(DependencyNode node) {
+        // LiveData functions do not need to be computed. 
+        if (node.getFunctionDefinition() instanceof LiveDataSourcingFunction) {
+          markExecuted(node);        
+        }
+        
         return !isExecuted(node);        
       }
     });
