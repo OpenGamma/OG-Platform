@@ -1,13 +1,13 @@
-DROP TABLE tss_domain_spec_identifier CASCADE;
-DROP TABLE tss_domain CASCADE;
-DROP TABLE tss_time_series_data CASCADE;
-DROP TABLE tss_time_series_data_delta CASCADE;
-DROP TABLE tss_time_series_key CASCADE;
-DROP TABLE tss_quoted_object CASCADE;
-DROP TABLE tss_data_source CASCADE;
-DROP TABLE tss_data_provider CASCADE;
-DROP TABLE tss_data_field CASCADE;
-DROP TABLE tss_observation_time CASCADE;
+DROP TABLE domain_spec_identifier CASCADE;
+DROP TABLE domain CASCADE;
+DROP TABLE time_series_data CASCADE;
+DROP TABLE time_series_data_delta CASCADE;
+DROP TABLE time_series_key CASCADE;
+DROP TABLE quoted_object CASCADE;
+DROP TABLE data_source CASCADE;
+DROP TABLE data_provider CASCADE;
+DROP TABLE data_field CASCADE;
+DROP TABLE observation_time CASCADE;
 
 
 --DROP SEQUENCE quoted_object_sequence;

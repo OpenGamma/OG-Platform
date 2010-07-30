@@ -28,7 +28,10 @@
 	
 	<bean id="postgresDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
 		<property name="driverClassName" value="${postgres.jdbc.driver}"/>
-		<property name="url" value="${postgres.jdbc.url}/test_${user.name}"/>
+		<property name="url" value="${postgres.jdbc.url}/test_${user.name}?protocolVersion=2"/>
+		 <!-- 
+		 <property name="url" value="${postgres.jdbc.url}/test_${user.name}"/>
+		  -->
 		<property name="username" value="${postgres.jdbc.username}"/>
 		<property name="password" value="${postgres.jdbc.password}"/>
 	</bean>

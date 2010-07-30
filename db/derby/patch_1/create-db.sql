@@ -1,4 +1,4 @@
-CREATE TABLE tss_data_source (
+CREATE TABLE data_source (
 	id INTEGER NOT NULL
 	  PRIMARY KEY
 	  GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
@@ -6,9 +6,9 @@ CREATE TABLE tss_data_source (
 	description VARCHAR(255)
 );
 
-CREATE UNIQUE INDEX idx_data_source_name on tss_data_source(name);
+CREATE UNIQUE INDEX idx_data_source_name on data_source(name);
 
-CREATE TABLE tss_data_provider (
+CREATE TABLE data_provider (
 	id INTEGER NOT NULL
 	  PRIMARY KEY
 	  GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
@@ -16,9 +16,9 @@ CREATE TABLE tss_data_provider (
 	description VARCHAR(255)
 );
 
-CREATE UNIQUE INDEX idx_data_provider_name on tss_data_provider(name);
+CREATE UNIQUE INDEX idx_data_provider_name on data_provider(name);
 
-CREATE TABLE tss_data_field (
+CREATE TABLE data_field (
 	id INTEGER NOT NULL
 	  PRIMARY KEY
 	  GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
@@ -26,9 +26,9 @@ CREATE TABLE tss_data_field (
 	description VARCHAR(255)
 );
 
-CREATE UNIQUE INDEX idx_data_field_name on tss_data_field(name);
+CREATE UNIQUE INDEX idx_data_field_name on data_field(name);
 
-CREATE TABLE tss_observation_time (
+CREATE TABLE observation_time (
 	id INTEGER NOT NULL
 	  PRIMARY KEY
 	  GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
@@ -36,9 +36,9 @@ CREATE TABLE tss_observation_time (
 	description VARCHAR(255)
 );
 
-CREATE UNIQUE INDEX idx_observation_time_name on tss_observation_time(name);
+CREATE UNIQUE INDEX idx_observation_time_name on observation_time(name);
 
-CREATE TABLE tss_domain (
+CREATE TABLE domain (
 	id INTEGER NOT NULL
 	  PRIMARY KEY
 	  GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
@@ -46,9 +46,9 @@ CREATE TABLE tss_domain (
 	description VARCHAR(255)
 );
 
-CREATE UNIQUE INDEX idx_domain_name on tss_domain(name);
+CREATE UNIQUE INDEX idx_domain_name on domain(name);
 
-CREATE TABLE tss_quoted_object (
+CREATE TABLE quoted_object (
 	id INTEGER NOT NULL
 	  PRIMARY KEY
 	  GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
@@ -56,39 +56,39 @@ CREATE TABLE tss_quoted_object (
 	description VARCHAR(255)
 );
 
-CREATE UNIQUE INDEX idx_quoted_object_name on tss_quoted_object(name);
+CREATE UNIQUE INDEX idx_quoted_object_name on quoted_object(name);
 
-CREATE TABLE tss_time_series_key (
+CREATE TABLE time_series_key (
 	id INTEGER NOT NULL
 	  PRIMARY KEY
 	  GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
 	quoted_obj_id INTEGER NOT NULL
-	  constraint fk_tsk_quoted_obj  REFERENCES tss_quoted_object(id),
+	  constraint fk_tsk_quoted_obj  REFERENCES quoted_object(id),
 	data_source_id INTEGER NOT NULL
-	  constraint fk_tsk_data_source  REFERENCES tss_data_source(id),
+	  constraint fk_tsk_data_source  REFERENCES data_source(id),
 	data_provider_id INTEGER NOT NULL
-	  constraint fk_tsk_data_provider  REFERENCES tss_data_provider(id),
+	  constraint fk_tsk_data_provider  REFERENCES data_provider(id),
 	data_field_id INTEGER NOT NULL
-	  constraint fk_tsk_data_field  REFERENCES tss_data_field(id),
+	  constraint fk_tsk_data_field  REFERENCES data_field(id),
 	observation_time_id INTEGER NOT NULL
-	  constraint fk_tsk_observation_time  REFERENCES tss_observation_time(id)
+	  constraint fk_tsk_observation_time  REFERENCES observation_time(id)
 );
 
-CREATE INDEX idx_time_series_key ON tss_time_series_key (data_source_id, data_provider_id, data_field_id, observation_time_id);
+CREATE INDEX idx_time_series_key ON time_series_key (data_source_id, data_provider_id, data_field_id, observation_time_id);
 
-CREATE TABLE tss_time_series_data (
+CREATE TABLE time_series_data (
 	time_series_id INTEGER NOT NULL
-	  constraint fk_tsd_time_series  REFERENCES tss_time_series_key (id),
+	  constraint fk_tsd_time_series  REFERENCES time_series_key (id),
 	ts_date date NOT NULL,
 	value DOUBLE NOT NULL,
 	PRIMARY KEY (time_series_id, ts_date)
 );
 
-CREATE UNIQUE INDEX idx_tsdata_id_date ON tss_time_series_data (time_series_id, ts_date); 
+CREATE UNIQUE INDEX idx_tsdata_id_date ON time_series_data (time_series_id, ts_date); 
 
-CREATE TABLE tss_time_series_data_delta (
+CREATE TABLE time_series_data_delta (
 	time_series_id INTEGER NOT NULL
-	  constraint fk_tsd_delta_time_series  REFERENCES tss_time_series_key (id),
+	  constraint fk_tsd_delta_time_series  REFERENCES time_series_key (id),
 	time_stamp TIMESTAMP NOT NULL,
 	ts_date date NOT NULL,
 	old_value DOUBLE NOT NULL,
@@ -97,19 +97,19 @@ CREATE TABLE tss_time_series_data_delta (
 	PRIMARY KEY (time_series_id, time_stamp, ts_date)
 );
 
-CREATE UNIQUE INDEX idx_tsdata_id_stamp_date ON tss_time_series_data_delta (time_series_id, time_stamp, ts_date);
+CREATE UNIQUE INDEX idx_tsdata_id_stamp_date ON time_series_data_delta (time_series_id, time_stamp, ts_date);
 
-CREATE TABLE tss_domain_spec_identifier (
+CREATE TABLE domain_spec_identifier (
 	id INTEGER NOT NULL
 	  PRIMARY KEY
 	  GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
 	quoted_obj_id INTEGER NOT NULL
-	  constraint fk_dsi_quoted_object  REFERENCES tss_quoted_object(id),
+	  constraint fk_dsi_quoted_object  REFERENCES quoted_object(id),
 	domain_id INTEGER NOT NULL
-	  constraint fk_dsi_domain  REFERENCES tss_domain(id),
+	  constraint fk_dsi_domain  REFERENCES domain(id),
 	identifier VARCHAR(255) NOT NULL
 );
 
-CREATE UNIQUE INDEX idx_dsi_domain_identifier on tss_domain_spec_identifier (domain_id, identifier);
+CREATE UNIQUE INDEX idx_dsi_domain_identifier on domain_spec_identifier (domain_id, identifier);
 
-CREATE INDEX idx_dsi_identifier ON tss_domain_spec_identifier(identifier);
+CREATE INDEX idx_dsi_identifier ON domain_spec_identifier(identifier);

@@ -41,13 +41,12 @@
         		<entry key="insertTimeSeriesDeltaI" value="INSERT INTO tss_time_series_data_delta (time_series_id, time_stamp, ts_date, old_value, operation) VALUES (:timeSeriesID, :timeStamp, :date, :value, 'I')"/>
         		<entry key="insertTimeSeriesDeltaD" value="INSERT INTO tss_time_series_data_delta (time_series_id, time_stamp, ts_date, old_value, operation) VALUES (:timeSeriesID, :timeStamp, :date, :value, 'D')"/>
         		<entry key="insertTimeSeriesDeltaU" value="INSERT INTO tss_time_series_data_delta (time_series_id, time_stamp, ts_date, old_value, operation) VALUES (:tsID, :timeStamp, :date, :oldValue, 'U')"/>
-        		<entry key="loadTimeSeries" value="SELECT ts_date, value FROM tss_time_series_data tsd WHERE time_series_id = :timeSeriesKey ORDER BY ts_date"/>
         		<entry> 
         			<key><value>loadTimeSeriesWithDates</value></key>
         			<value>
         				<![CDATA[
-	        				SELECT ts_date, value FROM tss_time_series_data tsd WHERE time_series_id = :timeSeriesKey AND (tsd.ts_date >= :startDate AND ts_date <= :endDate) ORDER BY ts_date
-	        			]]>
+        					SELECT ts_date, value FROM tss_time_series_data WHERE time_series_id = :timeSeriesKey AND (:startDate IS NULL OR ts_date >= :startDate)  AND (:endDate IS NULL OR ts_date < :endDate) ORDER BY ts_date
+        				]]>
         			</value>
         		</entry>
         		<entry key="updateTimeSeries" value="UPDATE tss_time_series_data SET value = :newValue WHERE time_series_id = :tsID AND ts_date = :date "/>

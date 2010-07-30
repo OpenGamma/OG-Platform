@@ -16,8 +16,9 @@ public interface TimeSeriesDaoConstants {
    * value for invalid row id
    */
   int INVALID_KEY = -1;
-  
-  String LOAD_TIME_SERIES = "loadTimeSeries";
+  /**
+   * loadTimeSeriesWithDates key in named sql map
+   */
   String LOAD_TIME_SERIES_WITH_DATES = "loadTimeSeriesWithDates";
   String SELECT_QUOTED_OBJECT_FROM_IDENTIFIERS = "selectQuotedObjectFromIdentifiers";
   String LOAD_ALL_DATA_PROVIDER = "loadAllDataProvider";
@@ -76,7 +77,6 @@ public interface TimeSeriesDaoConstants {
     LOAD_ALL_DOMAIN,
     LOAD_ALL_OBSERVATION_TIMES,
     LOAD_ALL_QUOTED_OBJECTS,
-    LOAD_TIME_SERIES,
     LOAD_TIME_SERIES_DELTA,
     LOAD_TIME_SERIES_WITH_DATES,
     SELECT_DATA_FIELD_ID,

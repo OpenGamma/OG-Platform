@@ -5,11 +5,12 @@
  */
 package com.opengamma.historical.dao;
 
+import static com.opengamma.historical.dao.TimeSeriesDaoConstants.INVALID_KEY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static com.opengamma.historical.dao.TimeSeriesDaoConstants.INVALID_KEY;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,12 +35,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
-import org.springframework.dao.DataIntegrityViolationException;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
@@ -53,7 +54,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   private static final Logger s_logger = LoggerFactory.getLogger(RowStoreTimeSeriesDaoTest.class);
   
   private static final int TS_DATASET_SIZE = 5;
-  private static final int TS_MAX_SIZE = 5;
+  private static final int TS_MAX_DATA_POINT = 5;
 
   private static final String LCLOSE_OBSERVATION_TIME = "LCLOSE";
   private static final String CLOSE_DATA_FIELD = "CLOSE";
@@ -125,11 +126,18 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     
   }
   
-  @Test(expected = DataIntegrityViolationException.class)
+//  @Test(expected = DataIntegrityViolationException.class)
+  @Test
   public void uniqueDataProvider() throws Exception {
     _timeseriesDao.createDataProvider("DP1", "DP1");
     // should throw DataIntegrityViolationException
-    _timeseriesDao.createDataProvider("DP1", "DP1");
+    try {
+      _timeseriesDao.createDataProvider("DP1", "DP1");
+      fail();
+    } catch (Exception ex) {
+      //exception thrown depends on the jdbc driver type
+      s_logger.debug("exception = {}", ex.getCause().toString());
+    }
   }
 
   @Test
@@ -164,11 +172,19 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
 
   }
   
-  @Test(expected = DataIntegrityViolationException.class)
+//  @Test(expected = DataIntegrityViolationException.class)
+  @Test
   public void uniqueDataSource() throws Exception {
     _timeseriesDao.createDataSource("DS1", "DS1");
     // should throw DataIntegrityViolationException
-    _timeseriesDao.createDataSource("DS1", "DS1");
+    try {
+      _timeseriesDao.createDataSource("DS1", "DS1");
+      fail();
+    } catch (Exception ex) {
+      //exception thrown depends on the jdbc driver type
+      s_logger.debug("exception = {}", ex.getCause().toString());
+    }
+    
   }
 
   @Test
@@ -203,11 +219,18 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
 
   }
   
-  @Test(expected = DataIntegrityViolationException.class)
+//  @Test(expected = DataIntegrityViolationException.class)
+  @Test
   public void uniqueField() throws Exception {
     _timeseriesDao.createDataField("TSF1", "TSF1");
     // should throw DataIntegrityViolationException
-    _timeseriesDao.createDataField("TSF1", "TSF1");
+    try {
+      _timeseriesDao.createDataField("TSF1", "TSF1");
+      fail();
+    } catch (Exception ex) {
+      //exception thrown depends on the jdbc driver type
+      s_logger.debug("exception = {}", ex.getCause().toString());
+    }
   }
 
   @Test
@@ -242,11 +265,19 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     
   }
   
-  @Test(expected = DataIntegrityViolationException.class)
+//  @Test(expected = DataIntegrityViolationException.class)
+  @Test
   public void uniqueObservationTime() throws Exception {
     _timeseriesDao.createObservationTime("OBT1", "OBT1");
     // should throw DataIntegrityViolationException
-    _timeseriesDao.createObservationTime("OBT1", "OBT1");
+    try {
+      _timeseriesDao.createObservationTime("OBT1", "OBT1");
+      fail();
+    } catch (Exception ex) {
+      //exception thrown depends on the jdbc driver type
+      s_logger.debug("exception = {}", ex.getCause().toString());
+    }
+    
   }
 
   @Test
@@ -281,11 +312,18 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     
   }
   
-  @Test(expected = DataIntegrityViolationException.class)
+//  @Test(expected = DataIntegrityViolationException.class)
+  @Test
   public void uniqueQuotedObject() throws Exception {
     _timeseriesDao.createQuotedObject("QO1", "QO1");
     // should throw DataIntegrityViolationException
-    _timeseriesDao.createQuotedObject("QO1", "QO1");
+    try {
+      _timeseriesDao.createQuotedObject("QO1", "QO1");
+      fail();
+    } catch (Exception ex) {
+      //exception thrown depends on the jdbc driver type
+      s_logger.debug("exception = {}", ex.getCause().toString());
+    }
   }
   
   @Test
@@ -320,11 +358,18 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     
   }
   
-  @Test(expected = DataIntegrityViolationException.class)
+//  @Test(expected = DataIntegrityViolationException.class)
+  @Test
   public void uniqueDomain() throws Exception {
     _timeseriesDao.createDomain("D1", "D1");
     // should throw DataIntegrityViolationException
-    _timeseriesDao.createDomain("D1", "D1");
+    try {
+      _timeseriesDao.createDomain("D1", "D1");
+      fail();
+    } catch (Exception ex) {
+      //exception thrown depends on the jdbc driver type
+      s_logger.debug("exception = {}", ex.getCause().toString());
+    }
   }
   
   @Test
@@ -388,9 +433,11 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
       IdentifierBundle identifiers = IdentifierBundle.of(Identifier.of("d" + i, "id" + i));
       LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
-      _timeseriesDao.addTimeSeries(identifiers, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
+      UniqueIdentifier uid = _timeseriesDao.addTimeSeries(identifiers, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
       DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getHistoricalTimeSeries(identifiers, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
+      assertEquals(timeSeries, actualTS);
+      actualTS = _timeseriesDao.getHistoricalTimeSeries(uid);
       assertEquals(timeSeries, actualTS);
     }
     //test set of domain identifiers
@@ -398,14 +445,14 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     Identifier cusipID = Identifier.of("cusip", "123456789");
     Identifier bbgUniqueID = Identifier.of("bbgUnique", "XI45678-89");
     
-    IdentifierBundle domainSpeIdentifiers = IdentifierBundle.of(bbgUniqueID, bbgtickerID, cusipID);
+    IdentifierBundle identifiers = IdentifierBundle.of(bbgUniqueID, bbgtickerID, cusipID);
     
     LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
     
-    _timeseriesDao.addTimeSeries(domainSpeIdentifiers, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
+    UniqueIdentifier uid = _timeseriesDao.addTimeSeries(identifiers, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
         LCLOSE_OBSERVATION_TIME, timeSeries);
     
-    DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getHistoricalTimeSeries(domainSpeIdentifiers, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
+    DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getHistoricalTimeSeries(identifiers, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
     assertEquals(timeSeries, actualTS);
     
     actualTS = _timeseriesDao.getHistoricalTimeSeries(IdentifierBundle.of(cusipID), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
@@ -414,6 +461,26 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     actualTS = _timeseriesDao.getHistoricalTimeSeries(IdentifierBundle.of(bbgUniqueID), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
     assertEquals(timeSeries, actualTS);
     
+    actualTS = _timeseriesDao.getHistoricalTimeSeries(uid);
+    assertEquals(timeSeries, actualTS);
+    
+  }
+  
+  @Test
+  public void resolveIdentifier() throws Exception {
+    addRandonTimeSeriesToDB(2);
+    for (int i = 0; i < TS_DATASET_SIZE; i++) {
+      Identifier ida = Identifier.of("da" + i, "ida" + i);
+      Identifier idb = Identifier.of("db" + i, "idb" + i);
+      IdentifierBundle identifiers = IdentifierBundle.of(ida, idb);
+      LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
+      UniqueIdentifier uid = _timeseriesDao.addTimeSeries(identifiers, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
+          LCLOSE_OBSERVATION_TIME, timeSeries);
+      UniqueIdentifier resolveIdentifier = _timeseriesDao.resolveIdentifier(ida, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
+      assertEquals(uid, resolveIdentifier);
+      resolveIdentifier = _timeseriesDao.resolveIdentifier(idb, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
+      assertEquals(uid, resolveIdentifier);
+    }
   }
   
   @Test
@@ -447,20 +514,30 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
       IdentifierBundle bundle = IdentifierBundle.of(Identifier.of("d" + i, "id" + i));
       LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
-      _timeseriesDao.addTimeSeries(bundle, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
+      UniqueIdentifier uid = _timeseriesDao.addTimeSeries(bundle, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
       
       LocalDate earliestDate = timeSeries.getEarliestTime();
       LocalDate latestDate = timeSeries.getLatestTime();
       //test end dates
+      DoubleTimeSeries<LocalDate> subSeries = timeSeries.subSeries(earliestDate, latestDate);
+      s_logger.debug("earliestDate = {}", earliestDate);
+      s_logger.debug("latestDate = {}", latestDate);
       DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getHistoricalTimeSeries(bundle, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, earliestDate, latestDate);
-      assertEquals(timeSeries, actualTS);
+      assertEquals(subSeries, actualTS);
+      
+      actualTS = _timeseriesDao.getHistoricalTimeSeries(uid, earliestDate, latestDate);
+      assertEquals(subSeries, actualTS);
+      
       //test subSeries
       LocalDate start = earliestDate.plusDays(1);
       LocalDate end = latestDate.minusDays(1);
       if (start.isBefore(end) || start.equals(end)) {
         timeSeries = (LocalDateDoubleTimeSeries)timeSeries.subSeries(start, end);
         actualTS = _timeseriesDao.getHistoricalTimeSeries(bundle, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, start, end);
+        assertEquals(timeSeries, actualTS);
+        
+        actualTS = _timeseriesDao.getHistoricalTimeSeries(uid, start, end);
         assertEquals(timeSeries, actualTS);
       }
     }
@@ -661,7 +738,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
    */
   private LocalDateDoubleTimeSeries makeRandomTimeSeries() {
     MapLocalDateDoubleTimeSeries tsMap = new MapLocalDateDoubleTimeSeries();
-    for (int i = 0; i < TS_MAX_SIZE; i++) {
+    for (int i = 0; i < TS_MAX_DATA_POINT; i++) {
       int year = 1970 + _random.nextInt(40);
       int monthOfYear = 1 + _random.nextInt(12);
       int dayOfMonth = 1 + _random.nextInt(28);

@@ -11,7 +11,9 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.engine.historicaldata.HistoricalDataProvider;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
@@ -74,7 +76,7 @@ public interface TimeSeriesDao extends HistoricalDataProvider {
   
   IdentifierBundle findDomainSpecIdentifiersByQuotedObject(String name);
 
-  void addTimeSeries(IdentifierBundle identifiers, String dataSource, String dataProvider, String field,  String observationTime, LocalDateDoubleTimeSeries timeSeries);
+  UniqueIdentifier addTimeSeries(IdentifierBundle identifiers, String dataSource, String dataProvider, String field,  String observationTime, LocalDateDoubleTimeSeries timeSeries);
   
   void deleteTimeSeries(IdentifierBundle identifiers, String dataSource, String dataProvider, String field,  String observationTime);
   
@@ -83,5 +85,12 @@ public interface TimeSeriesDao extends HistoricalDataProvider {
   void deleteDataPoint(IdentifierBundle identifiers, String dataSource, String dataProvider, String field,  String observationTime, LocalDate date);
   
   LocalDateDoubleTimeSeries getTimeSeriesSnapShot(IdentifierBundle identifiers, String dataSource, String dataProvider, String field,  String observationTime, ZonedDateTime timeStamp);
+  
+  LocalDateDoubleTimeSeries getHistoricalTimeSeries(UniqueIdentifier uid);
+  
+  LocalDateDoubleTimeSeries getHistoricalTimeSeries(UniqueIdentifier uid, LocalDate start, LocalDate end);
+  
+  UniqueIdentifier resolveIdentifier(Identifier identifier, String dataSource, String dataProvider, String field);
+  
 
 }
