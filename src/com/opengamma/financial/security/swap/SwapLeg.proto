@@ -12,7 +12,7 @@ namespace com.opengamma.financial.security.swap {
   abstract message SwapLeg {
     required readonly convention.daycount.DayCount dayCount;
     required readonly convention.frequency.Frequency frequency;
-    required readonly Region region;
+    required readonly id.Identifier regionIdentifier;
     required readonly convention.businessday.BusinessDayConvention businessDayConvention;
     required readonly Notional notional;
     
