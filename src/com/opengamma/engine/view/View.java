@@ -47,6 +47,7 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   private ViewComputationResultModelImpl _mostRecentResult;
   private final Set<ComputationResultListener> _resultListeners = new CopyOnWriteArraySet<ComputationResultListener>();
   private final Set<DeltaComputationResultListener> _deltaListeners = new CopyOnWriteArraySet<DeltaComputationResultListener>();
+  private volatile boolean _populateResultModel = true;
 
   public View(ViewDefinition definition, ViewProcessingContext processingContext) {
     if (definition == null) {
@@ -347,6 +348,14 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     return !_resultListeners.isEmpty() || !_deltaListeners.isEmpty();
   }
   
+  public boolean isPopulateResultModel() {
+    return _populateResultModel;
+  }
+
+  public void setPopulateResultModel(boolean populateResultModel) {
+    _populateResultModel = populateResultModel;
+  }
+
   public synchronized void runOneCycle() {
     long snapshotTime = getProcessingContext().getLiveDataSnapshotProvider().snapshot();
     runOneCycle(snapshotTime);
@@ -357,7 +366,7 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     cycle.prepareInputs();
     cycle.executePlans();
     
-    if (hasListeners()) {
+    if (isPopulateResultModel()) {
       cycle.populateResultModel();
       recalculationPerformed(cycle.getResultModel());
     }
