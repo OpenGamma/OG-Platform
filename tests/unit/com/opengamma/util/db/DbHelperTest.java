@@ -100,7 +100,7 @@ public class DbHelperTest {
   @Test
   public void test_sqlApplyPaging_offsetLimit() {
     assertEquals(
-        "SELECT foo FROM bar WHERE TRUE ORDER BY foo OFFSET 40 ROWS FETCH FIRST 20 ROWS ONLY ",
+        "SELECT foo FROM bar WHERE TRUE ORDER BY foo OFFSET 40 ROWS FETCH NEXT 20 ROWS ONLY ",
         _helper.sqlApplyPaging("SELECT foo FROM bar WHERE TRUE ", "ORDER BY foo ", new PagingRequest(3, 20)));
   }
 

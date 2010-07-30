@@ -108,7 +108,7 @@ public abstract class DbHelper {
     }
     return sqlSelectFromWhere + sqlOrderBy +
       "OFFSET " + paging.getFirstItemIndex() + " ROWS " +
-      "FETCH FIRST " + paging.getPagingSize() + " ROWS ONLY ";
+      "FETCH NEXT " + paging.getPagingSize() + " ROWS ONLY ";
   }
 
   //-------------------------------------------------------------------------
@@ -120,10 +120,9 @@ public abstract class DbHelper {
   public String sqlNextSequenceValueSelect(final String sequenceName) {
     // use SQL standard
     // works on Derby 10.6 onwards
-    // SELECT NEXT VALUE FOR seq_name
+    // Derby uses SELECT NEXT VALUE FOR seq_name FROM sysibm.sysdummy1
     // Postgres uses SELECT nextval(seq_name)
     // Oracle uses SELECT seq_name.NEXTVAL FROM dual
-    // Others use window functions (more complex)
     return "SELECT NEXT VALUE FOR " + sequenceName;
   }
 
@@ -138,7 +137,6 @@ public abstract class DbHelper {
     // NEXT VALUE FOR seq_name
     // Postgres uses nextval(seq_name)
     // Oracle uses seq_name.NEXTVAL
-    // Others use window functions (more complex)
     return "NEXT VALUE FOR " + sequenceName + " ";
   }
 
