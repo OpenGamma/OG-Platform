@@ -662,37 +662,36 @@ public class BatchDbManagerImpl implements BatchDbManager {
     
     @Override
     public ResultWriter create(CalculationJobSpecification jobSpec, List<CalculationJobItem> items, String nodeId) {
-      try {
-        getSessionFactory().getCurrentSession().beginTransaction();
-
-        BatchResultWriter resultWriter = new BatchResultWriter();
-        
-        resultWriter.setJdbcUrl(_jdbcUrl);
-        resultWriter.setUsername(_username);
-        resultWriter.setPassword(_password);
-        
-        resultWriter.setSessionFactory(getSessionFactory());
-        resultWriter.setJdbcTemplate(_jdbcTemplate);
-        
-        resultWriter.setRiskRun(getRiskRunFromHandle(_batch));
-        if (nodeId != null) {
+      BatchResultWriter resultWriter = new BatchResultWriter();
+      
+      resultWriter.setJdbcUrl(_jdbcUrl);
+      resultWriter.setUsername(_username);
+      resultWriter.setPassword(_password);
+      
+      resultWriter.setSessionFactory(getSessionFactory());
+      resultWriter.setJdbcTemplate(_jdbcTemplate);
+      
+      resultWriter.setRiskRun(getRiskRunFromHandle(_batch));
+      if (nodeId != null) {
+        try {
+          getSessionFactory().getCurrentSession().beginTransaction();
           resultWriter.setComputeNode(getComputeNode(nodeId));
+          getSessionFactory().getCurrentSession().getTransaction().commit();
+          return resultWriter;
+        } catch (RuntimeException e) {
+          getSessionFactory().getCurrentSession().getTransaction().rollback();
+          throw e;
         }
-        
-        // should be optimized
-        resultWriter.setComputationTargets(getDbHandle(_batch)._computationTargets);
-        resultWriter.setRiskValueNames(getDbHandle(_batch)._riskValueNames);
-        
-        getSessionFactory().getCurrentSession().getTransaction().commit();
-        return resultWriter;
-      } catch (RuntimeException e) {
-        getSessionFactory().getCurrentSession().getTransaction().rollback();
-        throw e;
       }
+      
+      // should be optimized
+      resultWriter.setComputationTargets(getDbHandle(_batch)._computationTargets);
+      resultWriter.setRiskValueNames(getDbHandle(_batch)._riskValueNames);
+      
+      return resultWriter;
     }
-
   }
-
+  
   public static Class<?>[] getHibernateMappingClasses() {
     return new Class[] {
       CalculationConfiguration.class,

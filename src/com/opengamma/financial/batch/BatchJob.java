@@ -55,6 +55,7 @@ import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessingContext;
 import com.opengamma.engine.view.cache.MapViewComputationCacheSource;
+import com.opengamma.engine.view.calc.BatchExecutorFactory;
 import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
 import com.opengamma.engine.view.calcnode.CalculationNodeRequestReceiver;
 import com.opengamma.engine.view.calcnode.FudgeJobRequestSender;
@@ -616,7 +617,7 @@ public class BatchJob implements Job {
         viewProcessorQueryReceiver,
         compilationContext,  
         executor,
-        new SingleNodeExecutorFactory(),
+        new BatchExecutorFactory(),
         resultWriterFactory);
     
     _view = new View(viewDefinitionDoc.getValue(), vpc);

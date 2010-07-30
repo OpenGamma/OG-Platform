@@ -318,18 +318,11 @@ public class BatchResultWriter implements ResultWriter, Serializable {
 
   @Override
   public void write(AbstractCalculationNode node, CalculationJobResult result) {
-    synchronized (this) {
-      if (!isInitialized()) {
-        initialize(node);
-      }
-    }
-    
-    List<SqlParameterSource> successes = new ArrayList<SqlParameterSource>();
-    List<SqlParameterSource> failures = new ArrayList<SqlParameterSource>();
+    List<MapSqlParameterSource> successes = new ArrayList<MapSqlParameterSource>();
+    List<MapSqlParameterSource> failures = new ArrayList<MapSqlParameterSource>();
     
     int riskRunId = getRiskRunId();
     int calcConfId = getCalculationConfigurationId(result.getSpecification().getCalcConfigName());
-    int computeNodeId = getComputeNodeId();
     
     Date evalInstant = new Date();
     
@@ -351,24 +344,38 @@ public class BatchResultWriter implements ResultWriter, Serializable {
 
         int valueNameId = getValueNameId(value.getSpecification().getRequirementSpecification().getValueName());
         int computationTargetId = getComputationTargetId(value.getSpecification().getRequirementSpecification().getTargetSpecification());
-        long id = generateUniqueId();
         
         if (item.getResult() == InvocationResult.SUCCESS) {
 
           MapSqlParameterSource args = new MapSqlParameterSource()
-            .addValue("id", id)
             .addValue("calculation_configuration_id", calcConfId)
             .addValue("value_name_id", valueNameId)
             .addValue("computation_target_id", computationTargetId)
             .addValue("run_id", riskRunId)
             .addValue("value", valueAsDouble)
-            .addValue("eval_instant", evalInstant)
-            .addValue("compute_node_id", computeNodeId);
+            .addValue("eval_instant", evalInstant);
           successes.add(args);
         } else {
           
         }
       }
+    }
+    
+    if (successes.isEmpty() && failures.isEmpty()) {
+      return;
+    }
+    
+    synchronized (this) {
+      if (!isInitialized()) {
+        initialize(node);
+      }
+    }
+    
+    int computeNodeId = getComputeNodeId(); 
+    for (MapSqlParameterSource args : successes) {
+      long id = generateUniqueId();
+      args.addValue("id", id);
+      args.addValue("compute_node_id", computeNodeId);
     }
     
     SqlParameterSource[] batchArgsArray = successes.toArray(new SqlParameterSource[0]);
