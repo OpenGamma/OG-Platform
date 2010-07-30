@@ -158,7 +158,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
   }
 
   /**
-   * Gets the SQL for searching the history of a position.
+   * Gets the SQL to search for positions.
    * @param request  the request, not null
    * @return the SQL search and count, not null
    */
@@ -277,15 +277,15 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
       final long portfolioOid = rs.getLong("PORTFOLIO_OID");
       final long parentNodeOid = rs.getLong("PARENT_NODE_OID");
       final BigDecimal quantity = rs.getBigDecimal("QUANTITY").stripTrailingZeros();  // strip zeroes as DB adds them
-      final Timestamp validFrom = rs.getTimestamp("VER_FROM_INSTANT");
-      final Timestamp validTo = rs.getTimestamp("VER_TO_INSTANT");
+      final Timestamp versionFrom = rs.getTimestamp("VER_FROM_INSTANT");
+      final Timestamp versionTo = rs.getTimestamp("VER_TO_INSTANT");
       final Timestamp correctionFrom = rs.getTimestamp("CORR_FROM_INSTANT");
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
       final UniqueIdentifier uid = createUniqueIdentifier(positionOid, positionId, _deduplicate);
       _position = new PositionImpl(uid, quantity, IdentifierBundle.EMPTY);
       PositionDocument doc = new PositionDocument(_position);
-      doc.setVersionFromInstant(DateUtil.fromSqlTimestamp(validFrom));
-      doc.setVersionToInstant(DateUtil.fromSqlTimestamp(validTo));
+      doc.setVersionFromInstant(DateUtil.fromSqlTimestamp(versionFrom));
+      doc.setVersionToInstant(DateUtil.fromSqlTimestamp(versionTo));
       doc.setCorrectionFromInstant(DateUtil.fromSqlTimestamp(correctionFrom));
       doc.setCorrectionToInstant(DateUtil.fromSqlTimestamp(correctionTo));
       doc.setPortfolioId(createObjectIdentifier(portfolioOid, _deduplicate));

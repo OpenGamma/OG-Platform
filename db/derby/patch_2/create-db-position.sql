@@ -1,3 +1,10 @@
+-- design has two documents
+--  portfolio and tree of nodes (nested set model)
+--  position and associated security key
+-- bitemporal versioning exists at the document level
+-- each time a document is changed, a new row is written
+-- with only the end instant being changed on the old row
+
 create sequence pos_master_seq as bigint
     start with 1000 increment by 1 no cycle;
 -- "as bigint" required by Derby, not accepted by Postgresql
@@ -20,6 +27,7 @@ create table pos_node (
     oid bigint not null,
     portfolio_id bigint not null,
     parent_node_id bigint,
+    depth int,
     tree_left bigint not null,
     tree_right bigint not null,
     name varchar(255),
@@ -29,6 +37,7 @@ create table pos_node (
 );
 -- pos_node is fully dependent of pos_portfolio
 -- parent_node_id is an optimization (tree_left/tree_right hold all the tree structure)
+-- depth is an optimization (tree_left/tree_right hold all the tree structure)
 
 create table pos_position (
     id bigint not null,

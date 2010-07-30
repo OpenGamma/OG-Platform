@@ -13,9 +13,9 @@ package com.opengamma.financial.position.master.db;
 public class DbPositionMasterWorkers {
 
   /** Worker. */
-  private DbPositionMasterWorker _searchPortfolioTreesWorker = new QueryPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _searchPortfolioTreesWorker = new QueryPortfolioTreeDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _getPortfolioTreeWorker = new QueryPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _getPortfolioTreeWorker = new QueryPortfolioTreeDbPositionMasterWorker();
   /** Worker. */
   private DbPositionMasterWorker _addPortfolioTreeWorker = new QueryPositionDbPositionMasterWorker();
   /** Worker. */
@@ -23,7 +23,7 @@ public class DbPositionMasterWorkers {
   /** Worker. */
   private DbPositionMasterWorker _removePortfolioTreeWorker = new QueryPositionDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _searchHistoricPortfolioTreesWorker = new QueryPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _searchHistoricPortfolioTreesWorker = new QueryPortfolioTreeDbPositionMasterWorker();
   /** Worker. */
   private DbPositionMasterWorker _correctPortfolioTreeWorker = new QueryPositionDbPositionMasterWorker();
   /** Worker. */

@@ -72,9 +72,9 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionsTest extends Abst
     assertEquals(UniqueIdentifier.of("DbPos", "121", "121"), doc0.getPositionId());
     assertEquals(UniqueIdentifier.of("DbPos", "101"), doc0.getPortfolioId());
     assertEquals(UniqueIdentifier.of("DbPos", "112"), doc0.getParentNodeId());
-    assertNotNull(doc0.getVersionFromInstant());
+    assertEquals(_version1Instant, doc0.getVersionFromInstant());
     assertEquals(null, doc0.getVersionToInstant());
-    assertEquals(doc0.getVersionFromInstant(), doc0.getCorrectionFromInstant());
+    assertEquals(_version1Instant, doc0.getCorrectionFromInstant());
     assertEquals(null, doc0.getCorrectionToInstant());
     Position position0 = doc0.getPosition();
     assertNotNull(position0);
@@ -161,13 +161,10 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionsTest extends Abst
     request.setPagingRequest(new PagingRequest(2, 2));
     PositionSearchResult test = _worker.searchPositions(request);
     
-    assertNotNull(test);
-    assertNotNull(test.getPaging());
     assertEquals(3, test.getPaging().getFirstItem());
     assertEquals(2, test.getPaging().getPagingSize());
     assertEquals(_totalPositions, test.getPaging().getTotalItems());
     
-    assertNotNull(test.getDocuments());
     assertEquals(1, test.getDocuments().size());
     PositionDocument doc0 = test.getDocuments().get(0);
     assertEquals(UniqueIdentifier.of("DbPos", "221", "222"), doc0.getPositionId());

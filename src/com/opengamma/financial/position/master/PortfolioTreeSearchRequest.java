@@ -50,8 +50,7 @@ public class PortfolioTreeSearchRequest extends DirectBean {
   private Instant _correctedToInstant;
   /**
    * The depth of nodes to return.
-   * A value of zero returns no nodes, one returns the root node, two returns the
-   * root node and immediate children, and so on.
+   * A value of zero returns the root node, one returns the root node with immediate children, and so on.
    * By default this is zero to save space in the response.
    */
   @PropertyDefinition
@@ -222,8 +221,7 @@ public class PortfolioTreeSearchRequest extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the depth of nodes to return.
-   * A value of zero returns no nodes, one returns the root node, two returns the
-   * root node and immediate children, and so on.
+   * A value of zero returns the root node, one returns the root node with immediate children, and so on.
    * By default this is zero to save space in the response.
    * @return the value of the property
    */
@@ -233,8 +231,7 @@ public class PortfolioTreeSearchRequest extends DirectBean {
 
   /**
    * Sets the depth of nodes to return.
-   * A value of zero returns no nodes, one returns the root node, two returns the
-   * root node and immediate children, and so on.
+   * A value of zero returns the root node, one returns the root node with immediate children, and so on.
    * By default this is zero to save space in the response.
    * @param depth  the new value of the property
    */
@@ -244,8 +241,7 @@ public class PortfolioTreeSearchRequest extends DirectBean {
 
   /**
    * Gets the the {@code depth} property.
-   * A value of zero returns no nodes, one returns the root node, two returns the
-   * root node and immediate children, and so on.
+   * A value of zero returns the root node, one returns the root node with immediate children, and so on.
    * By default this is zero to save space in the response.
    * @return the property, not null
    */

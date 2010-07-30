@@ -136,8 +136,8 @@ public class InMemoryPositionMaster implements PositionMaster {
     UniqueIdentifiables.setInto(portfolio, uid);
     final PortfolioTreeDocument doc = new PortfolioTreeDocument(portfolio);
     doc.setPortfolioId(uid);
-    doc.setValidFromInstant(now);
-    doc.setLastModifiedInstant(now);
+    doc.setVersionFromInstant(now);
+    doc.setCorrectionFromInstant(now);
     buildPositionCounts(doc, portfolio.getRootNode());
     _trees.put(uid, doc);  // unique identifier should be unique
     return doc;
@@ -162,9 +162,10 @@ public class InMemoryPositionMaster implements PositionMaster {
     if (storedDocument == null) {
       throw new DataNotFoundException("Portfolio not found: " + uid);
     }
-    document.setValidFromInstant(storedDocument.getValidFromInstant());
-    document.setValidToInstant(storedDocument.getValidToInstant());
-    document.setLastModifiedInstant(now);
+    document.setVersionFromInstant(storedDocument.getVersionFromInstant());
+    document.setVersionToInstant(storedDocument.getVersionToInstant());
+    document.setCorrectionFromInstant(now);
+    document.setCorrectionToInstant(null);
     if (_trees.replace(uid, storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }

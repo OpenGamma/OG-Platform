@@ -64,7 +64,9 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     template.update("INSERT INTO pos_portfolio VALUES (?,?,?,?,?, ?,?)",
         101, 101, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, "TestPortfolio101");
     template.update("INSERT INTO pos_portfolio VALUES (?,?,?,?,?, ?,?)",
-        201, 201, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, "TestPortfolio201");
+        201, 201, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.toSqlTimestamp(_version2Instant), DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, "TestPortfolio201");
+    template.update("INSERT INTO pos_portfolio VALUES (?,?,?,?,?, ?,?)",
+        202, 201, DateUtil.toSqlTimestamp(_version2Instant), DateUtil.MAX_SQL_TIMESTAMP, DateUtil.toSqlTimestamp(_version2Instant), DateUtil.MAX_SQL_TIMESTAMP, "TestPortfolio202");
     _totalPortfolios = 2;
 //    id bigint not null,
 //    oid bigint not null,
@@ -73,12 +75,16 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
 //    tree_left bigint not null,
 //    tree_right bigint not null,
 //    name varchar(255),
-    template.update("INSERT INTO pos_node VALUES (?,?,?,?,?, ?,?)",
-        111, 111, 101, null, 1, 4, "TestNode111");
-    template.update("INSERT INTO pos_node VALUES (?,?,?,?,?, ?,?)",
-        112, 112, 101, 111, 2, 3, "TestNode112");
-    template.update("INSERT INTO pos_node VALUES (?,?,?,?,?, ?,?)",
-        211, 211, 201, null, 1, 2, "TestNode211");
+    template.update("INSERT INTO pos_node VALUES (?,?,?,?,?, ?,?,?)",
+        111, 111, 101, null, 0, 1, 6, "TestNode111");
+    template.update("INSERT INTO pos_node VALUES (?,?,?,?,?, ?,?,?)",
+        112, 112, 101, 111, 1, 2, 5, "TestNode112");
+    template.update("INSERT INTO pos_node VALUES (?,?,?,?,?, ?,?,?)",
+        113, 113, 101, 112, 2, 3, 4, "TestNode113");
+    template.update("INSERT INTO pos_node VALUES (?,?,?,?,?, ?,?,?)",
+        211, 211, 201, null, 0, 1, 2, "TestNode211");
+    template.update("INSERT INTO pos_node VALUES (?,?,?,?,?, ?,?,?)",
+        212, 211, 202, null, 0, 1, 2, "TestNode212");
 //    id bigint not null,
 //    oid bigint not null,
 //    portfolio_oid bigint not null,
