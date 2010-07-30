@@ -108,7 +108,7 @@ public class PresentValueCalculator implements InterestRateDerivativeVisitor<Dou
     for (int i = 0; i < n; i++) {
       res += (libors[i] + spreads[i]) * alpha[i] * fundCurve.getDiscountFactor(t[i]);
     }
-    return res;
+    return res * annuity.getNotional();
   }
 
   private double[] getLiborRates(final VariableAnnuity annuity, YieldCurveBundle curves) {
