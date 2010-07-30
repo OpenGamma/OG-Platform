@@ -18,20 +18,18 @@ import org.springframework.dao.IncorrectUpdateSemanticsDataAccessException;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.position.master.PositionDocument;
-import com.opengamma.financial.position.master.PositionSearchHistoricRequest;
-import com.opengamma.financial.position.master.PositionSearchHistoricResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifiables;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.PagingRequest;
 import com.opengamma.util.time.DateUtil;
 
 /**
  * Position master worker to modify a position.
  */
 public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker {
+  // TODO: transactions
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyPositionDbPositionMasterWorker.class);
@@ -47,17 +45,80 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
   @Override
   protected PositionDocument addPosition(final PositionDocument document) {
     s_logger.debug("addPosition {}", document);
-    // simply replace input values as they are not user-defined
+    
+    // insert new row
     final Instant now = Instant.now(getTimeSource());
     document.setVersionFromInstant(now);
     document.setVersionToInstant(null);
     document.setCorrectionFromInstant(now);
     document.setCorrectionToInstant(null);
-    
     document.setParentNodeId(document.getParentNodeId().toLatest());
     document.setPortfolioId(checkNodeGetPortfolioOid(document));
     document.setPositionId(null);
+    insertPosition(document);
+    return document;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  protected PositionDocument updatePosition(final PositionDocument document) {
+    UniqueIdentifier uid = document.getPositionId();
+    ArgumentChecker.isTrue(uid.isVersioned(), "UniqueIdentifier must be versioned");
+    s_logger.debug("updatePosition {}", document);
     
+    // load old row
+    final PositionDocument oldDoc = getPositionCheckLatestVersion(uid);
+    // update old row
+    final Instant now = Instant.now(getTimeSource());
+    oldDoc.setVersionToInstant(now);
+    updateVersionToInstant(oldDoc);
+    // insert new row
+    document.setVersionFromInstant(now);
+    document.setVersionToInstant(null);
+    document.setCorrectionFromInstant(now);
+    document.setCorrectionToInstant(null);
+    document.setParentNodeId(oldDoc.getParentNodeId());
+    document.setPortfolioId(oldDoc.getPortfolioId());
+    document.setPositionId(oldDoc.getPositionId().toLatest());
+    insertPosition(document);
+    return document;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  protected void removePosition(final UniqueIdentifier uid) {
+    ArgumentChecker.isTrue(uid.isVersioned(), "UniqueIdentifier must be versioned");
+    s_logger.debug("removePosition {}", uid);
+    
+    // load old row
+    final PositionDocument oldDoc = getPositionCheckLatestVersion(uid);
+    // update old row
+    final Instant now = Instant.now(getTimeSource());
+    oldDoc.setVersionToInstant(now);
+    updateVersionToInstant(oldDoc);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  protected PositionDocument correctPosition(PositionDocument document) {
+    UniqueIdentifier uid = document.getPositionId();
+    ArgumentChecker.isTrue(uid.isVersioned(), "UniqueIdentifier must be versioned");
+    s_logger.debug("correctPosition {}", document);
+    
+    // load old row
+    final PositionDocument oldDoc = getPositionCheckLatestCorrection(uid);
+    // update old row
+    final Instant now = Instant.now(getTimeSource());
+    oldDoc.setCorrectionToInstant(now);
+    updateCorrectionToInstant(oldDoc);
+    // insert new row
+    document.setVersionFromInstant(oldDoc.getVersionFromInstant());
+    document.setVersionToInstant(oldDoc.getVersionToInstant());
+    document.setCorrectionFromInstant(now);
+    document.setCorrectionToInstant(null);
+    document.setParentNodeId(oldDoc.getParentNodeId());
+    document.setPortfolioId(oldDoc.getPortfolioId());
+    document.setPositionId(oldDoc.getPositionId().toLatest());
     insertPosition(document);
     return document;
   }
@@ -159,45 +220,17 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  protected PositionDocument updatePosition(final PositionDocument document) {
-    ArgumentChecker.isTrue(document.getPositionId().isVersioned(), "UniqueIdentifier must be versioned");
-    
-    PositionSearchHistoricRequest searchRequest = new PositionSearchHistoricRequest(document.getPositionId());
-    searchRequest.setPagingRequest(new PagingRequest(1, 1));  // fetch latest  // TODO too harsh?????
-    PositionSearchHistoricResult searchResult = getMaster().searchPositionHistoric(searchRequest);
-    PositionDocument latest = searchResult.getFirstDocument();
-    if (latest == null) {
-      throw new DataNotFoundException("Position not found: " + document.getPositionId());
+  /**
+   * Gets the position document ensuring that it is the latest version.
+   * @param uid  the unique identifier to load, not null
+   * @return the loaded document, not null
+   */
+  protected PositionDocument getPositionCheckLatestVersion(final UniqueIdentifier uid) {
+    final PositionDocument oldDoc = getMaster().getPosition(uid);  // checks uid exists
+    if (oldDoc.getVersionToInstant() != null) {
+      throw new IllegalArgumentException("UniqueIdentifier is not latest version: " + uid);
     }
-    if (latest.getPositionId().equals(document.getPositionId()) == false) {
-      throw new IllegalArgumentException("Position not latest version: " + document.getPositionId());
-    }
-    // update old row
-    final Instant now = Instant.now(getTimeSource());
-    latest.setVersionToInstant(now);
-    updateVersionToInstant(latest);
-    // insert new row
-    document.setVersionFromInstant(now);
-    document.setVersionToInstant(null);
-    document.setCorrectionFromInstant(now);
-    document.setCorrectionToInstant(null);
-    document.setParentNodeId(latest.getParentNodeId());
-    document.setPortfolioId(latest.getPortfolioId());
-    document.setPositionId(latest.getPositionId().toLatest());
-    insertPosition(document);
-    return document;
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  protected void removePosition(final UniqueIdentifier uid) {
-    ArgumentChecker.isTrue(uid.isVersioned(), "UniqueIdentifier must be versioned");
-    
-    final PositionDocument doc = getMaster().getPosition(uid);  // checks uid exists
-    final Instant now = Instant.now(getTimeSource());
-    doc.setVersionToInstant(now);
-    updateVersionToInstant(doc);
+    return oldDoc;
   }
 
   /**
@@ -226,38 +259,44 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
               "AND ver_to_instant = :max_instant ";
   }
 
-//  //-------------------------------------------------------------------------
-//  @Override
-//  protected PositionDocument correctPosition(PositionDocument document) {
-//    ArgumentChecker.isTrue(document.getPositionId().isVersioned(), "UniqueIdentifier must be versioned");
-//    
-//    return null;
-//  }
-//
-//  /**
-//   * Updates the document row to mark the correction as ended.
-//   * @param document  the document to update, not null
-//   */
-//  protected void updateCorrectionToInstant(final PositionDocument document) {
-//    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-//      .addValue("position_id", document.getPositionId().getVersion())
-//      .addTimestamp("corr_to_instant", document.getVersionToInstant())
-//      .addValue("max_instant", DateUtil.MAX_SQL_TIMESTAMP);
-//    int rowsUpdated = getTemplate().update(sqlUpdateCorrectionToInstant(), args);
-//    if (rowsUpdated != 1) {
-//      throw new IncorrectUpdateSemanticsDataAccessException("Update end correction instant failed, rows updated: " + rowsUpdated);
-//    }
-//  }
-//
-//  /**
-//   * Gets the SQL for updating the end correction of a position.
-//   * @return the SQL, not null
-//   */
-//  protected String sqlUpdateCorrectionToInstant() {
-//    return "UPDATE pos_position " +
-//              "SET corr_to_instant = :corr_to_instant " +
-//            "WHERE id = :position_id " +
-//              "AND corr_to_instant = :max_instant ";
-//  }
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the position document ensuring that it is the latest version.
+   * @param uid  the unique identifier to load, not null
+   * @return the loaded document, not null
+   */
+  protected PositionDocument getPositionCheckLatestCorrection(final UniqueIdentifier uid) {
+    final PositionDocument oldDoc = getMaster().getPosition(uid);  // checks uid exists
+    if (oldDoc.getCorrectionToInstant() != null) {
+      throw new IllegalArgumentException("UniqueIdentifier is not latest correction: " + uid);
+    }
+    return oldDoc;
+  }
+
+  /**
+   * Updates the document row to mark the correction as ended.
+   * @param document  the document to update, not null
+   */
+  protected void updateCorrectionToInstant(final PositionDocument document) {
+    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+      .addValue("position_id", document.getPositionId().getVersion())
+      .addTimestamp("corr_to_instant", document.getCorrectionToInstant())
+      .addValue("max_instant", DateUtil.MAX_SQL_TIMESTAMP);
+    int rowsUpdated = getTemplate().update(sqlUpdateCorrectionToInstant(), args);
+    if (rowsUpdated != 1) {
+      throw new IncorrectUpdateSemanticsDataAccessException("Update end correction instant failed, rows updated: " + rowsUpdated);
+    }
+  }
+
+  /**
+   * Gets the SQL for updating the end correction of a position.
+   * @return the SQL, not null
+   */
+  protected String sqlUpdateCorrectionToInstant() {
+    return "UPDATE pos_position " +
+              "SET corr_to_instant = :corr_to_instant " +
+            "WHERE id = :position_id " +
+              "AND corr_to_instant = :max_instant ";
+  }
 
 }

@@ -84,7 +84,7 @@ public class PositionDocument extends DirectBean {
    */
   public PositionDocument(final Position position) {
     ArgumentChecker.notNull(position, "position");
-    setPortfolioId(position.getUniqueIdentifier());
+    setPositionId(position.getUniqueIdentifier());
     setPosition(position);
   }
 
