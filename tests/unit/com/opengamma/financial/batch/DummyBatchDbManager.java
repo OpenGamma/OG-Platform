@@ -13,6 +13,7 @@ import javax.time.calendar.OffsetTime;
 import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.calcnode.ResultWriterFactory;
 import com.opengamma.financial.batch.db.BatchDbRiskContext;
 
 /**
@@ -26,25 +27,6 @@ public class DummyBatchDbManager implements BatchDbManager {
 
   @Override
   public void endBatch(BatchJob batch) {
-  }
-
-  @Override
-  public BatchDbRiskContext createLocalContext(BatchJob batch) {
-    return null;
-  }
-
-  @Override
-  public FudgeMsg createFudgeContext(BatchJob batch, String remoteComputeNodeOid, int remoteComputeNodeVersion) {
-    return null;
-  }
-
-  @Override
-  public BatchDbRiskContext deserializeFudgeContext(FudgeMsg msg) {
-    return null;
-  }
-
-  @Override
-  public void write(BatchDbRiskContext dbContext, ViewComputationResultModel result) {
   }
 
   @Override
@@ -66,6 +48,11 @@ public class DummyBatchDbManager implements BatchDbManager {
   @Override
   public Set<LiveDataValue> getSnapshotValues(SnapshotId snapshotId) {
     return Collections.emptySet();
+  }
+
+  @Override
+  public ResultWriterFactory createResultWriterFactory(BatchJob batch) {
+    return null;
   }
   
 }
