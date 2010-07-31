@@ -147,7 +147,7 @@ public class BerkeleyDBValueSpecificationIdentifierSource implements ValueSpecif
   protected long allocateNewIdentifier(ValueSpecification valueSpec, Transaction txn, DatabaseEntry specEntry) {
     DatabaseEntry valueEntry = new DatabaseEntry();
     long freshIdentifier = _nextIdentifier.getAndIncrement();
-    s_logger.debug("Allocating identifier {} to {}", freshIdentifier, valueSpec);
+    //s_logger.debug("Allocating identifier {} to {}", freshIdentifier, valueSpec);
     LongBinding.longToEntry(freshIdentifier, valueEntry);
     OperationStatus putStatus = getDatabase().put(txn, specEntry, valueEntry);
     if (putStatus != OperationStatus.SUCCESS) {

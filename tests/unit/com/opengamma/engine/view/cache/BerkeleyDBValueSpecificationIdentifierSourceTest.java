@@ -19,12 +19,15 @@ import org.apache.commons.io.FileUtils;
 import org.fudgemsg.FudgeContext;
 import org.junit.AfterClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.monitor.OperationTimer;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
 
@@ -32,11 +35,12 @@ import com.sleepycat.je.EnvironmentConfig;
  * A simple unit test of {@link BerkeleyDBValueSpecificationIdentifierSource}.
  */
 public class BerkeleyDBValueSpecificationIdentifierSourceTest {
+  private static final Logger s_logger = LoggerFactory.getLogger(BerkeleyDBValueSpecificationIdentifierSourceTest.class);
   private static Set<File> s_dbDirsToDelete = new HashSet<File>();
   
   protected File createDbDir(String methodName) {
     File tmpDir = new File(System.getProperty("java.io.tmpdir"));
-    File dbDir = new File(tmpDir, "BerkeleyDBValueSpecificationIdentifierSourceTest." + methodName);
+    File dbDir = new File(tmpDir, "BerkeleyDBValueSpecification-" + System.currentTimeMillis() + "-" + methodName);
     dbDir.mkdirs();
     s_dbDirsToDelete.add(dbDir);
     return dbDir;
@@ -54,8 +58,10 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
   public static void deleteDbDirs() {
     for (File f : s_dbDirsToDelete) {
       try {
+        s_logger.info("Deleting temp directory {}", f);
         FileUtils.deleteDirectory(f);
       } catch (IOException ioe) {
+        s_logger.warn("Unable to recursively delete directory {}", f);
         // Just swallow it.
       }
     }
@@ -126,5 +132,78 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
     valueSpec = new ValueSpecification(new ValueRequirement("value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("scheme", valueName))));
     identifier = idSource.getIdentifier(valueSpec);
     assertEquals(initialIdentifier + 1, identifier);
+  }
+  
+  @Test
+  public void putPerformanceTest() {
+    final int numRequirementNames = 100;
+    final int numIdentifiers = 100;
+    final long numSpecifications = ((long) numRequirementNames) * ((long) numIdentifiers);
+    File dbDir = createDbDir("putPerformanceTest");
+    Environment dbEnvironment = createDbEnvironment(dbDir);
+    FudgeContext fudgeContext = new FudgeContext();
+    BerkeleyDBValueSpecificationIdentifierSource idSource = new BerkeleyDBValueSpecificationIdentifierSource(dbEnvironment, BerkeleyDBValueSpecificationIdentifierSource.DEFAULT_DATABASE_NAME, fudgeContext);
+    idSource.start();
+    
+    OperationTimer timer = new OperationTimer(s_logger, "Put performance test with {} elements", numSpecifications);
+    
+    bulkOperationGetIdentifier(numRequirementNames, numIdentifiers, idSource);
+    
+    idSource.stop();
+    long numMillis = timer.finished();
+    
+    double msPerPut = ((double) numMillis) / ((double) numSpecifications);
+    double putsPerSecond = 1000.0 / msPerPut;
+    
+    s_logger.info("Split time was {}ms/put, {}puts/sec", msPerPut, putsPerSecond);
+    
+    dbEnvironment.close();
+  }
+
+  /**
+   * @param numRequirementNames
+   * @param numIdentifiers
+   * @param idSource
+   */
+  private void bulkOperationGetIdentifier(final int numRequirementNames, final int numIdentifiers, BerkeleyDBValueSpecificationIdentifierSource idSource) {
+    for (int iRequirementName = 0; iRequirementName < numRequirementNames; iRequirementName++) {
+      String requirementName = "req-" + iRequirementName;
+      
+      for (int iIdentifier = 0; iIdentifier < numIdentifiers; iIdentifier++) {
+        String identifierName = "identifier-" + iIdentifier;
+        ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement(requirementName, new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("scheme", identifierName))));
+
+        // Just throw away the actual identifier. We don't care.
+        idSource.getIdentifier(valueSpec);
+      }
+    }
+  }
+
+  @Test
+  public void getPerformanceTest() {
+    final int numRequirementNames = 100;
+    final int numIdentifiers = 100;
+    final long numSpecifications = ((long) numRequirementNames) * ((long) numIdentifiers);
+    File dbDir = createDbDir("getPerformanceTest");
+    Environment dbEnvironment = createDbEnvironment(dbDir);
+    FudgeContext fudgeContext = new FudgeContext();
+    BerkeleyDBValueSpecificationIdentifierSource idSource = new BerkeleyDBValueSpecificationIdentifierSource(dbEnvironment, BerkeleyDBValueSpecificationIdentifierSource.DEFAULT_DATABASE_NAME, fudgeContext);
+    idSource.start();
+    
+    bulkOperationGetIdentifier(numRequirementNames, numIdentifiers, idSource);
+    
+    OperationTimer timer = new OperationTimer(s_logger, "Get performance test with {} elements", numSpecifications);
+    
+    bulkOperationGetIdentifier(numRequirementNames, numIdentifiers, idSource);
+    
+    long numMillis = timer.finished();
+    idSource.stop();
+    
+    double msPerPut = ((double) numMillis) / ((double) numSpecifications);
+    double putsPerSecond = 1000.0 / msPerPut;
+    
+    s_logger.info("Split time was {}ms/get, {}gets/sec", msPerPut, putsPerSecond);
+    
+    dbEnvironment.close();
   }
 }
