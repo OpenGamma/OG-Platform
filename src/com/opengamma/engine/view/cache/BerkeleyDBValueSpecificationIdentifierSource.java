@@ -39,6 +39,8 @@ public class BerkeleyDBValueSpecificationIdentifierSource implements ValueSpecif
    * The default name for the database in the provided environment.
    */
   protected static final String DEFAULT_DATABASE_NAME = "value_specification_identifier";
+  private static final byte[] HIGHEST_VALUE_KEY = new byte[] {0};
+  private static final DatabaseEntry HIGHEST_VALUE_DB_ENTRY = new DatabaseEntry(HIGHEST_VALUE_KEY);
   
   // Injected inputs:
   private final Environment _dbEnvironment;
@@ -121,14 +123,7 @@ public class BerkeleyDBValueSpecificationIdentifierSource implements ValueSpecif
       OperationStatus status = getDatabase().get(txn, specEntry, valueEntry, LockMode.READ_COMMITTED);
       switch (status) {
         case NOTFOUND:
-          long freshIdentifier = _nextIdentifier.getAndIncrement();
-          LongBinding.longToEntry(freshIdentifier, valueEntry);
-          OperationStatus putStatus = getDatabase().put(txn, specEntry, valueEntry);
-          if (putStatus != OperationStatus.SUCCESS) {
-            s_logger.error("Unable to write new value {} for spec {} - {}", new Object[]{freshIdentifier, spec, putStatus});
-            throw new OpenGammaRuntimeException("Unable to write new value");
-          }
-          result = freshIdentifier;
+          result = allocateNewIdentifier(spec, txn, specEntry);
           break;
         case SUCCESS:
           result = LongBinding.entryToLong(valueEntry);
@@ -149,6 +144,26 @@ public class BerkeleyDBValueSpecificationIdentifierSource implements ValueSpecif
     return result;
   }
   
+  protected long allocateNewIdentifier(ValueSpecification valueSpec, Transaction txn, DatabaseEntry specEntry) {
+    DatabaseEntry valueEntry = new DatabaseEntry();
+    long freshIdentifier = _nextIdentifier.getAndIncrement();
+    s_logger.debug("Allocating identifier {} to {}", freshIdentifier, valueSpec);
+    LongBinding.longToEntry(freshIdentifier, valueEntry);
+    OperationStatus putStatus = getDatabase().put(txn, specEntry, valueEntry);
+    if (putStatus != OperationStatus.SUCCESS) {
+      s_logger.error("Unable to write new value {} for spec {} - {}", new Object[]{freshIdentifier, valueSpec, putStatus});
+      throw new OpenGammaRuntimeException("Unable to write new value");
+    }
+    
+    putStatus = getDatabase().put(txn, HIGHEST_VALUE_DB_ENTRY, valueEntry);
+    if (putStatus != OperationStatus.SUCCESS) {
+      s_logger.error("Unable to write new value {} as highest spec", freshIdentifier);
+      throw new OpenGammaRuntimeException("Unable to update highest value");
+    }
+    
+    return freshIdentifier;
+  }
+  
   protected byte[] convertSpecificationToByteArray(ValueSpecification valueSpec) {
     // REVIEW kirk 2010-07-31 -- Cache the serialization context?
     FudgeSerializationContext serContext = new FudgeSerializationContext(getFudgeContext());
@@ -165,13 +180,35 @@ public class BerkeleyDBValueSpecificationIdentifierSource implements ValueSpecif
   @Override
   public void start() {
     s_logger.info("Starting, and opening Database.");
-    // TODO kirk 2010-07-31 -- Get next identifier from storage on restart.
     DatabaseConfig dbConfig = new DatabaseConfig();
     dbConfig.setAllowCreate(true);
     dbConfig.setTransactional(true);
     Database database = getDbEnvironment().openDatabase(null, getDatabaseName(), dbConfig);
     setDatabase(database);
+    initializeNextIdentifier();
     _started.set(true);
+  }
+
+  /**
+   * 
+   */
+  protected void initializeNextIdentifier() {
+    TransactionConfig txnConfig = new TransactionConfig();
+    txnConfig.setSync(false);
+    Transaction txn = getDbEnvironment().beginTransaction(null, txnConfig);
+    long nextIdentifier = 1L;
+    try {
+      DatabaseEntry valueEntry = new DatabaseEntry();
+      OperationStatus status = getDatabase().get(txn, HIGHEST_VALUE_DB_ENTRY, valueEntry, LockMode.READ_COMMITTED);
+      if (status == OperationStatus.SUCCESS) {
+        long previousHighest = LongBinding.entryToLong(valueEntry);
+        nextIdentifier = previousHighest + 1;
+        s_logger.info("Loaded previous highest value of {}, setting next identifier to {}", previousHighest, nextIdentifier);
+      }
+    } finally {
+      txn.commit();
+    }
+    _nextIdentifier.set(nextIdentifier);
   }
 
   @Override
