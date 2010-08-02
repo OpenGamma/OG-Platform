@@ -50,7 +50,7 @@ public class Bond implements InterestRateDerivative {
     for (int i = 1; i < n; i++) {
       paymentAmounts[i] = coupons[i] * (paymentTimes[i] - paymentTimes[i - 1]) + (i == (n - 1) ? 1.0 : 0.0);
     }
-    _annuity = new FixedAnnuity(paymentTimes, 1.0, coupons, yieldCurveName);
+    _annuity = new FixedAnnuity(paymentTimes, paymentAmounts, yieldCurveName);
   }
 
   public Bond(final double[] paymentTimes, final double[] coupons, final double[] yearFractions, final String yieldCurveName) {
@@ -73,7 +73,7 @@ public class Bond implements InterestRateDerivative {
     for (int i = 0; i < n; i++) {
       paymentAmounts[i] = coupons[i] * yearFractions[i] + (i == (n - 1) ? 1.0 : 0.0);
     }
-    _annuity = new FixedAnnuity(paymentTimes, 1.0, coupons, yieldCurveName);
+    _annuity = new FixedAnnuity(paymentTimes, paymentAmounts, yieldCurveName);
   }
 
   public double[] getPaymentTimes() {
