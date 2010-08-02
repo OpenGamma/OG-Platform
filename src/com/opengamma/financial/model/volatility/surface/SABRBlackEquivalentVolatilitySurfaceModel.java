@@ -18,7 +18,7 @@ import com.opengamma.util.CompareUtils;
 /**
  * 
  */
-public class SABRBlackEquivalentVolatilitySurfaceModel implements VolatilitySurfaceModel<OptionDefinition, SABRDataBundle> {
+public class SABRBlackEquivalentVolatilitySurfaceModel implements VolatilitySurfaceModel<Map<OptionDefinition, Double>, SABRDataBundle> {
   private static final Logger s_logger = LoggerFactory.getLogger(SABRBlackEquivalentVolatilitySurfaceModel.class);
   private static final double EPS = 1e-15;
 
