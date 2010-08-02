@@ -12,6 +12,7 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.types.StringFieldType;
 
 import com.opengamma.engine.security.Security;
 
@@ -82,7 +83,13 @@ public final class AddSecurityRequest {
   public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
     MutableFudgeFieldContainer msg = context.newMessage();
     if (_security != null) {
-      context.objectToFudgeMsg(msg, SECURITY_FIELD_NAME, null, _security);
+      final MutableFudgeFieldContainer submsg = context.objectToFudgeMsg(_security);
+      Class<?> c = _security.getClass();
+      while (Security.class.isAssignableFrom(c)) {
+        submsg.add(null, 0, StringFieldType.INSTANCE, c.getName());
+        c = c.getSuperclass();
+      }
+      msg.add(SECURITY_FIELD_NAME, submsg);
     }
     return msg;
   }
