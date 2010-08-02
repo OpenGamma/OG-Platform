@@ -25,7 +25,7 @@ public class ConstantVolatilitySurface extends VolatilitySurface implements Seri
 
   public ConstantVolatilitySurface(final double sigma) {
     if (sigma < 0) {
-      throw new IllegalArgumentException("Cannot have a negative volatility");
+      throw new IllegalArgumentException("Cannot have a negative volatility: have " + sigma);
     }
     _sigma = sigma;
   }
