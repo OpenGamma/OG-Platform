@@ -134,9 +134,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 //    final double[] marketRates = new double[n];
 //    final double[] initialRatesGuess = new double[n];
 //    final double[] nodeTimes = new double[n];
-    final double[] marketRates = new double[n + 1];
+    final double[] marketRates = new double[n];
     final double[] initialRatesGuess = new double[n];
-    final double[] nodeTimes = new double[n + 1];
+    final double[] nodeTimes = new double[n];
     marketRates[0] = 0.01;
     nodeTimes[0] = 0;
     InterestRateDerivative derivative;
@@ -168,8 +168,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       } else {
         rate /= 100;
       }
-      marketRates[i + 1] = rate;
-      nodeTimes[i + 1] = getLastTime(derivative);
+      marketRates[i] = rate;
+      nodeTimes[i] = getLastTime(derivative);
       i++;
     }
 
