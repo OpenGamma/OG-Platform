@@ -15,12 +15,10 @@ import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.PropertyReadWrite;
 import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.google.common.collect.Maps;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -66,11 +64,11 @@ public class PortfolioTreeDocument extends DirectBean {
    */
   @PropertyDefinition
   private Portfolio _portfolio;
-  /**
-   * The map of node unique identifier to the count of positions directly on that node.
-   */
-  @PropertyDefinition(readWrite = PropertyReadWrite.READ_ONLY)
-  private Map<UniqueIdentifier, Integer> _positionCounts = Maps.newHashMap();
+//  /**
+//   * The map of node unique identifier to the count of positions directly on that node.
+//   */
+//  @PropertyDefinition(readWrite = PropertyReadWrite.READ_ONLY)
+//  private Map<UniqueIdentifier, Integer> _positionCounts = Maps.newHashMap();
 
   /**
    * Creates an instance.
@@ -117,8 +115,6 @@ public class PortfolioTreeDocument extends DirectBean {
         return getCorrectionToInstant();
       case 1121781064:  // portfolio
         return getPortfolio();
-      case -2113727539:  // positionCounts
-        return getPositionCounts();
     }
     return super.propertyGet(propertyName);
   }
@@ -144,8 +140,6 @@ public class PortfolioTreeDocument extends DirectBean {
       case 1121781064:  // portfolio
         setPortfolio((Portfolio) newValue);
         return;
-      case -2113727539:  // positionCounts
-        throw new UnsupportedOperationException("Property cannot be written: positionCounts");
     }
     super.propertySet(propertyName, newValue);
   }
@@ -308,23 +302,6 @@ public class PortfolioTreeDocument extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the map of node unique identifier to the count of positions directly on that node.
-   * @return the value of the property
-   */
-  public Map<UniqueIdentifier, Integer> getPositionCounts() {
-    return _positionCounts;
-  }
-
-  /**
-   * Gets the the {@code positionCounts} property.
-   * @return the property, not null
-   */
-  public final Property<Map<UniqueIdentifier, Integer>> positionCounts() {
-    return metaBean().positionCounts().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code PortfolioTreeDocument}.
    */
   public static class Meta extends BasicMetaBean {
@@ -358,11 +335,6 @@ public class PortfolioTreeDocument extends DirectBean {
      */
     private final MetaProperty<Portfolio> _portfolio = DirectMetaProperty.ofReadWrite(this, "portfolio", Portfolio.class);
     /**
-     * The meta-property for the {@code positionCounts} property.
-     */
-    @SuppressWarnings("unchecked")
-    private final MetaProperty<Map<UniqueIdentifier, Integer>> _positionCounts = DirectMetaProperty.ofReadOnly(this, "positionCounts", (Class) Map.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map;
@@ -376,7 +348,6 @@ public class PortfolioTreeDocument extends DirectBean {
       temp.put("correctionFromInstant", _correctionFromInstant);
       temp.put("correctionToInstant", _correctionToInstant);
       temp.put("portfolio", _portfolio);
-      temp.put("positionCounts", _positionCounts);
       _map = Collections.unmodifiableMap(temp);
     }
 
@@ -442,14 +413,6 @@ public class PortfolioTreeDocument extends DirectBean {
      */
     public final MetaProperty<Portfolio> portfolio() {
       return _portfolio;
-    }
-
-    /**
-     * The meta-property for the {@code positionCounts} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Map<UniqueIdentifier, Integer>> positionCounts() {
-      return _positionCounts;
     }
 
   }

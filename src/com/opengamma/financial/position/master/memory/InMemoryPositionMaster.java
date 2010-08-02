@@ -138,17 +138,17 @@ public class InMemoryPositionMaster implements PositionMaster {
     doc.setPortfolioId(uid);
     doc.setVersionFromInstant(now);
     doc.setCorrectionFromInstant(now);
-    buildPositionCounts(doc, portfolio.getRootNode());
+//    buildPositionCounts(doc, portfolio.getRootNode());
     _trees.put(uid, doc);  // unique identifier should be unique
     return doc;
   }
 
-  private static void buildPositionCounts(final PortfolioTreeDocument doc, final PortfolioNode node) {
-    doc.getPositionCounts().put(node.getUniqueIdentifier(), node.getPositions().size());
-    for (PortfolioNode child : node.getChildNodes()) {
-      buildPositionCounts(doc, child);
-    }
-  }
+//  private static void buildPositionCounts(final PortfolioTreeDocument doc, final PortfolioNode node) {
+//    doc.getPositionCounts().put(node.getUniqueIdentifier(), node.getPositions().size());
+//    for (PortfolioNode child : node.getChildNodes()) {
+//      buildPositionCounts(doc, child);
+//    }
+//  }
 
   @Override
   public PortfolioTreeDocument updatePortfolioTree(final PortfolioTreeDocument document) {
