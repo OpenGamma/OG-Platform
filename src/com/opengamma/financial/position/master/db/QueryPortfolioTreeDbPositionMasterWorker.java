@@ -55,10 +55,10 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
         "f.corr_from_instant AS corr_from_instant, " +
         "f.corr_to_instant AS corr_to_instant, " +
         "f.name AS portfolio_name, " +
-        "n.id AS node_id," +
-        "n.oid AS node_oid," +
-        "n.tree_left AS tree_left," +
-        "n.tree_right AS tree_right," +
+        "n.id AS node_id, " +
+        "n.oid AS node_oid, " +
+        "n.tree_left AS tree_left, " +
+        "n.tree_right AS tree_right, " +
         "n.name AS node_name ";
   /**
    * SQL from.

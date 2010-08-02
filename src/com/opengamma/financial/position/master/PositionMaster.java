@@ -229,7 +229,7 @@ public interface PositionMaster {
    * Gets a single portfolio, including all child nodes and positions.
    * <p>
    * This allows direct access to the entire tree with positions.
-   * It is intended for fast access to the structure.
+   * It is intended for fast access to the whole structure.
    * 
    * @param request  the request, not null
    * @return the portfolio, null if not found
@@ -241,7 +241,7 @@ public interface PositionMaster {
    * Gets a single node, including all child nodes and positions.
    * <p>
    * This allows direct access to the entire tree with positions.
-   * It is intended for fast access to the structure.
+   * It is intended for fast access to the whole structure.
    * 
    * @param request  the request, not null
    * @return the node, null if not found
@@ -253,7 +253,7 @@ public interface PositionMaster {
    * Gets a single position with full detail.
    * <p>
    * This allows direct access to the position.
-   * It is intended for fast access to the structure.
+   * It is intended for fast access to the whole structure.
    * 
    * @param request  the request, not null
    * @return the position, null if not found

@@ -58,7 +58,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
         "p.corr_from_instant AS corr_from_instant, " +
         "p.corr_to_instant AS corr_to_instant, " +
         "p.quantity AS quantity, " +
-        "s.id_scheme AS seckey_scheme," +
+        "s.id_scheme AS seckey_scheme, " +
         "s.id_value AS seckey_value ";
   /**
    * SQL from.
