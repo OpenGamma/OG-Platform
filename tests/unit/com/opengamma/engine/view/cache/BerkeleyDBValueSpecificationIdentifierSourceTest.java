@@ -31,6 +31,10 @@ import com.opengamma.util.monitor.OperationTimer;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
 
+// TODO kirk 2010-08-02 -- We should have concurrency performance tests as well.
+// The correctness is largely taken care of by the database transactions, which go
+// far beyond normal synchronization in handling concurrency.
+
 /**
  * A simple unit test of {@link BerkeleyDBValueSpecificationIdentifierSource}.
  */

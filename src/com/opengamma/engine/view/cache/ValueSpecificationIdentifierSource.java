@@ -13,5 +13,13 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public interface ValueSpecificationIdentifierSource {
 
+  /**
+   * Obtain the current identifier for the specification provided,
+   * or allocate a new one and return if there is not an existing
+   * identifier allocated.
+   * 
+   * @param spec The specification to lookup or allocate an identifier for
+   * @return The identifier
+   */
   long getIdentifier(ValueSpecification spec);
 }

@@ -130,6 +130,7 @@ public class BerkeleyDBValueSpecificationIdentifierSource implements ValueSpecif
           break;
         default:
           s_logger.warn("Unexpected operation status on load {}, assuming we have to insert a new record", status);
+          result = allocateNewIdentifier(spec, txn, specEntry);
           break;
       }
       txn.commit();
