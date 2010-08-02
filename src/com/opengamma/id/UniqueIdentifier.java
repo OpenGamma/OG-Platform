@@ -188,7 +188,11 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
    * @return an identifier representing the latest version of the item, not null
    */
   public UniqueIdentifier toLatest() {
-    return new UniqueIdentifier(_scheme, _value, null);
+    if (isVersioned()) {
+      return new UniqueIdentifier(_scheme, _value, null);
+    } else {
+      return this;
+    }
   }
 
   //-------------------------------------------------------------------------
