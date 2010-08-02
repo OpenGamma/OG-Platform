@@ -67,7 +67,7 @@ public class ModifyPositionDbPositionMasterWorkerRemovePositionTest extends Abst
 
   @Test(expected = IllegalArgumentException.class)
   public void test_removePosition_nonVersionedUID() {
-    _worker.removePosition(UniqueIdentifier.of("DbPos", "120"));
+    _worker.removePosition(UniqueIdentifier.of("DbPos", "121"));
   }
 
   @Test(expected = DataNotFoundException.class)
@@ -84,14 +84,12 @@ public class ModifyPositionDbPositionMasterWorkerRemovePositionTest extends Abst
     _worker.removePosition(uid);
     PositionDocument test = _queryWorker.getPosition(uid);
     
-    assertEquals(now, test.getVersionToInstant());
-    
-    // other data unaltered
     assertEquals(uid, test.getPositionId());
     assertEquals(UniqueIdentifier.of("DbPos", "101"), test.getPortfolioId());
     assertEquals(UniqueIdentifier.of("DbPos", "112"), test.getParentNodeId());
-    assertNotNull(test.getVersionFromInstant());
-    assertEquals(test.getVersionFromInstant(), test.getCorrectionFromInstant());
+    assertEquals(_version1Instant, test.getVersionFromInstant());
+    assertEquals(now, test.getVersionToInstant());
+    assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     Position position = test.getPosition();
     assertNotNull(position);

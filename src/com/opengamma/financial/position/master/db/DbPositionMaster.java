@@ -182,6 +182,7 @@ public class DbPositionMaster implements PositionMaster {
   public PortfolioTreeDocument addPortfolioTree(PortfolioTreeDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
+    ArgumentChecker.notNull(document.getPortfolio().getRootNode(), "document.portfolio.rootNode");
     
     return getWorkers().getAddPortfolioTreeWorker().addPortfolioTree(document);
   }

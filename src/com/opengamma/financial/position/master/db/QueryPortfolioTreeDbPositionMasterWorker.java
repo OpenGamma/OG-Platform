@@ -59,11 +59,7 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
         "n.oid AS node_oid," +
         "n.tree_left AS tree_left," +
         "n.tree_right AS tree_right," +
-        "n.name AS node_name";
-//        "(COUNT (*) FROM pos_position p WHERE p.portfolio_oid = f.oid " +
-//        "AND p.ver_from_instant <= :version_as_of_instant AND p.ver_to_instant > :version_as_of_instant " +
-//        "AND p.corr_from_instant <= :corrected_to_instant AND p.corr_to_instant > :corrected_to_instant " +
-//        ") AS position_count";
+        "n.name AS node_name ";
   /**
    * SQL from.
    */

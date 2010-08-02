@@ -91,13 +91,12 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     doc.setPosition(position);
     PositionDocument test = _worker.addPosition(doc);
     
-    // other data unaltered
     UniqueIdentifier uid = test.getPositionId();
     assertNotNull(uid);
-    assertEquals("DbPos", test.getPositionId().getScheme());
-    assertTrue(test.getPositionId().isVersioned());
-    assertTrue(Long.parseLong(test.getPositionId().getValue()) > 1000);
-    assertEquals(test.getPositionId().getValue(), test.getPositionId().getVersion());
+    assertEquals("DbPos", uid.getScheme());
+    assertTrue(uid.isVersioned());
+    assertTrue(Long.parseLong(uid.getValue()) > 1000);
+    assertEquals(uid.getValue(), uid.getVersion());
     assertEquals(UniqueIdentifier.of("DbPos", "101"), test.getPortfolioId());
     assertEquals(UniqueIdentifier.of("DbPos", "111"), test.getParentNodeId());
     assertEquals(now, test.getVersionFromInstant());

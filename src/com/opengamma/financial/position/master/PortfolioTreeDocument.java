@@ -64,11 +64,6 @@ public class PortfolioTreeDocument extends DirectBean {
    */
   @PropertyDefinition
   private Portfolio _portfolio;
-//  /**
-//   * The map of node unique identifier to the count of positions directly on that node.
-//   */
-//  @PropertyDefinition(readWrite = PropertyReadWrite.READ_ONLY)
-//  private Map<UniqueIdentifier, Integer> _positionCounts = Maps.newHashMap();
 
   /**
    * Creates an instance.

@@ -17,15 +17,15 @@ public class DbPositionMasterWorkers {
   /** Worker. */
   private DbPositionMasterWorker _getPortfolioTreeWorker = new QueryPortfolioTreeDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _addPortfolioTreeWorker = new QueryPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _addPortfolioTreeWorker = new ModifyPortfolioTreeDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _updatePortfolioTreeWorker = new QueryPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _updatePortfolioTreeWorker = new ModifyPortfolioTreeDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _removePortfolioTreeWorker = new QueryPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _removePortfolioTreeWorker = new ModifyPortfolioTreeDbPositionMasterWorker();
   /** Worker. */
   private DbPositionMasterWorker _searchHistoricPortfolioTreesWorker = new QueryPortfolioTreeDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _correctPortfolioTreeWorker = new QueryPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _correctPortfolioTreeWorker = new ModifyPortfolioTreeDbPositionMasterWorker();
   /** Worker. */
   private DbPositionMasterWorker _searchPositionsWorker = new QueryPositionDbPositionMasterWorker();
   /** Worker. */
@@ -41,11 +41,11 @@ public class DbPositionMasterWorkers {
   /** Worker. */
   private DbPositionMasterWorker _correctPositionWorker = new ModifyPositionDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _getFullPortfolioWorker = new QueryPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _getFullPortfolioWorker = new QueryPositionDbPositionMasterWorker();  // TODO
   /** Worker. */
-  private DbPositionMasterWorker _getFullPortfolioNodeWorker = new QueryPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _getFullPortfolioNodeWorker = new QueryPositionDbPositionMasterWorker();  // TODO
   /** Worker. */
-  private DbPositionMasterWorker _getFullPositionWorker = new QueryPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _getFullPositionWorker = new QueryPositionDbPositionMasterWorker();  // TODO
 
   /**
    * Creates an instance.
