@@ -126,8 +126,7 @@ public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscount
    *           Thrown if the data map is null or empty, or if it contains a
    *           negative time to maturity.
    */
-  public InterpolatedYieldAndDiscountCurve(final Map<Double, Double> data,
-      final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> interpolators) {
+  public InterpolatedYieldAndDiscountCurve(final Map<Double, Double> data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> interpolators) {
     Validate.notNull(data);
     Validate.notNull(interpolators);
     Validate.notEmpty(interpolators);

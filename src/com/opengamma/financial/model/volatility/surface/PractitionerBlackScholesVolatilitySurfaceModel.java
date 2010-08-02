@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
@@ -22,14 +21,14 @@ import com.opengamma.math.function.Function2D;
 import com.opengamma.math.regression.LeastSquaresRegression;
 import com.opengamma.math.regression.LeastSquaresRegressionResult;
 import com.opengamma.math.regression.OrdinaryLeastSquaresRegression;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
  */
-public class PractitionerBlackScholesVolatilitySurfaceModel implements VolatilitySurfaceModel<OptionDefinition, StandardOptionDataBundle> {
+public class PractitionerBlackScholesVolatilitySurfaceModel implements VolatilitySurfaceModel<Map<OptionDefinition, Double>, StandardOptionDataBundle> {
   private static final Logger s_logger = LoggerFactory.getLogger(PractitionerBlackScholesVolatilitySurfaceModel.class);
-  private final VolatilitySurfaceModel<OptionDefinition, StandardOptionDataBundle> _bsmVolatilityModel = new BlackScholesMertonImpliedVolatilitySurfaceModel();
+  private final VolatilitySurfaceModel<Map<OptionDefinition, Double>, StandardOptionDataBundle> _bsmVolatilityModel = new BlackScholesMertonImpliedVolatilitySurfaceModel();
   private static final int DEGREE = 5;
   private final LeastSquaresRegression _regression;
   private static final Double[] EMPTY_ARRAY = new Double[0];
@@ -62,19 +61,15 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
     final List<Double> kList = new ArrayList<Double>();
     final List<Double> tList = new ArrayList<Double>();
     final List<Double> sigmaList = new ArrayList<Double>();
-    Double k, t, sigma;
+    double k, t, sigma;
     for (final Map.Entry<OptionDefinition, Double> entry : prices.entrySet()) {
       k = entry.getKey().getStrike();
       t = entry.getKey().getTimeToExpiry(data.getDate());
       try {
-        sigma = _bsmVolatilityModel.getSurface(Collections.<OptionDefinition, Double>singletonMap(entry.getKey(), entry.getValue()), data).getVolatility(Pair.of(t, k));
-        if (k != null && t != null && sigma != null) {
-          kList.add(k);
-          tList.add(t);
-          sigmaList.add(sigma);
-        } else {
-          s_logger.info("Problem getting BSM volatility for " + entry.getKey() + ", not using this option in regression");
-        }
+        sigma = _bsmVolatilityModel.getSurface(Collections.<OptionDefinition, Double>singletonMap(entry.getKey(), entry.getValue()), data).getVolatility(DoublesPair.of(t, k));
+        kList.add(k);
+        tList.add(t);
+        sigmaList.add(sigma);
       } catch (final Exception e) {
         s_logger.info("Problem getting BSM volatility for " + entry.getKey() + ", not using this option in regression. Error was: ", e);
       }
@@ -104,17 +99,12 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
 
       @SuppressWarnings("synthetic-access")
       @Override
-      public Double getVolatility(final Pair<Double, Double> tk) {
+      public Double getVolatility(final DoublesPair tk) {
         return result.getPredictedValue(_independentVariableFunction.evaluate(tk.getFirst(), tk.getSecond()));
       }
 
       @Override
-      public Set<Pair<Double, Double>> getXYData() {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public VolatilitySurface withMultipleShifts(final Map<Pair<Double, Double>, Double> shifts) {
+      public VolatilitySurface withMultipleShifts(final Map<DoublesPair, Double> shifts) {
         throw new UnsupportedOperationException();
       }
 
@@ -124,7 +114,7 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
       }
 
       @Override
-      public VolatilitySurface withSingleShift(final Pair<Double, Double> xy, final double shift) {
+      public VolatilitySurface withSingleShift(final DoublesPair xy, final double shift) {
         throw new UnsupportedOperationException();
       }
 

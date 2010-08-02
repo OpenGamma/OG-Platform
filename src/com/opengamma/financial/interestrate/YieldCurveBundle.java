@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -20,44 +21,50 @@ public class YieldCurveBundle {
 
   private final Map<String, YieldAndDiscountCurve> _curves;
 
-  public YieldCurveBundle(String[] names, YieldAndDiscountCurve[] curves) {
+  public YieldCurveBundle(final String[] names, final YieldAndDiscountCurve[] curves) {
     this();
     Validate.notNull(names);
     Validate.notNull(curves);
     Validate.isTrue(names.length == curves.length, "Different number of names and curves");
-    int n = names.length;
+    Validate.noNullElements(names);
+    Validate.noNullElements(curves);
+    final int n = names.length;
     for (int i = 0; i < n; i++) {
       _curves.put(names[i], curves[i]);
     }
   }
 
-  public YieldCurveBundle(Map<String, YieldAndDiscountCurve> curvesMap) {
+  public YieldCurveBundle(final Map<String, YieldAndDiscountCurve> curvesMap) {
     this();
     if (curvesMap != null) {
+      Validate.noNullElements(curvesMap.keySet());
+      Validate.noNullElements(curvesMap.values());
       _curves.putAll(curvesMap);
     }
-  }
-
-  public void addAll(YieldCurveBundle other) {
-    _curves.putAll(other._curves);
   }
 
   public YieldCurveBundle() {
     _curves = new LinkedHashMap<String, YieldAndDiscountCurve>();
   }
 
-  public void setCurve(String name, YieldAndDiscountCurve curve) {
+  public void setCurve(final String name, final YieldAndDiscountCurve curve) {
+    Validate.notNull(name, "name");
+    Validate.notNull(curve, "curve");
     if (_curves.containsKey(name)) {
-      throw new IllegalArgumentException("Named yield curve already set");
+      throw new IllegalArgumentException("Named yield curve already set: " + name);
     }
     _curves.put(name, curve);
   }
 
-  public YieldAndDiscountCurve getCurve(String name) {
+  public void addAll(final YieldCurveBundle other) {
+    _curves.putAll(other._curves);
+  }
+
+  public YieldAndDiscountCurve getCurve(final String name) {
     if (_curves.containsKey(name)) {
       return _curves.get(name);
     }
-    throw new IllegalArgumentException("Named yield curve not found");
+    throw new IllegalArgumentException("Named yield curve not found: " + name);
   }
 
   public int size() {
@@ -77,7 +84,7 @@ public class YieldCurveBundle {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -87,15 +94,8 @@ public class YieldCurveBundle {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    YieldCurveBundle other = (YieldCurveBundle) obj;
-    if (_curves == null) {
-      if (other._curves != null) {
-        return false;
-      }
-    } else if (!_curves.equals(other._curves)) {
-      return false;
-    }
-    return true;
+    final YieldCurveBundle other = (YieldCurveBundle) obj;
+    return ObjectUtils.equals(_curves, other._curves);
   }
 
 }

@@ -79,6 +79,21 @@ public class ConstantElasticityOfVarianceModelDataBundleTest {
     assertFalse(DATA.equals(other));
     other = new ConstantElasticityOfVarianceModelDataBundle(CURVE, B, SURFACE, SPOT, DATE, OTHER_ELASTICITY);
     assertFalse(DATA.equals(other));
+  }
 
+  @Test
+  public void testBuilders() {
+    ConstantElasticityOfVarianceModelDataBundle other = DATA.withCostOfCarry(OTHER_B);
+    assertEquals(other, new ConstantElasticityOfVarianceModelDataBundle(CURVE, OTHER_B, SURFACE, SPOT, DATE, ELASTICITY));
+    other = DATA.withDate(OTHER_DATE);
+    assertEquals(other, new ConstantElasticityOfVarianceModelDataBundle(CURVE, B, SURFACE, SPOT, OTHER_DATE, ELASTICITY));
+    other = DATA.withElasticity(OTHER_ELASTICITY);
+    assertEquals(other, new ConstantElasticityOfVarianceModelDataBundle(CURVE, B, SURFACE, SPOT, DATE, OTHER_ELASTICITY));
+    other = DATA.withInterestRateCurve(OTHER_CURVE);
+    assertEquals(other, new ConstantElasticityOfVarianceModelDataBundle(OTHER_CURVE, B, SURFACE, SPOT, DATE, ELASTICITY));
+    other = DATA.withSpot(OTHER_SPOT);
+    assertEquals(other, new ConstantElasticityOfVarianceModelDataBundle(CURVE, B, SURFACE, OTHER_SPOT, DATE, ELASTICITY));
+    other = DATA.withVolatilitySurface(OTHER_SURFACE);
+    assertEquals(other, new ConstantElasticityOfVarianceModelDataBundle(CURVE, B, OTHER_SURFACE, SPOT, DATE, ELASTICITY));
   }
 }

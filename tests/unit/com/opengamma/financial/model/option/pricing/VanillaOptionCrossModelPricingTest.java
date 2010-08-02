@@ -54,16 +54,16 @@ public class VanillaOptionCrossModelPricingTest {
     final OptionDefinition call = new EuropeanVanillaOptionDefinition(STRIKE, EXPIRY, true);
     final OptionDefinition put = new EuropeanVanillaOptionDefinition(STRIKE, EXPIRY, false);
     final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> bsm = new BlackScholesMertonModel();
-    TreeOptionModel<OptionDefinition, StandardOptionDataBundle> binomial = new BinomialOptionModel<StandardOptionDataBundle>(1001, CRR);
+    TreeOptionModel<OptionDefinition, StandardOptionDataBundle> binomial = new BinomialOptionModel<StandardOptionDataBundle>(CRR, 1001, 5);
     testGreeks(call, binomial, bsm);
     testGreeks(put, binomial, bsm);
-    binomial = new BinomialOptionModel<StandardOptionDataBundle>(1001, LR);
+    binomial = new BinomialOptionModel<StandardOptionDataBundle>(LR, 1001, 5);
     testGreeks(call, binomial, bsm);
     testGreeks(put, binomial, bsm);
-    binomial = new BinomialOptionModel<StandardOptionDataBundle>(1001, RB);
+    binomial = new BinomialOptionModel<StandardOptionDataBundle>(RB, 1001, 5);
     testGreeks(call, binomial, bsm);
     testGreeks(put, binomial, bsm);
-    binomial = new BinomialOptionModel<StandardOptionDataBundle>(1001, TRISGEORGIS);
+    binomial = new BinomialOptionModel<StandardOptionDataBundle>(TRISGEORGIS, 1001, 5);
     testGreeks(call, binomial, bsm);
     testGreeks(put, binomial, bsm);
   }
@@ -71,26 +71,26 @@ public class VanillaOptionCrossModelPricingTest {
   @Test
   public void testAmericanOption() {
     final AmericanVanillaOptionDefinition call = new AmericanVanillaOptionDefinition(STRIKE, EXPIRY, true);
-    final AmericanVanillaOptionDefinition put = new AmericanVanillaOptionDefinition(STRIKE, EXPIRY, false);
+    final OptionDefinition put = new AmericanVanillaOptionDefinition(STRIKE, EXPIRY, false);
     final AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> bs = new BjerksundStenslandModel();
     TreeOptionModel<OptionDefinition, StandardOptionDataBundle> binomial = new BinomialOptionModel<StandardOptionDataBundle>(CRR);
     testGreeks(call, binomial, bs);
     testGreeks(put, binomial, bs);
-    binomial = new BinomialOptionModel<StandardOptionDataBundle>(1001, LR);
+    binomial = new BinomialOptionModel<StandardOptionDataBundle>(LR, 1001, 5);
     testGreeks(call, binomial, bs);
     testGreeks(put, binomial, bs);
-    binomial = new BinomialOptionModel<StandardOptionDataBundle>(1001, RB);
+    binomial = new BinomialOptionModel<StandardOptionDataBundle>(RB, 1001, 5);
     testGreeks(call, binomial, bs);
     testGreeks(put, binomial, bs);
-    binomial = new BinomialOptionModel<StandardOptionDataBundle>(1001, TRISGEORGIS);
+    binomial = new BinomialOptionModel<StandardOptionDataBundle>(TRISGEORGIS, 1001, 5);
     testGreeks(call, binomial, bs);
     testGreeks(put, binomial, bs);
   }
 
   @SuppressWarnings("unchecked")
-  private void testGreeks(final OptionDefinition definition, final OptionModel first, final OptionModel second) {
+  private <T extends OptionDefinition, U extends T> void testGreeks(final T definition, final OptionModel<T, StandardOptionDataBundle> first, final OptionModel<U, StandardOptionDataBundle> second) {
     final GreekResultCollection firstResult = first.getGreeks(definition, DATA, REQUIRED_GREEKS);
-    final GreekResultCollection secondResult = second.getGreeks(definition, DATA, REQUIRED_GREEKS);
+    final GreekResultCollection secondResult = second.getGreeks((U) definition, DATA, REQUIRED_GREEKS);
     assertEquals(firstResult.size(), secondResult.size());
     final Iterator<Greek> iter = firstResult.keySet().iterator();
     while (iter.hasNext()) {

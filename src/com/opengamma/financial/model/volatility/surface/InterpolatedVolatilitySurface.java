@@ -19,8 +19,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.math.interpolation.Interpolator2D;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.FirstThenSecondPairComparator;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -31,8 +31,7 @@ import com.opengamma.util.tuple.Pair;
 
 public class InterpolatedVolatilitySurface extends VolatilitySurface {
   private static final Logger s_logger = LoggerFactory.getLogger(InterpolatedVolatilitySurface.class);
-  private final SortedMap<Pair<Double, Double>, Double> _volatilityData;
-  private final SortedMap<Pair<Double, Double>, Double> _varianceData;
+  private final SortedMap<DoublesPair, Double> _volatilityData;
   private final Interpolator2D _interpolator;
 
   /**
@@ -46,7 +45,7 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
    * @throws IllegalArgumentException
    *           Thrown if the data map is null or empty.
    */
-  public InterpolatedVolatilitySurface(final Map<Pair<Double, Double>, Double> data, final Interpolator2D interpolator) {
+  public InterpolatedVolatilitySurface(final Map<DoublesPair, Double> data, final Interpolator2D interpolator) {
     Validate.notNull(data);
     Validate.notNull(interpolator);
     ArgumentChecker.notEmpty(data, "data");
@@ -55,14 +54,9 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
         throw new IllegalArgumentException("Cannot have negative volatility");
       }
     }
-    final SortedMap<Pair<Double, Double>, Double> sortedVolatility = new TreeMap<Pair<Double, Double>, Double>(FirstThenSecondPairComparator.INSTANCE_DOUBLES);
+    final SortedMap<DoublesPair, Double> sortedVolatility = new TreeMap<DoublesPair, Double>(FirstThenSecondPairComparator.INSTANCE_DOUBLES);
     sortedVolatility.putAll(data);
-    final SortedMap<Pair<Double, Double>, Double> sortedVariance = new TreeMap<Pair<Double, Double>, Double>(FirstThenSecondPairComparator.INSTANCE_DOUBLES);
-    for (final Map.Entry<Pair<Double, Double>, Double> entry : data.entrySet()) {
-      sortedVariance.put(entry.getKey(), entry.getValue() * entry.getValue());
-    }
-    _volatilityData = Collections.<Pair<Double, Double>, Double>unmodifiableSortedMap(sortedVolatility);
-    _varianceData = Collections.<Pair<Double, Double>, Double>unmodifiableSortedMap(sortedVariance);
+    _volatilityData = Collections.<DoublesPair, Double>unmodifiableSortedMap(sortedVolatility);
     _interpolator = interpolator;
   }
 
@@ -72,7 +66,7 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
    * 
    * @see com.opengamma.util.tuple.FirstThenSecondPairComparator
    */
-  public SortedMap<Pair<Double, Double>, Double> getData() {
+  public SortedMap<DoublesPair, Double> getData() {
     return _volatilityData;
   }
 
@@ -89,31 +83,25 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
    * @return The volatility for (x, y).
    */
   @Override
-  public Double getVolatility(final Pair<Double, Double> xy) {
+  public Double getVolatility(final DoublesPair xy) {
     Validate.notNull(xy, "xy");
-    Validate.notNull(xy.getFirst(), "x value");
-    Validate.notNull(xy.getSecond(), "y value");
-    return Math.sqrt(_interpolator.interpolate(_varianceData, xy));
+    return _interpolator.interpolate(_volatilityData, xy);
   }
 
-  @Override
-  public Set<Pair<Double, Double>> getXYData() {
+  public Set<DoublesPair> getXYData() {
     return _volatilityData.keySet();
   }
 
   @Override
-  public VolatilitySurface withMultipleShifts(final Map<Pair<Double, Double>, Double> shifts) {
+  public VolatilitySurface withMultipleShifts(final Map<DoublesPair, Double> shifts) {
     Validate.notNull(shifts, "shifts map");
     if (shifts.isEmpty()) {
       s_logger.info("Shift map was empty; returning identical surface");
       return new InterpolatedVolatilitySurface(getData(), getInterpolator());
     }
-    final Map<Pair<Double, Double>, Double> data = getData();
-    final Map<Pair<Double, Double>, Double> map = new HashMap<Pair<Double, Double>, Double>(data);
-    for (final Map.Entry<Pair<Double, Double>, Double> entry : shifts.entrySet()) {
-      if (entry.getKey() == null) {
-        throw new IllegalArgumentException("Null xy pair in shift map");
-      }
+    final Map<DoublesPair, Double> data = getData();
+    final Map<DoublesPair, Double> map = new HashMap<DoublesPair, Double>(data);
+    for (final Map.Entry<DoublesPair, Double> entry : shifts.entrySet()) {
       if (entry.getValue() == null) {
         throw new IllegalArgumentException("Null shift in shift map");
       }
@@ -128,21 +116,19 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
 
   @Override
   public VolatilitySurface withParallelShift(final double shift) {
-    final Map<Pair<Double, Double>, Double> data = getData();
-    final Map<Pair<Double, Double>, Double> shifted = new HashMap<Pair<Double, Double>, Double>();
-    for (final Map.Entry<Pair<Double, Double>, Double> entry : data.entrySet()) {
+    final Map<DoublesPair, Double> data = getData();
+    final Map<DoublesPair, Double> shifted = new HashMap<DoublesPair, Double>();
+    for (final Map.Entry<DoublesPair, Double> entry : data.entrySet()) {
       shifted.put(entry.getKey(), entry.getValue() + shift);
     }
     return new InterpolatedVolatilitySurface(shifted, getInterpolator());
   }
 
   @Override
-  public VolatilitySurface withSingleShift(final Pair<Double, Double> xy, final double shift) {
+  public VolatilitySurface withSingleShift(final DoublesPair xy, final double shift) {
     Validate.notNull(xy, "xy");
-    Validate.notNull(xy.getFirst(), "x value");
-    Validate.notNull(xy.getSecond(), "y value");
-    final Map<Pair<Double, Double>, Double> data = getData();
-    final Map<Pair<Double, Double>, Double> map = new HashMap<Pair<Double, Double>, Double>(data);
+    final Map<DoublesPair, Double> data = getData();
+    final Map<DoublesPair, Double> map = new HashMap<DoublesPair, Double>(data);
     if (map.containsKey(xy)) {
       map.put(xy, map.get(xy) + shift);
       return new InterpolatedVolatilitySurface(map, getInterpolator());

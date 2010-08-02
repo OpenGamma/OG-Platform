@@ -18,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class ConstantElasticityOfVarianceBlackEquivalentVolatilitySurfaceModel implements VolatilitySurfaceModel<OptionDefinition, ConstantElasticityOfVarianceModelDataBundle> {
+public class ConstantElasticityOfVarianceBlackEquivalentVolatilitySurfaceModel implements VolatilitySurfaceModel<Map<OptionDefinition, Double>, ConstantElasticityOfVarianceModelDataBundle> {
   private static final Logger s_logger = LoggerFactory.getLogger(ConstantElasticityOfVarianceBlackEquivalentVolatilitySurfaceModel.class);
 
   @Override

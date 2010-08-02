@@ -35,17 +35,16 @@ public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
   private final InterestRateCurveSensitivityCalculator _rateSensitivityCalculator = new InterestRateCurveSensitivityCalculator();
   private final int _nPoints;
   private final Map<String, FixedNodeInterpolator1D> _unknownCurves;
-  private final Set<String> _unknownCurveNames;
   private YieldCurveBundle _knownCurves;
   private final List<InterestRateDerivative> _derivatives;
 
-  public MultipleYieldCurveFinderJacobian(final List<InterestRateDerivative> derivatives, LinkedHashMap<String, FixedNodeInterpolator1D> unknownCurves, YieldCurveBundle knownCurves) {
+  public MultipleYieldCurveFinderJacobian(final List<InterestRateDerivative> derivatives, final LinkedHashMap<String, FixedNodeInterpolator1D> unknownCurves, final YieldCurveBundle knownCurves) {
     Validate.notNull(derivatives);
     Validate.noNullElements(derivatives);
     Validate.notEmpty(unknownCurves, "No curves to solve for");
 
     if (knownCurves != null) {
-      for (String name : knownCurves.getAllNames()) {
+      for (final String name : knownCurves.getAllNames()) {
         if (unknownCurves.containsKey(name)) {
           throw new IllegalArgumentException("Curve name in known set matches one to be solved for");
         }
@@ -54,10 +53,9 @@ public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
     }
     _nPoints = derivatives.size();
     _derivatives = derivatives;
-    _unknownCurveNames = unknownCurves.keySet();
 
     int nNodes = 0;
-    for (FixedNodeInterpolator1D nodes : unknownCurves.values()) {
+    for (final FixedNodeInterpolator1D nodes : unknownCurves.values()) {
       nNodes += nodes.getNumberOfNodes();
     }
     if (nNodes != _nPoints) {
@@ -68,23 +66,23 @@ public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
 
   @SuppressWarnings("unchecked")
   @Override
-  public DoubleMatrix2D evaluate(DoubleMatrix1D x, Function1D<DoubleMatrix1D, DoubleMatrix1D>... functions) {
+  public DoubleMatrix2D evaluate(final DoubleMatrix1D x, final Function1D<DoubleMatrix1D, DoubleMatrix1D>... functions) {
     Validate.notNull(x);
 
     if (x.getNumberOfElements() != _nPoints) {
       throw new IllegalArgumentException("vector is wrong length");
     }
 
-    YieldCurveBundle curves = new YieldCurveBundle();
+    final YieldCurveBundle curves = new YieldCurveBundle();
     int index = 0;
-    Set<Entry<String, FixedNodeInterpolator1D>> entrySet = _unknownCurves.entrySet();
+    final Set<Entry<String, FixedNodeInterpolator1D>> entrySet = _unknownCurves.entrySet();
     Iterator<Entry<String, FixedNodeInterpolator1D>> iterator = entrySet.iterator();
     while (iterator.hasNext()) {
-      Entry<String, FixedNodeInterpolator1D> temp = iterator.next();
-      FixedNodeInterpolator1D fixedNodeInterpolator = temp.getValue();
-      double[] yields = Arrays.copyOfRange(x.getData(), index, index + fixedNodeInterpolator.getNumberOfNodes());
+      final Entry<String, FixedNodeInterpolator1D> temp = iterator.next();
+      final FixedNodeInterpolator1D fixedNodeInterpolator = temp.getValue();
+      final double[] yields = Arrays.copyOfRange(x.getData(), index, index + fixedNodeInterpolator.getNumberOfNodes());
       index += fixedNodeInterpolator.getNumberOfNodes();
-      InterpolatedYieldAndDiscountCurve curve = new InterpolatedYieldCurve(fixedNodeInterpolator.getNodePositions(), yields,
+      final InterpolatedYieldAndDiscountCurve curve = new InterpolatedYieldCurve(fixedNodeInterpolator.getNodePositions(), yields,
           (Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResultWithSensitivities>) fixedNodeInterpolator.getUnderlyingInterpolator());
       curves.setCurve(temp.getKey(), curve);
     }
@@ -94,26 +92,26 @@ public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
       curves.addAll(_knownCurves);
     }
 
-    double[][] res = new double[_nPoints][_nPoints];
+    final double[][] res = new double[_nPoints][_nPoints];
 
     for (int i = 0; i < _nPoints; i++) { // loop over all instruments
-      Map<String, List<Pair<Double, Double>>> senseMap = _rateSensitivityCalculator.getSensitivity(_derivatives.get(i), curves);
+      final Map<String, List<Pair<Double, Double>>> senseMap = _rateSensitivityCalculator.getSensitivity(_derivatives.get(i), curves);
 
       iterator = entrySet.iterator();
       int offset = 0;
       while (iterator.hasNext()) { // loop over all curves (by name)
-        Entry<String, FixedNodeInterpolator1D> namedCurve = iterator.next();
-        String name = namedCurve.getKey();
+        final Entry<String, FixedNodeInterpolator1D> namedCurve = iterator.next();
+        final String name = namedCurve.getKey();
         if (senseMap.containsKey(name)) {
 
-          InterpolatedYieldAndDiscountCurve curve = (InterpolatedYieldAndDiscountCurve) curves.getCurve(name);
-          Interpolator1DDataBundle data = curve.getDataBundles().values().iterator().next();
+          final InterpolatedYieldAndDiscountCurve curve = (InterpolatedYieldAndDiscountCurve) curves.getCurve(name);
+          final Interpolator1DDataBundle data = curve.getDataBundles().values().iterator().next();
           // Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResultWithSensitivities> interpolator = (Interpolator1D<? extends Interpolator1DDataBundle, ? extends
           // InterpolationResultWithSensitivities>)
-          Interpolator1D<Interpolator1DDataBundle, ? extends InterpolationResultWithSensitivities> interpolator = (Interpolator1D<Interpolator1DDataBundle, ? extends InterpolationResultWithSensitivities>) curve
-              .getInterpolators().values().iterator().next();
-          List<Pair<Double, Double>> senseList = senseMap.get(name);
-          double[][] sensitivity = new double[senseList.size()][];
+          final Interpolator1D<Interpolator1DDataBundle, ? extends InterpolationResultWithSensitivities> interpolator =
+            (Interpolator1D<Interpolator1DDataBundle, ? extends InterpolationResultWithSensitivities>) curve.getInterpolators().values().iterator().next();
+          final List<Pair<Double, Double>> senseList = senseMap.get(name);
+          final double[][] sensitivity = new double[senseList.size()][];
           int k = 0;
           for (final Pair<Double, Double> timeAndDF : senseList) {
             sensitivity[k++] = interpolator.interpolate(data, timeAndDF.getFirst()).getSensitivities();

@@ -17,8 +17,7 @@ import com.opengamma.math.interpolation.Interpolator2D;
  * @param <T>
  * @param <U>
  */
-public class StrikeTimeToExpiryInterpolatedVolatilitySurfaceModel<T extends OptionDefinition, U extends StandardOptionDataBundle> extends
-    InterpolatedVolatilitySurfaceModel<T, U> {
+public class StrikeTimeToExpiryInterpolatedVolatilitySurfaceModel<T extends OptionDefinition, U extends StandardOptionDataBundle> extends InterpolatedVolatilitySurfaceModel<T, U> {
   private final Function1D<Map.Entry<T, U>, Double> _xAxisFunction = new Function1D<Map.Entry<T, U>, Double>() {
 
     @Override
@@ -48,13 +47,13 @@ public class StrikeTimeToExpiryInterpolatedVolatilitySurfaceModel<T extends Opti
   }
 
   @Override
-  protected Double getXAxisFunctionValue(final T t, final U u) {
+  protected double getXAxisFunctionValue(final T t, final U u) {
     final Map<T, U> map = Collections.<T, U>singletonMap(t, u);
     return _xAxisFunction.evaluate(map.entrySet().iterator().next());
   }
 
   @Override
-  protected Double getYAxisFunctionValue(final T t, final U u) {
+  protected double getYAxisFunctionValue(final T t, final U u) {
     return _yAxisFunction.evaluate(t);
   }
 }

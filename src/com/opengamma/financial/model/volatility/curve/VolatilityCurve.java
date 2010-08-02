@@ -6,7 +6,6 @@
 package com.opengamma.financial.model.volatility.curve;
 
 import java.util.Map;
-import java.util.Set;
 
 import com.opengamma.financial.model.volatility.VolatilityModel;
 
@@ -16,9 +15,7 @@ import com.opengamma.financial.model.volatility.VolatilityModel;
 public abstract class VolatilityCurve implements VolatilityModel<Double> {
 
   @Override
-  public abstract Double getVolatility(final Double t);
-
-  public abstract Set<Double> getXData();
+  public abstract Double getVolatility(final Double x);
 
   public abstract VolatilityCurve withParallelShift(Double shift);
 

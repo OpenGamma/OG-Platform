@@ -5,9 +5,7 @@
  */
 package com.opengamma.financial.model.volatility.curve;
 
-import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.Validate;
@@ -36,11 +34,6 @@ public class ConstantVolatilityCurve extends VolatilityCurve {
   }
 
   @Override
-  public Set<Double> getXData() {
-    return Collections.emptySet();
-  }
-
-  @Override
   public VolatilityCurve withMultipleShifts(final Map<Double, Double> shifts) {
     Validate.notNull(shifts);
     if (shifts.isEmpty()) {
@@ -50,7 +43,7 @@ public class ConstantVolatilityCurve extends VolatilityCurve {
     if (shifts.size() != 1) {
       s_logger.warn("Shift map contained more than one element - only using first in time");
     }
-    Map<Double, Double> sorted = new TreeMap<Double, Double>(shifts);
+    final Map<Double, Double> sorted = new TreeMap<Double, Double>(shifts);
     final Map.Entry<Double, Double> firstEntry = sorted.entrySet().iterator().next();
     Validate.notNull(firstEntry);
     ArgumentChecker.notNegative(firstEntry.getKey(), "time");
@@ -83,7 +76,7 @@ public class ConstantVolatilityCurve extends VolatilityCurve {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -93,7 +86,7 @@ public class ConstantVolatilityCurve extends VolatilityCurve {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    ConstantVolatilityCurve other = (ConstantVolatilityCurve) obj;
+    final ConstantVolatilityCurve other = (ConstantVolatilityCurve) obj;
     if (Double.doubleToLongBits(_sigma) != Double.doubleToLongBits(other._sigma)) {
       return false;
     }

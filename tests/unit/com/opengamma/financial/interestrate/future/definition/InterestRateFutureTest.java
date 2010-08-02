@@ -15,35 +15,47 @@ import org.junit.Test;
  */
 public class InterestRateFutureTest {
   public static final String CURVE_NAME = "test";
+  public static final double PRICE = 96;
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNegativeStart() {
-    new InterestRateFuture(-2, 2, CURVE_NAME);
+  public void testNegativeSettlementDate() {
+    new InterestRateFuture(-2, 0.25, PRICE, CURVE_NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNegativeEnd() {
-    new InterestRateFuture(2, -2, CURVE_NAME);
+  public void testYearFraction() {
+    new InterestRateFuture(2, -0.25, PRICE, CURVE_NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testStartAfterEnd() {
-    new InterestRateFuture(3, 2, CURVE_NAME);
+  public void testNegativePrice() {
+    new InterestRateFuture(3, 0.25, -87, CURVE_NAME);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testInvalidPrice() {
+    new InterestRateFuture(3, 0.25, 101, CURVE_NAME);
   }
 
   @Test
   public void test() {
-    final double start = 12;
-    final double end = 15;
-    final InterestRateFuture fra = new InterestRateFuture(start, end, CURVE_NAME);
-    assertEquals(fra.getStartTime(), start, 0);
-    assertEquals(fra.getEndTime(), end, 0);
-    InterestRateFuture other = new InterestRateFuture(start, end, CURVE_NAME);
-    assertEquals(fra, other);
-    assertEquals(fra.hashCode(), other.hashCode());
-    other = new InterestRateFuture(start, end + 1, CURVE_NAME);
-    assertFalse(other.equals(fra));
-    other = new InterestRateFuture(start + 1, end, CURVE_NAME);
-    assertFalse(other.equals(fra));
+    final double settlement = 1.45;
+    final double yearFrac = 1. / 12;
+    final InterestRateFuture future = new InterestRateFuture(settlement, yearFrac, PRICE, CURVE_NAME);
+    assertEquals(future.getSettlementDate(), settlement, 0);
+    assertEquals(future.getYearFraction(), yearFrac, 0);
+    assertEquals(future.getPrice(), PRICE, 0);
+    assertEquals(future.getCurveName(), CURVE_NAME);
+    InterestRateFuture other = new InterestRateFuture(settlement, yearFrac, PRICE, CURVE_NAME);
+    assertEquals(future, other);
+    assertEquals(future.hashCode(), other.hashCode());
+    other = new InterestRateFuture(settlement + 0.01, yearFrac, PRICE, CURVE_NAME);
+    assertFalse(other.equals(future));
+    other = new InterestRateFuture(settlement, yearFrac - 0.01, PRICE, CURVE_NAME);
+    assertFalse(other.equals(future));
+    other = new InterestRateFuture(settlement, yearFrac, PRICE - 1, CURVE_NAME);
+    assertFalse(other.equals(future));
+    other = new InterestRateFuture(settlement, yearFrac, PRICE, "different curve");
+    assertFalse(other.equals(future));
   }
 }

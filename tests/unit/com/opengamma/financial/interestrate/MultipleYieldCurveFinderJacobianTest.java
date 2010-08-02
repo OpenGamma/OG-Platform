@@ -9,6 +9,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -16,6 +17,8 @@ import org.junit.Test;
 
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Extrapolator1D;
 import com.opengamma.math.interpolation.ExtrapolatorMethod;
@@ -65,7 +68,7 @@ public class MultipleYieldCurveFinderJacobianTest {
     double[] dataM = new double[M];
     final double[] dataNpM = new double[N + M];
     for (int i = 0; i < N; i++) {
-      InterestRateDerivative ird = new ForwardRateAgreement(i, i + 0.5, FORWARD_CURVE_NAME);
+      InterestRateDerivative ird = new ForwardRateAgreement(i, i + 0.5, 0.0, FUNDING_CURVE_NAME, FORWARD_CURVE_NAME);
       FRA.add(ird);
       MIXED_INSTRUMENT.add(ird);
       FORWARD_NODES[i] = i + 1;
@@ -74,7 +77,7 @@ public class MultipleYieldCurveFinderJacobianTest {
     }
 
     for (int i = 0; i < M; i++) {
-      InterestRateDerivative ird = new Cash(i, FUNDING_CURVE_NAME);
+      InterestRateDerivative ird = new Cash(i, 0.0, FUNDING_CURVE_NAME);
       CASH.add(ird);
       MIXED_INSTRUMENT.add(ird);
       FUNDING_NODES[i] = i;
@@ -134,6 +137,11 @@ public class MultipleYieldCurveFinderJacobianTest {
     CASH_ONLY.evaluate(XN, (Function1D<DoubleMatrix1D, DoubleMatrix1D>[]) null);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testCurveAlreadyPresent() {
+    new MultipleYieldCurveFinderJacobian(CASH, CASH_CURVES, new YieldCurveBundle(Collections.<String, YieldAndDiscountCurve>singletonMap(FUNDING_CURVE_NAME, new ConstantYieldCurve(2.))));
+  }
+  
   @Test
   public void testCashOnly() {
     final DoubleMatrix2D jacobian = CASH_ONLY.evaluate(XM, (Function1D<DoubleMatrix1D, DoubleMatrix1D>[]) null);
@@ -142,9 +150,9 @@ public class MultipleYieldCurveFinderJacobianTest {
     for (int i = 0; i < M; i++) {
       for (int j = 0; j < M; j++) {
         if (i == j) {
-          assertEquals(1.0, jacobian.getEntry(i, i), 0.0);
+          assertEquals(Math.exp(XM.getEntry(i) * i), jacobian.getEntry(i, i), 1e-8);
         } else {
-          assertEquals(0.0, jacobian.getEntry(i, j), 0.0);
+          assertEquals(0.0, jacobian.getEntry(i, j), 0);
         }
       }
     }
@@ -189,7 +197,7 @@ public class MultipleYieldCurveFinderJacobianTest {
     for (int i = N; i < N + M; i++) {
       for (int j = 0; j < N + M; j++) {
         if (i == j) {
-          assertEquals(1.0, jacobian.getEntry(i, i), 0.0);
+          assertEquals(Math.exp(XNM.getEntry(i) * (i - N)), jacobian.getEntry(i, i), 1e-8);
         } else {
           assertEquals(0.0, jacobian.getEntry(i, j), 0.0);
         }

@@ -6,15 +6,13 @@
 package com.opengamma.financial.model.volatility.surface;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
@@ -33,16 +31,9 @@ public class ConstantVolatilitySurface extends VolatilitySurface implements Seri
   }
 
   @Override
-  public Double getVolatility(final Pair<Double, Double> xy) {
+  public Double getVolatility(final DoublesPair xy) {
     Validate.notNull(xy, "xy");
-    Validate.notNull(xy.getFirst(), "x value");
-    Validate.notNull(xy.getSecond(), "y value");
     return _sigma;
-  }
-
-  @Override
-  public Set<Pair<Double, Double>> getXYData() {
-    return Collections.<Pair<Double, Double>>emptySet();
   }
 
   @Override
@@ -51,15 +42,13 @@ public class ConstantVolatilitySurface extends VolatilitySurface implements Seri
   }
 
   @Override
-  public VolatilitySurface withSingleShift(final Pair<Double, Double> xy, final double shift) {
+  public VolatilitySurface withSingleShift(final DoublesPair xy, final double shift) {
     Validate.notNull(xy, "xy");
-    Validate.notNull(xy.getFirst(), "x value");
-    Validate.notNull(xy.getSecond(), "y value");
     return new ConstantVolatilitySurface(_sigma + shift);
   }
 
   @Override
-  public VolatilitySurface withMultipleShifts(final Map<Pair<Double, Double>, Double> shifts) {
+  public VolatilitySurface withMultipleShifts(final Map<DoublesPair, Double> shifts) {
     Validate.notNull(shifts, "shifts map");
     if (shifts.isEmpty()) {
       s_logger.info("Shift map was empty; returning unchanged surface");
@@ -68,7 +57,7 @@ public class ConstantVolatilitySurface extends VolatilitySurface implements Seri
     if (shifts.size() != 1) {
       s_logger.warn("Shift map contained more than one element - only using first");
     }
-    final Map.Entry<Pair<Double, Double>, Double> firstEntry = shifts.entrySet().iterator().next();
+    final Map.Entry<DoublesPair, Double> firstEntry = shifts.entrySet().iterator().next();
     Validate.notNull(firstEntry.getKey().getFirst(), "x value for shift");
     Validate.notNull(firstEntry.getKey().getSecond(), "y value for shift");
     Validate.notNull(firstEntry.getValue(), "shift");

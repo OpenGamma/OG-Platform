@@ -25,14 +25,14 @@ import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
  */
 public class PractitionerBlackScholesVolatilitySurfaceModelTest {
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
-  private static final VolatilitySurfaceModel<OptionDefinition, StandardOptionDataBundle> MODEL = new PractitionerBlackScholesVolatilitySurfaceModel();
+  private static final PractitionerBlackScholesVolatilitySurfaceModel MODEL = new PractitionerBlackScholesVolatilitySurfaceModel();
   private static final YieldAndDiscountCurve CURVE = new ConstantYieldCurve(0.04);
   private static final double B = 0.03;
   private static final double SPOT = 100;
@@ -77,7 +77,7 @@ public class PractitionerBlackScholesVolatilitySurfaceModelTest {
     final VolatilitySurface surface = MODEL.getSurface(prices, data);
     for (final Expiry expiry : TEST_EXPIRY) {
       for (final double strike : TEST_STRIKE) {
-        assertEquals(surface.getVolatility(Pair.of(DateUtil.getDifferenceInYears(DATE, expiry.getExpiry()), strike)), sigma, EPS);
+        assertEquals(surface.getVolatility(DoublesPair.of(DateUtil.getDifferenceInYears(DATE, expiry.getExpiry()), strike)), sigma, EPS);
       }
     }
   }
@@ -104,7 +104,7 @@ public class PractitionerBlackScholesVolatilitySurfaceModelTest {
       expiry = TEST_EXPIRY[i];
       result = sigma[i] + 4 * diff * DateUtil.getDifferenceInYears(EXPIRY[i], expiry);
       for (final double strike : TEST_STRIKE) {
-        assertEquals(surface.getVolatility(Pair.of(DateUtil.getDifferenceInYears(DATE, expiry.getExpiry()), strike)), result, EPS);
+        assertEquals(surface.getVolatility(DoublesPair.of(DateUtil.getDifferenceInYears(DATE, expiry.getExpiry()), strike)), result, EPS);
       }
     }
   }

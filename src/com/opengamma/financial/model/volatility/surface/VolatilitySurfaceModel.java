@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.model.volatility.surface;
 
-import java.util.Map;
-
 /**
  * 
  * @param <T>
@@ -14,5 +12,5 @@ import java.util.Map;
  */
 public interface VolatilitySurfaceModel<T, U> {
 
-  VolatilitySurface getSurface(Map<T, Double> optionData, U data);
+  VolatilitySurface getSurface(T marketData, U data);
 }

@@ -19,6 +19,7 @@ import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.Interpolator2D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
+import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -27,10 +28,10 @@ import com.opengamma.util.tuple.Pair;
 public class InterpolatedVolatilitySurfaceTest {
   private static final double SIGMA = 0.4;
   private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> LINEAR = new LinearInterpolator1D();
-  private static final Interpolator2D INTERPOLATOR = new GridInterpolator2D(LINEAR, LINEAR);
-  private static final Map<Pair<Double, Double>, Double> DATA = new HashMap<Pair<Double, Double>, Double>();
-  private static final VolatilitySurface SURFACE;
-  private static final Pair<Double, Double> XY = Pair.of(0.5, 0.5);
+  private static final Interpolator2D INTERPOLATOR = new VolatilityInterpolator2D(new GridInterpolator2D(LINEAR, LINEAR));
+  private static final Map<DoublesPair, Double> DATA = new HashMap<DoublesPair, Double>();
+  private static final InterpolatedVolatilitySurface SURFACE;
+  private static final DoublesPair XY = Pair.of(0.5, 0.5);
   private static final double SHIFT = 0.05;
   private static final double EPS = 1e-15;
 
@@ -54,12 +55,12 @@ public class InterpolatedVolatilitySurfaceTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorWithEmptyMap() {
-    new InterpolatedVolatilitySurface(Collections.<Pair<Double, Double>, Double>emptyMap(), INTERPOLATOR);
+    new InterpolatedVolatilitySurface(Collections.<DoublesPair, Double> emptyMap(), INTERPOLATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorWithNegativeData() {
-    final Map<Pair<Double, Double>, Double> data = new HashMap<Pair<Double, Double>, Double>(DATA);
+    final Map<DoublesPair, Double> data = new HashMap<DoublesPair, Double>(DATA);
     data.put(XY, -SIGMA);
     new InterpolatedVolatilitySurface(data, INTERPOLATOR);
   }
@@ -70,28 +71,8 @@ public class InterpolatedVolatilitySurfaceTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testGetVolatilityWithNullX() {
-    SURFACE.getVolatility(Pair.of((Double) null, 2.));
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testGetVolatilityWithNullY() {
-    SURFACE.getVolatility(Pair.of(2., (Double) null));
-  }
-
-  @Test(expected = IllegalArgumentException.class)
   public void testGetSingleShiftWithNullPair() {
     SURFACE.withSingleShift(null, 3.);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testGetSingleShiftWithNullX() {
-    SURFACE.withSingleShift(Pair.of((Double) null, 2.), 3.);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testGetSingleShiftWithNullY() {
-    SURFACE.withSingleShift(Pair.of(2., (Double) null), 3.);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -100,18 +81,8 @@ public class InterpolatedVolatilitySurfaceTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testMultipleShiftsWithNullX() {
-    SURFACE.withMultipleShifts(Collections.<Pair<Double, Double>, Double>singletonMap(Pair.of((Double) null, 2.), 2.));
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testMultipleShiftsWithNullY() {
-    SURFACE.withMultipleShifts(Collections.<Pair<Double, Double>, Double>singletonMap(Pair.of(2., (Double) null), 2.));
-  }
-
-  @Test(expected = IllegalArgumentException.class)
   public void testMultipleShiftsWithNullShift() {
-    SURFACE.withMultipleShifts(Collections.<Pair<Double, Double>, Double>singletonMap(Pair.of(2., 2.), null));
+    SURFACE.withMultipleShifts(Collections.<DoublesPair, Double> singletonMap(DoublesPair.of(2., 2.), null));
   }
 
   @Test
@@ -123,16 +94,16 @@ public class InterpolatedVolatilitySurfaceTest {
   @Test
   public void testParallelShift() {
     final VolatilitySurface surface = SURFACE.withParallelShift(SHIFT);
-    for (final Pair<Double, Double> pair : SURFACE.getXYData()) {
+    for (final DoublesPair pair : SURFACE.getXYData()) {
       assertEquals(SIGMA + SHIFT, surface.getVolatility(pair), EPS);
     }
   }
 
   @Test
   public void testSingleShift() {
-    final Pair<Double, Double> shiftedPoint = DATA.keySet().iterator().next();
+    final DoublesPair shiftedPoint = DATA.keySet().iterator().next();
     final VolatilitySurface surface = SURFACE.withSingleShift(shiftedPoint, SHIFT);
-    for (final Pair<Double, Double> pair : SURFACE.getXYData()) {
+    for (final DoublesPair pair : SURFACE.getXYData()) {
       if (pair.equals(shiftedPoint)) {
         assertEquals(SIGMA + SHIFT, surface.getVolatility(pair), EPS);
       } else {
@@ -143,13 +114,13 @@ public class InterpolatedVolatilitySurfaceTest {
 
   @Test
   public void testMultipleShift() {
-    final Map<Pair<Double, Double>, Double> shifts = new HashMap<Pair<Double, Double>, Double>();
-    final Pair<Double, Double> xy1 = Pair.of(0., 0.);
-    final Pair<Double, Double> xy2 = Pair.of(1., 1.);
+    final Map<DoublesPair, Double> shifts = new HashMap<DoublesPair, Double>();
+    final DoublesPair xy1 = Pair.of(0., 0.);
+    final DoublesPair xy2 = Pair.of(1., 1.);
     shifts.put(xy1, SHIFT);
     shifts.put(xy2, -SHIFT);
-    final VolatilitySurface surface = SURFACE.withMultipleShifts(shifts);
-    for (final Pair<Double, Double> pair : surface.getXYData()) {
+    final InterpolatedVolatilitySurface surface = (InterpolatedVolatilitySurface) SURFACE.withMultipleShifts(shifts);
+    for (final DoublesPair pair : surface.getXYData()) {
       if (pair.equals(xy1)) {
         assertEquals(SIGMA + SHIFT, surface.getVolatility(pair), EPS);
       } else if (pair.equals(xy2)) {

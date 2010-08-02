@@ -141,7 +141,7 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
   private void quadraticBacktrack(final DoubleMatrix1D p, final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DataBundle data) {
     final double lambda0 = data.getLambda0();
     final double g0 = data.getG0();
-    final double lambda = g0 * lambda0 * lambda0 / (data.getG1() + g0 * (2 * lambda0 - 1));
+    final double lambda = Math.max(0.01 * lambda0, g0 * lambda0 * lambda0 / (data.getG1() + g0 * (2 * lambda0 - 1)));
     data.swapLambdaAndReplace(lambda);
     updatePosition(p, function, data);
   }

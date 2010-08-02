@@ -8,7 +8,6 @@ package com.opengamma.financial.model.interestrate.curve;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.ArgumentChecker;
 
 /**
