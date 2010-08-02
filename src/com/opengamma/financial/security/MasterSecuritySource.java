@@ -20,27 +20,21 @@ import com.opengamma.id.UniqueIdentifier;
  * The {@link SecuritySource} interface provides securities to the engine via a narrow API.
  * This class provides the source on top of a standard {@link SecurityMaster}.
  */
-public class MasterSecuritySource implements SecuritySource {
-
-  /**
-   * The security master.
-   */
-  private final SecurityMaster _securityMaster;
+public class MasterSecuritySource extends SecurityMasterAdapter implements SecuritySource {
 
   /**
    * Creates an instance with an underlying security master.
    * @param securityMaster  the security master, not null
    */
   public MasterSecuritySource(final SecurityMaster securityMaster) {
-    Validate.notNull(securityMaster, "securityMaster");
-    _securityMaster = securityMaster;
+    super(securityMaster);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public Security getSecurity(final UniqueIdentifier uid) {
     Validate.notNull(uid, "uid");
-    final SecurityDocument doc = _securityMaster.get(uid);
+    final SecurityDocument doc = get(uid);
     return doc != null ? doc.getSecurity() : null;
   }
 
@@ -49,7 +43,7 @@ public class MasterSecuritySource implements SecuritySource {
     Validate.notNull(securityKey, "securityKey");
     final SecuritySearchRequest req = new SecuritySearchRequest();
     req.setIdentifiers(securityKey);
-    return _securityMaster.search(req).getSecurities();
+    return search(req).getSecurities();
   }
 
   @Override

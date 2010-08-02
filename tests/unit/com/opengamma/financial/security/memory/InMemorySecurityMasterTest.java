@@ -29,6 +29,8 @@ import com.opengamma.id.UniqueIdentifierSupplier;
  */
 public class InMemorySecurityMasterTest {
 
+  // TODO Move the logical tests from here to the generic SecurityMasterTestCase then we can just extend from that
+
   private static final UniqueIdentifier OTHER_UID = UniqueIdentifier.of("U", "1");
   private static final Identifier ID1 = Identifier.of("A", "B");
   private static final Identifier ID2 = Identifier.of("A", "C");

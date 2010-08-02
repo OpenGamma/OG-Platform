@@ -20,7 +20,7 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * Security master which delegates to individual user and client security masters from an underlying
+ * Security source which delegates to individual user and client security masters from an underlying
  * {@link UsersResource}.
  */
 public class UserSecuritySource implements SecuritySource {
@@ -31,7 +31,7 @@ public class UserSecuritySource implements SecuritySource {
     _underlying = underlying;
   }
 
-  private SecuritySource findSecurityMaster(UniqueIdentifier uid) {
+  private SecuritySource findSecuritySource(UniqueIdentifier uid) {
     UserResourceDetails uidDetails = UserUniqueIdentifierUtils.getDetails(uid);
     UserResource userResource = _underlying.getUser(uidDetails.getUsername());
     if (userResource == null) {
@@ -41,12 +41,12 @@ public class UserSecuritySource implements SecuritySource {
     if (clientResource == null) {
       return null;
     }
-    return clientResource.getSecurities().getSecurityMaster();
+    return clientResource.getSecurityMaster();
   }
 
   @Override
   public Security getSecurity(UniqueIdentifier uid) {
-    SecuritySource secMaster = findSecurityMaster(uid);
+    SecuritySource secMaster = findSecuritySource(uid);
     return secMaster.getSecurity(uid);
   }
 

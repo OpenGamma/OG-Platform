@@ -108,7 +108,11 @@ public class InMemorySecurityMaster implements SecurityMaster {
   @Override
   public SecurityDocument get(final UniqueIdentifier uid) {
     Validate.notNull(uid, "uid");
-    return _securities.get(uid);
+    final SecurityDocument document = _securities.get(uid);
+    if (document == null) {
+      throw new DataNotFoundException("Security not found: " + uid);
+    }
+    return document;
   }
 
   //-------------------------------------------------------------------------

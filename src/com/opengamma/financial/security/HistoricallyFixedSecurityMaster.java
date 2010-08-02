@@ -6,7 +6,9 @@
 package com.opengamma.financial.security;
 
 import java.util.Collection;
+import java.util.List;
 
+import javax.time.Instant;
 import javax.time.InstantProvider;
 
 import com.opengamma.engine.security.Security;
@@ -16,39 +18,86 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * This SecurityMaster retrieves all securities as of a fixed historical date.
+ * This SecuritySource retrieves all securities as of a fixed historical date from an underlying SecurityMaster.
  */
 public class HistoricallyFixedSecurityMaster implements SecuritySource {
   
-  private final ManageableSecurityMaster _delegate;
-  private final InstantProvider _fixTime;
-  private final InstantProvider _asViewedAt;
-  
-  public HistoricallyFixedSecurityMaster(ManageableSecurityMaster delegate,
-      InstantProvider fixTime,
-      InstantProvider asViewedAt) {
-    ArgumentChecker.notNull(delegate, "Delegate Security Master");
-    ArgumentChecker.notNull(fixTime, "Fix Time");
-    ArgumentChecker.notNull(asViewedAt, "As Viewed At Time");
-    
+  private final SecurityMaster _delegate;
+  private final Instant _fixInstant;
+  private final Instant _correctionInstant;
+
+  public HistoricallyFixedSecurityMaster(final SecurityMaster delegate, final InstantProvider fixInstant) {
+    this(delegate, fixInstant, null);
+  }
+
+  /**
+   * 
+   * @param delegate delegate security master, not {@code null}
+   * @param fixInstant historical instant to retrieve data from, not {@code null}
+   * @param correctionInstant instant to correct to, or {@code null} or most recent corrected data
+   */
+  public HistoricallyFixedSecurityMaster(final SecurityMaster delegate, final InstantProvider fixInstant, final InstantProvider correctionInstant) {
+    ArgumentChecker.notNull(delegate, "Delegate security master");
+    ArgumentChecker.notNull(fixInstant, "Fix instant");
     _delegate = delegate;
-    _fixTime = fixTime;
-    _asViewedAt = asViewedAt;
+    _fixInstant = fixInstant.toInstant();
+    _correctionInstant = (correctionInstant != null) ? correctionInstant.toInstant() : null;
+  }
+
+  protected SecurityMaster getDelegate() {
+    return _delegate;
+  }
+
+  protected Instant getFixInstant() {
+    return _fixInstant;
+  }
+
+  protected Instant getCorrectionInstant() {
+    return _correctionInstant;
+  }
+
+  protected SecuritySearchHistoricRequest createRequest() {
+    final SecuritySearchHistoricRequest request = new SecuritySearchHistoricRequest();
+    request.setCorrectedToInstant(getCorrectionInstant());
+    request.setVersionFromInstant(getFixInstant());
+    request.setVersionToInstant(getFixInstant());
+    return request;
+  }
+
+  protected Security returnOne(final SecuritySearchHistoricRequest request) {
+    final SecuritySearchHistoricResult result = getDelegate().searchHistoric(request);
+    final List<Security> securities = result.getSecurities();
+    if (securities.size() > 0) {
+      return securities.get(0);
+    } else {
+      return null;
+    }
+  }
+
+  protected Collection<Security> returnAll(final SecuritySearchHistoricRequest request) {
+    final SecuritySearchHistoricResult result = getDelegate().searchHistoric(request);
+    return result.getSecurities();
   }
 
   @Override
   public Security getSecurity(UniqueIdentifier uid) {
-    return _delegate.getSecurity(uid, _fixTime, _asViewedAt);
+    final SecuritySearchHistoricRequest request = createRequest();
+    request.setObjectIdentifier(uid);
+    return returnOne(request);
   }
 
   @Override
   public Collection<Security> getSecurities(IdentifierBundle secKey) {
-    return _delegate.getSecurities(secKey); // TODO
+    final SecuritySearchHistoricRequest request = createRequest();
+    // TODO: populate search parameters for the bundle
+    return returnAll(request);
   }
 
   @Override
   public Security getSecurity(IdentifierBundle secKey) {
-    return _delegate.getSecurity(secKey); // TODO
+    final SecuritySearchHistoricRequest request = createRequest();
+    // TODO: populate search parameters for the bundle
+    return returnOne(request);
   }
 
 }
