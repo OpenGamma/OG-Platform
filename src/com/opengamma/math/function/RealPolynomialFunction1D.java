@@ -12,7 +12,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class PolynomialFunction1D extends Function1D<Double, Double> {
+public class RealPolynomialFunction1D extends Function1D<Double, Double> {
   private final double[] _coefficients;
 
   /**
@@ -25,7 +25,7 @@ public class PolynomialFunction1D extends Function1D<Double, Double> {
    *          If a coefficient is zero, the value in the array must be zero; a
    *          null value will throw an exception.
    */
-  public PolynomialFunction1D(final double[] coefficients) {
+  public RealPolynomialFunction1D(final double[] coefficients) {
     Validate.notNull(coefficients);
     ArgumentChecker.notEmpty(coefficients, "coefficients");
     _coefficients = coefficients;

@@ -5,7 +5,7 @@
  */
 package com.opengamma.math.rootfinding;
 
-import com.opengamma.math.function.PolynomialFunction1D;
+import com.opengamma.math.function.RealPolynomialFunction1D;
 
 /**
  * 
@@ -13,5 +13,5 @@ import com.opengamma.math.function.PolynomialFunction1D;
  */
 public interface Polynomial1DRootFinder<T> {
 
-  T[] getRoots(PolynomialFunction1D function);
+  T[] getRoots(RealPolynomialFunction1D function);
 }

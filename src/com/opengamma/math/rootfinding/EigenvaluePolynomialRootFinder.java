@@ -9,7 +9,7 @@ import cern.colt.matrix.DoubleFactory2D;
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.linalg.EigenvalueDecomposition;
 
-import com.opengamma.math.function.PolynomialFunction1D;
+import com.opengamma.math.function.RealPolynomialFunction1D;
 
 /**
  * 
@@ -17,7 +17,7 @@ import com.opengamma.math.function.PolynomialFunction1D;
 public class EigenvaluePolynomialRootFinder implements Polynomial1DRootFinder<Double> {
 
   @Override
-  public Double[] getRoots(final PolynomialFunction1D function) {
+  public Double[] getRoots(final RealPolynomialFunction1D function) {
     if (function == null) {
       throw new IllegalArgumentException("Function was null");
     }

@@ -20,7 +20,7 @@ import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.FunctionND;
-import com.opengamma.math.function.PolynomialFunction1D;
+import com.opengamma.math.function.RealPolynomialFunction1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.number.ComplexNumber;
@@ -47,7 +47,7 @@ public class CommonsMathWrapperTest {
       return x[0] * x[0] + 2 * x[1] - 3 * x[2] + x[3];
     }
   };
-  private static final PolynomialFunction1D OG_POLYNOMIAL = new PolynomialFunction1D(new double[] {3, 4, -1, 5, -3});
+  private static final RealPolynomialFunction1D OG_POLYNOMIAL = new RealPolynomialFunction1D(new double[] {3, 4, -1, 5, -3});
 
   @Test(expected = IllegalArgumentException.class)
   public void testNull1DMatrix() {

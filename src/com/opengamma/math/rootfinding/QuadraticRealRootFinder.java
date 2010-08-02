@@ -5,17 +5,17 @@
  */
 package com.opengamma.math.rootfinding;
 
-import com.opengamma.math.function.PolynomialFunction1D;
+import org.apache.commons.lang.Validate;
+
+import com.opengamma.math.function.RealPolynomialFunction1D;
 
 /**
  * 
  */
 public class QuadraticRealRootFinder implements Polynomial1DRootFinder<Double> {
 
-  public Double[] getRoots(final PolynomialFunction1D function) {
-    if (function == null) {
-      throw new IllegalArgumentException("Function was null");
-    }
+  public Double[] getRoots(final RealPolynomialFunction1D function) {
+    Validate.notNull(function, "function");
     final double[] coefficients = function.getCoefficients();
     if (coefficients.length != 3) {
       throw new IllegalArgumentException("Function is not a quadratic");

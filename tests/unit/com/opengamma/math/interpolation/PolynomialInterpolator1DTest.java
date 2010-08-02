@@ -14,7 +14,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.function.PolynomialFunction1D;
+import com.opengamma.math.function.RealPolynomialFunction1D;
 
 /**
  * 
@@ -88,8 +88,8 @@ public class PolynomialInterpolator1DTest {
 
   @Test
   public void testInterpolation() {
-    final Function1D<Double, Double> quadratic = new PolynomialFunction1D(new double[] {-4., 3., 1.});
-    final Function1D<Double, Double> quartic = new PolynomialFunction1D(new double[] {-4., 3., 1., 1., 1.});
+    final Function1D<Double, Double> quadratic = new RealPolynomialFunction1D(new double[] {-4., 3., 1.});
+    final Function1D<Double, Double> quartic = new RealPolynomialFunction1D(new double[] {-4., 3., 1., 1., 1.});
     final Map<Double, Double> quadraticMap = new HashMap<Double, Double>();
     final Map<Double, Double> quarticMap = new HashMap<Double, Double>();
     double x;

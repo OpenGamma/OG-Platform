@@ -13,14 +13,14 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.function.PolynomialFunction1D;
+import com.opengamma.math.function.RealPolynomialFunction1D;
 
 /**
  * 
  */
 public class RationalFunctionInterpolator1DTest {
   //TODO this test doesn't test answers properly - look at EPS
-  private static final Function1D<Double, Double> F = new PolynomialFunction1D(new double[] {-0.87, 3.4, 1., -5.});
+  private static final Function1D<Double, Double> F = new RealPolynomialFunction1D(new double[] {-0.87, 3.4, 1., -5.});
   private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> INTERPOLATOR = new RationalFunctionInterpolator1D(3);
   private static final Interpolator1DDataBundle MODEL;
   private static final double EPS = 1;
