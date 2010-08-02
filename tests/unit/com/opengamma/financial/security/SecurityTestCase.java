@@ -469,7 +469,7 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
     });
   }
 
-  private static <T> List<T> getTestObjects(final Class<T> clazz, final Class<?> parent) {
+  protected static <T> List<T> getTestObjects(final Class<T> clazz, final Class<?> parent) {
     final List<T> objects = new ArrayList<T>();
     if (clazz.isEnum()) {
       for (T value : clazz.getEnumConstants()) {
