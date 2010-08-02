@@ -180,13 +180,14 @@ public class PresentValueCalculatorTest {
     assertEquals(1.0, pv, 1e-12);
   }
 
+  @Test
   public void TestFixedFloatSwap() {
     int n = 20;
     double[] fixedPaymentTimes = new double[n];
     double[] fixedPaymentAmounts = new double[n];
     double[] floatPaymentTimes = new double[2 * n];
-    double[] fwdStartOffsets = new double[n];
-    double[] fwdEndOffsets = new double[n];
+    double[] fwdStartOffsets = new double[2 * n];
+    double[] fwdEndOffsets = new double[2 * n];
     double sum = 0;
     YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
     for (int i = 0; i < n * 2; i++) {
@@ -207,6 +208,7 @@ public class PresentValueCalculatorTest {
 
   }
 
+  @Test
   public void TestBasisSwap() {
     int n = 20;
     double tau = 0.25;
