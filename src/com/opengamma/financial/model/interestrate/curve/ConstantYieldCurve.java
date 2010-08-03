@@ -41,7 +41,7 @@ public class ConstantYieldCurve extends YieldAndDiscountCurve {
   public double getDiscountFactor(final Double t) {
     Validate.notNull(t);
     ArgumentChecker.notNegative(t, "time");
-    return Math.exp(-_rate * t); //TODO only works for continuously compounded rates
+    return Math.exp(-_rate * t); // TODO only works for continuously compounded rates
   }
 
   @Override
@@ -55,6 +55,7 @@ public class ConstantYieldCurve extends YieldAndDiscountCurve {
     return new ConstantYieldCurve(_rate + shift);
   }
 
+  // REVIEW R White - this is inconsistent, it is really just doing a parallel shift
   @Override
   public YieldAndDiscountCurve withSingleShift(final Double t, final Double shift) {
     Validate.notNull(t);
