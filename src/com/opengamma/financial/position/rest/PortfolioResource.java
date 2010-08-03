@@ -19,11 +19,11 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import com.opengamma.financial.position.ManageablePositionMaster;
-import com.opengamma.financial.position.ManagedPortfolio;
-import com.opengamma.financial.position.PortfolioNodeSummary;
-import com.opengamma.financial.position.PositionSummary;
-import com.opengamma.financial.position.UpdatePortfolioRequest;
+import com.opengamma.engine.position.PortfolioImpl;
+import com.opengamma.engine.position.PortfolioNode;
+import com.opengamma.engine.position.Position;
+import com.opengamma.financial.position.master.PortfolioTreeDocument;
+import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
@@ -77,7 +77,7 @@ public class PortfolioResource {
    * Gets the position master.
    * @return the position master, not null
    */
-  public ManageablePositionMaster getPositionMaster() {
+  public PositionMaster getPositionMaster() {
     return getPortfoliosResource().getPositionMaster();
   }
 
@@ -92,38 +92,37 @@ public class PortfolioResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(FudgeRest.MEDIA)
-  public ManagedPortfolio getAsFudge() {
-    return getPositionMaster().getManagedPortfolio(_portfolioUid);
+  public PortfolioTreeDocument getAsFudge() {
+    return getPositionMaster().getPortfolioTree(_portfolioUid);
   }
 
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getAsHtml() {
-    ManagedPortfolio portfolio = getPositionMaster().getManagedPortfolio(_portfolioUid);
-    if (portfolio == null) {
+    PortfolioTreeDocument doc = getPositionMaster().getPortfolioTree(_portfolioUid);
+    if (doc == null) {
       return null;
     }
     String html = "<html>\n" +
-      "<head><title>Portfolio - " + portfolio.getUniqueIdentifier().toLatest() + "</title></head>\n" +
+      "<head><title>Portfolio - " + doc.getPortfolioId().toLatest() + "</title></head>\n" +
       "<body>\n" +
-      "<h2>Portfolio - " + portfolio.getUniqueIdentifier().toLatest() + "</h2>\n" +
-      "<p>Name: " + portfolio.getName() + "<br />\n" +
-      "Version: " + portfolio.getUniqueIdentifier().getVersion() + "</p>\n";
+      "<h2>Portfolio - " + doc.getPortfolioId().toLatest() + "</h2>\n" +
+      "<p>Name: " + doc.getPortfolio().getName() + "<br />\n" +
+      "Version: " + doc.getPortfolioId().getVersion() + "</p>\n";
     
     html += "<p>Child nodes:<br /><table border=\"1\">" +
-      "<tr><th>Name</th><th>Positions</th><th>Actions</th></tr>\n";
-    for (PortfolioNodeSummary child : portfolio.getRootNode().getChildNodes()) {
+      "<tr><th>Name</th><th>Actions</th></tr>\n";
+    for (PortfolioNode child : doc.getPortfolio().getRootNode().getChildNodes()) {
       URI nodeUri = PortfolioNodeResource.uri(getUriInfo(), getPortfolioUid(), child.getUniqueIdentifier().toLatest());
       html += "<tr>";
       html += "<td><a href=\"" + nodeUri + "\">" + child.getName() + "</a></td>";
-      html += "<td>" + child.getTotalPositions() + "</td>";
       html += "<td><a href=\"" + nodeUri + "\">View</a></td>";
       html += "</tr>\n";
     }
     html += "</table></p>\n";
     html += "<p>Positions:<br /><table border=\"1\">" +
       "<tr><th>Name</th><th>Quantity</th><th>Actions</th></tr>\n";
-    for (PositionSummary position : portfolio.getRootNode().getPositions()) {
+    for (Position position : doc.getPortfolio().getRootNode().getPositions()) {
       URI positionUri = PositionResource.uri(getUriInfo(), getPortfolioUid(), position.getUniqueIdentifier().toLatest());
       html += "<tr>";
       html += "<td><a href=\"" + positionUri + "\">" + position.getUniqueIdentifier().toLatest() + "</a></td>";
@@ -133,11 +132,11 @@ public class PortfolioResource {
     }
     html += "</table></p>\n";
     
-    URI portfolioUri = PortfolioResource.uri(getUriInfo(), portfolio.getUniqueIdentifier());
+    URI portfolioUri = PortfolioResource.uri(getUriInfo(), doc.getPortfolioId());
     html += "<h2>Update portfolio</h2>\n" +
       "<form method=\"POST\" action=\"" + portfolioUri + "\">" +
       "<input type=\"hidden\" name=\"method\" value=\"PUT\" />" +
-      "Name: <input type=\"text\" size=\"30\" name=\"name\" value=\"" + StringEscapeUtils.escapeHtml(portfolio.getName()) + "\" /><br />" +
+      "Name: <input type=\"text\" size=\"30\" name=\"name\" value=\"" + StringEscapeUtils.escapeHtml(doc.getPortfolio().getName()) + "\" /><br />" +
       "<input type=\"submit\" value=\"Update\" />" +
       "</form>\n";
     html += "<h2>Delete portfolio</h2>\n" +
@@ -147,7 +146,7 @@ public class PortfolioResource {
       "<input type=\"submit\" value=\"Delete\" />" +
       "</form>\n";
     
-    URI rootNodeUri = PortfolioNodeResource.uri(getUriInfo(), getPortfolioUid(), portfolio.getRootNode().getUniqueIdentifier());
+    URI rootNodeUri = PortfolioNodeResource.uri(getUriInfo(), getPortfolioUid(), doc.getPortfolio().getRootNode().getUniqueIdentifier());
     html += "<h2>Add node</h2>\n" +
       "<form method=\"POST\" action=\"" + rootNodeUri + "\">" +
       "Name: <input type=\"text\" size=\"30\" name=\"name\" /><br />" +
@@ -175,31 +174,22 @@ public class PortfolioResource {
   public Response put(@FormParam("name") String name, @FormParam("status") String status) {
     if ("D".equals(status)) {
       return remove();
-    } else if ("A".equals(status)) {
-      return reinstate();
     } else {
       return update(name);
     }
   }
 
   public Response update(String name) {
-    UpdatePortfolioRequest request = new UpdatePortfolioRequest();
-    request.setUniqueIdentifier(getPortfolioUid());
-    request.setName(name);
-    UniqueIdentifier uid = getPositionMaster().updatePortfolio(request);
-    URI uri = PortfolioResource.uri(getUriInfo(), uid.toLatest());
+    PortfolioTreeDocument doc = getPositionMaster().getPortfolioTree(getPortfolioUid());
+    ((PortfolioImpl) doc.getPortfolio()).setName(name);
+    doc = getPositionMaster().updatePortfolioTree(doc);
+    URI uri = PortfolioResource.uri(getUriInfo(), doc.getPortfolioId().toLatest());
     return Response.seeOther(uri).build();
   }
 
   public Response remove() {
-    getPositionMaster().removePortfolio(getPortfolioUid());
+    getPositionMaster().removePortfolioTree(getPortfolioUid());
     URI uri = PortfoliosResource.uri(getUriInfo());
-    return Response.seeOther(uri).build();
-  }
-
-  public Response reinstate() {
-    UniqueIdentifier uid = getPositionMaster().reinstatePortfolio(getPortfolioUid());
-    URI uri = PortfolioResource.uri(getUriInfo(), uid.toLatest());
     return Response.seeOther(uri).build();
   }
 

@@ -56,15 +56,14 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessingContext;
 import com.opengamma.engine.view.cache.MapViewComputationCacheSource;
 import com.opengamma.engine.view.calc.BatchExecutorFactory;
-import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
 import com.opengamma.engine.view.calcnode.CalculationNodeRequestReceiver;
 import com.opengamma.engine.view.calcnode.FudgeJobRequestSender;
 import com.opengamma.engine.view.calcnode.JobRequestSender;
 import com.opengamma.engine.view.calcnode.ResultWriterFactory;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
-import com.opengamma.financial.position.HistoricallyFixedPositionSource;
-import com.opengamma.financial.position.ManageablePositionMaster;
+import com.opengamma.financial.position.master.MasterPositionSource;
+import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.financial.security.HistoricallyFixedSecurityMaster;
 import com.opengamma.financial.security.ManageableSecurityMaster;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
@@ -568,9 +567,9 @@ public class BatchJob implements Job {
     
     PositionSource underlyingPositionMaster = getPositionSource();
     PositionSource positionMaster; 
-    if (underlyingPositionMaster instanceof ManageablePositionMaster) {
-      positionMaster = new HistoricallyFixedPositionSource(
-          (ManageablePositionMaster) underlyingPositionMaster, 
+    if (underlyingPositionMaster instanceof PositionMaster) {
+      positionMaster = new MasterPositionSource(
+          (PositionMaster) underlyingPositionMaster, 
           getPositionMasterTime(), 
           getPositionMasterAsViewedAtTime());
     } else {

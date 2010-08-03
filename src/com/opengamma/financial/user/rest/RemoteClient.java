@@ -8,8 +8,8 @@ package com.opengamma.financial.user.rest;
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.financial.livedata.rest.RemoteUserLiveData;
-import com.opengamma.financial.position.ManageablePositionMaster;
-import com.opengamma.financial.position.rest.RemoteManagablePositionMaster;
+import com.opengamma.financial.position.master.PositionMaster;
+import com.opengamma.financial.position.rest.RemotePositionMaster;
 import com.opengamma.financial.security.ManageableSecurityMaster;
 import com.opengamma.financial.security.rest.RemoteManagableSecurityMaster;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
@@ -51,8 +51,8 @@ public class RemoteClient {
     return _clientId;
   }
   
-  public ManageablePositionMaster getPositionMaster() {
-    return new RemoteManagablePositionMaster(_fudgeContext, _positionMasterTarget);
+  public PositionMaster getPositionMaster() {
+    return new RemotePositionMaster(_fudgeContext, _positionMasterTarget);
   }
 
   public ManageableSecurityMaster getSecurityMaster() {
@@ -72,6 +72,7 @@ public class RemoteClient {
    * we will need a UserMaster to host users and their clients, and the entry point for Excel will be a
    * RemoteUserMaster.
    *
+   * @param fudgeContext  the Fudge context
    * @param usersUri  uri as far as /users
    * @param username  the username
    * @return  a {@link RemoteClient} instance for the new client

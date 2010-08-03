@@ -9,7 +9,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.UriInfo;
 
-import com.opengamma.financial.position.ManageablePositionMaster;
+import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -46,7 +46,7 @@ public class PortfolioNodesResource {
    * Gets the position master.
    * @return the position master, not null
    */
-  public ManageablePositionMaster getPositionMaster() {
+  public PositionMaster getPositionMaster() {
     return getPortfolioResource().getPositionMaster();
   }
 
