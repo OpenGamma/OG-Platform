@@ -366,7 +366,7 @@ public class HibernateSecurityMaster implements SecurityMaster {
     if (security != null) {
       return new SecurityDocument(security);
     } else {
-      return null;
+      throw new DataNotFoundException("UniqueIdentifier " + uid);
     }
   }
 
