@@ -15,20 +15,20 @@ import cern.jet.random.engine.RandomEngine;
 /**
  * 
  */
-public class PolynomialFunction1DTest {
+public class RealPolynomialFunction1DTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final double[] C = new double[] {3.4, 5.6, 1., -4.};
-  private static final Function1D<Double, Double> F = new PolynomialFunction1D(C);
+  private static final Function1D<Double, Double> F = new RealPolynomialFunction1D(C);
   private static final double EPS = 1e-12;
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullCoefficients() {
-    new PolynomialFunction1D(null);
+    new RealPolynomialFunction1D(null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyCoefficients() {
-    new PolynomialFunction1D(new double[0]);
+    new RealPolynomialFunction1D(new double[0]);
   }
 
   @Test

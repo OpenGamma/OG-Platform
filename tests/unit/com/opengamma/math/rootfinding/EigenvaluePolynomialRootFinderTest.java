@@ -14,7 +14,7 @@ import org.junit.Test;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
-import com.opengamma.math.function.PolynomialFunction1D;
+import com.opengamma.math.function.RealPolynomialFunction1D;
 
 /**
  * 
@@ -36,7 +36,7 @@ public class EigenvaluePolynomialRootFinderTest {
     final double a2 = r[0] * r[1] + r[0] * r[2] + r[0] * r[3] + r[1] * r[2] + r[1] * r[3] + r[2] * r[3];
     final double a3 = r[0] + r[1] + r[2] + r[3];
     final double a4 = 1;
-    final PolynomialFunction1D f = new PolynomialFunction1D(new double[] {a0, a1, a2, a3, a4});
+    final RealPolynomialFunction1D f = new RealPolynomialFunction1D(new double[] {a0, a1, a2, a3, a4});
     final Double[] roots = FINDER.getRoots(f);
     Arrays.sort(roots);
     final double[] expected = new double[r.length];

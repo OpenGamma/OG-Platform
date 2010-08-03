@@ -9,6 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -22,6 +23,9 @@ public class SABRDataBundle extends StandardOptionDataBundle {
   public SABRDataBundle(final YieldAndDiscountCurve interestRateCurve, final double b, final VolatilitySurface volatilitySurface, final double spot, final ZonedDateTime date, final double alpha,
       final double beta, final double rho, final double volOfVol) {
     super(interestRateCurve, b, volatilitySurface, spot, date);
+    if (!ArgumentChecker.isInRangeInclusive(-1, 1, rho)) {
+      throw new IllegalArgumentException("Correlation must be >= -1 and <= 1");
+    }
     _alpha = alpha;
     _beta = beta;
     _rho = rho;
@@ -38,6 +42,9 @@ public class SABRDataBundle extends StandardOptionDataBundle {
 
   public SABRDataBundle(final StandardOptionDataBundle data, final double alpha, final double beta, final double rho, final double volOfVol) {
     super(data);
+    if (!ArgumentChecker.isInRangeInclusive(-1, 1, rho)) {
+      throw new IllegalArgumentException("Correlation must be >= -1 and <= 1");
+    }
     _alpha = alpha;
     _beta = beta;
     _rho = rho;
@@ -94,6 +101,9 @@ public class SABRDataBundle extends StandardOptionDataBundle {
   }
 
   public SABRDataBundle withRho(final double rho) {
+    if (!ArgumentChecker.isInRangeInclusive(-1, 1, rho)) {
+      throw new IllegalArgumentException("Correlation must be >= -1 and <= 1");
+    }
     return new SABRDataBundle(getInterestRateCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getAlpha(), getBeta(), rho, getVolOfVol());
   }
 

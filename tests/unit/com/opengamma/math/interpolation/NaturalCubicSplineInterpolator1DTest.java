@@ -16,7 +16,7 @@ import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.function.PolynomialFunction1D;
+import com.opengamma.math.function.RealPolynomialFunction1D;
 
 /**
  * 
@@ -27,7 +27,7 @@ public class NaturalCubicSplineInterpolator1DTest {
   private static final double[] COEFF = new double[] {-0.4, 0.05, 0.2, 1.};
 
   private static final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> INTERPOLATOR = new NaturalCubicSplineInterpolator1D();
-  private static final Function1D<Double, Double> CUBIC = new PolynomialFunction1D(COEFF);
+  private static final Function1D<Double, Double> CUBIC = new RealPolynomialFunction1D(COEFF);
   private static final double EPS = 1e-2;
   private static final Interpolator1DCubicSplineDataBundle MODEL;
 
