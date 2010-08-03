@@ -26,6 +26,12 @@ public class NavigableMapInterpolator1DDataBundle implements Interpolator1DDataB
 
   @Override
   public Double getLowerBoundKey(final Double value) {
+    if (value < firstKey()) {
+      throw new IllegalArgumentException("Could not get lower bound key for " + value + ": lowest x-value is " + firstKey());
+    }
+    if (value > lastKey()) {
+      throw new IllegalArgumentException("Could not get lower bound key for " + value + ": highest x-value is " + lastKey());
+    }
     return _backingMap.floorKey(value);
   }
 
@@ -59,6 +65,12 @@ public class NavigableMapInterpolator1DDataBundle implements Interpolator1DDataB
 
   @Override
   public Double higherKey(final Double key) {
+    if (key < firstKey()) {
+      throw new IllegalArgumentException("Could not get lower bound key for " + key + ": lowest x-value is " + firstKey());
+    }
+    if (key > lastKey()) {
+      throw new IllegalArgumentException("Could not get lower bound key for " + key + ": highest x-value is " + lastKey());
+    }
     return _backingMap.higherKey(key);
   }
 
@@ -116,13 +128,11 @@ public class NavigableMapInterpolator1DDataBundle implements Interpolator1DDataB
   @Override
   public InterpolationBoundedValues getBoundedValues(final Double key) {
     final Double lowerBoundKey = getLowerBoundKey(key);
-    if (lowerBoundKey == null) {
-      throw new IllegalArgumentException(key + " was less than lowest value of data " + firstKey());
+    final Double higherKey = higherKey(key);
+    if (higherKey.equals(lastKey())) {
+      return new InterpolationBoundedValues(getLowerBoundIndex(key), lastKey(), lastValue(), null, null);
     }
-    if (higherKey(key) == null) {
-      throw new IllegalArgumentException(key + " was greater than highest value of data " + lastKey());
-    }
-    return new InterpolationBoundedValues(lowerBoundKey, get(lowerBoundKey), higherKey(key), higherValue(key));
+    return new InterpolationBoundedValues(getLowerBoundIndex(key), lowerBoundKey, get(lowerBoundKey), higherKey, higherValue(key));
   }
 
   @Override

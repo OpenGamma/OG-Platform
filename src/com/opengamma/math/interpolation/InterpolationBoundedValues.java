@@ -7,16 +7,21 @@ package com.opengamma.math.interpolation;
 
 import java.io.Serializable;
 
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * 
  */
 public final class InterpolationBoundedValues implements Serializable {
+  private final int _lowerBoundIndex;
   private final Double _lowerBoundKey;
   private final Double _lowerBoundValue;
   private final Double _higherBoundKey;
   private final Double _higherBoundValue;
 
-  public InterpolationBoundedValues(final Double lowerBoundKey, final Double lowerBoundValue, final Double higherKey, final Double higherValue) {
+  public InterpolationBoundedValues(final int lowerBoundIndex, final Double lowerBoundKey, final Double lowerBoundValue, final Double higherKey, final Double higherValue) {
+    ArgumentChecker.notNegative(lowerBoundIndex, "lower bound index");
+    _lowerBoundIndex = lowerBoundIndex;
     _lowerBoundKey = lowerBoundKey;
     _lowerBoundValue = lowerBoundValue;
     _higherBoundKey = higherKey;
@@ -49,6 +54,10 @@ public final class InterpolationBoundedValues implements Serializable {
    */
   public Double getHigherBoundValue() {
     return _higherBoundValue;
+  }
+
+  public int getLowerBoundIndex() {
+    return _lowerBoundIndex;
   }
 
 }

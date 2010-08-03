@@ -33,7 +33,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
       parallelBinarySort();
     }
   }
-  
+
   /**
    * Sort the content of _keys and _values simultaneously so that
    * both match the correct ordering.
@@ -105,13 +105,10 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
   @Override
   public InterpolationBoundedValues getBoundedValues(final Double key) {
     final int index = getLowerBoundIndex(key);
-    if (index < 0) {
-      return new InterpolationBoundedValues(null, null, _keys[0], _values[0]);
+    if (index == _keys.length - 1) {
+      return new InterpolationBoundedValues(index, _keys[index], _values[index], null, null);
     }
-    if (index >= (_keys.length - 1)) {
-      return new InterpolationBoundedValues(_keys[_keys.length - 1], _values[_values.length - 1], null, null);
-    }
-    return new InterpolationBoundedValues(_keys[index], _values[index], _keys[index + 1], _values[index + 1]);
+    return new InterpolationBoundedValues(index, _keys[index], _values[index], _keys[index + 1], _values[index + 1]);
   }
 
   @Override
@@ -121,6 +118,12 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
 
   @Override
   public int getLowerBoundIndex(final Double value) {
+    if (value < _keys[0]) {
+      throw new IllegalArgumentException("Could not get lower bound index for " + value + ": lowest x-value is " + _keys[0]);
+    }
+    if (value > _keys[_keys.length - 1]) {
+      throw new IllegalArgumentException("Could not get lower bound index for " + value + ": highest x-value is " + _keys[_keys.length - 1]);
+    }
     int index = Arrays.binarySearch(_keys, value);
     if (index >= 0) {
       // Fast break out if it's an exact match.
@@ -135,18 +138,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
 
   @Override
   public Double getLowerBoundKey(final Double value) {
-    int index = Arrays.binarySearch(_keys, value);
-    if (index >= 0) {
-      // Fast break out if it's an exact match.
-      return _keys[index];
-    }
-    if (index < 0) {
-      index = -(index + 1);
-      index--;
-    }
-    if (index < 0) {
-      return null;
-    }
+    final int index = getLowerBoundIndex(value);
     return _keys[index];
   }
 
@@ -174,16 +166,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
   }
 
   protected int getHigherIndex(final Double key) {
-    int index = Arrays.binarySearch(_keys, key);
-    if (index >= 0) {
-      // Fast break out if it's an exact match.
-      return index + 1;
-    }
-    if (index < 0) {
-      index = -(index + 1);
-      index--;
-    }
-    return index + 1;
+    return getLowerBoundIndex(key) + 1;
   }
 
   @Override
