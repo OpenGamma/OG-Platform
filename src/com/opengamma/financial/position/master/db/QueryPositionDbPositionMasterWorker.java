@@ -152,7 +152,6 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
     if (count > 0) {
       final PositionDocumentExtractor extractor = new PositionDocumentExtractor();
       result.getDocuments().addAll((List<PositionDocument>) namedJdbc.query(sql[0], args, extractor));
-      System.err.println(sql[0]);
     }
     return result;
   }

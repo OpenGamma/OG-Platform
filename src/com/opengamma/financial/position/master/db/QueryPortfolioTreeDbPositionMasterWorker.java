@@ -145,7 +145,6 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
     if (count > 0) {
       final PortfolioTreeDocumentExtractor extractor = new PortfolioTreeDocumentExtractor();
       result.getDocuments().addAll((List<PortfolioTreeDocument>) namedJdbc.query(sql[0], args, extractor));
-      System.err.println(sql[0]);
     }
     return result;
   }
