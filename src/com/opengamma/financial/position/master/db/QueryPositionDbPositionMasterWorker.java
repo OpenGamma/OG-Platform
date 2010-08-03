@@ -110,7 +110,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("position_id", uid.getVersion());
     final PositionDocumentExtractor extractor = new PositionDocumentExtractor();
-    final NamedParameterJdbcOperations namedJdbc = getTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final List<PositionDocument> docs = (List<PositionDocument>) namedJdbc.query(sqlGetPositionById(), args, extractor);
     if (docs.isEmpty()) {
       throw new DataNotFoundException("Position not found: " + uid);
@@ -145,7 +145,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
     }
     // TODO: security key
     final String[] sql = sqlSearchPositions(request);
-    final NamedParameterJdbcOperations namedJdbc = getTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final int count = namedJdbc.queryForInt(sql[1], args);
     final PositionSearchResult result = new PositionSearchResult();
     result.setPaging(new Paging(request.getPagingRequest(), count));
@@ -196,7 +196,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
       .addTimestampNullIgnored("corrections_from_instant", request.getCorrectionsFromInstant())
       .addTimestampNullIgnored("corrections_to_instant", request.getCorrectionsToInstant());
     final String[] sql = sqlSearchPositionHistoric(request);
-    final NamedParameterJdbcOperations namedJdbc = getTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final int count = namedJdbc.queryForInt(sql[1], args);
     final PositionSearchHistoricResult result = new PositionSearchHistoricResult();
     result.setPaging(new Paging(request.getPagingRequest(), count));

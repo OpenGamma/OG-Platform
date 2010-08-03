@@ -6,6 +6,7 @@
 package com.opengamma.financial.position.master.db;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.math.BigDecimal;
 import java.util.TimeZone;
@@ -17,6 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.BadSqlGrammarException;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.position.PositionImpl;
@@ -125,6 +127,28 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     PositionSearchHistoricRequest search = new PositionSearchHistoricRequest(base.getPositionId(), null, now);
     PositionSearchHistoricResult searchResult = _queryWorker.searchPositionHistoric(search);
     assertEquals(2, searchResult.getDocuments().size());
+  }
+
+  @Test
+  public void test_updatePosition_rollback() {
+    ModifyPositionDbPositionMasterWorker w = new ModifyPositionDbPositionMasterWorker() {
+      protected String sqlInsertSecurityKey() {
+        return "INSERT";  // bad sql
+      };
+    };
+    w.init(_posMaster);
+    final PositionDocument base = _queryWorker.getPosition(UniqueIdentifier.of("DbPos", "121", "121"));
+    PositionImpl pos = new PositionImpl(UniqueIdentifier.of("DbPos", "121", "121"), BigDecimal.TEN, Identifier.of("A", "B"));
+    PositionDocument input = new PositionDocument(pos);
+    try {
+      w.updatePosition(input);
+      fail();
+    } catch (BadSqlGrammarException ex) {
+      // expected
+    }
+    final PositionDocument test = _queryWorker.getPosition(UniqueIdentifier.of("DbPos", "121", "121"));
+    
+    assertEquals(base, test);
   }
 
   //-------------------------------------------------------------------------

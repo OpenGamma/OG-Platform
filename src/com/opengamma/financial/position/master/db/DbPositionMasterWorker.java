@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.time.TimeSource;
 
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
@@ -77,10 +78,18 @@ public class DbPositionMasterWorker {
 
   /**
    * Gets the database template.
-   * @return the template, non-null if correctly initialized
+   * @return the database template, non-null if correctly initialized
    */
-  protected SimpleJdbcTemplate getTemplate() {
-    return _master.getTemplate();
+  protected SimpleJdbcTemplate getJdbcTemplate() {
+    return _master.getJdbcTemplate();
+  }
+
+  /**
+   * Gets the transaction template.
+   * @return the transaction template, non-null if correctly initialized
+   */
+  protected TransactionTemplate getTransactionTemplate() {
+    return _master.getTransactionTemplate();
   }
 
   /**
@@ -113,7 +122,7 @@ public class DbPositionMasterWorker {
    * @return the next database id
    */
   protected long nextId() {
-    return getTemplate().queryForLong(getDbHelper().sqlNextSequenceValueSelect("pos_master_seq"));
+    return getJdbcTemplate().queryForLong(getDbHelper().sqlNextSequenceValueSelect("pos_master_seq"));
   }
 
   //-------------------------------------------------------------------------

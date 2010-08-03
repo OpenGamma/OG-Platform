@@ -96,7 +96,7 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
       .addTimestamp("version_as_of", versionAsOf)
       .addTimestamp("corrected_to", correctedTo);
     final String sql = sqlSelectFullPortfolio(id.toLatest());
-    final NamedParameterJdbcOperations namedJdbc = getTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final FullPortfolioDocumentExtractor extractor = new FullPortfolioDocumentExtractor();
     return (Portfolio) namedJdbc.query(sql, args, extractor);
   }
@@ -142,7 +142,7 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
       .addTimestamp("version_as_of", versionAsOf)
       .addTimestamp("corrected_to", correctedTo);
     final String sql = sqlSelectFullPortfolioNode(id.toLatest());
-    final NamedParameterJdbcOperations namedJdbc = getTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final FullPortfolioDocumentExtractor extractor = new FullPortfolioDocumentExtractor();
     Portfolio portfolio = (Portfolio) namedJdbc.query(sql, args, extractor);
     return (portfolio != null ? portfolio.getRootNode() : null);

@@ -14,6 +14,8 @@ import javax.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.IncorrectUpdateSemanticsDataAccessException;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
@@ -44,37 +46,47 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
   protected PortfolioTreeDocument addPortfolioTree(final PortfolioTreeDocument document) {
     s_logger.debug("addPortfolioTree{}", document);
     
-    // insert new row
-    final Instant now = Instant.now(getTimeSource());
-    document.setVersionFromInstant(now);
-    document.setVersionToInstant(null);
-    document.setCorrectionFromInstant(now);
-    document.setCorrectionToInstant(null);
-    document.setPortfolioId(null);
-    insertPortfolioTree(document);
+    getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(final TransactionStatus status) {
+        // insert new row
+        final Instant now = Instant.now(getTimeSource());
+        document.setVersionFromInstant(now);
+        document.setVersionToInstant(null);
+        document.setCorrectionFromInstant(now);
+        document.setCorrectionToInstant(null);
+        document.setPortfolioId(null);
+        insertPortfolioTree(document);
+      }
+    });
     return document;
   }
 
   //-------------------------------------------------------------------------
   @Override
   protected PortfolioTreeDocument updatePortfolioTree(final PortfolioTreeDocument document) {
-    UniqueIdentifier uid = document.getPortfolioId();
+    final UniqueIdentifier uid = document.getPortfolioId();
     ArgumentChecker.isTrue(uid.isVersioned(), "UniqueIdentifier must be versioned");
     s_logger.debug("updatePortfolioTree {}", document);
     
-    // load old row
-    final PortfolioTreeDocument oldDoc = getPortfolioTreeCheckLatestVersion(uid);
-    // update old row
-    final Instant now = Instant.now(getTimeSource());
-    oldDoc.setVersionToInstant(now);
-    updateVersionToInstant(oldDoc);
-    // insert new row
-    document.setVersionFromInstant(now);
-    document.setVersionToInstant(null);
-    document.setCorrectionFromInstant(now);
-    document.setCorrectionToInstant(null);
-    document.setPortfolioId(oldDoc.getPortfolioId().toLatest());
-    insertPortfolioTree(document);
+    getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(final TransactionStatus status) {
+        // load old row
+        final PortfolioTreeDocument oldDoc = getPortfolioTreeCheckLatestVersion(uid);
+        // update old row
+        final Instant now = Instant.now(getTimeSource());
+        oldDoc.setVersionToInstant(now);
+        updateVersionToInstant(oldDoc);
+        // insert new row
+        document.setVersionFromInstant(now);
+        document.setVersionToInstant(null);
+        document.setCorrectionFromInstant(now);
+        document.setCorrectionToInstant(null);
+        document.setPortfolioId(oldDoc.getPortfolioId().toLatest());
+        insertPortfolioTree(document);
+      }
+    });
     return document;
   }
 
@@ -84,34 +96,44 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
     ArgumentChecker.isTrue(uid.isVersioned(), "UniqueIdentifier must be versioned");
     s_logger.debug("removePortfolioTree {}", uid);
     
-    // load old row
-    final PortfolioTreeDocument oldDoc = getPortfolioTreeCheckLatestVersion(uid);
-    // update old row
-    final Instant now = Instant.now(getTimeSource());
-    oldDoc.setVersionToInstant(now);
-    updateVersionToInstant(oldDoc);
+    getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(final TransactionStatus status) {
+        // load old row
+        final PortfolioTreeDocument oldDoc = getPortfolioTreeCheckLatestVersion(uid);
+        // update old row
+        final Instant now = Instant.now(getTimeSource());
+        oldDoc.setVersionToInstant(now);
+        updateVersionToInstant(oldDoc);
+      }
+    });
   }
 
   //-------------------------------------------------------------------------
   @Override
-  protected PortfolioTreeDocument correctPortfolioTree(PortfolioTreeDocument document) {
-    UniqueIdentifier uid = document.getPortfolioId();
+  protected PortfolioTreeDocument correctPortfolioTree(final PortfolioTreeDocument document) {
+    final UniqueIdentifier uid = document.getPortfolioId();
     ArgumentChecker.isTrue(uid.isVersioned(), "UniqueIdentifier must be versioned");
     s_logger.debug("correctPortfolioTree {}", document);
     
-    // load old row
-    final PortfolioTreeDocument oldDoc = getPortfolioTreeCheckLatestCorrection(uid);
-    // update old row
-    final Instant now = Instant.now(getTimeSource());
-    oldDoc.setCorrectionToInstant(now);
-    updateCorrectionToInstant(oldDoc);
-    // insert new row
-    document.setVersionFromInstant(oldDoc.getVersionFromInstant());
-    document.setVersionToInstant(oldDoc.getVersionToInstant());
-    document.setCorrectionFromInstant(now);
-    document.setCorrectionToInstant(null);
-    document.setPortfolioId(oldDoc.getPortfolioId().toLatest());
-    insertPortfolioTree(document);
+    getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(final TransactionStatus status) {
+        // load old row
+        final PortfolioTreeDocument oldDoc = getPortfolioTreeCheckLatestCorrection(uid);
+        // update old row
+        final Instant now = Instant.now(getTimeSource());
+        oldDoc.setCorrectionToInstant(now);
+        updateCorrectionToInstant(oldDoc);
+        // insert new row
+        document.setVersionFromInstant(oldDoc.getVersionFromInstant());
+        document.setVersionToInstant(oldDoc.getVersionToInstant());
+        document.setCorrectionFromInstant(now);
+        document.setCorrectionToInstant(null);
+        document.setPortfolioId(oldDoc.getPortfolioId().toLatest());
+        insertPortfolioTree(document);
+      }
+    });
     return document;
   }
 
@@ -135,8 +157,8 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
     // the arguments for inserting into the node table
     final List<DbMapSqlParameterSource> nodeList = new ArrayList<DbMapSqlParameterSource>();
     insertBuildArgs(document.getPortfolio().getRootNode(), document.getPortfolioId() != null, portfolioId, null, new AtomicInteger(1), 0, nodeList);
-    getTemplate().update(sqlInsertPortfolio(), portfolioArgs);
-    getTemplate().batchUpdate(sqlInsertNode(), (DbMapSqlParameterSource[]) nodeList.toArray(new DbMapSqlParameterSource[nodeList.size()]));
+    getJdbcTemplate().update(sqlInsertPortfolio(), portfolioArgs);
+    getJdbcTemplate().batchUpdate(sqlInsertNode(), (DbMapSqlParameterSource[]) nodeList.toArray(new DbMapSqlParameterSource[nodeList.size()]));
     // set the uid
     final UniqueIdentifier uid = createUniqueIdentifier(portfolioOid, portfolioId, null);
     UniqueIdentifiables.setInto(document.getPortfolio(), uid);
@@ -223,7 +245,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
       .addValue("portfolio_id", document.getPortfolioId().getVersion())
       .addTimestamp("ver_to_instant", document.getVersionToInstant())
       .addValue("max_instant", DateUtil.MAX_SQL_TIMESTAMP);
-    int rowsUpdated = getTemplate().update(sqlUpdateVersionToInstant(), args);
+    int rowsUpdated = getJdbcTemplate().update(sqlUpdateVersionToInstant(), args);
     if (rowsUpdated != 1) {
       throw new IncorrectUpdateSemanticsDataAccessException("Update end version instant failed, rows updated: " + rowsUpdated);
     }
@@ -263,7 +285,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
       .addValue("portfolio_id", document.getPortfolioId().getVersion())
       .addTimestamp("corr_to_instant", document.getCorrectionToInstant())
       .addValue("max_instant", DateUtil.MAX_SQL_TIMESTAMP);
-    int rowsUpdated = getTemplate().update(sqlUpdateCorrectionToInstant(), args);
+    int rowsUpdated = getJdbcTemplate().update(sqlUpdateCorrectionToInstant(), args);
     if (rowsUpdated != 1) {
       throw new IncorrectUpdateSemanticsDataAccessException("Update end correction instant failed, rows updated: " + rowsUpdated);
     }

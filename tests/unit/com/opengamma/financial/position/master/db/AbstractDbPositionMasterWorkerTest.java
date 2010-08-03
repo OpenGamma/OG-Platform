@@ -60,7 +60,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     _version2Instant = now.minusSeconds(50);
     s_logger.debug("test data now:   {}", _version1Instant);
     s_logger.debug("test data later: {}", _version2Instant);
-    final SimpleJdbcTemplate template = _posMaster.getTemplate();
+    final SimpleJdbcTemplate template = _posMaster.getJdbcTemplate();
     template.update("INSERT INTO pos_portfolio VALUES (?,?,?,?,?, ?,?)",
         101, 101, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, "TestPortfolio101");
     template.update("INSERT INTO pos_portfolio VALUES (?,?,?,?,?, ?,?)",

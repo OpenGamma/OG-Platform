@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
@@ -53,6 +55,10 @@ public class DbPositionMaster implements PositionMaster {
    */
   private final SimpleJdbcTemplate _jdbcTemplate;
   /**
+   * The template for transactions.
+   */
+  private final TransactionTemplate _transactionTemplate;
+  /**
    * The database specific helper.
    */
   private final DbHelper _dbHelper;
@@ -71,16 +77,18 @@ public class DbPositionMaster implements PositionMaster {
 
   /**
    * Creates an instance.
-   * @param transactionManager  the transaction manager, not null
+   * @param transManager  the transaction manager, not null
+   * @param transDefinition  the transaction definition, not null
    * @param dbHelper  the database specific helper, not null
    */
-  public DbPositionMaster(DataSourceTransactionManager transactionManager, DbHelper dbHelper) {
-    Validate.notNull(transactionManager, "DataSourceTransactionManager must not be null");
+  public DbPositionMaster(final DataSourceTransactionManager transManager, final TransactionDefinition transDefinition, final DbHelper dbHelper) {
+    Validate.notNull(transManager, "DataSourceTransactionManager must not be null");
     Validate.notNull(dbHelper, "DbHelper must not be null");
-    s_logger.debug("installed DataSourceTransactionManager: {}", transactionManager);
+    s_logger.debug("installed DataSourceTransactionManager: {}", transManager);
     s_logger.debug("installed DbHelper: {}", dbHelper);
-    DataSource dataSource = transactionManager.getDataSource();
+    DataSource dataSource = transManager.getDataSource();
     _jdbcTemplate = new SimpleJdbcTemplate(dataSource);
+    _transactionTemplate = new TransactionTemplate(transManager, transDefinition);
     _dbHelper = dbHelper;
     setWorkers(new DbPositionMasterWorkers());
   }
@@ -88,10 +96,18 @@ public class DbPositionMaster implements PositionMaster {
   //-------------------------------------------------------------------------
   /**
    * Gets the database template.
-   * @return the template, non-null
+   * @return the database template, non-null
    */
-  public SimpleJdbcTemplate getTemplate() {
+  public SimpleJdbcTemplate getJdbcTemplate() {
     return _jdbcTemplate;
+  }
+
+  /**
+   * Gets the transaction template.
+   * @return the transaction template, non-null
+   */
+  public TransactionTemplate getTransactionTemplate() {
+    return _transactionTemplate;
   }
 
   /**

@@ -110,7 +110,7 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("portfolio_id", uid.getVersion());
     final PortfolioTreeDocumentExtractor extractor = new PortfolioTreeDocumentExtractor();
-    final NamedParameterJdbcOperations namedJdbc = getTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final List<PortfolioTreeDocument> docs = (List<PortfolioTreeDocument>) namedJdbc.query(sqlGetPortfolioTreeById(), args, extractor);
     if (docs.isEmpty()) {
       throw new DataNotFoundException("PortfolioTree not found: " + uid);
@@ -138,7 +138,7 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
       .addValue("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
       .addValue("depth", request.getDepth());
     final String[] sql = sqlSearchPortfolioTrees(request);
-    final NamedParameterJdbcOperations namedJdbc = getTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final int count = namedJdbc.queryForInt(sql[1], args);
     final PortfolioTreeSearchResult result = new PortfolioTreeSearchResult();
     result.setPaging(new Paging(request.getPagingRequest(), count));
@@ -184,7 +184,7 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
       .addTimestampNullIgnored("corrections_to_instant", request.getCorrectionsToInstant())
       .addValue("depth", request.getDepth());
     final String[] sql = sqlSearchPortfolioTreeHistoric(request);
-    final NamedParameterJdbcOperations namedJdbc = getTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final int count = namedJdbc.queryForInt(sql[1], args);
     final PortfolioTreeSearchHistoricResult result = new PortfolioTreeSearchHistoricResult();
     result.setPaging(new Paging(request.getPagingRequest(), count));

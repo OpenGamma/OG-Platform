@@ -3,45 +3,52 @@
 
 <beans>
 
-	<bean id="propertyConfigurer"
-		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="location"><value>file:tests.properties</value></property>
-	</bean>
-	
-	<bean id="derbyDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-		<property name="driverClassName" value="${derby.jdbc.driver}"/>
-		<property name="url" value="${derby.jdbc.url}/test_${user.name}"/>
-		<property name="username" value="${derby.jdbc.username}"/>
-		<property name="password" value="${derby.jdbc.password}"/>
-	</bean>
-	
-	<bean id="derbyDbPositionMaster" class="com.opengamma.financial.position.master.db.DbPositionMaster">
-		<constructor-arg>
-			<bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-				<property name="dataSource" ref="derbyDataSource"/>
-			</bean>
-		</constructor-arg>
-        <constructor-arg><bean class="com.opengamma.util.db.DerbyDbHelper" /></constructor-arg>
-		<!-- property name="timeSource" -->
-        <property name="identifierScheme" value="DbPos" />
-	</bean>
-	
-	<bean id="postgresDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-		<property name="driverClassName" value="${postgres.jdbc.driver}"/>
-		<property name="url" value="${postgres.jdbc.url}/test_${user.name}"/>
-		<property name="username" value="${postgres.jdbc.username}"/>
-		<property name="password" value="${postgres.jdbc.password}"/>
-	</bean>
-	
-    <bean id="postgresDbPositionMaster" class="com.opengamma.financial.position.master.db.DbPositionMaster">
-		<constructor-arg>
-			<bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-				<property name="dataSource" ref="postgresDataSource"/>
-			</bean>
-		</constructor-arg>
-        <constructor-arg><bean class="com.opengamma.util.db.PostgreSQLDbHelper" /></constructor-arg>
-        <!-- property name="timeSource" -->
-        <property name="identifierScheme" value="DbPos" />
-	</bean>
-	
+  <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="location"><value>file:tests.properties</value></property>
+  </bean>
+
+  <bean id="dbTransactionDefinition" class="org.springframework.transaction.support.DefaultTransactionDefinition">
+    <property name="isolationLevelName" value="ISOLATION_SERIALIZABLE" />
+    <property name="propagationBehaviorName" value="PROPAGATION_REQUIRED" />
+    <property name="timeout" value="20" />
+  </bean>
+
+  <bean id="derbyDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <property name="driverClassName" value="${derby.jdbc.driver}"/>
+    <property name="url" value="${derby.jdbc.url}/test_${user.name}"/>
+    <property name="username" value="${derby.jdbc.username}"/>
+    <property name="password" value="${derby.jdbc.password}"/>
+  </bean>
+
+  <bean id="derbyDbPositionMaster" class="com.opengamma.financial.position.master.db.DbPositionMaster">
+    <constructor-arg>
+      <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="derbyDataSource"/>
+      </bean>
+    </constructor-arg>
+    <constructor-arg ref="dbTransactionDefinition" />
+    <constructor-arg><bean class="com.opengamma.util.db.DerbyDbHelper" /></constructor-arg>
+    <!-- property name="timeSource" -->
+    <property name="identifierScheme" value="DbPos" />
+  </bean>
+
+  <bean id="postgresDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <property name="driverClassName" value="${postgres.jdbc.driver}"/>
+    <property name="url" value="${postgres.jdbc.url}/test_${user.name}"/>
+    <property name="username" value="${postgres.jdbc.username}"/>
+    <property name="password" value="${postgres.jdbc.password}"/>
+  </bean>
+
+  <bean id="postgresDbPositionMaster" class="com.opengamma.financial.position.master.db.DbPositionMaster">
+    <constructor-arg>
+      <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="postgresDataSource"/>
+      </bean>
+    </constructor-arg>
+    <constructor-arg ref="dbTransactionDefinition" />
+    <constructor-arg><bean class="com.opengamma.util.db.PostgreSQLDbHelper" /></constructor-arg>
+    <!-- property name="timeSource" -->
+    <property name="identifierScheme" value="DbPos" />
+  </bean>
+
 </beans>
