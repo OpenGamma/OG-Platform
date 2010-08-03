@@ -161,9 +161,19 @@ public class DbPositionMaster implements PositionMaster {
     _identifierScheme = scheme;
   }
 
+  /**
+   * Checks the scheme is valid.
+   * @param uid  the unique identifier
+   */
+  protected void checkScheme(final UniqueIdentifier uid) {
+    if (getIdentifierScheme().equals(uid.getScheme()) == false) {
+      throw new IllegalArgumentException("UniqueIdentifier is not from this position master: " + uid);
+    }
+  }
+
   //-------------------------------------------------------------------------
   @Override
-  public PortfolioTreeSearchResult searchPortfolioTrees(PortfolioTreeSearchRequest request) {
+  public PortfolioTreeSearchResult searchPortfolioTrees(final PortfolioTreeSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     
     return getWorkers().getSearchPortfolioTreesWorker().searchPortfolioTrees(request);
@@ -171,15 +181,16 @@ public class DbPositionMaster implements PositionMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public PortfolioTreeDocument getPortfolioTree(UniqueIdentifier uid) {
+  public PortfolioTreeDocument getPortfolioTree(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
+    checkScheme(uid);
     
     return getWorkers().getGetPortfolioTreeWorker().getPortfolioTree(uid);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public PortfolioTreeDocument addPortfolioTree(PortfolioTreeDocument document) {
+  public PortfolioTreeDocument addPortfolioTree(final PortfolioTreeDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
     ArgumentChecker.notNull(document.getPortfolio().getRootNode(), "document.portfolio.rootNode");
@@ -189,44 +200,48 @@ public class DbPositionMaster implements PositionMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public PortfolioTreeDocument updatePortfolioTree(PortfolioTreeDocument document) {
+  public PortfolioTreeDocument updatePortfolioTree(final PortfolioTreeDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
     ArgumentChecker.notNull(document.getPortfolioId(), "document.portfolioId");
+    checkScheme(document.getPortfolioId());
     
     return getWorkers().getUpdatePortfolioTreeWorker().updatePortfolioTree(document);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public void removePortfolioTree(UniqueIdentifier uid) {
+  public void removePortfolioTree(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
+    checkScheme(uid);
     
     getWorkers().getRemovePortfolioTreeWorker().removePortfolioTree(uid);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public PortfolioTreeSearchHistoricResult searchPortfolioTreeHistoric(PortfolioTreeSearchHistoricRequest request) {
+  public PortfolioTreeSearchHistoricResult searchPortfolioTreeHistoric(final PortfolioTreeSearchHistoricRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getPortfolioId(), "document.portfolioId");
+    checkScheme(request.getPortfolioId());
     
     return getWorkers().getSearchHistoricPortfolioTreesWorker().searchPortfolioTreeHistoric(request);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public PortfolioTreeDocument correctPortfolioTree(PortfolioTreeDocument document) {
+  public PortfolioTreeDocument correctPortfolioTree(final PortfolioTreeDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
     ArgumentChecker.notNull(document.getPortfolioId(), "document.portfolioId");
+    checkScheme(document.getPortfolioId());
     
     return getWorkers().getCorrectPortfolioTreeWorker().correctPortfolioTree(document);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public PositionSearchResult searchPositions(PositionSearchRequest request) {
+  public PositionSearchResult searchPositions(final PositionSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     
     return getWorkers().getSearchPositionsWorker().searchPositions(request);
@@ -236,13 +251,14 @@ public class DbPositionMaster implements PositionMaster {
   @Override
   public PositionDocument getPosition(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
+    checkScheme(uid);
     
     return getWorkers().getGetPositionWorker().getPosition(uid);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public PositionDocument addPosition(PositionDocument document) {
+  public PositionDocument addPosition(final PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getPosition(), "document.position");
     ArgumentChecker.notNull(document.getParentNodeId(), "document.parentNodeId");
@@ -252,64 +268,71 @@ public class DbPositionMaster implements PositionMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public PositionDocument updatePosition(PositionDocument document) {
+  public PositionDocument updatePosition(final PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getPosition(), "document.position");
     ArgumentChecker.notNull(document.getPositionId(), "document.positionId");
+    checkScheme(document.getPositionId());
     
     return getWorkers().getUpdatePositionWorker().updatePosition(document);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public void removePosition(UniqueIdentifier uid) {
+  public void removePosition(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
+    checkScheme(uid);
     
     getWorkers().getRemovePositionWorker().removePosition(uid);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public PositionSearchHistoricResult searchPositionHistoric(PositionSearchHistoricRequest request) {
+  public PositionSearchHistoricResult searchPositionHistoric(final PositionSearchHistoricRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getPositionId(), "request.positionId");
+    checkScheme(request.getPositionId());
     
     return getWorkers().getSearchHistoricPositionsWorker().searchPositionHistoric(request);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public PositionDocument correctPosition(PositionDocument document) {
+  public PositionDocument correctPosition(final PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getPosition(), "document.position");
     ArgumentChecker.notNull(document.getPositionId(), "document.positionId");
+    checkScheme(document.getPositionId());
     
     return getWorkers().getCorrectPositionWorker().correctPosition(document);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Portfolio getFullPortfolio(FullPortfolioGetRequest request) {
+  public Portfolio getFullPortfolio(final FullPortfolioGetRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getPortfolioId(), "document.portfolioId");
+    checkScheme(request.getPortfolioId());
     
     return getWorkers().getGetFullPortfolioWorker().getFullPortfolio(request);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public PortfolioNode getFullPortfolioNode(FullPortfolioNodeGetRequest request) {
+  public PortfolioNode getFullPortfolioNode(final FullPortfolioNodeGetRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getPortfolioNodeId(), "document.portfolioNodeId");
+    checkScheme(request.getPortfolioNodeId());
     
     return getWorkers().getGetFullPortfolioNodeWorker().getFullPortfolioNode(request);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Position getFullPosition(FullPositionGetRequest request) {
+  public Position getFullPosition(final FullPositionGetRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getPositionId(), "document.positionId");
+    checkScheme(request.getPositionId());
     
     return getWorkers().getGetFullPositionWorker().getFullPosition(request);
   }
