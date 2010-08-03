@@ -41,11 +41,11 @@ public class DbPositionMasterWorkers {
   /** Worker. */
   private DbPositionMasterWorker _correctPositionWorker = new ModifyPositionDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _getFullPortfolioWorker = new QueryPositionDbPositionMasterWorker();  // TODO
+  private DbPositionMasterWorker _getFullPortfolioWorker = new QueryFullDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _getFullPortfolioNodeWorker = new QueryPositionDbPositionMasterWorker();  // TODO
+  private DbPositionMasterWorker _getFullPortfolioNodeWorker = new QueryFullDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _getFullPositionWorker = new QueryPositionDbPositionMasterWorker();  // TODO
+  private DbPositionMasterWorker _getFullPositionWorker = new QueryFullDbPositionMasterWorker();
 
   /**
    * Creates an instance.
