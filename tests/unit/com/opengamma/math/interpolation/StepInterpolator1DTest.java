@@ -38,12 +38,12 @@ public class StepInterpolator1DTest {
     INTERPOLATOR.interpolate(DATA, null);
   }
 
-  @Test(expected = InterpolationException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testLowValue() {
     INTERPOLATOR.interpolate(DATA, -3.);
   }
 
-  @Test(expected = InterpolationException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testHighValue() {
     INTERPOLATOR.interpolate(DATA, 15.);
   }

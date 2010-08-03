@@ -34,7 +34,7 @@ public class DoubleQuadraticWithSensitivitiesInterpolator1DTest {
     private static final double d = 0.05;
 
     @Override
-    public Double evaluate(Double x) {
+    public Double evaluate(final Double x) {
       return (a + b * x) * Math.exp(-c * x) + d;
       // return a + b * x + c * x * x + d * x * x * x;
     }
@@ -42,9 +42,9 @@ public class DoubleQuadraticWithSensitivitiesInterpolator1DTest {
   };
 
   static {
-    double[] t = new double[] {0.0, 0.5, 1.0, 2.0, 3.0, 5.0, 7.0, 10.0, 15.0, 17.5, 20.0, 25.0, 30.0};
-    int n = t.length;
-    double[] r = new double[n];
+    final double[] t = new double[] {0.0, 0.5, 1.0, 2.0, 3.0, 5.0, 7.0, 10.0, 15.0, 17.5, 20.0, 25.0, 30.0};
+    final int n = t.length;
+    final double[] r = new double[n];
     for (int i = 0; i < n; i++) {
       r[i] = FUNCTION.evaluate(t[i]);
     }
@@ -62,19 +62,19 @@ public class DoubleQuadraticWithSensitivitiesInterpolator1DTest {
     SENSE_INTERPOLATOR.interpolate(DATA, null);
   }
 
-  @Test(expected = InterpolationException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testHighValue() {
     SENSE_INTERPOLATOR.interpolate(DATA, 31.);
   }
 
-  @Test(expected = InterpolationException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testLowValue() {
     SENSE_INTERPOLATOR.interpolate(DATA, -1.);
   }
 
   @Test
   public void test() {
-    double tmax = DATA.lastKey();
+    final double tmax = DATA.lastKey();
     for (int i = 0; i < 100; i++) {
       final double t = tmax * RANDOM.nextDouble();
       assertEquals(FUNCTION.evaluate(t), SENSE_INTERPOLATOR.interpolate(DATA, t).getResult(), 1e-3);
@@ -83,7 +83,7 @@ public class DoubleQuadraticWithSensitivitiesInterpolator1DTest {
 
   @Test
   public void testAgainsBaseInterpolator1D() {
-    double tmax = DATA.lastKey();
+    final double tmax = DATA.lastKey();
     for (int i = 0; i < 100; i++) {
       final double t = tmax * RANDOM.nextDouble();
       assertEquals(BASE_INTERPOLATOR.interpolate(DATA, t).getResult(), SENSE_INTERPOLATOR.interpolate(DATA, t).getResult(), EPS);
@@ -92,12 +92,12 @@ public class DoubleQuadraticWithSensitivitiesInterpolator1DTest {
 
   @Test
   public void testSensitivities() {
-    double tmax = DATA.lastKey();
+    final double tmax = DATA.lastKey();
     for (int i = 0; i < 100; i++) {
       final double t = tmax * RANDOM.nextDouble();
 
-      double[] fd_sensitivity = FD_INTERPOLATOR.interpolate(DATA, t).getSensitivities();
-      double[] sensitivity = SENSE_INTERPOLATOR.interpolate(DATA, t).getSensitivities();
+      final double[] fd_sensitivity = FD_INTERPOLATOR.interpolate(DATA, t).getSensitivities();
+      final double[] sensitivity = SENSE_INTERPOLATOR.interpolate(DATA, t).getSensitivities();
 
       for (int j = 0; j < sensitivity.length; j++) {
         assertEquals(fd_sensitivity[j], sensitivity[j], EPS);

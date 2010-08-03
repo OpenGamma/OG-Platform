@@ -27,16 +27,16 @@ public class ExponentialInterpolator1DTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
-    INTERPOLATOR.interpolate(Interpolator1DDataBundleFactory.fromMap(Collections.<Double, Double>emptyMap()), null);
+    INTERPOLATOR.interpolate(Interpolator1DDataBundleFactory.fromMap(Collections.<Double, Double> emptyMap()), null);
   }
 
-  @Test(expected = InterpolationException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testLowValue() {
     INTERPOLATOR.interpolate(Interpolator1DDataBundleFactory.fromSortedArrays(new double[] {1, 2}, new double[] {1, 2}), -4.);
   }
 
-  @Test(expected = InterpolationException.class)
-  public void testHgihValue() {
+  @Test(expected = IllegalArgumentException.class)
+  public void testHighValue() {
     INTERPOLATOR.interpolate(Interpolator1DDataBundleFactory.fromSortedArrays(new double[] {1, 2}, new double[] {1, 2}), -4.);
   }
 

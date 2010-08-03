@@ -54,12 +54,12 @@ public class LogLinearInterpolator1DTest {
     INTERPOLATOR.interpolate(MODEL, null);
   }
 
-  @Test(expected = InterpolationException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testLowValue() {
     INTERPOLATOR.interpolate(MODEL, -2.);
   }
 
-  @Test(expected = InterpolationException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testHgihValue() {
     INTERPOLATOR.interpolate(MODEL, 12.);
   }

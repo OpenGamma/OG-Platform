@@ -50,12 +50,12 @@ public class NaturalCubicSplineInterpolator1DTest {
     INTERPOLATOR.interpolate(MODEL, null);
   }
 
-  @Test(expected = InterpolationException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testHighValue() {
     INTERPOLATOR.interpolate(MODEL, 15.);
   }
 
-  @Test(expected = InterpolationException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testLowValue() {
     INTERPOLATOR.interpolate(MODEL, -12.);
   }

@@ -60,7 +60,7 @@ public class PolynomialInterpolator1DTest {
     INTERPOLATOR_WITH_OFFSET.interpolate(Interpolator1DDataBundleFactory.fromArrays(new double[] {1, 2, 3}, new double[] {4, 5, 6}), 1.5);
   }
 
-  @Test(expected = InterpolationException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testOutOfRange() {
     INTERPOLATOR_NO_OFFSET.interpolate(MODEL, 0.);
   }
@@ -70,7 +70,7 @@ public class PolynomialInterpolator1DTest {
     INTERPOLATOR_WITH_OFFSET.interpolate(MODEL, 2.1);
   }
 
-  @Test(expected = InterpolationException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testHighOutOfRange() {
     INTERPOLATOR_NO_OFFSET.interpolate(MODEL, 10.);
   }

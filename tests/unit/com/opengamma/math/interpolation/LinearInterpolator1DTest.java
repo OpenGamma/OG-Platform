@@ -38,12 +38,12 @@ public class LinearInterpolator1DTest {
     INTERPOLATOR.interpolate(MODEL, null);
   }
 
-  @Test(expected = InterpolationException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testLowValue() {
     INTERPOLATOR.interpolate(MODEL, -4.);
   }
 
-  @Test(expected = InterpolationException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testHighValue() {
     INTERPOLATOR.interpolate(MODEL, 10.);
   }
