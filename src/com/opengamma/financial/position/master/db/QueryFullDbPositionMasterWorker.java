@@ -66,7 +66,10 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
   @Override
   protected PortfolioNode getFullPortfolioNode(final FullPortfolioNodeGetRequest request) {
     s_logger.debug("getFullPortfolioNode: {}", request);
-    throw new UnsupportedOperationException();
+    final Instant now = Instant.now(getTimeSource());
+    return selectFullPortfolioNode(request.getPortfolioNodeId(),
+        Objects.firstNonNull(request.getVersionAsOfInstant(), now),
+        Objects.firstNonNull(request.getCorrectedToInstant(), now));
   }
 
   //-------------------------------------------------------------------------
@@ -89,11 +92,10 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
   //-------------------------------------------------------------------------
   protected Portfolio selectFullPortfolio(final UniqueIdentifier id, final Instant versionAsOf, final Instant correctedTo) {
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("portfolio_id", id.getVersion())
       .addValue("portfolio_oid", id.getValue())
       .addTimestamp("version_as_of", versionAsOf)
       .addTimestamp("corrected_to", correctedTo);
-    final String sql = sqlSelectFullPortfolio(id);
+    final String sql = sqlSelectFullPortfolio(id.toLatest());
     final NamedParameterJdbcOperations namedJdbc = getTemplate().getNamedParameterJdbcOperations();
     final FullPortfolioDocumentExtractor extractor = new FullPortfolioDocumentExtractor();
     return (Portfolio) namedJdbc.query(sql, args, extractor);
@@ -105,7 +107,6 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
    * @return the SQL search, not null
    */
   protected String sqlSelectFullPortfolio(final UniqueIdentifier id) {
-    String idSearch = id.isVersioned() ? "id" : "oid";
     String sql =
       "SELECT " +
         "f.id AS portfolio_id, " +
@@ -127,7 +128,58 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
           "AND p.ver_from_instant <= :version_as_of AND p.ver_to_instant > :version_as_of " +
           "AND p.corr_from_instant <= :corrected_to AND p.corr_to_instant > :corrected_to) " +
         "LEFT JOIN pos_securitykey s ON (s.position_id = p.id) " +
-      "WHERE f." + idSearch + " = :portfolio_" + idSearch + " " +
+      "WHERE f.oid = :portfolio_oid " +
+        "AND f.ver_from_instant <= :version_as_of AND f.ver_to_instant > :version_as_of " +
+        "AND f.corr_from_instant <= :corrected_to AND f.corr_to_instant > :corrected_to " +
+      "ORDER BY n.tree_left, p.id ";
+    return sql;
+  }
+
+  //-------------------------------------------------------------------------
+  protected PortfolioNode selectFullPortfolioNode(final UniqueIdentifier id, final Instant versionAsOf, final Instant correctedTo) {
+    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+      .addValue("node_oid", id.getValue())
+      .addTimestamp("version_as_of", versionAsOf)
+      .addTimestamp("corrected_to", correctedTo);
+    final String sql = sqlSelectFullPortfolioNode(id.toLatest());
+    final NamedParameterJdbcOperations namedJdbc = getTemplate().getNamedParameterJdbcOperations();
+    final FullPortfolioDocumentExtractor extractor = new FullPortfolioDocumentExtractor();
+    Portfolio portfolio = (Portfolio) namedJdbc.query(sql, args, extractor);
+    return (portfolio != null ? portfolio.getRootNode() : null);
+  }
+
+  /**
+   * Gets the SQL for selecting a portfolio.
+   * @param id  the identifier being searched for, not null
+   * @return the SQL search, not null
+   */
+  protected String sqlSelectFullPortfolioNode(final UniqueIdentifier id) {
+    String sql =
+      "SELECT " +
+        "f.id AS portfolio_id, " +
+        "f.oid AS portfolio_oid, " +
+        "f.name AS portfolio_name, " +
+        "n.id AS node_id, " +
+        "n.oid AS node_oid, " +
+        "n.tree_left AS tree_left, " +
+        "n.tree_right AS tree_right, " +
+        "n.name AS node_name, " +
+        "p.id AS position_id, " +
+        "p.oid AS position_oid, " +
+        "p.quantity AS quantity, " +
+        "s.id_scheme AS seckey_scheme, " +
+        "s.id_value AS seckey_value " +
+      "FROM " +
+        "pos_node base, " +
+        "pos_portfolio f " +
+          "LEFT JOIN pos_node n ON (n.portfolio_id = f.id) " +
+          "LEFT JOIN pos_position p ON (p.parent_node_oid = n.oid " +
+            "AND p.ver_from_instant <= :version_as_of AND p.ver_to_instant > :version_as_of " +
+            "AND p.corr_from_instant <= :corrected_to AND p.corr_to_instant > :corrected_to) " +
+          "LEFT JOIN pos_securitykey s ON (s.position_id = p.id) " +
+      "WHERE base.portfolio_id = f.id " +
+        "AND base.oid = :node_oid " +
+        "AND n.tree_left >= base.tree_left AND n.tree_right <= base.tree_right " +
         "AND f.ver_from_instant <= :version_as_of AND f.ver_to_instant > :version_as_of " +
         "AND f.corr_from_instant <= :corrected_to AND f.corr_to_instant > :corrected_to " +
       "ORDER BY n.tree_left, p.id ";

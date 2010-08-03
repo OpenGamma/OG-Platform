@@ -61,12 +61,12 @@ public class QueryFullDbPositionMasterWorkerGetFullPortfolioTest extends Abstrac
 
   //-------------------------------------------------------------------------
   @Test(expected = NullPointerException.class)
-  public void test_getFullPosition_nullUID() {
+  public void test_getFullPortfolio_nullUID() {
     _worker.getFullPortfolio(null);
   }
 
   @Test
-  public void test_getFullPortfolio__notFound() {
+  public void test_getFullPortfolio_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "0");
     FullPortfolioGetRequest request = new FullPortfolioGetRequest(uid);
     Portfolio test = _worker.getFullPortfolio(request);
