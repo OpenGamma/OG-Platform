@@ -8,9 +8,8 @@ package com.opengamma.util.db;
 import java.util.Collection;
 
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -167,11 +166,11 @@ public final class Paging {
 
   /**
    * Serializes to a Fudge message.
-   * @param context  the Fudge context, not null
+   * @param messageFactory Fudge context, not null
    * @return the Fudge message, not null
    */
-  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
-    MutableFudgeFieldContainer msg = context.newMessage();
+  public FudgeFieldContainer toFudgeMsg(final FudgeMessageFactory messageFactory) {
+    MutableFudgeFieldContainer msg = messageFactory.newMessage();
     msg.add(PAGE_FIELD_NAME, _page);
     msg.add(PAGING_SIZE_FIELD_NAME, _pagingSize);
     msg.add(TOTAL_FIELD_NAME, _totalItems);
@@ -180,11 +179,10 @@ public final class Paging {
 
   /**
    * Deserializes this pair from a Fudge message.
-   * @param context  the Fudge context, not null
    * @param msg  the Fudge message, not null
    * @return the pair, not null
    */
-  public static Paging fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer msg) {
+  public static Paging fromFudgeMsg(final FudgeFieldContainer msg) {
     int page = msg.getInt(PAGE_FIELD_NAME);
     int pagingSize = msg.getInt(PAGING_SIZE_FIELD_NAME);
     int totalItems = msg.getInt(TOTAL_FIELD_NAME);
