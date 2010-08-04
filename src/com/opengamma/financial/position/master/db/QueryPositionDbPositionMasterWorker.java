@@ -162,8 +162,8 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
    * @return the SQL search and count, not null
    */
   protected String[] sqlSearchPositions(final PositionSearchRequest request) {
-    String where = "WHERE (ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant) " +
-                "AND (corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant) ";
+    String where = "WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant " +
+                "AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant ";
     if (request.getPortfolioId() != null) {
       where += "AND portfolio_oid = :portfolio_oid ";
     }
@@ -178,7 +178,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
     }
     String selectFromWhereInner = "SELECT id FROM pos_position " + where;
     String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
-    String search = SELECT + FROM + "WHERE p.id IN (" + inner + ") ORDER BY id ";
+    String search = SELECT + FROM + "WHERE p.id IN (" + inner + ") ORDER BY p.id ";
     String count = "SELECT COUNT(*) FROM pos_position " + where;
     return new String[] {search, count};
   }
@@ -214,7 +214,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
   protected String[] sqlSearchPositionHistoric(final PositionSearchHistoricRequest request) {
     String where = "WHERE oid = :position_oid ";
     if (request.getVersionsFromInstant() != null && request.getVersionsFromInstant().equals(request.getVersionsToInstant())) {
-      where += "AND (ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant) ";
+      where += "AND ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant ";
     } else {
       if (request.getVersionsFromInstant() != null) {
         where += "AND ((ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant) " +
@@ -226,7 +226,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
       }
     }
     if (request.getCorrectionsFromInstant() != null && request.getCorrectionsFromInstant().equals(request.getCorrectionsToInstant())) {
-      where += "AND (corr_from_instant <= :corrections_from_instant AND corr_to_instant > :corrections_from_instant) ";
+      where += "AND corr_from_instant <= :corrections_from_instant AND corr_to_instant > :corrections_from_instant ";
     } else {
       if (request.getCorrectionsFromInstant() != null) {
         where += "AND ((corr_from_instant <= :corrections_from_instant AND corr_to_instant > :corrections_from_instant) " +
@@ -239,7 +239,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
     }
     String selectFromWhereInner = "SELECT id FROM pos_position " + where;
     String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY ver_from_instant DESC, corr_from_instant DESC ", request.getPagingRequest());
-    String search = SELECT + FROM + "WHERE p.id IN (" + inner + ") ORDER BY ver_from_instant DESC, corr_from_instant DESC";
+    String search = SELECT + FROM + "WHERE p.id IN (" + inner + ") ORDER BY p.ver_from_instant DESC, p.corr_from_instant DESC";
     String count = "SELECT COUNT(*) FROM pos_position " + where;
     return new String[] {search, count};
   }
