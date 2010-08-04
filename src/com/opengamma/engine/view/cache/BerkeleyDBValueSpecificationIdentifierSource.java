@@ -8,7 +8,6 @@ package com.opengamma.engine.view.cache;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -18,6 +17,7 @@ import org.springframework.context.Lifecycle;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.ArgumentChecker;
 import com.sleepycat.bind.tuple.LongBinding;
 import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseConfig;
@@ -53,9 +53,9 @@ public class BerkeleyDBValueSpecificationIdentifierSource implements ValueSpecif
   private Database _database; 
   
   public BerkeleyDBValueSpecificationIdentifierSource(Environment dbEnvironment, String databaseName, FudgeContext fudgeContext) {
-    Validate.notNull(dbEnvironment, "Database Environment must be specified");
-    Validate.notNull(databaseName, "Database name must be provided");
-    Validate.notNull(fudgeContext, "Fudge context must be provided");
+    ArgumentChecker.notNull(dbEnvironment, "dbEnvironment");
+    ArgumentChecker.notNull(databaseName, "databaseName");
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _dbEnvironment = dbEnvironment;
     _databaseName = databaseName;
     _fudgeContext = fudgeContext;
@@ -103,7 +103,7 @@ public class BerkeleyDBValueSpecificationIdentifierSource implements ValueSpecif
 
   @Override
   public long getIdentifier(ValueSpecification spec) {
-    Validate.notNull(spec, "Specification must not be null");
+    ArgumentChecker.notNull(spec, "spec");
     if (!isRunning()) {
       s_logger.info("Starting on first call as wasn't called as part of lifecycle interface");
       start();

@@ -116,12 +116,12 @@ public class ComputationTargetSpecificationTest {
     new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, (UniqueIdentifier) null);
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_constructor_Type_UniqueIdentifier_nullType() {
     new ComputationTargetSpecification(null, UID);
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_constructor_Type_UniqueIdentifier_nullId() {
     new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, (UniqueIdentifier) null);
   }

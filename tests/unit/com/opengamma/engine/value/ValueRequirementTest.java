@@ -40,12 +40,12 @@ public class ValueRequirementTest {
     assertEquals(SPEC, test.getTargetSpecification());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_constructor_nullValue() {
     new ValueRequirement(null, SPEC);
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_constructor_nullSpec() {
     new ValueRequirement("DATA", null);
   }
@@ -57,22 +57,22 @@ public class ValueRequirementTest {
     assertEquals(SPEC, test.getTargetSpecification());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_constructor_TypeUniqueIdentifier_nullValue() {
     new ValueRequirement(null, ComputationTargetType.POSITION, POSITION.getUniqueIdentifier());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_constructor_TypeUniqueIdentifier_nullType() {
     new ValueRequirement("DATA", null, POSITION.getUniqueIdentifier());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_constructor_TypeIdentifier_nullValue() {
     new ValueRequirement(null, ComputationTargetType.PRIMITIVE, USD);
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_constructor_TypeIdentifier_nullType() {
     new ValueRequirement("DATA", null, USD);
   }

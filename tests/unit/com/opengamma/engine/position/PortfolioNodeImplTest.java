@@ -63,7 +63,7 @@ public class PortfolioNodeImplTest {
     assertEquals(UniqueIdentifier.of("Scheme2", "Id2"), test.getUniqueIdentifier());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_setUniqueIdentifier_null() {
     PortfolioImpl test = new PortfolioImpl(UniqueIdentifier.of("Scheme", "Id"), "Name");
     test.setUniqueIdentifier(null);
@@ -77,7 +77,7 @@ public class PortfolioNodeImplTest {
     assertEquals("Name2", test.getName());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_setName_null() {
     PortfolioImpl test = new PortfolioImpl(UniqueIdentifier.of("Scheme", "Id"), "Name");
     test.setName(null);
