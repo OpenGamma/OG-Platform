@@ -125,6 +125,24 @@ public class DbPositionMasterWorker {
     return getJdbcTemplate().queryForLong(getDbHelper().sqlNextSequenceValueSelect("pos_master_seq"));
   }
 
+  /**
+   * Extracts the row id.
+   * @param id  the identifier to extract from, not null
+   * @return the extracted row id
+   */
+  protected long extractRowId(final UniqueIdentifier id) {
+    return Long.parseLong(id.getVersion());
+  }
+
+  /**
+   * Extracts the oid.
+   * @param id  the identifier to extract from, not null
+   * @return the extracted oid
+   */
+  protected long extractOid(final UniqueIdentifier id) {
+    return Long.parseLong(id.getValue());
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Creates an object identifier.

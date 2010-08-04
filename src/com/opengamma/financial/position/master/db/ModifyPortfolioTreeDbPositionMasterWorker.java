@@ -144,7 +144,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
    */
   protected void insertPortfolioTree(final PortfolioTreeDocument document) {
     final Long portfolioId = nextId();
-    final Long portfolioOid = (document.getPortfolioId() != null ? new Long(document.getPortfolioId().getValue()) : portfolioId);
+    final Long portfolioOid = (document.getPortfolioId() != null ? extractOid(document.getPortfolioId()) : portfolioId);
     // the arguments for inserting into the portfolio table
     final DbMapSqlParameterSource portfolioArgs = new DbMapSqlParameterSource()
       .addValue("portfolio_id", portfolioId)
@@ -180,14 +180,14 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
       final AtomicInteger counter, final int depth, final List<DbMapSqlParameterSource> argsList) {
     // need to insert parent before children for referential integrity
     final Long nodeId = nextId();
-    final Long nodeOid = (update && node.getUniqueIdentifier() != null ? new Long(node.getUniqueIdentifier().getValue()) : nodeId);
-    final DbMapSqlParameterSource treeArgs = new DbMapSqlParameterSource();
-    treeArgs.addValue("node_id", nodeId);
-    treeArgs.addValue("node_oid", nodeOid);
-    treeArgs.addValue("portfolio_id", portfolioId);
-    treeArgs.addValue("parent_node_id", parentNodeId);
-    treeArgs.addValue("depth", depth);
-    treeArgs.addValue("name", node.getName());
+    final Long nodeOid = (update && node.getUniqueIdentifier() != null ? extractOid(node.getUniqueIdentifier()) : nodeId);
+    final DbMapSqlParameterSource treeArgs = new DbMapSqlParameterSource()
+      .addValue("node_id", nodeId)
+      .addValue("node_oid", nodeOid)
+      .addValue("portfolio_id", portfolioId)
+      .addValue("parent_node_id", parentNodeId)
+      .addValue("depth", depth)
+      .addValue("name", node.getName());
     argsList.add(treeArgs);
     // store the left/right before/after the child loop and back fill into stored args row
     treeArgs.addValue("tree_left", counter.getAndIncrement());
@@ -242,7 +242,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
    */
   protected void updateVersionToInstant(final PortfolioTreeDocument document) {
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("portfolio_id", document.getPortfolioId().getVersion())
+      .addValue("portfolio_id", extractRowId(document.getPortfolioId()))
       .addTimestamp("ver_to_instant", document.getVersionToInstant())
       .addValue("max_instant", DateUtil.MAX_SQL_TIMESTAMP);
     int rowsUpdated = getJdbcTemplate().update(sqlUpdateVersionToInstant(), args);
@@ -282,7 +282,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
    */
   protected void updateCorrectionToInstant(final PortfolioTreeDocument document) {
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("portfolio_id", document.getPortfolioId().getVersion())
+      .addValue("portfolio_id", extractRowId(document.getPortfolioId()))
       .addTimestamp("corr_to_instant", document.getCorrectionToInstant())
       .addValue("max_instant", DateUtil.MAX_SQL_TIMESTAMP);
     int rowsUpdated = getJdbcTemplate().update(sqlUpdateCorrectionToInstant(), args);

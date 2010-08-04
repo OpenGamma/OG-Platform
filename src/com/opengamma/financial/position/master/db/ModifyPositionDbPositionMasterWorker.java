@@ -154,7 +154,7 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
   protected UniqueIdentifier checkNodeGetPortfolioOid(final PositionDocument document) {
     final UniqueIdentifier nodeOid = document.getParentNodeId().toLatest();
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("node_oid", nodeOid.getValue())
+      .addValue("node_oid", extractOid(nodeOid))
       .addTimestamp("version_as_of_instant", document.getVersionFromInstant())
       .addTimestamp("corrected_to_instant", document.getCorrectionFromInstant());
     final List<Map<String, Object>> data = getJdbcTemplate().queryForList(sqlSelectCheckNodeGetPortfolioOid(), args);
@@ -188,13 +188,13 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
    */
   protected void insertPosition(final PositionDocument document) {
     final long positionId = nextId();
-    final long positionOid = (document.getPositionId() != null ? Long.parseLong(document.getPositionId().getValue()) : positionId);
+    final long positionOid = (document.getPositionId() != null ? extractOid(document.getPositionId()) : positionId);
     // the arguments for inserting into the position table
     final DbMapSqlParameterSource positionArgs = new DbMapSqlParameterSource()
       .addValue("position_id", positionId)
       .addValue("position_oid", positionOid)
-      .addValue("portfolio_oid", document.getPortfolioId().toLatest().getValue())
-      .addValue("parent_node_oid", document.getParentNodeId().toLatest().getValue())
+      .addValue("portfolio_oid", extractOid(document.getPortfolioId()))
+      .addValue("parent_node_oid", extractOid(document.getParentNodeId()))
       .addTimestamp("ver_from_instant", document.getVersionFromInstant())
       .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
       .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
@@ -261,7 +261,7 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
    */
   protected void updateVersionToInstant(final PositionDocument document) {
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("position_id", document.getPositionId().getVersion())
+      .addValue("position_id", extractRowId(document.getPositionId()))
       .addTimestamp("ver_to_instant", document.getVersionToInstant())
       .addValue("max_instant", DateUtil.MAX_SQL_TIMESTAMP);
     int rowsUpdated = getJdbcTemplate().update(sqlUpdateVersionToInstant(), args);
@@ -301,7 +301,7 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
    */
   protected void updateCorrectionToInstant(final PositionDocument document) {
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("position_id", document.getPositionId().getVersion())
+      .addValue("position_id", extractRowId(document.getPositionId()))
       .addTimestamp("corr_to_instant", document.getCorrectionToInstant())
       .addValue("max_instant", DateUtil.MAX_SQL_TIMESTAMP);
     int rowsUpdated = getJdbcTemplate().update(sqlUpdateCorrectionToInstant(), args);

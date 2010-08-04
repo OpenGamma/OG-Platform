@@ -108,7 +108,7 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
   protected PortfolioTreeDocument getPortfolioTreeById(final UniqueIdentifier uid) {
     s_logger.debug("getPortfolioTreeById {}", uid);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("portfolio_id", uid.getVersion());
+      .addValue("portfolio_id", extractRowId(uid));
     final PortfolioTreeDocumentExtractor extractor = new PortfolioTreeDocumentExtractor();
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final List<PortfolioTreeDocument> docs = (List<PortfolioTreeDocument>) namedJdbc.query(sqlGetPortfolioTreeById(), args, extractor);
@@ -177,7 +177,7 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
   protected PortfolioTreeSearchHistoricResult searchPortfolioTreeHistoric(final PortfolioTreeSearchHistoricRequest request) {
     s_logger.debug("searchPortfolioTreeHistoric: {}", request);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("portfolio_oid", request.getPortfolioId().getValue())
+      .addValue("portfolio_oid", extractOid(request.getPortfolioId()))
       .addTimestampNullIgnored("versions_from_instant", request.getVersionsFromInstant())
       .addTimestampNullIgnored("versions_to_instant", request.getVersionsToInstant())
       .addTimestampNullIgnored("corrections_from_instant", request.getCorrectionsFromInstant())

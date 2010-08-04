@@ -92,7 +92,7 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
   //-------------------------------------------------------------------------
   protected Portfolio selectFullPortfolio(final UniqueIdentifier id, final Instant versionAsOf, final Instant correctedTo) {
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("portfolio_oid", id.getValue())
+      .addValue("portfolio_oid", extractOid(id))
       .addTimestamp("version_as_of", versionAsOf)
       .addTimestamp("corrected_to", correctedTo);
     final String sql = sqlSelectFullPortfolio(id.toLatest());
@@ -138,7 +138,7 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
   //-------------------------------------------------------------------------
   protected PortfolioNode selectFullPortfolioNode(final UniqueIdentifier id, final Instant versionAsOf, final Instant correctedTo) {
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("node_oid", id.getValue())
+      .addValue("node_oid", extractOid(id))
       .addTimestamp("version_as_of", versionAsOf)
       .addTimestamp("corrected_to", correctedTo);
     final String sql = sqlSelectFullPortfolioNode(id.toLatest());

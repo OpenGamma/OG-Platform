@@ -108,7 +108,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
   protected PositionDocument getPositionById(final UniqueIdentifier uid) {
     s_logger.debug("getPositionById {}", uid);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("position_id", uid.getVersion());
+      .addValue("position_id", extractRowId(uid));
     final PositionDocumentExtractor extractor = new PositionDocumentExtractor();
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final List<PositionDocument> docs = (List<PositionDocument>) namedJdbc.query(sqlGetPositionById(), args, extractor);
@@ -138,10 +138,10 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
       .addValueNullIgnored("min_quantity", request.getMinQuantity())
       .addValueNullIgnored("max_quantity", request.getMaxQuantity());
     if (request.getPortfolioId() != null) {
-      args.addValue("portfolio_oid", request.getPortfolioId().getValue());
+      args.addValue("portfolio_oid", extractOid(request.getPortfolioId()));
     }
     if (request.getParentNodeId() != null) {
-      args.addValue("parent_node_oid", request.getParentNodeId().getValue());
+      args.addValue("parent_node_oid", extractOid(request.getParentNodeId()));
     }
     // TODO: security key
     final String[] sql = sqlSearchPositions(request);
@@ -179,7 +179,6 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
     String selectFromWhereInner = "SELECT id FROM pos_position " + where;
     String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
     String search = SELECT + FROM + "WHERE p.id IN (" + inner + ") ORDER BY id ";
-    System.err.println(search);
     String count = "SELECT COUNT(*) FROM pos_position " + where;
     return new String[] {search, count};
   }
@@ -190,7 +189,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
   protected PositionSearchHistoricResult searchPositionHistoric(final PositionSearchHistoricRequest request) {
     s_logger.debug("searchPositionHistoric: {}", request);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("position_oid", request.getPositionId().getValue())
+      .addValue("position_oid", extractOid(request.getPositionId()))
       .addTimestampNullIgnored("versions_from_instant", request.getVersionsFromInstant())
       .addTimestampNullIgnored("versions_to_instant", request.getVersionsToInstant())
       .addTimestampNullIgnored("corrections_from_instant", request.getCorrectionsFromInstant())
