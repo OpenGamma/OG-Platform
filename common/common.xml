@@ -422,16 +422,7 @@
 	<target name="tests-with-clover" description="--> Build and run all tests with local Clover reports generated"
 		depends="clean, clover-setup, compile, tests, clover-html-report">
 	</target>
-	
-    <macrodef name="stripLastChar" description="Drops the last char off of property value">
-	  <attribute name="my.property.name"/>
-	  <sequential>
-	    <length string="${@{my.property.name}}" property="length.prop" />
-	    <math result="length.prop" operand1="${length.prop}" operation="-" operand2="1" datatype="int"/>
-    	<propertyregex property="@{my.property.name}" override="true" input="${@{my.property.name}}" regexp="^.*{${length.prop},${length.prop}}" select="\0"/>
-	  </sequential>
-	</macrodef> 
-	
+
 	<target name="upload-dev" depends="zipfile" description="--> release the code to the dev server">
 		<taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
 
@@ -442,32 +433,34 @@
 		     the dev server ~/.ssh/authorized_keys2 file, where ~ is the home directory of ${dev.server.user}. -->
 
 		<scp file="${dist.dir}/${dist.name}-${version}.zip"
-	        todir="${dev.server.user}@${dev.server.host}:${dev.server.dir}" 
+	        	todir="${dev.server.user}@${dev.server.host}:${dev.server.dir}"
 			keyfile="${ssh.private.key}"
-	    	verbose="true" 
-	    	trust="true" />
+			passphrase=""
+			verbose="true"
+			trust="true" />
 
 		<!-- Get the PID of the /bin/sh process (.sh file) that launched a java subprocess -->
 		<sshexec host="${dev.server.host}" 
 			username="${dev.server.user}" 
 			keyfile="${ssh.private.key}"
 			command="ps -ef | grep -v grep | grep ${dev.server.startup.script} | awk '{ print $2 }'"
-		    outputproperty="process.id.of.script"
-			trust="true"/>
-		
+			outputproperty="pid.command.output"
+			trust="true" />
+		<propertyregex property="process.id.of.script" override="true" input="${pid.command.output}" regexp="(\d+)\s*$$" select="\1" />
 		<if>
-		  <length string="${process.id.of.script}" length="0" when="gt"/>
-		  <then>
-			<!-- Bug in sshexec, see http://old.nabble.com/sshexec-td24832653.html -->
-			<stripLastChar my.property.name="process.id.of.script"/>
-			
-		  	<!-- Kill the java subprocess. This will automatically kill the bin/sh process as well. -->
-			<sshexec host="${dev.server.host}" 
-						username="${dev.server.user}" 
+			<equals arg1="${process.id.of.script}" arg2="$${process.id.of.script}" />
+			<then>
+				<echo>Process not already running</echo>
+			</then>
+			<else>
+				<echo>Killing process ${process.id.of.script}</echo>
+		  		<!-- Kill the java subprocess. This will automatically kill the bin/sh process as well. -->
+				<sshexec host="${dev.server.host}" 
+						username="${dev.server.user}"
 						keyfile="${ssh.private.key}"
 						command="ps -ef | awk '$3 == '${process.id.of.script}' { print $2 }' | xargs kill"
 						trust="true"/>
-		  </then>
+			</else>
 	  	</if>
 
 		<sshexec host="${dev.server.host}" username="${dev.server.user}" keyfile="${ssh.private.key}"
