@@ -12,7 +12,6 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.interpolation.InterpolationResult;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.Interpolator1DDataBundleFactory;
 
 /**
  * 
@@ -20,6 +19,7 @@ import com.opengamma.math.interpolation.Interpolator1DDataBundleFactory;
  */
 public class FiniteDifferenceInterpolator1DNodeSensitivityCalculator<T extends Interpolator1DDataBundle> implements Interpolator1DNodeSensitivityCalculator<T> {
   private static final double EPS = 1e-6;
+  private static final double TWO_EPS = 2 * EPS;
 
   @Override
   public double[] calculate(final Interpolator1D<T, InterpolationResult> interpolator, final T data, final Double value) {
@@ -36,10 +36,13 @@ public class FiniteDifferenceInterpolator1DNodeSensitivityCalculator<T extends I
       yDown = Arrays.copyOf(y, n);
       yUp[i] += EPS;
       yDown[i] -= EPS;
-      final T dataUp = Interpolator1DDataBundleFactory.fromSortedArrays(x, yUp, interpolator);
-      final T dataDown = Interpolator1DDataBundleFactory.fromSortedArrays(x, yDown, interpolator);
+      final T dataUp = interpolator.getDataBundleFromSortedArrays(x, yUp);
+      final T dataDown = interpolator.getDataBundleFromSortedArrays(x, yDown);
+      final double up = interpolator.interpolate(dataUp, value).getResult();
+      final double down = interpolator.interpolate(dataDown, value).getResult();
+      result[i] = (up - down) / TWO_EPS;
     }
-    return null;
+    return result;
   }
 
 }

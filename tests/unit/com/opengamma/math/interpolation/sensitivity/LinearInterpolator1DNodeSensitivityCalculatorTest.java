@@ -11,7 +11,6 @@ import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.Interpolator1DDataBundleFactory;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 
 /**
@@ -39,7 +38,7 @@ public class LinearInterpolator1DNodeSensitivityCalculatorTest {
       x[i] = Double.valueOf(i);
       y[i] = FUNCTION.evaluate(x[i]);
     }
-    DATA = Interpolator1DDataBundleFactory.fromSortedArrays(x, y);
+    DATA = INTERPOLATOR.getDataBundleFromSortedArrays(x, y);
   }
 
   @Test(expected = IllegalArgumentException.class)
