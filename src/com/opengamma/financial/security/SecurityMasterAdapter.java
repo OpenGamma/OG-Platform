@@ -5,12 +5,11 @@
  */
 package com.opengamma.financial.security;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * A security master implementation that delegates to an underklying implementation.
  */
 public class SecurityMasterAdapter implements SecurityMaster {
 
@@ -24,7 +23,7 @@ public class SecurityMasterAdapter implements SecurityMaster {
    * @param securityMaster  the security master, not null
    */
   public SecurityMasterAdapter(final SecurityMaster securityMaster) {
-    Validate.notNull(securityMaster, "securityMaster");
+    ArgumentChecker.notNull(securityMaster, "securityMaster");
     _securityMaster = securityMaster;
   }
 

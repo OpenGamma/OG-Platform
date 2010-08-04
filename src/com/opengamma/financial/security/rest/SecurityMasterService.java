@@ -14,7 +14,6 @@ import java.util.concurrent.ConcurrentMap;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
-import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.financial.security.SecurityMaster;
@@ -47,7 +46,7 @@ public class SecurityMasterService {
    * @param fudgeContext  the Fudge context, not null
    */
   public SecurityMasterService(FudgeContext fudgeContext) {
-    Validate.notNull(fudgeContext, "FudgeContext must not be null");
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _fudgeContext = fudgeContext;
   }
 

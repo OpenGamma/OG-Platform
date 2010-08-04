@@ -15,7 +15,6 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -36,6 +35,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -54,8 +54,8 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
   private final boolean _isYieldCurve;
 
   public SimpleInterpolatedYieldAndDiscountCurveFunction(final Currency currency, final String name, final boolean isYieldCurve) {
-    Validate.notNull(currency, "Currency");
-    Validate.notNull(name, "Name");
+    ArgumentChecker.notNull(currency, "currency");
+    ArgumentChecker.notNull(name, "name");
     _definition = null;
     _curveCurrency = currency;
     _curveName = name;

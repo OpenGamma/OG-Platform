@@ -8,7 +8,6 @@ package com.opengamma.financial.position.master.db;
 import javax.sql.DataSource;
 import javax.time.TimeSource;
 
-import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
@@ -82,8 +81,8 @@ public class DbPositionMaster implements PositionMaster {
    * @param dbHelper  the database specific helper, not null
    */
   public DbPositionMaster(final DataSourceTransactionManager transManager, final TransactionDefinition transDefinition, final DbHelper dbHelper) {
-    Validate.notNull(transManager, "DataSourceTransactionManager must not be null");
-    Validate.notNull(dbHelper, "DbHelper must not be null");
+    ArgumentChecker.notNull(transManager, "transManager");
+    ArgumentChecker.notNull(dbHelper, "dbHelper");
     s_logger.debug("installed DataSourceTransactionManager: {}", transManager);
     s_logger.debug("installed DbHelper: {}", dbHelper);
     DataSource dataSource = transManager.getDataSource();
@@ -172,7 +171,7 @@ public class DbPositionMaster implements PositionMaster {
    * @param scheme  the scheme, not null
    */
   public void setIdentifierScheme(final String scheme) {
-    Validate.notNull(scheme, "Scheme must not be null");
+    ArgumentChecker.notNull(scheme, "scheme");
     s_logger.debug("installed IdentifierScheme: {}", scheme);
     _identifierScheme = scheme;
   }
