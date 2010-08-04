@@ -347,12 +347,11 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final double[] swapPaymentDates = ScheduleCalculator.getTimes(adjustedDates, dayCount, now.atStartOfDayInZone(TimeZone.UTC));
     final int n = swapPaymentDates.length;
     final double[] delta = new double[n];
-    final double[] dummyPayments = new double[n];
     for (int i = 0; i < n; i++) {
       delta[i] = 0;
     }
 
-    return new FixedFloatSwap(swapPaymentDates, dummyPayments, swapPaymentDates, delta, delta, CURVE_NAME, CURVE_NAME);
+    return new FixedFloatSwap(swapPaymentDates,  swapPaymentDates, 0.0,delta, delta, CURVE_NAME, CURVE_NAME);
 
   }
   private double getLastTime(final InterestRateDerivative derivative) {

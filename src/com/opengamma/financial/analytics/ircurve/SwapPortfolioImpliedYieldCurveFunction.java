@@ -140,8 +140,8 @@ public class SwapPortfolioImpliedYieldCurveFunction extends AbstractFunction imp
         forwardStartOffsets = new double[nFloat];
         forwardEndOffsets = new double[nFloat];
       }
-      final double[] dummyPayments = new double[fixedPaymentTimes.length];
-      swap = new FixedFloatSwap(fixedPaymentTimes, dummyPayments, floatPaymentTimes, forwardStartOffsets, forwardEndOffsets,CURVE_NAME,CURVE_NAME);
+ 
+      swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, 0.0,forwardStartOffsets, forwardEndOffsets,CURVE_NAME,CURVE_NAME);
 
       // marketRates = swap rate from bloomberg
       // marketRates[i] = _swapRateCalculator.getRate(inputCurve, inputCurve, swap);

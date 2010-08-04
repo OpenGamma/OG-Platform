@@ -366,13 +366,12 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     final ZonedDateTime[] adjustedDates = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, convention, calendar);
     final double[] swapPaymentDates = ScheduleCalculator.getTimes(adjustedDates, dayCount, now.atStartOfDayInZone(TimeZone.UTC));
     final int n = swapPaymentDates.length;
-    final double[] dummyPayments = new double[n];
     final double[] delta = new double[n];
     for (int i = 0; i < n; i++) {
       delta[i] = 0;
     }
 
-    return new FixedFloatSwap(swapPaymentDates,  dummyPayments, swapPaymentDates, delta, delta,FUNDING_CURVE_NAME,LIBOR_CURVE_NAME);
+    return new FixedFloatSwap(swapPaymentDates, swapPaymentDates,0.0, delta, delta,FUNDING_CURVE_NAME,LIBOR_CURVE_NAME);
 
   }
 

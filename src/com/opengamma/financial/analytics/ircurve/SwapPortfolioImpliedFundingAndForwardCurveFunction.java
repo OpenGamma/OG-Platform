@@ -31,7 +31,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.analytics.model.swap.SwapScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.interestrate.InterestRateCalculator;
+import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
@@ -77,7 +77,7 @@ public class SwapPortfolioImpliedFundingAndForwardCurveFunction extends Abstract
   private final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> _interpolator; // TODO this should not be hard-coded
   // TODO this should depend on the type of _fundingInterpolator
   private final Interpolator1D<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> _interpolatorWithSensitivity;
-  private final InterestRateCalculator _swapRateCalculator = new InterestRateCalculator();
+  private final ParRateCalculator _swapRateCalculator = new ParRateCalculator();
   private final String _fundingCurveName;
   private final String _forwardCurveName;
 
@@ -148,14 +148,13 @@ public class SwapPortfolioImpliedFundingAndForwardCurveFunction extends Abstract
         forwardStartOffsets = new double[nFloat];
         forwardEndOffsets = new double[nFloat];
       }
-      final double[] dummyPayments = new double[fixedPaymentTimes.length];
-      swap = new FixedFloatSwap(fixedPaymentTimes,dummyPayments, floatPaymentTimes, forwardStartOffsets, forwardEndOffsets,FUNDING_CURVE_NAME,LIBOR_CURVE_NAME);
+      swap = new FixedFloatSwap(fixedPaymentTimes,floatPaymentTimes, 0.0,forwardStartOffsets, forwardEndOffsets,FUNDING_CURVE_NAME,LIBOR_CURVE_NAME);
       YieldCurveBundle bundle = new YieldCurveBundle();
 
       bundle.setCurve(FUNDING_CURVE_NAME, fundingCurve);
       bundle.setCurve(LIBOR_CURVE_NAME, forwardCurve);
       // swap rates from bbg
-      marketRates[i] = _swapRateCalculator.getRate(swap, bundle);
+      marketRates[i] = _swapRateCalculator.getValue(swap, bundle);
       fundingNodeTimes[i] = Math.max(fixedPaymentTimes[nFix - 1], floatPaymentTimes[nFloat - 1] + forwardEndOffsets[nFloat - 1]);
       // forwardNodeTimes[i] = something
       initialRatesGuess[i] = 0.05;
