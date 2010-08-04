@@ -77,10 +77,10 @@ public class CalculationJob implements Serializable {
   public ResultWriter getResultWriter() {
     return _resultWriter;
   }
-
+  
   @Override
   public String toString() {
-    return "CalculationJob with " + _specification.toString();
+    return "CalculationJob, spec = " + _specification.toString() + ", job item count = " + _jobItems.size();
   }
   
   public FudgeFieldContainer toFudgeMsg(FudgeSerializationContext fudgeContext) {

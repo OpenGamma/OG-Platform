@@ -19,7 +19,6 @@ import java.util.concurrent.FutureTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -88,13 +87,6 @@ public class BatchExecutor implements DependencyGraphExecutor {
           
         case PORTFOLIO_NODE:
           
-          for (DependencyNode input : node.getInputNodes()) {
-            if (input.getComputationTarget().getType() != ComputationTargetType.POSITION) {
-              throw new IllegalStateException("A portfolio node can only depend on position nodes. "
-                  + node + " depended on " + node.getInputNodes());
-            }
-          }
-          
           portfolioNodes.add(node);
           break;
           
@@ -152,7 +144,7 @@ public class BatchExecutor implements DependencyGraphExecutor {
       passNumber++;
     }
     
-    // Execute portfolios
+    // Execute portfolios and wait for completion
     s_logger.info("Executing {} PORTFOLIO_NODE nodes", portfolioNodes.size());
     
     DependencyGraph portfolioGraph = graph.subGraph(portfolioNodes);

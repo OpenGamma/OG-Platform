@@ -32,21 +32,25 @@ public class CalculationJobItem {
   private static final String FUNCTION_UNIQUE_ID_FIELD_NAME = "functionUniqueIdentifier";
   private static final String INPUT_FIELD_NAME = "valueInput";
   private static final String DESIRED_VALUE_FIELD_NAME = "desiredValue";
+  private static final String WRITE_RESULTS_FIELD_NAME = "writeResults";
   
   private final String _functionUniqueIdentifier;
   private final ComputationTargetSpecification _computationTargetSpecification;
   private final Set<ValueSpecification> _inputs = new HashSet<ValueSpecification>();
   private final Set<ValueRequirement> _desiredValues = new HashSet<ValueRequirement>();
+  private final boolean _writeResults;
   
   public CalculationJobItem(
       String functionUniqueIdentifier,
       ComputationTargetSpecification computationTargetSpecification,
       Collection<ValueSpecification> inputs,
-      Collection<ValueRequirement> desiredValues) {
+      Collection<ValueRequirement> desiredValues,
+      boolean writeResults) {
     _functionUniqueIdentifier = functionUniqueIdentifier;
     _computationTargetSpecification = computationTargetSpecification;
     _inputs.addAll(inputs);
     _desiredValues.addAll(desiredValues);
+    _writeResults = writeResults;
   }
   
   /**
@@ -77,6 +81,18 @@ public class CalculationJobItem {
     return _desiredValues;
   }
   
+  public boolean isWriteResults() {
+    return _writeResults;
+  }
+  
+  public Set<ValueSpecification> getOutputs() {
+    Set<ValueSpecification> outputs = new HashSet<ValueSpecification>();
+    for (ValueRequirement requirement : getDesiredValues()) {
+      outputs.add(new ValueSpecification(requirement));            
+    }
+    return outputs;
+  }
+
   public FudgeFieldContainer toFudgeMsg(FudgeSerializationContext fudgeContext) {
     MutableFudgeFieldContainer msg = fudgeContext.newMessage();
     
@@ -91,6 +107,8 @@ public class CalculationJobItem {
       desiredValue.toFudgeMsg(fudgeContext, valueMsg);
       msg.add(DESIRED_VALUE_FIELD_NAME, valueMsg);
     }
+    
+    msg.add(WRITE_RESULTS_FIELD_NAME, isWriteResults());
     
     return msg;
   }
@@ -113,7 +131,13 @@ public class CalculationJobItem {
       desiredValues.add(desiredValue);
     }
     
-    return new CalculationJobItem(functionUniqueId, computationTargetSpecification, inputs, desiredValues);
+    boolean writeResults = msg.getBoolean(WRITE_RESULTS_FIELD_NAME);
+    
+    return new CalculationJobItem(functionUniqueId, 
+        computationTargetSpecification, 
+        inputs, 
+        desiredValues,
+        writeResults);
   }
   
   @Override

@@ -38,7 +38,8 @@ public class CalculationJobResultTest {
         "1", 
         targetSpec,
         Collections.<ValueSpecification>emptySet(), 
-        Collections.<ValueRequirement>emptySet());
+        Collections.<ValueRequirement>emptySet(),
+        true);
     CalculationJobResultItem resultItem = new CalculationJobResultItem(item, InvocationResult.SUCCESS); 
     
     CalculationJobResult result = new CalculationJobResult(spec, 500, Collections.singletonList(resultItem));

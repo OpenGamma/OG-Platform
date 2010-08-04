@@ -86,7 +86,8 @@ public class AbstractCalculationNodeTest {
     CalculationJobItem calculationJobItem = new CalculationJobItem(fn.getUniqueIdentifier(), 
         target.toSpecification(), 
         Sets.newHashSet(inputSpec), 
-        Sets.newHashSet(outputReq));
+        Sets.newHashSet(outputReq),
+        true);
     CalculationJob calcJob = new CalculationJob(jobSpec, Collections.singletonList(calculationJobItem), new DummyResultWriter());
     
     long startTime = System.nanoTime();
@@ -138,7 +139,8 @@ public class AbstractCalculationNodeTest {
     CalculationJobItem calculationJobItem = new CalculationJobItem(fn.getUniqueIdentifier(), 
         target.toSpecification(), 
         Sets.newHashSet(inputSpec), 
-        Sets.newHashSet(outputReq));
+        Sets.newHashSet(outputReq),
+        true);
 
     CalculationJob calcJob = new CalculationJob(jobSpec, Collections.singletonList(calculationJobItem), new DummyResultWriter());
     

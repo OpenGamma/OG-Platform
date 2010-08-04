@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.calcnode;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.fudgemsg.FudgeFieldContainer;
@@ -12,7 +13,10 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -31,6 +35,7 @@ public class CalculationJobResultItem {
   // NOT SENT BACK TO THE MASTER NODE
   
   private transient Set<ComputedValue> _results;
+  private transient Exception _exception;
   
   public CalculationJobResultItem(CalculationJobItem item,
       InvocationResult result) {
@@ -43,6 +48,10 @@ public class CalculationJobResultItem {
   public CalculationJobItem getItem() {
     return _item;
   }
+  
+  public ComputationTargetSpecification getComputationTargetSpecification() {
+    return getItem().getComputationTargetSpecification();
+  }
 
   public InvocationResult getResult() {
     return _result;
@@ -54,6 +63,18 @@ public class CalculationJobResultItem {
 
   public void setResults(Set<ComputedValue> results) {
     _results = results;
+  }
+  
+  public Exception getException() {
+    return _exception;
+  }
+
+  public void setException(Exception exception) {
+    _exception = exception;
+  }
+  
+  public Set<ValueSpecification> getOutputs() {
+    return getItem().getOutputs();
   }
 
   public FudgeFieldContainer toFudgeMsg(FudgeSerializationContext fudgeContext) {

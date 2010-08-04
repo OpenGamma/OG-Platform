@@ -32,7 +32,7 @@ import com.opengamma.util.time.DateUtil;
 /**
  * 
  */
-public abstract class AbstractCalculationNode {
+public abstract class AbstractCalculationNode implements CalculationNode {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractCalculationNode.class);
   private final ViewComputationCacheSource _cacheSource;
   private final FunctionRepository _functionRepository;
@@ -84,27 +84,32 @@ public abstract class AbstractCalculationNode {
     return _viewProcessorQuerySender;
   }
   
+  @Override
   public String getNodeId() {
     return _nodeId;
   }
 
-  protected CalculationJobResult executeJob(CalculationJob job) {
+  public synchronized CalculationJobResult executeJob(CalculationJob job) {
     s_logger.info("Executing {}", job);
+    
+    List<CalculationJobItem> itemsToExecute = job.getResultWriter().getItemsToExecute(this, job);
+    
+    s_logger.info("Executing {} items", itemsToExecute.size());
     
     CalculationJobSpecification spec = job.getSpecification();
     
-    // BUG - will not work when multiple functions are being executed in parallel
+    // Will not work when multiple functions are being executed in parallel, therefore added synchronized above
     getFunctionExecutionContext().setViewProcessorQuery(new ViewProcessorQuery(getViewProcessorQuerySender(), spec));
     getFunctionExecutionContext().setSnapshotEpochTime(spec.getIterationTimestamp());
     getFunctionExecutionContext().setSnapshotClock(DateUtil.epochFixedClockUTC(spec.getIterationTimestamp()));
 
-    ViewComputationCache cache = getCacheSource().getCache(spec.getViewName(), spec.getCalcConfigName(), spec.getIterationTimestamp());
+    ViewComputationCache cache = getCache(spec);
     
     long startNanos = System.nanoTime();
 
     List<CalculationJobResultItem> resultItems = new ArrayList<CalculationJobResultItem>();
     
-    for (CalculationJobItem jobItem : job.getJobItems()) {
+    for (CalculationJobItem jobItem : itemsToExecute) {
       
       CalculationJobResultItem resultItem;
       try {
@@ -119,10 +124,12 @@ public abstract class AbstractCalculationNode {
         // litter the logs with stack traces.
         s_logger.info("Unable to invoke {} due to missing inputs: {}", jobItem, e.getMessage());
         resultItem = new CalculationJobResultItem(jobItem, InvocationResult.ERROR);
+        resultItem.setException(e);
       
       } catch (Exception e) {
         s_logger.info("Invoking " + jobItem.getFunctionUniqueIdentifier() + " threw exception.", e);
         resultItem =  new CalculationJobResultItem(jobItem, InvocationResult.ERROR);
+        resultItem.setException(e);
       }
       
       resultItems.add(resultItem);
@@ -139,6 +146,12 @@ public abstract class AbstractCalculationNode {
     s_logger.info("Wrote {}", jobResult);
 
     return jobResult;
+  }
+
+  @Override
+  public ViewComputationCache getCache(CalculationJobSpecification spec) {
+    ViewComputationCache cache = getCacheSource().getCache(spec.getViewName(), spec.getCalcConfigName(), spec.getIterationTimestamp());
+    return cache;
   }
   
   private Set<ComputedValue> invoke(CalculationJobItem jobItem, ViewComputationCache cache) {
@@ -159,14 +172,21 @@ public abstract class AbstractCalculationNode {
     
     // assemble inputs
     Collection<ComputedValue> inputs = new HashSet<ComputedValue>();
+    Collection<ValueSpecification> missingInputs = new HashSet<ValueSpecification>();
     for (ValueSpecification inputSpec : jobItem.getInputs()) {
       Object input = cache.getValue(inputSpec);
-      if (input == null) {
-        s_logger.info("Not able to execute as missing input {}", inputSpec);
-        throw new MissingInputException(inputSpec, functionUniqueId);
+      if (input == null || input instanceof MissingInput) {
+        missingInputs.add(inputSpec);
+      } else {
+        inputs.add(new ComputedValue(inputSpec, input));
       }
-      inputs.add(new ComputedValue(inputSpec, input));
     }
+    
+    if (!missingInputs.isEmpty()) {
+      s_logger.info("Not able to execute as missing inputs {}", missingInputs);
+      throw new MissingInputException(missingInputs, functionUniqueId);
+    }
+    
     FunctionInputs functionInputs = new FunctionInputsImpl(inputs);
     
     Set<ComputedValue> results = invoker.execute(getFunctionExecutionContext(), functionInputs, target, jobItem.getDesiredValues());

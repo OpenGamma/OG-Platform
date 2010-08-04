@@ -65,11 +65,14 @@ public class SingleNodeExecutor implements DependencyGraphExecutor, JobResultRec
     Map<CalculationJobItem, DependencyNode> item2Node = new HashMap<CalculationJobItem, DependencyNode>();
     
     for (DependencyNode node : order) {
+      boolean shouldWriteResults = _cycle.getViewDefinition().shouldWriteResults(node.getComputationTarget());
+      
       CalculationJobItem jobItem = new CalculationJobItem(
           node.getFunctionDefinition().getUniqueIdentifier(),
           node.getComputationTarget().toSpecification(),
           node.getInputValues(), 
-          node.getOutputRequirements());
+          node.getOutputRequirements(),
+          shouldWriteResults);
       items.add(jobItem);
       item2Node.put(jobItem, node);
     }

@@ -59,7 +59,7 @@ public class CalculationJobResult implements Serializable {
   public long getDuration() {
     return _durationNanos;
   }
-
+  
   public FudgeFieldContainer toFudgeMsg(FudgeSerializationContext fudgeContext) {
     MutableFudgeFieldContainer msg = fudgeContext.newMessage();
     getSpecification().writeFields(msg);

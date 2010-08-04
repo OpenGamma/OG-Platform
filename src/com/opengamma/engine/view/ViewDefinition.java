@@ -20,6 +20,8 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
@@ -274,6 +276,23 @@ public class ViewDefinition implements Serializable {
    */
   public void setComputePrimitiveNodeCalculations(boolean computePrimitiveNodeCalculations) {
     _computePrimitiveNodeCalculations = computePrimitiveNodeCalculations;
+  }
+  
+  public boolean shouldWriteResults(ComputationTarget computationTarget) {
+    ComputationTargetType computationTargetType = computationTarget.getType();
+    
+    switch (computationTargetType) {
+      case PRIMITIVE:
+        return isComputePrimitiveNodeCalculations();
+      case SECURITY:
+        return isComputeSecurityNodeCalculations();
+      case POSITION:
+        return isComputePositionNodeCalculations();
+      case PORTFOLIO_NODE:
+        return isComputePortfolioNodeCalculations();
+      default:
+        throw new RuntimeException("Unexpected type " + computationTargetType);
+    }
   }
   
   /**
