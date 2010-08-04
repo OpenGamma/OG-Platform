@@ -6,13 +6,11 @@
 --
 -- Please do not modify it - modify the originals and recreate this using 'ant create-db-sql'.
 
-
     create table hibernate_sequence (
          next_val bigint
     );
 
     insert into hibernate_sequence values ( 1 );
-
 
 -- create-db-security.sql: Security Master
 
@@ -438,7 +436,6 @@ create table pos_securitykey (
     constraint pos_fk_securitykey2position foreign key (position_id) references pos_position (id)
 );
 -- pos_securitykey is fully dependent of pos_position
-
 -------------------------------------
 -- Static data
 -------------------------------------
@@ -748,5 +745,3 @@ create table rsk_failure_reason (
 
    unique (rsk_failure_id, compute_failure_id)
 );
-
-
