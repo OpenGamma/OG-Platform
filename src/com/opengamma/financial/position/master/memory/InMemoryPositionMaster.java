@@ -41,6 +41,7 @@ import com.opengamma.financial.position.master.PositionSearchResult;
 import com.opengamma.id.UniqueIdentifiables;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.Paging;
 
 /**
@@ -121,14 +122,14 @@ public class InMemoryPositionMaster implements PositionMaster {
 
   @Override
   public PortfolioTreeDocument getPortfolioTree(final UniqueIdentifier uid) {
-    Validate.notNull(uid, "uid");
+    ArgumentChecker.notNull(uid, "uid");
     return _trees.get(uid);
   }
 
   @Override
   public PortfolioTreeDocument addPortfolioTree(final PortfolioTreeDocument document) {
-    Validate.notNull(document, "document");
-    Validate.notNull(document.getPortfolio(), "document.portfolio");
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
     
     final Portfolio portfolio = document.getPortfolio();
     final UniqueIdentifier uid = _uidSupplier.get();
@@ -152,9 +153,9 @@ public class InMemoryPositionMaster implements PositionMaster {
 
   @Override
   public PortfolioTreeDocument updatePortfolioTree(final PortfolioTreeDocument document) {
-    Validate.notNull(document, "document");
-    Validate.notNull(document.getPortfolio(), "document.portfolio");
-    Validate.notNull(document.getPortfolioId(), "document.portfolioId");
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
+    ArgumentChecker.notNull(document.getPortfolioId(), "document.portfolioId");
     
     final UniqueIdentifier uid = document.getPortfolioId();
     final Instant now = Instant.nowSystemClock();
@@ -174,7 +175,7 @@ public class InMemoryPositionMaster implements PositionMaster {
 
   @Override
   public void removePortfolioTree(final UniqueIdentifier uid) {
-    Validate.notNull(uid, "uid");
+    ArgumentChecker.notNull(uid, "uid");
     
     PortfolioTreeDocument doc = _trees.remove(uid);
     if (doc == null) {
@@ -189,8 +190,8 @@ public class InMemoryPositionMaster implements PositionMaster {
 
   @Override
   public PortfolioTreeSearchHistoricResult searchPortfolioTreeHistoric(final PortfolioTreeSearchHistoricRequest request) {
-    Validate.notNull(request, "request");
-    Validate.notNull(request.getPortfolioId(), "request.portfolioId");
+    ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getPortfolioId(), "request.portfolioId");
     
     final PortfolioTreeSearchHistoricResult result = new PortfolioTreeSearchHistoricResult();
     final PortfolioTreeDocument doc = getPortfolioTree(request.getPortfolioId());
@@ -209,7 +210,7 @@ public class InMemoryPositionMaster implements PositionMaster {
   //-------------------------------------------------------------------------
   @Override
   public PositionSearchResult searchPositions(final PositionSearchRequest request) {
-    Validate.notNull(request, "request");
+    ArgumentChecker.notNull(request, "request");
     final PositionSearchResult result = new PositionSearchResult();
     Collection<PositionDocument> docs = _positions.values();
     if (request.getMinQuantity() != null) {
@@ -252,15 +253,15 @@ public class InMemoryPositionMaster implements PositionMaster {
 
   @Override
   public PositionDocument getPosition(final UniqueIdentifier uid) {
-    Validate.notNull(uid, "uid");
+    ArgumentChecker.notNull(uid, "uid");
     return _positions.get(uid);
   }
 
   @Override
   public PositionDocument addPosition(final PositionDocument document) {
-    Validate.notNull(document, "document");
-    Validate.notNull(document.getPosition(), "document.position");
-    Validate.notNull(document.getParentNodeId(), "document.parentNodeId");
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getPosition(), "document.position");
+    ArgumentChecker.notNull(document.getParentNodeId(), "document.parentNodeId");
     
     final Position position = document.getPosition();
     final UniqueIdentifier uid = _uidSupplier.get();
@@ -279,9 +280,9 @@ public class InMemoryPositionMaster implements PositionMaster {
 
   @Override
   public PositionDocument updatePosition(final PositionDocument document) {
-    Validate.notNull(document, "document");
-    Validate.notNull(document.getPosition(), "document.position");
-    Validate.notNull(document.getPositionId(), "document.positionId");
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getPosition(), "document.position");
+    ArgumentChecker.notNull(document.getPositionId(), "document.positionId");
     
     final UniqueIdentifier uid = document.getPositionId();
     final Instant now = Instant.nowSystemClock();
@@ -301,7 +302,7 @@ public class InMemoryPositionMaster implements PositionMaster {
 
   @Override
   public void removePosition(final UniqueIdentifier uid) {
-    Validate.notNull(uid, "uid");
+    ArgumentChecker.notNull(uid, "uid");
     
     if (_positions.remove(uid) == null) {
       throw new DataNotFoundException("Position not found: " + uid);
@@ -310,8 +311,8 @@ public class InMemoryPositionMaster implements PositionMaster {
 
   @Override
   public PositionSearchHistoricResult searchPositionHistoric(final PositionSearchHistoricRequest request) {
-    Validate.notNull(request, "request");
-    Validate.notNull(request.getPositionId(), "request.positionId");
+    ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getPositionId(), "request.positionId");
     
     final PositionSearchHistoricResult result = new PositionSearchHistoricResult();
     final PositionDocument doc = getPosition(request.getPositionId());
@@ -330,8 +331,8 @@ public class InMemoryPositionMaster implements PositionMaster {
   //-------------------------------------------------------------------------
   @Override
   public Portfolio getFullPortfolio(final FullPortfolioGetRequest request) {
-    Validate.notNull(request, "request");
-    Validate.notNull(request.getPortfolioId(), "request.portfolioId");
+    ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getPortfolioId(), "request.portfolioId");
     
     final PortfolioTreeDocument doc = _trees.get(request.getPortfolioId());
     if (doc == null) {
@@ -342,8 +343,8 @@ public class InMemoryPositionMaster implements PositionMaster {
 
   @Override
   public PortfolioNode getFullPortfolioNode(final FullPortfolioNodeGetRequest request) {
-    Validate.notNull(request, "request");
-    Validate.notNull(request.getPortfolioNodeId(), "request.portfolioNodeId");
+    ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getPortfolioNodeId(), "request.portfolioNodeId");
     
     final UniqueIdentifier uid = request.getPortfolioNodeId();
     for (PortfolioTreeDocument doc : _trees.values()) {
@@ -367,8 +368,8 @@ public class InMemoryPositionMaster implements PositionMaster {
 
   @Override
   public Position getFullPosition(final FullPositionGetRequest request) {
-    Validate.notNull(request, "request");
-    Validate.notNull(request.getPositionId(), "request.positionId");
+    ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getPositionId(), "request.positionId");
     
     final PositionDocument doc = _positions.get(request.getPositionId());
     if (doc == null) {

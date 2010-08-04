@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.convention.frequency;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -62,13 +60,11 @@ public class SimpleFrequency implements Frequency {
    * Creates an instance.
    * @param name  the convention name, not null
    * @param periodsPerYear the number of periods per year
-   * @throws IllegalArgumentException
-   *          If the name is null
-   * @throws IllegalArgumentException
-   *          If the frequency is zero or negative
+   * @throws IllegalArgumentException if the name is null
+   * @throws IllegalArgumentException if the frequency is zero or negative
    */
   protected SimpleFrequency(final String name, final double periodsPerYear) {
-    Validate.notNull(name, "name");
+    ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNegativeOrZero(periodsPerYear, "periods per year");
     _name = name;
     _periodsPerYear = periodsPerYear;
