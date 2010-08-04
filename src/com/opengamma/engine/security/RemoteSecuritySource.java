@@ -11,7 +11,6 @@ import static com.opengamma.engine.security.server.SecuritySourceServiceNames.SE
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.id.IdentifierBundle;
@@ -42,8 +41,8 @@ public class RemoteSecuritySource implements SecuritySource {
    * @param baseTarget  the base target URI to call, not null
    */
   public RemoteSecuritySource(final FudgeContext fudgeContext, final RestTarget baseTarget) {
-    Validate.notNull(fudgeContext, "FudgeContext must not be null");
-    Validate.notNull(baseTarget, "RestTarget must not be null");
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
+    ArgumentChecker.notNull(baseTarget, "baseTarget");
     _restClient = RestClient.getInstance(fudgeContext, null);
     _targetBase = baseTarget;
   }
