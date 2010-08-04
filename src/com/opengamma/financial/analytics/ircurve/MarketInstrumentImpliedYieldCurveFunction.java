@@ -134,9 +134,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 //    final double[] marketRates = new double[n];
 //    final double[] initialRatesGuess = new double[n];
 //    final double[] nodeTimes = new double[n];
-    final double[] marketRates = new double[n];
-    final double[] initialRatesGuess = new double[n];
-    final double[] nodeTimes = new double[n];
+    final double[] marketRates = new double[n + 1];
+    final double[] initialRatesGuess = new double[n + 1];
+    final double[] nodeTimes = new double[n + 1];
     marketRates[0] = 0.01;
     nodeTimes[0] = 0;
     InterestRateDerivative derivative;
@@ -145,6 +145,11 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     if (rate == null) {
       throw new NullPointerException("Could not get spot rate for " + _currency);
     }
+    double overnightRate = rate;
+    marketRates[0] = overnightRate;
+    initialRatesGuess[0] = 0.01;
+    nodeTimes[0] = 0;
+    derivatives.add(new Cash(0, overnightRate, CURVE_NAME));
     rate = (Double) inputs.getValue(_referenceRateRequirement);
     if (rate == null) {
       throw new NullPointerException("Could not get first floating rate for " + _currency);
@@ -168,8 +173,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       } else {
         rate /= 100;
       }
-      marketRates[i] = rate;
-      nodeTimes[i] = getLastTime(derivative);
+      marketRates[i + 1] = rate;
+      nodeTimes[i + 1] = getLastTime(derivative);
       i++;
     }
 
