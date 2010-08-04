@@ -5,9 +5,6 @@
  */
 package com.opengamma.financial.position.master;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
@@ -82,19 +79,6 @@ public class MasterPositionSource implements PositionSource {
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public Set<UniqueIdentifier> getPortfolioIds() {
-    final PortfolioTreeSearchRequest request = new PortfolioTreeSearchRequest();
-    request.setVersionAsOfInstant(_versionAsOfInstant);
-    request.setCorrectedToInstant(_correctedToInstant);
-    final PortfolioTreeSearchResult result = _positionMaster.searchPortfolioTrees(request);
-    final Set<UniqueIdentifier> ids = new HashSet<UniqueIdentifier>();
-    for (PortfolioTreeDocument doc : result.getDocuments()) {
-      ids.add(doc.getPortfolioId());
-    }
-    return ids;
-  }
-
   @Override
   public Portfolio getPortfolio(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
