@@ -55,7 +55,7 @@ public class ComputationTargetTest {
     new ComputationTarget(ComputationTargetType.PRIMITIVE, "String");
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_constructor_Type_Object_nullType() {
     new ComputationTarget(null, POSITION);
   }

@@ -33,12 +33,12 @@ public class PositionImplTest {
     assertEquals("Position[, 1 Bundle[A::B]]", test.toString());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_construction_BigDecimal_Identifier_nullBigDecimal() {
     new PositionImpl(null, Identifier.of("A", "B"));
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_construction_BigDecimal_Identifier_nullIdentifier() {
     new PositionImpl(BigDecimal.ONE, (Identifier) null);
   }
@@ -54,12 +54,12 @@ public class PositionImplTest {
     assertEquals("Position[, 1 Bundle[A::B]]", test.toString());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_construction_BigDecimal_IdentifierBundle_nullBigDecimal() {
     new PositionImpl(null, new IdentifierBundle(Identifier.of("A", "B")));
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_construction_BigDecimal_IdentifierBundle_nullIdentifier() {
     new PositionImpl(BigDecimal.ONE, (IdentifierBundle) null);
   }
@@ -75,17 +75,17 @@ public class PositionImplTest {
     assertEquals("Position[B::C, 1 Bundle[A::B]]", test.toString());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_construction_UniqueIdentifier_BigDecimal_Identifier_nullUniqueIdentifier() {
     new PositionImpl(null, BigDecimal.ONE, Identifier.of("A", "B"));
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_construction_UniqueIdentifier_BigDecimal_Identifier_nullBigDecimal() {
     new PositionImpl(UniqueIdentifier.of("B", "C"), null, Identifier.of("A", "B"));
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_construction_UniqueIdentifier_BigDecimal_Identifier_nullIdentifier() {
     new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, (Identifier) null);
   }
@@ -101,17 +101,17 @@ public class PositionImplTest {
     assertEquals("Position[B::C, 1 Bundle[A::B]]", test.toString());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_construction_UniqueIdentifier_BigDecimal_IdentifierBundle_nullUniqueIdentifier() {
     new PositionImpl(null, BigDecimal.ONE, Identifier.of("A", "B"));
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_construction_UniqueIdentifier_BigDecimal_IdentifierBundle_nullBigDecimal() {
     new PositionImpl(UniqueIdentifier.of("B", "C"), null, new IdentifierBundle(Identifier.of("A", "B")));
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_construction_UniqueIdentifier_BigDecimal_IdentifierBundle_nullIdentifierBundle() {
     new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, (IdentifierBundle) null);
   }
@@ -129,17 +129,17 @@ public class PositionImplTest {
     assertEquals(true, test.toString().startsWith("Position[B::C, 1"));
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_construction_UniqueIdentifier_BigDecimal_Security_nullUniqueIdentifier() {
     new PositionImpl(null, BigDecimal.ONE, Identifier.of("A", "B"));
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_construction_UniqueIdentifier_BigDecimal_Security_nullBigDecimal() {
     new PositionImpl(UniqueIdentifier.of("B", "C"), null, new IdentifierBundle(Identifier.of("A", "B")));
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_construction_UniqueIdentifier_BigDecimal_Security_nullSecurity() {
     new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, (Security) null);
   }
@@ -152,7 +152,7 @@ public class PositionImplTest {
     assertEquals(UniqueIdentifier.of("B", "D"), test.getUniqueIdentifier());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_setUniqueIdentifier_null() {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
     test.setUniqueIdentifier(null);
@@ -166,7 +166,7 @@ public class PositionImplTest {
     assertSame(BigDecimal.ZERO, test.getQuantity());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_setQuantity_null() {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
     test.setQuantity(null);

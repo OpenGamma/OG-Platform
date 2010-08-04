@@ -44,13 +44,13 @@ public class DefaultComputationTargetResolverTest {
     assertEquals(posSource, test.getPositionSource());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_constructor_nullSecuritySource() {
     SecuritySource secSource = new MockSecuritySource();
     new DefaultComputationTargetResolver(secSource, null);
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_constructor_nullPositionSource() {
     PositionSource posSource = new MockPositionSource();
     new DefaultComputationTargetResolver(null, posSource);

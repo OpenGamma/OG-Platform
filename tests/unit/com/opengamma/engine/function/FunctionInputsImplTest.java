@@ -24,7 +24,7 @@ public class FunctionInputsImplTest {
   private static final ComputedValue VALUE1 = new ComputedValue(SPEC1, "1");
   private static final ComputedValue VALUE2 = new ComputedValue(SPEC2, "2");
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void nullValue() {
     (new FunctionInputsImpl()).addValue(null);
   }
