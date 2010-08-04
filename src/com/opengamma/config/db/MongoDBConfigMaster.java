@@ -17,7 +17,6 @@ import java.util.Date;
 import javax.time.Instant;
 import javax.time.TimeSource;
 
-import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
@@ -196,7 +195,7 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
    * @param timeSource the timeSource to set
    */
   public void setTimeSource(TimeSource timeSource) {
-    Validate.notNull(timeSource, "TimeSource must not be null");
+    ArgumentChecker.notNull(timeSource, "timeSource");
     _timeSource = timeSource;
   }
 
