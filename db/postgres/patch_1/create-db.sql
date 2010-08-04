@@ -368,62 +368,73 @@ create table sec_swap (
     primary key (id),
     constraint sec_fk_swap2swap foreign key (first_version_id) references sec_swap (id)
 );
+-- design has two documents
+--  portfolio and tree of nodes (nested set model)
+--  position and associated security key
+-- bitemporal versioning exists at the document level
+-- each time a document is changed, a new row is written
+-- with only the end instant being changed on the old row
+
+create sequence pos_master_seq
+    start with 1000 increment by 1 no cycle;
+-- "as bigint" required by Derby, not accepted by Postgresql
+
 create table pos_portfolio (
+    id bigint not null,
     oid bigint not null,
-    version bigint not null,
-    status char(1) not null,
-    start_instant timestamp,
-    end_instant timestamp,
+    ver_from_instant timestamp not null,
+    ver_to_instant timestamp not null,
+    corr_from_instant timestamp not null,
+    corr_to_instant timestamp not null,
     name varchar(255) not null,
-    primary key (oid, version)
+    primary key (id),
+    constraint pos_ck_port_ver_order check (ver_from_instant <= ver_to_instant),
+    constraint pos_ck_port_corr_order check (corr_from_instant <= corr_to_instant)
 );
 
 create table pos_node (
-    portfolio_oid bigint not null,
+    id bigint not null,
     oid bigint not null,
-    start_version bigint not null,
-    end_version bigint not null,
+    portfolio_id bigint not null,
+    parent_node_id bigint,
+    depth int,
+    tree_left bigint not null,
+    tree_right bigint not null,
     name varchar(255),
-    primary key (oid, start_version),
-    constraint pos_fk_node2portfolio foreign key (portfolio_oid, start_version) references pos_portfolio (oid, version)
+    primary key (id),
+    constraint pos_fk_node2portfolio foreign key (portfolio_id) references pos_portfolio (id),
+    constraint pos_fk_node2parentnode foreign key (parent_node_id) references pos_node (id)
 );
-
-create table pos_nodetree (
-    portfolio_oid bigint not null,
-    parent_node_oid bigint,
-    node_oid bigint not null,
-    start_version bigint not null,
-    end_version bigint not null,
-    left_id bigint not null,
-    right_id bigint not null,
-    primary key (node_oid, start_version),
-    constraint pos_fk_nodetree2portfolio foreign key (portfolio_oid, start_version) references pos_portfolio (oid, version)
-);
--- portfolio_oid is an optimization
--- parent_node_oid is an optimization (left_id/right_id hold all the tree structure)
+-- pos_node is fully dependent of pos_portfolio
+-- parent_node_id is an optimization (tree_left/tree_right hold all the tree structure)
+-- depth is an optimization (tree_left/tree_right hold all the tree structure)
 
 create table pos_position (
-    portfolio_oid bigint not null,
-    node_oid bigint not null,
+    id bigint not null,
     oid bigint not null,
-    start_version bigint not null,
-    end_version bigint not null,
-    quantity decimal not null,
-    primary key (oid, start_version),
-    constraint pos_fk_position2portfolio foreign key (portfolio_oid, start_version) references pos_portfolio (oid, version)
+    portfolio_oid bigint not null,
+    parent_node_oid bigint not null,
+    ver_from_instant timestamp not null,
+    ver_to_instant timestamp not null,
+    corr_from_instant timestamp not null,
+    corr_to_instant timestamp not null,
+    quantity decimal(31,8) not null,
+    primary key (id),
+    constraint pos_ck_posi_ver_order check (ver_from_instant <= ver_to_instant),
+    constraint pos_ck_posi_corr_order check (corr_from_instant <= corr_to_instant)
 );
 -- portfolio_oid is an optimization
 
 create table pos_securitykey (
-    position_oid bigint not null,
-    position_version bigint not null,
+    id bigint not null,
+    position_id bigint not null,
     id_scheme varchar(255) not null,
     id_value varchar(255) not null,
-    primary key (position_oid, position_version, id_scheme, id_value),
-    constraint pos_fk_securitykey2position foreign key (position_oid, position_version) references pos_position (oid, start_version)
+    primary key (id),
+    constraint pos_fk_securitykey2position foreign key (position_id) references pos_position (id)
 );
 -- pos_securitykey is fully dependent of pos_position
--- pos_securitykey.position_version = pos_position.start_version
+
 -------------------------------------
 -- Static data
 -------------------------------------
