@@ -8,7 +8,6 @@ package com.opengamma.livedata.normalization;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.MutableFudgeFieldContainer;
@@ -39,11 +38,11 @@ public class FieldFilter implements NormalizationRule {
     this(fieldsToAccept, FudgeContext.GLOBAL_DEFAULT);
   }
 
-  public FieldFilter(Collection<String> fieldsToAccept, FudgeContext context) {
-    ArgumentChecker.notNull(fieldsToAccept, "List of accepted fields");
-    Validate.notNull(context, "Must provide a FudgeContext");
+  public FieldFilter(Collection<String> fieldsToAccept, FudgeContext fudgeContext) {
+    ArgumentChecker.notNull(fieldsToAccept, "fieldsToAccept");
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _fieldsToAccept = new HashSet<String>(fieldsToAccept);
-    _context = context;
+    _context = fudgeContext;
   }
 
   /**
