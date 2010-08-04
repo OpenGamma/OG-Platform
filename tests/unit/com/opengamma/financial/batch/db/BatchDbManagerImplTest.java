@@ -55,7 +55,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
       super.setUp();
       
       _dbManager = new BatchDbManagerImpl();
-      _dbManager.setSessionFactory(getSessionFactory());
+      _dbManager.initialize(getDbTool(), getSessionFactory());
       
       _batchJob = new BatchJob();
       _batchJob.setBatchDbManager(_dbManager);

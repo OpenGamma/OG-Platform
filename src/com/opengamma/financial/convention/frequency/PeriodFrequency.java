@@ -7,7 +7,7 @@ package com.opengamma.financial.convention.frequency;
 
 import javax.time.calendar.Period;
 
-import org.apache.commons.lang.Validate;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -54,8 +54,8 @@ public class PeriodFrequency implements Frequency {
   private final Period _period;
 
   protected PeriodFrequency(final String name, final Period period) {
-    Validate.notNull(name, "name");
-    Validate.notNull(period, "period");
+    ArgumentChecker.notNull(name, "name");
+    ArgumentChecker.notNull(period, "period");
     _name = name;
     _period = period;
   }

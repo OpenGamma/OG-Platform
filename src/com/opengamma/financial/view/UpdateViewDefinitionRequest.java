@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.view;
 
-import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeFieldContainer;
@@ -86,8 +85,8 @@ public final class UpdateViewDefinitionRequest {
    * Validates this request throwing an exception if not.
    */
   public void checkValid() {
-    Validate.notNull(getName(), "Name must not be null");
-    Validate.notNull(getViewDefinition(), "View definition must not be null");
+    ArgumentChecker.notNull(getName(), "Name must not be null");
+    ArgumentChecker.notNull(getViewDefinition(), "View definition must not be null");
   }
 
   //-------------------------------------------------------------------------
