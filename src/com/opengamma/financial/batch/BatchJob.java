@@ -62,10 +62,10 @@ import com.opengamma.engine.view.calcnode.JobRequestSender;
 import com.opengamma.engine.view.calcnode.ResultWriterFactory;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
-import com.opengamma.financial.position.HistoricallyFixedPositionSource;
-import com.opengamma.financial.position.ManageablePositionMaster;
+import com.opengamma.financial.position.master.MasterPositionSource;
+import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.financial.security.HistoricallyFixedSecurityMaster;
-import com.opengamma.financial.security.ManageableSecurityMaster;
+import com.opengamma.financial.security.SecurityMaster;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.InMemoryRequestConduit;
@@ -116,17 +116,31 @@ public class BatchJob implements Job {
    * Used to load Functions (needed for building the dependency graph)
    */
   private FunctionRepository _functionRepository;
-  
+
   /**
-   * Used to load Securities (needed for building the dependency graph)
+   * Used to create the SecuritySource if none is explicitly specified. Use this
+   * for more control over the version and correction dates of data.
+   */
+  private SecurityMaster _securityMaster;
+
+  /**
+   * Used to load Securities (needed for building the dependency grapth). If not
+   * specified will be constructed from the SecurityMaster.
    */
   private SecuritySource _securitySource;
-  
+
   /**
-   * Used to load Positions (needed for building the dependency graph)
+   * Used to create the PositionSource if none is explicitly specified. Use this
+   * for more control over the version and correction dates of data.
+   */
+  private PositionMaster _positionMaster;
+
+  /**
+   * Used to load Positions (needed for building the dependency graph). If not
+   * specified will be constructed from the PositionMaster.
    */
   private PositionSource _positionSource;
-  
+
   /**
    * Used to write stuff to the batch database
    */
@@ -435,22 +449,38 @@ public class BatchJob implements Job {
     _functionRepository = functionRepository;
   }
 
+  public SecurityMaster getSecurityMaster() {
+    return _securityMaster;
+  }
+
+  public void setSecurityMaster(SecurityMaster securityMaster) {
+    _securityMaster = securityMaster;
+  }
+
   public SecuritySource getSecuritySource() {
     return _securitySource;
   }
 
-  public void setSecuritySource(SecuritySource securityMaster) {
-    _securitySource = securityMaster;
+  public void setSecuritySource(final SecuritySource securitySource) {
+    _securitySource = securitySource;
   }
 
+  public PositionMaster getPositionMaster() {
+    return _positionMaster;
+  }
+
+  public void setPositionMaster(PositionMaster positionMaster) {
+    _positionMaster = positionMaster;
+  }
+  
   public PositionSource getPositionSource() {
     return _positionSource;
   }
 
-  public void setPositionSource(PositionSource positionMaster) {
-    _positionSource = positionMaster;
+  public void setPositionSource(final PositionSource positionSource) {
+    _positionSource = positionSource;
   }
-  
+
   public BatchDbManager getBatchDbManager() {
     return _batchDbManager;
   }
@@ -554,36 +584,24 @@ public class BatchJob implements Job {
     
     InMemoryLKVSnapshotProvider snapshotProvider = getSnapshotProvider();
     
-    SecuritySource underlyingSecurityMaster = getSecuritySource();
-    SecuritySource securityMaster;
-    if (underlyingSecurityMaster instanceof ManageableSecurityMaster) {
-      securityMaster = new HistoricallyFixedSecurityMaster(
-          (ManageableSecurityMaster) underlyingSecurityMaster, 
-          getSecurityMasterTime(),
-          getSecurityMasterAsViewedAtTime());
-    } else {
-      securityMaster = underlyingSecurityMaster;      
+    SecuritySource securitySource = getSecuritySource();
+    if (securitySource == null) {
+      new HistoricallyFixedSecurityMaster(getSecurityMaster(), getSecurityMasterTime(), getSecurityMasterAsViewedAtTime());
     }
     
-    PositionSource underlyingPositionMaster = getPositionSource();
-    PositionSource positionMaster; 
-    if (underlyingPositionMaster instanceof ManageablePositionMaster) {
-      positionMaster = new HistoricallyFixedPositionSource(
-          (ManageablePositionMaster) underlyingPositionMaster, 
-          getPositionMasterTime(), 
-          getPositionMasterAsViewedAtTime());
-    } else {
-      positionMaster = underlyingPositionMaster;      
+    PositionSource positionSource = getPositionSource();
+    if (positionSource == null) {
+      positionSource = new MasterPositionSource(getPositionMaster(), getPositionMasterTime(), getPositionMasterAsViewedAtTime());
     }
       
-    DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securityMaster, positionMaster);
+    DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
     MapViewComputationCacheSource cacheFactory = new MapViewComputationCacheSource();
     
     FunctionExecutionContext executionContext = new FunctionExecutionContext(); 
-    executionContext.setSecuritySource(securityMaster);
+    executionContext.setSecuritySource(securitySource);
     
     FunctionCompilationContext compilationContext = new FunctionCompilationContext();
-    compilationContext.setSecuritySource(securityMaster);
+    compilationContext.setSecuritySource(securitySource);
     
     ResultWriterFactory resultWriterFactory = getBatchDbManager().createResultWriterFactory(this);
     
@@ -603,20 +621,8 @@ public class BatchJob implements Job {
     ThreadFactory threadFactory = new NamedThreadPoolFactory("BatchJob-" + System.currentTimeMillis(), true);
     ThreadPoolExecutor executor = new ThreadPoolExecutor(0, 1, 5L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), threadFactory);
     
-    ViewProcessingContext vpc = new ViewProcessingContext(
-        new PermissiveLiveDataEntitlementChecker(),
-        snapshotProvider,  
-        snapshotProvider,
-        getFunctionRepository(), 
-        new DefaultFunctionResolver(getFunctionRepository()),
-        positionMaster, 
-        securityMaster, 
-        cacheFactory, 
-        calcRequestSender, 
-        viewProcessorQueryReceiver,
-        compilationContext,  
-        executor,
-        new BatchExecutorFactory(),
+    ViewProcessingContext vpc = new ViewProcessingContext(new PermissiveLiveDataEntitlementChecker(), snapshotProvider, snapshotProvider, getFunctionRepository(), new DefaultFunctionResolver(
+        getFunctionRepository()), positionSource, securitySource, cacheFactory, calcRequestSender, viewProcessorQueryReceiver, compilationContext, executor, new BatchExecutorFactory(),
         resultWriterFactory);
     
     _view = new View(viewDefinitionDoc.getValue(), vpc);

@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.time.TimeSource;
 
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
@@ -77,10 +78,18 @@ public class DbPositionMasterWorker {
 
   /**
    * Gets the database template.
-   * @return the template, non-null if correctly initialized
+   * @return the database template, non-null if correctly initialized
    */
-  protected SimpleJdbcTemplate getTemplate() {
-    return _master.getTemplate();
+  protected SimpleJdbcTemplate getJdbcTemplate() {
+    return _master.getJdbcTemplate();
+  }
+
+  /**
+   * Gets the transaction template.
+   * @return the transaction template, non-null if correctly initialized
+   */
+  protected TransactionTemplate getTransactionTemplate() {
+    return _master.getTransactionTemplate();
   }
 
   /**
@@ -113,7 +122,25 @@ public class DbPositionMasterWorker {
    * @return the next database id
    */
   protected long nextId() {
-    return getTemplate().queryForLong(getDbHelper().sqlNextSequenceValueSelect("pos_master_seq"));
+    return getJdbcTemplate().queryForLong(getDbHelper().sqlNextSequenceValueSelect("pos_master_seq"));
+  }
+
+  /**
+   * Extracts the row id.
+   * @param id  the identifier to extract from, not null
+   * @return the extracted row id
+   */
+  protected long extractRowId(final UniqueIdentifier id) {
+    return Long.parseLong(id.getVersion());
+  }
+
+  /**
+   * Extracts the oid.
+   * @param id  the identifier to extract from, not null
+   * @return the extracted oid
+   */
+  protected long extractOid(final UniqueIdentifier id) {
+    return Long.parseLong(id.getValue());
   }
 
   //-------------------------------------------------------------------------
@@ -155,36 +182,6 @@ public class DbPositionMasterWorker {
     deduplicate.put(uid, uid);
     return uid;
   }
-
-//  /**
-//   * Creates a unique identifier for a portfolio.
-//   * @param portfolioOid  the portfolio object identifier
-//   * @param rowId  the node unique row identifier, null if object identifier
-//   * @return the unique identifier, not null
-//   */
-//  protected UniqueIdentifier createPortfolioUniqueIdentifier(final long portfolioOid, final Long rowId) {
-//    return UniqueIdentifier.of(getIdentifierScheme(), Long.toString(portfolioOid), ObjectUtils.toString(rowId, null));
-//  }
-//
-//  /**
-//   * Creates a unique identifier for a portfolio node.
-//   * @param nodeOid  the node object identifier
-//   * @param rowId  the node unique row identifier, null if object identifier
-//   * @return the unique identifier, not null
-//   */
-//  protected UniqueIdentifier createNodeUniqueIdentifier(final long nodeOid, final Long rowId) {
-//    return UniqueIdentifier.of(getIdentifierScheme(), Long.toString(nodeOid), ObjectUtils.toString(rowId, null));
-//  }
-//
-//  /**
-//   * Creates a unique identifier for a position.
-//   * @param positionOid  the position object identifier
-//   * @param rowId  the node unique row identifier, null if object identifier
-//   * @return the unique identifier, not null
-//   */
-//  protected UniqueIdentifier createPositionUniqueIdentifier(final long positionOid, final Long rowId) {
-//    return UniqueIdentifier.of(getIdentifierScheme(), Long.toString(positionOid), ObjectUtils.toString(rowId, null));
-//  }
 
   //-------------------------------------------------------------------------
   protected PortfolioTreeSearchResult searchPortfolioTrees(PortfolioTreeSearchRequest request) {

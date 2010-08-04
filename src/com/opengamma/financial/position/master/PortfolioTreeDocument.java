@@ -15,12 +15,10 @@ import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.PropertyReadWrite;
 import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.google.common.collect.Maps;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -40,30 +38,32 @@ public class PortfolioTreeDocument extends DirectBean {
   @PropertyDefinition
   private UniqueIdentifier _portfolioId;
   /**
-   * The instant that the portfolio is valid from.
+   * The start of an interval that the version of the position is accurate for.
    */
   @PropertyDefinition
-  private Instant _validFromInstant;
+  private Instant _versionFromInstant;
   /**
-   * The instant that the portfolio is valid to.
+   * The end of an interval that the version of the position is accurate for.
+   * Null indicates this is the latest version.
    */
   @PropertyDefinition
-  private Instant _validToInstant;
+  private Instant _versionToInstant;
   /**
-   * The instant that the portfolio was last modified.
+   * The start of an interval that the correction of the version of the position is accurate for.
    */
   @PropertyDefinition
-  private Instant _lastModifiedInstant;
+  private Instant _correctionFromInstant;
+  /**
+   * The end of an interval that the correction of the version of the position is accurate for.
+   * Null indicates this is the latest correction.
+   */
+  @PropertyDefinition
+  private Instant _correctionToInstant;
   /**
    * The portfolio, containing the full tree but no positions.
    */
   @PropertyDefinition
   private Portfolio _portfolio;
-  /**
-   * The map of node unique identifier to the count of positions directly on that node.
-   */
-  @PropertyDefinition(readWrite = PropertyReadWrite.READ_ONLY)
-  private Map<UniqueIdentifier, Integer> _positionCounts = Maps.newHashMap();
 
   /**
    * Creates an instance.
@@ -100,16 +100,16 @@ public class PortfolioTreeDocument extends DirectBean {
     switch (propertyName.hashCode()) {
       case -5186429:  // portfolioId
         return getPortfolioId();
-      case -3992261:  // validFromInstant
-        return getValidFromInstant();
-      case -1035122102:  // validToInstant
-        return getValidToInstant();
-      case 1792974178:  // lastModifiedInstant
-        return getLastModifiedInstant();
+      case 2006263519:  // versionFromInstant
+        return getVersionFromInstant();
+      case 1577022702:  // versionToInstant
+        return getVersionToInstant();
+      case 1808757913:  // correctionFromInstant
+        return getCorrectionFromInstant();
+      case 973465896:  // correctionToInstant
+        return getCorrectionToInstant();
       case 1121781064:  // portfolio
         return getPortfolio();
-      case -2113727539:  // positionCounts
-        return getPositionCounts();
     }
     return super.propertyGet(propertyName);
   }
@@ -120,20 +120,21 @@ public class PortfolioTreeDocument extends DirectBean {
       case -5186429:  // portfolioId
         setPortfolioId((UniqueIdentifier) newValue);
         return;
-      case -3992261:  // validFromInstant
-        setValidFromInstant((Instant) newValue);
+      case 2006263519:  // versionFromInstant
+        setVersionFromInstant((Instant) newValue);
         return;
-      case -1035122102:  // validToInstant
-        setValidToInstant((Instant) newValue);
+      case 1577022702:  // versionToInstant
+        setVersionToInstant((Instant) newValue);
         return;
-      case 1792974178:  // lastModifiedInstant
-        setLastModifiedInstant((Instant) newValue);
+      case 1808757913:  // correctionFromInstant
+        setCorrectionFromInstant((Instant) newValue);
+        return;
+      case 973465896:  // correctionToInstant
+        setCorrectionToInstant((Instant) newValue);
         return;
       case 1121781064:  // portfolio
         setPortfolio((Portfolio) newValue);
         return;
-      case -2113727539:  // positionCounts
-        throw new UnsupportedOperationException("Property cannot be written: positionCounts");
     }
     super.propertySet(propertyName, newValue);
   }
@@ -165,77 +166,108 @@ public class PortfolioTreeDocument extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the instant that the portfolio is valid from.
+   * Gets the start of an interval that the version of the position is accurate for.
    * @return the value of the property
    */
-  public Instant getValidFromInstant() {
-    return _validFromInstant;
+  public Instant getVersionFromInstant() {
+    return _versionFromInstant;
   }
 
   /**
-   * Sets the instant that the portfolio is valid from.
-   * @param validFromInstant  the new value of the property
+   * Sets the start of an interval that the version of the position is accurate for.
+   * @param versionFromInstant  the new value of the property
    */
-  public void setValidFromInstant(Instant validFromInstant) {
-    this._validFromInstant = validFromInstant;
+  public void setVersionFromInstant(Instant versionFromInstant) {
+    this._versionFromInstant = versionFromInstant;
   }
 
   /**
-   * Gets the the {@code validFromInstant} property.
+   * Gets the the {@code versionFromInstant} property.
    * @return the property, not null
    */
-  public final Property<Instant> validFromInstant() {
-    return metaBean().validFromInstant().createProperty(this);
+  public final Property<Instant> versionFromInstant() {
+    return metaBean().versionFromInstant().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the instant that the portfolio is valid to.
+   * Gets the end of an interval that the version of the position is accurate for.
+   * Null indicates this is the latest version.
    * @return the value of the property
    */
-  public Instant getValidToInstant() {
-    return _validToInstant;
+  public Instant getVersionToInstant() {
+    return _versionToInstant;
   }
 
   /**
-   * Sets the instant that the portfolio is valid to.
-   * @param validToInstant  the new value of the property
+   * Sets the end of an interval that the version of the position is accurate for.
+   * Null indicates this is the latest version.
+   * @param versionToInstant  the new value of the property
    */
-  public void setValidToInstant(Instant validToInstant) {
-    this._validToInstant = validToInstant;
+  public void setVersionToInstant(Instant versionToInstant) {
+    this._versionToInstant = versionToInstant;
   }
 
   /**
-   * Gets the the {@code validToInstant} property.
+   * Gets the the {@code versionToInstant} property.
+   * Null indicates this is the latest version.
    * @return the property, not null
    */
-  public final Property<Instant> validToInstant() {
-    return metaBean().validToInstant().createProperty(this);
+  public final Property<Instant> versionToInstant() {
+    return metaBean().versionToInstant().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the instant that the portfolio was last modified.
+   * Gets the start of an interval that the correction of the version of the position is accurate for.
    * @return the value of the property
    */
-  public Instant getLastModifiedInstant() {
-    return _lastModifiedInstant;
+  public Instant getCorrectionFromInstant() {
+    return _correctionFromInstant;
   }
 
   /**
-   * Sets the instant that the portfolio was last modified.
-   * @param lastModifiedInstant  the new value of the property
+   * Sets the start of an interval that the correction of the version of the position is accurate for.
+   * @param correctionFromInstant  the new value of the property
    */
-  public void setLastModifiedInstant(Instant lastModifiedInstant) {
-    this._lastModifiedInstant = lastModifiedInstant;
+  public void setCorrectionFromInstant(Instant correctionFromInstant) {
+    this._correctionFromInstant = correctionFromInstant;
   }
 
   /**
-   * Gets the the {@code lastModifiedInstant} property.
+   * Gets the the {@code correctionFromInstant} property.
    * @return the property, not null
    */
-  public final Property<Instant> lastModifiedInstant() {
-    return metaBean().lastModifiedInstant().createProperty(this);
+  public final Property<Instant> correctionFromInstant() {
+    return metaBean().correctionFromInstant().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the end of an interval that the correction of the version of the position is accurate for.
+   * Null indicates this is the latest correction.
+   * @return the value of the property
+   */
+  public Instant getCorrectionToInstant() {
+    return _correctionToInstant;
+  }
+
+  /**
+   * Sets the end of an interval that the correction of the version of the position is accurate for.
+   * Null indicates this is the latest correction.
+   * @param correctionToInstant  the new value of the property
+   */
+  public void setCorrectionToInstant(Instant correctionToInstant) {
+    this._correctionToInstant = correctionToInstant;
+  }
+
+  /**
+   * Gets the the {@code correctionToInstant} property.
+   * Null indicates this is the latest correction.
+   * @return the property, not null
+   */
+  public final Property<Instant> correctionToInstant() {
+    return metaBean().correctionToInstant().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -265,23 +297,6 @@ public class PortfolioTreeDocument extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the map of node unique identifier to the count of positions directly on that node.
-   * @return the value of the property
-   */
-  public Map<UniqueIdentifier, Integer> getPositionCounts() {
-    return _positionCounts;
-  }
-
-  /**
-   * Gets the the {@code positionCounts} property.
-   * @return the property, not null
-   */
-  public final Property<Map<UniqueIdentifier, Integer>> positionCounts() {
-    return metaBean().positionCounts().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code PortfolioTreeDocument}.
    */
   public static class Meta extends BasicMetaBean {
@@ -295,26 +310,25 @@ public class PortfolioTreeDocument extends DirectBean {
      */
     private final MetaProperty<UniqueIdentifier> _portfolioId = DirectMetaProperty.ofReadWrite(this, "portfolioId", UniqueIdentifier.class);
     /**
-     * The meta-property for the {@code validFromInstant} property.
+     * The meta-property for the {@code versionFromInstant} property.
      */
-    private final MetaProperty<Instant> _validFromInstant = DirectMetaProperty.ofReadWrite(this, "validFromInstant", Instant.class);
+    private final MetaProperty<Instant> _versionFromInstant = DirectMetaProperty.ofReadWrite(this, "versionFromInstant", Instant.class);
     /**
-     * The meta-property for the {@code validToInstant} property.
+     * The meta-property for the {@code versionToInstant} property.
      */
-    private final MetaProperty<Instant> _validToInstant = DirectMetaProperty.ofReadWrite(this, "validToInstant", Instant.class);
+    private final MetaProperty<Instant> _versionToInstant = DirectMetaProperty.ofReadWrite(this, "versionToInstant", Instant.class);
     /**
-     * The meta-property for the {@code lastModifiedInstant} property.
+     * The meta-property for the {@code correctionFromInstant} property.
      */
-    private final MetaProperty<Instant> _lastModifiedInstant = DirectMetaProperty.ofReadWrite(this, "lastModifiedInstant", Instant.class);
+    private final MetaProperty<Instant> _correctionFromInstant = DirectMetaProperty.ofReadWrite(this, "correctionFromInstant", Instant.class);
+    /**
+     * The meta-property for the {@code correctionToInstant} property.
+     */
+    private final MetaProperty<Instant> _correctionToInstant = DirectMetaProperty.ofReadWrite(this, "correctionToInstant", Instant.class);
     /**
      * The meta-property for the {@code portfolio} property.
      */
     private final MetaProperty<Portfolio> _portfolio = DirectMetaProperty.ofReadWrite(this, "portfolio", Portfolio.class);
-    /**
-     * The meta-property for the {@code positionCounts} property.
-     */
-    @SuppressWarnings("unchecked")
-    private final MetaProperty<Map<UniqueIdentifier, Integer>> _positionCounts = DirectMetaProperty.ofReadOnly(this, "positionCounts", (Class) Map.class);
     /**
      * The meta-properties.
      */
@@ -324,11 +338,11 @@ public class PortfolioTreeDocument extends DirectBean {
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("portfolioId", _portfolioId);
-      temp.put("validFromInstant", _validFromInstant);
-      temp.put("validToInstant", _validToInstant);
-      temp.put("lastModifiedInstant", _lastModifiedInstant);
+      temp.put("versionFromInstant", _versionFromInstant);
+      temp.put("versionToInstant", _versionToInstant);
+      temp.put("correctionFromInstant", _correctionFromInstant);
+      temp.put("correctionToInstant", _correctionToInstant);
       temp.put("portfolio", _portfolio);
-      temp.put("positionCounts", _positionCounts);
       _map = Collections.unmodifiableMap(temp);
     }
 
@@ -357,27 +371,35 @@ public class PortfolioTreeDocument extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code validFromInstant} property.
+     * The meta-property for the {@code versionFromInstant} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Instant> validFromInstant() {
-      return _validFromInstant;
+    public final MetaProperty<Instant> versionFromInstant() {
+      return _versionFromInstant;
     }
 
     /**
-     * The meta-property for the {@code validToInstant} property.
+     * The meta-property for the {@code versionToInstant} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Instant> validToInstant() {
-      return _validToInstant;
+    public final MetaProperty<Instant> versionToInstant() {
+      return _versionToInstant;
     }
 
     /**
-     * The meta-property for the {@code lastModifiedInstant} property.
+     * The meta-property for the {@code correctionFromInstant} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Instant> lastModifiedInstant() {
-      return _lastModifiedInstant;
+    public final MetaProperty<Instant> correctionFromInstant() {
+      return _correctionFromInstant;
+    }
+
+    /**
+     * The meta-property for the {@code correctionToInstant} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Instant> correctionToInstant() {
+      return _correctionToInstant;
     }
 
     /**
@@ -386,14 +408,6 @@ public class PortfolioTreeDocument extends DirectBean {
      */
     public final MetaProperty<Portfolio> portfolio() {
       return _portfolio;
-    }
-
-    /**
-     * The meta-property for the {@code positionCounts} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Map<UniqueIdentifier, Integer>> positionCounts() {
-      return _positionCounts;
     }
 
   }
