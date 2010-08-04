@@ -1,0 +1,103 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.financial.position.master.db;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.TimeZone;
+
+import javax.time.Instant;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.opengamma.DataNotFoundException;
+import com.opengamma.engine.position.Portfolio;
+import com.opengamma.financial.position.master.PortfolioTreeDocument;
+import com.opengamma.id.UniqueIdentifier;
+
+/**
+ * Tests ModifyPortfolioTreeDbPortfolioTreeMasterWorker.
+ */
+public class ModifyPortfolioTreeDbPositionMasterWorkerRemovePortfolioTreeTest extends AbstractDbPositionMasterWorkerTest {
+  // superclass sets up dummy database
+
+  private static final Logger s_logger = LoggerFactory.getLogger(ModifyPortfolioTreeDbPositionMasterWorkerRemovePortfolioTreeTest.class);
+
+  private ModifyPortfolioTreeDbPositionMasterWorker _worker;
+  private QueryPortfolioTreeDbPositionMasterWorker _queryWorker;
+
+  public ModifyPortfolioTreeDbPositionMasterWorkerRemovePortfolioTreeTest(String databaseType, String databaseVersion) {
+    super(databaseType, databaseVersion);
+    s_logger.info("running testcases for {}", databaseType);
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+  }
+
+  @Before
+  public void setUp() throws Exception {
+    super.setUp();
+    _worker = new ModifyPortfolioTreeDbPositionMasterWorker();
+    _worker.init(_posMaster);
+    _queryWorker = new QueryPortfolioTreeDbPositionMasterWorker();
+    _queryWorker.init(_posMaster);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    super.tearDown();
+    _worker = null;
+    _queryWorker = null;
+  }
+
+  //-------------------------------------------------------------------------
+  @Test(expected = NullPointerException.class)
+  public void test_removePortfolioTree_nullUID() {
+    _worker.removePortfolioTree(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void test_removePortfolioTree_nonVersionedUID() {
+    _worker.removePortfolioTree(UniqueIdentifier.of("DbPos", "101"));
+  }
+
+  @Test(expected = DataNotFoundException.class)
+  public void test_removePortfolioTree_versioned_notFound() {
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "0", "0");
+    _worker.removePortfolioTree(uid);
+  }
+
+  @Test
+  public void test_removePortfolioTree_removed() {
+    Instant now = Instant.now(_posMaster.getTimeSource());
+    
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "201", "202");
+    _worker.removePortfolioTree(uid);
+    PortfolioTreeDocument test = _queryWorker.getPortfolioTree(uid);
+    
+    assertEquals(uid, test.getPortfolioId());
+    assertEquals(_version2Instant, test.getVersionFromInstant());
+    assertEquals(now, test.getVersionToInstant());
+    assertEquals(_version2Instant, test.getCorrectionFromInstant());
+    assertEquals(null, test.getCorrectionToInstant());
+    Portfolio portfolio = test.getPortfolio();
+    assertNotNull(portfolio);
+    assertEquals(uid, portfolio.getUniqueIdentifier());
+    assertEquals("TestNode212", portfolio.getRootNode().getName());
+    assertEquals(0, portfolio.getRootNode().getChildNodes().size());
+    assertEquals(0, portfolio.getRootNode().getPositions().size());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_toString() {
+    assertEquals(_worker.getClass().getSimpleName() + "[DbPos]", _worker.toString());
+  }
+
+}

@@ -34,6 +34,8 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
+import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
+import com.opengamma.financial.interestrate.ParRateDifferanceCalculator;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -65,7 +67,7 @@ import com.opengamma.math.rootfinding.newton.JacobianCalculator;
 import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
 
 /**
- * 
+ *TODO delete this file
  */
 public class SwapPortfolioImpliedYieldCurveFunction extends AbstractFunction implements FunctionInvoker {
   private static final String CURVE_NAME = "Whatever";
@@ -154,12 +156,12 @@ public class SwapPortfolioImpliedYieldCurveFunction extends AbstractFunction imp
     LinkedHashMap<String, FixedNodeInterpolator1D> unknownCurves = new LinkedHashMap<String, FixedNodeInterpolator1D>();
     FixedNodeInterpolator1D fnInterpolator = new FixedNodeInterpolator1D(nodeTimes, _interpolatorWithSensitivity);
     unknownCurves.put(CURVE_NAME, fnInterpolator);
-    final JacobianCalculator jacobian = new MultipleYieldCurveFinderJacobian(swaps, unknownCurves, null);
+    final JacobianCalculator jacobian = new MultipleYieldCurveFinderJacobian(swaps, unknownCurves, null,ParRateCurveSensitivityCalculator.getInstance());
 
     unknownCurves = new LinkedHashMap<String, FixedNodeInterpolator1D>();
     fnInterpolator = new FixedNodeInterpolator1D(nodeTimes, _interpolator);
     unknownCurves.put(CURVE_NAME, fnInterpolator);
-    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveFinder = new MultipleYieldCurveFinderFunction(swaps, marketRates, unknownCurves, null);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveFinder = new MultipleYieldCurveFinderFunction(swaps,  unknownCurves, null,ParRateDifferanceCalculator.getInstance());
 
 
     // TODO this should not be hard-coded

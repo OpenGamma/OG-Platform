@@ -35,6 +35,8 @@ import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
+import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
+import com.opengamma.financial.interestrate.ParRateDifferanceCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
@@ -67,8 +69,9 @@ import com.opengamma.math.rootfinding.newton.JacobianCalculator;
 import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
 
 /**
- * 
+ * TODO Delete this file
  */
+
 public class SwapPortfolioImpliedFundingAndForwardCurveFunction extends AbstractFunction implements FunctionInvoker {
   private static final String FUNDING_CURVE_NAME = "Funding Curve";
   private static final String LIBOR_CURVE_NAME = "Libor Curve";
@@ -77,7 +80,7 @@ public class SwapPortfolioImpliedFundingAndForwardCurveFunction extends Abstract
   private final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> _interpolator; // TODO this should not be hard-coded
   // TODO this should depend on the type of _fundingInterpolator
   private final Interpolator1D<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> _interpolatorWithSensitivity;
-  private final ParRateCalculator _swapRateCalculator = new ParRateCalculator();
+  private final ParRateCalculator _swapRateCalculator = ParRateCalculator.getInstance();
   private final String _fundingCurveName;
   private final String _forwardCurveName;
 
@@ -113,7 +116,7 @@ public class SwapPortfolioImpliedFundingAndForwardCurveFunction extends Abstract
     boolean payFixed;
     final int numberOfSwaps = node.getPositions().size();
     final List<InterestRateDerivative> swaps = new ArrayList<InterestRateDerivative>();
-    final double[] marketRates = new double[numberOfSwaps];
+//    final double[] marketRates = new double[numberOfSwaps];
     final double[] fundingNodeTimes = new double[fundingCurve.getMaturities().size()];
     final double[] forwardNodeTimes = new double[forwardCurve.getMaturities().size()];
     final double[] initialRatesGuess = new double[numberOfSwaps]; // TODO is this where the fixed rate should live?
@@ -148,13 +151,15 @@ public class SwapPortfolioImpliedFundingAndForwardCurveFunction extends Abstract
         forwardStartOffsets = new double[nFloat];
         forwardEndOffsets = new double[nFloat];
       }
+      
+      //TODO This does not have a swap value
       swap = new FixedFloatSwap(fixedPaymentTimes,floatPaymentTimes, 0.0,forwardStartOffsets, forwardEndOffsets,FUNDING_CURVE_NAME,LIBOR_CURVE_NAME);
       YieldCurveBundle bundle = new YieldCurveBundle();
 
       bundle.setCurve(FUNDING_CURVE_NAME, fundingCurve);
       bundle.setCurve(LIBOR_CURVE_NAME, forwardCurve);
       // swap rates from bbg
-      marketRates[i] = _swapRateCalculator.getValue(swap, bundle);
+   
       fundingNodeTimes[i] = Math.max(fixedPaymentTimes[nFix - 1], floatPaymentTimes[nFloat - 1] + forwardEndOffsets[nFloat - 1]);
       // forwardNodeTimes[i] = something
       initialRatesGuess[i] = 0.05;
@@ -168,14 +173,14 @@ public class SwapPortfolioImpliedFundingAndForwardCurveFunction extends Abstract
     unknownCurves.put(LIBOR_CURVE_NAME, fnInterpolator);
     fnInterpolator = new FixedNodeInterpolator1D(fundingNodeTimes, _interpolatorWithSensitivity);
     unknownCurves.put(FUNDING_CURVE_NAME, fnInterpolator);
-    final JacobianCalculator jacobian = new MultipleYieldCurveFinderJacobian(swaps, unknownCurves, null);
+    final JacobianCalculator jacobian = new MultipleYieldCurveFinderJacobian(swaps, unknownCurves, null,ParRateCurveSensitivityCalculator.getInstance());
 
     unknownCurves = new LinkedHashMap<String, FixedNodeInterpolator1D>();
     fnInterpolator = new FixedNodeInterpolator1D(forwardNodeTimes, _interpolator);
     unknownCurves.put(LIBOR_CURVE_NAME, fnInterpolator);
     fnInterpolator = new FixedNodeInterpolator1D(fundingNodeTimes, _interpolator);
     unknownCurves.put(FUNDING_CURVE_NAME, fnInterpolator);
-    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveFinder = new MultipleYieldCurveFinderFunction(swaps, marketRates, unknownCurves, null);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveFinder = new MultipleYieldCurveFinderFunction(swaps,unknownCurves, null,ParRateDifferanceCalculator.getInstance());
 
 
     // TODO this should not be hard-coded
