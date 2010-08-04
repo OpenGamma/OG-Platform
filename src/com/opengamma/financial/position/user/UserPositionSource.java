@@ -5,14 +5,12 @@
  */
 package com.opengamma.financial.position.user;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionSource;
+import com.opengamma.financial.position.master.MasterPositionSource;
+import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.financial.user.UserResourceDetails;
 import com.opengamma.financial.user.UserUniqueIdentifierUtils;
 import com.opengamma.financial.user.rest.ClientResource;
@@ -50,7 +48,8 @@ public class UserPositionSource implements PositionSource {
     if (clientResource == null) {
       return null;
     }
-    return clientResource.getPortfolios().getPositionMaster();
+    PositionMaster positionMaster = clientResource.getPortfolios().getPositionMaster();
+    return new MasterPositionSource(positionMaster);
   }
 
   @Override
@@ -60,18 +59,6 @@ public class UserPositionSource implements PositionSource {
       return null;
     }
     return positionMaster.getPortfolio(uid);
-  }
-
-  @Override
-  public Set<UniqueIdentifier> getPortfolioIds() {
-    Set<UniqueIdentifier> result = new HashSet<UniqueIdentifier>();
-    for (UserResource user : _underlying.getAllUsers()) {
-      for (ClientResource client : user.getClients().getAllClients()) {
-        PositionSource positionMaster = client.getPortfolios().getPositionMaster();
-        result.addAll(positionMaster.getPortfolioIds());
-      }
-    }
-    return Collections.unmodifiableSet(result);
   }
 
   @Override

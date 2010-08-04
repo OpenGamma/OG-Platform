@@ -5,19 +5,15 @@
  */
 package com.opengamma.financial.position.master;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.time.Instant;
 import javax.time.InstantProvider;
-
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionSource;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A {@code PositionSource} implemented using an underlying {@code PositionMaster}.
@@ -68,7 +64,7 @@ public class MasterPositionSource implements PositionSource {
    * @param correctedToInstantProvider  the instant that the data should be corrected to, null for latest correction
    */
   public MasterPositionSource(final PositionMaster positionMaster, InstantProvider versionAsOfInstantProvider, InstantProvider correctedToInstantProvider) {
-    Validate.notNull(positionMaster, "positionMaster");
+    ArgumentChecker.notNull(positionMaster, "positionMaster");
     _positionMaster = positionMaster;
     if (versionAsOfInstantProvider != null) {
       _versionAsOfInstant = Instant.of(versionAsOfInstantProvider);
@@ -84,21 +80,8 @@ public class MasterPositionSource implements PositionSource {
 
   //-------------------------------------------------------------------------
   @Override
-  public Set<UniqueIdentifier> getPortfolioIds() {
-    final PortfolioTreeSearchRequest request = new PortfolioTreeSearchRequest();
-    request.setVersionAsOfInstant(_versionAsOfInstant);
-    request.setCorrectedToInstant(_correctedToInstant);
-    final PortfolioTreeSearchResult result = _positionMaster.searchPortfolioTrees(request);
-    final Set<UniqueIdentifier> ids = new HashSet<UniqueIdentifier>();
-    for (PortfolioTreeDocument doc : result.getDocuments()) {
-      ids.add(doc.getPortfolioId());
-    }
-    return ids;
-  }
-
-  @Override
   public Portfolio getPortfolio(final UniqueIdentifier uid) {
-    Validate.notNull(uid, "uid");
+    ArgumentChecker.notNull(uid, "uid");
     final FullPortfolioGetRequest request = new FullPortfolioGetRequest(uid);
     request.setVersionAsOfInstant(_versionAsOfInstant);
     request.setCorrectedToInstant(_correctedToInstant);
@@ -107,7 +90,7 @@ public class MasterPositionSource implements PositionSource {
 
   @Override
   public PortfolioNode getPortfolioNode(final UniqueIdentifier uid) {
-    Validate.notNull(uid, "uid");
+    ArgumentChecker.notNull(uid, "uid");
     final FullPortfolioNodeGetRequest request = new FullPortfolioNodeGetRequest(uid);
     request.setVersionAsOfInstant(_versionAsOfInstant);
     request.setCorrectedToInstant(_correctedToInstant);
@@ -116,7 +99,7 @@ public class MasterPositionSource implements PositionSource {
 
   @Override
   public Position getPosition(final UniqueIdentifier uid) {
-    Validate.notNull(uid, "uid");
+    ArgumentChecker.notNull(uid, "uid");
     final FullPositionGetRequest request = new FullPositionGetRequest(uid);
     request.setVersionAsOfInstant(_versionAsOfInstant);
     request.setCorrectedToInstant(_correctedToInstant);
