@@ -49,7 +49,7 @@ public class PercentileCalculatorTest {
     CALCULATOR.setPercentile(0);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullArray() {
     CALCULATOR.evaluate((double[]) null);
   }
