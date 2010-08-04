@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.position;
 
-import java.util.Set;
-
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -16,12 +14,6 @@ import com.opengamma.id.UniqueIdentifier;
  * This may be backed by a full-featured position master, or by a much simpler data structure.
  */
 public interface PositionSource {
-
-  /**
-   * Gets the list of all portfolio identifiers.
-   * @return the portfolio identifiers, unmodifiable, not null
-   */
-  Set<UniqueIdentifier> getPortfolioIds();
 
   /**
    * Finds a specific portfolio by identifier.

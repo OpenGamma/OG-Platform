@@ -131,7 +131,6 @@ public class CSVPositionSource implements PositionSource {
   }
 
   //-------------------------------------------------------------------------
-  @Override
   public Set<UniqueIdentifier> getPortfolioIds() {
     return Collections.unmodifiableSet(_portfolios.keySet());
   }
