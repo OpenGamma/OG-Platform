@@ -200,7 +200,7 @@
 			</assertions>
 			<formatter type="xml" />
 			<batchtest todir="${tests.junit.dir}/xml">
-				<fileset dir="${tests.src.dir}" includes="**/*Test.java" />
+				<fileset dir="${tests.src.dir}" includes="**/*Test.java" excludes="**/Abstract*" />
 				<fileset dir="${tests.dir}/interop" includes="**/*Test.java" erroronmissingdir="false" />
 			</batchtest>
 			<sysproperty key="user.name" value="${user.name}" />
