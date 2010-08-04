@@ -30,6 +30,7 @@
    	<property name="createInstant" column="create_instant" not-null="true"/>
    	<property name="startInstant" column="start_instant" not-null="true"/>
    	<property name="endInstant" column="end_instant"/>
+   	<property name="numRestarts" column="num_restarts"/>
     <set name="calculationConfigurations" inverse="true">
         <key column="id"/>
         <one-to-many class="CalculationConfiguration"/>
