@@ -20,14 +20,14 @@ import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.Extrapolator1D;
-import com.opengamma.math.interpolation.ExtrapolatorMethod;
-import com.opengamma.math.interpolation.FixedNodeInterpolator1D;
-import com.opengamma.math.interpolation.FlatExtrapolatorWithSensitivities;
-import com.opengamma.math.interpolation.InterpolationResultWithSensitivities;
-import com.opengamma.math.interpolation.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.Interpolator1DWithSensitivities;
-import com.opengamma.math.interpolation.LinearInterpolator1DWithSensitivities;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.math.interpolation.temp.ExtrapolatorOld1D;
+import com.opengamma.math.interpolation.temp.ExtrapolatorMethod;
+import com.opengamma.math.interpolation.temp.FixedNodeInterpolator1D;
+import com.opengamma.math.interpolation.temp.FlatExtrapolatorWithSensitivities;
+import com.opengamma.math.interpolation.temp.InterpolationResultWithSensitivities;
+import com.opengamma.math.interpolation.temp.Interpolator1DWithSensitivities;
+import com.opengamma.math.interpolation.temp.LinearInterpolator1DWithSensitivities;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.newton.JacobianCalculator;
@@ -44,7 +44,7 @@ public class MultipleYieldCurveFinderJacobianTest {
   private static final List<InterestRateDerivative> MIXED_INSTRUMENT;
   private static final double[] FORWARD_NODES;
   private static final double[] FUNDING_NODES;
-  private static final Extrapolator1D<Interpolator1DDataBundle, InterpolationResultWithSensitivities> EXTRAPOLATOR;
+  private static final ExtrapolatorOld1D<Interpolator1DDataBundle, InterpolationResultWithSensitivities> EXTRAPOLATOR;
   private static final DoubleMatrix1D XN;
   private static final DoubleMatrix1D XM;
   private static final DoubleMatrix1D XNM;
@@ -87,7 +87,7 @@ public class MultipleYieldCurveFinderJacobianTest {
 
     final Interpolator1DWithSensitivities<Interpolator1DDataBundle> interpolator = new LinearInterpolator1DWithSensitivities();
     final ExtrapolatorMethod<Interpolator1DDataBundle, InterpolationResultWithSensitivities> flat_em_sense = new FlatExtrapolatorWithSensitivities<Interpolator1DDataBundle, InterpolationResultWithSensitivities>();
-    EXTRAPOLATOR = new Extrapolator1D<Interpolator1DDataBundle, InterpolationResultWithSensitivities>(flat_em_sense, interpolator);
+    EXTRAPOLATOR = new ExtrapolatorOld1D<Interpolator1DDataBundle, InterpolationResultWithSensitivities>(flat_em_sense, interpolator);
 
     CASH_CURVES = new LinkedHashMap<String, FixedNodeInterpolator1D>();
     FRA_CURVES = new LinkedHashMap<String, FixedNodeInterpolator1D>();

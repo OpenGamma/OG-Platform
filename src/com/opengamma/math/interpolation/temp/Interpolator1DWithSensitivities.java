@@ -3,11 +3,14 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.math.interpolation;
+package com.opengamma.math.interpolation.temp;
 
 import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
+
+import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * @param <T> Type of the data bundle

@@ -10,6 +10,8 @@ import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
+import com.opengamma.math.interpolation.temp.InterpolationResult;
+
 /**
  * 
  */

@@ -13,34 +13,41 @@ import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
+import com.opengamma.math.interpolation.data.Interpolator1DCubicSplineDataBundle;
+import com.opengamma.math.interpolation.data.Interpolator1DCubicSplineWithSensitivitiesDataBundle;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.math.interpolation.sensitivity.FiniteDifferenceInterpolator1DNodeSensitivityCalculator;
+import com.opengamma.math.interpolation.sensitivity.FlatExtrapolator1DNodeSensitivityCalculator;
+import com.opengamma.math.interpolation.sensitivity.LinearExtrapolator1DNodeSensitivityCalculator;
+import com.opengamma.math.interpolation.sensitivity.NaturalCubicSplineInterpolator1DNodeSensitivityCalculator;
 
 /**
  * 
  */
-@SuppressWarnings("unchecked")
-public class Extrapolator1DWithSensitivityTest {
+public class Extrapolator1DNodeSensitivityCalculatorTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  private static final Interpolator1D<? extends Interpolator1DDataBundle, InterpolationResultWithSensitivities> INTERPOLATOR = new CubicSplineInterpolatorWithSensitivities1D();
-  private static final ExtrapolatorMethod<? extends Interpolator1DDataBundle, ? extends InterpolationResult> LINEAR_EM = new LinearExtrapolator<Interpolator1DDataBundle, InterpolationResult>();
-  private static final ExtrapolatorMethod<? extends Interpolator1DDataBundle, ? extends InterpolationResultWithSensitivities> LINEAR_EM_SENSE = new LinearExtrapolatorWithSensitivity<Interpolator1DDataBundle, InterpolationResultWithSensitivities>();
-
-  // private static final Extrapolator1D<Interpolator1DDataBundle, InterpolationResult> FLAT_EXTRAPOLATOR = new Extrapolator1D(FLAT_EM, INTERPOLATOR);
-  private static final Extrapolator1D<Interpolator1DDataBundle, InterpolationResult> EXTRAPOLATOR = new Extrapolator1D(LINEAR_EM, LINEAR_EM, INTERPOLATOR);
-  private static final Extrapolator1D<Interpolator1DDataBundle, InterpolationResultWithSensitivities> EXTRAPOLATOR_SENSE = new Extrapolator1D(LINEAR_EM_SENSE, LINEAR_EM_SENSE, INTERPOLATOR);
-  private static final Interpolator1DWithSensitivities<Interpolator1DDataBundle> EXTRAPOLATOR_FD = new Interpolator1DWithSensitivities<Interpolator1DDataBundle>(EXTRAPOLATOR);
-  private static final Interpolator1DCubicSplineDataBundle MODEL;
+  private static final NaturalCubicSplineInterpolator1D INTERPOLATOR = new NaturalCubicSplineInterpolator1D();
+  private static final NaturalCubicSplineInterpolator1DNodeSensitivityCalculator CALCULATOR = new NaturalCubicSplineInterpolator1DNodeSensitivityCalculator();
+  private static final FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle> FD_CALCULATOR = new FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle>(
+      INTERPOLATOR);
+  private static final FlatExtrapolator1DNodeSensitivityCalculator<Interpolator1DDataBundle> FLAT_CALCULATOR = new FlatExtrapolator1DNodeSensitivityCalculator<Interpolator1DDataBundle>();
+  private static final LinearExtrapolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineWithSensitivitiesDataBundle> LINEAR_CALCULATOR = new LinearExtrapolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(
+      CALCULATOR);
+  private static final LinearExtrapolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle> LINEAR_FD_CALCULATOR = new LinearExtrapolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle>(
+      FD_CALCULATOR);
+  private static final Interpolator1DCubicSplineWithSensitivitiesDataBundle DATA;
   private static final double EPS = 1e-4;
 
   private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
-
-    private static final double a = -0.045;
-    private static final double b = 0.03;
-    private static final double c = 0.3;
-    private static final double d = 0.05;
+    private static final double A = -0.045;
+    private static final double B = 0.03;
+    private static final double C = 0.3;
+    private static final double D = 0.05;
 
     @Override
     public Double evaluate(final Double x) {
-      return (a + b * x) * Math.exp(-c * x) + d;
+      return (A + B * x) * Math.exp(-C * x) + D;
     }
   };
 
@@ -51,21 +58,51 @@ public class Extrapolator1DWithSensitivityTest {
     for (int i = 0; i < n; i++) {
       r[i] = FUNCTION.evaluate(t[i]);
     }
-    MODEL = (Interpolator1DCubicSplineDataBundle) Interpolator1DDataBundleFactory.fromSortedArrays(t, r, EXTRAPOLATOR);
+    //TODO 
+    DATA = new Interpolator1DCubicSplineWithSensitivitiesDataBundle(new Interpolator1DCubicSplineDataBundle(new ArrayInterpolator1DDataBundle(t, r)));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullCalculator() {
+    new LinearExtrapolator1DNodeSensitivityCalculator<Interpolator1DDataBundle>(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullData1() {
+    LINEAR_CALCULATOR.calculate(null, 102);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullData2() {
+    FLAT_CALCULATOR.calculate(null, 105);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testWithinRange1() {
+    LINEAR_CALCULATOR.calculate(DATA, 20.);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testWithinRange2() {
+    FLAT_CALCULATOR.calculate(DATA, 20);
   }
 
   @Test
   public void testSensitivities() {
-    final double min = -10.0;
-    final double max = 40.0;
+    double[] sensitivityFD, sensitivity;
+    double tUp, tDown;
     for (int i = 0; i < 100; i++) {
-      final double t = RANDOM.nextDouble() * (max - min) - min;
-      // double t = 0.25;
-      final double[] sensitivity_FD = EXTRAPOLATOR_FD.interpolate(MODEL, t).getSensitivities();
-      final double[] sensitivity = EXTRAPOLATOR_SENSE.interpolate(MODEL, t).getSensitivities();
-
+      tUp = RANDOM.nextDouble() * 10 + 30;
+      tDown = -RANDOM.nextDouble() * 10;
+      sensitivityFD = LINEAR_FD_CALCULATOR.calculate(DATA, tUp);
+      sensitivity = LINEAR_CALCULATOR.calculate(DATA, tUp);
       for (int j = 0; j < sensitivity.length; j++) {
-        assertEquals(sensitivity_FD[j], sensitivity[j], EPS);
+        assertEquals(sensitivityFD[j], sensitivity[j], EPS);
+      }
+      sensitivityFD = LINEAR_FD_CALCULATOR.calculate(DATA, tDown);
+      sensitivity = LINEAR_CALCULATOR.calculate(DATA, tDown);
+      for (int j = 0; j < sensitivity.length; j++) {
+        assertEquals(sensitivityFD[j], sensitivity[j], EPS);
       }
     }
   }

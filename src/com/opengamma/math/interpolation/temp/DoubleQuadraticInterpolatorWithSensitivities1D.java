@@ -3,9 +3,12 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.math.interpolation;
+package com.opengamma.math.interpolation.temp;
 
 import org.apache.commons.lang.Validate;
+
+import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
+import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
 
 /**
  * 

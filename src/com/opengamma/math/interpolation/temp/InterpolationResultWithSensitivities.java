@@ -3,9 +3,10 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.math.interpolation;
+package com.opengamma.math.interpolation.temp;
 
 import java.util.Arrays;
+
 
 /**
  * 

@@ -3,10 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.math.interpolation;
+package com.opengamma.math.interpolation.temp;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.interpolation.InterpolationException;
+import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
+import com.opengamma.math.interpolation.data.Interpolator1DCubicSplineWithSensitivitiesDataBundle;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**

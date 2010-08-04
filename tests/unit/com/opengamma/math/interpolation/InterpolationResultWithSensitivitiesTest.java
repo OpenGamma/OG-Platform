@@ -12,6 +12,8 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
+import com.opengamma.math.interpolation.temp.InterpolationResultWithSensitivities;
+
 /**
  * 
  */
