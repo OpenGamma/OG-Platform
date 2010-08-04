@@ -3,11 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.math.interpolation;
+package com.opengamma.math.interpolation.data;
 
 import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
+
 
 /**
  * An implementation of {@link Interpolator1DDataBundle} which holds all data in two

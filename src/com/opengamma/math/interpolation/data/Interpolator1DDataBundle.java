@@ -3,7 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.math.interpolation;
+package com.opengamma.math.interpolation.data;
+
+import com.opengamma.math.interpolation.Interpolator1D;
 
 /**
  * A pre-constructed version of the data which should be used

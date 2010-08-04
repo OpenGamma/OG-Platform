@@ -1,46 +1,51 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
-package com.opengamma.math.interpolation;
+package com.opengamma.math.interpolation.data;
 
 import org.apache.commons.lang.Validate;
+
+import com.opengamma.math.function.RealPolynomialFunction1D;
 
 /**
  * 
  */
-public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBundle {
+public class Interpolator1DDoubleQuadraticDataBundle implements Interpolator1DDataBundle {
   private final Interpolator1DDataBundle _underlyingData;
-  private final double[] _secondDerivatives;
+  private final RealPolynomialFunction1D[] _quadratics;
 
-  public Interpolator1DCubicSplineDataBundle(final Interpolator1DDataBundle underlyingData) {
+  public Interpolator1DDoubleQuadraticDataBundle(final Interpolator1DDataBundle underlyingData) {
     Validate.notNull(underlyingData);
     _underlyingData = underlyingData;
-    _secondDerivatives = getSecondDerivative(underlyingData);
+    _quadratics = getQuadratics(underlyingData);
   }
 
-  private double[] getSecondDerivative(final Interpolator1DDataBundle underlyingData) {
-    final double[] x = underlyingData.getKeys();
-    final double[] y = underlyingData.getValues();
-    final int n = x.length;
-    final double[] y2 = new double[n];
-    double p, ratio;
-    final double[] u = new double[n - 1];
-    y2[0] = 0.0;
-    u[0] = 0.0;
-    for (int i = 1; i < n - 1; i++) {
-      ratio = (x[i] - x[i - 1]) / (x[i + 1] - x[i - 1]);
-      p = ratio * y2[i - 1] + 2.0;
-      y2[i] = (ratio - 1.0) / p;
-      u[i] = (y[i + 1] - y[i]) / (x[i + 1] - x[i]) - (y[i] - y[i - 1]) / (x[i] - x[i - 1]);
-      u[i] = (6.0 * u[i] / (x[i + 1] - x[i - 1]) - ratio * u[i - 1]) / p;
+  private RealPolynomialFunction1D[] getQuadratics(final Interpolator1DDataBundle underlyingData) {
+    final int n = underlyingData.size() - 1;
+    final double[] xData = underlyingData.getKeys();
+    final double[] yData = underlyingData.getValues();
+    final RealPolynomialFunction1D[] coef = new RealPolynomialFunction1D[n - 1];
+    for (int i = 1; i < n; i++) {
+      coef[i - 1] = getQuadratic(xData, yData, i);
     }
-    y2[n - 1] = 0.0;
-    for (int k = n - 2; k >= 0; k--) {
-      y2[k] = y2[k] * y2[k + 1] + u[k];
-    }
-    return y2;
+    return coef;
+  }
+
+  private RealPolynomialFunction1D getQuadratic(final double[] x, final double[] y, final int index) {
+    final double a = y[index];
+    final double dx1 = x[index] - x[index - 1];
+    final double dx2 = x[index + 1] - x[index];
+    final double dy1 = y[index] - y[index - 1];
+    final double dy2 = y[index + 1] - y[index];
+    final double b = (dx1 * dy2 / dx2 + dx2 * dy1 / dx1) / (dx1 + dx2);
+    final double c = (dy2 / dx2 - dy1 / dx1) / (dx1 + dx2);
+    return new RealPolynomialFunction1D(new double[] {a, b, c});
+  }
+
+  public RealPolynomialFunction1D getQuadratic(final int index) {
+    return _quadratics[index];
   }
 
   @Override
@@ -95,7 +100,7 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
 
   @Override
   public Double higherValue(final Double key) {
-    return _underlyingData.higherValue(key);
+    return _underlyingData.higherKey(key);
   }
 
   @Override
@@ -113,7 +118,4 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
     return _underlyingData.size();
   }
 
-  public double[] getSecondDerivatives() {
-    return _secondDerivatives;
-  }
 }

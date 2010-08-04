@@ -3,12 +3,15 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.math.interpolation;
+package com.opengamma.math.interpolation.data;
 
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import org.junit.Test;
+
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.math.interpolation.data.NavigableMapInterpolator1DDataBundle;
 
 /**
  * 
