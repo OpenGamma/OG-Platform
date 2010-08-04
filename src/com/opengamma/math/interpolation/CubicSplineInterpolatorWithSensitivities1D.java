@@ -23,17 +23,16 @@ public class CubicSplineInterpolatorWithSensitivities1D extends Interpolator1DWi
   }
 
   @Override
-  public InterpolationResultWithSensitivities interpolate(Interpolator1DCubicSplineWithSensitivitiesDataBundle data, Double value) {
+  public InterpolationResultWithSensitivities interpolate(final Interpolator1DCubicSplineWithSensitivitiesDataBundle data, final Double value) {
     Validate.notNull(value, "Value to be interpolated must not be null");
     Validate.notNull(data, "Model must not be null");
-    checkValue(data, value);
     final int low = data.getLowerBoundIndex(value);
     final int high = low + 1;
     final int n = data.size() - 1;
     final double[] xData = data.getKeys();
     final double[] yData = data.getValues();
 
-    double[] sensitivity = new double[n + 1];
+    final double[] sensitivity = new double[n + 1];
     if (data.getLowerBoundIndex(value) == n) {
       sensitivity[n] = 1.0;
       return new InterpolationResultWithSensitivities(yData[n], sensitivity);

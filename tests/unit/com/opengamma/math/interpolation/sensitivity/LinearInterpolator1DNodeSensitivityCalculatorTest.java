@@ -7,20 +7,19 @@ package com.opengamma.math.interpolation.sensitivity;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.Interpolator1DDataBundleFactory;
+import com.opengamma.math.interpolation.LinearInterpolator1D;
 
 /**
  * 
  */
 public class LinearInterpolator1DNodeSensitivityCalculatorTest {
   private static final double EPS = 1e-15;
+  private static final LinearInterpolator1D INTERPOLATOR = new LinearInterpolator1D();
   private static final Interpolator1DNodeSensitivityCalculator<Interpolator1DDataBundle> CALCULATOR = new LinearInterpolator1DNodeSensitivityCalculator();
   private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
 
@@ -30,60 +29,37 @@ public class LinearInterpolator1DNodeSensitivityCalculatorTest {
     }
 
   };
-  private static final Interpolator1DDataBundle ARRAY_DATA;
-  private static final Interpolator1DDataBundle MAP_DATA;
+  private static final Interpolator1DDataBundle DATA;
 
   static {
     final int n = 10;
     final double[] x = new double[n];
     final double[] y = new double[n];
-    final Map<Double, Double> m = new HashMap<Double, Double>();
-    double tempX, tempY;
     for (int i = 0; i < n; i++) {
-      tempX = Double.valueOf(i);
-      tempY = FUNCTION.evaluate(tempX);
-      x[i] = tempX;
-      y[i] = tempY;
-      m.put(tempX, tempY);
+      x[i] = Double.valueOf(i);
+      y[i] = FUNCTION.evaluate(x[i]);
     }
-    ARRAY_DATA = Interpolator1DDataBundleFactory.fromSortedArrays(x, y);
-    MAP_DATA = Interpolator1DDataBundleFactory.fromMap(m);
+    DATA = Interpolator1DDataBundleFactory.fromSortedArrays(x, y);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullInterpolator() {
+    CALCULATOR.calculate(null, DATA, 3.4);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
-    CALCULATOR.calculate(null, 1.);
+    CALCULATOR.calculate(INTERPOLATOR, null, 1.);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullValue() {
-    CALCULATOR.calculate(ARRAY_DATA, null);
-  }
-
-  //TODO move next 4 methods into the data bundle test
-  @Test(expected = IllegalArgumentException.class)
-  public void testLowValue1() {
-    CALCULATOR.calculate(ARRAY_DATA, -1.);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testLowValue2() {
-    CALCULATOR.calculate(MAP_DATA, -1.);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testHighValue1() {
-    CALCULATOR.calculate(ARRAY_DATA, 100.);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testHighValue2() {
-    CALCULATOR.calculate(MAP_DATA, 100.);
+    CALCULATOR.calculate(INTERPOLATOR, DATA, null);
   }
 
   @Test
   public void test() {
-    double[] result = CALCULATOR.calculate(ARRAY_DATA, 3.4);
+    double[] result = CALCULATOR.calculate(INTERPOLATOR, DATA, 3.4);
     for (int i = 0; i < 3; i++) {
       assertEquals(0, result[i], 0);
     }
@@ -92,7 +68,7 @@ public class LinearInterpolator1DNodeSensitivityCalculatorTest {
     for (int i = 5; i < 10; i++) {
       assertEquals(result[i], 0, 0);
     }
-    result = CALCULATOR.calculate(ARRAY_DATA, 7.);
+    result = CALCULATOR.calculate(INTERPOLATOR, DATA, 7.);
     for (int i = 0; i < 7; i++) {
       assertEquals(0, result[i], 0);
     }

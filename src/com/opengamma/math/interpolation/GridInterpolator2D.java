@@ -41,7 +41,7 @@ public class GridInterpolator2D extends Interpolator2D {
     for (final Map.Entry<Double, Interpolator1DDataBundle> entry : sorted.entrySet()) {
       xData.put(entry.getKey(), _yInterpolator.interpolate(entry.getValue(), value.getSecond()).getResult());
     }
-    return _xInterpolator.interpolate(Interpolator1DDataBundleFactory.fromMap(xData, _xInterpolator), value.getKey()).getResult();
+    return _xInterpolator.interpolate(_xInterpolator.getDataBundle(xData), value.getKey()).getResult();
   }
 
   private Map<Double, Interpolator1DDataBundle> testData(final Map<DoublesPair, Double> data) {
@@ -75,13 +75,13 @@ public class GridInterpolator2D extends Interpolator2D {
     Map.Entry<Double, TreeMap<Double, Double>> entry = iter.next();
     final int size = entry.getValue().size();
     final Map<Double, Interpolator1DDataBundle> result = new HashMap<Double, Interpolator1DDataBundle>();
-    result.put(entry.getKey(), Interpolator1DDataBundleFactory.fromMap(entry.getValue(), _yInterpolator));
+    result.put(entry.getKey(), _yInterpolator.getDataBundle(entry.getValue()));
     while (iter.hasNext()) {
       entry = iter.next();
       if (entry.getValue().size() != size) {
         throw new InterpolationException("Data were not on a grid");
       }
-      result.put(entry.getKey(), Interpolator1DDataBundleFactory.fromMap(entry.getValue(), _yInterpolator));
+      result.put(entry.getKey(), _yInterpolator.getDataBundle(entry.getValue()));
     }
     return result;
   }

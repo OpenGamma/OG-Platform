@@ -21,11 +21,22 @@ public class DoubleQuadraticInterpolator1DTest {
   private static final double[] X_TEST = new double[] {0, 0.3, 1.0, 2.0, 4.5, 5.0};
   private static final double[] Y_TEST = new double[] {3.0, 3.87, 3.1, 2.619393939, 5.068181818, 2.0};
 
+  private static final Interpolator1DDoubleQuadraticDataBundle DATA = INTERPOLATOR.getDataBundle(X_DATA, Y_DATA);
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullData() {
+    INTERPOLATOR.interpolate(null, 2.3);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullValue() {
+    INTERPOLATOR.interpolate(DATA, null);
+  }
+
   @Test
   public void test() {
     for (int i = 0; i < X_TEST.length; i++) {
-      assertEquals(INTERPOLATOR.interpolate((Interpolator1DDoubleQuadraticDataBundle) Interpolator1DDataBundleFactory.fromSortedArrays(X_DATA, Y_DATA, INTERPOLATOR), X_TEST[i]).getResult(),
-          Y_TEST[i], 1e-8);
+      assertEquals(INTERPOLATOR.interpolate(DATA, X_TEST[i]).getResult(), Y_TEST[i], 1e-8);
     }
   }
 

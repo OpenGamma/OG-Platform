@@ -24,7 +24,6 @@ public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D<In
   public InterpolationResult interpolate(final Interpolator1DDataBundle data, final Double value) {
     Validate.notNull(value, "value");
     Validate.notNull(data, "data bundle");
-    checkValue(data, value);
     if (data.size() < _degree) {
       throw new InterpolationException("Cannot interpolate " + data.size() + " data points with rational functions of degree " + _degree);
     }
@@ -78,6 +77,16 @@ public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D<In
   }
 
   @Override
+  public Interpolator1DDataBundle getDataBundle(final double[] x, final double[] y) {
+    return new ArrayInterpolator1DDataBundle(x, y);
+  }
+
+  @Override
+  public Interpolator1DDataBundle getDataBundleFromSortedArrays(final double[] x, final double[] y) {
+    return new ArrayInterpolator1DDataBundle(x, y, true);
+  }
+
+  @Override
   public boolean equals(final Object o) {
     if (o == null) {
       return false;
@@ -96,4 +105,5 @@ public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D<In
   public int hashCode() {
     return getClass().hashCode() * 17 + _degree;
   }
+
 }

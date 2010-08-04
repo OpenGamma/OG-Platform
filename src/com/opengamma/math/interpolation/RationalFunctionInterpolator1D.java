@@ -15,7 +15,7 @@ public class RationalFunctionInterpolator1D extends Interpolator1D<Interpolator1
 
   public RationalFunctionInterpolator1D(final int degree) {
     if (degree < 1) {
-      throw new IllegalArgumentException("Need a degree of at least 1 to perform rational function interpolation");
+      throw new IllegalArgumentException("Need a degree of at least one to perform rational function interpolation");
     }
     _degree = degree;
   }
@@ -24,7 +24,6 @@ public class RationalFunctionInterpolator1D extends Interpolator1D<Interpolator1
   public InterpolationResult interpolate(final Interpolator1DDataBundle data, final Double value) {
     Validate.notNull(value, "value");
     Validate.notNull(data, "data bundle");
-    checkValue(data, value);
     final int m = _degree + 1;
     if (data.size() < m) {
       throw new IllegalArgumentException("Need at least " + (_degree + 1) + " data points to perform this interpolation");
@@ -75,6 +74,17 @@ public class RationalFunctionInterpolator1D extends Interpolator1D<Interpolator1
   }
 
   @Override
+  public Interpolator1DDataBundle getDataBundle(final double[] x, final double[] y) {
+    return new ArrayInterpolator1DDataBundle(x, y);
+  }
+
+  @Override
+  public Interpolator1DDataBundle getDataBundleFromSortedArrays(final double[] x, final double[] y) {
+    return new ArrayInterpolator1DDataBundle(x, y, true);
+  }
+
+
+  @Override
   public boolean equals(final Object o) {
     if (o == null) {
       return false;
@@ -93,5 +103,4 @@ public class RationalFunctionInterpolator1D extends Interpolator1D<Interpolator1
   public int hashCode() {
     return getClass().hashCode() * 17 + _degree;
   }
-
 }

@@ -17,7 +17,6 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.interpolation.InterpolationResult;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.Interpolator1DDataBundleFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -89,7 +88,7 @@ public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscount
           unmodifiableSortedMap(new TreeMap<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>>(interpolators));
     final SortedMap<Double, Interpolator1DDataBundle> models = new TreeMap<Double, Interpolator1DDataBundle>();
     for (final Map.Entry<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> entry : _interpolators.entrySet()) {
-      models.put(entry.getKey(), Interpolator1DDataBundleFactory.fromArrays(t, y, entry.getValue()));
+      models.put(entry.getKey(), entry.getValue().getDataBundle(t, y));
     }
     _models = Collections.unmodifiableSortedMap(models);
   }
@@ -144,7 +143,7 @@ public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscount
           unmodifiableSortedMap(new TreeMap<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>>(interpolators));
     final SortedMap<Double, Interpolator1DDataBundle> models = new TreeMap<Double, Interpolator1DDataBundle>();
     for (final Map.Entry<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> entry : _interpolators.entrySet()) {
-      models.put(entry.getKey(), Interpolator1DDataBundleFactory.fromMap(data, entry.getValue()));
+      models.put(entry.getKey(), entry.getValue().getDataBundle(data));
     }
     _models = Collections.unmodifiableSortedMap(models);
   }

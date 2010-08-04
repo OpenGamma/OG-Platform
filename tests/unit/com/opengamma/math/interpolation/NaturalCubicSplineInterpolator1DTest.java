@@ -7,8 +7,7 @@ package com.opengamma.math.interpolation;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.TreeMap;
 
 import org.junit.Test;
 
@@ -32,12 +31,12 @@ public class NaturalCubicSplineInterpolator1DTest {
   private static final Interpolator1DCubicSplineDataBundle MODEL;
 
   static {
-    final Map<Double, Double> data = new HashMap<Double, Double>();
+    final TreeMap<Double, Double> data = new TreeMap<Double, Double>();
     for (int i = 0; i < 12; i++) {
       final double x = i / 10.;
       data.put(x, CUBIC.evaluate(x));
     }
-    MODEL = (Interpolator1DCubicSplineDataBundle) Interpolator1DDataBundleFactory.fromMap(data, INTERPOLATOR);
+    MODEL = INTERPOLATOR.getDataBundle(data);
   }
 
   @Test(expected = IllegalArgumentException.class)

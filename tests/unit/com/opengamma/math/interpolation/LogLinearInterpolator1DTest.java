@@ -7,8 +7,7 @@ package com.opengamma.math.interpolation;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.TreeMap;
 
 import org.junit.Test;
 
@@ -32,16 +31,16 @@ public class LogLinearInterpolator1DTest {
   private static final double EPS = 1e-9;
 
   static {
-    final Map<Double, Double> data = new HashMap<Double, Double>();
-    final Map<Double, Double> transformedData = new HashMap<Double, Double>();
+    final TreeMap<Double, Double> data = new TreeMap<Double, Double>();
+    final TreeMap<Double, Double> transformedData = new TreeMap<Double, Double>();
     double x;
     for (int i = 0; i < 10; i++) {
       x = Double.valueOf(i);
       data.put(x, FUNCTION.evaluate(x));
       transformedData.put(x, Math.log(FUNCTION.evaluate(x)));
     }
-    MODEL = Interpolator1DDataBundleFactory.fromMap(data);
-    TRANSFORMED_MODEL = Interpolator1DDataBundleFactory.fromMap(transformedData);
+    MODEL = LINEAR.getDataBundle(data);
+    TRANSFORMED_MODEL = INTERPOLATOR.getDataBundle(transformedData);
   }
 
   @Test(expected = IllegalArgumentException.class)

@@ -7,8 +7,7 @@ package com.opengamma.math.interpolation;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.TreeMap;
 
 import org.junit.Test;
 
@@ -21,11 +20,11 @@ public class StepInterpolator1DTest {
   private static final double EPS = 1e-13;
 
   static {
-    final Map<Double, Double> map = new HashMap<Double, Double>();
+    final TreeMap<Double, Double> map = new TreeMap<Double, Double>();
     map.put(1., 4.5);
     map.put(2., 4.3);
     map.put(3., 6.7);
-    DATA = Interpolator1DDataBundleFactory.fromMap(map);
+    DATA = INTERPOLATOR.getDataBundle(map);
   }
 
   @Test(expected = IllegalArgumentException.class)

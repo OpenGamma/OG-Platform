@@ -34,11 +34,10 @@ public class Extrapolator1D<T extends Interpolator1DDataBundle, U extends Interp
   public U interpolate(final T data, final Double value) {
     Validate.notNull(value, "value");
     Validate.notNull(data, "data bundle");
-    final InterpolationBoundedValues boundedValues = data.getBoundedValues(value);
-    if (boundedValues.getHigherBoundKey() == null || boundedValues.getHigherBoundKey() < 0) {
+    if (value > data.lastKey()) {
       return _rightExtrapolator.rightExtrapolate(data, value, _interpolator);
     }
-    if (boundedValues.getLowerBoundKey() == null || boundedValues.getLowerBoundKey() < 0) {
+    if (value < data.firstKey()) {
       return _leftExtrapolator.leftExtrapolate(data, value, _interpolator);
     }
     return _interpolator.interpolate(data, value);

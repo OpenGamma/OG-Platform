@@ -18,7 +18,6 @@ public class DoubleQuadraticInterpolator1D extends Interpolator1D<Interpolator1D
   public InterpolationResult interpolate(final Interpolator1DDoubleQuadraticDataBundle data, final Double value) {
     Validate.notNull(value, "value");
     Validate.notNull(data, "data bundle");
-    checkValue(data, value);
     final int low = data.getLowerBoundIndex(value);
     final int high = low + 1;
     final int n = data.size() - 1;
@@ -40,6 +39,16 @@ public class DoubleQuadraticInterpolator1D extends Interpolator1D<Interpolator1D
     final double w = (xData[high] - value) / (xData[high] - xData[low]);
     final double res = w * coef1.evaluate(value - xData[low]) + (1 - w) * coef2.evaluate(value - xData[high]);
     return new InterpolationResult(res);
+  }
+
+  @Override
+  public Interpolator1DDoubleQuadraticDataBundle getDataBundle(final double[] x, final double[] y) {
+    return new Interpolator1DDoubleQuadraticDataBundle(new ArrayInterpolator1DDataBundle(x, y));
+  }
+
+  @Override
+  public Interpolator1DDoubleQuadraticDataBundle getDataBundleFromSortedArrays(final double[] x, final double[] y) {
+    return new Interpolator1DDoubleQuadraticDataBundle(new ArrayInterpolator1DDataBundle(x, y, true));
   }
 
 }

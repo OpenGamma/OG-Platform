@@ -23,11 +23,12 @@ public class LinearInterpolator1DWithSensitivities extends Interpolator1DWithSen
     final double interpolatedValue = getUnderlyingInterpolator().interpolate(data, value).getResult();
     final int n = data.size();
     final InterpolationBoundedValues boundedValues = data.getBoundedValues(value);
+    final double[] sensitivities = new double[n];
     if (boundedValues.getHigherBoundKey() == null) {
-      return new InterpolationResultWithSensitivities(boundedValues.getLowerBoundValue(), new double[] {1.});
+      sensitivities[n - 1] = 1;
+      return new InterpolationResultWithSensitivities(boundedValues.getLowerBoundValue(), sensitivities);
     }
     final int index = data.getLowerBoundIndex(value);
-    final double[] sensitivities = new double[n];
     final double x1 = boundedValues.getLowerBoundKey();
     final double x2 = boundedValues.getHigherBoundKey();
     final double dx = x2 - x1;

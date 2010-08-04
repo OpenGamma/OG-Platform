@@ -8,8 +8,7 @@ package com.opengamma.math.interpolation;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.TreeMap;
 
 import org.junit.Test;
 
@@ -22,7 +21,7 @@ import com.opengamma.math.function.RealPolynomialFunction1D;
 public class PolynomialInterpolator1DTest {
   private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> INTERPOLATOR_NO_OFFSET = new PolynomialInterpolator1D(3);
   private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> INTERPOLATOR_WITH_OFFSET = new PolynomialInterpolator1D(3, 2);
-  private static final Interpolator1DDataBundle MODEL = Interpolator1DDataBundleFactory.fromArrays(new double[] {1, 2, 3, 4, 5}, new double[] {6, 7, 8, 9, 10});
+  private static final Interpolator1DDataBundle MODEL = INTERPOLATOR_NO_OFFSET.getDataBundle(new double[] {1, 2, 3, 4, 5}, new double[] {6, 7, 8, 9, 10});
   private static final double EPS = 1e-15;
 
   @Test(expected = IllegalArgumentException.class)
@@ -57,7 +56,7 @@ public class PolynomialInterpolator1DTest {
 
   @Test(expected = InterpolationException.class)
   public void testInsufficientData() {
-    INTERPOLATOR_WITH_OFFSET.interpolate(Interpolator1DDataBundleFactory.fromArrays(new double[] {1, 2, 3}, new double[] {4, 5, 6}), 1.5);
+    INTERPOLATOR_WITH_OFFSET.interpolate(INTERPOLATOR_WITH_OFFSET.getDataBundle(new double[] {1, 2, 3}, new double[] {4, 5, 6}), 1.5);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -90,8 +89,8 @@ public class PolynomialInterpolator1DTest {
   public void testInterpolation() {
     final Function1D<Double, Double> quadratic = new RealPolynomialFunction1D(new double[] {-4., 3., 1.});
     final Function1D<Double, Double> quartic = new RealPolynomialFunction1D(new double[] {-4., 3., 1., 1., 1.});
-    final Map<Double, Double> quadraticMap = new HashMap<Double, Double>();
-    final Map<Double, Double> quarticMap = new HashMap<Double, Double>();
+    final TreeMap<Double, Double> quadraticMap = new TreeMap<Double, Double>();
+    final TreeMap<Double, Double> quarticMap = new TreeMap<Double, Double>();
     double x;
     for (int i = 0; i < 10; i++) {
       x = i / 10.;
@@ -99,11 +98,11 @@ public class PolynomialInterpolator1DTest {
       quarticMap.put(x, quartic.evaluate(x));
     }
     x = 0.35;
-    final Interpolator1DDataBundle quadraticData = Interpolator1DDataBundleFactory.fromMap(quadraticMap);
-    final Interpolator1DDataBundle quarticData = Interpolator1DDataBundleFactory.fromMap(quarticMap);
     Interpolator1D<Interpolator1DDataBundle, InterpolationResult> quadraticInterpolator = new PolynomialInterpolator1D(2);
-    Double quadraticResult = quadraticInterpolator.interpolate(quadraticData, x).getResult();
     Interpolator1D<Interpolator1DDataBundle, InterpolationResult> quarticInterpolator = new PolynomialInterpolator1D(4);
+    final Interpolator1DDataBundle quadraticData = quadraticInterpolator.getDataBundle(quadraticMap);
+    final Interpolator1DDataBundle quarticData = quarticInterpolator.getDataBundle(quarticMap);
+    Double quadraticResult = quadraticInterpolator.interpolate(quadraticData, x).getResult();
     Double quarticResult = quarticInterpolator.interpolate(quarticData, x).getResult();
     assertEquals(quadraticResult, quadratic.evaluate(x), EPS);
     assertEquals(quarticResult, quartic.evaluate(x), EPS);

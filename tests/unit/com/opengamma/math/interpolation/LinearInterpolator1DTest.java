@@ -7,8 +7,7 @@ package com.opengamma.math.interpolation;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.TreeMap;
 
 import org.junit.Test;
 
@@ -26,7 +25,7 @@ public class LinearInterpolator1DTest {
       return 2 * x - 7;
     }
   };
-  private static final Interpolator1DDataBundle MODEL = Interpolator1DDataBundleFactory.fromArrays(new double[] {1, 2, 3}, new double[] {4, 5, 6});
+  private static final Interpolator1DDataBundle MODEL = INTERPOLATOR.getDataBundle(new double[] {1, 2, 3}, new double[] {4, 5, 6});
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullDataBundle() {
@@ -50,12 +49,12 @@ public class LinearInterpolator1DTest {
 
   @Test
   public void test() {
-    final Map<Double, Double> data = new HashMap<Double, Double>();
+    final TreeMap<Double, Double> data = new TreeMap<Double, Double>();
     double x;
     for (int i = 0; i < 10; i++) {
       x = Double.valueOf(i);
       data.put(x, FUNCTION.evaluate(x));
     }
-    assertEquals(INTERPOLATOR.interpolate(Interpolator1DDataBundleFactory.fromMap(data), 3.4).getResult(), FUNCTION.evaluate(3.4), 1e-15);
+    assertEquals(INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(data), 3.4).getResult(), FUNCTION.evaluate(3.4), 1e-15);
   }
 }

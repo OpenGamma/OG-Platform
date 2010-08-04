@@ -47,8 +47,8 @@ public class InterpolatedYieldAndDiscountCurveTest {
     RATE_DATA.put(3., 0.05);
     DISCOUNT_CURVE = new InterpolatedDiscountCurve(DF_DATA, LINEAR);
     YIELD_CURVE = new InterpolatedYieldCurve(RATE_DATA, LINEAR);
-    DISCOUNT_MODEL = Interpolator1DDataBundleFactory.fromMap(DF_DATA);
-    YIELD_MODEL = Interpolator1DDataBundleFactory.fromMap(RATE_DATA);
+    DISCOUNT_MODEL = LINEAR.getDataBundle(DF_DATA);
+    YIELD_MODEL = LINEAR.getDataBundle(RATE_DATA);
   }
 
   @Test(expected = IllegalArgumentException.class)

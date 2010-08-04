@@ -44,7 +44,6 @@ public class PolynomialInterpolator1D extends Interpolator1D<Interpolator1DDataB
   public InterpolationResult interpolate(final Interpolator1DDataBundle data, final Double value) {
     Validate.notNull(value, "value");
     Validate.notNull(data, "data bundle");
-    checkValue(data, value);
     final int n = data.size();
     final double[] keys = data.getKeys();
     final double[] values = data.getValues();
@@ -71,6 +70,16 @@ public class PolynomialInterpolator1D extends Interpolator1D<Interpolator1DDataB
     } catch (final MathException e) {
       throw new InterpolationException(e);
     }
+  }
+
+  @Override
+  public Interpolator1DDataBundle getDataBundle(final double[] x, final double[] y) {
+    return new ArrayInterpolator1DDataBundle(x, y);
+  }
+
+  @Override
+  public Interpolator1DDataBundle getDataBundleFromSortedArrays(final double[] x, final double[] y) {
+    return new ArrayInterpolator1DDataBundle(x, y, true);
   }
 
   @Override

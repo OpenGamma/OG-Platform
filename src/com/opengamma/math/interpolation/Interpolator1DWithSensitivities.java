@@ -25,21 +25,20 @@ public class Interpolator1DWithSensitivities<T extends Interpolator1DDataBundle>
   public InterpolationResultWithSensitivities interpolate(final T data, final Double value) {
     Validate.notNull(value, "Value to be interpolated must not be null");
     Validate.notNull(data, "Model must not be null");
-    // checkValue(data, value);
-
     final double[] x = data.getKeys();
     final double[] y = data.getValues();
     final int n = y.length;
     double[] yUp = new double[n];
     double[] yDown = new double[n];
     final double[] sensitivity = new double[n];
+
     for (int node = 0; node < n; node++) {
       yUp = Arrays.copyOf(y, n);
       yDown = Arrays.copyOf(y, n);
       yUp[node] += EPS;
       yDown[node] -= EPS;
-      final T modelUp = (T) Interpolator1DDataBundleFactory.fromSortedArrays(x, yUp, getUnderlyingInterpolator());
-      final T modelDown = (T) Interpolator1DDataBundleFactory.fromSortedArrays(x, yDown, getUnderlyingInterpolator());
+      final T modelUp = _interpolator.getDataBundleFromSortedArrays(x, yUp);
+      final T modelDown = _interpolator.getDataBundleFromSortedArrays(x, yDown);
       final double up = getUnderlyingInterpolator().interpolate(modelUp, value).getResult();
       final double down = getUnderlyingInterpolator().interpolate(modelDown, value).getResult();
       sensitivity[node] = (up - down) / 2.0 / EPS;
@@ -50,4 +49,5 @@ public class Interpolator1DWithSensitivities<T extends Interpolator1DDataBundle>
   public Interpolator1D<T, InterpolationResult> getUnderlyingInterpolator() {
     return _interpolator;
   }
+
 }

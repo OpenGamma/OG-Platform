@@ -7,8 +7,7 @@ package com.opengamma.math.interpolation;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.TreeMap;
 
 import org.junit.Test;
 
@@ -26,13 +25,13 @@ public class RationalFunctionInterpolator1DTest {
   private static final double EPS = 1;
 
   static {
-    final Map<Double, Double> data = new HashMap<Double, Double>();
+    final TreeMap<Double, Double> data = new TreeMap<Double, Double>();
     double x;
     for (int i = 0; i < 10; i++) {
       x = Double.valueOf(i) / 10.;
       data.put(x, F.evaluate(x));
     }
-    MODEL = Interpolator1DDataBundleFactory.fromMap(data);
+    MODEL = INTERPOLATOR.getDataBundle(data);
   }
 
   @Test(expected = IllegalArgumentException.class)
