@@ -6,11 +6,12 @@
 package com.opengamma.util.tuple;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Test;
+import java.util.List;
 
-import com.opengamma.util.tuple.Pair;
+import org.junit.Test;
 
 /**
  * Test ObjectsPair.
@@ -18,49 +19,77 @@ import com.opengamma.util.tuple.Pair;
 public class ObjectsPairTest {
 
   @Test
-  public void testOf_Object_Object() {
+  public void test_Pair_Of_String_String() {
     ObjectsPair<String, String> test = Pair.of("A", "B");
-    assertEquals(test.getFirst(), "A");
-    assertEquals(test.getSecond(), "B");
-    assertEquals(test.getKey(), "A");
-    assertEquals(test.getValue(), "B");
+    assertEquals("A", test.getFirst());
+    assertEquals("B", test.getSecond());
+    assertEquals("A", test.getKey());
+    assertEquals("B", test.getValue());
+  }
+
+  @Test
+  public void test_Pair_Of_Double_double() {
+    ObjectsPair<Double,Double> test = Pair.of(Double.valueOf(1.5), -0.3d);
+    assertEquals(Double.valueOf(1.5d), test.getFirst());
+    assertEquals(Double.valueOf(-0.3d), test.getSecond());
+    assertEquals(Double.valueOf(1.5d), test.getKey());
+    assertEquals(Double.valueOf(-0.3d), test.getValue());
+  }
+
+  @Test
+  public void test_Pair_Of_double_Double() {
+    ObjectsPair<Double,Double> test = Pair.of(1.5d, Double.valueOf(-0.3d));
+    assertEquals(Double.valueOf(1.5d), test.getFirst());
+    assertEquals(Double.valueOf(-0.3d), test.getSecond());
+    assertEquals(Double.valueOf(1.5d), test.getKey());
+    assertEquals(Double.valueOf(-0.3d), test.getValue());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_ObjectsPair_Of_String_String() {
+    ObjectsPair<String, String> test = ObjectsPair.of("A", "B");
+    assertEquals("A", test.getFirst());
+    assertEquals("B", test.getSecond());
+    assertEquals("A", test.getKey());
+    assertEquals("B", test.getValue());
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void testPair_Object_Object() {
     ObjectsPair<String, String> test = new ObjectsPair<String, String>("A", "B");
-    assertEquals(test.getFirst(), "A");
-    assertEquals(test.getSecond(), "B");
-    assertEquals(test.getKey(), "A");
-    assertEquals(test.getValue(), "B");
+    assertEquals("A", test.getFirst());
+    assertEquals("B", test.getSecond());
+    assertEquals("A", test.getKey());
+    assertEquals("B", test.getValue());
   }
 
   @Test
   public void testPair_Object_null() {
     ObjectsPair<String, String> test = new ObjectsPair<String, String>("A", null);
-    assertEquals(test.getFirst(), "A");
-    assertEquals(test.getSecond(), null);
-    assertEquals(test.getKey(), "A");
-    assertEquals(test.getValue(), null);
+    assertEquals("A", test.getFirst());
+    assertEquals(null, test.getSecond());
+    assertEquals("A", test.getKey());
+    assertEquals(null, test.getValue());
   }
 
   @Test
   public void testPair_null_Object() {
     ObjectsPair<String, String> test = new ObjectsPair<String, String>(null, "B");
-    assertEquals(test.getFirst(), null);
-    assertEquals(test.getSecond(), "B");
-    assertEquals(test.getKey(), null);
-    assertEquals(test.getValue(), "B");
+    assertEquals(null, test.getFirst());
+    assertEquals("B", test.getSecond());
+    assertEquals(null, test.getKey());
+    assertEquals("B", test.getValue());
   }
 
   @Test
   public void testPair_null_null() {
     ObjectsPair<String, String> test = new ObjectsPair<String, String>(null, null);
-    assertEquals(test.getFirst(), null);
-    assertEquals(test.getSecond(), null);
-    assertEquals(test.getKey(), null);
-    assertEquals(test.getValue(), null);
+    assertEquals(null, test.getFirst());
+    assertEquals(null, test.getSecond());
+    assertEquals(null, test.getKey());
+    assertEquals(null, test.getValue());
   }
 
   //-------------------------------------------------------------------------
@@ -78,7 +107,16 @@ public class ObjectsPairTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void compareTo() {
+  public void test_toList() {
+    Pair<String, String> ab = Pair.of("A", "B");
+    List<String> test = ab.toList();
+    assertEquals("A", test.get(0));
+    assertEquals("B", test.get(1));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_compareTo() {
     ObjectsPair<String, String> ab = Pair.of("A", "B");
     ObjectsPair<String, String> ac = Pair.of("A", "C");
     ObjectsPair<String, String> ba = Pair.of("B", "A");
@@ -97,7 +135,7 @@ public class ObjectsPairTest {
   }
 
   @Test
-  public void compareTo_null() {
+  public void test_compareTo_withNull() {
     ObjectsPair<String, String> nn = Pair.of(null, null);
     ObjectsPair<String, String> na = Pair.of(null, "A");
     ObjectsPair<String, String> an = Pair.of("A", null);
@@ -125,61 +163,69 @@ public class ObjectsPairTest {
   }
 
   @Test
-  public void testEquals() {
+  public void test_equals() {
     ObjectsPair<Integer, String> a = new ObjectsPair<Integer, String>(1, "Hello");
     ObjectsPair<Integer, String> b = new ObjectsPair<Integer, String>(1, "Goodbye");
     ObjectsPair<Integer, String> c = new ObjectsPair<Integer, String>(2, "Hello");
     ObjectsPair<Integer, String> d = new ObjectsPair<Integer, String>(2, "Goodbye");
-    assertEquals(a.equals(a), true);
-    assertEquals(a.equals(b), false);
-    assertEquals(a.equals(c), false);
-    assertEquals(a.equals(d), false);
+    assertTrue(a.equals(a));
+    assertFalse(a.equals(b));
+    assertFalse(a.equals(c));
+    assertFalse(a.equals(d));
     
-    assertEquals(b.equals(a), false);
-    assertEquals(b.equals(b), true);
-    assertEquals(b.equals(c), false);
-    assertEquals(b.equals(d), false);
+    assertFalse(b.equals(a));
+    assertTrue(b.equals(b));
+    assertFalse(b.equals(c));
+    assertFalse(b.equals(d));
     
-    assertEquals(c.equals(a), false);
-    assertEquals(c.equals(b), false);
-    assertEquals(c.equals(c), true);
-    assertEquals(c.equals(d), false);
+    assertFalse(c.equals(a));
+    assertFalse(c.equals(b));
+    assertTrue(c.equals(c));
+    assertFalse(c.equals(d));
     
-    assertEquals(d.equals(a), false);
-    assertEquals(d.equals(b), false);
-    assertEquals(d.equals(c), false);
-    assertEquals(d.equals(d), true);
+    assertFalse(d.equals(a));
+    assertFalse(d.equals(b));
+    assertFalse(d.equals(c));
+    assertTrue(d.equals(d));
   }
 
   @Test
-  public void testEquals_null() {
+  public void test_equals_withNull() {
     ObjectsPair<Integer, String> a = new ObjectsPair<Integer, String>(1, "Hello");
     ObjectsPair<Integer, String> b = new ObjectsPair<Integer, String>(null, "Hello");
     ObjectsPair<Integer, String> c = new ObjectsPair<Integer, String>(1, null);
     ObjectsPair<Integer, String> d = new ObjectsPair<Integer, String>(null, null);
-    assertEquals(a.equals(a), true);
-    assertEquals(a.equals(b), false);
-    assertEquals(a.equals(c), false);
-    assertEquals(a.equals(d), false);
+    assertTrue(a.equals(a));
+    assertFalse(a.equals(b));
+    assertFalse(a.equals(c));
+    assertFalse(a.equals(d));
     
-    assertEquals(b.equals(a), false);
-    assertEquals(b.equals(b), true);
-    assertEquals(b.equals(c), false);
-    assertEquals(b.equals(d), false);
+    assertFalse(b.equals(a));
+    assertTrue(b.equals(b));
+    assertFalse(b.equals(c));
+    assertFalse(b.equals(d));
     
-    assertEquals(c.equals(a), false);
-    assertEquals(c.equals(b), false);
-    assertEquals(c.equals(c), true);
-    assertEquals(c.equals(d), false);
+    assertFalse(c.equals(a));
+    assertFalse(c.equals(b));
+    assertTrue(c.equals(c));
+    assertFalse(c.equals(d));
     
-    assertEquals(d.equals(a), false);
-    assertEquals(d.equals(b), false);
-    assertEquals(d.equals(c), false);
-    assertEquals(d.equals(d), true);
+    assertFalse(d.equals(a));
+    assertFalse(d.equals(b));
+    assertFalse(d.equals(c));
+    assertTrue(d.equals(d));
   }
 
   @Test
-  public void testHashCode() {
+  public void test_equals_other() {
+    ObjectsPair<Integer, String> a = new ObjectsPair<Integer, String>(1, "Hello");
+    
+    assertFalse(a.equals(""));
+    assertFalse(a.equals(null));
+  }
+
+  @Test
+  public void test_hashCode() {
     ObjectsPair<Integer, String> a = new ObjectsPair<Integer, String>(1, "Hello");
     ObjectsPair<Integer, String> b = new ObjectsPair<Integer, String>(null, "Hello");
     ObjectsPair<Integer, String> c = new ObjectsPair<Integer, String>(1, null);
@@ -189,29 +235,17 @@ public class ObjectsPairTest {
     assertEquals(c.hashCode(), c.hashCode());
     assertEquals(d.hashCode(), d.hashCode());
     
-    assertEquals(a.hashCode(), 1 ^ "Hello".hashCode());
-    assertEquals(b.hashCode(), "Hello".hashCode());
-    assertEquals(c.hashCode(), 1);
-    assertEquals(d.hashCode(), 0);
+    assertEquals(1 ^ "Hello".hashCode(), a.hashCode());
+    assertEquals("Hello".hashCode(), b.hashCode());
+    assertEquals(1, c.hashCode());
+    assertEquals(0, d.hashCode());
     // can't test for different hash codes as they might not be different
   }
 
   @Test
-  public void testOf_Double_double() {
-    ObjectsPair<Double,Double> test = Pair.of(Double.valueOf(1.5), -0.3d);
-    assertEquals(test.getFirst(), Double.valueOf(1.5d));
-    assertEquals(test.getSecond(), Double.valueOf(-0.3d));
-    assertEquals(test.getKey(), Double.valueOf(1.5d));
-    assertEquals(test.getValue(), Double.valueOf(-0.3d));
-  }
-
-  @Test
-  public void testOf_double_Double() {
-    ObjectsPair<Double,Double> test = Pair.of(1.5d, Double.valueOf(-0.3d));
-    assertEquals(test.getFirst(), Double.valueOf(1.5d));
-    assertEquals(test.getSecond(), Double.valueOf(-0.3d));
-    assertEquals(test.getKey(), Double.valueOf(1.5d));
-    assertEquals(test.getValue(), Double.valueOf(-0.3d));
+  public void test_toString() {
+    Pair<String, String> test = Pair.of("A", "B");
+    assertEquals("[A, B]", test.toString());
   }
 
 }
