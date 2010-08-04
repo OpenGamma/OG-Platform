@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.security.server;
@@ -52,7 +52,7 @@ public class SecuritySourceResource {
     _securitySource = securitySource;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Gets the Fudge context.
    * @return the context, not null
@@ -69,7 +69,7 @@ public class SecuritySourceResource {
     return _securitySource;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Gets the serialization context derived from the main Fudge context.
    * @return the context, not null
@@ -78,7 +78,7 @@ public class SecuritySourceResource {
     return new FudgeSerializationContext(getFudgeContext());
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * RESTful method to get a security by unique identifier.
    * @param uidStr  the unique identifier from the URI, not null
@@ -130,6 +130,20 @@ public class SecuritySourceResource {
     final MutableFudgeFieldContainer msg = context.newMessage();
     context.objectToFudgeMsg(msg, SECURITYSOURCE_SECURITY, null, getSecuritySource().getSecurity(bundle));
     return new FudgeMsgEnvelope(msg);
+  }
+
+  /**
+   * For debugging purposes only.
+   * 
+   * @return some debug information about the state of this resource object; e.g. which underlying objects is it connected to.
+   */
+  @GET
+  @Path("debugInfo")
+  public FudgeMsgEnvelope getDebugInfo() {
+    final MutableFudgeFieldContainer message = getFudgeContext().newMessage();
+    message.add("fudgeContext", getFudgeContext().toString());
+    message.add("securitySource", getSecuritySource().toString());
+    return new FudgeMsgEnvelope(message);
   }
 
 }
