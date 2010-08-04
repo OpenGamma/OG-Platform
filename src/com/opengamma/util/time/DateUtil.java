@@ -421,7 +421,7 @@ public class DateUtil {
    * The maximum SQL time-stamp, used as far-future in the database.
    */
   @SuppressWarnings("deprecation")
-  public static final Timestamp MAX_SQL_TIMESTAMP = new Timestamp(9999 - 1900, 11, 31, 23, 59, 59, 999999999);
+  public static final Timestamp MAX_SQL_TIMESTAMP = new Timestamp(9999 - 1900, 11, 31, 23, 59, 59, 0);
   /**
    * The maximum instant, used as far-future in the database.
    */
