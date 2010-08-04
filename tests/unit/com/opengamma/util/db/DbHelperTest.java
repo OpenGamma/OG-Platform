@@ -12,7 +12,7 @@ import org.junit.Test;
 /**
  * Test DbUtils.
  */
-public abstract class DbHelperTest {
+public class DbHelperTest {
 
   protected DbHelper _helper = new DbHelper() {};
 
