@@ -33,8 +33,8 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class PresentValueSensitivityCalculatorTest {
-  private static final PresentValueSensitivityCalculator PVSC = new PresentValueSensitivityCalculator();
-  private static final PresentValueCalculator PVC = new PresentValueCalculator();
+  private static final PresentValueSensitivityCalculator PVSC = PresentValueSensitivityCalculator.getInstance();
+  private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final String FIVE_PC_CURVE_NAME = "5%";
   private static final String ZERO_PC_CURVE_NAME = "0%";
   private static final YieldCurveBundle CURVES;
@@ -54,7 +54,7 @@ public class PresentValueSensitivityCalculatorTest {
     double df = curve.getDiscountFactor(t);
     double r = 1 / t * (1 / df - 1);
     Cash cash = new Cash(t, r, FIVE_PC_CURVE_NAME);
-    Map<String, List<Pair<Double, Double>>> sense = PVSC.getSensitivity(cash, CURVES);
+    Map<String, List<Pair<Double, Double>>> sense = PVSC.getValue(cash, CURVES);
 
     assertTrue(sense.containsKey(FIVE_PC_CURVE_NAME));
     assertFalse(sense.containsKey(ZERO_PC_CURVE_NAME));
@@ -75,7 +75,7 @@ public class PresentValueSensitivityCalculatorTest {
     double dfa = curve.getDiscountFactor(tradeTime);
     r = 1 / yearFrac * (dfa / df - 1);
     cash = new Cash(t, r, tradeTime, yearFrac, FIVE_PC_CURVE_NAME);
-    sense = PVSC.getSensitivity(cash, CURVES);
+    sense = PVSC.getValue(cash, CURVES);
     temp = sense.get(FIVE_PC_CURVE_NAME);
     for (Pair<Double, Double> pair : temp) {
       if (pair.getFirst() == tradeTime) {
@@ -98,7 +98,7 @@ public class PresentValueSensitivityCalculatorTest {
     ForwardRateAgreement fra = new ForwardRateAgreement(settlement, maturity, strike, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     double ratio = curve.getDiscountFactor(settlement) / curve.getDiscountFactor(maturity) / (1 + tau * strike);
 
-    Map<String, List<Pair<Double, Double>>> sense = PVSC.getSensitivity(fra, CURVES);
+    Map<String, List<Pair<Double, Double>>> sense = PVSC.getValue(fra, CURVES);
     assertTrue(sense.containsKey(FIVE_PC_CURVE_NAME));
     assertTrue(sense.containsKey(ZERO_PC_CURVE_NAME));
 
@@ -131,7 +131,7 @@ public class PresentValueSensitivityCalculatorTest {
     double rate = (curve.getDiscountFactor(settlementDate) / curve.getDiscountFactor(settlementDate + yearFraction) - 1.0) / yearFraction;
     double price = 100 * (1 - rate);
     InterestRateFuture edf = new InterestRateFuture(settlementDate, yearFraction, price, FIVE_PC_CURVE_NAME);
-    Map<String, List<Pair<Double, Double>>> sense = PVSC.getSensitivity(edf, CURVES);
+    Map<String, List<Pair<Double, Double>>> sense = PVSC.getValue(edf, CURVES);
     double ratio = 100 * curve.getDiscountFactor(settlementDate) / curve.getDiscountFactor(settlementDate + yearFraction);
 
     List<Pair<Double, Double>> temp = sense.get(FIVE_PC_CURVE_NAME);
@@ -164,7 +164,7 @@ public class PresentValueSensitivityCalculatorTest {
     }
 
     FixedAnnuity annuity = new FixedAnnuity(paymentTimes, Math.PI, paymentAmounts, yearFracs, FIVE_PC_CURVE_NAME);
-    Map<String, List<Pair<Double, Double>>> sense = PVSC.getSensitivity(annuity, CURVES);
+    Map<String, List<Pair<Double, Double>>> sense = PVSC.getValue(annuity, CURVES);
     List<Pair<Double, Double>> temp = sense.get(FIVE_PC_CURVE_NAME);
     Iterator<Pair<Double, Double>> iterator = temp.iterator();
     int index = 0;
@@ -206,8 +206,8 @@ public class PresentValueSensitivityCalculatorTest {
 
     VariableAnnuity annuity = new VariableAnnuity(paymentTimes, Math.E, deltaStart, deltaEnd, yearFracs, spreads, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     VariableAnnuity bumpedAnnuity = new VariableAnnuity(paymentTimes, Math.E, deltaStart, deltaEnd, yearFracs, spreads, ZERO_PC_CURVE_NAME, "Bumped Curve");
-    double pv = PVC.getPresentValue(annuity, CURVES);
-    Map<String, List<Pair<Double, Double>>> sense = PVSC.getSensitivity(annuity, CURVES);
+    double pv = PVC.getValue(annuity, CURVES);
+    Map<String, List<Pair<Double, Double>>> sense = PVSC.getValue(annuity, CURVES);
 
     List<Pair<Double, Double>> temp = sense.get(FIVE_PC_CURVE_NAME);
     temp = mergeSameTimes(temp);
@@ -217,7 +217,7 @@ public class PresentValueSensitivityCalculatorTest {
       YieldCurveBundle curves = new YieldCurveBundle();
       curves.addAll(CURVES);
       curves.setCurve("Bumped Curve", bumpedCurve);
-      double bumpedpv = PVC.getPresentValue(bumpedAnnuity, curves);
+      double bumpedpv = PVC.getValue(bumpedAnnuity, curves);
       double res = (bumpedpv - pv) / eps;
       Pair<Double, Double> pair = temp.get(i + 1);
       assertEquals(paymentTimes[i], pair.getFirst(), 0.0);

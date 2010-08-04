@@ -29,20 +29,17 @@ public class MultipleYieldCurveFinderFunction extends Function1D<DoubleMatrix1D,
   private final int _nPoints;
   private final LinkedHashMap<String, FixedNodeInterpolator1D> _unknownCurves;
   private YieldCurveBundle _knownCurves;
-  private final double[] _marketValues;
   private final List<InterestRateDerivative> _derivatives;
-  private final InterestRateCalculator _rateCalculator = new InterestRateCalculator();
+  private final InterestRateDerivativeVisitor<Double> _calculator;
 
-  public MultipleYieldCurveFinderFunction(final List<InterestRateDerivative> derivatives, final double[] marketRates, LinkedHashMap<String, FixedNodeInterpolator1D> unknownCurves,
-      YieldCurveBundle knownCurves) {
+  public MultipleYieldCurveFinderFunction(final List<InterestRateDerivative> derivatives, LinkedHashMap<String, FixedNodeInterpolator1D> unknownCurves, YieldCurveBundle knownCurves,
+      InterestRateDerivativeVisitor<Double> calculator) {
     Validate.notNull(derivatives);
     Validate.noNullElements(derivatives);
-    Validate.notNull(marketRates);
-    Validate.isTrue(marketRates.length > 0, "No market rates");
+    Validate.notNull(calculator);
     Validate.notEmpty(unknownCurves, "No curves to solve for");
 
     _nPoints = derivatives.size();
-    Validate.isTrue(marketRates.length == _nPoints, "wrong number of market rates");
 
     if (knownCurves != null) {
       for (String name : knownCurves.getAllNames()) {
@@ -53,7 +50,6 @@ public class MultipleYieldCurveFinderFunction extends Function1D<DoubleMatrix1D,
       _knownCurves = knownCurves;
     }
 
-    _marketValues = marketRates;
     _derivatives = derivatives;
 
     int nNodes = 0;
@@ -64,7 +60,7 @@ public class MultipleYieldCurveFinderFunction extends Function1D<DoubleMatrix1D,
       throw new IllegalArgumentException("Total number of nodes does not match number of instruments");
     }
     _unknownCurves = unknownCurves;
-
+    _calculator = calculator;
   }
 
   @Override
@@ -95,7 +91,7 @@ public class MultipleYieldCurveFinderFunction extends Function1D<DoubleMatrix1D,
 
     double[] res = new double[_nPoints];
     for (int i = 0; i < _nPoints; i++) {
-      res[i] = _rateCalculator.getRate(_derivatives.get(i), curves) - _marketValues[i];
+      res[i] = _calculator.getValue(_derivatives.get(i), curves);
     }
 
     return new DoubleMatrix1D(res);

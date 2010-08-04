@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.interestrate;
 
+import com.opengamma.financial.interestrate.annuity.definition.ConstantCouponAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
@@ -20,6 +21,8 @@ import com.opengamma.financial.interestrate.swap.definition.Swap;
  */
 public interface InterestRateDerivativeVisitor<T> {
 
+  T getValue(InterestRateDerivative ird, YieldCurveBundle curves);
+
   T visitCash(Cash cash, YieldCurveBundle curves);
 
   T visitForwardRateAgreement(ForwardRateAgreement fra, YieldCurveBundle curves);
@@ -32,9 +35,11 @@ public interface InterestRateDerivativeVisitor<T> {
 
   T visitBasisSwap(final BasisSwap swap, YieldCurveBundle curves);
 
+  T visitBond(final Bond bond, YieldCurveBundle curves);
+
   T visitFixedAnnuity(final FixedAnnuity annuity, YieldCurveBundle curves);
 
-  T visitVariableAnnuity(final VariableAnnuity annuity, YieldCurveBundle curves);
+  T visitConstantCouponAnnuity(final ConstantCouponAnnuity annuity, YieldCurveBundle curves);
 
-  T visitBond(final Bond bond, YieldCurveBundle curves);
+  T visitVariableAnnuity(final VariableAnnuity annuity, YieldCurveBundle curves);
 }

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -31,6 +32,7 @@ import com.opengamma.math.interpolation.LinearInterpolator1DWithSensitivities;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.newton.JacobianCalculator;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -54,6 +56,8 @@ public class MultipleYieldCurveFinderJacobianTest {
   private static final LinkedHashMap<String, FixedNodeInterpolator1D> CASH_CURVES;
   private static final LinkedHashMap<String, FixedNodeInterpolator1D> FRA_CURVES;
   private static final LinkedHashMap<String, FixedNodeInterpolator1D> MIXED_CURVES;
+
+  private static final InterestRateDerivativeVisitor<Map<String, List<Pair<Double, Double>>>> SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
 
   private static final int N = 10;
   private static final int M = 5;
@@ -102,29 +106,34 @@ public class MultipleYieldCurveFinderJacobianTest {
     XM = new DoubleMatrix1D(dataM);
     XN = new DoubleMatrix1D(dataN);
     XNM = new DoubleMatrix1D(dataNpM);
-    CASH_ONLY = new MultipleYieldCurveFinderJacobian(CASH, CASH_CURVES, null);
-    FRA_ONLY = new MultipleYieldCurveFinderJacobian(FRA, FRA_CURVES, null);
-    MIXED = new MultipleYieldCurveFinderJacobian(MIXED_INSTRUMENT, MIXED_CURVES, null);
+    CASH_ONLY = new MultipleYieldCurveFinderJacobian(CASH, CASH_CURVES, null, SENSITIVITY_CALCULATOR);
+    FRA_ONLY = new MultipleYieldCurveFinderJacobian(FRA, FRA_CURVES, null, SENSITIVITY_CALCULATOR);
+    MIXED = new MultipleYieldCurveFinderJacobian(MIXED_INSTRUMENT, MIXED_CURVES, null, SENSITIVITY_CALCULATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullDerivatives() {
-    new MultipleYieldCurveFinderJacobian(null, MIXED_CURVES, null);
+    new MultipleYieldCurveFinderJacobian(null, MIXED_CURVES, null, SENSITIVITY_CALCULATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullInterpolator() {
-    new MultipleYieldCurveFinderJacobian(CASH, null, null);
+    new MultipleYieldCurveFinderJacobian(CASH, null, null, SENSITIVITY_CALCULATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyDerivatives() {
-    new MultipleYieldCurveFinderJacobian(new ArrayList<InterestRateDerivative>(), MIXED_CURVES, null);
+    new MultipleYieldCurveFinderJacobian(new ArrayList<InterestRateDerivative>(), MIXED_CURVES, null, SENSITIVITY_CALCULATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongNumberOfNodes() {
-    new MultipleYieldCurveFinderJacobian(MIXED_INSTRUMENT, CASH_CURVES, null);
+    new MultipleYieldCurveFinderJacobian(MIXED_INSTRUMENT, CASH_CURVES, null, SENSITIVITY_CALCULATOR);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullCalculator() {
+    new MultipleYieldCurveFinderJacobian(MIXED_INSTRUMENT, CASH_CURVES, null, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -139,9 +148,10 @@ public class MultipleYieldCurveFinderJacobianTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testCurveAlreadyPresent() {
-    new MultipleYieldCurveFinderJacobian(CASH, CASH_CURVES, new YieldCurveBundle(Collections.<String, YieldAndDiscountCurve>singletonMap(FUNDING_CURVE_NAME, new ConstantYieldCurve(2.))));
+    new MultipleYieldCurveFinderJacobian(CASH, CASH_CURVES, new YieldCurveBundle(Collections.<String, YieldAndDiscountCurve> singletonMap(FUNDING_CURVE_NAME, new ConstantYieldCurve(2.))),
+        SENSITIVITY_CALCULATOR);
   }
-  
+
   @Test
   public void testCashOnly() {
     final DoubleMatrix2D jacobian = CASH_ONLY.evaluate(XM, (Function1D<DoubleMatrix1D, DoubleMatrix1D>[]) null);

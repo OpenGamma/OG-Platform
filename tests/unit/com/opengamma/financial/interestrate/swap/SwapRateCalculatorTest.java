@@ -7,7 +7,7 @@ package com.opengamma.financial.interestrate.swap;
 
 import org.junit.Test;
 
-import com.opengamma.financial.interestrate.InterestRateCalculator;
+import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.ConstantDiscountCurve;
@@ -20,7 +20,7 @@ import com.opengamma.math.interpolation.LinearInterpolator1D;
  */
 public class SwapRateCalculatorTest {
   private static final double DF_1 = 0.95;
-  private static final InterestRateCalculator CALCULATOR = new InterestRateCalculator();
+  private static final ParRateCalculator CALCULATOR = ParRateCalculator.getInstance();
   private static final YieldAndDiscountCurve FUNDING_CURVE = new ConstantDiscountCurve(DF_1);
   private static final YieldAndDiscountCurve FORWARD_CURVE;
   private static final String FUNDING_CURVE_NAME = "Bill";
@@ -31,28 +31,27 @@ public class SwapRateCalculatorTest {
     final double[] t1 = new double[] {0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5};
     final int n = t1.length;
     final double[] t2 = new double[] {0.5, 1, 1.5, 2, 2.5, 3};
-    final double[] dummyPayments = new double[t2.length];
     final double[] delta = new double[] {0, 0, 0, 0, 0, 0};
     final double[] forward = new double[n];
     for (int i = 0; i < n; i++) {
       forward[i] = Math.pow(DF_1, t1[i]);
     }
     FORWARD_CURVE = new InterpolatedDiscountCurve(t1, forward, new LinearInterpolator1D());
-    SWAP = new FixedFloatSwap(t2, dummyPayments, t2, delta, delta, FUNDING_CURVE_NAME, FORWARD_CURVE_NAME);
+    SWAP = new FixedFloatSwap(t2, t2, 0.0, delta, delta, FUNDING_CURVE_NAME, FORWARD_CURVE_NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullForwardCurve() {
     YieldCurveBundle bundle = new YieldCurveBundle();
     bundle.setCurve(FUNDING_CURVE_NAME, FUNDING_CURVE);
-    CALCULATOR.getRate(SWAP, bundle);
+    CALCULATOR.getValue(SWAP, bundle);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullFundingCurve() {
     YieldCurveBundle bundle = new YieldCurveBundle();
     bundle.setCurve(FORWARD_CURVE_NAME, FORWARD_CURVE);
-    CALCULATOR.getRate(SWAP, bundle);
+    CALCULATOR.getValue(SWAP, bundle);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -60,7 +59,7 @@ public class SwapRateCalculatorTest {
     YieldCurveBundle bundle = new YieldCurveBundle();
     bundle.setCurve(FUNDING_CURVE_NAME, FUNDING_CURVE);
     bundle.setCurve(FORWARD_CURVE_NAME, FORWARD_CURVE);
-    CALCULATOR.getRate(null, bundle);
+    CALCULATOR.getValue(null, bundle);
   }
 
   @Test
@@ -68,6 +67,6 @@ public class SwapRateCalculatorTest {
     YieldCurveBundle bundle = new YieldCurveBundle();
     bundle.setCurve(FUNDING_CURVE_NAME, FUNDING_CURVE);
     bundle.setCurve(FORWARD_CURVE_NAME, FORWARD_CURVE);
-    CALCULATOR.getRate(SWAP, bundle);
+    CALCULATOR.getValue(SWAP, bundle);
   }
 }

@@ -32,15 +32,17 @@ import com.opengamma.util.tuple.Pair;
  */
 public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
 
-  private final InterestRateCurveSensitivityCalculator _rateSensitivityCalculator = new InterestRateCurveSensitivityCalculator();
+  private final InterestRateDerivativeVisitor<Map<String, List<Pair<Double, Double>>>> _calculator;
   private final int _nPoints;
   private final Map<String, FixedNodeInterpolator1D> _unknownCurves;
   private YieldCurveBundle _knownCurves;
   private final List<InterestRateDerivative> _derivatives;
 
-  public MultipleYieldCurveFinderJacobian(final List<InterestRateDerivative> derivatives, final LinkedHashMap<String, FixedNodeInterpolator1D> unknownCurves, final YieldCurveBundle knownCurves) {
+  public MultipleYieldCurveFinderJacobian(final List<InterestRateDerivative> derivatives, final LinkedHashMap<String, FixedNodeInterpolator1D> unknownCurves, final YieldCurveBundle knownCurves,
+      InterestRateDerivativeVisitor<Map<String, List<Pair<Double, Double>>>> calculator) {
     Validate.notNull(derivatives);
     Validate.noNullElements(derivatives);
+    Validate.notNull(calculator);
     Validate.notEmpty(unknownCurves, "No curves to solve for");
 
     if (knownCurves != null) {
@@ -51,6 +53,7 @@ public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
       }
       _knownCurves = knownCurves;
     }
+    _calculator = calculator;
     _nPoints = derivatives.size();
     _derivatives = derivatives;
 
@@ -95,7 +98,7 @@ public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
     final double[][] res = new double[_nPoints][_nPoints];
 
     for (int i = 0; i < _nPoints; i++) { // loop over all instruments
-      final Map<String, List<Pair<Double, Double>>> senseMap = _rateSensitivityCalculator.getSensitivity(_derivatives.get(i), curves);
+      final Map<String, List<Pair<Double, Double>>> senseMap = _calculator.getValue(_derivatives.get(i), curves);
 
       iterator = entrySet.iterator();
       int offset = 0;
@@ -108,8 +111,8 @@ public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
           final Interpolator1DDataBundle data = curve.getDataBundles().values().iterator().next();
           // Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResultWithSensitivities> interpolator = (Interpolator1D<? extends Interpolator1DDataBundle, ? extends
           // InterpolationResultWithSensitivities>)
-          final Interpolator1D<Interpolator1DDataBundle, ? extends InterpolationResultWithSensitivities> interpolator =
-            (Interpolator1D<Interpolator1DDataBundle, ? extends InterpolationResultWithSensitivities>) curve.getInterpolators().values().iterator().next();
+          final Interpolator1D<Interpolator1DDataBundle, ? extends InterpolationResultWithSensitivities> interpolator = (Interpolator1D<Interpolator1DDataBundle, ? extends InterpolationResultWithSensitivities>) curve
+              .getInterpolators().values().iterator().next();
           final List<Pair<Double, Double>> senseList = senseMap.get(name);
           final double[][] sensitivity = new double[senseList.size()][];
           int k = 0;

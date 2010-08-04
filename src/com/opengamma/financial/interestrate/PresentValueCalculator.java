@@ -7,6 +7,7 @@ package com.opengamma.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.annuity.definition.ConstantCouponAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
@@ -21,9 +22,22 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 /**
  * 
  */
-public class PresentValueCalculator implements InterestRateDerivativeVisitor<Double> {
+public final class PresentValueCalculator implements InterestRateDerivativeVisitor<Double> {
 
-  public double getPresentValue(final InterestRateDerivative derivative, final YieldCurveBundle curves) {
+  private static PresentValueCalculator s_instance;
+
+  public static PresentValueCalculator getInstance() {
+    if (s_instance == null) {
+      s_instance = new PresentValueCalculator();
+    }
+    return s_instance;
+  }
+
+  private PresentValueCalculator() {
+  }
+
+  @Override
+  public Double getValue(final InterestRateDerivative derivative, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(derivative);
     return derivative.accept(this, curves);
@@ -31,8 +45,8 @@ public class PresentValueCalculator implements InterestRateDerivativeVisitor<Dou
 
   @Override
   public Double visitSwap(Swap swap, YieldCurveBundle curves) {
-    double pvPay = getPresentValue(swap.getPayLeg(), curves);
-    double pvReceive = getPresentValue(swap.getReceiveLeg(), curves);
+    double pvPay = getValue(swap.getPayLeg(), curves);
+    double pvReceive = getValue(swap.getReceiveLeg(), curves);
     return pvReceive - pvPay;
   }
 
@@ -48,7 +62,7 @@ public class PresentValueCalculator implements InterestRateDerivativeVisitor<Dou
 
   @Override
   public Double visitBond(Bond bond, YieldCurveBundle curves) {
-    return getPresentValue(bond.getFixedAnnuity(), curves);
+    return getValue(bond.getFixedAnnuity(), curves);
   }
 
   @Override
@@ -93,6 +107,11 @@ public class PresentValueCalculator implements InterestRateDerivativeVisitor<Dou
       res += c[i] * curve.getDiscountFactor(t[i]);
     }
     return res;
+  }
+
+  @Override
+  public Double visitConstantCouponAnnuity(ConstantCouponAnnuity annuity, YieldCurveBundle curves) {
+    return visitFixedAnnuity(annuity, curves);
   }
 
   @Override
