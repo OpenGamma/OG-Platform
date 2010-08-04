@@ -126,7 +126,7 @@ public class InMemorySecurityMasterTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
+  @Test(expected = DataNotFoundException.class)
   public void test_get_emptyMaster() {
     assertNull(testEmpty.get(OTHER_UID));
   }
