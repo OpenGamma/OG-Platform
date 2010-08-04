@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.position;
 
-import java.util.Set;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
@@ -100,11 +98,6 @@ public class EHCachingPositionSource implements PositionSource {
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public Set<UniqueIdentifier> getPortfolioIds() {
-    return getUnderlying().getPortfolioIds();
-  }
-
   @Override
   public Portfolio getPortfolio(UniqueIdentifier identifier) {
     if (identifier.isLatest()) {

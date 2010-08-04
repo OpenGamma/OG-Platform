@@ -5,12 +5,8 @@
  */
 package com.opengamma.engine.position;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-import com.opengamma.id.UniqueIdentifierSchemeDelegator;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueIdentifierSchemeDelegator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -46,15 +42,6 @@ public class DelegatingPositionSource extends UniqueIdentifierSchemeDelegator<Po
   public Position getPosition(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     return chooseDelegate(uid).getPosition(uid);
-  }
-
-  @Override
-  public Set<UniqueIdentifier> getPortfolioIds() {
-    Set<UniqueIdentifier> result = new HashSet<UniqueIdentifier>(getDefaultDelegate().getPortfolioIds());
-    for (PositionSource delegateMaster : getDelegates().values()) {
-      result.addAll(delegateMaster.getPortfolioIds());
-    }
-    return Collections.unmodifiableSet(result);
   }
 
 }
