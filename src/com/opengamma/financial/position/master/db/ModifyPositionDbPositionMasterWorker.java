@@ -14,19 +14,24 @@ import javax.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.dao.IncorrectUpdateSemanticsDataAccessException;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifiables;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbMapSqlParameterSource;
+import com.opengamma.util.time.DateUtil;
 
 /**
  * Position master worker to modify a position.
  */
 public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker {
+  // TODO: transactions
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyPositionDbPositionMasterWorker.class);
@@ -42,19 +47,101 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
   @Override
   protected PositionDocument addPosition(final PositionDocument document) {
     s_logger.debug("addPosition {}", document);
-    // simply replace input values for the moment
-    // to use them would require much more validation
-    final Instant now = Instant.now(getTimeSource());
-    document.setVersionFromInstant(now);
-    document.setVersionToInstant(null);
-    document.setCorrectionFromInstant(now);
-    document.setCorrectionToInstant(null);
     
-    document.setParentNodeId(document.getParentNodeId().toLatest());
-    document.setPortfolioId(checkNodeGetPortfolioOid(document));
-    document.setPositionId(null);
+    getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(final TransactionStatus status) {
+        // insert new row
+        final Instant now = Instant.now(getTimeSource());
+        document.setVersionFromInstant(now);
+        document.setVersionToInstant(null);
+        document.setCorrectionFromInstant(now);
+        document.setCorrectionToInstant(null);
+        document.setParentNodeId(document.getParentNodeId().toLatest());
+        document.setPortfolioId(checkNodeGetPortfolioOid(document));
+        document.setPositionId(null);
+        insertPosition(document);
+      }
+    });
+    return document;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  protected PositionDocument updatePosition(final PositionDocument document) {
+    final UniqueIdentifier uid = document.getPositionId();
+    ArgumentChecker.isTrue(uid.isVersioned(), "UniqueIdentifier must be versioned");
+    s_logger.debug("updatePosition {}", document);
     
-    insertPosition(document);
+    getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(final TransactionStatus status) {
+        // load old row
+        final PositionDocument oldDoc = getPositionCheckLatestVersion(uid);
+        // update old row
+        final Instant now = Instant.now(getTimeSource());
+        oldDoc.setVersionToInstant(now);
+        updateVersionToInstant(oldDoc);
+        // insert new row
+        document.setVersionFromInstant(now);
+        document.setVersionToInstant(null);
+        document.setCorrectionFromInstant(now);
+        document.setCorrectionToInstant(null);
+        document.setParentNodeId(oldDoc.getParentNodeId());
+        document.setPortfolioId(oldDoc.getPortfolioId());
+        document.setPositionId(oldDoc.getPositionId().toLatest());
+        insertPosition(document);
+      }
+    });
+    return document;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  protected void removePosition(final UniqueIdentifier uid) {
+    ArgumentChecker.isTrue(uid.isVersioned(), "UniqueIdentifier must be versioned");
+    s_logger.debug("removePosition {}", uid);
+    
+    getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(final TransactionStatus status) {
+        // load old row
+        final PositionDocument oldDoc = getPositionCheckLatestVersion(uid);
+        // update old row
+        final Instant now = Instant.now(getTimeSource());
+        oldDoc.setVersionToInstant(now);
+        updateVersionToInstant(oldDoc);
+      }
+    });
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  protected PositionDocument correctPosition(final PositionDocument document) {
+    final UniqueIdentifier uid = document.getPositionId();
+    ArgumentChecker.isTrue(uid.isVersioned(), "UniqueIdentifier must be versioned");
+    s_logger.debug("correctPosition {}", document);
+    
+    getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(final TransactionStatus status) {
+        // load old row
+        final PositionDocument oldDoc = getPositionCheckLatestCorrection(uid);
+        // update old row
+        final Instant now = Instant.now(getTimeSource());
+        oldDoc.setCorrectionToInstant(now);
+        updateCorrectionToInstant(oldDoc);
+        // insert new row
+        document.setVersionFromInstant(oldDoc.getVersionFromInstant());
+        document.setVersionToInstant(oldDoc.getVersionToInstant());
+        document.setCorrectionFromInstant(now);
+        document.setCorrectionToInstant(null);
+        document.setParentNodeId(oldDoc.getParentNodeId());
+        document.setPortfolioId(oldDoc.getPortfolioId());
+        document.setPositionId(oldDoc.getPositionId().toLatest());
+        insertPosition(document);
+      }
+    });
     return document;
   }
 
@@ -66,9 +153,11 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
    */
   protected UniqueIdentifier checkNodeGetPortfolioOid(final PositionDocument document) {
     final UniqueIdentifier nodeOid = document.getParentNodeId().toLatest();
-    final MapSqlParameterSource args = new MapSqlParameterSource()
-      .addValue("node_oid", nodeOid.getValue());
-    final List<Map<String, Object>> data = getTemplate().queryForList(sqlSelectCheckNodeGetPortfolioOid(), args);
+    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+      .addValue("node_oid", extractOid(nodeOid))
+      .addTimestamp("version_as_of_instant", document.getVersionFromInstant())
+      .addTimestamp("corrected_to_instant", document.getCorrectionFromInstant());
+    final List<Map<String, Object>> data = getJdbcTemplate().queryForList(sqlSelectCheckNodeGetPortfolioOid(), args);
     if (data.size() == 0) {
       throw new DataNotFoundException("Parent node not found: " + nodeOid);
     }
@@ -80,15 +169,16 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
   }
 
   /**
-   * Gets the SQL for inserting a position.
+   * Gets the SQL that checks if the portfolio and node exists.
    * @return the SQL, not null
    */
   protected String sqlSelectCheckNodeGetPortfolioOid() {
-    // check portfolio/node instant
-    return "SELECT DISTINCT p.oid AS portfolio_oid " +
-            "FROM pos_node n, pos_position p " +
-            "WHERE n.portfolio_id = p.id " +
-              "AND n.oid = :node_oid ";
+    return "SELECT DISTINCT f.oid AS portfolio_oid " +
+            "FROM pos_node n, pos_portfolio f " +
+            "WHERE n.portfolio_id = f.id " +
+              "AND n.oid = :node_oid " +
+              "AND (f.ver_from_instant <= :version_as_of_instant AND f.ver_to_instant > :version_as_of_instant) " +
+              "AND (f.corr_from_instant <= :corrected_to_instant AND f.corr_to_instant > :corrected_to_instant) ";
   }
 
   //-------------------------------------------------------------------------
@@ -98,12 +188,13 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
    */
   protected void insertPosition(final PositionDocument document) {
     final long positionId = nextId();
+    final long positionOid = (document.getPositionId() != null ? extractOid(document.getPositionId()) : positionId);
     // the arguments for inserting into the position table
     final DbMapSqlParameterSource positionArgs = new DbMapSqlParameterSource()
       .addValue("position_id", positionId)
-      .addValue("position_oid", positionId)
-      .addValue("portfolio_oid", document.getPortfolioId().toLatest().getValue())
-      .addValue("parent_node_oid", document.getParentNodeId().toLatest().getValue())
+      .addValue("position_oid", positionOid)
+      .addValue("portfolio_oid", extractOid(document.getPortfolioId()))
+      .addValue("parent_node_oid", extractOid(document.getParentNodeId()))
       .addTimestamp("ver_from_instant", document.getVersionFromInstant())
       .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
       .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
@@ -120,10 +211,10 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
         .addValue("id_value", id.getValue());
       secKeyList.add(treeArgs);
     }
-    getTemplate().update(sqlInsertPosition(), positionArgs);
-    getTemplate().batchUpdate(sqlInsertSecurityKey(), (DbMapSqlParameterSource[]) secKeyList.toArray(new DbMapSqlParameterSource[secKeyList.size()]));
+    getJdbcTemplate().update(sqlInsertPosition(), positionArgs);
+    getJdbcTemplate().batchUpdate(sqlInsertSecurityKey(), (DbMapSqlParameterSource[]) secKeyList.toArray(new DbMapSqlParameterSource[secKeyList.size()]));
     // set the uid
-    final UniqueIdentifier uid = createUniqueIdentifier(positionId, positionId, null);
+    final UniqueIdentifier uid = createUniqueIdentifier(positionOid, positionId, null);
     UniqueIdentifiables.setInto(document.getPosition(), uid);
     document.setPositionId(uid);
   }
@@ -148,6 +239,86 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
               "(id, position_id, id_scheme, id_value) " +
             "VALUES " +
               "(:seckey_id, :position_id, :id_scheme, :id_value)";
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the position document ensuring that it is the latest version.
+   * @param uid  the unique identifier to load, not null
+   * @return the loaded document, not null
+   */
+  protected PositionDocument getPositionCheckLatestVersion(final UniqueIdentifier uid) {
+    final PositionDocument oldDoc = getMaster().getPosition(uid);  // checks uid exists
+    if (oldDoc.getVersionToInstant() != null) {
+      throw new IllegalArgumentException("UniqueIdentifier is not latest version: " + uid);
+    }
+    return oldDoc;
+  }
+
+  /**
+   * Updates the document row to mark the version as ended.
+   * @param document  the document to update, not null
+   */
+  protected void updateVersionToInstant(final PositionDocument document) {
+    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+      .addValue("position_id", extractRowId(document.getPositionId()))
+      .addTimestamp("ver_to_instant", document.getVersionToInstant())
+      .addValue("max_instant", DateUtil.MAX_SQL_TIMESTAMP);
+    int rowsUpdated = getJdbcTemplate().update(sqlUpdateVersionToInstant(), args);
+    if (rowsUpdated != 1) {
+      throw new IncorrectUpdateSemanticsDataAccessException("Update end version instant failed, rows updated: " + rowsUpdated);
+    }
+  }
+
+  /**
+   * Gets the SQL for updating the end version of a position.
+   * @return the SQL, not null
+   */
+  protected String sqlUpdateVersionToInstant() {
+    return "UPDATE pos_position " +
+              "SET ver_to_instant = :ver_to_instant " +
+            "WHERE id = :position_id " +
+              "AND ver_to_instant = :max_instant ";
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the position document ensuring that it is the latest version.
+   * @param uid  the unique identifier to load, not null
+   * @return the loaded document, not null
+   */
+  protected PositionDocument getPositionCheckLatestCorrection(final UniqueIdentifier uid) {
+    final PositionDocument oldDoc = getMaster().getPosition(uid);  // checks uid exists
+    if (oldDoc.getCorrectionToInstant() != null) {
+      throw new IllegalArgumentException("UniqueIdentifier is not latest correction: " + uid);
+    }
+    return oldDoc;
+  }
+
+  /**
+   * Updates the document row to mark the correction as ended.
+   * @param document  the document to update, not null
+   */
+  protected void updateCorrectionToInstant(final PositionDocument document) {
+    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+      .addValue("position_id", extractRowId(document.getPositionId()))
+      .addTimestamp("corr_to_instant", document.getCorrectionToInstant())
+      .addValue("max_instant", DateUtil.MAX_SQL_TIMESTAMP);
+    int rowsUpdated = getJdbcTemplate().update(sqlUpdateCorrectionToInstant(), args);
+    if (rowsUpdated != 1) {
+      throw new IncorrectUpdateSemanticsDataAccessException("Update end correction instant failed, rows updated: " + rowsUpdated);
+    }
+  }
+
+  /**
+   * Gets the SQL for updating the end correction of a position.
+   * @return the SQL, not null
+   */
+  protected String sqlUpdateCorrectionToInstant() {
+    return "UPDATE pos_position " +
+              "SET corr_to_instant = :corr_to_instant " +
+            "WHERE id = :position_id " +
+              "AND corr_to_instant = :max_instant ";
   }
 
 }

@@ -1,3 +1,12 @@
+
+-- Position master upgrade from patch_1
+
+drop table pos_securitykey;
+drop table pos_position;
+drop table pos_nodetree;
+drop table pos_node;
+drop table pos_portfolio;
+
 -- design has two documents
 --  portfolio and tree of nodes (nested set model)
 --  position and associated security key
@@ -5,7 +14,7 @@
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
-create sequence pos_master_seq as bigint
+create sequence pos_master_seq
     start with 1000 increment by 1 no cycle;
 -- "as bigint" required by Derby, not accepted by Postgresql
 

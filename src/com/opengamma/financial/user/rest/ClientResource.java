@@ -12,8 +12,8 @@ import org.fudgemsg.FudgeContext;
 
 import com.opengamma.financial.livedata.rest.LiveDataResource;
 import com.opengamma.financial.livedata.user.InMemoryUserSnapshotProvider;
-import com.opengamma.financial.position.ManageablePositionMaster;
-import com.opengamma.financial.position.memory.InMemoryManageablePositionMaster;
+import com.opengamma.financial.position.master.PositionMaster;
+import com.opengamma.financial.position.master.memory.InMemoryPositionMaster;
 import com.opengamma.financial.position.rest.PortfoliosResource;
 import com.opengamma.financial.security.MasterSecuritySource;
 import com.opengamma.financial.security.memory.InMemorySecurityMaster;
@@ -23,6 +23,7 @@ import com.opengamma.financial.user.UserUniqueIdentifierUtils;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository;
 import com.opengamma.financial.view.rest.ViewDefinitionsResource;
+import com.opengamma.id.UniqueIdentifierSupplier;
 import com.opengamma.id.UniqueIdentifierTemplate;
 
 /**
@@ -50,7 +51,7 @@ public class ClientResource {
   public static final String LIVEDATA_PATH = "livedata";
   
   private final ClientsResource _clientsResource;
-  private final ManageablePositionMaster _positionMaster;
+  private final PositionMaster _positionMaster;
   private final MasterSecuritySource _securityMaster;
   private final ManageableViewDefinitionRepository _viewDefinitionRepository;
   private final InMemoryUserSnapshotProvider _liveData;
@@ -59,7 +60,7 @@ public class ClientResource {
   public ClientResource(ClientsResource clientsResource, String clientName, FudgeContext fudgeContext) {
     _clientsResource = clientsResource;
     final String username = clientsResource.getUserResource().getUserName();
-    _positionMaster = new InMemoryManageablePositionMaster(getTemplate(username, clientName, PORTFOLIOS_PATH));
+    _positionMaster = new InMemoryPositionMaster(new UniqueIdentifierSupplier("UserPos:" + username + ":" + clientName));
     _securityMaster = new MasterSecuritySource(new InMemorySecurityMaster(getTemplate(username, clientName, SECURITIES_PATH).createSupplier()));
     _liveData = new InMemoryUserSnapshotProvider(getTemplate(username, clientName, LIVEDATA_PATH));
     _viewDefinitionRepository = new InMemoryViewDefinitionRepository();
