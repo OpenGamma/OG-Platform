@@ -15,12 +15,11 @@ import java.util.TreeMap;
 
 import org.junit.Test;
 
-import com.opengamma.math.interpolation.InterpolationResult;
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.Interpolator1DDataBundleFactory;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.math.interpolation.StepInterpolator1D;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.math.interpolation.temp.InterpolationResult;
 
 /**
  * 
@@ -58,7 +57,7 @@ public class InterpolatedYieldAndDiscountCurveTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorWithInsufficientData() {
-    new InterpolatedDiscountCurve(Collections.<Double, Double>singletonMap(3., 2.), LINEAR);
+    new InterpolatedDiscountCurve(Collections.<Double, Double> singletonMap(3., 2.), LINEAR);
   }
 
   @Test(expected = AssertionError.class)
@@ -116,7 +115,7 @@ public class InterpolatedYieldAndDiscountCurveTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorWithEmptyInterpolatorMap() {
-    new InterpolatedDiscountCurve(DF_DATA, Collections.<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>>emptyMap());
+    new InterpolatedDiscountCurve(DF_DATA, Collections.<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> emptyMap());
   }
 
   @Test(expected = AssertionError.class)
@@ -174,7 +173,7 @@ public class InterpolatedYieldAndDiscountCurveTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testGetMultipleShiftWithNegativeTime() {
-    DISCOUNT_CURVE.withMultipleShifts(Collections.<Double, Double>singletonMap(-T, SHIFT));
+    DISCOUNT_CURVE.withMultipleShifts(Collections.<Double, Double> singletonMap(-T, SHIFT));
   }
 
   @Test
