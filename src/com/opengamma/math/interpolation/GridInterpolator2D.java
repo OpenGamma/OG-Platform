@@ -12,6 +12,8 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.math.interpolation.temp.InterpolationResult;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.FirstThenSecondPairComparator;
 import com.opengamma.util.tuple.Pair;

@@ -9,6 +9,9 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
+import com.opengamma.math.interpolation.temp.InterpolationResult;
+
 /**
  * 
  */

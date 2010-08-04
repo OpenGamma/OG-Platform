@@ -7,7 +7,10 @@ package com.opengamma.math.interpolation;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.interpolation.Interpolator1DDoubleQuadraticDataBundle.Coefficents;
+import com.opengamma.math.function.RealPolynomialFunction1D;
+import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
+import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
+import com.opengamma.math.interpolation.temp.InterpolationResult;
 
 /**
  * 
@@ -24,20 +27,20 @@ public class DoubleQuadraticInterpolator1D extends Interpolator1D<Interpolator1D
     final double[] xData = data.getKeys();
     final double[] yData = data.getValues();
     if (low == 0) {
-      final Coefficents coef = data.getCoefficents(0);
+      final RealPolynomialFunction1D quadratic = data.getQuadratic(0);
       final double x = value - xData[1];
-      return new InterpolationResult(coef.evaluate(x));
+      return new InterpolationResult(quadratic.evaluate(x));
     } else if (high == n) {
-      final Coefficents coef = data.getCoefficents(n - 2);
+      final RealPolynomialFunction1D quadratic = data.getQuadratic(n - 2);
       final double x = value - xData[n - 1];
-      return new InterpolationResult(coef.evaluate(x));
+      return new InterpolationResult(quadratic.evaluate(x));
     } else if (low == n) {
       return new InterpolationResult(yData[n]);
     }
-    final Coefficents coef1 = data.getCoefficents(low - 1);
-    final Coefficents coef2 = data.getCoefficents(high - 1);
+    final RealPolynomialFunction1D quadratic1 = data.getQuadratic(low - 1);
+    final RealPolynomialFunction1D quadratic2 = data.getQuadratic(high - 1);
     final double w = (xData[high] - value) / (xData[high] - xData[low]);
-    final double res = w * coef1.evaluate(value - xData[low]) + (1 - w) * coef2.evaluate(value - xData[high]);
+    final double res = w * quadratic1.evaluate(value - xData[low]) + (1 - w) * quadratic2.evaluate(value - xData[high]);
     return new InterpolationResult(res);
   }
 

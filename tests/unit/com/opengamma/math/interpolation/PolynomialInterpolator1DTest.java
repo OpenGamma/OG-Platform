@@ -14,6 +14,8 @@ import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.RealPolynomialFunction1D;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.math.interpolation.temp.InterpolationResult;
 
 /**
  * 

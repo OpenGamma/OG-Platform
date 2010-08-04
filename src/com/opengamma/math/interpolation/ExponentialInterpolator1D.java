@@ -7,6 +7,10 @@ package com.opengamma.math.interpolation;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.math.interpolation.temp.InterpolationResult;
+
 /**
  * 
  * 

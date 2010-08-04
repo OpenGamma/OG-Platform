@@ -7,6 +7,11 @@ package com.opengamma.math.interpolation;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
+import com.opengamma.math.interpolation.data.InterpolationBoundedValues;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.math.interpolation.temp.InterpolationResult;
+
 /**
  * A one-dimensional linear interpolator. The interpolated value of the function
  * <i>y</i> at <i>x</i> between two data points <i>(x<sub>1</sub>,

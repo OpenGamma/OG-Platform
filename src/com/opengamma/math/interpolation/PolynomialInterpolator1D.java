@@ -12,6 +12,9 @@ import org.apache.commons.math.MathException;
 import org.apache.commons.math.analysis.interpolation.NevilleInterpolator;
 import org.apache.commons.math.analysis.polynomials.PolynomialFunctionLagrangeForm;
 
+import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.math.interpolation.temp.InterpolationResult;
 import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 import com.opengamma.util.ArgumentChecker;
 

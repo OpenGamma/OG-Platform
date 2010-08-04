@@ -13,81 +13,35 @@ import java.util.Map;
  */
 @SuppressWarnings("unchecked")
 public final class Interpolator1DFactory {
-  /**
-   * 
-   */
+  /** Linear */
   public static final String LINEAR = "Linear";
-  /**
-   * 
-   */
+  /** Linear instance */
   public static final LinearInterpolator1D LINEAR_INSTANCE = new LinearInterpolator1D();
-  /**
-   * 
-   */
+  /** Exponential */
   public static final String EXPONENTIAL = "Exponential";
-  /**
-   * 
-   */
+  /** Exponential instance */
   public static final ExponentialInterpolator1D EXPONENTIAL_INSTANCE = new ExponentialInterpolator1D();
-  /**
-   * 
-   */
+  /** Log-linear */
   public static final String LOG_LINEAR = "LogLinear";
-  /**
-   * 
-   */
+  /** Log-linear instance */
   public static final LogLinearInterpolator1D LOG_LINEAR_INSTANCE = new LogLinearInterpolator1D();
-  /**
-   * 
-   */
+  /** Natural cubic spline */
   public static final String NATURAL_CUBIC_SPLINE = "NaturalCubicSpline";
-  /**
-   * 
-   */
+  /** Natural cubic spline instance */
   public static final NaturalCubicSplineInterpolator1D NATURAL_CUBIC_SPLINE_INSTANCE = new NaturalCubicSplineInterpolator1D();
-  /**
-   * 
-   */
-  public static final String CUBIC_SPLINE_WITH_SENSITIVITIES = "CubicSplineWithSensitivities";
-  /**
-   * 
-   */
-  public static final CubicSplineInterpolatorWithSensitivities1D CUBIC_SPLINE_WITH_SENSITIVITIES_INSTANCE = new CubicSplineInterpolatorWithSensitivities1D();
-  /**
-   * 
-   */
-  public static final String LINEAR_WITH_SENSITIVITIES = "LinearWithSensitivities";
-  /**
-   * 
-   */
-  public static final LinearInterpolator1DWithSensitivities LINEAR_WITH_SENSITIVITIES_INSTANCE = new LinearInterpolator1DWithSensitivities();
-  /**
-   * 
-   */
+  /** Barycentric rational function */
   public static final String BARYCENTRIC_RATIONAL_FUNCTION = "BarycentricRationalFunction";
-  /**
-   * 
-   */
+  /** Polynomial */
   public static final String POLYNOMIAL = "Polynomial";
-  /**
-   * 
-   */
+  /** Rational function */
   public static final String RATIONAL_FUNCTION = "RationalFunction";
-  /**
-   * 
-   */
+  /** Step */
   public static final String STEP = "Step";
-  /**
-   * 
-   */
+  /** Step instance */
   public static final StepInterpolator1D STEP_INSTANCE = new StepInterpolator1D();
-  /**
-   * 
-   */
+  /** Double quadratic */
   public static final String DOUBLE_QUADRATIC = "DoubleQuadratic";
-  /**
-   * 
-   */
+  /** Double quadratic instance */
   public static final DoubleQuadraticInterpolator1D DOUBLE_QUADRATIC_INSTANCE = new DoubleQuadraticInterpolator1D();
 
   private static final Map<String, Interpolator1D> s_staticInstances;
@@ -104,10 +58,6 @@ public final class Interpolator1DFactory {
     instanceNames.put(LogLinearInterpolator1D.class, LOG_LINEAR);
     staticInstances.put(NATURAL_CUBIC_SPLINE, NATURAL_CUBIC_SPLINE_INSTANCE);
     instanceNames.put(NaturalCubicSplineInterpolator1D.class, NATURAL_CUBIC_SPLINE);
-    staticInstances.put(CUBIC_SPLINE_WITH_SENSITIVITIES, CUBIC_SPLINE_WITH_SENSITIVITIES_INSTANCE);
-    instanceNames.put(CubicSplineInterpolatorWithSensitivities1D.class, CUBIC_SPLINE_WITH_SENSITIVITIES);
-    staticInstances.put(LINEAR_WITH_SENSITIVITIES, LINEAR_WITH_SENSITIVITIES_INSTANCE);
-    instanceNames.put(LinearInterpolator1DWithSensitivities.class, LINEAR_WITH_SENSITIVITIES);
     staticInstances.put(DOUBLE_QUADRATIC, DOUBLE_QUADRATIC_INSTANCE);
     instanceNames.put(DoubleQuadraticInterpolator1D.class, DOUBLE_QUADRATIC);
     staticInstances.put(STEP, STEP_INSTANCE);

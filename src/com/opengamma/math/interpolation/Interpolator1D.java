@@ -12,6 +12,9 @@ import java.util.SortedMap;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.math.interpolation.temp.InterpolationResult;
+
 /**
  * A base class for interpolation in one dimension.
  * @param <T> Type of Interpolator1DDataBundle
@@ -82,7 +85,7 @@ public abstract class Interpolator1D<T extends Interpolator1DDataBundle, U exten
     return true;
   }
 
-  public abstract U interpolate(T model, Double value);
+  public abstract U interpolate(T data, Double value);
 
   protected boolean classEquals(final Object o) {
     if (o == null) {
