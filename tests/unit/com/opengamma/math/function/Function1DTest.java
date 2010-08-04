@@ -16,20 +16,20 @@ public class Function1DTest {
     }
 
   };
-  
-  @Test(expected=NullPointerException.class)
+
+  @Test(expected = IllegalArgumentException.class)
   public void testNullInputList() {
     F.evaluate((Double[]) null);
   }
-  
-  @Test(expected=IllegalArgumentException.class)
+
+  @Test(expected = IllegalArgumentException.class)
   public void testEmptyInputList() {
     F.evaluate(new Double[0]);
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testInputListWithNulls() {
-    F.evaluate(new Double[] { null });
+    F.evaluate(new Double[] {null});
   }
 
 }

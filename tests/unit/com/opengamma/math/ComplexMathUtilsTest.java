@@ -28,137 +28,137 @@ public class ComplexMathUtilsTest {
   public void testNull() {
     try {
       ComplexMathUtils.add(null, Z1);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.add(Z1, null);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.add(X, null);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.add(null, X);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.arg(null);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.conjugate(null);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.divide(null, Z1);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.divide(Z1, null);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.divide(X, null);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.divide(null, X);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.exp(null);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.inverse(null);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.log(null);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.mod(null);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.multiply(null, Z1);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.multiply(Z1, null);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.multiply(X, null);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.multiply(null, X);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.pow(null, Z1);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.pow(Z1, null);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.pow(X, null);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.pow(null, X);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.sqrt(null);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.subtract(null, Z1);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.subtract(Z1, null);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.subtract(X, null);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
       ComplexMathUtils.subtract(null, X);
-    } catch (final NullPointerException e) {
+    } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
   }
