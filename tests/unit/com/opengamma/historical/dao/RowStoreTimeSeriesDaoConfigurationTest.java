@@ -18,7 +18,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
  */
 public class RowStoreTimeSeriesDaoConfigurationTest {
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void missingDataSourceTransactionManager() throws Exception {
 
     Map<String, String> namedSQLMap = new HashMap<String, String>();
@@ -44,7 +44,7 @@ public class RowStoreTimeSeriesDaoConfigurationTest {
     };
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void missingNamedSQLMap() throws Exception {
     DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(new BasicDataSource());
     new RowStoreJdbcDao(transactionManager, null) {
