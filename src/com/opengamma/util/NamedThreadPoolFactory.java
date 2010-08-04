@@ -49,7 +49,7 @@ public class NamedThreadPoolFactory implements ThreadFactory {
    * @param makeDaemon  whether to make the thread a daemon 
    */
   public NamedThreadPoolFactory(String poolName, boolean makeDaemon) {
-    ArgumentChecker.notNull(poolName, "Pool name");
+    ArgumentChecker.notNull(poolName, "poolName");
     _poolName = poolName;
     _makeDaemon = makeDaemon;
     SecurityManager s = System.getSecurityManager();

@@ -48,7 +48,7 @@ public class RestTarget {
   }
 
   public RestTarget(final URI uri, final int taxonomyId) {
-    ArgumentChecker.notNull(uri, "URI");
+    ArgumentChecker.notNull(uri, "uri");
     if (taxonomyId < Short.MIN_VALUE || taxonomyId > Short.MAX_VALUE) {
       throw new IllegalArgumentException("taxonomyId must be 16-bit signed integer");
     }

@@ -27,7 +27,7 @@ public class UniqueIdentifierTest {
     assertEquals("Scheme::value", test.toString());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_factory_String_String_nullScheme() {
     UniqueIdentifier.of((String) null, "value");
   }
@@ -37,7 +37,7 @@ public class UniqueIdentifierTest {
     UniqueIdentifier.of("", "value");
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_factory_String_String_nullValue() {
     UniqueIdentifier.of("Scheme", (String) null);
   }
@@ -57,7 +57,7 @@ public class UniqueIdentifierTest {
     assertEquals("Scheme::value::version", test.toString());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_factory_String_String_String_nullScheme() {
     UniqueIdentifier.of((String) null, "value");
   }
@@ -67,7 +67,7 @@ public class UniqueIdentifierTest {
     UniqueIdentifier.of("", "value");
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_factory_String_String_String_nullValue() {
     UniqueIdentifier.of("Scheme", (String) null);
   }

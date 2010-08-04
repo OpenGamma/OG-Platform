@@ -26,12 +26,12 @@ public class PostgreSQLDbHelper extends DbHelper {
   //-------------------------------------------------------------------------
   @Override
   public String sqlNextSequenceValueSelect(final String sequenceName) {
-    return "SELECT nextval(" + sequenceName + ")";
+    return "SELECT nextval('" + sequenceName + "')";
   }
 
   @Override
   public String sqlNextSequenceValueInline(final String sequenceName) {
-    return "nextval(" + sequenceName + ")";
+    return "nextval('" + sequenceName + "')";
   }
 
 }

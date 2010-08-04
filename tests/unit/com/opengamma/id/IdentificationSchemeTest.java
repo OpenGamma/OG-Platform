@@ -19,7 +19,7 @@ public class IdentificationSchemeTest {
     assertEquals("IATA", test.getName());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_constructor_noNameProvided() {
     new IdentificationScheme(null);
   }

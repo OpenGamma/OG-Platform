@@ -23,6 +23,19 @@ public final class PagingRequestTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_factory_of() {
+    assertEquals(1, PagingRequest.of(1, 10).getPage());
+    assertEquals(10, PagingRequest.of(1, 10).getPagingSize());
+    
+    assertEquals(1, PagingRequest.of(0, 10).getPage());
+    assertEquals(10, PagingRequest.of(0, 10).getPagingSize());
+    
+    assertEquals(2, PagingRequest.of(2, 0).getPage());
+    assertEquals(20, PagingRequest.of(2, 0).getPagingSize());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_constructor() {
     PagingRequest test = new PagingRequest();
     assertEquals(1, test.getPage());
@@ -149,6 +162,13 @@ public final class PagingRequestTest {
     PagingRequest test2 = new PagingRequest(1, 30);
     assertEquals(false, test1.equals(test2));
     assertEquals(false, test2.equals(test1));
+  }
+
+  @Test
+  public void test_equals_other() {
+    PagingRequest test = new PagingRequest(1, 20);
+    assertEquals(false, test.equals(""));
+    assertEquals(false, test.equals(null));
   }
 
   //-------------------------------------------------------------------------

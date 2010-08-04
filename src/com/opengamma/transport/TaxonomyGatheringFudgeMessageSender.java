@@ -21,12 +21,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -58,10 +59,10 @@ public class TaxonomyGatheringFudgeMessageSender implements FudgeMessageSender {
   }
   
   public TaxonomyGatheringFudgeMessageSender(FudgeMessageSender underlying, String outputFileName, FudgeContext fudgeContext, long fileWritePeriod) {
-    Validate.notNull(underlying, "Underlying message sender must not be null.");
-    Validate.notNull(fudgeContext, "Fudge context must be provided.");
-    Validate.notEmpty(outputFileName, "Must provide an output file name");
-    Validate.isTrue(fileWritePeriod > 0, "File write period must be positive.", fileWritePeriod);
+    ArgumentChecker.notNull(underlying, "underlying");
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
+    ArgumentChecker.notEmpty(outputFileName, "outputFileName");
+    ArgumentChecker.isTrue(fileWritePeriod > 0, "File write period must be positive");
     
     _underlying = underlying;
     _fudgeContext = fudgeContext;
@@ -69,13 +70,13 @@ public class TaxonomyGatheringFudgeMessageSender implements FudgeMessageSender {
     
     File outputFile = new File(outputFileName);
     if (outputFile.exists()) {
-      Validate.isTrue(outputFile.canRead(), "Must be able to read the output file.");
-      Validate.isTrue(outputFile.canWrite(), "Must be able to write the output file.");
+      ArgumentChecker.isTrue(outputFile.canRead(), "Must be able to read the output file");
+      ArgumentChecker.isTrue(outputFile.canWrite(), "Must be able to write the output file");
     }
     _outputFile = outputFile;
     File temporaryFile = new File(outputFileName + ".tmp");
     if (temporaryFile.exists()) {
-      Validate.isTrue(temporaryFile.canWrite(), "Must be able to write to a temporary output file.");
+      ArgumentChecker.isTrue(temporaryFile.canWrite(), "Must be able to write to a temporary output file");
     }
     _temporaryFile = temporaryFile;
     

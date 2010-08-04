@@ -36,7 +36,7 @@ public class DbMapSqlParameterSource extends MapSqlParameterSource {
    * @return this, for chaining, not null
    */
   public DbMapSqlParameterSource addTimestamp(final String name, final InstantProvider instantProvider) {
-    ArgumentChecker.notNull(name, "Name must not be null");
+    ArgumentChecker.notNull(name, "name");
     addValue(name, DateUtil.toSqlTimestamp(instantProvider));
     return this;
   }
@@ -48,7 +48,7 @@ public class DbMapSqlParameterSource extends MapSqlParameterSource {
    * @return this, for chaining, not null
    */
   public DbMapSqlParameterSource addTimestampNullFuture(final String name, final InstantProvider instantProvider) {
-    ArgumentChecker.notNull(name, "Name must not be null");
+    ArgumentChecker.notNull(name, "name");
     if (instantProvider == null) {
       addValue(name, DateUtil.MAX_SQL_TIMESTAMP);
     } else {
@@ -65,7 +65,7 @@ public class DbMapSqlParameterSource extends MapSqlParameterSource {
    * @return this, for chaining, not null
    */
   public DbMapSqlParameterSource addDate(final String name, final DateProvider dateProvider) {
-    ArgumentChecker.notNull(name, "Name must not be null");
+    ArgumentChecker.notNull(name, "name");
     addValue(name, DateUtil.toSqlDate(dateProvider));
     return this;
   }
@@ -77,7 +77,7 @@ public class DbMapSqlParameterSource extends MapSqlParameterSource {
    * @return this, for chaining, not null
    */
   public DbMapSqlParameterSource addTime(final String name, final TimeProvider timeProvider) {
-    ArgumentChecker.notNull(name, "Name must not be null");
+    ArgumentChecker.notNull(name, "name");
     addValue(name, DateUtil.toSqlTime(timeProvider));
     return this;
   }

@@ -33,7 +33,7 @@ abstract public class DBTest implements TableCreationCallback {
   private final DBTool _dbtool;
   
   protected DBTest(String databaseType, String databaseVersion) {
-    ArgumentChecker.notNull(databaseType, "Database type");
+    ArgumentChecker.notNull(databaseType, "databaseType");
     _databaseType = databaseType;
     _dbtool = TestProperties.getDbTool(databaseType);
     _dbtool.setJdbcUrl(getDbTool().getTestDatabaseUrl());

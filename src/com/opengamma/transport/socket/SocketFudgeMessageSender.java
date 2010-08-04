@@ -39,7 +39,7 @@ public class SocketFudgeMessageSender extends AbstractSocketProcess implements F
   }
   
   public SocketFudgeMessageSender(FudgeContext fudgeContext) {
-    ArgumentChecker.notNull(fudgeContext, "Fudge context");
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _fudgeContext = fudgeContext;
   }
 

@@ -5,6 +5,7 @@
  */
 package com.opengamma.id;
 
+import com.google.common.base.Supplier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -30,6 +31,17 @@ public class UniqueIdentifierTemplate {
     this(scheme, null);
   }
   
+  public Supplier<UniqueIdentifier> createSupplier() {
+    return new Supplier<UniqueIdentifier>() {
+      private int _count;
+
+      @Override
+      public UniqueIdentifier get() {
+        return uid(Integer.toString(_count++));
+      }
+    };
+  }
+
   /**
    * Constructs a new instance.
    * 

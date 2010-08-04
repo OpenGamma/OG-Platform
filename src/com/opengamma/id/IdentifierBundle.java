@@ -280,8 +280,8 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   //-------------------------------------------------------------------------
 
   public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer message) {
-    ArgumentChecker.notNull(factory, "FudgeMessageFactory");
-    ArgumentChecker.notNull(message, "MutableFudgeFieldContainer");
+    ArgumentChecker.notNull(factory, "factory");
+    ArgumentChecker.notNull(message, "message");
     for (Identifier identifier : getIdentifiers()) {
       message.add(ID_FUDGE_FIELD_NAME, identifier.toFudgeMsg(factory));
     }

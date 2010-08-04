@@ -5,6 +5,10 @@
  */
 package com.opengamma.util.db;
 
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMessageFactory;
+import org.fudgemsg.MutableFudgeFieldContainer;
+
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -140,6 +144,23 @@ public final class PagingRequest {
   @Override
   public String toString() {
     return getClass().getSimpleName() + "[page=" + _page + ", pagingSize=" + _pagingSize + "]";
+  }
+
+  // -------------------------------------------------------------------------
+  /** Field name. */
+  private static final String PAGE_KEY = "page";
+  /** Field name. */
+  private static final String PAGING_SIZE_KEY = "pagingSize";
+
+  public FudgeFieldContainer toFudgeMsg(final FudgeMessageFactory messageFactory) {
+    final MutableFudgeFieldContainer message = messageFactory.newMessage();
+    message.add(PAGE_KEY, getPage());
+    message.add(PAGING_SIZE_KEY, getPagingSize());
+    return message;
+  }
+
+  public static PagingRequest fromFudgeMsg(final FudgeFieldContainer message) {
+    return new PagingRequest(message.getInt(PAGE_KEY), message.getInt(PAGING_SIZE_KEY));
   }
 
 }

@@ -65,7 +65,7 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
    * @param timeoutInMilliseconds  the timeout
    */
   protected FudgeSynchronousClient(FudgeRequestSender requestSender, long timeoutInMilliseconds) {
-    ArgumentChecker.notNull(requestSender, "Fudge request sender");
+    ArgumentChecker.notNull(requestSender, "requestSender");
     _requestSender = requestSender;
     _timeoutInMilliseconds = timeoutInMilliseconds;
   }

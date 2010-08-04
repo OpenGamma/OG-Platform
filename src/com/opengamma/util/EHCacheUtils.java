@@ -42,8 +42,8 @@ public final class EHCacheUtils {
    * @param cache  the cache, not null
    */
   public static void addCache(CacheManager manager, Cache cache) {
-    ArgumentChecker.notNull(manager, "CacheManager");
-    ArgumentChecker.notNull(cache, "Cache");
+    ArgumentChecker.notNull(manager, "manager");
+    ArgumentChecker.notNull(cache, "cache");
     if (!manager.cacheExists(cache.getName())) {
       try {
         manager.addCache(cache);
@@ -90,8 +90,8 @@ public final class EHCacheUtils {
       long timeToLiveSeconds, long timeToIdleSeconds, boolean diskPersistent,
       long diskExpiryThreadIntervalSeconds,
       RegisteredEventListeners registeredEventListeners) {
-    ArgumentChecker.notNull(manager, "CacheManager");
-    ArgumentChecker.notNull(name, "CacheName");
+    ArgumentChecker.notNull(manager, "manager");
+    ArgumentChecker.notNull(name, "name");
     if (!manager.cacheExists(name)) {
       try {
         manager.addCache(new Cache(name, maxElementsInMemory,

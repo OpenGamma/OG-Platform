@@ -23,8 +23,8 @@ public class OperationTimer {
   private final Object[] _arguments;
   
   public OperationTimer(Logger logger, String format, Object... arguments) {
-    ArgumentChecker.notNull(logger, "Logger");
-    ArgumentChecker.notNull(format, "Reporting format");
+    ArgumentChecker.notNull(logger, "logger");
+    ArgumentChecker.notNull(format, "format");
     
     _startTime = System.nanoTime();
     _logger = logger;

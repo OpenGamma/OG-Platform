@@ -12,7 +12,6 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
-import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
@@ -79,7 +78,7 @@ public abstract class AbstractSocketProcess implements Lifecycle {
   @Override
   public synchronized void start() {
     ArgumentChecker.notNullInjected(getInetAddress(), "Remote InetAddress");
-    Validate.isTrue(getPortNumber() > 0, "Must specify valid portNumber property");
+    ArgumentChecker.isTrue(getPortNumber() > 0, "Must specify valid portNumber property");
     
     openRemoteConnection();
     
