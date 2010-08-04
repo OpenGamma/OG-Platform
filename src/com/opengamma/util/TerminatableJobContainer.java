@@ -25,7 +25,7 @@ public class TerminatableJobContainer {
    * @param job  the job to add, not null
    */
   public void addJob(TerminatableJob job) {
-    ArgumentChecker.notNull(job, "Job");
+    ArgumentChecker.notNull(job, "job");
     _activeJobs.add(job);
   }
 
@@ -35,7 +35,7 @@ public class TerminatableJobContainer {
    * @param threadName  the thread name
    */
   public void addJobAndStartThread(TerminatableJob job, String threadName) {
-    ArgumentChecker.notNull(job, "Job");
+    ArgumentChecker.notNull(job, "job");
     Thread t = new Thread(job, threadName);
     t.setDaemon(true);
     _activeJobs.add(job);

@@ -26,7 +26,7 @@ public class MongoDBConnectionSettings {
   }
   
   public void setHost(final String host) {
-    ArgumentChecker.notNull(host, "Host");
+    ArgumentChecker.notNull(host, "host");
     _host = host;
   }
   
@@ -43,7 +43,7 @@ public class MongoDBConnectionSettings {
   }
   
   public void setDatabase(final String database) {
-    ArgumentChecker.notNull(database, "Database");
+    ArgumentChecker.notNull(database, "database");
     _database = database;
   }
   

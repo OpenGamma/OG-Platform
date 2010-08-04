@@ -7,8 +7,6 @@ package com.opengamma.id;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.commons.lang.Validate;
-
 import com.google.common.base.Supplier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -32,7 +30,6 @@ public class UniqueIdentifierSupplier implements Supplier<UniqueIdentifier> {
    * @param scheme  the scheme, not empty
    */
   public UniqueIdentifierSupplier(final String scheme) {
-    Validate.notNull(scheme);  // TODO: remove when ArgChecker throws correct exception
     ArgumentChecker.notEmpty(scheme, "scheme");
     _scheme = scheme;
   }

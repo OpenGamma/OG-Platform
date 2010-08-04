@@ -29,11 +29,26 @@ public class ArgumentCheckerTest {
     ArgumentChecker.isTrue(true, "Message");
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_isTrue_false() {
     try {
       ArgumentChecker.isTrue(false, "Message");
-    } catch (NullPointerException ex) {
+    } catch (IllegalArgumentException ex) {
+      assertEquals(ex.getMessage().equals("Message"), true);
+      throw ex;
+    }
+  }
+
+  @Test
+  public void test_isFalse_ok() {
+    ArgumentChecker.isFalse(false, "Message");
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void test_isFalse_true() {
+    try {
+      ArgumentChecker.isFalse(true, "Message");
+    } catch (IllegalArgumentException ex) {
       assertEquals(ex.getMessage().equals("Message"), true);
       throw ex;
     }
@@ -45,11 +60,11 @@ public class ArgumentCheckerTest {
     ArgumentChecker.notNull("Kirk", "name");
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_notNull_null() {
     try {
       ArgumentChecker.notNull(null, "name");
-    } catch (NullPointerException ex) {
+    } catch (IllegalArgumentException ex) {
       assertEquals(ex.getMessage().contains("'name'"), true);
       assertEquals(ex.getMessage().contains("Injected"), false);
       throw ex;
@@ -62,11 +77,11 @@ public class ArgumentCheckerTest {
     ArgumentChecker.notNullInjected("Kirk", "name");
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_notNullInjected_null() {
     try {
       ArgumentChecker.notNullInjected(null, "name");
-    } catch (NullPointerException ex) {
+    } catch (IllegalArgumentException ex) {
       assertEquals(ex.getMessage().contains("'name'"), true);
       assertEquals(ex.getMessage().contains("Injected"), true);
       throw ex;
@@ -80,18 +95,18 @@ public class ArgumentCheckerTest {
     ArgumentChecker.notEmpty(str, "name");
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_notEmpty_String_null() {
     String str = null;
     try {
       ArgumentChecker.notEmpty(str, "name");
-    } catch (NullPointerException ex) {
+    } catch (IllegalArgumentException ex) {
       assertEquals(ex.getMessage().contains("'name'"), true);
       throw ex;
     }
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_notEmpty_String_empty() {
     String str = "";
     try {
@@ -109,18 +124,18 @@ public class ArgumentCheckerTest {
     ArgumentChecker.notEmpty(array, "name");
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_notEmpty_Array_null() {
     Object[] array = null;
     try {
       ArgumentChecker.notEmpty(array, "name");
-    } catch (NullPointerException ex) {
+    } catch (IllegalArgumentException ex) {
       assertEquals(ex.getMessage().contains("'name'"), true);
       throw ex;
     }
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_notEmpty_Array_empty() {
     Object[] array = new Object[] {};
     try {
@@ -138,18 +153,18 @@ public class ArgumentCheckerTest {
     ArgumentChecker.notEmpty(coll, "name");
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_notEmpty_Collection_null() {
     Collection<?> coll = null;
     try {
       ArgumentChecker.notEmpty(coll, "name");
-    } catch (NullPointerException ex) {
+    } catch (IllegalArgumentException ex) {
       assertEquals(ex.getMessage().contains("'name'"), true);
       throw ex;
     }
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_notEmpty_Collection_empty() {
     Collection<?> coll = Collections.emptyList();
     try {
@@ -167,18 +182,18 @@ public class ArgumentCheckerTest {
     ArgumentChecker.notEmpty(map, "name");
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_notEmpty_Map_null() {
     Map<?, ?> map = null;
     try {
       ArgumentChecker.notEmpty(map, "name");
-    } catch (NullPointerException ex) {
+    } catch (IllegalArgumentException ex) {
       assertEquals(ex.getMessage().contains("'name'"), true);
       throw ex;
     }
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_notEmpty_Map_empty() {
     Map<?, ?> map = Collections.emptyMap();
     try {
@@ -202,18 +217,18 @@ public class ArgumentCheckerTest {
     ArgumentChecker.noNulls(array, "name");
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_noNulls_Array_null() {
     Object[] array = null;
     try {
       ArgumentChecker.noNulls(array, "name");
-    } catch (NullPointerException ex) {
+    } catch (IllegalArgumentException ex) {
       assertEquals(ex.getMessage().contains("'name'"), true);
       throw ex;
     }
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_noNulls_Array_nullElement() {
     Object[] array = new Object[] {null};
     try {
@@ -237,18 +252,18 @@ public class ArgumentCheckerTest {
     ArgumentChecker.noNulls(coll, "name");
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_noNulls_Collection_null() {
     Collection<?> coll = null;
     try {
       ArgumentChecker.noNulls(coll, "name");
-    } catch (NullPointerException ex) {
+    } catch (IllegalArgumentException ex) {
       assertEquals(ex.getMessage().contains("'name'"), true);
       throw ex;
     }
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_noNulls_Collection_nullElement() {
     Collection<?> coll = Arrays.asList((Object) null);
     try {
@@ -266,7 +281,7 @@ public class ArgumentCheckerTest {
     ArgumentChecker.notNegative(1.0d, "name");
   }
 
-  @Test(expected=IllegalArgumentException.class) 
+  @Test(expected = IllegalArgumentException.class) 
   public void test_notNegative_double_negative() {
     try {
       ArgumentChecker.notNegative(-1.0d, "name");
@@ -282,7 +297,7 @@ public class ArgumentCheckerTest {
     ArgumentChecker.notNegative(1, "name");
   }
 
-  @Test(expected=IllegalArgumentException.class) 
+  @Test(expected = IllegalArgumentException.class) 
   public void test_notNegative_int_negative() {
     try {
       ArgumentChecker.notNegative(-1, "name");
@@ -298,7 +313,7 @@ public class ArgumentCheckerTest {
     ArgumentChecker.notNegativeOrZero(1.0d, "name");
   }
 
-  @Test(expected=IllegalArgumentException.class) 
+  @Test(expected = IllegalArgumentException.class) 
   public void test_notNegativeOrZero_double_zero() {
     try {
       ArgumentChecker.notNegativeOrZero(0.0d, "name");
@@ -308,7 +323,7 @@ public class ArgumentCheckerTest {
     }
   }
 
-  @Test(expected=IllegalArgumentException.class) 
+  @Test(expected = IllegalArgumentException.class) 
   public void test_notNegativeOrZero_double_negative() {
     try {
       ArgumentChecker.notNegativeOrZero(-1.0d, "name");
@@ -323,7 +338,7 @@ public class ArgumentCheckerTest {
     ArgumentChecker.notNegativeOrZero(1, "name");
   }
 
-  @Test(expected=IllegalArgumentException.class) 
+  @Test(expected = IllegalArgumentException.class) 
   public void test_notNegativeOrZero_int_zero() {
     try {
       ArgumentChecker.notNegativeOrZero(0, "name");
@@ -333,7 +348,7 @@ public class ArgumentCheckerTest {
     }
   }
 
-  @Test(expected=IllegalArgumentException.class) 
+  @Test(expected = IllegalArgumentException.class) 
   public void test_notNegativeOrZero_int_negative() {
     try {
       ArgumentChecker.notNegativeOrZero(-1, "name");

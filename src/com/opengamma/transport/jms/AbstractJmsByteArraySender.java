@@ -19,8 +19,8 @@ public abstract class AbstractJmsByteArraySender {
   private final JmsTemplate _jmsTemplate;
   
   public AbstractJmsByteArraySender(String destinationName, JmsTemplate jmsTemplate) {
-    ArgumentChecker.notNull(destinationName, "JMS Destination Name");
-    ArgumentChecker.notNull(jmsTemplate, "JmsTemplate");
+    ArgumentChecker.notNull(destinationName, "destinationName");
+    ArgumentChecker.notNull(jmsTemplate, "jmsTemplate");
     _destinationName = destinationName;
     _jmsTemplate = jmsTemplate;
   }

@@ -61,12 +61,12 @@ public class IdentifierBundleTest {
     assertEquals(Sets.newHashSet(_id11, _id12), test.getIdentifiers());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void factory_of_varargs_null() {
     IdentifierBundle.of((Identifier[]) null);
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void factory_of_varargs_noNulls() {
     IdentifierBundle.of(_id11, null, _id12);
   }
@@ -112,7 +112,7 @@ public class IdentifierBundleTest {
     assertEquals(0, test.size());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void constructor_varargs_noNulls() {
     new IdentifierBundle(_id11, null, _id12);
   }
@@ -137,7 +137,7 @@ public class IdentifierBundleTest {
     assertEquals(0, test.size());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void constructor_Collection_noNulls() {
     new IdentifierBundle(Arrays.asList(_id11, null, _id12));
   }
@@ -175,7 +175,7 @@ public class IdentifierBundleTest {
     assertTrue(test.getIdentifiers().contains(Identifier.of("A", "C")));
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void withIdentifier_null() {
     IdentifierBundle base = new IdentifierBundle(Identifier.of("A", "B"));
     base.withIdentifier(null);
@@ -242,7 +242,7 @@ public class IdentifierBundleTest {
     assertEquals(false, test.containsAny(new IdentifierBundle()));
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_containsAny_null() {
     IdentifierBundle test = new IdentifierBundle(_id11, _id12);
     test.containsAny(null);

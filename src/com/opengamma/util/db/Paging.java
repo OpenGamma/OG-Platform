@@ -44,14 +44,14 @@ public final class Paging {
   //-------------------------------------------------------------------------
   /**
    * Creates an instance.
-   * @param request  the paging request
+   * @param pagingRequest  the paging request
    * @param totalItems  the total number of items
    */
-  public Paging(final PagingRequest request, final int totalItems) {
-    ArgumentChecker.notNull(request, "paging request");
-    ArgumentChecker.notNegative(totalItems, "total items");
-    _page = request.getPage();
-    _pagingSize = request.getPagingSize();
+  public Paging(final PagingRequest pagingRequest, final int totalItems) {
+    ArgumentChecker.notNull(pagingRequest, "pagingRequest");
+    ArgumentChecker.notNegative(totalItems, "totalItems");
+    _page = pagingRequest.getPage();
+    _pagingSize = pagingRequest.getPagingSize();
     _totalItems = totalItems;
   }
 
@@ -62,9 +62,9 @@ public final class Paging {
    * @param totalItems  the total number of items, zero or greater
    */
   public Paging(final int page, final int pagingSize, final int totalItems) {
-    ArgumentChecker.notNegativeOrZero(page, "page number");
-    ArgumentChecker.notNegativeOrZero(pagingSize, "paging size");
-    ArgumentChecker.notNegative(totalItems, "total items");
+    ArgumentChecker.notNegativeOrZero(page, "page");
+    ArgumentChecker.notNegativeOrZero(pagingSize, "pagingSize");
+    ArgumentChecker.notNegative(totalItems, "totalItems");
     _page = page;
     _pagingSize = pagingSize;
     _totalItems = totalItems;

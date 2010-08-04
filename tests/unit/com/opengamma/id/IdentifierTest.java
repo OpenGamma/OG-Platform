@@ -28,12 +28,12 @@ public class IdentifierTest {
     assertEquals("Scheme::value", test.toString());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_factory_IdentificationScheme_String_nullScheme() {
     Identifier.of((IdentificationScheme) null, "value");
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_factory_IdentificationScheme_String_nullValue() {
     Identifier.of(SCHEME, (String) null);
   }
@@ -51,12 +51,12 @@ public class IdentifierTest {
     assertEquals("Scheme::value", test.toString());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_factory_String_String_nullScheme() {
     Identifier.of((String) null, "value");
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_factory_String_String_nullValue() {
     Identifier.of(SCHEME, (String) null);
   }
@@ -75,12 +75,12 @@ public class IdentifierTest {
     assertEquals("Scheme::value", test.toString());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_constructor_IdentificationScheme_String_nullScheme() {
     new Identifier((IdentificationScheme) null, "value");
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_constructor_IdentificationScheme_String_nullValue() {
     new Identifier(SCHEME, (String) null);
   }
@@ -98,12 +98,12 @@ public class IdentifierTest {
     assertEquals("Scheme::value", test.toString());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_constructor_String_String_nullScheme() {
     new Identifier((String) null, "value");
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_constructor_String_String_nullValue() {
     new Identifier(SCHEME, (String) null);
   }

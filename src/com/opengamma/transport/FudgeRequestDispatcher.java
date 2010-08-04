@@ -25,8 +25,8 @@ public class FudgeRequestDispatcher implements ByteArrayRequestReceiver {
   }
   
   public FudgeRequestDispatcher(FudgeRequestReceiver underlying, FudgeContext fudgeContext) {
-    ArgumentChecker.notNull(underlying, "Underlying FudgeMsgRequestReceiver");
-    ArgumentChecker.notNull(fudgeContext, "Fudge Context");
+    ArgumentChecker.notNull(underlying, "underlying");
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _underlying = underlying;
     _fudgeContext = fudgeContext;
   }

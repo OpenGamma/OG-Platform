@@ -42,8 +42,8 @@ public class ServerSocketFudgeRequestDispatcher extends AbstractServerSocketProc
   }
   
   public ServerSocketFudgeRequestDispatcher(FudgeRequestReceiver underlying, FudgeContext fudgeContext) {
-    ArgumentChecker.notNull(underlying, "Underlying request receiver");
-    ArgumentChecker.notNull(fudgeContext, "Fudge context");
+    ArgumentChecker.notNull(underlying, "underlying");
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _underlying = underlying;
     _fudgeContext = fudgeContext;
     _fudgeDeserializationContext = new FudgeDeserializationContext(_fudgeContext);
@@ -97,8 +97,8 @@ public class ServerSocketFudgeRequestDispatcher extends AbstractServerSocketProc
     // we can force the IOException catch up above.
     public RequestDispatchJob(Socket socket, InputStream inputStream, OutputStream outputStream) {
       ArgumentChecker.notNull(socket, "Socket");
-      ArgumentChecker.notNull(inputStream, "Socket input stream");
-      ArgumentChecker.notNull(outputStream, "Socket output stream");
+      ArgumentChecker.notNull(inputStream, "inputStream");
+      ArgumentChecker.notNull(outputStream, "outputStream");
       _socket = socket;
       _reader = getFudgeContext().createMessageReader(inputStream);
       _writer = getFudgeContext().createMessageWriter(outputStream);

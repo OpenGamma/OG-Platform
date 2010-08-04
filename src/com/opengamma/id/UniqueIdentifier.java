@@ -93,20 +93,20 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
    * <p>
    * This parses the identifier from the form produced by {@code toString()}
    * which is {@code <SCHEME>::<VALUE>::<VERSION>}.
-   * @param str  the identifier to parse, not null
+   * @param uidStr  the identifier to parse, not null
    * @return the identifier, not null
    * @throws IllegalArgumentException if the identifier cannot be parsed
    */
-  public static UniqueIdentifier parse(String str) {
-    ArgumentChecker.notEmpty(str, "version string");
-    String[] split = StringUtils.splitByWholeSeparatorPreserveAllTokens(str, "::");
+  public static UniqueIdentifier parse(String uidStr) {
+    ArgumentChecker.notEmpty(uidStr, "uidStr");
+    String[] split = StringUtils.splitByWholeSeparatorPreserveAllTokens(uidStr, "::");
     switch (split.length) {
       case 2:
         return new UniqueIdentifier(split[0], split[1], null);
       case 3:
         return new UniqueIdentifier(split[0], split[1], split[2]);
     }
-    throw new IllegalArgumentException("Invalid identifier format: " + str);
+    throw new IllegalArgumentException("Invalid identifier format: " + uidStr);
   }
 
   /**
@@ -255,8 +255,8 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
 
   //-------------------------------------------------------------------------
   public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer msg) {
-    ArgumentChecker.notNull(factory, "FudgeMessageFactory");
-    ArgumentChecker.notNull(msg, "MutableFudgeFieldContainer");
+    ArgumentChecker.notNull(factory, "factory");
+    ArgumentChecker.notNull(msg, "msg");
     msg.add(SCHEME_FUDGE_FIELD_NAME, _scheme);
     msg.add(VALUE_FUDGE_FIELD_NAME, _value);
     if (_version != null) {

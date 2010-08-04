@@ -223,8 +223,8 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   //-------------------------------------------------------------------------
 
   public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer message) {
-    ArgumentChecker.notNull(factory, "FudgeMessageFactory");
-    ArgumentChecker.notNull(message, "MutableFudgeFieldContainer");
+    ArgumentChecker.notNull(factory, "factory");
+    ArgumentChecker.notNull(message, "message");
     message.add(SCHEME_FUDGE_FIELD_NAME, getScheme().getName());
     message.add(VALUE_FUDGE_FIELD_NAME, getValue());
     return message;

@@ -36,7 +36,7 @@ public class SocketFudgeRequestSender extends AbstractSocketProcess implements F
   }
   
   public SocketFudgeRequestSender(FudgeContext fudgeContext) {
-    ArgumentChecker.notNull(fudgeContext, "Fudge context");
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _fudgeContext = fudgeContext;
   }
 

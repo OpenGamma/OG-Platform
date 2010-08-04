@@ -51,11 +51,11 @@ public class ServerSocketFudgeMessageReceiver extends AbstractServerSocketProces
     this(underlying, FudgeContext.GLOBAL_DEFAULT);
   }
   
-  public ServerSocketFudgeMessageReceiver(FudgeMessageReceiver underlying, FudgeContext context) {
-    ArgumentChecker.notNull(underlying, "underlying Fudge message receiver");
-    ArgumentChecker.notNull(context, "Fudge context");
+  public ServerSocketFudgeMessageReceiver(FudgeMessageReceiver underlying, FudgeContext fudgeContext) {
+    ArgumentChecker.notNull(underlying, "underlying");
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _underlying = underlying;
-    _context = context;
+    _context = fudgeContext;
   }
   
   /**
@@ -103,8 +103,8 @@ public class ServerSocketFudgeMessageReceiver extends AbstractServerSocketProces
     // NOTE kirk 2010-05-12 -- Have to pass in the InputStream explicitly so that
     // we can force the IOException catch up above.
     public MessageReceiveJob(Socket socket, InputStream inputStream) {
-      ArgumentChecker.notNull(socket, "Socket");
-      ArgumentChecker.notNull(inputStream, "Socket input stream");
+      ArgumentChecker.notNull(socket, "socket");
+      ArgumentChecker.notNull(inputStream, "inputStream");
       _socket = socket;
       _reader = _context.createMessageReader(inputStream);
     }

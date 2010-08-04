@@ -42,8 +42,8 @@ public class ByteArrayFudgeMessageReceiver implements ByteArrayMessageReceiver {
    * @param fudgeContext  the context to use, not null
    */
   public ByteArrayFudgeMessageReceiver(FudgeMessageReceiver underlying, FudgeContext fudgeContext) {
-    ArgumentChecker.notNull(underlying, "Underlying FudgeMessageReceiver");
-    ArgumentChecker.notNull(fudgeContext, "Fudge Context");
+    ArgumentChecker.notNull(underlying, "underlying");
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _underlying = underlying;
     _fudgeContext = fudgeContext;
   }

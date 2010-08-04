@@ -31,7 +31,7 @@ public class JmsByteArraySource implements ByteArraySource {
   private final List<Message> _lastMessageBatch = Collections.synchronizedList(new ArrayList<Message>());
   
   public JmsByteArraySource(JmsTemplate jmsTemplate) {
-    ArgumentChecker.notNull(jmsTemplate, "JmsTemplate");
+    ArgumentChecker.notNull(jmsTemplate, "jmsTemplate");
     _jmsTemplate = jmsTemplate;
   }
 

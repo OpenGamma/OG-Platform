@@ -48,7 +48,7 @@ public class JmsByteArrayRequestSender
       ExecutorService executor) {
     super(destinationName, jmsTemplate);
     
-    ArgumentChecker.notNull(executor, "JMS request/reply executor");
+    ArgumentChecker.notNull(executor, "executor");
     _executor = executor;
   }
   

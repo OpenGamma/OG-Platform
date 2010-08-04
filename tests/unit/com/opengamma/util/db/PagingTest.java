@@ -88,7 +88,7 @@ public final class PagingTest {
     new Paging(new PagingRequest(1, 20), -1);
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_constructor_PagingRequest_int_null() {
     new Paging(null, 0);
   }
