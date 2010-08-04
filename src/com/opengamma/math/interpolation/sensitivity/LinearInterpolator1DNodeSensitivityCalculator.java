@@ -7,10 +7,8 @@ package com.opengamma.math.interpolation.sensitivity;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.interpolation.InterpolationBoundedValues;
-import com.opengamma.math.interpolation.InterpolationResult;
-import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.Interpolator1DDataBundle;
+import com.opengamma.math.interpolation.data.InterpolationBoundedValues;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * 
@@ -18,10 +16,8 @@ import com.opengamma.math.interpolation.Interpolator1DDataBundle;
 public class LinearInterpolator1DNodeSensitivityCalculator implements Interpolator1DNodeSensitivityCalculator<Interpolator1DDataBundle> {
 
   @Override
-  public double[] calculate(final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> interpolator, final Interpolator1DDataBundle data, final Double value) {
-    Validate.notNull(interpolator, "interpolator");
+  public double[] calculate(final Interpolator1DDataBundle data, final double value) {
     Validate.notNull(data, "data");
-    Validate.notNull(value, "value");
     final int n = data.size();
     final double[] result = new double[n];
     final InterpolationBoundedValues boundedValues = data.getBoundedValues(value);

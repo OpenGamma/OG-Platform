@@ -10,8 +10,8 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * 
@@ -43,22 +43,17 @@ public class LinearInterpolator1DNodeSensitivityCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullInterpolator() {
-    CALCULATOR.calculate(null, DATA, 3.4);
+    CALCULATOR.calculate(DATA, 3.4);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
-    CALCULATOR.calculate(INTERPOLATOR, null, 1.);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testNullValue() {
-    CALCULATOR.calculate(INTERPOLATOR, DATA, null);
+    CALCULATOR.calculate(null, 1.);
   }
 
   @Test
   public void test() {
-    double[] result = CALCULATOR.calculate(INTERPOLATOR, DATA, 3.4);
+    double[] result = CALCULATOR.calculate(DATA, 3.4);
     for (int i = 0; i < 3; i++) {
       assertEquals(0, result[i], 0);
     }
@@ -67,7 +62,7 @@ public class LinearInterpolator1DNodeSensitivityCalculatorTest {
     for (int i = 5; i < 10; i++) {
       assertEquals(result[i], 0, 0);
     }
-    result = CALCULATOR.calculate(INTERPOLATOR, DATA, 7.);
+    result = CALCULATOR.calculate(DATA, 7.);
     for (int i = 0; i < 7; i++) {
       assertEquals(0, result[i], 0);
     }

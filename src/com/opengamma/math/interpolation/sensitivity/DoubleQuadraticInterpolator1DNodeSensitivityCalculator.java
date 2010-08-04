@@ -7,9 +7,7 @@ package com.opengamma.math.interpolation.sensitivity;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.interpolation.InterpolationResult;
-import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.Interpolator1DDoubleQuadraticDataBundle;
+import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
 
 /**
  * 
@@ -17,9 +15,8 @@ import com.opengamma.math.interpolation.Interpolator1DDoubleQuadraticDataBundle;
 public class DoubleQuadraticInterpolator1DNodeSensitivityCalculator implements Interpolator1DNodeSensitivityCalculator<Interpolator1DDoubleQuadraticDataBundle> {
 
   @Override
-  public double[] calculate(final Interpolator1D<Interpolator1DDoubleQuadraticDataBundle, InterpolationResult> interpolator, final Interpolator1DDoubleQuadraticDataBundle data, final Double value) {
+  public double[] calculate(final Interpolator1DDoubleQuadraticDataBundle data, final double value) {
     Validate.notNull(data, "data");
-    Validate.notNull(value, "value");
     final int low = data.getLowerBoundIndex(value);
     final int high = low + 1;
     final int n = data.size();

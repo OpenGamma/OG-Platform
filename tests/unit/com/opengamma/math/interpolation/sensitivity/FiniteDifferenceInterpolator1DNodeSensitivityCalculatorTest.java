@@ -9,15 +9,16 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.opengamma.math.interpolation.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.StepInterpolator1D;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * 
  */
 public class FiniteDifferenceInterpolator1DNodeSensitivityCalculatorTest {
   private static final StepInterpolator1D STEP_INTERPOLATOR = new StepInterpolator1D();
-  private static final FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DDataBundle> CALCULATOR = new FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DDataBundle>();
+  private static final FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DDataBundle> CALCULATOR = new FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DDataBundle>(
+      STEP_INTERPOLATOR);
   private static final Interpolator1DDataBundle DATA;
 
   static {
@@ -33,22 +34,17 @@ public class FiniteDifferenceInterpolator1DNodeSensitivityCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullInterpolator() {
-    CALCULATOR.calculate(null, DATA, 3.4);
+    new FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DDataBundle>(null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
-    CALCULATOR.calculate(STEP_INTERPOLATOR, null, 1.2);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testNullValue() {
-    CALCULATOR.calculate(STEP_INTERPOLATOR, DATA, null);
+    CALCULATOR.calculate(null, 1.2);
   }
 
   @Test
   public void test() {
-    final double[] result = CALCULATOR.calculate(STEP_INTERPOLATOR, DATA, 3.4);
+    final double[] result = CALCULATOR.calculate(DATA, 3.4);
     for (int i = 0; i < result.length; i++) {
       assertEquals(result[i], i == 3 ? 1 : 0, 1e-9);
     }

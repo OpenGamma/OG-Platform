@@ -7,9 +7,7 @@ package com.opengamma.math.interpolation.sensitivity;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.interpolation.InterpolationResult;
-import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.Interpolator1DCubicSplineWithSensitivitiesDataBundle;
+import com.opengamma.math.interpolation.data.Interpolator1DCubicSplineWithSensitivitiesDataBundle;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
@@ -18,10 +16,8 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 public class NaturalCubicSplineInterpolator1DNodeSensitivityCalculator implements Interpolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineWithSensitivitiesDataBundle> {
 
   @Override
-  public double[] calculate(final Interpolator1D<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResult> interpolator,
-      final Interpolator1DCubicSplineWithSensitivitiesDataBundle data, final Double value) {
+  public double[] calculate(final Interpolator1DCubicSplineWithSensitivitiesDataBundle data, final double value) {
     Validate.notNull(data, "data");
-    Validate.notNull(value, "value");
     final int n = data.size();
     final double[] result = new double[n];
     if (data.getLowerBoundIndex(value) == n - 1) {

@@ -5,9 +5,7 @@
  */
 package com.opengamma.math.interpolation.sensitivity;
 
-import com.opengamma.math.interpolation.InterpolationResult;
-import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.Interpolator1DDataBundle;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * 
@@ -15,5 +13,6 @@ import com.opengamma.math.interpolation.Interpolator1DDataBundle;
  */
 public interface Interpolator1DNodeSensitivityCalculator<T extends Interpolator1DDataBundle> {
 
-  double[] calculate(Interpolator1D<T, InterpolationResult> interpolator, T data, Double value);
+  double[] calculate(T data, double value);
+
 }
