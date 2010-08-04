@@ -69,10 +69,13 @@ public class RemoteSecurityMaster implements SecurityMaster {
   @Override
   public SecurityDocument add(final SecurityDocument document) {
     final FudgeFieldContainer payload = getFudgeSerializationContext().objectToFudgeMsg(document);
+    s_logger.debug("add-post {} to {}", payload, _targetSecurity);
     final FudgeMsgEnvelope env = getRestClient().post(_targetSecurity, payload);
     if (env == null) {
+      s_logger.debug("add-recv NULL");
       return null;
     }
+    s_logger.debug("add-recv {}", env.getMessage());
     final UniqueIdentifier uid = getFudgeDeserializationContext().fudgeMsgToObject(UniqueIdentifier.class, env.getMessage());
     if (uid == null) {
       return null;
@@ -85,36 +88,48 @@ public class RemoteSecurityMaster implements SecurityMaster {
   @Override
   public SecurityDocument correct(SecurityDocument document) {
     final FudgeFieldContainer payload = getFudgeSerializationContext().objectToFudgeMsg(document);
-    final FudgeMsgEnvelope env = getRestClient().put(_targetSecurity.resolve(document.getUniqueIdentifier().toString()), payload);
+    final RestTarget target = _targetSecurity.resolve(document.getUniqueIdentifier().toString());
+    s_logger.debug("correct-put {} to {}", payload, target);
+    final FudgeMsgEnvelope env = getRestClient().put(target, payload);
     if (env == null) {
+      s_logger.debug("correct-recv NULL");
       return null;
     }
+    s_logger.debug("correct-recv {}", env.getMessage());
     return document;
   }
 
   @Override
   public SecurityDocument get(UniqueIdentifier uid) {
-    final FudgeFieldContainer message = getRestClient().getMsg(_targetSecurity.resolve(uid.toString()));
-    s_logger.debug("Received {}", message);
+    final RestTarget target = _targetSecurity.resolve(uid.toString());
+    s_logger.debug("get-get to {}", target);
+    final FudgeFieldContainer message = getRestClient().getMsg(target);
     if (message == null) {
+      s_logger.debug("get-recv NULL");
       throw new DataNotFoundException("Security with identifier " + uid);
     }
+    s_logger.debug("get-recv {}", message);
     return getFudgeDeserializationContext().fudgeMsgToObject(SecurityDocument.class, message);
   }
 
   @Override
   public void remove(UniqueIdentifier uid) {
-    getRestClient().delete(_targetSecurity.resolve(uid.toString()));
+    final RestTarget target = _targetSecurity.resolve(uid.toString());
+    s_logger.debug("remove-post to {}", target);
+    getRestClient().delete(target);
   }
 
   @Override
   public SecuritySearchResult search(SecuritySearchRequest request) {
     // POST is wrong; but is easy to write if we have a "request" document
     final FudgeFieldContainer payload = getFudgeSerializationContext().objectToFudgeMsg(request);
+    s_logger.debug("search-post {} to {}", payload, _targetSearch);
     final FudgeMsgEnvelope env = getRestClient().post(_targetSearch, payload);
     if (env == null) {
+      s_logger.debug("search-recv NULL");
       return null;
     }
+    s_logger.debug("search-recv {}", env.getMessage());
     return getFudgeDeserializationContext().fudgeMsgToObject(SecuritySearchResult.class, env.getMessage());
   }
 
@@ -122,21 +137,27 @@ public class RemoteSecurityMaster implements SecurityMaster {
   public SecuritySearchHistoricResult searchHistoric(SecuritySearchHistoricRequest request) {
     // POST is wrong; but is easy to write if we have a "request" document
     final FudgeFieldContainer payload = getFudgeSerializationContext().objectToFudgeMsg(request);
+    s_logger.debug("searchHistoric-post {} to {}", payload, _targetHistoric);
     final FudgeMsgEnvelope env = getRestClient().post(_targetHistoric, payload);
     if (env == null) {
+      s_logger.debug("searchHistoric-recv NULL");
       return null;
     }
+    s_logger.debug("searchHistoric-recv {}", env.getMessage());
     return getFudgeDeserializationContext().fudgeMsgToObject(SecuritySearchHistoricResult.class, env.getMessage());
   }
 
   @Override
   public SecurityDocument update(SecurityDocument document) {
     final FudgeFieldContainer payload = getFudgeSerializationContext().objectToFudgeMsg(document);
-    final FudgeMsgEnvelope env = getRestClient().post(_targetSecurity.resolve(document.getUniqueIdentifier().toString()), payload);
+    final RestTarget target = _targetSecurity.resolve(document.getUniqueIdentifier().toString());
+    s_logger.debug("update-post {} to {}", payload, target);
+    final FudgeMsgEnvelope env = getRestClient().post(target, payload);
     if (env == null) {
+      s_logger.debug("update-recv NULL");
       return null;
     }
-    s_logger.debug("Received {}", env.getMessage());
+    s_logger.debug("update-recv {}", env.getMessage());
     document.setUniqueIdentifier(getFudgeDeserializationContext().fudgeMsgToObject(UniqueIdentifier.class, env.getMessage()));
     return document;
   }
