@@ -10,7 +10,7 @@
   <bean id="dbTransactionDefinition" class="org.springframework.transaction.support.DefaultTransactionDefinition">
     <property name="isolationLevelName" value="ISOLATION_SERIALIZABLE" />
     <property name="propagationBehaviorName" value="PROPAGATION_REQUIRED" />
-    <property name="timeout" value="20" />
+    <!--property name="timeout" value="20" /-->
   </bean>
 
   <bean id="derbyDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
