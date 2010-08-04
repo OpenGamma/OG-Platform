@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.security;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.commons.lang.Validate;
@@ -43,7 +44,12 @@ public class MasterSecuritySource extends SecurityMasterAdapter implements Secur
     Validate.notNull(securityKey, "securityKey");
     final SecuritySearchRequest req = new SecuritySearchRequest();
     req.setIdentifiers(securityKey);
-    return search(req).getSecurities();
+    final Collection<SecurityDocument> documents = search(req).getDocument();
+    final Collection<Security> result = new ArrayList<Security>(documents.size());
+    for (SecurityDocument document : documents) {
+      result.add(document.getSecurity());
+    }
+    return result;
   }
 
   @Override

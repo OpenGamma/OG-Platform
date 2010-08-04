@@ -41,7 +41,9 @@ public class SecurityMasterTestCase extends SecurityTestCase {
   }
 
   private UniqueIdentifier putSecurity(final Security security) {
-    final SecurityDocument document = _secMaster.add(new SecurityDocument(security));
+    SecurityDocument document = new SecurityDocument();
+    document.setSecurity(security);
+    document = _secMaster.add(document);
     assertNotNull(document);
     final UniqueIdentifier uid = document.getUniqueIdentifier();
     s_logger.debug("Security {} stored with identifier {}", security.getClass(), uid);
@@ -49,7 +51,10 @@ public class SecurityMasterTestCase extends SecurityTestCase {
   }
 
   private UniqueIdentifier updateSecurity(final Security security) {
-    final SecurityDocument document = _secMaster.update(new SecurityDocument(security));
+    SecurityDocument document = new SecurityDocument();
+    document.setSecurity(security);
+    document.setUniqueIdentifier(security.getUniqueIdentifier());
+    document = _secMaster.update(document);
     assertNotNull(document);
     final UniqueIdentifier uid = document.getUniqueIdentifier();
     s_logger.debug("Security {} updated; new identifier {}", security.getClass(), uid);
@@ -62,7 +67,7 @@ public class SecurityMasterTestCase extends SecurityTestCase {
     request.setIdentifiers(identifiers);
     final SecuritySearchResult result = _secMaster.search(request);
     assertNotNull(result);
-    final List<SecurityDocument> documents = result.getDocuments();
+    final List<SecurityDocument> documents = result.getDocument();
     assertNotNull(documents);
     assertEquals(1, documents.size());
     final SecurityDocument document = documents.get(0);

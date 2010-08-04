@@ -94,7 +94,7 @@ public final class SearchPortfoliosResult {
    * @return the pair, not null
    */
   public static SearchPortfoliosResult fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer msg) {
-    Paging paging = Paging.fromFudgeMsg(context, msg.getMessage(PAGING_FIELD_NAME));
+    Paging paging = Paging.fromFudgeMsg(msg.getMessage(PAGING_FIELD_NAME));
     List<PortfolioSummary> summaries = new ArrayList<PortfolioSummary>();
     for (FudgeField field : msg.getAllByName(PORTFOLIO_FIELD_NAME)) {
       summaries.add(PortfolioSummary.fromFudgeMsg(context, (FudgeFieldContainer) field.getValue()));

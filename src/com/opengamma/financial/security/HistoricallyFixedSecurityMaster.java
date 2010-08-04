@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.security;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -58,17 +59,17 @@ public class HistoricallyFixedSecurityMaster implements SecuritySource {
 
   protected SecuritySearchHistoricRequest createRequest() {
     final SecuritySearchHistoricRequest request = new SecuritySearchHistoricRequest();
-    request.setCorrectedToInstant(getCorrectionInstant());
-    request.setVersionFromInstant(getFixInstant());
-    request.setVersionToInstant(getFixInstant());
+    request.setCorrectedTo(getCorrectionInstant());
+    request.setVersionFrom(getFixInstant());
+    request.setVersionTo(getFixInstant());
     return request;
   }
 
   protected Security returnOne(final SecuritySearchHistoricRequest request) {
     final SecuritySearchHistoricResult result = getDelegate().searchHistoric(request);
-    final List<Security> securities = result.getSecurities();
-    if (securities.size() > 0) {
-      return securities.get(0);
+    final List<SecurityDocument> documents = result.getDocument();
+    if (documents.size() > 0) {
+      return documents.get(0).getSecurity();
     } else {
       return null;
     }
@@ -76,7 +77,12 @@ public class HistoricallyFixedSecurityMaster implements SecuritySource {
 
   protected Collection<Security> returnAll(final SecuritySearchHistoricRequest request) {
     final SecuritySearchHistoricResult result = getDelegate().searchHistoric(request);
-    return result.getSecurities();
+    final List<SecurityDocument> documents = result.getDocument();
+    final Collection<Security> securities = new ArrayList<Security>(documents.size());
+    for (SecurityDocument document : documents) {
+      securities.add(document.getSecurity());
+    }
+    return securities;
   }
 
   @Override

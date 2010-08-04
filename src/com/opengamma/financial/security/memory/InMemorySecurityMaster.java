@@ -99,7 +99,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
         }
       });
     }
-    result.getDocuments().addAll(docs);
+    result.setDocument(docs);
     result.setPaging(Paging.of(docs));
     return result;
   }
@@ -125,10 +125,11 @@ public class InMemorySecurityMaster implements SecurityMaster {
     final UniqueIdentifier uid = _uidSupplier.get();
     final Instant now = Instant.nowSystemClock();
     UniqueIdentifiables.setInto(security, uid);
-    final SecurityDocument doc = new SecurityDocument(security);
+    final SecurityDocument doc = new SecurityDocument();
+    doc.setSecurity(security);
     doc.setUniqueIdentifier(uid);
-    doc.setValidFromInstant(now);
-    doc.setLastModifiedInstant(now);
+    doc.setValidFrom(now);
+    doc.setLastModified(now);
     _securities.put(uid, doc);  // unique identifier should be unique
     return doc;
   }
@@ -146,9 +147,9 @@ public class InMemorySecurityMaster implements SecurityMaster {
     if (storedDocument == null) {
       throw new DataNotFoundException("Security not found: " + uid);
     }
-    document.setValidFromInstant(storedDocument.getValidFromInstant());
-    document.setValidToInstant(storedDocument.getValidToInstant());
-    document.setLastModifiedInstant(now);
+    document.setValidFrom(storedDocument.getValidFrom());
+    document.setValidTo(storedDocument.getValidTo());
+    document.setLastModified(now);
     if (_securities.replace(uid, storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
@@ -174,9 +175,9 @@ public class InMemorySecurityMaster implements SecurityMaster {
     final SecuritySearchHistoricResult result = new SecuritySearchHistoricResult();
     final SecurityDocument doc = get(request.getObjectIdentifier());
     if (doc != null) {
-      result.getDocuments().add(doc);
+      result.setDocument(doc);
     }
-    result.setPaging(Paging.of(result.getDocuments()));
+    result.setPaging(Paging.of(result.getDocument()));
     return result;
   }
 
