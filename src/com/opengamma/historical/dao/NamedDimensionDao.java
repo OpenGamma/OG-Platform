@@ -8,12 +8,26 @@ package com.opengamma.historical.dao;
 import java.util.Set;
 
 /**
- * 
- *
- * @author yomi
+ * Data access object for a named dimension.
  */
 public interface NamedDimensionDao {
-  public Set<NamedDimensionDao> getAll();
-  public Set<String> getAllNames();
-  public Set<String> getById();
+
+  /**
+   * Gets all the named dimensions.
+   * @return the named dimensions
+   */
+  Set<NamedDimensionDao> getAll();
+
+  /**
+   * Gets all the names.
+   * @return the names
+   */
+  Set<String> getAllNames();
+
+  /**
+   * Gets by id.
+   * @return the values
+   */
+  Set<String> getById();
+
 }
