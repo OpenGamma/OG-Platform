@@ -7,16 +7,15 @@ package com.opengamma.math.interpolation.sensitivity;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.interpolation.data.Interpolator1DCubicSplineWithSensitivitiesDataBundle;
-import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.interpolation.data.Interpolator1DCubicSplineDataBundle;
 
 /**
  * 
  */
-public class NaturalCubicSplineInterpolator1DNodeSensitivityCalculator implements Interpolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineWithSensitivitiesDataBundle> {
+public class NaturalCubicSplineInterpolator1DNodeSensitivityCalculator implements Interpolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle> {
 
   @Override
-  public double[] calculate(final Interpolator1DCubicSplineWithSensitivitiesDataBundle data, final double value) {
+  public double[] calculate(final Interpolator1DCubicSplineDataBundle data, final double value) {
     Validate.notNull(data, "data");
     final int n = data.size();
     final double[] result = new double[n];
@@ -32,9 +31,9 @@ public class NaturalCubicSplineInterpolator1DNodeSensitivityCalculator implement
     final double b = (value - xData[low]) / delta;
     final double c = a * (a * a - 1) * delta * delta / 6.;
     final double d = b * (b * b - 1) * delta * delta / 6.;
-    final DoubleMatrix2D y2Sensitivities = data.getSecondDerivativesSensitivities();
+    final double[][] y2Sensitivities = data.getSecondDerivativesSensitivities();
     for (int i = 0; i < n; i++) {
-      result[i] = c * y2Sensitivities.getEntry(low, i) + d * y2Sensitivities.getEntry(high, i);
+      result[i] = c * y2Sensitivities[low][i] + d * y2Sensitivities[high][i];
     }
     result[low] += a;
     result[high] += b;

@@ -19,29 +19,29 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class FixedAnnuity implements Annuity {
 
-  private final double[] _paymentAmounts;
-  private final double[] _yearFractions;
-  private final double[] _paymentTimes;
-  private final int _n;
-  private final String _curveName;
+  protected double[] _paymentAmounts;
+  protected final double[] _yearFractions;
+  protected final double[] _paymentTimes;
+  protected final int _n;
+  protected final String _curveName;
 
-  public FixedAnnuity(final double[] paymentTimes, final String yieldCurveName) {
-    this(paymentTimes, 1.0, yieldCurveName);
-  }
+  // public FixedAnnuity(final double[] paymentTimes, final String yieldCurveName) {
+  // this(paymentTimes, 1.0, yieldCurveName);
+  // }
 
-  public FixedAnnuity(final double[] paymentTimes, final double notional, final String yieldCurveName) {
-    Validate.notNull(paymentTimes);
-    ArgumentChecker.notEmpty(paymentTimes, "payment times");
-    Validate.notNull(yieldCurveName);
-    _paymentTimes = paymentTimes;
-    _n = paymentTimes.length;
-    _yearFractions = setupActualActualYearFractions(paymentTimes);
-    _paymentAmounts = new double[_n];
-    for (int i = 0; i < _n; i++) {
-      _paymentAmounts[i] = notional * _yearFractions[i];
-    }
-    _curveName = yieldCurveName;
-  }
+  // public FixedAnnuity(final double[] paymentTimes, final double notional, final String yieldCurveName) {
+  // Validate.notNull(paymentTimes);
+  // ArgumentChecker.notEmpty(paymentTimes, "payment times");
+  // Validate.notNull(yieldCurveName);
+  // _paymentTimes = paymentTimes;
+  // _n = paymentTimes.length;
+  // _yearFractions = setupActualActualYearFractions(paymentTimes);
+  // _paymentAmounts = new double[_n];
+  // for (int i = 0; i < _n; i++) {
+  // _paymentAmounts[i] = notional * _yearFractions[i];
+  // }
+  // _curveName = yieldCurveName;
+  // }
 
   public FixedAnnuity(final double[] paymentTimes, final double[] paymentAmounts, final String yieldCurveName) {
     Validate.notNull(paymentTimes);
@@ -54,6 +54,22 @@ public class FixedAnnuity implements Annuity {
     _paymentTimes = paymentTimes;
     _paymentAmounts = paymentAmounts;
     _yearFractions = setupActualActualYearFractions(paymentTimes);
+    _curveName = yieldCurveName;
+  }
+
+  public FixedAnnuity(final double[] paymentTimes, final double notional, final double couponRate, final String yieldCurveName) {
+    Validate.notNull(paymentTimes);
+    ArgumentChecker.notEmpty(paymentTimes, "payment times");
+
+    Validate.notNull(yieldCurveName);
+    _n = paymentTimes.length;
+
+    _paymentTimes = paymentTimes;
+    _yearFractions = setupActualActualYearFractions(paymentTimes);
+    _paymentAmounts = new double[_n];
+    for (int i = 0; i < _n; i++) {
+      _paymentAmounts[i] = notional * couponRate * _yearFractions[i];
+    }
     _curveName = yieldCurveName;
   }
 
@@ -70,6 +86,24 @@ public class FixedAnnuity implements Annuity {
     _paymentAmounts = new double[_n];
     for (int i = 0; i < _n; i++) {
       _paymentAmounts[i] = notional * coupons[i] * _yearFractions[i];
+    }
+    _curveName = yieldCurveName;
+  }
+
+  public FixedAnnuity(final double[] paymentTimes, final double notional, final double couponRate, final double[] yearFractions, final String yieldCurveName) {
+    Validate.notNull(paymentTimes);
+    ArgumentChecker.notEmpty(paymentTimes, "payment times");
+    Validate.notNull(yearFractions);
+    ArgumentChecker.notEmpty(yearFractions, "year fraction");
+    Validate.notNull(yieldCurveName);
+    _n = paymentTimes.length;
+    Validate.isTrue(yearFractions.length == _n);
+    _paymentTimes = paymentTimes;
+    _paymentAmounts = new double[_n];
+    _yearFractions = yearFractions;
+
+    for (int i = 0; i < _n; i++) {
+      _paymentAmounts[i] = notional * couponRate * yearFractions[i];
     }
     _curveName = yieldCurveName;
   }
@@ -95,7 +129,7 @@ public class FixedAnnuity implements Annuity {
     _curveName = yieldCurveName;
   }
 
-  private static double[] setupActualActualYearFractions(final double[] paymentTimes) {
+  protected static double[] setupActualActualYearFractions(final double[] paymentTimes) {
     final int n = paymentTimes.length;
     final double[] res = new double[n];
     res[0] = paymentTimes[0];

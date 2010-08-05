@@ -18,7 +18,6 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.math.interpolation.data.Interpolator1DCubicSplineDataBundle;
-import com.opengamma.math.interpolation.data.Interpolator1DCubicSplineWithSensitivitiesDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.temp.InterpolationResult;
 
@@ -32,7 +31,6 @@ public class NaturalCubicSplineInterpolator1DNodeSensitivityCalculatorTest {
   private static final FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle> FD_CALCULATOR = new FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle>(
       INTERPOLATOR);
   private static final Interpolator1DCubicSplineDataBundle DATA1;
-  private static final Interpolator1DCubicSplineWithSensitivitiesDataBundle DATA2;
   private static final double EPS = 1e-7;
   private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
 
@@ -56,7 +54,6 @@ public class NaturalCubicSplineInterpolator1DNodeSensitivityCalculatorTest {
       r[i] = FUNCTION.evaluate(t[i]);
     }
     DATA1 = INTERPOLATOR.getDataBundleFromSortedArrays(t, r);
-    DATA2 = new Interpolator1DCubicSplineWithSensitivitiesDataBundle(DATA1);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -66,26 +63,26 @@ public class NaturalCubicSplineInterpolator1DNodeSensitivityCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void nullInterpolateValue() {
-    INTERPOLATOR.interpolate(DATA2, null);
+    INTERPOLATOR.interpolate(DATA1, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testHighValue() {
-    INTERPOLATOR.interpolate(DATA2, 31.);
+    INTERPOLATOR.interpolate(DATA1, 31.);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testLowValue() {
-    INTERPOLATOR.interpolate(DATA2, -1.);
+    INTERPOLATOR.interpolate(DATA1, -1.);
   }
 
   @Test
   public void testSensitivities() {
-    final double tmax = DATA2.lastKey();
+    final double tmax = DATA1.lastKey();
     double[] sensitivity;
     for (int i = 0; i < 100; i++) {
       final double t = tmax * RANDOM.nextDouble();
-      sensitivity = CALCULATOR.calculate(DATA2, t);
+      sensitivity = CALCULATOR.calculate(DATA1, t);
       for (int j = 0; j < sensitivity.length; j++) {
         assertEquals(getSensitivity(DATA1, INTERPOLATOR, t, j), sensitivity[j], EPS);
       }
@@ -100,7 +97,7 @@ public class NaturalCubicSplineInterpolator1DNodeSensitivityCalculatorTest {
     for (int i = 0; i < n; i++) {
       rates[i] = FUNCTION.evaluate(fwdTimes[i]);
     }
-    final Interpolator1DCubicSplineWithSensitivitiesDataBundle data = new Interpolator1DCubicSplineWithSensitivitiesDataBundle(INTERPOLATOR.getDataBundleFromSortedArrays(fwdTimes, rates));
+    final Interpolator1DCubicSplineDataBundle data = new Interpolator1DCubicSplineDataBundle(INTERPOLATOR.getDataBundleFromSortedArrays(fwdTimes, rates));
     final double[] sensitivity1 = CALCULATOR.calculate(data, 0.25);
     final double[] sensitivity2 = FD_CALCULATOR.calculate(data, 0.25);
     for (int j = 0; j < sensitivity1.length; j++) {

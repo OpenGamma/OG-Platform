@@ -92,6 +92,10 @@ public class Bond implements InterestRateDerivative {
     return _annuity;
   }
 
+  public double getMaturity() {
+    return _annuity.getPaymentTimes()[_annuity.getNumberOfPayments() - 1];
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;

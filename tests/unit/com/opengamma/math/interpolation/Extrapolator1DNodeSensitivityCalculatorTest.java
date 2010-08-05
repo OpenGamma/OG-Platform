@@ -15,7 +15,6 @@ import cern.jet.random.engine.RandomEngine;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DCubicSplineDataBundle;
-import com.opengamma.math.interpolation.data.Interpolator1DCubicSplineWithSensitivitiesDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.sensitivity.FiniteDifferenceInterpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.interpolation.sensitivity.FlatExtrapolator1DNodeSensitivityCalculator;
@@ -32,11 +31,11 @@ public class Extrapolator1DNodeSensitivityCalculatorTest {
   private static final FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle> FD_CALCULATOR = new FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle>(
       INTERPOLATOR);
   private static final FlatExtrapolator1DNodeSensitivityCalculator<Interpolator1DDataBundle> FLAT_CALCULATOR = new FlatExtrapolator1DNodeSensitivityCalculator<Interpolator1DDataBundle>();
-  private static final LinearExtrapolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineWithSensitivitiesDataBundle> LINEAR_CALCULATOR = new LinearExtrapolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineWithSensitivitiesDataBundle>(
+  private static final LinearExtrapolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle> LINEAR_CALCULATOR = new LinearExtrapolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle>(
       CALCULATOR);
   private static final LinearExtrapolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle> LINEAR_FD_CALCULATOR = new LinearExtrapolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle>(
       FD_CALCULATOR);
-  private static final Interpolator1DCubicSplineWithSensitivitiesDataBundle DATA;
+  private static final Interpolator1DCubicSplineDataBundle DATA;
   private static final double EPS = 1e-4;
 
   private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
@@ -59,7 +58,7 @@ public class Extrapolator1DNodeSensitivityCalculatorTest {
       r[i] = FUNCTION.evaluate(t[i]);
     }
     //TODO 
-    DATA = new Interpolator1DCubicSplineWithSensitivitiesDataBundle(new Interpolator1DCubicSplineDataBundle(new ArrayInterpolator1DDataBundle(t, r)));
+    DATA = new Interpolator1DCubicSplineDataBundle(new ArrayInterpolator1DDataBundle(t, r));
   }
 
   @Test(expected = IllegalArgumentException.class)

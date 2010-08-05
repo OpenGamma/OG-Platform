@@ -95,7 +95,7 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
     RETURN_FILTER.setMinimumValue(MAX);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testSetCalculator() {
     RETURN_FILTER.setReturnCalculator(null);
   }

@@ -16,9 +16,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.temp.FixedNodeInterpolator1D;
-import com.opengamma.math.interpolation.temp.InterpolationResult;
+import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 
 /**
@@ -27,64 +25,85 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
 public class MultipleYieldCurveFinderFunction extends Function1D<DoubleMatrix1D, DoubleMatrix1D> {
 
   private final int _nPoints;
-  private final LinkedHashMap<String, FixedNodeInterpolator1D> _unknownCurves;
+  private final LinkedHashMap<String, double[]> _unknownCurveNodePoints;
+  private final LinkedHashMap<String, Interpolator1D> _unknownCurveInterpolators;
+  private final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> _unknownCurveNodeSensitivityCalculators;
   private YieldCurveBundle _knownCurves;
-  private final double[] _marketValues;
   private final List<InterestRateDerivative> _derivatives;
-  private final InterestRateCalculator _rateCalculator = new InterestRateCalculator();
+  private final InterestRateDerivativeVisitor<Double> _calculator;
 
-  public MultipleYieldCurveFinderFunction(final List<InterestRateDerivative> derivatives, final double[] marketRates, LinkedHashMap<String, FixedNodeInterpolator1D> unknownCurves,
-      YieldCurveBundle knownCurves) {
+  public MultipleYieldCurveFinderFunction(final List<InterestRateDerivative> derivatives, final LinkedHashMap<String, double[]> unknownCurveNodePoints,
+      final LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators, final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> unknownCurveNodeSensitivityCalculators,
+      final YieldCurveBundle knownCurves, final InterestRateDerivativeVisitor<Double> calculator) {
     Validate.notNull(derivatives);
     Validate.noNullElements(derivatives);
-    Validate.notNull(marketRates);
-    Validate.isTrue(marketRates.length > 0, "No market rates");
-    Validate.notEmpty(unknownCurves, "No curves to solve for");
+    Validate.notNull(calculator);
+    Validate.notEmpty(unknownCurveInterpolators, "No curves to solve for");
 
     _nPoints = derivatives.size();
-    Validate.isTrue(marketRates.length == _nPoints, "wrong number of market rates");
 
     if (knownCurves != null) {
-      for (String name : knownCurves.getAllNames()) {
-        if (unknownCurves.containsKey(name)) {
+      for (final String name : knownCurves.getAllNames()) {
+        if (unknownCurveInterpolators.containsKey(name)) {
           throw new IllegalArgumentException("Curve name in known set matches one to be solved for");
         }
       }
       _knownCurves = knownCurves;
     }
 
-    _marketValues = marketRates;
     _derivatives = derivatives;
 
+    //TODO this logic should not be in here
+    if (unknownCurveNodePoints.size() != unknownCurveInterpolators.size()) {
+      throw new IllegalArgumentException("Number of unknown curves not the same as curve interpolators");
+    }
+    if (unknownCurveNodePoints.size() != unknownCurveNodeSensitivityCalculators.size()) {
+      throw new IllegalArgumentException("Number of unknown curve not the same as curve sensitivity calculators");
+    }
+    final Iterator<String> nodePointsIterator = unknownCurveNodePoints.keySet().iterator();
+    final Iterator<String> unknownCurvesIterator = unknownCurveInterpolators.keySet().iterator();
+    final Iterator<String> unknownNodeSensitivityCalculatorIterator = unknownCurveNodeSensitivityCalculators.keySet().iterator();
+    while (nodePointsIterator.hasNext()) {
+      final String name1 = nodePointsIterator.next();
+      final String name2 = unknownCurvesIterator.next();
+      final String name3 = unknownNodeSensitivityCalculatorIterator.next();
+      if (name1 != name2 || name1 != name3) {
+        throw new IllegalArgumentException("Names must be the same");
+      }
+    }
+    ////////////////////////////////////////////////////////////
+
     int nNodes = 0;
-    for (FixedNodeInterpolator1D nodes : unknownCurves.values()) {
-      nNodes += nodes.getNumberOfNodes();
+    for (final double[] nodes : unknownCurveNodePoints.values()) {
+      nNodes += nodes.length;
     }
     if (nNodes != _nPoints) {
-      throw new IllegalArgumentException("Total number of nodes does not match number of instruments");
+      throw new IllegalArgumentException("Total number of nodes does not match number of instruments: " + nNodes + ", " + _nPoints);
     }
-    _unknownCurves = unknownCurves;
-
+    _unknownCurveNodePoints = unknownCurveNodePoints;
+    _unknownCurveInterpolators = unknownCurveInterpolators;
+    _calculator = calculator;
+    _unknownCurveNodeSensitivityCalculators = unknownCurveNodeSensitivityCalculators;
   }
 
   @Override
-  public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+  public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
     Validate.notNull(x);
 
     if (x.getNumberOfElements() != _nPoints) {
       throw new IllegalArgumentException("vector is wrong length");
     }
 
-    YieldCurveBundle curves = new YieldCurveBundle();
+    final YieldCurveBundle curves = new YieldCurveBundle();
     int index = 0;
-    Iterator<Entry<String, FixedNodeInterpolator1D>> interator = _unknownCurves.entrySet().iterator();
+    final Iterator<Entry<String, Interpolator1D>> interator = _unknownCurveInterpolators.entrySet().iterator();
     while (interator.hasNext()) {
-      Entry<String, FixedNodeInterpolator1D> temp = interator.next();
-      FixedNodeInterpolator1D fixedNodeInterpolator = temp.getValue();
-      double[] yields = Arrays.copyOfRange(x.getData(), index, index + fixedNodeInterpolator.getNumberOfNodes());
-      index += fixedNodeInterpolator.getNumberOfNodes();
-      InterpolatedYieldCurve curve = new InterpolatedYieldCurve(fixedNodeInterpolator.getNodePositions(), yields,
-          (Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>) fixedNodeInterpolator.getUnderlyingInterpolator());
+      final Entry<String, Interpolator1D> temp = interator.next();
+      final Interpolator1D interpolator = temp.getValue();
+      final double[] nodes = _unknownCurveNodePoints.get(temp.getKey());
+      final double[] yields = Arrays.copyOfRange(x.getData(), index, index + nodes.length);
+      index += nodes.length;
+      final InterpolatedYieldCurve curve = new InterpolatedYieldCurve(nodes, yields, interpolator);
       curves.setCurve(temp.getKey(), curve);
     }
 
@@ -93,9 +112,9 @@ public class MultipleYieldCurveFinderFunction extends Function1D<DoubleMatrix1D,
       curves.addAll(_knownCurves);
     }
 
-    double[] res = new double[_nPoints];
+    final double[] res = new double[_nPoints];
     for (int i = 0; i < _nPoints; i++) {
-      res[i] = _rateCalculator.getRate(_derivatives.get(i), curves) - _marketValues[i];
+      res[i] = _calculator.getValue(_derivatives.get(i), curves);
     }
 
     return new DoubleMatrix1D(res);

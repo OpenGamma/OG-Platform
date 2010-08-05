@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.annuity.definition.ConstantCouponAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
@@ -28,20 +29,30 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class InterestRateCurveSensitivityCalculator implements InterestRateDerivativeVisitor<Map<String, List<Pair<Double, Double>>>> {
+public final class ParRateCurveSensitivityCalculator implements InterestRateDerivativeVisitor<Map<String, List<Pair<Double, Double>>>> {
 
-  private final PresentValueCalculator _pvCalculator = new PresentValueCalculator();
-  private final PresentValueSensitivityCalculator _pvSenseCalculator = new PresentValueSensitivityCalculator();
+  private final PresentValueCalculator _pvCalculator = PresentValueCalculator.getInstance();
+  private final PresentValueSensitivityCalculator _pvSenseCalculator = PresentValueSensitivityCalculator.getInstance();
 
-  Map<String, List<Pair<Double, Double>>> getSensitivity(InterestRateDerivative instrument, YieldCurveBundle curves) {
+  private static ParRateCurveSensitivityCalculator s_instance;
+
+  public static ParRateCurveSensitivityCalculator getInstance() {
+    if (s_instance == null) {
+      s_instance = new ParRateCurveSensitivityCalculator();
+    }
+    return s_instance;
+  }
+
+  private ParRateCurveSensitivityCalculator() {
+  }
+
+  @Override
+  public Map<String, List<Pair<Double, Double>>> getValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
     Validate.notNull(instrument);
     Validate.notNull(curves);
     return instrument.accept(this, curves);
   }
 
-  /*
-   * The actual value of the curve is irrelevant - the sensitivity is always 1.0
-   */
   @Override
   public Map<String, List<Pair<Double, Double>>> visitCash(Cash cash, YieldCurveBundle curves) {
     String curveName = cash.getYieldCurveName();
@@ -110,11 +121,11 @@ public class InterestRateCurveSensitivityCalculator implements InterestRateDeriv
   @Override
   public Map<String, List<Pair<Double, Double>>> visitFixedFloatSwap(FixedFloatSwap swap, YieldCurveBundle curves) {
     FixedAnnuity tempAnnuity = swap.getFixedLeg().toUnitCouponFixedAnnuity(swap.getFloatingLeg().getNotional());
-    double a = _pvCalculator.getPresentValue(tempAnnuity, curves);
-    double b = _pvCalculator.getPresentValue(swap.getFloatingLeg(), curves);
+    double a = _pvCalculator.getValue(tempAnnuity, curves);
+    double b = _pvCalculator.getValue(swap.getFloatingLeg(), curves);
     double bOveraSq = b / a / a;
-    Map<String, List<Pair<Double, Double>>> senseA = _pvSenseCalculator.getSensitivity(tempAnnuity, curves);
-    Map<String, List<Pair<Double, Double>>> senseB = _pvSenseCalculator.getSensitivity(swap.getFloatingLeg(), curves);
+    Map<String, List<Pair<Double, Double>>> senseA = _pvSenseCalculator.getValue(tempAnnuity, curves);
+    Map<String, List<Pair<Double, Double>>> senseB = _pvSenseCalculator.getValue(swap.getFloatingLeg(), curves);
 
     Map<String, List<Pair<Double, Double>>> result = new HashMap<String, List<Pair<Double, Double>>>();
     for (String name : curves.getAllNames()) {
@@ -143,12 +154,12 @@ public class InterestRateCurveSensitivityCalculator implements InterestRateDeriv
     VariableAnnuity payLeg = swap.getPayLeg().toZeroSpreadVariableAnnuity();
     VariableAnnuity receiveLeg = swap.getReceiveLeg().toZeroSpreadVariableAnnuity();
     FixedAnnuity spreadLeg = swap.getPayLeg().toUnitCouponFixedAnnuity();
-    double a = _pvCalculator.getPresentValue(receiveLeg, curves);
-    double b = _pvCalculator.getPresentValue(payLeg, curves);
-    double c = _pvCalculator.getPresentValue(spreadLeg, curves);
-    Map<String, List<Pair<Double, Double>>> senseA = _pvSenseCalculator.getSensitivity(receiveLeg, curves);
-    Map<String, List<Pair<Double, Double>>> senseB = _pvSenseCalculator.getSensitivity(payLeg, curves);
-    Map<String, List<Pair<Double, Double>>> senseC = _pvSenseCalculator.getSensitivity(spreadLeg, curves);
+    double a = _pvCalculator.getValue(receiveLeg, curves);
+    double b = _pvCalculator.getValue(payLeg, curves);
+    double c = _pvCalculator.getValue(spreadLeg, curves);
+    Map<String, List<Pair<Double, Double>>> senseA = _pvSenseCalculator.getValue(receiveLeg, curves);
+    Map<String, List<Pair<Double, Double>>> senseB = _pvSenseCalculator.getValue(payLeg, curves);
+    Map<String, List<Pair<Double, Double>>> senseC = _pvSenseCalculator.getValue(spreadLeg, curves);
     Map<String, List<Pair<Double, Double>>> result = new HashMap<String, List<Pair<Double, Double>>>();
 
     for (String name : curves.getAllNames()) {
@@ -185,6 +196,11 @@ public class InterestRateCurveSensitivityCalculator implements InterestRateDeriv
 
   @Override
   public Map<String, List<Pair<Double, Double>>> visitVariableAnnuity(VariableAnnuity annuity, YieldCurveBundle curves) {
+    return null;
+  }
+
+  @Override
+  public Map<String, List<Pair<Double, Double>>> visitConstantCouponAnnuity(ConstantCouponAnnuity annuity, YieldCurveBundle curves) {
     return null;
   }
 

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.financial.interestrate.annuity.definition.ConstantCouponAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
@@ -26,44 +27,23 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class PresentValueSensitivityCalculator implements InterestRateDerivativeVisitor<Map<String, List<Pair<Double, Double>>>> {
+public final class PresentValueSensitivityCalculator implements InterestRateDerivativeVisitor<Map<String, List<Pair<Double, Double>>>> {
 
-  Map<String, List<Pair<Double, Double>>> getSensitivity(InterestRateDerivative instrument, YieldCurveBundle curves) {
-    return instrument.accept(this, curves);
-  }
+  private static PresentValueSensitivityCalculator s_instance;
 
-  @Override
-  public Map<String, List<Pair<Double, Double>>> visitSwap(Swap swap, YieldCurveBundle curves) {
-    Map<String, List<Pair<Double, Double>>> senseR = getSensitivity(swap.getReceiveLeg(), curves);
-    Map<String, List<Pair<Double, Double>>> senseP = getSensitivity(swap.getPayLeg(), curves);
-
-    Map<String, List<Pair<Double, Double>>> result = new HashMap<String, List<Pair<Double, Double>>>();
-    for (String name : curves.getAllNames()) {
-      List<Pair<Double, Double>> temp = new ArrayList<Pair<Double, Double>>();
-      if (senseR.containsKey(name)) {
-        for (Pair<Double, Double> pair : senseR.get(name)) {
-          temp.add(pair);
-        }
-      }
-      if (senseP.containsKey(name)) {
-        for (Pair<Double, Double> pair : senseP.get(name)) {
-          DoublesPair newPair = new DoublesPair(pair.getFirst(), -pair.getSecond());
-          temp.add(newPair);
-        }
-      }
-      result.put(name, temp);
+  public static PresentValueSensitivityCalculator getInstance() {
+    if (s_instance == null) {
+      s_instance = new PresentValueSensitivityCalculator();
     }
-    return result;
+    return s_instance;
+  }
+
+  private PresentValueSensitivityCalculator() {
   }
 
   @Override
-  public Map<String, List<Pair<Double, Double>>> visitFixedFloatSwap(FixedFloatSwap swap, YieldCurveBundle curves) {
-    return visitSwap(swap, curves);
-  }
-
-  @Override
-  public Map<String, List<Pair<Double, Double>>> visitBasisSwap(BasisSwap swap, YieldCurveBundle curves) {
-    return visitSwap(swap, curves);
+  public Map<String, List<Pair<Double, Double>>> getValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
+    return instrument.accept(this, curves);
   }
 
   @Override
@@ -98,18 +78,20 @@ public class PresentValueSensitivityCalculator implements InterestRateDerivative
     double onePlusAlphaF = 1 + discountAlpha * fwd;
 
     Map<String, List<Pair<Double, Double>>> result = new HashMap<String, List<Pair<Double, Double>>>();
+    List<Pair<Double, Double>> temp = new ArrayList<Pair<Double, Double>>();
     if (settlementDate > 0) {
       final DoublesPair s = new DoublesPair(settlementDate, -settlementDate * fundingCurve.getDiscountFactor(settlementDate) * (fwd - fra.getStrike()) * fwdAlpha / onePlusAlphaF);
-      final List<Pair<Double, Double>> temp = new ArrayList<Pair<Double, Double>>();
       temp.add(s);
-      result.put(fundingCurveName, temp);
+      if (fundingCurveName != liborCurveName) {
+        result.put(fundingCurveName, temp);
+        temp = new ArrayList<Pair<Double, Double>>();
+      }
     }
 
     double factor = fundingCurve.getDiscountFactor(settlementDate) * liborCurve.getDiscountFactor(fixingDate) / liborCurve.getDiscountFactor(maturity) / onePlusAlphaF;
     factor *= 1 - (fwd - fra.getStrike()) * discountAlpha / onePlusAlphaF;
     final DoublesPair s1 = new DoublesPair(fixingDate, -fixingDate * factor);
     final DoublesPair s2 = new DoublesPair(maturity, maturity * factor);
-    final List<Pair<Double, Double>> temp = new ArrayList<Pair<Double, Double>>();
     temp.add(s1);
     temp.add(s2);
     result.put(liborCurveName, temp);
@@ -138,7 +120,41 @@ public class PresentValueSensitivityCalculator implements InterestRateDerivative
 
   @Override
   public Map<String, List<Pair<Double, Double>>> visitBond(Bond bond, YieldCurveBundle curves) {
-    return getSensitivity(bond.getFixedAnnuity(), curves);
+    return getValue(bond.getFixedAnnuity(), curves);
+  }
+
+  @Override
+  public Map<String, List<Pair<Double, Double>>> visitSwap(Swap swap, YieldCurveBundle curves) {
+    Map<String, List<Pair<Double, Double>>> senseR = getValue(swap.getReceiveLeg(), curves);
+    Map<String, List<Pair<Double, Double>>> senseP = getValue(swap.getPayLeg(), curves);
+
+    Map<String, List<Pair<Double, Double>>> result = new HashMap<String, List<Pair<Double, Double>>>();
+    for (String name : curves.getAllNames()) {
+      List<Pair<Double, Double>> temp = new ArrayList<Pair<Double, Double>>();
+      if (senseR.containsKey(name)) {
+        for (Pair<Double, Double> pair : senseR.get(name)) {
+          temp.add(pair);
+        }
+      }
+      if (senseP.containsKey(name)) {
+        for (Pair<Double, Double> pair : senseP.get(name)) {
+          DoublesPair newPair = new DoublesPair(pair.getFirst(), -pair.getSecond());
+          temp.add(newPair);
+        }
+      }
+      result.put(name, temp);
+    }
+    return result;
+  }
+
+  @Override
+  public Map<String, List<Pair<Double, Double>>> visitFixedFloatSwap(FixedFloatSwap swap, YieldCurveBundle curves) {
+    return visitSwap(swap, curves);
+  }
+
+  @Override
+  public Map<String, List<Pair<Double, Double>>> visitBasisSwap(BasisSwap swap, YieldCurveBundle curves) {
+    return visitSwap(swap, curves);
   }
 
   @Override
@@ -156,6 +172,11 @@ public class PresentValueSensitivityCalculator implements InterestRateDerivative
     Map<String, List<Pair<Double, Double>>> result = new HashMap<String, List<Pair<Double, Double>>>();
     result.put(curveName, temp);
     return result;
+  }
+
+  @Override
+  public Map<String, List<Pair<Double, Double>>> visitConstantCouponAnnuity(ConstantCouponAnnuity annuity, YieldCurveBundle curves) {
+    return visitFixedAnnuity(annuity, curves);
   }
 
   @Override
