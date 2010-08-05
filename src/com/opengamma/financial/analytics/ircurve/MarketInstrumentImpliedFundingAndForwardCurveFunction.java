@@ -46,6 +46,9 @@ import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
+import com.opengamma.financial.interestrate.ParRateCalculator;
+import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
+import com.opengamma.financial.interestrate.ParRateDifferanceCalculator;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
@@ -145,44 +148,47 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     if (rate == null) {
       throw new NullPointerException("Could not get first floating rate for " + _currency);
     }
-    final double referenceFloatingRate = rate;
+    //final double referenceFloatingRate = rate;
     int i = 0;
-    for (final FixedIncomeStrip strip : fundingStrips) {
-      derivative = getInterestRateDerivative(strip, calendar, region, now, referenceFloatingRate);
-      if (derivative == null) {
-        throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
-      }
-      derivatives.add(derivative);
-      initialRatesGuess[i] = 0.05;
+    for (final FixedIncomeStrip strip : fundingStrips) {     
       stripRequirement = new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, strip.getMarketDataSpecification());
       rate = (Double) inputs.getValue(stripRequirement);
       if (rate == null) {
         throw new NullPointerException("Could not get market data for " + strip);
       }
-      if (strip.getInstrumentType() == StripInstrument.FUTURE) {
-        rate = (100. - rate) / 100.;
+      if (strip.getInstrumentType() != StripInstrument.FUTURE) {
+        rate = rate / 100.;
       }
-      marketRates[i] = rate;
+      derivative = getInterestRateDerivative(strip, calendar, region, now,rate);
+      if (derivative == null) {
+        throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
+      }
+      derivatives.add(derivative);
+      initialRatesGuess[i] = 0.05;
+      
       fundingNodeTimes[i] = getLastTime(derivative);
       i++;
     }
     final double[] forwardNodeTimes = new double[nForward];
+    
     int j = 0;
     for (final FixedIncomeStrip strip : forwardStrips) {
-      derivative = getInterestRateDerivative(strip, calendar, region, now, referenceFloatingRate);
-      if (derivative == null) {
-        throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
-      }
-      derivatives.add(derivative);
-      initialRatesGuess[i] = 0.05;
+      
       stripRequirement = new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, strip.getMarketDataSpecification());
       rate = (Double) inputs.getValue(stripRequirement);
       if (rate == null) {
         throw new NullPointerException("Could not get market data for " + strip);
       }
-      if (strip.getInstrumentType() == StripInstrument.FUTURE) {
-        rate = (rate - 100.) / 100.;
+      if (strip.getInstrumentType() != StripInstrument.FUTURE) {
+        rate = rate/100.;
       }
+      derivative = getInterestRateDerivative(strip, calendar, region, now,rate);
+      if (derivative == null) {
+        throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
+      }
+      derivatives.add(derivative);
+      initialRatesGuess[i] = 0.05;
+      
       marketRates[i] = rate;
       forwardNodeTimes[j] = getLastTime(derivative);
       i++;
@@ -194,14 +200,14 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     unknownCurves.put(LIBOR_CURVE_NAME, fnInterpolator);
     fnInterpolator = new FixedNodeInterpolator1D(fundingNodeTimes, _interpolatorWithSensitivity);
     unknownCurves.put(FUNDING_CURVE_NAME, fnInterpolator);
-    final JacobianCalculator jacobian = new MultipleYieldCurveFinderJacobian(derivatives, unknownCurves, null);
+    final JacobianCalculator jacobian = new MultipleYieldCurveFinderJacobian(derivatives, unknownCurves, null,ParRateCurveSensitivityCalculator.getInstance());
 
     unknownCurves = new LinkedHashMap<String, FixedNodeInterpolator1D>();
     fnInterpolator = new FixedNodeInterpolator1D(forwardNodeTimes, _interpolator);
     unknownCurves.put(LIBOR_CURVE_NAME, fnInterpolator);
     fnInterpolator = new FixedNodeInterpolator1D(fundingNodeTimes, _interpolator);
     unknownCurves.put(FUNDING_CURVE_NAME, fnInterpolator);
-    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveFinder = new MultipleYieldCurveFinderFunction(derivatives, marketRates, unknownCurves, null);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveFinder = new MultipleYieldCurveFinderFunction(derivatives, unknownCurves, null,ParRateDifferanceCalculator.getInstance());
 
 
     final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, jacobian, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
@@ -285,22 +291,22 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
   }
 
   //TODO everything from here down is rubbish
-  private InterestRateDerivative getInterestRateDerivative(final FixedIncomeStrip strip, final Calendar calendar, final Region region, final LocalDate now, final double floatingRate) {
+  private InterestRateDerivative getInterestRateDerivative(final FixedIncomeStrip strip, final Calendar calendar, final Region region, final LocalDate now, final double rateOrPrice) {
     if (strip.getInstrumentType() == StripInstrument.SWAP) {
-      return getSwap(strip, calendar, region, now, floatingRate);
+      return getSwap(strip, calendar, region, now, rateOrPrice);
     } else if (strip.getInstrumentType() == StripInstrument.CASH) {
-      return getCash(strip, calendar, now);
+      return getCash(strip, calendar, now,rateOrPrice);
     } else if (strip.getInstrumentType() == StripInstrument.FRA) {
-      return getFRA(strip, calendar, now);
+      return getFRA(strip, calendar, now,rateOrPrice);
     } else if (strip.getInstrumentType() == StripInstrument.FUTURE) {
-      return getIRFuture(strip, calendar, now);
+      return getIRFuture(strip, calendar, now,rateOrPrice);
     } else if (strip.getInstrumentType() == StripInstrument.LIBOR) {
-      return getLibor(strip, calendar, now);
+      return getLibor(strip, calendar, now,rateOrPrice);
     }
     return null;
   }
 
-  private Cash getCash(final FixedIncomeStrip cashStrip, final Calendar calendar, final LocalDate now) {
+  private Cash getCash(final FixedIncomeStrip cashStrip, final Calendar calendar, final LocalDate now, final double cashRate) {
     final DayCount dayCount = cashStrip.getDayCount();
     final BusinessDayConvention convention = cashStrip.getBusinessDayConvention();
     final ZonedDateTime start = cashStrip.getStartDate().atStartOfDayInZone(TimeZone.UTC);
@@ -309,11 +315,11 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     final ZonedDateTime endAdjusted = convention.adjustDate(calendar, end);
     final double t = dayCount.getDayCountFraction(startAdjusted, endAdjusted);
 
-    return new Cash(t,0.0,FUNDING_CURVE_NAME);
+    return new Cash(t, cashRate, FUNDING_CURVE_NAME);
 
   }
 
-  private ForwardRateAgreement getFRA(final FixedIncomeStrip fraStrip, final Calendar calendar, final LocalDate now) {
+  private ForwardRateAgreement getFRA(final FixedIncomeStrip fraStrip, final Calendar calendar, final LocalDate now, final double strike) {
     final DayCount dayCount = fraStrip.getDayCount();
     final BusinessDayConvention convention = fraStrip.getBusinessDayConvention();
     final ZonedDateTime start = fraStrip.getStartDate().atStartOfDayInZone(TimeZone.UTC);
@@ -324,11 +330,11 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     final double startTime = dayCount.getDayCountFraction(nowWithTime, startAdjusted);
     final double endTime = dayCount.getDayCountFraction(nowWithTime, endAdjusted);
 
-    return new ForwardRateAgreement(startTime, endTime,0.0, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    return new ForwardRateAgreement(startTime, endTime, strike, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
 
   }
 
-  private InterestRateFuture getIRFuture(final FixedIncomeStrip irFutureStrip, final Calendar calendar, final LocalDate now) {
+  private InterestRateFuture getIRFuture(final FixedIncomeStrip irFutureStrip, final Calendar calendar, final LocalDate now, final double price) {
     final DayCount dayCount = irFutureStrip.getDayCount();
     final BusinessDayConvention convention = irFutureStrip.getBusinessDayConvention();
     final ZonedDateTime start = irFutureStrip.getStartDate().atStartOfDayInZone(TimeZone.UTC);
@@ -339,11 +345,11 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     final double startTime = dayCount.getDayCountFraction(nowWithTime, startAdjusted);
     final double endTime = dayCount.getDayCountFraction(nowWithTime, endAdjusted);
 
-    return new InterestRateFuture(startTime, endTime-startTime,100, LIBOR_CURVE_NAME);
+    return new InterestRateFuture(startTime, endTime - startTime, price, LIBOR_CURVE_NAME);
 
   }
 
-  private Libor getLibor(final FixedIncomeStrip liborStrip, final Calendar calendar, final LocalDate now) {
+  private Libor getLibor(final FixedIncomeStrip liborStrip, final Calendar calendar, final LocalDate now, final double liborRate) {
     final DayCount dayCount = liborStrip.getDayCount();
     final BusinessDayConvention convention = liborStrip.getBusinessDayConvention();
     final ZonedDateTime start = liborStrip.getStartDate().atStartOfDayInZone(TimeZone.UTC);
@@ -352,11 +358,11 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     final ZonedDateTime endAdjusted = convention.adjustDate(calendar, end);
     final double t = dayCount.getDayCountFraction(startAdjusted, endAdjusted);
 
-    return new Libor(t,0.0,LIBOR_CURVE_NAME);
+    return new Libor(t, liborRate, LIBOR_CURVE_NAME);
 
   }
 
-  private FixedFloatSwap getSwap(final FixedIncomeStrip swapStrip, final Calendar calendar, final Region region, final LocalDate now, final double floatingRate) {
+  private FixedFloatSwap getSwap(final FixedIncomeStrip swapStrip, final Calendar calendar, final Region region, final LocalDate now, final double swapRate) {
     final BusinessDayConvention convention = swapStrip.getBusinessDayConvention();
     final ZonedDateTime effectiveDate = swapStrip.getStartDate().atStartOfDayInZone(TimeZone.UTC); //TODO change this
     final ZonedDateTime maturityDate = swapStrip.getEndDate().atStartOfDayInZone(TimeZone.UTC); //TODO change this
@@ -366,14 +372,11 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     final ZonedDateTime[] adjustedDates = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, convention, calendar);
     final double[] swapPaymentDates = ScheduleCalculator.getTimes(adjustedDates, dayCount, now.atStartOfDayInZone(TimeZone.UTC));
     final int n = swapPaymentDates.length;
-    final double[] dummyPayments = new double[n];
     final double[] delta = new double[n];
     for (int i = 0; i < n; i++) {
       delta[i] = 0;
     }
-
-    return new FixedFloatSwap(swapPaymentDates,  dummyPayments, swapPaymentDates, delta, delta,FUNDING_CURVE_NAME,LIBOR_CURVE_NAME);
-
+    return new FixedFloatSwap(swapPaymentDates,  swapPaymentDates, swapRate,delta, delta, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
   }
 
   private double getLastTime(final InterestRateDerivative derivative) {

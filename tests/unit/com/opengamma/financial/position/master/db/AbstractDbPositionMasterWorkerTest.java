@@ -15,7 +15,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
@@ -29,6 +29,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbPositionMasterWorkerTest.class);
 
+  private ConfigurableApplicationContext _springApplicationContext;
   protected DbPositionMaster _posMaster;
   protected Instant _version1Instant;
   protected Instant _version2Instant;
@@ -45,8 +46,8 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
   public void setUp() throws Exception {
     super.setUp();
     final String contextLocation =  "config/test-position-master-context.xml";
-    final ApplicationContext context = new FileSystemXmlApplicationContext(contextLocation);
-    _posMaster = (DbPositionMaster) context.getBean(getDatabaseType()+"DbPositionMaster");
+    _springApplicationContext = new FileSystemXmlApplicationContext(contextLocation);
+    _posMaster = (DbPositionMaster) _springApplicationContext.getBean(getDatabaseType() + "DbPositionMaster");
     
 //    id bigint not null,
 //    oid bigint not null,
@@ -124,8 +125,10 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
 
   @After
   public void tearDown() throws Exception {
-    super.tearDown();
+    _springApplicationContext.close();
+    _springApplicationContext = null;
     _posMaster = null;
+    super.tearDown();
   }
 
 }

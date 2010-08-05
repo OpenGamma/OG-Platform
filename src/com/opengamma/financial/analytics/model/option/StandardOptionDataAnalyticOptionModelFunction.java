@@ -27,6 +27,7 @@ import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
@@ -50,6 +51,13 @@ public abstract class StandardOptionDataAnalyticOptionModelFunction extends Anal
     // TODO cost of carry model
     final Expiry expiry = option.getExpiry();
     final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
+    /*
+     * s_logger.debug("clock {}", Clock.systemDefaultZone().dateTime());
+     * s_logger.debug("now {}", now);
+     * s_logger.debug("T={}", t);
+     * s_logger.debug("R={}", discountCurve.getInterestRate(t));
+     * s_logger.debug("Sigma={}", volatilitySurface.getVolatility(DoublesPair.of(t, option.getStrike())));
+     */
     final double b = discountCurve.getInterestRate(t); // TODO
     return new StandardOptionDataBundle(discountCurve, b, volatilitySurface, spot, now);
   }

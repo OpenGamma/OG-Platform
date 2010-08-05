@@ -23,6 +23,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -56,6 +57,8 @@ public class BatchDbManagerImpl implements BatchDbManager {
   private String _jdbcUrl;
   private String _username;
   private String _password;
+  
+  private DataSourceTransactionManager _transactionManager;
   
   /**
    * The template for Hibernate operations.
@@ -100,10 +103,15 @@ public class BatchDbManagerImpl implements BatchDbManager {
   }
   
   public void setTransactionManager(DataSourceTransactionManager transactionManager) {
+    _transactionManager = transactionManager;
     DataSource dataSource = transactionManager.getDataSource();
     _jdbcTemplate = new SimpleJdbcTemplate(dataSource);
   }
   
+  public DataSourceTransactionManager getTransactionManager() {
+    return _transactionManager;
+  }
+
   public SessionFactory getSessionFactory() {
     return _hibernateTemplate.getSessionFactory();
   }
@@ -369,6 +377,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
     riskRun.setLiveDataSnapshot(snapshot);
     riskRun.setCreateInstant(DateUtil.toSqlTimestamp(now));
     riskRun.setStartInstant(DateUtil.toSqlTimestamp(now));
+    riskRun.setNumRestarts(0);
     riskRun.setComplete(false);
     
     for (ViewCalculationConfiguration calcConf : job.getCalculationConfigurations()) {
@@ -384,9 +393,15 @@ public class BatchDbManagerImpl implements BatchDbManager {
     Instant now = Instant.nowSystemClock();
     
     riskRun.setStartInstant(DateUtil.toSqlTimestamp(now));
+    riskRun.setNumRestarts(riskRun.getNumRestarts() + 1);
     riskRun.setComplete(false);
     
     _hibernateTemplate.update(riskRun);
+    
+    // clear risk failures
+    MapSqlParameterSource parameters = new MapSqlParameterSource()
+      .addValue("run_id", riskRun.getId());
+    _jdbcTemplate.update(RiskFailure.sqlDeleteRiskFailures(), parameters);
   }
   
   /*package*/ void endRun(RiskRun riskRun) {
@@ -651,6 +666,11 @@ public class BatchDbManagerImpl implements BatchDbManager {
     return new BatchResultWriterFactory(batch);
   }
   
+  public BatchResultWriter createTestResultWriter(BatchJob batch) {
+    BatchResultWriterFactory factory = new BatchResultWriterFactory(batch);
+    return factory.createTestWriter();    
+  }
+  
   private class BatchResultWriterFactory implements ResultWriterFactory {
     
     private final BatchJob _batch;
@@ -660,24 +680,30 @@ public class BatchDbManagerImpl implements BatchDbManager {
       _batch = batch;
     }
     
-    @Override
-    public ResultWriter create(CalculationJobSpecification jobSpec, List<CalculationJobItem> items, String nodeId) {
-      BatchResultWriter resultWriter = new BatchResultWriter();
+    private BatchResultWriter initialize() {
+      BatchResultWriter resultWriter =  new BatchResultWriter();
       
       resultWriter.setJdbcUrl(_jdbcUrl);
       resultWriter.setUsername(_username);
       resultWriter.setPassword(_password);
       
+      resultWriter.setTransactionManager(getTransactionManager());
       resultWriter.setSessionFactory(getSessionFactory());
-      resultWriter.setJdbcTemplate(_jdbcTemplate);
       
       resultWriter.setRiskRun(getRiskRunFromHandle(_batch));
+      
+      return resultWriter;
+    }
+    
+    @Override
+    public ResultWriter create(CalculationJobSpecification jobSpec, List<CalculationJobItem> items, String nodeId) {
+      BatchResultWriter resultWriter = initialize();
+      
       if (nodeId != null) {
         try {
           getSessionFactory().getCurrentSession().beginTransaction();
           resultWriter.setComputeNode(getComputeNode(nodeId));
           getSessionFactory().getCurrentSession().getTransaction().commit();
-          return resultWriter;
         } catch (RuntimeException e) {
           getSessionFactory().getCurrentSession().getTransaction().rollback();
           throw e;
@@ -687,7 +713,25 @@ public class BatchDbManagerImpl implements BatchDbManager {
       // should be optimized
       resultWriter.setComputationTargets(getDbHandle(_batch)._computationTargets);
       resultWriter.setRiskValueNames(getDbHandle(_batch)._riskValueNames);
+
+      return resultWriter;
+    }
+    
+    public BatchResultWriter createTestWriter() {
+      BatchResultWriter resultWriter = initialize();
       
+      try {
+        getSessionFactory().getCurrentSession().beginTransaction();
+        resultWriter.setComputeNode(getLocalComputeNode());
+        getSessionFactory().getCurrentSession().getTransaction().commit();
+      } catch (RuntimeException e) {
+        getSessionFactory().getCurrentSession().getTransaction().rollback();
+        throw e;
+      }
+      
+      resultWriter.setComputationTargets(getDbHandle(_batch)._computationTargets);
+      resultWriter.setRiskValueNames(getDbHandle(_batch)._riskValueNames);
+
       return resultWriter;
     }
   }
@@ -707,7 +751,9 @@ public class BatchDbManagerImpl implements BatchDbManager {
       RiskRun.class,
       RiskValueName.class,
       ComputationTarget.class,
-      RiskValue.class
+      RiskValue.class,
+      ComputeFailure.class,
+      StatusEntry.class
     };
   }
   

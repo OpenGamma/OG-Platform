@@ -626,6 +626,7 @@ public class BatchJob implements Job {
         resultWriterFactory);
     
     _view = new View(viewDefinitionDoc.getValue(), vpc);
+    _view.setPopulateResultModel(false);
     _view.init();
   }
 
