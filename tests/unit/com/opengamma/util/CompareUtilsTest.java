@@ -16,7 +16,7 @@ public class CompareUtilsTest {
 
   @Test
   public void test_max() {
-    assertEquals(null, CompareUtils.max(null, null));
+    assertEquals(null, CompareUtils.<String>max(null, null));
     assertEquals("A", CompareUtils.max(null, "A"));
     assertEquals("A", CompareUtils.max("A", null));
     Integer a = new Integer(1); // need to use new, not autoboxing
@@ -27,7 +27,7 @@ public class CompareUtilsTest {
 
   @Test
   public void test_min() {
-    assertEquals(null, CompareUtils.min(null, null));
+    assertEquals(null, CompareUtils.<String>min(null, null));
     assertEquals("A", CompareUtils.min(null, "A"));
     assertEquals("A", CompareUtils.min("A", null));
     Integer a = new Integer(1); // need to use new, not autoboxing
