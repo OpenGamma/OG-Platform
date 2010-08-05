@@ -42,11 +42,6 @@ public class LinearInterpolator1DNodeSensitivityCalculatorTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNullInterpolator() {
-    CALCULATOR.calculate(DATA, 3.4);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
     CALCULATOR.calculate(null, 1.);
   }
