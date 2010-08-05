@@ -6,11 +6,13 @@
 --
 -- Please do not modify it - modify the originals and recreate this using 'ant create-db-sql'.
 
+
     create table hibernate_sequence (
          next_val bigint
     );
 
     insert into hibernate_sequence values ( 1 );
+
 
 -- create-db-security.sql: Security Master
 
@@ -370,6 +372,7 @@ create table sec_swap (
     primary key (id),
     constraint sec_fk_swap2swap foreign key (first_version_id) references sec_swap (id)
 );
+
 -- design has two documents
 --  portfolio and tree of nodes (nested set model)
 --  position and associated security key
@@ -398,6 +401,7 @@ create table pos_node (
     id bigint not null,
     oid bigint not null,
     portfolio_id bigint not null,
+    portfolio_oid bigint not null,
     parent_node_id bigint,
     depth int,
     tree_left bigint not null,
@@ -408,6 +412,7 @@ create table pos_node (
     constraint pos_fk_node2parentnode foreign key (parent_node_id) references pos_node (id)
 );
 -- pos_node is fully dependent of pos_portfolio
+-- portfolio_oid is an optimization (can be derived via portfolio_id)
 -- parent_node_id is an optimization (tree_left/tree_right hold all the tree structure)
 -- depth is an optimization (tree_left/tree_right hold all the tree structure)
 
@@ -436,6 +441,7 @@ create table pos_securitykey (
     constraint pos_fk_securitykey2position foreign key (position_id) references pos_position (id)
 );
 -- pos_securitykey is fully dependent of pos_position
+
 -------------------------------------
 -- Static data
 -------------------------------------
@@ -745,3 +751,5 @@ create table rsk_failure_reason (
 
    unique (rsk_failure_id, compute_failure_id)
 );
+
+
