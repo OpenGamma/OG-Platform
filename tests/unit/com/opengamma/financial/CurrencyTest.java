@@ -11,8 +11,6 @@ import static org.junit.Assert.assertSame;
 
 import org.junit.Test;
 
-import com.opengamma.financial.Currency;
-
 /**
  * Test Currency.
  */
@@ -26,7 +24,7 @@ public class CurrencyTest {
     assertSame(c1, Currency.getInstance("USD"));
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_factory_null() {
     Currency.getInstance(null);
   }
