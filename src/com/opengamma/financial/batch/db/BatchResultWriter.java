@@ -8,6 +8,7 @@ package com.opengamma.financial.batch.db;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -136,15 +137,10 @@ public class BatchResultWriter implements ResultWriter, Serializable {
   
       SessionFactory sessionFactory = configuration.buildSessionFactory();
       setSessionFactory(sessionFactory);
-      
-      _hibernateTemplate = new HibernateTemplate(sessionFactory);
-      _hibernateTemplate.setAllowCreate(false);
     }
     
     if (_transactionManager == null) {
-      _transactionManager = tool.getTransactionManager();
-      DataSource dataSource = _transactionManager.getDataSource();
-      _jdbcTemplate = new SimpleJdbcTemplate(dataSource);
+      setTransactionManager(tool.getTransactionManager());
     }
     
     if (_computeNodeId == null) {
@@ -183,6 +179,8 @@ public class BatchResultWriter implements ResultWriter, Serializable {
       throw new IllegalStateException("Already set");
     }
     _sessionFactory = sessionFactory;
+    _hibernateTemplate = new HibernateTemplate(sessionFactory);
+    _hibernateTemplate.setAllowCreate(false);
   }
   
   @FudgeTransient
@@ -197,6 +195,8 @@ public class BatchResultWriter implements ResultWriter, Serializable {
 
   public void setTransactionManager(DataSourceTransactionManager transactionManager) {
     _transactionManager = transactionManager;
+    DataSource dataSource = _transactionManager.getDataSource();
+    _jdbcTemplate = new SimpleJdbcTemplate(dataSource);
   }
 
   public String getJdbcUrl() {
@@ -734,5 +734,39 @@ public class BatchResultWriter implements ResultWriter, Serializable {
     return status.intValue();
   }
   
+  /**
+   * Useful in tests
+   * @return Number of successful risk values in the database
+   */
+  public int getNumRiskRows() {
+    return _jdbcTemplate.queryForInt(RiskValue.sqlCount(), Collections.EMPTY_MAP);
+  }
+  
+  /**
+   * Useful in tests
+   * 
+   * @param calcConfName Calc conf name
+   * @param valueName Value name
+   * @param ct Computation target
+   * @return Value for this target, null if does not exist
+   */
+  public RiskValue getValue(String calcConfName, String valueName, ComputationTargetSpecification ct) {
+    Integer calcConfId = getCalculationConfigurationId(calcConfName);
+    Integer valueId = getValueNameId(valueName);
+    Integer computationTargetId = getComputationTargetId(ct);
+    
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("calculation_configuration_id", calcConfId);
+    params.addValue("value_name_id", valueId);
+    params.addValue("computation_target_id", computationTargetId);
+    
+    try {
+      return (RiskValue) _jdbcTemplate.queryForObject(RiskValue.sqlGet(),
+          RiskValue.ROW_MAPPER,
+          params);
+    } catch (IncorrectResultSizeDataAccessException e) {
+      return null;
+    }
+  }
   
 }
