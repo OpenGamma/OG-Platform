@@ -6,14 +6,15 @@
 package com.opengamma.engine.security.server;
 
 import static com.opengamma.engine.security.server.SecuritySourceServiceNames.DEFAULT_SECURITYSOURCE_NAME;
-import static com.opengamma.engine.security.server.SecuritySourceServiceNames.SECURITYSOURCE_SECURITIES;
 import static com.opengamma.engine.security.server.SecuritySourceServiceNames.SECURITYSOURCE_SECURITY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.util.Arrays;
+import java.util.Collection;
 
+import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.FudgeMsgFormatter;
@@ -107,9 +108,9 @@ public class RESTMethodTest {
     final FudgeFieldContainer msg = fme.getMessage();
     assertNotNull(msg);
     FudgeMsgFormatter.outputToSystemOut(msg);
-    final FudgeFieldContainer securities = msg.getFieldValue(FudgeFieldContainer.class, msg.getByName(SECURITYSOURCE_SECURITIES));
+    final Collection<FudgeField> securities = msg.getAllByName(SECURITYSOURCE_SECURITY);
     assertNotNull(securities);
-    assertEquals(2, securities.getNumFields());
+    assertEquals(2, securities.size ());
   }
 
 }

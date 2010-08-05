@@ -13,10 +13,6 @@ public final class SecuritySourceServiceNames {
   /*package*/ static final String DEFAULT_SECURITYSOURCE_NAME = "0";
 
   /**
-   * Fudge key for a list of securities.
-   */
-  public static final String SECURITYSOURCE_SECURITIES = "securities";
-  /**
    * Fudge key for a security.
    */
   public static final String SECURITYSOURCE_SECURITY = "security";

@@ -5,9 +5,9 @@
  */
 package com.opengamma.engine.security.server;
 
-import static com.opengamma.engine.security.server.SecuritySourceServiceNames.SECURITYSOURCE_SECURITIES;
 import static com.opengamma.engine.security.server.SecuritySourceServiceNames.SECURITYSOURCE_SECURITY;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.ws.rs.GET;
@@ -20,6 +20,7 @@ import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
+import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -90,7 +91,7 @@ public class SecuritySourceResource {
     final UniqueIdentifier uid = UniqueIdentifier.parse(uidStr);
     final FudgeSerializationContext context = getFudgeSerializationContext();
     final MutableFudgeFieldContainer msg = context.newMessage();
-    context.objectToFudgeMsg(msg, SECURITYSOURCE_SECURITY, null, getSecuritySource().getSecurity(uid));
+    context.objectToFudgeMsgWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, getSecuritySource().getSecurity(uid), Security.class);
     return new FudgeMsgEnvelope(msg);
   }
 
@@ -109,7 +110,10 @@ public class SecuritySourceResource {
     }
     final FudgeSerializationContext context = getFudgeSerializationContext();
     final MutableFudgeFieldContainer msg = context.newMessage();
-    context.objectToFudgeMsg(msg, SECURITYSOURCE_SECURITIES, null, getSecuritySource().getSecurities(bundle));
+    final Collection<Security> securities = getSecuritySource().getSecurities(bundle);
+    for (Security security : securities) {
+      context.objectToFudgeMsgWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, security, Security.class);
+    }
     return new FudgeMsgEnvelope(msg);
   }
 
@@ -128,7 +132,7 @@ public class SecuritySourceResource {
     }
     final FudgeSerializationContext context = getFudgeSerializationContext();
     final MutableFudgeFieldContainer msg = context.newMessage();
-    context.objectToFudgeMsg(msg, SECURITYSOURCE_SECURITY, null, getSecuritySource().getSecurity(bundle));
+    context.objectToFudgeMsgWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, getSecuritySource().getSecurity(bundle), Security.class);
     return new FudgeMsgEnvelope(msg);
   }
 
