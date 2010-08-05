@@ -17,7 +17,6 @@ import cern.jet.random.engine.RandomEngine;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.RealPolynomialFunction1D;
 import com.opengamma.math.interpolation.data.Interpolator1DCubicSplineDataBundle;
-import com.opengamma.math.interpolation.temp.InterpolationResult;
 
 /**
  * 
@@ -27,7 +26,7 @@ public class NaturalCubicSplineInterpolator1DTest {
 
   private static final double[] COEFF = new double[] {-0.4, 0.05, 0.2, 1.};
 
-  private static final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> INTERPOLATOR = new NaturalCubicSplineInterpolator1D();
+  private static final Interpolator1D<Interpolator1DCubicSplineDataBundle> INTERPOLATOR = new NaturalCubicSplineInterpolator1D();
   private static final Function1D<Double, Double> CUBIC = new RealPolynomialFunction1D(COEFF);
   private static final double EPS = 1e-2;
   private static final Interpolator1DCubicSplineDataBundle MODEL;
@@ -65,7 +64,7 @@ public class NaturalCubicSplineInterpolator1DTest {
   public void test() {
     for (int i = 0; i < 100; i++) {
       final double x = RANDOM.nextDouble();
-      assertEquals(CUBIC.evaluate(x), INTERPOLATOR.interpolate(MODEL, x).getResult(), EPS);
+      assertEquals(CUBIC.evaluate(x), INTERPOLATOR.interpolate(MODEL, x), EPS);
     }
   }
 }

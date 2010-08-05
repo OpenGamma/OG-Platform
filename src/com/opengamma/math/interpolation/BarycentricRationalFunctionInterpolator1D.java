@@ -9,12 +9,11 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.temp.InterpolationResult;
 
 /**
  * 
  */
-public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D<Interpolator1DDataBundle, InterpolationResult> {
+public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D<Interpolator1DDataBundle> {
   private final int _degree;
 
   public BarycentricRationalFunctionInterpolator1D(final int degree) {
@@ -25,7 +24,7 @@ public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D<In
   }
 
   @Override
-  public InterpolationResult interpolate(final Interpolator1DDataBundle data, final Double value) {
+  public Double interpolate(final Interpolator1DDataBundle data, final Double value) {
     Validate.notNull(value, "value");
     Validate.notNull(data, "data bundle");
     if (data.size() < _degree) {
@@ -35,7 +34,7 @@ public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D<In
     final double[] x = data.getKeys();
     final double[] y = data.getValues();
     if (data.getLowerBoundIndex(value) == m - 1) {
-      return new InterpolationResult(y[m - 1]);
+      return y[m - 1];
     }
     final double[] w = getWeights(x);
     final int n = x.length;
@@ -43,13 +42,13 @@ public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D<In
     for (int i = 0; i < n; i++) {
       delta = value - x[i];
       if (Math.abs(delta) < getEPS()) {
-        return new InterpolationResult(y[i]);
+        return y[i];
       }
       temp = w[i] / delta;
       num += temp * y[i];
       den += temp;
     }
-    return new InterpolationResult(num / den);
+    return num / den;
   }
 
   private double[] getWeights(final double[] x) {

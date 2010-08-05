@@ -9,12 +9,11 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.temp.InterpolationResult;
 
 /**
  * 
  */
-public class RationalFunctionInterpolator1D extends Interpolator1D<Interpolator1DDataBundle, InterpolationResult> {
+public class RationalFunctionInterpolator1D extends Interpolator1D<Interpolator1DDataBundle> {
   private final int _degree;
 
   public RationalFunctionInterpolator1D(final int degree) {
@@ -25,7 +24,7 @@ public class RationalFunctionInterpolator1D extends Interpolator1D<Interpolator1
   }
 
   @Override
-  public InterpolationResult interpolate(final Interpolator1DDataBundle data, final Double value) {
+  public Double interpolate(final Interpolator1DDataBundle data, final Double value) {
     Validate.notNull(value, "value");
     Validate.notNull(data, "data bundle");
     final int m = _degree + 1;
@@ -36,11 +35,11 @@ public class RationalFunctionInterpolator1D extends Interpolator1D<Interpolator1
     final double[] yArray = data.getValues();
     final int n = data.size() - 1;
     if (data.getLowerBoundIndex(value) == n) {
-      return new InterpolationResult(yArray[n]);
+      return yArray[n];
     }
     double diff = Math.abs(value - xArray[0]);
     if (Math.abs(diff) < getEPS()) {
-      return new InterpolationResult(yArray[0]);
+      return yArray[0];
     }
     double diff1;
     final double[] c = new double[m];
@@ -49,7 +48,7 @@ public class RationalFunctionInterpolator1D extends Interpolator1D<Interpolator1
     for (int i = 0; i < m; i++) {
       diff1 = Math.abs(value - xArray[i]);
       if (diff < getEPS()) {
-        return new InterpolationResult(yArray[i]);
+        return yArray[i];
       } else if (diff1 < diff) {
         ns = i;
         diff = diff1;
@@ -74,7 +73,7 @@ public class RationalFunctionInterpolator1D extends Interpolator1D<Interpolator1
       }
       y += 2 * (ns + 1) < m - i ? c[ns + 1] : d[ns--];
     }
-    return new InterpolationResult(y);
+    return y;
   }
 
   @Override
@@ -86,7 +85,6 @@ public class RationalFunctionInterpolator1D extends Interpolator1D<Interpolator1
   public Interpolator1DDataBundle getDataBundleFromSortedArrays(final double[] x, final double[] y) {
     return new ArrayInterpolator1DDataBundle(x, y, true);
   }
-
 
   @Override
   public boolean equals(final Object o) {

@@ -13,15 +13,13 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.temp.InterpolationResult;
 
 /**
  * A base class for interpolation in one dimension.
  * @param <T> Type of Interpolator1DDataBundle
- * @param <U> Type of InterpolationResult
  */
 
-public abstract class Interpolator1D<T extends Interpolator1DDataBundle, U extends InterpolationResult> implements Interpolator<T, Double, U>, Serializable {
+public abstract class Interpolator1D<T extends Interpolator1DDataBundle> implements Interpolator<T, Double>, Serializable {
   /**
    * Default accuracy
    */
@@ -44,7 +42,7 @@ public abstract class Interpolator1D<T extends Interpolator1DDataBundle, U exten
   public abstract T getDataBundleFromSortedArrays(double[] x, double[] y);
 
   @SuppressWarnings("unchecked")
-  public T getDataBundle(Map<Double, Double> data) {
+  public T getDataBundle(final Map<Double, Double> data) {
     Validate.notNull(data, "Backing data for interpolation must not be null.");
     Validate.notEmpty(data, "Backing data for interpolation must not be empty.");
     if (data instanceof SortedMap) {
@@ -85,7 +83,7 @@ public abstract class Interpolator1D<T extends Interpolator1DDataBundle, U exten
     return true;
   }
 
-  public abstract U interpolate(T data, Double value);
+  public abstract Double interpolate(T data, Double value);
 
   protected boolean classEquals(final Object o) {
     if (o == null) {

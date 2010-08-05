@@ -10,7 +10,6 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.math.interpolation.data.InterpolationBoundedValues;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.temp.InterpolationResult;
 
 /**
  * A one-dimensional interpolator. The interpolated value of the function
@@ -23,21 +22,21 @@ import com.opengamma.math.interpolation.temp.InterpolationResult;
  * 
  */
 
-public class LogLinearInterpolator1D extends Interpolator1D<Interpolator1DDataBundle, InterpolationResult> {
+public class LogLinearInterpolator1D extends Interpolator1D<Interpolator1DDataBundle> {
 
   @Override
-  public InterpolationResult interpolate(final Interpolator1DDataBundle model, final Double value) {
+  public Double interpolate(final Interpolator1DDataBundle model, final Double value) {
     Validate.notNull(value, "value");
     Validate.notNull(model, "data bundle");
     final InterpolationBoundedValues boundedValues = model.getBoundedValues(value);
     final Double x1 = boundedValues.getLowerBoundKey();
     final Double y1 = boundedValues.getLowerBoundValue();
     if (model.getLowerBoundIndex(value) == model.size() - 1) {
-      return new InterpolationResult(y1);
+      return y1;
     }
     final Double x2 = boundedValues.getHigherBoundKey();
     final Double y2 = boundedValues.getHigherBoundValue();
-    return new InterpolationResult(Math.pow(y2 / y1, (value - x1) / (x2 - x1)) * y1);
+    return Math.pow(y2 / y1, (value - x1) / (x2 - x1)) * y1;
   }
 
   @Override

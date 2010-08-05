@@ -12,13 +12,12 @@ import java.util.TreeMap;
 import org.junit.Test;
 
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.temp.InterpolationResult;
 
 /**
  * 
  */
 public class StepInterpolator1DTest {
-  private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> INTERPOLATOR = new StepInterpolator1D();
+  private static final Interpolator1D<Interpolator1DDataBundle> INTERPOLATOR = new StepInterpolator1D();
   private static final Interpolator1DDataBundle DATA;
   private static final double EPS = 1e-13;
 
@@ -53,16 +52,16 @@ public class StepInterpolator1DTest {
   @Test
   public void test() {
     double value = 1;
-    assertEquals(INTERPOLATOR.interpolate(DATA, value).getResult(), 4.5, EPS);
+    assertEquals(INTERPOLATOR.interpolate(DATA, value), 4.5, EPS);
     value = 1.1;
-    assertEquals(INTERPOLATOR.interpolate(DATA, value).getResult(), 4.5, EPS);
+    assertEquals(INTERPOLATOR.interpolate(DATA, value), 4.5, EPS);
     value = 2 - EPS * 10;
-    assertEquals(INTERPOLATOR.interpolate(DATA, value).getResult(), 4.5, EPS);
+    assertEquals(INTERPOLATOR.interpolate(DATA, value), 4.5, EPS);
     value = 2 + EPS / 10;
-    assertEquals(INTERPOLATOR.interpolate(DATA, value).getResult(), 4.3, EPS);
+    assertEquals(INTERPOLATOR.interpolate(DATA, value), 4.3, EPS);
     value = 2;
-    assertEquals(INTERPOLATOR.interpolate(DATA, value).getResult(), 4.3, EPS);
+    assertEquals(INTERPOLATOR.interpolate(DATA, value), 4.3, EPS);
     value = 3;
-    assertEquals(INTERPOLATOR.interpolate(DATA, value).getResult(), 6.7, EPS);
+    assertEquals(INTERPOLATOR.interpolate(DATA, value), 6.7, EPS);
   }
 }

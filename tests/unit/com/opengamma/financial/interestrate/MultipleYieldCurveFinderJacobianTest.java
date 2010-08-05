@@ -30,7 +30,6 @@ import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapol
 import com.opengamma.math.interpolation.sensitivity.FlatExtrapolator1DNodeSensitivityCalculator;
 import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.interpolation.sensitivity.LinearInterpolator1DNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.temp.InterpolationResult;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.newton.JacobianCalculator;
@@ -48,7 +47,7 @@ public class MultipleYieldCurveFinderJacobianTest {
   private static final List<InterestRateDerivative> MIXED_INSTRUMENT;
   private static final double[] FORWARD_NODES;
   private static final double[] FUNDING_NODES;
-  private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> EXTRAPOLATOR;
+  private static final Interpolator1D<Interpolator1DDataBundle> EXTRAPOLATOR;
   private static final Interpolator1DNodeSensitivityCalculator<Interpolator1DDataBundle> EXTRAPOLATING_SENSITIVITY_CALCULATOR;
   private static final DoubleMatrix1D XN;
   private static final DoubleMatrix1D XM;

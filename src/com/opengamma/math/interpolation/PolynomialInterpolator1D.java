@@ -14,7 +14,6 @@ import org.apache.commons.math.analysis.polynomials.PolynomialFunctionLagrangeFo
 
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.temp.InterpolationResult;
 import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 import com.opengamma.util.ArgumentChecker;
 
@@ -22,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
  * Interpolates between data points using a polynomial. The method used is
  * Neville's algorithm.
  */
-public class PolynomialInterpolator1D extends Interpolator1D<Interpolator1DDataBundle, InterpolationResult> {
+public class PolynomialInterpolator1D extends Interpolator1D<Interpolator1DDataBundle> {
   private final NevilleInterpolator _interpolator = new NevilleInterpolator();
   private final int _degree;
   private final int _offset;
@@ -44,7 +43,7 @@ public class PolynomialInterpolator1D extends Interpolator1D<Interpolator1DDataB
   }
 
   @Override
-  public InterpolationResult interpolate(final Interpolator1DDataBundle data, final Double value) {
+  public Double interpolate(final Interpolator1DDataBundle data, final Double value) {
     Validate.notNull(value, "value");
     Validate.notNull(data, "data bundle");
     final int n = data.size();
@@ -54,7 +53,7 @@ public class PolynomialInterpolator1D extends Interpolator1D<Interpolator1DDataB
       throw new InterpolationException("Need at least " + (_degree + 1) + " data points to perform polynomial interpolation of degree " + _degree);
     }
     if (data.getLowerBoundIndex(value) == n - 1) {
-      return new InterpolationResult(values[n - 1]);
+      return values[n - 1];
     }
     final int lower = data.getLowerBoundIndex(value);
     final int lowerBound = lower - _offset;
@@ -69,7 +68,7 @@ public class PolynomialInterpolator1D extends Interpolator1D<Interpolator1DDataB
     final double[] y = Arrays.copyOfRange(values, lowerBound, upperBound);
     try {
       final PolynomialFunctionLagrangeForm lagrange = _interpolator.interpolate(x, y);
-      return new InterpolationResult(CommonsMathWrapper.unwrap(lagrange).evaluate(value));
+      return CommonsMathWrapper.unwrap(lagrange).evaluate(value);
     } catch (final MathException e) {
       throw new InterpolationException(e);
     }

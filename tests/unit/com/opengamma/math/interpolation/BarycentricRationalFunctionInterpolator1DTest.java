@@ -15,7 +15,6 @@ import cern.jet.random.engine.RandomEngine;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.RealPolynomialFunction1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.temp.InterpolationResult;
 
 /**
  * 
@@ -24,7 +23,7 @@ public class BarycentricRationalFunctionInterpolator1DTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final Function1D<Double, Double> F = new RealPolynomialFunction1D(new double[] {RANDOM.nextDouble(), RANDOM.nextDouble(), RANDOM.nextDouble(), RANDOM.nextDouble(),
       RANDOM.nextDouble()});
-  private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> INTERPOLATOR = new BarycentricRationalFunctionInterpolator1D(5);
+  private static final Interpolator1D<Interpolator1DDataBundle> INTERPOLATOR = new BarycentricRationalFunctionInterpolator1D(5);
   private static final double EPS = 1;
 
   @Test(expected = IllegalArgumentException.class)
@@ -52,7 +51,7 @@ public class BarycentricRationalFunctionInterpolator1DTest {
       y[i] = F.evaluate(x[i]);
     }
     final double value = 0.9;
-    assertEquals(F.evaluate(value), INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(x, y), value).getResult(), EPS);
+    assertEquals(F.evaluate(value), INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(x, y), value), EPS);
   }
 
 }

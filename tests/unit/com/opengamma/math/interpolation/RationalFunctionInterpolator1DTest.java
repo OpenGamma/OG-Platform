@@ -14,7 +14,6 @@ import org.junit.Test;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.RealPolynomialFunction1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.temp.InterpolationResult;
 
 /**
  * 
@@ -22,7 +21,7 @@ import com.opengamma.math.interpolation.temp.InterpolationResult;
 public class RationalFunctionInterpolator1DTest {
   //TODO this test doesn't test answers properly - look at EPS
   private static final Function1D<Double, Double> F = new RealPolynomialFunction1D(new double[] {-0.87, 3.4, 1., -5.});
-  private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> INTERPOLATOR = new RationalFunctionInterpolator1D(3);
+  private static final Interpolator1D<Interpolator1DDataBundle> INTERPOLATOR = new RationalFunctionInterpolator1D(3);
   private static final Interpolator1DDataBundle MODEL;
   private static final double EPS = 1;
 
@@ -53,6 +52,6 @@ public class RationalFunctionInterpolator1DTest {
 
   @Test
   public void test() {
-    assertEquals(F.evaluate(0.467), INTERPOLATOR.interpolate(MODEL, 0.467).getResult(), EPS);
+    assertEquals(F.evaluate(0.467), INTERPOLATOR.interpolate(MODEL, 0.467), EPS);
   }
 }

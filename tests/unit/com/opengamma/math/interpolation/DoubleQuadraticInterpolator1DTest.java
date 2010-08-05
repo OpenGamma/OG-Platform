@@ -10,14 +10,13 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
-import com.opengamma.math.interpolation.temp.InterpolationResult;
 
 /**
  * 
  */
 public class DoubleQuadraticInterpolator1DTest {
 
-  private static final Interpolator1D<Interpolator1DDoubleQuadraticDataBundle, InterpolationResult> INTERPOLATOR = new DoubleQuadraticInterpolator1D();
+  private static final Interpolator1D<Interpolator1DDoubleQuadraticDataBundle> INTERPOLATOR = new DoubleQuadraticInterpolator1D();
   private static final double[] X_DATA = new double[] {0, 0.4, 1.0, 1.8, 2.8, 5};
   private static final double[] Y_DATA = new double[] {3., 4., 3.1, 2., 7., 2.};
 
@@ -39,7 +38,7 @@ public class DoubleQuadraticInterpolator1DTest {
   @Test
   public void test() {
     for (int i = 0; i < X_TEST.length; i++) {
-      assertEquals(INTERPOLATOR.interpolate(DATA, X_TEST[i]).getResult(), Y_TEST[i], 1e-8);
+      assertEquals(INTERPOLATOR.interpolate(DATA, X_TEST[i]), Y_TEST[i], 1e-8);
     }
   }
 

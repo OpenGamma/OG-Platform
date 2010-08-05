@@ -15,14 +15,13 @@ import org.junit.Test;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.RealPolynomialFunction1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.temp.InterpolationResult;
 
 /**
  * 
  */
 public class PolynomialInterpolator1DTest {
-  private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> INTERPOLATOR_NO_OFFSET = new PolynomialInterpolator1D(3);
-  private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> INTERPOLATOR_WITH_OFFSET = new PolynomialInterpolator1D(3, 2);
+  private static final Interpolator1D<Interpolator1DDataBundle> INTERPOLATOR_NO_OFFSET = new PolynomialInterpolator1D(3);
+  private static final Interpolator1D<Interpolator1DDataBundle> INTERPOLATOR_WITH_OFFSET = new PolynomialInterpolator1D(3, 2);
   private static final Interpolator1DDataBundle MODEL = INTERPOLATOR_NO_OFFSET.getDataBundle(new double[] {1, 2, 3, 4, 5}, new double[] {6, 7, 8, 9, 10});
   private static final double EPS = 1e-15;
 
@@ -100,18 +99,18 @@ public class PolynomialInterpolator1DTest {
       quarticMap.put(x, quartic.evaluate(x));
     }
     x = 0.35;
-    Interpolator1D<Interpolator1DDataBundle, InterpolationResult> quadraticInterpolator = new PolynomialInterpolator1D(2);
-    Interpolator1D<Interpolator1DDataBundle, InterpolationResult> quarticInterpolator = new PolynomialInterpolator1D(4);
+    Interpolator1D<Interpolator1DDataBundle> quadraticInterpolator = new PolynomialInterpolator1D(2);
+    Interpolator1D<Interpolator1DDataBundle> quarticInterpolator = new PolynomialInterpolator1D(4);
     final Interpolator1DDataBundle quadraticData = quadraticInterpolator.getDataBundle(quadraticMap);
     final Interpolator1DDataBundle quarticData = quarticInterpolator.getDataBundle(quarticMap);
-    Double quadraticResult = quadraticInterpolator.interpolate(quadraticData, x).getResult();
-    Double quarticResult = quarticInterpolator.interpolate(quarticData, x).getResult();
+    Double quadraticResult = quadraticInterpolator.interpolate(quadraticData, x);
+    Double quarticResult = quarticInterpolator.interpolate(quarticData, x);
     assertEquals(quadraticResult, quadratic.evaluate(x), EPS);
     assertEquals(quarticResult, quartic.evaluate(x), EPS);
     quadraticInterpolator = new PolynomialInterpolator1D(2, 1);
-    quadraticResult = quadraticInterpolator.interpolate(quadraticData, x).getResult();
+    quadraticResult = quadraticInterpolator.interpolate(quadraticData, x);
     quarticInterpolator = new PolynomialInterpolator1D(4, 1);
-    quarticResult = quarticInterpolator.interpolate(quarticData, x).getResult();
+    quarticResult = quarticInterpolator.interpolate(quarticData, x);
     assertEquals(quadraticResult, quadratic.evaluate(x), EPS);
     assertEquals(quarticResult, quartic.evaluate(x), EPS);
   }

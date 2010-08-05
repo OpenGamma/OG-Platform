@@ -13,13 +13,12 @@ import java.util.TreeMap;
 import org.junit.Test;
 
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.temp.InterpolationResult;
 
 /**
  * 
  */
 public class ExponentialInterpolator1DTest {
-  private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> INTERPOLATOR = new ExponentialInterpolator1D();
+  private static final Interpolator1D<Interpolator1DDataBundle> INTERPOLATOR = new ExponentialInterpolator1D();
   private static final double EPS = 1e-4;
 
   @Test(expected = IllegalArgumentException.class)
@@ -51,6 +50,6 @@ public class ExponentialInterpolator1DTest {
     final double df2 = 0.7572;
     data.put(t1, df1);
     data.put(t2, df2);
-    assertEquals(0.7957, INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(data), 3.5).getResult(), EPS);
+    assertEquals(0.7957, INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(data), 3.5), EPS);
   }
 }

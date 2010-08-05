@@ -13,14 +13,13 @@ import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.temp.InterpolationResult;
 
 /**
  * 
  */
 public class LogLinearInterpolator1DTest {
-  private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> LINEAR = new LinearInterpolator1D();
-  private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> INTERPOLATOR = new LogLinearInterpolator1D();
+  private static final Interpolator1D<Interpolator1DDataBundle> LINEAR = new LinearInterpolator1D();
+  private static final Interpolator1D<Interpolator1DDataBundle> INTERPOLATOR = new LogLinearInterpolator1D();
   private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
 
     @Override
@@ -67,6 +66,6 @@ public class LogLinearInterpolator1DTest {
 
   @Test
   public void test() {
-    assertEquals(Math.exp(INTERPOLATOR.interpolate(MODEL, 3.4).getResult()), LINEAR.interpolate(TRANSFORMED_MODEL, 3.4).getResult(), EPS);
+    assertEquals(Math.exp(INTERPOLATOR.interpolate(MODEL, 3.4)), LINEAR.interpolate(TRANSFORMED_MODEL, 3.4), EPS);
   }
 }

@@ -14,14 +14,13 @@ import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
-import com.opengamma.math.interpolation.temp.InterpolationResult;
 
 /**
  * 
  */
 public class Extrapolator1DTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  private static final Interpolator1D<Interpolator1DDoubleQuadraticDataBundle, InterpolationResult> INTERPOLATOR = new DoubleQuadraticInterpolator1D();
+  private static final Interpolator1D<Interpolator1DDoubleQuadraticDataBundle> INTERPOLATOR = new DoubleQuadraticInterpolator1D();
   private static final LinearExtrapolator1D<Interpolator1DDoubleQuadraticDataBundle> LINEAR_EXTRAPOLATOR = new LinearExtrapolator1D<Interpolator1DDoubleQuadraticDataBundle>(INTERPOLATOR);
   private static final FlatExtrapolator1D<Interpolator1DDataBundle> FLAT_EXTRAPOLATOR = new FlatExtrapolator1D<Interpolator1DDataBundle>();
   private static final Interpolator1DDoubleQuadraticDataBundle DATA;
@@ -66,9 +65,9 @@ public class Extrapolator1DTest {
     for (int i = 0; i < 100; i++) {
       final double x = RANDOM.nextDouble() * 20.0 - 10;
       if (x < 0) {
-        assertEquals(3.0, FLAT_EXTRAPOLATOR.interpolate(DATA, x).getResult(), 1e-12);
+        assertEquals(3.0, FLAT_EXTRAPOLATOR.interpolate(DATA, x), 1e-12);
       } else if (x > 5.0) {
-        assertEquals(2.0, FLAT_EXTRAPOLATOR.interpolate(DATA, x).getResult(), 1e-12);
+        assertEquals(2.0, FLAT_EXTRAPOLATOR.interpolate(DATA, x), 1e-12);
       }
     }
   }
@@ -76,7 +75,7 @@ public class Extrapolator1DTest {
   @Test
   public void testLinearExtrapolation() {
     for (int i = 0; i < X_TEST.length; i++) {
-      assertEquals(LINEAR_EXTRAPOLATOR.interpolate(DATA, X_TEST[i]).getResult(), Y_TEST[i], 1e-6);
+      assertEquals(LINEAR_EXTRAPOLATOR.interpolate(DATA, X_TEST[i]), Y_TEST[i], 1e-6);
     }
   }
 }

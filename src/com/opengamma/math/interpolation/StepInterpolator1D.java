@@ -9,18 +9,17 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.temp.InterpolationResult;
 
 /**
  * 
  */
-public class StepInterpolator1D extends Interpolator1D<Interpolator1DDataBundle, InterpolationResult> {
+public class StepInterpolator1D extends Interpolator1D<Interpolator1DDataBundle> {
 
   @Override
-  public InterpolationResult interpolate(final Interpolator1DDataBundle data, final Double value) {
+  public Double interpolate(final Interpolator1DDataBundle data, final Double value) {
     Validate.notNull(value, "value");
     Validate.notNull(data, "data bundle");
-    return new InterpolationResult(data.get(data.getLowerBoundKey(value)));
+    return data.get(data.getLowerBoundKey(value));
   }
 
   @Override

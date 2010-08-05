@@ -9,15 +9,14 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DCubicSplineDataBundle;
-import com.opengamma.math.interpolation.temp.InterpolationResult;
 
 /**
  * 
  */
-public class NaturalCubicSplineInterpolator1D extends Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> {
+public class NaturalCubicSplineInterpolator1D extends Interpolator1D<Interpolator1DCubicSplineDataBundle> {
 
   @Override
-  public InterpolationResult interpolate(final Interpolator1DCubicSplineDataBundle data, final Double value) {
+  public Double interpolate(final Interpolator1DCubicSplineDataBundle data, final Double value) {
     Validate.notNull(value, "value");
     Validate.notNull(data, "data bundle");
     final int low = data.getLowerBoundIndex(value);
@@ -26,7 +25,7 @@ public class NaturalCubicSplineInterpolator1D extends Interpolator1D<Interpolato
     final double[] xData = data.getKeys();
     final double[] yData = data.getValues();
     if (data.getLowerBoundIndex(value) == n) {
-      return new InterpolationResult(yData[n]);
+      return yData[n];
     }
     final double delta = xData[high] - xData[low];
     if (Math.abs(delta) < getEPS()) {
@@ -35,7 +34,7 @@ public class NaturalCubicSplineInterpolator1D extends Interpolator1D<Interpolato
     final double a = (xData[high] - value) / delta;
     final double b = (value - xData[low]) / delta;
     final double[] y2 = data.getSecondDerivatives();
-    return new InterpolationResult(a * yData[low] + b * yData[high] + (a * (a * a - 1) * y2[low] + b * (b * b - 1) * y2[high]) * delta * delta / 6.);
+    return a * yData[low] + b * yData[high] + (a * (a * a - 1) * y2[low] + b * (b * b - 1) * y2[high]) * delta * delta / 6.;
   }
 
   @Override

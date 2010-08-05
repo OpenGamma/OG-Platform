@@ -13,7 +13,6 @@ import java.util.TreeMap;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.temp.InterpolationResult;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.FirstThenSecondPairComparator;
 import com.opengamma.util.tuple.Pair;
@@ -23,11 +22,11 @@ import com.opengamma.util.tuple.Pair;
  */
 public class GridInterpolator2D extends Interpolator2D {
   //TODO this is really inefficient - needs to be changed in a similar way to 1D interpolation
-  private final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> _xInterpolator;
-  private final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> _yInterpolator;
+  private final Interpolator1D<Interpolator1DDataBundle> _xInterpolator;
+  private final Interpolator1D<Interpolator1DDataBundle> _yInterpolator;
   private final FirstThenSecondPairComparator<Double, Double> _comparator;
 
-  public GridInterpolator2D(final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> xInterpolator, final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> yInterpolator) {
+  public GridInterpolator2D(final Interpolator1D<Interpolator1DDataBundle> xInterpolator, final Interpolator1D<Interpolator1DDataBundle> yInterpolator) {
     Validate.notNull(xInterpolator);
     Validate.notNull(yInterpolator);
     _xInterpolator = xInterpolator;
@@ -41,9 +40,9 @@ public class GridInterpolator2D extends Interpolator2D {
     final Map<Double, Interpolator1DDataBundle> sorted = testData(data);
     final Map<Double, Double> xData = new HashMap<Double, Double>();
     for (final Map.Entry<Double, Interpolator1DDataBundle> entry : sorted.entrySet()) {
-      xData.put(entry.getKey(), _yInterpolator.interpolate(entry.getValue(), value.getSecond()).getResult());
+      xData.put(entry.getKey(), _yInterpolator.interpolate(entry.getValue(), value.getSecond()));
     }
-    return _xInterpolator.interpolate(_xInterpolator.getDataBundle(xData), value.getKey()).getResult();
+    return _xInterpolator.interpolate(_xInterpolator.getDataBundle(xData), value.getKey());
   }
 
   private Map<Double, Interpolator1DDataBundle> testData(final Map<DoublesPair, Double> data) {
@@ -88,11 +87,11 @@ public class GridInterpolator2D extends Interpolator2D {
     return result;
   }
 
-  public Interpolator1D<Interpolator1DDataBundle, InterpolationResult> getXInterpolator() {
+  public Interpolator1D<Interpolator1DDataBundle> getXInterpolator() {
     return _xInterpolator;
   }
 
-  public Interpolator1D<Interpolator1DDataBundle, InterpolationResult> getYInterpolator() {
+  public Interpolator1D<Interpolator1DDataBundle> getYInterpolator() {
     return _yInterpolator;
   }
 
