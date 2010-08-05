@@ -60,7 +60,7 @@ public class RemoteViewComputationCacheSourceTest {
     // First, check that it hit the remote side. RemoteClient doesn't cache locally.
     Object resultValue = _cacheSource.getRemoteClient().getValue("View1", "Config1", timestamp, valueSpec);
     assertNotNull(resultValue);
-    assertTrue(resultValue instanceof Double);
+    assertTrue("Expected Double, but got " + resultValue + " type " + resultValue.getClass(), resultValue instanceof Double);
     assertEquals(2.0, (Double)resultValue, 0.0001);
     
     // Now check the local caching.
