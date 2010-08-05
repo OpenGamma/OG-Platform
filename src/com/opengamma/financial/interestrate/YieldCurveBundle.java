@@ -47,11 +47,32 @@ public class YieldCurveBundle {
     _curves = new LinkedHashMap<String, YieldAndDiscountCurve>();
   }
 
+  /**
+   * 
+   * @param name curve name
+   * @param curve curve name
+   * @throws IllegalArgumentException if curve name already present 
+   */
   public void setCurve(final String name, final YieldAndDiscountCurve curve) {
     Validate.notNull(name, "name");
     Validate.notNull(curve, "curve");
     if (_curves.containsKey(name)) {
       throw new IllegalArgumentException("Named yield curve already set: " + name);
+    }
+    _curves.put(name, curve);
+  }
+
+  /**
+   * 
+   * @param name curve name
+   * @param curve curve name
+   *  @throws IllegalArgumentException if curve name NOT already present 
+   */
+  public void replaceCurve(final String name, final YieldAndDiscountCurve curve) {
+    Validate.notNull(name, "name");
+    Validate.notNull(curve, "curve");
+    if (!_curves.containsKey(name)) {
+      throw new IllegalArgumentException("Named yield curve not in set" + name);
     }
     _curves.put(name, curve);
   }
