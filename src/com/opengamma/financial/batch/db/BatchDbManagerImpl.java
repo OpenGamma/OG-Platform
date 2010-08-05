@@ -666,6 +666,11 @@ public class BatchDbManagerImpl implements BatchDbManager {
     return new BatchResultWriterFactory(batch);
   }
   
+  public BatchResultWriter createTestResultWriter(BatchJob batch) {
+    BatchResultWriterFactory factory = new BatchResultWriterFactory(batch);
+    return factory.createTestWriter();    
+  }
+  
   private class BatchResultWriterFactory implements ResultWriterFactory {
     
     private final BatchJob _batch;
@@ -675,9 +680,8 @@ public class BatchDbManagerImpl implements BatchDbManager {
       _batch = batch;
     }
     
-    @Override
-    public ResultWriter create(CalculationJobSpecification jobSpec, List<CalculationJobItem> items, String nodeId) {
-      BatchResultWriter resultWriter = new BatchResultWriter();
+    private BatchResultWriter initialize() {
+      BatchResultWriter resultWriter =  new BatchResultWriter();
       
       resultWriter.setJdbcUrl(_jdbcUrl);
       resultWriter.setUsername(_username);
@@ -687,6 +691,14 @@ public class BatchDbManagerImpl implements BatchDbManager {
       resultWriter.setSessionFactory(getSessionFactory());
       
       resultWriter.setRiskRun(getRiskRunFromHandle(_batch));
+      
+      return resultWriter;
+    }
+    
+    @Override
+    public ResultWriter create(CalculationJobSpecification jobSpec, List<CalculationJobItem> items, String nodeId) {
+      BatchResultWriter resultWriter = initialize();
+      
       if (nodeId != null) {
         try {
           getSessionFactory().getCurrentSession().beginTransaction();
@@ -699,6 +711,24 @@ public class BatchDbManagerImpl implements BatchDbManager {
       }
       
       // should be optimized
+      resultWriter.setComputationTargets(getDbHandle(_batch)._computationTargets);
+      resultWriter.setRiskValueNames(getDbHandle(_batch)._riskValueNames);
+
+      return resultWriter;
+    }
+    
+    public BatchResultWriter createTestWriter() {
+      BatchResultWriter resultWriter = initialize();
+      
+      try {
+        getSessionFactory().getCurrentSession().beginTransaction();
+        resultWriter.setComputeNode(getLocalComputeNode());
+        getSessionFactory().getCurrentSession().getTransaction().commit();
+      } catch (RuntimeException e) {
+        getSessionFactory().getCurrentSession().getTransaction().rollback();
+        throw e;
+      }
+      
       resultWriter.setComputationTargets(getDbHandle(_batch)._computationTargets);
       resultWriter.setRiskValueNames(getDbHandle(_batch)._riskValueNames);
 
