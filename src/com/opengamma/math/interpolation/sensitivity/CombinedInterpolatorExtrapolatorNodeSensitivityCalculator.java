@@ -18,8 +18,26 @@ public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<T extends
   private final Interpolator1DNodeSensitivityCalculator<T> _leftExtrapolator;
   private final Interpolator1DNodeSensitivityCalculator<T> _rightExtrapolator;
 
+  public CombinedInterpolatorExtrapolatorNodeSensitivityCalculator(final Interpolator1DNodeSensitivityCalculator<T> interpolator) {
+    Validate.notNull(interpolator, "interpolator");
+    _interpolator = interpolator;
+    _leftExtrapolator = null;
+    _rightExtrapolator = null;
+  }
+
+  public CombinedInterpolatorExtrapolatorNodeSensitivityCalculator(final Interpolator1DNodeSensitivityCalculator<T> interpolator, final Interpolator1DNodeSensitivityCalculator<T> extrapolator) {
+    Validate.notNull(interpolator, "interpolator");
+    Validate.notNull(extrapolator, "extrapolator");
+    _interpolator = interpolator;
+    _leftExtrapolator = extrapolator;
+    _rightExtrapolator = extrapolator;
+  }
+
   public CombinedInterpolatorExtrapolatorNodeSensitivityCalculator(final Interpolator1DNodeSensitivityCalculator<T> interpolator, final Interpolator1DNodeSensitivityCalculator<T> leftExtrapolator,
       final Interpolator1DNodeSensitivityCalculator<T> rightExtrapolator) {
+    Validate.notNull(interpolator, "interpolator");
+    Validate.notNull(leftExtrapolator, "left extrapolator");
+    Validate.notNull(rightExtrapolator, "right extrapolator");
     _interpolator = interpolator;
     _leftExtrapolator = leftExtrapolator;
     _rightExtrapolator = rightExtrapolator;
