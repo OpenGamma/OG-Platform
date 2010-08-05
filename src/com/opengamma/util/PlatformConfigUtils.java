@@ -90,11 +90,11 @@ public final class PlatformConfigUtils {
   /**
    * Sets and/or validates the system properties generally necessary for the platform to run. 
    * 
-   * @param dbType  the database type, possibly null. Allows this to be set from an external source such as the command
-   *                line. Only used if the database type has not been set directly.
+   * @param runMode  the database type, possibly null. Allows this to be set from an external source such as the
+   *                 command line. Only used if the database type has not been set directly.
    * @throws OpenGammaRuntimeException  if any property is missing or invalid and cannot be set automatically
    */
-  public static void configureSystemProperties(String dbType) {
+  public static void configureSystemProperties(String runMode) {
     if (System.getProperty(OsType.PROPERTY_NAME) == null) {
       String os = System.getProperty("os.name").toLowerCase();
       System.setProperty(OsType.PROPERTY_NAME, toPropertyValue(os.startsWith("win") ? OsType.WIN : OsType.POSIX));
@@ -102,8 +102,8 @@ public final class PlatformConfigUtils {
       validateProperty(OsType.class, OsType.PROPERTY_NAME);
     }
     
-    if (System.getProperty(RunMode.PROPERTY_NAME) == null && dbType != null) {
-      setFromEnumValue(RunMode.class, RunMode.PROPERTY_NAME, dbType);
+    if (System.getProperty(RunMode.PROPERTY_NAME) == null && runMode != null) {
+      setFromEnumValue(RunMode.class, RunMode.PROPERTY_NAME, runMode);
     } else {
       validateProperty(RunMode.class, RunMode.PROPERTY_NAME);
     }
