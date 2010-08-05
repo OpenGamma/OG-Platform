@@ -19,7 +19,6 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
  */
 public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBundle {
   //TODO use same logic for derivatives and sensitivities
-  private final TridiagonalMatrixInvertor _invertor = new TridiagonalMatrixInvertor();
   private final Interpolator1DDataBundle _underlyingData;
   private final double[] _secondDerivatives;
   private double[][] _secondDerivativesSensitivities;
@@ -38,23 +37,18 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
     final double[] x = underlyingData.getKeys();
     final double[] y = underlyingData.getValues();
     final int n = x.length;
-    final double[] y2 = new double[n];
-    double p, ratio;
-    final double[] u = new double[n - 1];
-    y2[0] = 0.0;
-    u[0] = 0.0;
-    for (int i = 1; i < n - 1; i++) {
-      ratio = (x[i] - x[i - 1]) / (x[i + 1] - x[i - 1]);
-      p = ratio * y2[i - 1] + 2.0;
-      y2[i] = (ratio - 1.0) / p;
-      u[i] = (y[i + 1] - y[i]) / (x[i + 1] - x[i]) - (y[i] - y[i - 1]) / (x[i] - x[i - 1]);
-      u[i] = (6.0 * u[i] / (x[i + 1] - x[i - 1]) - ratio * u[i - 1]) / p;
+    final double[] deltaX = new double[n - 1];
+    final double[] deltaYOverDeltaX = new double[n - 1];
+    final double[] oneOverDeltaX = new double[n - 1];
+
+    for (int i = 0; i < n - 1; i++) {
+      deltaX[i] = x[i + 1] - x[i];
+      oneOverDeltaX[i] = 1.0 / deltaX[i];
+      deltaYOverDeltaX[i] = (y[i + 1] - y[i]) * oneOverDeltaX[i];
     }
-    y2[n - 1] = 0.0;
-    for (int k = n - 2; k >= 0; k--) {
-      y2[k] = y2[k] * y2[k + 1] + u[k];
-    }
-    return y2;
+    final DoubleMatrix2D inverseTriDiag = getInverseTridiagonalMatrix(deltaX);
+    final DoubleMatrix1D rhsVector = getRHSVector(deltaYOverDeltaX);
+    return ((DoubleMatrix1D) OG_ALGEBRA.multiply(inverseTriDiag, rhsVector)).getData();
   }
 
   @Override
@@ -131,6 +125,7 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
     return _secondDerivatives;
   }
 
+  //TODO not ideal that it recomputes the inverse matrix
   public double[][] getSecondDerivativesSensitivities() {
     if (_secondDerivativesSensitivities == null) {
       final double[] x = _underlyingData.getKeys();
@@ -192,6 +187,7 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
   }
 
   private DoubleMatrix2D getInverseTridiagonalMatrix(final double[] deltaX) {
+    final TridiagonalMatrixInvertor invertor = new TridiagonalMatrixInvertor();
     final int n = deltaX.length + 1;
     final double[] a = new double[n];
     final double[] b = new double[n - 1];
@@ -217,7 +213,7 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
       c[n - 2] = deltaX[n - 2] / 6.0;
     }
     final TridiagonalMatrix tridiagonal = new TridiagonalMatrix(a, b, c);
-    final DoubleMatrix2D res = _invertor.evaluate(tridiagonal);
+    final DoubleMatrix2D res = invertor.evaluate(tridiagonal);
 
     return res;
 
