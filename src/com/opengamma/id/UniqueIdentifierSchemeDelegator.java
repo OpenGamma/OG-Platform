@@ -86,11 +86,12 @@ public class UniqueIdentifierSchemeDelegator<T> {
    * Registers a delegate based on a scheme.
    * @param scheme  the scheme to match, not null
    * @param delegate  the delegate to use, not null
+   * @return  <code>false</code> if a delegate with the given scheme was previously registered, <code>true</code> otherwise.
    */
-  public void registerDelegate(final String scheme, final T delegate) {
+  public boolean registerDelegate(final String scheme, final T delegate) {
     ArgumentChecker.notNull(scheme, "scheme");
     ArgumentChecker.notNull(delegate, "delegate");
-    _schemeToDelegateMap.put(scheme, delegate);
+    return _schemeToDelegateMap.putIfAbsent(scheme, delegate) == null;
   }
 
   /**
