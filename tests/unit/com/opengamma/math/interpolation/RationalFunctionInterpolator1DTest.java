@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.RealPolynomialFunction1D;
+import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
@@ -48,6 +49,16 @@ public class RationalFunctionInterpolator1DTest {
   @Test(expected = IllegalArgumentException.class)
   public void testInsufficientData() {
     new RationalFunctionInterpolator1D(10).interpolate(MODEL, 0.23);
+  }
+
+  @Test
+  public void testDataBundleType1() {
+    assertEquals(INTERPOLATOR.getDataBundle(new double[] {1, 2, 3}, new double[] {1, 2, 3}).getClass(), ArrayInterpolator1DDataBundle.class);
+  }
+
+  @Test
+  public void testDataBundleType2() {
+    assertEquals(INTERPOLATOR.getDataBundleFromSortedArrays(new double[] {1, 2, 3}, new double[] {1, 2, 3}).getClass(), ArrayInterpolator1DDataBundle.class);
   }
 
   @Test

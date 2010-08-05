@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.math.interpolation;
+package com.opengamma.math.interpolation.sensitivity;
 
 import static org.junit.Assert.assertEquals;
 
@@ -13,6 +13,7 @@ import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DCubicSplineDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;

@@ -36,6 +36,16 @@ public class DoubleQuadraticInterpolator1DTest {
   }
 
   @Test
+  public void testDataBundleType1() {
+    assertEquals(INTERPOLATOR.getDataBundle(X_DATA, Y_DATA).getClass(), Interpolator1DDoubleQuadraticDataBundle.class);
+  }
+
+  @Test
+  public void testDataBundleType2() {
+    assertEquals(INTERPOLATOR.getDataBundleFromSortedArrays(X_DATA, Y_DATA).getClass(), Interpolator1DDoubleQuadraticDataBundle.class);
+  }
+
+  @Test
   public void test() {
     for (int i = 0; i < X_TEST.length; i++) {
       assertEquals(INTERPOLATOR.interpolate(DATA, X_TEST[i]), Y_TEST[i], 1e-8);

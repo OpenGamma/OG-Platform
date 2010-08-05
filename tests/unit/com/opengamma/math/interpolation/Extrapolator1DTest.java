@@ -60,6 +60,26 @@ public class Extrapolator1DTest {
     FLAT_EXTRAPOLATOR.interpolate(DATA, null);
   }
 
+  @Test(expected = UnsupportedOperationException.class)
+  public void testDataBundleType1() {
+    FLAT_EXTRAPOLATOR.getDataBundle(X_DATA, Y_DATA);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testDataBundleType2() {
+    FLAT_EXTRAPOLATOR.getDataBundleFromSortedArrays(X_DATA, Y_DATA);
+  }
+
+  @Test
+  public void testDataBundleType3() {
+    assertEquals(INTERPOLATOR.getDataBundle(new double[] {1, 2, 3}, new double[] {1, 2, 3}).getClass(), Interpolator1DDoubleQuadraticDataBundle.class);
+  }
+
+  @Test
+  public void testDataBundleType4() {
+    assertEquals(INTERPOLATOR.getDataBundleFromSortedArrays(new double[] {1, 2, 3}, new double[] {1, 2, 3}).getClass(), Interpolator1DDoubleQuadraticDataBundle.class);
+  }
+
   @Test
   public void testFlatExtrapolation() {
     for (int i = 0; i < 100; i++) {

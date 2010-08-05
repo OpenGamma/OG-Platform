@@ -26,11 +26,11 @@ public class Interpolator1DDoubleQuadraticDataBundle implements Interpolator1DDa
     final int n = underlyingData.size() - 1;
     final double[] xData = underlyingData.getKeys();
     final double[] yData = underlyingData.getValues();
-    final RealPolynomialFunction1D[] coef = new RealPolynomialFunction1D[n - 1];
+    final RealPolynomialFunction1D[] quadratic = new RealPolynomialFunction1D[n - 1];
     for (int i = 1; i < n; i++) {
-      coef[i - 1] = getQuadratic(xData, yData, i);
+      quadratic[i - 1] = getQuadratic(xData, yData, i);
     }
-    return coef;
+    return quadratic;
   }
 
   private RealPolynomialFunction1D getQuadratic(final double[] x, final double[] y, final int index) {
@@ -100,7 +100,7 @@ public class Interpolator1DDoubleQuadraticDataBundle implements Interpolator1DDa
 
   @Override
   public Double higherValue(final Double key) {
-    return _underlyingData.higherKey(key);
+    return _underlyingData.higherValue(key);
   }
 
   @Override

@@ -61,6 +61,16 @@ public class NaturalCubicSplineInterpolator1DTest {
   }
 
   @Test
+  public void testDataBundleType1() {
+    assertEquals(INTERPOLATOR.getDataBundle(new double[] {1, 2, 3}, new double[] {1, 2, 3}).getClass(), Interpolator1DCubicSplineDataBundle.class);
+  }
+
+  @Test
+  public void testDataBundleType2() {
+    assertEquals(INTERPOLATOR.getDataBundleFromSortedArrays(new double[] {1, 2, 3}, new double[] {1, 2, 3}).getClass(), Interpolator1DCubicSplineDataBundle.class);
+  }
+
+  @Test
   public void test() {
     for (int i = 0; i < 100; i++) {
       final double x = RANDOM.nextDouble();

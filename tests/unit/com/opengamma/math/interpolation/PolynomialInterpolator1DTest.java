@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.RealPolynomialFunction1D;
+import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
@@ -73,6 +74,16 @@ public class PolynomialInterpolator1DTest {
   @Test(expected = IllegalArgumentException.class)
   public void testHighOutOfRange() {
     INTERPOLATOR_NO_OFFSET.interpolate(MODEL, 10.);
+  }
+
+  @Test
+  public void testDataBundleType1() {
+    assertEquals(INTERPOLATOR_NO_OFFSET.getDataBundle(new double[] {1, 2, 3}, new double[] {1, 2, 3}).getClass(), ArrayInterpolator1DDataBundle.class);
+  }
+
+  @Test
+  public void testDataBundleType2() {
+    assertEquals(INTERPOLATOR_NO_OFFSET.getDataBundleFromSortedArrays(new double[] {1, 2, 3}, new double[] {1, 2, 3}).getClass(), ArrayInterpolator1DDataBundle.class);
   }
 
   @Test
