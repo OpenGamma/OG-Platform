@@ -396,6 +396,7 @@ create table pos_node (
     id bigint not null,
     oid bigint not null,
     portfolio_id bigint not null,
+    portfolio_oid bigint not null,
     parent_node_id bigint,
     depth int,
     tree_left bigint not null,
@@ -406,6 +407,7 @@ create table pos_node (
     constraint pos_fk_node2parentnode foreign key (parent_node_id) references pos_node (id)
 );
 -- pos_node is fully dependent of pos_portfolio
+-- portfolio_oid is an optimization (can be derived via portfolio_id)
 -- parent_node_id is an optimization (tree_left/tree_right hold all the tree structure)
 -- depth is an optimization (tree_left/tree_right hold all the tree structure)
 

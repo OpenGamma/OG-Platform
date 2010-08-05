@@ -167,14 +167,10 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
    * @return the SQL search, not null
    */
   protected String sqlSelectFullPortfolioNode(final UniqueIdentifier id) {
-    String selectPortfolioOid =
-      "SELECT DISTINCT f.oid " +
-        "FROM pos_portfolio f, pos_node n " +
-        "WHERE f.id = n.portfolio_id AND n.oid = :node_oid ";
     String selectMax =
       "SELECT MAX(ver_from_instant) AS fixed_ver, MAX(corr_from_instant) AS fixed_corr " +
         "FROM pos_position " +
-        "WHERE portfolio_oid = (" + selectPortfolioOid + ") " +
+        "WHERE portfolio_oid = (SELECT DISTINCT portfolio_oid FROM pos_node WHERE oid = :node_oid) " +
           "AND ver_from_instant <= :version_as_of AND ver_to_instant > :version_as_of " +
           "AND corr_from_instant <= :corrected_to AND corr_to_instant > :corrected_to ";
     String sql =

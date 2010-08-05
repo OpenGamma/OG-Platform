@@ -156,7 +156,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
       .addValue("name", document.getPortfolio().getName());
     // the arguments for inserting into the node table
     final List<DbMapSqlParameterSource> nodeList = new ArrayList<DbMapSqlParameterSource>();
-    insertBuildArgs(document.getPortfolio().getRootNode(), document.getPortfolioId() != null, portfolioId, null, new AtomicInteger(1), 0, nodeList);
+    insertBuildArgs(document.getPortfolio().getRootNode(), document.getPortfolioId() != null, portfolioId, portfolioOid, null, new AtomicInteger(1), 0, nodeList);
     getJdbcTemplate().update(sqlInsertPortfolio(), portfolioArgs);
     getJdbcTemplate().batchUpdate(sqlInsertNode(), (DbMapSqlParameterSource[]) nodeList.toArray(new DbMapSqlParameterSource[nodeList.size()]));
     // set the uid
@@ -170,13 +170,14 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
    * @param node  the root node, not null
    * @param update  true if updating portfolio, false if adding new portfolio
    * @param portfolioId  the portfolio id, not null
+   * @param portfolioOid  the portfolio oid, not null
    * @param parentNodeId  the parent node id, null if root node
    * @param counter  the counter to create the node id, use {@code getAndIncrement}, not null
    * @param depth  the depth of the node in the portfolio
    * @param argsList  the list of arguments to build, not null
    */
   protected void insertBuildArgs(
-      final PortfolioNode node, final boolean update, final Long portfolioId, final Long parentNodeId,
+      final PortfolioNode node, final boolean update, final Long portfolioId, final Long portfolioOid, final Long parentNodeId,
       final AtomicInteger counter, final int depth, final List<DbMapSqlParameterSource> argsList) {
     // need to insert parent before children for referential integrity
     final Long nodeId = nextId();
@@ -185,6 +186,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
       .addValue("node_id", nodeId)
       .addValue("node_oid", nodeOid)
       .addValue("portfolio_id", portfolioId)
+      .addValue("portfolio_oid", portfolioOid)
       .addValue("parent_node_id", parentNodeId)
       .addValue("depth", depth)
       .addValue("name", node.getName());
@@ -192,7 +194,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
     // store the left/right before/after the child loop and back fill into stored args row
     treeArgs.addValue("tree_left", counter.getAndIncrement());
     for (PortfolioNode childNode : node.getChildNodes()) {
-      insertBuildArgs(childNode, update, portfolioId, nodeId, counter, depth + 1, argsList);
+      insertBuildArgs(childNode, update, portfolioId, portfolioOid, nodeId, counter, depth + 1, argsList);
     }
     treeArgs.addValue("tree_right", counter.getAndIncrement());
     // set the uid
@@ -217,9 +219,9 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
    */
   protected String sqlInsertNode() {
     return "INSERT INTO pos_node " +
-              "(id, oid, portfolio_id, parent_node_id, depth, tree_left, tree_right, name) " +
+              "(id, oid, portfolio_id, portfolio_oid, parent_node_id, depth, tree_left, tree_right, name) " +
             "VALUES " +
-              "(:node_id, :node_oid, :portfolio_id, :parent_node_id, :depth, :tree_left, :tree_right, :name) ";
+              "(:node_id, :node_oid, :portfolio_id, :portfolio_oid, :parent_node_id, :depth, :tree_left, :tree_right, :name) ";
   }
 
   //-------------------------------------------------------------------------

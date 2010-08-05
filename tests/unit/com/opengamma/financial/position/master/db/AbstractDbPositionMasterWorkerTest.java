@@ -50,9 +50,10 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     
 //    id bigint not null,
 //    oid bigint not null,
-//    valid_from_instant timestamp not null,
-//    valid_to_instant timestamp not null,
-//    effective_instant timestamp not null,
+//    ver_from_instant timestamp not null,
+//    ver_to_instant timestamp not null,
+//    corr_from_instant timestamp not null,
+//    corr_to_instant timestamp not null,
 //    name varchar(255) not null,
     Instant now = Instant.nowSystemClock();
     _posMaster.setTimeSource(TimeSource.fixed(now));
@@ -71,28 +72,31 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
 //    id bigint not null,
 //    oid bigint not null,
 //    portfolio_id bigint not null,
+//    portfolio_oid bigint not null,
 //    parent_node_id bigint,
+//    depth int,
 //    tree_left bigint not null,
 //    tree_right bigint not null,
 //    name varchar(255),
-    template.update("INSERT INTO pos_node VALUES (?,?,?,?,?, ?,?,?)",
-        111, 111, 101, null, 0, 1, 6, "TestNode111");
-    template.update("INSERT INTO pos_node VALUES (?,?,?,?,?, ?,?,?)",
-        112, 112, 101, 111, 1, 2, 5, "TestNode112");
-    template.update("INSERT INTO pos_node VALUES (?,?,?,?,?, ?,?,?)",
-        113, 113, 101, 112, 2, 3, 4, "TestNode113");
-    template.update("INSERT INTO pos_node VALUES (?,?,?,?,?, ?,?,?)",
-        211, 211, 201, null, 0, 1, 2, "TestNode211");
-    template.update("INSERT INTO pos_node VALUES (?,?,?,?,?, ?,?,?)",
-        212, 211, 202, null, 0, 1, 2, "TestNode212");
+    template.update("INSERT INTO pos_node VALUES (?,?,?,?,?, ?,?,?,?)",
+        111, 111, 101, 101, null, 0, 1, 6, "TestNode111");
+    template.update("INSERT INTO pos_node VALUES (?,?,?,?,?, ?,?,?,?)",
+        112, 112, 101, 101, 111, 1, 2, 5, "TestNode112");
+    template.update("INSERT INTO pos_node VALUES (?,?,?,?,?, ?,?,?,?)",
+        113, 113, 101, 101, 112, 2, 3, 4, "TestNode113");
+    template.update("INSERT INTO pos_node VALUES (?,?,?,?,?, ?,?,?,?)",
+        211, 211, 201, 201, null, 0, 1, 2, "TestNode211");
+    template.update("INSERT INTO pos_node VALUES (?,?,?,?,?, ?,?,?,?)",
+        212, 211, 202, 201, null, 0, 1, 2, "TestNode212");
 //    id bigint not null,
 //    oid bigint not null,
 //    portfolio_oid bigint not null,
 //    parent_node_oid bigint not null,
-//    valid_from_instant timestamp not null,
-//    valid_to_instant timestamp not null,
-//    effective_instant timestamp not null,
-//    quantity decimal not null,
+//    ver_from_instant timestamp not null,
+//    ver_to_instant timestamp not null,
+//    corr_from_instant timestamp not null,
+//    corr_to_instant timestamp not null,
+//    quantity decimal(31,8) not null,
     template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
         121, 121, 101, 112, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, BigDecimal.valueOf(121.987));
     template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
