@@ -38,8 +38,8 @@ public class FiniteDifferenceInterpolator1DNodeSensitivityCalculator<T extends I
     final double[] result = new double[n];
     for (int i = 0; i < n; i++) {
       if (i != 0) {
-        yUp[i - 1] -= EPS;
-        yDown[i - 1] += EPS;
+        yUp[i - 1] = y[i - 1];
+        yDown[i - 1] = y[i - 1];
       }
       yUp[i] += EPS;
       yDown[i] -= EPS;

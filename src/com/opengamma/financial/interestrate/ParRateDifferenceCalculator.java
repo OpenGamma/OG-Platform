@@ -21,19 +21,19 @@ import com.opengamma.financial.interestrate.swap.definition.Swap;
 /**
  * 
 **/
-public final class ParRateDifferanceCalculator implements InterestRateDerivativeVisitor<Double> {
+public final class ParRateDifferenceCalculator implements InterestRateDerivativeVisitor<Double> {
 
   private static final ParRateCalculator RATE_CAL = ParRateCalculator.getInstance();
-  private static ParRateDifferanceCalculator s_instance;
+  private static ParRateDifferenceCalculator s_instance;
 
-  public static ParRateDifferanceCalculator getInstance() {
+  public static ParRateDifferenceCalculator getInstance() {
     if (s_instance == null) {
-      s_instance = new ParRateDifferanceCalculator();
+      s_instance = new ParRateDifferenceCalculator();
     }
     return s_instance;
   }
 
-  private ParRateDifferanceCalculator() {
+  private ParRateDifferenceCalculator() {
   }
 
   @Override

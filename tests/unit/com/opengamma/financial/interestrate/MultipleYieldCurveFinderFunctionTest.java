@@ -37,7 +37,7 @@ public class MultipleYieldCurveFinderFunctionTest {
   private static final double[] CONTINUOUS_RATES;
   private static final double[] NODES;
 
-  private static final InterestRateDerivativeVisitor<Double> CALCULATOR = ParRateDifferanceCalculator.getInstance();
+  private static final InterestRateDerivativeVisitor<Double> CALCULATOR = ParRateDifferenceCalculator.getInstance();
   private static final InterestRateDerivativeVisitor<Map<String, List<Pair<Double, Double>>>> SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
 
   private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> INTERPOLATOR = new LinearInterpolator1D();
