@@ -77,7 +77,11 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
   @Override
   protected PortfolioTreeDocument getPortfolioTree(final UniqueIdentifier uid) {
     if (uid.isVersioned()) {
-      return getPortfolioTreeById(uid);
+      if (uid.getVersion().contains("-")) {
+        return getPortfolioTreeByFullPortfolioId(uid);
+      } else {
+        return getPortfolioTreeById(uid);
+      }
     } else {
       return getPortfolioTreeByLatest(uid);
     }
@@ -100,6 +104,46 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
   }
 
   /**
+   * Selects the portfolio tree identifier from the full portfolio identifier.
+   * @param uid  the full portfolio uid, not null
+   * @return the portfolio tree uid, not null
+   */
+  @SuppressWarnings("unchecked")
+  protected PortfolioTreeDocument getPortfolioTreeByFullPortfolioId(final UniqueIdentifier uid) {
+    s_logger.debug("getPortfolioTreeByFullPortfolioId {}", uid);
+    final String[] splitVersion  = StringUtils.split(uid.getVersion(), '-');
+    if (splitVersion.length != 2) {
+      throw new IllegalArgumentException("Invalid identifier: " + uid);
+    }
+    final long versionMillis = Long.parseLong(splitVersion[0], 16);
+    final Instant versionAsOf = Instant.ofEpochMillis(versionMillis);
+    final Instant correctedTo = Instant.ofEpochMillis(versionMillis + Long.parseLong(splitVersion[1], 16));
+    final long portfolioOid = extractOid(uid);
+    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+      .addValue("portfolio_oid", portfolioOid)
+      .addTimestamp("version_as_of", versionAsOf)
+      .addTimestamp("corrected_to", correctedTo);
+    final PortfolioTreeDocumentExtractor extractor = new PortfolioTreeDocumentExtractor();
+    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
+    final List<PortfolioTreeDocument> docs = (List<PortfolioTreeDocument>) namedJdbc.query(sqlSelectPortfolioTreeByOidInstants(), args, extractor);
+    if (docs.isEmpty()) {
+      throw new DataNotFoundException("PortfolioTree not found: " + uid);
+    }
+    return docs.get(0);
+  }
+
+  /**
+   * Gets the SQL for getting a portfolio by object identifier and instants.
+   * @return the SQL, not null
+   */
+  protected String sqlSelectPortfolioTreeByOidInstants() {
+    return SELECT + FROM +
+      "WHERE f.oid = :portfolio_oid " +
+        "AND f.ver_from_instant <= :version_as_of AND f.ver_to_instant > :version_as_of " +
+        "AND f.corr_from_instant <= :corrected_to AND f.corr_to_instant > :corrected_to ";
+  }
+
+  /**
    * Gets a portfolio by identifier.
    * @param uid  the unique identifier
    * @return the portfolio document, null if not found
@@ -111,7 +155,7 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
       .addValue("portfolio_id", extractRowId(uid));
     final PortfolioTreeDocumentExtractor extractor = new PortfolioTreeDocumentExtractor();
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final List<PortfolioTreeDocument> docs = (List<PortfolioTreeDocument>) namedJdbc.query(sqlGetPortfolioTreeById(), args, extractor);
+    final List<PortfolioTreeDocument> docs = (List<PortfolioTreeDocument>) namedJdbc.query(sqlSelectPortfolioTreeById(), args, extractor);
     if (docs.isEmpty()) {
       throw new DataNotFoundException("PortfolioTree not found: " + uid);
     }
@@ -122,8 +166,9 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
    * Gets the SQL for getting a portfolio by unique row identifier.
    * @return the SQL, not null
    */
-  protected String sqlGetPortfolioTreeById() {
-    return SELECT + FROM + "WHERE f.id = :portfolio_id ";
+  protected String sqlSelectPortfolioTreeById() {
+    return SELECT + FROM +
+      "WHERE f.id = :portfolio_id ";
   }
 
   //-------------------------------------------------------------------------
