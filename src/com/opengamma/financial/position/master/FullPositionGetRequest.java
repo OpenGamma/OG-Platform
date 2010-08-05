@@ -53,10 +53,22 @@ public class FullPositionGetRequest extends DirectBean {
 
   /**
    * Creates an instance.
-   * @param uid  the portfolio node unique identifier
+   * @param uid  the position object identifier, may be null
    */
   public FullPositionGetRequest(UniqueIdentifier uid) {
     setPositionId(uid);
+  }
+
+  /**
+   * Creates an instance retrieving the portfolio at a specific instant.
+   * @param uid  the position object identifier, may be null
+   * @param versionAsOfInstant  the instant to search for a version at, may be null
+   * @param correctedToInstant  the instant to search for corrections for, may be null
+   */
+  public FullPositionGetRequest(final UniqueIdentifier uid, final Instant versionAsOfInstant, final Instant correctedToInstant) {
+    setPositionId(uid);
+    setVersionAsOfInstant(versionAsOfInstant);
+    setCorrectedToInstant(correctedToInstant);
   }
 
   //-------------------------------------------------------------------------

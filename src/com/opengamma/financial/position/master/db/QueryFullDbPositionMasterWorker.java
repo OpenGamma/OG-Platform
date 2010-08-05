@@ -8,6 +8,7 @@ package com.opengamma.financial.position.master.db;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Stack;
 
 import javax.time.Instant;
@@ -34,7 +35,9 @@ import com.opengamma.financial.position.master.PositionSearchHistoricResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.CompareUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
+import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.tuple.LongObjectPair;
 
 /**
@@ -56,20 +59,20 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
   @Override
   protected Portfolio getFullPortfolio(final FullPortfolioGetRequest request) {
     s_logger.debug("getFullPortfolio: {}", request);
-    final Instant now = Instant.now(getTimeSource());
-    return selectFullPortfolio(request.getPortfolioId(),
-        Objects.firstNonNull(request.getVersionAsOfInstant(), now),
-        Objects.firstNonNull(request.getCorrectedToInstant(), now));
+    final Instant[] instants = defaultInstants(request.getPortfolioId());
+    return selectFullPortfolio(request.getPortfolioId().toLatest(),
+        Objects.firstNonNull(request.getVersionAsOfInstant(), instants[0]),
+        Objects.firstNonNull(request.getCorrectedToInstant(), instants[1]));
   }
 
   //-------------------------------------------------------------------------
   @Override
   protected PortfolioNode getFullPortfolioNode(final FullPortfolioNodeGetRequest request) {
     s_logger.debug("getFullPortfolioNode: {}", request);
-    final Instant now = Instant.now(getTimeSource());
-    return selectFullPortfolioNode(request.getPortfolioNodeId(),
-        Objects.firstNonNull(request.getVersionAsOfInstant(), now),
-        Objects.firstNonNull(request.getCorrectedToInstant(), now));
+    final Instant[] instants = defaultInstants(request.getPortfolioNodeId());
+    return selectFullPortfolioNode(request.getPortfolioNodeId().toLatest(),
+        Objects.firstNonNull(request.getVersionAsOfInstant(), instants[0]),
+        Objects.firstNonNull(request.getCorrectedToInstant(), instants[1]));
   }
 
   //-------------------------------------------------------------------------
@@ -107,10 +110,17 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
    * @return the SQL search, not null
    */
   protected String sqlSelectFullPortfolio(final UniqueIdentifier id) {
+    String selectMax =
+      "SELECT MAX(ver_from_instant) AS fixed_ver, MAX(corr_from_instant) AS fixed_corr " +
+        "FROM pos_position " +
+        "WHERE portfolio_oid = :portfolio_oid " +
+          "AND ver_from_instant <= :version_as_of AND ver_to_instant > :version_as_of " +
+          "AND corr_from_instant <= :corrected_to AND corr_to_instant > :corrected_to ";
     String sql =
       "SELECT " +
-        "f.id AS portfolio_id, " +
         "f.oid AS portfolio_oid, " +
+        "f.ver_from_instant AS ver_from_instant, " +
+        "f.corr_from_instant AS corr_from_instant, " +
         "f.name AS portfolio_name, " +
         "n.id AS node_id, " +
         "n.oid AS node_oid, " +
@@ -121,13 +131,16 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
         "p.oid AS position_oid, " +
         "p.quantity AS quantity, " +
         "s.id_scheme AS seckey_scheme, " +
-        "s.id_value AS seckey_value " +
+        "s.id_value AS seckey_value, " +
+        "m.fixed_ver AS fixed_ver, " +
+        "m.fixed_corr AS fixed_corr " +
       "FROM pos_portfolio f " +
         "LEFT JOIN pos_node n ON (n.portfolio_id = f.id) " +
         "LEFT JOIN pos_position p ON (p.parent_node_oid = n.oid " +
           "AND p.ver_from_instant <= :version_as_of AND p.ver_to_instant > :version_as_of " +
           "AND p.corr_from_instant <= :corrected_to AND p.corr_to_instant > :corrected_to) " +
-        "LEFT JOIN pos_securitykey s ON (s.position_id = p.id) " +
+        "LEFT JOIN pos_securitykey s ON (s.position_id = p.id), " +
+        "(" + selectMax + ") m " +
       "WHERE f.oid = :portfolio_oid " +
         "AND f.ver_from_instant <= :version_as_of AND f.ver_to_instant > :version_as_of " +
         "AND f.corr_from_instant <= :corrected_to AND f.corr_to_instant > :corrected_to " +
@@ -154,10 +167,21 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
    * @return the SQL search, not null
    */
   protected String sqlSelectFullPortfolioNode(final UniqueIdentifier id) {
+    String selectPortfolioOid =
+      "SELECT DISTINCT f.oid " +
+        "FROM pos_portfolio f, pos_node n " +
+        "WHERE f.id = n.portfolio_id AND n.oid = :node_oid ";
+    String selectMax =
+      "SELECT MAX(ver_from_instant) AS fixed_ver, MAX(corr_from_instant) AS fixed_corr " +
+        "FROM pos_position " +
+        "WHERE portfolio_oid = (" + selectPortfolioOid + ") " +
+          "AND ver_from_instant <= :version_as_of AND ver_to_instant > :version_as_of " +
+          "AND corr_from_instant <= :corrected_to AND corr_to_instant > :corrected_to ";
     String sql =
       "SELECT " +
-        "f.id AS portfolio_id, " +
         "f.oid AS portfolio_oid, " +
+        "f.ver_from_instant AS ver_from_instant, " +
+        "f.corr_from_instant AS corr_from_instant, " +
         "f.name AS portfolio_name, " +
         "n.id AS node_id, " +
         "n.oid AS node_oid, " +
@@ -168,16 +192,20 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
         "p.oid AS position_oid, " +
         "p.quantity AS quantity, " +
         "s.id_scheme AS seckey_scheme, " +
-        "s.id_value AS seckey_value " +
+        "s.id_value AS seckey_value, " +
+        "m.fixed_ver AS fixed_ver, " +
+        "m.fixed_corr AS fixed_corr " +
       "FROM " +
+        "pos_portfolio f, " +
         "pos_node base, " +
-        "pos_portfolio f " +
-          "LEFT JOIN pos_node n ON (n.portfolio_id = f.id) " +
+        "pos_node n " +
           "LEFT JOIN pos_position p ON (p.parent_node_oid = n.oid " +
             "AND p.ver_from_instant <= :version_as_of AND p.ver_to_instant > :version_as_of " +
             "AND p.corr_from_instant <= :corrected_to AND p.corr_to_instant > :corrected_to) " +
-          "LEFT JOIN pos_securitykey s ON (s.position_id = p.id) " +
+          "LEFT JOIN pos_securitykey s ON (s.position_id = p.id), " +
+          "(" + selectMax + ") m " +
       "WHERE base.portfolio_id = f.id " +
+        "AND n.portfolio_id = f.id " +
         "AND base.oid = :node_oid " +
         "AND n.tree_left >= base.tree_left AND n.tree_right <= base.tree_right " +
         "AND f.ver_from_instant <= :version_as_of AND f.ver_to_instant > :version_as_of " +
@@ -195,6 +223,7 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
 
     @Override
     public Object extractData(ResultSet rs) throws SQLException, DataAccessException {
+      String fixedInstants = null;
       PortfolioImpl portfolio = null;
       long lastNodeId = -1;
       PortfolioNodeImpl node = null;
@@ -202,16 +231,22 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
       Long lastPositionId = Long.valueOf(-1);
       while (rs.next()) {
         if (portfolio == null) {
-          final long portfolioId = rs.getLong("PORTFOLIO_ID");
+          final Timestamp maxPosVer = rs.getTimestamp("FIXED_VER");
+          final Timestamp maxPosCorr = rs.getTimestamp("FIXED_CORR");
+          final Timestamp maxPorVer = rs.getTimestamp("VER_FROM_INSTANT");
+          final Timestamp maxPorCorr = rs.getTimestamp("CORR_FROM_INSTANT");
+          final Instant maxVer = CompareUtils.max(DateUtil.fromSqlTimestamp(maxPosVer), DateUtil.fromSqlTimestamp(maxPorVer));
+          final Instant maxCorr = CompareUtils.max(DateUtil.fromSqlTimestamp(maxPosCorr), DateUtil.fromSqlTimestamp(maxPorCorr));
+          fixedInstants = createFixedInstants(maxVer, maxCorr);
           final long portfolioOid = rs.getLong("PORTFOLIO_OID");
           final String name = StringUtils.defaultString(rs.getString("PORTFOLIO_NAME"));
-          final UniqueIdentifier uid = createUniqueIdentifier(portfolioOid, portfolioId, null);
+          final UniqueIdentifier uid = createUniqueIdentifier(portfolioOid, fixedInstants);
           portfolio = new PortfolioImpl(uid, name);
         }
         final long nodeId = rs.getLong("NODE_ID");
         if (nodeId != lastNodeId) {
           lastNodeId = nodeId;
-          node = buildNode(rs, portfolio);
+          node = buildNode(rs, portfolio, fixedInstants);
         }
         final Long positionId = (Long) rs.getObject("POSITION_ID");
         if (positionId != null && positionId.equals(lastPositionId) == false) {
@@ -228,13 +263,12 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
       return portfolio;
     }
 
-    private PortfolioNodeImpl buildNode(ResultSet rs, final PortfolioImpl portfolio) throws SQLException {
-      final long nodeId = rs.getLong("NODE_ID");
+    private PortfolioNodeImpl buildNode(ResultSet rs, final PortfolioImpl portfolio, final String fixedInstants) throws SQLException {
       final long nodeOid = rs.getLong("NODE_OID");
       final long treeLeft = rs.getLong("TREE_LEFT");
       final long treeRight = rs.getLong("TREE_RIGHT");
       final String name = StringUtils.defaultString(rs.getString("NODE_NAME"));
-      final UniqueIdentifier uid = createUniqueIdentifier(nodeOid, nodeId, null);
+      final UniqueIdentifier uid = createUniqueIdentifier(nodeOid, fixedInstants);
       final PortfolioNodeImpl node = new PortfolioNodeImpl(uid, name);
       if (_nodes.size() == 0) {
         portfolio.setRootNode(node);
@@ -258,6 +292,48 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
       node.addPosition(pos);
       return pos;
     }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Extracts the default instants to use in the search, from now or the version/correction uid.
+   * @param uid  the identifier, not null
+   * @return the version and correction instants, not null
+   */
+  protected Instant[] defaultInstants(final UniqueIdentifier uid) {
+    final Instant now = Instant.now(getTimeSource());
+    Instant version = now;
+    Instant correction = now;
+    final String[] splitVersion  = StringUtils.split(uid.getVersion(), '-');
+    if (splitVersion != null && splitVersion.length == 2) {
+      final long versionMillis = Long.parseLong(splitVersion[0], 16);
+      version = Instant.ofEpochMillis(versionMillis);
+      correction = Instant.ofEpochMillis(versionMillis + Long.parseLong(splitVersion[1], 16));
+    }
+    return new Instant[] {version, correction};
+  }
+
+  /**
+   * Creates a string representing the version/correction.
+   * @param maxVer  the maximum position version, may be null
+   * @param maxCorr  the maximum position correction, may be null
+   * @return the fixed instants version string, not null
+   */
+  protected String createFixedInstants(final Instant maxVer, final Instant maxCorr) {
+    final long verMillis = maxVer.toEpochMillisLong();
+    final long corrMillis = maxCorr.toEpochMillisLong();
+    final long corrMillisDiff = corrMillis - verMillis;
+    return Long.toHexString(verMillis) + "-" + Long.toHexString(corrMillisDiff);
+  }
+
+  /**
+   * Creates a unique identifier for the full portfolio.
+   * @param oid  the portfolio object identifier
+   * @param fixedInstants  the fixed instants string
+   * @return the unique identifier, not null
+   */
+  protected UniqueIdentifier createUniqueIdentifier(final long oid, final String fixedInstants) {
+    return UniqueIdentifier.of(getIdentifierScheme(), Long.toString(oid), fixedInstants);
   }
 
 }
