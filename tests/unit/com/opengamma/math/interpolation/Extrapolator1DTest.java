@@ -22,7 +22,7 @@ public class Extrapolator1DTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final Interpolator1D<Interpolator1DDoubleQuadraticDataBundle> INTERPOLATOR = new DoubleQuadraticInterpolator1D();
   private static final LinearExtrapolator1D<Interpolator1DDoubleQuadraticDataBundle> LINEAR_EXTRAPOLATOR = new LinearExtrapolator1D<Interpolator1DDoubleQuadraticDataBundle>(INTERPOLATOR);
-  private static final FlatExtrapolator1D<Interpolator1DDataBundle> FLAT_EXTRAPOLATOR = new FlatExtrapolator1D<Interpolator1DDataBundle>();
+  private static final FlatExtrapolator1D<Interpolator1DDoubleQuadraticDataBundle> FLAT_EXTRAPOLATOR = new FlatExtrapolator1D<Interpolator1DDoubleQuadraticDataBundle>();
   private static final Interpolator1DDoubleQuadraticDataBundle DATA;
 
   private static final double[] X_DATA = new double[] {0, 0.4, 1.0, 1.8, 2.8, 5};
