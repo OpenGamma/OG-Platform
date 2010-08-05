@@ -54,6 +54,18 @@ public class CombinedInterpolatorExtrapolator<T extends Interpolator1DDataBundle
     return _interpolator.getDataBundleFromSortedArrays(x, y);
   }
 
+  public Interpolator1D<T> getInterpolator() {
+    return _interpolator;
+  }
+
+  public Interpolator1D<T> getLeftExtrapolator() {
+    return _leftExtrapolator;
+  }
+
+  public Interpolator1D<T> getRightExtrapolator() {
+    return _rightExtrapolator;
+  }
+
   //TODO fail earlier if there's no extrapolators?
   @Override
   public Double interpolate(final T data, final Double value) {

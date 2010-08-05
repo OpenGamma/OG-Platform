@@ -115,6 +115,13 @@ public class CombinedInterpolatorExtrapolatorTest {
   }
 
   @Test
+  public void testGetters() {
+    assertEquals(COMBINED3.getInterpolator().getClass(), INTERPOLATOR.getClass());
+    assertEquals(COMBINED3.getLeftExtrapolator().getClass(), LEFT_EXTRAPOLATOR.getClass());
+    assertEquals(COMBINED3.getRightExtrapolator().getClass(), RIGHT_EXTRAPOLATOR.getClass());
+  }
+
+  @Test
   public void testOneExtrapolator() {
     final double x = 3.6;
     assertEquals(COMBINED2.interpolate(DATA, x), F.evaluate(x), 1e-15);

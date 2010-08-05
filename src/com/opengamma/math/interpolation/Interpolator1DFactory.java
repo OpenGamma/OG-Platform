@@ -15,20 +15,12 @@ import java.util.Map;
 public final class Interpolator1DFactory {
   /** Linear */
   public static final String LINEAR = "Linear";
-  /** Linear instance */
-  public static final LinearInterpolator1D LINEAR_INSTANCE = new LinearInterpolator1D();
   /** Exponential */
   public static final String EXPONENTIAL = "Exponential";
-  /** Exponential instance */
-  public static final ExponentialInterpolator1D EXPONENTIAL_INSTANCE = new ExponentialInterpolator1D();
   /** Log-linear */
   public static final String LOG_LINEAR = "LogLinear";
-  /** Log-linear instance */
-  public static final LogLinearInterpolator1D LOG_LINEAR_INSTANCE = new LogLinearInterpolator1D();
   /** Natural cubic spline */
   public static final String NATURAL_CUBIC_SPLINE = "NaturalCubicSpline";
-  /** Natural cubic spline instance */
-  public static final NaturalCubicSplineInterpolator1D NATURAL_CUBIC_SPLINE_INSTANCE = new NaturalCubicSplineInterpolator1D();
   /** Barycentric rational function */
   public static final String BARYCENTRIC_RATIONAL_FUNCTION = "BarycentricRationalFunction";
   /** Polynomial */
@@ -37,12 +29,26 @@ public final class Interpolator1DFactory {
   public static final String RATIONAL_FUNCTION = "RationalFunction";
   /** Step */
   public static final String STEP = "Step";
-  /** Step instance */
-  public static final StepInterpolator1D STEP_INSTANCE = new StepInterpolator1D();
   /** Double quadratic */
   public static final String DOUBLE_QUADRATIC = "DoubleQuadratic";
+  /** Flat extrapolator */
+  public static final String FLAT_EXTRAPOLATOR = "FlatExtrapolator";
+  /** Linear extrapolator */
+  public static final String LINEAR_EXTRAPOLATOR = "LinearExtrapolator";
+  /** Linear instance */
+  public static final LinearInterpolator1D LINEAR_INSTANCE = new LinearInterpolator1D();
+  /** Exponential instance */
+  public static final ExponentialInterpolator1D EXPONENTIAL_INSTANCE = new ExponentialInterpolator1D();
+  /** Log-linear instance */
+  public static final LogLinearInterpolator1D LOG_LINEAR_INSTANCE = new LogLinearInterpolator1D();
+  /** Natural cubic spline instance */
+  public static final NaturalCubicSplineInterpolator1D NATURAL_CUBIC_SPLINE_INSTANCE = new NaturalCubicSplineInterpolator1D();
+  /** Step instance */
+  public static final StepInterpolator1D STEP_INSTANCE = new StepInterpolator1D();
   /** Double quadratic instance */
   public static final DoubleQuadraticInterpolator1D DOUBLE_QUADRATIC_INSTANCE = new DoubleQuadraticInterpolator1D();
+  /** Flat extrapolator instance */
+  public static final FlatExtrapolator1D FLAT_EXTRAPOLATOR_INSTANCE = new FlatExtrapolator1D();
 
   private static final Map<String, Interpolator1D> s_staticInstances;
   private static final Map<Class<?>, String> s_instanceNames;
@@ -62,6 +68,8 @@ public final class Interpolator1DFactory {
     instanceNames.put(DoubleQuadraticInterpolator1D.class, DOUBLE_QUADRATIC);
     staticInstances.put(STEP, STEP_INSTANCE);
     instanceNames.put(StepInterpolator1D.class, STEP);
+    staticInstances.put(FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR_INSTANCE);
+    instanceNames.put(FlatExtrapolator1D.class, FLAT_EXTRAPOLATOR);
     s_staticInstances = new HashMap<String, Interpolator1D>(staticInstances);
     s_instanceNames = new HashMap<Class<?>, String>(instanceNames);
   }
