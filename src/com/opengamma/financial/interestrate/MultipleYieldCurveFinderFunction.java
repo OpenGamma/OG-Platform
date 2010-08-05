@@ -38,6 +38,9 @@ public class MultipleYieldCurveFinderFunction extends Function1D<DoubleMatrix1D,
     Validate.notNull(derivatives);
     Validate.noNullElements(derivatives);
     Validate.notNull(calculator);
+    Validate.notNull(unknownCurveNodePoints);
+    Validate.notNull(unknownCurveInterpolators);
+    Validate.notNull(unknownCurveNodeSensitivityCalculators);
     Validate.notEmpty(unknownCurveInterpolators, "No curves to solve for");
 
     _nPoints = derivatives.size();

@@ -43,6 +43,9 @@ public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
       final YieldCurveBundle knownCurves, final InterestRateDerivativeVisitor<Map<String, List<Pair<Double, Double>>>> calculator) {
     Validate.notNull(derivatives);
     Validate.noNullElements(derivatives);
+    Validate.notNull(unknownCurveNodePoints);
+    Validate.notNull(unknownCurveInterpolators);
+    Validate.notNull(unknownCurveSensitivityCalculators);
     Validate.notNull(calculator);
     Validate.notEmpty(unknownCurveInterpolators, "No curves to solve for");
 
