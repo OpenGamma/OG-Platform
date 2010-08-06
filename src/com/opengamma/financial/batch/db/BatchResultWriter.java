@@ -407,16 +407,6 @@ public class BatchResultWriter implements ResultWriter, Serializable {
     ArgumentChecker.notNull(node, "Calculation node the writing happens on");
     ArgumentChecker.notNull(result, "The result to write");
     
-    openSession();
-    try {
-      doWrite(node, result);
-    } finally {
-      closeSession();
-    }
-  }
-  
-  private void doWrite(CalculationNode node, CalculationJobResult result) {
-    
     if (result.getResultItems().isEmpty()) {
       s_logger.info("{}: Nothing to insert into DB", result);
       return;
@@ -427,6 +417,16 @@ public class BatchResultWriter implements ResultWriter, Serializable {
         initialize(node);
       }
     }
+    
+    openSession();
+    try {
+      doWrite(node, result);
+    } finally {
+      closeSession();
+    }
+  }
+  
+  private void doWrite(CalculationNode node, CalculationJobResult result) {
     
     Set<ComputationTargetSpecification> successfulTargets = new HashSet<ComputationTargetSpecification>();
     Set<ComputationTargetSpecification> failedTargets = new HashSet<ComputationTargetSpecification>();
