@@ -18,8 +18,8 @@ create table pos_portfolio (
     corr_to_instant timestamp not null,
     name varchar(255) not null,
     primary key (id),
-    constraint pos_ck_port_ver_order check (ver_from_instant <= ver_to_instant),
-    constraint pos_ck_port_corr_order check (corr_from_instant <= corr_to_instant)
+    constraint pos_chk_port_ver_order check (ver_from_instant <= ver_to_instant),
+    constraint pos_chk_port_corr_order check (corr_from_instant <= corr_to_instant)
 );
 
 create table pos_node (
@@ -52,8 +52,8 @@ create table pos_position (
     corr_to_instant timestamp not null,
     quantity decimal(31,8) not null,
     primary key (id),
-    constraint pos_ck_posi_ver_order check (ver_from_instant <= ver_to_instant),
-    constraint pos_ck_posi_corr_order check (corr_from_instant <= corr_to_instant)
+    constraint pos_chk_posi_ver_order check (ver_from_instant <= ver_to_instant),
+    constraint pos_chk_posi_corr_order check (corr_from_instant <= corr_to_instant)
 );
 -- portfolio_oid is an optimization
 
