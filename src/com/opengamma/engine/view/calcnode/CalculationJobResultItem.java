@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import java.util.Collections;
 import java.util.Set;
 
 import org.fudgemsg.FudgeFieldContainer;
@@ -33,7 +32,7 @@ public class CalculationJobResultItem {
   
   // NOT SENT BACK TO THE MASTER NODE
   
-  private transient Set<ComputedValue> _results = Collections.emptySet();
+  private transient Set<ComputedValue> _results;
   private transient Exception _exception;
   
   public CalculationJobResultItem(CalculationJobItem item,
