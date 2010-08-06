@@ -11,6 +11,50 @@ package com.opengamma.util;
 public class CompareUtils {
 
   /**
+   * Compares two objects finding the maximum.
+   * @param <T> the oebjct type
+   * @param a  item that compareTo is called on, may be null
+   * @param b item that is being compared, may be null
+   * @return the maximum of the two objects, null if both null
+   */
+  public static <T extends Comparable<? super T>> T max(T a, T b) {
+    if (a != null && b != null) {
+      return a.compareTo(b) >= 0 ? a : b;
+    }
+    if (a == null) {
+      if (b == null) {
+        return null;
+      } else {
+        return b;
+      }
+    } else {
+      return a;
+    }
+  }
+
+  /**
+   * Compares two objects finding the minimum.
+   * @param <T> the oebjct type
+   * @param a  item that compareTo is called on, may be null
+   * @param b item that is being compared, may be null
+   * @return the minimum of the two objects, null if both null
+   */
+  public static <T extends Comparable<? super T>> T min(T a, T b) {
+    if (a != null && b != null) {
+      return a.compareTo(b) <= 0 ? a : b;
+    }
+    if (a == null) {
+      if (b == null) {
+        return null;
+      } else {
+        return b;
+      }
+    } else {
+      return a;
+    }
+  }
+
+  /**
    * Compares two objects, either of which might be null, sorting nulls low.
    * @param <E> type of object we're comparing to.
    * @param a  item that compareTo is called on

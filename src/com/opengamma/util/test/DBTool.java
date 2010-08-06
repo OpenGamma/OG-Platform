@@ -138,6 +138,7 @@ public class DBTool extends Task {
   }
   
   public void shutdown() {
+    System.out.println("Closing connection...");
     _dialect.shutdown();
   }
   
@@ -525,6 +526,7 @@ public class DBTool extends Task {
       System.out.println("Creating tables...");
       initialize();
       createTables(_catalog, null);
+      shutdown();
     }
     
     if (_createTestDb) {
