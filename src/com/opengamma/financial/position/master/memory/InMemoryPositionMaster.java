@@ -6,13 +6,12 @@
 package com.opengamma.financial.position.master.memory;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Map;
 
 import javax.time.Instant;
 
-import org.apache.commons.lang.Validate;
 import org.joda.beans.MetaProperty;
 
 import com.google.common.base.Function;
@@ -61,11 +60,23 @@ public class InMemoryPositionMaster implements PositionMaster {
   /**
    * The portfolios.
    */
-  private final ConcurrentMap<UniqueIdentifier, PortfolioTreeDocument> _trees = new ConcurrentHashMap<UniqueIdentifier, PortfolioTreeDocument>();
+  private final Map<UniqueIdentifier, PortfolioTreeDocument> _trees = new HashMap<UniqueIdentifier, PortfolioTreeDocument>();
+  /**
+   * The nodes.
+   */
+  private final Map<UniqueIdentifier, PortfolioNode> _nodes = new HashMap<UniqueIdentifier, PortfolioNode>();
   /**
    * A cache of positions by identifier.
    */
-  private final ConcurrentMap<UniqueIdentifier, PositionDocument> _positions = new ConcurrentHashMap<UniqueIdentifier, PositionDocument>();
+  private final Map<UniqueIdentifier, PositionDocument> _positions = new HashMap<UniqueIdentifier, PositionDocument>();
+  /**
+   * The nodes.
+   */
+  private final Map<UniqueIdentifier, UniqueIdentifier> _portfolioByNode = new HashMap<UniqueIdentifier, UniqueIdentifier>();
+  /**
+   * The lock for synchronization.
+   */
+  private final Object _lock = new Object();
   /**
    * The supplied of identifiers.
    */
@@ -84,46 +95,52 @@ public class InMemoryPositionMaster implements PositionMaster {
    * @param uidSupplier  the supplier of unique identifiers, not null
    */
   public InMemoryPositionMaster(final Supplier<UniqueIdentifier> uidSupplier) {
-    Validate.notNull(uidSupplier, "uidSupplier");
+    ArgumentChecker.notNull(uidSupplier, "uidSupplier");
     _uidSupplier = uidSupplier;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public PortfolioTreeSearchResult searchPortfolioTrees(final PortfolioTreeSearchRequest request) {
-    Validate.notNull(request, "request");
-    final PortfolioTreeSearchResult result = new PortfolioTreeSearchResult();
-    Collection<PortfolioTreeDocument> docs = _trees.values();
-    if (request.getName() != null) {
-      docs = Collections2.filter(docs, new Predicate<PortfolioTreeDocument>() {
-        @Override
-        public boolean apply(final PortfolioTreeDocument doc) {
-          return request.getName().equals(doc.getPortfolio().getName());
-        }
-      });
-    }
-    if (request.getDepth() == 0) {
-      Collections2.transform(docs, new Function<PortfolioTreeDocument, PortfolioTreeDocument>() {
-        @Override
-        public PortfolioTreeDocument apply(final PortfolioTreeDocument doc) {
-          PortfolioTreeDocument trimmedDoc = new PortfolioTreeDocument();
-          for (MetaProperty<Object> mp : doc.metaBean().metaPropertyIterable()) {
-            mp.set(trimmedDoc, mp.get(doc));
+    ArgumentChecker.notNull(request, "request");
+    
+    synchronized (_lock) {
+      final PortfolioTreeSearchResult result = new PortfolioTreeSearchResult();
+      Collection<PortfolioTreeDocument> docs = _trees.values();
+      if (request.getName() != null) {
+        docs = Collections2.filter(docs, new Predicate<PortfolioTreeDocument>() {
+          @Override
+          public boolean apply(final PortfolioTreeDocument doc) {
+            return request.getName().equals(doc.getPortfolio().getName());
           }
-          trimmedDoc.setPortfolio(new PortfolioImpl(doc.getPortfolio().getUniqueIdentifier(), doc.getPortfolio().getName()));
-          return trimmedDoc;
-        }
-      });
+        });
+      }
+      if (request.getDepth() == 0) {
+        Collections2.transform(docs, new Function<PortfolioTreeDocument, PortfolioTreeDocument>() {
+          @Override
+          public PortfolioTreeDocument apply(final PortfolioTreeDocument doc) {
+            PortfolioTreeDocument trimmedDoc = new PortfolioTreeDocument();
+            for (MetaProperty<Object> mp : doc.metaBean().metaPropertyIterable()) {
+              mp.set(trimmedDoc, mp.get(doc));
+            }
+            trimmedDoc.setPortfolio(new PortfolioImpl(doc.getPortfolio().getUniqueIdentifier(), doc.getPortfolio().getName()));
+            return trimmedDoc;
+          }
+        });
+      }
+      result.getDocuments().addAll(docs);
+      result.setPaging(Paging.of(docs));
+      return result;
     }
-    result.getDocuments().addAll(docs);
-    result.setPaging(Paging.of(docs));
-    return result;
   }
 
   @Override
   public PortfolioTreeDocument getPortfolioTree(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
-    return _trees.get(uid);
+    
+    synchronized (_lock) {
+      return _trees.get(uid);
+    }
   }
 
   @Override
@@ -131,25 +148,36 @@ public class InMemoryPositionMaster implements PositionMaster {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
     
-    final Portfolio portfolio = document.getPortfolio();
-    final UniqueIdentifier uid = _uidSupplier.get();
-    final Instant now = Instant.nowSystemClock();
-    UniqueIdentifiables.setInto(portfolio, uid);
-    final PortfolioTreeDocument doc = new PortfolioTreeDocument(portfolio);
-    doc.setPortfolioId(uid);
-    doc.setVersionFromInstant(now);
-    doc.setCorrectionFromInstant(now);
-//    buildPositionCounts(doc, portfolio.getRootNode());
-    _trees.put(uid, doc);  // unique identifier should be unique
-    return doc;
+    synchronized (_lock) {
+      // set uid
+      final Portfolio portfolio = document.getPortfolio();
+      final UniqueIdentifier portfolioUid = _uidSupplier.get();
+      UniqueIdentifiables.setInto(portfolio, portfolioUid);
+      addNode(portfolio.getRootNode(), portfolioUid);
+      // build document
+      final PortfolioTreeDocument newDoc = createPortfolioTreeDocument(portfolio, portfolioUid);
+      _trees.put(portfolioUid, newDoc);  // unique identifier should be unique
+      return newDoc;
+    }
   }
 
-//  private static void buildPositionCounts(final PortfolioTreeDocument doc, final PortfolioNode node) {
-//    doc.getPositionCounts().put(node.getUniqueIdentifier(), node.getPositions().size());
-//    for (PortfolioNode child : node.getChildNodes()) {
-//      buildPositionCounts(doc, child);
-//    }
-//  }
+  /**
+   * Adds a node and its children.
+   * @param node  the node, not null
+   * @param portfolioUid  the portfolio uid, not null
+   */
+  protected void addNode(final PortfolioNode node, final UniqueIdentifier portfolioUid) {
+    final UniqueIdentifier nodeUid = _uidSupplier.get();
+    
+    synchronized (_lock) {
+      UniqueIdentifiables.setInto(node, nodeUid);
+      _nodes.put(nodeUid, node);
+      _portfolioByNode.put(nodeUid, portfolioUid);
+      for (PortfolioNode child : node.getChildNodes()) {
+        addNode(child, portfolioUid);
+      }
+    }
+  }
 
   @Override
   public PortfolioTreeDocument updatePortfolioTree(final PortfolioTreeDocument document) {
@@ -157,33 +185,36 @@ public class InMemoryPositionMaster implements PositionMaster {
     ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
     ArgumentChecker.notNull(document.getPortfolioId(), "document.portfolioId");
     
-    final UniqueIdentifier uid = document.getPortfolioId();
-    final Instant now = Instant.nowSystemClock();
-    final PortfolioTreeDocument storedDocument = _trees.get(uid);
-    if (storedDocument == null) {
-      throw new DataNotFoundException("Portfolio not found: " + uid);
+    synchronized (_lock) {
+      // get old
+      final UniqueIdentifier portfolioId = document.getPortfolioId();
+      final PortfolioTreeDocument oldDoc = _trees.get(portfolioId);
+      if (oldDoc == null) {
+        throw new DataNotFoundException("Portfolio not found: " + portfolioId);
+      }
+      // update document
+      final PortfolioTreeDocument newDoc = createPortfolioTreeDocument(document.getPortfolio(), portfolioId);
+      _trees.put(portfolioId, newDoc);
+      return document;
     }
-    document.setVersionFromInstant(storedDocument.getVersionFromInstant());
-    document.setVersionToInstant(storedDocument.getVersionToInstant());
-    document.setCorrectionFromInstant(now);
-    document.setCorrectionToInstant(null);
-    if (_trees.replace(uid, storedDocument, document) == false) {
-      throw new IllegalArgumentException("Concurrent modification");
-    }
-    return document;
   }
 
   @Override
-  public void removePortfolioTree(final UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "uid");
+  public void removePortfolioTree(final UniqueIdentifier portfolioUid) {
+    ArgumentChecker.notNull(portfolioUid, "portfolioUid");
     
-    PortfolioTreeDocument doc = _trees.remove(uid);
-    if (doc == null) {
-      throw new DataNotFoundException("Portfolio not found: " + uid);
-    }
-    for (Iterator<PositionDocument> it = _positions.values().iterator(); it.hasNext(); ) {
-      if (uid.equals(it.next().getPortfolioId())) {
-        it.remove();
+    synchronized (_lock) {
+      // remove portfolio
+      PortfolioTreeDocument doc = _trees.remove(portfolioUid);
+      if (doc == null) {
+        throw new DataNotFoundException("Portfolio not found: " + portfolioUid);
+      }
+      // remove associated positions
+      for (Iterator<PositionDocument> it = _positions.values().iterator(); it.hasNext(); ) {
+        PositionDocument positionDoc = it.next();
+        if (portfolioUid.equals(positionDoc.getPortfolioId())) {
+          it.remove();
+        }
       }
     }
   }
@@ -193,13 +224,15 @@ public class InMemoryPositionMaster implements PositionMaster {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getPortfolioId(), "request.portfolioId");
     
-    final PortfolioTreeSearchHistoricResult result = new PortfolioTreeSearchHistoricResult();
-    final PortfolioTreeDocument doc = getPortfolioTree(request.getPortfolioId());
-    if (doc != null) {
-      result.getDocuments().add(doc);
+    synchronized (_lock) {
+      final PortfolioTreeSearchHistoricResult result = new PortfolioTreeSearchHistoricResult();
+      final PortfolioTreeDocument doc = getPortfolioTree(request.getPortfolioId());
+      if (doc != null) {
+        result.getDocuments().add(doc);
+      }
+      result.setPaging(Paging.of(result.getDocuments()));
+      return result;
     }
-    result.setPaging(Paging.of(result.getDocuments()));
-    return result;
   }
 
   @Override
@@ -207,54 +240,88 @@ public class InMemoryPositionMaster implements PositionMaster {
     return updatePortfolioTree(document);
   }
 
+  /**
+   * Creates the tree document.
+   * @param portfolio  the position, not null
+   * @param uid  the position uid, not null
+   * @return the position document, not null
+   */
+  protected PortfolioTreeDocument createPortfolioTreeDocument(final Portfolio portfolio, final UniqueIdentifier uid) {
+    final Instant now = Instant.nowSystemClock();
+    final PortfolioTreeDocument doc = new PortfolioTreeDocument();
+    doc.setPortfolio(portfolio);
+    doc.setPortfolioId(uid);
+    doc.setVersionFromInstant(now);
+    doc.setCorrectionFromInstant(now);
+    return doc;
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public PositionSearchResult searchPositions(final PositionSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
-    final PositionSearchResult result = new PositionSearchResult();
-    Collection<PositionDocument> docs = _positions.values();
-    if (request.getMinQuantity() != null) {
-      docs = Collections2.filter(docs, new Predicate<PositionDocument>() {
-        @Override
-        public boolean apply(final PositionDocument doc) {
-          if (doc.getPosition().getQuantity() == null) {
-            return false;
+    
+    synchronized (_lock) {
+      final PositionSearchResult result = new PositionSearchResult();
+      Collection<PositionDocument> docs = _positions.values();
+      if (request.getMinQuantity() != null) {
+        docs = Collections2.filter(docs, new Predicate<PositionDocument>() {
+          @Override
+          public boolean apply(final PositionDocument doc) {
+            if (doc.getPosition().getQuantity() == null) {
+              return false;
+            }
+            return doc.getPosition().getQuantity().compareTo(request.getMinQuantity()) >= 0;
           }
-          return doc.getPosition().getQuantity().compareTo(request.getMinQuantity()) >= 0;
-        }
-      });
-    }
-    if (request.getMaxQuantity() != null) {
-      docs = Collections2.filter(docs, new Predicate<PositionDocument>() {
-        @Override
-        public boolean apply(final PositionDocument doc) {
-          if (doc.getPosition().getQuantity() == null) {
-            return false;
+        });
+      }
+      if (request.getMaxQuantity() != null) {
+        docs = Collections2.filter(docs, new Predicate<PositionDocument>() {
+          @Override
+          public boolean apply(final PositionDocument doc) {
+            if (doc.getPosition().getQuantity() == null) {
+              return false;
+            }
+            return doc.getPosition().getQuantity().compareTo(request.getMaxQuantity()) < 0;
           }
-          return doc.getPosition().getQuantity().compareTo(request.getMaxQuantity()) < 0;
-        }
-      });
-    }
-    if (request.getSecurityKey() != null) {
-      docs = Collections2.filter(docs, new Predicate<PositionDocument>() {
-        @Override
-        public boolean apply(final PositionDocument doc) {
-          if (doc.getPosition().getSecurityKey() == null) {
-            return false;
+        });
+      }
+      if (request.getSecurityKey() != null) {
+        docs = Collections2.filter(docs, new Predicate<PositionDocument>() {
+          @Override
+          public boolean apply(final PositionDocument doc) {
+            if (doc.getPosition().getSecurityKey() == null) {
+              return false;
+            }
+            return doc.getPosition().getSecurityKey().containsAny(request.getSecurityKey());
           }
-          return doc.getPosition().getSecurityKey().containsAny(request.getSecurityKey());
-        }
-      });
+        });
+      }
+      result.getDocuments().addAll(docs);
+      result.setPaging(Paging.of(docs));
+      return result;
     }
-    result.getDocuments().addAll(docs);
-    result.setPaging(Paging.of(docs));
-    return result;
   }
 
   @Override
-  public PositionDocument getPosition(final UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "uid");
-    return _positions.get(uid);
+  public PositionDocument getPosition(final UniqueIdentifier positionUid) {
+    ArgumentChecker.notNull(positionUid, "positionUid");
+    synchronized (_lock) {
+      PositionDocument doc = _positions.get(positionUid);
+      if (doc == null) {
+        throw new DataNotFoundException("Position not found: " + positionUid);
+      }
+      PositionDocument result = new PositionDocument();
+      result.setPosition(doc.getPosition());
+      result.setPositionId(doc.getPositionId());
+      result.setPortfolioId(doc.getPositionId());
+      result.setParentNodeId(doc.getPositionId());
+      result.setVersionFromInstant(doc.getVersionFromInstant());
+      result.setVersionToInstant(doc.getVersionToInstant());
+      result.setCorrectionFromInstant(doc.getCorrectionFromInstant());
+      result.setCorrectionToInstant(doc.getCorrectionToInstant());
+      return result;
+    }
   }
 
   @Override
@@ -263,19 +330,23 @@ public class InMemoryPositionMaster implements PositionMaster {
     ArgumentChecker.notNull(document.getPosition(), "document.position");
     ArgumentChecker.notNull(document.getParentNodeId(), "document.parentNodeId");
     
-    final Position position = document.getPosition();
-    final UniqueIdentifier uid = _uidSupplier.get();
-    final Instant now = Instant.nowSystemClock();
-    UniqueIdentifiables.setInto(position, uid);
-    final PositionDocument doc = new PositionDocument();
-    doc.setPosition(position);
-    doc.setPortfolioId(uid);
-    doc.setParentNodeId(document.getParentNodeId());
-    doc.setPortfolioId(document.getPortfolioId());
-    doc.setVersionFromInstant(now);
-    doc.setCorrectionFromInstant(now);
-    _positions.put(uid, doc);  // unique identifier should be unique
-    return doc;
+    synchronized (_lock) {
+      // find parent
+      final PortfolioNode parentNode = _nodes.get(document.getParentNodeId());
+      if (parentNode == null) {
+        throw new IllegalArgumentException("Parent node not found: " + document.getParentNodeId());
+      }
+      // set uid
+      final Position position = document.getPosition();
+      final UniqueIdentifier positionUid = _uidSupplier.get();
+      UniqueIdentifiables.setInto(position, positionUid);
+      // add to parent
+      parentNode.getPositions().add(position);
+      // build document
+      final PositionDocument newDoc = createPositionDocument(position, positionUid, document.getParentNodeId());
+      _positions.put(positionUid, newDoc);  // unique identifier should be unique
+      return newDoc;
+    }
   }
 
   @Override
@@ -284,28 +355,34 @@ public class InMemoryPositionMaster implements PositionMaster {
     ArgumentChecker.notNull(document.getPosition(), "document.position");
     ArgumentChecker.notNull(document.getPositionId(), "document.positionId");
     
-    final UniqueIdentifier uid = document.getPositionId();
-    final Instant now = Instant.nowSystemClock();
-    final PositionDocument storedDocument = _positions.get(uid);
-    if (storedDocument == null) {
-      throw new DataNotFoundException("Portfolio not found: " + uid);
+    synchronized (_lock) {
+      // get old
+      final UniqueIdentifier positionUid = document.getPositionId();
+      final PositionDocument oldDoc = _positions.get(positionUid);
+      if (oldDoc == null) {
+        throw new DataNotFoundException("Position not found: " + positionUid);
+      }
+      // update document
+      final PositionDocument newDoc = createPositionDocument(document.getPosition(), positionUid, oldDoc.getParentNodeId());
+      _positions.put(positionUid, newDoc);
+      return document;
     }
-    document.setVersionFromInstant(now);
-    document.setVersionToInstant(null);
-    document.setCorrectionFromInstant(now);
-    document.setCorrectionFromInstant(null);
-    if (_positions.replace(uid, storedDocument, document) == false) {
-      throw new IllegalArgumentException("Concurrent modification");
-    }
-    return document;
   }
 
   @Override
-  public void removePosition(final UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "uid");
+  public void removePosition(final UniqueIdentifier positionUid) {
+    ArgumentChecker.notNull(positionUid, "positionUid");
     
-    if (_positions.remove(uid) == null) {
-      throw new DataNotFoundException("Position not found: " + uid);
+    synchronized (_lock) {
+      // get old
+      final PositionDocument oldDoc = _positions.get(positionUid);
+      if (oldDoc == null) {
+        throw new DataNotFoundException("Position not found: " + positionUid);
+      }
+      // remove position
+      _positions.remove(positionUid);
+      // update portfolio
+      _nodes.get(oldDoc.getParentNodeId()).getPositions().remove(oldDoc.getPosition());  // remove by id?
     }
   }
 
@@ -314,18 +391,39 @@ public class InMemoryPositionMaster implements PositionMaster {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getPositionId(), "request.positionId");
     
-    final PositionSearchHistoricResult result = new PositionSearchHistoricResult();
-    final PositionDocument doc = getPosition(request.getPositionId());
-    if (doc != null) {
-      result.getDocuments().add(doc);
+    synchronized (_lock) {
+      final PositionSearchHistoricResult result = new PositionSearchHistoricResult();
+      final PositionDocument doc = getPosition(request.getPositionId());
+      if (doc != null) {
+        result.getDocuments().add(doc);
+      }
+      result.setPaging(Paging.of(result.getDocuments()));
+      return result;
     }
-    result.setPaging(Paging.of(result.getDocuments()));
-    return result;
   }
 
   @Override
   public PositionDocument correctPosition(final PositionDocument document) {
     return updatePosition(document);
+  }
+
+  /**
+   * Creates the position document.
+   * @param position  the position, not null
+   * @param uid  the position uid, not null
+   * @param parentNodeUid  the parent uid, not null
+   * @return the position document, not null
+   */
+  protected PositionDocument createPositionDocument(final Position position, final UniqueIdentifier uid, final UniqueIdentifier parentNodeUid) {
+    final Instant now = Instant.nowSystemClock();
+    final PositionDocument doc = new PositionDocument();
+    doc.setPosition(position);
+    doc.setPositionId(uid);
+    doc.setParentNodeId(parentNodeUid);
+    doc.setPortfolioId(_portfolioByNode.get(parentNodeUid));
+    doc.setVersionFromInstant(now);
+    doc.setCorrectionFromInstant(now);
+    return doc;
   }
 
   //-------------------------------------------------------------------------
@@ -334,11 +432,13 @@ public class InMemoryPositionMaster implements PositionMaster {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getPortfolioId(), "request.portfolioId");
     
-    final PortfolioTreeDocument doc = _trees.get(request.getPortfolioId());
-    if (doc == null) {
-      return null;
+    synchronized (_lock) {
+      final PortfolioTreeDocument doc = _trees.get(request.getPortfolioId());
+      if (doc == null) {
+        return null;
+      }
+      return doc.getPortfolio();  // positions stored in tree
     }
-    return doc.getPortfolio();  // positions stored in tree
   }
 
   @Override
@@ -346,24 +446,9 @@ public class InMemoryPositionMaster implements PositionMaster {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getPortfolioNodeId(), "request.portfolioNodeId");
     
-    final UniqueIdentifier uid = request.getPortfolioNodeId();
-    for (PortfolioTreeDocument doc : _trees.values()) {
-      PortfolioNode node = findNode(doc.getPortfolio().getRootNode(), uid);
-      if (node != null) {
-        return node;
-      }
+    synchronized (_lock) {
+      return _nodes.get(request.getPortfolioNodeId());
     }
-    return null;
-  }
-
-  private static PortfolioNode findNode(final PortfolioNode node, final UniqueIdentifier uid) {
-    if (uid.equals(node.getUniqueIdentifier())) {
-      return node;
-    }
-    for (PortfolioNode child : node.getChildNodes()) {
-      findNode(child, uid);
-    }
-    return null;
   }
 
   @Override
@@ -371,11 +456,13 @@ public class InMemoryPositionMaster implements PositionMaster {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getPositionId(), "request.positionId");
     
-    final PositionDocument doc = _positions.get(request.getPositionId());
-    if (doc == null) {
-      return null;
+    synchronized (_lock) {
+      final PositionDocument doc = _positions.get(request.getPositionId());
+      if (doc == null) {
+        return null;
+      }
+      return doc.getPosition();
     }
-    return doc.getPosition();
   }
 
 }

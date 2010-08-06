@@ -7,7 +7,9 @@ package com.opengamma.financial.security;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.id.IdentifierBundle;
@@ -34,8 +36,12 @@ public class MasterSecuritySource extends SecurityMasterAdapter implements Secur
   @Override
   public Security getSecurity(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
-    final SecurityDocument doc = get(uid);
-    return doc != null ? doc.getSecurity() : null;
+    try {
+      final SecurityDocument doc = get(uid);
+      return doc.getSecurity();
+    } catch (DataNotFoundException e) {
+      return null;
+    }
   }
 
   @Override
@@ -44,6 +50,9 @@ public class MasterSecuritySource extends SecurityMasterAdapter implements Secur
     final SecuritySearchRequest req = new SecuritySearchRequest();
     req.setIdentifiers(securityKey);
     final Collection<SecurityDocument> documents = search(req).getDocument();
+    if (documents == null) {
+      return Collections.emptyList();
+    }
     final Collection<Security> result = new ArrayList<Security>(documents.size());
     for (SecurityDocument document : documents) {
       result.add(document.getSecurity());

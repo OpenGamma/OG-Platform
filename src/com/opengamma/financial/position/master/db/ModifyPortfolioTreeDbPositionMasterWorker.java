@@ -85,6 +85,8 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
         document.setCorrectionToInstant(null);
         document.setPortfolioId(oldDoc.getPortfolioId().toLatest());
         insertPortfolioTree(document);
+        // update to remove all positions
+        updateRemoveOrphanedPositions(uid, now);
       }
     });
     return document;
@@ -105,6 +107,8 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
         final Instant now = Instant.now(getTimeSource());
         oldDoc.setVersionToInstant(now);
         updateVersionToInstant(oldDoc);
+        // update to remove all positions
+        updateRemoveAllPositions(uid, now);
       }
     });
   }
@@ -156,7 +160,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
       .addValue("name", document.getPortfolio().getName());
     // the arguments for inserting into the node table
     final List<DbMapSqlParameterSource> nodeList = new ArrayList<DbMapSqlParameterSource>();
-    insertBuildArgs(document.getPortfolio().getRootNode(), document.getPortfolioId() != null, portfolioId, null, new AtomicInteger(1), 0, nodeList);
+    insertBuildArgs(document.getPortfolio().getRootNode(), document.getPortfolioId() != null, portfolioId, portfolioOid, null, new AtomicInteger(1), 0, nodeList);
     getJdbcTemplate().update(sqlInsertPortfolio(), portfolioArgs);
     getJdbcTemplate().batchUpdate(sqlInsertNode(), (DbMapSqlParameterSource[]) nodeList.toArray(new DbMapSqlParameterSource[nodeList.size()]));
     // set the uid
@@ -170,13 +174,14 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
    * @param node  the root node, not null
    * @param update  true if updating portfolio, false if adding new portfolio
    * @param portfolioId  the portfolio id, not null
+   * @param portfolioOid  the portfolio oid, not null
    * @param parentNodeId  the parent node id, null if root node
    * @param counter  the counter to create the node id, use {@code getAndIncrement}, not null
    * @param depth  the depth of the node in the portfolio
    * @param argsList  the list of arguments to build, not null
    */
   protected void insertBuildArgs(
-      final PortfolioNode node, final boolean update, final Long portfolioId, final Long parentNodeId,
+      final PortfolioNode node, final boolean update, final Long portfolioId, final Long portfolioOid, final Long parentNodeId,
       final AtomicInteger counter, final int depth, final List<DbMapSqlParameterSource> argsList) {
     // need to insert parent before children for referential integrity
     final Long nodeId = nextId();
@@ -185,6 +190,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
       .addValue("node_id", nodeId)
       .addValue("node_oid", nodeOid)
       .addValue("portfolio_id", portfolioId)
+      .addValue("portfolio_oid", portfolioOid)
       .addValue("parent_node_id", parentNodeId)
       .addValue("depth", depth)
       .addValue("name", node.getName());
@@ -192,7 +198,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
     // store the left/right before/after the child loop and back fill into stored args row
     treeArgs.addValue("tree_left", counter.getAndIncrement());
     for (PortfolioNode childNode : node.getChildNodes()) {
-      insertBuildArgs(childNode, update, portfolioId, nodeId, counter, depth + 1, argsList);
+      insertBuildArgs(childNode, update, portfolioId, portfolioOid, nodeId, counter, depth + 1, argsList);
     }
     treeArgs.addValue("tree_right", counter.getAndIncrement());
     // set the uid
@@ -217,9 +223,9 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
    */
   protected String sqlInsertNode() {
     return "INSERT INTO pos_node " +
-              "(id, oid, portfolio_id, parent_node_id, depth, tree_left, tree_right, name) " +
+              "(id, oid, portfolio_id, portfolio_oid, parent_node_id, depth, tree_left, tree_right, name) " +
             "VALUES " +
-              "(:node_id, :node_oid, :portfolio_id, :parent_node_id, :depth, :tree_left, :tree_right, :name) ";
+              "(:node_id, :node_oid, :portfolio_id, :portfolio_oid, :parent_node_id, :depth, :tree_left, :tree_right, :name) ";
   }
 
   //-------------------------------------------------------------------------
@@ -300,6 +306,67 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
               "SET corr_to_instant = :corr_to_instant " +
             "WHERE id = :portfolio_id " +
               "AND corr_to_instant = :max_instant ";
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Updates each position as ended where it no longer has an active parent.
+   * @param oid  the portfolio object identifier, not null
+   * @param endInstant  the end instant, not null
+   */
+  protected void updateRemoveOrphanedPositions(final UniqueIdentifier oid, final Instant endInstant) {
+    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+      .addValue("portfolio_oid", extractOid(oid))
+      .addTimestamp("now", endInstant)
+      .addValue("max_instant", DateUtil.MAX_SQL_TIMESTAMP);
+    getJdbcTemplate().update(sqlUpdateRemoveOrphanedPositions(), args);
+  }
+
+  /**
+   * Gets the SQL for updating the end version of all positions on a portfolio tree.
+   * @return the SQL, not null
+   */
+  protected String sqlUpdateRemoveOrphanedPositions() {
+    return "UPDATE pos_position " +
+              "SET ver_to_instant = :now " +
+            "WHERE portfolio_oid = :portfolio_oid " +
+              "AND ver_to_instant = :max_instant " +
+              "AND id NOT IN (" +
+                "SELECT p.id FROM pos_position p, pos_node n, pos_portfolio f " +
+                "WHERE p.portfolio_oid = :portfolio_oid " +
+                  "AND p.ver_from_instant <= :now AND p.ver_to_instant > :now " +
+                  "AND p.corr_from_instant <= :now AND p.corr_to_instant > :now " +
+                  "AND p.parent_node_oid = n.oid " +
+                  "AND n.portfolio_id = f.id " +
+                  "AND f.ver_from_instant <= :now AND f.ver_to_instant > :now " +
+                  "AND f.corr_from_instant <= :now AND f.corr_to_instant > :now " +
+              ") ";
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Updates each position as ended where it belongs to the portfolio.
+   * This is an efficient version of {@link #updateRemoveOrphanedPositions} for a whole portfolio.
+   * @param oid  the portfolio object identifier, not null
+   * @param endInstant  the end instant, not null
+   */
+  protected void updateRemoveAllPositions(final UniqueIdentifier oid, final Instant endInstant) {
+    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+      .addValue("portfolio_oid", extractOid(oid))
+      .addTimestamp("now", endInstant)
+      .addValue("max_instant", DateUtil.MAX_SQL_TIMESTAMP);
+    getJdbcTemplate().update(sqlUpdateRemoveAllPositions(), args);
+  }
+
+  /**
+   * Gets the SQL for updating the end version of all positions on a portfolio tree.
+   * @return the SQL, not null
+   */
+  protected String sqlUpdateRemoveAllPositions() {
+    return "UPDATE pos_position " +
+              "SET ver_to_instant = :now " +
+            "WHERE portfolio_oid = :portfolio_oid " +
+              "AND ver_to_instant = :max_instant ";
   }
 
 }
