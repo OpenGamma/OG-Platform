@@ -25,6 +25,17 @@ public class LongObjectPair<T> extends Pair<Long, T> implements Long2ObjectMap.E
   public final T second;  // CSIGNORE
 
   /**
+   * Creates a pair inferring the types.
+   * @param <B> the second element type
+   * @param first  the first element, may be null
+   * @param second  the second element, may be null
+   * @return a pair formed from the two parameters, not null
+   */
+  public static <B> LongObjectPair<B> of(final long first, final B second) {
+    return new LongObjectPair<B>(first, second);
+  }
+
+  /**
    * Constructor.
    * @param first  the first element
    * @param second  the second element
