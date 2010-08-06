@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
+import com.opengamma.financial.position.master.PositionSearchRequest;
+import com.opengamma.financial.position.master.PositionSearchResult;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -92,6 +94,24 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerRemovePortfolioTreeTest ex
     assertEquals("TestNode212", portfolio.getRootNode().getName());
     assertEquals(0, portfolio.getRootNode().getChildNodes().size());
     assertEquals(0, portfolio.getRootNode().getPositions().size());
+  }
+
+  @Test
+  public void test_removePortfolioTree_positionsRemoved() {
+    Instant later = Instant.now(_posMaster.getTimeSource());
+    
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "101", "101");
+    PositionSearchRequest search = new PositionSearchRequest();
+    search.setPortfolioId(uid.toLatest());
+    search.setVersionAsOfInstant(later);
+    search.setCorrectedToInstant(later);
+    PositionSearchResult oldPositions = _posMaster.searchPositions(search);
+    assertEquals(2, oldPositions.getDocuments().size());
+    
+    _worker.removePortfolioTree(uid);
+    
+    PositionSearchResult newPositions = _posMaster.searchPositions(search);
+    assertEquals(0, newPositions.getDocuments().size());
   }
 
   //-------------------------------------------------------------------------

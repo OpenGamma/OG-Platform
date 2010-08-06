@@ -85,6 +85,8 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
         document.setCorrectionToInstant(null);
         document.setPortfolioId(oldDoc.getPortfolioId().toLatest());
         insertPortfolioTree(document);
+        // update to remove all positions
+        updateRemoveOrphanedPositions(uid, now);
       }
     });
     return document;
@@ -105,6 +107,8 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
         final Instant now = Instant.now(getTimeSource());
         oldDoc.setVersionToInstant(now);
         updateVersionToInstant(oldDoc);
+        // update to remove all positions
+        updateRemoveAllPositions(uid, now);
       }
     });
   }
@@ -302,6 +306,67 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
               "SET corr_to_instant = :corr_to_instant " +
             "WHERE id = :portfolio_id " +
               "AND corr_to_instant = :max_instant ";
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Updates each position as ended where it no longer has an active parent.
+   * @param oid  the portfolio object identifier, not null
+   * @param endInstant  the end instant, not null
+   */
+  protected void updateRemoveOrphanedPositions(final UniqueIdentifier oid, final Instant endInstant) {
+    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+      .addValue("portfolio_oid", extractOid(oid))
+      .addTimestamp("now", endInstant)
+      .addValue("max_instant", DateUtil.MAX_SQL_TIMESTAMP);
+    getJdbcTemplate().update(sqlUpdateRemoveOrphanedPositions(), args);
+  }
+
+  /**
+   * Gets the SQL for updating the end version of all positions on a portfolio tree.
+   * @return the SQL, not null
+   */
+  protected String sqlUpdateRemoveOrphanedPositions() {
+    return "UPDATE pos_position " +
+              "SET ver_to_instant = :now " +
+            "WHERE portfolio_oid = :portfolio_oid " +
+              "AND ver_to_instant = :max_instant " +
+              "AND id NOT IN (" +
+                "SELECT p.id FROM pos_position p, pos_node n, pos_portfolio f " +
+                "WHERE p.portfolio_oid = :portfolio_oid " +
+                  "AND p.ver_from_instant <= :now AND p.ver_to_instant > :now " +
+                  "AND p.corr_from_instant <= :now AND p.corr_to_instant > :now " +
+                  "AND p.parent_node_oid = n.oid " +
+                  "AND n.portfolio_id = f.id " +
+                  "AND f.ver_from_instant <= :now AND f.ver_to_instant > :now " +
+                  "AND f.corr_from_instant <= :now AND f.corr_to_instant > :now " +
+              ") ";
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Updates each position as ended where it belongs to the portfolio.
+   * This is an efficient version of {@link #updateRemoveOrphanedPositions} for a whole portfolio.
+   * @param oid  the portfolio object identifier, not null
+   * @param endInstant  the end instant, not null
+   */
+  protected void updateRemoveAllPositions(final UniqueIdentifier oid, final Instant endInstant) {
+    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+      .addValue("portfolio_oid", extractOid(oid))
+      .addTimestamp("now", endInstant)
+      .addValue("max_instant", DateUtil.MAX_SQL_TIMESTAMP);
+    getJdbcTemplate().update(sqlUpdateRemoveAllPositions(), args);
+  }
+
+  /**
+   * Gets the SQL for updating the end version of all positions on a portfolio tree.
+   * @return the SQL, not null
+   */
+  protected String sqlUpdateRemoveAllPositions() {
+    return "UPDATE pos_position " +
+              "SET ver_to_instant = :now " +
+            "WHERE portfolio_oid = :portfolio_oid " +
+              "AND ver_to_instant = :max_instant ";
   }
 
 }
