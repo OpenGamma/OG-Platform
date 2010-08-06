@@ -32,6 +32,7 @@ import com.opengamma.financial.Currency;
 import com.opengamma.financial.analytics.model.swap.SwapScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.interestrate.ParRateCalculator;
+import com.opengamma.financial.interestrate.ParRateCalculatorTest;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
