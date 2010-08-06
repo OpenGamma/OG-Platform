@@ -9,6 +9,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.junit.After;
 import org.junit.Before;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 public abstract class HibernateTest extends DBTest {
   
@@ -16,7 +17,7 @@ public abstract class HibernateTest extends DBTest {
   private static int testCount = 0;
   
   protected HibernateTest(String databaseType, String databaseVersion) {
-    super (databaseType, databaseVersion);
+    super(databaseType, databaseVersion);
   }
   
   public SessionFactory getSessionFactory() {
@@ -50,5 +51,9 @@ public abstract class HibernateTest extends DBTest {
       _sessionFactory.close();
     }
     super.tearDown();
+  }
+  
+  public DataSourceTransactionManager getTransactionManager() {
+    return getDbTool().getTransactionManager();
   }
 }

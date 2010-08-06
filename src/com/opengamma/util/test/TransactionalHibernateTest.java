@@ -8,7 +8,6 @@ package com.opengamma.util.test;
 import org.junit.After;
 import org.junit.Before;
 import org.springframework.orm.hibernate3.HibernateTransactionManager;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
@@ -17,7 +16,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
  */
 abstract public class TransactionalHibernateTest extends HibernateTest {
   
-  private PlatformTransactionManager _transactionManager;
+  private HibernateTransactionManager _transactionManager;
   private TransactionStatus _transaction;
   
   public TransactionalHibernateTest(String databaseType, final String databaseVersion) {
@@ -39,11 +38,11 @@ abstract public class TransactionalHibernateTest extends HibernateTest {
     }
   }
 
-  public PlatformTransactionManager getTransactionManager() {
+  public HibernateTransactionManager getHibernateTransactionManager() {
     return _transactionManager;
   }
 
-  public TransactionStatus getTransaction() {
+  public TransactionStatus getHibernateTransaction() {
     return _transaction;
   }
   
