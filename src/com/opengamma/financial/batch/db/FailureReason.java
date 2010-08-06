@@ -56,6 +56,8 @@ public class FailureReason {
               "(:id, :rsk_failure_id, :compute_failure_id)";
   }
   
+  public static String sqlCount() {
+    return "SELECT COUNT(*) FROM rsk_failure_reason";
+  }
 
-  
 }

@@ -104,5 +104,8 @@ public class RiskFailure {
               ":run_id, :eval_instant, :compute_node_id)";
   }
   
+  public static String sqlCount() {
+    return "SELECT COUNT(*) FROM rsk_failure";
+  }
 
 }

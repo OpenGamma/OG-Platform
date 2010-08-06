@@ -354,7 +354,12 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
       _dbManager.createLiveDataSnapshot(_batchJob.getSnapshotId());
       _dbManager.markLiveDataSnapshotComplete(_batchJob.getSnapshotId());
       _dbManager.startBatch(_batchJob);
+      
+      RiskRun run = _dbManager.getRiskRunFromDb(_batchJob);
+      assertEquals(0, run.getNumRestarts());
+      
       _dbManager.startBatch(_batchJob);
+      assertEquals(1, run.getNumRestarts());
     }
     
     @Test

@@ -747,13 +747,10 @@ public class BatchDbManagerImpl implements BatchDbManager {
       ObservationDateTime.class,
       ObservationTime.class,
       OpenGammaVersion.class,
-      RiskComputeFailure.class,
       RiskRun.class,
       RiskValueName.class,
       ComputationTarget.class,
-      RiskValue.class,
-      ComputeFailure.class,
-      StatusEntry.class
+      RiskValue.class
     };
   }
   
