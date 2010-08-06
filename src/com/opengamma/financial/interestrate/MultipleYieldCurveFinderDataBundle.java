@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.interestrate;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,6 +26,7 @@ public class MultipleYieldCurveFinderDataBundle {
   private final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> _unknownCurveInterpolators;
   private final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> _unknownCurveNodeSensitivityCalculators;
   private final int _totalNodes;
+  private final List<String> _names;
 
   public MultipleYieldCurveFinderDataBundle(final List<InterestRateDerivative> derivatives, final YieldCurveBundle knownCurves, final LinkedHashMap<String, double[]> unknownCurveNodePoints,
       final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> unknownCurveInterpolators,
@@ -58,6 +60,7 @@ public class MultipleYieldCurveFinderDataBundle {
     final Iterator<String> nodePointsIterator = unknownCurveNodePoints.keySet().iterator();
     final Iterator<String> unknownCurvesIterator = unknownCurveInterpolators.keySet().iterator();
     final Iterator<String> unknownNodeSensitivityCalculatorIterator = unknownCurveNodeSensitivityCalculators.keySet().iterator();
+    _names = new ArrayList<String>();
     while (nodePointsIterator.hasNext()) {
       final String name1 = nodePointsIterator.next();
       final String name2 = unknownCurvesIterator.next();
@@ -65,6 +68,7 @@ public class MultipleYieldCurveFinderDataBundle {
       if (name1 != name2 || name1 != name3) {
         throw new IllegalArgumentException("Names must be the same");
       }
+      _names.add(name1);
     }
     int nNodes = 0;
     for (final double[] nodes : unknownCurveNodePoints.values()) {
@@ -102,4 +106,26 @@ public class MultipleYieldCurveFinderDataBundle {
     return _totalNodes;
   }
 
+  public InterestRateDerivative getDerivative(final int i) {
+    return _derivatives.get(i);
+  }
+
+  public double[] getCurveNodePointsForCurve(final String name) {
+    Validate.notNull(name, "name");
+    return _unknownCurveNodePoints.get(name);
+  }
+
+  public Interpolator1D<? extends Interpolator1DDataBundle> getInterpolatorForCurve(final String name) {
+    Validate.notNull(name, "name");
+    return _unknownCurveInterpolators.get(name);
+  }
+
+  public Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> getSensitivityCalculatorForName(final String name) {
+    Validate.notNull(name, "name");
+    return _unknownCurveNodeSensitivityCalculators.get(name);
+  }
+
+  public List<String> getCurveNames() {
+    return _names;
+  }
 }

@@ -20,6 +20,7 @@ import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
 import com.opengamma.financial.interestrate.ParRateCalculator;
@@ -42,6 +43,7 @@ import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.LinearExtrapolator1D;
 import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.math.interpolation.data.Interpolator1DCubicSplineDataBundle;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculator;
 import com.opengamma.math.interpolation.sensitivity.FlatExtrapolator1DNodeSensitivityCalculator;
 import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
@@ -220,16 +222,18 @@ public class BasisSwapYieldCurveFinderTest {
     }
     X0 = new DoubleMatrix1D(rates);
 
-    final LinkedHashMap<String, Interpolator1D> unknownCurves = new LinkedHashMap<String, Interpolator1D>();
+    final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> unknownCurves = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
     final LinkedHashMap<String, double[]> unknownCurvesNodes = new LinkedHashMap<String, double[]>();
-    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> unknownCurveNodeSensitivityCalculators = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator>();
+    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
     unknownCurves.put(TREASURY_CURVE_NAME, INTERPOLATOR);
     unknownCurvesNodes.put(TREASURY_CURVE_NAME, TREASURY_NODE_TIMES);
     unknownCurveNodeSensitivityCalculators.put(TREASURY_CURVE_NAME, SENSITIVITY_CALCULATOR);
     unknownCurves.put(LIBOR_CURVE_NAME, INTERPOLATOR);
     unknownCurvesNodes.put(LIBOR_CURVE_NAME, LIBOR_NODE_TIMES);
     unknownCurveNodeSensitivityCalculators.put(LIBOR_CURVE_NAME, SENSITIVITY_CALCULATOR);
-    DOUBLE_CURVE_FINDER = new MultipleYieldCurveFinderFunction(INSTRUMENTS, unknownCurvesNodes, unknownCurves, unknownCurveNodeSensitivityCalculators, null, CALCULATOR);
+    //    DOUBLE_CURVE_FINDER = new MultipleYieldCurveFinderFunction(INSTRUMENTS, unknownCurvesNodes, unknownCurves, unknownCurveNodeSensitivityCalculators, null, CALCULATOR);
+    DOUBLE_CURVE_FINDER = new MultipleYieldCurveFinderFunction(new MultipleYieldCurveFinderDataBundle(INSTRUMENTS, null, unknownCurvesNodes, unknownCurves, unknownCurveNodeSensitivityCalculators),
+        CALCULATOR);
     DOUBLE_CURVE_JACOBIAN = new MultipleYieldCurveFinderJacobian(INSTRUMENTS, unknownCurvesNodes, unknownCurves, unknownCurveNodeSensitivityCalculators, null, PV_SENSITIVITY_CALCULATOR);
   }
 

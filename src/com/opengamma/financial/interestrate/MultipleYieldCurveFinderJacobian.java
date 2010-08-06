@@ -32,15 +32,16 @@ import com.opengamma.util.tuple.Pair;
 public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
   private final InterestRateDerivativeVisitor<Map<String, List<Pair<Double, Double>>>> _calculator;
   private final int _nPoints;
-  private final Map<String, Interpolator1D> _unknownCurveInterpolators;
+  private final Map<String, Interpolator1D<? extends Interpolator1DDataBundle>> _unknownCurveInterpolators;
   private final Map<String, double[]> _unknownCurveNodePoints;
-  private final Map<String, Interpolator1DNodeSensitivityCalculator> _unknownCurveSensitivityCalculators;
+  private final Map<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> _unknownCurveSensitivityCalculators;
   private YieldCurveBundle _knownCurves;
   private final List<InterestRateDerivative> _derivatives;
 
   public MultipleYieldCurveFinderJacobian(final List<InterestRateDerivative> derivatives, final LinkedHashMap<String, double[]> unknownCurveNodePoints,
-      final LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators, final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> unknownCurveSensitivityCalculators,
-      final YieldCurveBundle knownCurves, final InterestRateDerivativeVisitor<Map<String, List<Pair<Double, Double>>>> calculator) {
+      final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> unknownCurveInterpolators,
+      final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveSensitivityCalculators, final YieldCurveBundle knownCurves,
+      final InterestRateDerivativeVisitor<Map<String, List<Pair<Double, Double>>>> calculator) {
     Validate.notNull(derivatives);
     Validate.noNullElements(derivatives);
     Validate.notNull(unknownCurveNodePoints);
@@ -104,12 +105,12 @@ public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
 
     final YieldCurveBundle curves = new YieldCurveBundle();
     int index = 0;
-    final Set<Entry<String, Interpolator1D>> entrySet = _unknownCurveInterpolators.entrySet();
-    Iterator<Entry<String, Interpolator1D>> iterator = entrySet.iterator();
+    final Set<Entry<String, Interpolator1D<? extends Interpolator1DDataBundle>>> entrySet = _unknownCurveInterpolators.entrySet();
+    Iterator<Entry<String, Interpolator1D<? extends Interpolator1DDataBundle>>> iterator = entrySet.iterator();
     int numberOfNodes;
     double[] unknownCurveNodePoints;
     while (iterator.hasNext()) {
-      final Entry<String, Interpolator1D> temp = iterator.next();
+      final Entry<String, Interpolator1D<? extends Interpolator1DDataBundle>> temp = iterator.next();
       final Interpolator1D interpolator = temp.getValue();
       unknownCurveNodePoints = _unknownCurveNodePoints.get(temp.getKey());
       numberOfNodes = unknownCurveNodePoints.length;
@@ -132,7 +133,7 @@ public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
       iterator = entrySet.iterator();
       int offset = 0;
       while (iterator.hasNext()) { // loop over all curves (by name)
-        final Entry<String, Interpolator1D> namedCurve = iterator.next();
+        final Entry<String, Interpolator1D<? extends Interpolator1DDataBundle>> namedCurve = iterator.next();
         final String name = namedCurve.getKey();
         if (senseMap.containsKey(name)) {
 
