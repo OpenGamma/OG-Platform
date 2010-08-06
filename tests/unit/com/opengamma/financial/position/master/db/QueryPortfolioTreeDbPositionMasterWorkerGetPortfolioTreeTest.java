@@ -152,6 +152,26 @@ public class QueryPortfolioTreeDbPositionMasterWorkerGetPortfolioTreeTest extend
     assertEquals(0, portfolio.getRootNode().getChildNodes().size());
   }
 
+  @Test
+  public void test_getPortfolioTree_unversioned_nodesLoaded() {
+    UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "101");
+    PortfolioTreeDocument test = _worker.getPortfolioTree(oid);
+    
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "101", "101");
+    assertEquals(uid, test.getPortfolioId());
+    assertEquals(_version1Instant, test.getVersionFromInstant());
+    assertEquals(null, test.getVersionToInstant());
+    assertEquals(_version1Instant, test.getCorrectionFromInstant());
+    assertEquals(null, test.getCorrectionToInstant());
+    PortfolioTree portfolio = test.getPortfolio();
+    assertEquals(uid, portfolio.getUniqueIdentifier());
+    assertEquals("TestPortfolio101", portfolio.getName());
+    assertEquals(UniqueIdentifier.of("DbPos", "111", "111"), portfolio.getRootNode().getUniqueIdentifier());
+    assertEquals("TestNode111", portfolio.getRootNode().getName());
+    assertEquals(1, portfolio.getRootNode().getChildNodes().size());
+    assertEquals(1, portfolio.getRootNode().getChildNodes().get(0).getChildNodes().size());
+  }
+
   //-------------------------------------------------------------------------
   @Test(expected = DataNotFoundException.class)
   public void test_getPortfolioTree_fullId_notFound() {

@@ -96,6 +96,7 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
     s_logger.debug("getPortfolioTreeByLatest: {}", uid);
     final Instant now = Instant.now(getTimeSource());
     final PortfolioTreeSearchHistoricRequest request = new PortfolioTreeSearchHistoricRequest(uid, now, now);
+    request.setDepth(-1);
     final PortfolioTreeSearchHistoricResult result = getMaster().searchPortfolioTreeHistoric(request);
     if (result.getDocuments().size() != 1) {
       throw new DataNotFoundException("PortfolioTree not found: " + uid);
