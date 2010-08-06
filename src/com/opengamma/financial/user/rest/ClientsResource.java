@@ -13,8 +13,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.UriInfo;
 
-import org.fudgemsg.FudgeContext;
-
 /**
  * Temporary RESTful resource representing a collection of a user's clients. If any client is requested then it will
  * magically exist and persist forever.
@@ -25,12 +23,12 @@ import org.fudgemsg.FudgeContext;
 public class ClientsResource {
 
   private final UserResource _userResource;
-  private final FudgeContext _fudgeContext;
+  private final UsersResourceContext _context;
   private final ConcurrentHashMap<String, ClientResource> _clientMap = new ConcurrentHashMap<String, ClientResource>();
   
-  public ClientsResource(final UserResource userResource, final FudgeContext fudgeContext) {
+  public ClientsResource(final UserResource userResource, final UsersResourceContext context) {
     _userResource = userResource;
-    _fudgeContext = fudgeContext;
+    _context = context;
   }
   
   public UserResource getUserResource() {
@@ -47,7 +45,7 @@ public class ClientsResource {
   
   @Path("{clientUid}")
   public ClientResource getClient(@PathParam("clientUid") String clientName) {
-    ClientResource freshClient = new ClientResource(this, clientName, _fudgeContext);
+    ClientResource freshClient = new ClientResource(this, clientName, _context);
     ClientResource actualClient = _clientMap.putIfAbsent(clientName, freshClient);
     if (actualClient == null) {
       actualClient = freshClient;

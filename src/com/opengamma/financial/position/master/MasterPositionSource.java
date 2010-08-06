@@ -82,27 +82,21 @@ public class MasterPositionSource implements PositionSource {
   @Override
   public Portfolio getPortfolio(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
-    final FullPortfolioGetRequest request = new FullPortfolioGetRequest(uid);
-    request.setVersionAsOfInstant(_versionAsOfInstant);
-    request.setCorrectedToInstant(_correctedToInstant);
+    final FullPortfolioGetRequest request = new FullPortfolioGetRequest(uid, _versionAsOfInstant, _correctedToInstant);
     return _positionMaster.getFullPortfolio(request);
   }
 
   @Override
   public PortfolioNode getPortfolioNode(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
-    final FullPortfolioNodeGetRequest request = new FullPortfolioNodeGetRequest(uid);
-    request.setVersionAsOfInstant(_versionAsOfInstant);
-    request.setCorrectedToInstant(_correctedToInstant);
+    final FullPortfolioNodeGetRequest request = new FullPortfolioNodeGetRequest(uid, _versionAsOfInstant, _correctedToInstant);
     return _positionMaster.getFullPortfolioNode(request);
   }
 
   @Override
   public Position getPosition(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
-    final FullPositionGetRequest request = new FullPositionGetRequest(uid);
-    request.setVersionAsOfInstant(_versionAsOfInstant);
-    request.setCorrectedToInstant(_correctedToInstant);
+    final FullPositionGetRequest request = new FullPositionGetRequest(uid, _versionAsOfInstant, _correctedToInstant);
     return _positionMaster.getFullPosition(request);
   }
 
