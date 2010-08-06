@@ -6,7 +6,6 @@
 package com.opengamma.financial.batch.db;
 
 import java.io.Serializable;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -19,9 +18,6 @@ import java.util.Set;
 import javax.sql.DataSource;
 
 import org.fudgemsg.mapping.FudgeTransient;
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.engine.SessionFactoryImplementor;
@@ -36,13 +32,13 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calcnode.CalculationJob;
@@ -107,12 +103,26 @@ public class BatchResultWriter implements ResultWriter, Serializable {
   
   /**
    * Key is {@link StatusEntry} {_calculationConfigurationId, _computationTargetId}.
-   * Values are {@link StatusEntry} statuses.
    * null value is possible, it means no status entry in DB.
    */
-  private transient Map<Pair<Integer, Integer>, Integer> _statusEntryKey2Id;
+  private transient Map<Pair<Integer, Integer>, StatusEntry> _searchKey2StatusEntry;
+  
+  private transient Map<ComputeFailureKey, ComputeFailure> _key2ComputeFailure;
   
   public void initialize(CalculationNode computeNode) {
+    DBTool tool = new DBTool();
+    tool.setJdbcUrl(_jdbcUrl);
+    tool.setUser(_username);
+    tool.setPassword(_password);
+    tool.initialize();
+    
+    initialize(computeNode, tool);
+  }
+  
+  void initialize(CalculationNode computeNode, DBTool tool) {
+    ArgumentChecker.notNull(computeNode, "Compute node");
+    ArgumentChecker.notNull(computeNode, "DB tool");
+    
     if (_riskRunId == null ||
         _computationTarget2Id == null ||
         _calculationConfiguration2Id == null ||
@@ -122,12 +132,6 @@ public class BatchResultWriter implements ResultWriter, Serializable {
         _password == null) {
       throw new IllegalStateException("Not all required arguments are set");
     }
-    
-    DBTool tool = new DBTool();
-    tool.setJdbcUrl(_jdbcUrl);
-    tool.setUser(_username);
-    tool.setPassword(_password);
-    tool.initialize();
     
     if (_sessionFactory == null) {
       Configuration configuration = tool.getHibernateConfiguration();
@@ -165,7 +169,8 @@ public class BatchResultWriter implements ResultWriter, Serializable {
     _idGenerator = (SequenceStyleGenerator) idGenerator;
     _session = (StatelessSessionImpl) _sessionFactory.openStatelessSession();
     
-    _statusEntryKey2Id = new HashMap<Pair<Integer, Integer>, Integer>();
+    _searchKey2StatusEntry = new HashMap<Pair<Integer, Integer>, StatusEntry>();
+    _key2ComputeFailure = new HashMap<ComputeFailureKey, ComputeFailure>();
     
     _initialized = true;
   }
@@ -175,9 +180,11 @@ public class BatchResultWriter implements ResultWriter, Serializable {
   }
   
   public void setSessionFactory(SessionFactory sessionFactory) {
+    ArgumentChecker.notNull(sessionFactory, "Session factory");
     if (_sessionFactory != null) {
       throw new IllegalStateException("Already set");
     }
+    
     _sessionFactory = sessionFactory;
     _hibernateTemplate = new HibernateTemplate(sessionFactory);
     _hibernateTemplate.setAllowCreate(false);
@@ -194,6 +201,8 @@ public class BatchResultWriter implements ResultWriter, Serializable {
   }
 
   public void setTransactionManager(DataSourceTransactionManager transactionManager) {
+    ArgumentChecker.notNull(transactionManager, "Transaction manager");
+    
     _transactionManager = transactionManager;
     DataSource dataSource = _transactionManager.getDataSource();
     _jdbcTemplate = new SimpleJdbcTemplate(dataSource);
@@ -235,6 +244,7 @@ public class BatchResultWriter implements ResultWriter, Serializable {
   }
 
   public void setRiskRun(RiskRun riskRun) {
+    ArgumentChecker.notNull(riskRun, "Risk run");
     if (_riskRunId != null) {
       throw new IllegalStateException("Already set");
     }
@@ -249,10 +259,11 @@ public class BatchResultWriter implements ResultWriter, Serializable {
       _calculationConfiguration2Id.put(cc.getName(), id);
     }
     
-    _isRestart = riskRun.isRestart();
+    setIsRestart(riskRun.isRestart());
   }
 
   public void setComputationTargets(Set<ComputationTarget> computationTargets) {
+    ArgumentChecker.notNull(computationTargets, "Computation targets");
     if (_computationTarget2Id != null) {
       throw new IllegalStateException("Already set");
     }
@@ -268,6 +279,7 @@ public class BatchResultWriter implements ResultWriter, Serializable {
   }
 
   public void setRiskValueNames(Set<RiskValueName> valueNames) {
+    ArgumentChecker.notNull(valueNames, "Value names");
     if (_riskValueName2Id != null) {
       throw new IllegalStateException("Already set");
     }
@@ -279,9 +291,11 @@ public class BatchResultWriter implements ResultWriter, Serializable {
   }
 
   public void setComputeNode(ComputeNode computeNode) {
+    ArgumentChecker.notNull(computeNode, "Compute node");
     if (_computeNodeId  != null) {
       throw new IllegalStateException("Already set");
     }
+    
     _computeNodeId = computeNode.getId();
   }
 
@@ -300,6 +314,8 @@ public class BatchResultWriter implements ResultWriter, Serializable {
   }
 
   public int getCalculationConfigurationId(String calcConfName) {
+    ArgumentChecker.notNull(calcConfName, "Calc conf name");
+    
     Number confId = _calculationConfiguration2Id.get(calcConfName);
     if (confId == null) {
       throw new IllegalArgumentException("Calculation configuration " + calcConfName + " is not in the database");
@@ -308,6 +324,8 @@ public class BatchResultWriter implements ResultWriter, Serializable {
   }
 
   public int getComputationTargetId(ComputationTargetSpecification spec) {
+    ArgumentChecker.notNull(spec, "Computation target");
+    
     Integer specId = _computationTarget2Id.get(spec);
     if (specId == null) {
       throw new IllegalArgumentException(spec + " is not in the database");
@@ -323,6 +341,14 @@ public class BatchResultWriter implements ResultWriter, Serializable {
     return _riskRunId;
   }
   
+  public boolean isRestart() {
+    return _isRestart;
+  }
+
+  public void setIsRestart(boolean isRestart) {
+    _isRestart = isRestart;
+  }
+  
   // --------------------------------------------------------------------------
   
   public Map<ComputationTargetSpecification, Integer> getComputationTarget2Id() {
@@ -330,6 +356,7 @@ public class BatchResultWriter implements ResultWriter, Serializable {
   }
 
   public void setComputationTarget2Id(Map<ComputationTargetSpecification, Integer> computationTarget2Id) {
+    ArgumentChecker.notNull(computationTarget2Id, "Computation target -> database primary key map");
     _computationTarget2Id = computationTarget2Id;
   }
 
@@ -338,6 +365,7 @@ public class BatchResultWriter implements ResultWriter, Serializable {
   }
 
   public void setCalculationConfiguration2Id(Map<String, Integer> calculationConfiguration2Id) {
+    ArgumentChecker.notNull(calculationConfiguration2Id, "Calculation configuration name -> database primary key map");
     _calculationConfiguration2Id = calculationConfiguration2Id;
   }
 
@@ -346,6 +374,7 @@ public class BatchResultWriter implements ResultWriter, Serializable {
   }
 
   public void setRiskValueName2Id(Map<String, Integer> riskValueName2Id) {
+    ArgumentChecker.notNull(riskValueName2Id, "Risk value name -> database primary key map");
     _riskValueName2Id = riskValueName2Id;
   }
 
@@ -354,12 +383,15 @@ public class BatchResultWriter implements ResultWriter, Serializable {
   }
 
   public void setComputeNodeId(Integer computeNodeId) {
+    ArgumentChecker.notNull(computeNodeId, "Compute node database primary key");
     _computeNodeId = computeNodeId;
   }
   
   // --------------------------------------------------------------------------
 
   public int getValueNameId(String name) {
+    ArgumentChecker.notNull(name, "Risk value name");
+    
     Number valueNameId = _riskValueName2Id.get(name);
     if (valueNameId == null) {
       throw new IllegalArgumentException("Value name " + name + " is not in the database");
@@ -369,6 +401,9 @@ public class BatchResultWriter implements ResultWriter, Serializable {
 
   @Override
   public void write(CalculationNode node, CalculationJobResult result) {
+    ArgumentChecker.notNull(node, "Calculation node the writing happens on");
+    ArgumentChecker.notNull(result, "The result to write");
+    
     if (result.getResultItems().isEmpty()) {
       s_logger.info("{}: Nothing to insert into DB", result);
       return;
@@ -385,8 +420,21 @@ public class BatchResultWriter implements ResultWriter, Serializable {
     
     for (CalculationJobResultItem item : result.getResultItems()) {
       ComputationTargetSpecification target = item.getComputationTargetSpecification();
-      if (item.getResult() == InvocationResult.SUCCESS && 
-          !failedTargets.contains(target)) {
+      
+      boolean success = item.getResult() == InvocationResult.SUCCESS && 
+        !failedTargets.contains(target);
+      
+      // also check output types
+      for (ComputedValue value : item.getResults()) {
+        if (!(value.getValue() instanceof Double)) {
+          s_logger.error("Can only insert Double values, got " + 
+              value.getValue().getClass() + " for " + item);
+          success = false;
+          break;
+        }
+      }
+      
+      if (success) {
         successfulTargets.add(target);        
       } else {
         successfulTargets.remove(target);
@@ -409,18 +457,13 @@ public class BatchResultWriter implements ResultWriter, Serializable {
         continue;
       }
       
-      for (ComputedValue value : item.getResults()) {
-        
-        if (!(value.getValue() instanceof Double)) {
-          throw new IllegalArgumentException("Can only insert Double values, got " + 
-              value.getValue().getClass() + " for " + item);
-        }
-        Double valueAsDouble = (Double) value.getValue();
-
-        int valueNameId = getValueNameId(value.getSpecification().getRequirementSpecification().getValueName());
-        int computationTargetId = getComputationTargetId(value.getSpecification().getRequirementSpecification().getTargetSpecification());
-        
-        if (successfulTargets.contains(item.getComputationTargetSpecification())) {
+      if (successfulTargets.contains(item.getComputationTargetSpecification())) {
+      
+        for (ComputedValue value : item.getResults()) {
+          Double valueAsDouble = (Double) value.getValue(); // output type was already checked above
+  
+          int valueNameId = getValueNameId(value.getSpecification().getRequirementSpecification().getValueName());
+          int computationTargetId = getComputationTargetId(value.getSpecification().getRequirementSpecification().getTargetSpecification());
           
           RiskValue riskValue = new RiskValue();
           riskValue.setId(generateUniqueId());
@@ -432,17 +475,22 @@ public class BatchResultWriter implements ResultWriter, Serializable {
           riskValue.setEvalInstant(evalInstant);
           riskValue.setComputeNodeId(computeNodeId);
           successes.add(riskValue.toSqlParameterSource());
-
-          // the check below ensures that
-          // if there is a partial failure (some successes, some failures) for a target, 
-          // only the failures will be written out in the database
-
-        } else if (failedTargets.contains(item.getComputationTargetSpecification()) && item.getResult() != InvocationResult.SUCCESS)  {
+        }
+        
+      // the check below ensures that
+      // if there is a partial failure (some successes, some failures) for a target, 
+      // only the failures will be written out in the database
+      } else if (failedTargets.contains(item.getComputationTargetSpecification()))  {
           
-          if (!isWriteErrors()) {
-            continue;
-          }
+        if (!isWriteErrors()) {
+          continue;
+        }
+        
+        for (ValueRequirement value : item.getItem().getDesiredValues()) {
           
+          int valueNameId = getValueNameId(value.getValueName());
+          int computationTargetId = getComputationTargetId(value.getTargetSpecification());
+        
           ViewComputationCache cache = node.getCache(result.getSpecification());
           BatchResultWriterFailure cachedFailure = new BatchResultWriterFailure();
           
@@ -456,74 +504,62 @@ public class BatchResultWriter implements ResultWriter, Serializable {
           failure.setComputeNodeId(computeNodeId);
           failures.add(failure.toSqlParameterSource());
           
-          Exception exception = item.getException();
-          
-          if (exception instanceof MissingInputException) {
-            // There may be 1-N failure reasons - one for each failed
-            // function in the subtree below this node. (This
-            // only includes "original", i.e., lowest-level, failures.)
-            
-            for (ValueSpecification missingInput : ((MissingInputException) exception).getMissingInputs()) {
-              BatchResultWriterFailure inputFailure = (BatchResultWriterFailure) cache.getValue(missingInput);
-              if (inputFailure == null) {
-                s_logger.warn("No failure information available for {}", missingInput);
-                continue;
+          if (item.getResult() != InvocationResult.SUCCESS) {
+            Exception exception = item.getException();
+
+            if (exception instanceof MissingInputException) {
+              // There may be 1-N failure reasons - one for each failed
+              // function in the subtree below this node. (This
+              // only includes "original", i.e., lowest-level, failures.)
+              
+              for (ValueSpecification missingInput : ((MissingInputException) exception).getMissingInputs()) {
+                BatchResultWriterFailure inputFailure = (BatchResultWriterFailure) cache.getValue(missingInput);
+                if (inputFailure == null) {
+                  s_logger.warn("No failure information available for {}", missingInput);
+                  continue;
+                }
+                
+                cachedFailure.getComputeFailureIds().addAll(inputFailure.getComputeFailureIds());
               }
               
-              cachedFailure._computeFailureIds.addAll(inputFailure._computeFailureIds);
-            }
-            
-            for (Long computeFailureId : cachedFailure._computeFailureIds) {
+              for (Long computeFailureId : cachedFailure.getComputeFailureIds()) {
+                FailureReason reason = new FailureReason();
+                reason.setId(generateUniqueId());
+                reason.setRiskFailure(failure);
+                reason.setComputeFailureId(computeFailureId);
+                failureReasons.add(reason.toSqlParameterSource());
+              }
+              
+            } else {
+              // an "original" failure
+              //
+              // There will only be 1 failure reason.
+              
+              ComputeFailureKey computeFailureKey = new ComputeFailureKey(
+                  item.getItem().getFunctionUniqueIdentifier(),
+                  exception.getClass().getName(),
+                  exception.getMessage(),
+                  exception.getStackTrace());
+              
+              ComputeFailure computeFailure = getComputeFailureFromDb(computeFailureKey);
+              cachedFailure.getComputeFailureIds().add(computeFailure.getId());
+              
               FailureReason reason = new FailureReason();
               reason.setId(generateUniqueId());
               reason.setRiskFailure(failure);
-              reason.setComputeFailureId(computeFailureId);
+              reason.setComputeFailureId(computeFailure.getId());
               failureReasons.add(reason.toSqlParameterSource());
             }
             
-          } else {
-            // an "original" failure
-            //
-            // There will only be 1 failure reason.
-            
-            final ComputeFailure computeFailure = new ComputeFailure();
-            computeFailure.setFunctionId(item.getItem().getFunctionUniqueIdentifier());
-            computeFailure.setExceptionClass(exception.getClass().getName());
-            computeFailure.setExceptionMsg(exception.getMessage());
-            computeFailure.setStackTrace(exception.getStackTrace());
-            
-            // we depend on Hibernate cache here for performance
-            ComputeFailure dbComputeFailure = getComputeFailureFromDb(computeFailure);
-            
-            if (dbComputeFailure == null) {
-              try {
-                _hibernateTemplate.save(computeFailure);
-              } catch (DataAccessException e) {
-                // maybe some other node inserted it in the meanwhile?
-                dbComputeFailure = getComputeFailureFromDb(computeFailure);
-                if (dbComputeFailure == null) {
-                  s_logger.error("Cannot get {} from db", computeFailure);
-                  continue;
-                }
-              }
+            // failures are propagated up from children via the computation cache
+            for (ValueSpecification output : item.getOutputs()) {
+              cache.putValue(new ComputedValue(output, cachedFailure));
             }
-            
-            cachedFailure._computeFailureIds.add(dbComputeFailure.getId());
-            
-            FailureReason reason = new FailureReason();
-            reason.setId(generateUniqueId());
-            reason.setRiskFailure(failure);
-            reason.setComputeFailureId(computeFailure.getId());
-            failureReasons.add(reason.toSqlParameterSource());
+          } else {
+            // partial failure for this target / unsupported (non-Double) output from a function
+            s_logger.debug("Not writing any failure reasons for partial failures / unsupported outputs for now");
           }
-          
-          // failures are propagated up from children via the computation cache
-          for (ValueSpecification output : item.getOutputs()) {
-            cache.putValue(new ComputedValue(output, cachedFailure));
-          }
-          
         }
-        
       }
     }
     
@@ -534,8 +570,8 @@ public class BatchResultWriter implements ResultWriter, Serializable {
       insertRows("risk failure", RiskFailure.sqlInsertRiskFailure(), failures);
       insertRows("risk failure reason", FailureReason.sqlInsertRiskFailureReason(), failureReasons);
       
-      upsertStatusEntries(result.getSpecification(), "SUCCESS", StatusEntry.SUCCESS, successfulTargets);
-      upsertStatusEntries(result.getSpecification(), "FAILURE", StatusEntry.FAILURE, failedTargets);
+      upsertStatusEntries(result.getSpecification(), StatusEntry.Status.SUCCESS, successfulTargets);
+      upsertStatusEntries(result.getSpecification(), StatusEntry.Status.FAILURE, failedTargets);
       
       _transactionManager.commit(transaction);
     } catch (RuntimeException e) {
@@ -544,20 +580,54 @@ public class BatchResultWriter implements ResultWriter, Serializable {
     }
   }
 
-  private ComputeFailure getComputeFailureFromDb(final ComputeFailure computeFailure) {
-    ComputeFailure dbComputeFailure = (ComputeFailure) _hibernateTemplate.execute(new HibernateCallback() {
-      @Override
-      public Object doInHibernate(Session session) throws HibernateException,
-          SQLException {
-        Query query = session.getNamedQuery("ComputeFailure.one.byKey");
-        query.setString("functionId", computeFailure.getFunctionId());
-        query.setString("exceptionClass", computeFailure.getExceptionClass());
-        query.setString("exceptionMsg", computeFailure.getExceptionMsg());
-        query.setString("stackTrace", computeFailure.getStackTrace());
-        return query.uniqueResult();
-      }
-    });
-    return dbComputeFailure;
+  private ComputeFailure getComputeFailureFromDb(ComputeFailureKey computeFailureKey) {
+    ComputeFailure computeFailure = _key2ComputeFailure.get(computeFailureKey);
+    if (computeFailure != null) {
+      return computeFailure;
+    }
+    
+    try {
+      computeFailure = saveComputeFailure(computeFailureKey);
+      return computeFailure;
+      
+    } catch (DataAccessException e) {
+      // maybe the row was already there
+    }
+    
+    try {
+      int id = _jdbcTemplate.queryForInt(ComputeFailure.sqlGet(), computeFailure.toSqlParameterSource());
+      
+      computeFailure = new ComputeFailure();
+      computeFailure.setId(id);
+      computeFailure.setFunctionId(computeFailureKey.getFunctionId());
+      computeFailure.setExceptionClass(computeFailureKey.getExceptionClass());
+      computeFailure.setExceptionMsg(computeFailureKey.getExceptionMsg());
+      computeFailure.setStackTrace(computeFailureKey.getStackTrace());
+
+      _key2ComputeFailure.put(computeFailureKey, computeFailure);
+      return computeFailure;
+
+    } catch (IncorrectResultSizeDataAccessException e) {
+      s_logger.error("Cannot get {} from db", computeFailure);
+      throw new RuntimeException("Cannot get " + computeFailure + " from db", e);
+    }
+  }
+
+  /*package*/ ComputeFailure saveComputeFailure(ComputeFailureKey computeFailureKey) {
+    ComputeFailure computeFailure;
+    computeFailure = new ComputeFailure();
+    computeFailure.setId(generateUniqueId());
+    computeFailure.setFunctionId(computeFailureKey.getFunctionId());
+    computeFailure.setExceptionClass(computeFailureKey.getExceptionClass());
+    computeFailure.setExceptionMsg(computeFailureKey.getExceptionMsg());
+    computeFailure.setStackTrace(computeFailureKey.getStackTrace());
+    
+    int rowCount = _jdbcTemplate.update(ComputeFailure.sqlInsert(), computeFailure.toSqlParameterSource());
+    if (rowCount == 1) {
+      _key2ComputeFailure.put(computeFailureKey, computeFailure);
+      return computeFailure;
+    }
+    return computeFailure;
   }
   
   private void insertRows(String rowType, String sql, List<SqlParameterSource> rows) {
@@ -588,10 +658,9 @@ public class BatchResultWriter implements ResultWriter, Serializable {
     return totalCount;
   }
   
-  private void upsertStatusEntries(
+  /*package*/ void upsertStatusEntries(
       CalculationJobSpecification job,
-      String type, 
-      int status, 
+      StatusEntry.Status status, 
       Set<ComputationTargetSpecification> targets) {
     
     Integer calcConfId = getCalculationConfigurationId(job.getCalcConfigName());
@@ -605,42 +674,62 @@ public class BatchResultWriter implements ResultWriter, Serializable {
       MapSqlParameterSource params = new MapSqlParameterSource();
       
       Pair<Integer, Integer> key = Pair.of(calcConfId, computationTargetId);
-      Integer existingId = _statusEntryKey2Id.get(key);
-      if (existingId != null) {
-        params.addValue("id", existingId);        
-        params.addValue("status", status);
+      StatusEntry statusEntry = _searchKey2StatusEntry.get(key);
+      if (statusEntry != null) {
+        statusEntry.setStatus(status);
+        params.addValue("id", statusEntry.getId());        
+        params.addValue("status", statusEntry.getStatus().ordinal());
         updates.add(params);
       } else {
-        params.addValue("id", generateUniqueId());        
+        long uniqueId = generateUniqueId();
+        statusEntry = new StatusEntry();
+        statusEntry.setId(uniqueId);
+        statusEntry.setStatus(status);
+        statusEntry.setCalculationConfigurationId(calcConfId);
+        statusEntry.setComputationTargetId(computationTargetId);
+        _searchKey2StatusEntry.put(key, statusEntry);
+        
+        params.addValue("id", uniqueId);        
         params.addValue("calculation_configuration_id", calcConfId);
         params.addValue("computation_target_id", computationTargetId);
-        params.addValue("status", status);
+        params.addValue("status", statusEntry.getStatus().ordinal());
         inserts.add(params);
       }
     }
     
     s_logger.info("Inserting {} and updating {} {} status entries", 
-        new Object[] {inserts.size(), updates.size(), type});
+        new Object[] {inserts.size(), updates.size(), status});
     
     SqlParameterSource[] batchArgsArray = inserts.toArray(new SqlParameterSource[0]);
     int[] counts = _jdbcTemplate.batchUpdate(StatusEntry.sqlInsert(), batchArgsArray);
-    checkCount(type + " insert", batchArgsArray, counts);
+    checkCount(status + " insert", batchArgsArray, counts);
     
     batchArgsArray = updates.toArray(new SqlParameterSource[0]);
     counts = _jdbcTemplate.batchUpdate(StatusEntry.sqlUpdate(), batchArgsArray);
-    checkCount(type + " update", batchArgsArray, counts);
+    checkCount(status + " update", batchArgsArray, counts);
     
     s_logger.info("Inserted {} and updated {} {} status entries", 
-        new Object[] {inserts.size(), updates.size(), type});
+        new Object[] {inserts.size(), updates.size(), status});
   }
   
-  private static class BatchResultWriterFailure implements MissingInput, Serializable {
-    private Set<Long> _computeFailureIds = new HashSet<Long>(); 
+  static class BatchResultWriterFailure implements MissingInput, Serializable {
+    private Set<Long> _computeFailureIds = new HashSet<Long>();
+
+    public Set<Long> getComputeFailureIds() {
+      return _computeFailureIds;
+    }
+
+    public void setComputeFailureIds(Set<Long> computeFailureIds) {
+      _computeFailureIds = computeFailureIds;
+    }
   }
 
   @Override
   public List<CalculationJobItem> getItemsToExecute(CalculationNode node, CalculationJob job) {
-    if (!_isRestart) {
+    ArgumentChecker.notNull(node, "Calculation node the execution of the job happens on");
+    ArgumentChecker.notNull(job, "Calculation job to execute");
+    
+    if (!isRestart()) {
       // First time around, always execute everything.
       return job.getJobItems();      
     }
@@ -654,9 +743,9 @@ public class BatchResultWriter implements ResultWriter, Serializable {
     for (CalculationJobItem item : job.getJobItems()) {
       
       if (item.isWriteResults()) {
-        int status = getStatus(job.getSpecification(), item.getComputationTargetSpecification());
+        StatusEntry.Status status = getStatus(job.getSpecification(), item.getComputationTargetSpecification());
         switch (status) {
-          case StatusEntry.SUCCESS:
+          case SUCCESS:
             // All values for this computation target are already in the database.
             // However, if the computation cache has been re-started along with the 
             // batch, it is necessary to re-evaluate the item, write the results
@@ -672,9 +761,9 @@ public class BatchResultWriter implements ResultWriter, Serializable {
             
             break;
   
-          case StatusEntry.NOT_RUNNING:
-          case StatusEntry.RUNNING:
-          case StatusEntry.FAILURE:
+          case NOT_RUNNING:
+          case RUNNING:
+          case FAILURE:
             itemsToExecute.add(item);
             break;
           
@@ -707,31 +796,45 @@ public class BatchResultWriter implements ResultWriter, Serializable {
     return allOutputsInCache;
   }
   
-  private int getStatus(CalculationJobSpecification job, ComputationTargetSpecification ct) {
+  private StatusEntry.Status getStatus(CalculationJobSpecification job, ComputationTargetSpecification ct) {
     Integer calcConfId = getCalculationConfigurationId(job.getCalcConfigName());
     Integer computationTargetId = getComputationTargetId(ct);
     
+    // first check to see if this status has already been queried for
+    // and if the answer could therefore be found in the cache
+    
     Pair<Integer, Integer> key = Pair.of(calcConfId, computationTargetId);
-    if (_statusEntryKey2Id.containsKey(key)) {
-      return _statusEntryKey2Id.get(key);
+    if (_searchKey2StatusEntry.containsKey(key)) {
+      StatusEntry existingStatusEntryInDb = _searchKey2StatusEntry.get(key);
+      if (existingStatusEntryInDb != null) {
+        // status entry in db.
+        return existingStatusEntryInDb.getStatus();
+      } else {
+        // no status entry in db.
+        return StatusEntry.Status.NOT_RUNNING;
+      }
     }
     
     MapSqlParameterSource args = new MapSqlParameterSource();
     args.addValue("calculation_configuration_id", calcConfId);
     args.addValue("computation_target_id", computationTargetId);
     
-    
-    Integer status;
     try {
-      Map<String, Object> statusEntry = _jdbcTemplate.queryForMap(StatusEntry.sqlGet(), args);
-      status = (Integer) statusEntry.get("status");
+      StatusEntry statusEntry = _jdbcTemplate.queryForObject(
+          StatusEntry.sqlGet(),
+          StatusEntry.ROW_MAPPER,
+          args);
+
+      // status entry in db found.
+      _searchKey2StatusEntry.put(key, statusEntry);
+      
+      return statusEntry.getStatus();
+
     } catch (IncorrectResultSizeDataAccessException e) {
-      // no status entry in the db
-      status = StatusEntry.NOT_RUNNING;
+      // no status entry in the db. 
+      _searchKey2StatusEntry.put(key, null);
+      return StatusEntry.Status.NOT_RUNNING;
     }
-    
-    _statusEntryKey2Id.put(key, status);
-    return status.intValue();
   }
   
   /**
@@ -741,6 +844,31 @@ public class BatchResultWriter implements ResultWriter, Serializable {
   public int getNumRiskRows() {
     return _jdbcTemplate.queryForInt(RiskValue.sqlCount(), Collections.EMPTY_MAP);
   }
+  
+  /**
+   * Useful in tests
+   * @return Number of risk failures in the database
+   */
+  public int getNumRiskFailureRows() {
+    return _jdbcTemplate.queryForInt(RiskFailure.sqlCount(), Collections.EMPTY_MAP);
+  }
+  
+  /**
+   * Useful in tests
+   * @return Number of risk failure reasons in the database
+   */
+  public int getNumRiskFailureReasonRows() {
+    return _jdbcTemplate.queryForInt(FailureReason.sqlCount(), Collections.EMPTY_MAP);
+  }
+  
+  /**
+   * Useful in tests
+   * @return Number of risk compute failures in the database
+   */
+  public int getNumRiskComputeFailureRows() {
+    return _jdbcTemplate.queryForInt(ComputeFailure.sqlCount(), Collections.EMPTY_MAP);
+  }
+  
   
   /**
    * Useful in tests

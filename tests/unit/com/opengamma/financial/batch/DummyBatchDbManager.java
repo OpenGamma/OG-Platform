@@ -10,11 +10,7 @@ import java.util.Set;
 
 import javax.time.calendar.OffsetTime;
 
-import org.fudgemsg.FudgeMsg;
-
-import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.calcnode.ResultWriterFactory;
-import com.opengamma.financial.batch.db.BatchDbRiskContext;
 
 /**
  * 
