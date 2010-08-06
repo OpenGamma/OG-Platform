@@ -88,9 +88,12 @@ public final class ParRateCalculator implements InterestRateDerivativeVisitor<Do
     return (pa / pb - 1) / delta;
   }
 
+  /**
+   * Generic swaps do not have a "swap rate". If you require a vanilla swap use a FixedFloatSwap
+   */
   @Override
   public Double visitSwap(final Swap swap, final YieldCurveBundle curves) {
-    return null;
+    throw new UnsupportedOperationException("Generic swaps do not have a \"swap rate\". If you require a vanilla swap use a FixedFloatSwap");
   }
 
   @Override
@@ -115,6 +118,10 @@ public final class ParRateCalculator implements InterestRateDerivativeVisitor<Do
     return (pvReceive - pvPay) / pvSpread;
   }
 
+  /**
+   * This gives you the bond coupon, for a given yield curve, that renders the bond par (present value of all cash flows equal to 1.0)
+   * For a bonds yield use ??????????????? //TODO
+   */
   @Override
   public Double visitBond(final Bond bond, final YieldCurveBundle curves) {
     final YieldAndDiscountCurve curve = curves.getCurve(bond.getCurveName());
@@ -124,6 +131,10 @@ public final class ParRateCalculator implements InterestRateDerivativeVisitor<Do
     return (1 - curve.getDiscountFactor(maturity)) / pvann;
   }
 
+  /**
+   * Returns the fixed coupon paid on the same dates (and with the same year fraction) as the floating payments, that gives the same PV (for the given yield curves) as that expected from the floating payments 
+   * This is essentially a swap rate 
+   */
   @Override
   public Double visitVariableAnnuity(final VariableAnnuity annuity, final YieldCurveBundle curves) {
     final FixedAnnuity tempAnnuity = annuity.toUnitCouponFixedAnnuity();
@@ -132,15 +143,19 @@ public final class ParRateCalculator implements InterestRateDerivativeVisitor<Do
     return pvFloat / pvFixed;
   }
 
+  /**
+   * For non-constant fixed payments (i.e. payments are known at the outset), returns the fixed coupon paid on the same dates (and with the same year fraction) that gives the same PV for a given funding curve
+   */
   @Override
   public Double visitFixedAnnuity(final FixedAnnuity annuity, final YieldCurveBundle curves) {
     final FixedAnnuity ann = annuity.toUnitCouponFixedAnnuity(1.0);
-    return 1.0 / PVC.getValue(ann, curves);
+    final double pvFixed = PVC.getValue(annuity, curves);
+    return pvFixed / PVC.getValue(ann, curves);
   }
 
   @Override
   public Double visitConstantCouponAnnuity(ConstantCouponAnnuity annuity, YieldCurveBundle curves) {
-    return visitFixedAnnuity(annuity, curves);
+    return annuity.getCouponRate();
   }
 
 }

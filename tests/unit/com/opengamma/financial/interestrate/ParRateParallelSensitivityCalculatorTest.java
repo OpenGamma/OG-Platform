@@ -14,7 +14,6 @@ import java.util.Set;
 import org.apache.commons.lang.Validate;
 import org.junit.Test;
 
-import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
@@ -28,13 +27,14 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 /**
  * 
  */
-public class PV01CalculatorTest {
+public class ParRateParallelSensitivityCalculatorTest {
 
-  private final static YieldAndDiscountCurve FUNDING_CURVE = new DummyCurve(-0.04, 0.006, 0.1, 0.05);
-  private final static YieldAndDiscountCurve LIBOR_CURVE = new DummyCurve(-0.04, 0.005, 0.11, 0.055);
-  private final static PV01Calculator PV01 = new PV01Calculator();
-  private final static PresentValueCalculator PV = PresentValueCalculator.getInstance();
-  private final static double EPS = 1e-8;
+  private final static ParRateParallelSensitivityCalculator PRPSC = new ParRateParallelSensitivityCalculator();
+  private final static ParRateCalculator PRC = ParRateCalculator.getInstance();
+
+  private final static YieldAndDiscountCurve FUNDING_CURVE = new DummyCurve(-0.04, 0.007, 0.1, 0.05);
+  private final static YieldAndDiscountCurve LIBOR_CURVE = new DummyCurve(-0.04, 0.006, 0.11, 0.055);
+  private final static double EPS = 1e-6;
 
   private static final String FUNDING_CURVE_NAME = "funding curve";
   private static final String LIBOR_CURVE_NAME = "libor";
@@ -60,7 +60,7 @@ public class PV01CalculatorTest {
   public void TestFRA() {
     double settlement = 0.5;
     double maturity = 7.0 / 12.0;
-    double strike = 0.15;
+    double strike = 0.0;
     double fixingDate = settlement - 2.0 / 365.0;
     double forwardYearFrac = 31.0 / 365.0;
     double discountYearFrac = 30.0 / 360;
@@ -75,46 +75,6 @@ public class PV01CalculatorTest {
     double price = 97.3;
     InterestRateFuture edf = new InterestRateFuture(settlementDate, yearFraction, price, LIBOR_CURVE_NAME);
     doTest(edf, CURVES);
-  }
-
-  @Test
-  public void TestFixedAnnuity() {
-    int n = 15;
-    double alpha = 0.49;
-    double yearFrac = 0.51;
-    double[] paymentTimes = new double[n];
-
-    double[] yearFracs = new double[n];
-    double coupon = 0.03;
-    for (int i = 0; i < n; i++) {
-      paymentTimes[i] = (i + 1) * alpha;
-      yearFracs[i] = yearFrac;
-    }
-
-    FixedAnnuity annuity = new FixedAnnuity(paymentTimes, 31234.31231, coupon, yearFracs, FUNDING_CURVE_NAME);
-    doTest(annuity, CURVES);
-  }
-
-  @Test
-  public void TestVariableAnnuity() {
-    int n = 15;
-    double alpha = 0.245;
-    double yearFrac = 0.25;
-    double spread = 0.01;
-    double[] paymentTimes = new double[n];
-    double[] deltaStart = new double[n];
-    double[] deltaEnd = new double[n];
-    double[] yearFracs = new double[n];
-    double[] spreads = new double[n];
-    for (int i = 0; i < n; i++) {
-      paymentTimes[i] = (i + 1) * alpha;
-      deltaStart[i] = deltaEnd[i] = 0.1;
-      yearFracs[i] = yearFrac;
-      spreads[i] = spread;
-    }
-
-    VariableAnnuity annuity = new VariableAnnuity(paymentTimes, Math.E, deltaStart, deltaEnd, yearFracs, spreads, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
-    doTest(annuity, CURVES);
   }
 
   @Test
@@ -179,8 +139,8 @@ public class PV01CalculatorTest {
   }
 
   private void doTest(InterestRateDerivative ird, YieldCurveBundle curves) {
-    Map<String, Double> ana = PV01.getValue(ird, curves);
-    Map<String, Double> fd = finiteDifferancePV01(ird, curves);
+    Map<String, Double> ana = PRPSC.getValue(ird, curves);
+    Map<String, Double> fd = finiteDifferanceSense(ird, curves);
     Set<String> names = curves.getAllNames();
     for (String name : names) {
       if (ana.containsKey(name)) {
@@ -191,7 +151,7 @@ public class PV01CalculatorTest {
     }
   }
 
-  private Map<String, Double> finiteDifferancePV01(InterestRateDerivative ird, YieldCurveBundle curves) {
+  private Map<String, Double> finiteDifferanceSense(InterestRateDerivative ird, YieldCurveBundle curves) {
     Map<String, Double> result = new HashMap<String, Double>();
     Set<String> names = curves.getAllNames();
     for (String name : names) {
@@ -200,12 +160,12 @@ public class PV01CalculatorTest {
       YieldCurveBundle newCurves = new YieldCurveBundle();
       newCurves.addAll(curves);
       newCurves.replaceCurve(name, upCurve);
-      double upPV = PV.getValue(ird, newCurves);
+      double upRate = PRC.getValue(ird, newCurves);
       YieldAndDiscountCurve downCurve = curve.withParallelShift(-EPS);
       newCurves.replaceCurve(name, downCurve);
-      double downPV = PV.getValue(ird, newCurves);
+      double downRate = PRC.getValue(ird, newCurves);
 
-      double res = (upPV - downPV) / 10000 / 2 / EPS;
+      double res = (upRate - downRate) / 2 / EPS;
       result.put(name, res);
     }
     return result;
@@ -257,5 +217,4 @@ public class PV01CalculatorTest {
       return null;
     }
   }
-
 }

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.annuity.definition.ConstantCouponAnnuity;
@@ -82,7 +83,7 @@ public final class ParRateCurveSensitivityCalculator implements InterestRateDeri
     YieldAndDiscountCurve curve = curves.getCurve(curveName);
     final double ta = fra.getFixingDate();
     final double tb = fra.getMaturity();
-    final double delta = tb - ta;
+    final double delta = fra.getForwardYearFraction();
     final double ratio = curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) / delta;
     final DoublesPair s1 = new DoublesPair(ta, -ta * ratio);
     final DoublesPair s2 = new DoublesPair(tb, tb * ratio);
@@ -129,8 +130,10 @@ public final class ParRateCurveSensitivityCalculator implements InterestRateDeri
 
     Map<String, List<Pair<Double, Double>>> result = new HashMap<String, List<Pair<Double, Double>>>();
     for (String name : curves.getAllNames()) {
+      boolean flag = false;
       List<Pair<Double, Double>> temp = new ArrayList<Pair<Double, Double>>();
       if (senseA.containsKey(name)) {
+        flag = true;
         for (Pair<Double, Double> pair : senseA.get(name)) {
           double t = pair.getFirst();
           DoublesPair newPair = new DoublesPair(t, -bOveraSq * pair.getSecond());
@@ -138,13 +141,16 @@ public final class ParRateCurveSensitivityCalculator implements InterestRateDeri
         }
       }
       if (senseB.containsKey(name)) {
+        flag = true;
         for (Pair<Double, Double> pair : senseB.get(name)) {
           double t = pair.getFirst();
           DoublesPair newPair = new DoublesPair(t, pair.getSecond() / a);
           temp.add(newPair);
         }
       }
-      result.put(name, temp);
+      if (flag) {
+        result.put(name, temp);
+      }
     }
     return result;
   }
@@ -162,46 +168,78 @@ public final class ParRateCurveSensitivityCalculator implements InterestRateDeri
     Map<String, List<Pair<Double, Double>>> senseC = _pvSenseCalculator.getValue(spreadLeg, curves);
     Map<String, List<Pair<Double, Double>>> result = new HashMap<String, List<Pair<Double, Double>>>();
 
+    double factor = (b - a) / c / c;
+
     for (String name : curves.getAllNames()) {
+      boolean flag = false;
       List<Pair<Double, Double>> temp = new ArrayList<Pair<Double, Double>>();
       if (senseA.containsKey(name)) {
+        flag = true;
         for (Pair<Double, Double> pair : senseA.get(name)) {
           temp.add(new DoublesPair(pair.getFirst(), pair.getSecond() / c));
         }
       }
       if (senseB.containsKey(name)) {
+        flag = true;
         for (Pair<Double, Double> pair : senseB.get(name)) {
           temp.add(new DoublesPair(pair.getFirst(), -pair.getSecond() / c));
         }
       }
       if (senseC.containsKey(name)) {
+        flag = true;
         for (Pair<Double, Double> pair : senseC.get(name)) {
-          temp.add(new DoublesPair(pair.getFirst(), (b - a) / c * pair.getSecond()));
+          temp.add(new DoublesPair(pair.getFirst(), factor * pair.getSecond()));
         }
       }
-      result.put(name, temp);
+      if (flag) {
+        result.put(name, temp);
+      }
     }
     return result;
   }
 
   @Override
   public Map<String, List<Pair<Double, Double>>> visitBond(Bond bond, YieldCurveBundle curves) {
-    return null;
+    final YieldAndDiscountCurve curve = curves.getCurve(bond.getCurveName());
+    final FixedAnnuity ann = bond.getFixedAnnuity().toUnitCouponFixedAnnuity(1.0);
+    final double a = _pvCalculator.getValue(ann, curves);
+    Map<String, List<Pair<Double, Double>>> senseA = _pvSenseCalculator.getValue(ann, curves);
+    Map<String, List<Pair<Double, Double>>> result = new HashMap<String, List<Pair<Double, Double>>>();
+
+    final double maturity = bond.getMaturity();
+    final double df = curve.getDiscountFactor(maturity);
+    final double factor = -(1 - df) / a / a;
+
+    for (String name : curves.getAllNames()) {
+      if (senseA.containsKey(name)) {
+        List<Pair<Double, Double>> temp = new ArrayList<Pair<Double, Double>>();
+        List<Pair<Double, Double>> list = senseA.get(name);
+        int n = list.size();
+        for (int i = 0; i < (n - 1); i++) {
+          Pair<Double, Double> pair = list.get(i);
+          temp.add(new DoublesPair(pair.getFirst(), factor * pair.getSecond()));
+        }
+        Pair<Double, Double> pair = list.get(n - 1);
+        temp.add(new DoublesPair(pair.getFirst(), maturity * df / a + factor * pair.getSecond()));
+        result.put(name, temp);
+      }
+    }
+    return result;
   }
 
   @Override
   public Map<String, List<Pair<Double, Double>>> visitFixedAnnuity(FixedAnnuity annuity, YieldCurveBundle curves) {
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
   public Map<String, List<Pair<Double, Double>>> visitVariableAnnuity(VariableAnnuity annuity, YieldCurveBundle curves) {
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
   public Map<String, List<Pair<Double, Double>>> visitConstantCouponAnnuity(ConstantCouponAnnuity annuity, YieldCurveBundle curves) {
-    return null;
+    throw new NotImplementedException();
   }
 
 }

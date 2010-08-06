@@ -100,7 +100,7 @@ public class Interpolator1DDoubleQuadraticDataBundle implements Interpolator1DDa
 
   @Override
   public Double higherValue(Double key) {
-    return _underlyingData.higherKey(key);
+    return _underlyingData.higherValue(key);
   }
 
   @Override
