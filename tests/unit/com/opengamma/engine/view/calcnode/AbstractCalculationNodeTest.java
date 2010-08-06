@@ -15,80 +15,72 @@ import org.junit.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.DefaultComputationTargetResolver;
-import com.opengamma.engine.function.FunctionExecutionContext;
-import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.MockFunction;
-import com.opengamma.engine.position.MockPositionSource;
-import com.opengamma.engine.security.MockSecuritySource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.MapViewComputationCache;
-import com.opengamma.engine.view.cache.MapViewComputationCacheSource;
-import com.opengamma.engine.view.cache.ViewComputationCacheSource;
-import com.opengamma.util.InetAddressUtils;
 
 /**
  * 
  */
 public class AbstractCalculationNodeTest {
   
-  private static class TestCalculationNode extends AbstractCalculationNode {
+  public static String CALC_CONF_NAME = "Default";
 
-    protected TestCalculationNode(ViewComputationCacheSource cacheSource, FunctionRepository functionRepository,
-        FunctionExecutionContext functionExecutionContext, ComputationTargetResolver targetResolver,
-        ViewProcessorQuerySender calcNodeQuerySender) {
-      super(cacheSource, 
-          functionRepository, 
-          functionExecutionContext, 
-          targetResolver, 
-          calcNodeQuerySender, 
-          InetAddressUtils.getLocalHostName());
-    }
+  public static TestCalculationNode getTestCalcNode(MockFunction mockFunction) {
+    TestCalculationNode calcNode = new TestCalculationNode();
+    
+    InMemoryFunctionRepository functionRepo = (InMemoryFunctionRepository) calcNode.getFunctionRepository();
+    functionRepo.addFunction(mockFunction, mockFunction);
+    
+    return calcNode;
   }
-
-  @Test
-  public void mockFunctionInvocationOneInputMissing() {
+  
+  public static MockFunction getMockFunction() {
     ComputationTarget target = new ComputationTarget(ComputationTargetType.PRIMITIVE, "USD");
+    return getMockFunction(target, "Nothing we care about");    
+  }
+  
+  public static MockFunction getMockFunction(ComputationTarget target, Object output) {
+
     ValueRequirement inputReq = new ValueRequirement("INPUT", target.toSpecification());
-    ValueSpecification inputSpec = new ValueSpecification(inputReq);
-    //ComputedValue inputValue = new ComputedValue(inputSpec, "Just an input object");
     ValueRequirement outputReq = new ValueRequirement("OUTPUT", target.toSpecification());
+    
     ValueSpecification outputSpec = new ValueSpecification(outputReq);
-    ComputedValue outputValue = new ComputedValue(outputSpec, "Nothing we care about");
+    ComputedValue outputValue = new ComputedValue(outputSpec, output);
+    
     MockFunction fn = new MockFunction(
         target,
         Sets.newHashSet(inputReq),
         Sets.newHashSet(outputValue));
-    
-    InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
-    functionRepo.addFunction(fn, fn);
+    return fn;
+  }
+  
+  public static CalculationJob getCalculationJob(MockFunction function,
+      ResultWriter resultWriter) {
     
     long iterationTimestamp = System.currentTimeMillis();
-    CalculationJobSpecification jobSpec = new CalculationJobSpecification("view", "config", iterationTimestamp, 1L);
-    MapViewComputationCacheSource cacheSource = new MapViewComputationCacheSource();
-    //cache.putValue(inputValue);
-    FunctionExecutionContext execContext = new FunctionExecutionContext();
-    ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(null);
-    ComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(new MockSecuritySource(), new MockPositionSource());
+    CalculationJobSpecification jobSpec = new CalculationJobSpecification("view", CALC_CONF_NAME, iterationTimestamp, 1L);
     
-    TestCalculationNode calcNode = new TestCalculationNode(
-        cacheSource,
-        functionRepo,
-        execContext,
-        targetResolver,
-        viewProcessorQuerySender);
-
-    CalculationJobItem calculationJobItem = new CalculationJobItem(fn.getUniqueIdentifier(), 
-        target.toSpecification(), 
-        Sets.newHashSet(inputSpec), 
-        Sets.newHashSet(outputReq),
+    CalculationJobItem calculationJobItem = new CalculationJobItem(
+        function.getUniqueIdentifier(), 
+        function.getTarget().toSpecification(), 
+        Sets.newHashSet(new ValueSpecification(function.getRequirement())), 
+        Sets.newHashSet(function.getResultSpec().getRequirementSpecification()),
         true);
-    CalculationJob calcJob = new CalculationJob(jobSpec, Collections.singletonList(calculationJobItem), new DummyResultWriter());
+    CalculationJob calcJob = new CalculationJob(jobSpec, Collections.singletonList(calculationJobItem), resultWriter);
+    return calcJob;
+  }
+  
+  @Test
+  public void mockFunctionInvocationOneInputMissing() {
+    
+    MockFunction mockFunction = getMockFunction();
+    TestCalculationNode calcNode = getTestCalcNode(mockFunction);
+    CalculationJob calcJob = getCalculationJob(mockFunction, new DummyResultWriter());
     
     long startTime = System.nanoTime();
     CalculationJobResult jobResult = calcNode.executeJob(calcJob);
@@ -98,60 +90,30 @@ public class AbstractCalculationNodeTest {
     assertTrue(endTime - startTime >= jobResult.getDuration());
     assertEquals(1, jobResult.getResultItems().size());
     CalculationJobResultItem resultItem = jobResult.getResultItems().get(0);
-    assertEquals(calculationJobItem, resultItem.getItem());
+    assertEquals(calcJob.getJobItems().get(0), resultItem.getItem());
     assertEquals(InvocationResult.ERROR, resultItem.getResult());
   }
 
   @Test
   public void mockFunctionInvocationOneInputOneOutput() {
-    ComputationTarget target = new ComputationTarget(ComputationTargetType.PRIMITIVE, "USD");
-    ValueRequirement inputReq = new ValueRequirement("INPUT", target.toSpecification());
-    ValueSpecification inputSpec = new ValueSpecification(inputReq);
+    MockFunction mockFunction = getMockFunction();
+    TestCalculationNode calcNode = getTestCalcNode(mockFunction);
+    CalculationJob calcJob = getCalculationJob(mockFunction, new DummyResultWriter());
+    
+    ValueSpecification inputSpec = new ValueSpecification(mockFunction.getRequirement());
     ComputedValue inputValue = new ComputedValue(inputSpec, "Just an input object");
-    ValueRequirement outputReq = new ValueRequirement("OUTPUT", target.toSpecification());
-    ValueSpecification outputSpec = new ValueSpecification(outputReq);
-    ComputedValue outputValue = new ComputedValue(outputSpec, "Nothing we care about");
-    MockFunction fn = new MockFunction(
-        target,
-        Sets.newHashSet(inputReq),
-        Sets.newHashSet(outputValue));
     
-    InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
-    functionRepo.addFunction(fn, fn);
-    
-    long iterationTimestamp = System.currentTimeMillis();
-    CalculationJobSpecification jobSpec = new CalculationJobSpecification("view", "config", iterationTimestamp, 1L);
-    MapViewComputationCacheSource cacheSource = new MapViewComputationCacheSource();
-    MapViewComputationCache cache = cacheSource.getCache(jobSpec.getViewName(), jobSpec.getCalcConfigName(), iterationTimestamp);
+    MapViewComputationCache cache = (MapViewComputationCache) calcNode.getCache(calcJob.getSpecification());
     cache.putValue(inputValue);
-    
-    FunctionExecutionContext execContext = new FunctionExecutionContext();
-    ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(null);
-    ComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(new MockSecuritySource(), new MockPositionSource());
-    
-    TestCalculationNode calcNode = new TestCalculationNode(
-        cacheSource,
-        functionRepo,
-        execContext,
-        targetResolver,
-        viewProcessorQuerySender);
-    
-    CalculationJobItem calculationJobItem = new CalculationJobItem(fn.getUniqueIdentifier(), 
-        target.toSpecification(), 
-        Sets.newHashSet(inputSpec), 
-        Sets.newHashSet(outputReq),
-        true);
-
-    CalculationJob calcJob = new CalculationJob(jobSpec, Collections.singletonList(calculationJobItem), new DummyResultWriter());
     
     CalculationJobResult jobResult = calcNode.executeJob(calcJob);
     assertNotNull(jobResult);
     assertEquals(1, jobResult.getResultItems().size());
     CalculationJobResultItem resultItem = jobResult.getResultItems().get(0);
-    assertEquals(calculationJobItem, resultItem.getItem());
+    assertEquals(calcJob.getJobItems().get(0), resultItem.getItem());
     assertEquals(InvocationResult.SUCCESS, resultItem.getResult());
     assertEquals(2, cache.size());
-    assertEquals("Nothing we care about", cache.getValue(outputSpec));
+    assertEquals("Nothing we care about", cache.getValue(mockFunction.getResultSpec()));
   }
 
 }

@@ -5,9 +5,6 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import java.util.Set;
-
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 
 /**
