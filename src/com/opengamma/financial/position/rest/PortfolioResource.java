@@ -94,13 +94,13 @@ public class PortfolioResource {
   @GET
   @Produces(FudgeRest.MEDIA)
   public PortfolioTreeDocument getAsFudge() {
-    return getPositionMaster().getPortfolioTree(_portfolioUid);
+    return getPositionMaster().getPortfolioTree(getPortfolioUid());
   }
 
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getAsHtml() {
-    PortfolioTreeDocument doc = getPositionMaster().getPortfolioTree(_portfolioUid);
+    PortfolioTreeDocument doc = getPositionMaster().getPortfolioTree(getPortfolioUid());
     if (doc == null) {
       return null;
     }
