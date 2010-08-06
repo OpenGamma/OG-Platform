@@ -6,6 +6,7 @@
 package com.opengamma.financial.position.master.db;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.TimeZone;
@@ -20,11 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.engine.position.PortfolioImpl;
-import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.position.PortfolioNodeImpl;
-import com.opengamma.engine.position.PositionImpl;
+import com.opengamma.financial.position.master.PortfolioTree;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
+import com.opengamma.financial.position.master.PortfolioTreeNode;
+import com.opengamma.financial.position.master.PortfolioTreePosition;
 import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricRequest;
 import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricResult;
 import com.opengamma.financial.position.master.PositionDocument;
@@ -74,7 +74,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerUpdatePortfolioTreeTest ex
 
   @Test(expected = NullPointerException.class)
   public void test_updatePortfolioTree_noPortfolioTreeId() {
-    PortfolioImpl position = new PortfolioImpl("Test");
+    PortfolioTree position = new PortfolioTree("Test");
     PortfolioTreeDocument doc = new PortfolioTreeDocument();
     doc.setPortfolio(position);
     _worker.updatePortfolioTree(doc);
@@ -89,15 +89,19 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerUpdatePortfolioTreeTest ex
 
   @Test(expected = DataNotFoundException.class)
   public void test_updatePortfolioTree_notFound() {
-    PortfolioImpl pos = new PortfolioImpl(UniqueIdentifier.of("DbPos", "0", "0"), "Test", new PortfolioNodeImpl("Root"));
-    PortfolioTreeDocument doc = new PortfolioTreeDocument(pos);
+    PortfolioTree port = new PortfolioTree("Test");
+    port.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "0", "0"));
+    port.setRootNode(new PortfolioTreeNode("Root"));
+    PortfolioTreeDocument doc = new PortfolioTreeDocument(port);
     _worker.updatePortfolioTree(doc);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void test_updatePortfolioTree_notLatestVersion() {
-    PortfolioImpl pos = new PortfolioImpl(UniqueIdentifier.of("DbPos", "201", "201"), "Test", new PortfolioNodeImpl("Root"));
-    PortfolioTreeDocument doc = new PortfolioTreeDocument(pos);
+    PortfolioTree port = new PortfolioTree("Test");
+    port.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "201", "201"));
+    port.setRootNode(new PortfolioTreeNode("Root"));
+    PortfolioTreeDocument doc = new PortfolioTreeDocument(port);
     _worker.updatePortfolioTree(doc);
   }
 
@@ -107,8 +111,10 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerUpdatePortfolioTreeTest ex
     
     UniqueIdentifier oldPortfolioId = UniqueIdentifier.of("DbPos", "101", "101");
     PortfolioTreeDocument base = _queryWorker.getPortfolioTree(oldPortfolioId);
-    PortfolioImpl pos = new PortfolioImpl(oldPortfolioId, "NewName", (PortfolioNodeImpl) base.getPortfolio().getRootNode());
-    PortfolioTreeDocument input = new PortfolioTreeDocument(pos);
+    PortfolioTree port = new PortfolioTree("NewName");
+    port.setUniqueIdentifier(oldPortfolioId);
+    port.setRootNode(base.getPortfolio().getRootNode());
+    PortfolioTreeDocument input = new PortfolioTreeDocument(port);
     
     PortfolioTreeDocument updated = _worker.updatePortfolioTree(input);
     assertEquals(UniqueIdentifier.of("DbPos", "101"), updated.getPortfolioId().toLatest());
@@ -161,8 +167,8 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerUpdatePortfolioTreeTest ex
     assertEquals(2, oldPositions.getDocuments().size());
     
     PortfolioTreeDocument doc = _queryWorker.getPortfolioTree(uid);
-    PortfolioNodeImpl rootNode = (PortfolioNodeImpl) doc.getPortfolio().getRootNode();
-    rootNode.removeChildNode(rootNode.getChildNodes().get(0));
+    PortfolioTreeNode rootNode = doc.getPortfolio().getRootNode();
+    rootNode.removeNode(UniqueIdentifier.of("DbPos", "112"));
     _worker.updatePortfolioTree(doc);
     
     PositionSearchResult newPositions = _posMaster.searchPositions(search);
@@ -175,7 +181,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerUpdatePortfolioTreeTest ex
     Instant now = Instant.now(_posMaster.getTimeSource());
     
     _posMaster.setTimeSource(TimeSource.fixed(now.minusSeconds(5)));
-    PositionDocument addDoc = new PositionDocument(new PositionImpl(BigDecimal.TEN, Identifier.of("A", "B")));
+    PositionDocument addDoc = new PositionDocument(new PortfolioTreePosition(BigDecimal.TEN, Identifier.of("A", "B")));
     addDoc.setParentNodeId(UniqueIdentifier.of("DbPos", "113", "113"));
     addDoc = _posMaster.addPosition(addDoc);
     _posMaster.setTimeSource(TimeSource.fixed(now));
@@ -189,11 +195,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerUpdatePortfolioTreeTest ex
     assertEquals(3, oldPositions.getDocuments().size());
     
     PortfolioTreeDocument doc = _queryWorker.getPortfolioTree(uid);
-    PortfolioNodeImpl node112 = (PortfolioNodeImpl) doc.getPortfolio().getRootNode().getChildNodes().get(0);
-    assertEquals(UniqueIdentifier.of("DbPos", "112", "112"), node112.getUniqueIdentifier());
-    PortfolioNode node113 = node112.getChildNodes().get(0);
-    assertEquals(UniqueIdentifier.of("DbPos", "113", "113"), node113.getUniqueIdentifier());
-    node112.removeChildNode(node113);
+    assertTrue(doc.getPortfolio().getRootNode().removeNode(UniqueIdentifier.of("DbPos", "113")));
     _worker.updatePortfolioTree(doc);
     
     PositionSearchResult newPositions = _posMaster.searchPositions(search);

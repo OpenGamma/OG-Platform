@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.engine.position.Position;
+import com.opengamma.financial.position.master.PortfolioTreePosition;
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -35,7 +35,7 @@ public class ModifyPositionDbPositionMasterWorkerRemovePositionTest extends Abst
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyPositionDbPositionMasterWorkerRemovePositionTest.class);
 
   private ModifyPositionDbPositionMasterWorker _worker;
-  private QueryPositionDbPositionMasterWorker _queryWorker;
+  private DbPositionMasterWorker _queryWorker;
 
   public ModifyPositionDbPositionMasterWorkerRemovePositionTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
@@ -91,7 +91,7 @@ public class ModifyPositionDbPositionMasterWorkerRemovePositionTest extends Abst
     assertEquals(now, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    Position position = test.getPosition();
+    PortfolioTreePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uid, position.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(122.987), position.getQuantity());

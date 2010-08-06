@@ -38,7 +38,7 @@ public class QueryFullDbPositionMasterWorkerGetFullPortfolioTest extends Abstrac
   private static final Logger s_logger = LoggerFactory.getLogger(QueryFullDbPositionMasterWorkerGetFullPortfolioTest.class);
 
   private QueryFullDbPositionMasterWorker _worker;
-  private QueryPositionDbPositionMasterWorker _queryWorker;
+  private DbPositionMasterWorker _queryWorker;
 
   public QueryFullDbPositionMasterWorkerGetFullPortfolioTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);

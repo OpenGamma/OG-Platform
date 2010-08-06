@@ -6,7 +6,6 @@
 package com.opengamma.financial.position.master.memory;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -18,15 +17,22 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.MapMaker;
+import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNode;
+import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
+import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.financial.position.master.FullPortfolioGetRequest;
 import com.opengamma.financial.position.master.FullPortfolioNodeGetRequest;
 import com.opengamma.financial.position.master.FullPositionGetRequest;
+import com.opengamma.financial.position.master.PortfolioTree;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
+import com.opengamma.financial.position.master.PortfolioTreeNode;
+import com.opengamma.financial.position.master.PortfolioTreePosition;
 import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricRequest;
 import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricResult;
 import com.opengamma.financial.position.master.PortfolioTreeSearchRequest;
@@ -60,19 +66,19 @@ public class InMemoryPositionMaster implements PositionMaster {
   /**
    * The portfolios.
    */
-  private final Map<UniqueIdentifier, PortfolioTreeDocument> _trees = new HashMap<UniqueIdentifier, PortfolioTreeDocument>();
-  /**
-   * The nodes.
-   */
-  private final Map<UniqueIdentifier, PortfolioNode> _nodes = new HashMap<UniqueIdentifier, PortfolioNode>();
+  private final Map<UniqueIdentifier, PortfolioTreeDocument> _trees =  Maps.newHashMap();
   /**
    * A cache of positions by identifier.
    */
-  private final Map<UniqueIdentifier, PositionDocument> _positions = new HashMap<UniqueIdentifier, PositionDocument>();
+  private final Map<UniqueIdentifier, PositionDocument> _positions =  Maps.newHashMap();
   /**
    * The nodes.
    */
-  private final Map<UniqueIdentifier, UniqueIdentifier> _portfolioByNode = new HashMap<UniqueIdentifier, UniqueIdentifier>();
+  private final Map<UniqueIdentifier, PortfolioTreeNode> _nodes = new MapMaker().softKeys().makeMap();
+  /**
+   * The nodes.
+   */
+  private final Map<UniqueIdentifier, UniqueIdentifier> _portfolioByNode = new MapMaker().softKeys().makeMap();
   /**
    * The lock for synchronization.
    */
@@ -123,7 +129,9 @@ public class InMemoryPositionMaster implements PositionMaster {
             for (MetaProperty<Object> mp : doc.metaBean().metaPropertyIterable()) {
               mp.set(trimmedDoc, mp.get(doc));
             }
-            trimmedDoc.setPortfolio(new PortfolioImpl(doc.getPortfolio().getUniqueIdentifier(), doc.getPortfolio().getName()));
+            PortfolioTree portfolio = new PortfolioTree(doc.getPortfolio().getName());
+            portfolio.setUniqueIdentifier(doc.getPortfolio().getUniqueIdentifier());
+            trimmedDoc.setPortfolio(portfolio);
             return trimmedDoc;
           }
         });
@@ -150,7 +158,7 @@ public class InMemoryPositionMaster implements PositionMaster {
     
     synchronized (_lock) {
       // set uid
-      final Portfolio portfolio = document.getPortfolio();
+      final PortfolioTree portfolio = document.getPortfolio();
       final UniqueIdentifier portfolioUid = _uidSupplier.get();
       UniqueIdentifiables.setInto(portfolio, portfolioUid);
       addNode(portfolio.getRootNode(), portfolioUid);
@@ -166,14 +174,14 @@ public class InMemoryPositionMaster implements PositionMaster {
    * @param node  the node, not null
    * @param portfolioUid  the portfolio uid, not null
    */
-  protected void addNode(final PortfolioNode node, final UniqueIdentifier portfolioUid) {
+  protected void addNode(final PortfolioTreeNode node, final UniqueIdentifier portfolioUid) {
     final UniqueIdentifier nodeUid = _uidSupplier.get();
     
     synchronized (_lock) {
       UniqueIdentifiables.setInto(node, nodeUid);
       _nodes.put(nodeUid, node);
       _portfolioByNode.put(nodeUid, portfolioUid);
-      for (PortfolioNode child : node.getChildNodes()) {
+      for (PortfolioTreeNode child : node.getChildNodes()) {
         addNode(child, portfolioUid);
       }
     }
@@ -246,7 +254,7 @@ public class InMemoryPositionMaster implements PositionMaster {
    * @param uid  the position uid, not null
    * @return the position document, not null
    */
-  protected PortfolioTreeDocument createPortfolioTreeDocument(final Portfolio portfolio, final UniqueIdentifier uid) {
+  protected PortfolioTreeDocument createPortfolioTreeDocument(final PortfolioTree portfolio, final UniqueIdentifier uid) {
     final Instant now = Instant.nowSystemClock();
     final PortfolioTreeDocument doc = new PortfolioTreeDocument();
     doc.setPortfolio(portfolio);
@@ -332,16 +340,14 @@ public class InMemoryPositionMaster implements PositionMaster {
     
     synchronized (_lock) {
       // find parent
-      final PortfolioNode parentNode = _nodes.get(document.getParentNodeId());
+      final PortfolioTreeNode parentNode = _nodes.get(document.getParentNodeId());
       if (parentNode == null) {
         throw new IllegalArgumentException("Parent node not found: " + document.getParentNodeId());
       }
       // set uid
-      final Position position = document.getPosition();
+      final PortfolioTreePosition position = document.getPosition();
       final UniqueIdentifier positionUid = _uidSupplier.get();
       UniqueIdentifiables.setInto(position, positionUid);
-      // add to parent
-      parentNode.getPositions().add(position);
       // build document
       final PositionDocument newDoc = createPositionDocument(position, positionUid, document.getParentNodeId());
       _positions.put(positionUid, newDoc);  // unique identifier should be unique
@@ -374,15 +380,10 @@ public class InMemoryPositionMaster implements PositionMaster {
     ArgumentChecker.notNull(positionUid, "positionUid");
     
     synchronized (_lock) {
-      // get old
-      final PositionDocument oldDoc = _positions.get(positionUid);
+      final PositionDocument oldDoc = _positions.remove(positionUid);
       if (oldDoc == null) {
         throw new DataNotFoundException("Position not found: " + positionUid);
       }
-      // remove position
-      _positions.remove(positionUid);
-      // update portfolio
-      _nodes.get(oldDoc.getParentNodeId()).getPositions().remove(oldDoc.getPosition());  // remove by id?
     }
   }
 
@@ -414,7 +415,7 @@ public class InMemoryPositionMaster implements PositionMaster {
    * @param parentNodeUid  the parent uid, not null
    * @return the position document, not null
    */
-  protected PositionDocument createPositionDocument(final Position position, final UniqueIdentifier uid, final UniqueIdentifier parentNodeUid) {
+  protected PositionDocument createPositionDocument(final PortfolioTreePosition position, final UniqueIdentifier uid, final UniqueIdentifier parentNodeUid) {
     final Instant now = Instant.nowSystemClock();
     final PositionDocument doc = new PositionDocument();
     doc.setPosition(position);
@@ -437,7 +438,8 @@ public class InMemoryPositionMaster implements PositionMaster {
       if (doc == null) {
         return null;
       }
-      return doc.getPortfolio();  // positions stored in tree
+      PortfolioTree tp = doc.getPortfolio();
+      return new PortfolioImpl(tp.getUniqueIdentifier(), tp.getName(), convertToFull(tp.getRootNode()));
     }
   }
 
@@ -447,7 +449,8 @@ public class InMemoryPositionMaster implements PositionMaster {
     ArgumentChecker.notNull(request.getPortfolioNodeId(), "request.portfolioNodeId");
     
     synchronized (_lock) {
-      return _nodes.get(request.getPortfolioNodeId());
+      PortfolioTreeNode treeNode = _nodes.get(request.getPortfolioNodeId());
+      return convertToFull(treeNode);
     }
   }
 
@@ -461,8 +464,36 @@ public class InMemoryPositionMaster implements PositionMaster {
       if (doc == null) {
         return null;
       }
-      return doc.getPosition();
+      return convertToFull(doc.getPosition());
     }
+  }
+
+  /**
+   * Converts the specified node to a PortfolioNode implementation.
+   * @param treeNode  the node to convert, not null
+   * @return the converted node, not null
+   */
+  protected PortfolioNodeImpl convertToFull(final PortfolioTreeNode treeNode) {
+    PortfolioNodeImpl full = new PortfolioNodeImpl(treeNode.getUniqueIdentifier(), treeNode.getName());
+    for (PortfolioTreeNode child : treeNode.getChildNodes()) {
+      full.addChildNode(convertToFull(child));
+    }
+    PositionSearchRequest search = new PositionSearchRequest();
+    search.setParentNodeId(treeNode.getUniqueIdentifier());
+    PositionSearchResult result = searchPositions(search);
+    for (PortfolioTreePosition tp : result.getPositions()) {
+      full.addPosition(convertToFull(tp));
+    }
+    return full;
+  }
+
+  /**
+   * Converts the specified position to a Position implementation.
+   * @param tp  the tree position, not null
+   * @return the converted position, not null
+   */
+  protected PositionImpl convertToFull(final PortfolioTreePosition tp) {
+    return new PositionImpl(tp.getUniqueIdentifier(), tp.getQuantity(), tp.getSecurityKey());
   }
 
 }

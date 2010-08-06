@@ -23,9 +23,9 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import com.google.common.base.Objects;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.engine.position.PortfolioImpl;
-import com.opengamma.engine.position.PortfolioNodeImpl;
+import com.opengamma.financial.position.master.PortfolioTree;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
+import com.opengamma.financial.position.master.PortfolioTreeNode;
 import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricRequest;
 import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricResult;
 import com.opengamma.financial.position.master.PortfolioTreeSearchRequest;
@@ -288,9 +288,9 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
    */
   protected final class PortfolioTreeDocumentExtractor implements ResultSetExtractor {
     private long _lastPortfolioId = -1;
-    private PortfolioImpl _portfolio;
+    private PortfolioTree _portfolio;
     private List<PortfolioTreeDocument> _documents = new ArrayList<PortfolioTreeDocument>();
-    private final Stack<LongObjectPair<PortfolioNodeImpl>> _nodes = new Stack<LongObjectPair<PortfolioNodeImpl>>();
+    private final Stack<LongObjectPair<PortfolioTreeNode>> _nodes = new Stack<LongObjectPair<PortfolioTreeNode>>();
 
     @Override
     public Object extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -312,8 +312,8 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
       final Timestamp correctionFrom = rs.getTimestamp("CORR_FROM_INSTANT");
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
       final String name = StringUtils.defaultString(rs.getString("PORTFOLIO_NAME"));
-      final UniqueIdentifier uid = createUniqueIdentifier(portfolioOid, portfolioId, null);
-      _portfolio = new PortfolioImpl(uid, name);
+      _portfolio = new PortfolioTree(name);
+      _portfolio.setUniqueIdentifier(createUniqueIdentifier(portfolioOid, portfolioId, null));
       final PortfolioTreeDocument doc = new PortfolioTreeDocument(_portfolio);
       doc.setVersionFromInstant(DateUtil.fromSqlTimestamp(versionFrom));
       doc.setVersionToInstant(DateUtil.fromSqlTimestamp(versionTo));
@@ -329,19 +329,19 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
       final long treeLeft = rs.getLong("TREE_LEFT");
       final long treeRight = rs.getLong("TREE_RIGHT");
       final String name = StringUtils.defaultString(rs.getString("NODE_NAME"));
-      final UniqueIdentifier uid = createUniqueIdentifier(nodeOid, nodeId, null);
-      final PortfolioNodeImpl node = new PortfolioNodeImpl(uid, name);
+      final PortfolioTreeNode node = new PortfolioTreeNode(name);
+      node.setUniqueIdentifier(createUniqueIdentifier(nodeOid, nodeId, null));
       if (_nodes.size() == 0) {
         _portfolio.setRootNode(node);
       } else {
         while (treeLeft > _nodes.peek().first) {
           _nodes.pop();
         }
-        final PortfolioNodeImpl parent = _nodes.peek().second;
+        final PortfolioTreeNode parent = _nodes.peek().second;
         parent.addChildNode(node);
       }
       // add to stack
-      _nodes.push(new LongObjectPair<PortfolioNodeImpl>(treeRight, node));
+      _nodes.push(LongObjectPair.of(treeRight, node));
     }
   }
 

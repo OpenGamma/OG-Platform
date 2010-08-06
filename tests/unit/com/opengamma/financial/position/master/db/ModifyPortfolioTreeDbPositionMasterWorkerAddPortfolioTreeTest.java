@@ -21,11 +21,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.position.Portfolio;
-import com.opengamma.engine.position.PortfolioImpl;
-import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.position.PortfolioNodeImpl;
+import com.opengamma.financial.position.master.PortfolioTree;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
+import com.opengamma.financial.position.master.PortfolioTreeNode;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -75,7 +73,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerAddPortfolioTreeTest exten
 
   @Test(expected = NullPointerException.class)
   public void test_addPortfolioTree_noRootNode() {
-    Portfolio mockPortfolio = mock(Portfolio.class);
+    PortfolioTree mockPortfolio = mock(PortfolioTree.class);
     when(mockPortfolio.getName()).thenReturn("Test");
     PortfolioTreeDocument doc = new PortfolioTreeDocument();
     doc.setPortfolio(mockPortfolio);
@@ -86,10 +84,11 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerAddPortfolioTreeTest exten
   public void test_addPortfolioTree_add() {
     Instant now = Instant.now(_posMaster.getTimeSource());
     
-    PortfolioNodeImpl rootNode = new PortfolioNodeImpl("Root");
-    PortfolioNodeImpl childNode = new PortfolioNodeImpl("Child");
+    PortfolioTreeNode rootNode = new PortfolioTreeNode("Root");
+    PortfolioTreeNode childNode = new PortfolioTreeNode("Child");
     rootNode.addChildNode(childNode);
-    PortfolioImpl portfolio = new PortfolioImpl("Test", rootNode);
+    PortfolioTree portfolio = new PortfolioTree("Test");
+    portfolio.setRootNode(rootNode);
     PortfolioTreeDocument doc = new PortfolioTreeDocument();
     doc.setPortfolio(portfolio);
     PortfolioTreeDocument test = _worker.addPortfolioTree(doc);
@@ -104,25 +103,24 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerAddPortfolioTreeTest exten
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    Portfolio testPortfolio = test.getPortfolio();
+    PortfolioTree testPortfolio = test.getPortfolio();
     assertEquals(uid, testPortfolio.getUniqueIdentifier());
     assertEquals("Test", testPortfolio.getName());
-    PortfolioNode testRootNode = testPortfolio.getRootNode();
+    PortfolioTreeNode testRootNode = testPortfolio.getRootNode();
     assertEquals("Root", testRootNode.getName());
     assertEquals(1, testRootNode.getChildNodes().size());
-    assertEquals(0, testRootNode.getPositions().size());
-    PortfolioNode testChildNode = testRootNode.getChildNodes().get(0);
+    PortfolioTreeNode testChildNode = testRootNode.getChildNodes().get(0);
     assertEquals("Child", testChildNode.getName());
     assertEquals(0, testChildNode.getChildNodes().size());
-    assertEquals(0, testChildNode.getPositions().size());
   }
 
   @Test
   public void test_addPortfolioTree_addThenGet() {
-    PortfolioNodeImpl rootNode = new PortfolioNodeImpl("Root");
-    PortfolioNodeImpl childNode = new PortfolioNodeImpl("Child");
+    PortfolioTreeNode rootNode = new PortfolioTreeNode("Root");
+    PortfolioTreeNode childNode = new PortfolioTreeNode("Child");
     rootNode.addChildNode(childNode);
-    PortfolioImpl portfolio = new PortfolioImpl("Test", rootNode);
+    PortfolioTree portfolio = new PortfolioTree("Test");
+    portfolio.setRootNode(rootNode);
     PortfolioTreeDocument doc = new PortfolioTreeDocument();
     doc.setPortfolio(portfolio);
     PortfolioTreeDocument added = _worker.addPortfolioTree(doc);

@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.BadSqlGrammarException;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.engine.position.PositionImpl;
+import com.opengamma.financial.position.master.PortfolioTreePosition;
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.financial.position.master.PositionSearchHistoricRequest;
 import com.opengamma.financial.position.master.PositionSearchHistoricResult;
@@ -37,7 +37,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyPositionDbPositionMasterWorkerUpdatePositionTest.class);
 
   private ModifyPositionDbPositionMasterWorker _worker;
-  private QueryPositionDbPositionMasterWorker _queryWorker;
+  private DbPositionMasterWorker _queryWorker;
 
   public ModifyPositionDbPositionMasterWorkerUpdatePositionTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
@@ -69,7 +69,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
 
   @Test(expected = NullPointerException.class)
   public void test_updatePosition_noPositionId() {
-    PositionImpl position = new PositionImpl(BigDecimal.TEN, Identifier.of("A", "B"));
+    PortfolioTreePosition position = new PortfolioTreePosition(BigDecimal.TEN, Identifier.of("A", "B"));
     PositionDocument doc = new PositionDocument();
     doc.setPosition(position);
     _worker.updatePosition(doc);
@@ -84,14 +84,16 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
 
   @Test(expected = DataNotFoundException.class)
   public void test_updatePosition_notFound() {
-    PositionImpl pos = new PositionImpl(UniqueIdentifier.of("DbPos", "0", "0"), BigDecimal.TEN, Identifier.of("A", "B"));
+    PortfolioTreePosition pos = new PortfolioTreePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    pos.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "0", "0"));
     PositionDocument doc = new PositionDocument(pos);
     _worker.updatePosition(doc);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void test_updatePosition_notLatestVersion() {
-    PositionImpl pos = new PositionImpl(UniqueIdentifier.of("DbPos", "221", "221"), BigDecimal.TEN, Identifier.of("A", "B"));
+    PortfolioTreePosition pos = new PortfolioTreePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    pos.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "221", "221"));
     PositionDocument doc = new PositionDocument(pos);
     _worker.updatePosition(doc);
   }
@@ -101,7 +103,8 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     Instant now = Instant.now(_posMaster.getTimeSource());
     
     PositionDocument base = _queryWorker.getPosition(UniqueIdentifier.of("DbPos", "121", "121"));
-    PositionImpl pos = new PositionImpl(UniqueIdentifier.of("DbPos", "121", "121"), BigDecimal.TEN, Identifier.of("A", "B"));
+    PortfolioTreePosition pos = new PortfolioTreePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    pos.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "121", "121"));
     PositionDocument input = new PositionDocument(pos);
     
     PositionDocument updated = _worker.updatePosition(input);
@@ -138,7 +141,8 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     };
     w.init(_posMaster);
     final PositionDocument base = _queryWorker.getPosition(UniqueIdentifier.of("DbPos", "121", "121"));
-    PositionImpl pos = new PositionImpl(UniqueIdentifier.of("DbPos", "121", "121"), BigDecimal.TEN, Identifier.of("A", "B"));
+    PortfolioTreePosition pos = new PortfolioTreePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    pos.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "121", "121"));
     PositionDocument input = new PositionDocument(pos);
     try {
       w.updatePosition(input);

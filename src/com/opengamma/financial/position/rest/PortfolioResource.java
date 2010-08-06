@@ -19,11 +19,12 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import com.opengamma.engine.position.PortfolioImpl;
-import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.position.Position;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
+import com.opengamma.financial.position.master.PortfolioTreeNode;
+import com.opengamma.financial.position.master.PortfolioTreePosition;
 import com.opengamma.financial.position.master.PositionMaster;
+import com.opengamma.financial.position.master.PositionSearchRequest;
+import com.opengamma.financial.position.master.PositionSearchResult;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
@@ -112,7 +113,7 @@ public class PortfolioResource {
     
     html += "<p>Child nodes:<br /><table border=\"1\">" +
       "<tr><th>Name</th><th>Actions</th></tr>\n";
-    for (PortfolioNode child : doc.getPortfolio().getRootNode().getChildNodes()) {
+    for (PortfolioTreeNode child : doc.getPortfolio().getRootNode().getChildNodes()) {
       URI nodeUri = PortfolioNodeResource.uri(getUriInfo(), getPortfolioUid(), child.getUniqueIdentifier().toLatest());
       html += "<tr>";
       html += "<td><a href=\"" + nodeUri + "\">" + child.getName() + "</a></td>";
@@ -122,7 +123,10 @@ public class PortfolioResource {
     html += "</table></p>\n";
     html += "<p>Positions:<br /><table border=\"1\">" +
       "<tr><th>Name</th><th>Quantity</th><th>Actions</th></tr>\n";
-    for (Position position : doc.getPortfolio().getRootNode().getPositions()) {
+    PositionSearchRequest positionSearch = new PositionSearchRequest();
+    positionSearch.setParentNodeId(doc.getPortfolio().getRootNode().getUniqueIdentifier());
+    PositionSearchResult positions = getPositionMaster().searchPositions(positionSearch);
+    for (PortfolioTreePosition position : positions.getPositions()) {
       URI positionUri = PositionResource.uri(getUriInfo(), getPortfolioUid(), position.getUniqueIdentifier().toLatest());
       html += "<tr>";
       html += "<td><a href=\"" + positionUri + "\">" + position.getUniqueIdentifier().toLatest() + "</a></td>";
@@ -181,7 +185,7 @@ public class PortfolioResource {
 
   public Response update(String name) {
     PortfolioTreeDocument doc = getPositionMaster().getPortfolioTree(getPortfolioUid());
-    ((PortfolioImpl) doc.getPortfolio()).setName(name);
+    doc.getPortfolio().setName(name);
     doc = getPositionMaster().updatePortfolioTree(doc);
     URI uri = PortfolioResource.uri(getUriInfo(), doc.getPortfolioId().toLatest());
     return Response.seeOther(uri).build();

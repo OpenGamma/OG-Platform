@@ -37,7 +37,7 @@ public class QueryFullDbPositionMasterWorkerGetFullPortfolioNodeTest extends Abs
   private static final Logger s_logger = LoggerFactory.getLogger(QueryFullDbPositionMasterWorkerGetFullPortfolioNodeTest.class);
 
   private QueryFullDbPositionMasterWorker _worker;
-  private QueryPositionDbPositionMasterWorker _queryWorker;
+  private DbPositionMasterWorker _queryWorker;
 
   public QueryFullDbPositionMasterWorkerGetFullPortfolioNodeTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);

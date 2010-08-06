@@ -20,7 +20,6 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.opengamma.engine.position.Portfolio;
 import com.opengamma.util.db.Paging;
 
 /**
@@ -54,8 +53,8 @@ public class PortfolioTreeSearchHistoricResult extends DirectBean {
    * Gets the returned portfolios from within the documents.
    * @return the portfolios, not null
    */
-  public List<Portfolio> getPortfolios() {
-    List<Portfolio> result = new ArrayList<Portfolio>();
+  public List<PortfolioTree> getPortfolios() {
+    List<PortfolioTree> result = new ArrayList<PortfolioTree>();
     if (_documents != null) {
       for (PortfolioTreeDocument doc : _documents) {
         result.add(doc.getPortfolio());
@@ -76,7 +75,7 @@ public class PortfolioTreeSearchHistoricResult extends DirectBean {
    * Gets the first portfolio, or null if no documents.
    * @return the first portfolio, null if none
    */
-  public Portfolio getFirstPortfolio() {
+  public PortfolioTree getFirstPortfolio() {
     return getDocuments().size() > 0 ? getDocuments().get(0).getPortfolio() : null;
   }
 

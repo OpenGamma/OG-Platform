@@ -31,9 +31,9 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.view.server.EngineFudgeContextConfiguration;
 import com.opengamma.financial.fudgemsg.FinancialFudgeContextConfiguration;
+import com.opengamma.financial.position.master.PortfolioTree;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
 import com.opengamma.financial.position.master.PortfolioTreeSearchRequest;
 import com.opengamma.financial.position.master.PortfolioTreeSearchResult;
@@ -183,7 +183,7 @@ public class PortfoliosResource {
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response postForm(@FormParam("name") String name) {
-    PortfolioImpl portfolio = new PortfolioImpl(name);
+    PortfolioTree portfolio = new PortfolioTree(name);
     PortfolioTreeDocument doc = new PortfolioTreeDocument(portfolio);
 //    try {
 //      doc.checkValid();  // TODO: proper validation

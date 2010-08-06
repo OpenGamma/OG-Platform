@@ -33,7 +33,7 @@ public class QueryFullDbPositionMasterWorkerGetFullPositionTest extends Abstract
   private static final Logger s_logger = LoggerFactory.getLogger(QueryFullDbPositionMasterWorkerGetFullPositionTest.class);
 
   private QueryFullDbPositionMasterWorker _worker;
-  private QueryPositionDbPositionMasterWorker _queryWorker;
+  private DbPositionMasterWorker _queryWorker;
 
   public QueryFullDbPositionMasterWorkerGetFullPositionTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);

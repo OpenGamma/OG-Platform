@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.position.master.db;
 
+import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Map;
 
 import javax.time.TimeSource;
@@ -181,6 +184,26 @@ public class DbPositionMasterWorker {
     }
     deduplicate.put(uid, uid);
     return uid;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Extracts a BigDecimal handling DB annoyances.
+   * @param rs  the result set, not null
+   * @param columnName  the column name, not null
+   * @return the extracted value, may be null
+   * @throws SQLException 
+   */
+  protected BigDecimal extractBigDecimal(final ResultSet rs, final String columnName) throws SQLException {
+    BigDecimal value = rs.getBigDecimal(columnName);
+    if (value == null) {
+      return null;
+    }
+    BigDecimal stripped = value.stripTrailingZeros();  // Derby, and maybe others, add trailing zeroes
+    if (stripped.scale() < 0) {
+      return stripped.setScale(0);
+    }
+    return stripped;
   }
 
   //-------------------------------------------------------------------------

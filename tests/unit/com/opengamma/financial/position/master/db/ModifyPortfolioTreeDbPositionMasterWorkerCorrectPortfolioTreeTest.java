@@ -18,9 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.engine.position.PortfolioImpl;
-import com.opengamma.engine.position.PortfolioNodeImpl;
+import com.opengamma.financial.position.master.PortfolioTree;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
+import com.opengamma.financial.position.master.PortfolioTreeNode;
 import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricRequest;
 import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricResult;
 import com.opengamma.id.UniqueIdentifier;
@@ -66,7 +66,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerCorrectPortfolioTreeTest e
 
   @Test(expected = NullPointerException.class)
   public void test_correctPortfolioTree_noPortfolioTreeId() {
-    PortfolioImpl position = new PortfolioImpl("Test");
+    PortfolioTree position = new PortfolioTree("Test");
     PortfolioTreeDocument doc = new PortfolioTreeDocument();
     doc.setPortfolio(position);
     _worker.correctPortfolioTree(doc);
@@ -81,8 +81,10 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerCorrectPortfolioTreeTest e
 
   @Test(expected = DataNotFoundException.class)
   public void test_correctPortfolioTree_notFound() {
-    PortfolioImpl pos = new PortfolioImpl(UniqueIdentifier.of("DbPos", "0", "0"), "Test", new PortfolioNodeImpl("Root"));
-    PortfolioTreeDocument doc = new PortfolioTreeDocument(pos);
+    PortfolioTree port = new PortfolioTree("Test");
+    port.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "0", "0"));
+    port.setRootNode(new PortfolioTreeNode("Root"));
+    PortfolioTreeDocument doc = new PortfolioTreeDocument(port);
     _worker.correctPortfolioTree(doc);
   }
 
@@ -100,8 +102,10 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerCorrectPortfolioTreeTest e
     
     UniqueIdentifier oldPortfolioId = UniqueIdentifier.of("DbPos", "201", "201");
     PortfolioTreeDocument base = _queryWorker.getPortfolioTree(oldPortfolioId);
-    PortfolioImpl pos = new PortfolioImpl(oldPortfolioId, "NewName", (PortfolioNodeImpl) base.getPortfolio().getRootNode());
-    PortfolioTreeDocument input = new PortfolioTreeDocument(pos);
+    PortfolioTree port = new PortfolioTree("NewName");
+    port.setUniqueIdentifier(oldPortfolioId);
+    port.setRootNode(base.getPortfolio().getRootNode());
+    PortfolioTreeDocument input = new PortfolioTreeDocument(port);
     
     PortfolioTreeDocument corrected = _worker.correctPortfolioTree(input);
     assertEquals(UniqueIdentifier.of("DbPos", "201"), corrected.getPortfolioId().toLatest());
