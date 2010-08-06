@@ -421,17 +421,24 @@ public class BatchResultWriter implements ResultWriter, Serializable {
     for (CalculationJobResultItem item : result.getResultItems()) {
       ComputationTargetSpecification target = item.getComputationTargetSpecification();
       
-      boolean success = item.getResult() == InvocationResult.SUCCESS && 
-        !failedTargets.contains(target);
+      boolean success; 
       
-      // also check output types
-      for (ComputedValue value : item.getResults()) {
-        if (!(value.getValue() instanceof Double)) {
-          s_logger.error("Can only insert Double values, got " + 
-              value.getValue().getClass() + " for " + item);
-          success = false;
-          break;
+      if (item.getResult() == InvocationResult.SUCCESS) {
+        success = !failedTargets.contains(target);
+        
+        if (success) {
+          // also check output types
+          for (ComputedValue value : item.getResults()) {
+            if (!(value.getValue() instanceof Double)) {
+              s_logger.error("Can only insert Double values, got " + 
+                  value.getValue().getClass() + " for " + item);
+              success = false;
+              break;
+            }
+          }
         }
+      } else {
+        success = false;
       }
       
       if (success) {

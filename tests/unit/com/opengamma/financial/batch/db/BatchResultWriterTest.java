@@ -440,6 +440,7 @@ public class BatchResultWriterTest extends HibernateTest {
             Collections.singleton(new ValueRequirement("OUTPUT1", _mockFunction.getTarget().toSpecification())),
             true),
         InvocationResult.SUCCESS);
+    successItem.setResults(Collections.<ComputedValue>emptySet());
     
     CalculationJobResultItem failedItem = new CalculationJobResultItem(
         new CalculationJobItem("function1", 
