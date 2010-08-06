@@ -82,6 +82,9 @@ public class BatchResultWriterTest extends HibernateTest {
     Instant now = Instant.nowSystemClock();
     
     _hibernateTemplate = new HibernateTemplate(getSessionFactory());
+    _hibernateTemplate.setAllowCreate(false);
+    
+    getSessionFactory().getCurrentSession().beginTransaction();
     
     _openGammaVersion = new OpenGammaVersion();
     _openGammaVersion.setVersion("1.0");
@@ -178,9 +181,11 @@ public class BatchResultWriterTest extends HibernateTest {
     _dbComputationTarget.setIdValue(_mockFunction.getTarget().getUniqueIdentifier().getValue());
     _dbComputationTargets.add(_dbComputationTarget);
     _hibernateTemplate.saveOrUpdateAll(_dbComputationTargets);
-    _resultWriter.setComputationTargets(_dbComputationTargets);
     
+    _resultWriter.setComputationTargets(_dbComputationTargets);
     _resultWriter.initialize(_calcNode, getDbTool());
+    
+    getSessionFactory().getCurrentSession().getTransaction().commit();
   }
   
   @Test
@@ -200,10 +205,15 @@ public class BatchResultWriterTest extends HibernateTest {
     
     // already successfully executed, but outputs NOT in cache.
     // should re-execute, but not write results into DB.
-    _resultWriter.upsertStatusEntries(
-        _calcJob.getSpecification(), 
-        StatusEntry.Status.SUCCESS, 
-        Sets.newHashSet(_dbComputationTarget.toSpec()));
+    _resultWriter.openSession();
+    try {
+      _resultWriter.upsertStatusEntries(
+          _calcJob.getSpecification(), 
+          StatusEntry.Status.SUCCESS, 
+          Sets.newHashSet(_dbComputationTarget.toSpec()));
+    } finally {
+      _resultWriter.closeSession();
+    }
     
     itemsToExecute = _resultWriter.getItemsToExecute(_calcNode, _calcJob);
     assertEquals(1, itemsToExecute.size());
@@ -383,7 +393,14 @@ public class BatchResultWriterTest extends HibernateTest {
         "exceptionClass",
         "inputFailed",
         new StackTraceElement[0]);
-    ComputeFailure inputFailure = _resultWriter.saveComputeFailure(inputFailureKey);
+    
+    ComputeFailure inputFailure;
+    _resultWriter.openSession();
+    try {
+      inputFailure = _resultWriter.saveComputeFailure(inputFailureKey);
+    } finally {
+      _resultWriter.closeSession();
+    }
     
     assertEquals(0, _resultWriter.getNumRiskRows());
     assertEquals(0, _resultWriter.getNumRiskFailureRows());

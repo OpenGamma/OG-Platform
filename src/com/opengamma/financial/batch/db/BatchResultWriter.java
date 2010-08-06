@@ -32,7 +32,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
@@ -95,8 +94,6 @@ public class BatchResultWriter implements ResultWriter, Serializable {
    */
   private transient SessionFactory _sessionFactory;
   
-  private transient HibernateTemplate _hibernateTemplate;
-
   private transient SequenceStyleGenerator _idGenerator;
   private transient StatelessSessionImpl _session;
   private transient boolean _initialized; // = false;
@@ -167,7 +164,6 @@ public class BatchResultWriter implements ResultWriter, Serializable {
     }
 
     _idGenerator = (SequenceStyleGenerator) idGenerator;
-    _session = (StatelessSessionImpl) _sessionFactory.openStatelessSession();
     
     _searchKey2StatusEntry = new HashMap<Pair<Integer, Integer>, StatusEntry>();
     _key2ComputeFailure = new HashMap<ComputeFailureKey, ComputeFailure>();
@@ -179,6 +175,15 @@ public class BatchResultWriter implements ResultWriter, Serializable {
     return _initialized;
   }
   
+  /*package*/ void openSession() {
+    _session = (StatelessSessionImpl) _sessionFactory.openStatelessSession();
+  }
+  
+  /*package*/ void closeSession() {
+    _session.close();
+    _session = null;
+  }
+  
   public void setSessionFactory(SessionFactory sessionFactory) {
     ArgumentChecker.notNull(sessionFactory, "Session factory");
     if (_sessionFactory != null) {
@@ -186,8 +191,6 @@ public class BatchResultWriter implements ResultWriter, Serializable {
     }
     
     _sessionFactory = sessionFactory;
-    _hibernateTemplate = new HibernateTemplate(sessionFactory);
-    _hibernateTemplate.setAllowCreate(false);
   }
   
   @FudgeTransient
@@ -403,6 +406,16 @@ public class BatchResultWriter implements ResultWriter, Serializable {
   public void write(CalculationNode node, CalculationJobResult result) {
     ArgumentChecker.notNull(node, "Calculation node the writing happens on");
     ArgumentChecker.notNull(result, "The result to write");
+    
+    openSession();
+    try {
+      doWrite(node, result);
+    } finally {
+      closeSession();
+    }
+  }
+  
+  private void doWrite(CalculationNode node, CalculationJobResult result) {
     
     if (result.getResultItems().isEmpty()) {
       s_logger.info("{}: Nothing to insert into DB", result);
