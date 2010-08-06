@@ -258,7 +258,7 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
     unknownCurveNodeSensitivityCalculators.put(FORWARD_CURVE_NAME, EXTRAPOLATOR_WITH_SENSITIVITY);
     final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(INSTRUMENTS, null, unknownCurveNodes, unknownCurveInterpolators, unknownCurveNodeSensitivityCalculators);
     DOUBLE_CURVE_FINDER = new MultipleYieldCurveFinderFunction(data, CALCULATOR);
-    DOUBLE_CURVE_JACOBIAN = new MultipleYieldCurveFinderJacobian(INSTRUMENTS, unknownCurveNodes, unknownCurveInterpolators, unknownCurveNodeSensitivityCalculators, null, SENSITIVITY_CALCULATOR);
+    DOUBLE_CURVE_JACOBIAN = new MultipleYieldCurveFinderJacobian(data, SENSITIVITY_CALCULATOR);
   }
 
   @Test

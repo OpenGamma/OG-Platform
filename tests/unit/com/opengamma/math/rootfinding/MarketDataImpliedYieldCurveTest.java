@@ -143,9 +143,9 @@ public class MarketDataImpliedYieldCurveTest {
     unknownCurveInterpolators.put(CURVE_NAME, EXTRAPOLATOR);
     unknownCurveNodes.put(CURVE_NAME, NODE_TIMES);
     unknownCurveNodeSensitivityCalculators.put(CURVE_NAME, EXTRAPOLATOR_WITH_SENSITIVITY);
-    SINGLE_CURVE_FINDER = new MultipleYieldCurveFinderFunction(new MultipleYieldCurveFinderDataBundle(INSTRUMENTS, null, unknownCurveNodes, unknownCurveInterpolators,
-        unknownCurveNodeSensitivityCalculators), CALCULATOR);
-    SINGLE_CURVE_JACOBIAN = new MultipleYieldCurveFinderJacobian(INSTRUMENTS, unknownCurveNodes, unknownCurveInterpolators, unknownCurveNodeSensitivityCalculators, null, SENSITIVITY_CALCULATOR);
+    final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(INSTRUMENTS, null, unknownCurveNodes, unknownCurveInterpolators, unknownCurveNodeSensitivityCalculators);
+    SINGLE_CURVE_FINDER = new MultipleYieldCurveFinderFunction(data, CALCULATOR);
+    SINGLE_CURVE_JACOBIAN = new MultipleYieldCurveFinderJacobian(data, SENSITIVITY_CALCULATOR);
   }
 
   @Test

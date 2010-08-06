@@ -232,9 +232,9 @@ public class BasisSwapYieldCurveFinderTest {
     unknownCurvesNodes.put(LIBOR_CURVE_NAME, LIBOR_NODE_TIMES);
     unknownCurveNodeSensitivityCalculators.put(LIBOR_CURVE_NAME, SENSITIVITY_CALCULATOR);
     //    DOUBLE_CURVE_FINDER = new MultipleYieldCurveFinderFunction(INSTRUMENTS, unknownCurvesNodes, unknownCurves, unknownCurveNodeSensitivityCalculators, null, CALCULATOR);
-    DOUBLE_CURVE_FINDER = new MultipleYieldCurveFinderFunction(new MultipleYieldCurveFinderDataBundle(INSTRUMENTS, null, unknownCurvesNodes, unknownCurves, unknownCurveNodeSensitivityCalculators),
-        CALCULATOR);
-    DOUBLE_CURVE_JACOBIAN = new MultipleYieldCurveFinderJacobian(INSTRUMENTS, unknownCurvesNodes, unknownCurves, unknownCurveNodeSensitivityCalculators, null, PV_SENSITIVITY_CALCULATOR);
+    final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(INSTRUMENTS, null, unknownCurvesNodes, unknownCurves, unknownCurveNodeSensitivityCalculators);
+    DOUBLE_CURVE_FINDER = new MultipleYieldCurveFinderFunction(data, CALCULATOR);
+    DOUBLE_CURVE_JACOBIAN = new MultipleYieldCurveFinderJacobian(data, PV_SENSITIVITY_CALCULATOR);
   }
 
   @Test
