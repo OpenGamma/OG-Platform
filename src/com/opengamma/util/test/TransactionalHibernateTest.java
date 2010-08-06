@@ -36,6 +36,7 @@ abstract public class TransactionalHibernateTest extends HibernateTest {
     if (_transaction != null && !_transaction.isRollbackOnly() && !_transaction.isCompleted()) {
       _transactionManager.commit(_transaction);
     }
+    super.tearDown();
   }
 
   public HibernateTransactionManager getHibernateTransactionManager() {
