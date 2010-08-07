@@ -27,17 +27,17 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 /**
  * 
  */
-public class EHCachingHistoricalDataProvider implements HistoricalDataProvider {
+public class EHCachingHistoricalDataProvider implements TimeSeriesSource {
   private static final Logger s_logger = LoggerFactory.getLogger(EHCachingHistoricalDataProvider.class);
   
   private static final boolean INCLUDE_LAST_DAY = true;
   private static final String CACHE_NAME = "HistoricalDataCache";
-  private final HistoricalDataProvider _underlying;
+  private final TimeSeriesSource _underlying;
   private final CacheManager _manager;
   private final Cache _cache;
   
   
-  public EHCachingHistoricalDataProvider(HistoricalDataProvider underlying) {
+  public EHCachingHistoricalDataProvider(TimeSeriesSource underlying) {
     ArgumentChecker.notNull(underlying, "Underlying Historical Data Provider");
     _underlying = underlying;
     CacheManager manager = createCacheManager();
@@ -46,7 +46,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataProvider {
     _manager = manager;
   }
   
-  public EHCachingHistoricalDataProvider(HistoricalDataProvider underlying, int maxElementsInMemory,
+  public EHCachingHistoricalDataProvider(TimeSeriesSource underlying, int maxElementsInMemory,
                                          MemoryStoreEvictionPolicy memoryStoreEvictionPolicy, boolean overflowToDisk,
                                          String diskStorePath, boolean eternal, long timeToLiveSeconds, long timeToIdleSeconds,
                                          boolean diskPersistent, long diskExpiryThreadIntervalSeconds, 
@@ -60,7 +60,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataProvider {
     _manager = manager;
   }
   
-  public EHCachingHistoricalDataProvider(HistoricalDataProvider underlying, CacheManager manager) {
+  public EHCachingHistoricalDataProvider(TimeSeriesSource underlying, CacheManager manager) {
     ArgumentChecker.notNull(underlying, "Underlying Historical Data Provider");
     ArgumentChecker.notNull(manager, "Cache Manager");
     _underlying = underlying;
@@ -69,7 +69,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataProvider {
     _manager = manager;
   }
   
-  public EHCachingHistoricalDataProvider(HistoricalDataProvider underlying, Cache cache) {
+  public EHCachingHistoricalDataProvider(TimeSeriesSource underlying, Cache cache) {
     ArgumentChecker.notNull(underlying, "Underlying Historical Data Provider");
     ArgumentChecker.notNull(cache, "Cache");
     _underlying = underlying;
@@ -149,7 +149,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataProvider {
   /**
    * @return the underlying
    */
-  public HistoricalDataProvider getUnderlying() {
+  public TimeSeriesSource getUnderlying() {
     return _underlying;
   }
 

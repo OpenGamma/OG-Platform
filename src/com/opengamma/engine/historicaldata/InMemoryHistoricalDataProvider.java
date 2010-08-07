@@ -17,7 +17,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  * In memory HDP for testing.
  * @author jim
  */
-public class InMemoryHistoricalDataProvider implements HistoricalDataProvider {
+public class InMemoryHistoricalDataProvider implements TimeSeriesSource {
   private Map<CacheKey, LocalDateDoubleTimeSeries> _timeSeriesStore = new HashMap<CacheKey, LocalDateDoubleTimeSeries>();
   private static final boolean INCLUDE_LAST_DAY = true;
   @Override

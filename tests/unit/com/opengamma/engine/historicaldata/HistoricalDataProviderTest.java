@@ -85,7 +85,7 @@ public class HistoricalDataProviderTest {
                                    Identifier.of(IdentificationScheme.BLOOMBERG_BUID, makeUniqueRandomId()));
   }
   
-  private Pair<HistoricalDataProvider, Set<IdentifierBundle>> buildAndTestInMemoryProvider() {
+  private Pair<TimeSeriesSource, Set<IdentifierBundle>> buildAndTestInMemoryProvider() {
     InMemoryHistoricalDataProvider inMemoryHistoricalDataProvider = new InMemoryHistoricalDataProvider();
     Map<IdentifierBundle, Map<String, Map<String, Map<String, LocalDateDoubleTimeSeries>>>> map = new HashMap<IdentifierBundle, Map<String, Map<String, Map<String, LocalDateDoubleTimeSeries>>>>();
     for (int i=0; i<100; i++) {
@@ -126,7 +126,7 @@ public class HistoricalDataProviderTest {
         }
       }
     }
-    return Pair.of((HistoricalDataProvider) inMemoryHistoricalDataProvider, map.keySet());
+    return Pair.of((TimeSeriesSource) inMemoryHistoricalDataProvider, map.keySet());
   }
   
   @Test
@@ -138,8 +138,8 @@ public class HistoricalDataProviderTest {
   
   @Test
   public void testEHCachingHistoricalDataProvider() {
-    Pair<HistoricalDataProvider, Set<IdentifierBundle>> providerAndDsids = buildAndTestInMemoryProvider();
-    HistoricalDataProvider inMemoryHistoricalDataProvider = providerAndDsids.getFirst();
+    Pair<TimeSeriesSource, Set<IdentifierBundle>> providerAndDsids = buildAndTestInMemoryProvider();
+    TimeSeriesSource inMemoryHistoricalDataProvider = providerAndDsids.getFirst();
     EHCachingHistoricalDataProvider cachedProvider = new EHCachingHistoricalDataProvider(inMemoryHistoricalDataProvider);
     Set<IdentifierBundle> identifiers = providerAndDsids.getSecond();
     IdentifierBundle[] dsids = identifiers.toArray(new IdentifierBundle[] {});
