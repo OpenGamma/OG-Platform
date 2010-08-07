@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.model.riskfactor.option;
 
 import org.apache.commons.lang.NotImplementedException;
 
-import com.opengamma.engine.historicaldata.HistoricalDataProvider;
+import com.opengamma.engine.historicaldata.TimeSeriesSource;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.financial.pnl.UnderlyingType;
@@ -24,7 +24,7 @@ public class UnderlyingTypeToHistoricalTimeSeries {
   @SuppressWarnings("unused")
   private static final String VOLUME = "VOLUME";
   
-  public static LocalDateDoubleTimeSeries getSeries(final HistoricalDataProvider dataProvider, final SecuritySource secMaster, final UnderlyingType underlying, final Security security) {
+  public static LocalDateDoubleTimeSeries getSeries(final TimeSeriesSource dataProvider, final SecuritySource secMaster, final UnderlyingType underlying, final Security security) {
     if (security instanceof OptionSecurity) {
       final OptionSecurity option = (OptionSecurity) security;
       switch (underlying) {
