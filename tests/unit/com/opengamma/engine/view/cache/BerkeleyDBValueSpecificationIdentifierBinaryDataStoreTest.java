@@ -148,7 +148,7 @@ public class BerkeleyDBValueSpecificationIdentifierBinaryDataStoreTest {
   
   @Test
   public void parallelPutGetTest() throws InterruptedException {
-    final int numEntries = 5000000;
+    final int numEntries = 5000;
     final int numCycles = 1;
     final int numGets = numCycles * numEntries;
     final Random random = new Random();
@@ -201,24 +201,24 @@ public class BerkeleyDBValueSpecificationIdentifierBinaryDataStoreTest {
     };
     Thread tGet1 = new Thread(new GetRunner(), "getter-1");
     Thread tGet2 = new Thread(new GetRunner(), "getter-2");
-    Thread tGet3 = new Thread(new GetRunner(), "getter-3");
-    Thread tGet4 = new Thread(new GetRunner(), "getter-4");
-    Thread tGet5 = new Thread(new GetRunner(), "getter-5");
+    //Thread tGet3 = new Thread(new GetRunner(), "getter-3");
+    //Thread tGet4 = new Thread(new GetRunner(), "getter-4");
+    //Thread tGet5 = new Thread(new GetRunner(), "getter-5");
     
     tPut.start();
     Thread.sleep(5L);
     tGet1.start();
     tGet2.start();
-    tGet3.start();
-    tGet4.start();
-    tGet5.start();
+    //tGet3.start();
+    //tGet4.start();
+    //tGet5.start();
     
     tPut.join();
     tGet1.join();
     tGet2.join();
-    tGet3.join();
-    tGet4.join();
-    tGet5.join();
+    //tGet3.join();
+    //tGet4.join();
+    //tGet5.join();
     
     dataStore.delete();
     dataStore.stop();
