@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.historical.dao;
+package com.opengamma.timeseries.db;
 
 import java.util.Map;
 
@@ -13,13 +13,13 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
  * 
  *
  */
-public class PostgresTimeSeriesDao extends RowStoreJdbcDao {
+public class PostgresTimeSeriesMaster extends RowStoreTimeSeriesMaster {
   
   /**
    * @param transactionManager the transactionManager not-null
    * @param namedSQLMap the map containing the sql queries not-null
    */
-  public PostgresTimeSeriesDao(DataSourceTransactionManager transactionManager, Map<String, String> namedSQLMap) {
+  public PostgresTimeSeriesMaster(DataSourceTransactionManager transactionManager, Map<String, String> namedSQLMap) {
     super(transactionManager, namedSQLMap);
   }
   

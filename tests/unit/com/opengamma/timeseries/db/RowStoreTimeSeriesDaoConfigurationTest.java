@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.historical.dao;
+package com.opengamma.timeseries.db;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +11,8 @@ import java.util.Map;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Test;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+
+import com.opengamma.timeseries.db.RowStoreTimeSeriesMaster;
 
 /**
  * Test to check RowStoreJdbcDao is properly configured
@@ -23,7 +25,7 @@ public class RowStoreTimeSeriesDaoConfigurationTest {
 
     Map<String, String> namedSQLMap = new HashMap<String, String>();
 
-    new RowStoreJdbcDao(null, namedSQLMap) {
+    new RowStoreTimeSeriesMaster(null, namedSQLMap) {
       @Override
       protected boolean isTriggerSupported() {
         return false;
@@ -36,7 +38,7 @@ public class RowStoreTimeSeriesDaoConfigurationTest {
     //transaction manager with no data source
     DataSourceTransactionManager transactionManager = new DataSourceTransactionManager();
 
-    new RowStoreJdbcDao(transactionManager, null) {
+    new RowStoreTimeSeriesMaster(transactionManager, null) {
       @Override
       protected boolean isTriggerSupported() {
         return false;
@@ -47,7 +49,7 @@ public class RowStoreTimeSeriesDaoConfigurationTest {
   @Test(expected = NullPointerException.class)
   public void missingNamedSQLMap() throws Exception {
     DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(new BasicDataSource());
-    new RowStoreJdbcDao(transactionManager, null) {
+    new RowStoreTimeSeriesMaster(transactionManager, null) {
       @Override
       protected boolean isTriggerSupported() {
         return false;
@@ -59,7 +61,7 @@ public class RowStoreTimeSeriesDaoConfigurationTest {
   public void invalidNamedSQLMap() throws Exception {
     DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(new BasicDataSource());
     Map<String, String> namedSQLMap = new HashMap<String, String>();
-    new RowStoreJdbcDao(transactionManager, namedSQLMap) {
+    new RowStoreTimeSeriesMaster(transactionManager, namedSQLMap) {
       @Override
       protected boolean isTriggerSupported() {
         return false;

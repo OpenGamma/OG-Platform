@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.historical.dao;
+package com.opengamma.timeseries.db;
 
 
 /**
@@ -15,10 +15,11 @@ public interface TimeSeriesDaoConstants {
   /**
    * value for invalid row id
    */
-  int INVALID_KEY = -1;
+  long INVALID_KEY = Long.MIN_VALUE;
   /**
    * loadTimeSeriesWithDates key in named sql map
    */
+  String INSERT_IDENTIFIER = "insertIdentifier";
   String LOAD_TIME_SERIES_WITH_DATES = "loadTimeSeriesWithDates";
   String SELECT_QUOTED_OBJECT_FROM_IDENTIFIERS = "selectQuotedObjectFromIdentifiers";
   String LOAD_ALL_DATA_PROVIDER = "loadAllDataProvider";
@@ -31,11 +32,14 @@ public interface TimeSeriesDaoConstants {
   String INSERT_TIME_SERIES_KEY = "insertTimeSeriesKey";
   String INSERT_TIME_SERIES = "insertTimeSeries";
   String GET_TIME_SERIES_KEY_ID_BY_IDENTIFIER = "getTimeSeriesKeyIDByIdentifier";
-  String GET_TIME_SERIES_KEY_ID_BY_QUOTED_OBJECT = "getTimeSeriesKeyIDByQuotedObject";
+  String GET_TIME_SERIES_KEY = "getTimeSeriesKey";
+  String GET_TIME_SERIES_KEY_BY_ID = "getTimeSeriesKeyByID";
+  String GET_ACTIVE_META_DATA_BY_PARAMETERS = "getActiveMetaDataByParameters";
+  String GET_ACTIVE_META_DATA_BY_OID = "getActiveMetaDataByOid";
   String GET_TIME_SERIES_BY_ID = "getTimeSeriesByID";
   String DELETE_TIME_SERIES_BY_ID = "deleteTimeSeriesByID";
   String FIND_DOMAIN_SPEC_IDENTIFIERS_BY_QUOTED_OBJECT = "findDomainSpecIdentifiersByQuotedObject";
-  String FIND_DATA_PROVIDER_BY_ID = "findDataProviderByID";
+//  String FIND_DATA_PROVIDER_BY_ID = "findDataProviderByID";
   String FIND_DATA_SOURCE_BY_ID = "findDataSourceByID";
   String FIND_OBSERVATION_TIME_BY_ID = "findObservationTimeByID";
   String FIND_QUOTED_OBJECT_BY_ID = "findQuotedObjectByID";
@@ -66,7 +70,10 @@ public interface TimeSeriesDaoConstants {
   String LOAD_ALL_DATA_FIELDS = "loadAllDataFields";
   String LOAD_ALL_DATA_SOURCES = "loadAllDataSources";
   String SELECT_DOMAIN_ID = "selectDomainID";
-  String LOAD_ALL_DOMAIN = "loadAllDomain";
+  String LOAD_ALL_SCHEME = "loadAllScheme";
+  String LOAD_ALL_IDENTIFIERS = "loadAllIdentifiers";
+  
+  String DEACTIVATE_META_DATA = "deactivateMetaData";
   
   /**
    * List of keys expected in the Map containing SQL queries injected to TimeSeriesDao
@@ -74,7 +81,7 @@ public interface TimeSeriesDaoConstants {
   String[] SQL_MAP_KEYS = {
     LOAD_ALL_DATA_PROVIDER,
     LOAD_ALL_DATA_SOURCES,
-    LOAD_ALL_DOMAIN,
+    LOAD_ALL_SCHEME,
     LOAD_ALL_OBSERVATION_TIMES,
     LOAD_ALL_QUOTED_OBJECTS,
     LOAD_TIME_SERIES_DELTA,
@@ -97,9 +104,9 @@ public interface TimeSeriesDaoConstants {
     INSERT_TIME_SERIES_DELTA_I,
     INSERT_TIME_SERIES_DELTA_U,
     INSERT_TIME_SERIES_KEY,
+    INSERT_IDENTIFIER,
     FIND_DATA_FIELD_BY_ID,
     FIND_DATA_POINT_BY_DATE_AND_ID,
-    FIND_DATA_PROVIDER_BY_ID,
     FIND_DATA_SOURCE_BY_ID,
     FIND_DOMAIN_BY_ID,
     FIND_DOMAIN_SPEC_IDENTIFIERS_BY_QUOTED_OBJECT,
@@ -108,6 +115,11 @@ public interface TimeSeriesDaoConstants {
     UPDATE_TIME_SERIES,
     GET_TIME_SERIES_BY_ID,
     GET_TIME_SERIES_KEY_ID_BY_IDENTIFIER,
-    GET_TIME_SERIES_KEY_ID_BY_QUOTED_OBJECT,
+    GET_TIME_SERIES_KEY,
+    GET_ACTIVE_META_DATA_BY_PARAMETERS,
+    GET_ACTIVE_META_DATA_BY_OID,
+    GET_TIME_SERIES_KEY_BY_ID,
+    DEACTIVATE_META_DATA,
+    LOAD_ALL_IDENTIFIERS
   };
 }

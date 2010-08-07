@@ -3,7 +3,7 @@
 
 <beans>
 	<!--  import resources from OG-TimeSeriesStorage -->
-  	<import resource="classpath:com/opengamma/historical/dao/postgresTSSQueries.xml" />
+  	<import resource="classpath:com/opengamma/timeseries/db/postgresTSSQueries.xml" />
 
 	<bean id="propertyConfigurer"
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -17,7 +17,7 @@
 		<property name="password" value="${derby.jdbc.password}"/>
 	</bean>
 	
-	<bean id="derbyDao" class="com.opengamma.historical.dao.DerbyTimeSeriesDao">
+	<bean id="derbyDao" class="com.opengamma.timeseries.db.DerbyTimeSeriesMaster">
 		<constructor-arg>
 			<bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 				<property name="dataSource" ref="derbyDataSource"/>
@@ -36,7 +36,7 @@
 		<property name="password" value="${postgres.jdbc.password}"/>
 	</bean>
 	
-	<bean id="postgresDao" class="com.opengamma.historical.dao.PostgresTimeSeriesDao">
+	<bean id="postgresDao" class="com.opengamma.timeseries.db.PostgresTimeSeriesMaster">
 		<constructor-arg>
 			<bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 				<property name="dataSource" ref="postgresDataSource"/>
