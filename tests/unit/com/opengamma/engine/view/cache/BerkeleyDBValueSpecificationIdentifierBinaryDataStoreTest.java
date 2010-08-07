@@ -16,7 +16,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.io.FileUtils;
-import org.fudgemsg.FudgeContext;
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.slf4j.Logger;
