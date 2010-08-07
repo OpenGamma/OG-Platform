@@ -11,6 +11,8 @@ import java.util.Map;
 
 import com.opengamma.util.tuple.Pair;
 
+// TODO kirk 2010-08-07 -- When the Fudge serialization work is done in StandardViewComputationCache,
+// this can be replaced with a subclass of AbstractViewComputationCacheSource.
 
 /**
  * An implementation of {@link ViewComputationCacheSource} that generates
