@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view.cache;
 
+// REVIEW kirk 2010-08-07 -- This is a TERRIBLE name for this interface and associated
+// classes. Please please please someone come up with a better one.
 /**
  * A store for binary data for a fully identified {@link ValueSpecification}.
  * It is expected that one of these will be created per iteration per View/Configuration pair.

@@ -44,6 +44,7 @@ public class BerkeleyDBValueSpecificationIdentifierBinaryDataStore extends Abstr
     getDatabase().close();
     // TODO kirk 2010-08-07 -- For batch operation, we'd have to explicitly remove the DB as well.
     //getDbEnvironment().removeDatabase(null, getDatabaseName());
+    stop();
   }
 
   @Override
