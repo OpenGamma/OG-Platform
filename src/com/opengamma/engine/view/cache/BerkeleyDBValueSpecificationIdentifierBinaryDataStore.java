@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.view.cache;
 
-import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,8 +23,8 @@ import com.sleepycat.je.OperationStatus;
 public class BerkeleyDBValueSpecificationIdentifierBinaryDataStore extends AbstractBerkeleyDBComponent implements ValueSpecificationIdentifierBinaryDataStore {
   private static final Logger s_logger = LoggerFactory.getLogger(BerkeleyDBValueSpecificationIdentifierBinaryDataStore.class);
 
-  public BerkeleyDBValueSpecificationIdentifierBinaryDataStore(Environment dbEnvironment, String databaseName, FudgeContext fudgeContext) {
-    super(dbEnvironment, databaseName, fudgeContext);
+  public BerkeleyDBValueSpecificationIdentifierBinaryDataStore(Environment dbEnvironment, String databaseName) {
+    super(dbEnvironment, databaseName);
   }
 
   @Override

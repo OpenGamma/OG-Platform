@@ -73,9 +73,8 @@ public class BerkeleyDBValueSpecificationIdentifierBinaryDataStoreTest {
     
     File dbDir = createDbDir("putPerformanceTest");
     Environment dbEnvironment = createDbEnvironment(dbDir);
-    FudgeContext fudgeContext = new FudgeContext();
     
-    BerkeleyDBValueSpecificationIdentifierBinaryDataStore dataStore = new BerkeleyDBValueSpecificationIdentifierBinaryDataStore(dbEnvironment, "putPerformanceTest", fudgeContext);
+    BerkeleyDBValueSpecificationIdentifierBinaryDataStore dataStore = new BerkeleyDBValueSpecificationIdentifierBinaryDataStore(dbEnvironment, "putPerformanceTest");
     dataStore.start();
     
     OperationTimer timer = new OperationTimer(s_logger, "Writing {} entries", numEntries);
@@ -111,9 +110,8 @@ public class BerkeleyDBValueSpecificationIdentifierBinaryDataStoreTest {
     
     File dbDir = createDbDir("getPerformanceTest");
     Environment dbEnvironment = createDbEnvironment(dbDir);
-    FudgeContext fudgeContext = new FudgeContext();
     
-    BerkeleyDBValueSpecificationIdentifierBinaryDataStore dataStore = new BerkeleyDBValueSpecificationIdentifierBinaryDataStore(dbEnvironment, "putPerformanceTest", fudgeContext);
+    BerkeleyDBValueSpecificationIdentifierBinaryDataStore dataStore = new BerkeleyDBValueSpecificationIdentifierBinaryDataStore(dbEnvironment, "getPerformanceTest");
     dataStore.start();
     
     int randRange = maxEntrySize - minEntrySize;
@@ -155,9 +153,8 @@ public class BerkeleyDBValueSpecificationIdentifierBinaryDataStoreTest {
     
     File dbDir = createDbDir("parallelPutGetTest");
     Environment dbEnvironment = createDbEnvironment(dbDir);
-    FudgeContext fudgeContext = new FudgeContext();
     
-    final BerkeleyDBValueSpecificationIdentifierBinaryDataStore dataStore = new BerkeleyDBValueSpecificationIdentifierBinaryDataStore(dbEnvironment, "putPerformanceTest", fudgeContext);
+    final BerkeleyDBValueSpecificationIdentifierBinaryDataStore dataStore = new BerkeleyDBValueSpecificationIdentifierBinaryDataStore(dbEnvironment, "parallelPutGetTest");
     dataStore.start();
     
     final AtomicLong currentMaxIdentifier = new AtomicLong(0L);

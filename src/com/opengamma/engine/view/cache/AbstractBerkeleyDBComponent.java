@@ -7,7 +7,6 @@ package com.opengamma.engine.view.cache;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
@@ -28,19 +27,16 @@ public abstract class AbstractBerkeleyDBComponent implements Lifecycle {
   // Injected inputs:
   private final Environment _dbEnvironment;
   private final String _databaseName;
-  private final FudgeContext _fudgeContext;
 
   // Runtime state:
   private final AtomicBoolean _started = new AtomicBoolean(false);
   private Database _database;
   
-  protected AbstractBerkeleyDBComponent(Environment dbEnvironment, String databaseName, FudgeContext fudgeContext) {
+  protected AbstractBerkeleyDBComponent(Environment dbEnvironment, String databaseName) {
     ArgumentChecker.notNull(dbEnvironment, "dbEnvironment");
     ArgumentChecker.notNull(databaseName, "databaseName");
-    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _dbEnvironment = dbEnvironment;
     _databaseName = databaseName;
-    _fudgeContext = fudgeContext;
   }
 
   /**
@@ -57,14 +53,6 @@ public abstract class AbstractBerkeleyDBComponent implements Lifecycle {
    */
   public String getDatabaseName() {
     return _databaseName;
-  }
-
-  /**
-   * Gets the fudgeContext field.
-   * @return the fudgeContext
-   */
-  public FudgeContext getFudgeContext() {
-    return _fudgeContext;
   }
 
   /**

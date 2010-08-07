@@ -42,11 +42,23 @@ public class BerkeleyDBValueSpecificationIdentifierSource
   private static final byte[] HIGHEST_VALUE_KEY = new byte[] {0};
   private static final DatabaseEntry HIGHEST_VALUE_DB_ENTRY = new DatabaseEntry(HIGHEST_VALUE_KEY);
   
+  private final FudgeContext _fudgeContext;
+  
   // Runtime state:
   private final AtomicLong _nextIdentifier = new AtomicLong(1L);
   
   public BerkeleyDBValueSpecificationIdentifierSource(Environment dbEnvironment, String databaseName, FudgeContext fudgeContext) {
-    super(dbEnvironment, databaseName, fudgeContext);
+    super(dbEnvironment, databaseName);
+    ArgumentChecker.notNull(fudgeContext, "Fudge context");
+    _fudgeContext = fudgeContext;
+  }
+
+  /**
+   * Gets the fudgeContext field.
+   * @return the fudgeContext
+   */
+  public FudgeContext getFudgeContext() {
+    return _fudgeContext;
   }
 
   @Override
