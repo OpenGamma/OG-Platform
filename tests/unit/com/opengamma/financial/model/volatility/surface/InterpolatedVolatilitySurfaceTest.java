@@ -14,11 +14,10 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.opengamma.math.interpolation.GridInterpolator2D;
-import com.opengamma.math.interpolation.InterpolationResult;
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.Interpolator2D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 
@@ -27,7 +26,7 @@ import com.opengamma.util.tuple.Pair;
  */
 public class InterpolatedVolatilitySurfaceTest {
   private static final double SIGMA = 0.4;
-  private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> LINEAR = new LinearInterpolator1D();
+  private static final Interpolator1D<Interpolator1DDataBundle> LINEAR = new LinearInterpolator1D();
   private static final Interpolator2D INTERPOLATOR = new VolatilityInterpolator2D(new GridInterpolator2D(LINEAR, LINEAR));
   private static final Map<DoublesPair, Double> DATA = new HashMap<DoublesPair, Double>();
   private static final InterpolatedVolatilitySurface SURFACE;

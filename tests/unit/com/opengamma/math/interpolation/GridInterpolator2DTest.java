@@ -16,6 +16,7 @@ import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.math.function.Function2D;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 
@@ -33,7 +34,7 @@ public class GridInterpolator2DTest {
     }
 
   };
-  private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> INTERPOLATOR_1D = new LinearInterpolator1D();
+  private static final Interpolator1D<Interpolator1DDataBundle> INTERPOLATOR_1D = new LinearInterpolator1D();
   private static final Interpolator2D INTERPOLATOR_2D = new GridInterpolator2D(INTERPOLATOR_1D, INTERPOLATOR_1D);
   private static final double EPS = 1e-9;
 

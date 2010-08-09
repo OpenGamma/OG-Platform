@@ -13,10 +13,8 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
-import com.opengamma.math.interpolation.InterpolationResult;
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.Interpolator1DDataBundleFactory;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -24,11 +22,11 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class VolatilityCurvesToInterpolatedVolatilitySurface extends VolatilitySurface {
   private final TreeMap<Double, VolatilityCurve> _curves;
-  private final Interpolator1D<Interpolator1DDataBundle, ? extends InterpolationResult> _interpolator;
+  private final Interpolator1D<Interpolator1DDataBundle> _interpolator;
   private final double[] _xValues;
   private final int _n;
 
-  public VolatilityCurvesToInterpolatedVolatilitySurface(final Map<Double, VolatilityCurve> curves, final Interpolator1D<Interpolator1DDataBundle, ? extends InterpolationResult> interpolator) {
+  public VolatilityCurvesToInterpolatedVolatilitySurface(final Map<Double, VolatilityCurve> curves, final Interpolator1D<Interpolator1DDataBundle> interpolator) {
     Validate.notNull(curves, "curves");
     Validate.notEmpty(curves, "curves");
     Validate.noNullElements(curves.values(), "curves");
@@ -66,7 +64,7 @@ public class VolatilityCurvesToInterpolatedVolatilitySurface extends VolatilityS
     for (final Map.Entry<Double, VolatilityCurve> entry : _curves.entrySet()) {
       yValues[i++] = entry.getValue().getVolatility(y);
     }
-    return _interpolator.interpolate(Interpolator1DDataBundleFactory.fromArrays(_xValues, yValues, _interpolator), x).getResult();
+    return _interpolator.interpolate(_interpolator.getDataBundle(_xValues, yValues), x);
   }
 
   @Override

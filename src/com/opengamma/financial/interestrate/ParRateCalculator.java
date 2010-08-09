@@ -90,6 +90,9 @@ public final class ParRateCalculator implements InterestRateDerivativeVisitor<Do
 
   /**
    * Generic swaps do not have a "swap rate". If you require a vanilla swap use a FixedFloatSwap
+   * @param swap 
+   * @param curves 
+   * @return UnsupportedOperationException
    */
   @Override
   public Double visitSwap(final Swap swap, final YieldCurveBundle curves) {
@@ -121,6 +124,9 @@ public final class ParRateCalculator implements InterestRateDerivativeVisitor<Do
   /**
    * This gives you the bond coupon, for a given yield curve, that renders the bond par (present value of all cash flows equal to 1.0)
    * For a bonds yield use ??????????????? //TODO
+   * @param bond the bond
+   * @param curves the input curves
+   * @return the par rate
    */
   @Override
   public Double visitBond(final Bond bond, final YieldCurveBundle curves) {
@@ -132,8 +138,11 @@ public final class ParRateCalculator implements InterestRateDerivativeVisitor<Do
   }
 
   /**
-   * Returns the fixed coupon paid on the same dates (and with the same year fraction) as the floating payments, that gives the same PV (for the given yield curves) as that expected from the floating payments 
-   * This is essentially a swap rate 
+   * Returns the fixed coupon paid on the same dates (and with the same year fraction) as the floating payments, that gives the 
+   * same PV (for the given yield curves) as that expected from the floating payments. This is essentially a swap rate 
+   * @param annuity the variable annuity
+   * @param curves the input curves
+   * @return the par rate
    */
   @Override
   public Double visitVariableAnnuity(final VariableAnnuity annuity, final YieldCurveBundle curves) {
@@ -144,7 +153,11 @@ public final class ParRateCalculator implements InterestRateDerivativeVisitor<Do
   }
 
   /**
-   * For non-constant fixed payments (i.e. payments are known at the outset), returns the fixed coupon paid on the same dates (and with the same year fraction) that gives the same PV for a given funding curve
+   * For non-constant fixed payments (i.e. payments are known at the outset), returns the fixed coupon paid on the same dates (and with the same year fraction) 
+   * that gives the same PV for a given funding curve
+   * @param annuity the fixed annuity
+   * @param curves the input curves
+   * @return the par rate
    */
   @Override
   public Double visitFixedAnnuity(final FixedAnnuity annuity, final YieldCurveBundle curves) {

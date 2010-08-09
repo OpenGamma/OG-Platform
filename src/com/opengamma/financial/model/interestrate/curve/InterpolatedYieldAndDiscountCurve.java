@@ -14,10 +14,8 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.interpolation.InterpolationResult;
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.Interpolator1DDataBundleFactory;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -25,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscountCurve {
   private final Map<Double, Double> _data;
-  private final SortedMap<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> _interpolators;
+  private final SortedMap<Double, Interpolator1D<? extends Interpolator1DDataBundle>> _interpolators;
   private final SortedMap<Double, Interpolator1DDataBundle> _models;
 
   /**
@@ -42,8 +40,8 @@ public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscount
    *           Thrown if the arrays are null or empty, or if it contains a
    *           negative time to maturity.
    */
-  public InterpolatedYieldAndDiscountCurve(final double[] t, double[] y, final Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult> interpolator) {
-    this(t, y, Collections.<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> singletonMap(Double.POSITIVE_INFINITY, interpolator));
+  public InterpolatedYieldAndDiscountCurve(final double[] t, final double[] y, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+    this(t, y, Collections.<Double, Interpolator1D<? extends Interpolator1DDataBundle>>singletonMap(Double.POSITIVE_INFINITY, interpolator));
   }
 
   /**
@@ -61,12 +59,12 @@ public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscount
    *           Thrown if the arrays are null or empty, or if it contains a
    *           negative time to maturity.
    */
-  public InterpolatedYieldAndDiscountCurve(final double[] t, double[] y, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> interpolators) {
+  public InterpolatedYieldAndDiscountCurve(final double[] t, final double[] y, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
     Validate.notNull(t);
     Validate.notNull(y);
     Validate.notNull(interpolators);
     Validate.notEmpty(interpolators);
-    int n = t.length;
+    final int n = t.length;
     if (n < 2) {
       throw new IllegalArgumentException("Need to have at least two data points for an interpolated curve");
     }
@@ -75,7 +73,7 @@ public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscount
     }
     assert ArgumentChecker.hasNegativeElement(interpolators.keySet()) == false;
     assert ArgumentChecker.hasNullElement(interpolators.values()) == false;
-    Map<Double, Double> data = new HashMap<Double, Double>();
+    final Map<Double, Double> data = new HashMap<Double, Double>();
     for (int i = 0; i < n; i++) {
       assert (t[i] >= 0);
       data.put(t[i], y[i]);
@@ -83,13 +81,12 @@ public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscount
     if (data.size() != n) {
       throw new IllegalArgumentException("Some nodes are not none distinct");
     }
-    _data = Collections.<Double, Double> unmodifiableMap(data);
-    _interpolators = Collections
-        .<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> unmodifiableSortedMap(new TreeMap<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>>(
-            interpolators));
+    _data = Collections.<Double, Double>unmodifiableMap(data);
+    _interpolators = Collections.<Double, Interpolator1D<? extends Interpolator1DDataBundle>>unmodifiableSortedMap(new TreeMap<Double, Interpolator1D<? extends Interpolator1DDataBundle>>(
+        interpolators));
     final SortedMap<Double, Interpolator1DDataBundle> models = new TreeMap<Double, Interpolator1DDataBundle>();
-    for (final Map.Entry<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> entry : _interpolators.entrySet()) {
-      models.put(entry.getKey(), Interpolator1DDataBundleFactory.fromArrays(t, y, entry.getValue()));
+    for (final Map.Entry<Double, Interpolator1D<? extends Interpolator1DDataBundle>> entry : _interpolators.entrySet()) {
+      models.put(entry.getKey(), entry.getValue().getDataBundle(t, y));
     }
     _models = Collections.unmodifiableSortedMap(models);
   }
@@ -106,8 +103,8 @@ public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscount
    *           Thrown if the data map is null or empty, or if it contains a
    *           negative time to maturity.
    */
-  public InterpolatedYieldAndDiscountCurve(final Map<Double, Double> data, final Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult> interpolator) {
-    this(data, Collections.<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> singletonMap(Double.POSITIVE_INFINITY, interpolator));
+  public InterpolatedYieldAndDiscountCurve(final Map<Double, Double> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+    this(data, Collections.<Double, Interpolator1D<? extends Interpolator1DDataBundle>>singletonMap(Double.POSITIVE_INFINITY, interpolator));
   }
 
   /**
@@ -125,7 +122,7 @@ public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscount
    *           Thrown if the data map is null or empty, or if it contains a
    *           negative time to maturity.
    */
-  public InterpolatedYieldAndDiscountCurve(final Map<Double, Double> data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> interpolators) {
+  public InterpolatedYieldAndDiscountCurve(final Map<Double, Double> data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
     Validate.notNull(data);
     Validate.notNull(interpolators);
     Validate.notEmpty(interpolators);
@@ -137,13 +134,12 @@ public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscount
     assert ArgumentChecker.hasNegativeElement(data.keySet()) == false;
     assert ArgumentChecker.hasNegativeElement(interpolators.keySet()) == false;
     assert ArgumentChecker.hasNullElement(interpolators.values()) == false;
-    _data = Collections.<Double, Double> unmodifiableMap(data);
-    _interpolators = Collections
-        .<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> unmodifiableSortedMap(new TreeMap<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>>(
-            interpolators));
+    _data = Collections.<Double, Double>unmodifiableMap(data);
+    _interpolators = Collections.<Double, Interpolator1D<? extends Interpolator1DDataBundle>>unmodifiableSortedMap(new TreeMap<Double, Interpolator1D<? extends Interpolator1DDataBundle>>(
+        interpolators));
     final SortedMap<Double, Interpolator1DDataBundle> models = new TreeMap<Double, Interpolator1DDataBundle>();
-    for (final Map.Entry<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> entry : _interpolators.entrySet()) {
-      models.put(entry.getKey(), Interpolator1DDataBundleFactory.fromMap(data, entry.getValue()));
+    for (final Map.Entry<Double, Interpolator1D<? extends Interpolator1DDataBundle>> entry : _interpolators.entrySet()) {
+      models.put(entry.getKey(), entry.getValue().getDataBundle(data));
     }
     _models = Collections.unmodifiableSortedMap(models);
   }
@@ -160,7 +156,7 @@ public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscount
    * 
    * @return The interpolator for this curve.
    */
-  public SortedMap<Double, Interpolator1D<? extends Interpolator1DDataBundle, ? extends InterpolationResult>> getInterpolators() {
+  public SortedMap<Double, Interpolator1D<? extends Interpolator1DDataBundle>> getInterpolators() {
     return _interpolators;
   }
 

@@ -7,10 +7,13 @@ package com.opengamma.math.interpolation;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
+
 /**
  * 
  */
-public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D<Interpolator1DDataBundle, InterpolationResult> {
+public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D<Interpolator1DDataBundle> {
   private final int _degree;
 
   public BarycentricRationalFunctionInterpolator1D(final int degree) {
@@ -21,10 +24,9 @@ public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D<In
   }
 
   @Override
-  public InterpolationResult interpolate(final Interpolator1DDataBundle data, final Double value) {
+  public Double interpolate(final Interpolator1DDataBundle data, final Double value) {
     Validate.notNull(value, "value");
     Validate.notNull(data, "data bundle");
-    checkValue(data, value);
     if (data.size() < _degree) {
       throw new InterpolationException("Cannot interpolate " + data.size() + " data points with rational functions of degree " + _degree);
     }
@@ -32,7 +34,7 @@ public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D<In
     final double[] x = data.getKeys();
     final double[] y = data.getValues();
     if (data.getLowerBoundIndex(value) == m - 1) {
-      return new InterpolationResult(y[m - 1]);
+      return y[m - 1];
     }
     final double[] w = getWeights(x);
     final int n = x.length;
@@ -40,13 +42,13 @@ public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D<In
     for (int i = 0; i < n; i++) {
       delta = value - x[i];
       if (Math.abs(delta) < getEPS()) {
-        return new InterpolationResult(y[i]);
+        return y[i];
       }
       temp = w[i] / delta;
       num += temp * y[i];
       den += temp;
     }
-    return new InterpolationResult(num / den);
+    return num / den;
   }
 
   private double[] getWeights(final double[] x) {
@@ -78,6 +80,16 @@ public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D<In
   }
 
   @Override
+  public Interpolator1DDataBundle getDataBundle(final double[] x, final double[] y) {
+    return new ArrayInterpolator1DDataBundle(x, y);
+  }
+
+  @Override
+  public Interpolator1DDataBundle getDataBundleFromSortedArrays(final double[] x, final double[] y) {
+    return new ArrayInterpolator1DDataBundle(x, y, true);
+  }
+
+  @Override
   public boolean equals(final Object o) {
     if (o == null) {
       return false;
@@ -96,4 +108,5 @@ public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D<In
   public int hashCode() {
     return getClass().hashCode() * 17 + _degree;
   }
+
 }

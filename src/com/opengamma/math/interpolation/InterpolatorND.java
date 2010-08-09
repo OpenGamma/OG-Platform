@@ -15,7 +15,7 @@ import org.apache.commons.lang.Validate;
 /**
  * 
  */
-public abstract class InterpolatorND implements Interpolator<Map<List<Double>, Double>, List<Double>, Double> {
+public abstract class InterpolatorND implements Interpolator<Map<List<Double>, Double>, List<Double>> {
 
   public abstract Double interpolate(Map<List<Double>, Double> data, List<Double> value);
 

@@ -18,33 +18,14 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class FixedAnnuity implements Annuity {
-
-  protected double[] _paymentAmounts;
-  protected final double[] _yearFractions;
-  protected final double[] _paymentTimes;
-  protected final int _n;
-  protected final String _curveName;
-
-  // public FixedAnnuity(final double[] paymentTimes, final String yieldCurveName) {
-  // this(paymentTimes, 1.0, yieldCurveName);
-  // }
-
-  // public FixedAnnuity(final double[] paymentTimes, final double notional, final String yieldCurveName) {
-  // Validate.notNull(paymentTimes);
-  // ArgumentChecker.notEmpty(paymentTimes, "payment times");
-  // Validate.notNull(yieldCurveName);
-  // _paymentTimes = paymentTimes;
-  // _n = paymentTimes.length;
-  // _yearFractions = setupActualActualYearFractions(paymentTimes);
-  // _paymentAmounts = new double[_n];
-  // for (int i = 0; i < _n; i++) {
-  // _paymentAmounts[i] = notional * _yearFractions[i];
-  // }
-  // _curveName = yieldCurveName;
-  // }
+  private double[] _paymentAmounts;
+  private final double[] _yearFractions;
+  private final double[] _paymentTimes;
+  private final int _n;
+  private final String _curveName;
 
   /**
-   * @Param paymentTimes time in years from now where payments are made 
+   * @param paymentTimes time in years from now where payments are made 
    * @param paymentAmounts actual cash amounts paid on paymentTimes time
    * @param yieldCurveName name of curve to take discount factors off 
    */

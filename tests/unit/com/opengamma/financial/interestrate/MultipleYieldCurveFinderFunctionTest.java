@@ -15,14 +15,12 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.opengamma.financial.interestrate.cash.definition.Cash;
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.FixedNodeInterpolator1D;
-import com.opengamma.math.interpolation.InterpolationResult;
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
+import com.opengamma.math.interpolation.sensitivity.LinearInterpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.tuple.Pair;
 
@@ -35,62 +33,81 @@ public class MultipleYieldCurveFinderFunctionTest {
   private static final List<InterestRateDerivative> DERIVATIVES;
   private static final double[] SIMPLE_RATES;
   private static final double[] CONTINUOUS_RATES;
-  private static final double[] NODES;
+  private static final double[] TIMES;
 
-  private static final InterestRateDerivativeVisitor<Double> CALCULATOR = ParRateDifferanceCalculator.getInstance();
+  private static final InterestRateDerivativeVisitor<Double> CALCULATOR = ParRateDifferenceCalculator.getInstance();
   private static final InterestRateDerivativeVisitor<Map<String, List<Pair<Double, Double>>>> SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
 
-  private static final Interpolator1D<Interpolator1DDataBundle, InterpolationResult> INTERPOLATOR = new LinearInterpolator1D();
+  private static final Interpolator1D<Interpolator1DDataBundle> INTERPOLATOR = new LinearInterpolator1D();
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> FINDER;
-  private static final LinkedHashMap<String, FixedNodeInterpolator1D> UNKNOWN_CURVES;
+  private static final LinkedHashMap<String, double[]> NODES = new LinkedHashMap<String, double[]>();
+  private static final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> INTERPOLATORS = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
+  private static final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> SENSITIVITY_CALCULATORS = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+  private static final MultipleYieldCurveFinderDataBundle DATA;
+
   static {
     final int n = 10;
     DERIVATIVES = new ArrayList<InterestRateDerivative>();
     SIMPLE_RATES = new double[n];
     CONTINUOUS_RATES = new double[n];
-    NODES = new double[n];
+    TIMES = new double[n];
     double t;
     for (int i = 0; i < n; i++) {
       t = i / 10.;
       SIMPLE_RATES[i] = Math.random() * 0.05;
       DERIVATIVES.add(new Cash(t, SIMPLE_RATES[i], CURVE_NAME));
       CONTINUOUS_RATES[i] = (t == 0 ? SIMPLE_RATES[i] : Math.log(1 + SIMPLE_RATES[i] * t) / t);
-      NODES[i] = t;
+      TIMES[i] = t;
     }
-
-    UNKNOWN_CURVES = new LinkedHashMap<String, FixedNodeInterpolator1D>();
-    final FixedNodeInterpolator1D fnInterpolator = new FixedNodeInterpolator1D(NODES, INTERPOLATOR);
-    UNKNOWN_CURVES.put(CURVE_NAME, fnInterpolator);
-    FINDER = new MultipleYieldCurveFinderFunction(DERIVATIVES, UNKNOWN_CURVES, null, CALCULATOR);
+    NODES.put(CURVE_NAME, TIMES);
+    INTERPOLATORS.put(CURVE_NAME, INTERPOLATOR);
+    SENSITIVITY_CALCULATORS.put(CURVE_NAME, new LinearInterpolator1DNodeSensitivityCalculator());
+    DATA = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
+    FINDER = new MultipleYieldCurveFinderFunction(DATA, CALCULATOR);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testNullDerivatives() {
-    new MultipleYieldCurveFinderFunction(null, UNKNOWN_CURVES, null, CALCULATOR);
-  }
+  //  @Test(expected = IllegalArgumentException.class)
+  //  public void testNullDerivatives() {
+  //    new MultipleYieldCurveFinderFunction(null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS, null, CALCULATOR);
+  //  }
+  //
+  //  @Test(expected = IllegalArgumentException.class)
+  //  public void testNullNodes() {
+  //    new MultipleYieldCurveFinderFunction(DERIVATIVES, null, INTERPOLATORS, SENSITIVITY_CALCULATORS, null, CALCULATOR);
+  //  }
+  //
+  //  @Test(expected = IllegalArgumentException.class)
+  //  public void testNullInterpolators() {
+  //    new MultipleYieldCurveFinderFunction(DERIVATIVES, NODES, null, SENSITIVITY_CALCULATORS, null, CALCULATOR);
+  //  }
+  //
+  //  @Test(expected = IllegalArgumentException.class)
+  //  public void testNullSensitivityCalculators() {
+  //    new MultipleYieldCurveFinderFunction(DERIVATIVES, NODES, INTERPOLATORS, null, null, CALCULATOR);
+  //  }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNullFixedNodeInterpolator() {
-    new MultipleYieldCurveFinderFunction(DERIVATIVES, null, null, CALCULATOR);
+  public void testNullData() {
+    new MultipleYieldCurveFinderFunction(null, CALCULATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullCalculator() {
-    new MultipleYieldCurveFinderFunction(DERIVATIVES, UNKNOWN_CURVES, null, null);
+    new MultipleYieldCurveFinderFunction(DATA, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testNameClash() {
-    final YieldCurveBundle bundle = new YieldCurveBundle();
-    final YieldAndDiscountCurve curve = new ConstantYieldCurve(0.05);
-    bundle.setCurve(CURVE_NAME, curve);
-    new MultipleYieldCurveFinderFunction(DERIVATIVES, UNKNOWN_CURVES, bundle, CALCULATOR);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testEmptyDerivatives() {
-    new MultipleYieldCurveFinderFunction(new ArrayList<InterestRateDerivative>(), UNKNOWN_CURVES, null, CALCULATOR);
-  }
+  //  @Test(expected = IllegalArgumentException.class)
+  //  public void testNameClash() {
+  //    final YieldCurveBundle bundle = new YieldCurveBundle();
+  //    final YieldAndDiscountCurve curve = new ConstantYieldCurve(0.05);
+  //    bundle.setCurve(CURVE_NAME, curve);
+  //    new MultipleYieldCurveFinderFunction(DERIVATIVES, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS, bundle, CALCULATOR);
+  //  }
+  //
+  //  @Test(expected = IllegalArgumentException.class)
+  //  public void testEmptyDerivatives() {
+  //    new MultipleYieldCurveFinderFunction(new ArrayList<InterestRateDerivative>(), NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS, null, CALCULATOR);
+  //  }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullVector() {
@@ -107,7 +124,7 @@ public class MultipleYieldCurveFinderFunctionTest {
     final List<InterestRateDerivative> list = new ArrayList<InterestRateDerivative>();
     list.add(new Cash(1, 0.01, CURVE_NAME));
     list.add(new Cash(0.5, 0.01, CURVE_NAME));
-    new MultipleYieldCurveFinderFunction(list, UNKNOWN_CURVES, null, CALCULATOR);
+    new MultipleYieldCurveFinderFunction(new MultipleYieldCurveFinderDataBundle(list, null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS), CALCULATOR);
   }
 
   @Test

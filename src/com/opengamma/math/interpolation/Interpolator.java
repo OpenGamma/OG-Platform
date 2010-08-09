@@ -8,10 +8,9 @@ package com.opengamma.math.interpolation;
 /**
  * @param <S> The type of the data
  * @param <T> The type of the value to interpolate
- * @param <U> The type of the result
  */
 
-public interface Interpolator<S, T, U> {
+public interface Interpolator<S, T> {
 
-  U interpolate(S data, T value);
+  Double interpolate(S data, T value);
 }

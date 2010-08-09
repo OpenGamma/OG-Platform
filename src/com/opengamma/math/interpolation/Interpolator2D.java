@@ -13,7 +13,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * A base class for two-dimensional interpolation.
  */
 
-public abstract class Interpolator2D implements Interpolator<Map<DoublesPair, Double>, DoublesPair, Double> {
+public abstract class Interpolator2D implements Interpolator<Map<DoublesPair, Double>, DoublesPair> {
 
   /**
    * @param data

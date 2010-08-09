@@ -6,16 +6,20 @@
 package com.opengamma.math.interpolation;
 
 import java.io.Serializable;
+import java.util.Map;
+import java.util.SortedMap;
 
-import com.opengamma.util.CompareUtils;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.Validate;
+
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * A base class for interpolation in one dimension.
  * @param <T> Type of Interpolator1DDataBundle
- * @param <U> Type of InterpolationResult
  */
 
-public abstract class Interpolator1D<T extends Interpolator1DDataBundle, U extends InterpolationResult> implements Interpolator<T, Double, U>, Serializable {
+public abstract class Interpolator1D<T extends Interpolator1DDataBundle> implements Interpolator<T, Double>, Serializable {
   /**
    * Default accuracy
    */
@@ -33,14 +37,28 @@ public abstract class Interpolator1D<T extends Interpolator1DDataBundle, U exten
     return _eps;
   }
 
-  protected void checkValue(final T data, final Double value) {
-    final InterpolationBoundedValues boundedValues = data.getBoundedValues(value);
-    if ((boundedValues.getHigherBoundKey() == null || boundedValues.getHigherBoundKey() < 0) && !CompareUtils.closeEquals(value, data.lastKey(), _eps)) {
-      throw new InterpolationException(value + " was greater than maximum value of the data " + data.lastKey());
+  public abstract T getDataBundle(double[] x, double[] y);
+
+  public abstract T getDataBundleFromSortedArrays(double[] x, double[] y);
+
+  @SuppressWarnings("unchecked")
+  public T getDataBundle(final Map<Double, Double> data) {
+    Validate.notNull(data, "Backing data for interpolation must not be null.");
+    Validate.notEmpty(data, "Backing data for interpolation must not be empty.");
+    if (data instanceof SortedMap) {
+      final double[] keys = ArrayUtils.toPrimitive(data.keySet().toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY));
+      final double[] values = ArrayUtils.toPrimitive(data.values().toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY));
+      return getDataBundleFromSortedArrays(keys, values);
     }
-    if ((boundedValues.getLowerBoundKey() == null || boundedValues.getLowerBoundKey() < 0) && !CompareUtils.closeEquals(value, data.firstKey(), _eps)) {
-      throw new InterpolationException(value + " was less than minimum value of the data " + data.firstKey());
+    final double[] keys = new double[data.size()];
+    final double[] values = new double[data.size()];
+    int i = 0;
+    for (final Map.Entry<Double, Double> entry : data.entrySet()) {
+      keys[i] = entry.getKey();
+      values[i] = entry.getValue();
+      i++;
     }
+    return getDataBundle(keys, values);
   }
 
   @Override
@@ -65,7 +83,7 @@ public abstract class Interpolator1D<T extends Interpolator1DDataBundle, U exten
     return true;
   }
 
-  public abstract U interpolate(T model, Double value);
+  public abstract Double interpolate(T data, Double value);
 
   protected boolean classEquals(final Object o) {
     if (o == null) {
