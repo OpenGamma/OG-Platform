@@ -7,9 +7,11 @@ package com.opengamma.financial.position.master.db;
 
 import static org.junit.Assert.assertEquals;
 
+import java.math.BigDecimal;
 import java.util.TimeZone;
 
 import javax.time.Instant;
+import javax.time.TimeSource;
 
 import org.junit.After;
 import org.junit.Before;
@@ -19,10 +21,16 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.position.PortfolioImpl;
+import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
+import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
 import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricRequest;
 import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricResult;
+import com.opengamma.financial.position.master.PositionDocument;
+import com.opengamma.financial.position.master.PositionSearchRequest;
+import com.opengamma.financial.position.master.PositionSearchResult;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -138,6 +146,58 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerUpdatePortfolioTreeTest ex
     assertEquals(2, searchResult.getDocuments().size());
     assertEquals(updated.getPortfolioId(), searchResult.getDocuments().get(0).getPortfolioId());
     assertEquals(oldPortfolioId, searchResult.getDocuments().get(1).getPortfolioId());
+  }
+
+  @Test
+  public void test_updatePortfolioTree_positionsRemoved() {
+    Instant later = Instant.now(_posMaster.getTimeSource());
+    
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "101", "101");
+    PositionSearchRequest search = new PositionSearchRequest();
+    search.setPortfolioId(uid.toLatest());
+    search.setVersionAsOfInstant(later);
+    search.setCorrectedToInstant(later);
+    PositionSearchResult oldPositions = _posMaster.searchPositions(search);
+    assertEquals(2, oldPositions.getDocuments().size());
+    
+    PortfolioTreeDocument doc = _queryWorker.getPortfolioTree(uid);
+    PortfolioNodeImpl rootNode = (PortfolioNodeImpl) doc.getPortfolio().getRootNode();
+    rootNode.removeChildNode(rootNode.getChildNodes().get(0));
+    _worker.updatePortfolioTree(doc);
+    
+    PositionSearchResult newPositions = _posMaster.searchPositions(search);
+    assertEquals(0, newPositions.getDocuments().size());
+  }
+
+  @Test
+  public void test_updatePortfolioTree_positionsRemoved_complex() {
+    System.out.println("=======================================================================");
+    Instant now = Instant.now(_posMaster.getTimeSource());
+    
+    _posMaster.setTimeSource(TimeSource.fixed(now.minusSeconds(5)));
+    PositionDocument addDoc = new PositionDocument(new PositionImpl(BigDecimal.TEN, Identifier.of("A", "B")));
+    addDoc.setParentNodeId(UniqueIdentifier.of("DbPos", "113", "113"));
+    addDoc = _posMaster.addPosition(addDoc);
+    _posMaster.setTimeSource(TimeSource.fixed(now));
+    
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "101", "101");
+    PositionSearchRequest search = new PositionSearchRequest();
+    search.setPortfolioId(uid.toLatest());
+    search.setVersionAsOfInstant(now);
+    search.setCorrectedToInstant(now);
+    PositionSearchResult oldPositions = _posMaster.searchPositions(search);
+    assertEquals(3, oldPositions.getDocuments().size());
+    
+    PortfolioTreeDocument doc = _queryWorker.getPortfolioTree(uid);
+    PortfolioNodeImpl node112 = (PortfolioNodeImpl) doc.getPortfolio().getRootNode().getChildNodes().get(0);
+    assertEquals(UniqueIdentifier.of("DbPos", "112", "112"), node112.getUniqueIdentifier());
+    PortfolioNode node113 = node112.getChildNodes().get(0);
+    assertEquals(UniqueIdentifier.of("DbPos", "113", "113"), node113.getUniqueIdentifier());
+    node112.removeChildNode(node113);
+    _worker.updatePortfolioTree(doc);
+    
+    PositionSearchResult newPositions = _posMaster.searchPositions(search);
+    assertEquals(2, newPositions.getDocuments().size());
   }
 
   //-------------------------------------------------------------------------

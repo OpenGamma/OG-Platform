@@ -5,40 +5,51 @@
  */
 package com.opengamma.financial.batch.db;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+
 /**
  * 
  */
 public class StatusEntry {
   
   /**
-   * The computation has succeeded completely
-   * - all risk for this computation target
-   * is in the database.
+   * Status constants
    */
-  public static final int SUCCESS = 0;
-  
-  /**
-   * The computation has failed, wholly or partially
-   * - in either case, no risk for this computation
-   * target is in the database.
-   */
-  public static final int FAILURE = 1;
-  
-  /**
-   * The computation is running. As of now, unused.
-   */
-  public static final int RUNNING = 2;
+  public enum Status {
+    /**
+     * The computation has succeeded completely
+     * - all risk for this computation target
+     * is in the database.
+     */
+    SUCCESS, 
+    
+    /**
+     * The computation has failed, wholly or partially
+     * - in either case, no risk for this computation
+     * target is in the database.
+     */
+    FAILURE, 
+    
+    /**
+     * The computation is running. As of now, unused.
+     */
+    RUNNING, 
 
-  /**
-   * We know that this computation needs to be performed,
-   * but it is not yet running. As of now, unused. 
-   */
-  public static final int NOT_RUNNING = 3;
+    /**
+     * We know that this computation needs to be performed,
+     * but it is not yet running. As of now, unused. 
+     */
+    NOT_RUNNING
+  }
   
-  private long _id;
+  
+  private long _id = -1;
   private int _calculationConfigurationId;
   private int _computationTargetId;
-  private int _status;
+  private Status _status;
   
   public long getId() {
     return _id;
@@ -64,16 +75,26 @@ public class StatusEntry {
     _computationTargetId = computationTargetId;
   }
   
-  public int getStatus() {
+  public Status getStatus() {
     return _status;
   }
   
-  public void setStatus(int status) {
+  public void setStatus(Status status) {
     _status = status;
   }
   
+  public void setStatus(int statusInt) {
+    for (Status status : Status.values()) {
+      if (status.ordinal() == statusInt) {
+        _status = status;
+        return;
+      }
+    }
+    throw new IllegalArgumentException(statusInt + " is not a valid status");
+  }
+  
   public static String sqlGet() {
-    return "SELECT id, status FROM rsk_run_status WHERE " +
+    return "SELECT id, calculation_configuration_id, computation_target_id, status FROM rsk_run_status WHERE " +
       "calculation_configuration_id = :calculation_configuration_id AND " +
       "computation_target_id = :computation_target_id";         
   }
@@ -88,5 +109,20 @@ public class StatusEntry {
       "(id, calculation_configuration_id, computation_target_id, status) VALUES (" +
       ":id, :calculation_configuration_id, :computation_target_id, :status)";      
   }
+  
+  /**
+   * Spring ParameterizedRowMapper 
+   */
+  public static final ParameterizedRowMapper<StatusEntry> ROW_MAPPER = new ParameterizedRowMapper<StatusEntry>() {
+    @Override
+    public StatusEntry mapRow(ResultSet rs, int rowNum) throws SQLException {
+      StatusEntry statusEntry = new StatusEntry();
+      statusEntry.setId(rs.getLong("id"));
+      statusEntry.setCalculationConfigurationId(rs.getInt("calculation_configuration_id"));
+      statusEntry.setComputationTargetId(rs.getInt("computation_target_id"));
+      statusEntry.setStatus(rs.getInt("status"));
+      return statusEntry;
+    }
+  };
   
 }

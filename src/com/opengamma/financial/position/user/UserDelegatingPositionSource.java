@@ -7,7 +7,6 @@ package com.opengamma.financial.position.user;
 
 import com.opengamma.engine.position.DelegatingPositionSource;
 import com.opengamma.engine.position.PositionSource;
-import com.opengamma.financial.user.UserUniqueIdentifierUtils;
 
 /**
  * Delegates between a {@link UserPositionSource} and a default {@link PositionSource}. Just a wrapper to aid
@@ -18,12 +17,13 @@ public class UserDelegatingPositionSource extends DelegatingPositionSource {
   /**
    * Constructs a new {@link UserDelegatingPositionSource}.
    * 
-   * @param userMaster  the {@link UserPositionSource}
-   * @param defaultMaster  the underlying {@link PositionSource}.
+   * @param defaultSource  the underlying {@link PositionSource}
+   * @param userScheme  the scheme of the user positions
+   * @param userSource  the {@link UserPositionSource}
    */
-  public UserDelegatingPositionSource(UserPositionSource userMaster, PositionSource defaultMaster) {
-    super(defaultMaster);
-    registerDelegate(UserUniqueIdentifierUtils.getUserScheme(), userMaster);
+  public UserDelegatingPositionSource(PositionSource defaultSource, String userScheme, PositionSource userSource) {
+    super(defaultSource);
+    registerDelegate(userScheme, userSource);
   }
   
 }

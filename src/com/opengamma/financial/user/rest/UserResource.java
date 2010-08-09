@@ -8,8 +8,6 @@ package com.opengamma.financial.user.rest;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.UriInfo;
 
-import org.fudgemsg.FudgeContext;
-
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -23,9 +21,9 @@ public class UserResource {
   private final String _userName;
   private final ClientsResource _clients;
   
-  public UserResource(final UsersResource usersResource, final String userName, final FudgeContext fudgeContext) {
+  public UserResource(final UsersResource usersResource, final String userName, final UsersResourceContext context) {
     ArgumentChecker.notNull(usersResource, "usersResource");
-    _clients = new ClientsResource(this, fudgeContext);
+    _clients = new ClientsResource(this, context);
     _usersResource = usersResource;
     _userName = userName;
   }
