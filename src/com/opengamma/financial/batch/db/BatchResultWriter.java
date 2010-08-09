@@ -734,13 +734,13 @@ public class BatchResultWriter implements ResultWriter, Serializable {
   
   public static class BatchResultWriterFailure implements MissingInput, Serializable {
 
-    private Set<Long> _computeFailureIds = new HashSet<Long>();
+    private Set<Number> _computeFailureIds = new HashSet<Number>();
 
-    public Set<Long> getComputeFailureIds() {
+    public Set<Number> getComputeFailureIds() {
       return _computeFailureIds;
     }
 
-    public void setComputeFailureIds(Set<Long> computeFailureIds) {
+    public void setComputeFailureIds(Set<Number> computeFailureIds) {
       _computeFailureIds = computeFailureIds;
     }
   }
