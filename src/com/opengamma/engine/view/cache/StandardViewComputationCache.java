@@ -1,11 +1,15 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.cache;
 
 import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
@@ -16,14 +20,14 @@ import com.opengamma.util.ArgumentChecker;
  * a pair of {@link ValueSpecificationIdentifierSource} and {@link ValueSpecificationIdentifierBinaryDataStore}.
  */
 public class StandardViewComputationCache implements ViewComputationCache {
+
+  private static final int NATIVE_FIELD_INDEX = -1;
+
   private final ValueSpecificationIdentifierSource _identifierSource;
   private final ValueSpecificationIdentifierBinaryDataStore _dataStore;
   private final FudgeContext _fudgeContext;
-  
-  public StandardViewComputationCache(
-      ValueSpecificationIdentifierSource identifierSource,
-      ValueSpecificationIdentifierBinaryDataStore dataStore,
-      FudgeContext fudgeContext) {
+
+  public StandardViewComputationCache(ValueSpecificationIdentifierSource identifierSource, ValueSpecificationIdentifierBinaryDataStore dataStore, FudgeContext fudgeContext) {
     ArgumentChecker.notNull(identifierSource, "Identifier Source");
     ArgumentChecker.notNull(dataStore, "Data Store");
     ArgumentChecker.notNull(fudgeContext, "Fudge context");
@@ -64,16 +68,39 @@ public class StandardViewComputationCache implements ViewComputationCache {
     if (data == null) {
       return null;
     }
-    // TODO kirk 2010-08-07 -- Deserialize it.
-    return null;
+    final FudgeDeserializationContext context = new FudgeDeserializationContext(getFudgeContext());
+    final FudgeFieldContainer message = getFudgeContext().deserialize(data).getMessage();
+    if (message.getNumFields() == 1) {
+      Object value = message.getValue(-1);
+      if (value != null) {
+        return value;
+      }
+    }
+    return context.fudgeMsgToObject(message);
   }
 
   @Override
   public void putValue(ComputedValue value) {
     ArgumentChecker.notNull(value, "Computed value");
     long identifier = getIdentifierSource().getIdentifier(value.getSpecification());
-    // TODO kirk 2010-08-07 -- Fix this with proper serialization.
-    byte[] data = new byte[0];
+    final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeContext());
+    final MutableFudgeFieldContainer message = context.newMessage();
+    context.objectToFudgeMsgWithClassHeaders(message, null, NATIVE_FIELD_INDEX, value.getValue());
+    final byte[] data;
+    // Optimize the "value encoded as sub-message" case to reduce space requirement
+    Object svalue = message.getValue(NATIVE_FIELD_INDEX);
+    if (svalue instanceof FudgeFieldContainer) {
+      data = getFudgeContext().toByteArray((FudgeFieldContainer) svalue);
+    } else {
+      data = getFudgeContext().toByteArray(message);
+    }
+    for (int i = 0; i < data.length; i++) {
+      if (data[i] > 32) {
+        System.err.print((char) data[i] + " ");
+      } else {
+        System.err.print(data[i] + " ");
+      }
+    }
     getDataStore().put(identifier, data);
   }
 
