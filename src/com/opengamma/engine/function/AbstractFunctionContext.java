@@ -31,9 +31,4 @@ import java.util.concurrent.ConcurrentSkipListMap;
   public Object put(String elementName, Object value) {
     return _backingMap.put(elementName, value);
   }
-  
-  public Set<String> getAllElementNames() {
-    // See UTL-20. No need to reorder into a TreeSet<>.
-    return new TreeSet<String>(_backingMap.keySet());
-  }
 }

@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.function;
 
+import java.util.Map;
+
 import javax.time.calendar.Clock;
 
 import com.opengamma.engine.security.SecurityMaster;
@@ -65,5 +67,4 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
   public SecurityMaster getSecurityMaster() {
     return (SecurityMaster) get(SECURITY_MASTER_NAME);
   }
-  
 }
