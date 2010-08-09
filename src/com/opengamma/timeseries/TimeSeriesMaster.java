@@ -136,34 +136,5 @@ public interface TimeSeriesMaster extends TimeSeriesSource {
 //  LocalDateDoubleTimeSeries getHistoricalTimeSeries(UniqueIdentifier uid, LocalDate start, LocalDate end);
 //  
 //  UniqueIdentifier resolveIdentifier(Identifier identifier, String dataSource, String dataProvider, String field);
-  
-  /**
-  *  Finds a timeseries with all the available data points by identifier
-  * @param uid the identifier, not-null
-  * @return the timeseries, empty if not found
-  * @throws IllegalArgumentException if the identifier is invalid
-  */
-  LocalDateDoubleTimeSeries getHistoricalTimeSeries(UniqueIdentifier uid);
-
-  /**
-  *  Finds a timeseries with all the available data points by identifier
-  * @param uid the identifier, not-null
-  * @param start the start date, if null will load the earliest date 
-  * @param end the end date, if null will load the latest date
-  * @return the timeseries, empty if not found
-  * @throws IllegalArgumentException if the identifier is invalid
-  */
-  LocalDateDoubleTimeSeries getHistoricalTimeSeries(UniqueIdentifier uid, LocalDate start, LocalDate end);
-
-  /**
-  * Finds the Timeseries UID
-  * 
-  * @param identifiers the identifier bundle, not-null
-  * @param dataSource the datasource, not-null
-  * @param dataProvider the dataprovider, not-null
-  * @param field the dataField, not-null
-  * @return the UID if found or null
-  */
-  UniqueIdentifier resolveIdentifier(IdentifierBundle identifiers, String dataSource, String dataProvider, String field);
 
 }
