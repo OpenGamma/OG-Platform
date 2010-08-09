@@ -21,7 +21,7 @@ import com.opengamma.engine.function.MockFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.cache.MapViewComputationCache;
+import com.opengamma.engine.view.cache.ViewComputationCache;
 
 /**
  * 
@@ -103,7 +103,7 @@ public class AbstractCalculationNodeTest {
     ValueSpecification inputSpec = new ValueSpecification(mockFunction.getRequirement());
     ComputedValue inputValue = new ComputedValue(inputSpec, "Just an input object");
     
-    MapViewComputationCache cache = (MapViewComputationCache) calcNode.getCache(calcJob.getSpecification());
+    ViewComputationCache cache = calcNode.getCache(calcJob.getSpecification());
     cache.putValue(inputValue);
     
     CalculationJobResult jobResult = calcNode.executeJob(calcJob);
@@ -112,7 +112,6 @@ public class AbstractCalculationNodeTest {
     CalculationJobResultItem resultItem = jobResult.getResultItems().get(0);
     assertEquals(calcJob.getJobItems().get(0), resultItem.getItem());
     assertEquals(InvocationResult.SUCCESS, resultItem.getResult());
-    assertEquals(2, cache.size());
     assertEquals("Nothing we care about", cache.getValue(mockFunction.getResultSpec()));
   }
 

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.cache;
@@ -13,6 +13,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -23,20 +25,18 @@ import com.opengamma.util.tuple.Pair;
 public abstract class AbstractViewComputationCacheSource implements ViewComputationCacheSource {
   private final ValueSpecificationIdentifierSource _identifierSource;
   private final FudgeContext _fudgeContext;
-  
-  private final ConcurrentMap<ViewComputationCacheKey, StandardViewComputationCache> _cachesByKey =
-    new ConcurrentHashMap<ViewComputationCacheKey, StandardViewComputationCache>();
-  private final ConcurrentMap<Pair<String, Long>, Set<ValueSpecificationIdentifierBinaryDataStore>> _activeStores =
-    new ConcurrentHashMap<Pair<String, Long>, Set<ValueSpecificationIdentifierBinaryDataStore>>();
+
+  private final ConcurrentMap<ViewComputationCacheKey, StandardViewComputationCache> _cachesByKey = new ConcurrentHashMap<ViewComputationCacheKey, StandardViewComputationCache>();
+  private final ConcurrentMap<Pair<String, Long>, Set<ValueSpecificationIdentifierBinaryDataStore>> _activeStores = new ConcurrentHashMap<Pair<String, Long>, Set<ValueSpecificationIdentifierBinaryDataStore>>();
   private final ReentrantLock _cacheManagementLock = new ReentrantLock();
-  
+
   protected AbstractViewComputationCacheSource(ValueSpecificationIdentifierSource identifierSource, FudgeContext fudgeContext) {
     ArgumentChecker.notNull(identifierSource, "Identifier source");
     ArgumentChecker.notNull(fudgeContext, "Fudge context");
     _identifierSource = identifierSource;
     _fudgeContext = fudgeContext;
   }
-  
+
   /**
    * Gets the identifierSource field.
    * @return the identifierSource
@@ -55,8 +55,14 @@ public abstract class AbstractViewComputationCacheSource implements ViewComputat
 
   @Override
   public ViewComputationCache cloneCache(String viewName, String calculationConfigurationName, long timestamp) {
-    // TODO kirk 2010-08-07 -- Implement this.
-    return null;
+    final ViewComputationCacheKey key = new ViewComputationCacheKey(viewName, calculationConfigurationName, timestamp);
+    final StandardViewComputationCache cache = _cachesByKey.get(key);
+    final MapValueSpecificationIdentifierSource identifierSource = new MapValueSpecificationIdentifierSource();
+    final MapValueSpecificationIdentifierBinaryDataStore dataStore = new MapValueSpecificationIdentifierBinaryDataStore();
+    for (Pair<ValueSpecification, byte[]> value : cache) {
+      dataStore.put(identifierSource.getIdentifier(value.getKey()), value.getValue());
+    }
+    return new StandardViewComputationCache(identifierSource, dataStore, getFudgeContext());
   }
 
   @Override
@@ -110,11 +116,11 @@ public abstract class AbstractViewComputationCacheSource implements ViewComputat
     } finally {
       _cacheManagementLock.unlock();
     }
-    
+
     if (dataStores == null) {
       return;
     }
-    
+
     for (ValueSpecificationIdentifierBinaryDataStore dataStore : dataStores) {
       dataStore.delete();
     }

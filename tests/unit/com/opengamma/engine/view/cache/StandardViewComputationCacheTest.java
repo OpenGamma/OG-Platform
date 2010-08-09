@@ -25,8 +25,6 @@ import com.opengamma.engine.value.ValueSpecification;
 
 public class StandardViewComputationCacheTest {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(StandardViewComputationCacheTest.class);
-  
   private StandardViewComputationCache _viewComputationCache;
   
   @Before
@@ -50,7 +48,6 @@ public class StandardViewComputationCacheTest {
     _viewComputationCache.putValue(value);
     final Object obj = _viewComputationCache.getValue (valueSpec);
     assertNotNull (obj);
-    System.err.println ("Obj = " + obj);
     assertEquals (expected, obj);
   }
   

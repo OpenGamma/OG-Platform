@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view.calcnode;
 
+import org.fudgemsg.FudgeContext;
+
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
@@ -16,7 +18,7 @@ import com.opengamma.util.InetAddressUtils;
 public class TestCalculationNode extends AbstractCalculationNode {
   
   protected TestCalculationNode() {
-    super(new MapViewComputationCacheSource(), 
+    super(new MapViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT), 
         new InMemoryFunctionRepository(), 
         new FunctionExecutionContext(), 
         new DefaultComputationTargetResolver(new MockSecuritySource(), new MockPositionSource()), 

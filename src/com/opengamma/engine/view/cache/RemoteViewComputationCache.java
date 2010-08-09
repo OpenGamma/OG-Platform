@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.cache;
@@ -22,23 +22,20 @@ public class RemoteViewComputationCache implements ViewComputationCache {
   private final RemoteCacheClient _remoteClient;
   private final ViewComputationCacheKey _cacheKey;
   private final Cache _localCache;
-  
+
+  /* package */static CacheManager getCacheManager() {
+    return EHCacheUtils.createCacheManager();
+  }
+
   public RemoteViewComputationCache(RemoteCacheClient remoteClient, ViewComputationCacheKey cacheKey, int maxLocalCachedElements) {
     ArgumentChecker.notNull(remoteClient, "Remote cache client");
     ArgumentChecker.notNull(cacheKey, "Computation cache key");
     _remoteClient = remoteClient;
     _cacheKey = cacheKey;
-    
-    CacheManager cacheManager = EHCacheUtils.createCacheManager();
+
+    CacheManager cacheManager = getCacheManager();
     String cacheName = cacheKey.toString();
-    EHCacheUtils.addCache(
-        cacheManager,
-        cacheKey.toString(),
-        maxLocalCachedElements,
-        MemoryStoreEvictionPolicy.LFU,
-        false, null,
-        true, 0,
-        0, false, 0, null);
+    EHCacheUtils.addCache(cacheManager, cacheKey.toString(), maxLocalCachedElements, MemoryStoreEvictionPolicy.LFU, false, null, true, 0, 0, false, 0, null);
     _localCache = EHCacheUtils.getCacheFromManager(cacheManager, cacheName);
   }
 

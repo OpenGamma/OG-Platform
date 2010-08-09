@@ -19,8 +19,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class MapValueSpecificationIdentifierSource implements ValueSpecificationIdentifierSource {
   private final AtomicLong _nextIdentifier = new AtomicLong(1L);
-  private final ConcurrentMap<ValueSpecification, Long> _identifiers =
-    new ConcurrentHashMap<ValueSpecification, Long>();
+  private final ConcurrentMap<ValueSpecification, Long> _identifiers = new ConcurrentHashMap<ValueSpecification, Long>();
 
   @Override
   public long getIdentifier(ValueSpecification spec) {

@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view.cache;
 
+import java.util.Iterator;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
@@ -14,12 +16,13 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * An implementation of {@link ViewComputationCache} which backs value storage on
  * a pair of {@link ValueSpecificationIdentifierSource} and {@link ValueSpecificationIdentifierBinaryDataStore}.
  */
-public class StandardViewComputationCache implements ViewComputationCache {
+public class StandardViewComputationCache implements ViewComputationCache, Iterable<Pair<ValueSpecification,byte[]>> {
 
   private static final int NATIVE_FIELD_INDEX = -1;
 
@@ -94,14 +97,13 @@ public class StandardViewComputationCache implements ViewComputationCache {
     } else {
       data = getFudgeContext().toByteArray(message);
     }
-    for (int i = 0; i < data.length; i++) {
-      if (data[i] > 32) {
-        System.err.print((char) data[i] + " ");
-      } else {
-        System.err.print(data[i] + " ");
-      }
-    }
     getDataStore().put(identifier, data);
+  }
+  
+  @Override
+  public Iterator<Pair<ValueSpecification, byte[]>> iterator() {
+    // TODO 2008-08-09 Implement this; iterate over the values
+    throw new UnsupportedOperationException();
   }
 
 }
