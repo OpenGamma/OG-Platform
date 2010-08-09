@@ -7,6 +7,8 @@ package com.opengamma.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * 
  */
@@ -33,8 +35,8 @@ public class ContinuousInterestRate extends InterestRate {
   @Override
   public InterestRate fromPeriodic(final PeriodicInterestRate periodic) {
     Validate.notNull(periodic);
-    // TODO Auto-generated method stub
-    return null;
+    final int m = periodic.getCompoundingPeriodsPerYear();
+    return new ContinuousInterestRate(m * Math.log(1 + periodic.getRate() / m));
   }
 
   @Override
@@ -54,8 +56,8 @@ public class ContinuousInterestRate extends InterestRate {
 
   @Override
   public PeriodicInterestRate toPeriodic(final int periodsPerYear) {
-    // TODO Auto-generated method stub
-    return null;
+    ArgumentChecker.notNegativeOrZero(periodsPerYear, "compounding periods per year");
+    return new PeriodicInterestRate(periodsPerYear * (Math.exp(getRate() / periodsPerYear) - 1), periodsPerYear);
   }
 
   @Override
