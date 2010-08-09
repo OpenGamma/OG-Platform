@@ -26,6 +26,8 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.xml.sax.InputSource;
 
+import com.opengamma.util.PlatformConfigUtils;
+
 /**
  * Extend from this to verify that a Spring configuration is valid in each of the
  * platform configurations. This is to spot changes made to the code that prevent
@@ -37,7 +39,7 @@ public abstract class AbstractPlatformSpringContextValidationTest {
   private final GenericApplicationContext _springContext;
 
   protected AbstractPlatformSpringContextValidationTest(final String opengammaPlatformRunmode) {
-    System.setProperty("opengamma.platform.runmode", opengammaPlatformRunmode);
+    PlatformConfigUtils.configureSystemProperties(opengammaPlatformRunmode);
     _springContext = new GenericApplicationContext();
   }
 
@@ -58,7 +60,7 @@ public abstract class AbstractPlatformSpringContextValidationTest {
     xmlReader.loadBeanDefinitions(new ClassPathResource(name));
   }
 
-  protected void fileSystemResource(final String path) {
+  protected void loadFileSystemResource(final String path) {
     XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(getSpringContext());
     xmlReader.loadBeanDefinitions(new FileSystemResource(path));
   }
