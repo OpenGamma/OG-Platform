@@ -16,7 +16,7 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -32,54 +32,60 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvider implements LiveDataListener 
-{
+public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvider implements LiveDataListener {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(LiveDataSnapshotProviderImpl.class);
-  
+
   // Injected Inputs:
   private final LiveDataClient _liveDataClient;
   private final FudgeContext _fudgeContext;
-  private final SecurityMaster _securityMaster;
-  
+  private final SecuritySource _securitySource;
+
   // Runtime State:
   private final InMemoryLKVSnapshotProvider _underlyingProvider = new InMemoryLKVSnapshotProvider();
   private final Map<LiveDataSpecification, Set<ValueRequirement>> _liveDataSpec2ValueRequirements =
     new ConcurrentHashMap<LiveDataSpecification, Set<ValueRequirement>>();
-  
-  public LiveDataSnapshotProviderImpl(LiveDataClient liveDataClient, SecurityMaster secMaster) {
-    this(liveDataClient, secMaster, new FudgeContext());
+
+  public LiveDataSnapshotProviderImpl(LiveDataClient liveDataClient, SecuritySource securitySource) {
+    this(liveDataClient, securitySource, new FudgeContext());
   }
-  
-  public LiveDataSnapshotProviderImpl(LiveDataClient liveDataClient, SecurityMaster secMaster, FudgeContext fudgeContext) {
-    ArgumentChecker.notNull(liveDataClient, "Live Data Client");
-    ArgumentChecker.notNull(secMaster, "Security master");
-    ArgumentChecker.notNull(fudgeContext, "Fudge Context");
+
+  public LiveDataSnapshotProviderImpl(LiveDataClient liveDataClient, SecuritySource securitySource, FudgeContext fudgeContext) {
+    ArgumentChecker.notNull(liveDataClient, "liveDataClient");
+    ArgumentChecker.notNull(securitySource, "securitySource");
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _liveDataClient = liveDataClient;
-    _securityMaster = secMaster;
+    _securitySource = securitySource;
     _fudgeContext = fudgeContext;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @return the underlyingProvider
+   * Gets the underlying snapshot provider.
+   * @return the underlying provider, not null
    */
   public InMemoryLKVSnapshotProvider getUnderlyingProvider() {
     return _underlyingProvider;
   }
 
   /**
-   * @return the secMaster
+   * Gets the source of securities.
+   * @return the source of securities, not null
    */
-  public SecurityMaster getSecurityMaster() {
-    return _securityMaster;
+  public SecuritySource getSecuritySource() {
+    return _securitySource;
   }
 
   /**
-   * @return the fudgeContext
+   * Gets the Fudge context.
+   * @return the fudge context, not null
    */
   public FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public void addSubscription(UserPrincipal user, ValueRequirement requirement) {
     addSubscription(user, Collections.singleton(requirement));    
@@ -89,7 +95,7 @@ public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvid
   public void addSubscription(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
     Set<LiveDataSpecification> liveDataSpecs = new HashSet<LiveDataSpecification>();
     for (ValueRequirement requirement : valueRequirements) {
-      LiveDataSpecification liveDataSpec = requirement.getRequiredLiveData(getSecurityMaster());
+      LiveDataSpecification liveDataSpec = requirement.getRequiredLiveData(getSecuritySource());
       liveDataSpecs.add(liveDataSpec);
       Set<ValueRequirement> requirementsForSpec = _liveDataSpec2ValueRequirements.get(liveDataSpec);
       if (requirementsForSpec == null) {
@@ -123,15 +129,12 @@ public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvid
   }
 
   @Override
-  public void subscriptionResultReceived(
-      LiveDataSubscriptionResponse subscriptionResult) {
-    Set<ValueRequirement> valueRequirements = _liveDataSpec2ValueRequirements.get(subscriptionResult.getRequestedSpecification());
+  public void subscriptionResultReceived(LiveDataSubscriptionResponse subscriptionResult) {
+    Set<ValueRequirement> valueRequirements = _liveDataSpec2ValueRequirements.remove(subscriptionResult.getRequestedSpecification());
     if (valueRequirements == null) {
       s_logger.warn("Received subscription result for which no corresponding set of value requirements was found: {}", subscriptionResult);
       return;
     }
-    _liveDataSpec2ValueRequirements.remove(subscriptionResult.getRequestedSpecification());
-    
     if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
       _liveDataSpec2ValueRequirements.put(subscriptionResult.getFullyQualifiedSpecification(), valueRequirements);
       s_logger.info("Subscription made to {}", subscriptionResult.getRequestedSpecification());
@@ -163,8 +166,15 @@ public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvid
     FudgeFieldContainer msg = valueUpdate.getFields();
     
     for (ValueRequirement valueRequirement : valueRequirements) {
-      ComputedValue value = new ComputedValue(new ValueSpecification(valueRequirement), msg);
-      getUnderlyingProvider().addValue(value);
+      // We assume all market data can be represented as a Double. The request for the field as a Double also ensures
+      // that we consistently provide a Double downstream, even if the value has been represented as a more efficient
+      // type in the message.
+      Double value = msg.getDouble(valueRequirement.getValueName());
+      if (value == null) {
+        continue;
+      }
+      ComputedValue computedValue = new ComputedValue(new ValueSpecification(valueRequirement), value);
+      getUnderlyingProvider().addValue(computedValue);
     }
     
     super.valueChanged(valueRequirements);

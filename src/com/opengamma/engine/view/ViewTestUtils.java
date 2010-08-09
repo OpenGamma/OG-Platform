@@ -10,8 +10,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Ignore;
-
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.DefaultFunctionResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -19,11 +17,13 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.livedata.FixedLiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
-import com.opengamma.engine.position.MockPositionMaster;
+import com.opengamma.engine.position.MockPositionSource;
 import com.opengamma.engine.position.PortfolioImpl;
-import com.opengamma.engine.security.MockSecurityMaster;
+import com.opengamma.engine.security.MockSecuritySource;
 import com.opengamma.engine.view.cache.MapViewComputationCacheSource;
+import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
 import com.opengamma.engine.view.calcnode.CalculationNodeRequestReceiver;
+import com.opengamma.engine.view.calcnode.DummyResultWriterFactory;
 import com.opengamma.engine.view.calcnode.FudgeJobRequestSender;
 import com.opengamma.engine.view.calcnode.JobRequestSender;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
@@ -34,7 +34,7 @@ import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.NamedThreadPoolFactory;
 
 /**
- * 
+ * Utility to setup a View for testing.
  */
 public class ViewTestUtils {
   
@@ -43,12 +43,12 @@ public class ViewTestUtils {
     
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
     
-    MockSecurityMaster secMaster = new MockSecurityMaster();
+    MockSecuritySource securitySource = new MockSecuritySource();
 
-    MockPositionMaster positionMaster = new MockPositionMaster();
-    positionMaster.addPortfolio(new PortfolioImpl(portfolioId, "test_portfolio"));
+    MockPositionSource positionSource = new MockPositionSource();
+    positionSource.addPortfolio(new PortfolioImpl(portfolioId, "test_portfolio"));
     
-    DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(secMaster, positionMaster);
+    DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
     
     MapViewComputationCacheSource cacheFactory = new MapViewComputationCacheSource();
     
@@ -68,13 +68,15 @@ public class ViewTestUtils {
         new InMemoryLKVSnapshotProvider(), 
         functionRepo, 
         new DefaultFunctionResolver(functionRepo),
-        positionMaster, 
-        secMaster, 
+        positionSource, 
+        securitySource, 
         cacheFactory, 
         calcRequestSender, 
         viewProcessorQueryReceiver,
         new FunctionCompilationContext(), 
-        executor);
+        executor,
+        new SingleNodeExecutorFactory(),
+        new DummyResultWriterFactory());
     
     ViewDefinition viewDefinition = new ViewDefinition("mock_view", portfolioId, "ViewTestUser");
 

@@ -46,7 +46,7 @@ public class ComputationTargetSpecificationTest {
   private static final Portfolio PORTFOLIO = new PortfolioImpl(UID, "Name");
   private static final PortfolioNodeImpl NODE = new PortfolioNodeImpl(UID, "Name");
   private static final Position POSITION = new PositionImpl(UID, new BigDecimal(1), new IdentifierBundle());
-  private static final DefaultSecurity SECURITY = new DefaultSecurity();
+  private static final DefaultSecurity SECURITY = new DefaultSecurity("");
   static {
     SECURITY.setUniqueIdentifier(UID);
   }
@@ -116,12 +116,12 @@ public class ComputationTargetSpecificationTest {
     new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, (UniqueIdentifier) null);
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_constructor_Type_UniqueIdentifier_nullType() {
     new ComputationTargetSpecification(null, UID);
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_constructor_Type_UniqueIdentifier_nullId() {
     new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, (UniqueIdentifier) null);
   }

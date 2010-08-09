@@ -6,15 +6,12 @@
 package com.opengamma.engine.depgraph;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -24,26 +21,40 @@ import com.opengamma.util.ArgumentChecker;
  * A single node in a {@link DependencyGraph}. A node represents
  * a particular invocation of a particular function at runtime, producing
  * certain values.
+ * <p>
+ * The same DependencyNode can belong to multiple DependencyGraphs
+ * due to the possibility of sub-graphing.
  */
 public class DependencyNode {
+  
+  // BELOW: COMPLETELY IMMUTABLE VARIABLES 
+  
   private final FunctionDefinition _functionDefinition;
   private final ComputationTarget _computationTarget;
-  private final Set<ValueRequirement> _inputRequirements = new HashSet<ValueRequirement>();
-  private final Set<ValueSpecification> _outputValues = new HashSet<ValueSpecification>();
+  private final Set<ValueSpecification> _inputValues;
+  
+  // COMPLETELY IMMUTABLE VARIABLES END
+  
+  // BELOW: EVEN THOUGH VARIABLE ITSELF IS FINAL, CONTENTS ARE MUTABLE.
+  
+  private final Set<DependencyNode> _inputNodes = new HashSet<DependencyNode>();
+  private final Set<DependencyNode> _dependentNodes = new HashSet<DependencyNode>();
+  
+  private final Set<ValueSpecification> _outputValues;
+  
   /**
    * The final output values that cannot be stripped from the {@link #_outputValues} set no matter
    * whether there are no dependent nodes.
    */
   private final Set<ValueSpecification> _terminalOutputValues = new HashSet<ValueSpecification>();
-  private final Set<DependencyNode> _inputNodes = new HashSet<DependencyNode>();
-  private final Map<ValueRequirement, ValueSpecification> _requirementMapping =
-    new HashMap<ValueRequirement, ValueSpecification>();
-  private final Set<DependencyNode> _dependentNodes = new HashSet<DependencyNode>();
   
-  public DependencyNode(
-      FunctionCompilationContext context,
-      FunctionDefinition functionDefinition,
-      ComputationTarget target) {
+  // MUTABLE CONTENTS VARIABLES END
+  
+  public DependencyNode(FunctionDefinition functionDefinition,
+      ComputationTarget target,
+      Set<DependencyNode> inputNodes,
+      Set<ValueSpecification> inputValues,
+      Set<ValueSpecification> outputValues) {
     ArgumentChecker.notNull(functionDefinition, "Function Definition");
     ArgumentChecker.notNull(target, "Computation Target");
     if (functionDefinition.getTargetType() != target.getType()) {
@@ -51,11 +62,18 @@ public class DependencyNode {
           "Provided function of type " + functionDefinition.getTargetType()
           + " but target of type " + target.getType());
     }
+    ArgumentChecker.notNull(inputNodes, "Input nodes");
+    ArgumentChecker.notNull(inputValues, "Input values");
+    ArgumentChecker.notNull(outputValues, "Output values");
     
     _functionDefinition = functionDefinition;
     _computationTarget = target;
-    _inputRequirements.addAll(_functionDefinition.getRequirements(context, _computationTarget));
-    _outputValues.addAll(_functionDefinition.getResults(context, _computationTarget));
+    _inputValues = new HashSet<ValueSpecification>(inputValues);
+    _outputValues = new HashSet<ValueSpecification>(outputValues);
+    
+    for (DependencyNode inputNode : inputNodes) {
+      addInputNode(inputNode);      
+    }
   }
   
   public void addInputNode(DependencyNode inputNode) {
@@ -81,8 +99,24 @@ public class DependencyNode {
     return Collections.unmodifiableSet(_outputValues);
   }
   
+  public Set<ValueRequirement> getOutputRequirements() {
+    Set<ValueRequirement> outputRequirements = new HashSet<ValueRequirement>();
+    for (ValueSpecification outputValue : getOutputValues()) {
+      outputRequirements.add(outputValue.getRequirementSpecification());
+    }
+    return outputRequirements;
+  }
+  
+  public Set<ValueSpecification> getInputValues() {
+    return Collections.unmodifiableSet(_inputValues);
+  }
+  
   public Set<ValueRequirement> getInputRequirements() {
-    return Collections.unmodifiableSet(_inputRequirements);
+    Set<ValueRequirement> inputRequirements = new HashSet<ValueRequirement>();
+    for (ValueSpecification outputValue : getInputValues()) {
+      inputRequirements.add(outputValue.getRequirementSpecification());
+    }
+    return inputRequirements;
   }
   
   /**
@@ -108,34 +142,17 @@ public class DependencyNode {
     return _computationTarget;
   }
 
-  public void addRequirementMapping(ValueRequirement inputRequirement, ValueSpecification actualValue) {
-    ArgumentChecker.notNull(inputRequirement, "Input Value Requirement");
-    ArgumentChecker.notNull(actualValue, "Actual Value Specification");
-    assert inputNodeProduces(actualValue);
-    _requirementMapping.put(inputRequirement, actualValue);
-  }
-  
-  public ValueSpecification getMappedRequirement(ValueRequirement inputRequirement) {
-    return _requirementMapping.get(inputRequirement);
-  }
-  
-  protected boolean inputNodeProduces(ValueSpecification value) {
-    for (DependencyNode inputNode : _inputNodes) {
-      if (inputNode.getOutputValues().contains(value)) {
-        return true;
+  public ValueSpecification resolveInput(ValueRequirement requirement) {
+    for (ValueSpecification inputSpec : getInputValues()) {
+      if (ObjectUtils.equals(inputSpec.getRequirementSpecification(), requirement)) {
+        return inputSpec;
       }
     }
-    return false;
+    return null;
   }
   
-  public ValueSpecification satisfiesRequirement(ValueRequirement requirement) {
-    if (requirement.getTargetSpecification().getType() != getComputationTarget().getType()) {
-      return null;
-    }
-    if (!ObjectUtils.equals(requirement.getTargetSpecification().getUniqueIdentifier(), getComputationTarget().getUniqueIdentifier())) {
-      return null;
-    }
-    for (ValueSpecification outputSpec : _outputValues) {
+  public ValueSpecification resolveOutput(ValueRequirement requirement) {
+    for (ValueSpecification outputSpec : getOutputValues()) {
       if (ObjectUtils.equals(outputSpec.getRequirementSpecification(), requirement)) {
         return outputSpec;
       }
@@ -151,7 +168,7 @@ public class DependencyNode {
       }
       boolean isUsed = false;
       for (DependencyNode dependantNode : _dependentNodes) {
-        if (dependantNode.getInputRequirements().contains(outputSpec.getRequirementSpecification())) {
+        if (dependantNode.getInputValues().contains(outputSpec)) {
           isUsed = true;
           break;
         }

@@ -5,15 +5,18 @@
  */
 package com.opengamma.engine.value;
 
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
+
 /**
- * A collection of common/standard names for the Value Name property
- * for {@link ValueRequirement} instances.
+ * A set of common names used to refer to particular computed values. These should be used by
+ * {@link FunctionDefinition}s to state their required inputs and their potential outputs, in order that a common set
+ * of names are used.
+ * <p>
+ * For names used to refer to market data, see {@link MarketDataRequirementNames}.
  */
 public interface ValueRequirementNames {
 
   // CSOFF: Because they're names that should be known by industry practitioners.
-  // Market Data Names:
-  public static final String MARKET_DATA_HEADER = "MarketDataHeader";
   
   // Standard Analytic Models:
   public static final String DISCOUNT_CURVE = "DiscountCurve";
@@ -184,8 +187,8 @@ public interface ValueRequirementNames {
   public static final String FUNDING_JACOBIAN = "FundingCurveJacobian";
   public static final String FORWARD_JACOBIAN = "ForwardCurveJacobian";  
   
-  // CSON: Because they're names that should be known by industry practitioners.  
-  
   // Fixed income analytics
   public static final String PRESENT_VALUE = "PresentValue";
+  
+  // CSON: Because they're names that should be known by industry practitioners.
 }

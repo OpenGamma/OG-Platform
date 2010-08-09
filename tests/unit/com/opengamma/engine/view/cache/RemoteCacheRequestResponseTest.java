@@ -179,7 +179,7 @@ public class RemoteCacheRequestResponseTest {
     
     Object resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
     assertNotNull(resultValue);
-    assertTrue(resultValue instanceof Double);
+    assertTrue("Expected Double, but got " + resultValue + " type " + resultValue.getClass(), resultValue instanceof Double);
     assertEquals(2.0, (Double)resultValue, 0.0001);
     
     resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);

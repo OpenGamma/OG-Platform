@@ -61,12 +61,45 @@ public class MockFunction extends AbstractFunction implements FunctionInvoker {
 
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
+    return getRequirements();
+  }
+  
+  public ValueRequirement getRequirement() {
+    if (_requirements.size() != 1) {
+      throw new IllegalStateException();
+    }
+    return _requirements.iterator().next();
+  }
+  
+  public Set<ValueRequirement> getRequirements() {
     return _requirements;
   }
 
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+    return getResultSpecs();
+  }
+  
+  public Set<ValueSpecification> getResultSpecs() {
     return _resultSpecs;
+  }
+  
+  public ValueSpecification getResultSpec() {
+    if (_resultSpecs.size() != 1) {
+      throw new IllegalStateException();
+    }
+    return _resultSpecs.iterator().next();
+  }
+  
+  public Set<ComputedValue> getResults() {
+    return _results;
+  }
+  
+  public ComputedValue getResult() {
+    if (_results.size() != 1) {
+      throw new IllegalStateException();
+    }
+    return _results.iterator().next();
   }
 
   @Override
@@ -77,6 +110,10 @@ public class MockFunction extends AbstractFunction implements FunctionInvoker {
   @Override
   public ComputationTargetType getTargetType() {
     return _target.getType();
+  }
+  
+  public ComputationTarget getTarget() {
+    return _target;
   }
 
   @Override

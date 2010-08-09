@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
@@ -19,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -32,16 +34,19 @@ import com.opengamma.util.ArgumentChecker;
 public class ViewProcessorQueryReceiver implements FudgeRequestReceiver {
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(ViewProcessorQueryReceiver.class);
-  private Map<CalculationJobSpecification, DependencyNode> _jobToDepNodeMap;
+  private Map<CalculationJobSpecification, DependencyGraph> _jobToDepGraphMap = new WeakHashMap<CalculationJobSpecification, DependencyGraph>();
 
   @Override
-  public FudgeFieldContainer requestReceived(FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope) {
-    ArgumentChecker.notNullInjected(_jobToDepNodeMap, "Job Specification to Dependency Node Map");
+  public synchronized FudgeFieldContainer requestReceived(FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope) {
+    ArgumentChecker.notNullInjected(_jobToDepGraphMap, "Job Specification to Dependency Graph Map");
     Object message = context.fudgeMsgToObject(requestEnvelope.getMessage());
     if (message instanceof DependentValueSpecificationsRequest) {
       DependentValueSpecificationsRequest request = (DependentValueSpecificationsRequest) message;
-      DependencyNode dependencyNode = _jobToDepNodeMap.get(request.getJobSpec());
-      Collection<ValueSpecification> valueSpecs = collectAllValueSpecifications(dependencyNode, new HashSet<ValueSpecification>());
+      DependencyGraph dependencyGraph = _jobToDepGraphMap.get(request.getJobSpec());
+      Collection<ValueSpecification> valueSpecs = new HashSet<ValueSpecification>();
+      for (DependencyNode root : dependencyGraph.getRootNodes()) {
+        collectAllValueSpecifications(root, valueSpecs);
+      }
       FudgeSerializationContext fudgeSerializationContext = new FudgeSerializationContext(context.getFudgeContext());
       MutableFudgeFieldContainer msg = fudgeSerializationContext.objectToFudgeMsg(new DependentValueSpecificationsReply(request.getJobSpec(), valueSpecs));
       FudgeSerializationContext.addClassHeader(msg, DependentValueSpecificationsReply.class);
@@ -51,20 +56,19 @@ public class ViewProcessorQueryReceiver implements FudgeRequestReceiver {
     }
   }
   
-  Collection<ValueSpecification> collectAllValueSpecifications(DependencyNode node, Collection<ValueSpecification> specsSoFar) {
+  private void collectAllValueSpecifications(DependencyNode node, Collection<ValueSpecification> specsSoFar) {
     Set<ValueRequirement> inputRequirements = node.getInputRequirements();
-    for (ValueRequirement valueRequirement : inputRequirements) {
-      ValueSpecification mappedRequirement = node.getMappedRequirement(valueRequirement);
-      specsSoFar.add(mappedRequirement);
+    for (ValueRequirement inputRequirement : inputRequirements) {
+      ValueSpecification resolvedInput = node.resolveInput(inputRequirement);
+      specsSoFar.add(resolvedInput);
     }
     for (DependencyNode subNode : node.getInputNodes()) {
       collectAllValueSpecifications(subNode, specsSoFar);
     }
-    return specsSoFar;
   }
 
-  public void setJobToDepNodeMap(Map<CalculationJobSpecification, DependencyNode> executingSpecifications) {
-    _jobToDepNodeMap = executingSpecifications;
+  public synchronized void addJob(CalculationJobSpecification spec, DependencyGraph graph) {
+    _jobToDepGraphMap.put(spec, graph);
   }
 
 }

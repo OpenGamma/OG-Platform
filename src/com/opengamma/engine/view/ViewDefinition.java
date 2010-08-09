@@ -20,6 +20,8 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
@@ -276,6 +278,23 @@ public class ViewDefinition implements Serializable {
     _computePrimitiveNodeCalculations = computePrimitiveNodeCalculations;
   }
   
+  public boolean shouldWriteResults(ComputationTarget computationTarget) {
+    ComputationTargetType computationTargetType = computationTarget.getType();
+    
+    switch (computationTargetType) {
+      case PRIMITIVE:
+        return isComputePrimitiveNodeCalculations();
+      case SECURITY:
+        return isComputeSecurityNodeCalculations();
+      case POSITION:
+        return isComputePositionNodeCalculations();
+      case PORTFOLIO_NODE:
+        return isComputePortfolioNodeCalculations();
+      default:
+        throw new RuntimeException("Unexpected type " + computationTargetType);
+    }
+  }
+  
   /**
    * Serializes this ViewDefinition to a Fudge message.
    * @param factory  the Fudge context, not null
@@ -319,8 +338,8 @@ public class ViewDefinition implements Serializable {
     UniqueIdentifier portfolioId = UniqueIdentifier.of(scheme, value, version);
     
     FudgeFieldContainer userMessage = msg.getMessage(USER_KEY);
-    String userName = userMessage.getString(UserPrincipal.USERNAME_KEY);
-    String ipAddress = userMessage.getString(UserPrincipal.IPADDRESS_KEY);
+    String userName = userMessage.getString(UserPrincipal.USER_NAME_KEY);
+    String ipAddress = userMessage.getString(UserPrincipal.IP_ADDRESS_KEY);
     
     UserPrincipal liveDataUser = new UserPrincipal(userName, ipAddress);
     ViewDefinition result = new ViewDefinition(name, portfolioId, liveDataUser);

@@ -30,10 +30,12 @@ import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
-import com.opengamma.engine.position.PositionMaster;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.position.PositionSource;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
+import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calcnode.JobRequestSender;
+import com.opengamma.engine.view.calcnode.ResultWriterFactory;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.livedata.client.LiveDataClient;
 import com.opengamma.livedata.msg.UserPrincipal;
@@ -53,14 +55,16 @@ public class ViewProcessor implements Lifecycle {
   // Injected Inputs:
   private ViewDefinitionRepository _viewDefinitionRepository;
   private FunctionRepository _functionRepository;
-  private SecurityMaster _securityMaster;
-  private PositionMaster _positionMaster;
+  private SecuritySource _securitySource;
+  private PositionSource _positionSource;
   private LiveDataClient _liveDataClient;
   private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private LiveDataSnapshotProvider _liveDataSnapshotProvider;
   private ViewComputationCacheSource _computationCacheSource;
   private JobRequestSender _computationJobRequestSender;
   private ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
+  private DependencyGraphExecutorFactory _dependencyGraphExecutorFactory;
+  private ResultWriterFactory _resultWriterFactory;
   // State:
   private final ConcurrentMap<String, View> _viewsByName = new ConcurrentHashMap<String, View>();
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
@@ -110,33 +114,37 @@ public class ViewProcessor implements Lifecycle {
   }
 
   /**
-   * @return the securityMaster
+   * Gets the source of securities.
+   * @return the source of securities
    */
-  public SecurityMaster getSecurityMaster() {
-    return _securityMaster;
+  public SecuritySource getSecuritySource() {
+    return _securitySource;
   }
 
   /**
-   * @param securityMaster the securityMaster to set
+   * Sets the source of securities.
+   * @param securitySource  the source of securities
    */
-  public void setSecurityMaster(SecurityMaster securityMaster) {
+  public void setSecuritySource(SecuritySource securitySource) {
     assertNotStarted();
-    _securityMaster = securityMaster;
+    _securitySource = securitySource;
   }
 
   /**
-   * @return the positionMaster
+   * Gets the source of positions.
+   * @return the source of positions
    */
-  public PositionMaster getPositionMaster() {
-    return _positionMaster;
+  public PositionSource getPositionSource() {
+    return _positionSource;
   }
 
   /**
-   * @param positionMaster the positionMaster to set
+   * Sets the source of positions.
+   * @param positionSource  the source of positions
    */
-  public void setPositionMaster(PositionMaster positionMaster) {
+  public void setPositionSource(PositionSource positionSource) {
     assertNotStarted();
-    _positionMaster = positionMaster;
+    _positionSource = positionSource;
   }
   
   public LiveDataClient getLiveDataClient() {
@@ -221,6 +229,22 @@ public class ViewProcessor implements Lifecycle {
   public void setViewProcessorQueryReceiver(ViewProcessorQueryReceiver calcNodeQueryReceiver) {
     assertNotStarted();
     _viewProcessorQueryReceiver = calcNodeQueryReceiver;
+  }
+  
+  public DependencyGraphExecutorFactory getDependencyGraphExecutorFactory() {
+    return _dependencyGraphExecutorFactory;
+  }
+
+  public void setDependencyGraphExecutorFactory(DependencyGraphExecutorFactory dependencyGraphExecutorFactory) {
+    _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
+  }
+  
+  public ResultWriterFactory getResultWriterFactory() {
+    return _resultWriterFactory;
+  }
+
+  public void setResultWriterFactory(ResultWriterFactory resultWriterFactory) {
+    _resultWriterFactory = resultWriterFactory;
   }
 
   /**
@@ -314,20 +338,22 @@ public class ViewProcessor implements Lifecycle {
     }
     // NOTE kirk 2010-03-02 -- We construct a bespoke ViewProcessingContext because the resolvers
     // might be based on the view definition (particularly for functions and the like).
-    getCompilationContext().setSecurityMaster(getSecurityMaster());
+    getCompilationContext().setSecuritySource(getSecuritySource());
     ViewProcessingContext vpc = new ViewProcessingContext(
         getLiveDataClient(),
         getLiveDataAvailabilityProvider(),
         getLiveDataSnapshotProvider(),
         getFunctionRepository(),
         new DefaultFunctionResolver(getFunctionRepository()),
-        getPositionMaster(),
-        getSecurityMaster(),
+        getPositionSource(),
+        getSecuritySource(),
         getComputationCacheSource(),
         getComputationJobRequestSender(),
         getViewProcessorQueryReceiver(),
         getCompilationContext(),
-        getExecutorService());
+        getExecutorService(),
+        getDependencyGraphExecutorFactory(),
+        getResultWriterFactory());
     View freshView = new View(viewDefinition, vpc);
     View actualView = _viewsByName.putIfAbsent(viewName, freshView);
     if (actualView == null) {
@@ -529,17 +555,17 @@ public class ViewProcessor implements Lifecycle {
       setLocalExecutorService(false);
     }
   }
-  
+
   protected void checkInjectedInputs() {
     s_logger.debug("Checking injected inputs.");
     ArgumentChecker.notNullInjected(getViewDefinitionRepository(), "viewDefinitionRepository");
     ArgumentChecker.notNullInjected(getFunctionRepository(), "functionRepository");
-    ArgumentChecker.notNullInjected(getSecurityMaster(), "securityMaster");
-    ArgumentChecker.notNullInjected(getPositionMaster(), "positionMaster");
+    ArgumentChecker.notNullInjected(getSecuritySource(), "securitySource");
+    ArgumentChecker.notNullInjected(getPositionSource(), "positionSource");
     ArgumentChecker.notNullInjected(getLiveDataAvailabilityProvider(), "liveDataAvailabilityProvider");
     ArgumentChecker.notNullInjected(getLiveDataSnapshotProvider(), "liveDataSnapshotProvider");
     ArgumentChecker.notNullInjected(getComputationCacheSource(), "computationCacheSource");
     ArgumentChecker.notNullInjected(getComputationJobRequestSender(), "computationJobRequestSender");
   }
-  
+
 }

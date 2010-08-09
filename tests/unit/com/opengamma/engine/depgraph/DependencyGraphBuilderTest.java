@@ -58,6 +58,7 @@ public class DependencyGraphBuilderTest {
     model.setLiveDataAvailabilityProvider(new FixedLiveDataAvailabilityProvider());
     model.setFunctionResolver(new DefaultFunctionResolver(functionRepo));
     model.setTargetResolver(new MapComputationTargetResolver());
+    model.setCalculationConfigurationName("testCalcConf");
 
     model.addTarget(target, Sets.newHashSet(req1));
     
@@ -114,6 +115,7 @@ public class DependencyGraphBuilderTest {
     model.setLiveDataAvailabilityProvider(new FixedLiveDataAvailabilityProvider());
     model.setFunctionResolver(new DefaultFunctionResolver(functionRepo));
     model.setTargetResolver(new MapComputationTargetResolver());
+    model.setCalculationConfigurationName("testCalcConf");
 
     model.addTarget(target, Sets.newHashSet(req1));
     model.addTarget(target, Sets.newHashSet(req2));
@@ -154,6 +156,7 @@ public class DependencyGraphBuilderTest {
     model.setLiveDataAvailabilityProvider(new FixedLiveDataAvailabilityProvider());
     model.setFunctionResolver(new DefaultFunctionResolver(functionRepo));
     model.setTargetResolver(new MapComputationTargetResolver());
+    model.setCalculationConfigurationName("testCalcConf");
 
     model.addTarget(target, Sets.newHashSet(req1));
     model.addTarget(target, Collections.singleton(req3));
@@ -188,6 +191,7 @@ public class DependencyGraphBuilderTest {
     model.setLiveDataAvailabilityProvider(new FixedLiveDataAvailabilityProvider());
     model.setFunctionResolver(new DefaultFunctionResolver(functionRepo));
     model.setTargetResolver(targetResolver);
+    model.setCalculationConfigurationName("testCalcConf");
 
     model.addTarget(target, req1);
     
@@ -246,6 +250,7 @@ public class DependencyGraphBuilderTest {
     model.setLiveDataAvailabilityProvider(ldap);
     model.setFunctionResolver(new DefaultFunctionResolver(functionRepo));
     model.setTargetResolver(targetResolver);
+    model.setCalculationConfigurationName("testCalcConf");
 
     model.addTarget(target, req1);
 

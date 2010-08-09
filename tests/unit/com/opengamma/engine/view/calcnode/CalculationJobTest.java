@@ -10,6 +10,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
+import java.util.List;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
@@ -34,19 +35,31 @@ public class CalculationJobTest {
     FudgeContext context = FudgeContext.GLOBAL_DEFAULT;
     CalculationJobSpecification spec = new CalculationJobSpecification("view", "config", 1L, 1L);
     ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueIdentifier.of("Scheme", "Value"));
-    CalculationJob inputJob = new CalculationJob(spec, "1", targetSpec, Collections.<ValueSpecification>emptySet(), Collections.<ValueRequirement>emptySet());
+    
+    List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem(
+        "1", 
+        targetSpec,
+        Collections.<ValueSpecification>emptySet(), 
+        Collections.<ValueRequirement>emptySet(),
+        true));
+    
+    CalculationJob inputJob = new CalculationJob(spec, items, new DummyResultWriter());
     
     FudgeFieldContainer msg = inputJob.toFudgeMsg(new FudgeSerializationContext(context));
     msg = context.deserialize(context.toByteArray(msg)).getMessage();
     CalculationJob outputJob = CalculationJob.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
     assertNotNull(outputJob);
     assertEquals(inputJob.getSpecification(), outputJob.getSpecification());
-    assertNotNull(outputJob.getInputs());
-    assertTrue(outputJob.getInputs().isEmpty());
-    assertNotNull(outputJob.getDesiredValues());
-    assertTrue(outputJob.getDesiredValues().isEmpty());
-    assertEquals(targetSpec, outputJob.getComputationTargetSpecification());
-    assertEquals("1", outputJob.getFunctionUniqueIdentifier());
+    assertNotNull(outputJob.getJobItems());
+    assertEquals(1, outputJob.getJobItems().size());
+    CalculationJobItem outputItem = outputJob.getJobItems().get(0);
+    assertNotNull(outputItem);
+    assertNotNull(outputItem.getInputs());
+    assertTrue(outputItem.getInputs().isEmpty());
+    assertNotNull(outputItem.getDesiredValues());
+    assertTrue(outputItem.getDesiredValues().isEmpty());
+    assertEquals(targetSpec, outputItem.getComputationTargetSpecification());
+    assertEquals("1", outputItem.getFunctionUniqueIdentifier());
   }
 
   @Test
@@ -58,9 +71,14 @@ public class CalculationJobTest {
     ValueRequirement desiredValue = new ValueRequirement("Foo", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "Value2"));
     ValueSpecification inputSpec = new ValueSpecification(new ValueRequirement("Foo", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "Value3")));
     
-    CalculationJob inputJob = new CalculationJob(spec, "1", targetSpec,
+    List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem(
+        "1", 
+        targetSpec,
         Sets.newHashSet(inputSpec),
-        Sets.newHashSet(desiredValue));
+        Sets.newHashSet(desiredValue),
+        true));
+    
+    CalculationJob inputJob = new CalculationJob(spec, items, new DummyResultWriter());
     
     FudgeFieldContainer msg = inputJob.toFudgeMsg(new FudgeSerializationContext(context));
     msg = context.deserialize(context.toByteArray(msg)).getMessage();
@@ -68,11 +86,16 @@ public class CalculationJobTest {
     assertNotNull(outputJob);
     assertEquals(inputJob.getSpecification(), outputJob.getSpecification());
     
-    assertEquals(1, outputJob.getInputs().size());
-    assertTrue(outputJob.getInputs().contains(inputSpec));
+    assertNotNull(outputJob.getJobItems());
+    assertEquals(1, outputJob.getJobItems().size());
+    CalculationJobItem outputItem = outputJob.getJobItems().get(0);
+    assertNotNull(outputItem);
     
-    assertEquals(1, outputJob.getDesiredValues().size());
-    assertTrue(outputJob.getDesiredValues().contains(desiredValue));
+    assertEquals(1, outputItem.getInputs().size());
+    assertTrue(outputItem.getInputs().contains(inputSpec));
+    
+    assertEquals(1, outputItem.getDesiredValues().size());
+    assertTrue(outputItem.getDesiredValues().contains(desiredValue));
   }
 
 }

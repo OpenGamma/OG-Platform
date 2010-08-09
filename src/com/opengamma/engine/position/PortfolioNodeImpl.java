@@ -194,14 +194,23 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
    * @param uid  the identifier, null returns null
    * @return the node, null if not found
    */
-  @Override
   public PortfolioNode getNode(UniqueIdentifier uid) {
+    return getNode(this, uid);
+  }
+
+  /**
+   * Recursively finds a specific node from a node by identifier.
+   * @param node  the node to process, not null
+   * @param uid  the identifier, null returns null
+   * @return the node, null if not found
+   */
+  private static PortfolioNode getNode(PortfolioNode node, UniqueIdentifier uid) {
     if (uid != null) {
-      if (uid.equals(_identifier)) {
-        return this;
+      if (uid.equals(node.getUniqueIdentifier())) {
+        return node;
       }
-      for (PortfolioNode child : _childNodes) {
-        PortfolioNode result = child.getNode(uid);
+      for (PortfolioNode child : node.getChildNodes()) {
+        PortfolioNode result = getNode(child, uid);
         if (result != null) {
           return result;
         }
@@ -215,16 +224,25 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
    * @param uid  the identifier, null returns null
    * @return the position, null if not found
    */
-  @Override
   public Position getPosition(UniqueIdentifier uid) {
+    return getPosition(this, uid);
+  }
+
+  /**
+   * Recursively finds a specific position from a node by identifier.
+   * @param node  the node to process, not null
+   * @param uid  the identifier, null returns null
+   * @return the position, null if not found
+   */
+  private static Position getPosition(PortfolioNode node, UniqueIdentifier uid) {
     if (uid != null) {
-      for (Position child : _positions) {
+      for (Position child : node.getPositions()) {
         if (uid.equals(child.getUniqueIdentifier())) {
           return child;
         }
       }
-      for (PortfolioNode child : _childNodes) {
-        Position result = child.getPosition(uid);
+      for (PortfolioNode child : node.getChildNodes()) {
+        Position result = getPosition(child, uid);
         if (result != null) {
           return result;
         }

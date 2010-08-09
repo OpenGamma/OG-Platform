@@ -7,9 +7,9 @@ package com.opengamma.engine.view;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +23,8 @@ import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.view.calc.SingleComputationCycle;
+import com.opengamma.engine.view.calc.ViewRecalculationJob;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
@@ -43,8 +45,9 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   private ViewCalculationState _calculationState = ViewCalculationState.NOT_INITIALIZED;
   private ViewRecalculationJob _recalcJob;
   private ViewComputationResultModelImpl _mostRecentResult;
-  private final Set<ComputationResultListener> _resultListeners = new HashSet<ComputationResultListener>();
-  private final Set<DeltaComputationResultListener> _deltaListeners = new HashSet<DeltaComputationResultListener>();
+  private final Set<ComputationResultListener> _resultListeners = new CopyOnWriteArraySet<ComputationResultListener>();
+  private final Set<DeltaComputationResultListener> _deltaListeners = new CopyOnWriteArraySet<DeltaComputationResultListener>();
+  private volatile boolean _populateResultModel = true;
 
   public View(ViewDefinition definition, ViewProcessingContext processingContext) {
     if (definition == null) {
@@ -175,10 +178,10 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
    */
   public void reloadPortfolio() {
     OperationTimer timer = new OperationTimer(s_logger, "Reloading portfolio {}", getDefinition().getPortfolioId());
-    Portfolio portfolio = getProcessingContext().getPositionMaster().getPortfolio(getDefinition().getPortfolioId());
+    Portfolio portfolio = getProcessingContext().getPositionSource().getPortfolio(getDefinition().getPortfolioId());
     if (portfolio == null) {
       throw new OpenGammaRuntimeException("Unable to resolve portfolio " + getDefinition().getPortfolioId() +
-          " in position master " + getProcessingContext().getPositionMaster());
+          " in position source " + getProcessingContext().getPositionSource());
     }
     PortfolioEvaluationModel portfolioEvaluationModel = new PortfolioEvaluationModel(portfolio);
     portfolioEvaluationModel.init(
@@ -341,6 +344,18 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     return getCalculationState() == ViewCalculationState.RUNNING;
   }
   
+  public boolean hasListeners() {
+    return !_resultListeners.isEmpty() || !_deltaListeners.isEmpty();
+  }
+  
+  public boolean isPopulateResultModel() {
+    return _populateResultModel;
+  }
+
+  public void setPopulateResultModel(boolean populateResultModel) {
+    _populateResultModel = populateResultModel;
+  }
+
   public synchronized void runOneCycle() {
     long snapshotTime = getProcessingContext().getLiveDataSnapshotProvider().snapshot();
     runOneCycle(snapshotTime);
@@ -350,8 +365,12 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     SingleComputationCycle cycle = createCycle(valuationTime);
     cycle.prepareInputs();
     cycle.executePlans();
-    cycle.populateResultModel();
-    recalculationPerformed(cycle.getResultModel());
+    
+    if (isPopulateResultModel()) {
+      cycle.populateResultModel();
+      recalculationPerformed(cycle.getResultModel());
+    }
+    
     cycle.releaseResources();
   }
 
@@ -503,7 +522,7 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     Set<ValueRequirement> requiredValues = getPortfolioEvaluationModel().getAllLiveDataRequirements();
     Collection<LiveDataSpecification> requiredLiveData = ValueRequirement.getRequiredLiveData(
         requiredValues, 
-        getProcessingContext().getSecurityMaster());
+        getProcessingContext().getSecuritySource());
     
     s_logger.info("Checking that {} is entitled to the results of {}", user, this);
     Map<LiveDataSpecification, Boolean> entitlements = getProcessingContext().getLiveDataEntitlementChecker().isEntitled(user, requiredLiveData);
@@ -526,21 +545,8 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     return "View[" + getDefinition().getName() + "]";
   }
   
-  /*package*/ SingleComputationCycle createCycle(long valuationTime) {
-    PortfolioEvaluationModel portfolioEvaluationModel = getPortfolioEvaluationModel();
-    ViewComputationResultModelImpl result = new ViewComputationResultModelImpl();
-    // REVIEW kirk 2010-03-29 -- Order here is important. This is lame and should be refactored into
-    // the constructor.
-    result.setCalculationConfigurationNames(portfolioEvaluationModel.getAllCalculationConfigurationNames());
-    result.setPortfolio(portfolioEvaluationModel.getPortfolio());
-    
-    SingleComputationCycle cycle = new SingleComputationCycle(
-        getDefinition().getName(),
-        getProcessingContext(),
-        portfolioEvaluationModel,
-        result, 
-        getDefinition(),
-        valuationTime);
+  public SingleComputationCycle createCycle(long valuationTime) {
+    SingleComputationCycle cycle = new SingleComputationCycle(this, valuationTime);
     return cycle;
   }
 
