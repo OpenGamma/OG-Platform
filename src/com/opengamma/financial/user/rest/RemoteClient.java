@@ -77,8 +77,10 @@ public class RemoteClient {
    * @return  a {@link RemoteClient} instance for the new client
    */
   public static RemoteClient forNewClient(FudgeContext fudgeContext, RestTarget usersUri, String username) {
-    // Just use a GUID for the client ID
-    String clientId = GUIDGenerator.generate().toString();
+    return forClient(fudgeContext, usersUri, username, GUIDGenerator.generate().toString());
+  }
+
+  public static RemoteClient forClient(FudgeContext fudgeContext, RestTarget usersUri, String username, String clientId) {
     RestTarget uri = usersUri.resolveBase(username).resolveBase("clients").resolveBase(clientId);
     return new RemoteClient(clientId, fudgeContext, uri, usersUri.resolveBase("..").resolveBase(ClientResource.LIVEDATA_PATH));
   }

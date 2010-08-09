@@ -8,6 +8,9 @@ package com.opengamma.financial.analytics.model.swap;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZonedDateTime;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +21,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -54,7 +57,7 @@ public class FakeSwapPricingFunction extends AbstractFunction implements Functio
     if (canApplyTo(context, target)) {
       final SwapSecurity swap = (SwapSecurity) target.getSecurity();
       
-      SecurityMaster secMaster = context.getSecurityMaster();
+      SecuritySource secMaster = context.getSecuritySource();
 
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       requirements.add(getDiscountCurveMarketDataRequirement(Currency.getInstance("USD").getUniqueIdentifier()));
@@ -89,7 +92,8 @@ public class FakeSwapPricingFunction extends AbstractFunction implements Functio
       receiveAmount = irReceiveNotional.getAmount();
     }
     final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(getDiscountCurveMarketDataRequirement(Currency.getInstance("USD").getUniqueIdentifier()));
-    double rate = discountCurve.getInterestRate(DateUtil.getDifferenceInYears(security.getEffectiveDate(), security.getMaturityDate()));
+    double rate = discountCurve.getInterestRate(DateUtil.getDifferenceInYears(ZonedDateTime.of(security.getEffectiveDate(), TimeZone.of(security.getEffectiveDate_zone())), ZonedDateTime.of(security
+        .getMaturityDate(), TimeZone.of(security.getMaturityDate_zone()))));
     payAmount *= (1 + rate);
     receiveAmount *= (1 + 0.03); // 3% for some unknown reason
     double fv = payAmount - receiveAmount;

@@ -11,11 +11,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import org.fudgemsg.FudgeFieldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +24,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -39,12 +36,11 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceModel;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurfaceModel;
-import com.opengamma.financial.security.option.Option;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.livedata.normalization.MarketDataFieldNames;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -70,7 +66,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    if (target.getSecurity() instanceof Option) {
+    if (target.getSecurity() instanceof OptionSecurity) {
       return true;
     }
     return false;
@@ -82,10 +78,10 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
       return null;
     }
     final OptionSecurity optionSec = (OptionSecurity) target.getSecurity();
-    SecurityMaster securityMaster = context.getSecurityMaster();
+    SecuritySource securityMaster = context.getSecuritySource();
     Security underlying = securityMaster.getSecurity(new IdentifierBundle(optionSec.getUnderlyingIdentifier()));
-    final ValueRequirement optionMarketDataReq = getOptionMarketDataRequirement(optionSec.getUniqueIdentifier());
-    final ValueRequirement underlyingMarketDataReq = getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier());
+    final ValueRequirement optionMarketDataReq = getPriceRequirement(optionSec.getUniqueIdentifier());
+    final ValueRequirement underlyingMarketDataReq = getPriceRequirement(underlying.getUniqueIdentifier());
     final ValueRequirement discountCurveReq = getDiscountCurveMarketDataRequirement(optionSec.getCurrency().getUniqueIdentifier());
     // TODO will need a cost-of-carry model as well
     final Set<ValueRequirement> optionRequirements = new HashSet<ValueRequirement>();
@@ -106,29 +102,27 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) {
-    final ZonedDateTime today = Clock.system(TimeZone.UTC).zonedDateTime();
+    final ZonedDateTime today = executionContext.getSnapshotClock().zonedDateTime();
     final OptionSecurity optionSec = (OptionSecurity) target.getSecurity();
     
-    SecurityMaster secMaster = executionContext.getSecurityMaster();
+    SecuritySource secMaster = executionContext.getSecuritySource();
     Security underlying = secMaster.getSecurity(new IdentifierBundle(optionSec.getUnderlyingIdentifier()));
 
     // Get inputs:
-    final ValueRequirement optionMarketDataReq = getOptionMarketDataRequirement(optionSec.getUniqueIdentifier());
-    final ValueRequirement underlyingMarketDataReq = getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier());
+    final ValueRequirement optionPriceReq = getPriceRequirement(optionSec.getUniqueIdentifier());
+    final ValueRequirement underlyingPriceReq = getPriceRequirement(underlying.getUniqueIdentifier());
     final ValueRequirement discountCurveReq = getDiscountCurveMarketDataRequirement(optionSec.getCurrency().getUniqueIdentifier());
 
-    final FudgeFieldContainer optionMarketData = (FudgeFieldContainer) inputs.getValue(optionMarketDataReq);
-    final FudgeFieldContainer underlyingMarketData = (FudgeFieldContainer) inputs.getValue(underlyingMarketDataReq);
+    final Double optionPrice = (Double) inputs.getValue(optionPriceReq);
+    final Double underlyingPrice = (Double) inputs.getValue(underlyingPriceReq);
     final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(discountCurveReq);
     // TODO cost-of-carry model
-    if (optionMarketData.getByName(MarketDataFieldNames.INDICATIVE_VALUE_FIELD) == null) {
-      s_logger.warn("No indicative value for option price, have {}", optionMarketData);
+    if (optionPrice == null) {
+      s_logger.warn("No indicative value for option price");
     }
-    if (underlyingMarketData.getByName(MarketDataFieldNames.INDICATIVE_VALUE_FIELD) == null) {
-      s_logger.warn("No indicative value for underlying price, have {}", underlyingMarketData);
+    if (underlyingPrice == null) {
+      s_logger.warn("No indicative value for underlying price");
     }
-    final double optionPrice = optionMarketData.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
-    final double spotPrice = underlyingMarketData.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
 
     // Perform the calculation:
     final Expiry expiry = optionSec.getExpiry();
@@ -137,7 +131,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     final OptionDefinition europeanVanillaOptionDefinition = new EuropeanVanillaOptionDefinition(optionSec.getStrike(), expiry, (optionSec.getOptionType() == OptionType.CALL));
     final Map<OptionDefinition, Double> prices = new HashMap<OptionDefinition, Double>();
     prices.put(europeanVanillaOptionDefinition, optionPrice);
-    final VolatilitySurface volatilitySurface = _volatilitySurfaceModel.getSurface(prices, new StandardOptionDataBundle(discountCurve, b, null, spotPrice, today));
+    final VolatilitySurface volatilitySurface = _volatilitySurfaceModel.getSurface(prices, new StandardOptionDataBundle(discountCurve, b, null, underlyingPrice, today));
 
     // Package the result
     final ValueSpecification resultSpec = createResultSpecification(optionSec);
@@ -156,12 +150,8 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     return ComputationTargetType.SECURITY;
   }
 
-  private ValueRequirement getOptionMarketDataRequirement(final UniqueIdentifier uid) {
-    return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, uid);
-  }
-
-  private ValueRequirement getUnderlyingMarketDataRequirement(final UniqueIdentifier uid) {
-    return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, uid);
+  private ValueRequirement getPriceRequirement(final UniqueIdentifier uid) {
+    return new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, ComputationTargetType.SECURITY, uid);
   }
 
   private ValueRequirement getDiscountCurveMarketDataRequirement(final UniqueIdentifier uid) {

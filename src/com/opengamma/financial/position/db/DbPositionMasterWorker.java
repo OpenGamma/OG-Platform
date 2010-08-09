@@ -49,7 +49,7 @@ import com.opengamma.financial.position.SearchPortfoliosRequest;
 import com.opengamma.financial.position.SearchPortfoliosResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.MutableUniqueIdentifiable;
+import com.opengamma.id.UniqueIdentifiables;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.db.DbHelper;
 import com.opengamma.util.db.Paging;
@@ -170,9 +170,7 @@ public class DbPositionMasterWorker {
    * @param uid  the unique identifier to set, not null
    */
   protected void setUniqueIdentifier(final Object obj, final UniqueIdentifier uid) {
-    if (obj instanceof MutableUniqueIdentifiable) {
-      ((MutableUniqueIdentifiable) obj).setUniqueIdentifier(uid);
-    }
+    UniqueIdentifiables.setInto(obj, uid);
   }
 
   //-------------------------------------------------------------------------

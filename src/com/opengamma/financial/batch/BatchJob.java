@@ -42,8 +42,8 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
-import com.opengamma.engine.position.PositionMaster;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.position.PositionSource;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -60,7 +60,7 @@ import com.opengamma.engine.view.calcnode.JobRequestSender;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.financial.batch.db.BatchDbRiskContext;
-import com.opengamma.financial.position.HistoricallyFixedPositionMaster;
+import com.opengamma.financial.position.HistoricallyFixedPositionSource;
 import com.opengamma.financial.position.ManageablePositionMaster;
 import com.opengamma.financial.security.HistoricallyFixedSecurityMaster;
 import com.opengamma.financial.security.ManageableSecurityMaster;
@@ -117,12 +117,12 @@ public class BatchJob implements Job, ComputationResultListener {
   /**
    * Used to load Securities (needed for building the dependency graph)
    */
-  private SecurityMaster _securityMaster;
+  private SecuritySource _securityMaster;
   
   /**
    * Used to load Positions (needed for building the dependency graph)
    */
-  private PositionMaster _positionMaster;
+  private PositionSource _positionMaster;
   
   /**
    * Used to write stuff to the batch database
@@ -208,6 +208,13 @@ public class BatchJob implements Job, ComputationResultListener {
    * missing risk.   
    */
   private boolean _forceNewRun; // = false
+  
+  /**
+   * Historical time used for loading entities out of PositionMaster.
+   * 
+   * Not null.
+   */
+  private ZonedDateTime _positionMasterTime;
   
   // --------------------------------------------------------------------------
   // Variables initialized during the batch run
@@ -419,19 +426,19 @@ public class BatchJob implements Job, ComputationResultListener {
     _functionRepository = functionRepository;
   }
 
-  public SecurityMaster getSecurityMaster() {
+  public SecuritySource getSecurityMaster() {
     return _securityMaster;
   }
 
-  public void setSecurityMaster(SecurityMaster securityMaster) {
+  public void setSecurityMaster(SecuritySource securityMaster) {
     _securityMaster = securityMaster;
   }
 
-  public PositionMaster getPositionMaster() {
+  public PositionSource getPositionMaster() {
     return _positionMaster;
   }
 
-  public void setPositionMaster(PositionMaster positionMaster) {
+  public void setPositionMaster(PositionSource positionMaster) {
     _positionMaster = positionMaster;
   }
   
@@ -481,6 +488,49 @@ public class BatchJob implements Job, ComputationResultListener {
     return snapshotProvider;
   }
   
+  /**
+   * @return Historical time used for loading entities out of PositionMaster.
+   * and SecurityMaster. 
+   */
+  public ZonedDateTime getPositionMasterTime() {
+    return _positionMasterTime; 
+  }
+  
+  public void setPositionMasterTime(ZonedDateTime positionMasterTime) {
+    _positionMasterTime = positionMasterTime;
+  }
+  
+  public void setPositionMasterTime(String positionMasterTime) {
+    if (positionMasterTime == null) {
+      _positionMasterTime = null;
+    } else {
+      _positionMasterTime = _dateTimeFormatter.parse(positionMasterTime, ZonedDateTime.rule()); 
+    }
+  }
+
+  /**
+   * Some static data masters may have the capability for
+   * their users to modify the historical record. For the purposes of batch,
+   * we want the data returned from the masters to be 100% fixed.
+   * Therefore, we also have the concept of "as viewed at" time,
+   * which ensures that the historical data will always be the same.
+   * 
+   * @return At the moment, the "as viewed at" time
+   * is simply the (original) creation time of the batch. This ensures
+   * that even if the batch is restarted, data will not change. 
+   */
+  public Instant getPositionMasterAsViewedAtTime() {
+    return getCreationTime();        
+  }
+  
+  public ZonedDateTime getSecurityMasterTime() {
+    return getPositionMasterTime(); // assume this for now
+  }
+  
+  public Instant getSecurityMasterAsViewedAtTime() {
+    return getPositionMasterAsViewedAtTime(); // assume this for now
+  }
+  
   public void initView() {
     
     if (getViewName() == null) {
@@ -506,24 +556,24 @@ public class BatchJob implements Job, ComputationResultListener {
     
     InMemoryLKVSnapshotProvider snapshotProvider = getSnapshotProvider();
     
-    SecurityMaster underlyingSecurityMaster = getSecurityMaster();
-    SecurityMaster securityMaster;
+    SecuritySource underlyingSecurityMaster = getSecurityMaster();
+    SecuritySource securityMaster;
     if (underlyingSecurityMaster instanceof ManageableSecurityMaster) {
       securityMaster = new HistoricallyFixedSecurityMaster(
           (ManageableSecurityMaster) underlyingSecurityMaster, 
-          getValuationTime().toInstant(), 
-          getCreationTime());
+          getSecurityMasterTime(),
+          getSecurityMasterAsViewedAtTime());
     } else {
       securityMaster = underlyingSecurityMaster;      
     }
     
-    PositionMaster underlyingPositionMaster = getPositionMaster();
-    PositionMaster positionMaster; 
+    PositionSource underlyingPositionMaster = getPositionMaster();
+    PositionSource positionMaster; 
     if (underlyingPositionMaster instanceof ManageablePositionMaster) {
-      positionMaster = new HistoricallyFixedPositionMaster(
+      positionMaster = new HistoricallyFixedPositionSource(
           (ManageablePositionMaster) underlyingPositionMaster, 
-          getValuationTime().toInstant(), 
-          getCreationTime());
+          getPositionMasterTime(), 
+          getPositionMasterAsViewedAtTime());
     } else {
       positionMaster = underlyingPositionMaster;      
     }
@@ -532,10 +582,10 @@ public class BatchJob implements Job, ComputationResultListener {
     MapViewComputationCacheSource cacheFactory = new MapViewComputationCacheSource();
     
     FunctionExecutionContext executionContext = new FunctionExecutionContext(); 
-    executionContext.setSecurityMaster(securityMaster);
+    executionContext.setSecuritySource(securityMaster);
     
     FunctionCompilationContext compilationContext = new FunctionCompilationContext();
-    compilationContext.setSecurityMaster(securityMaster);
+    compilationContext.setSecuritySource(securityMaster);
     
     ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
@@ -591,6 +641,10 @@ public class BatchJob implements Job, ComputationResultListener {
     if (_snapshotObservationTime == null) {
       _snapshotObservationTime = _observationTime;
     }
+    
+    if (_positionMasterTime == null) {
+      _positionMasterTime = _valuationTime;
+    }
   }
   
   public Options getOptions() {
@@ -621,6 +675,9 @@ public class BatchJob implements Job, ComputationResultListener {
         "in the database for the given view (including the same version) with the same observation date and time. " +
         "If there is, that run is reused.");
     
+    options.addOption("positionmastertime", "positionmastertime", true, 
+      "Instant at which positions should be loaded. yyyyMMddHHmmss[Z]. Default - same as valuationtime.");
+    
     return options;
   }
   
@@ -642,6 +699,7 @@ public class BatchJob implements Job, ComputationResultListener {
     setSnapshotObservationTime(line.getOptionValue("snapshotobservationtime"));
     setSnapshotObservationDate(line.getOptionValue("snapshotobservationdate"));
     setForceNewRun(line.hasOption("forcenewrun"));
+    setPositionMasterTime(line.getOptionValue("positionmastertime"));
   }
   
   public void execute() {

@@ -18,7 +18,7 @@ public class Exchange {
   private IdentifierBundle _identifiers;
   private UniqueIdentifier _uniqueId;
   private String _name;
-  private Region _region;
+  private UniqueIdentifier _regionId;
   
   /**
    * Resolved constructor - to be invoked only by the ExchangeRepository
@@ -26,11 +26,11 @@ public class Exchange {
    * @param name the name of the exchange, purely for display/debugging purposes
    * @param region the region that the exchange is located in, or null if not applicable (e.g. dark pool, electronic)
    */
-  /*package*/ Exchange(IdentifierBundle identifiers, String name, Region region) {
+  /*package*/ Exchange(IdentifierBundle identifiers, String name, UniqueIdentifier regionId) {
     _identifiers = identifiers;
     _uniqueId = null; // not assigned until later
     _name = name;
-    _region = region;
+    _regionId = regionId;
   }
   
   /**
@@ -74,8 +74,8 @@ public class Exchange {
    * this may be null.
    * @return the region if available, otherwise null
    */
-  public Region getRegion() {
-    return _region;
+  public UniqueIdentifier getRegion() {
+    return _regionId;
   }
     
   public boolean equals(Object o) {
@@ -98,7 +98,7 @@ public class Exchange {
     sb.append("Exchange[");
     sb.append(_name);
     sb.append(" in ");
-    sb.append(_region.getName());
+    sb.append(_regionId);
     sb.append("(uid:");
     sb.append(_uniqueId);
     sb.append(")");

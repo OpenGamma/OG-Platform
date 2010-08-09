@@ -44,6 +44,9 @@ public class FixedIncomeStrip implements Serializable {
    * @param instrumentType the instrument type
    * @param curveNodePointTime the time of the curve node point
    * @param conventionName the name of the convention to use to resolve the strip into a security
+   * @param nthFutureFromTenor how many futures to step through from the curveDate + the tenor. 1-based, must be >0.
+   *   e.g. 3 (tenor = 1YR) => 3rd quarterly future after curveDate +  1YR.
+   *   
    */
   public FixedIncomeStrip(StripInstrumentType instrumentType, Tenor curveNodePointTime, int nthFutureFromTenor, String conventionName) {
     Validate.isTrue(instrumentType == StripInstrumentType.FUTURE);

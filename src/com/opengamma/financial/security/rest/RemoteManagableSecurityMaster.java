@@ -6,7 +6,6 @@
 package com.opengamma.financial.security.rest;
 
 import java.util.Collection;
-import java.util.Set;
 
 import javax.time.InstantProvider;
 
@@ -73,11 +72,6 @@ public class RemoteManagableSecurityMaster implements ManageableSecurityMaster {
 
   @Override
   public Security getSecurity(IdentifierBundle secKey) {
-    throw new NotImplementedException();
-  }
-
-  @Override
-  public Set<String> getAllSecurityTypes() {
     throw new NotImplementedException();
   }
 

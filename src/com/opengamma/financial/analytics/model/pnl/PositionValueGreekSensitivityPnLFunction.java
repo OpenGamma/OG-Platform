@@ -20,7 +20,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.historicaldata.HistoricalDataProvider;
 import com.opengamma.engine.position.Position;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -74,7 +74,7 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction i
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
     final HistoricalDataProvider historicalDataProvider = OpenGammaExecutionContext.getHistoricalDataProvider(executionContext);
-    final SecurityMaster securityMaster = OpenGammaExecutionContext.getSecurityMaster(executionContext);
+    final SecuritySource securitySource = executionContext.getSecuritySource();
 
     final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position));
     final Map<Sensitivity<?>, RiskFactorResult> sensitivities = new HashMap<Sensitivity<?>, RiskFactorResult>();
@@ -91,7 +91,7 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction i
         LocalDateDoubleTimeSeries intersection = null;
         for (final UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
 
-          final LocalDateDoubleTimeSeries timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalDataProvider, securityMaster, underlyingType, position.getSecurity());
+          final LocalDateDoubleTimeSeries timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalDataProvider, securitySource, underlyingType, position.getSecurity());
           if (intersection == null) {
             intersection = timeSeries;
           } else {
@@ -100,7 +100,7 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction i
         }
         for (final UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
 
-          LocalDateDoubleTimeSeries timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalDataProvider, securityMaster, underlyingType, position.getSecurity());
+          LocalDateDoubleTimeSeries timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalDataProvider, securitySource, underlyingType, position.getSecurity());
           timeSeries = (LocalDateDoubleTimeSeries) timeSeries.intersectionFirstValue(intersection);
           underlyings.put(underlyingType, _returnCalculator.evaluate(timeSeries));
         }

@@ -19,9 +19,9 @@ import com.opengamma.config.ConfigDocument;
 import com.opengamma.config.ConfigDocumentRepository;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
-import com.opengamma.financial.security.FutureSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -81,7 +81,7 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
           Identifier fraIdentifier = builderConfig.getFRASecurity(curveDate, strip.getCurveNodePointTime());
           FRASecurity fraSecurity = (FRASecurity) _secMaster.getSecurity(IdentifierBundle.of(fraIdentifier));
           if (fraSecurity == null) { throw new OpenGammaRuntimeException("Could not resolve FRA curve instrument " + fraIdentifier + " from strip " + strip + " in " + curveDefinition); }
-          epochSeconds = fraSecurity.getEndDate().toEpochSeconds();
+          epochSeconds = fraSecurity.getEndDate().toLocalDateTime().atZone(timeZone).toEpochSeconds();
           security = fraSecurity;
           break;
         case FUTURE:
@@ -102,7 +102,7 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
           Identifier swapIdentifier = builderConfig.getSwapSecurity(curveDate, strip.getCurveNodePointTime());
           SwapSecurity swapSecurity = (SwapSecurity) _secMaster.getSecurity(IdentifierBundle.of(swapIdentifier));
           if (swapSecurity == null) { throw new OpenGammaRuntimeException("Could not resolve swap curve instrument " + swapIdentifier + " from strip " + strip + " in " + curveDefinition); }
-          epochSeconds = swapSecurity.getMaturityDate().toEpochSeconds();
+          epochSeconds = swapSecurity.getMaturityDate().toLocalDateTime().atZone(timeZone).toEpochSeconds();
           security = swapSecurity;
           break;
         default:

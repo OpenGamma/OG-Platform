@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.time.calendar.DateProvider;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.TimeZone;
@@ -27,7 +28,10 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
-import com.opengamma.financial.security.BondFutureDeliverable;
+import com.opengamma.financial.security.db.bond.YieldConventionBean;
+import com.opengamma.financial.security.db.equity.GICSCodeBean;
+import com.opengamma.financial.security.db.future.FutureBundleBean;
+import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.time.Expiry;
@@ -35,10 +39,8 @@ import com.opengamma.util.time.ExpiryAccuracy;
 
 /**
  * Utility methods for simple conversions.
- * 
- * @author Andrew Griffin
  */
-/* package */ final class Converters {
+/* package */class Converters {
 
   protected static Currency currencyBeanToCurrency(CurrencyBean currencyBean) {
     if (currencyBean == null) {
@@ -64,7 +66,8 @@ import com.opengamma.util.time.ExpiryAccuracy;
     }
     final Calendar c = Calendar.getInstance();
     c.setTime(date);
-    return new Expiry(ZonedDateTime.ofInstant(OffsetDateTime.ofMidnight(c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1, c.get(Calendar.DAY_OF_MONTH), ZoneOffset.UTC), TimeZone.UTC));
+    return new Expiry(ZonedDateTime.ofInstant(OffsetDateTime.ofMidnight(c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1, c.get(Calendar.DAY_OF_MONTH), ZoneOffset.UTC), TimeZone.UTC),
+        ExpiryAccuracy.DAY_MONTH_YEAR);
   }
   
   protected static Date expiryToDate(Expiry expiry) {
@@ -89,11 +92,11 @@ import com.opengamma.util.time.ExpiryAccuracy;
     return LocalDate.of(c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1, c.get(Calendar.DAY_OF_MONTH));
   }
   
-  protected static Date localDateToDate(LocalDate date) {
+  protected static Date localDateToDate(DateProvider date) {
     if (date == null) {
       return null;
     }
-    return new Date(date.atMidnight().atOffset(ZoneOffset.UTC).toInstant().toEpochMillisLong());
+    return new Date(date.toLocalDate().atMidnight().atOffset(ZoneOffset.UTC).toInstant().toEpochMillisLong());
   }
   
   protected static Frequency frequencyBeanToFrequency(final FrequencyBean frequencyBean) {

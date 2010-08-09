@@ -5,7 +5,8 @@
  */
 package com.opengamma.financial;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -13,7 +14,8 @@ import com.opengamma.id.UniqueIdentifier;
  * Repository for rates and associated metadata - e.g. LIBOR/EURIBOR etc...
  */
 public interface ReferenceRateRepository {
-  ReferenceRate getReferenceRate(IdentifierBundle bundle);
-  ReferenceRate getReferenceRate(Identifier identifier);
-  ReferenceRate getReferenceRate(UniqueIdentifier uniqueIdentifier);
+  ReferenceRateSearchResult searchReferenceRates(ReferenceRateSearchRequest searchRequest);
+  ReferenceRateSearchResult searchHistoricReferenceRates(ReferenceRateSearchHistoricRequest searchRequest);
+  ReferenceRateDocument getReferenceRate(UniqueIdentifier uniqueIdentifier);
+  UniqueIdentifier addReferenceRate(IdentifierBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, int settlementDays);
 }

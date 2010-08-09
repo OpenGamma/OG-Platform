@@ -16,7 +16,6 @@ import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
-import org.fudgemsg.FudgeFieldContainer;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -25,7 +24,6 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
-import com.opengamma.engine.security.Security;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -35,11 +33,9 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.security.FutureSecurity;
-import com.opengamma.livedata.normalization.MarketDataFieldNames;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.util.time.DateUtil;
 
 /**
  * 
@@ -88,7 +84,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
   public static Set<ValueRequirement> buildRequirements(final InterpolatedYieldCurveSpecification specification) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
     for (final ResolvedFixedIncomeStrip strip : specification.getStrips()) {
-      final ValueRequirement requirement = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, strip.getSecurity().getIdentifiers());
+      final ValueRequirement requirement = new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, strip.getSecurity().getIdentifiers());
       result.add(requirement);
     }
     return result;
@@ -152,11 +148,11 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     final LocalDate today = snapshotClock.today(); // TODO: change to times
     final Map<Double, Double> timeInYearsToRates = new TreeMap<Double, Double>();
     boolean isFirst = true;
+
     for (final ResolvedFixedIncomeStrip strip : getSpecification().getStrips()) {
-      final ValueRequirement stripRequirement = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, strip.getSecurity().getIdentifiers());
-      final FudgeFieldContainer fieldContainer = (FudgeFieldContainer) inputs.getValue(stripRequirement);
-      Double price = fieldContainer.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
-      if (strip.getInstrumentType() == StripInstrumentType.FUTURE) { // remove this when OGLD normalises this.
+      final ValueRequirement stripRequirement = new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, strip.getSecurity().getIdentifiers());
+      Double price = (Double) inputs.getValue(stripRequirement);
+      if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
         price = (100d - price);
       }
       price /= 100d;

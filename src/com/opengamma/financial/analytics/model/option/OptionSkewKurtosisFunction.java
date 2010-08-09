@@ -8,14 +8,16 @@ package com.opengamma.financial.analytics.model.option;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.security.option.Option;
+import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -23,13 +25,9 @@ import com.opengamma.id.UniqueIdentifier;
  *
  */
 public abstract class OptionSkewKurtosisFunction extends AbstractFunction implements FunctionInvoker {
-  /**
-   * 
-   */
+  /** */
   public static final String SKEW = "Skew";
-  /**
-   * 
-   */
+  /** */
   public static final String KURTOSIS = "Kurtosis";
 
   @Override
@@ -37,7 +35,7 @@ public abstract class OptionSkewKurtosisFunction extends AbstractFunction implem
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    if (target.getSecurity() instanceof Option) {
+    if (target.getSecurity() instanceof OptionSecurity) {
       return true;
     }
     return false;
@@ -45,8 +43,8 @@ public abstract class OptionSkewKurtosisFunction extends AbstractFunction implem
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
-    // TODO Auto-generated method stub
-    return null;
+    final OptionSecurity option = (OptionSecurity) target.getSecurity();
+    return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.PNL_SERIES, option.getUniqueIdentifier())); //TODO is this right?
   }
 
   @Override

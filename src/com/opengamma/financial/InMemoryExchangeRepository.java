@@ -5,62 +5,63 @@
  */
 package com.opengamma.financial;
 
-import javax.time.calendar.LocalDate;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleMapper;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * 
- *
- * @author jim
+ * In-memory implementation of ExchangeRepository.  Doesn't currently support versioning.
  */
 public class InMemoryExchangeRepository implements ExchangeRepository {
-  public static final String EXCHANGE_SCHEME = "EXCHANGE_SCHEME"; // so the unit test can see it.
+  /**
+   * The unique id scheme name used.  Primarily exposed for unit testing. 
+   */
+  public static final String EXCHANGE_SCHEME = "EXCHANGE_SCHEME";
+  
   private IdentifierBundleMapper<Exchange> _idMapper = new IdentifierBundleMapper<Exchange>(EXCHANGE_SCHEME);
-  private RegionRepository _regionRepo;
   
-  public InMemoryExchangeRepository(RegionRepository regionRepo) {
-    _regionRepo = regionRepo;
+  public InMemoryExchangeRepository() {
   }
   
-  @Override
-  public Exchange resolveExchange(LocalDate asOf, IdentifierBundle identifiers) {
-    return _idMapper.get(identifiers);
-  }
-
-  @Override
-  public Exchange resolveExchange(LocalDate asOf, Identifier identifier) {
-    return _idMapper.get(identifier);
-  }
-
-  @Override
-  public Exchange resolveExchange(LocalDate asOf, UniqueIdentifier identifier) {
-    return _idMapper.get(identifier);
-  }
-
-  public Exchange putExchange(LocalDate asOf, IdentifierBundle identifiers, String name, UniqueIdentifier regionIdentifier) {
-    Exchange exchange = resolveExchange(asOf, identifiers);
-    Region region = _regionRepo.getHierarchyNode(asOf, regionIdentifier);
-    if (exchange == null) {
-      Exchange partialExchange = new Exchange(identifiers, name, region);
-      UniqueIdentifier uid = _idMapper.add(identifiers, partialExchange);
-      partialExchange.setUniqueIdentifier(uid);
-      Exchange completedExchange = partialExchange; // pointless, but trying to make a point that before we've set the uid, it's not 'safe'.
-      return completedExchange;
-    } else {
-      if (name.equals(exchange.getName()) &&
-        region.equals(exchange.getRegion())) {
-        _idMapper.add(identifiers, exchange);
-        IdentifierBundle identifierBundle = _idMapper.getIdentifierBundle(exchange);
-        exchange.setIdentifiers(identifierBundle);
-        return exchange;
-      } else {
-        throw new OpenGammaRuntimeException("supplied name [" + name + "] and region [" + region + "] conflicts with exchange [" + exchange + "] matching an id in the supplied bundle.");
-      }
+  private Set<ExchangeDocument> wrapExchangesWithDocuments(Collection<Exchange> exchanges) {
+    Set<ExchangeDocument> results = new HashSet<ExchangeDocument>();
+    for (Exchange exchange : exchanges) {
+      results.add(new ExchangeDocument(exchange));
     }
+    return results;
+  }
+
+  @Override
+  public ExchangeDocument getExchange(UniqueIdentifier uniqueIdentifier) {
+    return new ExchangeDocument(_idMapper.get(uniqueIdentifier));
+  }
+    
+  @Override
+  public ExchangeSearchResult searchExchange(ExchangeSearchRequest search) {
+    Collection<Exchange> results = _idMapper.get(search.getIdentifiers());
+    return new ExchangeSearchResult(wrapExchangesWithDocuments(results));
+  }
+  
+  @Override
+  public ExchangeSearchResult searchHistoricExchange(ExchangeSearchHistoricRequest search) {
+    Collection<Exchange> results = _idMapper.get(search.getIdentifiers());
+    return new ExchangeSearchResult(wrapExchangesWithDocuments(results));
+  }
+  
+  public ExchangeDocument addExchange(IdentifierBundle identifiers, String name, UniqueIdentifier regionIdentifier) {
+    Exchange exchange = new Exchange(identifiers, name, regionIdentifier);
+    UniqueIdentifier uid = _idMapper.add(identifiers, exchange);
+    exchange = _idMapper.get(uid);
+    exchange.setUniqueIdentifier(uid);
+    if (exchange == null) { // probably a bit over the top...
+      throw new OpenGammaRuntimeException("This should be impossible: problem adding exchange, add returned uid of " + uid + 
+                                          " but get(uid) returned null");
+    }
+    return new ExchangeDocument(exchange);
   }
 }

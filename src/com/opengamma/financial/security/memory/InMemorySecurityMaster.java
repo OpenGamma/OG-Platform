@@ -6,174 +6,179 @@
 package com.opengamma.financial.security.memory;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicLong;
 
-import javax.time.InstantProvider;
+import javax.time.Instant;
 
 import org.apache.commons.lang.Validate;
 
+import com.google.common.base.Predicate;
+import com.google.common.base.Supplier;
+import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.engine.position.PositionMaster;
-import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.Security;
-import com.opengamma.financial.security.AddSecurityRequest;
-import com.opengamma.financial.security.ManageableSecurityMaster;
-import com.opengamma.financial.security.UpdateSecurityRequest;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.financial.security.SecurityDocument;
+import com.opengamma.financial.security.SecurityMaster;
+import com.opengamma.financial.security.SecuritySearchHistoricRequest;
+import com.opengamma.financial.security.SecuritySearchHistoricResult;
+import com.opengamma.financial.security.SecuritySearchRequest;
+import com.opengamma.financial.security.SecuritySearchResult;
+import com.opengamma.id.UniqueIdentifiables;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.id.UniqueIdentifierTemplate;
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.util.db.Paging;
 
 /**
- * A simple, in-memory implementation of {@code ManagableSecurityMaster}.
- * This implementation does not support versioning or resurrection of securities.
+ * A simple, in-memory implementation of {@code SecurityMaster}.
+ * <p>
+ * This security master does not support versioning of securities.
  */
-public class InMemorySecurityMaster implements ManageableSecurityMaster {
+public class InMemorySecurityMaster implements SecurityMaster {
+  // TODO: This is not hardened for production, as the data in the master can
+  // be altered from outside as it is the same object
 
   /**
-   * The default scheme used for any {@link UniqueIdentifier}s created by this {@link PositionMaster}.
+   * The default scheme used for each {@link UniqueIdentifier}.
    */
   public static final String DEFAULT_UID_SCHEME = "Memory";
+
   /**
    * A cache of securities by identifier.
    */
-  private final ConcurrentMap<UniqueIdentifier, Security> _securities = new ConcurrentHashMap<UniqueIdentifier, Security>();
+  private final ConcurrentMap<UniqueIdentifier, SecurityDocument> _securities = new ConcurrentHashMap<UniqueIdentifier, SecurityDocument>();
   /**
-   * The next index for the identifier.
+   * The supplied of identifiers.
    */
-  private final AtomicLong _nextIdentityKey = new AtomicLong();
-  /**
-   * The template to use for {@link UniqueIdentifier} generation and parsing.
-   */
-  private final UniqueIdentifierTemplate _uidTemplate;
+  private final Supplier<UniqueIdentifier> _uidSupplier;
 
   /**
    * Creates an empty security master using the default scheme for any {@link UniqueIdentifier}s created.
    */
   public InMemorySecurityMaster() {
-    this(new UniqueIdentifierTemplate(DEFAULT_UID_SCHEME));
+    this(new UniqueIdentifierSupplier(DEFAULT_UID_SCHEME));
   }
-  
+
   /**
-   * Creates an empty security master using the specified template for any {@link UniqueIdentifier}s created.
+   * Creates an instance specifying the supplier of unique identifiers.
    * 
-   * @param uidTemplate  the template to use for any {@link UniqueIdentifier}s created, not null
+   * @param uidSupplier  the supplier of unique identifiers, not null
    */
-  public InMemorySecurityMaster(UniqueIdentifierTemplate uidTemplate) {
-    ArgumentChecker.notNull(uidTemplate, "uidTemplate");
-    _uidTemplate = uidTemplate;
+  public InMemorySecurityMaster(final Supplier<UniqueIdentifier> uidSupplier) {
+    Validate.notNull(uidSupplier, "uidSupplier");
+    _uidSupplier = uidSupplier;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public boolean isManagerFor(UniqueIdentifier uid) {
-    Validate.notNull(uid, "UniqueIdentifier must not be null");
-    return _uidTemplate.conforms(uid);
-  }
-
-  @Override
-  public boolean isModificationSupported() {
-    return true;
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public Security getSecurity(UniqueIdentifier uid) {
-    Validate.notNull(uid, "UniqueIdentifier must not be null");
-    return _securities.get(uid);
-  }
-
-  @Override
-  public Security getSecurity(UniqueIdentifier uid, InstantProvider asAt, InstantProvider asViewedAt) {
-    Validate.notNull(uid, "UniqueIdentifier must not be null");
-    Validate.notNull(asAt, "Instant asAt must not be null");
-    return _securities.get(uid);
-  }
-
-  @Override
-  public Collection<Security> getSecurities(IdentifierBundle secKey) {
-    Validate.notNull(secKey, "IdentifierBundle must not be null");
-    Set<Security> result = new HashSet<Security>();
-    for (Security security : _securities.values()) {
-      if (security.getIdentifiers().containsAny(secKey)) {
-        result.add(security);
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public Security getSecurity(IdentifierBundle secKey) {
-    Validate.notNull(secKey, "IdentifierBundle must not be null");
-    for (Identifier secId : secKey.getIdentifiers()) {
-      for (Security sec : _securities.values()) {
-        if (sec.getIdentifiers().contains(secId)) {
-          return sec;
+  public SecuritySearchResult search(final SecuritySearchRequest request) {
+    Validate.notNull(request, "request");
+    final SecuritySearchResult result = new SecuritySearchResult();
+    Collection<SecurityDocument> docs = _securities.values();
+    if (request.getIdentifiers() != null) {
+      docs = Collections2.filter(docs, new Predicate<SecurityDocument>() {
+        @Override
+        public boolean apply(final SecurityDocument doc) {
+          return doc.getSecurity().getIdentifiers().containsAny(request.getIdentifiers());
         }
-      }
+      });
     }
-    return null;
-  }
-
-  @Override
-  public Set<String> getAllSecurityTypes() {
-    Set<String> result = new HashSet<String>();
-    for (Security security : _securities.values()) {
-      result.add(security.getSecurityType());
+    if (request.getSecurityType() != null) {
+      docs = Collections2.filter(docs, new Predicate<SecurityDocument>() {
+        @Override
+        public boolean apply(final SecurityDocument doc) {
+          return request.getSecurityType().equals(doc.getSecurity().getSecurityType());
+        }
+      });
     }
+    if (request.getName() != null) {
+      docs = Collections2.filter(docs, new Predicate<SecurityDocument>() {
+        @Override
+        public boolean apply(final SecurityDocument doc) {
+          return request.getName().equals(doc.getSecurity().getName());
+        }
+      });
+    }
+    result.getDocuments().addAll(docs);
+    result.setPaging(Paging.of(docs));
     return result;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public UniqueIdentifier addSecurity(AddSecurityRequest request) {
-    Validate.notNull(request, "AddSecurityRequest must not be null");
-    request.checkValid();
-    
-    final UniqueIdentifier uid = getNextSecurityUid();
-    Security security = request.getSecurity();
-    if (security instanceof DefaultSecurity) {
-      DefaultSecurity defaultSecurity = (DefaultSecurity) security;
-      defaultSecurity.setUniqueIdentifier(uid);
-    }
-    _securities.put(uid, request.getSecurity());
-    return uid;
+  public SecurityDocument get(final UniqueIdentifier uid) {
+    Validate.notNull(uid, "uid");
+    return _securities.get(uid);
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public UniqueIdentifier updateSecurity(UpdateSecurityRequest request) {
-    Validate.notNull(request, "AddSecurityRequest must not be null");
-    request.checkValid();
+  public SecurityDocument add(final SecurityDocument document) {
+    Validate.notNull(document, "document");
+    Validate.notNull(document.getSecurity(), "document.security");
     
-    final UniqueIdentifier uid = request.getUniqueIdentifier();
-    if (_securities.replace(uid, request.getSecurity()) == null) {
+    final Security security = document.getSecurity();
+    final UniqueIdentifier uid = _uidSupplier.get();
+    final Instant now = Instant.nowSystemClock();
+    UniqueIdentifiables.setInto(security, uid);
+    final SecurityDocument doc = new SecurityDocument(security);
+    doc.setUniqueIdentifier(uid);
+    doc.setValidFromInstant(now);
+    doc.setLastModifiedInstant(now);
+    _securities.put(uid, doc);  // unique identifier should be unique
+    return doc;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public SecurityDocument update(final SecurityDocument document) {
+    Validate.notNull(document, "document");
+    Validate.notNull(document.getSecurity(), "document.security");
+    Validate.notNull(document.getUniqueIdentifier(), "document.uniqueIdentifier");
+    
+    final UniqueIdentifier uid = document.getUniqueIdentifier();
+    final Instant now = Instant.nowSystemClock();
+    final SecurityDocument storedDocument = _securities.get(uid);
+    if (storedDocument == null) {
       throw new DataNotFoundException("Security not found: " + uid);
     }
-    return uid;
+    document.setValidFromInstant(storedDocument.getValidFromInstant());
+    document.setValidToInstant(storedDocument.getValidToInstant());
+    document.setLastModifiedInstant(now);
+    if (_securities.replace(uid, storedDocument, document) == false) {
+      throw new IllegalArgumentException("Concurrent modification");
+    }
+    return document;
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public UniqueIdentifier removeSecurity(UniqueIdentifier uid) {
-    Validate.notNull(uid, "UniqueIdentifier must not be null");
+  public void remove(final UniqueIdentifier uid) {
+    Validate.notNull(uid, "uid");
     
     if (_securities.remove(uid) == null) {
       throw new DataNotFoundException("Security not found: " + uid);
     }
-    return uid;
   }
 
   //-------------------------------------------------------------------------
-  private long getNextId() {
-    return _nextIdentityKey.incrementAndGet();
+  @Override
+  public SecuritySearchHistoricResult searchHistoric(final SecuritySearchHistoricRequest request) {
+    Validate.notNull(request, "request");
+    Validate.notNull(request.getObjectIdentifier(), "request.objectIdentifier");
+    
+    final SecuritySearchHistoricResult result = new SecuritySearchHistoricResult();
+    final SecurityDocument doc = get(request.getObjectIdentifier());
+    if (doc != null) {
+      result.getDocuments().add(doc);
+    }
+    result.setPaging(Paging.of(result.getDocuments()));
+    return result;
   }
 
-  private UniqueIdentifier getNextSecurityUid() {
-    return _uidTemplate.uid(Long.toString(getNextId()));
+  @Override
+  public SecurityDocument correct(final SecurityDocument document) {
+    return update(document);
   }
 
 }

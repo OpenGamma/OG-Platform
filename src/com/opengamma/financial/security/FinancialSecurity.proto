@@ -1,0 +1,24 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.financial.security {
+
+  /**
+   * An implementation of {@code Security} that implements the visitor pattern.
+   */
+  abstract message FinancialSecurity extends com.opengamma.engine.security.DefaultSecurity {
+  
+    // No additional fields
+  
+    binding Java {
+      body <<<JAVA
+        public abstract <T> T accept (FinancialSecurityVisitor<T> visitor);
+JAVA;
+    }
+  
+  }
+  
+}

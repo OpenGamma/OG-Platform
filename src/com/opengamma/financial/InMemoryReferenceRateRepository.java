@@ -7,6 +7,9 @@ package com.opengamma.financial;
 
 import static com.opengamma.id.IdentificationScheme.BLOOMBERG_TICKER;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -19,7 +22,7 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * An in-memory, statically initialized repository of reference rates and their meta-data
  */
-public class InMemoryReferenceRateRepository implements ManageableReferenceRateRepository {
+public class InMemoryReferenceRateRepository implements ReferenceRateRepository {
   /**
    * IdentificationScheme to use when specifying rates with simple descriptions e.g. 'LIBOR O/N', 'LIBOR 1w' etc.
    */
@@ -30,7 +33,7 @@ public class InMemoryReferenceRateRepository implements ManageableReferenceRateR
    */
   public static final IdentificationScheme IN_MEMORY_UNIQUE_SCHEME = new IdentificationScheme("In-memory Reference Rate unique");
   
-  private IdentifierBundleMapper<ReferenceRateImpl> _mapper = new IdentifierBundleMapper<ReferenceRateImpl>(IN_MEMORY_UNIQUE_SCHEME.getName());
+  private IdentifierBundleMapper<ReferenceRate> _mapper = new IdentifierBundleMapper<ReferenceRate>(IN_MEMORY_UNIQUE_SCHEME.getName());
   
   public InMemoryReferenceRateRepository() {
     //CSOFF
@@ -54,6 +57,7 @@ public class InMemoryReferenceRateRepository implements ManageableReferenceRateR
     addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0011M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 11m")), "LIBOR 11m", act360, modified, 2);
     addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0012M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 12m")), "LIBOR 12m", act360, modified, 2);
   }
+  
   @Override
   public synchronized UniqueIdentifier addReferenceRate(IdentifierBundle bundle, String name, DayCount dayCount,
                                                         BusinessDayConvention businessDayConvention, int settlementDays) {
@@ -64,17 +68,27 @@ public class InMemoryReferenceRateRepository implements ManageableReferenceRateR
   }
 
   @Override
-  public ReferenceRate getReferenceRate(IdentifierBundle bundle) {
-    return _mapper.get(bundle);
+  public ReferenceRateDocument getReferenceRate(UniqueIdentifier uniqueIdentifier) {
+    return new ReferenceRateDocument(_mapper.get(uniqueIdentifier));
   }
-
+  
   @Override
-  public ReferenceRate getReferenceRate(Identifier identifier) {
-    return _mapper.get(identifier);
+  public ReferenceRateSearchResult searchReferenceRates(ReferenceRateSearchRequest request) {
+    Collection<ReferenceRate> collection = _mapper.get(request.getIdentifiers());
+    return new ReferenceRateSearchResult(wrapReferenceRatesWithDocuments(collection));
   }
-
+  
   @Override
-  public ReferenceRate getReferenceRate(UniqueIdentifier uniqueIdentifier) {
-    return _mapper.get(uniqueIdentifier);
+  public ReferenceRateSearchResult searchHistoricReferenceRates(ReferenceRateSearchHistoricRequest request) {
+    Collection<ReferenceRate> collection = _mapper.get(request.getIdentifiers());
+    return new ReferenceRateSearchResult(wrapReferenceRatesWithDocuments(collection));
+  }
+  
+  private Collection<ReferenceRateDocument> wrapReferenceRatesWithDocuments(Collection<ReferenceRate> referenceRates) {
+    Collection<ReferenceRateDocument> results = new ArrayList<ReferenceRateDocument>(referenceRates.size());
+    for (ReferenceRate referenceRate : referenceRates) {
+      results.add(new ReferenceRateDocument(referenceRate));
+    }
+    return results;
   }
 }
