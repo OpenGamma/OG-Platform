@@ -7,59 +7,45 @@ package com.opengamma.financial.interestrate.bond;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.junit.Test;
 
-import com.opengamma.financial.interestrate.bond.BondYieldCalculator;
-import com.opengamma.financial.model.cashflow.ContinuousCompoundingPresentValueCalculator;
-import com.opengamma.financial.model.cashflow.DiscreteCompoundingPresentValueCalculator;
-import com.opengamma.financial.model.cashflow.PresentValueCalculator;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.financial.interestrate.ParRateCalculator;
+import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
  * 
  */
 public class BondYieldCalculatorTest {
   private static final BondYieldCalculator CALCULATOR = new BondYieldCalculator();
+  private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
   private static final double PRICE = 1.;
-  private static final Long DATE = 0l;
-  private static final DoubleTimeSeries<Long> TS;
-  private static final PresentValueCalculator DISCRETE = new DiscreteCompoundingPresentValueCalculator();
-  private static final PresentValueCalculator CONTINUOUS = new ContinuousCompoundingPresentValueCalculator();
+  private static final double YIELD = 0.05;
+  private static final YieldAndDiscountCurve CURVE = new ConstantYieldCurve(YIELD);
+  private static final YieldCurveBundle BUNDLE = new YieldCurveBundle();
+  private static final String CURVE_NAME = "Flat 5% curve";
+  private static Bond BOND;
 
   static {
-    final List<Long> times = Arrays.asList(1l, 2l, 3l, 4l, 5l);
-    final List<Double> cf = Arrays.asList(.1, .1, .1, .1, 1.1);
-    TS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, times, cf);
-  }
+    int n = 15;
+    double[] paymentTimes = new double[n];
+    double alpha = 0.5;
+    for (int i = 0; i < n; i++) {
+      paymentTimes[i] = (i + 1) * alpha;
+    }
+    BUNDLE.setCurve(CURVE_NAME, CURVE);
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testCF() {
-    CALCULATOR.calculate(null, PRICE, DATE, DISCRETE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testPrice() {
-    CALCULATOR.calculate(TS, 0., DATE, DISCRETE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testDate() {
-    CALCULATOR.calculate(TS, PRICE, null, DISCRETE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testPV() {
-    CALCULATOR.calculate(TS, PRICE, DATE, null);
+    BOND = new Bond(paymentTimes, 0.0, CURVE_NAME);
+    double rate = PRC.getValue(BOND, BUNDLE);
+    BOND = new Bond(paymentTimes, rate, CURVE_NAME);
   }
 
   @Test
-  public void test() {
-    assertEquals(CALCULATOR.calculate(TS, 1.2559, DATE, DISCRETE), 0.0422, 1e-4);
-    assertEquals(CALCULATOR.calculate(TS, 1.2559, DATE, CONTINUOUS), 0.0413, 1e-4);
+  public void TestBond() {
+    double yield = CALCULATOR.calculate(BOND, PRICE);
+    assertEquals(YIELD, yield, 1e-8);
   }
+
 }
