@@ -10,6 +10,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.fudgemsg.FudgeContext;
+
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.DefaultFunctionResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -50,7 +52,7 @@ public class ViewTestUtils {
     
     DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
     
-    MapViewComputationCacheSource cacheFactory = new MapViewComputationCacheSource();
+    MapViewComputationCacheSource cacheFactory = new MapViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT);
     
     FunctionExecutionContext executionContext = new FunctionExecutionContext();
     

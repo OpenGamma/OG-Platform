@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.cache;
@@ -12,6 +12,9 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,20 +24,18 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class RemoteViewComputationCacheSource implements
-    ViewComputationCacheSource {
+public class RemoteViewComputationCacheSource implements ViewComputationCacheSource {
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteViewComputationCacheSource.class);
   private static final int DEFAULT_MAX_LOCAL_CACHED_ELEMENTS = 100000;
   private final RemoteCacheClient _remoteClient;
   private final int _maxLocalCachedElements;
   private final Lock _cacheCreationLock = new ReentrantLock();
-  private final ConcurrentMap<ViewComputationCacheKey, RemoteViewComputationCache> _cachesByKey =
-    new ConcurrentHashMap<ViewComputationCacheKey, RemoteViewComputationCache>();
-  
+  private final ConcurrentMap<ViewComputationCacheKey, RemoteViewComputationCache> _cachesByKey = new ConcurrentHashMap<ViewComputationCacheKey, RemoteViewComputationCache>();
+
   public RemoteViewComputationCacheSource(RemoteCacheClient remoteClient) {
     this(remoteClient, DEFAULT_MAX_LOCAL_CACHED_ELEMENTS);
   }
-  
+
   public RemoteViewComputationCacheSource(RemoteCacheClient remoteClient, int maxLocalCachedElements) {
     ArgumentChecker.notNull(remoteClient, "Remote computation cache client");
     _remoteClient = remoteClient;
@@ -56,14 +57,12 @@ public class RemoteViewComputationCacheSource implements
   }
 
   @Override
-  public ViewComputationCache cloneCache(String viewName,
-      String calculationConfigurationName, long timestamp) {
+  public ViewComputationCache cloneCache(String viewName, String calculationConfigurationName, long timestamp) {
     throw new UnsupportedOperationException("Cloning not yet supported.");
   }
 
   @Override
-  public ViewComputationCache getCache(String viewName,
-      String calculationConfigurationName, long timestamp) {
+  public ViewComputationCache getCache(String viewName, String calculationConfigurationName, long timestamp) {
     ViewComputationCacheKey cacheKey = new ViewComputationCacheKey(viewName, calculationConfigurationName, timestamp);
     RemoteViewComputationCache remoteCache = _cachesByKey.get(cacheKey);
     if (remoteCache == null) {
@@ -104,13 +103,16 @@ public class RemoteViewComputationCacheSource implements
     }
     getRemoteClient().purgeCache(viewName, null, timestamp);
   }
-  
+
   public void releaseAllLocalCaches() {
     s_logger.info("Releasing all local caches.");
     _cacheCreationLock.lock();
     try {
+      final CacheManager manager = RemoteViewComputationCache.getCacheManager();
       for (RemoteViewComputationCache cache : _cachesByKey.values()) {
-        cache.getLocalCache().dispose();
+        final Cache localCache = cache.getLocalCache();
+        localCache.dispose();
+        manager.removeCache(localCache.getName());
       }
       _cachesByKey.clear();
     } finally {
