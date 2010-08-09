@@ -28,5 +28,6 @@ public class Interpolator1DNodeSensitivityCalculatorFactoryTest {
     assertEquals(getSensitivityCalculator(Interpolator1DFactory.DOUBLE_QUADRATIC).getClass(), DoubleQuadraticInterpolator1DNodeSensitivityCalculator.class);
     assertEquals(getSensitivityCalculator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE).getClass(), NaturalCubicSplineInterpolator1DNodeSensitivityCalculator.class);
     assertEquals(getSensitivityCalculator(Interpolator1DFactory.FLAT_EXTRAPOLATOR).getClass(), FlatExtrapolator1DNodeSensitivityCalculator.class);
+    assertEquals(getSensitivityCalculator(Interpolator1DFactory.EXPONENTIAL).getClass(), FiniteDifferenceInterpolator1DNodeSensitivityCalculator.class);
   }
 }
