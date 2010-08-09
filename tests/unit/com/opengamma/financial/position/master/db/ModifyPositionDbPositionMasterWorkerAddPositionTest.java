@@ -20,8 +20,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.PositionImpl;
+import com.opengamma.financial.position.master.PortfolioTreePosition;
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -36,7 +35,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyPositionDbPositionMasterWorkerAddPositionTest.class);
 
   private ModifyPositionDbPositionMasterWorker _worker;
-  private QueryPositionDbPositionMasterWorker _queryWorker;
+  private DbPositionMasterWorker _queryWorker;
 
   public ModifyPositionDbPositionMasterWorkerAddPositionTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
@@ -68,7 +67,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
 
   @Test(expected = NullPointerException.class)
   public void test_addPosition_noParentNodeId() {
-    PositionImpl position = new PositionImpl(BigDecimal.TEN, Identifier.of("A", "B"));
+    PortfolioTreePosition position = new PortfolioTreePosition(BigDecimal.TEN, Identifier.of("A", "B"));
     PositionDocument doc = new PositionDocument();
     doc.setPosition(position);
     _worker.addPosition(doc);
@@ -85,7 +84,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
   public void test_addPosition_add() {
     Instant now = Instant.now(_posMaster.getTimeSource());
     
-    PositionImpl position = new PositionImpl(BigDecimal.TEN, Identifier.of("A", "B"));
+    PortfolioTreePosition position = new PortfolioTreePosition(BigDecimal.TEN, Identifier.of("A", "B"));
     PositionDocument doc = new PositionDocument();
     doc.setParentNodeId(UniqueIdentifier.of("DbPos", "111"));
     doc.setPosition(position);
@@ -96,14 +95,14 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertEquals("DbPos", uid.getScheme());
     assertTrue(uid.isVersioned());
     assertTrue(Long.parseLong(uid.getValue()) > 1000);
-    assertEquals(uid.getValue(), uid.getVersion());
+    assertEquals("0", uid.getVersion());
     assertEquals(UniqueIdentifier.of("DbPos", "101"), test.getPortfolioId());
     assertEquals(UniqueIdentifier.of("DbPos", "111"), test.getParentNodeId());
     assertEquals(now, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    Position testPosition = test.getPosition();
+    PortfolioTreePosition testPosition = test.getPosition();
     assertNotNull(testPosition);
     assertEquals(uid, testPosition.getUniqueIdentifier());
     assertEquals(BigDecimal.TEN, testPosition.getQuantity());
@@ -115,7 +114,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
 
   @Test
   public void test_addPosition_addThenGet() {
-    PositionImpl position = new PositionImpl(BigDecimal.TEN, Identifier.of("A", "B"));
+    PortfolioTreePosition position = new PortfolioTreePosition(BigDecimal.TEN, Identifier.of("A", "B"));
     PositionDocument doc = new PositionDocument();
     doc.setParentNodeId(UniqueIdentifier.of("DbPos", "111"));
     doc.setPosition(position);

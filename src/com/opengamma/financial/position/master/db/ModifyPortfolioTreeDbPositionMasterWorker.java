@@ -11,14 +11,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.time.Instant;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.IncorrectUpdateSemanticsDataAccessException;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
-import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
+import com.opengamma.financial.position.master.PortfolioTreeNode;
 import com.opengamma.id.UniqueIdentifiables;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -157,7 +158,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
       .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
       .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
       .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
-      .addValue("name", document.getPortfolio().getName());
+      .addValue("name", StringUtils.defaultString(document.getPortfolio().getName()));
     // the arguments for inserting into the node table
     final List<DbMapSqlParameterSource> nodeList = new ArrayList<DbMapSqlParameterSource>();
     insertBuildArgs(document.getPortfolio().getRootNode(), document.getPortfolioId() != null, portfolioId, portfolioOid, null, new AtomicInteger(1), 0, nodeList);
@@ -181,7 +182,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
    * @param argsList  the list of arguments to build, not null
    */
   protected void insertBuildArgs(
-      final PortfolioNode node, final boolean update, final Long portfolioId, final Long portfolioOid, final Long parentNodeId,
+      final PortfolioTreeNode node, final boolean update, final Long portfolioId, final Long portfolioOid, final Long parentNodeId,
       final AtomicInteger counter, final int depth, final List<DbMapSqlParameterSource> argsList) {
     // need to insert parent before children for referential integrity
     final Long nodeId = nextId();
@@ -193,11 +194,11 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
       .addValue("portfolio_oid", portfolioOid)
       .addValue("parent_node_id", parentNodeId)
       .addValue("depth", depth)
-      .addValue("name", node.getName());
+      .addValue("name", StringUtils.defaultString(node.getName()));
     argsList.add(treeArgs);
     // store the left/right before/after the child loop and back fill into stored args row
     treeArgs.addValue("tree_left", counter.getAndIncrement());
-    for (PortfolioNode childNode : node.getChildNodes()) {
+    for (PortfolioTreeNode childNode : node.getChildNodes()) {
       insertBuildArgs(childNode, update, portfolioId, portfolioOid, nodeId, counter, depth + 1, argsList);
     }
     treeArgs.addValue("tree_right", counter.getAndIncrement());

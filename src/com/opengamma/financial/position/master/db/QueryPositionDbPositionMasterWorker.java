@@ -24,7 +24,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.engine.position.PositionImpl;
+import com.opengamma.financial.position.master.PortfolioTreePosition;
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.financial.position.master.PositionSearchHistoricRequest;
 import com.opengamma.financial.position.master.PositionSearchHistoricResult;
@@ -250,7 +250,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
    */
   protected final class PositionDocumentExtractor implements ResultSetExtractor {
     private long _lastPositionId = -1;
-    private PositionImpl _position;
+    private PortfolioTreePosition _position;
     private List<PositionDocument> _documents = new ArrayList<PositionDocument>();
     private Map<UniqueIdentifier, UniqueIdentifier> _deduplicate = Maps.newHashMap();
 
@@ -274,13 +274,13 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
       final long positionOid = rs.getLong("POSITION_OID");
       final long portfolioOid = rs.getLong("PORTFOLIO_OID");
       final long parentNodeOid = rs.getLong("PARENT_NODE_OID");
-      final BigDecimal quantity = rs.getBigDecimal("QUANTITY").stripTrailingZeros();  // strip zeroes as DB adds them
+      final BigDecimal quantity = extractBigDecimal(rs, "QUANTITY");
       final Timestamp versionFrom = rs.getTimestamp("VER_FROM_INSTANT");
       final Timestamp versionTo = rs.getTimestamp("VER_TO_INSTANT");
       final Timestamp correctionFrom = rs.getTimestamp("CORR_FROM_INSTANT");
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
-      final UniqueIdentifier uid = createUniqueIdentifier(positionOid, positionId, _deduplicate);
-      _position = new PositionImpl(uid, quantity, IdentifierBundle.EMPTY);
+      _position = new PortfolioTreePosition(quantity, IdentifierBundle.EMPTY);
+      _position.setUniqueIdentifier(createUniqueIdentifier(positionOid, positionId, _deduplicate));
       PositionDocument doc = new PositionDocument(_position);
       doc.setVersionFromInstant(DateUtil.fromSqlTimestamp(versionFrom));
       doc.setVersionToInstant(DateUtil.fromSqlTimestamp(versionTo));

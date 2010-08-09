@@ -22,7 +22,7 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
-import com.opengamma.engine.position.PositionImpl;
+import com.opengamma.financial.position.master.PortfolioTreePosition;
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.id.Identifier;
@@ -166,8 +166,7 @@ public class PositionResource {
 
   public Response update(BigDecimal quantity, String scheme, String schemeValue) {
     PositionDocument doc = getPositionMaster().getPosition(getPositionUid());
-    PositionImpl position = (PositionImpl) doc.getPosition();
-    position.setUniqueIdentifier(getPositionUid());
+    PortfolioTreePosition position = doc.getPosition();
     position.setQuantity(quantity);
     position.setSecurityKey(new IdentifierBundle(Identifier.of(scheme, schemeValue)));
     doc = getPositionMaster().updatePosition(doc);

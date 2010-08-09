@@ -27,13 +27,11 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.view.server.EngineFudgeContextConfiguration;
 import com.opengamma.financial.fudgemsg.FinancialFudgeContextConfiguration;
+import com.opengamma.financial.position.master.PortfolioTree;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
 import com.opengamma.financial.position.master.PortfolioTreeSearchRequest;
 import com.opengamma.financial.position.master.PortfolioTreeSearchResult;
@@ -60,10 +58,6 @@ public class PortfoliosResource {
    */
   private final FudgeDeserializationContext _fudgeDeserializationContext;
   /**
-   * The fudge context to use when serializing responses 
-   */
-  private final FudgeSerializationContext _fudgeSerializationContext;
-  /**
    * Information about the URI injected by JSR-311.
    */
   @Context
@@ -81,7 +75,6 @@ public class PortfoliosResource {
     EngineFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
     FinancialFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
     _fudgeDeserializationContext = new FudgeDeserializationContext(fudgeContext);
-    _fudgeSerializationContext = new FudgeSerializationContext(fudgeContext);
   }
 
   /**
@@ -137,7 +130,6 @@ public class PortfoliosResource {
       "<h2>Portfolio search</h2>\n" +
       "<form method=\"GET\" action=\"" + getUriInfo().getAbsolutePath() + "\">" +
       "Name: <input type=\"text\" size=\"30\" name=\"name\" /><br />" +
-      "Deleted: <label><input type=\"checkbox\" name=\"deleted\" value=\"true\" /> Include deleted portfolios</label><br />" +
       "<input type=\"submit\" value=\"Search\" />" +
       "</form>\n";
     
@@ -173,33 +165,30 @@ public class PortfoliosResource {
 
   //-------------------------------------------------------------------------
   @POST
-  public FudgeMsgEnvelope postFudge(FudgeMsgEnvelope addPortfolioRequestMsg) {
+  @Produces(FudgeRest.MEDIA)
+  public PortfolioTreeDocument postFudge(FudgeMsgEnvelope addPortfolioRequestMsg) {
     PortfolioTreeDocument request = _fudgeDeserializationContext.fudgeMsgToObject(PortfolioTreeDocument.class, addPortfolioRequestMsg.getMessage());
-    PortfolioTreeDocument added = getPositionMaster().addPortfolioTree(request);
-    MutableFudgeFieldContainer responseMsg = _fudgeSerializationContext.objectToFudgeMsg(added);
-    return new FudgeMsgEnvelope(responseMsg);
+    return getPositionMaster().addPortfolioTree(request);
   }
 
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response postForm(@FormParam("name") String name) {
-    PortfolioImpl portfolio = new PortfolioImpl(name);
+    if (StringUtils.isEmpty(name)) {
+      String html = "<html>\n" +
+        "<head><title>Portfolios</title></head>\n" +
+        "<body>\n" +
+        "<h2>Add portfolio</h2>\n" +
+        "<p>The name must be entered!</p>\n" +
+        "<form method=\"POST\" action=\"" + getUriInfo().getAbsolutePath() + "\"><br />" +
+        "Name: <input type=\"text\" size=\"30\" name=\"name\" /><br />" +
+        "<input type=\"submit\" value=\"Add\" /><br />" +
+        "</form>\n" +
+        "</body>\n</html>";
+      return Response.ok(html).build();
+    }
+    PortfolioTree portfolio = new PortfolioTree(name);
     PortfolioTreeDocument doc = new PortfolioTreeDocument(portfolio);
-//    try {
-//      doc.checkValid();  // TODO: proper validation
-//    } catch (IllegalArgumentException ex) {
-//      String html = "<html>\n" +
-//        "<head><title>Portfolios</title></head>\n" +
-//        "<body>\n" +
-//        "<h2>Add portfolio</h2>\n" +
-//        "<p>The name must be entered!</p>\n" +
-//        "<form method=\"POST\" action=\"" + getUriInfo().getAbsolutePath() + "\"><br />" +
-//        "Name: <input type=\"text\" size=\"30\" name=\"name\" /><br />" +
-//        "<input type=\"submit\" value=\"Add\" /><br />" +
-//        "</form>\n" +
-//        "</body>\n</html>";
-//      return Response.ok(html).build();
-//    }
     PortfolioTreeDocument added = getPositionMaster().addPortfolioTree(doc);
     URI uri = getUriInfo().getAbsolutePathBuilder().path(added.getPortfolioId().toString()).build();
     return Response.seeOther(uri).build();

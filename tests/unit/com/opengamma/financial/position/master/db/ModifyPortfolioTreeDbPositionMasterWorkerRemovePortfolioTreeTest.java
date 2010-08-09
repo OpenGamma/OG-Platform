@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.engine.position.Portfolio;
+import com.opengamma.financial.position.master.PortfolioTree;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
 import com.opengamma.financial.position.master.PositionSearchRequest;
 import com.opengamma.financial.position.master.PositionSearchResult;
@@ -79,7 +79,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerRemovePortfolioTreeTest ex
   public void test_removePortfolioTree_removed() {
     Instant now = Instant.now(_posMaster.getTimeSource());
     
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "201", "202");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "201", "1");
     _worker.removePortfolioTree(uid);
     PortfolioTreeDocument test = _queryWorker.getPortfolioTree(uid);
     
@@ -88,19 +88,18 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerRemovePortfolioTreeTest ex
     assertEquals(now, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    Portfolio portfolio = test.getPortfolio();
+    PortfolioTree portfolio = test.getPortfolio();
     assertNotNull(portfolio);
     assertEquals(uid, portfolio.getUniqueIdentifier());
     assertEquals("TestNode212", portfolio.getRootNode().getName());
     assertEquals(0, portfolio.getRootNode().getChildNodes().size());
-    assertEquals(0, portfolio.getRootNode().getPositions().size());
   }
 
   @Test
   public void test_removePortfolioTree_positionsRemoved() {
     Instant later = Instant.now(_posMaster.getTimeSource());
     
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "101", "101");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "101", "0");
     PositionSearchRequest search = new PositionSearchRequest();
     search.setPortfolioId(uid.toLatest());
     search.setVersionAsOfInstant(later);
