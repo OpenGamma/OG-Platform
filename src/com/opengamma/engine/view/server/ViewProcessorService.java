@@ -24,6 +24,7 @@ import com.opengamma.engine.view.client.LocalViewProcessorClient;
 import com.opengamma.engine.view.client.ViewProcessorClient;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudge.UtilFudgeContextConfiguration;
 
 /**
  * RESTful resource publishing details of view processors.
@@ -62,6 +63,7 @@ public class ViewProcessorService {
   public ViewProcessorService() {
     setTopicPrefix("ViewProcessor");
     final FudgeContext fudgeContext = new FudgeContext();
+    UtilFudgeContextConfiguration.INSTANCE.configureFudgeContext(_fudgeContext);
     EngineFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
     setFudgeContext(fudgeContext);
     getJmsTemplate().setPubSubDomain(true);
