@@ -12,7 +12,6 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.fudgemsg.types.StringFieldType;
 import org.joda.beans.Bean;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
@@ -68,7 +67,6 @@ public final class DirectBeanBuilder<T extends Bean> implements FudgeBuilder<T> 
           context.objectToFudgeMsg(msg, prop.name(), null, obj);  // ignores null
         }
       }
-      msg.add(null, 0, StringFieldType.INSTANCE, _metaBean.beanType().getName());
       return msg;
     } catch (RuntimeException ex) {
       throw new FudgeRuntimeException("Unable to serialize: " + _metaBean.beanName(), ex);
