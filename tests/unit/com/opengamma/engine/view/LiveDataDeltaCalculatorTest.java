@@ -10,6 +10,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.Collections;
 import java.util.Set;
 
+import org.fudgemsg.FudgeContext;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,7 +26,7 @@ import com.opengamma.engine.function.MockFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.cache.MapViewComputationCache;
+import com.opengamma.engine.view.cache.MapViewComputationCacheSource;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.LiveDataDeltaCalculator;
 import com.opengamma.id.UniqueIdentifier;
@@ -49,8 +50,8 @@ public class LiveDataDeltaCalculatorTest {
   
   @Before
   public void setUp() {
-    _cache = new MapViewComputationCache(); 
-    _previousCache = new MapViewComputationCache();
+    _cache = MapViewComputationCacheSource.createMapViewComputationCache(FudgeContext.GLOBAL_DEFAULT); 
+    _previousCache = MapViewComputationCacheSource.createMapViewComputationCache(FudgeContext.GLOBAL_DEFAULT);
     _deltaCalculator = new LiveDataDeltaCalculator(
         _graph,
         _cache,
