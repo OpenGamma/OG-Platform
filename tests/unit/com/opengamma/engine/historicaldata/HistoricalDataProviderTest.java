@@ -13,7 +13,8 @@ import java.util.Set;
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 
-import junit.framework.Assert;
+//import junit.framework.Assert;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentificationScheme;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
@@ -69,7 +71,7 @@ public class HistoricalDataProviderTest {
   // now put in a test as it gets near the limit.
   private String makeUniqueRandomId() {
     if (_usedIds.size() > 26*26*90) {
-      Assert.fail("tried to create too many ids");
+      fail("tried to create too many ids");
     }
     String id;
     do {
@@ -119,9 +121,10 @@ public class HistoricalDataProviderTest {
       for (String dataSource : new String[] { "BLOOMBERG", "REUTERS", "JPM" }) {
         for (String dataProvider : new String[] { "UNKNOWN", "CMPL", "CMPT" }) {
           for (String field : new String[] { "PX_LAST", "VOLUME" }) {
-            Assert.assertEquals(map.get(dsids).get(dataSource).get(dataProvider).get(field), 
-                                inMemoryHistoricalDataProvider.getHistoricalTimeSeries(dsids, dataSource, dataProvider, field));
-            
+            LocalDateDoubleTimeSeries expectedTS = map.get(dsids).get(dataSource).get(dataProvider).get(field);
+            assertEquals(expectedTS, inMemoryHistoricalDataProvider.getHistoricalTimeSeries(dsids, dataSource, dataProvider, field));
+            UniqueIdentifier uid = inMemoryHistoricalDataProvider.resolveIdentifier(dsids, dataSource, dataProvider, field);
+            assertEquals(expectedTS, inMemoryHistoricalDataProvider.getHistoricalTimeSeries(uid));
           }
         }
       }
@@ -151,8 +154,12 @@ public class HistoricalDataProviderTest {
       String dataSource = dataSources[random(dataSources.length)];
       String dataProvider = dataProviders[random(dataProviders.length)];
       String field = fields[random(fields.length)];
-      Assert.assertEquals(inMemoryHistoricalDataProvider.getHistoricalTimeSeries(ids, dataSource, dataProvider, field),
+      assertEquals(inMemoryHistoricalDataProvider.getHistoricalTimeSeries(ids, dataSource, dataProvider, field),
                           cachedProvider.getHistoricalTimeSeries(ids, dataSource, dataProvider, field));
+      UniqueIdentifier uid = inMemoryHistoricalDataProvider.resolveIdentifier(ids, dataSource, dataProvider, field);
+      assertEquals(uid, cachedProvider.resolveIdentifier(ids, dataSource, dataProvider, field));
+      assertEquals(inMemoryHistoricalDataProvider.getHistoricalTimeSeries(uid),
+          cachedProvider.getHistoricalTimeSeries(uid));
     }    
   }
 }

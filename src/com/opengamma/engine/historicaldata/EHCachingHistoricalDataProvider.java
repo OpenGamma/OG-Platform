@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
@@ -164,23 +165,14 @@ public class EHCachingHistoricalDataProvider implements TimeSeriesSource {
   public LocalDateDoubleTimeSeries getHistoricalTimeSeries(
       IdentifierBundle dsids, String dataSource, String dataProvider,
       String field) {
-    CacheKey key = new CacheKey(dsids, dataSource, dataProvider, field);
-    Element element = _cache.get(key);
-    if (element != null) {
-      Serializable value = element.getValue();
-      if (value instanceof LocalDateDoubleTimeSeries) {
-        LocalDateDoubleTimeSeries ts = (LocalDateDoubleTimeSeries) value;
-        s_logger.debug("retrieved time series: {} from cache", ts);
-        return ts;
-      } else {
-        s_logger.error("returned object {} from cache, not a LocalDateDoubleTimeSeries", value);
-        return null;
-      }
+    
+    UniqueIdentifier uid = resolveIdentifier(dsids, dataSource, dataProvider, field);
+    if (uid != null) {
+      return getHistoricalTimeSeries(uid);
     } else {
-      LocalDateDoubleTimeSeries ts = _underlying.getHistoricalTimeSeries(dsids, dataSource, dataProvider, field);
-      _cache.put(new Element(key, ts));
-      return ts;
+      return null;
     }
+    
   }
 
   @Override
@@ -194,14 +186,65 @@ public class EHCachingHistoricalDataProvider implements TimeSeriesSource {
       return null;  
     }
   }
+  
+  @Override
+  public LocalDateDoubleTimeSeries getHistoricalTimeSeries(UniqueIdentifier uid) {
+    Element element = _cache.get(uid);
+    if (element != null) {
+      Serializable value = element.getValue();
+      if (value instanceof LocalDateDoubleTimeSeries) {
+        LocalDateDoubleTimeSeries ts = (LocalDateDoubleTimeSeries) value;
+        s_logger.debug("retrieved time series: {} from cache", ts);
+        return ts;
+      } else {
+        s_logger.error("returned object {} from cache, not a LocalDateDoubleTimeSeries", value);
+        return null;
+      }
+    } else {
+      LocalDateDoubleTimeSeries ts = _underlying.getHistoricalTimeSeries(uid);
+      _cache.put(new Element(uid, ts));
+      return ts;
+    }
+  }
 
-  private class CacheKey implements Serializable {
+  @Override
+  public LocalDateDoubleTimeSeries getHistoricalTimeSeries(UniqueIdentifier uid, LocalDate start, LocalDate end) {
+    LocalDateDoubleTimeSeries ts = getHistoricalTimeSeries(uid);
+    if (ts != null) {
+      return (LocalDateDoubleTimeSeries) ts.subSeries(start, true, end, INCLUDE_LAST_DAY);
+    } else {
+      return null;  
+    }
+  }
+
+  @Override
+  public UniqueIdentifier resolveIdentifier(IdentifierBundle identifiers, String dataSource, String dataProvider, String field) {
+    MetaDataKey key = new MetaDataKey(identifiers, dataSource, dataProvider, field);
+    Element element = _cache.get(key);
+    if (element != null) {
+      Serializable value = element.getValue();
+      if (value instanceof UniqueIdentifier) {
+        UniqueIdentifier uid = (UniqueIdentifier) value;
+        s_logger.debug("retrieved UID: {} from cache", uid);
+        return uid;
+      } else {
+        s_logger.error("returned object {} from cache, not a UniqueIdentifier", value);
+        return null;
+      }
+    } else {
+      UniqueIdentifier uid = _underlying.resolveIdentifier(identifiers, dataSource, dataProvider, field);
+      _cache.put(new Element(key, uid));
+      return uid;
+    }
+  }
+
+  private class MetaDataKey implements Serializable {
     private final IdentifierBundle _dsids;
     private final String _dataSource;
     private final String _dataProvider;
     private final String _field;
     
-    public CacheKey(IdentifierBundle dsids, String dataSource, String dataProvider, String field) {
+    public MetaDataKey(IdentifierBundle dsids, String dataSource, String dataProvider, String field) {
       _dsids = dsids;
       _dataSource = dataSource;
       _dataProvider = dataProvider;
@@ -221,10 +264,10 @@ public class EHCachingHistoricalDataProvider implements TimeSeriesSource {
       if (obj == null) {
         return false;
       }
-      if (!(obj instanceof CacheKey)) {
+      if (!(obj instanceof MetaDataKey)) {
         return false;
       }
-      CacheKey other = (CacheKey) obj;
+      MetaDataKey other = (MetaDataKey) obj;
       if (_field == null) {
         if (other._field != null) {
           return false;
@@ -256,4 +299,6 @@ public class EHCachingHistoricalDataProvider implements TimeSeriesSource {
       return true;
     }
   }
+
+  
 }
