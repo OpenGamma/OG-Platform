@@ -98,7 +98,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerAddPortfolioTreeTest exten
     assertEquals("DbPos", uid.getScheme());
     assertTrue(uid.isVersioned());
     assertTrue(Long.parseLong(uid.getValue()) > 1000);
-    assertEquals(uid.getValue(), uid.getVersion());
+    assertEquals("0", uid.getVersion());
     assertEquals(now, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());

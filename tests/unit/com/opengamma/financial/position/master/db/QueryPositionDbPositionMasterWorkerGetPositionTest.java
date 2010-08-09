@@ -67,7 +67,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
 
   @Test
   public void test_getPosition_versioned_oneSecurityKey() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "122", "122");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "122", "0");
     PositionDocument test = _worker.getPosition(uid);
     
     assertNotNull(test);
@@ -90,7 +90,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
 
   @Test
   public void test_getPosition_versioned_twoSecurityKeys() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "121", "121");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "121", "0");
     PositionDocument test = _worker.getPosition(uid);
     
     assertNotNull(test);
@@ -114,7 +114,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
 
   @Test
   public void test_getPosition_versioned_notLatest() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "221", "221");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "221", "0");
     PositionDocument test = _worker.getPosition(uid);
     
     assertNotNull(test);
@@ -137,7 +137,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
 
   @Test
   public void test_getPosition_versioned_latest() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "221", "222");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "221", "1");
     PositionDocument test = _worker.getPosition(uid);
     
     assertNotNull(test);
@@ -171,7 +171,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
     PositionDocument test = _worker.getPosition(oid);
     
     assertNotNull(test);
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "221", "222");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "221", "1");
     assertEquals(uid, test.getPositionId());
     assertEquals(UniqueIdentifier.of("DbPos", "201"), test.getPortfolioId());
     assertEquals(UniqueIdentifier.of("DbPos", "211"), test.getParentNodeId());

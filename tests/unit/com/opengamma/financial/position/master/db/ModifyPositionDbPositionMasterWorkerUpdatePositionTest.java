@@ -78,7 +78,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
   @Test(expected = NullPointerException.class)
   public void test_updatePosition_noPosition() {
     PositionDocument doc = new PositionDocument();
-    doc.setPositionId(UniqueIdentifier.of("DbPos", "121", "121"));
+    doc.setPositionId(UniqueIdentifier.of("DbPos", "121", "0"));
     _worker.updatePosition(doc);
   }
 
@@ -93,7 +93,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
   @Test(expected = IllegalArgumentException.class)
   public void test_updatePosition_notLatestVersion() {
     PortfolioTreePosition pos = new PortfolioTreePosition(BigDecimal.TEN, Identifier.of("A", "B"));
-    pos.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "221", "221"));
+    pos.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "221", "0"));
     PositionDocument doc = new PositionDocument(pos);
     _worker.updatePosition(doc);
   }
@@ -102,9 +102,9 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
   public void test_updatePosition_getUpdateGet() {
     Instant now = Instant.now(_posMaster.getTimeSource());
     
-    PositionDocument base = _queryWorker.getPosition(UniqueIdentifier.of("DbPos", "121", "121"));
+    PositionDocument base = _queryWorker.getPosition(UniqueIdentifier.of("DbPos", "121", "0"));
     PortfolioTreePosition pos = new PortfolioTreePosition(BigDecimal.TEN, Identifier.of("A", "B"));
-    pos.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "121", "121"));
+    pos.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "121", "0"));
     PositionDocument input = new PositionDocument(pos);
     
     PositionDocument updated = _worker.updatePosition(input);
@@ -117,7 +117,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     assertEquals(null, updated.getCorrectionToInstant());
     assertEquals(input.getPosition(), updated.getPosition());
     
-    PositionDocument old = _queryWorker.getPosition(UniqueIdentifier.of("DbPos", "121", "121"));
+    PositionDocument old = _queryWorker.getPosition(UniqueIdentifier.of("DbPos", "121", "0"));
     assertEquals(base.getPositionId(), old.getPositionId());
     assertEquals(base.getPortfolioId(), old.getPortfolioId());
     assertEquals(base.getParentNodeId(), old.getParentNodeId());
@@ -140,9 +140,9 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
       };
     };
     w.init(_posMaster);
-    final PositionDocument base = _queryWorker.getPosition(UniqueIdentifier.of("DbPos", "121", "121"));
+    final PositionDocument base = _queryWorker.getPosition(UniqueIdentifier.of("DbPos", "121", "0"));
     PortfolioTreePosition pos = new PortfolioTreePosition(BigDecimal.TEN, Identifier.of("A", "B"));
-    pos.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "121", "121"));
+    pos.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "121", "0"));
     PositionDocument input = new PositionDocument(pos);
     try {
       w.updatePosition(input);
@@ -150,7 +150,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     } catch (BadSqlGrammarException ex) {
       // expected
     }
-    final PositionDocument test = _queryWorker.getPosition(UniqueIdentifier.of("DbPos", "121", "121"));
+    final PositionDocument test = _queryWorker.getPosition(UniqueIdentifier.of("DbPos", "121", "0"));
     
     assertEquals(base, test);
   }

@@ -99,7 +99,7 @@ public class QueryFullDbPositionMasterWorkerGetFullPortfolioNodeTest extends Abs
     assertEquals(0, testChild113.getChildNodes().size());
     
     Position testPos121 = testChild112.getPositions().get(0);
-    assertEquals(UniqueIdentifier.of("DbPos", "121", "121"), testPos121.getUniqueIdentifier());
+    assertEquals(UniqueIdentifier.of("DbPos", "121", "0"), testPos121.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(121.987), testPos121.getQuantity());
     IdentifierBundle testSecKey121 = testPos121.getSecurityKey();
     assertNotNull(testSecKey121);
@@ -108,7 +108,7 @@ public class QueryFullDbPositionMasterWorkerGetFullPortfolioNodeTest extends Abs
     assertEquals(true, testSecKey121.getIdentifiers().contains(Identifier.of("NASDAQ", "Micro")));
     
     Position testPos122 = testChild112.getPositions().get(1);
-    assertEquals(UniqueIdentifier.of("DbPos", "122", "122"), testPos122.getUniqueIdentifier());
+    assertEquals(UniqueIdentifier.of("DbPos", "122", "0"), testPos122.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(122.987), testPos122.getQuantity());
     IdentifierBundle testSecKey122 = testPos122.getSecurityKey();
     assertNotNull(testSecKey122);
@@ -134,7 +134,7 @@ public class QueryFullDbPositionMasterWorkerGetFullPortfolioNodeTest extends Abs
     assertEquals(0, testChild113.getChildNodes().size());
     
     Position testPos121 = test.getPositions().get(0);
-    assertEquals(UniqueIdentifier.of("DbPos", "121", "121"), testPos121.getUniqueIdentifier());
+    assertEquals(UniqueIdentifier.of("DbPos", "121", "0"), testPos121.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(121.987), testPos121.getQuantity());
     IdentifierBundle testSecKey121 = testPos121.getSecurityKey();
     assertNotNull(testSecKey121);
@@ -143,7 +143,7 @@ public class QueryFullDbPositionMasterWorkerGetFullPortfolioNodeTest extends Abs
     assertEquals(true, testSecKey121.getIdentifiers().contains(Identifier.of("NASDAQ", "Micro")));
     
     Position testPos122 = test.getPositions().get(1);
-    assertEquals(UniqueIdentifier.of("DbPos", "122", "122"), testPos122.getUniqueIdentifier());
+    assertEquals(UniqueIdentifier.of("DbPos", "122", "0"), testPos122.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(122.987), testPos122.getQuantity());
     IdentifierBundle testSecKey122 = testPos122.getSecurityKey();
     assertNotNull(testSecKey122);

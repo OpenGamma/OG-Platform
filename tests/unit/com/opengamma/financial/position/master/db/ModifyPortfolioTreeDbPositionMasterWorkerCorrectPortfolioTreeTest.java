@@ -75,7 +75,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerCorrectPortfolioTreeTest e
   @Test(expected = NullPointerException.class)
   public void test_correctPortfolioTree_noPortfolioTree() {
     PortfolioTreeDocument doc = new PortfolioTreeDocument();
-    doc.setPortfolioId(UniqueIdentifier.of("DbPos", "201", "201"));
+    doc.setPortfolioId(UniqueIdentifier.of("DbPos", "201", "0"));
     _worker.correctPortfolioTree(doc);
   }
 
@@ -90,9 +90,9 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerCorrectPortfolioTreeTest e
 
   @Test(expected = IllegalArgumentException.class)
   public void test_correctPortfolioTree_notLatestCorrection() {
-    PortfolioTreeDocument base = _queryWorker.getPortfolioTree(UniqueIdentifier.of("DbPos", "201", "201"));
+    PortfolioTreeDocument base = _queryWorker.getPortfolioTree(UniqueIdentifier.of("DbPos", "201", "0"));
     _worker.correctPortfolioTree(base);  // correction
-    base = _queryWorker.getPortfolioTree(UniqueIdentifier.of("DbPos", "201", "201"));  // get old version
+    base = _queryWorker.getPortfolioTree(UniqueIdentifier.of("DbPos", "201", "0"));  // get old version
     _worker.correctPortfolioTree(base);  // cannot update old correction
   }
 
@@ -100,7 +100,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerCorrectPortfolioTreeTest e
   public void test_correctPortfolioTree_getUpdateGet() {
     Instant now = Instant.now(_posMaster.getTimeSource());
     
-    UniqueIdentifier oldPortfolioId = UniqueIdentifier.of("DbPos", "201", "201");
+    UniqueIdentifier oldPortfolioId = UniqueIdentifier.of("DbPos", "201", "0");
     PortfolioTreeDocument base = _queryWorker.getPortfolioTree(oldPortfolioId);
     PortfolioTree port = new PortfolioTree("NewName");
     port.setUniqueIdentifier(oldPortfolioId);

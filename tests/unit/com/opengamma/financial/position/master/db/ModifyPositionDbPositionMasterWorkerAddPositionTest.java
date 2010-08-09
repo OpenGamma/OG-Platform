@@ -95,7 +95,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertEquals("DbPos", uid.getScheme());
     assertTrue(uid.isVersioned());
     assertTrue(Long.parseLong(uid.getValue()) > 1000);
-    assertEquals(uid.getValue(), uid.getVersion());
+    assertEquals("0", uid.getVersion());
     assertEquals(UniqueIdentifier.of("DbPos", "101"), test.getPortfolioId());
     assertEquals(UniqueIdentifier.of("DbPos", "111"), test.getParentNodeId());
     assertEquals(now, test.getVersionFromInstant());

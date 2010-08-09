@@ -83,7 +83,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerUpdatePortfolioTreeTest ex
   @Test(expected = NullPointerException.class)
   public void test_updatePortfolioTree_noPortfolioTree() {
     PortfolioTreeDocument doc = new PortfolioTreeDocument();
-    doc.setPortfolioId(UniqueIdentifier.of("DbPos", "101", "101"));
+    doc.setPortfolioId(UniqueIdentifier.of("DbPos", "101", "0"));
     _worker.updatePortfolioTree(doc);
   }
 
@@ -99,7 +99,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerUpdatePortfolioTreeTest ex
   @Test(expected = IllegalArgumentException.class)
   public void test_updatePortfolioTree_notLatestVersion() {
     PortfolioTree port = new PortfolioTree("Test");
-    port.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "201", "201"));
+    port.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "201", "0"));
     port.setRootNode(new PortfolioTreeNode("Root"));
     PortfolioTreeDocument doc = new PortfolioTreeDocument(port);
     _worker.updatePortfolioTree(doc);
@@ -109,7 +109,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerUpdatePortfolioTreeTest ex
   public void test_updatePortfolioTree_getUpdateGet() {
     Instant now = Instant.now(_posMaster.getTimeSource());
     
-    UniqueIdentifier oldPortfolioId = UniqueIdentifier.of("DbPos", "101", "101");
+    UniqueIdentifier oldPortfolioId = UniqueIdentifier.of("DbPos", "101", "0");
     PortfolioTreeDocument base = _queryWorker.getPortfolioTree(oldPortfolioId);
     PortfolioTree port = new PortfolioTree("NewName");
     port.setUniqueIdentifier(oldPortfolioId);
@@ -158,7 +158,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerUpdatePortfolioTreeTest ex
   public void test_updatePortfolioTree_positionsRemoved() {
     Instant later = Instant.now(_posMaster.getTimeSource());
     
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "101", "101");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "101", "0");
     PositionSearchRequest search = new PositionSearchRequest();
     search.setPortfolioId(uid.toLatest());
     search.setVersionAsOfInstant(later);
@@ -182,11 +182,11 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerUpdatePortfolioTreeTest ex
     
     _posMaster.setTimeSource(TimeSource.fixed(now.minusSeconds(5)));
     PositionDocument addDoc = new PositionDocument(new PortfolioTreePosition(BigDecimal.TEN, Identifier.of("A", "B")));
-    addDoc.setParentNodeId(UniqueIdentifier.of("DbPos", "113", "113"));
+    addDoc.setParentNodeId(UniqueIdentifier.of("DbPos", "113", "0"));
     addDoc = _posMaster.addPosition(addDoc);
     _posMaster.setTimeSource(TimeSource.fixed(now));
     
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "101", "101");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "101", "0");
     PositionSearchRequest search = new PositionSearchRequest();
     search.setPortfolioId(uid.toLatest());
     search.setVersionAsOfInstant(now);

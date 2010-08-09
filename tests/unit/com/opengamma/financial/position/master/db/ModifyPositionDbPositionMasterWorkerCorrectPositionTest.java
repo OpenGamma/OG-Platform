@@ -76,7 +76,7 @@ public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends Abs
   @Test(expected = NullPointerException.class)
   public void test_correctPosition_noPosition() {
     PositionDocument doc = new PositionDocument();
-    doc.setPositionId(UniqueIdentifier.of("DbPos", "121", "121"));
+    doc.setPositionId(UniqueIdentifier.of("DbPos", "121", "0"));
     _worker.correctPosition(doc);
   }
 
@@ -99,9 +99,9 @@ public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends Abs
   public void test_correctPosition_getUpdateGet() {
     Instant now = Instant.now(_posMaster.getTimeSource());
     
-    PositionDocument base = _queryWorker.getPosition(UniqueIdentifier.of("DbPos", "121", "121"));
+    PositionDocument base = _queryWorker.getPosition(UniqueIdentifier.of("DbPos", "121", "0"));
     PortfolioTreePosition pos = new PortfolioTreePosition(BigDecimal.TEN, Identifier.of("A", "B"));
-    pos.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "121", "121"));
+    pos.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "121", "0"));
     PositionDocument input = new PositionDocument(pos);
     
     PositionDocument corrected = _worker.correctPosition(input);
@@ -114,7 +114,7 @@ public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends Abs
     assertEquals(null, corrected.getCorrectionToInstant());
     assertEquals(input.getPosition(), corrected.getPosition());
     
-    PositionDocument old = _queryWorker.getPosition(UniqueIdentifier.of("DbPos", "121", "121"));
+    PositionDocument old = _queryWorker.getPosition(UniqueIdentifier.of("DbPos", "121", "0"));
     assertEquals(base.getPositionId(), old.getPositionId());
     assertEquals(base.getPortfolioId(), old.getPortfolioId());
     assertEquals(base.getParentNodeId(), old.getParentNodeId());

@@ -80,7 +80,7 @@ public class ModifyPositionDbPositionMasterWorkerRemovePositionTest extends Abst
   public void test_removePosition_removed() {
     Instant now = Instant.now(_posMaster.getTimeSource());
     
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "122", "122");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "122", "0");
     _worker.removePosition(uid);
     PositionDocument test = _queryWorker.getPosition(uid);
     

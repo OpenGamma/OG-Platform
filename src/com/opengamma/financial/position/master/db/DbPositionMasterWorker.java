@@ -134,7 +134,7 @@ public class DbPositionMasterWorker {
    * @return the extracted row id
    */
   protected long extractRowId(final UniqueIdentifier id) {
-    return Long.parseLong(id.getVersion());
+    return Long.parseLong(id.getValue()) + Long.parseLong(id.getVersion());
   }
 
   /**
@@ -174,7 +174,7 @@ public class DbPositionMasterWorker {
    * @return the unique identifier, not null
    */
   protected UniqueIdentifier createUniqueIdentifier(final long oid, final long rowId, Map<UniqueIdentifier, UniqueIdentifier> deduplicate) {
-    UniqueIdentifier uid = UniqueIdentifier.of(getIdentifierScheme(), Long.toString(oid), Long.toString(rowId));
+    UniqueIdentifier uid = UniqueIdentifier.of(getIdentifierScheme(), Long.toString(oid), Long.toString(rowId - oid));
     if (deduplicate == null) {
       return uid;
     }

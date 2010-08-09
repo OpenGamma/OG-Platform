@@ -65,7 +65,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreesTest ex
     
     assertEquals(_totalPortfolios, test.getDocuments().size());
     
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "101", "101");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "101", "0");
     PortfolioTreeDocument doc0 = test.getDocuments().get(0);
     assertEquals(uid, doc0.getPortfolioId());
     assertEquals(_version1Instant, doc0.getVersionFromInstant());
@@ -77,20 +77,20 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreesTest ex
     assertEquals("TestPortfolio101", portfolio.getName());
     
     PortfolioTreeNode rootNode = portfolio.getRootNode();
-    assertEquals(UniqueIdentifier.of("DbPos", "111", "111"), rootNode.getUniqueIdentifier());
+    assertEquals(UniqueIdentifier.of("DbPos", "111", "0"), rootNode.getUniqueIdentifier());
     assertEquals("TestNode111", rootNode.getName());
     assertEquals(1, rootNode.getChildNodes().size());
     
-    assertEquals(UniqueIdentifier.of("DbPos", "112", "112"), rootNode.getChildNodes().get(0).getUniqueIdentifier());
+    assertEquals(UniqueIdentifier.of("DbPos", "112", "0"), rootNode.getChildNodes().get(0).getUniqueIdentifier());
     assertEquals("TestNode112", rootNode.getChildNodes().get(0).getName());
     assertEquals(1, rootNode.getChildNodes().get(0).getChildNodes().size());
     
-    assertEquals(UniqueIdentifier.of("DbPos", "113", "113"), rootNode.getChildNodes().get(0).getChildNodes().get(0).getUniqueIdentifier());
+    assertEquals(UniqueIdentifier.of("DbPos", "113", "0"), rootNode.getChildNodes().get(0).getChildNodes().get(0).getUniqueIdentifier());
     assertEquals("TestNode113", rootNode.getChildNodes().get(0).getChildNodes().get(0).getName());
     assertEquals(0, rootNode.getChildNodes().get(0).getChildNodes().get(0).getChildNodes().size());
     
     PortfolioTreeDocument doc1 = test.getDocuments().get(1);
-    assertEquals(UniqueIdentifier.of("DbPos", "201", "202"), doc1.getPortfolioId());
+    assertEquals(UniqueIdentifier.of("DbPos", "201", "1"), doc1.getPortfolioId());
   }
 
   @Test
@@ -104,15 +104,15 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreesTest ex
     assertEquals(_totalPortfolios, test.getDocuments().size());
     
     PortfolioTreeDocument doc0 = test.getDocuments().get(0);
-    assertEquals(UniqueIdentifier.of("DbPos", "101", "101"), doc0.getPortfolioId());
+    assertEquals(UniqueIdentifier.of("DbPos", "101", "0"), doc0.getPortfolioId());
     PortfolioTreeNode rootNode0 = doc0.getPortfolio().getRootNode();
-    assertEquals(UniqueIdentifier.of("DbPos", "111", "111"), rootNode0.getUniqueIdentifier());
+    assertEquals(UniqueIdentifier.of("DbPos", "111", "0"), rootNode0.getUniqueIdentifier());
     assertEquals(0, rootNode0.getChildNodes().size());
     
     PortfolioTreeDocument doc1 = test.getDocuments().get(1);
-    assertEquals(UniqueIdentifier.of("DbPos", "201", "202"), doc1.getPortfolioId());
+    assertEquals(UniqueIdentifier.of("DbPos", "201", "1"), doc1.getPortfolioId());
     PortfolioTreeNode rootNode1 = doc1.getPortfolio().getRootNode();
-    assertEquals(UniqueIdentifier.of("DbPos", "211", "212"), rootNode1.getUniqueIdentifier());
+    assertEquals(UniqueIdentifier.of("DbPos", "211", "1"), rootNode1.getUniqueIdentifier());
     assertEquals(0, rootNode1.getChildNodes().size());
   }
 
@@ -128,16 +128,16 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreesTest ex
     assertEquals(_totalPortfolios, test.getDocuments().size());
     
     PortfolioTreeDocument doc0 = test.getDocuments().get(0);
-    assertEquals(UniqueIdentifier.of("DbPos", "101", "101"), doc0.getPortfolioId());
+    assertEquals(UniqueIdentifier.of("DbPos", "101", "0"), doc0.getPortfolioId());
     PortfolioTreeNode rootNode0 = doc0.getPortfolio().getRootNode();
-    assertEquals(UniqueIdentifier.of("DbPos", "111", "111"), rootNode0.getUniqueIdentifier());
+    assertEquals(UniqueIdentifier.of("DbPos", "111", "0"), rootNode0.getUniqueIdentifier());
     assertEquals(1, rootNode0.getChildNodes().size());
     assertEquals(0, rootNode0.getChildNodes().get(0).getChildNodes().size());
     
     PortfolioTreeDocument doc1 = test.getDocuments().get(1);
-    assertEquals(UniqueIdentifier.of("DbPos", "201", "202"), doc1.getPortfolioId());
+    assertEquals(UniqueIdentifier.of("DbPos", "201", "1"), doc1.getPortfolioId());
     PortfolioTreeNode rootNode1 = doc1.getPortfolio().getRootNode();
-    assertEquals(UniqueIdentifier.of("DbPos", "211", "212"), rootNode1.getUniqueIdentifier());
+    assertEquals(UniqueIdentifier.of("DbPos", "211", "1"), rootNode1.getUniqueIdentifier());
     assertEquals(0, rootNode1.getChildNodes().size());
   }
 
@@ -154,7 +154,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreesTest ex
     
     assertEquals(1, test.getDocuments().size());
     PortfolioTreeDocument doc0 = test.getDocuments().get(0);
-    assertEquals(UniqueIdentifier.of("DbPos", "101", "101"), doc0.getPortfolioId());
+    assertEquals(UniqueIdentifier.of("DbPos", "101", "0"), doc0.getPortfolioId());
   }
 
   @Test
@@ -169,7 +169,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreesTest ex
     
     assertEquals(1, test.getDocuments().size());
     PortfolioTreeDocument doc0 = test.getDocuments().get(0);
-    assertEquals(UniqueIdentifier.of("DbPos", "201", "202"), doc0.getPortfolioId());
+    assertEquals(UniqueIdentifier.of("DbPos", "201", "1"), doc0.getPortfolioId());
   }
 
   //-------------------------------------------------------------------------
@@ -181,7 +181,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreesTest ex
     
     assertEquals(1, test.getDocuments().size());
     PortfolioTreeDocument doc0 = test.getDocuments().get(0);
-    assertEquals(UniqueIdentifier.of("DbPos", "101", "101"), doc0.getPortfolioId());
+    assertEquals(UniqueIdentifier.of("DbPos", "101", "0"), doc0.getPortfolioId());
   }
 
   @Test
@@ -201,7 +201,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreesTest ex
     
     assertEquals(1, test.getDocuments().size());
     PortfolioTreeDocument doc0 = test.getDocuments().get(0);
-    assertEquals(UniqueIdentifier.of("DbPos", "101", "101"), doc0.getPortfolioId());
+    assertEquals(UniqueIdentifier.of("DbPos", "101", "0"), doc0.getPortfolioId());
   }
 
   @Test
@@ -213,8 +213,8 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreesTest ex
     assertEquals(2, test.getDocuments().size());
     PortfolioTreeDocument doc0 = test.getDocuments().get(0);
     PortfolioTreeDocument doc1 = test.getDocuments().get(1);
-    assertEquals(UniqueIdentifier.of("DbPos", "101", "101"), doc0.getPortfolioId());
-    assertEquals(UniqueIdentifier.of("DbPos", "201", "202"), doc1.getPortfolioId());
+    assertEquals(UniqueIdentifier.of("DbPos", "101", "0"), doc0.getPortfolioId());
+    assertEquals(UniqueIdentifier.of("DbPos", "201", "1"), doc1.getPortfolioId());
   }
 
   //-------------------------------------------------------------------------
@@ -236,8 +236,8 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreesTest ex
     assertEquals(2, test.getDocuments().size());
     PortfolioTreeDocument doc0 = test.getDocuments().get(0);
     PortfolioTreeDocument doc1 = test.getDocuments().get(1);
-    assertEquals(UniqueIdentifier.of("DbPos", "101", "101"), doc0.getPortfolioId());
-    assertEquals(UniqueIdentifier.of("DbPos", "201", "201"), doc1.getPortfolioId());  // old version
+    assertEquals(UniqueIdentifier.of("DbPos", "101", "0"), doc0.getPortfolioId());
+    assertEquals(UniqueIdentifier.of("DbPos", "201", "0"), doc1.getPortfolioId());  // old version
   }
 
   @Test
@@ -249,8 +249,8 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreesTest ex
     assertEquals(2, test.getDocuments().size());
     PortfolioTreeDocument doc0 = test.getDocuments().get(0);
     PortfolioTreeDocument doc1 = test.getDocuments().get(1);
-    assertEquals(UniqueIdentifier.of("DbPos", "101", "101"), doc0.getPortfolioId());
-    assertEquals(UniqueIdentifier.of("DbPos", "201", "202"), doc1.getPortfolioId());  // new version
+    assertEquals(UniqueIdentifier.of("DbPos", "101", "0"), doc0.getPortfolioId());
+    assertEquals(UniqueIdentifier.of("DbPos", "201", "1"), doc1.getPortfolioId());  // new version
   }
 
   //-------------------------------------------------------------------------

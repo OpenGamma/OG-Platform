@@ -79,7 +79,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerRemovePortfolioTreeTest ex
   public void test_removePortfolioTree_removed() {
     Instant now = Instant.now(_posMaster.getTimeSource());
     
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "201", "202");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "201", "1");
     _worker.removePortfolioTree(uid);
     PortfolioTreeDocument test = _queryWorker.getPortfolioTree(uid);
     
@@ -99,7 +99,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerRemovePortfolioTreeTest ex
   public void test_removePortfolioTree_positionsRemoved() {
     Instant later = Instant.now(_posMaster.getTimeSource());
     
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "101", "101");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "101", "0");
     PositionSearchRequest search = new PositionSearchRequest();
     search.setPortfolioId(uid.toLatest());
     search.setVersionAsOfInstant(later);
