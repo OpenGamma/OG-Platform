@@ -14,33 +14,34 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
  * @param <T>
  */
 public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<T extends Interpolator1DDataBundle> implements Interpolator1DNodeSensitivityCalculator<T> {
-  private final Interpolator1DNodeSensitivityCalculator<T> _interpolator;
-  private final Interpolator1DNodeSensitivityCalculator<T> _leftExtrapolator;
-  private final Interpolator1DNodeSensitivityCalculator<T> _rightExtrapolator;
+  private final Interpolator1DNodeSensitivityCalculator<T> _sensitivityCalculator;
+  private final Interpolator1DNodeSensitivityCalculator<T> _leftSensitivityCalculator;
+  private final Interpolator1DNodeSensitivityCalculator<T> _rightSensitivityCalculator;
 
-  public CombinedInterpolatorExtrapolatorNodeSensitivityCalculator(final Interpolator1DNodeSensitivityCalculator<T> interpolator) {
-    Validate.notNull(interpolator, "interpolator");
-    _interpolator = interpolator;
-    _leftExtrapolator = null;
-    _rightExtrapolator = null;
+  public CombinedInterpolatorExtrapolatorNodeSensitivityCalculator(final Interpolator1DNodeSensitivityCalculator<T> sensitivityCalculator) {
+    Validate.notNull(sensitivityCalculator, "sensitivity calculator");
+    _sensitivityCalculator = sensitivityCalculator;
+    _leftSensitivityCalculator = null;
+    _rightSensitivityCalculator = null;
   }
 
-  public CombinedInterpolatorExtrapolatorNodeSensitivityCalculator(final Interpolator1DNodeSensitivityCalculator<T> interpolator, final Interpolator1DNodeSensitivityCalculator<T> extrapolator) {
-    Validate.notNull(interpolator, "interpolator");
-    Validate.notNull(extrapolator, "extrapolator");
-    _interpolator = interpolator;
-    _leftExtrapolator = extrapolator;
-    _rightExtrapolator = extrapolator;
+  public CombinedInterpolatorExtrapolatorNodeSensitivityCalculator(final Interpolator1DNodeSensitivityCalculator<T> sensitivityCalculator,
+      final Interpolator1DNodeSensitivityCalculator<T> leftAndRightSensitivityCalculator) {
+    Validate.notNull(sensitivityCalculator, "sensitivity calculator");
+    Validate.notNull(leftAndRightSensitivityCalculator, "left and right sensitivity calculators");
+    _sensitivityCalculator = sensitivityCalculator;
+    _leftSensitivityCalculator = leftAndRightSensitivityCalculator;
+    _rightSensitivityCalculator = leftAndRightSensitivityCalculator;
   }
 
-  public CombinedInterpolatorExtrapolatorNodeSensitivityCalculator(final Interpolator1DNodeSensitivityCalculator<T> interpolator, final Interpolator1DNodeSensitivityCalculator<T> leftExtrapolator,
-      final Interpolator1DNodeSensitivityCalculator<T> rightExtrapolator) {
-    Validate.notNull(interpolator, "interpolator");
-    Validate.notNull(leftExtrapolator, "left extrapolator");
-    Validate.notNull(rightExtrapolator, "right extrapolator");
-    _interpolator = interpolator;
-    _leftExtrapolator = leftExtrapolator;
-    _rightExtrapolator = rightExtrapolator;
+  public CombinedInterpolatorExtrapolatorNodeSensitivityCalculator(final Interpolator1DNodeSensitivityCalculator<T> sensitivityCalculator,
+      final Interpolator1DNodeSensitivityCalculator<T> leftSensitivityCalculator, final Interpolator1DNodeSensitivityCalculator<T> rightSensitivityCalculator) {
+    Validate.notNull(sensitivityCalculator, "sensitivity calculator");
+    Validate.notNull(leftSensitivityCalculator, "left sensitivity calculator");
+    Validate.notNull(rightSensitivityCalculator, "right sensitivity calculator");
+    _sensitivityCalculator = sensitivityCalculator;
+    _leftSensitivityCalculator = leftSensitivityCalculator;
+    _rightSensitivityCalculator = rightSensitivityCalculator;
   }
 
   @Override
@@ -48,15 +49,27 @@ public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<T extends
     Validate.notNull(data, "data");
     Validate.notNull(value, "value");
     if (value < data.firstKey()) {
-      if (_leftExtrapolator != null) {
-        return _leftExtrapolator.calculate(data, value);
+      if (_leftSensitivityCalculator != null) {
+        return _leftSensitivityCalculator.calculate(data, value);
       }
     } else if (value > data.lastKey()) {
-      if (_rightExtrapolator != null) {
-        return _rightExtrapolator.calculate(data, value);
+      if (_rightSensitivityCalculator != null) {
+        return _rightSensitivityCalculator.calculate(data, value);
       }
     }
-    return _interpolator.calculate(data, value);
+    return _sensitivityCalculator.calculate(data, value);
+  }
+
+  public Interpolator1DNodeSensitivityCalculator<T> getSensitivityCalculator() {
+    return _sensitivityCalculator;
+  }
+
+  public Interpolator1DNodeSensitivityCalculator<T> getLeftSensitivityCalculator() {
+    return _leftSensitivityCalculator;
+  }
+
+  public Interpolator1DNodeSensitivityCalculator<T> getRightSensitivityCalculator() {
+    return _rightSensitivityCalculator;
   }
 
 }
