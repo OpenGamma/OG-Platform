@@ -10,61 +10,101 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.financial.interestrate.bond.definition.Bond;
 
 /**
  * 
  */
 public class ModifiedDurationCalculatorTest {
-  private static final Long DATE = 0l;
-  private static final DateTimeNumericEncoding ENCODING = DateTimeNumericEncoding.DATE_EPOCH_DAYS;
-  private static final long[] DATES = new long[] {1l, 2l, 3l, 4l};
-  private static final DoubleTimeSeries<Long> ZERO = new FastArrayLongDoubleTimeSeries(ENCODING, DATES, new double[] {0., 0., 0., 1.});
-  private static final DoubleTimeSeries<Long> LOW_CF = new FastArrayLongDoubleTimeSeries(ENCODING, DATES, new double[] {0.03, 0.03, 0.03, 1.03});
-  private static final DoubleTimeSeries<Long> CF = new FastArrayLongDoubleTimeSeries(ENCODING, DATES, new double[] {0.06, 0.06, 0.06, 1.06});
-  private static final DoubleTimeSeries<Long> HIGH_CF = new FastArrayLongDoubleTimeSeries(ENCODING, DATES, new double[] {0.09, 0.09, 0.09, 1.09});
-  private static final ModifiedDurationCalculator CALCULATOR = new ModifiedDurationCalculator();
-  private static final PresentValueCalculator DISCRETE = new DiscreteCompoundingPresentValueCalculator();
-  private static final PresentValueCalculator CONTINUOUS = new ContinuousCompoundingPresentValueCalculator();
-  private static final double PRICE = 0.987;
-  private static final double EPS = 1e-4;
+  private static final ModifiedDurationCalculator MDC = new ModifiedDurationCalculator();
+  private static final String CURVE_NAME = "Test Curve";
 
   @Test(expected = IllegalArgumentException.class)
-  public void testCF() {
-    CALCULATOR.calculate(null, PRICE, DATE, DISCRETE);
+  public void testEmptyBond() {
+    MDC.calculate(null, 1.0, 2);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testEmpty() {
-    CALCULATOR.calculate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, PRICE, DATE, DISCRETE);
+  public void testZeroPrice() {
+    int n = 10;
+    double[] paymentTimes = new double[n];
+    double tau = 0.5;
+    for (int i = 0; i < n; i++) {
+      paymentTimes[i] = (i + 1) * tau;
+    }
+
+    Bond bond = new Bond(paymentTimes, 0.0, CURVE_NAME);
+    MDC.calculate(bond, 0.0, 2);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testPrice() {
-    CALCULATOR.calculate(CF, -1, DATE, DISCRETE);
-  }
+  public void testZeroCompondFreq() {
+    int n = 10;
+    double[] paymentTimes = new double[n];
+    double tau = 0.5;
+    for (int i = 0; i < n; i++) {
+      paymentTimes[i] = (i + 1) * tau;
+    }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testDate() {
-    CALCULATOR.calculate(CF, PRICE, null, DISCRETE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testPV() {
-    CALCULATOR.calculate(CF, PRICE, DATE, null);
+    Bond bond = new Bond(paymentTimes, 0.0, CURVE_NAME);
+    MDC.calculate(bond, 0.956, 0);
   }
 
   @Test
-  public void test() {
-    assertEquals(CALCULATOR.calculate(ZERO, 1, DATE, DISCRETE), 4, EPS);
-    double d = CALCULATOR.calculate(CF, PRICE, DATE, DISCRETE);
-    assertTrue(d < CALCULATOR.calculate(LOW_CF, PRICE, DATE, DISCRETE));
-    assertTrue(d > CALCULATOR.calculate(HIGH_CF, PRICE, DATE, DISCRETE));
-    d = CALCULATOR.calculate(CF, PRICE, DATE, CONTINUOUS);
-    assertTrue(d < CALCULATOR.calculate(LOW_CF, PRICE, DATE, CONTINUOUS));
-    assertTrue(d > CALCULATOR.calculate(HIGH_CF, PRICE, DATE, CONTINUOUS));
+  public void testSinglePayment() {
+    int n = 10;
+    double[] paymentTimes = new double[n];
+    double tau = 0.5;
+    for (int i = 0; i < n; i++) {
+      paymentTimes[i] = (i + 1) * tau;
+    }
+
+    Bond bond = new Bond(paymentTimes, 0.0, CURVE_NAME);
+    double duration = MDC.calculate(bond, 1.0, 4);
+    assertEquals(n * tau, duration, 1e-8);
+  }
+
+  @Test
+  public void testMultiplePayment() {
+    int n = 10;
+    int m = 2;
+    double[] paymentTimes = new double[n];
+    double[] yearFrac = new double[n];
+    double tau = 0.5;
+    double alpha = 0.5;
+    for (int i = 0; i < n; i++) {
+      paymentTimes[i] = (i + 1) * tau;
+      yearFrac[i] = alpha;
+    }
+
+    double yield = 0.5;
+    double coupon = (Math.pow(1 + yield / m, m * tau) - 1) / alpha;
+    Bond bond = new Bond(paymentTimes, coupon, yearFrac, CURVE_NAME);
+    double duration = MDC.calculate(bond, 1.0, m);
+
+    double sum = 0.0;
+    double t = 0;
+    for (int i = 0; i < n; i++) {
+      t = paymentTimes[i];
+      sum += t * Math.pow(1 + yield / m, -m * t) * (coupon * alpha + (i == (n - 1) ? 1.0 : 0.0));
+    }
+    sum /= (1 + yield / m);
+    assertEquals(sum, duration, 1e-8);
+  }
+
+  @Test
+  public void testPriceSensitivity() {
+    int n = 10;
+    double[] paymentTimes = new double[n];
+    double tau = 0.5;
+    for (int i = 0; i < n; i++) {
+      paymentTimes[i] = (i + 1) * tau;
+    }
+
+    Bond bond = new Bond(paymentTimes, 0.05, CURVE_NAME);
+    double duration1 = MDC.calculate(bond, 0.889, 2);
+    double duration2 = MDC.calculate(bond, 0.789, 2);
+    assertTrue(duration1 > duration2);
   }
 
 }

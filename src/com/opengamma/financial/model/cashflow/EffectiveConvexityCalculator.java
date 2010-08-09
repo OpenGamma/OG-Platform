@@ -1,40 +1,35 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.cashflow;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.bond.BondYieldCalculator;
-import com.opengamma.financial.model.interestrate.InterestRateModel;
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateModel;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.financial.interestrate.annuity.definition.ContinouslyCompoundedYieldCalculator;
+import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
 
 /**
  *
  */
 public class EffectiveConvexityCalculator {
-  private final BondYieldCalculator _yield = new BondYieldCalculator();
-  private final double _eps = 1e-3;
+  private final ContinouslyCompoundedYieldCalculator _yield = new ContinouslyCompoundedYieldCalculator();
 
-  public double calculate(final DoubleTimeSeries<Long> cashFlows, final double price, final Long date, final PresentValueCalculator pvCalculator) {
-    Validate.notNull(cashFlows, "cash flows");
-    if (cashFlows.isEmpty()) {
-      throw new IllegalArgumentException("Cash flow time series was empty");
-    }
+  public double calculate(FixedAnnuity annuity, final double price) {
+    Validate.notNull(annuity, "");
+    Validate.notNull(annuity, "annuity");
     if (price <= 0) {
       throw new IllegalArgumentException("Price must be positive");
     }
-    Validate.notNull(date, "date");
-    Validate.notNull(pvCalculator, "present value calculator");
-    final double yield = _yield.calculate(cashFlows, price, date, pvCalculator);
-    final InterestRateModel<Double> yCurve = new ConstantInterestRateModel(yield);
-    final InterestRateModel<Double> yCurveUp = new ConstantInterestRateModel(yield + _eps);
-    final InterestRateModel<Double> yCurveDown = new ConstantInterestRateModel(yield - _eps);
-    final double pv = pvCalculator.calculate(cashFlows, yCurve, date);
-    return (pvCalculator.calculate(cashFlows, yCurveDown, date) + pvCalculator.calculate(cashFlows, yCurveUp, date) - 2 * pv) / (2 * pv * _eps * _eps);
+    double yield = _yield.calculate(annuity, price);
+    double sum = 0.0;
+    double[] c = annuity.getPaymentAmounts();
+    double[] t = annuity.getPaymentTimes();
+    for (int i = 0; i < annuity.getNumberOfPayments(); i++) {
+      sum += t[i] * t[i] * c[i] * Math.exp(-yield * t[i]);
+    }
+    return sum / price;
   }
 
 }

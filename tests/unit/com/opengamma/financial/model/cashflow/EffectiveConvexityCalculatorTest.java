@@ -15,13 +15,13 @@ import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
 /**
  * 
  */
-public class EffectiveDurationCalculatorTest {
-  private static final EffectiveDurationCalculator EDC = new EffectiveDurationCalculator();
+public class EffectiveConvexityCalculatorTest {
+  private static final EffectiveConvexityCalculator ECC = new EffectiveConvexityCalculator();
   private static final String CURVE_NAME = "Test Curve";
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyAnnuity() {
-    EDC.calculate(null, 1.0);
+    ECC.calculate(null, 1.0);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -36,7 +36,7 @@ public class EffectiveDurationCalculatorTest {
     }
 
     FixedAnnuity annuity = new FixedAnnuity(paymentTimes, paymentAmounts, CURVE_NAME);
-    EDC.calculate(annuity, 0.0);
+    ECC.calculate(annuity, 0.0);
   }
 
   @Test
@@ -51,8 +51,8 @@ public class EffectiveDurationCalculatorTest {
     paymentAmounts[n - 1] = 1.0;
 
     FixedAnnuity annuity = new FixedAnnuity(paymentTimes, paymentAmounts, CURVE_NAME);
-    double duration = EDC.calculate(annuity, 0.889);
-    assertEquals(n * tau, duration, 1e-8);
+    double convexity = ECC.calculate(annuity, 0.889);
+    assertEquals(n * n * tau * tau, convexity, 1e-7);
   }
 
   @Test
@@ -66,8 +66,9 @@ public class EffectiveDurationCalculatorTest {
       paymentAmounts[i] = 1.0 + i / 5.0;
     }
     FixedAnnuity annuity = new FixedAnnuity(paymentTimes, paymentAmounts, CURVE_NAME);
-    double duration1 = EDC.calculate(annuity, 0.889);
-    double duration2 = EDC.calculate(annuity, 0.789);
-    assertTrue(duration1 > duration2);
+    double convexity1 = ECC.calculate(annuity, 0.889);
+    double convexity2 = ECC.calculate(annuity, 0.789);
+    assertTrue(convexity1 > convexity2);
   }
+
 }
