@@ -46,10 +46,11 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
-import com.opengamma.financial.interestrate.ParRateDifferanceCalculator;
+import com.opengamma.financial.interestrate.ParRateDifferenceCalculator;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
@@ -61,15 +62,11 @@ import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.CubicSplineInterpolatorWithSensitivities1D;
-import com.opengamma.math.interpolation.FixedNodeInterpolator1D;
-import com.opengamma.math.interpolation.InterpolationResult;
-import com.opengamma.math.interpolation.InterpolationResultWithSensitivities;
+import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.Interpolator1DCubicSplineDataBundle;
-import com.opengamma.math.interpolation.Interpolator1DCubicSplineWithSensitivitiesDataBundle;
-import com.opengamma.math.interpolation.Interpolator1DWithSensitivities;
-import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
+import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -83,7 +80,7 @@ import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
 public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction implements FunctionInvoker {
   private static final String SPOT_TICKER = "US00O/N Index"; //TODO shouldn't be hard-coded
   private static final String FLOAT_REFERENCE_TICKER = "US0006M Index"; //TODO shouldn't be hard-coded
-  private static final String CURVE_NAME = "USD Yield Curve";
+  private static final String CURVE_NAME = "USD Yield Curve"; //TODO should'nt be hard-coded
   private final Currency _currency;
   private InterpolatedYieldAndDiscountCurveDefinition _definition;
   private UniqueIdentifier _referenceRateIdentifier;
@@ -93,30 +90,14 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private ValueSpecification _curveResult;
   private ValueSpecification _jacobianResult;
   private Set<ValueSpecification> _results;
-  //TODO all interpolators should be passed in
-  private final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> _interpolator; // TODO this should not be hard-coded
-  // TODO this should depend on the type of _fundingInterpolator
-  private final Interpolator1D<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> _interpolatorWithSensitivity;
+  private final Interpolator1D<? extends Interpolator1DDataBundle> _interpolator;
+  private final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> _sensitivityCalculator;
 
-  // TODO kirk 2010-07-05 -- Must take in a curve definition name as well, rather than hard-coding to
-  // "ForwardAndFunding".
-
-  public MarketInstrumentImpliedYieldCurveFunction(final Currency currency) {
+  public MarketInstrumentImpliedYieldCurveFunction(final Currency currency, String interpolatorName, String leftExtrapolatorName, String rightExtrapolatorName) {
     Validate.notNull(currency);
     _currency = currency;
-    final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> cubicInterpolator = new NaturalCubicSplineInterpolator1D();
-    final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> cubicInterpolatorWithSense = new CubicSplineInterpolatorWithSensitivities1D();
-    //final ExtrapolatorMethod<Interpolator1DCubicSplineDataBundle, InterpolationResult> linearExtrapolator = new LinearExtrapolator<Interpolator1DCubicSplineDataBundle, InterpolationResult>();
-    //final ExtrapolatorMethod<Interpolator1DCubicSplineDataBundle, InterpolationResult> flatExtrapolator = new FlatExtrapolator<Interpolator1DCubicSplineDataBundle, InterpolationResult>();
-    //final ExtrapolatorMethod<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> linearExtrapolatorWithSensitivities =
-    //  new LinearExtrapolatorWithSensitivity<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities>();
-    //final ExtrapolatorMethod<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> flatExtrapolatorWithSensitivities =
-    //  new FlatExtrapolatorWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities>();
-    //_interpolator = new Extrapolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult>(linearExtrapolator, flatExtrapolator, cubicInterpolator);
-    _interpolator = cubicInterpolator;
-    //_interpolatorWithSensitivity = new Extrapolator1D<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities>(linearExtrapolatorWithSensitivities,
-    //    flatExtrapolatorWithSensitivities, cubicInterpolatorWithSense);
-    _interpolatorWithSensitivity = cubicInterpolatorWithSense;
+    _interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
+    _sensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
   }
 
   @Override
@@ -129,13 +110,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final Calendar calendar = new HolidayRepositoryCalendarAdapter(holidayRepository, _currency);
     final Region region = OpenGammaExecutionContext.getRegionRepository(executionContext)
         .getHierarchyNodes(now.toLocalDate(), InMemoryRegionRepository.POLITICAL_HIERARCHY_NAME, InMemoryRegionRepository.ISO_CURRENCY_3, _currency.getISOCode()).iterator().next();
-    //final Region region = OpenGammaExecutionContext.getRegionRepository(executionContext).getHierarchyNode(now.toLocalDate(), _currency.getUniqueIdentifier());
     final List<InterestRateDerivative> derivatives = new ArrayList<InterestRateDerivative>();
     final Set<FixedIncomeStrip> strips = _definition.getStrips();
     final int n = strips.size();
-//    final double[] marketRates = new double[n];
-//    final double[] initialRatesGuess = new double[n];
-//    final double[] nodeTimes = new double[n];
     final double[] marketRates = new double[n];
     final double[] initialRatesGuess = new double[n];
     final double[] nodeTimes = new double[n];
@@ -163,28 +140,25 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       if (strip.getInstrumentType() != StripInstrument.FUTURE) {
         rate /= 100;
       }
-  //    marketRates[i] = rate;
-      
       derivative = getInterestRateDerivative(strip, calendar, region, now, rate);
       if (derivative == null) {
         throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
       }
       derivatives.add(derivative);
       initialRatesGuess[i] = 0.01;
-      
       nodeTimes[i] = getLastTime(derivative);
       i++;
     }
-
-    LinkedHashMap<String, FixedNodeInterpolator1D> unknownCurves = new LinkedHashMap<String, FixedNodeInterpolator1D>();
-    FixedNodeInterpolator1D fnInterpolator = new FixedNodeInterpolator1D(nodeTimes, _interpolatorWithSensitivity);
-    unknownCurves.put(CURVE_NAME, fnInterpolator);
-    final JacobianCalculator jacobian = new MultipleYieldCurveFinderJacobian(derivatives, unknownCurves, null,ParRateCurveSensitivityCalculator.getInstance());
-
-    unknownCurves = new LinkedHashMap<String, FixedNodeInterpolator1D>();
-    fnInterpolator = new FixedNodeInterpolator1D(nodeTimes, _interpolator);
-    unknownCurves.put(CURVE_NAME, fnInterpolator);
-    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveFinder = new MultipleYieldCurveFinderFunction(derivatives, unknownCurves, null, ParRateDifferanceCalculator.getInstance());
+    LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
+    LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
+    LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> sensitivityCalculators = 
+      new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+    curveNodes.put(CURVE_NAME, nodeTimes);
+    interpolators.put(CURVE_NAME, _interpolator);
+    sensitivityCalculators.put(CURVE_NAME, _sensitivityCalculator);
+    MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, null, curveNodes, interpolators, sensitivityCalculators);
+    final JacobianCalculator jacobian = new MultipleYieldCurveFinderJacobian(data, ParRateCurveSensitivityCalculator.getInstance()); //TODO have the calculator as an input
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveFinder = new MultipleYieldCurveFinderFunction(data, ParRateDifferenceCalculator.getInstance()); //TODO have the calculator as an input
     NewtonVectorRootFinder rootFinder;
     double[] yields = null;
     try {
@@ -272,13 +246,13 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     if (strip.getInstrumentType() == StripInstrument.SWAP) {
       return getSwap(strip, calendar, region, now, rateOrPrice);
     } else if (strip.getInstrumentType() == StripInstrument.CASH) {
-      return getCash(strip, calendar, now,rateOrPrice);
+      return getCash(strip, calendar, now, rateOrPrice);
     } else if (strip.getInstrumentType() == StripInstrument.FRA) {
-      return getFRA(strip, calendar, now,rateOrPrice);
+      return getFRA(strip, calendar, now, rateOrPrice);
     } else if (strip.getInstrumentType() == StripInstrument.FUTURE) {
-      return getIRFuture(strip, calendar, now,rateOrPrice);
+      return getIRFuture(strip, calendar, now, rateOrPrice);
     } else if (strip.getInstrumentType() == StripInstrument.LIBOR) {
-      return getLibor(strip, calendar, now,rateOrPrice);
+      return getLibor(strip, calendar, now, rateOrPrice);
     }
     return null;
   }
@@ -353,7 +327,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     for (int i = 0; i < n; i++) {
       delta[i] = 0;
     }
-    return new FixedFloatSwap(swapPaymentDates,  swapPaymentDates, swapRate,delta, delta, CURVE_NAME, CURVE_NAME);
+    return new FixedFloatSwap(swapPaymentDates,  swapPaymentDates, swapRate, delta, delta, CURVE_NAME, CURVE_NAME);
 
   }
   private double getLastTime(final InterestRateDerivative derivative) {
