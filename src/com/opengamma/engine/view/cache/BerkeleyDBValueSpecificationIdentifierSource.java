@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.view.cache;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.fudgemsg.FudgeContext;
@@ -19,7 +18,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.sleepycat.bind.tuple.LongBinding;
-import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseConfig;
 import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.Environment;
@@ -33,7 +31,9 @@ import com.sleepycat.je.TransactionConfig;
  * Berkeley DB table.
  * Internally, it maintains an {@link AtomicLong} to allocate the next identifier to be used.
  */
-public class BerkeleyDBValueSpecificationIdentifierSource implements ValueSpecificationIdentifierSource, Lifecycle {
+public class BerkeleyDBValueSpecificationIdentifierSource
+  extends AbstractBerkeleyDBComponent
+  implements ValueSpecificationIdentifierSource, Lifecycle {
   private static final Logger s_logger = LoggerFactory.getLogger(BerkeleyDBValueSpecificationIdentifierSource.class);
   /**
    * The default name for the database in the provided environment.
@@ -42,39 +42,15 @@ public class BerkeleyDBValueSpecificationIdentifierSource implements ValueSpecif
   private static final byte[] HIGHEST_VALUE_KEY = new byte[] {0};
   private static final DatabaseEntry HIGHEST_VALUE_DB_ENTRY = new DatabaseEntry(HIGHEST_VALUE_KEY);
   
-  // Injected inputs:
-  private final Environment _dbEnvironment;
-  private final String _databaseName;
   private final FudgeContext _fudgeContext;
-
+  
   // Runtime state:
-  private final AtomicBoolean _started = new AtomicBoolean(false);
   private final AtomicLong _nextIdentifier = new AtomicLong(1L);
-  private Database _database; 
   
   public BerkeleyDBValueSpecificationIdentifierSource(Environment dbEnvironment, String databaseName, FudgeContext fudgeContext) {
-    ArgumentChecker.notNull(dbEnvironment, "dbEnvironment");
-    ArgumentChecker.notNull(databaseName, "databaseName");
-    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
-    _dbEnvironment = dbEnvironment;
-    _databaseName = databaseName;
+    super(dbEnvironment, databaseName);
+    ArgumentChecker.notNull(fudgeContext, "Fudge context");
     _fudgeContext = fudgeContext;
-  }
-
-  /**
-   * Gets the dbEnvironment field.
-   * @return the dbEnvironment
-   */
-  public Environment getDbEnvironment() {
-    return _dbEnvironment;
-  }
-
-  /**
-   * Gets the databaseName field.
-   * @return the databaseName
-   */
-  public String getDatabaseName() {
-    return _databaseName;
   }
 
   /**
@@ -83,22 +59,6 @@ public class BerkeleyDBValueSpecificationIdentifierSource implements ValueSpecif
    */
   public FudgeContext getFudgeContext() {
     return _fudgeContext;
-  }
-
-  /**
-   * Gets the database field.
-   * @return the database
-   */
-  protected Database getDatabase() {
-    return _database;
-  }
-
-  /**
-   * Sets the database field.
-   * @param database  the database
-   */
-  private void setDatabase(Database database) {
-    _database = database;
   }
 
   @Override
@@ -174,20 +134,16 @@ public class BerkeleyDBValueSpecificationIdentifierSource implements ValueSpecif
   }
 
   @Override
-  public boolean isRunning() {
-    return _started.get();
-  }
-
-  @Override
-  public void start() {
-    s_logger.info("Starting, and opening Database.");
+  protected DatabaseConfig getDatabaseConfig() {
     DatabaseConfig dbConfig = new DatabaseConfig();
     dbConfig.setAllowCreate(true);
     dbConfig.setTransactional(true);
-    Database database = getDbEnvironment().openDatabase(null, getDatabaseName(), dbConfig);
-    setDatabase(database);
+    return dbConfig;
+  }
+
+  @Override
+  protected void postStartInitialization() {
     initializeNextIdentifier();
-    _started.set(true);
   }
 
   /**
@@ -210,15 +166,6 @@ public class BerkeleyDBValueSpecificationIdentifierSource implements ValueSpecif
       txn.commit();
     }
     _nextIdentifier.set(nextIdentifier);
-  }
-
-  @Override
-  public void stop() {
-    s_logger.info("Shutting down Database.");
-    if (getDatabase() != null) {
-      getDatabase().close();
-    }
-    _started.set(false);
   }
 
 }

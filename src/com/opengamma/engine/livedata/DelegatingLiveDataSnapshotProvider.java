@@ -131,9 +131,12 @@ public class DelegatingLiveDataSnapshotProvider extends UniqueIdentifierSchemeDe
   }
 
   @Override
-  public void registerDelegate(final String scheme, final LiveDataSnapshotProvider delegate) {
-    super.registerDelegate(scheme, delegate);
+  public boolean registerDelegate(final String scheme, final LiveDataSnapshotProvider delegate) {
+    if (!super.registerDelegate(scheme, delegate)) {
+      return false;
+    }
     delegate.addListener(getSnapshotListener());
+    return true;
   }
 
   private LiveDataSnapshotProvider chooseDelegate(final ValueRequirement valueRequirement) {

@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.fudgemsg.FudgeFieldContainer;
@@ -15,7 +14,6 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
@@ -62,6 +60,7 @@ public class CalculationJobResultItem {
   }
 
   public void setResults(Set<ComputedValue> results) {
+    ArgumentChecker.notNull(results, "Results");
     _results = results;
   }
   
