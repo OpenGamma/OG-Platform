@@ -43,6 +43,11 @@ public class FixedAnnuity implements Annuity {
   // _curveName = yieldCurveName;
   // }
 
+  /**
+   * @Param paymentTimes time in years from now where payments are made 
+   * @param paymentAmounts actual cash amounts paid on paymentTimes time
+   * @param yieldCurveName name of curve to take discount factors off 
+   */
   public FixedAnnuity(final double[] paymentTimes, final double[] paymentAmounts, final String yieldCurveName) {
     Validate.notNull(paymentTimes);
     ArgumentChecker.notEmpty(paymentTimes, "payment times");
@@ -57,6 +62,37 @@ public class FixedAnnuity implements Annuity {
     _curveName = yieldCurveName;
   }
 
+  /**
+   * 
+   * @param paymentTimes time in years from now where payments are made 
+   * @param paymentAmounts  actual cash amounts paid on paymentTimes time
+   * @param yearFractions year fractions between payments - <b>note</b> this has no effect on the  paymentAmounts 
+   * @param yieldCurveName name of curve to take discount factors off 
+   */
+  public FixedAnnuity(final double[] paymentTimes, final double[] paymentAmounts, final double[] yearFractions, final String yieldCurveName) {
+    Validate.notNull(paymentTimes);
+    ArgumentChecker.notEmpty(paymentTimes, "payment times");
+    Validate.notNull(paymentAmounts);
+    ArgumentChecker.notEmpty(paymentAmounts, "payment amounts");
+    Validate.notNull(yieldCurveName);
+    Validate.notNull(yearFractions);
+    ArgumentChecker.notEmpty(yearFractions, "year fraction");
+    _n = paymentTimes.length;
+    Validate.isTrue(paymentAmounts.length == _n);
+    Validate.isTrue(yearFractions.length == _n);
+    _paymentTimes = paymentTimes;
+    _paymentAmounts = paymentAmounts;
+    _yearFractions = yearFractions;
+    _curveName = yieldCurveName;
+  }
+
+  /**
+   * 
+   * @param paymentTimes paymentTimes time in years from now where payments are made 
+   * @param notional amount that actual cash payments are calculated off 
+   * @param couponRate the fixed rate of the payment - actual cash amounts paid at PaymentTimes is notional*couponRate*yearFraction - where yearFraction is the ACT/ACT time between paymentTimes 
+   * @param yieldCurveName  name of curve to take discount factors off 
+   */
   public FixedAnnuity(final double[] paymentTimes, final double notional, final double couponRate, final String yieldCurveName) {
     Validate.notNull(paymentTimes);
     ArgumentChecker.notEmpty(paymentTimes, "payment times");
@@ -73,6 +109,13 @@ public class FixedAnnuity implements Annuity {
     _curveName = yieldCurveName;
   }
 
+  /**
+   * 
+   * @param paymentTimes paymentTimes paymentTimes time in years from now where payments are made 
+   * @param notional amount that actual cash payments are calculated off 
+   * @param coupons  the fixed rate of the payment - actual cash amounts paid at PaymentTimes is notional*coupon*yearFraction - where yearFraction is the ACT/ACT time between paymentTimes 
+   * @param yieldCurveName name of curve to take discount factors off 
+   */
   public FixedAnnuity(final double[] paymentTimes, final double notional, final double[] coupons, final String yieldCurveName) {
     Validate.notNull(paymentTimes);
     ArgumentChecker.notEmpty(paymentTimes, "payment times");
@@ -90,6 +133,14 @@ public class FixedAnnuity implements Annuity {
     _curveName = yieldCurveName;
   }
 
+  /**
+   * 
+   * @param paymentTimes paymentTimes paymentTimes time in years from now where payments are made 
+   * @param notional amount that actual cash payments are calculated off 
+   * @param couponRate the fixed rate of the payment - actual cash amounts paid at PaymentTimes is notional*couponRate*yearFraction
+   * @param yearFractions year fractions between payments 
+   * @param yieldCurveName name of curve to take discount factors off 
+   */
   public FixedAnnuity(final double[] paymentTimes, final double notional, final double couponRate, final double[] yearFractions, final String yieldCurveName) {
     Validate.notNull(paymentTimes);
     ArgumentChecker.notEmpty(paymentTimes, "payment times");
@@ -108,6 +159,14 @@ public class FixedAnnuity implements Annuity {
     _curveName = yieldCurveName;
   }
 
+  /**
+   * 
+   * @param paymentTimes paymentTimes paymentTimes paymentTimes time in years from now where payments are made 
+   * @param notional amount that actual cash payments are calculated off 
+   * @param coupons the fixed rate of the payment - actual cash amounts paid at PaymentTimes is notional*coupon*yearFraction
+   * @param yearFractions year fractions between payments 
+   * @param yieldCurveName name of curve to take discount factors off 
+   */
   public FixedAnnuity(final double[] paymentTimes, final double notional, final double[] coupons, final double[] yearFractions, final String yieldCurveName) {
     Validate.notNull(paymentTimes);
     ArgumentChecker.notEmpty(paymentTimes, "payment times");

@@ -11,7 +11,9 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
  * 
  */
 @SuppressWarnings("unchecked")
-public class CombinedInterpolatorExtrapolatorFactory {
+public final class CombinedInterpolatorExtrapolatorFactory {
+  private CombinedInterpolatorExtrapolatorFactory() {
+  }
 
   public static CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> getInterpolator(final String interpolatorName) {
     final Interpolator1D interpolator = Interpolator1DFactory.getInterpolator(interpolatorName);
