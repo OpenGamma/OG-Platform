@@ -30,7 +30,7 @@ import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.cache.MapViewComputationCache;
+import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calcnode.AbstractCalculationNodeTest;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
@@ -504,7 +504,7 @@ public class BatchResultWriterTest extends HibernateTest {
   }
   
   private void putValue(ComputedValue value) {
-    MapViewComputationCache cache = (MapViewComputationCache) _calcNode.getCache(_calcJob.getSpecification());
+    ViewComputationCache cache = _calcNode.getCache(_calcJob.getSpecification());
     cache.putValue(value);
   }
   
