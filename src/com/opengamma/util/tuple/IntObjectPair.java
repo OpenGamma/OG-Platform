@@ -25,6 +25,17 @@ public class IntObjectPair<T> extends Pair<Integer, T> implements Int2ObjectMap.
   public final T second;  // CSIGNORE
 
   /**
+   * Creates a pair inferring the types.
+   * @param <B> the second element type
+   * @param first  the first element, may be null
+   * @param second  the second element, may be null
+   * @return a pair formed from the two parameters, not null
+   */
+  public static <B> IntObjectPair<B> of(final int first, final B second) {
+    return new IntObjectPair<B>(first, second);
+  }
+
+  /**
    * Constructor.
    * @param first  the first element
    * @param second  the second element
