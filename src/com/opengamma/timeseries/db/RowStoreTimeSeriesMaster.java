@@ -5,10 +5,11 @@
  */
 package com.opengamma.timeseries.db;
 
+import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.DEACTIVATE_META_DATA;
 import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.DELETE_DATA_POINT;
 import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.DELETE_TIME_SERIES_BY_ID;
 import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.FIND_DATA_POINT_BY_DATE_AND_ID;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.*;
+import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.GET_ACTIVE_META_DATA_BY_OID;
 import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.GET_ACTIVE_META_DATA_BY_PARAMETERS;
 import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.GET_TIME_SERIES_BY_ID;
 import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.GET_TIME_SERIES_KEY;
@@ -30,7 +31,9 @@ import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.INVALID_KEY;
 import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.LOAD_ALL_DATA_FIELDS;
 import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.LOAD_ALL_DATA_PROVIDER;
 import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.LOAD_ALL_DATA_SOURCES;
+import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.LOAD_ALL_IDENTIFIERS;
 import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.LOAD_ALL_OBSERVATION_TIMES;
+import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.LOAD_ALL_SCHEME;
 import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.LOAD_TIME_SERIES_DELTA;
 import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.LOAD_TIME_SERIES_WITH_DATES;
 import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.MILLIS_IN_DAY;
@@ -43,8 +46,6 @@ import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.SELECT_QUOTED_O
 import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.SELECT_QUOTED_OBJECT_ID;
 import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.SQL_MAP_KEYS;
 import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.UPDATE_TIME_SERIES;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import java.sql.Date;
 import java.sql.ResultSet;
@@ -155,11 +156,17 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
         new Object[]{domainIdentifiers, dataSource, dataProvider, field, observationTime, timeSeries.getEarliestTime(), timeSeries.getLatestTime()});
     
     Identifier identifier = domainIdentifiers.getIdentifiers().iterator().next();
-    String quotedObjectName = identifier.getScheme().getName() + "_" + identifier.getValue();
-    long quotedObjId = getOrCreateIdentifierBundle(quotedObjectName, quotedObjectName, domainIdentifiers);
+    String bundleName = identifier.getScheme().getName() + "_" + identifier.getValue();
+    long bundleObjId = getOrCreateIdentifierBundle(bundleName, bundleName, domainIdentifiers);
     
-    long tsKey = getOrCreateTimeSeriesKey(quotedObjId, dataSource, dataProvider, field, observationTime);
+    long tsKey = getOrCreateTimeSeriesKey(bundleObjId, dataSource, dataProvider, field, observationTime);
     
+    insertDataPoints(sqlDateDoubleTimeSeries, tsKey);
+    
+    return UniqueIdentifier.of(IDENTIFIER_SCHEME_DEFAULT, String.valueOf(tsKey));
+  }
+
+  private void insertDataPoints(DoubleTimeSeries<Date> sqlDateDoubleTimeSeries, long tsKey) {
     String insertSQL = _namedSQLMap.get(INSERT_TIME_SERIES);
     String insertDelta = _namedSQLMap.get(INSERT_TIME_SERIES_DELTA_I);
     
@@ -183,8 +190,6 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
       _simpleJdbcTemplate.batchUpdate(insertDelta, batchArgs);
     } 
     _simpleJdbcTemplate.batchUpdate(insertSQL, batchArgs);
-    
-    return UniqueIdentifier.of(IDENTIFIER_SCHEME_DEFAULT, String.valueOf(tsKey));
   }
 
   private long getOrCreateTimeSeriesKey(long quotedObjId, String dataSource, String dataProvider, String field, String observationTime) {
@@ -785,13 +790,10 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     ArgumentChecker.isTrue(!StringUtils.isBlank(document.getObservationTime()), "cannot add timeseries with blank observationTime");
     ArgumentChecker.isTrue(!StringUtils.isBlank(document.getDataProvider()), "cannot add timeseries with blank dataProvider");
   }
-
-  @Override
-  public TimeSeriesDocument get(UniqueIdentifier uid) {
-    Long tsId = validateAndGetTimeSeriesId(uid);
+  
+  private TimeSeriesMetaData getTimeSeriesMetaData(long tsId) {
     
-    TimeSeriesDocument result = new TimeSeriesDocument();
-    result.setUniqueIdentifier(uid);
+    TimeSeriesMetaData result = new TimeSeriesMetaData();
     
     final Set<Identifier> identifiers = new HashSet<Identifier>();
     final Set<String> dataSourceSet = new HashSet<String>();
@@ -819,7 +821,8 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     });
     
     if (tsKeySet.isEmpty()) {
-      throw new DataNotFoundException(uid + " cannot be found");
+      s_logger.debug("TimeSeries not found id: {}", tsId);
+      throw new DataNotFoundException("TimeSeries not found id: " + tsId);
     }
     
     IdentifierBundle identifierBundle = new IdentifierBundle(identifiers);
@@ -834,7 +837,26 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     assert (observationTimeSet.size() == 1);
     result.setObservationTime(observationTimeSet.iterator().next());
     assert (tsKeySet.size() == 1);
-    DoubleTimeSeries<Date> timeSeries = loadTimeSeries(tsKeySet.iterator().next(), null, null);
+    
+    return result;
+    
+  }
+
+  @Override
+  public TimeSeriesDocument get(UniqueIdentifier uid) {
+    Long tsId = validateAndGetTimeSeriesId(uid);
+    
+    TimeSeriesDocument result = new TimeSeriesDocument();
+    result.setUniqueIdentifier(uid);
+    
+    TimeSeriesMetaData metaData = getTimeSeriesMetaData(tsId);
+    
+    result.setIdentifiers(metaData.getIdentifiers());
+    result.setDataField(metaData.getDataField());
+    result.setDataProvider(metaData.getDataProvider());
+    result.setDataSource(metaData.getDataSource());
+    result.setObservationTime(metaData.getObservationTime());
+    DoubleTimeSeries<Date> timeSeries = loadTimeSeries(tsId, null, null);
     result.setTimeSeries(timeSeries.toLocalDateDoubleTimeSeries());
     
     return result;
@@ -1039,8 +1061,28 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
   @Override
   public TimeSeriesDocument update(TimeSeriesDocument document) {
     validateTimeSeriesDocument(document);
-    ArgumentChecker.notNull(document.getUniqueIdentifier(), "TimeSeries UID");
-    return null;
+    Long tsId = validateAndGetTimeSeriesId(document.getUniqueIdentifier());
+    
+    TimeSeriesMetaData metaData = getTimeSeriesMetaData(tsId);
+    if (!metaData.getDataField().equals(document.getDataField())) {
+      throw new OpenGammaRuntimeException("Cannot modify datafield for id: " + tsId);
+    }
+    if (!metaData.getDataProvider().equals(document.getDataProvider())) {
+      throw new OpenGammaRuntimeException("Cannot modify dataProvider for id: " + tsId);
+    }
+    if (!metaData.getDataSource().equals(document.getDataSource())) {
+      throw new OpenGammaRuntimeException("Cannot modify dataSource for id: " + tsId);
+    }
+    if (!metaData.getObservationTime().equals(document.getObservationTime())) {
+      throw new OpenGammaRuntimeException("Cannot modify ObservationTime for id: " + tsId);
+    }
+    if (!metaData.getIdentifiers().equals(document.getIdentifiers())) {
+      throw new OpenGammaRuntimeException("Cannot modify Identifiers for id: " + tsId);
+    }
+    
+    deleteDataPoints(tsId);
+    insertDataPoints(document.getTimeSeries().toSQLDateDoubleTimeSeries(), tsId);
+    return document;
   }
   
   public UniqueIdentifier resolveIdentifier(IdentifierBundle identifiers, String dataSource, String dataProvider, String field) {
