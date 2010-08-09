@@ -8,13 +8,15 @@ package com.opengamma.financial.batch.db;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 /**
  * 
  */
 public class ComputeFailure {
   
-  private long _id;
+  private long _id = -1;
   private String _functionId;
   private String _exceptionClass;
   private String _exceptionMsg;
@@ -49,7 +51,7 @@ public class ComputeFailure {
   }
   
   public void setExceptionMsg(String exceptionMsg) {
-    _exceptionMsg = exceptionMsg.substring(0, 255);
+    _exceptionMsg = exceptionMsg;
   }
   
   public String getStackTrace() {
@@ -57,15 +59,7 @@ public class ComputeFailure {
   }
   
   public void setStackTrace(String stackTrace) {
-    _stackTrace = stackTrace.substring(0, Math.min(stackTrace.length(), 2000));
-  }
-  
-  public void setStackTrace(StackTraceElement[] stackTrace) {
-    StringBuffer buffer = new StringBuffer();
-    for (StackTraceElement element : stackTrace) {
-      buffer.append(element.toString() + "\n");
-    }
-    setStackTrace(buffer.toString());
+    _stackTrace = stackTrace;
   }
   
   @Override
@@ -83,4 +77,35 @@ public class ComputeFailure {
     return ToStringBuilder.reflectionToString(this);
   }
   
+  public SqlParameterSource toSqlParameterSource() {
+    MapSqlParameterSource source = new MapSqlParameterSource();
+    source.addValue("id", getId());
+    source.addValue("function_id", getFunctionId());
+    source.addValue("exception_class", getExceptionClass());
+    source.addValue("exception_msg", getExceptionMsg());
+    source.addValue("stack_trace", getStackTrace());
+    return source;
+  }
+
+  
+  public static String sqlInsert() {
+    return "INSERT INTO rsk_compute_failure " +
+              "(id, function_id, exception_class, exception_msg, stack_trace)" +
+            "VALUES " +
+              "(:id, :function_id, :exception_class, :exception_msg, :stack_trace)";
+  }
+  
+  public static String sqlGet() {
+    return "SELECT id FROM rsk_compute_failure WHERE " +
+      "id = :id AND " +
+      "function_id = :functionId AND " +
+      "exception_class = :exception_class AND " + 
+      "exception_msg = :exception_msg AND " +
+      "stack_trace = :stack_trace";
+  }
+  
+  public static String sqlCount() {
+    return "SELECT COUNT(*) FROM rsk_compute_failure";
+  }
+
 }

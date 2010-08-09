@@ -12,52 +12,42 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 /**
  * 
  */
-public class RiskComputeFailure {
+public class ComputeFailureKey {
   
-  private long _id;
-  private String _functionId;
-  private String _functionName;
-  private String _exceptionClass;
-  private String _stackTrace;
+  private final String _functionId;
+  private final String _exceptionClass;
+  private final String _exceptionMsg;
+  private final String _stackTrace;
   
-  public long getId() {
-    return _id;
-  }
-  
-  public void setId(long id) {
-    _id = id;
+  public ComputeFailureKey(String functionId,
+      String exceptionClass,
+      String exceptionMsg,
+      StackTraceElement[] stackTrace) {
+    _functionId = functionId;
+    _exceptionClass = exceptionClass;
+    _exceptionMsg = exceptionMsg.substring(0, Math.min(exceptionMsg.length(), 255));
+    
+    StringBuffer buffer = new StringBuffer();
+    for (StackTraceElement element : stackTrace) {
+      buffer.append(element.toString() + "\n");
+    }
+    _stackTrace = buffer.substring(0, Math.min(buffer.length(), 2000));
   }
   
   public String getFunctionId() {
     return _functionId;
   }
   
-  public void setFunctionId(String functionId) {
-    _functionId = functionId;
-  }
-  
-  public String getFunctionName() {
-    return _functionName;
-  }
-  
-  public void setFunctionName(String functionName) {
-    _functionName = functionName;
-  }
-  
   public String getExceptionClass() {
     return _exceptionClass;
   }
   
-  public void setExceptionClass(String exceptionClass) {
-    _exceptionClass = exceptionClass;
+  public String getExceptionMsg() {
+    return _exceptionMsg;
   }
   
   public String getStackTrace() {
     return _stackTrace;
-  }
-  
-  public void setStackTrace(String stackTrace) {
-    _stackTrace = stackTrace;
   }
   
   @Override
@@ -75,5 +65,4 @@ public class RiskComputeFailure {
     return ToStringBuilder.reflectionToString(this);
   }
   
-
 }

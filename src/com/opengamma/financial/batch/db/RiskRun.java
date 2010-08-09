@@ -159,6 +159,10 @@ public class RiskRun {
     }
     return null;
   }
+  
+  public void addCalculationConfiguration(CalculationConfiguration calcConf) {
+    _calculationConfigurations.add(calcConf);
+  }
 
   public boolean isComplete() {
     return _complete;

@@ -7,7 +7,7 @@ package com.opengamma.financial.user.rest;
 
 import org.fudgemsg.FudgeContext;
 
-import com.opengamma.engine.position.DelegatingPositionSource;
+import com.opengamma.financial.position.master.PositionMaster;
 
 /**
  * Context/configuration for the objects to pass around.
@@ -15,19 +15,19 @@ import com.opengamma.engine.position.DelegatingPositionSource;
 public class UsersResourceContext {
 
   private FudgeContext _fudgeContext;
-  private DelegatingPositionSource _delegatingPositionSource;
+  private PositionMaster _userPositionMaster;
 
   // [FIN-124] The user SecuritySource is done wrongly throughout
 
   public UsersResourceContext() {
   }
-
-  public void setDelegatingPositionSource(final DelegatingPositionSource delegatingPositionSource) {
-    _delegatingPositionSource = delegatingPositionSource;
+  
+  public void setUserPositionMaster(PositionMaster positionMaster) {
+    _userPositionMaster = positionMaster;
   }
-
-  public DelegatingPositionSource getDelegatingPositionSource() {
-    return _delegatingPositionSource;
+  
+  public PositionMaster getPositionMaster() {
+    return _userPositionMaster;
   }
 
   public void setFudgeContext(final FudgeContext fudgeContext) {
