@@ -1,0 +1,38 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.financial.security {
+
+  /**
+   * Request for searching for securities.
+   */
+  message SecuritySearchRequest {
+  
+    /**
+     * The request for paging. If omitted all matching items will be returned.
+     */
+    optional util.db.PagingRequest pagingRequest;
+    
+    /**
+     * The name, wildcards allowed, omit to not match on name.
+     */
+    optional string name;
+
+    /**
+     * The security type, omit to not match on security type.
+     */
+    optional string securityType;
+
+    /**
+     * The identifiers to search for, omit to not match on identifiers.
+     */
+    optional id.IdentifierBundle identifiers;
+  
+  }
+  
+}
+
+extern message com.opengamma.util.db.PagingRequest;

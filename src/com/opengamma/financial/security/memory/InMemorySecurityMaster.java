@@ -11,8 +11,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.time.Instant;
 
-import org.apache.commons.lang.Validate;
-
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Collections2;
@@ -27,6 +25,7 @@ import com.opengamma.financial.security.SecuritySearchResult;
 import com.opengamma.id.UniqueIdentifiables;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.Paging;
 
 /**
@@ -65,14 +64,14 @@ public class InMemorySecurityMaster implements SecurityMaster {
    * @param uidSupplier  the supplier of unique identifiers, not null
    */
   public InMemorySecurityMaster(final Supplier<UniqueIdentifier> uidSupplier) {
-    Validate.notNull(uidSupplier, "uidSupplier");
+    ArgumentChecker.notNull(uidSupplier, "uidSupplier");
     _uidSupplier = uidSupplier;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public SecuritySearchResult search(final SecuritySearchRequest request) {
-    Validate.notNull(request, "request");
+    ArgumentChecker.notNull(request, "request");
     final SecuritySearchResult result = new SecuritySearchResult();
     Collection<SecurityDocument> docs = _securities.values();
     if (request.getIdentifiers() != null) {
@@ -99,7 +98,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
         }
       });
     }
-    result.getDocuments().addAll(docs);
+    result.setDocument(docs);
     result.setPaging(Paging.of(docs));
     return result;
   }
@@ -107,24 +106,29 @@ public class InMemorySecurityMaster implements SecurityMaster {
   //-------------------------------------------------------------------------
   @Override
   public SecurityDocument get(final UniqueIdentifier uid) {
-    Validate.notNull(uid, "uid");
-    return _securities.get(uid);
+    ArgumentChecker.notNull(uid, "uid");
+    final SecurityDocument document = _securities.get(uid);
+    if (document == null) {
+      throw new DataNotFoundException("Security not found: " + uid);
+    }
+    return document;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public SecurityDocument add(final SecurityDocument document) {
-    Validate.notNull(document, "document");
-    Validate.notNull(document.getSecurity(), "document.security");
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getSecurity(), "document.security");
     
     final Security security = document.getSecurity();
     final UniqueIdentifier uid = _uidSupplier.get();
     final Instant now = Instant.nowSystemClock();
     UniqueIdentifiables.setInto(security, uid);
-    final SecurityDocument doc = new SecurityDocument(security);
+    final SecurityDocument doc = new SecurityDocument();
+    doc.setSecurity(security);
     doc.setUniqueIdentifier(uid);
-    doc.setValidFromInstant(now);
-    doc.setLastModifiedInstant(now);
+    doc.setValidFrom(now);
+    doc.setLastModified(now);
     _securities.put(uid, doc);  // unique identifier should be unique
     return doc;
   }
@@ -132,9 +136,9 @@ public class InMemorySecurityMaster implements SecurityMaster {
   //-------------------------------------------------------------------------
   @Override
   public SecurityDocument update(final SecurityDocument document) {
-    Validate.notNull(document, "document");
-    Validate.notNull(document.getSecurity(), "document.security");
-    Validate.notNull(document.getUniqueIdentifier(), "document.uniqueIdentifier");
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getSecurity(), "document.security");
+    ArgumentChecker.notNull(document.getUniqueIdentifier(), "document.uniqueIdentifier");
     
     final UniqueIdentifier uid = document.getUniqueIdentifier();
     final Instant now = Instant.nowSystemClock();
@@ -142,9 +146,9 @@ public class InMemorySecurityMaster implements SecurityMaster {
     if (storedDocument == null) {
       throw new DataNotFoundException("Security not found: " + uid);
     }
-    document.setValidFromInstant(storedDocument.getValidFromInstant());
-    document.setValidToInstant(storedDocument.getValidToInstant());
-    document.setLastModifiedInstant(now);
+    document.setValidFrom(storedDocument.getValidFrom());
+    document.setValidTo(storedDocument.getValidTo());
+    document.setLastModified(now);
     if (_securities.replace(uid, storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
@@ -154,7 +158,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
   //-------------------------------------------------------------------------
   @Override
   public void remove(final UniqueIdentifier uid) {
-    Validate.notNull(uid, "uid");
+    ArgumentChecker.notNull(uid, "uid");
     
     if (_securities.remove(uid) == null) {
       throw new DataNotFoundException("Security not found: " + uid);
@@ -164,15 +168,15 @@ public class InMemorySecurityMaster implements SecurityMaster {
   //-------------------------------------------------------------------------
   @Override
   public SecuritySearchHistoricResult searchHistoric(final SecuritySearchHistoricRequest request) {
-    Validate.notNull(request, "request");
-    Validate.notNull(request.getObjectIdentifier(), "request.objectIdentifier");
+    ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getObjectIdentifier(), "request.objectIdentifier");
     
     final SecuritySearchHistoricResult result = new SecuritySearchHistoricResult();
     final SecurityDocument doc = get(request.getObjectIdentifier());
     if (doc != null) {
-      result.getDocuments().add(doc);
+      result.setDocument(doc);
     }
-    result.setPaging(Paging.of(result.getDocuments()));
+    result.setPaging(Paging.of(result.getDocument()));
     return result;
   }
 

@@ -5,14 +5,16 @@
  */
 package com.opengamma.financial.security;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
-import org.apache.commons.lang.Validate;
-
+import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A {@code SecuritySource} implemented using an underlying {@code SecurityMaster}.
@@ -20,41 +22,47 @@ import com.opengamma.id.UniqueIdentifier;
  * The {@link SecuritySource} interface provides securities to the engine via a narrow API.
  * This class provides the source on top of a standard {@link SecurityMaster}.
  */
-public class MasterSecuritySource implements SecuritySource {
-
-  /**
-   * The security master.
-   */
-  private final SecurityMaster _securityMaster;
+public class MasterSecuritySource extends SecurityMasterAdapter implements SecuritySource {
 
   /**
    * Creates an instance with an underlying security master.
    * @param securityMaster  the security master, not null
    */
   public MasterSecuritySource(final SecurityMaster securityMaster) {
-    Validate.notNull(securityMaster, "securityMaster");
-    _securityMaster = securityMaster;
+    super(securityMaster);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public Security getSecurity(final UniqueIdentifier uid) {
-    Validate.notNull(uid, "uid");
-    final SecurityDocument doc = _securityMaster.get(uid);
-    return doc != null ? doc.getSecurity() : null;
+    ArgumentChecker.notNull(uid, "uid");
+    try {
+      final SecurityDocument doc = get(uid);
+      return doc.getSecurity();
+    } catch (DataNotFoundException e) {
+      return null;
+    }
   }
 
   @Override
   public Collection<Security> getSecurities(final IdentifierBundle securityKey) {
-    Validate.notNull(securityKey, "securityKey");
+    ArgumentChecker.notNull(securityKey, "securityKey");
     final SecuritySearchRequest req = new SecuritySearchRequest();
     req.setIdentifiers(securityKey);
-    return _securityMaster.search(req).getSecurities();
+    final Collection<SecurityDocument> documents = search(req).getDocument();
+    if (documents == null) {
+      return Collections.emptyList();
+    }
+    final Collection<Security> result = new ArrayList<Security>(documents.size());
+    for (SecurityDocument document : documents) {
+      result.add(document.getSecurity());
+    }
+    return result;
   }
 
   @Override
   public Security getSecurity(final IdentifierBundle securityKey) {
-    Validate.notNull(securityKey, "securityKey");
+    ArgumentChecker.notNull(securityKey, "securityKey");
     final Collection<Security> securities = getSecurities(securityKey);
     return securities.isEmpty() ? null : securities.iterator().next();
   }

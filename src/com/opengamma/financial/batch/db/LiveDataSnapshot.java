@@ -24,8 +24,8 @@ public class LiveDataSnapshot {
   private int _id;
   private ObservationDateTime _snapshotTime;
   private Set<LiveDataSnapshotEntry> _snapshotEntries = new HashSet<LiveDataSnapshotEntry>();
-  private Map<ComputationTargetSpecification, Map<String, LiveDataSnapshotEntry>> _ct2FieldName2Entry = 
-    new HashMap<ComputationTargetSpecification, Map<String, LiveDataSnapshotEntry>>();
+  private Map<ComputationTargetSpecification, Map<String, LiveDataSnapshotEntry>> _ct2FieldName2Entry; 
+    
   private boolean _complete;
   
   public int getId() {
@@ -50,18 +50,19 @@ public class LiveDataSnapshot {
   
   public void setSnapshotEntries(Set<LiveDataSnapshotEntry> snapshotEntries) {
     _snapshotEntries = snapshotEntries;
-    _ct2FieldName2Entry.clear();
-    for (LiveDataSnapshotEntry entry : snapshotEntries) {
-      buildIndex(entry);
-    }
+    _ct2FieldName2Entry = null;
   }
   
   public void addEntry(LiveDataSnapshotEntry entry) {
-    buildIndex(entry);
     _snapshotEntries.add(entry);
+    buildIndex(entry);
   }
 
   private void buildIndex(LiveDataSnapshotEntry entry) {
+    if (_ct2FieldName2Entry == null) {
+      _ct2FieldName2Entry = new HashMap<ComputationTargetSpecification, Map<String, LiveDataSnapshotEntry>>();
+    }
+
     Map<String, LiveDataSnapshotEntry> fieldName2Entry = _ct2FieldName2Entry.get(entry.getComputationTarget().toSpec());
     if (fieldName2Entry == null) {
       fieldName2Entry = new HashMap<String, LiveDataSnapshotEntry>();
@@ -76,6 +77,13 @@ public class LiveDataSnapshot {
   }
   
   public LiveDataSnapshotEntry getEntry(ComputationTargetSpecification computationTargetSpec, String fieldName) {
+    if (_ct2FieldName2Entry == null) {
+      _ct2FieldName2Entry = new HashMap<ComputationTargetSpecification, Map<String, LiveDataSnapshotEntry>>();
+      for (LiveDataSnapshotEntry entry : getSnapshotEntries()) {
+        buildIndex(entry);
+      }
+    }
+
     Map<String, LiveDataSnapshotEntry> fieldName2Entry = _ct2FieldName2Entry.get(computationTargetSpec);
     if (fieldName2Entry == null) {
       return null;

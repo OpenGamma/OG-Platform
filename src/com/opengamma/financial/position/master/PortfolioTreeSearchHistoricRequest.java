@@ -88,9 +88,9 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
   private Instant _correctionsToInstant;
   /**
    * The depth of nodes to return.
-   * A value of zero returns no nodes, one returns the root node, two returns the
-   * root node and immediate children, and so on.
+   * A value of zero returns the root node, one returns the root node with immediate children, and so on.
    * By default this is zero to save space in the response.
+   * A negative value, such as -1, returns the full tree.
    */
   @PropertyDefinition
   private int _depth;
@@ -105,29 +105,29 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
   /**
    * Creates an instance.
    * With no further customization this will retrieve all versions and corrections.
-   * @param uid  the object identifier
+   * @param oid  the object identifier
    */
-  public PortfolioTreeSearchHistoricRequest(final UniqueIdentifier uid) {
-    this(uid, null, null);
+  public PortfolioTreeSearchHistoricRequest(final UniqueIdentifier oid) {
+    this(oid, null, null);
   }
 
   /**
    * Creates an instance.
-   * @param uid  the object identifier
+   * @param oid  the object identifier
    * @param versionInstantProvider  the version instant to retrieve, null for latest version
    */
-  public PortfolioTreeSearchHistoricRequest(final UniqueIdentifier uid, InstantProvider versionInstantProvider) {
-    this(uid, versionInstantProvider, null);
+  public PortfolioTreeSearchHistoricRequest(final UniqueIdentifier oid, InstantProvider versionInstantProvider) {
+    this(oid, versionInstantProvider, null);
   }
 
   /**
    * Creates an instance.
-   * @param uid  the object identifier
+   * @param oid  the object identifier
    * @param versionInstantProvider  the version instant to retrieve, null for latest version
    * @param correctedToInstantProvider  the instant that the data should be corrected to, null for latest correction
    */
-  public PortfolioTreeSearchHistoricRequest(final UniqueIdentifier uid, InstantProvider versionInstantProvider, InstantProvider correctedToInstantProvider) {
-    setPortfolioId(uid);
+  public PortfolioTreeSearchHistoricRequest(final UniqueIdentifier oid, InstantProvider versionInstantProvider, InstantProvider correctedToInstantProvider) {
+    setPortfolioId(oid);
     if (versionInstantProvider != null) {
       final Instant versionInstant = Instant.of(versionInstantProvider);
       setVersionsFromInstant(versionInstant);
@@ -380,9 +380,9 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the depth of nodes to return.
-   * A value of zero returns no nodes, one returns the root node, two returns the
-   * root node and immediate children, and so on.
+   * A value of zero returns the root node, one returns the root node with immediate children, and so on.
    * By default this is zero to save space in the response.
+   * A negative value, such as -1, returns the full tree.
    * @return the value of the property
    */
   public int getDepth() {
@@ -391,9 +391,9 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
 
   /**
    * Sets the depth of nodes to return.
-   * A value of zero returns no nodes, one returns the root node, two returns the
-   * root node and immediate children, and so on.
+   * A value of zero returns the root node, one returns the root node with immediate children, and so on.
    * By default this is zero to save space in the response.
+   * A negative value, such as -1, returns the full tree.
    * @param depth  the new value of the property
    */
   public void setDepth(int depth) {
@@ -402,9 +402,9 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
 
   /**
    * Gets the the {@code depth} property.
-   * A value of zero returns no nodes, one returns the root node, two returns the
-   * root node and immediate children, and so on.
+   * A value of zero returns the root node, one returns the root node with immediate children, and so on.
    * By default this is zero to save space in the response.
+   * A negative value, such as -1, returns the full tree.
    * @return the property, not null
    */
   public final Property<Integer> depth() {

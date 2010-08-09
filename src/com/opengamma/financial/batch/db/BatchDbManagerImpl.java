@@ -5,15 +5,11 @@
  */
 package com.opengamma.financial.batch.db;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -21,7 +17,6 @@ import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 
-import org.fudgemsg.FudgeMsg;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -29,22 +24,24 @@ import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
-import com.opengamma.engine.view.ViewCalculationResultModel;
-import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.calcnode.CalculationJobItem;
+import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
+import com.opengamma.engine.view.calcnode.ResultWriter;
+import com.opengamma.engine.view.calcnode.ResultWriterFactory;
 import com.opengamma.financial.batch.BatchDbManager;
 import com.opengamma.financial.batch.BatchJob;
 import com.opengamma.financial.batch.LiveDataValue;
 import com.opengamma.financial.batch.SnapshotId;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.InetAddressUtils;
+import com.opengamma.util.test.DBTool;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -56,6 +53,12 @@ public class BatchDbManagerImpl implements BatchDbManager {
   
   private static final Logger s_logger = LoggerFactory
     .getLogger(BatchDbManagerImpl.class);
+  
+  private String _jdbcUrl;
+  private String _username;
+  private String _password;
+  
+  private DataSourceTransactionManager _transactionManager;
   
   /**
    * The template for Hibernate operations.
@@ -69,18 +72,58 @@ public class BatchDbManagerImpl implements BatchDbManager {
   
   // --------------------------------------------------------------------------
   
+  
+  public String getJdbcUrl() {
+    return _jdbcUrl;
+  }
+
+  public void setJdbcUrl(String jdbcUrl) {
+    _jdbcUrl = jdbcUrl;
+  }
+
+  public String getUsername() {
+    return _username;
+  }
+
+  public void setUsername(String username) {
+    _username = username;
+  }
+
+  public String getPassword() {
+    return _password;
+  }
+
+  public void setPassword(String password) {
+    _password = password;
+  }
+  
   public void setSessionFactory(SessionFactory sessionFactory) {
     _hibernateTemplate = new HibernateTemplate(sessionFactory);
     _hibernateTemplate.setAllowCreate(false);
   }
   
   public void setTransactionManager(DataSourceTransactionManager transactionManager) {
+    _transactionManager = transactionManager;
     DataSource dataSource = transactionManager.getDataSource();
     _jdbcTemplate = new SimpleJdbcTemplate(dataSource);
   }
   
+  public DataSourceTransactionManager getTransactionManager() {
+    return _transactionManager;
+  }
+
   public SessionFactory getSessionFactory() {
     return _hibernateTemplate.getSessionFactory();
+  }
+  
+  public void initialize(DBTool tool, SessionFactory factory) {
+    setJdbcUrl(tool.getJdbcUrl());
+    setUsername(tool.getUser());
+    setPassword(tool.getPassword());
+    
+    setSessionFactory(factory);
+    DataSourceTransactionManager jdbcTransactionManager = tool.getTransactionManager();
+    setTransactionManager(jdbcTransactionManager);
   }
   
   // --------------------------------------------------------------------------
@@ -152,17 +195,8 @@ public class BatchDbManagerImpl implements BatchDbManager {
     }
     return dateTime;
   }
- 
   
-  /*package*/ ComputeHost getLocalComputeHost() {
-    String tempHostName;
-    try {
-      tempHostName = InetAddress.getLocalHost().getHostName();
-    } catch (UnknownHostException e) {
-      throw new OpenGammaRuntimeException("Cannot obtain local host name", e);
-    }
-    final String hostName = tempHostName;
-    
+  /*package*/ ComputeHost getComputeHost(final String hostName) {
     ComputeHost computeHost = (ComputeHost) _hibernateTemplate.execute(new HibernateCallback() {
       @Override
       public Object doInHibernate(Session session) throws HibernateException,
@@ -179,11 +213,15 @@ public class BatchDbManagerImpl implements BatchDbManager {
     }
     return computeHost;
   }
+ 
+  /*package*/ ComputeHost getLocalComputeHost() {
+    return getComputeHost(InetAddressUtils.getLocalHostName());
+  }
   
-  /*package*/ ComputeNode getLocalComputeNode() {
-    final ComputeHost host = getLocalComputeHost();
-    
+  /*package*/ ComputeNode getComputeNode(String nodeId) {
     // todo
+    final ComputeHost host = getComputeHost(nodeId);
+    
     ComputeNode node = (ComputeNode) _hibernateTemplate.execute(new HibernateCallback() {
       @Override
       public Object doInHibernate(Session session) throws HibernateException,
@@ -202,6 +240,10 @@ public class BatchDbManagerImpl implements BatchDbManager {
       _hibernateTemplate.save(node);
     }
     return node;
+  }
+  
+  /*package*/ ComputeNode getLocalComputeNode() {
+    return getComputeNode(InetAddressUtils.getLocalHostName());
   }
   
   /*package*/ LiveDataSnapshot getLiveDataSnapshot(final BatchJob job) {
@@ -335,6 +377,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
     riskRun.setLiveDataSnapshot(snapshot);
     riskRun.setCreateInstant(DateUtil.toSqlTimestamp(now));
     riskRun.setStartInstant(DateUtil.toSqlTimestamp(now));
+    riskRun.setNumRestarts(0);
     riskRun.setComplete(false);
     
     for (ViewCalculationConfiguration calcConf : job.getCalculationConfigurations()) {
@@ -350,9 +393,15 @@ public class BatchDbManagerImpl implements BatchDbManager {
     Instant now = Instant.nowSystemClock();
     
     riskRun.setStartInstant(DateUtil.toSqlTimestamp(now));
+    riskRun.setNumRestarts(riskRun.getNumRestarts() + 1);
     riskRun.setComplete(false);
     
     _hibernateTemplate.update(riskRun);
+    
+    // clear risk failures
+    MapSqlParameterSource parameters = new MapSqlParameterSource()
+      .addValue("run_id", riskRun.getId());
+    _jdbcTemplate.update(RiskFailure.sqlDeleteRiskFailures(), parameters);
   }
   
   /*package*/ void endRun(RiskRun riskRun) {
@@ -439,6 +488,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
           changedEntries.add(entry);
         }
       }
+      
       _hibernateTemplate.saveOrUpdateAll(changedEntries);
       
       getSessionFactory().getCurrentSession().getTransaction().commit();
@@ -611,118 +661,81 @@ public class BatchDbManagerImpl implements BatchDbManager {
     private Set<ComputationTarget> _computationTargets;
   }
   
-  /**
-   * Gets the SQL for inserting risk into the database.
-   * @return the SQL, not null
-   */
-  private String sqlInsertRisk() {
-    return "INSERT INTO rsk_value " +
-              "(id, calculation_configuration_id, value_name_id, computation_target_id, run_id, value, " +
-              "eval_instant, compute_node_id) " +
-            "VALUES " +
-              "(:id, :calculation_configuration_id, :value_name_id, :computation_target_id, :run_id, :value," +
-              ":eval_instant, :compute_node_id)";
-  }
-
   @Override
-  public void write(BatchDbRiskContext batchDbRiskContext, ViewComputationResultModel result) {
-    s_logger.info("Writing result {}", result);
+  public ResultWriterFactory createResultWriterFactory(BatchJob batch) {
+    return new BatchResultWriterFactory(batch);
+  }
+  
+  public BatchResultWriter createTestResultWriter(BatchJob batch) {
+    BatchResultWriterFactory factory = new BatchResultWriterFactory(batch);
+    return factory.createTestWriter();    
+  }
+  
+  private class BatchResultWriterFactory implements ResultWriterFactory {
     
-    if (!(batchDbRiskContext instanceof BatchDbRiskContextImpl)) {
-      throw new IllegalArgumentException("BatchDbRiskContext must be of type " + BatchDbRiskContextImpl.class.getName());      
+    private final BatchJob _batch;
+    
+    public BatchResultWriterFactory(BatchJob batch) {
+      ArgumentChecker.notNull(batch, "batch");
+      _batch = batch;
     }
     
-    BatchDbRiskContextImpl dbContext = (BatchDbRiskContextImpl) batchDbRiskContext;
-    dbContext.ensureInitialized();
-    
-    List<SqlParameterSource> batchArgs = new ArrayList<SqlParameterSource>();
-    Date evalInstant = new Date(result.getResultTimestamp().toEpochMillisLong());
-    
-    int riskRunId = dbContext.getRiskRunId();
-    int computeNodeId = dbContext.getComputeNodeId();
-    
-    for (String calcConfName : result.getCalculationConfigurationNames()) {
-      ViewCalculationResultModel resultModel = result.getCalculationResult(calcConfName);
-      int calcConfId = dbContext.getCalculationConfigurationId(calcConfName);
+    private BatchResultWriter initialize() {
+      BatchResultWriter resultWriter =  new BatchResultWriter();
       
-      for (ComputationTargetSpecification spec : resultModel.getAllTargets()) {
-        int computationTargetId = dbContext.getComputationTargetId(spec);
-        
-        Map<String, ComputedValue> values = resultModel.getValues(spec);
-        for (Map.Entry<String, ComputedValue> entry : values.entrySet()) {
-          String key = entry.getKey();
-          ComputedValue value = entry.getValue();
-          if (!(value.getValue() instanceof Double)) {
-            throw new IllegalArgumentException("Can only insert Double values, got " + 
-                value.getValue().getClass() + " for " + calcConfName + "/" + spec + "/" + key);
-          }
-          Double valueAsDouble = (Double) value.getValue();
-          
-          int valueNameId = dbContext.getValueNameId(key);
-          long id = dbContext.generateUniqueId();
-          
-          MapSqlParameterSource args = new MapSqlParameterSource()
-            .addValue("id", id)
-            .addValue("calculation_configuration_id", calcConfId)
-            .addValue("value_name_id", valueNameId)
-            .addValue("computation_target_id", computationTargetId)
-            .addValue("run_id", riskRunId)
-            .addValue("value", valueAsDouble)
-            .addValue("eval_instant", evalInstant)
-            .addValue("compute_node_id", computeNodeId);
-          batchArgs.add(args);
+      resultWriter.setJdbcUrl(_jdbcUrl);
+      resultWriter.setUsername(_username);
+      resultWriter.setPassword(_password);
+      
+      resultWriter.setTransactionManager(getTransactionManager());
+      resultWriter.setSessionFactory(getSessionFactory());
+      
+      resultWriter.setRiskRun(getRiskRunFromHandle(_batch));
+      
+      return resultWriter;
+    }
+    
+    @Override
+    public ResultWriter create(CalculationJobSpecification jobSpec, List<CalculationJobItem> items, String nodeId) {
+      BatchResultWriter resultWriter = initialize();
+      
+      if (nodeId != null) {
+        try {
+          getSessionFactory().getCurrentSession().beginTransaction();
+          resultWriter.setComputeNode(getComputeNode(nodeId));
+          getSessionFactory().getCurrentSession().getTransaction().commit();
+        } catch (RuntimeException e) {
+          getSessionFactory().getCurrentSession().getTransaction().rollback();
+          throw e;
         }
-        
       }
+      
+      // should be optimized
+      resultWriter.setComputationTargets(getDbHandle(_batch)._computationTargets);
+      resultWriter.setRiskValueNames(getDbHandle(_batch)._riskValueNames);
+
+      return resultWriter;
     }
     
-    SqlParameterSource[] batchArgsArray = batchArgs.toArray(new SqlParameterSource[0]);
-    s_logger.info("{}: Inserting {} risk rows into DB", result, batchArgsArray.length);
-    int[] counts = _jdbcTemplate.batchUpdate(sqlInsertRisk(), batchArgsArray);
+    public BatchResultWriter createTestWriter() {
+      BatchResultWriter resultWriter = initialize();
+      
+      try {
+        getSessionFactory().getCurrentSession().beginTransaction();
+        resultWriter.setComputeNode(getLocalComputeNode());
+        getSessionFactory().getCurrentSession().getTransaction().commit();
+      } catch (RuntimeException e) {
+        getSessionFactory().getCurrentSession().getTransaction().rollback();
+        throw e;
+      }
+      
+      resultWriter.setComputationTargets(getDbHandle(_batch)._computationTargets);
+      resultWriter.setRiskValueNames(getDbHandle(_batch)._riskValueNames);
 
-    int totalCount = 0;
-    for (int count : counts) {
-      totalCount += count;
-    }
-    s_logger.info("{}: Inserted {} risk rows into DB", result, totalCount);
-    if (totalCount != batchArgsArray.length) {
-      s_logger.warn("{}: Risk insert count is wrong", result);      
-    }
-  }
-  
-  @Override
-  public BatchDbRiskContext createLocalContext(BatchJob batch) {
-    try {
-      getSessionFactory().getCurrentSession().beginTransaction();
-
-      BatchDbRiskContextImpl context = new BatchDbRiskContextImpl();
-      
-      context.setRiskRun(getRiskRunFromHandle(batch));
-      context.setSessionFactory(_hibernateTemplate.getSessionFactory());
-      context.setComputeNode(getLocalComputeNode());
-      context.setComputationTargets(getDbHandle(batch)._computationTargets);
-      context.setRiskValueNames(getDbHandle(batch)._riskValueNames);
-      
-      context.initialize();
-      
-      getSessionFactory().getCurrentSession().getTransaction().commit();
-      return context;
-    } catch (RuntimeException e) {
-      getSessionFactory().getCurrentSession().getTransaction().rollback();
-      throw e;
+      return resultWriter;
     }
   }
   
-  @Override
-  public FudgeMsg createFudgeContext(BatchJob batch, String remoteComputeNodeOid, int remoteComputeNodeVersion) {
-    throw new UnsupportedOperationException(); // TODO
-  }
-
-  @Override
-  public BatchDbRiskContext deserializeFudgeContext(FudgeMsg msg) {
-    throw new UnsupportedOperationException(); // TODO
-  }
-
   public static Class<?>[] getHibernateMappingClasses() {
     return new Class[] {
       CalculationConfiguration.class,
@@ -734,7 +747,6 @@ public class BatchDbManagerImpl implements BatchDbManager {
       ObservationDateTime.class,
       ObservationTime.class,
       OpenGammaVersion.class,
-      RiskComputeFailure.class,
       RiskRun.class,
       RiskValueName.class,
       ComputationTarget.class,

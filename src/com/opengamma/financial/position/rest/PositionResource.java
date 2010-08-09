@@ -22,9 +22,9 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
-import com.opengamma.financial.position.ManageablePositionMaster;
-import com.opengamma.financial.position.ManagedPosition;
-import com.opengamma.financial.position.UpdatePositionRequest;
+import com.opengamma.financial.position.master.PortfolioTreePosition;
+import com.opengamma.financial.position.master.PositionDocument;
+import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -88,7 +88,7 @@ public class PositionResource {
    * Gets the position master.
    * @return the position master, not null
    */
-  public ManageablePositionMaster getPositionMaster() {
+  public PositionMaster getPositionMaster() {
     return getPositionsResource().getPositionMaster();
   }
 
@@ -103,32 +103,32 @@ public class PositionResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(FudgeRest.MEDIA)
-  public ManagedPosition getAsFudge() {
-    return getPositionMaster().getManagedPosition(_positionUid);
+  public PositionDocument getAsFudge() {
+    return getPositionMaster().getPosition(_positionUid);
   }
 
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getAsHtml() {
-    ManagedPosition position = getPositionMaster().getManagedPosition(_positionUid);
-    if (position == null) {
+    PositionDocument doc = getPositionMaster().getPosition(_positionUid);
+    if (doc == null) {
       return null;
     }
     String html = "<html>" +
-      "<head><title>Position - " + position.getUniqueIdentifier().toLatest() + "</title></head>" +
+      "<head><title>Position - " + doc.getPositionId().toLatest() + "</title></head>" +
       "<body>" +
-      "<h2>Position - " + position.getUniqueIdentifier().toLatest() + "</h2>" +
+      "<h2>Position - " + doc.getPositionId().toLatest() + "</h2>" +
       "<p>" +
-      "Version: " + position.getUniqueIdentifier().getVersion() + "<br />" +
-      "Quantity: " + position.getQuantity() + "<br />" +
-      "Security: " + position.getSecurityKey() + "</p>";
+      "Version: " + doc.getPositionId().getVersion() + "<br />" +
+      "Quantity: " + doc.getPosition().getQuantity() + "<br />" +
+      "Security: " + doc.getPosition().getSecurityKey() + "</p>";
     
-    URI uri = PositionResource.uri(getUriInfo(), getPortfolioUid(), position.getUniqueIdentifier());
-    Identifier identifier = position.getSecurityKey().getIdentifiers().iterator().next();
+    URI uri = PositionResource.uri(getUriInfo(), getPortfolioUid(), doc.getPositionId());
+    Identifier identifier = doc.getPosition().getSecurityKey().getIdentifiers().iterator().next();
     html += "<h2>Update position</h2>\n" +
       "<form method=\"POST\" action=\"" + uri + "\">" +
       "<input type=\"hidden\" name=\"method\" value=\"PUT\" />" +
-      "Quantity: <input type=\"text\" size=\"10\" name=\"quantity\" value=\"" + StringEscapeUtils.escapeHtml(position.getQuantity().toPlainString()) + "\" /><br />" +
+      "Quantity: <input type=\"text\" size=\"10\" name=\"quantity\" value=\"" + StringEscapeUtils.escapeHtml(doc.getPosition().getQuantity().toPlainString()) + "\" /><br />" +
       "Scheme: <input type=\"text\" size=\"30\" name=\"scheme\" value=\"" + StringEscapeUtils.escapeHtml(identifier.getScheme().getName()) + "\" /><br />" +
       "Scheme Id: <input type=\"text\" size=\"30\" name=\"schemevalue\" value=\"" + StringEscapeUtils.escapeHtml(identifier.getValue()) + "\" /><br />" +
       "<input type=\"submit\" value=\"Update\" />" +
@@ -142,8 +142,8 @@ public class PositionResource {
     
     html += "<h2>Links</h2>\n" +
       "<p>" +
-      "<a href=\"" + PortfolioNodeResource.uri(getUriInfo(), position.getPortfolioUid(), position.getParentNodeUid().toLatest()) + "\">Parent node</a><br />" +
-      "<a href=\"" + PortfolioResource.uri(getUriInfo(), position.getPortfolioUid().toLatest()) + "\">Portfolio</a><br />" +
+      "<a href=\"" + PortfolioNodeResource.uri(getUriInfo(), doc.getPortfolioId(), doc.getParentNodeId().toLatest()) + "\">Parent node</a><br />" +
+      "<a href=\"" + PortfolioResource.uri(getUriInfo(), doc.getPortfolioId().toLatest()) + "\">Portfolio</a><br />" +
       "<a href=\"" + PortfoliosResource.uri(getUriInfo()) + "\">Portfolio search</a><br />" +
       "</body>" +
       "</html>";
@@ -157,8 +157,6 @@ public class PositionResource {
     if ("PUT".equals(method)) {
       if ("D".equals(status)) {
         return remove();
-      } else if ("A".equals(status)) {
-        return reinstate();
       } else {
         return update(new BigDecimal(quantity), StringUtils.trim(scheme), StringUtils.trim(schemeValue));
       }
@@ -167,25 +165,19 @@ public class PositionResource {
   }
 
   public Response update(BigDecimal quantity, String scheme, String schemeValue) {
-    UpdatePositionRequest request = new UpdatePositionRequest();
-    request.setUniqueIdentifier(getPositionUid());
-    request.setQuantity(quantity);
-    request.setSecurityKey(new IdentifierBundle(Identifier.of(scheme, schemeValue)));
-    UniqueIdentifier uid = getPositionMaster().updatePosition(request);
-    URI uri = PositionResource.uri(getUriInfo(), getPortfolioUid(), uid.toLatest());
+    PositionDocument doc = getPositionMaster().getPosition(getPositionUid());
+    PortfolioTreePosition position = doc.getPosition();
+    position.setQuantity(quantity);
+    position.setSecurityKey(new IdentifierBundle(Identifier.of(scheme, schemeValue)));
+    doc = getPositionMaster().updatePosition(doc);
+    URI uri = PositionResource.uri(getUriInfo(), getPortfolioUid(), doc.getPositionId().toLatest());
     return Response.seeOther(uri).build();
   }
 
   public Response remove() {
-    ManagedPosition position = getPositionMaster().getManagedPosition(getPositionUid());
+    PositionDocument doc = getPositionMaster().getPosition(getPositionUid());
     getPositionMaster().removePosition(getPositionUid());
-    URI uri = PortfolioNodeResource.uri(getUriInfo(), getPortfolioUid(), position.getParentNodeUid().toLatest());
-    return Response.seeOther(uri).build();
-  }
-
-  public Response reinstate() {
-    UniqueIdentifier positionUid = getPositionMaster().reinstatePosition(getPositionUid());
-    URI uri = PositionResource.uri(getUriInfo(), getPortfolioUid(), positionUid.toLatest());
+    URI uri = PortfolioNodeResource.uri(getUriInfo(), getPortfolioUid(), doc.getParentNodeId().toLatest());
     return Response.seeOther(uri).build();
   }
 

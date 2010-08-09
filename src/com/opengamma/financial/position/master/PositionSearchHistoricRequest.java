@@ -97,29 +97,20 @@ public class PositionSearchHistoricRequest extends DirectBean {
   /**
    * Creates an instance.
    * With no further customization this will retrieve all versions and corrections.
-   * @param uid  the object identifier
+   * @param oid  the object identifier
    */
-  public PositionSearchHistoricRequest(final UniqueIdentifier uid) {
-    this(uid, null, null);
+  public PositionSearchHistoricRequest(final UniqueIdentifier oid) {
+    this(oid, null, null);
   }
 
   /**
    * Creates an instance.
-   * @param uid  the object identifier
-   * @param versionInstantProvider  the version instant to retrieve, null for latest version
+   * @param oid  the object identifier
+   * @param versionInstantProvider  the version instant to retrieve, null for all versions
+   * @param correctedToInstantProvider  the instant that the data should be corrected to, null for all corrections
    */
-  public PositionSearchHistoricRequest(final UniqueIdentifier uid, InstantProvider versionInstantProvider) {
-    this(uid, versionInstantProvider, null);
-  }
-
-  /**
-   * Creates an instance.
-   * @param uid  the object identifier
-   * @param versionInstantProvider  the version instant to retrieve, null for latest version
-   * @param correctedToInstantProvider  the instant that the data should be corrected to, null for latest correction
-   */
-  public PositionSearchHistoricRequest(final UniqueIdentifier uid, InstantProvider versionInstantProvider, InstantProvider correctedToInstantProvider) {
-    setPositionId(uid);
+  public PositionSearchHistoricRequest(final UniqueIdentifier oid, InstantProvider versionInstantProvider, InstantProvider correctedToInstantProvider) {
+    setPositionId(oid);
     if (versionInstantProvider != null) {
       final Instant versionInstant = Instant.of(versionInstantProvider);
       setVersionsFromInstant(versionInstant);

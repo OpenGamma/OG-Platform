@@ -51,7 +51,6 @@ public interface PositionMaster {
    * Adds a portfolio tree, excluding positions, to the data store.
    * <p>
    * The specified document must contain the portfolio tree.
-   * It must not contain the unique identifier.
    * 
    * @param document  the document, not null
    * @return the updated tree document, not null
@@ -155,12 +154,12 @@ public interface PositionMaster {
   /**
    * Adds a position to the data store.
    * <p>
-   * The specified document must contain the position.
-   * It must not contain the unique identifier.
+   * The specified document must contain the position and parent node.
    * 
    * @param document  the document, not null
    * @return the updated position document, not null
    * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if there is no parent node with the specified identifier
    */
   PositionDocument addPosition(PositionDocument document);
 
@@ -230,7 +229,7 @@ public interface PositionMaster {
    * Gets a single portfolio, including all child nodes and positions.
    * <p>
    * This allows direct access to the entire tree with positions.
-   * It is intended for fast access to the structure.
+   * It is intended for fast access to the whole structure.
    * 
    * @param request  the request, not null
    * @return the portfolio, null if not found
@@ -242,7 +241,7 @@ public interface PositionMaster {
    * Gets a single node, including all child nodes and positions.
    * <p>
    * This allows direct access to the entire tree with positions.
-   * It is intended for fast access to the structure.
+   * It is intended for fast access to the whole structure.
    * 
    * @param request  the request, not null
    * @return the node, null if not found
@@ -254,7 +253,7 @@ public interface PositionMaster {
    * Gets a single position with full detail.
    * <p>
    * This allows direct access to the position.
-   * It is intended for fast access to the structure.
+   * It is intended for fast access to the whole structure.
    * 
    * @param request  the request, not null
    * @return the position, null if not found

@@ -121,11 +121,11 @@ public interface HibernateSecurityMasterDao {
   SecurityBean getSecurityBean(Date now, IdentifierBundle bundle);
 
   // Specific securities through BeanOperation
-  <S extends Security, SBean extends SecurityBean> SBean createSecurityBean(
+  <S extends Security, SBean extends SecurityBean> SBean createSecurityBean(OperationContext context,
       final BeanOperation<S, SBean> beanOperation, final Date effectiveDateTime, final boolean deleted,
       final Date lastModified, final String modifiedBy, final SBean firstVersion, final S security);
 
-  SecurityBean persistSecurityBean(final SecurityBean bean);
+  SecurityBean persistSecurityBean(OperationContext context, final SecurityBean bean);
 
   // Debug/testing
   <T extends SecurityBean> List<T> getAllSecurityBeans(Class<T> beanClass);

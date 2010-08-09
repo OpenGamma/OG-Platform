@@ -12,12 +12,10 @@ import org.fudgemsg.FudgeContext;
 
 import com.opengamma.financial.livedata.rest.LiveDataResource;
 import com.opengamma.financial.livedata.user.InMemoryUserSnapshotProvider;
-import com.opengamma.financial.position.ManageablePositionMaster;
-import com.opengamma.financial.position.memory.InMemoryManageablePositionMaster;
 import com.opengamma.financial.position.rest.PortfoliosResource;
-import com.opengamma.financial.security.ManageableSecurityMaster;
-import com.opengamma.financial.security.memory.InMemoryManageableSecurityMaster;
-import com.opengamma.financial.security.rest.SecuritiesResource;
+import com.opengamma.financial.security.MasterSecuritySource;
+import com.opengamma.financial.security.memory.InMemorySecurityMaster;
+import com.opengamma.financial.security.rest.SecurityMasterResource;
 import com.opengamma.financial.user.UserResourceDetails;
 import com.opengamma.financial.user.UserUniqueIdentifierUtils;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
@@ -50,20 +48,19 @@ public class ClientResource {
   public static final String LIVEDATA_PATH = "livedata";
   
   private final ClientsResource _clientsResource;
-  private final ManageablePositionMaster _positionMaster;
-  private final ManageableSecurityMaster _securityMaster;
+  private final MasterSecuritySource _securityMaster;
   private final ManageableViewDefinitionRepository _viewDefinitionRepository;
   private final InMemoryUserSnapshotProvider _liveData;
-  private final FudgeContext _fudgeContext;
+  private final UsersResourceContext _usersResourceContext;
   
-  public ClientResource(ClientsResource clientsResource, String clientName, FudgeContext fudgeContext) {
+  public ClientResource(ClientsResource clientsResource, String clientName, UsersResourceContext context) {
     _clientsResource = clientsResource;
-    final String username = clientsResource.getUserResource().getUserName();
-    _positionMaster = new InMemoryManageablePositionMaster(getTemplate(username, clientName, PORTFOLIOS_PATH));
-    _securityMaster = new InMemoryManageableSecurityMaster(getTemplate(username, clientName, SECURITIES_PATH));
+    String username = clientsResource.getUserResource().getUserName();
+    _securityMaster = new MasterSecuritySource(new InMemorySecurityMaster(getTemplate(username, clientName, SECURITIES_PATH).createSupplier()));
+    _usersResourceContext = context;
+    // [FIN-124] The user SecuritySource is done wrongly throughout
     _liveData = new InMemoryUserSnapshotProvider(getTemplate(username, clientName, LIVEDATA_PATH));
     _viewDefinitionRepository = new InMemoryViewDefinitionRepository();
-    _fudgeContext = fudgeContext;
   }
 
   private UniqueIdentifierTemplate getTemplate(final String username, final String clientName, final String resourceType) {
@@ -71,6 +68,14 @@ public class ClientResource {
     return UserUniqueIdentifierUtils.getTemplate(resourceDetails);
   }
   
+  public MasterSecuritySource getSecurityMaster() {
+    return _securityMaster;
+  }
+
+  public FudgeContext getFudgeContext() {
+    return _usersResourceContext.getFudgeContext();
+  }
+
   /**
    * Gets the URI info.
    * @return the uri info, not null
@@ -85,12 +90,12 @@ public class ClientResource {
 
   @Path(PORTFOLIOS_PATH)
   public PortfoliosResource getPortfolios() {
-    return new PortfoliosResource(getUriInfo(), _positionMaster);
+    return new PortfoliosResource(getUriInfo(), _usersResourceContext.getPositionMaster());
   }
   
   @Path(SECURITIES_PATH)
-  public SecuritiesResource getSecurities() {
-    return new SecuritiesResource(_securityMaster, _fudgeContext);
+  public SecurityMasterResource getSecurities() {
+    return new SecurityMasterResource(getSecurityMaster(), getFudgeContext());
   }
   
   @Path(VIEW_DEFINITIONS_PATH)

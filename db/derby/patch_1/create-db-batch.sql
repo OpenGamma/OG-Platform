@@ -155,6 +155,7 @@ create table rsk_run (
     create_instant timestamp not null,
     start_instant timestamp not null,       -- can be different from create_instant if is run is restarted
     end_instant	timestamp,
+    num_restarts int not null,
     complete smallint not null,
     
     primary key (id),
@@ -188,15 +189,29 @@ create table rsk_calculation_configuration (
 -- 	- PositionMasterTime = 20100615170000
 --  - GlobalRandomSeed = 54321
 create table rsk_run_property (		
-	id int not null,
-	run_id int not null,
-	property_key varchar(255) not null,
-	property_value varchar(2000) not null,		    -- varchar(255) not enough
+    id int not null,
+    run_id int not null,
+    property_key varchar(255) not null,
+    property_value varchar(2000) not null,		    -- varchar(255) not enough
 	
-	primary key (id),
+    primary key (id),
 
-	constraint fk_rsk_run_property2run 
-	    foreign key (run_id) references rsk_run (id)
+    constraint fk_rsk_run_property2run 
+        foreign key (run_id) references rsk_run (id)
+);
+
+create table rsk_run_status (
+    id bigint not null, 
+    calculation_configuration_id int not null,
+    computation_target_id int not null,
+    status int not null,
+
+    constraint fk_rsk_run_status2calc_conf
+        foreign key (calculation_configuration_id) references rsk_calculation_configuration (id),
+    constraint fk_rsk_run_status2comp_tgt
+        foreign key (computation_target_id) references rsk_computation_target (id),
+
+    unique (calculation_configuration_id, computation_target_id)
 );
 
 -------------------------------------
@@ -242,13 +257,13 @@ create table rsk_value (
 create table rsk_compute_failure (			
     id bigint not null,
     function_id varchar(255) not null,
-    function_name varchar(255) not null,
     exception_class varchar(255) not null,
+    exception_msg varchar(255) not null,                  
     stack_trace varchar(2000) not null,         -- first 2000 chars. not including msg
     
     primary key (id),
     
-    unique (function_id, function_name, exception_class, stack_trace)
+    unique (function_id, exception_class, exception_msg, stack_trace)
 );
 
 -- how to aggregate risk failures?
@@ -258,6 +273,8 @@ create table rsk_failure (
     value_name_id int not null,                 
     computation_target_id int not null,
     run_id int not null,             	       -- shortcut
+    eval_instant timestamp not null,
+    compute_node_id int not null,
     
     primary key (id),
     
@@ -269,6 +286,8 @@ create table rsk_failure (
         foreign key (value_name_id) references rsk_value_name (id),
     constraint fk_rsk_failure2com_target
         foreign key (computation_target_id) references rsk_computation_target (id),
+   constraint fk_rsk_failure2node
+       foreign key (compute_node_id) references rsk_compute_node (id),
         
     unique (calculation_configuration_id, value_name_id, computation_target_id)
 );    
@@ -277,16 +296,14 @@ create table rsk_failure_reason (
    id bigint not null,
    rsk_failure_id bigint not null,
    compute_failure_id bigint not null,
-   eval_instant timestamp not null,
-   compute_node_id int not null,
-   exception_msg varchar(255) not null,                  
    
    primary key (id),
    
    constraint fk_rsk_fail_reason2failure
-       foreign key (rsk_failure_id) references rsk_failure (id),
+       foreign key (rsk_failure_id) references rsk_failure (id)
+       on delete cascade,
    constraint fk_rsk_fail_reason2cmpt_fail
        foreign key (compute_failure_id) references rsk_compute_failure (id),
-   constraint fk_rsk_fail_reason2node
-       foreign key (compute_node_id) references rsk_compute_node (id) 
+
+   unique (rsk_failure_id, compute_failure_id)
 );

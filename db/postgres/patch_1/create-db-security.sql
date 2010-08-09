@@ -2,107 +2,119 @@
 -- create-db-security.sql: Security Master
 
 create table sec_currency (
-    id int8 not null,
+    id bigint not null,
     name varchar(255) not null unique,
     primary key (id)
 );
 
 create table sec_commodityfuturetype (
-    id int8 not null,
+    id bigint not null,
     name varchar(255) not null unique,
     primary key (id)
 );
 
 create table sec_bondfuturetype (
-    id int8 not null,
+    id bigint not null,
     name varchar(255) not null unique,
     primary key (id)
 );
 
 create table sec_cashrate (
-    id int8 not null,
+    id bigint not null,
     name varchar(255) not null unique,
     primary key (id)
 );
 
 create table sec_unit (
-    id int8 not null,
+    id bigint not null,
     name varchar(255) not null unique,
     primary key (id)
 );
 
 create table sec_identifier_association (
-    id int8 not null,
+    id bigint not null,
     security_discriminator varchar(255),
-    security_id int8,
+    security_id bigint,
     scheme varchar(255) not null,
     identifier varchar(255) not null,
-    validStartDate date,
-    validEndDate date,
-    primary key (id),
-    unique (scheme, identifier, validStartDate, validEndDate)
+    validStartDate timestamp,
+    validEndDate timestamp,
+    primary key (id)
 );
 
 create table sec_exchange (
-    id int8 not null,
+    id bigint not null,
     name varchar(255) not null unique,
     description varchar(255),
     primary key (id)
 );
 
 create table sec_gics (
-  id int8 not null,
-  name varchar(8) not null unique,
-  description varchar(255),
-  primary key (id)
+    id bigint not null,
+    name varchar(8) not null unique,
+    description varchar(255),
+    primary key (id)
 );
 
 create table sec_equity (
-    id int8 not null,
-    effectiveDateTime date not null,
+    id bigint not null,
+    effectiveDateTime timestamp not null,
     deleted bool not null,
-    lastModifiedDateTime date not null,
+    lastModifiedDateTime timestamp not null,
     lastModifiedBy varchar(255),
     displayName varchar(255) not null,
+    shortName varchar(255),
     first_version_descriminator varchar(255),
-    first_version_id int8,
-    exchange_id int8 not null,
+    first_version_id bigint,
+    exchange_id bigint not null,
     companyName varchar(255) not null,
-    currency_id int8 not null,
-    gicscode_id int8,
+    currency_id bigint not null,
+    gicscode_id bigint,
     primary key (id),
-  	constraint sec_fk_equity2currency foreign key (currency_id) references sec_currency(id),
-  	constraint sec_fk_equity2exchange foreign key (exchange_id) references sec_exchange(id),
-  	constraint sec_fk_equity2gics foreign key (gicscode_id) references sec_gics(id)
+    constraint sec_fk_equity2equity foreign key (first_version_id) references sec_equity(id),
+    constraint sec_fk_equity2currency foreign key (currency_id) references sec_currency(id),
+    constraint sec_fk_equity2exchange foreign key (exchange_id) references sec_exchange(id),
+    constraint sec_fk_equity2gics foreign key (gicscode_id) references sec_gics(id)
 );
 
 create table sec_option (
-    id int8 not null,
-    effectiveDateTime date not null,
+    id bigint not null,
+    effectiveDateTime timestamp not null,
     deleted bool not null,
-    lastModifiedDateTime date not null,
+    lastModifiedDateTime timestamp not null,
     lastModifiedBy varchar(255),
     displayName varchar(255) not null,
     first_version_descriminator varchar(255),
-    first_version_id int8,
+    first_version_id bigint,
     option_security_type varchar(32) not null,
     option_exercise_type varchar(32) not null,
     option_payoff_style varchar(32) not null,
     option_type varchar(32) not null,
     strike double precision not null,
-    expiry date not null,
-    underlying_scheme varchar(255),
-    underlying_identifier varchar(255),
+    expiry_date timestamp not null,
+    expiry_accuracy int2 not null,
+    underlying_scheme varchar(255) not null,
+    underlying_identifier varchar(255) not null,
+    currency_id bigint not null,
+    put_currency_id bigint,
+    call_currency_id bigint,
+    exchange_id bigint,
+    counterparty varchar(255),
     power double precision,
     cap double precision,
-    currency_id int8 not null,
-    put_currency_id int8,
-    call_currency_id int8,
-    exchange_id int8,
-    counterparty varchar(255),
     margined bool,
     pointValue double precision,
+    payment double precision,
+    lowerbound double precision,
+    upperbound double precision,
+    choose_date timestamp,
+    choose_zone varchar(50),
+    underlyingstrike double precision,
+    underlyingexpiry_date timestamp,
+    underlyingexpiry_accuracy smallint,
+    reverse bool,
     primary key (id),
+    constraint sec_fk_option2option foreign key (first_version_id) references sec_option (id),
     constraint sec_fk_option2currency foreign key (currency_id) references sec_currency (id),
     constraint sec_fk_option2putcurrency foreign key (put_currency_id) references sec_currency (id),
     constraint sec_fk_option2callcurrency foreign key (call_currency_id) references sec_currency (id),
@@ -110,80 +122,85 @@ create table sec_option (
 );
 
 create table sec_frequency (
-    id int8 not null,
+    id bigint not null,
     name varchar(255) not null unique,
     primary key (id)
 );
 
 create table sec_daycount (
-    id int8 not null,
+    id bigint not null,
     name varchar(255) not null unique,
     primary key (id)
 );
 
 create table sec_businessdayconvention (
-    id int8 not null,
+    id bigint not null,
     name varchar(255) not null unique,
     primary key (id)
 );
 
 create table sec_issuertype (
-    id int8 not null,
+    id bigint not null,
     name varchar(255) not null unique,
     primary key (id)
  );
 
 create table sec_market (
-    id int8 not null,
+    id bigint not null,
     name varchar(255) not null unique,
     primary key (id)
  );
 
 create table sec_yieldconvention (
-    id int8 not null,
+    id bigint not null,
     name varchar(255) not null unique,
     primary key (id)
  );
 
 create table sec_guaranteetype (
-    id int8 not null,
+    id bigint not null,
     name varchar(255) not null unique,
     primary key (id)
  );
 
 create table sec_coupontype (
-    id int8 not null,
+    id bigint not null,
     name varchar(255) not null unique,
     primary key (id)
  );
 
 create table sec_bond (
-    id int8 not null,
-    effectiveDateTime date not null,
+    id bigint not null,
+    effectiveDateTime timestamp not null,
     deleted bool not null,
-    lastModifiedDateTime date not null,
+    lastModifiedDateTime timestamp not null,
     lastModifiedBy varchar(255),
     displayName varchar(255) not null,
     first_version_descriminator varchar(255),
-    first_version_id int8,
+    first_version_id bigint,
     bond_type varchar(32) not null,
     issuername varchar(255) not null,
-    issuertype_id int8 not null,
+    issuertype_id bigint not null,
     issuerdomicile varchar(255) not null,
-    market_id int8 not null,
-    currency_id int8 not null,
-    yieldconvention_id int8 not null,
-    guaranteetype_id int8 not null,
-    maturity date not null,
-    coupontype_id int8 not null,
+    market_id bigint not null,
+    currency_id bigint not null,
+    yieldconvention_id bigint not null,
+    guaranteetype_id bigint not null,
+    maturity_date timestamp not null,
+    maturity_accuracy int2 not null,
+    coupontype_id bigint not null,
     couponrate double precision not null,
-    couponfrequency_id int8 not null,
-    daycountconvention_id int8 not null,
-    businessdayconvention_id int8 not null,
-    announcementdate date not null,
-    interestaccrualdate date not null,
-    settlementdate date not null,
-    firstcoupondate date not null,
+    couponfrequency_id bigint not null,
+    daycountconvention_id bigint not null,
+    businessdayconvention_id bigint not null,
+    announcement_date timestamp not null,
+    announcement_zone varchar(50) not null,
+    interestaccrual_date timestamp not null,
+    interestaccrual_zone varchar(50) not null,
+    settlement_date timestamp not null,
+    settlement_zone varchar(50) not null,
+    firstcoupon_date timestamp not null,
+    firstcoupon_zone varchar(50) not null,
     issuanceprice double precision not null,
     totalamountissued double precision not null,
     minimumamount double precision not null,
@@ -191,6 +208,7 @@ create table sec_bond (
     paramount double precision not null,
     redemptionvalue double precision not null,
     primary key (id),
+    constraint sec_fk_bond2bond foreign key (first_version_id) references sec_bond (id),
     constraint sec_fk_bond2issuertype foreign key (issuertype_id) references sec_issuertype (id),
     constraint sec_fk_bond2market foreign key (market_id) references sec_market (id),
     constraint sec_fk_bond2currency foreign key (currency_id) references sec_currency (id),
@@ -203,29 +221,31 @@ create table sec_bond (
 );
 
 create table sec_future (
-    id int8 not null,
-    effectiveDateTime date not null,
+    id bigint not null,
+    effectiveDateTime timestamp not null,
     deleted bool not null,
-    lastModifiedDateTime date not null,
+    lastModifiedDateTime timestamp not null,
     lastModifiedBy varchar(255),
     displayName varchar(255) not null,
     first_version_descriminator varchar(255),
-    first_version_id int8,
+    first_version_id bigint,
     future_type varchar(32) not null,
-    expiry date not null,
-    tradingexchange_id int8 not null,
-    settlementexchange_id int8 not null,
-    currency1_id int8,
-    currency2_id int8,
-    currency3_id int8,
-    bondtype_id int8,
-    commoditytype_id int8,
-    cashratetype_id int8,
-    unitname_id int8,
+    expiry_date timestamp not null,
+    expiry_accuracy int2 not null,
+    tradingexchange_id bigint not null,
+    settlementexchange_id bigint not null,
+    currency1_id bigint,
+    currency2_id bigint,
+    currency3_id bigint,
+    bondtype_id bigint,
+    commoditytype_id bigint,
+    cashratetype_id bigint,
+    unitname_id bigint,
     unitnumber double precision,
     underlying_scheme varchar(255),
     underlying_identifier varchar(255), 
     primary key (id),
+    constraint sec_fk_future2future foreign key (first_version_id) references sec_future (id),
     constraint sec_fk_future2exchange1 foreign key (tradingexchange_id) references sec_exchange (id),
     constraint sec_fk_future2exchange2 foreign key (settlementexchange_id) references sec_exchange (id),
     constraint sec_fk_future2currency1 foreign key (currency1_id) references sec_currency (id),
@@ -238,19 +258,102 @@ create table sec_future (
 );
 
 create table sec_futurebundle (
-    id int8 not null,
-    future_id int8 not null,
-    startDate date,
-    endDate date,
+    id bigint not null,
+    future_id bigint not null,
+    startDate timestamp,
+    endDate timestamp,
     conversionFactor double precision not null,
     primary key (id),
     constraint sec_fk_futurebundle2future foreign key (future_id) references sec_future (id)
 );
 
 create table sec_futurebundleidentifier (
-    bundle_id int8 not null,
+    bundle_id bigint not null,
     scheme varchar(255) not null,
     identifier varchar(255) not null,
     primary key (bundle_id, scheme, identifier),
     constraint sec_fk_futurebundleidentifier2futurebundle foreign key (bundle_id) references sec_futurebundle (id)
+);
+
+create table sec_cash (
+    id bigint not null,
+    effectiveDateTime timestamp not null,
+    deleted bool not null,
+    lastModifiedDateTime timestamp not null,
+    lastModifiedBy varchar(255),
+    displayName varchar(255) not null,
+    first_version_descriminator varchar(255),
+    first_version_id bigint,
+    primary key (id),
+    constraint sec_fk_cash2cash foreign key (first_version_id) references sec_cash (id)
+);
+
+create table sec_fra (
+    id bigint not null,
+    effectiveDateTime timestamp not null,
+    deleted bool not null,
+    lastModifiedDateTime timestamp not null,
+    lastModifiedBy varchar(255),
+    displayName varchar(255) not null,
+    first_version_descriminator varchar(255),
+    first_version_id bigint,
+    start_date timestamp not null,
+    start_zone varchar(50) not null,
+    end_date timestamp not null,
+    end_zone varchar(50) not null,
+    primary key (id),
+    constraint sec_fk_fra2fra foreign key (first_version_id) references sec_fra (id)
+);
+
+create table sec_swap (
+    id bigint not null,
+    effectiveDateTime timestamp not null,
+    deleted bool not null,
+    lastModifiedDateTime timestamp not null,
+    lastModifiedBy varchar(255),
+    displayName varchar(255) not null,
+    first_version_descriminator varchar(255),
+    first_version_id bigint,
+    swaptype varchar(32) not null,
+    trade_date timestamp not null,
+    trade_zone varchar(50) not null,
+    effective_date timestamp not null,
+    effective_zone varchar(50) not null,
+    maturity_date timestamp not null,
+    maturity_zone varchar(50) not null,
+    forwardstart_date timestamp,
+    forwardstart_zone varchar(50),
+    counterparty varchar(255) not null,
+    pay_legtype varchar(32) not null,
+    pay_daycount_id bigint not null,
+    pay_frequency_id bigint not null,
+    pay_regionscheme varchar(255) not null,
+    pay_regionid varchar(255) not null,
+    pay_businessdayconvention_id bigint not null,
+    pay_notionaltype varchar(32) not null,
+    pay_notionalcurrency_id bigint,
+    pay_notionalamount double precision,
+    pay_notionalscheme varchar(255),
+    pay_notionalid varchar(255),
+    pay_rate double precision,
+    pay_spread double precision,
+    pay_rateidentifierscheme varchar(255),
+    pay_rateidentifierid varchar(255),
+    receive_legtype varchar(32) not null,
+    receive_daycount_id bigint not null,
+    receive_frequency_id bigint not null,
+    receive_regionscheme varchar(255) not null,
+    receive_regionid varchar(255) not null,
+    receive_businessdayconvention_id bigint not null,
+    receive_notionaltype varchar(32) not null,
+    receive_notionalcurrency_id bigint,
+    receive_notionalamount double precision,
+    receive_notionalscheme varchar(255),
+    receive_notionalid varchar(255),
+    receive_rate double precision,
+    receive_spread double precision,
+    receive_rateidentifierscheme varchar(255),
+    receive_rateidentifierid varchar(255),
+    primary key (id),
+    constraint sec_fk_swap2swap foreign key (first_version_id) references sec_swap (id)
 );

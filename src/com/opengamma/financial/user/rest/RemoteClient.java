@@ -8,10 +8,10 @@ package com.opengamma.financial.user.rest;
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.financial.livedata.rest.RemoteUserLiveData;
-import com.opengamma.financial.position.ManageablePositionMaster;
-import com.opengamma.financial.position.rest.RemoteManagablePositionMaster;
-import com.opengamma.financial.security.ManageableSecurityMaster;
-import com.opengamma.financial.security.rest.RemoteManagableSecurityMaster;
+import com.opengamma.financial.position.master.PositionMaster;
+import com.opengamma.financial.position.rest.RemotePositionMaster;
+import com.opengamma.financial.security.SecurityMaster;
+import com.opengamma.financial.security.rest.RemoteSecurityMaster;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.rest.RemoteManagableViewDefinitionRepository;
 import com.opengamma.transport.jaxrs.RestTarget;
@@ -32,18 +32,18 @@ public class RemoteClient {
   public RemoteClient(String clientId, FudgeContext fudgeContext, RestTarget baseTarget) {
     _clientId = clientId;
     _fudgeContext = fudgeContext;
-    _positionMasterTarget = baseTarget.resolve(ClientResource.PORTFOLIOS_PATH);
-    _securityMasterTarget = baseTarget.resolve(ClientResource.SECURITIES_PATH);
-    _viewDefinitionRepositoryTarget = baseTarget.resolve(ClientResource.VIEW_DEFINITIONS_PATH);
+    _positionMasterTarget = baseTarget.resolveBase(ClientResource.PORTFOLIOS_PATH);
+    _securityMasterTarget = baseTarget.resolveBase(ClientResource.SECURITIES_PATH);
+    _viewDefinitionRepositoryTarget = baseTarget.resolveBase(ClientResource.VIEW_DEFINITIONS_PATH);
     _userLiveDataTarget = baseTarget.resolveBase(ClientResource.LIVEDATA_PATH);
   }
 
   private RemoteClient(String clientId, FudgeContext fudgeContext, RestTarget baseTarget, RestTarget liveDataHack) {
     _clientId = clientId;
     _fudgeContext = fudgeContext;
-    _positionMasterTarget = baseTarget.resolve(ClientResource.PORTFOLIOS_PATH);
-    _securityMasterTarget = baseTarget.resolve(ClientResource.SECURITIES_PATH);
-    _viewDefinitionRepositoryTarget = baseTarget.resolve(ClientResource.VIEW_DEFINITIONS_PATH);
+    _positionMasterTarget = baseTarget.resolveBase(ClientResource.PORTFOLIOS_PATH);
+    _securityMasterTarget = baseTarget.resolveBase(ClientResource.SECURITIES_PATH);
+    _viewDefinitionRepositoryTarget = baseTarget.resolveBase(ClientResource.VIEW_DEFINITIONS_PATH);
     _userLiveDataTarget = liveDataHack;
   }
   
@@ -51,12 +51,12 @@ public class RemoteClient {
     return _clientId;
   }
   
-  public ManageablePositionMaster getPositionMaster() {
-    return new RemoteManagablePositionMaster(_fudgeContext, _positionMasterTarget);
+  public PositionMaster getPositionMaster() {
+    return new RemotePositionMaster(_fudgeContext, _positionMasterTarget);
   }
 
-  public ManageableSecurityMaster getSecurityMaster() {
-    return new RemoteManagableSecurityMaster(_fudgeContext, _securityMasterTarget);
+  public SecurityMaster getSecurityMaster() {
+    return new RemoteSecurityMaster(_fudgeContext, _securityMasterTarget);
   }
   
   public ManageableViewDefinitionRepository getViewDefinitionRepository() {
@@ -72,6 +72,7 @@ public class RemoteClient {
    * we will need a UserMaster to host users and their clients, and the entry point for Excel will be a
    * RemoteUserMaster.
    *
+   * @param fudgeContext  the Fudge context
    * @param usersUri  uri as far as /users
    * @param username  the username
    * @return  a {@link RemoteClient} instance for the new client

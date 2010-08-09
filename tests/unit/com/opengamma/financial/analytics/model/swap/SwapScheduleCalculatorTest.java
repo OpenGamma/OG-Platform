@@ -16,15 +16,20 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMessageFactory;
 import org.junit.Test;
 
+import com.opengamma.financial.InMemoryRegionRepository;
 import com.opengamma.financial.Region;
 import com.opengamma.financial.RegionType;
 import com.opengamma.financial.convention.businessday.ModifiedBusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.financial.security.DateTimeWithZone;
 import com.opengamma.financial.security.swap.Notional;
+import com.opengamma.financial.security.swap.NotionalVisitor;
 import com.opengamma.financial.security.swap.SwapLeg;
+import com.opengamma.financial.security.swap.SwapLegVisitor;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.time.DateUtil;
@@ -36,12 +41,18 @@ import com.opengamma.util.time.DateUtil;
 public class SwapScheduleCalculatorTest {
   private static final ZonedDateTime EFFECTIVE = DateUtil.getUTCDate(2010, 6, 1);
   private static final ZonedDateTime MATURITY = DateUtil.getUTCDate(2020, 6, 1);
-  private static final Region REGION = new MyRegion();
+  private static final Identifier REGION_ID = Identifier.of(InMemoryRegionRepository.ISO_COUNTRY_2, "US");
   private static final Notional NOTIONAL = new Notional () {
 
     @Override
     public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeContext) {
       // Okay to return NULL as we're not doing any messaging with this
+      return null;
+    }
+
+    @Override
+    public <T> T accept(NotionalVisitor<T> visitor) {
+      // Okay to return NULL as we're not using the visitor for this test
       return null;
     }
 
@@ -64,8 +75,34 @@ public class SwapScheduleCalculatorTest {
     }
 
   };
-  private static final SwapLeg PAY_LEG = new SwapLeg(DAY_COUNT, PeriodFrequency.SEMI_ANNUAL, REGION, new ModifiedBusinessDayConvention(), NOTIONAL);
-  private static final SwapLeg RECEIVE_LEG = new SwapLeg(DAY_COUNT, PeriodFrequency.SEMI_ANNUAL, REGION, new ModifiedBusinessDayConvention(), NOTIONAL);
+  private static final SwapLeg PAY_LEG = new SwapLeg(DAY_COUNT, PeriodFrequency.SEMI_ANNUAL, REGION_ID, new ModifiedBusinessDayConvention(), NOTIONAL) {
+
+    @Override
+    public <T> T accept(SwapLegVisitor<T> visitor) {
+      // Okay to return NULL as we're not using the visitor for this test
+      return null;
+    }
+
+    @Override
+    public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeContext) {
+      return null;
+    }
+
+  };
+  private static final SwapLeg RECEIVE_LEG = new SwapLeg(DAY_COUNT, PeriodFrequency.SEMI_ANNUAL, REGION_ID, new ModifiedBusinessDayConvention(), NOTIONAL) {
+
+    @Override
+    public <T> T accept(SwapLegVisitor<T> visitor) {
+      // Okay to return NULL as we're not using the visitor for this test
+      return null;
+    }
+
+    @Override
+    public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeContext) {
+      return null;
+    }
+
+  };
   private static final Calendar CALENDAR = new Calendar() {
 
     @Override
@@ -79,7 +116,7 @@ public class SwapScheduleCalculatorTest {
     }
 
   };
-  private static final SwapSecurity SECURITY = new SwapSecurity(EFFECTIVE, EFFECTIVE, MATURITY, "", PAY_LEG, RECEIVE_LEG);
+  private static final SwapSecurity SECURITY = new SwapSecurity(new DateTimeWithZone(EFFECTIVE), new DateTimeWithZone(EFFECTIVE), new DateTimeWithZone(MATURITY), "", PAY_LEG, RECEIVE_LEG);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullSecurity1() {

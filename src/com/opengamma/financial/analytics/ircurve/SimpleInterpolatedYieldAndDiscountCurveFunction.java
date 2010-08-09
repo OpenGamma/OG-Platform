@@ -13,6 +13,7 @@ import java.util.TreeMap;
 
 import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
@@ -36,6 +37,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
+
 
 /**
  * 
@@ -145,7 +147,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     // that ultimately in OG-LiveData normalization and pull out the OGRate key rather than
     // the crazy IndicativeValue name.
     final Clock snapshotClock = executionContext.getSnapshotClock();
-    final LocalDate today = snapshotClock.today(); // TODO: change to times
+    final ZonedDateTime today = snapshotClock.zonedDateTime(); // TODO: change to times
     final Map<Double, Double> timeInYearsToRates = new TreeMap<Double, Double>();
     boolean isFirst = true;
 
@@ -166,17 +168,19 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
           timeInYearsToRates.put(0., 0.);
           isFirst = false;
         }
+
         timeInYearsToRates.put(strip.getYears(), price);
       } else {
         if (isFirst) {
           timeInYearsToRates.put(0., 1.);
           isFirst = false;
         }
+
         final double numYears = strip.getYears();
         timeInYearsToRates.put(numYears, Math.exp(-price * numYears));
       }
     }
-    System.err.println(timeInYearsToRates);
+    // System.err.println("Time in years to rates: " + timeInYearsToRates);
     // Bootstrap the yield curve
     final YieldAndDiscountCurve curve = _isYieldCurve ? new InterpolatedYieldCurve(timeInYearsToRates, _interpolator) : new InterpolatedDiscountCurve(timeInYearsToRates, _interpolator);
     final ComputedValue resultValue = new ComputedValue(_result, curve);

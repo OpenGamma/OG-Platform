@@ -27,17 +27,15 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.view.server.EngineFudgeContextConfiguration;
 import com.opengamma.financial.fudgemsg.FinancialFudgeContextConfiguration;
-import com.opengamma.financial.position.AddPortfolioRequest;
-import com.opengamma.financial.position.ManageablePositionMaster;
-import com.opengamma.financial.position.PortfolioSummary;
-import com.opengamma.financial.position.SearchPortfoliosRequest;
-import com.opengamma.financial.position.SearchPortfoliosResult;
+import com.opengamma.financial.position.master.PortfolioTree;
+import com.opengamma.financial.position.master.PortfolioTreeDocument;
+import com.opengamma.financial.position.master.PortfolioTreeSearchRequest;
+import com.opengamma.financial.position.master.PortfolioTreeSearchResult;
+import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
@@ -54,15 +52,11 @@ public class PortfoliosResource {
   /**
    * The injected position master.
    */
-  private final ManageablePositionMaster _posMaster;
+  private final PositionMaster _posMaster;
   /**
    * The fudge context to use when deserializing requests 
    */
   private final FudgeDeserializationContext _fudgeDeserializationContext;
-  /**
-   * The fudge context to use when serializing responses 
-   */
-  private final FudgeSerializationContext _fudgeSerializationContext;
   /**
    * Information about the URI injected by JSR-311.
    */
@@ -73,7 +67,7 @@ public class PortfoliosResource {
    * Creates the resource.
    * @param posMaster  the position master, not null
    */
-  public PortfoliosResource(final ManageablePositionMaster posMaster) {
+  public PortfoliosResource(final PositionMaster posMaster) {
     ArgumentChecker.notNull(posMaster, "PositionMaster");
     _posMaster = posMaster;
     
@@ -81,7 +75,6 @@ public class PortfoliosResource {
     EngineFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
     FinancialFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
     _fudgeDeserializationContext = new FudgeDeserializationContext(fudgeContext);
-    _fudgeSerializationContext = new FudgeSerializationContext(fudgeContext);
   }
 
   /**
@@ -89,7 +82,7 @@ public class PortfoliosResource {
    * @param uriInfo  the URI information, not null
    * @param posMaster  the position master, not null
    */
-  public PortfoliosResource(UriInfo uriInfo, final ManageablePositionMaster posMaster) {
+  public PortfoliosResource(UriInfo uriInfo, final PositionMaster posMaster) {
     this(posMaster);
     ArgumentChecker.notNull(uriInfo, "uriInfo");
     _uriInfo = uriInfo;
@@ -100,7 +93,7 @@ public class PortfoliosResource {
    * Gets the position master.
    * @return the position master, not null
    */
-  public ManageablePositionMaster getPositionMaster() {
+  public PositionMaster getPositionMaster() {
     return _posMaster;
   }
 
@@ -115,16 +108,14 @@ public class PortfoliosResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(FudgeRest.MEDIA)
-  public SearchPortfoliosResult getAsFudge(
+  public PortfolioTreeSearchResult getAsFudge(
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
-      @QueryParam("name") String name,
-      @QueryParam("deleted") boolean deleted) {
-    PagingRequest paging = PagingRequest.of(page, pageSize);
-    SearchPortfoliosRequest request = new SearchPortfoliosRequest(paging);
+      @QueryParam("name") String name) {
+    final PortfolioTreeSearchRequest request = new PortfolioTreeSearchRequest();
+    request.setPagingRequest(PagingRequest.of(page, pageSize));
     request.setName(StringUtils.trimToNull(name));
-    request.setIncludeDeleted(deleted);
-    return getPositionMaster().searchPortfolios(request);
+    return getPositionMaster().searchPortfolioTrees(request);
   }
 
   @GET
@@ -132,52 +123,33 @@ public class PortfoliosResource {
   public String getAsHtml(
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
-      @QueryParam("name") String name,
-      @QueryParam("deleted") boolean deleted) {
+      @QueryParam("name") String name) {
     String html = "<html>\n" +
       "<head><title>Portfolios</title></head>\n" +
       "<body>\n" +
       "<h2>Portfolio search</h2>\n" +
       "<form method=\"GET\" action=\"" + getUriInfo().getAbsolutePath() + "\">" +
       "Name: <input type=\"text\" size=\"30\" name=\"name\" /><br />" +
-      "Deleted: <label><input type=\"checkbox\" name=\"deleted\" value=\"true\" /> Include deleted portfolios</label><br />" +
       "<input type=\"submit\" value=\"Search\" />" +
       "</form>\n";
     
     if (getUriInfo().getQueryParameters().size() > 0) {
-      PagingRequest paging = PagingRequest.of(page, pageSize);
-      SearchPortfoliosRequest request = new SearchPortfoliosRequest(paging);
+      final PortfolioTreeSearchRequest request = new PortfolioTreeSearchRequest();
+      request.setPagingRequest(PagingRequest.of(page, pageSize));
       request.setName(StringUtils.trimToNull(name));
-      request.setIncludeDeleted(deleted);
-      SearchPortfoliosResult result = getPositionMaster().searchPortfolios(request);
+      PortfolioTreeSearchResult result = getPositionMaster().searchPortfolioTrees(request);
       
       html += "<h2>Portfolio results</h2>\n" +
         "<p><table border=\"1\">" +
-        "<tr><th>Name</th><th>Positions</th><th>Last updated</th><th>Status</th><th>Actions</th></tr>\n";
-      for (PortfolioSummary summary : result.getPortfolioSummaries()) {
-        URI uri = getUriInfo().getBaseUriBuilder().path(PortfolioResource.class).build(summary.getUniqueIdentifier().toLatest());
+        "<tr><th>Name</th><th>Version valid from</th><th>Actions</th></tr>\n";
+      for (PortfolioTreeDocument doc : result.getDocuments()) {
+        URI uri = getUriInfo().getBaseUriBuilder().path(PortfolioResource.class).build(doc.getPortfolioId().toLatest());
         html += "<tr>";
-        if (summary.isActive()) {
-          html += "<td><a href=\"" + uri + "\">" + summary.getName() + "</a></td>";
-        } else {
-          html += "<td>" + summary.getName() + "</td>";
-        }
+        html += "<td><a href=\"" + uri + "\">" + doc.getPortfolio().getName() + "</a></td>";
         DateTimeFormatter pattern = DateTimeFormatters.pattern("dd MMM yyyy, HH:mm:ss.SSS");
         html +=
-          "<td>" + summary.getTotalPositions() + "</td>" +
-          "<td>" + pattern.print(OffsetDateTime.ofInstant(summary.getStartInstant(), ZoneOffset.UTC)) + "</td>" +
-          "<td>" + (summary.isActive() ? "Active" : "Deleted") + "</td>";
-        if (summary.isActive()) {
-          html += "<td><a href=\"" + uri + "\">View</a></td>";
-        } else {
-          html += "<td>" +
-            "<form method=\"POST\" action=\"" + uri + "\">" +
-            "<input type=\"hidden\" name=\"method\" value=\"PUT\" />" +
-            "<input type=\"hidden\" name=\"status\" value=\"A\" />" +
-            "<input type=\"submit\" value=\"Reinstate\" />" +
-            "</form>" +
-            "</td>";
-        }
+          "<td>" + pattern.print(OffsetDateTime.ofInstant(doc.getVersionFromInstant(), ZoneOffset.UTC)) + "</td>";
+        html += "<td><a href=\"" + uri + "\">View</a></td>";
         html += "</tr>\n";
       }
       html += "</table></p>\n";
@@ -191,24 +163,18 @@ public class PortfoliosResource {
     return html;
   }
 
+  //-------------------------------------------------------------------------
   @POST
-  public FudgeMsgEnvelope postFudge(FudgeMsgEnvelope addPortfolioRequestMsg) {
-    AddPortfolioRequest request = _fudgeDeserializationContext.fudgeMsgToObject(AddPortfolioRequest.class, addPortfolioRequestMsg.getMessage());
-    request.checkValid();
-    
-    UniqueIdentifier uid = getPositionMaster().addPortfolio(request);
-    MutableFudgeFieldContainer responseMsg = _fudgeSerializationContext.objectToFudgeMsg(uid);
-    return new FudgeMsgEnvelope(responseMsg);
+  @Produces(FudgeRest.MEDIA)
+  public PortfolioTreeDocument postFudge(FudgeMsgEnvelope addPortfolioRequestMsg) {
+    PortfolioTreeDocument request = _fudgeDeserializationContext.fudgeMsgToObject(PortfolioTreeDocument.class, addPortfolioRequestMsg.getMessage());
+    return getPositionMaster().addPortfolioTree(request);
   }
 
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response postForm(@FormParam("name") String name) {
-    AddPortfolioRequest request = new AddPortfolioRequest();
-    request.setName(name);
-    try {
-      request.checkValid();  // TODO: proper validation
-    } catch (IllegalArgumentException ex) {
+    if (StringUtils.isEmpty(name)) {
       String html = "<html>\n" +
         "<head><title>Portfolios</title></head>\n" +
         "<body>\n" +
@@ -221,8 +187,10 @@ public class PortfoliosResource {
         "</body>\n</html>";
       return Response.ok(html).build();
     }
-    UniqueIdentifier uid = getPositionMaster().addPortfolio(request);
-    URI uri = getUriInfo().getAbsolutePathBuilder().path(uid.toString()).build();
+    PortfolioTree portfolio = new PortfolioTree(name);
+    PortfolioTreeDocument doc = new PortfolioTreeDocument(portfolio);
+    PortfolioTreeDocument added = getPositionMaster().addPortfolioTree(doc);
+    URI uri = getUriInfo().getAbsolutePathBuilder().path(added.getPortfolioId().toString()).build();
     return Response.seeOther(uri).build();
   }
 

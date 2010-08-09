@@ -119,8 +119,7 @@ public class InMemoryRegionRepository implements RegionRepository {
   }
   
   private void indexHierarchy(String hierarchyName, Region root) {
-    //System.err.println("indexing " + hierarchyName + " : " + root.getName());
-    //s_logger.info("Indexing {} : {}", hierarchyName, root.getName()); // AIWG: DO NOT CHECK THIS INTO GIT
+    // s_logger.info("Indexing {} : {}", hierarchyName, root.getName());
     if (!(_fieldIndex.containsKey(hierarchyName))) {
       _fieldIndex.put(hierarchyName, new HashMap<Pair<String, Object>, SortedSet<Region>>());
     }

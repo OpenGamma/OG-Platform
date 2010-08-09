@@ -13,7 +13,7 @@ namespace com.opengamma.financial.security.equity {
 
     required string securityType [default = "EQUITY"];
     
-    optional string ticker;
+    optional string shortName;
     required string exchange;
     required string exchangeCode;
     required string companyName;

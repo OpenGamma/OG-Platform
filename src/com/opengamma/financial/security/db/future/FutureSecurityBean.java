@@ -5,11 +5,13 @@
  */
 package com.opengamma.financial.security.db.future;
 
-import java.util.Date;
 import java.util.Set;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.opengamma.financial.security.db.CurrencyBean;
 import com.opengamma.financial.security.db.ExchangeBean;
+import com.opengamma.financial.security.db.ExpiryBean;
 import com.opengamma.financial.security.db.IdentifierBean;
 import com.opengamma.financial.security.db.SecurityBean;
 
@@ -20,7 +22,7 @@ import com.opengamma.financial.security.db.SecurityBean;
 public class FutureSecurityBean extends SecurityBean {
   
   private FutureType _futureType;
-  private Date _expiry;
+  private ExpiryBean _expiry;
   private ExchangeBean _tradingExchange;
   private ExchangeBean _settlementExchange;
   private CurrencyBean _currency1;
@@ -48,14 +50,14 @@ public class FutureSecurityBean extends SecurityBean {
   /**
    * @return the expiry
    */
-  public Date getExpiry() {
+  public ExpiryBean getExpiry() {
     return _expiry;
   }
 
   /**
    * @param expiry the expiry to set
    */
-  public void setExpiry(Date expiry) {
+  public void setExpiry(ExpiryBean expiry) {
     _expiry = expiry;
   }
 
@@ -226,6 +228,11 @@ public class FutureSecurityBean extends SecurityBean {
    */
   public CurrencyBean getCurrency3() {
     return _currency3;
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this);
   }
 
 }
