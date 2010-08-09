@@ -12,8 +12,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-
 /**
  * 
  */
@@ -149,6 +147,15 @@ public abstract class Interpolator1DDataBundleTestCase {
     assertEquals(40., values[3], EPS);
     assertEquals(50., values[4], EPS);
     assertEquals(5, values.length);
+  }
+
+  @Test
+  public void testBoundedValues() {
+    final InterpolationBoundedValues boundedValues = DATA.getBoundedValues(1.5);
+    assertEquals(boundedValues.getLowerBoundKey(), 1., 0);
+    assertEquals(boundedValues.getLowerBoundValue(), 10., 0);
+    assertEquals(boundedValues.getHigherBoundKey(), 2., 0);
+    assertEquals(boundedValues.getHigherBoundValue(), 20., 0);
   }
 
   @Test

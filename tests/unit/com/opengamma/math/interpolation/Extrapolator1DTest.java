@@ -60,6 +60,16 @@ public class Extrapolator1DTest {
     FLAT_EXTRAPOLATOR.interpolate(DATA, null);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testValueInRange1() {
+    FLAT_EXTRAPOLATOR.interpolate(DATA, 1.2);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testValueInRange2() {
+    LINEAR_EXTRAPOLATOR.interpolate(DATA, 1.2);
+  }
+
   @Test(expected = UnsupportedOperationException.class)
   public void testDataBundleType1() {
     FLAT_EXTRAPOLATOR.getDataBundle(X_DATA, Y_DATA);

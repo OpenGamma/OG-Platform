@@ -12,6 +12,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
  */
 @SuppressWarnings("unchecked")
 public final class CombinedInterpolatorExtrapolatorFactory {
+
   private CombinedInterpolatorExtrapolatorFactory() {
   }
 
@@ -29,7 +30,8 @@ public final class CombinedInterpolatorExtrapolatorFactory {
     return new CombinedInterpolatorExtrapolator(interpolator, extrapolator, extrapolator);
   }
 
-  //REVIEW emcleod 4-8-2010 not sure if this is how people will want to construct the combined interpolator - should it be more strict?
+  // REVIEW emcleod 4-8-2010 not sure if this is how people will want to construct the combined interpolator - should it be more strict?
+  // Also see CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
   public static CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> getInterpolator(final String interpolatorName, final String leftExtrapolatorName,
       final String rightExtrapolatorName) {
     final Interpolator1D interpolator = Interpolator1DFactory.getInterpolator(interpolatorName);

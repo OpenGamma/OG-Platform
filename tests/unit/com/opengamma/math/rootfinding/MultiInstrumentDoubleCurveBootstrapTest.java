@@ -74,7 +74,6 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
   private static final Interpolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle> EXTRAPOLATOR_WITH_SENSITIVITY;
 
   private static List<InterestRateDerivative> INSTRUMENTS;
-  private static double[] MARKET_VALUES;
   private static YieldAndDiscountCurve FUNDING_CURVE;
   private static YieldAndDiscountCurve FORWARD_CURVE;
 
@@ -228,17 +227,10 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
     if (n != (nFwdNodes + nFundNodes)) {
       throw new IllegalArgumentException("number of instruments not equal to number of nodes");
     }
-    //   
-    // // now get market prices
-    // MARKET_VALUES = new double[n];
-    //
-    // for (int i = 0; i < n; i++) {
-    // MARKET_VALUES[i] = RATE_CALCULATOR.getValue(INSTRUMENTS.get(i), bundle);
-    // }
 
     final double[] rates = new double[n];
     for (int i = 0; i < fundYields.length; i++) {
-      rates[i] = 0.05;// fundYields[i] + 0.01;
+      rates[i] = 0.05;
     }
 
     for (int i = 0; i < fwdYields.length; i++) {
@@ -282,16 +274,12 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
     doHotSpot(rootFinder, "default Newton, double curve", DOUBLE_CURVE_FINDER);
   }
 
-  //
   @SuppressWarnings("unchecked")
   @Test
   public void testJacobian() {
     final JacobianCalculator jacobianFD = new FiniteDifferenceJacobianCalculator(1e-8);
     final DoubleMatrix2D jacExact = DOUBLE_CURVE_JACOBIAN.evaluate(X0, DOUBLE_CURVE_FINDER);
     final DoubleMatrix2D jacFD = jacobianFD.evaluate(X0, DOUBLE_CURVE_FINDER);
-    // System.out.println("exact: " + jacExact.toString());
-    // System.out.println("FD: " + jacFD.toString());
-
     assertMatrixEquals(jacExact, jacFD, 1e-5);
   }
 

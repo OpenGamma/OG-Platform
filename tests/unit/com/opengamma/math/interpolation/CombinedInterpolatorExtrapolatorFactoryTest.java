@@ -49,6 +49,70 @@ public class CombinedInterpolatorExtrapolatorFactoryTest {
   }
 
   @Test
+  public void testNullExtrapolatorName() {
+    final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> combined = getInterpolator(Interpolator1DFactory.LINEAR, null);
+    assertEquals(combined.getInterpolator().getClass(), LinearInterpolator1D.class);
+    assertNull(combined.getLeftExtrapolator());
+    assertNull(combined.getRightExtrapolator());
+  }
+
+  @Test
+  public void testEmptyExtrapolatorName() {
+    final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> combined = getInterpolator(Interpolator1DFactory.LINEAR, "");
+    assertEquals(combined.getInterpolator().getClass(), LinearInterpolator1D.class);
+    assertNull(combined.getLeftExtrapolator());
+    assertNull(combined.getRightExtrapolator());
+  }
+
+  @Test
+  public void testNullLeftExtrapolatorName() {
+    final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> combined = getInterpolator(Interpolator1DFactory.LINEAR, null, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    assertEquals(combined.getInterpolator().getClass(), LinearInterpolator1D.class);
+    assertEquals(combined.getLeftExtrapolator().getClass(), FlatExtrapolator1D.class);
+    assertEquals(combined.getRightExtrapolator().getClass(), FlatExtrapolator1D.class);
+  }
+
+  @Test
+  public void testEmptyLeftExtrapolatorName() {
+    final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> combined = getInterpolator(Interpolator1DFactory.LINEAR, "", Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    assertEquals(combined.getInterpolator().getClass(), LinearInterpolator1D.class);
+    assertEquals(combined.getLeftExtrapolator().getClass(), FlatExtrapolator1D.class);
+    assertEquals(combined.getRightExtrapolator().getClass(), FlatExtrapolator1D.class);
+  }
+
+  @Test
+  public void testNullRightExtrapolatorName() {
+    final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> combined = getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, null);
+    assertEquals(combined.getInterpolator().getClass(), LinearInterpolator1D.class);
+    assertEquals(combined.getLeftExtrapolator().getClass(), FlatExtrapolator1D.class);
+    assertEquals(combined.getRightExtrapolator().getClass(), FlatExtrapolator1D.class);
+  }
+
+  @Test
+  public void testEmptyRightExtrapolatorName() {
+    final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> combined = getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, "");
+    assertEquals(combined.getInterpolator().getClass(), LinearInterpolator1D.class);
+    assertEquals(combined.getLeftExtrapolator().getClass(), FlatExtrapolator1D.class);
+    assertEquals(combined.getRightExtrapolator().getClass(), FlatExtrapolator1D.class);
+  }
+
+  @Test
+  public void testNullLeftAndRightExtrapolatorName() {
+    final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> combined = getInterpolator(Interpolator1DFactory.LINEAR, null, null);
+    assertEquals(combined.getInterpolator().getClass(), LinearInterpolator1D.class);
+    assertNull(combined.getLeftExtrapolator());
+    assertNull(combined.getRightExtrapolator());
+  }
+
+  @Test
+  public void testEmptyLeftAndRightExtrapolatorName() {
+    final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> combined = getInterpolator(Interpolator1DFactory.LINEAR, "", "");
+    assertEquals(combined.getInterpolator().getClass(), LinearInterpolator1D.class);
+    assertNull(combined.getLeftExtrapolator());
+    assertNull(combined.getRightExtrapolator());
+  }
+
+  @Test
   public void testNoExtrapolator() {
     CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> combined = getInterpolator(Interpolator1DFactory.LINEAR);
     assertEquals(combined.getInterpolator().getClass(), LinearInterpolator1D.class);
