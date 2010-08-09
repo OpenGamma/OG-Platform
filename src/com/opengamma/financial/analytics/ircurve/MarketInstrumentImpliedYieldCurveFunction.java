@@ -80,7 +80,7 @@ import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
 public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction implements FunctionInvoker {
   private static final String SPOT_TICKER = "US00O/N Index"; //TODO shouldn't be hard-coded
   private static final String FLOAT_REFERENCE_TICKER = "US0006M Index"; //TODO shouldn't be hard-coded
-  private static final String CURVE_NAME = "USD Yield Curve";
+  private static final String CURVE_NAME = "USD Yield Curve"; //TODO should'nt be hard-coded
   private final Currency _currency;
   private InterpolatedYieldAndDiscountCurveDefinition _definition;
   private UniqueIdentifier _referenceRateIdentifier;
@@ -91,13 +91,13 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private ValueSpecification _jacobianResult;
   private Set<ValueSpecification> _results;
   private final Interpolator1D<? extends Interpolator1DDataBundle> _interpolator;
-  private final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> _sensitivityCalculator = null;
+  private final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> _sensitivityCalculator;
 
   public MarketInstrumentImpliedYieldCurveFunction(final Currency currency, String interpolatorName, String leftExtrapolatorName, String rightExtrapolatorName) {
     Validate.notNull(currency);
     _currency = currency;
     _interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
-    //_sensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
+    _sensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
   }
 
   @Override
@@ -110,13 +110,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final Calendar calendar = new HolidayRepositoryCalendarAdapter(holidayRepository, _currency);
     final Region region = OpenGammaExecutionContext.getRegionRepository(executionContext)
         .getHierarchyNodes(now.toLocalDate(), InMemoryRegionRepository.POLITICAL_HIERARCHY_NAME, InMemoryRegionRepository.ISO_CURRENCY_3, _currency.getISOCode()).iterator().next();
-    //final Region region = OpenGammaExecutionContext.getRegionRepository(executionContext).getHierarchyNode(now.toLocalDate(), _currency.getUniqueIdentifier());
     final List<InterestRateDerivative> derivatives = new ArrayList<InterestRateDerivative>();
     final Set<FixedIncomeStrip> strips = _definition.getStrips();
     final int n = strips.size();
-//    final double[] marketRates = new double[n];
-//    final double[] initialRatesGuess = new double[n];
-//    final double[] nodeTimes = new double[n];
     final double[] marketRates = new double[n];
     final double[] initialRatesGuess = new double[n];
     final double[] nodeTimes = new double[n];
@@ -144,15 +140,12 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       if (strip.getInstrumentType() != StripInstrument.FUTURE) {
         rate /= 100;
       }
-  //    marketRates[i] = rate;
-      
       derivative = getInterestRateDerivative(strip, calendar, region, now, rate);
       if (derivative == null) {
         throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
       }
       derivatives.add(derivative);
       initialRatesGuess[i] = 0.01;
-      
       nodeTimes[i] = getLastTime(derivative);
       i++;
     }
