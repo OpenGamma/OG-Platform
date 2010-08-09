@@ -63,7 +63,7 @@ public class ViewProcessorService {
   public ViewProcessorService() {
     setTopicPrefix("ViewProcessor");
     final FudgeContext fudgeContext = new FudgeContext();
-    UtilFudgeContextConfiguration.INSTANCE.configureFudgeContext(_fudgeContext);
+    UtilFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
     EngineFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
     setFudgeContext(fudgeContext);
     getJmsTemplate().setPubSubDomain(true);
