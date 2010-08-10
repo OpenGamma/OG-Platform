@@ -33,7 +33,7 @@ public class QueryFullDbPositionMasterWorkerGetFullPositionTest extends Abstract
   private static final Logger s_logger = LoggerFactory.getLogger(QueryFullDbPositionMasterWorkerGetFullPositionTest.class);
 
   private QueryFullDbPositionMasterWorker _worker;
-  private QueryPositionDbPositionMasterWorker _queryWorker;
+  private DbPositionMasterWorker _queryWorker;
 
   public QueryFullDbPositionMasterWorkerGetFullPositionTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
@@ -77,7 +77,7 @@ public class QueryFullDbPositionMasterWorkerGetFullPositionTest extends Abstract
     FullPositionGetRequest request = new FullPositionGetRequest(uid);
     Position test = _worker.getFullPosition(request);
     
-    assertEquals(UniqueIdentifier.of("DbPos", "122", "122"), test.getUniqueIdentifier());
+    assertEquals(UniqueIdentifier.of("DbPos", "122", "0"), test.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(122.987), test.getQuantity());
     IdentifierBundle testSecKey = test.getSecurityKey();
     assertNotNull(testSecKey);
@@ -91,7 +91,7 @@ public class QueryFullDbPositionMasterWorkerGetFullPositionTest extends Abstract
     FullPositionGetRequest request = new FullPositionGetRequest(uid);
     Position test = _worker.getFullPosition(request);
     
-    assertEquals(UniqueIdentifier.of("DbPos", "121", "121"), test.getUniqueIdentifier());
+    assertEquals(UniqueIdentifier.of("DbPos", "121", "0"), test.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(121.987), test.getQuantity());
     IdentifierBundle testSecKey = test.getSecurityKey();
     assertNotNull(testSecKey);
@@ -106,7 +106,7 @@ public class QueryFullDbPositionMasterWorkerGetFullPositionTest extends Abstract
     FullPositionGetRequest request = new FullPositionGetRequest(uid);
     Position test = _worker.getFullPosition(request);
     
-    assertEquals(UniqueIdentifier.of("DbPos", "221", "222"), test.getUniqueIdentifier());
+    assertEquals(UniqueIdentifier.of("DbPos", "221", "1"), test.getUniqueIdentifier());
   }
 
   @Test
@@ -117,7 +117,7 @@ public class QueryFullDbPositionMasterWorkerGetFullPositionTest extends Abstract
     request.setCorrectedToInstant(_version2Instant.plusSeconds(5));
     Position test = _worker.getFullPosition(request);
     
-    assertEquals(UniqueIdentifier.of("DbPos", "221", "221"), test.getUniqueIdentifier());
+    assertEquals(UniqueIdentifier.of("DbPos", "221", "0"), test.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(221.987), test.getQuantity());
     IdentifierBundle testSecKey = test.getSecurityKey();
     assertNotNull(testSecKey);

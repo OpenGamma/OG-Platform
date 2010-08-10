@@ -30,6 +30,7 @@ import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.financial.position.master.FullPortfolioGetRequest;
 import com.opengamma.financial.position.master.FullPortfolioNodeGetRequest;
 import com.opengamma.financial.position.master.FullPositionGetRequest;
+import com.opengamma.financial.position.master.PortfolioTreePosition;
 import com.opengamma.financial.position.master.PositionSearchHistoricRequest;
 import com.opengamma.financial.position.master.PositionSearchHistoricResult;
 import com.opengamma.id.Identifier;
@@ -85,11 +86,11 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
         Objects.firstNonNull(request.getVersionAsOfInstant(), now),
         Objects.firstNonNull(request.getCorrectedToInstant(), now));
     final PositionSearchHistoricResult searchResult = getMaster().searchPositionHistoric(searchRequest);
-    final Position firstPosition = searchResult.getFirstPosition();
-    if (firstPosition != null && request.getPositionId().isVersioned() && request.getPositionId().equals(firstPosition.getUniqueIdentifier()) == false) {
+    final PortfolioTreePosition firstPosition = searchResult.getFirstPosition();
+    if (firstPosition == null || (request.getPositionId().isVersioned() && request.getPositionId().equals(firstPosition.getUniqueIdentifier()) == false)) {
       return null;
     }
-    return firstPosition;
+    return new PositionImpl(firstPosition.getUniqueIdentifier(), firstPosition.getQuantity(), firstPosition.getSecurityKey());
   }
 
   //-------------------------------------------------------------------------
@@ -275,14 +276,14 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
         final PortfolioNodeImpl parent = _nodes.peek().second;
         parent.addChildNode(node);
       }
-      _nodes.push(new LongObjectPair<PortfolioNodeImpl>(treeRight, node));
+      _nodes.push(LongObjectPair.of(treeRight, node));
       return node;
     }
 
     private PositionImpl buildPosition(ResultSet rs, final PortfolioNodeImpl node) throws SQLException {
       final long positionId = rs.getLong("POSITION_ID");
       final long positionOid = rs.getLong("POSITION_OID");
-      final BigDecimal quantity = rs.getBigDecimal("QUANTITY").stripTrailingZeros();  // strip zeroes as DB adds them
+      final BigDecimal quantity = extractBigDecimal(rs, "QUANTITY");
       final UniqueIdentifier uid = createUniqueIdentifier(positionOid, positionId, null);
       PositionImpl pos = new PositionImpl(uid, quantity, IdentifierBundle.EMPTY);
       node.addPosition(pos);

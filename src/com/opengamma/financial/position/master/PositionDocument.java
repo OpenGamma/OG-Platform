@@ -19,7 +19,6 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.opengamma.engine.position.Position;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -67,10 +66,10 @@ public class PositionDocument extends DirectBean {
   @PropertyDefinition
   private Instant _correctionToInstant;
   /**
-   * The position with the security unresolved.
+   * The position.
    */
   @PropertyDefinition
-  private Position _position;
+  private PortfolioTreePosition _position;
 
   /**
    * Creates an instance.
@@ -79,21 +78,21 @@ public class PositionDocument extends DirectBean {
   }
 
   /**
-   * Creates an instance.
+   * Creates an instance from a position.
    * @param position  the position, not null
    */
-  public PositionDocument(final Position position) {
+  public PositionDocument(final PortfolioTreePosition position) {
     ArgumentChecker.notNull(position, "position");
     setPositionId(position.getUniqueIdentifier());
     setPosition(position);
   }
 
   /**
-   * Creates an instance.
+   * Creates an instance from a position and parent node id.
    * @param position  the position, not null
    * @param parentNodeId  the parent node identifier, not null
    */
-  public PositionDocument(final Position position, final UniqueIdentifier parentNodeId) {
+  public PositionDocument(final PortfolioTreePosition position, final UniqueIdentifier parentNodeId) {
     ArgumentChecker.notNull(position, "position");
     ArgumentChecker.notNull(parentNodeId, "parentNodeId");
     setPositionId(position.getUniqueIdentifier());
@@ -163,7 +162,7 @@ public class PositionDocument extends DirectBean {
         setCorrectionToInstant((Instant) newValue);
         return;
       case 747804969:  // position
-        setPosition((Position) newValue);
+        setPosition((PortfolioTreePosition) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -352,18 +351,18 @@ public class PositionDocument extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the position with the security unresolved.
+   * Gets the position.
    * @return the value of the property
    */
-  public Position getPosition() {
+  public PortfolioTreePosition getPosition() {
     return _position;
   }
 
   /**
-   * Sets the position with the security unresolved.
+   * Sets the position.
    * @param position  the new value of the property
    */
-  public void setPosition(Position position) {
+  public void setPosition(PortfolioTreePosition position) {
     this._position = position;
   }
 
@@ -371,7 +370,7 @@ public class PositionDocument extends DirectBean {
    * Gets the the {@code position} property.
    * @return the property, not null
    */
-  public final Property<Position> position() {
+  public final Property<PortfolioTreePosition> position() {
     return metaBean().position().createProperty(this);
   }
 
@@ -416,7 +415,7 @@ public class PositionDocument extends DirectBean {
     /**
      * The meta-property for the {@code position} property.
      */
-    private final MetaProperty<Position> _position = DirectMetaProperty.ofReadWrite(this, "position", Position.class);
+    private final MetaProperty<PortfolioTreePosition> _position = DirectMetaProperty.ofReadWrite(this, "position", PortfolioTreePosition.class);
     /**
      * The meta-properties.
      */
@@ -512,7 +511,7 @@ public class PositionDocument extends DirectBean {
      * The meta-property for the {@code position} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Position> position() {
+    public final MetaProperty<PortfolioTreePosition> position() {
       return _position;
     }
 

@@ -614,11 +614,11 @@ public class BatchResultWriter implements ResultWriter {
                 cachedFailure.addComputeFailureIds(inputFailure.getComputeFailureIds());
               }
               
-              for (Long computeFailureId : cachedFailure.getComputeFailureIds()) {
+              for (Number computeFailureId : cachedFailure.getComputeFailureIds()) {
                 FailureReason reason = new FailureReason();
                 reason.setId(generateUniqueId());
                 reason.setRiskFailure(failure);
-                reason.setComputeFailureId(computeFailureId);
+                reason.setComputeFailureId(computeFailureId.longValue());
                 failureReasons.add(reason.toSqlParameterSource());
               }
               
@@ -813,14 +813,14 @@ public class BatchResultWriter implements ResultWriter {
    * due to error 12, and C has failed due to errors 15 and 16, then
    * A has failed due to errors 12, 15, and 16.
    */
-  static class BatchResultWriterFailure implements MissingInput, Serializable {
-    private Set<Long> _computeFailureIds = new HashSet<Long>();
+  public static class BatchResultWriterFailure implements MissingInput, Serializable {
+    private Set<Number> _computeFailureIds = new HashSet<Long>();
 
-    public Set<Long> getComputeFailureIds() {
+    public Set<Number> getComputeFailureIds() {
       return Collections.unmodifiableSet(_computeFailureIds);
     }
 
-    public void addComputeFailureIds(Set<Long> computeFailureIds) {
+    public void addComputeFailureIds(Set<Number> computeFailureIds) {
       _computeFailureIds.addAll(computeFailureIds);
     }
   }

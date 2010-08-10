@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.engine.position.Position;
+import com.opengamma.financial.position.master.PortfolioTreePosition;
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -32,7 +32,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
 
   private static final Logger s_logger = LoggerFactory.getLogger(QueryPositionDbPositionMasterWorkerGetPositionTest.class);
 
-  private QueryPositionDbPositionMasterWorker _worker;
+  private DbPositionMasterWorker _worker;
 
   public QueryPositionDbPositionMasterWorkerGetPositionTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
@@ -67,7 +67,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
 
   @Test
   public void test_getPosition_versioned_oneSecurityKey() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "122", "122");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "122", "0");
     PositionDocument test = _worker.getPosition(uid);
     
     assertNotNull(test);
@@ -78,7 +78,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    Position position = test.getPosition();
+    PortfolioTreePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uid, position.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(122.987), position.getQuantity());
@@ -90,7 +90,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
 
   @Test
   public void test_getPosition_versioned_twoSecurityKeys() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "121", "121");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "121", "0");
     PositionDocument test = _worker.getPosition(uid);
     
     assertNotNull(test);
@@ -101,7 +101,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    Position position = test.getPosition();
+    PortfolioTreePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uid, position.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(121.987), position.getQuantity());
@@ -114,7 +114,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
 
   @Test
   public void test_getPosition_versioned_notLatest() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "221", "221");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "221", "0");
     PositionDocument test = _worker.getPosition(uid);
     
     assertNotNull(test);
@@ -125,7 +125,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    Position position = test.getPosition();
+    PortfolioTreePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uid, position.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(221.987), position.getQuantity());
@@ -137,7 +137,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
 
   @Test
   public void test_getPosition_versioned_latest() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "221", "222");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "221", "1");
     PositionDocument test = _worker.getPosition(uid);
     
     assertNotNull(test);
@@ -148,7 +148,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    Position position = test.getPosition();
+    PortfolioTreePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uid, position.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(222.987), position.getQuantity());
@@ -171,7 +171,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
     PositionDocument test = _worker.getPosition(oid);
     
     assertNotNull(test);
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "221", "222");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "221", "1");
     assertEquals(uid, test.getPositionId());
     assertEquals(UniqueIdentifier.of("DbPos", "201"), test.getPortfolioId());
     assertEquals(UniqueIdentifier.of("DbPos", "211"), test.getParentNodeId());
@@ -179,7 +179,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    Position position = test.getPosition();
+    PortfolioTreePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uid, position.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(222.987), position.getQuantity());

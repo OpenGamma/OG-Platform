@@ -52,6 +52,7 @@ public class PortfolioTreeSearchRequest extends DirectBean {
    * The depth of nodes to return.
    * A value of zero returns the root node, one returns the root node with immediate children, and so on.
    * By default this is zero to save space in the response.
+   * A negative value, such as -1, returns the full tree.
    */
   @PropertyDefinition
   private int _depth;
@@ -223,6 +224,7 @@ public class PortfolioTreeSearchRequest extends DirectBean {
    * Gets the depth of nodes to return.
    * A value of zero returns the root node, one returns the root node with immediate children, and so on.
    * By default this is zero to save space in the response.
+   * A negative value, such as -1, returns the full tree.
    * @return the value of the property
    */
   public int getDepth() {
@@ -233,6 +235,7 @@ public class PortfolioTreeSearchRequest extends DirectBean {
    * Sets the depth of nodes to return.
    * A value of zero returns the root node, one returns the root node with immediate children, and so on.
    * By default this is zero to save space in the response.
+   * A negative value, such as -1, returns the full tree.
    * @param depth  the new value of the property
    */
   public void setDepth(int depth) {
@@ -243,6 +246,7 @@ public class PortfolioTreeSearchRequest extends DirectBean {
    * Gets the the {@code depth} property.
    * A value of zero returns the root node, one returns the root node with immediate children, and so on.
    * By default this is zero to save space in the response.
+   * A negative value, such as -1, returns the full tree.
    * @return the property, not null
    */
   public final Property<Integer> depth() {
