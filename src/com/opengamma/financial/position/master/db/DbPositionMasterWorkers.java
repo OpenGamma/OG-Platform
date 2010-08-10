@@ -13,39 +13,39 @@ package com.opengamma.financial.position.master.db;
 public class DbPositionMasterWorkers {
 
   /** Worker. */
-  private DbPositionMasterWorker _searchPortfolioTreesWorker = new GetPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _searchPortfolioTreesWorker = new QueryPortfolioTreeDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _getPortfolioTreeWorker = new GetPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _getPortfolioTreeWorker = new QueryPortfolioTreeDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _addPortfolioTreeWorker = new GetPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _addPortfolioTreeWorker = new ModifyPortfolioTreeDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _updatePortfolioTreeWorker = new GetPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _updatePortfolioTreeWorker = new ModifyPortfolioTreeDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _removePortfolioTreeWorker = new GetPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _removePortfolioTreeWorker = new ModifyPortfolioTreeDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _searchHistoricPortfolioTreesWorker = new GetPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _searchHistoricPortfolioTreesWorker = new QueryPortfolioTreeDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _correctPortfolioTreeWorker = new GetPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _correctPortfolioTreeWorker = new ModifyPortfolioTreeDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _searchPositionsWorker = new GetPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _searchPositionsWorker = new QueryPositionDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _getPositionWorker = new GetPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _getPositionWorker = new QueryPositionDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _addPositionWorker = new GetPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _addPositionWorker = new ModifyPositionDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _updatePositionWorker = new GetPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _updatePositionWorker = new ModifyPositionDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _removePositionWorker = new GetPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _removePositionWorker = new ModifyPositionDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _searchHistoricPositionsWorker = new GetPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _searchHistoricPositionsWorker = new QueryPositionDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _correctPositionWorker = new GetPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _correctPositionWorker = new ModifyPositionDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _getFullPortfolioWorker = new GetPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _getFullPortfolioWorker = new QueryFullDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _getFullPortfolioNodeWorker = new GetPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _getFullPortfolioNodeWorker = new QueryFullDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _getFullPositionWorker = new GetPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _getFullPositionWorker = new QueryFullDbPositionMasterWorker();
 
   /**
    * Creates an instance.

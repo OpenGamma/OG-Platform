@@ -7,7 +7,6 @@ package com.opengamma.financial.security.db;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -364,24 +363,29 @@ public class HibernateSecurityMaster implements SecurityMaster {
   public SecurityDocument get(UniqueIdentifier uid) {
     final Security security = getSecurity(uid);
     if (security != null) {
-      return new SecurityDocument(security);
+      final SecurityDocument document = new SecurityDocument();
+      document.setSecurity(security);
+      document.setUniqueIdentifier(uid);
+      return document;
     } else {
-      return null;
+      throw new DataNotFoundException("UniqueIdentifier " + uid);
     }
   }
 
   @Override
   public SecuritySearchResult search(SecuritySearchRequest request) {
     final SecuritySearchResult result = new SecuritySearchResult();
-    final Collection<SecurityDocument> resultDocuments = result.getDocuments();
     final Set<Security> resultSecurities = new HashSet<Security>();
     final Date now = new Date();
     for (Identifier id : request.getIdentifiers()) {
       final Security security = getSecurity(now, new IdentifierBundle(id), true);
       if (security != null) {
+        // Use the set to avoid putting duplicates into the search results
         if (resultSecurities.add(security)) {
-          // Use the set to avoid putting duplicates into the search results
-          resultDocuments.add(new SecurityDocument(security));
+          final SecurityDocument document = new SecurityDocument();
+          document.setSecurity(security);
+          document.setUniqueIdentifier(security.getUniqueIdentifier());
+          result.addDocument(document);
         }
       }
     }

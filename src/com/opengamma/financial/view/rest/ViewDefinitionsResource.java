@@ -23,6 +23,7 @@ import com.opengamma.financial.fudgemsg.FinancialFudgeContextConfiguration;
 import com.opengamma.financial.view.AddViewDefinitionRequest;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudge.UtilFudgeContextConfiguration;
 
 /**
  * RESTful resource for all views in a {@link ViewDefinitionRepository}
@@ -54,6 +55,7 @@ public class ViewDefinitionsResource {
     _repository = repository;
     
     _fudgeContext = new FudgeContext();
+    UtilFudgeContextConfiguration.INSTANCE.configureFudgeContext(_fudgeContext);
     EngineFudgeContextConfiguration.INSTANCE.configureFudgeContext(_fudgeContext);
     FinancialFudgeContextConfiguration.INSTANCE.configureFudgeContext(_fudgeContext);
   }

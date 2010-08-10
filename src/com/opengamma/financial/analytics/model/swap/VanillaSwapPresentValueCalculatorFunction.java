@@ -107,7 +107,8 @@ public class VanillaSwapPresentValueCalculatorFunction extends AbstractFunction 
   }
 
   private ValueRequirement getRequirement(final ComputationTarget target) {
-    return new ValueRequirement(ValueRequirementNames.FUNDING_CURVE, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueIdentifier());
+    // return new ValueRequirement(ValueRequirementNames.FUNDING_CURVE, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueIdentifier());
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueIdentifier());
   }
 
   @Override

@@ -20,7 +20,6 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.opengamma.engine.position.Position;
 import com.opengamma.util.db.Paging;
 
 /**
@@ -51,8 +50,8 @@ public class PositionSearchResult extends DirectBean {
    * Gets the returned positions from within the documents.
    * @return the positions, not null
    */
-  public List<Position> getPositions() {
-    List<Position> result = new ArrayList<Position>();
+  public List<PortfolioTreePosition> getPositions() {
+    List<PortfolioTreePosition> result = new ArrayList<PortfolioTreePosition>();
     if (_documents != null) {
       for (PositionDocument doc : _documents) {
         result.add(doc.getPosition());
@@ -73,7 +72,7 @@ public class PositionSearchResult extends DirectBean {
    * Gets the first position, or null if no documents.
    * @return the first position, null if none
    */
-  public Position getFirstPosition() {
+  public PortfolioTreePosition getFirstPosition() {
     return getDocuments().size() > 0 ? getDocuments().get(0).getPosition() : null;
   }
 

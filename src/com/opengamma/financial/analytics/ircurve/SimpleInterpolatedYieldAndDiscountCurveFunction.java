@@ -12,10 +12,10 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
+import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -36,6 +36,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -54,8 +55,8 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
   private final boolean _isYieldCurve;
 
   public SimpleInterpolatedYieldAndDiscountCurveFunction(final Currency currency, final String name, final boolean isYieldCurve) {
-    Validate.notNull(currency, "Currency");
-    Validate.notNull(name, "Name");
+    ArgumentChecker.notNull(currency, "currency");
+    ArgumentChecker.notNull(name, "name");
     _definition = null;
     _curveCurrency = currency;
     _curveName = name;
@@ -139,7 +140,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     // that ultimately in OG-LiveData normalization and pull out the OGRate key rather than
     // the crazy IndicativeValue name.
     final Clock snapshotClock = executionContext.getSnapshotClock();
-    final LocalDate today = snapshotClock.today(); // TODO: change to times
+    final ZonedDateTime today = snapshotClock.zonedDateTime(); // TODO: change to times
     final Map<Double, Double> timeInYearsToRates = new TreeMap<Double, Double>();
     boolean isFirst = true;
     for (final FixedIncomeStrip strip : getDefinition().getStrips()) {
@@ -159,18 +160,19 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
           timeInYearsToRates.put(0., 0.);
           isFirst = false;
         }
-        final double numYears = (strip.getEndDate().toEpochDays() - today.toEpochDays()) / DateUtil.DAYS_PER_YEAR;
+        // final double numYears = (strip.getEndDate().toEpochDays() - today.toEpochDays()) / DateUtil.DAYS_PER_YEAR;
+        final double numYears = DateUtil.getDifferenceInYears(today, strip.getEndDate().atStartOfDayInZone(TimeZone.UTC));
         timeInYearsToRates.put(numYears, price);
       } else {
         if (isFirst) {
           timeInYearsToRates.put(0., 1.);
           isFirst = false;
         }
-        final double numYears = (strip.getEndDate().toEpochDays() - today.toEpochDays()) / DateUtil.DAYS_PER_YEAR;
+        final double numYears = DateUtil.getDifferenceInYears(today, strip.getEndDate().atStartOfDayInZone(TimeZone.UTC));
         timeInYearsToRates.put(numYears, Math.exp(-price * numYears));
       }
     }
-    System.err.println(timeInYearsToRates);
+    // System.err.println("Time in years to rates: " + timeInYearsToRates);
     // Bootstrap the yield curve
     final YieldAndDiscountCurve curve = _isYieldCurve ? new InterpolatedYieldCurve(timeInYearsToRates, _interpolator) : new InterpolatedDiscountCurve(timeInYearsToRates, _interpolator);
     final ComputedValue resultValue = new ComputedValue(_result, curve);

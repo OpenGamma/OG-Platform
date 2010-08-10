@@ -31,6 +31,7 @@ public class RiskRun {
   private Timestamp _createInstant;
   private Timestamp _startInstant;
   private Timestamp _endInstant;
+  private int _numRestarts;
   private Set<CalculationConfiguration> _calculationConfigurations = new HashSet<CalculationConfiguration>();
   private boolean _complete;
   
@@ -126,6 +127,18 @@ public class RiskRun {
     return _endInstant;
   }
   
+  public int getNumRestarts() {
+    return _numRestarts;
+  }
+
+  public void setNumRestarts(int numRestarts) {
+    _numRestarts = numRestarts;
+  }
+  
+  public boolean isRestart() {
+    return getNumRestarts() > 0;
+  }
+
   public void setEndInstant(Timestamp endInstant) {
     _endInstant = endInstant;
   }
@@ -145,6 +158,10 @@ public class RiskRun {
       }
     }
     return null;
+  }
+  
+  public void addCalculationConfiguration(CalculationConfiguration calcConf) {
+    _calculationConfigurations.add(calcConf);
   }
 
   public boolean isComplete() {

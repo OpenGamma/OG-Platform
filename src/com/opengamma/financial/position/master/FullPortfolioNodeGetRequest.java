@@ -30,19 +30,27 @@ public class FullPortfolioNodeGetRequest extends DirectBean {
 
   /**
    * The portfolio node identifier.
-   * Any identifier version specified will be overridden by the instants.
+   * <p>
+   * The object identifier part of the unique identifier is used to identify the correct node.
+   * The version part is used to identify the required version in conjunction with the instants.
+   * <p>
+   * The implementation may choose to store the instants in the identifier.
+   * If this is the case, then if an instant is null then the version/correction encoded in
+   * the identifier will be used.
+   * In all other cases, the instants override the identifier version, with a null instant
+   * indicating the current instant.
    */
   @PropertyDefinition
   private UniqueIdentifier _portfolioNodeId;
   /**
-   * The instant representing the version to obtain.
-   * Null is treated as the latest version.
+   * The instant to search for a version at.
+   * See the portfolioNodeId property for details of how null is handled.
    */
   @PropertyDefinition
   private Instant _versionAsOfInstant;
   /**
-   * The instant representing the version has been corrected to.
-   * Null is treated as the latest correction.
+   * The instant to search for corrections for.
+   * See the portfolioNodeId property for details of how null is handled.
    */
   @PropertyDefinition
   private Instant _correctedToInstant;
@@ -55,10 +63,22 @@ public class FullPortfolioNodeGetRequest extends DirectBean {
 
   /**
    * Creates an instance.
-   * @param uid  the portfolio node unique identifier
+   * @param uid  the node identifier, may be null
    */
-  public FullPortfolioNodeGetRequest(UniqueIdentifier uid) {
+  public FullPortfolioNodeGetRequest(final UniqueIdentifier uid) {
     setPortfolioNodeId(uid);
+  }
+
+  /**
+   * Creates an instance retrieving the node at a specific instant.
+   * @param uid  the node identifier, may be null
+   * @param versionAsOfInstant  the instant to search for a version at, may be null
+   * @param correctedToInstant  the instant to search for corrections for, may be null
+   */
+  public FullPortfolioNodeGetRequest(final UniqueIdentifier uid, final Instant versionAsOfInstant, final Instant correctedToInstant) {
+    setPortfolioNodeId(uid);
+    setVersionAsOfInstant(versionAsOfInstant);
+    setCorrectedToInstant(correctedToInstant);
   }
 
   //-------------------------------------------------------------------------
@@ -123,7 +143,15 @@ public class FullPortfolioNodeGetRequest extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the portfolio node identifier.
-   * Any identifier version specified will be overridden by the instants.
+   * <p>
+   * The object identifier part of the unique identifier is used to identify the correct node.
+   * The version part is used to identify the required version in conjunction with the instants.
+   * <p>
+   * The implementation may choose to store the instants in the identifier.
+   * If this is the case, then if an instant is null then the version/correction encoded in
+   * the identifier will be used.
+   * In all other cases, the instants override the identifier version, with a null instant
+   * indicating the current instant.
    * @return the value of the property
    */
   public UniqueIdentifier getPortfolioNodeId() {
@@ -132,7 +160,15 @@ public class FullPortfolioNodeGetRequest extends DirectBean {
 
   /**
    * Sets the portfolio node identifier.
-   * Any identifier version specified will be overridden by the instants.
+   * <p>
+   * The object identifier part of the unique identifier is used to identify the correct node.
+   * The version part is used to identify the required version in conjunction with the instants.
+   * <p>
+   * The implementation may choose to store the instants in the identifier.
+   * If this is the case, then if an instant is null then the version/correction encoded in
+   * the identifier will be used.
+   * In all other cases, the instants override the identifier version, with a null instant
+   * indicating the current instant.
    * @param portfolioNodeId  the new value of the property
    */
   public void setPortfolioNodeId(UniqueIdentifier portfolioNodeId) {
@@ -141,7 +177,15 @@ public class FullPortfolioNodeGetRequest extends DirectBean {
 
   /**
    * Gets the the {@code portfolioNodeId} property.
-   * Any identifier version specified will be overridden by the instants.
+   * <p>
+   * The object identifier part of the unique identifier is used to identify the correct node.
+   * The version part is used to identify the required version in conjunction with the instants.
+   * <p>
+   * The implementation may choose to store the instants in the identifier.
+   * If this is the case, then if an instant is null then the version/correction encoded in
+   * the identifier will be used.
+   * In all other cases, the instants override the identifier version, with a null instant
+   * indicating the current instant.
    * @return the property, not null
    */
   public final Property<UniqueIdentifier> portfolioNodeId() {
@@ -150,8 +194,8 @@ public class FullPortfolioNodeGetRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the instant representing the version to obtain.
-   * Null is treated as the latest version.
+   * Gets the instant to search for a version at.
+   * See the portfolioNodeId property for details of how null is handled.
    * @return the value of the property
    */
   public Instant getVersionAsOfInstant() {
@@ -159,8 +203,8 @@ public class FullPortfolioNodeGetRequest extends DirectBean {
   }
 
   /**
-   * Sets the instant representing the version to obtain.
-   * Null is treated as the latest version.
+   * Sets the instant to search for a version at.
+   * See the portfolioNodeId property for details of how null is handled.
    * @param versionAsOfInstant  the new value of the property
    */
   public void setVersionAsOfInstant(Instant versionAsOfInstant) {
@@ -169,7 +213,7 @@ public class FullPortfolioNodeGetRequest extends DirectBean {
 
   /**
    * Gets the the {@code versionAsOfInstant} property.
-   * Null is treated as the latest version.
+   * See the portfolioNodeId property for details of how null is handled.
    * @return the property, not null
    */
   public final Property<Instant> versionAsOfInstant() {
@@ -178,8 +222,8 @@ public class FullPortfolioNodeGetRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the instant representing the version has been corrected to.
-   * Null is treated as the latest correction.
+   * Gets the instant to search for corrections for.
+   * See the portfolioNodeId property for details of how null is handled.
    * @return the value of the property
    */
   public Instant getCorrectedToInstant() {
@@ -187,8 +231,8 @@ public class FullPortfolioNodeGetRequest extends DirectBean {
   }
 
   /**
-   * Sets the instant representing the version has been corrected to.
-   * Null is treated as the latest correction.
+   * Sets the instant to search for corrections for.
+   * See the portfolioNodeId property for details of how null is handled.
    * @param correctedToInstant  the new value of the property
    */
   public void setCorrectedToInstant(Instant correctedToInstant) {
@@ -197,7 +241,7 @@ public class FullPortfolioNodeGetRequest extends DirectBean {
 
   /**
    * Gets the the {@code correctedToInstant} property.
-   * Null is treated as the latest correction.
+   * See the portfolioNodeId property for details of how null is handled.
    * @return the property, not null
    */
   public final Property<Instant> correctedToInstant() {

@@ -39,22 +39,20 @@ public class PortfolioTreeSearchRequest extends DirectBean {
   @PropertyDefinition
   private String _name;
   /**
-   * The instant to search for a version at.
-   * Null is treated as the latest version.
+   * The instant to search for a version at, null treated as the latest version.
    */
   @PropertyDefinition
   private Instant _versionAsOfInstant;
   /**
-   * The instant to search for corrections for.
-   * Null is treated as the latest correction.
+   * The instant to search for corrections for, null treated as the latest correction.
    */
   @PropertyDefinition
   private Instant _correctedToInstant;
   /**
    * The depth of nodes to return.
-   * A value of zero returns no nodes, one returns the root node, two returns the
-   * root node and immediate children, and so on.
+   * A value of zero returns the root node, one returns the root node with immediate children, and so on.
    * By default this is zero to save space in the response.
+   * A negative value, such as -1, returns the full tree.
    */
   @PropertyDefinition
   private int _depth;
@@ -173,8 +171,7 @@ public class PortfolioTreeSearchRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the instant to search for a version at.
-   * Null is treated as the latest version.
+   * Gets the instant to search for a version at, null treated as the latest version.
    * @return the value of the property
    */
   public Instant getVersionAsOfInstant() {
@@ -182,8 +179,7 @@ public class PortfolioTreeSearchRequest extends DirectBean {
   }
 
   /**
-   * Sets the instant to search for a version at.
-   * Null is treated as the latest version.
+   * Sets the instant to search for a version at, null treated as the latest version.
    * @param versionAsOfInstant  the new value of the property
    */
   public void setVersionAsOfInstant(Instant versionAsOfInstant) {
@@ -192,7 +188,6 @@ public class PortfolioTreeSearchRequest extends DirectBean {
 
   /**
    * Gets the the {@code versionAsOfInstant} property.
-   * Null is treated as the latest version.
    * @return the property, not null
    */
   public final Property<Instant> versionAsOfInstant() {
@@ -201,8 +196,7 @@ public class PortfolioTreeSearchRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the instant to search for corrections for.
-   * Null is treated as the latest correction.
+   * Gets the instant to search for corrections for, null treated as the latest correction.
    * @return the value of the property
    */
   public Instant getCorrectedToInstant() {
@@ -210,8 +204,7 @@ public class PortfolioTreeSearchRequest extends DirectBean {
   }
 
   /**
-   * Sets the instant to search for corrections for.
-   * Null is treated as the latest correction.
+   * Sets the instant to search for corrections for, null treated as the latest correction.
    * @param correctedToInstant  the new value of the property
    */
   public void setCorrectedToInstant(Instant correctedToInstant) {
@@ -220,7 +213,6 @@ public class PortfolioTreeSearchRequest extends DirectBean {
 
   /**
    * Gets the the {@code correctedToInstant} property.
-   * Null is treated as the latest correction.
    * @return the property, not null
    */
   public final Property<Instant> correctedToInstant() {
@@ -230,9 +222,9 @@ public class PortfolioTreeSearchRequest extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the depth of nodes to return.
-   * A value of zero returns no nodes, one returns the root node, two returns the
-   * root node and immediate children, and so on.
+   * A value of zero returns the root node, one returns the root node with immediate children, and so on.
    * By default this is zero to save space in the response.
+   * A negative value, such as -1, returns the full tree.
    * @return the value of the property
    */
   public int getDepth() {
@@ -241,9 +233,9 @@ public class PortfolioTreeSearchRequest extends DirectBean {
 
   /**
    * Sets the depth of nodes to return.
-   * A value of zero returns no nodes, one returns the root node, two returns the
-   * root node and immediate children, and so on.
+   * A value of zero returns the root node, one returns the root node with immediate children, and so on.
    * By default this is zero to save space in the response.
+   * A negative value, such as -1, returns the full tree.
    * @param depth  the new value of the property
    */
   public void setDepth(int depth) {
@@ -252,9 +244,9 @@ public class PortfolioTreeSearchRequest extends DirectBean {
 
   /**
    * Gets the the {@code depth} property.
-   * A value of zero returns no nodes, one returns the root node, two returns the
-   * root node and immediate children, and so on.
+   * A value of zero returns the root node, one returns the root node with immediate children, and so on.
    * By default this is zero to save space in the response.
+   * A negative value, such as -1, returns the full tree.
    * @return the property, not null
    */
   public final Property<Integer> depth() {

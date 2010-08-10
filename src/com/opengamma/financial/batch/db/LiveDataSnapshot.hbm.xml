@@ -12,7 +12,7 @@
       </generator>
     </id>
     <set name="snapshotEntries" inverse="true">
-        <key column="id"/>
+        <key column="snapshot_id"/>
         <one-to-many class="LiveDataSnapshotEntry"/>
     </set>
     <many-to-one name="snapshotTime" 

@@ -29,20 +29,18 @@ import com.opengamma.util.ArgumentChecker;
 public class FullPositionGetRequest extends DirectBean {
 
   /**
-   * The position identifier.
+   * The position object identifier.
    * Any identifier version specified will be overridden by the instants.
    */
   @PropertyDefinition
   private UniqueIdentifier _positionId;
   /**
-   * The instant representing the version to obtain.
-   * Null is treated as the latest version.
+   * The instant to search for a version at, null treated as the latest version.
    */
   @PropertyDefinition
   private Instant _versionAsOfInstant;
   /**
-   * The instant representing the version has been corrected to.
-   * Null is treated as the latest correction.
+   * The instant to search for corrections for, null treated as the latest correction.
    */
   @PropertyDefinition
   private Instant _correctedToInstant;
@@ -55,10 +53,22 @@ public class FullPositionGetRequest extends DirectBean {
 
   /**
    * Creates an instance.
-   * @param uid  the portfolio node unique identifier
+   * @param uid  the position object identifier, may be null
    */
   public FullPositionGetRequest(UniqueIdentifier uid) {
     setPositionId(uid);
+  }
+
+  /**
+   * Creates an instance retrieving the portfolio at a specific instant.
+   * @param uid  the position object identifier, may be null
+   * @param versionAsOfInstant  the instant to search for a version at, may be null
+   * @param correctedToInstant  the instant to search for corrections for, may be null
+   */
+  public FullPositionGetRequest(final UniqueIdentifier uid, final Instant versionAsOfInstant, final Instant correctedToInstant) {
+    setPositionId(uid);
+    setVersionAsOfInstant(versionAsOfInstant);
+    setCorrectedToInstant(correctedToInstant);
   }
 
   //-------------------------------------------------------------------------
@@ -122,7 +132,7 @@ public class FullPositionGetRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the position identifier.
+   * Gets the position object identifier.
    * Any identifier version specified will be overridden by the instants.
    * @return the value of the property
    */
@@ -131,7 +141,7 @@ public class FullPositionGetRequest extends DirectBean {
   }
 
   /**
-   * Sets the position identifier.
+   * Sets the position object identifier.
    * Any identifier version specified will be overridden by the instants.
    * @param positionId  the new value of the property
    */
@@ -150,8 +160,7 @@ public class FullPositionGetRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the instant representing the version to obtain.
-   * Null is treated as the latest version.
+   * Gets the instant to search for a version at, null treated as the latest version.
    * @return the value of the property
    */
   public Instant getVersionAsOfInstant() {
@@ -159,8 +168,7 @@ public class FullPositionGetRequest extends DirectBean {
   }
 
   /**
-   * Sets the instant representing the version to obtain.
-   * Null is treated as the latest version.
+   * Sets the instant to search for a version at, null treated as the latest version.
    * @param versionAsOfInstant  the new value of the property
    */
   public void setVersionAsOfInstant(Instant versionAsOfInstant) {
@@ -169,7 +177,6 @@ public class FullPositionGetRequest extends DirectBean {
 
   /**
    * Gets the the {@code versionAsOfInstant} property.
-   * Null is treated as the latest version.
    * @return the property, not null
    */
   public final Property<Instant> versionAsOfInstant() {
@@ -178,8 +185,7 @@ public class FullPositionGetRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the instant representing the version has been corrected to.
-   * Null is treated as the latest correction.
+   * Gets the instant to search for corrections for, null treated as the latest correction.
    * @return the value of the property
    */
   public Instant getCorrectedToInstant() {
@@ -187,8 +193,7 @@ public class FullPositionGetRequest extends DirectBean {
   }
 
   /**
-   * Sets the instant representing the version has been corrected to.
-   * Null is treated as the latest correction.
+   * Sets the instant to search for corrections for, null treated as the latest correction.
    * @param correctedToInstant  the new value of the property
    */
   public void setCorrectedToInstant(Instant correctedToInstant) {
@@ -197,7 +202,6 @@ public class FullPositionGetRequest extends DirectBean {
 
   /**
    * Gets the the {@code correctedToInstant} property.
-   * Null is treated as the latest correction.
    * @return the property, not null
    */
   public final Property<Instant> correctedToInstant() {

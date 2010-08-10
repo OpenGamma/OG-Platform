@@ -9,10 +9,7 @@ import java.util.Set;
 
 import javax.time.calendar.OffsetTime;
 
-import org.fudgemsg.FudgeMsg;
-
-import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.financial.batch.db.BatchDbRiskContext;
+import com.opengamma.engine.view.calcnode.ResultWriterFactory;
 
 /**
  * All operations needed to populate the batch database.
@@ -36,45 +33,6 @@ public interface BatchDbManager {
    * @param batch The batch job which has finished, not null
    */
   void endBatch(BatchJob batch);
-  
-  /**
-   * Gets a context for writing risk values into the database
-   * from the current VM.
-   * 
-   * @param batch The batch job which must already have been started
-   * (see {@link #startBatch}). Not null.
-   * @return A context for use in method {@link #write}. Not null.
-   */
-  BatchDbRiskContext createLocalContext(BatchJob batch);
-  
-  /**
-   * Gets a context for writing risk values into the database
-   * from a remote VM. Called in the Engine Master Process VM.
-   * 
-   * @param batch The batch job which must already have been started
-   * (see {@link #startBatch}). Not null.
-   * @param remoteComputeNodeOid Reference to OpenGamma Configuration Database
-   * @param remoteComputeNodeVersion Reference to OpenGamma Configuration Database
-   * @return A context for use in method {@link #write}. Not null.
-   */
-  FudgeMsg createFudgeContext(BatchJob batch, String remoteComputeNodeOid, int remoteComputeNodeVersion);
-  
-  /**
-   * Deserializes a context sent from the Engine Master Process VM.
-   * This enables the node on the grid to write risk.
-   *  
-   * @param msg Message created by {@link #createFudgeContext}
-   * @return A context for use in method {@link #write}. Not null.
-   */
-  BatchDbRiskContext deserializeFudgeContext(FudgeMsg msg); 
-
-  /**
-   * Writes a set of risk values into the database.
-   * 
-   * @param dbContext Context information enabling the writing of risk, not null
-   * @param result A set of risk values, along with metadata, not null
-   */
-  void write(BatchDbRiskContext dbContext, ViewComputationResultModel result);
   
   /**
    * Creates a LiveData snapshot in the database. 
@@ -121,5 +79,15 @@ public interface BatchDbManager {
    * @return The fixings associated with this snapshot, not null
    */
   Set<LiveDataValue> getSnapshotValues(SnapshotId snapshotId);
+  
+  /**
+   * Gets a factory for writing risk values into the database.
+   * 
+   * @param batch The batch job for which results will be written
+   * @return A factory used to create result writers. These
+   * result writers will in turn be sent down to compute nodes
+   * on the grid.
+   */
+  ResultWriterFactory createResultWriterFactory(BatchJob batch);
   
 }

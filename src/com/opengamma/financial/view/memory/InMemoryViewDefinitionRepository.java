@@ -10,13 +10,12 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.view.AddViewDefinitionRequest;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.UpdateViewDefinitionRequest;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A simple, in-memory implementation of {@link ManageableViewDefinitionRepository}.
@@ -46,7 +45,7 @@ public class InMemoryViewDefinitionRepository implements ManageableViewDefinitio
   
   @Override
   public void addViewDefinition(AddViewDefinitionRequest request) {
-    Validate.notNull(request, "AddViewDefinitionRequest must not be null");
+    ArgumentChecker.notNull(request, "request");
     request.checkValid();
     
     final ViewDefinition viewDefinition = request.getViewDefinition();
@@ -55,7 +54,7 @@ public class InMemoryViewDefinitionRepository implements ManageableViewDefinitio
   
   @Override
   public void updateViewDefinition(UpdateViewDefinitionRequest request) {
-    Validate.notNull(request, "UpdateViewDefinitionRequest must not be null");
+    ArgumentChecker.notNull(request, "request");
     request.checkValid();
     
     final String originalName = request.getName();
