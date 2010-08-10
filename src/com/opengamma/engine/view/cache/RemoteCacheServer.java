@@ -46,8 +46,8 @@ public class RemoteCacheServer implements FudgeRequestReceiver {
   public FudgeFieldContainer requestReceived(
       FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope) {
     s_logger.debug("Got request {}", requestEnvelope.getMessage());
-    Object request = context.fudgeMsgToObject(requestEnvelope.getMessage());
-    Object response = null;
+    RemoteCacheMessage request = context.fudgeMsgToObject(RemoteCacheMessage.class, requestEnvelope.getMessage());
+    RemoteCacheMessage response = null;
     if (request instanceof ValueSpecificationLookupRequest) {
       response = handleValueSpecificationLookupRequest(context.getFudgeContext(), (ValueSpecificationLookupRequest) request);
     } else if (request instanceof ValueLookupRequest) {
@@ -60,11 +60,11 @@ public class RemoteCacheServer implements FudgeRequestReceiver {
       s_logger.warn("Got an unhandled request type: {}", request);
     }
     if (response == null) {
-      return context.getFudgeContext().newMessage();
+      return FudgeContext.EMPTY_MESSAGE;
     } else {
       FudgeSerializationContext ctx = new FudgeSerializationContext(context.getFudgeContext());
       MutableFudgeFieldContainer responseMsg = ctx.objectToFudgeMsg(response);
-      FudgeSerializationContext.addClassHeader(responseMsg, response.getClass());
+      FudgeSerializationContext.addClassHeader(responseMsg, response.getClass(), RemoteCacheMessage.class);
       return responseMsg;
     }
   }
@@ -73,7 +73,7 @@ public class RemoteCacheServer implements FudgeRequestReceiver {
    * @param request
    * @return
    */
-  private Object handleValueSpecificationLookupRequest(
+  private ValueSpecificationLookupResponse handleValueSpecificationLookupRequest(
       FudgeContext context,
       ValueSpecificationLookupRequest request) {
     Long currentValue = _valueSpecificationIds.get(request.getRequest());
@@ -94,7 +94,7 @@ public class RemoteCacheServer implements FudgeRequestReceiver {
    * @param request
    * @return
    */
-  private Object handleValueLookupRequest(FudgeContext fudgeContext,
+  private ValueLookupResponse handleValueLookupRequest(FudgeContext fudgeContext,
       ValueLookupRequest request) {
     ViewComputationCacheKey cacheKey = new ViewComputationCacheKey(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshot());
     Map<Long, Object> cacheMap = _values.get(cacheKey);
@@ -111,7 +111,7 @@ public class RemoteCacheServer implements FudgeRequestReceiver {
    * @param request
    * @return
    */
-  private Object handleValuePutRequest(FudgeContext fudgeContext,
+  private ValuePutResponse handleValuePutRequest(FudgeContext fudgeContext,
       ValuePutRequest request) {
     ViewComputationCacheKey cacheKey = new ViewComputationCacheKey(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshot());
     Map<Long, Object> cacheMap = _values.get(cacheKey);
@@ -132,7 +132,7 @@ public class RemoteCacheServer implements FudgeRequestReceiver {
    * @param request
    * @return
    */
-  private Object handleCachePurgeRequest(FudgeContext fudgeContext,
+  private CachePurgeResponse handleCachePurgeRequest(FudgeContext fudgeContext,
       CachePurgeRequest request) {
     s_logger.info("Purging on request {}", request);
     int nPurged = 0;

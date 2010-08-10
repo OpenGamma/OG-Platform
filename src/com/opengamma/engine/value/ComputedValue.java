@@ -131,7 +131,7 @@ public class ComputedValue implements Serializable {
   public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
     MutableFudgeFieldContainer message = context.newMessage();
     message.add(SPECIFICATION_KEY, getSpecification().toFudgeMsg(context));
-    context.objectToFudgeMsg(message, VALUE_KEY, null, getValue());
+    context.objectToFudgeMsgWithClassHeaders(message, VALUE_KEY, null, getValue());
     return message;
   }
 

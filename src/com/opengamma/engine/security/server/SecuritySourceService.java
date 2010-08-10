@@ -14,7 +14,6 @@ import java.util.concurrent.ConcurrentMap;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
-import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.engine.security.RemoteSecuritySource;
@@ -48,7 +47,7 @@ public class SecuritySourceService {
    * @param fudgeContext  the Fudge context, not null
    */
   public SecuritySourceService(FudgeContext fudgeContext) {
-    Validate.notNull(fudgeContext, "FudgeContext must not be null");
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _fudgeContext = fudgeContext;
   }
 

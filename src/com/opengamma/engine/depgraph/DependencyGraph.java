@@ -6,6 +6,7 @@
 package com.opengamma.engine.depgraph;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -77,6 +78,10 @@ public class DependencyGraph {
   
   public boolean isRootNode(DependencyNode node) {
     return _rootNodes.contains(node);         
+  }
+  
+  public boolean containsNode(DependencyNode node) {
+    return _dependencyNodes.contains(node);    
   }
 
   public Set<ValueSpecification> getOutputValues() {
@@ -210,6 +215,10 @@ public class DependencyGraph {
   }
   
   private void getExecutionOrder(DependencyNode currentNode, List<DependencyNode> executionOrder, Set<DependencyNode> alreadyEvaluated) {
+    if (!containsNode(currentNode)) { // this check is necessary because of sub-graphing
+      return;
+    }
+    
     for (DependencyNode child : currentNode.getInputNodes()) {
       getExecutionOrder(child, executionOrder, alreadyEvaluated);
     }
@@ -230,6 +239,19 @@ public class DependencyGraph {
       if (filter.accept(node)) {
         subGraph.addDependencyNode(node);
       }
+    }
+    return subGraph;
+  }
+  
+  /**
+   * @param subNodes Each node must belong to this graph - 
+   * this is not checked in the method for performance reasons
+   * @return Sub-graph of the given nodes
+   */
+  public DependencyGraph subGraph(Collection<DependencyNode> subNodes) {
+    DependencyGraph subGraph = new DependencyGraph(getCalcConfName());
+    for (DependencyNode node : subNodes) {
+      subGraph.addDependencyNode(node);
     }
     return subGraph;
   }

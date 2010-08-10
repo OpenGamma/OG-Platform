@@ -1,34 +1,101 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.cache;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeRequestSender;
-import com.opengamma.transport.FudgeSynchronousClient;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
- *
  */
-public class RemoteCacheClient extends FudgeSynchronousClient {
+public class RemoteCacheClient implements FudgeMessageReceiver {
+
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteCacheClient.class);
+
+  private static final long DEFAULT_TIMEOUT_MILLISECONDS = 30L * 1000L;
+
   private final ConcurrentMap<ValueSpecification, Long> _specificationIds = new ConcurrentHashMap<ValueSpecification, Long>();
-  
+  private final FudgeRequestSender _requestSender;
+  private final ConcurrentMap<RemoteCacheMessage, OperationResult<?>> _activeOperations = new ConcurrentHashMap<RemoteCacheMessage, OperationResult<?>>();
+  private final ConcurrentMap<Long, OperationResult<?>> _pendingOperations = new ConcurrentHashMap<Long, OperationResult<?>>();
+  private final AtomicLong _correlationId = new AtomicLong(1L);
+
+  private long _timeoutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS;
+
+  /**
+   * 
+   */
+  public final class OperationResult<T> {
+    private final RemoteCacheMessage _operation;
+    private final CountDownLatch _latch;
+    private T _result;
+
+    private OperationResult(final RemoteCacheMessage operation) {
+      _operation = operation;
+      _latch = new CountDownLatch(1);
+    }
+
+    public T getResult() {
+      return _result;
+    }
+
+    public void release() {
+      getActiveOperations().remove(_operation);
+    }
+
+    private boolean await() {
+      try {
+        return _latch.await(getTimeoutMilliseconds(), TimeUnit.MILLISECONDS);
+      } catch (InterruptedException e) {
+        s_logger.warn("Thread interrupted {}", e);
+        return false;
+      }
+    }
+  }
+
   public RemoteCacheClient(FudgeRequestSender requestSender) {
-    super(requestSender);
+    _requestSender = requestSender;
+  }
+
+  public void setTimeoutMilliseconds(final long timeoutMilliseconds) {
+    _timeoutMilliseconds = timeoutMilliseconds;
+  }
+
+  public long getTimeoutMilliseconds() {
+    return _timeoutMilliseconds;
+  }
+
+  protected FudgeRequestSender getRequestSender() {
+    return _requestSender;
+  }
+
+  protected ConcurrentMap<RemoteCacheMessage, OperationResult<?>> getActiveOperations() {
+    return _activeOperations;
+  }
+
+  protected ConcurrentMap<Long, OperationResult<?>> getPendingOperations() {
+    return _pendingOperations;
   }
 
   public long getValueSpecificationId(ValueSpecification valueSpec) {
@@ -37,109 +104,134 @@ public class RemoteCacheClient extends FudgeSynchronousClient {
     if (result != null) {
       return result;
     }
-    result = remoteLookupValueSpecificationId(valueSpec);
+    final OperationResult<ValueSpecificationLookupResponse> lookupResult = remoteLookupValueSpecificationId(valueSpec);
+    if (lookupResult == null) {
+      throw new OpenGammaRuntimeException("Couldn't lookup value specification ID for " + valueSpec);
+    }
+    result = lookupResult.getResult().getResponse();
     Long previousResult = _specificationIds.putIfAbsent(valueSpec, result);
+    lookupResult.release();
     assert (previousResult == null) || (previousResult == result) : "Inconsistent results from concurrent spec requests!";
     return result;
   }
 
-  protected long remoteLookupValueSpecificationId(ValueSpecification valueSpec) {
-    ArgumentChecker.notNull(valueSpec, "Value Specification");
-    long correlationId = getNextCorrelationId();
-    s_logger.info("Requesting value specification ID for {} - Correlation {}", valueSpec, correlationId);
-    ValueSpecificationLookupRequest request = new ValueSpecificationLookupRequest(correlationId, valueSpec);
-    
-    FudgeSerializationContext ctx = new FudgeSerializationContext(getRequestSender().getFudgeContext());
-    MutableFudgeFieldContainer requestMsg = ctx.objectToFudgeMsg(request);
-    FudgeSerializationContext.addClassHeader(requestMsg, ValueSpecificationLookupRequest.class);
-    
-    //FudgeFieldContainer requestMsg = request.toFudgeMsg(new FudgeSerializationContext(getRequestSender().getFudgeContext()));
-    Object resultValue = sendRequestAndWaitForResponse(requestMsg, correlationId);
-    assert resultValue instanceof ValueSpecificationLookupResponse;
-    ValueSpecificationLookupResponse lookupResponse = (ValueSpecificationLookupResponse) resultValue;
-    return lookupResponse.getResponse();
+  protected Long getNextCorrelationId() {
+    return _correlationId.getAndIncrement();
   }
-  
-  public Object getValue(String viewName, String calcConfigName, long timestamp, ValueSpecification valueSpecification) {
-    // TODO kirk 2010-03-30 -- Check Inputs.
-    
-    long correlationId = getNextCorrelationId();
-    s_logger.info("Requesting value {} - Correlation {}", valueSpecification, correlationId);
-    
-    long specificationId = getValueSpecificationId(valueSpecification);
-    
-    ValueLookupRequest request = new ValueLookupRequest();
-    request.setCorrelationId(correlationId);
+
+  @SuppressWarnings("unchecked")
+  protected <T> OperationResult<T> sendMessageAndWait(final RemoteCacheMessage message, final boolean coalesce) {
+    final OperationResult<T> result = new OperationResult<T>(message);
+    if (coalesce) {
+      final OperationResult<T> pending = (OperationResult<T>) getActiveOperations().putIfAbsent(message, result);
+      if (pending != null) {
+        s_logger.debug("Waiting for result from other calling thread");
+        return pending.await() ? pending : null;
+      }
+    }
+    final RemoteCacheMessage correlatedMessage = coalesce ? message.clone() : message;
+    final Long correlationId = getNextCorrelationId();
+    correlatedMessage.setCorrelationId(correlationId);
+    getPendingOperations().put(correlationId, result);
+    s_logger.debug("Calling server with correlation ID {}", correlationId);
+    final FudgeSerializationContext ctx = new FudgeSerializationContext(getRequestSender().getFudgeContext());
+    final MutableFudgeFieldContainer request = ctx.objectToFudgeMsg(correlatedMessage);
+    FudgeSerializationContext.addClassHeader(request, message.getClass(), RemoteCacheMessage.class);
+    synchronized (getRequestSender()) {
+      getRequestSender().sendRequest(request, this);
+    }
+    final boolean success = result.await();
+    s_logger.debug("Removing correlation ID {} from pending operations", correlatedMessage.getCorrelationId());
+    getPendingOperations().remove(correlationId);
+    if (success) {
+      return result;
+    }
+    s_logger.warn("Remote server timed out on {}", message);
+    getActiveOperations().remove(message);
+    return null;
+  }
+
+  protected OperationResult<ValueSpecificationLookupResponse> remoteLookupValueSpecificationId(ValueSpecification valueSpec) {
+    ArgumentChecker.notNull(valueSpec, "Value Specification");
+    s_logger.info("Requesting value specification ID for {}", valueSpec);
+    final ValueSpecificationLookupRequest request = new ValueSpecificationLookupRequest();
+    request.setRequest(valueSpec);
+    final OperationResult<ValueSpecificationLookupResponse> response = sendMessageAndWait(request, true);
+    if (response == null) {
+      throw new OpenGammaRuntimeException("Couldn't lookup value specification ID for " + valueSpec);
+    }
+    return response;
+  }
+
+  public OperationResult<ValueLookupResponse> getValue(String viewName, String calcConfigName, long timestamp, ValueSpecification valueSpecification) {
+    ArgumentChecker.notNull(viewName, "viewName");
+    ArgumentChecker.notNull(calcConfigName, "calcConfigName");
+    ArgumentChecker.notNull(valueSpecification, "valueSpecification");
+    s_logger.info("Requesting value {}", valueSpecification);
+    final long specificationId = getValueSpecificationId(valueSpecification);
+    final ValueLookupRequest request = new ValueLookupRequest();
     request.setViewName(viewName);
     request.setCalculationConfigurationName(calcConfigName);
     request.setSnapshot(timestamp);
     request.setSpecificationId(specificationId);
-    
-    FudgeSerializationContext ctx = new FudgeSerializationContext(getRequestSender().getFudgeContext());
-    MutableFudgeFieldContainer requestMsg = ctx.objectToFudgeMsg(request);
-    FudgeSerializationContext.addClassHeader(requestMsg, ValueLookupRequest.class);
-    
-    Object resultValue = sendRequestAndWaitForResponse(requestMsg, correlationId);
-    assert resultValue instanceof ValueLookupResponse;
-    ValueLookupResponse lookupResponse = (ValueLookupResponse) resultValue;
-    return lookupResponse.getValue();
+    final OperationResult<ValueLookupResponse> response = sendMessageAndWait(request, true);
+    if (response == null) {
+      throw new OpenGammaRuntimeException("Couldn't get value " + valueSpecification);
+    }
+    return response;
   }
-  
+
   public void putValue(String viewName, String calcConfigName, long timestamp, ComputedValue value) {
-    long correlationId = getNextCorrelationId();
-    s_logger.info("Submitting value {} - Correlation {}", value.getSpecification(), correlationId);
-    
-    long specificationId = getValueSpecificationId(value.getSpecification());
-    
-    ValuePutRequest request = new ValuePutRequest();
-    request.setCorrelationId(correlationId);
+    ArgumentChecker.notNull(viewName, "viewName");
+    ArgumentChecker.notNull(calcConfigName, "calcConfigName");
+    ArgumentChecker.notNull(value, "computedValue");
+    s_logger.info("Submitting value {}", value.getSpecification());
+    final long specificationId = getValueSpecificationId(value.getSpecification());
+    final ValuePutRequest request = new ValuePutRequest();
     request.setViewName(viewName);
     request.setCalculationConfigurationName(calcConfigName);
     request.setSnapshot(timestamp);
     request.setSpecificationId(specificationId);
     request.setValue(value.getValue());
-
-    FudgeSerializationContext ctx = new FudgeSerializationContext(getRequestSender().getFudgeContext());
-    MutableFudgeFieldContainer requestMsg = ctx.objectToFudgeMsg(request);
-    FudgeSerializationContext.addClassHeader(requestMsg, ValuePutRequest.class);
-    
-    Object resultValue = sendRequestAndWaitForResponse(requestMsg, correlationId);
-    assert resultValue instanceof ValuePutResponse;
-    // Nothing to check.
+    final OperationResult<ValuePutResponse> response = sendMessageAndWait(request, false);
+    if (response == null) {
+      throw new OpenGammaRuntimeException("Couldn't put value " + value.getSpecification());
+    }
   }
-  
+
   public int purgeCache(String viewName, String calcConfigName, long timestamp) {
-    long correlationId = getNextCorrelationId();
-    s_logger.info("Submitting Purge {} {} {} - Correlation {}",
-        new Object[] {viewName, calcConfigName, timestamp, correlationId});
-    
-    CachePurgeRequest request = new CachePurgeRequest();
-    request.setCorrelationId(correlationId);
+    ArgumentChecker.notNull(viewName, "viewName");
+    s_logger.info("Submitting Purge {} {} {}", new Object[] {viewName, calcConfigName, timestamp});
+
+    final CachePurgeRequest request = new CachePurgeRequest();
     request.setViewName(viewName);
     if (calcConfigName != null) {
       request.setCalculationConfigurationName(calcConfigName);
     }
     request.setSnapshot(timestamp);
-
-    FudgeSerializationContext ctx = new FudgeSerializationContext(getRequestSender().getFudgeContext());
-    MutableFudgeFieldContainer requestMsg = ctx.objectToFudgeMsg(request);
-    FudgeSerializationContext.addClassHeader(requestMsg, CachePurgeRequest.class);
-    
-    Object resultValue = sendRequestAndWaitForResponse(requestMsg, correlationId);
-    assert resultValue instanceof CachePurgeResponse;
-    CachePurgeResponse purgeResponse = (CachePurgeResponse) resultValue;
-    s_logger.info("Purge {} {} {} purged {} caches - Correlation {}",
-        new Object[] {viewName, calcConfigName, timestamp, purgeResponse.getNumPurged(), correlationId});
-    return purgeResponse.getNumPurged();
+    final OperationResult<CachePurgeResponse> response = sendMessageAndWait(request, true);
+    if (response == null) {
+      throw new OpenGammaRuntimeException("Couldn't purge cache");
+    }
+    final int numPurged = response.getResult().getNumPurged();
+    response.release();
+    s_logger.info("Purge {} {} {} purged {} caches ", new Object[] {viewName, calcConfigName, timestamp, numPurged});
+    return numPurged;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  protected long getCorrelationIdFromReply(Object reply) {
-    if (!(reply instanceof RemoteCacheMessage)) {
-      s_logger.error("Didn't get a RemoteCacheMessage reply, got a {}", reply);
-      return Long.MIN_VALUE;
+  public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
+    final FudgeDeserializationContext ctx = new FudgeDeserializationContext(fudgeContext);
+    final RemoteCacheMessage message = ctx.fudgeMsgToObject(RemoteCacheMessage.class, msgEnvelope.getMessage());
+    final Long correlationId = message.getCorrelationId();
+    s_logger.info("Releasing correlation ID {}", correlationId);
+    final OperationResult<RemoteCacheMessage> result = (OperationResult<RemoteCacheMessage>) getPendingOperations().get(correlationId);
+    if (result != null) {
+      result._result = message;
+      result._latch.countDown();
+    } else {
+      s_logger.warn("Correlation ID {} not found in pending operation map", correlationId);
     }
-    RemoteCacheMessage remoteCacheMessage = (RemoteCacheMessage) reply;
-    return remoteCacheMessage.getCorrelationId();
   }
 }

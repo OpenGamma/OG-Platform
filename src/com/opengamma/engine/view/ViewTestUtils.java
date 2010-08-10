@@ -10,6 +10,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.fudgemsg.FudgeContext;
+
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.DefaultFunctionResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -21,8 +23,9 @@ import com.opengamma.engine.position.MockPositionSource;
 import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.security.MockSecuritySource;
 import com.opengamma.engine.view.cache.MapViewComputationCacheSource;
-import com.opengamma.engine.view.calc.AtomicExecutorFactory;
+import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
 import com.opengamma.engine.view.calcnode.CalculationNodeRequestReceiver;
+import com.opengamma.engine.view.calcnode.DummyResultWriterFactory;
 import com.opengamma.engine.view.calcnode.FudgeJobRequestSender;
 import com.opengamma.engine.view.calcnode.JobRequestSender;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
@@ -49,7 +52,7 @@ public class ViewTestUtils {
     
     DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
     
-    MapViewComputationCacheSource cacheFactory = new MapViewComputationCacheSource();
+    MapViewComputationCacheSource cacheFactory = new MapViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT);
     
     FunctionExecutionContext executionContext = new FunctionExecutionContext();
     
@@ -74,7 +77,8 @@ public class ViewTestUtils {
         viewProcessorQueryReceiver,
         new FunctionCompilationContext(), 
         executor,
-        new AtomicExecutorFactory());
+        new SingleNodeExecutorFactory(),
+        new DummyResultWriterFactory());
     
     ViewDefinition viewDefinition = new ViewDefinition("mock_view", portfolioId, "ViewTestUser");
 

@@ -39,7 +39,7 @@ import com.opengamma.util.ThreadUtil;
 public class ServerSocketRemoteViewComputationCacheTest {
   private static final Logger s_logger = LoggerFactory.getLogger(ServerSocketRemoteViewComputationCacheTest.class);
   // When attempting to fix ENG-100, set this constant to more than 1.
-  private static final int NUM_THREADS = 1;
+  private static final int NUM_THREADS = 5;
   private static final int NUM_LOOKUPS = 1000;
   private RemoteViewComputationCacheSource _cacheSource;
   private ServerSocketFudgeRequestDispatcher _serverSocketDispatcher;
@@ -104,7 +104,7 @@ public class ServerSocketRemoteViewComputationCacheTest {
                 cache.putValue(cv);
               }
             }
-          } catch (Exception e) {
+          } catch (Throwable e) {
             s_logger.error("Failed", e);
             failed.set(true);
           }

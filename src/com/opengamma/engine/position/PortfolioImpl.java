@@ -37,9 +37,19 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
    * @param name  the name to use, not null
    */
   public PortfolioImpl(String name) {
+    this(name, new PortfolioNodeImpl());
+  }
+
+  /**
+   * Creates a portfolio with the specified name and root node.
+   * @param name  the name to use, not null
+   * @param rootNode  the root node, not null
+   */
+  public PortfolioImpl(String name, PortfolioNodeImpl rootNode) {
     ArgumentChecker.notNull(name, "name");
+    ArgumentChecker.notNull(rootNode, "root node");
     _name = name;
-    _rootNode = new PortfolioNodeImpl();
+    _rootNode = rootNode;
   }
 
   /**
@@ -52,7 +62,7 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
   }
 
   /**
-   * Creates a portfolio with the specified identifier and root node.
+   * Creates a portfolio with the specified identifier, name and root node.
    * @param identifier  the portfolio identifier, not null
    * @param name  the name to use, not null
    * @param rootNode  the root node, not null

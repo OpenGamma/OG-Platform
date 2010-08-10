@@ -27,7 +27,7 @@ public class PortfolioImplTest {
     assertEquals("Portfolio[]", test.toString());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_construction_String_null() {
     new PortfolioImpl(null);
   }
@@ -43,12 +43,12 @@ public class PortfolioImplTest {
     assertEquals("Portfolio[Scheme::Id]", test.toString());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_construction_PortfolioIdString_nullId() {
     new PortfolioImpl(null, "Name");
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_construction_PortfolioIdString_nullName() {
     new PortfolioImpl(id("Scheme", "Id"), null);
   }
@@ -64,17 +64,17 @@ public class PortfolioImplTest {
     assertEquals("Portfolio[Scheme::Id]", test.toString());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_construction_PortfolioIdStringNode_nullId() {
     new PortfolioImpl(null, "Name", new PortfolioNodeImpl());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_construction_PortfolioIdStringNode_nullName() {
     new PortfolioImpl(id("Scheme", "Id"), null, new PortfolioNodeImpl());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_construction_PortfolioIdStringNode_nullRoot() {
     new PortfolioImpl(id("Scheme", "Id"), "Name", null);
   }
@@ -91,7 +91,7 @@ public class PortfolioImplTest {
     assertEquals(id("Scheme2", "Id2"), test.getUniqueIdentifier());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_setUniqueIdentifier_null() {
     PortfolioImpl test = new PortfolioImpl(id("Scheme", "Id"), "Name");
     test.setUniqueIdentifier(null);
@@ -105,7 +105,7 @@ public class PortfolioImplTest {
     assertEquals("Name2", test.getName());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_setName_null() {
     PortfolioImpl test = new PortfolioImpl(id("Scheme", "Id"), "Name");
     test.setName(null);
@@ -120,7 +120,7 @@ public class PortfolioImplTest {
     assertSame(root, test.getRootNode());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void test_setRootNode_null() {
     PortfolioImpl test = new PortfolioImpl(id("Scheme", "Id"), "Name");
     test.setRootNode(null);

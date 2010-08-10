@@ -18,6 +18,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.cache.RemoteCacheClient.OperationResult;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.transport.InMemoryRequestConduit;
@@ -58,9 +59,11 @@ public class RemoteViewComputationCacheSourceTest {
     cache.putValue(inputValue);
     
     // First, check that it hit the remote side. RemoteClient doesn't cache locally.
-    Object resultValue = _cacheSource.getRemoteClient().getValue("View1", "Config1", timestamp, valueSpec);
+    OperationResult<ValueLookupResponse> result = _cacheSource.getRemoteClient().getValue("View1", "Config1", timestamp, valueSpec);
+    Object resultValue = result.getResult ().getValue ();
+    result.release ();
     assertNotNull(resultValue);
-    assertTrue(resultValue instanceof Double);
+    assertTrue("Expected Double, but got " + resultValue + " type " + resultValue.getClass(), resultValue instanceof Double);
     assertEquals(2.0, (Double)resultValue, 0.0001);
     
     // Now check the local caching.

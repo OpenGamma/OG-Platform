@@ -8,11 +8,11 @@ package com.opengamma.engine.view.calc;
 /**
  * 
  */
-public class AtomicExecutorFactory implements DependencyGraphExecutorFactory {
+public class SingleNodeExecutorFactory implements DependencyGraphExecutorFactory {
 
   @Override
   public DependencyGraphExecutor createExecutor(SingleComputationCycle cycle) {
-    return new AtomicExecutor(cycle);
+    return new SingleNodeExecutor(cycle);
   }
 
 }

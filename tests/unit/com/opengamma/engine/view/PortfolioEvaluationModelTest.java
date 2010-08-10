@@ -42,7 +42,7 @@ import com.opengamma.id.UniqueIdentifier;
 
 public class PortfolioEvaluationModelTest {
   
-  @Test(expected=NullPointerException.class)
+  @Test(expected=IllegalArgumentException.class)
   public void nullPortfolio() {
     new PortfolioEvaluationModel(null);
   }

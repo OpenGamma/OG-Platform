@@ -1,18 +1,19 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.security;
 
-import static com.opengamma.engine.security.server.SecuritySourceServiceNames.SECURITYSOURCE_SECURITIES;
 import static com.opengamma.engine.security.server.SecuritySourceServiceNames.SECURITYSOURCE_SECURITY;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
-import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeField;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -42,13 +43,13 @@ public class RemoteSecuritySource implements SecuritySource {
    * @param baseTarget  the base target URI to call, not null
    */
   public RemoteSecuritySource(final FudgeContext fudgeContext, final RestTarget baseTarget) {
-    Validate.notNull(fudgeContext, "FudgeContext must not be null");
-    Validate.notNull(baseTarget, "RestTarget must not be null");
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
+    ArgumentChecker.notNull(baseTarget, "baseTarget");
     _restClient = RestClient.getInstance(fudgeContext, null);
     _targetBase = baseTarget;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Gets the RESTful client.
    * @return the client, not null
@@ -65,27 +66,34 @@ public class RemoteSecuritySource implements SecuritySource {
     return _targetBase;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   @Override
   public Security getSecurity(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     final RestTarget target = _targetBase.resolveBase("securities").resolveBase("security").resolve(uid.toString());
-    return getRestClient().getSingleValueNotNull(Security.class, target, SECURITYSOURCE_SECURITY);
+    return getRestClient().getSingleValue(Security.class, target, SECURITYSOURCE_SECURITY);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public Collection<Security> getSecurities(IdentifierBundle securityKey) {
     ArgumentChecker.notNull(securityKey, "securityKey");
     final RestTarget target = _targetBase.resolveBase("securities").resolveQuery("id", securityKey.toStringList());
-    return getRestClient().getSingleValueNotNull(List.class, target, SECURITYSOURCE_SECURITIES);
+    final FudgeFieldContainer message = getRestClient().getMsg(target);
+    final FudgeDeserializationContext context = getRestClient().getFudgeDeserializationContext();
+    final Collection<Security> securities = new ArrayList<Security>(message.getNumFields());
+    for (FudgeField security : message) {
+      if (SECURITYSOURCE_SECURITY.equals(security.getName())) {
+        securities.add(context.fieldValueToObject(Security.class, security));
+      }
+    }
+    return securities;
   }
 
   @Override
   public Security getSecurity(IdentifierBundle securityKey) {
     ArgumentChecker.notNull(securityKey, "securityKey");
     final RestTarget target = _targetBase.resolveBase("securities").resolve("security").resolveQuery("id", securityKey.toStringList());
-    return getRestClient().getSingleValueNotNull(Security.class, target, SECURITYSOURCE_SECURITY);
+    return getRestClient().getSingleValue(Security.class, target, SECURITYSOURCE_SECURITY);
   }
 
 }

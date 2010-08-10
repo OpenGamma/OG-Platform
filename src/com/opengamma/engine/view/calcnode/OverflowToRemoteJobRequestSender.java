@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.calcnode;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
@@ -62,17 +63,15 @@ public class OverflowToRemoteJobRequestSender implements JobRequestSender, Lifec
   }
 
   @Override
-  public void sendRequest(CalculationJob job, JobResultReceiver resultReceiver) {
-    ArgumentChecker.notNull(job, "Calculation Job");
-    ArgumentChecker.notNull(resultReceiver, "Job result receiver");
-    
-    Runnable runnable = new LocalDispatchRunnable(job, resultReceiver);
+  public void sendRequest(CalculationJobSpecification jobSpec, List<CalculationJobItem> items, JobResultReceiver resultReceiver) {
+    Runnable runnable = new LocalDispatchRunnable(jobSpec, items, resultReceiver);
     if (!_offerQueue.offer(runnable)) {
       // Overflow.
-      s_logger.debug("Overflowing job {}-{} to overflow sender", job.getSpecification().getViewName(), job.getSpecification().getJobId());
-      getOverflowSender().sendRequest(job, resultReceiver);
+      s_logger.debug("Overflowing {} to overflow sender", jobSpec);
+      getOverflowSender().sendRequest(jobSpec, items, resultReceiver);
     }
   }
+
 
   @Override
   public boolean isRunning() {
@@ -90,22 +89,23 @@ public class OverflowToRemoteJobRequestSender implements JobRequestSender, Lifec
   }
   
   private final class LocalDispatchRunnable implements Runnable {
-    private final CalculationJob _job;
+    private final CalculationJobSpecification _jobSpec;
+    private final List<CalculationJobItem> _items;
     private final JobResultReceiver _resultReceiver;
     
-    public LocalDispatchRunnable(CalculationJob job, JobResultReceiver resultReceiver) {
-      // Intentional assertion; private inner class.
-      assert job != null;
-      assert resultReceiver != null;
-      
-      _job = job;
+    public LocalDispatchRunnable(CalculationJobSpecification jobSpec,
+      List<CalculationJobItem> items, 
+      JobResultReceiver resultReceiver) {
+      _jobSpec = jobSpec;
+      _items = items;
       _resultReceiver = resultReceiver;
     }
     
     @Override
     public void run() {
-      getCalculationNode().sendRequest(_job, _resultReceiver);
+      getCalculationNode().sendRequest(_jobSpec, _items, _resultReceiver);
     }
     
   }
+
 }

@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view.calcnode;
 
+import java.util.List;
+
 /**
  * An interface for any system through which {@link CalculationJob}s can be sent and
  * {@link CalculationJobResult}s received.
@@ -13,5 +15,7 @@ package com.opengamma.engine.view.calcnode;
  */
 public interface JobRequestSender {
 
-  void sendRequest(CalculationJob job, JobResultReceiver resultReceiver);
+  void sendRequest(CalculationJobSpecification jobSpec, 
+      List<CalculationJobItem> items,
+      JobResultReceiver resultReceiver);
 }

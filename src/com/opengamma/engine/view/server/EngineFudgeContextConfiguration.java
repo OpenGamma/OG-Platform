@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -17,17 +17,25 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 
 /**
- * Registers custom builders for Portfolio, PortfolioNode, and Position with a FudgeContext
+ * Configuration for Fudge of the OG-Engine library.
+ * <p>
+ * This configures Fudge builders.
  */
-public class EngineFudgeContextConfiguration extends FudgeContextConfiguration {
-  
-  // REVIEW kirk 2010-05-22 -- Any reason this shouldn't be a pure singleton?
-  
+public final class EngineFudgeContextConfiguration extends FudgeContextConfiguration {
+
   /**
-   * The singleton Fudge context for a running Engine. 
+   * The singleton configuration. 
    */
   public static final FudgeContextConfiguration INSTANCE = new EngineFudgeContextConfiguration();
-  
+
+  /**
+   * Restricted constructor.
+   */
+  private EngineFudgeContextConfiguration() {
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public void configureFudgeObjectDictionary(final FudgeObjectDictionary dictionary) {
     dictionary.getDefaultBuilderFactory().addGenericBuilder(Portfolio.class, new PortfolioBuilder());
     dictionary.getDefaultBuilderFactory().addGenericBuilder(PortfolioNode.class, new PortfolioNodeBuilder());
@@ -37,5 +45,5 @@ public class EngineFudgeContextConfiguration extends FudgeContextConfiguration {
     dictionary.getDefaultBuilderFactory().addGenericBuilder(ViewComputationResultModel.class, new ViewComputationResultModelBuilder());
     dictionary.getDefaultBuilderFactory().addGenericBuilder(ViewDeltaResultModel.class, new ViewDeltaResultModelBuilder());
   }
-  
+
 }

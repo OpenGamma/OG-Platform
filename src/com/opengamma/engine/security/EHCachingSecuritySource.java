@@ -8,7 +8,6 @@ package com.opengamma.engine.security;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
