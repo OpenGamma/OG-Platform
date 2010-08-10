@@ -101,7 +101,8 @@ public class RemoteViewComputationCacheSource implements ViewComputationCacheSou
     } finally {
       _cacheCreationLock.unlock();
     }
-    getRemoteClient().purgeCache(viewName, null, timestamp);
+    // This is wrong; only the owner should purge
+    getRemoteClient().purgeCache(viewName, timestamp);
   }
 
   public void releaseAllLocalCaches() {

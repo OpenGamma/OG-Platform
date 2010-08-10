@@ -8,11 +8,11 @@ namespace com.opengamma.engine.view.cache {
 
   message ValuePutRequest extends RemoteCacheMessage {
   
-    string viewName;
-    string calculationConfigurationName;
-    long snapshot;
-    long specificationId;
-    Object value;
+    required string viewName;
+    required string calculationConfigurationName;
+    required long snapshot;
+    required long specificationId;
+    required Object value;
     
     binding Java {
       methods "toString,hashCode,equals";
