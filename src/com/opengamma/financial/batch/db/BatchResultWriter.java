@@ -59,52 +59,124 @@ import com.opengamma.util.tuple.Pair;
  * <p>
  * This result writer MUST be configured together with a dependency graph executor
  * that partitions the dependency graph by computation target and sends all
- * nodes related to a single target down to the grid in a single batch.   
+ * nodes related to a single target down to the grid in a single batch.
+ * <p> 
+ * For the database structure and tables, see create-db-batch.sql.   
  */
-public class BatchResultWriter implements ResultWriter, Serializable {
+public class BatchResultWriter implements ResultWriter {
   
   private static final Logger s_logger = LoggerFactory.getLogger(BatchResultWriter.class);
   
   // Variables YOU must set before calling initialize()
   
+  /**
+   * E.g., jdbc:postgresql://postgresql.foo.com
+   */
   private String _jdbcUrl;
+  
+  /**
+   * Database username
+   */
   private String _username;
+  
+  /**
+   * Database password
+   */
   private String _password;
   
+  /**
+   * References rsk_run(id)
+   */
   private Integer _riskRunId;
+ 
+  /**
+   * Used to determine whether it's worth checking the status
+   * table for already-executed entries. If this is the first
+   * time we're running the batch, there won't be anything in 
+   * the status table, so it's not necessary to make queries
+   * against it.
+   */
   private boolean _isRestart;
+  
+  /**
+   * -> references rsk_computation_target(id)   
+   */
   private Map<ComputationTargetSpecification, Integer> _computationTarget2Id;
+  
+  /**
+   * -> references rsk_calculation_configuration(id)
+   */
   private Map<String, Integer> _calculationConfiguration2Id;
+  
+  /**
+   * -> references rsk_value_name(id)
+   */
   private Map<String, Integer> _riskValueName2Id;
+  
+  /**
+   * References rsk_compute_node(id)
+   */
   private Integer _computeNodeId;
   
+  /**
+   * Key is {@link StatusEntry} {_calculationConfigurationId, _computationTargetId}.
+   * 
+   * null value is possible, it means no status entry in DB.
+   */
+  private Map<Pair<Integer, Integer>, StatusEntry> _searchKey2StatusEntry;
+  
+  /**
+   * We cache compute failures for performance, so that we 
+   * don't always need to hit the database to find out the primary key
+   * of a compute failure.
+   */
+  private Map<ComputeFailureKey, ComputeFailure> _key2ComputeFailure;
+  
+  /**
+   * It is possible to disable writing errors into
+   * 
+   * rsk_compute_failure  
+   * rsk_failure 
+   * rsk_failure_reason
+   * 
+   * by setting this to false.
+   * 
+   */
   private boolean _writeErrors = true;
   
   // Variables set in initialize()
   
+  /**
+   * Writing into the risk tables and into the status table must happen
+   * in a single transaction for consistency reasons. Therefore we need
+   * a transaction manager.
+   */
   private transient DataSourceTransactionManager _transactionManager;
   
   /**
-   * The template for direct JDBC operations.
+   * Executes batch inserts into the risk tables
    */
   private transient SimpleJdbcTemplate _jdbcTemplate;
 
   /**
-   * The factory for Hibernate operations
+   * We use Hibernate to generate unique IDs
    */
   private transient SessionFactory _sessionFactory;
   
+  /**
+   * We use Hibernate to generate unique IDs
+   */
   private transient SequenceStyleGenerator _idGenerator;
-  private transient StatelessSessionImpl _session;
-  private transient boolean _initialized; // = false;
   
   /**
-   * Key is {@link StatusEntry} {_calculationConfigurationId, _computationTargetId}.
-   * null value is possible, it means no status entry in DB.
+   * We use Hibernate to generate unique IDs
    */
-  private transient Map<Pair<Integer, Integer>, StatusEntry> _searchKey2StatusEntry;
+  private transient StatelessSessionImpl _session;
   
-  private transient Map<ComputeFailureKey, ComputeFailure> _key2ComputeFailure;
+  /**
+   * Have DB connections been set up successfully?
+   */
+  private transient boolean _initialized; // = false;
   
   public void initialize(CalculationNode computeNode) {
     DBTool tool = new DBTool();
@@ -539,7 +611,7 @@ public class BatchResultWriter implements ResultWriter, Serializable {
                   continue;
                 }
                 
-                cachedFailure.getComputeFailureIds().addAll(inputFailure.getComputeFailureIds());
+                cachedFailure.addComputeFailureIds(inputFailure.getComputeFailureIds());
               }
               
               for (Long computeFailureId : cachedFailure.getComputeFailureIds()) {
@@ -562,7 +634,7 @@ public class BatchResultWriter implements ResultWriter, Serializable {
                   exception.getStackTrace());
               
               ComputeFailure computeFailure = getComputeFailureFromDb(computeFailureKey);
-              cachedFailure.getComputeFailureIds().add(computeFailure.getId());
+              cachedFailure.addComputeFailureIds(Collections.singleton(computeFailure.getId()));
               
               FailureReason reason = new FailureReason();
               reason.setId(generateUniqueId());
@@ -732,15 +804,24 @@ public class BatchResultWriter implements ResultWriter, Serializable {
         new Object[] {inserts.size(), updates.size(), status});
   }
   
+  /**
+   * Instances of this class are saved in the computation cache for each
+   * failure (whether the failure is 'original' or due to missing inputs).
+   * The set of Longs is a set of compute failure IDs (referencing
+   * rsk_compute_failure(id)). The set is built bottom up. 
+   * For example, if A has two children, B and C, and B has failed
+   * due to error 12, and C has failed due to errors 15 and 16, then
+   * A has failed due to errors 12, 15, and 16.
+   */
   static class BatchResultWriterFailure implements MissingInput, Serializable {
     private Set<Long> _computeFailureIds = new HashSet<Long>();
 
     public Set<Long> getComputeFailureIds() {
-      return _computeFailureIds;
+      return Collections.unmodifiableSet(_computeFailureIds);
     }
 
-    public void setComputeFailureIds(Set<Long> computeFailureIds) {
-      _computeFailureIds = computeFailureIds;
+    public void addComputeFailureIds(Set<Long> computeFailureIds) {
+      _computeFailureIds.addAll(computeFailureIds);
     }
   }
 
