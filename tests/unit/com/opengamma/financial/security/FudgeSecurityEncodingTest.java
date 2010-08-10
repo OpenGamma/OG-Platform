@@ -16,17 +16,18 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.Security;
 import com.opengamma.financial.fudgemsg.FinancialFudgeContextConfiguration;
+import com.opengamma.util.fudge.UtilFudgeContextConfiguration;
 
 public class FudgeSecurityEncodingTest extends SecurityTestCase {
 
   private static final Logger s_logger = LoggerFactory.getLogger(FudgeSecurityEncodingTest.class);
 
   private static final FudgeContext s_fudgeContext = new FudgeContext();
-
   static {
-    final FinancialFudgeContextConfiguration context = new FinancialFudgeContextConfiguration();
-    context.setRegionRepository(getRegionRepository());
-    s_fudgeContext.setConfiguration(context);
+    final FinancialFudgeContextConfiguration config = new FinancialFudgeContextConfiguration();
+    config.setRegionRepository(getRegionRepository());
+    config.configureFudgeContext(s_fudgeContext);
+    UtilFudgeContextConfiguration.INSTANCE.configureFudgeContext(s_fudgeContext);
   }
 
   @Override

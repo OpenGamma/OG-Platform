@@ -15,5 +15,5 @@ import com.opengamma.financial.Currency;
  */
 public interface InterpolatedYieldCurveDefinitionSource {
   YieldCurveDefinition getDefinition(Currency currency, String name);
-  YieldCurveDefinition getDefinition(Currency currency, String name, Instant version);
+  YieldCurveDefinition getDefinition(Currency currency, String name, Instant version, Instant correction);
 }

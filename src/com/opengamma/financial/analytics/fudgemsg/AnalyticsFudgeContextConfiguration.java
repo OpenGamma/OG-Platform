@@ -9,20 +9,29 @@ import org.fudgemsg.FudgeContextConfiguration;
 import org.fudgemsg.mapping.FudgeObjectDictionary;
 
 /**
- * Registers custom builders for the OG-Analytics library.
+ * Configuration for Fudge of the OG-Analytics library.
+ * <p>
+ * This configures Fudge builders.
  */
-public class AnalyticsFudgeContextConfiguration extends FudgeContextConfiguration {
+public final class AnalyticsFudgeContextConfiguration extends FudgeContextConfiguration {
 
   /**
-   * A pre-constructed instance.
+   * The singleton configuration.
    */
   public static final FudgeContextConfiguration INSTANCE = new AnalyticsFudgeContextConfiguration();
-  
+
+  /**
+   * Restricted constructor.
+   */
+  private AnalyticsFudgeContextConfiguration() {
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public void configureFudgeObjectDictionary(final FudgeObjectDictionary dictionary) {
     MathInterpolation.addBuilders(dictionary);
     ModelInterestRateCurve.addBuilders(dictionary);
     ModelVolatilitySurface.addBuilders(dictionary);
   }
-  
+
 }

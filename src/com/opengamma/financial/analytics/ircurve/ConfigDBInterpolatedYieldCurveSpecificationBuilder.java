@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.ircurve;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.time.calendar.Clock;
@@ -16,9 +17,13 @@ import javax.time.calendar.TimeZone;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigDocumentRepository;
+import com.opengamma.config.ConfigMaster;
+import com.opengamma.config.ConfigSearchRequest;
+import com.opengamma.config.ConfigSearchResult;
+import com.opengamma.engine.config.ConfigSource;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.SecuritySource;
+import com.opengamma.financial.security.SecurityMaster;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
@@ -33,16 +38,16 @@ import com.opengamma.util.time.DateUtil;
  * 
  */
 public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements InterpolatedYieldCurveSpecificationBuilder {
-  private ConfigDocumentRepository<CurveSpecificationBuilderConfiguration> _configRepo;
-  private SecurityMaster _secMaster;
+  private ConfigSource _configSource;
+  private SecuritySource _secSource;
   // REVIEW: maybe we shouldn't cache these and rely on the repo doing that, but this prevents changes flowing through while we're running.
   private Map<String, CurveSpecificationBuilderConfiguration> _specBuilderCache = new HashMap<String, CurveSpecificationBuilderConfiguration>();
   private Clock _clock;
   
-  public ConfigDBInterpolatedYieldCurveSpecificationBuilder(Clock clock, ConfigDocumentRepository<CurveSpecificationBuilderConfiguration> configRepo, SecurityMaster secMaster) {
+  public ConfigDBInterpolatedYieldCurveSpecificationBuilder(Clock clock, ConfigSource configSource, SecuritySource secSource) {
     _clock = clock;
-    _configRepo = configRepo;
-    _secMaster = secMaster;
+    _configSource = configSource;
+    _secSource = secSource;
   }
   
   private void clearConfigCache() {
@@ -54,9 +59,15 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
     if (_specBuilderCache.containsKey(conventionName)) {
       return _specBuilderCache.get(conventionName);
     } else {
-      ConfigDocument<CurveSpecificationBuilderConfiguration> builderSpecDoc = _configRepo.getByName(conventionName);
-      _specBuilderCache.put(conventionName, builderSpecDoc.getValue());
-      return builderSpecDoc.getValue();
+      ConfigSearchRequest search = new ConfigSearchRequest();
+      search.setName(conventionName);
+      List<CurveSpecificationBuilderConfiguration> builderSpecDoc = _configSource.search(CurveSpecificationBuilderConfiguration.class, search);
+      if (builderSpecDoc.size() > 0) {
+        _specBuilderCache.put(conventionName, builderSpecDoc.get(0));
+        return builderSpecDoc.get(0);
+      } else {
+        return null;
+      }
     }
   }
   
@@ -72,35 +83,35 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
       switch (strip.getInstrumentType()) {
         case CASH:
           Identifier cashIdentifier = builderConfig.getCashSecurity(curveDate, strip.getCurveNodePointTime());
-          CashSecurity cashSecurity = (CashSecurity) _secMaster.getSecurity(IdentifierBundle.of(cashIdentifier));
+          CashSecurity cashSecurity = (CashSecurity) _secSource.getSecurity(IdentifierBundle.of(cashIdentifier));
           if (cashSecurity == null) { throw new OpenGammaRuntimeException("Could not resolve cash curve instrument " + cashIdentifier + " from strip " + strip + " in " + curveDefinition); }
           epochSeconds = curveDate.plus(strip.getCurveNodePointTime().getPeriod()).atMidnight().atZone(timeZone).toEpochSeconds();
           security = cashSecurity;
           break;
         case FRA:
           Identifier fraIdentifier = builderConfig.getFRASecurity(curveDate, strip.getCurveNodePointTime());
-          FRASecurity fraSecurity = (FRASecurity) _secMaster.getSecurity(IdentifierBundle.of(fraIdentifier));
+          FRASecurity fraSecurity = (FRASecurity) _secSource.getSecurity(IdentifierBundle.of(fraIdentifier));
           if (fraSecurity == null) { throw new OpenGammaRuntimeException("Could not resolve FRA curve instrument " + fraIdentifier + " from strip " + strip + " in " + curveDefinition); }
           epochSeconds = fraSecurity.getEndDate().toLocalDateTime().atZone(timeZone).toEpochSeconds();
           security = fraSecurity;
           break;
         case FUTURE:
           Identifier futureIdentifier = builderConfig.getFutureSecurity(curveDate, strip.getCurveNodePointTime(), strip.getNumberOfFuturesAfterTenor());
-          FutureSecurity futureSecurity = (FutureSecurity) _secMaster.getSecurity(IdentifierBundle.of(futureIdentifier));
+          FutureSecurity futureSecurity = (FutureSecurity) _secSource.getSecurity(IdentifierBundle.of(futureIdentifier));
           if (futureSecurity == null) { throw new OpenGammaRuntimeException("Could not resolve future curve instrument " + futureIdentifier + " from strip " + strip + " in " + curveDefinition); }
           epochSeconds = futureSecurity.getExpiry().getExpiry().toEpochSeconds();
           security = futureSecurity;
           break;
         case LIBOR:
           Identifier rateIdentifier = builderConfig.getRateSecurity(curveDate, strip.getCurveNodePointTime());
-          CashSecurity rateSecurity = (CashSecurity) _secMaster.getSecurity(IdentifierBundle.of(rateIdentifier));
+          CashSecurity rateSecurity = (CashSecurity) _secSource.getSecurity(IdentifierBundle.of(rateIdentifier));
           if (rateSecurity == null) { throw new OpenGammaRuntimeException("Could not resolve future curve instrument " + rateIdentifier + " from strip " + strip + " in " + curveDefinition); }
           epochSeconds = curveDate.plus(strip.getCurveNodePointTime().getPeriod()).atMidnight().atZone(timeZone).toEpochSeconds();
           security = rateSecurity;
           break;
         case SWAP:
           Identifier swapIdentifier = builderConfig.getSwapSecurity(curveDate, strip.getCurveNodePointTime());
-          SwapSecurity swapSecurity = (SwapSecurity) _secMaster.getSecurity(IdentifierBundle.of(swapIdentifier));
+          SwapSecurity swapSecurity = (SwapSecurity) _secSource.getSecurity(IdentifierBundle.of(swapIdentifier));
           if (swapSecurity == null) { throw new OpenGammaRuntimeException("Could not resolve swap curve instrument " + swapIdentifier + " from strip " + strip + " in " + curveDefinition); }
           epochSeconds = swapSecurity.getMaturityDate().toLocalDateTime().atZone(timeZone).toEpochSeconds();
           security = swapSecurity;
@@ -112,7 +123,7 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
       double years = ((double) (curveDate.atMidnight().atZone(timeZone).toEpochSeconds() - epochSeconds)) / DateUtil.SECONDS_PER_YEAR; 
       securities.add(new ResolvedFixedIncomeStrip(strip.getInstrumentType(), years, security));
     }
-    Interpolator1D<?, ?> interpolator = Interpolator1DFactory.getInterpolator(curveDefinition.getInterpolatorName());  
+    Interpolator1D<?> interpolator = Interpolator1DFactory.getInterpolator(curveDefinition.getInterpolatorName());  
     return new InterpolatedYieldCurveSpecification(curveDate, curveDefinition.getName(), curveDefinition.getCurrency(), interpolator, securities);
   }
 

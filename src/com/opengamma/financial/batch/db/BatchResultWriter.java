@@ -542,11 +542,11 @@ public class BatchResultWriter implements ResultWriter, Serializable {
                 cachedFailure.getComputeFailureIds().addAll(inputFailure.getComputeFailureIds());
               }
               
-              for (Long computeFailureId : cachedFailure.getComputeFailureIds()) {
+              for (Number computeFailureId : cachedFailure.getComputeFailureIds()) {
                 FailureReason reason = new FailureReason();
                 reason.setId(generateUniqueId());
                 reason.setRiskFailure(failure);
-                reason.setComputeFailureId(computeFailureId);
+                reason.setComputeFailureId(computeFailureId.longValue());
                 failureReasons.add(reason.toSqlParameterSource());
               }
               
@@ -732,7 +732,8 @@ public class BatchResultWriter implements ResultWriter, Serializable {
         new Object[] {inserts.size(), updates.size(), status});
   }
   
-  static class BatchResultWriterFailure implements MissingInput, Serializable {
+  public static class BatchResultWriterFailure implements MissingInput, Serializable {
+
     private Set<Long> _computeFailureIds = new HashSet<Long>();
 
     public Set<Long> getComputeFailureIds() {

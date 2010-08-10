@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.analytics.fudgemsg;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
@@ -16,6 +16,8 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.opengamma.util.fudge.UtilFudgeContextConfiguration;
 
 /**
  * Base class for testing OG-Analytics objects to and from Fudge messages.
@@ -30,6 +32,7 @@ public class AnalyticsTestBase {
   public void createFudgeContext() {
     _fudgeContext = new FudgeContext();
     _fudgeContext.setConfiguration(AnalyticsFudgeContextConfiguration.INSTANCE);
+    _fudgeContext.setConfiguration(UtilFudgeContextConfiguration.INSTANCE);
   }
 
   protected FudgeContext getFudgeContext() {

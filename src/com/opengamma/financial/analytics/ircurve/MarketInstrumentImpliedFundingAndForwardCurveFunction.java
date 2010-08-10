@@ -6,8 +6,10 @@
 package com.opengamma.financial.analytics.ircurve;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -43,14 +45,33 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
+import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
+import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
+import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
+import com.opengamma.financial.interestrate.ParRateDifferenceCalculator;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.libor.definition.Libor;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
+import com.opengamma.math.function.Function1D;
+import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
+import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
+import com.opengamma.math.linearalgebra.DecompositionFactory;
+import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
+import com.opengamma.math.rootfinding.newton.JacobianCalculator;
+import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
 
 /**
  * 
@@ -70,27 +91,23 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
   private Set<ValueRequirement> _requirements;
   private ValueSpecification _fundingCurveResult;
   private ValueSpecification _forwardCurveResult;
-  private ValueSpecification _jacobianResult; //TODO split Jacobian into two parts
+  private ValueSpecification _jacobianResult; 
   private Set<ValueSpecification> _results;
-  //TODO all interpolators should be passed in
-//  private final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> _interpolator; // TODO this should not be hard-coded
-  // TODO this should depend on the type of _fundingInterpolator
-//  private final Interpolator1D<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> _interpolatorWithSensitivity;
+//  private final Interpolator1D<? extends Interpolator1DDataBundle> _fundingInterpolator;
+//  private final Interpolator1D<? extends Interpolator1DDataBundle> _forwardInterpolator;
+//  private final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> _fundingSensitivityCalculator;
+//  private final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> _forwardSensitivityCalculator;
 
-  public MarketInstrumentImpliedFundingAndForwardCurveFunction(final Currency currency) {
+  public MarketInstrumentImpliedFundingAndForwardCurveFunction(final Currency currency, String fundingInterpolatorName, String fundingLeftExtrapolatorName, String fundingRightExtrapolatorName,
+      String forwardInterpolatorName, String forwardLeftExtrapolatorName, String forwardRightExtrapolatorName) {
     Validate.notNull(currency);
     _currency = currency;
-//    final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> cubicInterpolator = new NaturalCubicSplineInterpolator1D();
-//    final Interpolator1DWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle> cubicInterpolatorWithSense = new CubicSplineInterpolatorWithSensitivities1D();
-//    final ExtrapolatorMethod<Interpolator1DCubicSplineDataBundle, InterpolationResult> linearExtrapolator = new LinearExtrapolator<Interpolator1DCubicSplineDataBundle, InterpolationResult>();
-//    final ExtrapolatorMethod<Interpolator1DCubicSplineDataBundle, InterpolationResult> flatExtrapolator = new FlatExtrapolator<Interpolator1DCubicSplineDataBundle, InterpolationResult>();
-//    final ExtrapolatorMethod<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> linearExtrapolatorWithSensitivities =
-//      new LinearExtrapolatorWithSensitivity<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities>();
-//    final ExtrapolatorMethod<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> flatExtrapolatorWithSensitivities =
-//      new FlatExtrapolatorWithSensitivities<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities>();
-//    _interpolator = new Extrapolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult>(linearExtrapolator, flatExtrapolator, cubicInterpolator);
-//    _interpolatorWithSensitivity = new Extrapolator1D<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities>(linearExtrapolatorWithSensitivities,
-//        flatExtrapolatorWithSensitivities, cubicInterpolatorWithSense);
+ //   _fundingInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(fundingInterpolatorName, fundingLeftExtrapolatorName, fundingRightExtrapolatorName);
+ //   _fundingSensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(fundingInterpolatorName, fundingLeftExtrapolatorName, 
+//        fundingRightExtrapolatorName);
+ //   _forwardInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(forwardInterpolatorName, forwardLeftExtrapolatorName, forwardRightExtrapolatorName);
+ //   _forwardSensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(forwardInterpolatorName, forwardLeftExtrapolatorName, 
+ //       forwardRightExtrapolatorName);
   }
 
   @Override
@@ -347,41 +364,6 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
 //    }
 //    return new FixedFloatSwap(swapPaymentDates,  swapPaymentDates, swapRate,delta, delta, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
 //  }
-
-  private double getLastTime(final InterestRateDerivative derivative) {
-    if (derivative instanceof FixedFloatSwap) {
-      return getLastSwapTime((FixedFloatSwap) derivative);
-    } else if (derivative instanceof Cash) {
-      return getLastCashTime((Cash) derivative);
-    } else if (derivative instanceof ForwardRateAgreement) {
-      return getLastFRATime((ForwardRateAgreement) derivative);
-    } else if (derivative instanceof InterestRateFuture) {
-      return getLastIRFutureTime((InterestRateFuture) derivative);
-    } else if (derivative instanceof Libor) {
-      return getLastLiborTime((Libor) derivative);
-    }
-    throw new IllegalArgumentException("This should never happen");
-  }
-
-  private double getLastSwapTime(final FixedFloatSwap swap) {
-    final int nFix = swap.getFixedLeg().getNumberOfPayments() - 1;
-    final int nFloat = swap.getFloatingLeg().getNumberOfPayments() - 1;
-    return Math.max(swap.getFixedLeg().getPaymentTimes()[nFix], swap.getFloatingLeg().getPaymentTimes()[nFloat] + swap.getFloatingLeg().getDeltaEnd()[nFloat]);
-  }
-
-  private double getLastCashTime(final Cash cash) {
-    return cash.getPaymentTime();
-  }
-
-  private double getLastLiborTime(final Libor libor) {
-    return libor.getMaturity();
-  }
-
-  private double getLastFRATime(final ForwardRateAgreement fra) {
-    return fra.getMaturity();
-  }
-
-  private double getLastIRFutureTime(final InterestRateFuture irFuture) {
-    return irFuture.getSettlementDate()+irFuture.getYearFraction();
-  }
+  //TODO everything from here down is rubbish
+ 
 }

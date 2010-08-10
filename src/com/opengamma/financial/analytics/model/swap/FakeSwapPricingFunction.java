@@ -89,7 +89,7 @@ public class FakeSwapPricingFunction extends AbstractFunction implements Functio
       receiveAmount = irReceiveNotional.getAmount();
     }
     final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(getDiscountCurveMarketDataRequirement(Currency.getInstance("USD").getUniqueIdentifier()));
-    double rate = discountCurve.getInterestRate(DateUtil.getDifferenceInYears(security.getEffectiveDate().toZonedDateTime(), security.getMaturityDate().toZonedDateTime()));
+    double rate = discountCurve.getInterestRate(DateUtil.getDifferenceInYears(security.getEffectiveDate().toLocalDate(), security.getMaturityDate()));
     payAmount *= (1 + rate);
     receiveAmount *= (1 + 0.03); // 3% for some unknown reason
     double fv = payAmount - receiveAmount;

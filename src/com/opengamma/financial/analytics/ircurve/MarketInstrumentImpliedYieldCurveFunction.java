@@ -69,7 +69,7 @@ import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
 public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction implements FunctionInvoker {
   private static final String SPOT_TICKER = "US00O/N Index"; //TODO shouldn't be hard-coded
   private static final String FLOAT_REFERENCE_TICKER = "US0006M Index"; //TODO shouldn't be hard-coded
-  private static final String CURVE_NAME = "USD Yield Curve";
+  private static final String CURVE_NAME = "USD Yield Curve"; //TODO should'nt be hard-coded
   private final Currency _currency;
   private YieldCurveDefinition _definition;
   private UniqueIdentifier _referenceRateIdentifier;
