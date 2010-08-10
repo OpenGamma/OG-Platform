@@ -11,7 +11,7 @@ namespace com.opengamma.engine.view.cache {
     com.opengamma.engine.value.ValueSpecification request;
     
     binding Java {
-      methods "toString";
+      methods "toString,hashCode,equals";
     }
   }
 

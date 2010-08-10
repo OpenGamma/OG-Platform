@@ -12,6 +12,7 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.cache.RemoteCacheClient.OperationResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.EHCacheUtils;
 
@@ -66,8 +67,11 @@ public class RemoteViewComputationCache implements ViewComputationCache {
     if (cacheElement != null) {
       return cacheElement.getValue();
     }
-    Object value = getRemoteClient().getValue(getCacheKey().getViewName(), getCacheKey().getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp(), specification);
+    final OperationResult<ValueLookupResponse> result = getRemoteClient().getValue(getCacheKey().getViewName(), getCacheKey().getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp(),
+        specification);
+    final Object value = result.getResult().getValue();
     getLocalCache().put(new Element(specification, value));
+    result.release();
     return value;
   }
 
