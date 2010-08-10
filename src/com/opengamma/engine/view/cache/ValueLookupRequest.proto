@@ -14,7 +14,7 @@ namespace com.opengamma.engine.view.cache {
     long specificationId;
     
     binding Java {
-      methods "toString";
+      methods "toString,hashCode,equals";
     }
   }
 

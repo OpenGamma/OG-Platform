@@ -11,7 +11,7 @@ namespace com.opengamma.engine.view.cache {
     long correlationId;
     
     binding Java {
-      methods "toString";
+      methods "toString,hashCode,equals";
     }
   }
 
