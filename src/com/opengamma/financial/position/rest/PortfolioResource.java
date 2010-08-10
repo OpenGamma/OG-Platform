@@ -92,7 +92,6 @@ public class PortfolioResource {
 
   //-------------------------------------------------------------------------
   @GET
-  @Produces(FudgeRest.MEDIA)
   public PortfolioTreeDocument getAsFudge() {
     return getPositionMaster().getPortfolioTree(getPortfolioUid());
   }
