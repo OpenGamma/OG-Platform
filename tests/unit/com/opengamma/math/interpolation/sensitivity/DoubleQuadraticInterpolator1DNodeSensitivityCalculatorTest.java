@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.interpolation.sensitivity;
@@ -80,5 +80,15 @@ public class DoubleQuadraticInterpolator1DNodeSensitivityCalculatorTest {
         assertEquals(fdSensitivity[j], sensitivity[j], EPS);
       }
     }
+  }
+
+  @Test
+  public void testEdgeCase() {
+    final double tmax = DATA.lastKey();
+    double[] sensitivity = CALCULATOR.calculate(DATA, tmax);
+    for (int j = 0; j < sensitivity.length - 1; j++) {
+      assertEquals(0, sensitivity[j], EPS);
+    }
+    assertEquals(1.0, sensitivity[sensitivity.length - 1], EPS);
   }
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.interpolation.sensitivity;
@@ -34,8 +34,8 @@ public class DoubleQuadraticInterpolator1DNodeSensitivityCalculator implements I
       result[n - 2] = temp[1];
       result[n - 1] = temp[2];
       return result;
-    } else if (low == n) {
-      result[n] = 1;
+    } else if (high == n) {
+      result[n - 1] = 1;
       return result;
     }
     final double[] temp1 = getQuadraticSensitivities(xData, value, low);
