@@ -44,7 +44,6 @@ public class ViewProcessingContext {
   private final FunctionCompilationContext _compilationContext;
   private final ExecutorService _executorService;
   private final DependencyGraphExecutorFactory _dependencyGraphExecutorFactory;
-  private final ResultWriterFactory _resultWriterFactory;
 
   public ViewProcessingContext(
       LiveDataEntitlementChecker liveDataEntitlementChecker,
@@ -59,8 +58,7 @@ public class ViewProcessingContext {
       ViewProcessorQueryReceiver viewProcessorQueryReceiver,
       FunctionCompilationContext compilationContext,
       ExecutorService executorService,
-      DependencyGraphExecutorFactory dependencyGraphExecutorFactory,
-      ResultWriterFactory resultWriterFactory) {
+      DependencyGraphExecutorFactory dependencyGraphExecutorFactory) {
     ArgumentChecker.notNull(liveDataEntitlementChecker, "liveDataEntitlementChecker");
     ArgumentChecker.notNull(liveDataAvailabilityProvider, "liveDataAvailabilityProvider");
     ArgumentChecker.notNull(liveDataSnapshotProvider, "liveDataSnapshotProvider");
@@ -74,7 +72,6 @@ public class ViewProcessingContext {
     ArgumentChecker.notNull(compilationContext, "compilationContext");
     ArgumentChecker.notNull(executorService, "executorService");
     ArgumentChecker.notNull(dependencyGraphExecutorFactory, "dependencyGraphExecutorFactory");
-    ArgumentChecker.notNull(resultWriterFactory, "resultWriterFactory");
     
     _liveDataEntitlementChecker = liveDataEntitlementChecker;
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
@@ -89,7 +86,6 @@ public class ViewProcessingContext {
     _compilationContext = compilationContext;
     _executorService = executorService;
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
-    _resultWriterFactory = resultWriterFactory;
     
     // REVIEW kirk 2010-05-22 -- This isn't the right place to wrap this.
     _computationTargetResolver = new CachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource));
@@ -207,10 +203,6 @@ public class ViewProcessingContext {
     return _dependencyGraphExecutorFactory;
   }
   
-  public ResultWriterFactory getResultWriterFactory() {
-    return _resultWriterFactory;
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Converts this context to a {@code ViewCompliationServices}.

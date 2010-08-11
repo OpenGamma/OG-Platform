@@ -77,8 +77,7 @@ public class ViewTestUtils {
         viewProcessorQueryReceiver,
         new FunctionCompilationContext(), 
         executor,
-        new SingleNodeExecutorFactory(),
-        new DummyResultWriterFactory());
+        new SingleNodeExecutorFactory());
     
     ViewDefinition viewDefinition = new ViewDefinition("mock_view", portfolioId, "ViewTestUser");
 

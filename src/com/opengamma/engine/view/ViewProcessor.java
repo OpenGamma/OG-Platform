@@ -352,8 +352,7 @@ public class ViewProcessor implements Lifecycle {
         getViewProcessorQueryReceiver(),
         getCompilationContext(),
         getExecutorService(),
-        getDependencyGraphExecutorFactory(),
-        getResultWriterFactory());
+        getDependencyGraphExecutorFactory());
     View freshView = new View(viewDefinition, vpc);
     View actualView = _viewsByName.putIfAbsent(viewName, freshView);
     if (actualView == null) {
