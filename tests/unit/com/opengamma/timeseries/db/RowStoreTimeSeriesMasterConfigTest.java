@@ -18,7 +18,7 @@ import com.opengamma.timeseries.db.RowStoreTimeSeriesMaster;
  * Test to check RowStoreJdbcDao is properly configured
  * 
  */
-public class RowStoreTimeSeriesDaoConfigurationTest {
+public class RowStoreTimeSeriesMasterConfigTest {
 
   @Test(expected = NullPointerException.class)
   public void missingDataSourceTransactionManager() throws Exception {

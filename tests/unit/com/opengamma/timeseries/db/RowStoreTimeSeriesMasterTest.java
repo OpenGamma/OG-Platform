@@ -51,8 +51,8 @@ import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 /**
  * Test.
  */
-public class RowStoreTimeSeriesDaoTest extends DBTest {
-  private static final Logger s_logger = LoggerFactory.getLogger(RowStoreTimeSeriesDaoTest.class);
+public class RowStoreTimeSeriesMasterTest extends DBTest {
+  private static final Logger s_logger = LoggerFactory.getLogger(RowStoreTimeSeriesMasterTest.class);
   
   private static final int TS_DATASET_SIZE = 5;
   private static final int TS_MAX_DATA_POINT = 5;
@@ -65,7 +65,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   private Random _random = new Random();
   private TimeSeriesMaster _tsMaster;
   
-  public RowStoreTimeSeriesDaoTest(String databaseType, String databaseVersion) {
+  public RowStoreTimeSeriesMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -465,7 +465,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     try {
       _tsMaster.resolveIdentifier(null, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
       fail();
-    } catch (NullPointerException ex) {
+    } catch (IllegalArgumentException ex) {
       //do nothing
     }
   }
