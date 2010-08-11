@@ -80,10 +80,12 @@ public class AbstractCalculationNodeTest {
     
     MockFunction mockFunction = getMockFunction();
     TestCalculationNode calcNode = getTestCalcNode(mockFunction);
-    CalculationJob calcJob = getCalculationJob(mockFunction, new DummyResultWriter());
+    TestResultWriter result = new TestResultWriter ();
+    CalculationJob calcJob = getCalculationJob(mockFunction, result);
     
     long startTime = System.nanoTime();
-    CalculationJobResult jobResult = calcNode.executeJob(calcJob);
+    calcNode.executeJob(calcJob);
+    CalculationJobResult jobResult = result.getResult ();
     long endTime = System.nanoTime();
     assertNotNull(jobResult);
     assertTrue(jobResult.getDuration() >= 0);
@@ -98,7 +100,8 @@ public class AbstractCalculationNodeTest {
   public void mockFunctionInvocationOneInputOneOutput() {
     MockFunction mockFunction = getMockFunction();
     TestCalculationNode calcNode = getTestCalcNode(mockFunction);
-    CalculationJob calcJob = getCalculationJob(mockFunction, new DummyResultWriter());
+    TestResultWriter result = new TestResultWriter ();
+    CalculationJob calcJob = getCalculationJob(mockFunction, result);
     
     ValueSpecification inputSpec = new ValueSpecification(mockFunction.getRequirement());
     ComputedValue inputValue = new ComputedValue(inputSpec, "Just an input object");
@@ -106,7 +109,8 @@ public class AbstractCalculationNodeTest {
     ViewComputationCache cache = calcNode.getCache(calcJob.getSpecification());
     cache.putValue(inputValue);
     
-    CalculationJobResult jobResult = calcNode.executeJob(calcJob);
+    calcNode.executeJob(calcJob);
+    CalculationJobResult jobResult = result.getResult ();
     assertNotNull(jobResult);
     assertEquals(1, jobResult.getResultItems().size());
     CalculationJobResultItem resultItem = jobResult.getResultItems().get(0);

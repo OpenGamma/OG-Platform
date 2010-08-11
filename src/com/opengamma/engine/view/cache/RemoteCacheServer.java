@@ -5,15 +5,6 @@
  */
 package com.opengamma.engine.view.cache;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
-import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
@@ -23,7 +14,6 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.transport.FudgeRequestReceiver;
 
 // REVIEW kirk 2010-03-31 -- This is a candidate for movement into com.og.u.transport

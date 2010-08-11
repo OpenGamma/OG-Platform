@@ -34,7 +34,7 @@ import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
-import com.opengamma.engine.view.calcnode.JobRequestSender;
+import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ResultWriterFactory;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.livedata.client.LiveDataClient;
@@ -61,7 +61,7 @@ public class ViewProcessor implements Lifecycle {
   private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private LiveDataSnapshotProvider _liveDataSnapshotProvider;
   private ViewComputationCacheSource _computationCacheSource;
-  private JobRequestSender _computationJobRequestSender;
+  private JobDispatcher _computationJobDispatcher;
   private ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
   private DependencyGraphExecutorFactory _dependencyGraphExecutorFactory;
   private ResultWriterFactory _resultWriterFactory;
@@ -204,19 +204,19 @@ public class ViewProcessor implements Lifecycle {
   }
 
   /**
-   * @return the computationJobRequestSender
+   * @return the computationJobDispatcher
    */
-  public JobRequestSender getComputationJobRequestSender() {
-    return _computationJobRequestSender;
+  public JobDispatcher getComputationJobDispatcher() {
+    return _computationJobDispatcher;
   }
 
   /**
-   * @param computationJobRequestSender the computationJobRequestSender to set
+   * @param computationJobDispatcher the computationJobDispatcher to set
    */
-  public void setComputationJobRequestSender(
-      JobRequestSender computationJobRequestSender) {
+  public void setComputationJobDispatcher(
+      JobDispatcher computationJobDispatcher) {
     assertNotStarted();
-    _computationJobRequestSender = computationJobRequestSender;
+    _computationJobDispatcher = computationJobDispatcher;
   }
   
   /**
@@ -348,7 +348,7 @@ public class ViewProcessor implements Lifecycle {
         getPositionSource(),
         getSecuritySource(),
         getComputationCacheSource(),
-        getComputationJobRequestSender(),
+        getComputationJobDispatcher(),
         getViewProcessorQueryReceiver(),
         getCompilationContext(),
         getExecutorService(),
@@ -565,7 +565,7 @@ public class ViewProcessor implements Lifecycle {
     ArgumentChecker.notNullInjected(getLiveDataAvailabilityProvider(), "liveDataAvailabilityProvider");
     ArgumentChecker.notNullInjected(getLiveDataSnapshotProvider(), "liveDataSnapshotProvider");
     ArgumentChecker.notNullInjected(getComputationCacheSource(), "computationCacheSource");
-    ArgumentChecker.notNullInjected(getComputationJobRequestSender(), "computationJobRequestSender");
+    ArgumentChecker.notNullInjected(getComputationJobDispatcher(), "computationJobRequestSender");
   }
 
 }

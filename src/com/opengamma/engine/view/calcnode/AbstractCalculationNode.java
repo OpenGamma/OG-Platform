@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.calcnode;
@@ -30,7 +30,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtil;
 
 /**
- * 
+ * A calculation node implementation. The node can only be used by one thread - i.e. executeJob cannot be called concurrently to do
+ * multiple jobs. To execute multiple jobs concurrently separate calculation nodes must be used.
  */
 public abstract class AbstractCalculationNode implements CalculationNode {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractCalculationNode.class);
@@ -41,14 +42,8 @@ public abstract class AbstractCalculationNode implements CalculationNode {
   private final ViewProcessorQuerySender _viewProcessorQuerySender;
   private final String _nodeId;
 
-
-  protected AbstractCalculationNode(
-      ViewComputationCacheSource cacheSource,
-      FunctionRepository functionRepository,
-      FunctionExecutionContext functionExecutionContext,
-      ComputationTargetResolver targetResolver, 
-      ViewProcessorQuerySender calcNodeQuerySender,
-      String nodeId) {
+  protected AbstractCalculationNode(ViewComputationCacheSource cacheSource, FunctionRepository functionRepository, FunctionExecutionContext functionExecutionContext,
+      ComputationTargetResolver targetResolver, ViewProcessorQuerySender calcNodeQuerySender, String nodeId) {
     ArgumentChecker.notNull(cacheSource, "Cache Source");
     ArgumentChecker.notNull(functionRepository, "Function Repository");
     ArgumentChecker.notNull(functionExecutionContext, "Function Execution Context");
@@ -58,7 +53,8 @@ public abstract class AbstractCalculationNode implements CalculationNode {
 
     _cacheSource = cacheSource;
     _functionRepository = functionRepository;
-    _functionExecutionContext = functionExecutionContext;
+    // Take a copy of the execution context as we will modify it during execution which isn't good if there are other CalcNodes in our JVM
+    _functionExecutionContext = functionExecutionContext.clone();
     _targetResolver = targetResolver;
     _viewProcessorQuerySender = calcNodeQuerySender;
     _nodeId = nodeId;
@@ -71,7 +67,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
   public FunctionRepository getFunctionRepository() {
     return _functionRepository;
   }
-  
+
   public FunctionExecutionContext getFunctionExecutionContext() {
     return _functionExecutionContext;
   }
@@ -79,73 +75,70 @@ public abstract class AbstractCalculationNode implements CalculationNode {
   public ComputationTargetResolver getTargetResolver() {
     return _targetResolver;
   }
-  
+
   protected ViewProcessorQuerySender getViewProcessorQuerySender() {
     return _viewProcessorQuerySender;
   }
-  
+
   @Override
   public String getNodeId() {
     return _nodeId;
   }
 
-  public synchronized CalculationJobResult executeJob(CalculationJob job) {
+  public void executeJob(CalculationJob job) {
     s_logger.info("Executing {}", job);
-    
+
     List<CalculationJobItem> itemsToExecute = job.getResultWriter().getItemsToExecute(this, job);
-    
+
     s_logger.info("Executing {} items", itemsToExecute.size());
-    
+
     CalculationJobSpecification spec = job.getSpecification();
-    
-    // Will not work when multiple functions are being executed in parallel, therefore added synchronized above
+
     getFunctionExecutionContext().setViewProcessorQuery(new ViewProcessorQuery(getViewProcessorQuerySender(), spec));
     getFunctionExecutionContext().setSnapshotEpochTime(spec.getIterationTimestamp());
     getFunctionExecutionContext().setSnapshotClock(DateUtil.epochFixedClockUTC(spec.getIterationTimestamp()));
 
     ViewComputationCache cache = getCache(spec);
-    
+
     long startNanos = System.nanoTime();
 
     List<CalculationJobResultItem> resultItems = new ArrayList<CalculationJobResultItem>();
-    
+
     for (CalculationJobItem jobItem : itemsToExecute) {
-      
+
       CalculationJobResultItem resultItem;
       try {
         Set<ComputedValue> result = invoke(jobItem, cache);
         cacheResults(cache, result);
-        
+
         resultItem = new CalculationJobResultItem(jobItem, InvocationResult.SUCCESS);
         resultItem.setResults(result);
-      
+
       } catch (MissingInputException e) {
         // NOTE kirk 2009-10-20 -- We intentionally only do the message here so that we don't
         // litter the logs with stack traces.
         s_logger.info("Unable to invoke {} due to missing inputs: {}", jobItem, e.getMessage());
         resultItem = new CalculationJobResultItem(jobItem, InvocationResult.ERROR);
         resultItem.setException(e);
-      
+
       } catch (Exception e) {
         s_logger.info("Invoking " + jobItem.getFunctionUniqueIdentifier() + " threw exception.", e);
-        resultItem =  new CalculationJobResultItem(jobItem, InvocationResult.ERROR);
+        resultItem = new CalculationJobResultItem(jobItem, InvocationResult.ERROR);
         resultItem.setException(e);
       }
-      
+
       resultItems.add(resultItem);
     }
-    
+
     long endNanos = System.nanoTime();
     long durationNanos = endNanos - startNanos;
     CalculationJobResult jobResult = new CalculationJobResult(spec, durationNanos, resultItems);
-    
+
     s_logger.info("Executed {}", job);
-    
+
     s_logger.info("Writing {}", jobResult);
     job.getResultWriter().write(this, jobResult);
     s_logger.info("Wrote {}", jobResult);
-
-    return jobResult;
   }
 
   @Override
@@ -153,9 +146,9 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     ViewComputationCache cache = getCacheSource().getCache(spec.getViewName(), spec.getCalcConfigName(), spec.getIterationTimestamp());
     return cache;
   }
-  
+
   private Set<ComputedValue> invoke(CalculationJobItem jobItem, ViewComputationCache cache) {
-    
+
     String functionUniqueId = jobItem.getFunctionUniqueIdentifier();
 
     ComputationTarget target = getTargetResolver().resolve(jobItem.getComputationTargetSpecification());
@@ -164,12 +157,12 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     }
 
     s_logger.debug("Invoking {} on target {}", functionUniqueId, target);
-    
+
     FunctionInvoker invoker = getFunctionRepository().getInvoker(functionUniqueId);
     if (invoker == null) {
       throw new NullPointerException("Unable to locate " + functionUniqueId + " in function repository.");
     }
-    
+
     // assemble inputs
     Collection<ComputedValue> inputs = new HashSet<ComputedValue>();
     Collection<ValueSpecification> missingInputs = new HashSet<ValueSpecification>();
@@ -181,22 +174,22 @@ public abstract class AbstractCalculationNode implements CalculationNode {
         inputs.add(new ComputedValue(inputSpec, input));
       }
     }
-    
+
     if (!missingInputs.isEmpty()) {
       s_logger.info("Not able to execute as missing inputs {}", missingInputs);
       throw new MissingInputException(missingInputs, functionUniqueId);
     }
-    
+
     FunctionInputs functionInputs = new FunctionInputsImpl(inputs);
-    
+
     Set<ComputedValue> results = invoker.execute(getFunctionExecutionContext(), functionInputs, target, jobItem.getDesiredValues());
     return results;
   }
-  
+
   protected void cacheResults(ViewComputationCache cache, Set<ComputedValue> results) {
     for (ComputedValue resultValue : results) {
       cache.putValue(resultValue);
     }
   }
-  
+
 }

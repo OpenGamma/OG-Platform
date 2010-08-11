@@ -83,7 +83,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor, JobResultRec
     AtomicExecutorFuture future = new AtomicExecutorFuture(graph, item2Node);
     _executingSpecifications.put(jobSpec, future);
     _cycle.getProcessingContext().getViewProcessorQueryReceiver().addJob(jobSpec, graph);
-    _cycle.getProcessingContext().getComputationJobRequestSender().sendRequest(jobSpec, items, this);
+    _cycle.getProcessingContext().getComputationJobDispatcher().dispatchJob(jobSpec, items, this);
     
     return future;
   }
