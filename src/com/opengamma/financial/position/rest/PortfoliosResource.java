@@ -202,6 +202,12 @@ public class PortfoliosResource {
     UniqueIdentifier uid = UniqueIdentifier.parse(uidStr);
     return new PortfolioResource(this, uid);
   }
+  
+  //-------------------------------------------------------------------------
+  @Path(PositionMasterResourceNames.POSITION_MASTER_POSITIONS)
+  public AllPositionsResource getPortfolios() {
+    return new AllPositionsResource(this, _fudgeDeserializationContext);
+  }
 
   //-------------------------------------------------------------------------
   /**
