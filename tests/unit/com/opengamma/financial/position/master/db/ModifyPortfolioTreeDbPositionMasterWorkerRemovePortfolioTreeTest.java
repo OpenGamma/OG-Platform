@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.position.master.PortfolioTree;
+import com.opengamma.financial.position.master.ManageablePortfolio;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
 import com.opengamma.financial.position.master.PositionSearchRequest;
 import com.opengamma.financial.position.master.PositionSearchResult;
@@ -88,7 +88,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerRemovePortfolioTreeTest ex
     assertEquals(now, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    PortfolioTree portfolio = test.getPortfolio();
+    ManageablePortfolio portfolio = test.getPortfolio();
     assertNotNull(portfolio);
     assertEquals(uid, portfolio.getUniqueIdentifier());
     assertEquals("TestNode212", portfolio.getRootNode().getName());

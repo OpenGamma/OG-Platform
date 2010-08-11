@@ -31,7 +31,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 
 import com.opengamma.engine.view.server.EngineFudgeContextConfiguration;
 import com.opengamma.financial.fudgemsg.FinancialFudgeContextConfiguration;
-import com.opengamma.financial.position.master.PortfolioTree;
+import com.opengamma.financial.position.master.ManageablePortfolio;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
 import com.opengamma.financial.position.master.PortfolioTreeSearchRequest;
 import com.opengamma.financial.position.master.PortfolioTreeSearchResult;
@@ -189,7 +189,7 @@ public class PortfoliosResource {
         "</body>\n</html>";
       return Response.ok(html).build();
     }
-    PortfolioTree portfolio = new PortfolioTree(name);
+    ManageablePortfolio portfolio = new ManageablePortfolio(name);
     PortfolioTreeDocument doc = new PortfolioTreeDocument(portfolio);
     PortfolioTreeDocument added = getPositionMaster().addPortfolioTree(doc);
     URI uri = getUriInfo().getAbsolutePathBuilder().path(added.getPortfolioId().toString()).build();
@@ -201,6 +201,12 @@ public class PortfoliosResource {
   public PortfolioResource findPortfolio(@PathParam("portfolioUid") String uidStr) {
     UniqueIdentifier uid = UniqueIdentifier.parse(uidStr);
     return new PortfolioResource(this, uid);
+  }
+  
+  //-------------------------------------------------------------------------
+  @Path(PositionMasterResourceNames.POSITION_MASTER_POSITIONS)
+  public AllPositionsResource getPortfolios() {
+    return new AllPositionsResource(this, _fudgeDeserializationContext);
   }
 
   //-------------------------------------------------------------------------

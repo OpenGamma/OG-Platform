@@ -24,7 +24,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.position.master.PortfolioTreePosition;
+import com.opengamma.financial.position.master.ManageablePosition;
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.financial.position.master.PositionSearchHistoricRequest;
 import com.opengamma.financial.position.master.PositionSearchHistoricResult;
@@ -250,7 +250,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
    */
   protected final class PositionDocumentExtractor implements ResultSetExtractor {
     private long _lastPositionId = -1;
-    private PortfolioTreePosition _position;
+    private ManageablePosition _position;
     private List<PositionDocument> _documents = new ArrayList<PositionDocument>();
     private Map<UniqueIdentifier, UniqueIdentifier> _deduplicate = Maps.newHashMap();
 
@@ -279,7 +279,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
       final Timestamp versionTo = rs.getTimestamp("VER_TO_INSTANT");
       final Timestamp correctionFrom = rs.getTimestamp("CORR_FROM_INSTANT");
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
-      _position = new PortfolioTreePosition(quantity, IdentifierBundle.EMPTY);
+      _position = new ManageablePosition(quantity, IdentifierBundle.EMPTY);
       _position.setUniqueIdentifier(createUniqueIdentifier(positionOid, positionId, _deduplicate));
       PositionDocument doc = new PositionDocument(_position);
       doc.setVersionFromInstant(DateUtil.fromSqlTimestamp(versionFrom));

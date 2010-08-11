@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.position.master.PortfolioTreePosition;
+import com.opengamma.financial.position.master.ManageablePosition;
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -78,7 +78,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    PortfolioTreePosition position = test.getPosition();
+    ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uid, position.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(122.987), position.getQuantity());
@@ -101,7 +101,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    PortfolioTreePosition position = test.getPosition();
+    ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uid, position.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(121.987), position.getQuantity());
@@ -125,7 +125,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    PortfolioTreePosition position = test.getPosition();
+    ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uid, position.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(221.987), position.getQuantity());
@@ -148,7 +148,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    PortfolioTreePosition position = test.getPosition();
+    ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uid, position.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(222.987), position.getQuantity());
@@ -179,7 +179,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    PortfolioTreePosition position = test.getPosition();
+    ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uid, position.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(222.987), position.getQuantity());
