@@ -66,7 +66,6 @@ public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
     }
 
     final double[][] res = new double[totalNodes][totalNodes];
-
     for (int i = 0; i < totalNodes; i++) { // loop over all instruments
       final Map<String, List<Pair<Double, Double>>> senseMap = _calculator.getValue(_data.getDerivative(i), curves);
       int offset = 0;
@@ -93,8 +92,6 @@ public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
         offset += _data.getCurveNodePointsForCurve(name).length;
       }
     }
-
     return new DoubleMatrix2D(res);
   }
-
 }

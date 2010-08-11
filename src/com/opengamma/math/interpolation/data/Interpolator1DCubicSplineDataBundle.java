@@ -13,14 +13,14 @@ import com.opengamma.math.linearalgebra.TridiagonalMatrix;
 import com.opengamma.math.linearalgebra.TridiagonalMatrixInvertor;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
 public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBundle {
-  //TODO use same logic for derivatives and sensitivities
   private final Interpolator1DDataBundle _underlyingData;
-  private final double[] _secondDerivatives;
+  private double[] _secondDerivatives;
   private double[][] _secondDerivativesSensitivities;
   private final double _leftFirstDev = 0;
   private final double _rightFirstDev = 0;
@@ -30,12 +30,11 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
   public Interpolator1DCubicSplineDataBundle(final Interpolator1DDataBundle underlyingData) {
     Validate.notNull(underlyingData);
     _underlyingData = underlyingData;
-    _secondDerivatives = getSecondDerivative(underlyingData);
   }
 
-  private double[] getSecondDerivative(final Interpolator1DDataBundle underlyingData) {
-    final double[] x = underlyingData.getKeys();
-    final double[] y = underlyingData.getValues();
+  private double[] calculateSecondDerivative() {
+    final double[] x = getKeys();
+    final double[] y = getValues();
     final int n = x.length;
     final double[] deltaX = new double[n - 1];
     final double[] deltaYOverDeltaX = new double[n - 1];
@@ -122,14 +121,17 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
   }
 
   public double[] getSecondDerivatives() {
+    if (_secondDerivatives == null) {
+      _secondDerivatives = calculateSecondDerivative();
+    }
     return _secondDerivatives;
   }
 
   //TODO not ideal that it recomputes the inverse matrix
   public double[][] getSecondDerivativesSensitivities() {
     if (_secondDerivativesSensitivities == null) {
-      final double[] x = _underlyingData.getKeys();
-      final double[] y = _underlyingData.getValues();
+      final double[] x = getKeys();
+      final double[] y = getValues();
       final int n = x.length;
       final double[] deltaX = new double[n - 1];
       final double[] deltaYOverDeltaX = new double[n - 1];
@@ -213,9 +215,17 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
       c[n - 2] = deltaX[n - 2] / 6.0;
     }
     final TridiagonalMatrix tridiagonal = new TridiagonalMatrix(a, b, c);
-    final DoubleMatrix2D res = invertor.evaluate(tridiagonal);
+    return invertor.evaluate(tridiagonal);
+  }
 
-    return res;
-
+  @Override
+  public void setYValueAtIndex(final int index, final double y) {
+    ArgumentChecker.notNegative(index, "index");
+    if (index >= size()) {
+      throw new IllegalArgumentException("Index was greater than number of data points");
+    }
+    _underlyingData.setYValueAtIndex(index, y);
+    _secondDerivatives = null;
+    _secondDerivativesSensitivities = null;
   }
 }

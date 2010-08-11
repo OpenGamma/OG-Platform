@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * An implementation of {@link Interpolator1DDataBundle} which holds all data in two
@@ -17,6 +18,7 @@ import org.apache.commons.lang.Validate;
 public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
   private final double[] _keys;
   private final double[] _values;
+  private final int _n;
 
   public ArrayInterpolator1DDataBundle(final double[] keys, final double[] values) {
     this(keys, values, false);
@@ -29,7 +31,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
     Validate.isTrue((keys.length > 0), "Must not have empty arrays.");
     _keys = Arrays.copyOf(keys, keys.length);
     _values = Arrays.copyOf(values, values.length);
-
+    _n = keys.length;
     if (!inputsSorted) {
       parallelBinarySort();
     }
@@ -40,7 +42,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
    * both match the correct ordering.
    */
   private void parallelBinarySort() {
-    dualArrayQuickSort(_keys, _values, 0, _keys.length - 1);
+    dualArrayQuickSort(_keys, _values, 0, _n - 1);
   }
 
   private static void dualArrayQuickSort(final double[] keys, final double[] values, final int left, final int right) {
@@ -106,7 +108,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
   @Override
   public InterpolationBoundedValues getBoundedValues(final Double key) {
     final int index = getLowerBoundIndex(key);
-    if (index == _keys.length - 1) {
+    if (index == _n - 1) {
       return new InterpolationBoundedValues(index, _keys[index], _values[index], null, null);
     }
     return new InterpolationBoundedValues(index, _keys[index], _values[index], _keys[index + 1], _values[index + 1]);
@@ -122,7 +124,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
     if (value < _keys[0]) {
       throw new IllegalArgumentException("Could not get lower bound index for " + value + ": lowest x-value is " + _keys[0]);
     }
-    if (value > _keys[_keys.length - 1]) {
+    if (value > _keys[_n - 1]) {
       throw new IllegalArgumentException("Could not get lower bound index for " + value + ": highest x-value is " + _keys[_keys.length - 1]);
     }
     int index = Arrays.binarySearch(_keys, value);
@@ -151,7 +153,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
   @Override
   public Double higherKey(final Double key) {
     final int index = getHigherIndex(key);
-    if (index >= _keys.length) {
+    if (index >= _n) {
       return null;
     }
     return _keys[index];
@@ -160,7 +162,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
   @Override
   public Double higherValue(final Double key) {
     final int index = getHigherIndex(key);
-    if (index >= _keys.length) {
+    if (index >= _n) {
       return null;
     }
     return _values[index];
@@ -172,12 +174,12 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
 
   @Override
   public Double lastKey() {
-    return _keys[_keys.length - 1];
+    return _keys[_n - 1];
   }
 
   @Override
   public Double lastValue() {
-    return _values[_values.length - 1];
+    return _values[_n - 1];
   }
 
   @Override
@@ -215,4 +217,11 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
     return true;
   }
 
+  public void setYValueAtIndex(final int index, final double y) {
+    ArgumentChecker.notNegative(index, "index");
+    if (index >= _n) {
+      throw new IllegalArgumentException("Index was greater than number of data points");
+    }
+    _values[index] = y;
+  }
 }

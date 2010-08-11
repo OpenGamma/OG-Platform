@@ -5,6 +5,9 @@
  */
 package com.opengamma.math.rootfinding;
 
+import static com.opengamma.math.interpolation.Interpolator1DFactory.DOUBLE_QUADRATIC;
+import static com.opengamma.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
+import static com.opengamma.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
@@ -38,18 +41,11 @@ import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.math.interpolation.FlatExtrapolator1D;
+import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.LinearExtrapolator1D;
-import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DCubicSplineDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.sensitivity.FlatExtrapolator1DNodeSensitivityCalculator;
+import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
 import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.sensitivity.LinearExtrapolator1DNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.sensitivity.NaturalCubicSplineInterpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
@@ -70,8 +66,8 @@ public class MultiInstrumentSingleCurveBootStrapTest {
   private static final int BENCHMARK_CYCLES = 1;
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
 
-  private static final Interpolator1D<Interpolator1DCubicSplineDataBundle> EXTRAPOLATOR;
-  private static final Interpolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle> EXTRAPOLATOR_WITH_SENSITIVITY;
+  private static final Interpolator1D<? extends Interpolator1DDataBundle> EXTRAPOLATOR;
+  private static final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> EXTRAPOLATOR_WITH_SENSITIVITY;
   private static final List<InterestRateDerivative> INSTRUMENTS;
   private static final double[] MARKET_VALUES;
   private static final String CURVE_NAME = "Libor_3m_GBP";
@@ -109,16 +105,8 @@ public class MultiInstrumentSingleCurveBootStrapTest {
   };
 
   static {
-    final NaturalCubicSplineInterpolator1D cubicInterpolator = new NaturalCubicSplineInterpolator1D();
-    final NaturalCubicSplineInterpolator1DNodeSensitivityCalculator cubicSensitivityCalculator = new NaturalCubicSplineInterpolator1DNodeSensitivityCalculator();
-    final LinearExtrapolator1D<Interpolator1DCubicSplineDataBundle> linearExtrapolator = new LinearExtrapolator1D<Interpolator1DCubicSplineDataBundle>(cubicInterpolator);
-    final LinearExtrapolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle> linearExtrapolatorSensitivityCalculator = new LinearExtrapolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle>(
-        cubicSensitivityCalculator);
-    final FlatExtrapolator1D<Interpolator1DCubicSplineDataBundle> flatExtrapolator = new FlatExtrapolator1D<Interpolator1DCubicSplineDataBundle>();
-    final FlatExtrapolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle> flatExtrapolatorSensitivityCalculator = new FlatExtrapolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle>();
-    EXTRAPOLATOR = new CombinedInterpolatorExtrapolator<Interpolator1DCubicSplineDataBundle>(cubicInterpolator, linearExtrapolator, flatExtrapolator);
-    EXTRAPOLATOR_WITH_SENSITIVITY = new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle>(cubicSensitivityCalculator,
-        linearExtrapolatorSensitivityCalculator, flatExtrapolatorSensitivityCalculator);
+    EXTRAPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
+    EXTRAPOLATOR_WITH_SENSITIVITY = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, false);
     INSTRUMENTS = new ArrayList<InterestRateDerivative>();
 
     final double[] liborMaturities = new double[] {1. / 12, 2. / 12, 3. / 12}; //

@@ -8,24 +8,24 @@ package com.opengamma.math.interpolation.data;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.RealPolynomialFunction1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
 public class Interpolator1DDoubleQuadraticDataBundle implements Interpolator1DDataBundle {
   private final Interpolator1DDataBundle _underlyingData;
-  private final RealPolynomialFunction1D[] _quadratics;
+  private RealPolynomialFunction1D[] _quadratics;
 
   public Interpolator1DDoubleQuadraticDataBundle(final Interpolator1DDataBundle underlyingData) {
     Validate.notNull(underlyingData);
     _underlyingData = underlyingData;
-    _quadratics = getQuadratics(underlyingData);
   }
 
-  private RealPolynomialFunction1D[] getQuadratics(final Interpolator1DDataBundle underlyingData) {
-    final int n = underlyingData.size() - 1;
-    final double[] xData = underlyingData.getKeys();
-    final double[] yData = underlyingData.getValues();
+  private RealPolynomialFunction1D[] getQuadratics() {
+    final double[] xData = getKeys();
+    final double[] yData = getValues();
+    final int n = xData.length - 1;
     final RealPolynomialFunction1D[] quadratic = new RealPolynomialFunction1D[n - 1];
     for (int i = 1; i < n; i++) {
       quadratic[i - 1] = getQuadratic(xData, yData, i);
@@ -45,6 +45,9 @@ public class Interpolator1DDoubleQuadraticDataBundle implements Interpolator1DDa
   }
 
   public RealPolynomialFunction1D getQuadratic(final int index) {
+    if (_quadratics == null) {
+      _quadratics = getQuadratics();
+    }
     return _quadratics[index];
   }
 
@@ -118,4 +121,37 @@ public class Interpolator1DDoubleQuadraticDataBundle implements Interpolator1DDa
     return _underlyingData.size();
   }
 
+  @Override
+  public void setYValueAtIndex(final int index, final double y) {
+    ArgumentChecker.notNegative(index, "index");
+    if (index >= size()) {
+      throw new IllegalArgumentException("Index was greater than number of data points");
+    }
+    _underlyingData.setYValueAtIndex(index, y);
+    if (_quadratics == null) {
+      _quadratics = getQuadratics();
+    }
+    final double[] keys = getKeys();
+    final double[] values = getValues();
+    final int n = size() - 1;
+    if (index == 0) {
+      _quadratics[0] = getQuadratic(keys, values, 1);
+      return;
+    } else if (index == 1) {
+      _quadratics[0] = getQuadratic(keys, values, 1);
+      _quadratics[1] = getQuadratic(keys, values, 2);
+      return;
+    } else if (index == n) {
+      _quadratics[n - 2] = getQuadratic(keys, values, n - 1);
+    } else if (index == n - 1) {
+      _quadratics[n - 3] = getQuadratic(keys, values, n - 2);
+      _quadratics[n - 2] = getQuadratic(keys, values, n - 1);
+      return;
+    } else {
+      _quadratics[index - 2] = getQuadratic(keys, values, index - 1);
+      _quadratics[index - 1] = getQuadratic(keys, values, index);
+      _quadratics[index] = getQuadratic(keys, values, index + 1);
+      return;
+    }
+  }
 }

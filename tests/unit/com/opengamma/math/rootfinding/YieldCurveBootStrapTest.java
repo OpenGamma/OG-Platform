@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.rootfinding;
 
+import static com.opengamma.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
+import static com.opengamma.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
@@ -35,19 +37,12 @@ import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.math.interpolation.FlatExtrapolator1D;
+import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.LinearExtrapolator1D;
-import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DCubicSplineDataBundle;
+import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.sensitivity.FiniteDifferenceInterpolator1DNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.sensitivity.FlatExtrapolator1DNodeSensitivityCalculator;
+import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
 import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.sensitivity.LinearExtrapolator1DNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.sensitivity.NaturalCubicSplineInterpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
@@ -64,13 +59,13 @@ import com.opengamma.util.tuple.Pair;
  */
 public class YieldCurveBootStrapTest {
   private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveBootStrapTest.class);
-  private static final int HOTSPOT_WARMUP_CYCLES = 0;
-  private static final int BENCHMARK_CYCLES = 1;
+  private static final int HOTSPOT_WARMUP_CYCLES = 100;
+  private static final int BENCHMARK_CYCLES = 1000;
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
 
-  private static final Interpolator1D<Interpolator1DCubicSplineDataBundle> EXTRAPOLATOR;
-  private static final Interpolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle> EXTRAPOLATOR_WITH_SENSITIVITY;
-  private static final Interpolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle> EXTRAPOLATOR_WITH_FD_SENSITIVITY;
+  private static final Interpolator1D<? extends Interpolator1DDataBundle> EXTRAPOLATOR;
+  private static final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> EXTRAPOLATOR_WITH_SENSITIVITY;
+  private static final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> EXTRAPOLATOR_WITH_FD_SENSITIVITY;
 
   private static final InterestRateDerivativeVisitor<Double> PAR_RATE_CALCULATOR = ParRateDifferenceCalculator.getInstance();
   private static final InterestRateDerivativeVisitor<Map<String, List<Pair<Double, Double>>>> PAR_RATE_SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
@@ -114,18 +109,11 @@ public class YieldCurveBootStrapTest {
     SWAP_VALUES = new double[n];
     SINGLE_CURVE_INSTRUMENTS = new ArrayList<InterestRateDerivative>();
     DOUBLE_CURVE_INSTRUMENTS = new ArrayList<InterestRateDerivative>();
-
-    final NaturalCubicSplineInterpolator1D cubicInterpolator = new NaturalCubicSplineInterpolator1D();
-    final NaturalCubicSplineInterpolator1DNodeSensitivityCalculator cubicSensitivityCalculator = new NaturalCubicSplineInterpolator1DNodeSensitivityCalculator();
-    final LinearExtrapolator1D<Interpolator1DCubicSplineDataBundle> linearExtrapolator = new LinearExtrapolator1D<Interpolator1DCubicSplineDataBundle>(cubicInterpolator);
-    final LinearExtrapolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle> linearExtrapolatorSensitivityCalculator = new LinearExtrapolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle>(
-        cubicSensitivityCalculator);
-    final FlatExtrapolator1D<Interpolator1DCubicSplineDataBundle> flatExtrapolator = new FlatExtrapolator1D<Interpolator1DCubicSplineDataBundle>();
-    final FlatExtrapolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle> flatExtrapolatorSensitivityCalculator = new FlatExtrapolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle>();
-    EXTRAPOLATOR = new CombinedInterpolatorExtrapolator<Interpolator1DCubicSplineDataBundle>(cubicInterpolator, linearExtrapolator, flatExtrapolator);
-    EXTRAPOLATOR_WITH_SENSITIVITY = new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle>(cubicSensitivityCalculator,
-        linearExtrapolatorSensitivityCalculator, flatExtrapolatorSensitivityCalculator);
-    EXTRAPOLATOR_WITH_FD_SENSITIVITY = new FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle>(EXTRAPOLATOR);
+    EXTRAPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
+    EXTRAPOLATOR_WITH_SENSITIVITY = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(Interpolator1DFactory.DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR,
+        FLAT_EXTRAPOLATOR, false);
+    EXTRAPOLATOR_WITH_FD_SENSITIVITY = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(Interpolator1DFactory.DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR,
+        FLAT_EXTRAPOLATOR, true);
 
     final YieldCurveBundle curveBundle = new YieldCurveBundle();
     FUNDING_CURVE = makeYieldCurve(FUNDING_YIELDS, FUNDING_CURVE_TIMES, EXTRAPOLATOR);
@@ -211,15 +199,15 @@ public class YieldCurveBootStrapTest {
     doHotSpot(rootFinder, "default Newton, single curve, finite difference", SINGLE_CURVE_FINDER);
     rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN);
     doHotSpot(rootFinder, "default Newton, single curve", SINGLE_CURVE_FINDER);
-    // rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN_FD);
-    // doHotSpot(rootFinder, "default Newton, single curve FD sensitivity", SINGLE_CURVE_FINDER_FD);
+    rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN_FD);
+    doHotSpot(rootFinder, "default Newton, single curve FD sensitivity", SINGLE_CURVE_FINDER_FD);
 
     rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS);
     doHotSpot(rootFinder, "default Newton, double curve, finite difference", DOUBLE_CURVE_FINDER, true);
     rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN);
     doHotSpot(rootFinder, "default Newton, double curve", DOUBLE_CURVE_FINDER, true);
-    // rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN_FD);
-    // doHotSpot(rootFinder, "default Newton, double curve FD sensitivity", DOUBLE_CURVE_FINDER_FD, true);
+    rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN_FD);
+    doHotSpot(rootFinder, "default Newton, double curve FD sensitivity", DOUBLE_CURVE_FINDER_FD, true);
   }
 
   @Test
@@ -228,15 +216,15 @@ public class YieldCurveBootStrapTest {
     doHotSpot(rootFinder, "Sherman Morrison, single curve, finite difference", SINGLE_CURVE_FINDER);
     rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN);
     doHotSpot(rootFinder, "Sherman Morrison, single curve", SINGLE_CURVE_FINDER);
-    // rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN_FD);
-    // doHotSpot(rootFinder, "Sherman Morrison, single curve FD sensitivity", SINGLE_CURVE_FINDER_FD);
+    rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN_FD);
+    doHotSpot(rootFinder, "Sherman Morrison, single curve FD sensitivity", SINGLE_CURVE_FINDER_FD);
 
     rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS);
     doHotSpot(rootFinder, "Sherman Morrisonn, double curve, finite difference", DOUBLE_CURVE_FINDER, true);
     rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN);
     doHotSpot(rootFinder, "Sherman Morrison, double curve", DOUBLE_CURVE_FINDER, true);
-    // rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN_FD);
-    // doHotSpot(rootFinder, "Sherman Morrison, double curve FD sensitivity", DOUBLE_CURVE_FINDER_FD, true);
+    rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN_FD);
+    doHotSpot(rootFinder, "Sherman Morrison, double curve FD sensitivity", DOUBLE_CURVE_FINDER_FD, true);
   }
 
   @Test
@@ -245,15 +233,15 @@ public class YieldCurveBootStrapTest {
     doHotSpot(rootFinder, "Broyden, single curve, finite difference", SINGLE_CURVE_FINDER);
     rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN);
     doHotSpot(rootFinder, "Broyden, single curve", SINGLE_CURVE_FINDER);
-    // rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN_FD);
-    // doHotSpot(rootFinder, "Broyden, single curve, FD sensitivity", SINGLE_CURVE_FINDER_FD);
+    rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN_FD);
+    doHotSpot(rootFinder, "Broyden, single curve, FD sensitivity", SINGLE_CURVE_FINDER_FD);
 
     rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
     doHotSpot(rootFinder, "Broyden, double curve, finite difference", DOUBLE_CURVE_FINDER, true);
     rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN);
     doHotSpot(rootFinder, "Broyden, double curve", DOUBLE_CURVE_FINDER, true);
-    // rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN_FD);
-    // doHotSpot(rootFinder, "Broyden, double curve FD sensitivity", DOUBLE_CURVE_FINDER_FD, true);
+    rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN_FD);
+    doHotSpot(rootFinder, "Broyden, double curve FD sensitivity", DOUBLE_CURVE_FINDER_FD, true);
   }
 
   private void doHotSpot(final VectorRootFinder rootFinder, final String name, final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor) {

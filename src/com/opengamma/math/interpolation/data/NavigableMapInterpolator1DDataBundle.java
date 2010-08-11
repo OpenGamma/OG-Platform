@@ -11,6 +11,7 @@ import java.util.NavigableMap;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * An implementation of {@link Interpolator1DDataBundle} backed by a
@@ -166,4 +167,17 @@ public class NavigableMapInterpolator1DDataBundle implements Interpolator1DDataB
     return true;
   }
 
+  public void setYValueAtIndex(final int index, final double y) {
+    ArgumentChecker.notNegative(index, "index");
+    if (index >= size()) {
+      throw new IllegalArgumentException("Index was greater than number of data points");
+    }
+    int count = 0;
+    for (final Map.Entry<Double, Double> entry : _backingMap.entrySet()) {
+      if (count == index) {
+        _backingMap.put(entry.getKey(), y);
+      }
+      count++;
+    }
+  }
 }
