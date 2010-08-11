@@ -625,8 +625,7 @@ public class BatchJob implements Job {
     ThreadPoolExecutor executor = new ThreadPoolExecutor(0, 1, 5L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), threadFactory);
     
     ViewProcessingContext vpc = new ViewProcessingContext(new PermissiveLiveDataEntitlementChecker(), snapshotProvider, snapshotProvider, getFunctionRepository(), new DefaultFunctionResolver(
-        getFunctionRepository()), positionSource, securitySource, cacheFactory, jobDispatcher, viewProcessorQueryReceiver, compilationContext, executor, new BatchExecutorFactory(),
-        resultWriterFactory);
+        getFunctionRepository()), positionSource, securitySource, cacheFactory, jobDispatcher, viewProcessorQueryReceiver, compilationContext, executor, new BatchExecutorFactory());
     
     _view = new View(viewDefinitionDoc.getValue(), vpc);
     _view.setPopulateResultModel(false);
