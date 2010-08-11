@@ -14,8 +14,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMessageFactory;
@@ -287,12 +286,31 @@ public class ViewDefinition implements Serializable {
 
   @Override
   public int hashCode() {
-    return HashCodeBuilder.reflectionHashCode(this);
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ObjectUtils.hashCode(getName());
+    result = prime * result + ObjectUtils.hashCode(getPortfolioId());
+    result = prime * result + ObjectUtils.hashCode(getLiveDataUser());
+    return result;
   }
 
   @Override
   public boolean equals(Object obj) {
-    return EqualsBuilder.reflectionEquals(this, obj);
+    if (this == obj) {
+      return true;
+    }
+    if (obj instanceof ViewDefinition) {
+      ViewDefinition other = (ViewDefinition) obj;
+      return ObjectUtils.equals(getName(), other.getName()) 
+        && ObjectUtils.equals(getPortfolioId(), other.getPortfolioId())
+        && ObjectUtils.equals(getLiveDataUser(), other.getLiveDataUser())
+        && ObjectUtils.equals(getResultModelDefinition(), other.getResultModelDefinition())
+        && ObjectUtils.equals(_deltaRecalculationPeriod, other._deltaRecalculationPeriod)
+        && ObjectUtils.equals(_fullRecalculationPeriod, other._fullRecalculationPeriod)
+        && ObjectUtils.equals(getAllCalculationConfigurationNames(), other.getAllCalculationConfigurationNames())
+        && ObjectUtils.equals(getAllValueRequirements(), other.getAllValueRequirements());
+    }
+    return false;
   }
 
 }
