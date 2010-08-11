@@ -8,7 +8,9 @@ package com.opengamma.financial.batch.db;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -29,12 +31,18 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
+import com.opengamma.engine.view.cache.ViewComputationCache;
+import com.opengamma.engine.view.calc.BatchExecutor;
 import com.opengamma.engine.view.calc.BatchExecutorFactory;
 import com.opengamma.engine.view.calc.DependencyGraphExecutor;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calc.SingleComputationCycle;
+import com.opengamma.engine.view.calc.SingleNodeExecutor;
 import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
+import com.opengamma.engine.view.calc.TestDependencyGraphExecutor;
+import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.financial.batch.BatchDbManager;
 import com.opengamma.financial.batch.BatchJob;
 import com.opengamma.financial.batch.LiveDataValue;
@@ -680,9 +688,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
       _batch = batch;
     }
     
-    private BatchResultWriter initialize() {
-      BatchResultWriter resultWriter =  new BatchResultWriter();
-      
+    private void initialize(BatchResultWriter resultWriter) {
       resultWriter.setJdbcUrl(_jdbcUrl);
       resultWriter.setUsername(_username);
       resultWriter.setPassword(_password);
@@ -692,28 +698,41 @@ public class BatchDbManagerImpl implements BatchDbManager {
       
       resultWriter.setRiskRun(getRiskRunFromHandle(_batch));
       
-      return resultWriter;
+      resultWriter.setComputationTargets(getDbHandle(_batch)._computationTargets);
+      resultWriter.setRiskValueNames(getDbHandle(_batch)._riskValueNames);
     }
     
     
     @Override
-    public DependencyGraphExecutor createExecutor(SingleComputationCycle cycle) {
-      BatchResultWriter resultWriter = initialize();
+    public BatchExecutor createExecutor(SingleComputationCycle cycle) {
+      DependencyGraphExecutor<CalculationJobResult> delegate =
+        new SingleNodeExecutor(cycle);
       
-      resultWriter.setComputationTargets(getDbHandle(_batch)._computationTargets);
-      resultWriter.setRiskValueNames(getDbHandle(_batch)._riskValueNames);
+      Map<String, ViewComputationCache> cachesByCalculationConfiguration = cycle.getCachesByCalculationConfiguration();
       
-      SingleNodeExecutorFactory delegateFactory = new SingleNodeExecutorFactory(resultWriter);
+      BatchResultWriter resultWriter =  new BatchResultWriter(
+          delegate,
+          cycle.getViewDefinition().getResultModelDefinition(),
+          cachesByCalculationConfiguration);
+      
+      initialize(resultWriter);
+      
+      SingleNodeExecutorFactory delegateFactory = new SingleNodeExecutorFactory();
       BatchExecutorFactory factory = new BatchExecutorFactory(delegateFactory);
       return factory.createExecutor(cycle);
     }
     
     public BatchResultWriter createTestWriter() {
-      BatchResultWriter resultWriter = initialize();
+      DependencyGraphExecutor<CalculationJobResult> delegate = 
+        new TestDependencyGraphExecutor<CalculationJobResult>(null);
       
-      resultWriter.setComputationTargets(getDbHandle(_batch)._computationTargets);
-      resultWriter.setRiskValueNames(getDbHandle(_batch)._riskValueNames);
-
+      BatchResultWriter resultWriter = new BatchResultWriter(
+          delegate,
+          new ResultModelDefinition(),
+          new HashMap<String, ViewComputationCache>());
+      
+      initialize(resultWriter);
+      
       return resultWriter;
     }
 

@@ -6,13 +6,14 @@
 package com.opengamma.financial.batch.db;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.time.Instant;
@@ -22,13 +23,15 @@ import org.junit.Test;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import com.google.common.collect.Sets;
-import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.MockFunction;
 import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.TestDependencyGraphExecutor;
 import com.opengamma.engine.view.calcnode.AbstractCalculationNodeTest;
@@ -62,13 +65,9 @@ public class BatchResultWriterTest extends HibernateTest {
   private Set<com.opengamma.financial.batch.db.ComputationTarget> _dbComputationTargets;
   private Set<RiskValueName> _valueNames;
   
-  private BatchResultWriter _resultWriter;
-
   private MockFunction _mockFunction;
   private TestCalculationNode _calcNode;
   private CalculationJob _calcJob;
-  private ArrayList<CalculationJobItem> _originalItems;
-  private TestDependencyGraphExecutor _dependencyGraphExecutor; 
   
   private HibernateTemplate _hibernateTemplate;
   
@@ -150,32 +149,13 @@ public class BatchResultWriterTest extends HibernateTest {
     _valueNames.add(valueName);
     _hibernateTemplate.saveOrUpdateAll(_valueNames);
     
-    _resultWriter = new BatchResultWriter();
-    
-    _resultWriter.setJdbcUrl(getDbTool().getJdbcUrl());
-    _resultWriter.setUsername(getDbTool().getUser());
-    _resultWriter.setPassword(getDbTool().getPassword());
-    
-    _resultWriter.setTransactionManager(getTransactionManager());
-    _resultWriter.setSessionFactory(getSessionFactory());
-    
-    _resultWriter.setRiskRun(_riskRun);
-    _resultWriter.addComputeNode(_computeNode);
-    
-    _resultWriter.setRiskValueNames(_valueNames);
-    
     _mockFunctionComputationTarget = new com.opengamma.engine.ComputationTarget(ComputationTargetType.POSITION, 
         new PositionImpl(
             UniqueIdentifier.of("Mock", "AAPL Stock UID"), 
             new BigDecimal(500), 
             new Identifier("Mock", "AAPL Stock ID")));
     _mockFunctionOutput = new Double(4000.50);   
-    
     _mockFunction = AbstractCalculationNodeTest.getMockFunction(_mockFunctionComputationTarget, _mockFunctionOutput);
-    _calcNode = AbstractCalculationNodeTest.getTestCalcNode(_mockFunction);
-    _calcJob = AbstractCalculationNodeTest.getCalculationJob(_mockFunction);
-    _originalItems = new ArrayList<CalculationJobItem>(_calcJob.getJobItems());
-    _dependencyGraphExecutor = new TestDependencyGraphExecutor(_calcNode);
     
     _dbComputationTargets = new HashSet<com.opengamma.financial.batch.db.ComputationTarget>();
     _dbComputationTarget = new com.opengamma.financial.batch.db.ComputationTarget();
@@ -184,128 +164,241 @@ public class BatchResultWriterTest extends HibernateTest {
     _dbComputationTarget.setIdValue(_mockFunction.getTarget().getUniqueIdentifier().getValue());
     _dbComputationTargets.add(_dbComputationTarget);
     _hibernateTemplate.saveOrUpdateAll(_dbComputationTargets);
-    
-    _resultWriter.setComputationTargets(_dbComputationTargets);
-    _resultWriter.initialize(getDbTool());
-    
+
+    _calcNode = AbstractCalculationNodeTest.getTestCalcNode(_mockFunction);
+    _calcJob = AbstractCalculationNodeTest.getCalculationJob(_mockFunction);
+
     getSessionFactory().getCurrentSession().getTransaction().commit();
   }
   
+  
+  // --------------------------------------------------------------------------
+  
+  
+  private BatchResultWriter getSuccessResultWriter() {
+    CalculationJobResultItem item = new CalculationJobResultItem(_calcJob.getJobItems().get(0));
+    CalculationJobResult result = new CalculationJobResult(
+        _calcJob.getSpecification(),
+        200,
+        Collections.singletonList(item),
+        "localhost");
+    
+    return getResultWriter(result);
+  }
+  
+  private BatchResultWriter getResultWriter(CalculationJobResult result) {
+    
+    Map<String, ViewComputationCache> cachesByCalculationConfiguration = new HashMap<String, ViewComputationCache>();
+    cachesByCalculationConfiguration.put(AbstractCalculationNodeTest.CALC_CONF_NAME, getCache());
+    
+    BatchResultWriter resultWriter = new BatchResultWriter(
+        new TestDependencyGraphExecutor<CalculationJobResult>(result),
+        new ResultModelDefinition(),
+        cachesByCalculationConfiguration);
+    
+    resultWriter.setJdbcUrl(getDbTool().getJdbcUrl());
+    resultWriter.setUsername(getDbTool().getUser());
+    resultWriter.setPassword(getDbTool().getPassword());
+    
+    resultWriter.setTransactionManager(getTransactionManager());
+    resultWriter.setSessionFactory(getSessionFactory());
+    
+    resultWriter.setRiskRun(_riskRun);
+    resultWriter.setRiskValueNames(_valueNames);
+    
+    resultWriter.setComputationTargets(_dbComputationTargets);
+    resultWriter.initialize(getDbTool());
+    
+    return resultWriter;
+  }
+
+  private DependencyGraph getPositionDepGraph() {
+    DependencyNode node = new DependencyNode(
+        _mockFunction,
+        _mockFunction.getTarget(),
+        Collections.<DependencyNode>emptySet(),
+        Collections.<ValueSpecification>emptySet(),
+        _mockFunction.getResultSpecs());
+    DependencyGraph graph = new DependencyGraph(AbstractCalculationNodeTest.CALC_CONF_NAME);
+    graph.addDependencyNode(node);
+    return graph;
+  }
+  
+  private DependencyGraph getPrimitiveDepGraph() {
+    com.opengamma.engine.ComputationTarget primitiveTarget = 
+      new com.opengamma.engine.ComputationTarget(ComputationTargetType.PRIMITIVE, new String("foo"));
+    
+    DependencyNode node = new DependencyNode(
+        _mockFunction,
+        primitiveTarget,
+        Collections.<DependencyNode>emptySet(),
+        Collections.<ValueSpecification>emptySet(),
+        _mockFunction.getResultSpecs());
+    DependencyGraph graph = new DependencyGraph(AbstractCalculationNodeTest.CALC_CONF_NAME);
+    graph.addDependencyNode(node);
+    return graph;
+  }
+  
+  private void setIsRestart(BatchResultWriter resultWriter) {
+    _riskRun.setNumRestarts(1);
+    resultWriter.setIsRestart(true);
+  }
+  
+
+  // --------------------------------------------------------------------------
+  
+  
   @Test
-  public void getItemsToExecuteNotARestart() {
-    _resultWriter.preExecute(_dependencyGraphExecutor, _calcJob);
-    assertEquals(_originalItems, _calcJob.getJobItems());
+  public void notARestart() {
+    // should execute
+
+    BatchResultWriter resultWriter = getSuccessResultWriter();
+    DependencyGraph originalGraph = getPositionDepGraph();
+    DependencyGraph graphToExecute = resultWriter.getGraphToExecute(originalGraph);
+    assertEquals(originalGraph.getSize(), graphToExecute.getSize());
   }
   
   @Test
-  public void getItemsToExecuteRestart() {
-    _riskRun.setNumRestarts(1);
-    _resultWriter.setIsRestart(true);
+  public void restartButNoStatusEntryInDb() {
+    // should re-execute
     
-    // nothing in db
-    _calcJob = AbstractCalculationNodeTest.getCalculationJob(_mockFunction);
-    _resultWriter.preExecute(_dependencyGraphExecutor, _calcJob);
-    assertEquals(_originalItems, _calcJob.getJobItems());
-    
-    // already successfully executed, but outputs NOT in cache.
+    BatchResultWriter resultWriter = getSuccessResultWriter();
+    setIsRestart(resultWriter);
+
+    DependencyGraph originalGraph = getPositionDepGraph();
+    DependencyGraph graphToExecute = resultWriter.getGraphToExecute(originalGraph);
+    assertEquals(originalGraph.getSize(), graphToExecute.getSize());
+  }
+  
+  @Test
+  public void restartSuccessButOutputsNotInCache() {
     // should re-execute, but not write results into DB.
-    _resultWriter.openSession();
-    try {
-      _resultWriter.upsertStatusEntries(
-          _calcJob.getSpecification(), 
-          StatusEntry.Status.SUCCESS, 
-          Sets.newHashSet(_dbComputationTarget.toSpec()));
-    } finally {
-      _resultWriter.closeSession();
-    }
     
-    _calcJob = AbstractCalculationNodeTest.getCalculationJob(_mockFunction);
-    _resultWriter.preExecute(_dependencyGraphExecutor, _calcJob);
-    assertEquals(1, _calcJob.getJobItems().size());
-    CalculationJobItem expected = _originalItems.get(0);
-    CalculationJobItem actual = _calcJob.getJobItems().get(0);
-    assertEquals(expected.getComputationTargetSpecification(), actual.getComputationTargetSpecification());
-    assertEquals(expected.getDesiredValues(), actual.getDesiredValues());
-    assertEquals(expected.getFunctionUniqueIdentifier(), actual.getFunctionUniqueIdentifier());
-    assertEquals(expected.getInputs(), actual.getInputs());
-    assertEquals(expected.getOutputs(), actual.getOutputs());
-    assertEquals(true, expected.isWriteResults());
-    assertEquals(false, actual.isWriteResults());
+    BatchResultWriter resultWriter = getSuccessResultWriter();
+    setIsRestart(resultWriter);
     
-    // already successfully executed, AND outputs in cache
-    // should not re-execute
-    putOutputToCache();
-    
-    _resultWriter.upsertStatusEntries(
+    resultWriter.openSession();
+    resultWriter.upsertStatusEntries(
         _calcJob.getSpecification(), 
         StatusEntry.Status.SUCCESS, 
         Sets.newHashSet(_dbComputationTarget.toSpec()));
+    resultWriter.closeSession();
     
-    _calcJob = AbstractCalculationNodeTest.getCalculationJob(_mockFunction);
-    _resultWriter.preExecute(_dependencyGraphExecutor, _calcJob);
-    assertTrue(_calcJob.getJobItems().isEmpty());
+    DependencyGraph originalGraph = getPositionDepGraph();
+    DependencyGraph graphToExecute = resultWriter.getGraphToExecute(originalGraph);
+    assertEquals(originalGraph.getSize(), graphToExecute.getSize());
+  }
+  
+  @Test
+  public void restartSuccessOutputInCache() {
+    // should not re-execute
     
-    // failed
+    putOutputToCache();
+    
+    BatchResultWriter resultWriter = getSuccessResultWriter();
+    setIsRestart(resultWriter);
+    
+    resultWriter.openSession();
+    resultWriter.upsertStatusEntries(
+        _calcJob.getSpecification(), 
+        StatusEntry.Status.SUCCESS, 
+        Sets.newHashSet(_dbComputationTarget.toSpec()));
+    resultWriter.closeSession();
+    
+    DependencyGraph originalGraph = getPositionDepGraph();
+    DependencyGraph graphToExecute = resultWriter.getGraphToExecute(originalGraph);
+    assertEquals(0, graphToExecute.getSize());
+  }
+
+  @Test
+  public void restartFailed() {
     // should re-execute
-    _resultWriter.upsertStatusEntries(
+    
+    BatchResultWriter resultWriter = getSuccessResultWriter();
+    setIsRestart(resultWriter);
+    
+    resultWriter.openSession();
+    resultWriter.upsertStatusEntries(
         _calcJob.getSpecification(), 
         StatusEntry.Status.FAILURE, 
         Sets.newHashSet(_dbComputationTarget.toSpec()));
+    resultWriter.closeSession();
     
-    _calcJob = AbstractCalculationNodeTest.getCalculationJob(_mockFunction);
-    _resultWriter.preExecute(_dependencyGraphExecutor, _calcJob);
-    assertEquals(_originalItems, _calcJob.getJobItems());
-    
-    // running
+    DependencyGraph originalGraph = getPositionDepGraph();
+    DependencyGraph graphToExecute = resultWriter.getGraphToExecute(originalGraph);
+    assertEquals(originalGraph.getSize(), graphToExecute.getSize());
+  }
+  
+  @Test
+  public void restartRunning() {
     // should re-execute (assumption being that the previous batch attempt
     // was hard-killed while it was running and is no longer really running)
-    _resultWriter.upsertStatusEntries(
+    
+    BatchResultWriter resultWriter = getSuccessResultWriter();
+    setIsRestart(resultWriter);
+    
+    resultWriter.openSession();
+    resultWriter.upsertStatusEntries(
         _calcJob.getSpecification(), 
         StatusEntry.Status.RUNNING, 
         Sets.newHashSet(_dbComputationTarget.toSpec()));
+    resultWriter.closeSession();
     
-    _calcJob = AbstractCalculationNodeTest.getCalculationJob(_mockFunction);
-    _resultWriter.preExecute(_dependencyGraphExecutor, _calcJob);
-    assertEquals(_originalItems, _calcJob.getJobItems());
-    
-    // not running
+    DependencyGraph originalGraph = getPositionDepGraph();
+    DependencyGraph graphToExecute = resultWriter.getGraphToExecute(originalGraph);
+    assertEquals(originalGraph.getSize(), graphToExecute.getSize());
+  }
+  
+  @Test
+  public void restartNotRunning() {
     // should re-execute
-    _resultWriter.upsertStatusEntries(
+    
+    BatchResultWriter resultWriter = getSuccessResultWriter();
+    setIsRestart(resultWriter);
+    
+    resultWriter.openSession();
+    resultWriter.upsertStatusEntries(
         _calcJob.getSpecification(), 
         StatusEntry.Status.NOT_RUNNING, 
         Sets.newHashSet(_dbComputationTarget.toSpec()));
+    resultWriter.closeSession();
     
-    _calcJob = AbstractCalculationNodeTest.getCalculationJob(_mockFunction);
-    _resultWriter.preExecute(_dependencyGraphExecutor, _calcJob);
-    assertEquals(_originalItems, _calcJob.getJobItems());
-    
-    // a PRIMITIVE (non-DB-writable) target, outputs NOT in cache
+    DependencyGraph originalGraph = getPositionDepGraph();
+    DependencyGraph graphToExecute = resultWriter.getGraphToExecute(originalGraph);
+    assertEquals(originalGraph.getSize(), graphToExecute.getSize());
+  }
+  
+  @Test
+  public void restartPrimitiveSuccess() {
     // should re-execute
-    ComputationTargetSpecification primitiveTarget = new ComputationTargetSpecification(
-        ComputationTargetType.PRIMITIVE,
-        UniqueIdentifier.of("foo", "bar"));
-    ValueRequirement primitiveOutputReq = new ValueRequirement("FairValue", primitiveTarget);
-    ValueSpecification primitiveOutputSpec = new ValueSpecification(primitiveOutputReq);
-    CalculationJobItem primitiveItem = new CalculationJobItem(
-        "function1",
-        primitiveTarget,
-        Collections.<ValueSpecification>emptySet(),
-        Collections.singleton(primitiveOutputReq),
-        false); // <---- the key part
-            
-    CalculationJob primitiveJob = new CalculationJob(
-        _calcJob.getSpecification(),
-        Collections.singletonList(primitiveItem));
-    _resultWriter.preExecute(_dependencyGraphExecutor, primitiveJob);
-    assertEquals(Collections.singletonList(primitiveItem), primitiveJob.getJobItems());
     
-    // a PRIMITIVE (non-DB-writable) target, outputs in cache
-    // should not re-execute
-    putValue(new ComputedValue(primitiveOutputSpec, 500.50));
-    _resultWriter.preExecute(_dependencyGraphExecutor, primitiveJob);
-    assertTrue(primitiveJob.getJobItems().isEmpty());
+    BatchResultWriter resultWriter = getSuccessResultWriter();
+    setIsRestart(resultWriter);
+    
+    DependencyGraph originalGraph = getPrimitiveDepGraph();
+    DependencyGraph graphToExecute = resultWriter.getGraphToExecute(originalGraph);
+    assertEquals(originalGraph.getSize(), graphToExecute.getSize());
   }
 
+  @Test
+  public void restartPrimitiveSuccessOutputsInCache() {
+    // should not re-execute
+    
+    BatchResultWriter resultWriter = getSuccessResultWriter();
+    setIsRestart(resultWriter);
+    
+    DependencyGraph originalGraph = getPrimitiveDepGraph();
+    DependencyNode primitiveNode = originalGraph.getDependencyNodes().iterator().next();
+    putValue(new ComputedValue(primitiveNode.getOutputValues().iterator().next(), 500.50));
+    
+    DependencyGraph graphToExecute = resultWriter.getGraphToExecute(originalGraph);
+    assertEquals(0, graphToExecute.getSize());
+  }
+  
+  
+  // --------------------------------------------------------------------------
+  
+  
   @Test
   public void emptyResult() {
     CalculationJobResult result = new CalculationJobResult(
@@ -313,11 +406,14 @@ public class BatchResultWriterTest extends HibernateTest {
         0,
         Collections.<CalculationJobResultItem>emptyList(),
         "localhost");
-    _resultWriter.postExecute(_dependencyGraphExecutor, result);
-    assertEquals(0, _resultWriter.getNumRiskRows());
-    assertEquals(0, _resultWriter.getNumRiskFailureRows());
-    assertEquals(0, _resultWriter.getNumRiskFailureReasonRows());
-    assertEquals(0, _resultWriter.getNumRiskComputeFailureRows());
+    
+    BatchResultWriter resultWriter = getSuccessResultWriter();
+    resultWriter.jobExecuted(result);
+    
+    assertEquals(0, resultWriter.getNumRiskRows());
+    assertEquals(0, resultWriter.getNumRiskFailureRows());
+    assertEquals(0, resultWriter.getNumRiskFailureReasonRows());
+    assertEquals(0, resultWriter.getNumRiskComputeFailureRows());
   }
   
   @Test
@@ -331,15 +427,16 @@ public class BatchResultWriterTest extends HibernateTest {
         Collections.singletonList(item),
         "localhost");
     
-    _resultWriter.postExecute(_dependencyGraphExecutor, result);
+    BatchResultWriter resultWriter = getSuccessResultWriter();
+    resultWriter.jobExecuted(result);
     
-    assertEquals(1, _resultWriter.getNumRiskRows());
-    RiskValue value = getValueFromDb();
+    assertEquals(1, resultWriter.getNumRiskRows());
+    RiskValue value = getValueFromDb(resultWriter);
     assertEquals(_mockFunction.getResult().getValue(), value.getValue());
     
-    assertEquals(0, _resultWriter.getNumRiskFailureRows());
-    assertEquals(0, _resultWriter.getNumRiskFailureReasonRows());
-    assertEquals(0, _resultWriter.getNumRiskComputeFailureRows());
+    assertEquals(0, resultWriter.getNumRiskFailureRows());
+    assertEquals(0, resultWriter.getNumRiskFailureReasonRows());
+    assertEquals(0, resultWriter.getNumRiskComputeFailureRows());
   }
   
   @Test
@@ -357,12 +454,13 @@ public class BatchResultWriterTest extends HibernateTest {
         Collections.singletonList(item),
         "localhost");
     
-    _resultWriter.postExecute(_dependencyGraphExecutor, result);
+    BatchResultWriter resultWriter = getSuccessResultWriter();
+    resultWriter.jobExecuted(result);
     
-    assertEquals(0, _resultWriter.getNumRiskRows());
-    assertEquals(1, _resultWriter.getNumRiskFailureRows());
-    assertEquals(0, _resultWriter.getNumRiskFailureReasonRows());
-    assertEquals(0, _resultWriter.getNumRiskComputeFailureRows());
+    assertEquals(0, resultWriter.getNumRiskRows());
+    assertEquals(1, resultWriter.getNumRiskFailureRows());
+    assertEquals(0, resultWriter.getNumRiskFailureReasonRows());
+    assertEquals(0, resultWriter.getNumRiskComputeFailureRows());
   }
   
   @Test
@@ -377,12 +475,13 @@ public class BatchResultWriterTest extends HibernateTest {
         Collections.singletonList(item),
         "localhost");
     
-    _resultWriter.postExecute(_dependencyGraphExecutor, result);
+    BatchResultWriter resultWriter = getSuccessResultWriter();
+    resultWriter.jobExecuted(result);
     
-    assertEquals(0, _resultWriter.getNumRiskRows());
-    assertEquals(1, _resultWriter.getNumRiskFailureRows());
-    assertEquals(1, _resultWriter.getNumRiskFailureReasonRows());
-    assertEquals(1, _resultWriter.getNumRiskComputeFailureRows());
+    assertEquals(0, resultWriter.getNumRiskRows());
+    assertEquals(1, resultWriter.getNumRiskFailureRows());
+    assertEquals(1, resultWriter.getNumRiskFailureReasonRows());
+    assertEquals(1, resultWriter.getNumRiskComputeFailureRows());
   }
   
   @Test
@@ -399,18 +498,16 @@ public class BatchResultWriterTest extends HibernateTest {
         item.getExceptionMsg(),
         item.getStackTrace());
     
-    ComputeFailure inputFailure;
-    _resultWriter.openSession();
-    try {
-      inputFailure = _resultWriter.saveComputeFailure(inputFailureKey);
-    } finally {
-      _resultWriter.closeSession();
-    }
+    BatchResultWriter resultWriter = getSuccessResultWriter();
     
-    assertEquals(0, _resultWriter.getNumRiskRows());
-    assertEquals(0, _resultWriter.getNumRiskFailureRows());
-    assertEquals(0, _resultWriter.getNumRiskFailureReasonRows());
-    assertEquals(1, _resultWriter.getNumRiskComputeFailureRows());
+    resultWriter.openSession();
+    ComputeFailure inputFailure = resultWriter.saveComputeFailure(inputFailureKey);
+    resultWriter.closeSession();
+    
+    assertEquals(0, resultWriter.getNumRiskRows());
+    assertEquals(0, resultWriter.getNumRiskFailureRows());
+    assertEquals(0, resultWriter.getNumRiskFailureReasonRows());
+    assertEquals(1, resultWriter.getNumRiskComputeFailureRows());
     
     BatchResultWriter.BatchResultWriterFailure inputFailureInCache = new BatchResultWriter.BatchResultWriterFailure();
     inputFailureInCache.getComputeFailureIds().add(inputFailure.getId());
@@ -423,12 +520,12 @@ public class BatchResultWriterTest extends HibernateTest {
         Collections.singletonList(item),
         "localhost");
     
-    _resultWriter.postExecute(_dependencyGraphExecutor, result);
+    resultWriter.jobExecuted(result);
     
-    assertEquals(0, _resultWriter.getNumRiskRows());
-    assertEquals(1, _resultWriter.getNumRiskFailureRows());
-    assertEquals(1, _resultWriter.getNumRiskFailureReasonRows());
-    assertEquals(1, _resultWriter.getNumRiskComputeFailureRows());
+    assertEquals(0, resultWriter.getNumRiskRows());
+    assertEquals(1, resultWriter.getNumRiskFailureRows());
+    assertEquals(1, resultWriter.getNumRiskFailureReasonRows());
+    assertEquals(1, resultWriter.getNumRiskComputeFailureRows());
   }
   
   @Test
@@ -445,12 +542,13 @@ public class BatchResultWriterTest extends HibernateTest {
         Collections.singletonList(item),
         "localhost");
     
-    _resultWriter.postExecute(_dependencyGraphExecutor, result);
+    BatchResultWriter resultWriter = getSuccessResultWriter();
+    resultWriter.jobExecuted(result);
     
-    assertEquals(0, _resultWriter.getNumRiskRows());
-    assertEquals(1, _resultWriter.getNumRiskFailureRows());
-    assertEquals(0, _resultWriter.getNumRiskFailureReasonRows());
-    assertEquals(0, _resultWriter.getNumRiskComputeFailureRows());
+    assertEquals(0, resultWriter.getNumRiskRows());
+    assertEquals(1, resultWriter.getNumRiskFailureRows());
+    assertEquals(0, resultWriter.getNumRiskFailureReasonRows());
+    assertEquals(0, resultWriter.getNumRiskComputeFailureRows());
   }
   
   @Test
@@ -459,15 +557,13 @@ public class BatchResultWriterTest extends HibernateTest {
         new CalculationJobItem("function1", 
             _mockFunction.getTarget().toSpecification(),
             Collections.<ValueSpecification>emptySet(),
-            Collections.singleton(new ValueRequirement("OUTPUT1", _mockFunction.getTarget().toSpecification())),
-            true));
+            Collections.singleton(new ValueRequirement("OUTPUT1", _mockFunction.getTarget().toSpecification()))));
     
     CalculationJobResultItem failedItem = new CalculationJobResultItem(
         new CalculationJobItem("function1", 
             _mockFunction.getTarget().toSpecification(),
             Collections.<ValueSpecification>emptySet(),
-            Collections.singleton(new ValueRequirement("OUTPUT2", _mockFunction.getTarget().toSpecification())),
-            true),
+            Collections.singleton(new ValueRequirement("OUTPUT2", _mockFunction.getTarget().toSpecification()))),
             new RuntimeException("function execution failed"));
     
     ArrayList<CalculationJobResultItem> items = new ArrayList<CalculationJobResultItem>();
@@ -480,22 +576,29 @@ public class BatchResultWriterTest extends HibernateTest {
         items,
         "localhost");
     
-    _resultWriter.postExecute(_dependencyGraphExecutor, result);
+    BatchResultWriter resultWriter = getSuccessResultWriter();
+    resultWriter.jobExecuted(result);
     
     // note - success row not written
-    assertEquals(0, _resultWriter.getNumRiskRows());
-    assertEquals(2, _resultWriter.getNumRiskFailureRows());
-    assertEquals(1, _resultWriter.getNumRiskFailureReasonRows());
-    assertEquals(1, _resultWriter.getNumRiskComputeFailureRows());
+    assertEquals(0, resultWriter.getNumRiskRows());
+    assertEquals(2, resultWriter.getNumRiskFailureRows());
+    assertEquals(1, resultWriter.getNumRiskFailureReasonRows());
+    assertEquals(1, resultWriter.getNumRiskComputeFailureRows());
   }
+  
+  
+  
+  // --------------------------------------------------------------------------
+  
+  
   
   @Override
   public Class<?>[] getHibernateMappingClasses() {
     return BatchDbManagerImpl.getHibernateMappingClasses();
   }
   
-  private RiskValue getValueFromDb() {
-    return _resultWriter.getValue(
+  private RiskValue getValueFromDb(BatchResultWriter resultWriter) {
+    return resultWriter.getValue(
         AbstractCalculationNodeTest.CALC_CONF_NAME, 
         _mockFunction.getResultSpec().getRequirementSpecification().getValueName(), 
         _mockFunction.getTarget().toSpecification());
@@ -507,8 +610,13 @@ public class BatchResultWriterTest extends HibernateTest {
   }
   
   private void putValue(ComputedValue value) {
-    ViewComputationCache cache = _calcNode.getCache(_calcJob.getSpecification());
+    ViewComputationCache cache = getCache();
     cache.putValue(value);
+  }
+
+  private ViewComputationCache getCache() {
+    ViewComputationCache cache = _calcNode.getCache(_calcJob.getSpecification());
+    return cache;
   }
   
 }

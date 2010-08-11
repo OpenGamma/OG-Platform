@@ -14,6 +14,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.sql.DataSource;
 
@@ -36,18 +41,19 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.DependencyNodeFilter;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.DependencyGraphExecutor;
-import com.opengamma.engine.view.calcnode.CalculationJob;
-import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.InvocationResult;
 import com.opengamma.engine.view.calcnode.MissingInput;
-import com.opengamma.engine.view.calcnode.DependencyGraphExecutorListener;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.test.DBTool;
 import com.opengamma.util.tuple.Pair;
@@ -61,9 +67,14 @@ import com.opengamma.util.tuple.Pair;
  * <p> 
  * For the database structure and tables, see create-db-batch.sql.   
  */
-public class BatchResultWriter implements DependencyGraphExecutorListener {
+public class BatchResultWriter implements DependencyGraphExecutor<Object> {
   
   private static final Logger s_logger = LoggerFactory.getLogger(BatchResultWriter.class);
+  
+  private final DependencyGraphExecutor<CalculationJobResult> _delegate;
+  private final ExecutorService _executor;
+  private final ResultModelDefinition _resultModelDefinition;
+  private final Map<String, ViewComputationCache> _cachesByCalculationConfiguration;
   
   // Variables YOU must set before calling initialize()
   
@@ -175,6 +186,29 @@ public class BatchResultWriter implements DependencyGraphExecutorListener {
    * Have DB connections been set up successfully?
    */
   private transient boolean _initialized; // = false;
+  
+  public BatchResultWriter(DependencyGraphExecutor<CalculationJobResult> delegate,
+      ResultModelDefinition resultModelDefinition,
+      Map<String, ViewComputationCache> cachesByCalculationConfiguration) {
+    this(delegate, 
+        Executors.newSingleThreadExecutor(), 
+        resultModelDefinition,
+        cachesByCalculationConfiguration);
+  }
+  
+  public BatchResultWriter(DependencyGraphExecutor<CalculationJobResult> delegate, 
+      ExecutorService executor,
+      ResultModelDefinition resultModelDefinition,
+      Map<String, ViewComputationCache> cachesByCalculationConfiguration) {
+    ArgumentChecker.notNull(delegate, "Dep graph executor");
+    ArgumentChecker.notNull(executor, "Task executor");
+    ArgumentChecker.notNull(resultModelDefinition, "Result model definition");
+    ArgumentChecker.notNull(cachesByCalculationConfiguration, "Caches by calculation configuration");
+    _delegate = delegate;
+    _executor = executor;
+    _resultModelDefinition = resultModelDefinition;
+    _cachesByCalculationConfiguration = cachesByCalculationConfiguration;
+  }
   
   public void initialize() {
     DBTool tool = new DBTool();
@@ -350,11 +384,6 @@ public class BatchResultWriter implements DependencyGraphExecutorListener {
     }
   }
 
-  public void addComputeNode(ComputeNode computeNode) {
-    ArgumentChecker.notNull(computeNode, "Compute node");
-    _computeNodeId2Id.put(computeNode.getNodeName(), computeNode.getId());
-  }
-
   public void ensureInitialized() {
     if (!isInitialized()) {
       throw new IllegalStateException("Db context has not been initialized yet");
@@ -464,8 +493,7 @@ public class BatchResultWriter implements DependencyGraphExecutorListener {
     return valueNameId.intValue();
   }
 
-  @Override
-  public void postExecute(DependencyGraphExecutor executor, CalculationJobResult result) {
+  public void jobExecuted(CalculationJobResult result) {
     ArgumentChecker.notNull(result, "The result to write");
     
     if (result.getResultItems().isEmpty()) {
@@ -479,7 +507,7 @@ public class BatchResultWriter implements DependencyGraphExecutorListener {
       }
     }
     
-    ViewComputationCache cache = executor.getCache(result);
+    ViewComputationCache cache = getCache(result);
 
     openSession();
     try {
@@ -544,12 +572,20 @@ public class BatchResultWriter implements DependencyGraphExecutorListener {
     Date evalInstant = new Date();
     
     for (CalculationJobResultItem item : result.getResultItems()) {
-      if (!item.getItem().isWriteResults()) {
+      if (!isWriteResults(item.getComputationTargetSpecification())) {
         continue;
       }
       
       if (successfulTargets.contains(item.getComputationTargetSpecification())) {
-      
+        
+        // make sure the values are not already in db, don't want to insert twice
+        StatusEntry.Status status = getStatus(
+            result.getSpecification().getCalcConfigName(), 
+            item.getComputationTargetSpecification());
+        if (status == StatusEntry.Status.SUCCESS) {
+          continue;
+        }
+        
         for (ValueSpecification output : item.getOutputs()) {
           Double valueAsDouble = (Double) cache.getValue(output); // output type was already checked above
   
@@ -831,68 +867,118 @@ public class BatchResultWriter implements DependencyGraphExecutorListener {
       _computeFailureIds.addAll(computeFailureIds);
     }
   }
+  
+  private boolean isWriteResults(ComputationTargetSpecification ct) {
+    return _resultModelDefinition.shouldWriteResults(ct.getType());
+  }
+  
+  private boolean isWriteResults(DependencyNode node) {
+    ArgumentChecker.notNull(node, "Dependency node");
+    return isWriteResults(node.getComputationTarget().toSpecification());
+  }
+  
+  public ViewComputationCache getCache(String calcConf) {
+    ViewComputationCache cache = _cachesByCalculationConfiguration.get(calcConf);
+    if (cache == null) {
+      throw new IllegalArgumentException("There is no cache for calc conf " + calcConf);
+    }
+    return cache;
+  }
+  
+  public ViewComputationCache getCache(CalculationJobResult result) {
+    return getCache(result.getSpecification().getCalcConfigName());
+  }
 
   @Override
-  public void preExecute(DependencyGraphExecutor executor, CalculationJob job) {
-    ArgumentChecker.notNull(job, "Calculation job to execute");
-    
+  public Future<Object> execute(DependencyGraph graph) {
+    BatchResultWriterCallable runnable = new BatchResultWriterCallable(graph);
+    return _executor.submit(runnable);
+  }
+  
+  public boolean shouldExecute(DependencyGraph graph, DependencyNode node) {
     if (!isRestart()) {
       // First time around, always execute everything.
-      return;      
+      return true;      
     }
     
     // The batch has been restarted. Figure out from the status table and the computation
     // cache what needs to be recomputed.
     
-    ViewComputationCache cache = executor.getCache(job);
+    ViewComputationCache cache = getCache(graph.getCalcConfName());
     
-    for (CalculationJobItem item : job.getJobItems()) {
-      
-      if (item.isWriteResults()) {
-        StatusEntry.Status status = getStatus(job.getSpecification(), item.getComputationTargetSpecification());
-        switch (status) {
-          case SUCCESS:
-            // All values for this computation target are already in the database.
-            job.removeJobItem(item);
-            
-            // However, if the computation cache has been re-started along with the 
-            // batch, it is necessary to re-evaluate the item, write the results
-            // to the computation cache, but not write anything to the database.
-            if (!allOutputsInCache(item, cache)) {
-              job.addJobItem(new CalculationJobItem(
-                  item.getFunctionUniqueIdentifier(),
-                  item.getComputationTargetSpecification(),
-                  item.getInputs(),
-                  item.getDesiredValues(),
-                  false)); // do not write into DB
-            }
-             
-            break;
-  
-          case NOT_RUNNING:
-          case RUNNING:
-          case FAILURE:
-            // do nothing, should always be re-executed
-            break;
-          
-          default:
-            throw new RuntimeException("Unexpected status " + status);
-        }
-      } else {
-        // e.g., PRIMITIVES. If the computation cache has been re-started along with the 
-        // batch, it is necessary to re-evaluate the item, but not otherwise.
-        if (allOutputsInCache(item, cache)) {
-          job.removeJobItem(item); 
-        }
-      }
+    if (isWriteResults(node)) {
+      // e.g., POSITIONS and PORTFOLIOS
+      StatusEntry.Status status = getStatus(graph.getCalcConfName(), node.getComputationTarget().toSpecification());
+      switch (status) {
+        case SUCCESS:
+          if (allOutputsInCache(node, cache)) {
+            return false;
+          } else {
+            return true;
+          }
+
+        case NOT_RUNNING:
+        case RUNNING:
+        case FAILURE:
+          return true;
         
+        default:
+          throw new RuntimeException("Unexpected status " + status);
+      }
+    } else {
+      // e.g., PRIMITIVES. If the computation cache has been re-started along with the 
+      // batch, it is necessary to re-evaluate the item, but not otherwise.
+      if (allOutputsInCache(node, cache)) {
+        return false; 
+      } else {
+        return true;
+      }
     }
   }
   
-  private boolean allOutputsInCache(CalculationJobItem item, ViewComputationCache cache) {
+  private class BatchResultWriterCallable implements Callable<Object> {
+    private DependencyGraph _graph;
+    
+    public BatchResultWriterCallable(DependencyGraph graph) {
+      ArgumentChecker.notNull(_graph, "Graph");
+      _graph = graph;
+    }
+
+    @Override
+    public Object call() {
+      DependencyGraph subGraph = getGraphToExecute(_graph);
+      
+      Future<CalculationJobResult> future = _delegate.execute(subGraph);
+      
+      CalculationJobResult result;
+      try {
+        result = future.get();
+      } catch (InterruptedException e) {
+        Thread.interrupted();
+        throw new RuntimeException("Should not have been interrupted");
+      } catch (ExecutionException e) {
+        throw new RuntimeException("Execution of dependent job failed", e);
+      }
+
+      jobExecuted(result);
+      return null;
+    }
+  }
+  
+  DependencyGraph getGraphToExecute(final DependencyGraph graph) {
+    DependencyGraph subGraph = graph.subGraph(new DependencyNodeFilter() {
+      @Override
+      public boolean accept(DependencyNode node) {
+        return shouldExecute(graph, node);
+      }
+    });
+    return subGraph;
+  }
+
+  private boolean allOutputsInCache(DependencyNode node, ViewComputationCache cache) {
     boolean allOutputsInCache = true;
     
-    for (ValueSpecification output : item.getOutputs()) {
+    for (ValueSpecification output : node.getOutputValues()) {
       if (cache.getValue(output) == null) {
         allOutputsInCache = false;
         break;
@@ -902,8 +988,8 @@ public class BatchResultWriter implements DependencyGraphExecutorListener {
     return allOutputsInCache;
   }
   
-  private StatusEntry.Status getStatus(CalculationJobSpecification job, ComputationTargetSpecification ct) {
-    Integer calcConfId = getCalculationConfigurationId(job.getCalcConfigName());
+  private StatusEntry.Status getStatus(String calcConfName, ComputationTargetSpecification ct) {
+    Integer calcConfId = getCalculationConfigurationId(calcConfName);
     Integer computationTargetId = getComputationTargetId(ct);
     
     // first check to see if this status has already been queried for
