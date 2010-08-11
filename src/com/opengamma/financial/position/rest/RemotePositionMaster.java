@@ -40,11 +40,13 @@ public class RemotePositionMaster implements PositionMaster {
 
   private final FudgeContext _fudgeContext;
   private final RestTarget _baseTarget;
+  private final RestTarget _positionsTarget;
   private final RestClient _restClient;
   
   public RemotePositionMaster(FudgeContext fudgeContext, RestTarget baseTarget) {
     _fudgeContext = fudgeContext;
     _baseTarget = baseTarget;
+    _positionsTarget = baseTarget.resolveBase(PositionMasterResourceNames.POSITION_MASTER_POSITIONS);
     _restClient = RestClient.getInstance(fudgeContext, null);
   }
 
@@ -140,7 +142,7 @@ public class RemotePositionMaster implements PositionMaster {
     
     FudgeSerializationContext serializationContext = new FudgeSerializationContext(_fudgeContext);
     MutableFudgeFieldContainer msg = serializationContext.objectToFudgeMsg(document);
-    FudgeMsgEnvelope response = _restClient.post(_baseTarget, new FudgeMsgEnvelope(msg));
+    FudgeMsgEnvelope response = _restClient.post(_positionsTarget, new FudgeMsgEnvelope(msg));
     FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(_fudgeContext);
     return deserializationContext.fudgeMsgToObject(PositionDocument.class, response.getMessage());
   }
