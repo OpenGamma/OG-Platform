@@ -15,7 +15,6 @@ import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.PropertyReadWrite;
 import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
@@ -37,8 +36,8 @@ public class ConfigSearchHistoricResult<T> extends DirectBean {
   /**
    * The list of matched config documents.
    */
-  @PropertyDefinition(readWrite = PropertyReadWrite.READ_ONLY)
-  private List<ConfigDocument<T>> _documents = new ArrayList<ConfigDocument<T>>();
+  @PropertyDefinition
+  private final List<ConfigDocument<T>> _documents = new ArrayList<ConfigDocument<T>>();
 
   /**
    * Creates an instance.
@@ -75,6 +74,7 @@ public class ConfigSearchHistoricResult<T> extends DirectBean {
     return super.propertyGet(propertyName);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
@@ -82,7 +82,8 @@ public class ConfigSearchHistoricResult<T> extends DirectBean {
         setPaging((Paging) newValue);
         return;
       case 943542968:  // documents
-        throw new UnsupportedOperationException("Property cannot be written: documents");
+        setDocuments((List<ConfigDocument<T>>) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue);
   }
@@ -122,6 +123,15 @@ public class ConfigSearchHistoricResult<T> extends DirectBean {
   }
 
   /**
+   * Sets the list of matched config documents.
+   * @param documents  the new value of the property
+   */
+  public void setDocuments(List<ConfigDocument<T>> documents) {
+    this._documents.clear();
+    this._documents.addAll(documents);
+  }
+
+  /**
    * Gets the the {@code documents} property.
    * @return the property, not null
    */
@@ -148,7 +158,7 @@ public class ConfigSearchHistoricResult<T> extends DirectBean {
      * The meta-property for the {@code documents} property.
      */
     @SuppressWarnings("unchecked")
-    private final MetaProperty<List<ConfigDocument<T>>> _documents = DirectMetaProperty.ofReadOnly(this, "documents", (Class) List.class);
+    private final MetaProperty<List<ConfigDocument<T>>> _documents = DirectMetaProperty.ofReadWrite(this, "documents", (Class) List.class);
     /**
      * The meta-properties.
      */

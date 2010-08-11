@@ -15,7 +15,6 @@ import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.PropertyReadWrite;
 import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
@@ -40,11 +39,15 @@ public class ConfigSearchRequest extends DirectBean {
    */
   @PropertyDefinition
   private String _name;
-  
+  /**
+   * The effective instant.
+   */
   @PropertyDefinition
   private Instant _effectiveTime;
-  
-  @PropertyDefinition(readWrite = PropertyReadWrite.READ_ONLY)
+  /**
+   * A flexible set of attributes allowing the object to be extended.
+   */
+  @PropertyDefinition
   private final FlexiBean _attributes = new FlexiBean();
 
   /**
@@ -95,7 +98,8 @@ public class ConfigSearchRequest extends DirectBean {
         setEffectiveTime((Instant) newValue);
         return;
       case 405645655:  // attributes
-        throw new UnsupportedOperationException("Property cannot be written: attributes");
+        setAttributes((FlexiBean) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue);
   }
@@ -155,7 +159,7 @@ public class ConfigSearchRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the effectiveTime.
+   * Gets the effective instant.
    * @return the value of the property
    */
   public Instant getEffectiveTime() {
@@ -163,7 +167,7 @@ public class ConfigSearchRequest extends DirectBean {
   }
 
   /**
-   * Sets the effectiveTime.
+   * Sets the effective instant.
    * @param effectiveTime  the new value of the property
    */
   public void setEffectiveTime(Instant effectiveTime) {
@@ -180,11 +184,20 @@ public class ConfigSearchRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the attributes.
+   * Gets a flexible set of attributes allowing the object to be extended.
    * @return the value of the property
    */
   public FlexiBean getAttributes() {
     return _attributes;
+  }
+
+  /**
+   * Sets a flexible set of attributes allowing the object to be extended.
+   * @param attributes  the new value of the property
+   */
+  public void setAttributes(FlexiBean attributes) {
+    this._attributes.clear();
+    this._attributes.putAll(attributes);
   }
 
   /**
@@ -220,7 +233,7 @@ public class ConfigSearchRequest extends DirectBean {
     /**
      * The meta-property for the {@code attributes} property.
      */
-    private final MetaProperty<FlexiBean> _attributes = DirectMetaProperty.ofReadOnly(this, "attributes", FlexiBean.class);
+    private final MetaProperty<FlexiBean> _attributes = DirectMetaProperty.ofReadWrite(this, "attributes", FlexiBean.class);
     /**
      * The meta-properties.
      */
