@@ -277,7 +277,13 @@ public class DateUtil {
     if (endDate == null) {
       throw new IllegalArgumentException("End date was null");
     }
-    return (int) Math.abs((startDate.toEpochSeconds() - endDate.toEpochSeconds()) / SECONDS_PER_DAY);
+    int daysBetween = (int) Math.abs(startDate.toLocalDate().toEpochDays() - endDate.toLocalDate().toEpochDays());
+    if (includeStart && includeEnd) {
+      daysBetween++;
+    } else if (!includeStart && !includeEnd) {
+      daysBetween--;
+    }
+    return daysBetween;
   }
 
   /**
