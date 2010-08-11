@@ -20,8 +20,8 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
-import com.opengamma.financial.position.master.PortfolioTreeNode;
-import com.opengamma.financial.position.master.PortfolioTreePosition;
+import com.opengamma.financial.position.master.ManageablePortfolioNode;
+import com.opengamma.financial.position.master.ManageablePosition;
 import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.financial.position.master.PositionSearchRequest;
 import com.opengamma.financial.position.master.PositionSearchResult;
@@ -112,7 +112,7 @@ public class PortfolioResource {
     
     html += "<p>Child nodes:<br /><table border=\"1\">" +
       "<tr><th>Name</th><th>Actions</th></tr>\n";
-    for (PortfolioTreeNode child : doc.getPortfolio().getRootNode().getChildNodes()) {
+    for (ManageablePortfolioNode child : doc.getPortfolio().getRootNode().getChildNodes()) {
       URI nodeUri = PortfolioNodeResource.uri(getUriInfo(), getPortfolioUid(), child.getUniqueIdentifier().toLatest());
       html += "<tr>";
       html += "<td><a href=\"" + nodeUri + "\">" + child.getName() + "</a></td>";
@@ -125,7 +125,7 @@ public class PortfolioResource {
     PositionSearchRequest positionSearch = new PositionSearchRequest();
     positionSearch.setParentNodeId(doc.getPortfolio().getRootNode().getUniqueIdentifier());
     PositionSearchResult positions = getPositionMaster().searchPositions(positionSearch);
-    for (PortfolioTreePosition position : positions.getPositions()) {
+    for (ManageablePosition position : positions.getPositions()) {
       URI positionUri = PositionResource.uri(getUriInfo(), getPortfolioUid(), position.getUniqueIdentifier().toLatest());
       html += "<tr>";
       html += "<td><a href=\"" + positionUri + "\">" + position.getUniqueIdentifier().toLatest() + "</a></td>";

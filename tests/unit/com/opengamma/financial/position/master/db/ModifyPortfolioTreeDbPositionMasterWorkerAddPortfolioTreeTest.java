@@ -21,9 +21,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.position.master.PortfolioTree;
+import com.opengamma.financial.position.master.ManageablePortfolio;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
-import com.opengamma.financial.position.master.PortfolioTreeNode;
+import com.opengamma.financial.position.master.ManageablePortfolioNode;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -73,7 +73,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerAddPortfolioTreeTest exten
 
   @Test(expected = NullPointerException.class)
   public void test_addPortfolioTree_noRootNode() {
-    PortfolioTree mockPortfolio = mock(PortfolioTree.class);
+    ManageablePortfolio mockPortfolio = mock(ManageablePortfolio.class);
     when(mockPortfolio.getName()).thenReturn("Test");
     PortfolioTreeDocument doc = new PortfolioTreeDocument();
     doc.setPortfolio(mockPortfolio);
@@ -84,10 +84,10 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerAddPortfolioTreeTest exten
   public void test_addPortfolioTree_add() {
     Instant now = Instant.now(_posMaster.getTimeSource());
     
-    PortfolioTreeNode rootNode = new PortfolioTreeNode("Root");
-    PortfolioTreeNode childNode = new PortfolioTreeNode("Child");
+    ManageablePortfolioNode rootNode = new ManageablePortfolioNode("Root");
+    ManageablePortfolioNode childNode = new ManageablePortfolioNode("Child");
     rootNode.addChildNode(childNode);
-    PortfolioTree portfolio = new PortfolioTree("Test");
+    ManageablePortfolio portfolio = new ManageablePortfolio("Test");
     portfolio.setRootNode(rootNode);
     PortfolioTreeDocument doc = new PortfolioTreeDocument();
     doc.setPortfolio(portfolio);
@@ -103,23 +103,23 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerAddPortfolioTreeTest exten
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    PortfolioTree testPortfolio = test.getPortfolio();
+    ManageablePortfolio testPortfolio = test.getPortfolio();
     assertEquals(uid, testPortfolio.getUniqueIdentifier());
     assertEquals("Test", testPortfolio.getName());
-    PortfolioTreeNode testRootNode = testPortfolio.getRootNode();
+    ManageablePortfolioNode testRootNode = testPortfolio.getRootNode();
     assertEquals("Root", testRootNode.getName());
     assertEquals(1, testRootNode.getChildNodes().size());
-    PortfolioTreeNode testChildNode = testRootNode.getChildNodes().get(0);
+    ManageablePortfolioNode testChildNode = testRootNode.getChildNodes().get(0);
     assertEquals("Child", testChildNode.getName());
     assertEquals(0, testChildNode.getChildNodes().size());
   }
 
   @Test
   public void test_addPortfolioTree_addThenGet() {
-    PortfolioTreeNode rootNode = new PortfolioTreeNode("Root");
-    PortfolioTreeNode childNode = new PortfolioTreeNode("Child");
+    ManageablePortfolioNode rootNode = new ManageablePortfolioNode("Root");
+    ManageablePortfolioNode childNode = new ManageablePortfolioNode("Child");
     rootNode.addChildNode(childNode);
-    PortfolioTree portfolio = new PortfolioTree("Test");
+    ManageablePortfolio portfolio = new ManageablePortfolio("Test");
     portfolio.setRootNode(rootNode);
     PortfolioTreeDocument doc = new PortfolioTreeDocument();
     doc.setPortfolio(portfolio);

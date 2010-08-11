@@ -62,7 +62,7 @@ public class PortfolioTreeDocument extends DirectBean {
    * The portfolio tree.
    */
   @PropertyDefinition
-  private PortfolioTree _portfolio;
+  private ManageablePortfolio _portfolio;
 
   /**
    * Creates an instance.
@@ -74,7 +74,7 @@ public class PortfolioTreeDocument extends DirectBean {
    * Creates an instance.
    * @param portfolioTree  the portfolio tree, not null
    */
-  public PortfolioTreeDocument(final PortfolioTree portfolioTree) {
+  public PortfolioTreeDocument(final ManageablePortfolio portfolioTree) {
     ArgumentChecker.notNull(portfolioTree, "portfolioTree");
     setPortfolioId(portfolioTree.getUniqueIdentifier());
     setPortfolio(portfolioTree);
@@ -132,7 +132,7 @@ public class PortfolioTreeDocument extends DirectBean {
         setCorrectionToInstant((Instant) newValue);
         return;
       case 1121781064:  // portfolio
-        setPortfolio((PortfolioTree) newValue);
+        setPortfolio((ManageablePortfolio) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -274,7 +274,7 @@ public class PortfolioTreeDocument extends DirectBean {
    * Gets the portfolio tree.
    * @return the value of the property
    */
-  public PortfolioTree getPortfolio() {
+  public ManageablePortfolio getPortfolio() {
     return _portfolio;
   }
 
@@ -282,7 +282,7 @@ public class PortfolioTreeDocument extends DirectBean {
    * Sets the portfolio tree.
    * @param portfolio  the new value of the property
    */
-  public void setPortfolio(PortfolioTree portfolio) {
+  public void setPortfolio(ManageablePortfolio portfolio) {
     this._portfolio = portfolio;
   }
 
@@ -290,7 +290,7 @@ public class PortfolioTreeDocument extends DirectBean {
    * Gets the the {@code portfolio} property.
    * @return the property, not null
    */
-  public final Property<PortfolioTree> portfolio() {
+  public final Property<ManageablePortfolio> portfolio() {
     return metaBean().portfolio().createProperty(this);
   }
 
@@ -327,7 +327,7 @@ public class PortfolioTreeDocument extends DirectBean {
     /**
      * The meta-property for the {@code portfolio} property.
      */
-    private final MetaProperty<PortfolioTree> _portfolio = DirectMetaProperty.ofReadWrite(this, "portfolio", PortfolioTree.class);
+    private final MetaProperty<ManageablePortfolio> _portfolio = DirectMetaProperty.ofReadWrite(this, "portfolio", ManageablePortfolio.class);
     /**
      * The meta-properties.
      */
@@ -405,7 +405,7 @@ public class PortfolioTreeDocument extends DirectBean {
      * The meta-property for the {@code portfolio} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<PortfolioTree> portfolio() {
+    public final MetaProperty<ManageablePortfolio> portfolio() {
       return _portfolio;
     }
 

@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.position.master.PortfolioTreePosition;
+import com.opengamma.financial.position.master.ManageablePosition;
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.financial.position.master.PositionSearchRequest;
 import com.opengamma.financial.position.master.PositionSearchResult;
@@ -76,7 +76,7 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionsTest extends Abst
     assertEquals(null, doc0.getVersionToInstant());
     assertEquals(_version1Instant, doc0.getCorrectionFromInstant());
     assertEquals(null, doc0.getCorrectionToInstant());
-    PortfolioTreePosition position0 = doc0.getPosition();
+    ManageablePosition position0 = doc0.getPosition();
     assertNotNull(position0);
     assertEquals(UniqueIdentifier.of("DbPos", "121", "0"), position0.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(121.987), position0.getQuantity());

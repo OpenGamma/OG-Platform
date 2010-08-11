@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.position.master.PortfolioTreePosition;
+import com.opengamma.financial.position.master.ManageablePosition;
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.financial.position.master.PositionSearchHistoricRequest;
 import com.opengamma.financial.position.master.PositionSearchHistoricResult;
@@ -67,7 +67,7 @@ public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends Abs
 
   @Test(expected = NullPointerException.class)
   public void test_correctPosition_noPositionId() {
-    PortfolioTreePosition position = new PortfolioTreePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
     PositionDocument doc = new PositionDocument();
     doc.setPosition(position);
     _worker.correctPosition(doc);
@@ -82,7 +82,7 @@ public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends Abs
 
   @Test(expected = DataNotFoundException.class)
   public void test_correctPosition_notFound() {
-    PortfolioTreePosition pos = new PortfolioTreePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
     pos.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "0", "0"));
     PositionDocument doc = new PositionDocument(pos);
     _worker.correctPosition(doc);
@@ -100,7 +100,7 @@ public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends Abs
     Instant now = Instant.now(_posMaster.getTimeSource());
     
     PositionDocument base = _queryWorker.getPosition(UniqueIdentifier.of("DbPos", "121", "0"));
-    PortfolioTreePosition pos = new PortfolioTreePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
     pos.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "121", "0"));
     PositionDocument input = new PositionDocument(pos);
     

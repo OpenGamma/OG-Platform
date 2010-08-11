@@ -69,7 +69,7 @@ public class PositionDocument extends DirectBean {
    * The position.
    */
   @PropertyDefinition
-  private PortfolioTreePosition _position;
+  private ManageablePosition _position;
 
   /**
    * Creates an instance.
@@ -81,7 +81,7 @@ public class PositionDocument extends DirectBean {
    * Creates an instance from a position.
    * @param position  the position, not null
    */
-  public PositionDocument(final PortfolioTreePosition position) {
+  public PositionDocument(final ManageablePosition position) {
     ArgumentChecker.notNull(position, "position");
     setPositionId(position.getUniqueIdentifier());
     setPosition(position);
@@ -92,7 +92,7 @@ public class PositionDocument extends DirectBean {
    * @param position  the position, not null
    * @param parentNodeId  the parent node identifier, not null
    */
-  public PositionDocument(final PortfolioTreePosition position, final UniqueIdentifier parentNodeId) {
+  public PositionDocument(final ManageablePosition position, final UniqueIdentifier parentNodeId) {
     ArgumentChecker.notNull(position, "position");
     ArgumentChecker.notNull(parentNodeId, "parentNodeId");
     setPositionId(position.getUniqueIdentifier());
@@ -162,7 +162,7 @@ public class PositionDocument extends DirectBean {
         setCorrectionToInstant((Instant) newValue);
         return;
       case 747804969:  // position
-        setPosition((PortfolioTreePosition) newValue);
+        setPosition((ManageablePosition) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -354,7 +354,7 @@ public class PositionDocument extends DirectBean {
    * Gets the position.
    * @return the value of the property
    */
-  public PortfolioTreePosition getPosition() {
+  public ManageablePosition getPosition() {
     return _position;
   }
 
@@ -362,7 +362,7 @@ public class PositionDocument extends DirectBean {
    * Sets the position.
    * @param position  the new value of the property
    */
-  public void setPosition(PortfolioTreePosition position) {
+  public void setPosition(ManageablePosition position) {
     this._position = position;
   }
 
@@ -370,7 +370,7 @@ public class PositionDocument extends DirectBean {
    * Gets the the {@code position} property.
    * @return the property, not null
    */
-  public final Property<PortfolioTreePosition> position() {
+  public final Property<ManageablePosition> position() {
     return metaBean().position().createProperty(this);
   }
 
@@ -415,7 +415,7 @@ public class PositionDocument extends DirectBean {
     /**
      * The meta-property for the {@code position} property.
      */
-    private final MetaProperty<PortfolioTreePosition> _position = DirectMetaProperty.ofReadWrite(this, "position", PortfolioTreePosition.class);
+    private final MetaProperty<ManageablePosition> _position = DirectMetaProperty.ofReadWrite(this, "position", ManageablePosition.class);
     /**
      * The meta-properties.
      */
@@ -511,7 +511,7 @@ public class PositionDocument extends DirectBean {
      * The meta-property for the {@code position} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<PortfolioTreePosition> position() {
+    public final MetaProperty<ManageablePosition> position() {
       return _position;
     }
 
