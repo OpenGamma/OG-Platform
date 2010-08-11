@@ -23,9 +23,9 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import com.google.common.base.Objects;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.position.master.PortfolioTree;
+import com.opengamma.financial.position.master.ManageablePortfolio;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
-import com.opengamma.financial.position.master.PortfolioTreeNode;
+import com.opengamma.financial.position.master.ManageablePortfolioNode;
 import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricRequest;
 import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricResult;
 import com.opengamma.financial.position.master.PortfolioTreeSearchRequest;
@@ -289,9 +289,9 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
    */
   protected final class PortfolioTreeDocumentExtractor implements ResultSetExtractor {
     private long _lastPortfolioId = -1;
-    private PortfolioTree _portfolio;
+    private ManageablePortfolio _portfolio;
     private List<PortfolioTreeDocument> _documents = new ArrayList<PortfolioTreeDocument>();
-    private final Stack<LongObjectPair<PortfolioTreeNode>> _nodes = new Stack<LongObjectPair<PortfolioTreeNode>>();
+    private final Stack<LongObjectPair<ManageablePortfolioNode>> _nodes = new Stack<LongObjectPair<ManageablePortfolioNode>>();
 
     @Override
     public Object extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -313,7 +313,7 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
       final Timestamp correctionFrom = rs.getTimestamp("CORR_FROM_INSTANT");
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
       final String name = StringUtils.defaultString(rs.getString("PORTFOLIO_NAME"));
-      _portfolio = new PortfolioTree(name);
+      _portfolio = new ManageablePortfolio(name);
       _portfolio.setUniqueIdentifier(createUniqueIdentifier(portfolioOid, portfolioId, null));
       final PortfolioTreeDocument doc = new PortfolioTreeDocument(_portfolio);
       doc.setVersionFromInstant(DateUtil.fromSqlTimestamp(versionFrom));
@@ -330,7 +330,7 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
       final long treeLeft = rs.getLong("TREE_LEFT");
       final long treeRight = rs.getLong("TREE_RIGHT");
       final String name = StringUtils.defaultString(rs.getString("NODE_NAME"));
-      final PortfolioTreeNode node = new PortfolioTreeNode(name);
+      final ManageablePortfolioNode node = new ManageablePortfolioNode(name);
       node.setUniqueIdentifier(createUniqueIdentifier(nodeOid, nodeId, null));
       if (_nodes.size() == 0) {
         _portfolio.setRootNode(node);
@@ -338,7 +338,7 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
         while (treeLeft > _nodes.peek().first) {
           _nodes.pop();
         }
-        final PortfolioTreeNode parent = _nodes.peek().second;
+        final ManageablePortfolioNode parent = _nodes.peek().second;
         parent.addChildNode(node);
       }
       // add to stack

@@ -56,11 +56,18 @@ import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessingContext;
 import com.opengamma.engine.view.cache.MapViewComputationCacheSource;
+<<<<<<< HEAD
 import com.opengamma.engine.view.calc.BatchExecutorFactory;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.LocalCalculationNode;
 import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
 import com.opengamma.engine.view.calcnode.ResultWriterFactory;
+=======
+import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
+import com.opengamma.engine.view.calcnode.CalculationNodeRequestReceiver;
+import com.opengamma.engine.view.calcnode.FudgeJobRequestSender;
+import com.opengamma.engine.view.calcnode.JobRequestSender;
+>>>>>>> a42dd4f6c1392a8fb1974cd2d82c5f27051cee44
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.financial.position.master.MasterPositionSource;
@@ -613,19 +620,29 @@ public class BatchJob implements Job {
     FunctionCompilationContext compilationContext = new FunctionCompilationContext();
     compilationContext.setSecuritySource(securitySource);
     
-    ResultWriterFactory resultWriterFactory = getBatchDbManager().createResultWriterFactory(this);
-    
     ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
     LocalNodeJobInvoker localNode = new LocalNodeJobInvoker(new LocalCalculationNode(cacheFactory, getFunctionRepository(), executionContext, targetResolver, viewProcessorQuerySender));
-    localNode.setResultWriterFactory(resultWriterFactory);
     JobDispatcher jobDispatcher = new JobDispatcher(localNode);
     
     ThreadFactory threadFactory = new NamedThreadPoolFactory("BatchJob-" + System.currentTimeMillis(), true);
     ThreadPoolExecutor executor = new ThreadPoolExecutor(0, 1, 5L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), threadFactory);
     
-    ViewProcessingContext vpc = new ViewProcessingContext(new PermissiveLiveDataEntitlementChecker(), snapshotProvider, snapshotProvider, getFunctionRepository(), new DefaultFunctionResolver(
-        getFunctionRepository()), positionSource, securitySource, cacheFactory, jobDispatcher, viewProcessorQueryReceiver, compilationContext, executor, new BatchExecutorFactory());
+    DependencyGraphExecutorFactory dependencyGraphExecutorFactory = getBatchDbManager().createDependencyGraphExecutorFactory(this);
+    
+    ViewProcessingContext vpc = new ViewProcessingContext(
+        new PermissiveLiveDataEntitlementChecker(), 
+        snapshotProvider, snapshotProvider, 
+        getFunctionRepository(), 
+        new DefaultFunctionResolver(getFunctionRepository()), 
+        positionSource, 
+        securitySource, 
+        cacheFactory, 
+        jobDispatcher, 
+        viewProcessorQueryReceiver, 
+        compilationContext, 
+        executor,
+        dependencyGraphExecutorFactory);
     
     _view = new View(viewDefinitionDoc.getValue(), vpc);
     _view.setPopulateResultModel(false);

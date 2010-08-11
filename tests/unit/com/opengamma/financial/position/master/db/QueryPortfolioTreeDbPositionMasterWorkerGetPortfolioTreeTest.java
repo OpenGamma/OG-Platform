@@ -16,9 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.position.master.PortfolioTree;
+import com.opengamma.financial.position.master.ManageablePortfolio;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
-import com.opengamma.financial.position.master.PortfolioTreeNode;
+import com.opengamma.financial.position.master.ManageablePortfolioNode;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -72,11 +72,11 @@ public class QueryPortfolioTreeDbPositionMasterWorkerGetPortfolioTreeTest extend
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    PortfolioTree portfolio = test.getPortfolio();
+    ManageablePortfolio portfolio = test.getPortfolio();
     assertEquals(uid, portfolio.getUniqueIdentifier());
     assertEquals("TestPortfolio101", portfolio.getName());
     
-    PortfolioTreeNode rootNode = portfolio.getRootNode();
+    ManageablePortfolioNode rootNode = portfolio.getRootNode();
     assertEquals(UniqueIdentifier.of("DbPos", "111", "0"), rootNode.getUniqueIdentifier());
     assertEquals("TestNode111", rootNode.getName());
     assertEquals(1, rootNode.getChildNodes().size());
@@ -100,7 +100,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerGetPortfolioTreeTest extend
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    PortfolioTree portfolio = test.getPortfolio();
+    ManageablePortfolio portfolio = test.getPortfolio();
     assertEquals(uid, portfolio.getUniqueIdentifier());
     assertEquals("TestPortfolio201", portfolio.getName());
     assertEquals(UniqueIdentifier.of("DbPos", "211", "0"), portfolio.getRootNode().getUniqueIdentifier());
@@ -118,7 +118,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerGetPortfolioTreeTest extend
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    PortfolioTree portfolio = test.getPortfolio();
+    ManageablePortfolio portfolio = test.getPortfolio();
     assertEquals(uid, portfolio.getUniqueIdentifier());
     assertEquals("TestPortfolio202", portfolio.getName());
     assertEquals(UniqueIdentifier.of("DbPos", "211", "1"), portfolio.getRootNode().getUniqueIdentifier());
@@ -144,7 +144,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerGetPortfolioTreeTest extend
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    PortfolioTree portfolio = test.getPortfolio();
+    ManageablePortfolio portfolio = test.getPortfolio();
     assertEquals(uid, portfolio.getUniqueIdentifier());
     assertEquals("TestPortfolio202", portfolio.getName());
     assertEquals(UniqueIdentifier.of("DbPos", "211", "1"), portfolio.getRootNode().getUniqueIdentifier());
@@ -163,7 +163,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerGetPortfolioTreeTest extend
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    PortfolioTree portfolio = test.getPortfolio();
+    ManageablePortfolio portfolio = test.getPortfolio();
     assertEquals(uid, portfolio.getUniqueIdentifier());
     assertEquals("TestPortfolio101", portfolio.getName());
     assertEquals(UniqueIdentifier.of("DbPos", "111", "0"), portfolio.getRootNode().getUniqueIdentifier());

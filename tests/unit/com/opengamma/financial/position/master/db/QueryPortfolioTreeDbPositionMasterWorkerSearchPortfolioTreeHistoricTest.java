@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
-import com.opengamma.financial.position.master.PortfolioTreeNode;
+import com.opengamma.financial.position.master.ManageablePortfolioNode;
 import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricRequest;
 import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricResult;
 import com.opengamma.id.UniqueIdentifier;
@@ -76,7 +76,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreeHistoric
     assertEquals(_version1Instant, doc1.getCorrectionFromInstant());
     assertEquals(null, doc1.getCorrectionToInstant());
     
-    PortfolioTreeNode rootNode = doc1.getPortfolio().getRootNode();
+    ManageablePortfolioNode rootNode = doc1.getPortfolio().getRootNode();
     assertEquals(UniqueIdentifier.of("DbPos", "211", "0"), rootNode.getUniqueIdentifier());
     assertEquals(0, rootNode.getChildNodes().size());
   }
@@ -97,7 +97,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreeHistoric
     assertEquals(_version1Instant, doc0.getCorrectionFromInstant());
     assertEquals(null, doc0.getCorrectionToInstant());
     
-    PortfolioTreeNode rootNode = doc0.getPortfolio().getRootNode();
+    ManageablePortfolioNode rootNode = doc0.getPortfolio().getRootNode();
     assertEquals(UniqueIdentifier.of("DbPos", "111", "0"), rootNode.getUniqueIdentifier());
     assertEquals(1, rootNode.getChildNodes().size());
     
@@ -121,7 +121,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreeHistoric
     assertEquals(_version1Instant, doc0.getCorrectionFromInstant());
     assertEquals(null, doc0.getCorrectionToInstant());
     
-    PortfolioTreeNode rootNode = doc0.getPortfolio().getRootNode();
+    ManageablePortfolioNode rootNode = doc0.getPortfolio().getRootNode();
     assertEquals(UniqueIdentifier.of("DbPos", "111", "0"), rootNode.getUniqueIdentifier());
     assertEquals(1, rootNode.getChildNodes().size());
     

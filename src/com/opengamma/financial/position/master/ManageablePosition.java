@@ -31,7 +31,7 @@ import com.opengamma.util.ArgumentChecker;
  * stored and returned separately from the position master.
  */
 @BeanDefinition
-public class PortfolioTreePosition extends DirectBean implements MutableUniqueIdentifiable {
+public class ManageablePosition extends DirectBean implements MutableUniqueIdentifiable {
 
   /**
    * The position unique identifier.
@@ -52,7 +52,7 @@ public class PortfolioTreePosition extends DirectBean implements MutableUniqueId
   /**
    * Creates an instance.
    */
-  public PortfolioTreePosition() {
+  public ManageablePosition() {
   }
 
   /**
@@ -60,7 +60,7 @@ public class PortfolioTreePosition extends DirectBean implements MutableUniqueId
    * @param quantity  the amount of the position, not null
    * @param securityKey  the security identifier, not null
    */
-  public PortfolioTreePosition(final BigDecimal quantity, final Identifier securityKey) {
+  public ManageablePosition(final BigDecimal quantity, final Identifier securityKey) {
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityKey, "securityKey");
     _quantity = quantity;
@@ -72,7 +72,7 @@ public class PortfolioTreePosition extends DirectBean implements MutableUniqueId
    * @param quantity  the amount of the position, not null
    * @param securityKey  the security identifier, not null
    */
-  public PortfolioTreePosition(final BigDecimal quantity, final IdentifierBundle securityKey) {
+  public ManageablePosition(final BigDecimal quantity, final IdentifierBundle securityKey) {
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityKey, "securityKey");
     _quantity = quantity;
@@ -94,13 +94,13 @@ public class PortfolioTreePosition extends DirectBean implements MutableUniqueId
    * The meta-bean for {@code PortfolioTreePosition}.
    * @return the meta-bean, not null
    */
-  public static PortfolioTreePosition.Meta meta() {
-    return PortfolioTreePosition.Meta.INSTANCE;
+  public static ManageablePosition.Meta meta() {
+    return ManageablePosition.Meta.INSTANCE;
   }
 
   @Override
-  public PortfolioTreePosition.Meta metaBean() {
-    return PortfolioTreePosition.Meta.INSTANCE;
+  public ManageablePosition.Meta metaBean() {
+    return ManageablePosition.Meta.INSTANCE;
   }
 
   @Override
@@ -244,13 +244,13 @@ public class PortfolioTreePosition extends DirectBean implements MutableUniqueId
     }
 
     @Override
-    public PortfolioTreePosition createBean() {
-      return new PortfolioTreePosition();
+    public ManageablePosition createBean() {
+      return new ManageablePosition();
     }
 
     @Override
-    public Class<? extends PortfolioTreePosition> beanType() {
-      return PortfolioTreePosition.class;
+    public Class<? extends ManageablePosition> beanType() {
+      return ManageablePosition.class;
     }
 
     @Override
