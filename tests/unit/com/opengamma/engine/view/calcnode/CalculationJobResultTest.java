@@ -8,6 +8,7 @@ package com.opengamma.engine.view.calcnode;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 
@@ -17,6 +18,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.junit.Test;
 
+import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
@@ -38,11 +40,14 @@ public class CalculationJobResultTest {
         "1", 
         targetSpec,
         Collections.<ValueSpecification>emptySet(), 
-        Collections.<ValueRequirement>emptySet(),
-        true);
-    CalculationJobResultItem resultItem = new CalculationJobResultItem(item, InvocationResult.SUCCESS); 
+        Collections.<ValueRequirement>emptySet());
+    CalculationJobResultItem item1 = new CalculationJobResultItem(item); 
+    CalculationJobResultItem item2 = new CalculationJobResultItem(item, new RuntimeException("failure!"));
     
-    CalculationJobResult result = new CalculationJobResult(spec, 500, Collections.singletonList(resultItem));
+    CalculationJobResult result = new CalculationJobResult(spec, 
+        500, 
+        Lists.newArrayList(item1, item2),
+        "localhost");
     
     FudgeFieldContainer msg = result.toFudgeMsg(new FudgeSerializationContext(context));
     msg = context.deserialize(context.toByteArray(msg)).getMessage();
@@ -50,13 +55,26 @@ public class CalculationJobResultTest {
     assertNotNull(outputJob);
     assertEquals(spec, outputJob.getSpecification());
     assertEquals(500, outputJob.getDuration());
+    assertEquals("localhost", outputJob.getComputeNodeId());
     assertNotNull(outputJob.getResultItems());
-    assertEquals(1, outputJob.getResultItems().size());
-    CalculationJobResultItem outputItem = outputJob.getResultItems().get(0);
-    assertNotNull(outputItem);
-    assertEquals(InvocationResult.SUCCESS, outputItem.getResult());
-    assertNotNull(outputItem.getItem());
-    assertNull(outputItem.getResults());
+    assertEquals(2, outputJob.getResultItems().size());
+    CalculationJobResultItem outputItem1 = outputJob.getResultItems().get(0);
+    assertNotNull(outputItem1);
+    assertEquals(InvocationResult.SUCCESS, outputItem1.getResult());
+    assertNotNull(outputItem1.getItem());
+    assertNull(outputItem1.getExceptionClass());
+    assertNull(outputItem1.getExceptionMsg());
+    assertNull(outputItem1.getStackTrace());
+    assertTrue(outputItem1.getMissingInputs().isEmpty());
+    
+    CalculationJobResultItem outputItem2 = outputJob.getResultItems().get(1);
+    assertNotNull(outputItem2);
+    assertEquals(InvocationResult.FUNCTION_THREW_EXCEPTION, outputItem2.getResult());
+    assertNotNull(outputItem2.getItem());
+    assertEquals("java.lang.RuntimeException", outputItem2.getExceptionClass());
+    assertEquals("failure!", outputItem2.getExceptionMsg());
+    assertNotNull(outputItem2.getStackTrace());
+    assertTrue(outputItem2.getMissingInputs().isEmpty());
   }
   
 

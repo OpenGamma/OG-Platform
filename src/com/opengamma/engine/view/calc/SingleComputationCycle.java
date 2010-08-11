@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.calc;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -61,7 +62,7 @@ public class SingleComputationCycle {
   private final View _view;
   private final Instant _valuationTime;
   
-  private final DependencyGraphExecutor _dependencyGraphExecutor;
+  private final DependencyGraphExecutor<?> _dependencyGraphExecutor;
   
   // State:
   
@@ -176,12 +177,18 @@ public class SingleComputationCycle {
     return getView().getDefinition();
   }
   
-  public DependencyGraphExecutor getDependencyGraphExecutor() {
+  public DependencyGraphExecutor<?> getDependencyGraphExecutor() {
     return _dependencyGraphExecutor;    
   }
   
+  public Map<String, ViewComputationCache> getCachesByCalculationConfiguration() {
+    return Collections.unmodifiableMap(_cachesByCalculationConfiguration);
+  }
+
+  
   // --------------------------------------------------------------------------
   
+
   public void prepareInputs() {
     if (_state != State.CREATED) {
       throw new IllegalStateException("State must be " + State.CREATED);
@@ -361,34 +368,28 @@ public class SingleComputationCycle {
 
     for (String calcConfigurationName : getPortfolioEvaluationModel().getAllCalculationConfigurationNames()) {
       DependencyGraph depGraph = getPortfolioEvaluationModel().getDependencyGraph(calcConfigurationName);
-      
-      if (getViewDefinition().isComputePositionNodeCalculations()) {
-        populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.POSITION);
-      }
-      if (getViewDefinition().isComputePortfolioNodeCalculations()) {
-        populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.PORTFOLIO_NODE);
-      }
-      if (getViewDefinition().isComputeSecurityNodeCalculations()) {
-        populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.SECURITY);
-      }
-      if (getViewDefinition().isComputePrimitiveNodeCalculations()) {
-        populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.PRIMITIVE);
-      }
+      populateResultModel(calcConfigurationName, depGraph);
     }
     
     _endTime = System.nanoTime();
   }
   
-  protected void populateResultModel(String calcConfigurationName, DependencyGraph depGraph, ComputationTargetType type) {
+  protected void populateResultModel(String calcConfigurationName, DependencyGraph depGraph) {
     ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
-    for (ValueSpecification outputSpec : depGraph.getOutputValues(type)) {
+    for (ValueSpecification outputSpec : depGraph.getOutputValues()) {
+      ComputationTargetType type = outputSpec.getRequirementSpecification().getTargetSpecification().getType();
+      
       // REVIEW kirk 2010-07-05 -- WARNING! GROSS HACK!
-      if ((outputSpec.getRequirementSpecification().getTargetSpecification().getType() == ComputationTargetType.PRIMITIVE)
+      if (type == ComputationTargetType.PRIMITIVE
           && !ObjectUtils.equals(ValueRequirementNames.FUNDING_CURVE, outputSpec.getRequirementSpecification().getValueName())) {
         continue;
       }
-      Object value = computationCache.getValue(outputSpec);
       
+      if (!getViewDefinition().getResultModelDefinition().shouldWriteResults(type)) {
+        continue;
+      }
+      
+      Object value = computationCache.getValue(outputSpec);
       if (value != null) {
         getResultModel().addValue(calcConfigurationName, new ComputedValue(outputSpec, value));
       }

@@ -24,7 +24,6 @@ import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.security.MockSecuritySource;
 import com.opengamma.engine.view.cache.MapViewComputationCacheSource;
 import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
-import com.opengamma.engine.view.calcnode.DummyResultWriterFactory;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.LocalCalculationNode;
 import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
