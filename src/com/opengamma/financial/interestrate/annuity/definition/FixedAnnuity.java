@@ -7,7 +7,6 @@ package com.opengamma.financial.interestrate.annuity.definition;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
@@ -21,51 +20,53 @@ public class FixedAnnuity implements Annuity {
   private double[] _paymentAmounts;
   private final double[] _yearFractions;
   private final double[] _paymentTimes;
+  private final double[] _coupons;
+  private final double _notional;
   private final int _n;
   private final String _curveName;
 
-  /**
-   * @param paymentTimes time in years from now where payments are made 
-   * @param paymentAmounts actual cash amounts paid on paymentTimes time
-   * @param yieldCurveName name of curve to take discount factors off 
-   */
-  public FixedAnnuity(final double[] paymentTimes, final double[] paymentAmounts, final String yieldCurveName) {
-    Validate.notNull(paymentTimes);
-    ArgumentChecker.notEmpty(paymentTimes, "payment times");
-    Validate.notNull(paymentAmounts);
-    ArgumentChecker.notEmpty(paymentAmounts, "payment amounts");
-    Validate.notNull(yieldCurveName);
-    _n = paymentTimes.length;
-    Validate.isTrue(paymentAmounts.length == _n);
-    _paymentTimes = paymentTimes;
-    _paymentAmounts = paymentAmounts;
-    _yearFractions = setupActualActualYearFractions(paymentTimes);
-    _curveName = yieldCurveName;
-  }
-
-  /**
-   * 
-   * @param paymentTimes time in years from now where payments are made 
-   * @param paymentAmounts  actual cash amounts paid on paymentTimes time
-   * @param yearFractions year fractions between payments - <b>note</b> this has no effect on the  paymentAmounts 
-   * @param yieldCurveName name of curve to take discount factors off 
-   */
-  public FixedAnnuity(final double[] paymentTimes, final double[] paymentAmounts, final double[] yearFractions, final String yieldCurveName) {
-    Validate.notNull(paymentTimes);
-    ArgumentChecker.notEmpty(paymentTimes, "payment times");
-    Validate.notNull(paymentAmounts);
-    ArgumentChecker.notEmpty(paymentAmounts, "payment amounts");
-    Validate.notNull(yieldCurveName);
-    Validate.notNull(yearFractions);
-    ArgumentChecker.notEmpty(yearFractions, "year fraction");
-    _n = paymentTimes.length;
-    Validate.isTrue(paymentAmounts.length == _n);
-    Validate.isTrue(yearFractions.length == _n);
-    _paymentTimes = paymentTimes;
-    _paymentAmounts = paymentAmounts;
-    _yearFractions = yearFractions;
-    _curveName = yieldCurveName;
-  }
+  // /**
+  // * @param paymentTimes time in years from now where payments are made
+  // * @param paymentAmounts actual cash amounts paid on paymentTimes time
+  // * @param yieldCurveName name of curve to take discount factors off
+  // */
+  // public FixedAnnuity(final double[] paymentTimes, final double[] paymentAmounts, final String yieldCurveName) {
+  // Validate.notNull(paymentTimes);
+  // ArgumentChecker.notEmpty(paymentTimes, "payment times");
+  // Validate.notNull(paymentAmounts);
+  // ArgumentChecker.notEmpty(paymentAmounts, "payment amounts");
+  // Validate.notNull(yieldCurveName);
+  // _n = paymentTimes.length;
+  // Validate.isTrue(paymentAmounts.length == _n);
+  // _paymentTimes = paymentTimes;
+  // _paymentAmounts = paymentAmounts;
+  // _yearFractions = setupActualActualYearFractions(paymentTimes);
+  // _curveName = yieldCurveName;
+  // }
+  //
+  // /**
+  // *
+  // * @param paymentTimes time in years from now where payments are made
+  // * @param paymentAmounts actual cash amounts paid on paymentTimes time
+  // * @param yearFractions year fractions between payments - <b>note</b> this has no effect on the paymentAmounts
+  // * @param yieldCurveName name of curve to take discount factors off
+  // */
+  // public FixedAnnuity(final double[] paymentTimes, final double[] paymentAmounts, final double[] yearFractions, final String yieldCurveName) {
+  // Validate.notNull(paymentTimes);
+  // ArgumentChecker.notEmpty(paymentTimes, "payment times");
+  // Validate.notNull(paymentAmounts);
+  // ArgumentChecker.notEmpty(paymentAmounts, "payment amounts");
+  // Validate.notNull(yieldCurveName);
+  // Validate.notNull(yearFractions);
+  // ArgumentChecker.notEmpty(yearFractions, "year fraction");
+  // _n = paymentTimes.length;
+  // Validate.isTrue(paymentAmounts.length == _n);
+  // Validate.isTrue(yearFractions.length == _n);
+  // _paymentTimes = paymentTimes;
+  // _paymentAmounts = paymentAmounts;
+  // _yearFractions = yearFractions;
+  // _curveName = yieldCurveName;
+  // }
 
   /**
    * 
@@ -83,10 +84,11 @@ public class FixedAnnuity implements Annuity {
 
     _paymentTimes = paymentTimes;
     _yearFractions = setupActualActualYearFractions(paymentTimes);
-    _paymentAmounts = new double[_n];
+    _coupons = new double[_n];
     for (int i = 0; i < _n; i++) {
-      _paymentAmounts[i] = notional * couponRate * _yearFractions[i];
+      _coupons[i] = couponRate;
     }
+    _notional = notional;
     _curveName = yieldCurveName;
   }
 
@@ -107,10 +109,8 @@ public class FixedAnnuity implements Annuity {
     Validate.isTrue(coupons.length == _n);
     _paymentTimes = paymentTimes;
     _yearFractions = setupActualActualYearFractions(paymentTimes);
-    _paymentAmounts = new double[_n];
-    for (int i = 0; i < _n; i++) {
-      _paymentAmounts[i] = notional * coupons[i] * _yearFractions[i];
-    }
+    _coupons = coupons;
+    _notional = notional;
     _curveName = yieldCurveName;
   }
 
@@ -131,12 +131,13 @@ public class FixedAnnuity implements Annuity {
     _n = paymentTimes.length;
     Validate.isTrue(yearFractions.length == _n);
     _paymentTimes = paymentTimes;
-    _paymentAmounts = new double[_n];
     _yearFractions = yearFractions;
 
+    _coupons = new double[_n];
     for (int i = 0; i < _n; i++) {
-      _paymentAmounts[i] = notional * couponRate * yearFractions[i];
+      _coupons[i] = couponRate;
     }
+    _notional = notional;
     _curveName = yieldCurveName;
   }
 
@@ -160,12 +161,10 @@ public class FixedAnnuity implements Annuity {
     Validate.isTrue(coupons.length == _n);
     Validate.isTrue(yearFractions.length == _n);
     _paymentTimes = paymentTimes;
-    _paymentAmounts = new double[_n];
     _yearFractions = yearFractions;
 
-    for (int i = 0; i < _n; i++) {
-      _paymentAmounts[i] = notional * coupons[i] * yearFractions[i];
-    }
+    _coupons = coupons;
+    _notional = notional;
     _curveName = yieldCurveName;
   }
 
@@ -179,23 +178,39 @@ public class FixedAnnuity implements Annuity {
     return res;
   }
 
+  public double[] getPaymentAmounts() {
+    if (_paymentAmounts == null) {
+      _paymentAmounts = new double[_n];
+      for (int i = 0; i < _n; i++) {
+        _paymentAmounts[i] = _notional * _coupons[i] * _yearFractions[i];
+      }
+    }
+    return _paymentAmounts;
+  }
+
   /**
    * used for calculating swap rates 
-   * @param notional The notional value
    * @return A fixed annuity with all coupons set to zero
    */
-  public FixedAnnuity toUnitCouponFixedAnnuity(final double notional) {
+  @Override
+  public FixedAnnuity withUnitCoupons() {
     final double[] coupons = new double[getNumberOfPayments()];
     for (int i = 0; i < getNumberOfPayments(); i++) {
       coupons[i] = 1.0;
     }
-    return new FixedAnnuity(getPaymentTimes(), notional, coupons, getYearFractions(), getFundingCurveName());
+    return new FixedAnnuity(getPaymentTimes(), getNotional(), coupons, getYearFractions(), getFundingCurveName());
   }
 
-  public double[] getPaymentAmounts() {
-    return _paymentAmounts;
+  /**
+   * fixed annuity does not have a spread
+   * @return this
+   */
+  @Override
+  public Annuity withZeroSpread() {
+    return this;
   }
 
+  @Override
   public String getFundingCurveName() {
     return _curveName;
   }
@@ -211,6 +226,11 @@ public class FixedAnnuity implements Annuity {
   }
 
   @Override
+  public double getNotional() {
+    return _notional;
+  }
+
+  @Override
   public int getNumberOfPayments() {
     return _n;
   }
@@ -219,15 +239,18 @@ public class FixedAnnuity implements Annuity {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
+    result = prime * result + Arrays.hashCode(_coupons);
     result = prime * result + ((_curveName == null) ? 0 : _curveName.hashCode());
-    result = prime * result + Arrays.hashCode(_paymentAmounts);
+    long temp;
+    temp = Double.doubleToLongBits(_notional);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + Arrays.hashCode(_paymentTimes);
     result = prime * result + Arrays.hashCode(_yearFractions);
     return result;
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -237,11 +260,18 @@ public class FixedAnnuity implements Annuity {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final FixedAnnuity other = (FixedAnnuity) obj;
-    if (!ObjectUtils.equals(_curveName, other._curveName)) {
+    FixedAnnuity other = (FixedAnnuity) obj;
+    if (!Arrays.equals(_coupons, other._coupons)) {
       return false;
     }
-    if (!Arrays.equals(_paymentAmounts, other._paymentAmounts)) {
+    if (_curveName == null) {
+      if (other._curveName != null) {
+        return false;
+      }
+    } else if (!_curveName.equals(other._curveName)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_notional) != Double.doubleToLongBits(other._notional)) {
       return false;
     }
     if (!Arrays.equals(_paymentTimes, other._paymentTimes)) {

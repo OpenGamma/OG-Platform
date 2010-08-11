@@ -19,6 +19,7 @@ import com.opengamma.financial.interestrate.future.definition.InterestRateFuture
 import com.opengamma.financial.interestrate.libor.definition.Libor;
 import com.opengamma.financial.interestrate.swap.definition.BasisSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 
 /**
@@ -31,6 +32,11 @@ public class InterestRateDerivativeVisitorTest {
 
     private Class<?> visit(final InterestRateDerivative derivative, @SuppressWarnings("unused") final YieldCurveBundle curves) {
       return derivative.getClass();
+    }
+
+    @Override
+    public Class<?> getValue(InterestRateDerivative ird, YieldCurveBundle curves) {
+      return ird.accept(this, curves);
     }
 
     @Override
@@ -84,8 +90,8 @@ public class InterestRateDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> getValue(InterestRateDerivative ird, YieldCurveBundle curves) {
-      return ird.accept(this, curves);
+    public Class<?> visitFloatingRateNote(FloatingRateNote frn, YieldCurveBundle curves) {
+      return visit(frn, curves);
     }
   };
 
@@ -99,10 +105,11 @@ public class InterestRateDerivativeVisitorTest {
     final Libor libor = new Libor(1, 0, CURVE_NAME);
     final Bond bond = new Bond(new double[] {1}, 0, CURVE_NAME);
     final VariableAnnuity floatLeg = new VariableAnnuity(new double[] {1}, CURVE_NAME, CURVE_NAME);
-    final FixedAnnuity fixedLeg = new FixedAnnuity(new double[] {1}, new double[] {0}, CURVE_NAME);
+    final FixedAnnuity fixedLeg = new FixedAnnuity(new double[] {1}, 1.0, new double[] {0}, CURVE_NAME);
     final ConstantCouponAnnuity fixedLeg2 = new ConstantCouponAnnuity(new double[] {1}, 0.0, CURVE_NAME);
     final FixedFloatSwap swap = new FixedFloatSwap(fixedLeg2, floatLeg);
     final BasisSwap bSwap = new BasisSwap(floatLeg, floatLeg);
+    final FloatingRateNote frn = new FloatingRateNote(floatLeg);
     assertEquals(VISITOR.getValue(cash, curves), Cash.class);
     assertEquals(fra.accept(VISITOR, curves), ForwardRateAgreement.class);
     assertEquals(future.accept(VISITOR, curves), InterestRateFuture.class);
@@ -113,5 +120,7 @@ public class InterestRateDerivativeVisitorTest {
     assertEquals(floatLeg.accept(VISITOR, curves), VariableAnnuity.class);
     assertEquals(swap.accept(VISITOR, curves), FixedFloatSwap.class);
     assertEquals(bSwap.accept(VISITOR, curves), BasisSwap.class);
+    assertEquals(frn.accept(VISITOR, curves), FloatingRateNote.class);
   }
+
 }

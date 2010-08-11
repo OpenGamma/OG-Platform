@@ -136,7 +136,7 @@ public class ParRateCalculatorTest {
     for (int i = 0; i < n; i++) {
       spreads[i] = rate;
     }
-    payLeg = new VariableAnnuity(paymentTimes, 1.0, fwdStartOffsets, fwdEndOffsets, yearFracs, spreads, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
+    receiveLeg = new VariableAnnuity(paymentTimes, 1.0, fwdStartOffsets, fwdEndOffsets, yearFracs, spreads, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     swap = new BasisSwap(payLeg, receiveLeg);
     assertEquals(0.0, PVC.getValue(swap, CURVES), 1e-12);
   }

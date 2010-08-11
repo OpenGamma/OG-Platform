@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.interestrate;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.annuity.definition.ConstantCouponAnnuity;
@@ -16,6 +17,7 @@ import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.swap.definition.BasisSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 
 /**
@@ -45,7 +47,7 @@ public final class ParRateDifferenceCalculator implements InterestRateDerivative
 
   @Override
   public Double visitBasisSwap(BasisSwap swap, YieldCurveBundle curves) {
-    double spread = swap.getPayLeg().getSpreads()[0];
+    double spread = swap.getReceiveLeg().getSpreads()[0];
     return RATE_CAL.getValue(swap, curves) - spread;
 
   }
@@ -77,22 +79,28 @@ public final class ParRateDifferenceCalculator implements InterestRateDerivative
 
   @Override
   public Double visitSwap(Swap swap, YieldCurveBundle curves) {
-    return null;
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public Double visitFloatingRateNote(FloatingRateNote frn, YieldCurveBundle curves) {
+    double spread = frn.getReceiveLeg().getSpreads()[0];
+    return RATE_CAL.getValue(frn, curves) - spread;
   }
 
   @Override
   public Double visitFixedAnnuity(FixedAnnuity annuity, YieldCurveBundle curves) {
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
   public Double visitConstantCouponAnnuity(ConstantCouponAnnuity annuity, YieldCurveBundle curves) {
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
   public Double visitVariableAnnuity(VariableAnnuity annuity, YieldCurveBundle curves) {
-    return null;
+    throw new NotImplementedException();
   }
 
 }

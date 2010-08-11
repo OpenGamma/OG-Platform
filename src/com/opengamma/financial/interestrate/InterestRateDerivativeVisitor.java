@@ -14,6 +14,7 @@ import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.swap.definition.BasisSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 
 /**
@@ -34,6 +35,8 @@ public interface InterestRateDerivativeVisitor<T> {
   T visitFixedFloatSwap(final FixedFloatSwap swap, YieldCurveBundle curves);
 
   T visitBasisSwap(final BasisSwap swap, YieldCurveBundle curves);
+
+  T visitFloatingRateNote(final FloatingRateNote frn, YieldCurveBundle curves);
 
   T visitBond(final Bond bond, YieldCurveBundle curves);
 

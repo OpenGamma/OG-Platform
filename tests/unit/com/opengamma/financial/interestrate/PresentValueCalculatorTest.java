@@ -98,27 +98,27 @@ public class PresentValueCalculatorTest {
 
   @Test
   public void TestFixedAnnuity() {
-    FixedAnnuity annuity = new FixedAnnuity(new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, new double[] {1., 1., 1., 1., 1., 1., 1., 1., 1., 1.}, ZERO_PC_CURVE_NAME);
+    FixedAnnuity annuity = new FixedAnnuity(new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 1.0, new double[] {1., 1., 1., 1., 1., 1., 1., 1., 1., 1.}, ZERO_PC_CURVE_NAME);
     double pv = PVC.getValue(annuity, CURVES);
     assertEquals(10.0, pv, 1e-12);
     int n = 15;
     double alpha = 0.49;
     double yearFrac = 0.51;
     double[] paymentTimes = new double[n];
-    double[] paymentAmounts = new double[n];
+    double[] coupons = new double[n];
     double[] yearFracs = new double[n];
     YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
     double rate = curve.getInterestRate(0.0);
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = (i + 1) * alpha;
-      paymentAmounts[i] = Math.exp((i + 1) * alpha * rate);
+      coupons[i] = Math.exp((i + 1) * rate * alpha);
       yearFracs[i] = yearFrac;
     }
-    annuity = new FixedAnnuity(paymentTimes, paymentAmounts, FIVE_PC_CURVE_NAME);
+    annuity = new FixedAnnuity(paymentTimes, 1.0 / alpha, coupons, FIVE_PC_CURVE_NAME);
     pv = PVC.getValue(annuity, CURVES);
     assertEquals(n, pv, 1e-12);
 
-    annuity = new FixedAnnuity(paymentTimes, Math.PI, paymentAmounts, yearFracs, FIVE_PC_CURVE_NAME);
+    annuity = new FixedAnnuity(paymentTimes, Math.PI, coupons, yearFracs, FIVE_PC_CURVE_NAME);
     pv = PVC.getValue(annuity, CURVES);
     assertEquals(Math.PI * yearFrac * n, pv, 1e-12);
   }

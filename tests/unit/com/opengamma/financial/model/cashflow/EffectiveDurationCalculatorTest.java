@@ -28,14 +28,14 @@ public class EffectiveDurationCalculatorTest {
   public void testZeroPrice() {
     int n = 10;
     double[] paymentTimes = new double[n];
-    double[] paymentAmounts = new double[n];
+    double[] coupons = new double[n];
     double tau = 0.5;
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = (i + 1) * tau;
-      paymentAmounts[i] = 1.0;
+      coupons[i] = 0.05;
     }
 
-    FixedAnnuity annuity = new FixedAnnuity(paymentTimes, paymentAmounts, CURVE_NAME);
+    FixedAnnuity annuity = new FixedAnnuity(paymentTimes, 1.0, coupons, CURVE_NAME);
     EDC.calculate(annuity, 0.0);
   }
 
@@ -43,14 +43,14 @@ public class EffectiveDurationCalculatorTest {
   public void testSinglePayment() {
     int n = 10;
     double[] paymentTimes = new double[n];
-    double[] paymentAmounts = new double[n];
+    double[] coupons = new double[n];
     double tau = 0.5;
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = (i + 1) * tau;
     }
-    paymentAmounts[n - 1] = 1.0;
+    coupons[n - 1] = 3.0;
 
-    FixedAnnuity annuity = new FixedAnnuity(paymentTimes, paymentAmounts, CURVE_NAME);
+    FixedAnnuity annuity = new FixedAnnuity(paymentTimes, 1.0, coupons, CURVE_NAME);
     double duration = EDC.calculate(annuity, 0.889);
     assertEquals(n * tau, duration, 1e-8);
   }
@@ -59,13 +59,13 @@ public class EffectiveDurationCalculatorTest {
   public void testPriceSensitivity() {
     int n = 10;
     double[] paymentTimes = new double[n];
-    double[] paymentAmounts = new double[n];
+    double[] coupons = new double[n];
     double tau = 0.5;
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = (i + 1) * tau;
-      paymentAmounts[i] = 1.0 + i / 5.0;
+      coupons[i] = 0.03 + i / 50.0 + (i == n - 1 ? 1 / tau : 0);
     }
-    FixedAnnuity annuity = new FixedAnnuity(paymentTimes, paymentAmounts, CURVE_NAME);
+    FixedAnnuity annuity = new FixedAnnuity(paymentTimes, 1.0, coupons, CURVE_NAME);
     double duration1 = EDC.calculate(annuity, 0.889);
     double duration2 = EDC.calculate(annuity, 0.789);
     assertTrue(duration1 > duration2);

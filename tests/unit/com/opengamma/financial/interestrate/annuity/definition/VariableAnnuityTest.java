@@ -249,7 +249,7 @@ public class VariableAnnuityTest {
   public void testConversions() {
     final double[] spreads = new double[] {4, 6, 7, 8};
     final VariableAnnuity annuity = new VariableAnnuity(T, NOTIONAL, DELTA_START, DELTA_END, YEAR_FRACTIONS, spreads, FUNDING, LIBOR);
-    assertEquals(annuity.toZeroSpreadVariableAnnuity(), ANNUITY4);
-    assertEquals(annuity.toUnitCouponFixedAnnuity(), new FixedAnnuity(T, NOTIONAL, new double[] {1, 1, 1, 1}, YEAR_FRACTIONS, FUNDING));
+    assertEquals(annuity.withZeroSpread(), ANNUITY4);
+    assertEquals(annuity.withUnitCoupons(), new FixedAnnuity(T, NOTIONAL, new double[] {1, 1, 1, 1}, YEAR_FRACTIONS, FUNDING));
   }
 }

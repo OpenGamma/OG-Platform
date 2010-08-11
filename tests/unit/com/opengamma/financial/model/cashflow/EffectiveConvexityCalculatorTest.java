@@ -28,14 +28,14 @@ public class EffectiveConvexityCalculatorTest {
   public void testZeroPrice() {
     int n = 10;
     double[] paymentTimes = new double[n];
-    double[] paymentAmounts = new double[n];
+    double[] coupons = new double[n];
     double tau = 0.5;
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = (i + 1) * tau;
-      paymentAmounts[i] = 1.0;
+      coupons[i] = 1.0;
     }
 
-    FixedAnnuity annuity = new FixedAnnuity(paymentTimes, paymentAmounts, CURVE_NAME);
+    FixedAnnuity annuity = new FixedAnnuity(paymentTimes, 1.0, coupons, CURVE_NAME);
     ECC.calculate(annuity, 0.0);
   }
 
@@ -43,14 +43,14 @@ public class EffectiveConvexityCalculatorTest {
   public void testSinglePayment() {
     int n = 10;
     double[] paymentTimes = new double[n];
-    double[] paymentAmounts = new double[n];
+    double[] coupons = new double[n];
     double tau = 0.5;
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = (i + 1) * tau;
     }
-    paymentAmounts[n - 1] = 1.0;
+    coupons[n - 1] = 2.0;
 
-    FixedAnnuity annuity = new FixedAnnuity(paymentTimes, paymentAmounts, CURVE_NAME);
+    FixedAnnuity annuity = new FixedAnnuity(paymentTimes, 1.0, coupons, CURVE_NAME);
     double convexity = ECC.calculate(annuity, 0.889);
     assertEquals(n * n * tau * tau, convexity, 1e-7);
   }
@@ -59,13 +59,13 @@ public class EffectiveConvexityCalculatorTest {
   public void testPriceSensitivity() {
     int n = 10;
     double[] paymentTimes = new double[n];
-    double[] paymentAmounts = new double[n];
+    double[] coupons = new double[n];
     double tau = 0.5;
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = (i + 1) * tau;
-      paymentAmounts[i] = 1.0 + i / 5.0;
+      coupons[i] = 1.0 + i / 5.0;
     }
-    FixedAnnuity annuity = new FixedAnnuity(paymentTimes, paymentAmounts, CURVE_NAME);
+    FixedAnnuity annuity = new FixedAnnuity(paymentTimes, 1.0, coupons, CURVE_NAME);
     double convexity1 = ECC.calculate(annuity, 0.889);
     double convexity2 = ECC.calculate(annuity, 0.789);
     assertTrue(convexity1 > convexity2);
