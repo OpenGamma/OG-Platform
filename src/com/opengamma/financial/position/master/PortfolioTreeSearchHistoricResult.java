@@ -15,7 +15,6 @@ import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.PropertyReadWrite;
 import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
@@ -39,8 +38,8 @@ public class PortfolioTreeSearchHistoricResult extends DirectBean {
   /**
    * The list of matched portfolio tree documents.
    */
-  @PropertyDefinition(readWrite = PropertyReadWrite.READ_ONLY)
-  private List<PortfolioTreeDocument> _documents = new ArrayList<PortfolioTreeDocument>();
+  @PropertyDefinition
+  private final List<PortfolioTreeDocument> _documents = new ArrayList<PortfolioTreeDocument>();
 
   /**
    * Creates an instance.
@@ -104,6 +103,7 @@ public class PortfolioTreeSearchHistoricResult extends DirectBean {
     return super.propertyGet(propertyName);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
@@ -111,7 +111,8 @@ public class PortfolioTreeSearchHistoricResult extends DirectBean {
         setPaging((Paging) newValue);
         return;
       case 943542968:  // documents
-        throw new UnsupportedOperationException("Property cannot be written: documents");
+        setDocuments((List<PortfolioTreeDocument>) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue);
   }
@@ -151,6 +152,15 @@ public class PortfolioTreeSearchHistoricResult extends DirectBean {
   }
 
   /**
+   * Sets the list of matched portfolio tree documents.
+   * @param documents  the new value of the property
+   */
+  public void setDocuments(List<PortfolioTreeDocument> documents) {
+    this._documents.clear();
+    this._documents.addAll(documents);
+  }
+
+  /**
    * Gets the the {@code documents} property.
    * @return the property, not null
    */
@@ -176,7 +186,7 @@ public class PortfolioTreeSearchHistoricResult extends DirectBean {
      * The meta-property for the {@code documents} property.
      */
     @SuppressWarnings("unchecked")
-    private final MetaProperty<List<PortfolioTreeDocument>> _documents = DirectMetaProperty.ofReadOnly(this, "documents", (Class) List.class);
+    private final MetaProperty<List<PortfolioTreeDocument>> _documents = DirectMetaProperty.ofReadWrite(this, "documents", (Class) List.class);
     /**
      * The meta-properties.
      */

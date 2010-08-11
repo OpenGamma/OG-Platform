@@ -48,8 +48,7 @@ public class PortfolioTreeNode extends DirectBean implements MutableUniqueIdenti
    * The root node of the tree.
    */
   @PropertyDefinition
-  private List<PortfolioTreeNode> _childNodes = new ArrayList<PortfolioTreeNode>();
-  //(readWrite = PropertyReadWrite.READ_ONLY)
+  private final List<PortfolioTreeNode> _childNodes = new ArrayList<PortfolioTreeNode>();
 
   /**
    * Creates a node.
@@ -229,7 +228,8 @@ public class PortfolioTreeNode extends DirectBean implements MutableUniqueIdenti
    * @param childNodes  the new value of the property
    */
   public void setChildNodes(List<PortfolioTreeNode> childNodes) {
-    this._childNodes = childNodes;
+    this._childNodes.clear();
+    this._childNodes.addAll(childNodes);
   }
 
   /**
