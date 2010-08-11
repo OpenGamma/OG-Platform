@@ -428,7 +428,9 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
   @Override
   public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory messageFactory) {
     final MutableFudgeFieldContainer message = super.toFudgeMsg(messageFactory);
-    message.add("encoding", _encoding.name());
+    if (_encoding != null) {
+      message.add("encoding", _encoding.name());
+    }
     return message;
   }
   
