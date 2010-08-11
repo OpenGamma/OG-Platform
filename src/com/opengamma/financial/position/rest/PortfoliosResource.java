@@ -40,6 +40,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.fudge.UtilFudgeContextConfiguration;
 
 /**
  * RESTful resource for all portfolios.
@@ -72,6 +73,7 @@ public class PortfoliosResource {
     _posMaster = posMaster;
     
     FudgeContext fudgeContext = new FudgeContext();
+    UtilFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
     EngineFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
     FinancialFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
     _fudgeDeserializationContext = new FudgeDeserializationContext(fudgeContext);

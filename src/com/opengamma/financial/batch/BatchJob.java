@@ -29,6 +29,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.fudgemsg.FudgeContext;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -146,6 +147,8 @@ public class BatchJob implements Job {
    */
   private BatchDbManager _batchDbManager;
   
+  private FudgeContext _fudgeContext = FudgeContext.GLOBAL_DEFAULT;
+
   // --------------------------------------------------------------------------
   // Variables initialized from command line input
   // --------------------------------------------------------------------------
@@ -431,6 +434,14 @@ public class BatchJob implements Job {
     _dbHandle = dbHandle;
   }
   
+  public void setFudgeContext(final FudgeContext fudgeContext) {
+    _fudgeContext = fudgeContext;
+  }
+
+  public FudgeContext getFudgeContext() {
+    return _fudgeContext;
+  }
+
   // --------------------------------------------------------------------------
   
   public MongoDBConnectionSettings getConfigDbConnectionSettings() {
@@ -595,7 +606,7 @@ public class BatchJob implements Job {
     }
       
     DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
-    MapViewComputationCacheSource cacheFactory = new MapViewComputationCacheSource();
+    MapViewComputationCacheSource cacheFactory = new MapViewComputationCacheSource(getFudgeContext());
     
     FunctionExecutionContext executionContext = new FunctionExecutionContext(); 
     executionContext.setSecuritySource(securitySource);

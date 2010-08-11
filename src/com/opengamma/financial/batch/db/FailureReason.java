@@ -15,7 +15,7 @@ public class FailureReason {
   
   private long _id;
   private RiskFailure _riskFailure;
-  private Long _computeFailureId;
+  private long _computeFailureId;
   
   public long getId() {
     return _id;
@@ -37,7 +37,7 @@ public class FailureReason {
     return _computeFailureId;
   }
 
-  public void setComputeFailureId(Long computeFailureId) {
+  public void setComputeFailureId(long computeFailureId) {
     _computeFailureId = computeFailureId;
   }
   

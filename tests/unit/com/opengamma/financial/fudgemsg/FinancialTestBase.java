@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.InMemoryRegionRepository;
 import com.opengamma.financial.RegionRepository;
+import com.opengamma.util.fudge.UtilFudgeContextConfiguration;
 
 /**
  * Base class for testing OG-Financial objects to and from Fudge messages.
@@ -40,7 +41,8 @@ public class FinancialTestBase {
     final FinancialFudgeContextConfiguration fudgeConfiguration = new FinancialFudgeContextConfiguration();
     _regionRepository = new InMemoryRegionRepository(new File(REGIONS_FILE_PATH));
     fudgeConfiguration.setRegionRepository(_regionRepository);
-    _fudgeContext.setConfiguration(fudgeConfiguration);
+    UtilFudgeContextConfiguration.INSTANCE.configureFudgeContext(_fudgeContext);
+    fudgeConfiguration.configureFudgeContext(_fudgeContext);
   }
 
   protected FudgeContext getFudgeContext() {
