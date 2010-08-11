@@ -25,24 +25,29 @@ import com.opengamma.util.ArgumentChecker;
 public class CalculationJobResult implements Serializable {
   private static final String DURATION_FIELD_NAME = "duration";
   private static final String ITEMS_FIELD_NAME = "resultItems";
+  private static final String COMPUTE_NODE_ID_FIELD_NAME = "computeNodeId";
   
   private final CalculationJobSpecification _specification;
   private final List<CalculationJobResultItem> _resultItems;
   private final long _durationNanos;
+  private final String _nodeId;
   
   public CalculationJobResult(
       CalculationJobSpecification specification,
       long durationNanos,
-      List<CalculationJobResultItem> resultItems) {
+      List<CalculationJobResultItem> resultItems,
+      String nodeId) {
     ArgumentChecker.notNull(specification, "Calculation job spec");
     ArgumentChecker.notNull(resultItems, "Result items");
     if (durationNanos < 0) {
       throw new IllegalArgumentException("Duration must be non-negative");
     }
+    ArgumentChecker.notNull(nodeId, "Node ID the job was executed on");
     
     _specification = specification;
     _durationNanos = durationNanos;
     _resultItems = resultItems;
+    _nodeId = nodeId;
   }
 
   public CalculationJobSpecification getSpecification() {
@@ -60,10 +65,15 @@ public class CalculationJobResult implements Serializable {
     return _durationNanos;
   }
   
+  public String getComputeNodeId() {
+    return _nodeId;
+  }
+
   public FudgeFieldContainer toFudgeMsg(FudgeSerializationContext fudgeContext) {
     MutableFudgeFieldContainer msg = fudgeContext.newMessage();
     getSpecification().writeFields(msg);
     msg.add(DURATION_FIELD_NAME, getDuration());
+    msg.add(COMPUTE_NODE_ID_FIELD_NAME, getComputeNodeId());
     for (CalculationJobResultItem item : getResultItems()) {
       msg.add(ITEMS_FIELD_NAME, item.toFudgeMsg(fudgeContext));
     }
@@ -73,12 +83,13 @@ public class CalculationJobResult implements Serializable {
   public static CalculationJobResult fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeFieldContainer msg) {
     CalculationJobSpecification jobSpec = CalculationJobSpecification.fromFudgeMsg(msg);
     long duration = msg.getLong(DURATION_FIELD_NAME);
+    String nodeId = msg.getString(COMPUTE_NODE_ID_FIELD_NAME);
     List<CalculationJobResultItem> jobItems = new ArrayList<CalculationJobResultItem>();
     for (FudgeField field : msg.getAllByName(ITEMS_FIELD_NAME)) {
       CalculationJobResultItem jobItem = CalculationJobResultItem.fromFudgeMsg(fudgeContext, (FudgeFieldContainer) field.getValue());
       jobItems.add(jobItem);
     }
-    return new CalculationJobResult(jobSpec, duration, jobItems);
+    return new CalculationJobResult(jobSpec, duration, jobItems, nodeId);
   }
   
   @Override

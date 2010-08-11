@@ -92,10 +92,6 @@ public abstract class AbstractCalculationNode implements CalculationNode {
   public synchronized CalculationJobResult executeJob(CalculationJob job) {
     s_logger.info("Executing {}", job);
     
-    List<CalculationJobItem> itemsToExecute = job.getResultWriter().getItemsToExecute(this, job);
-    
-    s_logger.info("Executing {} items", itemsToExecute.size());
-    
     CalculationJobSpecification spec = job.getSpecification();
     
     // Will not work when multiple functions are being executed in parallel, therefore added synchronized above
@@ -109,27 +105,24 @@ public abstract class AbstractCalculationNode implements CalculationNode {
 
     List<CalculationJobResultItem> resultItems = new ArrayList<CalculationJobResultItem>();
     
-    for (CalculationJobItem jobItem : itemsToExecute) {
+    for (CalculationJobItem jobItem : job.getJobItems()) {
       
       CalculationJobResultItem resultItem;
       try {
         Set<ComputedValue> result = invoke(jobItem, cache);
         cacheResults(cache, result);
         
-        resultItem = new CalculationJobResultItem(jobItem, InvocationResult.SUCCESS);
-        resultItem.setResults(result);
+        resultItem = new CalculationJobResultItem(jobItem);
       
       } catch (MissingInputException e) {
         // NOTE kirk 2009-10-20 -- We intentionally only do the message here so that we don't
         // litter the logs with stack traces.
         s_logger.info("Unable to invoke {} due to missing inputs: {}", jobItem, e.getMessage());
-        resultItem = new CalculationJobResultItem(jobItem, InvocationResult.ERROR);
-        resultItem.setException(e);
+        resultItem = new CalculationJobResultItem(jobItem, e);
       
       } catch (Exception e) {
         s_logger.info("Invoking " + jobItem.getFunctionUniqueIdentifier() + " threw exception.", e);
-        resultItem =  new CalculationJobResultItem(jobItem, InvocationResult.ERROR);
-        resultItem.setException(e);
+        resultItem =  new CalculationJobResultItem(jobItem, e);
       }
       
       resultItems.add(resultItem);
@@ -137,14 +130,13 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     
     long endNanos = System.nanoTime();
     long durationNanos = endNanos - startNanos;
-    CalculationJobResult jobResult = new CalculationJobResult(spec, durationNanos, resultItems);
+    CalculationJobResult jobResult = new CalculationJobResult(spec, 
+        durationNanos, 
+        resultItems,
+        getNodeId());
     
     s_logger.info("Executed {}", job);
     
-    s_logger.info("Writing {}", jobResult);
-    job.getResultWriter().write(this, jobResult);
-    s_logger.info("Wrote {}", jobResult);
-
     return jobResult;
   }
 

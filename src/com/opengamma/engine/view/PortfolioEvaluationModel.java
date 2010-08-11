@@ -486,15 +486,16 @@ public class PortfolioEvaluationModel {
           continue;
         }
         Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+        ResultModelDefinition resultModelDefinition = _calculationConfiguration.getDefinition().getResultModelDefinition();
         // first do the portfolio node targets (aggregated, multiple-position nodes), if they're needed
-        if (_calculationConfiguration.getDefinition().isComputePortfolioNodeCalculations()) {
+        if (resultModelDefinition.isComputePortfolioNodeCalculations()) {
           for (String requiredOutput : requiredOutputs) {
             requirements.add(new ValueRequirement(requiredOutput, portfolioNode));
           }
           _dependencyGraphBuilder.addTarget(new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, portfolioNode), requirements);
         }
         // now do the position nodes targets, if they're needed
-        if (_calculationConfiguration.getDefinition().isComputePositionNodeCalculations()) {
+        if (resultModelDefinition.isComputePositionNodeCalculations()) {
           for (Position position : portfolioNode.getPositions()) {
             requirements.clear();
             for (String requiredOutput : requiredOutputs) {
@@ -504,7 +505,7 @@ public class PortfolioEvaluationModel {
           }
         }
         // now do the per-security targets, if they're needed
-        if (_calculationConfiguration.getDefinition().isComputeSecurityNodeCalculations()) {
+        if (resultModelDefinition.isComputeSecurityNodeCalculations()) {
           for (Position position : portfolioNode.getPositions()) {
             requirements.clear();
             for (String requiredOutput : requiredOutputs) {

@@ -180,7 +180,7 @@ public interface ValueRequirementNames {
   public static final String INCREMENTAL_VAR = "IncrementalVaR";
 
   //Yield curve specifics
-  public static final String FUNDING_AND_FORWARD_CURVE = "FundingAndForwardCurveJacobian";
+  public static final String FUNDING_AND_FORWARD_CURVE = "FundingAndForwardCurve";
   public static final String FUNDING_CURVE = "FundingCurve";
   public static final String FORWARD_CURVE = "ForwardCurve";
   public static final String FUNDING_AND_FORWARD_JACOBIAN = "FundingAndForwardCurveJacobian";
