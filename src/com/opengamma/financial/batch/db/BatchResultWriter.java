@@ -37,19 +37,17 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.ViewComputationCache;
+import com.opengamma.engine.view.calc.DependencyGraphExecutor;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
-import com.opengamma.engine.view.calcnode.CalculationNode;
 import com.opengamma.engine.view.calcnode.InvocationResult;
 import com.opengamma.engine.view.calcnode.MissingInput;
-import com.opengamma.engine.view.calcnode.MissingInputException;
-import com.opengamma.engine.view.calcnode.ResultWriter;
+import com.opengamma.engine.view.calcnode.DependencyGraphExecutorListener;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.test.DBTool;
 import com.opengamma.util.tuple.Pair;
@@ -63,7 +61,7 @@ import com.opengamma.util.tuple.Pair;
  * <p> 
  * For the database structure and tables, see create-db-batch.sql.   
  */
-public class BatchResultWriter implements ResultWriter {
+public class BatchResultWriter implements DependencyGraphExecutorListener {
   
   private static final Logger s_logger = LoggerFactory.getLogger(BatchResultWriter.class);
   
@@ -114,9 +112,9 @@ public class BatchResultWriter implements ResultWriter {
   private Map<String, Integer> _riskValueName2Id;
   
   /**
-   * References rsk_compute_node(id)
+   * -> references rsk_compute_node(id)
    */
-  private Integer _computeNodeId;
+  private Map<String, Integer> _computeNodeId2Id;
   
   /**
    * Key is {@link StatusEntry} {_calculationConfigurationId, _computationTargetId}.
@@ -178,19 +176,18 @@ public class BatchResultWriter implements ResultWriter {
    */
   private transient boolean _initialized; // = false;
   
-  public void initialize(CalculationNode computeNode) {
+  public void initialize() {
     DBTool tool = new DBTool();
     tool.setJdbcUrl(_jdbcUrl);
     tool.setUser(_username);
     tool.setPassword(_password);
     tool.initialize();
     
-    initialize(computeNode, tool);
+    initialize(tool);
   }
   
-  void initialize(CalculationNode computeNode, DBTool tool) {
-    ArgumentChecker.notNull(computeNode, "Compute node");
-    ArgumentChecker.notNull(computeNode, "DB tool");
+  void initialize(DBTool tool) {
+    ArgumentChecker.notNull(tool, "DB tool");
     
     if (_riskRunId == null ||
         _computationTarget2Id == null ||
@@ -216,19 +213,6 @@ public class BatchResultWriter implements ResultWriter {
       setTransactionManager(tool.getTransactionManager());
     }
     
-    if (_computeNodeId == null) {
-      BatchDbManagerImpl dbManager = new BatchDbManagerImpl();
-      dbManager.setSessionFactory(getSessionFactory());
-      try {
-        getSessionFactory().getCurrentSession().beginTransaction();
-        _computeNodeId = dbManager.getComputeNode(computeNode.getNodeId()).getId();
-        getSessionFactory().getCurrentSession().getTransaction().commit();
-      } catch (RuntimeException e) {
-        getSessionFactory().getCurrentSession().getTransaction().rollback();
-        throw e;
-      }
-    }
-    
     SessionFactoryImplementor implementor = (SessionFactoryImplementor) _sessionFactory;
     IdentifierGenerator idGenerator = implementor.getIdentifierGenerator(RiskValue.class.getName());
     if (idGenerator == null || !(idGenerator instanceof SequenceStyleGenerator)) {
@@ -237,6 +221,7 @@ public class BatchResultWriter implements ResultWriter {
 
     _idGenerator = (SequenceStyleGenerator) idGenerator;
     
+    _computeNodeId2Id = new HashMap<String, Integer>();
     _searchKey2StatusEntry = new HashMap<Pair<Integer, Integer>, StatusEntry>();
     _key2ComputeFailure = new HashMap<ComputeFailureKey, ComputeFailure>();
     
@@ -365,13 +350,9 @@ public class BatchResultWriter implements ResultWriter {
     }
   }
 
-  public void setComputeNode(ComputeNode computeNode) {
+  public void addComputeNode(ComputeNode computeNode) {
     ArgumentChecker.notNull(computeNode, "Compute node");
-    if (_computeNodeId  != null) {
-      throw new IllegalStateException("Already set");
-    }
-    
-    _computeNodeId = computeNode.getId();
+    _computeNodeId2Id.put(computeNode.getNodeName(), computeNode.getId());
   }
 
   public void ensureInitialized() {
@@ -408,8 +389,22 @@ public class BatchResultWriter implements ResultWriter {
     return specId.intValue();
   }
 
-  public Integer getComputeNodeId() {
-    return _computeNodeId;
+  public Integer getComputeNodeId(String nodeId) {
+    Integer dbId = _computeNodeId2Id.get(nodeId);
+    if (dbId == null) {
+      BatchDbManagerImpl dbManager = new BatchDbManagerImpl();
+      dbManager.setSessionFactory(getSessionFactory());
+      try {
+        getSessionFactory().getCurrentSession().beginTransaction();
+        dbId = dbManager.getComputeNode(nodeId).getId();
+        _computeNodeId2Id.put(nodeId, dbId);
+        getSessionFactory().getCurrentSession().getTransaction().commit();
+      } catch (RuntimeException e) {
+        getSessionFactory().getCurrentSession().getTransaction().rollback();
+        throw e;
+      }
+    }
+    return dbId;
   }
 
   public Integer getRiskRunId() {
@@ -457,11 +452,6 @@ public class BatchResultWriter implements ResultWriter {
     _riskRunId = riskRunId;
   }
 
-  public void setComputeNodeId(Integer computeNodeId) {
-    ArgumentChecker.notNull(computeNodeId, "Compute node database primary key");
-    _computeNodeId = computeNodeId;
-  }
-  
   // --------------------------------------------------------------------------
 
   public int getValueNameId(String name) {
@@ -475,8 +465,7 @@ public class BatchResultWriter implements ResultWriter {
   }
 
   @Override
-  public void write(CalculationNode node, CalculationJobResult result) {
-    ArgumentChecker.notNull(node, "Calculation node the writing happens on");
+  public void postExecute(DependencyGraphExecutor executor, CalculationJobResult result) {
     ArgumentChecker.notNull(result, "The result to write");
     
     if (result.getResultItems().isEmpty()) {
@@ -486,19 +475,21 @@ public class BatchResultWriter implements ResultWriter {
     
     synchronized (this) {
       if (!isInitialized()) {
-        initialize(node);
+        initialize();
       }
     }
     
+    ViewComputationCache cache = executor.getCache(result);
+
     openSession();
     try {
-      doWrite(node, result);
+      write(cache, result);
     } finally {
       closeSession();
     }
   }
   
-  private void doWrite(CalculationNode node, CalculationJobResult result) {
+  private void write(ViewComputationCache cache, CalculationJobResult result) {
     
     Set<ComputationTargetSpecification> successfulTargets = new HashSet<ComputationTargetSpecification>();
     Set<ComputationTargetSpecification> failedTargets = new HashSet<ComputationTargetSpecification>();
@@ -513,10 +504,18 @@ public class BatchResultWriter implements ResultWriter {
         
         if (success) {
           // also check output types
-          for (ComputedValue value : item.getResults()) {
-            if (!(value.getValue() instanceof Double)) {
+          for (ValueSpecification output : item.getOutputs()) {
+            Object value = cache.getValue(output);
+            if (value == null) {
+              s_logger.error("Cache not populated for item " + item 
+                  + ", output " + output);
+              success = false;
+              break;
+            }
+            
+            if (!(value instanceof Double)) {
               s_logger.error("Can only insert Double values, got " + 
-                  value.getValue().getClass() + " for " + item);
+                  value.getClass() + " for " + item);
               success = false;
               break;
             }
@@ -540,7 +539,7 @@ public class BatchResultWriter implements ResultWriter {
     
     int riskRunId = getRiskRunId();
     int calcConfId = getCalculationConfigurationId(result.getSpecification().getCalcConfigName());
-    int computeNodeId = getComputeNodeId();
+    int computeNodeId = getComputeNodeId(result.getComputeNodeId());
     
     Date evalInstant = new Date();
     
@@ -551,11 +550,11 @@ public class BatchResultWriter implements ResultWriter {
       
       if (successfulTargets.contains(item.getComputationTargetSpecification())) {
       
-        for (ComputedValue value : item.getResults()) {
-          Double valueAsDouble = (Double) value.getValue(); // output type was already checked above
+        for (ValueSpecification output : item.getOutputs()) {
+          Double valueAsDouble = (Double) cache.getValue(output); // output type was already checked above
   
-          int valueNameId = getValueNameId(value.getSpecification().getRequirementSpecification().getValueName());
-          int computationTargetId = getComputationTargetId(value.getSpecification().getRequirementSpecification().getTargetSpecification());
+          int valueNameId = getValueNameId(output.getRequirementSpecification().getValueName());
+          int computationTargetId = getComputationTargetId(output.getRequirementSpecification().getTargetSpecification());
           
           RiskValue riskValue = new RiskValue();
           riskValue.setId(generateUniqueId());
@@ -578,12 +577,11 @@ public class BatchResultWriter implements ResultWriter {
           continue;
         }
         
-        for (ValueRequirement value : item.getItem().getDesiredValues()) {
+        for (ValueSpecification outputValue : item.getOutputs()) {
           
-          int valueNameId = getValueNameId(value.getValueName());
-          int computationTargetId = getComputationTargetId(value.getTargetSpecification());
+          int valueNameId = getValueNameId(outputValue.getRequirementSpecification().getValueName());
+          int computationTargetId = getComputationTargetId(outputValue.getRequirementSpecification().getTargetSpecification());
         
-          ViewComputationCache cache = node.getCache(result.getSpecification());
           BatchResultWriterFailure cachedFailure = new BatchResultWriterFailure();
           
           RiskFailure failure = new RiskFailure();
@@ -596,15 +594,15 @@ public class BatchResultWriter implements ResultWriter {
           failure.setComputeNodeId(computeNodeId);
           failures.add(failure.toSqlParameterSource());
           
-          if (item.getResult() != InvocationResult.SUCCESS) {
-            Exception exception = item.getException();
+          switch (item.getResult()) {
 
-            if (exception instanceof MissingInputException) {
+            case MISSING_INPUTS:
+            
               // There may be 1-N failure reasons - one for each failed
               // function in the subtree below this node. (This
               // only includes "original", i.e., lowest-level, failures.)
-              
-              for (ValueSpecification missingInput : ((MissingInputException) exception).getMissingInputs()) {
+            
+              for (ValueSpecification missingInput : item.getMissingInputs()) {
                 BatchResultWriterFailure inputFailure = (BatchResultWriterFailure) cache.getValue(missingInput);
                 if (inputFailure == null) {
                   s_logger.warn("No failure information available for {}", missingInput);
@@ -613,7 +611,7 @@ public class BatchResultWriter implements ResultWriter {
                 
                 cachedFailure.addComputeFailureIds(inputFailure.getComputeFailureIds());
               }
-              
+                
               for (Number computeFailureId : cachedFailure.getComputeFailureIds()) {
                 FailureReason reason = new FailureReason();
                 reason.setId(generateUniqueId());
@@ -622,16 +620,20 @@ public class BatchResultWriter implements ResultWriter {
                 failureReasons.add(reason.toSqlParameterSource());
               }
               
-            } else {
+              break;
+              
+            case FUNCTION_THREW_EXCEPTION:
+            case FUNCTION_TIMED_OUT:
+
               // an "original" failure
               //
               // There will only be 1 failure reason.
-              
+            
               ComputeFailureKey computeFailureKey = new ComputeFailureKey(
                   item.getItem().getFunctionUniqueIdentifier(),
-                  exception.getClass().getName(),
-                  exception.getMessage(),
-                  exception.getStackTrace());
+                  item.getExceptionClass(),
+                  item.getExceptionMsg(),
+                  item.getStackTrace());
               
               ComputeFailure computeFailure = getComputeFailureFromDb(computeFailureKey);
               cachedFailure.addComputeFailureIds(Collections.singleton(computeFailure.getId()));
@@ -641,17 +643,22 @@ public class BatchResultWriter implements ResultWriter {
               reason.setRiskFailure(failure);
               reason.setComputeFailureId(computeFailure.getId());
               failureReasons.add(reason.toSqlParameterSource());
-            }
+              
+              break;
             
-            // failures are propagated up from children via the computation cache
-            for (ValueSpecification output : item.getOutputs()) {
-              cache.putValue(new ComputedValue(output, cachedFailure));
-            }
-          } else {
-            // partial failure for this target / unsupported (non-Double) output from a function
-            s_logger.debug("Not writing any failure reasons for partial failures / unsupported outputs for now");
+            case SUCCESS:
+            
+              // partial failure for this target / unsupported (non-Double) output from a function
+              s_logger.debug("Not adding any failure reasons for partial failures / unsupported outputs for now");
+              break;
+              
+            default:
+              throw new RuntimeException("Should not get here");
           }
-        }
+          
+          // failures are propagated up from children via the computation cache
+          cache.putValue(new ComputedValue(outputValue, cachedFailure));
+        } 
       }
     }
     
@@ -814,33 +821,31 @@ public class BatchResultWriter implements ResultWriter {
    * A has failed due to errors 12, 15, and 16.
    */
   public static class BatchResultWriterFailure implements MissingInput, Serializable {
-    private Set<Number> _computeFailureIds = new HashSet<Long>();
+    private Set<Number> _computeFailureIds = new HashSet<Number>();
 
     public Set<Number> getComputeFailureIds() {
       return Collections.unmodifiableSet(_computeFailureIds);
     }
 
-    public void addComputeFailureIds(Set<Number> computeFailureIds) {
+    public void addComputeFailureIds(Set<? extends Number> computeFailureIds) {
       _computeFailureIds.addAll(computeFailureIds);
     }
   }
 
   @Override
-  public List<CalculationJobItem> getItemsToExecute(CalculationNode node, CalculationJob job) {
-    ArgumentChecker.notNull(node, "Calculation node the execution of the job happens on");
+  public void preExecute(DependencyGraphExecutor executor, CalculationJob job) {
     ArgumentChecker.notNull(job, "Calculation job to execute");
     
     if (!isRestart()) {
       // First time around, always execute everything.
-      return job.getJobItems();      
+      return;      
     }
     
     // The batch has been restarted. Figure out from the status table and the computation
     // cache what needs to be recomputed.
-    ViewComputationCache cache = node.getCache(job.getSpecification());
     
-    ArrayList<CalculationJobItem> itemsToExecute = new ArrayList<CalculationJobItem>();
-
+    ViewComputationCache cache = executor.getCache(job);
+    
     for (CalculationJobItem item : job.getJobItems()) {
       
       if (item.isWriteResults()) {
@@ -848,24 +853,26 @@ public class BatchResultWriter implements ResultWriter {
         switch (status) {
           case SUCCESS:
             // All values for this computation target are already in the database.
+            job.removeJobItem(item);
+            
             // However, if the computation cache has been re-started along with the 
             // batch, it is necessary to re-evaluate the item, write the results
             // to the computation cache, but not write anything to the database.
             if (!allOutputsInCache(item, cache)) {
-              itemsToExecute.add(new CalculationJobItem(
+              job.addJobItem(new CalculationJobItem(
                   item.getFunctionUniqueIdentifier(),
                   item.getComputationTargetSpecification(),
                   item.getInputs(),
                   item.getDesiredValues(),
                   false)); // do not write into DB
             }
-            
+             
             break;
   
           case NOT_RUNNING:
           case RUNNING:
           case FAILURE:
-            itemsToExecute.add(item);
+            // do nothing, should always be re-executed
             break;
           
           default:
@@ -874,14 +881,12 @@ public class BatchResultWriter implements ResultWriter {
       } else {
         // e.g., PRIMITIVES. If the computation cache has been re-started along with the 
         // batch, it is necessary to re-evaluate the item, but not otherwise.
-        if (!allOutputsInCache(item, cache)) {
-          itemsToExecute.add(item); 
+        if (allOutputsInCache(item, cache)) {
+          job.removeJobItem(item); 
         }
       }
         
     }
-    
-    return itemsToExecute;    
   }
   
   private boolean allOutputsInCache(CalculationJobItem item, ViewComputationCache cache) {

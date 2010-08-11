@@ -9,7 +9,7 @@ import java.util.Set;
 
 import javax.time.calendar.OffsetTime;
 
-import com.opengamma.engine.view.calcnode.ResultWriterFactory;
+import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 
 /**
  * All operations needed to populate the batch database.
@@ -81,13 +81,13 @@ public interface BatchDbManager {
   Set<LiveDataValue> getSnapshotValues(SnapshotId snapshotId);
   
   /**
-   * Gets a factory for writing risk values into the database.
+   * Gets a factory for executing dependency graphs and
+   * writing risk values into the database.
    * 
    * @param batch The batch job for which results will be written
-   * @return A factory used to create result writers. These
-   * result writers will in turn be sent down to compute nodes
-   * on the grid.
+   * @return A factory used to execute the batch dependency graph
+   * and write results into the database.
    */
-  ResultWriterFactory createResultWriterFactory(BatchJob batch);
+  DependencyGraphExecutorFactory createDependencyGraphExecutorFactory(BatchJob batch);
   
 }

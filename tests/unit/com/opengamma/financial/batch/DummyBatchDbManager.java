@@ -10,7 +10,7 @@ import java.util.Set;
 
 import javax.time.calendar.OffsetTime;
 
-import com.opengamma.engine.view.calcnode.ResultWriterFactory;
+import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 
 /**
  * 
@@ -47,8 +47,8 @@ public class DummyBatchDbManager implements BatchDbManager {
   }
 
   @Override
-  public ResultWriterFactory createResultWriterFactory(BatchJob batch) {
+  public DependencyGraphExecutorFactory createDependencyGraphExecutorFactory(BatchJob batch) {
     return null;
   }
-  
+
 }
