@@ -107,14 +107,14 @@ public class JobDispatcherTest {
     assertNull(jobInvoker._callback);
   }
 
-  private void priorityTest(final long expected, final JobDispatcher jobDispatcher) {
+  private void priorityTest(final String expectedNodeId, final JobDispatcher jobDispatcher) {
     final TestJobResultReceiver result = new TestJobResultReceiver();
     final CalculationJobSpecification jobSpec = createTestJobSpec();
     jobDispatcher.dispatchJob(jobSpec, createTestJobItems(), result);
     final CalculationJobResult jobResult = result.waitForResult(TIMEOUT);
     assertNotNull(jobResult);
     assertEquals(jobSpec, jobResult.getSpecification());
-    assertEquals(expected, jobResult.getDuration());
+    assertEquals(expectedNodeId, jobResult.getComputeNodeId());
   }
 
   @Test
@@ -133,19 +133,19 @@ public class JobDispatcherTest {
     jobDispatcher.registerJobInvoker(nodeHighPriority);
     jobDispatcher.registerJobInvoker(nodeMediumPriority1);
     // Go to high priority node
-    priorityTest(30, jobDispatcher);
+    priorityTest("30", jobDispatcher);
     assertNull(nodeHighPriority._callback);
     // Go to high priority node
-    priorityTest(30, jobDispatcher);
+    priorityTest("30", jobDispatcher);
     assertNull(nodeHighPriority._callback);
     // Go to medium priority node, high priority gets a callback notification
     nodeHighPriority._disabled = true;
-    priorityTest(20, jobDispatcher);
+    priorityTest("20", jobDispatcher);
     assertNotNull(nodeHighPriority._callback);
     // Go to low priority node
     nodeMediumPriority1._disabled = true;
     nodeMediumPriority2._disabled = true;
-    priorityTest(10, jobDispatcher);
+    priorityTest("10", jobDispatcher);
     assertNotNull(nodeMediumPriority1._callback);
     assertNotNull(nodeMediumPriority2._callback);
   }
