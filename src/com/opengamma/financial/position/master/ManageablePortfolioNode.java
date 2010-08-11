@@ -32,7 +32,7 @@ import com.opengamma.util.ArgumentChecker;
  * stored and returned separately from the position master.
  */
 @BeanDefinition
-public class PortfolioTreeNode extends DirectBean implements MutableUniqueIdentifiable {
+public class ManageablePortfolioNode extends DirectBean implements MutableUniqueIdentifiable {
 
   /**
    * The portfolio tree node unique identifier.
@@ -48,19 +48,19 @@ public class PortfolioTreeNode extends DirectBean implements MutableUniqueIdenti
    * The root node of the tree.
    */
   @PropertyDefinition
-  private final List<PortfolioTreeNode> _childNodes = new ArrayList<PortfolioTreeNode>();
+  private final List<ManageablePortfolioNode> _childNodes = new ArrayList<ManageablePortfolioNode>();
 
   /**
    * Creates a node.
    */
-  public PortfolioTreeNode() {
+  public ManageablePortfolioNode() {
   }
 
   /**
    * Creates a node specifying the name.
    * @param name  the name, not null
    */
-  public PortfolioTreeNode(final String name) {
+  public ManageablePortfolioNode(final String name) {
     ArgumentChecker.notNull(name, "name");
     setName(name);
   }
@@ -70,7 +70,7 @@ public class PortfolioTreeNode extends DirectBean implements MutableUniqueIdenti
    * Adds a child node to this node.
    * @param childNode  the child node, not null
    */
-  public void addChildNode(final PortfolioTreeNode childNode) {
+  public void addChildNode(final ManageablePortfolioNode childNode) {
     ArgumentChecker.notNull(childNode, "childNode");
     getChildNodes().add(childNode);
   }
@@ -82,15 +82,15 @@ public class PortfolioTreeNode extends DirectBean implements MutableUniqueIdenti
    * @param nodeOid  the node object identifier, not null
    * @return the node with the identifier, null if not found
    */
-  public PortfolioTreeNode getNode(final UniqueIdentifier nodeOid) {
+  public ManageablePortfolioNode getNode(final UniqueIdentifier nodeOid) {
     ArgumentChecker.notNull(nodeOid, "nodeOid");
-    for (Iterator<PortfolioTreeNode> it = _childNodes.iterator(); it.hasNext(); ) {
-      final PortfolioTreeNode child = it.next();
+    for (Iterator<ManageablePortfolioNode> it = _childNodes.iterator(); it.hasNext(); ) {
+      final ManageablePortfolioNode child = it.next();
       if (child.getUniqueIdentifier().getScheme().equals(nodeOid.getScheme()) &&
           child.getUniqueIdentifier().getValue().equals(nodeOid.getValue())) {
         return child;
       }
-      PortfolioTreeNode found = child.getNode(nodeOid);
+      ManageablePortfolioNode found = child.getNode(nodeOid);
       if (found != null) {
         return found;
       }
@@ -106,8 +106,8 @@ public class PortfolioTreeNode extends DirectBean implements MutableUniqueIdenti
    */
   public boolean removeNode(final UniqueIdentifier nodeOid) {
     ArgumentChecker.notNull(nodeOid, "nodeOid");
-    for (Iterator<PortfolioTreeNode> it = _childNodes.iterator(); it.hasNext(); ) {
-      final PortfolioTreeNode child = it.next();
+    for (Iterator<ManageablePortfolioNode> it = _childNodes.iterator(); it.hasNext(); ) {
+      final ManageablePortfolioNode child = it.next();
       if (child.getUniqueIdentifier().getScheme().equals(nodeOid.getScheme()) &&
           child.getUniqueIdentifier().getValue().equals(nodeOid.getValue())) {
         it.remove();
@@ -125,13 +125,13 @@ public class PortfolioTreeNode extends DirectBean implements MutableUniqueIdenti
    * The meta-bean for {@code PortfolioTreeNode}.
    * @return the meta-bean, not null
    */
-  public static PortfolioTreeNode.Meta meta() {
-    return PortfolioTreeNode.Meta.INSTANCE;
+  public static ManageablePortfolioNode.Meta meta() {
+    return ManageablePortfolioNode.Meta.INSTANCE;
   }
 
   @Override
-  public PortfolioTreeNode.Meta metaBean() {
-    return PortfolioTreeNode.Meta.INSTANCE;
+  public ManageablePortfolioNode.Meta metaBean() {
+    return ManageablePortfolioNode.Meta.INSTANCE;
   }
 
   @Override
@@ -158,7 +158,7 @@ public class PortfolioTreeNode extends DirectBean implements MutableUniqueIdenti
         setName((String) newValue);
         return;
       case 1339293429:  // childNodes
-        setChildNodes((List<PortfolioTreeNode>) newValue);
+        setChildNodes((List<ManageablePortfolioNode>) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -219,7 +219,7 @@ public class PortfolioTreeNode extends DirectBean implements MutableUniqueIdenti
    * Gets the root node of the tree.
    * @return the value of the property
    */
-  public List<PortfolioTreeNode> getChildNodes() {
+  public List<ManageablePortfolioNode> getChildNodes() {
     return _childNodes;
   }
 
@@ -227,7 +227,7 @@ public class PortfolioTreeNode extends DirectBean implements MutableUniqueIdenti
    * Sets the root node of the tree.
    * @param childNodes  the new value of the property
    */
-  public void setChildNodes(List<PortfolioTreeNode> childNodes) {
+  public void setChildNodes(List<ManageablePortfolioNode> childNodes) {
     this._childNodes.clear();
     this._childNodes.addAll(childNodes);
   }
@@ -236,7 +236,7 @@ public class PortfolioTreeNode extends DirectBean implements MutableUniqueIdenti
    * Gets the the {@code childNodes} property.
    * @return the property, not null
    */
-  public final Property<List<PortfolioTreeNode>> childNodes() {
+  public final Property<List<ManageablePortfolioNode>> childNodes() {
     return metaBean().childNodes().createProperty(this);
   }
 
@@ -262,7 +262,7 @@ public class PortfolioTreeNode extends DirectBean implements MutableUniqueIdenti
      * The meta-property for the {@code childNodes} property.
      */
     @SuppressWarnings("unchecked")
-    private final MetaProperty<List<PortfolioTreeNode>> _childNodes = DirectMetaProperty.ofReadWrite(this, "childNodes", (Class) List.class);
+    private final MetaProperty<List<ManageablePortfolioNode>> _childNodes = DirectMetaProperty.ofReadWrite(this, "childNodes", (Class) List.class);
     /**
      * The meta-properties.
      */
@@ -278,13 +278,13 @@ public class PortfolioTreeNode extends DirectBean implements MutableUniqueIdenti
     }
 
     @Override
-    public PortfolioTreeNode createBean() {
-      return new PortfolioTreeNode();
+    public ManageablePortfolioNode createBean() {
+      return new ManageablePortfolioNode();
     }
 
     @Override
-    public Class<? extends PortfolioTreeNode> beanType() {
-      return PortfolioTreeNode.class;
+    public Class<? extends ManageablePortfolioNode> beanType() {
+      return ManageablePortfolioNode.class;
     }
 
     @Override
@@ -313,7 +313,7 @@ public class PortfolioTreeNode extends DirectBean implements MutableUniqueIdenti
      * The meta-property for the {@code childNodes} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<PortfolioTreeNode>> childNodes() {
+    public final MetaProperty<List<ManageablePortfolioNode>> childNodes() {
       return _childNodes;
     }
 

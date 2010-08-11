@@ -52,8 +52,8 @@ public class PortfolioTreeSearchHistoricResult extends DirectBean {
    * Gets the returned portfolios from within the documents.
    * @return the portfolios, not null
    */
-  public List<PortfolioTree> getPortfolios() {
-    List<PortfolioTree> result = new ArrayList<PortfolioTree>();
+  public List<ManageablePortfolio> getPortfolios() {
+    List<ManageablePortfolio> result = new ArrayList<ManageablePortfolio>();
     if (_documents != null) {
       for (PortfolioTreeDocument doc : _documents) {
         result.add(doc.getPortfolio());
@@ -74,7 +74,7 @@ public class PortfolioTreeSearchHistoricResult extends DirectBean {
    * Gets the first portfolio, or null if no documents.
    * @return the first portfolio, null if none
    */
-  public PortfolioTree getFirstPortfolio() {
+  public ManageablePortfolio getFirstPortfolio() {
     return getDocuments().size() > 0 ? getDocuments().get(0).getPortfolio() : null;
   }
 

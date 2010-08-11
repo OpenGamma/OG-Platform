@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.position.master.PortfolioTreePosition;
+import com.opengamma.financial.position.master.ManageablePosition;
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.financial.position.master.PositionSearchHistoricRequest;
 import com.opengamma.financial.position.master.PositionSearchHistoricResult;
@@ -74,7 +74,7 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     assertEquals(null, doc0.getVersionToInstant());
     assertEquals(doc0.getVersionFromInstant(), doc0.getCorrectionFromInstant());
     assertEquals(null, doc0.getCorrectionToInstant());
-    PortfolioTreePosition position0 = doc0.getPosition();
+    ManageablePosition position0 = doc0.getPosition();
     assertNotNull(position0);
     assertEquals(UniqueIdentifier.of("DbPos", "221", "1"), position0.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(222.987), position0.getQuantity());
@@ -90,7 +90,7 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     assertEquals(doc0.getVersionFromInstant(), doc1.getVersionToInstant());
     assertEquals(doc1.getVersionFromInstant(), doc1.getCorrectionFromInstant());
     assertEquals(null, doc1.getCorrectionToInstant());
-    PortfolioTreePosition position1 = doc1.getPosition();
+    ManageablePosition position1 = doc1.getPosition();
     assertNotNull(position1);
     assertEquals(UniqueIdentifier.of("DbPos", "221", "0"), position1.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(221.987), position1.getQuantity());
@@ -118,7 +118,7 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     assertEquals(null, doc0.getVersionToInstant());
     assertEquals(doc0.getVersionFromInstant(), doc0.getCorrectionFromInstant());
     assertEquals(null, doc0.getCorrectionToInstant());
-    PortfolioTreePosition position0 = doc0.getPosition();
+    ManageablePosition position0 = doc0.getPosition();
     assertNotNull(position0);
     assertEquals(UniqueIdentifier.of("DbPos", "121", "0"), position0.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(121.987), position0.getQuantity());

@@ -49,8 +49,8 @@ public class PositionSearchHistoricResult extends DirectBean {
    * Gets the returned positions from within the documents.
    * @return the positions, not null
    */
-  public List<PortfolioTreePosition> getPositions() {
-    List<PortfolioTreePosition> result = new ArrayList<PortfolioTreePosition>();
+  public List<ManageablePosition> getPositions() {
+    List<ManageablePosition> result = new ArrayList<ManageablePosition>();
     if (_documents != null) {
       for (PositionDocument doc : _documents) {
         result.add(doc.getPosition());
@@ -71,7 +71,7 @@ public class PositionSearchHistoricResult extends DirectBean {
    * Gets the first position, or null if no documents.
    * @return the first position, null if none
    */
-  public PortfolioTreePosition getFirstPosition() {
+  public ManageablePosition getFirstPosition() {
     return getDocuments().size() > 0 ? getDocuments().get(0).getPosition() : null;
   }
 
