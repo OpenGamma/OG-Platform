@@ -277,20 +277,13 @@ public class DateUtil {
     if (endDate == null) {
       throw new IllegalArgumentException("End date was null");
     }
-    LocalDate date = startDate.toLocalDate();
-    LocalDate localEndDate = endDate.toLocalDate();
-    int mult = 1;
-    if (startDate.isAfter(endDate)) {
-      date = endDate.toLocalDate();
-      localEndDate = startDate.toLocalDate();
-      mult = -1;
+    int daysBetween = (int) Math.abs(startDate.toLocalDate().toEpochDays() - endDate.toLocalDate().toEpochDays());
+    if (includeStart && includeEnd) {
+      daysBetween++;
+    } else if (!includeStart && !includeEnd) {
+      daysBetween--;
     }
-    int result = includeStart ? 1 : 0;
-    while (!date.equals(localEndDate)) {
-      date = date.plusDays(1);
-      result++;
-    }
-    return mult * (includeEnd ? result : result - 1);
+    return daysBetween;
   }
 
   /**
