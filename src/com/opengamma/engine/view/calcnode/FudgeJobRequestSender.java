@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import java.util.List;
-
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
@@ -24,25 +22,10 @@ import com.opengamma.util.ArgumentChecker;
 public class FudgeJobRequestSender implements JobRequestSender {
   
   private final FudgeRequestSender _underlying;
-  private final ResultWriterFactory _resultWriterFactory;
   
-  /** May be null, which means that the compute node is not known */
-  private final String _computeNodeId;
-  
-  // useful in tests
   public FudgeJobRequestSender(FudgeRequestSender underlying) {
-    this(underlying, new DummyResultWriterFactory(), null);
-  }
-  
-  public FudgeJobRequestSender(FudgeRequestSender underlying,
-      ResultWriterFactory resultWriterFactory,
-      String computeNodeId) {
     ArgumentChecker.notNull(underlying, "Underlying FudgeRequestSender");
-    ArgumentChecker.notNull(resultWriterFactory, "Result writer factory");
-
     _underlying = underlying;
-    _resultWriterFactory = resultWriterFactory;
-    _computeNodeId = computeNodeId;
   }
 
   /**
@@ -53,13 +36,9 @@ public class FudgeJobRequestSender implements JobRequestSender {
   }
 
   @Override
-  public void sendRequest(CalculationJobSpecification jobSpec, 
-      List<CalculationJobItem> items, 
+  public void sendRequest(CalculationJob job, 
       final JobResultReceiver resultReceiver) {
 
-    ResultWriter resultWriter = _resultWriterFactory.create(jobSpec, items, _computeNodeId);
-    CalculationJob job = new CalculationJob(jobSpec, items, resultWriter);
-    
     FudgeFieldContainer jobMsg = job.toFudgeMsg(new FudgeSerializationContext(getUnderlying().getFudgeContext()));
     getUnderlying().sendRequest(jobMsg, new FudgeMessageReceiver() {
       @Override

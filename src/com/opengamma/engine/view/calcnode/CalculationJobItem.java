@@ -7,6 +7,7 @@ package com.opengamma.engine.view.calcnode;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -64,7 +65,7 @@ public class CalculationJobItem {
    * @return the inputs
    */
   public Set<ValueSpecification> getInputs() {
-    return _inputs;
+    return Collections.unmodifiableSet(_inputs);
   }
   
   /**
@@ -78,7 +79,7 @@ public class CalculationJobItem {
    * @return the desiredValues
    */
   public Set<ValueRequirement> getDesiredValues() {
-    return _desiredValues;
+    return Collections.unmodifiableSet(_desiredValues);
   }
   
   public boolean isWriteResults() {

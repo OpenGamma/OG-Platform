@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
@@ -63,12 +62,12 @@ public class OverflowToRemoteJobRequestSender implements JobRequestSender, Lifec
   }
 
   @Override
-  public void sendRequest(CalculationJobSpecification jobSpec, List<CalculationJobItem> items, JobResultReceiver resultReceiver) {
-    Runnable runnable = new LocalDispatchRunnable(jobSpec, items, resultReceiver);
+  public void sendRequest(CalculationJob job, JobResultReceiver resultReceiver) {
+    Runnable runnable = new LocalDispatchRunnable(job, resultReceiver);
     if (!_offerQueue.offer(runnable)) {
       // Overflow.
-      s_logger.debug("Overflowing {} to overflow sender", jobSpec);
-      getOverflowSender().sendRequest(jobSpec, items, resultReceiver);
+      s_logger.debug("Overflowing {} to overflow sender", job);
+      getOverflowSender().sendRequest(job, resultReceiver);
     }
   }
 
@@ -89,21 +88,18 @@ public class OverflowToRemoteJobRequestSender implements JobRequestSender, Lifec
   }
   
   private final class LocalDispatchRunnable implements Runnable {
-    private final CalculationJobSpecification _jobSpec;
-    private final List<CalculationJobItem> _items;
+    private final CalculationJob _job;
     private final JobResultReceiver _resultReceiver;
     
-    public LocalDispatchRunnable(CalculationJobSpecification jobSpec,
-      List<CalculationJobItem> items, 
+    public LocalDispatchRunnable(CalculationJob job, 
       JobResultReceiver resultReceiver) {
-      _jobSpec = jobSpec;
-      _items = items;
+      _job = job;
       _resultReceiver = resultReceiver;
     }
     
     @Override
     public void run() {
-      getCalculationNode().sendRequest(_jobSpec, _items, _resultReceiver);
+      getCalculationNode().sendRequest(_job, _resultReceiver);
     }
     
   }

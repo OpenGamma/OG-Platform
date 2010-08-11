@@ -23,21 +23,56 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
+import com.opengamma.engine.view.cache.ViewComputationCache;
+import com.opengamma.engine.view.calcnode.CalculationJob;
+import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
+ * This executor executes a large dependency graph, making certain assumptions about 
+ * its structure to speed up its evaluation. The assumptions are:
+ * <ul>
+ * <li>A PRIMITIVE node can only depend on another PRIMITIVE node
+ * <li>A SECURITY node can only depend on PRIMITIVE and SECURITY nodes
+ * <li>A POSITION node can only depend on its SECURITY node
+ * </ul>
+ * The executor works by stages. 
+ * <p>
+ * 1. It first executes all PRIMITIVES in a single batch, on a single machine.
+ * <p>
+ * 2. It then executes all SECURITY and POSITION nodes. It divides
+ * the nodes into groups by computation target. If a SECURITY node
+ * (call it 'A') depends on another SECURITY node (call it 'B'), then
+ * B is executed in a first pass before A. If there is no such
+ * dependency, then A and B can execute in parallel.
+ * <p>
+ * POSITION nodes are evaluated at the same time as SECURITY nodes,
+ * on the same machine, as they always depend on a single SECURITY 
+ * node only. 
+ * <p>
+ * 3. PORTFOLIO nodes are evaluated in a single batch, on a single machine. 
  * 
  */
 public class BatchExecutor implements DependencyGraphExecutor {
   
   private static final Logger s_logger = LoggerFactory.getLogger(BatchExecutor.class);
   
-  private DependencyGraphExecutor _delegate;
+  private SingleNodeExecutor _delegate;
   
-  public BatchExecutor(DependencyGraphExecutor delegate) {
+  public BatchExecutor(SingleNodeExecutor delegate) {
     ArgumentChecker.notNull(delegate, "Delegate executor");
     _delegate = delegate;
+  }
+  
+  @Override
+  public ViewComputationCache getCache(CalculationJob job) {
+    return _delegate.getCache(job);
+  }
+
+  @Override
+  public ViewComputationCache getCache(CalculationJobResult result) {
+    return _delegate.getCache(result);
   }
 
   @Override

@@ -20,12 +20,15 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.view.cache.ViewComputationCache;
+import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.InvocationResult;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
+import com.opengamma.engine.view.calcnode.DependencyGraphExecutorListener;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -41,13 +44,18 @@ public class SingleNodeExecutor implements DependencyGraphExecutor, JobResultRec
   private static final Logger s_logger = LoggerFactory.getLogger(SingleNodeExecutor.class);
   
   private final SingleComputationCycle _cycle;
+  private final DependencyGraphExecutorListener _listener;
   
   private final Map<CalculationJobSpecification, AtomicExecutorFuture> _executingSpecifications =
     new ConcurrentHashMap<CalculationJobSpecification, AtomicExecutorFuture>();
   
-  public SingleNodeExecutor(SingleComputationCycle cycle) {
+  public SingleNodeExecutor(
+      SingleComputationCycle cycle,
+      DependencyGraphExecutorListener listener) {
     ArgumentChecker.notNull(cycle, "Computation cycle");
-    _cycle = cycle;    
+    ArgumentChecker.notNull(listener, "Single node executor listener");
+    _cycle = cycle; 
+    _listener = listener;
   }
 
   @Override
@@ -77,13 +85,20 @@ public class SingleNodeExecutor implements DependencyGraphExecutor, JobResultRec
       item2Node.put(jobItem, node);
     }
     
-    s_logger.info("Enqueuing {} to invoke {} functions",
-        new Object[]{jobSpec, graph.getSize()});
+    CalculationJob job = new CalculationJob(jobSpec, items);
+
+    s_logger.info("Executing {} items", job.getJobItems().size());
     
-    AtomicExecutorFuture future = new AtomicExecutorFuture(graph, item2Node);
+    _listener.preExecute(this, job);
+    
+    s_logger.info("Enqueuing {} to invoke {} functions",
+        new Object[]{jobSpec, job.getJobItems().size()});
+    
+    AtomicExecutorRunnable runnable = new AtomicExecutorRunnable();
+    AtomicExecutorFuture future = new AtomicExecutorFuture(runnable, graph, item2Node);
     _executingSpecifications.put(jobSpec, future);
     _cycle.getProcessingContext().getViewProcessorQueryReceiver().addJob(jobSpec, graph);
-    _cycle.getProcessingContext().getComputationJobRequestSender().sendRequest(jobSpec, items, this);
+    _cycle.getProcessingContext().getComputationJobRequestSender().sendRequest(job, this);
     
     return future;
   }
@@ -91,6 +106,16 @@ public class SingleNodeExecutor implements DependencyGraphExecutor, JobResultRec
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+  
+  @Override
+  public ViewComputationCache getCache(CalculationJob job) {
+    return _cycle.getComputationCache(job.getSpecification().getCalcConfigName());        
+  }
+  
+  @Override
+  public ViewComputationCache getCache(CalculationJobResult result) {
+    return _cycle.getComputationCache(result.getSpecification().getCalcConfigName());        
   }
 
   @Override
@@ -115,21 +140,29 @@ public class SingleNodeExecutor implements DependencyGraphExecutor, JobResultRec
       }
     }
     
+    try {
+      _listener.postExecute(this, result);
+    } catch (RuntimeException e) {
+      future._runnable._exception = e;
+      s_logger.error("Listener failed to execute", e);      
+    }
+    
     // mark Future complete
     future.run();
   }
   
   private class AtomicExecutorFuture extends FutureTask<DependencyGraph> {
     
+    private AtomicExecutorRunnable _runnable;
     private DependencyGraph _graph;
     private Map<CalculationJobItem, DependencyNode> _item2Node;
     
-    public AtomicExecutorFuture(DependencyGraph graph, Map<CalculationJobItem, DependencyNode> item2Node) {
-      super(new Runnable() {
-        @Override
-        public void run() {
-        }
-      }, null);
+    public AtomicExecutorFuture(
+        AtomicExecutorRunnable runnable,
+        DependencyGraph graph, 
+        Map<CalculationJobItem, DependencyNode> item2Node) {
+      super(runnable, null);
+      _runnable = runnable;
       _graph = graph;
       _item2Node = item2Node;
     }
@@ -141,4 +174,15 @@ public class SingleNodeExecutor implements DependencyGraphExecutor, JobResultRec
     
   }
   
+  private class AtomicExecutorRunnable implements Runnable {
+    private RuntimeException _exception;
+
+    @Override
+    public void run() {
+      if (_exception != null) {
+        throw _exception;
+      }
+    }
+  }
+
 }

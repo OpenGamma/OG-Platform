@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import java.util.List;
-
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -17,7 +15,6 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.transport.FudgeRequestReceiver;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.InetAddressUtils;
 
 // TODO kirk 2010-04-06 -- I don't like that this is a JobRequestSender rather than something else.
@@ -29,8 +26,6 @@ import com.opengamma.util.InetAddressUtils;
  *
  */
 public class CalculationNodeRequestReceiver extends AbstractCalculationNode implements FudgeRequestReceiver, JobRequestSender {
-  
-  private final ResultWriterFactory _resultWriterFactory;
   
   // useful in tests
   public CalculationNodeRequestReceiver(
@@ -44,7 +39,6 @@ public class CalculationNodeRequestReceiver extends AbstractCalculationNode impl
         functionExecutionContext,
         targetResolver,
         calcNodeQuerySender,
-        new DummyResultWriterFactory(),
         InetAddressUtils.getLocalHostName());
   }
 
@@ -54,12 +48,8 @@ public class CalculationNodeRequestReceiver extends AbstractCalculationNode impl
       FunctionExecutionContext functionExecutionContext,
       ComputationTargetResolver targetResolver, 
       ViewProcessorQuerySender calcNodeQuerySender,
-      ResultWriterFactory resultWriterFactory,
       String nodeId) {
     super(cacheSource, functionRepository, functionExecutionContext, targetResolver, calcNodeQuerySender, nodeId);
-    
-    ArgumentChecker.notNull(resultWriterFactory, "Result writer factory");
-    _resultWriterFactory = resultWriterFactory;
   }
 
   @Override
@@ -72,12 +62,9 @@ public class CalculationNodeRequestReceiver extends AbstractCalculationNode impl
   }
   
   @Override
-  public void sendRequest(CalculationJobSpecification jobSpec, 
-      List<CalculationJobItem> items, 
+  public void sendRequest(CalculationJob job,
       JobResultReceiver resultReceiver) {
     
-    ResultWriter resultWriter = _resultWriterFactory.create(jobSpec, items, getNodeId());
-    CalculationJob job = new CalculationJob(jobSpec, items, resultWriter);
     CalculationJobResult jobResult = executeJob(job);
     resultReceiver.resultReceived(jobResult);
 

@@ -5,14 +5,24 @@
  */
 package com.opengamma.engine.view.calc;
 
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * 
  */
 public class BatchExecutorFactory implements DependencyGraphExecutorFactory {
+  
+  private SingleNodeExecutorFactory _delegate;
+  
+  public BatchExecutorFactory(SingleNodeExecutorFactory delegate) {
+    ArgumentChecker.notNull(delegate, "Delegate executor factory");
+    _delegate = delegate;
+  }
 
   @Override
-  public DependencyGraphExecutor createExecutor(SingleComputationCycle cycle) {
-    return new BatchExecutor(new SingleNodeExecutor(cycle));
+  public BatchExecutor createExecutor(SingleComputationCycle cycle) {
+    SingleNodeExecutor delegate = _delegate.createExecutor(cycle);
+    return new BatchExecutor(delegate);
   }
 
 }
