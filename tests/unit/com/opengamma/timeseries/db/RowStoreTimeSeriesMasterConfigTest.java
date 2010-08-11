@@ -20,7 +20,7 @@ import com.opengamma.timeseries.db.RowStoreTimeSeriesMaster;
  */
 public class RowStoreTimeSeriesMasterConfigTest {
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void missingDataSourceTransactionManager() throws Exception {
 
     Map<String, String> namedSQLMap = new HashMap<String, String>();
@@ -46,7 +46,7 @@ public class RowStoreTimeSeriesMasterConfigTest {
     };
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void missingNamedSQLMap() throws Exception {
     DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(new BasicDataSource());
     new RowStoreTimeSeriesMaster(transactionManager, null) {
