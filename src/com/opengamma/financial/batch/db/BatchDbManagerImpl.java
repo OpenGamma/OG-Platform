@@ -35,12 +35,10 @@ import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.BatchExecutor;
-import com.opengamma.engine.view.calc.BatchExecutorFactory;
 import com.opengamma.engine.view.calc.DependencyGraphExecutor;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calc.SingleComputationCycle;
 import com.opengamma.engine.view.calc.SingleNodeExecutor;
-import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
 import com.opengamma.engine.view.calc.TestDependencyGraphExecutor;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.financial.batch.BatchDbManager;
@@ -717,9 +715,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
       
       initialize(resultWriter);
       
-      SingleNodeExecutorFactory delegateFactory = new SingleNodeExecutorFactory();
-      BatchExecutorFactory factory = new BatchExecutorFactory(delegateFactory);
-      return factory.createExecutor(cycle);
+      return new BatchExecutor(resultWriter);
     }
     
     public BatchResultWriter createTestWriter() {

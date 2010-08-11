@@ -229,7 +229,7 @@ public class BatchResultWriterTest extends HibernateTest {
       new com.opengamma.engine.ComputationTarget(ComputationTargetType.PRIMITIVE, new String("foo"));
     
     DependencyNode node = new DependencyNode(
-        _mockFunction,
+        new MockFunction(primitiveTarget),
         primitiveTarget,
         Collections.<DependencyNode>emptySet(),
         Collections.<ValueSpecification>emptySet(),
@@ -509,10 +509,10 @@ public class BatchResultWriterTest extends HibernateTest {
     assertEquals(0, resultWriter.getNumRiskFailureReasonRows());
     assertEquals(1, resultWriter.getNumRiskComputeFailureRows());
     
-    BatchResultWriter.BatchResultWriterFailure inputFailureInCache = new BatchResultWriter.BatchResultWriterFailure();
-    inputFailureInCache.getComputeFailureIds().add(inputFailure.getId());
-    
-    putValue(new ComputedValue(item.getItem().getInputs().iterator().next(), inputFailureInCache));
+    BatchResultWriter.BatchResultWriterFailure cachedInputFailure = new BatchResultWriter.BatchResultWriterFailure();
+    cachedInputFailure.addComputeFailureId(inputFailure.getId());
+    ComputedValue cachedInputFailureValue = new ComputedValue(item.getItem().getInputs().iterator().next(), cachedInputFailure);
+    putValue(cachedInputFailureValue);
     
     CalculationJobResult result = new CalculationJobResult(
         _calcJob.getSpecification(),

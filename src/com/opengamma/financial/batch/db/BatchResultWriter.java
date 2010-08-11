@@ -672,7 +672,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
                   item.getStackTrace());
               
               ComputeFailure computeFailure = getComputeFailureFromDb(computeFailureKey);
-              cachedFailure.addComputeFailureIds(Collections.singleton(computeFailure.getId()));
+              cachedFailure.addComputeFailureId(computeFailure.getId());
               
               FailureReason reason = new FailureReason();
               reason.setId(generateUniqueId());
@@ -862,6 +862,14 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
     public Set<Number> getComputeFailureIds() {
       return Collections.unmodifiableSet(_computeFailureIds);
     }
+    
+    public void setComputeFailureIds(Set<Number> computeFailureIds) {
+      _computeFailureIds = computeFailureIds;
+    }
+
+    public void addComputeFailureId(Number computeFailureId) {
+      addComputeFailureIds(Collections.singleton(computeFailureId));
+    }
 
     public void addComputeFailureIds(Set<? extends Number> computeFailureIds) {
       _computeFailureIds.addAll(computeFailureIds);
@@ -940,7 +948,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
     private DependencyGraph _graph;
     
     public BatchResultWriterCallable(DependencyGraph graph) {
-      ArgumentChecker.notNull(_graph, "Graph");
+      ArgumentChecker.notNull(graph, "Graph");
       _graph = graph;
     }
 
