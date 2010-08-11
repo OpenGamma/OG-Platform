@@ -41,8 +41,8 @@ public class JobDispatcherTest {
     return Collections.emptyList();
   }
 
-  private static CalculationJobResult createTestJobResult(final CalculationJobSpecification jobSpec, final long time) {
-    return new CalculationJobResult(jobSpec, time, new ArrayList<CalculationJobResultItem>());
+  private static CalculationJobResult createTestJobResult(final CalculationJobSpecification jobSpec, final long time, final String nodeId) {
+    return new CalculationJobResult(jobSpec, time, new ArrayList<CalculationJobResultItem>(), nodeId);
   }
 
   private class TestJobInvoker implements JobInvoker {
@@ -65,7 +65,7 @@ public class JobDispatcherTest {
         @Override
         public void run() {
           // We'll pass our priority back as the time taken so that the caller can see which invoker received the job
-          receiver.resultReceived(createTestJobResult(jobSpec, _priority));
+          receiver.resultReceived(createTestJobResult(jobSpec, 0, "" + _priority));
         }
       });
       return true;
@@ -183,7 +183,7 @@ public class JobDispatcherTest {
                   s_logger.warn ("invoker {} interrupted", iid);
                 }
                 s_logger.debug("invoker {} completed job {}", iid, jobSpec);
-                receiver.resultReceived(createTestJobResult(jobSpec, 0L));
+                receiver.resultReceived(createTestJobResult(jobSpec, 0L, instance.toString ()));
                 synchronized (instance) {
                   _busy = false;
                   if (_callback != null) {

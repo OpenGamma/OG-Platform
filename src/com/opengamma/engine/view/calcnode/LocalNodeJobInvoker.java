@@ -24,7 +24,6 @@ public class LocalNodeJobInvoker implements JobInvoker {
   private final ExecutorService _executorService;
 
   private int _nodePriority = DEFAULT_PRIORITY;
-  private ResultWriterFactory _resultWriterFactory;
 
   public LocalNodeJobInvoker() {
     _executorService = Executors.newCachedThreadPool();
@@ -51,14 +50,6 @@ public class LocalNodeJobInvoker implements JobInvoker {
     } else {
       notifyAvailable();
     }
-  }
-
-  public void setResultWriterFactory(final ResultWriterFactory resultWriterFactory) {
-    _resultWriterFactory = resultWriterFactory;
-  }
-
-  protected ResultWriterFactory getResultWriterFactory() {
-    return _resultWriterFactory;
   }
 
   public void setNodePriority(final int priority) {
@@ -88,34 +79,11 @@ public class LocalNodeJobInvoker implements JobInvoker {
     if (node == null) {
       return false;
     }
-    final ResultWriter writer;
-    if (getResultWriterFactory() != null) {
-      final ResultWriter slave = getResultWriterFactory().create(jobSpec, items, node.getNodeId());
-      writer = new ResultWriter() {
-        @Override
-        public List<CalculationJobItem> getItemsToExecute(final CalculationNode node, final CalculationJob job) {
-          return slave.getItemsToExecute(node, job);
-        }
-
-        @Override
-        public void write(final CalculationNode node, final CalculationJobResult result) {
-          slave.write(node, result);
-          receiver.resultReceived(result);
-        }
-      };
-    } else {
-      writer = new AbstractResultWriter() {
-        @Override
-        public void write(final CalculationNode node, final CalculationJobResult result) {
-          receiver.resultReceived(result);
-        }
-      };
-    }
-    final CalculationJob job = new CalculationJob(jobSpec, items, writer);
+    final CalculationJob job = new CalculationJob(jobSpec, items);
     final Runnable invokeTask = new Runnable() {
       @Override
       public void run() {
-        node.executeJob(job);
+        receiver.resultReceived(node.executeJob(job));
         addNode(node);
       }
     };
