@@ -13,7 +13,7 @@ namespace com.opengamma.engine.view.cache {
     long snapshot;
     
     binding Java {
-      methods "toString";
+      methods "toString,hashCode,equals";
     }
   }
 

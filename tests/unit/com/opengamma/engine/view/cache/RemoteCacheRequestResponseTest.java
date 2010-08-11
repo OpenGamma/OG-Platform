@@ -30,6 +30,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.cache.RemoteCacheClient.OperationResult;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.transport.InMemoryRequestConduit;
@@ -177,22 +178,30 @@ public class RemoteCacheRequestResponseTest {
     long timestamp = System.currentTimeMillis();
     client.putValue("View1", "Config1", timestamp, inputValue);
     
-    Object resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
+    OperationResult<ValueLookupResponse> result = client.getValue("View1", "Config1", timestamp, valueSpec);
+    Object resultValue = result.getResult ().getValue ();
+    result.release ();
     assertNotNull(resultValue);
     assertTrue("Expected Double, but got " + resultValue + " type " + resultValue.getClass(), resultValue instanceof Double);
     assertEquals(2.0, (Double)resultValue, 0.0001);
     
-    resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
+    result = client.getValue("View1", "Config1", timestamp, valueSpec);
+    resultValue = result.getResult ().getValue ();
+    result.release ();
     assertNotNull(resultValue);
     assertTrue(resultValue instanceof Double);
     assertEquals(2.0, (Double)resultValue, 0.0001);
     
-    resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
+    result = client.getValue("View1", "Config1", timestamp, valueSpec);
+    resultValue = result.getResult ().getValue ();
+    result.release ();
     assertNotNull(resultValue);
     assertTrue(resultValue instanceof Double);
     assertEquals(2.0, (Double)resultValue, 0.0001);
     
-    resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
+    result = client.getValue("View1", "Config1", timestamp, valueSpec);
+    resultValue = result.getResult ().getValue ();
+    result.release ();
     assertNotNull(resultValue);
     assertTrue(resultValue instanceof Double);
     assertEquals(2.0, (Double)resultValue, 0.0001);
@@ -209,11 +218,14 @@ public class RemoteCacheRequestResponseTest {
     long timestamp = System.currentTimeMillis();
     client.putValue("View1", "Config1", timestamp, inputValue);
     
-    Object resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
+    OperationResult<ValueLookupResponse> result = client.getValue("View1", "Config1", timestamp, valueSpec);
+    Object resultValue = result.getResult ().getValue ();
+    result.release ();
     assertNotNull(resultValue);
     
-    client.purgeCache("View1", "Config1", timestamp);
-    resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
+    assertEquals (1, client.purgeCache("View1", "Config1", timestamp));
+    result = client.getValue("View1", "Config1", timestamp, valueSpec);
+    resultValue = result.getResult ().getValue ();
     assertNull(resultValue);
   }
 
@@ -228,11 +240,15 @@ public class RemoteCacheRequestResponseTest {
     long timestamp = System.currentTimeMillis();
     client.putValue("View1", "Config1", timestamp, inputValue);
     
-    Object resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
+    OperationResult<ValueLookupResponse> result = client.getValue("View1", "Config1", timestamp, valueSpec);
+    Object resultValue = result.getResult ().getValue ();
+    result.release ();
     assertNotNull(resultValue);
     
-    client.purgeCache("View1", null, timestamp);
-    resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
+    assertEquals (1, client.purgeCache("View1", null, timestamp));
+    result = client.getValue("View1", "Config1", timestamp, valueSpec);
+    resultValue = result.getResult ().getValue ();
+    result.release ();
     assertNull(resultValue);
   }
 }
