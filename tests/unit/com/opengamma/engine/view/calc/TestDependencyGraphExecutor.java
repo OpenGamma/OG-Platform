@@ -6,39 +6,30 @@
 package com.opengamma.engine.view.calc;
 
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
-import com.opengamma.engine.view.cache.ViewComputationCache;
-import com.opengamma.engine.view.calcnode.CalculationJob;
-import com.opengamma.engine.view.calcnode.CalculationJobResult;
-import com.opengamma.engine.view.calcnode.CalculationNode;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
-public class TestDependencyGraphExecutor implements DependencyGraphExecutor {
+public class TestDependencyGraphExecutor<T> implements DependencyGraphExecutor<T> {
   
-  private final CalculationNode _node;
+  private final T _result;
   
-  public TestDependencyGraphExecutor(CalculationNode node) {
-    ArgumentChecker.notNull(node, "Node");
-    _node = node;    
+  public TestDependencyGraphExecutor(T result) {
+    _result = result;
   }
-
+  
   @Override
-  public ViewComputationCache getCache(CalculationJob job) {
-    return _node.getCache(job.getSpecification());
-  }
-
-  @Override
-  public ViewComputationCache getCache(CalculationJobResult result) {
-    return _node.getCache(result.getSpecification());
-  }
-
-  @Override
-  public Future<?> execute(DependencyGraph graph) {
-    return null;
+  public Future<T> execute(DependencyGraph graph) {
+    FutureTask<T> future = new FutureTask<T>(new Runnable() {
+      @Override
+      public void run() {
+      }
+    }, _result);
+    future.run();
+    return future;
   }
 
 }

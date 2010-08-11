@@ -68,8 +68,7 @@ public class AbstractCalculationNodeTest {
         function.getUniqueIdentifier(), 
         function.getTarget().toSpecification(), 
         Sets.newHashSet(new ValueSpecification(function.getRequirement())), 
-        Sets.newHashSet(function.getResultSpec().getRequirementSpecification()),
-        true);
+        Sets.newHashSet(function.getResultSpec().getRequirementSpecification()));
     CalculationJob calcJob = new CalculationJob(jobSpec, Collections.singletonList(calculationJobItem));
     return calcJob;
   }

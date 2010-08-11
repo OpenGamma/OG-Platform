@@ -40,8 +40,7 @@ public class CalculationJobTest {
         "1", 
         targetSpec,
         Collections.<ValueSpecification>emptySet(), 
-        Collections.<ValueRequirement>emptySet(),
-        true));
+        Collections.<ValueRequirement>emptySet()));
     
     CalculationJob inputJob = new CalculationJob(spec, items);
     
@@ -75,8 +74,7 @@ public class CalculationJobTest {
         "1", 
         targetSpec,
         Sets.newHashSet(inputSpec),
-        Sets.newHashSet(desiredValue),
-        true));
+        Sets.newHashSet(desiredValue)));
     
     CalculationJob inputJob = new CalculationJob(spec, items);
     

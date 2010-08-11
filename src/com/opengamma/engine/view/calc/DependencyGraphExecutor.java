@@ -8,32 +8,13 @@ package com.opengamma.engine.view.calc;
 import java.util.concurrent.Future;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
-import com.opengamma.engine.view.cache.ViewComputationCache;
-import com.opengamma.engine.view.calcnode.CalculationJob;
-import com.opengamma.engine.view.calcnode.CalculationJobResult;
 
 /**
  * Evaluates dependency graph.
+ * 
+  * @param <T> Type of return information from the executor
  */
-public interface DependencyGraphExecutor {
-  
-  /**
-   * Gets the computation cache in which results for
-   * the given calculation job are stored.
-   * 
-   * @param job Calculation job
-   * @return Cache corresponding to the job
-   */
-  ViewComputationCache getCache(CalculationJob job);
-  
-  /**
-   * Gets the computation cache in which results for
-   * the given calculation job result are stored.
-   * 
-   * @param result Calculation job result
-   * @return Cache corresponding to the job
-   */
-  ViewComputationCache getCache(CalculationJobResult result);
+public interface DependencyGraphExecutor<T> {
   
   /**
    * Evaluates a dependency graph. 
@@ -45,6 +26,6 @@ public interface DependencyGraphExecutor {
    * values can already be found in the shared computation cache.
    * @return An object you can call get() on to wait for completion
    */
-  Future<?> execute(DependencyGraph graph);
+  Future<T> execute(DependencyGraph graph);
 
 }

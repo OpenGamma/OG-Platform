@@ -40,8 +40,7 @@ public class CalculationJobResultTest {
         "1", 
         targetSpec,
         Collections.<ValueSpecification>emptySet(), 
-        Collections.<ValueRequirement>emptySet(),
-        true);
+        Collections.<ValueRequirement>emptySet());
     CalculationJobResultItem item1 = new CalculationJobResultItem(item); 
     CalculationJobResultItem item2 = new CalculationJobResultItem(item, new RuntimeException("failure!"));
     

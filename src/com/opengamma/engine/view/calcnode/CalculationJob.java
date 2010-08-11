@@ -32,11 +32,7 @@ public class CalculationJob implements Serializable {
   private static final Logger s_logger = LoggerFactory.getLogger(CalculationJob.class);
   
   private final CalculationJobSpecification _specification;
-  
-  /**
-   * The variable is final, contents are mutable
-   */
-  private final List<CalculationJobItem> _jobItems = new ArrayList<CalculationJobItem>();
+  private final List<CalculationJobItem> _jobItems;
   
   public CalculationJob(
       String viewName,
@@ -54,7 +50,7 @@ public class CalculationJob implements Serializable {
     ArgumentChecker.notNull(specification, "Job spec");
     ArgumentChecker.notNull(jobItems, "Job items");
     _specification = specification;
-    _jobItems.addAll(jobItems);
+    _jobItems = new ArrayList<CalculationJobItem>(jobItems);
   }
 
   /**
@@ -66,14 +62,6 @@ public class CalculationJob implements Serializable {
   
   public List<CalculationJobItem> getJobItems() {
     return Collections.unmodifiableList(_jobItems);
-  }
-  
-  public void addJobItem(CalculationJobItem item) {
-    _jobItems.add(item);    
-  }
-  
-  public void removeJobItem(CalculationJobItem item) {
-    _jobItems.remove(item);
   }
   
   @Override

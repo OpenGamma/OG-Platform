@@ -130,9 +130,9 @@ public class PortfolioEvaluationModelTest {
     ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, positionSource, securitySource, functionCompilationContext, computationTargetResolver, executorService);
     
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
-    viewDefinition.setComputeSecurityNodeCalculations(false);
-    viewDefinition.setComputePortfolioNodeCalculations(true);
-    viewDefinition.setComputePositionNodeCalculations(false);
+    viewDefinition.getResultModelDefinition().setComputeSecurityNodeCalculations(false);
+    viewDefinition.getResultModelDefinition().setComputePortfolioNodeCalculations(true);
+    viewDefinition.getResultModelDefinition().setComputePositionNodeCalculations(false);
     System.err.println(viewDefinition);
     //viewDefinition.setComputePrimitiveNodeCalculations(true);
     viewDefinition.addValueDefinition("Fibble", "My Sec", "Req-1");
@@ -206,9 +206,9 @@ public class PortfolioEvaluationModelTest {
     
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
     viewDefinition.addValueDefinition("Fibble", "My Sec", "Req-1");
-    viewDefinition.setComputePortfolioNodeCalculations(true);
-    viewDefinition.setComputePositionNodeCalculations(false);
-    viewDefinition.setComputeSecurityNodeCalculations(false);
+    viewDefinition.getResultModelDefinition().setComputePortfolioNodeCalculations(true);
+    viewDefinition.getResultModelDefinition().setComputePositionNodeCalculations(false);
+    viewDefinition.getResultModelDefinition().setComputeSecurityNodeCalculations(false);
     PortfolioEvaluationModel pem = new PortfolioEvaluationModel(p);
     pem.init(vcs, viewDefinition);
     

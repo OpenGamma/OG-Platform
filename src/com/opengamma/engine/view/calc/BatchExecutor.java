@@ -23,9 +23,6 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
-import com.opengamma.engine.view.cache.ViewComputationCache;
-import com.opengamma.engine.view.calcnode.CalculationJob;
-import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -54,29 +51,19 @@ import com.opengamma.util.ArgumentChecker;
  * 3. PORTFOLIO nodes are evaluated in a single batch, on a single machine. 
  * 
  */
-public class BatchExecutor implements DependencyGraphExecutor {
+public class BatchExecutor implements DependencyGraphExecutor<Object> {
   
   private static final Logger s_logger = LoggerFactory.getLogger(BatchExecutor.class);
   
-  private SingleNodeExecutor _delegate;
+  private DependencyGraphExecutor<?> _delegate;
   
-  public BatchExecutor(SingleNodeExecutor delegate) {
+  public BatchExecutor(DependencyGraphExecutor<?> delegate) {
     ArgumentChecker.notNull(delegate, "Delegate executor");
     _delegate = delegate;
   }
   
   @Override
-  public ViewComputationCache getCache(CalculationJob job) {
-    return _delegate.getCache(job);
-  }
-
-  @Override
-  public ViewComputationCache getCache(CalculationJobResult result) {
-    return _delegate.getCache(result);
-  }
-
-  @Override
-  public Future<?> execute(DependencyGraph graph) {
+  public Future<Object> execute(DependencyGraph graph) {
     // Partition graph into primitives, securities, positions, portfolios
     final Collection<DependencyNode> primitiveNodes = new HashSet<DependencyNode>();
     final List<Map<UniqueIdentifier, Collection<DependencyNode>>> passNumber2Target2SecurityAndPositionNodes = 
@@ -245,7 +232,7 @@ public class BatchExecutor implements DependencyGraphExecutor {
     }
   }
   
-  private class BatchExecutorFuture extends FutureTask<DependencyGraph> {
+  private class BatchExecutorFuture extends FutureTask<Object> {
     
     private DependencyGraph _graph;
     

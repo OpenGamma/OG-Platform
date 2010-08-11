@@ -255,5 +255,10 @@ public class DependencyGraph {
     }
     return subGraph;
   }
+  
+  @Override
+  public String toString() {
+    return "DependencyGraph[calcConf=" + getCalcConfName() + ",size=" + getSize() + "]";  
+  }
 
 }
