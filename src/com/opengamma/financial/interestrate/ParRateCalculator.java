@@ -16,6 +16,7 @@ import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.swap.definition.BasisSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
@@ -89,36 +90,52 @@ public final class ParRateCalculator implements InterestRateDerivativeVisitor<Do
   }
 
   /**
-   * Generic swaps do not have a "swap rate". If you require a vanilla swap use a FixedFloatSwap
+   * Generic swaps do not have a "swap rate". The rate returned here is the spread on the receive leg that makes the swap PV to zero for the given curves. 
+   * If the spread is paid (i.e. on the pay leg), swap the legs around and take the negative of the returned value.
    * @param swap 
    * @param curves 
-   * @return UnsupportedOperationException
+   * @return the spread which can be positive of negative 
    */
   @Override
   public Double visitSwap(final Swap swap, final YieldCurveBundle curves) {
-    throw new UnsupportedOperationException("Generic swaps do not have a \"swap rate\". If you require a vanilla swap use a FixedFloatSwap");
+    final double pvPay = PVC.getValue(swap.getPayLeg().withZeroSpread(), curves);
+    final double pvReceive = PVC.getValue(swap.getReceiveLeg().withZeroSpread(), curves);
+    final double pvSpread = PVC.getValue(swap.getReceiveLeg().withUnitCoupons(), curves);
+
+    if (pvSpread == 0.0) {
+      throw new IllegalArgumentException("Cannot calculate spread. Please check setup");
+    }
+    return (pvPay - pvReceive) / pvSpread;
   }
 
+  /**
+   * @param swap 
+   * @param curves 
+   *  @return The par swap rate. If the fixed leg has been set up with some fixed payments these are ignored for the purposes of finding the swap rate
+   * 
+   */
   @Override
   public Double visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle curves) {
-    final FixedAnnuity tempAnnuity = swap.getFixedLeg().toUnitCouponFixedAnnuity(swap.getFloatingLeg().getNotional());
     final double pvFloat = PVC.getValue(swap.getFloatingLeg(), curves);
-    final double pvFixed = PVC.getValue(tempAnnuity, curves);
+    final double pvFixed = PVC.getValue(swap.getFixedLeg().withUnitCoupons(), curves);
     return pvFloat / pvFixed;
   }
 
+  /**
+   *
+   * If the spread is paid (i.e. on the pay leg), swap the legs around and take the negative of the returned value.
+   *@param swap 
+   * @param curves 
+   *@return  The spread on the receive leg of a basis swap 
+   */
   @Override
   public Double visitBasisSwap(final BasisSwap swap, final YieldCurveBundle curves) {
+    return visitSwap(swap, curves);
+  }
 
-    final VariableAnnuity payLeg = swap.getPayLeg().toZeroSpreadVariableAnnuity();
-    final VariableAnnuity receiveLeg = swap.getReceiveLeg().toZeroSpreadVariableAnnuity();
-    final FixedAnnuity spreadLeg = swap.getPayLeg().toUnitCouponFixedAnnuity();
-
-    final double pvPay = PVC.getValue(payLeg, curves);
-    final double pvReceive = PVC.getValue(receiveLeg, curves);
-    final double pvSpread = PVC.getValue(spreadLeg, curves);
-
-    return (pvReceive - pvPay) / pvSpread;
+  @Override
+  public Double visitFloatingRateNote(FloatingRateNote frn, YieldCurveBundle curves) {
+    return visitSwap(frn, curves);
   }
 
   /**
@@ -131,8 +148,7 @@ public final class ParRateCalculator implements InterestRateDerivativeVisitor<Do
   @Override
   public Double visitBond(final Bond bond, final YieldCurveBundle curves) {
     final YieldAndDiscountCurve curve = curves.getCurve(bond.getCurveName());
-    final FixedAnnuity ann = bond.getFixedAnnuity().toUnitCouponFixedAnnuity(1.0);
-    final double pvann = PVC.getValue(ann, curves);
+    final double pvann = PVC.getValue(bond.getFixedAnnuity().withUnitCoupons(), curves);
     final double maturity = bond.getMaturity();
     return (1 - curve.getDiscountFactor(maturity)) / pvann;
   }
@@ -146,9 +162,8 @@ public final class ParRateCalculator implements InterestRateDerivativeVisitor<Do
    */
   @Override
   public Double visitVariableAnnuity(final VariableAnnuity annuity, final YieldCurveBundle curves) {
-    final FixedAnnuity tempAnnuity = annuity.toUnitCouponFixedAnnuity();
     final double pvFloat = PVC.getValue(annuity, curves);
-    final double pvFixed = PVC.getValue(tempAnnuity, curves);
+    final double pvFixed = PVC.getValue(annuity.withUnitCoupons(), curves);
     return pvFloat / pvFixed;
   }
 
@@ -161,9 +176,8 @@ public final class ParRateCalculator implements InterestRateDerivativeVisitor<Do
    */
   @Override
   public Double visitFixedAnnuity(final FixedAnnuity annuity, final YieldCurveBundle curves) {
-    final FixedAnnuity ann = annuity.toUnitCouponFixedAnnuity(1.0);
     final double pvFixed = PVC.getValue(annuity, curves);
-    return pvFixed / PVC.getValue(ann, curves);
+    return pvFixed / PVC.getValue(annuity.withUnitCoupons(), curves);
   }
 
   @Override

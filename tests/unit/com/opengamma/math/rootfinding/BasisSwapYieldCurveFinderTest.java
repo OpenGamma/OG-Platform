@@ -218,7 +218,7 @@ public class BasisSwapYieldCurveFinderTest {
     unknownCurves.put(LIBOR_CURVE_NAME, INTERPOLATOR);
     unknownCurvesNodes.put(LIBOR_CURVE_NAME, LIBOR_NODE_TIMES);
     unknownCurveNodeSensitivityCalculators.put(LIBOR_CURVE_NAME, SENSITIVITY_CALCULATOR);
-    //    DOUBLE_CURVE_FINDER = new MultipleYieldCurveFinderFunction(INSTRUMENTS, unknownCurvesNodes, unknownCurves, unknownCurveNodeSensitivityCalculators, null, CALCULATOR);
+    // DOUBLE_CURVE_FINDER = new MultipleYieldCurveFinderFunction(INSTRUMENTS, unknownCurvesNodes, unknownCurves, unknownCurveNodeSensitivityCalculators, null, CALCULATOR);
     final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(INSTRUMENTS, null, unknownCurvesNodes, unknownCurves, unknownCurveNodeSensitivityCalculators);
     DOUBLE_CURVE_FINDER = new MultipleYieldCurveFinderFunction(data, CALCULATOR);
     DOUBLE_CURVE_JACOBIAN = new MultipleYieldCurveFinderJacobian(data, PV_SENSITIVITY_CALCULATOR);
@@ -276,8 +276,8 @@ public class BasisSwapYieldCurveFinderTest {
       spreads[i] = spread;
       yearFracs[i] = 0.25;
     }
-    final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, 1.0, deltas, deltas, yearFracs, spreads, fundCurveName, payCurveName);
-    final VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, fundCurveName, revieveCurveName);
+    final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, 1.0, deltas, deltas, yearFracs, new double[index], fundCurveName, payCurveName);
+    final VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, 1.0, deltas, deltas, yearFracs, spreads, fundCurveName, revieveCurveName);
     return new BasisSwap(payLeg, receiveLeg);
   }
 

@@ -26,13 +26,14 @@ public class Bond implements InterestRateDerivative {
     ArgumentChecker.notEmpty(paymentTimes, "payment times");
     Validate.notNull(yieldCurveName, "yield curve name");
     final int n = paymentTimes.length;
-    final double[] paymentAmounts = new double[n];
-    paymentAmounts[0] = couponRate * paymentTimes[0];
+    final double[] modCoupons = new double[n];
+    double[] yearFractions = new double[n];
 
-    for (int i = 1; i < n; i++) {
-      paymentAmounts[i] = couponRate * (paymentTimes[i] - paymentTimes[i - 1]) + (i == (n - 1) ? 1.0 : 0.0);
+    for (int i = 0; i < n; i++) {
+      yearFractions[i] = paymentTimes[i] - (i == 0 ? 0.0 : paymentTimes[i - 1]);
+      modCoupons[i] = couponRate + (i == (n - 1) ? 1.0 / yearFractions[i] : 0.0);
     }
-    _annuity = new FixedAnnuity(paymentTimes, paymentAmounts, yieldCurveName);
+    _annuity = new FixedAnnuity(paymentTimes, 1.0, modCoupons, yearFractions, yieldCurveName);
   }
 
   public Bond(final double[] paymentTimes, final double couponRate, final double[] yearFractions, final String yieldCurveName) {
@@ -45,11 +46,11 @@ public class Bond implements InterestRateDerivative {
     if (n != yearFractions.length) {
       throw new IllegalArgumentException("Must have a year fraction for each payment time");
     }
-    final double[] paymentAmounts = new double[n];
+    final double[] modCoupons = new double[n];
     for (int i = 0; i < n; i++) {
-      paymentAmounts[i] = couponRate * yearFractions[i] + (i == (n - 1) ? 1.0 : 0.0);
+      modCoupons[i] = couponRate + (i == (n - 1) ? 1.0 / yearFractions[i] : 0.0);
     }
-    _annuity = new FixedAnnuity(paymentTimes, paymentAmounts, yearFractions, yieldCurveName);
+    _annuity = new FixedAnnuity(paymentTimes, 1.0, modCoupons, yearFractions, yieldCurveName);
   }
 
   public Bond(final double[] paymentTimes, final double[] coupons, final String yieldCurveName) {
@@ -62,12 +63,13 @@ public class Bond implements InterestRateDerivative {
       throw new IllegalArgumentException("Must have a payment for each payment time");
     }
     final int n = paymentTimes.length;
-    final double[] paymentAmounts = new double[n];
-    paymentAmounts[0] = coupons[0] * paymentTimes[0];
-    for (int i = 1; i < n; i++) {
-      paymentAmounts[i] = coupons[i] * (paymentTimes[i] - paymentTimes[i - 1]) + (i == (n - 1) ? 1.0 : 0.0);
+    final double[] modCoupons = new double[n];
+    double[] yearFractions = new double[n];
+    for (int i = 0; i < n; i++) {
+      yearFractions[i] = paymentTimes[i] - (i == 0 ? 0.0 : paymentTimes[i - 1]);
+      modCoupons[i] = coupons[i] + (i == (n - 1) ? 1.0 / yearFractions[i] : 0.0);
     }
-    _annuity = new FixedAnnuity(paymentTimes, paymentAmounts, yieldCurveName);
+    _annuity = new FixedAnnuity(paymentTimes, 1.0, modCoupons, yearFractions, yieldCurveName);
   }
 
   public Bond(final double[] paymentTimes, final double[] coupons, final double[] yearFractions, final String yieldCurveName) {
@@ -85,12 +87,11 @@ public class Bond implements InterestRateDerivative {
     if (n != yearFractions.length) {
       throw new IllegalArgumentException("Must have a year fraction for each payment time");
     }
-
-    final double[] paymentAmounts = new double[n];
+    final double[] modCoupons = new double[n];
     for (int i = 0; i < n; i++) {
-      paymentAmounts[i] = coupons[i] * yearFractions[i] + (i == (n - 1) ? 1.0 : 0.0);
+      modCoupons[i] = coupons[i] + (i == (n - 1) ? 1.0 / yearFractions[i] : 0.0);
     }
-    _annuity = new FixedAnnuity(paymentTimes, paymentAmounts, yearFractions, yieldCurveName);
+    _annuity = new FixedAnnuity(paymentTimes, 1.0, modCoupons, yearFractions, yieldCurveName);
   }
 
   public double[] getPaymentTimes() {

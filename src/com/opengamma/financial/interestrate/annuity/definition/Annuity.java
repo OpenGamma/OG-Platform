@@ -16,6 +16,14 @@ public interface Annuity extends InterestRateDerivative {
 
   double[] getYearFractions();
 
+  double getNotional();
+
   int getNumberOfPayments();
+
+  String getFundingCurveName();
+
+  Annuity withZeroSpread();
+
+  Annuity withUnitCoupons();
 
 }

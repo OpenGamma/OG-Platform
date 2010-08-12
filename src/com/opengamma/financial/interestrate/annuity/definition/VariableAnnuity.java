@@ -156,6 +156,7 @@ public class VariableAnnuity implements Annuity {
     return _spreads;
   }
 
+  @Override
   public String getFundingCurveName() {
     return _fundingCurveName;
   }
@@ -179,15 +180,18 @@ public class VariableAnnuity implements Annuity {
     return _n;
   }
 
+  @Override
   public double getNotional() {
     return _notional;
   }
 
-  public VariableAnnuity toZeroSpreadVariableAnnuity() {
+  @Override
+  public VariableAnnuity withZeroSpread() {
     return new VariableAnnuity(getPaymentTimes(), getNotional(), getDeltaStart(), getDeltaEnd(), getYearFractions(), new double[getNumberOfPayments()], getFundingCurveName(), getLiborCurveName());
   }
 
-  public FixedAnnuity toUnitCouponFixedAnnuity() {
+  @Override
+  public FixedAnnuity withUnitCoupons() {
     final double[] coupons = new double[getNumberOfPayments()];
     for (int i = 0; i < getNumberOfPayments(); i++) {
       coupons[i] = 1.0;
