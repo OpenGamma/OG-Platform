@@ -27,7 +27,7 @@ import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivit
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.newton.JacobianCalculator;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
@@ -59,7 +59,7 @@ public class MultipleYieldCurveFinderJacobianTest {
   private static final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> FRA_SENSITIVITY_CALCULATOR;
   private static final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> MIXED_SENSITIVITY_CALCULATOR;
 
-  private static final InterestRateDerivativeVisitor<Map<String, List<Pair<Double, Double>>>> SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
+  private static final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
 
   private static final int N = 10;
   private static final int M = 5;

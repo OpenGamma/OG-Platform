@@ -48,7 +48,7 @@ import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.JacobianCalculator;
 import com.opengamma.math.rootfinding.newton.NewtonDefaultVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.ShermanMorrisonVectorRootFinder;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
@@ -71,7 +71,7 @@ public class BasisSwapYieldCurveFinderTest {
   private static final DoubleMatrix1D X0;
 
   private static final InterestRateDerivativeVisitor<Double> CALCULATOR = PresentValueCalculator.getInstance();
-  private static final InterestRateDerivativeVisitor<Map<String, List<Pair<Double, Double>>>> PV_SENSITIVITY_CALCULATOR = PresentValueSensitivityCalculator.getInstance();
+  private static final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> PV_SENSITIVITY_CALCULATOR = PresentValueSensitivityCalculator.getInstance();
 
   private static final ParRateCalculator RATE_CALCULATOR = ParRateCalculator.getInstance();
 

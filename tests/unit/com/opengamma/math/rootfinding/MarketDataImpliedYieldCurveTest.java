@@ -47,7 +47,7 @@ import com.opengamma.math.rootfinding.newton.JacobianCalculator;
 import com.opengamma.math.rootfinding.newton.NewtonDefaultVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.ShermanMorrisonVectorRootFinder;
 import com.opengamma.util.monitor.OperationTimer;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
@@ -62,7 +62,7 @@ public class MarketDataImpliedYieldCurveTest {
   private static final List<InterestRateDerivative> INSTRUMENTS;
 
   private static final InterestRateDerivativeVisitor<Double> CALCULATOR = PresentValueCalculator.getInstance();
-  private static final InterestRateDerivativeVisitor<Map<String, List<Pair<Double, Double>>>> SENSITIVITY_CALCULATOR = PresentValueSensitivityCalculator.getInstance();
+  private static final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> SENSITIVITY_CALCULATOR = PresentValueSensitivityCalculator.getInstance();
 
   private static final double[] NODE_TIMES;
   private static final double EPS = 1e-8;

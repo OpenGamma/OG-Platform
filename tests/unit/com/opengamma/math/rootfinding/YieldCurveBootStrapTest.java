@@ -52,7 +52,7 @@ import com.opengamma.math.rootfinding.newton.NewtonDefaultVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.ShermanMorrisonVectorRootFinder;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.util.monitor.OperationTimer;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
@@ -68,7 +68,7 @@ public class YieldCurveBootStrapTest {
   private static final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> EXTRAPOLATOR_WITH_FD_SENSITIVITY;
 
   private static final InterestRateDerivativeVisitor<Double> PAR_RATE_CALCULATOR = ParRateDifferenceCalculator.getInstance();
-  private static final InterestRateDerivativeVisitor<Map<String, List<Pair<Double, Double>>>> PAR_RATE_SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
+  private static final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> PAR_RATE_SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
 
   private static List<InterestRateDerivative> SINGLE_CURVE_INSTRUMENTS;
   private static List<InterestRateDerivative> DOUBLE_CURVE_INSTRUMENTS;

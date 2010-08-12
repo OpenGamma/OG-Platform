@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
@@ -26,23 +26,23 @@ public class ParRateParallelSensitivityCalculator {
    * @param curves bundle of relevant yield curves 
    * @return a Map between curve name and sensitivity for that curve 
    */
-  public Map<String, Double> getValue(InterestRateDerivative ird, YieldCurveBundle curves) {
+  public Map<String, Double> getValue(final InterestRateDerivative ird, final YieldCurveBundle curves) {
 
-    Map<String, List<Pair<Double, Double>>> sense = _prcsc.getValue(ird, curves);
-    Map<String, Double> res = new HashMap<String, Double>();
-    Iterator<Entry<String, List<Pair<Double, Double>>>> iterator = sense.entrySet().iterator();
+    final Map<String, List<DoublesPair>> sense = _prcsc.getValue(ird, curves);
+    final Map<String, Double> res = new HashMap<String, Double>();
+    final Iterator<Entry<String, List<DoublesPair>>> iterator = sense.entrySet().iterator();
     while (iterator.hasNext()) {
-      Entry<String, List<Pair<Double, Double>>> entry = iterator.next();
-      String name = entry.getKey();
-      double temp = sumListPair(entry.getValue());
+      final Entry<String, List<DoublesPair>> entry = iterator.next();
+      final String name = entry.getKey();
+      final double temp = sumListPair(entry.getValue());
       res.put(name, temp);
     }
     return res;
   }
 
-  private double sumListPair(List<Pair<Double, Double>> list) {
+  private double sumListPair(final List<DoublesPair> list) {
     double sum = 0.0;
-    for (Pair<Double, Double> pair : list) {
+    for (final DoublesPair pair : list) {
       sum += pair.getSecond();
     }
     return sum;
