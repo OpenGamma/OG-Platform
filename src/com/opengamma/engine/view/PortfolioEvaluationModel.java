@@ -23,9 +23,9 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.ForwardingComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ForwardingComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -475,42 +475,27 @@ public class PortfolioEvaluationModel {
 
     @Override
     public void preOrderOperation(PortfolioNode portfolioNode) {
-      // Yes, we could in theory do this outside the loop by implementing more
-      // callbacks, but it might have gotten hairy, so for the first pass I just
-      // did it this way.
       Set<String> subNodeSecurityTypes = getSubNodeSecurityTypes(portfolioNode);
-      Map<String, Set<String>> outputsBySecurityType = _calculationConfiguration.getValueRequirementsBySecurityTypes();
+      Map<String, Set<String>> outputsBySecurityType = _calculationConfiguration.getPortfolioRequirementsBySecurityType();
       for (String secType : subNodeSecurityTypes) {
         Set<String> requiredOutputs = outputsBySecurityType.get(secType);
         if ((requiredOutputs == null) || requiredOutputs.isEmpty()) {
           continue;
         }
         Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-        // first do the portfolio node targets (aggregated, multiple-position nodes), if they're needed
-        if (_calculationConfiguration.getDefinition().isComputePortfolioNodeCalculations()) {
+        if (!_calculationConfiguration.isAggregatePositionOutputsDisabled()) {
           for (String requiredOutput : requiredOutputs) {
             requirements.add(new ValueRequirement(requiredOutput, portfolioNode));
           }
           _dependencyGraphBuilder.addTarget(new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, portfolioNode), requirements);
         }
-        // now do the position nodes targets, if they're needed
-        if (_calculationConfiguration.getDefinition().isComputePositionNodeCalculations()) {
+        if (!_calculationConfiguration.isPositionOutputsDisabled()) {
           for (Position position : portfolioNode.getPositions()) {
             requirements.clear();
             for (String requiredOutput : requiredOutputs) {
               requirements.add(new ValueRequirement(requiredOutput, position));
             }
             _dependencyGraphBuilder.addTarget(new ComputationTarget(ComputationTargetType.POSITION, position), requirements);
-          }
-        }
-        // now do the per-security targets, if they're needed
-        if (_calculationConfiguration.getDefinition().isComputeSecurityNodeCalculations()) {
-          for (Position position : portfolioNode.getPositions()) {
-            requirements.clear();
-            for (String requiredOutput : requiredOutputs) {
-              requirements.add(new ValueRequirement(requiredOutput, position.getSecurity()));
-            }
-            _dependencyGraphBuilder.addTarget(new ComputationTarget(ComputationTargetType.SECURITY, position.getSecurity()), requirements);
           }
         }
       }

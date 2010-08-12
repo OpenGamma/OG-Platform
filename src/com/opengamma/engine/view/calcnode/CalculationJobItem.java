@@ -32,25 +32,25 @@ public class CalculationJobItem {
   private static final String FUNCTION_UNIQUE_ID_FIELD_NAME = "functionUniqueIdentifier";
   private static final String INPUT_FIELD_NAME = "valueInput";
   private static final String DESIRED_VALUE_FIELD_NAME = "desiredValue";
-  private static final String WRITE_RESULTS_FIELD_NAME = "writeResults";
+  private static final String OUTPUTS_DISABLED_FIELD_NAME = "outputsDisabled";
   
   private final String _functionUniqueIdentifier;
   private final ComputationTargetSpecification _computationTargetSpecification;
   private final Set<ValueSpecification> _inputs = new HashSet<ValueSpecification>();
   private final Set<ValueRequirement> _desiredValues = new HashSet<ValueRequirement>();
-  private final boolean _writeResults;
+  private final boolean _outputsDisabled;
   
   public CalculationJobItem(
       String functionUniqueIdentifier,
       ComputationTargetSpecification computationTargetSpecification,
       Collection<ValueSpecification> inputs,
       Collection<ValueRequirement> desiredValues,
-      boolean writeResults) {
+      boolean outputsDisabled) {
     _functionUniqueIdentifier = functionUniqueIdentifier;
     _computationTargetSpecification = computationTargetSpecification;
     _inputs.addAll(inputs);
     _desiredValues.addAll(desiredValues);
-    _writeResults = writeResults;
+    _outputsDisabled = outputsDisabled;
   }
   
   /**
@@ -81,8 +81,8 @@ public class CalculationJobItem {
     return _desiredValues;
   }
   
-  public boolean isWriteResults() {
-    return _writeResults;
+  public boolean isOutputsDisabled() {
+    return _outputsDisabled;
   }
   
   public Set<ValueSpecification> getOutputs() {
@@ -108,7 +108,7 @@ public class CalculationJobItem {
       msg.add(DESIRED_VALUE_FIELD_NAME, valueMsg);
     }
     
-    msg.add(WRITE_RESULTS_FIELD_NAME, isWriteResults());
+    msg.add(OUTPUTS_DISABLED_FIELD_NAME, isOutputsDisabled());
     
     return msg;
   }
@@ -131,13 +131,13 @@ public class CalculationJobItem {
       desiredValues.add(desiredValue);
     }
     
-    boolean writeResults = msg.getBoolean(WRITE_RESULTS_FIELD_NAME);
+    boolean outputsDisabled = msg.getBoolean(OUTPUTS_DISABLED_FIELD_NAME);
     
     return new CalculationJobItem(functionUniqueId, 
         computationTargetSpecification, 
         inputs, 
         desiredValues,
-        writeResults);
+        outputsDisabled);
   }
   
   @Override

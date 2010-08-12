@@ -87,10 +87,10 @@ public class ConfigSourceTest {
     for (String name : names) {
       ViewDefinition definition = new ViewDefinition(name, UniqueIdentifier.of("PORTFOLIO_SCHEME", "ID" + _random.nextInt(100)), "RandUser" + _random.nextInt(100));
       String configName = "ConfigName" + _random.nextInt();
-      definition.addValueDefinition(configName, EQUITY_OPTION, ValueRequirementNames.DELTA);
-      definition.addValueDefinition(configName, EQUITY_OPTION, ValueRequirementNames.GAMMA);
-      definition.addValueDefinition(configName, EQUITY_OPTION, ValueRequirementNames.RHO);
-      definition.addValueDefinition(configName, EQUITY_OPTION, ValueRequirementNames.FAIR_VALUE);
+      definition.addPortfolioRequirement(configName, EQUITY_OPTION, ValueRequirementNames.DELTA);
+      definition.addPortfolioRequirement(configName, EQUITY_OPTION, ValueRequirementNames.GAMMA);
+      definition.addPortfolioRequirement(configName, EQUITY_OPTION, ValueRequirementNames.RHO);
+      definition.addPortfolioRequirement(configName, EQUITY_OPTION, ValueRequirementNames.FAIR_VALUE);
       
       DefaultConfigDocument<ViewDefinition> configDocument = new DefaultConfigDocument<ViewDefinition>();
       configDocument.setName(name);

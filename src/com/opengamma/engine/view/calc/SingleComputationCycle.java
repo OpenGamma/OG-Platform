@@ -34,6 +34,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.PortfolioEvaluationModel;
 import com.opengamma.engine.view.View;
+import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewComputationResultModelImpl;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessingContext;
@@ -361,19 +362,16 @@ public class SingleComputationCycle {
 
     for (String calcConfigurationName : getPortfolioEvaluationModel().getAllCalculationConfigurationNames()) {
       DependencyGraph depGraph = getPortfolioEvaluationModel().getDependencyGraph(calcConfigurationName);
+      ViewCalculationConfiguration calcConfig = getViewDefinition().getCalculationConfiguration(calcConfigurationName);
       
-      if (getViewDefinition().isComputePositionNodeCalculations()) {
+      if (!calcConfig.isPositionOutputsDisabled()) {
         populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.POSITION);
       }
-      if (getViewDefinition().isComputePortfolioNodeCalculations()) {
+      if (!calcConfig.isAggregatePositionOutputsDisabled()) {
         populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.PORTFOLIO_NODE);
       }
-      if (getViewDefinition().isComputeSecurityNodeCalculations()) {
-        populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.SECURITY);
-      }
-      if (getViewDefinition().isComputePrimitiveNodeCalculations()) {
-        populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.PRIMITIVE);
-      }
+      populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.SECURITY);
+      populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.PRIMITIVE);
     }
     
     _endTime = System.nanoTime();

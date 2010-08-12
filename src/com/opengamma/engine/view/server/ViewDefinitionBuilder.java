@@ -16,50 +16,51 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
+import com.opengamma.engine.view.DeltaDefinition;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.msg.UserPrincipal;
 
 /**
- * Fudge message builder for {@code ViewDefinition}.
+ * Fudge message builder for {@link ViewDefinition} and {@link ViewCalculationConfiguration}. 
  */
 public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
 
-  private static final String FIELD_NAME = "name";
-  private static final String FIELD_IDENTIFIER = "identifier";
-  private static final String FIELD_USER = "user";
-  private static final String FIELD_DELTA_RECALC_PERIOD = "deltaRecalcPeriod";
-  private static final String FIELD_FULL_RECALC_PERIOD = "fullRecalcPeriod";
-  private static final String FIELD_CALCULATIONCONFIGURATION = "calculationConfiguration";
-  private static final String FIELD_VALUEREQUIREMENTS = "valueRequirements";
-  private static final String FIELD_COMPUTE_PORTFOLIO_NODE_CALCULATIONS = "computePortfolioNodeCalculations";
-  private static final String FIELD_COMPUTE_POSITION_NODE_CALCULATIONS = "computePositionNodeCalculations";
-  private static final String FIELD_COMPUTE_SECURITY_NODE_CALCULATIONS = "computeSecurityNodeCalculations";
-  private static final String FIELD_COMPUTE_PRIMITIVE_NODE_CALCULATIONS = "computePrimitiveNodeCalculations";
+  private static final String NAME_FIELD = "name";
+  private static final String IDENTIFIER_FIELD = "identifier";
+  private static final String USER_FIELD = "user";
+  private static final String DELTA_RECALC_PERIOD_FIELD = "deltaRecalcPeriod";
+  private static final String FULL_RECALC_PERIOD_FIELD = "fullRecalcPeriod";
+  private static final String CALCULATION_CONFIGURATION_FIELD = "calculationConfiguration";
+  private static final String PORTFOLIO_REQUIREMENTS_BY_SECURITY_TYPE_FIELD = "portfolioRequirementsBySecurityType";
+  private static final String SPECIFIC_REQUIREMENTS_FIELD = "specificRequirements";
+  private static final String DISABLE_POSITION_OUTPUTS_FIELD = "disablePositionOutputs";
+  private static final String DISABLE_AGGREGATE_POSITION_OUTPUTS_FIELD = "disableAggregatePositionOutputs";
+  private static final String DELTA_DEFINITION_FIELD = "deltaDefinition";
 
   @Override
   public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, ViewDefinition viewDefinition) {
-    final MutableFudgeFieldContainer message = context.newMessage();
-    message.add(FIELD_NAME, null, viewDefinition.getName());
-    context.objectToFudgeMsg(message, FIELD_IDENTIFIER, null, viewDefinition.getPortfolioId());
-    context.objectToFudgeMsg(message, FIELD_USER, null, viewDefinition.getLiveDataUser());
+    MutableFudgeFieldContainer message = context.newMessage();
+    message.add(NAME_FIELD, null, viewDefinition.getName());
+    context.objectToFudgeMsg(message, IDENTIFIER_FIELD, null, viewDefinition.getPortfolioId());
+    context.objectToFudgeMsg(message, USER_FIELD, null, viewDefinition.getLiveDataUser());
     if (viewDefinition.getDeltaRecalculationPeriod() != null) {
-      message.add(FIELD_DELTA_RECALC_PERIOD, null, viewDefinition.getDeltaRecalculationPeriod());
+      message.add(DELTA_RECALC_PERIOD_FIELD, null, viewDefinition.getDeltaRecalculationPeriod());
     }
     if (viewDefinition.getFullRecalculationPeriod() != null) {
-      message.add(FIELD_FULL_RECALC_PERIOD, null, viewDefinition.getFullRecalculationPeriod());
+      message.add(FULL_RECALC_PERIOD_FIELD, null, viewDefinition.getFullRecalculationPeriod());
     }
-    message.add(FIELD_COMPUTE_PORTFOLIO_NODE_CALCULATIONS, null, viewDefinition.isComputePortfolioNodeCalculations());
-    message.add(FIELD_COMPUTE_POSITION_NODE_CALCULATIONS, null, viewDefinition.isComputePositionNodeCalculations());
-    message.add(FIELD_COMPUTE_SECURITY_NODE_CALCULATIONS, null, viewDefinition.isComputeSecurityNodeCalculations());
-    message.add(FIELD_COMPUTE_PRIMITIVE_NODE_CALCULATIONS, null, viewDefinition.isComputePrimitiveNodeCalculations());
     Map<String, ViewCalculationConfiguration> calculationConfigurations = viewDefinition.getAllCalculationConfigurationsByName();
-    for (ViewCalculationConfiguration calculationConfiguration : calculationConfigurations.values()) {
-      final MutableFudgeFieldContainer config = context.newMessage();
-      config.add(FIELD_NAME, null, calculationConfiguration.getName());
-      context.objectToFudgeMsg(config, FIELD_VALUEREQUIREMENTS, null, calculationConfiguration.getValueRequirementsBySecurityTypes());
-      message.add(FIELD_CALCULATIONCONFIGURATION, null, config);
+    for (ViewCalculationConfiguration calcConfig : calculationConfigurations.values()) {
+      MutableFudgeFieldContainer calcConfigMsg = context.newMessage();
+      calcConfigMsg.add(NAME_FIELD, null, calcConfig.getName());
+      context.objectToFudgeMsg(calcConfigMsg, PORTFOLIO_REQUIREMENTS_BY_SECURITY_TYPE_FIELD, null, calcConfig.getPortfolioRequirementsBySecurityType());
+      calcConfigMsg.add(DISABLE_POSITION_OUTPUTS_FIELD, null, calcConfig.isPositionOutputsDisabled());
+      calcConfigMsg.add(DISABLE_AGGREGATE_POSITION_OUTPUTS_FIELD, null, calcConfig.isAggregatePositionOutputsDisabled());
+      context.objectToFudgeMsg(calcConfigMsg, SPECIFIC_REQUIREMENTS_FIELD, null, calcConfig.getSpecificRequirements());
+      context.objectToFudgeMsg(calcConfigMsg, DELTA_DEFINITION_FIELD, null, calcConfig.getDeltaDefinition());
+      message.add(CALCULATION_CONFIGURATION_FIELD, null, calcConfigMsg);
     }
     return message;
   }
@@ -67,29 +68,35 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
   @SuppressWarnings("unchecked")
   @Override
   public ViewDefinition buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
-    final ViewDefinition viewDefinition = new ViewDefinition(
-        message.getFieldValue(String.class, message.getByName(FIELD_NAME)),
-        context.fieldValueToObject(UniqueIdentifier.class, message.getByName(FIELD_IDENTIFIER)),
-        context.fieldValueToObject(UserPrincipal.class, message.getByName(FIELD_USER)));
-    if (message.hasField(FIELD_DELTA_RECALC_PERIOD)) {
-      viewDefinition.setDeltaRecalculationPeriod(message.getLong(FIELD_DELTA_RECALC_PERIOD));
+    ViewDefinition viewDefinition = new ViewDefinition(
+        message.getFieldValue(String.class, message.getByName(NAME_FIELD)),
+        context.fieldValueToObject(UniqueIdentifier.class, message.getByName(IDENTIFIER_FIELD)),
+        context.fieldValueToObject(UserPrincipal.class, message.getByName(USER_FIELD)));
+    if (message.hasField(DELTA_RECALC_PERIOD_FIELD)) {
+      viewDefinition.setDeltaRecalculationPeriod(message.getLong(DELTA_RECALC_PERIOD_FIELD));
     }
-    if (message.hasField(FIELD_FULL_RECALC_PERIOD)) {
-      viewDefinition.setFullRecalculationPeriod(message.getLong(FIELD_FULL_RECALC_PERIOD));
+    if (message.hasField(FULL_RECALC_PERIOD_FIELD)) {
+      viewDefinition.setFullRecalculationPeriod(message.getLong(FULL_RECALC_PERIOD_FIELD));
     }
-    viewDefinition.setComputePortfolioNodeCalculations(message.getBoolean(FIELD_COMPUTE_PORTFOLIO_NODE_CALCULATIONS));
-    viewDefinition.setComputePositionNodeCalculations(message.getBoolean(FIELD_COMPUTE_POSITION_NODE_CALCULATIONS));
-    viewDefinition.setComputeSecurityNodeCalculations(message.getBoolean(FIELD_COMPUTE_SECURITY_NODE_CALCULATIONS));
-    viewDefinition.setComputePrimitiveNodeCalculations(message.getBoolean(FIELD_COMPUTE_PRIMITIVE_NODE_CALCULATIONS));
-    final List<FudgeField> calcConfigs = message.getAllByName(FIELD_CALCULATIONCONFIGURATION);
+    List<FudgeField> calcConfigs = message.getAllByName(CALCULATION_CONFIGURATION_FIELD);
     for (FudgeField calcConfigField : calcConfigs) {
-      final FudgeFieldContainer calcConfig = message.getFieldValue(FudgeFieldContainer.class, calcConfigField);
-      final ViewCalculationConfiguration viewCalculationConfiguration = new ViewCalculationConfiguration(viewDefinition, message.getFieldValue(String.class, calcConfig.getByName(FIELD_NAME)));
-      final Map<String, Set<String>> data = context.fieldValueToObject(Map.class, calcConfig.getByName(FIELD_VALUEREQUIREMENTS));
-      for (Map.Entry<String, Set<String>> d : data.entrySet()) {
-        viewCalculationConfiguration.addValueRequirements(d.getKey(), d.getValue());
+      FudgeFieldContainer calcConfigMsg = message.getFieldValue(FudgeFieldContainer.class, calcConfigField);
+      ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, message.getFieldValue(String.class, calcConfigMsg.getByName(NAME_FIELD)));
+      FudgeField portfolioOutputsField = calcConfigMsg.getByName(PORTFOLIO_REQUIREMENTS_BY_SECURITY_TYPE_FIELD);
+      if (portfolioOutputsField != null) {
+        Map<String, Set<String>> data = context.fieldValueToObject(Map.class, portfolioOutputsField);
+        for (Map.Entry<String, Set<String>> d : data.entrySet()) {
+          calcConfig.addPortfolioRequirements(d.getKey(), d.getValue());
+        }
       }
-      viewDefinition.addViewCalculationConfiguration(viewCalculationConfiguration);
+      calcConfig.setPositionOutputsDisabled(calcConfigMsg.getBoolean(DISABLE_POSITION_OUTPUTS_FIELD));
+      calcConfig.setAggregatePositionOutputsDisabled(calcConfigMsg.getBoolean(DISABLE_AGGREGATE_POSITION_OUTPUTS_FIELD));
+      FudgeField specificOutputsField = calcConfigMsg.getByName(SPECIFIC_REQUIREMENTS_FIELD);
+      if (specificOutputsField != null) {
+        calcConfig.addSpecificRequirements(context.fieldValueToObject(Set.class, specificOutputsField));
+      }
+      calcConfig.setDeltaDefinition(context.fieldValueToObject(DeltaDefinition.class, calcConfigMsg.getByName(DELTA_DEFINITION_FIELD)));
+      viewDefinition.addViewCalculationConfiguration(calcConfig);
     }
     return viewDefinition;
   }

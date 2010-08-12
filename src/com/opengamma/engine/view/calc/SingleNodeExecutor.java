@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
@@ -58,6 +59,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor, JobResultRec
         graph.getCalcConfName(),
         _cycle.getValuationTime().toEpochMillisLong(),
         jobId);
+    ViewCalculationConfiguration calcConfig = _cycle.getViewDefinition().getCalculationConfiguration(graph.getCalcConfName());
     
     List<DependencyNode> order = graph.getExecutionOrder();
     
@@ -65,14 +67,14 @@ public class SingleNodeExecutor implements DependencyGraphExecutor, JobResultRec
     Map<CalculationJobItem, DependencyNode> item2Node = new HashMap<CalculationJobItem, DependencyNode>();
     
     for (DependencyNode node : order) {
-      boolean shouldWriteResults = _cycle.getViewDefinition().shouldWriteResults(node.getComputationTarget());
+      boolean outputsDisabled = calcConfig.outputsDisabled(node.getComputationTarget());
       
       CalculationJobItem jobItem = new CalculationJobItem(
           node.getFunctionDefinition().getUniqueIdentifier(),
           node.getComputationTarget().toSpecification(),
           node.getInputValues(), 
           node.getOutputRequirements(),
-          shouldWriteResults);
+          outputsDisabled);
       items.add(jobItem);
       item2Node.put(jobItem, node);
     }
