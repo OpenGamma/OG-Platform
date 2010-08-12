@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -136,6 +135,8 @@ public class JobDispatcher implements JobInvokerRegister {
       }
     } while (true);
   }
+  
+  // TODO The above selection logic and "canInvoke" mechanism for scoring is inefficient for large numbers of invokers. Change to something more sensible when doing ENG-42 properly
 
   public synchronized void dispatchJob(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items, final JobResultReceiver resultReceiver) {
     ArgumentChecker.notNull(jobSpec, "jobSpec");

@@ -14,7 +14,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 /**
- * 
+ * Tests the LocalNodeJobInvoker class
  */
 public class LocalNodeJobInvokerTest implements JobInvokerRegister {
   

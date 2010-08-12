@@ -15,17 +15,18 @@ import java.util.concurrent.Executors;
 /**
  * Invokes jobs on one or more local calculation node implementations.
  */
-public class LocalNodeJobInvoker implements JobInvoker {
+public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContainer<Queue<AbstractCalculationNode>> implements JobInvoker {
 
   private static final int DEFAULT_PRIORITY = 10;
 
-  private final Queue<AbstractCalculationNode> _nodes = new ConcurrentLinkedQueue<AbstractCalculationNode>();
+  // No reason why an invoker couldn't be shared by multiple dispatchers
   private final Queue<JobInvokerRegister> _notifyWhenAvailable = new ConcurrentLinkedQueue<JobInvokerRegister>();
   private final ExecutorService _executorService;
 
   private int _nodePriority = DEFAULT_PRIORITY;
 
   public LocalNodeJobInvoker() {
+    super(new ConcurrentLinkedQueue<AbstractCalculationNode>());
     _executorService = Executors.newCachedThreadPool();
   }
 
@@ -39,8 +40,8 @@ public class LocalNodeJobInvoker implements JobInvoker {
     getNodes().addAll(nodes);
   }
 
-  public void addNode(final AbstractCalculationNode node) {
-    getNodes().add(node);
+  @Override
+  public void onNodeChange() {
     if (_notifyWhenAvailable.isEmpty()) {
       synchronized (this) {
         if (!_notifyWhenAvailable.isEmpty()) {
@@ -58,10 +59,6 @@ public class LocalNodeJobInvoker implements JobInvoker {
 
   public int getNodePriority() {
     return _nodePriority;
-  }
-
-  protected Queue<AbstractCalculationNode> getNodes() {
-    return _nodes;
   }
 
   protected ExecutorService getExecutorService() {

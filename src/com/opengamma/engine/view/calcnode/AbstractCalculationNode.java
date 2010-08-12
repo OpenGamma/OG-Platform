@@ -86,7 +86,8 @@ public abstract class AbstractCalculationNode implements CalculationNode {
   }
 
   public CalculationJobResult executeJob(CalculationJob job) {
-    s_logger.info("Executing {}", job);
+    // DON'T CHECK THIS IN - SHOULD BE INFO
+    s_logger.info("Executing {} on {}", job, _nodeId);
 
     CalculationJobSpecification spec = job.getSpecification();
 
