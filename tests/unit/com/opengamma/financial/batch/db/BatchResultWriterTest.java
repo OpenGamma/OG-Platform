@@ -224,8 +224,8 @@ public class BatchResultWriterTest extends HibernateTest {
     assertEquals(expected.getFunctionUniqueIdentifier(), actual.getFunctionUniqueIdentifier());
     assertEquals(expected.getInputs(), actual.getInputs());
     assertEquals(expected.getOutputs(), actual.getOutputs());
-    assertEquals(true, expected.isWriteResults());
-    assertEquals(false, actual.isWriteResults());
+    assertEquals(false, expected.isOutputsDisabled());
+    assertEquals(true, actual.isOutputsDisabled());
     
     // already successfully executed, AND outputs in cache
     // should not re-execute

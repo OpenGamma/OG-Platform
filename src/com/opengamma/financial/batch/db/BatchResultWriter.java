@@ -473,7 +473,7 @@ public class BatchResultWriter implements ResultWriter, Serializable {
     Date evalInstant = new Date();
     
     for (CalculationJobResultItem item : result.getResultItems()) {
-      if (!item.getItem().isWriteResults()) {
+      if (item.getItem().isOutputsDisabled()) {
         continue;
       }
       
@@ -763,7 +763,7 @@ public class BatchResultWriter implements ResultWriter, Serializable {
 
     for (CalculationJobItem item : job.getJobItems()) {
       
-      if (item.isWriteResults()) {
+      if (!item.isOutputsDisabled()) {
         StatusEntry.Status status = getStatus(job.getSpecification(), item.getComputationTargetSpecification());
         switch (status) {
           case SUCCESS:
