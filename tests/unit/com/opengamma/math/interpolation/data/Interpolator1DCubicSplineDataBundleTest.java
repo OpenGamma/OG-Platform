@@ -10,6 +10,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 
 import com.opengamma.math.function.RealPolynomialFunction1D;
@@ -40,6 +42,16 @@ public class Interpolator1DCubicSplineDataBundleTest {
     new Interpolator1DCubicSplineDataBundle(null);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testSetNegativeIndex() {
+    DATA.setYValueAtIndex(-2, 3);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSetHighIndex() {
+    DATA.setYValueAtIndex(100, 4);
+  }
+
   @Test
   public void testGetters() {
     assertTrue(DATA.containsKey(2.));
@@ -65,15 +77,62 @@ public class Interpolator1DCubicSplineDataBundleTest {
   }
 
   @Test
+  public void testEqualsAndHashCode() {
+    Interpolator1DCubicSplineDataBundle other = new Interpolator1DCubicSplineDataBundle(new ArrayInterpolator1DDataBundle(X, Y));
+    assertEquals(other, DATA);
+    assertEquals(other.hashCode(), DATA.hashCode());
+    other = new Interpolator1DCubicSplineDataBundle(new ArrayInterpolator1DDataBundle(Y, Y));
+    assertFalse(other.equals(DATA));
+    other = new Interpolator1DCubicSplineDataBundle(new ArrayInterpolator1DDataBundle(X, X));
+    assertFalse(other.equals(DATA));
+  }
+
+  @Test
   public void testSecondDerivatives() {
     final double[] y2 = DATA.getSecondDerivatives();
     assertEquals(y2.length, 10);
     assertEquals(y2[0], 0, EPS);
     assertEquals(y2[y2.length - 1], 0, EPS);
+    //TODO finish tests
   }
 
   @Test
   public void testSecondDerivativesSensitivities() {
     //TODO
+  }
+
+  @Test
+  public void testSetYValue() {
+    final int n = X.length;
+    final double[] x = Arrays.copyOf(X, n);
+    final double[] y = Arrays.copyOf(Y, n);
+    Arrays.sort(x);
+    Arrays.sort(y);
+    Interpolator1DCubicSplineDataBundle data1 = new Interpolator1DCubicSplineDataBundle(new ArrayInterpolator1DDataBundle(x, y));
+    Interpolator1DCubicSplineDataBundle data2;
+    final double newY = 120;
+    final double[] yData = Arrays.copyOf(y, n);
+    double[] y21, y22;
+    double[][] dy21, dy22;
+    for (int i = 0; i < n; i++) {
+      yData[i] = newY;
+      data1.setYValueAtIndex(i, newY);
+      data2 = new Interpolator1DCubicSplineDataBundle(new ArrayInterpolator1DDataBundle(x, yData));
+      assertArrayEquals(data1.getKeys(), data2.getKeys(), 0);
+      assertArrayEquals(data1.getValues(), data2.getValues(), 0);
+      y21 = data1.getSecondDerivatives();
+      y22 = data2.getSecondDerivatives();
+      dy21 = data1.getSecondDerivativesSensitivities();
+      dy22 = data2.getSecondDerivativesSensitivities();
+      assertArrayEquals(y21, y22, 0);
+      for (int j = 0; j < n; j++) {
+        for (int k = 0; k < dy21.length; k++) {
+          assertArrayEquals(dy21[k], dy22[k], 0);
+        }
+      }
+      assertEquals(data1, data2);
+      yData[i] = y[i];
+      data1 = new Interpolator1DCubicSplineDataBundle(new ArrayInterpolator1DDataBundle(x, y));
+    }
   }
 }

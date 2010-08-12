@@ -7,6 +7,7 @@ package com.opengamma.math.interpolation.data;
 
 import static com.opengamma.math.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.linearalgebra.TridiagonalMatrix;
@@ -228,4 +229,50 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
     _secondDerivatives = null;
     _secondDerivativesSensitivities = null;
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(_leftFirstDev);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + (_leftNatural ? 1231 : 1237);
+    temp = Double.doubleToLongBits(_rightFirstDev);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + (_rightNatural ? 1231 : 1237);
+    result = prime * result + ((_underlyingData == null) ? 0 : _underlyingData.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final Interpolator1DCubicSplineDataBundle other = (Interpolator1DCubicSplineDataBundle) obj;
+    if (!ObjectUtils.equals(_underlyingData, other._underlyingData)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_leftFirstDev) != Double.doubleToLongBits(other._leftFirstDev)) {
+      return false;
+    }
+    if (_leftNatural != other._leftNatural) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_rightFirstDev) != Double.doubleToLongBits(other._rightFirstDev)) {
+      return false;
+    }
+    if (_rightNatural != other._rightNatural) {
+      return false;
+    }
+    return true;
+  }
+
 }

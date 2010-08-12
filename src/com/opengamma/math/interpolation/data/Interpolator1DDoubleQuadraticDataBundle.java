@@ -5,6 +5,7 @@
  */
 package com.opengamma.math.interpolation.data;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.RealPolynomialFunction1D;
@@ -154,4 +155,28 @@ public class Interpolator1DDoubleQuadraticDataBundle implements Interpolator1DDa
       return;
     }
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_underlyingData == null) ? 0 : _underlyingData.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final Interpolator1DDoubleQuadraticDataBundle other = (Interpolator1DDoubleQuadraticDataBundle) obj;
+    return ObjectUtils.equals(_underlyingData, other._underlyingData);
+  }
+
 }

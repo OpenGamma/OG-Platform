@@ -10,6 +10,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 
 /**
@@ -51,6 +53,16 @@ public abstract class Interpolator1DDataBundleTestCase {
   @Test(expected = IllegalArgumentException.class)
   public void testHighHigherKey() {
     DATA.higherKey(10.);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSetNegativeIndex() {
+    DATA.setYValueAtIndex(-2, 3);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSetHighIndex() {
+    DATA.setYValueAtIndex(100, 4);
   }
 
   @Test
@@ -167,5 +179,24 @@ public abstract class Interpolator1DDataBundleTestCase {
     other = createDataBundle(x, VALUES1);
     assertFalse(DATA.equals(other));
     other = createDataBundle(KEYS1, x);
+  }
+
+  @Test
+  public void testSetYValue() {
+    final int n = KEYS1.length;
+    final double[] x = Arrays.copyOf(KEYS1, n);
+    final double[] y = Arrays.copyOf(VALUES1, n);
+    Arrays.sort(x);
+    Arrays.sort(y);
+    Interpolator1DDataBundle data1 = createDataBundle(x, y);
+    final double newY = 120;
+    final double[] yData = Arrays.copyOf(y, n);
+    for (int i = 0; i < n; i++) {
+      yData[i] = newY;
+      data1.setYValueAtIndex(i, newY);
+      assertEquals(data1, createDataBundle(x, yData));
+      yData[i] = y[i];
+      data1 = createDataBundle(x, y);
+    }
   }
 }

@@ -10,6 +10,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 
 import com.opengamma.math.function.RealPolynomialFunction1D;
@@ -37,7 +39,17 @@ public class Interpolator1DDoubleQuadraticDataBundleTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
-    new Interpolator1DCubicSplineDataBundle(null);
+    new Interpolator1DDoubleQuadraticDataBundle(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSetNegativeIndex() {
+    DATA.setYValueAtIndex(-2, 3);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSetHighIndex() {
+    DATA.setYValueAtIndex(100, 4);
   }
 
   @Test
@@ -65,7 +77,44 @@ public class Interpolator1DDoubleQuadraticDataBundleTest {
   }
 
   @Test
+  public void testEqualsAndHashCode() {
+    Interpolator1DDoubleQuadraticDataBundle other = new Interpolator1DDoubleQuadraticDataBundle(new ArrayInterpolator1DDataBundle(X, Y));
+    assertEquals(other, DATA);
+    assertEquals(other.hashCode(), DATA.hashCode());
+    other = new Interpolator1DDoubleQuadraticDataBundle(new ArrayInterpolator1DDataBundle(Y, Y));
+    assertFalse(other.equals(DATA));
+    other = new Interpolator1DDoubleQuadraticDataBundle(new ArrayInterpolator1DDataBundle(X, X));
+    assertFalse(other.equals(DATA));
+  }
+
+  @Test
   public void testQuadratics() {
     //TODO
+  }
+
+  @Test
+  public void testSetYValue() {
+    final int n = X.length;
+    final double[] x = Arrays.copyOf(X, n);
+    final double[] y = Arrays.copyOf(Y, n);
+    Arrays.sort(x);
+    Arrays.sort(y);
+    Interpolator1DDoubleQuadraticDataBundle data1 = new Interpolator1DDoubleQuadraticDataBundle(new ArrayInterpolator1DDataBundle(x, y));
+    Interpolator1DDoubleQuadraticDataBundle data2;
+    final double newY = 120;
+    final double[] yData = Arrays.copyOf(y, n);
+    for (int i = 0; i < n; i++) {
+      yData[i] = newY;
+      data1.setYValueAtIndex(i, newY);
+      data2 = new Interpolator1DDoubleQuadraticDataBundle(new ArrayInterpolator1DDataBundle(x, yData));
+      assertArrayEquals(data1.getKeys(), data2.getKeys(), 0);
+      assertArrayEquals(data1.getValues(), data2.getValues(), 0);
+      for (int j = 0; j < n - 2; j++) {
+        assertEquals(data1.getQuadratic(j), data2.getQuadratic(j));
+      }
+      assertEquals(data1, data2);
+      yData[i] = y[i];
+      data1 = new Interpolator1DDoubleQuadraticDataBundle(new ArrayInterpolator1DDataBundle(x, y));
+    }
   }
 }
