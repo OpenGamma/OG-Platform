@@ -17,13 +17,17 @@ import com.opengamma.util.ArgumentChecker;
 public final class PagingRequest {
 
   /**
+   * A default size for paging.
+   */
+  private static final int DEFAULT_PAGING_SIZE = 20;
+  /**
    * Singleton constant to request all items (no paging).
    */
   public static final PagingRequest ALL = new PagingRequest(1, Integer.MAX_VALUE);
   /**
-   * A default size for paging.
+   * Singleton constant to request the first page of 20 items.
    */
-  private static final int DEFAULT_PAGING_SIZE = 20;
+  public static final PagingRequest FIRST_PAGE = new PagingRequest(1, DEFAULT_PAGING_SIZE);
 
   /**
    * The requested page.

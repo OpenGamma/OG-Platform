@@ -26,6 +26,9 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
   <bean id="fudgeOutput" class="com.opengamma.transport.jaxrs.FudgeBinaryProducer">
     <property name="fudgeContext" ref="fudgeContext" />
   </bean>
+  <bean id="fudgeObjectInput" class="com.opengamma.transport.jaxrs.FudgeObjectBinaryConsumer">
+    <property name="fudgeContext" ref="fudgeContext" />
+  </bean>
   <bean id="fudgeObjectOutput" class="com.opengamma.transport.jaxrs.FudgeObjectBinaryProducer">
     <property name="fudgeContext" ref="fudgeContext" />
   </bean>
