@@ -461,6 +461,7 @@ public abstract class Greek implements Comparable<Greek> {
     return _name;
   }
 
+  @Override
   public int compareTo(final Greek other) {
     return _name.compareTo(other._name);
   }

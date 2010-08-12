@@ -71,6 +71,7 @@ public class Cash implements InterestRateDerivative {
     return _rate;
   }
 
+  @Override
   public <T> T accept(final InterestRateDerivativeVisitor<T> visitor, final YieldCurveBundle curves) {
     return visitor.visitCash(this, curves);
   }

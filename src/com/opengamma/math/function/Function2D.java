@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 public abstract class Function2D<S, T> implements Function<S, T> {
   private static final Logger s_logger = LoggerFactory.getLogger(Function2D.class);
 
+  @Override
   public T evaluate(final S... x) {
     Validate.notNull(x);
     if (x.length < 2) {

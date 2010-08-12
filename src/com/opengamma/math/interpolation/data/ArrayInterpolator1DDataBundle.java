@@ -54,7 +54,8 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
     }
   }
 
-  private static int partition(final double[] keys, final double[] values, final int left, final int right, final int pivot) {
+  private static int partition(final double[] keys, final double[] values, final int left, final int right,
+      final int pivot) {
     final double pivotValue = keys[pivot];
     swap(keys, values, pivot, right);
     int storeIndex = left;
@@ -122,10 +123,12 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
   @Override
   public int getLowerBoundIndex(final Double value) {
     if (value < _keys[0]) {
-      throw new IllegalArgumentException("Could not get lower bound index for " + value + ": lowest x-value is " + _keys[0]);
+      throw new IllegalArgumentException("Could not get lower bound index for " + value + ": lowest x-value is "
+          + _keys[0]);
     }
     if (value > _keys[_n - 1]) {
-      throw new IllegalArgumentException("Could not get lower bound index for " + value + ": highest x-value is " + _keys[_keys.length - 1]);
+      throw new IllegalArgumentException("Could not get lower bound index for " + value + ": highest x-value is "
+          + _keys[_keys.length - 1]);
     }
     int index = Arrays.binarySearch(_keys, value);
     if (index >= 0) {
@@ -217,6 +220,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
     return true;
   }
 
+  @Override
   public void setYValueAtIndex(final int index, final double y) {
     ArgumentChecker.notNegative(index, "index");
     if (index >= _n) {

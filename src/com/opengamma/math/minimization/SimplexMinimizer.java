@@ -15,6 +15,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public abstract class SimplexMinimizer implements Minimizer<FunctionND<Double, Double>, double[]> {
 
+  @Override
   public double[] minimize(final FunctionND<Double, Double> f, final double[] points1, final double[] points2) {
     return minimize(f, points1);
   }

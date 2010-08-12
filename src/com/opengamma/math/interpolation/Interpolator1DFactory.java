@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * 
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings("rawtypes")
 public final class Interpolator1DFactory {
   /** Linear */
   public static final String LINEAR = "Linear";

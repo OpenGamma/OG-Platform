@@ -14,6 +14,7 @@ import com.opengamma.math.function.RealPolynomialFunction1D;
  */
 public class QuadraticRealRootFinder implements Polynomial1DRootFinder<Double> {
 
+  @Override
   public Double[] getRoots(final RealPolynomialFunction1D function) {
     Validate.notNull(function, "function");
     final double[] coefficients = function.getCoefficients();

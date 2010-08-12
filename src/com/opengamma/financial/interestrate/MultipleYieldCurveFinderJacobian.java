@@ -51,7 +51,7 @@ public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
     int numberOfNodes;
     double[] unknownCurveNodePoints;
     for (final String name : curveNames) {
-      final Interpolator1D interpolator = _data.getInterpolatorForCurve(name);
+      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator = _data.getInterpolatorForCurve(name);
       unknownCurveNodePoints = _data.getCurveNodePointsForCurve(name);
       numberOfNodes = unknownCurveNodePoints.length;
       final double[] yields = Arrays.copyOfRange(x.getData(), index, index + numberOfNodes);
@@ -73,6 +73,7 @@ public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
         if (senseMap.containsKey(name)) {
           final InterpolatedYieldAndDiscountCurve curve = (InterpolatedYieldAndDiscountCurve) curves.getCurve(name);
           final Interpolator1DDataBundle data = curve.getDataBundles().values().iterator().next();
+          @SuppressWarnings("rawtypes")
           final Interpolator1DNodeSensitivityCalculator sensitivityCalculator = _data.getSensitivityCalculatorForName(name);
           final List<Pair<Double, Double>> senseList = senseMap.get(name);
           final double[][] sensitivity = new double[senseList.size()][];

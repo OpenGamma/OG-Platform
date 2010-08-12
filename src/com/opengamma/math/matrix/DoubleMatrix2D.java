@@ -78,6 +78,7 @@ public class DoubleMatrix2D implements Matrix<Double> {
     return _data;
   }
 
+  @Override
   public int getNumberOfElements() {
     return _elements;
   }

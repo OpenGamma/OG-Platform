@@ -80,7 +80,8 @@ public class MultiInstrumentSingleCurveBootStrapTest {
   private static final DoubleMatrix1D X0;
 
   private static final InterestRateDerivativeVisitor<Double> CALCULATOR = PresentValueCalculator.getInstance();
-  private static final InterestRateDerivativeVisitor<Map<String, List<Pair<Double, Double>>>> SENSITIVITY_CALCULATOR = PresentValueSensitivityCalculator.getInstance();
+  private static final InterestRateDerivativeVisitor<Map<String, List<Pair<Double, Double>>>> SENSITIVITY_CALCULATOR = PresentValueSensitivityCalculator
+      .getInstance();
   private static final ParRateCalculator RATE_CALCULATOR = ParRateCalculator.getInstance();
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> SINGLE_CURVE_FINDER;
   private static final JacobianCalculator SINGLE_CURVE_JACOBIAN;
@@ -105,14 +106,17 @@ public class MultiInstrumentSingleCurveBootStrapTest {
   };
 
   static {
-    EXTRAPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
-    EXTRAPOLATOR_WITH_SENSITIVITY = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, false);
+    EXTRAPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR,
+        FLAT_EXTRAPOLATOR);
+    EXTRAPOLATOR_WITH_SENSITIVITY = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
+        .getSensitivityCalculator(DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, false);
     INSTRUMENTS = new ArrayList<InterestRateDerivative>();
 
     final double[] liborMaturities = new double[] {1. / 12, 2. / 12, 3. / 12}; //
     final double[] fraMaturities = new double[] {0.5, 0.75};
     final double[] cashMaturities = new double[] {1. / 365, 1. / 52, 2. / 52.};
-    final double[] swapMaturities = new double[] {1.00, 2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15, 20.00277778, 25.00555556, 30.00555556, 35.00833333, 50.01388889};
+    final double[] swapMaturities = new double[] {1.00, 2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15,
+        20.00277778, 25.00555556, 30.00555556, 35.00833333, 50.01388889};
 
     final int nNodes = liborMaturities.length + fraMaturities.length + cashMaturities.length + swapMaturities.length;
 
@@ -163,7 +167,6 @@ public class MultiInstrumentSingleCurveBootStrapTest {
     for (final double t : fraMaturities) {
       ird = new ForwardRateAgreement(t - 0.25, t, 0.0, CURVE_NAME, CURVE_NAME);
       rate = RATE_CALCULATOR.getValue(ird, bundle);
-      System.out.println("Strike: " + rate);
       ird = new ForwardRateAgreement(t - 0.25, t, rate, CURVE_NAME, CURVE_NAME);
       INSTRUMENTS.add(ird);
       MARKET_VALUES[index++] = rate;
@@ -197,7 +200,8 @@ public class MultiInstrumentSingleCurveBootStrapTest {
     unknownCurveInterpolators.put(CURVE_NAME, EXTRAPOLATOR);
     unknownCurveNodes.put(CURVE_NAME, NODE_TIMES);
     unknownCurveNodeSensitivityCalculators.put(CURVE_NAME, EXTRAPOLATOR_WITH_SENSITIVITY);
-    final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(INSTRUMENTS, null, unknownCurveNodes, unknownCurveInterpolators, unknownCurveNodeSensitivityCalculators);
+    final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(INSTRUMENTS, null,
+        unknownCurveNodes, unknownCurveInterpolators, unknownCurveNodeSensitivityCalculators);
     SINGLE_CURVE_FINDER = new MultipleYieldCurveFinderFunction(data, CALCULATOR);
     SINGLE_CURVE_JACOBIAN = new MultipleYieldCurveFinderJacobian(data, SENSITIVITY_CALCULATOR);
   }
@@ -229,7 +233,8 @@ public class MultiInstrumentSingleCurveBootStrapTest {
     assertMatrixEquals(jacExact, jacFD, 1e-5);
   }
 
-  private void doHotSpot(final VectorRootFinder rootFinder, final String name, final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor) {
+  private void doHotSpot(final VectorRootFinder rootFinder, final String name,
+      final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor) {
     for (int i = 0; i < HOTSPOT_WARMUP_CYCLES; i++) {
       doTest(rootFinder, functor);
     }
@@ -252,16 +257,19 @@ public class MultiInstrumentSingleCurveBootStrapTest {
     }
   }
 
-  private static YieldAndDiscountCurve makeYieldCurve(final double[] yields, final double[] times, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+  private static YieldAndDiscountCurve makeYieldCurve(final double[] yields, final double[] times,
+      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
     return new InterpolatedYieldCurve(times, yields, interpolator);
   }
 
-  private static FixedFloatSwap setupSwap(final double time, final double swapRate, final String fundCurveName, final String liborCurveName) {
+  private static FixedFloatSwap setupSwap(final double time, final double swapRate, final String fundCurveName,
+      final String liborCurveName) {
     final int index = (int) Math.round(2 * time);
     return setupSwap(index, swapRate, fundCurveName, liborCurveName);
   }
 
-  private static FixedFloatSwap setupSwap(final int payments, final double swapRate, final String fundCurveName, final String liborCurveName) {
+  private static FixedFloatSwap setupSwap(final int payments, final double swapRate, final String fundCurveName,
+      final String liborCurveName) {
     final double[] fixed = new double[payments];
 
     final double[] floating = new double[2 * payments];
@@ -280,7 +288,8 @@ public class MultiInstrumentSingleCurveBootStrapTest {
       deltaEnd[i] = sigma * (RANDOM.nextDouble() - 0.5);
     }
     final ConstantCouponAnnuity fixedLeg = new ConstantCouponAnnuity(fixed, swapRate, fundCurveName);
-    final VariableAnnuity floatingLeg = new VariableAnnuity(floating, 1.0, deltaStart, deltaEnd, fundCurveName, liborCurveName);
+    final VariableAnnuity floatingLeg = new VariableAnnuity(floating, 1.0, deltaStart, deltaEnd, fundCurveName,
+        liborCurveName);
     return new FixedFloatSwap(fixedLeg, floatingLeg);
   }
 
