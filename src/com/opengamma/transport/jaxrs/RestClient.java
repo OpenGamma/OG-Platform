@@ -165,7 +165,6 @@ public class RestClient {
       final int sc = resp.getStatusLine().getStatusCode();
       if (sc >= 200 && sc < 300) {
         if (sc == 204) {
-          resp.getEntity().consumeContent(); // Is this necessary/correct ?
           return FudgeContext.EMPTY_MESSAGE_ENVELOPE;
         } else {
           return decodeResponse(resp);

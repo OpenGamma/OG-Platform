@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,10 @@ public abstract class AbstractSocketProcess implements Lifecycle {
    */
   public void setInetAddress(InetAddress inetAddress) {
     _inetAddress = inetAddress;
+  }
+
+  public void setAddress(final String host) throws UnknownHostException {
+    setInetAddress(InetAddress.getByName(host));
   }
 
   /**
