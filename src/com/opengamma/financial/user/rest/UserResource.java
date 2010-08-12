@@ -14,7 +14,7 @@ import com.opengamma.util.ArgumentChecker;
  * Temporary RESTful resource representing a user, at the moment purely to provide access to the resource representing
  * a user's clients.
  */
-@Path("/users/{username}")
+@Path("/data/users/{username}")
 public class UserResource {
 
   private final UsersResource _usersResource;
