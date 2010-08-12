@@ -22,13 +22,15 @@ public class MultipleYieldCurveFinderFunction extends Function1D<DoubleMatrix1D,
   private final InterestRateDerivativeVisitor<Double> _calculator;
   private final MultipleYieldCurveFinderDataBundle _data;
 
-  public MultipleYieldCurveFinderFunction(final MultipleYieldCurveFinderDataBundle data, final InterestRateDerivativeVisitor<Double> calculator) {
+  public MultipleYieldCurveFinderFunction(final MultipleYieldCurveFinderDataBundle data,
+      final InterestRateDerivativeVisitor<Double> calculator) {
     Validate.notNull(data, "data");
     Validate.notNull(calculator, "calculator");
     _calculator = calculator;
     _data = data;
   }
 
+  @SuppressWarnings({"rawtypes", "unchecked" })
   @Override
   public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
     Validate.notNull(x);
