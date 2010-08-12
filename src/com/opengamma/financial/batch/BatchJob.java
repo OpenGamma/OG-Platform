@@ -56,11 +56,10 @@ import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessingContext;
 import com.opengamma.engine.view.cache.MapViewComputationCacheSource;
-import com.opengamma.engine.view.calc.BatchExecutorFactory;
-import com.opengamma.engine.view.calcnode.CalculationNodeRequestReceiver;
-import com.opengamma.engine.view.calcnode.FudgeJobRequestSender;
-import com.opengamma.engine.view.calcnode.JobRequestSender;
-import com.opengamma.engine.view.calcnode.ResultWriterFactory;
+import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
+import com.opengamma.engine.view.calcnode.JobDispatcher;
+import com.opengamma.engine.view.calcnode.LocalCalculationNode;
+import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.financial.position.master.MasterPositionSource;
@@ -70,7 +69,6 @@ import com.opengamma.financial.security.SecurityMaster;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.InMemoryRequestConduit;
-import com.opengamma.util.InetAddressUtils;
 import com.opengamma.util.MongoDBConnectionSettings;
 import com.opengamma.util.NamedThreadPoolFactory;
 
@@ -614,27 +612,29 @@ public class BatchJob implements Job {
     FunctionCompilationContext compilationContext = new FunctionCompilationContext();
     compilationContext.setSecuritySource(securitySource);
     
-    ResultWriterFactory resultWriterFactory = getBatchDbManager().createResultWriterFactory(this);
-    
     ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
-    CalculationNodeRequestReceiver calcRequestReceiver = new CalculationNodeRequestReceiver(cacheFactory, 
-        getFunctionRepository(), 
-        executionContext, 
-        targetResolver, 
-        viewProcessorQuerySender,
-        resultWriterFactory,
-        InetAddressUtils.getLocalHostName());
-    JobRequestSender calcRequestSender = new FudgeJobRequestSender(InMemoryRequestConduit.create(calcRequestReceiver),
-        resultWriterFactory,
-        null);
+    LocalNodeJobInvoker localNode = new LocalNodeJobInvoker(new LocalCalculationNode(cacheFactory, getFunctionRepository(), executionContext, targetResolver, viewProcessorQuerySender));
+    JobDispatcher jobDispatcher = new JobDispatcher(localNode);
     
     ThreadFactory threadFactory = new NamedThreadPoolFactory("BatchJob-" + System.currentTimeMillis(), true);
     ThreadPoolExecutor executor = new ThreadPoolExecutor(0, 1, 5L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), threadFactory);
     
-    ViewProcessingContext vpc = new ViewProcessingContext(new PermissiveLiveDataEntitlementChecker(), snapshotProvider, snapshotProvider, getFunctionRepository(), new DefaultFunctionResolver(
-        getFunctionRepository()), positionSource, securitySource, cacheFactory, calcRequestSender, viewProcessorQueryReceiver, compilationContext, executor, new BatchExecutorFactory(),
-        resultWriterFactory);
+    DependencyGraphExecutorFactory dependencyGraphExecutorFactory = getBatchDbManager().createDependencyGraphExecutorFactory(this);
+    
+    ViewProcessingContext vpc = new ViewProcessingContext(
+        new PermissiveLiveDataEntitlementChecker(), 
+        snapshotProvider, snapshotProvider, 
+        getFunctionRepository(), 
+        new DefaultFunctionResolver(getFunctionRepository()), 
+        positionSource, 
+        securitySource, 
+        cacheFactory, 
+        jobDispatcher, 
+        viewProcessorQueryReceiver, 
+        compilationContext, 
+        executor,
+        dependencyGraphExecutorFactory);
     
     _view = new View(viewDefinitionDoc.getValue(), vpc);
     _view.setPopulateResultModel(false);

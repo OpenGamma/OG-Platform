@@ -21,10 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.position.master.PortfolioTree;
+import com.opengamma.financial.position.master.ManageablePortfolio;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
-import com.opengamma.financial.position.master.PortfolioTreeNode;
-import com.opengamma.financial.position.master.PortfolioTreePosition;
+import com.opengamma.financial.position.master.ManageablePortfolioNode;
+import com.opengamma.financial.position.master.ManageablePosition;
 import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricRequest;
 import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricResult;
 import com.opengamma.financial.position.master.PositionDocument;
@@ -74,7 +74,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerUpdatePortfolioTreeTest ex
 
   @Test(expected = NullPointerException.class)
   public void test_updatePortfolioTree_noPortfolioTreeId() {
-    PortfolioTree position = new PortfolioTree("Test");
+    ManageablePortfolio position = new ManageablePortfolio("Test");
     PortfolioTreeDocument doc = new PortfolioTreeDocument();
     doc.setPortfolio(position);
     _worker.updatePortfolioTree(doc);
@@ -89,18 +89,18 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerUpdatePortfolioTreeTest ex
 
   @Test(expected = DataNotFoundException.class)
   public void test_updatePortfolioTree_notFound() {
-    PortfolioTree port = new PortfolioTree("Test");
+    ManageablePortfolio port = new ManageablePortfolio("Test");
     port.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "0", "0"));
-    port.setRootNode(new PortfolioTreeNode("Root"));
+    port.setRootNode(new ManageablePortfolioNode("Root"));
     PortfolioTreeDocument doc = new PortfolioTreeDocument(port);
     _worker.updatePortfolioTree(doc);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void test_updatePortfolioTree_notLatestVersion() {
-    PortfolioTree port = new PortfolioTree("Test");
+    ManageablePortfolio port = new ManageablePortfolio("Test");
     port.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "201", "0"));
-    port.setRootNode(new PortfolioTreeNode("Root"));
+    port.setRootNode(new ManageablePortfolioNode("Root"));
     PortfolioTreeDocument doc = new PortfolioTreeDocument(port);
     _worker.updatePortfolioTree(doc);
   }
@@ -111,7 +111,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerUpdatePortfolioTreeTest ex
     
     UniqueIdentifier oldPortfolioId = UniqueIdentifier.of("DbPos", "101", "0");
     PortfolioTreeDocument base = _queryWorker.getPortfolioTree(oldPortfolioId);
-    PortfolioTree port = new PortfolioTree("NewName");
+    ManageablePortfolio port = new ManageablePortfolio("NewName");
     port.setUniqueIdentifier(oldPortfolioId);
     port.setRootNode(base.getPortfolio().getRootNode());
     PortfolioTreeDocument input = new PortfolioTreeDocument(port);
@@ -167,7 +167,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerUpdatePortfolioTreeTest ex
     assertEquals(2, oldPositions.getDocuments().size());
     
     PortfolioTreeDocument doc = _queryWorker.getPortfolioTree(uid);
-    PortfolioTreeNode rootNode = doc.getPortfolio().getRootNode();
+    ManageablePortfolioNode rootNode = doc.getPortfolio().getRootNode();
     rootNode.removeNode(UniqueIdentifier.of("DbPos", "112"));
     _worker.updatePortfolioTree(doc);
     
@@ -181,7 +181,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerUpdatePortfolioTreeTest ex
     Instant now = Instant.now(_posMaster.getTimeSource());
     
     _posMaster.setTimeSource(TimeSource.fixed(now.minusSeconds(5)));
-    PositionDocument addDoc = new PositionDocument(new PortfolioTreePosition(BigDecimal.TEN, Identifier.of("A", "B")));
+    PositionDocument addDoc = new PositionDocument(new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B")));
     addDoc.setParentNodeId(UniqueIdentifier.of("DbPos", "113", "0"));
     addDoc = _posMaster.addPosition(addDoc);
     _posMaster.setTimeSource(TimeSource.fixed(now));

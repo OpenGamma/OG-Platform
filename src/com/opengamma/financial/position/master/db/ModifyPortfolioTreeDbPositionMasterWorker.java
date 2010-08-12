@@ -19,7 +19,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
-import com.opengamma.financial.position.master.PortfolioTreeNode;
+import com.opengamma.financial.position.master.ManageablePortfolioNode;
 import com.opengamma.id.UniqueIdentifiables;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -182,7 +182,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
    * @param argsList  the list of arguments to build, not null
    */
   protected void insertBuildArgs(
-      final PortfolioTreeNode node, final boolean update, final Long portfolioId, final Long portfolioOid, final Long parentNodeId,
+      final ManageablePortfolioNode node, final boolean update, final Long portfolioId, final Long portfolioOid, final Long parentNodeId,
       final AtomicInteger counter, final int depth, final List<DbMapSqlParameterSource> argsList) {
     // need to insert parent before children for referential integrity
     final Long nodeId = nextId();
@@ -198,7 +198,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
     argsList.add(treeArgs);
     // store the left/right before/after the child loop and back fill into stored args row
     treeArgs.addValue("tree_left", counter.getAndIncrement());
-    for (PortfolioTreeNode childNode : node.getChildNodes()) {
+    for (ManageablePortfolioNode childNode : node.getChildNodes()) {
       insertBuildArgs(childNode, update, portfolioId, portfolioOid, nodeId, counter, depth + 1, argsList);
     }
     treeArgs.addValue("tree_right", counter.getAndIncrement());

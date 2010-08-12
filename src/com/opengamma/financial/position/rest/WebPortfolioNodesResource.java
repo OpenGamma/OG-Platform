@@ -17,18 +17,18 @@ import com.opengamma.util.ArgumentChecker;
  * RESTful resource for all nodes in a portfolio.
  */
 @Path("/portfolios/{portfolioUid}/nodes")
-public class PortfolioNodesResource {
+public class WebPortfolioNodesResource {
 
   /**
    * The portfolio resource.
    */
-  private final PortfolioResource _portfolioResource;
+  private final WebPortfolioResource _portfolioResource;
 
   /**
    * Creates the resource.
    * @param portfolioResource  the parent resource, not null
    */
-  public PortfolioNodesResource(final PortfolioResource portfolioResource) {
+  public WebPortfolioNodesResource(final WebPortfolioResource portfolioResource) {
     ArgumentChecker.notNull(portfolioResource, "PortfolioResource");
     _portfolioResource = portfolioResource;
   }
@@ -38,7 +38,7 @@ public class PortfolioNodesResource {
    * Gets the portfolio resource.
    * @return the portfolio resource, not null
    */
-  public PortfolioResource getPortfolioResource() {
+  public WebPortfolioResource getPortfolioResource() {
     return _portfolioResource;
   }
 
@@ -60,9 +60,9 @@ public class PortfolioNodesResource {
 
   //-------------------------------------------------------------------------
   @Path("{nodeUid}")
-  public PortfolioNodeResource findNode(@PathParam("nodeUid") String uidStr) {
+  public WebPortfolioNodeResource findNode(@PathParam("nodeUid") String uidStr) {
     UniqueIdentifier uid = UniqueIdentifier.parse(uidStr);
-    return new PortfolioNodeResource(this, uid);
+    return new WebPortfolioNodeResource(this, uid);
   }
 
 }

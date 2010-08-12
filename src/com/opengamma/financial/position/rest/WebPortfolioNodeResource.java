@@ -18,12 +18,12 @@ import com.opengamma.util.ArgumentChecker;
  * RESTful resource for a node in a portfolio.
  */
 @Path("/portfolios/{portfolioUid}/nodes/{nodeUid}")
-public class PortfolioNodeResource {
+public class WebPortfolioNodeResource {
 
   /**
    * The positions resource.
    */
-  private final PortfolioNodesResource _nodesResource;
+  private final WebPortfolioNodesResource _nodesResource;
   /**
    * The position unique identifier.
    */
@@ -34,7 +34,7 @@ public class PortfolioNodeResource {
    * @param nodesResource  the parent resource, not null
    * @param nodeUid  the node unique identifier, not null
    */
-  public PortfolioNodeResource(final PortfolioNodesResource nodesResource, final UniqueIdentifier nodeUid) {
+  public WebPortfolioNodeResource(final WebPortfolioNodesResource nodesResource, final UniqueIdentifier nodeUid) {
     ArgumentChecker.notNull(nodesResource, "nodesResource");
     ArgumentChecker.notNull(nodeUid, "node");
     _nodesResource = nodesResource;
@@ -46,7 +46,7 @@ public class PortfolioNodeResource {
    * Gets the nodes resource.
    * @return the nodes resource, not null
    */
-  public PortfolioNodesResource getPortfolioNodesResource() {
+  public WebPortfolioNodesResource getPortfolioNodesResource() {
     return _nodesResource;
   }
 
@@ -64,7 +64,7 @@ public class PortfolioNodeResource {
    * @return the unique identifier, not null
    */
   public UniqueIdentifier getPortfolioUid() {
-    return getPortfolioNodesResource().getPortfolioResource().getPortfolioUid();
+    return getPortfolioNodesResource().getPortfolioResource().getUrlPortfolioId();
   }
 
   /**
@@ -254,8 +254,8 @@ public class PortfolioNodeResource {
 
   //-------------------------------------------------------------------------
   @Path("positions")
-  public PositionsResource findPositions() {
-    return new PositionsResource(getPortfolioNodesResource().getPortfolioResource());
+  public WebPositionsResource findPositions() {
+    return new WebPositionsResource(getPortfolioNodesResource().getPortfolioResource());
   }
 
   //-------------------------------------------------------------------------
@@ -267,7 +267,7 @@ public class PortfolioNodeResource {
    * @return the URI, not null
    */
   public static URI uri(UriInfo uriInfo, UniqueIdentifier portfolioUid, UniqueIdentifier nodeUid) {
-    return uriInfo.getBaseUriBuilder().path(PortfolioNodeResource.class).build(portfolioUid.toLatest(), nodeUid);
+    return uriInfo.getBaseUriBuilder().path(WebPortfolioNodeResource.class).build(portfolioUid.toLatest(), nodeUid);
   }
 
 }

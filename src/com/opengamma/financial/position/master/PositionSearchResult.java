@@ -15,7 +15,6 @@ import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.PropertyReadWrite;
 import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
@@ -36,8 +35,8 @@ public class PositionSearchResult extends DirectBean {
   /**
    * The list of matched position documents.
    */
-  @PropertyDefinition(readWrite = PropertyReadWrite.READ_ONLY)
-  private List<PositionDocument> _documents = new ArrayList<PositionDocument>();
+  @PropertyDefinition
+  private final List<PositionDocument> _documents = new ArrayList<PositionDocument>();
 
   /**
    * Creates an instance.
@@ -50,8 +49,8 @@ public class PositionSearchResult extends DirectBean {
    * Gets the returned positions from within the documents.
    * @return the positions, not null
    */
-  public List<PortfolioTreePosition> getPositions() {
-    List<PortfolioTreePosition> result = new ArrayList<PortfolioTreePosition>();
+  public List<ManageablePosition> getPositions() {
+    List<ManageablePosition> result = new ArrayList<ManageablePosition>();
     if (_documents != null) {
       for (PositionDocument doc : _documents) {
         result.add(doc.getPosition());
@@ -72,7 +71,7 @@ public class PositionSearchResult extends DirectBean {
    * Gets the first position, or null if no documents.
    * @return the first position, null if none
    */
-  public PortfolioTreePosition getFirstPosition() {
+  public ManageablePosition getFirstPosition() {
     return getDocuments().size() > 0 ? getDocuments().get(0).getPosition() : null;
   }
 
@@ -101,6 +100,7 @@ public class PositionSearchResult extends DirectBean {
     return super.propertyGet(propertyName);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
@@ -108,7 +108,8 @@ public class PositionSearchResult extends DirectBean {
         setPaging((Paging) newValue);
         return;
       case 943542968:  // documents
-        throw new UnsupportedOperationException("Property cannot be written: documents");
+        setDocuments((List<PositionDocument>) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue);
   }
@@ -148,6 +149,15 @@ public class PositionSearchResult extends DirectBean {
   }
 
   /**
+   * Sets the list of matched position documents.
+   * @param documents  the new value of the property
+   */
+  public void setDocuments(List<PositionDocument> documents) {
+    this._documents.clear();
+    this._documents.addAll(documents);
+  }
+
+  /**
    * Gets the the {@code documents} property.
    * @return the property, not null
    */
@@ -173,7 +183,7 @@ public class PositionSearchResult extends DirectBean {
      * The meta-property for the {@code documents} property.
      */
     @SuppressWarnings("unchecked")
-    private final MetaProperty<List<PositionDocument>> _documents = DirectMetaProperty.ofReadOnly(this, "documents", (Class) List.class);
+    private final MetaProperty<List<PositionDocument>> _documents = DirectMetaProperty.ofReadWrite(this, "documents", (Class) List.class);
     /**
      * The meta-properties.
      */
