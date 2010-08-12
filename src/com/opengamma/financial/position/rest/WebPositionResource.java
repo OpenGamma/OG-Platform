@@ -35,12 +35,12 @@ import com.opengamma.util.ArgumentChecker;
  * RESTful resource for a postion in a portfolio.
  */
 @Path("/portfolios/{portfolioUid}/positions/{positionUid}")
-public class PositionResource {
+public class WebPositionResource {
 
   /**
    * The positions resource.
    */
-  private final PositionsResource _positionsResource;
+  private final WebPositionsResource _positionsResource;
   /**
    * The position unique identifier.
    */
@@ -51,7 +51,7 @@ public class PositionResource {
    * @param positionsResource  the parent resource, not null
    * @param positionUid  the position unique identifier, not null
    */
-  public PositionResource(final PositionsResource positionsResource, final UniqueIdentifier positionUid) {
+  public WebPositionResource(final WebPositionsResource positionsResource, final UniqueIdentifier positionUid) {
     ArgumentChecker.notNull(positionsResource, "PositionsResource");
     ArgumentChecker.notNull(positionUid, "position");
     _positionsResource = positionsResource;
@@ -63,7 +63,7 @@ public class PositionResource {
    * Gets the positions resource.
    * @return the positions resource, not null
    */
-  public PositionsResource getPositionsResource() {
+  public WebPositionsResource getPositionsResource() {
     return _positionsResource;
   }
 
@@ -123,7 +123,7 @@ public class PositionResource {
       "Quantity: " + doc.getPosition().getQuantity() + "<br />" +
       "Security: " + doc.getPosition().getSecurityKey() + "</p>";
     
-    URI uri = PositionResource.uri(getUriInfo(), getPortfolioUid(), doc.getPositionId());
+    URI uri = WebPositionResource.uri(getUriInfo(), getPortfolioUid(), doc.getPositionId());
     Identifier identifier = doc.getPosition().getSecurityKey().getIdentifiers().iterator().next();
     html += "<h2>Update position</h2>\n" +
       "<form method=\"POST\" action=\"" + uri + "\">" +
@@ -142,9 +142,9 @@ public class PositionResource {
     
     html += "<h2>Links</h2>\n" +
       "<p>" +
-      "<a href=\"" + PortfolioNodeResource.uri(getUriInfo(), doc.getPortfolioId(), doc.getParentNodeId().toLatest()) + "\">Parent node</a><br />" +
-      "<a href=\"" + PortfolioResource.uri(getUriInfo(), doc.getPortfolioId().toLatest()) + "\">Portfolio</a><br />" +
-      "<a href=\"" + PortfoliosResource.uri(getUriInfo()) + "\">Portfolio search</a><br />" +
+      "<a href=\"" + WebPortfolioNodeResource.uri(getUriInfo(), doc.getPortfolioId(), doc.getParentNodeId().toLatest()) + "\">Parent node</a><br />" +
+      "<a href=\"" + WebPortfolioResource.uri(getUriInfo(), doc.getPortfolioId().toLatest()) + "\">Portfolio</a><br />" +
+      "<a href=\"" + WebPortfoliosResource.uri(getUriInfo()) + "\">Portfolio search</a><br />" +
       "</body>" +
       "</html>";
     return html;
@@ -170,14 +170,14 @@ public class PositionResource {
     position.setQuantity(quantity);
     position.setSecurityKey(new IdentifierBundle(Identifier.of(scheme, schemeValue)));
     doc = getPositionMaster().updatePosition(doc);
-    URI uri = PositionResource.uri(getUriInfo(), getPortfolioUid(), doc.getPositionId().toLatest());
+    URI uri = WebPositionResource.uri(getUriInfo(), getPortfolioUid(), doc.getPositionId().toLatest());
     return Response.seeOther(uri).build();
   }
 
   public Response remove() {
     PositionDocument doc = getPositionMaster().getPosition(getPositionUid());
     getPositionMaster().removePosition(getPositionUid());
-    URI uri = PortfolioNodeResource.uri(getUriInfo(), getPortfolioUid(), doc.getParentNodeId().toLatest());
+    URI uri = WebPortfolioNodeResource.uri(getUriInfo(), getPortfolioUid(), doc.getParentNodeId().toLatest());
     return Response.seeOther(uri).build();
   }
 
@@ -190,7 +190,7 @@ public class PositionResource {
    * @return the URI, not null
    */
   public static URI uri(UriInfo uriInfo, UniqueIdentifier portfolioUid, UniqueIdentifier positionUid) {
-    return uriInfo.getBaseUriBuilder().path(PositionResource.class).build(portfolioUid.toLatest(), positionUid);
+    return uriInfo.getBaseUriBuilder().path(WebPositionResource.class).build(portfolioUid.toLatest(), positionUid);
   }
 
 }
