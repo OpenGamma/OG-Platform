@@ -8,7 +8,7 @@ namespace com.opengamma.engine.view.cache {
 
   message RemoteCacheMessage {
   
-    long correlationId;
+    optional long correlationId;
     
     binding Java {
       methods "toString,hashCode,equals";

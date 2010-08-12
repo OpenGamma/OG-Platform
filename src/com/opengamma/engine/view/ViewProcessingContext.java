@@ -19,8 +19,7 @@ import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
-import com.opengamma.engine.view.calcnode.JobRequestSender;
-import com.opengamma.engine.view.calcnode.ResultWriterFactory;
+import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
 import com.opengamma.util.ArgumentChecker;
@@ -38,13 +37,12 @@ public class ViewProcessingContext {
   private final PositionSource _positionSource;
   private final SecuritySource _securitySource;
   private final ViewComputationCacheSource _computationCacheSource;
-  private final JobRequestSender _computationJobRequestSender;
+  private final JobDispatcher _computationJobDispatcher;
   private final ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
   private final ComputationTargetResolver _computationTargetResolver;
   private final FunctionCompilationContext _compilationContext;
   private final ExecutorService _executorService;
   private final DependencyGraphExecutorFactory _dependencyGraphExecutorFactory;
-  private final ResultWriterFactory _resultWriterFactory;
 
   public ViewProcessingContext(
       LiveDataEntitlementChecker liveDataEntitlementChecker,
@@ -55,12 +53,11 @@ public class ViewProcessingContext {
       PositionSource positionSource,
       SecuritySource securitySource,
       ViewComputationCacheSource computationCacheSource,
-      JobRequestSender computationJobRequestSender,
+      JobDispatcher computationJobDispatcher,
       ViewProcessorQueryReceiver viewProcessorQueryReceiver,
       FunctionCompilationContext compilationContext,
       ExecutorService executorService,
-      DependencyGraphExecutorFactory dependencyGraphExecutorFactory,
-      ResultWriterFactory resultWriterFactory) {
+      DependencyGraphExecutorFactory dependencyGraphExecutorFactory) {
     ArgumentChecker.notNull(liveDataEntitlementChecker, "liveDataEntitlementChecker");
     ArgumentChecker.notNull(liveDataAvailabilityProvider, "liveDataAvailabilityProvider");
     ArgumentChecker.notNull(liveDataSnapshotProvider, "liveDataSnapshotProvider");
@@ -69,12 +66,11 @@ public class ViewProcessingContext {
     ArgumentChecker.notNull(positionSource, "positionSource");
     ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notNull(computationCacheSource, "computationCacheSource");
-    ArgumentChecker.notNull(computationJobRequestSender, "computationJobRequestSender");
+    ArgumentChecker.notNull(computationJobDispatcher, "computationJobDispatcher");
     ArgumentChecker.notNull(viewProcessorQueryReceiver, "viewProcessorQueryReceiver");
     ArgumentChecker.notNull(compilationContext, "compilationContext");
     ArgumentChecker.notNull(executorService, "executorService");
     ArgumentChecker.notNull(dependencyGraphExecutorFactory, "dependencyGraphExecutorFactory");
-    ArgumentChecker.notNull(resultWriterFactory, "resultWriterFactory");
     
     _liveDataEntitlementChecker = liveDataEntitlementChecker;
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
@@ -84,12 +80,11 @@ public class ViewProcessingContext {
     _positionSource = positionSource;
     _securitySource = securitySource;
     _computationCacheSource = computationCacheSource;
-    _computationJobRequestSender = computationJobRequestSender;
+    _computationJobDispatcher = computationJobDispatcher;
     _viewProcessorQueryReceiver = viewProcessorQueryReceiver;
     _compilationContext = compilationContext;
     _executorService = executorService;
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
-    _resultWriterFactory = resultWriterFactory;
     
     // REVIEW kirk 2010-05-22 -- This isn't the right place to wrap this.
     _computationTargetResolver = new CachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource));
@@ -161,11 +156,11 @@ public class ViewProcessingContext {
   }
 
   /**
-   * Gets the computation job request sender.
-   * @return the computation job request sender, not null
+   * Gets the computation job dispatcher.
+   * @return the computation job dispatcher, not null
    */
-  public JobRequestSender getComputationJobRequestSender() {
-    return _computationJobRequestSender;
+  public JobDispatcher getComputationJobDispatcher() {
+    return _computationJobDispatcher;
   }
 
   /**
@@ -207,10 +202,6 @@ public class ViewProcessingContext {
     return _dependencyGraphExecutorFactory;
   }
   
-  public ResultWriterFactory getResultWriterFactory() {
-    return _resultWriterFactory;
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Converts this context to a {@code ViewCompliationServices}.

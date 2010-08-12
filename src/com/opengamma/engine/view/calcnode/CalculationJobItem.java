@@ -7,12 +7,11 @@ package com.opengamma.engine.view.calcnode;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
@@ -32,25 +31,21 @@ public class CalculationJobItem {
   private static final String FUNCTION_UNIQUE_ID_FIELD_NAME = "functionUniqueIdentifier";
   private static final String INPUT_FIELD_NAME = "valueInput";
   private static final String DESIRED_VALUE_FIELD_NAME = "desiredValue";
-  private static final String OUTPUTS_DISABLED_FIELD_NAME = "outputsDisabled";
   
   private final String _functionUniqueIdentifier;
   private final ComputationTargetSpecification _computationTargetSpecification;
   private final Set<ValueSpecification> _inputs = new HashSet<ValueSpecification>();
   private final Set<ValueRequirement> _desiredValues = new HashSet<ValueRequirement>();
-  private final boolean _outputsDisabled;
   
   public CalculationJobItem(
       String functionUniqueIdentifier,
       ComputationTargetSpecification computationTargetSpecification,
       Collection<ValueSpecification> inputs,
-      Collection<ValueRequirement> desiredValues,
-      boolean outputsDisabled) {
+      Collection<ValueRequirement> desiredValues) {
     _functionUniqueIdentifier = functionUniqueIdentifier;
     _computationTargetSpecification = computationTargetSpecification;
     _inputs.addAll(inputs);
     _desiredValues.addAll(desiredValues);
-    _outputsDisabled = outputsDisabled;
   }
   
   /**
@@ -64,7 +59,7 @@ public class CalculationJobItem {
    * @return the inputs
    */
   public Set<ValueSpecification> getInputs() {
-    return _inputs;
+    return Collections.unmodifiableSet(_inputs);
   }
   
   /**
@@ -78,11 +73,7 @@ public class CalculationJobItem {
    * @return the desiredValues
    */
   public Set<ValueRequirement> getDesiredValues() {
-    return _desiredValues;
-  }
-  
-  public boolean isOutputsDisabled() {
-    return _outputsDisabled;
+    return Collections.unmodifiableSet(_desiredValues);
   }
   
   public Set<ValueSpecification> getOutputs() {
@@ -92,7 +83,7 @@ public class CalculationJobItem {
     }
     return outputs;
   }
-
+  
   public FudgeFieldContainer toFudgeMsg(FudgeSerializationContext fudgeContext) {
     MutableFudgeFieldContainer msg = fudgeContext.newMessage();
     
@@ -107,8 +98,6 @@ public class CalculationJobItem {
       desiredValue.toFudgeMsg(fudgeContext, valueMsg);
       msg.add(DESIRED_VALUE_FIELD_NAME, valueMsg);
     }
-    
-    msg.add(OUTPUTS_DISABLED_FIELD_NAME, isOutputsDisabled());
     
     return msg;
   }
@@ -131,13 +120,10 @@ public class CalculationJobItem {
       desiredValues.add(desiredValue);
     }
     
-    boolean outputsDisabled = msg.getBoolean(OUTPUTS_DISABLED_FIELD_NAME);
-    
     return new CalculationJobItem(functionUniqueId, 
         computationTargetSpecification, 
         inputs, 
-        desiredValues,
-        outputsDisabled);
+        desiredValues);
   }
   
   @Override
@@ -148,14 +134,4 @@ public class CalculationJobItem {
       .toString();
   }
   
-  @Override
-  public int hashCode() {
-    return HashCodeBuilder.reflectionHashCode(this);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    return EqualsBuilder.reflectionEquals(this, obj);
-  }
-
 }

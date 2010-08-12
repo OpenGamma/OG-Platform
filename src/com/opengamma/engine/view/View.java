@@ -275,6 +275,7 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     deltaModel.setValuationTime(result.getValuationTime());
     deltaModel.setResultTimestamp(result.getResultTimestamp());
     deltaModel.setPreviousResultTimestamp(previousResult.getResultTimestamp());
+    deltaModel.setCalculationConfigurationNames(result.getCalculationConfigurationNames());
     for (ComputationTargetSpecification targetSpec : result.getAllTargets()) {
       computeDeltaModel(deltaModel, targetSpec, previousResult, result);
     }

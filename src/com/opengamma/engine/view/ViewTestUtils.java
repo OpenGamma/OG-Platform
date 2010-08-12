@@ -24,10 +24,9 @@ import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.security.MockSecuritySource;
 import com.opengamma.engine.view.cache.MapViewComputationCacheSource;
 import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
-import com.opengamma.engine.view.calcnode.CalculationNodeRequestReceiver;
-import com.opengamma.engine.view.calcnode.DummyResultWriterFactory;
-import com.opengamma.engine.view.calcnode.FudgeJobRequestSender;
-import com.opengamma.engine.view.calcnode.JobRequestSender;
+import com.opengamma.engine.view.calcnode.JobDispatcher;
+import com.opengamma.engine.view.calcnode.LocalCalculationNode;
+import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.id.UniqueIdentifier;
@@ -58,8 +57,8 @@ public class ViewTestUtils {
     
     ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
-    CalculationNodeRequestReceiver calcRequestReceiver = new CalculationNodeRequestReceiver(cacheFactory, functionRepo, executionContext, targetResolver, viewProcessorQuerySender);
-    JobRequestSender calcRequestSender = new FudgeJobRequestSender(InMemoryRequestConduit.create(calcRequestReceiver));
+    LocalCalculationNode localNode = new LocalCalculationNode(cacheFactory, functionRepo, executionContext, targetResolver, viewProcessorQuerySender);
+    JobDispatcher jobDispatcher = new JobDispatcher (new LocalNodeJobInvoker (localNode));
     
     ThreadFactory threadFactory = new NamedThreadPoolFactory("ViewTestUtils-" + System.currentTimeMillis(), true);
     ThreadPoolExecutor executor = new ThreadPoolExecutor(0, 1, 5l, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), threadFactory);
@@ -73,12 +72,11 @@ public class ViewTestUtils {
         positionSource, 
         securitySource, 
         cacheFactory, 
-        calcRequestSender, 
+        jobDispatcher, 
         viewProcessorQueryReceiver,
         new FunctionCompilationContext(), 
         executor,
-        new SingleNodeExecutorFactory(),
-        new DummyResultWriterFactory());
+        new SingleNodeExecutorFactory());
     
     ViewDefinition viewDefinition = new ViewDefinition("mock_view", portfolioId, "ViewTestUser");
 

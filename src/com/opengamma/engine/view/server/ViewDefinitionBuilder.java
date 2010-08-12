@@ -17,6 +17,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.view.DeltaDefinition;
+import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueIdentifier;
@@ -32,6 +33,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
   private static final String USER_FIELD = "user";
   private static final String DELTA_RECALC_PERIOD_FIELD = "deltaRecalcPeriod";
   private static final String FULL_RECALC_PERIOD_FIELD = "fullRecalcPeriod";
+  private static final String RESULT_MODEL_DEFINITION_FIELD = "resultModelDefinition";
   private static final String CALCULATION_CONFIGURATION_FIELD = "calculationConfiguration";
   private static final String PORTFOLIO_REQUIREMENTS_BY_SECURITY_TYPE_FIELD = "portfolioRequirementsBySecurityType";
   private static final String SPECIFIC_REQUIREMENTS_FIELD = "specificRequirements";
@@ -45,6 +47,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
     message.add(NAME_FIELD, null, viewDefinition.getName());
     context.objectToFudgeMsg(message, IDENTIFIER_FIELD, null, viewDefinition.getPortfolioId());
     context.objectToFudgeMsg(message, USER_FIELD, null, viewDefinition.getLiveDataUser());
+    context.objectToFudgeMsg(message, RESULT_MODEL_DEFINITION_FIELD, null, viewDefinition.getResultModelDefinition());
     if (viewDefinition.getDeltaRecalculationPeriod() != null) {
       message.add(DELTA_RECALC_PERIOD_FIELD, null, viewDefinition.getDeltaRecalculationPeriod());
     }
@@ -71,7 +74,8 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
     ViewDefinition viewDefinition = new ViewDefinition(
         message.getFieldValue(String.class, message.getByName(NAME_FIELD)),
         context.fieldValueToObject(UniqueIdentifier.class, message.getByName(IDENTIFIER_FIELD)),
-        context.fieldValueToObject(UserPrincipal.class, message.getByName(USER_FIELD)));
+        context.fieldValueToObject(UserPrincipal.class, message.getByName(USER_FIELD)),
+        context.fieldValueToObject(ResultModelDefinition.class, message.getByName(RESULT_MODEL_DEFINITION_FIELD))));
     if (message.hasField(DELTA_RECALC_PERIOD_FIELD)) {
       viewDefinition.setDeltaRecalculationPeriod(message.getLong(DELTA_RECALC_PERIOD_FIELD));
     }

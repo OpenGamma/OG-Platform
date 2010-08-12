@@ -59,8 +59,7 @@ public class AbstractCalculationNodeTest {
     return fn;
   }
   
-  public static CalculationJob getCalculationJob(MockFunction function,
-      ResultWriter resultWriter) {
+  public static CalculationJob getCalculationJob(MockFunction function) {
     
     long iterationTimestamp = System.currentTimeMillis();
     CalculationJobSpecification jobSpec = new CalculationJobSpecification("view", CALC_CONF_NAME, iterationTimestamp, 1L);
@@ -69,9 +68,8 @@ public class AbstractCalculationNodeTest {
         function.getUniqueIdentifier(), 
         function.getTarget().toSpecification(), 
         Sets.newHashSet(new ValueSpecification(function.getRequirement())), 
-        Sets.newHashSet(function.getResultSpec().getRequirementSpecification()),
-        true);
-    CalculationJob calcJob = new CalculationJob(jobSpec, Collections.singletonList(calculationJobItem), resultWriter);
+        Sets.newHashSet(function.getResultSpec().getRequirementSpecification()));
+    CalculationJob calcJob = new CalculationJob(jobSpec, Collections.singletonList(calculationJobItem));
     return calcJob;
   }
   
@@ -80,7 +78,7 @@ public class AbstractCalculationNodeTest {
     
     MockFunction mockFunction = getMockFunction();
     TestCalculationNode calcNode = getTestCalcNode(mockFunction);
-    CalculationJob calcJob = getCalculationJob(mockFunction, new DummyResultWriter());
+    CalculationJob calcJob = getCalculationJob(mockFunction);
     
     long startTime = System.nanoTime();
     CalculationJobResult jobResult = calcNode.executeJob(calcJob);
@@ -91,14 +89,14 @@ public class AbstractCalculationNodeTest {
     assertEquals(1, jobResult.getResultItems().size());
     CalculationJobResultItem resultItem = jobResult.getResultItems().get(0);
     assertEquals(calcJob.getJobItems().get(0), resultItem.getItem());
-    assertEquals(InvocationResult.ERROR, resultItem.getResult());
+    assertEquals(InvocationResult.MISSING_INPUTS, resultItem.getResult());
   }
 
   @Test
   public void mockFunctionInvocationOneInputOneOutput() {
     MockFunction mockFunction = getMockFunction();
     TestCalculationNode calcNode = getTestCalcNode(mockFunction);
-    CalculationJob calcJob = getCalculationJob(mockFunction, new DummyResultWriter());
+    CalculationJob calcJob = getCalculationJob(mockFunction);
     
     ValueSpecification inputSpec = new ValueSpecification(mockFunction.getRequirement());
     ComputedValue inputValue = new ComputedValue(inputSpec, "Just an input object");

@@ -9,6 +9,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import org.fudgemsg.FudgeContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +34,8 @@ public class RemoteViewComputationCacheSourceTest {
   
   @Before
   public void setupCacheSource() {
-    RemoteCacheServer server = new RemoteCacheServer();
+    MapViewComputationCacheSource cache = new MapViewComputationCacheSource (FudgeContext.GLOBAL_DEFAULT);
+    RemoteCacheServer server = new RemoteCacheServer(cache);
     FudgeRequestSender conduit = InMemoryRequestConduit.create(server);
     RemoteCacheClient client = new RemoteCacheClient(conduit);
     RemoteViewComputationCacheSource cacheSource = new RemoteViewComputationCacheSource(client);

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.fudgemsg.FudgeContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +48,8 @@ public class ServerSocketRemoteViewComputationCacheTest {
   
   @Before
   public void setupCacheSource() throws UnknownHostException {
-    RemoteCacheServer server = new RemoteCacheServer();
+    MapViewComputationCacheSource cache = new MapViewComputationCacheSource (FudgeContext.GLOBAL_DEFAULT);
+    RemoteCacheServer server = new RemoteCacheServer(cache);
     _serverSocketDispatcher = new ServerSocketFudgeRequestDispatcher(server);
     _serverSocketDispatcher.start();
     

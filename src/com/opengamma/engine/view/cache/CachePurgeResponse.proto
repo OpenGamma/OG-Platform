@@ -8,7 +8,7 @@ namespace com.opengamma.engine.view.cache {
 
   message CachePurgeResponse extends RemoteCacheMessage {
   
-    int numPurged;
+    // No additional data
     
     binding Java {
       methods "toString";

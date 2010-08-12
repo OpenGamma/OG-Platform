@@ -30,6 +30,8 @@ public class ViewDefinition implements Serializable {
   private final UniqueIdentifier _portfolioId;
   private final UserPrincipal _liveDataUser;
   
+  private final ResultModelDefinition _resultModelDefinition;
+  
   /** 
    * A delta recomputation of the view should be performed at this interval.
    * Milliseconds.
@@ -61,21 +63,13 @@ public class ViewDefinition implements Serializable {
   public ViewDefinition(String name, UniqueIdentifier portfolioId, String userName) {
     ArgumentChecker.notNull(name, "View name");
     ArgumentChecker.notNull(portfolioId, "Portfolio id");
-    ArgumentChecker.notNull(userName, "User name");
-    
-    _name = name;
-    _portfolioId = portfolioId;
-    _liveDataUser = UserPrincipal.getLocalUser(userName);
-  }
-  
-  public ViewDefinition(String name, UniqueIdentifier portfolioId, UserPrincipal liveDataUser) {
-    ArgumentChecker.notNull(name, "View name");
-    ArgumentChecker.notNull(portfolioId, "Portfolio id");
     ArgumentChecker.notNull(liveDataUser, "User name");
+    ArgumentChecker.notNull(resultModelDefinition, "Result model definition");
     
     _name = name;
     _portfolioId = portfolioId;
     _liveDataUser = liveDataUser;
+    _resultModelDefinition = resultModelDefinition;
   }
   
   /**
@@ -186,6 +180,10 @@ public class ViewDefinition implements Serializable {
   public void setFullRecalculationPeriod(Long fullRecalculationPeriod) {
     _fullRecalculationPeriod = fullRecalculationPeriod;
   }
+  
+  public ResultModelDefinition getResultModelDefinition() {
+    return _resultModelDefinition;
+  }
 
   @Override
   public int hashCode() {
@@ -210,6 +208,7 @@ public class ViewDefinition implements Serializable {
     ViewDefinition other = (ViewDefinition) obj;
     boolean basicPropertiesEqual = ObjectUtils.equals(getName(), other.getName()) 
       && ObjectUtils.equals(getPortfolioId(), other.getPortfolioId())
+      && ObjectUtils.equals(getResultModelDefinition(), other.getResultModelDefinition())
       && ObjectUtils.equals(getLiveDataUser(), other.getLiveDataUser())
       && ObjectUtils.equals(_deltaRecalculationPeriod, other._deltaRecalculationPeriod)
       && ObjectUtils.equals(_fullRecalculationPeriod, other._fullRecalculationPeriod)

@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.fudgemsg.FudgeContext;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +46,8 @@ public class RemoteCacheRequestResponseTest {
   
   @Test(timeout=10000l)
   public void singleThreadSpecLookupDifferentIdentifierValues() {
-    RemoteCacheServer server = new RemoteCacheServer();
+    MapViewComputationCacheSource cache = new MapViewComputationCacheSource (FudgeContext.GLOBAL_DEFAULT);
+    RemoteCacheServer server = new RemoteCacheServer(cache);
     FudgeRequestSender conduit = InMemoryRequestConduit.create(server);
     RemoteCacheClient client = new RemoteCacheClient(conduit);
     
@@ -61,7 +63,8 @@ public class RemoteCacheRequestResponseTest {
   
   @Test(timeout=10000l)
   public void singleThreadLookupDifferentIdentifierValuesRepeated() {
-    RemoteCacheServer server = new RemoteCacheServer();
+    MapViewComputationCacheSource cache = new MapViewComputationCacheSource (FudgeContext.GLOBAL_DEFAULT);
+    RemoteCacheServer server = new RemoteCacheServer(cache);
     FudgeRequestSender conduit = InMemoryRequestConduit.create(server);
     RemoteCacheClient client = new RemoteCacheClient(conduit);
 
@@ -83,7 +86,8 @@ public class RemoteCacheRequestResponseTest {
   
   @Test(timeout=30000l)
   public void multiThreadLookupDifferentIdentifierValuesRepeatedSharedClient() throws InterruptedException {
-    RemoteCacheServer server = new RemoteCacheServer();
+    MapViewComputationCacheSource cache = new MapViewComputationCacheSource (FudgeContext.GLOBAL_DEFAULT);
+    RemoteCacheServer server = new RemoteCacheServer(cache);
     FudgeRequestSender conduit = InMemoryRequestConduit.create(server);
     final RemoteCacheClient client = new RemoteCacheClient(conduit);
 
@@ -125,7 +129,8 @@ public class RemoteCacheRequestResponseTest {
 
   @Test(timeout=30000l)
   public void multiThreadLookupDifferentIdentifierValuesRepeatedDifferentClient() throws InterruptedException {
-    RemoteCacheServer server = new RemoteCacheServer();
+    MapViewComputationCacheSource cache = new MapViewComputationCacheSource (FudgeContext.GLOBAL_DEFAULT);
+    RemoteCacheServer server = new RemoteCacheServer(cache);
     final FudgeRequestSender conduit = InMemoryRequestConduit.create(server);
 
     final ConcurrentMap<String, Long> _idsByValueName = new ConcurrentHashMap<String, Long>();
@@ -169,7 +174,8 @@ public class RemoteCacheRequestResponseTest {
   //@Test(timeout=10000l)
   @Test
   public void singleThreadPutLoad() throws InterruptedException {
-    RemoteCacheServer server = new RemoteCacheServer();
+    MapViewComputationCacheSource cache = new MapViewComputationCacheSource (FudgeContext.GLOBAL_DEFAULT);
+    RemoteCacheServer server = new RemoteCacheServer(cache);
     FudgeRequestSender conduit = InMemoryRequestConduit.create(server);
     RemoteCacheClient client = new RemoteCacheClient(conduit);
     ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", "Value"))));
@@ -208,8 +214,9 @@ public class RemoteCacheRequestResponseTest {
   }
 
   @Test(timeout=10000l)
-  public void singleThreadPutLoadPurgeCalcConfigSpecifiedLoad() throws InterruptedException {
-    RemoteCacheServer server = new RemoteCacheServer();
+  public void singleThreadPutLoadPurgeLoad() throws InterruptedException {
+    MapViewComputationCacheSource cache = new MapViewComputationCacheSource (FudgeContext.GLOBAL_DEFAULT);
+    RemoteCacheServer server = new RemoteCacheServer(cache);
     FudgeRequestSender conduit = InMemoryRequestConduit.create(server);
     RemoteCacheClient client = new RemoteCacheClient(conduit);
     ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", "Value"))));
@@ -223,32 +230,10 @@ public class RemoteCacheRequestResponseTest {
     result.release ();
     assertNotNull(resultValue);
     
-    assertEquals (1, client.purgeCache("View1", "Config1", timestamp));
+    client.purgeCache("View1", timestamp);
     result = client.getValue("View1", "Config1", timestamp, valueSpec);
     resultValue = result.getResult ().getValue ();
     assertNull(resultValue);
   }
 
-  @Test(timeout=10000l)
-  public void singleThreadPutLoadPurgeCalcConfigUnspecifiedLoad() throws InterruptedException {
-    RemoteCacheServer server = new RemoteCacheServer();
-    FudgeRequestSender conduit = InMemoryRequestConduit.create(server);
-    RemoteCacheClient client = new RemoteCacheClient(conduit);
-    ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", "Value"))));
-    ComputedValue inputValue = new ComputedValue(valueSpec, 2.0);
-    
-    long timestamp = System.currentTimeMillis();
-    client.putValue("View1", "Config1", timestamp, inputValue);
-    
-    OperationResult<ValueLookupResponse> result = client.getValue("View1", "Config1", timestamp, valueSpec);
-    Object resultValue = result.getResult ().getValue ();
-    result.release ();
-    assertNotNull(resultValue);
-    
-    assertEquals (1, client.purgeCache("View1", null, timestamp));
-    result = client.getValue("View1", "Config1", timestamp, valueSpec);
-    resultValue = result.getResult ().getValue ();
-    result.release ();
-    assertNull(resultValue);
-  }
 }
