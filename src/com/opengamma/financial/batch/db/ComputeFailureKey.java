@@ -22,16 +22,11 @@ public class ComputeFailureKey {
   public ComputeFailureKey(String functionId,
       String exceptionClass,
       String exceptionMsg,
-      StackTraceElement[] stackTrace) {
+      String stackTrace) {
     _functionId = functionId;
     _exceptionClass = exceptionClass;
     _exceptionMsg = exceptionMsg.substring(0, Math.min(exceptionMsg.length(), 255));
-    
-    StringBuffer buffer = new StringBuffer();
-    for (StackTraceElement element : stackTrace) {
-      buffer.append(element.toString() + "\n");
-    }
-    _stackTrace = buffer.substring(0, Math.min(buffer.length(), 2000));
+    _stackTrace = stackTrace.substring(0, Math.min(stackTrace.length(), 2000));
   }
   
   public String getFunctionId() {
