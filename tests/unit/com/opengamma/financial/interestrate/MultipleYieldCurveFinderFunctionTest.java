@@ -63,26 +63,6 @@ public class MultipleYieldCurveFinderFunctionTest {
     FINDER = new MultipleYieldCurveFinderFunction(DATA, CALCULATOR);
   }
 
-  //  @Test(expected = IllegalArgumentException.class)
-  //  public void testNullDerivatives() {
-  //    new MultipleYieldCurveFinderFunction(null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS, null, CALCULATOR);
-  //  }
-  //
-  //  @Test(expected = IllegalArgumentException.class)
-  //  public void testNullNodes() {
-  //    new MultipleYieldCurveFinderFunction(DERIVATIVES, null, INTERPOLATORS, SENSITIVITY_CALCULATORS, null, CALCULATOR);
-  //  }
-  //
-  //  @Test(expected = IllegalArgumentException.class)
-  //  public void testNullInterpolators() {
-  //    new MultipleYieldCurveFinderFunction(DERIVATIVES, NODES, null, SENSITIVITY_CALCULATORS, null, CALCULATOR);
-  //  }
-  //
-  //  @Test(expected = IllegalArgumentException.class)
-  //  public void testNullSensitivityCalculators() {
-  //    new MultipleYieldCurveFinderFunction(DERIVATIVES, NODES, INTERPOLATORS, null, null, CALCULATOR);
-  //  }
-
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
     new MultipleYieldCurveFinderFunction(null, CALCULATOR);
@@ -92,19 +72,6 @@ public class MultipleYieldCurveFinderFunctionTest {
   public void testNullCalculator() {
     new MultipleYieldCurveFinderFunction(DATA, null);
   }
-
-  //  @Test(expected = IllegalArgumentException.class)
-  //  public void testNameClash() {
-  //    final YieldCurveBundle bundle = new YieldCurveBundle();
-  //    final YieldAndDiscountCurve curve = new ConstantYieldCurve(0.05);
-  //    bundle.setCurve(CURVE_NAME, curve);
-  //    new MultipleYieldCurveFinderFunction(DERIVATIVES, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS, bundle, CALCULATOR);
-  //  }
-  //
-  //  @Test(expected = IllegalArgumentException.class)
-  //  public void testEmptyDerivatives() {
-  //    new MultipleYieldCurveFinderFunction(new ArrayList<InterestRateDerivative>(), NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS, null, CALCULATOR);
-  //  }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullVector() {

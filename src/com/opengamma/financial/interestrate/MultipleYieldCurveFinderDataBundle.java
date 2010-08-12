@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -68,6 +69,9 @@ public class MultipleYieldCurveFinderDataBundle {
       if (name1 != name2 || name1 != name3) {
         throw new IllegalArgumentException("Names must be the same");
       }
+      Validate.notNull(unknownCurveNodePoints.get(name1), "curve node points for " + name1);
+      Validate.notNull(unknownCurveInterpolators.get(name1), "interpolator for " + name1);
+      Validate.notNull(unknownCurveNodeSensitivityCalculators.get(name1), "sensitivity calculator for " + name1);
       _names.add(name1);
     }
     int nNodes = 0;
@@ -112,20 +116,74 @@ public class MultipleYieldCurveFinderDataBundle {
 
   public double[] getCurveNodePointsForCurve(final String name) {
     Validate.notNull(name, "name");
-    return _unknownCurveNodePoints.get(name);
+    final double[] result = _unknownCurveNodePoints.get(name);
+    if (result == null) {
+      throw new IllegalArgumentException("Data for name " + name + " not found");
+    }
+    return result;
   }
 
   public Interpolator1D<? extends Interpolator1DDataBundle> getInterpolatorForCurve(final String name) {
     Validate.notNull(name, "name");
-    return _unknownCurveInterpolators.get(name);
+    final Interpolator1D<? extends Interpolator1DDataBundle> result = _unknownCurveInterpolators.get(name);
+    if (result == null) {
+      throw new IllegalArgumentException("Data for name " + name + " not found");
+    }
+    return result;
   }
 
   public Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> getSensitivityCalculatorForName(final String name) {
     Validate.notNull(name, "name");
-    return _unknownCurveNodeSensitivityCalculators.get(name);
+    final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> result = _unknownCurveNodeSensitivityCalculators.get(name);
+    if (result == null) {
+      throw new IllegalArgumentException("Data for name " + name + " not found");
+    }
+    return result;
   }
 
   public List<String> getCurveNames() {
     return _names;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_derivatives == null) ? 0 : _derivatives.hashCode());
+    result = prime * result + ((_knownCurves == null) ? 0 : _knownCurves.hashCode());
+    result = prime * result + ((_unknownCurveInterpolators == null) ? 0 : _unknownCurveInterpolators.hashCode());
+    result = prime * result + ((_unknownCurveNodePoints == null) ? 0 : _unknownCurveNodePoints.hashCode());
+    result = prime * result + ((_unknownCurveNodeSensitivityCalculators == null) ? 0 : _unknownCurveNodeSensitivityCalculators.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final MultipleYieldCurveFinderDataBundle other = (MultipleYieldCurveFinderDataBundle) obj;
+    if (!ObjectUtils.equals(_derivatives, other._derivatives)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_knownCurves, other._knownCurves)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_unknownCurveInterpolators, other._unknownCurveInterpolators)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_unknownCurveNodePoints, other._unknownCurveNodePoints)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_unknownCurveNodeSensitivityCalculators, other._unknownCurveNodeSensitivityCalculators)) {
+      return false;
+    }
+    return true;
   }
 }

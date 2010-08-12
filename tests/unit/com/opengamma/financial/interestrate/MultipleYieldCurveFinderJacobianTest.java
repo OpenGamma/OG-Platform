@@ -144,12 +144,6 @@ public class MultipleYieldCurveFinderJacobianTest {
     CASH_ONLY.evaluate(XN, (Function1D<DoubleMatrix1D, DoubleMatrix1D>[]) null);
   }
 
-  //  @Test(expected = IllegalArgumentException.class)
-  //  public void testCurveAlreadyPresent() {    
-  //    new MultipleYieldCurveFinderJacobian(CASH, MIXED_NODES, MIXED_INTERPOLATORS, MIXED_SENSITIVITY_CALCULATOR, new YieldCurveBundle(Collections.<String, YieldAndDiscountCurve> singletonMap(
-  //        FUNDING_CURVE_NAME, new ConstantYieldCurve(2.))), SENSITIVITY_CALCULATOR);
-  //  }
-
   @Test
   public void testCashOnly() {
     final DoubleMatrix2D jacobian = CASH_ONLY.evaluate(XM, (Function1D<DoubleMatrix1D, DoubleMatrix1D>[]) null);
