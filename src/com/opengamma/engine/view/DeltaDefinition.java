@@ -73,9 +73,11 @@ public class DeltaDefinition {
    */
   public FudgeFieldContainer toFudgeMsg(FudgeSerializationContext fudgeContext) {
     MutableFudgeFieldContainer msg = fudgeContext.newMessage();
-    MutableFudgeFieldContainer numberComparerMsg = fudgeContext.objectToFudgeMsg(_numberComparer);
-    FudgeSerializationContext.addClassHeader(numberComparerMsg, _numberComparer.getClass());
-    msg.add(NUMBER_COMPARER_FIELD, numberComparerMsg);
+    if (_numberComparer != null) {
+      MutableFudgeFieldContainer numberComparerMsg = fudgeContext.objectToFudgeMsg(_numberComparer);
+      FudgeSerializationContext.addClassHeader(numberComparerMsg, _numberComparer.getClass());
+      msg.add(NUMBER_COMPARER_FIELD, numberComparerMsg);
+    }
     return msg;
   }
   
