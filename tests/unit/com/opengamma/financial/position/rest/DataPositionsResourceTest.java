@@ -7,6 +7,7 @@ package com.opengamma.financial.position.rest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -51,9 +52,9 @@ public class DataPositionsResourceTest {
     
     final PositionSearchResult result = new PositionSearchResult();
     result.setPaging(new Paging(1, 20, 0));
-    when(_underlying.searchPositions(same(request))).thenReturn(result);
+    when(_underlying.searchPositions(eq(request))).thenReturn(result);
     
-    PositionSearchResult test = _resource.get(request);
+    PositionSearchResult test = _resource.get(1, 20, BigDecimal.TEN, null);
     assertSame(result, test);
   }
 

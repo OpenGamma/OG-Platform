@@ -93,12 +93,11 @@ public class DataPositionResource {
   @PUT
   @Consumes(FudgeRest.MEDIA)
   @Produces(FudgeRest.MEDIA)
-  public Response put(PositionDocument request) {
+  public PositionDocument put(PositionDocument request) {
     if (getUrlPositionId().equals(request.getPositionId()) == false) {
       throw new IllegalArgumentException("Document positionId does not match URL");
     }
-    PositionDocument result = getPositionMaster().updatePosition(request);
-    return Response.ok(result).build();
+    return getPositionMaster().updatePosition(request);
   }
 
   @DELETE

@@ -7,12 +7,12 @@ package com.opengamma.financial.position.rest;
 
 import java.net.URI;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
@@ -31,7 +31,6 @@ import com.opengamma.util.db.PagingRequest;
  * The portfolios resource represents the whole of a position master.
  */
 @Path("/data/portfolios")
-@Consumes(FudgeRest.MEDIA)
 @Produces(FudgeRest.MEDIA)
 public class DataPortfoliosResource {
 
@@ -83,23 +82,16 @@ public class DataPortfoliosResource {
   }
 
   //-------------------------------------------------------------------------
-//  @GET
-//  @Produces(FudgeRest.MEDIA)
-//  public PortfolioTreeSearchResult get(
-//      @QueryParam("page") int page,
-//      @QueryParam("pageSize") int pageSize,
-//      @QueryParam("name") String name) {
-//    final PortfolioTreeSearchRequest request = new PortfolioTreeSearchRequest();
-//    request.setPagingRequest(PagingRequest.of(page, pageSize));
-//    request.setName(StringUtils.trimToNull(name));
-//    return getPositionMaster().searchPortfolioTrees(request);
-//  }
   @GET
-  public PortfolioTreeSearchResult get(PortfolioTreeSearchRequest request) {
-    if (request == null) {
-      request = new PortfolioTreeSearchRequest();
-      request.setPagingRequest(PagingRequest.FIRST_PAGE);
-    }
+  public PortfolioTreeSearchResult get(
+      @QueryParam("page") int page,
+      @QueryParam("pageSize") int pageSize,
+      @QueryParam("name") String name,
+      @QueryParam("depth") int depth) {
+    final PortfolioTreeSearchRequest request = new PortfolioTreeSearchRequest();
+    request.setPagingRequest(PagingRequest.of(page, pageSize));
+    request.setName(name);
+    request.setDepth(depth);
     return getPositionMaster().searchPortfolioTrees(request);
   }
 

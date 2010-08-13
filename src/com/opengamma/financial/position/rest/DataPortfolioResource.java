@@ -93,12 +93,11 @@ public class DataPortfolioResource {
   @PUT
   @Consumes(FudgeRest.MEDIA)
   @Produces(FudgeRest.MEDIA)
-  public Response put(PortfolioTreeDocument request) {
+  public PortfolioTreeDocument put(PortfolioTreeDocument request) {
     if (getUrlPortfolioId().equals(request.getPortfolioId()) == false) {
       throw new IllegalArgumentException("Document portfolioId does not match URL");
     }
-    PortfolioTreeDocument result = getPositionMaster().updatePortfolioTree(request);
-    return Response.ok(result).build();
+    return getPositionMaster().updatePortfolioTree(request);
   }
 
   @DELETE

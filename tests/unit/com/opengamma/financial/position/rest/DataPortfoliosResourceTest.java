@@ -7,6 +7,7 @@ package com.opengamma.financial.position.rest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -47,9 +48,9 @@ public class DataPortfoliosResourceTest {
     
     final PortfolioTreeSearchResult result = new PortfolioTreeSearchResult();
     result.setPaging(new Paging(1, 20, 0));
-    when(_underlying.searchPortfolioTrees(same(request))).thenReturn(result);
+    when(_underlying.searchPortfolioTrees(eq(request))).thenReturn(result);
     
-    PortfolioTreeSearchResult test = _resource.get(request);
+    PortfolioTreeSearchResult test = _resource.get(1, 20, null, 1);
     assertSame(result, test);
   }
 

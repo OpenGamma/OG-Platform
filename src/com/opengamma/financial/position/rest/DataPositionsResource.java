@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.position.rest;
 
+import java.math.BigDecimal;
 import java.net.URI;
 
 import javax.ws.rs.Consumes;
@@ -13,6 +14,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
@@ -74,11 +76,15 @@ public class DataPositionsResource {
 
   //-------------------------------------------------------------------------
   @GET
-  public PositionSearchResult get(PositionSearchRequest request) {
-    if (request == null) {
-      request = new PositionSearchRequest();
-      request.setPagingRequest(PagingRequest.FIRST_PAGE);
-    }
+  public PositionSearchResult get(
+      @QueryParam("page") int page,
+      @QueryParam("pageSize") int pageSize,
+      @QueryParam("minQuantity") BigDecimal minQuantity,
+      @QueryParam("maxQuantity") BigDecimal maxQuantity) {
+    final PositionSearchRequest request = new PositionSearchRequest();
+    request.setPagingRequest(PagingRequest.of(page, pageSize));
+    request.setMinQuantity(minQuantity);
+    request.setMaxQuantity(maxQuantity);
     return getPositionMaster().searchPositions(request);
   }
 
