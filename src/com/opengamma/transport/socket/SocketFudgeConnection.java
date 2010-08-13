@@ -57,6 +57,7 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
           s_logger.warn("I/O exception during send - {} - stopping socket to flush error", e.getCause().getMessage());
           stop();
         }
+        throw e;
       }
     }
 
@@ -122,6 +123,19 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
   protected void socketClosed() {
     _msgWriter = null;
     _receiverJob.terminate();
+  }
+
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder();
+    sb.append("FudgeConnection to ");
+    sb.append(getInetAddress());
+    sb.append(':');
+    sb.append(getPortNumber());
+    if (!isRunning()) {
+      sb.append(" (not connected)");
+    }
+    return sb.toString();
   }
 
 }

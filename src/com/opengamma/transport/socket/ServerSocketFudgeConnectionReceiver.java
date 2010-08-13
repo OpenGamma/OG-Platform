@@ -104,7 +104,17 @@ public class ServerSocketFudgeConnectionReceiver extends AbstractServerSocketPro
 
         @Override
         public void send(FudgeFieldContainer message) {
-          _writer.writeMessage(message);
+          try {
+            _writer.writeMessage(message);
+          } catch (FudgeRuntimeIOException e) {
+            if (exceptionForcedByClose(e.getCause())) {
+              s_logger.info("Connection terminated");
+            } else {
+              s_logger.warn("Unable to write message to underlying stream - terminating connection", e.getCause());
+              terminate();
+            }
+            throw e;
+          }
         }
 
       };
@@ -118,6 +128,14 @@ public class ServerSocketFudgeConnectionReceiver extends AbstractServerSocketPro
         @Override
         public void setFudgeMessageReceiver(FudgeMessageReceiver receiver) {
           _receiver = receiver;
+        }
+
+        @Override
+        public String toString() {
+          final StringBuilder sb = new StringBuilder();
+          sb.append("FudgeConnection from ");
+          sb.append(_socket.getRemoteSocketAddress().toString());
+          return sb.toString();
         }
 
       };
