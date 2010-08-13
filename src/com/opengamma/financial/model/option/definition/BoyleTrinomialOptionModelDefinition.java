@@ -17,7 +17,7 @@ public class BoyleTrinomialOptionModelDefinition extends TrinomialOptionModelDef
     final double t = option.getTimeToExpiry(data.getDate());
     final double sigma = data.getVolatility(t, option.getStrike());
     final double dt = t / n;
-    return sigma * Math.sqrt(3 * dt);
+    return sigma * Math.sqrt(2 * dt);
   }
 
   @Override
