@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.view.server;
+package com.opengamma.engine.fudgemsg;
 
 import java.util.List;
 import java.util.Map;

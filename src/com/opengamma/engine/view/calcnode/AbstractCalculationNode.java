@@ -36,23 +36,21 @@ import com.opengamma.util.time.DateUtil;
 public abstract class AbstractCalculationNode implements CalculationNode {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractCalculationNode.class);
   private final ViewComputationCacheSource _cacheSource;
-  private final FunctionRepository _functionRepository;
+  private FunctionRepository _functionRepository;
   private final FunctionExecutionContext _functionExecutionContext;
   private final ComputationTargetResolver _targetResolver;
   private final ViewProcessorQuerySender _viewProcessorQuerySender;
   private final String _nodeId;
 
-  protected AbstractCalculationNode(ViewComputationCacheSource cacheSource, FunctionRepository functionRepository, FunctionExecutionContext functionExecutionContext,
-      ComputationTargetResolver targetResolver, ViewProcessorQuerySender calcNodeQuerySender, String nodeId) {
+  protected AbstractCalculationNode(ViewComputationCacheSource cacheSource, FunctionExecutionContext functionExecutionContext, ComputationTargetResolver targetResolver,
+      ViewProcessorQuerySender calcNodeQuerySender, String nodeId) {
     ArgumentChecker.notNull(cacheSource, "Cache Source");
-    ArgumentChecker.notNull(functionRepository, "Function Repository");
     ArgumentChecker.notNull(functionExecutionContext, "Function Execution Context");
     ArgumentChecker.notNull(targetResolver, "Target Resolver");
     ArgumentChecker.notNull(calcNodeQuerySender, "Calc Node Query Sender");
     ArgumentChecker.notNull(nodeId, "Calculation node ID");
 
     _cacheSource = cacheSource;
-    _functionRepository = functionRepository;
     // Take a copy of the execution context as we will modify it during execution which isn't good if there are other CalcNodes in our JVM
     _functionExecutionContext = functionExecutionContext.clone();
     _targetResolver = targetResolver;
@@ -62,6 +60,10 @@ public abstract class AbstractCalculationNode implements CalculationNode {
 
   public ViewComputationCacheSource getCacheSource() {
     return _cacheSource;
+  }
+
+  public void setFunctionRepository(final FunctionRepository functionRepository) {
+    _functionRepository = functionRepository;
   }
 
   public FunctionRepository getFunctionRepository() {
@@ -86,7 +88,6 @@ public abstract class AbstractCalculationNode implements CalculationNode {
   }
 
   public CalculationJobResult executeJob(CalculationJob job) {
-    // DON'T CHECK THIS IN - SHOULD BE INFO
     s_logger.info("Executing {} on {}", job, _nodeId);
 
     CalculationJobSpecification spec = job.getSpecification();
@@ -100,9 +101,9 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     long startNanos = System.nanoTime();
 
     List<CalculationJobResultItem> resultItems = new ArrayList<CalculationJobResultItem>();
-    
+
     for (CalculationJobItem jobItem : job.getJobItems()) {
-      
+
       CalculationJobResultItem resultItem;
       try {
         Set<ComputedValue> result = invoke(jobItem, cache);
@@ -113,10 +114,10 @@ public abstract class AbstractCalculationNode implements CalculationNode {
         // litter the logs with stack traces.
         s_logger.info("Unable to invoke {} due to missing inputs: {}", jobItem, e.getMessage());
         resultItem = new CalculationJobResultItem(jobItem, e);
-      
+
       } catch (Exception e) {
         s_logger.info("Invoking " + jobItem.getFunctionUniqueIdentifier() + " threw exception.", e);
-        resultItem =  new CalculationJobResultItem(jobItem, e);
+        resultItem = new CalculationJobResultItem(jobItem, e);
       }
 
       resultItems.add(resultItem);
@@ -124,13 +125,10 @@ public abstract class AbstractCalculationNode implements CalculationNode {
 
     long endNanos = System.nanoTime();
     long durationNanos = endNanos - startNanos;
-    CalculationJobResult jobResult = new CalculationJobResult(spec, 
-        durationNanos, 
-        resultItems,
-        getNodeId());
-    
+    CalculationJobResult jobResult = new CalculationJobResult(spec, durationNanos, resultItems, getNodeId());
+
     s_logger.info("Executed {}", job);
-    
+
     return jobResult;
   }
 

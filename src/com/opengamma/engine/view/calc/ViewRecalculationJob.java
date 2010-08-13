@@ -121,7 +121,6 @@ public class ViewRecalculationJob extends TerminatableJob {
     long duration = cycle.getDurationNanos();
     _totalTimeNanos += duration;
     _numExecutions += 1.0;
-    // DON'T CHECK THIS CHANGE IN
     s_logger.info("Last latency was {} ms, Average latency is {} ms", duration / NANOS_PER_MILLISECOND, (_totalTimeNanos / _numExecutions) / NANOS_PER_MILLISECOND);
     getView().recalculationPerformed(cycle.getResultModel());
     

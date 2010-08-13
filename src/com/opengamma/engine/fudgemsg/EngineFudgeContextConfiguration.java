@@ -1,13 +1,14 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.view.server;
+package com.opengamma.engine.fudgemsg;
 
 import org.fudgemsg.FudgeContextConfiguration;
 import org.fudgemsg.mapping.FudgeObjectDictionary;
 
+import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
@@ -34,9 +35,10 @@ public final class EngineFudgeContextConfiguration extends FudgeContextConfigura
   private EngineFudgeContextConfiguration() {
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   @Override
   public void configureFudgeObjectDictionary(final FudgeObjectDictionary dictionary) {
+    dictionary.getDefaultBuilderFactory().addGenericBuilder(FunctionRepository.class, new FunctionRepositoryBuilder());
     dictionary.getDefaultBuilderFactory().addGenericBuilder(Portfolio.class, new PortfolioBuilder());
     dictionary.getDefaultBuilderFactory().addGenericBuilder(PortfolioNode.class, new PortfolioNodeBuilder());
     dictionary.getDefaultBuilderFactory().addGenericBuilder(Position.class, new PositionBuilder());
