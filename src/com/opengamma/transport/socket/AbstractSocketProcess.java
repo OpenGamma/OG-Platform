@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 
 import org.slf4j.Logger;
@@ -120,6 +121,10 @@ public abstract class AbstractSocketProcess implements Lifecycle {
     socketClosed();
   }
   
+  protected boolean exceptionForcedByClose(final Exception e) {
+    return (e instanceof SocketException) && "Socket closed".equals(e.getMessage());
+  }
+
   protected abstract void socketOpened(Socket socket, OutputStream os, InputStream is);
   
   protected void socketClosed() {
