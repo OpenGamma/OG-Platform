@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.Map.Entry;
 
+import org.fudgemsg.FudgeContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +35,7 @@ import com.opengamma.engine.config.ConfigSource;
 import com.opengamma.engine.config.MongoDBMasterConfigSource;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.server.EngineFudgeContextConfiguration;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.MongoDBConnectionSettings;
 import com.opengamma.util.test.MongoDBTestUtils;
@@ -58,7 +60,9 @@ public class ConfigSourceTest {
   public void setUp() throws Exception {
     MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings("ViewDefinitions", true);
     _mongoSettings = settings;
-    MongoDBConfigMaster<ViewDefinition> viewDefinitionConfigMaster = new MongoDBConfigMaster<ViewDefinition>(ViewDefinition.class, settings);
+    FudgeContext fudgeContext = new FudgeContext();
+    fudgeContext.setConfiguration(EngineFudgeContextConfiguration.INSTANCE);
+    MongoDBConfigMaster<ViewDefinition> viewDefinitionConfigMaster = new MongoDBConfigMaster<ViewDefinition>(ViewDefinition.class, settings, fudgeContext, true, null);
     Map<String, ConfigDocument<ViewDefinition>> viewDefinitions = populateWithViewDefinitions(viewDefinitionConfigMaster);
     _viewDefinitions = viewDefinitions;
     MongoDBMasterConfigSource mongoDBMasterConfigSource = new MongoDBMasterConfigSource();
