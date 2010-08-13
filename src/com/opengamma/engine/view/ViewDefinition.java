@@ -33,18 +33,15 @@ public class ViewDefinition implements Serializable {
   private final ResultModelDefinition _resultModelDefinition;
   
   /** 
-   * A delta recomputation of the view should be performed at this interval.
-   * Milliseconds.
+   * A delta recomputation of the view should be performed at this interval. Milliseconds.
    * 0 = can be performed as often as there is CPU resources for.
-   * Null = delta recomputation only needs to be performed if underlying
-   * market data changes.  
+   * Null = delta recomputation only needs to be performed if underlying market data changes.  
    */
   private Long _deltaRecalculationPeriod;
   
   /** 
-   * A full recomputation of the view should be performed at this interval 
-   * (i.e., no delta vs. previous result should be used).
-   * Milliseconds.
+   * A full recomputation of the view should be performed at this interval (i.e. no delta vs. previous result should
+   * be used). Milliseconds.
    * 0 = each computation should be a full recomputation.
    * Null = no full recomputation needs to be performed - previous result can always be used
    */ 
@@ -61,6 +58,29 @@ public class ViewDefinition implements Serializable {
    * @param userName  the name of the user who owns the view definition
    */
   public ViewDefinition(String name, UniqueIdentifier portfolioId, String userName) {
+    this(name, portfolioId, UserPrincipal.getLocalUser(userName), new ResultModelDefinition());
+  }
+  
+  /**
+   * Constructs an instance.
+   * 
+   * @param name  the name of the view definition
+   * @param portfolioId  the unique identifier of the reference portfolio for this view definition
+   * @param liveDataUser  the user who owns the view definition
+   */
+  public ViewDefinition(String name,  UniqueIdentifier portfolioId,  UserPrincipal liveDataUser) {
+    this(name, portfolioId, liveDataUser, new ResultModelDefinition());
+  }
+
+  /**
+   * Constructs an instance.
+   * 
+   * @param name  the name of the view definition
+   * @param portfolioId  the unique identifier of the reference portfolio for this view definition
+   * @param liveDataUser  the user who owns the view definition
+   * @param resultModelDefinition  configuration of the results from the view
+   */
+  public ViewDefinition(String name, UniqueIdentifier portfolioId, UserPrincipal liveDataUser, ResultModelDefinition resultModelDefinition) {
     ArgumentChecker.notNull(name, "View name");
     ArgumentChecker.notNull(portfolioId, "Portfolio id");
     ArgumentChecker.notNull(liveDataUser, "User name");

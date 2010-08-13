@@ -15,8 +15,6 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.util.ArgumentChecker;
 
@@ -27,9 +25,6 @@ public class ViewCalculationConfiguration implements Serializable {
   
   private final ViewDefinition _viewDefinition;
   private final String _name;
-  
-  private boolean _disableAggregatePositionOutputs;
-  private boolean _disablePositionOutputs;
   
   /**
    * Contains the required portfolio outputs for each security type. These are the outputs produced at the position
@@ -121,9 +116,6 @@ public class ViewCalculationConfiguration implements Serializable {
    * 
    * @param securityType  the type of security for which the outputs should be produced, not null
    * @param requiredOutputs  a set of output names, not null
-   * 
-   * @see {@link #setPositionOutputsDisabled(boolean)}
-   * @see {@link #setAggregatePositionOutputsDisabled(boolean)}
    */
   public void addPortfolioRequirements(String securityType, Set<String> requiredOutputs) {
     ArgumentChecker.notNull(securityType, "securityType");
@@ -142,79 +134,10 @@ public class ViewCalculationConfiguration implements Serializable {
    * 
    * @param securityType  the type of security for which the output should be produced, not null
    * @param requiredOutput  an output name, not null
-   * 
-   * @see {@link #setPositionOutputsDisabled(boolean)}
-   * @see {@link #setAggregatePositionOutputsDisabled(boolean)}
    */
   public void addPortfolioRequirement(String securityType, String requiredOutput) {
     ArgumentChecker.notNull(requiredOutput, "requiredOutput");
     addPortfolioRequirements(securityType, Collections.singleton(requiredOutput));
-  }
-  
-  /**
-   * Gets whether aggregate position outputs are disabled. This is independent of individual position outputs.
-   * 
-   * @return  whether aggregate position outputs are disabled
-   */
-  public boolean isAggregatePositionOutputsDisabled() {
-    return _disableAggregatePositionOutputs;
-  }
-
-  /**
-   * Sets whether aggregate position outputs are disabled. For example, the referenced portfolio could have a deep
-   * structure with many nodes at which aggregate portfolio outputs would be calculated. If these are not required then
-   * disabling them could speed up the computation cycle significantly.
-   * 
-   * @param disableAggregatePositionOutputs  whether aggregate position outputs are to be disabled.
-   */
-  public void setAggregatePositionOutputsDisabled(boolean disableAggregatePositionOutputs) {
-    _disableAggregatePositionOutputs = disableAggregatePositionOutputs;
-  }
-
-  /**
-   * Gets whether individual position outputs are disabled. This is independent of aggregate position outputs. 
-   * 
-   * @return  whether individual position outputs are disabled
-   */
-  public boolean isPositionOutputsDisabled() {
-    return _disablePositionOutputs;
-  }
-
-  /**
-   * Sets whether individual position outputs are disabled. If only aggregate position calculations are required, with
-   * respect to the hierarchy of the reference portfolio, then disabling outputs for individual positions through this
-   * method could speed up the computation cycle significantly. This is beneficial for calculations, such as VaR, which
-   * can be performed at the aggregate level without requiring the complete result of the same calculation on its
-   * children. Aggregate calculations where this is not the case will be unaffected, although disabling the individual
-   * position outputs will still hide them user even though they were calculated.
-   * 
-   * @param disablePositionOutputs  whether individual position outputs are to be disabled
-   */
-  public void setPositionOutputsDisabled(boolean disablePositionOutputs) {
-    _disablePositionOutputs = disablePositionOutputs;
-  }
-  
-  /**
-   * Gets whether outputs for a particular target have been disabled in the view calculation configuration. This should
-   * be used to determine whether or not an output for the target should appear in the results.
-   * 
-   * @param computationTarget  the target, not null
-   * @return  <code>true</code> if outputs for this target have been disabled, <code>false</code> otherwise.
-   */
-  public boolean outputsDisabled(ComputationTarget computationTarget) {
-    ArgumentChecker.notNull(computationTarget, "computationTarget");
-    ComputationTargetType computationTargetType = computationTarget.getType();
-    switch (computationTargetType) {
-      case PRIMITIVE:
-      case SECURITY:
-        return false;
-      case POSITION:
-        return isPositionOutputsDisabled();
-      case PORTFOLIO_NODE:
-        return isAggregatePositionOutputsDisabled();
-      default:
-        throw new RuntimeException("Unexpected target type " + computationTargetType);
-    }
   }
   
   /**
@@ -274,15 +197,20 @@ public class ViewCalculationConfiguration implements Serializable {
     }
     
     ViewCalculationConfiguration other = (ViewCalculationConfiguration) obj;
-    
-    boolean i2 = ObjectUtils.equals(getDeltaDefinition(), other.getDeltaDefinition());
-    System.out.println(i2);
-
-    return ObjectUtils.equals(getName(), other.getName())
+    if (!(ObjectUtils.equals(getName(), other.getName())
       && ObjectUtils.equals(getDeltaDefinition(), other.getDeltaDefinition())
-      && ObjectUtils.equals(isPositionOutputsDisabled(), other.isPositionOutputsDisabled())
-      && ObjectUtils.equals(isAggregatePositionOutputsDisabled(), other.isAggregatePositionOutputsDisabled())
-      && ObjectUtils.equals(getSpecificRequirements(), other.getSpecificRequirements());
+      && ObjectUtils.equals(getSpecificRequirements(), other.getSpecificRequirements()))
+      && ObjectUtils.equals(_portfolioRequirementsBySecurityType.keySet(), other._portfolioRequirementsBySecurityType.keySet())) {
+      return false;
+    }
+    Map<String, Set<String>> otherRequirementsBySecurityType = other.getPortfolioRequirementsBySecurityType();
+    for (Map.Entry<String, Set<String>> securityTypeRequirements : getPortfolioRequirementsBySecurityType().entrySet()) {
+      Set<String> otherRequirements = otherRequirementsBySecurityType.get(securityTypeRequirements.getKey());
+      if (!ObjectUtils.equals(securityTypeRequirements.getValue(), otherRequirements)) {
+        return false;
+      }
+    }
+    return true;
   }
   
 }

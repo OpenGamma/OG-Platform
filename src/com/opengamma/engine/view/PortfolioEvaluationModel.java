@@ -465,12 +465,14 @@ public class PortfolioEvaluationModel {
   protected static class PortfolioNodeCompiler extends AbstractPortfolioNodeTraversalCallback {
     private final DependencyGraphBuilder _dependencyGraphBuilder;
     private final ViewCalculationConfiguration _calculationConfiguration;
+    private final ResultModelDefinition _resultModelDefinition;
     
     public PortfolioNodeCompiler(
         DependencyGraphBuilder dependencyGraphBuilder,
         ViewCalculationConfiguration calculationConfiguration) {
       _dependencyGraphBuilder = dependencyGraphBuilder;
       _calculationConfiguration = calculationConfiguration;
+      _resultModelDefinition = calculationConfiguration.getViewDefinition().getResultModelDefinition();
     }
 
     @Override
@@ -483,13 +485,13 @@ public class PortfolioEvaluationModel {
           continue;
         }
         Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-        if (!_calculationConfiguration.isAggregatePositionOutputsDisabled()) {
+        if (_resultModelDefinition.isAggregatePositionOutputsEnabled()) {
           for (String requiredOutput : requiredOutputs) {
             requirements.add(new ValueRequirement(requiredOutput, portfolioNode));
           }
           _dependencyGraphBuilder.addTarget(new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, portfolioNode), requirements);
         }
-        if (!_calculationConfiguration.isPositionOutputsDisabled()) {
+        if (_resultModelDefinition.isPositionOutputsEnabled()) {
           for (Position position : portfolioNode.getPositions()) {
             requirements.clear();
             for (String requiredOutput : requiredOutputs) {

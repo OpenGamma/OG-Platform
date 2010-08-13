@@ -35,7 +35,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.PortfolioEvaluationModel;
 import com.opengamma.engine.view.View;
-import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewComputationResultModelImpl;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessingContext;
@@ -386,7 +385,7 @@ public class SingleComputationCycle {
         continue;
       }
       
-      if (!getViewDefinition().getResultModelDefinition().shouldWriteResults(type)) {
+      if (!getViewDefinition().getResultModelDefinition().outputsEnabled(type)) {
         continue;
       }
       

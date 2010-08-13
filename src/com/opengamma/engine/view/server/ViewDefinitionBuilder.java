@@ -37,8 +37,6 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
   private static final String CALCULATION_CONFIGURATION_FIELD = "calculationConfiguration";
   private static final String PORTFOLIO_REQUIREMENTS_BY_SECURITY_TYPE_FIELD = "portfolioRequirementsBySecurityType";
   private static final String SPECIFIC_REQUIREMENTS_FIELD = "specificRequirements";
-  private static final String DISABLE_POSITION_OUTPUTS_FIELD = "disablePositionOutputs";
-  private static final String DISABLE_AGGREGATE_POSITION_OUTPUTS_FIELD = "disableAggregatePositionOutputs";
   private static final String DELTA_DEFINITION_FIELD = "deltaDefinition";
 
   @Override
@@ -59,8 +57,6 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
       MutableFudgeFieldContainer calcConfigMsg = context.newMessage();
       calcConfigMsg.add(NAME_FIELD, null, calcConfig.getName());
       context.objectToFudgeMsg(calcConfigMsg, PORTFOLIO_REQUIREMENTS_BY_SECURITY_TYPE_FIELD, null, calcConfig.getPortfolioRequirementsBySecurityType());
-      calcConfigMsg.add(DISABLE_POSITION_OUTPUTS_FIELD, null, calcConfig.isPositionOutputsDisabled());
-      calcConfigMsg.add(DISABLE_AGGREGATE_POSITION_OUTPUTS_FIELD, null, calcConfig.isAggregatePositionOutputsDisabled());
       context.objectToFudgeMsg(calcConfigMsg, SPECIFIC_REQUIREMENTS_FIELD, null, calcConfig.getSpecificRequirements());
       context.objectToFudgeMsg(calcConfigMsg, DELTA_DEFINITION_FIELD, null, calcConfig.getDeltaDefinition());
       message.add(CALCULATION_CONFIGURATION_FIELD, null, calcConfigMsg);
@@ -75,7 +71,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
         message.getFieldValue(String.class, message.getByName(NAME_FIELD)),
         context.fieldValueToObject(UniqueIdentifier.class, message.getByName(IDENTIFIER_FIELD)),
         context.fieldValueToObject(UserPrincipal.class, message.getByName(USER_FIELD)),
-        context.fieldValueToObject(ResultModelDefinition.class, message.getByName(RESULT_MODEL_DEFINITION_FIELD))));
+        context.fieldValueToObject(ResultModelDefinition.class, message.getByName(RESULT_MODEL_DEFINITION_FIELD)));
     if (message.hasField(DELTA_RECALC_PERIOD_FIELD)) {
       viewDefinition.setDeltaRecalculationPeriod(message.getLong(DELTA_RECALC_PERIOD_FIELD));
     }
@@ -93,8 +89,6 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
           calcConfig.addPortfolioRequirements(d.getKey(), d.getValue());
         }
       }
-      calcConfig.setPositionOutputsDisabled(calcConfigMsg.getBoolean(DISABLE_POSITION_OUTPUTS_FIELD));
-      calcConfig.setAggregatePositionOutputsDisabled(calcConfigMsg.getBoolean(DISABLE_AGGREGATE_POSITION_OUTPUTS_FIELD));
       FudgeField specificOutputsField = calcConfigMsg.getByName(SPECIFIC_REQUIREMENTS_FIELD);
       if (specificOutputsField != null) {
         calcConfig.addSpecificRequirements(context.fieldValueToObject(Set.class, specificOutputsField));

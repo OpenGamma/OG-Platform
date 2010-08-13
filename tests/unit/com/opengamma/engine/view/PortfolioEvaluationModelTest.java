@@ -132,7 +132,6 @@ public class PortfolioEvaluationModelTest {
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Fibble");
     calcConfig.addPortfolioRequirement("My Sec", "Req-1");
-    calcConfig.setPositionOutputsDisabled(true);
     viewDefinition.addViewCalculationConfiguration(calcConfig);
     
     PortfolioEvaluationModel pem = new PortfolioEvaluationModel(p);
@@ -205,7 +204,6 @@ public class PortfolioEvaluationModelTest {
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Fibble");
     calcConfig.addPortfolioRequirement("My Sec", "Req-1");
-    calcConfig.setPositionOutputsDisabled(true);
     viewDefinition.addViewCalculationConfiguration(calcConfig);
     PortfolioEvaluationModel pem = new PortfolioEvaluationModel(p);
     pem.init(vcs, viewDefinition);

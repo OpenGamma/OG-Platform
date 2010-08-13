@@ -37,12 +37,12 @@ public class ViewDefinitionBuilderTest {
     ViewDefinition viewDef = new ViewDefinition("Test View", UniqueIdentifier.of("Test Scheme", "Port1"), "someuser");
     viewDef.setDeltaRecalculationPeriod(1000L);
     viewDef.setFullRecalculationPeriod(60000L);
+    viewDef.getResultModelDefinition().setAggregatePositionOutputsEnabled(false);
     
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDef, "Test config");
     calcConfig.addPortfolioRequirement("SecType", "Req1");
     calcConfig.addPortfolioRequirement("SecType", "Req2");
     calcConfig.addPortfolioRequirement("SecType2", "Req1");
-    calcConfig.setAggregatePositionOutputsDisabled(true);
     calcConfig.addSpecificRequirement(new ValueRequirement("Req3", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme2", "USD")));
     calcConfig.getDeltaDefinition().setNumberComparer(new NumberDeltaComparer(2));
     viewDef.addViewCalculationConfiguration(calcConfig);
