@@ -24,7 +24,7 @@ import org.fudgemsg.json.FudgeJSONStreamReader;
 /**
  * Register as a JAX-RS provider to support REST request payloads containing JSON encoded messages. 
  */
-@Consumes("application/json")
+@Consumes(MediaType.APPLICATION_JSON)
 public class FudgeJSONConsumer extends FudgeBase implements MessageBodyReader<FudgeMsgEnvelope> {
 
   /**

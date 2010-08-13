@@ -23,7 +23,7 @@ import org.fudgemsg.FudgeMsgEnvelope;
  * <p>
  * <b>This class isn't properly implemented as the Fudge library does not have an XML stream reader component yet.</b>
  */
-@Consumes("application/xml")
+@Consumes(MediaType.APPLICATION_XML)
 public class FudgeXMLConsumer extends FudgeBase implements MessageBodyReader<FudgeMsgEnvelope> {
 
   /**

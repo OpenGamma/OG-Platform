@@ -23,7 +23,7 @@ import org.fudgemsg.xml.FudgeXMLStreamWriter;
 /**
  * Register as a JAX-RS provider to support REST responses that are XML encoded messages. 
  */
-@Produces("application/xml")
+@Produces(MediaType.APPLICATION_XML)
 public class FudgeXMLProducer extends FudgeProducer {
 
   /**

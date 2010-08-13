@@ -23,7 +23,7 @@ import org.fudgemsg.json.FudgeJSONStreamWriter;
 /**
  * Register as a JAX-RS provider to support REST responses that are JSON encoded messages. 
  */
-@Produces("application/json")
+@Produces(MediaType.APPLICATION_JSON)
 public class FudgeJSONProducer extends FudgeProducer {
 
   /**
