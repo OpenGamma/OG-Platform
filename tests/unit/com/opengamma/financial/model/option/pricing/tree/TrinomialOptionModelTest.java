@@ -37,7 +37,7 @@ public class TrinomialOptionModelTest {
 
   @Test
   public void test() {
-    final TrinomialOptionModel<StandardOptionDataBundle> model = new TrinomialOptionModel<StandardOptionDataBundle>(3, TRINOMIAL);
+    final TrinomialOptionModel<StandardOptionDataBundle> model = new TrinomialOptionModel<StandardOptionDataBundle>(TRINOMIAL, 3);
     final Function1D<StandardOptionDataBundle, RecombiningTrinomialTree<DoublesPair>> f = model.getTreeGeneratingFunction(CALL);
     final DoublesPair[][] tree = f.evaluate(DATA).getTree();
     final DoublesPair[][] expected = new DoublesPair[4][7];
