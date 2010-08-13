@@ -130,6 +130,7 @@ public class PortfolioEvaluationModelTest {
     ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, positionSource, securitySource, functionCompilationContext, computationTargetResolver, executorService);
     
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
+    viewDefinition.getResultModelDefinition().setPositionOutputsEnabled(false);
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Fibble");
     calcConfig.addPortfolioRequirement("My Sec", "Req-1");
     viewDefinition.addViewCalculationConfiguration(calcConfig);
@@ -202,6 +203,7 @@ public class PortfolioEvaluationModelTest {
     ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, positionSource, securitySource, functionCompilationContext, computationTargetResolver, executorService);
     
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
+    viewDefinition.getResultModelDefinition().setPositionOutputsEnabled(false);
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Fibble");
     calcConfig.addPortfolioRequirement("My Sec", "Req-1");
     viewDefinition.addViewCalculationConfiguration(calcConfig);

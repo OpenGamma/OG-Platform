@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.server;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +17,7 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.DeltaDefinition;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
@@ -36,11 +38,17 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
   private static final String RESULT_MODEL_DEFINITION_FIELD = "resultModelDefinition";
   private static final String CALCULATION_CONFIGURATION_FIELD = "calculationConfiguration";
   private static final String PORTFOLIO_REQUIREMENTS_BY_SECURITY_TYPE_FIELD = "portfolioRequirementsBySecurityType";
-  private static final String SPECIFIC_REQUIREMENTS_FIELD = "specificRequirements";
+  private static final String SECURITY_TYPE_FIELD = "securityType";
+  private static final String PORTFOLIO_REQUIREMENT_FIELD = "portfolioRequirement";
+  private static final String SPECIFIC_REQUIREMENT_FIELD = "specificRequirement";
   private static final String DELTA_DEFINITION_FIELD = "deltaDefinition";
 
   @Override
   public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, ViewDefinition viewDefinition) {
+    // REVIEW jonathan 2010-08-13 -- This is really messy, but we're fighting against two problems:
+    //  - ViewDefinitions are stored in Mongo, which means they need field names for absolutely everything
+    //  - There's a cycle of references between ViewDefinition and ViewCalculationConfiguration, so we have to handle
+    //    both at once. 
     MutableFudgeFieldContainer message = context.newMessage();
     message.add(NAME_FIELD, null, viewDefinition.getName());
     context.objectToFudgeMsg(message, IDENTIFIER_FIELD, null, viewDefinition.getPortfolioId());
@@ -56,15 +64,24 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
     for (ViewCalculationConfiguration calcConfig : calculationConfigurations.values()) {
       MutableFudgeFieldContainer calcConfigMsg = context.newMessage();
       calcConfigMsg.add(NAME_FIELD, null, calcConfig.getName());
-      context.objectToFudgeMsg(calcConfigMsg, PORTFOLIO_REQUIREMENTS_BY_SECURITY_TYPE_FIELD, null, calcConfig.getPortfolioRequirementsBySecurityType());
-      context.objectToFudgeMsg(calcConfigMsg, SPECIFIC_REQUIREMENTS_FIELD, null, calcConfig.getSpecificRequirements());
+      // Can't use the default map serialisation here because every field needs to have a name for Mongo
+      for (Map.Entry<String, Set<String>> securityTypeRequirements : calcConfig.getPortfolioRequirementsBySecurityType().entrySet()) {
+        MutableFudgeFieldContainer securityTypeRequirementsMsg = context.newMessage();
+        securityTypeRequirementsMsg.add(SECURITY_TYPE_FIELD, securityTypeRequirements.getKey());
+        for (String requirement : securityTypeRequirements.getValue()) {
+          securityTypeRequirementsMsg.add(PORTFOLIO_REQUIREMENT_FIELD, requirement);
+        }
+        calcConfigMsg.add(PORTFOLIO_REQUIREMENTS_BY_SECURITY_TYPE_FIELD, securityTypeRequirementsMsg);
+      }
+      for (ValueRequirement specificRequirement : calcConfig.getSpecificRequirements()) {
+        calcConfigMsg.add(SPECIFIC_REQUIREMENT_FIELD, context.objectToFudgeMsg(specificRequirement));
+      }
       context.objectToFudgeMsg(calcConfigMsg, DELTA_DEFINITION_FIELD, null, calcConfig.getDeltaDefinition());
       message.add(CALCULATION_CONFIGURATION_FIELD, null, calcConfigMsg);
     }
     return message;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public ViewDefinition buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
     ViewDefinition viewDefinition = new ViewDefinition(
@@ -82,16 +99,17 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
     for (FudgeField calcConfigField : calcConfigs) {
       FudgeFieldContainer calcConfigMsg = message.getFieldValue(FudgeFieldContainer.class, calcConfigField);
       ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, message.getFieldValue(String.class, calcConfigMsg.getByName(NAME_FIELD)));
-      FudgeField portfolioOutputsField = calcConfigMsg.getByName(PORTFOLIO_REQUIREMENTS_BY_SECURITY_TYPE_FIELD);
-      if (portfolioOutputsField != null) {
-        Map<String, Set<String>> data = context.fieldValueToObject(Map.class, portfolioOutputsField);
-        for (Map.Entry<String, Set<String>> d : data.entrySet()) {
-          calcConfig.addPortfolioRequirements(d.getKey(), d.getValue());
+      for (FudgeField securityTypeRequirementsField : calcConfigMsg.getAllByName(PORTFOLIO_REQUIREMENTS_BY_SECURITY_TYPE_FIELD)) {
+        FudgeFieldContainer securityTypeRequirementsMsg = (FudgeFieldContainer) securityTypeRequirementsField.getValue();
+        String securityType = securityTypeRequirementsMsg.getString(SECURITY_TYPE_FIELD);
+        Set<String> requirements = new HashSet<String>();
+        for (FudgeField requirement : securityTypeRequirementsMsg.getAllByName(PORTFOLIO_REQUIREMENT_FIELD)) {
+          requirements.add((String) requirement.getValue());
         }
+        calcConfig.addPortfolioRequirements(securityType, requirements);
       }
-      FudgeField specificOutputsField = calcConfigMsg.getByName(SPECIFIC_REQUIREMENTS_FIELD);
-      if (specificOutputsField != null) {
-        calcConfig.addSpecificRequirements(context.fieldValueToObject(Set.class, specificOutputsField));
+      for (FudgeField specificRequirementField : calcConfigMsg.getAllByName(SPECIFIC_REQUIREMENT_FIELD)) {
+        calcConfig.addSpecificRequirement(context.fieldValueToObject(ValueRequirement.class, specificRequirementField));
       }
       calcConfig.setDeltaDefinition(context.fieldValueToObject(DeltaDefinition.class, calcConfigMsg.getByName(DELTA_DEFINITION_FIELD)));
       viewDefinition.addViewCalculationConfiguration(calcConfig);
