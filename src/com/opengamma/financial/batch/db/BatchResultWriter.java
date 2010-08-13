@@ -877,7 +877,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
   }
   
   private boolean isWriteResults(ComputationTargetSpecification ct) {
-    return _resultModelDefinition.shouldWriteResults(ct.getType());
+    return _resultModelDefinition.outputsEnabled(ct.getType());
   }
   
   private boolean isWriteResults(DependencyNode node) {
