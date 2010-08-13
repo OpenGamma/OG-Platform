@@ -191,9 +191,12 @@ public class BatchResultWriterTest extends HibernateTest {
     Map<String, ViewComputationCache> cachesByCalculationConfiguration = new HashMap<String, ViewComputationCache>();
     cachesByCalculationConfiguration.put(AbstractCalculationNodeTest.CALC_CONF_NAME, getCache());
     
+    ResultModelDefinition resultModelDefinition = new ResultModelDefinition();
+    resultModelDefinition.setPrimitiveOutputsEnabled(false);
+    resultModelDefinition.setSecurityOutputsEnabled(false);
     BatchResultWriter resultWriter = new BatchResultWriter(
         new TestDependencyGraphExecutor<CalculationJobResult>(result),
-        new ResultModelDefinition(),
+        resultModelDefinition,
         cachesByCalculationConfiguration);
     
     resultWriter.setJdbcUrl(getDbTool().getJdbcUrl());
