@@ -15,6 +15,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.ext.Provider;
 
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.FudgeMsgWriter;
@@ -23,6 +24,7 @@ import org.fudgemsg.json.FudgeJSONStreamWriter;
 /**
  * Register as a JAX-RS provider to support REST responses that are JSON encoded messages. 
  */
+@Provider
 @Produces(MediaType.APPLICATION_JSON)
 public class FudgeJSONProducer extends FudgeProducer {
 

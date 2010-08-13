@@ -14,12 +14,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.ext.Provider;
 
 import org.fudgemsg.FudgeMsgEnvelope;
 
 /**
  * Register as a JAX-RS provider to support REST responses that are Fudge encoded messages. 
  */
+@Provider
 @Produces(FudgeRest.MEDIA)
 public class FudgeBinaryProducer extends FudgeProducer {
 
