@@ -29,7 +29,7 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 
-import com.opengamma.engine.view.server.EngineFudgeContextConfiguration;
+import com.opengamma.engine.fudgemsg.EngineFudgeContextConfiguration;
 import com.opengamma.financial.fudgemsg.FinancialFudgeContextConfiguration;
 import com.opengamma.financial.position.master.ManageablePortfolio;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;

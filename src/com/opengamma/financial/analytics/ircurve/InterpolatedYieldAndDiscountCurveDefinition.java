@@ -1,19 +1,26 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.ircurve;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.fudgemsg.FudgeField;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.financial.Currency;
 import com.opengamma.util.ArgumentChecker;
@@ -27,11 +34,11 @@ public class InterpolatedYieldAndDiscountCurveDefinition implements Serializable
   private final String _name;
   private final String _interpolatorName;
   private final SortedSet<FixedIncomeStrip> _strips = new TreeSet<FixedIncomeStrip>();
-  
+
   public InterpolatedYieldAndDiscountCurveDefinition(Currency currency, String name, String interpolatorName) {
     this(currency, name, interpolatorName, null);
   }
-  
+
   public InterpolatedYieldAndDiscountCurveDefinition(Currency currency, String name, String interpolatorName, Collection<? extends FixedIncomeStrip> strips) {
     ArgumentChecker.notNull(currency, "Currency");
     ArgumentChecker.notNull(interpolatorName, "Interpolator name");
@@ -45,7 +52,7 @@ public class InterpolatedYieldAndDiscountCurveDefinition implements Serializable
       }
     }
   }
-  
+
   public void addStrip(FixedIncomeStrip strip) {
     ArgumentChecker.notNull(strip, "Strip");
     _strips.add(strip);
@@ -112,10 +119,10 @@ public class InterpolatedYieldAndDiscountCurveDefinition implements Serializable
     int result = 1;
     result = (result * prime) + _currency.hashCode();
     if (_name != null) {
-      result = (result * prime) + _name.hashCode(); 
+      result = (result * prime) + _name.hashCode();
     }
     if (_interpolatorName != null) {
-      result = (result * prime) + _interpolatorName.hashCode(); 
+      result = (result * prime) + _interpolatorName.hashCode();
     }
     for (FixedIncomeStrip strip : _strips) {
       result = (result * prime) + strip.hashCode();
@@ -126,6 +133,35 @@ public class InterpolatedYieldAndDiscountCurveDefinition implements Serializable
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+
+  // /CSOFF
+  private static String CURRENCY_KEY = "currency";
+  private static String NAME_KEY = "name";
+  private static String INTERPOLATOR_NAME_KEY = "interpolatorName";
+  private static String STRIP_KEY = "strip";
+
+  // /CSON
+
+  public void toFudgeMessage(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+    context.objectToFudgeMsgWithClassHeaders(message, CURRENCY_KEY, null, _currency, Currency.class);
+    message.add(NAME_KEY, _name);
+    message.add(INTERPOLATOR_NAME_KEY, _interpolatorName);
+    for (FixedIncomeStrip strip : _strips) {
+      context.objectToFudgeMsgWithClassHeaders(message, STRIP_KEY, null, strip, FixedIncomeStrip.class);
+    }
+  }
+
+  public static InterpolatedYieldAndDiscountCurveDefinition fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    final Currency currency = context.fieldValueToObject(Currency.class, message.getByName(CURRENCY_KEY));
+    final String name = message.getString(NAME_KEY);
+    final String interpolatorName = message.getString(INTERPOLATOR_NAME_KEY);
+    final List<FudgeField> stripFields = message.getAllByName(STRIP_KEY);
+    final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>(stripFields.size());
+    for (FudgeField stripField : stripFields) {
+      strips.add(context.fieldValueToObject(FixedIncomeStrip.class, stripField));
+    }
+    return new InterpolatedYieldAndDiscountCurveDefinition(currency, name, interpolatorName, strips);
   }
 
 }
