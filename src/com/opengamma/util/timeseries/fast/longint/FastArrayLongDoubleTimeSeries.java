@@ -23,14 +23,8 @@ import java.util.SortedMap;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMessageFactory;
-import org.fudgemsg.FudgeSize;
-import org.fudgemsg.MutableFudgeFieldContainer;
 
-import com.opengamma.util.timeseries.AbstractFastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.util.tuple.LongDoublePair;
@@ -549,20 +543,4 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
     return new FastArrayLongDoubleTimeSeries(getEncoding(), times, values);
   }
   
-  // Temporary hack to get the remote view client working
-  @Override
-  public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory messageFactory) {
-    final MutableFudgeFieldContainer message = super.toFudgeMsg(messageFactory);
-    //message.add ("times", _times);
-    message.add("times", new long[0]); // [ENG-103] THIS IS WRONG! IT IS BECAUSE THE TS ISN'T NEEDED AT THE MOMENT BUT IS SENT AS PART OF A HUGE RESULT MODEL TO THE REMOTE VIEW CLIENT
-    //message.add ("values", _values);
-    message.add("values", new double[0]); // [ENG-103] THIS IS WRONG! IT IS BECAUSE THE TS ISN'T NEEDED AT THE MOMENT BUT IS SENT AS PART OF A HUGE RESULT MODEL TO THE REMOTE VIEW CLIENT
-    return message;
-  }
-  
-  // Temporary hack to get the remote view client working
-  public static FastArrayLongDoubleTimeSeries fromFudgeMsg(final FudgeFieldContainer message) {
-    return new FastArrayLongDoubleTimeSeries(message.getValue(DateTimeNumericEncoding.class, "encoding"), (long[]) message.getValue("times"), (double[]) message.getValue("values"));
-  }
-
 }
