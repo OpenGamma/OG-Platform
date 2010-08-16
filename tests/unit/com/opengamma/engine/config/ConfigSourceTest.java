@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.Map.Entry;
 
+import org.fudgemsg.FudgeContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,8 +31,7 @@ import com.opengamma.config.ConfigMaster;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.DefaultConfigDocument;
 import com.opengamma.config.db.MongoDBConfigMaster;
-import com.opengamma.engine.config.ConfigSource;
-import com.opengamma.engine.config.MongoDBMasterConfigSource;
+import com.opengamma.engine.fudgemsg.EngineFudgeContextConfiguration;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueIdentifier;
@@ -58,7 +58,9 @@ public class ConfigSourceTest {
   public void setUp() throws Exception {
     MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings("ViewDefinitions", true);
     _mongoSettings = settings;
-    MongoDBConfigMaster<ViewDefinition> viewDefinitionConfigMaster = new MongoDBConfigMaster<ViewDefinition>(ViewDefinition.class, settings);
+    FudgeContext fudgeContext = new FudgeContext();
+    fudgeContext.setConfiguration(EngineFudgeContextConfiguration.INSTANCE);
+    MongoDBConfigMaster<ViewDefinition> viewDefinitionConfigMaster = new MongoDBConfigMaster<ViewDefinition>(ViewDefinition.class, settings, fudgeContext, true, null);
     Map<String, ConfigDocument<ViewDefinition>> viewDefinitions = populateWithViewDefinitions(viewDefinitionConfigMaster);
     _viewDefinitions = viewDefinitions;
     MongoDBMasterConfigSource mongoDBMasterConfigSource = new MongoDBMasterConfigSource();
@@ -87,10 +89,10 @@ public class ConfigSourceTest {
     for (String name : names) {
       ViewDefinition definition = new ViewDefinition(name, UniqueIdentifier.of("PORTFOLIO_SCHEME", "ID" + _random.nextInt(100)), "RandUser" + _random.nextInt(100));
       String configName = "ConfigName" + _random.nextInt();
-      definition.addValueDefinition(configName, EQUITY_OPTION, ValueRequirementNames.DELTA);
-      definition.addValueDefinition(configName, EQUITY_OPTION, ValueRequirementNames.GAMMA);
-      definition.addValueDefinition(configName, EQUITY_OPTION, ValueRequirementNames.RHO);
-      definition.addValueDefinition(configName, EQUITY_OPTION, ValueRequirementNames.FAIR_VALUE);
+      definition.addPortfolioRequirement(configName, EQUITY_OPTION, ValueRequirementNames.DELTA);
+      definition.addPortfolioRequirement(configName, EQUITY_OPTION, ValueRequirementNames.GAMMA);
+      definition.addPortfolioRequirement(configName, EQUITY_OPTION, ValueRequirementNames.RHO);
+      definition.addPortfolioRequirement(configName, EQUITY_OPTION, ValueRequirementNames.FAIR_VALUE);
       
       DefaultConfigDocument<ViewDefinition> configDocument = new DefaultConfigDocument<ViewDefinition>();
       configDocument.setName(name);

@@ -19,7 +19,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.time.Instant;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +30,6 @@ import com.opengamma.engine.depgraph.DependencyNodeFilter;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.PortfolioEvaluationModel;
 import com.opengamma.engine.view.View;
@@ -377,18 +375,9 @@ public class SingleComputationCycle {
   protected void populateResultModel(String calcConfigurationName, DependencyGraph depGraph) {
     ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
     for (ValueSpecification outputSpec : depGraph.getOutputValues()) {
-      ComputationTargetType type = outputSpec.getRequirementSpecification().getTargetSpecification().getType();
-      
-      // REVIEW kirk 2010-07-05 -- WARNING! GROSS HACK!
-      if (type == ComputationTargetType.PRIMITIVE
-          && !ObjectUtils.equals(ValueRequirementNames.FUNDING_CURVE, outputSpec.getRequirementSpecification().getValueName())) {
+      if (!getViewDefinition().getResultModelDefinition().shouldOutputResult(outputSpec, depGraph)) {
         continue;
       }
-      
-      if (!getViewDefinition().getResultModelDefinition().shouldWriteResults(type)) {
-        continue;
-      }
-      
       Object value = computationCache.getValue(outputSpec);
       if (value != null) {
         getResultModel().addValue(calcConfigurationName, new ComputedValue(outputSpec, value));
@@ -406,7 +395,7 @@ public class SingleComputationCycle {
     
     _state = State.CLEANED;
   }
-  
+    
   // --------------------------------------------------------------------------
   
   public boolean isExecuted(DependencyNode node) {

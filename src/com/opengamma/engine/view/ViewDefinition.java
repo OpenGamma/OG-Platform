@@ -15,10 +15,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMessageFactory;
-import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.msg.UserPrincipal;
@@ -29,38 +25,7 @@ import com.opengamma.util.ArgumentChecker;
  * and computed.
  */
 public class ViewDefinition implements Serializable {
-  
-  /**
-   * Fudge message key for the name.
-   */
-  public static final String NAME_KEY = "name";
-  /**
-   * Fudge message key for the portfolioId.
-   */
-  public static final String PORTFOLIO_ID_KEY = "portfolioId";
-  /**
-   * Fudge message key for the liveDataUser.
-   */
-  public static final String USER_KEY = "user";
-  /**
-   * Fudge message key for the resultModelDefinition.
-   */
-  public static final String RESULT_MODEL_DEFINITION_KEY = "resultModelDefinition";
-  /**
-   * Fudge message key for the portfolioId.
-   */
-  public static final String DELTA_RECALCULATION_PERIOD_KEY = "deltaRecalculationPeriod";
-  /**
-   * Fudge message key for the liveDataUser.
-   */
-  public static final String FULL_RECALCULATION_PERIOD_KEY = "fullRecalculationPeriod";
-  /**
-   * Fudge message key for the liveDataUser.
-   */
-  public static final String CALCULATION_CONFIGURATIONS_BY_NAME_KEY = "calculationConfigurationsByName";
-  
-  
-  
+   
   private final String _name;
   private final UniqueIdentifier _portfolioId;
   private final UserPrincipal _liveDataUser;
@@ -68,18 +33,15 @@ public class ViewDefinition implements Serializable {
   private final ResultModelDefinition _resultModelDefinition;
   
   /** 
-   * A delta recomputation of the view should be performed at this interval.
-   * Milliseconds.
+   * A delta recomputation of the view should be performed at this interval. Milliseconds.
    * 0 = can be performed as often as there is CPU resources for.
-   * Null = delta recomputation only needs to be performed if underlying
-   * market data changes.  
+   * Null = delta recomputation only needs to be performed if underlying market data changes.  
    */
   private Long _deltaRecalculationPeriod;
   
   /** 
-   * A full recomputation of the view should be performed at this interval 
-   * (i.e., no delta vs. previous result should be used).
-   * Milliseconds.
+   * A full recomputation of the view should be performed at this interval (i.e. no delta vs. previous result should
+   * be used). Milliseconds.
    * 0 = each computation should be a full recomputation.
    * Null = no full recomputation needs to be performed - previous result can always be used
    */ 
@@ -88,22 +50,37 @@ public class ViewDefinition implements Serializable {
   private final Map<String, ViewCalculationConfiguration> _calculationConfigurationsByName =
     new TreeMap<String, ViewCalculationConfiguration>();
   
-  public ViewDefinition(String name, 
-      UniqueIdentifier portfolioId, 
-      String userName) {
+  /**
+   * Constructs an instance.
+   * 
+   * @param name  the name of the view definition
+   * @param portfolioId  the unique identifier of the reference portfolio for this view definition
+   * @param userName  the name of the user who owns the view definition
+   */
+  public ViewDefinition(String name, UniqueIdentifier portfolioId, String userName) {
     this(name, portfolioId, UserPrincipal.getLocalUser(userName), new ResultModelDefinition());
   }
   
-  public ViewDefinition(String name, 
-      UniqueIdentifier portfolioId, 
-      UserPrincipal liveDataUser) {
+  /**
+   * Constructs an instance.
+   * 
+   * @param name  the name of the view definition
+   * @param portfolioId  the unique identifier of the reference portfolio for this view definition
+   * @param liveDataUser  the user who owns the view definition
+   */
+  public ViewDefinition(String name,  UniqueIdentifier portfolioId,  UserPrincipal liveDataUser) {
     this(name, portfolioId, liveDataUser, new ResultModelDefinition());
   }
-  
-  public ViewDefinition(String name, 
-      UniqueIdentifier portfolioId, 
-      UserPrincipal liveDataUser,
-      ResultModelDefinition resultModelDefinition) {
+
+  /**
+   * Constructs an instance.
+   * 
+   * @param name  the name of the view definition
+   * @param portfolioId  the unique identifier of the reference portfolio for this view definition
+   * @param liveDataUser  the user who owns the view definition
+   * @param resultModelDefinition  configuration of the results from the view
+   */
+  public ViewDefinition(String name, UniqueIdentifier portfolioId, UserPrincipal liveDataUser, ResultModelDefinition resultModelDefinition) {
     ArgumentChecker.notNull(name, "View name");
     ArgumentChecker.notNull(portfolioId, "Portfolio id");
     ArgumentChecker.notNull(liveDataUser, "User name");
@@ -115,10 +92,17 @@ public class ViewDefinition implements Serializable {
     _resultModelDefinition = resultModelDefinition;
   }
   
-  public Set<String> getAllValueRequirements() {
+  /**
+   * Gets a set containing every portfolio output that is required, across all calculation configurations, regardless
+   * of the security type(s) on which the output is required. These are outputs produced at the position and aggregate
+   * position level, with respect to the reference portfolio. 
+   * 
+   * @return  a set of every required portfolio output across all calculation configurations, not null
+   */
+  public Set<String> getAllPortfolioRequirements() {
     Set<String> requirements = new TreeSet<String>();
     for (ViewCalculationConfiguration calcConfig : _calculationConfigurationsByName.values()) {
-      requirements.addAll(calcConfig.getAllValueRequirements());
+      requirements.addAll(calcConfig.getAllPortfolioRequirements());
     }
     return requirements;
   }
@@ -127,6 +111,12 @@ public class ViewDefinition implements Serializable {
     return _name;
   }
   
+  /**
+   * Gets the unique identifier of the reference portfolio for this view. This is the portfolio on which position-level
+   * calculations will be performed.
+   * 
+   * @return  the unique identifier of the reference portfolio, possibly null.
+   */
   public UniqueIdentifier getPortfolioId() {
     return _portfolioId;
   }
@@ -166,13 +156,13 @@ public class ViewDefinition implements Serializable {
     _calculationConfigurationsByName.put(calcConfig.getName(), calcConfig);
   }
   
-  public void addValueDefinition(String calculationConfigurationName, String securityType, String requirementName) {
+  public void addPortfolioRequirement(String calculationConfigurationName, String securityType, String requirementName) {
     ViewCalculationConfiguration calcConfig = _calculationConfigurationsByName.get(calculationConfigurationName);
     if (calcConfig == null) {
       calcConfig = new ViewCalculationConfiguration(this, calculationConfigurationName);
       _calculationConfigurationsByName.put(calculationConfigurationName, calcConfig);
     }
-    calcConfig.addValueRequirement(securityType, requirementName);
+    calcConfig.addPortfolioRequirement(securityType, requirementName);
   }
 
   /**
@@ -215,75 +205,6 @@ public class ViewDefinition implements Serializable {
     return _resultModelDefinition;
   }
 
-  /**
-   * Serializes this ViewDefinition to a Fudge message.
-   * @param factory  the Fudge context, not null
-   * @return the Fudge message, not null
-   */
-  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
-    ArgumentChecker.notNull(factory, "Fudge Context");
-    MutableFudgeFieldContainer msg = factory.newMessage();
-    msg.add(NAME_KEY, getName());
-    msg.add(PORTFOLIO_ID_KEY, getPortfolioId().toFudgeMsg(factory));
-    msg.add(USER_KEY, getLiveDataUser().toFudgeMsg(factory));
-    msg.add(RESULT_MODEL_DEFINITION_KEY, getResultModelDefinition().toFudgeMsg(factory));
-    if (_deltaRecalculationPeriod != null) {
-      msg.add(DELTA_RECALCULATION_PERIOD_KEY, _deltaRecalculationPeriod);
-    }
-    if (_deltaRecalculationPeriod != null) {
-      msg.add(FULL_RECALCULATION_PERIOD_KEY, _fullRecalculationPeriod);
-    }
-    
-    for (ViewCalculationConfiguration calConfig : _calculationConfigurationsByName.values()) {
-      msg.add(CALCULATION_CONFIGURATIONS_BY_NAME_KEY, calConfig.toFudgeMsg(factory));
-    }
-    return msg;
-  }
-
-  /**
-   * Deserializes this ViewDefinition from a Fudge message.
-   * @param msg  the Fudge message, not null
-   * @return the ViewDefinition, not null
-   */
-  public static ViewDefinition fromFudgeMsg(FudgeFieldContainer msg) {
-    String name = msg.getString(NAME_KEY);
-    
-    FudgeFieldContainer portfolioIdMsg = msg.getMessage(PORTFOLIO_ID_KEY);
-    String scheme = portfolioIdMsg.getString(UniqueIdentifier.SCHEME_FUDGE_FIELD_NAME);
-    String value = portfolioIdMsg.getString(UniqueIdentifier.VALUE_FUDGE_FIELD_NAME);
-    String version = portfolioIdMsg.getString(UniqueIdentifier.VERSION_FUDGE_FIELD_NAME);
-    UniqueIdentifier portfolioId = UniqueIdentifier.of(scheme, value, version);
-    
-    FudgeFieldContainer userMessage = msg.getMessage(USER_KEY);
-    UserPrincipal liveDataUser = UserPrincipal.fromFudgeMsg(userMessage);
-    
-    FudgeFieldContainer resultModelDefinitionMessage = msg.getMessage(RESULT_MODEL_DEFINITION_KEY);
-    ResultModelDefinition resultModelDefinition = ResultModelDefinition.fromFudgeMsg(resultModelDefinitionMessage);
-
-    ViewDefinition result = new ViewDefinition(name, portfolioId, liveDataUser, resultModelDefinition);
-    
-    if (msg.hasField(DELTA_RECALCULATION_PERIOD_KEY)) {
-      result._deltaRecalculationPeriod = msg.getLong(DELTA_RECALCULATION_PERIOD_KEY);
-    }
-    if (msg.hasField(FULL_RECALCULATION_PERIOD_KEY)) {
-      result._fullRecalculationPeriod = msg.getLong(FULL_RECALCULATION_PERIOD_KEY);
-    }
-    for (FudgeField field : msg.getAllByName(CALCULATION_CONFIGURATIONS_BY_NAME_KEY)) {
-      FudgeFieldContainer calConfigMsg = (FudgeFieldContainer) field.getValue();
-      String calConfigName = calConfigMsg.getString(ViewCalculationConfiguration.NAME_KEY);
-      for (FudgeField reqBySecType : calConfigMsg.getAllByName(ViewCalculationConfiguration.REQUIREMENTS_BY_SECURITY_TYPE_KEY)) {
-        FudgeFieldContainer reqBySecTypeMsg = (FudgeFieldContainer) reqBySecType.getValue();
-        String securityType = reqBySecTypeMsg.getString(ViewCalculationConfiguration.SECURITY_TYPE_KEY);
-        for (FudgeField fudgeField : reqBySecTypeMsg.getAllByName(ViewCalculationConfiguration.DEFINITIONS_KEY)) {
-          String definition = (String) fudgeField.getValue();
-          result.addValueDefinition(calConfigName, securityType, definition);
-        }
-      }
-    }
-    
-    return result;
-  }
-
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -299,18 +220,31 @@ public class ViewDefinition implements Serializable {
     if (this == obj) {
       return true;
     }
-    if (obj instanceof ViewDefinition) {
-      ViewDefinition other = (ViewDefinition) obj;
-      return ObjectUtils.equals(getName(), other.getName()) 
-        && ObjectUtils.equals(getPortfolioId(), other.getPortfolioId())
-        && ObjectUtils.equals(getLiveDataUser(), other.getLiveDataUser())
-        && ObjectUtils.equals(getResultModelDefinition(), other.getResultModelDefinition())
-        && ObjectUtils.equals(_deltaRecalculationPeriod, other._deltaRecalculationPeriod)
-        && ObjectUtils.equals(_fullRecalculationPeriod, other._fullRecalculationPeriod)
-        && ObjectUtils.equals(getAllCalculationConfigurationNames(), other.getAllCalculationConfigurationNames())
-        && ObjectUtils.equals(getAllValueRequirements(), other.getAllValueRequirements());
+    
+    if (!(obj instanceof ViewDefinition)) {
+      return false;
     }
-    return false;
+    
+    ViewDefinition other = (ViewDefinition) obj;
+    boolean basicPropertiesEqual = ObjectUtils.equals(getName(), other.getName()) 
+      && ObjectUtils.equals(getPortfolioId(), other.getPortfolioId())
+      && ObjectUtils.equals(getResultModelDefinition(), other.getResultModelDefinition())
+      && ObjectUtils.equals(getLiveDataUser(), other.getLiveDataUser())
+      && ObjectUtils.equals(_deltaRecalculationPeriod, other._deltaRecalculationPeriod)
+      && ObjectUtils.equals(_fullRecalculationPeriod, other._fullRecalculationPeriod)
+      && ObjectUtils.equals(getAllCalculationConfigurationNames(), other.getAllCalculationConfigurationNames());
+    if (!basicPropertiesEqual) {
+      return false;
+    }
+    
+    for (ViewCalculationConfiguration localCalcConfig : _calculationConfigurationsByName.values()) {
+      ViewCalculationConfiguration otherCalcConfig = other.getCalculationConfiguration(localCalcConfig.getName());
+      if (!localCalcConfig.equals(otherCalcConfig)) {
+        return false;
+      }
+    }
+    
+    return true;
   }
 
 }

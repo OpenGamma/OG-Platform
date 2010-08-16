@@ -15,135 +15,192 @@ import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Encapsulates view-level configuration to describe the types of values required in the calculation results. This
+ * configuration could lead to fewer calculations taking place by allowing the dependency graphs to be trimmed,
+ * although values will still be calculated if they are required as inputs for other calculations.
+ * <p>
+ * This configuration acts as a filter on the outputs that have been requested through
+ * {@link ViewCalculationConfiguration}. In a sense, it is a view-view.
  */
 public class ResultModelDefinition implements Serializable {
   
-  /**
-   * Fudge message key for the name.
-   */
-  public static final String COMPUTE_PORTFOLIO_NODE_CALCULATIONS_KEY = "computePortfolioNodeCalculations";
-  /**
-   * Fudge message key for the portfolioId.
-   */
-  public static final String COMPUTE_POSITION_NODE_CALCULATIONS_KEY = "computePositionNodeCalculations";
-  /**
-   * Fudge message key for the liveDataUser.
-   */
-  public static final String COMPUTE_SECURITY_NODE_CALCULATIONS_KEY = "computeSecurityNodeCalculations";
-  /**
-   * Fudge message key for the liveDataUser.
-   */
-  public static final String COMPUTE_PRIMITIVE_NODE_CALCULATIONS_KEY = "computePrimitiveNodeCalculations";
+  private static final String AGGREGATE_POSITION_OUTPUT_MODE_FIELD = "aggregatePositionOutputMode";
+  private static final String POSITION_OUTPUT_MODE_FIELD = "positionOutputMode";
+  private static final String SECURITY_OUTPUT_MODE_FIELD = "securityOutputMode";
+  private static final String PRIMITIVE_OUTPUT_MODE_FIELD = "primitiveOutputMode";
   
-  private boolean _computePortfolioNodeCalculations = true;
-  private boolean _computePositionNodeCalculations = true;
-  private boolean _computeSecurityNodeCalculations /*= false*/;
-  private boolean _computePrimitiveNodeCalculations /*= false*/;
+  private ResultOutputMode _aggregatePositionOutputMode = ResultOutputMode.TERMINAL_OUTPUTS;
+  private ResultOutputMode _positionOutputMode = ResultOutputMode.TERMINAL_OUTPUTS;
+  private ResultOutputMode _securityOutputMode = ResultOutputMode.TERMINAL_OUTPUTS;
+  private ResultOutputMode _primitiveOutputMode = ResultOutputMode.TERMINAL_OUTPUTS;
 
   /**
-   * @return whether or not to compute all portfolio nodes, rather than just those required
+   * Gets the output mode that applies to aggregate position values. This is independent of individual position outputs.
+   * 
+   * @return  the output mode that applies to aggregate position values
    */
-  public boolean isComputePortfolioNodeCalculations() {
-    return _computePortfolioNodeCalculations;
+  public ResultOutputMode getAggregatePositionOutputMode() {
+    return _aggregatePositionOutputMode;
   }
 
   /**
-   * @param computePortfolioNodeCalculations whether or not to compute all portfolio nodes, rather than just those required
+   * Sets the output mode that applies to aggregate position outputs. For example, the referenced portfolio could have
+   * a deep structure with many nodes at which aggregate portfolio outputs would be calculated. If these are not
+   * required then disabling them could speed up the computation cycle significantly.
+   * 
+   * @param aggregatePositionOutputMode  the output mode to apply to aggregate position values
    */
-  public void setComputePortfolioNodeCalculations(boolean computePortfolioNodeCalculations) {
-    _computePortfolioNodeCalculations = computePortfolioNodeCalculations;
+  public void setAggregatePositionOutputMode(ResultOutputMode aggregatePositionOutputMode) {
+    _aggregatePositionOutputMode = aggregatePositionOutputMode;
   }
 
   /**
-   * @return whether or not to compute all position nodes, rather than just those required
+   * Gets the output mode that applies to individual position values. This is independent of aggregate position
+   * outputs. 
+   * 
+   * @return  the output mode that applies to position values
    */
-  public boolean isComputePositionNodeCalculations() {
-    return _computePositionNodeCalculations;
+  public ResultOutputMode getPositionOutputMode() {
+    return _positionOutputMode;
   }
 
   /**
-   * @param computePositionNodeCalculations whether or not to compute all position nodes, rather than just those required
+   * Sets the output mode that applies to individual position outputs. If only aggregate position calculations are
+   * required, with respect to the hierarchy of the reference portfolio, then disabling outputs for individual
+   * positions through this method could speed up the computation cycle significantly. This is beneficial for
+   * calculations, such as VaR, which are be performed at the aggregate level without requiring the complete result of
+   * the same calculation on its children. Aggregate calculations where this is not the case will be unaffected,
+   * although disabling the individual position outputs will still hide them from the user even though they will be
+   * calculated.
+   * 
+   * @param positionOutputMode  the output mode to apply to position values
    */
-  public void setComputePositionNodeCalculations(boolean computePositionNodeCalculations) {
-    _computePositionNodeCalculations = computePositionNodeCalculations;
-  }
-
-  /**
-   * @return whether or not to compute all security nodes, rather than just those required
-   */
-  public boolean isComputeSecurityNodeCalculations() {
-    return _computeSecurityNodeCalculations;
-  }
-
-  /**
-   * @param computeSecurityNodeCalculations whether or not to compute all security nodes, rather than just those required
-   */
-  public void setComputeSecurityNodeCalculations(boolean computeSecurityNodeCalculations) {
-    _computeSecurityNodeCalculations = computeSecurityNodeCalculations;
-  }
-
-  /**
-   * @return whether or not to compute all primitive nodes, rather than just those required
-   */
-  public boolean isComputePrimitiveNodeCalculations() {
-    return _computePrimitiveNodeCalculations;
-  }
-
-  /**
-   * @param computePrimitiveNodeCalculations whether or not to compute all primitive nodes, rather than just those required
-   */
-  public void setComputePrimitiveNodeCalculations(boolean computePrimitiveNodeCalculations) {
-    _computePrimitiveNodeCalculations = computePrimitiveNodeCalculations;
+  public void setPositionOutputMode(ResultOutputMode positionOutputMode) {
+    _positionOutputMode = positionOutputMode;
   }
   
-  public boolean shouldWriteResults(ComputationTargetType computationTargetType) {
+  /**
+   * Gets the output mode that applies to security values.
+   * 
+   * @return  the output mode that applies to security values
+   */
+  public ResultOutputMode getSecurityOutputMode() {
+    return _securityOutputMode;
+  }
+  
+  /**
+   * Sets the output mode to apply to security values. These are values which relate generally to a security and apply
+   *  to every position in that security. For example, market data on a security would be a security output.
+   * 
+   * @param securityOutputMode  the output mode to apply to security values
+   */
+  public void setSecurityOutputMode(ResultOutputMode securityOutputMode) {
+    _securityOutputMode = securityOutputMode;
+  }
+  
+  /**
+   * Gets the output mode that applies to primitive outputs.
+   * 
+   * @return  the output mode that applies to primitive values
+   */
+  public ResultOutputMode getPrimitiveOutputMode() {
+    return _primitiveOutputMode;
+  }
+  
+  /**
+   * Sets the output mode that applies to primitive outputs. These are values which may be used in calculations for
+   * many securities. For example, the USD discount curve would be a primitive.
+   * 
+   * @param primitiveOutputMode  the output mode to apply to primitive values
+   */
+  public void setPrimitiveOutputMode(ResultOutputMode primitiveOutputMode) {
+    _primitiveOutputMode = primitiveOutputMode;
+  }
+  
+  /**
+   * Gets the output mode that applies to values of the given computation target type.
+   * 
+   * @param computationTargetType  the target type, not null
+   * @return  the output mode that applies to values of the give type
+   */
+  public ResultOutputMode getOutputMode(ComputationTargetType computationTargetType) {
+    ArgumentChecker.notNull(computationTargetType, "computationTargetType");
     switch (computationTargetType) {
       case PRIMITIVE:
-        return isComputePrimitiveNodeCalculations();
+        return getPrimitiveOutputMode();
       case SECURITY:
-        return isComputeSecurityNodeCalculations();
+        return getSecurityOutputMode();
       case POSITION:
-        return isComputePositionNodeCalculations();
+        return getPositionOutputMode();
       case PORTFOLIO_NODE:
-        return isComputePortfolioNodeCalculations();
+        return getAggregatePositionOutputMode();
       default:
-        throw new RuntimeException("Unexpected type " + computationTargetType);
+        throw new IllegalArgumentException("Unknown target type " + computationTargetType);
     }
   }
   
   /**
-   * Serializes this ViewDefinition to a Fudge message.
+   * Indicates whether an output with the given specification should be included in the results.
+   * 
+   * @param outputSpecification  the specification of the output value, not null
+   * @param dependencyGraph  the dependency graph to which the output value belongs, not null
+   * @return  <code>true</code> if the output value should be included in the results, <code>false</code> otherwise.
+   */
+  public boolean shouldOutputResult(ValueSpecification outputSpecification, DependencyGraph dependencyGraph) {
+    ArgumentChecker.notNull(outputSpecification, "outputSpecification");
+    ArgumentChecker.notNull(dependencyGraph, "dependencyGraph");
+    ComputationTargetType targetType = outputSpecification.getRequirementSpecification().getTargetSpecification().getType();
+    return getOutputMode(targetType).shouldOutputResult(outputSpecification, dependencyGraph);
+  }
+  
+  /**
+   * Indicates whether a dependency node produces any outputs that should be included in the results.
+   * 
+   * @param dependencyNode  the dependency node, not null
+   * @return  <code>true</code> if any outputs are produces that should be included in the results, <code>false</code>
+   *          otherwise. 
+   */
+  public boolean shouldOutputFromNode(DependencyNode dependencyNode) {
+    ComputationTargetType targetType = dependencyNode.getComputationTarget().getType();
+    return getOutputMode(targetType).shouldOutputFromNode(dependencyNode);
+  }
+  
+  /**
+   * Serializes this object to a Fudge message.
+   * 
    * @param factory  the Fudge context, not null
    * @return the Fudge message, not null
    */
   public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
     ArgumentChecker.notNull(factory, "Fudge Context");
     MutableFudgeFieldContainer msg = factory.newMessage();
-    msg.add(COMPUTE_PORTFOLIO_NODE_CALCULATIONS_KEY, _computePortfolioNodeCalculations);
-    msg.add(COMPUTE_POSITION_NODE_CALCULATIONS_KEY, _computePositionNodeCalculations);
-    msg.add(COMPUTE_SECURITY_NODE_CALCULATIONS_KEY, _computeSecurityNodeCalculations);
-    msg.add(COMPUTE_PRIMITIVE_NODE_CALCULATIONS_KEY, _computePrimitiveNodeCalculations);
+    msg.add(AGGREGATE_POSITION_OUTPUT_MODE_FIELD,  _aggregatePositionOutputMode.name());
+    msg.add(POSITION_OUTPUT_MODE_FIELD, _positionOutputMode.name());
+    msg.add(SECURITY_OUTPUT_MODE_FIELD, _securityOutputMode.name());
+    msg.add(PRIMITIVE_OUTPUT_MODE_FIELD, _primitiveOutputMode.name());
     return msg;
   }
   
   /**
-   * Deserializes this ResultModelDefinition from a Fudge message.
+   * Deserializes a Fudge message into a ResultModelDefinition.
    * @param msg  the Fudge message, not null
    * @return the ResultModelDefinition, not null
    */
   public static ResultModelDefinition fromFudgeMsg(FudgeFieldContainer msg) {
     ResultModelDefinition result = new ResultModelDefinition();
-    result._computePortfolioNodeCalculations = msg.getBoolean(COMPUTE_PORTFOLIO_NODE_CALCULATIONS_KEY);
-    result._computePositionNodeCalculations = msg.getBoolean(COMPUTE_POSITION_NODE_CALCULATIONS_KEY);
-    result._computePrimitiveNodeCalculations = msg.getBoolean(COMPUTE_PRIMITIVE_NODE_CALCULATIONS_KEY);
-    result._computeSecurityNodeCalculations = msg.getBoolean(COMPUTE_SECURITY_NODE_CALCULATIONS_KEY);
+    result.setAggregatePositionOutputMode(msg.getFieldValue(ResultOutputMode.class, msg.getByName(AGGREGATE_POSITION_OUTPUT_MODE_FIELD)));
+    result.setPositionOutputMode(msg.getFieldValue(ResultOutputMode.class, msg.getByName(POSITION_OUTPUT_MODE_FIELD)));
+    result.setSecurityOutputMode(msg.getFieldValue(ResultOutputMode.class, msg.getByName(SECURITY_OUTPUT_MODE_FIELD)));
+    result.setPrimitiveOutputMode(msg.getFieldValue(ResultOutputMode.class, msg.getByName(PRIMITIVE_OUTPUT_MODE_FIELD)));
     return result;
   }
-  
+
   @Override
   public int hashCode() {
     return HashCodeBuilder.reflectionHashCode(this);
@@ -158,6 +215,5 @@ public class ResultModelDefinition implements Serializable {
   public String toString() {
     return ToStringBuilder.reflectionToString(this);
   }
-
 
 }

@@ -42,7 +42,7 @@ public final class EngineFudgeContextConfiguration extends FudgeContextConfigura
     dictionary.getDefaultBuilderFactory().addGenericBuilder(Portfolio.class, new PortfolioBuilder());
     dictionary.getDefaultBuilderFactory().addGenericBuilder(PortfolioNode.class, new PortfolioNodeBuilder());
     dictionary.getDefaultBuilderFactory().addGenericBuilder(Position.class, new PositionBuilder());
-    dictionary.addBuilder(ViewDefinition.class, new ViewDefinitionBuilder());
+    dictionary.getDefaultBuilderFactory().addGenericBuilder(ViewDefinition.class, new ViewDefinitionBuilder());
     dictionary.getDefaultBuilderFactory().addGenericBuilder(ViewCalculationResultModel.class, new ViewCalculationResultModelBuilder());
     dictionary.getDefaultBuilderFactory().addGenericBuilder(ViewComputationResultModel.class, new ViewComputationResultModelBuilder());
     dictionary.getDefaultBuilderFactory().addGenericBuilder(ViewDeltaResultModel.class, new ViewDeltaResultModelBuilder());

@@ -37,7 +37,15 @@ public class DependencyGraph {
   
   private final Set<DependencyNode> _rootNodes = new HashSet<DependencyNode>();
   
+  /**
+   * A cache of output values from this graph's nodes
+   */
   private final Set<ValueSpecification> _outputValues = new HashSet<ValueSpecification>();
+  
+  /**
+   * A cache of terminal output values from this graph's nodes
+   */
+  private final Set<ValueSpecification> _terminalOutputValues = new HashSet<ValueSpecification>();
   
   /** A map to speed up lookups. Contents are equal to _dependencyNodes. */
   private final Map<ComputationTargetType, Set<DependencyNode>> _computationTarget2DependencyNode = 
@@ -86,6 +94,10 @@ public class DependencyGraph {
 
   public Set<ValueSpecification> getOutputValues() {
     return Collections.unmodifiableSet(_outputValues);
+  }
+  
+  public Set<ValueSpecification> getTerminalOutputValues() {
+    return Collections.unmodifiableSet(_terminalOutputValues);
   }
   
   public Set<ComputationTargetSpecification> getAllComputationTargets() {
@@ -140,6 +152,7 @@ public class DependencyGraph {
     
     _dependencyNodes.add(node);
     _outputValues.addAll(node.getOutputValues());
+    _terminalOutputValues.addAll(node.getTerminalOutputValues());
     _allRequiredLiveData.addAll(node.getRequiredLiveData());
     _allComputationTargets.add(node.getComputationTarget().toSpecification());
     
@@ -174,6 +187,18 @@ public class DependencyGraph {
     for (DependencyNode childNode : node.getInputNodes()) {
       _rootNodes.remove(childNode);
     }
+  }
+  
+  /**
+   * Marks an output as terminal, meaning that it cannot be pruned.
+   * 
+   * @param terminalOutput  the output to mark as terminal
+   */
+  public void addTerminalOutputValue(ValueSpecification terminalOutput) {
+    // Register it with the node responsible for producing it - informs the node that the output is required
+    getNodeProducing(terminalOutput.getRequirementSpecification()).getFirst().addTerminalOutputValue(terminalOutput);
+    // Maintain a cache of all terminal outputs at the graph level
+    _terminalOutputValues.add(terminalOutput);
   }
   
   /**
