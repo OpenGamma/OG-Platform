@@ -93,11 +93,13 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private final Interpolator1D<? extends Interpolator1DDataBundle> _interpolator;
   private final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> _sensitivityCalculator;
 
-  public MarketInstrumentImpliedYieldCurveFunction(final Currency currency, String interpolatorName, String leftExtrapolatorName, String rightExtrapolatorName) {
+  public MarketInstrumentImpliedYieldCurveFunction(final Currency currency, String interpolatorName, String leftExtrapolatorName, String rightExtrapolatorName, 
+      boolean useFiniteDifferenceAsDefaultForSensitivities) {
     Validate.notNull(currency);
     _currency = currency;
     _interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
-    _sensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
+    _sensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(interpolatorName, leftExtrapolatorName, 
+        rightExtrapolatorName, useFiniteDifferenceAsDefaultForSensitivities);
   }
 
   @Override

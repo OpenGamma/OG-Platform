@@ -583,7 +583,7 @@ public class BatchJob implements Job {
       throw new IllegalStateException("Config DB connection settings not given.");            
     }
     _configDb = new MongoDBConfigMaster<ViewDefinition>(ViewDefinition.class, 
-        getConfigDbConnectionSettings());
+        getConfigDbConnectionSettings(), getFudgeContext(), true, null);
 
     ConfigDocument<ViewDefinition> viewDefinitionDoc = getViewByNameWithTime();
     if (viewDefinitionDoc == null) {

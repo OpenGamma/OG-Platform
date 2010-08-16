@@ -25,22 +25,15 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
 
-import com.opengamma.engine.fudgemsg.EngineFudgeContextConfiguration;
-import com.opengamma.financial.fudgemsg.FinancialFudgeContextConfiguration;
 import com.opengamma.financial.position.master.ManageablePortfolio;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
 import com.opengamma.financial.position.master.PortfolioTreeSearchRequest;
 import com.opengamma.financial.position.master.PortfolioTreeSearchResult;
 import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.PagingRequest;
-import com.opengamma.util.fudge.UtilFudgeContextConfiguration;
 
 /**
  * RESTful resource for all portfolios.
@@ -48,16 +41,12 @@ import com.opengamma.util.fudge.UtilFudgeContextConfiguration;
  * The portfolios resource represents the whole of a position master.
  */
 @Path("/portfolios")
-public class PortfoliosResource {
+public class WebPortfoliosResource {
 
   /**
    * The injected position master.
    */
   private final PositionMaster _posMaster;
-  /**
-   * The fudge context to use when deserializing requests 
-   */
-  private final FudgeDeserializationContext _fudgeDeserializationContext;
   /**
    * Information about the URI injected by JSR-311.
    */
@@ -68,15 +57,9 @@ public class PortfoliosResource {
    * Creates the resource.
    * @param posMaster  the position master, not null
    */
-  public PortfoliosResource(final PositionMaster posMaster) {
+  public WebPortfoliosResource(final PositionMaster posMaster) {
     ArgumentChecker.notNull(posMaster, "PositionMaster");
     _posMaster = posMaster;
-    
-    FudgeContext fudgeContext = new FudgeContext();
-    UtilFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
-    EngineFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
-    FinancialFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
-    _fudgeDeserializationContext = new FudgeDeserializationContext(fudgeContext);
   }
 
   /**
@@ -84,7 +67,7 @@ public class PortfoliosResource {
    * @param uriInfo  the URI information, not null
    * @param posMaster  the position master, not null
    */
-  public PortfoliosResource(UriInfo uriInfo, final PositionMaster posMaster) {
+  public WebPortfoliosResource(UriInfo uriInfo, final PositionMaster posMaster) {
     this(posMaster);
     ArgumentChecker.notNull(uriInfo, "uriInfo");
     _uriInfo = uriInfo;
@@ -108,18 +91,6 @@ public class PortfoliosResource {
   }
 
   //-------------------------------------------------------------------------
-  @GET
-  @Produces(FudgeRest.MEDIA)
-  public PortfolioTreeSearchResult getAsFudge(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize,
-      @QueryParam("name") String name) {
-    final PortfolioTreeSearchRequest request = new PortfolioTreeSearchRequest();
-    request.setPagingRequest(PagingRequest.of(page, pageSize));
-    request.setName(StringUtils.trimToNull(name));
-    return getPositionMaster().searchPortfolioTrees(request);
-  }
-
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getAsHtml(
@@ -145,7 +116,7 @@ public class PortfoliosResource {
         "<p><table border=\"1\">" +
         "<tr><th>Name</th><th>Version valid from</th><th>Actions</th></tr>\n";
       for (PortfolioTreeDocument doc : result.getDocuments()) {
-        URI uri = getUriInfo().getBaseUriBuilder().path(PortfolioResource.class).build(doc.getPortfolioId().toLatest());
+        URI uri = getUriInfo().getBaseUriBuilder().path(WebPortfolioResource.class).build(doc.getPortfolioId().toLatest());
         html += "<tr>";
         html += "<td><a href=\"" + uri + "\">" + doc.getPortfolio().getName() + "</a></td>";
         DateTimeFormatter pattern = DateTimeFormatters.pattern("dd MMM yyyy, HH:mm:ss.SSS");
@@ -166,13 +137,6 @@ public class PortfoliosResource {
   }
 
   //-------------------------------------------------------------------------
-  @POST
-  @Produces(FudgeRest.MEDIA)
-  public PortfolioTreeDocument postFudge(FudgeMsgEnvelope addPortfolioRequestMsg) {
-    PortfolioTreeDocument request = _fudgeDeserializationContext.fudgeMsgToObject(PortfolioTreeDocument.class, addPortfolioRequestMsg.getMessage());
-    return getPositionMaster().addPortfolioTree(request);
-  }
-
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response postForm(@FormParam("name") String name) {
@@ -197,16 +161,10 @@ public class PortfoliosResource {
   }
 
   //-------------------------------------------------------------------------
-  @Path("{portfolioUid}")
-  public PortfolioResource findPortfolio(@PathParam("portfolioUid") String uidStr) {
+  @Path("{portfolioId}")
+  public WebPortfolioResource findPortfolio(@PathParam("portfolioId") String uidStr) {
     UniqueIdentifier uid = UniqueIdentifier.parse(uidStr);
-    return new PortfolioResource(this, uid);
-  }
-  
-  //-------------------------------------------------------------------------
-  @Path(PositionMasterResourceNames.POSITION_MASTER_POSITIONS)
-  public AllPositionsResource getPortfolios() {
-    return new AllPositionsResource(this, _fudgeDeserializationContext);
+    return new WebPortfolioResource(this, uid);
   }
 
   //-------------------------------------------------------------------------
@@ -216,7 +174,7 @@ public class PortfoliosResource {
    * @return the URI, not null
    */
   public static URI uri(UriInfo uriInfo) {
-    return uriInfo.getBaseUriBuilder().path(PortfoliosResource.class).build();
+    return uriInfo.getBaseUriBuilder().path(WebPortfoliosResource.class).build();
   }
 
 }
