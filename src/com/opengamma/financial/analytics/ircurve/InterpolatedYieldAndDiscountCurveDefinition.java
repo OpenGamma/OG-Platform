@@ -143,7 +143,7 @@ public class InterpolatedYieldAndDiscountCurveDefinition implements Serializable
 
   // /CSON
 
-  public void toFudgeMessage(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+  public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
     context.objectToFudgeMsgWithClassHeaders(message, CURRENCY_KEY, null, _currency, Currency.class);
     message.add(NAME_KEY, _name);
     message.add(INTERPOLATOR_NAME_KEY, _interpolatorName);

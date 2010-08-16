@@ -174,7 +174,7 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction i
   }
 
   public static OptionGreekToValueGreekConverterFunction fromFudgeMsg(final FudgeFieldContainer message) {
-    return new OptionGreekToValueGreekConverterFunction(message.getString(REQUIREMENT_NAME_KEY));
+    return fromFudgeMsg(new OptionGreekToValueGreekConverterFunction(message.getString(REQUIREMENT_NAME_KEY)), message);
   }
 
 }

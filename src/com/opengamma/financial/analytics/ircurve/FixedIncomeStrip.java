@@ -14,6 +14,11 @@ import javax.time.calendar.Period;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.fudgemsg.FudgeField;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -179,6 +184,42 @@ public class FixedIncomeStrip implements Comparable<FixedIncomeStrip>, Serializa
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+
+  private static final String START_DATE_KEY = "start";
+  private static final String END_DATE_KEY = "end";
+  private static final String MARKET_DATA_KEY_KEY = "marketData";
+  private static final String INSTRUMENT_TYPE_KEY = "instrumentType";
+  private static final String DAY_COUNT_KEY = "dayCount";
+  private static final String BUSINESS_DAY_CONVENTION_KEY = "businessDayConvention";
+  private static final String REGION_ISO_KEY = "regionISO";
+
+  public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+    message.add(START_DATE_KEY, _startDate);
+    message.add(END_DATE_KEY, _endDate);
+    context.objectToFudgeMsgWithClassHeaders(message, MARKET_DATA_KEY_KEY, null, _marketDataKey, UniqueIdentifier.class);
+    context.objectToFudgeMsg(message, INSTRUMENT_TYPE_KEY, null, _instrumentType);
+    message.add(DAY_COUNT_KEY, _dayCount);
+    message.add(BUSINESS_DAY_CONVENTION_KEY, _businessDayConvention);
+    message.add(REGION_ISO_KEY, _regionISO);
+  }
+
+  public static FixedIncomeStrip fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    FudgeField field = message.getByName(START_DATE_KEY);
+    final LocalDate startDate = (field != null) ? message.getFieldValue(LocalDate.class, field) : null;
+    field = message.getByName(END_DATE_KEY);
+    final LocalDate endDate = (field != null) ? message.getFieldValue(LocalDate.class, field) : null;
+    field = message.getByName(MARKET_DATA_KEY_KEY);
+    final UniqueIdentifier marketDataKey = context.fieldValueToObject(UniqueIdentifier.class, field);
+    field = message.getByName(INSTRUMENT_TYPE_KEY);
+    final StripInstrument instrumentType = (field != null) ? context.fieldValueToObject(StripInstrument.class, field) : null;
+    field = message.getByName(DAY_COUNT_KEY);
+    final DayCount dayCount = (field != null) ? message.getFieldValue(DayCount.class, field) : null;
+    field = message.getByName(BUSINESS_DAY_CONVENTION_KEY);
+    final BusinessDayConvention businessDayConvention = (field != null) ? message.getFieldValue(BusinessDayConvention.class, field) : null;
+    field = message.getByName(REGION_ISO_KEY);
+    final String regionISO = (field != null) ? message.getFieldValue(String.class, field) : null;
+    return new FixedIncomeStrip(startDate, endDate, marketDataKey, instrumentType, dayCount, businessDayConvention, regionISO);
   }
 
 }
