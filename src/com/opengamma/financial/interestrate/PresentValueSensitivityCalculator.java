@@ -108,7 +108,7 @@ public final class PresentValueSensitivityCalculator implements InterestRateDeri
     final double ta = future.getSettlementDate();
     final double tb = ta + future.getYearFraction();
 
-    final double ratio = 100 * curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb);
+    final double ratio = curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb);
     final DoublesPair s1 = new DoublesPair(ta, ta * ratio);
     final DoublesPair s2 = new DoublesPair(tb, -tb * ratio);
     final List<Pair<Double, Double>> temp = new ArrayList<Pair<Double, Double>>();

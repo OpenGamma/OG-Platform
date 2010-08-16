@@ -132,7 +132,7 @@ public class PresentValueSensitivityCalculatorTest {
     double price = 100 * (1 - rate);
     InterestRateFuture edf = new InterestRateFuture(settlementDate, yearFraction, price, FIVE_PC_CURVE_NAME);
     Map<String, List<Pair<Double, Double>>> sense = PVSC.getValue(edf, CURVES);
-    double ratio = 100 * curve.getDiscountFactor(settlementDate) / curve.getDiscountFactor(settlementDate + yearFraction);
+    double ratio = curve.getDiscountFactor(settlementDate) / curve.getDiscountFactor(settlementDate + yearFraction);
 
     List<Pair<Double, Double>> temp = sense.get(FIVE_PC_CURVE_NAME);
     for (Pair<Double, Double> pair : temp) {

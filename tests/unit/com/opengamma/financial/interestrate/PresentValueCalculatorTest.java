@@ -93,7 +93,7 @@ public class PresentValueCalculatorTest {
     pv = PVC.getValue(edf, CURVES);
     // NB the market price of a euro dollar future depends on the future rate (strictly the rate is implied from the price) - the test here (fixed rate, but making
     // a new future with a higher price) is equivalent to a drop in market price (implying an increase in rates), will means a negative p&l
-    assertEquals(-deltaPrice * yearFraction, pv, 1e-12);
+    assertEquals(-deltaPrice * yearFraction / 100, pv, 1e-12);
   }
 
   @Test

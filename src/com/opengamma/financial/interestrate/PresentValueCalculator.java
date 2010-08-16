@@ -97,7 +97,7 @@ public final class PresentValueCalculator implements InterestRateDerivativeVisit
     double alpha = future.getYearFraction();
     double tb = ta + alpha;
     double rate = (liborCurve.getDiscountFactor(ta) / liborCurve.getDiscountFactor(tb) - 1.0) / alpha;
-    return alpha * (100 * (1 - rate) - future.getPrice());
+    return alpha * (1 - rate - future.getPrice() / 100);
   }
 
   @Override
