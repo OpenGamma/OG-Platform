@@ -34,7 +34,7 @@ import com.opengamma.transport.FudgeMessageSender;
 
   private static final int DEFAULT_PRIORITY = 10;
 
-  private final ConcurrentMap<CalculationJobSpecification, JobResultReceiver> _jobCompletionCallbacks = new ConcurrentHashMap<CalculationJobSpecification, JobResultReceiver>();
+  private final ConcurrentMap<CalculationJobSpecification, JobInvocationReceiver> _jobCompletionCallbacks = new ConcurrentHashMap<CalculationJobSpecification, JobInvocationReceiver>();
   private final ExecutorService _executorService;
   private final FudgeMessageSender _fudgeMessageSender;
   private int _nodePriority = DEFAULT_PRIORITY;
@@ -59,7 +59,7 @@ import com.opengamma.transport.FudgeMessageSender;
     return _nodePriority;
   }
 
-  private ConcurrentMap<CalculationJobSpecification, JobResultReceiver> getJobCompletionCallbacks() {
+  private ConcurrentMap<CalculationJobSpecification, JobInvocationReceiver> getJobCompletionCallbacks() {
     return _jobCompletionCallbacks;
   }
 
@@ -78,7 +78,7 @@ import com.opengamma.transport.FudgeMessageSender;
   }
 
   @Override
-  public boolean invoke(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items, final JobResultReceiver receiver) {
+  public boolean invoke(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items, final JobInvocationReceiver receiver) {
     if (_launched.incrementAndGet() > _capacity) {
       _launched.decrementAndGet();
       s_logger.debug("Capacity reached");
@@ -147,10 +147,9 @@ import com.opengamma.transport.FudgeMessageSender;
     // we could split the messages and re-register before the node starts sending data so it's next job can be overlaid (assumes
     // duplex network).
 
-    final JobResultReceiver receiver = getJobCompletionCallbacks().remove(message.getResult().getSpecification());
+    final JobInvocationReceiver receiver = getJobCompletionCallbacks().remove(message.getResult().getSpecification());
     if (receiver != null) {
-      s_logger.debug("Passing result back to {}", receiver);
-      receiver.resultReceived(message.getResult());
+      receiver.jobCompleted(message.getResult());
     } else {
       s_logger.warn("Duplicate or result for cancelled callback {} received", message.getResult().getSpecification());
     }
@@ -174,12 +173,11 @@ import com.opengamma.transport.FudgeMessageSender;
   public void connectionFailed(final FudgeConnection connection, final Exception cause) {
     s_logger.warn("Client connection {} dropped", connection, cause);
     for (CalculationJobSpecification jobSpec : getJobCompletionCallbacks().keySet()) {
-      final JobResultReceiver callback = getJobCompletionCallbacks().remove(jobSpec);
+      final JobInvocationReceiver callback = getJobCompletionCallbacks().remove(jobSpec);
       // There could still be late messages arriving from a buffer even though the connection has now failed
       if (callback != null) {
         s_logger.debug("Cancelling pending operation {}", jobSpec);
-        final CalculationJobResult result = new CalculationJobResult(jobSpec, 0L, Collections.<CalculationJobResultItem>emptyList(), connection.toString());
-        callback.resultReceived(result);
+        callback.jobFailed(cause);
       }
     }
   }

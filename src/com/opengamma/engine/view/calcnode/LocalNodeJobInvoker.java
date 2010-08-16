@@ -13,11 +13,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Invokes jobs on one or more local calculation node implementations.
  */
 public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContainer<Queue<AbstractCalculationNode>> implements JobInvoker {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(LocalNodeJobInvoker.class);
   private static final int DEFAULT_PRIORITY = 10;
 
   private final AtomicReference<JobInvokerRegister> _notifyWhenAvailable = new AtomicReference<JobInvokerRegister>();
@@ -66,7 +70,7 @@ public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContai
   }
 
   @Override
-  public boolean invoke(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items, final JobResultReceiver receiver) {
+  public boolean invoke(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items, final JobInvocationReceiver receiver) {
     final AbstractCalculationNode node = getNodes().poll();
     if (node == null) {
       return false;
@@ -75,7 +79,16 @@ public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContai
     final Runnable invokeTask = new Runnable() {
       @Override
       public void run() {
-        receiver.resultReceived(node.executeJob(job));
+        CalculationJobResult result = null;
+        try {
+          result = node.executeJob(job);
+        } catch (Exception e) {
+          s_logger.warn("Exception thrown by job execution", e);
+          receiver.jobFailed(e);
+        }
+        if (result != null) {
+          receiver.jobCompleted(result);
+        }
         addNode(node);
       }
     };

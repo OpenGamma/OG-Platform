@@ -49,18 +49,18 @@ public class LocalNodeJobInvokerTest implements JobInvokerRegister {
   @Test
   public void invokeWithNoNodes () {
     final LocalNodeJobInvoker invoker = new LocalNodeJobInvoker ();
-    final TestJobResultReceiver result = new TestJobResultReceiver (); 
-    assertFalse (invoker.invoke(JobDispatcherTest.createTestJobSpec (), JobDispatcherTest.createTestJobItems (), result));
-    assertNull (result.getResult ());
+    final TestJobInvocationReceiver receiver = new TestJobInvocationReceiver ();
+    assertFalse (invoker.invoke(JobDispatcherTest.createTestJobSpec (), JobDispatcherTest.createTestJobItems (), receiver));
+    assertNull (receiver.getCompletionResult());
   }
   
   @Test
   public void invokeWithOneNode () {
     final LocalNodeJobInvoker invoker = new LocalNodeJobInvoker (new TestCalculationNode ());
-    final TestJobResultReceiver result = new TestJobResultReceiver ();
+    final TestJobInvocationReceiver receiver = new TestJobInvocationReceiver ();
     final CalculationJobSpecification jobSpec = JobDispatcherTest.createTestJobSpec ();
-    assertTrue (invoker.invoke(jobSpec, JobDispatcherTest.createTestJobItems (), result));
-    final CalculationJobResult jobResult = result.waitForResult(TIMEOUT);
+    assertTrue (invoker.invoke(jobSpec, JobDispatcherTest.createTestJobItems (), receiver));
+    final CalculationJobResult jobResult = receiver.waitForCompletionResult(TIMEOUT);
     assertNotNull (jobResult);
     assertEquals (jobSpec, jobResult.getSpecification());
   }
