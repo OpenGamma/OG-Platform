@@ -136,6 +136,7 @@ public class SocketFudgeConnectionConduitTest {
   
   private class MessageReadWrite extends Thread implements FudgeMessageReceiver {
 
+    private static final long TIMEOUT = 5000L;
     private static final int NUM_MESSAGES = 1000;
 
     private FudgeMessageSender _sender;
@@ -160,8 +161,9 @@ public class SocketFudgeConnectionConduitTest {
     }
 
     public synchronized boolean waitForMessages() throws InterruptedException {
-      if (_received < NUM_MESSAGES) {
-        wait(5000L);
+      final long timeout = System.currentTimeMillis() + TIMEOUT;
+      while ((_received < NUM_MESSAGES) && (System.currentTimeMillis() < timeout)) {
+        wait(TIMEOUT);
       }
       return _received == NUM_MESSAGES;
     }
