@@ -15,6 +15,9 @@ import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -27,118 +30,145 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ResultModelDefinition implements Serializable {
   
-  private static final String AGGREGATE_POSITION_OUTPUTS_ENABLED_FIELD = "aggregatePositionOutputsEnabled";
-  private static final String POSITION_OUTPUTS_ENABLED_FIELD = "positionOutputsEnabled";
-  private static final String SECURITY_OUTPUTS_ENABLED_FIELD = "securityOutputsEnabled";
-  private static final String PRIMITIVE_OUTPUTS_ENABLED_FIELD = "primitiveOutputsEnabled";
+  private static final String AGGREGATE_POSITION_OUTPUT_MODE_FIELD = "aggregatePositionOutputMode";
+  private static final String POSITION_OUTPUT_MODE_FIELD = "positionOutputMode";
+  private static final String SECURITY_OUTPUT_MODE_FIELD = "securityOutputMode";
+  private static final String PRIMITIVE_OUTPUT_MODE_FIELD = "primitiveOutputMode";
   
-  private boolean _aggregatePositionOutputsEnabled = true;
-  private boolean _positionOutputsEnabled = true;
-  private boolean _securityOutputsEnabled = true;
-  private boolean _primitiveOutputsEnabled = true;
+  private ResultOutputMode _aggregatePositionOutputMode = ResultOutputMode.TERMINAL_OUTPUTS;
+  private ResultOutputMode _positionOutputMode = ResultOutputMode.TERMINAL_OUTPUTS;
+  private ResultOutputMode _securityOutputMode = ResultOutputMode.TERMINAL_OUTPUTS;
+  private ResultOutputMode _primitiveOutputMode = ResultOutputMode.TERMINAL_OUTPUTS;
 
   /**
-   * Gets whether aggregate position outputs are enabled. This is independent of individual position outputs.
+   * Gets the output mode that applies to aggregate position values. This is independent of individual position outputs.
    * 
-   * @return  whether aggregate position outputs are enabled
+   * @return  the output mode that applies to aggregate position values
    */
-  public boolean isAggregatePositionOutputsEnabled() {
-    return _aggregatePositionOutputsEnabled;
-  }
-
-  /**
-   * Sets whether aggregate position outputs are enabled. For example, the referenced portfolio could have a deep
-   * structure with many nodes at which aggregate portfolio outputs would be calculated. If these are not required then
-   * disabling them could speed up the computation cycle significantly.
-   * 
-   * @param aggregatePositionOutputsEnabled  whether aggregate position outputs are to be enabled.
-   */
-  public void setAggregatePositionOutputsEnabled(boolean aggregatePositionOutputsEnabled) {
-    _aggregatePositionOutputsEnabled = aggregatePositionOutputsEnabled;
+  public ResultOutputMode getAggregatePositionOutputMode() {
+    return _aggregatePositionOutputMode;
   }
 
   /**
-   * Gets whether individual position outputs are enabled. This is independent of aggregate position outputs. 
+   * Sets the output mode that applies to aggregate position outputs. For example, the referenced portfolio could have
+   * a deep structure with many nodes at which aggregate portfolio outputs would be calculated. If these are not
+   * required then disabling them could speed up the computation cycle significantly.
    * 
-   * @return  whether individual position outputs are enabled
+   * @param aggregatePositionOutputMode  the output mode to apply to aggregate position values
    */
-  public boolean isPositionOutputsEnabled() {
-    return _positionOutputsEnabled;
+  public void setAggregatePositionOutputMode(ResultOutputMode aggregatePositionOutputMode) {
+    _aggregatePositionOutputMode = aggregatePositionOutputMode;
   }
 
   /**
-   * Sets whether individual position outputs are enabled. If only aggregate position calculations are required, with
-   * respect to the hierarchy of the reference portfolio, then disabling outputs for individual positions through this
-   * method could speed up the computation cycle significantly. This is beneficial for calculations, such as VaR, which
-   * can be performed at the aggregate level without requiring the complete result of the same calculation on its
-   * children. Aggregate calculations where this is not the case will be unaffected, although disabling the individual
-   * position outputs will still hide them from the user even though they were calculated.
+   * Gets the output mode that applies to individual position values. This is independent of aggregate position
+   * outputs. 
    * 
-   * @param positionOutputsEnabled  whether individual position outputs are to be enabled
+   * @return  the output mode that applies to position values
    */
-  public void setPositionOutputsEnabled(boolean positionOutputsEnabled) {
-    _positionOutputsEnabled = positionOutputsEnabled;
+  public ResultOutputMode getPositionOutputMode() {
+    return _positionOutputMode;
+  }
+
+  /**
+   * Sets the output mode that applies to individual position outputs. If only aggregate position calculations are
+   * required, with respect to the hierarchy of the reference portfolio, then disabling outputs for individual
+   * positions through this method could speed up the computation cycle significantly. This is beneficial for
+   * calculations, such as VaR, which are be performed at the aggregate level without requiring the complete result of
+   * the same calculation on its children. Aggregate calculations where this is not the case will be unaffected,
+   * although disabling the individual position outputs will still hide them from the user even though they will be
+   * calculated.
+   * 
+   * @param positionOutputMode  the output mode to apply to position values
+   */
+  public void setPositionOutputMode(ResultOutputMode positionOutputMode) {
+    _positionOutputMode = positionOutputMode;
   }
   
   /**
-   * Gets whether security outputs are enabled.
+   * Gets the output mode that applies to security values.
    * 
-   * @return  whether security outputs are enabled
+   * @return  the output mode that applies to security values
    */
-  public boolean isSecurityOutputsEnabled() {
-    return _securityOutputsEnabled;
+  public ResultOutputMode getSecurityOutputMode() {
+    return _securityOutputMode;
   }
   
   /**
-   * Sets whether security outputs are enabled. These are values which relate generally to a security and apply to
-   * every position in that security. For example, market data on a security would be a security output.
+   * Sets the output mode to apply to security values. These are values which relate generally to a security and apply
+   *  to every position in that security. For example, market data on a security would be a security output.
    * 
-   * @param securityOutputsEnabled  whether security outputs are to be enabled
+   * @param securityOutputMode  the output mode to apply to security values
    */
-  public void setSecurityOutputsEnabled(boolean securityOutputsEnabled) {
-    _securityOutputsEnabled = securityOutputsEnabled;
+  public void setSecurityOutputMode(ResultOutputMode securityOutputMode) {
+    _securityOutputMode = securityOutputMode;
   }
   
   /**
-   * Gets whether primitive outputs are enabled.
+   * Gets the output mode that applies to primitive outputs.
    * 
-   * @return  whether primitive outputs are enabled
+   * @return  the output mode that applies to primitive values
    */
-  public boolean isPrimitiveOutputsEnabled() {
-    return _primitiveOutputsEnabled;
+  public ResultOutputMode getPrimitiveOutputMode() {
+    return _primitiveOutputMode;
   }
   
   /**
-   * Sets whether primitive outputs are enabled. These are values which may be used in calculations for many
-   * securities. For example, the USD discount curve would be a primitive.
+   * Sets the output mode that applies to primitive outputs. These are values which may be used in calculations for
+   * many securities. For example, the USD discount curve would be a primitive.
    * 
-   * @param primitiveOutputsEnabled  whether primitive outputs are to be enabled
+   * @param primitiveOutputMode  the output mode to apply to primitive values
    */
-  public void setPrimitiveOutputsEnabled(boolean primitiveOutputsEnabled) {
-    _primitiveOutputsEnabled = primitiveOutputsEnabled;
+  public void setPrimitiveOutputMode(ResultOutputMode primitiveOutputMode) {
+    _primitiveOutputMode = primitiveOutputMode;
   }
   
   /**
-   * Gets whether outputs for a particular target type are enabled. This should be used to determine whether or not a
-   * value for the target appears in the results.
+   * Gets the output mode that applies to values of the given computation target type.
    * 
    * @param computationTargetType  the target type, not null
-   * @return  <code>true</code> if outputs for this target type are enabled, <code>false</code> otherwise.
+   * @return  the output mode that applies to values of the give type
    */
-  public boolean outputsEnabled(ComputationTargetType computationTargetType) {
+  public ResultOutputMode getOutputMode(ComputationTargetType computationTargetType) {
     ArgumentChecker.notNull(computationTargetType, "computationTargetType");
     switch (computationTargetType) {
       case PRIMITIVE:
-        return isPrimitiveOutputsEnabled();
+        return getPrimitiveOutputMode();
       case SECURITY:
-        return isSecurityOutputsEnabled();
+        return getSecurityOutputMode();
       case POSITION:
-        return isPositionOutputsEnabled();
+        return getPositionOutputMode();
       case PORTFOLIO_NODE:
-        return isAggregatePositionOutputsEnabled();
+        return getAggregatePositionOutputMode();
       default:
-        throw new RuntimeException("Unexpected target type " + computationTargetType);
+        throw new IllegalArgumentException("Unknown target type " + computationTargetType);
     }
+  }
+  
+  /**
+   * Indicates whether an output with the given specification should be included in the results.
+   * 
+   * @param outputSpecification  the specification of the output value, not null
+   * @param dependencyGraph  the dependency graph to which the output value belongs, not null
+   * @return  <code>true</code> if the output value should be included in the results, <code>false</code> otherwise.
+   */
+  public boolean shouldOutputResult(ValueSpecification outputSpecification, DependencyGraph dependencyGraph) {
+    ArgumentChecker.notNull(outputSpecification, "outputSpecification");
+    ArgumentChecker.notNull(dependencyGraph, "dependencyGraph");
+    ComputationTargetType targetType = outputSpecification.getRequirementSpecification().getTargetSpecification().getType();
+    return getOutputMode(targetType).shouldOutputResult(outputSpecification, dependencyGraph);
+  }
+  
+  /**
+   * Indicates whether a dependency node produces any outputs that should be included in the results.
+   * 
+   * @param dependencyNode  the dependency node, not null
+   * @return  <code>true</code> if any outputs are produces that should be included in the results, <code>false</code>
+   *          otherwise. 
+   */
+  public boolean shouldOutputFromNode(DependencyNode dependencyNode) {
+    ComputationTargetType targetType = dependencyNode.getComputationTarget().getType();
+    return getOutputMode(targetType).shouldOutputFromNode(dependencyNode);
   }
   
   /**
@@ -150,10 +180,10 @@ public class ResultModelDefinition implements Serializable {
   public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
     ArgumentChecker.notNull(factory, "Fudge Context");
     MutableFudgeFieldContainer msg = factory.newMessage();
-    msg.add(AGGREGATE_POSITION_OUTPUTS_ENABLED_FIELD, _aggregatePositionOutputsEnabled);
-    msg.add(POSITION_OUTPUTS_ENABLED_FIELD, _positionOutputsEnabled);
-    msg.add(SECURITY_OUTPUTS_ENABLED_FIELD, _securityOutputsEnabled);
-    msg.add(PRIMITIVE_OUTPUTS_ENABLED_FIELD, _primitiveOutputsEnabled);
+    msg.add(AGGREGATE_POSITION_OUTPUT_MODE_FIELD,  _aggregatePositionOutputMode.name());
+    msg.add(POSITION_OUTPUT_MODE_FIELD, _positionOutputMode.name());
+    msg.add(SECURITY_OUTPUT_MODE_FIELD, _securityOutputMode.name());
+    msg.add(PRIMITIVE_OUTPUT_MODE_FIELD, _primitiveOutputMode.name());
     return msg;
   }
   
@@ -164,13 +194,13 @@ public class ResultModelDefinition implements Serializable {
    */
   public static ResultModelDefinition fromFudgeMsg(FudgeFieldContainer msg) {
     ResultModelDefinition result = new ResultModelDefinition();
-    result.setAggregatePositionOutputsEnabled(msg.getBoolean(AGGREGATE_POSITION_OUTPUTS_ENABLED_FIELD));
-    result.setPositionOutputsEnabled(msg.getBoolean(POSITION_OUTPUTS_ENABLED_FIELD));
-    result.setSecurityOutputsEnabled(msg.getBoolean(SECURITY_OUTPUTS_ENABLED_FIELD));
-    result.setPrimitiveOutputsEnabled(msg.getBoolean(PRIMITIVE_OUTPUTS_ENABLED_FIELD));
+    result.setAggregatePositionOutputMode(msg.getFieldValue(ResultOutputMode.class, msg.getByName(AGGREGATE_POSITION_OUTPUT_MODE_FIELD)));
+    result.setPositionOutputMode(msg.getFieldValue(ResultOutputMode.class, msg.getByName(POSITION_OUTPUT_MODE_FIELD)));
+    result.setSecurityOutputMode(msg.getFieldValue(ResultOutputMode.class, msg.getByName(SECURITY_OUTPUT_MODE_FIELD)));
+    result.setPrimitiveOutputMode(msg.getFieldValue(ResultOutputMode.class, msg.getByName(PRIMITIVE_OUTPUT_MODE_FIELD)));
     return result;
   }
-  
+
   @Override
   public int hashCode() {
     return HashCodeBuilder.reflectionHashCode(this);

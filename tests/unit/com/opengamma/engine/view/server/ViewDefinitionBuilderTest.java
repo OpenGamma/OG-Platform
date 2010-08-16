@@ -15,6 +15,7 @@ import org.junit.Test;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.NumberDeltaComparer;
+import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueIdentifier;
@@ -37,7 +38,7 @@ public class ViewDefinitionBuilderTest {
     ViewDefinition viewDef = new ViewDefinition("Test View", UniqueIdentifier.of("Test Scheme", "Port1"), "someuser");
     viewDef.setDeltaRecalculationPeriod(1000L);
     viewDef.setFullRecalculationPeriod(60000L);
-    viewDef.getResultModelDefinition().setAggregatePositionOutputsEnabled(false);
+    viewDef.getResultModelDefinition().setAggregatePositionOutputMode(ResultOutputMode.ALL);
     
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDef, "Test config");
     calcConfig.addPortfolioRequirement("SecType", "Req1");

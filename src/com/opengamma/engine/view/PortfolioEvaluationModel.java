@@ -485,13 +485,14 @@ public class PortfolioEvaluationModel {
           continue;
         }
         Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-        if (_resultModelDefinition.isAggregatePositionOutputsEnabled()) {
+        // If the outputs are not even required in the results then there's no point adding them as terminal outputs
+        if (_resultModelDefinition.getAggregatePositionOutputMode() != ResultOutputMode.NONE) {
           for (String requiredOutput : requiredOutputs) {
             requirements.add(new ValueRequirement(requiredOutput, portfolioNode));
           }
           _dependencyGraphBuilder.addTarget(new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, portfolioNode), requirements);
         }
-        if (_resultModelDefinition.isPositionOutputsEnabled()) {
+        if (_resultModelDefinition.getPositionOutputMode() != ResultOutputMode.NONE) {
           for (Position position : portfolioNode.getPositions()) {
             requirements.clear();
             for (String requiredOutput : requiredOutputs) {
