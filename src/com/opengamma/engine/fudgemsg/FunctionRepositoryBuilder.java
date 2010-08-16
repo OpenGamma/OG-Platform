@@ -53,7 +53,7 @@ public class FunctionRepositoryBuilder implements FudgeBuilder<FunctionRepositor
         s_logger.debug("Deserialized function {} from {}", field.getName(), subMessage);
       } catch (FudgeRuntimeException e) {
         s_logger.error("Couldn't deserialise function {} from {}", field.getName(), subMessage);
-        e.printStackTrace ();
+        e.printStackTrace();
       }
     }
     final Collection<FunctionDefinition> unmodifiableFunctions = Collections.unmodifiableCollection(functions);
@@ -86,7 +86,7 @@ public class FunctionRepositoryBuilder implements FudgeBuilder<FunctionRepositor
         message.add(function.getUniqueIdentifier(), null, subMessage);
       } catch (FudgeRuntimeException e) {
         s_logger.warn("Couldn't serialise function - {}", function, e);
-        e.printStackTrace ();
+        e.printStackTrace();
       }
     }
     return message;

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.calcnode;
@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class CalculationJobResultItem {
-  
+
   private static final String ITEM_FIELD_NAME = "item";
   private static final String INVOCATION_RESULT_FIELD_NAME = "result";
   private static final String EXCEPTION_CLASS_FIELD_NAME = "exceptionClass";
@@ -31,19 +31,19 @@ public class CalculationJobResultItem {
 
   private final CalculationJobItem _item;
   private final InvocationResult _result;
-  
+
   private final String _exceptionClass;
   private final String _exceptionMsg;
   private final String _stackTrace;
-  
+
   private final Set<ValueSpecification> _missingInputs;
-  
+
   public CalculationJobResultItem(CalculationJobItem item, Exception exception) {
     ArgumentChecker.notNull(item, "Calculation job item");
     ArgumentChecker.notNull(exception, "Result");
-    
+
     _item = item;
-    
+
     if (exception instanceof MissingInputException) {
       _result = InvocationResult.MISSING_INPUTS;
       _missingInputs = ((MissingInputException) exception).getMissingInputs();
@@ -51,36 +51,30 @@ public class CalculationJobResultItem {
       _result = InvocationResult.FUNCTION_THREW_EXCEPTION;
       _missingInputs = Collections.emptySet();
     }
-    
+
     _exceptionClass = exception.getClass().getName();
     _exceptionMsg = exception.getMessage();
-    
+
     StringBuffer buffer = new StringBuffer();
     for (StackTraceElement element : exception.getStackTrace()) {
       buffer.append(element.toString() + "\n");
     }
     _stackTrace = buffer.toString();
   }
-  
+
   public CalculationJobResultItem(CalculationJobItem item) {
     ArgumentChecker.notNull(item, "Calculation job item");
-    
+
     _item = item;
     _result = InvocationResult.SUCCESS;
-    
+
     _exceptionClass = null;
     _exceptionMsg = null;
     _stackTrace = null;
     _missingInputs = Collections.emptySet();
   }
-  
-  private CalculationJobResultItem(
-      CalculationJobItem item,
-      InvocationResult result,
-      String exceptionClass,
-      String exceptionMsg,
-      String stackTrace,
-      Set<ValueSpecification> missingInputs) {
+
+  private CalculationJobResultItem(CalculationJobItem item, InvocationResult result, String exceptionClass, String exceptionMsg, String stackTrace, Set<ValueSpecification> missingInputs) {
     _item = item;
     _result = result;
     _exceptionClass = exceptionClass;
@@ -88,7 +82,7 @@ public class CalculationJobResultItem {
     _stackTrace = stackTrace;
     _missingInputs = missingInputs;
   }
-  
+
   public boolean failed() {
     return getResult() != InvocationResult.SUCCESS;
   }
@@ -96,7 +90,7 @@ public class CalculationJobResultItem {
   public CalculationJobItem getItem() {
     return _item;
   }
-  
+
   public ComputationTargetSpecification getComputationTargetSpecification() {
     return getItem().getComputationTargetSpecification();
   }
@@ -104,11 +98,11 @@ public class CalculationJobResultItem {
   public InvocationResult getResult() {
     return _result;
   }
-  
+
   public Set<ValueSpecification> getOutputs() {
     return getItem().getOutputs();
   }
-  
+
   public String getExceptionClass() {
     return _exceptionClass;
   }
@@ -120,7 +114,7 @@ public class CalculationJobResultItem {
   public String getStackTrace() {
     return _stackTrace;
   }
-  
+
   public Set<ValueSpecification> getMissingInputs() {
     return Collections.unmodifiableSet(_missingInputs);
   }
@@ -135,23 +129,24 @@ public class CalculationJobResultItem {
     fudgeContext.objectToFudgeMsg(msg, MISSING_INPUTS_FIELD_NAME, null, getMissingInputs());
     return msg;
   }
-  
+
   @SuppressWarnings("unchecked")
   public static CalculationJobResultItem fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeFieldContainer msg) {
     CalculationJobItem item = CalculationJobItem.fromFudgeMsg(fudgeContext, msg.getMessage(ITEM_FIELD_NAME));
     InvocationResult result = InvocationResult.valueOf(msg.getString(INVOCATION_RESULT_FIELD_NAME));
     String exceptionClass = msg.getString(EXCEPTION_CLASS_FIELD_NAME);
     String exceptionMsg = msg.getString(EXCEPTION_MSG_FIELD_NAME);
-    String stackTrace =  msg.getString(STACK_TRACE_FIELD_NAME);
+    String stackTrace = msg.getString(STACK_TRACE_FIELD_NAME);
     Set<ValueSpecification> missingInputs = fudgeContext.fieldValueToObject(Set.class, msg.getByName(MISSING_INPUTS_FIELD_NAME));
-    
-    return new CalculationJobResultItem(
-        item, 
-        result,
-        exceptionClass,
-        exceptionMsg,
-        stackTrace,
-        missingInputs);
+
+    return new CalculationJobResultItem(item, result, exceptionClass, exceptionMsg, stackTrace, missingInputs);
   }
-  
+
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder();
+    sb.append("CalculationJobResultItem for ").append(getItem());
+    return sb.toString();
+  }
+
 }
