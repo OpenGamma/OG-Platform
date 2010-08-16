@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.calcnode;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -20,13 +21,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.transport.FudgeConnection;
+import com.opengamma.transport.FudgeConnectionStateListener;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageSender;
 
 /**
  * A JobInvoker for invoking a job on a remote node connected by a FudgeConnection.
  */
-/* package */class RemoteNodeJobInvoker implements JobInvoker, FudgeMessageReceiver {
+/* package */class RemoteNodeJobInvoker implements JobInvoker, FudgeMessageReceiver, FudgeConnectionStateListener {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteNodeJobInvoker.class);
 
@@ -44,6 +46,7 @@ import com.opengamma.transport.FudgeMessageSender;
     _executorService = executorService;
     _fudgeMessageSender = fudgeConnection.getFudgeMessageSender();
     fudgeConnection.setFudgeMessageReceiver(this);
+    fudgeConnection.setConnectionStateListener(this);
     handleReadyMessage(initialMessage);
     s_logger.info("Remote node invoker created with capacity {}", _capacity);
   }
@@ -70,7 +73,7 @@ import com.opengamma.transport.FudgeMessageSender;
 
   @Override
   public int canInvoke(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items) {
-    // TODO this is where we'd consider capabilities
+    // [ENG-42] this is where we'd consider capabilities
     return getNodePriority();
   }
 
@@ -94,8 +97,6 @@ import com.opengamma.transport.FudgeMessageSender;
     });
     return true;
   }
-  
-  // TODO detect the loss of a FudgeConnection and any "pending" jobs should be passed back to their result receiver as failed so that they can be retried
 
   @Override
   public void notifyWhenAvailable(final JobInvokerRegister callback) {
@@ -147,13 +148,17 @@ import com.opengamma.transport.FudgeMessageSender;
     // duplex network).
 
     final JobResultReceiver receiver = getJobCompletionCallbacks().remove(message.getResult().getSpecification());
-    s_logger.debug("Passing result back to {}", receiver);
-    receiver.resultReceived(message.getResult());
+    if (receiver != null) {
+      s_logger.debug("Passing result back to {}", receiver);
+      receiver.resultReceived(message.getResult());
+    } else {
+      s_logger.warn("Duplicate or result for cancelled callback {} received", message.getResult().getSpecification());
+    }
   }
 
   private void handleReadyMessage(final RemoteCalcNodeReadyMessage message) {
     s_logger.debug("Remote invoker ready message - {}", message);
-    // TODO this is where we'd detect capability changes
+    // [ENG-42] this is where we'd detect capability changes
     _capacity = message.getCapacity();
     final int launched = _launched.get();
     if (launched < _capacity) {
@@ -163,6 +168,26 @@ import com.opengamma.transport.FudgeMessageSender;
     } else {
       s_logger.info("Remote invoker over capacity {} with {} jobs", message.getCapacity(), launched);
     }
+  }
+
+  @Override
+  public void connectionFailed(final FudgeConnection connection, final Exception cause) {
+    s_logger.warn("Client connection {} dropped", connection, cause);
+    for (CalculationJobSpecification jobSpec : getJobCompletionCallbacks().keySet()) {
+      final JobResultReceiver callback = getJobCompletionCallbacks().remove(jobSpec);
+      // There could still be late messages arriving from a buffer even though the connection has now failed
+      if (callback != null) {
+        s_logger.debug("Cancelling pending operation {}", jobSpec);
+        final CalculationJobResult result = new CalculationJobResult(jobSpec, 0L, Collections.<CalculationJobResultItem>emptyList(), connection.toString());
+        callback.resultReceived(result);
+      }
+    }
+  }
+
+  @Override
+  public void connectionReset(final FudgeConnection connection) {
+    s_logger.info("Connection reset by client");
+    // We're the server end of a connection, so this isn't going to happen with the socket implementation
   }
 
 }

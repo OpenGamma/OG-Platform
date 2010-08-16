@@ -21,13 +21,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.transport.FudgeConnection;
+import com.opengamma.transport.FudgeConnectionStateListener;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageSender;
 
 /**
  * Client end to RemoteNodeServer for registering one or more AbstractCalculationNodes with a remote job dispatcher.
  */
-public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer<BlockingQueue<AbstractCalculationNode>> implements FudgeMessageReceiver, Lifecycle {
+public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer<BlockingQueue<AbstractCalculationNode>> implements FudgeMessageReceiver, Lifecycle, FudgeConnectionStateListener {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteNodeClient.class);
 
@@ -130,6 +131,7 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
       sendCapabilities();
       _started = true;
       s_logger.info("Client started for {}", _connection);
+      _connection.setConnectionStateListener(this);
     } else {
       s_logger.warn("Client already started");
     }
@@ -139,10 +141,26 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
   public synchronized void stop() {
     if (_started) {
       s_logger.info("Client stopped");
+      _connection.setConnectionStateListener(null);
       _started = false;
     } else {
       s_logger.warn("Client already stopped");
     }
+  }
+
+  @Override
+  public void connectionFailed(final FudgeConnection connection, final Exception cause) {
+    s_logger.warn("Underlying connection failed - client cannot run", cause);
+    if (_started) {
+      stop();
+    }
+  }
+
+  @Override
+  public void connectionReset(final FudgeConnection connection) {
+    s_logger.info("Underlying connection reset - resending capabilities");
+    sendCapabilities();
+    s_logger.debug("Capabilities sent");
   }
 
 }
