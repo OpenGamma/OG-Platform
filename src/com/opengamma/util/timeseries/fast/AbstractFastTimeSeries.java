@@ -28,9 +28,6 @@ import java.util.Map.Entry;
 
 import javax.time.calendar.ZonedDateTime;
 
-import org.fudgemsg.FudgeMessageFactory;
-import org.fudgemsg.MutableFudgeFieldContainer;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
@@ -644,13 +641,6 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
     }
     sb.append("]");
     return sb.toString();
-  }
-
-  // Temporary hack to get the remote view client working
-  public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory messageFactory) {
-    final MutableFudgeFieldContainer message = messageFactory.newMessage();
-    message.add(null, 0, getClass().getName());
-    return message;
   }
 
 }

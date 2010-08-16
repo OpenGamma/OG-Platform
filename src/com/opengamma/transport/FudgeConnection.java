@@ -14,4 +14,6 @@ public interface FudgeConnection {
 
   FudgeMessageSender getFudgeMessageSender();
 
+  // TODO a lifecycle callback that can be registered for when the connection has been reset
+
 }

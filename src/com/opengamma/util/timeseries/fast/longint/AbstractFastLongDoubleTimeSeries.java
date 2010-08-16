@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.fudgemsg.FudgeMessageFactory;
-import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
@@ -424,14 +422,4 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
     return new FastArrayLongDoubleTimeSeries(encoding, this);
   }
 
-  // Temporary hack to get the remote view client working
-  @Override
-  public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory messageFactory) {
-    final MutableFudgeFieldContainer message = super.toFudgeMsg(messageFactory);
-    if (_encoding != null) {
-      message.add("encoding", _encoding.name());
-    }
-    return message;
-  }
-  
 }
