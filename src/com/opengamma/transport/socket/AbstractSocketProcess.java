@@ -85,10 +85,12 @@ public abstract class AbstractSocketProcess implements Lifecycle {
   public synchronized void start() {
     ArgumentChecker.notNullInjected(getInetAddress(), "Remote InetAddress");
     ArgumentChecker.isTrue(getPortNumber() > 0, "Must specify valid portNumber property");
-    
-    openRemoteConnection();
-    
-    _started = true;
+    if (_started && (_socket != null)) {
+      s_logger.warn("Already connected to {}:{}", getInetAddress(), getPortNumber());
+    } else {
+      openRemoteConnection();
+      _started = true;
+    }
   }
   
   protected synchronized void openRemoteConnection() {
@@ -108,17 +110,22 @@ public abstract class AbstractSocketProcess implements Lifecycle {
 
   @Override
   public synchronized void stop() {
-    if (_socket.isConnected()) {
-      try {
-        _socket.close();
-      } catch (IOException e) {
-        s_logger.warn("Unable to close connected socket to {}", new Object[]{_socket.getRemoteSocketAddress()}, e);
+    if (_started) {
+      if (_socket != null) {
+        if (_socket.isConnected()) {
+          try {
+            _socket.close();
+          } catch (IOException e) {
+            s_logger.warn("Unable to close connected socket to {}", new Object[] {_socket.getRemoteSocketAddress()}, e);
+          }
+        }
+        _socket = null;
       }
+      _started = false;
+      socketClosed();
+    } else {
+      s_logger.warn("Already stopped {}:{}", getInetAddress(), getPortNumber());
     }
-    
-    _socket = null;
-    _started = false;
-    socketClosed();
   }
   
   protected boolean exceptionForcedByClose(final Exception e) {
