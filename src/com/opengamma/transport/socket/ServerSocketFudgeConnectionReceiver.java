@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionReceiver;
+import com.opengamma.transport.FudgeConnectionStateListener;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageSender;
 import com.opengamma.util.ArgumentChecker;
@@ -40,7 +41,7 @@ public class ServerSocketFudgeConnectionReceiver extends AbstractServerSocketPro
   private final FudgeContext _fudgeContext;
 
   private final TerminatableJobContainer _connectionJobs = new TerminatableJobContainer();
-
+  
   public ServerSocketFudgeConnectionReceiver(final FudgeContext fudgeContext, final FudgeConnectionReceiver underlying) {
     _fudgeContext = fudgeContext;
     _underlying = underlying;
@@ -90,6 +91,7 @@ public class ServerSocketFudgeConnectionReceiver extends AbstractServerSocketPro
     private final FudgeMessageSender _sender;
     private final FudgeConnection _connection;
     private FudgeMessageReceiver _receiver;
+    private volatile FudgeConnectionStateListener _listener;
 
     ConnectionJob(final Socket socket, final InputStream is, final OutputStream os) {
       _socket = socket;
@@ -107,12 +109,7 @@ public class ServerSocketFudgeConnectionReceiver extends AbstractServerSocketPro
           try {
             _writer.writeMessage(message);
           } catch (FudgeRuntimeIOException e) {
-            if (exceptionForcedByClose(e.getCause())) {
-              s_logger.info("Connection terminated");
-            } else {
-              s_logger.warn("Unable to write message to underlying stream - terminating connection", e.getCause());
-              terminate();
-            }
+            terminateWithError("Unable to write message to underlying stream - terminating connection", e.getCause());
             throw e;
           }
         }
@@ -138,6 +135,11 @@ public class ServerSocketFudgeConnectionReceiver extends AbstractServerSocketPro
           return sb.toString();
         }
 
+        @Override
+        public void setConnectionStateListener(final FudgeConnectionStateListener listener) {
+          _listener = listener;
+        }
+
       };
     }
 
@@ -151,17 +153,11 @@ public class ServerSocketFudgeConnectionReceiver extends AbstractServerSocketPro
       try {
         envelope = _reader.nextMessageEnvelope();
       } catch (FudgeRuntimeIOException e) {
-        if (exceptionForcedByClose(e.getCause())) {
-          s_logger.info("Connection terminated");
-        } else {
-          s_logger.warn("Unable to read message from underlying stream - terminating connection", e.getCause());
-          terminate();
-        }
+        terminateWithError("Unable to read message from underlying stream - terminating connection", e.getCause());
         return;
       }
       if (envelope == null) {
-        s_logger.info("Nothing available on stream. Terminating connection");
-        terminate();
+        terminateWithError("Nothing available on stream - terminating connection", null);
         return;
       }
       final FudgeMessageReceiver receiver = _receiver;
@@ -177,6 +173,24 @@ public class ServerSocketFudgeConnectionReceiver extends AbstractServerSocketPro
         } catch (Exception e) {
           s_logger.warn("Unable to dispatch connection to receiver", e);
         }
+      }
+    }
+
+    private void terminateWithError(final String errorMessage, final Exception cause) {
+      if (cause != null) {
+        if (exceptionForcedByClose(cause)) {
+          s_logger.info("Connection terminated");
+        } else {
+          s_logger.warn(errorMessage, cause);
+          terminate();
+        }
+      } else {
+        s_logger.info(errorMessage);
+        terminate();
+      }
+      final FudgeConnectionStateListener listener = _listener;
+      if (listener != null) {
+        listener.connectionFailed(_connection, cause);
       }
     }
 

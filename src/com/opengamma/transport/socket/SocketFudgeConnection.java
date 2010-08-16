@@ -7,6 +7,7 @@ package com.opengamma.transport.socket;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -20,7 +21,9 @@ import org.fudgemsg.FudgeRuntimeIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.transport.FudgeConnection;
+import com.opengamma.transport.FudgeConnectionStateListener;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageSender;
 import com.opengamma.util.TerminatableJob;
@@ -37,8 +40,15 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
   private FudgeMessageReceiver _receiver;
   private FudgeMsgWriter _msgWriter;
   private TerminatableJob _receiverJob;
+  private volatile FudgeConnectionStateListener _stateListener;
 
   private final FudgeMessageSender _sender = new FudgeMessageSender() {
+
+    /**
+     * Prevents re-entrant calls to startIfNecessary if a message is sent as part of a connection
+     * reset callback.
+     */
+    private boolean _isSending;
 
     @Override
     public FudgeContext getFudgeContext() {
@@ -47,7 +57,23 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
 
     @Override
     public void send(FudgeFieldContainer message) {
-      startIfNecessary();
+      if (!_isSending) {
+        _isSending = true;
+        try {
+          startIfNecessary();
+        } catch (OpenGammaRuntimeException e) {
+          if (e.getCause() instanceof IOException) {
+            final FudgeConnectionStateListener stateListener = _stateListener;
+            if (stateListener != null) {
+              stateListener.connectionFailed(SocketFudgeConnection.this, (IOException) e.getCause());
+              // Should we still carry on and throw the exception if the user's been given it as a callback? Maybe allow the connectionFailed callback specify which to rethrow?
+            }
+          }
+          throw e;
+        } finally {
+          _isSending = false;
+        }
+      }
       try {
         _msgWriter.writeMessage(message);
       } catch (FudgeRuntimeIOException e) {
@@ -117,6 +143,10 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
     thread.setDaemon(true);
     thread.start();
     // We don't keep hold of the thread as we're never going to join it; terminating the job will let it finish and be GCd
+    final FudgeConnectionStateListener stateListener = _stateListener;
+    if (stateListener != null) {
+      stateListener.connectionReset(this);
+    }
   }
 
   @Override
@@ -136,6 +166,11 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
       sb.append(" (not connected)");
     }
     return sb.toString();
+  }
+
+  @Override
+  public void setConnectionStateListener(FudgeConnectionStateListener listener) {
+    _stateListener = listener;
   }
 
 }

@@ -47,6 +47,11 @@ public class DirectFudgeConnection {
       _end1Receiver = receiver;
     }
 
+    @Override
+    public void setConnectionStateListener(final FudgeConnectionStateListener listener) {
+      // no action; the direct connection can't change state
+    }
+
   };
 
   private FudgeMessageReceiver _end2Receiver;
@@ -77,6 +82,11 @@ public class DirectFudgeConnection {
     @Override
     public void setFudgeMessageReceiver(FudgeMessageReceiver receiver) {
       _end2Receiver = receiver;
+    }
+
+    @Override
+    public void setConnectionStateListener(final FudgeConnectionStateListener listener) {
+      // no action; the direct connection can't change state
     }
 
   };

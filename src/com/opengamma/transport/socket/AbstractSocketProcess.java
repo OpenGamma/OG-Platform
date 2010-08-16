@@ -102,6 +102,14 @@ public abstract class AbstractSocketProcess implements Lifecycle {
       os = _socket.getOutputStream();
       is = _socket.getInputStream();
     } catch (IOException ioe) {
+      if (_socket != null) {
+        try {
+          _socket.close();
+        } catch (IOException e) {
+          // Ignore
+        }
+        _socket = null;
+      }
       throw new OpenGammaRuntimeException("Unable to open remote connection to " + getInetAddress() + ":" + getPortNumber(), ioe);
     }
     os = new BufferedOutputStream(os);
