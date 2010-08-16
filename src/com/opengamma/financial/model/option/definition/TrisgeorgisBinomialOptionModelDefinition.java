@@ -21,10 +21,10 @@ public class TrisgeorgisBinomialOptionModelDefinition extends BinomialOptionMode
   @Override
   public RecombiningBinomialTree<Double> getUpProbabilityTree(final OptionDefinition option, final StandardOptionDataBundle data, final int n, final int j) {
     final double t = option.getTimeToExpiry(data.getDate());
-    final double r = data.getInterestRate(t);
     final double sigma = data.getVolatility(t, option.getStrike());
+    final double b = data.getCostOfCarry();
     final double dt = t / n;
-    final double nu = r - 0.5 * sigma * sigma;
+    final double nu = b - 0.5 * sigma * sigma;
     final double du = getUpFactor(option, data, n, j);
     return new ConstantRecombiningBinomialTree<Double>(0.5 * (1 + nu * dt / Math.log(du)));
   }
@@ -32,11 +32,10 @@ public class TrisgeorgisBinomialOptionModelDefinition extends BinomialOptionMode
   @Override
   public double getUpFactor(final OptionDefinition option, final StandardOptionDataBundle data, final int n, final int j) {
     final double t = option.getTimeToExpiry(data.getDate());
-    final double r = data.getInterestRate(t);
     final double sigma = data.getVolatility(t, option.getStrike());
     final double dt = t / n;
     final double b = data.getCostOfCarry();
-    final double nu = r - b - 0.5 * sigma * sigma;
+    final double nu = b - 0.5 * sigma * sigma;
     return Math.exp(Math.sqrt(sigma * sigma * dt + nu * nu * dt * dt));
   }
 

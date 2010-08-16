@@ -35,9 +35,34 @@ public class TrinomialOptionModelTest {
       new StandardOptionDataBundle(new ConstantYieldCurve(0.06), 0.03, new ConstantVolatilitySurface(0.2), 100., DATE);
   private static final TrinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> TRINOMIAL = new MyTrinomialOptionModelDefinition();
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullDefinition() {
+    new TrinomialOptionModel<StandardOptionDataBundle>(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeN() {
+    new TrinomialOptionModel<StandardOptionDataBundle>(TRINOMIAL, -3);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testZeroN() {
+    new TrinomialOptionModel<StandardOptionDataBundle>(TRINOMIAL, 0);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeDepth() {
+    new TrinomialOptionModel<StandardOptionDataBundle>(TRINOMIAL, 3, -3);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testInconsistentDepth() {
+    new TrinomialOptionModel<StandardOptionDataBundle>(TRINOMIAL, 3, 10);
+  }
+  
   @Test
   public void test() {
-    final TrinomialOptionModel<StandardOptionDataBundle> model = new TrinomialOptionModel<StandardOptionDataBundle>(3, TRINOMIAL);
+    final TrinomialOptionModel<StandardOptionDataBundle> model = new TrinomialOptionModel<StandardOptionDataBundle>(TRINOMIAL, 3);
     final Function1D<StandardOptionDataBundle, RecombiningTrinomialTree<DoublesPair>> f = model.getTreeGeneratingFunction(CALL);
     final DoublesPair[][] tree = f.evaluate(DATA).getTree();
     final DoublesPair[][] expected = new DoublesPair[4][7];

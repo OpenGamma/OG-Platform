@@ -7,7 +7,6 @@ package com.opengamma.financial.model.cashflow;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.PV01Calculator;
 import com.opengamma.financial.interestrate.annuity.definition.ContinouslyCompoundedYieldCalculator;
 import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
 
@@ -16,7 +15,6 @@ import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
  */
 public class EffectiveDurationCalculator {
   private final ContinouslyCompoundedYieldCalculator _yield = new ContinouslyCompoundedYieldCalculator();
-  private final PV01Calculator _pv01 = new PV01Calculator();
 
   public double calculate(final FixedAnnuity annuity, final double price) {
     Validate.notNull(annuity, "annuity");

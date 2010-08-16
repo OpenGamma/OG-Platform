@@ -7,6 +7,8 @@ package com.opengamma.financial.model.option.pricing.tree;
 
 import java.util.Set;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.greeks.GreekVisitor;
@@ -18,6 +20,7 @@ import com.opengamma.financial.model.option.definition.TrinomialOptionModelDefin
 import com.opengamma.financial.model.option.pricing.FiniteDifferenceGreekVisitor;
 import com.opengamma.financial.model.tree.RecombiningTrinomialTree;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -27,18 +30,30 @@ import com.opengamma.util.tuple.DoublesPair;
 public class TrinomialOptionModel<T extends StandardOptionDataBundle> extends TreeOptionModel<OptionDefinition, T> {
   private final int _n;
   private final int _j;
+  private final int _maxDepthToSave;
+  private final int _maxWidthToSave;
   private final TrinomialOptionModelDefinition<OptionDefinition, T> _model;
 
   public TrinomialOptionModel(final TrinomialOptionModelDefinition<OptionDefinition, T> model) {
-    _model = model;
-    _n = 1000;
-    _j = RecombiningTrinomialTree.NODES.evaluate(_n);
+    this(model, 1000);
   }
 
-  public TrinomialOptionModel(final int n, final TrinomialOptionModelDefinition<OptionDefinition, T> model) {
+  public TrinomialOptionModel(final TrinomialOptionModelDefinition<OptionDefinition, T> model, final int n) {
+    this(model, n, Math.min(5, n));
+  }
+
+  public TrinomialOptionModel(TrinomialOptionModelDefinition<OptionDefinition, T> model, int n, int maxDepthToSave) {
+    Validate.notNull(model, "model");
+    ArgumentChecker.notNegativeOrZero(n, "n");
+    ArgumentChecker.notNegative(maxDepthToSave, "max. depth to save");
+    if (maxDepthToSave > n) {
+      throw new IllegalArgumentException("Asked for tree to be saved to depth " + maxDepthToSave + " but the tree will only be " + n + " levels deep");
+    }
     _model = model;
     _n = n;
     _j = RecombiningTrinomialTree.NODES.evaluate(_n);
+    _maxDepthToSave = maxDepthToSave;
+    _maxWidthToSave = RecombiningTrinomialTree.NODES.evaluate(maxDepthToSave);
   }
 
   @Override
@@ -65,10 +80,10 @@ public class TrinomialOptionModel<T extends StandardOptionDataBundle> extends Tr
   public Function1D<T, RecombiningTrinomialTree<DoublesPair>> getTreeGeneratingFunction(final OptionDefinition definition) {
     return new Function1D<T, RecombiningTrinomialTree<DoublesPair>>() {
 
-      @SuppressWarnings({ "unchecked", "synthetic-access" })
+      @SuppressWarnings({"unchecked", "synthetic-access" })
       @Override
       public RecombiningTrinomialTree<DoublesPair> evaluate(final T data) {
-        final DoublesPair[][] spotAndOptionPrices = new DoublesPair[_n + 1][_j];
+        final DoublesPair[][] spotAndOptionPrices = new DoublesPair[_maxDepthToSave + 1][_maxWidthToSave];
         final OptionPayoffFunction<T> payoffFunction = definition.getPayoffFunction();
         final OptionExerciseFunction<T> exerciseFunction = definition.getExerciseFunction();
         final double u = _model.getUpFactor(definition, data, _n, _j);
@@ -80,22 +95,25 @@ public class TrinomialOptionModel<T extends StandardOptionDataBundle> extends Tr
         final double edx = Math.exp(_model.getDX(definition, data, _n, _j));
         final double df = Math.exp(-r * t / _n);
         double newSpot = spot * Math.pow(edx, -_n);
+        final DoublesPair[] tempResults = new DoublesPair[_j];
         for (int i = 0; i < _j; i++) {
-          spotAndOptionPrices[_n][i] = DoublesPair.of(newSpot, payoffFunction.getPayoff((T) data.withSpot(newSpot), 0.));
+          tempResults[i] = DoublesPair.of(newSpot, payoffFunction.getPayoff((T) data.withSpot(newSpot), 0.));
+          if (_n == _maxDepthToSave) {
+            spotAndOptionPrices[_n][i] = tempResults[i];
+          }
           newSpot *= edx;
         }
         double optionValue, spotValue;
         T newData;
         for (int i = _n - 1; i >= 0; i--) {
           for (int j = 1; j <= RecombiningTrinomialTree.NODES.evaluate(i); j++) {
-            optionValue =
-                df
-                    * (u * spotAndOptionPrices[i + 1][j + 1].second + m * spotAndOptionPrices[i + 1][j].second + d
-                        * spotAndOptionPrices[i + 1][j - 1].second);
-            spotValue = df * spotAndOptionPrices[i + 1][j].first;
+            optionValue = df * (u * tempResults[j + 1].second + m * tempResults[j].second + d * tempResults[j - 1].second);
+            spotValue = df * tempResults[j].first;
             newData = (T) data.withSpot(spotValue);
-            spotAndOptionPrices[i][j - 1] =
-              DoublesPair.of(spotValue, exerciseFunction.shouldExercise(newData, optionValue) ? payoffFunction.getPayoff(newData, optionValue) : optionValue);
+            tempResults[j - 1] = DoublesPair.of(spotValue, exerciseFunction.shouldExercise(newData, optionValue) ? payoffFunction.getPayoff(newData, optionValue) : optionValue);
+            if (i <= _maxDepthToSave) {
+              spotAndOptionPrices[i][j - 1] = tempResults[j - 1];
+            }
           }
         }
         return new RecombiningTrinomialTree<DoublesPair>(spotAndOptionPrices);

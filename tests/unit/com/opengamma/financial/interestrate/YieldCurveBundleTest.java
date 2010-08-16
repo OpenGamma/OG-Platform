@@ -105,6 +105,11 @@ public class YieldCurveBundleTest {
     BUNDLE.getCurve("D");
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testReplaceNonExistentCurve() {
+    BUNDLE.replaceCurve("E", CURVES[1]);
+  }
+
   @Test
   public void testGetters() {
     final YieldCurveBundle bundle = new YieldCurveBundle(MAP);

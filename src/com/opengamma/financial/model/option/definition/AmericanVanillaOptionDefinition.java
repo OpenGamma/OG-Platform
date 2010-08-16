@@ -35,13 +35,13 @@ public class AmericanVanillaOptionDefinition extends OptionDefinition {
   };
   private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new OptionExerciseFunction<StandardOptionDataBundle>() {
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public boolean shouldExercise(final StandardOptionDataBundle data, final Double optionPrice) {
       Validate.notNull(data);
       Validate.notNull(optionPrice);
       ArgumentChecker.notNegative(optionPrice, "option price");
-      final double spot = data.getSpot();
-      return isCall() ? optionPrice < spot - getStrike() : optionPrice < getStrike() - spot;
+      return optionPrice < _payoffFunction.getPayoff(data, optionPrice);
     }
   };
 

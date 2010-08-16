@@ -21,6 +21,7 @@ import com.opengamma.util.ArgumentChecker;
 public abstract class Function1D<S, T> implements Function<S, T> {
   private static final Logger s_logger = LoggerFactory.getLogger(Function1D.class);
 
+  @Override
   public T evaluate(final S... x) {
     ArgumentChecker.notNull(x, "Null parameter list");
     ArgumentChecker.notEmpty(x, "Parameter list");

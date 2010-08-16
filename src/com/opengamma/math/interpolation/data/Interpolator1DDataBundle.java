@@ -42,4 +42,6 @@ public interface Interpolator1DDataBundle {
 
   double[] getValues();
 
+  void setYValueAtIndex(int index, double y);
+
 }

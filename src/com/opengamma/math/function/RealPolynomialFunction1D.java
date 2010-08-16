@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.function;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.util.ArgumentChecker;
@@ -44,5 +46,31 @@ public class RealPolynomialFunction1D extends Function1D<Double, Double> {
 
   public double[] getCoefficients() {
     return _coefficients;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + Arrays.hashCode(_coefficients);
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final RealPolynomialFunction1D other = (RealPolynomialFunction1D) obj;
+    if (!Arrays.equals(_coefficients, other._coefficients)) {
+      return false;
+    }
+    return true;
   }
 }

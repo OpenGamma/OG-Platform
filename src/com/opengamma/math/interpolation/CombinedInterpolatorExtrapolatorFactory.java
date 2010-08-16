@@ -16,12 +16,16 @@ public final class CombinedInterpolatorExtrapolatorFactory {
   private CombinedInterpolatorExtrapolatorFactory() {
   }
 
-  public static CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> getInterpolator(final String interpolatorName) {
+  @SuppressWarnings("rawtypes")
+  public static CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> getInterpolator(
+      final String interpolatorName) {
     final Interpolator1D interpolator = Interpolator1DFactory.getInterpolator(interpolatorName);
     return new CombinedInterpolatorExtrapolator(interpolator);
   }
 
-  public static CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> getInterpolator(final String interpolatorName, final String extrapolatorName) {
+  @SuppressWarnings("rawtypes")
+  public static CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> getInterpolator(
+      final String interpolatorName, final String extrapolatorName) {
     final Interpolator1D interpolator = Interpolator1DFactory.getInterpolator(interpolatorName);
     if (extrapolatorName == null || extrapolatorName.isEmpty()) {
       return new CombinedInterpolatorExtrapolator(interpolator);
@@ -32,8 +36,9 @@ public final class CombinedInterpolatorExtrapolatorFactory {
 
   // REVIEW emcleod 4-8-2010 not sure if this is how people will want to construct the combined interpolator - should it be more strict?
   // Also see CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
-  public static CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> getInterpolator(final String interpolatorName, final String leftExtrapolatorName,
-      final String rightExtrapolatorName) {
+  @SuppressWarnings("rawtypes")
+  public static CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> getInterpolator(
+      final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName) {
     final Interpolator1D interpolator = Interpolator1DFactory.getInterpolator(interpolatorName);
     if (leftExtrapolatorName == null || leftExtrapolatorName.isEmpty()) {
       if (rightExtrapolatorName == null || rightExtrapolatorName.isEmpty()) {
@@ -51,6 +56,7 @@ public final class CombinedInterpolatorExtrapolatorFactory {
     return new CombinedInterpolatorExtrapolator(interpolator, leftExtrapolator, rightExtrapolator);
   }
 
+  @SuppressWarnings("rawtypes")
   private static Interpolator1D getExtrapolator(final String extrapolatorName, final Interpolator1D interpolator) {
     if (extrapolatorName.equals(Interpolator1DFactory.FLAT_EXTRAPOLATOR)) {
       return Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE;

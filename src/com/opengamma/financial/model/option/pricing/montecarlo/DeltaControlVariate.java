@@ -19,7 +19,8 @@ import com.opengamma.math.function.Function1D;
  * @param <T>
  * @param <U>
  */
-public class DeltaControlVariate<T extends OptionDefinition, U extends StandardOptionDataBundle> implements ControlVariate<T, U> {
+public class DeltaControlVariate<T extends OptionDefinition, U extends StandardOptionDataBundle> implements
+    ControlVariate<T, U> {
   private final AnalyticOptionModel<T, U> _analyticModel;
   private final Set<Greek> _greek = Collections.singleton(Greek.DELTA);
   private final double _beta = -1;
@@ -28,6 +29,7 @@ public class DeltaControlVariate<T extends OptionDefinition, U extends StandardO
     _analyticModel = analyticModel;
   }
 
+  @Override
   public Function1D<Double, Double> getVariateFunction(final T definition, final U data, final int steps) {
     final double t = definition.getTimeToExpiry(data.getDate());
     final double r = data.getInterestRate(t);
@@ -47,6 +49,7 @@ public class DeltaControlVariate<T extends OptionDefinition, U extends StandardO
     };
   }
 
+  @Override
   public Double getInitialValue(final T t, final U u) {
     return 0.;
   }

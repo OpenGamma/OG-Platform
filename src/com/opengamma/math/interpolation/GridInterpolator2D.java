@@ -15,7 +15,6 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.FirstThenSecondPairComparator;
-import com.opengamma.util.tuple.Pair;
 
 /**
 *
@@ -50,12 +49,12 @@ public class GridInterpolator2D extends Interpolator2D {
     if (data.size() < 4) {
       throw new IllegalArgumentException("Need at least four data points to perform 2D grid interpolation");
     }
-    final TreeMap<Pair<Double, Double>, Double> sorted = new TreeMap<Pair<Double, Double>, Double>(_comparator);
+    final TreeMap<DoublesPair, Double> sorted = new TreeMap<DoublesPair, Double>(_comparator);
     sorted.putAll(data);
     final Map<Double, TreeMap<Double, Double>> split = new TreeMap<Double, TreeMap<Double, Double>>();
-    Pair<Double, Double> pair;
+    DoublesPair pair;
     Double z;
-    for (final Map.Entry<Pair<Double, Double>, Double> entry : sorted.entrySet()) {
+    for (final Map.Entry<DoublesPair, Double> entry : sorted.entrySet()) {
       pair = entry.getKey();
       z = entry.getValue();
       if (z == null) {

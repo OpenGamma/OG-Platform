@@ -41,22 +41,10 @@ public class ImpliedTreeTest {
   @Test
   public void test() {
     final RecombiningBinomialTree<DoublesPair> result = MODEL.getTreeGeneratingFunction(OPTION).evaluate(DATA);
+    @SuppressWarnings("unused")
     final DoublesPair[][] p = result.getTree();
-    for (final DoublesPair[] element : p) {
-      for (int j = 0; j < p[0].length; j++) {
-        System.out.println(element[j]);
-      }
-    }
-    System.out.println("-------------------------------------------------");
     final RecombiningBinomialTree<Double> prob = DEFINITION.getUpProbabilityTree(OPTION, DATA, 5, RecombiningBinomialTree.NODES.evaluate(5));
+    @SuppressWarnings("unused")
     final Double[][] x = prob.getTree();
-    System.out.println(x);
-    for (final Double[] element : x) {
-      if (element != null) {
-        for (final Double element2 : element) {
-          System.out.println(element2);
-        }
-      }
-    }
   }
 }

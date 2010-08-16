@@ -5,8 +5,6 @@
  */
 package com.opengamma.math.interpolation.sensitivity;
 
-import java.util.Arrays;
-
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -32,18 +30,16 @@ public class FiniteDifferenceInterpolator1DNodeSensitivityCalculator<T extends I
     final double[] x = data.getKeys();
     final double[] y = data.getValues();
     final int n = x.length;
-    final double[] yUp = Arrays.copyOf(y, n);
-    final double[] yDown = Arrays.copyOf(y, n);
     final double[] result = new double[n];
+    final T dataUp = _interpolator.getDataBundleFromSortedArrays(x, y);
+    final T dataDown = _interpolator.getDataBundleFromSortedArrays(x, y);
     for (int i = 0; i < n; i++) {
       if (i != 0) {
-        yUp[i - 1] = y[i - 1];
-        yDown[i - 1] = y[i - 1];
+        dataUp.setYValueAtIndex(i - 1, y[i - 1]);
+        dataDown.setYValueAtIndex(i - 1, y[i - 1]);
       }
-      yUp[i] += EPS;
-      yDown[i] -= EPS;
-      final T dataUp = _interpolator.getDataBundleFromSortedArrays(x, yUp);
-      final T dataDown = _interpolator.getDataBundleFromSortedArrays(x, yDown);
+      dataUp.setYValueAtIndex(i, y[i] + EPS);
+      dataDown.setYValueAtIndex(i, y[i] - EPS);
       final double up = _interpolator.interpolate(dataUp, value);
       final double down = _interpolator.interpolate(dataDown, value);
       result[i] = (up - down) / TWO_EPS;

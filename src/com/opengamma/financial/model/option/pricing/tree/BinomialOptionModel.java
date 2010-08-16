@@ -56,6 +56,7 @@ public class BinomialOptionModel<T extends StandardOptionDataBundle> extends Tre
     _maxWidthToSave = RecombiningBinomialTree.NODES.evaluate(maxDepthToSave);
   }
 
+  @Override
   public GreekResultCollection getGreeks(final OptionDefinition definition, final T data, final Set<Greek> requiredGreeks) {
     final Function1D<T, RecombiningBinomialTree<DoublesPair>> treeFunction = getTreeGeneratingFunction(definition);
     final GreekResultCollection results = new GreekResultCollection();

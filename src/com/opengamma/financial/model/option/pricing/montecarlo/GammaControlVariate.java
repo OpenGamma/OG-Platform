@@ -19,7 +19,8 @@ import com.opengamma.math.function.Function1D;
  * @param <T>
  * @param <U>
  */
-public class GammaControlVariate<T extends OptionDefinition, U extends StandardOptionDataBundle> implements ControlVariate<T, U> {
+public class GammaControlVariate<T extends OptionDefinition, U extends StandardOptionDataBundle> implements
+    ControlVariate<T, U> {
   private final AnalyticOptionModel<T, U> _analyticModel;
   private final Set<Greek> _greek = Collections.singleton(Greek.GAMMA);
   private final double _beta = -0.5;
@@ -51,6 +52,7 @@ public class GammaControlVariate<T extends OptionDefinition, U extends StandardO
     };
   }
 
+  @Override
   public Double getInitialValue(final T t, final U u) {
     return 0.;
   }

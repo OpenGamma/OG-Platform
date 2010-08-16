@@ -63,7 +63,6 @@ public class PeriodicInterestRate extends InterestRate {
 
   @Override
   public ContinuousInterestRate toContinuous() {
-    System.out.println(_oneYearValue);
     return new ContinuousInterestRate(Math.log(_oneYearValue));
   }
 

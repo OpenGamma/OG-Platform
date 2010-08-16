@@ -36,12 +36,13 @@ public class ConstantCouponAnnuity extends FixedAnnuity {
     return _couponRate;
   }
 
+  @Override
   public double getNotional() {
     return _notional;
   }
 
   @Override
-  public <T> T accept(InterestRateDerivativeVisitor<T> visitor, YieldCurveBundle curves) {
+  public <T> T accept(final InterestRateDerivativeVisitor<T> visitor, final YieldCurveBundle curves) {
     return visitor.visitConstantCouponAnnuity(this, curves);
   }
 

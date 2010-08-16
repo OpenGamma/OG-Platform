@@ -7,20 +7,21 @@ package com.opengamma.math.interpolation.data;
 
 import static com.opengamma.math.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.linearalgebra.TridiagonalMatrix;
 import com.opengamma.math.linearalgebra.TridiagonalMatrixInvertor;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
 public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBundle {
-  //TODO use same logic for derivatives and sensitivities
   private final Interpolator1DDataBundle _underlyingData;
-  private final double[] _secondDerivatives;
+  private double[] _secondDerivatives;
   private double[][] _secondDerivativesSensitivities;
   private final double _leftFirstDev = 0;
   private final double _rightFirstDev = 0;
@@ -30,12 +31,11 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
   public Interpolator1DCubicSplineDataBundle(final Interpolator1DDataBundle underlyingData) {
     Validate.notNull(underlyingData);
     _underlyingData = underlyingData;
-    _secondDerivatives = getSecondDerivative(underlyingData);
   }
 
-  private double[] getSecondDerivative(final Interpolator1DDataBundle underlyingData) {
-    final double[] x = underlyingData.getKeys();
-    final double[] y = underlyingData.getValues();
+  private double[] calculateSecondDerivative() {
+    final double[] x = getKeys();
+    final double[] y = getValues();
     final int n = x.length;
     final double[] deltaX = new double[n - 1];
     final double[] deltaYOverDeltaX = new double[n - 1];
@@ -122,14 +122,17 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
   }
 
   public double[] getSecondDerivatives() {
+    if (_secondDerivatives == null) {
+      _secondDerivatives = calculateSecondDerivative();
+    }
     return _secondDerivatives;
   }
 
   //TODO not ideal that it recomputes the inverse matrix
   public double[][] getSecondDerivativesSensitivities() {
     if (_secondDerivativesSensitivities == null) {
-      final double[] x = _underlyingData.getKeys();
-      final double[] y = _underlyingData.getValues();
+      final double[] x = getKeys();
+      final double[] y = getValues();
       final int n = x.length;
       final double[] deltaX = new double[n - 1];
       final double[] deltaYOverDeltaX = new double[n - 1];
@@ -213,9 +216,63 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
       c[n - 2] = deltaX[n - 2] / 6.0;
     }
     final TridiagonalMatrix tridiagonal = new TridiagonalMatrix(a, b, c);
-    final DoubleMatrix2D res = invertor.evaluate(tridiagonal);
-
-    return res;
-
+    return invertor.evaluate(tridiagonal);
   }
+
+  @Override
+  public void setYValueAtIndex(final int index, final double y) {
+    ArgumentChecker.notNegative(index, "index");
+    if (index >= size()) {
+      throw new IllegalArgumentException("Index was greater than number of data points");
+    }
+    _underlyingData.setYValueAtIndex(index, y);
+    _secondDerivatives = null;
+    _secondDerivativesSensitivities = null;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(_leftFirstDev);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + (_leftNatural ? 1231 : 1237);
+    temp = Double.doubleToLongBits(_rightFirstDev);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + (_rightNatural ? 1231 : 1237);
+    result = prime * result + ((_underlyingData == null) ? 0 : _underlyingData.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final Interpolator1DCubicSplineDataBundle other = (Interpolator1DCubicSplineDataBundle) obj;
+    if (!ObjectUtils.equals(_underlyingData, other._underlyingData)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_leftFirstDev) != Double.doubleToLongBits(other._leftFirstDev)) {
+      return false;
+    }
+    if (_leftNatural != other._leftNatural) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_rightFirstDev) != Double.doubleToLongBits(other._rightFirstDev)) {
+      return false;
+    }
+    if (_rightNatural != other._rightNatural) {
+      return false;
+    }
+    return true;
+  }
+
 }

@@ -20,16 +20,16 @@ import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivit
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.newton.JacobianCalculator;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
  */
 public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
-  private final InterestRateDerivativeVisitor<Map<String, List<Pair<Double, Double>>>> _calculator;
+  private final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> _calculator;
   private final MultipleYieldCurveFinderDataBundle _data;
 
-  public MultipleYieldCurveFinderJacobian(final MultipleYieldCurveFinderDataBundle data, final InterestRateDerivativeVisitor<Map<String, List<Pair<Double, Double>>>> calculator) {
+  public MultipleYieldCurveFinderJacobian(final MultipleYieldCurveFinderDataBundle data, final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> calculator) {
     Validate.notNull(data, "data");
     Validate.notNull(calculator, "calculator");
     _data = data;
@@ -51,7 +51,7 @@ public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
     int numberOfNodes;
     double[] unknownCurveNodePoints;
     for (final String name : curveNames) {
-      final Interpolator1D interpolator = _data.getInterpolatorForCurve(name);
+      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator = _data.getInterpolatorForCurve(name);
       unknownCurveNodePoints = _data.getCurveNodePointsForCurve(name);
       numberOfNodes = unknownCurveNodePoints.length;
       final double[] yields = Arrays.copyOfRange(x.getData(), index, index + numberOfNodes);
@@ -66,25 +66,25 @@ public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
     }
 
     final double[][] res = new double[totalNodes][totalNodes];
-
     for (int i = 0; i < totalNodes; i++) { // loop over all instruments
-      final Map<String, List<Pair<Double, Double>>> senseMap = _calculator.getValue(_data.getDerivative(i), curves);
+      final Map<String, List<DoublesPair>> senseMap = _calculator.getValue(_data.getDerivative(i), curves);
       int offset = 0;
       for (final String name : curveNames) { // loop over all curves (by name)
         if (senseMap.containsKey(name)) {
           final InterpolatedYieldAndDiscountCurve curve = (InterpolatedYieldAndDiscountCurve) curves.getCurve(name);
           final Interpolator1DDataBundle data = curve.getDataBundles().values().iterator().next();
+          @SuppressWarnings("rawtypes")
           final Interpolator1DNodeSensitivityCalculator sensitivityCalculator = _data.getSensitivityCalculatorForName(name);
-          final List<Pair<Double, Double>> senseList = senseMap.get(name);
+          final List<DoublesPair> senseList = senseMap.get(name);
           final double[][] sensitivity = new double[senseList.size()][];
           int k = 0;
-          for (final Pair<Double, Double> timeAndDF : senseList) {
+          for (final DoublesPair timeAndDF : senseList) {
             sensitivity[k++] = sensitivityCalculator.calculate(data, timeAndDF.getFirst());
           }
           for (int j = 0; j < sensitivity[0].length; j++) {
             double temp = 0.0;
             k = 0;
-            for (final Pair<Double, Double> timeAndDF : senseList) {
+            for (final DoublesPair timeAndDF : senseList) {
               temp += timeAndDF.getSecond() * sensitivity[k++][j];
             }
             res[i][j + offset] = temp;
@@ -93,8 +93,6 @@ public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
         offset += _data.getCurveNodePointsForCurve(name).length;
       }
     }
-
     return new DoubleMatrix2D(res);
   }
-
 }

@@ -18,19 +18,16 @@ import org.junit.Test;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.math.interpolation.FlatExtrapolator1D;
+import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.LinearInterpolator1D;
+import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.sensitivity.FlatExtrapolator1DNodeSensitivityCalculator;
+import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
 import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.sensitivity.LinearInterpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.newton.JacobianCalculator;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
@@ -44,8 +41,8 @@ public class MultipleYieldCurveFinderJacobianTest {
   private static final List<InterestRateDerivative> MIXED_INSTRUMENT;
   private static final double[] FORWARD_NODES;
   private static final double[] FUNDING_NODES;
-  private static final Interpolator1D<Interpolator1DDataBundle> EXTRAPOLATOR;
-  private static final Interpolator1DNodeSensitivityCalculator<Interpolator1DDataBundle> EXTRAPOLATING_SENSITIVITY_CALCULATOR;
+  private static final Interpolator1D<? extends Interpolator1DDataBundle> EXTRAPOLATOR;
+  private static final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> EXTRAPOLATING_SENSITIVITY_CALCULATOR;
   private static final DoubleMatrix1D XN;
   private static final DoubleMatrix1D XM;
   private static final DoubleMatrix1D XNM;
@@ -62,7 +59,7 @@ public class MultipleYieldCurveFinderJacobianTest {
   private static final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> FRA_SENSITIVITY_CALCULATOR;
   private static final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> MIXED_SENSITIVITY_CALCULATOR;
 
-  private static final InterestRateDerivativeVisitor<Map<String, List<Pair<Double, Double>>>> SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
+  private static final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
 
   private static final int N = 10;
   private static final int M = 5;
@@ -93,13 +90,9 @@ public class MultipleYieldCurveFinderJacobianTest {
       dataM[i] = Math.random() / 10;
       dataNpM[i + N] = dataM[i];
     }
-    final LinearInterpolator1D interpolator = new LinearInterpolator1D();
-    final LinearInterpolator1DNodeSensitivityCalculator linearSensitivityCalculator = new LinearInterpolator1DNodeSensitivityCalculator();
-    final FlatExtrapolator1D<Interpolator1DDataBundle> flatExtrapolator = new FlatExtrapolator1D<Interpolator1DDataBundle>();
-    final FlatExtrapolator1DNodeSensitivityCalculator<Interpolator1DDataBundle> flatExtrapolatorSensitivityCalculator = new FlatExtrapolator1DNodeSensitivityCalculator<Interpolator1DDataBundle>();
-    EXTRAPOLATOR = new CombinedInterpolatorExtrapolator<Interpolator1DDataBundle>(interpolator, flatExtrapolator);
-    EXTRAPOLATING_SENSITIVITY_CALCULATOR = new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<Interpolator1DDataBundle>(linearSensitivityCalculator, flatExtrapolatorSensitivityCalculator,
-        flatExtrapolatorSensitivityCalculator);
+    EXTRAPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    EXTRAPOLATING_SENSITIVITY_CALCULATOR = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(Interpolator1DFactory.LINEAR,
+        Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
 
     CASH_NODES = new LinkedHashMap<String, double[]>();
     CASH_NODES.put(FUNDING_CURVE_NAME, FUNDING_NODES);
@@ -150,12 +143,6 @@ public class MultipleYieldCurveFinderJacobianTest {
   public void testWrongNumberOfElements() {
     CASH_ONLY.evaluate(XN, (Function1D<DoubleMatrix1D, DoubleMatrix1D>[]) null);
   }
-
-  //  @Test(expected = IllegalArgumentException.class)
-  //  public void testCurveAlreadyPresent() {    
-  //    new MultipleYieldCurveFinderJacobian(CASH, MIXED_NODES, MIXED_INTERPOLATORS, MIXED_SENSITIVITY_CALCULATOR, new YieldCurveBundle(Collections.<String, YieldAndDiscountCurve> singletonMap(
-  //        FUNDING_CURVE_NAME, new ConstantYieldCurve(2.))), SENSITIVITY_CALCULATOR);
-  //  }
 
   @Test
   public void testCashOnly() {
