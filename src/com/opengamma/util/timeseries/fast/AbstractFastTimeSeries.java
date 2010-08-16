@@ -20,6 +20,7 @@ import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.POWER_OPER
 import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.RECIPROCAL_OPERATOR;
 import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.SECOND_OPERATOR;
 import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.SUBTRACT_OPERATOR;
+import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.NO_INTERSECTION_OPERATOR;
 
 import java.util.Date;
 import java.util.Iterator;
@@ -124,6 +125,24 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   }
   public FastTimeSeries<T> add(double other) {
     return operate(other, ADD_OPERATOR);
+  }
+  public FastTimeSeries<T> noIntersectionOperation(DoubleTimeSeries<?> other) {
+    if (other instanceof FastBackedDoubleTimeSeries<?>) {
+      return unionOperate((FastBackedDoubleTimeSeries<?>) other, NO_INTERSECTION_OPERATOR);
+    } else if (other instanceof FastIntDoubleTimeSeries) {
+      return unionOperate((FastIntDoubleTimeSeries) other, NO_INTERSECTION_OPERATOR);
+    } else { // if (other instanceof FastLongDoubleTimeSeries) {
+      return unionOperate((FastLongDoubleTimeSeries) other, NO_INTERSECTION_OPERATOR);
+    }
+  }
+  public FastTimeSeries<T> noIntersectionOperation(FastBackedDoubleTimeSeries<?> other) {
+    return unionOperate(other, NO_INTERSECTION_OPERATOR);
+  }
+  public FastTimeSeries<T> noIntersectionOperation(FastLongDoubleTimeSeries other) {
+    return unionOperate(other, NO_INTERSECTION_OPERATOR);
+  }
+  public FastTimeSeries<T> noIntersectionOperation(FastIntDoubleTimeSeries other) {
+    return unionOperate(other, NO_INTERSECTION_OPERATOR);
   }
   public FastTimeSeries<T> unionAdd(DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {

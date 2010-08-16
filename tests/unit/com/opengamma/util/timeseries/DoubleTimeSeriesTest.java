@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.timeseries.fudge.TimeSeriesFudgeContextConfiguration;
 
@@ -381,6 +382,25 @@ public abstract class DoubleTimeSeriesTest<E> {
     assertEquals(dts2.getTime(3), unionResult.getTime(6));
     assertEquals(dts2.getTime(4), unionResult.getTime(7));
     assertEquals(dts2.getTime(5), unionResult.getTime(8));
+    
+    assertEquals(dts, ets.noIntersectionOperation(dts));
+    assertEquals(dts, dts.noIntersectionOperation(ets));
+    try {
+      dts.noIntersectionOperation(dts2);
+      fail();
+    } catch(OpenGammaRuntimeException ex) {
+      //do nothing - expected exception because the two timeseries have overlapping dates which will require intersection operation
+    }
+    DoubleTimeSeries<E> dts3 = dts2.subSeries(dts.getLatestTime(), false, dts2.getLatestTime(), true);
+    DoubleTimeSeries<E> noIntersecOp = dts.noIntersectionOperation(dts3);
+    assertEquals(dts.getValueAt(0), noIntersecOp.getValueAt(0));
+    assertEquals(dts.getValueAt(1), noIntersecOp.getValueAt(1));
+    assertEquals(dts.getValueAt(2), noIntersecOp.getValueAt(2));
+    assertEquals(dts.getValueAt(3), noIntersecOp.getValueAt(3));
+    assertEquals(dts.getValueAt(4), noIntersecOp.getValueAt(4));
+    assertEquals(dts.getValueAt(5), noIntersecOp.getValueAt(5));
+    assertEquals(dts3.getValueAt(0), noIntersecOp.getValueAt(6));
+    assertEquals(dts3.getValueAt(1), noIntersecOp.getValueAt(7));
   }
   
   @Test
