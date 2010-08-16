@@ -138,8 +138,10 @@ public abstract class AbstractServerSocketProcess implements Lifecycle, Initiali
   
   // THE FOLLOWING IS A NASTY HACK - the spring context created by Tomcat doesn't get started properly so the lifecycle methods never get called
   public void afterPropertiesSet() {
-    s_logger.error("Hacking a call to start - take this code out when the context starts up properly!");
-    start();
+    if (!System.getProperty("user.name").startsWith("bamboo")) {
+      s_logger.error("Hacking a call to start - take this code out when the context starts up properly!");
+      start();
+    }
   }
 
 }
