@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
@@ -84,17 +85,55 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
    */
   public ManageablePortfolioNode getNode(final UniqueIdentifier nodeOid) {
     ArgumentChecker.notNull(nodeOid, "nodeOid");
+    if (getUniqueIdentifier().getScheme().equals(nodeOid.getScheme()) &&
+        getUniqueIdentifier().getValue().equals(nodeOid.getValue())) {
+      return this;
+    }
     for (Iterator<ManageablePortfolioNode> it = _childNodes.iterator(); it.hasNext(); ) {
       final ManageablePortfolioNode child = it.next();
-      if (child.getUniqueIdentifier().getScheme().equals(nodeOid.getScheme()) &&
-          child.getUniqueIdentifier().getValue().equals(nodeOid.getValue())) {
-        return child;
-      }
       ManageablePortfolioNode found = child.getNode(nodeOid);
       if (found != null) {
         return found;
       }
     }
+    return null;
+  }
+
+  /**
+   * Gets the stack of nodes from the tree below this node by identifier.
+   * This performs a recursive scan of the child nodes returning all the nodes
+   * in the hierarchy from the root node to the specified node.
+   * The specified node is at the top of the stack.
+   * @param nodeOid  the node object identifier, not null
+   * @return the node stack, empty if not found, not null
+   */
+  public Stack<ManageablePortfolioNode> getNodeStack(final UniqueIdentifier nodeOid) {
+    ArgumentChecker.notNull(nodeOid, "nodeOid");
+    Stack<ManageablePortfolioNode> stack = new Stack<ManageablePortfolioNode>();
+    Stack<ManageablePortfolioNode> result = getNodeStack0(stack, nodeOid);
+    return result == null ? stack : result;
+  }
+
+  /**
+   * Gets the stack of nodes from the tree below this node by identifier.
+   * @param stack  the stack of nodes, not null
+   * @param nodeOid  the node object identifier, not null
+   * @return the node with the identifier, null if not found
+   */
+  public Stack<ManageablePortfolioNode> getNodeStack0(final Stack<ManageablePortfolioNode> stack, final UniqueIdentifier nodeOid) {
+    stack.push(this);
+    if (getUniqueIdentifier().getScheme().equals(nodeOid.getScheme()) &&
+        getUniqueIdentifier().getValue().equals(nodeOid.getValue())) {
+      return stack;
+    }
+    for (Iterator<ManageablePortfolioNode> it = _childNodes.iterator(); it.hasNext(); ) {
+      final ManageablePortfolioNode child = it.next();
+      Stack<ManageablePortfolioNode> found = child.getNodeStack0(stack, nodeOid);
+      if (found != null) {
+        return found;
+      }
+    }
+    stack.pop();
     return null;
   }
 

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.rest;
+package com.opengamma.financial.position.web;
 
 import java.net.URI;
 
@@ -19,10 +19,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -32,7 +30,6 @@ import com.opengamma.financial.position.master.PortfolioTreeSearchRequest;
 import com.opengamma.financial.position.master.PortfolioTreeSearchResult;
 import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.PagingRequest;
 
 /**
@@ -41,59 +38,20 @@ import com.opengamma.util.db.PagingRequest;
  * The portfolios resource represents the whole of a position master.
  */
 @Path("/portfolios")
-public class WebPortfoliosResource {
-
-  /**
-   * The injected position master.
-   */
-  private final PositionMaster _posMaster;
-  /**
-   * Information about the URI injected by JSR-311.
-   */
-  @Context
-  private UriInfo _uriInfo;
+public class WebPortfoliosResource extends AbstractWebPortfolioResource {
 
   /**
    * Creates the resource.
-   * @param posMaster  the position master, not null
+   * @param positionMaster  the position master, not null
    */
-  public WebPortfoliosResource(final PositionMaster posMaster) {
-    ArgumentChecker.notNull(posMaster, "PositionMaster");
-    _posMaster = posMaster;
-  }
-
-  /**
-   * Creates the resource.
-   * @param uriInfo  the URI information, not null
-   * @param posMaster  the position master, not null
-   */
-  public WebPortfoliosResource(UriInfo uriInfo, final PositionMaster posMaster) {
-    this(posMaster);
-    ArgumentChecker.notNull(uriInfo, "uriInfo");
-    _uriInfo = uriInfo;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the position master.
-   * @return the position master, not null
-   */
-  public PositionMaster getPositionMaster() {
-    return _posMaster;
-  }
-
-  /**
-   * Gets the URI info.
-   * @return the uri info, not null
-   */
-  public UriInfo getUriInfo() {
-    return _uriInfo;
+  public WebPortfoliosResource(final PositionMaster positionMaster) {
+    super(positionMaster);
   }
 
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
-  public String getAsHtml(
+  public String get(
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
       @QueryParam("name") String name) {
@@ -101,22 +59,22 @@ public class WebPortfoliosResource {
       "<head><title>Portfolios</title></head>\n" +
       "<body>\n" +
       "<h2>Portfolio search</h2>\n" +
-      "<form method=\"GET\" action=\"" + getUriInfo().getAbsolutePath() + "\">" +
+      "<form method=\"GET\" action=\"" + data().getUriInfo().getAbsolutePath() + "\">" +
       "Name: <input type=\"text\" size=\"30\" name=\"name\" /><br />" +
       "<input type=\"submit\" value=\"Search\" />" +
       "</form>\n";
     
-    if (getUriInfo().getQueryParameters().size() > 0) {
+    if (data().getUriInfo().getQueryParameters().size() > 0) {
       final PortfolioTreeSearchRequest request = new PortfolioTreeSearchRequest();
       request.setPagingRequest(PagingRequest.of(page, pageSize));
       request.setName(StringUtils.trimToNull(name));
-      PortfolioTreeSearchResult result = getPositionMaster().searchPortfolioTrees(request);
+      PortfolioTreeSearchResult result = data().getPositionMaster().searchPortfolioTrees(request);
       
       html += "<h2>Portfolio results</h2>\n" +
         "<p><table border=\"1\">" +
         "<tr><th>Name</th><th>Version valid from</th><th>Actions</th></tr>\n";
       for (PortfolioTreeDocument doc : result.getDocuments()) {
-        URI uri = getUriInfo().getBaseUriBuilder().path(WebPortfolioResource.class).build(doc.getPortfolioId().toLatest());
+        URI uri = data().getUriInfo().getBaseUriBuilder().path(WebPortfolioResource.class).build(doc.getPortfolioId().toLatest());
         html += "<tr>";
         html += "<td><a href=\"" + uri + "\">" + doc.getPortfolio().getName() + "</a></td>";
         DateTimeFormatter pattern = DateTimeFormatters.pattern("dd MMM yyyy, HH:mm:ss.SSS");
@@ -128,7 +86,7 @@ public class WebPortfoliosResource {
       html += "</table></p>\n";
     }
     html += "<h2>Add portfolio</h2>\n" +
-      "<form method=\"POST\" action=\"" + getUriInfo().getAbsolutePath() + "\">" +
+      "<form method=\"POST\" action=\"" + data().getUriInfo().getAbsolutePath() + "\">" +
       "Name: <input type=\"text\" size=\"30\" name=\"name\" /><br />" +
       "<input type=\"submit\" value=\"Add\" />" +
       "</form>\n";
@@ -139,14 +97,14 @@ public class WebPortfoliosResource {
   //-------------------------------------------------------------------------
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-  public Response postForm(@FormParam("name") String name) {
+  public Response post(@FormParam("name") String name) {
     if (StringUtils.isEmpty(name)) {
       String html = "<html>\n" +
         "<head><title>Portfolios</title></head>\n" +
         "<body>\n" +
         "<h2>Add portfolio</h2>\n" +
         "<p>The name must be entered!</p>\n" +
-        "<form method=\"POST\" action=\"" + getUriInfo().getAbsolutePath() + "\"><br />" +
+        "<form method=\"POST\" action=\"" + data().getUriInfo().getAbsolutePath() + "\"><br />" +
         "Name: <input type=\"text\" size=\"30\" name=\"name\" /><br />" +
         "<input type=\"submit\" value=\"Add\" /><br />" +
         "</form>\n" +
@@ -155,26 +113,28 @@ public class WebPortfoliosResource {
     }
     ManageablePortfolio portfolio = new ManageablePortfolio(name);
     PortfolioTreeDocument doc = new PortfolioTreeDocument(portfolio);
-    PortfolioTreeDocument added = getPositionMaster().addPortfolioTree(doc);
-    URI uri = getUriInfo().getAbsolutePathBuilder().path(added.getPortfolioId().toLatest().toString()).build();
+    PortfolioTreeDocument added = data().getPositionMaster().addPortfolioTree(doc);
+    URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getPortfolioId().toLatest().toString()).build();
     return Response.seeOther(uri).build();
   }
 
   //-------------------------------------------------------------------------
   @Path("{portfolioId}")
-  public WebPortfolioResource findPortfolio(@PathParam("portfolioId") String uidStr) {
-    UniqueIdentifier uid = UniqueIdentifier.parse(uidStr);
-    return new WebPortfolioResource(this, uid);
+  public WebPortfolioResource findPortfolio(@PathParam("portfolioId") String idStr) {
+    data().setUriPortfolioId(idStr);
+    PortfolioTreeDocument portfolio = data().getPositionMaster().getPortfolioTree(UniqueIdentifier.parse(idStr));
+    data().setPortfolio(portfolio);
+    return new WebPortfolioResource(data());
   }
 
   //-------------------------------------------------------------------------
   /**
    * Builds a URI for portfolios.
-   * @param uriInfo  the URI information, not null
+   * @param data  the data, not null
    * @return the URI, not null
    */
-  public static URI uri(UriInfo uriInfo) {
-    return uriInfo.getBaseUriBuilder().path(WebPortfoliosResource.class).build();
+  public static URI uri(WebPortfoliosData data) {
+    return data.getUriInfo().getBaseUriBuilder().path(WebPortfoliosResource.class).build();
   }
 
 }
