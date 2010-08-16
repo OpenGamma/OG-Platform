@@ -32,6 +32,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ResultModelDefinition;
+import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.TestDependencyGraphExecutor;
 import com.opengamma.engine.view.calcnode.AbstractCalculationNodeTest;
@@ -192,8 +193,10 @@ public class BatchResultWriterTest extends HibernateTest {
     cachesByCalculationConfiguration.put(AbstractCalculationNodeTest.CALC_CONF_NAME, getCache());
     
     ResultModelDefinition resultModelDefinition = new ResultModelDefinition();
-    resultModelDefinition.setPrimitiveOutputsEnabled(false);
-    resultModelDefinition.setSecurityOutputsEnabled(false);
+    resultModelDefinition.setAggregatePositionOutputMode(ResultOutputMode.ALL);
+    resultModelDefinition.setPositionOutputMode(ResultOutputMode.ALL);
+    resultModelDefinition.setSecurityOutputMode(ResultOutputMode.NONE);
+    resultModelDefinition.setPrimitiveOutputMode(ResultOutputMode.NONE);
     BatchResultWriter resultWriter = new BatchResultWriter(
         new TestDependencyGraphExecutor<CalculationJobResult>(result),
         resultModelDefinition,
@@ -411,7 +414,7 @@ public class BatchResultWriterTest extends HibernateTest {
         "localhost");
     
     BatchResultWriter resultWriter = getSuccessResultWriter();
-    resultWriter.jobExecuted(result);
+    resultWriter.jobExecuted(result, null);
     
     assertEquals(0, resultWriter.getNumRiskRows());
     assertEquals(0, resultWriter.getNumRiskFailureRows());
@@ -431,7 +434,7 @@ public class BatchResultWriterTest extends HibernateTest {
         "localhost");
     
     BatchResultWriter resultWriter = getSuccessResultWriter();
-    resultWriter.jobExecuted(result);
+    resultWriter.jobExecuted(result, null);
     
     assertEquals(1, resultWriter.getNumRiskRows());
     RiskValue value = getValueFromDb(resultWriter);
@@ -458,7 +461,7 @@ public class BatchResultWriterTest extends HibernateTest {
         "localhost");
     
     BatchResultWriter resultWriter = getSuccessResultWriter();
-    resultWriter.jobExecuted(result);
+    resultWriter.jobExecuted(result, null);
     
     assertEquals(0, resultWriter.getNumRiskRows());
     assertEquals(1, resultWriter.getNumRiskFailureRows());
@@ -479,7 +482,7 @@ public class BatchResultWriterTest extends HibernateTest {
         "localhost");
     
     BatchResultWriter resultWriter = getSuccessResultWriter();
-    resultWriter.jobExecuted(result);
+    resultWriter.jobExecuted(result, null);
     
     assertEquals(0, resultWriter.getNumRiskRows());
     assertEquals(1, resultWriter.getNumRiskFailureRows());
@@ -523,7 +526,7 @@ public class BatchResultWriterTest extends HibernateTest {
         Collections.singletonList(item),
         "localhost");
     
-    resultWriter.jobExecuted(result);
+    resultWriter.jobExecuted(result, null);
     
     assertEquals(0, resultWriter.getNumRiskRows());
     assertEquals(1, resultWriter.getNumRiskFailureRows());
@@ -546,7 +549,7 @@ public class BatchResultWriterTest extends HibernateTest {
         "localhost");
     
     BatchResultWriter resultWriter = getSuccessResultWriter();
-    resultWriter.jobExecuted(result);
+    resultWriter.jobExecuted(result, null);
     
     assertEquals(0, resultWriter.getNumRiskRows());
     assertEquals(1, resultWriter.getNumRiskFailureRows());
@@ -580,7 +583,7 @@ public class BatchResultWriterTest extends HibernateTest {
         "localhost");
     
     BatchResultWriter resultWriter = getSuccessResultWriter();
-    resultWriter.jobExecuted(result);
+    resultWriter.jobExecuted(result, null);
     
     // note - success row not written
     assertEquals(0, resultWriter.getNumRiskRows());

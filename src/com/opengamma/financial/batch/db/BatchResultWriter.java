@@ -47,6 +47,7 @@ import com.opengamma.engine.depgraph.DependencyNodeFilter;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ResultModelDefinition;
+import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.DependencyGraphExecutor;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
@@ -493,7 +494,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
     return valueNameId.intValue();
   }
 
-  public void jobExecuted(CalculationJobResult result) {
+  public void jobExecuted(CalculationJobResult result, DependencyGraph depGraph) {
     ArgumentChecker.notNull(result, "The result to write");
     
     if (result.getResultItems().isEmpty()) {
@@ -511,13 +512,13 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
 
     openSession();
     try {
-      write(cache, result);
+      write(cache, result, depGraph);
     } finally {
       closeSession();
     }
   }
   
-  private void write(ViewComputationCache cache, CalculationJobResult result) {
+  private void write(ViewComputationCache cache, CalculationJobResult result, DependencyGraph depGraph) {
     
     Set<ComputationTargetSpecification> successfulTargets = new HashSet<ComputationTargetSpecification>();
     Set<ComputationTargetSpecification> failedTargets = new HashSet<ComputationTargetSpecification>();
@@ -572,7 +573,9 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
     Date evalInstant = new Date();
     
     for (CalculationJobResultItem item : result.getResultItems()) {
-      if (!isWriteResults(item.getComputationTargetSpecification())) {
+      ResultOutputMode targetOutputMode = _resultModelDefinition.getOutputMode(item.getComputationTargetSpecification().getType());
+      if (targetOutputMode == ResultOutputMode.NONE) {
+        // Any sort of output is disabled for this target type
         continue;
       }
       
@@ -587,6 +590,10 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
         }
         
         for (ValueSpecification output : item.getOutputs()) {
+          if (!targetOutputMode.shouldOutputResult(output, depGraph)) {
+            continue;
+          }
+          
           Double valueAsDouble = (Double) cache.getValue(output); // output type was already checked above
   
           int valueNameId = getValueNameId(output.getRequirementSpecification().getValueName());
@@ -876,15 +883,6 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
     }
   }
   
-  private boolean isWriteResults(ComputationTargetSpecification ct) {
-    return _resultModelDefinition.outputsEnabled(ct.getType());
-  }
-  
-  private boolean isWriteResults(DependencyNode node) {
-    ArgumentChecker.notNull(node, "Dependency node");
-    return isWriteResults(node.getComputationTarget().toSpecification());
-  }
-  
   public ViewComputationCache getCache(String calcConf) {
     ViewComputationCache cache = _cachesByCalculationConfiguration.get(calcConf);
     if (cache == null) {
@@ -913,8 +911,8 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
     // cache what needs to be recomputed.
     
     ViewComputationCache cache = getCache(graph.getCalcConfName());
-    
-    if (isWriteResults(node)) {
+     
+    if (_resultModelDefinition.shouldOutputFromNode(node)) {
       // e.g., POSITIONS and PORTFOLIOS
       StatusEntry.Status status = getStatus(graph.getCalcConfName(), node.getComputationTarget().toSpecification());
       switch (status) {
@@ -968,7 +966,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
         throw new RuntimeException("Execution of dependent job failed", e);
       }
 
-      jobExecuted(result);
+      jobExecuted(result, subGraph);
       return null;
     }
   }
