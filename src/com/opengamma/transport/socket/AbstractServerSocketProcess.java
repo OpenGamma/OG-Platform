@@ -9,9 +9,11 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -22,7 +24,7 @@ import com.opengamma.util.ThreadUtil;
  * 
  *
  */
-public abstract class AbstractServerSocketProcess implements Lifecycle {
+public abstract class AbstractServerSocketProcess implements Lifecycle, InitializingBean {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractServerSocketProcess.class);
   private int _portNumber;
   private InetAddress _bindAddress;
@@ -108,6 +110,10 @@ public abstract class AbstractServerSocketProcess implements Lifecycle {
     _started = false;
   }
   
+  protected boolean exceptionForcedByClose(final Exception e) {
+    return (e instanceof SocketException) && "Socket closed".equals(e.getMessage());
+  }
+
   private class SocketAcceptJob extends TerminatableJob {
     @Override
     protected void runOneCycle() {
@@ -130,4 +136,12 @@ public abstract class AbstractServerSocketProcess implements Lifecycle {
   
   protected abstract void socketOpened(Socket socket);
   
+  // THE FOLLOWING IS A NASTY HACK - the spring context created by Tomcat doesn't get started properly so the lifecycle methods never get called
+  public void afterPropertiesSet() {
+    if (!System.getProperty("user.name").startsWith("bamboo")) {
+      s_logger.error("Hacking a call to start - take this code out when the context starts up properly!");
+      start();
+    }
+  }
+
 }

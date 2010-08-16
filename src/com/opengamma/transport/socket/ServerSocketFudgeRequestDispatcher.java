@@ -33,7 +33,6 @@ public class ServerSocketFudgeRequestDispatcher extends AbstractServerSocketProc
   private static final Logger s_logger = LoggerFactory.getLogger(ServerSocketFudgeRequestDispatcher.class);
   private final FudgeRequestReceiver _underlying;
   private final FudgeContext _fudgeContext;
-  private final FudgeDeserializationContext _fudgeDeserializationContext;
 
   private final TerminatableJobContainer _messageReceiveJobs = new TerminatableJobContainer();
   
@@ -46,7 +45,6 @@ public class ServerSocketFudgeRequestDispatcher extends AbstractServerSocketProc
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _underlying = underlying;
     _fudgeContext = fudgeContext;
-    _fudgeDeserializationContext = new FudgeDeserializationContext(_fudgeContext);
   }
 
   /**
@@ -61,13 +59,6 @@ public class ServerSocketFudgeRequestDispatcher extends AbstractServerSocketProc
    */
   public FudgeContext getFudgeContext() {
     return _fudgeContext;
-  }
-
-  /**
-   * @return the fudgeDeserializationContext
-   */
-  public FudgeDeserializationContext getFudgeDeserializationContext() {
-    return _fudgeDeserializationContext;
   }
 
   @Override
@@ -88,6 +79,17 @@ public class ServerSocketFudgeRequestDispatcher extends AbstractServerSocketProc
     _messageReceiveJobs.addJobAndStartThread(job, "Request Dispatch " + socket.getRemoteSocketAddress());
   }
   
+  @Override
+  protected void cleanupPreAccept() {
+    _messageReceiveJobs.cleanupTerminatedInstances();
+  }
+
+  @Override
+  public void stop() {
+    super.stop();
+    _messageReceiveJobs.terminateAll();
+  }
+
   private class RequestDispatchJob extends TerminatableJob {
     private final Socket _socket;
     private final FudgeMsgReader _reader;
@@ -115,7 +117,8 @@ public class ServerSocketFudgeRequestDispatcher extends AbstractServerSocketProc
       try {
         envelope = _reader.nextMessageEnvelope();
       } catch (Exception e) {
-        s_logger.warn("Unable to read message from underlying stream", e);
+        s_logger.warn("Unable to read message from underlying stream - terminating connection", e);
+        terminate();
         return;
       }
       
@@ -128,7 +131,7 @@ public class ServerSocketFudgeRequestDispatcher extends AbstractServerSocketProc
       FudgeFieldContainer response = null;
       try {
         s_logger.debug("Received message with {} fields. Dispatching to underlying.", envelope.getMessage().getNumFields());
-        response = getUnderlying().requestReceived(getFudgeDeserializationContext(), envelope);
+        response = getUnderlying().requestReceived(new FudgeDeserializationContext(_fudgeContext), envelope);
       } catch (Exception e) {
         s_logger.warn("Unable to dispatch message to underlying receiver", e);
         return;
@@ -138,11 +141,26 @@ public class ServerSocketFudgeRequestDispatcher extends AbstractServerSocketProc
         s_logger.debug("Sending response with {} fields.", envelope.getMessage().getNumFields());
         _writer.writeMessage(response);
       } catch (Exception e) {
-        s_logger.warn("Unable to dispatch response to client", e);
+        s_logger.warn("Unable to dispatch response to client - terminating connection", e);
+        terminate();
         return;
       }
       
     }
+
+    @Override
+    public void terminate() {
+      if (!_socket.isClosed()) {
+        try {
+          s_logger.debug("Closing socket");
+          _socket.close();
+        } catch (IOException ex) {
+          s_logger.warn("Couldn't close socket to release blocked I/O", ex.getMessage());
+        }
+      }
+      super.terminate();
+    }
+
   }
 
 }

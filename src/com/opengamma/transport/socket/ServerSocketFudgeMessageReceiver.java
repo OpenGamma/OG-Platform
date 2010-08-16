@@ -89,8 +89,6 @@ public class ServerSocketFudgeMessageReceiver extends AbstractServerSocketProces
     _messageReceiveJobs.addJobAndStartThread(job, "Message Receive " + socket.getRemoteSocketAddress());
   }
   
-  
-  
   @Override
   protected void cleanupPreAccept() {
     _messageReceiveJobs.cleanupTerminatedInstances();

@@ -11,6 +11,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +45,10 @@ public abstract class AbstractSocketProcess implements Lifecycle {
    */
   public void setInetAddress(InetAddress inetAddress) {
     _inetAddress = inetAddress;
+  }
+
+  public void setAddress(final String host) throws UnknownHostException {
+    setInetAddress(InetAddress.getByName(host));
   }
 
   /**
@@ -79,10 +85,12 @@ public abstract class AbstractSocketProcess implements Lifecycle {
   public synchronized void start() {
     ArgumentChecker.notNullInjected(getInetAddress(), "Remote InetAddress");
     ArgumentChecker.isTrue(getPortNumber() > 0, "Must specify valid portNumber property");
-    
-    openRemoteConnection();
-    
-    _started = true;
+    if (_started && (_socket != null)) {
+      s_logger.warn("Already connected to {}:{}", getInetAddress(), getPortNumber());
+    } else {
+      openRemoteConnection();
+      _started = true;
+    }
   }
   
   protected synchronized void openRemoteConnection() {
@@ -94,6 +102,14 @@ public abstract class AbstractSocketProcess implements Lifecycle {
       os = _socket.getOutputStream();
       is = _socket.getInputStream();
     } catch (IOException ioe) {
+      if (_socket != null) {
+        try {
+          _socket.close();
+        } catch (IOException e) {
+          // Ignore
+        }
+        _socket = null;
+      }
       throw new OpenGammaRuntimeException("Unable to open remote connection to " + getInetAddress() + ":" + getPortNumber(), ioe);
     }
     os = new BufferedOutputStream(os);
@@ -102,19 +118,28 @@ public abstract class AbstractSocketProcess implements Lifecycle {
 
   @Override
   public synchronized void stop() {
-    if (_socket.isConnected()) {
-      try {
-        _socket.close();
-      } catch (IOException e) {
-        s_logger.warn("Unable to close connected socket to {}", new Object[]{_socket.getRemoteSocketAddress()}, e);
+    if (_started) {
+      if (_socket != null) {
+        if (_socket.isConnected()) {
+          try {
+            _socket.close();
+          } catch (IOException e) {
+            s_logger.warn("Unable to close connected socket to {}", new Object[] {_socket.getRemoteSocketAddress()}, e);
+          }
+        }
+        _socket = null;
       }
+      _started = false;
+      socketClosed();
+    } else {
+      s_logger.warn("Already stopped {}:{}", getInetAddress(), getPortNumber());
     }
-    
-    _socket = null;
-    _started = false;
-    socketClosed();
   }
   
+  protected boolean exceptionForcedByClose(final Exception e) {
+    return (e instanceof SocketException) && "Socket closed".equals(e.getMessage());
+  }
+
   protected abstract void socketOpened(Socket socket, OutputStream os, InputStream is);
   
   protected void socketClosed() {
