@@ -15,6 +15,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
+import javax.ws.rs.ext.Provider;
 
 import org.fudgemsg.FudgeMsgEnvelope;
 
@@ -23,7 +24,8 @@ import org.fudgemsg.FudgeMsgEnvelope;
  * <p>
  * <b>This class isn't properly implemented as the Fudge library does not have an XML stream reader component yet.</b>
  */
-@Consumes("application/xml")
+@Provider
+@Consumes(MediaType.APPLICATION_XML)
 public class FudgeXMLConsumer extends FudgeBase implements MessageBodyReader<FudgeMsgEnvelope> {
 
   /**

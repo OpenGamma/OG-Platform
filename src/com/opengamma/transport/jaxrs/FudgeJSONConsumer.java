@@ -16,6 +16,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
+import javax.ws.rs.ext.Provider;
 
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.FudgeMsgReader;
@@ -24,7 +25,8 @@ import org.fudgemsg.json.FudgeJSONStreamReader;
 /**
  * Register as a JAX-RS provider to support REST request payloads containing JSON encoded messages. 
  */
-@Consumes("application/json")
+@Provider
+@Consumes(MediaType.APPLICATION_JSON)
 public class FudgeJSONConsumer extends FudgeBase implements MessageBodyReader<FudgeMsgEnvelope> {
 
   /**
