@@ -156,7 +156,7 @@ public class WebPortfoliosResource {
     ManageablePortfolio portfolio = new ManageablePortfolio(name);
     PortfolioTreeDocument doc = new PortfolioTreeDocument(portfolio);
     PortfolioTreeDocument added = getPositionMaster().addPortfolioTree(doc);
-    URI uri = getUriInfo().getAbsolutePathBuilder().path(added.getPortfolioId().toString()).build();
+    URI uri = getUriInfo().getAbsolutePathBuilder().path(added.getPortfolioId().toLatest().toString()).build();
     return Response.seeOther(uri).build();
   }
 

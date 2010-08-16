@@ -7,10 +7,10 @@ package com.opengamma.financial.position.rest;
 
 import java.net.URI;
 
-import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -138,8 +138,7 @@ public class WebPortfolioResource {
       "</form>\n";
     html += "<h2>Delete portfolio</h2>\n" +
       "<form method=\"POST\" action=\"" + portfolioUri + "\">" +
-      "<input type=\"hidden\" name=\"method\" value=\"PUT\" />" +
-      "<input type=\"hidden\" name=\"status\" value=\"D\" />" +
+      "<input type=\"hidden\" name=\"method\" value=\"DELETE\" />" +
       "<input type=\"submit\" value=\"Delete\" />" +
       "</form>\n";
     
@@ -166,17 +165,8 @@ public class WebPortfolioResource {
     return html;
   }
 
-  @POST  // TODO: should be PUT
-  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-  public Response post(@FormParam("name") String name, @FormParam("status") String status) {
-    if ("D".equals(status)) {
-      return delete();
-    } else {
-      return update(name);
-    }
-  }
-
-  public Response update(String name) {
+  @PUT
+  public Response update(@FormParam("name") String name) {
     PortfolioTreeDocument doc = getPositionMaster().getPortfolioTree(getUrlPortfolioId());
     doc.getPortfolio().setName(name);
     doc = getPositionMaster().updatePortfolioTree(doc);
@@ -184,6 +174,7 @@ public class WebPortfolioResource {
     return Response.seeOther(uri).build();
   }
 
+  @DELETE
   public Response delete() {
     getPositionMaster().removePortfolioTree(getUrlPortfolioId());
     URI uri = WebPortfoliosResource.uri(getUriInfo());
