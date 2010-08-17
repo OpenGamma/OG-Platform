@@ -94,9 +94,6 @@ public class ExponentialWeightedMovingAverageHistoricalVolatilityCalculator exte
     if (Double.doubleToLongBits(_lambda) != Double.doubleToLongBits(other._lambda)) {
       return false;
     }
-    if (Double.doubleToLongBits(_lambdaM1) != Double.doubleToLongBits(other._lambdaM1)) {
-      return false;
-    }
     return ObjectUtils.equals(_returnCalculator, other._returnCalculator);
   }
 }
