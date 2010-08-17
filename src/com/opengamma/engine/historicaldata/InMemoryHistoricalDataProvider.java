@@ -17,14 +17,17 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * In memory HDP for testing.
  * @author jim
  */
-public class InMemoryHistoricalDataProvider implements TimeSeriesSource {
+public class InMemoryHistoricalDataProvider implements HistoricalDataSource {
   private Map<MetaDataKey, UniqueIdentifier> _metaUniqueIdentifierStore = new ConcurrentHashMap<MetaDataKey, UniqueIdentifier>();
   private Map<UniqueIdentifier, LocalDateDoubleTimeSeries> _timeSeriesStore = new ConcurrentHashMap<UniqueIdentifier, LocalDateDoubleTimeSeries>();
   private static final boolean INCLUDE_LAST_DAY = true;
@@ -57,27 +60,29 @@ public class InMemoryHistoricalDataProvider implements TimeSeriesSource {
   }
   
   @Override
-  public LocalDateDoubleTimeSeries getHistoricalTimeSeries(
+  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(
       IdentifierBundle dsids, String dataSource, String dataProvider,
       String field) {
     UniqueIdentifier uid = _metaUniqueIdentifierStore.get(new MetaDataKey(dsids, dataSource, dataProvider, field));
     if (uid == null) {
       throw new DataNotFoundException("TimeSeries not found: " + uid);
     } else {
-      return _timeSeriesStore.get(uid);
+      return new ObjectsPair<UniqueIdentifier, LocalDateDoubleTimeSeries>(uid, _timeSeriesStore.get(uid));
     }
   }
 
   @Override
-  public LocalDateDoubleTimeSeries getHistoricalTimeSeries(
+  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(
       IdentifierBundle dsids, String dataSource, String dataProvider,
       String field, LocalDate start, LocalDate end) {
-    LocalDateDoubleTimeSeries dts = getHistoricalTimeSeries(dsids, dataSource, dataProvider, field);
-    return (LocalDateDoubleTimeSeries) dts.subSeries(start, true, end, INCLUDE_LAST_DAY);
+    Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> dtsPair = getHistoricalData(dsids, dataSource, dataProvider, field);
+    DoubleTimeSeries<LocalDate> subSeries = dtsPair.getSecond().subSeries(start, true, end, INCLUDE_LAST_DAY);
+    dtsPair.setValue((LocalDateDoubleTimeSeries) subSeries);
+    return dtsPair;
   }
   
   @Override
-  public LocalDateDoubleTimeSeries getHistoricalTimeSeries(UniqueIdentifier uid) {
+  public LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uid) {
     LocalDateDoubleTimeSeries timeSeries = _timeSeriesStore.get(uid);
     if (timeSeries == null) {
       return new ArrayLocalDateDoubleTimeSeries();
@@ -87,16 +92,11 @@ public class InMemoryHistoricalDataProvider implements TimeSeriesSource {
   }
 
   @Override
-  public LocalDateDoubleTimeSeries getHistoricalTimeSeries(UniqueIdentifier uid, LocalDate start, LocalDate end) {
-    LocalDateDoubleTimeSeries dts = getHistoricalTimeSeries(uid);
+  public LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uid, LocalDate start, LocalDate end) {
+    LocalDateDoubleTimeSeries dts = getHistoricalData(uid);
     return (LocalDateDoubleTimeSeries) dts.subSeries(start, true, end, INCLUDE_LAST_DAY);
   }
-
-  @Override
-  public UniqueIdentifier resolveIdentifier(IdentifierBundle identifiers, String dataSource, String dataProvider, String field) {
-    return _metaUniqueIdentifierStore.get(new MetaDataKey(identifiers, dataSource, dataProvider, field));
-  }
-  
+ 
   public void storeHistoricalTimeSeries(IdentifierBundle dsids, String dataSource, String dataProvider, String field, LocalDateDoubleTimeSeries dts) {
     MetaDataKey metaKey = new MetaDataKey(dsids, dataSource, dataProvider, field);
     UniqueIdentifier uid = null;
@@ -170,6 +170,16 @@ public class InMemoryHistoricalDataProvider implements TimeSeriesSource {
       }
       return true;
     }
+  }
+
+  @Override
+  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers) {
+    return null;
+  }
+
+  @Override
+  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate start, LocalDate end) {
+    return null;
   }
 
 }

@@ -5,6 +5,9 @@
  */
 package com.opengamma.engine.historicaldata;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -13,16 +16,13 @@ import java.util.Set;
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 
-//import junit.framework.Assert;
-import static org.junit.Assert.*;
-
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -36,11 +36,13 @@ public class HistoricalDataProviderTest {
   private static final Logger s_logger = LoggerFactory.getLogger(HistoricalDataProviderTest.class);
   private static final String ALPHAS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   private Set<String> _usedIds = new HashSet<String>();
-  private boolean isWeekday(LocalDate day) {
+  
+  
+  private  static boolean isWeekday(LocalDate day) {
     return (day.getDayOfWeek() != DayOfWeek.SATURDAY && day.getDayOfWeek() != DayOfWeek.SUNDAY);
   }
   
-  public LocalDateDoubleTimeSeries randomTimeSeries() {
+  public  static LocalDateDoubleTimeSeries randomTimeSeries() {
     MutableLocalDateDoubleTimeSeries dts = new ListLocalDateDoubleTimeSeries();
     LocalDate start = LocalDate.of(2000, 1, 2);
     LocalDate end = start.plusYears(10);
@@ -87,7 +89,7 @@ public class HistoricalDataProviderTest {
                                    Identifier.of(IdentificationScheme.BLOOMBERG_BUID, makeUniqueRandomId()));
   }
   
-  private Pair<TimeSeriesSource, Set<IdentifierBundle>> buildAndTestInMemoryProvider() {
+  private Pair<HistoricalDataSource, Set<IdentifierBundle>> buildAndTestInMemoryProvider() {
     InMemoryHistoricalDataProvider inMemoryHistoricalDataProvider = new InMemoryHistoricalDataProvider();
     Map<IdentifierBundle, Map<String, Map<String, Map<String, LocalDateDoubleTimeSeries>>>> map = new HashMap<IdentifierBundle, Map<String, Map<String, Map<String, LocalDateDoubleTimeSeries>>>>();
     for (int i=0; i<100; i++) {
@@ -122,14 +124,14 @@ public class HistoricalDataProviderTest {
         for (String dataProvider : new String[] { "UNKNOWN", "CMPL", "CMPT" }) {
           for (String field : new String[] { "PX_LAST", "VOLUME" }) {
             LocalDateDoubleTimeSeries expectedTS = map.get(dsids).get(dataSource).get(dataProvider).get(field);
-            assertEquals(expectedTS, inMemoryHistoricalDataProvider.getHistoricalTimeSeries(dsids, dataSource, dataProvider, field));
-            UniqueIdentifier uid = inMemoryHistoricalDataProvider.resolveIdentifier(dsids, dataSource, dataProvider, field);
-            assertEquals(expectedTS, inMemoryHistoricalDataProvider.getHistoricalTimeSeries(uid));
+            Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = inMemoryHistoricalDataProvider.getHistoricalData(dsids, dataSource, dataProvider, field);
+            assertEquals(expectedTS, tsPair.getSecond());
+            assertEquals(expectedTS, inMemoryHistoricalDataProvider.getHistoricalData(tsPair.getFirst()));
           }
         }
       }
     }
-    return Pair.of((TimeSeriesSource) inMemoryHistoricalDataProvider, map.keySet());
+    return Pair.of((HistoricalDataSource) inMemoryHistoricalDataProvider, map.keySet());
   }
   
   @Test
@@ -141,8 +143,8 @@ public class HistoricalDataProviderTest {
   
   @Test
   public void testEHCachingHistoricalDataProvider() {
-    Pair<TimeSeriesSource, Set<IdentifierBundle>> providerAndDsids = buildAndTestInMemoryProvider();
-    TimeSeriesSource inMemoryHistoricalDataProvider = providerAndDsids.getFirst();
+    Pair<HistoricalDataSource, Set<IdentifierBundle>> providerAndDsids = buildAndTestInMemoryProvider();
+    HistoricalDataSource inMemoryHistoricalDataProvider = providerAndDsids.getFirst();
     EHCachingHistoricalDataProvider cachedProvider = new EHCachingHistoricalDataProvider(inMemoryHistoricalDataProvider);
     Set<IdentifierBundle> identifiers = providerAndDsids.getSecond();
     IdentifierBundle[] dsids = identifiers.toArray(new IdentifierBundle[] {});
@@ -154,12 +156,10 @@ public class HistoricalDataProviderTest {
       String dataSource = dataSources[random(dataSources.length)];
       String dataProvider = dataProviders[random(dataProviders.length)];
       String field = fields[random(fields.length)];
-      assertEquals(inMemoryHistoricalDataProvider.getHistoricalTimeSeries(ids, dataSource, dataProvider, field),
-                          cachedProvider.getHistoricalTimeSeries(ids, dataSource, dataProvider, field));
-      UniqueIdentifier uid = inMemoryHistoricalDataProvider.resolveIdentifier(ids, dataSource, dataProvider, field);
-      assertEquals(uid, cachedProvider.resolveIdentifier(ids, dataSource, dataProvider, field));
-      assertEquals(inMemoryHistoricalDataProvider.getHistoricalTimeSeries(uid),
-          cachedProvider.getHistoricalTimeSeries(uid));
+      Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> inMemPair = inMemoryHistoricalDataProvider.getHistoricalData(ids, dataSource, dataProvider, field);
+      Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> cachedPair = cachedProvider.getHistoricalData(ids, dataSource, dataProvider, field);
+      assertEquals(inMemPair, cachedPair);
+      assertEquals(inMemoryHistoricalDataProvider.getHistoricalData(inMemPair.getFirst()), cachedProvider.getHistoricalData(cachedPair.getFirst()));
     }    
   }
 }
