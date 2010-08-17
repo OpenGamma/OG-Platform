@@ -5,8 +5,10 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import java.util.Collections;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
@@ -24,6 +26,7 @@ import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionStateListener;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageSender;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A JobInvoker for invoking a job on a remote node connected by a FudgeConnection.
@@ -32,12 +35,10 @@ import com.opengamma.transport.FudgeMessageSender;
 
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteNodeJobInvoker.class);
 
-  private static final int DEFAULT_PRIORITY = 10;
-
   private final ConcurrentMap<CalculationJobSpecification, JobInvocationReceiver> _jobCompletionCallbacks = new ConcurrentHashMap<CalculationJobSpecification, JobInvocationReceiver>();
   private final ExecutorService _executorService;
   private final FudgeMessageSender _fudgeMessageSender;
-  private int _nodePriority = DEFAULT_PRIORITY;
+  private final Set<Capability> _capabilities = new HashSet<Capability>();
   private volatile int _capacity;
   private final AtomicInteger _launched = new AtomicInteger();
   private final AtomicReference<JobInvokerRegister> _dispatchCallback = new AtomicReference<JobInvokerRegister>();
@@ -51,12 +52,30 @@ import com.opengamma.transport.FudgeMessageSender;
     s_logger.info("Remote node invoker created with capacity {}", _capacity);
   }
 
-  public void setNodePriority(final int nodePriority) {
-    _nodePriority = nodePriority;
+  public void addCapability(final Capability capability) {
+    ArgumentChecker.notNull(capability, "capability");
+    getCapabilities().add(capability);
   }
 
-  public int getNodePriority() {
-    return _nodePriority;
+  public void addCapabilities(final Collection<Capability> capabilities) {
+    ArgumentChecker.notNull(capabilities, "capabilities");
+    getCapabilities().addAll(capabilities);
+  }
+
+  public void removeCapabilities(final Collection<Capability> capabilities) {
+    ArgumentChecker.notNull(capabilities, "capabilities");
+    getCapabilities().removeAll(capabilities);
+  }
+
+  public void setCapabilities(final Collection<Capability> capabilities) {
+    ArgumentChecker.notNull(capabilities, "capabilities");
+    getCapabilities().clear();
+    getCapabilities().addAll(capabilities);
+  }
+
+  @Override
+  public Collection<Capability> getCapabilities() {
+    return _capabilities;
   }
 
   private ConcurrentMap<CalculationJobSpecification, JobInvocationReceiver> getJobCompletionCallbacks() {
@@ -69,12 +88,6 @@ import com.opengamma.transport.FudgeMessageSender;
 
   private ExecutorService getExecutorService() {
     return _executorService;
-  }
-
-  @Override
-  public int canInvoke(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items) {
-    // [ENG-42] this is where we'd consider capabilities
-    return getNodePriority();
   }
 
   @Override
@@ -177,7 +190,7 @@ import com.opengamma.transport.FudgeMessageSender;
       // There could still be late messages arriving from a buffer even though the connection has now failed
       if (callback != null) {
         s_logger.debug("Cancelling pending operation {}", jobSpec);
-        callback.jobFailed(cause);
+        callback.jobFailed(this, cause);
       }
     }
   }
