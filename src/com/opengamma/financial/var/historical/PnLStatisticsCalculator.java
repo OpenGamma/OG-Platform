@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.var.historical;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
@@ -36,7 +37,7 @@ public class PnLStatisticsCalculator extends Function1D<HistoricalVaRDataBundle,
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -46,15 +47,8 @@ public class PnLStatisticsCalculator extends Function1D<HistoricalVaRDataBundle,
     if (getClass() != obj.getClass()) {
       return false;
     }
-    PnLStatisticsCalculator other = (PnLStatisticsCalculator) obj;
-    if (_calculator == null) {
-      if (other._calculator != null) {
-        return false;
-      }
-    } else if (!_calculator.equals(other._calculator)) {
-      return false;
-    }
-    return true;
+    final PnLStatisticsCalculator other = (PnLStatisticsCalculator) obj;
+    return ObjectUtils.equals(_calculator, other._calculator);
   }
 
 }
