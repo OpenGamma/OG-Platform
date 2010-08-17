@@ -49,13 +49,31 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
   private ComputationTargetResolver _recursiveResolver = this;
 
   /**
-   * Creates a resolver using a security and position source.
-   * @param securitySource  the security source, not null
-   * @param positionSource  the position source, not null
+   * Creates a resolver without access to a security source or a position source. This will only be able to resolve
+   * PRIMITIVE computation target types.
    */
-  public DefaultComputationTargetResolver(final SecuritySource securitySource, final PositionSource positionSource) {
-    ArgumentChecker.notNull(securitySource, "securitySource");
-    ArgumentChecker.notNull(positionSource, "positionSource");
+  public DefaultComputationTargetResolver() {
+    this(null, null);
+  }
+  
+  /**
+   * Creates a resolver using a security source only. This will not be able to resolve POSITION and PORTFOLIO_NODE
+   * computation target types.
+   * 
+   * @param securitySource  the security source
+   */
+  public DefaultComputationTargetResolver(SecuritySource securitySource) {
+    _securitySource = securitySource;
+    _positionSource = null;
+  }
+  
+  /**
+   * Creates a resolver using a security and position source, for resolving any type of computation target.
+   * 
+   * @param securitySource  the security source
+   * @param positionSource  the position source
+   */
+  public DefaultComputationTargetResolver(SecuritySource securitySource, PositionSource positionSource) {
     _securitySource = securitySource;
     _positionSource = positionSource;
   }
@@ -110,6 +128,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
         return new ComputationTarget(specification.getType(), uid);
       }
       case SECURITY: {
+        checkSecuritySource(ComputationTargetType.SECURITY);
         final Security security = getSecuritySource().getSecurity(uid);
         if (security == null) {
           s_logger.info("Unable to resolve security UID {}", uid);
@@ -119,6 +138,8 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
         return new ComputationTarget(ComputationTargetType.SECURITY, security);
       }
       case POSITION: {
+        checkSecuritySource(ComputationTargetType.POSITION);
+        checkPositionSource(ComputationTargetType.POSITION);
         Position position = getPositionSource().getPosition(uid);
         if (position == null) {
           s_logger.info("Unable to resolve position UID {}", uid);
@@ -138,6 +159,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
         return new ComputationTarget(ComputationTargetType.POSITION, position);
       }
       case PORTFOLIO_NODE: {
+        checkPositionSource(ComputationTargetType.PORTFOLIO_NODE);
         PortfolioNode node = getPositionSource().getPortfolioNode(uid);
         if (node != null) {
           s_logger.info("Resolved multiple-position UID {} to portfolio node {}", uid, node);
@@ -182,6 +204,18 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
       }
     }
     return newNode;
+  }
+  
+  private void checkSecuritySource(ComputationTargetType attemptedTargetType) {
+    if (getSecuritySource() == null) {
+      throw new OpenGammaRuntimeException("Access to a security source is required in order to resolve computation targets of type " + attemptedTargetType);
+    }
+  }
+  
+  private void checkPositionSource(ComputationTargetType attemptedTargetType) {
+    if (getPositionSource() == null) {
+      throw new OpenGammaRuntimeException("Access to a position source is required in order to resolve computation targets of type " + attemptedTargetType);
+    }
   }
 
 }

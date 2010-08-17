@@ -30,29 +30,76 @@ public class ViewCompilationServices {
   private final FunctionCompilationContext _compilationContext;
   private final CachingComputationTargetResolver _computationTargetResolver;
   
+  /**
+   * Constructs an instance, without a position source or security source.
+   * 
+   * @param liveDataAvailabilityProvider  the live data availability provider
+   * @param functionResolver  the function resolver
+   * @param compilationContext  the function compilation context
+   * @param computationTargetResolver  the computation target resolver
+   * @param executorService  the executor service
+   */
+  public ViewCompilationServices(
+    LiveDataAvailabilityProvider liveDataAvailabilityProvider,
+    FunctionResolver functionResolver,
+    FunctionCompilationContext compilationContext,
+    CachingComputationTargetResolver computationTargetResolver,
+    ExecutorService executorService) {
+    this(liveDataAvailabilityProvider, functionResolver, compilationContext, computationTargetResolver, executorService, null, null);
+  }
+  
+  /**
+   * Constructs an instance, without a position source.
+   * 
+   * @param liveDataAvailabilityProvider  the live data availability provider
+   * @param functionResolver  the function resolver
+   * @param compilationContext  the function compilation context
+   * @param computationTargetResolver  the computation target resolver
+   * @param executorService  the executor service
+   * @param securitySource  the security source
+   */
+  public ViewCompilationServices(
+    LiveDataAvailabilityProvider liveDataAvailabilityProvider,
+    FunctionResolver functionResolver,
+    FunctionCompilationContext compilationContext,
+    CachingComputationTargetResolver computationTargetResolver,
+    ExecutorService executorService,
+    SecuritySource securitySource) {
+    this(liveDataAvailabilityProvider, functionResolver, compilationContext, computationTargetResolver, executorService, securitySource, null);
+  }
+  
+  /**
+   * Constructs an instance
+   * 
+   * @param liveDataAvailabilityProvider  the live data availability provider
+   * @param functionResolver  the function resolver
+   * @param compilationContext  the function compilation context
+   * @param computationTargetResolver  the computation target resolver
+   * @param executorService  the executor service
+   * @param securitySource  the security source
+   * @param positionSource  the position source
+   */
   public ViewCompilationServices(
       LiveDataAvailabilityProvider liveDataAvailabilityProvider,
       FunctionResolver functionResolver,
-      PositionSource positionSource,
-      SecuritySource securitySource,
       FunctionCompilationContext compilationContext,
       CachingComputationTargetResolver computationTargetResolver,
-      ExecutorService executorService) {
+      ExecutorService executorService,
+      SecuritySource securitySource,
+      PositionSource positionSource) {
     ArgumentChecker.notNull(liveDataAvailabilityProvider, "liveDataAvailabilityProvider");
     ArgumentChecker.notNull(functionResolver, "functionResolver");
-    ArgumentChecker.notNull(positionSource, "positionSource");
-    ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notNull(compilationContext, "compilationContext");
     ArgumentChecker.notNull(computationTargetResolver, "computationTargetResolver");
     ArgumentChecker.notNull(executorService, "executorService");
     
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
     _functionResolver = functionResolver;
-    _positionSource = positionSource;
-    _securitySource = securitySource;
     _compilationContext = compilationContext;
     _executorService = executorService;
     _computationTargetResolver = computationTargetResolver;
+    _securitySource = securitySource;
+    _positionSource = positionSource;
   }
 
   //-------------------------------------------------------------------------

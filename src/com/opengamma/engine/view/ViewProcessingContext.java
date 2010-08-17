@@ -212,11 +212,11 @@ public class ViewProcessingContext {
     return new ViewCompilationServices(
         getLiveDataAvailabilityProvider(),
         getFunctionResolver(),
-        getPositionSource(),
-        getSecuritySource(),
         getCompilationContext(),
         getComputationTargetResolver(),
-        getExecutorService());
+        getExecutorService(),
+        getSecuritySource(),
+        getPositionSource());
   }
 
 }

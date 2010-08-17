@@ -47,6 +47,7 @@ public final class ViewDefinitionCompiler {
     ViewCompilationContext viewCompilationContext = new ViewCompilationContext(viewDefinition, compilationServices);
     
     Portfolio portfolio = PortfolioCompiler.execute(viewCompilationContext);
+    SpecificRequirementsCompiler.execute(viewCompilationContext);
     
     Map<String, DependencyGraph> graphsByConfiguration = processDependencyGraphs(viewCompilationContext);
     timer.finished();
