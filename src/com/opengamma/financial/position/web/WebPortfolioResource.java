@@ -3,10 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.rest;
+package com.opengamma.financial.position.web;
 
 import java.net.URI;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -15,88 +16,35 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 
 import com.opengamma.financial.position.master.ManageablePortfolioNode;
 import com.opengamma.financial.position.master.ManageablePosition;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
-import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.financial.position.master.PositionSearchRequest;
 import com.opengamma.financial.position.master.PositionSearchResult;
-import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * RESTful resource for a portfolio.
  */
-@Path("/portfolios/{portfolioUid}")
-public class WebPortfolioResource {
-
-  /**
-   * The portfolios resource.
-   */
-  private final WebPortfoliosResource _portfoliosResource;
-  /**
-   * The portfolio unique identifier.
-   */
-  private final UniqueIdentifier _urlPortfolioId;
+@Path("/portfolios/{portfolioId}")
+public class WebPortfolioResource extends AbstractWebPortfolioResource {
 
   /**
    * Creates the resource.
-   * @param portfoliosResource  the parent resource, not null
-   * @param portfolioUid  the portfolio unique identifier, not null
+   * @param data  the data, not null
    */
-  public WebPortfolioResource(final WebPortfoliosResource portfoliosResource, final UniqueIdentifier portfolioUid) {
-    ArgumentChecker.notNull(portfoliosResource, "position master");
-    ArgumentChecker.notNull(portfolioUid, "portfolio");
-    _portfoliosResource = portfoliosResource;
-    _urlPortfolioId = portfolioUid;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the portfolios resource.
-   * @return the portfolios resource, not null
-   */
-  public WebPortfoliosResource getPortfoliosResource() {
-    return _portfoliosResource;
-  }
-
-  /**
-   * Gets the portfolio identifier from the URL.
-   * @return the unique identifier, not null
-   */
-  public UniqueIdentifier getUrlPortfolioId() {
-    return _urlPortfolioId;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the position master.
-   * @return the position master, not null
-   */
-  public PositionMaster getPositionMaster() {
-    return getPortfoliosResource().getPositionMaster();
-  }
-
-  /**
-   * Gets the URI info.
-   * @return the URI info, not null
-   */
-  public UriInfo getUriInfo() {
-    return getPortfoliosResource().getUriInfo();
+  public WebPortfolioResource(final WebPortfoliosData data) {
+    super(data);
   }
 
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
-  public String getAsHtml() {
-    PortfolioTreeDocument doc = getPositionMaster().getPortfolioTree(getUrlPortfolioId());
-    if (doc == null) {
-      return null;
-    }
+  public String get() {
+    PortfolioTreeDocument doc = data().getPortfolio();
     String html = "<html>\n" +
       "<head><title>Portfolio - " + doc.getPortfolioId().toLatest() + "</title></head>\n" +
       "<body>\n" +
@@ -107,20 +55,21 @@ public class WebPortfolioResource {
     html += "<p>Child nodes:<br /><table border=\"1\">" +
       "<tr><th>Name</th><th>Actions</th></tr>\n";
     for (ManageablePortfolioNode child : doc.getPortfolio().getRootNode().getChildNodes()) {
-      URI nodeUri = WebPortfolioNodeResource.uri(getUriInfo(), getUrlPortfolioId(), child.getUniqueIdentifier().toLatest());
+      URI nodeUri = WebPortfolioNodeResource.uri(data(), child.getUniqueIdentifier());
       html += "<tr>";
       html += "<td><a href=\"" + nodeUri + "\">" + child.getName() + "</a></td>";
       html += "<td><a href=\"" + nodeUri + "\">View</a></td>";
       html += "</tr>\n";
     }
     html += "</table></p>\n";
+    
     html += "<p>Positions:<br /><table border=\"1\">" +
       "<tr><th>Name</th><th>Quantity</th><th>Actions</th></tr>\n";
     PositionSearchRequest positionSearch = new PositionSearchRequest();
     positionSearch.setParentNodeId(doc.getPortfolio().getRootNode().getUniqueIdentifier());
-    PositionSearchResult positions = getPositionMaster().searchPositions(positionSearch);
+    PositionSearchResult positions = data().getPositionMaster().searchPositions(positionSearch);
     for (ManageablePosition position : positions.getPositions()) {
-      URI positionUri = WebPositionResource.uri(getUriInfo(), getUrlPortfolioId(), position.getUniqueIdentifier().toLatest());
+      URI positionUri = WebPortfolioNodePositionResource.uri(data(), position.getUniqueIdentifier());
       html += "<tr>";
       html += "<td><a href=\"" + positionUri + "\">" + position.getUniqueIdentifier().toLatest() + "</a></td>";
       html += "<td>" + position.getQuantity() + "</td>";
@@ -129,7 +78,7 @@ public class WebPortfolioResource {
     }
     html += "</table></p>\n";
     
-    URI portfolioUri = WebPortfolioResource.uri(getUriInfo(), doc.getPortfolioId());
+    URI portfolioUri = WebPortfolioResource.uri(data());
     html += "<h2>Update portfolio</h2>\n" +
       "<form method=\"POST\" action=\"" + portfolioUri + "\">" +
       "<input type=\"hidden\" name=\"method\" value=\"PUT\" />" +
@@ -142,15 +91,15 @@ public class WebPortfolioResource {
       "<input type=\"submit\" value=\"Delete\" />" +
       "</form>\n";
     
-    URI rootNodeUri = WebPortfolioNodeResource.uri(getUriInfo(), getUrlPortfolioId(), doc.getPortfolio().getRootNode().getUniqueIdentifier());
+    URI rootNodeUri = WebPortfolioNodeResource.uri(data(), doc.getPortfolio().getRootNode().getUniqueIdentifier());
     html += "<h2>Add node</h2>\n" +
       "<form method=\"POST\" action=\"" + rootNodeUri + "\">" +
       "Name: <input type=\"text\" size=\"30\" name=\"name\" /><br />" +
       "<input type=\"submit\" value=\"Add\" />" +
       "</form>\n";
+    URI rootNodePositionsUri = WebPortfolioNodePositionsResource.uri(data(), doc.getPortfolio().getRootNode().getUniqueIdentifier());
     html += "<h2>Add position</h2>\n" +
-      "<form method=\"POST\" action=\"" + rootNodeUri + "\">" +
-      "<input type=\"hidden\" name=\"post\" value=\"P\" /><br />" +
+      "<form method=\"POST\" action=\"" + rootNodePositionsUri + "\">" +
       "Quantity: <input type=\"text\" size=\"10\" name=\"quantity\" /><br />" +
       "Scheme: <input type=\"text\" size=\"30\" name=\"scheme\" /><br />" +
       "Scheme Id: <input type=\"text\" size=\"30\" name=\"schemevalue\" /><br />" +
@@ -159,48 +108,47 @@ public class WebPortfolioResource {
     
     html += "<h2>Links</h2>" +
       "<p>" +
-      "<a href=\"" + WebPortfoliosResource.uri(getUriInfo()) + "\">Portfolio search</a><br />" +
+      "<a href=\"" + WebPortfoliosResource.uri(data()) + "\">Portfolio search</a><br />" +
       "</p>";
     html += "</body>\n</html>\n";
     return html;
   }
 
   @PUT
-  public Response update(@FormParam("name") String name) {
-    PortfolioTreeDocument doc = getPositionMaster().getPortfolioTree(getUrlPortfolioId());
-    doc.getPortfolio().setName(name);
-    doc = getPositionMaster().updatePortfolioTree(doc);
-    URI uri = WebPortfolioResource.uri(getUriInfo(), doc.getPortfolioId().toLatest());
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  public Response put(@FormParam("name") String name) {
+    name = StringUtils.trimToNull(name);
+    PortfolioTreeDocument doc = data().getPortfolio();
+    doc.getPortfolio().setName(StringUtils.trim(name));
+    doc = data().getPositionMaster().updatePortfolioTree(doc);
+    data().setPortfolio(doc);
+    URI uri = WebPortfolioResource.uri(data());
     return Response.seeOther(uri).build();
   }
 
   @DELETE
   public Response delete() {
-    getPositionMaster().removePortfolioTree(getUrlPortfolioId());
-    URI uri = WebPortfoliosResource.uri(getUriInfo());
+    PortfolioTreeDocument doc = data().getPortfolio();
+    data().getPositionMaster().removePortfolioTree(doc.getPortfolioId());
+    URI uri = WebPortfoliosResource.uri(data());
     return Response.seeOther(uri).build();
   }
 
   //-------------------------------------------------------------------------
   @Path("nodes")
   public WebPortfolioNodesResource findNodes() {
-    return new WebPortfolioNodesResource(this);
-  }
-
-  @Path("positions")
-  public WebPositionsResource findPositions() {
-    return new WebPositionsResource(this);
+    return new WebPortfolioNodesResource(data());
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Builds a URI for a portfolio.
-   * @param uriInfo  the URI information, not null
-   * @param portfolioUid  the portfolio unique identifier, not null
+   * Builds a URI for this resource.
+   * @param data  the data, not null
    * @return the URI, not null
    */
-  public static URI uri(UriInfo uriInfo, UniqueIdentifier portfolioUid) {
-    return uriInfo.getBaseUriBuilder().path(WebPortfolioResource.class).build(portfolioUid);
+  public static URI uri(final WebPortfoliosData data) {
+    String portfolioId = data.getBestPortfolioUriId(null);
+    return data.getUriInfo().getBaseUriBuilder().path(WebPortfolioResource.class).build(portfolioId);
   }
 
 }

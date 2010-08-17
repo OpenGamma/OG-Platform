@@ -57,6 +57,7 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessingContext;
 import com.opengamma.engine.view.cache.MapViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
+import com.opengamma.engine.view.calcnode.AbstractCalculationNode;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.LocalCalculationNode;
 import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
@@ -614,8 +615,9 @@ public class BatchJob implements Job {
     
     ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
-    LocalNodeJobInvoker localNode = new LocalNodeJobInvoker(new LocalCalculationNode(cacheFactory, getFunctionRepository(), executionContext, targetResolver, viewProcessorQuerySender));
-    JobDispatcher jobDispatcher = new JobDispatcher(localNode);
+    AbstractCalculationNode localNode = new LocalCalculationNode(cacheFactory, executionContext, targetResolver, viewProcessorQuerySender);
+    localNode.setFunctionRepository(getFunctionRepository());
+    JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(localNode));
     
     ThreadFactory threadFactory = new NamedThreadPoolFactory("BatchJob-" + System.currentTimeMillis(), true);
     ThreadPoolExecutor executor = new ThreadPoolExecutor(0, 1, 5L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), threadFactory);

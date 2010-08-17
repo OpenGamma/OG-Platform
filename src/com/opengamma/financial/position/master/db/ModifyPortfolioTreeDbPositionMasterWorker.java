@@ -203,7 +203,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
     }
     treeArgs.addValue("tree_right", counter.getAndIncrement());
     // set the uid
-    final UniqueIdentifier uid = createUniqueIdentifier(nodeId, nodeId, null);
+    final UniqueIdentifier uid = createUniqueIdentifier(nodeOid, nodeId, null);
     UniqueIdentifiables.setInto(node, uid);
   }
 
