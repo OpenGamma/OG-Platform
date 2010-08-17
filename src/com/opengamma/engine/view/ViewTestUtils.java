@@ -22,7 +22,7 @@ import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.position.MockPositionSource;
 import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.security.MockSecuritySource;
-import com.opengamma.engine.view.cache.MapViewComputationCacheSource;
+import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.LocalCalculationNode;
@@ -51,7 +51,7 @@ public class ViewTestUtils {
     
     DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
     
-    MapViewComputationCacheSource cacheFactory = new MapViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT);
+    InMemoryViewComputationCacheSource cacheFactory = new InMemoryViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT);
     
     FunctionExecutionContext executionContext = new FunctionExecutionContext();
     

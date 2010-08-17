@@ -5,119 +5,57 @@
  */
 package com.opengamma.engine.view.cache;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import org.fudgemsg.FudgeContext;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.transport.FudgeRequestSender;
 
 /**
- * 
+ * Caching client for {@link ViewComputationCacheServer}. This is equivalent to constructing a {@link DefaultViewComputationCacheSource}
+ * with a {@link RemoteIdentifierMap} wrapped in a {@link CachingIdentifierMap} and a {@link RemoteBinaryDataStore} wrapped in a
+ * {@link CachingBinaryDataStore}. 
  */
-public class RemoteViewComputationCacheSource implements ViewComputationCacheSource {
-  private static final Logger s_logger = LoggerFactory.getLogger(RemoteViewComputationCacheSource.class);
-  private static final int DEFAULT_MAX_LOCAL_CACHED_ELEMENTS = 100000;
-  private final RemoteCacheClient _remoteClient;
-  private final int _maxLocalCachedElements;
-  private final Lock _cacheCreationLock = new ReentrantLock();
-  private final ConcurrentMap<ViewComputationCacheKey, RemoteViewComputationCache> _cachesByKey = new ConcurrentHashMap<ViewComputationCacheKey, RemoteViewComputationCache>();
+public class RemoteViewComputationCacheSource extends DefaultViewComputationCacheSource {
 
-  public RemoteViewComputationCacheSource(RemoteCacheClient remoteClient) {
-    this(remoteClient, DEFAULT_MAX_LOCAL_CACHED_ELEMENTS);
+  public RemoteViewComputationCacheSource(final FudgeRequestSender requestSender) {
+    this(new RemoteCacheClient(requestSender));
   }
 
-  public RemoteViewComputationCacheSource(RemoteCacheClient remoteClient, int maxLocalCachedElements) {
-    ArgumentChecker.notNull(remoteClient, "Remote computation cache client");
-    _remoteClient = remoteClient;
-    _maxLocalCachedElements = maxLocalCachedElements;
+  public RemoteViewComputationCacheSource(final FudgeRequestSender requestSender, final int maxLocalCachedElements) {
+    this(new RemoteCacheClient(requestSender), maxLocalCachedElements);
   }
 
-  /**
-   * @return the remoteClient
-   */
-  public RemoteCacheClient getRemoteClient() {
-    return _remoteClient;
+  public RemoteViewComputationCacheSource(final RemoteCacheClient client) {
+    this(client, client.getRequestSender().getFudgeContext());
+  }
+
+  public RemoteViewComputationCacheSource(final RemoteCacheClient client, final int maxLocalCachedElements) {
+    this(client, client.getRequestSender().getFudgeContext(), maxLocalCachedElements);
   }
 
   /**
-   * @return the maxLocalCachedElements
+   * @param client the connection to a {@link ViewComputationCacheServer}
+   * @param fudgeContext the Fudge context the {@link DefaultViewComputationCache} will use for object encoding. This may be the same as the
+   *                     one attached to the client's transport or different.
    */
-  public int getMaxLocalCachedElements() {
-    return _maxLocalCachedElements;
+  public RemoteViewComputationCacheSource(final RemoteCacheClient client, final FudgeContext fudgeContext) {
+    super(createIdentifierMap(client), fudgeContext, createDataStoreFactory(client, -1));
   }
 
-  @Override
-  public ViewComputationCache cloneCache(String viewName, String calculationConfigurationName, long timestamp) {
-    throw new UnsupportedOperationException("Cloning not yet supported.");
+  public RemoteViewComputationCacheSource(final RemoteCacheClient client, final FudgeContext fudgeContext, final int maxLocalCachedElements) {
+    super(createIdentifierMap(client), fudgeContext, createDataStoreFactory(client, maxLocalCachedElements));
   }
 
-  @Override
-  public ViewComputationCache getCache(String viewName, String calculationConfigurationName, long timestamp) {
-    ViewComputationCacheKey cacheKey = new ViewComputationCacheKey(viewName, calculationConfigurationName, timestamp);
-    RemoteViewComputationCache remoteCache = _cachesByKey.get(cacheKey);
-    if (remoteCache == null) {
-      _cacheCreationLock.lock();
-      try {
-        remoteCache = _cachesByKey.get(cacheKey);
-        if (remoteCache == null) {
-          remoteCache = new RemoteViewComputationCache(getRemoteClient(), cacheKey, getMaxLocalCachedElements());
-          _cachesByKey.put(cacheKey, remoteCache);
-        }
-      } finally {
-        _cacheCreationLock.unlock();
-      }
-    }
-    assert remoteCache != null;
-    return remoteCache;
+  private static IdentifierMap createIdentifierMap(final RemoteCacheClient client) {
+    return new CachingIdentifierMap(new RemoteIdentifierMap(client));
   }
 
-  @Override
-  public void releaseCaches(String viewName, long timestamp) {
-    _cacheCreationLock.lock();
-    try {
-      Iterator<Map.Entry<ViewComputationCacheKey, RemoteViewComputationCache>> entryIter = _cachesByKey.entrySet().iterator();
-      while (entryIter.hasNext()) {
-        Map.Entry<ViewComputationCacheKey, RemoteViewComputationCache> entry = entryIter.next();
-        ViewComputationCacheKey cacheKey = entry.getKey();
-        if (!ObjectUtils.equals(cacheKey.getViewName(), viewName)) {
-          continue;
-        }
-        if (cacheKey.getSnapshotTimestamp() != timestamp) {
-          continue;
-        }
-        entry.getValue().getLocalCache().dispose();
-        entryIter.remove();
-      }
-    } finally {
-      _cacheCreationLock.unlock();
-    }
-    // This is wrong; only the owner should purge
-    getRemoteClient().purgeCache(viewName, timestamp);
-  }
-
-  public void releaseAllLocalCaches() {
-    s_logger.info("Releasing all local caches.");
-    _cacheCreationLock.lock();
-    try {
-      final CacheManager manager = RemoteViewComputationCache.getCacheManager();
-      for (RemoteViewComputationCache cache : _cachesByKey.values()) {
-        final Cache localCache = cache.getLocalCache();
-        localCache.dispose();
-        manager.removeCache(localCache.getName());
-      }
-      _cachesByKey.clear();
-    } finally {
-      _cacheCreationLock.unlock();
+  private static BinaryDataStoreFactory createDataStoreFactory(final RemoteCacheClient client, final int maxLocalCachedElements) {
+    final RemoteBinaryDataStoreFactory remote = new RemoteBinaryDataStoreFactory(client);
+    if (maxLocalCachedElements >= 0) {
+      return new CachingBinaryDataStoreFactory(remote, maxLocalCachedElements);
+    } else {
+      return new CachingBinaryDataStoreFactory(remote);
     }
   }
+
 }

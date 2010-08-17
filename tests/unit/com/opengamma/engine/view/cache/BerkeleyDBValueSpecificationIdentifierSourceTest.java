@@ -36,7 +36,7 @@ import com.sleepycat.je.EnvironmentConfig;
 // far beyond normal synchronization in handling concurrency.
 
 /**
- * A simple unit test of {@link BerkeleyDBValueSpecificationIdentifierSource}.
+ * A simple unit test of {@link BerkeleyDBIdentifierMap}.
  */
 public class BerkeleyDBValueSpecificationIdentifierSourceTest {
   private static final Logger s_logger = LoggerFactory.getLogger(BerkeleyDBValueSpecificationIdentifierSourceTest.class);
@@ -78,7 +78,7 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
     Environment dbEnvironment = createDbEnvironment(dbDir);
     FudgeContext fudgeContext = new FudgeContext();
     
-    BerkeleyDBValueSpecificationIdentifierSource idSource = new BerkeleyDBValueSpecificationIdentifierSource(dbEnvironment, BerkeleyDBValueSpecificationIdentifierSource.DEFAULT_DATABASE_NAME, fudgeContext);
+    BerkeleyDBIdentifierMap idSource = new BerkeleyDBIdentifierMap(dbEnvironment, BerkeleyDBIdentifierMap.DEFAULT_DATABASE_NAME, fudgeContext);
     idSource.start();
     
     Map<String, Long> identifiers = new HashMap<String, Long>();
@@ -112,7 +112,7 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
     Environment dbEnvironment = createDbEnvironment(dbDir);
     FudgeContext fudgeContext = new FudgeContext();
     
-    BerkeleyDBValueSpecificationIdentifierSource idSource = new BerkeleyDBValueSpecificationIdentifierSource(dbEnvironment, BerkeleyDBValueSpecificationIdentifierSource.DEFAULT_DATABASE_NAME, fudgeContext);
+    BerkeleyDBIdentifierMap idSource = new BerkeleyDBIdentifierMap(dbEnvironment, BerkeleyDBIdentifierMap.DEFAULT_DATABASE_NAME, fudgeContext);
     idSource.start();
     String valueName = "value-5";
     ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("scheme", valueName))));
@@ -122,7 +122,7 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
     idSource.stop();
     dbEnvironment.close();
     dbEnvironment = createDbEnvironment(dbDir);
-    idSource = new BerkeleyDBValueSpecificationIdentifierSource(dbEnvironment, BerkeleyDBValueSpecificationIdentifierSource.DEFAULT_DATABASE_NAME, fudgeContext);
+    idSource = new BerkeleyDBIdentifierMap(dbEnvironment, BerkeleyDBIdentifierMap.DEFAULT_DATABASE_NAME, fudgeContext);
     idSource.start();
     
     // Check we get the same thing back.
@@ -146,7 +146,7 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
     File dbDir = createDbDir("putPerformanceTest");
     Environment dbEnvironment = createDbEnvironment(dbDir);
     FudgeContext fudgeContext = new FudgeContext();
-    BerkeleyDBValueSpecificationIdentifierSource idSource = new BerkeleyDBValueSpecificationIdentifierSource(dbEnvironment, BerkeleyDBValueSpecificationIdentifierSource.DEFAULT_DATABASE_NAME, fudgeContext);
+    BerkeleyDBIdentifierMap idSource = new BerkeleyDBIdentifierMap(dbEnvironment, BerkeleyDBIdentifierMap.DEFAULT_DATABASE_NAME, fudgeContext);
     idSource.start();
     
     OperationTimer timer = new OperationTimer(s_logger, "Put performance test with {} elements", numSpecifications);
@@ -169,7 +169,7 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
    * @param numIdentifiers
    * @param idSource
    */
-  private void bulkOperationGetIdentifier(final int numRequirementNames, final int numIdentifiers, BerkeleyDBValueSpecificationIdentifierSource idSource) {
+  private void bulkOperationGetIdentifier(final int numRequirementNames, final int numIdentifiers, BerkeleyDBIdentifierMap idSource) {
     for (int iRequirementName = 0; iRequirementName < numRequirementNames; iRequirementName++) {
       String requirementName = "req-" + iRequirementName;
       
@@ -191,7 +191,7 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
     File dbDir = createDbDir("getPerformanceTest");
     Environment dbEnvironment = createDbEnvironment(dbDir);
     FudgeContext fudgeContext = new FudgeContext();
-    BerkeleyDBValueSpecificationIdentifierSource idSource = new BerkeleyDBValueSpecificationIdentifierSource(dbEnvironment, BerkeleyDBValueSpecificationIdentifierSource.DEFAULT_DATABASE_NAME, fudgeContext);
+    BerkeleyDBIdentifierMap idSource = new BerkeleyDBIdentifierMap(dbEnvironment, BerkeleyDBIdentifierMap.DEFAULT_DATABASE_NAME, fudgeContext);
     idSource.start();
     
     bulkOperationGetIdentifier(numRequirementNames, numIdentifiers, idSource);

@@ -16,8 +16,8 @@ import com.opengamma.util.ArgumentChecker;
  * Caches value identifiers on top of another identifier source.
  * This class is internally synchronized.
  */
-public class CachingValueSpecificationIdentifierSource implements ValueSpecificationIdentifierSource {
-  private final ValueSpecificationIdentifierSource _underlying;
+public class CachingIdentifierMap implements IdentifierMap {
+  private final IdentifierMap _underlying;
   // NOTE kirk 2010-08-06 -- This INTENTIONALLY is not an EHCache instance.
   // Since getting a remote value specification identifier has to be a super-fast operation
   // (probably faster than disk anyway), and the only reason we'd ever want to flush is
@@ -25,7 +25,7 @@ public class CachingValueSpecificationIdentifierSource implements ValueSpecifica
   private final WeakHashMap<ValueSpecification, Long> _cachedIdentifiers = new WeakHashMap<ValueSpecification, Long>();
   private final ReadWriteLock _lock = new ReentrantReadWriteLock();
   
-  public CachingValueSpecificationIdentifierSource(ValueSpecificationIdentifierSource underlying) {
+  public CachingIdentifierMap(IdentifierMap underlying) {
     ArgumentChecker.notNull(underlying, "Underlying source");
     _underlying = underlying;
   }
@@ -34,7 +34,7 @@ public class CachingValueSpecificationIdentifierSource implements ValueSpecifica
    * Gets the underlying source.
    * @return the underlying
    */
-  public ValueSpecificationIdentifierSource getUnderlying() {
+  public IdentifierMap getUnderlying() {
     return _underlying;
   }
 

@@ -20,21 +20,21 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * An implementation of {@link ViewComputationCache} which backs value storage on
- * a pair of {@link ValueSpecificationIdentifierSource} and {@link ValueSpecificationIdentifierBinaryDataStore}.
+ * a pair of {@link IdentifierMap} and {@link BinaryDataStore}.
  */
-public class StandardViewComputationCache implements ViewComputationCache, Iterable<Pair<ValueSpecification, byte[]>> {
+public class DefaultViewComputationCache implements ViewComputationCache, Iterable<Pair<ValueSpecification, byte[]>> {
 
   private static final int NATIVE_FIELD_INDEX = -1;
 
-  private final ValueSpecificationIdentifierSource _identifierSource;
-  private final ValueSpecificationIdentifierBinaryDataStore _dataStore;
+  private final IdentifierMap _identifierMap;
+  private final BinaryDataStore _dataStore;
   private final FudgeContext _fudgeContext;
 
-  public StandardViewComputationCache(ValueSpecificationIdentifierSource identifierSource, ValueSpecificationIdentifierBinaryDataStore dataStore, FudgeContext fudgeContext) {
-    ArgumentChecker.notNull(identifierSource, "Identifier Source");
+  public DefaultViewComputationCache(IdentifierMap identifierMap, BinaryDataStore dataStore, FudgeContext fudgeContext) {
+    ArgumentChecker.notNull(identifierMap, "Identifier map");
     ArgumentChecker.notNull(dataStore, "Data Store");
     ArgumentChecker.notNull(fudgeContext, "Fudge context");
-    _identifierSource = identifierSource;
+    _identifierMap = identifierMap;
     _dataStore = dataStore;
     _fudgeContext = fudgeContext;
   }
@@ -43,15 +43,15 @@ public class StandardViewComputationCache implements ViewComputationCache, Itera
    * Gets the identifierSource field.
    * @return the identifierSource
    */
-  public ValueSpecificationIdentifierSource getIdentifierSource() {
-    return _identifierSource;
+  public IdentifierMap getIdentifierMap() {
+    return _identifierMap;
   }
 
   /**
    * Gets the dataStore field.
    * @return the dataStore
    */
-  public ValueSpecificationIdentifierBinaryDataStore getDataStore() {
+  public BinaryDataStore getDataStore() {
     return _dataStore;
   }
 
@@ -66,7 +66,7 @@ public class StandardViewComputationCache implements ViewComputationCache, Itera
   @Override
   public Object getValue(ValueSpecification specification) {
     ArgumentChecker.notNull(specification, "Specification");
-    final long identifier = getIdentifierSource().getIdentifier(specification);
+    final long identifier = getIdentifierMap().getIdentifier(specification);
     return getValue(identifier);
   }
 
@@ -89,7 +89,7 @@ public class StandardViewComputationCache implements ViewComputationCache, Itera
   @Override
   public void putValue(ComputedValue value) {
     ArgumentChecker.notNull(value, "Computed value");
-    final long identifier = getIdentifierSource().getIdentifier(value.getSpecification());
+    final long identifier = getIdentifierMap().getIdentifier(value.getSpecification());
     putValue(identifier, value.getValue());
   }
 
@@ -110,7 +110,7 @@ public class StandardViewComputationCache implements ViewComputationCache, Itera
 
   @Override
   public Iterator<Pair<ValueSpecification, byte[]>> iterator() {
-    // TODO 2008-08-09 Implement this; iterate over the values
+    // TODO 2008-08-09 Implement this; iterate over the values in the data store
     throw new UnsupportedOperationException();
   }
 

@@ -11,7 +11,7 @@ package com.opengamma.engine.view.cache;
  * A store for binary data for a fully identified {@link ValueSpecification}.
  * It is expected that one of these will be created per iteration per View/Configuration pair.
  */
-public interface ValueSpecificationIdentifierBinaryDataStore {
+public interface BinaryDataStore {
   
   /**
    * Obtain the current data associated with the identifier.

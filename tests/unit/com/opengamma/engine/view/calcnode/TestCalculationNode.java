@@ -12,13 +12,13 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.position.MockPositionSource;
 import com.opengamma.engine.security.MockSecuritySource;
-import com.opengamma.engine.view.cache.MapViewComputationCacheSource;
+import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.util.InetAddressUtils;
 
 public class TestCalculationNode extends AbstractCalculationNode {
   
   protected TestCalculationNode() {
-    super(new MapViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT), 
+    super(new InMemoryViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT), 
         new FunctionExecutionContext(), 
         new DefaultComputationTargetResolver(new MockSecuritySource(), new MockPositionSource()), 
         new ViewProcessorQuerySender(null), 

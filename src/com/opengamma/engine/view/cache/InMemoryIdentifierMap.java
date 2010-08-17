@@ -13,11 +13,11 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * An implementation of {@link ValueSpecificationIdentifierSource} which is backed by an in-memory
+ * An implementation of {@link IdentifierMap} which is backed by an in-memory
  * {@link ConcurrentMap}. This has no facilities for acting as a cache, or for persistence.
  * It should only be used for development and debugging purposes.
  */
-public class MapValueSpecificationIdentifierSource implements ValueSpecificationIdentifierSource {
+public class InMemoryIdentifierMap implements IdentifierMap {
   private final AtomicLong _nextIdentifier = new AtomicLong(1L);
   private final ConcurrentMap<ValueSpecification, Long> _identifiers = new ConcurrentHashMap<ValueSpecification, Long>();
 

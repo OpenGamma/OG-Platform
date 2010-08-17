@@ -11,7 +11,7 @@ import com.opengamma.engine.value.ValueSpecification;
  * Allows clients to determine a {@code long} value for a
  * {@link ValueSpecification} for interaction with other caching interfaces.
  */
-public interface ValueSpecificationIdentifierSource {
+public interface IdentifierMap {
 
   /**
    * Obtain the current identifier for the specification provided,
