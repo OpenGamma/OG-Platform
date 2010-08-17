@@ -45,15 +45,26 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
   @Produces(MediaType.TEXT_HTML)
   public String get() {
     PortfolioTreeDocument doc = data().getPortfolio();
-    String html = "<html>\n" +
-      "<head><title>Portfolio - " + doc.getPortfolioId().toLatest() + "</title></head>\n" +
-      "<body>\n" +
-      "<h2>Portfolio - " + doc.getPortfolioId().toLatest() + "</h2>\n" +
-      "<p>Name: " + doc.getPortfolio().getName() + "<br />\n" +
-      "Version: " + doc.getPortfolioId().getVersion() + "</p>\n";
+    String html = "<html>\n";
+    html += "<head>\n";
+    html += "<title>Portfolio - " + doc.getPortfolioId().toLatest() + "</title>\n";
+    html += "<link type=\"text/css\" rel=\"stylesheet\" href=\"/css/og-base.css\" />\n";
+    html += "</head>\n";
+    html += "<body>";
+    html += "<div id=\"header\">";
+    html += "<p id=\"logo\"><a href=\"/\"><img src=\"/images/opengamma.png\" " +
+        "width=\"289\" height=\"51\" alt=\"OpenGamma - software for the financial services industry\"></a></p>\n";
+    html += "</div>\n";
+    html += "<div id=\"body\">\n";
+    html += "<div class=\"section\">\n";
+    html += "<h2>Portfolio - " + doc.getPortfolioId().toLatest() + "</h2>\n";
+    html += "<p>Name: " + doc.getPortfolio().getName() + "<br />\n";
+    html += "Version: " + doc.getPortfolioId().getVersion() + "</p>\n";
     
-    html += "<p>Child nodes:<br /><table border=\"1\">" +
-      "<tr><th>Name</th><th>Actions</th></tr>\n";
+    html += "<div class=\"subsection\">\n";
+    html += "<h3>Child nodes</h3>";
+    html += "<table border=\"1\">";
+    html += "<tr><th>Name</th><th>Actions</th></tr>\n";
     for (ManageablePortfolioNode child : doc.getPortfolio().getRootNode().getChildNodes()) {
       URI nodeUri = WebPortfolioNodeResource.uri(data(), child.getUniqueIdentifier());
       html += "<tr>";
@@ -62,9 +73,12 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
       html += "</tr>\n";
     }
     html += "</table></p>\n";
+    html += "</div>\n";
     
-    html += "<p>Positions:<br /><table border=\"1\">" +
-      "<tr><th>Name</th><th>Quantity</th><th>Actions</th></tr>\n";
+    html += "<div class=\"subsection\">\n";
+    html += "<h3>Positions</h3>";
+    html += "<table border=\"1\">";
+    html += "<tr><th>Name</th><th>Quantity</th><th>Actions</th></tr>\n";
     PositionSearchRequest positionSearch = new PositionSearchRequest();
     positionSearch.setParentNodeId(doc.getPortfolio().getRootNode().getUniqueIdentifier());
     PositionSearchResult positions = data().getPositionMaster().searchPositions(positionSearch);
@@ -77,27 +91,38 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
       html += "</tr>\n";
     }
     html += "</table></p>\n";
+    html += "</div>\n";
+    html += "</div>\n";
     
     URI portfolioUri = WebPortfolioResource.uri(data());
+    html += "<div class=\"section\">\n";
     html += "<h2>Update portfolio</h2>\n" +
       "<form method=\"POST\" action=\"" + portfolioUri + "\">" +
       "<input type=\"hidden\" name=\"method\" value=\"PUT\" />" +
       "Name: <input type=\"text\" size=\"30\" name=\"name\" value=\"" + StringEscapeUtils.escapeHtml(doc.getPortfolio().getName()) + "\" /><br />" +
       "<input type=\"submit\" value=\"Update\" />" +
       "</form>\n";
+    html += "</div>\n";
+    
+    html += "<div class=\"section\">\n";
     html += "<h2>Delete portfolio</h2>\n" +
       "<form method=\"POST\" action=\"" + portfolioUri + "\">" +
       "<input type=\"hidden\" name=\"method\" value=\"DELETE\" />" +
       "<input type=\"submit\" value=\"Delete\" />" +
       "</form>\n";
+    html += "</div>\n";
     
     URI rootNodeUri = WebPortfolioNodeResource.uri(data(), doc.getPortfolio().getRootNode().getUniqueIdentifier());
+    html += "<div class=\"section\">\n";
     html += "<h2>Add node</h2>\n" +
       "<form method=\"POST\" action=\"" + rootNodeUri + "\">" +
       "Name: <input type=\"text\" size=\"30\" name=\"name\" /><br />" +
       "<input type=\"submit\" value=\"Add\" />" +
       "</form>\n";
+    html += "</div>\n";
+    
     URI rootNodePositionsUri = WebPortfolioNodePositionsResource.uri(data(), doc.getPortfolio().getRootNode().getUniqueIdentifier());
+    html += "<div class=\"section\">\n";
     html += "<h2>Add position</h2>\n" +
       "<form method=\"POST\" action=\"" + rootNodePositionsUri + "\">" +
       "Quantity: <input type=\"text\" size=\"10\" name=\"quantity\" /><br />" +
@@ -105,11 +130,15 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
       "Scheme Id: <input type=\"text\" size=\"30\" name=\"schemevalue\" /><br />" +
       "<input type=\"submit\" value=\"Add\" />" +
       "</form>\n";
+    html += "</div>\n";
     
+    html += "<div class=\"section\">\n";
     html += "<h2>Links</h2>" +
       "<p>" +
       "<a href=\"" + WebPortfoliosResource.uri(data()) + "\">Portfolio search</a><br />" +
       "</p>";
+    html += "</div>\n";
+    html += "</div>\n";
     html += "</body>\n</html>\n";
     return html;
   }
