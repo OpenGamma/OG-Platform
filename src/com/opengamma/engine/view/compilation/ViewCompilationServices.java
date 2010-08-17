@@ -3,11 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.view;
+package com.opengamma.engine.view.compilation;
 
 import java.util.concurrent.ExecutorService;
 
-import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionResolver;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
@@ -28,7 +28,7 @@ public class ViewCompilationServices {
   private final SecuritySource _securitySource;
   private final ExecutorService _executorService;
   private final FunctionCompilationContext _compilationContext;
-  private final ComputationTargetResolver _computationTargetResolver;
+  private final CachingComputationTargetResolver _computationTargetResolver;
   
   public ViewCompilationServices(
       LiveDataAvailabilityProvider liveDataAvailabilityProvider,
@@ -36,7 +36,7 @@ public class ViewCompilationServices {
       PositionSource positionSource,
       SecuritySource securitySource,
       FunctionCompilationContext compilationContext,
-      ComputationTargetResolver computationTargetResolver,
+      CachingComputationTargetResolver computationTargetResolver,
       ExecutorService executorService) {
     ArgumentChecker.notNull(liveDataAvailabilityProvider, "liveDataAvailabilityProvider");
     ArgumentChecker.notNull(functionResolver, "functionResolver");
@@ -100,7 +100,7 @@ public class ViewCompilationServices {
    * Gets the compilation context.
    * @return the compilation context, not null
    */
-  public FunctionCompilationContext getCompilationContext() {
+  public FunctionCompilationContext getFunctionCompilationContext() {
     return _compilationContext;
   }
 
@@ -108,7 +108,7 @@ public class ViewCompilationServices {
    * Gets the computation target resolver.
    * @return the computation target resolver, not null
    */
-  public ComputationTargetResolver getComputationTargetResolver() {
+  public CachingComputationTargetResolver getComputationTargetResolver() {
     return _computationTargetResolver;
   }
 
