@@ -8,7 +8,7 @@ package com.opengamma.engine.view;
 import java.util.concurrent.ExecutorService;
 
 import com.opengamma.engine.CachingComputationTargetResolver;
-import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionRepository;
@@ -21,6 +21,7 @@ import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
+import com.opengamma.engine.view.compilation.ViewCompilationServices;
 import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
 import com.opengamma.util.ArgumentChecker;
 
@@ -39,7 +40,7 @@ public class ViewProcessingContext {
   private final ViewComputationCacheSource _computationCacheSource;
   private final JobDispatcher _computationJobDispatcher;
   private final ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
-  private final ComputationTargetResolver _computationTargetResolver;
+  private final CachingComputationTargetResolver _computationTargetResolver;
   private final FunctionCompilationContext _compilationContext;
   private final ExecutorService _executorService;
   private final DependencyGraphExecutorFactory _dependencyGraphExecutorFactory;
@@ -87,7 +88,7 @@ public class ViewProcessingContext {
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
     
     // REVIEW kirk 2010-05-22 -- This isn't the right place to wrap this.
-    _computationTargetResolver = new CachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource));
+    _computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource));
   }
 
   //-------------------------------------------------------------------------
@@ -178,7 +179,7 @@ public class ViewProcessingContext {
    * 
    * @return the computationTargetResolver, not null
    */
-  public ComputationTargetResolver getComputationTargetResolver() {
+  public CachingComputationTargetResolver getComputationTargetResolver() {
     return _computationTargetResolver;
   }
 
