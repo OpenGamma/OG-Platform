@@ -25,13 +25,13 @@ import com.opengamma.engine.value.ValueSpecification;
 
 public class StandardViewComputationCacheTest {
 
-  private StandardViewComputationCache _viewComputationCache;
+  private DefaultViewComputationCache _viewComputationCache;
   
   @Before
   public void createCache () {
-    final ValueSpecificationIdentifierSource identifierSource = new MapValueSpecificationIdentifierSource ();
-    final ValueSpecificationIdentifierBinaryDataStore dataStore = new MapValueSpecificationIdentifierBinaryDataStore ();
-    _viewComputationCache = new StandardViewComputationCache (identifierSource, dataStore, FudgeContext.GLOBAL_DEFAULT);
+    final IdentifierMap identifierSource = new InMemoryIdentifierMap ();
+    final BinaryDataStore dataStore = new InMemoryBinaryDataStore ();
+    _viewComputationCache = new DefaultViewComputationCache (identifierSource, dataStore, FudgeContext.GLOBAL_DEFAULT);
   }
   
   @Test

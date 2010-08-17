@@ -27,14 +27,14 @@ import com.sleepycat.je.Transaction;
 import com.sleepycat.je.TransactionConfig;
 
 /**
- * An implementation of {@link ValueSpecificationIdentifierSource} that backs all lookups in a
+ * An implementation of {@link IdentifierMap} that backs all lookups in a
  * Berkeley DB table.
  * Internally, it maintains an {@link AtomicLong} to allocate the next identifier to be used.
  */
-public class BerkeleyDBValueSpecificationIdentifierSource
+public class BerkeleyDBIdentifierMap
   extends AbstractBerkeleyDBComponent
-  implements ValueSpecificationIdentifierSource, Lifecycle {
-  private static final Logger s_logger = LoggerFactory.getLogger(BerkeleyDBValueSpecificationIdentifierSource.class);
+  implements IdentifierMap, Lifecycle {
+  private static final Logger s_logger = LoggerFactory.getLogger(BerkeleyDBIdentifierMap.class);
   /**
    * The default name for the database in the provided environment.
    */
@@ -47,7 +47,7 @@ public class BerkeleyDBValueSpecificationIdentifierSource
   // Runtime state:
   private final AtomicLong _nextIdentifier = new AtomicLong(1L);
   
-  public BerkeleyDBValueSpecificationIdentifierSource(Environment dbEnvironment, String databaseName, FudgeContext fudgeContext) {
+  public BerkeleyDBIdentifierMap(Environment dbEnvironment, String databaseName, FudgeContext fudgeContext) {
     super(dbEnvironment, databaseName);
     ArgumentChecker.notNull(fudgeContext, "Fudge context");
     _fudgeContext = fudgeContext;

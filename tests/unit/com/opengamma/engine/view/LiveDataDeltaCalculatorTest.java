@@ -26,7 +26,7 @@ import com.opengamma.engine.function.MockFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.cache.MapViewComputationCacheSource;
+import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.LiveDataDeltaCalculator;
 import com.opengamma.id.UniqueIdentifier;
@@ -50,8 +50,9 @@ public class LiveDataDeltaCalculatorTest {
   
   @Before
   public void setUp() {
-    _cache = MapViewComputationCacheSource.createMapViewComputationCache(FudgeContext.GLOBAL_DEFAULT); 
-    _previousCache = MapViewComputationCacheSource.createMapViewComputationCache(FudgeContext.GLOBAL_DEFAULT);
+    final InMemoryViewComputationCacheSource source = new InMemoryViewComputationCacheSource (FudgeContext.GLOBAL_DEFAULT);
+    _cache = source.getCache ("Test", "Default", 2); 
+    _previousCache = source.getCache ("Test", "Default", 1);
     _deltaCalculator = new LiveDataDeltaCalculator(
         _graph,
         _cache,

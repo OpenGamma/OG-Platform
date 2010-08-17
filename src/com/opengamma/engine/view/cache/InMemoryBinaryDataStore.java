@@ -9,13 +9,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * An implementation of {@link ValueSpecificationIdentifierBinaryDataStore} backed by a
+ * An implementation of {@link BinaryDataStore} backed by a
  * {@link ConcurrentMap}.
  * This class is internally synchronized.
  */
-public class MapValueSpecificationIdentifierBinaryDataStore implements ValueSpecificationIdentifierBinaryDataStore {
+public class InMemoryBinaryDataStore implements BinaryDataStore {
   private final ConcurrentMap<Long, byte[]> _underlyingMap = new ConcurrentHashMap<Long, byte[]>();
 
+  // promote a Factory to top level for this
+  
   @Override
   public void delete() {
     // Technically we don't have to do anything here. But just in case this isn't reclaimed

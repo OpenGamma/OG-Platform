@@ -17,16 +17,16 @@ import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
 
 /**
- * An implementation of {@link ValueSpecificationIdentifierBinaryDataStore} which backs all data
+ * An implementation of {@link BinaryDataStore} which backs all data
  * on a BerkeleyDB table. 
  */
-public class BerkeleyDBValueSpecificationIdentifierBinaryDataStore extends AbstractBerkeleyDBComponent implements ValueSpecificationIdentifierBinaryDataStore {
-  private static final Logger s_logger = LoggerFactory.getLogger(BerkeleyDBValueSpecificationIdentifierBinaryDataStore.class);
-
-  public BerkeleyDBValueSpecificationIdentifierBinaryDataStore(Environment dbEnvironment, String databaseName) {
+public class BerkeleyDBBinaryDataStore extends AbstractBerkeleyDBComponent implements BinaryDataStore {
+  private static final Logger s_logger = LoggerFactory.getLogger(BerkeleyDBBinaryDataStore.class);
+  
+  public BerkeleyDBBinaryDataStore(Environment dbEnvironment, String databaseName) {
     super(dbEnvironment, databaseName);
   }
-
+  
   @Override
   protected DatabaseConfig getDatabaseConfig() {
     DatabaseConfig dbConfig = new DatabaseConfig();

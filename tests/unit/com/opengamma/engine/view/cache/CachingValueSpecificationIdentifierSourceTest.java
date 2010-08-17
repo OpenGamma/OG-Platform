@@ -27,7 +27,7 @@ public class CachingValueSpecificationIdentifierSourceTest {
   public void simpleOperation() {
     final AtomicBoolean shouldFail = new AtomicBoolean(false);
     
-    ValueSpecificationIdentifierSource underlying = new ValueSpecificationIdentifierSource() {
+    IdentifierMap underlying = new IdentifierMap() {
       @Override
       public long getIdentifier(ValueSpecification spec) {
         if (shouldFail.get()) {
@@ -37,7 +37,7 @@ public class CachingValueSpecificationIdentifierSourceTest {
       }
     };
     
-    CachingValueSpecificationIdentifierSource cachingSource = new CachingValueSpecificationIdentifierSource(underlying);
+    CachingIdentifierMap cachingSource = new CachingIdentifierMap(underlying);
     
     ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("scheme", "fibble"))));
     assertEquals(99L, cachingSource.getIdentifier(valueSpec));
