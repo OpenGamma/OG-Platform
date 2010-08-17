@@ -99,15 +99,16 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
   private final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> _forwardSensitivityCalculator;
 
   public MarketInstrumentImpliedFundingAndForwardCurveFunction(final Currency currency, String fundingInterpolatorName, String fundingLeftExtrapolatorName, String fundingRightExtrapolatorName,
-      String forwardInterpolatorName, String forwardLeftExtrapolatorName, String forwardRightExtrapolatorName) {
+      String forwardInterpolatorName, String forwardLeftExtrapolatorName, String forwardRightExtrapolatorName, boolean useFiniteDifferenceAsDefaultForFundingSensitivities,
+      boolean useFiniteDifferenceAsDefaultForForwardSensitivities) {
     Validate.notNull(currency);
     _currency = currency;
     _fundingInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(fundingInterpolatorName, fundingLeftExtrapolatorName, fundingRightExtrapolatorName);
     _fundingSensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(fundingInterpolatorName, fundingLeftExtrapolatorName, 
-        fundingRightExtrapolatorName);
+        fundingRightExtrapolatorName, useFiniteDifferenceAsDefaultForFundingSensitivities);
     _forwardInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(forwardInterpolatorName, forwardLeftExtrapolatorName, forwardRightExtrapolatorName);
     _forwardSensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(forwardInterpolatorName, forwardLeftExtrapolatorName, 
-        forwardRightExtrapolatorName);
+        forwardRightExtrapolatorName, useFiniteDifferenceAsDefaultForForwardSensitivities);
   }
 
   @Override

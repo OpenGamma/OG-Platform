@@ -18,7 +18,7 @@ import javax.ws.rs.core.UriInfo;
  * Temporary RESTful resource which isn't backed by any user objects, just to host /users. Any user requested will
  * magically exist.
  */
-@Path("/users")
+@Path("/data/users")
 public class UsersResource {
   
   private final UsersResourceContext _context;

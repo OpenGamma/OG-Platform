@@ -57,9 +57,10 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessingContext;
 import com.opengamma.engine.view.cache.MapViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
-import com.opengamma.engine.view.calcnode.CalculationNodeRequestReceiver;
-import com.opengamma.engine.view.calcnode.FudgeJobRequestSender;
-import com.opengamma.engine.view.calcnode.JobRequestSender;
+import com.opengamma.engine.view.calcnode.AbstractCalculationNode;
+import com.opengamma.engine.view.calcnode.JobDispatcher;
+import com.opengamma.engine.view.calcnode.LocalCalculationNode;
+import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.financial.position.master.MasterPositionSource;
@@ -69,7 +70,6 @@ import com.opengamma.financial.security.SecurityMaster;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.InMemoryRequestConduit;
-import com.opengamma.util.InetAddressUtils;
 import com.opengamma.util.MongoDBConnectionSettings;
 import com.opengamma.util.NamedThreadPoolFactory;
 
@@ -583,7 +583,7 @@ public class BatchJob implements Job {
       throw new IllegalStateException("Config DB connection settings not given.");            
     }
     _configDb = new MongoDBConfigMaster<ViewDefinition>(ViewDefinition.class, 
-        getConfigDbConnectionSettings());
+        getConfigDbConnectionSettings(), getFudgeContext(), true, null);
 
     ConfigDocument<ViewDefinition> viewDefinitionDoc = getViewByNameWithTime();
     if (viewDefinitionDoc == null) {
@@ -615,13 +615,9 @@ public class BatchJob implements Job {
     
     ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
-    CalculationNodeRequestReceiver calcRequestReceiver = new CalculationNodeRequestReceiver(cacheFactory, 
-        getFunctionRepository(), 
-        executionContext, 
-        targetResolver, 
-        viewProcessorQuerySender,
-        InetAddressUtils.getLocalHostName());
-    JobRequestSender calcRequestSender = new FudgeJobRequestSender(InMemoryRequestConduit.create(calcRequestReceiver));
+    AbstractCalculationNode localNode = new LocalCalculationNode(cacheFactory, executionContext, targetResolver, viewProcessorQuerySender);
+    localNode.setFunctionRepository(getFunctionRepository());
+    JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(localNode));
     
     ThreadFactory threadFactory = new NamedThreadPoolFactory("BatchJob-" + System.currentTimeMillis(), true);
     ThreadPoolExecutor executor = new ThreadPoolExecutor(0, 1, 5L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), threadFactory);
@@ -636,7 +632,7 @@ public class BatchJob implements Job {
         positionSource, 
         securitySource, 
         cacheFactory, 
-        calcRequestSender, 
+        jobDispatcher, 
         viewProcessorQueryReceiver, 
         compilationContext, 
         executor,

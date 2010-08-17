@@ -8,8 +8,14 @@ package com.opengamma.financial.analytics.model.pnl;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.fudgemsg.FudgeField;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -151,6 +157,26 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction i
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.POSITION;
+  }
+
+  private static final String REQUIREMENT_NAME_KEY = "requirementName";
+
+  @Override
+  public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+    super.toFudgeMsg(context, message);
+    for (String requirementName : _valueGreekRequirementNames) {
+      message.add(REQUIREMENT_NAME_KEY, requirementName);
+    }
+  }
+
+  public static PositionValueGreekSensitivityPnLFunction fromFudgeMsg(final FudgeFieldContainer message) {
+    final List<FudgeField> fields = message.getAllByName(REQUIREMENT_NAME_KEY);
+    final String[] requirementNames = new String[fields.size()];
+    int i = 0;
+    for (FudgeField field : fields) {
+      requirementNames[i++] = message.getFieldValue(String.class, field);
+    }
+    return fromFudgeMsg(new PositionValueGreekSensitivityPnLFunction(requirementNames), message);
   }
 
 }

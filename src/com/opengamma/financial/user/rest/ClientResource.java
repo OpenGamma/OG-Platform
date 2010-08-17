@@ -12,7 +12,7 @@ import org.fudgemsg.FudgeContext;
 
 import com.opengamma.financial.livedata.rest.LiveDataResource;
 import com.opengamma.financial.livedata.user.InMemoryUserSnapshotProvider;
-import com.opengamma.financial.position.rest.PortfoliosResource;
+import com.opengamma.financial.position.rest.DataPortfoliosResource;
 import com.opengamma.financial.security.MasterSecuritySource;
 import com.opengamma.financial.security.memory.InMemorySecurityMaster;
 import com.opengamma.financial.security.rest.SecurityMasterResource;
@@ -26,7 +26,7 @@ import com.opengamma.id.UniqueIdentifierTemplate;
 /**
  * Temporary RESTful resource representing a user's client session.
  */
-@Path("/users/{username}/clients/{clientUid}")
+@Path("/data/users/{username}/clients/{clientUid}")
 public class ClientResource {
   
   /**
@@ -89,8 +89,8 @@ public class ClientResource {
   }
 
   @Path(PORTFOLIOS_PATH)
-  public PortfoliosResource getPortfolios() {
-    return new PortfoliosResource(getUriInfo(), _usersResourceContext.getPositionMaster());
+  public DataPortfoliosResource getPortfolios() {
+    return new DataPortfoliosResource(getUriInfo(), _usersResourceContext.getPositionMaster());
   }
   
   @Path(SECURITIES_PATH)
