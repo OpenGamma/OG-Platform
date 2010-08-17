@@ -66,7 +66,7 @@ public abstract class AbstractViewComputationCacheSource implements ViewComputat
   }
 
   @Override
-  public ViewComputationCache getCache(String viewName, String calculationConfigurationName, long timestamp) {
+  public StandardViewComputationCache getCache(String viewName, String calculationConfigurationName, long timestamp) {
     ViewComputationCacheKey key = new ViewComputationCacheKey(viewName, calculationConfigurationName, timestamp);
     StandardViewComputationCache cache = _cachesByKey.get(key);
     if (cache == null) {

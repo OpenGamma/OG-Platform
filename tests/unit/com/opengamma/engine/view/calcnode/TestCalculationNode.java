@@ -19,10 +19,10 @@ public class TestCalculationNode extends AbstractCalculationNode {
   
   protected TestCalculationNode() {
     super(new MapViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT), 
-        new InMemoryFunctionRepository(), 
         new FunctionExecutionContext(), 
         new DefaultComputationTargetResolver(new MockSecuritySource(), new MockPositionSource()), 
         new ViewProcessorQuerySender(null), 
         InetAddressUtils.getLocalHostName());
+    setFunctionRepository (new InMemoryFunctionRepository ());
   }
 }

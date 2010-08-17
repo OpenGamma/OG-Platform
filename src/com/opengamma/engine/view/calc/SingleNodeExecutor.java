@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
@@ -75,16 +74,14 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
       item2Node.put(jobItem, node);
     }
     
-    CalculationJob job = new CalculationJob(jobSpec, items);
-
     s_logger.info("Enqueuing {} to invoke {} functions",
-        new Object[]{jobSpec, job.getJobItems().size()});
+        new Object[]{jobSpec, items.size()});
     
     AtomicExecutorCallable runnable = new AtomicExecutorCallable();
     AtomicExecutorFuture future = new AtomicExecutorFuture(runnable, graph, item2Node);
     _executingSpecifications.put(jobSpec, future);
     _cycle.getProcessingContext().getViewProcessorQueryReceiver().addJob(jobSpec, graph);
-    _cycle.getProcessingContext().getComputationJobRequestSender().sendRequest(job, this);
+    _cycle.getProcessingContext().getComputationJobDispatcher().dispatchJob(jobSpec, items, this);
     
     return future;
   }

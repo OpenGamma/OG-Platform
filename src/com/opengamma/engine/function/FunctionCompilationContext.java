@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.function;
@@ -18,6 +18,13 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    */
   public static final String SECURITY_SOURCE_NAME = "securitySource";
 
+  public FunctionCompilationContext() {
+  }
+
+  protected FunctionCompilationContext(final FunctionCompilationContext copyFrom) {
+    super(copyFrom);
+  }
+
   /**
    * Gets the source of securities.
    * @return the source of securities
@@ -32,6 +39,11 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    */
   public void setSecuritySource(SecuritySource securitySource) {
     put(SECURITY_SOURCE_NAME, securitySource);
+  }
+
+  @Override
+  public FunctionCompilationContext clone() {
+    return new FunctionCompilationContext(this);
   }
 
 }

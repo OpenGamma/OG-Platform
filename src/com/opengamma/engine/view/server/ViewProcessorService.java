@@ -19,6 +19,7 @@ import javax.ws.rs.PathParam;
 import org.fudgemsg.FudgeContext;
 import org.springframework.jms.core.JmsTemplate;
 
+import com.opengamma.engine.fudgemsg.EngineFudgeContextConfiguration;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.LocalViewProcessorClient;
 import com.opengamma.engine.view.client.ViewProcessorClient;

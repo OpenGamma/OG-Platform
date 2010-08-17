@@ -22,7 +22,7 @@ import com.opengamma.util.tuple.Pair;
  * An implementation of {@link ViewComputationCache} which backs value storage on
  * a pair of {@link ValueSpecificationIdentifierSource} and {@link ValueSpecificationIdentifierBinaryDataStore}.
  */
-public class StandardViewComputationCache implements ViewComputationCache, Iterable<Pair<ValueSpecification,byte[]>> {
+public class StandardViewComputationCache implements ViewComputationCache, Iterable<Pair<ValueSpecification, byte[]>> {
 
   private static final int NATIVE_FIELD_INDEX = -1;
 
@@ -66,7 +66,11 @@ public class StandardViewComputationCache implements ViewComputationCache, Itera
   @Override
   public Object getValue(ValueSpecification specification) {
     ArgumentChecker.notNull(specification, "Specification");
-    long identifier = getIdentifierSource().getIdentifier(specification);
+    final long identifier = getIdentifierSource().getIdentifier(specification);
+    return getValue(identifier);
+  }
+
+  public Object getValue(final long identifier) {
     byte[] data = getDataStore().get(identifier);
     if (data == null) {
       return null;
@@ -85,10 +89,14 @@ public class StandardViewComputationCache implements ViewComputationCache, Itera
   @Override
   public void putValue(ComputedValue value) {
     ArgumentChecker.notNull(value, "Computed value");
-    long identifier = getIdentifierSource().getIdentifier(value.getSpecification());
+    final long identifier = getIdentifierSource().getIdentifier(value.getSpecification());
+    putValue(identifier, value.getValue());
+  }
+
+  public void putValue(final long identifier, final Object value) {
     final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeContext());
     final MutableFudgeFieldContainer message = context.newMessage();
-    context.objectToFudgeMsgWithClassHeaders(message, null, NATIVE_FIELD_INDEX, value.getValue());
+    context.objectToFudgeMsgWithClassHeaders(message, null, NATIVE_FIELD_INDEX, value);
     final byte[] data;
     // Optimize the "value encoded as sub-message" case to reduce space requirement
     Object svalue = message.getValue(NATIVE_FIELD_INDEX);
@@ -99,7 +107,7 @@ public class StandardViewComputationCache implements ViewComputationCache, Itera
     }
     getDataStore().put(identifier, data);
   }
-  
+
   @Override
   public Iterator<Pair<ValueSpecification, byte[]>> iterator() {
     // TODO 2008-08-09 Implement this; iterate over the values

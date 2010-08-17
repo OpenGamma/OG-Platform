@@ -99,6 +99,10 @@ public class DependencyNode {
     return Collections.unmodifiableSet(_outputValues);
   }
   
+  public Set<ValueSpecification> getTerminalOutputValues() {
+    return Collections.unmodifiableSet(_terminalOutputValues);
+  }
+  
   public Set<ValueRequirement> getOutputRequirements() {
     Set<ValueRequirement> outputRequirements = new HashSet<ValueRequirement>();
     for (ValueSpecification outputValue : getOutputValues()) {
@@ -181,6 +185,12 @@ public class DependencyNode {
     return unnecessaryOutputs;
   }
   
+  /**
+   * Marks an output as terminal, meaning that it cannot be pruned. If this node already belongs to a graph, use
+   * {@link DependencyGraph#addTerminalOutputValue(ValueSpecification)}. 
+   * 
+   * @param terminalOutput  the output to mark as terminal
+   */
   public void addTerminalOutputValue(ValueSpecification terminalOutput) {
     _terminalOutputValues.add(terminalOutput);
   }

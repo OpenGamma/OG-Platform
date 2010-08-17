@@ -23,9 +23,9 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.ForwardingComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ForwardingComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -465,53 +465,40 @@ public class PortfolioEvaluationModel {
   protected static class PortfolioNodeCompiler extends AbstractPortfolioNodeTraversalCallback {
     private final DependencyGraphBuilder _dependencyGraphBuilder;
     private final ViewCalculationConfiguration _calculationConfiguration;
+    private final ResultModelDefinition _resultModelDefinition;
     
     public PortfolioNodeCompiler(
         DependencyGraphBuilder dependencyGraphBuilder,
         ViewCalculationConfiguration calculationConfiguration) {
       _dependencyGraphBuilder = dependencyGraphBuilder;
       _calculationConfiguration = calculationConfiguration;
+      _resultModelDefinition = calculationConfiguration.getViewDefinition().getResultModelDefinition();
     }
 
     @Override
     public void preOrderOperation(PortfolioNode portfolioNode) {
-      // Yes, we could in theory do this outside the loop by implementing more
-      // callbacks, but it might have gotten hairy, so for the first pass I just
-      // did it this way.
       Set<String> subNodeSecurityTypes = getSubNodeSecurityTypes(portfolioNode);
-      Map<String, Set<String>> outputsBySecurityType = _calculationConfiguration.getValueRequirementsBySecurityTypes();
+      Map<String, Set<String>> outputsBySecurityType = _calculationConfiguration.getPortfolioRequirementsBySecurityType();
       for (String secType : subNodeSecurityTypes) {
         Set<String> requiredOutputs = outputsBySecurityType.get(secType);
         if ((requiredOutputs == null) || requiredOutputs.isEmpty()) {
           continue;
         }
         Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-        ResultModelDefinition resultModelDefinition = _calculationConfiguration.getDefinition().getResultModelDefinition();
-        // first do the portfolio node targets (aggregated, multiple-position nodes), if they're needed
-        if (resultModelDefinition.isComputePortfolioNodeCalculations()) {
+        // If the outputs are not even required in the results then there's no point adding them as terminal outputs
+        if (_resultModelDefinition.getAggregatePositionOutputMode() != ResultOutputMode.NONE) {
           for (String requiredOutput : requiredOutputs) {
             requirements.add(new ValueRequirement(requiredOutput, portfolioNode));
           }
           _dependencyGraphBuilder.addTarget(new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, portfolioNode), requirements);
         }
-        // now do the position nodes targets, if they're needed
-        if (resultModelDefinition.isComputePositionNodeCalculations()) {
+        if (_resultModelDefinition.getPositionOutputMode() != ResultOutputMode.NONE) {
           for (Position position : portfolioNode.getPositions()) {
             requirements.clear();
             for (String requiredOutput : requiredOutputs) {
               requirements.add(new ValueRequirement(requiredOutput, position));
             }
             _dependencyGraphBuilder.addTarget(new ComputationTarget(ComputationTargetType.POSITION, position), requirements);
-          }
-        }
-        // now do the per-security targets, if they're needed
-        if (resultModelDefinition.isComputeSecurityNodeCalculations()) {
-          for (Position position : portfolioNode.getPositions()) {
-            requirements.clear();
-            for (String requiredOutput : requiredOutputs) {
-              requirements.add(new ValueRequirement(requiredOutput, position.getSecurity()));
-            }
-            _dependencyGraphBuilder.addTarget(new ComputationTarget(ComputationTargetType.SECURITY, position.getSecurity()), requirements);
           }
         }
       }

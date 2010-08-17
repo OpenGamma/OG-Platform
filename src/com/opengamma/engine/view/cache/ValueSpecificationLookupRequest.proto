@@ -8,7 +8,7 @@ namespace com.opengamma.engine.view.cache {
 
   message ValueSpecificationLookupRequest extends RemoteCacheMessage {
   
-    com.opengamma.engine.value.ValueSpecification request;
+    required value.ValueSpecification specification;
     
     binding Java {
       methods "toString,hashCode,equals";

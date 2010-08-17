@@ -108,7 +108,7 @@ public class RemoteCacheClient implements FudgeMessageReceiver {
     if (lookupResult == null) {
       throw new OpenGammaRuntimeException("Couldn't lookup value specification ID for " + valueSpec);
     }
-    result = lookupResult.getResult().getResponse();
+    result = lookupResult.getResult().getSpecificationId();
     Long previousResult = _specificationIds.putIfAbsent(valueSpec, result);
     lookupResult.release();
     assert (previousResult == null) || (previousResult == result) : "Inconsistent results from concurrent spec requests!";
@@ -154,12 +154,12 @@ public class RemoteCacheClient implements FudgeMessageReceiver {
   protected OperationResult<ValueSpecificationLookupResponse> remoteLookupValueSpecificationId(ValueSpecification valueSpec) {
     ArgumentChecker.notNull(valueSpec, "Value Specification");
     s_logger.info("Requesting value specification ID for {}", valueSpec);
-    final ValueSpecificationLookupRequest request = new ValueSpecificationLookupRequest();
-    request.setRequest(valueSpec);
+    final ValueSpecificationLookupRequest request = new ValueSpecificationLookupRequest(valueSpec);
     final OperationResult<ValueSpecificationLookupResponse> response = sendMessageAndWait(request, true);
     if (response == null) {
       throw new OpenGammaRuntimeException("Couldn't lookup value specification ID for " + valueSpec);
     }
+    s_logger.debug("Specification ID {}", response.getResult().getSpecificationId());
     return response;
   }
 
@@ -169,15 +169,13 @@ public class RemoteCacheClient implements FudgeMessageReceiver {
     ArgumentChecker.notNull(valueSpecification, "valueSpecification");
     s_logger.info("Requesting value {}", valueSpecification);
     final long specificationId = getValueSpecificationId(valueSpecification);
-    final ValueLookupRequest request = new ValueLookupRequest();
-    request.setViewName(viewName);
-    request.setCalculationConfigurationName(calcConfigName);
-    request.setSnapshot(timestamp);
-    request.setSpecificationId(specificationId);
+    s_logger.debug("Requesting value by ID {}", specificationId);
+    final ValueLookupRequest request = new ValueLookupRequest(viewName, calcConfigName, timestamp, specificationId);
     final OperationResult<ValueLookupResponse> response = sendMessageAndWait(request, true);
     if (response == null) {
       throw new OpenGammaRuntimeException("Couldn't get value " + valueSpecification);
     }
+    s_logger.debug("Value = {}", response.getResult().getValue());
     return response;
   }
 
@@ -187,36 +185,23 @@ public class RemoteCacheClient implements FudgeMessageReceiver {
     ArgumentChecker.notNull(value, "computedValue");
     s_logger.info("Submitting value {}", value.getSpecification());
     final long specificationId = getValueSpecificationId(value.getSpecification());
-    final ValuePutRequest request = new ValuePutRequest();
-    request.setViewName(viewName);
-    request.setCalculationConfigurationName(calcConfigName);
-    request.setSnapshot(timestamp);
-    request.setSpecificationId(specificationId);
-    request.setValue(value.getValue());
+    final ValuePutRequest request = new ValuePutRequest(viewName, calcConfigName, timestamp, specificationId, value.getValue());
     final OperationResult<ValuePutResponse> response = sendMessageAndWait(request, false);
     if (response == null) {
       throw new OpenGammaRuntimeException("Couldn't put value " + value.getSpecification());
     }
   }
 
-  public int purgeCache(String viewName, String calcConfigName, long timestamp) {
+  public void purgeCache(String viewName, long timestamp) {
     ArgumentChecker.notNull(viewName, "viewName");
-    s_logger.info("Submitting Purge {} {} {}", new Object[] {viewName, calcConfigName, timestamp});
+    s_logger.info("Submitting Purge {} {}", viewName, timestamp);
 
-    final CachePurgeRequest request = new CachePurgeRequest();
-    request.setViewName(viewName);
-    if (calcConfigName != null) {
-      request.setCalculationConfigurationName(calcConfigName);
-    }
-    request.setSnapshot(timestamp);
+    final CachePurgeRequest request = new CachePurgeRequest(viewName, timestamp);
     final OperationResult<CachePurgeResponse> response = sendMessageAndWait(request, true);
     if (response == null) {
       throw new OpenGammaRuntimeException("Couldn't purge cache");
     }
-    final int numPurged = response.getResult().getNumPurged();
     response.release();
-    s_logger.info("Purge {} {} {} purged {} caches ", new Object[] {viewName, calcConfigName, timestamp, numPurged});
-    return numPurged;
   }
 
   @SuppressWarnings("unchecked")

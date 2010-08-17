@@ -8,9 +8,9 @@ namespace com.opengamma.engine.view.cache {
 
   message CachePurgeRequest extends RemoteCacheMessage {
   
-    string viewName;
+    required string viewName;
     optional string calculationConfigurationName;
-    long snapshot;
+    required long snapshot;
     
     binding Java {
       methods "toString,hashCode,equals";
