@@ -22,6 +22,7 @@ import org.junit.Test;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -48,12 +49,12 @@ import com.opengamma.id.UniqueIdentifier;
 public class ViewDefinitionCompilerTest {
   
   @Test(expected=IllegalArgumentException.class)
-  public void nullDependencyGraphs() {
+  public void testNullDependencyGraphs() {
     new ViewEvaluationModel(null, null);
   }
   
   @Test
-  public void initEmptyView() {
+  public void testEmptyView() {
     Identifier secIdentifier = Identifier.of("SEC", "1");
     PositionImpl pos = new PositionImpl(new BigDecimal(1), secIdentifier);
     PortfolioNodeImpl pn = new PortfolioNodeImpl("node");
@@ -80,7 +81,7 @@ public class ViewDefinitionCompilerTest {
     
     FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
     
-    ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, positionSource, securitySource, functionCompilationContext, computationTargetResolver, executorService);
+    ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, computationTargetResolver, executorService, securitySource, positionSource);
     
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
     
@@ -88,12 +89,11 @@ public class ViewDefinitionCompilerTest {
     
     assertTrue(vem.getAllLiveDataRequirements().isEmpty());
     assertTrue(vem.getDependencyGraphsByConfiguration().isEmpty());
-    
     assertEquals(0, vem.getAllComputationTargets().size());
   }
   
   @Test
-  public void initSingleValueNoLiveData() {
+  public void testSingleValueNoLiveData() {
     Identifier secIdentifier = Identifier.of("SEC", "1");
     PositionImpl pos = new PositionImpl(new BigDecimal(1), secIdentifier);
     PortfolioNodeImpl pn = new PortfolioNodeImpl("node");
@@ -131,7 +131,7 @@ public class ViewDefinitionCompilerTest {
     FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
     functionCompilationContext.setSecuritySource(securitySource);
     
-    ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, positionSource, securitySource, functionCompilationContext, computationTargetResolver, executorService);
+    ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, computationTargetResolver, executorService, securitySource, positionSource);
     
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
     
@@ -146,16 +146,12 @@ public class ViewDefinitionCompilerTest {
     
     assertTrue(vem.getAllLiveDataRequirements().isEmpty());
     assertEquals(1, vem.getAllDependencyGraphs().size());
-    DependencyGraph dg = vem.getDependencyGraph("Fibble");
-    assertNotNull(dg);
-    assertTrue(dg.getAllRequiredLiveData().isEmpty());
-    assertEquals(1, dg.getDependencyNodes().size());
-    
+    assertNotNull(vem.getDependencyGraph("Fibble"));
     assertTargets(vem, pn.getUniqueIdentifier());
   }
 
   @Test
-  public void initSingleValueExternalDependency() {
+  public void testSingleValueExternalDependency() {
     Identifier secIdentifier1 = Identifier.of("SEC", "1");
     Identifier secIdentifier2 = Identifier.of("SEC", "2");
     PositionImpl pos = new PositionImpl(new BigDecimal(1), secIdentifier1);
@@ -204,7 +200,7 @@ public class ViewDefinitionCompilerTest {
     
     FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
     
-    ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, positionSource, securitySource, functionCompilationContext, computationTargetResolver, executorService);
+    ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, computationTargetResolver, executorService, securitySource, positionSource);
     
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
     viewDefinition.getResultModelDefinition().setPositionOutputMode(ResultOutputMode.NONE);
@@ -223,7 +219,94 @@ public class ViewDefinitionCompilerTest {
     // Expect the node and the security, since we've turned off position-level outputs and not actually provided a
     // function that can produce them
     assertTargets(vem, sec2.getUniqueIdentifier(), pn.getUniqueIdentifier());
-  }  
+  }
+  
+  @Test
+  public void testPrimitivesOnlyNoPortfolioReference() {
+    ViewDefinition viewDefinition = new ViewDefinition("Test", "jonathan");
+    ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Config1");
+    viewDefinition.addViewCalculationConfiguration(calcConfig);
+    
+    UniqueIdentifier t1 = UniqueIdentifier.of("TestScheme", "t1");
+    ValueRequirement r1 = new ValueRequirement("Req-1", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, t1));
+    ComputedValue v1 = new ComputedValue(new ValueSpecification(r1), 42);
+    
+    InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
+    InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
+    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionRepo);
+    DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver());
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    FunctionCompilationContext compilationContext = new FunctionCompilationContext();
+    ViewCompilationServices compilationServices = new ViewCompilationServices(snapshotProvider, functionResolver, compilationContext, computationTargetResolver, executorService);
+    
+    MockFunction f1 = new MockFunction(new ComputationTarget(ComputationTargetType.PRIMITIVE, t1), Collections.<ValueRequirement>emptySet(), Sets.newHashSet(v1));
+    functionRepo.addFunction(f1, f1);
+    
+    // We'll require r1 which can be satisfied by f1
+    calcConfig.addSpecificRequirement(r1);
+    
+    ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, compilationServices);
+    
+    assertTrue(vem.getAllLiveDataRequirements().isEmpty());
+    assertEquals(1, vem.getAllDependencyGraphs().size());
+    assertNotNull(vem.getDependencyGraph("Config1"));
+    assertTargets(vem, t1);
+  }
+  
+  @Test
+  public void testPrimitivesAndSecuritiesNoPortfolioReference() {
+    ViewDefinition viewDefinition = new ViewDefinition("Test", "jonathan");
+    ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Config1");
+    viewDefinition.addViewCalculationConfiguration(calcConfig);
+    
+    Identifier secIdentifier1 = Identifier.of("SEC", "1");
+    DefaultSecurity sec1 = new DefaultSecurity("My Sec");
+    sec1.addIdentifier(secIdentifier1);
+    MockSecuritySource securitySource = new MockSecuritySource();
+    securitySource.addSecurity(sec1);
+    
+    UniqueIdentifier t1 = UniqueIdentifier.of("TestScheme", "t1");
+    ValueRequirement r1 = new ValueRequirement("Req-1", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, t1));
+    ComputedValue v1 = new ComputedValue(new ValueSpecification(r1), 42);
+    ValueRequirement r2 = new ValueRequirement("Req-2", new ComputationTargetSpecification(ComputationTargetType.SECURITY, sec1.getUniqueIdentifier()));
+    ComputedValue v2 = new ComputedValue(new ValueSpecification(r2), 60);
+    
+    InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
+    InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
+    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionRepo);
+    DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource));
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    FunctionCompilationContext compilationContext = new FunctionCompilationContext();
+    ViewCompilationServices compilationServices = new ViewCompilationServices(snapshotProvider, functionResolver, compilationContext, computationTargetResolver, executorService);
+    
+    MockFunction f1 = new MockFunction(new ComputationTarget(ComputationTargetType.PRIMITIVE, t1), Collections.<ValueRequirement>emptySet(), Sets.newHashSet(v1));
+    MockFunction f2 = new MockFunction(new ComputationTarget(ComputationTargetType.SECURITY, sec1), Sets.newHashSet(r1), Sets.newHashSet(v2));
+    functionRepo.addFunction(f1, f1);
+    functionRepo.addFunction(f2, f2);
+    
+    // We'll require r2 which can be satisfied by f2, which in turn requires the output of f1
+    // Additionally, the security should be resolved through the ComputationTargetResolver, which only has a security
+    // source.
+    calcConfig.addSpecificRequirement(r2);
+    
+    ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, compilationServices);
+    assertTrue(vem.getAllLiveDataRequirements().isEmpty());
+    assertEquals(1, vem.getAllDependencyGraphs().size());
+    assertNotNull(vem.getDependencyGraph("Config1"));
+    assertTargets(vem, sec1.getUniqueIdentifier(), t1);
+    
+    // Turning off primitive outputs should not affect the dep graph since the primitive is needed for the security
+    viewDefinition.getResultModelDefinition().setPrimitiveOutputMode(ResultOutputMode.NONE);
+    vem = ViewDefinitionCompiler.compile(viewDefinition, compilationServices);
+    assertTargets(vem, sec1.getUniqueIdentifier(), t1);
+    
+    // Turning off security outputs, even if all primitive outputs are enabled, should allow the dep graph to be
+    // pruned completely, since the only *terminal* output is the security output.
+    viewDefinition.getResultModelDefinition().setPrimitiveOutputMode(ResultOutputMode.ALL);
+    viewDefinition.getResultModelDefinition().setSecurityOutputMode(ResultOutputMode.NONE);
+    vem = ViewDefinitionCompiler.compile(viewDefinition, compilationServices);
+    assertTargets(vem);
+  }
 
   private void assertTargets(ViewEvaluationModel vem, UniqueIdentifier... targets){
     Set<UniqueIdentifier> expectedTargets = new HashSet<UniqueIdentifier>(Arrays.asList(targets));
