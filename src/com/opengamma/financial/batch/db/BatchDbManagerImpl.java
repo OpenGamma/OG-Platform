@@ -437,7 +437,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
   /*package*/ Set<RiskValueName> populateRiskValueNames(BatchJob job) {
     Set<RiskValueName> returnValue = new HashSet<RiskValueName>();
     
-    Set<String> riskValueNames = job.getView().getPortfolioEvaluationModel().getAllOutputValueNames();
+    Set<String> riskValueNames = job.getView().getViewEvaluationModel().getAllOutputValueNames();
     for (String name : riskValueNames) {
       RiskValueName riskValueName = getRiskValueName(name);
       returnValue.add(riskValueName);
