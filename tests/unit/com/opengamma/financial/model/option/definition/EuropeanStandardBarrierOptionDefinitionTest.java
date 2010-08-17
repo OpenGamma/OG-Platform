@@ -79,8 +79,10 @@ public class EuropeanStandardBarrierOptionDefinitionTest {
     f = option.getExerciseFunction();
     assertFalse(f.shouldExercise(DATA, null));
     option = new EuropeanStandardBarrierOptionDefinition(STRIKE + 60, EXPIRY, true, BARRIER, REBATE);
+    f = option.getExerciseFunction();
     assertFalse(f.shouldExercise(DATA, null));
     option = new EuropeanStandardBarrierOptionDefinition(STRIKE + 60, EXPIRY, false, BARRIER, REBATE);
+    f = option.getExerciseFunction();
     assertFalse(f.shouldExercise(DATA, null));
   }
 

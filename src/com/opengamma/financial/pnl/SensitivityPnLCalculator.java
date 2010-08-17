@@ -7,6 +7,7 @@ package com.opengamma.financial.pnl;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang.Validate;
 
@@ -30,14 +31,15 @@ public class SensitivityPnLCalculator extends Function1D<PnLDataBundle, DoubleTi
     final long[] times = data.getTimes();
     final int n = times.length;
     final double[] pnl = new double[n];
-    for (final Sensitivity<?> s : sensitivities.keySet()) {
+    for (final Entry<Sensitivity<?>, RiskFactorResult> entry1 : sensitivities.entrySet()) {
+      final Sensitivity<?> s = entry1.getKey();
       final Map<Object, double[]> tsData = returns.get(s);
       final Map<Object, Double> dataForDate = new HashMap<Object, Double>();
       for (int i = 0; i < n; i++) {
-        for (final Object o : tsData.keySet()) {
-          dataForDate.put(o, tsData.get(o)[i]);
+        for (final Entry<Object, double[]> entry2 : tsData.entrySet()) {
+          dataForDate.put(entry2.getKey(), entry2.getValue()[i]);
         }
-        pnl[i] += sensitivities.get(s).getResult() * TaylorExpansionMultiplierCalculator.getMultiplier(dataForDate, s.getUnderlying());
+        pnl[i] += entry1.getValue().getResult() * TaylorExpansionMultiplierCalculator.getMultiplier(dataForDate, s.getUnderlying());
       }
     }
     return new FastArrayLongDoubleTimeSeries(data.getEncoding(), times, pnl);

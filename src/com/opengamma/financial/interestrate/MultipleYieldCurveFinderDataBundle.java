@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
@@ -58,20 +59,22 @@ public class MultipleYieldCurveFinderDataBundle {
     if (unknownCurveNodePoints.size() != unknownCurveNodeSensitivityCalculators.size()) {
       throw new IllegalArgumentException("Number of unknown curve not the same as curve sensitivity calculators");
     }
-    final Iterator<String> nodePointsIterator = unknownCurveNodePoints.keySet().iterator();
-    final Iterator<String> unknownCurvesIterator = unknownCurveInterpolators.keySet().iterator();
-    final Iterator<String> unknownNodeSensitivityCalculatorIterator = unknownCurveNodeSensitivityCalculators.keySet().iterator();
+    final Iterator<Entry<String, double[]>> nodePointsIterator = unknownCurveNodePoints.entrySet().iterator();
+    final Iterator<Entry<String, Interpolator1D<? extends Interpolator1DDataBundle>>> unknownCurvesIterator = unknownCurveInterpolators.entrySet().iterator();
+    final Iterator<Entry<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>> unknownNodeSensitivityCalculatorIterator = unknownCurveNodeSensitivityCalculators
+        .entrySet().iterator();
     _names = new ArrayList<String>();
     while (nodePointsIterator.hasNext()) {
-      final String name1 = nodePointsIterator.next();
-      final String name2 = unknownCurvesIterator.next();
-      final String name3 = unknownNodeSensitivityCalculatorIterator.next();
-      if (name1 != name2 || name1 != name3) {
+      final Entry<String, double[]> entry1 = nodePointsIterator.next();
+      final Entry<String, Interpolator1D<? extends Interpolator1DDataBundle>> entry2 = unknownCurvesIterator.next();
+      final Entry<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> entry3 = unknownNodeSensitivityCalculatorIterator.next();
+      final String name1 = entry1.getKey();
+      if (!name1.equals(entry2.getKey()) || !name1.equals(entry3.getKey())) {
         throw new IllegalArgumentException("Names must be the same");
       }
-      Validate.notNull(unknownCurveNodePoints.get(name1), "curve node points for " + name1);
-      Validate.notNull(unknownCurveInterpolators.get(name1), "interpolator for " + name1);
-      Validate.notNull(unknownCurveNodeSensitivityCalculators.get(name1), "sensitivity calculator for " + name1);
+      Validate.notNull(entry1.getValue(), "curve node points for " + name1);
+      Validate.notNull(entry2.getValue(), "interpolator for " + name1);
+      Validate.notNull(entry3.getValue(), "sensitivity calculator for " + name1);
       _names.add(name1);
     }
     int nNodes = 0;

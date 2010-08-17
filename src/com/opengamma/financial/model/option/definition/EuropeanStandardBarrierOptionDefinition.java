@@ -82,7 +82,7 @@ public class EuropeanStandardBarrierOptionDefinition extends OptionDefinition {
   }
 
   //TODO promote to its own class
-  private final class MyOptionPayoffFunction implements OptionPayoffFunction<StandardOptionDataBundle> {
+  private static final class MyOptionPayoffFunction implements OptionPayoffFunction<StandardOptionDataBundle> {
     private boolean _isAlive;
     private final Barrier _b;
     private final EuropeanVanillaOptionDefinition _vanillaOption;

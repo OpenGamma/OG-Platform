@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.model.interestrate.curve;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -22,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class InterpolatedDiscountCurve extends InterpolatedYieldAndDiscountCurve implements Serializable {
+public class InterpolatedDiscountCurve extends InterpolatedYieldAndDiscountCurve {
   private static final Logger s_logger = LoggerFactory.getLogger(InterpolatedDiscountCurve.class);
 
   /**

@@ -8,6 +8,7 @@ package com.opengamma.financial.pnl;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
@@ -38,12 +39,13 @@ public class PnLDataBundle {
     }
     _returns = new HashMap<Sensitivity<?>, Map<Object, double[]>>();
     _times = null;
-    DoubleTimeSeries<?> ts;
-    for (final Sensitivity<?> s : returns.keySet()) {
+    for (final Entry<Sensitivity<?>, Map<Object, DoubleTimeSeries<?>>> entry1 : returns.entrySet()) {
       final Map<Object, double[]> m = new HashMap<Object, double[]>();
-      final Map<Object, DoubleTimeSeries<?>> data = returns.get(s);
-      for (final Object o : data.keySet()) {
-        ts = data.get(o);
+      final Sensitivity<?> s = entry1.getKey();
+      final Map<Object, DoubleTimeSeries<?>> data = entry1.getValue();
+      for (final Entry<Object, DoubleTimeSeries<?>> entry2 : data.entrySet()) {
+        final Object o = entry2.getKey();
+        final DoubleTimeSeries<?> ts = entry2.getValue();
         if (ts == null) {
           throw new IllegalArgumentException("Had a null time series for sensitivity " + s + ", underlying " + o);
         }
@@ -51,7 +53,7 @@ public class PnLDataBundle {
           throw new IllegalArgumentException("Had an empty time series for sensitivity " + s + ", underlying " + o);
         }
         if (_times == null) {
-          final FastLongDoubleTimeSeries fastTS = data.get(o).toFastLongDoubleTimeSeries();
+          final FastLongDoubleTimeSeries fastTS = ts.toFastLongDoubleTimeSeries();
           _times = fastTS.timesArrayFast();
           _encoding = fastTS.getEncoding();
         }
@@ -86,7 +88,7 @@ public class PnLDataBundle {
     if (_returns == null) {
       result = prime * result;
     } else {
-      result = prime * result + ((_returns == null) ? 0 : _returns.keySet().hashCode());
+      result = prime * result + _returns.keySet().hashCode();
       for (final Map<Object, double[]> data : _returns.values()) {
         result = prime * result + data.keySet().hashCode();
       }

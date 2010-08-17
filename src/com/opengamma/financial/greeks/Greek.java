@@ -477,6 +477,9 @@ public abstract class Greek implements Comparable<Greek> {
 
   @Override
   public boolean equals(final Object obj) {
+    if (obj == null) {
+      return false;
+    }
     if (this == obj) {
       return true;
     }
