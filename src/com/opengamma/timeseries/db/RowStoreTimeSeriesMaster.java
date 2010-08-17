@@ -14,7 +14,6 @@ import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.GET_ACTIVE_META
 import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.GET_TIME_SERIES_BY_ID;
 import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.GET_TIME_SERIES_KEY;
 import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.GET_TIME_SERIES_KEY_BY_ID;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.GET_TIME_SERIES_KEY_ID_BY_IDENTIFIER;
 import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.INSERT_DATA_FIELD;
 import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.INSERT_DATA_PROVIDER;
 import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.INSERT_DATA_SOURCE;
@@ -62,8 +61,9 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.sql.DataSource;
+import javax.time.Instant;
 import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
+import javax.time.calendar.format.CalendricalParseException;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -77,9 +77,6 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
@@ -88,22 +85,27 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.timeseries.DataFieldBean;
+import com.opengamma.timeseries.DataPointDocument;
 import com.opengamma.timeseries.DataProviderBean;
 import com.opengamma.timeseries.DataSourceBean;
 import com.opengamma.timeseries.ObservationTimeBean;
 import com.opengamma.timeseries.SchemeBean;
 import com.opengamma.timeseries.TimeSeriesDocument;
 import com.opengamma.timeseries.TimeSeriesMaster;
+import com.opengamma.timeseries.TimeSeriesMetaData;
 import com.opengamma.timeseries.TimeSeriesRequest;
 import com.opengamma.timeseries.TimeSeriesSearchHistoricRequest;
 import com.opengamma.timeseries.TimeSeriesSearchHistoricResult;
 import com.opengamma.timeseries.TimeSeriesSearchResult;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.date.DateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.sqldate.ArraySQLDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.sqldate.MapSQLDateDoubleTimeSeries;
+import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -122,7 +124,6 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
   private String _identifierScheme = IDENTIFIER_SCHEME_DEFAULT;
   private DataSourceTransactionManager _transactionManager;
   private SimpleJdbcTemplate _simpleJdbcTemplate;
-  private TransactionDefinition _transactionDefinition = new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRED);
   private Map<String, String> _namedSQLMap;
 
   public RowStoreTimeSeriesMaster(DataSourceTransactionManager transactionManager, Map<String, String> namedSQLMap) {
@@ -147,23 +148,48 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     return result;
   }
 
-  private UniqueIdentifier addTimeSeries(IdentifierBundle domainIdentifiers,
+  private UniqueIdentifier addTimeSeries(IdentifierBundle identifiers,
       String dataSource, String dataProvider, String field,
       String observationTime, final LocalDateDoubleTimeSeries timeSeries) {
 
     DoubleTimeSeries<Date> sqlDateDoubleTimeSeries = timeSeries.toSQLDateDoubleTimeSeries();
     s_logger.debug("adding timeseries for {} with dataSource={}, dataProvider={}, dataField={}, observationTime={} startdate={} endate={}", 
-        new Object[]{domainIdentifiers, dataSource, dataProvider, field, observationTime, timeSeries.getEarliestTime(), timeSeries.getLatestTime()});
+        new Object[]{identifiers, dataSource, dataProvider, field, observationTime, timeSeries.getEarliestTime(), timeSeries.getLatestTime()});
     
-    Identifier identifier = domainIdentifiers.getIdentifiers().iterator().next();
-    String bundleName = identifier.getScheme().getName() + "_" + identifier.getValue();
-    long bundleObjId = getOrCreateIdentifierBundle(bundleName, bundleName, domainIdentifiers);
-    
-    long tsKey = getOrCreateTimeSeriesKey(bundleObjId, dataSource, dataProvider, field, observationTime);
-    
+    IdentifierBundleRowHandler bundleBean = findBundleBean(identifiers);
+    //should return just one bundle id
+    if (bundleBean.getIds().size() > 1) {
+      s_logger.warn("{} has more than one bundle ids associated to identifiers {}", identifiers);
+      throw new OpenGammaRuntimeException(identifiers + " has more than one bundle ids associated to them, can not treat as same instrument");
+    }
+    long bundleId = INVALID_KEY;
+    long tsKey = INVALID_KEY;
+    if (bundleBean.getIds().size() == 1) {
+      //check there are no timeseries with same metadata
+      bundleId = bundleBean.getIds().iterator().next();
+      s_logger.debug("Looking up timeSeriesMetaData by quotedObj for identifiers={}, dataSource={}, dataProvider={}, dataField={}, observationTime={}, bundleId={}", 
+          new Object[]{identifiers, dataSource, dataProvider, field, observationTime, bundleId});
+      
+      String sql = _namedSQLMap.get(GET_ACTIVE_META_DATA_BY_PARAMETERS);
+      
+      MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("bundleId", bundleId, Types.BIGINT)
+        .addValue("dataSource", dataSource, Types.VARCHAR)
+        .addValue("dataField", field, Types.VARCHAR)
+        .addValue("dataProvider", dataProvider, Types.VARCHAR)
+        .addValue("observationTime", observationTime, Types.VARCHAR);
+      
+      List<TimeSeriesMetaData> tsMetaDataList = _simpleJdbcTemplate.query(sql, new TimeSeriesMetaDataRowMapper(), parameters);
+      if (!tsMetaDataList.isEmpty()) {
+        throw new IllegalArgumentException("cannot add duplicate TimeSeries for identifiers " + identifiers);
+      }
+    } else {
+      Identifier identifier = identifiers.getIdentifiers().iterator().next();
+      String bundleName = identifier.getScheme().getName() + "_" + identifier.getValue();
+      bundleId = getOrCreateIdentifierBundle(bundleName, bundleName, identifiers);
+    }
+    tsKey = getOrCreateTimeSeriesKey(bundleId, dataSource, dataProvider, field, observationTime);
     insertDataPoints(sqlDateDoubleTimeSeries, tsKey);
-    
-    return UniqueIdentifier.of(IDENTIFIER_SCHEME_DEFAULT, String.valueOf(tsKey));
+    return UniqueIdentifier.of(_identifierScheme, String.valueOf(tsKey));
   }
 
   private void insertDataPoints(DoubleTimeSeries<Date> sqlDateDoubleTimeSeries, long tsKey) {
@@ -199,8 +225,6 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     }
     return timeSeriesKeyID;
   }
-
-  
 
   private long createDataProvider(String dataProvider, String description) {
     String sql = _namedSQLMap.get(INSERT_DATA_PROVIDER);
@@ -347,46 +371,7 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     
     return getTimeSeriesKey(bundleId, dataSourceBean.getId(), dataProviderBean.getId(), dataFieldBean.getId(), observationTimeBean.getId());
   }
-
-  private long getTimeSeriesKeyIDByIdentifierBundle(IdentifierBundle identifierBundle, String dataSource,
-      String dataProvider, String dataField, String observationTime) {
-    
-    long result = INVALID_KEY;
-    
-    s_logger.debug("Looking up timeSeriesKeyID by identifiers for identifiers={}, dataSource={}, dataProvider={}, dataField={}, observationTime={}", 
-        new Object[]{identifierBundle, dataSource, dataProvider, dataField, observationTime});
-    
-    String sql = _namedSQLMap.get(GET_TIME_SERIES_KEY_ID_BY_IDENTIFIER);
-    
-    //go over the identifiers and return the first one
-    Set<Identifier> identifiers = identifierBundle.getIdentifiers();
-    for (Identifier identifier : identifiers) {
-      MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("identifier", identifier.getValue())
-        .addValue("domain", identifier.getScheme().getName(), Types.VARCHAR)
-        .addValue("dataSource", dataSource, Types.VARCHAR)
-        .addValue("dataField", dataField, Types.VARCHAR)
-        .addValue("dataProvider", dataProvider, Types.VARCHAR)
-        .addValue("observationTime", observationTime, Types.VARCHAR);
-      
-      List<Map<String, Object>> resultList = _simpleJdbcTemplate.queryForList(sql, parameters);
-      if (!resultList.isEmpty()) {
-        //get the 1st returned timeserieskey
-        Map<String, Object> firstRow = resultList.iterator().next();
-        result = (Integer) firstRow.get("id");
-        if (result != INVALID_KEY) {
-          s_logger.debug("timeSeriesKeyID = {}", result);
-          return result;
-        }
-      } else {
-        s_logger.debug("Empty timeserieskey  returned for identifier={} dataSource={} dataProvider={} dataField={} observationTime={}",
-            new Object[]{identifier, dataSource, dataProvider, dataField, observationTime});
-      }
-    }
-    //no timeseries key found
-    return result;
-    
-  }
-  
+ 
   private long getTimeSeriesKey(long quotedObjId, String dataSource, String dataProvider, String dataField, String observationTime) {
     long result = INVALID_KEY;
     s_logger.debug("looking up timeSeriesKey quotedObjId={}, dataSource={}, dataProvider={}, dataField={}, observationTime={}", 
@@ -471,39 +456,7 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     _simpleJdbcTemplate.update(deleteSql, tsIDParameter);
     
   }
-  
-  private void deleteTimeSeries(IdentifierBundle identifiers,
-      String dataSource, String dataProvider, String field,
-      String observationTime) {
-//    ArgumentChecker.notNull(identifiers, "identifiers");
-//    ArgumentChecker.notNull(dataSource, "dataSource");
-//    ArgumentChecker.notNull(dataProvider, "dataProvider");
-//    ArgumentChecker.notNull(field, "field");
-//    ArgumentChecker.notNull(observationTime, "observationTime");
     
-    s_logger.debug("deleting timeseries for identifier={} dataSource={} dataProvider={} dataField={} observationTime={}", 
-        new Object[]{identifiers, dataSource, dataProvider, field, observationTime});
-    long tsId = getTimeSeriesKeyIDByIdentifierBundle(identifiers, dataSource, dataProvider, field, observationTime);
-    deleteDataPoints(tsId);
-  }
-    
-  private DoubleTimeSeries<Date> loadTimeSeries(IdentifierBundle identifiers,
-      String dataSource, String dataProvider, String field,
-      String observationTime, LocalDate start, LocalDate end) {
-    
-    s_logger.debug("getting timeseries for identifiers={} dataSource={} dataProvider={} dataField={} observationTime={} start={} end={}", 
-        new Object[]{identifiers, dataSource, dataProvider, field, observationTime, start, end});
-    
-    long timeSeriesKey = getTimeSeriesKeyIDByIdentifierBundle(identifiers, dataSource, dataProvider, field, observationTime);
-    if (timeSeriesKey == INVALID_KEY) {
-      s_logger.debug("empty timeseries returned for identifiers={}, dataSource={} dataProvider={} dataField={} observationTime={}", 
-          new Object[]{identifiers, dataSource, dataProvider, field, observationTime});
-      return new ArraySQLDateDoubleTimeSeries();
-    }
-  
-    return loadTimeSeries(timeSeriesKey, start, end);
-  }
-  
   private DoubleTimeSeries<Date> loadTimeSeries(long timeSeriesKey, LocalDate start, LocalDate end) {
     MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("timeSeriesKey", timeSeriesKey, Types.INTEGER);
     parameters.addValue("startDate", start != null ? toSQLDate(start) : null, Types.DATE);
@@ -525,24 +478,11 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     return new ArraySQLDateDoubleTimeSeries(dates, values);
   }
 
-  private void updateDataPoint(IdentifierBundle identifiers,
-      String dataSource, String dataProvider, String field,
-      String observationTime, LocalDate date, Double value) {
-    
-    validateMetaData(identifiers, dataSource, dataProvider, field);
-    ArgumentChecker.notNull(observationTime, "observationTime");
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.notNull(value, "value");
-    
-    s_logger.debug("updating dataPoint for identifier={} dataSource={} dataProvider={} dataField={} observationTime={} with values(date={}, value={})", 
-        new Object[]{identifiers, dataSource, dataProvider, field, observationTime, date, value});
-    
-    long tsID = getTimeSeriesKeyIDByIdentifierBundle(identifiers, dataSource, dataProvider, field, observationTime);
-    
+  private void updateDataPoint(LocalDate date, Double value, long tsID) {
     String selectSQL = _namedSQLMap.get(FIND_DATA_POINT_BY_DATE_AND_ID);
     
     MapSqlParameterSource parameters = new MapSqlParameterSource()
-      .addValue("tsID", tsID, Types.INTEGER)
+      .addValue("tsID", tsID, Types.BIGINT)
       .addValue("date", toSQLDate(date), Types.DATE);
     
     Double oldValue = _simpleJdbcTemplate.queryForObject(selectSQL, Double.class, parameters);
@@ -556,37 +496,13 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     parameters.addValue("oldValue", oldValue, Types.DOUBLE);
     parameters.addValue("newValue", value, Types.DOUBLE);
     
-    //start transaction
-    TransactionStatus transactionStatus = _transactionManager.getTransaction(_transactionDefinition);
-    try {
-      _simpleJdbcTemplate.update(updateSql, parameters);
+    if (!isTriggerSupported()) {
       _simpleJdbcTemplate.update(insertDelta, parameters);
-      _transactionManager.commit(transactionStatus);
-    } catch (Throwable t) {
-      _transactionManager.rollback(transactionStatus);
-      s_logger.warn("error trying to update dataPoint", t);
-      throw new OpenGammaRuntimeException("Unable to update dataPoint", t);
     }
-    
+    _simpleJdbcTemplate.update(updateSql, parameters);
   }
   
-  private void deleteDataPoint(IdentifierBundle identifiers,
-      String dataSource, String dataProvider, String field,
-      String observationTime, LocalDate date) {
-    ArgumentChecker.notNull(identifiers, "identifier");
-    ArgumentChecker.notNull(dataSource, "dataSource");
-    ArgumentChecker.notNull(dataProvider, "dataProvider");
-    ArgumentChecker.notNull(field, "field");
-    ArgumentChecker.notNull(observationTime, "observationTime");
-    ArgumentChecker.notNull(date, "date");
-    
-    s_logger.debug("deleting dataPoint for identifier={} dataSource={} dataProvider={} dataField={} observationTime={} date={}", 
-        new Object[]{identifiers, dataSource, dataProvider, field, observationTime, date});
-    
-    long tsID = getTimeSeriesKeyIDByIdentifierBundle(identifiers, dataSource, dataProvider, field, observationTime);
-    
-    Date sqlDate = toSQLDate(date);
-    
+  private void removeDataPoint(long tsID, Date sqlDate) {
     String selectTSSQL = _namedSQLMap.get(FIND_DATA_POINT_BY_DATE_AND_ID);
     MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("tsID", tsID, Types.INTEGER);
     parameters.addValue("date", sqlDate, Types.DATE);
@@ -604,54 +520,45 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     deltaParameters.addValue("value", oldValue, Types.DOUBLE);
     deltaParameters.addValue("timeStamp", now, Types.TIMESTAMP);
     
-    //start transaction
-    TransactionStatus transactionStatus = _transactionManager.getTransaction(_transactionDefinition);
-    try {
+    if (!isTriggerSupported()) {
       _simpleJdbcTemplate.update(insertDelta, deltaParameters);
-      _simpleJdbcTemplate.update(deleteSql, parameters);
-      _transactionManager.commit(transactionStatus);
-    } catch (Throwable t) {
-      _transactionManager.rollback(transactionStatus);
-      s_logger.warn("error trying to delete dataPoint", t);
-      throw new OpenGammaRuntimeException("Unable to delete dataPoint", t);
     }
-    
+    _simpleJdbcTemplate.update(deleteSql, parameters);
   }
   
-  @Override
-  public LocalDateDoubleTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, String dataSource,
-      String dataProvider, String field) {
-    return getHistoricalTimeSeries(identifiers, dataSource, dataProvider, field, null, null);
-  }
-
-  @Override
-  public LocalDateDoubleTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, String dataSource,
-      String dataProvider, String field, LocalDate start, LocalDate end) {
-    validateMetaData(identifiers, dataSource, dataProvider, field);
-    
-    TimeSeriesRequest request = new TimeSeriesRequest();
-    request.setIdentifiers(identifiers);
-    request.setDataSource(dataSource);
-    request.setDataProvider(dataProvider);
-    request.setDataField(field);
-    request.setStart(start);
-    request.setEnd(end);
-    request.setLoadTimeSeries(true);
-    
-    LocalDateDoubleTimeSeries result = new ArrayLocalDateDoubleTimeSeries();
-    TimeSeriesSearchResult searchResult = search(request);
-    List<TimeSeriesDocument> documents = searchResult.getDocuments();
-    if (!documents.isEmpty()) {
-      if (documents.size() > 1) {
-        Object[] param = new Object[]{identifiers, dataSource, dataProvider, field, start, end};
-        s_logger.warn("multiple timeseries return for identifiers={}, dataSource={}, dataProvider={}, dataField={}, start={} end={}", param);
-      } else { 
-        TimeSeriesDocument timeSeriesDocument = documents.get(0);
-        result = timeSeriesDocument.getTimeSeries();
-      }
-    }
-    return result;
-  }
+//  protected Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalTimeSeries(IdentifierBundle identifiers, String dataSource,
+//      String dataProvider, String field) {
+//    return getHistoricalTimeSeries(identifiers, dataSource, dataProvider, field, null, null);
+//  }
+//
+//  protected Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalTimeSeries(IdentifierBundle identifiers, String dataSource,
+//      String dataProvider, String field, LocalDate start, LocalDate end) {
+//    validateMetaData(identifiers, dataSource, dataProvider, field);
+//    
+//    TimeSeriesRequest request = new TimeSeriesRequest();
+//    request.setIdentifiers(identifiers);
+//    request.setDataSource(dataSource);
+//    request.setDataProvider(dataProvider);
+//    request.setDataField(field);
+//    request.setStart(start);
+//    request.setEnd(end);
+//    request.setLoadTimeSeries(true);
+//    
+//    LocalDateDoubleTimeSeries timeseries = new ArrayLocalDateDoubleTimeSeries();
+//    TimeSeriesSearchResult searchResult = searchTimeSeries(request);
+//    List<TimeSeriesDocument> documents = searchResult.getDocuments();
+//    UniqueIdentifier uid = null;
+//    if (!documents.isEmpty()) {
+//      if (documents.size() > 1) {
+//        Object[] param = new Object[]{identifiers, dataSource, dataProvider, field, start, end};
+//        s_logger.warn("multiple timeseries return for identifiers={}, dataSource={}, dataProvider={}, dataField={}, start={} end={}", param);
+//      }
+//      TimeSeriesDocument timeSeriesDocument = documents.get(0);
+//      timeseries = timeSeriesDocument.getTimeSeries();
+//      uid = timeSeriesDocument.getUniqueIdentifier();
+//    }
+//    return new ObjectsPair<UniqueIdentifier, LocalDateDoubleTimeSeries>(uid, timeseries);
+//  }
 
   /**
    * @param identifiers
@@ -666,26 +573,12 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     ArgumentChecker.notNull(field, "field");
   }
   
-
-  private LocalDateDoubleTimeSeries getTimeSeriesSnapShot(
-      IdentifierBundle identifiers, String dataSource,
-      String dataProvider, String field, String observationTime,
-      ZonedDateTime timeStamp) {
-    
-    ArgumentChecker.notNull(identifiers, "identifierss");
-    ArgumentChecker.notNull(dataSource, "dataSource");
-    ArgumentChecker.notNull(dataProvider, "dataProvider");
-    ArgumentChecker.notNull(field, "field");
-    ArgumentChecker.notNull(observationTime, "observationTime");
-    ArgumentChecker.notNull(timeStamp, "time");
-    
-    long tsID = getTimeSeriesKeyIDByIdentifierBundle(identifiers, dataSource, dataProvider, field, observationTime);
-    
+  private LocalDateDoubleTimeSeries getTimeSeriesSnapshot(Instant timeStamp, long tsID) {
     String selectDeltaSql = _namedSQLMap.get(LOAD_TIME_SERIES_DELTA);
     
     MapSqlParameterSource parameterSource = new MapSqlParameterSource();
-    parameterSource.addValue("time", toSQLDate(timeStamp), Types.TIMESTAMP);
-    parameterSource.addValue("tsID", tsID, Types.INTEGER);
+    parameterSource.addValue("time", new Date(timeStamp.toEpochMillisLong()), Types.TIMESTAMP);
+    parameterSource.addValue("tsID", tsID, Types.BIGINT);
 
     final List<Date> deltaDates = new ArrayList<Date>();
     final List<Double> deltaValues = new ArrayList<Double>();
@@ -702,7 +595,7 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
       }
     });
     
-    DoubleTimeSeries<Date> timeSeries = loadTimeSeries(identifiers, dataSource, dataProvider, field, observationTime, null, null);
+    DoubleTimeSeries<Date> timeSeries = loadTimeSeries(tsID, null, null);
     
     MapSQLDateDoubleTimeSeries tsMap = new MapSQLDateDoubleTimeSeries(timeSeries);
     
@@ -725,11 +618,7 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
   private Date toSQLDate(LocalDate localDate) {
     return new Date(localDate.toEpochDays() * MILLIS_IN_DAY);
   }
-  
-  private Date toSQLDate(ZonedDateTime date) {
-    return new Date(date.toInstant().toEpochMillisLong());
-  }
-  
+    
   /**
    * @param namedSQLMap the map containing sql queries
    */
@@ -747,7 +636,7 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     }
   }
 
-  public LocalDateDoubleTimeSeries getHistoricalTimeSeries(UniqueIdentifier uid, LocalDate start, LocalDate end) {
+  protected LocalDateDoubleTimeSeries getHistoricalTimeSeries(UniqueIdentifier uid, LocalDate start, LocalDate end) {
     ArgumentChecker.notNull(uid, "UniqueIdentifier");
     ArgumentChecker.isTrue(uid.getScheme().equals(_identifierScheme), "Uid not for TimeSeriesStorage");
     ArgumentChecker.isTrue(uid.getValue() != null, "Uid value cannot be null");
@@ -756,12 +645,12 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     return timeSeries.toLocalDateDoubleTimeSeries();
   }
 
-  public LocalDateDoubleTimeSeries getHistoricalTimeSeries(UniqueIdentifier uid) {
+  protected LocalDateDoubleTimeSeries getHistoricalTimeSeries(UniqueIdentifier uid) {
     return getHistoricalTimeSeries(uid, null, null);
   }
 
   @Override
-  public TimeSeriesDocument add(TimeSeriesDocument document) {
+  public TimeSeriesDocument addTimeSeries(TimeSeriesDocument document) {
     validateTimeSeriesDocument(document);
     
     IdentifierBundle identifier = document.getIdentifiers();
@@ -775,13 +664,18 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     document.setUniqueIdentifier(uid);
     return document;
   }
+ 
+  @Override
+  public void appendTimeSeries(TimeSeriesDocument document) {
+    validateTimeSeriesDocument(document);
+    Long tsId = validateAndGetTimeSeriesId(document.getUniqueIdentifier());
+    insertDataPoints(document.getTimeSeries().toSQLDateDoubleTimeSeries(), tsId);
+  }
 
-  /**
-   * @param document
-   */
   private void validateTimeSeriesDocument(TimeSeriesDocument document) {
     ArgumentChecker.notNull(document, "timeseries document");
-    ArgumentChecker.isTrue(document.getTimeSeries() != null && !document.getTimeSeries().isEmpty(), "cannot add null/empty timeseries");
+//    ArgumentChecker.isTrue(document.getTimeSeries() != null && !document.getTimeSeries().isEmpty(), "cannot add null/empty timeseries");
+    ArgumentChecker.notNull(document.getTimeSeries(), "Timeseries");
     ArgumentChecker.isTrue(document.getIdentifiers() != null && !document.getIdentifiers().getIdentifiers().isEmpty(), "cannot add timeseries with empty identifiers");
     ArgumentChecker.isTrue(!StringUtils.isBlank(document.getDataSource()), "cannot add timeseries with blank dataSource");
     ArgumentChecker.isTrue(!StringUtils.isBlank(document.getDataProvider()), "cannot add timeseries with blank dataProvider");
@@ -843,7 +737,7 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
   }
 
   @Override
-  public TimeSeriesDocument get(UniqueIdentifier uid) {
+  public TimeSeriesDocument getTimeSeries(UniqueIdentifier uid) {
     Long tsId = validateAndGetTimeSeriesId(uid);
     
     TimeSeriesDocument result = new TimeSeriesDocument();
@@ -860,6 +754,35 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     result.setTimeSeries(timeSeries.toLocalDateDoubleTimeSeries());
     
     return result;
+  }
+  
+  private ObjectsPair<Long, LocalDate> validateAndGetDataPointId(UniqueIdentifier uid) {
+    ArgumentChecker.notNull(uid, "DataPoint UID");
+    ArgumentChecker.isTrue(uid.getScheme().equals(_identifierScheme), "UID not TSS");
+    ArgumentChecker.isTrue(uid.getValue() != null, "Uid value cannot be null");
+    String[] tokens = StringUtils.split(uid.getValue(), '-');
+    if (tokens.length != 2) {
+      throw new IllegalArgumentException("UID not expected format<12345-yyyymmdd> " + uid);
+    }
+    String id = tokens[0];
+    String date = tokens[1];
+    LocalDate localDate = null;
+    Long tsId = Long.MIN_VALUE;
+    if (id != null && date != null) {
+      try {
+        localDate = DateUtil.toLocalDate(date);
+      } catch (CalendricalParseException ex) {
+        throw new IllegalArgumentException("UID not expected format<12345-yyyymmdd> " + uid);
+      }
+      try {
+        tsId = Long.parseLong(id);
+      } catch (NumberFormatException ex) {
+        throw new IllegalArgumentException("UID not expected format<12345-yyyymmdd> " + uid);
+      }
+    } else {
+      throw new IllegalArgumentException("UID not expected format<12345-yyyymmdd> " + uid);
+    }
+    return ObjectsPair.of(tsId, localDate);
   }
 
   /**
@@ -995,7 +918,7 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
   }
 
   @Override
-  public void remove(UniqueIdentifier uid) {
+  public void removeTimeSeries(UniqueIdentifier uid) {
     Long tsId = validateAndGetTimeSeriesId(uid);
     SqlParameterSource parameters = new MapSqlParameterSource()
       .addValue("tsKey", tsId, Types.BIGINT);
@@ -1004,49 +927,68 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
   }
 
   @Override
-  public TimeSeriesSearchResult search(TimeSeriesRequest request) {
+  public TimeSeriesSearchResult searchTimeSeries(TimeSeriesRequest request) {
     ArgumentChecker.notNull(request, "timeseries request");
-    ArgumentChecker.isTrue(request.getIdentifiers() != null && !request.getIdentifiers().getIdentifiers().isEmpty(), "cannot search timeseries with empty identifiers");
     
     TimeSeriesSearchResult result = new TimeSeriesSearchResult();
-    IdentifierBundleRowHandler bundleBean = findBundleBean(request.getIdentifiers());
-    if (!bundleBean.getIds().isEmpty()) {
-      if (bundleBean.getIds().size() > 1) {
-        s_logger.warn("IdentifierBundle {} not associated to the same instrument", request.getIdentifiers().toString());
-      } else {
-        long bundleId = bundleBean.getIds().iterator().next();
-        IdentifierBundle identifiers = new IdentifierBundle(bundleBean.getIdentifiers());
-        String dataSource = request.getDataSource();
-        String dataProvider = request.getDataProvider();
-        String dataField = request.getDataField();
-        String observationTime = request.getObservationTime();
-        
-        s_logger.debug("Looking up timeSeriesMetaData by quotedObj for identifiers={}, dataSource={}, dataProvider={}, dataField={}, observationTime={}, bundleId={}", 
-            new Object[]{identifiers, dataSource, dataProvider, dataField, observationTime, bundleId});
-        
-        String sql = _namedSQLMap.get(GET_ACTIVE_META_DATA_BY_PARAMETERS);
-        
-        MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("bundleId", bundleId, Types.BIGINT)
-          .addValue("dataSource", dataSource, Types.VARCHAR)
-          .addValue("dataField", dataField, Types.VARCHAR)
-          .addValue("dataProvider", dataProvider, Types.VARCHAR)
-          .addValue("observationTime", observationTime, Types.VARCHAR);
-        
-        List<TimeSeriesMetaData> tsMetaDataList = _simpleJdbcTemplate.query(sql, new TimeSeriesMetaDataRowMapper(), parameters);
-        for (TimeSeriesMetaData tsMetaData : tsMetaDataList) {
-          TimeSeriesDocument document = new TimeSeriesDocument();
-          long timeSeriesKey = tsMetaData.getTimeSeriesId();
-          document.setDataField(tsMetaData.getDataField());
-          document.setDataProvider(tsMetaData.getDataProvider());
-          document.setDataSource(tsMetaData.getDataSource());
-          document.setIdentifiers(identifiers);
-          document.setObservationTime(tsMetaData.getObservationTime());
-          document.setUniqueIdentifier(UniqueIdentifier.of(IDENTIFIER_SCHEME_DEFAULT, String.valueOf(tsMetaData.getTimeSeriesId())));
-          if (request.isLoadTimeSeries()) {
-            LocalDateDoubleTimeSeries timeSeries = loadTimeSeries(timeSeriesKey, request.getStart(), request.getEnd()).toLocalDateDoubleTimeSeries();
-            document.setTimeSeries(timeSeries);
+    UniqueIdentifier uid = request.getTimeSeriesId();
+    if (uid != null) {
+      long tsId = validateAndGetTimeSeriesId(uid);
+      TimeSeriesMetaData tsMetaData = getTimeSeriesMetaData(tsId);
+      s_logger.debug("tsMetaData={}", tsMetaData);
+      TimeSeriesDocument document = new TimeSeriesDocument();
+      document.setDataField(tsMetaData.getDataField());
+      document.setDataProvider(tsMetaData.getDataProvider());
+      document.setDataSource(tsMetaData.getDataSource());
+      document.setIdentifiers(tsMetaData.getIdentifiers());
+      document.setObservationTime(tsMetaData.getObservationTime());
+      document.setUniqueIdentifier(uid);
+      if (request.isLoadTimeSeries()) {
+        LocalDateDoubleTimeSeries timeSeries = loadTimeSeries(tsId, request.getStart(), request.getEnd()).toLocalDateDoubleTimeSeries();
+        document.setTimeSeries(timeSeries);
+      }
+      result.getDocuments().add(document);
+    } else {
+      ArgumentChecker.isTrue(request.getIdentifiers() != null && !request.getIdentifiers().getIdentifiers().isEmpty(), "cannot search timeseries with empty identifiers");
+      IdentifierBundleRowHandler bundleBean = findBundleBean(request.getIdentifiers());
+      if (!bundleBean.getIds().isEmpty()) {
+        if (bundleBean.getIds().size() > 1) {
+          s_logger.warn("IdentifierBundle {} not associated to the same instrument", request.getIdentifiers().toString());
+        } else {
+          long bundleId = bundleBean.getIds().iterator().next();
+          IdentifierBundle identifiers = new IdentifierBundle(bundleBean.getIdentifiers());
+          String dataSource = request.getDataSource();
+          String dataProvider = request.getDataProvider();
+          String dataField = request.getDataField();
+          String observationTime = request.getObservationTime();
+          
+          s_logger.debug("Looking up timeSeriesMetaData by quotedObj for identifiers={}, dataSource={}, dataProvider={}, dataField={}, observationTime={}, bundleId={}", 
+              new Object[]{identifiers, dataSource, dataProvider, dataField, observationTime, bundleId});
+          
+          String sql = _namedSQLMap.get(GET_ACTIVE_META_DATA_BY_PARAMETERS);
+          
+          MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("bundleId", bundleId, Types.BIGINT)
+            .addValue("dataSource", dataSource, Types.VARCHAR)
+            .addValue("dataField", dataField, Types.VARCHAR)
+            .addValue("dataProvider", dataProvider, Types.VARCHAR)
+            .addValue("observationTime", observationTime, Types.VARCHAR);
+          
+          List<TimeSeriesMetaData> tsMetaDataList = _simpleJdbcTemplate.query(sql, new TimeSeriesMetaDataRowMapper(), parameters);
+          for (TimeSeriesMetaData tsMetaData : tsMetaDataList) {
+            TimeSeriesDocument document = new TimeSeriesDocument();
+            long timeSeriesKey = tsMetaData.getTimeSeriesId();
+            document.setDataField(tsMetaData.getDataField());
+            document.setDataProvider(tsMetaData.getDataProvider());
+            document.setDataSource(tsMetaData.getDataSource());
+            document.setIdentifiers(identifiers);
+            document.setObservationTime(tsMetaData.getObservationTime());
+            document.setUniqueIdentifier(UniqueIdentifier.of(IDENTIFIER_SCHEME_DEFAULT, String.valueOf(tsMetaData.getTimeSeriesId())));
+            if (request.isLoadTimeSeries()) {
+              LocalDateDoubleTimeSeries timeSeries = loadTimeSeries(timeSeriesKey, request.getStart(), request.getEnd()).toLocalDateDoubleTimeSeries();
+              document.setTimeSeries(timeSeries);
+            }
+            result.getDocuments().add(document);
           }
-          result.getDocuments().add(document);
         }
       }
     }
@@ -1055,11 +997,47 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
 
   @Override
   public TimeSeriesSearchHistoricResult searchHistoric(TimeSeriesSearchHistoricRequest request) {
-    return null;
+    ArgumentChecker.notNull(request, "TimeSeriesSearchHistoricRequest");
+    ArgumentChecker.notNull(request.getTimeStamp(), "Timestamp");
+    UniqueIdentifier uid = request.getTimeSeriesId();
+    TimeSeriesSearchHistoricResult searchResult = new TimeSeriesSearchHistoricResult();
+    if (uid == null) {
+      validateSearchHistoricRequest(request);
+      String dataProvider = request.getDataProvider();
+      String dataSource = request.getDataSource();
+      String field = request.getDataField();
+      IdentifierBundle identifiers = request.getIdentifiers();
+      uid = resolveIdentifier(identifiers, dataSource, dataProvider, field);
+      if (uid == null) {
+        return searchResult;
+      }
+    }
+    Instant timeStamp = request.getTimeStamp();
+    long tsId = validateAndGetTimeSeriesId(uid);
+    LocalDateDoubleTimeSeries seriesSnapshot = getTimeSeriesSnapshot(timeStamp, tsId);
+    TimeSeriesDocument document = new TimeSeriesDocument();
+    document.setDataField(request.getDataField());
+    document.setDataProvider(request.getDataProvider());
+    document.setDataSource(request.getDataSource());
+    document.setIdentifiers(request.getIdentifiers());
+    document.setObservationTime(request.getObservationTime());
+    document.setUniqueIdentifier(uid);
+    document.setTimeSeries(seriesSnapshot);
+    searchResult.getDocuments().add(document);
+    return searchResult;
+  }
+
+  private void validateSearchHistoricRequest(TimeSeriesSearchHistoricRequest request) {
+    ArgumentChecker.isTrue(request.getIdentifiers() != null && !request.getIdentifiers().getIdentifiers().isEmpty(), "cannot search with null/empty identifiers");
+    ArgumentChecker.isTrue(!StringUtils.isBlank(request.getDataSource()), "cannot search with blank dataSource");
+    ArgumentChecker.isTrue(!StringUtils.isBlank(request.getDataProvider()), "cannot search with blank dataProvider");
+    ArgumentChecker.isTrue(!StringUtils.isBlank(request.getDataProvider()), "cannot search with blank dataProvider");
+    ArgumentChecker.isTrue(!StringUtils.isBlank(request.getDataField()), "cannot search with blank field");
+    ArgumentChecker.isTrue(!StringUtils.isBlank(request.getDataProvider()), "cannot add timeseries with blank dataProvider");
   }
 
   @Override
-  public TimeSeriesDocument update(TimeSeriesDocument document) {
+  public TimeSeriesDocument updateTimeSeries(TimeSeriesDocument document) {
     validateTimeSeriesDocument(document);
     Long tsId = validateAndGetTimeSeriesId(document.getUniqueIdentifier());
     
@@ -1085,6 +1063,78 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     return document;
   }
   
+  @Override
+  public DataPointDocument updateDataPoint(DataPointDocument document) {
+    ArgumentChecker.notNull(document, "dataPoint document");
+    ArgumentChecker.notNull(document.getDate(), "data point date");
+    ArgumentChecker.notNull(document.getValue(), "data point value");
+    Long tsId = validateAndGetTimeSeriesId(document.getTimeSeriesId());
+    updateDataPoint(document.getDate(), document.getValue(), tsId);
+    return document;
+  }
+  
+  @Override
+  public DataPointDocument addDataPoint(DataPointDocument document) {
+    ArgumentChecker.notNull(document, "dataPoint document");
+    ArgumentChecker.notNull(document.getDate(), "data point date");
+    ArgumentChecker.notNull(document.getValue(), "data point value");
+    Long tsId = validateAndGetTimeSeriesId(document.getTimeSeriesId());
+    
+    String insertSQL = _namedSQLMap.get(INSERT_TIME_SERIES);
+    String insertDelta = _namedSQLMap.get(INSERT_TIME_SERIES_DELTA_I);
+    
+    Date now = new Date(System.currentTimeMillis());
+    
+    MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+    parameterSource.addValue("timeSeriesID", tsId, Types.BIGINT);
+    parameterSource.addValue("date", toSQLDate(document.getDate()), Types.DATE);
+    parameterSource.addValue("value", document.getValue(), Types.DOUBLE);
+    parameterSource.addValue("timeStamp", now, Types.TIMESTAMP);
+    
+    if (!isTriggerSupported()) {
+      _simpleJdbcTemplate.update(insertDelta, parameterSource);
+    } 
+    _simpleJdbcTemplate.update(insertSQL, parameterSource);
+    String uid = new StringBuilder(String.valueOf(tsId)).append("-").append(DateUtil.printYYYYMMDD(document.getDate())).toString();
+    document.setDataPointId(UniqueIdentifier.of(_identifierScheme, uid));
+    return document;
+  }
+  
+  @Override
+  public void removeDataPoint(UniqueIdentifier uid) {
+    ObjectsPair<Long, LocalDate> tsIdDatePair = validateAndGetDataPointId(uid);
+    Date date = toSQLDate(tsIdDatePair.getSecond());
+    Long tsId = tsIdDatePair.getFirst();
+    removeDataPoint(tsId, date);
+  }
+
+  @Override
+  public DataPointDocument getDataPoint(UniqueIdentifier uid) {
+    ObjectsPair<Long, LocalDate> tsIdDatePair = validateAndGetDataPointId(uid);
+    
+    Date date = toSQLDate(tsIdDatePair.getSecond());
+    Long tsId = tsIdDatePair.getFirst();
+    
+    NamedParameterJdbcOperations jdbcOperations = _simpleJdbcTemplate.getNamedParameterJdbcOperations();
+    MapSqlParameterSource paramSource = new MapSqlParameterSource();
+    paramSource.addValue("tsID", tsId, Types.BIGINT);
+    paramSource.addValue("date", date, Types.DATE);
+    
+    final DataPointDocument result = new DataPointDocument();
+    result.setDate(tsIdDatePair.getSecond());
+    result.setTimeSeriesId(UniqueIdentifier.of(_identifierScheme, String.valueOf(tsId)));
+    result.setDataPointId(uid);
+    jdbcOperations.query(_namedSQLMap.get(FIND_DATA_POINT_BY_DATE_AND_ID), paramSource, new RowCallbackHandler() {
+      @Override
+      public void processRow(ResultSet rs) throws SQLException {
+        result.setValue(rs.getDouble("value"));
+      }
+    });
+       
+    return result;
+  }
+
+  @Override
   public UniqueIdentifier resolveIdentifier(IdentifierBundle identifiers, String dataSource, String dataProvider, String field) {
     validateMetaData(identifiers, dataSource, dataProvider, field);
     TimeSeriesRequest request = new TimeSeriesRequest();
@@ -1095,7 +1145,7 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     request.setLoadTimeSeries(false);
     
     UniqueIdentifier result = null;
-    TimeSeriesSearchResult searchResult = search(request);
+    TimeSeriesSearchResult searchResult = searchTimeSeries(request);
     List<TimeSeriesDocument> documents = searchResult.getDocuments();
     if (!documents.isEmpty()) {
       result = documents.get(0).getUniqueIdentifier();
@@ -1104,31 +1154,9 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
   }
 
   private long getOrCreateIdentifierBundle(String bundleName, String description, IdentifierBundle identifiers) {
-    
     s_logger.debug("creating/updating identifiers {} with quotedObj={}", identifiers, bundleName);
-    //find existing identifiers
+    long bundleId = getOrCreateIdentifierBundle(bundleName, description);
     Set<Identifier> resolvedIdentifiers = new HashSet<Identifier>(identifiers.getIdentifiers());
-    IdentifierBundleRowHandler bundleBean = findBundleBean(identifiers);
-    //should return just one bundle id
-    if (bundleBean.getIds().size() > 1) {
-      s_logger.warn("{} has more than 1 quoted object associated to them", identifiers);
-      throw new OpenGammaRuntimeException(identifiers + " has more than 1 quoted object associated to them, can not treat as same instrument");
-    }
-    long bundleId = INVALID_KEY;
-    if (bundleBean.getIds().size() == 1) {
-      String loadedBundleName = bundleBean.getNames().iterator().next();
-      if (!loadedBundleName.equals(bundleName)) {
-        s_logger.warn("{} has been associated already with {}", loadedBundleName, identifiers);
-        throw new OpenGammaRuntimeException(loadedBundleName + " has been associated already with " + identifiers);
-      }
-      if (bundleBean.getIdentifiers().size() != identifiers.size()) {
-        resolvedIdentifiers.removeAll(bundleBean.getIdentifiers());
-      }
-      bundleId = bundleBean.getIds().iterator().next();
-    } else {
-      bundleId = getOrCreateIdentifierBundle(bundleName);
-    }
-    
     SqlParameterSource[] batchArgs = new MapSqlParameterSource[resolvedIdentifiers.size()];
     int index = 0;
     for (Identifier identifier : resolvedIdentifiers) {
@@ -1140,16 +1168,14 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
       valueMap.put("identifier_value", identifier.getValue());
       batchArgs[index++] = new MapSqlParameterSource(valueMap);
     }
-    
     _simpleJdbcTemplate.batchUpdate(_namedSQLMap.get(INSERT_IDENTIFIER), batchArgs);
-    
     return bundleId;
   }
 
-  private long getOrCreateIdentifierBundle(String quotedObj) {
+  private long getOrCreateIdentifierBundle(String quotedObj, String desc) {
     long result = getBundleId(quotedObj);
     if (result == INVALID_KEY) {
-      result = createBundle(quotedObj, null);
+      result = createBundle(quotedObj, desc);
     }
     return result;
   }
@@ -1172,9 +1198,7 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
   }
   
   private static class IdentifierBundleRowHandler  implements RowCallbackHandler {
-    
     private Set<Long> _ids = new HashSet<Long>();
-    private Set<String> _names = new HashSet<String>();
     private Set<Identifier> _identifiers = new HashSet<Identifier>();
     
     public IdentifierBundleRowHandler() {
@@ -1184,10 +1208,6 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
       return _ids;
     }
 
-    public Set<String> getNames() {
-      return _names;
-    }
-
     public Set<Identifier> getIdentifiers() {
       return _identifiers;
     }
@@ -1195,7 +1215,6 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     @Override
     public void processRow(ResultSet rs) throws SQLException {
       _ids.add(rs.getLong("id"));
-      _names.add(rs.getString("name"));
       _identifiers.add(Identifier.of(rs.getString("scheme"), rs.getString("identifier_value")));
     }
   }

@@ -236,13 +236,13 @@
         				]]>
         			</value>
         		</entry>
-        		<entry key="updateTimeSeries" value="UPDATE tss_data_point SET value = :newValue WHERE time_series_id = :tsID AND ts_date = :date "/>
+        		<entry key="updateTimeSeries" value="UPDATE tss_data_point SET value = :newValue WHERE meta_data_id = :tsID AND ts_date = :date "/>
         		<entry key="getTimeSeriesKeyIDByIdentifier" value="SELECT tsKey.id FROM tss_meta_data tsKey, tss_identifier_bundle qo, tss_identifier dsi, tss_identification_scheme d, tss_data_source ds, tss_data_provider dp, tss_data_field df, tss_observation_time ot WHERE dsi.identification_scheme_id = d.id AND dsi.bundle_id = qo.id AND tsKey.bundle_id = qo.id AND tsKey.data_source_id = ds.id AND tsKey.data_provider_id = dp.id AND tsKey.data_field_id = df.id AND tsKey.observation_time_id = ot.id AND dsi.identifier_value = :value AND d.name = :domain AND ds.name = :dataSource AND df.name = :dataField AND (dp.name = :dataProvider OR :dataProvider IS NULL) AND (ot.name = :observationTime OR :observationTime IS NULL)"/>
         		<entry key="getTimeSeriesByID" value="SELECT ts_date, value FROM tss_data_point where meta_data_id = :tsID"/>
         		<entry key="deleteTimeSeriesByID" value="DELETE FROM tss_data_point WHERE meta_data_id = :tsID"/>
         		<entry key="findDataPointByDateAndID" value="SELECT value FROM tss_data_point WHERE meta_data_id = :tsID AND ts_date = :date"/>
         		<entry key="deleteDataPoint" value="DELETE FROM tss_data_point WHERE meta_data_id = :tsID AND ts_date = :date"/>
-        		<entry key="loadTimeSeriesDelta" value="SELECT ts_date, old_value, operation FROM tss_data_point_delta WHERE time_series_id = :tsID AND time_stamp >= :time ORDER BY time_stamp desc"/>
+        		<entry key="loadTimeSeriesDelta" value="SELECT ts_date, old_value, operation FROM tss_data_point_delta WHERE meta_data_id = :tsID AND time_stamp >= :time ORDER BY time_stamp desc"/>
         	</map>	
     	</property>
 	</bean>

@@ -10,6 +10,8 @@ import java.sql.SQLException;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
+import com.opengamma.timeseries.TimeSeriesMetaData;
+
 /**
  * TimeSeriesMetaDataRowMapper maps returned SQL row to TimeSeriesMetaData object 
  */
