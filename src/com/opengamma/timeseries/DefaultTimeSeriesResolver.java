@@ -13,8 +13,8 @@ import com.opengamma.id.IdentifierBundle;
 public class DefaultTimeSeriesResolver implements TimeSeriesResolver {
   private static final String DEFAULT_DATA_SOURCE = "BLOOMBERG";
   private static final String DEFAULT_DATA_PROVIDER = "CMPL";
-  private static final String DEFAULT_DATA_FIELD = "L-CLOSE";
-  private static final String DEFAULT_OBSERVATION_TIME = "L-CLOSE";
+  private static final String DEFAULT_DATA_FIELD = "PX_LAST";
+  private static final String DEFAULT_OBSERVATION_TIME = "LONDON_CLOSE";
 
   @Override
   public TimeSeriesMetaData resolve(IdentifierBundle identifiers) {
