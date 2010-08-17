@@ -8,6 +8,7 @@ package com.opengamma.engine.view.calcnode;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,6 +18,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +43,7 @@ public class JobDispatcherTest {
     return Collections.emptyList();
   }
 
-  private static CalculationJobResult createTestJobResult(final CalculationJobSpecification jobSpec, final long time, final String nodeId) {
+  protected static CalculationJobResult createTestJobResult(final CalculationJobSpecification jobSpec, final long time, final String nodeId) {
     return new CalculationJobResult(jobSpec, time, new ArrayList<CalculationJobResultItem>(), nodeId);
   }
 
@@ -57,7 +59,7 @@ public class JobDispatcherTest {
     }
 
     @Override
-    public boolean invoke(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items, final JobResultReceiver receiver) {
+    public boolean invoke(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items, final JobInvocationReceiver receiver) {
       if (_disabled) {
         return false;
       }
@@ -65,7 +67,7 @@ public class JobDispatcherTest {
         @Override
         public void run() {
           // We'll pass our priority back as the time taken so that the caller can see which invoker received the job
-          receiver.resultReceived(createTestJobResult(jobSpec, 0, "" + _priority));
+          receiver.jobCompleted(createTestJobResult(jobSpec, 0, "" + _priority));
         }
       });
       return true;
@@ -158,7 +160,7 @@ public class JobDispatcherTest {
       final int iid = i + 1;
       jobDispatcher.registerJobInvoker(new JobInvoker() {
 
-        private final Random rnd = new Random ();
+        private final Random rnd = new Random();
         private boolean _busy;
         private JobInvokerRegister _callback;
 
@@ -168,7 +170,7 @@ public class JobDispatcherTest {
         }
 
         @Override
-        public boolean invoke(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items, final JobResultReceiver receiver) {
+        public boolean invoke(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items, final JobInvocationReceiver receiver) {
           final JobInvoker instance = this;
           synchronized (instance) {
             if (_busy) {
@@ -178,19 +180,19 @@ public class JobDispatcherTest {
               @Override
               public void run() {
                 try {
-                  Thread.sleep (rnd.nextInt (50));
+                  Thread.sleep(rnd.nextInt(50));
                 } catch (InterruptedException e) {
-                  s_logger.warn ("invoker {} interrupted", iid);
+                  s_logger.warn("invoker {} interrupted", iid);
                 }
                 s_logger.debug("invoker {} completed job {}", iid, jobSpec);
-                receiver.resultReceived(createTestJobResult(jobSpec, 0L, instance.toString ()));
+                receiver.jobCompleted(createTestJobResult(jobSpec, 0L, instance.toString()));
                 synchronized (instance) {
                   _busy = false;
                   if (_callback != null) {
                     s_logger.debug("re-registering invoker {} with dispatcher", iid);
                     final JobInvokerRegister callback = _callback;
                     _callback = null;
-                    callback.registerJobInvoker (instance);
+                    callback.registerJobInvoker(instance);
                   } else {
                     s_logger.debug("invoker {} completed job without notify", iid);
                   }
@@ -237,6 +239,75 @@ public class JobDispatcherTest {
       assertEquals(jobs[i], result.getSpecification());
     }
     s_logger.debug("All jobs completed");
+  }
+
+  private class FailingJobInvoker implements JobInvoker {
+
+    private int _failureCount;
+
+    @Override
+    public int canInvoke(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items) {
+      return 10;
+    }
+
+    @Override
+    public boolean invoke(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items, final JobInvocationReceiver receiver) {
+      _executorService.execute(new Runnable() {
+        @Override
+        public void run() {
+          s_logger.debug("Failing job {}", jobSpec);
+          _failureCount++;
+          receiver.jobFailed(null);
+        }
+      });
+      return true;
+    }
+
+    @Override
+    public void notifyWhenAvailable(final JobInvokerRegister callback) {
+      // shouldn't get called
+      fail();
+    }
+
+  }
+
+  @Test
+  public void testJobRetry_deleteAfter179() {
+    // This test will break after doing ENG-179 so enable the one below and delete this one
+    final JobDispatcher jobDispatcher = new JobDispatcher();
+    final TestJobResultReceiver result = new TestJobResultReceiver();
+    final CalculationJobSpecification jobSpec = createTestJobSpec();
+    jobDispatcher.dispatchJob(jobSpec, createTestJobItems(), result);
+    assertNull(result.getResult());
+    final FailingJobInvoker failingInvoker = new FailingJobInvoker();
+    jobDispatcher.registerJobInvoker(failingInvoker);
+    final CalculationJobResult jobResult = result.waitForResult(TIMEOUT);
+    assertNotNull(jobResult);
+    assertEquals(JobDispatcher.DEFAULT_JOB_FAILURE_NODE_ID, jobResult.getComputeNodeId());
+    assertEquals(JobDispatcher.DEFAULT_MAX_JOB_ATTEMPTS, failingInvoker._failureCount);
+    assertEquals(jobSpec, jobResult.getSpecification());
+  }
+
+  @Test
+  @Ignore("This should work after tackling ENG-179")
+  public void testJobRetry() {
+    final JobDispatcher jobDispatcher = new JobDispatcher();
+    final TestJobResultReceiver result = new TestJobResultReceiver();
+    final CalculationJobSpecification jobSpec = createTestJobSpec();
+    jobDispatcher.dispatchJob(jobSpec, createTestJobItems(), result);
+    assertNull(result.getResult());
+    final FailingJobInvoker failingInvoker = new FailingJobInvoker();
+    final TestJobInvoker workingInvoker = new TestJobInvoker();
+    jobDispatcher.registerJobInvoker(failingInvoker);
+    // The timeout below must be less than the timeout used to determine no-invokers available on retry
+    CalculationJobResult jobResult = result.waitForResult(TIMEOUT);
+    assertNull(jobResult);
+    jobDispatcher.registerJobInvoker(workingInvoker);
+    jobResult = result.waitForResult(TIMEOUT);
+    assertNotNull(jobResult);
+    assertEquals(1, failingInvoker._failureCount);
+    assertEquals("" + workingInvoker._priority, jobResult.getComputeNodeId());
+    assertEquals(jobSpec, jobResult.getSpecification());
   }
 
 }

@@ -11,21 +11,26 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Invokes jobs on one or more local calculation node implementations.
  */
-public class LocalNodeJobInvoker implements JobInvoker {
+public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContainer<Queue<AbstractCalculationNode>> implements JobInvoker {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(LocalNodeJobInvoker.class);
   private static final int DEFAULT_PRIORITY = 10;
 
-  private final Queue<AbstractCalculationNode> _nodes = new ConcurrentLinkedQueue<AbstractCalculationNode>();
-  private final Queue<JobInvokerRegister> _notifyWhenAvailable = new ConcurrentLinkedQueue<JobInvokerRegister>();
+  private final AtomicReference<JobInvokerRegister> _notifyWhenAvailable = new AtomicReference<JobInvokerRegister>();
   private final ExecutorService _executorService;
 
   private int _nodePriority = DEFAULT_PRIORITY;
 
   public LocalNodeJobInvoker() {
+    super(new ConcurrentLinkedQueue<AbstractCalculationNode>());
     _executorService = Executors.newCachedThreadPool();
   }
 
@@ -39,16 +44,11 @@ public class LocalNodeJobInvoker implements JobInvoker {
     getNodes().addAll(nodes);
   }
 
-  public void addNode(final AbstractCalculationNode node) {
-    getNodes().add(node);
-    if (_notifyWhenAvailable.isEmpty()) {
-      synchronized (this) {
-        if (!_notifyWhenAvailable.isEmpty()) {
-          notifyAvailable();
-        }
-      }
-    } else {
-      notifyAvailable();
+  @Override
+  public void onNodeChange() {
+    final JobInvokerRegister notify = _notifyWhenAvailable.getAndSet(null);
+    if (notify != null) {
+      notify.registerJobInvoker(this);
     }
   }
 
@@ -58,10 +58,6 @@ public class LocalNodeJobInvoker implements JobInvoker {
 
   public int getNodePriority() {
     return _nodePriority;
-  }
-
-  protected Queue<AbstractCalculationNode> getNodes() {
-    return _nodes;
   }
 
   protected ExecutorService getExecutorService() {
@@ -74,7 +70,7 @@ public class LocalNodeJobInvoker implements JobInvoker {
   }
 
   @Override
-  public boolean invoke(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items, final JobResultReceiver receiver) {
+  public boolean invoke(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items, final JobInvocationReceiver receiver) {
     final AbstractCalculationNode node = getNodes().poll();
     if (node == null) {
       return false;
@@ -83,7 +79,16 @@ public class LocalNodeJobInvoker implements JobInvoker {
     final Runnable invokeTask = new Runnable() {
       @Override
       public void run() {
-        receiver.resultReceived(node.executeJob(job));
+        CalculationJobResult result = null;
+        try {
+          result = node.executeJob(job);
+        } catch (Exception e) {
+          s_logger.warn("Exception thrown by job execution", e);
+          receiver.jobFailed(e);
+        }
+        if (result != null) {
+          receiver.jobCompleted(result);
+        }
         addNode(node);
       }
     };
@@ -91,25 +96,14 @@ public class LocalNodeJobInvoker implements JobInvoker {
     return true;
   }
 
-  private void notifyAvailable() {
-    JobInvokerRegister callback = _notifyWhenAvailable.poll();
-    while (callback != null) {
-      callback.registerJobInvoker(this);
-      callback = _notifyWhenAvailable.poll();
-    }
-  }
-
   @Override
-  public void notifyWhenAvailable(final JobInvokerRegister callback) {
-    _notifyWhenAvailable.add(callback);
-    if (getNodes().isEmpty()) {
-      synchronized (this) {
-        if (!getNodes().isEmpty()) {
-          notifyAvailable();
-        }
+  public void notifyWhenAvailable(JobInvokerRegister callback) {
+    _notifyWhenAvailable.set(callback);
+    if (!getNodes().isEmpty()) {
+      callback = _notifyWhenAvailable.getAndSet(null);
+      if (callback != null) {
+        callback.registerJobInvoker(this);
       }
-    } else {
-      notifyAvailable();
     }
   }
 

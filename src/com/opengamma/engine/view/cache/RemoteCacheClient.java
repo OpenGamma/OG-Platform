@@ -159,6 +159,7 @@ public class RemoteCacheClient implements FudgeMessageReceiver {
     if (response == null) {
       throw new OpenGammaRuntimeException("Couldn't lookup value specification ID for " + valueSpec);
     }
+    s_logger.debug("Specification ID {}", response.getResult().getSpecificationId());
     return response;
   }
 
@@ -168,11 +169,13 @@ public class RemoteCacheClient implements FudgeMessageReceiver {
     ArgumentChecker.notNull(valueSpecification, "valueSpecification");
     s_logger.info("Requesting value {}", valueSpecification);
     final long specificationId = getValueSpecificationId(valueSpecification);
+    s_logger.debug("Requesting value by ID {}", specificationId);
     final ValueLookupRequest request = new ValueLookupRequest(viewName, calcConfigName, timestamp, specificationId);
     final OperationResult<ValueLookupResponse> response = sendMessageAndWait(request, true);
     if (response == null) {
       throw new OpenGammaRuntimeException("Couldn't get value " + valueSpecification);
     }
+    s_logger.debug("Value = {}", response.getResult().getValue());
     return response;
   }
 

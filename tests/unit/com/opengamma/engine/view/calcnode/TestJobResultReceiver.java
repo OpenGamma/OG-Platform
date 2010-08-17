@@ -7,7 +7,7 @@
 package com.opengamma.engine.view.calcnode;
 
 /**
- * Simple JboResultReceiver for use in the unit tests. Stores the result and allows the caller
+ * Simple JobResultReceiver for use in the unit tests. Stores the result and allows the caller
  * to block until a result is written.
  */
 public class TestJobResultReceiver implements JobResultReceiver {

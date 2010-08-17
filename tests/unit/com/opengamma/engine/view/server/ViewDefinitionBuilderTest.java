@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.fudgemsg.ViewDefinitionBuilder;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.NumberDeltaComparer;
 import com.opengamma.engine.view.ResultOutputMode;
