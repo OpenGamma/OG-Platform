@@ -6,7 +6,7 @@
 package com.opengamma.financial;
 
 import com.opengamma.engine.function.FunctionExecutionContext;
-import com.opengamma.engine.historicaldata.TimeSeriesSource;
+import com.opengamma.engine.historicaldata.HistoricalDataSource;
 import com.opengamma.engine.security.SecuritySource;
 
 /**
@@ -41,12 +41,12 @@ public class OpenGammaExecutionContext {
    */
   public static final String EXCHANGE_REPOSITORY_NAME = "exchangeRespotiroy";
   
-  public static TimeSeriesSource getHistoricalDataProvider(FunctionExecutionContext context) {
-    return (TimeSeriesSource) context.get(HISTORICAL_DATA_PROVIDER_NAME);
+  public static HistoricalDataSource getHistoricalDataProvider(FunctionExecutionContext context) {
+    return (HistoricalDataSource) context.get(HISTORICAL_DATA_PROVIDER_NAME);
   }
   
   public static void setHistoricalDataProvider(FunctionExecutionContext context, 
-      TimeSeriesSource historicalDataProvider) {
+      HistoricalDataSource historicalDataProvider) {
     context.put(HISTORICAL_DATA_PROVIDER_NAME, historicalDataProvider);
   }
   
