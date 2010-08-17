@@ -72,9 +72,6 @@ public class NormalLinearConditionalVaRCalculator extends Function1D<NormalStati
     long temp;
     temp = Double.doubleToLongBits(_horizon);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_mult);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((_normal == null) ? 0 : _normal.hashCode());
     temp = Double.doubleToLongBits(_periods);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_quantile);
@@ -83,7 +80,7 @@ public class NormalLinearConditionalVaRCalculator extends Function1D<NormalStati
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -93,18 +90,8 @@ public class NormalLinearConditionalVaRCalculator extends Function1D<NormalStati
     if (getClass() != obj.getClass()) {
       return false;
     }
-    NormalLinearConditionalVaRCalculator other = (NormalLinearConditionalVaRCalculator) obj;
+    final NormalLinearConditionalVaRCalculator other = (NormalLinearConditionalVaRCalculator) obj;
     if (Double.doubleToLongBits(_horizon) != Double.doubleToLongBits(other._horizon)) {
-      return false;
-    }
-    if (Double.doubleToLongBits(_mult) != Double.doubleToLongBits(other._mult)) {
-      return false;
-    }
-    if (_normal == null) {
-      if (other._normal != null) {
-        return false;
-      }
-    } else if (!_normal.equals(other._normal)) {
       return false;
     }
     if (Double.doubleToLongBits(_periods) != Double.doubleToLongBits(other._periods)) {
@@ -115,5 +102,4 @@ public class NormalLinearConditionalVaRCalculator extends Function1D<NormalStati
     }
     return true;
   }
-
 }
