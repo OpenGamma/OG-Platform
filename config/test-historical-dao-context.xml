@@ -3,7 +3,7 @@
 
 <beans>
 	<!--  import resources from OG-TimeSeriesStorage -->
-  	<import resource="classpath:com/opengamma/timeseries/db/postgresTSSQueries.xml" />
+  	<import resource="classpath:com/opengamma/timeseries/db/tssQueries.xml" />
 
 	<bean id="propertyConfigurer"
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
