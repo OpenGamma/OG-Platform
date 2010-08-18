@@ -22,6 +22,7 @@ import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.compilation.ViewCompilationServices;
+import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
 import com.opengamma.util.ArgumentChecker;
 
@@ -44,6 +45,7 @@ public class ViewProcessingContext {
   private final FunctionCompilationContext _compilationContext;
   private final ExecutorService _executorService;
   private final DependencyGraphExecutorFactory _dependencyGraphExecutorFactory;
+  private final ViewPermissionProvider _permissionProvider;
 
   public ViewProcessingContext(
       LiveDataEntitlementChecker liveDataEntitlementChecker,
@@ -58,7 +60,8 @@ public class ViewProcessingContext {
       ViewProcessorQueryReceiver viewProcessorQueryReceiver,
       FunctionCompilationContext compilationContext,
       ExecutorService executorService,
-      DependencyGraphExecutorFactory dependencyGraphExecutorFactory) {
+      DependencyGraphExecutorFactory dependencyGraphExecutorFactory,
+      ViewPermissionProvider permissionProvider) {
     ArgumentChecker.notNull(liveDataEntitlementChecker, "liveDataEntitlementChecker");
     ArgumentChecker.notNull(liveDataAvailabilityProvider, "liveDataAvailabilityProvider");
     ArgumentChecker.notNull(liveDataSnapshotProvider, "liveDataSnapshotProvider");
@@ -72,6 +75,7 @@ public class ViewProcessingContext {
     ArgumentChecker.notNull(compilationContext, "compilationContext");
     ArgumentChecker.notNull(executorService, "executorService");
     ArgumentChecker.notNull(dependencyGraphExecutorFactory, "dependencyGraphExecutorFactory");
+    ArgumentChecker.notNull(permissionProvider, "permissionProvider");
     
     _liveDataEntitlementChecker = liveDataEntitlementChecker;
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
@@ -86,6 +90,7 @@ public class ViewProcessingContext {
     _compilationContext = compilationContext;
     _executorService = executorService;
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
+    _permissionProvider = permissionProvider;
     
     // REVIEW kirk 2010-05-22 -- This isn't the right place to wrap this.
     _computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource));
@@ -199,8 +204,22 @@ public class ViewProcessingContext {
     return _executorService;
   }
   
+  /**
+   * Gets the dependency graph executor factory.
+   * 
+   * @return  the dependency graph executor factory, not null
+   */
   public DependencyGraphExecutorFactory getDependencyGraphExecutorFactory() {
     return _dependencyGraphExecutorFactory;
+  }
+  
+  /**
+   * Gets the view permission provider.
+   * 
+   * @return  the permission provider, not null
+   */
+  public ViewPermissionProvider getPermissionProvider() {
+    return _permissionProvider;
   }
   
   //-------------------------------------------------------------------------

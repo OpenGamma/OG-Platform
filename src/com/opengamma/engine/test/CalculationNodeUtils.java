@@ -26,7 +26,7 @@ public class CalculationNodeUtils {
   /**
    * Default calculation configuration name
    */
-  public static String CALC_CONF_NAME = "Default";
+  public static final String CALC_CONF_NAME = "Default";
 
   public static TestCalculationNode getTestCalcNode(MockFunction mockFunction) {
     TestCalculationNode calcNode = new TestCalculationNode();
