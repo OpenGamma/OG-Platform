@@ -5,11 +5,11 @@
  */
 package com.opengamma.timeseries.db;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,9 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
-import com.mongodb.util.Hash;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.engine.historicaldata.HistoricalDataProviderTest;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -58,11 +56,8 @@ import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Test.
@@ -389,9 +384,8 @@ public class TimeSeriesMasterTest extends DBTest {
     return result;
   }
   
-  @Test(expected=IllegalArgumentException.class)
+  @Test
   public void addDuplicateTimeSeries() throws Exception {
-    addRandonTimeSeriesToDB(2);
     IdentifierBundle identifiers = IdentifierBundle.of(Identifier.of("sa", "ida"), Identifier.of("sb", "idb"));
     LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries(null);
     
@@ -421,7 +415,12 @@ public class TimeSeriesMasterTest extends DBTest {
     otherDoc.setObservationTime(LCLOSE_OBSERVATION_TIME);
     otherDoc.setIdentifiers(identifiers);
     otherDoc.setTimeSeries(makeRandomTimeSeries(null));
-    _tsMaster.addTimeSeries(otherDoc);
+    try {
+      _tsMaster.addTimeSeries(otherDoc);
+      fail();
+    } catch (IllegalArgumentException ex) {
+      //do nothing
+    }
   }
   
   @Test
@@ -462,16 +461,26 @@ public class TimeSeriesMasterTest extends DBTest {
     }
   }
   
-  @Test(expected=DataNotFoundException.class)
+  @Test
   public void getUnknownUID() throws Exception {
     addAndTestTimeSeries();
-    _tsMaster.getTimeSeries(UniqueIdentifier.of(RowStoreTimeSeriesMaster.IDENTIFIER_SCHEME_DEFAULT, String.valueOf(Long.MIN_VALUE)));
+    try {
+      _tsMaster.getTimeSeries(UniqueIdentifier.of(RowStoreTimeSeriesMaster.IDENTIFIER_SCHEME_DEFAULT, String.valueOf(Long.MIN_VALUE)));
+      fail();
+    } catch(DataNotFoundException ex) {
+      //do nothing
+    }
   }
   
-  @Test(expected=IllegalArgumentException.class) 
+  @Test 
   public void getInvalidUID() throws Exception {
     addAndTestTimeSeries();
-    _tsMaster.getTimeSeries(UniqueIdentifier.of("INVALID", "unknown"));
+    try {
+      _tsMaster.getTimeSeries(UniqueIdentifier.of("INVALID", "unknown"));
+      fail();
+    } catch(IllegalArgumentException ex) {
+      //do nothing
+    }
   }
   
   @Test
