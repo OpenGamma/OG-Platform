@@ -20,6 +20,7 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import com.opengamma.transport.ByteArrayRequestReceiver;
 import com.opengamma.transport.CollectingByteArrayMessageReceiver;
+import com.opengamma.util.test.ActiveMQTestUtil;
 
 /**
  * 

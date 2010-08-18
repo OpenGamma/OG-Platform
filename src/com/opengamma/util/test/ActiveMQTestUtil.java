@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.transport.jms;
+package com.opengamma.util.test;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 

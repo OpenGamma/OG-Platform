@@ -147,6 +147,12 @@ public interface FastBackedDoubleTimeSeries<DATE_TYPE> extends DoubleTimeSeries<
   
   FastBackedDoubleTimeSeries<DATE_TYPE> unionAverage(FastLongDoubleTimeSeries other);
   
+  FastBackedDoubleTimeSeries<DATE_TYPE> noIntersectionOperation(FastBackedDoubleTimeSeries<?> other);
+  
+  FastBackedDoubleTimeSeries<DATE_TYPE> noIntersectionOperation(FastIntDoubleTimeSeries other);
+  
+  FastBackedDoubleTimeSeries<DATE_TYPE> noIntersectionOperation(FastLongDoubleTimeSeries other);
+  
   FastBackedDoubleTimeSeries<DATE_TYPE> intersectionFirstValue(FastBackedDoubleTimeSeries<?> other);
   
   FastBackedDoubleTimeSeries<DATE_TYPE> intersectionFirstValue(FastIntDoubleTimeSeries other);

@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.transport.BatchByteArrayMessageReceiver;
+import com.opengamma.util.test.ActiveMQTestUtil;
 
 /**
  * 
