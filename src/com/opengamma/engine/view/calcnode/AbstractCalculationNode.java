@@ -29,6 +29,7 @@ import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * A calculation node implementation. The node can only be used by one thread - i.e. executeJob cannot be called concurrently to do
@@ -108,13 +109,23 @@ public abstract class AbstractCalculationNode implements CalculationNode {
 
     List<CalculationJobResultItem> resultItems = new ArrayList<CalculationJobResultItem>();
 
+    // Pre-fetch the identifiers? If we can make this part of the contract for ViewComputationCache it really speeds things up! (30s without, 3s with in earlier test)
+    /*{ // TODO [ENG-181] do this properly
+      final Set<ValueSpecification> valueSpecs = new HashSet<ValueSpecification>();
+      for (CalculationJobItem jobItem : job.getJobItems()) {
+        valueSpecs.addAll(jobItem.getInputs());
+      }
+      s_logger.debug("Pre-fetching {} ValueIdentifiers");
+      ((DefaultViewComputationCache) cache).getIdentifierMap().getIdentifiers(valueSpecs);
+    }*/
+
     for (CalculationJobItem jobItem : job.getJobItems()) {
 
       CalculationJobResultItem resultItem;
       try {
         Set<ComputedValue> result = invoke(jobItem, cache);
         _cachePutTime -= System.nanoTime();
-        cacheResults(cache, result);
+        cache.putValues(result);
         _cachePutTime += System.nanoTime();
         resultItem = new CalculationJobResultItem(jobItem);
       } catch (MissingInputException e) {
@@ -129,9 +140,9 @@ public abstract class AbstractCalculationNode implements CalculationNode {
       }
 
       resultItems.add(resultItem);
-      ((DefaultViewComputationCache) cache).reportTimes();
-      System.err.println("resolution=" + (_resolutionTime / 1000000d) + "ms, cacheGet=" + (_cacheGetTime / 1000000d) + "ms, invoke=" + (_invocationTime / 1000000d) + "ms, cachePut="
-          + (_cachePutTime / 1000000d) + "ms");
+      //((DefaultViewComputationCache) cache).reportTimes();
+      //System.err.println("resolution=" + (_resolutionTime / 1000000d) + "ms, cacheGet=" + (_cacheGetTime / 1000000d) + "ms, invoke=" + (_invocationTime / 1000000d) + "ms, cachePut="
+          //+ (_cachePutTime / 1000000d) + "ms");
     }
 
     long endNanos = System.nanoTime();
@@ -139,11 +150,11 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     CalculationJobResult jobResult = new CalculationJobResult(spec, durationNanos, resultItems, getNodeId());
 
     s_logger.info("Executed {}", job);
-    final double totalTime = (double) (_resolutionTime + _cacheGetTime + _invocationTime + _cachePutTime) / 100d;
+    /*final double totalTime = (double) (_resolutionTime + _cacheGetTime + _invocationTime + _cachePutTime) / 100d;
     if (totalTime > 0) {
       System.err.println("Total = " + durationNanos + "ns - " + ((double) _resolutionTime / totalTime) + "% resolution, " + ((double) _cacheGetTime / totalTime) + "% cacheGet, "
           + ((double) _invocationTime / totalTime) + "% invoke, " + ((double) _cachePutTime / totalTime) + "% cachePut");
-    }
+    }*/
     ((DefaultViewComputationCache) cache).resetTimes();
     _resolutionTime = 0;
     _cacheGetTime = 0;
@@ -152,6 +163,8 @@ public abstract class AbstractCalculationNode implements CalculationNode {
 
     return jobResult;
   }
+  
+  // TODO Remove the time code that I've been using for debug and tuning
 
   @Override
   public ViewComputationCache getCache(CalculationJobSpecification spec) {
@@ -186,12 +199,11 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     Collection<ValueSpecification> missingInputs = new HashSet<ValueSpecification>();
     _cacheGetTime -= System.nanoTime();
     try {
-      for (ValueSpecification inputSpec : jobItem.getInputs()) {
-        Object input = cache.getValue(inputSpec);
-        if (input == null || input instanceof MissingInput) {
-          missingInputs.add(inputSpec);
+      for (Pair<ValueSpecification, Object> input : cache.getValues(jobItem.getInputs())) {
+        if ((input.getValue() == null) || (input.getValue() instanceof MissingInput)) {
+          missingInputs.add(input.getKey());
         } else {
-          inputs.add(new ComputedValue(inputSpec, input));
+          inputs.add(new ComputedValue(input.getKey(), input.getValue()));
         }
       }
     } finally {
@@ -213,12 +225,6 @@ public abstract class AbstractCalculationNode implements CalculationNode {
       _invocationTime += System.nanoTime();
     }
     return results;
-  }
-
-  protected void cacheResults(ViewComputationCache cache, Set<ComputedValue> results) {
-    for (ComputedValue resultValue : results) {
-      cache.putValue(resultValue);
-    }
   }
 
 }

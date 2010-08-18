@@ -17,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
  * {@link ConcurrentMap}. This has no facilities for acting as a cache, or for persistence.
  * It should only be used for development and debugging purposes.
  */
-public class InMemoryIdentifierMap implements IdentifierMap {
+public class InMemoryIdentifierMap extends AbstractIdentifierMap implements IdentifierMap {
   private final AtomicLong _nextIdentifier = new AtomicLong(1L);
   private final ConcurrentMap<ValueSpecification, Long> _identifiers = new ConcurrentHashMap<ValueSpecification, Long>();
 

@@ -5,6 +5,11 @@
  */
 package com.opengamma.engine.view.cache;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -22,7 +27,9 @@ public class CachingIdentifierMap implements IdentifierMap {
   // Since getting a remote value specification identifier has to be a super-fast operation
   // (probably faster than disk anyway), and the only reason we'd ever want to flush is
   // based on low GCs, and the elements are so small, EHCache doesn't actually work here.
-  private final WeakHashMap<ValueSpecification, Long> _cachedIdentifiers = new WeakHashMap<ValueSpecification, Long>();
+  
+  private final Map<ValueSpecification, Long> _cachedIdentifiers = new WeakHashMap<ValueSpecification, Long>();
+  
   private final ReadWriteLock _lock = new ReentrantReadWriteLock();
 
   public CachingIdentifierMap(IdentifierMap underlying) {
@@ -57,6 +64,43 @@ public class CachingIdentifierMap implements IdentifierMap {
       _lock.writeLock().unlock();
     }
     return value;
+  }
+
+  @Override
+  public Map<ValueSpecification, Long> getIdentifiers(Collection<ValueSpecification> specs) {
+    final Map<ValueSpecification, Long> identifiers = new HashMap<ValueSpecification, Long>();
+    final List<ValueSpecification> cacheMisses = new LinkedList<ValueSpecification>();
+    _lock.readLock().lock();
+    try {
+      for (ValueSpecification spec : specs) {
+        final Long value = _cachedIdentifiers.get(spec);
+        if (value != null) {
+          identifiers.put(spec, value);
+        } else {
+          cacheMisses.add(spec);
+        }
+      }
+    } finally {
+      _lock.readLock().unlock();
+    }
+    if (!cacheMisses.isEmpty()) {
+      _lock.writeLock().lock();
+      try {
+        if (cacheMisses.size() == 1) {
+          final ValueSpecification spec = cacheMisses.get(0);
+          final long value = getUnderlying().getIdentifier(spec);
+          _cachedIdentifiers.put(spec, value);
+          identifiers.put(spec, value);
+        } else {
+          final Map<ValueSpecification, Long> values = getUnderlying().getIdentifiers(cacheMisses);
+          _cachedIdentifiers.putAll(values);
+          identifiers.putAll(values);
+        }
+      } finally {
+        _lock.writeLock().lock();
+      }
+    }
+    return identifiers;
   }
 
 }

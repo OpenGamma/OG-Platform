@@ -8,7 +8,11 @@ namespace com.opengamma.engine.view.cache.msg {
 
   message LookupResponse extends IdentifierMapResponse {
   
-    required long identifier;
+    /**
+     * The identifiers allocated for each value specification in the order that they were
+     * present in the request message.
+     */
+    required long[] identifier;
   
   }
 

@@ -13,6 +13,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
@@ -51,14 +52,30 @@ public class RemoteCacheRequestResponseTest {
     RemoteCacheClient client = new RemoteCacheClient(conduit);
     IdentifierMap identifierMap = new RemoteIdentifierMap (client);
     
-    BitSet seenIds = new BitSet();
-    for(int i = 0; i < 10; i++) {
-      ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", "Value" + i))));
-      long id = identifierMap.getIdentifier(valueSpec);
+    final ValueSpecification[] valueSpec = new ValueSpecification[10];
+    for (int i = 0; i < valueSpec.length; i++) {
+      valueSpec[i] = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", "Value" + i))));
+    }
+    // Make single value calls
+    s_logger.debug ("Begin single value lookup");
+    final BitSet seenIds = new BitSet();
+    for(int i = 0; i < valueSpec.length; i++) {
+      long id = identifierMap.getIdentifier(valueSpec[i]);
       assertTrue(id <= Integer.MAX_VALUE);
       assertFalse(seenIds.get((int) id));
       seenIds.set((int) id);
     }
+    s_logger.debug ("End single value lookup");
+    // Make a bulk lookup call
+    s_logger.debug ("Begin bulk lookup");
+    final Map<ValueSpecification, Long> identifiers = identifierMap.getIdentifiers (Arrays.asList(valueSpec));
+    assertNotNull (identifiers);
+    assertEquals (valueSpec.length, identifiers.size ());
+    for (ValueSpecification spec : valueSpec) {
+      assertTrue (identifiers.containsKey(spec));
+      assertTrue (seenIds.get ((int)(long)identifiers.get(spec)));
+    }
+    s_logger.debug ("End bulk lookup");
   }
   
   @Test(timeout=10000l)

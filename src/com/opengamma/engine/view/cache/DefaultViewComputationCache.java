@@ -5,7 +5,10 @@
  */
 package com.opengamma.engine.view.cache;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
@@ -62,6 +65,8 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
   public FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
+  
+  // TODO Remove this debug timing code and print statements etc ...
 
   private int _identifierRequests;
   private long _getIdentifierTime;
@@ -156,6 +161,36 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
   public Iterator<Pair<ValueSpecification, byte[]>> iterator() {
     // TODO 2008-08-09 Implement this; iterate over the values in the data store
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Collection<Pair<ValueSpecification, Object>> getValues(final Collection<ValueSpecification> specifications) {
+    ArgumentChecker.notNull(specifications, "specifications");
+    _identifierRequests += specifications.size();
+    _getIdentifierTime -= System.nanoTime();
+    final Map<ValueSpecification, Long> identifiers = getIdentifierMap().getIdentifiers(specifications);
+    _getIdentifierTime += System.nanoTime();
+    final Collection<Pair<ValueSpecification, Object>> values = new ArrayList<Pair<ValueSpecification, Object>>(specifications.size());
+    for (Map.Entry<ValueSpecification, Long> identifier : identifiers.entrySet()) {
+      values.add(Pair.of(identifier.getKey(), getValue(identifier.getValue())));
+    }
+    return values;
+  }
+
+  @Override
+  public void putValues(final Collection<ComputedValue> values) {
+    ArgumentChecker.notNull(values, "values");
+    _identifierRequests += values.size();
+    _getIdentifierTime -= System.nanoTime();
+    final Collection<ValueSpecification> specifications = new ArrayList<ValueSpecification>(values.size());
+    for (ComputedValue value : values) {
+      specifications.add(value.getSpecification());
+    }
+    final Map<ValueSpecification, Long> identifiers = getIdentifierMap().getIdentifiers(specifications);
+    _getIdentifierTime += System.nanoTime();
+    for (ComputedValue value : values) {
+      putValue(identifiers.get(value.getSpecification()), value.getValue());
+    }
   }
 
 }
