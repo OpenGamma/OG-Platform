@@ -100,11 +100,9 @@ public final class ParRateCurveSensitivityCalculator implements InterestRateDeri
   public Map<String, List<DoublesPair>> visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
     final String curveName = future.getCurveName();
     final YieldAndDiscountCurve curve = curves.getCurve(curveName);
-    final double ta = future.getSettlementDate();
-    final double delta = future.getYearFraction();
-    final double tb = ta + delta;
-
-    final double ratio = curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) / delta;
+    final double ta = future.getFixingDate();
+    final double tb = future.getMaturity();
+    final double ratio = curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) / future.getIndexYearFraction();
     final DoublesPair s1 = new DoublesPair(ta, -ta * ratio);
     final DoublesPair s2 = new DoublesPair(tb, tb * ratio);
     final List<DoublesPair> temp = new ArrayList<DoublesPair>();

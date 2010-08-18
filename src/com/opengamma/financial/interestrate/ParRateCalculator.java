@@ -80,13 +80,11 @@ public final class ParRateCalculator implements InterestRateDerivativeVisitor<Do
   @Override
   public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
     final YieldAndDiscountCurve curve = curves.getCurve(future.getCurveName());
-    final double ta = future.getSettlementDate();
-    final double delta = future.getYearFraction();
-    final double tb = ta + delta;
-    Validate.isTrue(delta > 0, "tenor span must be greater than zero");
+    final double ta = future.getFixingDate();
+    final double tb = future.getMaturity();
     final double pa = curve.getDiscountFactor(ta);
     final double pb = curve.getDiscountFactor(tb);
-    return (pa / pb - 1) / delta;
+    return (pa / pb - 1) / future.getIndexYearFraction();
   }
 
   /**

@@ -71,9 +71,12 @@ public class ParRateParallelSensitivityCalculatorTest {
   @Test
   public void TestFutures() {
     double settlementDate = 1.453;
-    double yearFraction = 0.25;
+    double fixingDate = 1.467;
+    double maturity = 1.75;
+    double indexYearFraction = 0.267;
+    double valueYearFraction = 0.25;
     double price = 97.3;
-    InterestRateFuture edf = new InterestRateFuture(settlementDate, yearFraction, price, LIBOR_CURVE_NAME);
+    InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, price, LIBOR_CURVE_NAME);
     doTest(edf, CURVES);
   }
 

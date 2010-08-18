@@ -67,11 +67,14 @@ public class ParRateCalculatorTest {
   @Test
   public void TestFutures() {
     double settlementDate = 1.453;
-    double yearFraction = 0.25;
-    InterestRateFuture edf = new InterestRateFuture(settlementDate, yearFraction, 100.0, FIVE_PC_CURVE_NAME);
+    double fixingDate = settlementDate;
+    double maturity = 1.75;
+    double indexYearFraction = 0.267;
+    double valueYearFraction = 0.25;
+    InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, 100.0, FIVE_PC_CURVE_NAME);
     double rate = PRC.getValue(edf, CURVES);
     double price = 100 * (1 - rate);
-    edf = new InterestRateFuture(settlementDate, yearFraction, price, FIVE_PC_CURVE_NAME);
+    edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, price, FIVE_PC_CURVE_NAME);
     assertEquals(0.0, PVC.getValue(edf, CURVES), 1e-12);
   }
 
