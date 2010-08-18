@@ -20,6 +20,7 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.EHCacheUtils;
+import com.opengamma.util.ehcache.DebugStatistics;
 
 /**
  * A cache decorating a {@code SecuritySource}.

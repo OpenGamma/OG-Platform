@@ -25,7 +25,7 @@ public class RemoteIdentifierMap implements IdentifierMap {
   }
 
   @Override
-  public long getIdentifier(ValueSpecification spec) {
+  public long getIdentifier(final ValueSpecification spec) {
     final LookupRequest request = new LookupRequest(spec);
     final LookupResponse response = getRemoteCacheClient().sendMessage(request, LookupResponse.class);
     return response.getIdentifier();

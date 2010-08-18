@@ -68,7 +68,7 @@ public class CachingBinaryDataStore implements BinaryDataStore {
   }
 
   @Override
-  public void put(long identifier, byte[] data) {
+  public void put(final long identifier, final byte[] data) {
     s_logger.info("Put {} on {}", identifier, this);
     getUnderlying().put(identifier, data);
     getCache().put(new Element(identifier, data));

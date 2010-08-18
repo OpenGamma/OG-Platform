@@ -87,13 +87,25 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
       if (cache == null) {
         BinaryDataStore dataStore = _dataStoreFactory.createDataStore(key);
         addDataStoreForRelease(key, dataStore);
-        cache = new DefaultViewComputationCache(getIdentifierMap(), dataStore, getFudgeContext());
+        cache = createViewComputationCache(getIdentifierMap(), dataStore, getFudgeContext());
         _cachesByKey.put(key, cache);
       }
     } finally {
       _cacheManagementLock.unlock();
     }
     return cache;
+  }
+
+  /**
+   * Override this method if you need to create a different sub-class of {@link DefaultViewComputationCache}.
+   * 
+   * @param identifierMap the identifier map
+   * @param dataStore the binary data store
+   * @param fudgeContext the Fudge context
+   * @return a new {@link DefaultViewComputationCache} instance
+   */
+  protected DefaultViewComputationCache createViewComputationCache(final IdentifierMap identifierMap, final BinaryDataStore dataStore, final FudgeContext fudgeContext) {
+    return new DefaultViewComputationCache(identifierMap, dataStore, fudgeContext);
   }
 
   protected void addDataStoreForRelease(ViewComputationCacheKey key, BinaryDataStore dataStore) {
@@ -126,5 +138,7 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
       dataStore.delete();
     }
   }
+  
+  // TODO 2010-08-18 There's a memory leak here; the _cachesByKey never gets emptied of things
 
 }

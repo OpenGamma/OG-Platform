@@ -30,7 +30,7 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
   private final BinaryDataStore _dataStore;
   private final FudgeContext _fudgeContext;
 
-  public DefaultViewComputationCache(IdentifierMap identifierMap, BinaryDataStore dataStore, FudgeContext fudgeContext) {
+  public DefaultViewComputationCache(final IdentifierMap identifierMap, final BinaryDataStore dataStore, final FudgeContext fudgeContext) {
     ArgumentChecker.notNull(identifierMap, "Identifier map");
     ArgumentChecker.notNull(dataStore, "Data Store");
     ArgumentChecker.notNull(fudgeContext, "Fudge context");
@@ -63,37 +63,78 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
     return _fudgeContext;
   }
 
+  private int _identifierRequests;
+  private long _getIdentifierTime;
+  private int _dataRequests;
+  private long _getDataTime;
+  private long _deserializeTime;
+  private long _serializeTime;
+  private int _putRequests;
+  private long _putDataTime;
+
+  public void reportTimes() {
+    System.err.println("getIdentifier=" + ((double) _getIdentifierTime / 1000000d) + "ms (" + _identifierRequests + "), getData=" + ((double) _getDataTime / 1000000d) + "ms (" + _dataRequests
+        + "), deserialize=" + ((double) _deserializeTime / 1000000d) + "ms, serialize=" + ((double) _serializeTime / 1000000d) + "ms, putData=" + ((double) _putDataTime / 1000000d) + "ms ("
+        + _putRequests + ")");
+  }
+
+  public void resetTimes() {
+    _identifierRequests = 0;
+    _getIdentifierTime = 0;
+    _dataRequests = 0;
+    _getDataTime = 0;
+    _deserializeTime = 0;
+    _serializeTime = 0;
+    _putRequests = 0;
+    _putDataTime = 0;
+  }
+
   @Override
   public Object getValue(ValueSpecification specification) {
     ArgumentChecker.notNull(specification, "Specification");
+    _identifierRequests++;
+    _getIdentifierTime -= System.nanoTime();
     final long identifier = getIdentifierMap().getIdentifier(specification);
+    _getIdentifierTime += System.nanoTime();
     return getValue(identifier);
   }
 
   public Object getValue(final long identifier) {
+    _dataRequests++;
+    _getDataTime -= System.nanoTime();
     byte[] data = getDataStore().get(identifier);
+    _getDataTime += System.nanoTime();
     if (data == null) {
       return null;
     }
+    _deserializeTime -= System.nanoTime();
     final FudgeDeserializationContext context = new FudgeDeserializationContext(getFudgeContext());
     final FudgeFieldContainer message = getFudgeContext().deserialize(data).getMessage();
     if (message.getNumFields() == 1) {
       Object value = message.getValue(-1);
       if (value != null) {
+        _deserializeTime += System.nanoTime();
         return value;
       }
     }
-    return context.fudgeMsgToObject(message);
+    final Object value = context.fudgeMsgToObject(message);
+    _deserializeTime += System.nanoTime();
+    return value;
   }
 
   @Override
   public void putValue(ComputedValue value) {
     ArgumentChecker.notNull(value, "Computed value");
+    _identifierRequests++;
+    _getIdentifierTime -= System.nanoTime();
     final long identifier = getIdentifierMap().getIdentifier(value.getSpecification());
+    _getIdentifierTime += System.nanoTime();
     putValue(identifier, value.getValue());
   }
 
   public void putValue(final long identifier, final Object value) {
+    _putRequests++;
+    _serializeTime -= System.nanoTime();
     final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeContext());
     final MutableFudgeFieldContainer message = context.newMessage();
     context.objectToFudgeMsgWithClassHeaders(message, null, NATIVE_FIELD_INDEX, value);
@@ -105,7 +146,10 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
     } else {
       data = getFudgeContext().toByteArray(message);
     }
+    _serializeTime += System.nanoTime();
+    _putDataTime -= System.nanoTime();
     getDataStore().put(identifier, data);
+    _putDataTime += System.nanoTime();
   }
 
   @Override

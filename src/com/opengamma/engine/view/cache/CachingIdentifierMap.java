@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.cache;
@@ -24,7 +24,7 @@ public class CachingIdentifierMap implements IdentifierMap {
   // based on low GCs, and the elements are so small, EHCache doesn't actually work here.
   private final WeakHashMap<ValueSpecification, Long> _cachedIdentifiers = new WeakHashMap<ValueSpecification, Long>();
   private final ReadWriteLock _lock = new ReentrantReadWriteLock();
-  
+
   public CachingIdentifierMap(IdentifierMap underlying) {
     ArgumentChecker.notNull(underlying, "Underlying source");
     _underlying = underlying;
@@ -49,9 +49,7 @@ public class CachingIdentifierMap implements IdentifierMap {
     } finally {
       _lock.readLock().unlock();
     }
-    
     long value = getUnderlying().getIdentifier(spec);
-    
     _lock.writeLock().lock();
     try {
       _cachedIdentifiers.put(spec, value);
