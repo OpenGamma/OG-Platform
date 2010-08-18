@@ -17,10 +17,10 @@ import org.junit.Test;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentificationScheme;
-import com.opengamma.livedata.CollectingLiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
+import com.opengamma.livedata.test.CollectingLiveDataListener;
 
 /**
  * 

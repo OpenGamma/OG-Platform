@@ -3,12 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.livedata.client;
+package com.opengamma.livedata.test;
 
 import javax.jms.ConnectionFactory;
 
 import org.springframework.jms.core.JmsTemplate;
 
+import com.opengamma.livedata.client.DistributedLiveDataClient;
+import com.opengamma.livedata.client.JmsLiveDataClient;
 import com.opengamma.livedata.entitlement.EntitlementServer;
 import com.opengamma.livedata.server.AbstractLiveDataServer;
 import com.opengamma.livedata.server.SubscriptionRequestReceiver;
@@ -20,7 +22,7 @@ import com.opengamma.transport.ByteArrayFudgeRequestSender;
 import com.opengamma.transport.DirectInvocationByteArrayMessageSender;
 import com.opengamma.transport.FudgeRequestDispatcher;
 import com.opengamma.transport.InMemoryByteArrayRequestConduit;
-import com.opengamma.transport.jms.ActiveMQTestUtil;
+import com.opengamma.util.test.ActiveMQTestUtil;
 
 /**
  * 

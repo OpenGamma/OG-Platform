@@ -22,8 +22,8 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.transport.CollectingByteArrayMessageReceiver;
-import com.opengamma.transport.jms.ActiveMQTestUtil;
 import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
+import com.opengamma.util.test.ActiveMQTestUtil;
 
 /**
  * 

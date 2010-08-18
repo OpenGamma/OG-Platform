@@ -21,7 +21,6 @@ import org.junit.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.id.Identifier;
-import com.opengamma.livedata.CollectingLiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataSpecificationTest;
 import com.opengamma.livedata.LiveDataValueUpdate;
@@ -30,6 +29,8 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.server.MockLiveDataServer;
+import com.opengamma.livedata.test.CollectingLiveDataListener;
+import com.opengamma.livedata.test.LiveDataClientTestUtils;
 
 /**
  * 

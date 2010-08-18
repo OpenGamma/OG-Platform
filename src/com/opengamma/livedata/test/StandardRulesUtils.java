@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.livedata.normalization;
+package com.opengamma.livedata.test;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -14,11 +14,10 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 
 import com.google.common.collect.Sets;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
  * 
- *
- * @author pietari
  */
 public class StandardRulesUtils {
   

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.livedata.client;
+package com.opengamma.livedata.test;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,6 +16,8 @@ import org.fudgemsg.FudgeFieldContainer;
 
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
+import com.opengamma.livedata.client.AbstractLiveDataClient;
+import com.opengamma.livedata.client.SubscriptionHandle;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.livedata.msg.UserPrincipal;

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.livedata;
+package com.opengamma.livedata.test;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,6 +13,9 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import com.opengamma.livedata.LiveDataListener;
+import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 

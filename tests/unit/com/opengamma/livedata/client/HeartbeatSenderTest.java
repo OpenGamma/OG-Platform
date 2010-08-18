@@ -24,8 +24,8 @@ import org.junit.Test;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentificationScheme;
-import com.opengamma.livedata.CollectingLiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.test.CollectingLiveDataListener;
 import com.opengamma.transport.CollectingByteArrayMessageSender;
 
 /**

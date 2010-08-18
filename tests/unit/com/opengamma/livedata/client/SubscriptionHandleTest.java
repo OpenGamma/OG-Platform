@@ -12,11 +12,11 @@ import org.fudgemsg.FudgeContext;
 import org.junit.Test;
 
 import com.opengamma.id.Identifier;
-import com.opengamma.livedata.CollectingLiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.msg.SubscriptionType;
 import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.test.CollectingLiveDataListener;
 
 /**
  * 
