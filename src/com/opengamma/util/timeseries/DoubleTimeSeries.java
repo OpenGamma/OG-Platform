@@ -115,6 +115,11 @@ public interface DoubleTimeSeries<DATE_TYPE> extends TimeSeries<DATE_TYPE, Doubl
   public DoubleTimeSeries<DATE_TYPE> intersectionSecondValue(FastBackedDoubleTimeSeries<?> other);
   public DoubleTimeSeries<DATE_TYPE> intersectionSecondValue(FastIntDoubleTimeSeries other);
   public DoubleTimeSeries<DATE_TYPE> intersectionSecondValue(FastLongDoubleTimeSeries other);
+  
+  public DoubleTimeSeries<DATE_TYPE> noIntersectionOperation(DoubleTimeSeries<?> other);
+  public DoubleTimeSeries<DATE_TYPE> noIntersectionOperation(FastBackedDoubleTimeSeries<?> other);
+  public DoubleTimeSeries<DATE_TYPE> noIntersectionOperation(FastIntDoubleTimeSeries other);
+  public DoubleTimeSeries<DATE_TYPE> noIntersectionOperation(FastLongDoubleTimeSeries other);
 
   public DoubleTimeSeries<DATE_TYPE> negate();
   public DoubleTimeSeries<DATE_TYPE> reciprocal();
