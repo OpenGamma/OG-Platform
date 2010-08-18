@@ -61,7 +61,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     Set<UniqueIdentifier> foundKeys = new TreeSet<UniqueIdentifier>();
     for (ValueRequirement requirement : requirements) {
       assertNotNull(requirement);
-      assertEquals(MarketDataRequirementNames.INDICATIVE_VALUE, requirement.getValueName());
+      assertEquals(MarketDataRequirementNames.MARKET_VALUE, requirement.getValueName());
       assertNotNull(requirement.getTargetSpecification());
       assertEquals(ComputationTargetType.PRIMITIVE, requirement.getTargetSpecification().getType());
       foundKeys.add(requirement.getTargetSpecification().getUniqueIdentifier());
@@ -93,7 +93,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     Set<UniqueIdentifier> foundKeys = new TreeSet<UniqueIdentifier>();
     for (ValueRequirement requirement : requirements) {
       assertNotNull(requirement);
-      assertEquals(MarketDataRequirementNames.INDICATIVE_VALUE, requirement.getValueName());
+      assertEquals(MarketDataRequirementNames.MARKET_VALUE, requirement.getValueName());
       assertNotNull(requirement.getTargetSpecification());
       assertEquals(ComputationTargetType.PRIMITIVE, requirement.getTargetSpecification().getType());
       foundKeys.add(requirement.getTargetSpecification().getUniqueIdentifier());

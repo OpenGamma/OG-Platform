@@ -154,7 +154,7 @@ public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction im
   }
 
   private ValueRequirement getUnderlyingMarketDataRequirement(final Identifier id) {
-    return new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, id);
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, id);
   }
 
   private class UnderlyingFutureSecurityVisitor implements FutureSecurityVisitor<Identifier> {
