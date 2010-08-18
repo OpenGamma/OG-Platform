@@ -263,7 +263,6 @@
 		description="--> make a jar file for this project">
 		<jar destfile="${jar.file}" manifest="${basedir}/MANIFEST.MF">
 			<fileset dir="${classes.dir}" />
-			<fileset dir="${tests.classes.dir}" />
 		</jar>
 	</target>
 
