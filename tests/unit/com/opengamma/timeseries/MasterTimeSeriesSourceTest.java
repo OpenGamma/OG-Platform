@@ -8,27 +8,21 @@ package com.opengamma.timeseries;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
-
-import java.util.ArrayList;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
 
-import com.opengamma.engine.historicaldata.HistoricalDataProviderTest;
+import static com.opengamma.engine.historicaldata.HistoricalDataProviderTest.randomTimeSeries;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Test that MasterTimeSeriesSource makes the right method calls to the underlying TimeSeriesMaster and TimeSeriesResolver
@@ -96,7 +90,7 @@ public class MasterTimeSeriesSourceTest {
     
     TimeSeriesSearchResult searchResult = new TimeSeriesSearchResult();
     TimeSeriesDocument tsDoc = new TimeSeriesDocument();
-    tsDoc.setTimeSeries(HistoricalDataProviderTest.randomTimeSeries());
+    tsDoc.setTimeSeries(randomTimeSeries());
     tsDoc.setUniqueIdentifier(UID);
     searchResult.getDocuments().add(tsDoc);
     
@@ -123,7 +117,7 @@ public class MasterTimeSeriesSourceTest {
     TimeSeriesDocument tsDoc = new TimeSeriesDocument();
     tsDoc.setTimeSeries(new ArrayLocalDateDoubleTimeSeries());
     tsDoc.setUniqueIdentifier(UID);
-    tsDoc.setTimeSeries(HistoricalDataProviderTest.randomTimeSeries());
+    tsDoc.setTimeSeries(randomTimeSeries());
     searchResult.getDocuments().add(tsDoc);
     
     when(_mockMaster.searchTimeSeries(request)).thenReturn(searchResult);
@@ -147,7 +141,7 @@ public class MasterTimeSeriesSourceTest {
     
     TimeSeriesSearchResult searchResult = new TimeSeriesSearchResult();
     TimeSeriesDocument tsDoc = new TimeSeriesDocument();
-    tsDoc.setTimeSeries(HistoricalDataProviderTest.randomTimeSeries());
+    tsDoc.setTimeSeries(randomTimeSeries());
     tsDoc.setUniqueIdentifier(UID);
     searchResult.getDocuments().add(tsDoc);
     
