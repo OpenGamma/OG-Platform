@@ -15,6 +15,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.junit.Test;
 
+import com.opengamma.engine.test.TestCalculationNode;
 import com.opengamma.transport.CollectingFudgeMessageReceiver;
 import com.opengamma.transport.DirectFudgeConnection;
 
