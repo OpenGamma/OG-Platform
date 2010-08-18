@@ -50,7 +50,7 @@ public class HoLeeInterestRateModelTest {
 
   @Test
   public void test() {
-    double eps = 1e-9;
+    final double eps = 1e-9;
     assertEquals(MODEL.getInterestRateFunction(START, START).evaluate(DATA), 1, 0);
     HoLeeDataBundle data = new HoLeeDataBundle(new ConstantYieldCurve(0.), new ConstantVolatilityCurve(0), TODAY);
     assertEquals(MODEL.getInterestRateFunction(START, MATURITY).evaluate(data), 1, 0);

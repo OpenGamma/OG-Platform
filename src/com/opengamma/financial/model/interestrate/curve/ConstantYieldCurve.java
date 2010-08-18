@@ -24,8 +24,7 @@ public class ConstantYieldCurve extends YieldAndDiscountCurve {
   private static final Logger s_logger = LoggerFactory.getLogger(ConstantYieldCurve.class);
   private final double _rate;
 
-  public ConstantYieldCurve(final Double rate) {
-    Validate.notNull(rate);
+  public ConstantYieldCurve(final double rate) {
     ArgumentChecker.notNegative(rate, "rate");
     _rate = rate;
   }
@@ -74,7 +73,7 @@ public class ConstantYieldCurve extends YieldAndDiscountCurve {
     if (shifts.size() != 1) {
       s_logger.warn("Shift map contained more than one element - only using first in time");
     }
-    Map<Double, Double> sorted = new TreeMap<Double, Double>(shifts);
+    final Map<Double, Double> sorted = new TreeMap<Double, Double>(shifts);
     final Map.Entry<Double, Double> firstEntry = sorted.entrySet().iterator().next();
     Validate.notNull(firstEntry);
     ArgumentChecker.notNegative(firstEntry.getKey(), "time");
