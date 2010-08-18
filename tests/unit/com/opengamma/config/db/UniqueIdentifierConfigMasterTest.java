@@ -15,6 +15,7 @@ import org.junit.Before;
 import com.opengamma.config.ConfigDocument;
 import com.opengamma.config.ConfigMaster;
 import com.opengamma.config.DefaultConfigDocument;
+import com.opengamma.config.test.MongoDBConfigMasterTestCase;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.MongoDBConnectionSettings;
 import com.opengamma.util.test.MongoDBTestUtils;

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.config.db;
+package com.opengamma.config.test;
 
 
 import static org.junit.Assert.assertEquals;
@@ -31,6 +31,7 @@ import com.opengamma.config.ConfigSearchHistoricResult;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.config.DefaultConfigDocument;
+import com.opengamma.config.db.MongoDBConfigMaster;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.MongoDBConnectionSettings;
 
