@@ -28,7 +28,7 @@ import com.opengamma.livedata.test.TestLiveDataClient;
  */
 public class LiveDataSnapshotProviderTest {
 
-  private static final String _marketDataRequirement = MarketDataRequirementNames.INDICATIVE_VALUE;
+  private static final String _marketDataRequirement = MarketDataRequirementNames.MARKET_VALUE;
   
   UserPrincipal TEST_USER = new UserPrincipal("kirk", "127.0.0.1");
   UserPrincipal TEST_USER_2 = new UserPrincipal("alice", "127.0.0.1");
