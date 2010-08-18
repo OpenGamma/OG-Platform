@@ -26,22 +26,22 @@ import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.function.MockFunction;
 import com.opengamma.engine.position.PositionImpl;
+import com.opengamma.engine.test.CalculationNodeUtils;
+import com.opengamma.engine.test.MockFunction;
+import com.opengamma.engine.test.TestCalculationNode;
+import com.opengamma.engine.test.TestDependencyGraphExecutor;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.cache.ViewComputationCache;
-import com.opengamma.engine.view.calc.TestDependencyGraphExecutor;
-import com.opengamma.engine.view.calcnode.AbstractCalculationNodeTest;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.MissingInputException;
-import com.opengamma.engine.view.calcnode.TestCalculationNode;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.test.HibernateTest;
@@ -133,7 +133,7 @@ public class BatchResultWriterTest extends HibernateTest {
     _hibernateTemplate.save(_riskRun);
     
     _calculationConfiguration = new CalculationConfiguration();
-    _calculationConfiguration.setName(AbstractCalculationNodeTest.CALC_CONF_NAME);
+    _calculationConfiguration.setName(CalculationNodeUtils.CALC_CONF_NAME);
     _calculationConfiguration.setRiskRun(_riskRun);
     _hibernateTemplate.save(_calculationConfiguration);
     _riskRun.addCalculationConfiguration(_calculationConfiguration);
@@ -156,7 +156,7 @@ public class BatchResultWriterTest extends HibernateTest {
             new BigDecimal(500), 
             new Identifier("Mock", "AAPL Stock ID")));
     _mockFunctionOutput = new Double(4000.50);   
-    _mockFunction = AbstractCalculationNodeTest.getMockFunction(_mockFunctionComputationTarget, _mockFunctionOutput);
+    _mockFunction = CalculationNodeUtils.getMockFunction(_mockFunctionComputationTarget, _mockFunctionOutput);
     
     _dbComputationTargets = new HashSet<com.opengamma.financial.batch.db.ComputationTarget>();
     _dbComputationTarget = new com.opengamma.financial.batch.db.ComputationTarget();
@@ -166,8 +166,8 @@ public class BatchResultWriterTest extends HibernateTest {
     _dbComputationTargets.add(_dbComputationTarget);
     _hibernateTemplate.saveOrUpdateAll(_dbComputationTargets);
 
-    _calcNode = AbstractCalculationNodeTest.getTestCalcNode(_mockFunction);
-    _calcJob = AbstractCalculationNodeTest.getCalculationJob(_mockFunction);
+    _calcNode = CalculationNodeUtils.getTestCalcNode(_mockFunction);
+    _calcJob = CalculationNodeUtils.getCalculationJob(_mockFunction);
 
     getSessionFactory().getCurrentSession().getTransaction().commit();
   }
@@ -190,7 +190,7 @@ public class BatchResultWriterTest extends HibernateTest {
   private BatchResultWriter getResultWriter(CalculationJobResult result) {
     
     Map<String, ViewComputationCache> cachesByCalculationConfiguration = new HashMap<String, ViewComputationCache>();
-    cachesByCalculationConfiguration.put(AbstractCalculationNodeTest.CALC_CONF_NAME, getCache());
+    cachesByCalculationConfiguration.put(CalculationNodeUtils.CALC_CONF_NAME, getCache());
     
     ResultModelDefinition resultModelDefinition = new ResultModelDefinition();
     resultModelDefinition.setAggregatePositionOutputMode(ResultOutputMode.ALL);
@@ -225,7 +225,7 @@ public class BatchResultWriterTest extends HibernateTest {
         Collections.<DependencyNode>emptySet(),
         Collections.<ValueSpecification>emptySet(),
         _mockFunction.getResultSpecs());
-    DependencyGraph graph = new DependencyGraph(AbstractCalculationNodeTest.CALC_CONF_NAME);
+    DependencyGraph graph = new DependencyGraph(CalculationNodeUtils.CALC_CONF_NAME);
     graph.addDependencyNode(node);
     return graph;
   }
@@ -240,7 +240,7 @@ public class BatchResultWriterTest extends HibernateTest {
         Collections.<DependencyNode>emptySet(),
         Collections.<ValueSpecification>emptySet(),
         _mockFunction.getResultSpecs());
-    DependencyGraph graph = new DependencyGraph(AbstractCalculationNodeTest.CALC_CONF_NAME);
+    DependencyGraph graph = new DependencyGraph(CalculationNodeUtils.CALC_CONF_NAME);
     graph.addDependencyNode(node);
     return graph;
   }
@@ -605,7 +605,7 @@ public class BatchResultWriterTest extends HibernateTest {
   
   private RiskValue getValueFromDb(BatchResultWriter resultWriter) {
     return resultWriter.getValue(
-        AbstractCalculationNodeTest.CALC_CONF_NAME, 
+        CalculationNodeUtils.CALC_CONF_NAME, 
         _mockFunction.getResultSpec().getRequirementSpecification().getValueName(), 
         _mockFunction.getTarget().toSpecification());
   }

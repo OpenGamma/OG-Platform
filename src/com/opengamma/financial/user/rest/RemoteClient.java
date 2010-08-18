@@ -24,7 +24,7 @@ public class RemoteClient {
 
   private final String _clientId;
   private final FudgeContext _fudgeContext;
-  private final RestTarget _positionMasterTarget;
+  private final RestTarget _baseTarget;
   private final RestTarget _securityMasterTarget;
   private final RestTarget _viewDefinitionRepositoryTarget;
   private final RestTarget _userLiveDataTarget;
@@ -32,7 +32,7 @@ public class RemoteClient {
   public RemoteClient(String clientId, FudgeContext fudgeContext, RestTarget baseTarget) {
     _clientId = clientId;
     _fudgeContext = fudgeContext;
-    _positionMasterTarget = baseTarget.resolveBase(ClientResource.PORTFOLIOS_PATH);
+    _baseTarget = baseTarget;
     _securityMasterTarget = baseTarget.resolveBase(ClientResource.SECURITIES_PATH);
     _viewDefinitionRepositoryTarget = baseTarget.resolveBase(ClientResource.VIEW_DEFINITIONS_PATH);
     _userLiveDataTarget = baseTarget.resolveBase(ClientResource.LIVEDATA_PATH);
@@ -41,7 +41,7 @@ public class RemoteClient {
   private RemoteClient(String clientId, FudgeContext fudgeContext, RestTarget baseTarget, RestTarget liveDataHack) {
     _clientId = clientId;
     _fudgeContext = fudgeContext;
-    _positionMasterTarget = baseTarget.resolveBase(ClientResource.PORTFOLIOS_PATH);
+    _baseTarget = baseTarget;
     _securityMasterTarget = baseTarget.resolveBase(ClientResource.SECURITIES_PATH);
     _viewDefinitionRepositoryTarget = baseTarget.resolveBase(ClientResource.VIEW_DEFINITIONS_PATH);
     _userLiveDataTarget = liveDataHack;
@@ -52,7 +52,7 @@ public class RemoteClient {
   }
   
   public PositionMaster getPositionMaster() {
-    return new RemotePositionMaster(_fudgeContext, _positionMasterTarget);
+    return new RemotePositionMaster(_fudgeContext, _baseTarget);
   }
 
   public SecurityMaster getSecurityMaster() {

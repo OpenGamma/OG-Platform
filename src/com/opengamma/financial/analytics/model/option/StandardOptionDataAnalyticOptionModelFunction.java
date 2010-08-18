@@ -42,7 +42,7 @@ public abstract class StandardOptionDataAnalyticOptionModelFunction extends Anal
     final Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
     final Double spotAsObject = (Double) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
     if (spotAsObject == null) {
-      s_logger.warn("Didn't have indicative value for {}", option.getUnderlyingIdentifier());
+      s_logger.warn("Didn't have market value for {}", option.getUnderlyingIdentifier());
       throw new NullPointerException("No spot value for underlying instrument.");
     }
     final double spot = spotAsObject;

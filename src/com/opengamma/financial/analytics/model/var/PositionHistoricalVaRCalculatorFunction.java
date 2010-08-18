@@ -65,21 +65,21 @@ public class PositionHistoricalVaRCalculatorFunction extends AbstractFunction im
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() == ComputationTargetType.POSITION) {
-      System.err.println("canApplyTo returning true");
-    }
+    //if (target.getType() == ComputationTargetType.POSITION) {
+    //  System.err.println("canApplyTo returning true");
+    //}
     return target.getType() == ComputationTargetType.POSITION;
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
-    System.err.println("getRequirements");
+    //System.err.println("getRequirements");
     return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition()));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    System.err.println("getResults");
+    //System.err.println("getResults");
     return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPosition())));
   }
 

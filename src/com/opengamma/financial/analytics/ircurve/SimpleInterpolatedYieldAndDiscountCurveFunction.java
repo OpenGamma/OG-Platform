@@ -89,7 +89,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
   public static Set<ValueRequirement> buildRequirements(final InterpolatedYieldAndDiscountCurveDefinition definition) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
     for (final FixedIncomeStrip strip : definition.getStrips()) {
-      final ValueRequirement requirement = new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, strip.getMarketDataSpecification());
+      final ValueRequirement requirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getMarketDataSpecification());
       result.add(requirement);
     }
     return result;
@@ -153,7 +153,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     final Map<Double, Double> timeInYearsToRates = new TreeMap<Double, Double>();
     boolean isFirst = true;
     for (final FixedIncomeStrip strip : getDefinition().getStrips()) {
-      final ValueRequirement stripRequirement = new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, strip.getMarketDataSpecification());
+      final ValueRequirement stripRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getMarketDataSpecification());
       Double price = (Double) inputs.getValue(stripRequirement);
       if (strip.getInstrumentType() == StripInstrument.FUTURE) {
         price = (100d - price);

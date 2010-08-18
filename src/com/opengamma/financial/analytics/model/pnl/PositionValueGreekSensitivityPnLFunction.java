@@ -24,7 +24,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
-import com.opengamma.engine.historicaldata.HistoricalDataProvider;
+import com.opengamma.engine.historicaldata.HistoricalDataSource;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ComputedValue;
@@ -79,7 +79,7 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction i
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
-    final HistoricalDataProvider historicalDataProvider = OpenGammaExecutionContext.getHistoricalDataProvider(executionContext);
+    final HistoricalDataSource historicalDataProvider = OpenGammaExecutionContext.getHistoricalDataProvider(executionContext);
     final SecuritySource securitySource = executionContext.getSecuritySource();
 
     final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position));

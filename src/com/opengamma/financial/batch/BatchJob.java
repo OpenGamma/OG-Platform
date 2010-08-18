@@ -55,7 +55,7 @@ import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessingContext;
-import com.opengamma.engine.view.cache.MapViewComputationCacheSource;
+import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calcnode.AbstractCalculationNode;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
@@ -63,6 +63,7 @@ import com.opengamma.engine.view.calcnode.LocalCalculationNode;
 import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
+import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.financial.position.master.MasterPositionSource;
 import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.financial.security.HistoricallyFixedSecurityMaster;
@@ -605,7 +606,7 @@ public class BatchJob implements Job {
     }
       
     DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
-    MapViewComputationCacheSource cacheFactory = new MapViewComputationCacheSource(getFudgeContext());
+    InMemoryViewComputationCacheSource cacheFactory = new InMemoryViewComputationCacheSource(getFudgeContext());
     
     FunctionExecutionContext executionContext = new FunctionExecutionContext(); 
     executionContext.setSecuritySource(securitySource);
@@ -636,7 +637,8 @@ public class BatchJob implements Job {
         viewProcessorQueryReceiver, 
         compilationContext, 
         executor,
-        dependencyGraphExecutorFactory);
+        dependencyGraphExecutorFactory,
+        new DefaultViewPermissionProvider());
     
     _view = new View(viewDefinitionDoc.getValue(), vpc);
     _view.setPopulateResultModel(false);
