@@ -38,11 +38,11 @@ public class HistoricalDataProviderTest {
   private Set<String> _usedIds = new HashSet<String>();
   
   
-  private  static boolean isWeekday(LocalDate day) {
+  private boolean isWeekday(LocalDate day) {
     return (day.getDayOfWeek() != DayOfWeek.SATURDAY && day.getDayOfWeek() != DayOfWeek.SUNDAY);
   }
   
-  public  static LocalDateDoubleTimeSeries randomTimeSeries() {
+  public LocalDateDoubleTimeSeries randomTimeSeries() {
     MutableLocalDateDoubleTimeSeries dts = new ListLocalDateDoubleTimeSeries();
     LocalDate start = LocalDate.of(2000, 1, 2);
     LocalDate end = start.plusYears(10);
