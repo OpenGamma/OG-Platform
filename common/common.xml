@@ -407,6 +407,7 @@
 		<clover-html-report
 			initstring="${clover.db.dir}"
 			outdir="${clover.html.report.dir}"
+			coverageCacheSize="384m"
 		>
 		</clover-html-report>
 		<clover-report
