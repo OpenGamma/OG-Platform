@@ -12,16 +12,19 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import javax.time.calendar.LocalDate;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.opengamma.engine.historicaldata.HistoricalDataProviderTest.randomTimeSeries;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -102,6 +105,18 @@ public class MasterTimeSeriesSourceTest {
     assertEquals(UID, tsPair.getFirst());
     assertEquals(tsDoc.getTimeSeries(), tsPair.getSecond());
     
+  }
+  
+  private LocalDateDoubleTimeSeries randomTimeSeries() {
+    MutableLocalDateDoubleTimeSeries dts = new ListLocalDateDoubleTimeSeries();
+    LocalDate start = LocalDate.of(2000, 1, 2);
+    LocalDate end = start.plusYears(10);
+    LocalDate current = start;
+    while (current.isBefore(end)) {
+      current = current.plusDays(1);
+      dts.putDataPoint(current, Math.random());
+    }
+    return dts;
   }
   
   @Test
