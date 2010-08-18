@@ -5,47 +5,6 @@
  */
 package com.opengamma.timeseries.db;
 
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.DEACTIVATE_META_DATA;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.DELETE_DATA_POINT;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.DELETE_TIME_SERIES_BY_ID;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.FIND_DATA_POINT_BY_DATE_AND_ID;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.GET_ACTIVE_META_DATA_BY_OID;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.GET_ACTIVE_META_DATA_BY_PARAMETERS;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.GET_TIME_SERIES_BY_ID;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.GET_TIME_SERIES_KEY;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.GET_TIME_SERIES_KEY_BY_ID;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.INSERT_DATA_FIELD;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.INSERT_DATA_PROVIDER;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.INSERT_DATA_SOURCE;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.INSERT_DOMAIN;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.INSERT_IDENTIFIER;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.INSERT_OBSERVATION_TIME;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.INSERT_QUOTED_OBJECT;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.INSERT_TIME_SERIES;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.INSERT_TIME_SERIES_DELTA_D;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.INSERT_TIME_SERIES_DELTA_I;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.INSERT_TIME_SERIES_DELTA_U;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.INSERT_TIME_SERIES_KEY;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.INVALID_KEY;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.LOAD_ALL_DATA_FIELDS;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.LOAD_ALL_DATA_PROVIDER;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.LOAD_ALL_DATA_SOURCES;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.LOAD_ALL_IDENTIFIERS;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.LOAD_ALL_OBSERVATION_TIMES;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.LOAD_ALL_SCHEME;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.LOAD_TIME_SERIES_DELTA;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.LOAD_TIME_SERIES_WITH_DATES;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.MILLIS_IN_DAY;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.SELECT_DATA_FIELD_ID;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.SELECT_DATA_PROVIDER_ID;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.SELECT_DATA_SOURCE_ID;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.SELECT_DOMAIN_ID;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.SELECT_OBSERVATION_TIME_ID;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.SELECT_QUOTED_OBJECT_FROM_IDENTIFIERS;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.SELECT_QUOTED_OBJECT_ID;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.SQL_MAP_KEYS;
-import static com.opengamma.timeseries.db.TimeSeriesDaoConstants.UPDATE_TIME_SERIES;
-
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -78,6 +37,7 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
+import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.security.db.EnumWithDescriptionBean;
@@ -100,8 +60,6 @@ import com.opengamma.timeseries.TimeSeriesSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.date.DateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.sqldate.ArraySQLDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.sqldate.MapSQLDateDoubleTimeSeries;
@@ -109,11 +67,99 @@ import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
- * 
+ * Abstract class that does all the JDBC template work and provides TimeSeriesMaster
+ * implementations for a typical RDMS database
+ * <p>
+ * Expects the subclass to provide a map for specific database SQL queries
  */
 public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
   
+  private static final String DEACTIVATE_META_DATA = "deactivateMetaData";
+  private static final String DELETE_DATA_POINT = "deleteDataPoint";
+  private static final String DELETE_TIME_SERIES_BY_ID = "deleteTimeSeriesByID";
+  private static final String FIND_DATA_POINT_BY_DATE_AND_ID = "findDataPointByDateAndID";
+  private static final String GET_ACTIVE_META_DATA_BY_OID = "getActiveMetaDataByOid";
+  private static final String GET_ACTIVE_META_DATA_BY_PARAMETERS = "getActiveMetaDataByParameters";
+  private static final String GET_TIME_SERIES_BY_ID = "getTimeSeriesByID";
+  private static final String GET_TIME_SERIES_KEY = "getTimeSeriesKey";
+  private static final String GET_TIME_SERIES_KEY_BY_ID = "getTimeSeriesKeyByID";
+  private static final String INSERT_DATA_FIELD = "insertDataField";
+  private static final String INSERT_DATA_PROVIDER = "insertDataProvider";
+  private static final String INSERT_DATA_SOURCE = "insertDataSource";
+  private static final String INSERT_SCHEME = "insertScheme";
+  private static final String INSERT_IDENTIFIER = "insertIdentifier";
+  private static final String INSERT_OBSERVATION_TIME = "insertObservationTime";
+  private static final String INSERT_QUOTED_OBJECT = "insertQuotedObject";
+  private static final String INSERT_TIME_SERIES = "insertTimeSeries";
+  private static final String INSERT_TIME_SERIES_DELTA_D = "insertTimeSeriesDeltaD";
+  private static final String INSERT_TIME_SERIES_DELTA_I = "insertTimeSeriesDeltaI";
+  private static final String INSERT_TIME_SERIES_DELTA_U = "insertTimeSeriesDeltaU";
+  private static final String INSERT_TIME_SERIES_KEY = "insertTimeSeriesKey";
+  private static final String LOAD_ALL_DATA_FIELDS = "loadAllDataFields";
+  private static final String LOAD_ALL_DATA_PROVIDER = "loadAllDataProvider";
+  private static final String LOAD_ALL_DATA_SOURCES = "loadAllDataSources";
+  private static final String LOAD_ALL_IDENTIFIERS = "loadAllIdentifiers";
+  private static final String LOAD_ALL_OBSERVATION_TIMES = "loadAllObservationTimes";
+  private static final String LOAD_ALL_SCHEME = "loadAllScheme";
+  private static final String LOAD_TIME_SERIES_DELTA = "loadTimeSeriesDelta";
+  private static final String LOAD_TIME_SERIES_WITH_DATES = "loadTimeSeriesWithDates";
+  private static final String SELECT_DATA_FIELD_ID = "selectDataFieldID";
+  private static final String SELECT_DATA_PROVIDER_ID = "selectDataProviderID";
+  private static final String SELECT_DATA_SOURCE_ID = "selectDataSourceID";
+  private static final String SELECT_SCHEME_ID = "selectSchemeID";
+  private static final String SELECT_OBSERVATION_TIME_ID = "selectObservationTimeID";
+  private static final String SELECT_QUOTED_OBJECT_FROM_IDENTIFIERS = "selectQuotedObjectFromIdentifiers";
+  private static final String SELECT_QUOTED_OBJECT_ID = "selectQuotedObjectID";
+  private static final String UPDATE_TIME_SERIES = "updateTimeSeries";
+  
+  /**
+   * value for invalid row id
+   */
+  private static final long INVALID_KEY = Long.MIN_VALUE;
+  private static final long MILLIS_IN_DAY = 86400000L;
+  
+  /**
+   * List of keys expected in the Map containing SQL queries injected to RowStoreTimeSeriesMaster
+   */
+  private static final Set<String> SQL_MAP_KEYS = Collections.unmodifiableSet(Sets.newHashSet(
+      DEACTIVATE_META_DATA,
+      DELETE_DATA_POINT,
+      DELETE_TIME_SERIES_BY_ID,
+      FIND_DATA_POINT_BY_DATE_AND_ID,
+      GET_ACTIVE_META_DATA_BY_OID,
+      GET_ACTIVE_META_DATA_BY_PARAMETERS,
+      GET_TIME_SERIES_BY_ID,
+      GET_TIME_SERIES_KEY,
+      GET_TIME_SERIES_KEY_BY_ID,
+      INSERT_DATA_FIELD,
+      INSERT_DATA_PROVIDER,
+      INSERT_DATA_SOURCE,
+      INSERT_SCHEME,
+      INSERT_IDENTIFIER,
+      INSERT_OBSERVATION_TIME,
+      INSERT_QUOTED_OBJECT,
+      INSERT_TIME_SERIES,
+      INSERT_TIME_SERIES_DELTA_D,
+      INSERT_TIME_SERIES_DELTA_I,
+      INSERT_TIME_SERIES_DELTA_U,
+      INSERT_TIME_SERIES_KEY,
+      LOAD_ALL_DATA_FIELDS,
+      LOAD_ALL_DATA_PROVIDER,
+      LOAD_ALL_DATA_SOURCES,
+      LOAD_ALL_IDENTIFIERS,
+      LOAD_ALL_OBSERVATION_TIMES,
+      LOAD_ALL_SCHEME,
+      LOAD_TIME_SERIES_DELTA,
+      LOAD_TIME_SERIES_WITH_DATES,
+      SELECT_DATA_FIELD_ID,
+      SELECT_DATA_PROVIDER_ID,
+      SELECT_DATA_SOURCE_ID,
+      SELECT_SCHEME_ID,
+      SELECT_OBSERVATION_TIME_ID,
+      SELECT_QUOTED_OBJECT_FROM_IDENTIFIERS,
+      SELECT_QUOTED_OBJECT_ID,
+      UPDATE_TIME_SERIES));
+    
   /**
    * The scheme used for UniqueIdentifier objects.
    */
@@ -337,12 +383,12 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
   
   private long getSchemeId(String name) {
     s_logger.debug("looking up id for domain={}", name);
-    String sql = _namedSQLMap.get(SELECT_DOMAIN_ID);
+    String sql = _namedSQLMap.get(SELECT_SCHEME_ID);
     return getNamedDimensionId(sql, name);
   }
   
   private long createScheme(String scheme, String description) {
-    String sql = _namedSQLMap.get(INSERT_DOMAIN);
+    String sql = _namedSQLMap.get(INSERT_SCHEME);
     insertNamedDimension(sql, scheme, description);
     return getSchemeId(scheme);
   }

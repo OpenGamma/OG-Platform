@@ -14,19 +14,6 @@
         				]]>
         			</value>
         		</entry>
-      			<entry> 
-        			<key><value>findDomainSpecIdentifiersByQuotedObject</value></key>
-        			<value>
-        				<![CDATA[
-        					SELECT d.name, dsi.identifier_value 
-        					FROM tss_identifier dsi
-        					JOIN tss_identification_scheme as d ON dsi.identification_scheme_id = d.id
-        					JOIN tss_identifier_bundle as qo ON qo.id = dsi.bundle_id
-        					WHERE  qo.name = :quotedObject 
-        					ORDER BY d.name
-        				]]>
-        			</value>
-        		</entry>
         		<entry> 
         			<key><value>insertIdentifier</value></key>
         			<value>
@@ -35,30 +22,21 @@
         					(bundle_id, identification_scheme_id, identifier_value) VALUES (:bundleId, :schemeId, :identifier_value)
         				]]>
         			</value>
-        		</entry>	
-        		<entry key="findDataProviderIDbyName" value="SELECT id FROM tss_data_provider WHERE name  = :name"/>
-        		<!-- <entry key="findDataProviderByID" value="SELECT name FROM tss_data_provider WHERE id  = :id"/> -->
+        		</entry>
         		<entry key="selectDataProviderID" value="SELECT id FROM tss_data_provider WHERE name = :name"/>
         		<entry key="loadAllDataProvider" value="SELECT id, name, description FROM tss_data_provider"/>
         		<entry key="insertDataProvider" value="INSERT INTO tss_data_provider (name, description) VALUES (:name, :description)"/>
-        		<entry key="findDataSourceByID" value="SELECT name FROM tss_data_source WHERE id  = :id"/>
         		<entry key="selectDataSourceID" value="SELECT id FROM tss_data_source WHERE name = :name"/>
         		<entry key="insertDataSource" value="INSERT INTO tss_data_source (name, description) VALUES (:name, :description)"/>
         		<entry key="loadAllDataSources" value="SELECT id, name, description FROM tss_data_source"/>
-        		<entry key="findDataFieldByID" value="SELECT name FROM tss_data_field WHERE id  = :id"/>
         		<entry key="insertDataField" value="INSERT INTO tss_data_field (name, description) VALUES (:name, :description)"/>
         		<entry key="selectDataFieldID" value="SELECT id FROM tss_data_field WHERE name = :name"/>
         		<entry key="loadAllDataFields" value="SELECT id, name, description FROM tss_data_field"/>
-        		<entry key="findObservationTimeByID" value="SELECT name FROM tss_observation_time WHERE id  = :id"/>
         		<entry key="insertObservationTime" value="INSERT INTO tss_observation_time (name, description) VALUES (:name, :description)"/>
         		<entry key="selectObservationTimeID" value="SELECT id FROM tss_observation_time WHERE name = :name"/>
         		<entry key="loadAllObservationTimes" value="SELECT id, name, description FROM tss_observation_time"/>
-        		<entry key="findQuotedObjectByID" value="SELECT name FROM tss_identifier_bundle WHERE id  = :id"/>
         		<entry key="insertQuotedObject" value="INSERT INTO tss_identifier_bundle (name, description) VALUES (:name, :description)"/>
         		<entry key="selectQuotedObjectID" value="SELECT id FROM tss_identifier_bundle WHERE name = :name"/>
-        		<!-- 
-        		<entry key="selectQuotedObjectFromIdentifiers" value="SELECT qo.id, qo.name, count(qo.name) as count FROM tss_identifier_bundle qo, tss_identifier dsi, tss_identification_scheme d WHERE d.id = dsi.identification_scheme_id AND qo.id = dsi.bundle_id"/>
-        		 -->
         		<entry> 
         			<key><value>selectQuotedObjectFromIdentifiers</value></key>
         			<value>
@@ -76,32 +54,10 @@
 	        				)
         				]]>
         			</value>
-        		</entry>	
-        		<!-- 
-        		<entry> 
-        			<key><value>selectQuotedObjectFromIdentifiers</value></key>
-        			<value>
-        				<![CDATA[
-        					SELECT qo.id, qo.name, count(qo.name) as count 
-        					FROM tss_identifier_bundle as qo
-        					JOIN tss_identifier as dsi ON qo.id = dsi.bundle_id
-        					JOIN tss_identification_scheme as d ON dsi.identification_scheme_id = d.id
-        					WHERE :identifierBundleClause
-        					GROUP BY qo.name, qo.id
-        				]]>
-        			</value>
-        		</entry>	
-        		 -->   
-        		<entry key="loadAllQuotedObjects" value="SELECT name FROM tss_identifier_bundle"/>
-        		<entry key="findDomainIDbyName" value="SELECT id FROM tss_identification_scheme WHERE name  = :name"/>
-        		<entry key="findDomainByID" value="SELECT name FROM tss_identification_scheme WHERE id  = :id"/>
-        		<entry key="insertDomain" value="INSERT INTO tss_identification_scheme (name, description) VALUES (:name, :description)"/>
-        		<entry key="selectDomainID" value="SELECT id FROM tss_identification_scheme WHERE name = :name"/>
+        		</entry>
+        		<entry key="insertScheme" value="INSERT INTO tss_identification_scheme (name, description) VALUES (:name, :description)"/>
+        		<entry key="selectSchemeID" value="SELECT id FROM tss_identification_scheme WHERE name = :name"/>
         		<entry key="loadAllScheme" value="SELECT id, name, description FROM tss_identification_scheme"/>
-        		<!-- 
-        		<entry key="getTimeSeriesKeyByID" 
-        			   value="SELECT tskey.id FROM tss_meta_data tskey WHERE tskey.bundle_id = :qoid AND tskey.data_source_id = :dsid AND tskey.data_provider_id = :dpid AND tskey.data_field_id = :dfid AND tskey.observation_time_id = ot.id AND qo.name = :quotedObject AND ds.name = :dataSource AND dp.name = :dataProvider AND df.name = :dataField AND ot.name = :observationTime"/>
-        		-->
         		<entry> 
         			<key><value>getTimeSeriesKeyByID</value></key>
         			<value>
@@ -115,7 +71,7 @@
         					AND tskey.observation_time_id = :otid
         				]]>
         			</value>
-        		</entry>	   
+        		</entry>
         	    <entry> 
         			<key><value>getTimeSeriesKey</value></key>
         			<value>
@@ -141,7 +97,7 @@
         					WHERE id = :tsKey
         				]]>
         			</value>
-        		</entry>	   
+        		</entry>	
         	    <entry> 
         			<key><value>getActiveMetaDataByParameters</value></key>
         			<value>
@@ -160,7 +116,7 @@
         					AND tsKey.active = 1
         				]]>
         			</value>
-        		</entry>	
+        		</entry>
         		<entry> 
         			<key><value>getActiveMetaDataByOid</value></key>
         			<value>
@@ -186,7 +142,7 @@
         					VALUES (:bundleId, 1, :dataSourceId, :dataProviderId, :dataFieldId, :observationTimeId)
         				]]>
         			</value>
-        		</entry>	
+        		</entry>
         		<entry> 
         			<key><value>insertTimeSeries</value></key>
         			<value>
@@ -204,7 +160,7 @@
         					VALUES (:timeSeriesID, :timeStamp, :date, :value, 'I')
         				]]>
         			</value>
-        		</entry>	
+        		</entry>
         		<entry> 
         			<key><value>insertTimeSeriesDeltaD</value></key>
         			<value>
@@ -213,7 +169,7 @@
         					VALUES (:timeSeriesID, :timeStamp, :date, :value, 'D')
         				]]>
         			</value>
-        		</entry>	
+        		</entry>
         		<entry> 
         			<key><value>insertTimeSeriesDeltaU</value></key>
         			<value>
@@ -237,7 +193,6 @@
         			</value>
         		</entry>
         		<entry key="updateTimeSeries" value="UPDATE tss_data_point SET value = :newValue WHERE meta_data_id = :tsID AND ts_date = :date "/>
-        		<entry key="getTimeSeriesKeyIDByIdentifier" value="SELECT tsKey.id FROM tss_meta_data tsKey, tss_identifier_bundle qo, tss_identifier dsi, tss_identification_scheme d, tss_data_source ds, tss_data_provider dp, tss_data_field df, tss_observation_time ot WHERE dsi.identification_scheme_id = d.id AND dsi.bundle_id = qo.id AND tsKey.bundle_id = qo.id AND tsKey.data_source_id = ds.id AND tsKey.data_provider_id = dp.id AND tsKey.data_field_id = df.id AND tsKey.observation_time_id = ot.id AND dsi.identifier_value = :value AND d.name = :domain AND ds.name = :dataSource AND df.name = :dataField AND (dp.name = :dataProvider OR :dataProvider IS NULL) AND (ot.name = :observationTime OR :observationTime IS NULL)"/>
         		<entry key="getTimeSeriesByID" value="SELECT ts_date, value FROM tss_data_point where meta_data_id = :tsID"/>
         		<entry key="deleteTimeSeriesByID" value="DELETE FROM tss_data_point WHERE meta_data_id = :tsID"/>
         		<entry key="findDataPointByDateAndID" value="SELECT value FROM tss_data_point WHERE meta_data_id = :tsID AND ts_date = :date"/>
