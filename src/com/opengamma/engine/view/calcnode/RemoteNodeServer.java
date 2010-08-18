@@ -5,6 +5,9 @@
  */
 package com.opengamma.engine.view.calcnode;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -18,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionReceiver;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Server end to RemoteNodeClient to receive requests from remote calculation nodes and marshal
@@ -29,21 +33,81 @@ public class RemoteNodeServer implements FudgeConnectionReceiver {
 
   private final JobInvokerRegister _jobInvokerRegister;
   private final ExecutorService _executorService = Executors.newCachedThreadPool();
+  private final Set<Capability> _capabilitiesToAdd = new HashSet<Capability>();
+  private final Set<Capability> _capabilitiesToRemove = new HashSet<Capability>();
+  private Set<Capability> _capabilitiesOverride;
   private FunctionRepository _functionRepository;
-
-  private Integer _nodePriority;
 
   public RemoteNodeServer(final JobInvokerRegister jobInvokerRegister, final FunctionRepository functionRepository) {
     _jobInvokerRegister = jobInvokerRegister;
     _functionRepository = functionRepository;
   }
 
-  public void setNodePriority(final Integer nodePriority) {
-    _nodePriority = nodePriority;
+  /**
+   * Specify a capability to always add to those the remote node declares.
+   * 
+   * @param capability the capability to add, not {@code null}
+   */
+  public void addCapability(final Capability capability) {
+    ArgumentChecker.notNull(capability, "capability");
+    if (_capabilitiesOverride != null) {
+      throw new IllegalStateException("Capability override already set");
+    }
+    _capabilitiesToAdd.add(capability);
+    _capabilitiesToRemove.remove(capability);
   }
 
-  public Integer getNodePriority() {
-    return _nodePriority;
+  /**
+   * Specify a capability to remove from the remote node declaration if present.
+   * 
+   * @param capability the capability to remove, not {@code null}
+   */
+  public void removeCapability(final Capability capability) {
+    ArgumentChecker.notNull(capability, "capability");
+    if (_capabilitiesOverride != null) {
+      throw new IllegalStateException("Capability override already set");
+    }
+    _capabilitiesToAdd.remove(capability);
+    _capabilitiesToRemove.add(capability);
+  }
+
+  /**
+   * Specify capabilities to always add to those the remote node declares.
+   * 
+   * @param capabilities the capabilities to add, not {@code null}
+   */
+  public void addCapabilities(final Collection<Capability> capabilities) {
+    ArgumentChecker.notNull(capabilities, "capabilities");
+    if (_capabilitiesOverride != null) {
+      throw new IllegalStateException("Capability override already set");
+    }
+    _capabilitiesToAdd.addAll(capabilities);
+    _capabilitiesToRemove.removeAll(capabilities);
+  }
+
+  /**
+   * Specify capabilities to always remove from those the remote node declares.
+   * 
+   * @param capabilities the capabilities to remove, not {@code null}
+   */
+  public void removeCapabilities(final Collection<Capability> capabilities) {
+    ArgumentChecker.notNull(capabilities, "capabilities");
+    if (_capabilitiesOverride != null) {
+      throw new IllegalStateException("Capability override already set");
+    }
+    _capabilitiesToAdd.removeAll(capabilities);
+    _capabilitiesToRemove.addAll(capabilities);
+  }
+
+  /**
+   * Specify capabilities to override those the remote node declares.
+   * 
+   * @param capabilities the capabilities to use, or {@code null} to cancel the override.
+   */
+  public void setCapabilities(final Collection<Capability> capabilities) {
+    _capabilitiesToAdd.clear();
+    _capabilitiesToRemove.clear();
+    _capabilitiesOverride = new HashSet<Capability>(capabilities);
   }
 
   protected JobInvokerRegister getJobInvokerRegister() {
@@ -68,8 +132,11 @@ public class RemoteNodeServer implements FudgeConnectionReceiver {
       final RemoteCalcNodeInitMessage response = new RemoteCalcNodeInitMessage(getFunctionRepository());
       connection.getFudgeMessageSender().send(FudgeSerializationContext.addClassHeader(scontext.objectToFudgeMsg(response), RemoteCalcNodeInitMessage.class, RemoteCalcNodeMessage.class));
       final RemoteNodeJobInvoker invoker = new RemoteNodeJobInvoker(getExecutorService(), (RemoteCalcNodeReadyMessage) remoteCalcNodeMessage, connection);
-      if (getNodePriority() != null) {
-        invoker.setNodePriority(getNodePriority());
+      if (_capabilitiesOverride != null) {
+        invoker.setCapabilities(_capabilitiesOverride);
+      } else {
+        invoker.addCapabilities(_capabilitiesToAdd);
+        invoker.removeCapabilities(_capabilitiesToRemove);
       }
       getJobInvokerRegister().registerJobInvoker(invoker);
     } else {

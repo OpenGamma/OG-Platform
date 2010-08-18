@@ -12,6 +12,6 @@ public interface JobInvocationReceiver {
 
   void jobCompleted(CalculationJobResult result);
 
-  void jobFailed(Exception exception);
+  void jobFailed(JobInvoker jobInvoker, Exception exception);
 
 }
