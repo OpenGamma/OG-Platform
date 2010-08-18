@@ -14,9 +14,10 @@ public interface MarketDataRequirementNames {
   // global namespace of field names. The field name that follows should be in Pascal case.
   
   /** 
-   * Sent in the OpenGamma normalization schema for all asset types. 
+   * Sent in the OpenGamma normalization schema for all asset types. Used to provide whatever value best represents the
+   * instrument.
    */
-  String INDICATIVE_VALUE = "Market_IndicativeValue";
+  String MARKET_VALUE = "Market_Value";
   
   /** 
    * Sent in the OpenGamma normalization schema for all options for which it is available from the underlying market

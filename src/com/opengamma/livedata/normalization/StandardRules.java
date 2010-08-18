@@ -20,10 +20,9 @@ public class StandardRules {
   
   /**
    * @return Will include:
-   * 
    * <ul>
-   * <li>IndicativeValue
-   * <li>Volume (if available)
+   * <li>MARKET_VALUE
+   * <li>VOLUME (if available)
    * </ul>
    */
   public static String getOpenGammaRuleSetId() {

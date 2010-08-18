@@ -14,10 +14,8 @@ import com.opengamma.livedata.server.FieldHistoryStore;
 
 /**
  * Calculates a best estimate of the current value of a security.
- *
- * @author pietari
  */
-public class IndicativeValueCalculator implements NormalizationRule {
+public class MarketValueCalculator implements NormalizationRule {
   
   private static final double TOLERANCE = 0.00001;
   private static final double MAX_ACCEPTABLE_SPREAD_TO_USE_MIDPOINT = 0.05;
@@ -53,18 +51,18 @@ public class IndicativeValueCalculator implements NormalizationRule {
         if (last != null) {
           // Ok, last was found. But let's make sure that it's within the bid/ask boundaries.
           if (last < bid) {
-            msg.add(MarketDataRequirementNames.INDICATIVE_VALUE, bid);
+            msg.add(MarketDataRequirementNames.MARKET_VALUE, bid);
           } else if (last > ask) {
-            msg.add(MarketDataRequirementNames.INDICATIVE_VALUE, ask);
+            msg.add(MarketDataRequirementNames.MARKET_VALUE, ask);
           } else {
-            msg.add(MarketDataRequirementNames.INDICATIVE_VALUE, last);
+            msg.add(MarketDataRequirementNames.MARKET_VALUE, last);
           }
           return msg;
         }
       }
       
-      double indicativeValue = (bid + ask) / 2.0;
-      msg.add(MarketDataRequirementNames.INDICATIVE_VALUE, indicativeValue);
+      double marketValue = (bid + ask) / 2.0;
+      msg.add(MarketDataRequirementNames.MARKET_VALUE, marketValue);
       return msg;
     }
     
@@ -72,28 +70,28 @@ public class IndicativeValueCalculator implements NormalizationRule {
     // try using LAST.
     Double last = msg.getDouble(LAST);
     if (last == null) {
-      return lastKnownIndicativeValue(msg, fieldHistory);
+      return lastKnownMarketValue(msg, fieldHistory);
     }
     
-    msg.add(MarketDataRequirementNames.INDICATIVE_VALUE, last);
+    msg.add(MarketDataRequirementNames.MARKET_VALUE, last);
     return msg;
   }
   
   /**
-   * Tries to populate IndicativeValue from the history.
+   * Tries to populate MARKET_VALUE from the history.
    */
-  private MutableFudgeFieldContainer lastKnownIndicativeValue(
+  private MutableFudgeFieldContainer lastKnownMarketValue(
       MutableFudgeFieldContainer msg,
       FieldHistoryStore fieldHistory) {
     
     FudgeFieldContainer lkv = fieldHistory.getLastKnownValues();
     
-    Double lastKnownIndicativeValue = lkv.getDouble(MarketDataRequirementNames.INDICATIVE_VALUE);
-    if (lastKnownIndicativeValue == null) {
+    Double lastKnownMarketValue = lkv.getDouble(MarketDataRequirementNames.MARKET_VALUE);
+    if (lastKnownMarketValue == null) {
       return msg;      
     }
     
-    msg.add(MarketDataRequirementNames.INDICATIVE_VALUE, lastKnownIndicativeValue);
+    msg.add(MarketDataRequirementNames.MARKET_VALUE, lastKnownMarketValue);
     return msg;
   }
 
