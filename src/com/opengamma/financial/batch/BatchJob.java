@@ -55,7 +55,7 @@ import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessingContext;
-import com.opengamma.engine.view.cache.MapViewComputationCacheSource;
+import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calcnode.AbstractCalculationNode;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
@@ -605,7 +605,7 @@ public class BatchJob implements Job {
     }
       
     DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
-    MapViewComputationCacheSource cacheFactory = new MapViewComputationCacheSource(getFudgeContext());
+    InMemoryViewComputationCacheSource cacheFactory = new InMemoryViewComputationCacheSource(getFudgeContext());
     
     FunctionExecutionContext executionContext = new FunctionExecutionContext(); 
     executionContext.setSecuritySource(securitySource);

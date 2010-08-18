@@ -31,6 +31,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.test.TestDependencyGraphExecutor;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.cache.ViewComputationCache;
@@ -39,7 +40,6 @@ import com.opengamma.engine.view.calc.DependencyGraphExecutor;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calc.SingleComputationCycle;
 import com.opengamma.engine.view.calc.SingleNodeExecutor;
-import com.opengamma.engine.view.calc.TestDependencyGraphExecutor;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.financial.batch.BatchDbManager;
 import com.opengamma.financial.batch.BatchJob;
@@ -437,7 +437,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
   /*package*/ Set<RiskValueName> populateRiskValueNames(BatchJob job) {
     Set<RiskValueName> returnValue = new HashSet<RiskValueName>();
     
-    Set<String> riskValueNames = job.getView().getPortfolioEvaluationModel().getAllOutputValueNames();
+    Set<String> riskValueNames = job.getView().getViewEvaluationModel().getAllOutputValueNames();
     for (String name : riskValueNames) {
       RiskValueName riskValueName = getRiskValueName(name);
       returnValue.add(riskValueName);

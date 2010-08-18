@@ -13,6 +13,7 @@ import org.fudgemsg.FudgeContext;
 import com.opengamma.financial.livedata.rest.LiveDataResource;
 import com.opengamma.financial.livedata.user.InMemoryUserSnapshotProvider;
 import com.opengamma.financial.position.rest.DataPortfoliosResource;
+import com.opengamma.financial.position.rest.DataPositionsResource;
 import com.opengamma.financial.security.MasterSecuritySource;
 import com.opengamma.financial.security.memory.InMemorySecurityMaster;
 import com.opengamma.financial.security.rest.SecurityMasterResource;
@@ -33,6 +34,10 @@ public class ClientResource {
    * The path used to retrieve user portfolios
    */
   public static final String PORTFOLIOS_PATH = "portfolios";
+  /**
+   * The path used to retrieve user positions
+   */
+  public static final String POSITIONS_PATH = "positions";
   /**
    * The path used to retrieve user securities
    */
@@ -91,6 +96,11 @@ public class ClientResource {
   @Path(PORTFOLIOS_PATH)
   public DataPortfoliosResource getPortfolios() {
     return new DataPortfoliosResource(getUriInfo(), _usersResourceContext.getPositionMaster());
+  }
+  
+  @Path(POSITIONS_PATH)
+  public DataPositionsResource getPositions() {
+    return new DataPositionsResource(_usersResourceContext.getPositionMaster());
   }
   
   @Path(SECURITIES_PATH)

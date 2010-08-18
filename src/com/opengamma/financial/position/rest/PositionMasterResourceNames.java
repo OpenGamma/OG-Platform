@@ -12,6 +12,7 @@ public final class PositionMasterResourceNames {
 
   // CSOFF: just constants
   public static final String POSITION_MASTER_POSITIONS = "positions";
+  public static final String POSITION_MASTER_PORTFOLIOS = "portfolios";
   // CSON: just constants
   
 }
