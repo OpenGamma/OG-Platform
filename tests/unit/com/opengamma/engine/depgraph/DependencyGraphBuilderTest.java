@@ -20,7 +20,7 @@ import org.junit.Test;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
-import com.opengamma.engine.function.MockFunction;
+import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 

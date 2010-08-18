@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.calcnode;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -14,28 +15,25 @@ import java.util.List;
 public interface JobInvoker {
 
   /**
-   * Determines whether the calculation node(s) this invoker is responsible for have the
-   * capability to successfully invoke the job.
-   *
-   * @param jobSpec the job spec
-   * @param items the items
-   * @return zero if the job cannot be executed, otherwise a positive score. When multiple
-   * invokers are able to execute a job, the invoker with the highest score is chosen.
+   * Returns the exported capabilities of the node(s) this invoker is responsible for. These will
+   * be used to determine which jobs will get farmed to this invoker.
+   * 
+   * @return the capabilities, not {@code null}
    */
-  int canInvoke(CalculationJobSpecification jobSpec, List<CalculationJobItem> items);
+  Collection<Capability> getCapabilities();
 
   /**
    * Invokes a job on a calculation node.
    * 
    * @param jobSpec the job spec
    * @param items the items
-   * @param receiver the result receiver; must be signalled with either success or failure
+   * @param receiver the result receiver; must be signaled with either success or failure
    * @return {@code true} if the invoker has caused the job to execute or {@code false} if
    * capacity problems mean it cannot be executed. After returning {@code false} to the
    * dispatcher the invoker will be unregistered.
    */
   boolean invoke(CalculationJobSpecification jobSpec, List<CalculationJobItem> items, JobInvocationReceiver receiver);
-  
+
   /**
    * Called after invocation failure for the invoker to notify the dispatch object if/when
    * it becomes available again.

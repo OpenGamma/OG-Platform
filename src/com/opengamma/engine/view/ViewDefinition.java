@@ -50,8 +50,9 @@ public class ViewDefinition implements Serializable {
   private final Map<String, ViewCalculationConfiguration> _calculationConfigurationsByName =
     new TreeMap<String, ViewCalculationConfiguration>();
   
+  //--------------------------------------------------------------------------
   /**
-   * Constructs an instance.
+   * Constructs an instance, including a reference portfolio.
    * 
    * @param name  the name of the view definition
    * @param portfolioId  the unique identifier of the reference portfolio for this view definition
@@ -62,27 +63,59 @@ public class ViewDefinition implements Serializable {
   }
   
   /**
-   * Constructs an instance.
+   * Constructs an instance, without a reference portfolio.
    * 
    * @param name  the name of the view definition
-   * @param portfolioId  the unique identifier of the reference portfolio for this view definition
+   * @param userName  the name of the user who owns the view definition
+   */
+  public ViewDefinition(String name, String userName) {
+    this(name, UserPrincipal.getLocalUser(userName));
+  }
+  
+  /**
+   * Constructs an instance, without a reference portfolio.
+   * 
+   * @param name  the name of the view definition
    * @param liveDataUser  the user who owns the view definition
    */
-  public ViewDefinition(String name,  UniqueIdentifier portfolioId,  UserPrincipal liveDataUser) {
+  public ViewDefinition(String name, UserPrincipal liveDataUser) {
+    this(name, null, liveDataUser);
+  }
+  
+  /**
+   * Constructs an instance, without a reference portfolio.
+   * 
+   * @param name  the name of the view definition
+   * @param liveDataUser  the user who owns the view definition
+   * @param resultModelDefinition  configuration of the results from the view
+   */
+  public ViewDefinition(String name, UserPrincipal liveDataUser, ResultModelDefinition resultModelDefinition) {
+    this(name, null, liveDataUser, resultModelDefinition);
+  }
+  
+  /**
+   * Constructs an instance
+   * 
+   * @param name  the name of the view definition
+   * @param portfolioId  the unique identifier of the reference portfolio for this view definition, or
+   *                     <code>null</code> if no reference portfolio is required
+   * @param liveDataUser  the user who owns the view definition
+   */
+  public ViewDefinition(String name, UniqueIdentifier portfolioId,  UserPrincipal liveDataUser) {
     this(name, portfolioId, liveDataUser, new ResultModelDefinition());
   }
 
   /**
-   * Constructs an instance.
+   * Constructs an instance
    * 
    * @param name  the name of the view definition
-   * @param portfolioId  the unique identifier of the reference portfolio for this view definition
+   * @param portfolioId  the unique identifier of the reference portfolio for this view definition, or
+   *                     <code>null</code> if no reference portfolio is required
    * @param liveDataUser  the user who owns the view definition
    * @param resultModelDefinition  configuration of the results from the view
    */
   public ViewDefinition(String name, UniqueIdentifier portfolioId, UserPrincipal liveDataUser, ResultModelDefinition resultModelDefinition) {
     ArgumentChecker.notNull(name, "View name");
-    ArgumentChecker.notNull(portfolioId, "Portfolio id");
     ArgumentChecker.notNull(liveDataUser, "User name");
     ArgumentChecker.notNull(resultModelDefinition, "Result model definition");
     
@@ -92,6 +125,7 @@ public class ViewDefinition implements Serializable {
     _resultModelDefinition = resultModelDefinition;
   }
   
+  //--------------------------------------------------------------------------
   /**
    * Gets a set containing every portfolio output that is required, across all calculation configurations, regardless
    * of the security type(s) on which the output is required. These are outputs produced at the position and aggregate

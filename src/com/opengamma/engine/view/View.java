@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.livedata.LiveDataSnapshotListener;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
@@ -25,6 +24,8 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.calc.SingleComputationCycle;
 import com.opengamma.engine.view.calc.ViewRecalculationJob;
+import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
+import com.opengamma.engine.view.compilation.ViewEvaluationModel;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
@@ -40,7 +41,7 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   private final ViewDefinition _definition;
   private final ViewProcessingContext _processingContext;
   // Internal State:
-  private PortfolioEvaluationModel _portfolioEvaluationModel;
+  private ViewEvaluationModel _viewEvaluationModel;
   private Thread _recalculationThread;
   private ViewCalculationState _calculationState = ViewCalculationState.NOT_INITIALIZED;
   private ViewRecalculationJob _recalcJob;
@@ -115,22 +116,14 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   protected void setRecalcJob(ViewRecalculationJob recalcJob) {
     _recalcJob = recalcJob;
   }
-
-  /**
-   * @return the portfolioEvaluationModel
-   */
-  public PortfolioEvaluationModel getPortfolioEvaluationModel() {
-    return _portfolioEvaluationModel;
-  }
-
-  /**
-   * @param portfolioEvaluationModel the portfolioEvaluationModel to set
-   */
-  public void setPortfolioEvaluationModel(
-      PortfolioEvaluationModel portfolioEvaluationModel) {
-    _portfolioEvaluationModel = portfolioEvaluationModel;
-  }
   
+  /**
+   * @return the latest view evaluation model
+   */
+  public ViewEvaluationModel getViewEvaluationModel() {
+    return _viewEvaluationModel;
+  }
+    
   public void addResultListener(ComputationResultListener resultListener) {
     ArgumentChecker.notNull(resultListener, "Result listener");
     
@@ -160,43 +153,24 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   }
   
   public Set<ComputationTargetSpecification> getAllComputationTargets() {
-    return getPortfolioEvaluationModel().getAllComputationTargets();
+    return getViewEvaluationModel().getAllComputationTargets();
   }
   
   public synchronized void init() {
     OperationTimer timer = new OperationTimer(s_logger, "Initializing view {}", getDefinition().getName());
     setCalculationState(ViewCalculationState.INITIALIZING);
 
-    reloadPortfolio();
+    _viewEvaluationModel = ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices());
+    addLiveDataSubscriptions(getViewEvaluationModel().getAllLiveDataRequirements());
     
     setCalculationState(ViewCalculationState.NOT_STARTED);
     timer.finished();
   }
 
   /**
-   * Reloads the portfolio, typically from a database.
-   */
-  public void reloadPortfolio() {
-    OperationTimer timer = new OperationTimer(s_logger, "Reloading portfolio {}", getDefinition().getPortfolioId());
-    Portfolio portfolio = getProcessingContext().getPositionSource().getPortfolio(getDefinition().getPortfolioId());
-    if (portfolio == null) {
-      throw new OpenGammaRuntimeException("Unable to resolve portfolio " + getDefinition().getPortfolioId() +
-          " in position source " + getProcessingContext().getPositionSource());
-    }
-    PortfolioEvaluationModel portfolioEvaluationModel = new PortfolioEvaluationModel(portfolio);
-    portfolioEvaluationModel.init(
-        getProcessingContext().asCompilationServices(),
-        getDefinition());
-    setPortfolioEvaluationModel(portfolioEvaluationModel);
-    addLiveDataSubscriptions();
-    timer.finished();
-  }
-
-  /**
    * Adds live data subscriptions to the view.
    */
-  private void addLiveDataSubscriptions() {
-    Set<ValueRequirement> liveDataRequirements = getPortfolioEvaluationModel().getAllLiveDataRequirements();
+  private void addLiveDataSubscriptions(Set<ValueRequirement> liveDataRequirements) {
     OperationTimer timer = new OperationTimer(s_logger, "Adding {} live data subscriptions for portfolio {}", liveDataRequirements.size(), getDefinition().getPortfolioId());
     LiveDataSnapshotProvider snapshotProvider = getProcessingContext().getLiveDataSnapshotProvider();
     snapshotProvider.addListener(this);
@@ -218,7 +192,7 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
 
   @Override
   public void valueChanged(ValueRequirement requirement) {
-    Set<ValueRequirement> liveDataRequirements = getPortfolioEvaluationModel().getAllLiveDataRequirements();
+    Set<ValueRequirement> liveDataRequirements = getViewEvaluationModel().getAllLiveDataRequirements();
     ViewRecalculationJob recalcJob = getRecalcJob();
     if (recalcJob != null && liveDataRequirements.contains(requirement)) {
       recalcJob.liveDataChanged();      
@@ -230,17 +204,17 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   }
 
   public Portfolio getPortfolio() {
-    if (getPortfolioEvaluationModel() == null) {
+    if (getViewEvaluationModel() == null) {
       return null;
     }
-    return getPortfolioEvaluationModel().getPortfolio();
+    return getViewEvaluationModel().getPortfolio();
   }
 
   public PortfolioNode getPositionRoot() {
-    if (getPortfolioEvaluationModel() == null) {
+    if (getViewEvaluationModel() == null) {
       return null;
     }
-    return getPortfolioEvaluationModel().getPortfolio().getRootNode();
+    return getViewEvaluationModel().getPortfolio().getRootNode();
   }
 
   public synchronized void recalculationPerformed(ViewComputationResultModelImpl result) {
@@ -520,7 +494,7 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
    * @throws ViewAccessException If the user is not entitled 
    */
   public void checkIsEntitledToResults(UserPrincipal user) {
-    Set<ValueRequirement> requiredValues = getPortfolioEvaluationModel().getAllLiveDataRequirements();
+    Set<ValueRequirement> requiredValues = getViewEvaluationModel().getAllLiveDataRequirements();
     Collection<LiveDataSpecification> requiredLiveData = ValueRequirement.getRequiredLiveData(
         requiredValues, 
         getProcessingContext().getSecuritySource());

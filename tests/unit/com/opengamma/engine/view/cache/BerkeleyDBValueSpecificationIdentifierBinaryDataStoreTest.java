@@ -73,7 +73,7 @@ public class BerkeleyDBValueSpecificationIdentifierBinaryDataStoreTest {
     File dbDir = createDbDir("putPerformanceTest");
     Environment dbEnvironment = createDbEnvironment(dbDir);
     
-    BerkeleyDBValueSpecificationIdentifierBinaryDataStore dataStore = new BerkeleyDBValueSpecificationIdentifierBinaryDataStore(dbEnvironment, "putPerformanceTest");
+    BerkeleyDBBinaryDataStore dataStore = new BerkeleyDBBinaryDataStore(dbEnvironment, "putPerformanceTest");
     dataStore.start();
     
     OperationTimer timer = new OperationTimer(s_logger, "Writing {} entries", numEntries);
@@ -110,7 +110,7 @@ public class BerkeleyDBValueSpecificationIdentifierBinaryDataStoreTest {
     File dbDir = createDbDir("getPerformanceTest");
     Environment dbEnvironment = createDbEnvironment(dbDir);
     
-    BerkeleyDBValueSpecificationIdentifierBinaryDataStore dataStore = new BerkeleyDBValueSpecificationIdentifierBinaryDataStore(dbEnvironment, "getPerformanceTest");
+    BerkeleyDBBinaryDataStore dataStore = new BerkeleyDBBinaryDataStore(dbEnvironment, "getPerformanceTest");
     dataStore.start();
     
     int randRange = maxEntrySize - minEntrySize;
@@ -153,7 +153,7 @@ public class BerkeleyDBValueSpecificationIdentifierBinaryDataStoreTest {
     File dbDir = createDbDir("parallelPutGetTest");
     Environment dbEnvironment = createDbEnvironment(dbDir);
     
-    final BerkeleyDBValueSpecificationIdentifierBinaryDataStore dataStore = new BerkeleyDBValueSpecificationIdentifierBinaryDataStore(dbEnvironment, "parallelPutGetTest");
+    final BerkeleyDBBinaryDataStore dataStore = new BerkeleyDBBinaryDataStore(dbEnvironment, "parallelPutGetTest");
     dataStore.start();
     
     final AtomicLong currentMaxIdentifier = new AtomicLong(0L);
