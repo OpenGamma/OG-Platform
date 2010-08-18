@@ -13,6 +13,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import com.opengamma.engine.test.TestCalculationNode;
+
 /**
  * Tests the LocalNodeJobInvoker class
  */

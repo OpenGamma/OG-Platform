@@ -7,10 +7,12 @@ package com.opengamma.engine.view.calcnode;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,48 +35,60 @@ public class JobDispatcher implements JobInvokerRegister {
     private final List<CalculationJobItem> _items;
     private final JobResultReceiver _resultReceiver;
     private final long _jobCreationTime;
+    private final CapabilityRequirements _capabilityRequirements;
+    private Set<JobInvoker> _excludeJobInvoker;
     private int _rescheduled;
 
     private DispatchJob(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items, final JobResultReceiver resultReceiver) {
       _jobSpec = jobSpec;
       _items = items;
       _resultReceiver = resultReceiver;
-      _jobCreationTime = System.currentTimeMillis();
+      _jobCreationTime = System.nanoTime ();
+      _capabilityRequirements = getCapabilityRequirementsProvider().getCapabilityRequirements(jobSpec, items);
     }
 
     private long getDurationNanos() {
-      return (System.currentTimeMillis() - _jobCreationTime) * 1000000L;
+      return System.nanoTime() - getJobCreationTime();
     }
 
     @Override
-    public void jobCompleted(CalculationJobResult result) {
+    public void jobCompleted(final CalculationJobResult result) {
       // REVIEW 2010-08-16 We only need the node ID and the list of result items; we already have everything else we need for the job result
-      assert _jobSpec.equals(result.getSpecification());
-      s_logger.debug("Job {} completed", _jobSpec.getJobId());
+      assert getJobSpec().equals(result.getSpecification());
+      s_logger.debug("Job {} completed", getJobSpec().getJobId());
       _resultReceiver.resultReceived(result);
       s_logger.debug("Non-executing job time overhead = {}ms", ((double) getDurationNanos() - (double) result.getDuration()) / 1000000d);
     }
 
     @Override
-    public void jobFailed(Exception exception) {
-      s_logger.debug("Job {} failed", _jobSpec.getJobId());
+    public void jobFailed(final JobInvoker jobInvoker, final Exception exception) {
+      s_logger.debug("Job {} failed", getJobSpec().getJobId());
       _rescheduled++;
       if (_rescheduled >= getMaxJobAttempts()) {
-        s_logger.warn("Failed job {} after {} attempts", _jobSpec.getJobId(), _rescheduled);
-        if (exception == null) {
-          exception = new OpenGammaRuntimeException("No underlying transport exception");
-          exception.fillInStackTrace();
-        }
-        final List<CalculationJobResultItem> failureItems = new ArrayList<CalculationJobResultItem>(getItems().size());
-        for (CalculationJobItem item : getItems()) {
-          failureItems.add(new CalculationJobResultItem(item, exception));
-        }
-        final CalculationJobResult jobResult = new CalculationJobResult(_jobSpec, getDurationNanos(), failureItems, getJobFailureNodeId());
-        _resultReceiver.resultReceived(jobResult);
+        jobAbort(exception, "internal node error");
       } else {
-        s_logger.info("Retrying job {} (attempt {})", _jobSpec.getJobId(), _rescheduled);
+        s_logger.info("Retrying job {} (attempt {})", getJobSpec().getJobId(), _rescheduled);
+        if (_excludeJobInvoker == null) {
+          _excludeJobInvoker = new HashSet<JobInvoker>();
+        }
+        _excludeJobInvoker.add(jobInvoker);
         dispatchJobImpl(this);
       }
+    }
+
+    private void jobAbort(Exception exception, final String alternativeError) {
+      s_logger.warn("Failed job {} after {} attempts", getJobSpec().getJobId(), _rescheduled);
+      if (exception == null) {
+        s_logger.error("Failed job {} with {}", getJobSpec().getJobId(), alternativeError);
+        exception = new OpenGammaRuntimeException(alternativeError);
+        exception.fillInStackTrace();
+      }
+      final List<CalculationJobResultItem> failureItems = new ArrayList<CalculationJobResultItem>(getItems().size());
+      for (CalculationJobItem item : getItems()) {
+        failureItems.add(new CalculationJobResultItem(item, exception));
+      }
+      final CalculationJobResult jobResult = new CalculationJobResult(getJobSpec(), getDurationNanos(), failureItems, getJobFailureNodeId());
+      _resultReceiver.resultReceived(jobResult);
     }
 
     private CalculationJobSpecification getJobSpec() {
@@ -85,25 +99,31 @@ public class JobDispatcher implements JobInvokerRegister {
       return _items;
     }
 
-    // [ENG-42] As part of the capability rewrite, query the job for its requirements so it can flag up an invoker it doesn't want to run on again
+    private CapabilityRequirements getRequirements() {
+      return _capabilityRequirements;
+    }
+
+    private long getJobCreationTime() {
+      return _jobCreationTime;
+    }
+
+    private boolean canRunOn(final JobInvoker jobInvoker) {
+      if (_excludeJobInvoker != null) {
+        if (_excludeJobInvoker.contains(jobInvoker)) {
+          return false;
+        }
+      }
+      return getRequirements().satisfiedBy(jobInvoker.getCapabilities());
+    }
 
   }
 
   private final Queue<DispatchJob> _pending = new LinkedList<DispatchJob>();
+  private final Queue<JobInvoker> _invokers = new LinkedList<JobInvoker>();
 
-  private static class JobInvokerNode {
-    private JobInvokerNode _next;
-    private JobInvoker _invoker;
-
-    public JobInvokerNode(final JobInvoker invoker, final JobInvokerNode next) {
-      _next = next;
-      _invoker = invoker;
-    }
-  }
-
-  private JobInvokerNode _invokers;
   private int _maxJobAttempts = DEFAULT_MAX_JOB_ATTEMPTS;
   private String _jobFailureNodeId = DEFAULT_JOB_FAILURE_NODE_ID;
+  private CapabilityRequirementsProvider _capabilityRequirementsProvider = new StaticCapabilityRequirementsProvider();
 
   public JobDispatcher() {
   }
@@ -133,105 +153,94 @@ public class JobDispatcher implements JobInvokerRegister {
   }
 
   public synchronized void addInvokers(final Collection<JobInvoker> invokers) {
-    for (JobInvoker invoker : invokers) {
-      _invokers = new JobInvokerNode(invoker, _invokers);
-    }
+    _invokers.addAll(invokers);
+  }
+
+  public void setCapabilityRequirementsProvider(final CapabilityRequirementsProvider capabilityRequirementsProvider) {
+    ArgumentChecker.notNull(capabilityRequirementsProvider, "capabilityRequirementsProvider");
+    _capabilityRequirementsProvider = capabilityRequirementsProvider;
+  }
+
+  public CapabilityRequirementsProvider getCapabilityRequirementsProvider() {
+    return _capabilityRequirementsProvider;
   }
 
   protected Queue<DispatchJob> getPending() {
     return _pending;
   }
 
+  protected Queue<JobInvoker> getInvokers() {
+    return _invokers;
+  }
+
   @Override
   public synchronized void registerJobInvoker(final JobInvoker invoker) {
     ArgumentChecker.notNull(invoker, "invoker");
     s_logger.debug("Registering job invoker {}", invoker);
-    _invokers = new JobInvokerNode(invoker, _invokers);
+    getInvokers().add(invoker);
     if (!getPending().isEmpty()) {
-      retryPending();
+      retryPending(0L);
     }
   }
 
-  private void retryPending() {
+  // caller must already own monitor
+  private void retryPending(final long failJobsBefore) {
     s_logger.debug("Retrying pending operations");
     final Iterator<DispatchJob> iterator = getPending().iterator();
     while (iterator.hasNext()) {
       final DispatchJob job = iterator.next();
       if (invoke(job)) {
         iterator.remove();
-      } else if (_invokers == null) {
-        s_logger.debug("Aborting retry pending operation - no invokers in chain");
-        break;
+      } else {
+        if (failJobsBefore <= 0) {
+          if (getInvokers().isEmpty()) {
+            s_logger.debug("No invokers available - not retrying operations");
+            break;
+          }
+        } else if (job.getJobCreationTime() < failJobsBefore) {
+          iterator.remove();
+          job.jobAbort(null, "no invokers available after timeout");
+        }
       }
     }
   }
+  
+  // TODO [ENG-42] schedule retryPending to be called periodically with failJobsBefore set to `System.nanoTime() - a timeout` to cancel jobs which can't be executed at all
 
+  // caller must already own monitor
   private boolean invoke(final DispatchJob job) {
-    do {
-      int bestScore = 0;
-      JobInvokerNode bestInvokerPrev = null;
-      JobInvokerNode prevInvokerNode = null;
-      JobInvokerNode invokerNode = _invokers;
-      while (invokerNode != null) {
-        final int score = invokerNode._invoker.canInvoke(job.getJobSpec(), job.getItems());
-        if (score > bestScore) {
-          bestScore = score;
-          bestInvokerPrev = prevInvokerNode;
-        }
-        prevInvokerNode = invokerNode;
-        invokerNode = invokerNode._next;
-      }
-      if (bestScore > 0) {
-        // Remove the node from its current position in the list
-        if (bestInvokerPrev != null) {
-          invokerNode = bestInvokerPrev._next;
-          bestInvokerPrev._next = invokerNode._next;
-        } else {
-          invokerNode = _invokers;
-          _invokers = invokerNode._next;
-        }
-        if (invokerNode._invoker.invoke(job.getJobSpec(), job.getItems(), job)) {
-          s_logger.debug("Invoker {} accepted job {}", invokerNode._invoker, job.getJobSpec().getJobId());
-          if (prevInvokerNode == invokerNode) {
-            // invoker node was already at the end of the list
-            if (bestInvokerPrev != null) {
-              bestInvokerPrev._next = invokerNode;
-            } else {
-              _invokers = invokerNode;
-            }
-          } else {
-            // return invoker node to the end of the list
-            prevInvokerNode._next = invokerNode;
-          }
-          invokerNode._next = null;
+    final Iterator<JobInvoker> iterator = getInvokers().iterator();
+    while (iterator.hasNext()) {
+      final JobInvoker jobInvoker = iterator.next();
+      if (job.canRunOn(jobInvoker)) {
+        if (jobInvoker.invoke(job.getJobSpec(), job.getItems(), job)) {
+          s_logger.debug("Invoker {} accepted job {}", jobInvoker, job.getJobSpec().getJobId());
+          // put it at the end of the list
+          iterator.remove();
+          getInvokers().add(jobInvoker);
           return true;
         } else {
-          s_logger.debug("Invoker {} refused to execute job {}", invokerNode._invoker, job.getJobSpec().getJobId());
-          invokerNode._invoker.notifyWhenAvailable(this);
-          // Repeat in case there are other, lower priority, invokers
-
-          // TODO This is inefficient in the case of there being lots of invokers. We should have kept the scores, sort them and process in correct order
+          s_logger.debug("Invoker {} refused to execute job {}", jobInvoker, job.getJobSpec().getJobId());
+          iterator.remove();
+          jobInvoker.notifyWhenAvailable(this);
         }
-      } else {
-        s_logger.debug("No invokers can accept job {}", job.getJobSpec().getJobId());
-        return false;
       }
-    } while (true);
+    }
+    s_logger.debug("No invokers available for job {}", job.getJobSpec().getJobId());
+    return false;
   }
 
-  // TODO The above selection logic and "canInvoke" mechanism for scoring is inefficient for large numbers of invokers. Change to something more sensible when doing ENG-42 properly
-
-  private void dispatchJobImpl(final DispatchJob job) {
+  private synchronized void dispatchJobImpl(final DispatchJob job) {
     if (!invoke(job)) {
       s_logger.debug("Adding job to pending set");
       getPending().add(job);
       if (_invokers != null) {
-        retryPending();
+        retryPending(0L);
       }
     }
   }
 
-  public synchronized void dispatchJob(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items, final JobResultReceiver resultReceiver) {
+  public void dispatchJob(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items, final JobResultReceiver resultReceiver) {
     ArgumentChecker.notNull(jobSpec, "jobSpec");
     ArgumentChecker.notNull(items, "items");
     ArgumentChecker.notNull(resultReceiver, "resultReceiver");

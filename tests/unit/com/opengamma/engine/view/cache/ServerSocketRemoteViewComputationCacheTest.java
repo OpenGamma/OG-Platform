@@ -42,14 +42,14 @@ public class ServerSocketRemoteViewComputationCacheTest {
   // When attempting to fix ENG-100, set this constant to more than 1.
   private static final int NUM_THREADS = 5;
   private static final int NUM_LOOKUPS = 1000;
-  private RemoteViewComputationCacheSource _cacheSource;
+  private ViewComputationCacheSource _cacheSource;
   private ServerSocketFudgeRequestDispatcher _serverSocketDispatcher;
   private SocketFudgeRequestSender _socketSender;
   
   @Before
   public void setupCacheSource() throws UnknownHostException {
-    MapViewComputationCacheSource cache = new MapViewComputationCacheSource (FudgeContext.GLOBAL_DEFAULT);
-    RemoteCacheServer server = new RemoteCacheServer(cache);
+    InMemoryViewComputationCacheSource cache = new InMemoryViewComputationCacheSource (FudgeContext.GLOBAL_DEFAULT);
+    ViewComputationCacheServer server = new ViewComputationCacheServer (cache);
     _serverSocketDispatcher = new ServerSocketFudgeRequestDispatcher(server);
     _serverSocketDispatcher.start();
     
@@ -58,15 +58,11 @@ public class ServerSocketRemoteViewComputationCacheTest {
     _socketSender.setPortNumber(_serverSocketDispatcher.getPortNumber());
     
     RemoteCacheClient client = new RemoteCacheClient(_socketSender);
-    RemoteViewComputationCacheSource cacheSource = new RemoteViewComputationCacheSource(client);
-    _cacheSource = cacheSource;
+    _cacheSource = new RemoteViewComputationCacheSource (client);
   }
   
   @After
   public void shutDown() {
-    if(_cacheSource != null) {
-      _cacheSource.releaseAllLocalCaches();
-    }
     if(_socketSender != null) {
       _socketSender.stop();
     }

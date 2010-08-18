@@ -35,11 +35,42 @@ public class ResultModelDefinition implements Serializable {
   private static final String SECURITY_OUTPUT_MODE_FIELD = "securityOutputMode";
   private static final String PRIMITIVE_OUTPUT_MODE_FIELD = "primitiveOutputMode";
   
-  private ResultOutputMode _aggregatePositionOutputMode = ResultOutputMode.TERMINAL_OUTPUTS;
-  private ResultOutputMode _positionOutputMode = ResultOutputMode.TERMINAL_OUTPUTS;
-  private ResultOutputMode _securityOutputMode = ResultOutputMode.TERMINAL_OUTPUTS;
-  private ResultOutputMode _primitiveOutputMode = ResultOutputMode.TERMINAL_OUTPUTS;
+  private ResultOutputMode _aggregatePositionOutputMode;
+  private ResultOutputMode _positionOutputMode;
+  private ResultOutputMode _securityOutputMode;
+  private ResultOutputMode _primitiveOutputMode;
 
+  /**
+   * Constructs an instance using the default output mode for each computation target type.
+   */
+  public ResultModelDefinition() {
+    this(ResultOutputMode.TERMINAL_OUTPUTS);
+  }
+  
+  /**
+   * Constructs an instance using the specified output mode for every computation target type.
+   *  
+   * @param defaultMode  the default result output mode
+   */
+  public ResultModelDefinition(ResultOutputMode defaultMode) {
+    this(defaultMode, defaultMode, defaultMode, defaultMode);
+  }
+  
+  /**
+   * Constructs an instance using the specified output modes for each computation target type.
+   * 
+   * @param primitiveOutputMode  the result output mode for primitive targets
+   * @param securityOutputMode  the result output mode for security targets
+   * @param positionOutputMode  the result output mode for position targets
+   * @param aggregatePositionOutputMode  the result output mode for aggregate position targets
+   */
+  public ResultModelDefinition(ResultOutputMode primitiveOutputMode, ResultOutputMode securityOutputMode, ResultOutputMode positionOutputMode, ResultOutputMode aggregatePositionOutputMode) {
+    _primitiveOutputMode = primitiveOutputMode;
+    _securityOutputMode = securityOutputMode;
+    _positionOutputMode = positionOutputMode;
+    _aggregatePositionOutputMode = aggregatePositionOutputMode;
+  }
+  
   /**
    * Gets the output mode that applies to aggregate position values. This is independent of individual position outputs.
    * 

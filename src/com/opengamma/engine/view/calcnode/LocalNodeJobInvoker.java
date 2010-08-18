@@ -6,8 +6,10 @@
 package com.opengamma.engine.view.calcnode;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,18 +18,19 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * Invokes jobs on one or more local calculation node implementations.
  */
 public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContainer<Queue<AbstractCalculationNode>> implements JobInvoker {
 
   private static final Logger s_logger = LoggerFactory.getLogger(LocalNodeJobInvoker.class);
-  private static final int DEFAULT_PRIORITY = 10;
 
   private final AtomicReference<JobInvokerRegister> _notifyWhenAvailable = new AtomicReference<JobInvokerRegister>();
   private final ExecutorService _executorService;
 
-  private int _nodePriority = DEFAULT_PRIORITY;
+  private final Set<Capability> _capabilities = new HashSet<Capability>();
 
   public LocalNodeJobInvoker() {
     super(new ConcurrentLinkedQueue<AbstractCalculationNode>());
@@ -52,12 +55,15 @@ public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContai
     }
   }
 
-  public void setNodePriority(final int priority) {
-    _nodePriority = priority;
+  public void addCapability(final Capability capability) {
+    ArgumentChecker.notNull(capability, "capability");
+    getCapabilities().add(capability);
   }
 
-  public int getNodePriority() {
-    return _nodePriority;
+  public void setCapabilities(final Collection<Capability> capabilities) {
+    ArgumentChecker.notNull(capabilities, "capabilities");
+    getCapabilities().clear();
+    getCapabilities().addAll(capabilities);
   }
 
   protected ExecutorService getExecutorService() {
@@ -65,8 +71,8 @@ public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContai
   }
 
   @Override
-  public int canInvoke(CalculationJobSpecification jobSpec, List<CalculationJobItem> items) {
-    return getNodePriority();
+  public Collection<Capability> getCapabilities() {
+    return _capabilities;
   }
 
   @Override
@@ -84,7 +90,7 @@ public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContai
           result = node.executeJob(job);
         } catch (Exception e) {
           s_logger.warn("Exception thrown by job execution", e);
-          receiver.jobFailed(e);
+          receiver.jobFailed(LocalNodeJobInvoker.this, e);
         }
         if (result != null) {
           receiver.jobCompleted(result);

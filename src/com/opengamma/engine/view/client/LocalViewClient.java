@@ -6,10 +6,8 @@
 package com.opengamma.engine.view.client;
 
 import java.util.Set;
-import java.util.TreeSet;
 
 import com.opengamma.engine.position.Portfolio;
-import com.opengamma.engine.security.Security;
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.DeltaComputationResultListener;
 import com.opengamma.engine.view.View;
@@ -62,12 +60,7 @@ public class LocalViewClient implements ViewClient {
   @Override
   public Set<String> getAllSecurityTypes() {
     // REVIEW kirk 2010-03-02 -- What if this is called before resolution? Is that feasible/possible?
-    // REVIEW kirk 2010-03-02 -- Cache this? Push down to the PEM?
-    Set<String> securityTypes = new TreeSet<String>();
-    for (Security security : getView().getPortfolioEvaluationModel().getSecurities()) {
-      securityTypes.add(security.getSecurityType());
-    }
-    return securityTypes;
+    return getView().getViewEvaluationModel().getAllSecurityTypes();
   }
 
   @Override
