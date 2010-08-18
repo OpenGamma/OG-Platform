@@ -117,10 +117,10 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(discountCurveReq);
     // TODO cost-of-carry model
     if (optionPrice == null) {
-      s_logger.warn("No indicative value for option price");
+      s_logger.warn("No market value for option price");
     }
     if (underlyingPrice == null) {
-      s_logger.warn("No indicative value for underlying price");
+      s_logger.warn("No market value for underlying price");
     }
 
     // Perform the calculation:
@@ -150,7 +150,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
   }
 
   private ValueRequirement getPriceRequirement(final UniqueIdentifier uid) {
-    return new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, ComputationTargetType.SECURITY, uid);
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, uid);
   }
 
   private ValueRequirement getDiscountCurveMarketDataRequirement(final UniqueIdentifier uid) {

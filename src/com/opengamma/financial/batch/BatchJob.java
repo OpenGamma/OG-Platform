@@ -63,6 +63,7 @@ import com.opengamma.engine.view.calcnode.LocalCalculationNode;
 import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
+import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.financial.position.master.MasterPositionSource;
 import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.financial.security.HistoricallyFixedSecurityMaster;
@@ -636,7 +637,8 @@ public class BatchJob implements Job {
         viewProcessorQueryReceiver, 
         compilationContext, 
         executor,
-        dependencyGraphExecutorFactory);
+        dependencyGraphExecutorFactory,
+        new DefaultViewPermissionProvider());
     
     _view = new View(viewDefinitionDoc.getValue(), vpc);
     _view.setPopulateResultModel(false);

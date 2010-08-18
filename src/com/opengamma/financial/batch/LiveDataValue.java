@@ -23,7 +23,7 @@ public class LiveDataValue {
   private ComputationTargetSpecification _computationTargetSpecification;
   
   /**
-   * For example, IndicativeValue
+   * For example, MARKET_VALUE
    */
   private String _fieldName;
   

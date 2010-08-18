@@ -32,6 +32,7 @@ import com.opengamma.engine.view.calcnode.LocalCalculationNode;
 import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
+import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.test.TestLiveDataClient;
 import com.opengamma.transport.InMemoryRequestConduit;
@@ -80,7 +81,8 @@ public class ViewTestUtils {
         viewProcessorQueryReceiver,
         new FunctionCompilationContext(), 
         executor,
-        new SingleNodeExecutorFactory());
+        new SingleNodeExecutorFactory(),
+        new DefaultViewPermissionProvider());
     
     ViewDefinition viewDefinition = new ViewDefinition("mock_view", portfolioId, "ViewTestUser");
 
