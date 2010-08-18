@@ -257,7 +257,7 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
   }
 
   @Test
-  public void ShermanMorrison() {
+  public void testShermanMorrison() {
     final VectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN);
     doHotSpot(rootFinder, "default Newton, double curve", DOUBLE_CURVE_FINDER);
   }

@@ -31,17 +31,17 @@ public class TridiagonalMatrixInvertorTest {
   }
 
   @Test
-  public void TestInvertIdentity() {
-    int n = 11;
-    double[] a = new double[n];
-    double[] b = new double[n - 1];
-    double[] c = new double[n - 1];
+  public void testInvertIdentity() {
+    final int n = 11;
+    final double[] a = new double[n];
+    final double[] b = new double[n - 1];
+    final double[] c = new double[n - 1];
     int i, j;
 
     for (i = 0; i < n; i++) {
       a[i] = 1.0;
     }
-    DoubleMatrix2D res = INVERTOR.evaluate(new TridiagonalMatrix(a, b, c));
+    final DoubleMatrix2D res = INVERTOR.evaluate(new TridiagonalMatrix(a, b, c));
     for (i = 0; i < n; i++) {
       for (j = 0; j < n; j++) {
         assertEquals((i == j ? 1.0 : 0.0), res.getEntry(i, j), EPS);
@@ -51,11 +51,11 @@ public class TridiagonalMatrixInvertorTest {
   }
 
   @Test
-  public void TestInvert() {
-    DoubleMatrix2D res = INVERTOR.evaluate(MATRIX);
-    DoubleMatrix2D idet = (DoubleMatrix2D) OG_ALGEBRA.multiply(TRI, res);
+  public void testInvert() {
+    final DoubleMatrix2D res = INVERTOR.evaluate(MATRIX);
+    final DoubleMatrix2D idet = (DoubleMatrix2D) OG_ALGEBRA.multiply(TRI, res);
 
-    int n = idet.getNumberOfRows();
+    final int n = idet.getNumberOfRows();
     int i, j;
     for (i = 0; i < n; i++) {
       for (j = 0; j < n; j++) {

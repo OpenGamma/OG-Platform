@@ -179,6 +179,7 @@ public abstract class Interpolator1DDataBundleTestCase {
     other = createDataBundle(x, VALUES1);
     assertFalse(DATA.equals(other));
     other = createDataBundle(KEYS1, x);
+    assertFalse(DATA.equals(other));
   }
 
   @Test

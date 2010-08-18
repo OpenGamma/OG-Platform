@@ -29,22 +29,22 @@ public class BondYieldCalculatorTest {
   private static Bond BOND;
 
   static {
-    int n = 15;
-    double[] paymentTimes = new double[n];
-    double alpha = 0.5;
+    final int n = 15;
+    final double[] paymentTimes = new double[n];
+    final double alpha = 0.5;
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = (i + 1) * alpha;
     }
     BUNDLE.setCurve(CURVE_NAME, CURVE);
 
     BOND = new Bond(paymentTimes, 0.0, CURVE_NAME);
-    double rate = PRC.getValue(BOND, BUNDLE);
+    final double rate = PRC.getValue(BOND, BUNDLE);
     BOND = new Bond(paymentTimes, rate, CURVE_NAME);
   }
 
   @Test
-  public void TestBond() {
-    double yield = CALCULATOR.calculate(BOND, PRICE);
+  public void testBond() {
+    final double yield = CALCULATOR.calculate(BOND, PRICE);
     assertEquals(YIELD, yield, 1e-8);
   }
 

@@ -36,20 +36,13 @@ public class GeneralizedLeastSquaresRegression extends LeastSquaresRegression {
     final DoubleMatrix1D vector = DoubleFactory1D.dense.make(indep);
     final DoubleMatrix2D w = DoubleFactory2D.dense.make(wArray);
     final DoubleMatrix2D transpose = _algebra.transpose(matrix);
-    final DoubleMatrix1D betasVector =
-        _algebra.mult(_algebra.mult(_algebra.mult(_algebra.inverse(_algebra.mult(transpose, _algebra.mult(w, matrix))), transpose), w), vector);
+    final DoubleMatrix1D betasVector = _algebra.mult(_algebra.mult(_algebra.mult(_algebra.inverse(_algebra.mult(transpose, _algebra.mult(w, matrix))), transpose), w), vector);
     final double[] yModel = convertArray(_algebra.mult(matrix, betasVector).toArray());
     final double[] betas = convertArray(betasVector.toArray());
     return getResultWithStatistics(x, y, betas, yModel, useIntercept);
   }
 
-  private LeastSquaresRegressionResult getResultWithStatistics(final double[][] x, final double[] y, final double[] betas, final double[] yModel,
-      final boolean useIntercept) {
-    double yMean = 0.;
-    for (final double y1 : y) {
-      yMean += y1;
-    }
-    yMean /= y.length;
+  private LeastSquaresRegressionResult getResultWithStatistics(final double[][] x, final double[] y, final double[] betas, final double[] yModel, final boolean useIntercept) {
     final int n = x.length;
     final double[] residuals = new double[n];
     for (int i = 0; i < n; i++) {

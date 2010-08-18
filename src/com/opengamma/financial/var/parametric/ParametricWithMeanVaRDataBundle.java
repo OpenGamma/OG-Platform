@@ -6,6 +6,7 @@
 package com.opengamma.financial.var.parametric;
 
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
@@ -34,8 +35,9 @@ public class ParametricWithMeanVaRDataBundle extends ParametricVaRDataBundle {
     Validate.notNull(sensitivities, "sensitivities");
     Validate.notNull(mean, "mean");
     Matrix<?> m;
-    for (final Integer order : sensitivities.keySet()) {
-      m = sensitivities.get(order);
+    for (final Entry<Integer, Matrix<?>> entry : sensitivities.entrySet()) {
+      final int order = entry.getKey();
+      m = entry.getValue();
       if (mean.containsKey(order)) {
         if (m instanceof DoubleMatrix1D) {
           if (((DoubleMatrix1D) m).getNumberOfElements() != mean.get(order).getNumberOfElements()) {
@@ -59,7 +61,7 @@ public class ParametricWithMeanVaRDataBundle extends ParametricVaRDataBundle {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -69,7 +71,7 @@ public class ParametricWithMeanVaRDataBundle extends ParametricVaRDataBundle {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    ParametricWithMeanVaRDataBundle other = (ParametricWithMeanVaRDataBundle) obj;
+    final ParametricWithMeanVaRDataBundle other = (ParametricWithMeanVaRDataBundle) obj;
     return ObjectUtils.equals(_mean, other._mean);
   }
 

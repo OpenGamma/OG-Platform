@@ -35,7 +35,7 @@ public class MatrixAlgebraTest {
     }
 
   };
-  private final double EPS = 1e-10;
+  private static final double EPS = 1e-10;
 
   @Test(expected = IllegalArgumentException.class)
   public void testAddWrongSize() {
@@ -168,7 +168,6 @@ public class MatrixAlgebraTest {
       return;
     }
     if (m2 instanceof DoubleMatrix2D) {
-      assertTrue(m2 instanceof DoubleMatrix2D);
       final DoubleMatrix2D m3 = (DoubleMatrix2D) m1;
       final DoubleMatrix2D m4 = (DoubleMatrix2D) m2;
       assertEquals(m3.getNumberOfElements(), m4.getNumberOfElements());

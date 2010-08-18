@@ -79,6 +79,9 @@ public class AmericanVanillaOptionDefinition extends OptionDefinition {
 
   @Override
   public boolean equals(final Object obj) {
+    if (obj == null) {
+      return false;
+    }
     if (getClass() != obj.getClass()) {
       return false;
     }

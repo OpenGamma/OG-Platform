@@ -7,6 +7,7 @@ package com.opengamma.financial.covariance;
 
 import java.util.Iterator;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,5 +64,36 @@ public class ExponentialWeightedMovingAverageHistoricalVolatilityCalculator exte
       variance = _lambda * variance + _lambdaM1 * returnValue * returnValue;
     }
     return Math.sqrt(variance);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_lambda);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_lambdaM1);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_returnCalculator == null) ? 0 : _returnCalculator.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final ExponentialWeightedMovingAverageHistoricalVolatilityCalculator other = (ExponentialWeightedMovingAverageHistoricalVolatilityCalculator) obj;
+    if (Double.doubleToLongBits(_lambda) != Double.doubleToLongBits(other._lambda)) {
+      return false;
+    }
+    return ObjectUtils.equals(_returnCalculator, other._returnCalculator);
   }
 }

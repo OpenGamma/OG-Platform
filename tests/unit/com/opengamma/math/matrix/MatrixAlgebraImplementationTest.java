@@ -344,7 +344,6 @@ public class MatrixAlgebraImplementationTest {
       return;
     }
     if (m2 instanceof DoubleMatrix2D) {
-      assertTrue(m2 instanceof DoubleMatrix2D);
       final DoubleMatrix2D m3 = (DoubleMatrix2D) m1;
       final DoubleMatrix2D m4 = (DoubleMatrix2D) m2;
       assertEquals(m3.getNumberOfElements(), m4.getNumberOfElements());

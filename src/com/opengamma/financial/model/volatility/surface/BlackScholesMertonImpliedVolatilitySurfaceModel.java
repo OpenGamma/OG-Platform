@@ -45,7 +45,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
         .getVolatilitySurface();
   }
 
-  private class MyBisectionSingleRootFinder implements SingleRootFinder<StandardOptionDataBundle, Double> {
+  private static class MyBisectionSingleRootFinder implements SingleRootFinder<StandardOptionDataBundle, Double> {
     private final StandardOptionDataBundle _data;
     private final double _price;
     private final DoublesPair _origin = DoublesPair.of(0., 0.);

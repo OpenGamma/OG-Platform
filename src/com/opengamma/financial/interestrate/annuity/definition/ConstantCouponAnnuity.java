@@ -46,4 +46,37 @@ public class ConstantCouponAnnuity extends FixedAnnuity {
     return visitor.visitConstantCouponAnnuity(this, curves);
   }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_couponRate);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_notional);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final ConstantCouponAnnuity other = (ConstantCouponAnnuity) obj;
+    if (Double.doubleToLongBits(_couponRate) != Double.doubleToLongBits(other._couponRate)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_notional) != Double.doubleToLongBits(other._notional)) {
+      return false;
+    }
+    return true;
+  }
+
 }

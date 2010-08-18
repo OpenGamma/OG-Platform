@@ -8,6 +8,7 @@ package com.opengamma.math.function.special;
 import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.CompareUtils;
 
 /**
  * 
@@ -63,7 +64,7 @@ public class InverseIncompleteBetaFunction extends Function1D<Double, Double> {
     final double afac = -_lnGamma.evaluate(_a) - _lnGamma.evaluate(_b) + _lnGamma.evaluate(_a + _b);
     double error;
     for (int j = 0; j < 10; j++) {
-      if (p == 0 || p == 1) {
+      if (CompareUtils.closeEquals(p, 0, 1e-16) || CompareUtils.closeEquals(p, 1, 1e-16)) {
         throw new MathException("a or b too small for accurate evaluation");
       }
       error = _beta.evaluate(p) - x;

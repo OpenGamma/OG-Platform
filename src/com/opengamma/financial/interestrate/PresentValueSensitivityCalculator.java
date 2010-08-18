@@ -82,7 +82,7 @@ public final class PresentValueSensitivityCalculator implements InterestRateDeri
     if (settlementDate > 0) {
       final DoublesPair s = new DoublesPair(settlementDate, -settlementDate * fundingCurve.getDiscountFactor(settlementDate) * (fwd - fra.getStrike()) * fwdAlpha / onePlusAlphaF);
       temp.add(s);
-      if (fundingCurveName != liborCurveName) {
+      if (!fundingCurveName.equals(liborCurveName)) {
         result.put(fundingCurveName, temp);
         temp = new ArrayList<DoublesPair>();
       }
@@ -207,7 +207,7 @@ public final class PresentValueSensitivityCalculator implements InterestRateDeri
       temp.add(s);
     }
 
-    if (liborCurveName != fundingCurveName) {
+    if (!liborCurveName.equals(fundingCurveName)) {
       result.put(fundingCurveName, temp);
       temp = new ArrayList<DoublesPair>();
     }

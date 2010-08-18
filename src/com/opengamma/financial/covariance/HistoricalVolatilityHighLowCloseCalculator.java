@@ -7,6 +7,7 @@ package com.opengamma.financial.covariance;
 
 import java.util.Iterator;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,15 +30,14 @@ public class HistoricalVolatilityHighLowCloseCalculator extends HistoricalVolati
     _relativeReturnCalculator = relativeReturnCalculator;
   }
 
-  public HistoricalVolatilityHighLowCloseCalculator(final TimeSeriesReturnCalculator returnCalculator, final RelativeTimeSeriesReturnCalculator relativeReturnCalculator,
-      final CalculationMode mode) {
+  public HistoricalVolatilityHighLowCloseCalculator(final TimeSeriesReturnCalculator returnCalculator, final RelativeTimeSeriesReturnCalculator relativeReturnCalculator, final CalculationMode mode) {
     super(mode);
     _returnCalculator = returnCalculator;
     _relativeReturnCalculator = relativeReturnCalculator;
   }
 
-  public HistoricalVolatilityHighLowCloseCalculator(final TimeSeriesReturnCalculator returnCalculator, final RelativeTimeSeriesReturnCalculator relativeReturnCalculator,
-      final CalculationMode mode, final double percentBadDataPoints) {
+  public HistoricalVolatilityHighLowCloseCalculator(final TimeSeriesReturnCalculator returnCalculator, final RelativeTimeSeriesReturnCalculator relativeReturnCalculator, final CalculationMode mode,
+      final double percentBadDataPoints) {
     super(mode, percentBadDataPoints);
     _returnCalculator = returnCalculator;
     _relativeReturnCalculator = relativeReturnCalculator;
@@ -75,4 +75,32 @@ public class HistoricalVolatilityHighLowCloseCalculator extends HistoricalVolati
     final int n = closeReturns.size();
     return Math.sqrt((0.5 * sumHL - (2 * Math.log(2) - 1) * sum) / n);
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + ((_relativeReturnCalculator == null) ? 0 : _relativeReturnCalculator.hashCode());
+    result = prime * result + ((_returnCalculator == null) ? 0 : _returnCalculator.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final HistoricalVolatilityHighLowCloseCalculator other = (HistoricalVolatilityHighLowCloseCalculator) obj;
+    if (!ObjectUtils.equals(_relativeReturnCalculator, other._relativeReturnCalculator)) {
+      return false;
+    }
+    return ObjectUtils.equals(_returnCalculator, other._returnCalculator);
+  }
+
 }

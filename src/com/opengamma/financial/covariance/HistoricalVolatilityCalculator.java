@@ -23,7 +23,7 @@ import com.opengamma.util.timeseries.TimeSeriesException;
 public abstract class HistoricalVolatilityCalculator implements VolatilityCalculator {
   private static final Logger s_logger = LoggerFactory.getLogger(HistoricalVolatilityCalculator.class);
   private static final CalculationMode DEFAULT_CALCULATION_MODE = CalculationMode.STRICT;
-  private static final double DEFAULT_PERCENT_BAD_DATA_POINTS = 0.001;
+  private static final double DEFAULT_PERCENT_BAD_DATA_POINTS = 0.0;
   private final CalculationMode _mode;
   private final double _percentBadDataPoints;
 
@@ -129,5 +129,37 @@ public abstract class HistoricalVolatilityCalculator implements VolatilityCalcul
 
   protected static double getDefaultBadDataPoints() {
     return DEFAULT_PERCENT_BAD_DATA_POINTS;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_mode == null) ? 0 : _mode.hashCode());
+    long temp;
+    temp = Double.doubleToLongBits(_percentBadDataPoints);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final HistoricalVolatilityCalculator other = (HistoricalVolatilityCalculator) obj;
+    if (_mode != other._mode) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_percentBadDataPoints) != Double.doubleToLongBits(other._percentBadDataPoints)) {
+      return false;
+    }
+    return true;
   }
 }

@@ -6,6 +6,7 @@
 package com.opengamma.financial.var.conditional;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
@@ -85,5 +86,27 @@ public class NormalLinearConditionalVaRCalculatorTest {
 
     };
     assertEquals(F.evaluate(new NormalStatistics<Double>(mean, std, 0.)), 0.1599, 1e-4);
+  }
+
+  @Test
+  public void testObject() {
+    NormalLinearConditionalVaRCalculator other = new NormalLinearConditionalVaRCalculator(HORIZON, PERIODS, QUANTILE);
+    assertEquals(F, other);
+    assertEquals(F.hashCode(), other.hashCode());
+    other = new NormalLinearConditionalVaRCalculator(HORIZON + 1, PERIODS, QUANTILE);
+    assertFalse(F.equals(other));
+    other = new NormalLinearConditionalVaRCalculator(HORIZON, PERIODS + 1, QUANTILE);
+    assertFalse(F.equals(other));
+    other = new NormalLinearConditionalVaRCalculator(HORIZON, PERIODS, QUANTILE * 0.5);
+    assertFalse(F.equals(other));
+    other = new NormalLinearConditionalVaRCalculator(HORIZON, PERIODS, QUANTILE);
+    other.setHorizon(HORIZON + 1);
+    assertEquals(other, new NormalLinearConditionalVaRCalculator(HORIZON + 1, PERIODS, QUANTILE));
+    other.setHorizon(HORIZON);
+    other.setPeriods(PERIODS + 1);
+    assertEquals(other, new NormalLinearConditionalVaRCalculator(HORIZON, PERIODS + 1, QUANTILE));
+    other.setPeriods(PERIODS);
+    other.setQuantile(QUANTILE * 0.5);
+    assertEquals(other, new NormalLinearConditionalVaRCalculator(HORIZON, PERIODS, QUANTILE * 0.5));
   }
 }
