@@ -10,8 +10,6 @@ import javax.ws.rs.core.UriInfo;
 
 import org.fudgemsg.FudgeContext;
 
-import com.opengamma.financial.livedata.rest.LiveDataResource;
-import com.opengamma.financial.livedata.user.InMemoryUserSnapshotProvider;
 import com.opengamma.financial.position.rest.DataPortfoliosResource;
 import com.opengamma.financial.position.rest.DataPositionsResource;
 import com.opengamma.financial.security.MasterSecuritySource;
@@ -47,15 +45,9 @@ public class ClientResource {
    */
   public static final String VIEW_DEFINITIONS_PATH = "viewDefinitions";
   
-  /**
-   * The path used to retrieve user Live Data
-   */
-  public static final String LIVEDATA_PATH = "livedata";
-  
   private final ClientsResource _clientsResource;
   private final MasterSecuritySource _securityMaster;
   private final ManageableViewDefinitionRepository _viewDefinitionRepository;
-  private final InMemoryUserSnapshotProvider _liveData;
   private final UsersResourceContext _usersResourceContext;
   
   public ClientResource(ClientsResource clientsResource, String clientName, UsersResourceContext context) {
@@ -64,7 +56,6 @@ public class ClientResource {
     _securityMaster = new MasterSecuritySource(new InMemorySecurityMaster(getTemplate(username, clientName, SECURITIES_PATH).createSupplier()));
     _usersResourceContext = context;
     // [FIN-124] The user SecuritySource is done wrongly throughout
-    _liveData = new InMemoryUserSnapshotProvider(getTemplate(username, clientName, LIVEDATA_PATH));
     _viewDefinitionRepository = new InMemoryViewDefinitionRepository();
   }
 
@@ -111,11 +102,6 @@ public class ClientResource {
   @Path(VIEW_DEFINITIONS_PATH)
   public ViewDefinitionsResource getViewDefinitions() {
     return new ViewDefinitionsResource(_viewDefinitionRepository);
-  }
-  
-  @Path(LIVEDATA_PATH)
-  public LiveDataResource getLiveDataResource() {
-    return new LiveDataResource(_liveData);
   }
   
 }
