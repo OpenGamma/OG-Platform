@@ -28,6 +28,9 @@ import com.opengamma.engine.view.calc.SingleComputationCycle;
 import com.opengamma.engine.view.calc.ViewRecalculationJob;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
 import com.opengamma.engine.view.compilation.ViewEvaluationModel;
+import com.opengamma.engine.view.permission.ViewPermission;
+import com.opengamma.engine.view.permission.ViewPermissionException;
+import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
@@ -125,11 +128,15 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   public ViewEvaluationModel getViewEvaluationModel() {
     return _viewEvaluationModel;
   }
+  
+  public ViewPermissionProvider getPermissionProvider() {
+    return getProcessingContext().getPermissionProvider();
+  }
     
   public void addResultListener(ComputationResultListener resultListener) {
     ArgumentChecker.notNull(resultListener, "Result listener");
     
-    checkIsEntitledToResults(resultListener.getUser());
+    getPermissionProvider().assertPermission(ViewPermission.READ_RESULTS, resultListener.getUser(), this);
     _resultListeners.add(resultListener);
   }
   
@@ -141,7 +148,7 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   public void addDeltaResultListener(DeltaComputationResultListener deltaListener) {
     ArgumentChecker.notNull(deltaListener, "Delta listener");
     
-    checkIsEntitledToResults(deltaListener.getUser());
+    getPermissionProvider().assertPermission(ViewPermission.READ_RESULTS, deltaListener.getUser(), this);
     _deltaListeners.add(deltaListener);
   }
   
@@ -443,62 +450,13 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   }
   
   /**
-   * Reading the static contents of a view, modifying the view, 
-   * etc., can sometimes  be performed even by users 
-   * who are not entitled to view the results of the view.
+   * Checks that the given user has access to every market data line required to compute the results of the view, and
+   * throws an exception if this is not the case.
    * 
-   * @param user User who is requesting access
-   * @return true if the user should be able to view the
-   * static contents of the view. false otherwise.
+   * @param user  the user
+   * @throws ViewPermissionException  if any entitlement problems are found
    */
-  public boolean isEntitledToAccess(UserPrincipal user) {
-    try {
-      checkIsEntitledToAccess(user);
-      return true;
-    } catch (ViewAccessException e) {
-      return false;
-    }
-  }
-  
-  /**
-   * Reading the static contents of a view, modifying the view, 
-   * etc., can sometimes  be performed even by users 
-   * who are not entitled to view the results of the view.
-   * 
-   * @param user User who is requesting access
-   * @throws ViewAccessException If the user is not entitled
-   */
-  public void checkIsEntitledToAccess(UserPrincipal user) {
-    // not done yet    
-  }
-  
-  /**
-   * A user is entitled to view the computation results produced
-   * by a view only if they are entitled to every market data
-   * line required to compute the results of the view.
-   * 
-   * @param user User who is requesting access
-   * @return true if the user should be able to view the
-   * computation results produced by the view. false otherwise.
-   */
-  public boolean isEntitledToResults(UserPrincipal user) {
-    try {
-      checkIsEntitledToResults(user);
-      return true;
-    } catch (ViewAccessException e) {
-      return false;
-    }
-  }
-  
-  /**
-   * A user is entitled to view the computation results produced
-   * by a view only if they are entitled to every market data
-   * line required to compute the results of the view.
-   * 
-   * @param user User who is requesting access
-   * @throws ViewAccessException If the user is not entitled 
-   */
-  public void checkIsEntitledToResults(UserPrincipal user) {
+  public void assertAccessToLiveDataRequirements(UserPrincipal user) {
     s_logger.info("Checking that {} is entitled to the results of {}", user, this);
 
     Collection<LiveDataSpecification> requiredLiveData = getRequiredLiveDataSpecifications();
@@ -513,7 +471,7 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     }
     
     if (!failures.isEmpty()) {
-      throw new ViewAccessException(user + " is not entitled to " + this + 
+      throw new ViewPermissionException(user + " is not entitled to the output of " + this + 
           " because they do not have permissions to " + failures.get(0));
     }
   }

@@ -43,7 +43,7 @@ public class JobDispatcher implements JobInvokerRegister {
       _jobSpec = jobSpec;
       _items = items;
       _resultReceiver = resultReceiver;
-      _jobCreationTime = System.nanoTime ();
+      _jobCreationTime = System.nanoTime();
       _capabilityRequirements = getCapabilityRequirementsProvider().getCapabilityRequirements(jobSpec, items);
     }
 
