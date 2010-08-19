@@ -5,6 +5,7 @@
  */
 package com.opengamma.transport.socket;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +21,8 @@ import org.springframework.context.Lifecycle;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.monitor.ReportingInputStream;
+import com.opengamma.util.monitor.ReportingOutputStream;
 
 /**
  * 
@@ -112,6 +115,9 @@ public abstract class AbstractSocketProcess implements Lifecycle {
       }
       throw new OpenGammaRuntimeException("Unable to open remote connection to " + getInetAddress() + ":" + getPortNumber(), ioe);
     }
+    is = new ReportingInputStream(s_logger, getInetAddress() + ":" + getPortNumber(), is);
+    os = new ReportingOutputStream(s_logger, getInetAddress() + ":" + getPortNumber(), os);
+    is = new BufferedInputStream(is);
     os = new BufferedOutputStream(os);
     socketOpened(_socket, os, is);
   }
