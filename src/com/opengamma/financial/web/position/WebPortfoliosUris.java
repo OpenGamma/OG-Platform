@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.web;
+package com.opengamma.financial.web.position;
 
 import java.net.URI;
 
