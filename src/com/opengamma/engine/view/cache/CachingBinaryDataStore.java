@@ -76,6 +76,7 @@ public class CachingBinaryDataStore implements BinaryDataStore {
   @Override
   public void put(final long identifier, final byte[] data) {
     s_logger.info("Put {} on {}", identifier, this);
+    // [ENG-183] Can we do a write-behind communication to the underlying?
     getUnderlying().put(identifier, data);
     getCache().put(new Element(identifier, data));
   }
@@ -117,6 +118,7 @@ public class CachingBinaryDataStore implements BinaryDataStore {
 
   @Override
   public void put(Map<Long, byte[]> data) {
+    // [ENG-183] Can we do a write-behind communication to the underlying?
     getUnderlying().put(data);
     for (Map.Entry<Long, byte[]> element : data.entrySet()) {
       getCache().put(new Element(element.getKey(), element.getValue()));
