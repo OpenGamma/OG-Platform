@@ -18,6 +18,7 @@ import org.springframework.context.Lifecycle;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.livedata.LiveDataSnapshotListener;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
+import com.opengamma.engine.livedata.MutableLiveDataSnapshotProvider;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.value.ComputedValue;
@@ -36,13 +37,15 @@ import com.opengamma.util.ThreadUtil;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
- * The base implementation of the {@link View} interface.
+ * A view represents a {@link ViewDefinition} in the context of a {@link ViewProcessor}; this is everything required
+ * to perform computations.
  */
 public class View implements Lifecycle, LiveDataSnapshotListener {
   private static final Logger s_logger = LoggerFactory.getLogger(View.class);
   // Injected dependencies:
   private final ViewDefinition _definition;
   private final ViewProcessingContext _processingContext;
+  private final MutableLiveDataSnapshotProvider _viewLiveDataSnapshotProvider;
   // Internal State:
   private ViewEvaluationModel _viewEvaluationModel;
   private Thread _recalculationThread;
@@ -52,16 +55,33 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   private final Set<ComputationResultListener> _resultListeners = new CopyOnWriteArraySet<ComputationResultListener>();
   private final Set<DeltaComputationResultListener> _deltaListeners = new CopyOnWriteArraySet<DeltaComputationResultListener>();
   private volatile boolean _populateResultModel = true;
-
+ 
+  /**
+   * Constructs an instance. 
+   * 
+   * @param definition  the view definition, not null
+   * @param processingContext  the context from the view processor, not null 
+   */
   public View(ViewDefinition definition, ViewProcessingContext processingContext) {
-    if (definition == null) {
-      throw new NullPointerException("Must provide a definition.");
-    }
-    if (processingContext == null) {
-      throw new NullPointerException("Must provide a processing context.");
-    }
+    this(definition, processingContext, null);
+  }
+  
+  /**
+   * Constructs an instance.
+   * 
+   * @param definition  the view definition, not null
+   * @param processingContext  the context from the view processor, not null
+   * @param viewLiveDataSnapshotProvider  an optional snapshot provider to be used for the injection of custom live
+   *                                      data for this view. For this to have any effect, its values should be
+   *                                      included by the snapshot provider that is part of the processing context.
+   */
+  public View(ViewDefinition definition, ViewProcessingContext processingContext, MutableLiveDataSnapshotProvider viewLiveDataSnapshotProvider) {
+    ArgumentChecker.notNull(definition, "definition");
+    ArgumentChecker.notNull(processingContext, "processingContext");
+    
     _definition = definition;
     _processingContext = processingContext;
+    _viewLiveDataSnapshotProvider = viewLiveDataSnapshotProvider;
   }
   
   /**
@@ -76,6 +96,10 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
    */
   public ViewProcessingContext getProcessingContext() {
     return _processingContext;
+  }
+  
+  public MutableLiveDataSnapshotProvider getViewLiveDataSnapshotProvider() {
+    return _viewLiveDataSnapshotProvider;
   }
 
   /**

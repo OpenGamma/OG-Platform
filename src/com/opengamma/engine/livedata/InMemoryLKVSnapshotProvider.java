@@ -26,7 +26,7 @@ import com.opengamma.livedata.msg.UserPrincipal;
  * 
  */
 public class InMemoryLKVSnapshotProvider extends AbstractLiveDataSnapshotProvider implements
-    LiveDataAvailabilityProvider {
+    MutableLiveDataSnapshotProvider, LiveDataAvailabilityProvider {
   private static final Logger s_logger = LoggerFactory.getLogger(InMemoryLKVSnapshotProvider.class);
   private final Map<ValueRequirement, ComputedValue> _lastKnownValues = new ConcurrentHashMap<ValueRequirement, ComputedValue>();
   private final Map<Long, Map<ValueRequirement, ComputedValue>> _snapshots = new ConcurrentHashMap<Long, Map<ValueRequirement, ComputedValue>>();
