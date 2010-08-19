@@ -62,7 +62,7 @@ public interface FunctionDefinition {
   
   Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target);
   
-  Set<ValueRequirement> getRequiredLiveData();
+  Set<ValueSpecification> getRequiredLiveData();
   
   /**
    * Should return the <b>maximal</b> set of potential outputs. <b>Actual</b> computed values

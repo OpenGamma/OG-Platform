@@ -25,7 +25,7 @@ public class ComputedValueTest {
   @Test
   public void test_constructor_Object_Portfolio() {
     ValueRequirement vreq = new ValueRequirement("DATA", new DefaultSecurity(""));
-    ValueSpecification vspec = new ValueSpecification(vreq);
+    ValueSpecification vspec = new ValueSpecification(vreq, "mockFunctionid");
     ComputedValue test = new ComputedValue(vspec, "HELLO");
     assertEquals("HELLO", test.getValue());
     assertEquals(vspec, test.getSpecification());
@@ -76,7 +76,9 @@ public class ComputedValueTest {
   }
 
   private ValueSpecification createValueSpecification() {
-    return new ValueSpecification(new ValueRequirement("test", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("foo", "bar")));
+    return new ValueSpecification(
+        new ValueRequirement("test", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("foo", "bar")),
+        "mockFunctionId");
   }
 
   @Test

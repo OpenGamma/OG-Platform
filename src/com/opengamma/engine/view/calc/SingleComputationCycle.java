@@ -200,17 +200,17 @@ public class SingleComputationCycle {
     
     createAllCaches();
     
-    Set<ValueRequirement> allLiveDataRequirements = getViewEvaluationModel().getAllLiveDataRequirements();
+    Set<ValueSpecification> allLiveDataRequirements = getViewEvaluationModel().getAllLiveDataRequirements();
     s_logger.debug("Populating {} market data items for snapshot {}", allLiveDataRequirements.size(), getValuationTime());
     
-    Set<ValueRequirement> missingLiveData = new HashSet<ValueRequirement>();
-    for (ValueRequirement liveDataRequirement : allLiveDataRequirements) {
-      Object data = getProcessingContext().getLiveDataSnapshotProvider().querySnapshot(getValuationTime().toEpochMillisLong(), liveDataRequirement);
+    Set<ValueSpecification> missingLiveData = new HashSet<ValueSpecification>();
+    for (ValueSpecification liveDataRequirement : allLiveDataRequirements) {
+      Object data = getProcessingContext().getLiveDataSnapshotProvider().querySnapshot(getValuationTime().toEpochMillisLong(), liveDataRequirement.getRequirementSpecification());
       if (data == null) {
         s_logger.debug("Unable to load live data value for {} at snapshot {}.", liveDataRequirement, getValuationTime());
         missingLiveData.add(liveDataRequirement);
       } else {
-        ComputedValue dataAsValue = new ComputedValue(new ValueSpecification(liveDataRequirement), data);
+        ComputedValue dataAsValue = new ComputedValue(liveDataRequirement, data);
         //s_logger.warn("Live Data Requirement: {}", dataAsValue);
         addToAllCaches(dataAsValue);
       }
@@ -222,9 +222,10 @@ public class SingleComputationCycle {
     _state = State.INPUTS_PREPARED;
   }
   
-  protected static String formatMissingLiveData(Set<ValueRequirement> missingLiveData) {
+  protected static String formatMissingLiveData(Set<ValueSpecification> missingLiveData) {
     StringBuilder sb = new StringBuilder();
-    for (ValueRequirement req : missingLiveData) {
+    for (ValueSpecification spec : missingLiveData) {
+      ValueRequirement req = spec.getRequirementSpecification();
       sb.append("[").append(req.getValueName()).append(" on ");
       sb.append(req.getTargetSpecification().getType());
       if (req.getTargetSpecification().getType() == ComputationTargetType.PRIMITIVE) {

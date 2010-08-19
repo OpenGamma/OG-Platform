@@ -39,7 +39,12 @@ public class CachingValueSpecificationIdentifierSourceTest {
     
     CachingIdentifierMap cachingSource = new CachingIdentifierMap(underlying);
     
-    ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("scheme", "fibble"))));
+    ValueSpecification valueSpec = new ValueSpecification(
+        new ValueRequirement("value", 
+            new ComputationTargetSpecification(
+                ComputationTargetType.PRIMITIVE, 
+                UniqueIdentifier.of("scheme", "fibble"))),
+        "mockFunctionId");
     assertEquals(99L, cachingSource.getIdentifier(valueSpec));
     
     shouldFail.set(true);

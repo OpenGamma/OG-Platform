@@ -37,7 +37,9 @@ public class CalculationJobItem {
   private final Set<ValueSpecification> _inputs = new HashSet<ValueSpecification>();
   private final Set<ValueRequirement> _desiredValues = new HashSet<ValueRequirement>();
 
-  public CalculationJobItem(String functionUniqueIdentifier, ComputationTargetSpecification computationTargetSpecification, Collection<ValueSpecification> inputs,
+  public CalculationJobItem(String functionUniqueIdentifier, 
+      ComputationTargetSpecification computationTargetSpecification, 
+      Collection<ValueSpecification> inputs,
       Collection<ValueRequirement> desiredValues) {
     _functionUniqueIdentifier = functionUniqueIdentifier;
     _computationTargetSpecification = computationTargetSpecification;
@@ -76,7 +78,7 @@ public class CalculationJobItem {
   public Set<ValueSpecification> getOutputs() {
     Set<ValueSpecification> outputs = new HashSet<ValueSpecification>();
     for (ValueRequirement requirement : getDesiredValues()) {
-      outputs.add(new ValueSpecification(requirement));
+      outputs.add(new ValueSpecification(requirement, getFunctionUniqueIdentifier()));
     }
     return outputs;
   }

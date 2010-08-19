@@ -124,11 +124,11 @@ public class DependencyNode {
   }
   
   /**
-   * @return The returned {@code ValueRequirements} only tell you what the function
+   * @return The returned {@code ValueSpecifications} only tell you what the function
    * of this <i>this</i> node requires. They tell you nothing about the 
    * functions of any child nodes. 
    */
-  public Set<ValueRequirement> getRequiredLiveData() {
+  public Set<ValueSpecification> getRequiredLiveData() {
     return _functionDefinition.getRequiredLiveData();
   }
   

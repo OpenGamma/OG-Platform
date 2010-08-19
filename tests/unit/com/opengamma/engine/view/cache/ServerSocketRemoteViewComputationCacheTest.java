@@ -88,7 +88,10 @@ public class ServerSocketRemoteViewComputationCacheTest {
             for(int j = 0; j < NUM_LOOKUPS; j++) {
               int randomValue = rand.nextInt(100);
               String valueName = "Value" + randomValue;
-              ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", valueName))));
+              ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement(
+                  "Test Value", 
+                  new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", valueName))),
+                  "mockFunctionId");
               
               boolean putValue = true;
               Object ultimateValue = cache.getValue(valueSpec);

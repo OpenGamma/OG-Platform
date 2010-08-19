@@ -23,37 +23,97 @@ import com.opengamma.engine.value.ValueSpecification;
  *
  */
 public class MockFunction extends AbstractFunction implements FunctionInvoker {
+  
+  /**
+   * default unique id
+   */
+  public static final String UNIQUE_ID = "mock";
+  
   private final ComputationTarget _target;
-  private final Set<ValueRequirement> _requirements = new HashSet<ValueRequirement>();
+  private final Set<ValueSpecification> _requirements = new HashSet<ValueSpecification>();
   private final Set<ValueSpecification> _resultSpecs = new HashSet<ValueSpecification>();
   private final Set<ComputedValue> _results = new HashSet<ComputedValue>();
-  private final Set<ValueRequirement> _requiredLiveData = new HashSet<ValueRequirement>();
+  private final Set<ValueSpecification> _requiredLiveData = new HashSet<ValueSpecification>();
+  
+  /**
+   * @param target Target mock function applies to
+   * @param output What the mock function outputs
+   * @return A mock function with one input and one output
+   */
+  public static MockFunction getMockFunction(ComputationTarget target, Object output) {
+    ValueRequirement outputReq = new ValueRequirement("OUTPUT", target.toSpecification());
+    
+    MockFunction fn = new MockFunction(target);
+    fn.addResult(outputReq, output);
+    return fn;
+  }
+  
+  public static MockFunction getMockFunction(ComputationTarget target, Object output, ValueRequirement input) {
+    MockFunction fn = getMockFunction(target, output);
+    
+    fn.addValueRequirement(input);
+    return fn;
+  }
+  
+  public static MockFunction getMockFunction(ComputationTarget target, Object output, MockFunction inputFunction) {
+    MockFunction fn = getMockFunction(target, output);
+    
+    fn.addRequirements(inputFunction.getResultSpecs());
+    return fn;
+  }
   
   public MockFunction(ComputationTarget target) {
-    this(target, Collections.<ValueRequirement>emptySet());
-  }
-  
-  public MockFunction(ComputationTarget target, Set<ValueRequirement> requiredLiveData) {
-    this(target, Collections.<ValueRequirement>emptySet(), Collections.<ComputedValue>emptySet(), requiredLiveData);
-  }
-  
-  public MockFunction(ComputationTarget target, Set<ValueRequirement> requirements, Collection<ComputedValue> results) {
-    this(target, requirements, results, Collections.<ValueRequirement>emptySet());
-  }
-
-  public MockFunction(ComputationTarget target, 
-      Collection<ValueRequirement> requirements, 
-      Collection<ComputedValue> results,
-      Collection<ValueRequirement> requiredLiveData) {
     _target = target;
+    setUniqueIdentifier(UNIQUE_ID);
+  }
+  
+  public void addValueRequirement(ValueRequirement requirement) {
+    addValueRequirements(Collections.singleton(requirement));    
+  }
+  
+  public void addValueRequirements(Collection<ValueRequirement> requirements) {
+    for (ValueRequirement requirement : requirements) {
+      addRequirement(toValueSpecification(requirement));      
+    }
+  }
+  
+  public void addRequirement(ValueSpecification requirement) {
+    addRequirements(Collections.singleton(requirement));
+  }
+  
+  public void addRequirements(Collection<ValueSpecification> requirements) {
     _requirements.addAll(requirements);
+  }
+  
+  public ValueSpecification toValueSpecification(ValueRequirement requirement) {
+    return new ValueSpecification(requirement, getUniqueIdentifier());
+  }
+  
+  public ComputedValue getResult(ValueSpecification spec, Object result) {
+    return new ComputedValue(spec, result);    
+  }
+  
+  public void addResult(ValueRequirement value, Object result) {
+    ValueSpecification resultSpec = toValueSpecification(value);
+    ComputedValue computedValue = new ComputedValue(resultSpec, value);
+    addResult(computedValue);
+  }
+  
+  public void addResult(ComputedValue result) {
+    addResults(Collections.singleton(result));
+  }
+  
+  public void addResults(Collection<ComputedValue> results) {
     _results.addAll(results);
     for (ComputedValue result : _results) {
       _resultSpecs.add(result.getSpecification());
     }
+  }
+  
+  public void addRequiredLiveData(Collection<ValueSpecification> requiredLiveData) {
     _requiredLiveData.addAll(requiredLiveData);
   }
-
+  
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
     return ObjectUtils.equals(target.toSpecification(), _target.toSpecification());
@@ -61,17 +121,21 @@ public class MockFunction extends AbstractFunction implements FunctionInvoker {
 
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
-    return getRequirements();
+    Set<ValueRequirement> reqs = new HashSet<ValueRequirement>();
+    for (ValueSpecification req : getRequirements()) {
+      reqs.add(req.getRequirementSpecification());
+    }
+    return reqs;
   }
   
-  public ValueRequirement getRequirement() {
+  public ValueSpecification getRequirement() {
     if (_requirements.size() != 1) {
       throw new IllegalStateException();
     }
     return _requirements.iterator().next();
   }
   
-  public Set<ValueRequirement> getRequirements() {
+  public Set<ValueSpecification> getRequirements() {
     return _requirements;
   }
 
@@ -129,7 +193,7 @@ public class MockFunction extends AbstractFunction implements FunctionInvoker {
   }
   
   @Override
-  public Set<ValueRequirement> getRequiredLiveData() {
+  public Set<ValueSpecification> getRequiredLiveData() {
     return _requiredLiveData;
   }
 

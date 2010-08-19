@@ -41,22 +41,10 @@ public class AbstractCalculationNodeTest {
   
   public static MockFunction getMockFunction() {
     ComputationTarget target = new ComputationTarget(ComputationTargetType.PRIMITIVE, "USD");
-    return getMockFunction(target, "Nothing we care about");    
-  }
-  
-  public static MockFunction getMockFunction(ComputationTarget target, Object output) {
-
     ValueRequirement inputReq = new ValueRequirement("INPUT", target.toSpecification());
-    ValueRequirement outputReq = new ValueRequirement("OUTPUT", target.toSpecification());
-    
-    ValueSpecification outputSpec = new ValueSpecification(outputReq);
-    ComputedValue outputValue = new ComputedValue(outputSpec, output);
-    
-    MockFunction fn = new MockFunction(
-        target,
-        Sets.newHashSet(inputReq),
-        Sets.newHashSet(outputValue));
-    return fn;
+
+    MockFunction mockFunction = MockFunction.getMockFunction(target, "Nothing we care about", inputReq);
+    return mockFunction;
   }
   
   public static CalculationJob getCalculationJob(MockFunction function) {
@@ -67,7 +55,7 @@ public class AbstractCalculationNodeTest {
     CalculationJobItem calculationJobItem = new CalculationJobItem(
         function.getUniqueIdentifier(), 
         function.getTarget().toSpecification(), 
-        Sets.newHashSet(new ValueSpecification(function.getRequirement())), 
+        Sets.newHashSet(function.getRequirement()), 
         Sets.newHashSet(function.getResultSpec().getRequirementSpecification()));
     CalculationJob calcJob = new CalculationJob(jobSpec, Collections.singletonList(calculationJobItem));
     return calcJob;
@@ -98,7 +86,7 @@ public class AbstractCalculationNodeTest {
     TestCalculationNode calcNode = getTestCalcNode(mockFunction);
     CalculationJob calcJob = getCalculationJob(mockFunction);
     
-    ValueSpecification inputSpec = new ValueSpecification(mockFunction.getRequirement());
+    ValueSpecification inputSpec = mockFunction.getRequirement();
     ComputedValue inputValue = new ComputedValue(inputSpec, "Just an input object");
     
     ViewComputationCache cache = calcNode.getCache(calcJob.getSpecification());

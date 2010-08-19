@@ -12,7 +12,7 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * The base class from which most {@link FunctionDefinition} implementations
@@ -48,7 +48,7 @@ public abstract class AbstractFunction implements FunctionDefinition {
   }
 
   @Override
-  public Set<ValueRequirement> getRequiredLiveData() {
+  public Set<ValueSpecification> getRequiredLiveData() {
     return Collections.emptySet();
   }
 
