@@ -11,7 +11,9 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.definition.VasicekDataBundle;
+import com.opengamma.financial.model.volatility.curve.ConstantVolatilityCurve;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -26,30 +28,30 @@ public class VasicekInterestRateModelTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullTime() {
-    MODEL.getInterestRateFunction(null, MATURITY);
+    MODEL.getDiscountBondFunction(null, MATURITY);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullMaturity() {
-    MODEL.getInterestRateFunction(START, null);
+    MODEL.getDiscountBondFunction(START, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
-    MODEL.getInterestRateFunction(START, MATURITY).evaluate((VasicekDataBundle) null);
+    MODEL.getDiscountBondFunction(START, MATURITY).evaluate((VasicekDataBundle) null);
   }
 
   @Test
   public void test() {
-    final double shortRate = 0.05;
+    final ConstantYieldCurve shortRate = new ConstantYieldCurve(0.05);
     final double longRate = 0.06;
     final double speed = 0.01;
-    final double sigma = 0.01;
-    VasicekDataBundle data = new VasicekDataBundle(shortRate, longRate, speed, sigma, TODAY);
-    assertEquals(MODEL.getInterestRateFunction(START, START).evaluate(data), 1, 0);
-    data = new VasicekDataBundle(shortRate, longRate, speed, 0, TODAY);
+    final ConstantVolatilityCurve sigma = new ConstantVolatilityCurve(0.01);
+    VasicekDataBundle data = new VasicekDataBundle(shortRate, sigma, TODAY, longRate, speed);
+    assertEquals(MODEL.getDiscountBondFunction(START, START).evaluate(data), 1, 0);
+    data = new VasicekDataBundle(shortRate, new ConstantVolatilityCurve(0), TODAY, longRate, speed);
     final double factor = (1 - Math.exp(-speed * YEARS));
     final double lnA = longRate * (factor / speed - YEARS);
-    assertEquals(MODEL.getInterestRateFunction(START, MATURITY).evaluate(data), Math.exp(lnA - shortRate * factor / speed), 0);
+    assertEquals(MODEL.getDiscountBondFunction(START, MATURITY).evaluate(data), Math.exp(lnA - data.getShortRate(0) * factor / speed), 0);
   }
 }

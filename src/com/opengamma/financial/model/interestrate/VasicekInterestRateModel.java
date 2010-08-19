@@ -16,9 +16,10 @@ import com.opengamma.util.time.DateUtil;
 /**
  * 
  */
-public class VasicekInterestRateModel {
+public class VasicekInterestRateModel implements DiscountBondModel<VasicekDataBundle> {
 
-  public Function1D<VasicekDataBundle, Double> getInterestRateFunction(final ZonedDateTime time, final ZonedDateTime maturity) {
+  @Override
+  public Function1D<VasicekDataBundle, Double> getDiscountBondFunction(final ZonedDateTime time, final ZonedDateTime maturity) {
     Validate.notNull(time);
     Validate.notNull(maturity);
     return new Function1D<VasicekDataBundle, Double>() {
@@ -26,11 +27,12 @@ public class VasicekInterestRateModel {
       @Override
       public Double evaluate(final VasicekDataBundle data) {
         Validate.notNull(data);
-        final double r = data.getShortRate();
         final double lt = data.getLongTermInterestRate();
         final double speed = data.getReversionSpeed();
-        final double sigma = data.getShortRateVolatility();
         final double dt = DateUtil.getDifferenceInYears(time, maturity);
+        final double t = DateUtil.getDifferenceInYears(data.getDate(), time);
+        final double sigma = data.getShortRateVolatility(t);
+        final double r = data.getShortRate(t);
         final double sigmaSq = sigma * sigma;
         final double speedSq = speed * speed;
         final double rInfinity = lt - 0.5 * sigmaSq / speedSq;

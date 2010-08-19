@@ -9,7 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.model.interestrate.definition.BlackDermanToyDataBundle;
+import com.opengamma.financial.model.interestrate.definition.StandardDiscountBondModelDataBundle;
 import com.opengamma.financial.model.tree.RecombiningBinomialTree;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.RealSingleRootFinder;
@@ -33,13 +33,13 @@ public class BlackDermanToyYieldOnlyInterestRateModel {
     _j = RecombiningBinomialTree.NODES.evaluate(_n);
   }
 
-  public Function1D<BlackDermanToyDataBundle, RecombiningBinomialTree<Triple<Double, Double, Double>>> getTrees(final ZonedDateTime time) {
+  public Function1D<StandardDiscountBondModelDataBundle, RecombiningBinomialTree<Triple<Double, Double, Double>>> getTrees(final ZonedDateTime time) {
     Validate.notNull(time, "time");
-    return new Function1D<BlackDermanToyDataBundle, RecombiningBinomialTree<Triple<Double, Double, Double>>>() {
+    return new Function1D<StandardDiscountBondModelDataBundle, RecombiningBinomialTree<Triple<Double, Double, Double>>>() {
 
       @SuppressWarnings({"unchecked", "synthetic-access" })
       @Override
-      public RecombiningBinomialTree<Triple<Double, Double, Double>> evaluate(final BlackDermanToyDataBundle data) {
+      public RecombiningBinomialTree<Triple<Double, Double, Double>> evaluate(final StandardDiscountBondModelDataBundle data) {
         Validate.notNull(data, "data");
         final double[][] r = new double[_n + 1][_j];
         final double[][] q = new double[_n + 1][_j];
@@ -49,11 +49,11 @@ public class BlackDermanToyYieldOnlyInterestRateModel {
         final double t = DateUtil.getDifferenceInYears(data.getDate(), time);
         final double dt = t / _n;
         final double dtSqrt = Math.sqrt(dt);
-        final double r1 = data.getInterestRate(dt);
-        final double sigma = data.getVolatility(dt);
+        final double r1 = data.getShortRate(dt);
+        final double sigma = data.getShortRateVolatility(dt);
         p[0] = 1.0;
         for (int i = 1; i <= _n + 1; i++) {
-          p[i] = 1. / Math.pow((1 + data.getInterestRate((double) i) * dt), dt * i);
+          p[i] = 1. / Math.pow((1 + data.getShortRate(i) * dt), dt * i);
         }
         q[0][0] = 1.;
         u[0] = r1;

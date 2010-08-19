@@ -21,53 +21,53 @@ import com.opengamma.util.time.DateUtil;
 /**
  * 
  */
-public class HullWhiteOneFactorInterestRateDataBundleTest {
+public class HullWhiteOneFactorDataBundleTest {
   private static final double R = 0.04;
   private static final double SIGMA = 0.2;
   private static final double SPEED = 0.1;
   private static final YieldAndDiscountCurve R_CURVE = new ConstantYieldCurve(R);
   private static final VolatilityCurve SIGMA_CURVE = new ConstantVolatilityCurve(SIGMA);
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
-  private static final HullWhiteOneFactorInterestRateDataBundle DATA = new HullWhiteOneFactorInterestRateDataBundle(R_CURVE, SIGMA_CURVE, DATE, SPEED);
+  private static final HullWhiteOneFactorDataBundle DATA = new HullWhiteOneFactorDataBundle(R_CURVE, SIGMA_CURVE, DATE, SPEED);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullYieldCurve() {
-    new HullWhiteOneFactorInterestRateDataBundle(null, SIGMA_CURVE, DATE, SPEED);
+    new HullWhiteOneFactorDataBundle(null, SIGMA_CURVE, DATE, SPEED);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullVolatilityCurve() {
-    new HullWhiteOneFactorInterestRateDataBundle(R_CURVE, null, DATE, SPEED);
+    new HullWhiteOneFactorDataBundle(R_CURVE, null, DATE, SPEED);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullDate() {
-    new HullWhiteOneFactorInterestRateDataBundle(R_CURVE, SIGMA_CURVE, null, SPEED);
+    new HullWhiteOneFactorDataBundle(R_CURVE, SIGMA_CURVE, null, SPEED);
   }
 
   @Test
   public void testGetters() {
-    assertEquals(DATA.getYieldCurve(), R_CURVE);
-    assertEquals(DATA.getVolatilityCurve(), SIGMA_CURVE);
+    assertEquals(DATA.getShortRateCurve(), R_CURVE);
+    assertEquals(DATA.getShortRateVolatilityCurve(), SIGMA_CURVE);
     assertEquals(DATA.getDate(), DATE);
-    assertEquals(DATA.getSpeed(), SPEED, 0);
-    double t = 0.2;
-    assertEquals(DATA.getInterestRate(t), R_CURVE.getInterestRate(t), 1e-15);
-    assertEquals(DATA.getVolatility(t), SIGMA_CURVE.getVolatility(t), 1e-15);
+    assertEquals(DATA.getReversionSpeed(), SPEED, 0);
+    final double t = 0.2;
+    assertEquals(DATA.getShortRate(t), R_CURVE.getInterestRate(t), 1e-15);
+    assertEquals(DATA.getShortRateVolatility(t), SIGMA_CURVE.getVolatility(t), 1e-15);
   }
 
   @Test
   public void testHashCodeAndEquals() {
-    HullWhiteOneFactorInterestRateDataBundle other = new HullWhiteOneFactorInterestRateDataBundle(R_CURVE, SIGMA_CURVE, DATE, SPEED);
+    HullWhiteOneFactorDataBundle other = new HullWhiteOneFactorDataBundle(R_CURVE, SIGMA_CURVE, DATE, SPEED);
     assertEquals(other, DATA);
     assertEquals(other.hashCode(), DATA.hashCode());
-    other = new HullWhiteOneFactorInterestRateDataBundle(new ConstantYieldCurve(R + 0.01), SIGMA_CURVE, DATE, SPEED);
+    other = new HullWhiteOneFactorDataBundle(new ConstantYieldCurve(R + 0.01), SIGMA_CURVE, DATE, SPEED);
     assertFalse(other.equals(DATA));
-    other = new HullWhiteOneFactorInterestRateDataBundle(R_CURVE, new ConstantVolatilityCurve(SIGMA + 0.1), DATE, SPEED);
+    other = new HullWhiteOneFactorDataBundle(R_CURVE, new ConstantVolatilityCurve(SIGMA + 0.1), DATE, SPEED);
     assertFalse(other.equals(DATA));
-    other = new HullWhiteOneFactorInterestRateDataBundle(R_CURVE, SIGMA_CURVE, DATE.minusDays(2), SPEED);
+    other = new HullWhiteOneFactorDataBundle(R_CURVE, SIGMA_CURVE, DATE.minusDays(2), SPEED);
     assertFalse(other.equals(DATA));
-    other = new HullWhiteOneFactorInterestRateDataBundle(R_CURVE, SIGMA_CURVE, DATE, SPEED + 0.5);
+    other = new HullWhiteOneFactorDataBundle(R_CURVE, SIGMA_CURVE, DATE, SPEED + 0.5);
     assertFalse(other.equals(DATA));
   }
 }
