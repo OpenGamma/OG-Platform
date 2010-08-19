@@ -13,7 +13,6 @@ import com.opengamma.engine.MapComputationTargetResolver;
 import com.opengamma.engine.function.DefaultFunctionResolver;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.livedata.FixedLiveDataAvailabilityProvider;
-import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
