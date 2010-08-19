@@ -38,10 +38,10 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
 
   /**
    * Creates the resource.
-   * @param data  the data, not null
+   * @param parent  the parent resource, not null
    */
-  public WebPortfolioNodeResource(final WebPortfoliosData data) {
-    super(data);
+  public WebPortfolioNodeResource(final AbstractWebPortfolioResource parent) {
+    super(parent);
   }
 
   //-------------------------------------------------------------------------
@@ -178,7 +178,7 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
   //-------------------------------------------------------------------------
   @Path("positions")
   public WebPortfolioNodePositionsResource findPositions() {
-    return new WebPortfolioNodePositionsResource(data());
+    return new WebPortfolioNodePositionsResource(this);
   }
 
   //-------------------------------------------------------------------------

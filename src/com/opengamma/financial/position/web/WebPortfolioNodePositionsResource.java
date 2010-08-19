@@ -33,10 +33,10 @@ public class WebPortfolioNodePositionsResource extends AbstractWebPortfolioResou
 
   /**
    * Creates the resource.
-   * @param data  the data, not null
+   * @param parent  the parent resource, not null
    */
-  public WebPortfolioNodePositionsResource(final WebPortfoliosData data) {
-    super(data);
+  public WebPortfolioNodePositionsResource(final AbstractWebPortfolioResource parent) {
+    super(parent);
   }
 
   //-------------------------------------------------------------------------
@@ -78,7 +78,7 @@ public class WebPortfolioNodePositionsResource extends AbstractWebPortfolioResou
     data().setUriPositionId(idStr);
     PositionDocument position = data().getPositionMaster().getPosition(UniqueIdentifier.parse(idStr));
     data().setPosition(position);
-    return new WebPortfolioNodePositionResource(data());
+    return new WebPortfolioNodePositionResource(this);
   }
 
   //-------------------------------------------------------------------------

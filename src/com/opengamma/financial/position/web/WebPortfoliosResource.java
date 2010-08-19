@@ -124,7 +124,7 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
     data().setUriPortfolioId(idStr);
     PortfolioTreeDocument portfolio = data().getPositionMaster().getPortfolioTree(UniqueIdentifier.parse(idStr));
     data().setPortfolio(portfolio);
-    return new WebPortfolioResource(data());
+    return new WebPortfolioResource(this);
   }
 
   //-------------------------------------------------------------------------

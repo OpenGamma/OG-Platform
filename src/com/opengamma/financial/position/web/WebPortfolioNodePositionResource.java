@@ -36,10 +36,10 @@ public class WebPortfolioNodePositionResource extends AbstractWebPortfolioResour
 
   /**
    * Creates the resource.
-   * @param data  the data, not null
+   * @param parent  the parent resource, not null
    */
-  public WebPortfolioNodePositionResource(final WebPortfoliosData data) {
-    super(data);
+  public WebPortfolioNodePositionResource(final AbstractWebPortfolioResource parent) {
+    super(parent);
   }
 
   //-------------------------------------------------------------------------

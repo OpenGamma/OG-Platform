@@ -24,10 +24,10 @@ public class WebPortfolioNodesResource extends AbstractWebPortfolioResource {
 
   /**
    * Creates the resource.
-   * @param data  the data, not null
+   * @param parent  the parent resource, not null
    */
-  public WebPortfolioNodesResource(final WebPortfoliosData data) {
-    super(data);
+  public WebPortfolioNodesResource(final AbstractWebPortfolioResource parent) {
+    super(parent);
   }
 
   //-------------------------------------------------------------------------
@@ -44,7 +44,7 @@ public class WebPortfolioNodesResource extends AbstractWebPortfolioResource {
     if (nodes.size() > 0) {
       data().setParentNode(nodes.pop());
     }
-    return new WebPortfolioNodeResource(data());
+    return new WebPortfolioNodeResource(this);
   }
 
   //-------------------------------------------------------------------------
