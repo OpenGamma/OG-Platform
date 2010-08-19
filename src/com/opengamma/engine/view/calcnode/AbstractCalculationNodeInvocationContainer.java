@@ -13,12 +13,14 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Base class for objects that manage a set of AbstractCalculationNodes with the intention of
  * invoking job executions on them.
+ * 
+ * @param <T>  the type of the calculation node queue
  */
 public abstract class AbstractCalculationNodeInvocationContainer<T extends Queue<AbstractCalculationNode>> {
 
   private final T _nodes;
   
-  protected AbstractCalculationNodeInvocationContainer (final T nodes) {
+  protected AbstractCalculationNodeInvocationContainer(final T nodes) {
     _nodes = nodes;
   }
 
