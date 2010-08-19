@@ -94,7 +94,9 @@ public class FakeSwapPricingFunction extends AbstractFunction implements Functio
     receiveAmount *= (1 + 0.03); // 3% for some unknown reason
     double fv = payAmount - receiveAmount;
     Set<ComputedValue> results = new HashSet<ComputedValue>();
-    final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, security));
+    final ValueSpecification resultSpecification = new ValueSpecification(
+        new ValueRequirement(ValueRequirementNames.FAIR_VALUE, security),
+        getUniqueIdentifier());
     final ComputedValue resultValue = new ComputedValue(resultSpecification, fv);
     results.add(resultValue);
     return results;
@@ -107,7 +109,9 @@ public class FakeSwapPricingFunction extends AbstractFunction implements Functio
     }
     final SwapSecurity security = (SwapSecurity) target.getSecurity();
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-    results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, security)));
+    results.add(new ValueSpecification(
+        new ValueRequirement(ValueRequirementNames.FAIR_VALUE, security),
+        getUniqueIdentifier()));
     return results;
   }
 

@@ -208,9 +208,15 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     _fundingDefinition = curveSource.getDefinition(_currency, "Funding");
     _forwardDefinition = curveSource.getDefinition(_currency, "Forward");
     _requirements = Collections.unmodifiableSet(buildRequirements(_fundingDefinition));
-    _fundingCurveResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FUNDING_CURVE, _currency));
-    _forwardCurveResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, _currency));
-    _jacobianResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FUNDING_AND_FORWARD_JACOBIAN, _currency));
+    _fundingCurveResult = new ValueSpecification(
+        new ValueRequirement(ValueRequirementNames.FUNDING_CURVE, _currency), 
+        getUniqueIdentifier());
+    _forwardCurveResult = new ValueSpecification(
+        new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, _currency), 
+        getUniqueIdentifier());
+    _jacobianResult = new ValueSpecification(
+        new ValueRequirement(ValueRequirementNames.FUNDING_AND_FORWARD_JACOBIAN, _currency), 
+        getUniqueIdentifier());
     _results = Sets.newHashSet(_fundingCurveResult, _forwardCurveResult, _jacobianResult);
   }
 
@@ -327,7 +333,7 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     final double startTime = dayCount.getDayCountFraction(nowWithTime, startAdjusted);
     final double endTime = dayCount.getDayCountFraction(nowWithTime, endAdjusted);
 
-    return new InterestRateFuture(startTime, endTime - startTime, price, LIBOR_CURVE_NAME);
+    return new InterestRateFuture(startTime,endTime, endTime - startTime, price, LIBOR_CURVE_NAME);
 
   }
 
@@ -395,6 +401,6 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
   }
 
   private double getLastIRFutureTime(final InterestRateFuture irFuture) {
-    return irFuture.getSettlementDate() + irFuture.getYearFraction();
+    return irFuture.getMaturity();
   }
 }

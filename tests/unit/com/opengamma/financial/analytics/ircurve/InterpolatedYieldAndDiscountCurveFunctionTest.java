@@ -49,6 +49,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     curveSource.addDefinition(Currency.getInstance("USD"), "DEFAULT", definition);
     SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(Currency
         .getInstance("USD"), "DEFAULT", false);
+    function.setUniqueIdentifier("testId");
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
     context.put("discountCurveSource", curveSource);
@@ -80,6 +81,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     curveSource.addDefinition(Currency.getInstance("USD"), "DEFAULT", definition);
     SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(Currency
         .getInstance("USD"), "DEFAULT", true);
+    function.setUniqueIdentifier("testId");
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
     context.put("discountCurveSource", curveSource);
@@ -112,6 +114,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     curveSource.addDefinition(Currency.getInstance("USD"), "DEFAULT", definition);
     SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(Currency
         .getInstance("USD"), "DEFAULT", false);
+    function.setUniqueIdentifier("testId");
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
     context.put("discountCurveSource", curveSource);
@@ -132,6 +135,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     curveSource.addDefinition(Currency.getInstance("USD"), "DEFAULT", definition);
     SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(Currency
         .getInstance("USD"), "DEFAULT", true);
+    function.setUniqueIdentifier("testId");
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
     context.put("discountCurveSource", curveSource);

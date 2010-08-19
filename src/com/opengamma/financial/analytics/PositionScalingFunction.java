@@ -54,7 +54,7 @@ public class PositionScalingFunction extends AbstractFunction implements Functio
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, 
       ComputationTarget target) {
     ValueRequirement requirement = new ValueRequirement(_requirementName, target.toSpecification());
-    ValueSpecification specification = new ValueSpecification(requirement);
+    ValueSpecification specification = new ValueSpecification(requirement, getUniqueIdentifier());
     return Collections.singleton(specification);
   }
 
@@ -75,7 +75,7 @@ public class PositionScalingFunction extends AbstractFunction implements Functio
       Set<ValueRequirement> desiredValues) {
     Object value = inputs.getValue(_requirementName);
     ValueRequirement requirement = new ValueRequirement(_requirementName, target.toSpecification());
-    ValueSpecification specification = new ValueSpecification(requirement);
+    ValueSpecification specification = new ValueSpecification(requirement, getUniqueIdentifier());
     ComputedValue scaledValue = null;
     if (value instanceof Double) {
       Double doubleValue = (Double) value;

@@ -57,7 +57,9 @@ public class PositionHistoricalVaRCalculatorFunction extends AbstractFunction im
         final NormalStatistics<DoubleTimeSeries<?>> normalStats = new NormalStatistics<DoubleTimeSeries<?>>(s_meanCalculator, s_stdCalculator, pnlSeries);
         final double var = varCalculator.evaluate(normalStats);
         // System.err.println("VaR="+var);
-        return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPosition())), var));
+        return Sets.newHashSet(new ComputedValue(new ValueSpecification(
+            new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPosition()),
+            getUniqueIdentifier()), var));
       }
     }
     return null;
@@ -80,7 +82,9 @@ public class PositionHistoricalVaRCalculatorFunction extends AbstractFunction im
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     //System.err.println("getResults");
-    return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPosition())));
+    return Sets.newHashSet(new ValueSpecification(
+        new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPosition()),
+        getUniqueIdentifier()));
   }
 
   @Override
