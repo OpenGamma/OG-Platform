@@ -302,7 +302,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final double startTime = dayCount.getDayCountFraction(nowWithTime, startAdjusted);
     final double endTime = dayCount.getDayCountFraction(nowWithTime, endAdjusted);
 
-    return new InterestRateFuture(startTime, endTime - startTime, price, CURVE_NAME);
+    return new InterestRateFuture(startTime,endTime, endTime - startTime, price, CURVE_NAME);
 
   }
 
@@ -370,6 +370,6 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   }
 
   private double getLastIRFutureTime(final InterestRateFuture irFuture) {
-    return irFuture.getSettlementDate() + irFuture.getYearFraction();
+    return irFuture.getMaturity();
   }
 }

@@ -333,7 +333,7 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     final double startTime = dayCount.getDayCountFraction(nowWithTime, startAdjusted);
     final double endTime = dayCount.getDayCountFraction(nowWithTime, endAdjusted);
 
-    return new InterestRateFuture(startTime, endTime - startTime, price, LIBOR_CURVE_NAME);
+    return new InterestRateFuture(startTime,endTime, endTime - startTime, price, LIBOR_CURVE_NAME);
 
   }
 
@@ -401,6 +401,6 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
   }
 
   private double getLastIRFutureTime(final InterestRateFuture irFuture) {
-    return irFuture.getSettlementDate() + irFuture.getYearFraction();
+    return irFuture.getMaturity();
   }
 }
