@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.util.wrapper;
@@ -41,6 +41,18 @@ public final class CommonsMathWrapper {
       @Override
       public double value(final double x) {
         return f.evaluate(x);
+      }
+    };
+  }
+
+  public static MultivariateRealFunction wrap(final Function1D<DoubleMatrix1D, Double> f) {
+    Validate.notNull(f);
+    return new MultivariateRealFunction() {
+
+      @Override
+      public double value(final double[] point) throws FunctionEvaluationException, IllegalArgumentException {
+
+        return f.evaluate(new DoubleMatrix1D(point));
       }
     };
   }

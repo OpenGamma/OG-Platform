@@ -34,7 +34,7 @@ public class Minimizer1DTestCase {
 
   public void testInputs(final Minimizer1D minimizer) {
     try {
-      minimizer.minimize(null, 2., 3.);
+      minimizer.minimize(null, 0.0, 2., 3.);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
@@ -42,9 +42,9 @@ public class Minimizer1DTestCase {
   }
 
   public void test(final Minimizer1D minimizer) {
-    double result = minimizer.minimize(QUADRATIC, -10., 10.);
+    double result = minimizer.minimize(QUADRATIC, 0.0, -10., 10.);
     assertEquals(result, -3.5, EPS);
-    result = minimizer.minimize(QUINTIC, 0.5, 2.);
+    result = minimizer.minimize(QUINTIC, 0.0, 0.5, 2.);
     assertEquals(result, 1.06154, EPS);
   }
 }

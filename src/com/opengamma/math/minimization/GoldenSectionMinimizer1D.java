@@ -1,10 +1,11 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.minimization;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.ConvergenceException;
@@ -13,7 +14,7 @@ import com.opengamma.math.function.Function1D;
 /**
  * 
  */
-public class GoldenSectionMinimizer1D extends Minimizer1D {
+public class GoldenSectionMinimizer1D implements Minimizer1D {
   private static final double GOLDEN = 0.61803399;
   private static final double COMPLEMENT = 1 - GOLDEN;
   private static final MinimumBracketer BRACKETER = new ParabolicMinimumBracketer();
@@ -21,7 +22,7 @@ public class GoldenSectionMinimizer1D extends Minimizer1D {
   private static final double EPS = 1e-12;
 
   @Override
-  public Double minimize(final Function1D<Double, Double> f, final Double point1, final Double point2) {
+  public double minimize(final Function1D<Double, Double> f, final double unusedStartPosition, final double point1, final double point2) {
     Validate.notNull(f, "function");
     double x0, x1, x2, x3, f1, f2, temp;
     int i = 0;
@@ -62,5 +63,10 @@ public class GoldenSectionMinimizer1D extends Minimizer1D {
       return x1;
     }
     return x2;
+  }
+
+  @Override
+  public Double minimize(Function1D<Double, Double> function, Double startPosition) {
+    throw new NotImplementedException();
   }
 }

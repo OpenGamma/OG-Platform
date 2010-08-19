@@ -8,25 +8,26 @@ package com.opengamma.math.minimization;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import com.opengamma.math.function.FunctionND;
+import com.opengamma.math.function.Function1D;
+import com.opengamma.math.matrix.DoubleMatrix1D;
 
 public class MultidimensionalMinimizerTestCase {
   private static final int DIMENSION = 2;
   private static final double EPS = 1e-6;
-  private static final FunctionND<Double, Double> F_2D = new FunctionND<Double, Double>(DIMENSION) {
+  private static final Function1D<DoubleMatrix1D, Double> F_2D = new Function1D<DoubleMatrix1D, Double>() {
 
     @Override
-    public Double evaluateFunction(final Double[] x) {
-      return (x[0] + 3.4) * (x[0] + 3.4) + (x[1] - 1) * (x[1] - 1);
+    public Double evaluate(DoubleMatrix1D x) {
+      return (x.getEntry(0) + 3.4) * (x.getEntry(0) + 3.4) + (x.getEntry(1) - 1) * (x.getEntry(1) - 1);
     }
 
   };
-  private static final FunctionND<Double, Double> ROSENBROCK = new FunctionND<Double, Double>(2) {
+  private static final Function1D<DoubleMatrix1D, Double> ROSENBROCK = new Function1D<DoubleMatrix1D, Double>() {
 
     @Override
-    protected Double evaluateFunction(final Double[] coord) {
-      final double x = coord[0];
-      final double y = coord[1];
+    public Double evaluate(DoubleMatrix1D coord) {
+      final double x = coord.getEntry(0);
+      final double y = coord.getEntry(1);
       return (1 - x) * (1 - x) + 100 * (y - x * x) * (y - x * x);
     }
 
@@ -34,7 +35,7 @@ public class MultidimensionalMinimizerTestCase {
 
   public void testInputs(final SimplexMinimizer minimizer) {
     try {
-      minimizer.minimize(null, new double[] {2., 3.});
+      minimizer.minimize(null, new DoubleMatrix1D(new double[] {2., 3.}));
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
@@ -45,20 +46,14 @@ public class MultidimensionalMinimizerTestCase {
     } catch (final IllegalArgumentException e) {
       // Expected
     }
-    try {
-      minimizer.minimize(F_2D, new double[] {2., 3., 4});
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
   }
 
   public void test(final SimplexMinimizer minimizer) {
-    double[] r = minimizer.minimize(F_2D, new double[] {10., 10.});
-    assertEquals(r[0], -3.4, EPS);
-    assertEquals(r[1], 1, EPS);
-    r = (minimizer.minimize(ROSENBROCK, new double[] {10, -5}));
-    assertEquals(r[0], 1, EPS);
-    assertEquals(r[1], 1, EPS);
+    DoubleMatrix1D r = minimizer.minimize(F_2D, new DoubleMatrix1D(new double[] {10., 10.}));
+    assertEquals(r.getEntry(0), -3.4, EPS);
+    assertEquals(r.getEntry(1), 1, EPS);
+    r = (minimizer.minimize(ROSENBROCK, new DoubleMatrix1D(new double[] {10, -5})));
+    assertEquals(r.getEntry(0), 1, EPS);
+    assertEquals(r.getEntry(1), 1, EPS);
   }
 }
