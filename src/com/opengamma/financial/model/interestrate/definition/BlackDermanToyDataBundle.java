@@ -61,7 +61,7 @@ public class BlackDermanToyDataBundle {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -71,7 +71,7 @@ public class BlackDermanToyDataBundle {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BlackDermanToyDataBundle other = (BlackDermanToyDataBundle) obj;
+    final BlackDermanToyDataBundle other = (BlackDermanToyDataBundle) obj;
     return ObjectUtils.equals(_date, other._date) && ObjectUtils.equals(_volatilityCurve, other._volatilityCurve) && ObjectUtils.equals(_yieldCurve, other._yieldCurve);
   }
 

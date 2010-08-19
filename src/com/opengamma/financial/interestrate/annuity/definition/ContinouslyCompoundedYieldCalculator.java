@@ -7,6 +7,7 @@ package com.opengamma.financial.interestrate.annuity.definition;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.math.function.Function1D;
@@ -29,11 +30,11 @@ public class ContinouslyCompoundedYieldCalculator {
     }
 
     final Function1D<Double, Double> f = new Function1D<Double, Double>() {
-      private final com.opengamma.financial.interestrate.PresentValueCalculator _pvc = com.opengamma.financial.interestrate.PresentValueCalculator.getInstance();
+      private final PresentValueCalculator _pvc = PresentValueCalculator.getInstance();
 
       @Override
       public Double evaluate(final Double y) {
-        YieldCurveBundle curves = new YieldCurveBundle();
+        final YieldCurveBundle curves = new YieldCurveBundle();
         curves.setCurve(curveName, new ConstantYieldCurve(y));
         return _pvc.getValue(annuity, curves) - dirtyPrice;
       }

@@ -23,11 +23,6 @@ public class ConstantYieldCurveTest {
   private static final YieldAndDiscountCurve CURVE = new ConstantYieldCurve(RATE);
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNullInput() {
-    new ConstantYieldCurve(null);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
   public void testInput() {
     new ConstantYieldCurve(-RATE);
   }
@@ -69,12 +64,12 @@ public class ConstantYieldCurveTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testGetMultipleShiftWithNegativeTime() {
-    CURVE.withMultipleShifts(Collections.<Double, Double>singletonMap(-T, RATE));
+    CURVE.withMultipleShifts(Collections.<Double, Double> singletonMap(-T, RATE));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testGetMultipleShiftWithNullShift() {
-    CURVE.withMultipleShifts(Collections.<Double, Double>singletonMap(T, null));
+    CURVE.withMultipleShifts(Collections.<Double, Double> singletonMap(T, null));
   }
 
   @Test
@@ -87,7 +82,7 @@ public class ConstantYieldCurveTest {
     curve = CURVE.withSingleShift(T, SHIFT);
     assertEquals(RATE + SHIFT, curve.getInterestRate(T), EPS);
     assertEquals(Math.exp(-T * (RATE + SHIFT)), curve.getDiscountFactor(T), EPS);
-    curve = CURVE.withMultipleShifts(Collections.<Double, Double>singletonMap(T, SHIFT));
+    curve = CURVE.withMultipleShifts(Collections.<Double, Double> singletonMap(T, SHIFT));
     assertEquals(RATE + SHIFT, curve.getInterestRate(T), EPS);
     assertEquals(Math.exp(-T * (RATE + SHIFT)), curve.getDiscountFactor(T), EPS);
   }
@@ -99,7 +94,7 @@ public class ConstantYieldCurveTest {
     assertEquals(CURVE.hashCode(), curve.hashCode());
     curve = new ConstantYieldCurve(RATE + 0.01);
     assertFalse(CURVE.equals(curve));
-    curve = CURVE.withMultipleShifts(Collections.<Double, Double>emptyMap());
+    curve = CURVE.withMultipleShifts(Collections.<Double, Double> emptyMap());
     assertEquals(curve, CURVE);
     curve = CURVE.withMultipleShifts(Collections.singletonMap(1., 0.001));
     assertFalse(curve.equals(CURVE));

@@ -117,7 +117,7 @@ public class HullWhiteTwoFactorInterestRateDataBundle {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -127,7 +127,7 @@ public class HullWhiteTwoFactorInterestRateDataBundle {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    HullWhiteTwoFactorInterestRateDataBundle other = (HullWhiteTwoFactorInterestRateDataBundle) obj;
+    final HullWhiteTwoFactorInterestRateDataBundle other = (HullWhiteTwoFactorInterestRateDataBundle) obj;
     if (_date == null) {
       if (other._date != null) {
         return false;

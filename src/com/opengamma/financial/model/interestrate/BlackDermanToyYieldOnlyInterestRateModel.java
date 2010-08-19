@@ -7,6 +7,8 @@ package com.opengamma.financial.model.interestrate;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.interestrate.definition.BlackDermanToyDataBundle;
 import com.opengamma.financial.model.tree.RecombiningBinomialTree;
 import com.opengamma.math.function.Function1D;
@@ -32,31 +34,32 @@ public class BlackDermanToyYieldOnlyInterestRateModel {
   }
 
   public Function1D<BlackDermanToyDataBundle, RecombiningBinomialTree<Triple<Double, Double, Double>>> getTrees(final ZonedDateTime time) {
+    Validate.notNull(time, "time");
     return new Function1D<BlackDermanToyDataBundle, RecombiningBinomialTree<Triple<Double, Double, Double>>>() {
 
-      @SuppressWarnings({ "unchecked", "synthetic-access" })
+      @SuppressWarnings({"unchecked", "synthetic-access" })
       @Override
       public RecombiningBinomialTree<Triple<Double, Double, Double>> evaluate(final BlackDermanToyDataBundle data) {
-        final double[][] r = new double[_n][_j];
-        final double[][] q = new double[_n][_j];
-        final double[][] d = new double[_n][_j];
-        final double[] u = new double[_n];
-        final double[] p = new double[_n + 1];
+        Validate.notNull(data, "data");
+        final double[][] r = new double[_n + 1][_j];
+        final double[][] q = new double[_n + 1][_j];
+        final double[][] d = new double[_n + 1][_j];
+        final double[] u = new double[_n + 1];
+        final double[] p = new double[_n + 2];
         final double t = DateUtil.getDifferenceInYears(data.getDate(), time);
-        final double dt = t / (_n - 1);
+        final double dt = t / _n;
         final double dtSqrt = Math.sqrt(dt);
         final double r1 = data.getInterestRate(dt);
         final double sigma = data.getVolatility(dt);
         p[0] = 1.0;
-        for (int i = 1; i <= _n; i++) {
-          p[i] = Math.pow(1. / (1 + data.getInterestRate(dt * i)), dt * i);
+        for (int i = 1; i <= _n + 1; i++) {
+          p[i] = 1. / Math.pow((1 + data.getInterestRate((double) i) * dt), dt * i);
         }
         q[0][0] = 1.;
         u[0] = r1;
         r[0][0] = r1;
-        // d[0][0] = 1. / (1 + r1 * dt);//this is inaccurate for large dt - should use 
-        d[0][0] = Math.pow(1 + r1, -dt);
-        for (int i = 1; i < _n; i++) {
+        d[0][0] = 1. / (1 + r1 * dt);
+        for (int i = 1; i <= _n; i++) {
           q[i][0] = 0.5 * q[i - 1][0] * d[i - 1][0];
           q[i][i] = 0.5 * q[i - 1][i - 1] * d[i - 1][i - 1];
           for (int j = -i + 2, k = 1; j <= i - 2; j += 2, k++) {
@@ -65,12 +68,11 @@ public class BlackDermanToyYieldOnlyInterestRateModel {
           u[i] = _rootFinder.getRoot(getMedian(sigma, i, dt, q, p[i + 1]), 0., 1.);
           for (int j = -i, k = 0; j <= i; j += 2, k++) {
             r[i][k] = u[i] * Math.exp(sigma * j * dtSqrt);
-            // d[i][k] = 1. / (1 + r[i][k] * dt);
-            d[i][k] = Math.pow(1 + r[i][k], -dt);
+            d[i][k] = 1. / (1 + r[i][k] * dt);
           }
         }
-        final Triple<Double, Double, Double>[][] result = new Triple[_n][_j];
-        for (int i = 0; i < _n; i++) {
+        final Triple<Double, Double, Double>[][] result = new Triple[_n + 1][_j];
+        for (int i = 0; i <= _n; i++) {
           for (int j = 0; j < _j; j++) {
             result[i][j] = new Triple<Double, Double, Double>(r[i][j], d[i][j], q[i][j]);
           }
@@ -89,7 +91,7 @@ public class BlackDermanToyYieldOnlyInterestRateModel {
         double sum = 0.;
         final double dtSqrt = Math.sqrt(dt);
         for (int j = -i, k = 0; j <= i; j += 2, k++) {
-          sum += q[i][k] * Math.pow(1 + u * Math.exp(sigma * j * dtSqrt), -dt);
+          sum += q[i][k] / (1 + u * Math.exp(sigma * j * dtSqrt) * dt);
 
         }
         return sum - p;
