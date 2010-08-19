@@ -63,7 +63,7 @@ public class MasterTimeSeriesSource implements HistoricalDataSource {
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String dataSource, String dataProvider, String field, LocalDate start, LocalDate end) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     ArgumentChecker.notNull(dataSource, "dataSource");
-    ArgumentChecker.notNull(dataProvider, "dataProvider");
+//    ArgumentChecker.notNull(dataProvider, "dataProvider");
     ArgumentChecker.notNull(field, "field");
     
     TimeSeriesRequest request = new TimeSeriesRequest();
@@ -133,7 +133,4 @@ public class MasterTimeSeriesSource implements HistoricalDataSource {
     } 
     return result;
   }
-  
-  
-
 }
