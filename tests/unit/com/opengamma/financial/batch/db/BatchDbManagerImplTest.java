@@ -25,7 +25,7 @@ import org.junit.Test;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.view.ViewTestUtils;
+import com.opengamma.financial.ViewTestUtils;
 import com.opengamma.financial.batch.BatchJob;
 import com.opengamma.financial.batch.LiveDataValue;
 import com.opengamma.id.Identifier;

@@ -133,7 +133,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     
     int i = 0;
     for (final FixedIncomeStrip strip : strips) {
-      stripRequirement = new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, strip.getMarketDataSpecification());
+      stripRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getMarketDataSpecification());
       rate = (Double) inputs.getValue(stripRequirement);
       if (rate == null) {
         throw new NullPointerException("Could not get market data for " + strip);
@@ -192,7 +192,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   public Set<ValueRequirement> buildRequirements(final InterpolatedYieldAndDiscountCurveDefinition definition) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
     for (final FixedIncomeStrip strip : definition.getStrips()) {
-      final ValueRequirement requirement = new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, strip.getMarketDataSpecification());
+      final ValueRequirement requirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getMarketDataSpecification());
       result.add(requirement);
     }
 
@@ -201,8 +201,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     _referenceRateIdentifier = UniqueIdentifier.of(scheme, FLOAT_REFERENCE_TICKER);
     final FixedIncomeStrip referenceRate = new FixedIncomeStrip(Period.ofMonths(6), _referenceRateIdentifier, StripInstrument.LIBOR);
     final FixedIncomeStrip spotRate = new FixedIncomeStrip(Period.ofDays(1), UniqueIdentifier.of(scheme, SPOT_TICKER), StripInstrument.CASH);
-    _referenceRateRequirement = new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, referenceRate.getMarketDataSpecification());
-    _spotRateRequirement = new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, spotRate.getMarketDataSpecification());
+    _referenceRateRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, referenceRate.getMarketDataSpecification());
+    _spotRateRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotRate.getMarketDataSpecification());
     result.add(_referenceRateRequirement);
     result.add(_spotRateRequirement);
     return result;

@@ -7,13 +7,15 @@ package com.opengamma.financial.analytics.model.riskfactor.option;
 
 import org.apache.commons.lang.NotImplementedException;
 
-import com.opengamma.engine.historicaldata.HistoricalDataProvider;
+import com.opengamma.engine.historicaldata.HistoricalDataSource;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.tuple.Pair;
 
 public class UnderlyingTypeToHistoricalTimeSeries {
   private static final String DATA_SOURCE = "BLOOMBERG"; // crap passed to the BloombergHistoricalDataProvider
@@ -24,14 +26,14 @@ public class UnderlyingTypeToHistoricalTimeSeries {
   @SuppressWarnings("unused")
   private static final String VOLUME = "VOLUME";
   
-  public static LocalDateDoubleTimeSeries getSeries(final HistoricalDataProvider dataProvider, final SecuritySource secMaster, final UnderlyingType underlying, final Security security) {
+  public static LocalDateDoubleTimeSeries getSeries(final HistoricalDataSource dataProvider, final SecuritySource secMaster, final UnderlyingType underlying, final Security security) {
     if (security instanceof OptionSecurity) {
       final OptionSecurity option = (OptionSecurity) security;
       switch (underlying) {
         case SPOT_PRICE:
           Security underlyingSecurity = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
-          LocalDateDoubleTimeSeries timeSeries = dataProvider.getHistoricalTimeSeries(underlyingSecurity.getIdentifiers(), DATA_SOURCE, DATA_PROVIDER, LAST_PRICE);
-          return timeSeries;
+          Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = dataProvider.getHistoricalData(underlyingSecurity.getIdentifiers(), DATA_SOURCE, DATA_PROVIDER, LAST_PRICE);
+          return tsPair.getSecond();
         default:
           throw new NotImplementedException("Don't know how to get ValueRequirement for " + underlying);
       }
