@@ -80,20 +80,23 @@ public class PresentValueCalculatorTest {
   @Test
   public void TestFutures() {
     double settlementDate = 1.453;
-    double yearFraction = 0.25;
+    double fixingDate = 1.467;
+    double maturity = 1.75;
+    double indexYearFraction = 0.267;
+    double valueYearFraction = 0.25;
     YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
-    double rate = (curve.getDiscountFactor(settlementDate) / curve.getDiscountFactor(settlementDate + yearFraction) - 1.0) / yearFraction;
+    double rate = (curve.getDiscountFactor(fixingDate) / curve.getDiscountFactor(maturity) - 1.0) / indexYearFraction;
     double price = 100 * (1 - rate);
-    InterestRateFuture edf = new InterestRateFuture(settlementDate, yearFraction, price, FIVE_PC_CURVE_NAME);
+    InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, price, FIVE_PC_CURVE_NAME);
     double pv = PVC.getValue(edf, CURVES);
     assertEquals(0.0, pv, 1e-12);
 
     double deltaPrice = 1.0;
-    edf = new InterestRateFuture(settlementDate, yearFraction, price + deltaPrice, FIVE_PC_CURVE_NAME);
+    edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, price + deltaPrice, FIVE_PC_CURVE_NAME);
     pv = PVC.getValue(edf, CURVES);
     // NB the market price of a euro dollar future depends on the future rate (strictly the rate is implied from the price) - the test here (fixed rate, but making
     // a new future with a higher price) is equivalent to a drop in market price (implying an increase in rates), will means a negative p&l
-    assertEquals(-deltaPrice * yearFraction, pv, 1e-12);
+    assertEquals(-deltaPrice * valueYearFraction / 100, pv, 1e-12);
   }
 
   @Test

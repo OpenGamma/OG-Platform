@@ -101,7 +101,7 @@ public class InterestRateDerivativeVisitorTest {
     final YieldCurveBundle curves = new YieldCurveBundle();
     final Cash cash = new Cash(1, 0, CURVE_NAME);
     final ForwardRateAgreement fra = new ForwardRateAgreement(0, 1, 0, CURVE_NAME, CURVE_NAME);
-    final InterestRateFuture future = new InterestRateFuture(0, 1, 0, CURVE_NAME);
+    final InterestRateFuture future = new InterestRateFuture(0, 1, 1, 0, CURVE_NAME);
     final Libor libor = new Libor(1, 0, CURVE_NAME);
     final Bond bond = new Bond(new double[] {1}, 0, CURVE_NAME);
     final VariableAnnuity floatLeg = new VariableAnnuity(new double[] {1}, CURVE_NAME, CURVE_NAME);

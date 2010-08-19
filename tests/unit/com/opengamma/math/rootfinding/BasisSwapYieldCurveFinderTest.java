@@ -240,6 +240,7 @@ public class BasisSwapYieldCurveFinderTest {
   public void testShermanMorrison() {
     final VectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN);
     doTest(rootFinder, DOUBLE_CURVE_FINDER);
+
   }
 
   private void doTest(final VectorRootFinder rootFinder, final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor) {

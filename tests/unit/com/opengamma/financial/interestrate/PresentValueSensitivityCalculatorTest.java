@@ -124,21 +124,25 @@ public class PresentValueSensitivityCalculatorTest {
 
   @Test
   public void TestFutures() {
-    final double settlementDate = 1.453;
-    final double yearFraction = 0.25;
+    double settlementDate = 1.453;
+    double fixingDate = 1.467;
+    double maturity = 1.75;
+    double indexYearFraction = 0.267;
+    double valueYearFraction = 0.25;
     final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
-    final double rate = (curve.getDiscountFactor(settlementDate) / curve.getDiscountFactor(settlementDate + yearFraction) - 1.0) / yearFraction;
+    final double rate = (curve.getDiscountFactor(fixingDate) / curve.getDiscountFactor(maturity) - 1.0) / indexYearFraction;
     final double price = 100 * (1 - rate);
-    final InterestRateFuture edf = new InterestRateFuture(settlementDate, yearFraction, price, FIVE_PC_CURVE_NAME);
+    final InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, price, FIVE_PC_CURVE_NAME);
     final Map<String, List<DoublesPair>> sense = PVSC.getValue(edf, CURVES);
-    final double ratio = 100 * curve.getDiscountFactor(settlementDate) / curve.getDiscountFactor(settlementDate + yearFraction);
+    final double ratio = valueYearFraction / indexYearFraction * curve.getDiscountFactor(fixingDate) / curve.getDiscountFactor(maturity);
 
     final List<DoublesPair> temp = sense.get(FIVE_PC_CURVE_NAME);
     for (final DoublesPair pair : temp) {
-      if (pair.getFirst() == settlementDate) {
-        assertEquals(settlementDate * ratio, pair.getSecond(), 1e-12);
-      } else if (pair.getFirst() == settlementDate + yearFraction) {
-        assertEquals(-(settlementDate + yearFraction) * ratio, pair.getSecond(), 1e-12);
+
+      if (pair.getFirst() == fixingDate) {
+        assertEquals(fixingDate * ratio, pair.getSecond(), 1e-12);
+      } else if (pair.getFirst() == maturity) {
+        assertEquals(-maturity * ratio, pair.getSecond(), 1e-12);
       } else {
         assertFalse(true);
       }

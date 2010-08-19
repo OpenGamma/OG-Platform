@@ -93,11 +93,10 @@ public final class PresentValueCalculator implements InterestRateDerivativeVisit
   @Override
   public Double visitInterestRateFuture(InterestRateFuture future, YieldCurveBundle curves) {
     YieldAndDiscountCurve liborCurve = curves.getCurve(future.getCurveName());
-    double ta = future.getSettlementDate();
-    double alpha = future.getYearFraction();
-    double tb = ta + alpha;
-    double rate = (liborCurve.getDiscountFactor(ta) / liborCurve.getDiscountFactor(tb) - 1.0) / alpha;
-    return alpha * (100 * (1 - rate) - future.getPrice());
+    double ta = future.getFixingDate();
+    double tb = future.getMaturity();
+    double rate = (liborCurve.getDiscountFactor(ta) / liborCurve.getDiscountFactor(tb) - 1.0) / future.getIndexYearFraction();
+    return future.getValueYearFraction() * (1 - rate - future.getPrice() / 100);
   }
 
   @Override
