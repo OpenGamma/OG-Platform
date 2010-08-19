@@ -7,6 +7,7 @@ package com.opengamma.financial.web;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.time.calendar.ZonedDateTime;
@@ -81,7 +82,18 @@ public class FreemarkerOutputter {
    * @param data  the root data to merge, not null
    * @return the template, not null
    */
+  @SuppressWarnings("unchecked")
   public String build(final Template template, final Object data) {
+    if (data instanceof FlexiBean) {
+      ((FlexiBean) data).put("freemarkerTemplateName", template.getName());
+      ((FlexiBean) data).put("freemarkerLocale", template.getLocale());
+      ((FlexiBean) data).put("freemarkerVersion", Configuration.getVersionNumber());
+    }
+    if (data instanceof Map<?, ?>) {
+      ((Map<String, Object>) data).put("freemarkerTemplateName", template.getName());
+      ((Map<String, Object>) data).put("freemarkerLocale", template.getLocale());
+      ((Map<String, Object>) data).put("freemarkerVersion", Configuration.getVersionNumber());
+    }
     try {
       StringWriter out = new StringWriter(1024 * 4);
       template.process(data, out);
