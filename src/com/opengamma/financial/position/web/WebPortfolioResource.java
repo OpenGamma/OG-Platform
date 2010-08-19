@@ -23,6 +23,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
 import com.opengamma.financial.position.master.PositionSearchRequest;
 import com.opengamma.financial.position.master.PositionSearchResult;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * RESTful resource for a portfolio.
@@ -47,22 +48,24 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
     positionSearch.setParentNodeId(doc.getPortfolio().getRootNode().getUniqueIdentifier());
     PositionSearchResult positionsResult = data().getPositionMaster().searchPositions(positionSearch);
     
-    FlexiBean data = getFreemarker().createRootData();
-    data.put("portfolioDoc", doc);
-    data.put("positionsResult", positionsResult);
-    data.put("portfolio", doc.getPortfolio());
-    data.put("childNodes", doc.getPortfolio().getRootNode().getChildNodes());
-    data.put("positions", positionsResult.getPositions());
-    data.put("uris", new WebPortfoliosUris(data()));
-    return getFreemarker().build("portfolios/portfolio.ftl", data);
+    FlexiBean out = createRootData();
+    out.put("positionsResult", positionsResult);
+    out.put("positions", positionsResult.getPositions());
+    return getFreemarker().build("portfolios/portfolio.ftl", out);
   }
 
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response put(@FormParam("name") String name) {
     name = StringUtils.trimToNull(name);
+    if (name == null) {
+      FlexiBean out = createRootData();
+      out.put("err_nameMissing", true);
+      String html = getFreemarker().build("portfolios/portfolio-update.ftl", out);
+      return Response.ok(html).build();
+    }
     PortfolioTreeDocument doc = data().getPortfolio();
-    doc.getPortfolio().setName(StringUtils.trim(name));
+    doc.getPortfolio().setName(name);
     doc = data().getPositionMaster().updatePortfolioTree(doc);
     data().setPortfolio(doc);
     URI uri = WebPortfolioResource.uri(data());
@@ -78,6 +81,21 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Creates the output root data.
+   * @return the output root data, not null
+   */
+  public FlexiBean createRootData() {
+    PortfolioTreeDocument doc = data().getPortfolio();
+    FlexiBean out = getFreemarker().createRootData();
+    out.put("portfolioDoc", doc);
+    out.put("portfolio", doc.getPortfolio());
+    out.put("childNodes", doc.getPortfolio().getRootNode().getChildNodes());
+    out.put("uris", new WebPortfoliosUris(data()));
+    return out;
+  }
+
+  //-------------------------------------------------------------------------
   @Path("nodes")
   public WebPortfolioNodesResource findNodes() {
     return new WebPortfolioNodesResource(this);
@@ -90,7 +108,17 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
    * @return the URI, not null
    */
   public static URI uri(final WebPortfoliosData data) {
-    String portfolioId = data.getBestPortfolioUriId(null);
+    return uri(data, null);
+  }
+
+  /**
+   * Builds a URI for this resource.
+   * @param data  the data, not null
+   * @param overridePortfolioId  the override portfolio id, null uses information from data
+   * @return the URI, not null
+   */
+  public static URI uri(final WebPortfoliosData data, final UniqueIdentifier overridePortfolioId) {
+    String portfolioId = data.getBestPortfolioUriId(overridePortfolioId);
     return data.getUriInfo().getBaseUriBuilder().path(WebPortfolioResource.class).build(portfolioId);
   }
 

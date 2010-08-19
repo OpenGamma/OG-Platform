@@ -18,10 +18,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.financial.position.master.ManageablePosition;
+import com.opengamma.financial.position.master.PortfolioTreeDocument;
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -44,54 +45,37 @@ public class WebPortfolioNodePositionResource extends AbstractWebPortfolioResour
 
   //-------------------------------------------------------------------------
   @GET
-  public String getAsHtml() {
-    PositionDocument doc = data().getPosition();
-    String html = "<html>" +
-      "<head><title>Position - " + doc.getPositionId().toLatest() + "</title></head>" +
-      "<body>" +
-      "<h2>Position - " + doc.getPositionId().toLatest() + "</h2>" +
-      "<p>" +
-      "Version: " + doc.getPositionId().getVersion() + "<br />" +
-      "Quantity: " + doc.getPosition().getQuantity() + "<br />" +
-      "Security: " + doc.getPosition().getSecurityKey() + "</p>";
-    
-    URI uri = WebPortfolioNodePositionResource.uri(data());
-    Identifier identifier = doc.getPosition().getSecurityKey().getIdentifiers().iterator().next();
-    html += "<h2>Update position</h2>\n" +
-      "<form method=\"POST\" action=\"" + uri + "\">" +
-      "<input type=\"hidden\" name=\"method\" value=\"PUT\" />" +
-      "Quantity: <input type=\"text\" size=\"10\" name=\"quantity\" value=\"" + StringEscapeUtils.escapeHtml(doc.getPosition().getQuantity().toPlainString()) + "\" /><br />" +
-      "Scheme: <input type=\"text\" size=\"30\" name=\"scheme\" value=\"" + StringEscapeUtils.escapeHtml(identifier.getScheme().getName()) + "\" /><br />" +
-      "Scheme Id: <input type=\"text\" size=\"30\" name=\"schemevalue\" value=\"" + StringEscapeUtils.escapeHtml(identifier.getValue()) + "\" /><br />" +
-      "<input type=\"submit\" value=\"Update\" />" +
-      "</form>\n";
-    html += "<h2>Delete position</h2>\n" +
-      "<form method=\"POST\" action=\"" + uri + "\">" +
-      "<input type=\"hidden\" name=\"method\" value=\"DELETE\" />" +
-      "<input type=\"submit\" value=\"Delete\" />" +
-      "</form>\n";
-    
-    html += "<h2>Links</h2>\n" +
-      "<p>" +
-      "<a href=\"" + WebPortfolioNodeResource.uri(data()) + "\">Parent node</a><br />" +
-      "<a href=\"" + WebPortfolioResource.uri(data()) + "\">Portfolio</a><br />" +
-      "<a href=\"" + WebPortfoliosResource.uri(data()) + "\">Portfolio search</a><br />" +
-      "</body>" +
-      "</html>";
-    return html;
+  public String get() {
+    FlexiBean out = createRootData();
+    return getFreemarker().build("portfolios/portfolionodeposition.ftl", out);
   }
 
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response put(
-      @FormParam("quantity") BigDecimal quantity,
+      @FormParam("quantity") String quantityStr,
       @FormParam("scheme") String scheme,
       @FormParam("schemevalue") String schemeValue) {
+    quantityStr = StringUtils.trimToNull(quantityStr);
     scheme = StringUtils.trimToNull(scheme);
     schemeValue = StringUtils.trimToNull(schemeValue);
+    if (quantityStr == null || scheme == null || schemeValue == null) {
+      FlexiBean out = createRootData();
+      if (quantityStr == null) {
+        out.put("err_quantityMissing", true);
+      }
+      if (scheme == null) {
+        out.put("err_schemeMissing", true);
+      }
+      if (schemeValue == null) {
+        out.put("err_schemevalueMissing", true);
+      }
+      String html = getFreemarker().build("portfolios/portfolionodeposition-update.ftl", out);
+      return Response.ok(html).build();
+    }
     PositionDocument doc = data().getPosition();
     ManageablePosition position = doc.getPosition();
-    position.setQuantity(quantity);
+    position.setQuantity(new BigDecimal(quantityStr));
     position.setSecurityKey(new IdentifierBundle(Identifier.of(scheme, schemeValue)));
     doc = data().getPositionMaster().updatePosition(doc);
     data().setPosition(doc);
@@ -105,6 +89,24 @@ public class WebPortfolioNodePositionResource extends AbstractWebPortfolioResour
     data().getPositionMaster().removePosition(doc.getPositionId());
     URI uri = WebPortfolioNodeResource.uri(data());
     return Response.seeOther(uri).build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates the output root data.
+   * @return the output root data, not null
+   */
+  public FlexiBean createRootData() {
+    PortfolioTreeDocument treeDoc = data().getPortfolio();
+    PositionDocument positionDoc = data().getPosition();
+    FlexiBean out = getFreemarker().createRootData();
+    out.put("portfolioDoc", treeDoc);
+    out.put("portfolio", treeDoc.getPortfolio());
+    out.put("node", data().getNode());
+    out.put("positionDoc", positionDoc);
+    out.put("position", positionDoc.getPosition());
+    out.put("uris", new WebPortfoliosUris(data()));
+    return out;
   }
 
   //-------------------------------------------------------------------------
