@@ -21,6 +21,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -110,8 +111,11 @@ public class OverrideLiveDataResource {
     final MutableFudgeFieldContainer message = context.newMessage();
     final MutableFudgeFieldContainer livedata = context.newMessage();
     for (Map.Entry<ValueRequirement, Object> value : getLiveData().getAllValues().entrySet()) {
-      context.objectToFudgeMsg(livedata, null, null, new ComputedValue(new ValueSpecification(value.getKey()), value
-          .getValue()));
+      context.objectToFudgeMsg(livedata, null, null, new ComputedValue(
+          new ValueSpecification(
+              value.getKey(),
+              LiveDataSourcingFunction.UNIQUE_ID), 
+        value.getValue()));
     }
     message.add("livedata", livedata);
     return new FudgeMsgEnvelope(message);

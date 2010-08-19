@@ -71,7 +71,8 @@ public class SummingFunction extends AbstractFunction implements FunctionInvoker
     }
     ComputedValue computedValue = new ComputedValue(
         new ValueSpecification(
-            new ValueRequirement(_requirementName, ComputationTargetType.PORTFOLIO_NODE, node.getUniqueIdentifier())),
+            new ValueRequirement(_requirementName, ComputationTargetType.PORTFOLIO_NODE, node.getUniqueIdentifier()),
+            getUniqueIdentifier()),
         currentSum);
     return Collections.singleton(computedValue);
   }
@@ -119,7 +120,8 @@ public class SummingFunction extends AbstractFunction implements FunctionInvoker
       ComputationTarget target) {
     PortfolioNode node = target.getPortfolioNode();
     ValueSpecification result = new ValueSpecification(
-        new ValueRequirement(_requirementName, ComputationTargetType.PORTFOLIO_NODE, node.getUniqueIdentifier()));
+        new ValueRequirement(_requirementName, ComputationTargetType.PORTFOLIO_NODE, node.getUniqueIdentifier()),
+        getUniqueIdentifier());
     return Collections.singleton(result);
   }
 

@@ -54,7 +54,9 @@ public class PortfolioHistoricalVaRCalculatorFunction extends AbstractFunction i
         final NormalLinearVaRCalculator varCalculator = new NormalLinearVaRCalculator(1, (252 * days) / ONE_YEAR, CONFIDENCE_LEVEL);
         final NormalStatistics<DoubleTimeSeries<?>> normalStats = new NormalStatistics<DoubleTimeSeries<?>>(s_meanCalculator, s_stdCalculator, pnlSeries);
         final double var = varCalculator.evaluate(normalStats);
-        return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPortfolioNode())), var));
+        return Sets.newHashSet(new ComputedValue(new ValueSpecification(
+            new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPortfolioNode()),
+            getUniqueIdentifier()), var));
       }
     }
     return null;
@@ -72,7 +74,9 @@ public class PortfolioHistoricalVaRCalculatorFunction extends AbstractFunction i
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPortfolioNode())));
+    return Sets.newHashSet(new ValueSpecification(
+        new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPortfolioNode()),
+        getUniqueIdentifier()));
   }
 
   @Override

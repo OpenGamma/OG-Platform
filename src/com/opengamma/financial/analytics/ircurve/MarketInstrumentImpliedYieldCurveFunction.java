@@ -180,8 +180,12 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final InterpolatedYieldAndDiscountCurveSource curveSource = OpenGammaCompilationContext.getDiscountCurveSource(context);
     _definition = curveSource.getDefinition(_currency, "ForwardAndFunding");
     _requirements = Collections.unmodifiableSet(buildRequirements(_definition));
-    _curveResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FUNDING_CURVE, _currency));
-    _jacobianResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FUNDING_AND_FORWARD_JACOBIAN, _currency));
+    _curveResult = new ValueSpecification(
+        new ValueRequirement(ValueRequirementNames.FUNDING_CURVE, _currency),
+        getUniqueIdentifier());
+    _jacobianResult = new ValueSpecification(
+        new ValueRequirement(ValueRequirementNames.FUNDING_AND_FORWARD_JACOBIAN, _currency),
+        getUniqueIdentifier());
     _results = Sets.newHashSet(_curveResult, _jacobianResult);
   }
 
@@ -298,7 +302,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final double startTime = dayCount.getDayCountFraction(nowWithTime, startAdjusted);
     final double endTime = dayCount.getDayCountFraction(nowWithTime, endAdjusted);
 
-    return new InterestRateFuture(startTime, endTime - startTime, price, CURVE_NAME);
+    return new InterestRateFuture(startTime,endTime, endTime - startTime, price, CURVE_NAME);
 
   }
 
@@ -366,6 +370,6 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   }
 
   private double getLastIRFutureTime(final InterestRateFuture irFuture) {
-    return irFuture.getSettlementDate() + irFuture.getYearFraction();
+    return irFuture.getMaturity();
   }
 }
