@@ -6,7 +6,7 @@
 package com.opengamma.financial;
 
 import com.opengamma.engine.function.FunctionExecutionContext;
-import com.opengamma.engine.historicaldata.HistoricalDataProvider;
+import com.opengamma.engine.historicaldata.HistoricalDataSource;
 import com.opengamma.engine.security.SecuritySource;
 
 /**
@@ -17,7 +17,7 @@ import com.opengamma.engine.security.SecuritySource;
 public class OpenGammaExecutionContext {
   
   /**
-   * The name under which an instance of {@link HistoricalDataProvider} should be bound.
+   * The name under which an instance of {@link TimeSeriesSource} should be bound.
    */
   public static final String HISTORICAL_DATA_PROVIDER_NAME = "historicalDataProvider";
 
@@ -41,12 +41,12 @@ public class OpenGammaExecutionContext {
    */
   public static final String EXCHANGE_REPOSITORY_NAME = "exchangeRespotiroy";
   
-  public static HistoricalDataProvider getHistoricalDataProvider(FunctionExecutionContext context) {
-    return (HistoricalDataProvider) context.get(HISTORICAL_DATA_PROVIDER_NAME);
+  public static HistoricalDataSource getHistoricalDataProvider(FunctionExecutionContext context) {
+    return (HistoricalDataSource) context.get(HISTORICAL_DATA_PROVIDER_NAME);
   }
   
   public static void setHistoricalDataProvider(FunctionExecutionContext context, 
-      HistoricalDataProvider historicalDataProvider) {
+      HistoricalDataSource historicalDataProvider) {
     context.put(HISTORICAL_DATA_PROVIDER_NAME, historicalDataProvider);
   }
   

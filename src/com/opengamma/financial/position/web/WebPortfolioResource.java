@@ -5,8 +5,14 @@
  */
 package com.opengamma.financial.position.web;
 
+import java.io.StringWriter;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
+import javax.servlet.ServletContext;
+import javax.time.calendar.ZonedDateTime;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
@@ -14,17 +20,21 @@ import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.joda.beans.integrate.freemarker.FreemarkerObjectWrapper;
 
-import com.opengamma.financial.position.master.ManageablePortfolioNode;
-import com.opengamma.financial.position.master.ManageablePosition;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
 import com.opengamma.financial.position.master.PositionSearchRequest;
 import com.opengamma.financial.position.master.PositionSearchResult;
+
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import freemarker.template.TemplateScalarModel;
 
 /**
  * RESTful resource for a portfolio.
@@ -43,104 +53,44 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
-  public String get() {
+  public String get(@Context ServletContext servletContext) {
     PortfolioTreeDocument doc = data().getPortfolio();
-    String html = "<html>\n";
-    html += "<head>\n";
-    html += "<title>Portfolio - " + doc.getPortfolioId().toLatest() + "</title>\n";
-    html += "<link type=\"text/css\" rel=\"stylesheet\" href=\"/css/og-base.css\" />\n";
-    html += "</head>\n";
-    html += "<body>";
-    html += "<div id=\"header\">";
-    html += "<p id=\"logo\"><a href=\"/\"><img src=\"/images/opengamma.png\" " +
-        "width=\"289\" height=\"51\" alt=\"OpenGamma - software for the financial services industry\"></a></p>\n";
-    html += "</div>\n";
-    html += "<div id=\"body\">\n";
-    html += "<div class=\"section\">\n";
-    html += "<h2>Portfolio - " + doc.getPortfolioId().toLatest() + "</h2>\n";
-    html += "<p>Name: " + doc.getPortfolio().getName() + "<br />\n";
-    html += "Version: " + doc.getPortfolioId().getVersion() + "</p>\n";
-    
-    html += "<div class=\"subsection\">\n";
-    html += "<h3>Child nodes</h3>";
-    html += "<table border=\"1\">";
-    html += "<tr><th>Name</th><th>Actions</th></tr>\n";
-    for (ManageablePortfolioNode child : doc.getPortfolio().getRootNode().getChildNodes()) {
-      URI nodeUri = WebPortfolioNodeResource.uri(data(), child.getUniqueIdentifier());
-      html += "<tr>";
-      html += "<td><a href=\"" + nodeUri + "\">" + child.getName() + "</a></td>";
-      html += "<td><a href=\"" + nodeUri + "\">View</a></td>";
-      html += "</tr>\n";
-    }
-    html += "</table></p>\n";
-    html += "</div>\n";
-    
-    html += "<div class=\"subsection\">\n";
-    html += "<h3>Positions</h3>";
-    html += "<table border=\"1\">";
-    html += "<tr><th>Name</th><th>Quantity</th><th>Actions</th></tr>\n";
     PositionSearchRequest positionSearch = new PositionSearchRequest();
     positionSearch.setParentNodeId(doc.getPortfolio().getRootNode().getUniqueIdentifier());
-    PositionSearchResult positions = data().getPositionMaster().searchPositions(positionSearch);
-    for (ManageablePosition position : positions.getPositions()) {
-      URI positionUri = WebPortfolioNodePositionResource.uri(data(), position.getUniqueIdentifier());
-      html += "<tr>";
-      html += "<td><a href=\"" + positionUri + "\">" + position.getUniqueIdentifier().toLatest() + "</a></td>";
-      html += "<td>" + position.getQuantity() + "</td>";
-      html += "<td><a href=\"" + positionUri + "\">View</a></td>";
-      html += "</tr>\n";
+    PositionSearchResult positionsResult = data().getPositionMaster().searchPositions(positionSearch);
+    Map<String, Object> data = new HashMap<String, Object>();
+    data.put("now", ZonedDateTime.nowSystemClock());
+    data.put("portfolioDoc", doc);
+    data.put("positionsResult", positionsResult);
+    data.put("portfolio", doc.getPortfolio());
+    data.put("childNodes", doc.getPortfolio().getRootNode().getChildNodes());
+    data.put("positions", positionsResult.getPositions());
+    data.put("uris", new WebPortfoliosUris(data()));
+    
+    try {
+      Configuration cfg = new Configuration();
+      cfg.setServletContextForTemplateLoading(servletContext, "WEB-INF/pages");
+      cfg.setDefaultEncoding("UTF-8");
+      cfg.setOutputEncoding("UTF-8");
+      cfg.setLocale(Locale.ENGLISH);
+      cfg.setLocalizedLookup(true);
+      cfg.addAutoInclude("common/base.ftl");
+      FreemarkerObjectWrapper objectWrapper = new FreemarkerObjectWrapper();
+      objectWrapper.setNullModel(TemplateScalarModel.EMPTY_STRING);
+      cfg.setObjectWrapper(objectWrapper);
+      
+      Template template = cfg.getTemplate("portfolios/portfolio.ftl");
+      
+      StringWriter out = new StringWriter(1024);
+      template.process(data, out);
+      out.close();
+      return out.toString();
+      
+    } catch (TemplateException ex) {
+      throw new RuntimeException(ex);
+    } catch (Exception ex) {
+      throw new RuntimeException(ex);
     }
-    html += "</table></p>\n";
-    html += "</div>\n";
-    html += "</div>\n";
-    
-    URI portfolioUri = WebPortfolioResource.uri(data());
-    html += "<div class=\"section\">\n";
-    html += "<h2>Update portfolio</h2>\n" +
-      "<form method=\"POST\" action=\"" + portfolioUri + "\">" +
-      "<input type=\"hidden\" name=\"method\" value=\"PUT\" />" +
-      "Name: <input type=\"text\" size=\"30\" name=\"name\" value=\"" + StringEscapeUtils.escapeHtml(doc.getPortfolio().getName()) + "\" /><br />" +
-      "<input type=\"submit\" value=\"Update\" />" +
-      "</form>\n";
-    html += "</div>\n";
-    
-    html += "<div class=\"section\">\n";
-    html += "<h2>Delete portfolio</h2>\n" +
-      "<form method=\"POST\" action=\"" + portfolioUri + "\">" +
-      "<input type=\"hidden\" name=\"method\" value=\"DELETE\" />" +
-      "<input type=\"submit\" value=\"Delete\" />" +
-      "</form>\n";
-    html += "</div>\n";
-    
-    URI rootNodeUri = WebPortfolioNodeResource.uri(data(), doc.getPortfolio().getRootNode().getUniqueIdentifier());
-    html += "<div class=\"section\">\n";
-    html += "<h2>Add node</h2>\n" +
-      "<form method=\"POST\" action=\"" + rootNodeUri + "\">" +
-      "Name: <input type=\"text\" size=\"30\" name=\"name\" /><br />" +
-      "<input type=\"submit\" value=\"Add\" />" +
-      "</form>\n";
-    html += "</div>\n";
-    
-    URI rootNodePositionsUri = WebPortfolioNodePositionsResource.uri(data(), doc.getPortfolio().getRootNode().getUniqueIdentifier());
-    html += "<div class=\"section\">\n";
-    html += "<h2>Add position</h2>\n" +
-      "<form method=\"POST\" action=\"" + rootNodePositionsUri + "\">" +
-      "Quantity: <input type=\"text\" size=\"10\" name=\"quantity\" /><br />" +
-      "Scheme: <input type=\"text\" size=\"30\" name=\"scheme\" /><br />" +
-      "Scheme Id: <input type=\"text\" size=\"30\" name=\"schemevalue\" /><br />" +
-      "<input type=\"submit\" value=\"Add\" />" +
-      "</form>\n";
-    html += "</div>\n";
-    
-    html += "<div class=\"section\">\n";
-    html += "<h2>Links</h2>" +
-      "<p>" +
-      "<a href=\"" + WebPortfoliosResource.uri(data()) + "\">Portfolio search</a><br />" +
-      "</p>";
-    html += "</div>\n";
-    html += "</div>\n";
-    html += "</body>\n</html>\n";
-    return html;
   }
 
   @PUT
