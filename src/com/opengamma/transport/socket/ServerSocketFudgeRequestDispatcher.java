@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.ExecutorService;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
@@ -36,11 +39,15 @@ public class ServerSocketFudgeRequestDispatcher extends AbstractServerSocketProc
 
   private final TerminatableJobContainer _messageReceiveJobs = new TerminatableJobContainer();
   
-  public ServerSocketFudgeRequestDispatcher(FudgeRequestReceiver underlying) {
-    this(underlying, FudgeContext.GLOBAL_DEFAULT);
+  public ServerSocketFudgeRequestDispatcher(final FudgeRequestReceiver underlying, final FudgeContext fudgeContext) {
+    ArgumentChecker.notNull(underlying, "underlying");
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
+    _underlying = underlying;
+    _fudgeContext = fudgeContext;
   }
-  
-  public ServerSocketFudgeRequestDispatcher(FudgeRequestReceiver underlying, FudgeContext fudgeContext) {
+
+  public ServerSocketFudgeRequestDispatcher(final FudgeRequestReceiver underlying, final FudgeContext fudgeContext, final ExecutorService executorService) {
+    super(executorService);
     ArgumentChecker.notNull(underlying, "underlying");
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _underlying = underlying;
@@ -95,6 +102,8 @@ public class ServerSocketFudgeRequestDispatcher extends AbstractServerSocketProc
     private final FudgeMsgReader _reader;
     private final FudgeMsgWriter _writer;
 
+    private Queue<FudgeFieldContainer> _messagesToWrite;
+
     // NOTE kirk 2010-05-12 -- Have to pass in the InputStream and OutputStream explicitly so that
     // we can force the IOException catch up above.
     public RequestDispatchJob(Socket socket, InputStream inputStream, OutputStream outputStream) {
@@ -113,7 +122,7 @@ public class ServerSocketFudgeRequestDispatcher extends AbstractServerSocketProc
         return;
       }
     
-      FudgeMsgEnvelope envelope = null;
+      final FudgeMsgEnvelope envelope;
       try {
         envelope = _reader.nextMessageEnvelope();
       } catch (Exception e) {
@@ -127,7 +136,22 @@ public class ServerSocketFudgeRequestDispatcher extends AbstractServerSocketProc
         terminate();
         return;
       }
+      
+      final ExecutorService executorService = getExecutorService();
+      if (executorService != null) {
+        executorService.execute(new Runnable() {
+          @Override
+          public void run() {
+            dispatch(envelope);
+          }
+        });
+      } else {
+        dispatch(envelope);
+      }
+      
+    }
 
+    private void dispatch(final FudgeMsgEnvelope envelope) {
       FudgeFieldContainer response = null;
       try {
         s_logger.debug("Received message with {} fields. Dispatching to underlying.", envelope.getMessage().getNumFields());
@@ -136,16 +160,42 @@ public class ServerSocketFudgeRequestDispatcher extends AbstractServerSocketProc
         s_logger.warn("Unable to dispatch message to underlying receiver", e);
         return;
       }
-      
-      try {
-        s_logger.debug("Sending response with {} fields.", envelope.getMessage().getNumFields());
-        _writer.writeMessage(response);
-      } catch (Exception e) {
-        s_logger.warn("Unable to dispatch response to client - terminating connection", e);
-        terminate();
-        return;
+      if (response != null) {
+        synchronized (this) {
+          if (_messagesToWrite != null) {
+            _messagesToWrite.add(response);
+            return;
+          } else {
+            _messagesToWrite = new LinkedList<FudgeFieldContainer>();
+          }
+        }
+        boolean clearPointer = true;
+        try {
+          do {
+            try {
+              s_logger.debug("Sending response with {} fields.", response.getNumFields());
+              _writer.writeMessage(response);
+            } catch (Exception e) {
+              s_logger.warn("Unable to dispatch response to client - terminating connection", e);
+              terminate();
+              return;
+            }
+            synchronized (this) {
+              response = _messagesToWrite.poll();
+              if (response == null) {
+                _messagesToWrite = null;
+                clearPointer = false;
+              }
+            }
+          } while (response != null);
+        } finally {
+          synchronized (this) {
+            if (clearPointer) {
+              _messagesToWrite = null;
+            }
+          }
+        }
       }
-      
     }
 
     @Override

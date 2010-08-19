@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.ExecutorService;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
@@ -43,6 +46,12 @@ public class ServerSocketFudgeConnectionReceiver extends AbstractServerSocketPro
   private final TerminatableJobContainer _connectionJobs = new TerminatableJobContainer();
   
   public ServerSocketFudgeConnectionReceiver(final FudgeContext fudgeContext, final FudgeConnectionReceiver underlying) {
+    _fudgeContext = fudgeContext;
+    _underlying = underlying;
+  }
+
+  public ServerSocketFudgeConnectionReceiver(final FudgeContext fudgeContext, final FudgeConnectionReceiver underlying, final ExecutorService executorService) {
+    super(executorService);
     _fudgeContext = fudgeContext;
     _underlying = underlying;
   }
@@ -99,6 +108,8 @@ public class ServerSocketFudgeConnectionReceiver extends AbstractServerSocketPro
       _writer = getFudgeContext().createMessageWriter(new BufferedOutputStream(os));
       _sender = new FudgeMessageSender() {
 
+        private Queue<FudgeFieldContainer> _messagesToWrite;
+
         @Override
         public FudgeContext getFudgeContext() {
           return ServerSocketFudgeConnectionReceiver.this.getFudgeContext();
@@ -106,11 +117,37 @@ public class ServerSocketFudgeConnectionReceiver extends AbstractServerSocketPro
 
         @Override
         public void send(FudgeFieldContainer message) {
+          synchronized (this) {
+            if (_messagesToWrite != null) {
+              _messagesToWrite.add(message);
+              return;
+            } else {
+              _messagesToWrite = new LinkedList<FudgeFieldContainer>();
+            }
+          }
+          boolean clearPointer = true;
           try {
-            _writer.writeMessage(message);
-          } catch (FudgeRuntimeIOException e) {
-            terminateWithError("Unable to write message to underlying stream - terminating connection", e.getCause());
-            throw e;
+            do {
+              try {
+                _writer.writeMessage(message);
+              } catch (FudgeRuntimeIOException e) {
+                terminateWithError("Unable to write message to underlying stream - terminating connection", e.getCause());
+                throw e;
+              }
+              synchronized (this) {
+                message = _messagesToWrite.poll();
+                if (message == null) {
+                  _messagesToWrite = null;
+                  clearPointer = false;
+                }
+              }
+            } while (message != null);
+          } finally {
+            synchronized (this) {
+              if (clearPointer) {
+                _messagesToWrite = null;
+              }
+            }
           }
         }
 
@@ -149,7 +186,7 @@ public class ServerSocketFudgeConnectionReceiver extends AbstractServerSocketPro
         terminate();
         return;
       }
-      FudgeMsgEnvelope envelope = null;
+      final FudgeMsgEnvelope envelope;
       try {
         envelope = _reader.nextMessageEnvelope();
       } catch (FudgeRuntimeIOException e) {
@@ -162,10 +199,16 @@ public class ServerSocketFudgeConnectionReceiver extends AbstractServerSocketPro
       }
       final FudgeMessageReceiver receiver = _receiver;
       if (receiver != null) {
-        try {
-          receiver.messageReceived(getFudgeContext(), envelope);
-        } catch (Exception e) {
-          s_logger.warn("Unable to dispatch message to receiver", e);
+        final ExecutorService executorService = getExecutorService();
+        if (executorService != null) {
+          executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+              dispatchReceiver(receiver, envelope);
+            }
+          });
+        } else {
+          dispatchReceiver(receiver, envelope);
         }
       } else {
         try {
@@ -173,6 +216,14 @@ public class ServerSocketFudgeConnectionReceiver extends AbstractServerSocketPro
         } catch (Exception e) {
           s_logger.warn("Unable to dispatch connection to receiver", e);
         }
+      }
+    }
+
+    private void dispatchReceiver(final FudgeMessageReceiver receiver, final FudgeMsgEnvelope envelope) {
+      try {
+        receiver.messageReceived(getFudgeContext(), envelope);
+      } catch (Exception e) {
+        s_logger.warn("Unable to dispatch message to receiver", e);
       }
     }
 

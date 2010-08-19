@@ -11,6 +11,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.net.InetAddress;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
@@ -38,7 +41,7 @@ public class SocketFudgeRequestConduitTest {
         return response;
       }
     };
-    ServerSocketFudgeRequestDispatcher requestDispatcher = new ServerSocketFudgeRequestDispatcher(requestReceiver);
+    ServerSocketFudgeRequestDispatcher requestDispatcher = new ServerSocketFudgeRequestDispatcher(requestReceiver, FudgeContext.GLOBAL_DEFAULT);
     requestDispatcher.start();
     
     SocketFudgeRequestSender sender = new SocketFudgeRequestSender();
@@ -83,4 +86,57 @@ public class SocketFudgeRequestConduitTest {
     sender.stop();
     requestDispatcher.stop();
   }
+
+  private void parallelSendTest(final ExecutorService executor, final AtomicInteger maxConcurrency) throws Exception {
+    final CollectingFudgeMessageReceiver collectingReceiver = new CollectingFudgeMessageReceiver();
+    FudgeRequestReceiver requestReceiver = new FudgeRequestReceiver() {
+      private final AtomicInteger _concurrency = new AtomicInteger(0);
+
+      @Override
+      public FudgeFieldContainer requestReceived(FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope) {
+        final int concurrency = _concurrency.incrementAndGet();
+        if (concurrency > maxConcurrency.get()) {
+          maxConcurrency.set(concurrency);
+        }
+        try {
+          Thread.sleep(1000);
+        } catch (InterruptedException e) {
+        }
+        _concurrency.decrementAndGet();
+        return requestEnvelope.getMessage();
+      }
+    };
+    ServerSocketFudgeRequestDispatcher requestDispatcher = (executor != null) ? new ServerSocketFudgeRequestDispatcher(requestReceiver, FudgeContext.GLOBAL_DEFAULT, executor)
+        : new ServerSocketFudgeRequestDispatcher(requestReceiver, FudgeContext.GLOBAL_DEFAULT);
+    requestDispatcher.start();
+
+    final SocketFudgeRequestSender sender = new SocketFudgeRequestSender();
+    sender.setInetAddress(InetAddress.getLocalHost());
+    sender.setPortNumber(requestDispatcher.getPortNumber());
+    for (int i = 0; i < 2; i++) {
+      new Thread() {
+        @Override
+        public void run() {
+          sender.sendRequest(FudgeContext.EMPTY_MESSAGE, collectingReceiver);
+        }
+      }.start();
+    }
+    assertNotNull(collectingReceiver.waitForMessage(2000));
+    assertNotNull(collectingReceiver.waitForMessage(2000));
+  }
+
+  @Test
+  public void parallelSendTest_single() throws Exception {
+    final AtomicInteger concurrencyMax = new AtomicInteger(0);
+    parallelSendTest(null, concurrencyMax);
+    assertEquals(1, concurrencyMax.get());
+  }
+
+  @Test
+  public void parallelSendTest_multi() throws Exception {
+    final AtomicInteger concurrencyMax = new AtomicInteger(0);
+    parallelSendTest(Executors.newCachedThreadPool(), concurrencyMax);
+    assertEquals(2, concurrencyMax.get());
+  }
+
 }
