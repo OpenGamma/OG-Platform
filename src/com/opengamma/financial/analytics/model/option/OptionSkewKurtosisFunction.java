@@ -52,8 +52,12 @@ public abstract class OptionSkewKurtosisFunction extends AbstractFunction implem
     if (canApplyTo(context, target)) {
       final UniqueIdentifier uid = target.getSecurity().getUniqueIdentifier();
       final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-      results.add(new ValueSpecification(new ValueRequirement(SKEW, ComputationTargetType.SECURITY, uid)));
-      results.add(new ValueSpecification(new ValueRequirement(KURTOSIS, ComputationTargetType.SECURITY, uid)));
+      results.add(new ValueSpecification(
+          new ValueRequirement(SKEW, ComputationTargetType.SECURITY, uid),
+          getUniqueIdentifier()));
+      results.add(new ValueSpecification(
+          new ValueRequirement(KURTOSIS, ComputationTargetType.SECURITY, uid),
+          getUniqueIdentifier()));
       return results;
     }
     return null;

@@ -43,8 +43,13 @@ public class SkewKurtosisFromUnderlyingTimeSeriesFunction extends OptionSkewKurt
     final double skew = 0; // _skewCalculator.evaluate(ts);
     final double kurtosis = 0; // _kurtosisCalculator.evaluate(ts);
     final Set<ComputedValue> results = new HashSet<ComputedValue>();
-    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(SKEW, ComputationTargetType.SECURITY, uid)), skew));
-    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(KURTOSIS, ComputationTargetType.SECURITY, uid)), kurtosis));
+    results.add(new ComputedValue(new ValueSpecification(
+        new ValueRequirement(SKEW, ComputationTargetType.SECURITY, uid),
+        getUniqueIdentifier()), 
+      skew));
+    results.add(new ComputedValue(new ValueSpecification(
+        new ValueRequirement(KURTOSIS, ComputationTargetType.SECURITY, uid),
+        getUniqueIdentifier()), kurtosis));
     return results;
   }
 

@@ -75,7 +75,10 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
   private void initImpl() {
     _interpolator = Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName());
     _requirements = Collections.unmodifiableSet(buildRequirements(_definition));
-    _result = new ValueSpecification(new ValueRequirement(_isYieldCurve ? ValueRequirementNames.YIELD_CURVE : ValueRequirementNames.DISCOUNT_CURVE, _definition.getCurrency()));
+    _result = new ValueSpecification(new ValueRequirement(
+        _isYieldCurve ? ValueRequirementNames.YIELD_CURVE : ValueRequirementNames.DISCOUNT_CURVE, 
+         _definition.getCurrency()),
+         getUniqueIdentifier());
     _results = Collections.singleton(_result);
   }
 

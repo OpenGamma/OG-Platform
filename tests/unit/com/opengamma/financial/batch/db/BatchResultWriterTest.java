@@ -156,7 +156,7 @@ public class BatchResultWriterTest extends HibernateTest {
             new BigDecimal(500), 
             new Identifier("Mock", "AAPL Stock ID")));
     _mockFunctionOutput = new Double(4000.50);   
-    _mockFunction = AbstractCalculationNodeTest.getMockFunction(_mockFunctionComputationTarget, _mockFunctionOutput);
+    _mockFunction = MockFunction.getMockFunction(_mockFunctionComputationTarget, _mockFunctionOutput);
     
     _dbComputationTargets = new HashSet<com.opengamma.financial.batch.db.ComputationTarget>();
     _dbComputationTarget = new com.opengamma.financial.batch.db.ComputationTarget();

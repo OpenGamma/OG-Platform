@@ -58,8 +58,14 @@ public class SkewKurtosisFromImpliedVolatilityFunction extends OptionSkewKurtosi
     final double skew = y * (3 + ySq);
     final double kurtosis = 16 * ySq + 15 * ySq * ySq + 6 * ySq * ySq * ySq + ySq * ySq * ySq * ySq;
     final Set<ComputedValue> results = new HashSet<ComputedValue>();
-    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(SKEW, ComputationTargetType.SECURITY, uid)), skew));
-    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(KURTOSIS, ComputationTargetType.SECURITY, uid)), kurtosis));
+    results.add(new ComputedValue(new ValueSpecification(
+        new ValueRequirement(SKEW, ComputationTargetType.SECURITY, uid),
+        getUniqueIdentifier()), 
+      skew));
+    results.add(new ComputedValue(new ValueSpecification(
+        new ValueRequirement(KURTOSIS, ComputationTargetType.SECURITY, uid),
+        getUniqueIdentifier()), 
+      kurtosis));
     return results;
   }
 

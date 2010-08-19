@@ -48,9 +48,7 @@ import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.security.SecuritySource;
-import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
@@ -519,11 +517,10 @@ public class BatchJob implements Job {
     Set<LiveDataValue> liveDataValues = _batchDbManager.getSnapshotValues(getSnapshotId());
     
     for (LiveDataValue value : liveDataValues) {
-      ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement(
+      ValueRequirement valueRequirement = new ValueRequirement(
           value.getFieldName(), 
-          value.getComputationTargetSpecification()));
-      ComputedValue computedValue = new ComputedValue(valueSpec, value.getValue());
-      snapshotProvider.addValue(computedValue);
+          value.getComputationTargetSpecification());
+      snapshotProvider.addValue(valueRequirement, value.getValue());
     }
     
     snapshotProvider.snapshot(getValuationTime().toInstant().toEpochMillisLong());

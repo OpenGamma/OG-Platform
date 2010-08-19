@@ -33,8 +33,14 @@ public class StandardEquityModelFunction extends AbstractFunction implements Fun
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final EquitySecurity equity = (EquitySecurity) target.getSecurity();
     final double price = (Double) inputs.getValue(new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, ComputationTargetType.SECURITY, equity.getUniqueIdentifier()));
-    return Collections.<ComputedValue>singleton(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity
-        .getUniqueIdentifier())), price));
+    return Collections.<ComputedValue>singleton(new ComputedValue(
+        new ValueSpecification(
+            new ValueRequirement(
+                ValueRequirementNames.FAIR_VALUE, 
+                ComputationTargetType.SECURITY, 
+                equity.getUniqueIdentifier()),
+            getUniqueIdentifier()), 
+      price));
   }
 
   @Override
@@ -64,7 +70,12 @@ public class StandardEquityModelFunction extends AbstractFunction implements Fun
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
       final EquitySecurity equity = (EquitySecurity) target.getSecurity();
-      return Collections.<ValueSpecification>singleton(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity.getUniqueIdentifier())));
+      return Collections.<ValueSpecification>singleton(new ValueSpecification(
+          new ValueRequirement(
+              ValueRequirementNames.FAIR_VALUE, 
+              ComputationTargetType.SECURITY, 
+              equity.getUniqueIdentifier()),
+            getUniqueIdentifier()));
     }
     return null;
   }

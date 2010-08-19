@@ -82,7 +82,9 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction i
     final HistoricalDataProvider historicalDataProvider = OpenGammaExecutionContext.getHistoricalDataProvider(executionContext);
     final SecuritySource securitySource = executionContext.getSecuritySource();
 
-    final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position));
+    final ValueSpecification resultSpecification = new ValueSpecification(
+        new ValueRequirement(ValueRequirementNames.PNL_SERIES, position),
+        getUniqueIdentifier());
     final Map<Sensitivity<?>, RiskFactorResult> sensitivities = new HashMap<Sensitivity<?>, RiskFactorResult>();
     final Map<Sensitivity<?>, Map<Object, DoubleTimeSeries<?>>> tsReturns = new HashMap<Sensitivity<?>, Map<Object, DoubleTimeSeries<?>>>();
     for (final String valueGreekRequirementName : _valueGreekRequirementNames) {
@@ -145,7 +147,9 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction i
       return null;
     }
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-    results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition())));
+    results.add(new ValueSpecification(
+        new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition()),
+        getUniqueIdentifier()));
     return results;
   }
 

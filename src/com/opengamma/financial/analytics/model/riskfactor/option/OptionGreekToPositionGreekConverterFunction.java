@@ -72,7 +72,9 @@ public class OptionGreekToPositionGreekConverterFunction extends AbstractFunctio
       // TODO probably need some checks here
       positionGreek = AvailablePositionGreeks.getPositionGreekForValueRequirementName(dV.getValueName());
       positionGreekResult = positionGreeks.get(positionGreek);
-      resultSpecification = new ValueSpecification(new ValueRequirement(dV.getValueName(), target.getSecurity()));
+      resultSpecification = new ValueSpecification(
+          new ValueRequirement(dV.getValueName(), target.getSecurity()),
+          getUniqueIdentifier());
       resultValue = new ComputedValue(resultSpecification, positionGreekResult);
       results.add(resultValue);
     }
@@ -101,7 +103,9 @@ public class OptionGreekToPositionGreekConverterFunction extends AbstractFunctio
     if (canApplyTo(context, target)) {
       final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
       for (final String valueName : AvailablePositionGreeks.getAllPositionGreekNames()) {
-        results.add(new ValueSpecification(new ValueRequirement(valueName, target.getSecurity())));
+        results.add(new ValueSpecification(
+            new ValueRequirement(valueName, target.getSecurity()),
+            getUniqueIdentifier()));
       }
     }
     return null;
