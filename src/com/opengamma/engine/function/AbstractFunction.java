@@ -34,6 +34,9 @@ public abstract class AbstractFunction implements FunctionDefinition {
    * @param uniqueIdentifier the uniqueIdentifier to set
    */
   public void setUniqueIdentifier(String uniqueIdentifier) {
+    if (_uniqueIdentifier != null) {
+      throw new IllegalStateException("Function unique ID already set");
+    }
     _uniqueIdentifier = uniqueIdentifier;
   }
 

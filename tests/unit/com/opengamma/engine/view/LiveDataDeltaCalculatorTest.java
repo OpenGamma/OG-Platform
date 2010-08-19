@@ -21,7 +21,6 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -73,7 +72,7 @@ public class LiveDataDeltaCalculatorTest {
   private DependencyNode createNode(String name, Set<DependencyNode> inputNodes) {
     ComputationTarget target = getTarget(name); 
     MockFunction function = new MockFunction(target);
-    function.addValueRequirement(getValueRequirement(name));
+    function.addRequiredLiveData(getValueRequirement(name));
     DependencyNode node = new DependencyNode(function, 
         target, 
         inputNodes, 
@@ -83,7 +82,7 @@ public class LiveDataDeltaCalculatorTest {
   }
   
   private void put(ViewComputationCache cache, DependencyNode node, Object value) {
-    ValueSpecification spec = ((MockFunction) node.getFunctionDefinition()).getResultSpec();
+    ValueSpecification spec = ((MockFunction) node.getFunctionDefinition()).getRequiredLiveData().iterator().next();
     cache.putValue(new ComputedValue(spec, value));
   }
   

@@ -32,7 +32,9 @@ public class InMemoryFunctionRepository implements FunctionRepository {
     ArgumentChecker.notNull(function, "Function definition");
     ArgumentChecker.notNull(invoker, "Function invoker");
     _functions.add(function);
-    function.setUniqueIdentifier(Integer.toString(_functions.size()));
+    if (function.getUniqueIdentifier() == null) {
+      function.setUniqueIdentifier(Integer.toString(_functions.size()));
+    }
     _invokersByUniqueIdentifier.put(function.getUniqueIdentifier(), invoker);
   }
 

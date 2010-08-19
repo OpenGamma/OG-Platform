@@ -19,6 +19,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
+import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -100,7 +101,7 @@ public class MockFunction extends AbstractFunction implements FunctionInvoker {
   
   public void addResult(ValueRequirement value, Object result) {
     ValueSpecification resultSpec = toValueSpecification(value);
-    ComputedValue computedValue = new ComputedValue(resultSpec, value);
+    ComputedValue computedValue = new ComputedValue(resultSpec, result);
     addResult(computedValue);
   }
   
@@ -115,8 +116,14 @@ public class MockFunction extends AbstractFunction implements FunctionInvoker {
     }
   }
   
-  public void addRequiredLiveData(Collection<ValueSpecification> requiredLiveData) {
-    _requiredLiveData.addAll(requiredLiveData);
+  public void addRequiredLiveData(ValueRequirement requiredLiveData) {
+    addRequiredLiveData(Collections.singleton(requiredLiveData));
+  }
+  
+  public void addRequiredLiveData(Collection<ValueRequirement> requiredLiveData) {
+    for (ValueRequirement requirement : requiredLiveData) {
+      _requiredLiveData.add(new ValueSpecification(requirement, LiveDataSourcingFunction.UNIQUE_ID));
+    }
   }
   
   @Override
@@ -155,9 +162,21 @@ public class MockFunction extends AbstractFunction implements FunctionInvoker {
   
   public ValueSpecification getResultSpec() {
     if (_resultSpecs.size() != 1) {
-      throw new IllegalStateException();
+      throw new IllegalStateException("Result count must be 1: " + _resultSpecs.toString());
     }
     return _resultSpecs.iterator().next();
+  }
+  
+  public ValueRequirement getResultRequirement() {
+    return getResultSpec().getRequirementSpecification();
+  }
+  
+  public Set<ValueRequirement> getResultRequirements() {
+    Set<ValueRequirement> returnValue = new HashSet<ValueRequirement>();
+    for (ValueSpecification spec : getResultSpecs()) {
+      returnValue.add(spec.getRequirementSpecification());      
+    }
+    return returnValue;
   }
   
   public Set<ComputedValue> getResults() {
@@ -166,7 +185,7 @@ public class MockFunction extends AbstractFunction implements FunctionInvoker {
   
   public ComputedValue getResult() {
     if (_results.size() != 1) {
-      throw new IllegalStateException();
+      throw new IllegalStateException("Result count must be 1: " + _results.toString());
     }
     return _results.iterator().next();
   }

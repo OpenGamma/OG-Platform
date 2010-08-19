@@ -132,7 +132,7 @@ public class ViewDefinitionCompilerTest {
     viewDefinition.getResultModelDefinition().setPositionOutputMode(ResultOutputMode.NONE);
     
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Fibble");
-    calcConfig.addPortfolioRequirement("My Sec", "Req-1");
+    calcConfig.addPortfolioRequirement("My Sec", "OUTPUT");
     viewDefinition.addViewCalculationConfiguration(calcConfig);
     
     ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, vcs);
