@@ -7,6 +7,7 @@ package com.opengamma.engine.view.cache;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -65,7 +66,7 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
   public FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
-  
+
   // TODO Remove this debug timing code and print statements etc ...
 
   private int _identifierRequests;
@@ -95,16 +96,12 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
   }
 
   @Override
-  public Object getValue(ValueSpecification specification) {
+  public Object getValue(final ValueSpecification specification) {
     ArgumentChecker.notNull(specification, "Specification");
     _identifierRequests++;
     _getIdentifierTime -= System.nanoTime();
     final long identifier = getIdentifierMap().getIdentifier(specification);
     _getIdentifierTime += System.nanoTime();
-    return getValue(identifier);
-  }
-
-  public Object getValue(final long identifier) {
     _dataRequests++;
     _getDataTime -= System.nanoTime();
     byte[] data = getDataStore().get(identifier);
@@ -114,53 +111,9 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
     }
     _deserializeTime -= System.nanoTime();
     final FudgeDeserializationContext context = new FudgeDeserializationContext(getFudgeContext());
-    final FudgeFieldContainer message = getFudgeContext().deserialize(data).getMessage();
-    if (message.getNumFields() == 1) {
-      Object value = message.getValue(-1);
-      if (value != null) {
-        _deserializeTime += System.nanoTime();
-        return value;
-      }
-    }
-    final Object value = context.fudgeMsgToObject(message);
+    final Object value = deserializeValue(context, data);
     _deserializeTime += System.nanoTime();
     return value;
-  }
-
-  @Override
-  public void putValue(ComputedValue value) {
-    ArgumentChecker.notNull(value, "Computed value");
-    _identifierRequests++;
-    _getIdentifierTime -= System.nanoTime();
-    final long identifier = getIdentifierMap().getIdentifier(value.getSpecification());
-    _getIdentifierTime += System.nanoTime();
-    putValue(identifier, value.getValue());
-  }
-
-  public void putValue(final long identifier, final Object value) {
-    _putRequests++;
-    _serializeTime -= System.nanoTime();
-    final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeContext());
-    final MutableFudgeFieldContainer message = context.newMessage();
-    context.objectToFudgeMsgWithClassHeaders(message, null, NATIVE_FIELD_INDEX, value);
-    final byte[] data;
-    // Optimize the "value encoded as sub-message" case to reduce space requirement
-    Object svalue = message.getValue(NATIVE_FIELD_INDEX);
-    if (svalue instanceof FudgeFieldContainer) {
-      data = getFudgeContext().toByteArray((FudgeFieldContainer) svalue);
-    } else {
-      data = getFudgeContext().toByteArray(message);
-    }
-    _serializeTime += System.nanoTime();
-    _putDataTime -= System.nanoTime();
-    getDataStore().put(identifier, data);
-    _putDataTime += System.nanoTime();
-  }
-
-  @Override
-  public Iterator<Pair<ValueSpecification, byte[]>> iterator() {
-    // TODO 2008-08-09 Implement this; iterate over the values in the data store
-    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -170,11 +123,36 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
     _getIdentifierTime -= System.nanoTime();
     final Map<ValueSpecification, Long> identifiers = getIdentifierMap().getIdentifiers(specifications);
     _getIdentifierTime += System.nanoTime();
-    final Collection<Pair<ValueSpecification, Object>> values = new ArrayList<Pair<ValueSpecification, Object>>(specifications.size());
+    final Collection<Pair<ValueSpecification, Object>> returnValues = new ArrayList<Pair<ValueSpecification, Object>>(specifications.size());
+    _dataRequests += specifications.size();
+    _getDataTime -= System.nanoTime();
+    final Map<Long, byte[]> rawValues = getDataStore().get(identifiers.values());
+    _getDataTime += System.nanoTime();
+    _deserializeTime -= System.nanoTime();
+    final FudgeDeserializationContext context = new FudgeDeserializationContext(getFudgeContext());
     for (Map.Entry<ValueSpecification, Long> identifier : identifiers.entrySet()) {
-      values.add(Pair.of(identifier.getKey(), getValue(identifier.getValue())));
+      final byte[] data = rawValues.get(identifier.getValue());
+      returnValues.add(Pair.of(identifier.getKey(), (data != null) ? deserializeValue(context, data) : null));
     }
-    return values;
+    _deserializeTime += System.nanoTime();
+    return returnValues;
+  }
+
+  @Override
+  public void putValue(ComputedValue value) {
+    ArgumentChecker.notNull(value, "Computed value");
+    _identifierRequests++;
+    _getIdentifierTime -= System.nanoTime();
+    final long identifier = getIdentifierMap().getIdentifier(value.getSpecification());
+    _getIdentifierTime += System.nanoTime();
+    _putRequests++;
+    _serializeTime -= System.nanoTime();
+    final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeContext());
+    final byte[] data = serializeValue(context, value.getValue());
+    _serializeTime += System.nanoTime();
+    _putDataTime -= System.nanoTime();
+    getDataStore().put(identifier, data);
+    _putDataTime += System.nanoTime();
   }
 
   @Override
@@ -188,9 +166,50 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
     }
     final Map<ValueSpecification, Long> identifiers = getIdentifierMap().getIdentifiers(specifications);
     _getIdentifierTime += System.nanoTime();
+    _putRequests += values.size();
+    _serializeTime -= System.nanoTime();
+    final Map<Long, byte[]> data = new HashMap<Long, byte[]>();
+    final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeContext());
     for (ComputedValue value : values) {
-      putValue(identifiers.get(value.getSpecification()), value.getValue());
+      data.put(identifiers.get(value.getSpecification()), serializeValue(context, value.getValue()));
     }
+    _serializeTime += System.nanoTime();
+    _putDataTime -= System.nanoTime();
+    getDataStore().put(data);
+    _putDataTime += System.nanoTime();
+  }
+
+  protected static byte[] serializeValue(final FudgeSerializationContext context, final Object value) {
+    context.reset();
+    final MutableFudgeFieldContainer message = context.newMessage();
+    context.objectToFudgeMsgWithClassHeaders(message, null, NATIVE_FIELD_INDEX, value);
+    final byte[] data;
+    // Optimize the "value encoded as sub-message" case to reduce space requirement
+    Object svalue = message.getValue(NATIVE_FIELD_INDEX);
+    if (svalue instanceof FudgeFieldContainer) {
+      data = context.getFudgeContext().toByteArray((FudgeFieldContainer) svalue);
+    } else {
+      data = context.getFudgeContext().toByteArray(message);
+    }
+    return data;
+  }
+
+  protected static Object deserializeValue(final FudgeDeserializationContext context, final byte[] data) {
+    context.reset();
+    final FudgeFieldContainer message = context.getFudgeContext().deserialize(data).getMessage();
+    if (message.getNumFields() == 1) {
+      Object value = message.getValue(NATIVE_FIELD_INDEX);
+      if (value != null) {
+        return value;
+      }
+    }
+    return context.fudgeMsgToObject(message);
+  }
+
+  @Override
+  public Iterator<Pair<ValueSpecification, byte[]>> iterator() {
+    // TODO 2008-08-09 Implement this; iterate over the values in the data store
+    throw new UnsupportedOperationException();
   }
 
 }

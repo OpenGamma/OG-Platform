@@ -1,9 +1,12 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.cache;
+
+import java.util.Collection;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,11 +25,11 @@ import com.sleepycat.je.OperationStatus;
  */
 public class BerkeleyDBBinaryDataStore extends AbstractBerkeleyDBComponent implements BinaryDataStore {
   private static final Logger s_logger = LoggerFactory.getLogger(BerkeleyDBBinaryDataStore.class);
-  
+
   public BerkeleyDBBinaryDataStore(Environment dbEnvironment, String databaseName) {
     super(dbEnvironment, databaseName);
   }
-  
+
   @Override
   protected DatabaseConfig getDatabaseConfig() {
     DatabaseConfig dbConfig = new DatabaseConfig();
@@ -43,7 +46,7 @@ public class BerkeleyDBBinaryDataStore extends AbstractBerkeleyDBComponent imple
   public void delete() {
     getDatabase().close();
     // TODO kirk 2010-08-07 -- For batch operation, we'd have to explicitly remove the DB as well.
-    //getDbEnvironment().removeDatabase(null, getDatabaseName());
+    // getDbEnvironment().removeDatabase(null, getDatabaseName());
     stop();
   }
 
@@ -61,7 +64,7 @@ public class BerkeleyDBBinaryDataStore extends AbstractBerkeleyDBComponent imple
       case SUCCESS:
         return valueEntry.getData();
       default:
-        s_logger.debug("{} - No record available for identifier {} status {}", new Object[]{getDatabaseName(), identifier, opStatus});
+        s_logger.debug("{} - No record available for identifier {} status {}", new Object[] {getDatabaseName(), identifier, opStatus});
         return null;
     }
   }
@@ -81,8 +84,18 @@ public class BerkeleyDBBinaryDataStore extends AbstractBerkeleyDBComponent imple
       case SUCCESS:
         return;
       default:
-        s_logger.warn("{} - Unable to write to identifier {} status {}", new Object[]{getDatabaseName(), identifier, opStatus});
+        s_logger.warn("{} - Unable to write to identifier {} status {}", new Object[] {getDatabaseName(), identifier, opStatus});
     }
+  }
+
+  @Override
+  public Map<Long, byte[]> get(final Collection<Long> identifiers) {
+    return AbstractBinaryDataStore.get(this, identifiers);
+  }
+
+  @Override
+  public void put(final Map<Long, byte[]> data) {
+    AbstractBinaryDataStore.put(this, data);
   }
 
 }

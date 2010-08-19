@@ -133,16 +133,18 @@ public abstract class AbstractCalculationNode implements CalculationNode {
         // litter the logs with stack traces.
         s_logger.info("Unable to invoke {} due to missing inputs: {}", jobItem, e.getMessage());
         resultItem = new CalculationJobResultItem(jobItem, e);
-
       } catch (Exception e) {
-        s_logger.info("Invoking " + jobItem.getFunctionUniqueIdentifier() + " threw exception.", e);
+        s_logger.warn("Invoking " + jobItem.getFunctionUniqueIdentifier() + " threw exception.", e);
         resultItem = new CalculationJobResultItem(jobItem, e);
       }
 
       resultItems.add(resultItem);
-      //((DefaultViewComputationCache) cache).reportTimes();
-      //System.err.println("resolution=" + (_resolutionTime / 1000000d) + "ms, cacheGet=" + (_cacheGetTime / 1000000d) + "ms, invoke=" + (_invocationTime / 1000000d) + "ms, cachePut="
-          //+ (_cachePutTime / 1000000d) + "ms");
+
+      /*
+      ((DefaultViewComputationCache) cache).reportTimes();
+      System.err.println("resolution=" + (_resolutionTime / 1000000d) + "ms, cacheGet=" + (_cacheGetTime / 1000000d) + "ms, invoke=" + (_invocationTime / 1000000d) + "ms, cachePut="
+          + (_cachePutTime / 1000000d) + "ms");
+      */
     }
 
     long endNanos = System.nanoTime();
@@ -150,12 +152,14 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     CalculationJobResult jobResult = new CalculationJobResult(spec, durationNanos, resultItems, getNodeId());
 
     s_logger.info("Executed {}", job);
-    /*final double totalTime = (double) (_resolutionTime + _cacheGetTime + _invocationTime + _cachePutTime) / 100d;
+    /*
+    final double totalTime = (double) (_resolutionTime + _cacheGetTime + _invocationTime + _cachePutTime) / 100d;
     if (totalTime > 0) {
       System.err.println("Total = " + durationNanos + "ns - " + ((double) _resolutionTime / totalTime) + "% resolution, " + ((double) _cacheGetTime / totalTime) + "% cacheGet, "
           + ((double) _invocationTime / totalTime) + "% invoke, " + ((double) _cachePutTime / totalTime) + "% cachePut");
-    }*/
+    }
     ((DefaultViewComputationCache) cache).resetTimes();
+    */
     _resolutionTime = 0;
     _cacheGetTime = 0;
     _invocationTime = 0;
@@ -163,7 +167,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
 
     return jobResult;
   }
-  
+
   // TODO Remove the time code that I've been using for debug and tuning
 
   @Override
@@ -223,6 +227,9 @@ public abstract class AbstractCalculationNode implements CalculationNode {
       results = invoker.execute(getFunctionExecutionContext(), functionInputs, target, jobItem.getDesiredValues());
     } finally {
       _invocationTime += System.nanoTime();
+    }
+    if (results == null) {
+      throw new NullPointerException("No results returned by invoker " + invoker);
     }
     return results;
   }

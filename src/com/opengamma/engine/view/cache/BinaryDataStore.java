@@ -1,18 +1,21 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.cache;
 
-// REVIEW kirk 2010-08-07 -- This is a TERRIBLE name for this interface and associated
-// classes. Please please please someone come up with a better one.
+import java.util.Collection;
+import java.util.Map;
+
+import com.opengamma.engine.value.ValueSpecification;
+
 /**
  * A store for binary data for a fully identified {@link ValueSpecification}.
  * It is expected that one of these will be created per iteration per View/Configuration pair.
  */
 public interface BinaryDataStore {
-  
+
   /**
    * Obtain the current data associated with the identifier.
    * This method will return {@code null} if there is no data with
@@ -22,7 +25,15 @@ public interface BinaryDataStore {
    * @return the current data stored with that identifier.
    */
   byte[] get(long identifier);
-  
+
+  /**
+   * Potentially more efficient form of {@link #get} for multiple lookups.
+   * 
+   * @param identifiers identifiers to query
+   * @return map of results. If there is no data for an identifier it will be missing from the map. 
+   */
+  Map<Long, byte[]> get(Collection<Long> identifiers);
+
   /**
    * Provide data for the given identifier for this store.
    * 
@@ -30,7 +41,14 @@ public interface BinaryDataStore {
    * @param data The data to store
    */
   void put(long identifier, byte[] data);
-  
+
+  /**
+   * Potentially more efficient form of {@link #put} for multiple puts.
+   * 
+   * @param data map of identifier to data values to store
+   */
+  void put(Map<Long, byte[]> data);
+
   /**
    * Remove any underlying resources, and free all memory, relating
    * to this store. Immediately after this method is called the store instance

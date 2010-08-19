@@ -5,6 +5,9 @@
  */
 package com.opengamma.engine.view.cache;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -43,15 +46,14 @@ public class IdentifierMapServer implements FudgeRequestReceiver {
 
   protected LookupResponse handleLookup(final LookupRequest request) {
     final List<ValueSpecification> spec = request.getSpecification();
-    final long[] identifiers;
+    final Collection<Long> identifiers;
     if (spec.size() == 1) {
-      identifiers = new long[] {getUnderlying().getIdentifier(spec.get(0))};
+      identifiers = Collections.singleton(getUnderlying().getIdentifier(spec.get(0)));
     } else {
-      identifiers = new long[spec.size()];
       final Map<ValueSpecification, Long> identifierMap = getUnderlying().getIdentifiers(spec);
-      int i = 0;
-      for (ValueSpecification valueSpec : spec) {
-        identifiers[i++] = identifierMap.get(valueSpec);
+      identifiers = new ArrayList<Long>(identifierMap.size());
+      for (ValueSpecification specEntry : spec) {
+        identifiers.add(identifierMap.get(specEntry));
       }
     }
     final LookupResponse response = new LookupResponse(identifiers);
