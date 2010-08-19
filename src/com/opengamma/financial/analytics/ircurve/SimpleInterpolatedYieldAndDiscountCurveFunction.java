@@ -211,9 +211,12 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     final FudgeField field = message.getByName(DEFINITION_KEY);
     if (field != null) {
       object._definition = context.fieldValueToObject(InterpolatedYieldAndDiscountCurveDefinition.class, field);
+    }
+    SimpleInterpolatedYieldAndDiscountCurveFunction function = fromFudgeMsg(object, message);
+    if (field != null) {
       object.initImpl();
     }
-    return fromFudgeMsg(object, message);
+    return function;
   }
 
 }
