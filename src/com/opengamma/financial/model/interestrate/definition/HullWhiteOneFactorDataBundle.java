@@ -9,25 +9,16 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
-public class VasicekDataBundle extends StandardDiscountBondModelDataBundle {
-  private final double _longTermInterestRate;
+public class HullWhiteOneFactorDataBundle extends StandardDiscountBondModelDataBundle {
   private final double _reversionSpeed;
 
-  public VasicekDataBundle(final YieldAndDiscountCurve shortRateCurve, final VolatilityCurve shortRateVolatilityCurve, final ZonedDateTime date, final double longTermInterestRate,
-      final double reversionSpeed) {
+  public HullWhiteOneFactorDataBundle(final YieldAndDiscountCurve shortRateCurve, final VolatilityCurve shortRateVolatilityCurve, final ZonedDateTime date, final double reversionSpeed) {
     super(shortRateCurve, shortRateVolatilityCurve, date);
-    ArgumentChecker.notZero(reversionSpeed, 1e-15, "reversion speed");
-    _longTermInterestRate = longTermInterestRate;
     _reversionSpeed = reversionSpeed;
-  }
-
-  public double getLongTermInterestRate() {
-    return _longTermInterestRate;
   }
 
   public double getReversionSpeed() {
@@ -37,10 +28,8 @@ public class VasicekDataBundle extends StandardDiscountBondModelDataBundle {
   @Override
   public int hashCode() {
     final int prime = 31;
-    int result = 1;
+    int result = super.hashCode();
     long temp;
-    temp = Double.doubleToLongBits(_longTermInterestRate);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_reversionSpeed);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
@@ -57,10 +46,11 @@ public class VasicekDataBundle extends StandardDiscountBondModelDataBundle {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final VasicekDataBundle other = (VasicekDataBundle) obj;
-    if (Double.doubleToLongBits(_longTermInterestRate) != Double.doubleToLongBits(other._longTermInterestRate)) {
+    final HullWhiteOneFactorDataBundle other = (HullWhiteOneFactorDataBundle) obj;
+    if (Double.doubleToLongBits(_reversionSpeed) != Double.doubleToLongBits(other._reversionSpeed)) {
       return false;
     }
-    return Double.doubleToLongBits(_reversionSpeed) == Double.doubleToLongBits(other._reversionSpeed);
+    return true;
   }
+
 }

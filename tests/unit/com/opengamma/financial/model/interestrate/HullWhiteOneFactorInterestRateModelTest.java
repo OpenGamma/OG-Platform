@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorInterestRateDataBundle;
+import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorDataBundle;
 import com.opengamma.financial.model.volatility.curve.ConstantVolatilityCurve;
 import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.util.time.DateUtil;
@@ -37,26 +37,26 @@ public class HullWhiteOneFactorInterestRateModelTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullTime() {
-    MODEL.getInterestRateFunction(null, MATURITY);
+    MODEL.getDiscountBondFunction(null, MATURITY);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullMaturity() {
-    MODEL.getInterestRateFunction(START, null);
+    MODEL.getDiscountBondFunction(START, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
-    MODEL.getInterestRateFunction(START, MATURITY).evaluate((HullWhiteOneFactorInterestRateDataBundle) null);
+    MODEL.getDiscountBondFunction(START, MATURITY).evaluate((HullWhiteOneFactorDataBundle) null);
   }
 
   @Test
   public void test() {
-    HullWhiteOneFactorInterestRateDataBundle data = new HullWhiteOneFactorInterestRateDataBundle(R, SIGMA, TODAY, SPEED);
-    assertEquals(MODEL.getInterestRateFunction(START, START).evaluate(data), 1, EPS);
-    data = new HullWhiteOneFactorInterestRateDataBundle(R, new ConstantVolatilityCurve(0), TODAY, SPEED);
-    assertEquals(Math.log(MODEL.getInterestRateFunction(START, MATURITY).evaluate(data)), -RATE * YEARS, EPS);
-    data = new HullWhiteOneFactorInterestRateDataBundle(R, SIGMA, TODAY, 200);
-    assertEquals(Math.log(MODEL.getInterestRateFunction(START, MATURITY).evaluate(data)), -RATE * YEARS, EPS);
+    HullWhiteOneFactorDataBundle data = new HullWhiteOneFactorDataBundle(R, SIGMA, TODAY, SPEED);
+    assertEquals(MODEL.getDiscountBondFunction(START, START).evaluate(data), 1, EPS);
+    data = new HullWhiteOneFactorDataBundle(R, new ConstantVolatilityCurve(0), TODAY, SPEED);
+    assertEquals(Math.log(MODEL.getDiscountBondFunction(START, MATURITY).evaluate(data)), -RATE * YEARS, EPS);
+    data = new HullWhiteOneFactorDataBundle(R, SIGMA, TODAY, 200);
+    assertEquals(Math.log(MODEL.getDiscountBondFunction(START, MATURITY).evaluate(data)), -RATE * YEARS, EPS);
   }
 }
