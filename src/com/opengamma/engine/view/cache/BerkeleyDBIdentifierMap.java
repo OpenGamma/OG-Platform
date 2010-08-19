@@ -1,10 +1,12 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.cache;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.fudgemsg.FudgeContext;
@@ -31,9 +33,7 @@ import com.sleepycat.je.TransactionConfig;
  * Berkeley DB table.
  * Internally, it maintains an {@link AtomicLong} to allocate the next identifier to be used.
  */
-public class BerkeleyDBIdentifierMap
-  extends AbstractBerkeleyDBComponent
-  implements IdentifierMap, Lifecycle {
+public class BerkeleyDBIdentifierMap extends AbstractBerkeleyDBComponent implements IdentifierMap, Lifecycle {
   private static final Logger s_logger = LoggerFactory.getLogger(BerkeleyDBIdentifierMap.class);
   /**
    * The default name for the database in the provided environment.
@@ -41,12 +41,12 @@ public class BerkeleyDBIdentifierMap
   protected static final String DEFAULT_DATABASE_NAME = "value_specification_identifier";
   private static final byte[] HIGHEST_VALUE_KEY = new byte[] {0};
   private static final DatabaseEntry HIGHEST_VALUE_DB_ENTRY = new DatabaseEntry(HIGHEST_VALUE_KEY);
-  
+
   private final FudgeContext _fudgeContext;
-  
+
   // Runtime state:
   private final AtomicLong _nextIdentifier = new AtomicLong(1L);
-  
+
   public BerkeleyDBIdentifierMap(Environment dbEnvironment, String databaseName, FudgeContext fudgeContext) {
     super(dbEnvironment, databaseName);
     ArgumentChecker.notNull(fudgeContext, "Fudge context");
@@ -68,9 +68,9 @@ public class BerkeleyDBIdentifierMap
       s_logger.info("Starting on first call as wasn't called as part of lifecycle interface");
       start();
     }
-    
+
     long result = -1L;
-    
+
     byte[] specAsBytes = convertSpecificationToByteArray(spec);
     DatabaseEntry specEntry = new DatabaseEntry(specAsBytes);
     DatabaseEntry valueEntry = new DatabaseEntry();
@@ -101,30 +101,30 @@ public class BerkeleyDBIdentifierMap
         txn.abort();
       }
     }
-    
+
     return result;
   }
-  
+
   protected long allocateNewIdentifier(ValueSpecification valueSpec, Transaction txn, DatabaseEntry specEntry) {
     DatabaseEntry valueEntry = new DatabaseEntry();
     long freshIdentifier = _nextIdentifier.getAndIncrement();
-    //s_logger.debug("Allocating identifier {} to {}", freshIdentifier, valueSpec);
+    // s_logger.debug("Allocating identifier {} to {}", freshIdentifier, valueSpec);
     LongBinding.longToEntry(freshIdentifier, valueEntry);
     OperationStatus putStatus = getDatabase().put(txn, specEntry, valueEntry);
     if (putStatus != OperationStatus.SUCCESS) {
-      s_logger.error("Unable to write new value {} for spec {} - {}", new Object[]{freshIdentifier, valueSpec, putStatus});
+      s_logger.error("Unable to write new value {} for spec {} - {}", new Object[] {freshIdentifier, valueSpec, putStatus});
       throw new OpenGammaRuntimeException("Unable to write new value");
     }
-    
+
     putStatus = getDatabase().put(txn, HIGHEST_VALUE_DB_ENTRY, valueEntry);
     if (putStatus != OperationStatus.SUCCESS) {
       s_logger.error("Unable to write new value {} as highest spec", freshIdentifier);
       throw new OpenGammaRuntimeException("Unable to update highest value");
     }
-    
+
     return freshIdentifier;
   }
-  
+
   protected byte[] convertSpecificationToByteArray(ValueSpecification valueSpec) {
     // REVIEW kirk 2010-07-31 -- Cache the serialization context?
     FudgeSerializationContext serContext = new FudgeSerializationContext(getFudgeContext());
@@ -166,6 +166,11 @@ public class BerkeleyDBIdentifierMap
       txn.commit();
     }
     _nextIdentifier.set(nextIdentifier);
+  }
+
+  @Override
+  public Map<ValueSpecification, Long> getIdentifiers(Collection<ValueSpecification> specs) {
+    return AbstractIdentifierMap.getIdentifiers(this, specs);
   }
 
 }

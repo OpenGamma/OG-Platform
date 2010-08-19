@@ -27,6 +27,7 @@ import com.opengamma.transport.FudgeConnectionStateListener;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageSender;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.monitor.OperationTimer;
 
 /**
  * A JobInvoker for invoking a job on a remote node connected by a FudgeConnection.
@@ -103,9 +104,11 @@ import com.opengamma.util.ArgumentChecker;
       @Override
       public void run() {
         getJobCompletionCallbacks().put(jobSpec, receiver);
+        final OperationTimer timer = new OperationTimer(s_logger, "Invocation serialisation and send of job {}", jobSpec.getJobId());
         final RemoteCalcNodeJobMessage message = new RemoteCalcNodeJobMessage(new CalculationJob(jobSpec, items));
         final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeMessageSender().getFudgeContext());
         getFudgeMessageSender().send(FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(message), message.getClass(), RemoteCalcNodeMessage.class));
+        timer.finished();
       }
     });
     return true;
