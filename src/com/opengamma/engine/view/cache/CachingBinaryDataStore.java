@@ -102,9 +102,15 @@ public class CachingBinaryDataStore implements BinaryDataStore {
     }
     if (missing.size() == 1) {
       final Long missingIdentifier = missing.get(0);
-      result.put(missingIdentifier, getUnderlying().get(missingIdentifier));
+      final byte[] data = getUnderlying().get(missingIdentifier);
+      result.put(missingIdentifier, data);
+      getCache().put(new Element(missingIdentifier, data));
     } else {
-      result.putAll(getUnderlying().get(missing));
+      final Map<Long, byte[]> missingData = getUnderlying().get(missing);
+      for (Map.Entry<Long, byte[]> data : missingData.entrySet()) {
+        result.put(data.getKey(), data.getValue());
+        getCache().put(new Element(data.getKey(), data.getValue()));
+      }
     }
     return result;
   }
