@@ -71,7 +71,17 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
     }
     s_dbDirsToDelete.clear();
   }
-
+  
+  private ValueSpecification getValueSpec(String valueName) {
+    ValueSpecification valueSpec = new ValueSpecification(
+        new ValueRequirement("value", 
+            new ComputationTargetSpecification(
+                ComputationTargetType.PRIMITIVE, 
+                UniqueIdentifier.of("scheme", valueName))),
+        "mockFunctionId");
+    return valueSpec;
+  }
+  
   @Test
   public void simpleOperation() throws IOException {
     File dbDir = createDbDir("simpleOperation");
@@ -85,7 +95,7 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
     Set<Long> seenIdentifiers = new HashSet<Long>();
     for (int i = 0; i < 10; i++) {
       String valueName = "value-" + i;
-      ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("scheme", valueName))));
+      ValueSpecification valueSpec = getValueSpec(valueName);
       long identifier = idSource.getIdentifier(valueSpec);
       assertFalse(seenIdentifiers.contains(identifier));
       identifiers.put(valueName, identifier);
@@ -94,7 +104,7 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
     for (int j = 0; j < 5; j++) {
       for (int i = 0; i < 10; i++) {
         String valueName = "value-" + i;
-        ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("scheme", valueName))));
+        ValueSpecification valueSpec = getValueSpec(valueName);
         long identifier = idSource.getIdentifier(valueSpec);
         long existingIdentifier = identifiers.get(valueName);
         assertEquals(identifier, existingIdentifier);
@@ -105,7 +115,7 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
     
     dbEnvironment.close();
   }
-  
+
   @Test
   public void reloadPreservesMaxValue() throws IOException {
     File dbDir = createDbDir("reloadPreservesMaxValue");
@@ -115,7 +125,7 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
     BerkeleyDBIdentifierMap idSource = new BerkeleyDBIdentifierMap(dbEnvironment, BerkeleyDBIdentifierMap.DEFAULT_DATABASE_NAME, fudgeContext);
     idSource.start();
     String valueName = "value-5";
-    ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("scheme", valueName))));
+    ValueSpecification valueSpec = getValueSpec(valueName);
     long initialIdentifier = idSource.getIdentifier(valueSpec);
     
     // Cycle everything to simulate a clean shutdown and restart.
@@ -127,13 +137,13 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
     
     // Check we get the same thing back.
     valueName = "value-5";
-    valueSpec = new ValueSpecification(new ValueRequirement("value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("scheme", valueName))));
+    valueSpec = getValueSpec(valueName);
     long identifier = idSource.getIdentifier(valueSpec);
     assertEquals(initialIdentifier, identifier);
     
     // Check that the next one is the previous max + 1
     valueName = "value-99999";
-    valueSpec = new ValueSpecification(new ValueRequirement("value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("scheme", valueName))));
+    valueSpec = getValueSpec(valueName);
     identifier = idSource.getIdentifier(valueSpec);
     assertEquals(initialIdentifier + 1, identifier);
   }
@@ -175,7 +185,11 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
       
       for (int iIdentifier = 0; iIdentifier < numIdentifiers; iIdentifier++) {
         String identifierName = "identifier-" + iIdentifier;
-        ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement(requirementName, new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("scheme", identifierName))));
+        ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement(requirementName, 
+            new ComputationTargetSpecification(
+                ComputationTargetType.PRIMITIVE, 
+                UniqueIdentifier.of("scheme", identifierName))),
+            "mockFunctionId");
 
         // Just throw away the actual identifier. We don't care.
         idSource.getIdentifier(valueSpec);

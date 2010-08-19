@@ -54,7 +54,7 @@ public class DependencyGraph {
   private final Map<ValueRequirement, DependencyNode> _valueRequirement2DependencyNode = 
     new HashMap<ValueRequirement, DependencyNode>();    
 
-  private final Set<ValueRequirement> _allRequiredLiveData = new HashSet<ValueRequirement>();
+  private final Set<ValueSpecification> _allRequiredLiveData = new HashSet<ValueSpecification>();
   private final Set<ComputationTargetSpecification> _allComputationTargets = new HashSet<ComputationTargetSpecification>();
   
   public DependencyGraph(String calcConfName) {
@@ -130,7 +130,7 @@ public class DependencyGraph {
     return Collections.unmodifiableSet(nodes);
   }
   
-  public Set<ValueRequirement> getAllRequiredLiveData() {
+  public Set<ValueSpecification> getAllRequiredLiveData() {
     return Collections.unmodifiableSet(_allRequiredLiveData);
   }
   

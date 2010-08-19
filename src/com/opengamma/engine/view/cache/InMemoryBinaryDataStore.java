@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.cache;
@@ -13,11 +13,11 @@ import java.util.concurrent.ConcurrentMap;
  * {@link ConcurrentMap}.
  * This class is internally synchronized.
  */
-public class InMemoryBinaryDataStore implements BinaryDataStore {
+public class InMemoryBinaryDataStore extends AbstractBinaryDataStore implements BinaryDataStore {
   private final ConcurrentMap<Long, byte[]> _underlyingMap = new ConcurrentHashMap<Long, byte[]>();
 
   // promote a Factory to top level for this
-  
+
   @Override
   public void delete() {
     // Technically we don't have to do anything here. But just in case this isn't reclaimed

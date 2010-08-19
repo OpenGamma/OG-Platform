@@ -57,7 +57,7 @@ public class JobDispatcher implements JobInvokerRegister {
       assert getJobSpec().equals(result.getSpecification());
       s_logger.debug("Job {} completed", getJobSpec().getJobId());
       _resultReceiver.resultReceived(result);
-      s_logger.debug("Non-executing job time overhead = {}ms", ((double) getDurationNanos() - (double) result.getDuration()) / 1000000d);
+      s_logger.debug("Reported time = {}ms, non-executing job time = {}ms", (double) result.getDuration() / 1000000d, ((double) getDurationNanos() - (double) result.getDuration()) / 1000000d);
     }
 
     @Override
@@ -204,8 +204,10 @@ public class JobDispatcher implements JobInvokerRegister {
       }
     }
   }
-  
+
   // TODO [ENG-42] schedule retryPending to be called periodically with failJobsBefore set to `System.nanoTime() - a timeout` to cancel jobs which can't be executed at all
+  // TODO [ENG-42] the invoker selection logic is inefficient; it's likely that capabilityrequirements objects won't vary much so comparison against the capabilities of invokers should be cached
+  // TODO [ENG-42] job dispatch should not be O(n) on number of invokers; the caching of capabilities should allow a nearer O(1) selection
 
   // caller must already own monitor
   private boolean invoke(final DispatchJob job) {

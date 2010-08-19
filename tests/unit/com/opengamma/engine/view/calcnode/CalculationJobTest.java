@@ -68,7 +68,9 @@ public class CalculationJobTest {
     ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueIdentifier.of("Scheme", "Value"));
     
     ValueRequirement desiredValue = new ValueRequirement("Foo", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "Value2"));
-    ValueSpecification inputSpec = new ValueSpecification(new ValueRequirement("Foo", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "Value3")));
+    ValueSpecification inputSpec = new ValueSpecification(
+        new ValueRequirement("Foo", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "Value3")),
+        "mockFunctionId");
     
     List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem(
         "1", 

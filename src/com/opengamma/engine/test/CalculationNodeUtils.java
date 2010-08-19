@@ -43,18 +43,7 @@ public class CalculationNodeUtils {
   }
   
   public static MockFunction getMockFunction(ComputationTarget target, Object output) {
-
-    ValueRequirement inputReq = new ValueRequirement("INPUT", target.toSpecification());
-    ValueRequirement outputReq = new ValueRequirement("OUTPUT", target.toSpecification());
-    
-    ValueSpecification outputSpec = new ValueSpecification(outputReq);
-    ComputedValue outputValue = new ComputedValue(outputSpec, output);
-    
-    MockFunction fn = new MockFunction(
-        target,
-        Sets.newHashSet(inputReq),
-        Sets.newHashSet(outputValue));
-    return fn;
+    return MockFunction.getMockFunction(target, output, new ValueRequirement("INPUT", target.toSpecification()));
   }
   
   public static CalculationJob getCalculationJob(MockFunction function) {
@@ -65,8 +54,8 @@ public class CalculationNodeUtils {
     CalculationJobItem calculationJobItem = new CalculationJobItem(
         function.getUniqueIdentifier(), 
         function.getTarget().toSpecification(), 
-        Sets.newHashSet(new ValueSpecification(function.getRequirement())), 
-        Sets.newHashSet(function.getResultSpec().getRequirementSpecification()));
+        function.getRequirements(), 
+        function.getResultRequirements());
     CalculationJob calcJob = new CalculationJob(jobSpec, Collections.singletonList(calculationJobItem));
     return calcJob;
   }

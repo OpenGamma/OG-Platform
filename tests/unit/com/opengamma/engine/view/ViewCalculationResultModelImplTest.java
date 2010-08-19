@@ -33,7 +33,7 @@ public class ViewCalculationResultModelImplTest {
   
   public static final Position POSITION = new PositionImpl(UniqueIdentifier.of("PositionIdentifier", "testPosition"), new BigDecimal(1), new IdentifierBundle());
   public static final ComputationTargetSpecification SPEC = new ComputationTargetSpecification(POSITION);
-  public static final ComputedValue COMPUTED_VALUE = new ComputedValue(new ValueSpecification(new ValueRequirement("DATA", SPEC)), "12345");
+  public static final ComputedValue COMPUTED_VALUE = new ComputedValue(new ValueSpecification(new ValueRequirement("DATA", SPEC), "mockFunctionId"), "12345");
   public static final PortfolioImpl PORTFOLIO;
   public static final PortfolioNodeImpl PORTFOLIO_ROOT_NODE;
   

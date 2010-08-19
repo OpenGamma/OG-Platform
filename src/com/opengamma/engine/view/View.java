@@ -7,6 +7,7 @@ package com.opengamma.engine.view;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -23,6 +24,7 @@ import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.SingleComputationCycle;
 import com.opengamma.engine.view.calc.ViewRecalculationJob;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
@@ -192,7 +194,7 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     setCalculationState(ViewCalculationState.INITIALIZING);
 
     _viewEvaluationModel = ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices());
-    addLiveDataSubscriptions(getViewEvaluationModel().getAllLiveDataRequirements());
+    addLiveDataSubscriptions();
     
     setCalculationState(ViewCalculationState.NOT_STARTED);
     timer.finished();
@@ -201,8 +203,11 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   /**
    * Adds live data subscriptions to the view.
    */
-  private void addLiveDataSubscriptions(Set<ValueRequirement> liveDataRequirements) {
+  private void addLiveDataSubscriptions() {
+    Set<ValueRequirement> liveDataRequirements = getRequiredLiveData();
+    
     OperationTimer timer = new OperationTimer(s_logger, "Adding {} live data subscriptions for portfolio {}", liveDataRequirements.size(), getDefinition().getPortfolioId());
+    
     LiveDataSnapshotProvider snapshotProvider = getProcessingContext().getLiveDataSnapshotProvider();
     snapshotProvider.addListener(this);
     snapshotProvider.addSubscription(getDefinition().getLiveDataUser(), liveDataRequirements);
@@ -222,10 +227,10 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   }
 
   @Override
-  public void valueChanged(ValueRequirement requirement) {
-    Set<ValueRequirement> liveDataRequirements = getViewEvaluationModel().getAllLiveDataRequirements();
+  public void valueChanged(ValueRequirement value) {
+    Set<ValueSpecification> liveDataRequirements = getViewEvaluationModel().getAllLiveDataRequirements();
     ViewRecalculationJob recalcJob = getRecalcJob();
-    if (recalcJob != null && liveDataRequirements.contains(requirement)) {
+    if (recalcJob != null && liveDataRequirements.contains(value)) {
       recalcJob.liveDataChanged();      
     }
   }
@@ -476,12 +481,10 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
    * @throws ViewPermissionException  if any entitlement problems are found
    */
   public void assertAccessToLiveDataRequirements(UserPrincipal user) {
-    Set<ValueRequirement> requiredValues = getViewEvaluationModel().getAllLiveDataRequirements();
-    Collection<LiveDataSpecification> requiredLiveData = ValueRequirement.getRequiredLiveData(
-        requiredValues, 
-        getProcessingContext().getSecuritySource());
-    
     s_logger.info("Checking that {} is entitled to the results of {}", user, this);
+
+    Collection<LiveDataSpecification> requiredLiveData = getRequiredLiveDataSpecifications();
+    
     Map<LiveDataSpecification, Boolean> entitlements = getProcessingContext().getLiveDataEntitlementChecker().isEntitled(user, requiredLiveData);
     
     ArrayList<LiveDataSpecification> failures = new ArrayList<LiveDataSpecification>();
@@ -497,6 +500,25 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     }
   }
   
+  private Set<ValueRequirement> getRequiredLiveData() {
+    Set<ValueSpecification> requiredSpecs = getViewEvaluationModel().getAllLiveDataRequirements();
+    
+    Set<ValueRequirement> returnValue = new HashSet<ValueRequirement>();
+    for (ValueSpecification requiredSpec : requiredSpecs) {
+      returnValue.add(requiredSpec.getRequirementSpecification());      
+    }
+    return returnValue;
+  }
+  
+  private Collection<LiveDataSpecification> getRequiredLiveDataSpecifications() {
+    Set<LiveDataSpecification> returnValue = new HashSet<LiveDataSpecification>();
+    for (ValueRequirement requirement : getRequiredLiveData()) {
+      LiveDataSpecification liveDataSpec = requirement.getRequiredLiveData(getProcessingContext().getSecuritySource());
+      returnValue.add(liveDataSpec);      
+    }
+    return returnValue;
+  }
+
   @Override
   public String toString() {
     return "View[" + getDefinition().getName() + "]";

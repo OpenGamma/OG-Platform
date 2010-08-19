@@ -8,8 +8,8 @@ namespace com.opengamma.engine.view.cache.msg {
 
   message PutRequest extends BinaryDataStoreRequest {
   
-    required long identifier;
-    required byte[] data;
+    required repeated long identifier;
+    required repeated byte[] data;
   
   }
 

@@ -10,7 +10,7 @@ import java.util.concurrent.Future;
 import com.opengamma.engine.depgraph.DependencyGraph;
 
 /**
- * Evaluates dependency graph.
+ * Evaluates a dependency graph.
  * 
   * @param <T> Type of return information from the executor
  */

@@ -9,6 +9,7 @@ namespace com.opengamma.engine.value {
   message ValueSpecification {
   
     required ValueRequirement requirementSpecification;
+    required string functionUniqueId; 
     
     binding Java {
       methods "hashCode, toString, equals";
