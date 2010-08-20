@@ -13,6 +13,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,16 +38,17 @@ public class JobDispatcher implements JobInvokerRegister {
 
     private final CalculationJobSpecification _jobSpec;
     private final List<CalculationJobItem> _items;
-    private final JobResultReceiver _resultReceiver;
+    private final AtomicReference<JobResultReceiver> _resultReceiver = new AtomicReference<JobResultReceiver>();
     private final long _jobCreationTime;
     private final CapabilityRequirements _capabilityRequirements;
     private Set<JobInvoker> _excludeJobInvoker;
     private int _rescheduled;
+    private Future<?> _timeout;
 
     private DispatchJob(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items, final JobResultReceiver resultReceiver) {
       _jobSpec = jobSpec;
       _items = items;
-      _resultReceiver = resultReceiver;
+      _resultReceiver.set(resultReceiver);
       _jobCreationTime = System.nanoTime();
       _capabilityRequirements = getCapabilityRequirementsProvider().getCapabilityRequirements(jobSpec, items);
     }
@@ -55,40 +61,81 @@ public class JobDispatcher implements JobInvokerRegister {
     public void jobCompleted(final CalculationJobResult result) {
       // REVIEW 2010-08-16 We only need the node ID and the list of result items; we already have everything else we need for the job result
       assert getJobSpec().equals(result.getSpecification());
-      s_logger.debug("Job {} completed", getJobSpec().getJobId());
-      _resultReceiver.resultReceived(result);
-      s_logger.debug("Reported time = {}ms, non-executing job time = {}ms", (double) result.getDuration() / 1000000d, ((double) getDurationNanos() - (double) result.getDuration()) / 1000000d);
+      cancelTimeout();
+      JobResultReceiver resultReceiver = _resultReceiver.getAndSet(null);
+      if (resultReceiver != null) {
+        s_logger.debug("Job {} completed", getJobSpec().getJobId());
+        resultReceiver.resultReceived(result);
+        s_logger.debug("Reported time = {}ms, non-executing job time = {}ms", (double) result.getDuration() / 1000000d, ((double) getDurationNanos() - (double) result.getDuration()) / 1000000d);
+      } else {
+        s_logger.warn("Job {} completed on node {} but we've already completed or aborted from another node", getJobSpec().getJobId(), result.getComputeNodeId());
+      }
     }
 
     @Override
     public void jobFailed(final JobInvoker jobInvoker, final Exception exception) {
-      s_logger.debug("Job {} failed", getJobSpec().getJobId());
-      _rescheduled++;
-      if (_rescheduled >= getMaxJobAttempts()) {
-        jobAbort(exception, "internal node error");
-      } else {
-        s_logger.info("Retrying job {} (attempt {})", getJobSpec().getJobId(), _rescheduled);
-        if (_excludeJobInvoker == null) {
-          _excludeJobInvoker = new HashSet<JobInvoker>();
+      cancelTimeout();
+      final JobResultReceiver resultReceiver = _resultReceiver.getAndSet(null);
+      if (resultReceiver != null) {
+        s_logger.debug("Job {} failed, {}", getJobSpec().getJobId(), (exception != null) ? exception.getMessage() : "no exception passed");
+        _rescheduled++;
+        if (_rescheduled >= getMaxJobAttempts()) {
+          _resultReceiver.set(resultReceiver);
+          jobAbort(exception, "internal node error");
+        } else {
+          s_logger.info("Retrying job {} (attempt {})", getJobSpec().getJobId(), _rescheduled);
+          if (_excludeJobInvoker == null) {
+            _excludeJobInvoker = new HashSet<JobInvoker>();
+          }
+          _excludeJobInvoker.add(jobInvoker);
+          _resultReceiver.set(resultReceiver);
+          dispatchJobImpl(this);
         }
-        _excludeJobInvoker.add(jobInvoker);
-        dispatchJobImpl(this);
+      } else {
+        s_logger.warn("Job {} failed but we've already completed or aborted from another node", getJobSpec().getJobId());
       }
     }
 
     private void jobAbort(Exception exception, final String alternativeError) {
-      s_logger.warn("Failed job {} after {} attempts", getJobSpec().getJobId(), _rescheduled);
-      if (exception == null) {
-        s_logger.error("Failed job {} with {}", getJobSpec().getJobId(), alternativeError);
-        exception = new OpenGammaRuntimeException(alternativeError);
-        exception.fillInStackTrace();
+      cancelTimeout();
+      final JobResultReceiver resultReceiver = _resultReceiver.getAndSet(null);
+      if (resultReceiver != null) {
+        s_logger.warn("Failed job {} after {} attempts", getJobSpec().getJobId(), _rescheduled);
+        if (exception == null) {
+          s_logger.error("Failed job {} with {}", getJobSpec().getJobId(), alternativeError);
+          exception = new OpenGammaRuntimeException(alternativeError);
+          exception.fillInStackTrace();
+        }
+        final List<CalculationJobResultItem> failureItems = new ArrayList<CalculationJobResultItem>(getItems().size());
+        for (CalculationJobItem item : getItems()) {
+          failureItems.add(new CalculationJobResultItem(item, exception));
+        }
+        final CalculationJobResult jobResult = new CalculationJobResult(getJobSpec(), getDurationNanos(), failureItems, getJobFailureNodeId());
+        resultReceiver.resultReceived(jobResult);
+      } else {
+        s_logger.warn("Job {} aborted but we've already completed or aborted from another node", getJobSpec().getJobId());
       }
-      final List<CalculationJobResultItem> failureItems = new ArrayList<CalculationJobResultItem>(getItems().size());
-      for (CalculationJobItem item : getItems()) {
-        failureItems.add(new CalculationJobResultItem(item, exception));
+    }
+
+    private synchronized void setTimeout(final JobInvoker jobInvoker) {
+      if (_maxJobExecutionTime > 0) {
+        _timeout = _jobTimeoutExecutor.schedule(new Runnable() {
+          @Override
+          public void run() {
+            synchronized (JobDispatcher.this) {
+              _timeout = null;
+            }
+            jobFailed(jobInvoker, new OpenGammaRuntimeException("Invocation limit of " + _maxJobExecutionTime + "ms exceeded"));
+          }
+        }, _maxJobExecutionTime, TimeUnit.MILLISECONDS);
       }
-      final CalculationJobResult jobResult = new CalculationJobResult(getJobSpec(), getDurationNanos(), failureItems, getJobFailureNodeId());
-      _resultReceiver.resultReceived(jobResult);
+    }
+
+    private synchronized void cancelTimeout() {
+      if (_timeout != null) {
+        _timeout.cancel(false);
+        _timeout = null;
+      }
     }
 
     private CalculationJobSpecification getJobSpec() {
@@ -124,6 +171,11 @@ public class JobDispatcher implements JobInvokerRegister {
   private int _maxJobAttempts = DEFAULT_MAX_JOB_ATTEMPTS;
   private String _jobFailureNodeId = DEFAULT_JOB_FAILURE_NODE_ID;
   private CapabilityRequirementsProvider _capabilityRequirementsProvider = new StaticCapabilityRequirementsProvider();
+  /**
+   * Maximum number of milliseconds a job can be with an invoker for before it is abandoned
+   */
+  private long _maxJobExecutionTime;
+  private ScheduledExecutorService _jobTimeoutExecutor;
 
   public JobDispatcher() {
   }
@@ -150,6 +202,26 @@ public class JobDispatcher implements JobInvokerRegister {
 
   public String getJobFailureNodeId() {
     return _jobFailureNodeId;
+  }
+
+  public long getMaxJobExecutionTime() {
+    return _maxJobExecutionTime;
+  }
+
+  /**
+   * Sets the maximum time for a job to be with an invoker in milliseconds. To disable the upper limit,
+   * pass 0 or negative. This doesn't affect jobs already launched; only ones that are invoked after
+   * the call.
+   * 
+   * @param maxJobExecutionTime time in milliseconds
+   */
+  public synchronized void setMaxJobExecutionTime(final long maxJobExecutionTime) {
+    _maxJobExecutionTime = maxJobExecutionTime;
+    if (maxJobExecutionTime > 0) {
+      if (_jobTimeoutExecutor == null) {
+        _jobTimeoutExecutor = Executors.newSingleThreadScheduledExecutor();
+      }
+    }
   }
 
   public synchronized void addInvokers(final Collection<JobInvoker> invokers) {
@@ -217,7 +289,9 @@ public class JobDispatcher implements JobInvokerRegister {
       if (job.canRunOn(jobInvoker)) {
         if (jobInvoker.invoke(job.getJobSpec(), job.getItems(), job)) {
           s_logger.debug("Invoker {} accepted job {}", jobInvoker, job.getJobSpec().getJobId());
-          // put it at the end of the list
+          // request a job timeout
+          job.setTimeout(jobInvoker);
+          // put invoker to the end of the list
           iterator.remove();
           getInvokers().add(jobInvoker);
           return true;
