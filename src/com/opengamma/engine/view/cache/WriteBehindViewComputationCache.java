@@ -184,7 +184,7 @@ public class WriteBehindViewComputationCache implements ViewComputationCache {
    * Block until all "write-behind" operations have completed. Do not call this concurrently with
    * {@link #putValue} or {@link #putValues}.
    */
-  public void synchroniseCache() {
+  public void waitForPendingWrites() {
     final Future<?> valueWriter;
     synchronized (this) {
       valueWriter = _valueWriter;
