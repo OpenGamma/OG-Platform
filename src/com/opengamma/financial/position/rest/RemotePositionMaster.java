@@ -224,7 +224,7 @@ public class RemotePositionMaster implements PositionMaster {
    * @param uri  the URI to call, not null
    * @return the resource, suitable for calling get/post/put/delete on, not null
    */
-  protected Builder accessRemote(final URI uri) {
+  protected Builder accessRemote(URI uri) {
     // TODO: Fix properly. This just makes Bamboo happy
     String uriStr = uri.toString();
     int pos = uriStr.indexOf("/jax/data/");
@@ -234,6 +234,7 @@ public class RemotePositionMaster implements PositionMaster {
         uriStr = uriStr.substring(0, pos) + uriStr.substring(pos + 5);
       }
     }
+    uri = URI.create(uriStr);
     return _client.access(uri).type(FudgeRest.MEDIA_TYPE).accept(FudgeRest.MEDIA_TYPE);
   }
 
