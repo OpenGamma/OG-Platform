@@ -40,7 +40,7 @@ public class RemoteClient {
   }
   
   public PositionMaster getPositionMaster() {
-    return new RemotePositionMaster(_fudgeContext, _baseTarget);
+    return new RemotePositionMaster(_baseTarget.getURI());
   }
 
   public SecurityMaster getSecurityMaster() {
