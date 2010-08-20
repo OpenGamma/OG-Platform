@@ -21,7 +21,7 @@ public class DoubleMatrix2D implements Matrix<Double> {
    */
   public static final DoubleMatrix2D EMPTY_MATRIX = new DoubleMatrix2D(new double[0][0]);
 
-  //REVIEW could do with a constructor that does NOT copy the data 
+  // REVIEW could do with a constructor that does NOT copy the data
   public DoubleMatrix2D(final double[][] data) {
     Validate.notNull(data);
     if (data.length == 0) {
@@ -66,6 +66,18 @@ public class DoubleMatrix2D implements Matrix<Double> {
       }
       _elements = _rows * _columns;
     }
+  }
+
+  public DoubleMatrix1D getRowVector(int index) {
+    return new DoubleMatrix1D(_data[index]);
+  }
+
+  public DoubleMatrix1D getColumnVector(int index) {
+    double[] res = new double[_rows];
+    for (int i = 0; i < _rows; i++) {
+      res[i] = _data[i][index];
+    }
+    return new DoubleMatrix1D(res);
   }
 
   @Override

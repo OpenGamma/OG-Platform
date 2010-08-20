@@ -22,7 +22,7 @@ public class LineSearch {
     _minimizer = minimizer;
   }
 
-  public double minimise(final Function1D<DoubleMatrix1D, Double> function, DoubleMatrix1D direction, DoubleMatrix1D x) {
+  public double minimise(final Function1D<DoubleMatrix1D, Double> function, final DoubleMatrix1D direction, final DoubleMatrix1D x) {
 
     LineSearchHelper f = new LineSearchHelper(function, direction, x);
     return _minimizer.minimize(f, 1.0, 0.0, 10.0);

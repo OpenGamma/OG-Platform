@@ -18,6 +18,6 @@ public interface Minimizer<F extends Function1D<S, ?>, S> {
    */
   double TOLERANCE = 1e-12;
 
-  S minimize(F function, S startPosition);
+  S minimize(final F function, final S startPosition);
 
 }
