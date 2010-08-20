@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view.calcnode;
 
+import java.util.concurrent.ExecutorService;
+
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
@@ -28,8 +30,8 @@ public class LocalCalculationNode extends AbstractCalculationNode {
   }
 
   public LocalCalculationNode(ViewComputationCacheSource cacheSource, FunctionExecutionContext functionExecutionContext, ComputationTargetResolver targetResolver,
-      ViewProcessorQuerySender calcNodeQuerySender) {
-    super(cacheSource, functionExecutionContext, targetResolver, calcNodeQuerySender, createNodeId());
+      ViewProcessorQuerySender calcNodeQuerySender, ExecutorService writeBehindExecutorService) {
+    super(cacheSource, functionExecutionContext, targetResolver, calcNodeQuerySender, createNodeId(), writeBehindExecutorService);
   }
 
 }

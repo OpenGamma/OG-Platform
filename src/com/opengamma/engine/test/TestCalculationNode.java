@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.test;
 
+import java.util.concurrent.Executors;
+
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.engine.DefaultComputationTargetResolver;
@@ -24,7 +26,8 @@ public class TestCalculationNode extends AbstractCalculationNode {
         new FunctionExecutionContext(), 
         new DefaultComputationTargetResolver(new MockSecuritySource(), new MockPositionSource()), 
         new ViewProcessorQuerySender(null), 
-        InetAddressUtils.getLocalHostName());
+        InetAddressUtils.getLocalHostName(),
+        Executors.newCachedThreadPool ());
     setFunctionRepository (new InMemoryFunctionRepository ());
   }
 }

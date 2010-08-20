@@ -54,7 +54,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
   private long _cachePutTime;
 
   protected AbstractCalculationNode(ViewComputationCacheSource cacheSource, FunctionExecutionContext functionExecutionContext, ComputationTargetResolver targetResolver,
-      ViewProcessorQuerySender calcNodeQuerySender, String nodeId) {
+      ViewProcessorQuerySender calcNodeQuerySender, String nodeId, final ExecutorService writeBehindExecutorService) {
     ArgumentChecker.notNull(cacheSource, "Cache Source");
     ArgumentChecker.notNull(functionExecutionContext, "Function Execution Context");
     ArgumentChecker.notNull(targetResolver, "Target Resolver");
@@ -67,8 +67,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     _targetResolver = targetResolver;
     _viewProcessorQuerySender = calcNodeQuerySender;
     _nodeId = nodeId;
-    // TODO [ENG-183] pass the ExecutorService in as a parameter - it's used for the write-behind threads
-    _writeBehindExecutorService = Executors.newCachedThreadPool();
+    _writeBehindExecutorService = writeBehindExecutorService;
   }
 
   public ViewComputationCacheSource getCacheSource() {
