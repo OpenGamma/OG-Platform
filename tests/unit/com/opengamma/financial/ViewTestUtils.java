@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial;
 
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -61,7 +62,7 @@ public class ViewTestUtils {
     
     ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
-    LocalCalculationNode localNode = new LocalCalculationNode(cacheFactory, executionContext, targetResolver, viewProcessorQuerySender);
+    LocalCalculationNode localNode = new LocalCalculationNode(cacheFactory, executionContext, targetResolver, viewProcessorQuerySender, Executors.newCachedThreadPool());
     localNode.setFunctionRepository(functionRepo);
     JobDispatcher jobDispatcher = new JobDispatcher (new LocalNodeJobInvoker (localNode));
     
