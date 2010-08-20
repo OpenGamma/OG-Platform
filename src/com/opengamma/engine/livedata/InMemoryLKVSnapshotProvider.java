@@ -32,15 +32,14 @@ public class InMemoryLKVSnapshotProvider extends AbstractLiveDataSnapshotProvide
 
   @Override
   public void addSubscription(UserPrincipal user, ValueRequirement valueRequirement) {
-    // Do nothing. All values are externally provided.
-    s_logger.debug("Added subscription to {}", valueRequirement);
+    addSubscription(user, Collections.singleton(valueRequirement));
   }
 
   @Override
   public void addSubscription(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
-    for (ValueRequirement requirement : valueRequirements) {
-      addSubscription(user, requirement);
-    }
+    // No actual subscription to make, but we still need to acknowledge it.
+    s_logger.debug("Added subscriptions to {}", valueRequirements);
+    subscriptionSucceeded(valueRequirements);
   }
 
   @Override
@@ -75,12 +74,14 @@ public class InMemoryLKVSnapshotProvider extends AbstractLiveDataSnapshotProvide
   public void releaseSnapshot(long snapshot) {
     _snapshots.remove(snapshot);
   }
-  
+
+  @Override
   public void addValue(ValueRequirement requirement, Object value) {
     _lastKnownValues.put(requirement, value);
     super.valueChanged(requirement);
   }
 
+  @Override
   public void removeValue(final ValueRequirement valueRequirement) {
     _lastKnownValues.remove(valueRequirement);
     super.valueChanged(valueRequirement);

@@ -24,7 +24,6 @@ import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.cache.DefaultViewComputationCache;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.util.ArgumentChecker;

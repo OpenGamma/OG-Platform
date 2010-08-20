@@ -7,7 +7,6 @@ package com.opengamma.engine.view.cache;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -22,7 +21,6 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * 
