@@ -8,6 +8,7 @@ package com.opengamma.financial.batch;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -613,7 +614,7 @@ public class BatchJob implements Job {
     
     ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
-    AbstractCalculationNode localNode = new LocalCalculationNode(cacheFactory, executionContext, targetResolver, viewProcessorQuerySender);
+    AbstractCalculationNode localNode = new LocalCalculationNode(cacheFactory, executionContext, targetResolver, viewProcessorQuerySender, Executors.newCachedThreadPool());
     localNode.setFunctionRepository(getFunctionRepository());
     JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(localNode));
     
