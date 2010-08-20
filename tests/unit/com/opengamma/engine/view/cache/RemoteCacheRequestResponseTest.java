@@ -54,7 +54,7 @@ public class RemoteCacheRequestResponseTest {
     
     final ValueSpecification[] valueSpec = new ValueSpecification[10];
     for (int i = 0; i < valueSpec.length; i++) {
-      valueSpec[i] = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", "Value" + i))));
+      valueSpec[i] = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", "Value" + i))), "mockFunctionId");
     }
     // Make single value calls
     s_logger.debug ("Begin single value lookup");
@@ -89,14 +89,18 @@ public class RemoteCacheRequestResponseTest {
     Map<String, Long> _idsByValueName = new HashMap<String, Long>();
     for(int i = 0; i < 10; i++) {
       String valueName = "Value" + i;
-      ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", valueName))));
+      ValueSpecification valueSpec = new ValueSpecification(
+          new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", valueName))),
+          "mockFunctionId");
       long id = identifierMap.getIdentifier(valueSpec);
       _idsByValueName.put(valueName, id);
     }
 
     for(int i = 0; i < 10; i++) {
       String valueName = "Value" + i;
-      ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", valueName))));
+      ValueSpecification valueSpec = new ValueSpecification(
+          new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", valueName))),
+          "mockFunctionId");
       long id = identifierMap.getIdentifier(valueSpec);
       assertEquals(_idsByValueName.get(valueName), new Long(id));
     }
@@ -122,7 +126,9 @@ public class RemoteCacheRequestResponseTest {
             for(int j = 0; j < 1000; j++) {
               int randomValue = rand.nextInt(100);
               String valueName = "Value" + randomValue;
-              ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", valueName))));
+              ValueSpecification valueSpec = new ValueSpecification(
+                  new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", valueName))),
+                  "mockFunctionId");
               long id = identifierMap.getIdentifier(valueSpec);
               Long previousValue = _idsByValueName.putIfAbsent(valueName, id);
               if(previousValue != null) {
@@ -167,7 +173,8 @@ public class RemoteCacheRequestResponseTest {
               int randomValue = rand.nextInt(100);
               String valueName = "Value" + randomValue;
               ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value",
-                  new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", valueName))));
+                  new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", valueName))),
+                  "mockFunctionId");
               long id = identifierMap.getIdentifier (valueSpec);
               Long previousValue = _idsByValueName.putIfAbsent(valueName, id);
               if(previousValue != null) {

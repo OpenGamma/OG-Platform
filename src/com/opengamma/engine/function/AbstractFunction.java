@@ -12,7 +12,7 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * The base class from which most {@link FunctionDefinition} implementations
@@ -34,6 +34,9 @@ public abstract class AbstractFunction implements FunctionDefinition {
    * @param uniqueIdentifier the uniqueIdentifier to set
    */
   public void setUniqueIdentifier(String uniqueIdentifier) {
+    if (_uniqueIdentifier != null) {
+      throw new IllegalStateException("Function unique ID already set");
+    }
     _uniqueIdentifier = uniqueIdentifier;
   }
 
@@ -48,7 +51,7 @@ public abstract class AbstractFunction implements FunctionDefinition {
   }
 
   @Override
-  public Set<ValueRequirement> getRequiredLiveData() {
+  public Set<ValueSpecification> getRequiredLiveData() {
     return Collections.emptySet();
   }
 

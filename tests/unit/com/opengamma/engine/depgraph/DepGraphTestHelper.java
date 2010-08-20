@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.depgraph;
 
-import java.util.Collections;
-
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.MapComputationTargetResolver;
@@ -39,11 +37,11 @@ public class DepGraphTestHelper {
     UniqueIdentifier targetId = UniqueIdentifier.of("Scheme", "Value");
     _target = new ComputationTarget(targetId);
     ValueRequirement req1 = new ValueRequirement("Req-1", targetId);
-    _spec1 = new ValueSpecification(req1);
+    _spec1 = new ValueSpecification(req1, MockFunction.UNIQUE_ID);
     _value1 = new ComputedValue(_spec1, 14.2);
     
     ValueRequirement req2 = new ValueRequirement("Req-2", targetId);
-    _spec2 = new ValueSpecification(req2);
+    _spec2 = new ValueSpecification(req2, MockFunction.UNIQUE_ID);
     _value2 = new ComputedValue(_spec2, 15.5);
 
     _builder = new DependencyGraphBuilder();
@@ -57,19 +55,23 @@ public class DepGraphTestHelper {
   }
   
   public MockFunction addFunctionProducing1and2() {
-    MockFunction function = new MockFunction(_target, Collections.<ValueRequirement>emptySet(), Sets.newHashSet(_value1, _value2));
+    MockFunction function = new MockFunction(_target);
+    function.addResults(Sets.newHashSet(_value1, _value2));
     _functionRepo.addFunction(function, function);
     return function;
   }
   
   public MockFunction addFunctionRequiring2Producing1() {
-    MockFunction function = new MockFunction(_target, Collections.singleton(_spec2.getRequirementSpecification()), Sets.newHashSet(_value1));
+    MockFunction function = new MockFunction(_target);
+    function.addRequirement(_spec2);
+    function.addResult(_value1);
     _functionRepo.addFunction(function, function);
     return function;
   }
   
   public MockFunction addFunctionProducing2() {
-    MockFunction function = new MockFunction(_target, Collections.<ValueRequirement>emptySet(), Sets.newHashSet(_value2));
+    MockFunction function = new MockFunction(_target);
+    function.addResult(_value2);
     _functionRepo.addFunction(function, function);
     return function;
   }

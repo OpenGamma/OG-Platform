@@ -173,8 +173,7 @@ public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvid
       if (value == null) {
         continue;
       }
-      ComputedValue computedValue = new ComputedValue(new ValueSpecification(valueRequirement), value);
-      getUnderlyingProvider().addValue(computedValue);
+      getUnderlyingProvider().addValue(valueRequirement, value);
     }
     
     super.valueChanged(valueRequirements);

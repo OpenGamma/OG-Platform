@@ -11,7 +11,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -19,7 +18,6 @@ import java.util.concurrent.Executors;
 
 import org.junit.Test;
 
-import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -114,12 +112,7 @@ public class ViewDefinitionCompilerTest {
     
     // This function doesn't actually require anything, so it can compute at the node level without anything else.
     // Hence, the only target will be the node.
-    ValueRequirement req1 = new ValueRequirement("Req-1", new ComputationTargetSpecification(pn));
-    ValueSpecification spec1 = new ValueSpecification(req1);
-    ComputedValue value1 = new ComputedValue(spec1, 14.2);
-    MockFunction fn1 = new MockFunction(new ComputationTarget(pn),
-        Collections.<ValueRequirement>emptySet(),
-        Sets.newHashSet(value1));
+    MockFunction fn1 = MockFunction.getMockFunction(new ComputationTarget(pn), 14.2);
     
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
     functionRepo.addFunction(fn1, fn1);
@@ -139,7 +132,7 @@ public class ViewDefinitionCompilerTest {
     viewDefinition.getResultModelDefinition().setPositionOutputMode(ResultOutputMode.NONE);
     
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Fibble");
-    calcConfig.addPortfolioRequirement("My Sec", "Req-1");
+    calcConfig.addPortfolioRequirement("My Sec", "OUTPUT");
     viewDefinition.addViewCalculationConfiguration(calcConfig);
     
     ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, vcs);
@@ -175,20 +168,14 @@ public class ViewDefinitionCompilerTest {
     
     InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
     
-    ValueRequirement req1 = new ValueRequirement("Req-1", new ComputationTargetSpecification(pn));
-    ValueSpecification spec1 = new ValueSpecification(req1);
-    ComputedValue value1 = new ComputedValue(spec1, 14.2);
-    ValueRequirement req2 = new ValueRequirement("Req-1", new ComputationTargetSpecification(sec2));
-    ValueSpecification spec2 = new ValueSpecification(req2);
-    ComputedValue value2 = new ComputedValue(spec2, 14.2);
+    MockFunction fn2 = MockFunction.getMockFunction(
+        new ComputationTarget(sec2), 
+        14.2);
     
-    MockFunction fn1 = new MockFunction(new ComputationTarget(pn),
-        Sets.newHashSet(req2),
-        Sets.newHashSet(value1));
-    
-    MockFunction fn2 = new MockFunction(new ComputationTarget(sec2),
-        Collections.<ValueRequirement>emptySet(),
-        Sets.newHashSet(value2));
+    MockFunction fn1 = MockFunction.getMockFunction(
+        new ComputationTarget(pn), 
+        14.2,
+        fn2);
     
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
     functionRepo.addFunction(fn1, fn1);
@@ -205,7 +192,7 @@ public class ViewDefinitionCompilerTest {
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
     viewDefinition.getResultModelDefinition().setPositionOutputMode(ResultOutputMode.NONE);
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Fibble");
-    calcConfig.addPortfolioRequirement("My Sec", "Req-1");
+    calcConfig.addPortfolioRequirement("My Sec", "OUTPUT");
     viewDefinition.addViewCalculationConfiguration(calcConfig);
     ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, vcs);
     
@@ -228,8 +215,6 @@ public class ViewDefinitionCompilerTest {
     viewDefinition.addViewCalculationConfiguration(calcConfig);
     
     UniqueIdentifier t1 = UniqueIdentifier.of("TestScheme", "t1");
-    ValueRequirement r1 = new ValueRequirement("Req-1", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, t1));
-    ComputedValue v1 = new ComputedValue(new ValueSpecification(r1), 42);
     
     InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
@@ -239,11 +224,11 @@ public class ViewDefinitionCompilerTest {
     FunctionCompilationContext compilationContext = new FunctionCompilationContext();
     ViewCompilationServices compilationServices = new ViewCompilationServices(snapshotProvider, functionResolver, compilationContext, computationTargetResolver, executorService);
     
-    MockFunction f1 = new MockFunction(new ComputationTarget(ComputationTargetType.PRIMITIVE, t1), Collections.<ValueRequirement>emptySet(), Sets.newHashSet(v1));
+    MockFunction f1 = MockFunction.getMockFunction(new ComputationTarget(ComputationTargetType.PRIMITIVE, t1), 42);
     functionRepo.addFunction(f1, f1);
     
     // We'll require r1 which can be satisfied by f1
-    calcConfig.addSpecificRequirement(r1);
+    calcConfig.addSpecificRequirement(f1.getResultSpec().getRequirementSpecification());
     
     ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, compilationServices);
     
@@ -266,10 +251,6 @@ public class ViewDefinitionCompilerTest {
     securitySource.addSecurity(sec1);
     
     UniqueIdentifier t1 = UniqueIdentifier.of("TestScheme", "t1");
-    ValueRequirement r1 = new ValueRequirement("Req-1", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, t1));
-    ComputedValue v1 = new ComputedValue(new ValueSpecification(r1), 42);
-    ValueRequirement r2 = new ValueRequirement("Req-2", new ComputationTargetSpecification(ComputationTargetType.SECURITY, sec1.getUniqueIdentifier()));
-    ComputedValue v2 = new ComputedValue(new ValueSpecification(r2), 60);
     
     InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
@@ -279,15 +260,15 @@ public class ViewDefinitionCompilerTest {
     FunctionCompilationContext compilationContext = new FunctionCompilationContext();
     ViewCompilationServices compilationServices = new ViewCompilationServices(snapshotProvider, functionResolver, compilationContext, computationTargetResolver, executorService);
     
-    MockFunction f1 = new MockFunction(new ComputationTarget(ComputationTargetType.PRIMITIVE, t1), Collections.<ValueRequirement>emptySet(), Sets.newHashSet(v1));
-    MockFunction f2 = new MockFunction(new ComputationTarget(ComputationTargetType.SECURITY, sec1), Sets.newHashSet(r1), Sets.newHashSet(v2));
+    MockFunction f1 = MockFunction.getMockFunction(new ComputationTarget(ComputationTargetType.PRIMITIVE, t1), 42);
+    MockFunction f2 = MockFunction.getMockFunction(new ComputationTarget(ComputationTargetType.SECURITY, sec1), 60, f1);
     functionRepo.addFunction(f1, f1);
     functionRepo.addFunction(f2, f2);
     
     // We'll require r2 which can be satisfied by f2, which in turn requires the output of f1
     // Additionally, the security should be resolved through the ComputationTargetResolver, which only has a security
     // source.
-    calcConfig.addSpecificRequirement(r2);
+    calcConfig.addSpecificRequirement(f2.getResultSpec().getRequirementSpecification());
     
     ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, compilationServices);
     assertTrue(vem.getAllLiveDataRequirements().isEmpty());

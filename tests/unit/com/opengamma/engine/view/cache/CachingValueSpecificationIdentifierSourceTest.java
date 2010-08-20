@@ -57,9 +57,9 @@ public class CachingValueSpecificationIdentifierSourceTest {
     
     CachingIdentifierMap cachingSource = new CachingIdentifierMap(underlying);
     
-    final ValueSpecification valueSpec1 = new ValueSpecification(new ValueRequirement("value1", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("scheme", "fibble"))));
-    final ValueSpecification valueSpec2 = new ValueSpecification(new ValueRequirement("value2", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("scheme", "fibble"))));
-    final ValueSpecification valueSpec3 = new ValueSpecification(new ValueRequirement("value3", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("scheme", "fibble"))));
+    final ValueSpecification valueSpec1 = new ValueSpecification(new ValueRequirement("value1", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("scheme", "fibble"))), "mockFunctionId");
+    final ValueSpecification valueSpec2 = new ValueSpecification(new ValueRequirement("value2", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("scheme", "fibble"))), "mockFunctionId");
+    final ValueSpecification valueSpec3 = new ValueSpecification(new ValueRequirement("value3", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("scheme", "fibble"))), "mockFunctionId");
     assertEquals(99L, cachingSource.getIdentifier(valueSpec1));
     final Map<ValueSpecification, Long> identifiers = new HashMap<ValueSpecification, Long> ();
     identifiers.put (valueSpec2, 98L);

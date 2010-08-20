@@ -48,7 +48,7 @@ public class AbstractCalculationNodeTest {
     TestCalculationNode calcNode = CalculationNodeUtils.getTestCalcNode(mockFunction);
     CalculationJob calcJob = CalculationNodeUtils.getCalculationJob(mockFunction);
     
-    ValueSpecification inputSpec = new ValueSpecification(mockFunction.getRequirement());
+    ValueSpecification inputSpec = mockFunction.getRequirement();
     ComputedValue inputValue = new ComputedValue(inputSpec, "Just an input object");
     
     ViewComputationCache cache = calcNode.getCache(calcJob.getSpecification());

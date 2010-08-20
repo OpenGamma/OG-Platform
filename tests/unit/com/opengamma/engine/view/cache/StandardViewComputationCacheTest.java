@@ -35,13 +35,13 @@ public class StandardViewComputationCacheTest {
   @Test
   public void testMissingValueSpec () {
     final ValueRequirement valueReq = new ValueRequirement("missing", new ComputationTargetSpecification (null));
-    final ValueSpecification valueSpec = new ValueSpecification (valueReq);
+    final ValueSpecification valueSpec = new ValueSpecification(valueReq, "mockFunctionId");
     assertNull (_viewComputationCache.getValue(valueSpec));
   }
   
   private void testPutGetCycle (final Object expected) {
     final ValueRequirement valueReq = new ValueRequirement("foo", new ComputationTargetSpecification (null));
-    final ValueSpecification valueSpec = new ValueSpecification (valueReq);
+    final ValueSpecification valueSpec = new ValueSpecification(valueReq, "mockFunctionId");
     final ComputedValue value = new ComputedValue (valueSpec, expected);
     _viewComputationCache.putValue(value);
     final Object obj = _viewComputationCache.getValue (valueSpec);
