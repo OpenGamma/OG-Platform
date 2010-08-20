@@ -26,6 +26,7 @@ import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.cache.DefaultViewComputationCache;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.cache.WriteBehindViewComputationCache;
@@ -158,12 +159,14 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     CalculationJobResult jobResult = new CalculationJobResult(spec, durationNanos, resultItems, getNodeId());
 
     s_logger.info("Executed {}", job);
+    /*
     ((DefaultViewComputationCache) cache.getUnderlying()).reportTimes();
     final double totalTime = (double) (_resolutionTime + _cacheGetTime + _invocationTime + _cachePutTime) / 100d;
     if (totalTime > 0) {
       System.err.println("Total = " + durationNanos + "ns - " + ((double) _resolutionTime / totalTime) + "% resolution, " + ((double) _cacheGetTime / totalTime) + "% cacheGet, "
           + ((double) _invocationTime / totalTime) + "% invoke, " + ((double) _cachePutTime / totalTime) + "% cachePut");
     }
+    */
     ((DefaultViewComputationCache) cache.getUnderlying()).resetTimes();
     _resolutionTime = 0;
     _cacheGetTime = 0;
