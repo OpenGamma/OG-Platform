@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -76,7 +78,6 @@ public class CachingBinaryDataStore implements BinaryDataStore {
   @Override
   public void put(final long identifier, final byte[] data) {
     s_logger.info("Put {} on {}", identifier, this);
-    // [ENG-183] Can we do a write-behind communication to the underlying?
     getUnderlying().put(identifier, data);
     getCache().put(new Element(identifier, data));
   }
@@ -117,8 +118,7 @@ public class CachingBinaryDataStore implements BinaryDataStore {
   }
 
   @Override
-  public void put(Map<Long, byte[]> data) {
-    // [ENG-183] Can we do a write-behind communication to the underlying?
+  public void put(final Map<Long, byte[]> data) {
     getUnderlying().put(data);
     for (Map.Entry<Long, byte[]> element : data.entrySet()) {
       getCache().put(new Element(element.getKey(), element.getValue()));

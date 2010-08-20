@@ -97,7 +97,7 @@ public class CachingIdentifierMap implements IdentifierMap {
           identifiers.putAll(values);
         }
       } finally {
-        _lock.writeLock().lock();
+        _lock.writeLock().unlock();
       }
     }
     return identifiers;
