@@ -8,9 +8,10 @@
         			<key><value>loadAllIdentifiers</value></key>
         			<value>
         				<![CDATA[
-        					SELECT distinct d.name as scheme, dsi.identifier_value as identifier_value
+        					SELECT dsi.bundle_id as bundleId, d.name as scheme, dsi.identifier_value as identifier_value
         					FROM tss_identifier dsi
         					JOIN tss_identification_scheme as d ON dsi.identification_scheme_id = d.id
+        					ORDER by dsi.bundle_id
         				]]>
         			</value>
         		</entry>

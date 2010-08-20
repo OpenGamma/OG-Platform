@@ -184,14 +184,11 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
   protected abstract boolean isTriggerSupported();
   
   @Override
-  public List<Identifier> getAllIdentifiers() {
-    List<Identifier> result = _simpleJdbcTemplate.query(_namedSQLMap.get(LOAD_ALL_IDENTIFIERS), new ParameterizedRowMapper<Identifier>() {
-      @Override
-      public Identifier mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return Identifier.of(rs.getString("scheme"), rs.getString("identifier_value"));
-      }
-    }, new Object[]{});
-    return result;
+  public List<IdentifierBundle> getAllIdentifiers() {
+    IdentifierBundleHandler identifierBundleHandler = new IdentifierBundleHandler();
+    JdbcOperations jdbcOperations = _simpleJdbcTemplate.getJdbcOperations();
+    jdbcOperations.query(_namedSQLMap.get(LOAD_ALL_IDENTIFIERS), identifierBundleHandler);
+    return identifierBundleHandler.getResult();
   }
 
   private UniqueIdentifier addTimeSeries(IdentifierBundle identifiers,
@@ -202,7 +199,7 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     s_logger.debug("adding timeseries for {} with dataSource={}, dataProvider={}, dataField={}, observationTime={} startdate={} endate={}", 
         new Object[]{identifiers, dataSource, dataProvider, field, observationTime, timeSeries.getEarliestTime(), timeSeries.getLatestTime()});
     
-    IdentifierBundleRowHandler bundleBean = findBundleBean(identifiers);
+    IdentifierHandler bundleBean = findBundleBean(identifiers);
     //should return just one bundle id
     if (bundleBean.getIds().size() > 1) {
       s_logger.warn("{} has more than one bundle ids associated to identifiers {}", identifiers);
@@ -292,8 +289,8 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     return getDataSourceId(dataSource);
   }
 
-  private IdentifierBundleRowHandler findBundleBean(final IdentifierBundle identifiers) {
-    IdentifierBundleRowHandler result = new IdentifierBundleRowHandler();
+  private IdentifierHandler findBundleBean(final IdentifierBundle identifiers) {
+    IdentifierHandler result = new IdentifierHandler();
     String namedSql = _namedSQLMap.get(SELECT_QUOTED_OBJECT_FROM_IDENTIFIERS);
     StringBuilder bundleWhereCondition = new StringBuilder(" ");
     int orCounter = 1;
@@ -996,7 +993,7 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
       result.getDocuments().add(document);
     } else {
       ArgumentChecker.isTrue(request.getIdentifiers() != null && !request.getIdentifiers().getIdentifiers().isEmpty(), "cannot search timeseries with empty identifiers");
-      IdentifierBundleRowHandler bundleBean = findBundleBean(request.getIdentifiers());
+      IdentifierHandler bundleBean = findBundleBean(request.getIdentifiers());
       if (!bundleBean.getIds().isEmpty()) {
         if (bundleBean.getIds().size() > 1) {
           s_logger.warn("IdentifierBundle {} not associated to the same instrument", request.getIdentifiers().toString());
@@ -1243,11 +1240,11 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     return result;
   }
   
-  private static class IdentifierBundleRowHandler  implements RowCallbackHandler {
+  private static class IdentifierHandler  implements RowCallbackHandler {
     private Set<Long> _ids = new HashSet<Long>();
     private Set<Identifier> _identifiers = new HashSet<Identifier>();
     
-    public IdentifierBundleRowHandler() {
+    public IdentifierHandler() {
     }
 
     public Set<Long> getIds() {
@@ -1263,6 +1260,30 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
       _ids.add(rs.getLong("id"));
       _identifiers.add(Identifier.of(rs.getString("scheme"), rs.getString("identifier_value")));
     }
+  }
+  
+  private static class IdentifierBundleHandler implements RowCallbackHandler {
+    private Map<Long, List<Identifier>> _identifierBundleMap = new HashMap<Long, List<Identifier>>();
+    
+    @Override
+    public void processRow(ResultSet rs) throws SQLException {
+      long bundleId = rs.getLong("bundleId");
+      List<Identifier> identifiers = _identifierBundleMap.get(bundleId);
+      if (identifiers == null) {
+        identifiers = new ArrayList<Identifier>();
+        _identifierBundleMap.put(bundleId, identifiers);
+      }
+      identifiers.add(Identifier.of(rs.getString("scheme"), rs.getString("identifier_value")));
+    }
+    
+    public List<IdentifierBundle> getResult() {
+      List<IdentifierBundle> result = new ArrayList<IdentifierBundle>();
+      for (List<Identifier> identifiers : _identifierBundleMap.values()) {
+        result.add(new IdentifierBundle(identifiers));
+      }
+      return result;
+    }
+    
   }
   
 }

@@ -8,7 +8,6 @@ package com.opengamma.timeseries;
 import java.util.List;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -45,7 +44,7 @@ public interface TimeSeriesMaster {
   
   List<SchemeBean> getSchemes();
   
-  List<Identifier> getAllIdentifiers();
+  List<IdentifierBundle> getAllIdentifiers();
   
   /**
    * Searches for timeseries matching the specified search criteria.

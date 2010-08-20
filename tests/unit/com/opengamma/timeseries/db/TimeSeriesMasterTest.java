@@ -251,18 +251,17 @@ public class TimeSeriesMasterTest extends DBTest {
   @Test
   public void getAllIdentifiers() throws Exception {
     
-    List<Identifier> allIdentifiers = _tsMaster.getAllIdentifiers();
+    List<IdentifierBundle> allIdentifiers = _tsMaster.getAllIdentifiers();
     assertNotNull(allIdentifiers);
     assertTrue(allIdentifiers.isEmpty());
     
-    List<Identifier> expectedIds = new ArrayList<Identifier>();
+    List<IdentifierBundle> expectedIds = new ArrayList<IdentifierBundle>();
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
       Identifier id1 = Identifier.of("sa" + i, "ida" + i);
       Identifier id2 = Identifier.of("sb" + i, "idb" + i);
       IdentifierBundle identifiers = IdentifierBundle.of(id1, id2);
       LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries(null);
-      expectedIds.add(id1);
-      expectedIds.add(id2);
+      expectedIds.add(identifiers);
       
       TimeSeriesDocument tsDocument = new TimeSeriesDocument();
       tsDocument.setDataField(CLOSE_DATA_FIELD);
@@ -280,11 +279,8 @@ public class TimeSeriesMasterTest extends DBTest {
     
     allIdentifiers = _tsMaster.getAllIdentifiers();
     assertNotNull(allIdentifiers);
-    assertTrue(allIdentifiers.size() == TS_DATASET_SIZE*2);
-    for (Identifier identifier : expectedIds) {
-      assertTrue(allIdentifiers.contains(identifier));
-    }
-    
+    assertTrue(allIdentifiers.size() == expectedIds.size());
+    assertEquals(expectedIds, allIdentifiers);
   }
   
   @Test
