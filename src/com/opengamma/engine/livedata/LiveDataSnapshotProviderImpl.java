@@ -17,9 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.security.SecuritySource;
-import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.livedata.LiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdate;

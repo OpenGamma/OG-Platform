@@ -7,13 +7,10 @@ package com.opengamma.engine.test;
 
 import java.util.Collections;
 
-import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
-import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
