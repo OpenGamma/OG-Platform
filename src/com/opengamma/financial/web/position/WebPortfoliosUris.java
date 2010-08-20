@@ -3,10 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.web;
+package com.opengamma.financial.web.position;
 
 import java.net.URI;
 
+import com.opengamma.financial.position.master.ManageablePortfolio;
 import com.opengamma.financial.position.master.ManageablePortfolioNode;
 import com.opengamma.financial.position.master.ManageablePosition;
 
@@ -39,6 +40,15 @@ public class WebPortfoliosUris {
    */
   public URI portfolio() {
     return WebPortfolioResource.uri(_data);
+  }
+
+  /**
+   * Gets the URI.
+   * @param portfolio  the portfolio, not null
+   * @return the URI
+   */
+  public URI portfolio(final ManageablePortfolio portfolio) {
+    return WebPortfolioResource.uri(_data, portfolio.getUniqueIdentifier());
   }
 
   /**

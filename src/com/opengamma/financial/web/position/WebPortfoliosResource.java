@@ -3,14 +3,10 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.web;
+package com.opengamma.financial.web.position;
 
 import java.net.URI;
 
-import javax.time.calendar.OffsetDateTime;
-import javax.time.calendar.ZoneOffset;
-import javax.time.calendar.format.DateTimeFormatter;
-import javax.time.calendar.format.DateTimeFormatters;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -23,6 +19,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.StringUtils;
+import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.financial.position.master.ManageablePortfolio;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
@@ -55,60 +52,29 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
       @QueryParam("name") String name) {
-    String html = "<html>\n" +
-      "<head><title>Portfolios</title></head>\n" +
-      "<body>\n" +
-      "<h2>Portfolio search</h2>\n" +
-      "<form method=\"GET\" action=\"" + data().getUriInfo().getAbsolutePath() + "\">" +
-      "Name: <input type=\"text\" size=\"30\" name=\"name\" /><br />" +
-      "<input type=\"submit\" value=\"Search\" />" +
-      "</form>\n";
+    FlexiBean out = createRootData();
+    
+    PortfolioTreeSearchRequest searchRequest = new PortfolioTreeSearchRequest();
+    searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
+    searchRequest.setName(StringUtils.trimToNull(name));
+    out.put("searchRequest", searchRequest);
     
     if (data().getUriInfo().getQueryParameters().size() > 0) {
-      final PortfolioTreeSearchRequest request = new PortfolioTreeSearchRequest();
-      request.setPagingRequest(PagingRequest.of(page, pageSize));
-      request.setName(StringUtils.trimToNull(name));
-      PortfolioTreeSearchResult result = data().getPositionMaster().searchPortfolioTrees(request);
-      
-      html += "<h2>Portfolio results</h2>\n" +
-        "<p><table border=\"1\">" +
-        "<tr><th>Name</th><th>Version valid from</th><th>Actions</th></tr>\n";
-      for (PortfolioTreeDocument doc : result.getDocuments()) {
-        URI uri = data().getUriInfo().getBaseUriBuilder().path(WebPortfolioResource.class).build(doc.getPortfolioId().toLatest());
-        html += "<tr>";
-        html += "<td><a href=\"" + uri + "\">" + doc.getPortfolio().getName() + "</a></td>";
-        DateTimeFormatter pattern = DateTimeFormatters.pattern("dd MMM yyyy, HH:mm:ss.SSS");
-        html +=
-          "<td>" + pattern.print(OffsetDateTime.ofInstant(doc.getVersionFromInstant(), ZoneOffset.UTC)) + "</td>";
-        html += "<td><a href=\"" + uri + "\">View</a></td>";
-        html += "</tr>\n";
-      }
-      html += "</table></p>\n";
+      PortfolioTreeSearchResult searchResult = data().getPositionMaster().searchPortfolioTrees(searchRequest);
+      out.put("searchResult", searchResult);
     }
-    html += "<h2>Add portfolio</h2>\n" +
-      "<form method=\"POST\" action=\"" + data().getUriInfo().getAbsolutePath() + "\">" +
-      "Name: <input type=\"text\" size=\"30\" name=\"name\" /><br />" +
-      "<input type=\"submit\" value=\"Add\" />" +
-      "</form>\n";
-    html += "</body>\n</html>";
-    return html;
+    return getFreemarker().build("portfolios/portfolios.ftl", out);
   }
 
   //-------------------------------------------------------------------------
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response post(@FormParam("name") String name) {
-    if (StringUtils.isEmpty(name)) {
-      String html = "<html>\n" +
-        "<head><title>Portfolios</title></head>\n" +
-        "<body>\n" +
-        "<h2>Add portfolio</h2>\n" +
-        "<p>The name must be entered!</p>\n" +
-        "<form method=\"POST\" action=\"" + data().getUriInfo().getAbsolutePath() + "\"><br />" +
-        "Name: <input type=\"text\" size=\"30\" name=\"name\" /><br />" +
-        "<input type=\"submit\" value=\"Add\" /><br />" +
-        "</form>\n" +
-        "</body>\n</html>";
+    name = StringUtils.trimToNull(name);
+    if (name == null) {
+      FlexiBean out = createRootData();
+      out.put("err_nameMissing", true);
+      String html = getFreemarker().build("portfolios/portfolios-add.ftl", out);
       return Response.ok(html).build();
     }
     ManageablePortfolio portfolio = new ManageablePortfolio(name);
@@ -124,7 +90,20 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
     data().setUriPortfolioId(idStr);
     PortfolioTreeDocument portfolio = data().getPositionMaster().getPortfolioTree(UniqueIdentifier.parse(idStr));
     data().setPortfolio(portfolio);
-    return new WebPortfolioResource(data());
+    return new WebPortfolioResource(this);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates the output root data.
+   * @return the output root data, not null
+   */
+  public FlexiBean createRootData() {
+    PortfolioTreeSearchRequest searchRequest = new PortfolioTreeSearchRequest();
+    FlexiBean out = getFreemarker().createRootData();
+    out.put("searchRequest", searchRequest);
+    out.put("uris", new WebPortfoliosUris(data()));
+    return out;
   }
 
   //-------------------------------------------------------------------------

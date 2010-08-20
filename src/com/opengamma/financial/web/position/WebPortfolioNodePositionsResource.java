@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.web;
+package com.opengamma.financial.web.position;
 
 import java.math.BigDecimal;
 import java.net.URI;
@@ -18,8 +18,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.StringUtils;
+import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.financial.position.master.ManageablePortfolioNode;
 import com.opengamma.financial.position.master.ManageablePosition;
+import com.opengamma.financial.position.master.PortfolioTreeDocument;
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
@@ -33,38 +36,37 @@ public class WebPortfolioNodePositionsResource extends AbstractWebPortfolioResou
 
   /**
    * Creates the resource.
-   * @param data  the data, not null
+   * @param parent  the parent resource, not null
    */
-  public WebPortfolioNodePositionsResource(final WebPortfoliosData data) {
-    super(data);
+  public WebPortfolioNodePositionsResource(final AbstractWebPortfolioResource parent) {
+    super(parent);
   }
 
   //-------------------------------------------------------------------------
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response post(
-      @FormParam("quantity") BigDecimal quantity,
+      @FormParam("quantity") String quantityStr,
       @FormParam("scheme") String scheme,
       @FormParam("schemevalue") String schemeValue) {
+    quantityStr = StringUtils.trimToNull(quantityStr);
     scheme = StringUtils.trimToNull(scheme);
     schemeValue = StringUtils.trimToNull(schemeValue);
-    if (quantity == null || scheme == null || schemeValue == null) {
-      URI uri = WebPortfolioNodeResource.uri(data());
-      String html = "<html>\n" +
-        "<head><title>Add position</title></head>\n" +
-        "<body>\n" +
-        "<h2>Add position</h2>\n" +
-        "<p>All details must be entered!</p>\n" +
-        "<form method=\"POST\" action=\"" + uri + "\">" +
-        "Quantity: <input type=\"text\" size=\"10\" name=\"quantity\" /><br />" +
-        "Scheme: <input type=\"text\" size=\"30\" name=\"scheme\" /><br />" +
-        "Scheme Id: <input type=\"text\" size=\"30\" name=\"schemevalue\" /><br />" +
-        "<input type=\"submit\" value=\"Add\" />" +
-        "</form>\n" +
-        "</body>\n</html>\n";
+    if (quantityStr == null || scheme == null || schemeValue == null) {
+      FlexiBean out = createRootData();
+      if (quantityStr == null) {
+        out.put("err_quantityMissing", true);
+      }
+      if (scheme == null) {
+        out.put("err_schemeMissing", true);
+      }
+      if (schemeValue == null) {
+        out.put("err_schemevalueMissing", true);
+      }
+      String html = getFreemarker().build("portfolios/portfolionodepositions-add.ftl", out);
       return Response.ok(html).build();
     }
-    ManageablePosition position = new ManageablePosition(quantity, Identifier.of(scheme, schemeValue));
+    ManageablePosition position = new ManageablePosition(new BigDecimal(quantityStr), Identifier.of(scheme, schemeValue));
     PositionDocument doc = new PositionDocument(position, data().getNode().getUniqueIdentifier());
     doc = data().getPositionMaster().addPosition(doc);
     data().setPosition(doc);
@@ -73,12 +75,30 @@ public class WebPortfolioNodePositionsResource extends AbstractWebPortfolioResou
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Creates the output root data.
+   * @return the output root data, not null
+   */
+  public FlexiBean createRootData() {
+    PortfolioTreeDocument doc = data().getPortfolio();
+    ManageablePortfolioNode node = data().getNode();
+    FlexiBean out = getFreemarker().createRootData();
+    out.put("portfolioDoc", doc);
+    out.put("portfolio", doc.getPortfolio());
+    out.put("parentNode", data().getParentNode());
+    out.put("node", node);
+    out.put("childNodes", node.getChildNodes());
+    out.put("uris", new WebPortfoliosUris(data()));
+    return out;
+  }
+
+  //-------------------------------------------------------------------------
   @Path("{positionId}")
   public WebPortfolioNodePositionResource findPosition(@PathParam("positionId") String idStr) {
     data().setUriPositionId(idStr);
     PositionDocument position = data().getPositionMaster().getPosition(UniqueIdentifier.parse(idStr));
     data().setPosition(position);
-    return new WebPortfolioNodePositionResource(data());
+    return new WebPortfolioNodePositionResource(this);
   }
 
   //-------------------------------------------------------------------------

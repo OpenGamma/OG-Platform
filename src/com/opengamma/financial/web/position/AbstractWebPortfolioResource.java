@@ -3,18 +3,19 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.web;
+package com.opengamma.financial.web.position;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.financial.position.master.PositionMaster;
+import com.opengamma.financial.web.AbstractWebResource;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Abstract base class for RESTful portfolio resources.
  */
-public abstract class AbstractWebPortfolioResource {
+public abstract class AbstractWebPortfolioResource extends AbstractWebResource {
 
   /**
    * The backing bean.
@@ -33,11 +34,11 @@ public abstract class AbstractWebPortfolioResource {
 
   /**
    * Creates the resource.
-   * @param data  the backing data, not null
+   * @param parent  the parent resource, not null
    */
-  protected AbstractWebPortfolioResource(final WebPortfoliosData data) {
-    ArgumentChecker.notNull(data, "data");
-    _data = data;
+  protected AbstractWebPortfolioResource(final AbstractWebPortfolioResource parent) {
+    super(parent);
+    _data = parent._data;
   }
 
   /**
