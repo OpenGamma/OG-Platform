@@ -178,8 +178,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
 
   // TODO Remove the time code that I've been using for debug and tuning
 
-  // TODO [ENG-181] Change to just a ViewComputationCache when the interface is changed
-  private void cacheAllValueSpecifications(final WriteBehindViewComputationCache cache, final Collection<CalculationJobItem> jobItems) {
+  private void cacheAllValueSpecifications(final ViewComputationCache cache, final Collection<CalculationJobItem> jobItems) {
     final Set<ValueSpecification> allValueSpecs = new HashSet<ValueSpecification>();
     for (CalculationJobItem jobItem : jobItems) {
       allValueSpecs.addAll(jobItem.getInputs());

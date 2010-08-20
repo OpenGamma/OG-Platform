@@ -175,9 +175,9 @@ public class WriteBehindViewComputationCache implements ViewComputationCache {
     });
   }
 
-  // TODO [ENG-181] put this into the ViewComputationCache interface & get rid of the cast below
+  @Override
   public void cacheValueSpecifications(final Collection<ValueSpecification> valueSpecifications) {
-    ((DefaultViewComputationCache) getUnderlying()).getIdentifierMap().getIdentifiers(valueSpecifications);
+    getUnderlying().cacheValueSpecifications(valueSpecifications);
   }
 
   /**

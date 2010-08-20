@@ -83,6 +83,10 @@ public class WriteBehindViewComputationCacheTest {
       }
       _putValues = new ArrayList<ComputedValue>(values);
     }
+
+    @Override
+    public void cacheValueSpecifications(Collection<ValueSpecification> specifications) {
+    }
   }
 
   private static final ValueSpecification s_valueSpec1 = new ValueSpecification(new ValueRequirement("Value 1", new ComputationTargetSpecification(new DefaultSecurity("TEST"))), "Function UID");
