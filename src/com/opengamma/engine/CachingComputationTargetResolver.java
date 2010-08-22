@@ -5,82 +5,36 @@
  */
 package com.opengamma.engine;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
+import java.util.Collection;
 
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.EHCacheUtils;
+import com.opengamma.engine.position.PortfolioNode;
+import com.opengamma.engine.position.Position;
+import com.opengamma.engine.security.Security;
 
 /**
- * A computation target resolver implementation that caches another implementation.
+ * 
  */
-public class CachingComputationTargetResolver extends ForwardingComputationTargetResolver {
-
-  /** The cache key. */
-  private static final String COMPUTATIONTARGET_CACHE = "computationTarget";
+public interface CachingComputationTargetResolver extends ComputationTargetResolver {
 
   /**
-   * The cache manager.
+   * Ensures a collection of positions are cached as computation targets
+   * 
+   * @param positions  the positions to cache
    */
-  private final CacheManager _cacheManager;
+  void cachePositions(Collection<Position> positions);
+  
   /**
-   * The cache.
+   * Ensures a collection of securities are cached as computation targets
+   * 
+   * @param securities  the securities to cache
    */
-  private final Cache _computationTarget;
-
+  void cacheSecurities(Collection<Security> securities);
+  
   /**
-   * Creates an instance using the default cache manager.
-   * @param underlying  the underlying resolver, not null
+   * Ensures the nodes in a portfolio hierarchy are cached as computation targets
+   * 
+   * @param root  the root node in the hierarchy to cache
    */
-  public CachingComputationTargetResolver(final ComputationTargetResolver underlying) {
-    this (underlying, EHCacheUtils.createCacheManager());
-  }
-
-  /**
-   * Creates an instance using the specified cache manager.
-   * @param underlying  the underlying resolver, not null
-   * @param cacheManager  the cache manager, not null
-   */
-  public CachingComputationTargetResolver(final ComputationTargetResolver underlying, final CacheManager cacheManager) {
-    super(underlying);
-    ArgumentChecker.notNull(cacheManager, "cacheManager");
-    _cacheManager = cacheManager;
-    EHCacheUtils.addCache(cacheManager, COMPUTATIONTARGET_CACHE);
-    _computationTarget = EHCacheUtils.getCacheFromManager(cacheManager, COMPUTATIONTARGET_CACHE);
-    if (underlying instanceof DefaultComputationTargetResolver) {
-      ((DefaultComputationTargetResolver) underlying).setRecursiveResolver(this);
-    }
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the cache manager.
-   * @return the cache manager, not null
-   */
-  protected CacheManager getCacheManager() {
-    return _cacheManager;
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public ComputationTarget resolve(final ComputationTargetSpecification specification) {
-    switch (specification.getType()) {
-      case POSITION :
-      case PORTFOLIO_NODE :
-        final Element e = _computationTarget.get(specification);
-        if (e != null) {
-          return (ComputationTarget) e.getValue();
-        } else {
-          final ComputationTarget ct = super.resolve(specification);
-          if (ct != null) {
-            _computationTarget.put(new Element(specification, ct));
-          }
-          return ct;
-        }
-      default :
-        return super.resolve(specification);
-    }
-  }
-
+  void cachePortfolioNodeHierarchy(PortfolioNode root);
+  
 }

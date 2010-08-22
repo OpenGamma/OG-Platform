@@ -34,9 +34,10 @@ import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
-import com.opengamma.engine.view.calcnode.JobRequestSender;
-import com.opengamma.engine.view.calcnode.ResultWriterFactory;
+import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
+import com.opengamma.engine.view.permission.ViewPermission;
+import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.livedata.client.LiveDataClient;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
@@ -61,10 +62,10 @@ public class ViewProcessor implements Lifecycle {
   private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private LiveDataSnapshotProvider _liveDataSnapshotProvider;
   private ViewComputationCacheSource _computationCacheSource;
-  private JobRequestSender _computationJobRequestSender;
+  private JobDispatcher _computationJobDispatcher;
   private ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
   private DependencyGraphExecutorFactory _dependencyGraphExecutorFactory;
-  private ResultWriterFactory _resultWriterFactory;
+  private ViewPermissionProvider _viewPermissionProvider;
   // State:
   private final ConcurrentMap<String, View> _viewsByName = new ConcurrentHashMap<String, View>();
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
@@ -204,19 +205,19 @@ public class ViewProcessor implements Lifecycle {
   }
 
   /**
-   * @return the computationJobRequestSender
+   * @return the computationJobDispatcher
    */
-  public JobRequestSender getComputationJobRequestSender() {
-    return _computationJobRequestSender;
+  public JobDispatcher getComputationJobDispatcher() {
+    return _computationJobDispatcher;
   }
 
   /**
-   * @param computationJobRequestSender the computationJobRequestSender to set
+   * @param computationJobDispatcher the computationJobDispatcher to set
    */
-  public void setComputationJobRequestSender(
-      JobRequestSender computationJobRequestSender) {
+  public void setComputationJobDispatcher(
+      JobDispatcher computationJobDispatcher) {
     assertNotStarted();
-    _computationJobRequestSender = computationJobRequestSender;
+    _computationJobDispatcher = computationJobDispatcher;
   }
   
   /**
@@ -239,14 +240,14 @@ public class ViewProcessor implements Lifecycle {
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
   }
   
-  public ResultWriterFactory getResultWriterFactory() {
-    return _resultWriterFactory;
+  public ViewPermissionProvider getViewPermissionProvider() {
+    return _viewPermissionProvider;
   }
-
-  public void setResultWriterFactory(ResultWriterFactory resultWriterFactory) {
-    _resultWriterFactory = resultWriterFactory;
+  
+  public void setViewPermissionProvider(ViewPermissionProvider viewPermissionProvider) {
+    _viewPermissionProvider = viewPermissionProvider;
   }
-
+  
   /**
    * @return the executorService
    */
@@ -296,19 +297,15 @@ public class ViewProcessor implements Lifecycle {
   /**
    * Obtain an already-initialized {@link View} instance.
    * <p/>
-   * This method will only return a view if it has already been initialized
-   * and if the given user has access to the view.
+   * This method will only return a view if it has already been initialized and if the given user has access to the
+   * view.
    * <p/>
-   * If there is a view definition available, and the user has access to it,
-   * but this method returns {@code null}, the view needs to be 
-   * initialized using {@link #initializeView(String)}.
+   * If there is a view definition available, and the user has access to it, but this method returns {@code null}, the
+   * view needs to be initialized using {@link #initializeView(String)}.
    * 
-   * @param name The name of the view to obtain.
-   * @param credentials The user who should have access to the view. 
-   * Not null.
-   * @return     The initialized view, or {@code null}.
-   * @throws ViewAccessException If the view exists and is initialized,
-   * but the user has no access to it. 
+   * @param name  the name of the view to obtain, not null
+   * @param credentials  the user who should have access to the view, not null
+   * @return  the initialized view, or {@code null}.
    */
   public View getView(String name, UserPrincipal credentials) {
     ArgumentChecker.notNull(name, "View name");
@@ -318,7 +315,7 @@ public class ViewProcessor implements Lifecycle {
     if (view == null) {
       return null;
     }
-    view.checkIsEntitledToAccess(credentials);
+    view.getPermissionProvider().assertPermission(ViewPermission.ACCESS, credentials, view);
     return view;
   }
   
@@ -336,8 +333,11 @@ public class ViewProcessor implements Lifecycle {
     if (viewDefinition == null) {
       throw new NoSuchElementException("No view available with name \"" + viewName + "\"");
     }
-    // NOTE kirk 2010-03-02 -- We construct a bespoke ViewProcessingContext because the resolvers
-    // might be based on the view definition (particularly for functions and the like).
+    // NOTE kirk 2010-03-02 -- We construct a bespoke ViewProcessingContext because the resolvers might be based on the
+    // view definition (particularly for functions and the like).
+    // NOTE jonathan 2010-08-18 -- Same thing as above for the permission provider. At the moment we're using the
+    // default for everything, but we could potentially customise this per view, perhaps based on some property of the
+    // view definition - it's easy to imagine that there might be different broad types of view permissioning. 
     getCompilationContext().setSecuritySource(getSecuritySource());
     ViewProcessingContext vpc = new ViewProcessingContext(
         getLiveDataClient(),
@@ -348,12 +348,12 @@ public class ViewProcessor implements Lifecycle {
         getPositionSource(),
         getSecuritySource(),
         getComputationCacheSource(),
-        getComputationJobRequestSender(),
+        getComputationJobDispatcher(),
         getViewProcessorQueryReceiver(),
         getCompilationContext(),
         getExecutorService(),
         getDependencyGraphExecutorFactory(),
-        getResultWriterFactory());
+        getViewPermissionProvider());
     View freshView = new View(viewDefinition, vpc);
     View actualView = _viewsByName.putIfAbsent(viewName, freshView);
     if (actualView == null) {
@@ -565,7 +565,7 @@ public class ViewProcessor implements Lifecycle {
     ArgumentChecker.notNullInjected(getLiveDataAvailabilityProvider(), "liveDataAvailabilityProvider");
     ArgumentChecker.notNullInjected(getLiveDataSnapshotProvider(), "liveDataSnapshotProvider");
     ArgumentChecker.notNullInjected(getComputationCacheSource(), "computationCacheSource");
-    ArgumentChecker.notNullInjected(getComputationJobRequestSender(), "computationJobRequestSender");
+    ArgumentChecker.notNullInjected(getComputationJobDispatcher(), "computationJobRequestSender");
   }
 
 }

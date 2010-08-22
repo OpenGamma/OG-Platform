@@ -14,7 +14,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionDefinition;
-import com.opengamma.engine.function.MockFunction;
+import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;

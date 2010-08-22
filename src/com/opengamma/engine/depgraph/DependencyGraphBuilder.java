@@ -122,7 +122,7 @@ public class DependencyGraphBuilder {
     
     for (ValueRequirement requirement : requirements) {
       Pair<DependencyNode, ValueSpecification> requirementPair = addTargetRequirement(target, requirement);
-      requirementPair.getFirst().addTerminalOutputValue(requirementPair.getSecond());
+      _graph.addTerminalOutputValue(requirementPair.getSecond());
     }
   }
   

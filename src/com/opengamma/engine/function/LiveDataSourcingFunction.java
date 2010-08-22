@@ -22,22 +22,20 @@ import com.opengamma.util.ArgumentChecker;
  *
  */
 public class LiveDataSourcingFunction extends AbstractFunction implements FunctionInvoker {
-  private final ValueRequirement _requirement;
+  
+  /**
+   * Function unique ID
+   */
+  public static final String UNIQUE_ID = "LiveDataSourcingFunction";
+  
   private final ValueSpecification _result;
   
   public LiveDataSourcingFunction(ValueRequirement requirement) {
     ArgumentChecker.notNull(requirement, "Value Requirement");
-    _requirement = requirement;
-    _result = new ValueSpecification(requirement);
+    setUniqueIdentifier(UNIQUE_ID);
+    _result = new ValueSpecification(requirement, getUniqueIdentifier());
   }
 
-  /**
-   * @return the requirement
-   */
-  public ValueRequirement getRequirement() {
-    return _requirement;
-  }
-  
   public ValueSpecification getResult() {
     return _result;
   }
@@ -66,7 +64,7 @@ public class LiveDataSourcingFunction extends AbstractFunction implements Functi
 
   @Override
   public ComputationTargetType getTargetType() {
-    return _requirement.getTargetSpecification().getType();
+    return _result.getRequirementSpecification().getTargetSpecification().getType();
   }
 
   @Override
@@ -77,8 +75,8 @@ public class LiveDataSourcingFunction extends AbstractFunction implements Functi
   }
 
   @Override
-  public Set<ValueRequirement> getRequiredLiveData() {
-    return Collections.singleton(_requirement);
+  public Set<ValueSpecification> getRequiredLiveData() {
+    return Collections.singleton(_result);
   }
   
 }

@@ -7,6 +7,7 @@ package com.opengamma.engine.view;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -15,16 +16,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.livedata.LiveDataSnapshotListener;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
+import com.opengamma.engine.livedata.MutableLiveDataSnapshotProvider;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.SingleComputationCycle;
 import com.opengamma.engine.view.calc.ViewRecalculationJob;
+import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
+import com.opengamma.engine.view.compilation.ViewEvaluationModel;
+import com.opengamma.engine.view.permission.ViewPermission;
+import com.opengamma.engine.view.permission.ViewPermissionException;
+import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
@@ -32,15 +39,17 @@ import com.opengamma.util.ThreadUtil;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
- * The base implementation of the {@link View} interface.
+ * A view represents a {@link ViewDefinition} in the context of a {@link ViewProcessor}; this is everything required
+ * to perform computations.
  */
 public class View implements Lifecycle, LiveDataSnapshotListener {
   private static final Logger s_logger = LoggerFactory.getLogger(View.class);
   // Injected dependencies:
   private final ViewDefinition _definition;
   private final ViewProcessingContext _processingContext;
+  private final MutableLiveDataSnapshotProvider _viewLiveDataSnapshotProvider;
   // Internal State:
-  private PortfolioEvaluationModel _portfolioEvaluationModel;
+  private ViewEvaluationModel _viewEvaluationModel;
   private Thread _recalculationThread;
   private ViewCalculationState _calculationState = ViewCalculationState.NOT_INITIALIZED;
   private ViewRecalculationJob _recalcJob;
@@ -48,16 +57,33 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   private final Set<ComputationResultListener> _resultListeners = new CopyOnWriteArraySet<ComputationResultListener>();
   private final Set<DeltaComputationResultListener> _deltaListeners = new CopyOnWriteArraySet<DeltaComputationResultListener>();
   private volatile boolean _populateResultModel = true;
-
+ 
+  /**
+   * Constructs an instance. 
+   * 
+   * @param definition  the view definition, not null
+   * @param processingContext  the context from the view processor, not null 
+   */
   public View(ViewDefinition definition, ViewProcessingContext processingContext) {
-    if (definition == null) {
-      throw new NullPointerException("Must provide a definition.");
-    }
-    if (processingContext == null) {
-      throw new NullPointerException("Must provide a processing context.");
-    }
+    this(definition, processingContext, null);
+  }
+  
+  /**
+   * Constructs an instance.
+   * 
+   * @param definition  the view definition, not null
+   * @param processingContext  the context from the view processor, not null
+   * @param viewLiveDataSnapshotProvider  an optional snapshot provider to be used for the injection of custom live
+   *                                      data for this view. For this to have any effect, its values should be
+   *                                      included by the snapshot provider that is part of the processing context.
+   */
+  public View(ViewDefinition definition, ViewProcessingContext processingContext, MutableLiveDataSnapshotProvider viewLiveDataSnapshotProvider) {
+    ArgumentChecker.notNull(definition, "definition");
+    ArgumentChecker.notNull(processingContext, "processingContext");
+    
     _definition = definition;
     _processingContext = processingContext;
+    _viewLiveDataSnapshotProvider = viewLiveDataSnapshotProvider;
   }
   
   /**
@@ -72,6 +98,10 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
    */
   public ViewProcessingContext getProcessingContext() {
     return _processingContext;
+  }
+  
+  public MutableLiveDataSnapshotProvider getViewLiveDataSnapshotProvider() {
+    return _viewLiveDataSnapshotProvider;
   }
 
   /**
@@ -115,26 +145,22 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   protected void setRecalcJob(ViewRecalculationJob recalcJob) {
     _recalcJob = recalcJob;
   }
-
+  
   /**
-   * @return the portfolioEvaluationModel
+   * @return the latest view evaluation model
    */
-  public PortfolioEvaluationModel getPortfolioEvaluationModel() {
-    return _portfolioEvaluationModel;
-  }
-
-  /**
-   * @param portfolioEvaluationModel the portfolioEvaluationModel to set
-   */
-  public void setPortfolioEvaluationModel(
-      PortfolioEvaluationModel portfolioEvaluationModel) {
-    _portfolioEvaluationModel = portfolioEvaluationModel;
+  public ViewEvaluationModel getViewEvaluationModel() {
+    return _viewEvaluationModel;
   }
   
+  public ViewPermissionProvider getPermissionProvider() {
+    return getProcessingContext().getPermissionProvider();
+  }
+    
   public void addResultListener(ComputationResultListener resultListener) {
     ArgumentChecker.notNull(resultListener, "Result listener");
     
-    checkIsEntitledToResults(resultListener.getUser());
+    getPermissionProvider().assertPermission(ViewPermission.READ_RESULTS, resultListener.getUser(), this);
     _resultListeners.add(resultListener);
   }
   
@@ -146,7 +172,7 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   public void addDeltaResultListener(DeltaComputationResultListener deltaListener) {
     ArgumentChecker.notNull(deltaListener, "Delta listener");
     
-    checkIsEntitledToResults(deltaListener.getUser());
+    getPermissionProvider().assertPermission(ViewPermission.READ_RESULTS, deltaListener.getUser(), this);
     _deltaListeners.add(deltaListener);
   }
   
@@ -160,35 +186,17 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   }
   
   public Set<ComputationTargetSpecification> getAllComputationTargets() {
-    return getPortfolioEvaluationModel().getAllComputationTargets();
+    return getViewEvaluationModel().getAllComputationTargets();
   }
   
   public synchronized void init() {
     OperationTimer timer = new OperationTimer(s_logger, "Initializing view {}", getDefinition().getName());
     setCalculationState(ViewCalculationState.INITIALIZING);
 
-    reloadPortfolio();
+    _viewEvaluationModel = ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices());
+    addLiveDataSubscriptions();
     
     setCalculationState(ViewCalculationState.NOT_STARTED);
-    timer.finished();
-  }
-
-  /**
-   * Reloads the portfolio, typically from a database.
-   */
-  public void reloadPortfolio() {
-    OperationTimer timer = new OperationTimer(s_logger, "Reloading portfolio {}", getDefinition().getPortfolioId());
-    Portfolio portfolio = getProcessingContext().getPositionSource().getPortfolio(getDefinition().getPortfolioId());
-    if (portfolio == null) {
-      throw new OpenGammaRuntimeException("Unable to resolve portfolio " + getDefinition().getPortfolioId() +
-          " in position source " + getProcessingContext().getPositionSource());
-    }
-    PortfolioEvaluationModel portfolioEvaluationModel = new PortfolioEvaluationModel(portfolio);
-    portfolioEvaluationModel.init(
-        getProcessingContext().asCompilationServices(),
-        getDefinition());
-    setPortfolioEvaluationModel(portfolioEvaluationModel);
-    addLiveDataSubscriptions();
     timer.finished();
   }
 
@@ -196,8 +204,10 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
    * Adds live data subscriptions to the view.
    */
   private void addLiveDataSubscriptions() {
-    Set<ValueRequirement> liveDataRequirements = getPortfolioEvaluationModel().getAllLiveDataRequirements();
+    Set<ValueRequirement> liveDataRequirements = getRequiredLiveData();
+    
     OperationTimer timer = new OperationTimer(s_logger, "Adding {} live data subscriptions for portfolio {}", liveDataRequirements.size(), getDefinition().getPortfolioId());
+    
     LiveDataSnapshotProvider snapshotProvider = getProcessingContext().getLiveDataSnapshotProvider();
     snapshotProvider.addListener(this);
     snapshotProvider.addSubscription(getDefinition().getLiveDataUser(), liveDataRequirements);
@@ -217,10 +227,10 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   }
 
   @Override
-  public void valueChanged(ValueRequirement requirement) {
-    Set<ValueRequirement> liveDataRequirements = getPortfolioEvaluationModel().getAllLiveDataRequirements();
+  public void valueChanged(ValueRequirement value) {
+    Set<ValueSpecification> liveDataRequirements = getViewEvaluationModel().getAllLiveDataRequirements();
     ViewRecalculationJob recalcJob = getRecalcJob();
-    if (recalcJob != null && liveDataRequirements.contains(requirement)) {
+    if (recalcJob != null && liveDataRequirements.contains(value)) {
       recalcJob.liveDataChanged();      
     }
   }
@@ -230,17 +240,17 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   }
 
   public Portfolio getPortfolio() {
-    if (getPortfolioEvaluationModel() == null) {
+    if (getViewEvaluationModel() == null) {
       return null;
     }
-    return getPortfolioEvaluationModel().getPortfolio();
+    return getViewEvaluationModel().getPortfolio();
   }
 
   public PortfolioNode getPositionRoot() {
-    if (getPortfolioEvaluationModel() == null) {
+    if (getViewEvaluationModel() == null) {
       return null;
     }
-    return getPortfolioEvaluationModel().getPortfolio().getRootNode();
+    return getViewEvaluationModel().getPortfolio().getRootNode();
   }
 
   public synchronized void recalculationPerformed(ViewComputationResultModelImpl result) {
@@ -275,6 +285,7 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     deltaModel.setValuationTime(result.getValuationTime());
     deltaModel.setResultTimestamp(result.getResultTimestamp());
     deltaModel.setPreviousResultTimestamp(previousResult.getResultTimestamp());
+    deltaModel.setCalculationConfigurationNames(result.getCalculationConfigurationNames());
     for (ComputationTargetSpecification targetSpec : result.getAllTargets()) {
       computeDeltaModel(deltaModel, targetSpec, previousResult, result);
     }
@@ -463,68 +474,17 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   }
   
   /**
-   * Reading the static contents of a view, modifying the view, 
-   * etc., can sometimes  be performed even by users 
-   * who are not entitled to view the results of the view.
+   * Checks that the given user has access to every market data line required to compute the results of the view, and
+   * throws an exception if this is not the case.
    * 
-   * @param user User who is requesting access
-   * @return true if the user should be able to view the
-   * static contents of the view. false otherwise.
+   * @param user  the user
+   * @throws ViewPermissionException  if any entitlement problems are found
    */
-  public boolean isEntitledToAccess(UserPrincipal user) {
-    try {
-      checkIsEntitledToAccess(user);
-      return true;
-    } catch (ViewAccessException e) {
-      return false;
-    }
-  }
-  
-  /**
-   * Reading the static contents of a view, modifying the view, 
-   * etc., can sometimes  be performed even by users 
-   * who are not entitled to view the results of the view.
-   * 
-   * @param user User who is requesting access
-   * @throws ViewAccessException If the user is not entitled
-   */
-  public void checkIsEntitledToAccess(UserPrincipal user) {
-    // not done yet    
-  }
-  
-  /**
-   * A user is entitled to view the computation results produced
-   * by a view only if they are entitled to every market data
-   * line required to compute the results of the view.
-   * 
-   * @param user User who is requesting access
-   * @return true if the user should be able to view the
-   * computation results produced by the view. false otherwise.
-   */
-  public boolean isEntitledToResults(UserPrincipal user) {
-    try {
-      checkIsEntitledToResults(user);
-      return true;
-    } catch (ViewAccessException e) {
-      return false;
-    }
-  }
-  
-  /**
-   * A user is entitled to view the computation results produced
-   * by a view only if they are entitled to every market data
-   * line required to compute the results of the view.
-   * 
-   * @param user User who is requesting access
-   * @throws ViewAccessException If the user is not entitled 
-   */
-  public void checkIsEntitledToResults(UserPrincipal user) {
-    Set<ValueRequirement> requiredValues = getPortfolioEvaluationModel().getAllLiveDataRequirements();
-    Collection<LiveDataSpecification> requiredLiveData = ValueRequirement.getRequiredLiveData(
-        requiredValues, 
-        getProcessingContext().getSecuritySource());
-    
+  public void assertAccessToLiveDataRequirements(UserPrincipal user) {
     s_logger.info("Checking that {} is entitled to the results of {}", user, this);
+
+    Collection<LiveDataSpecification> requiredLiveData = getRequiredLiveDataSpecifications();
+    
     Map<LiveDataSpecification, Boolean> entitlements = getProcessingContext().getLiveDataEntitlementChecker().isEntitled(user, requiredLiveData);
     
     ArrayList<LiveDataSpecification> failures = new ArrayList<LiveDataSpecification>();
@@ -535,11 +495,30 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     }
     
     if (!failures.isEmpty()) {
-      throw new ViewAccessException(user + " is not entitled to " + this + 
+      throw new ViewPermissionException(user + " is not entitled to the output of " + this + 
           " because they do not have permissions to " + failures.get(0));
     }
   }
   
+  private Set<ValueRequirement> getRequiredLiveData() {
+    Set<ValueSpecification> requiredSpecs = getViewEvaluationModel().getAllLiveDataRequirements();
+    
+    Set<ValueRequirement> returnValue = new HashSet<ValueRequirement>();
+    for (ValueSpecification requiredSpec : requiredSpecs) {
+      returnValue.add(requiredSpec.getRequirementSpecification());      
+    }
+    return returnValue;
+  }
+  
+  private Collection<LiveDataSpecification> getRequiredLiveDataSpecifications() {
+    Set<LiveDataSpecification> returnValue = new HashSet<LiveDataSpecification>();
+    for (ValueRequirement requirement : getRequiredLiveData()) {
+      LiveDataSpecification liveDataSpec = requirement.getRequiredLiveData(getProcessingContext().getSecuritySource());
+      returnValue.add(liveDataSpec);      
+    }
+    return returnValue;
+  }
+
   @Override
   public String toString() {
     return "View[" + getDefinition().getName() + "]";

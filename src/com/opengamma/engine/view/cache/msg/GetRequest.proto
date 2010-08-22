@@ -1,0 +1,15 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.engine.view.cache.msg {
+
+  message GetRequest extends BinaryDataStoreRequest {
+  
+    required repeated long identifier;
+  
+  }
+
+}

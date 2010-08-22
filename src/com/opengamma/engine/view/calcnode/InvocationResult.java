@@ -17,10 +17,15 @@ public enum InvocationResult {
   /**
    * The invocation was attempted, but took too long without a successful response.
    */
-  TIMED_OUT,
+  FUNCTION_TIMED_OUT,
   /**
-   * There was an error in processing the request.
+   * The invocation failed because the function unexpected threw an exception
    */
-  ERROR;
+  FUNCTION_THREW_EXCEPTION,
+  /**
+   * The invocation failed - in fact, could not even be attempted - because
+   * one of the inputs to the function was missing 
+   */
+  MISSING_INPUTS;
 
 }

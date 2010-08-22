@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.calc;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -18,7 +19,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.time.Instant;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,14 +30,13 @@ import com.opengamma.engine.depgraph.DependencyNodeFilter;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.PortfolioEvaluationModel;
 import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewComputationResultModelImpl;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessingContext;
 import com.opengamma.engine.view.cache.ViewComputationCache;
+import com.opengamma.engine.view.compilation.ViewEvaluationModel;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -61,7 +60,7 @@ public class SingleComputationCycle {
   private final View _view;
   private final Instant _valuationTime;
   
-  private final DependencyGraphExecutor _dependencyGraphExecutor;
+  private final DependencyGraphExecutor<?> _dependencyGraphExecutor;
   
   // State:
   
@@ -91,16 +90,15 @@ public class SingleComputationCycle {
   // Outputs:
   private final ViewComputationResultModelImpl _resultModel;
   
-  public SingleComputationCycle(View view,
-      long valuationTime) {
-    ArgumentChecker.notNull(view, "View");
+  public SingleComputationCycle(View view, long valuationTime) {
+    ArgumentChecker.notNull(view, "view");
     
     _view = view;
     _valuationTime = Instant.ofEpochMillis(valuationTime);
     
     _resultModel =  new ViewComputationResultModelImpl();
-    _resultModel.setCalculationConfigurationNames(getPortfolioEvaluationModel().getAllCalculationConfigurationNames());
-    _resultModel.setPortfolio(getPortfolioEvaluationModel().getPortfolio());
+    _resultModel.setCalculationConfigurationNames(getViewEvaluationModel().getDependencyGraphsByConfiguration().keySet());
+    _resultModel.setPortfolio(getViewEvaluationModel().getPortfolio());
     
     _dependencyGraphExecutor = getProcessingContext().getDependencyGraphExecutorFactory().createExecutor(this);
 
@@ -130,13 +128,6 @@ public class SingleComputationCycle {
   }
 
   /**
-   * @return the portfolioEvaluationModel
-   */
-  public PortfolioEvaluationModel getPortfolioEvaluationModel() {
-    return getView().getPortfolioEvaluationModel();
-  }
-
-  /**
    * @return the start time. Nanoseconds, see {@link System#nanoTime()}. 
    */
   public long getStartTime() {
@@ -156,8 +147,7 @@ public class SingleComputationCycle {
   public long getDurationNanos() {
     return getEndTime() - getStartTime();  
   }
-  
-
+ 
   /**
    * @return the resultModel
    */
@@ -176,12 +166,29 @@ public class SingleComputationCycle {
     return getView().getDefinition();
   }
   
-  public DependencyGraphExecutor getDependencyGraphExecutor() {
+  public DependencyGraphExecutor<?> getDependencyGraphExecutor() {
     return _dependencyGraphExecutor;    
   }
   
+  public Map<String, ViewComputationCache> getCachesByCalculationConfiguration() {
+    return Collections.unmodifiableMap(_cachesByCalculationConfiguration);
+  }
+  
+  public ViewEvaluationModel getViewEvaluationModel() {
+    // REVIEW jonathan 2010-08-17 -- when we support re-compilation of views, we need to be more careful about how we
+    // handle the view evaluation model to ensure that a computation cycle works entirely with the output from a single
+    // compilation.
+    return getView().getViewEvaluationModel();
+  }
+  
+  public Set<String> getAllCalculationConfigurationNames() {
+    return getViewEvaluationModel().getDependencyGraphsByConfiguration().keySet();
+  }
+
+  
   // --------------------------------------------------------------------------
   
+
   public void prepareInputs() {
     if (_state != State.CREATED) {
       throw new IllegalStateException("State must be " + State.CREATED);
@@ -193,17 +200,17 @@ public class SingleComputationCycle {
     
     createAllCaches();
     
-    Set<ValueRequirement> allLiveDataRequirements = getPortfolioEvaluationModel().getAllLiveDataRequirements();
+    Set<ValueSpecification> allLiveDataRequirements = getViewEvaluationModel().getAllLiveDataRequirements();
     s_logger.debug("Populating {} market data items for snapshot {}", allLiveDataRequirements.size(), getValuationTime());
     
-    Set<ValueRequirement> missingLiveData = new HashSet<ValueRequirement>();
-    for (ValueRequirement liveDataRequirement : allLiveDataRequirements) {
-      Object data = getProcessingContext().getLiveDataSnapshotProvider().querySnapshot(getValuationTime().toEpochMillisLong(), liveDataRequirement);
+    Set<ValueSpecification> missingLiveData = new HashSet<ValueSpecification>();
+    for (ValueSpecification liveDataRequirement : allLiveDataRequirements) {
+      Object data = getProcessingContext().getLiveDataSnapshotProvider().querySnapshot(getValuationTime().toEpochMillisLong(), liveDataRequirement.getRequirementSpecification());
       if (data == null) {
         s_logger.debug("Unable to load live data value for {} at snapshot {}.", liveDataRequirement, getValuationTime());
         missingLiveData.add(liveDataRequirement);
       } else {
-        ComputedValue dataAsValue = new ComputedValue(new ValueSpecification(liveDataRequirement), data);
+        ComputedValue dataAsValue = new ComputedValue(liveDataRequirement, data);
         //s_logger.warn("Live Data Requirement: {}", dataAsValue);
         addToAllCaches(dataAsValue);
       }
@@ -215,9 +222,10 @@ public class SingleComputationCycle {
     _state = State.INPUTS_PREPARED;
   }
   
-  protected static String formatMissingLiveData(Set<ValueRequirement> missingLiveData) {
+  protected static String formatMissingLiveData(Set<ValueSpecification> missingLiveData) {
     StringBuilder sb = new StringBuilder();
-    for (ValueRequirement req : missingLiveData) {
+    for (ValueSpecification spec : missingLiveData) {
+      ValueRequirement req = spec.getRequirementSpecification();
       sb.append("[").append(req.getValueName()).append(" on ");
       sb.append(req.getTargetSpecification().getType());
       if (req.getTargetSpecification().getType() == ComputationTargetType.PRIMITIVE) {
@@ -232,7 +240,7 @@ public class SingleComputationCycle {
    * 
    */
   private void createAllCaches() {
-    for (String calcConfigurationName : getPortfolioEvaluationModel().getAllCalculationConfigurationNames()) {
+    for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
       ViewComputationCache cache = getProcessingContext().getComputationCacheSource().getCache(getViewName(), calcConfigurationName, getValuationTime().toEpochMillisLong());
       _cachesByCalculationConfiguration.put(calcConfigurationName, cache);
     }
@@ -242,7 +250,7 @@ public class SingleComputationCycle {
    * @param dataAsValue
    */
   private void addToAllCaches(ComputedValue dataAsValue) {
-    for (String calcConfigurationName : getPortfolioEvaluationModel().getAllCalculationConfigurationNames()) {
+    for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
       getComputationCache(calcConfigurationName).putValue(dataAsValue);
     }
   }
@@ -266,10 +274,10 @@ public class SingleComputationCycle {
       throw new IllegalArgumentException("State of previous cycle must be " + State.FINISHED);
     }
     
-    for (String calcConfigurationName : getPortfolioEvaluationModel().getAllCalculationConfigurationNames()) {
-      DependencyGraph depGraph = getPortfolioEvaluationModel().getDependencyGraph(calcConfigurationName);
+    for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
+      DependencyGraph depGraph = getViewEvaluationModel().getDependencyGraph(calcConfigurationName);
       
-      ViewComputationCache cache = this.getComputationCache(calcConfigurationName); 
+      ViewComputationCache cache = getComputationCache(calcConfigurationName); 
       ViewComputationCache previousCache = previousCycle.getComputationCache(calcConfigurationName);
       
       LiveDataDeltaCalculator deltaCalculator = new LiveDataDeltaCalculator(depGraph,
@@ -302,7 +310,7 @@ public class SingleComputationCycle {
     
     LinkedList<Future<?>> futures = new LinkedList<Future<?>>();
     
-    for (String calcConfigurationName : getPortfolioEvaluationModel().getAllCalculationConfigurationNames()) {
+    for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
       s_logger.info("Executing plans for calculation configuration {}", calcConfigurationName);
       DependencyGraph depGraph = getDependencyGraph(calcConfigurationName);
       
@@ -338,7 +346,7 @@ public class SingleComputationCycle {
    * See {@link #computeDelta} and how it calls {@link #markExecuted}.
    */
   private DependencyGraph getDependencyGraph(String calcConfName) {
-    DependencyGraph originalDepGraph = getPortfolioEvaluationModel().getDependencyGraph(calcConfName);
+    DependencyGraph originalDepGraph = getViewEvaluationModel().getDependencyGraph(calcConfName);
     
     DependencyGraph dependencyGraph = originalDepGraph.subGraph(new DependencyNodeFilter() {
       public boolean accept(DependencyNode node) {
@@ -359,36 +367,21 @@ public class SingleComputationCycle {
     Instant resultTimestamp = Instant.nowSystemClock();
     getResultModel().setResultTimestamp(resultTimestamp);
 
-    for (String calcConfigurationName : getPortfolioEvaluationModel().getAllCalculationConfigurationNames()) {
-      DependencyGraph depGraph = getPortfolioEvaluationModel().getDependencyGraph(calcConfigurationName);
-      
-      if (getViewDefinition().isComputePositionNodeCalculations()) {
-        populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.POSITION);
-      }
-      if (getViewDefinition().isComputePortfolioNodeCalculations()) {
-        populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.PORTFOLIO_NODE);
-      }
-      if (getViewDefinition().isComputeSecurityNodeCalculations()) {
-        populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.SECURITY);
-      }
-      if (getViewDefinition().isComputePrimitiveNodeCalculations()) {
-        populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.PRIMITIVE);
-      }
+    for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
+      DependencyGraph depGraph = getViewEvaluationModel().getDependencyGraph(calcConfigurationName);
+      populateResultModel(calcConfigurationName, depGraph);
     }
     
     _endTime = System.nanoTime();
   }
   
-  protected void populateResultModel(String calcConfigurationName, DependencyGraph depGraph, ComputationTargetType type) {
+  protected void populateResultModel(String calcConfigurationName, DependencyGraph depGraph) {
     ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
-    for (ValueSpecification outputSpec : depGraph.getOutputValues(type)) {
-      // REVIEW kirk 2010-07-05 -- WARNING! GROSS HACK!
-      if ((outputSpec.getRequirementSpecification().getTargetSpecification().getType() == ComputationTargetType.PRIMITIVE)
-          && !ObjectUtils.equals(ValueRequirementNames.FUNDING_CURVE, outputSpec.getRequirementSpecification().getValueName())) {
+    for (ValueSpecification outputSpec : depGraph.getOutputValues()) {
+      if (!getViewDefinition().getResultModelDefinition().shouldOutputResult(outputSpec, depGraph)) {
         continue;
       }
       Object value = computationCache.getValue(outputSpec);
-      
       if (value != null) {
         getResultModel().addValue(calcConfigurationName, new ComputedValue(outputSpec, value));
       }
@@ -405,7 +398,7 @@ public class SingleComputationCycle {
     
     _state = State.CLEANED;
   }
-  
+    
   // --------------------------------------------------------------------------
   
   public boolean isExecuted(DependencyNode node) {

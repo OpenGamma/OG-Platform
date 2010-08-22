@@ -21,12 +21,11 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionDefinition;
-import com.opengamma.engine.function.MockFunction;
+import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.cache.MapViewComputationCacheSource;
+import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.LiveDataDeltaCalculator;
 import com.opengamma.id.UniqueIdentifier;
@@ -50,8 +49,9 @@ public class LiveDataDeltaCalculatorTest {
   
   @Before
   public void setUp() {
-    _cache = MapViewComputationCacheSource.createMapViewComputationCache(FudgeContext.GLOBAL_DEFAULT); 
-    _previousCache = MapViewComputationCacheSource.createMapViewComputationCache(FudgeContext.GLOBAL_DEFAULT);
+    final InMemoryViewComputationCacheSource source = new InMemoryViewComputationCacheSource (FudgeContext.GLOBAL_DEFAULT);
+    _cache = source.getCache ("Test", "Default", 2); 
+    _previousCache = source.getCache ("Test", "Default", 1);
     _deltaCalculator = new LiveDataDeltaCalculator(
         _graph,
         _cache,
@@ -71,7 +71,8 @@ public class LiveDataDeltaCalculatorTest {
   
   private DependencyNode createNode(String name, Set<DependencyNode> inputNodes) {
     ComputationTarget target = getTarget(name); 
-    FunctionDefinition function = new MockFunction(target, Collections.singleton(getValueRequirement(name)));
+    MockFunction function = new MockFunction(target);
+    function.addRequiredLiveData(getValueRequirement(name));
     DependencyNode node = new DependencyNode(function, 
         target, 
         inputNodes, 
@@ -80,8 +81,9 @@ public class LiveDataDeltaCalculatorTest {
     return node;
   }
   
-  private void put(ViewComputationCache cache, String nodeName, Object value) {
-    cache.putValue(new ComputedValue(new ValueSpecification(getValueRequirement(nodeName)), value));
+  private void put(ViewComputationCache cache, DependencyNode node, Object value) {
+    ValueSpecification spec = ((MockFunction) node.getFunctionDefinition()).getRequiredLiveData().iterator().next();
+    cache.putValue(new ComputedValue(spec, value));
   }
   
   /**
@@ -112,8 +114,8 @@ public class LiveDataDeltaCalculatorTest {
   
   @Test
   public void noChangeA() {
-    put(_cache, "Node0", 6.0);
-    put(_previousCache, "Node0", 6.0);
+    put(_cache, _node0, 6.0);
+    put(_previousCache, _node0, 6.0);
         
     _deltaCalculator.computeDelta();
     
@@ -123,8 +125,8 @@ public class LiveDataDeltaCalculatorTest {
   
   @Test
   public void noChangeB() {
-    put(_cache, "Node1", 6.0);
-    put(_previousCache, "Node1", 6.0);
+    put(_cache, _node1, 6.0);
+    put(_previousCache, _node1, 6.0);
         
     _deltaCalculator.computeDelta();
     
@@ -134,8 +136,8 @@ public class LiveDataDeltaCalculatorTest {
   
   @Test
   public void noChangeC() {
-    put(_cache, "Node3", 6.0);
-    put(_previousCache, "Node3", 6.0);
+    put(_cache, _node3, 6.0);
+    put(_previousCache, _node3, 6.0);
         
     _deltaCalculator.computeDelta();
     
@@ -145,8 +147,8 @@ public class LiveDataDeltaCalculatorTest {
   
   @Test
   public void changeA() {
-    put(_cache, "Node0", 6.0);
-    put(_previousCache, "Node0", 7.0);
+    put(_cache, _node0, 6.0);
+    put(_previousCache, _node0, 7.0);
         
     _deltaCalculator.computeDelta();
     
@@ -156,8 +158,8 @@ public class LiveDataDeltaCalculatorTest {
   
   @Test
   public void changeB() {
-    put(_cache, "Node1", 6.0);
-    put(_previousCache, "Node1", 7.0);
+    put(_cache, _node1, 6.0);
+    put(_previousCache, _node1, 7.0);
         
     _deltaCalculator.computeDelta();
     
@@ -167,8 +169,8 @@ public class LiveDataDeltaCalculatorTest {
   
   @Test
   public void changeC() {
-    put(_cache, "Node3", 6.0);
-    put(_previousCache, "Node3", 7.0);
+    put(_cache, _node3, 6.0);
+    put(_previousCache, _node3, 7.0);
         
     _deltaCalculator.computeDelta();
     

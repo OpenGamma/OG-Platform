@@ -40,10 +40,9 @@ public class CalculationJobTest {
         "1", 
         targetSpec,
         Collections.<ValueSpecification>emptySet(), 
-        Collections.<ValueRequirement>emptySet(),
-        true));
+        Collections.<ValueRequirement>emptySet()));
     
-    CalculationJob inputJob = new CalculationJob(spec, items, new DummyResultWriter());
+    CalculationJob inputJob = new CalculationJob(spec, items);
     
     FudgeFieldContainer msg = inputJob.toFudgeMsg(new FudgeSerializationContext(context));
     msg = context.deserialize(context.toByteArray(msg)).getMessage();
@@ -69,16 +68,17 @@ public class CalculationJobTest {
     ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueIdentifier.of("Scheme", "Value"));
     
     ValueRequirement desiredValue = new ValueRequirement("Foo", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "Value2"));
-    ValueSpecification inputSpec = new ValueSpecification(new ValueRequirement("Foo", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "Value3")));
+    ValueSpecification inputSpec = new ValueSpecification(
+        new ValueRequirement("Foo", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "Value3")),
+        "mockFunctionId");
     
     List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem(
         "1", 
         targetSpec,
         Sets.newHashSet(inputSpec),
-        Sets.newHashSet(desiredValue),
-        true));
+        Sets.newHashSet(desiredValue)));
     
-    CalculationJob inputJob = new CalculationJob(spec, items, new DummyResultWriter());
+    CalculationJob inputJob = new CalculationJob(spec, items);
     
     FudgeFieldContainer msg = inputJob.toFudgeMsg(new FudgeSerializationContext(context));
     msg = context.deserialize(context.toByteArray(msg)).getMessage();

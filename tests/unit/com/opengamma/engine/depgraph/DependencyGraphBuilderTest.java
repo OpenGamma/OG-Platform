@@ -18,18 +18,11 @@ import org.apache.commons.lang.ObjectUtils;
 import org.junit.Test;
 
 import com.google.common.collect.Sets;
-import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.MapComputationTargetResolver;
-import com.opengamma.engine.function.DefaultFunctionResolver;
-import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
-import com.opengamma.engine.function.MockFunction;
-import com.opengamma.engine.livedata.FixedLiveDataAvailabilityProvider;
-import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.UniqueIdentifier;
 
 /**
  * 
@@ -38,44 +31,26 @@ public class DependencyGraphBuilderTest {
 
   @Test
   public void singleOutputSingleFunctionNode() {
-    InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
-    UniqueIdentifier targetId = UniqueIdentifier.of("Scheme", "Value");
-    ComputationTarget target = new ComputationTarget(targetId);
-    ValueRequirement req1 = new ValueRequirement("Req-1", targetId);
-    ValueSpecification spec1 = new ValueSpecification(req1);
-    ComputedValue value1 = new ComputedValue(spec1, 14.2);
-    
-    ValueRequirement req2 = new ValueRequirement("Req-2", targetId);
-    ValueSpecification spec2 = new ValueSpecification(req2);
-    ComputedValue value2 = new ComputedValue(spec2, 15.5);
-    
-    MockFunction fn1 = new MockFunction(target,
-        Collections.<ValueRequirement>emptySet(),
-        Sets.newHashSet(value1, value2));
-    functionRepo.addFunction(fn1, fn1);
+    DepGraphTestHelper helper = new DepGraphTestHelper();
+    MockFunction function = helper.addFunctionProducing1and2();
 
-    DependencyGraphBuilder model = new DependencyGraphBuilder();
-    model.setLiveDataAvailabilityProvider(new FixedLiveDataAvailabilityProvider());
-    model.setFunctionResolver(new DefaultFunctionResolver(functionRepo));
-    model.setTargetResolver(new MapComputationTargetResolver());
-    model.setCalculationConfigurationName("testCalcConf");
-
-    model.addTarget(target, Sets.newHashSet(req1));
+    DependencyGraphBuilder builder = helper.getBuilder();
+    builder.addTarget(helper.getTarget(), Sets.newHashSet(helper.getSpec1().getRequirementSpecification()));
     
-    DependencyGraph graph = model.getDependencyGraph();
+    DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
-    assertTrue(graph.getOutputValues().contains(spec1));
-    assertTrue(graph.getOutputValues().contains(spec2));
+    assertTrue(graph.getOutputValues().contains(helper.getSpec1()));
+    assertTrue(graph.getOutputValues().contains(helper.getSpec2()));
     
     Collection<DependencyNode> nodes = graph.getDependencyNodes();
     assertNotNull(nodes);
     assertEquals(1, nodes.size());
     DependencyNode node = nodes.iterator().next();
-    assertEquals(fn1, node.getFunctionDefinition());
-    assertTrue(node.getOutputValues().contains(spec1));
-    assertTrue(node.getOutputValues().contains(spec2));
+    assertEquals(function, node.getFunctionDefinition());
+    assertTrue(node.getOutputValues().contains(helper.getSpec1()));
+    assertTrue(node.getOutputValues().contains(helper.getSpec2()));
     assertTrue(node.getInputNodes().isEmpty());
-    assertEquals(target, node.getComputationTarget());
+    assertEquals(helper.getTarget(), node.getComputationTarget());
 
     graph.removeUnnecessaryValues();
 
@@ -83,9 +58,9 @@ public class DependencyGraphBuilderTest {
     assertNotNull(nodes);
     assertEquals(1, nodes.size());
     node = nodes.iterator().next();
-    assertEquals(fn1, node.getFunctionDefinition());
-    assertTrue(node.getOutputValues().contains(spec1));
-    assertFalse(node.getOutputValues().contains(spec2));
+    assertEquals(function, node.getFunctionDefinition());
+    assertTrue(node.getOutputValues().contains(helper.getSpec1()));
+    assertFalse(node.getOutputValues().contains(helper.getSpec2()));
     assertTrue(node.getInputNodes().isEmpty());
   }
   
@@ -95,127 +70,66 @@ public class DependencyGraphBuilderTest {
    */
   @Test
   public void multipleOutputsSingleFunctionNode() {
-    InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
-    UniqueIdentifier targetId = UniqueIdentifier.of("Scheme", "Value");
-    ComputationTarget target = new ComputationTarget(targetId);
-    ValueRequirement req1 = new ValueRequirement("Req-1", targetId);
-    ValueSpecification spec1 = new ValueSpecification(req1);
-    ComputedValue value1 = new ComputedValue(spec1, 14.2);
-    
-    ValueRequirement req2 = new ValueRequirement("Req-2", targetId);
-    ValueSpecification spec2 = new ValueSpecification(req2);
-    ComputedValue value2 = new ComputedValue(spec2, 15.5);
-    
-    MockFunction fn1 = new MockFunction(target,
-        Collections.<ValueRequirement>emptySet(),
-        Sets.newHashSet(value1, value2));
-    functionRepo.addFunction(fn1, fn1);
+    DepGraphTestHelper helper = new DepGraphTestHelper();
+    MockFunction function = helper.addFunctionProducing1and2();
 
-    DependencyGraphBuilder model = new DependencyGraphBuilder();
-    model.setLiveDataAvailabilityProvider(new FixedLiveDataAvailabilityProvider());
-    model.setFunctionResolver(new DefaultFunctionResolver(functionRepo));
-    model.setTargetResolver(new MapComputationTargetResolver());
-    model.setCalculationConfigurationName("testCalcConf");
-
-    model.addTarget(target, Sets.newHashSet(req1));
-    model.addTarget(target, Sets.newHashSet(req2));
+    DependencyGraphBuilder builder = helper.getBuilder();
+    builder.addTarget(helper.getTarget(), Sets.newHashSet(helper.getSpec1().getRequirementSpecification()));
+    builder.addTarget(helper.getTarget(), Sets.newHashSet(helper.getSpec2().getRequirementSpecification()));
     
-    DependencyGraph graph = model.getDependencyGraph();
+    DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
     Collection<DependencyNode> nodes = graph.getDependencyNodes(ComputationTargetType.PRIMITIVE);
     assertNotNull(nodes);
     assertEquals(1, nodes.size());
     DependencyNode node = nodes.iterator().next();
-    assertEquals(fn1, node.getFunctionDefinition());
-    assertTrue(node.getOutputValues().contains(spec1));
-    assertTrue(node.getOutputValues().contains(spec2));
+    assertEquals(function, node.getFunctionDefinition());
+    assertTrue(node.getOutputValues().contains(helper.getSpec1()));
+    assertTrue(node.getOutputValues().contains(helper.getSpec2()));
     assertTrue(node.getInputNodes().isEmpty());
   }
   
   @Test(expected=UnsatisfiableDependencyGraphException.class)
-  public void unsatisfiableDependency() {
-    InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
-    UniqueIdentifier targetId = UniqueIdentifier.of("Scheme", "Value");
-    ComputationTarget target = new ComputationTarget(targetId);
-    ValueRequirement req1 = new ValueRequirement("Req-1", targetId);
-    ValueSpecification spec1 = new ValueSpecification(req1);
-    ComputedValue value1 = new ComputedValue(spec1, 14.2);
+  public void unsatisfiableDependency() {    
+    DepGraphTestHelper helper = new DepGraphTestHelper();
+    helper.addFunctionProducing1and2();
+    ValueRequirement anotherReq = new ValueRequirement("Req-3", helper.getTarget());
     
-    ValueRequirement req2 = new ValueRequirement("Req-2", targetId);
-    ValueSpecification spec2 = new ValueSpecification(req2);
-    ComputedValue value2 = new ComputedValue(spec2, 15.5);
-    
-    ValueRequirement req3 = new ValueRequirement("Req-3", targetId);
-    
-    MockFunction fn1 = new MockFunction(target,
-        Collections.<ValueRequirement>emptySet(),
-        Sets.newHashSet(value1, value2));
-    functionRepo.addFunction(fn1, fn1);
-
-    DependencyGraphBuilder model = new DependencyGraphBuilder();
-    model.setLiveDataAvailabilityProvider(new FixedLiveDataAvailabilityProvider());
-    model.setFunctionResolver(new DefaultFunctionResolver(functionRepo));
-    model.setTargetResolver(new MapComputationTargetResolver());
-    model.setCalculationConfigurationName("testCalcConf");
-
-    model.addTarget(target, Sets.newHashSet(req1));
-    model.addTarget(target, Collections.singleton(req3));
+    DependencyGraphBuilder builder = helper.getBuilder();
+    builder.addTarget(helper.getTarget(), Sets.newHashSet(helper.getSpec1().getRequirementSpecification()));
+    builder.addTarget(helper.getTarget(), Collections.singleton(anotherReq));
   }
   
   @Test
   public void doubleLevelNoLiveData() {
-    InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
-    UniqueIdentifier targetId = UniqueIdentifier.of("Scheme", "Value");
-    ComputationTarget target = new ComputationTarget(targetId);
-    ValueRequirement req1 = new ValueRequirement("Req-1", targetId);
-    ValueSpecification spec1 = new ValueSpecification(req1);
-    ComputedValue value1 = new ComputedValue(spec1, 14.2);
-    
-    ValueRequirement req2 = new ValueRequirement("Req-2", targetId);
-    ValueSpecification spec2 = new ValueSpecification(req2);
-    ComputedValue value2 = new ComputedValue(spec2, 15.5);
-    
-    MockFunction fn1 = new MockFunction(target,
-        Collections.singleton(req2),
-        Sets.newHashSet(value1));
-    MockFunction fn2 = new MockFunction(target,
-        Collections.<ValueRequirement>emptySet(),
-        Sets.newHashSet(value2));
-    functionRepo.addFunction(fn1, fn1);
-    functionRepo.addFunction(fn2, fn2);
-    
-    MapComputationTargetResolver targetResolver = new MapComputationTargetResolver();
-    targetResolver.addTarget(target);
+    DepGraphTestHelper helper = new DepGraphTestHelper();
+    MockFunction fn1 = helper.addFunctionRequiring2Producing1();
+    MockFunction fn2 = helper.addFunctionProducing2();
 
-    DependencyGraphBuilder model = new DependencyGraphBuilder();
-    model.setLiveDataAvailabilityProvider(new FixedLiveDataAvailabilityProvider());
-    model.setFunctionResolver(new DefaultFunctionResolver(functionRepo));
-    model.setTargetResolver(targetResolver);
-    model.setCalculationConfigurationName("testCalcConf");
-
-    model.addTarget(target, req1);
+    DependencyGraphBuilder builder = helper.getBuilder();
+    builder.addTarget(helper.getTarget(), helper.getSpec1().getRequirementSpecification());
     
-    DependencyGraph graph = model.getDependencyGraph();
+    DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
     
     graph.removeUnnecessaryValues();
 
-    assertTrue(graph.getOutputValues().contains(spec1));
-    assertTrue(graph.getOutputValues().contains(spec2));
+    assertTrue(graph.getOutputValues().contains(helper.getSpec1()));
+    assertTrue(graph.getOutputValues().contains(helper.getSpec2()));
     
     Collection<DependencyNode> nodes = graph.getDependencyNodes(ComputationTargetType.PRIMITIVE);
     assertNotNull(nodes);
     assertEquals(2, nodes.size());
     for (DependencyNode node : nodes) {
       if(ObjectUtils.equals(node.getFunctionDefinition(), fn1)) {
-        assertTrue(node.getOutputValues().contains(spec1));
-        assertFalse(node.getOutputValues().contains(spec2));
-        assertTrue(node.getInputRequirements().contains(req2));
+        assertTrue(node.getOutputValues().contains(helper.getSpec1()));
+        assertFalse(node.getOutputValues().contains(helper.getSpec2()));
+        assertTrue(node.getInputRequirements().contains(helper.getSpec2().getRequirementSpecification()));
         assertEquals(1, node.getInputNodes().size());
-        assertEquals(target, node.getComputationTarget());
+        assertEquals(helper.getTarget(), node.getComputationTarget());
       } else if(ObjectUtils.equals(node.getFunctionDefinition(), fn2)) {
-        assertFalse(node.getOutputValues().contains(spec1));
-        assertTrue(node.getOutputValues().contains(spec2));
+        assertFalse(node.getOutputValues().contains(helper.getSpec1()));
+        assertTrue(node.getOutputValues().contains(helper.getSpec2()));
         assertTrue(node.getInputRequirements().isEmpty());
         assertTrue(node.getInputNodes().isEmpty());
       } else {
@@ -226,55 +140,34 @@ public class DependencyGraphBuilderTest {
   
   @Test
   public void doubleLevelLiveData() {
-    InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
-    UniqueIdentifier targetId = UniqueIdentifier.of("Scheme", "Value");
-    ComputationTarget target = new ComputationTarget(targetId);
-    ValueRequirement req1 = new ValueRequirement("Req-1", targetId);
-    ValueSpecification spec1 = new ValueSpecification(req1);
-    ComputedValue value1 = new ComputedValue(spec1, 14.2);
+    DepGraphTestHelper helper = new DepGraphTestHelper();
+    MockFunction fn1 = helper.addFunctionRequiring2Producing1();
+    helper.make2AvailableFromLiveData();
     
-    ValueRequirement req2 = new ValueRequirement("Req-2", targetId);
-    
-    MockFunction fn1 = new MockFunction(target,
-        Collections.singleton(req2),
-        Sets.newHashSet(value1));
-    functionRepo.addFunction(fn1, fn1);
-    
-    MapComputationTargetResolver targetResolver = new MapComputationTargetResolver();
-    targetResolver.addTarget(target);
-    
-    FixedLiveDataAvailabilityProvider ldap = new FixedLiveDataAvailabilityProvider();
-    ldap.addRequirement(req2);
+    DependencyGraphBuilder builder = helper.getBuilder();
+    builder.addTarget(helper.getTarget(), helper.getSpec1().getRequirementSpecification());
 
-    DependencyGraphBuilder model = new DependencyGraphBuilder();
-    model.setLiveDataAvailabilityProvider(ldap);
-    model.setFunctionResolver(new DefaultFunctionResolver(functionRepo));
-    model.setTargetResolver(targetResolver);
-    model.setCalculationConfigurationName("testCalcConf");
-
-    model.addTarget(target, req1);
-
-    DependencyGraph graph = model.getDependencyGraph();
+    DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
     
     graph.removeUnnecessaryValues();
 
-    assertTrue(graph.getOutputValues().contains(spec1));
+    assertTrue(graph.getOutputValues().contains(helper.getSpec1()));
     
     Collection<DependencyNode> nodes = graph.getDependencyNodes(ComputationTargetType.PRIMITIVE);
     assertNotNull(nodes);
     assertEquals(2, nodes.size());
     for (DependencyNode node : nodes) {
       if(ObjectUtils.equals(node.getFunctionDefinition(), fn1)) {
-        assertTrue(node.getOutputValues().contains(spec1));
-        assertTrue(node.getInputRequirements().contains(req2));
+        assertTrue(node.getOutputValues().contains(helper.getSpec1()));
+        assertTrue(node.getInputRequirements().contains(helper.getSpec2().getRequirementSpecification()));
         assertEquals(1, node.getInputNodes().size());
-        assertEquals(target, node.getComputationTarget());
+        assertEquals(helper.getTarget(), node.getComputationTarget());
       } else if(node.getFunctionDefinition() instanceof LiveDataSourcingFunction) {
-        assertFalse(node.getOutputValues().contains(spec1));
+        assertFalse(node.getOutputValues().contains(helper.getSpec1()));
         assertEquals(1, node.getOutputValues().size());
         ValueSpecification outputSpec = node.getOutputValues().iterator().next();
-        assertEquals(req2, outputSpec.getRequirementSpecification());
+        assertEquals(helper.getSpec2().getRequirementSpecification(), outputSpec.getRequirementSpecification());
         assertTrue(node.getInputRequirements().isEmpty());
         assertTrue(node.getInputNodes().isEmpty());
       } else {

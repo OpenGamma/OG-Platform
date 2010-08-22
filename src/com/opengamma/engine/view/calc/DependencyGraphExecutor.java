@@ -10,9 +10,11 @@ import java.util.concurrent.Future;
 import com.opengamma.engine.depgraph.DependencyGraph;
 
 /**
- * Evaluates dependency graph.
+ * Evaluates a dependency graph.
+ * 
+  * @param <T> Type of return information from the executor
  */
-public interface DependencyGraphExecutor {
+public interface DependencyGraphExecutor<T> {
   
   /**
    * Evaluates a dependency graph. 
@@ -24,6 +26,6 @@ public interface DependencyGraphExecutor {
    * values can already be found in the shared computation cache.
    * @return An object you can call get() on to wait for completion
    */
-  Future<?> execute(DependencyGraph graph);
+  Future<T> execute(DependencyGraph graph);
 
 }

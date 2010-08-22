@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.function;
@@ -21,14 +21,32 @@ import java.util.concurrent.ConcurrentSkipListMap;
  *
  * @author kirk
  */
-/*package*/ abstract class AbstractFunctionContext {
+/* package */abstract class AbstractFunctionContext {
   private final Map<String, Object> _backingMap = new ConcurrentSkipListMap<String, Object>();
+
+  protected AbstractFunctionContext() {
+  }
+
+  protected AbstractFunctionContext(final AbstractFunctionContext copyFrom) {
+    _backingMap.putAll(copyFrom._backingMap);
+  }
 
   public Object get(String elementName) {
     return _backingMap.get(elementName);
   }
-  
+
   public Object put(String elementName, Object value) {
     return _backingMap.put(elementName, value);
   }
+<<<<<<< HEAD
+=======
+
+  public Set<String> getAllElementNames() {
+    // See UTL-20. No need to reorder into a TreeSet<>.
+    return new TreeSet<String>(_backingMap.keySet());
+  }
+
+  public abstract AbstractFunctionContext clone();
+
+>>>>>>> 8b03de9380c5a4281e5ec86f0ef8e6b4eeea0ef6
 }

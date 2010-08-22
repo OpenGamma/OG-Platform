@@ -10,6 +10,6 @@ package com.opengamma.engine.view.calc;
  */
 public interface DependencyGraphExecutorFactory {
   
-  DependencyGraphExecutor createExecutor(SingleComputationCycle cycle);
+  DependencyGraphExecutor<?> createExecutor(SingleComputationCycle cycle);
 
 }

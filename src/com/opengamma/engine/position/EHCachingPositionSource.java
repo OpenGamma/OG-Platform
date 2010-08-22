@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.position;
@@ -59,7 +59,7 @@ public class EHCachingPositionSource implements PositionSource {
    * @param underlying  the underlying data, not null
    */
   public EHCachingPositionSource(final PositionSource underlying) {
-    this (underlying, EHCacheUtils.createCacheManager());
+    this(underlying, EHCacheUtils.createCacheManager());
   }
 
   /**
@@ -80,7 +80,7 @@ public class EHCachingPositionSource implements PositionSource {
     _position = EHCacheUtils.getCacheFromManager(cacheManager, POSITION_CACHE);
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Gets the underlying source of positions.
    * @return the underlying source of positions, not null
@@ -97,7 +97,7 @@ public class EHCachingPositionSource implements PositionSource {
     return _cacheManager;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   @Override
   public Portfolio getPortfolio(UniqueIdentifier identifier) {
     if (identifier.isLatest()) {

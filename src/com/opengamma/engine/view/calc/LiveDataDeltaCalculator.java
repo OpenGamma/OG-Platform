@@ -13,7 +13,6 @@ import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.util.ArgumentChecker;
@@ -100,9 +99,9 @@ public class LiveDataDeltaCalculator {
     if (!hasChanged) {
       // if no children changed, the node may still require recomputation
       // due to LiveData changes affecting the function of the node.
-      for (ValueRequirement req : node.getRequiredLiveData()) {
-        Object oldValue = _previousCache.getValue(new ValueSpecification(req));
-        Object newValue = _cache.getValue(new ValueSpecification(req));
+      for (ValueSpecification liveDataRequirement : node.getRequiredLiveData()) {
+        Object oldValue = _previousCache.getValue(liveDataRequirement);
+        Object newValue = _cache.getValue(liveDataRequirement);
         if (!ObjectUtils.equals(oldValue, newValue)) {
           hasChanged = true;
           break;
