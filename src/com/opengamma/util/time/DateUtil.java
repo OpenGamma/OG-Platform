@@ -83,6 +83,26 @@ public class DateUtil {
     }
     return (double) (endDate.toInstant().toEpochMillisLong() - startDate.toInstant().toEpochMillisLong()) / MILLISECONDS_PER_YEAR;
   }
+  
+  /**
+   * Returns endDate - startDate in years, where a year is defined as 365.25 days.
+   * 
+   * @param startDate  the start date, not null
+   * @param endDate  the end date, not null
+   * @return the difference in years
+   * @throws IllegalArgumentException if either date is null
+   */
+  public static double getDifferenceInYears(final LocalDate startDate, final LocalDate endDate) {
+    if (startDate == null) {
+      throw new IllegalArgumentException("Start date was null");
+    }
+    if (endDate == null) {
+      throw new IllegalArgumentException("End date was null");
+    }
+    return (double) (endDate.toLocalDate().toEpochDays() - startDate.toLocalDate().toEpochDays()) / DAYS_PER_YEAR;
+  }
+  
+    
 
   /**
    * Returns endDate - startDate in years, where a year-length is specified.
