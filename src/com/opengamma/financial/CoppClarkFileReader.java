@@ -6,7 +6,6 @@
 package com.opengamma.financial;
 
 import static com.opengamma.financial.InMemoryRegionRepository.ISO_COUNTRY_2;
-import static com.opengamma.financial.InMemoryRegionRepository.WORLD_DATA_DIR_PATH;
 
 import java.io.File;
 import java.io.FileReader;
@@ -20,6 +19,9 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.format.DateTimeFormatter;
 import javax.time.calendar.format.DateTimeFormatters;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -29,10 +31,11 @@ import com.opengamma.id.Identifier;
  * 
  */
 public class CoppClarkFileReader {
+  private static final Logger s_logger = LoggerFactory.getLogger(CoppClarkFileReader.class);
   /**
    * Path to copp-clark holiday files
    */
-  public static final String HOLIDAYS_DIR_PATH = WORLD_DATA_DIR_PATH + File.separator + "holiday-calendars" + File.separator + "copp-clark";
+  public static final String HOLIDAYS_DIR_PATH = RegionFileReader.WORLD_DATA_DIR_PATH + File.separator + "holiday-calendars" + File.separator + "copp-clark";
   /**
    * Path to currency specific holiday calendars CSV file
    */
@@ -49,6 +52,7 @@ public class CoppClarkFileReader {
    * Path to exchange trading holiday calendars CSV file
    */
   public static final String EXCHANGE_TRADING_HOLIDAYS_FILE_PATH = HOLIDAYS_DIR_PATH + File.separator + "ExchangeTrading_20100610.csv";
+  public static final String EXCHANGE_HOLIDAYS_REPOST_FILE_PATH = RegionFileReader.WORLD_DATA_DIR_PATH + File.separator + "exchanges" + File.separator + "THR_20100630.csv.txt";
   
   private HolidayRepository _holidayRepo;
   

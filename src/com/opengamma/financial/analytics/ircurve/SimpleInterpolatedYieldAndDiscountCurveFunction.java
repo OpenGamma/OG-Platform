@@ -18,17 +18,21 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.config.ConfigSource;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
+import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.world.RegionSource;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
@@ -37,6 +41,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
+import com.opengamma.util.time.DateUtil;
 
 
 /**
@@ -70,13 +75,22 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     _result = null;
     _results = null;
   }
+  
+  private ConfigSearchRequest buildConfigSearchRequest(String name) {
+    ConfigSearchRequest yieldCurveDefinitionRequest = new ConfigSearchRequest();
+    yieldCurveDefinitionRequest.setName(name);
+    return yieldCurveDefinitionRequest;
+  }
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    final InterpolatedYieldCurveDefinitionSource curveSource = OpenGammaCompilationContext.getDiscountCurveSource(context);
-    final InterpolatedYieldCurveSpecificationBuilder specBuilder = OpenGammaCompilationContext.getYieldCurveSpecificationBuilder(context);
-    _definition = curveSource.getDefinition(_curveCurrency, _curveName);
-    _specification = specBuilder.buildCurve(_curveDate, _definition);
+    ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+    RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
+    SecuritySource secSource = context.getSecuritySource();
+    ConfigDBInterpolatedYieldCurveDefinitionSource curveDefinitionSource = new ConfigDBInterpolatedYieldCurveDefinitionSource(configSource);
+    _definition = curveDefinitionSource.getDefinition(_curveCurrency, _curveName);
+    ConfigDBInterpolatedYieldCurveSpecificationBuilder curveSpecBuilder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(regionSource, configSource, secSource);
+    _specification = curveSpecBuilder.buildCurve(_curveDate, _definition);
     _interpolator = Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName());
     _requirements = Collections.unmodifiableSet(buildRequirements(_specification));
     _result = new ValueSpecification(new ValueRequirement(_isYieldCurve ? ValueRequirementNames.YIELD_CURVE : ValueRequirementNames.DISCOUNT_CURVE, _definition.getCurrency()));
@@ -98,7 +112,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
   public InterpolatedYieldCurveSpecification getSpecification() {
     return _specification;
   }
-
+  
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (target.getType() != ComputationTargetType.PRIMITIVE) {
@@ -168,16 +182,15 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
           timeInYearsToRates.put(0., 0.);
           isFirst = false;
         }
-
-        timeInYearsToRates.put(strip.getYears(), price);
+        final double years = DateUtil.getDifferenceInYears(today, strip.getMaturity()); 
+        timeInYearsToRates.put(years, price);
       } else {
         if (isFirst) {
           timeInYearsToRates.put(0., 1.);
           isFirst = false;
         }
-
-        final double numYears = strip.getYears();
-        timeInYearsToRates.put(numYears, Math.exp(-price * numYears));
+        final double years = DateUtil.getDifferenceInYears(today, strip.getMaturity());
+        timeInYearsToRates.put(years, Math.exp(-price * years));
       }
     }
     // System.err.println("Time in years to rates: " + timeInYearsToRates);

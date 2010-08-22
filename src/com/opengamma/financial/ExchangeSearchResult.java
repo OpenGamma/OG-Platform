@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.world.Exchange;
 
 /**
  * Result from searching for an Exchange

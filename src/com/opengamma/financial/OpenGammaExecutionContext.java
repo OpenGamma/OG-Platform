@@ -7,6 +7,7 @@ package com.opengamma.financial;
 
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.historicaldata.HistoricalDataProvider;
+import com.opengamma.engine.historicaldata.HistoricalDataSource;
 import com.opengamma.engine.security.SecuritySource;
 
 /**
@@ -19,7 +20,7 @@ public class OpenGammaExecutionContext {
   /**
    * The name under which an instance of {@link HistoricalDataProvider} should be bound.
    */
-  public static final String HISTORICAL_DATA_PROVIDER_NAME = "historicalDataProvider";
+  public static final String HISTORICAL_DATA_SOURCE_NAME = "historicalDataSource";
 
   /**
    * The name under which an instance of {@link RegionRepository} should be bound.
@@ -29,7 +30,7 @@ public class OpenGammaExecutionContext {
   /**
    * The name under which an instance of {@link HolidayRepository} should be bound.
    */
-  public static final String HOLIDAY_REPOSITORY_NAME = "holidayRepostiory";
+  public static final String HOLIDAY_SOURCE_NAME = "holidaySource";
   
   /**
    * The name under which an instance of {@link ReferenceRateRepository} should be bound.
@@ -41,13 +42,13 @@ public class OpenGammaExecutionContext {
    */
   public static final String EXCHANGE_REPOSITORY_NAME = "exchangeRespotiroy";
   
-  public static HistoricalDataProvider getHistoricalDataProvider(FunctionExecutionContext context) {
-    return (HistoricalDataProvider) context.get(HISTORICAL_DATA_PROVIDER_NAME);
+  public static HistoricalDataSource getHistoricalDataSource(FunctionExecutionContext context) {
+    return (HistoricalDataSource) context.get(HISTORICAL_DATA_SOURCE_NAME);
   }
   
-  public static void setHistoricalDataProvider(FunctionExecutionContext context, 
-      HistoricalDataProvider historicalDataProvider) {
-    context.put(HISTORICAL_DATA_PROVIDER_NAME, historicalDataProvider);
+  public static void setHistoricalDataSource(FunctionExecutionContext context, 
+      HistoricalDataSource historicalDataSource) {
+    context.put(HISTORICAL_DATA_SOURCE_NAME, historicalDataSource);
   }
   
   public static SecuritySource getSecuritySource(FunctionExecutionContext context) {
@@ -66,12 +67,12 @@ public class OpenGammaExecutionContext {
     context.put(REGION_REPOSITORY_NAME, regionRepository);
   }
   
-  public static HolidayRepository getHolidayRepository(FunctionExecutionContext context) {
-    return (HolidayRepository) context.get(HOLIDAY_REPOSITORY_NAME);
+  public static HolidaySource getHolidaySource(FunctionExecutionContext context) {
+    return (HolidaySource) context.get(HOLIDAY_SOURCE_NAME);
   }
   
-  public static void setHolidayRepository(FunctionExecutionContext context, HolidayRepository holidayRepository) {
-    context.put(HOLIDAY_REPOSITORY_NAME, holidayRepository);
+  public static void setHolidaySource(FunctionExecutionContext context, HolidaySource holidayRepository) {
+    context.put(HOLIDAY_SOURCE_NAME, holidayRepository);
   }
   
   public static ReferenceRateRepository getReferenceRateRepository(FunctionExecutionContext context) {

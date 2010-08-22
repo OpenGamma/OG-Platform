@@ -27,7 +27,8 @@ public class InMemoryReferenceRateRepositoryTest {
   @Test
   public void testRepostiory() {
     ReferenceRateRepository repo = new InMemoryReferenceRateRepository();
-    ReferenceRate referenceRate = repo.getReferenceRate(Identifier.of(InMemoryReferenceRateRepository.SIMPLE_NAME_SCHEME, "LIBOR O/N"));
+    ReferenceRateSource source = new DefaultReferenceRateSource(repo);
+    ReferenceRate referenceRate = source.getSingleReferenceRate(Identifier.of(InMemoryReferenceRateRepository.SIMPLE_NAME_SCHEME, "LIBOR O/N"));
     BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified");
     BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -38,7 +39,7 @@ public class InMemoryReferenceRateRepositoryTest {
     Assert.assertEquals(following, referenceRate.getBusinessDayConvention());
     Assert.assertEquals(2, referenceRate.getSettlementDays());
     
-    ReferenceRate referenceRate2 = repo.getReferenceRate(Identifier.of(InMemoryReferenceRateRepository.SIMPLE_NAME_SCHEME, "LIBOR 3m"));
+    ReferenceRate referenceRate2 = source.getSingleReferenceRate(Identifier.of(InMemoryReferenceRateRepository.SIMPLE_NAME_SCHEME, "LIBOR 3m"));
     Assert.assertEquals("LIBOR 3m", referenceRate2.getName());
     Assert.assertEquals(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0003M Curncy"), Identifier.of(InMemoryReferenceRateRepository.SIMPLE_NAME_SCHEME, "LIBOR 3m")), referenceRate2.getIdentifiers());
     Assert.assertEquals(UniqueIdentifier.of(InMemoryReferenceRateRepository.IN_MEMORY_UNIQUE_SCHEME.getName(), "6"), referenceRate2.getUniqueIdentifier());

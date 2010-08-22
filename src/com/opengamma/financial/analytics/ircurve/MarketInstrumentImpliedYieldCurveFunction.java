@@ -32,15 +32,15 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.world.Region;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.HolidayRepository;
 import com.opengamma.financial.InMemoryRegionRepository;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.Region;
 import com.opengamma.financial.analytics.model.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.HolidayRepositoryCalendarAdapter;
+import com.opengamma.financial.convention.businessday.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -104,14 +104,14 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    final InterpolatedYieldCurveDefinitionSource curveSource = OpenGammaCompilationContext.getDiscountCurveSource(context);
-    final InterpolatedYieldCurveSpecificationBuilder specBuilder = OpenGammaCompilationContext.getYieldCurveSpecificationBuilder(context);
-    _definition = curveSource.getDefinition(_currency, _curveName);
-    _specification = specBuilder.buildCurve(_curveDate, _definition);
-    //_requirements = Collections.unmodifiableSet(buildRequirements(_specification));
-    _curveResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FUNDING_CURVE, _currency));
-    _jacobianResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FUNDING_AND_FORWARD_JACOBIAN, _currency));
-    _results = Sets.newHashSet(_curveResult, _jacobianResult);
+//    final InterpolatedYieldCurveDefinitionSource curveSource = OpenGammaCompilationContext.getDiscountCurveSource(context);
+//    final InterpolatedYieldCurveSpecificationBuilder specBuilder = OpenGammaCompilationContext.getYieldCurveSpecificationBuilder(context);
+//    _definition = curveSource.getDefinition(_currency, _curveName);
+//    _specification = specBuilder.buildCurve(_curveDate, _definition);
+//    //_requirements = Collections.unmodifiableSet(buildRequirements(_specification));
+//    _curveResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FUNDING_CURVE, _currency));
+//    _jacobianResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FUNDING_AND_FORWARD_JACOBIAN, _currency));
+//    _results = Sets.newHashSet(_curveResult, _jacobianResult);
   }
 
   @Override

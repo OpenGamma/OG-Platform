@@ -11,6 +11,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 
 /**
  * Holds the parameters for a holiday search
@@ -19,8 +20,8 @@ public class HolidaySearchRequest {
   private Currency _currency;
   private LocalDate _holidayDate;
   private HolidayType _holidayType;
-  private Identifier _regionId;
-  private Identifier _exchangeId;
+  private IdentifierBundle _regionIdentifiers;
+  private IdentifierBundle _exchangeIdentifiers;
 
   /**
    * Constructor for a currency-specific holiday date series lookup (holiday type is inferred to be CURRENCY)
@@ -58,18 +59,28 @@ public class HolidaySearchRequest {
    * @param holidayType the type of holiday
    */
   public HolidaySearchRequest(Identifier exchangeOrRegionId, HolidayType holidayType) {
-    Validate.notNull(exchangeOrRegionId, "Exchange or Region Id");
+    this(IdentifierBundle.of(exchangeOrRegionId), holidayType);
+  }
+
+  /**
+   * Constructor for an exchange or region IndentifierBundle specific holiday date series lookup
+   * The result will have the a collection of matching Holiday documents, which will contain the full schedule
+   * @param exchangeOrRegionId an IdentifierBundle for the region or exchange this holiday is associated with
+   * @param holidayType the type of holiday
+   */
+  public HolidaySearchRequest(IdentifierBundle exchangeOrRegionIds, HolidayType holidayType) {
+    Validate.notNull(exchangeOrRegionIds, "Exchange or Region Ids");
     Validate.notNull(holidayType, "Holiday Type");
     _holidayType = holidayType;
     switch (holidayType) {
       case CURRENCY:
         throw new OpenGammaRuntimeException("Use currency constructor to request a currency holiday");
       case BANK:
-        _regionId = exchangeOrRegionId;
+        _regionIdentifiers = exchangeOrRegionIds;
         break;
       case TRADING:
       case SETTLEMENT:
-        _exchangeId = exchangeOrRegionId;
+        _exchangeIdentifiers = exchangeOrRegionIds;
         break;
     }
   }
@@ -83,7 +94,19 @@ public class HolidaySearchRequest {
    * @param holidayDate the date to check for a holiday
    */
   public HolidaySearchRequest(Identifier exchangeOrRegionId, HolidayType holidayType, LocalDate holidayDate) {
-    Validate.notNull(exchangeOrRegionId, "Exchange or Region Id");
+    this(IdentifierBundle.of(exchangeOrRegionId), holidayType, holidayDate);
+  }
+  
+  /**
+   * Constructor for an exchange or region identifier bundle specific holiday single-date point lookup
+   * The result will have the boolean isHoliday set accordingly and the holiday date will be set to the same as
+   * the holidayDate parameter
+   * @param exchangeOrRegionIds an IdentifierBundle for the region or exchange this holiday is associated with
+   * @param holidayType the type of holiday
+   * @param holidayDate the date to check for a holiday
+   */
+  public HolidaySearchRequest(IdentifierBundle exchangeOrRegionIds, HolidayType holidayType, LocalDate holidayDate) {
+    Validate.notNull(exchangeOrRegionIds, "Exchange or Region Ids");
     Validate.notNull(holidayDate, "Holiday Date");
     Validate.notNull(holidayType, "Holiday Type");
     _holidayDate = holidayDate;
@@ -92,11 +115,11 @@ public class HolidaySearchRequest {
       case CURRENCY:
         throw new OpenGammaRuntimeException("Use currency constructor to request a currency holiday");
       case BANK:
-        _regionId = exchangeOrRegionId;
+        _regionIdentifiers = exchangeOrRegionIds;
         break;
       case TRADING:
       case SETTLEMENT:
-        _exchangeId = exchangeOrRegionId;
+        _exchangeIdentifiers = exchangeOrRegionIds;
         break;
     }
   }
@@ -116,17 +139,17 @@ public class HolidaySearchRequest {
   }
   
   /**
-   * @return the region id if a BANK holiday, or null otherwise
+   * @return the region identifiers if a BANK holiday, or null otherwise
    */
-  public Identifier getRegionId() {
-    return _regionId;
+  public IdentifierBundle getRegionIdentifiers() {
+    return _regionIdentifiers;
   }
   
   /**
-   * @return the exchangeId if a SETTLEMENT or TRADING holiday, or null otherwise
+   * @return the exchangeIdentifiers if a SETTLEMENT or TRADING holiday, or null otherwise
    */
-  public Identifier getExchangeId() {
-    return _exchangeId;
+  public IdentifierBundle getExchangeIdentifiers() {
+    return _exchangeIdentifiers;
   }
   
   /**

@@ -10,7 +10,7 @@ namespace com.opengamma.financial.security.cash {
   
     required string securityType [default="Cash"];
     required Currency currency;
-    required Region 
+    required id.Identifier region;
     
     /* No additional fields */
     

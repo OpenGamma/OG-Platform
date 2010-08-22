@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
+import javax.time.calendar.ZonedDateTime;
+
 import com.opengamma.engine.security.Security;
 
 /**
@@ -12,7 +14,7 @@ import com.opengamma.engine.security.Security;
  */
 public class ResolvedFixedIncomeStrip {
   private StripInstrumentType _instrumentType;
-  private double _years;
+  private ZonedDateTime _maturity;
   private Security _security;
 
   /**
@@ -27,8 +29,8 @@ public class ResolvedFixedIncomeStrip {
    * Gets the years field.
    * @return the years
    */
-  public double getYears() {
-    return _years;
+  public ZonedDateTime getMaturity() {
+    return _maturity;
   }
 
   /**
@@ -39,9 +41,9 @@ public class ResolvedFixedIncomeStrip {
     return _security;
   }
 
-  public ResolvedFixedIncomeStrip(StripInstrumentType instrumentType, double years, Security security) {
+  public ResolvedFixedIncomeStrip(StripInstrumentType instrumentType, ZonedDateTime maturity, Security security) {
     _instrumentType = instrumentType;
-    _years = years;
+    _maturity = maturity;
     _security = security;
   }
 }

@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.security.db;
 
-import static com.opengamma.financial.InMemoryRegionRepository.REGIONS_FILE_PATH;
-
 import java.io.File;
 
 import org.junit.After;
@@ -16,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.InMemoryRegionRepository;
+import com.opengamma.financial.RegionFileReader;
 import com.opengamma.financial.RegionRepository;
 import com.opengamma.financial.security.SecurityMasterTestCase;
 import com.opengamma.financial.security.SecurityTestCaseMethods;
@@ -72,7 +71,8 @@ public class HibernateSecurityMasterTest extends HibernateTest implements Securi
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    final RegionRepository regionRepository = new InMemoryRegionRepository(new File(REGIONS_FILE_PATH));
+    final RegionRepository regionRepository = new InMemoryRegionRepository();
+    RegionFileReader.populateMaster(regionRepository, new File(RegionFileReader.REGIONS_FILE_PATH));
     _testCase = new SecurityMasterTestCase(createSecurityMaster(regionRepository));
   }
 
@@ -86,7 +86,6 @@ public class HibernateSecurityMasterTest extends HibernateTest implements Securi
 
   private HibernateSecurityMaster createSecurityMaster(final RegionRepository regionRepository) {
     HibernateSecurityMaster secMaster = new HibernateSecurityMaster();
-    secMaster.setRegionRepository(regionRepository);
     secMaster.setSessionFactory(getSessionFactory());
     s_logger.debug("SecMaster initialization complete {}", secMaster);
     return secMaster;

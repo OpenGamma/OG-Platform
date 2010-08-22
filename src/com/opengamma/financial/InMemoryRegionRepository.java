@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,15 +22,18 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.world.Region;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleMapper;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.FileUtils;
 import com.opengamma.util.tuple.Pair;
+
+import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * In memory implementation of a region repository.  Repository is populated from a CSV file.  
@@ -39,9 +41,6 @@ import com.opengamma.util.tuple.Pair;
  */
 public class InMemoryRegionRepository implements RegionRepository {
   // TODO: jim 2-Jul-2010 -- Make this cope with versioning...
-  static final String WORLD_DATA_DIR_PATH = FileUtils.getSharedDrivePrefix() + File.separator + "world-data";
-  static final String REGIONS_FILE_PATH = WORLD_DATA_DIR_PATH + File.separator + "regions" + File.separator + "countrylist_test.csv";
-  
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(InMemoryRegionRepository.class);
 
@@ -112,9 +111,21 @@ public class InMemoryRegionRepository implements RegionRepository {
       subRegions.add(subRegion);
     }
     regionNode.setSubRegions(subRegions);
-    regionNode.setIdentifiers(new IdentifierBundle(new Identifier(REGION_FILE_SCHEME, currentName)));
+    List<Identifier> identifiers = new ArrayList<Identifier>();
+    identifiers.add(Identifier.of(REGION_FILE_SCHEME, currentName));
+    
+    if (regionNode.getCountryISO2() != null && !regionNode.getCountryISO2().isEmpty()) {
+      
+      identifiers.add(Identifier.of(ISO_COUNTRY_2, regionNode.getCountryISO2()));
+    }
+    if (regionNode.getCurrencyISO3() != null && !regionNode.getCurrencyISO3().isEmpty()) {
+      identifiers.add(Identifier.of(ISO_CURRENCY_3, regionNode.getCurrencyISO3()));
+    }
+    regionNode.setIdentifiers(new IdentifierBundle(identifiers.toArray(new Identifier[] {})));
+    s_logger.info("ids = " + regionNode.getIdentifiers());
     UniqueIdentifier uniqueId = bundleMapper.add(regionNode.getIdentifiers(), regionNode);
     regionNode.setUniqueIdentifier(uniqueId);
+    s_logger.info("ids = " + regionNode.getIdentifiers());
     return regionNode;
   }
   
@@ -149,14 +160,36 @@ public class InMemoryRegionRepository implements RegionRepository {
   }
   
   public RegionSearchResult searchRegions(RegionSearchRequest searchRequest) {
-    SortedSet<Region> hierarchyNodes = getHierarchyNodes(null, null, searchRequest.getHierarchy(), searchRequest.getPredicates());
-    return new RegionSearchResult(wrapWithDocuments(searchRequest.getHierarchy(), hierarchyNodes, searchRequest.isGraphIncluded()));
+    SortedSet<Region> resultNodes;
+    if (searchRequest.isRootRequest()) {
+      Region region = _roots.get(searchRequest.getHierarchy());
+      SortedSet<Region> sortedResult = new ImmutableSortedSet.Builder<Region>(RegionNode.COMPARATOR).add(region).build();
+      return new RegionSearchResult(wrapWithDocuments(searchRequest.getHierarchy(), sortedResult, searchRequest.isGraphIncluded()));
+    } else if (searchRequest.getPredicates().isEmpty()) {
+      if (_uniqueIdFactories.containsKey(searchRequest.getHierarchy())) {
+        resultNodes = new TreeSet<Region>(RegionNode.COMPARATOR);
+        resultNodes.addAll(_uniqueIdFactories.get(searchRequest.getHierarchy()).get(searchRequest.getIdentifierBundle()));
+      } else {
+        throw new OpenGammaRuntimeException("Cannot field hierarchy " + searchRequest.getHierarchy());
+      }
+    } else {
+      if (searchRequest.getIdentifierBundle() != null) {
+        throw new OpenGammaRuntimeException("You can either search with identifiers or predicates, but not both");
+      }
+      resultNodes = getHierarchyNodes(null, null, searchRequest.getHierarchy(), searchRequest.getPredicates());
+    }
+    return new RegionSearchResult(wrapWithDocuments(searchRequest.getHierarchy(), resultNodes, searchRequest.isGraphIncluded()));
   }
   
+  // TODO: make this consistent with the normal search.T
   public RegionSearchResult searchHistoricRegions(RegionSearchHistoricRequest searchRequest) {    
     SortedSet<Region> results;
     IdentifierBundle identifiers = searchRequest.getIdentifierBundle();
-    if (identifiers != null) {
+    if (searchRequest.isRootRequest()) {
+      Region region = _roots.get(searchRequest.getHierarchy());
+      SortedSet<Region> sortedResult = new ImmutableSortedSet.Builder<Region>(RegionNode.COMPARATOR).add(region).build();
+      return new RegionSearchResult(wrapWithDocuments(searchRequest.getHierarchy(), sortedResult, searchRequest.isGraphIncluded()));
+    } else if (identifiers != null) {
       if (identifiers.size() == 1) {
         results = getHistoricRegion(searchRequest.getVersion(), searchRequest.getCorrection(), 
                                     searchRequest.getHierarchy(), identifiers.getIdentifiers().iterator().next());
@@ -180,7 +213,9 @@ public class InMemoryRegionRepository implements RegionRepository {
       if (isGraphIncluded) {
         documents.add(new RegionDocument(hierarchyName, region));
       } else {
-        Region detachedRegion = new RegionNode(FudgeContext.GLOBAL_DEFAULT, region.getName(), region.getRegionType(), FudgeContext.GLOBAL_DEFAULT.newMessage(region.getData()));
+        RegionNode detachedRegion = new RegionNode(FudgeContext.GLOBAL_DEFAULT, region.getName(), region.getRegionType(), FudgeContext.GLOBAL_DEFAULT.newMessage(region.getData()));
+        detachedRegion.setIdentifiers(region.getIdentifiers());
+        detachedRegion.setUniqueIdentifier(region.getUniqueIdentifier());
         documents.add(new RegionDocument(hierarchyName, detachedRegion));
       }
     }

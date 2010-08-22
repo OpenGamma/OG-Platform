@@ -25,7 +25,7 @@ public class FudgeSecurityEncodingTest extends SecurityTestCase {
   private static final FudgeContext s_fudgeContext = new FudgeContext();
   static {
     final FinancialFudgeContextConfiguration config = new FinancialFudgeContextConfiguration();
-    config.setRegionRepository(getRegionRepository());
+    config.setRegionSource(getRegionSource());
     config.configureFudgeContext(s_fudgeContext);
     UtilFudgeContextConfiguration.INSTANCE.configureFudgeContext(s_fudgeContext);
   }

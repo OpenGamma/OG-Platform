@@ -9,6 +9,8 @@ import java.util.Collection;
 
 import javax.time.calendar.LocalDate;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -56,6 +58,7 @@ public class Holiday {
         _exchangeId = regionOrExchangeId;
         break;
     }
+    _holidayType = holidayType;
     _holidaySeries = holidaySeries;
   }
   
@@ -106,5 +109,9 @@ public class Holiday {
    */
   public UniqueIdentifier getUniqueIdentifier() {
     return _uniqueIdentifier;
+  }
+  
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this);
   }
 }

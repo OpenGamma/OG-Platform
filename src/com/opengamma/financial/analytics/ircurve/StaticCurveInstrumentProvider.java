@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import java.util.Map;
-
 import javax.time.calendar.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -31,4 +29,20 @@ public class StaticCurveInstrumentProvider implements CurveInstrumentProvider {
   public Identifier getInstrument(LocalDate curveDate, Tenor tenor, int numQuarterlyFuturesFromTenor) {
     throw new OpenGammaRuntimeException("futures not supported by this class");
   }
+  
+  public boolean equals(Object o) {
+    if (o == null) {
+      return false;
+    }
+    if (!(o instanceof StaticCurveInstrumentProvider)) {
+      return false;
+    }
+    StaticCurveInstrumentProvider other = (StaticCurveInstrumentProvider) o;
+    return _identifier.equals(other._identifier);
+  }
+  
+  public int hashCode() {
+    return _identifier.hashCode();
+  }
+  
 }

@@ -128,9 +128,9 @@ public class HibernateSecurityMaster implements SecurityMaster {
     return _operationContext;
   }
 
-  public void setRegionRepository(final RegionRepository regionRepository) {
-    getOperationContext().setRegionRepository(regionRepository);
-  }
+//  public void setRegionRepository(final RegionRepository regionRepository) {
+//    getOperationContext().setRegionRepository(regionRepository);
+//  }
 
   public String getIdentifierScheme() {
     return _identifierScheme;

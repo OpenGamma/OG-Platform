@@ -25,16 +25,28 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.world.RegionType;
+import com.opengamma.util.FileUtils;
 
 /**
  * 
  */
 public class RegionFileReader {
-  public static void populateRegionRepository(RegionRepository regionRepo, File file) {
-    populateRegionRepository(regionRepo, FudgeContext.GLOBAL_DEFAULT, file);
+  
+  private RegionRepository _regionRepo;
+  private FudgeContext _fudgeContext;
+
+  public RegionFileReader(RegionRepository regionRepo) {
+    _regionRepo = regionRepo;
+    _fudgeContext = FudgeContext.GLOBAL_DEFAULT;
   }
   
-  public static void populateRegionRepository(RegionRepository regionRepo, FudgeContext fudgeContext, File file) {
+  public RegionFileReader(RegionRepository regionRepo, FudgeContext fudgeContext) {
+    _regionRepo = regionRepo;
+    _fudgeContext = FudgeContext.GLOBAL_DEFAULT;
+  }
+  
+  public void populate(File file) {
     try {
       // Hierarchy Name -> (Region Name -> Region Definition (Super/Sub name + data))
       Map<String, Map<String, RegionDefinition>> roots = new HashMap<String, Map<String, RegionDefinition>>();
@@ -59,7 +71,7 @@ public class RegionFileReader {
         // split semicolon separated list (somewhat stripped of whitespace) into array, convert to list and then to set. 
         Set<String> subRegions = new HashSet<String>(Arrays.asList(row[subRegionsColumnNum].split(";")));
         subRegions = trim(subRegions);
-        MutableFudgeFieldContainer data = fudgeContext.newMessage();
+        MutableFudgeFieldContainer data = _fudgeContext.newMessage();
         for (int i = 0; i < columns.size(); i++) {
           if (i != hierarchyColumnNum &&
               i != nameColumnNum &&
@@ -74,12 +86,12 @@ public class RegionFileReader {
         if (!roots.containsKey(hierarchy)) {
           roots.put(hierarchy, new HashMap<String, RegionDefinition>());
         }
-        RegionNode incompleteRegion = new RegionNode(fudgeContext, name, type, data);
+        RegionNode incompleteRegion = new RegionNode(_fudgeContext, name, type, data);
         roots.get(hierarchy).put(name, new RegionDefinition(incompleteRegion, subRegions));
       }
       // now turn the definitions into proper tree reference links.
       for (String hierarchyName : roots.keySet()) {
-        regionRepo.addRegionTree(hierarchyName, roots.get(hierarchyName));
+        _regionRepo.addRegionTree(hierarchyName, roots.get(hierarchyName));
       }
     } catch (Exception e) {
       throw new OpenGammaRuntimeException("Cannot open region data file (or file I/O problem)", e);
@@ -115,4 +127,25 @@ public class RegionFileReader {
       }
     }
   }
+  
+  /**
+   * Static convenience method to save separately constructing the object and calling populate
+   * @param regionRepo
+   * @param file
+   */
+  public static void populateMaster(RegionRepository regionRepo, File file) {
+    RegionFileReader reader = new RegionFileReader(regionRepo);
+    reader.populate(file);
+  }
+
+  /**
+   * Path to world data generally (covering exchanges, regions and holidays).
+   */
+  public static final String WORLD_DATA_DIR_PATH = FileUtils.getSharedDrivePrefix() + File.separator + "world-data";
+  
+  /**
+   * Path to the default regions file
+   */
+  public static final String REGIONS_FILE_PATH = WORLD_DATA_DIR_PATH + File.separator + "regions" + File.separator + "countrylist_test.csv";
+
 }

@@ -33,13 +33,13 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.world.Region;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.Region;
 import com.opengamma.financial.analytics.model.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.HolidayRepositoryCalendarAdapter;
+import com.opengamma.financial.convention.businessday.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -208,14 +208,14 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    final InterpolatedYieldCurveDefinitionSource curveSource = OpenGammaCompilationContext.getDiscountCurveSource(context);
-    _fundingDefinition = curveSource.getDefinition(_currency, "Funding");
-    _forwardDefinition = curveSource.getDefinition(_currency, "Forward");
-//    _requirements = Collections.unmodifiableSet(buildRequirements(_fundingDefinition));
-    _fundingCurveResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FUNDING_CURVE, _currency));
-    _forwardCurveResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, _currency));
-    _jacobianResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FUNDING_AND_FORWARD_JACOBIAN, _currency));
-    _results = Sets.newHashSet(_fundingCurveResult, _forwardCurveResult, _jacobianResult);
+//    final InterpolatedYieldCurveDefinitionSource curveSource = OpenGammaCompilationContext.getDiscountCurveSource(context);
+//    _fundingDefinition = curveSource.getDefinition(_currency, "Funding");
+//    _forwardDefinition = curveSource.getDefinition(_currency, "Forward");
+////    _requirements = Collections.unmodifiableSet(buildRequirements(_fundingDefinition));
+//    _fundingCurveResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FUNDING_CURVE, _currency));
+//    _forwardCurveResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, _currency));
+//    _jacobianResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FUNDING_AND_FORWARD_JACOBIAN, _currency));
+//    _results = Sets.newHashSet(_fundingCurveResult, _forwardCurveResult, _jacobianResult);
   }
 
 //  public Set<ValueRequirement> buildRequirements(final YieldCurveDefinition definition) {

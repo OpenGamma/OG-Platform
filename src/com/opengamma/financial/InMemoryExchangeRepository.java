@@ -10,6 +10,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.world.Exchange;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleMapper;
 import com.opengamma.id.UniqueIdentifier;
@@ -53,7 +55,7 @@ public class InMemoryExchangeRepository implements ExchangeRepository {
     return new ExchangeSearchResult(wrapExchangesWithDocuments(results));
   }
   
-  public ExchangeDocument addExchange(IdentifierBundle identifiers, String name, UniqueIdentifier regionIdentifier) {
+  public ExchangeDocument addExchange(IdentifierBundle identifiers, String name, Identifier regionIdentifier) {
     Exchange exchange = new Exchange(identifiers, name, regionIdentifier);
     UniqueIdentifier uid = _idMapper.add(identifiers, exchange);
     exchange = _idMapper.get(uid);

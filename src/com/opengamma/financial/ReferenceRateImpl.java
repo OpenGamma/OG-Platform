@@ -7,6 +7,7 @@ package com.opengamma.financial;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -21,13 +22,20 @@ public class ReferenceRateImpl implements ReferenceRate {
   private DayCount _dayCount;
   private BusinessDayConvention _businessDayConvention;
   private int _settlementDays;
+  private Frequency _frequency;
 
-  public ReferenceRateImpl(IdentifierBundle initialBundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, int settlementDays) {
+  public ReferenceRateImpl(IdentifierBundle initialBundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Frequency frequency, int settlementDays) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = dayCount;
     _businessDayConvention = businessDayConvention;
+    _frequency = frequency;
     _settlementDays = settlementDays;
+  }
+  
+  @Override
+  public Frequency getFrequency() {
+    return _frequency;
   }
   
   @Override

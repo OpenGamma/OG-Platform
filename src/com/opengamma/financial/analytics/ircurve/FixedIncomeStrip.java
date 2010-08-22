@@ -17,7 +17,7 @@ import com.opengamma.util.time.Tenor;
 /**
  * A fixed income strip.
  */
-public class FixedIncomeStrip implements Serializable {
+public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStrip> {
   private final StripInstrumentType _instrumentType;
   private final Tenor _curveNodePointTime;
   private final String _conventionName;
@@ -118,4 +118,18 @@ public class FixedIncomeStrip implements Serializable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
+  @Override
+  public int compareTo(FixedIncomeStrip o) {
+    int result = (int) getCurveNodePointTime().getPeriod().minus(o.getCurveNodePointTime().getPeriod()).getNanos();
+    if (result != 0) {
+      return result;
+    }
+    result = getInstrumentType().ordinal() - o.getInstrumentType().ordinal(); 
+    if (result == 0 && this.getInstrumentType() == StripInstrumentType.FUTURE) { // compare the futures if the tenor is the same.
+      // if result == 0 then the other instrument type must be FUTURE too.
+      return getNumberOfFuturesAfterTenor() - o.getNumberOfFuturesAfterTenor();
+    } else {
+      return result;
+    }
+  }
 }

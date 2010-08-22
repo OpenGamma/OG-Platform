@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.security;
 
-import static com.opengamma.financial.InMemoryRegionRepository.REGIONS_FILE_PATH;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
@@ -35,10 +34,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.security.DefaultSecurity;
+import com.opengamma.engine.world.Region;
+import com.opengamma.engine.world.RegionSource;
 import com.opengamma.financial.Currency;
+import com.opengamma.financial.DefaultRegionSource;
 import com.opengamma.financial.GICSCode;
 import com.opengamma.financial.InMemoryRegionRepository;
-import com.opengamma.financial.Region;
+import com.opengamma.financial.RegionFileReader;
 import com.opengamma.financial.RegionRepository;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -177,12 +179,18 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
 
   private static Map<Object, TestDataProvider<?>> s_dataProviders = new HashMap<Object, TestDataProvider<?>>();
   private static Random s_random = new Random();
-  private static RegionRepository s_regionRepository = new InMemoryRegionRepository(new File(REGIONS_FILE_PATH));
-
-  protected static RegionRepository getRegionRepository() {
-    return s_regionRepository;
+  
+  private static RegionSource s_regionSource;
+  static {
+    RegionRepository regionRepository = new InMemoryRegionRepository();
+    RegionFileReader.populateMaster(regionRepository, new File(RegionFileReader.REGIONS_FILE_PATH));
+    s_regionSource = new DefaultRegionSource(regionRepository);
   }
-
+  
+  protected static RegionSource getRegionSource() {
+    return s_regionSource;
+  }
+  
   static {
     final long seed = s_random.nextLong();
     s_logger.info("Random seed = {}", seed);
@@ -455,8 +463,8 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
     s_dataProviders.put(Region.class, new TestDataProvider<Region>() {
       @Override
       public void getValues(final Collection<Region> values) {
-        values.add(getRegionRepository().getHierarchyNodes(LocalDate.nowSystemClock(), InMemoryRegionRepository.POLITICAL_HIERARCHY_NAME, InMemoryRegionRepository.ISO_COUNTRY_2, "US").first());
-        values.add(getRegionRepository().getHierarchyNode(LocalDate.now(Clock.system(TimeZone.UTC)), InMemoryRegionRepository.POLITICAL_HIERARCHY_NAME, "United Kingdom"));
+        values.add(getRegionSource().getHighestLevelRegion(Identifier.of(InMemoryRegionRepository.ISO_COUNTRY_2, "US")));
+        values.add(getRegionSource().getHighestLevelRegion(Identifier.of(InMemoryRegionRepository.NAME_COLUMN, "United Kingdom")));
       }
     });
     s_dataProviders.put(Notional.class, new TestDataProvider<Notional>() {

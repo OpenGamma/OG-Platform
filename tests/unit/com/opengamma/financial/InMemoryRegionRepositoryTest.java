@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial;
 
-import static com.opengamma.financial.InMemoryRegionRepository.REGIONS_FILE_PATH;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -21,6 +21,8 @@ import javax.time.calendar.TimeZone;
 import org.junit.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.world.Region;
+import com.opengamma.engine.world.RegionType;
 
 /**
  * Test InMemoryRegionRepository.
@@ -29,40 +31,56 @@ public class InMemoryRegionRepositoryTest {
 
   @Test
   public void testConstructor() throws URISyntaxException {
-    RegionRepository regionRepository = new InMemoryRegionRepository(new File(REGIONS_FILE_PATH));
+    RegionRepository regionRepository = new InMemoryRegionRepository();
+    RegionFileReader.populateMaster(regionRepository, new File(RegionFileReader.REGIONS_FILE_PATH));
     System.err.println("Constructed and indexed");
     LocalDate now = LocalDate.now(Clock.system(TimeZone.UTC));
     System.err.println("Got now");
-    Set<Region> allOfType = regionRepository.getAllOfType(now, "Political", RegionType.INDEPENDENT_STATE);
+    RegionSearchRequest searchReq = new RegionSearchRequest(RegionRepository.POLITICAL_HIERARCHY_NAME, InMemoryRegionRepository.TYPE_COLUMN, RegionType.INDEPENDENT_STATE);
+    searchReq.setGraphIncluded(true);
+    Set<Region> allOfType = regionRepository.searchRegions(searchReq).getResults();
     System.err.println("getAllOfType");
     assertEquals(193, allOfType.size());
-    assertEquals(278, regionRepository.getHierarchyRoot(now, "Political").getSubRegions().size());
+    searchReq = null; // safety
+    
+    RegionSearchRequest searchReq2 = new RegionSearchRequest(RegionRepository.POLITICAL_HIERARCHY_NAME);
+    searchReq2.setRootRequest(true);
+    searchReq2.setGraphIncluded(true);
+    assertEquals(278, regionRepository.searchRegions(searchReq2).getBestResult().getSubRegions().size());
     System.err.println("getHierarchyRoot");
-    Region ukRegion = regionRepository.getHierarchyNode(now, "Political", "United Kingdom");
+    searchReq2 = null; // safety
+    
+    RegionSearchRequest searchReq3 = new RegionSearchRequest(RegionRepository.POLITICAL_HIERARCHY_NAME, InMemoryRegionRepository.NAME_COLUMN, "United Kingdom");
+    searchReq3.setGraphIncluded(true);
+    Region ukRegion = regionRepository.searchRegions(searchReq3).getBestResult();
     System.err.println("getHierarchyNode");
     assertNotNull(ukRegion);
     assertTrue(allOfType.contains(ukRegion));
     assertEquals(RegionType.INDEPENDENT_STATE, ukRegion.getRegionType());
-    assertEquals(regionRepository.getHierarchyRoot(now, "Political"), ukRegion.getSuperRegion());
-    assertEquals(0, ukRegion.getSubRegions().size());
     
-    assertEquals(regionRepository.getHierarchyRoot(now, "Political"), regionRepository.getHierarchyNode(now, "Political", "World"));
+    RegionSearchRequest searchReq4 = new RegionSearchRequest(RegionRepository.POLITICAL_HIERARCHY_NAME);
+    searchReq4.setRootRequest(true);
+    searchReq4.setGraphIncluded(true);
+    assertEquals(regionRepository.searchRegions(searchReq4).getBestResult(), ukRegion.getSuperRegion());
+    searchReq4 = null;
+    assertEquals(0, ukRegion.getSubRegions().size());
+        
+    RegionSearchRequest searchReq5 = new RegionSearchRequest(RegionRepository.POLITICAL_HIERARCHY_NAME);
+    searchReq5.setRootRequest(true);
+    searchReq5.setGraphIncluded(true);
+    RegionSearchRequest searchReq6 = new RegionSearchRequest(RegionRepository.POLITICAL_HIERARCHY_NAME, InMemoryRegionRepository.NAME_COLUMN, "World");
+    searchReq6.setGraphIncluded(true);
+    assertEquals(regionRepository.searchRegions(searchReq5).getBestResult(), regionRepository.searchRegions(searchReq6).getBestResult());
     System.err.println("more getHierarchyNode");
   }
 
   @Test(expected = OpenGammaRuntimeException.class)
   // TODO: check if this should throw exception or return null
   public void test_getHierarchyNode_unknownName() throws URISyntaxException {
-    RegionRepository regionRepository = new InMemoryRegionRepository(new File(REGIONS_FILE_PATH));
-    LocalDate now = LocalDate.now(Clock.system(TimeZone.UTC));
-    regionRepository.getHierarchyNode(now, "Incorrect Name", "World");
-  }
-
-  @Test
-  public void test_getHierarchyRoot_unknownName() throws URISyntaxException {
-    RegionRepository regionRepository = new InMemoryRegionRepository(new File(REGIONS_FILE_PATH));
-    LocalDate now = LocalDate.now(Clock.system(TimeZone.UTC));
-    assertEquals(null, regionRepository.getHierarchyRoot(now, "Incorrect Name"));
+    RegionRepository regionRepository = new InMemoryRegionRepository();
+    RegionFileReader.populateMaster(regionRepository, new File(RegionFileReader.REGIONS_FILE_PATH));
+    RegionSearchRequest searchReq = new RegionSearchRequest("Incorrect Name", InMemoryRegionRepository.NAME_COLUMN, "World");
+    assertNull(regionRepository.searchRegions(searchReq).getBestResult());
   }
 
 }

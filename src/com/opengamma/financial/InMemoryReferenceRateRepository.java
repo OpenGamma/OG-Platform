@@ -14,6 +14,8 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -41,27 +43,28 @@ public class InMemoryReferenceRateRepository implements ReferenceRateRepository 
     BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified");
     BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US00O/N Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR O/N")), "LIBOR O/N", act360, following, 2);
-    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0001W Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 1w")), "LIBOR 1w", act360, following, 2);
-    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0002W Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 2w")), "LIBOR 2w", act360, following, 2);
-    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0001M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 1m")), "LIBOR 1m", act360, modified, 2);
-    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0002M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 2m")), "LIBOR 2m", act360, modified, 2);
-    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0003M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 3m")), "LIBOR 3m", act360, modified, 2);
-    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0004M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 4m")), "LIBOR 4m", act360, modified, 2);
-    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0005M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 5m")), "LIBOR 5m", act360, modified, 2);
-    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0006M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 6m")), "LIBOR 6m", act360, modified, 2);
-    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0007M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 7m")), "LIBOR 7m", act360, modified, 2);
-    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0008M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 8m")), "LIBOR 8m", act360, modified, 2);
-    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0009M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 9m")), "LIBOR 9m", act360, modified, 2);
-    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0010M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 10m")), "LIBOR 10m", act360, modified, 2);
-    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0011M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 11m")), "LIBOR 11m", act360, modified, 2);
-    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0012M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 12m")), "LIBOR 12m", act360, modified, 2);
+    Frequency freq = null;
+    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US00O/N Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR O/N")), "LIBOR O/N", act360, following, freq, 2);
+    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0001W Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 1w")), "LIBOR 1w", act360, following, freq, 2);
+    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0002W Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 2w")), "LIBOR 2w", act360, following, freq, 2);
+    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0001M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 1m")), "LIBOR 1m", act360, modified, freq, 2);
+    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0002M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 2m")), "LIBOR 2m", act360, modified, freq, 2);
+    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0003M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 3m")), "LIBOR 3m", act360, modified, freq, 2);
+    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0004M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 4m")), "LIBOR 4m", act360, modified, freq, 2);
+    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0005M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 5m")), "LIBOR 5m", act360, modified, freq, 2);
+    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0006M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 6m")), "LIBOR 6m", act360, modified, freq, 2);
+    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0007M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 7m")), "LIBOR 7m", act360, modified, freq, 2);
+    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0008M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 8m")), "LIBOR 8m", act360, modified, freq, 2);
+    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0009M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 9m")), "LIBOR 9m", act360, modified, freq, 2);
+    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0010M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 10m")), "LIBOR 10m", act360, modified, freq, 2);
+    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0011M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 11m")), "LIBOR 11m", act360, modified, freq, 2);
+    addReferenceRate(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0012M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 12m")), "LIBOR 12m", act360, modified, freq, 2);
   }
   
   @Override
   public synchronized UniqueIdentifier addReferenceRate(IdentifierBundle bundle, String name, DayCount dayCount,
-                                                        BusinessDayConvention businessDayConvention, int settlementDays) {
-    ReferenceRateImpl refRate = new ReferenceRateImpl(bundle, name, dayCount, businessDayConvention, settlementDays);
+                                                        BusinessDayConvention businessDayConvention, Frequency frequency, int settlementDays) {
+    ReferenceRateImpl refRate = new ReferenceRateImpl(bundle, name, dayCount, businessDayConvention, frequency, settlementDays);
     UniqueIdentifier uid = _mapper.add(bundle, refRate);
     refRate.setUniqueIdentifier(uid);
     return uid;

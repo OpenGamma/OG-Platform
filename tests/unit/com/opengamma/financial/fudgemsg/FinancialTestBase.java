@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.fudgemsg;
 
-import static com.opengamma.financial.InMemoryRegionRepository.REGIONS_FILE_PATH;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -21,7 +20,9 @@ import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.financial.DefaultRegionSource;
 import com.opengamma.financial.InMemoryRegionRepository;
+import com.opengamma.financial.RegionFileReader;
 import com.opengamma.financial.RegionRepository;
 import com.opengamma.util.fudge.UtilFudgeContextConfiguration;
 
@@ -39,8 +40,9 @@ public class FinancialTestBase {
   public void createFudgeContext() {
     _fudgeContext = new FudgeContext();
     final FinancialFudgeContextConfiguration fudgeConfiguration = new FinancialFudgeContextConfiguration();
-    _regionRepository = new InMemoryRegionRepository(new File(REGIONS_FILE_PATH));
-    fudgeConfiguration.setRegionRepository(_regionRepository);
+    _regionRepository = new InMemoryRegionRepository();
+    RegionFileReader.populateMaster(_regionRepository, new File(RegionFileReader.REGIONS_FILE_PATH));
+    fudgeConfiguration.setRegionSource(new DefaultRegionSource(_regionRepository));
     UtilFudgeContextConfiguration.INSTANCE.configureFudgeContext(_fudgeContext);
     fudgeConfiguration.configureFudgeContext(_fudgeContext);
   }

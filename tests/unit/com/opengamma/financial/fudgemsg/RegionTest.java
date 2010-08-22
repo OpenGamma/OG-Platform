@@ -7,19 +7,17 @@ package com.opengamma.financial.fudgemsg;
 
 import static org.junit.Assert.assertEquals;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.TimeZone;
-
 import org.junit.Test;
 
-import com.opengamma.financial.Region;
+import com.opengamma.engine.world.Region;
+import com.opengamma.financial.InMemoryRegionRepository;
+import com.opengamma.financial.RegionRepository;
+import com.opengamma.financial.RegionSearchRequest;
 
 public class RegionTest extends FinancialTestBase {
 
   private Region getRef() {
-    return getRegionRepository().getHierarchyNode(LocalDate.now(Clock.system(TimeZone.UTC)), "Political",
-        "United Kingdom");
+    return getRegionRepository().searchRegions(new RegionSearchRequest(RegionRepository.POLITICAL_HIERARCHY_NAME, InMemoryRegionRepository.ISO_COUNTRY_2, "UK")).getBestResult();
   }
 
   @Test

@@ -5,11 +5,6 @@
  */
 package com.opengamma.financial;
 
-import java.util.Set;
-
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -36,5 +31,5 @@ public interface ExchangeRepository {
   ExchangeDocument getExchange(UniqueIdentifier identifier);
   ExchangeSearchResult searchExchange(ExchangeSearchRequest search);
   ExchangeSearchResult searchHistoricExchange(ExchangeSearchHistoricRequest search);
-  ExchangeDocument addExchange(IdentifierBundle identifiers, String name, UniqueIdentifier regionIdentifier);
+  ExchangeDocument addExchange(IdentifierBundle identifiers, String name, Identifier regionIdentifier);
 }

@@ -10,15 +10,16 @@ import static org.junit.Assert.assertEquals;
 import java.util.Set;
 
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMessageFactory;
 import org.junit.Test;
 
+import com.opengamma.engine.world.Region;
+import com.opengamma.engine.world.RegionType;
 import com.opengamma.financial.InMemoryRegionRepository;
-import com.opengamma.financial.Region;
-import com.opengamma.financial.RegionType;
 import com.opengamma.financial.convention.businessday.ModifiedBusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -199,6 +200,21 @@ public class SwapScheduleCalculatorTest {
 
     @Override
     public UniqueIdentifier getUniqueIdentifier() {
+      return null;
+    }
+
+    @Override
+    public String getCountryISO2() {
+      return null;
+    }
+
+    @Override
+    public String getCurrencyISO3() {
+      return null;
+    }
+
+    @Override
+    public TimeZone getTimeZone() {
       return null;
     }
 

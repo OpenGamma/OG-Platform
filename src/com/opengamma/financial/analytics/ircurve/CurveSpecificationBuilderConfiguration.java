@@ -9,6 +9,9 @@ import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.time.Tenor;
@@ -106,5 +109,68 @@ public class CurveSpecificationBuilderConfiguration {
     } else {
       throw new OpenGammaRuntimeException("can't find instrument mapper definition for " + tenor);
     }
+  }
+
+  /**
+   * Gets the cashInstrumentProviders field for serialisation
+   * @return the cashInstrumentProviders
+   */
+  public Map<Tenor, CurveInstrumentProvider> getCashInstrumentProviders() {
+    return _cashInstrumentProviders;
+  }
+
+  /**
+   * Gets the fraInstrumentProviders field for serialisation
+   * @return the fraInstrumentProviders
+   */
+  public Map<Tenor, CurveInstrumentProvider> getFraInstrumentProviders() {
+    return _fraInstrumentProviders;
+  }
+
+  /**
+   * Gets the rateInstrumentProviders field for serialisation
+   * @return the rateInstrumentProviders
+   */
+  public Map<Tenor, CurveInstrumentProvider> getRateInstrumentProviders() {
+    return _rateInstrumentProviders;
+  }
+
+  /**
+   * Gets the futureInstrumentProviders field for serialisation
+   * @return the futureInstrumentProviders
+   */
+  public Map<Tenor, CurveInstrumentProvider> getFutureInstrumentProviders() {
+    return _futureInstrumentProviders;
+  }
+
+  /**
+   * Gets the swapInstrumentProviders field for serialisation
+   * @return the swapInstrumentProviders
+   */
+  public Map<Tenor, CurveInstrumentProvider> getSwapInstrumentProviders() {
+    return _swapInstrumentProviders;
+  }
+  
+  public boolean equals(Object o) {
+    if (o == null) {
+      return false;
+    }
+    if (!(o instanceof CurveSpecificationBuilderConfiguration)) {
+      return false;
+    }
+    CurveSpecificationBuilderConfiguration other = (CurveSpecificationBuilderConfiguration) o;
+    return (ObjectUtils.equals(getCashInstrumentProviders(), other.getCashInstrumentProviders()) &&
+            ObjectUtils.equals(getFraInstrumentProviders(), other.getFraInstrumentProviders()) &&
+            ObjectUtils.equals(getFutureInstrumentProviders(), other.getFutureInstrumentProviders()) &&
+            ObjectUtils.equals(getRateInstrumentProviders(), other.getRateInstrumentProviders()) &&
+            ObjectUtils.equals(getSwapInstrumentProviders(), other.getSwapInstrumentProviders()));
+  }
+  
+  public int hashCode() {
+    return getCashInstrumentProviders().hashCode(); // bit dodgy really, but should only be used for testing.
+  }
+  
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this);
   }
 }

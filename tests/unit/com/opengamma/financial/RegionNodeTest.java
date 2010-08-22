@@ -5,48 +5,52 @@
  */
 package com.opengamma.financial;
 
-import static com.opengamma.financial.InMemoryRegionRepository.REGIONS_FILE_PATH;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.TimeZone;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.world.Region;
+import com.opengamma.engine.world.RegionSource;
+import com.opengamma.id.Identifier;
+
 public class RegionNodeTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RegionNodeTest.class);
 
   private RegionRepository _regionRepository1;
+  private RegionSource _regionSource1;
   private RegionRepository _regionRepository2;
+  private RegionSource _regionSource2;
 
   @Before
   public void setup() {
     // Use two repositories so that objects are not referentially equal
-    _regionRepository1 = new InMemoryRegionRepository(new File(REGIONS_FILE_PATH));
-    _regionRepository2 = new InMemoryRegionRepository(new File(REGIONS_FILE_PATH));
+    _regionRepository1 = new InMemoryRegionRepository();
+    RegionFileReader.populateMaster(_regionRepository1, new File(RegionFileReader.REGIONS_FILE_PATH));
+    _regionSource1 = new DefaultRegionSource(_regionRepository1);
+    _regionRepository2 = new InMemoryRegionRepository();
+    RegionFileReader.populateMaster(_regionRepository2, new File(RegionFileReader.REGIONS_FILE_PATH));
+    _regionSource2 = new DefaultRegionSource(_regionRepository2);
   }
 
   @Test
   public void testHashCode () {
-    final Region ukRegion = _regionRepository1.getHierarchyNode(LocalDate.now(Clock.system(TimeZone.UTC)), InMemoryRegionRepository.POLITICAL_HIERARCHY_NAME, "United Kingdom");
-    int hc = ukRegion.hashCode ();
+    final Region ukRegion = _regionSource1.getHighestLevelRegion(Identifier.of(InMemoryRegionRepository.ISO_COUNTRY_2, "GB"));
+    int hc = ukRegion.hashCode();
     s_logger.debug("Hashcode = {}", hc);
   }
 
   @Test
   public void testEquals() {
-    final Region ukRegion1 = _regionRepository1.getHierarchyNode(LocalDate.now(Clock.system(TimeZone.UTC)), InMemoryRegionRepository.POLITICAL_HIERARCHY_NAME, "United Kingdom");
-    final Region usRegion = _regionRepository1.getHierarchyNodes(LocalDate.now(Clock.system(TimeZone.UTC)), InMemoryRegionRepository.POLITICAL_HIERARCHY_NAME, InMemoryRegionRepository.ISO_COUNTRY_2,
-        "US").first();
-    final Region ukRegion2 = _regionRepository2.getHierarchyNode(LocalDate.now(Clock.system(TimeZone.UTC)), InMemoryRegionRepository.POLITICAL_HIERARCHY_NAME, "United Kingdom");
+    final Region ukRegion1 = _regionSource1.getHighestLevelRegion(Identifier.of(InMemoryRegionRepository.ISO_COUNTRY_2, "GB"));
+    final Region usRegion = _regionSource1.getHighestLevelRegion(Identifier.of(InMemoryRegionRepository.ISO_COUNTRY_2, "US"));
+    final Region ukRegion2 = _regionSource2.getHighestLevelRegion(Identifier.of(InMemoryRegionRepository.ISO_COUNTRY_2, "GB"));
     assertTrue(ukRegion1.equals(ukRegion1));
     assertFalse(ukRegion1.equals(usRegion));
     assertTrue(ukRegion1.equals(ukRegion2));

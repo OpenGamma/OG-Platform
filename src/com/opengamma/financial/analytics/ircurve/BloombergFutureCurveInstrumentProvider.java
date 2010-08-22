@@ -74,5 +74,29 @@ public class BloombergFutureCurveInstrumentProvider implements CurveInstrumentPr
     futureCode.append(postfix);
     return Identifier.of(SCHEME, futureCode.toString());
   }
+  
+  // for serialisation only
+  public String getFuturePrefix() {
+    return _futurePrefix;
+  }
+  
+  // for serialisation only  
+  public String getMarketSector() {
+    return _marketSector;
+  }
 
+  public boolean equals(Object o) {
+    if (o == null) {
+      return false;
+    }
+    if (!(o instanceof BloombergFutureCurveInstrumentProvider)) {
+      return false;
+    }
+    BloombergFutureCurveInstrumentProvider other = (BloombergFutureCurveInstrumentProvider) o;
+    return getFuturePrefix().equals(other.getFuturePrefix()) && getMarketSector().equals(other.getMarketSector());
+  }
+  
+  public int hashCode() {
+    return getFuturePrefix().hashCode() ^ getMarketSector().hashCode() * (2 ^ 16);
+  }
 }

@@ -10,12 +10,22 @@ package com.opengamma.financial;
  */
 public class ReferenceRateDocument {
   private String _name;
+  private ReferenceRate _referenceRate;
   
   public ReferenceRateDocument(ReferenceRate referenceRate) {
+    _referenceRate = referenceRate;
     _name = referenceRate.getName();
   }
   
   public String getName() {
     return _name;
+  }
+  
+  public ReferenceRate getReferenceRate() {
+    return _referenceRate;
+  }
+  
+  public ReferenceRate getValue() {
+    return getReferenceRate();
   }
 }

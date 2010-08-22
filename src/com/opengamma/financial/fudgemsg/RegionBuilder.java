@@ -5,18 +5,14 @@
  */
 package com.opengamma.financial.fudgemsg;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.TimeZone;
-
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.financial.Region;
-import com.opengamma.financial.RegionRepository;
+import com.opengamma.engine.world.Region;
+import com.opengamma.engine.world.RegionSource;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -34,8 +30,8 @@ public class RegionBuilder implements FudgeBuilder<Region> {
     return _context;
   }
 
-  protected RegionRepository getRegionRepository() {
-    return getContext().getRegionRepository();
+  protected RegionSource getRegionRepository() {
+    return getContext().getRegionSource();
   }
 
   @Override
@@ -46,7 +42,7 @@ public class RegionBuilder implements FudgeBuilder<Region> {
   @Override
   public Region buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
     final UniqueIdentifier identifier = context.fudgeMsgToObject(UniqueIdentifier.class, message);
-    return getRegionRepository().getHierarchyNode(LocalDate.now(Clock.system(TimeZone.UTC)), identifier);
+    return getRegionRepository().getRegion(identifier);
   }
 
 }

@@ -9,11 +9,16 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.time.calendar.TimeZone;
+import javax.time.i18n.Territory;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
+import com.opengamma.engine.world.Region;
+import com.opengamma.engine.world.RegionType;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -233,4 +238,32 @@ public class RegionNode implements Region {
     return sb.append(']').toString();
   }
 
+  @Override
+  public String getCountryISO2() {
+    if (getData().hasField(InMemoryRegionRepository.ISO_COUNTRY_2)) {
+      return getData().getString(InMemoryRegionRepository.ISO_COUNTRY_2);
+    } else {
+      return null;
+    }
+  }
+  
+  @Override
+  public String getCurrencyISO3() {
+    if (getData().hasField(InMemoryRegionRepository.ISO_CURRENCY_3)) {
+      return getData().getString(InMemoryRegionRepository.ISO_CURRENCY_3);
+    } else {
+      return null;
+    }
+  }
+
+  @Override
+  public TimeZone getTimeZone() {
+    String countryISO2 = getCountryISO2();
+    if (countryISO2 != null) {
+      Territory territory = Territory.forID(countryISO2);
+      return territory.getZone();
+    }  else {
+      return null;
+    }
+  }
 }

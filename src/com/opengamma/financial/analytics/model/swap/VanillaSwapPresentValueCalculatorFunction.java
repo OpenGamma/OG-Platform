@@ -23,7 +23,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.convention.businessday.HolidayRepositoryCalendarAdapter;
+import com.opengamma.financial.convention.businessday.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.interestrate.swap.VanillaSwapPresentValueCalculator;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -43,7 +43,7 @@ public class VanillaSwapPresentValueCalculatorFunction extends AbstractFunction 
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ZonedDateTime now = executionContext.getSnapshotClock().zonedDateTime();
     final Currency currency = getCurrency(target);
-    final Calendar calendar = new HolidayRepositoryCalendarAdapter(OpenGammaExecutionContext.getHolidayRepository(executionContext), currency);
+    final Calendar calendar = new HolidaySourceCalendarAdapter(OpenGammaExecutionContext.getHolidaySource(executionContext), currency);
     final SwapSecurity swap = (SwapSecurity) target.getSecurity();
     final double[] payPaymentTimes = SwapScheduleCalculator.getPayLegPaymentTimes(swap, calendar, now);
     final double[] receivePaymentTimes = SwapScheduleCalculator.getReceiveLegPaymentTimes(swap, calendar, now);

@@ -65,7 +65,7 @@ public final class SwapLegBeanOperation {
     });
   }
 
-  public static SwapLeg createSwapLeg(final RegionRepository regionRepository, final SwapLegBean bean) {
+  public static SwapLeg createSwapLeg(final SwapLegBean bean) {
     return bean.getSwapLegType().accept(new SwapLegVisitor<SwapLeg>() {
 
       @Override
