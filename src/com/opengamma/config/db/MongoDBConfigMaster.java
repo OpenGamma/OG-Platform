@@ -226,7 +226,7 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
     DBObject doc = fdc.fudgeMsgToObject(DBObject.class, msg);
     doc.put(ACTIVE_FIELD, ACTIVE_VALUE);
     
-    s_logger.debug("inserting new doc {}", doc);
+    //s_logger.debug("inserting new doc {}", doc);
     dbCollection.insert(doc);
     DBObject lastErr = getMongoDB().getLastError();
     if (lastErr.get("err") != null) {
