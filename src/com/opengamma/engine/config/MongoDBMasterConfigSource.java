@@ -61,8 +61,10 @@ public class MongoDBMasterConfigSource implements ConfigSource {
     return result;
   }
 
+  // REVIEW: jim 10-Aug-2010 -- Spectacular hack here to make it possible to build a DefaultInterpolatedYieldAndDiscountCurveSource
+  //                            change to private ASAP.
   @SuppressWarnings("unchecked")
-  private <T> MongoDBConfigMaster<T> getConfigMasterFor(Class<T> clazz) {
+  public <T> MongoDBConfigMaster<T> getConfigMasterFor(Class<T> clazz) {
     MongoDBConfigMaster<T> configMaster = (MongoDBConfigMaster<T>) _configMasterMap.get(clazz);
     if (configMaster == null) {
       s_logger.warn("cannot do lookup on {} document type", clazz);
