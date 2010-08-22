@@ -9,6 +9,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
@@ -33,10 +34,11 @@ import com.opengamma.util.TerminatableJobContainer;
  * <p/>
  * This class will create one thread for each open external socket, as well as one
  * thread to accept new sockets from the {@code ServerSocket}.
- * Each message will be handed to the underlying {@link FudgeMessageReceiver} in the
- * same thread as the messages are consumed, so the underlying receiver must be threadsafe,
- * and should not block except where it is fine to block the remote end from publishing
- * during consumption.
+ * <p>
+ * Each message will be handed to the underlying {@link FudgeMessageReceiver} in either
+ * the same thread as the messages are consumed (unless an executor service is
+ * supplied), so the underlying receiver must be threadsafe, and should not block except
+ * where it is fine to block the remote end from publishing during consumption.
  *
  * @author kirk
  */
@@ -47,11 +49,15 @@ public class ServerSocketFudgeMessageReceiver extends AbstractServerSocketProces
 
   private final TerminatableJobContainer _messageReceiveJobs = new TerminatableJobContainer();
   
-  public ServerSocketFudgeMessageReceiver(FudgeMessageReceiver underlying) {
-    this(underlying, FudgeContext.GLOBAL_DEFAULT);
+  public ServerSocketFudgeMessageReceiver(final FudgeMessageReceiver underlying, final FudgeContext fudgeContext) {
+    ArgumentChecker.notNull(underlying, "underlying");
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
+    _underlying = underlying;
+    _context = fudgeContext;
   }
   
-  public ServerSocketFudgeMessageReceiver(FudgeMessageReceiver underlying, FudgeContext fudgeContext) {
+  public ServerSocketFudgeMessageReceiver(final FudgeMessageReceiver underlying, final FudgeContext fudgeContext, final ExecutorService executorService) {
+    super(executorService);
     ArgumentChecker.notNull(underlying, "underlying");
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _underlying = underlying;
@@ -89,8 +95,6 @@ public class ServerSocketFudgeMessageReceiver extends AbstractServerSocketProces
     _messageReceiveJobs.addJobAndStartThread(job, "Message Receive " + socket.getRemoteSocketAddress());
   }
   
-  
-  
   @Override
   protected void cleanupPreAccept() {
     _messageReceiveJobs.cleanupTerminatedInstances();
@@ -116,7 +120,7 @@ public class ServerSocketFudgeMessageReceiver extends AbstractServerSocketProces
         return;
       }
     
-      FudgeMsgEnvelope envelope = null;
+      final FudgeMsgEnvelope envelope;
       try {
         envelope = _reader.nextMessageEnvelope();
       } catch (Exception e) {
@@ -130,12 +134,25 @@ public class ServerSocketFudgeMessageReceiver extends AbstractServerSocketProces
         return;
       }
 
+      final ExecutorService executorService = getExecutorService();
+      if (executorService != null) {
+        executorService.execute(new Runnable() {
+          @Override
+          public void run() {
+            dispatch(envelope);
+          }
+        });
+      } else {
+        dispatch(envelope);
+      }
+    }
+
+    private void dispatch(final FudgeMsgEnvelope envelope) {
       try {
         s_logger.debug("Received message with {} fields. Dispatching to underlying.", envelope.getMessage().getNumFields());
         getUnderlying().messageReceived(getContext(), envelope);
       } catch (Exception e) {
         s_logger.warn("Unable to dispatch message to underlying receiver", e);
-        return;
       }
     }
   }

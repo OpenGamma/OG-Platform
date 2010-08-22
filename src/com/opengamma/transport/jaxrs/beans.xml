@@ -26,8 +26,21 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
   <bean id="fudgeOutput" class="com.opengamma.transport.jaxrs.FudgeBinaryProducer">
     <property name="fudgeContext" ref="fudgeContext" />
   </bean>
+  <bean id="fudgeObjectInput" class="com.opengamma.transport.jaxrs.FudgeObjectBinaryConsumer">
+    <property name="fudgeContext" ref="fudgeContext" />
+  </bean>
   <bean id="fudgeObjectOutput" class="com.opengamma.transport.jaxrs.FudgeObjectBinaryProducer">
     <property name="fudgeContext" ref="fudgeContext" />
   </bean>
+
+  <bean id="dataNotFoundExceptionMapper" class="com.opengamma.util.rest.DataNotFoundExceptionMapper">
+  </bean>
+  <bean id="illegalArgumentExceptionMapper" class="com.opengamma.util.rest.IllegalArgumentExceptionMapper">
+  </bean>
+  <bean id="unsupportedOperationExceptionMapper" class="com.opengamma.util.rest.UnsupportedOperationExceptionMapper">
+  </bean>
+  <bean id="throwableExceptionMapper" class="com.opengamma.util.rest.ThrowableExceptionMapper">
+  </bean>
+
 
 </beans>

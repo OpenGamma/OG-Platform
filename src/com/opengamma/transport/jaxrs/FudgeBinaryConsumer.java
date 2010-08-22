@@ -15,12 +15,14 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
+import javax.ws.rs.ext.Provider;
 
 import org.fudgemsg.FudgeMsgEnvelope;
 
 /**
  * Register as a JAX-RS provider to support REST request payloads containing Fudge encoded messages.
  */
+@Provider
 @Consumes(FudgeRest.MEDIA)
 public class FudgeBinaryConsumer extends FudgeBase implements MessageBodyReader<FudgeMsgEnvelope> {
 

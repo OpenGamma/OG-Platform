@@ -9,12 +9,16 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
+import java.util.concurrent.ExecutorService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.TerminatableJob;
 import com.opengamma.util.ThreadUtil;
 
@@ -22,8 +26,11 @@ import com.opengamma.util.ThreadUtil;
  * 
  *
  */
-public abstract class AbstractServerSocketProcess implements Lifecycle {
+public abstract class AbstractServerSocketProcess implements Lifecycle, InitializingBean {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractServerSocketProcess.class);
+
+  private final ExecutorService _executorService;
+
   private int _portNumber;
   private InetAddress _bindAddress;
 
@@ -32,6 +39,15 @@ public abstract class AbstractServerSocketProcess implements Lifecycle {
   private SocketAcceptJob _socketAcceptJob;
   private boolean _started;
   
+  protected AbstractServerSocketProcess() {
+    _executorService = null;
+  }
+
+  protected AbstractServerSocketProcess(final ExecutorService executorService) {
+    ArgumentChecker.notNull(executorService, "executorService");
+    _executorService = executorService;
+  }
+
   /**
    * @return the portNumber
    */
@@ -108,6 +124,10 @@ public abstract class AbstractServerSocketProcess implements Lifecycle {
     _started = false;
   }
   
+  protected boolean exceptionForcedByClose(final Exception e) {
+    return (e instanceof SocketException) && "Socket closed".equals(e.getMessage());
+  }
+
   private class SocketAcceptJob extends TerminatableJob {
     @Override
     protected void runOneCycle() {
@@ -128,6 +148,18 @@ public abstract class AbstractServerSocketProcess implements Lifecycle {
   protected void cleanupPreAccept() {
   }
   
+  protected ExecutorService getExecutorService() {
+    return _executorService;
+  }
+
   protected abstract void socketOpened(Socket socket);
   
+  // THE FOLLOWING IS A NASTY HACK - the spring context created by Tomcat doesn't get started properly so the lifecycle methods never get called
+  public void afterPropertiesSet() {
+    if (!System.getProperty("user.name").startsWith("bamboo")) {
+      s_logger.error("Hacking a call to start - take this code out when the context starts up properly!");
+      start();
+    }
+  }
+
 }

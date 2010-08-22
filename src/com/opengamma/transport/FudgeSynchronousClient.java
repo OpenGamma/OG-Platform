@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.transport;
@@ -49,28 +49,18 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
   /**
    * The timeout.
    */
-  private final long _timeoutInMilliseconds;
+  private long _timeoutInMilliseconds = DEFAULT_TIMEOUT_IN_MILLISECONDS;
 
   /**
    * Creates the client.
    * @param requestSender  the sender, not null
    */
-  protected FudgeSynchronousClient(FudgeRequestSender requestSender) {
-    this(requestSender, DEFAULT_TIMEOUT_IN_MILLISECONDS);
-  }
-
-  /**
-   * Creates the client.
-   * @param requestSender  the sender, not null
-   * @param timeoutInMilliseconds  the timeout
-   */
-  protected FudgeSynchronousClient(FudgeRequestSender requestSender, long timeoutInMilliseconds) {
+  protected FudgeSynchronousClient(final FudgeRequestSender requestSender) {
     ArgumentChecker.notNull(requestSender, "requestSender");
     _requestSender = requestSender;
-    _timeoutInMilliseconds = timeoutInMilliseconds;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Gets the request sender.
    * @return the request sender, not null
@@ -87,6 +77,10 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
     return _timeoutInMilliseconds;
   }
 
+  public void setTimeoutInMilliseconds(final long timeoutMilliseconds) {
+    _timeoutInMilliseconds = timeoutMilliseconds;
+  }
+
   /**
    * Gets the next id.
    * @return the next numeric id
@@ -95,31 +89,32 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
     return _nextCorrelationId.incrementAndGet();
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Sends the message.
    * @param requestMsg  the message, not null
    * @param correlationId  the message id
    * @return the result
    */
-  protected Object sendRequestAndWaitForResponse(FudgeFieldContainer requestMsg, long correlationId) {
+  protected FudgeFieldContainer sendRequestAndWaitForResponse(FudgeFieldContainer requestMsg, long correlationId) {
     ClientRequestHolder requestHolder = new ClientRequestHolder();
     _pendingRequests.put(correlationId, requestHolder);
-    getRequestSender().sendRequest(requestMsg, this);
     try {
-      requestHolder.latch.await(getTimeoutInMilliseconds(), TimeUnit.MILLISECONDS);
-    } catch (InterruptedException e) {
-      Thread.interrupted();
-      s_logger.warn("Didn't get response to {} in {}ms", correlationId, getTimeoutInMilliseconds());
-      // Always remove it to clear out the Map so that in a long-running system we don't
-      // end up with massive memory leaks.
+      getRequestSender().sendRequest(requestMsg, this);
+      try {
+        requestHolder.latch.await(getTimeoutInMilliseconds(), TimeUnit.MILLISECONDS);
+      } catch (InterruptedException e) {
+        Thread.interrupted();
+        s_logger.warn("Didn't get response to {} in {}ms", correlationId, getTimeoutInMilliseconds());
+      }
+      if (requestHolder.resultValue == null) {
+        throw new OpenGammaRuntimeException("Didn't receive a response message to " + correlationId + " in " + getTimeoutInMilliseconds() + "ms");
+      }
+      assert getCorrelationIdFromReply(requestHolder.resultValue) == correlationId;
+      return requestHolder.resultValue;
+    } finally {
       _pendingRequests.remove(correlationId);
     }
-    if (requestHolder.resultValue == null) {
-      throw new OpenGammaRuntimeException("Didn't receive a response message to " + correlationId + " in " + getTimeoutInMilliseconds() + "ms");
-    }
-    assert getCorrelationIdFromReply(requestHolder.resultValue) == correlationId;
-    return requestHolder.resultValue;
   }
 
   /**
@@ -129,31 +124,31 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
    */
   @Override
   public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
-    Object reply = fudgeContext.fromFudgeMsg(msgEnvelope.getMessage());
-    long correlationId = getCorrelationIdFromReply(reply);
-    ClientRequestHolder requestHolder = _pendingRequests.remove(correlationId);
+    final FudgeFieldContainer reply = msgEnvelope.getMessage();
+    final long correlationId = getCorrelationIdFromReply(reply);
+    final ClientRequestHolder requestHolder = _pendingRequests.remove(correlationId);
     if (requestHolder == null) {
-      s_logger.warn("Got a response on correlation Id {} which didn't match a pending request.", correlationId);
+      s_logger.warn("Got a response on non-pending correlation Id {}", correlationId);
       return;
     }
     requestHolder.resultValue = reply;
     requestHolder.latch.countDown();
   }
-  
+
   /**
    * Extracts the correlation id from the reply object.
    * @param reply  the reply
    * @return the id
    */
-  protected abstract long getCorrelationIdFromReply(Object reply);
+  protected abstract long getCorrelationIdFromReply(FudgeFieldContainer reply);
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Data holder.
    */
   private static final class ClientRequestHolder {
-    public Object resultValue;  // CSIGNORE: simple holder object
-    public final CountDownLatch latch = new CountDownLatch(1);  // CSIGNORE: simple holder object
+    public FudgeFieldContainer resultValue; // CSIGNORE: simple holder object
+    public final CountDownLatch latch = new CountDownLatch(1); // CSIGNORE: simple holder object
   }
 
 }

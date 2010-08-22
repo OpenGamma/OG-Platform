@@ -5,6 +5,8 @@
  */
 package com.opengamma.util.timeseries;
 
+import com.opengamma.OpenGammaRuntimeException;
+
 
 /**
  * 
@@ -81,6 +83,13 @@ public class DoubleTimeSeriesOperators {
       return b;
     }
   }
+  
+  private static class NoIntersectionOperator implements BinaryOperator {
+    public double operate(double a, double b) {
+      throw new OpenGammaRuntimeException("No binary operation permitted");
+    }
+    
+  }
 
   /**
    * @author jim
@@ -121,6 +130,8 @@ public class DoubleTimeSeriesOperators {
       return Math.abs(a);
     }
   }
+  
+  
 
   // CSOFF: Self-Explainatory
   public static final AddOperator ADD_OPERATOR = new AddOperator();
@@ -138,5 +149,6 @@ public class DoubleTimeSeriesOperators {
   public static final LogOperator LOG_OPERATOR = new LogOperator();
   public static final Log10Operator LOG10_OPERATOR = new Log10Operator();
   public static final AbsOperator ABS_OPERATOR = new AbsOperator();
+  public static final NoIntersectionOperator NO_INTERSECTION_OPERATOR = new NoIntersectionOperator();
   // CSON: Self-Explainatory
 }

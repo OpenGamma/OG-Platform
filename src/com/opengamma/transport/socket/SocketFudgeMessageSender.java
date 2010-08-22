@@ -8,6 +8,8 @@ package com.opengamma.transport.socket;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
@@ -33,6 +35,8 @@ public class SocketFudgeMessageSender extends AbstractSocketProcess implements F
   private final FudgeContext _fudgeContext;
   
   private FudgeMsgWriter _msgWriter;
+
+  private Queue<FudgeFieldContainer> _messagesToWrite;
   
   public SocketFudgeMessageSender() {
     this(FudgeContext.GLOBAL_DEFAULT);
@@ -48,11 +52,45 @@ public class SocketFudgeMessageSender extends AbstractSocketProcess implements F
     return _fudgeContext;
   }
 
+  /**
+   * Note that a return from a call to {@link #send} does not guarantee the message has been
+   * received, or even sent. There may be buffering on the transport but also we batch
+   * messages up to a single thread if this is called concurrently.
+   * 
+   * @param message message to send
+   */
   @Override
-  public synchronized void send(FudgeFieldContainer message) {
-    startIfNecessary();
-    s_logger.info("Sending message with {} fields", message.getNumFields());
-    _msgWriter.writeMessage(message);
+  public void send(FudgeFieldContainer message) {
+    synchronized (this) {
+      if (_messagesToWrite != null) {
+        s_logger.debug("Deferring message with {} fields to another thread", message.getNumFields());
+        _messagesToWrite.add(message);
+        return;
+      } else {
+        _messagesToWrite = new LinkedList<FudgeFieldContainer>();
+      }
+    }
+    boolean clearPointer = true;
+    try {
+      startIfNecessary();
+      do {
+        s_logger.info("Sending message with {} fields", message.getNumFields());
+        _msgWriter.writeMessage(message);
+        synchronized (this) {
+          message = _messagesToWrite.poll();
+          if (message == null) {
+            _messagesToWrite = null;
+            clearPointer = false;
+          }
+        }
+      } while (message != null);
+    } finally {
+      synchronized (this) {
+        if (clearPointer) {
+          _messagesToWrite = null;
+        }
+      }
+    }
   }
 
   @Override
