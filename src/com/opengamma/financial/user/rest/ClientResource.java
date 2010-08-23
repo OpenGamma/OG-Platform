@@ -86,7 +86,7 @@ public class ClientResource {
 
   @Path(PORTFOLIOS_PATH)
   public DataPortfoliosResource getPortfolios() {
-    return new DataPortfoliosResource(getUriInfo(), _usersResourceContext.getPositionMaster());
+    return new DataPortfoliosResource(_usersResourceContext.getPositionMaster());
   }
   
   @Path(POSITIONS_PATH)

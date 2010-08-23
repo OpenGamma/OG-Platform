@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.position.rest;
 
-import java.math.BigDecimal;
 import java.net.URI;
 
 import javax.ws.rs.Consumes;
@@ -13,10 +12,11 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.ext.Providers;
 
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.financial.position.master.PositionMaster;
@@ -25,7 +25,7 @@ import com.opengamma.financial.position.master.PositionSearchResult;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for all positions.
@@ -34,19 +34,12 @@ import com.opengamma.util.db.PagingRequest;
  * This is a logical URL as positions have unique identifiers.
  */
 @Path("/data/positions")
-@Consumes(FudgeRest.MEDIA)
-@Produces(FudgeRest.MEDIA)
-public class DataPositionsResource {
+public class DataPositionsResource extends AbstractDataResource {
 
   /**
    * The injected position master.
    */
   private final PositionMaster _posMaster;
-  /**
-   * Information about the URI injected by JSR-311.
-   */
-  @Context
-  private UriInfo _uriInfo;
 
   /**
    * Creates the resource.
@@ -66,31 +59,19 @@ public class DataPositionsResource {
     return _posMaster;
   }
 
-  /**
-   * Gets the URI info.
-   * @return the uri info, not null
-   */
-  public UriInfo getUriInfo() {
-    return _uriInfo;
-  }
-
   //-------------------------------------------------------------------------
   @GET
-  public PositionSearchResult get(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize,
-      @QueryParam("minQuantity") BigDecimal minQuantity,
-      @QueryParam("maxQuantity") BigDecimal maxQuantity) {
-    final PositionSearchRequest request = new PositionSearchRequest();
-    request.setPagingRequest(PagingRequest.of(page, pageSize));
-    request.setMinQuantity(minQuantity);
-    request.setMaxQuantity(maxQuantity);
-    return getPositionMaster().searchPositions(request);
+  public Response search(@Context Providers providers, @QueryParam("msg") String msgBase64) {
+    PositionSearchRequest request = decodeBean(PositionSearchRequest.class, providers, msgBase64);
+    PositionSearchResult result = getPositionMaster().searchPositions(request);
+    return Response.ok(result).build();
   }
 
   @POST
-  public PositionDocument post(PositionDocument request) {
-    return getPositionMaster().addPosition(request);
+  @Consumes(FudgeRest.MEDIA)
+  public Response add(@Context UriInfo uriInfo, PositionDocument request) {
+    PositionDocument result = getPositionMaster().addPosition(request);
+    return Response.created(DataPositionResource.uri(uriInfo, result.getPositionId())).entity(result).build();
   }
 
   //-------------------------------------------------------------------------
@@ -107,7 +88,7 @@ public class DataPositionsResource {
    * @return the URI, not null
    */
   public static URI uri(UriInfo uriInfo) {
-    return uriInfo.getBaseUriBuilder().path(DataPositionsResource.class).build();
+    return uriInfo.getBaseUriBuilder().path("/positions").build();
   }
 
 }

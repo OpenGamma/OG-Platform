@@ -12,21 +12,26 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.ext.Providers;
 
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
+import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricRequest;
+import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricResult;
 import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for a portfolio.
  */
 @Path("/data/portfolios/{portfolioId}")
-public class DataPortfolioResource {
+public class DataPortfolioResource extends AbstractDataResource {
 
   /**
    * The portfolios resource.
@@ -75,37 +80,39 @@ public class DataPortfolioResource {
     return getPortfoliosResource().getPositionMaster();
   }
 
-  /**
-   * Gets the URI info.
-   * @return the URI info, not null
-   */
-  public UriInfo getUriInfo() {
-    return getPortfoliosResource().getUriInfo();
-  }
-
   //-------------------------------------------------------------------------
   @GET
-  @Produces(FudgeRest.MEDIA)
-  public PortfolioTreeDocument get() {
-    return getPositionMaster().getPortfolioTree(getUrlPortfolioId());
+  public Response get() {
+    PortfolioTreeDocument result = getPositionMaster().getPortfolioTree(getUrlPortfolioId());
+    return Response.ok(result).build();
   }
 
   @PUT
   @Consumes(FudgeRest.MEDIA)
-  @Produces(FudgeRest.MEDIA)
-  public PortfolioTreeDocument put(PortfolioTreeDocument request) {
+  public Response put(PortfolioTreeDocument request) {
     if (getUrlPortfolioId().equals(request.getPortfolioId()) == false) {
       throw new IllegalArgumentException("Document portfolioId does not match URL");
     }
-    return getPositionMaster().updatePortfolioTree(request);
+    PortfolioTreeDocument result = getPositionMaster().updatePortfolioTree(request);
+    return Response.ok(result).build();
   }
 
   @DELETE
   @Consumes(FudgeRest.MEDIA)
-  @Produces(FudgeRest.MEDIA)
   public Response delete() {
     getPositionMaster().removePortfolioTree(getUrlPortfolioId());
     return Response.noContent().build();
+  }
+
+  //-------------------------------------------------------------------------
+  @GET
+  public Response searchHistoric(@Context Providers providers, @QueryParam("msg") String msgBase64) {
+    PortfolioTreeSearchHistoricRequest request = decodeBean(PortfolioTreeSearchHistoricRequest.class, providers, msgBase64);
+    if (getUrlPortfolioId().equals(request.getPortfolioId()) == false) {
+      throw new IllegalArgumentException("Document portfolioId does not match URL");
+    }
+    PortfolioTreeSearchHistoricResult result = getPositionMaster().searchPortfolioTreeHistoric(request);
+    return Response.ok(result).build();
   }
 
   //-------------------------------------------------------------------------
@@ -116,7 +123,7 @@ public class DataPortfolioResource {
    * @return the URI, not null
    */
   public static URI uri(UriInfo uriInfo, UniqueIdentifier portfolioId) {
-    return uriInfo.getBaseUriBuilder().path(DataPortfolioResource.class).build(portfolioId);
+    return uriInfo.getBaseUriBuilder().path("/portfolios/{portfolioId}").build(portfolioId);
   }
 
 }

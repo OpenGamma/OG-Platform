@@ -46,8 +46,9 @@ public class DataPortfolioResourceTest {
     final PortfolioTreeDocument result = new PortfolioTreeDocument(portfolio);
     when(_underlying.getPortfolioTree(eq(UID))).thenReturn(result);
     
-    PortfolioTreeDocument test = _resource.get();
-    assertSame(result, test);
+    Response test = _resource.get();
+    assertEquals(Status.OK.getStatusCode(), test.getStatus());
+    assertSame(result, test.getEntity());
   }
 
   @Test
@@ -60,8 +61,9 @@ public class DataPortfolioResourceTest {
     result.setPortfolioId(UID);
     when(_underlying.updatePortfolioTree(same(request))).thenReturn(result);
     
-    PortfolioTreeDocument test = _resource.put(request);
-    assertSame(result, test);
+    Response test = _resource.put(request);
+    assertEquals(Status.OK.getStatusCode(), test.getStatus());
+    assertSame(result, test.getEntity());
   }
 
   @Test
