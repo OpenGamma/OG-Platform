@@ -25,6 +25,7 @@ public class ReportingInputStream extends FilterInputStream {
   private int _callStack;
   private long _readTime;
   private long _readBytes;
+  private long _readOperations;
 
   /**
    * @param logger device to report to
@@ -40,6 +41,7 @@ public class ReportingInputStream extends FilterInputStream {
 
   private void beginRead() {
     if (_callStack++ == 0) {
+      _readOperations++;
       _readTime -= System.nanoTime();
     }
   }
@@ -50,7 +52,13 @@ public class ReportingInputStream extends FilterInputStream {
       _readTime += time;
       if (time >= _nextReportTime) {
         _nextReportTime = time + TIME_TO_REPORT;
-        _logger.info("Stream {} read {}Kb in {}ms", new Object[] {_streamName, (double) _readBytes / 1024d, (double) _readTime / 1000000d});
+        _logger.info("Stream {} read {}Kb in {}ms from {} operations ({}M)}", new Object[] {_streamName, (double) _readBytes / 1024d, (double) _readTime / 1000000d, _readOperations,
+            (double) _readBytes * 8192d / (double) _readTime});
+
+        // Scale down influence of older data
+        _readOperations >>= 1;
+        _readBytes >>= 1;
+        _readTime >>= 1;
       }
     }
   }
@@ -59,21 +67,9 @@ public class ReportingInputStream extends FilterInputStream {
   public int read() throws IOException {
     beginRead();
     try {
-      final int value = super.read();
+      final int value = in.read();
       _readBytes++;
       return value;
-    } finally {
-      endRead();
-    }
-  }
-
-  @Override
-  public int read(final byte[] b) throws IOException {
-    beginRead();
-    try {
-      final int bytes = super.read(b);
-      _readBytes += bytes;
-      return bytes;
     } finally {
       endRead();
     }
@@ -83,7 +79,7 @@ public class ReportingInputStream extends FilterInputStream {
   public int read(final byte[] b, final int off, final int len) throws IOException {
     beginRead();
     try {
-      final int bytes = super.read(b, off, len);
+      final int bytes = in.read(b, off, len);
       _readBytes += bytes;
       return bytes;
     } finally {
