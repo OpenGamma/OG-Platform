@@ -33,7 +33,7 @@ public class RemoteIdentifierMap implements IdentifierMap {
   @Override
   public long getIdentifier(final ValueSpecification spec) {
     final LookupRequest request = new LookupRequest(Collections.singleton(spec));
-    final LookupResponse response = getRemoteCacheClient().sendMessage(request, LookupResponse.class);
+    final LookupResponse response = getRemoteCacheClient().sendGetMessage(request, LookupResponse.class);
     final long identifier = response.getIdentifier().get(0);
     return identifier;
   }
@@ -41,7 +41,7 @@ public class RemoteIdentifierMap implements IdentifierMap {
   @Override
   public Map<ValueSpecification, Long> getIdentifiers(Collection<ValueSpecification> specs) {
     final LookupRequest request = new LookupRequest(specs);
-    final LookupResponse response = getRemoteCacheClient().sendMessage(request, LookupResponse.class);
+    final LookupResponse response = getRemoteCacheClient().sendGetMessage(request, LookupResponse.class);
     final List<Long> identifiers = response.getIdentifier();
     final Map<ValueSpecification, Long> identifierMap = new HashMap<ValueSpecification, Long>();
     int i = 0;

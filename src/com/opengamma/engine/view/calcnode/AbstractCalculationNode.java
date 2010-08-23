@@ -140,8 +140,8 @@ public abstract class AbstractCalculationNode implements CalculationNode {
         s_logger.warn("Invoking " + jobItem.getFunctionUniqueIdentifier() + " threw exception.", e);
         resultItem = new CalculationJobResultItem(jobItem, e);
       }
-
       resultItems.add(resultItem);
+
       /*
        * ((DefaultViewComputationCache) cache.getUnderlying()).reportTimes();
        * System.err.println("resolution=" + (_resolutionTime / 1000000d) + "ms, cacheGet=" + (_cacheGetTime / 1000000d) + "ms, invoke=" + (_invocationTime / 1000000d) + "ms, cachePut="

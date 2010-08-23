@@ -20,16 +20,24 @@ public class RemoteViewComputationCacheSource extends DefaultViewComputationCach
     this(new RemoteCacheClient(requestSender));
   }
 
+  public RemoteViewComputationCacheSource(final FudgeRequestSender requestGet, final FudgeRequestSender requestPut) {
+    this(new RemoteCacheClient(requestGet, requestPut));
+  }
+
   public RemoteViewComputationCacheSource(final FudgeRequestSender requestSender, final int maxLocalCachedElements) {
     this(new RemoteCacheClient(requestSender), maxLocalCachedElements);
   }
 
+  public RemoteViewComputationCacheSource(final FudgeRequestSender requestGet, final FudgeRequestSender requestPut, final int maxLocalCachedElements) {
+    this(new RemoteCacheClient(requestGet, requestPut), maxLocalCachedElements);
+  }
+
   public RemoteViewComputationCacheSource(final RemoteCacheClient client) {
-    this(client, client.getRequestSender().getFudgeContext());
+    this(client, client.getFudgeContext());
   }
 
   public RemoteViewComputationCacheSource(final RemoteCacheClient client, final int maxLocalCachedElements) {
-    this(client, client.getRequestSender().getFudgeContext(), maxLocalCachedElements);
+    this(client, client.getFudgeContext(), maxLocalCachedElements);
   }
 
   /**
