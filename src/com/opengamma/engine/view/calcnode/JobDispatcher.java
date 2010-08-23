@@ -64,7 +64,7 @@ public class JobDispatcher implements JobInvokerRegister {
       cancelTimeout();
       JobResultReceiver resultReceiver = _resultReceiver.getAndSet(null);
       if (resultReceiver != null) {
-        s_logger.debug("Job {} completed", getJobSpec().getJobId());
+        s_logger.debug("Job {} completed on node {}", getJobSpec().getJobId(), result.getComputeNodeId());
         resultReceiver.resultReceived(result);
         s_logger.debug("Reported time = {}ms, non-executing job time = {}ms", (double) result.getDuration() / 1000000d, ((double) getDurationNanos() - (double) result.getDuration()) / 1000000d);
       } else {
