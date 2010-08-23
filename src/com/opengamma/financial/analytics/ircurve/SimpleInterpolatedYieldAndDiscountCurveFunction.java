@@ -16,11 +16,6 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -189,34 +184,6 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     final YieldAndDiscountCurve curve = _isYieldCurve ? new InterpolatedYieldCurve(timeInYearsToRates, _interpolator) : new InterpolatedDiscountCurve(timeInYearsToRates, _interpolator);
     final ComputedValue resultValue = new ComputedValue(_result, curve);
     return Collections.singleton(resultValue);
-  }
-
-  private static final String DEFINITION_KEY = "definition";
-  private static final String CURVE_CURRENCY_KEY = "curveCurrency";
-  private static final String CURVE_NAME_KEY = "curveName";
-  private static final String IS_YIELD_CURVE_KEY = "yieldCurve";
-
-  @Override
-  public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
-    super.toFudgeMsg(context, message);
-    context.objectToFudgeMsgWithClassHeaders(message, DEFINITION_KEY, null, _definition, InterpolatedYieldAndDiscountCurveDefinition.class);
-    context.objectToFudgeMsgWithClassHeaders(message, CURVE_CURRENCY_KEY, null, _curveCurrency, Currency.class);
-    message.add(CURVE_NAME_KEY, _curveName);
-    message.add(IS_YIELD_CURVE_KEY, _isYieldCurve);
-  }
-
-  public static SimpleInterpolatedYieldAndDiscountCurveFunction fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    final SimpleInterpolatedYieldAndDiscountCurveFunction object = new SimpleInterpolatedYieldAndDiscountCurveFunction(context
-        .fieldValueToObject(Currency.class, message.getByName(CURVE_CURRENCY_KEY)), message.getString(CURVE_NAME_KEY), message.getBoolean(IS_YIELD_CURVE_KEY));
-    final FudgeField field = message.getByName(DEFINITION_KEY);
-    if (field != null) {
-      object._definition = context.fieldValueToObject(InterpolatedYieldAndDiscountCurveDefinition.class, field);
-    }
-    SimpleInterpolatedYieldAndDiscountCurveFunction function = fromFudgeMsg(object, message);
-    if (field != null) {
-      object.initImpl();
-    }
-    return function;
   }
 
 }
