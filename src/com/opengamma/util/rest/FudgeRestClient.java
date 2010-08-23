@@ -50,10 +50,10 @@ public class FudgeRestClient {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the RESTful client.
+   * Gets the underlying Jersey RESTful client.
    * @return the client, not null
    */
-  protected Client getClient() {
+  public Client getClient() {
     return _client;
   }
 
