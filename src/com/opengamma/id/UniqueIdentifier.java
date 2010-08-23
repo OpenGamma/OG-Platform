@@ -149,6 +149,18 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
     return _version;
   }
 
+  /**
+   * Returns a copy of this identifier with the specified version.
+   * @param version  the new version of the identifier, empty treated as null, null treated as latest version
+   * @return the created identifier with the specified version, never null
+   */
+  public UniqueIdentifier withVersion(final String version) {
+    if (ObjectUtils.equals(version, _version)) {
+      return this;
+    }
+    return new UniqueIdentifier(_scheme, _value, version);
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public UniqueIdentifier getUniqueIdentifier() {

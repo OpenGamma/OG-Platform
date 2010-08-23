@@ -130,6 +130,31 @@ public class UniqueIdentifierTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_withVersion_added() {
+    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
+    assertEquals(UniqueIdentifier.of("id1", "value1", "32"), test.withVersion("32"));
+  }
+
+  @Test
+  public void test_withVersion_replaced() {
+    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1", "12");
+    assertEquals(UniqueIdentifier.of("id1", "value1", "32"), test.withVersion("32"));
+  }
+
+  @Test
+  public void test_withVersion_replacedToNull() {
+    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1", "32");
+    assertEquals(UniqueIdentifier.of("id1", "value1"), test.withVersion(null));
+  }
+
+  @Test
+  public void test_withVersion_replacedToSame() {
+    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1", "32");
+    assertSame(test, test.withVersion("32"));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_getUniqueId() {
     UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
     assertSame(test, test.getUniqueIdentifier());
