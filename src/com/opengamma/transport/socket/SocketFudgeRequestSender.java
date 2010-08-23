@@ -13,7 +13,6 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.FudgeMsgReader;
-import org.fudgemsg.FudgeMsgWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +27,12 @@ public class SocketFudgeRequestSender extends AbstractSocketProcess implements F
   private static final Logger s_logger = LoggerFactory.getLogger(SocketFudgeRequestSender.class);
   private final FudgeContext _fudgeContext;
   
-  private FudgeMsgWriter _msgWriter;
+  /**
+   * Batch outgoing requests, not to get the benefits of offloading to another thread as we're going
+   * to block anyway on a response but to allow concurrent use of the sender to be batched so only
+   * one flush operation happens.
+   */
+  private final MessageBatchingWriter _writer = new MessageBatchingWriter();
   private FudgeMsgReader _msgReader;
   
   public SocketFudgeRequestSender() {
@@ -49,9 +53,7 @@ public class SocketFudgeRequestSender extends AbstractSocketProcess implements F
   public void sendRequest(FudgeFieldContainer request, FudgeMessageReceiver responseReceiver) {
     startIfNecessary();
     s_logger.debug("Dispatching request with {} fields", request.getNumFields());
-    synchronized (_msgWriter) {
-      _msgWriter.writeMessage(request);
-    }
+    _writer.write(request);
     final FudgeMsgEnvelope response;
     synchronized (_msgReader) {
       response = _msgReader.nextMessageEnvelope();
@@ -64,14 +66,14 @@ public class SocketFudgeRequestSender extends AbstractSocketProcess implements F
 
   @Override
   protected void socketOpened(Socket socket, BufferedOutputStream os, BufferedInputStream is) {
-    _msgWriter = getFudgeContext().createMessageWriter(os);
+    _writer.setFudgeMsgWriter(getFudgeContext(), os);
     _msgReader = getFudgeContext().createMessageReader(is);
   }
 
   @Override
   protected void socketClosed() {
     super.socketClosed();
-    _msgWriter = null;
+    _writer.setFudgeMsgWriter(null);
     _msgReader = null;
   }
   
