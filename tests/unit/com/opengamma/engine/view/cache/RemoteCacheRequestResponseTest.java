@@ -207,23 +207,42 @@ public class RemoteCacheRequestResponseTest {
     RemoteCacheClient client = new RemoteCacheClient(conduit);
     final long timestamp = System.currentTimeMillis();
     BinaryDataStore dataStore = new RemoteBinaryDataStore (client, new ViewComputationCacheKey ("View1", "Config1", timestamp));
-    final byte[] inputValue = new byte[256];
-    for (int i = 0; i < inputValue.length; i++) {
-      inputValue[i] = (byte)i;
+    
+    // Single value
+    final byte[] inputValue1 = new byte[256];
+    for (int i = 0; i < inputValue1.length; i++) {
+      inputValue1[i] = (byte)i;
     }
-    final long identifier = 1L;
-    dataStore.put(identifier, inputValue);
+    long identifier1 = 1L;
+    dataStore.put(identifier1, inputValue1);
     
-    byte[] outputValue = dataStore.get(identifier);
+    byte[] outputValue = dataStore.get(identifier1);
     assertNotNull (outputValue);
-    assertArrayEquals(inputValue, outputValue);
+    assertArrayEquals(inputValue1, outputValue);
     
-    outputValue = dataStore.get (identifier + 1);
+    outputValue = dataStore.get (identifier1 + 1);
     assertNull (outputValue);
     
-    outputValue = dataStore.get (identifier);
+    outputValue = dataStore.get (identifier1);
     assertNotNull (outputValue);
-    assertArrayEquals (inputValue, outputValue);
+    assertArrayEquals (inputValue1, outputValue);
+    
+    // Multiple value
+    final byte[] inputValue2 = new byte[256];
+    for (int i = 0; i < inputValue2.length; i++) {
+      inputValue2[i] = (byte)i;
+    }
+    final Map<Long, byte[]> inputMap = new HashMap<Long, byte[]> ();
+    identifier1 ++;
+    long identifier2 = identifier1 + 1;
+    inputMap.put (identifier1, inputValue1);
+    inputMap.put (identifier2, inputValue2);
+    dataStore.put (inputMap);
+    
+    final Map<Long, byte[]> outputMap = dataStore.get (Arrays.asList (identifier1, identifier2));
+    assertEquals (2, outputMap.size ());
+    assertArrayEquals (inputValue1, outputMap.get (identifier1));
+    assertArrayEquals (inputValue2, outputMap.get (identifier2));
     
   }
 

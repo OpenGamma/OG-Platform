@@ -33,7 +33,6 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteNodeClient.class);
 
   private final FudgeConnection _connection;
-  private final ExecutorService _executorService = Executors.newCachedThreadPool();
   private boolean _started;
 
   public RemoteNodeClient(final FudgeConnection connection) {
@@ -61,10 +60,6 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
 
   protected FudgeConnection getConnection() {
     return _connection;
-  }
-
-  protected ExecutorService getExecutorService() {
-    return _executorService;
   }
 
   private void sendMessage(final RemoteCalcNodeMessage message) {
@@ -97,19 +92,14 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
   }
 
   private void handleJobMessage(final RemoteCalcNodeJobMessage message) {
-    getExecutorService().execute(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          final AbstractCalculationNode node = getNodes().take();
-          final CalculationJobResult result = node.executeJob(message.getJob());
-          getNodes().add(node);
-          sendMessage(new RemoteCalcNodeResultMessage(result));
-        } catch (InterruptedException e) {
-          s_logger.warn("Thread interrupted");
-        }
-      }
-    });
+    try {
+      final AbstractCalculationNode node = getNodes().take();
+      final CalculationJobResult result = node.executeJob(message.getJob());
+      getNodes().add(node);
+      sendMessage(new RemoteCalcNodeResultMessage(result));
+    } catch (InterruptedException e) {
+      s_logger.warn("Thread interrupted");
+    }
   }
 
   private void handleInitMessage(final RemoteCalcNodeInitMessage message) {

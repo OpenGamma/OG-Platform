@@ -85,6 +85,7 @@ public class JobDispatcherTest {
 
   @Test
   public void registerInvokerWithJobPending() {
+    s_logger.info ("registerInvokerWithJobPending");
     final JobDispatcher jobDispatcher = new JobDispatcher();
     final TestJobResultReceiver result = new TestJobResultReceiver();
     final CalculationJobSpecification jobSpec = createTestJobSpec();
@@ -100,6 +101,7 @@ public class JobDispatcherTest {
 
   @Test
   public void registerInvokerWithEmptyQueue() {
+    s_logger.info ("registerInvokerWithEmptyQueue");
     final JobDispatcher jobDispatcher = new JobDispatcher();
     final TestJobInvoker jobInvoker = new TestJobInvoker("Test");
     jobDispatcher.registerJobInvoker(jobInvoker);
@@ -124,6 +126,7 @@ public class JobDispatcherTest {
 
   @Test
   public void invokeInRoundRobinOrder() {
+    s_logger.info ("invokeInRoundRobinOrder");
     final JobDispatcher jobDispatcher = new JobDispatcher();
     final TestJobInvoker node1 = new TestJobInvoker("1");
     final TestJobInvoker node2 = new TestJobInvoker("2");
@@ -145,6 +148,7 @@ public class JobDispatcherTest {
 
   @Test
   public void saturateInvokers() {
+    s_logger.info ("saturateInvokers");
     final JobDispatcher jobDispatcher = new JobDispatcher();
     final JobInvoker[] jobInvokers = new JobInvoker[3];
     for (int i = 0; i < jobInvokers.length; i++) {
@@ -264,6 +268,7 @@ public class JobDispatcherTest {
 
   @Test
   public void testJobRetry() {
+    s_logger.info ("testJobRetry");
     final JobDispatcher jobDispatcher = new JobDispatcher();
     final TestJobResultReceiver result = new TestJobResultReceiver();
     final CalculationJobSpecification jobSpec = createTestJobSpec();
@@ -281,6 +286,74 @@ public class JobDispatcherTest {
     assertEquals(1, failingInvoker._failureCount);
     assertEquals("Test", jobResult.getComputeNodeId());
     assertEquals(jobSpec, jobResult.getSpecification());
+  }
+  
+  private class BlockingJobInvoker implements JobInvoker {
+    
+    private final long _waitFor;
+    
+    private BlockingJobInvoker (final long waitFor) {
+      _waitFor = waitFor;
+    }
+
+    @Override
+    public Collection<Capability> getCapabilities() {
+      return Collections.emptySet ();
+    }
+
+    @Override
+    public boolean invoke(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items, final JobInvocationReceiver receiver) {
+      _executorService.execute(new Runnable() {
+        @Override
+        public void run() {
+          try {
+            Thread.sleep (_waitFor);
+          } catch (InterruptedException e) {
+          }
+          receiver.jobCompleted (createTestJobResult(jobSpec, 0, "BlockingNode"));
+        }
+      });
+      return true;
+    }
+
+    @Override
+    public void notifyWhenAvailable(JobInvokerRegister callback) {
+    }
+    
+  }
+  
+  @Test
+  public void testJobTimeoutFailure() {
+    s_logger.info ("testJobTimeoutFailure");
+    final JobDispatcher jobDispatcher = new JobDispatcher();
+    jobDispatcher.setMaxJobExecutionTime (TIMEOUT);
+    jobDispatcher.setMaxJobAttempts(1);
+    final TestJobResultReceiver result = new TestJobResultReceiver();
+    final CalculationJobSpecification jobSpec = createTestJobSpec();
+    jobDispatcher.dispatchJob(jobSpec, createTestJobItems(), result);
+    assertNull(result.getResult());
+    final BlockingJobInvoker blockingInvoker = new BlockingJobInvoker(2 * TIMEOUT);
+    jobDispatcher.registerJobInvoker(blockingInvoker);
+    CalculationJobResult jobResult = result.waitForResult(2 * TIMEOUT);
+    assertNotNull(jobResult);
+    assertEquals(jobDispatcher.getJobFailureNodeId (), jobResult.getComputeNodeId());
+  }
+  
+  @Test
+  public void testJobTimeoutSuccess() {
+    s_logger.info ("testJobTimeoutSuccess");
+    final JobDispatcher jobDispatcher = new JobDispatcher();
+    jobDispatcher.setMaxJobExecutionTime (2 * TIMEOUT);
+    jobDispatcher.setMaxJobAttempts(1);
+    final TestJobResultReceiver result = new TestJobResultReceiver();
+    final CalculationJobSpecification jobSpec = createTestJobSpec();
+    jobDispatcher.dispatchJob(jobSpec, createTestJobItems(), result);
+    assertNull(result.getResult());
+    final BlockingJobInvoker blockingInvoker = new BlockingJobInvoker(TIMEOUT);
+    jobDispatcher.registerJobInvoker(blockingInvoker);
+    CalculationJobResult jobResult = result.waitForResult(2 * TIMEOUT);
+    assertNotNull(jobResult);
+    assertEquals("BlockingNode", jobResult.getComputeNodeId());
   }
 
 }

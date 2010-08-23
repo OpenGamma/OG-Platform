@@ -17,6 +17,11 @@ import com.opengamma.util.tuple.Pair;
  * handle the multiple value operations more efficiently whenever possible.
  */
 public abstract class AbstractViewComputationCache implements ViewComputationCache {
+  
+  @Override
+  public void cacheValueSpecifications(Collection<ValueSpecification> specifications) {
+    // No action
+  }
 
   @Override
   public Collection<Pair<ValueSpecification, Object>> getValues(final Collection<ValueSpecification> specifications) {

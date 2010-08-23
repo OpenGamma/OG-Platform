@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,8 +26,10 @@ import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.cache.DefaultViewComputationCache;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
+import com.opengamma.engine.view.cache.WriteBehindViewComputationCache;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.tuple.Pair;
@@ -42,6 +46,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
   private final ComputationTargetResolver _targetResolver;
   private final ViewProcessorQuerySender _viewProcessorQuerySender;
   private final String _nodeId;
+  private final ExecutorService _writeBehindExecutorService;
 
   private long _resolutionTime;
   private long _cacheGetTime;
@@ -49,7 +54,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
   private long _cachePutTime;
 
   protected AbstractCalculationNode(ViewComputationCacheSource cacheSource, FunctionExecutionContext functionExecutionContext, ComputationTargetResolver targetResolver,
-      ViewProcessorQuerySender calcNodeQuerySender, String nodeId) {
+      ViewProcessorQuerySender calcNodeQuerySender, String nodeId, final ExecutorService writeBehindExecutorService) {
     ArgumentChecker.notNull(cacheSource, "Cache Source");
     ArgumentChecker.notNull(functionExecutionContext, "Function Execution Context");
     ArgumentChecker.notNull(targetResolver, "Target Resolver");
@@ -62,6 +67,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     _targetResolver = targetResolver;
     _viewProcessorQuerySender = calcNodeQuerySender;
     _nodeId = nodeId;
+    _writeBehindExecutorService = writeBehindExecutorService;
   }
 
   public ViewComputationCacheSource getCacheSource() {
@@ -88,6 +94,10 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     return _viewProcessorQuerySender;
   }
 
+  protected ExecutorService getWriteBehindExecutorService() {
+    return _writeBehindExecutorService;
+  }
+
   @Override
   public String getNodeId() {
     return _nodeId;
@@ -102,21 +112,14 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     getFunctionExecutionContext().setSnapshotEpochTime(spec.getIterationTimestamp());
     getFunctionExecutionContext().setSnapshotClock(DateUtil.epochFixedClockUTC(spec.getIterationTimestamp()));
 
-    ViewComputationCache cache = getCache(spec);
+    WriteBehindViewComputationCache cache = new WriteBehindViewComputationCache(getCache(spec), getWriteBehindExecutorService());
 
     long startNanos = System.nanoTime();
 
     List<CalculationJobResultItem> resultItems = new ArrayList<CalculationJobResultItem>();
 
-    // Pre-fetch the identifiers? If we can make this part of the contract for ViewComputationCache it really speeds things up! (30s without, 3s with in earlier test)
-    /*{ // TODO [ENG-181] do this properly
-      final Set<ValueSpecification> valueSpecs = new HashSet<ValueSpecification>();
-      for (CalculationJobItem jobItem : job.getJobItems()) {
-        valueSpecs.addAll(jobItem.getInputs());
-      }
-      s_logger.debug("Pre-fetching {} ValueIdentifiers");
-      ((DefaultViewComputationCache) cache).getIdentifierMap().getIdentifiers(valueSpecs);
-    }*/
+    // Pre-fetch the identifiers to speed things up
+    cacheAllValueSpecifications(cache, job.getJobItems());
 
     for (CalculationJobItem jobItem : job.getJobItems()) {
 
@@ -138,13 +141,17 @@ public abstract class AbstractCalculationNode implements CalculationNode {
       }
 
       resultItems.add(resultItem);
-
       /*
-      ((DefaultViewComputationCache) cache).reportTimes();
-      System.err.println("resolution=" + (_resolutionTime / 1000000d) + "ms, cacheGet=" + (_cacheGetTime / 1000000d) + "ms, invoke=" + (_invocationTime / 1000000d) + "ms, cachePut="
-          + (_cachePutTime / 1000000d) + "ms");
-      */
+       * ((DefaultViewComputationCache) cache.getUnderlying()).reportTimes();
+       * System.err.println("resolution=" + (_resolutionTime / 1000000d) + "ms, cacheGet=" + (_cacheGetTime / 1000000d) + "ms, invoke=" + (_invocationTime / 1000000d) + "ms, cachePut="
+       * + (_cachePutTime / 1000000d) + "ms");
+       */
     }
+
+    // TODO [ENG-183] the cast below is very nasty
+    _cachePutTime -= System.nanoTime();
+    ((WriteBehindViewComputationCache) cache).waitForPendingWrites();
+    _cachePutTime += System.nanoTime();
 
     long endNanos = System.nanoTime();
     long durationNanos = endNanos - startNanos;
@@ -152,13 +159,14 @@ public abstract class AbstractCalculationNode implements CalculationNode {
 
     s_logger.info("Executed {}", job);
     /*
-    final double totalTime = (double) (_resolutionTime + _cacheGetTime + _invocationTime + _cachePutTime) / 100d;
-    if (totalTime > 0) {
-      System.err.println("Total = " + durationNanos + "ns - " + ((double) _resolutionTime / totalTime) + "% resolution, " + ((double) _cacheGetTime / totalTime) + "% cacheGet, "
-          + ((double) _invocationTime / totalTime) + "% invoke, " + ((double) _cachePutTime / totalTime) + "% cachePut");
-    }
-    ((DefaultViewComputationCache) cache).resetTimes();
-    */
+     * ((DefaultViewComputationCache) cache.getUnderlying()).reportTimes();
+     * final double totalTime = (double) (_resolutionTime + _cacheGetTime + _invocationTime + _cachePutTime) / 100d;
+     * if (totalTime > 0) {
+     * System.err.println("Total = " + durationNanos + "ns - " + ((double) _resolutionTime / totalTime) + "% resolution, " + ((double) _cacheGetTime / totalTime) + "% cacheGet, "
+     * + ((double) _invocationTime / totalTime) + "% invoke, " + ((double) _cachePutTime / totalTime) + "% cachePut");
+     * }
+     */
+    ((DefaultViewComputationCache) cache.getUnderlying()).resetTimes();
     _resolutionTime = 0;
     _cacheGetTime = 0;
     _invocationTime = 0;
@@ -168,6 +176,15 @@ public abstract class AbstractCalculationNode implements CalculationNode {
   }
 
   // TODO Remove the time code that I've been using for debug and tuning
+
+  private void cacheAllValueSpecifications(final ViewComputationCache cache, final Collection<CalculationJobItem> jobItems) {
+    final Set<ValueSpecification> allValueSpecs = new HashSet<ValueSpecification>();
+    for (CalculationJobItem jobItem : jobItems) {
+      allValueSpecs.addAll(jobItem.getInputs());
+    }
+    s_logger.debug("Pre-fetching {} ValueIdentifiers", allValueSpecs.size());
+    cache.cacheValueSpecifications(allValueSpecs);
+  }
 
   @Override
   public ViewComputationCache getCache(CalculationJobSpecification spec) {
