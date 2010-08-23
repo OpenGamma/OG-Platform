@@ -62,8 +62,7 @@ public class ViewTestUtils {
     
     ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
-    LocalCalculationNode localNode = new LocalCalculationNode(cacheFactory, executionContext, targetResolver, viewProcessorQuerySender, Executors.newCachedThreadPool());
-    localNode.setFunctionRepository(functionRepo);
+    LocalCalculationNode localNode = new LocalCalculationNode(cacheFactory, functionRepo, executionContext, targetResolver, viewProcessorQuerySender, Executors.newCachedThreadPool());
     JobDispatcher jobDispatcher = new JobDispatcher (new LocalNodeJobInvoker (localNode));
     
     ThreadFactory threadFactory = new NamedThreadPoolFactory("ViewTestUtils-" + System.currentTimeMillis(), true);

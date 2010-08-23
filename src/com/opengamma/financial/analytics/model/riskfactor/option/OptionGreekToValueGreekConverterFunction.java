@@ -10,9 +10,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -167,18 +164,6 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction i
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.POSITION;
-  }
-
-  private static final String REQUIREMENT_NAME_KEY = "requirementName";
-
-  @Override
-  public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
-    super.toFudgeMsg(context, message);
-    message.add(REQUIREMENT_NAME_KEY, getRequirementName());
-  }
-
-  public static OptionGreekToValueGreekConverterFunction fromFudgeMsg(final FudgeFieldContainer message) {
-    return fromFudgeMsg(new OptionGreekToValueGreekConverterFunction(message.getString(REQUIREMENT_NAME_KEY)), message);
   }
 
 }
