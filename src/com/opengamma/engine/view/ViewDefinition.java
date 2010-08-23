@@ -133,7 +133,7 @@ public class ViewDefinition implements Serializable {
    * 
    * @return  a set of every required portfolio output across all calculation configurations, not null
    */
-  public Set<String> getAllPortfolioRequirements() {
+  public Set<String> getAllPortfolioRequirementNames() {
     Set<String> requirements = new TreeSet<String>();
     for (ViewCalculationConfiguration calcConfig : _calculationConfigurationsByName.values()) {
       requirements.addAll(calcConfig.getAllPortfolioRequirements());
