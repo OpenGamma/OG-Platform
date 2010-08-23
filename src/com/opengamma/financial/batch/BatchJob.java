@@ -614,8 +614,7 @@ public class BatchJob implements Job {
     
     ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
-    AbstractCalculationNode localNode = new LocalCalculationNode(cacheFactory, executionContext, targetResolver, viewProcessorQuerySender, Executors.newCachedThreadPool());
-    localNode.setFunctionRepository(getFunctionRepository());
+    AbstractCalculationNode localNode = new LocalCalculationNode(cacheFactory, getFunctionRepository(), executionContext, targetResolver, viewProcessorQuerySender, Executors.newCachedThreadPool());
     JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(localNode));
     
     ThreadFactory threadFactory = new NamedThreadPoolFactory("BatchJob-" + System.currentTimeMillis(), true);
