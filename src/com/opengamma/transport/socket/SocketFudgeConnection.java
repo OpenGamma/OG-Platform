@@ -8,18 +8,13 @@ package com.opengamma.transport.socket;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.Socket;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.FudgeMsgReader;
-import org.fudgemsg.FudgeMsgWriter;
 import org.fudgemsg.FudgeRuntimeIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,15 +36,7 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
 
   private final FudgeContext _fudgeContext;
   private final ExecutorService _executorService;
-
-  private FudgeMessageReceiver _receiver;
-  private FudgeMsgWriter _msgWriter;
-  private TerminatableJob _receiverJob;
-  private volatile FudgeConnectionStateListener _stateListener;
-
-  private final FudgeMessageSender _sender = new FudgeMessageSender() {
-
-    private Queue<FudgeFieldContainer> _messagesToWrite;
+  private final MessageBatchingWriter _writer = new MessageBatchingWriter() {
 
     /**
      * Prevents re-entrant calls to startIfNecessary if a message is sent as part of a connection
@@ -58,66 +45,51 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
     private boolean _isSending;
 
     @Override
+    protected void beforeWrite() {
+      if (!_isSending) {
+        _isSending = true;
+        try {
+          startIfNecessary();
+        } catch (OpenGammaRuntimeException e) {
+          if (e.getCause() instanceof IOException) {
+            final FudgeConnectionStateListener stateListener = _stateListener;
+            if (stateListener != null) {
+              stateListener.connectionFailed(SocketFudgeConnection.this, (IOException) e.getCause());
+              // Should we still carry on and throw the exception if the user's been given it as a callback? Maybe allow the connectionFailed callback specify which to rethrow?
+            }
+          }
+          throw e;
+        } finally {
+          _isSending = false;
+        }
+      }
+    }
+
+  };
+
+  private FudgeMessageReceiver _receiver;
+  private TerminatableJob _receiverJob;
+  private volatile FudgeConnectionStateListener _stateListener;
+
+  private final FudgeMessageSender _sender = new FudgeMessageSender() {
+
+    @Override
     public FudgeContext getFudgeContext() {
       return _fudgeContext;
     }
 
     @Override
     public void send(FudgeFieldContainer message) {
-      synchronized (this) {
-        if (_messagesToWrite != null) {
-          s_logger.debug("Passing concurrent message to another thread");
-          _messagesToWrite.add(message);
-          return;
-        } else {
-          _messagesToWrite = new LinkedList<FudgeFieldContainer>();
-        }
-      }
-      boolean clearPointer = true;
       try {
-        if (!_isSending) {
-          _isSending = true;
-          try {
-            startIfNecessary();
-          } catch (OpenGammaRuntimeException e) {
-            if (e.getCause() instanceof IOException) {
-              final FudgeConnectionStateListener stateListener = _stateListener;
-              if (stateListener != null) {
-                stateListener.connectionFailed(SocketFudgeConnection.this, (IOException) e.getCause());
-                // Should we still carry on and throw the exception if the user's been given it as a callback? Maybe allow the connectionFailed callback specify which to rethrow?
-              }
-            }
-            throw e;
-          } finally {
-            _isSending = false;
-          }
+        _writer.write(message);
+      } catch (FudgeRuntimeIOException e) {
+        if (exceptionForcedByClose(e.getCause())) {
+          s_logger.info("Connection terminated - message not sent");
+        } else {
+          s_logger.warn("I/O exception during send - {} - stopping socket to flush error", e.getCause().getMessage());
+          stop();
         }
-        do {
-          try {
-            _msgWriter.writeMessage(message);
-          } catch (FudgeRuntimeIOException e) {
-            if (exceptionForcedByClose(e.getCause())) {
-              s_logger.info("Connection terminated - message not sent");
-            } else {
-              s_logger.warn("I/O exception during send - {} - stopping socket to flush error", e.getCause().getMessage());
-              stop();
-            }
-            throw e;
-          }
-          synchronized (this) {
-            message = _messagesToWrite.poll();
-            if (message == null) {
-              clearPointer = false;
-              _messagesToWrite = null;
-            }
-          }
-        } while (message != null);
-      } finally {
-        synchronized (this) {
-          if (clearPointer) {
-            _messagesToWrite = null;
-          }
-        }
+        throw e;
       }
     }
 
@@ -166,9 +138,9 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
   }
 
   @Override
-  protected void socketOpened(Socket socket, OutputStream os, InputStream is) {
-    final FudgeMsgReader reader = _fudgeContext.createMessageReader(new BufferedInputStream(is));
-    _msgWriter = _fudgeContext.createMessageWriter(new BufferedOutputStream(os));
+  protected void socketOpened(Socket socket, BufferedOutputStream os, BufferedInputStream is) {
+    final FudgeMsgReader reader = _fudgeContext.createMessageReader(is);
+    _writer.setFudgeMsgWriter(_fudgeContext, os);
     _receiverJob = new TerminatableJob() {
 
       @Override
@@ -226,7 +198,7 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
 
   @Override
   protected void socketClosed() {
-    _msgWriter = null;
+    _writer.setFudgeMsgWriter(null);
     _receiverJob.terminate();
   }
 

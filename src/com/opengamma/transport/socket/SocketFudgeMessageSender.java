@@ -5,15 +5,12 @@
  */
 package com.opengamma.transport.socket;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.net.Socket;
-import java.util.LinkedList;
-import java.util.Queue;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsgWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,11 +30,9 @@ import com.opengamma.util.ArgumentChecker;
 public class SocketFudgeMessageSender extends AbstractSocketProcess implements FudgeMessageSender {
   private static final Logger s_logger = LoggerFactory.getLogger(SocketFudgeMessageSender.class);
   private final FudgeContext _fudgeContext;
-  
-  private FudgeMsgWriter _msgWriter;
 
-  private Queue<FudgeFieldContainer> _messagesToWrite;
-  
+  private MessageBatchingWriter _writer;
+
   public SocketFudgeMessageSender() {
     this(FudgeContext.GLOBAL_DEFAULT);
   }
@@ -61,47 +56,20 @@ public class SocketFudgeMessageSender extends AbstractSocketProcess implements F
    */
   @Override
   public void send(FudgeFieldContainer message) {
-    synchronized (this) {
-      if (_messagesToWrite != null) {
-        s_logger.debug("Deferring message with {} fields to another thread", message.getNumFields());
-        _messagesToWrite.add(message);
-        return;
-      } else {
-        _messagesToWrite = new LinkedList<FudgeFieldContainer>();
-      }
-    }
-    boolean clearPointer = true;
-    try {
-      startIfNecessary();
-      do {
-        s_logger.info("Sending message with {} fields", message.getNumFields());
-        _msgWriter.writeMessage(message);
-        synchronized (this) {
-          message = _messagesToWrite.poll();
-          if (message == null) {
-            _messagesToWrite = null;
-            clearPointer = false;
-          }
-        }
-      } while (message != null);
-    } finally {
-      synchronized (this) {
-        if (clearPointer) {
-          _messagesToWrite = null;
-        }
-      }
-    }
+    startIfNecessary();
+    s_logger.info("Sending message with {} fields", message.getNumFields());
+    _writer.write(message);
   }
 
   @Override
   protected void socketClosed() {
     super.socketClosed();
-    _msgWriter = null;
+    _writer = null;
   }
 
   @Override
-  protected void socketOpened(Socket socket, OutputStream os, InputStream is) {
-    _msgWriter = getFudgeContext().createMessageWriter(os);
+  protected void socketOpened(Socket socket, BufferedOutputStream os, BufferedInputStream is) {
+    _writer = new MessageBatchingWriter(getFudgeContext(), os);
   }
 
 }
