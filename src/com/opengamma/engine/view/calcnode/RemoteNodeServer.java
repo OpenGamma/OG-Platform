@@ -18,7 +18,6 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionReceiver;
 import com.opengamma.util.ArgumentChecker;
@@ -36,11 +35,9 @@ public class RemoteNodeServer implements FudgeConnectionReceiver {
   private final Set<Capability> _capabilitiesToAdd = new HashSet<Capability>();
   private final Set<Capability> _capabilitiesToRemove = new HashSet<Capability>();
   private Set<Capability> _capabilitiesOverride;
-  private FunctionRepository _functionRepository;
 
-  public RemoteNodeServer(final JobInvokerRegister jobInvokerRegister, final FunctionRepository functionRepository) {
+  public RemoteNodeServer(final JobInvokerRegister jobInvokerRegister) {
     _jobInvokerRegister = jobInvokerRegister;
-    _functionRepository = functionRepository;
   }
 
   /**
@@ -118,10 +115,6 @@ public class RemoteNodeServer implements FudgeConnectionReceiver {
     return _executorService;
   }
 
-  protected FunctionRepository getFunctionRepository() {
-    return _functionRepository;
-  }
-
   @Override
   public void connectionReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope message, final FudgeConnection connection) {
     final FudgeDeserializationContext context = new FudgeDeserializationContext(fudgeContext);
@@ -129,7 +122,7 @@ public class RemoteNodeServer implements FudgeConnectionReceiver {
     if (remoteCalcNodeMessage instanceof RemoteCalcNodeReadyMessage) {
       s_logger.info("Remote node connected - {}", connection);
       final FudgeSerializationContext scontext = new FudgeSerializationContext(fudgeContext);
-      final RemoteCalcNodeInitMessage response = new RemoteCalcNodeInitMessage(getFunctionRepository());
+      final RemoteCalcNodeInitMessage response = new RemoteCalcNodeInitMessage();
       connection.getFudgeMessageSender().send(FudgeSerializationContext.addClassHeader(scontext.objectToFudgeMsg(response), RemoteCalcNodeInitMessage.class, RemoteCalcNodeMessage.class));
       final RemoteNodeJobInvoker invoker = new RemoteNodeJobInvoker(getExecutorService(), (RemoteCalcNodeReadyMessage) remoteCalcNodeMessage, connection);
       if (_capabilitiesOverride != null) {

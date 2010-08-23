@@ -11,9 +11,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -24,10 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.function.DefaultFunctionResolver;
-import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionDefinition;
+import com.opengamma.engine.function.FunctionCompilationService;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.livedata.CombiningLiveDataSnapshotProvider;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
@@ -58,9 +54,9 @@ public class ViewProcessor implements Lifecycle {
   private static final Logger s_logger = LoggerFactory.getLogger(ViewProcessor.class);
   // Injected Inputs:
   private ViewDefinitionRepository _viewDefinitionRepository;
-  private FunctionRepository _functionRepository;
   private SecuritySource _securitySource;
   private PositionSource _positionSource;
+  private FunctionCompilationService _functionCompilationService;
   private LiveDataClient _liveDataClient;
   private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private LiveDataSnapshotProvider _liveDataSnapshotProvider;
@@ -73,7 +69,6 @@ public class ViewProcessor implements Lifecycle {
   private final ConcurrentMap<String, View> _viewsByName = new ConcurrentHashMap<String, View>();
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
   private boolean _isStarted /*= false*/;
-  private final FunctionCompilationContext _compilationContext = new FunctionCompilationContext();
   private ExecutorService _executorService;
   private boolean _localExecutorService /*= false*/;
   
@@ -96,25 +91,28 @@ public class ViewProcessor implements Lifecycle {
   /**
    * @param viewDefinitionRepository the viewDefinitionRepository to set
    */
-  public void setViewDefinitionRepository(
-      ViewDefinitionRepository viewDefinitionRepository) {
+  public void setViewDefinitionRepository(ViewDefinitionRepository viewDefinitionRepository) {
     assertNotStarted();
     _viewDefinitionRepository = viewDefinitionRepository;
   }
 
   /**
-   * @return the functionRepository
+   * Gets the function compilation service
+   * 
+   * @return  the function compilation service
    */
-  public FunctionRepository getFunctionRepository() {
-    return _functionRepository;
+  public FunctionCompilationService getFunctionCompilationService() {
+    return _functionCompilationService;
   }
-
+  
   /**
-   * @param functionRepository the functionRepository to set
+   * Sets the function compilation service
+   * 
+   * @param functionCompilationService  the function compilation service
    */
-  public void setFunctionRepository(FunctionRepository functionRepository) {
+  public void setFunctionCompilationService(final FunctionCompilationService functionCompilationService) {
     assertNotStarted();
-    _functionRepository = functionRepository;
+    _functionCompilationService = functionCompilationService;
   }
 
   /**
@@ -169,8 +167,7 @@ public class ViewProcessor implements Lifecycle {
   /**
    * @param liveDataAvailabilityProvider the liveDataAvailabilityProvider to set
    */
-  public void setLiveDataAvailabilityProvider(
-      LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
+  public void setLiveDataAvailabilityProvider(LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
     assertNotStarted();
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
   }
@@ -185,8 +182,7 @@ public class ViewProcessor implements Lifecycle {
   /**
    * @param liveDataSnapshotProvider the liveDataSnapshotProvider to set
    */
-  public void setLiveDataSnapshotProvider(
-      LiveDataSnapshotProvider liveDataSnapshotProvider) {
+  public void setLiveDataSnapshotProvider(LiveDataSnapshotProvider liveDataSnapshotProvider) {
     assertNotStarted();
     _liveDataSnapshotProvider = liveDataSnapshotProvider;
   }
@@ -201,8 +197,7 @@ public class ViewProcessor implements Lifecycle {
   /**
    * @param computationCacheSource the computationCacheSource to set
    */
-  public void setComputationCacheSource(
-      ViewComputationCacheSource computationCacheSource) {
+  public void setComputationCacheSource(ViewComputationCacheSource computationCacheSource) {
     assertNotStarted();
     _computationCacheSource = computationCacheSource;
   }
@@ -217,8 +212,7 @@ public class ViewProcessor implements Lifecycle {
   /**
    * @param computationJobDispatcher the computationJobDispatcher to set
    */
-  public void setComputationJobDispatcher(
-      JobDispatcher computationJobDispatcher) {
+  public void setComputationJobDispatcher(JobDispatcher computationJobDispatcher) {
     assertNotStarted();
     _computationJobDispatcher = computationJobDispatcher;
   }
@@ -281,18 +275,6 @@ public class ViewProcessor implements Lifecycle {
     _localExecutorService = localExecutorService;
   }
   
-  public void setViewProcessorConfigBean(final ViewProcessorConfigBean configBean) {
-    ArgumentChecker.notNull(configBean, "configBean");
-    configBean.visitCompilationContext(getCompilationContext());
-  }
-
-  /**
-   * @return the compilationContext
-   */
-  public FunctionCompilationContext getCompilationContext() {
-    return _compilationContext;
-  }
-
   public Set<String> getViewNames() {
     return getViewDefinitionRepository().getDefinitionNames();
   }
@@ -341,20 +323,20 @@ public class ViewProcessor implements Lifecycle {
     // NOTE jonathan 2010-08-18 -- Same thing as above for the permission provider. At the moment we're using the
     // default for everything, but we could potentially customise this per view, perhaps based on some property of the
     // view definition - it's easy to imagine that there might be different broad types of view permissioning. 
-    getCompilationContext().setSecuritySource(getSecuritySource());
+    FunctionRepository functionRepository = getFunctionCompilationService().getFunctionRepository();
     InMemoryLKVSnapshotProvider viewLevelLiveData = new InMemoryLKVSnapshotProvider();
     ViewProcessingContext vpc = new ViewProcessingContext(
         getLiveDataClient(),
         getLiveDataAvailabilityProvider(),
         new CombiningLiveDataSnapshotProvider(Arrays.asList(viewLevelLiveData, getLiveDataSnapshotProvider())),
-        getFunctionRepository(),
-        new DefaultFunctionResolver(getFunctionRepository()),
+        functionRepository,
+        new DefaultFunctionResolver(functionRepository),
         getPositionSource(),
         getSecuritySource(),
         getComputationCacheSource(),
         getComputationJobDispatcher(),
         getViewProcessorQueryReceiver(),
-        getCompilationContext(),
+        getFunctionCompilationService().getFunctionCompilationContext(),
         getExecutorService(),
         getDependencyGraphExecutorFactory(),
         getViewPermissionProvider());
@@ -400,7 +382,7 @@ public class ViewProcessor implements Lifecycle {
   
   public void stopProcessing(String viewName) {
     View view = getViewInternal(viewName);
-    switch(view.getCalculationState()) {
+    switch (view.getCalculationState()) {
       case NOT_INITIALIZED:
       case INITIALIZING:
       case NOT_STARTED:
@@ -454,7 +436,7 @@ public class ViewProcessor implements Lifecycle {
       s_logger.info("Starting on lifecycle call.");
       checkInjectedInputs();
       initializeExecutorService();
-      initializeAllFunctionDefinitions();
+      getFunctionCompilationService().initialize(getExecutorService());
       // REVIEW kirk 2010-03-03 -- If we initialize all views or anything, this is
       // where we'd do it.
       
@@ -502,45 +484,6 @@ public class ViewProcessor implements Lifecycle {
   // For all methods that are ultimately called from start()
   // --------------------------------------------------------------------------
 
-  protected void initializeAllFunctionDefinitions() {
-    OperationTimer timer = new OperationTimer(s_logger, "Initializing function definitions");
-    s_logger.info("Initializing all function definitions.");
-    // TODO kirk 2010-03-07 -- Better error handling.
-    ExecutorCompletionService<FunctionDefinition> completionService = new ExecutorCompletionService<FunctionDefinition>(getExecutorService());
-    int nFunctions = getFunctionRepository().getAllFunctions().size();
-    for (FunctionDefinition definition : getFunctionRepository().getAllFunctions()) {
-      final FunctionDefinition finalDefinition = definition;
-      completionService.submit(new Runnable() {
-        @Override
-        public void run() {
-          try {
-            finalDefinition.init(getCompilationContext());
-          } catch (RuntimeException e) {
-            s_logger.warn("Exception thrown while initializing FunctionDefinition {}-{}", new Object[]{finalDefinition, finalDefinition.getShortName()}, e);
-            throw e;
-          }
-        }
-      }, definition);
-    }
-    for (int i = 0; i < nFunctions; i++) {
-      Future<FunctionDefinition> future = null;
-      try {
-        future = completionService.take();
-      } catch (InterruptedException e1) {
-        Thread.interrupted();
-        s_logger.warn("Interrupted while initializing function definitions.");
-        throw new OpenGammaRuntimeException("Interrupted while initializing function definitions. ViewProcessor not safe to use.");
-      }
-      try {
-        future.get();
-      } catch (Exception e) {
-        s_logger.warn("Got exception check back on future for initializing FunctionDefinition. See above log entries", e);
-        // REVIEW kirk 2010-03-07 -- What do we do here?
-      }
-    }
-    timer.finished();
-  }
-  
   protected void initializeExecutorService() {
     if (getExecutorService() == null) {
       OperationTimer timer = new OperationTimer(s_logger, "Initializing View Processor");
@@ -563,7 +506,7 @@ public class ViewProcessor implements Lifecycle {
   protected void checkInjectedInputs() {
     s_logger.debug("Checking injected inputs.");
     ArgumentChecker.notNullInjected(getViewDefinitionRepository(), "viewDefinitionRepository");
-    ArgumentChecker.notNullInjected(getFunctionRepository(), "functionRepository");
+    ArgumentChecker.notNullInjected(getFunctionCompilationService(), "functionCompilationService");
     ArgumentChecker.notNullInjected(getSecuritySource(), "securitySource");
     ArgumentChecker.notNullInjected(getPositionSource(), "positionSource");
     ArgumentChecker.notNullInjected(getLiveDataAvailabilityProvider(), "liveDataAvailabilityProvider");

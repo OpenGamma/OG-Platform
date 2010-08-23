@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,11 +36,15 @@ import com.opengamma.util.tuple.Pair;
 /**
  * A calculation node implementation. The node can only be used by one thread - i.e. executeJob cannot be called concurrently to do
  * multiple jobs. To execute multiple jobs concurrently separate calculation nodes must be used.
+ * <p>
+ * The function repository (and anything else) must be properly initialized and ready for use by the node when it receives its first
+ * job. Responsibility for initialization should therefore lie with whatever will logically be dispatching jobs. This is typically a
+ * {@link ViewProcessor} for local calc nodes or a {@link RemoteNodeClient} for remote nodes.
  */
 public abstract class AbstractCalculationNode implements CalculationNode {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractCalculationNode.class);
   private final ViewComputationCacheSource _cacheSource;
-  private FunctionRepository _functionRepository;
+  private final FunctionRepository _functionRepository;
   private final FunctionExecutionContext _functionExecutionContext;
   private final ComputationTargetResolver _targetResolver;
   private final ViewProcessorQuerySender _viewProcessorQuerySender;
@@ -53,15 +56,17 @@ public abstract class AbstractCalculationNode implements CalculationNode {
   private long _invocationTime;
   private long _cachePutTime;
 
-  protected AbstractCalculationNode(ViewComputationCacheSource cacheSource, FunctionExecutionContext functionExecutionContext, ComputationTargetResolver targetResolver,
-      ViewProcessorQuerySender calcNodeQuerySender, String nodeId, final ExecutorService writeBehindExecutorService) {
+  protected AbstractCalculationNode(ViewComputationCacheSource cacheSource, FunctionRepository functionRepository, FunctionExecutionContext functionExecutionContext,
+      ComputationTargetResolver targetResolver, ViewProcessorQuerySender calcNodeQuerySender, String nodeId, final ExecutorService writeBehindExecutorService) {
     ArgumentChecker.notNull(cacheSource, "Cache Source");
+    ArgumentChecker.notNull(functionRepository, "Function repository");
     ArgumentChecker.notNull(functionExecutionContext, "Function Execution Context");
     ArgumentChecker.notNull(targetResolver, "Target Resolver");
     ArgumentChecker.notNull(calcNodeQuerySender, "Calc Node Query Sender");
     ArgumentChecker.notNull(nodeId, "Calculation node ID");
 
     _cacheSource = cacheSource;
+    _functionRepository = functionRepository;
     // Take a copy of the execution context as we will modify it during execution which isn't good if there are other CalcNodes in our JVM
     _functionExecutionContext = functionExecutionContext.clone();
     _targetResolver = targetResolver;
@@ -72,10 +77,6 @@ public abstract class AbstractCalculationNode implements CalculationNode {
 
   public ViewComputationCacheSource getCacheSource() {
     return _cacheSource;
-  }
-
-  public void setFunctionRepository(final FunctionRepository functionRepository) {
-    _functionRepository = functionRepository;
   }
 
   public FunctionRepository getFunctionRepository() {
@@ -148,9 +149,8 @@ public abstract class AbstractCalculationNode implements CalculationNode {
        */
     }
 
-    // TODO [ENG-183] the cast below is very nasty
     _cachePutTime -= System.nanoTime();
-    ((WriteBehindViewComputationCache) cache).waitForPendingWrites();
+    cache.waitForPendingWrites();
     _cachePutTime += System.nanoTime();
 
     long endNanos = System.nanoTime();
@@ -158,6 +158,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     CalculationJobResult jobResult = new CalculationJobResult(spec, durationNanos, resultItems, getNodeId());
 
     s_logger.info("Executed {}", job);
+
     /*
      * ((DefaultViewComputationCache) cache.getUnderlying()).reportTimes();
      * final double totalTime = (double) (_resolutionTime + _cacheGetTime + _invocationTime + _cachePutTime) / 100d;

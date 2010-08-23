@@ -22,12 +22,12 @@ import com.opengamma.util.InetAddressUtils;
 public class TestCalculationNode extends AbstractCalculationNode {
   
   public TestCalculationNode() {
-    super(new InMemoryViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT), 
+    super(new InMemoryViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT),
+        new InMemoryFunctionRepository (),
         new FunctionExecutionContext(), 
         new DefaultComputationTargetResolver(new MockSecuritySource(), new MockPositionSource()), 
         new ViewProcessorQuerySender(null), 
         InetAddressUtils.getLocalHostName(),
         Executors.newCachedThreadPool ());
-    setFunctionRepository (new InMemoryFunctionRepository ());
   }
 }
