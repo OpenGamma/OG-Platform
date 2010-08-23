@@ -148,9 +148,8 @@ public abstract class AbstractCalculationNode implements CalculationNode {
        */
     }
 
-    // TODO [ENG-183] the cast below is very nasty
     _cachePutTime -= System.nanoTime();
-    ((WriteBehindViewComputationCache) cache).waitForPendingWrites();
+    cache.waitForPendingWrites();
     _cachePutTime += System.nanoTime();
 
     long endNanos = System.nanoTime();
@@ -158,14 +157,15 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     CalculationJobResult jobResult = new CalculationJobResult(spec, durationNanos, resultItems, getNodeId());
 
     s_logger.info("Executed {}", job);
+
     /*
-     * ((DefaultViewComputationCache) cache.getUnderlying()).reportTimes();
-     * final double totalTime = (double) (_resolutionTime + _cacheGetTime + _invocationTime + _cachePutTime) / 100d;
-     * if (totalTime > 0) {
-     * System.err.println("Total = " + durationNanos + "ns - " + ((double) _resolutionTime / totalTime) + "% resolution, " + ((double) _cacheGetTime / totalTime) + "% cacheGet, "
-     * + ((double) _invocationTime / totalTime) + "% invoke, " + ((double) _cachePutTime / totalTime) + "% cachePut");
-     * }
-     */
+    ((DefaultViewComputationCache) cache.getUnderlying()).reportTimes();
+    final double totalTime = (double) (_resolutionTime + _cacheGetTime + _invocationTime + _cachePutTime) / 100d;
+    if (totalTime > 0) {
+      System.err.println("Total = " + durationNanos + "ns - " + ((double) _resolutionTime / totalTime) + "% resolution, " + ((double) _cacheGetTime / totalTime) + "% cacheGet, "
+          + ((double) _invocationTime / totalTime) + "% invoke, " + ((double) _cachePutTime / totalTime) + "% cachePut");
+    }
+    */
     ((DefaultViewComputationCache) cache.getUnderlying()).resetTimes();
     _resolutionTime = 0;
     _cacheGetTime = 0;
