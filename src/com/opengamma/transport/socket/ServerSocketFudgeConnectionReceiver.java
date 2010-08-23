@@ -11,15 +11,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.FudgeMsgReader;
-import org.fudgemsg.FudgeMsgWriter;
 import org.fudgemsg.FudgeRuntimeIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +93,6 @@ public class ServerSocketFudgeConnectionReceiver extends AbstractServerSocketPro
 
     private final Socket _socket;
     private final FudgeMsgReader _reader;
-    private final FudgeMsgWriter _writer;
     private final FudgeMessageSender _sender;
     private final FudgeConnection _connection;
     private FudgeMessageReceiver _receiver;
@@ -105,10 +101,9 @@ public class ServerSocketFudgeConnectionReceiver extends AbstractServerSocketPro
     ConnectionJob(final Socket socket, final InputStream is, final OutputStream os) {
       _socket = socket;
       _reader = getFudgeContext().createMessageReader(new BufferedInputStream(is));
-      _writer = getFudgeContext().createMessageWriter(new BufferedOutputStream(os));
       _sender = new FudgeMessageSender() {
 
-        private Queue<FudgeFieldContainer> _messagesToWrite;
+        private final MessageBatchingWriter _writer = new MessageBatchingWriter(getFudgeContext(), new BufferedOutputStream(os));
 
         @Override
         public FudgeContext getFudgeContext() {
@@ -117,37 +112,11 @@ public class ServerSocketFudgeConnectionReceiver extends AbstractServerSocketPro
 
         @Override
         public void send(FudgeFieldContainer message) {
-          synchronized (this) {
-            if (_messagesToWrite != null) {
-              _messagesToWrite.add(message);
-              return;
-            } else {
-              _messagesToWrite = new LinkedList<FudgeFieldContainer>();
-            }
-          }
-          boolean clearPointer = true;
           try {
-            do {
-              try {
-                _writer.writeMessage(message);
-              } catch (FudgeRuntimeIOException e) {
-                terminateWithError("Unable to write message to underlying stream - terminating connection", e.getCause());
-                throw e;
-              }
-              synchronized (this) {
-                message = _messagesToWrite.poll();
-                if (message == null) {
-                  _messagesToWrite = null;
-                  clearPointer = false;
-                }
-              }
-            } while (message != null);
-          } finally {
-            synchronized (this) {
-              if (clearPointer) {
-                _messagesToWrite = null;
-              }
-            }
+            _writer.write(message);
+          } catch (FudgeRuntimeIOException e) {
+            terminateWithError("Unable to write message to underlying stream - terminating connection", e.getCause());
+            throw e;
           }
         }
 

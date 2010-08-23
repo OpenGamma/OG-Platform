@@ -117,9 +117,7 @@ public abstract class AbstractSocketProcess implements Lifecycle {
     }
     is = new ReportingInputStream(s_logger, getInetAddress() + ":" + getPortNumber(), is);
     os = new ReportingOutputStream(s_logger, getInetAddress() + ":" + getPortNumber(), os);
-    is = new BufferedInputStream(is);
-    os = new BufferedOutputStream(os);
-    socketOpened(_socket, os, is);
+    socketOpened(_socket, new BufferedOutputStream(os), new BufferedInputStream(is));
   }
 
   @Override
@@ -146,7 +144,7 @@ public abstract class AbstractSocketProcess implements Lifecycle {
     return (e instanceof SocketException) && "Socket closed".equals(e.getMessage());
   }
 
-  protected abstract void socketOpened(Socket socket, OutputStream os, InputStream is);
+  protected abstract void socketOpened(Socket socket, BufferedOutputStream os, BufferedInputStream is);
   
   protected void socketClosed() {
   }

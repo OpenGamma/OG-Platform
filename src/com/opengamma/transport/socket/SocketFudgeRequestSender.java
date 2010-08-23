@@ -5,8 +5,8 @@
  */
 package com.opengamma.transport.socket;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.net.Socket;
 
 import org.fudgemsg.FudgeContext;
@@ -63,7 +63,7 @@ public class SocketFudgeRequestSender extends AbstractSocketProcess implements F
   }
 
   @Override
-  protected void socketOpened(Socket socket, OutputStream os, InputStream is) {
+  protected void socketOpened(Socket socket, BufferedOutputStream os, BufferedInputStream is) {
     _msgWriter = getFudgeContext().createMessageWriter(os);
     _msgReader = getFudgeContext().createMessageReader(is);
   }

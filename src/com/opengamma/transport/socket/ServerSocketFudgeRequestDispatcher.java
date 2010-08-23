@@ -1,23 +1,22 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.transport.socket;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.FudgeMsgReader;
-import org.fudgemsg.FudgeMsgWriter;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +37,7 @@ public class ServerSocketFudgeRequestDispatcher extends AbstractServerSocketProc
   private final FudgeContext _fudgeContext;
 
   private final TerminatableJobContainer _messageReceiveJobs = new TerminatableJobContainer();
-  
+
   public ServerSocketFudgeRequestDispatcher(final FudgeRequestReceiver underlying, final FudgeContext fudgeContext) {
     ArgumentChecker.notNull(underlying, "underlying");
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
@@ -78,14 +77,14 @@ public class ServerSocketFudgeRequestDispatcher extends AbstractServerSocketProc
       is = socket.getInputStream();
       os = socket.getOutputStream();
     } catch (IOException e) {
-      s_logger.warn("Unable to open InputStream and OutputStream for socket {}", new Object[]{socket}, e);
+      s_logger.warn("Unable to open InputStream and OutputStream for socket {}", new Object[] {socket}, e);
       return;
     }
-    
-    RequestDispatchJob job = new RequestDispatchJob(socket, is, os);
+
+    RequestDispatchJob job = new RequestDispatchJob(socket, new BufferedInputStream(is), new BufferedOutputStream(os));
     _messageReceiveJobs.addJobAndStartThread(job, "Request Dispatch " + socket.getRemoteSocketAddress());
   }
-  
+
   @Override
   protected void cleanupPreAccept() {
     _messageReceiveJobs.cleanupTerminatedInstances();
@@ -100,9 +99,7 @@ public class ServerSocketFudgeRequestDispatcher extends AbstractServerSocketProc
   private class RequestDispatchJob extends TerminatableJob {
     private final Socket _socket;
     private final FudgeMsgReader _reader;
-    private final FudgeMsgWriter _writer;
-
-    private Queue<FudgeFieldContainer> _messagesToWrite;
+    private final MessageBatchingWriter _writer;
 
     // NOTE kirk 2010-05-12 -- Have to pass in the InputStream and OutputStream explicitly so that
     // we can force the IOException catch up above.
@@ -112,16 +109,16 @@ public class ServerSocketFudgeRequestDispatcher extends AbstractServerSocketProc
       ArgumentChecker.notNull(outputStream, "outputStream");
       _socket = socket;
       _reader = getFudgeContext().createMessageReader(inputStream);
-      _writer = getFudgeContext().createMessageWriter(outputStream);
+      _writer = new MessageBatchingWriter(getFudgeContext(), outputStream);
     }
-    
+
     @Override
     protected void runOneCycle() {
       if (_socket.isClosed()) {
         terminate();
         return;
       }
-    
+
       final FudgeMsgEnvelope envelope;
       try {
         envelope = _reader.nextMessageEnvelope();
@@ -130,13 +127,13 @@ public class ServerSocketFudgeRequestDispatcher extends AbstractServerSocketProc
         terminate();
         return;
       }
-      
+
       if (envelope == null) {
         s_logger.info("Nothing available on the stream. Returning and terminating.");
         terminate();
         return;
       }
-      
+
       final ExecutorService executorService = getExecutorService();
       if (executorService != null) {
         executorService.execute(new Runnable() {
@@ -148,7 +145,7 @@ public class ServerSocketFudgeRequestDispatcher extends AbstractServerSocketProc
       } else {
         dispatch(envelope);
       }
-      
+
     }
 
     private void dispatch(final FudgeMsgEnvelope envelope) {
@@ -161,39 +158,12 @@ public class ServerSocketFudgeRequestDispatcher extends AbstractServerSocketProc
         return;
       }
       if (response != null) {
-        synchronized (this) {
-          if (_messagesToWrite != null) {
-            _messagesToWrite.add(response);
-            return;
-          } else {
-            _messagesToWrite = new LinkedList<FudgeFieldContainer>();
-          }
-        }
-        boolean clearPointer = true;
         try {
-          do {
-            try {
-              s_logger.debug("Sending response with {} fields.", response.getNumFields());
-              _writer.writeMessage(response);
-            } catch (Exception e) {
-              s_logger.warn("Unable to dispatch response to client - terminating connection", e);
-              terminate();
-              return;
-            }
-            synchronized (this) {
-              response = _messagesToWrite.poll();
-              if (response == null) {
-                _messagesToWrite = null;
-                clearPointer = false;
-              }
-            }
-          } while (response != null);
-        } finally {
-          synchronized (this) {
-            if (clearPointer) {
-              _messagesToWrite = null;
-            }
-          }
+          s_logger.debug("Sending response with {} fields.", response.getNumFields());
+          _writer.write(response);
+        } catch (Exception e) {
+          s_logger.warn("Unable to dispatch response to client - terminating connection", e);
+          terminate();
         }
       }
     }
