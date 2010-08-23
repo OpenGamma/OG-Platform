@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.special.GammaFunction;
 import com.opengamma.math.minimization.GoldenSectionMinimizer1D;
-import com.opengamma.math.minimization.Minimizer1D;
+import com.opengamma.math.minimization.ScalarMinimizer;
 import com.opengamma.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.math.statistics.descriptive.PopulationStandardDeviationCalculator;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
@@ -22,7 +22,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class StudentTDistributionMaximumLikelihoodEstimator extends DistributionParameterEstimator<Double> {
   // TODO add error estimates
-  private final Minimizer1D _minimizer = new GoldenSectionMinimizer1D();
+  private final ScalarMinimizer _minimizer = new GoldenSectionMinimizer1D();
   private final Function1D<Double, Double> _gamma = new GammaFunction();
   private final Function1D<double[], Double> _mean = new MeanCalculator();
   private final Function1D<double[], Double> _std = new PopulationStandardDeviationCalculator();

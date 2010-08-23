@@ -7,6 +7,8 @@ package com.opengamma.math.minimization;
 
 import static com.opengamma.math.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
 
+import org.apache.commons.lang.NotImplementedException;
+
 import com.opengamma.math.ConvergenceException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -15,21 +17,21 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class ConjugateGradient implements MinimizerNDWithFirstDerivative {
+public class ConjugateGradientVectorMinimizer implements VectorMinimizerWithGradient {
 
   private static final double SMALL = Double.MIN_NORMAL;
   private final double _eps;
   private final int _maxInterations;
   private final LineSearch _lineSearch;
 
-  public ConjugateGradient(final Minimizer1D minimizer) {
+  public ConjugateGradientVectorMinimizer(final ScalarMinimizer minimizer) {
     ArgumentChecker.notNull(minimizer, "minimizer");
     _lineSearch = new LineSearch(minimizer);
     _eps = 1e-8;
     _maxInterations = 100;
   }
 
-  public ConjugateGradient(final Minimizer1D minimizer, double tolerance, int maxInterations) {
+  public ConjugateGradientVectorMinimizer(final ScalarMinimizer minimizer, double tolerance, int maxInterations) {
     ArgumentChecker.notNull(minimizer, "minimizer");
     if (tolerance < SMALL || tolerance > 1.0) {
       throw new IllegalArgumentException("Tolerance must be greater than " + SMALL + " and less than 1.0");
@@ -40,6 +42,11 @@ public class ConjugateGradient implements MinimizerNDWithFirstDerivative {
     _lineSearch = new LineSearch(minimizer);
     _eps = tolerance;
     _maxInterations = maxInterations;
+  }
+
+  @Override
+  public DoubleMatrix1D minimize(Function1D<DoubleMatrix1D, Double> function, DoubleMatrix1D startPosition) {
+    throw new NotImplementedException();
   }
 
   @Override

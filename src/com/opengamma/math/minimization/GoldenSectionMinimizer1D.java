@@ -14,7 +14,7 @@ import com.opengamma.math.function.Function1D;
 /**
  * 
  */
-public class GoldenSectionMinimizer1D implements Minimizer1D {
+public class GoldenSectionMinimizer1D implements ScalarMinimizer {
   private static final double GOLDEN = 0.61803399;
   private static final double COMPLEMENT = 1 - GOLDEN;
   private static final MinimumBracketer BRACKETER = new ParabolicMinimumBracketer();

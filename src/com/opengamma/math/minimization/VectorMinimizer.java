@@ -6,11 +6,10 @@
 package com.opengamma.math.minimization;
 
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.matrix.DoubleMatrix1D;
 
 /**
  * 
  */
-public interface MinimizerWithFirstDerivative<F extends Function1D<S, ?>, G extends Function1D<S, ?>, S> {
-
-  S minimize(F function, G grad, S startPosition);
+public interface VectorMinimizer extends Minimizer<Function1D<DoubleMatrix1D, Double>, DoubleMatrix1D> {
 }

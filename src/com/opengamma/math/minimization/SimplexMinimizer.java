@@ -13,7 +13,7 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
 /**
  * 
  */
-public abstract class SimplexMinimizer implements MinimizerND {
+public abstract class SimplexMinimizer implements VectorMinimizer {
 
   protected void checkInputs(final Function1D<DoubleMatrix1D, Double> f, final DoubleMatrix1D start) {
     Validate.notNull(f, "function");

@@ -10,10 +10,8 @@ import org.junit.Test;
 /**
  * 
  */
-public class ConjugateGradientTest extends MultidimensionalMinimizerWithGradiantTestCase {
-  private static double EPS = 1e-8;
-  private static ScalarMinimizer LINE_MINIMIZER = new BrentMinimizer1D();
-  private static VectorMinimizerWithGradient MINIMISER = new ConjugateGradientVectorMinimizer(LINE_MINIMIZER, EPS, 500);
+public class QuasiNewtonTest extends MultidimensionalMinimizerWithGradiantTestCase {
+  private static VectorMinimizerWithGradient MINIMISER = new QuasiNewtonVectorMinimizer();
 
   @Test
   public void testSolvingRosenbrock() {
@@ -24,4 +22,5 @@ public class ConjugateGradientTest extends MultidimensionalMinimizerWithGradiant
   public void testSolvingCoupledRosenbrock() {
     super.testSolvingCoupledRosenbrock(MINIMISER);
   }
+
 }

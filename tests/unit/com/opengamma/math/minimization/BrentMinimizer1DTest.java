@@ -11,7 +11,7 @@ import org.junit.Test;
  * 
  */
 public class BrentMinimizer1DTest extends Minimizer1DTestCase {
-  private static final Minimizer1D MINIMIZER = new BrentMinimizer1D();
+  private static final ScalarMinimizer MINIMIZER = new BrentMinimizer1D();
 
   @Test
   public void test() {

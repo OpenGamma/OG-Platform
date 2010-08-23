@@ -32,7 +32,7 @@ public class Minimizer1DTestCase {
 
   };
 
-  public void testInputs(final Minimizer1D minimizer) {
+  public void testInputs(final ScalarMinimizer minimizer) {
     try {
       minimizer.minimize(null, 0.0, 2., 3.);
       fail();
@@ -41,7 +41,7 @@ public class Minimizer1DTestCase {
     }
   }
 
-  public void test(final Minimizer1D minimizer) {
+  public void test(final ScalarMinimizer minimizer) {
     double result = minimizer.minimize(QUADRATIC, 0.0, -10., 10.);
     assertEquals(result, -3.5, EPS);
     result = minimizer.minimize(QUINTIC, 0.0, 0.5, 2.);

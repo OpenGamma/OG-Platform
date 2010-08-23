@@ -10,7 +10,7 @@ import com.opengamma.math.function.Function1D;
 /**
  * 
  */
+public interface MinimizerWithGradient<F extends Function1D<S, ?>, G extends Function1D<S, ?>, S> extends Minimizer<F, S> {
 
-public interface MinimizerWithSecondDerivative<F extends Function1D<S, ?>, G extends Function1D<S, ?>, H extends Function1D<S, ?>, S> {
-  S minimize(F function, G grad, H hessian, S startPosition);
+  S minimize(final F function, final G gradient, final S startPosition);
 }

@@ -11,7 +11,7 @@ import org.junit.Test;
  * 
  */
 public class GoldenSectionMinimizer1DTest extends Minimizer1DTestCase {
-  private static final Minimizer1D MINIMIZER = new GoldenSectionMinimizer1D();
+  private static final ScalarMinimizer MINIMIZER = new GoldenSectionMinimizer1D();
 
   @Test
   public void test() {

@@ -10,7 +10,7 @@ import com.opengamma.math.function.Function1D;
 /**
  * 
  */
-public interface Minimizer1D extends Minimizer<Function1D<Double, Double>, Double> {
+public interface ScalarMinimizer extends Minimizer<Function1D<Double, Double>, Double> {
 
   double minimize(Function1D<Double, Double> function, double startPosition, double lowerBound, double upperBound);
 
