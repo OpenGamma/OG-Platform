@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.livedata;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,13 +18,10 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.livedata.msg.UserPrincipal;
 
 /**
- * An implementation of {@link LiveDataSnapshotProvider} which maintains an LKV
- * cache of externally provided values.
- * It is primarily useful for mock, testing, or demo scenarios.
- * 
+ * An implementation of {@link LiveDataSnapshotProvider} which maintains an LKV cache of externally provided values.
  */
 public class InMemoryLKVSnapshotProvider extends AbstractLiveDataSnapshotProvider implements
-    MutableLiveDataSnapshotProvider, LiveDataAvailabilityProvider {
+    LiveDataInjector, LiveDataAvailabilityProvider {
   private static final Logger s_logger = LoggerFactory.getLogger(InMemoryLKVSnapshotProvider.class);
   private final Map<ValueRequirement, Object> _lastKnownValues = new ConcurrentHashMap<ValueRequirement, Object>();
   private final Map<Long, Map<ValueRequirement, Object>> _snapshots = new ConcurrentHashMap<Long, Map<ValueRequirement, Object>>();
@@ -78,17 +74,17 @@ public class InMemoryLKVSnapshotProvider extends AbstractLiveDataSnapshotProvide
   @Override
   public void addValue(ValueRequirement requirement, Object value) {
     _lastKnownValues.put(requirement, value);
-    super.valueChanged(requirement);
+    valueChanged(requirement);
   }
 
   @Override
   public void removeValue(final ValueRequirement valueRequirement) {
     _lastKnownValues.remove(valueRequirement);
-    super.valueChanged(valueRequirement);
+    valueChanged(valueRequirement);
   }
-
-  public Collection<ValueRequirement> getAllValueKeys() {
-    return Collections.unmodifiableCollection(_lastKnownValues.keySet());
+ 
+  public Set<ValueRequirement> getAllValueKeys() {
+    return Collections.unmodifiableSet(_lastKnownValues.keySet());
   }
 
   public Object getCurrentValue(ValueRequirement valueRequirement) {

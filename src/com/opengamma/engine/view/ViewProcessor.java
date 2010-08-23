@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -28,6 +29,8 @@ import com.opengamma.engine.function.DefaultFunctionResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionRepository;
+import com.opengamma.engine.livedata.CombiningLiveDataSnapshotProvider;
+import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PositionSource;
@@ -339,10 +342,11 @@ public class ViewProcessor implements Lifecycle {
     // default for everything, but we could potentially customise this per view, perhaps based on some property of the
     // view definition - it's easy to imagine that there might be different broad types of view permissioning. 
     getCompilationContext().setSecuritySource(getSecuritySource());
+    InMemoryLKVSnapshotProvider viewLevelLiveData = new InMemoryLKVSnapshotProvider();
     ViewProcessingContext vpc = new ViewProcessingContext(
         getLiveDataClient(),
         getLiveDataAvailabilityProvider(),
-        getLiveDataSnapshotProvider(),
+        new CombiningLiveDataSnapshotProvider(Arrays.asList(viewLevelLiveData, getLiveDataSnapshotProvider())),
         getFunctionRepository(),
         new DefaultFunctionResolver(getFunctionRepository()),
         getPositionSource(),
@@ -354,7 +358,7 @@ public class ViewProcessor implements Lifecycle {
         getExecutorService(),
         getDependencyGraphExecutorFactory(),
         getViewPermissionProvider());
-    View freshView = new View(viewDefinition, vpc);
+    View freshView = new View(viewDefinition, vpc, viewLevelLiveData);
     View actualView = _viewsByName.putIfAbsent(viewName, freshView);
     if (actualView == null) {
       actualView = freshView;
