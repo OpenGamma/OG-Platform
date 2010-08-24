@@ -17,8 +17,6 @@
         <dependency org="org.springframework" name="spring-security" rev="2.0.5"/>
         
         <dependency org="javax.mail" name="javamail" rev="1.4.3"/>
-        
-        <dependency org="org.freemarker" name="freemarker" rev="2.3.16"/>
     </dependencies>
 </ivy-module>
 
