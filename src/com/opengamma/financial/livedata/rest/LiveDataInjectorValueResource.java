@@ -31,7 +31,7 @@ public class LiveDataInjectorValueResource {
   
   @PUT
   @Consumes(FudgeRest.MEDIA)
-  public void put(Object value) {
+  public void put(Double value) {
     ArgumentChecker.notNull(value, "value");
     _injector.addValue(_valueRequirement, value);
   }
