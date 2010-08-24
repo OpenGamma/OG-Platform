@@ -12,6 +12,7 @@ import javax.time.calendar.TimeZone;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
@@ -22,6 +23,9 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * Builder for converting Region instances to/from Fudge messages.
  */
+// REVIEW kirk 2010-08-24 -- Once I know why this doesn't have a no-arg constructor,
+// have to turn this part back on.
+//@FudgeBuilderFor(Region.class)
 public class RegionBuilder implements FudgeBuilder<Region> {
 
   private final FinancialFudgeContextConfiguration _context;
