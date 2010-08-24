@@ -17,6 +17,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.junit.Test;
 
+import com.opengamma.engine.view.cache.InMemoryIdentifierMap;
 import com.opengamma.transport.DirectFudgeConnection;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeMessageReceiver;
@@ -33,7 +34,7 @@ public class RemoteNodeJobInvokerTest {
     final JobDispatcher jobDispatcher = new JobDispatcher ();
     final RemoteCalcNodeReadyMessage initialMessage = new RemoteCalcNodeReadyMessage (1);
     final DirectFudgeConnection conduit = new DirectFudgeConnection (FudgeContext.GLOBAL_DEFAULT);
-    final RemoteNodeJobInvoker jobInvoker = new RemoteNodeJobInvoker (Executors.newCachedThreadPool(), initialMessage, conduit.getEnd1 ());
+    final RemoteNodeJobInvoker jobInvoker = new RemoteNodeJobInvoker (Executors.newCachedThreadPool(), initialMessage, conduit.getEnd1 (), new InMemoryIdentifierMap ());
     jobDispatcher.registerJobInvoker(jobInvoker);
     final TestJobResultReceiver resultReceiver = new TestJobResultReceiver ();
     final FudgeConnection remoteNode = conduit.getEnd2 ();
@@ -61,7 +62,7 @@ public class RemoteNodeJobInvokerTest {
     final JobDispatcher jobDispatcher = new JobDispatcher ();
     final RemoteCalcNodeReadyMessage initialMessage = new RemoteCalcNodeReadyMessage (3);
     final DirectFudgeConnection conduit = new DirectFudgeConnection (FudgeContext.GLOBAL_DEFAULT);
-    final RemoteNodeJobInvoker jobInvoker = new RemoteNodeJobInvoker (Executors.newCachedThreadPool(), initialMessage, conduit.getEnd1 ());
+    final RemoteNodeJobInvoker jobInvoker = new RemoteNodeJobInvoker (Executors.newCachedThreadPool(), initialMessage, conduit.getEnd1 (), new InMemoryIdentifierMap ());
     jobDispatcher.registerJobInvoker(jobInvoker);
     final FudgeConnection remoteNode = conduit.getEnd2 ();
     final Random rnd = new Random ();

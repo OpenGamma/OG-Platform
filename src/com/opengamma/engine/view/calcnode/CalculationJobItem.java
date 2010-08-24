@@ -22,11 +22,12 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.cache.IdentifierMap;
 
 /**
  * 
  */
-public class CalculationJobItem {
+public final class CalculationJobItem {
 
   private static final String FUNCTION_UNIQUE_ID_FIELD_NAME = "functionUniqueIdentifier";
   private static final String INPUT_FIELD_NAME = "valueInput";
@@ -35,15 +36,25 @@ public class CalculationJobItem {
   private final String _functionUniqueIdentifier;
   private final ComputationTargetSpecification _computationTargetSpecification;
   private final Set<ValueSpecification> _inputs = new HashSet<ValueSpecification>();
+  private Collection<Long> _inputIdentifiers;
   private final Set<ValueRequirement> _desiredValues = new HashSet<ValueRequirement>();
 
-  public CalculationJobItem(String functionUniqueIdentifier, 
-      ComputationTargetSpecification computationTargetSpecification, 
-      Collection<ValueSpecification> inputs,
+  public CalculationJobItem(String functionUniqueIdentifier, ComputationTargetSpecification computationTargetSpecification, Collection<ValueSpecification> inputs,
       Collection<ValueRequirement> desiredValues) {
     _functionUniqueIdentifier = functionUniqueIdentifier;
     _computationTargetSpecification = computationTargetSpecification;
     _inputs.addAll(inputs);
+    _desiredValues.addAll(desiredValues);
+  }
+
+  private CalculationJobItem(String functionUniqueIdentifier, ComputationTargetSpecification computationTargetSpecification, Collection<ValueSpecification> inputs, Collection<Long> inputIdentifiers,
+      Collection<ValueRequirement> desiredValues) {
+    _functionUniqueIdentifier = functionUniqueIdentifier;
+    _computationTargetSpecification = computationTargetSpecification;
+    if (inputs != null) {
+      _inputs.addAll(inputs);
+    }
+    _inputIdentifiers = inputIdentifiers;
     _desiredValues.addAll(desiredValues);
   }
 
@@ -59,6 +70,38 @@ public class CalculationJobItem {
    */
   public Set<ValueSpecification> getInputs() {
     return Collections.unmodifiableSet(_inputs);
+  }
+
+  /**
+   * Numeric identifiers may have been passed when this was encoded as a Fudge message. This will resolve
+   * them to full {@link ValueSpecification} objects.
+   * 
+   * @param identifierMap Identifier map to resolve the inputs with
+   */
+  public void resolveInputs(final IdentifierMap identifierMap) {
+    if (_inputs.isEmpty()) {
+      if (_inputIdentifiers.size() == 1) {
+        _inputs.add(identifierMap.getValueSpecification(_inputIdentifiers.iterator().next()));
+      } else {
+        _inputs.addAll(identifierMap.getValueSpecifications(_inputIdentifiers).values());
+      }
+    }
+  }
+
+  /**
+   * Convert full {@link ValueSpecification} objects to numeric identifiers for more efficient Fudge
+   * encoding.
+   * 
+   * @param identifierMap Identifier map to convert the inputs with
+   */
+  public void convertInputs(final IdentifierMap identifierMap) {
+    if (_inputIdentifiers == null) {
+      if (_inputs.size() == 1) {
+        _inputIdentifiers = Collections.singleton(identifierMap.getIdentifier(_inputs.iterator().next()));
+      } else {
+        _inputIdentifiers = identifierMap.getIdentifiers(_inputs).values();
+      }
+    }
   }
 
   /**
@@ -89,9 +132,16 @@ public class CalculationJobItem {
     getComputationTargetSpecification().toFudgeMsg(fudgeContext, msg);
     msg.add(FUNCTION_UNIQUE_ID_FIELD_NAME, getFunctionUniqueIdentifier());
 
-    for (ValueSpecification inputSpecification : getInputs()) {
-      msg.add(INPUT_FIELD_NAME, inputSpecification.toFudgeMsg(fudgeContext));
+    if (_inputIdentifiers != null) {
+      for (Long identifier : _inputIdentifiers) {
+        msg.add(INPUT_FIELD_NAME, identifier);
+      }
+    } else {
+      for (ValueSpecification inputSpecification : _inputs) {
+        msg.add(INPUT_FIELD_NAME, inputSpecification.toFudgeMsg(fudgeContext));
+      }
     }
+
     for (ValueRequirement desiredValue : getDesiredValues()) {
       MutableFudgeFieldContainer valueMsg = fudgeContext.newMessage();
       desiredValue.toFudgeMsg(fudgeContext, valueMsg);
@@ -106,10 +156,22 @@ public class CalculationJobItem {
 
     ComputationTargetSpecification computationTargetSpecification = ComputationTargetSpecification.fromFudgeMsg(msg);
 
-    List<ValueSpecification> inputs = new ArrayList<ValueSpecification>();
-    for (FudgeField field : msg.getAllByName(INPUT_FIELD_NAME)) {
-      ValueSpecification inputSpecification = ValueSpecification.fromFudgeMsg(fudgeContext, (FudgeFieldContainer) field.getValue());
-      inputs.add(inputSpecification);
+    final List<FudgeField> inputFields = msg.getAllByName(INPUT_FIELD_NAME);
+    List<ValueSpecification> inputSpecifications = null;
+    List<Long> inputIdentifiers = null;
+    for (FudgeField field : inputFields) {
+      final Object value = field.getValue();
+      if (value instanceof Number) {
+        if (inputIdentifiers == null) {
+          inputIdentifiers = new ArrayList<Long>(inputFields.size());
+        }
+        inputIdentifiers.add(((Number) value).longValue());
+      } else {
+        if (inputSpecifications == null) {
+          inputSpecifications = new ArrayList<ValueSpecification>(inputFields.size());
+        }
+        inputSpecifications.add(ValueSpecification.fromFudgeMsg(fudgeContext, (FudgeFieldContainer) field.getValue()));
+      }
     }
 
     List<ValueRequirement> desiredValues = new ArrayList<ValueRequirement>();
@@ -119,7 +181,7 @@ public class CalculationJobItem {
       desiredValues.add(desiredValue);
     }
 
-    return new CalculationJobItem(functionUniqueId, computationTargetSpecification, inputs, desiredValues);
+    return new CalculationJobItem(functionUniqueId, computationTargetSpecification, inputSpecifications, inputIdentifiers, desiredValues);
   }
 
   @Override

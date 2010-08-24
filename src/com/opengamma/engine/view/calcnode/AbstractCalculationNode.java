@@ -119,9 +119,6 @@ public abstract class AbstractCalculationNode implements CalculationNode {
 
     List<CalculationJobResultItem> resultItems = new ArrayList<CalculationJobResultItem>();
 
-    // Pre-fetch the identifiers to speed things up
-    cacheAllValueSpecifications(cache, job.getJobItems());
-
     for (CalculationJobItem jobItem : job.getJobItems()) {
 
       CalculationJobResultItem resultItem;
@@ -177,15 +174,6 @@ public abstract class AbstractCalculationNode implements CalculationNode {
   }
 
   // TODO Remove the time code that I've been using for debug and tuning
-
-  private void cacheAllValueSpecifications(final ViewComputationCache cache, final Collection<CalculationJobItem> jobItems) {
-    final Set<ValueSpecification> allValueSpecs = new HashSet<ValueSpecification>();
-    for (CalculationJobItem jobItem : jobItems) {
-      allValueSpecs.addAll(jobItem.getInputs());
-    }
-    s_logger.debug("Pre-fetching {} ValueIdentifiers", allValueSpecs.size());
-    cache.cacheValueSpecifications(allValueSpecs);
-  }
 
   @Override
   public ViewComputationCache getCache(CalculationJobSpecification spec) {

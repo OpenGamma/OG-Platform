@@ -175,11 +175,6 @@ public class WriteBehindViewComputationCache implements ViewComputationCache {
     });
   }
 
-  @Override
-  public void cacheValueSpecifications(final Collection<ValueSpecification> valueSpecifications) {
-    getUnderlying().cacheValueSpecifications(valueSpecifications);
-  }
-
   /**
    * Block until all "write-behind" operations have completed. Do not call this concurrently with
    * {@link #putValue} or {@link #putValues}.

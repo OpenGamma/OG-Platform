@@ -173,4 +173,14 @@ public class BerkeleyDBIdentifierMap extends AbstractBerkeleyDBComponent impleme
     return AbstractIdentifierMap.getIdentifiers(this, specs);
   }
 
+  @Override
+  public ValueSpecification getValueSpecification(long identifier) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Map<Long, ValueSpecification> getValueSpecifications(Collection<Long> identifiers) {
+    return AbstractIdentifierMap.getValueSpecifications(this, identifiers);
+  }
+
 }

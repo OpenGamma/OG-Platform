@@ -18,8 +18,11 @@ import com.opengamma.util.ArgumentChecker;
  * It should only be used for development and debugging purposes.
  */
 public class InMemoryIdentifierMap extends AbstractIdentifierMap implements IdentifierMap {
+
   private final AtomicLong _nextIdentifier = new AtomicLong(1L);
+
   private final ConcurrentMap<ValueSpecification, Long> _identifiers = new ConcurrentHashMap<ValueSpecification, Long>();
+  private final ConcurrentMap<Long, ValueSpecification> _specifications = new ConcurrentHashMap<Long, ValueSpecification>();
 
   @Override
   public long getIdentifier(ValueSpecification spec) {
@@ -32,8 +35,14 @@ public class InMemoryIdentifierMap extends AbstractIdentifierMap implements Iden
     result = _identifiers.putIfAbsent(spec, freshIdentifier);
     if (result == null) {
       result = freshIdentifier;
+      _specifications.put(freshIdentifier, spec);
     }
     return result;
+  }
+
+  @Override
+  public ValueSpecification getValueSpecification(long identifier) {
+    return _specifications.get(identifier);
   }
 
 }

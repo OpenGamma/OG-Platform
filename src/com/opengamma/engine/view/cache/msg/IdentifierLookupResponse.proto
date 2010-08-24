@@ -6,7 +6,7 @@
  
 namespace com.opengamma.engine.view.cache.msg {
 
-  message LookupResponse extends IdentifierMapResponse {
+  message IdentifierLookupResponse extends IdentifierMapResponse {
   
     /**
      * The identifiers allocated for each value specification in the order that they were
