@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.client.LocalViewClient;
 import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.financial.livedata.rest.DataLiveDataInjectorResource;
+import com.opengamma.financial.livedata.rest.LiveDataInjectorResource;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -172,15 +172,14 @@ public class ViewResource {
     return new FudgeMsgEnvelope(msg);
   }
   
-  @GET
   @Path(VIEW_LIVE_DATA_INJECTOR)
-  public DataLiveDataInjectorResource getCustomLiveDataSnapshotProvider() {
-    return new DataLiveDataInjectorResource(getViewClient().getLiveDataInjector());
+  public LiveDataInjectorResource getCustomLiveDataInjector() {
+    return new LiveDataInjectorResource(getViewClient().getLiveDataInjector());
   }
   
   // TODO 2010-03-29 Andrew -- this is a hack; both side should be sharing a ViewDefinitionRepository
   @GET
-  @Path ("viewDefinition")
+  @Path("viewDefinition")
   public FudgeMsgEnvelope getViewDefinition() {
     final FudgeSerializationContext context = getFudgeSerializationContext();
     final MutableFudgeFieldContainer msg = context.newMessage();
