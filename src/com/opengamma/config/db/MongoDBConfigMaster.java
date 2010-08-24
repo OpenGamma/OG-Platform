@@ -17,6 +17,7 @@ import java.util.Date;
 import javax.time.Instant;
 import javax.time.TimeSource;
 
+import org.bson.types.ObjectId;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
@@ -32,7 +33,6 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
-import com.mongodb.ObjectId;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.config.ConfigDocument;
