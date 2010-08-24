@@ -90,8 +90,8 @@ public class DataPortfolioTreeResource extends AbstractDataResource {
   @PUT
   @Consumes(FudgeRest.MEDIA)
   public Response put(PortfolioTreeDocument request) {
-    if (getUrlPortfolioId().equals(request.getPortfolioId()) == false) {
-      throw new IllegalArgumentException("Document portfolioId does not match URL");
+    if (getUrlPortfolioId().equalsIgnoringVersion(request.getPortfolioId()) == false) {
+      throw new IllegalArgumentException("Document portfolioId does not match URI");
     }
     PortfolioTreeDocument result = getPositionMaster().updatePortfolioTree(request);
     return Response.ok(result).build();
@@ -109,8 +109,8 @@ public class DataPortfolioTreeResource extends AbstractDataResource {
   @Path("versions")
   public Response searchHistoric(@Context Providers providers, @QueryParam("msg") String msgBase64) {
     PortfolioTreeSearchHistoricRequest request = decodeBean(PortfolioTreeSearchHistoricRequest.class, providers, msgBase64);
-    if (getUrlPortfolioId().equals(request.getPortfolioId()) == false) {
-      throw new IllegalArgumentException("Document portfolioId does not match URL");
+    if (getUrlPortfolioId().equalsIgnoringVersion(request.getPortfolioId()) == false) {
+      throw new IllegalArgumentException("Document portfolioId does not match URI");
     }
     PortfolioTreeSearchHistoricResult result = getPositionMaster().searchPortfolioTreeHistoric(request);
     return Response.ok(result).build();
