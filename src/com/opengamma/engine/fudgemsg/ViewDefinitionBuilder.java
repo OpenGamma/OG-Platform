@@ -14,6 +14,7 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
@@ -28,6 +29,7 @@ import com.opengamma.livedata.msg.UserPrincipal;
 /**
  * Fudge message builder for {@link ViewDefinition} and {@link ViewCalculationConfiguration}. 
  */
+@FudgeBuilderFor(ViewDefinition.class)
 public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
 
   private static final String NAME_FIELD = "name";
