@@ -18,6 +18,15 @@ import com.sun.jersey.api.client.filter.ClientFilter;
 public class ExceptionThrowingClientFilter extends ClientFilter {
 
   /**
+   * Header key for exception type.
+   */
+  public static final String EXCEPTION_TYPE = "X-OpenGamma-ExceptionType";
+  /**
+   * Header key for exception message.
+   */
+  public static final String EXCEPTION_MESSAGE = "X-OpenGamma-ExceptionMessage";
+
+  /**
    * Creates the filter.
    * Always create a new instance, never cache.
    */
@@ -33,8 +42,8 @@ public class ExceptionThrowingClientFilter extends ClientFilter {
       return response;  // normal valid response
     }
     MultivaluedMap<String, String> headers = response.getHeaders();
-    String exType = headers.getFirst("ExceptionType");
-    String exMsg = headers.getFirst("ExceptionMessage");
+    String exType = headers.getFirst(EXCEPTION_TYPE);
+    String exMsg = headers.getFirst(EXCEPTION_MESSAGE);
     if (exType == null) {
       return response;  // fall through to UniformInterfaceException
     }
