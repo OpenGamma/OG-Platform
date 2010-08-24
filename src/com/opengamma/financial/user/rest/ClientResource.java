@@ -10,8 +10,8 @@ import javax.ws.rs.core.UriInfo;
 
 import org.fudgemsg.FudgeContext;
 
-import com.opengamma.financial.position.rest.DataPortfoliosResource;
-import com.opengamma.financial.position.rest.DataPositionsResource;
+import com.opengamma.financial.position.master.rest.DataPortfoliosResource;
+import com.opengamma.financial.position.master.rest.DataPositionsResource;
 import com.opengamma.financial.security.MasterSecuritySource;
 import com.opengamma.financial.security.memory.InMemorySecurityMaster;
 import com.opengamma.financial.security.rest.SecurityMasterResource;
