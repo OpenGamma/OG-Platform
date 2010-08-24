@@ -11,6 +11,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister64;
+
 /**
  * 
  */
@@ -18,8 +20,18 @@ public class NormalRandomNumberGeneratorTest {
   private static final NormalRandomNumberGenerator GENERATOR = new NormalRandomNumberGenerator(0, 1);
 
   @Test(expected = IllegalArgumentException.class)
-  public void testConstructor() {
+  public void testConstructor1() {
     new NormalRandomNumberGenerator(0, -1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testConstructor2() {
+    new NormalRandomNumberGenerator(0, -1, new MersenneTwister64());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testConstructor3() {
+    new NormalRandomNumberGenerator(0, 1, null);
   }
 
   @Test(expected = IllegalArgumentException.class)

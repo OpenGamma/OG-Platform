@@ -8,8 +8,13 @@ package com.opengamma.math.random;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.Validate;
+
+import cern.jet.random.engine.RandomEngine;
+
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -18,10 +23,24 @@ public class NormalRandomNumberGenerator implements RandomNumberGenerator {
   private final ProbabilityDistribution<Double> _normal;
 
   public NormalRandomNumberGenerator(final double mean, final double sigma) {
-    if (sigma <= 0) {
-      throw new IllegalArgumentException("Cannot have a negative standard deviation");
-    }
+    ArgumentChecker.notNegativeOrZero(sigma, "standard deviation");
     _normal = new NormalDistribution(mean, sigma);
+  }
+
+  public NormalRandomNumberGenerator(final double mean, final double sigma, final RandomEngine engine) {
+    ArgumentChecker.notNegativeOrZero(sigma, "standard deviation");
+    Validate.notNull(engine, "engine");
+    _normal = new NormalDistribution(mean, sigma, engine);
+  }
+
+  @Override
+  public double[] getVector(final int dimension) {
+    ArgumentChecker.notNegative(dimension, "dimension");
+    final double[] result = new double[dimension];
+    for (int i = 0; i < dimension; i++) {
+      result[i] = _normal.nextRandom();
+    }
+    return result;
   }
 
   @Override
@@ -32,7 +51,7 @@ public class NormalRandomNumberGenerator implements RandomNumberGenerator {
     if (n < 0) {
       throw new IllegalArgumentException("Number of values must be greater than zero");
     }
-    final List<double[]> result = new ArrayList<double[]>();
+    final List<double[]> result = new ArrayList<double[]>(n);
     double[] x;
     for (int i = 0; i < n; i++) {
       x = new double[dimension];
