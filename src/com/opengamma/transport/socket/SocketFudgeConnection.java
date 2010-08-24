@@ -186,7 +186,7 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
       }
 
     };
-    final Thread thread = new Thread(_receiverJob, "Incoming " + getInetAddress().toString() + ":" + getPortNumber());
+    final Thread thread = new Thread(_receiverJob, "Incoming " + socket.getRemoteSocketAddress());
     thread.setDaemon(true);
     thread.start();
     // We don't keep hold of the thread as we're never going to join it; terminating the socket will let cause it to stop, finish and be GCd
@@ -206,7 +206,7 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
   public String toString() {
     final StringBuilder sb = new StringBuilder();
     sb.append("FudgeConnection to ");
-    sb.append(getInetAddress());
+    sb.append(getInetAddresses());
     sb.append(':');
     sb.append(getPortNumber());
     if (!isRunning()) {

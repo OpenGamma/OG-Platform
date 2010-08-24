@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.transport.socket;
@@ -11,15 +11,26 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeField;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.transport.EndPointDescriptionProvider;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.ReportingInputStream;
 import com.opengamma.util.monitor.ReportingOutputStream;
@@ -28,30 +39,34 @@ import com.opengamma.util.monitor.ReportingOutputStream;
  * 
  *
  */
-public abstract class AbstractSocketProcess implements Lifecycle {
+public abstract class AbstractSocketProcess implements Lifecycle, EndPointDescriptionProvider {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractSocketProcess.class);
-  private InetAddress _inetAddress;
+  private Collection<InetAddress> _inetAddresses;
   private int _portNumber;
-  
+
   private boolean _started;
   private Socket _socket;
 
   /**
    * @return the inetAddress
    */
-  public InetAddress getInetAddress() {
-    return _inetAddress;
+  public Collection<InetAddress> getInetAddresses() {
+    return Collections.unmodifiableCollection(_inetAddresses);
   }
 
   /**
    * @param inetAddress the inetAddress to set
    */
   public void setInetAddress(InetAddress inetAddress) {
-    _inetAddress = inetAddress;
+    _inetAddresses = Collections.singleton(inetAddress);
+  }
+
+  public void setInetAddresses(Collection<InetAddress> inetAddresses) {
+    _inetAddresses = new ArrayList<InetAddress>(inetAddresses);
   }
 
   public void setAddress(final String host) throws UnknownHostException {
-    setInetAddress(InetAddress.getByName(host));
+    setInetAddresses(Arrays.asList(InetAddress.getAllByName(host)));
   }
 
   /**
@@ -67,11 +82,35 @@ public abstract class AbstractSocketProcess implements Lifecycle {
   public void setPortNumber(int portNumber) {
     _portNumber = portNumber;
   }
-  
+
+  /**
+   * Set the connection parameters based on the end point description of a server.
+   * 
+   * @param endPoint An end-point description.
+   */
+  public void setServer(final FudgeFieldContainer endPoint) {
+    ArgumentChecker.notNull(endPoint, "endPoint");
+    if (!AbstractServerSocketProcess.TYPE_VALUE.equals(endPoint.getString(AbstractServerSocketProcess.TYPE_KEY))) {
+      throw new IllegalArgumentException("End point is not a ServerSocket - " + endPoint);
+    }
+    final Collection<InetAddress> addresses = new HashSet<InetAddress>();
+    for (FudgeField addr : endPoint.getAllByName(AbstractServerSocketProcess.ADDRESS_KEY)) {
+      final String host = endPoint.getFieldValue(String.class, addr);
+      try {
+        addresses.addAll(Arrays.asList(InetAddress.getAllByName(host)));
+      } catch (UnknownHostException e) {
+        s_logger.warn("Unknown host {}", host);
+      }
+    }
+    setPortNumber(endPoint.getInt(AbstractServerSocketProcess.PORT_KEY));
+    setInetAddresses(addresses);
+    s_logger.debug("End point {} resolved to {}:{}", new Object[] {endPoint, getInetAddresses(), getPortNumber()});
+  }
+
   protected Socket getSocket() {
     return _socket;
   }
-  
+
   protected void startIfNecessary() {
     if (!isRunning()) {
       s_logger.debug("Starting implicitly as start() was not called before use.");
@@ -86,37 +125,45 @@ public abstract class AbstractSocketProcess implements Lifecycle {
 
   @Override
   public synchronized void start() {
-    ArgumentChecker.notNullInjected(getInetAddress(), "Remote InetAddress");
+    ArgumentChecker.notNullInjected(getInetAddresses(), "Remote InetAddress");
     ArgumentChecker.isTrue(getPortNumber() > 0, "Must specify valid portNumber property");
     if (_started && (_socket != null)) {
-      s_logger.warn("Already connected to {}:{}", getInetAddress(), getPortNumber());
+      s_logger.warn("Already connected to {}", _socket.getRemoteSocketAddress());
     } else {
       openRemoteConnection();
       _started = true;
     }
   }
-  
+
   protected synchronized void openRemoteConnection() {
-    s_logger.info("Opening remote connection to {}:{}", getInetAddress(), getPortNumber());
+    s_logger.info("Opening remote connection to {}:{}", getInetAddresses(), getPortNumber());
     OutputStream os = null;
     InputStream is = null;
-    try {
-      _socket = new Socket(getInetAddress(), getPortNumber());
-      os = _socket.getOutputStream();
-      is = _socket.getInputStream();
-    } catch (IOException ioe) {
-      if (_socket != null) {
-        try {
-          _socket.close();
-        } catch (IOException e) {
-          // Ignore
+    for (InetAddress addr : getInetAddresses()) {
+      try {
+        _socket = new Socket();
+        _socket.connect(new InetSocketAddress(addr, getPortNumber()), 3000);
+        s_logger.debug("Connected to {}:{}", addr, getPortNumber());
+        os = _socket.getOutputStream();
+        is = _socket.getInputStream();
+        break;
+      } catch (IOException ioe) {
+        s_logger.debug("Couldn't connect to {}:{}", addr, getPortNumber());
+        if (_socket != null) {
+          try {
+            _socket.close();
+          } catch (IOException e) {
+            // Ignore
+          }
+          _socket = null;
         }
-        _socket = null;
       }
-      throw new OpenGammaRuntimeException("Unable to open remote connection to " + getInetAddress() + ":" + getPortNumber(), ioe);
     }
-    is = new ReportingInputStream(s_logger, getInetAddress() + ":" + getPortNumber(), is);
-    os = new ReportingOutputStream(s_logger, getInetAddress() + ":" + getPortNumber(), os);
+    if (_socket == null) {
+      throw new OpenGammaRuntimeException("Unable to open remote connection to " + getInetAddresses() + ":" + getPortNumber());
+    }
+    is = new ReportingInputStream(s_logger, _socket.getRemoteSocketAddress().toString(), is);
+    os = new ReportingOutputStream(s_logger, _socket.getRemoteSocketAddress().toString(), os);
     socketOpened(_socket, new BufferedOutputStream(os), new BufferedInputStream(is));
   }
 
@@ -136,17 +183,30 @@ public abstract class AbstractSocketProcess implements Lifecycle {
       _started = false;
       socketClosed();
     } else {
-      s_logger.warn("Already stopped {}:{}", getInetAddress(), getPortNumber());
+      s_logger.warn("Already stopped {}:{}", getInetAddresses(), getPortNumber());
     }
   }
-  
+
   protected boolean exceptionForcedByClose(final Exception e) {
     return (e instanceof SocketException) && "Socket closed".equals(e.getMessage());
   }
 
   protected abstract void socketOpened(Socket socket, BufferedOutputStream os, BufferedInputStream is);
-  
+
   protected void socketClosed() {
+  }
+
+  @Override
+  public FudgeFieldContainer getEndPointDescription(final FudgeContext fudgeContext) {
+    final MutableFudgeFieldContainer desc = fudgeContext.newMessage();
+    desc.add(AbstractServerSocketProcess.TYPE_KEY, AbstractServerSocketProcess.TYPE_VALUE);
+    if (getInetAddresses() != null) {
+      for (InetAddress addr : getInetAddresses()) {
+        desc.add(AbstractServerSocketProcess.ADDRESS_KEY, addr.getHostAddress());
+      }
+    }
+    desc.add(AbstractServerSocketProcess.PORT_KEY, getPortNumber());
+    return desc;
   }
 
 }
