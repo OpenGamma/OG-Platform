@@ -18,8 +18,8 @@ public class KroneckerDeltaFunction implements Function<Integer, Integer> {
   public Integer evaluate(final Integer... x) {
     Validate.notNull(x, "integer array");
     Validate.isTrue(x.length == 2, "Can only have two inputs to Kronecker delta function");
-    final double i = x[0];
-    final double j = x[1];
+    final int i = x[0];
+    final int j = x[1];
     return i == j ? 1 : 0;
   }
 

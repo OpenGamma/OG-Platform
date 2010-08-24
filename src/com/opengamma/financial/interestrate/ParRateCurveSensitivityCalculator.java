@@ -26,6 +26,7 @@ import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.util.CompareUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -36,12 +37,9 @@ public final class ParRateCurveSensitivityCalculator implements InterestRateDeri
   private final PresentValueCalculator _pvCalculator = PresentValueCalculator.getInstance();
   private final PresentValueSensitivityCalculator _pvSenseCalculator = PresentValueSensitivityCalculator.getInstance();
 
-  private static ParRateCurveSensitivityCalculator s_instance;
+  private static final ParRateCurveSensitivityCalculator s_instance = new ParRateCurveSensitivityCalculator();
 
   public static ParRateCurveSensitivityCalculator getInstance() {
-    if (s_instance == null) {
-      s_instance = new ParRateCurveSensitivityCalculator();
-    }
     return s_instance;
   }
 
@@ -65,7 +63,7 @@ public final class ParRateCurveSensitivityCalculator implements InterestRateDeri
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> temp = new ArrayList<DoublesPair>();
     if (yearFrac == 0.0) {
-      if (ta != tb) {
+      if (!CompareUtils.closeEquals(ta, tb, 1e-16)) {
         throw new IllegalArgumentException("year fraction is zero, but payment time not equal the trade time");
       }
       temp.add(new DoublesPair(ta, 1.0));

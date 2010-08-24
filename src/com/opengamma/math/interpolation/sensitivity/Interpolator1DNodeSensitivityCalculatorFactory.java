@@ -48,9 +48,6 @@ public final class Interpolator1DNodeSensitivityCalculatorFactory {
       return calculator;
     }
     final Interpolator1D interpolator = Interpolator1DFactory.getInterpolator(sensitivityCalculatorName);
-    if (interpolator != null) {
-      return new FiniteDifferenceInterpolator1DNodeSensitivityCalculator(interpolator);
-    }
-    throw new IllegalArgumentException("Could not get interpolator with name " + sensitivityCalculatorName);
+    return new FiniteDifferenceInterpolator1DNodeSensitivityCalculator(interpolator);
   }
 }

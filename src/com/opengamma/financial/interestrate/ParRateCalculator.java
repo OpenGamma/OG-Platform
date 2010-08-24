@@ -19,6 +19,7 @@ import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.util.CompareUtils;
 
 /**
  * Get the single fixed rate that makes the PV of the instrument zero. For  fixed-float swaps this is the swap rate, for FRAs it is the forward etc. For instruments that 
@@ -27,12 +28,9 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 public final class ParRateCalculator implements InterestRateDerivativeVisitor<Double> {
 
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
-  private static ParRateCalculator s_instance;
+  private static final ParRateCalculator s_instance = new ParRateCalculator();
 
   public static ParRateCalculator getInstance() {
-    if (s_instance == null) {
-      s_instance = new ParRateCalculator();
-    }
     return s_instance;
   }
 
@@ -54,7 +52,7 @@ public final class ParRateCalculator implements InterestRateDerivativeVisitor<Do
     final double yearFrac = cash.getYearFraction();
     // TODO need a getForwardRate method on YieldAndDiscountCurve
     if (yearFrac == 0.0) {
-      if (ta != tb) {
+      if (!CompareUtils.closeEquals(ta, tb, 1e-16)) {
         throw new IllegalArgumentException("Year fraction is zero, but payment time greater than trade time");
       }
       final double eps = 1e-8;
@@ -132,7 +130,7 @@ public final class ParRateCalculator implements InterestRateDerivativeVisitor<Do
   }
 
   @Override
-  public Double visitFloatingRateNote(FloatingRateNote frn, YieldCurveBundle curves) {
+  public Double visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
     return visitSwap(frn, curves);
   }
 
@@ -179,7 +177,7 @@ public final class ParRateCalculator implements InterestRateDerivativeVisitor<Do
   }
 
   @Override
-  public Double visitConstantCouponAnnuity(ConstantCouponAnnuity annuity, YieldCurveBundle curves) {
+  public Double visitConstantCouponAnnuity(final ConstantCouponAnnuity annuity, final YieldCurveBundle curves) {
     return annuity.getCouponRate();
   }
 

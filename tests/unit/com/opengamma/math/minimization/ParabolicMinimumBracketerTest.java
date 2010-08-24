@@ -69,7 +69,7 @@ public class ParabolicMinimumBracketerTest extends MinimumBracketerTestCase {
   }
 
   private void testFunction(final Function1D<Double, Double> f, final double xLower, final double xUpper) {
-    final Double[] result = BRACKETER.getBracketedPoints(f, xLower, xUpper);
+    final double[] result = BRACKETER.getBracketedPoints(f, xLower, xUpper);
     if (result[0] < result[1]) {
       assertTrue(result[1] < result[2]);
     } else {

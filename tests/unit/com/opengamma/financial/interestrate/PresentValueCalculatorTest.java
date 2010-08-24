@@ -40,16 +40,16 @@ public class PresentValueCalculatorTest {
   }
 
   @Test
-  public void TestCash() {
-    double t = 7 / 365.0;
-    YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
+  public void testCash() {
+    final double t = 7 / 365.0;
+    final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
     double r = 1 / t * (1 / curve.getDiscountFactor(t) - 1);
     Cash cash = new Cash(t, r, FIVE_PC_CURVE_NAME);
     double pv = PVC.getValue(cash, CURVES);
     assertEquals(0.0, pv, 1e-12);
 
-    double tradeTime = 2.0 / 365.0;
-    double yearFrac = 5.0 / 360.0;
+    final double tradeTime = 2.0 / 365.0;
+    final double yearFrac = 5.0 / 360.0;
     r = 1 / yearFrac * (curve.getDiscountFactor(tradeTime) / curve.getDiscountFactor(t) - 1);
     cash = new Cash(t, r, tradeTime, yearFrac, FIVE_PC_CURVE_NAME);
     pv = PVC.getValue(cash, CURVES);
@@ -57,41 +57,41 @@ public class PresentValueCalculatorTest {
   }
 
   @Test
-  public void TestFRA() {
-    double settlement = 0.5;
-    double maturity = 7.0 / 12.0;
-    YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
-    double strike = (curve.getDiscountFactor(settlement) / curve.getDiscountFactor(maturity) - 1.0) * 12.0;
+  public void testFRA() {
+    final double settlement = 0.5;
+    final double maturity = 7.0 / 12.0;
+    final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
+    final double strike = (curve.getDiscountFactor(settlement) / curve.getDiscountFactor(maturity) - 1.0) * 12.0;
     ForwardRateAgreement fra = new ForwardRateAgreement(settlement, maturity, strike, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     double pv = PVC.getValue(fra, CURVES);
     assertEquals(0.0, pv, 1e-12);
 
-    double fixingDate = settlement - 2.0 / 365.0;
-    double forwardYearFrac = 31.0 / 365.0;
-    double discountYearFrac = 30.0 / 360;
-    double forwardRate = (curve.getDiscountFactor(fixingDate) / curve.getDiscountFactor(maturity) - 1.0) / forwardYearFrac;
-    double fv = (forwardRate - strike) * forwardYearFrac / (1 + forwardRate * discountYearFrac);
-    double pv2 = fv * curve.getDiscountFactor(settlement);
+    final double fixingDate = settlement - 2.0 / 365.0;
+    final double forwardYearFrac = 31.0 / 365.0;
+    final double discountYearFrac = 30.0 / 360;
+    final double forwardRate = (curve.getDiscountFactor(fixingDate) / curve.getDiscountFactor(maturity) - 1.0) / forwardYearFrac;
+    final double fv = (forwardRate - strike) * forwardYearFrac / (1 + forwardRate * discountYearFrac);
+    final double pv2 = fv * curve.getDiscountFactor(settlement);
     fra = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, strike, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     pv = PVC.getValue(fra, CURVES);
     assertEquals(pv2, pv, 1e-12);
   }
 
   @Test
-  public void TestFutures() {
-    double settlementDate = 1.453;
-    double fixingDate = 1.467;
-    double maturity = 1.75;
-    double indexYearFraction = 0.267;
-    double valueYearFraction = 0.25;
-    YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
-    double rate = (curve.getDiscountFactor(fixingDate) / curve.getDiscountFactor(maturity) - 1.0) / indexYearFraction;
-    double price = 100 * (1 - rate);
+  public void testFutures() {
+    final double settlementDate = 1.453;
+    final double fixingDate = 1.467;
+    final double maturity = 1.75;
+    final double indexYearFraction = 0.267;
+    final double valueYearFraction = 0.25;
+    final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
+    final double rate = (curve.getDiscountFactor(fixingDate) / curve.getDiscountFactor(maturity) - 1.0) / indexYearFraction;
+    final double price = 100 * (1 - rate);
     InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, price, FIVE_PC_CURVE_NAME);
     double pv = PVC.getValue(edf, CURVES);
     assertEquals(0.0, pv, 1e-12);
 
-    double deltaPrice = 1.0;
+    final double deltaPrice = 1.0;
     edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, price + deltaPrice, FIVE_PC_CURVE_NAME);
     pv = PVC.getValue(edf, CURVES);
     // NB the market price of a euro dollar future depends on the future rate (strictly the rate is implied from the price) - the test here (fixed rate, but making
@@ -100,18 +100,18 @@ public class PresentValueCalculatorTest {
   }
 
   @Test
-  public void TestFixedAnnuity() {
+  public void testFixedAnnuity() {
     FixedAnnuity annuity = new FixedAnnuity(new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 1.0, new double[] {1., 1., 1., 1., 1., 1., 1., 1., 1., 1.}, ZERO_PC_CURVE_NAME);
     double pv = PVC.getValue(annuity, CURVES);
     assertEquals(10.0, pv, 1e-12);
-    int n = 15;
-    double alpha = 0.49;
-    double yearFrac = 0.51;
-    double[] paymentTimes = new double[n];
-    double[] coupons = new double[n];
-    double[] yearFracs = new double[n];
-    YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
-    double rate = curve.getInterestRate(0.0);
+    final int n = 15;
+    final double alpha = 0.49;
+    final double yearFrac = 0.51;
+    final double[] paymentTimes = new double[n];
+    final double[] coupons = new double[n];
+    final double[] yearFracs = new double[n];
+    final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
+    final double rate = curve.getInterestRate(0.0);
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = (i + 1) * alpha;
       coupons[i] = Math.exp((i + 1) * rate * alpha);
@@ -127,16 +127,16 @@ public class PresentValueCalculatorTest {
   }
 
   @Test
-  public void TestVariableAnnuity() {
-    int n = 15;
-    double alpha = 0.245;
-    double yearFrac = 0.25;
-    double spread = 0.01;
-    double[] paymentTimes = new double[n];
-    double[] deltaStart = new double[n];
-    double[] deltaEnd = new double[n];
-    double[] yearFracs = new double[n];
-    double[] spreads = new double[n];
+  public void testVariableAnnuity() {
+    final int n = 15;
+    final double alpha = 0.245;
+    final double yearFrac = 0.25;
+    final double spread = 0.01;
+    final double[] paymentTimes = new double[n];
+    final double[] deltaStart = new double[n];
+    final double[] deltaEnd = new double[n];
+    final double[] yearFracs = new double[n];
+    final double[] spreads = new double[n];
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = (i + 1) * alpha;
       deltaStart[i] = deltaEnd[i] = 0.1;
@@ -159,15 +159,15 @@ public class PresentValueCalculatorTest {
   }
 
   @Test
-  public void TestBond() {
-    int n = 20;
-    double tau = 0.5;
-    double yearFrac = 180 / 365.0;
-    YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
-    double coupon = (1.0 / curve.getDiscountFactor(tau) - 1.0) / yearFrac;
-    double[] coupons = new double[n];
-    double[] yearFracs = new double[n];
-    double[] paymentTimes = new double[n];
+  public void testBond() {
+    final int n = 20;
+    final double tau = 0.5;
+    final double yearFrac = 180 / 365.0;
+    final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
+    final double coupon = (1.0 / curve.getDiscountFactor(tau) - 1.0) / yearFrac;
+    final double[] coupons = new double[n];
+    final double[] yearFracs = new double[n];
+    final double[] paymentTimes = new double[n];
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = tau * (i + 1);
       coupons[i] = coupon;
@@ -184,14 +184,14 @@ public class PresentValueCalculatorTest {
   }
 
   @Test
-  public void TestFixedFloatSwap() {
-    int n = 20;
-    double[] fixedPaymentTimes = new double[n];
-    double[] floatPaymentTimes = new double[2 * n];
-    double[] fwdStartOffsets = new double[2 * n];
-    double[] fwdEndOffsets = new double[2 * n];
+  public void testFixedFloatSwap() {
+    final int n = 20;
+    final double[] fixedPaymentTimes = new double[n];
+    final double[] floatPaymentTimes = new double[2 * n];
+    final double[] fwdStartOffsets = new double[2 * n];
+    final double[] fwdEndOffsets = new double[2 * n];
     double sum = 0;
-    YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
+    final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
     for (int i = 0; i < n * 2; i++) {
       if (i % 2 == 0) {
         fixedPaymentTimes[i / 2] = (i + 2) * 0.25;
@@ -199,36 +199,36 @@ public class PresentValueCalculatorTest {
       }
       floatPaymentTimes[i] = (i + 1) * 0.25;
     }
-    double swapRate = (1 - curve.getDiscountFactor(10.0)) / 0.5 / sum;
+    final double swapRate = (1 - curve.getDiscountFactor(10.0)) / 0.5 / sum;
 
-    Swap swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, fwdStartOffsets, fwdEndOffsets, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    double pv = PVC.getValue(swap, CURVES);
+    final Swap swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, fwdStartOffsets, fwdEndOffsets, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final double pv = PVC.getValue(swap, CURVES);
     assertEquals(0.0, pv, 1e-12);
 
   }
 
   @Test
-  public void TestBasisSwap() {
-    int n = 20;
-    double tau = 0.25;
-    double[] paymentTimes = new double[n];
-    double[] spreads = new double[n];
-    double[] yearFracs = new double[n];
-    double[] fwdStartOffsets = new double[n];
-    double[] fwdEndOffsets = new double[n];
-    YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
-    double forward = (1.0 / curve.getDiscountFactor(tau) - 1.0) / tau;
+  public void testBasisSwap() {
+    final int n = 20;
+    final double tau = 0.25;
+    final double[] paymentTimes = new double[n];
+    final double[] spreads = new double[n];
+    final double[] yearFracs = new double[n];
+    final double[] fwdStartOffsets = new double[n];
+    final double[] fwdEndOffsets = new double[n];
+    final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
+    final double forward = (1.0 / curve.getDiscountFactor(tau) - 1.0) / tau;
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = (i + 1) * tau;
       spreads[i] = forward;
       yearFracs[i] = tau;
     }
 
-    VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, 1.0, fwdStartOffsets, fwdEndOffsets, yearFracs, new double[n], FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, 1.0, fwdStartOffsets, fwdEndOffsets, yearFracs, spreads, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
+    final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, 1.0, fwdStartOffsets, fwdEndOffsets, yearFracs, new double[n], FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, 1.0, fwdStartOffsets, fwdEndOffsets, yearFracs, spreads, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
 
-    Swap swap = new BasisSwap(payLeg, receiveLeg);
-    double pv = PVC.getValue(swap, CURVES);
+    final Swap swap = new BasisSwap(payLeg, receiveLeg);
+    final double pv = PVC.getValue(swap, CURVES);
     assertEquals(0.0, pv, 1e-12);
 
   }

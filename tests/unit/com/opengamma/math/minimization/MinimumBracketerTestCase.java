@@ -30,18 +30,6 @@ public class MinimumBracketerTestCase {
       // Expected
     }
     try {
-      bracketer.checkInputs(F, null, 2.);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      bracketer.checkInputs(F, 1., null);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
       bracketer.checkInputs(F, 1., 1.);
       fail();
     } catch (final IllegalArgumentException e) {
