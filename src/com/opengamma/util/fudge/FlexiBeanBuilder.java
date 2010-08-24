@@ -13,6 +13,7 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.fudgemsg.types.IndicatorFieldType;
@@ -22,6 +23,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 /**
  * Builder to convert FlexiBean to and from Fudge.
  */
+@FudgeBuilderFor(FlexiBean.class)
 public final class FlexiBeanBuilder implements FudgeBuilder<FlexiBean> {
 
   /**

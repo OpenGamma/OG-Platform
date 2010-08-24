@@ -34,6 +34,7 @@ public final class UtilFudgeContextConfiguration extends FudgeContextConfigurati
   @Override
   public void configureFudgeObjectDictionary(final FudgeObjectDictionary dictionary) {
     ExtendedFudgeBuilderFactory.init(dictionary);
+    // REVIEW kirk 2010-08-24 -- This is now optional if classpath is scanned.
     dictionary.addBuilder(FlexiBean.class, FlexiBeanBuilder.INSTANCE);
   }
 
