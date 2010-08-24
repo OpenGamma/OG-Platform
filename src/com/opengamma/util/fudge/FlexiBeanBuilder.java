@@ -32,9 +32,9 @@ public final class FlexiBeanBuilder implements FudgeBuilder<FlexiBean> {
   public static final FlexiBeanBuilder INSTANCE = new FlexiBeanBuilder();
 
   /**
-   * Constructor.
+   * Constructor. Must have default no-arg for support as part of the FudgeBuilderFor contract.
    */
-  private FlexiBeanBuilder() {
+  public FlexiBeanBuilder() {
   }
 
   //-------------------------------------------------------------------------
