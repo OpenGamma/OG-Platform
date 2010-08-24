@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.rest;
+package com.opengamma.financial.position.master.rest;
 
 import java.net.URI;
 
@@ -30,7 +30,7 @@ import com.opengamma.util.rest.AbstractDataResource;
 /**
  * RESTful resource for a position.
  */
-@Path("/data/portfolios/{positionId}")
+@Path("/data/positions/{positionId}")
 public class DataPositionResource extends AbstractDataResource {
 
   /**
@@ -106,6 +106,7 @@ public class DataPositionResource extends AbstractDataResource {
 
   //-------------------------------------------------------------------------
   @GET
+  @Path("versions")
   public Response searchHistoric(@Context Providers providers, @QueryParam("msg") String msgBase64) {
     PositionSearchHistoricRequest request = decodeBean(PositionSearchHistoricRequest.class, providers, msgBase64);
     if (getUrlPositionId().equals(request.getPositionId()) == false) {

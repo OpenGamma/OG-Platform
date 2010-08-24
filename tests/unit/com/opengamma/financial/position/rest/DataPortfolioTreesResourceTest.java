@@ -21,6 +21,8 @@ import com.opengamma.financial.position.master.ManageablePortfolio;
 import com.opengamma.financial.position.master.ManageablePortfolioNode;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
 import com.opengamma.financial.position.master.PositionMaster;
+import com.opengamma.financial.position.master.rest.DataPortfolioTreeResource;
+import com.opengamma.financial.position.master.rest.DataPortfolioTreesResource;
 import com.opengamma.id.UniqueIdentifier;
 import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.uri.UriBuilderImpl;
@@ -28,18 +30,18 @@ import com.sun.jersey.api.uri.UriBuilderImpl;
 /**
  * Tests DataPortfoliosResource.
  */
-public class DataPortfoliosResourceTest {
+public class DataPortfolioTreesResourceTest {
 
   private PositionMaster _underlying;
   private UriInfo _uriInfo;
-  private DataPortfoliosResource _resource;
+  private DataPortfolioTreesResource _resource;
 
   @Before
   public void setUp() {
     _underlying = mock(PositionMaster.class);
     _uriInfo = mock(UriInfo.class);
     when(_uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl().host("testhost"));
-    _resource = new DataPortfoliosResource(_underlying);
+    _resource = new DataPortfolioTreesResource(_underlying);
   }
 
   //-------------------------------------------------------------------------
@@ -61,7 +63,7 @@ public class DataPortfoliosResourceTest {
 
   @Test
   public void testFindPortfolio() {
-    DataPortfolioResource test = _resource.findPortfolio("Test::PortA");
+    DataPortfolioTreeResource test = _resource.findPortfolio("Test::PortA");
     assertSame(_resource, test.getPortfoliosResource());
     assertEquals(UniqueIdentifier.of("Test", "PortA"), test.getUrlPortfolioId());
   }

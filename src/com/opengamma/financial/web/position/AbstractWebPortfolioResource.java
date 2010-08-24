@@ -9,8 +9,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.financial.position.master.PositionMaster;
-import com.opengamma.financial.web.AbstractWebResource;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.rest.AbstractWebResource;
 
 /**
  * Abstract base class for RESTful portfolio resources.

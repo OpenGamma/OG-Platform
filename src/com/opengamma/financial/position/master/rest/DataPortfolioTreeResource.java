@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.rest;
+package com.opengamma.financial.position.master.rest;
 
 import java.net.URI;
 
@@ -28,15 +28,15 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
- * RESTful resource for a portfolio.
+ * RESTful resource for a portfolio tree.
  */
-@Path("/data/portfolios/{portfolioId}")
-public class DataPortfolioResource extends AbstractDataResource {
+@Path("/data/portfoliotrees/{portfolioId}")
+public class DataPortfolioTreeResource extends AbstractDataResource {
 
   /**
    * The portfolios resource.
    */
-  private final DataPortfoliosResource _portfoliosResource;
+  private final DataPortfolioTreesResource _portfoliosResource;
   /**
    * The portfolio unique identifier.
    */
@@ -47,7 +47,7 @@ public class DataPortfolioResource extends AbstractDataResource {
    * @param portfoliosResource  the parent resource, not null
    * @param portfolioId  the portfolio unique identifier, not null
    */
-  public DataPortfolioResource(final DataPortfoliosResource portfoliosResource, final UniqueIdentifier portfolioId) {
+  public DataPortfolioTreeResource(final DataPortfolioTreesResource portfoliosResource, final UniqueIdentifier portfolioId) {
     ArgumentChecker.notNull(portfoliosResource, "position master");
     ArgumentChecker.notNull(portfolioId, "portfolio");
     _portfoliosResource = portfoliosResource;
@@ -59,7 +59,7 @@ public class DataPortfolioResource extends AbstractDataResource {
    * Gets the portfolios resource.
    * @return the portfolios resource, not null
    */
-  public DataPortfoliosResource getPortfoliosResource() {
+  public DataPortfolioTreesResource getPortfoliosResource() {
     return _portfoliosResource;
   }
 
@@ -106,6 +106,7 @@ public class DataPortfolioResource extends AbstractDataResource {
 
   //-------------------------------------------------------------------------
   @GET
+  @Path("versions")
   public Response searchHistoric(@Context Providers providers, @QueryParam("msg") String msgBase64) {
     PortfolioTreeSearchHistoricRequest request = decodeBean(PortfolioTreeSearchHistoricRequest.class, providers, msgBase64);
     if (getUrlPortfolioId().equals(request.getPortfolioId()) == false) {
@@ -123,7 +124,7 @@ public class DataPortfolioResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uri(UriInfo uriInfo, UniqueIdentifier portfolioId) {
-    return uriInfo.getBaseUriBuilder().path("/portfolios/{portfolioId}").build(portfolioId);
+    return uriInfo.getBaseUriBuilder().path("/portfoliotrees/{portfolioId}").build(portfolioId);
   }
 
 }

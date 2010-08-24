@@ -22,6 +22,8 @@ import org.junit.Test;
 import com.opengamma.financial.position.master.ManageablePosition;
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.financial.position.master.PositionMaster;
+import com.opengamma.financial.position.master.rest.DataPositionResource;
+import com.opengamma.financial.position.master.rest.DataPositionsResource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.sun.jersey.api.client.ClientResponse.Status;

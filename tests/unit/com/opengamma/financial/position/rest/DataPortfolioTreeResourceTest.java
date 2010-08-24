@@ -21,22 +21,24 @@ import org.junit.Test;
 import com.opengamma.financial.position.master.ManageablePortfolio;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
 import com.opengamma.financial.position.master.PositionMaster;
+import com.opengamma.financial.position.master.rest.DataPortfolioTreeResource;
+import com.opengamma.financial.position.master.rest.DataPortfolioTreesResource;
 import com.opengamma.id.UniqueIdentifier;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Tests DataPortfolioResource.
  */
-public class DataPortfolioResourceTest {
+public class DataPortfolioTreeResourceTest {
 
   private static final UniqueIdentifier UID = UniqueIdentifier.of("Test", "PortA");
   private PositionMaster _underlying;
-  private DataPortfolioResource _resource;
+  private DataPortfolioTreeResource _resource;
 
   @Before
   public void setUp() {
     _underlying = mock(PositionMaster.class);
-    _resource = new DataPortfolioResource(new DataPortfoliosResource(_underlying), UID);
+    _resource = new DataPortfolioTreeResource(new DataPortfolioTreesResource(_underlying), UID);
   }
 
   //-------------------------------------------------------------------------

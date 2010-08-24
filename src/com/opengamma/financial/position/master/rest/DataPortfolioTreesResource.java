@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.rest;
+package com.opengamma.financial.position.master.rest;
 
 import java.net.URI;
 
@@ -18,23 +18,22 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Providers;
 
-import com.opengamma.financial.position.master.PositionDocument;
+import com.opengamma.financial.position.master.PortfolioTreeDocument;
+import com.opengamma.financial.position.master.PortfolioTreeSearchRequest;
+import com.opengamma.financial.position.master.PortfolioTreeSearchResult;
 import com.opengamma.financial.position.master.PositionMaster;
-import com.opengamma.financial.position.master.PositionSearchRequest;
-import com.opengamma.financial.position.master.PositionSearchResult;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
- * RESTful resource for all positions.
+ * RESTful resource for all portfolio trees.
  * <p>
- * The positions resource represents the whole of a position master.
- * This is a logical URL as positions have unique identifiers.
+ * The portfolios resource represents the whole of a position master.
  */
-@Path("/data/positions")
-public class DataPositionsResource extends AbstractDataResource {
+@Path("/data/portfoliotrees")
+public class DataPortfolioTreesResource extends AbstractDataResource {
 
   /**
    * The injected position master.
@@ -45,7 +44,7 @@ public class DataPositionsResource extends AbstractDataResource {
    * Creates the resource.
    * @param posMaster  the position master, not null
    */
-  public DataPositionsResource(final PositionMaster posMaster) {
+  public DataPortfolioTreesResource(final PositionMaster posMaster) {
     ArgumentChecker.notNull(posMaster, "PositionMaster");
     _posMaster = posMaster;
   }
@@ -62,33 +61,33 @@ public class DataPositionsResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   @GET
   public Response search(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    PositionSearchRequest request = decodeBean(PositionSearchRequest.class, providers, msgBase64);
-    PositionSearchResult result = getPositionMaster().searchPositions(request);
+    PortfolioTreeSearchRequest request = decodeBean(PortfolioTreeSearchRequest.class, providers, msgBase64);
+    PortfolioTreeSearchResult result = getPositionMaster().searchPortfolioTrees(request);
     return Response.ok(result).build();
   }
 
   @POST
   @Consumes(FudgeRest.MEDIA)
-  public Response add(@Context UriInfo uriInfo, PositionDocument request) {
-    PositionDocument result = getPositionMaster().addPosition(request);
-    return Response.created(DataPositionResource.uri(uriInfo, result.getPositionId())).entity(result).build();
+  public Response add(@Context UriInfo uriInfo, PortfolioTreeDocument request) {
+    PortfolioTreeDocument result = getPositionMaster().addPortfolioTree(request);
+    return Response.created(DataPortfolioTreeResource.uri(uriInfo, result.getPortfolioId())).entity(result).build();
   }
 
   //-------------------------------------------------------------------------
-  @Path("{positionId}")
-  public DataPositionResource findPosition(@PathParam("positionId") String idStr) {
+  @Path("{portfolioId}")
+  public DataPortfolioTreeResource findPortfolio(@PathParam("portfolioId") String idStr) {
     UniqueIdentifier id = UniqueIdentifier.parse(idStr);
-    return new DataPositionResource(this, id);
+    return new DataPortfolioTreeResource(this, id);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Builds a URI for all positions.
+   * Builds a URI for all portfolios.
    * @param uriInfo  the URI information, not null
    * @return the URI, not null
    */
   public static URI uri(UriInfo uriInfo) {
-    return uriInfo.getBaseUriBuilder().path("/positions").build();
+    return uriInfo.getBaseUriBuilder().path("/portfoliotrees").build();
   }
 
 }

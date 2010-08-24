@@ -10,8 +10,8 @@ import javax.ws.rs.core.UriInfo;
 
 import org.fudgemsg.FudgeContext;
 
-import com.opengamma.financial.position.rest.DataPortfoliosResource;
-import com.opengamma.financial.position.rest.DataPositionsResource;
+import com.opengamma.financial.position.master.rest.DataPortfolioTreesResource;
+import com.opengamma.financial.position.master.rest.DataPositionsResource;
 import com.opengamma.financial.security.MasterSecuritySource;
 import com.opengamma.financial.security.memory.InMemorySecurityMaster;
 import com.opengamma.financial.security.rest.SecurityMasterResource;
@@ -85,8 +85,8 @@ public class ClientResource {
   }
 
   @Path(PORTFOLIOS_PATH)
-  public DataPortfoliosResource getPortfolios() {
-    return new DataPortfoliosResource(_usersResourceContext.getPositionMaster());
+  public DataPortfolioTreesResource getPortfolios() {
+    return new DataPortfolioTreesResource(_usersResourceContext.getPositionMaster());
   }
   
   @Path(POSITIONS_PATH)

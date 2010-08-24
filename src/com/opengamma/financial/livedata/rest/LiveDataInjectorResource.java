@@ -18,24 +18,24 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Wrapper to provide RESTful access to a {@link LiveDataInjector}.
  */
-public class DataLiveDataInjectorResource {
+public class LiveDataInjectorResource {
   
   private final LiveDataInjector _injector;
   
-  public DataLiveDataInjectorResource(LiveDataInjector injector) {
+  public LiveDataInjectorResource(LiveDataInjector injector) {
     ArgumentChecker.notNull(injector, "injector");
     _injector = injector;
   }
 
   @Path("{valueName}/{targetType}/{uniqueIdentifier}")
-  public DataLiveDataInjectorValueResource get(
-      @PathParam("valueRequirementName") String valueName,
+  public LiveDataInjectorValueResource get(
+      @PathParam("valueName") String valueName,
       @PathParam("targetType") String targetTypeName,
       @PathParam("uniqueIdentifier") String uidString) {
     ComputationTargetType targetType = Enum.valueOf(ComputationTargetType.class, targetTypeName);
     UniqueIdentifier uid = UniqueIdentifier.parse(uidString);
     ValueRequirement valueRequirement = new ValueRequirement(valueName, new ComputationTargetSpecification(targetType, uid));
-    return new DataLiveDataInjectorValueResource(_injector, valueRequirement);
+    return new LiveDataInjectorValueResource(_injector, valueRequirement);
   }
   
 }

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.rest;
+package com.opengamma.financial.position.master.rest;
 
 import java.net.URI;
 
@@ -18,22 +18,23 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Providers;
 
-import com.opengamma.financial.position.master.PortfolioTreeDocument;
-import com.opengamma.financial.position.master.PortfolioTreeSearchRequest;
-import com.opengamma.financial.position.master.PortfolioTreeSearchResult;
+import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.financial.position.master.PositionMaster;
+import com.opengamma.financial.position.master.PositionSearchRequest;
+import com.opengamma.financial.position.master.PositionSearchResult;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
- * RESTful resource for all portfolios.
+ * RESTful resource for all positions.
  * <p>
- * The portfolios resource represents the whole of a position master.
+ * The positions resource represents the whole of a position master.
+ * This is a logical URL as positions have unique identifiers.
  */
-@Path("/data/portfolios")
-public class DataPortfoliosResource extends AbstractDataResource {
+@Path("/data/positions")
+public class DataPositionsResource extends AbstractDataResource {
 
   /**
    * The injected position master.
@@ -44,7 +45,7 @@ public class DataPortfoliosResource extends AbstractDataResource {
    * Creates the resource.
    * @param posMaster  the position master, not null
    */
-  public DataPortfoliosResource(final PositionMaster posMaster) {
+  public DataPositionsResource(final PositionMaster posMaster) {
     ArgumentChecker.notNull(posMaster, "PositionMaster");
     _posMaster = posMaster;
   }
@@ -61,33 +62,33 @@ public class DataPortfoliosResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   @GET
   public Response search(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    PortfolioTreeSearchRequest request = decodeBean(PortfolioTreeSearchRequest.class, providers, msgBase64);
-    PortfolioTreeSearchResult result = getPositionMaster().searchPortfolioTrees(request);
+    PositionSearchRequest request = decodeBean(PositionSearchRequest.class, providers, msgBase64);
+    PositionSearchResult result = getPositionMaster().searchPositions(request);
     return Response.ok(result).build();
   }
 
   @POST
   @Consumes(FudgeRest.MEDIA)
-  public Response add(@Context UriInfo uriInfo, PortfolioTreeDocument request) {
-    PortfolioTreeDocument result = getPositionMaster().addPortfolioTree(request);
-    return Response.created(DataPortfolioResource.uri(uriInfo, result.getPortfolioId())).entity(result).build();
+  public Response add(@Context UriInfo uriInfo, PositionDocument request) {
+    PositionDocument result = getPositionMaster().addPosition(request);
+    return Response.created(DataPositionResource.uri(uriInfo, result.getPositionId())).entity(result).build();
   }
 
   //-------------------------------------------------------------------------
-  @Path("{portfolioId}")
-  public DataPortfolioResource findPortfolio(@PathParam("portfolioId") String idStr) {
+  @Path("{positionId}")
+  public DataPositionResource findPosition(@PathParam("positionId") String idStr) {
     UniqueIdentifier id = UniqueIdentifier.parse(idStr);
-    return new DataPortfolioResource(this, id);
+    return new DataPositionResource(this, id);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Builds a URI for all portfolios.
+   * Builds a URI for all positions.
    * @param uriInfo  the URI information, not null
    * @return the URI, not null
    */
   public static URI uri(UriInfo uriInfo) {
-    return uriInfo.getBaseUriBuilder().path("/portfolios").build();
+    return uriInfo.getBaseUriBuilder().path("/positions").build();
   }
 
 }
