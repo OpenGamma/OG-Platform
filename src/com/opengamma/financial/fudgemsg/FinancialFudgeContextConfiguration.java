@@ -47,6 +47,7 @@ public class FinancialFudgeContextConfiguration extends FudgeContextConfiguratio
 
   @Override
   public void configureFudgeObjectDictionary(final FudgeObjectDictionary dictionary) {
+    // REVIEW kirk 2010-08-24 -- This is now optional if classpath is scanned.
     dictionary.getDefaultBuilderFactory().addGenericBuilder(Region.class, new RegionBuilder(this));
   }
 
