@@ -30,7 +30,7 @@ import com.opengamma.util.rest.AbstractDataResource;
 /**
  * RESTful resource for a position.
  */
-@Path("/data/portfolios/{positionId}")
+@Path("/data/positions/{positionId}")
 public class DataPositionResource extends AbstractDataResource {
 
   /**
