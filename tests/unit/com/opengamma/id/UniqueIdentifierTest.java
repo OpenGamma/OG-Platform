@@ -204,6 +204,41 @@ public class UniqueIdentifierTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_equalsIgnoringVersion_noVersion() {
+    UniqueIdentifier d1a = UniqueIdentifier.of("Scheme", "d1");
+    UniqueIdentifier d1b = UniqueIdentifier.of("Scheme", "d1");
+    UniqueIdentifier d2 = UniqueIdentifier.of("Scheme", "d2");
+    
+    assertEquals(true, d1a.equalsIgnoringVersion(d1a));
+    assertEquals(true, d1a.equalsIgnoringVersion(d1b));
+    assertEquals(false, d1a.equalsIgnoringVersion(d2));
+    
+    assertEquals(true, d1b.equalsIgnoringVersion(d1a));
+    assertEquals(true, d1b.equalsIgnoringVersion(d1b));
+    assertEquals(false, d1b.equalsIgnoringVersion(d2));
+    
+    assertEquals(false, d2.equalsIgnoringVersion(d1a));
+    assertEquals(false, d2.equalsIgnoringVersion(d1b));
+    assertEquals(true, d2.equalsIgnoringVersion(d2));
+  }
+
+  @Test
+  public void test_equalsIgnoringVersion_version() {
+    UniqueIdentifier d1 = UniqueIdentifier.of("Scheme", "d1", "1");
+    UniqueIdentifier d2 = UniqueIdentifier.of("Scheme", "d1", "2");
+    
+    assertEquals(true, d1.equalsIgnoringVersion(d2));
+  }
+
+  @Test
+  public void test_equalsIgnoringVersion_null() {
+    UniqueIdentifier d1 = UniqueIdentifier.of("Scheme", "d1", "1");
+    
+    assertEquals(false, d1.equalsIgnoringVersion(null));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_compareTo_noVersion() {
     UniqueIdentifier a = UniqueIdentifier.of("A", "1");
     UniqueIdentifier b = UniqueIdentifier.of("A", "2");
