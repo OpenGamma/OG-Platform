@@ -13,7 +13,7 @@ import com.opengamma.math.function.Function1D;
  * @param <G>
  * @param <S>
  */
-public interface MinimizerWithFirstDerivative<F extends Function1D<S, ?>, G extends Function1D<S, ?>, S> {
+public interface MinimizerWithGradient<F extends Function1D<S, ?>, G extends Function1D<S, ?>, S> extends Minimizer<F, S> {
 
-  S minimize(F function, G grad, S startPosition);
+  S minimize(final F function, final G gradient, final S startPosition);
 }

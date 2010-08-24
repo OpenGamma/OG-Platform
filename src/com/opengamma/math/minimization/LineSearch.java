@@ -15,9 +15,9 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class LineSearch {
-  private final Minimizer1D _minimizer;
+  private final ScalarMinimizer _minimizer;
 
-  public LineSearch(final Minimizer1D minimizer) {
+  public LineSearch(final ScalarMinimizer minimizer) {
     ArgumentChecker.notNull(minimizer, "null minimizer");
     _minimizer = minimizer;
   }

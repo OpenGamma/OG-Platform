@@ -11,6 +11,6 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
 /**
  * 
  */
-public interface MinimizerNDWithFirstDerivative extends MinimizerWithFirstDerivative<Function1D<DoubleMatrix1D, Double>, Function1D<DoubleMatrix1D, DoubleMatrix1D>, DoubleMatrix1D> {
+public interface VectorMinimizerWithGradient extends MinimizerWithGradient<Function1D<DoubleMatrix1D, Double>, Function1D<DoubleMatrix1D, DoubleMatrix1D>, DoubleMatrix1D> {
 
 }

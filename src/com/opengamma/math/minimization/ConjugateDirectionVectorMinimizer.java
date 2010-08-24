@@ -16,21 +16,21 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Standard version of powell's method. It is a good general purpose minimiser if you don't have the analytic form of the functions gradient 
  */
-public class ConjugateDirection implements MinimizerND {
+public class ConjugateDirectionVectorMinimizer implements VectorMinimizer {
 
   private static final double SMALL = Double.MIN_NORMAL;
   private final double _eps;
   private final int _maxInterations;
   private final LineSearch _lineSearch;
 
-  public ConjugateDirection(final Minimizer1D minimizer) {
+  public ConjugateDirectionVectorMinimizer(final ScalarMinimizer minimizer) {
     ArgumentChecker.notNull(minimizer, "minimizer");
     _lineSearch = new LineSearch(minimizer);
     _eps = 1e-8;
     _maxInterations = 100;
   }
 
-  public ConjugateDirection(final Minimizer1D minimizer, double tolerance, int maxInterations) {
+  public ConjugateDirectionVectorMinimizer(final ScalarMinimizer minimizer, double tolerance, int maxInterations) {
     ArgumentChecker.notNull(minimizer, "minimizer");
     if (tolerance < SMALL || tolerance > 1.0) {
       throw new IllegalArgumentException("Tolerance must be greater than " + SMALL + " and less than 1.0");

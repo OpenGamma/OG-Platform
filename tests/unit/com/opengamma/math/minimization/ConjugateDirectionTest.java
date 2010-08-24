@@ -18,8 +18,8 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
  */
 public class ConjugateDirectionTest {
 
-  private static Minimizer1D LINE_MINIMIZER = new BrentMinimizer1D();
-  private static MinimizerND MINIMISER = new ConjugateDirection(LINE_MINIMIZER);
+  private static ScalarMinimizer LINE_MINIMIZER = new BrentMinimizer1D();
+  private static VectorMinimizer MINIMISER = new ConjugateDirectionVectorMinimizer(LINE_MINIMIZER);
 
   private static final Function1D<DoubleMatrix1D, Double> ROSENBROCK = new Function1D<DoubleMatrix1D, Double>() {
 
