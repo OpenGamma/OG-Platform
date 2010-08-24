@@ -106,6 +106,7 @@ public class DataPortfolioResource extends AbstractDataResource {
 
   //-------------------------------------------------------------------------
   @GET
+  @Path("versions")
   public Response searchHistoric(@Context Providers providers, @QueryParam("msg") String msgBase64) {
     PortfolioTreeSearchHistoricRequest request = decodeBean(PortfolioTreeSearchHistoricRequest.class, providers, msgBase64);
     if (getUrlPortfolioId().equals(request.getPortfolioId()) == false) {

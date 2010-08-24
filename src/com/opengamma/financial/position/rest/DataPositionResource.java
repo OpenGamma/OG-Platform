@@ -106,6 +106,7 @@ public class DataPositionResource extends AbstractDataResource {
 
   //-------------------------------------------------------------------------
   @GET
+  @Path("versions")
   public Response searchHistoric(@Context Providers providers, @QueryParam("msg") String msgBase64) {
     PositionSearchHistoricRequest request = decodeBean(PositionSearchHistoricRequest.class, providers, msgBase64);
     if (getUrlPositionId().equals(request.getPositionId()) == false) {
