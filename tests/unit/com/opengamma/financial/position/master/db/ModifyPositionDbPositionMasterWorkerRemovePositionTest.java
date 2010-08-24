@@ -60,16 +60,6 @@ public class ModifyPositionDbPositionMasterWorkerRemovePositionTest extends Abst
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = NullPointerException.class)
-  public void test_removePosition_nullUID() {
-    _worker.removePosition(null);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void test_removePosition_nonVersionedUID() {
-    _worker.removePosition(UniqueIdentifier.of("DbPos", "121"));
-  }
-
   @Test(expected = DataNotFoundException.class)
   public void test_removePosition_versioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "0", "0");
