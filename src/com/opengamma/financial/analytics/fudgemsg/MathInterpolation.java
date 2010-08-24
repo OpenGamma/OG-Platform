@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.fudgemsg;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeObjectDictionary;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -32,6 +33,7 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
   }
 
   /* package */ static void addBuilders(final FudgeObjectDictionary dictionary) {
+    // REVIEW kirk 2010-08-24 -- This is now optional if classpath is scanned.
     dictionary.addBuilder(GridInterpolator2D.class, GRID_INTERPOLATOR_2D);
     dictionary.getDefaultBuilderFactory().addGenericBuilder(Interpolator1D.class, INTERPOLATOR_1D);
   }
@@ -40,11 +42,12 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
   /**
    * Fudge builder for {@code GridInterpolator2D}.
    */
-  private static final class GridInterpolator2DBuilder extends FudgeBuilderBase<GridInterpolator2D> {
+  @FudgeBuilderFor(GridInterpolator2D.class)
+  public static final class GridInterpolator2DBuilder extends FudgeBuilderBase<GridInterpolator2D> {
     private static final String X_FIELD_NAME = "x";
     private static final String Y_FIELD_NAME = "y";
 
-    private GridInterpolator2DBuilder() {
+    public GridInterpolator2DBuilder() {
     }
 
     @Override
@@ -65,10 +68,11 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
   /**
    * Fudge builder for {@code Interpolator1D}.
    */
-  private static final class Interpolator1DBuilder implements FudgeBuilder<Interpolator1D> {
+  @FudgeBuilderFor(Interpolator1D.class)
+  public static final class Interpolator1DBuilder implements FudgeBuilder<Interpolator1D> {
     private static final String TYPE_FIELD_NAME = "type";
 
-    private Interpolator1DBuilder() {
+    public Interpolator1DBuilder() {
     }
 
     @Override
