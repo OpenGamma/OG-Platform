@@ -9,8 +9,8 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
+ * @param <F>
  * @param <S>
- * @param <T>
  */
 public interface Minimizer<F extends Function1D<S, ?>, S> {
   /**

@@ -9,6 +9,10 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
+ * @param <F>
+ * @param <G>
+ * @param <H>
+ * @param <S>
  */
 
 public interface MinimizerWithSecondDerivative<F extends Function1D<S, ?>, G extends Function1D<S, ?>, H extends Function1D<S, ?>, S> {

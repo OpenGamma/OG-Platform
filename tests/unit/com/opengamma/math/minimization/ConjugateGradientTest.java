@@ -25,7 +25,7 @@ public class ConjugateGradientTest {
   private static final Function1D<DoubleMatrix1D, Double> ROSENBROCK = new Function1D<DoubleMatrix1D, Double>() {
 
     @Override
-    public Double evaluate(DoubleMatrix1D x) {
+    public Double evaluate(final DoubleMatrix1D x) {
       return square(1 - x.getEntry(0)) + 100 * square(x.getEntry(1) - square(x.getEntry(0)));
     }
   };
@@ -33,8 +33,8 @@ public class ConjugateGradientTest {
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> ROSENBROCK_GRAD = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
     @Override
-    public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
-      double[] temp = new double[2];
+    public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
+      final double[] temp = new double[2];
       temp[0] = 2 * (x.getEntry(0) - 1) + 400 * x.getEntry(0) * (square(x.getEntry(0)) - x.getEntry(1));
       temp[1] = 200 * (x.getEntry(1) - square(x.getEntry(0)));
       return new DoubleMatrix1D(temp);
@@ -44,8 +44,8 @@ public class ConjugateGradientTest {
   private static final Function1D<DoubleMatrix1D, Double> COUPLED_ROSENBROCK = new Function1D<DoubleMatrix1D, Double>() {
 
     @Override
-    public Double evaluate(DoubleMatrix1D x) {
-      int n = x.getNumberOfElements();
+    public Double evaluate(final DoubleMatrix1D x) {
+      final int n = x.getNumberOfElements();
 
       double sum = 0;
       for (int i = 0; i < n - 1; i++) {
@@ -56,6 +56,7 @@ public class ConjugateGradientTest {
   };
 
   private class FD_grad extends Function1D<DoubleMatrix1D, DoubleMatrix1D> {
+    @SuppressWarnings("hiding")
     private static final double EPS = 1e-6;
     private final Function1D<DoubleMatrix1D, Double> _f;
 
@@ -64,13 +65,13 @@ public class ConjugateGradientTest {
     }
 
     @Override
-    public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+    public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
 
-      int n = x.getNumberOfElements();
-      double[] res = new double[n];
+      final int n = x.getNumberOfElements();
+      final double[] res = new double[n];
       double up, down;
       for (int i = 0; i < n; i++) {
-        double[] temp = x.toArray();
+        final double[] temp = x.toArray();
         temp[i] += EPS;
         up = _f.evaluate(new DoubleMatrix1D(temp));
         temp[i] -= 2 * EPS;
@@ -85,10 +86,10 @@ public class ConjugateGradientTest {
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> COUPLED_ROSENBROCK_GRAD = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
     @Override
-    public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
-      int n = x.getNumberOfElements();
+    public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
+      final int n = x.getNumberOfElements();
 
-      double[] res = new double[n];
+      final double[] res = new double[n];
       res[0] = 2 * (x.getEntry(0) - 1) + 400 * x.getEntry(0) * (square(x.getEntry(0)) - x.getEntry(1));
       res[n - 1] = 200 * (x.getEntry(n - 1) - square(x.getEntry(n - 2)));
       for (int i = 1; i < n - 1; i++) {
@@ -100,17 +101,17 @@ public class ConjugateGradientTest {
 
   @Test
   public void TestSolvingRosenbrock() {
-    DoubleMatrix1D start = new DoubleMatrix1D(new double[] {-1.0, 1.0});
-    DoubleMatrix1D solution = MINIMISER.minimize(ROSENBROCK, ROSENBROCK_GRAD, start);
+    final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {-1.0, 1.0});
+    final DoubleMatrix1D solution = MINIMISER.minimize(ROSENBROCK, ROSENBROCK_GRAD, start);
     assertEquals(1.0, solution.getEntry(0), 1e-8);
     assertEquals(1.0, solution.getEntry(1), 1e-8);
   }
 
   @Test
   public void TestSolvingCoupledRosenbrock() {
-    DoubleMatrix1D start = new DoubleMatrix1D(new double[] {-1.0, 1.0, -1.0, 1.0, -1.0, 1.0, 1.0});
-    Function1D<DoubleMatrix1D, DoubleMatrix1D> fd = new FD_grad(ROSENBROCK);
-    DoubleMatrix1D solution = MINIMISER.minimize(COUPLED_ROSENBROCK, COUPLED_ROSENBROCK_GRAD, start);
+    final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {-1.0, 1.0, -1.0, 1.0, -1.0, 1.0, 1.0});
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> fd = new FD_grad(ROSENBROCK);
+    final DoubleMatrix1D solution = MINIMISER.minimize(COUPLED_ROSENBROCK, COUPLED_ROSENBROCK_GRAD, start);
     for (int i = 0; i < solution.getNumberOfElements(); i++) {
       assertEquals(1.0, solution.getEntry(i), 10 * EPS);
     }

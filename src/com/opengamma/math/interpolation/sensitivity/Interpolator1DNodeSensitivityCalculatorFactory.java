@@ -24,11 +24,9 @@ public final class Interpolator1DNodeSensitivityCalculatorFactory {
   /** Natural cubic spline instance */
   public static final NaturalCubicSplineInterpolator1DNodeSensitivityCalculator NATURAL_CUBIC_SPLINE_NODE_SENSITIVITY_CALCULATOR = new NaturalCubicSplineInterpolator1DNodeSensitivityCalculator();
   /** Flat extrapolator instance */
-  @SuppressWarnings("rawtypes")
   public static final FlatExtrapolator1DNodeSensitivityCalculator FLAT_EXTRAPOLATOR_INSTANCE = new FlatExtrapolator1DNodeSensitivityCalculator<Interpolator1DDataBundle>();
   /** Finite difference */
   public static final String FINITE_DIFFERENCE = "Finite Difference";
-  @SuppressWarnings("rawtypes")
   private static final Map<String, Interpolator1DNodeSensitivityCalculator> s_staticInstances = new HashMap<String, Interpolator1DNodeSensitivityCalculator>();
 
   static {
@@ -41,12 +39,9 @@ public final class Interpolator1DNodeSensitivityCalculatorFactory {
   private Interpolator1DNodeSensitivityCalculatorFactory() {
   }
 
-  @SuppressWarnings("rawtypes")
-  public static Interpolator1DNodeSensitivityCalculator getSensitivityCalculator(
-      final String sensitivityCalculatorName, final boolean useFiniteDifferenceByDefault) {
+  public static Interpolator1DNodeSensitivityCalculator getSensitivityCalculator(final String sensitivityCalculatorName, final boolean useFiniteDifferenceByDefault) {
     if (useFiniteDifferenceByDefault) {
-      return new FiniteDifferenceInterpolator1DNodeSensitivityCalculator(
-          Interpolator1DFactory.getInterpolator(sensitivityCalculatorName));
+      return new FiniteDifferenceInterpolator1DNodeSensitivityCalculator(Interpolator1DFactory.getInterpolator(sensitivityCalculatorName));
     }
     final Interpolator1DNodeSensitivityCalculator calculator = s_staticInstances.get(sensitivityCalculatorName);
     if (calculator != null) {
