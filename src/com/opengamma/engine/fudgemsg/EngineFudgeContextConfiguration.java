@@ -8,14 +8,6 @@ package com.opengamma.engine.fudgemsg;
 import org.fudgemsg.FudgeContextConfiguration;
 import org.fudgemsg.mapping.FudgeObjectDictionary;
 
-import com.opengamma.engine.position.Portfolio;
-import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.position.Position;
-import com.opengamma.engine.view.ViewCalculationResultModel;
-import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewDeltaResultModel;
-
 /**
  * Configuration for Fudge of the OG-Engine library.
  * <p>
@@ -37,13 +29,15 @@ public final class EngineFudgeContextConfiguration extends FudgeContextConfigura
   // -------------------------------------------------------------------------
   @Override
   public void configureFudgeObjectDictionary(final FudgeObjectDictionary dictionary) {
-    dictionary.getDefaultBuilderFactory().addGenericBuilder(Portfolio.class, new PortfolioBuilder());
-    dictionary.getDefaultBuilderFactory().addGenericBuilder(PortfolioNode.class, new PortfolioNodeBuilder());
-    dictionary.getDefaultBuilderFactory().addGenericBuilder(Position.class, new PositionBuilder());
-    dictionary.getDefaultBuilderFactory().addGenericBuilder(ViewDefinition.class, new ViewDefinitionBuilder());
-    dictionary.getDefaultBuilderFactory().addGenericBuilder(ViewCalculationResultModel.class, new ViewCalculationResultModelBuilder());
-    dictionary.getDefaultBuilderFactory().addGenericBuilder(ViewComputationResultModel.class, new ViewComputationResultModelBuilder());
-    dictionary.getDefaultBuilderFactory().addGenericBuilder(ViewDeltaResultModel.class, new ViewDeltaResultModelBuilder());
+    dictionary.addAllClasspathBuilders();
+    // For reference, these are the ones that were converted when FRJ-87 was tested.
+    //dictionary.getDefaultBuilderFactory().addGenericBuilder(Portfolio.class, new PortfolioBuilder());
+    //dictionary.getDefaultBuilderFactory().addGenericBuilder(PortfolioNode.class, new PortfolioNodeBuilder());
+    //dictionary.getDefaultBuilderFactory().addGenericBuilder(Position.class, new PositionBuilder());
+    //dictionary.getDefaultBuilderFactory().addGenericBuilder(ViewDefinition.class, new ViewDefinitionBuilder());
+    //dictionary.getDefaultBuilderFactory().addGenericBuilder(ViewCalculationResultModel.class, new ViewCalculationResultModelBuilder());
+    //dictionary.getDefaultBuilderFactory().addGenericBuilder(ViewComputationResultModel.class, new ViewComputationResultModelBuilder());
+    //dictionary.getDefaultBuilderFactory().addGenericBuilder(ViewDeltaResultModel.class, new ViewDeltaResultModelBuilder());
   }
 
 }
