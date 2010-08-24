@@ -11,7 +11,7 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 /**
- * A JAX-RS provider to convert {@code IllegalArgumentException} to a RESTful 400.
+ * A JAX-RS exception mapper to convert {@code IllegalArgumentException} to a RESTful 400.
  */
 @Provider
 public class IllegalArgumentExceptionMapper

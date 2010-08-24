@@ -13,7 +13,7 @@ import javax.ws.rs.ext.Provider;
 import com.opengamma.DataNotFoundException;
 
 /**
- * A JAX-RS provider to convert {@code DataNotFoundException} to a RESTful 404.
+ * A JAX-RS exception mapper to convert {@code DataNotFoundException} to a RESTful 404.
  */
 @Provider
 public class DataNotFoundExceptionMapper
