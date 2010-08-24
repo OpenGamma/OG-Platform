@@ -13,7 +13,6 @@
         <dependency name="og-financial" rev="latest.integration" conf="opengamma->*"/>
         
         <dependency org="org.apache.commons" name="commons-cli" rev="1.2"/>
-        <dependency org="org.mongodb" name="java-driver" rev="1.4"/>
     </dependencies>
 </ivy-module>
 
