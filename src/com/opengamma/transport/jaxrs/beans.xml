@@ -39,6 +39,8 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
   </bean>
   <bean id="unsupportedOperationExceptionMapper" class="com.opengamma.util.rest.UnsupportedOperationExceptionMapper">
   </bean>
+  <bean id="webApplicationExceptionMapper" class="com.opengamma.util.rest.WebApplicationExceptionMapper">
+  </bean>
   <bean id="throwableExceptionMapper" class="com.opengamma.util.rest.ThrowableExceptionMapper">
   </bean>
 
