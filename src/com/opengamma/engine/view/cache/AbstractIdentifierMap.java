@@ -30,4 +30,17 @@ public abstract class AbstractIdentifierMap implements IdentifierMap {
     return identifiers;
   }
 
+  @Override
+  public Map<Long, ValueSpecification> getValueSpecifications(final Collection<Long> identifiers) {
+    return getValueSpecifications(this, identifiers);
+  }
+
+  public static Map<Long, ValueSpecification> getValueSpecifications(final IdentifierMap map, final Collection<Long> identifiers) {
+    final Map<Long, ValueSpecification> specifications = new HashMap<Long, ValueSpecification>();
+    for (Long identifier : identifiers) {
+      specifications.put(identifier, map.getValueSpecification(identifier));
+    }
+    return specifications;
+  }
+
 }

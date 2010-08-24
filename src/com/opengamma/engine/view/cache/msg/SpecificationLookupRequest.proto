@@ -6,9 +6,9 @@
  
 namespace com.opengamma.engine.view.cache.msg {
 
-  message LookupRequest extends IdentifierMapRequest {
+  message SpecificationLookupRequest extends IdentifierMapRequest {
   
-    required repeated value.ValueSpecification specification;
+    required repeated long identifier;
   
   }
 
