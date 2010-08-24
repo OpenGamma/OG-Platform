@@ -28,12 +28,12 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
- * RESTful resource for all portfolios.
+ * RESTful resource for all portfolio trees.
  * <p>
  * The portfolios resource represents the whole of a position master.
  */
-@Path("/data/portfolios")
-public class DataPortfoliosResource extends AbstractDataResource {
+@Path("/data/portfoliotrees")
+public class DataPortfolioTreesResource extends AbstractDataResource {
 
   /**
    * The injected position master.
@@ -44,7 +44,7 @@ public class DataPortfoliosResource extends AbstractDataResource {
    * Creates the resource.
    * @param posMaster  the position master, not null
    */
-  public DataPortfoliosResource(final PositionMaster posMaster) {
+  public DataPortfolioTreesResource(final PositionMaster posMaster) {
     ArgumentChecker.notNull(posMaster, "PositionMaster");
     _posMaster = posMaster;
   }
@@ -70,14 +70,14 @@ public class DataPortfoliosResource extends AbstractDataResource {
   @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, PortfolioTreeDocument request) {
     PortfolioTreeDocument result = getPositionMaster().addPortfolioTree(request);
-    return Response.created(DataPortfolioResource.uri(uriInfo, result.getPortfolioId())).entity(result).build();
+    return Response.created(DataPortfolioTreeResource.uri(uriInfo, result.getPortfolioId())).entity(result).build();
   }
 
   //-------------------------------------------------------------------------
   @Path("{portfolioId}")
-  public DataPortfolioResource findPortfolio(@PathParam("portfolioId") String idStr) {
+  public DataPortfolioTreeResource findPortfolio(@PathParam("portfolioId") String idStr) {
     UniqueIdentifier id = UniqueIdentifier.parse(idStr);
-    return new DataPortfolioResource(this, id);
+    return new DataPortfolioTreeResource(this, id);
   }
 
   //-------------------------------------------------------------------------
@@ -87,7 +87,7 @@ public class DataPortfoliosResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uri(UriInfo uriInfo) {
-    return uriInfo.getBaseUriBuilder().path("/portfolios").build();
+    return uriInfo.getBaseUriBuilder().path("/portfoliotrees").build();
   }
 
 }
