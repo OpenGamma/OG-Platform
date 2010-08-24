@@ -113,6 +113,7 @@ public class ComplexChooserOptionDefinitionTest {
     chooser = new ComplexChooserOptionDefinition(CHOOSE_DATE, CALL_STRIKE, CALL_EXPIRY, CALL_STRIKE, PUT_EXPIRY);
     assertFalse(chooser.equals(CHOOSER));
     chooser = new ComplexChooserOptionDefinition(CHOOSE_DATE, CALL_STRIKE, CALL_EXPIRY, PUT_STRIKE, CALL_EXPIRY);
+    assertFalse(chooser.equals(CHOOSER));
   }
 
   @Test

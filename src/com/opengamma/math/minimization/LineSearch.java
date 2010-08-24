@@ -24,24 +24,24 @@ public class LineSearch {
 
   public double minimise(final Function1D<DoubleMatrix1D, Double> function, final DoubleMatrix1D direction, final DoubleMatrix1D x) {
 
-    LineSearchHelper f = new LineSearchHelper(function, direction, x);
+    final LineSearchHelper f = new LineSearchHelper(function, direction, x);
     return _minimizer.minimize(f, 1.0, 0.0, 10.0);
   }
 
-  private class LineSearchHelper extends Function1D<Double, Double> {
+  private static class LineSearchHelper extends Function1D<Double, Double> {
     private final Function1D<DoubleMatrix1D, Double> _f;
     private final DoubleMatrix1D _p;
     private final DoubleMatrix1D _x0;
 
-    public LineSearchHelper(final Function1D<DoubleMatrix1D, Double> function, DoubleMatrix1D direction, DoubleMatrix1D x) {
+    public LineSearchHelper(final Function1D<DoubleMatrix1D, Double> function, final DoubleMatrix1D direction, final DoubleMatrix1D x) {
       _f = function;
       _p = direction;
       _x0 = x;
     }
 
     @Override
-    public Double evaluate(Double lambda) {
-      DoubleMatrix1D x = (DoubleMatrix1D) OG_ALGEBRA.add(_x0, OG_ALGEBRA.scale(_p, lambda));
+    public Double evaluate(final Double lambda) {
+      final DoubleMatrix1D x = (DoubleMatrix1D) OG_ALGEBRA.add(_x0, OG_ALGEBRA.scale(_p, lambda));
       return _f.evaluate(x);
     }
 

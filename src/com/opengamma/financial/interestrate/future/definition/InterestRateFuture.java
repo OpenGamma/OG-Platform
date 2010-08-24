@@ -45,7 +45,7 @@ public class InterestRateFuture implements InterestRateDerivative {
    * but any positive value is allowed)
    * @param maturity The maturity of the reference rate (in years as a double)
    * @param indexYearFraction The year fraction to used for calculating the reference rate
-   * @param valueYearFraction The change in value (per unit notional) for a unit charge in reference rate (this is 0.25 for a Eurodollar future, i.e. $25 for a 1bp change on a £1M notional)
+   * @param valueYearFraction The change in value (per unit notional) for a unit charge in reference rate (this is 0.25 for a Eurodollar future, i.e. $25 for a 1bp change on a $1M notional)
    * @param price  The quoted price of the future, price = 100*(1-r), where r is the implied futures rate as a fraction 
    * @param indexCurveName The name of the curve used to calculate the reference rate 
    */
