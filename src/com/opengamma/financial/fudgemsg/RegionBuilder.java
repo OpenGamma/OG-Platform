@@ -23,7 +23,9 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * Builder for converting Region instances to/from Fudge messages.
  */
-@FudgeBuilderFor(Region.class)
+// REVIEW kirk 2010-08-24 -- Once I know why this doesn't have a no-arg constructor,
+// have to turn this part back on.
+//@FudgeBuilderFor(Region.class)
 public class RegionBuilder implements FudgeBuilder<Region> {
 
   private final FinancialFudgeContextConfiguration _context;
