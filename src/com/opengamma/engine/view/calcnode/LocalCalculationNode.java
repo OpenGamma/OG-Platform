@@ -24,7 +24,7 @@ public class LocalCalculationNode extends AbstractCalculationNode {
     final StringBuilder sb = new StringBuilder();
     sb.append(InetAddressUtils.getLocalHostName());
     sb.append('/');
-    // TODO can we get the process ID in here ?
+    sb.append(System.getProperty("opengamma.node.id", "0"));
     sb.append('/');
     sb.append(++s_nodeUniqueID);
     return sb.toString();

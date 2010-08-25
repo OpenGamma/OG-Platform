@@ -59,7 +59,6 @@ public class JobDispatcher implements JobInvokerRegister {
 
     @Override
     public void jobCompleted(final CalculationJobResult result) {
-      // REVIEW 2010-08-16 We only need the node ID and the list of result items; we already have everything else we need for the job result
       assert getJobSpec().equals(result.getSpecification());
       cancelTimeout();
       JobResultReceiver resultReceiver = _resultReceiver.getAndSet(null);
