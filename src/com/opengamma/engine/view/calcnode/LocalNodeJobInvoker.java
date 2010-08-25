@@ -90,7 +90,7 @@ public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContai
           result = node.executeJob(job);
         } catch (Exception e) {
           s_logger.warn("Exception thrown by job execution", e);
-          receiver.jobFailed(LocalNodeJobInvoker.this, e);
+          receiver.jobFailed(LocalNodeJobInvoker.this, node.getNodeId(), e);
         }
         if (result != null) {
           receiver.jobCompleted(result);
@@ -111,6 +111,11 @@ public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContai
         callback.registerJobInvoker(this);
       }
     }
+  }
+
+  @Override
+  public String toString() {
+    return "local";
   }
 
 }

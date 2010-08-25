@@ -208,7 +208,7 @@ import com.opengamma.util.monitor.OperationTimer;
       // There could still be late messages arriving from a buffer even though the connection has now failed
       if (callback != null) {
         s_logger.debug("Cancelling pending operation {}", jobSpec);
-        callback.jobFailed(this, cause);
+        callback.jobFailed(this, "node on " + toString(), cause);
       }
     }
   }
@@ -217,6 +217,11 @@ import com.opengamma.util.monitor.OperationTimer;
   public void connectionReset(final FudgeConnection connection) {
     s_logger.info("Connection reset by client");
     // We're the server end of a connection, so this isn't going to happen with the socket implementation
+  }
+
+  @Override
+  public String toString() {
+    return _fudgeMessageSender.toString();
   }
 
 }
