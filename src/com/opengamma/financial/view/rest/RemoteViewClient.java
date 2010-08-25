@@ -15,6 +15,7 @@ import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_M
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_PERFORMCOMPUTATION;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_PORTFOLIO;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_REQUIREMENTNAMES;
+import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_REQUIRED_LIVE_DATA;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_RESULTAVAILABLE;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_STATUS;
 
@@ -29,6 +30,7 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.position.Portfolio;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.DeltaComputationResultListener;
 import com.opengamma.engine.view.ViewComputationResultModel;
@@ -62,6 +64,7 @@ import com.opengamma.util.ArgumentChecker;
   private final RestTarget _targetMostRecentResult;
   private final RestTarget _targetPortfolio;
   private final RestTarget _targetRequirementNames;
+  private final RestTarget _targetRequiredLiveData;
   private final RestTarget _targetStatus;
   private final RestTarget _targetPerformComputation;
   private final RestTarget _targetComputationResult;
@@ -82,6 +85,7 @@ import com.opengamma.util.ArgumentChecker;
     _targetMostRecentResult = target.resolve(VIEW_MOSTRECENTRESULT);
     _targetPortfolio = target.resolve(VIEW_PORTFOLIO);
     _targetRequirementNames = target.resolve(VIEW_REQUIREMENTNAMES);
+    _targetRequiredLiveData = target.resolve(VIEW_REQUIRED_LIVE_DATA);
     _targetStatus = target.resolve(VIEW_STATUS);
     _targetPerformComputation = target.resolve(VIEW_PERFORMCOMPUTATION);
     _targetComputationResult = target.resolve(VIEW_COMPUTATIONRESULT);
@@ -237,6 +241,12 @@ import com.opengamma.util.ArgumentChecker;
   @Override
   public Set<String> getRequirementNames(String securityType) {
     return getRestClient().getSingleValueNotNull(Set.class, _targetRequirementNames.resolve(securityType), VIEW_REQUIREMENTNAMES);
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public Set<ValueRequirement> getRequiredLiveData() {
+    return getRestClient().getSingleValueNotNull(Set.class, _targetRequiredLiveData, VIEW_REQUIRED_LIVE_DATA);
   }
 
   @Override

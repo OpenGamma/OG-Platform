@@ -34,6 +34,7 @@ public interface ViewProcessorServiceNames {
   public static final String VIEW_NAME = "name";
   public static final String VIEW_PORTFOLIO = "portfolio";
   public static final String VIEW_REQUIREMENTNAMES = "requirementNames";
+  public static final String VIEW_REQUIRED_LIVE_DATA = "requiredLiveData";
   public static final String VIEW_STATUS = "status";
   public static final String VIEW_LIVECOMPUTATIONRUNNING = "liveComputationRunning";
   public static final String VIEW_RESULTAVAILABLE = "resultAvailable";
