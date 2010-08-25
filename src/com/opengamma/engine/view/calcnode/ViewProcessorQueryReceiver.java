@@ -24,6 +24,8 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.calcnode.msg.DependentValueSpecificationsReply;
+import com.opengamma.engine.view.calcnode.msg.DependentValueSpecificationsRequest;
 import com.opengamma.transport.FudgeRequestReceiver;
 import com.opengamma.util.ArgumentChecker;
 
