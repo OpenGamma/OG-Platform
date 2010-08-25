@@ -502,8 +502,12 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     }
   }
   
-  private Set<ValueRequirement> getRequiredLiveData() {
-    Set<ValueSpecification> requiredSpecs = getViewEvaluationModel().getAllLiveDataRequirements();
+  public Set<ValueRequirement> getRequiredLiveData() {
+    ViewEvaluationModel viewEvaluationModel = getViewEvaluationModel();
+    if (viewEvaluationModel == null) {
+      return null;
+    }
+    Set<ValueSpecification> requiredSpecs = viewEvaluationModel.getAllLiveDataRequirements();
     
     Set<ValueRequirement> returnValue = new HashSet<ValueRequirement>();
     for (ValueSpecification requiredSpec : requiredSpecs) {

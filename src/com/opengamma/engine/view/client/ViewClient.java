@@ -9,6 +9,7 @@ import java.util.Set;
 
 import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.position.Portfolio;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.DeltaComputationResultListener;
 import com.opengamma.engine.view.ViewComputationResultModel;
@@ -70,6 +71,13 @@ public interface ViewClient {
    * @return  a set containing the name of every value required for the given security
    */
   Set<String> getRequirementNames(String securityType);
+  
+  /**
+   * Gets a set containing details of the live data required for successful computation of the view.
+   * 
+   * @return  a set containing a {@link ValueRequirement} for each item of live data required
+   */
+  Set<ValueRequirement> getRequiredLiveData();
   
   /**
    * Indicates whether a computation cycle has completed yet
