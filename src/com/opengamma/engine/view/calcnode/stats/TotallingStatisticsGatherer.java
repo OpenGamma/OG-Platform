@@ -6,7 +6,8 @@
 
 package com.opengamma.engine.view.calcnode.stats;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -39,8 +40,8 @@ public class TotallingStatisticsGatherer implements StatisticsGatherer {
     getOrCreateNodeStatistics(nodeId).recordUnsuccessfulJob(duration);
   }
 
-  public Map<String, CalculationNodeStatistics> getNodeStatistics() {
-    return _nodeStatistics;
+  public List<CalculationNodeStatistics> getNodeStatistics() {
+    return new ArrayList<CalculationNodeStatistics>(_nodeStatistics.values());
   }
 
 }
