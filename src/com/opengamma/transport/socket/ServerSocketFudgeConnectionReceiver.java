@@ -41,7 +41,7 @@ public class ServerSocketFudgeConnectionReceiver extends AbstractServerSocketPro
   private final FudgeContext _fudgeContext;
 
   private final TerminatableJobContainer _connectionJobs = new TerminatableJobContainer();
-  
+
   public ServerSocketFudgeConnectionReceiver(final FudgeContext fudgeContext, final FudgeConnectionReceiver underlying) {
     _fudgeContext = fudgeContext;
     _underlying = underlying;
@@ -118,6 +118,11 @@ public class ServerSocketFudgeConnectionReceiver extends AbstractServerSocketPro
             terminateWithError("Unable to write message to underlying stream - terminating connection", e.getCause());
             throw e;
           }
+        }
+
+        @Override
+        public String toString() {
+          return _socket.getRemoteSocketAddress().toString();
         }
 
       };
