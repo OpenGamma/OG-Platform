@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.monitor.OperationTimer;
 import com.sleepycat.je.Environment;
-import com.sleepycat.je.EnvironmentConfig;
 
 /**
  * 
@@ -39,14 +38,6 @@ public class BerkeleyDBValueSpecificationIdentifierBinaryDataStoreTest {
     dbDir.mkdirs();
     s_dbDirsToDelete.add(dbDir);
     return dbDir;
-  }
-  
-  protected Environment createDbEnvironment(File dbDir) {
-    EnvironmentConfig envConfig = new EnvironmentConfig();
-    envConfig.setAllowCreate(true);
-    envConfig.setTransactional(false);
-    Environment dbEnvironment = new Environment(dbDir, envConfig);
-    return dbEnvironment;
   }
   
   @AfterClass
@@ -71,7 +62,7 @@ public class BerkeleyDBValueSpecificationIdentifierBinaryDataStoreTest {
     final Random random = new Random();
     
     File dbDir = createDbDir("putPerformanceTest");
-    Environment dbEnvironment = createDbEnvironment(dbDir);
+    Environment dbEnvironment = BerkeleyDBViewComputationCacheSource.constructDatabaseEnvironment(dbDir, false);
     
     BerkeleyDBBinaryDataStore dataStore = new BerkeleyDBBinaryDataStore(dbEnvironment, "putPerformanceTest");
     dataStore.start();
@@ -108,7 +99,7 @@ public class BerkeleyDBValueSpecificationIdentifierBinaryDataStoreTest {
     final Random random = new Random();
     
     File dbDir = createDbDir("getPerformanceTest");
-    Environment dbEnvironment = createDbEnvironment(dbDir);
+    Environment dbEnvironment = BerkeleyDBViewComputationCacheSource.constructDatabaseEnvironment(dbDir, false);
     
     BerkeleyDBBinaryDataStore dataStore = new BerkeleyDBBinaryDataStore(dbEnvironment, "getPerformanceTest");
     dataStore.start();
@@ -151,7 +142,7 @@ public class BerkeleyDBValueSpecificationIdentifierBinaryDataStoreTest {
     final Random random = new Random();
     
     File dbDir = createDbDir("parallelPutGetTest");
-    Environment dbEnvironment = createDbEnvironment(dbDir);
+    Environment dbEnvironment = BerkeleyDBViewComputationCacheSource.constructDatabaseEnvironment(dbDir, false);
     
     final BerkeleyDBBinaryDataStore dataStore = new BerkeleyDBBinaryDataStore(dbEnvironment, "parallelPutGetTest");
     dataStore.start();
