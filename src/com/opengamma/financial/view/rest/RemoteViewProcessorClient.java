@@ -100,7 +100,7 @@ public class RemoteViewProcessorClient implements ViewProcessorClient {
 
   @Override
   public ViewClient getView(String viewName) {
-    // asking the server for it's correct view name will validate the URI on object construction
+    // asking the server for its correct view name will validate the URI on object construction
     final RestTarget viewBase = _targetViewBase.resolveBase(viewName).resolve(VIEW_NAME);
     s_logger.debug("Attempting to validate remote view '{}' using target '{}'", viewName, viewBase.getURI());
     try {

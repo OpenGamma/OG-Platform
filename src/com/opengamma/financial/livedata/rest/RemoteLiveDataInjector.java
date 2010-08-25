@@ -45,7 +45,7 @@ public class RemoteLiveDataInjector implements LiveDataInjector {
     return _baseTarget
       .resolveBase(valueRequirement.getValueName())
       .resolveBase(valueRequirement.getTargetSpecification().getType().name())
-      .resolveBase(valueRequirement.getTargetSpecification().getUniqueIdentifier().toString());
+      .resolve(valueRequirement.getTargetSpecification().getUniqueIdentifier().toString());
   }
 
 }

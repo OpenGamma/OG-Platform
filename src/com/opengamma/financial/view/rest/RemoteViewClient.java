@@ -34,6 +34,7 @@ import com.opengamma.engine.view.DeltaComputationResultListener;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.financial.livedata.rest.RemoteLiveDataInjector;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageReceiver;
@@ -65,7 +66,7 @@ import com.opengamma.util.ArgumentChecker;
   private final RestTarget _targetPerformComputation;
   private final RestTarget _targetComputationResult;
   private final RestTarget _targetDeltaResult;
-  private final RestTarget _targetCustomLiveDataSnapshotProvider;
+  private final RestTarget _targetLiveDataInjector;
   
   private final Set<ComputationResultListener> _resultListeners = new CopyOnWriteArraySet<ComputationResultListener>();
   private final Set<DeltaComputationResultListener> _deltaListeners = new CopyOnWriteArraySet<DeltaComputationResultListener>();
@@ -85,7 +86,7 @@ import com.opengamma.util.ArgumentChecker;
     _targetPerformComputation = target.resolve(VIEW_PERFORMCOMPUTATION);
     _targetComputationResult = target.resolve(VIEW_COMPUTATIONRESULT);
     _targetDeltaResult = target.resolve(VIEW_DELTARESULT);
-    _targetCustomLiveDataSnapshotProvider = target.resolve(VIEW_LIVE_DATA_INJECTOR);
+    _targetLiveDataInjector = target.resolveBase(VIEW_LIVE_DATA_INJECTOR);
     _user = user;
   }
   
@@ -164,7 +165,7 @@ import com.opengamma.util.ArgumentChecker;
     ArgumentChecker.notNull(listener, "listener");
     synchronized (_resultListeners) {
       _resultListeners.remove(listener);
-      if (_resultListeners.isEmpty()) {
+      if (_resultListeners.isEmpty() && _resultListenerContainer != null) {
         s_logger.info("Stopping JMS subscription");
         _resultListenerContainer.stop();
         _resultListenerContainer.destroy();
@@ -260,8 +261,7 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public LiveDataInjector getLiveDataInjector() {
-    return getRestClient().getSingleValue(LiveDataInjector.class, _targetCustomLiveDataSnapshotProvider,
-        VIEW_LIVE_DATA_INJECTOR);
+    return new RemoteLiveDataInjector(getFudgeContext(), _targetLiveDataInjector);
   }
 
 }

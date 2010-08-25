@@ -17,12 +17,12 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Wrapper to provide RESTful access to a particular {@link ValueRequirement} from a {@link LiveDataInjector}.
  */
-public class DataLiveDataInjectorValueResource {
+public class LiveDataInjectorValueResource {
 
   private final LiveDataInjector _injector;
   private final ValueRequirement _valueRequirement;
   
-  public DataLiveDataInjectorValueResource(LiveDataInjector injector, ValueRequirement valueRequirement) {
+  public LiveDataInjectorValueResource(LiveDataInjector injector, ValueRequirement valueRequirement) {
     ArgumentChecker.notNull(injector, "injector");
     ArgumentChecker.notNull(valueRequirement, "valueRequirement");
     _injector = injector;
@@ -31,7 +31,7 @@ public class DataLiveDataInjectorValueResource {
   
   @PUT
   @Consumes(FudgeRest.MEDIA)
-  public void put(Object value) {
+  public void put(Double value) {
     ArgumentChecker.notNull(value, "value");
     _injector.addValue(_valueRequirement, value);
   }

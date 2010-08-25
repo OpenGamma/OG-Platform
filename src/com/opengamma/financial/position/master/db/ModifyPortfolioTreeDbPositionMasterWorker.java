@@ -96,7 +96,6 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
   //-------------------------------------------------------------------------
   @Override
   protected void removePortfolioTree(final UniqueIdentifier uid) {
-    ArgumentChecker.isTrue(uid.isVersioned(), "UniqueIdentifier must be versioned");
     s_logger.debug("removePortfolioTree {}", uid);
     
     getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {

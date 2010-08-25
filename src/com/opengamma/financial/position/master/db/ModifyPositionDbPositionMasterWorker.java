@@ -99,7 +99,6 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
   //-------------------------------------------------------------------------
   @Override
   protected void removePosition(final UniqueIdentifier uid) {
-    ArgumentChecker.isTrue(uid.isVersioned(), "UniqueIdentifier must be versioned");
     s_logger.debug("removePosition {}", uid);
     
     getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {
