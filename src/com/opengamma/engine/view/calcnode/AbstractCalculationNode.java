@@ -207,6 +207,9 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     if (invoker == null) {
       throw new NullPointerException("Unable to locate " + functionUniqueId + " in function repository.");
     }
+    
+    // set parameters
+    getFunctionExecutionContext().setFunctionParameters(jobItem.getFunctionParameters());
 
     // assemble inputs
     Collection<ComputedValue> inputs = new HashSet<ComputedValue>();

@@ -250,6 +250,32 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
     }
     return null;
   }
+  
+  public String toLongString() {
+    StringBuffer childString = new StringBuffer();
+    childString.append("[");
+    for (int i = 0; i < _childNodes.size(); i++) {
+      PortfolioNode child = _childNodes.get(i);
+      if (child instanceof PortfolioNodeImpl) {
+        childString.append(((PortfolioNodeImpl) child).toLongString());
+      } else {
+        childString.append(child.toString());
+      }
+      if (i != _childNodes.size() - 1) {
+        childString.append(",");
+      }
+    }
+    childString.append("]");
+    return new StrBuilder()
+      .append("PortfolioNode[uniqueIdentifier=")
+      .append(getUniqueIdentifier())
+      .append(",childNodes=")
+      .append(childString)
+      .append(",positions=")
+      .append(_positions)
+      .append("]")
+      .toString();
+  }
 
   //-------------------------------------------------------------------------
   @Override
