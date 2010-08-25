@@ -19,7 +19,6 @@ import javax.ws.rs.PathParam;
 import org.fudgemsg.FudgeContext;
 import org.springframework.jms.core.JmsTemplate;
 
-import com.opengamma.engine.fudgemsg.EngineFudgeContextConfiguration;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.LocalViewProcessorClient;
 import com.opengamma.engine.view.client.ViewProcessorClient;
@@ -65,7 +64,6 @@ public class ViewProcessorService {
   public ViewProcessorService() {
     setTopicPrefix("ViewProcessor");
     final FudgeContext fudgeContext = OpenGammaFudgeContext.constructContext();
-    EngineFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
     FinancialFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
     setFudgeContext(fudgeContext);
     getJmsTemplate().setPubSubDomain(true);
