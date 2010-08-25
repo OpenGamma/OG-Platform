@@ -31,11 +31,11 @@ import com.opengamma.config.ConfigMaster;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.DefaultConfigDocument;
 import com.opengamma.config.db.MongoDBConfigMaster;
-import com.opengamma.engine.fudgemsg.EngineFudgeContextConfiguration;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.MongoDBConnectionSettings;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 import com.opengamma.util.test.MongoDBTestUtils;
 
 /**
@@ -58,8 +58,7 @@ public class ConfigSourceTest {
   public void setUp() throws Exception {
     MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings("ViewDefinitions", true);
     _mongoSettings = settings;
-    FudgeContext fudgeContext = new FudgeContext();
-    fudgeContext.setConfiguration(EngineFudgeContextConfiguration.INSTANCE);
+    FudgeContext fudgeContext = OpenGammaFudgeContext.constructContext();
     MongoDBConfigMaster<ViewDefinition> viewDefinitionConfigMaster = new MongoDBConfigMaster<ViewDefinition>(ViewDefinition.class, settings, fudgeContext, true, null);
     Map<String, ConfigDocument<ViewDefinition>> viewDefinitions = populateWithViewDefinitions(viewDefinitionConfigMaster);
     _viewDefinitions = viewDefinitions;
