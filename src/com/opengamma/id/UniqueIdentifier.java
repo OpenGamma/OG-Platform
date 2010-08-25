@@ -207,6 +207,22 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
     }
   }
 
+  /**
+   * Compares this identifier to another based on the scheme and value, ignoring the version.
+   * @param other  the other identifier, null returns false
+   * @return true if equal ignoring the version
+   */
+  public boolean equalsIgnoringVersion(UniqueIdentifier other) {
+    if (this == other) {
+      return true;
+    }
+    if (other == null) {
+      return false;
+    }
+    return _scheme.equals(other._scheme) &&
+            _value.equals(other._value);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Compares the identifiers, sorting alphabetically by scheme followed by value.
