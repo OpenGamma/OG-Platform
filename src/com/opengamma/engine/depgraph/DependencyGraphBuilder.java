@@ -133,7 +133,6 @@ public class DependencyGraphBuilder {
     }
     
     s_logger.info("Adding target requirement for {} on {}", requirement, target);
-    System.err.println("Adding target requirement for {} on {}" + requirement + target);
 
     Pair<DependencyNode, ValueSpecification> existingNode = _graph.getNodeProducing(requirement);
     if (existingNode != null) {
