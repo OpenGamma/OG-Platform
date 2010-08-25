@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.fudgemsg;
 
+import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.types.StringFieldType;
 
@@ -19,6 +20,7 @@ public final class FrequencySecondaryType extends SecondaryFieldType<Frequency, 
   /**
    * Singleton instance of the type.
    */
+  @FudgeSecondaryType
   public static final FrequencySecondaryType INSTANCE = new FrequencySecondaryType();
 
   private FrequencySecondaryType() {

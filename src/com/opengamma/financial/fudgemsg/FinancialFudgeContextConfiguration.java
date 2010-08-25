@@ -37,12 +37,7 @@ public class FinancialFudgeContextConfiguration extends FudgeContextConfiguratio
   //-------------------------------------------------------------------------
   @Override
   public void configureFudgeTypeDictionary(final FudgeTypeDictionary dictionary) {
-    dictionary.addType(BusinessDayConventionSecondaryType.INSTANCE);
-    dictionary.addType(CurrencySecondaryType.INSTANCE);
-    dictionary.addType(DayCountSecondaryType.INSTANCE);
-    dictionary.addType(FrequencySecondaryType.INSTANCE);
-    dictionary.addType(GICSCodeSecondaryType.INSTANCE);
-    dictionary.addType(YieldSecondaryType.INSTANCE);
+    dictionary.addAllAnnotatedSecondaryTypes();
   }
 
   @Override

@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.fudgemsg;
 
+import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.PrimitiveFieldTypes;
 import org.fudgemsg.types.SecondaryFieldType;
 
@@ -18,6 +19,7 @@ public final class GICSCodeSecondaryType extends SecondaryFieldType<GICSCode, In
   /**
    * Singleton instance of the type.
    */
+  @FudgeSecondaryType
   public static final GICSCodeSecondaryType INSTANCE = new GICSCodeSecondaryType();
 
   private GICSCodeSecondaryType() {
