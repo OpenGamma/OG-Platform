@@ -31,8 +31,8 @@ public class DermanKaniImpliedTreeModel {
     Validate.notNull(definition, "definition");
     Validate.notNull(data, "data");
     final int n = 5;
-    final int m1 = RecombiningBinomialTree.NODES.evaluate(n + 1);
-    final int m2 = RecombiningBinomialTree.NODES.evaluate(n);
+    final int m1 = RecombiningBinomialTree.NODES.evaluate(n);
+    final int m2 = RecombiningBinomialTree.NODES.evaluate(n - 1);
     final double[][] impliedTree = new double[n + 1][m1];
     final double[][] transitionProbabilities = new double[n][m2];
     final double[][] arrowDebreu = new double[n + 1][m1];
@@ -49,58 +49,82 @@ public class DermanKaniImpliedTreeModel {
       t += dt;
       final double df1 = Math.exp(dt * data.getInterestRate(t));
       final double df2 = Math.exp(dt * data.getCostOfCarry());
-      try {
-        if (i == 1) {
-          final double c = crrModel.getTreeGeneratingFunction(new EuropeanVanillaOptionDefinition(impliedTree[i - 1][0], new Expiry(DateUtil.getDateOffsetWithYearFraction(date, t)), true)).evaluate(
-              data).getNode(0, 0).second;
-          impliedTree[i][1] = spot * (df1 * c + arrowDebreu[i - 1][0] * spot) / (arrowDebreu[i - 1][0] * impliedTree[i - 1][0] * df2 - df1 * c);
-          impliedTree[i][0] = spot * spot / impliedTree[i][1];
-        } else {
-          final int mid = i / 2;
-          final double c = crrModel.getTreeGeneratingFunction(new EuropeanVanillaOptionDefinition(impliedTree[i - 1][mid], new Expiry(DateUtil.getDateOffsetWithYearFraction(date, t)), true))
-              .evaluate(data).getNode(0, 0).second;
-          final double p = crrModel.getTreeGeneratingFunction(new EuropeanVanillaOptionDefinition(impliedTree[i - 1][mid - 1], new Expiry(DateUtil.getDateOffsetWithYearFraction(date, t)), false))
-              .evaluate(data).getNode(0, 0).second;
-          double sigma = 0;
-          if (i % 2 == 1) {
-            final double f = impliedTree[i - 1][mid] * df2;
-            for (int j = mid + 2; j < RecombiningBinomialTree.NODES.evaluate(i); j++) {
-              final double f1 = impliedTree[i - 1][j] * df2;
-              sigma += arrowDebreu[i - 1][j] * (f1 - impliedTree[i - 1][mid]);
-            }
-            System.out.println(i + " " + sigma);
-            impliedTree[i][mid + 1] = spot * (df1 * c + arrowDebreu[i - 1][mid] * spot - sigma) / (arrowDebreu[i - 1][mid] * f - df1 * c + sigma);
-            impliedTree[i][mid] = spot * spot / impliedTree[i][mid + 1];
-          } else {
-            impliedTree[i][mid] = spot;
-          }
-          for (int j = mid + 1; j < RecombiningBinomialTree.NODES.evaluate(i); j++) {
-            final double f = impliedTree[i - 1][j - 1] * df2;
-            impliedTree[i][j] = (impliedTree[i][j - 1] * (df1 * c - sigma) - arrowDebreu[i - 1][j - 1] * impliedTree[i - 1][j - 1] * (f - impliedTree[i][j - 1]))
-                / (df1 * c - sigma - arrowDebreu[i - 1][j - 1] * (f - impliedTree[i][j - 1]));
-          }
-          for (int j = mid - 1; j >= 0; j--) {
-            final double f = impliedTree[i - 1][j] * df2;
-            impliedTree[i][j] = (impliedTree[i][j + 1] * (df1 * p - sigma) + arrowDebreu[i - 1][j] * impliedTree[i - 1][j] * (f - impliedTree[i][j + 1]))
-                / (df1 * p - sigma + arrowDebreu[i - 1][j] * (f - impliedTree[i][j + 1]));
-          }
-        }
-        for (int j = 0; j < RecombiningBinomialTree.NODES.evaluate(i - 1); j++) {
+      final int mid = i / 2;
+      if (i % 2 == 1) {
+        double c = crrModel.getTreeGeneratingFunction(new EuropeanVanillaOptionDefinition(spot, new Expiry(DateUtil.getDateOffsetWithYearFraction(date, t)), true)).evaluate(data).getNode(0, 0).second;
+        double sigma = 0;
+        for (int j = mid + 1; j < RecombiningBinomialTree.NODES.evaluate(i); j++) {
           final double f = impliedTree[i - 1][j] * df2;
-          transitionProbabilities[i - 1][j] = (f - impliedTree[i][j]) / (impliedTree[i][j + 1] - impliedTree[i][j]);
-          localVolatilities[i - 1][j] = Math.sqrt(transitionProbabilities[i - 1][j] * (1 - transitionProbabilities[i - 1][j])) * Math.log(impliedTree[i][j + 1] / impliedTree[i][j]);
+          sigma += arrowDebreu[i - 1][j] * (f - impliedTree[i - 1][mid]);
         }
-        arrowDebreu[i][0] = (1 - transitionProbabilities[i - 1][0] * arrowDebreu[i - 1][0]) / df1;
-        arrowDebreu[i][RecombiningBinomialTree.NODES.evaluate(i) - 1] = (transitionProbabilities[i - 1][RecombiningBinomialTree.NODES.evaluate(i - 1) - 1] * arrowDebreu[i - 1][RecombiningBinomialTree.NODES
-            .evaluate(i - 1) - 1])
-            / df1;
-        for (int j = 1; j < RecombiningBinomialTree.NODES.evaluate(i) - 1; j++) {
-          arrowDebreu[i][j] = (transitionProbabilities[i - 1][j - 1] * arrowDebreu[i - 1][j - 1] + (1 - transitionProbabilities[i - 1][j]) * arrowDebreu[i - 1][j]) / df1;
+        impliedTree[i][mid + 1] = spot * (df1 * c + arrowDebreu[i - 1][mid] * spot - sigma) / (arrowDebreu[i - 1][mid] * impliedTree[i - 1][mid] * df2 - df1 * c + sigma);
+        impliedTree[i][mid] = spot * spot / impliedTree[i][mid + 1];
+
+        for (int j = mid + 2; j < RecombiningBinomialTree.NODES.evaluate(i); j++) {
+          sigma = 0;
+          for (int k = j; k < RecombiningBinomialTree.NODES.evaluate(i); k++) {
+            final double f = impliedTree[i - 1][k] * df2;
+            sigma += arrowDebreu[i - 1][k] * (f - impliedTree[i - 1][j - 1]);
+          }
+          c = crrModel.getTreeGeneratingFunction(new EuropeanVanillaOptionDefinition(impliedTree[i - 1][j - 1], new Expiry(DateUtil.getDateOffsetWithYearFraction(date, t)), true)).evaluate(data)
+              .getNode(0, 0).second;
+          final double forward = impliedTree[i - 1][j - 1] * df2;
+          impliedTree[i][j] = (impliedTree[i][j - 1] * (df1 * c - sigma) - arrowDebreu[i - 1][j - 1] * impliedTree[i - 1][j - 1] * (forward - impliedTree[i][j - 1]))
+              / (df1 * c - sigma - arrowDebreu[i - 1][j - 1] * (forward - impliedTree[i][j - 1]));
         }
-      } catch (final Exception e) {
-        for (final StackTraceElement a : e.getStackTrace()) {
-          System.out.println(a);
+        for (int j = mid - 1; j >= 0; j--) {
+          sigma = 0;
+          for (int k = j - 1; k >= 0; k--) {
+            final double f = impliedTree[i - 1][k] * df2;
+            sigma += arrowDebreu[i - 1][k] * (impliedTree[i - 1][j] - f);
+          }
+          final double p = crrModel.getTreeGeneratingFunction(new EuropeanVanillaOptionDefinition(impliedTree[i - 1][j], new Expiry(DateUtil.getDateOffsetWithYearFraction(date, t)), false)).evaluate(
+              data).getNode(0, 0).second;
+          final double forward = impliedTree[i - 1][j] * df2;
+          impliedTree[i][j] = (impliedTree[i][j + 1] * (df1 * p - sigma) + arrowDebreu[i - 1][j] * impliedTree[i - 1][j] * (forward - impliedTree[i][j + 1]))
+              / (df1 * p - sigma + arrowDebreu[i - 1][j] * (forward - impliedTree[i][j + 1]));
         }
+      } else {
+        impliedTree[i][mid] = spot;
+        double sigma = 0;
+        for (int j = mid + 1; j < RecombiningBinomialTree.NODES.evaluate(i); j++) {
+          sigma = 0;
+          for (int k = j; k < RecombiningBinomialTree.NODES.evaluate(i); k++) {
+            final double f = impliedTree[i - 1][k] * df2;
+            sigma += arrowDebreu[i - 1][k] * (f - impliedTree[i - 1][j - 1]);
+          }
+          final double c = crrModel.getTreeGeneratingFunction(new EuropeanVanillaOptionDefinition(impliedTree[i - 1][j - 1], new Expiry(DateUtil.getDateOffsetWithYearFraction(date, t)), true))
+              .evaluate(data).getNode(0, 0).second;
+          final double forward = impliedTree[i - 1][j - 1] * df2;
+          impliedTree[i][j] = (impliedTree[i][j - 1] * (df1 * c - sigma) - arrowDebreu[i - 1][j - 1] * impliedTree[i - 1][j - 1] * (forward - impliedTree[i][j - 1]))
+              / (df1 * c - sigma - arrowDebreu[i - 1][j - 1] * (forward - impliedTree[i][j - 1]));
+        }
+        for (int j = mid - 1; j >= 0; j--) {
+          sigma = 0;
+          for (int k = j - 1; k >= 0; k--) {
+            final double f = impliedTree[i - 1][k] * df2;
+            sigma += arrowDebreu[i - 1][k] * (impliedTree[i - 1][j] - f);
+          }
+          final double p = crrModel.getTreeGeneratingFunction(new EuropeanVanillaOptionDefinition(impliedTree[i - 1][j], new Expiry(DateUtil.getDateOffsetWithYearFraction(date, t)), false)).evaluate(
+              data).getNode(0, 0).second;
+          final double forward = impliedTree[i - 1][j] * df2;
+          impliedTree[i][j] = (impliedTree[i][j + 1] * (df1 * p - sigma) + arrowDebreu[i - 1][j] * impliedTree[i - 1][j] * (forward - impliedTree[i][j + 1]))
+              / (df1 * p - sigma + arrowDebreu[i - 1][j] * (forward - impliedTree[i][j + 1]));
+        }
+
+      }
+
+      for (int j = 0; j < RecombiningBinomialTree.NODES.evaluate(i - 1); j++) {
+        final double f = impliedTree[i - 1][j] * df2;
+        transitionProbabilities[i - 1][j] = (f - impliedTree[i][j]) / (impliedTree[i][j + 1] - impliedTree[i][j]);
+        localVolatilities[i - 1][j] = Math.sqrt(transitionProbabilities[i - 1][j] * (1 - transitionProbabilities[i - 1][j])) * Math.log(impliedTree[i][j + 1] / impliedTree[i][j]);
+      }
+      arrowDebreu[i][0] = (1 - transitionProbabilities[i - 1][0]) * arrowDebreu[i - 1][0] / df1;
+      arrowDebreu[i][RecombiningBinomialTree.NODES.evaluate(i) - 1] = (transitionProbabilities[i - 1][RecombiningBinomialTree.NODES.evaluate(i - 1) - 1] * arrowDebreu[i - 1][RecombiningBinomialTree.NODES
+          .evaluate(i - 1) - 1])
+          / df1;
+      for (int j = 1; j < RecombiningBinomialTree.NODES.evaluate(i) - 1; j++) {
+        arrowDebreu[i][j] = (transitionProbabilities[i - 1][j - 1] * arrowDebreu[i - 1][j - 1] + (1 - transitionProbabilities[i - 1][j]) * arrowDebreu[i - 1][j]) / df1;
       }
     }
     System.out.println("Implied tree");
