@@ -37,11 +37,11 @@ public class QuasiNewtonVectorMinimizer implements VectorMinimizerWithGradient {
     this(EPS, EPS, DEF_MAX_STEPS);
   }
 
-  public QuasiNewtonVectorMinimizer(double absTolerance, double relTolerance, int maxInterations) {
+  public QuasiNewtonVectorMinimizer(final double absTolerance, final double relTolerance, final int maxInterations) {
     this(absTolerance, relTolerance, maxInterations, DEF_UPDATER);
   }
 
-  public QuasiNewtonVectorMinimizer(double absoluteTol, double relativeTol, int maxInterations, QuasiNewtonInverseHessianUpdate hessianUpdater) {
+  public QuasiNewtonVectorMinimizer(final double absoluteTol, final double relativeTol, final int maxInterations, final QuasiNewtonInverseHessianUpdate hessianUpdater) {
     ArgumentChecker.notNull(hessianUpdater, "null updater");
     ArgumentChecker.notNegative(absoluteTol, "absolute tolerance");
     ArgumentChecker.notNegative(relativeTol, "relative tolerance");
@@ -53,12 +53,12 @@ public class QuasiNewtonVectorMinimizer implements VectorMinimizerWithGradient {
   }
 
   @Override
-  public DoubleMatrix1D minimize(Function1D<DoubleMatrix1D, Double> function, DoubleMatrix1D startPosition) {
+  public DoubleMatrix1D minimize(final Function1D<DoubleMatrix1D, Double> function, final DoubleMatrix1D startPosition) {
     throw new NotImplementedException();
   }
 
   @Override
-  public DoubleMatrix1D minimize(Function1D<DoubleMatrix1D, Double> function, Function1D<DoubleMatrix1D, DoubleMatrix1D> grad, DoubleMatrix1D startPosition) {
+  public DoubleMatrix1D minimize(final Function1D<DoubleMatrix1D, Double> function, final Function1D<DoubleMatrix1D, DoubleMatrix1D> grad, final DoubleMatrix1D startPosition) {
     final DataBundle data = new DataBundle();
     final double y = function.evaluate(startPosition);
     data.setX(startPosition);
@@ -96,11 +96,11 @@ public class QuasiNewtonVectorMinimizer implements VectorMinimizerWithGradient {
     return data.getX();
   }
 
-  private DoubleMatrix2D getInitializedMatrix(Function1D<DoubleMatrix1D, Double> function, DoubleMatrix1D startPosition) {
+  private DoubleMatrix2D getInitializedMatrix(@SuppressWarnings("unused") final Function1D<DoubleMatrix1D, Double> function, final DoubleMatrix1D startPosition) {
     return DoubleMatrixUtils.getIdentityMatrix2D(startPosition.getNumberOfElements());
   }
 
-  private DoubleMatrix1D getDirection(DataBundle data) {
+  private DoubleMatrix1D getDirection(final DataBundle data) {
     return (DoubleMatrix1D) MA.multiply(data.getInverseHessianEsimate(), MA.scale(data.getGrad(), -1.0));
   }
 
@@ -144,7 +144,7 @@ public class QuasiNewtonVectorMinimizer implements VectorMinimizerWithGradient {
     final DoubleMatrix1D xNew = (DoubleMatrix1D) MA.add(data.getX(), deltaX);
     data.setDeltaX(deltaX);
     data.setG2(data.getG1());
-    double y = function.evaluate(xNew);
+    final double y = function.evaluate(xNew);
     data.setG1(y * y);
   }
 
@@ -196,6 +196,9 @@ public class QuasiNewtonVectorMinimizer implements VectorMinimizerWithGradient {
     return (MA.getNorm2(data.getGrad()) < _absoluteTol);
   }
 
+  /**
+   * Data bundle for intermediate data
+   */
   public static class DataBundle {
     private double _g0;
     private double _g1;
@@ -277,14 +280,15 @@ public class QuasiNewtonVectorMinimizer implements VectorMinimizerWithGradient {
     }
 
     /**
-     * inverse Hessian 
+     * Inverse Hessian matrix 
+     * @return The inverse Hessian Matrix
      */
     public DoubleMatrix2D getInverseHessianEsimate() {
       return _h;
     }
 
-    public DoubleMatrix2D setInverseHessianEsimate(DoubleMatrix2D estimate) {
-      return _h = estimate;
+    public void setInverseHessianEsimate(final DoubleMatrix2D estimate) {
+      _h = estimate;
     }
 
     public void swapLambdaAndReplace(final double lambda0) {

@@ -24,7 +24,7 @@ public class ConjugateDirectionTest {
   private static final Function1D<DoubleMatrix1D, Double> ROSENBROCK = new Function1D<DoubleMatrix1D, Double>() {
 
     @Override
-    public Double evaluate(DoubleMatrix1D x) {
+    public Double evaluate(final DoubleMatrix1D x) {
       return square(1 - x.getEntry(0)) + 100 * square(x.getEntry(1) - square(x.getEntry(0)));
     }
   };
@@ -32,8 +32,8 @@ public class ConjugateDirectionTest {
   private static final Function1D<DoubleMatrix1D, Double> UNCOUPLED_ROSENBROCK = new Function1D<DoubleMatrix1D, Double>() {
 
     @Override
-    public Double evaluate(DoubleMatrix1D x) {
-      int n = x.getNumberOfElements();
+    public Double evaluate(final DoubleMatrix1D x) {
+      final int n = x.getNumberOfElements();
       if (n % 2 != 0) {
         throw new IllegalArgumentException("vector length must be even");
       }
@@ -48,8 +48,8 @@ public class ConjugateDirectionTest {
   private static final Function1D<DoubleMatrix1D, Double> COUPLED_ROSENBROCK = new Function1D<DoubleMatrix1D, Double>() {
 
     @Override
-    public Double evaluate(DoubleMatrix1D x) {
-      int n = x.getNumberOfElements();
+    public Double evaluate(final DoubleMatrix1D x) {
+      final int n = x.getNumberOfElements();
 
       double sum = 0;
       for (int i = 0; i < n - 1; i++) {
@@ -60,26 +60,26 @@ public class ConjugateDirectionTest {
   };
 
   @Test
-  public void TestSolvingRosenbrock() {
-    DoubleMatrix1D start = new DoubleMatrix1D(new double[] {-1.0, 1.0});
-    DoubleMatrix1D solution = MINIMISER.minimize(ROSENBROCK, start);
+  public void testSolvingRosenbrock() {
+    final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {-1.0, 1.0});
+    final DoubleMatrix1D solution = MINIMISER.minimize(ROSENBROCK, start);
     assertEquals(1.0, solution.getEntry(0), 1e-8);
     assertEquals(1.0, solution.getEntry(1), 1e-8);
   }
 
   @Test
-  public void TestSolvingUncoupledRosenbrock() {
-    DoubleMatrix1D start = new DoubleMatrix1D(new double[] {-1.0, 1.0, -1.0, 1.0, -1.0, 1.0});
-    DoubleMatrix1D solution = MINIMISER.minimize(UNCOUPLED_ROSENBROCK, start);
+  public void testSolvingUncoupledRosenbrock() {
+    final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {-1.0, 1.0, -1.0, 1.0, -1.0, 1.0});
+    final DoubleMatrix1D solution = MINIMISER.minimize(UNCOUPLED_ROSENBROCK, start);
     for (int i = 0; i < solution.getNumberOfElements(); i++) {
       assertEquals(1.0, solution.getEntry(i), 1e-8);
     }
   }
 
   @Test
-  public void TestSolvingCoupledRosenbrock() {
-    DoubleMatrix1D start = new DoubleMatrix1D(new double[] {-1.0, 1.0, -1.0, 1.0, -1.0, 1.0, 1.0});
-    DoubleMatrix1D solution = MINIMISER.minimize(COUPLED_ROSENBROCK, start);
+  public void testSolvingCoupledRosenbrock() {
+    final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {-1.0, 1.0, -1.0, 1.0, -1.0, 1.0, 1.0});
+    final DoubleMatrix1D solution = MINIMISER.minimize(COUPLED_ROSENBROCK, start);
     for (int i = 0; i < solution.getNumberOfElements(); i++) {
       assertEquals(1.0, solution.getEntry(i), 1e-8);
     }

@@ -57,9 +57,6 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
 Timings on Richard's mac pro from 24/08/2010 with 200 warm ups and 1000 benchmark cycles 
 
-
-
-
 18:35:26.423 [main] INFO  c.o.m.r.YieldCurveBootStrapTest - 14947ms-processing 1000 cycles on default Newton, single curve
 18:36:39.163 [main] INFO  c.o.m.r.YieldCurveBootStrapTest - 60618ms-processing 1000 cycles on default Newton, single curve, finite difference
 18:38:47.446 [main] INFO  c.o.m.r.YieldCurveBootStrapTest - 106922ms-processing 1000 cycles on default Newton, single curve FD interpolator sensitivity
@@ -82,8 +79,8 @@ Timings on Richard's mac pro from 24/08/2010 with 200 warm ups and 1000 benchmar
 
 public class YieldCurveBootStrapTest {
   private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveBootStrapTest.class);
-  private static final int HOTSPOT_WARMUP_CYCLES = 200;
-  private static final int BENCHMARK_CYCLES = 1000;
+  private static final int HOTSPOT_WARMUP_CYCLES = 0;
+  private static final int BENCHMARK_CYCLES = 1;
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
 
   private static final Interpolator1D<? extends Interpolator1DDataBundle> EXTRAPOLATOR;

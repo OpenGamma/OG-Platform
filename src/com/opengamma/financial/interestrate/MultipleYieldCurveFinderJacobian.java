@@ -72,7 +72,6 @@ public class MultipleYieldCurveFinderJacobian extends Function1D<DoubleMatrix1D,
         if (senseMap.containsKey(name)) {
           final InterpolatedYieldAndDiscountCurve curve = (InterpolatedYieldAndDiscountCurve) curves.getCurve(name);
           final Interpolator1DDataBundle data = curve.getDataBundles().values().iterator().next();
-          @SuppressWarnings("rawtypes")
           final Interpolator1DNodeSensitivityCalculator sensitivityCalculator = _data.getSensitivityCalculatorForName(name);
           final List<DoublesPair> senseList = senseMap.get(name);
           final double[][] sensitivity = new double[senseList.size()][];

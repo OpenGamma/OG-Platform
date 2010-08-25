@@ -12,6 +12,7 @@ import org.junit.Test;
  */
 public class ConjugateGradientTest extends MultidimensionalMinimizerWithGradiantTestCase {
   private static double EPS = 1e-8;
+
   private static ScalarMinimizer LINE_MINIMIZER = new BrentMinimizer1D();
   private static VectorMinimizerWithGradient MINIMISER = new ConjugateGradientVectorMinimizer(LINE_MINIMIZER, EPS, 500);
 

@@ -29,12 +29,9 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public final class PresentValueSensitivityCalculator implements InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> {
 
-  private static PresentValueSensitivityCalculator s_instance;
+  private static PresentValueSensitivityCalculator s_instance = new PresentValueSensitivityCalculator();
 
   public static PresentValueSensitivityCalculator getInstance() {
-    if (s_instance == null) {
-      s_instance = new PresentValueSensitivityCalculator();
-    }
     return s_instance;
   }
 

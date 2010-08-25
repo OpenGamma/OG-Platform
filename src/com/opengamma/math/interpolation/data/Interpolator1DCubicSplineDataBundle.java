@@ -237,10 +237,10 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
     long temp;
     temp = Double.doubleToLongBits(_leftFirstDev);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + (_leftNatural ? 1231 : 1237);
+    result = prime * result + 1237;
     temp = Double.doubleToLongBits(_rightFirstDev);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + (_rightNatural ? 1231 : 1237);
+    result = prime * result + 1237;
     result = prime * result + ((_underlyingData == null) ? 0 : _underlyingData.hashCode());
     return result;
   }

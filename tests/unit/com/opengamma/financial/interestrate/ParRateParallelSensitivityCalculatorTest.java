@@ -47,65 +47,65 @@ public class ParRateParallelSensitivityCalculatorTest {
   }
 
   @Test
-  public void TestCash() {
-    double t = 7 / 365.0;
-    YieldAndDiscountCurve curve = CURVES.getCurve(FUNDING_CURVE_NAME);
-    double df = curve.getDiscountFactor(t);
-    double r = 1 / t * (1 / df - 1);
-    Cash cash = new Cash(t, r, FUNDING_CURVE_NAME);
+  public void testCash() {
+    final double t = 7 / 365.0;
+    final YieldAndDiscountCurve curve = CURVES.getCurve(FUNDING_CURVE_NAME);
+    final double df = curve.getDiscountFactor(t);
+    final double r = 1 / t * (1 / df - 1);
+    final Cash cash = new Cash(t, r, FUNDING_CURVE_NAME);
     doTest(cash, CURVES);
   }
 
   @Test
-  public void TestFRA() {
-    double settlement = 0.5;
-    double maturity = 7.0 / 12.0;
-    double strike = 0.0;
-    double fixingDate = settlement - 2.0 / 365.0;
-    double forwardYearFrac = 31.0 / 365.0;
-    double discountYearFrac = 30.0 / 360;
-    ForwardRateAgreement fra = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, strike, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+  public void testFRA() {
+    final double settlement = 0.5;
+    final double maturity = 7.0 / 12.0;
+    final double strike = 0.0;
+    final double fixingDate = settlement - 2.0 / 365.0;
+    final double forwardYearFrac = 31.0 / 365.0;
+    final double discountYearFrac = 30.0 / 360;
+    final ForwardRateAgreement fra = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, strike, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
     doTest(fra, CURVES);
   }
 
   @Test
-  public void TestFutures() {
-    double settlementDate = 1.453;
-    double fixingDate = 1.467;
-    double maturity = 1.75;
-    double indexYearFraction = 0.267;
-    double valueYearFraction = 0.25;
-    double price = 97.3;
-    InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, price, LIBOR_CURVE_NAME);
+  public void testFutures() {
+    final double settlementDate = 1.453;
+    final double fixingDate = 1.467;
+    final double maturity = 1.75;
+    final double indexYearFraction = 0.267;
+    final double valueYearFraction = 0.25;
+    final double price = 97.3;
+    final InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, price, LIBOR_CURVE_NAME);
     doTest(edf, CURVES);
   }
 
   @Test
-  public void TestBond() {
-    int n = 20;
-    double tau = 0.5;
-    double yearFrac = 180 / 365.0;
-    double initalCoupon = 0.015;
-    double ramp = 0.0025;
-    double[] coupons = new double[n];
-    double[] yearFracs = new double[n];
-    double[] paymentTimes = new double[n];
+  public void testBond() {
+    final int n = 20;
+    final double tau = 0.5;
+    final double yearFrac = 180 / 365.0;
+    final double initalCoupon = 0.015;
+    final double ramp = 0.0025;
+    final double[] coupons = new double[n];
+    final double[] yearFracs = new double[n];
+    final double[] paymentTimes = new double[n];
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = tau * (i + 1);
       coupons[i] = initalCoupon + i * ramp;
       yearFracs[i] = yearFrac;
     }
-    Bond bond = new Bond(paymentTimes, coupons, yearFracs, FUNDING_CURVE_NAME);
+    final Bond bond = new Bond(paymentTimes, coupons, yearFracs, FUNDING_CURVE_NAME);
     doTest(bond, CURVES);
   }
 
   @Test
-  public void TestFixedFloatSwap() {
-    int n = 20;
-    double[] fixedPaymentTimes = new double[n];
-    double[] floatPaymentTimes = new double[2 * n];
-    double[] fwdStartOffsets = new double[2 * n];
-    double[] fwdEndOffsets = new double[2 * n];
+  public void testFixedFloatSwap() {
+    final int n = 20;
+    final double[] fixedPaymentTimes = new double[n];
+    final double[] floatPaymentTimes = new double[2 * n];
+    final double[] fwdStartOffsets = new double[2 * n];
+    final double[] fwdEndOffsets = new double[2 * n];
 
     for (int i = 0; i < n * 2; i++) {
       if (i % 2 == 0) {
@@ -113,39 +113,39 @@ public class ParRateParallelSensitivityCalculatorTest {
       }
       floatPaymentTimes[i] = (i + 1) * 0.25;
     }
-    double swapRate = 0.04;
+    final double swapRate = 0.04;
 
-    Swap swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, fwdStartOffsets, fwdEndOffsets, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    final Swap swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, fwdStartOffsets, fwdEndOffsets, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
     doTest(swap, CURVES);
   }
 
   @Test
-  public void TestBasisSwap() {
-    int n = 20;
-    double tau = 0.25;
-    double[] paymentTimes = new double[n];
-    double[] spreads = new double[n];
-    double[] yearFracs = new double[n];
-    double[] fwdStartOffsets = new double[n];
-    double[] fwdEndOffsets = new double[n];
+  public void testBasisSwap() {
+    final int n = 20;
+    final double tau = 0.25;
+    final double[] paymentTimes = new double[n];
+    final double[] spreads = new double[n];
+    final double[] yearFracs = new double[n];
+    final double[] fwdStartOffsets = new double[n];
+    final double[] fwdEndOffsets = new double[n];
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = (i + 1) * tau;
       spreads[i] = i * 0.001;
       yearFracs[i] = tau;
     }
 
-    VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, 1.0, fwdStartOffsets, fwdEndOffsets, yearFracs, new double[n], FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
-    VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, 1.0, fwdStartOffsets, fwdEndOffsets, yearFracs, spreads, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME);
+    final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, 1.0, fwdStartOffsets, fwdEndOffsets, yearFracs, new double[n], FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    final VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, 1.0, fwdStartOffsets, fwdEndOffsets, yearFracs, spreads, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME);
 
-    Swap swap = new BasisSwap(payLeg, receiveLeg);
+    final Swap swap = new BasisSwap(payLeg, receiveLeg);
     doTest(swap, CURVES);
   }
 
-  private void doTest(InterestRateDerivative ird, YieldCurveBundle curves) {
-    Map<String, Double> ana = PRPSC.getValue(ird, curves);
-    Map<String, Double> fd = finiteDifferanceSense(ird, curves);
-    Set<String> names = curves.getAllNames();
-    for (String name : names) {
+  private void doTest(final InterestRateDerivative ird, final YieldCurveBundle curves) {
+    final Map<String, Double> ana = PRPSC.getValue(ird, curves);
+    final Map<String, Double> fd = finiteDifferanceSense(ird, curves);
+    final Set<String> names = curves.getAllNames();
+    for (final String name : names) {
       if (ana.containsKey(name)) {
         assertEquals(ana.get(name), fd.get(name), EPS);
       } else {
@@ -154,21 +154,21 @@ public class ParRateParallelSensitivityCalculatorTest {
     }
   }
 
-  private Map<String, Double> finiteDifferanceSense(InterestRateDerivative ird, YieldCurveBundle curves) {
-    Map<String, Double> result = new HashMap<String, Double>();
-    Set<String> names = curves.getAllNames();
-    for (String name : names) {
-      YieldAndDiscountCurve curve = curves.getCurve(name);
-      YieldAndDiscountCurve upCurve = curve.withParallelShift(EPS);
-      YieldCurveBundle newCurves = new YieldCurveBundle();
+  private Map<String, Double> finiteDifferanceSense(final InterestRateDerivative ird, final YieldCurveBundle curves) {
+    final Map<String, Double> result = new HashMap<String, Double>();
+    final Set<String> names = curves.getAllNames();
+    for (final String name : names) {
+      final YieldAndDiscountCurve curve = curves.getCurve(name);
+      final YieldAndDiscountCurve upCurve = curve.withParallelShift(EPS);
+      final YieldCurveBundle newCurves = new YieldCurveBundle();
       newCurves.addAll(curves);
       newCurves.replaceCurve(name, upCurve);
-      double upRate = PRC.getValue(ird, newCurves);
-      YieldAndDiscountCurve downCurve = curve.withParallelShift(-EPS);
+      final double upRate = PRC.getValue(ird, newCurves);
+      final YieldAndDiscountCurve downCurve = curve.withParallelShift(-EPS);
       newCurves.replaceCurve(name, downCurve);
-      double downRate = PRC.getValue(ird, newCurves);
+      final double downRate = PRC.getValue(ird, newCurves);
 
-      double res = (upRate - downRate) / 2 / EPS;
+      final double res = (upRate - downRate) / 2 / EPS;
       result.put(name, res);
     }
     return result;
@@ -191,12 +191,12 @@ public class ParRateParallelSensitivityCalculatorTest {
     }
 
     @Override
-    public double getDiscountFactor(Double t) {
+    public double getDiscountFactor(final Double t) {
       return Math.exp(-t * getInterestRate(t));
     }
 
     @Override
-    public double getInterestRate(Double t) {
+    public double getInterestRate(final Double t) {
       return (_a + _b * t) * Math.exp(-_c * t) + _d;
     }
 
@@ -206,17 +206,17 @@ public class ParRateParallelSensitivityCalculatorTest {
     }
 
     @Override
-    public YieldAndDiscountCurve withMultipleShifts(Map<Double, Double> shifts) {
+    public YieldAndDiscountCurve withMultipleShifts(final Map<Double, Double> shifts) {
       return null;
     }
 
     @Override
-    public YieldAndDiscountCurve withParallelShift(Double shift) {
+    public YieldAndDiscountCurve withParallelShift(final Double shift) {
       return new DummyCurve(_a, _b, _c, _d + shift);
     }
 
     @Override
-    public YieldAndDiscountCurve withSingleShift(Double t, Double shift) {
+    public YieldAndDiscountCurve withSingleShift(final Double t, final Double shift) {
       return null;
     }
   }

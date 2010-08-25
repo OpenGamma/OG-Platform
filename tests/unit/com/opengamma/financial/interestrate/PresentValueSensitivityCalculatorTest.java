@@ -47,7 +47,7 @@ public class PresentValueSensitivityCalculatorTest {
   }
 
   @Test
-  public void TestCash() {
+  public void testCash() {
     final double t = 7 / 365.0;
     final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
     final double df = curve.getDiscountFactor(t);
@@ -88,7 +88,7 @@ public class PresentValueSensitivityCalculatorTest {
   }
 
   @Test
-  public void TestFRA() {
+  public void testFRA() {
     final double settlement = 0.5;
     final double maturity = 7.0 / 12.0;
     final double tau = 1.0 / 12.0;
@@ -123,12 +123,12 @@ public class PresentValueSensitivityCalculatorTest {
   }
 
   @Test
-  public void TestFutures() {
-    double settlementDate = 1.453;
-    double fixingDate = 1.467;
-    double maturity = 1.75;
-    double indexYearFraction = 0.267;
-    double valueYearFraction = 0.25;
+  public void testFutures() {
+    final double settlementDate = 1.453;
+    final double fixingDate = 1.467;
+    final double maturity = 1.75;
+    final double indexYearFraction = 0.267;
+    final double valueYearFraction = 0.25;
     final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
     final double rate = (curve.getDiscountFactor(fixingDate) / curve.getDiscountFactor(maturity) - 1.0) / indexYearFraction;
     final double price = 100 * (1 - rate);
@@ -139,9 +139,9 @@ public class PresentValueSensitivityCalculatorTest {
     final List<DoublesPair> temp = sense.get(FIVE_PC_CURVE_NAME);
     for (final DoublesPair pair : temp) {
 
-      if (pair.getFirst() == fixingDate) {
+      if (CompareUtils.closeEquals(pair.getFirst(), fixingDate, 1e-16)) {
         assertEquals(fixingDate * ratio, pair.getSecond(), 1e-12);
-      } else if (pair.getFirst() == maturity) {
+      } else if (CompareUtils.closeEquals(pair.getFirst(), maturity, 1e-16)) {
         assertEquals(-maturity * ratio, pair.getSecond(), 1e-12);
       } else {
         assertFalse(true);
@@ -150,7 +150,7 @@ public class PresentValueSensitivityCalculatorTest {
   }
 
   @Test
-  public void TestFixedAnnuity() {
+  public void testFixedAnnuity() {
 
     final int n = 15;
     final double alpha = 0.49;
@@ -180,7 +180,7 @@ public class PresentValueSensitivityCalculatorTest {
   }
 
   @Test
-  public void TestVariableAnnuity() {
+  public void testVariableAnnuity() {
     final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
     final double yield = curve.getInterestRate(0.0);
     final double eps = 1e-8;

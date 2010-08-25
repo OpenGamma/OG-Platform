@@ -26,7 +26,7 @@ public class GoldenSectionMinimizer1D implements ScalarMinimizer {
     Validate.notNull(f, "function");
     double x0, x1, x2, x3, f1, f2, temp;
     int i = 0;
-    final Double[] triplet = BRACKETER.getBracketedPoints(f, point1, point2);
+    final double[] triplet = BRACKETER.getBracketedPoints(f, point1, point2);
     x0 = triplet[0];
     x3 = triplet[2];
     if (Math.abs(triplet[2] - triplet[1]) > Math.abs(triplet[1] - triplet[0])) {
@@ -66,7 +66,7 @@ public class GoldenSectionMinimizer1D implements ScalarMinimizer {
   }
 
   @Override
-  public Double minimize(Function1D<Double, Double> function, Double startPosition) {
+  public Double minimize(final Function1D<Double, Double> function, final Double startPosition) {
     throw new NotImplementedException();
   }
 }

@@ -38,7 +38,7 @@ public class BlackDermanToyYieldOnlyInterestRateModelTest {
     new BlackDermanToyYieldOnlyInterestRateModel(5).getTrees(DateUtil.getUTCDate(2010, 8, 1)).evaluate((StandardDiscountBondModelDataBundle) null);
   }
 
-  @SuppressWarnings({"rawtypes"})
+  @SuppressWarnings("unchecked")
   @Test
   public void test() {
     final int steps = 3;

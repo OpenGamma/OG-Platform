@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.minimization;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.CompareUtils;
 
@@ -18,18 +20,10 @@ public abstract class MinimumBracketer {
    */
   protected static final double GOLDEN = 0.61803399;
 
-  public abstract Double[] getBracketedPoints(Function1D<Double, Double> f, Double xLower, Double xUpper);
+  public abstract double[] getBracketedPoints(Function1D<Double, Double> f, double xLower, double xUpper);
 
-  protected void checkInputs(final Function1D<Double, Double> f, final Double xLower, final Double xUpper) {
-    if (f == null) {
-      throw new IllegalArgumentException("Function was null");
-    }
-    if (xLower == null) {
-      throw new IllegalArgumentException("Lower value was null");
-    }
-    if (xUpper == null) {
-      throw new IllegalArgumentException("Upper value was null");
-    }
+  protected void checkInputs(final Function1D<Double, Double> f, final double xLower, final double xUpper) {
+    Validate.notNull(f, "function");
     if (CompareUtils.closeEquals(xLower, xUpper, ZERO)) {
       throw new IllegalArgumentException("Lower and upper values were not distinct");
     }

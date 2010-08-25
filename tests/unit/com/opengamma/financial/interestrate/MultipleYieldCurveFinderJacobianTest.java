@@ -26,7 +26,6 @@ import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapol
 import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.rootfinding.newton.JacobianCalculator;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -46,9 +45,9 @@ public class MultipleYieldCurveFinderJacobianTest {
   private static final DoubleMatrix1D XN;
   private static final DoubleMatrix1D XM;
   private static final DoubleMatrix1D XNM;
-  private static final JacobianCalculator CASH_ONLY;
-  private static final JacobianCalculator FRA_ONLY;
-  private static final JacobianCalculator MIXED;
+  private static final Function1D<DoubleMatrix1D, DoubleMatrix2D> CASH_ONLY;
+  private static final Function1D<DoubleMatrix1D, DoubleMatrix2D> FRA_ONLY;
+  private static final Function1D<DoubleMatrix1D, DoubleMatrix2D> MIXED;
   private static final LinkedHashMap<String, double[]> CASH_NODES;
   private static final LinkedHashMap<String, double[]> FRA_NODES;
   private static final LinkedHashMap<String, double[]> MIXED_NODES;
@@ -59,7 +58,8 @@ public class MultipleYieldCurveFinderJacobianTest {
   private static final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> FRA_SENSITIVITY_CALCULATOR;
   private static final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> MIXED_SENSITIVITY_CALCULATOR;
 
-  private static final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
+  private static final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator
+      .getInstance();
 
   private static final int N = 10;
   private static final int M = 5;
@@ -74,7 +74,8 @@ public class MultipleYieldCurveFinderJacobianTest {
     final double[] dataM = new double[M];
     final double[] dataNpM = new double[N + M];
     for (int i = 0; i < N; i++) {
-      final InterestRateDerivative ird = new ForwardRateAgreement(i, i + 0.5, 0.0, FUNDING_CURVE_NAME, FORWARD_CURVE_NAME);
+      final InterestRateDerivative ird = new ForwardRateAgreement(i, i + 0.5, 0.0, FUNDING_CURVE_NAME,
+          FORWARD_CURVE_NAME);
       FRA.add(ird);
       MIXED_INSTRUMENT.add(ird);
       FORWARD_NODES[i] = i + 1;
@@ -90,9 +91,10 @@ public class MultipleYieldCurveFinderJacobianTest {
       dataM[i] = Math.random() / 10;
       dataNpM[i + N] = dataM[i];
     }
-    EXTRAPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-    EXTRAPOLATING_SENSITIVITY_CALCULATOR = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(Interpolator1DFactory.LINEAR,
-        Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
+    EXTRAPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
+        Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    EXTRAPOLATING_SENSITIVITY_CALCULATOR = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
+        .getSensitivityCalculator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
 
     CASH_NODES = new LinkedHashMap<String, double[]>();
     CASH_NODES.put(FUNDING_CURVE_NAME, FUNDING_NODES);
@@ -119,14 +121,18 @@ public class MultipleYieldCurveFinderJacobianTest {
     XM = new DoubleMatrix1D(dataM);
     XN = new DoubleMatrix1D(dataN);
     XNM = new DoubleMatrix1D(dataNpM);
-    CASH_ONLY = new MultipleYieldCurveFinderJacobian(new MultipleYieldCurveFinderDataBundle(CASH, null, CASH_NODES, CASH_INTERPOLATORS, CASH_SENSITIVITY_CALCULATOR), SENSITIVITY_CALCULATOR);
-    FRA_ONLY = new MultipleYieldCurveFinderJacobian(new MultipleYieldCurveFinderDataBundle(FRA, null, FRA_NODES, FRA_INTERPOLATORS, FRA_SENSITIVITY_CALCULATOR), SENSITIVITY_CALCULATOR);
-    MIXED = new MultipleYieldCurveFinderJacobian(new MultipleYieldCurveFinderDataBundle(MIXED_INSTRUMENT, null, MIXED_NODES, MIXED_INTERPOLATORS, MIXED_SENSITIVITY_CALCULATOR), SENSITIVITY_CALCULATOR);
+    CASH_ONLY = new MultipleYieldCurveFinderJacobian(new MultipleYieldCurveFinderDataBundle(CASH, null, CASH_NODES,
+        CASH_INTERPOLATORS, CASH_SENSITIVITY_CALCULATOR), SENSITIVITY_CALCULATOR);
+    FRA_ONLY = new MultipleYieldCurveFinderJacobian(new MultipleYieldCurveFinderDataBundle(FRA, null, FRA_NODES,
+        FRA_INTERPOLATORS, FRA_SENSITIVITY_CALCULATOR), SENSITIVITY_CALCULATOR);
+    MIXED = new MultipleYieldCurveFinderJacobian(new MultipleYieldCurveFinderDataBundle(MIXED_INSTRUMENT, null,
+        MIXED_NODES, MIXED_INTERPOLATORS, MIXED_SENSITIVITY_CALCULATOR), SENSITIVITY_CALCULATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullCalculator() {
-    new MultipleYieldCurveFinderJacobian(new MultipleYieldCurveFinderDataBundle(MIXED_INSTRUMENT, null, MIXED_NODES, MIXED_INTERPOLATORS, MIXED_SENSITIVITY_CALCULATOR), null);
+    new MultipleYieldCurveFinderJacobian(new MultipleYieldCurveFinderDataBundle(MIXED_INSTRUMENT, null, MIXED_NODES,
+        MIXED_INTERPOLATORS, MIXED_SENSITIVITY_CALCULATOR), null);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -136,17 +142,17 @@ public class MultipleYieldCurveFinderJacobianTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullVector() {
-    CASH_ONLY.evaluate((DoubleMatrix1D) null, (Function1D<DoubleMatrix1D, DoubleMatrix1D>[]) null);
+    CASH_ONLY.evaluate((DoubleMatrix1D) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongNumberOfElements() {
-    CASH_ONLY.evaluate(XN, (Function1D<DoubleMatrix1D, DoubleMatrix1D>[]) null);
+    CASH_ONLY.evaluate(XN);
   }
 
   @Test
   public void testCashOnly() {
-    final DoubleMatrix2D jacobian = CASH_ONLY.evaluate(XM, (Function1D<DoubleMatrix1D, DoubleMatrix1D>[]) null);
+    final DoubleMatrix2D jacobian = CASH_ONLY.evaluate(XM);
     assertEquals(M, jacobian.getNumberOfRows());
     assertEquals(M, jacobian.getNumberOfColumns());
     for (int i = 0; i < M; i++) {
@@ -162,7 +168,7 @@ public class MultipleYieldCurveFinderJacobianTest {
 
   @Test
   public void testFRAOnly() {
-    final DoubleMatrix2D jacobian = FRA_ONLY.evaluate(XN, (Function1D<DoubleMatrix1D, DoubleMatrix1D>[]) null);
+    final DoubleMatrix2D jacobian = FRA_ONLY.evaluate(XN);
     assertEquals(N, jacobian.getNumberOfRows());
     assertEquals(N, jacobian.getNumberOfColumns());
     for (int i = 0; i < N; i++) {
@@ -181,7 +187,7 @@ public class MultipleYieldCurveFinderJacobianTest {
 
   @Test
   public void testMixed() {
-    final DoubleMatrix2D jacobian = MIXED.evaluate(XNM, (Function1D<DoubleMatrix1D, DoubleMatrix1D>[]) null);
+    final DoubleMatrix2D jacobian = MIXED.evaluate(XNM);
     assertEquals(N + M, jacobian.getNumberOfRows());
     assertEquals(N + M, jacobian.getNumberOfColumns());
     for (int i = 0; i < N; i++) {

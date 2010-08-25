@@ -19,8 +19,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
  * @param <T> Type of Interpolator1DDataBundle
  */
 
-public abstract class Interpolator1D<T extends Interpolator1DDataBundle> implements Interpolator<T, Double>,
-    Serializable {
+public abstract class Interpolator1D<T extends Interpolator1DDataBundle> implements Interpolator<T, Double>, Serializable {
   /**
    * Default accuracy
    */
@@ -42,6 +41,7 @@ public abstract class Interpolator1D<T extends Interpolator1DDataBundle> impleme
 
   public abstract T getDataBundleFromSortedArrays(double[] x, double[] y);
 
+  @SuppressWarnings("unchecked")
   public T getDataBundle(final Map<Double, Double> data) {
     Validate.notNull(data, "Backing data for interpolation must not be null.");
     Validate.notEmpty(data, "Backing data for interpolation must not be empty.");
