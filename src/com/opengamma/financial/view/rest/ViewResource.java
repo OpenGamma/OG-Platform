@@ -18,6 +18,7 @@ import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_N
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_PERFORMCOMPUTATION;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_PORTFOLIO;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_REQUIREMENTNAMES;
+import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_REQUIRED_LIVE_DATA;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_RESULTAVAILABLE;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_STATUS;
 
@@ -34,6 +35,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.client.LocalViewClient;
 import com.opengamma.engine.view.client.ViewClient;
@@ -132,6 +134,19 @@ public class ViewResource {
     final FudgeSerializationContext context = getFudgeSerializationContext();
     final MutableFudgeFieldContainer msg = context.newMessage();
     context.objectToFudgeMsg(msg, VIEW_REQUIREMENTNAMES, null, requirementNames);
+    return new FudgeMsgEnvelope(msg);
+  }
+  
+  @GET
+  @Path(VIEW_REQUIRED_LIVE_DATA)
+  public FudgeMsgEnvelope getRequiredLiveData() {
+    Set<ValueRequirement> requiredLiveData = getViewClient().getRequiredLiveData();
+    if (requiredLiveData == null) {
+      return null;
+    }
+    FudgeSerializationContext context = getFudgeSerializationContext();
+    MutableFudgeFieldContainer msg = context.newMessage();
+    context.objectToFudgeMsg(msg, VIEW_REQUIRED_LIVE_DATA, null, requiredLiveData);
     return new FudgeMsgEnvelope(msg);
   }
   

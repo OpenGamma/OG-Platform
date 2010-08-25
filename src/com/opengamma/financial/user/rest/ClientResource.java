@@ -31,7 +31,7 @@ public class ClientResource {
   /**
    * The path used to retrieve user portfolios
    */
-  public static final String PORTFOLIOS_PATH = "portfolios";
+  public static final String PORTFOLIOS_PATH = "portfoliotrees";
   /**
    * The path used to retrieve user positions
    */
