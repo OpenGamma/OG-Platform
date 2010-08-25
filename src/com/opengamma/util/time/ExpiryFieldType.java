@@ -11,6 +11,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.fudgemsg.types.DateFieldType;
 import org.fudgemsg.types.FudgeDate;
+import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
 
 /**
@@ -23,6 +24,7 @@ public final class ExpiryFieldType extends SecondaryFieldType<Expiry, FudgeDate>
   /**
    * Singleton instance of the type.
    */
+  @FudgeSecondaryType
   public static final ExpiryFieldType INSTANCE = new ExpiryFieldType();
 
   private ExpiryFieldType() {
