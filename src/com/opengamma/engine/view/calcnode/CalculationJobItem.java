@@ -35,8 +35,10 @@ public final class CalculationJobItem {
   private static final String INPUT_FIELD_NAME = "valueInput";
   private static final String DESIRED_VALUE_FIELD_NAME = "desiredValue";
 
+  // should these two be combined to ParameterizedFunction ID?
   private final String _functionUniqueIdentifier;
   private final FunctionParameters _functionParameters;
+  
   private final ComputationTargetSpecification _computationTargetSpecification;
   private final Set<ValueSpecification> _inputs = new HashSet<ValueSpecification>();
   private Collection<Long> _inputIdentifiers;
@@ -54,9 +56,14 @@ public final class CalculationJobItem {
     _desiredValues.addAll(desiredValues);
   }
 
-  private CalculationJobItem(String functionUniqueIdentifier, ComputationTargetSpecification computationTargetSpecification, Collection<ValueSpecification> inputs, Collection<Long> inputIdentifiers,
+  private CalculationJobItem(String functionUniqueIdentifier,
+      FunctionParameters functionParameters,
+      ComputationTargetSpecification computationTargetSpecification, 
+      Collection<ValueSpecification> inputs, 
+      Collection<Long> inputIdentifiers,
       Collection<ValueRequirement> desiredValues) {
     _functionUniqueIdentifier = functionUniqueIdentifier;
+    _functionParameters = functionParameters;
     _computationTargetSpecification = computationTargetSpecification;
     if (inputs != null) {
       _inputs.addAll(inputs);
@@ -142,7 +149,7 @@ public final class CalculationJobItem {
 
     getComputationTargetSpecification().toFudgeMsg(fudgeContext, msg);
     msg.add(FUNCTION_UNIQUE_ID_FIELD_NAME, getFunctionUniqueIdentifier());
-    fudgeContext.objectToFudgeMsg(msg, FUNCTION_PARAMETERS_FIELD_NAME, null, getFunctionParameters());
+    fudgeContext.objectToFudgeMsgWithClassHeaders(msg, FUNCTION_PARAMETERS_FIELD_NAME, null, getFunctionParameters());
 
     if (_inputIdentifiers != null) {
       for (Long identifier : _inputIdentifiers) {

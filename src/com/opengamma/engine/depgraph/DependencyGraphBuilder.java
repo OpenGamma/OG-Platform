@@ -141,7 +141,6 @@ public class DependencyGraphBuilder {
     }
     
     DependencyNode node = new DependencyNode(target);
-    _graph.addDependencyNode(node);
 
     Pair<ParameterizedFunction, ValueSpecification> resolvedFunction;
     
@@ -171,6 +170,7 @@ public class DependencyGraphBuilder {
       node.addInputValue(input.getSecond());
     }
     
+    _graph.addDependencyNode(node);
     return Pair.of(node, resolvedFunction.getSecond());
   }
   

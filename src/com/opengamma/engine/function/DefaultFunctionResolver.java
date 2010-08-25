@@ -7,8 +7,8 @@ package com.opengamma.engine.function;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
-import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -27,7 +27,13 @@ public class DefaultFunctionResolver implements FunctionResolver {
   /**
    * The map is sorted from highest to lowest priority
    */
-  private NavigableMap<Integer, Collection<ResolutionRule>> _priority2Rules;
+  private Map<Integer, Collection<ResolutionRule>> _priority2Rules = new TreeMap<Integer, Collection<ResolutionRule>>(
+      new Comparator<Integer>() {
+        @Override
+        public int compare(Integer o1, Integer o2) {
+          return -o1.compareTo(o2);
+        }
+      });
   
   public DefaultFunctionResolver(FunctionRepository repository) {
     Collection<ResolutionRule> resolutionRules = new ArrayList<ResolutionRule>();
@@ -38,25 +44,22 @@ public class DefaultFunctionResolver implements FunctionResolver {
           0);
       resolutionRules.add(rule);
     }
-    setRules(resolutionRules);
+    addRules(resolutionRules);
   }
 
   public DefaultFunctionResolver(Collection<ResolutionRule> resolutionRules) {
-    setRules(resolutionRules);
+    addRules(resolutionRules);
   }
 
-  private void setRules(Collection<ResolutionRule> resolutionRules) {
-    TreeMap<Integer, Collection<ResolutionRule>> priority2Rules = new TreeMap<Integer, Collection<ResolutionRule>>();
+  private void addRules(Collection<ResolutionRule> resolutionRules) {
     for (ResolutionRule resolutionRule : resolutionRules) {
-      Collection<ResolutionRule> rules = priority2Rules.get(resolutionRule.getPriority());
+      Collection<ResolutionRule> rules = _priority2Rules.get(resolutionRule.getPriority());
       if (rules == null) {
         rules = new ArrayList<ResolutionRule>();
-        priority2Rules.put(resolutionRule.getPriority(), rules);
+        _priority2Rules.put(resolutionRule.getPriority(), rules);
       }
       rules.add(resolutionRule);     
     }
-
-    _priority2Rules = priority2Rules.descendingMap(); // reverse iteration order from lowest to highest to highest to lowest
   }
   
   @Override
@@ -71,11 +74,12 @@ public class DefaultFunctionResolver implements FunctionResolver {
       Collection<ResolutionRule> rules = entry.getValue();
       
       Collection<ResolutionRule> applicableRules = new ArrayList<ResolutionRule>();
-      ValueSpecification result = null;
+      ValueSpecification validResult = null;
       for (ResolutionRule rule : rules) {
-        result = rule.getResult(requirement, atNode, context);
+        ValueSpecification result = rule.getResult(requirement, atNode, context);
         if (result != null) {
           applicableRules.add(rule);
+          validResult = result;
         }
       }
       
@@ -90,7 +94,7 @@ public class DefaultFunctionResolver implements FunctionResolver {
         } else {
           // we can quit here because the map is sorted from highest to lowest priority
           ResolutionRule onlyApplicableRule = applicableRules.iterator().next();
-          return Pair.of(onlyApplicableRule.getFunction(), result);
+          return Pair.of(onlyApplicableRule.getFunction(), validResult);
         }
         
       }
