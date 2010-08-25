@@ -132,6 +132,17 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
     ArgumentChecker.notNull(rootNode, "root node");
     _rootNode = rootNode;
   }
+  
+  public String toLongString() {
+    return new StrBuilder()
+      .append("Portfolio[")
+      .append("uniqueIdentifier=")
+      .append(getUniqueIdentifier())
+      .append(",rootNode=")
+      .append(getRootNode().toLongString())
+      .append("]")
+      .toString();
+  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -142,7 +153,7 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
       .append("]")
       .toString();
   }
-
+  
   @Override
   public boolean equals(final Object obj) {
     if (obj == this) {

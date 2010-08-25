@@ -23,6 +23,14 @@ public class ApplyToSubtree implements ComputationTargetFilter {
 
   @Override
   public boolean accept(DependencyNode node) {
+    while (node != null) {
+      if (node.getComputationTarget().toSpecification().equals(_subtreeRoot)) {
+        return true;
+      }
+            
+      node = node.getDependentNode();
+    }
+    
     return false;
   }
   
