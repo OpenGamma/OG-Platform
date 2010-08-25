@@ -17,7 +17,7 @@ import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.util.fudge.UtilFudgeContextConfiguration;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * Base class for testing OG-Analytics objects to and from Fudge messages.
@@ -30,9 +30,8 @@ public class AnalyticsTestBase {
 
   @Before
   public void createFudgeContext() {
-    _fudgeContext = new FudgeContext();
+    _fudgeContext = OpenGammaFudgeContext.constructContext();
     _fudgeContext.setConfiguration(AnalyticsFudgeContextConfiguration.INSTANCE);
-    _fudgeContext.setConfiguration(UtilFudgeContextConfiguration.INSTANCE);
   }
 
   protected FudgeContext getFudgeContext() {

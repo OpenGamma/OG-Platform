@@ -26,7 +26,7 @@ import com.opengamma.engine.view.client.ViewProcessorClient;
 import com.opengamma.financial.fudgemsg.FinancialFudgeContextConfiguration;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.fudge.UtilFudgeContextConfiguration;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * RESTful resource publishing details of view processors.
@@ -64,8 +64,7 @@ public class ViewProcessorService {
    */
   public ViewProcessorService() {
     setTopicPrefix("ViewProcessor");
-    final FudgeContext fudgeContext = new FudgeContext();
-    UtilFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
+    final FudgeContext fudgeContext = OpenGammaFudgeContext.constructContext();
     EngineFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
     FinancialFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
     setFudgeContext(fudgeContext);
