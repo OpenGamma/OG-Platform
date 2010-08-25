@@ -14,10 +14,10 @@ import java.util.concurrent.TimeUnit;
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.engine.DefaultComputationTargetResolver;
-import com.opengamma.engine.function.DefaultFunctionResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
+import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.livedata.FixedLiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.position.MockPositionSource;
