@@ -9,10 +9,8 @@ import java.util.Map;
 
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeObjectDictionary;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
@@ -24,21 +22,10 @@ import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
  */
 /* package */final class ModelInterestRateCurve {
 
-  private static final FudgeBuilder<ConstantYieldCurve> CONSTANT_YIELD_CURVE = new ConstantYieldCurveBuilder();
-  private static final FudgeBuilder<InterpolatedYieldCurve> INTERPOLATED_YIELD_CURVE = new InterpolatedYieldCurveBuilder();
-  private static final FudgeBuilder<InterpolatedDiscountCurve> INTERPOLATED_DISCOUNT_CURVE = new InterpolatedDiscountCurveBuilder();
-
   /**
    * Restricted constructor.
    */
   private ModelInterestRateCurve() {
-  }
-
-  /* package */static void addBuilders(final FudgeObjectDictionary dictionary) {
-    // REVIEW kirk 2010-08-24 -- This is now optional if classpath is scanned.
-    dictionary.addBuilder(ConstantYieldCurve.class, CONSTANT_YIELD_CURVE);
-    dictionary.addBuilder(InterpolatedDiscountCurve.class, INTERPOLATED_DISCOUNT_CURVE);
-    dictionary.addBuilder(InterpolatedYieldCurve.class, INTERPOLATED_YIELD_CURVE);
   }
 
   //-------------------------------------------------------------------------

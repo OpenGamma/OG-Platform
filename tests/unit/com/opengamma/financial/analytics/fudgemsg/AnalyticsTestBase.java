@@ -31,7 +31,6 @@ public class AnalyticsTestBase {
   @Before
   public void createFudgeContext() {
     _fudgeContext = OpenGammaFudgeContext.constructContext();
-    _fudgeContext.setConfiguration(AnalyticsFudgeContextConfiguration.INSTANCE);
   }
 
   protected FudgeContext getFudgeContext() {
