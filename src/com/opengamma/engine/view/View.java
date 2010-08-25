@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.livedata.LiveDataSnapshotListener;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.livedata.LiveDataInjector;
@@ -228,10 +229,11 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
 
   @Override
   public void valueChanged(ValueRequirement value) {
+    ValueSpecification valueSpecification = new ValueSpecification(value, LiveDataSourcingFunction.UNIQUE_ID);
     Set<ValueSpecification> liveDataRequirements = getViewEvaluationModel().getAllLiveDataRequirements();
     ViewRecalculationJob recalcJob = getRecalcJob();
-    if (recalcJob != null && liveDataRequirements.contains(value)) {
-      recalcJob.liveDataChanged();      
+    if (recalcJob != null && liveDataRequirements.contains(valueSpecification)) {
+      recalcJob.liveDataChanged();  
     }
   }
 

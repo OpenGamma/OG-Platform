@@ -13,6 +13,7 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
@@ -23,6 +24,7 @@ import com.opengamma.engine.view.ViewCalculationResultModel;
 /**
  * 
  */
+@FudgeBuilderFor(ViewCalculationResultModel.class)
 public class ViewCalculationResultModelBuilder implements FudgeBuilder<ViewCalculationResultModel> {
   
   @Override
