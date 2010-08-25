@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.fudgemsg;
 
+import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.types.StringFieldType;
 
@@ -19,6 +20,7 @@ public final class YieldSecondaryType extends SecondaryFieldType<YieldConvention
   /**
    * Singleton instance of the type.
    */
+  @FudgeSecondaryType
   public static final YieldSecondaryType INSTANCE = new YieldSecondaryType();
 
   private YieldSecondaryType() {
