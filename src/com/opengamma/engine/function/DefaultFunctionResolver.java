@@ -5,13 +5,16 @@
  */
 package com.opengamma.engine.function;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.UnsatisfiableDependencyGraphException;
+import com.opengamma.engine.function.resolver.ApplyToAllTargets;
+import com.opengamma.engine.function.resolver.ResolutionRule;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
@@ -20,41 +23,81 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class DefaultFunctionResolver implements FunctionResolver {
-  private static final Logger s_logger = LoggerFactory.getLogger(DefaultFunctionResolver.class);
   
-  private FunctionRepository _functionRepository;
+  /**
+   * The map is sorted from highest to lowest priority
+   */
+  private NavigableMap<Integer, Collection<ResolutionRule>> _priority2Rules;
+  
+  public DefaultFunctionResolver(FunctionRepository repository) {
+    Collection<ResolutionRule> resolutionRules = new ArrayList<ResolutionRule>();
+    for (FunctionDefinition function : repository.getAllFunctions()) {
+      ResolutionRule rule = new ResolutionRule(
+          new ParameterizedFunction(function, function.getDefaultParameters()),
+          new ApplyToAllTargets(),
+          0);
+      resolutionRules.add(rule);
+    }
+    setRules(resolutionRules);
+  }
 
-  public DefaultFunctionResolver(FunctionRepository functionRepository) {
-    _functionRepository = functionRepository;
+  public DefaultFunctionResolver(Collection<ResolutionRule> resolutionRules) {
+    setRules(resolutionRules);
+  }
+
+  private void setRules(Collection<ResolutionRule> resolutionRules) {
+    TreeMap<Integer, Collection<ResolutionRule>> priority2Rules = new TreeMap<Integer, Collection<ResolutionRule>>();
+    for (ResolutionRule resolutionRule : resolutionRules) {
+      Collection<ResolutionRule> rules = priority2Rules.get(resolutionRule.getPriority());
+      if (rules == null) {
+        rules = new ArrayList<ResolutionRule>();
+        priority2Rules.put(resolutionRule.getPriority(), rules);
+      }
+      rules.add(resolutionRule);     
+    }
+
+    _priority2Rules = priority2Rules.descendingMap(); // reverse iteration order from lowest to highest to highest to lowest
   }
   
-  private FunctionRepository getFunctionRepository() {
-    return _functionRepository;
-  }
-
   @Override
-  public Pair<FunctionDefinition, ValueSpecification> resolveFunction(
-      FunctionCompilationContext context, ComputationTarget target, ValueRequirement requirement) {
-    for (FunctionDefinition function : getFunctionRepository().getAllFunctions()) {
-      if (function instanceof FunctionDefinition) {
-        FunctionDefinition newFunction = (FunctionDefinition) function;
-        if (!newFunction.canApplyTo(context, target)) {
-          continue;
-        }
-        Set<ValueSpecification> resultSpecs = newFunction.getResults(context, target);
-        if (resultSpecs == null) {
-          s_logger.error("For function {} can apply to {} but results are null", newFunction.getClass(), target);
-          throw new NullPointerException("For function " + newFunction.getClass() + " can apply to target but results are null");
-        }
-        for (ValueSpecification resultSpec : resultSpecs) {
-          if (ObjectUtils.equals(resultSpec.getRequirementSpecification(), requirement)) {
-            return Pair.of(newFunction, resultSpec);
-          }
+  public Pair<ParameterizedFunction, ValueSpecification> resolveFunction(
+      ValueRequirement requirement, DependencyNode atNode, FunctionCompilationContext context) {
+    
+    // the idea is to consider highest priority rules first, then the ones with priority
+    // just below the highest, and so on until the lowest
+    
+    for (Map.Entry<Integer, Collection<ResolutionRule>> entry : _priority2Rules.entrySet()) {
+      Integer priority = entry.getKey();
+      Collection<ResolutionRule> rules = entry.getValue();
+      
+      Collection<ResolutionRule> applicableRules = new ArrayList<ResolutionRule>();
+      ValueSpecification result = null;
+      for (ResolutionRule rule : rules) {
+        result = rule.getResult(requirement, atNode, context);
+        if (result != null) {
+          applicableRules.add(rule);
         }
       }
       
+      if (!applicableRules.isEmpty()) {
+        if (applicableRules.size() > 1) {
+          throw new UnsatisfiableDependencyGraphException("There is more than 1 rule with priority " 
+              + priority 
+              + " that can satisfy requirement " 
+              + requirement + " for target " + 
+              atNode.getComputationTarget() + ". The rules are: " +
+              applicableRules);          
+        } else {
+          // we can quit here because the map is sorted from highest to lowest priority
+          ResolutionRule onlyApplicableRule = applicableRules.iterator().next();
+          return Pair.of(onlyApplicableRule.getFunction(), result);
+        }
+        
+      }
     }
-    return null;
+    
+    throw new UnsatisfiableDependencyGraphException("There is no rule that can satisfy requirement " 
+        + requirement + " for target " + atNode.getComputationTarget()); 
   }
 
 }

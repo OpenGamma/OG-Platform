@@ -20,6 +20,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
@@ -29,19 +30,23 @@ import com.opengamma.engine.value.ValueSpecification;
 public class CalculationJobItem {
 
   private static final String FUNCTION_UNIQUE_ID_FIELD_NAME = "functionUniqueIdentifier";
+  private static final String FUNCTION_PARAMETERS_FIELD_NAME = "functionParameters";
   private static final String INPUT_FIELD_NAME = "valueInput";
   private static final String DESIRED_VALUE_FIELD_NAME = "desiredValue";
 
   private final String _functionUniqueIdentifier;
+  private final FunctionParameters _functionParameters;
   private final ComputationTargetSpecification _computationTargetSpecification;
   private final Set<ValueSpecification> _inputs = new HashSet<ValueSpecification>();
   private final Set<ValueRequirement> _desiredValues = new HashSet<ValueRequirement>();
 
   public CalculationJobItem(String functionUniqueIdentifier, 
+      FunctionParameters functionParameters,
       ComputationTargetSpecification computationTargetSpecification, 
       Collection<ValueSpecification> inputs,
       Collection<ValueRequirement> desiredValues) {
     _functionUniqueIdentifier = functionUniqueIdentifier;
+    _functionParameters = functionParameters;
     _computationTargetSpecification = computationTargetSpecification;
     _inputs.addAll(inputs);
     _desiredValues.addAll(desiredValues);
@@ -52,6 +57,10 @@ public class CalculationJobItem {
    */
   public String getFunctionUniqueIdentifier() {
     return _functionUniqueIdentifier;
+  }
+  
+  public FunctionParameters getFunctionParameters() {
+    return _functionParameters;
   }
 
   /**
@@ -88,6 +97,7 @@ public class CalculationJobItem {
 
     getComputationTargetSpecification().toFudgeMsg(fudgeContext, msg);
     msg.add(FUNCTION_UNIQUE_ID_FIELD_NAME, getFunctionUniqueIdentifier());
+    fudgeContext.objectToFudgeMsg(msg, FUNCTION_PARAMETERS_FIELD_NAME, null, getFunctionParameters());
 
     for (ValueSpecification inputSpecification : getInputs()) {
       msg.add(INPUT_FIELD_NAME, inputSpecification.toFudgeMsg(fudgeContext));
@@ -103,6 +113,9 @@ public class CalculationJobItem {
 
   public static CalculationJobItem fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeFieldContainer msg) {
     String functionUniqueId = msg.getString(FUNCTION_UNIQUE_ID_FIELD_NAME);
+    FunctionParameters functionParameters = fudgeContext.fieldValueToObject(
+        FunctionParameters.class, 
+        msg.getByName(FUNCTION_PARAMETERS_FIELD_NAME));
 
     ComputationTargetSpecification computationTargetSpecification = ComputationTargetSpecification.fromFudgeMsg(msg);
 
@@ -119,7 +132,7 @@ public class CalculationJobItem {
       desiredValues.add(desiredValue);
     }
 
-    return new CalculationJobItem(functionUniqueId, computationTargetSpecification, inputs, desiredValues);
+    return new CalculationJobItem(functionUniqueId, functionParameters, computationTargetSpecification, inputs, desiredValues);
   }
 
   @Override

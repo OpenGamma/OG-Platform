@@ -50,6 +50,7 @@ public class CalculationNodeUtils {
     
     CalculationJobItem calculationJobItem = new CalculationJobItem(
         function.getUniqueIdentifier(), 
+        function.getDefaultParameters(),
         function.getTarget().toSpecification(), 
         function.getRequirements(), 
         function.getResultRequirements());

@@ -200,7 +200,7 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
               pass = 0;
               break;
             case SECURITY:
-              if (input.getFunctionDefinition() instanceof LiveDataSourcingFunction) {
+              if (input.getFunction().getFunction() instanceof LiveDataSourcingFunction) {
                 // already evaluated
                 pass = 0;
               } else if (input.getComputationTarget().toSpecification().equals(node.getComputationTarget().toSpecification())) {
