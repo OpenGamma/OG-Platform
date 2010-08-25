@@ -46,7 +46,8 @@ public class DependencyGraphBuilderTest {
     assertNotNull(nodes);
     assertEquals(1, nodes.size());
     DependencyNode node = nodes.iterator().next();
-    assertEquals(function, node.getFunctionDefinition());
+    assertEquals(function, node.getFunction().getFunction());
+    assertEquals(function.getDefaultParameters(), node.getFunction().getParameters());
     assertTrue(node.getOutputValues().contains(helper.getSpec1()));
     assertTrue(node.getOutputValues().contains(helper.getSpec2()));
     assertTrue(node.getInputNodes().isEmpty());
@@ -58,7 +59,8 @@ public class DependencyGraphBuilderTest {
     assertNotNull(nodes);
     assertEquals(1, nodes.size());
     node = nodes.iterator().next();
-    assertEquals(function, node.getFunctionDefinition());
+    assertEquals(function, node.getFunction().getFunction());
+    assertEquals(function.getDefaultParameters(), node.getFunction().getParameters());
     assertTrue(node.getOutputValues().contains(helper.getSpec1()));
     assertFalse(node.getOutputValues().contains(helper.getSpec2()));
     assertTrue(node.getInputNodes().isEmpty());
@@ -83,7 +85,8 @@ public class DependencyGraphBuilderTest {
     assertNotNull(nodes);
     assertEquals(1, nodes.size());
     DependencyNode node = nodes.iterator().next();
-    assertEquals(function, node.getFunctionDefinition());
+    assertEquals(function, node.getFunction().getFunction());
+    assertEquals(function.getDefaultParameters(), node.getFunction().getParameters());
     assertTrue(node.getOutputValues().contains(helper.getSpec1()));
     assertTrue(node.getOutputValues().contains(helper.getSpec2()));
     assertTrue(node.getInputNodes().isEmpty());
@@ -121,13 +124,13 @@ public class DependencyGraphBuilderTest {
     assertNotNull(nodes);
     assertEquals(2, nodes.size());
     for (DependencyNode node : nodes) {
-      if(ObjectUtils.equals(node.getFunctionDefinition(), fn1)) {
+      if(ObjectUtils.equals(node.getFunction().getFunction(), fn1)) {
         assertTrue(node.getOutputValues().contains(helper.getSpec1()));
         assertFalse(node.getOutputValues().contains(helper.getSpec2()));
         assertTrue(node.getInputRequirements().contains(helper.getSpec2().getRequirementSpecification()));
         assertEquals(1, node.getInputNodes().size());
         assertEquals(helper.getTarget(), node.getComputationTarget());
-      } else if(ObjectUtils.equals(node.getFunctionDefinition(), fn2)) {
+      } else if(ObjectUtils.equals(node.getFunction().getFunction(), fn2)) {
         assertFalse(node.getOutputValues().contains(helper.getSpec1()));
         assertTrue(node.getOutputValues().contains(helper.getSpec2()));
         assertTrue(node.getInputRequirements().isEmpty());
@@ -158,12 +161,12 @@ public class DependencyGraphBuilderTest {
     assertNotNull(nodes);
     assertEquals(2, nodes.size());
     for (DependencyNode node : nodes) {
-      if(ObjectUtils.equals(node.getFunctionDefinition(), fn1)) {
+      if(ObjectUtils.equals(node.getFunction().getFunction(), fn1)) {
         assertTrue(node.getOutputValues().contains(helper.getSpec1()));
         assertTrue(node.getInputRequirements().contains(helper.getSpec2().getRequirementSpecification()));
         assertEquals(1, node.getInputNodes().size());
         assertEquals(helper.getTarget(), node.getComputationTarget());
-      } else if(node.getFunctionDefinition() instanceof LiveDataSourcingFunction) {
+      } else if(node.getFunction().getFunction() instanceof LiveDataSourcingFunction) {
         assertFalse(node.getOutputValues().contains(helper.getSpec1()));
         assertEquals(1, node.getOutputValues().size());
         ValueSpecification outputSpec = node.getOutputValues().iterator().next();

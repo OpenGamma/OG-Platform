@@ -6,7 +6,6 @@
 package com.opengamma.engine.depgraph;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -18,6 +17,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionResolver;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
+import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -121,12 +121,17 @@ public class DependencyGraphBuilder {
     checkInjectedInputs();
     
     for (ValueRequirement requirement : requirements) {
-      Pair<DependencyNode, ValueSpecification> requirementPair = addTargetRequirement(target, requirement);
-      _graph.addTerminalOutputValue(requirementPair.getSecond());
+      Pair<DependencyNode, ValueSpecification> terminalNode = addTargetRequirement(requirement);
+      _graph.addTerminalOutputValue(terminalNode.getSecond());
     }
   }
   
-  private Pair<DependencyNode, ValueSpecification> addTargetRequirement(ComputationTarget target, ValueRequirement requirement) {
+  private Pair<DependencyNode, ValueSpecification> addTargetRequirement(ValueRequirement requirement) {
+    ComputationTarget target = getTargetResolver().resolve(requirement.getTargetSpecification());
+    if (target == null) {
+      throw new UnsatisfiableDependencyGraphException("Unable to resolve target for " + requirement);
+    }
+    
     s_logger.info("Adding target requirement for {} on {}", requirement, target);
 
     Pair<DependencyNode, ValueSpecification> existingNode = _graph.getNodeProducing(requirement);
@@ -135,49 +140,37 @@ public class DependencyGraphBuilder {
       return existingNode;
     }
     
+    DependencyNode node = new DependencyNode(target);
+
+    Pair<ParameterizedFunction, ValueSpecification> resolvedFunction;
+    
     if (getLiveDataAvailabilityProvider().isAvailable(requirement)) {
+      
+      // this code to be moved to FunctionResolver?
       s_logger.debug("Live Data : {} on {}", requirement, target);
       LiveDataSourcingFunction function = new LiveDataSourcingFunction(requirement);
-      DependencyNode node = new DependencyNode(function, 
-          target, 
-          Collections.<DependencyNode>emptySet(),
-          Collections.<ValueSpecification>emptySet(),
-          Collections.singleton(function.getResult()));
-      _graph.addDependencyNode(node);
-      return Pair.of(node, function.getResult());
+      resolvedFunction = Pair.of(new ParameterizedFunction(function, function.getDefaultParameters()), function.getResult());
+    
+    } else {
+      
+      resolvedFunction = getFunctionResolver().resolveFunction(requirement, node, getCompilationContext());
+    
     }
     
-    Pair<FunctionDefinition, ValueSpecification> resolvedFunction = getFunctionResolver().resolveFunction(getCompilationContext(), target, requirement);
-    if (resolvedFunction == null) {
-      // Couldn't resolve.
-      // TODO kirk 2009-12-30 -- Gather up all the errors in some way.
-      throw new UnsatisfiableDependencyGraphException("Could not satisfy requirement " + requirement + " for target " + target);
-    }
-    
-    FunctionDefinition functionDefinition = resolvedFunction.getFirst(); 
-    Set<ValueRequirement> inputRequirements = functionDefinition.getRequirements(getCompilationContext(), target);
+    node.setFunction(resolvedFunction.getFirst());
+
+    FunctionDefinition functionDefinition = resolvedFunction.getFirst().getFunction(); 
     Set<ValueSpecification> outputValues = functionDefinition.getResults(getCompilationContext(), target);
+    node.addOutputValues(outputValues);
     
-    Set<DependencyNode> inputNodes = new HashSet<DependencyNode>();
-    Set<ValueSpecification> inputValues = new HashSet<ValueSpecification>();
-    
+    Set<ValueRequirement> inputRequirements = functionDefinition.getRequirements(getCompilationContext(), target);
     for (ValueRequirement inputRequirement : inputRequirements) {
-      ComputationTarget inputTarget = getTargetResolver().resolve(inputRequirement.getTargetSpecification());
-      if (inputTarget == null) {
-        throw new UnsatisfiableDependencyGraphException("Unable to resolve target for " + inputRequirement);
-      }
-      Pair<DependencyNode, ValueSpecification> resolvedInput = addTargetRequirement(inputTarget, inputRequirement);
-      inputNodes.add(resolvedInput.getFirst());
-      inputValues.add(resolvedInput.getSecond());
+      Pair<DependencyNode, ValueSpecification> input = addTargetRequirement(inputRequirement);
+      node.addInputNode(input.getFirst());
+      node.addInputValue(input.getSecond());
     }
     
-    DependencyNode node = new DependencyNode(functionDefinition, 
-        target,
-        inputNodes,
-        inputValues,
-        outputValues);
     _graph.addDependencyNode(node);
-    
     return Pair.of(node, resolvedFunction.getSecond());
   }
   

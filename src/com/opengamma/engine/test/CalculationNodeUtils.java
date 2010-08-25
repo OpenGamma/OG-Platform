@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.test;
@@ -28,7 +28,7 @@ public class CalculationNodeUtils {
 
   public static TestCalculationNode getTestCalcNode(MockFunction mockFunction) {
     TestCalculationNode calcNode = new TestCalculationNode();
-
+    
     InMemoryFunctionRepository functionRepo = (InMemoryFunctionRepository) calcNode.getFunctionRepository();
     functionRepo.addFunction(mockFunction, mockFunction);
 
@@ -50,7 +50,11 @@ public class CalculationNodeUtils {
     CalculationJobSpecification jobSpec = new CalculationJobSpecification("view", CALC_CONF_NAME, iterationTimestamp, 1L);
 
     CalculationJobItem calculationJobItem = new CalculationJobItem(
-        function.getUniqueIdentifier(), function.getTarget().toSpecification(), function.getRequirements(), function.getResultRequirements());
+        function.getUniqueIdentifier(), 
+        function.getDefaultParameters(),
+        function.getTarget().toSpecification(), 
+        function.getRequirements(), 
+        function.getResultRequirements());
     CalculationJob calcJob = new CalculationJob(jobSpec, Collections.singletonList(calculationJobItem));
     return calcJob;
   }

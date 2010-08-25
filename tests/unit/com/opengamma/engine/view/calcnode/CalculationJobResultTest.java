@@ -21,6 +21,7 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueIdentifier;
@@ -37,7 +38,8 @@ public class CalculationJobResultTest {
     ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueIdentifier.of("Scheme", "Value"));
     
     CalculationJobItem item = new CalculationJobItem(
-        "1", 
+        "1",
+        new EmptyFunctionParameters(),
         targetSpec,
         Collections.<ValueSpecification>emptySet(), 
         Collections.<ValueRequirement>emptySet());
