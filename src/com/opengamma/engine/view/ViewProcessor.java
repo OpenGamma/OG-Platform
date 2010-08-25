@@ -1,12 +1,13 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -65,22 +66,23 @@ public class ViewProcessor implements Lifecycle {
   private ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
   private DependencyGraphExecutorFactory _dependencyGraphExecutorFactory;
   private ViewPermissionProvider _viewPermissionProvider;
+  private Map<String, Object> _configurationResource;
   // State:
   private final ConcurrentMap<String, View> _viewsByName = new ConcurrentHashMap<String, View>();
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
-  private boolean _isStarted /*= false*/;
+  private boolean _isStarted /* = false */;
   private ExecutorService _executorService;
-  private boolean _localExecutorService /*= false*/;
-  
+  private boolean _localExecutorService /* = false */;
+
   public ViewProcessor() {
   }
-  
+
   protected void assertNotStarted() {
     if (_isStarted) {
       throw new IllegalStateException("Cannot change injected properties once this ViewProcessor has been started.");
     }
   }
-  
+
   /**
    * @return the viewDefinitionRepository
    */
@@ -104,7 +106,7 @@ public class ViewProcessor implements Lifecycle {
   public FunctionCompilationService getFunctionCompilationService() {
     return _functionCompilationService;
   }
-  
+
   /**
    * Sets the function compilation service
    * 
@@ -148,7 +150,7 @@ public class ViewProcessor implements Lifecycle {
     assertNotStarted();
     _positionSource = positionSource;
   }
-  
+
   public LiveDataClient getLiveDataClient() {
     return _liveDataClient;
   }
@@ -186,7 +188,7 @@ public class ViewProcessor implements Lifecycle {
     assertNotStarted();
     _liveDataSnapshotProvider = liveDataSnapshotProvider;
   }
-  
+
   /**
    * @return the computationCacheSource
    */
@@ -216,19 +218,19 @@ public class ViewProcessor implements Lifecycle {
     assertNotStarted();
     _computationJobDispatcher = computationJobDispatcher;
   }
-  
+
   /**
    * @return the calculation node query receiver (for messages back from the calc node).
    */
   public ViewProcessorQueryReceiver getViewProcessorQueryReceiver() {
     return _viewProcessorQueryReceiver;
   }
-  
+
   public void setViewProcessorQueryReceiver(ViewProcessorQueryReceiver calcNodeQueryReceiver) {
     assertNotStarted();
     _viewProcessorQueryReceiver = calcNodeQueryReceiver;
   }
-  
+
   public DependencyGraphExecutorFactory getDependencyGraphExecutorFactory() {
     return _dependencyGraphExecutorFactory;
   }
@@ -236,15 +238,23 @@ public class ViewProcessor implements Lifecycle {
   public void setDependencyGraphExecutorFactory(DependencyGraphExecutorFactory dependencyGraphExecutorFactory) {
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
   }
-  
+
   public ViewPermissionProvider getViewPermissionProvider() {
     return _viewPermissionProvider;
   }
-  
+
   public void setViewPermissionProvider(ViewPermissionProvider viewPermissionProvider) {
     _viewPermissionProvider = viewPermissionProvider;
   }
-  
+
+  public void setConfigurationResource(final Map<String, Object> configurationResource) {
+    _configurationResource = configurationResource;
+  }
+
+  public Map<String, Object> getConfigurationResource() {
+    return _configurationResource;
+  }
+
   /**
    * @return the executorService
    */
@@ -274,11 +284,11 @@ public class ViewProcessor implements Lifecycle {
     assertNotStarted();
     _localExecutorService = localExecutorService;
   }
-  
+
   public Set<String> getViewNames() {
     return getViewDefinitionRepository().getDefinitionNames();
   }
-  
+
   /**
    * Obtain an already-initialized {@link View} instance.
    * <p/>
@@ -295,7 +305,7 @@ public class ViewProcessor implements Lifecycle {
   public View getView(String name, UserPrincipal credentials) {
     ArgumentChecker.notNull(name, "View name");
     ArgumentChecker.notNull(credentials, "User credentials");
-    
+
     View view = _viewsByName.get(name);
     if (view == null) {
       return null;
@@ -303,7 +313,7 @@ public class ViewProcessor implements Lifecycle {
     view.getPermissionProvider().assertPermission(ViewPermission.ACCESS, credentials, view);
     return view;
   }
-  
+
   /**
    *
    * @param viewName the name of the view to initialize
@@ -322,23 +332,12 @@ public class ViewProcessor implements Lifecycle {
     // view definition (particularly for functions and the like).
     // NOTE jonathan 2010-08-18 -- Same thing as above for the permission provider. At the moment we're using the
     // default for everything, but we could potentially customise this per view, perhaps based on some property of the
-    // view definition - it's easy to imagine that there might be different broad types of view permissioning. 
+    // view definition - it's easy to imagine that there might be different broad types of view permissioning.
     FunctionRepository functionRepository = getFunctionCompilationService().getFunctionRepository();
     InMemoryLKVSnapshotProvider viewLevelLiveData = new InMemoryLKVSnapshotProvider();
-    ViewProcessingContext vpc = new ViewProcessingContext(
-        getLiveDataClient(),
-        getLiveDataAvailabilityProvider(),
-        new CombiningLiveDataSnapshotProvider(Arrays.asList(viewLevelLiveData, getLiveDataSnapshotProvider())),
-        functionRepository,
-        new DefaultFunctionResolver(functionRepository),
-        getPositionSource(),
-        getSecuritySource(),
-        getComputationCacheSource(),
-        getComputationJobDispatcher(),
-        getViewProcessorQueryReceiver(),
-        getFunctionCompilationService().getFunctionCompilationContext(),
-        getExecutorService(),
-        getDependencyGraphExecutorFactory(),
+    ViewProcessingContext vpc = new ViewProcessingContext(getLiveDataClient(), getLiveDataAvailabilityProvider(), new CombiningLiveDataSnapshotProvider(Arrays.asList(viewLevelLiveData,
+        getLiveDataSnapshotProvider())), functionRepository, new DefaultFunctionResolver(functionRepository), getPositionSource(), getSecuritySource(), getComputationCacheSource(),
+        getComputationJobDispatcher(), getViewProcessorQueryReceiver(), getFunctionCompilationService().getFunctionCompilationContext(), getExecutorService(), getDependencyGraphExecutorFactory(),
         getViewPermissionProvider());
     View freshView = new View(viewDefinition, vpc, viewLevelLiveData);
     View actualView = _viewsByName.putIfAbsent(viewName, freshView);
@@ -359,10 +358,10 @@ public class ViewProcessor implements Lifecycle {
         s_logger.warn("Asked to initialize view {} but in state {}. Doing nothing.", viewName, actualView.getCalculationState());
     }
   }
-  
+
   public void startProcessing(String viewName) {
     View view = getViewInternal(viewName);
-    switch(view.getCalculationState()) {
+    switch (view.getCalculationState()) {
       case NOT_INITIALIZED:
         throw new IllegalStateException("View constructed but not yet initialized.");
       case INITIALIZING:
@@ -379,7 +378,7 @@ public class ViewProcessor implements Lifecycle {
         s_logger.info("Requested start of {} but either running or starting. No action taken.", viewName);
     }
   }
-  
+
   public void stopProcessing(String viewName) {
     View view = getViewInternal(viewName);
     switch (view.getCalculationState()) {
@@ -400,12 +399,12 @@ public class ViewProcessor implements Lifecycle {
         _viewsByName.remove(viewName);
     }
   }
-  
+
   protected View getViewInternal(String viewName) {
     ArgumentChecker.notNull(viewName, "View name");
     View view = _viewsByName.get(viewName);
     if (view != null) {
-      return view; 
+      return view;
     }
     ViewDefinition viewDefinition = getViewDefinitionRepository().getDefinition(viewName);
     if (viewDefinition == null) {
@@ -413,7 +412,7 @@ public class ViewProcessor implements Lifecycle {
     }
     throw new IllegalStateException("View \"" + viewName + "\" available, but not initialized. Must be initialized first.");
   }
-  
+
   // --------------------------------------------------------------------------
   // LIFECYCLE METHODS
   // --------------------------------------------------------------------------
@@ -439,7 +438,7 @@ public class ViewProcessor implements Lifecycle {
       getFunctionCompilationService().initialize(getExecutorService());
       // REVIEW kirk 2010-03-03 -- If we initialize all views or anything, this is
       // where we'd do it.
-      
+
       _isStarted = true;
     } finally {
       _lifecycleLock.unlock();
@@ -478,7 +477,7 @@ public class ViewProcessor implements Lifecycle {
       _lifecycleLock.unlock();
     }
   }
-  
+
   // --------------------------------------------------------------------------
   // INITIALIZATION METHODS
   // For all methods that are ultimately called from start()

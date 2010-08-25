@@ -19,6 +19,7 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
@@ -28,6 +29,7 @@ import com.opengamma.engine.view.ViewComputationResultModel;
 
 /**
  */
+@FudgeBuilderFor(ViewComputationResultModel.class)
 public class ViewComputationResultModelBuilder implements FudgeBuilder<ViewComputationResultModel> {
   
   private static final String FIELD_VALUATIONTS = "valuationTS";

@@ -67,11 +67,6 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
     return _fudgeContext;
   }
 
-  @Override
-  public void cacheValueSpecifications(final Collection<ValueSpecification> specifications) {
-    getIdentifierMap().getIdentifiers(specifications);
-  }
-
   // TODO Remove this debug timing code and print statements etc ...
 
   private int _identifierRequests;

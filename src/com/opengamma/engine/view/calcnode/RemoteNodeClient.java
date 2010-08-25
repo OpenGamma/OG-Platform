@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.engine.function.FunctionCompilationService;
+import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionStateListener;
 import com.opengamma.transport.FudgeMessageReceiver;
@@ -34,22 +35,25 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
 
   private final FudgeConnection _connection;
   private final FunctionCompilationService _functionCompilationService;
+  private final IdentifierMap _identifierMap;
   private boolean _started;
 
-  public RemoteNodeClient(final FudgeConnection connection, final FunctionCompilationService functionCompilationService) {
+  public RemoteNodeClient(final FudgeConnection connection, final FunctionCompilationService functionCompilationService, final IdentifierMap identifierMap) {
     super(new LinkedBlockingQueue<AbstractCalculationNode>());
     _connection = connection;
     _functionCompilationService = functionCompilationService;
+    _identifierMap = identifierMap;
     connection.setFudgeMessageReceiver(this);
   }
 
-  public RemoteNodeClient(final FudgeConnection connection, final FunctionCompilationService functionCompilationService, final AbstractCalculationNode node) {
-    this(connection, functionCompilationService);
+  public RemoteNodeClient(final FudgeConnection connection, final FunctionCompilationService functionCompilationService, final IdentifierMap identifierMap, final AbstractCalculationNode node) {
+    this(connection, functionCompilationService, identifierMap);
     setNode(node);
   }
 
-  public RemoteNodeClient(final FudgeConnection connection, final FunctionCompilationService functionCompilationService, final Collection<AbstractCalculationNode> nodes) {
-    this(connection, functionCompilationService);
+  public RemoteNodeClient(final FudgeConnection connection, final FunctionCompilationService functionCompilationService, final IdentifierMap identifierMap,
+      final Collection<AbstractCalculationNode> nodes) {
+    this(connection, functionCompilationService, identifierMap);
     setNodes(nodes);
   }
 
@@ -66,6 +70,10 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
 
   protected FunctionCompilationService getFunctionCompilationService() {
     return _functionCompilationService;
+  }
+
+  protected IdentifierMap getIdentifierMap() {
+    return _identifierMap;
   }
 
   private void sendMessage(final RemoteCalcNodeMessage message) {
@@ -99,9 +107,12 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
 
   private void handleJobMessage(final RemoteCalcNodeJobMessage message) {
     try {
+      final CalculationJob job = message.getJob();
+      job.resolveInputs(getIdentifierMap());
       final AbstractCalculationNode node = getNodes().take();
-      final CalculationJobResult result = node.executeJob(message.getJob());
+      final CalculationJobResult result = node.executeJob(job);
       getNodes().add(node);
+      result.convertInputs(getIdentifierMap());
       sendMessage(new RemoteCalcNodeResultMessage(result));
     } catch (InterruptedException e) {
       s_logger.warn("Thread interrupted");

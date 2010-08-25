@@ -19,6 +19,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionCompilationService;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.test.TestCalculationNode;
+import com.opengamma.engine.view.cache.InMemoryIdentifierMap;
 import com.opengamma.transport.CollectingFudgeMessageReceiver;
 import com.opengamma.transport.DirectFudgeConnection;
 
@@ -38,7 +39,7 @@ public class RemoteNodeClientTest {
     final DirectFudgeConnection conduit = new DirectFudgeConnection(FudgeContext.GLOBAL_DEFAULT);
     final CollectingFudgeMessageReceiver messages = new CollectingFudgeMessageReceiver();
     conduit.getEnd2().setFudgeMessageReceiver(messages);
-    final RemoteNodeClient client = new RemoteNodeClient(conduit.getEnd1(), new FunctionCompilationService (new InMemoryFunctionRepository (), new FunctionCompilationContext ()));
+    final RemoteNodeClient client = new RemoteNodeClient(conduit.getEnd1(), new FunctionCompilationService (new InMemoryFunctionRepository (), new FunctionCompilationContext ()), new InMemoryIdentifierMap ());
     final AbstractCalculationNode node = new TestCalculationNode();
     assertEquals(0, messages.getMessages().size());
     client.addNode(node);

@@ -12,6 +12,7 @@ import javax.time.Instant;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
@@ -23,6 +24,7 @@ import com.opengamma.engine.view.ViewDeltaResultModel;
 /**
  * 
  */
+@FudgeBuilderFor(ViewDeltaResultModel.class)
 public class ViewDeltaResultModelBuilder implements FudgeBuilder<ViewDeltaResultModel> {
   
   private static final String FIELD_PREVIOUSTS = "previousTS";
