@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.rootfinding.newton;
@@ -24,16 +24,6 @@ public class BroydenVectorRootFinder extends NewtonVectorRootFinder {
   }
 
   public BroydenVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps, final Decomposition<?> decomp) {
-    this(absoluteTol, relativeTol, maxSteps, new FiniteDifferenceJacobianCalculator(), decomp);
-  }
-
-  public BroydenVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps, JacobianCalculator calculator) {
-    this(absoluteTol, relativeTol, maxSteps, calculator, new LUDecompositionCommons());
-  }
-
-  public BroydenVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps, JacobianCalculator calculator,
-      final Decomposition<?> decomp) {
-    super(absoluteTol, relativeTol, maxSteps, new JacobianDirectionFunction(decomp), new JacobianEstimateInitializationFunction(calculator),
-        new BroydenMatrixUpdateFunction());
+    super(absoluteTol, relativeTol, maxSteps, new JacobianDirectionFunction(decomp), new JacobianEstimateInitializationFunction(), new BroydenMatrixUpdateFunction());
   }
 }

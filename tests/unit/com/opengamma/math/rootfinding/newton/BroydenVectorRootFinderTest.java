@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.rootfinding.newton;
@@ -15,12 +15,10 @@ import com.opengamma.math.linearalgebra.SVDecompositionCommons;
 public class BroydenVectorRootFinderTest extends VectorRootFinderTest {
   private static final NewtonVectorRootFinder DEFAULT = new BroydenVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS);
   private static final NewtonVectorRootFinder SV = new BroydenVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, new SVDecompositionCommons());
-  private static final NewtonVectorRootFinder DEFAULT_JACOBIAN_2D = new BroydenVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, JACOBIAN2D_CALCULATOR);
-  private static final NewtonVectorRootFinder SV_JACOBIAN_2D =
-      new BroydenVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, JACOBIAN2D_CALCULATOR, new SVDecompositionCommons());
-  private static final NewtonVectorRootFinder DEFAULT_JACOBIAN_3D = new BroydenVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, JACOBIAN3D_CALCULATOR);
-  private static final NewtonVectorRootFinder SV_JACOBIAN_3D =
-      new BroydenVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, JACOBIAN3D_CALCULATOR, new SVDecompositionCommons());
+  private static final NewtonVectorRootFinder DEFAULT_JACOBIAN_2D = new BroydenVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS);
+  private static final NewtonVectorRootFinder SV_JACOBIAN_2D = new BroydenVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, new SVDecompositionCommons());
+  private static final NewtonVectorRootFinder DEFAULT_JACOBIAN_3D = new BroydenVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS);
+  private static final NewtonVectorRootFinder SV_JACOBIAN_3D = new BroydenVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, new SVDecompositionCommons());
 
   @Test(expected = IllegalArgumentException.class)
   public void testSingular1() {

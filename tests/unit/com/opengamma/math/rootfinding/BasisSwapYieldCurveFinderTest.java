@@ -44,9 +44,10 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
 import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
-import com.opengamma.math.rootfinding.newton.JacobianCalculator;
 import com.opengamma.math.rootfinding.newton.NewtonDefaultVectorRootFinder;
+import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.ShermanMorrisonVectorRootFinder;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -76,7 +77,7 @@ public class BasisSwapYieldCurveFinderTest {
   private static final ParRateCalculator RATE_CALCULATOR = ParRateCalculator.getInstance();
 
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> DOUBLE_CURVE_FINDER;
-  private static final JacobianCalculator DOUBLE_CURVE_JACOBIAN;
+  private static final Function1D<DoubleMatrix1D, DoubleMatrix2D> DOUBLE_CURVE_JACOBIAN;
 
   protected static final Function1D<Double, Double> DUMMY_TREAURY_CURVE = new Function1D<Double, Double>() {
 
@@ -226,25 +227,25 @@ public class BasisSwapYieldCurveFinderTest {
 
   @Test
   public void testNewton() {
-    final VectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN);
-    doTest(rootFinder, DOUBLE_CURVE_FINDER);
+    final NewtonVectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS);
+    doTest(rootFinder, DOUBLE_CURVE_FINDER, DOUBLE_CURVE_JACOBIAN);
   }
 
   @Test
   public void testBroyden() {
-    final VectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN);
-    doTest(rootFinder, DOUBLE_CURVE_FINDER);
+    final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
+    doTest(rootFinder, DOUBLE_CURVE_FINDER, DOUBLE_CURVE_JACOBIAN);
   }
 
   @Test
   public void testShermanMorrison() {
-    final VectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS, DOUBLE_CURVE_JACOBIAN);
-    doTest(rootFinder, DOUBLE_CURVE_FINDER);
+    final NewtonVectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS);
+    doTest(rootFinder, DOUBLE_CURVE_FINDER, DOUBLE_CURVE_JACOBIAN);
 
   }
 
-  private void doTest(final VectorRootFinder rootFinder, final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor) {
-    final double[] yieldCurveNodes = rootFinder.getRoot(functor, X0).getData();
+  private void doTest(final NewtonVectorRootFinder rootFinder, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc) {
+    final double[] yieldCurveNodes = rootFinder.getRoot(func, jacFunc, X0).getData();
     final double[] fundYields = Arrays.copyOfRange(yieldCurveNodes, 0, TREASURY_NODE_TIMES.length);
     final YieldAndDiscountCurve fundCurve = new InterpolatedYieldCurve(TREASURY_NODE_TIMES, fundYields, INTERPOLATOR);
     final double[] liborYields = Arrays.copyOfRange(yieldCurveNodes, TREASURY_NODE_TIMES.length, yieldCurveNodes.length);

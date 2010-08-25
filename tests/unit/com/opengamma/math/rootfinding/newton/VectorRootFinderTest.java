@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.rootfinding.newton;
@@ -70,14 +70,7 @@ public class VectorRootFinderTest {
     }
 
   };
-  protected static final JacobianCalculator JACOBIAN2D_CALCULATOR = new JacobianCalculator() {
 
-    @Override
-    public DoubleMatrix2D evaluate(final DoubleMatrix1D x, final Function1D<DoubleMatrix1D, DoubleMatrix1D>... functions) {
-      return JACOBIAN2D.evaluate(x);
-    }
-
-  };
   protected static final Function1D<DoubleMatrix1D, DoubleMatrix1D> FUNCTION3D = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
     @Override
@@ -115,14 +108,7 @@ public class VectorRootFinderTest {
     }
 
   };
-  protected static final JacobianCalculator JACOBIAN3D_CALCULATOR = new JacobianCalculator() {
 
-    @Override
-    public DoubleMatrix2D evaluate(final DoubleMatrix1D x, final Function1D<DoubleMatrix1D, DoubleMatrix1D>... functions) {
-      return JACOBIAN3D.evaluate(x);
-    }
-
-  };
   protected static final double[] TIME_GRID = new double[] {0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 5.0, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0};
   protected static final Function1D<Double, Double> DUMMY_YIELD_CURVE = new Function1D<Double, Double>() {
 
@@ -205,14 +191,14 @@ public class VectorRootFinderTest {
    */
   public void testFunction2D(final NewtonVectorRootFinder rootFinder, final double eps) {
     final DoubleMatrix1D x0 = new DoubleMatrix1D(new double[] {-0.0, 0.0});
-    final DoubleMatrix1D x1 = rootFinder.getRoot(FUNCTION2D, x0);
+    final DoubleMatrix1D x1 = rootFinder.getRoot(FUNCTION2D, JACOBIAN2D, x0);
     assertEquals(1.0, x1.getEntry(0), eps);
     assertEquals(1.0, x1.getEntry(1), eps);
   }
 
-  public void testFunction3D(final VectorRootFinder rootFinder, final double eps) {
+  public void testFunction3D(final NewtonVectorRootFinder rootFinder, final double eps) {
     final DoubleMatrix1D x0 = new DoubleMatrix1D(new double[] {0.8, 0.2, -0.7});
-    final DoubleMatrix1D x1 = rootFinder.getRoot(FUNCTION3D, x0);
+    final DoubleMatrix1D x1 = rootFinder.getRoot(FUNCTION3D, JACOBIAN3D, x0);
     assertEquals(1.0, x1.getData()[0], eps);
     assertEquals(0.0, x1.getData()[1], eps);
     assertEquals(-1.0, x1.getData()[2], eps);

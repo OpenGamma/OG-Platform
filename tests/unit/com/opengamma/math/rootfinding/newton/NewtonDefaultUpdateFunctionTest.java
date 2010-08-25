@@ -9,17 +9,13 @@ import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
  * 
  */
 public class NewtonDefaultUpdateFunctionTest {
-  private static final NewtonDefaultUpdateFunction F = new NewtonDefaultUpdateFunction(new FiniteDifferenceJacobianCalculator());
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testNullCalculator() {
-    new NewtonDefaultUpdateFunction(null);
-  }
+  private static final NewtonDefaultUpdateFunction F = new NewtonDefaultUpdateFunction();
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullFunction() {
@@ -28,10 +24,10 @@ public class NewtonDefaultUpdateFunctionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullVector() {
-    F.getUpdatedMatrix(new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+    F.getUpdatedMatrix(new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
 
       @Override
-      public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+      public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
         return null;
       }
     }, null, null, null, null);

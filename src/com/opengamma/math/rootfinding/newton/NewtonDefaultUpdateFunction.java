@@ -15,19 +15,13 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
  * 
  */
 public class NewtonDefaultUpdateFunction implements NewtonRootFinderMatrixUpdateFunction {
-  private final JacobianCalculator _calculator;
 
-  public NewtonDefaultUpdateFunction(JacobianCalculator calculator) {
-    Validate.notNull(calculator);
-    _calculator = calculator;
-  }
-
-  @SuppressWarnings("unchecked")
   @Override
-  public DoubleMatrix2D getUpdatedMatrix(final Function1D<DoubleMatrix1D, DoubleMatrix1D> f, DoubleMatrix1D x, final DoubleMatrix1D deltaX, final DoubleMatrix1D deltaY, final DoubleMatrix2D matrix) {
-    Validate.notNull(f);
+  public DoubleMatrix2D getUpdatedMatrix(final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFunction, DoubleMatrix1D x, final DoubleMatrix1D deltaX, final DoubleMatrix1D deltaY,
+      final DoubleMatrix2D matrix) {
+    Validate.notNull(jacobianFunction);
     Validate.notNull(x);
-    return _calculator.evaluate(x, f);
+    return jacobianFunction.evaluate(x);
   }
 
 }

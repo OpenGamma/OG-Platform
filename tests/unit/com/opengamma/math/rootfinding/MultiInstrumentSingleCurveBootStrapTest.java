@@ -40,6 +40,7 @@ import com.opengamma.financial.interestrate.libor.definition.Libor;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -49,9 +50,8 @@ import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivit
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
-import com.opengamma.math.rootfinding.newton.FiniteDifferenceJacobianCalculator;
-import com.opengamma.math.rootfinding.newton.JacobianCalculator;
 import com.opengamma.math.rootfinding.newton.NewtonDefaultVectorRootFinder;
+import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.ShermanMorrisonVectorRootFinder;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.DoublesPair;
@@ -83,7 +83,7 @@ public class MultiInstrumentSingleCurveBootStrapTest {
   private static final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> SENSITIVITY_CALCULATOR = PresentValueSensitivityCalculator.getInstance();
   private static final ParRateCalculator RATE_CALCULATOR = ParRateCalculator.getInstance();
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> SINGLE_CURVE_FINDER;
-  private static final JacobianCalculator SINGLE_CURVE_JACOBIAN;
+  private static final Function1D<DoubleMatrix1D, DoubleMatrix2D> SINGLE_CURVE_JACOBIAN;
 
   private static final Function1D<Double, Double> DUMMY_CURVE = new Function1D<Double, Double>() {
 
@@ -203,46 +203,46 @@ public class MultiInstrumentSingleCurveBootStrapTest {
 
   @Test
   public void testNewton() {
-    final VectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN);
-    doHotSpot(rootFinder, "default Newton, single curve", SINGLE_CURVE_FINDER);
+    final NewtonVectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS);
+    doHotSpot(rootFinder, "default Newton, single curve", SINGLE_CURVE_FINDER, SINGLE_CURVE_JACOBIAN);
   }
 
   @Test
   public void testBroyden() {
-    final VectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN);
-    doHotSpot(rootFinder, "Broyden, single curve", SINGLE_CURVE_FINDER);
+    final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
+    doHotSpot(rootFinder, "Broyden, single curve", SINGLE_CURVE_FINDER, SINGLE_CURVE_JACOBIAN);
   }
 
   @Test
   public void testShermanMorrison() {
-    final VectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN);
-    doHotSpot(rootFinder, "Broyden, single curve", SINGLE_CURVE_FINDER);
+    final NewtonVectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS);
+    doHotSpot(rootFinder, "Broyden, single curve", SINGLE_CURVE_FINDER, SINGLE_CURVE_JACOBIAN);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testSingleJacobian() {
-    final JacobianCalculator jacobianFD = new FiniteDifferenceJacobianCalculator(1e-8);
-    final DoubleMatrix2D jacExact = SINGLE_CURVE_JACOBIAN.evaluate(X0, SINGLE_CURVE_FINDER);
-    final DoubleMatrix2D jacFD = jacobianFD.evaluate(X0, SINGLE_CURVE_FINDER);
+    final VectorFieldFirstOrderDifferentiator fd = new VectorFieldFirstOrderDifferentiator();
+
+    final DoubleMatrix2D jacExact = SINGLE_CURVE_JACOBIAN.evaluate(X0);
+    final DoubleMatrix2D jacFD = fd.derivative(SINGLE_CURVE_FINDER).evaluate(X0);
     assertMatrixEquals(jacExact, jacFD, 1e-5);
   }
 
-  private void doHotSpot(final VectorRootFinder rootFinder, final String name, final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor) {
+  private void doHotSpot(final NewtonVectorRootFinder rootFinder, final String name, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc) {
     for (int i = 0; i < HOTSPOT_WARMUP_CYCLES; i++) {
-      doTest(rootFinder, functor);
+      doTest(rootFinder, func, jacFunc);
     }
     if (BENCHMARK_CYCLES > 0) {
       final OperationTimer timer = new OperationTimer(s_logger, "processing {} cycles on " + name, BENCHMARK_CYCLES);
       for (int i = 0; i < BENCHMARK_CYCLES; i++) {
-        doTest(rootFinder, functor);
+        doTest(rootFinder, func, jacFunc);
       }
       timer.finished();
     }
   }
 
-  private void doTest(final VectorRootFinder rootFinder, final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor) {
-    final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(functor, X0);
+  private void doTest(final NewtonVectorRootFinder rootFinder, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc) {
+    final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(func, jacFunc, X0);
     final YieldAndDiscountCurve curve = makeYieldCurve(yieldCurveNodes.getData(), NODE_TIMES, EXTRAPOLATOR);
     final YieldCurveBundle bundle = new YieldCurveBundle();
     bundle.setCurve(CURVE_NAME, curve);

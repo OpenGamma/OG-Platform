@@ -19,13 +19,12 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.rootfinding.newton.JacobianCalculator;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
  */
-public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
+public class MultipleYieldCurveFinderJacobian extends Function1D<DoubleMatrix1D, DoubleMatrix2D> {
   private final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> _calculator;
   private final MultipleYieldCurveFinderDataBundle _data;
 
@@ -38,7 +37,7 @@ public class MultipleYieldCurveFinderJacobian implements JacobianCalculator {
 
   @SuppressWarnings("unchecked")
   @Override
-  public DoubleMatrix2D evaluate(final DoubleMatrix1D x, final Function1D<DoubleMatrix1D, DoubleMatrix1D>... functions) {
+  public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
     Validate.notNull(x);
     final int totalNodes = _data.getTotalNodes();
     if (x.getNumberOfElements() != totalNodes) {

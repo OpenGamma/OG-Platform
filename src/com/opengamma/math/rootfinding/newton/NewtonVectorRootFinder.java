@@ -5,6 +5,7 @@
  */
 package com.opengamma.math.rootfinding.newton;
 
+import com.opengamma.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -41,14 +42,19 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
     _updateFunction = updateFunction;
   }
 
+  @Override
+  public DoubleMatrix1D getRoot(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DoubleMatrix1D startPosition) {
+    VectorFieldFirstOrderDifferentiator jac = new VectorFieldFirstOrderDifferentiator();
+    return getRoot(function, jac.derivative(function), startPosition);
+  }
+
   /**
    *@param function a vector function (i.e. vector to vector) 
   * @param startPosition where to start the root finder for. Note if multiple roots exist which one if found (if at all) will depend on startPosition 
   * @return the vector root of the collection of functions 
    */
-  @Override
-  @SuppressWarnings("synthetic-access")
-  public DoubleMatrix1D getRoot(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DoubleMatrix1D startPosition) {
+
+  public DoubleMatrix1D getRoot(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFunction, final DoubleMatrix1D startPosition) {
     checkInputs(function, startPosition);
 
     final DataBundle data = new DataBundle();
@@ -56,7 +62,7 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
     data.setX(startPosition);
     data.setY(y);
     data.setG0(_algebra.getInnerProduct(y, y));
-    DoubleMatrix2D estimate = _initializationFunction.getInitializedMatrix(function, startPosition);
+    DoubleMatrix2D estimate = _initializationFunction.getInitializedMatrix(jacobianFunction, startPosition);
 
     if (!getNextPosition(function, estimate, data)) {
       throw new RootNotFoundException("Cannot work with this starting position. Please choose another point");
@@ -67,15 +73,15 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
     while (!isConverged(data)) {
       // Want to reset the Jacobian every so often even if backtracking is working
       if ((jacReconCount) % FULL_RECALC_FREQ == 0) {
-        estimate = _initializationFunction.getInitializedMatrix(function, data.getX());
+        estimate = _initializationFunction.getInitializedMatrix(jacobianFunction, data.getX());
         jacReconCount = 1;
       } else {
-        estimate = _updateFunction.getUpdatedMatrix(function, data.getX(), data.getDeltaX(), data.getDeltaY(), estimate);
+        estimate = _updateFunction.getUpdatedMatrix(jacobianFunction, data.getX(), data.getDeltaX(), data.getDeltaY(), estimate);
         jacReconCount++;
       }
       // if backtracking fails, could be that Jacobian estimate has drifted too far
       if (!getNextPosition(function, estimate, data)) {
-        estimate = _initializationFunction.getInitializedMatrix(function, data.getX());
+        estimate = _initializationFunction.getInitializedMatrix(jacobianFunction, data.getX());
         jacReconCount = 1;
         if (!getNextPosition(function, estimate, data)) {
           throw new RootNotFoundException("Failed to converge in backtracking, even after a Jacobian recalculation");

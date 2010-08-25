@@ -24,8 +24,7 @@ public class ShermanMorrisonMatrixUpdateFunction implements NewtonRootFinderMatr
   }
 
   @Override
-  public DoubleMatrix2D getUpdatedMatrix(final Function1D<DoubleMatrix1D, DoubleMatrix1D> f, DoubleMatrix1D x, final DoubleMatrix1D deltaX, final DoubleMatrix1D deltaY, final DoubleMatrix2D matrix) {
-    Validate.notNull(f);
+  public DoubleMatrix2D getUpdatedMatrix(final Function1D<DoubleMatrix1D, DoubleMatrix2D> g, DoubleMatrix1D x, final DoubleMatrix1D deltaX, final DoubleMatrix1D deltaY, final DoubleMatrix2D matrix) {
     Validate.notNull(deltaX);
     Validate.notNull(deltaY);
     Validate.notNull(matrix);
