@@ -225,7 +225,6 @@ public class BatchDbManagerImpl implements BatchDbManager {
   }
   
   /*package*/ ComputeNode getComputeNode(String nodeId) {
-    // todo
     final ComputeHost host = getComputeHost(nodeId);
     
     ComputeNode node = (ComputeNode) _hibernateTemplate.execute(new HibernateCallback() {
@@ -241,7 +240,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
       node = new ComputeNode();
       node.setComputeHost(host);
       node.setConfigOid("UNDEFINED"); // TODO
-      node.setConfigVersion(1);
+      node.setConfigVersion(1); // TODO
       node.setNodeName(host.getHostName());
       _hibernateTemplate.save(node);
     }
