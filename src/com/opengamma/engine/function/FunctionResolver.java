@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.function;
 
-import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
@@ -16,6 +16,6 @@ import com.opengamma.util.tuple.Pair;
  * match functions given different criteria e.g. Optimized for speed.
  */
 public interface FunctionResolver {
-  Pair<FunctionDefinition, ValueSpecification> resolveFunction(
-      FunctionCompilationContext context, ComputationTarget target, ValueRequirement requirement);
+  Pair<ParameterizedFunction, ValueSpecification> resolveFunction(
+      ValueRequirement requirement, DependencyNode atNode, FunctionCompilationContext context);
 }

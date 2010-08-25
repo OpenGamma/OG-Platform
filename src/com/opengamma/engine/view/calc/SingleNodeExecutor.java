@@ -66,7 +66,8 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
     
     for (DependencyNode node : order) {
       CalculationJobItem jobItem = new CalculationJobItem(
-          node.getFunctionDefinition().getUniqueIdentifier(),
+          node.getFunction().getFunction().getUniqueIdentifier(),
+          node.getFunction().getParameters(),
           node.getComputationTarget().toSpecification(),
           node.getInputValues(), 
           node.getOutputRequirements());

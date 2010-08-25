@@ -51,4 +51,10 @@ public abstract class AbstractFunction implements FunctionDefinition {
     return Collections.emptySet();
   }
 
+  @Override
+  public FunctionParameters getDefaultParameters() {
+    // by default, a function has no parameters.
+    return new EmptyFunctionParameters();
+  }
+  
 }

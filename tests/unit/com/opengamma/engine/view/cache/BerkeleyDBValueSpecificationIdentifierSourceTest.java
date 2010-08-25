@@ -10,6 +10,8 @@ import static org.junit.Assert.assertFalse;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -88,7 +90,7 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
     Environment dbEnvironment = createDbEnvironment(dbDir);
     FudgeContext fudgeContext = new FudgeContext();
     
-    BerkeleyDBIdentifierMap idSource = new BerkeleyDBIdentifierMap(dbEnvironment, BerkeleyDBIdentifierMap.DEFAULT_DATABASE_NAME, fudgeContext);
+    BerkeleyDBIdentifierMap idSource = new BerkeleyDBIdentifierMap(dbEnvironment, fudgeContext);
     idSource.start();
     
     Map<String, Long> identifiers = new HashMap<String, Long>();
@@ -98,16 +100,21 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
       ValueSpecification valueSpec = getValueSpec(valueName);
       long identifier = idSource.getIdentifier(valueSpec);
       assertFalse(seenIdentifiers.contains(identifier));
+      seenIdentifiers.add (identifier);
       identifiers.put(valueName, identifier);
     }
     
     for (int j = 0; j < 5; j++) {
+      Map<Long, ValueSpecification> valueSpecs = idSource.getValueSpecifications(seenIdentifiers);
+      assertEquals (seenIdentifiers.size (), valueSpecs.size ());
       for (int i = 0; i < 10; i++) {
         String valueName = "value-" + i;
         ValueSpecification valueSpec = getValueSpec(valueName);
         long identifier = idSource.getIdentifier(valueSpec);
         long existingIdentifier = identifiers.get(valueName);
         assertEquals(identifier, existingIdentifier);
+        assertEquals(valueSpec, idSource.getValueSpecification(identifier));
+        assertEquals (valueSpec, valueSpecs.get (identifier));
       }
     }
     
@@ -122,7 +129,7 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
     Environment dbEnvironment = createDbEnvironment(dbDir);
     FudgeContext fudgeContext = new FudgeContext();
     
-    BerkeleyDBIdentifierMap idSource = new BerkeleyDBIdentifierMap(dbEnvironment, BerkeleyDBIdentifierMap.DEFAULT_DATABASE_NAME, fudgeContext);
+    BerkeleyDBIdentifierMap idSource = new BerkeleyDBIdentifierMap(dbEnvironment, fudgeContext);
     idSource.start();
     String valueName = "value-5";
     ValueSpecification valueSpec = getValueSpec(valueName);
@@ -132,7 +139,7 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
     idSource.stop();
     dbEnvironment.close();
     dbEnvironment = createDbEnvironment(dbDir);
-    idSource = new BerkeleyDBIdentifierMap(dbEnvironment, BerkeleyDBIdentifierMap.DEFAULT_DATABASE_NAME, fudgeContext);
+    idSource = new BerkeleyDBIdentifierMap(dbEnvironment, fudgeContext);
     idSource.start();
     
     // Check we get the same thing back.
@@ -148,20 +155,23 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
     assertEquals(initialIdentifier + 1, identifier);
   }
   
-  @Test
-  public void putPerformanceTest() {
+  public void putPerformanceTestImpl(final boolean bulkOperation) {
     final int numRequirementNames = 100;
     final int numIdentifiers = 100;
     final long numSpecifications = ((long) numRequirementNames) * ((long) numIdentifiers);
-    File dbDir = createDbDir("putPerformanceTest");
+    File dbDir = createDbDir("putPerformanceTest" + bulkOperation);
     Environment dbEnvironment = createDbEnvironment(dbDir);
     FudgeContext fudgeContext = new FudgeContext();
-    BerkeleyDBIdentifierMap idSource = new BerkeleyDBIdentifierMap(dbEnvironment, BerkeleyDBIdentifierMap.DEFAULT_DATABASE_NAME, fudgeContext);
+    BerkeleyDBIdentifierMap idSource = new BerkeleyDBIdentifierMap(dbEnvironment, fudgeContext);
     idSource.start();
     
     OperationTimer timer = new OperationTimer(s_logger, "Put performance test with {} elements", numSpecifications);
     
-    bulkOperationGetIdentifier(numRequirementNames, numIdentifiers, idSource);
+    if (bulkOperation) {
+      bulkOperationGetIdentifier(numRequirementNames, numIdentifiers, idSource);
+    } else {
+      singleOperationGetIdentifier(numRequirementNames, numIdentifiers, idSource);
+    }
     
     idSource.stop();
     long numMillis = timer.finished();
@@ -174,12 +184,67 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
     dbEnvironment.close();
   }
 
+  public void getPerformanceTestImpl(final boolean bulkOperation) {
+    final int numRequirementNames = 100;
+    final int numIdentifiers = 100;
+    final long numSpecifications = ((long) numRequirementNames) * ((long) numIdentifiers);
+    File dbDir = createDbDir("getPerformanceTest" + bulkOperation);
+    Environment dbEnvironment = createDbEnvironment(dbDir);
+    FudgeContext fudgeContext = new FudgeContext();
+    BerkeleyDBIdentifierMap idSource = new BerkeleyDBIdentifierMap(dbEnvironment, fudgeContext);
+    idSource.start();
+    
+    if (bulkOperation) {
+      bulkOperationGetIdentifier(numRequirementNames, numIdentifiers, idSource);
+    } else {
+      singleOperationGetIdentifier(numRequirementNames, numIdentifiers, idSource);
+    }
+    
+    OperationTimer timer = new OperationTimer(s_logger, "Get performance test with {} elements", numSpecifications);
+    
+    if (bulkOperation) {
+      bulkOperationGetIdentifier(numRequirementNames, numIdentifiers, idSource);
+    } else {
+      singleOperationGetIdentifier(numRequirementNames, numIdentifiers, idSource);
+    }
+    
+    long numMillis = timer.finished();
+    idSource.stop();
+    
+    double msPerPut = ((double) numMillis) / ((double) numSpecifications);
+    double putsPerSecond = 1000.0 / msPerPut;
+    
+    s_logger.info("Split time was {}ms/get, {}gets/sec", msPerPut, putsPerSecond);
+    
+    dbEnvironment.close();
+  }
+  
+  @Test
+  public void putPerformanceTest () {
+    putPerformanceTestImpl(false);
+  }
+  
+  @Test
+  public void bulkPutPerformanceTest () {
+    putPerformanceTestImpl(true);
+  }
+  
+  @Test
+  public void getPerformanceTest () {
+    getPerformanceTestImpl(false);
+  }
+  
+  @Test
+  public void bulkGetPerformanceTest () {
+    getPerformanceTestImpl(true);
+  }
+
   /**
    * @param numRequirementNames
    * @param numIdentifiers
    * @param idSource
    */
-  private void bulkOperationGetIdentifier(final int numRequirementNames, final int numIdentifiers, BerkeleyDBIdentifierMap idSource) {
+  private void singleOperationGetIdentifier(final int numRequirementNames, final int numIdentifiers, BerkeleyDBIdentifierMap idSource) {
     for (int iRequirementName = 0; iRequirementName < numRequirementNames; iRequirementName++) {
       String requirementName = "req-" + iRequirementName;
       
@@ -197,31 +262,24 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
     }
   }
 
-  @Test
-  public void getPerformanceTest() {
-    final int numRequirementNames = 100;
-    final int numIdentifiers = 100;
-    final long numSpecifications = ((long) numRequirementNames) * ((long) numIdentifiers);
-    File dbDir = createDbDir("getPerformanceTest");
-    Environment dbEnvironment = createDbEnvironment(dbDir);
-    FudgeContext fudgeContext = new FudgeContext();
-    BerkeleyDBIdentifierMap idSource = new BerkeleyDBIdentifierMap(dbEnvironment, BerkeleyDBIdentifierMap.DEFAULT_DATABASE_NAME, fudgeContext);
-    idSource.start();
-    
-    bulkOperationGetIdentifier(numRequirementNames, numIdentifiers, idSource);
-    
-    OperationTimer timer = new OperationTimer(s_logger, "Get performance test with {} elements", numSpecifications);
-    
-    bulkOperationGetIdentifier(numRequirementNames, numIdentifiers, idSource);
-    
-    long numMillis = timer.finished();
-    idSource.stop();
-    
-    double msPerPut = ((double) numMillis) / ((double) numSpecifications);
-    double putsPerSecond = 1000.0 / msPerPut;
-    
-    s_logger.info("Split time was {}ms/get, {}gets/sec", msPerPut, putsPerSecond);
-    
-    dbEnvironment.close();
+  /**
+   * @param numRequirementNames
+   * @param numIdentifiers
+   * @param idSource
+   */
+  private void bulkOperationGetIdentifier(final int numRequirementNames, final int numIdentifiers, BerkeleyDBIdentifierMap idSource) {
+    for (int iRequirementName = 0; iRequirementName < numRequirementNames; iRequirementName++) {
+      final Collection<ValueSpecification> valueSpecs = new ArrayList<ValueSpecification> (numIdentifiers);
+      final String requirementName = "req-" + iRequirementName;
+      for (int iIdentifier = 0; iIdentifier < numIdentifiers; iIdentifier++) {
+        final String identifierName = "identifier-" + iIdentifier;
+        valueSpecs.add (new ValueSpecification(new ValueRequirement(requirementName, 
+            new ComputationTargetSpecification(
+                ComputationTargetType.PRIMITIVE, 
+                UniqueIdentifier.of("scheme", identifierName))),
+            "mockFunctionId"));
+      }
+      idSource.getIdentifiers(valueSpecs);
+    }
   }
 }

@@ -72,4 +72,9 @@ public interface FunctionDefinition {
    * @return All results <b>possible</b> to be computed by this node for this target with these parameters.
    */
   Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target);
+  
+  /**
+   * @return The default parameters for this function
+   */
+  FunctionParameters getDefaultParameters();
 }

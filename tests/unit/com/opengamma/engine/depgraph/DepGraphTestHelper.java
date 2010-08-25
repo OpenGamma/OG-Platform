@@ -30,7 +30,7 @@ public class DepGraphTestHelper {
   private final InMemoryFunctionRepository _functionRepo;
   private final FixedLiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   
-  private final DependencyGraphBuilder _builder;
+  private DependencyGraphBuilder _builder;
   
   public DepGraphTestHelper() {
     _functionRepo = new InMemoryFunctionRepository();
@@ -43,15 +43,8 @@ public class DepGraphTestHelper {
     ValueRequirement req2 = new ValueRequirement("Req-2", targetId);
     _spec2 = new ValueSpecification(req2, MockFunction.UNIQUE_ID);
     _value2 = new ComputedValue(_spec2, 15.5);
-
-    _builder = new DependencyGraphBuilder();
+    
     _liveDataAvailabilityProvider = new FixedLiveDataAvailabilityProvider();
-    _builder.setLiveDataAvailabilityProvider(_liveDataAvailabilityProvider);
-    _builder.setFunctionResolver(new DefaultFunctionResolver(_functionRepo));
-    MapComputationTargetResolver targetResolver = new MapComputationTargetResolver();
-    targetResolver.addTarget(_target);
-    _builder.setTargetResolver(targetResolver);
-    _builder.setCalculationConfigurationName("testCalcConf");
   }
   
   public MockFunction addFunctionProducing1and2() {
@@ -81,6 +74,15 @@ public class DepGraphTestHelper {
   }
 
   public DependencyGraphBuilder getBuilder() {
+    if (_builder == null) {
+      _builder = new DependencyGraphBuilder();
+      _builder.setLiveDataAvailabilityProvider(_liveDataAvailabilityProvider);
+      _builder.setFunctionResolver(new DefaultFunctionResolver(_functionRepo));
+      MapComputationTargetResolver targetResolver = new MapComputationTargetResolver();
+      targetResolver.addTarget(_target);
+      _builder.setTargetResolver(targetResolver);
+      _builder.setCalculationConfigurationName("testCalcConf");
+    }
     return _builder;
   }
 
