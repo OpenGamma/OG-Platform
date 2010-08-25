@@ -30,6 +30,7 @@ public class LocalCalculationNodeSet extends AbstractCollection<LocalCalculation
   private ComputationTargetResolver _computationTargetResolver;
   private ViewProcessorQuerySender _viewProcessorQuery;
   private ExecutorService _writeBehindExecutorService;
+  private String _nodeIdentifier;
 
   private int _nodeCount;
   private double _nodesPerCore;
@@ -156,6 +157,14 @@ public class LocalCalculationNodeSet extends AbstractCollection<LocalCalculation
     return _nodesPerCore;
   }
 
+  public void setNodeIdentifier(final String nodeIdentifier) {
+    _nodeIdentifier = nodeIdentifier;
+  }
+
+  public String getNodeIdentifier() {
+    return _nodeIdentifier;
+  }
+
   protected int getCores() {
     return Runtime.getRuntime().availableProcessors();
   }
@@ -189,8 +198,16 @@ public class LocalCalculationNodeSet extends AbstractCollection<LocalCalculation
     }
     _nodes = new ArrayList<LocalCalculationNode>(nodes);
     for (int i = 0; i < nodes; i++) {
-      _nodes.add(new LocalCalculationNode(getViewComputationCache(), getFunctionRepository(), getFunctionExecutionContext(), getComputationTargetResolver(), getViewProcessorQuery(),
-          getWriteBehindExecutorService()));
+      final LocalCalculationNode node = new LocalCalculationNode(getViewComputationCache(), getFunctionRepository(), getFunctionExecutionContext(), getComputationTargetResolver(),
+          getViewProcessorQuery(), getWriteBehindExecutorService());
+      if (getNodeIdentifier() != null) {
+        if (nodes > 1) {
+          node.setNodeId(getNodeIdentifier() + ":" + (i + 1));
+        } else {
+          node.setNodeId(getNodeIdentifier());
+        }
+      }
+      _nodes.add(node);
     }
   }
 

@@ -23,6 +23,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.view.cache.IdentifierMap;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeJobMessage;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeReadyMessage;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeResultMessage;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionStateListener;
 import com.opengamma.transport.FudgeMessageReceiver;
@@ -204,7 +208,7 @@ import com.opengamma.util.monitor.OperationTimer;
       // There could still be late messages arriving from a buffer even though the connection has now failed
       if (callback != null) {
         s_logger.debug("Cancelling pending operation {}", jobSpec);
-        callback.jobFailed(this, cause);
+        callback.jobFailed(this, "node on " + toString(), cause);
       }
     }
   }
@@ -213,6 +217,11 @@ import com.opengamma.util.monitor.OperationTimer;
   public void connectionReset(final FudgeConnection connection) {
     s_logger.info("Connection reset by client");
     // We're the server end of a connection, so this isn't going to happen with the socket implementation
+  }
+
+  @Override
+  public String toString() {
+    return _fudgeMessageSender.toString();
   }
 
 }

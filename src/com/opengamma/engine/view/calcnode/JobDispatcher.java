@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.view.calcnode.stats.StatisticsGatherer;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -59,21 +60,24 @@ public class JobDispatcher implements JobInvokerRegister {
 
     @Override
     public void jobCompleted(final CalculationJobResult result) {
-      // REVIEW 2010-08-16 We only need the node ID and the list of result items; we already have everything else we need for the job result
       assert getJobSpec().equals(result.getSpecification());
       cancelTimeout();
       JobResultReceiver resultReceiver = _resultReceiver.getAndSet(null);
       if (resultReceiver != null) {
         s_logger.debug("Job {} completed on node {}", getJobSpec().getJobId(), result.getComputeNodeId());
         resultReceiver.resultReceived(result);
-        s_logger.debug("Reported time = {}ms, non-executing job time = {}ms", (double) result.getDuration() / 1000000d, ((double) getDurationNanos() - (double) result.getDuration()) / 1000000d);
+        final long durationNanos = getDurationNanos();
+        s_logger.debug("Reported time = {}ms, non-executing job time = {}ms", (double) result.getDuration() / 1000000d, ((double) durationNanos - (double) result.getDuration()) / 1000000d);
+        if (getStatisticsGatherer() != null) {
+          getStatisticsGatherer().jobCompleted(result.getComputeNodeId(), result.getDuration(), getDurationNanos());
+        }
       } else {
         s_logger.warn("Job {} completed on node {} but we've already completed or aborted from another node", getJobSpec().getJobId(), result.getComputeNodeId());
       }
     }
 
     @Override
-    public void jobFailed(final JobInvoker jobInvoker, final Exception exception) {
+    public void jobFailed(final JobInvoker jobInvoker, final String computeNodeId, final Exception exception) {
       cancelTimeout();
       final JobResultReceiver resultReceiver = _resultReceiver.getAndSet(null);
       if (resultReceiver != null) {
@@ -90,6 +94,9 @@ public class JobDispatcher implements JobInvokerRegister {
           _excludeJobInvoker.add(jobInvoker);
           _resultReceiver.set(resultReceiver);
           dispatchJobImpl(this);
+        }
+        if (getStatisticsGatherer() != null) {
+          getStatisticsGatherer().jobFailed(computeNodeId, getDurationNanos());
         }
       } else {
         s_logger.warn("Job {} failed but we've already completed or aborted from another node", getJobSpec().getJobId());
@@ -125,7 +132,7 @@ public class JobDispatcher implements JobInvokerRegister {
             synchronized (JobDispatcher.this) {
               _timeout = null;
             }
-            jobFailed(jobInvoker, new OpenGammaRuntimeException("Invocation limit of " + _maxJobExecutionTime + "ms exceeded"));
+            jobFailed(jobInvoker, "node on " + jobInvoker.toString(), new OpenGammaRuntimeException("Invocation limit of " + _maxJobExecutionTime + "ms exceeded"));
           }
         }, _maxJobExecutionTime, TimeUnit.MILLISECONDS);
       }
@@ -176,6 +183,7 @@ public class JobDispatcher implements JobInvokerRegister {
    */
   private long _maxJobExecutionTime;
   private ScheduledExecutorService _jobTimeoutExecutor;
+  private StatisticsGatherer _statisticsGatherer;
 
   public JobDispatcher() {
   }
@@ -222,6 +230,14 @@ public class JobDispatcher implements JobInvokerRegister {
         _jobTimeoutExecutor = Executors.newSingleThreadScheduledExecutor();
       }
     }
+  }
+
+  public void setStatisticsGatherer(final StatisticsGatherer statisticsGatherer) {
+    _statisticsGatherer = statisticsGatherer;
+  }
+
+  public StatisticsGatherer getStatisticsGatherer() {
+    return _statisticsGatherer;
   }
 
   public synchronized void addInvokers(final Collection<JobInvoker> invokers) {

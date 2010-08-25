@@ -48,7 +48,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
   private final FunctionExecutionContext _functionExecutionContext;
   private final ComputationTargetResolver _targetResolver;
   private final ViewProcessorQuerySender _viewProcessorQuerySender;
-  private final String _nodeId;
+  private String _nodeId;
   private final ExecutorService _writeBehindExecutorService;
 
   private long _resolutionTime;
@@ -102,6 +102,11 @@ public abstract class AbstractCalculationNode implements CalculationNode {
   @Override
   public String getNodeId() {
     return _nodeId;
+  }
+
+  public void setNodeId(final String nodeId) {
+    ArgumentChecker.notNull(nodeId, "nodeId");
+    _nodeId = nodeId;
   }
 
   public CalculationJobResult executeJob(CalculationJob job) {

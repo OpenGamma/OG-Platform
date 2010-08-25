@@ -64,11 +64,11 @@ public class ViewEvaluationModel {
   }
   
   public Set<ValueSpecification> getAllLiveDataRequirements() {
-    return _liveDataRequirements;
+    return Collections.unmodifiableSet(_liveDataRequirements);
   }
   
   public Set<String> getAllSecurityTypes() {
-    return _securityTypes;
+    return Collections.unmodifiableSet(_securityTypes);
   }
   
   public Set<ComputationTargetSpecification> getAllComputationTargets() {

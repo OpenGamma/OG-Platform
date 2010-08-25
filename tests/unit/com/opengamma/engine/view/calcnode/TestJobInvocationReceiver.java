@@ -22,7 +22,7 @@ public class TestJobInvocationReceiver implements JobInvocationReceiver {
   }
 
   @Override
-  public synchronized void jobFailed(final JobInvoker jobInvoker, final Exception failure) {
+  public synchronized void jobFailed(final JobInvoker jobInvoker, final String nodeId, final Exception failure) {
     _failureResult = failure;
     notify();
   }

@@ -9,6 +9,7 @@ import java.util.Set;
 
 import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.position.Portfolio;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.DeltaComputationResultListener;
 import com.opengamma.engine.view.View;
@@ -82,6 +83,11 @@ public class LocalViewClient implements ViewClient {
   @Override
   public Set<String> getRequirementNames(String securityType) {
     return null;
+  }
+  
+  @Override
+  public Set<ValueRequirement> getRequiredLiveData() {
+    return getView().getRequiredLiveData();
   }
 
   @Override
