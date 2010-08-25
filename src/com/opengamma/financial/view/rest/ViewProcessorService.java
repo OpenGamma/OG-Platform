@@ -23,6 +23,7 @@ import com.opengamma.engine.fudgemsg.EngineFudgeContextConfiguration;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.LocalViewProcessorClient;
 import com.opengamma.engine.view.client.ViewProcessorClient;
+import com.opengamma.financial.fudgemsg.FinancialFudgeContextConfiguration;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudge.UtilFudgeContextConfiguration;
@@ -66,6 +67,7 @@ public class ViewProcessorService {
     final FudgeContext fudgeContext = new FudgeContext();
     UtilFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
     EngineFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
+    FinancialFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
     setFudgeContext(fudgeContext);
     getJmsTemplate().setPubSubDomain(true);
   }
