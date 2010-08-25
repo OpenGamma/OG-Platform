@@ -71,7 +71,6 @@ import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
-import com.opengamma.math.rootfinding.newton.JacobianCalculator;
 import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
 
 /**
@@ -159,19 +158,19 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     interpolators.put(CURVE_NAME, _interpolator);
     sensitivityCalculators.put(CURVE_NAME, _sensitivityCalculator);
     MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, null, curveNodes, interpolators, sensitivityCalculators);
-    final JacobianCalculator jacobian = new MultipleYieldCurveFinderJacobian(data, ParRateCurveSensitivityCalculator.getInstance()); //TODO have the calculator as an input
+    final Function1D<DoubleMatrix1D,DoubleMatrix2D> jacobian = new MultipleYieldCurveFinderJacobian(data, ParRateCurveSensitivityCalculator.getInstance()); //TODO have the calculator as an input
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveFinder = new MultipleYieldCurveFinderFunction(data, ParRateDifferenceCalculator.getInstance()); //TODO have the calculator as an input
     NewtonVectorRootFinder rootFinder;
     double[] yields = null;
     try {
-      rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, jacobian, DecompositionFactory.getDecomposition(DecompositionFactory.LU_COMMONS_NAME));
-      yields = rootFinder.getRoot(curveFinder, new DoubleMatrix1D(initialRatesGuess)).getData();
+      rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100,  DecompositionFactory.getDecomposition(DecompositionFactory.LU_COMMONS_NAME));
+      yields = rootFinder.getRoot(curveFinder, jacobian, new DoubleMatrix1D(initialRatesGuess)).getData();
     } catch (final IllegalArgumentException e) {
-      rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, jacobian, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
-      yields = rootFinder.getRoot(curveFinder, new DoubleMatrix1D(initialRatesGuess)).getData();
+      rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100,  DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
+      yields = rootFinder.getRoot(curveFinder,jacobian,  new DoubleMatrix1D(initialRatesGuess)).getData();
     }
     final YieldAndDiscountCurve curve = new InterpolatedYieldCurve(nodeTimes, yields, _interpolator);
-    final DoubleMatrix2D jacobianMatrix = jacobian.evaluate(new DoubleMatrix1D(yields), (Function1D<DoubleMatrix1D, DoubleMatrix1D>[]) null);
+    final DoubleMatrix2D jacobianMatrix = jacobian.evaluate(new DoubleMatrix1D(yields));
     return Sets.newHashSet(new ComputedValue(_curveResult, curve), new ComputedValue(_jacobianResult, jacobianMatrix.getData()));
   }
 
