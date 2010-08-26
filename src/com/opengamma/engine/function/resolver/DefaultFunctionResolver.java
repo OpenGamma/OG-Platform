@@ -3,18 +3,21 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.function;
+package com.opengamma.engine.function.resolver;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
 
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.UnsatisfiableDependencyGraphException;
-import com.opengamma.engine.function.resolver.ApplyToAllTargets;
-import com.opengamma.engine.function.resolver.ResolutionRule;
+import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionDefinition;
+import com.opengamma.engine.function.FunctionRepository;
+import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
@@ -35,6 +38,9 @@ public class DefaultFunctionResolver implements FunctionResolver {
         }
       });
   
+  public DefaultFunctionResolver() {
+  }
+  
   public DefaultFunctionResolver(FunctionRepository repository) {
     Collection<ResolutionRule> resolutionRules = new ArrayList<ResolutionRule>();
     for (FunctionDefinition function : repository.getAllFunctions()) {
@@ -51,7 +57,11 @@ public class DefaultFunctionResolver implements FunctionResolver {
     addRules(resolutionRules);
   }
 
-  private void addRules(Collection<ResolutionRule> resolutionRules) {
+  public void addRule(ResolutionRule rule) {
+    addRules(Collections.singleton(rule));    
+  }
+  
+  public void addRules(Collection<ResolutionRule> resolutionRules) {
     for (ResolutionRule resolutionRule : resolutionRules) {
       Collection<ResolutionRule> rules = _priority2Rules.get(resolutionRule.getPriority());
       if (rules == null) {
