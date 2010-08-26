@@ -77,10 +77,15 @@ public class WebPortfoliosData extends DirectBean {
   @PropertyDefinition
   private ManageablePortfolioNode _node;
   /**
-   * The portfolio.
+   * The position.
    */
   @PropertyDefinition
   private PositionDocument _position;
+  /**
+   * The position.
+   */
+  @PropertyDefinition
+  private Object _versioned;
 
   //-------------------------------------------------------------------------
   /**
@@ -162,6 +167,8 @@ public class WebPortfoliosData extends DirectBean {
         return getNode();
       case 747804969:  // position
         return getPosition();
+      case -1407102089:  // versioned
+        return getVersioned();
     }
     return super.propertyGet(propertyName);
   }
@@ -198,6 +205,9 @@ public class WebPortfoliosData extends DirectBean {
         return;
       case 747804969:  // position
         setPosition((PositionDocument) newValue);
+        return;
+      case -1407102089:  // versioned
+        setVersioned((Object) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -430,7 +440,7 @@ public class WebPortfoliosData extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the portfolio.
+   * Gets the position.
    * @return the value of the property
    */
   public PositionDocument getPosition() {
@@ -438,7 +448,7 @@ public class WebPortfoliosData extends DirectBean {
   }
 
   /**
-   * Sets the portfolio.
+   * Sets the position.
    * @param position  the new value of the property
    */
   public void setPosition(PositionDocument position) {
@@ -451,6 +461,31 @@ public class WebPortfoliosData extends DirectBean {
    */
   public final Property<PositionDocument> position() {
     return metaBean().position().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the position.
+   * @return the value of the property
+   */
+  public Object getVersioned() {
+    return _versioned;
+  }
+
+  /**
+   * Sets the position.
+   * @param versioned  the new value of the property
+   */
+  public void setVersioned(Object versioned) {
+    this._versioned = versioned;
+  }
+
+  /**
+   * Gets the the {@code versioned} property.
+   * @return the property, not null
+   */
+  public final Property<Object> versioned() {
+    return metaBean().versioned().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -504,6 +539,10 @@ public class WebPortfoliosData extends DirectBean {
      */
     private final MetaProperty<PositionDocument> _position = DirectMetaProperty.ofReadWrite(this, "position", PositionDocument.class);
     /**
+     * The meta-property for the {@code versioned} property.
+     */
+    private final MetaProperty<Object> _versioned = DirectMetaProperty.ofReadWrite(this, "versioned", Object.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map;
@@ -521,6 +560,7 @@ public class WebPortfoliosData extends DirectBean {
       temp.put("parentNode", _parentNode);
       temp.put("node", _node);
       temp.put("position", _position);
+      temp.put("versioned", _versioned);
       _map = Collections.unmodifiableMap(temp);
     }
 
@@ -618,6 +658,14 @@ public class WebPortfoliosData extends DirectBean {
      */
     public final MetaProperty<PositionDocument> position() {
       return _position;
+    }
+
+    /**
+     * The meta-property for the {@code versioned} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Object> versioned() {
+      return _versioned;
     }
 
   }
