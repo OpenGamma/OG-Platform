@@ -8,9 +8,9 @@ package com.opengamma.financial.analytics.fudgemsg;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
-import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -32,7 +32,7 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
   /**
    * Fudge builder for {@code GridInterpolator2D}.
    */
-  @FudgeBuilderFor(GridInterpolator2D.class)
+  @GenericFudgeBuilderFor(GridInterpolator2D.class)
   public static final class GridInterpolator2DBuilder extends FudgeBuilderBase<GridInterpolator2D> {
     private static final String X_FIELD_NAME = "x";
     private static final String Y_FIELD_NAME = "y";
@@ -55,7 +55,7 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
   /**
    * Fudge builder for {@code Interpolator1D}.
    */
-  @FudgeBuilderFor(Interpolator1D.class)
+  @GenericFudgeBuilderFor(Interpolator1D.class)
   public static final class Interpolator1DBuilder implements FudgeBuilder<Interpolator1D> {
     private static final String TYPE_FIELD_NAME = "type";
 
