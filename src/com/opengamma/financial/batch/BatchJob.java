@@ -457,11 +457,18 @@ public class BatchJob implements Job {
     _securityMaster = securityMaster;
   }
 
-  public SecuritySource getSecuritySource() {
+  /*package*/ SecuritySource getSecuritySource() {
     return _securitySource;
   }
 
-  public void setSecuritySource(final SecuritySource securitySource) {
+  /**
+   * This method should only be used in tests since if you use it 
+   * (instead of setSecurityMaster) you will not get historically
+   * fixed securities.
+   * 
+   * @param securitySource Security source
+   */
+  /*package*/ void setSecuritySource(final SecuritySource securitySource) {
     _securitySource = securitySource;
   }
 
@@ -473,11 +480,18 @@ public class BatchJob implements Job {
     _positionMaster = positionMaster;
   }
   
-  public PositionSource getPositionSource() {
+  /*package*/ PositionSource getPositionSource() {
     return _positionSource;
   }
 
-  public void setPositionSource(final PositionSource positionSource) {
+  /**
+   * This method should only be used in tests since if you use it 
+   * (instead of setPositionMaster) you will not get historically
+   * fixed positions.
+   * 
+   * @param positionSource Position source
+   */
+  /*package*/ void setPositionSource(final PositionSource positionSource) {
     _positionSource = positionSource;
   }
 
@@ -585,7 +599,7 @@ public class BatchJob implements Job {
     
     SecuritySource securitySource = getSecuritySource();
     if (securitySource == null) {
-      new HistoricallyFixedSecurityMaster(getSecurityMaster(), getSecurityMasterTime(), getSecurityMasterAsViewedAtTime());
+      securitySource = new HistoricallyFixedSecurityMaster(getSecurityMaster(), getSecurityMasterTime(), getSecurityMasterAsViewedAtTime());
     }
     
     PositionSource positionSource = getPositionSource();
