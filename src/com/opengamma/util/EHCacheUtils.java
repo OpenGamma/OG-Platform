@@ -118,5 +118,13 @@ public final class EHCacheUtils {
           "Unable to retrieve from CacheManager, cache: " + name, ex);
     }
   }
+  
+  /**
+   * Clears the contents of all caches (wihtout deleting the caches
+   * themselves). Should be called e.g. between tests.
+   */
+  public static void clearAll() {
+    CacheManager.create().clearAll();
+  }
 
 }
