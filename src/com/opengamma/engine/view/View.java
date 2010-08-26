@@ -262,7 +262,7 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     // be an unnecessary burden. Have to factor in some type of win there.
     s_logger.debug("Recalculation Performed called.");
     // We swap these first so that in the callback the view is consistent.
-    ViewComputationResultModelImpl previousResult = _mostRecentResult;
+    ViewResultModelImpl previousResult = _mostRecentResult;
     _mostRecentResult = result;
     for (ComputationResultListener resultListener : _resultListeners) {
       resultListener.computationResultAvailable(result);
@@ -281,8 +281,8 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
    * @return
    */
   private ViewDeltaResultModel computeDeltaModel(
-      ViewComputationResultModelImpl previousResult,
-      ViewComputationResultModelImpl result) {
+      ViewResultModelImpl previousResult,
+      ViewResultModelImpl result) {
     ViewDeltaResultModelImpl deltaModel = new ViewDeltaResultModelImpl();
     deltaModel.setValuationTime(result.getValuationTime());
     deltaModel.setResultTimestamp(result.getResultTimestamp());
@@ -298,8 +298,8 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   private void computeDeltaModel(
       ViewDeltaResultModelImpl deltaModel,
       ComputationTargetSpecification targetSpec,
-      ViewComputationResultModelImpl previousResult,
-      ViewComputationResultModelImpl result) {
+      ViewResultModelImpl previousResult,
+      ViewResultModelImpl result) {
     for (String calcConfigName : result.getCalculationConfigurationNames()) {
       ViewCalculationResultModel resultCalcModel = result.getCalculationResult(calcConfigName);
       ViewCalculationResultModel previousCalcModel = previousResult.getCalculationResult(calcConfigName);
