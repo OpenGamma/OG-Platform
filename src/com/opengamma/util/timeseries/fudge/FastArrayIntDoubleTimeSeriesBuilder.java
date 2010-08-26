@@ -6,6 +6,7 @@
 package com.opengamma.util.timeseries.fudge;
 
 import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
 
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
@@ -15,6 +16,7 @@ import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
  *
  * @author jim
  */
+@FudgeBuilderFor(FastArrayIntDoubleTimeSeries.class)
 public class FastArrayIntDoubleTimeSeriesBuilder extends FastIntDoubleTimeSeriesBuilder<FastArrayIntDoubleTimeSeries> implements
     FudgeBuilder<FastArrayIntDoubleTimeSeries> {
   

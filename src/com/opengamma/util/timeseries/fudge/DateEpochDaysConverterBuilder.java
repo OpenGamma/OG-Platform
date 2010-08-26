@@ -2,11 +2,14 @@ package com.opengamma.util.timeseries.fudge;
 
 import java.util.TimeZone;
 
+import org.fudgemsg.mapping.FudgeBuilderFor;
+
 import com.opengamma.util.timeseries.date.DateEpochDaysConverter;
 
 /**
  * Fudge message builder (serializer/deserializer) for DateEpochDaysConverter
  */
+@FudgeBuilderFor(DateEpochDaysConverter.class)
 public class DateEpochDaysConverterBuilder extends DateTimeConverterBuilder<DateEpochDaysConverter> {
 
   @Override
