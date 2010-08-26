@@ -24,9 +24,9 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraph;
-import com.opengamma.engine.function.DefaultFunctionResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
+import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.position.MockPositionSource;
 import com.opengamma.engine.position.PortfolioImpl;
@@ -214,15 +214,16 @@ public class ViewDefinitionCompilerTest {
     UniqueIdentifier t1 = UniqueIdentifier.of("TestScheme", "t1");
     
     InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
+
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
+    MockFunction f1 = MockFunction.getMockFunction(new ComputationTarget(ComputationTargetType.PRIMITIVE, t1), 42);
+    functionRepo.addFunction(f1, f1);
+    
     DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionRepo);
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver());
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     FunctionCompilationContext compilationContext = new FunctionCompilationContext();
     ViewCompilationServices compilationServices = new ViewCompilationServices(snapshotProvider, functionResolver, compilationContext, computationTargetResolver, executorService);
-    
-    MockFunction f1 = MockFunction.getMockFunction(new ComputationTarget(ComputationTargetType.PRIMITIVE, t1), 42);
-    functionRepo.addFunction(f1, f1);
     
     // We'll require r1 which can be satisfied by f1
     calcConfig.addSpecificRequirement(f1.getResultSpec().getRequirementSpecification());
@@ -250,17 +251,18 @@ public class ViewDefinitionCompilerTest {
     UniqueIdentifier t1 = UniqueIdentifier.of("TestScheme", "t1");
     
     InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
+    
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
+    MockFunction f1 = MockFunction.getMockFunction(new ComputationTarget(ComputationTargetType.PRIMITIVE, t1), 42);
+    MockFunction f2 = MockFunction.getMockFunction(new ComputationTarget(ComputationTargetType.SECURITY, sec1), 60, f1);
+    functionRepo.addFunction(f1, f1);
+    functionRepo.addFunction(f2, f2);
+
     DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionRepo);
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource));
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     FunctionCompilationContext compilationContext = new FunctionCompilationContext();
     ViewCompilationServices compilationServices = new ViewCompilationServices(snapshotProvider, functionResolver, compilationContext, computationTargetResolver, executorService);
-    
-    MockFunction f1 = MockFunction.getMockFunction(new ComputationTarget(ComputationTargetType.PRIMITIVE, t1), 42);
-    MockFunction f2 = MockFunction.getMockFunction(new ComputationTarget(ComputationTargetType.SECURITY, sec1), 60, f1);
-    functionRepo.addFunction(f1, f1);
-    functionRepo.addFunction(f2, f2);
     
     // We'll require r2 which can be satisfied by f2, which in turn requires the output of f1
     // Additionally, the security should be resolved through the ComputationTargetResolver, which only has a security

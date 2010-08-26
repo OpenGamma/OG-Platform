@@ -11,6 +11,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioImpl;
@@ -21,6 +22,7 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * Fudge message builder for {@code Portfolio}.
  */
+@GenericFudgeBuilderFor(Portfolio.class)
 public class PortfolioBuilder implements FudgeBuilder<Portfolio> {
 
   private static final String FIELD_IDENTIFIER = "identifier";

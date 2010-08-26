@@ -7,7 +7,6 @@ package com.opengamma.engine.view.calcnode;
 
 import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -20,6 +19,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
+import com.opengamma.engine.function.FunctionCompilationService;
+import com.opengamma.engine.view.cache.IdentifierMap;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeInitMessage;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeJobMessage;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeReadyMessage;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeResultMessage;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionStateListener;
 import com.opengamma.transport.FudgeMessageReceiver;
@@ -33,21 +39,26 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteNodeClient.class);
 
   private final FudgeConnection _connection;
+  private final FunctionCompilationService _functionCompilationService;
+  private final IdentifierMap _identifierMap;
   private boolean _started;
 
-  public RemoteNodeClient(final FudgeConnection connection) {
+  public RemoteNodeClient(final FudgeConnection connection, final FunctionCompilationService functionCompilationService, final IdentifierMap identifierMap) {
     super(new LinkedBlockingQueue<AbstractCalculationNode>());
     _connection = connection;
+    _functionCompilationService = functionCompilationService;
+    _identifierMap = identifierMap;
     connection.setFudgeMessageReceiver(this);
   }
 
-  public RemoteNodeClient(final FudgeConnection connection, final AbstractCalculationNode node) {
-    this(connection);
+  public RemoteNodeClient(final FudgeConnection connection, final FunctionCompilationService functionCompilationService, final IdentifierMap identifierMap, final AbstractCalculationNode node) {
+    this(connection, functionCompilationService, identifierMap);
     setNode(node);
   }
 
-  public RemoteNodeClient(final FudgeConnection connection, final Collection<AbstractCalculationNode> nodes) {
-    this(connection);
+  public RemoteNodeClient(final FudgeConnection connection, final FunctionCompilationService functionCompilationService, final IdentifierMap identifierMap,
+      final Collection<AbstractCalculationNode> nodes) {
+    this(connection, functionCompilationService, identifierMap);
     setNodes(nodes);
   }
 
@@ -60,6 +71,14 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
 
   protected FudgeConnection getConnection() {
     return _connection;
+  }
+
+  protected FunctionCompilationService getFunctionCompilationService() {
+    return _functionCompilationService;
+  }
+
+  protected IdentifierMap getIdentifierMap() {
+    return _identifierMap;
   }
 
   private void sendMessage(final RemoteCalcNodeMessage message) {
@@ -93,9 +112,12 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
 
   private void handleJobMessage(final RemoteCalcNodeJobMessage message) {
     try {
+      final CalculationJob job = message.getJob();
+      job.resolveInputs(getIdentifierMap());
       final AbstractCalculationNode node = getNodes().take();
-      final CalculationJobResult result = node.executeJob(message.getJob());
+      final CalculationJobResult result = node.executeJob(job);
       getNodes().add(node);
+      result.convertInputs(getIdentifierMap());
       sendMessage(new RemoteCalcNodeResultMessage(result));
     } catch (InterruptedException e) {
       s_logger.warn("Thread interrupted");
@@ -103,10 +125,7 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
   }
 
   private void handleInitMessage(final RemoteCalcNodeInitMessage message) {
-    s_logger.debug("Passing function repository to calculation nodes");
-    for (AbstractCalculationNode node : getNodes()) {
-      node.setFunctionRepository(message.getFunctions());
-    }
+    // TODO
   }
 
   @Override
@@ -117,6 +136,7 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
   @Override
   public synchronized void start() {
     if (!_started) {
+      getFunctionCompilationService().initialize(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()));
       s_logger.info("Client starting");
       sendCapabilities();
       _started = true;

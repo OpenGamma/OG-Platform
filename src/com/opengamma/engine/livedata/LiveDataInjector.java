@@ -8,12 +8,12 @@ package com.opengamma.engine.livedata;
 import com.opengamma.engine.value.ValueRequirement;
 
 /**
- * Provides mutator methods on top of the accessor methods in {@link LiveDataSnapshotProvider}. 
+ * Provides mutator methods for live data, allowing customisation of live data.
  */
-public interface MutableLiveDataSnapshotProvider extends LiveDataSnapshotProvider {
+public interface LiveDataInjector {
   
   /**
-   * Injects a live data value into the provider.
+   * Injects a live data value.
    * 
    * @param valueRequirement  the requirement satisfied by the value
    * @param value  the value to add
@@ -21,7 +21,7 @@ public interface MutableLiveDataSnapshotProvider extends LiveDataSnapshotProvide
   void addValue(ValueRequirement valueRequirement, Object value);
 
   /**
-   * Removes a previously-added value from the provider.
+   * Removes a previously-added live data value.
    * 
    * @param valueRequirement  the value to remove
    */

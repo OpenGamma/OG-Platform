@@ -247,7 +247,7 @@ public class JobDispatcherTest {
         public void run() {
           s_logger.debug("Failing job {}", jobSpec);
           _failureCount++;
-          receiver.jobFailed(FailingJobInvoker.this, null);
+          receiver.jobFailed(FailingJobInvoker.this, "Fail", null);
         }
       });
       return true;

@@ -351,7 +351,7 @@ public class SingleComputationCycle {
     DependencyGraph dependencyGraph = originalDepGraph.subGraph(new DependencyNodeFilter() {
       public boolean accept(DependencyNode node) {
         // LiveData functions do not need to be computed. 
-        if (node.getFunctionDefinition() instanceof LiveDataSourcingFunction) {
+        if (node.getFunction().getFunction() instanceof LiveDataSourcingFunction) {
           markExecuted(node);        
         }
         

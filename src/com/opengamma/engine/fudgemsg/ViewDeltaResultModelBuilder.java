@@ -14,6 +14,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.view.ViewCalculationResultModel;
@@ -23,6 +24,7 @@ import com.opengamma.engine.view.ViewDeltaResultModel;
 /**
  * 
  */
+@GenericFudgeBuilderFor(ViewDeltaResultModel.class)
 public class ViewDeltaResultModelBuilder implements FudgeBuilder<ViewDeltaResultModel> {
   
   private static final String FIELD_PREVIOUSTS = "previousTS";

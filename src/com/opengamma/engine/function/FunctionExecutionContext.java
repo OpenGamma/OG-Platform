@@ -33,6 +33,10 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
    * The name under which an instance of {@link SecuritySource} should be bound.
    */
   public static final String SECURITY_SOURCE_NAME = "securitySource";
+  /**
+   * The name under which function parameters (such as # of Monte Carlo iterations) should be bound.
+   */
+  public static final String FUNCTION_PARAMETERS_NAME = "functionParameters";
 
   public FunctionExecutionContext() {
   }
@@ -72,7 +76,15 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
   public SecuritySource getSecuritySource() {
     return (SecuritySource) get(SECURITY_SOURCE_NAME);
   }
+  
+  public void setFunctionParameters(FunctionParameters functionParameters) {
+    put(FUNCTION_PARAMETERS_NAME, functionParameters);
+  }
 
+  public FunctionParameters getFunctionParameters() {
+    return (FunctionParameters) get(FUNCTION_PARAMETERS_NAME);
+  }
+  
   @Override
   public FunctionExecutionContext clone() {
     return new FunctionExecutionContext(this);

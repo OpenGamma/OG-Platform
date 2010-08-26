@@ -110,8 +110,9 @@ public class RemoteCacheRequestResponseTest {
   public void multiThreadLookupDifferentIdentifierValuesRepeatedSharedClient() throws InterruptedException {
     InMemoryViewComputationCacheSource cache = new InMemoryViewComputationCacheSource (FudgeContext.GLOBAL_DEFAULT);
     ViewComputationCacheServer server = new ViewComputationCacheServer (cache);
-    FudgeRequestSender conduit = InMemoryRequestConduit.create(server);
-    final RemoteCacheClient client = new RemoteCacheClient(conduit);
+    FudgeRequestSender conduit1 = InMemoryRequestConduit.create(server);
+    FudgeRequestSender conduit2 = InMemoryRequestConduit.create(server);
+    final RemoteCacheClient client = new RemoteCacheClient(conduit1, conduit2);
     final IdentifierMap identifierMap = new RemoteIdentifierMap (client);
 
     final ConcurrentMap<String, Long> _idsByValueName = new ConcurrentHashMap<String, Long>();

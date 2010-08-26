@@ -3,9 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.function;
+package com.opengamma.engine.function.resolver;
 
-import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
@@ -16,6 +18,6 @@ import com.opengamma.util.tuple.Pair;
  * match functions given different criteria e.g. Optimized for speed.
  */
 public interface FunctionResolver {
-  Pair<FunctionDefinition, ValueSpecification> resolveFunction(
-      FunctionCompilationContext context, ComputationTarget target, ValueRequirement requirement);
+  Pair<ParameterizedFunction, ValueSpecification> resolveFunction(
+      ValueRequirement requirement, DependencyNode atNode, FunctionCompilationContext context);
 }

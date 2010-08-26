@@ -6,11 +6,13 @@
 package com.opengamma.engine.view.cache;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,24 +35,40 @@ import com.sleepycat.je.TransactionConfig;
  * Berkeley DB table.
  * Internally, it maintains an {@link AtomicLong} to allocate the next identifier to be used.
  */
-public class BerkeleyDBIdentifierMap extends AbstractBerkeleyDBComponent implements IdentifierMap, Lifecycle {
+public class BerkeleyDBIdentifierMap implements IdentifierMap, Lifecycle {
   private static final Logger s_logger = LoggerFactory.getLogger(BerkeleyDBIdentifierMap.class);
-  /**
-   * The default name for the database in the provided environment.
-   */
-  protected static final String DEFAULT_DATABASE_NAME = "value_specification_identifier";
-  private static final byte[] HIGHEST_VALUE_KEY = new byte[] {0};
-  private static final DatabaseEntry HIGHEST_VALUE_DB_ENTRY = new DatabaseEntry(HIGHEST_VALUE_KEY);
+
+  private static final String VALUE_SPECIFICATION_TO_IDENTIFIER_DATABASE = "value_specification_identifier";
+  private static final String IDENTIFIER_TO_VALUE_SPECIFICATION_DATABASE = "identifier_value_specification";
 
   private final FudgeContext _fudgeContext;
+  private final AbstractBerkeleyDBComponent _valueSpecificationToIdentifier;
+  private final AbstractBerkeleyDBComponent _identifierToValueSpecification;
 
   // Runtime state:
   private final AtomicLong _nextIdentifier = new AtomicLong(1L);
 
-  public BerkeleyDBIdentifierMap(Environment dbEnvironment, String databaseName, FudgeContext fudgeContext) {
-    super(dbEnvironment, databaseName);
-    ArgumentChecker.notNull(fudgeContext, "Fudge context");
+  public BerkeleyDBIdentifierMap(final Environment dbEnvironment, final FudgeContext fudgeContext) {
+    ArgumentChecker.notNull(dbEnvironment, "dbEnvironment");
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _fudgeContext = fudgeContext;
+    _valueSpecificationToIdentifier = new AbstractBerkeleyDBComponent(dbEnvironment, VALUE_SPECIFICATION_TO_IDENTIFIER_DATABASE) {
+      @Override
+      protected DatabaseConfig getDatabaseConfig() {
+        return BerkeleyDBIdentifierMap.this.getDatabaseConfig();
+      }
+    };
+    _identifierToValueSpecification = new AbstractBerkeleyDBComponent(dbEnvironment, IDENTIFIER_TO_VALUE_SPECIFICATION_DATABASE) {
+      @Override
+      protected DatabaseConfig getDatabaseConfig() {
+        return BerkeleyDBIdentifierMap.this.getDatabaseConfig();
+      }
+
+      @Override
+      protected void postStartInitialization() {
+        _nextIdentifier.set(_identifierToValueSpecification.getDatabase().count() + 1);
+      }
+    };
   }
 
   /**
@@ -61,6 +79,11 @@ public class BerkeleyDBIdentifierMap extends AbstractBerkeleyDBComponent impleme
     return _fudgeContext;
   }
 
+  protected Environment getDbEnvironment() {
+    // The same environment is passed to both databases, so choice here is arbitrary
+    return _valueSpecificationToIdentifier.getDbEnvironment();
+  }
+
   @Override
   public long getIdentifier(ValueSpecification spec) {
     ArgumentChecker.notNull(spec, "spec");
@@ -68,31 +91,14 @@ public class BerkeleyDBIdentifierMap extends AbstractBerkeleyDBComponent impleme
       s_logger.info("Starting on first call as wasn't called as part of lifecycle interface");
       start();
     }
-
-    long result = -1L;
-
-    byte[] specAsBytes = convertSpecificationToByteArray(spec);
-    DatabaseEntry specEntry = new DatabaseEntry(specAsBytes);
-    DatabaseEntry valueEntry = new DatabaseEntry();
     // Now we open the transaction.
     TransactionConfig txnConfig = new TransactionConfig();
     txnConfig.setSync(false);
     Transaction txn = getDbEnvironment().beginTransaction(null, txnConfig);
+    long result;
     boolean rollback = true;
     try {
-      OperationStatus status = getDatabase().get(txn, specEntry, valueEntry, LockMode.READ_COMMITTED);
-      switch (status) {
-        case NOTFOUND:
-          result = allocateNewIdentifier(spec, txn, specEntry);
-          break;
-        case SUCCESS:
-          result = LongBinding.entryToLong(valueEntry);
-          break;
-        default:
-          s_logger.warn("Unexpected operation status on load {}, assuming we have to insert a new record", status);
-          result = allocateNewIdentifier(spec, txn, specEntry);
-          break;
-      }
+      result = getIdentifierImpl(txn, spec, new DatabaseEntry());
       txn.commit();
       rollback = false;
     } finally {
@@ -101,39 +107,126 @@ public class BerkeleyDBIdentifierMap extends AbstractBerkeleyDBComponent impleme
         txn.abort();
       }
     }
-
     return result;
   }
 
+  @Override
+  public Map<ValueSpecification, Long> getIdentifiers(Collection<ValueSpecification> specs) {
+    ArgumentChecker.notNull(specs, "specs");
+    if (!isRunning()) {
+      s_logger.info("Starting on first call as wasn't called as part of lifecycle interface");
+      start();
+    }
+    // Now we open the transaction.
+    TransactionConfig txnConfig = new TransactionConfig();
+    txnConfig.setSync(false);
+    Transaction txn = getDbEnvironment().beginTransaction(null, txnConfig);
+    final Map<ValueSpecification, Long> result = new HashMap<ValueSpecification, Long>();
+    boolean rollback = true;
+    try {
+      final DatabaseEntry identifierEntry = new DatabaseEntry();
+      for (ValueSpecification spec : specs) {
+        result.put(spec, getIdentifierImpl(txn, spec, identifierEntry));
+      }
+      txn.commit();
+      rollback = false;
+    } finally {
+      if (rollback) {
+        s_logger.error("Rolling back transaction getting identifiers");
+        txn.abort();
+      }
+    }
+    return result;
+  }
+
+  protected long getIdentifierImpl(final Transaction txn, final ValueSpecification spec, final DatabaseEntry identifierEntry) {
+    byte[] specAsBytes = convertSpecificationToByteArray(spec);
+    DatabaseEntry specEntry = new DatabaseEntry(specAsBytes);
+    OperationStatus status = _valueSpecificationToIdentifier.getDatabase().get(txn, specEntry, identifierEntry, LockMode.READ_COMMITTED);
+    switch (status) {
+      case NOTFOUND:
+        return allocateNewIdentifier(spec, txn, specEntry);
+      case SUCCESS:
+        return LongBinding.entryToLong(identifierEntry);
+      default:
+        s_logger.warn("Unexpected operation status on load {}, assuming we have to insert a new record", status);
+        return allocateNewIdentifier(spec, txn, specEntry);
+    }
+  }
+
+  @Override
+  public ValueSpecification getValueSpecification(final long identifier) {
+    if (!isRunning()) {
+      s_logger.info("Starting on first call as wasn't called as part of lifecycle interface");
+      start();
+    }
+    final Transaction txn = getDbEnvironment().beginTransaction(null, null);
+    try {
+      return getValueSpecificationImpl(txn, identifier, new DatabaseEntry(), new DatabaseEntry());
+    } finally {
+      txn.commitNoSync();
+    }
+  }
+
+  @Override
+  public Map<Long, ValueSpecification> getValueSpecifications(Collection<Long> identifiers) {
+    if (!isRunning()) {
+      s_logger.info("Starting on first call as wasn't called as part of lifecycle interface");
+      start();
+    }
+    final Transaction txn = getDbEnvironment().beginTransaction(null, null);
+    try {
+      final Map<Long, ValueSpecification> result = new HashMap<Long, ValueSpecification>();
+      final DatabaseEntry identifierEntry = new DatabaseEntry();
+      final DatabaseEntry valueSpecEntry = new DatabaseEntry();
+      for (Long identifier : identifiers) {
+        result.put(identifier, getValueSpecificationImpl(txn, identifier, identifierEntry, valueSpecEntry));
+      }
+      return result;
+    } finally {
+      txn.commitNoSync();
+    }
+  }
+
+  protected ValueSpecification getValueSpecificationImpl(final Transaction txn, final long identifier, final DatabaseEntry identifierEntry, final DatabaseEntry valueSpecEntry) {
+    LongBinding.longToEntry(identifier, identifierEntry);
+    OperationStatus status = _identifierToValueSpecification.getDatabase().get(txn, identifierEntry, valueSpecEntry, LockMode.READ_COMMITTED);
+    if (status == OperationStatus.SUCCESS) {
+      return convertByteArrayToSpecification(valueSpecEntry.getData());
+    }
+    s_logger.warn("Couldn't resolve identifier {} - {}", identifier, status);
+    return null;
+  }
+
   protected long allocateNewIdentifier(ValueSpecification valueSpec, Transaction txn, DatabaseEntry specEntry) {
-    DatabaseEntry valueEntry = new DatabaseEntry();
-    long freshIdentifier = _nextIdentifier.getAndIncrement();
-    // s_logger.debug("Allocating identifier {} to {}", freshIdentifier, valueSpec);
-    LongBinding.longToEntry(freshIdentifier, valueEntry);
-    OperationStatus putStatus = getDatabase().put(txn, specEntry, valueEntry);
-    if (putStatus != OperationStatus.SUCCESS) {
-      s_logger.error("Unable to write new value {} for spec {} - {}", new Object[] {freshIdentifier, valueSpec, putStatus});
+    final DatabaseEntry identifierEntry = new DatabaseEntry();
+    final long identifier = _nextIdentifier.getAndIncrement();
+    LongBinding.longToEntry(identifier, identifierEntry);
+    OperationStatus status = _identifierToValueSpecification.getDatabase().put(txn, identifierEntry, specEntry);
+    if (status != OperationStatus.SUCCESS) {
+      s_logger.error("Unable to write identifier {} -> specification {} - {}", new Object[] {identifier, valueSpec, status});
+      throw new OpenGammaRuntimeException("Unable to write new identifier");
+    }
+    status = _valueSpecificationToIdentifier.getDatabase().put(txn, specEntry, identifierEntry);
+    if (status != OperationStatus.SUCCESS) {
+      s_logger.error("Unable to write new value {} for spec {} - {}", new Object[] {identifier, valueSpec, status});
       throw new OpenGammaRuntimeException("Unable to write new value");
     }
-
-    putStatus = getDatabase().put(txn, HIGHEST_VALUE_DB_ENTRY, valueEntry);
-    if (putStatus != OperationStatus.SUCCESS) {
-      s_logger.error("Unable to write new value {} as highest spec", freshIdentifier);
-      throw new OpenGammaRuntimeException("Unable to update highest value");
-    }
-
-    return freshIdentifier;
+    return identifier;
   }
 
   protected byte[] convertSpecificationToByteArray(ValueSpecification valueSpec) {
-    // REVIEW kirk 2010-07-31 -- Cache the serialization context?
     FudgeSerializationContext serContext = new FudgeSerializationContext(getFudgeContext());
     FudgeFieldContainer msg = valueSpec.toFudgeMsg(serContext);
     byte[] specAsBytes = getFudgeContext().toByteArray(msg);
     return specAsBytes;
   }
 
-  @Override
+  protected ValueSpecification convertByteArrayToSpecification(final byte[] specAsBytes) {
+    final FudgeDeserializationContext context = new FudgeDeserializationContext(getFudgeContext());
+    return context.fudgeMsgToObject(ValueSpecification.class, getFudgeContext().deserialize(specAsBytes).getMessage());
+  }
+
   protected DatabaseConfig getDatabaseConfig() {
     DatabaseConfig dbConfig = new DatabaseConfig();
     dbConfig.setAllowCreate(true);
@@ -142,35 +235,20 @@ public class BerkeleyDBIdentifierMap extends AbstractBerkeleyDBComponent impleme
   }
 
   @Override
-  protected void postStartInitialization() {
-    initializeNextIdentifier();
-  }
-
-  /**
-   * 
-   */
-  protected void initializeNextIdentifier() {
-    TransactionConfig txnConfig = new TransactionConfig();
-    txnConfig.setSync(false);
-    Transaction txn = getDbEnvironment().beginTransaction(null, txnConfig);
-    long nextIdentifier = 1L;
-    try {
-      DatabaseEntry valueEntry = new DatabaseEntry();
-      OperationStatus status = getDatabase().get(txn, HIGHEST_VALUE_DB_ENTRY, valueEntry, LockMode.READ_COMMITTED);
-      if (status == OperationStatus.SUCCESS) {
-        long previousHighest = LongBinding.entryToLong(valueEntry);
-        nextIdentifier = previousHighest + 1;
-        s_logger.info("Loaded previous highest value of {}, setting next identifier to {}", previousHighest, nextIdentifier);
-      }
-    } finally {
-      txn.commit();
-    }
-    _nextIdentifier.set(nextIdentifier);
+  public boolean isRunning() {
+    return _valueSpecificationToIdentifier.isRunning() && _identifierToValueSpecification.isRunning();
   }
 
   @Override
-  public Map<ValueSpecification, Long> getIdentifiers(Collection<ValueSpecification> specs) {
-    return AbstractIdentifierMap.getIdentifiers(this, specs);
+  public void start() {
+    _valueSpecificationToIdentifier.start();
+    _identifierToValueSpecification.start();
+  }
+
+  @Override
+  public void stop() {
+    _valueSpecificationToIdentifier.stop();
+    _identifierToValueSpecification.stop();
   }
 
 }

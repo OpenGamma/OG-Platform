@@ -8,10 +8,9 @@ namespace com.opengamma.engine {
 
   extern message function.FunctionRepository;
 
-  namespace view.calcnode {
+  namespace view.calcnode.msg {
 
     message RemoteCalcNodeInitMessage extends RemoteCalcNodeMessage {
-      required function.FunctionRepository functions;
       // TODO random number seed
     }
    

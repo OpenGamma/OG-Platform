@@ -17,9 +17,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.livedata.LiveDataSnapshotListener;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
-import com.opengamma.engine.livedata.MutableLiveDataSnapshotProvider;
+import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.value.ComputedValue;
@@ -47,7 +48,7 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   // Injected dependencies:
   private final ViewDefinition _definition;
   private final ViewProcessingContext _processingContext;
-  private final MutableLiveDataSnapshotProvider _viewLiveDataSnapshotProvider;
+  private final LiveDataInjector _liveDataInjector;
   // Internal State:
   private ViewEvaluationModel _viewEvaluationModel;
   private Thread _recalculationThread;
@@ -73,17 +74,17 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
    * 
    * @param definition  the view definition, not null
    * @param processingContext  the context from the view processor, not null
-   * @param viewLiveDataSnapshotProvider  an optional snapshot provider to be used for the injection of custom live
-   *                                      data for this view. For this to have any effect, its values should be
-   *                                      included by the snapshot provider that is part of the processing context.
+   * @param liveDataInjector  an optional live data injector to be used for inserting user-provided live data for this
+   *                          view. For this to have any effect, the values injected should be included by the snapshot
+   *                          provider that is part of the processing context.
    */
-  public View(ViewDefinition definition, ViewProcessingContext processingContext, MutableLiveDataSnapshotProvider viewLiveDataSnapshotProvider) {
+  public View(ViewDefinition definition, ViewProcessingContext processingContext, LiveDataInjector liveDataInjector) {
     ArgumentChecker.notNull(definition, "definition");
     ArgumentChecker.notNull(processingContext, "processingContext");
     
     _definition = definition;
     _processingContext = processingContext;
-    _viewLiveDataSnapshotProvider = viewLiveDataSnapshotProvider;
+    _liveDataInjector = liveDataInjector;
   }
   
   /**
@@ -100,8 +101,8 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     return _processingContext;
   }
   
-  public MutableLiveDataSnapshotProvider getViewLiveDataSnapshotProvider() {
-    return _viewLiveDataSnapshotProvider;
+  public LiveDataInjector getLiveDataInjector() {
+    return _liveDataInjector;
   }
 
   /**
@@ -228,10 +229,11 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
 
   @Override
   public void valueChanged(ValueRequirement value) {
+    ValueSpecification valueSpecification = new ValueSpecification(value, LiveDataSourcingFunction.UNIQUE_ID);
     Set<ValueSpecification> liveDataRequirements = getViewEvaluationModel().getAllLiveDataRequirements();
     ViewRecalculationJob recalcJob = getRecalcJob();
-    if (recalcJob != null && liveDataRequirements.contains(value)) {
-      recalcJob.liveDataChanged();      
+    if (recalcJob != null && liveDataRequirements.contains(valueSpecification)) {
+      recalcJob.liveDataChanged();  
     }
   }
 
@@ -500,8 +502,12 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     }
   }
   
-  private Set<ValueRequirement> getRequiredLiveData() {
-    Set<ValueSpecification> requiredSpecs = getViewEvaluationModel().getAllLiveDataRequirements();
+  public Set<ValueRequirement> getRequiredLiveData() {
+    ViewEvaluationModel viewEvaluationModel = getViewEvaluationModel();
+    if (viewEvaluationModel == null) {
+      return null;
+    }
+    Set<ValueSpecification> requiredSpecs = viewEvaluationModel.getAllLiveDataRequirements();
     
     Set<ValueRequirement> returnValue = new HashSet<ValueRequirement>();
     for (ValueSpecification requiredSpec : requiredSpecs) {

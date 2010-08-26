@@ -71,18 +71,18 @@ public class LiveDataDeltaCalculatorTest {
   
   private DependencyNode createNode(String name, Set<DependencyNode> inputNodes) {
     ComputationTarget target = getTarget(name); 
+    
     MockFunction function = new MockFunction(target);
     function.addRequiredLiveData(getValueRequirement(name));
-    DependencyNode node = new DependencyNode(function, 
-        target, 
-        inputNodes, 
-        Collections.<ValueSpecification>emptySet(), 
-        Collections.<ValueSpecification>emptySet());
+    
+    DependencyNode node = new DependencyNode(target);
+    node.setFunction(function);
+    node.addInputNodes(inputNodes);
     return node;
   }
   
   private void put(ViewComputationCache cache, DependencyNode node, Object value) {
-    ValueSpecification spec = ((MockFunction) node.getFunctionDefinition()).getRequiredLiveData().iterator().next();
+    ValueSpecification spec = ((MockFunction) node.getFunction().getFunction()).getRequiredLiveData().iterator().next();
     cache.putValue(new ComputedValue(spec, value));
   }
   
