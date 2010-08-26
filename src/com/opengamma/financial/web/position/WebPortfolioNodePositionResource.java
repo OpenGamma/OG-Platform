@@ -110,6 +110,12 @@ public class WebPortfolioNodePositionResource extends AbstractWebPortfolioResour
   }
 
   //-------------------------------------------------------------------------
+  @Path("versions")
+  public WebPortfolioNodePositionVersionsResource findPositions() {
+    return new WebPortfolioNodePositionVersionsResource(this);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Builds a URI for this resource.
    * @param data  the data, not null

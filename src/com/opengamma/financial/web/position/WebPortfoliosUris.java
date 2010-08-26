@@ -102,4 +102,29 @@ public class WebPortfoliosUris {
     return WebPortfolioNodePositionResource.uri(_data, position.getUniqueIdentifier());
   }
 
+  /**
+   * Gets the URI.
+   * @return the URI
+   */
+  public URI nodePositionVersions() {
+    return WebPortfolioNodePositionVersionsResource.uri(_data);
+  }
+
+  /**
+   * Gets the URI.
+   * @return the URI
+   */
+  public URI nodePositionVersion() {
+    return WebPortfolioNodePositionVersionResource.uri(_data);
+  }
+
+  /**
+   * Gets the URI.
+   * @param position  the position, not null
+   * @return the URI
+   */
+  public URI nodePositionVersion(final ManageablePosition position) {
+    return WebPortfolioNodePositionVersionResource.uri(_data, position.getUniqueIdentifier());
+  }
+
 }

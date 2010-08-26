@@ -12,6 +12,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.net.URI;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -27,7 +28,6 @@ import com.opengamma.financial.position.master.rest.DataPositionsResource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.sun.jersey.api.client.ClientResponse.Status;
-import com.sun.jersey.api.uri.UriBuilderImpl;
 
 /**
  * Tests DataPositionsResource.
@@ -42,7 +42,7 @@ public class DataPositionsResourceTest {
   public void setUp() {
     _underlying = mock(PositionMaster.class);
     _uriInfo = mock(UriInfo.class);
-    when(_uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl().host("testhost"));
+    when(_uriInfo.getBaseUri()).thenReturn(URI.create("testhost"));
     _resource = new DataPositionsResource(_underlying);
   }
 
