@@ -15,6 +15,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import com.google.common.collect.Sets;
 import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * Strips all fields out of the message except the ones you want to explicitly accept.
@@ -27,7 +28,7 @@ public class FieldFilter implements NormalizationRule {
   private final FudgeContext _context;
   
   public FieldFilter(String... fieldsToAccept) {
-    this(FudgeContext.GLOBAL_DEFAULT, fieldsToAccept);
+    this(OpenGammaFudgeContext.getInstance(), fieldsToAccept);
   }
   
   public FieldFilter(FudgeContext context, String... fieldsToAccept) {
@@ -35,7 +36,7 @@ public class FieldFilter implements NormalizationRule {
   }
   
   public FieldFilter(Collection<String> fieldsToAccept) {
-    this(fieldsToAccept, FudgeContext.GLOBAL_DEFAULT);
+    this(fieldsToAccept, OpenGammaFudgeContext.getInstance());
   }
 
   public FieldFilter(Collection<String> fieldsToAccept, FudgeContext fudgeContext) {

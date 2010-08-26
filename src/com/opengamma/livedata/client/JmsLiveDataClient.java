@@ -28,6 +28,7 @@ import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * This client is implemented using JMS's asynchronous
@@ -75,7 +76,7 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
     this(subscriptionRequestSender, 
         entitlementRequestSender, 
         connectionFactory, 
-        FudgeContext.GLOBAL_DEFAULT,
+        OpenGammaFudgeContext.getInstance(),
         DEFAULT_NUM_SESSIONS);
   }
 
