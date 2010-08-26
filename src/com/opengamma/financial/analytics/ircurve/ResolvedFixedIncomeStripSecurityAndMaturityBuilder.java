@@ -17,7 +17,7 @@ import com.opengamma.engine.world.RegionSource;
 import com.opengamma.financial.ConventionBundle;
 import com.opengamma.financial.ConventionBundleSource;
 import com.opengamma.financial.Currency;
-import com.opengamma.financial.DefaultReferenceRateSource;
+import com.opengamma.financial.DefaultConventionBundleSource;
 import com.opengamma.financial.InMemoryConventionBundleMaster;
 import com.opengamma.financial.InMemoryRegionRepository;
 import com.opengamma.financial.security.DateTimeWithZone;
@@ -133,15 +133,15 @@ public class ResolvedFixedIncomeStripSecurityAndMaturityBuilder {
     Double rate = marketValues.get(swapIdentifier);
     LocalDate curveDate = spec.getCurveDate();
     InMemoryConventionBundleMaster refRateRepo = new InMemoryConventionBundleMaster();
-    ConventionBundleSource source = new DefaultReferenceRateSource(refRateRepo);
+    ConventionBundleSource source = new DefaultConventionBundleSource(refRateRepo);
     DateTimeWithZone tradeDate = new DateTimeWithZone(curveDate.atTime(11, 00).atZone(TimeZone.UTC));
     DateTimeWithZone effectiveDate = new DateTimeWithZone(DateUtil.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC));
     DateTimeWithZone maturityDate = new DateTimeWithZone(curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC));
-    ConventionBundle convention = _conventionBundleSource.getSingleReferenceRate(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getISOCode() + "_SWAP"));
+    ConventionBundle convention = _conventionBundleSource.getCpnventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getISOCode() + "_SWAP"));
     String counterparty = "";
     Identifier region = Identifier.of(InMemoryRegionRepository.ISO_COUNTRY_2, "GB");
     // REVIEW: jim 25-Aug-2010 -- change this to pass the identifier from the convention straight in instead of resolving and using a unique ID
-    ConventionBundle floatRateConvention = source.getSingleReferenceRate(convention.getSwapFloatingLegInitialRate());  
+    ConventionBundle floatRateConvention = source.getCpnventionBundle(convention.getSwapFloatingLegInitialRate());  
     double initialRate = marketValues.get(convention.getSwapFloatingLegInitialRate()); // get the initial rate.
     double spread = 0;
     double fixedRate = rate;

@@ -7,12 +7,14 @@ package com.opengamma.financial.position.rest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -20,14 +22,12 @@ import org.junit.Test;
 import com.opengamma.financial.position.master.ManageablePosition;
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.financial.position.master.PositionMaster;
-import com.opengamma.financial.position.master.PositionSearchRequest;
-import com.opengamma.financial.position.master.PositionSearchResult;
-import com.opengamma.financial.position.rest.DataPositionResource;
-import com.opengamma.financial.position.rest.DataPositionsResource;
+import com.opengamma.financial.position.master.rest.DataPositionResource;
+import com.opengamma.financial.position.master.rest.DataPositionsResource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.db.Paging;
-import com.opengamma.util.db.PagingRequest;
+import com.sun.jersey.api.client.ClientResponse.Status;
+import com.sun.jersey.api.uri.UriBuilderImpl;
 
 /**
  * Tests DataPositionsResource.
@@ -35,29 +35,18 @@ import com.opengamma.util.db.PagingRequest;
 public class DataPositionsResourceTest {
 
   private PositionMaster _underlying;
+  private UriInfo _uriInfo;
   private DataPositionsResource _resource;
 
   @Before
   public void setUp() {
     _underlying = mock(PositionMaster.class);
+    _uriInfo = mock(UriInfo.class);
+    when(_uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl().host("testhost"));
     _resource = new DataPositionsResource(_underlying);
   }
 
   //-------------------------------------------------------------------------
-  @Test
-  public void testSearchPositions() {
-    final PositionSearchRequest request = new PositionSearchRequest();
-    request.setPagingRequest(new PagingRequest(1, 20));
-    request.setMinQuantity(BigDecimal.TEN);
-    
-    final PositionSearchResult result = new PositionSearchResult();
-    result.setPaging(new Paging(1, 20, 0));
-    when(_underlying.searchPositions(eq(request))).thenReturn(result);
-    
-    PositionSearchResult test = _resource.get(1, 20, BigDecimal.TEN, null);
-    assertSame(result, test);
-  }
-
   @Test
   public void testAddPosition() {
     final ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
@@ -67,8 +56,9 @@ public class DataPositionsResourceTest {
     result.setPositionId(UniqueIdentifier.of("Test", "PosA"));
     when(_underlying.addPosition(same(request))).thenReturn(result);
     
-    PositionDocument test = _resource.post(request);
-    assertSame(result, test);
+    Response test = _resource.add(_uriInfo, request);
+    assertEquals(Status.CREATED.getStatusCode(), test.getStatus());
+    assertSame(result, test.getEntity());
   }
 
   @Test

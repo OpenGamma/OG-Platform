@@ -21,22 +21,24 @@ import org.junit.Test;
 import com.opengamma.financial.position.master.ManageablePortfolio;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
 import com.opengamma.financial.position.master.PositionMaster;
+import com.opengamma.financial.position.master.rest.DataPortfolioTreeResource;
+import com.opengamma.financial.position.master.rest.DataPortfolioTreesResource;
 import com.opengamma.id.UniqueIdentifier;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Tests DataPortfolioResource.
  */
-public class DataPortfolioResourceTest {
+public class DataPortfolioTreeResourceTest {
 
   private static final UniqueIdentifier UID = UniqueIdentifier.of("Test", "PortA");
   private PositionMaster _underlying;
-  private DataPortfolioResource _resource;
+  private DataPortfolioTreeResource _resource;
 
   @Before
   public void setUp() {
     _underlying = mock(PositionMaster.class);
-    _resource = new DataPortfolioResource(new DataPortfoliosResource(_underlying), UID);
+    _resource = new DataPortfolioTreeResource(new DataPortfolioTreesResource(_underlying), UID);
   }
 
   //-------------------------------------------------------------------------
@@ -46,8 +48,9 @@ public class DataPortfolioResourceTest {
     final PortfolioTreeDocument result = new PortfolioTreeDocument(portfolio);
     when(_underlying.getPortfolioTree(eq(UID))).thenReturn(result);
     
-    PortfolioTreeDocument test = _resource.get();
-    assertSame(result, test);
+    Response test = _resource.get();
+    assertEquals(Status.OK.getStatusCode(), test.getStatus());
+    assertSame(result, test.getEntity());
   }
 
   @Test
@@ -60,8 +63,9 @@ public class DataPortfolioResourceTest {
     result.setPortfolioId(UID);
     when(_underlying.updatePortfolioTree(same(request))).thenReturn(result);
     
-    PortfolioTreeDocument test = _resource.put(request);
-    assertSame(result, test);
+    Response test = _resource.put(request);
+    assertEquals(Status.OK.getStatusCode(), test.getStatus());
+    assertSame(result, test.getEntity());
   }
 
   @Test

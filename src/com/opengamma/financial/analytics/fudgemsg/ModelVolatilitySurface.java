@@ -9,9 +9,8 @@ import java.util.Map;
 
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeObjectDictionary;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
@@ -23,29 +22,18 @@ import com.opengamma.math.interpolation.Interpolator2D;
  */
 /* package */ final class ModelVolatilitySurface {
 
-  private static final FudgeBuilder<ConstantVolatilitySurface> CONSTANT_VOLATILITY_SURFACE = new ConstantVolatilitySurfaceBuilder();
-  private static final FudgeBuilder<InterpolatedVolatilitySurface> INTERPOLATED_VOLATILITY_SURFACE = new InterpolatedVolatilitySurfaceBuilder();
-
   /**
    * Restricted constructor.
    */
   private ModelVolatilitySurface() {
   }
 
-  /**
-   * Adds the builder from this class to the dictionary.
-   * @param dictionary  the Fudge dictionary, not null
-   */
-  /* package */ static void addBuilders(final FudgeObjectDictionary dictionary) {
-    dictionary.addBuilder(ConstantVolatilitySurface.class, CONSTANT_VOLATILITY_SURFACE);
-    dictionary.addBuilder(InterpolatedVolatilitySurface.class, INTERPOLATED_VOLATILITY_SURFACE);
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Fudge builder for {@code ConstantVolatilitySurface}.
    */
-  private static final class ConstantVolatilitySurfaceBuilder extends FudgeBuilderBase<ConstantVolatilitySurface> {
+  @FudgeBuilderFor(ConstantVolatilitySurface.class)
+  public static final class ConstantVolatilitySurfaceBuilder extends FudgeBuilderBase<ConstantVolatilitySurface> {
     private static final String SIGMA_FIELD_NAME = "sigma";
 
     @Override
@@ -63,7 +51,8 @@ import com.opengamma.math.interpolation.Interpolator2D;
   /**
    * Fudge builder for {@code InterpolatedVolatilitySurface}.
    */
-  private static final class InterpolatedVolatilitySurfaceBuilder extends FudgeBuilderBase<InterpolatedVolatilitySurface> {
+  @FudgeBuilderFor(InterpolatedVolatilitySurface.class)
+  public static final class InterpolatedVolatilitySurfaceBuilder extends FudgeBuilderBase<InterpolatedVolatilitySurface> {
     private static final String DATA_FIELD_NAME = "data";
     private static final String INTERPOLATOR_FIELD_NAME = "interpolator";
 

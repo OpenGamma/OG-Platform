@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.rest;
+package com.opengamma.financial.position.master.rest;
 
 import java.net.URI;
 
@@ -60,7 +60,9 @@ public class RemotePositionMaster implements PositionMaster {
   public PortfolioTreeSearchResult searchPortfolioTrees(final PortfolioTreeSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     
-    throw new UnsupportedOperationException();
+    String msgBase64 = _client.encodeBean(request);
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataPortfolioTreesResource.class).queryParam("msg", msgBase64).build();
+    return accessRemote(uri).get(PortfolioTreeSearchResult.class);
   }
 
   //-------------------------------------------------------------------------
@@ -68,7 +70,7 @@ public class RemotePositionMaster implements PositionMaster {
   public PortfolioTreeDocument getPortfolioTree(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataPortfolioResource.class).build(uid.toLatest());
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataPortfolioTreeResource.class).build(uid.toLatest());
     return accessRemote(uri).get(PortfolioTreeDocument.class);
   }
 
@@ -79,7 +81,7 @@ public class RemotePositionMaster implements PositionMaster {
     ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
     ArgumentChecker.notNull(document.getPortfolio().getRootNode(), "document.portfolio.rootNode");
     
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataPortfoliosResource.class).build();
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataPortfolioTreesResource.class).build();
     return accessRemote(uri).post(PortfolioTreeDocument.class, document);
   }
 
@@ -90,7 +92,7 @@ public class RemotePositionMaster implements PositionMaster {
     ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
     ArgumentChecker.notNull(document.getPortfolioId(), "document.portfolioId");
     
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataPortfolioResource.class).build(document.getPortfolioId().toLatest());
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataPortfolioTreeResource.class).build(document.getPortfolioId().toLatest());
     return accessRemote(uri).put(PortfolioTreeDocument.class, document);
   }
 
@@ -99,7 +101,7 @@ public class RemotePositionMaster implements PositionMaster {
   public void removePortfolioTree(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataPortfolioResource.class).build(uid.toLatest());
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataPortfolioTreeResource.class).build(uid.toLatest());
     accessRemote(uri).delete();
   }
 
@@ -109,9 +111,9 @@ public class RemotePositionMaster implements PositionMaster {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getPortfolioId(), "request.portfolioId");
     
-    throw new UnsupportedOperationException();
-//    URI uri = UriBuilder.fromUri(_baseUri).path(DataPortfolioResource.class).build(request.getPortfolioId().toLatest());
-//    return accessRemote(uri).get(PortfolioTreeSearchHistoricResult.class);
+    String msgBase64 = _client.encodeBean(request);
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataPortfolioTreeResource.class).queryParam("msg", msgBase64).build(request.getPortfolioId().toLatest());
+    return accessRemote(uri).get(PortfolioTreeSearchHistoricResult.class);
   }
 
   //-------------------------------------------------------------------------
@@ -129,7 +131,9 @@ public class RemotePositionMaster implements PositionMaster {
   public PositionSearchResult searchPositions(final PositionSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     
-    throw new UnsupportedOperationException();
+    String msgBase64 = _client.encodeBean(request);
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataPositionsResource.class).queryParam("msg", msgBase64).build();
+    return accessRemote(uri).get(PositionSearchResult.class);
   }
 
   //-------------------------------------------------------------------------
@@ -178,7 +182,9 @@ public class RemotePositionMaster implements PositionMaster {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getPositionId(), "request.positionId");
     
-    throw new UnsupportedOperationException();
+    String msgBase64 = _client.encodeBean(request);
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataPositionResource.class).queryParam("msg", msgBase64).build(request.getPositionId().toLatest());
+    return accessRemote(uri).get(PositionSearchHistoricResult.class);
   }
 
   //-------------------------------------------------------------------------
@@ -225,7 +231,8 @@ public class RemotePositionMaster implements PositionMaster {
    * @return the resource, suitable for calling get/post/put/delete on, not null
    */
   protected Builder accessRemote(URI uri) {
-    // TODO: Fix properly. This just makes Bamboo happy
+    // TODO: Better solution to this limitation in JAX-RS (we shouldn't have "data" in URI)
+    // this code removes a second duplicate "data"
     String uriStr = uri.toString();
     int pos = uriStr.indexOf("/jax/data/");
     if (pos > 0) {

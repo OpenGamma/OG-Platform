@@ -23,6 +23,8 @@ import org.junit.Test;
 import com.opengamma.financial.position.master.ManageablePosition;
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.financial.position.master.PositionMaster;
+import com.opengamma.financial.position.master.rest.DataPositionResource;
+import com.opengamma.financial.position.master.rest.DataPositionsResource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.sun.jersey.api.client.ClientResponse.Status;
@@ -49,8 +51,9 @@ public class DataPositionResourceTest {
     final PositionDocument result = new PositionDocument(position, UniqueIdentifier.of("Test", "Node"));
     when(_underlying.getPosition(eq(UID))).thenReturn(result);
     
-    PositionDocument test = _resource.get();
-    assertSame(result, test);
+    Response test = _resource.get();
+    assertEquals(Status.OK.getStatusCode(), test.getStatus());
+    assertSame(result, test.getEntity());
   }
 
   @Test
@@ -63,8 +66,9 @@ public class DataPositionResourceTest {
     result.setPositionId(UID);
     when(_underlying.updatePosition(same(request))).thenReturn(result);
     
-    PositionDocument test = _resource.put(request);
-    assertSame(result, test);
+    Response test = _resource.put(request);
+    assertEquals(Status.OK.getStatusCode(), test.getStatus());
+    assertSame(result, test.getEntity());
   }
 
   @Test

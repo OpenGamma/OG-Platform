@@ -9,9 +9,8 @@ import java.util.Map;
 
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeObjectDictionary;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
@@ -23,30 +22,21 @@ import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
  */
 /* package */final class ModelInterestRateCurve {
 
-  private static final FudgeBuilder<ConstantYieldCurve> CONSTANT_YIELD_CURVE = new ConstantYieldCurveBuilder();
-  private static final FudgeBuilder<InterpolatedYieldCurve> INTERPOLATED_YIELD_CURVE = new InterpolatedYieldCurveBuilder();
-  private static final FudgeBuilder<InterpolatedDiscountCurve> INTERPOLATED_DISCOUNT_CURVE = new InterpolatedDiscountCurveBuilder();
-
   /**
    * Restricted constructor.
    */
   private ModelInterestRateCurve() {
   }
 
-  /* package */static void addBuilders(final FudgeObjectDictionary dictionary) {
-    dictionary.addBuilder(ConstantYieldCurve.class, CONSTANT_YIELD_CURVE);
-    dictionary.addBuilder(InterpolatedDiscountCurve.class, INTERPOLATED_DISCOUNT_CURVE);
-    dictionary.addBuilder(InterpolatedYieldCurve.class, INTERPOLATED_YIELD_CURVE);
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Fudge builder for {@code ConstantYieldCurve}.
    */
-  private static final class ConstantYieldCurveBuilder extends FudgeBuilderBase<ConstantYieldCurve> {
+  @FudgeBuilderFor(ConstantYieldCurve.class)
+  public static final class ConstantYieldCurveBuilder extends FudgeBuilderBase<ConstantYieldCurve> {
     private static final String RATE_FIELD_NAME = "rate";
 
-    private ConstantYieldCurveBuilder() {
+    public ConstantYieldCurveBuilder() {
     }
 
     @Override
@@ -64,11 +54,12 @@ import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
   /**
    * Fudge builder for {@code InterpolatedDiscountCurve}.
    */
-  private static final class InterpolatedDiscountCurveBuilder extends FudgeBuilderBase<InterpolatedDiscountCurve> {
+  @FudgeBuilderFor(InterpolatedDiscountCurve.class)
+  public static final class InterpolatedDiscountCurveBuilder extends FudgeBuilderBase<InterpolatedDiscountCurve> {
     private static final String DATA_FIELD_NAME = "data";
     private static final String INTERPOLATORS_FIELD_NAME = "interpolator";
 
-    private InterpolatedDiscountCurveBuilder() {
+    public InterpolatedDiscountCurveBuilder() {
     }
 
     @Override
@@ -90,11 +81,12 @@ import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
   /**
    * Fudge builder for {@code InterpolatedYieldCurve}.
    */
-  private static final class InterpolatedYieldCurveBuilder extends FudgeBuilderBase<InterpolatedYieldCurve> {
+  @FudgeBuilderFor(InterpolatedYieldCurve.class)
+  public static final class InterpolatedYieldCurveBuilder extends FudgeBuilderBase<InterpolatedYieldCurve> {
     private static final String DATA_FIELD_NAME = "data";
     private static final String INTERPOLATORS_FIELD_NAME = "interpolators";
 
-    private InterpolatedYieldCurveBuilder() {
+    public InterpolatedYieldCurveBuilder() {
     }
 
     @Override

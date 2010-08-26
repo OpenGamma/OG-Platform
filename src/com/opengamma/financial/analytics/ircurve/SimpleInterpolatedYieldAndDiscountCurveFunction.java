@@ -33,12 +33,10 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
-import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.world.RegionSource;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
@@ -230,30 +228,29 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
   private static final String CURVE_NAME_KEY = "curveName";
   private static final String IS_YIELD_CURVE_KEY = "yieldCurve";
 
-  public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
-    super.toFudgeMsg(context, message);
-    context.objectToFudgeMsgWithClassHeaders(message, DEFINITION_KEY, null, _definition, YieldCurveDefinition.class);
-    context.objectToFudgeMsgWithClassHeaders(message, CURVE_CURRENCY_KEY, null, _curveCurrency, Currency.class);
-    context.objectToFudgeMsgWithClassHeaders(message, CURVE_DATE_KEY, null, _curveDate, LocalDate.class);
-    message.add(CURVE_NAME_KEY, _curveName);
-    message.add(CURVE_DATE_KEY, _curveDate);
-    message.add(IS_YIELD_CURVE_KEY, _isYieldCurve);
-  }
-
-  public static SimpleInterpolatedYieldAndDiscountCurveFunction fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    final SimpleInterpolatedYieldAndDiscountCurveFunction object = new SimpleInterpolatedYieldAndDiscountCurveFunction(
-        context.fieldValueToObject(LocalDate.class, message.getByName(CURVE_DATE_KEY)), 
-        context.fieldValueToObject(Currency.class, message.getByName(CURVE_CURRENCY_KEY)), 
-        message.getString(CURVE_NAME_KEY), message.getBoolean(IS_YIELD_CURVE_KEY));
-    final FudgeField field = message.getByName(DEFINITION_KEY);
-    if (field != null) {
-      object._definition = context.fieldValueToObject(YieldCurveDefinition.class, field);
-    }
-    SimpleInterpolatedYieldAndDiscountCurveFunction function = fromFudgeMsg(object, message);
-    if (field != null) {
-      object.initImpl();
-    }
-    return function;
-  }
+//  public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+//    context.objectToFudgeMsgWithClassHeaders(message, DEFINITION_KEY, null, _definition, YieldCurveDefinition.class);
+//    context.objectToFudgeMsgWithClassHeaders(message, CURVE_CURRENCY_KEY, null, _curveCurrency, Currency.class);
+//    context.objectToFudgeMsgWithClassHeaders(message, CURVE_DATE_KEY, null, _curveDate, LocalDate.class);
+//    message.add(CURVE_NAME_KEY, _curveName);
+//    message.add(CURVE_DATE_KEY, _curveDate);
+//    message.add(IS_YIELD_CURVE_KEY, _isYieldCurve);
+//  }
+//
+//  public static SimpleInterpolatedYieldAndDiscountCurveFunction fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+//    final SimpleInterpolatedYieldAndDiscountCurveFunction object = new SimpleInterpolatedYieldAndDiscountCurveFunction(
+//        context.fieldValueToObject(LocalDate.class, message.getByName(CURVE_DATE_KEY)), 
+//        context.fieldValueToObject(Currency.class, message.getByName(CURVE_CURRENCY_KEY)), 
+//        message.getString(CURVE_NAME_KEY), message.getBoolean(IS_YIELD_CURVE_KEY));
+//    final FudgeField field = message.getByName(DEFINITION_KEY);
+//    if (field != null) {
+//      object._definition = context.fieldValueToObject(YieldCurveDefinition.class, field);
+//    }
+//    SimpleInterpolatedYieldAndDiscountCurveFunction function = fromFudgeMsg(object, message);
+//    if (field != null) {
+//      object.initImpl();
+//    }
+//    return function;
+//  }
 
 }

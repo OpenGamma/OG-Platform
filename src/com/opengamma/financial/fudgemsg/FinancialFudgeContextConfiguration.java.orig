@@ -6,7 +6,6 @@
 package com.opengamma.financial.fudgemsg;
 
 import org.fudgemsg.FudgeContextConfiguration;
-import org.fudgemsg.FudgeTypeDictionary;
 import org.fudgemsg.mapping.FudgeObjectDictionary;
 
 import com.opengamma.engine.world.Region;
@@ -45,6 +44,7 @@ public class FinancialFudgeContextConfiguration extends FudgeContextConfiguratio
 
   //-------------------------------------------------------------------------
   @Override
+<<<<<<< HEAD
   public void configureFudgeTypeDictionary(final FudgeTypeDictionary dictionary) {
     dictionary.addType(BusinessDayConventionSecondaryType.INSTANCE);
     dictionary.addType(CurrencySecondaryType.INSTANCE);
@@ -58,7 +58,10 @@ public class FinancialFudgeContextConfiguration extends FudgeContextConfiguratio
   }
 
   @Override
+=======
+>>>>>>> 0e4eaca98df819dd90f77ac8e656a0a2f87decfc
   public void configureFudgeObjectDictionary(final FudgeObjectDictionary dictionary) {
+    // REVIEW kirk 2010-08-26 -- This is the one thing that needs changed to eliminate this class.
     dictionary.getDefaultBuilderFactory().addGenericBuilder(Region.class, new RegionBuilder(this));
     dictionary.getDefaultBuilderFactory().addGenericBuilder(FixedIncomeStrip.class, new FixedIncomeStripBuilder());
     dictionary.getDefaultBuilderFactory().addGenericBuilder(YieldCurveDefinition.class, new YieldCurveDefinitionBuilder());

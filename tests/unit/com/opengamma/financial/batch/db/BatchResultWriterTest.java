@@ -26,6 +26,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.test.CalculationNodeUtils;
 import com.opengamma.engine.test.MockFunction;
@@ -219,12 +220,10 @@ public class BatchResultWriterTest extends HibernateTest {
   }
 
   private DependencyGraph getPositionDepGraph() {
-    DependencyNode node = new DependencyNode(
-        _mockFunction,
-        _mockFunction.getTarget(),
-        Collections.<DependencyNode>emptySet(),
-        Collections.<ValueSpecification>emptySet(),
-        _mockFunction.getResultSpecs());
+    DependencyNode node = new DependencyNode(_mockFunction.getTarget());
+    node.setFunction(_mockFunction);
+    node.addOutputValues(_mockFunction.getResultSpecs());
+    
     DependencyGraph graph = new DependencyGraph(CalculationNodeUtils.CALC_CONF_NAME);
     graph.addDependencyNode(node);
     return graph;
@@ -234,12 +233,12 @@ public class BatchResultWriterTest extends HibernateTest {
     com.opengamma.engine.ComputationTarget primitiveTarget = 
       new com.opengamma.engine.ComputationTarget(ComputationTargetType.PRIMITIVE, new String("foo"));
     
-    DependencyNode node = new DependencyNode(
-        new MockFunction(primitiveTarget),
-        primitiveTarget,
-        Collections.<DependencyNode>emptySet(),
-        Collections.<ValueSpecification>emptySet(),
-        _mockFunction.getResultSpecs());
+    MockFunction function = new MockFunction(primitiveTarget);
+    
+    DependencyNode node = new DependencyNode(primitiveTarget);
+    node.setFunction(function);
+    node.addOutputValues(_mockFunction.getResultSpecs());
+    
     DependencyGraph graph = new DependencyGraph(CalculationNodeUtils.CALC_CONF_NAME);
     graph.addDependencyNode(node);
     return graph;
@@ -561,12 +560,14 @@ public class BatchResultWriterTest extends HibernateTest {
   public void successfulAndFailedResultOnSameTarget() {
     CalculationJobResultItem successItem = new CalculationJobResultItem(
         new CalculationJobItem("function1", 
+            new EmptyFunctionParameters(),
             _mockFunction.getTarget().toSpecification(),
             Collections.<ValueSpecification>emptySet(),
             Collections.singleton(new ValueRequirement("OUTPUT1", _mockFunction.getTarget().toSpecification()))));
     
     CalculationJobResultItem failedItem = new CalculationJobResultItem(
         new CalculationJobItem("function1", 
+            new EmptyFunctionParameters(),
             _mockFunction.getTarget().toSpecification(),
             Collections.<ValueSpecification>emptySet(),
             Collections.singleton(new ValueRequirement("OUTPUT2", _mockFunction.getTarget().toSpecification()))),

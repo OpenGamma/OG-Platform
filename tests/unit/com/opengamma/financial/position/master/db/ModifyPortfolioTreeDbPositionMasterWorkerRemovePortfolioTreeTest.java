@@ -59,16 +59,6 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerRemovePortfolioTreeTest ex
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = NullPointerException.class)
-  public void test_removePortfolioTree_nullUID() {
-    _worker.removePortfolioTree(null);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void test_removePortfolioTree_nonVersionedUID() {
-    _worker.removePortfolioTree(UniqueIdentifier.of("DbPos", "101"));
-  }
-
   @Test(expected = DataNotFoundException.class)
   public void test_removePortfolioTree_versioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "0", "0");

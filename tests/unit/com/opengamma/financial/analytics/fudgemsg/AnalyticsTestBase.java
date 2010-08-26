@@ -13,11 +13,10 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.util.fudge.UtilFudgeContextConfiguration;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * Base class for testing OG-Analytics objects to and from Fudge messages.
@@ -26,23 +25,15 @@ public class AnalyticsTestBase {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AnalyticsTestBase.class);
 
-  private FudgeContext _fudgeContext;
-
-  @Before
-  public void createFudgeContext() {
-    _fudgeContext = new FudgeContext();
-    _fudgeContext.setConfiguration(AnalyticsFudgeContextConfiguration.INSTANCE);
-    _fudgeContext.setConfiguration(UtilFudgeContextConfiguration.INSTANCE);
-  }
-
+  @Deprecated
   protected FudgeContext getFudgeContext() {
-    return _fudgeContext;
+    return OpenGammaFudgeContext.getInstance();
   }
 
   private FudgeFieldContainer cycleMessage(final FudgeFieldContainer message) {
-    final byte[] data = getFudgeContext().toByteArray(message);
+    final byte[] data = OpenGammaFudgeContext.getInstance().toByteArray(message);
     s_logger.info("{} bytes", data.length);
-    return getFudgeContext().deserialize(data).getMessage();
+    return OpenGammaFudgeContext.getInstance().deserialize(data).getMessage();
   }
 
   @SuppressWarnings("unchecked")

@@ -13,15 +13,15 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * Default implementation of ReferenceRateSource that uses an underlying ReferenceRateMaster as a data source. 
  */
-public class DefaultReferenceRateSource implements ConventionBundleSource {
+public class DefaultConventionBundleSource implements ConventionBundleSource {
 
   private ConventionBundleMaster _referenceRateMaster;
   
-  public DefaultReferenceRateSource(ConventionBundleMaster referenceRateMaster) {
+  public DefaultConventionBundleSource(ConventionBundleMaster referenceRateMaster) {
     _referenceRateMaster = referenceRateMaster;
   }
   @Override
-  public ConventionBundle getSingleReferenceRate(Identifier identifier) {
+  public ConventionBundle getCpnventionBundle(Identifier identifier) {
     ConventionBundleSearchResult result = _referenceRateMaster.searchConventionBundle(new ConventionBundleSearchRequest(identifier));
     final int size = result.getResults().size();
     switch (size) {
@@ -35,7 +35,7 @@ public class DefaultReferenceRateSource implements ConventionBundleSource {
   }
 
   @Override
-  public ConventionBundle getSingleReferenceRate(IdentifierBundle identifiers) {
+  public ConventionBundle getConventionBundle(IdentifierBundle identifiers) {
     ConventionBundleSearchResult result = _referenceRateMaster.searchConventionBundle(new ConventionBundleSearchRequest(identifiers));
     final int size = result.getResults().size();
     switch (size) {
@@ -49,7 +49,7 @@ public class DefaultReferenceRateSource implements ConventionBundleSource {
   }
 
   @Override
-  public ConventionBundle getReferenceRate(UniqueIdentifier identifier) {
+  public ConventionBundle getConventionBundle(UniqueIdentifier identifier) {
     ConventionBundleDocument doc = _referenceRateMaster.getConventionBundle(identifier);
     if (doc != null) {
       return doc.getValue();
