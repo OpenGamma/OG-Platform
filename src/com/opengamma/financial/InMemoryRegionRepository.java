@@ -100,6 +100,8 @@ public class InMemoryRegionRepository implements RegionRepository {
   private Map<String, Map<Pair<String, Object>, SortedSet<Region>>> _fieldIndex = new HashMap<String, Map<Pair<String, Object>, SortedSet<Region>>>();
     
   public InMemoryRegionRepository(File file) {
+    // REVIEW kirk 2010-08-26 -- Is this right? Probably it is as long as we want to avoid
+    // cyclical references based on the RegionBuilder depending on this.
     this(FudgeContext.GLOBAL_DEFAULT, file);
   }
 
