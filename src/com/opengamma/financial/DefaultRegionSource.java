@@ -15,20 +15,20 @@ import com.opengamma.id.UniqueIdentifier;
  * Default implementation of RegionSource that uses a RegionMaster as the underlying data source.
  */
 public class DefaultRegionSource implements RegionSource {
-  private RegionRepository _regionMaster;
+  private RegionMaster _regionMaster;
   
-  public DefaultRegionSource(RegionRepository regionMaster) {
+  public DefaultRegionSource(RegionMaster regionMaster) {
     _regionMaster = regionMaster;
   }
   @Override
   public Region getHighestLevelRegion(Identifier regionId) {
-    RegionSearchRequest searchReq = new RegionSearchRequest(RegionRepository.POLITICAL_HIERARCHY_NAME, regionId);
+    RegionSearchRequest searchReq = new RegionSearchRequest(RegionMaster.POLITICAL_HIERARCHY_NAME, regionId);
     searchReq.setGraphIncluded(true);
     return _regionMaster.searchRegions(searchReq).getBestResult();
   }
   @Override
   public Region getHighestLevelRegion(IdentifierBundle regionIdentifiers) {
-    RegionSearchRequest searchReq = new RegionSearchRequest(RegionRepository.POLITICAL_HIERARCHY_NAME, regionIdentifiers);
+    RegionSearchRequest searchReq = new RegionSearchRequest(RegionMaster.POLITICAL_HIERARCHY_NAME, regionIdentifiers);
     searchReq.setGraphIncluded(true);
     return _regionMaster.searchRegions(searchReq).getBestResult();
   }

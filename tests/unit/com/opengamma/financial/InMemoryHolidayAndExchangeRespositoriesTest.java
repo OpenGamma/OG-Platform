@@ -31,7 +31,7 @@ public class InMemoryHolidayAndExchangeRespositoriesTest {
   
   @Test
   public void testExchangeRepository() throws URISyntaxException {
-    RegionRepository regionRepo = new InMemoryRegionRepository();
+    RegionMaster regionRepo = new InMemoryRegionRepository();
     RegionFileReader.populateMaster(regionRepo, new File(RegionFileReader.REGIONS_FILE_PATH));
     RegionSource regionSource = new DefaultRegionSource(regionRepo);
     InMemoryExchangeRepository exchangeRepo = new InMemoryExchangeRepository();
@@ -104,7 +104,7 @@ public class InMemoryHolidayAndExchangeRespositoriesTest {
     ExchangeSource exchangeSource = new DefaultExchangeSource(exchangeRepo);
     ExchangeFileReader exchangeReader = new ExchangeFileReader(exchangeRepo);
     exchangeReader.readFile(new File(CoppClarkFileReader.EXCHANGE_HOLIDAYS_REPOST_FILE_PATH));
-    HolidayRepository holidayRepo = new InMemoryHolidayRepository(regionRepo, exchangeRepo);
+    HolidayRepository holidayRepo = new InMemoryHolidayRepository(regionSource, exchangeRepo);
     
     HolidaySource holidaySource = new DefaultHolidaySource(holidayRepo);
     CoppClarkFileReader reader = new CoppClarkFileReader(holidayRepo, 

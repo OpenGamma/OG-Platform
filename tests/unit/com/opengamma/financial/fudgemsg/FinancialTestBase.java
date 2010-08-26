@@ -24,7 +24,7 @@ import com.opengamma.engine.world.RegionSource;
 import com.opengamma.financial.DefaultRegionSource;
 import com.opengamma.financial.InMemoryRegionRepository;
 import com.opengamma.financial.RegionFileReader;
-import com.opengamma.financial.RegionRepository;
+import com.opengamma.financial.RegionMaster;
 import com.opengamma.util.fudge.UtilFudgeContextConfiguration;
 
 /**
@@ -41,7 +41,7 @@ public class FinancialTestBase {
   public void createFudgeContext() {
     _fudgeContext = new FudgeContext();
     final FinancialFudgeContextConfiguration fudgeConfiguration = new FinancialFudgeContextConfiguration();
-    RegionRepository regionMaster = new InMemoryRegionRepository();
+    RegionMaster regionMaster = new InMemoryRegionRepository();
     RegionFileReader.populateMaster(regionMaster, new File(RegionFileReader.REGIONS_FILE_PATH));
     _regionSource = new DefaultRegionSource(regionMaster);
     fudgeConfiguration.setRegionSource(_regionSource);

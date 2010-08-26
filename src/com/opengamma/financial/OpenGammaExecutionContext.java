@@ -20,12 +20,12 @@ public class OpenGammaExecutionContext {
   /**
    * The name under which an instance of {@link TimeSeriesSource} should be bound.
    */
-  public static final String HISTORICAL_DATA_PROVIDER_NAME = "historicalDataProvider";
+  public static final String HISTORICAL_DATA_SOURCE_NAME = "historicalDataSource";
 
   /**
-   * The name under which an instance of {@link RegionRepository} should be bound.
+   * The name under which an instance of {@link RegionSource} should be bound.
    */
-  public static final String REGION_SOURCE_NAME = "regionRepository";
+  public static final String REGION_SOURCE_NAME = "regionSource";
 
   /**
    * The name under which an instance of {@link HolidayRepository} should be bound.
@@ -35,22 +35,22 @@ public class OpenGammaExecutionContext {
   /**
    * The name under which an instance of {@link ConventionBundleMaster} should be bound.
    */
-  public static final String REFERENCE_RATE_REPOSITORY_NAME = "referenceRateRepository";
+  private static final String CONVENTION_BUNDLE_SOURCE_NAME = "conventionBundleSource";;
   
   /**
    * The name under which an instance of {@link ExchangeRepository} should be bound.
    */
   public static final String EXCHANGE_REPOSITORY_NAME = "exchangeRepository";
 
-  private static final String CONVENTION_BUNDLE_SOURCE_NAME = "conventionBundleSource";;
+
   
-  public static HistoricalDataSource getHistoricalDataProvider(FunctionExecutionContext context) {
-    return (HistoricalDataSource) context.get(HISTORICAL_DATA_PROVIDER_NAME);
+  public static HistoricalDataSource getHistoricalDataSource(FunctionExecutionContext context) {
+    return (HistoricalDataSource) context.get(HISTORICAL_DATA_SOURCE_NAME);
   }
   
-  public static void setHistoricalDataProvider(FunctionExecutionContext context, 
+  public static void setHistoricalDataSource(FunctionExecutionContext context, 
       HistoricalDataSource historicalDataProvider) {
-    context.put(HISTORICAL_DATA_PROVIDER_NAME, historicalDataProvider);
+    context.put(HISTORICAL_DATA_SOURCE_NAME, historicalDataProvider);
   }
   
   public static SecuritySource getSecuritySource(FunctionExecutionContext context) {
@@ -83,14 +83,6 @@ public class OpenGammaExecutionContext {
   
   public static void setHolidaySource(FunctionExecutionContext context, HolidaySource holidayRepository) {
     context.put(HOLIDAY_SOURCE_NAME, holidayRepository);
-  }
-  
-  public static ConventionBundleMaster getReferenceRateRepository(FunctionExecutionContext context) {
-    return (ConventionBundleMaster) context.get(REFERENCE_RATE_REPOSITORY_NAME);
-  }
-  
-  public static void setReferenceRateRepository(FunctionExecutionContext context, ConventionBundleMaster referenceRateRepository) {
-    context.put(REFERENCE_RATE_REPOSITORY_NAME, referenceRateRepository);
   }
   
   public static ExchangeRepository getExchangeRepository(FunctionExecutionContext context) {

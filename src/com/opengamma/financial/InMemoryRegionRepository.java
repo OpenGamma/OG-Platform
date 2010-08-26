@@ -33,15 +33,12 @@ import com.opengamma.id.IdentifierBundleMapper;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.tuple.Pair;
 
-import edu.emory.mathcs.backport.java.util.Collections;
-
 /**
  * In memory implementation of a region repository.  Repository is populated from a CSV file.  
  * THERE IS CURRENTLY NO SUPPORT FOR VERSIONING, THE DATES ARE IGNORED
  */
-public class InMemoryRegionRepository implements RegionRepository {
+public class InMemoryRegionRepository implements RegionMaster {
   // TODO: jim 2-Jul-2010 -- Make this cope with versioning...
-  @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(InMemoryRegionRepository.class);
 
   static final String HIERARCHY_COLUMN = "Hierarchy";

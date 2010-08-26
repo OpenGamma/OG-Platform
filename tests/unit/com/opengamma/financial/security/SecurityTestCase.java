@@ -41,7 +41,7 @@ import com.opengamma.financial.DefaultRegionSource;
 import com.opengamma.financial.GICSCode;
 import com.opengamma.financial.InMemoryRegionRepository;
 import com.opengamma.financial.RegionFileReader;
-import com.opengamma.financial.RegionRepository;
+import com.opengamma.financial.RegionMaster;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -182,9 +182,9 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
   
   private static RegionSource s_regionSource;
   static {
-    RegionRepository regionRepository = new InMemoryRegionRepository();
-    RegionFileReader.populateMaster(regionRepository, new File(RegionFileReader.REGIONS_FILE_PATH));
-    s_regionSource = new DefaultRegionSource(regionRepository);
+    RegionMaster regionMaster = new InMemoryRegionRepository();
+    RegionFileReader.populateMaster(regionMaster, new File(RegionFileReader.REGIONS_FILE_PATH));
+    s_regionSource = new DefaultRegionSource(regionMaster);
   }
   
   protected static RegionSource getRegionSource() {

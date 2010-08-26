@@ -79,7 +79,7 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction i
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
-    final HistoricalDataSource historicalDataProvider = OpenGammaExecutionContext.getHistoricalDataProvider(executionContext);
+    final HistoricalDataSource historicalDataProvider = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
     final SecuritySource securitySource = executionContext.getSecuritySource();
 
     final ValueSpecification resultSpecification = new ValueSpecification(

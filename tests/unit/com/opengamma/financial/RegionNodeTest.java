@@ -23,9 +23,9 @@ public class RegionNodeTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RegionNodeTest.class);
 
-  private RegionRepository _regionRepository1;
+  private RegionMaster _regionRepository1;
   private RegionSource _regionSource1;
-  private RegionRepository _regionRepository2;
+  private RegionMaster _regionRepository2;
   private RegionSource _regionSource2;
 
   @Before

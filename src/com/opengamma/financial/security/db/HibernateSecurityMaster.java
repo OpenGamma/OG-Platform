@@ -29,7 +29,6 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.Security;
-import com.opengamma.financial.RegionRepository;
 import com.opengamma.financial.security.SecurityDocument;
 import com.opengamma.financial.security.SecurityMaster;
 import com.opengamma.financial.security.SecuritySearchHistoricRequest;

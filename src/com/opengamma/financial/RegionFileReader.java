@@ -33,16 +33,16 @@ import com.opengamma.util.FileUtils;
  */
 public class RegionFileReader {
   
-  private RegionRepository _regionRepo;
+  private RegionMaster _regionMaster;
   private FudgeContext _fudgeContext;
 
-  public RegionFileReader(RegionRepository regionRepo) {
-    _regionRepo = regionRepo;
+  public RegionFileReader(RegionMaster regionMaster) {
+    _regionMaster = regionMaster;
     _fudgeContext = FudgeContext.GLOBAL_DEFAULT;
   }
   
-  public RegionFileReader(RegionRepository regionRepo, FudgeContext fudgeContext) {
-    _regionRepo = regionRepo;
+  public RegionFileReader(RegionMaster regionMaster, FudgeContext fudgeContext) {
+    _regionMaster = regionMaster;
     _fudgeContext = FudgeContext.GLOBAL_DEFAULT;
   }
   
@@ -91,7 +91,7 @@ public class RegionFileReader {
       }
       // now turn the definitions into proper tree reference links.
       for (String hierarchyName : roots.keySet()) {
-        _regionRepo.addRegionTree(hierarchyName, roots.get(hierarchyName));
+        _regionMaster.addRegionTree(hierarchyName, roots.get(hierarchyName));
       }
     } catch (Exception e) {
       throw new OpenGammaRuntimeException("Cannot open region data file (or file I/O problem)", e);
@@ -130,11 +130,11 @@ public class RegionFileReader {
   
   /**
    * Static convenience method to save separately constructing the object and calling populate
-   * @param regionRepo
-   * @param file
+   * @param regionMaster the RegionMaster to populate
+   * @param file the CSV file to read from
    */
-  public static void populateMaster(RegionRepository regionRepo, File file) {
-    RegionFileReader reader = new RegionFileReader(regionRepo);
+  public static void populateMaster(RegionMaster regionMaster, File file) {
+    RegionFileReader reader = new RegionFileReader(regionMaster);
     reader.populate(file);
   }
 
