@@ -7,6 +7,8 @@ package com.opengamma.math.matrix;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * A minimal implementation of a 2D matrix of doubles 
  * 
@@ -20,6 +22,20 @@ public class DoubleMatrix2D implements Matrix<Double> {
    * Empty 2D matrix
    */
   public static final DoubleMatrix2D EMPTY_MATRIX = new DoubleMatrix2D(new double[0][0]);
+
+  /**
+   * Sets up an empty matrix 
+   * @param rows
+   * @param columns
+   */
+  public DoubleMatrix2D(final int rows, final int columns) {
+    ArgumentChecker.notNegativeOrZero(rows, "rows");
+    ArgumentChecker.notNegativeOrZero(columns, "columns");
+    _rows = rows;
+    _columns = columns;
+    _data = new double[_rows][_columns];
+    _elements = _rows * _columns;
+  }
 
   // REVIEW could do with a constructor that does NOT copy the data
   public DoubleMatrix2D(final double[][] data) {
@@ -86,8 +102,23 @@ public class DoubleMatrix2D implements Matrix<Double> {
 
   }
 
+  /**
+   * Returns the underlying matrix data. If this is changed so is the matrix
+   * @see toArray() to get clone of data
+   * @return array of arrays containing the matrix elements 
+   */
   public double[][] getData() {
     return _data;
+  }
+
+  /**
+   * Convert the matrix to a array of double arrays. 
+   * The array is independent from matrix data, its elements are copied.
+   * @return array of arrays containing a copy of matrix elements
+   */
+  public double[][] toArray() {
+    DoubleMatrix2D temp = new DoubleMatrix2D(_data);
+    return temp.getData();
   }
 
   @Override
