@@ -8,19 +8,22 @@ package com.opengamma.financial.view.rest;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_ALLSECURITYTYPES;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_ALLVALUENAMES;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_COMPUTATIONRESULT;
-import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_LIVE_DATA_INJECTOR;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_DELTARESULT;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_LIVECOMPUTATIONRUNNING;
+import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_LIVE_DATA_INJECTOR;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_MOSTRECENTRESULT;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_PERFORMCOMPUTATION;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_PORTFOLIO;
-import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_REQUIREMENTNAMES;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_REQUIRED_LIVE_DATA;
+import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_REQUIREMENTNAMES;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_RESULTAVAILABLE;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_STATUS;
 
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+
+import javax.jms.ExceptionListener;
+import javax.jms.JMSException;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
@@ -152,11 +155,25 @@ import com.opengamma.util.ArgumentChecker;
           @Override
           public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
             s_logger.debug("Delta message received on {}", topicName);
-            dispatchDeltaResult(fudgeContext.fromFudgeMsg(ViewDeltaResultModel.class, msgEnvelope.getMessage()));
+            ViewDeltaResultModel resultModel = null;
+            try {
+              resultModel = fudgeContext.fromFudgeMsg(ViewDeltaResultModel.class, msgEnvelope.getMessage());
+            } catch (Exception e) {
+              s_logger.warn("Disregarding delta message because couldn't parse: {}", msgEnvelope.getMessage());
+              s_logger.warn("Underlying parse error", e);
+              return;
+            }
+            dispatchDeltaResult(resultModel);
           }
         }, getFudgeContext())));
         _deltaListenerContainer.setDestinationName(topicName);
         _deltaListenerContainer.setPubSubDomain(true);
+        _deltaListenerContainer.setExceptionListener(new ExceptionListener() {
+          @Override
+          public void onException(JMSException exception) {
+            s_logger.warn("Error in Delta receiver", exception);
+          }
+        });
         _deltaListenerContainer.afterPropertiesSet();
         _deltaListenerContainer.start();
       }
@@ -201,7 +218,11 @@ import com.opengamma.util.ArgumentChecker;
   
   protected void dispatchDeltaResult(ViewDeltaResultModel deltaModel) {
     for (DeltaComputationResultListener listener : _deltaListeners) {
-      listener.deltaResultAvailable(deltaModel);
+      try {
+        listener.deltaResultAvailable(deltaModel);
+      } catch (Exception e) {
+        s_logger.warn("Unable to dispatch delta result to {}", new Object[] {listener}, e);
+      }
     }
   }
   
