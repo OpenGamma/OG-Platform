@@ -62,7 +62,7 @@ public class HibernateSecurityMasterTest extends HibernateTest implements Securi
     return new Class<?>[] {BondFutureTypeBean.class, BondSecurityBean.class, BusinessDayConventionBean.class, CashRateTypeBean.class, CommodityFutureTypeBean.class, CouponTypeBean.class,
         CurrencyBean.class, DayCountBean.class, EquitySecurityBean.class, ExchangeBean.class, FrequencyBean.class, FutureBundleBean.class, FutureSecurityBean.class, GICSCodeBean.class,
         GuaranteeTypeBean.class, IdentifierAssociationBean.class, IssuerTypeBean.class, MarketBean.class, OptionSecurityBean.class, SecurityBean.class, UnitBean.class, YieldConventionBean.class,
-        CashSecurityBean.class, SwapSecurityBean.class, FRASecurityBean.class};
+        CashSecurityBean.class, SwapSecurityBean.class, FRASecurityBean.class };
   }
   
   /**

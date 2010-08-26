@@ -20,6 +20,7 @@ import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.world.RegionSource;
 import com.opengamma.financial.DefaultRegionSource;
 import com.opengamma.financial.InMemoryRegionRepository;
 import com.opengamma.financial.RegionFileReader;
@@ -33,16 +34,17 @@ public class FinancialTestBase {
 
   private static final Logger s_logger = LoggerFactory.getLogger(FinancialTestBase.class);
 
-  private RegionRepository _regionRepository;
+  private RegionSource _regionSource;
   private FudgeContext _fudgeContext;
 
   @Before
   public void createFudgeContext() {
     _fudgeContext = new FudgeContext();
     final FinancialFudgeContextConfiguration fudgeConfiguration = new FinancialFudgeContextConfiguration();
-    _regionRepository = new InMemoryRegionRepository();
-    RegionFileReader.populateMaster(_regionRepository, new File(RegionFileReader.REGIONS_FILE_PATH));
-    fudgeConfiguration.setRegionSource(new DefaultRegionSource(_regionRepository));
+    RegionRepository regionMaster = new InMemoryRegionRepository();
+    RegionFileReader.populateMaster(regionMaster, new File(RegionFileReader.REGIONS_FILE_PATH));
+    _regionSource = new DefaultRegionSource(regionMaster);
+    fudgeConfiguration.setRegionSource(_regionSource);
     UtilFudgeContextConfiguration.INSTANCE.configureFudgeContext(_fudgeContext);
     fudgeConfiguration.configureFudgeContext(_fudgeContext);
   }
@@ -51,8 +53,8 @@ public class FinancialTestBase {
     return _fudgeContext;
   }
 
-  protected RegionRepository getRegionRepository() {
-    return _regionRepository;
+  protected RegionSource getRegionSource() {
+    return _regionSource;
   }
 
   private FudgeFieldContainer cycleMessage(final FudgeFieldContainer message) {

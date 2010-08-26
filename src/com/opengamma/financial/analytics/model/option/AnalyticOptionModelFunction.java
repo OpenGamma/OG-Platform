@@ -58,7 +58,9 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction imple
       final Greek greek = AvailableGreeks.getGreekForValueRequirement(dV);
       assert greek != null : "Should have thrown IllegalArgumentException above.";
       final Double greekResult = greeks.get(greek);
-      final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(dV.getValueName(), option));
+      final ValueSpecification resultSpecification = new ValueSpecification(
+          new ValueRequirement(dV.getValueName(), option),
+          getUniqueIdentifier());
       final ComputedValue resultValue = new ComputedValue(resultSpecification, greekResult);
       results.add(resultValue);
     }
@@ -73,7 +75,9 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction imple
     final OptionSecurity security = (OptionSecurity) target.getSecurity();
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
     for (final String valueName : AvailableGreeks.getAllGreekNames()) {
-      results.add(new ValueSpecification(new ValueRequirement(valueName, security)));
+      results.add(new ValueSpecification(
+          new ValueRequirement(valueName, security),
+          getUniqueIdentifier()));
     }
     return results;
   }
@@ -84,7 +88,7 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction imple
   }
 
   protected ValueRequirement getUnderlyingMarketDataRequirement(final UniqueIdentifier uid) {
-    return new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, ComputationTargetType.SECURITY, uid);
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, uid);
   }
 
   protected ValueRequirement getDiscountCurveMarketDataRequirement(final UniqueIdentifier uid) {

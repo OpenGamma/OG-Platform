@@ -11,13 +11,22 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.fudgemsg.FudgeField;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.opengamma.financial.fudgemsg.FixedIncomeStripBuilder;
 import com.opengamma.util.time.Tenor;
 
 /**
  * A fixed income strip.
  */
 public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStrip> {
+  private final Logger s_logger = LoggerFactory.getLogger(this.getClass());
   private final StripInstrumentType _instrumentType;
   private final Tenor _curveNodePointTime;
   private final String _conventionName;
@@ -120,16 +129,31 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
 
   @Override
   public int compareTo(FixedIncomeStrip o) {
-    int result = (int) getCurveNodePointTime().getPeriod().minus(o.getCurveNodePointTime().getPeriod()).getNanos();
+    int result = (int) getCurveNodePointTime().getPeriod().toPeriodFields().toEstimatedDuration().compareTo(o.getCurveNodePointTime().getPeriod().toPeriodFields().toEstimatedDuration());
     if (result != 0) {
       return result;
     }
     result = getInstrumentType().ordinal() - o.getInstrumentType().ordinal(); 
-    if (result == 0 && this.getInstrumentType() == StripInstrumentType.FUTURE) { // compare the futures if the tenor is the same.
-      // if result == 0 then the other instrument type must be FUTURE too.
-      return getNumberOfFuturesAfterTenor() - o.getNumberOfFuturesAfterTenor();
-    } else {
+    if (result != 0) {
       return result;
+    } 
+    if (getInstrumentType() == StripInstrumentType.FUTURE) {
+      result = getNumberOfFuturesAfterTenor() - o.getNumberOfFuturesAfterTenor();
     }
+    return result;
+  }
+
+  // REVIEW: jim 22-Aug-2010 -- get rid of these and use the builder directly
+  public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+    FixedIncomeStripBuilder builder = new FixedIncomeStripBuilder();
+    MutableFudgeFieldContainer container = builder.buildMessage(context, this);
+    for (FudgeField field : container.getAllFields()) {
+      message.add(field);
+    }
+  }
+  // REVIEW: jim 22-Aug-2010 -- get rid of these and use the builder directly
+  public static FixedIncomeStrip fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    FixedIncomeStripBuilder builder = new FixedIncomeStripBuilder();
+    return builder.buildObject(context, message);
   }
 }

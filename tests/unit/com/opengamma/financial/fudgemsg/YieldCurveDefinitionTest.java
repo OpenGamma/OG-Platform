@@ -10,6 +10,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.opengamma.financial.Currency;
+import com.opengamma.financial.analytics.ircurve.CurveDefinitionAndSpecifications;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
@@ -24,6 +25,15 @@ public class YieldCurveDefinitionTest extends FinancialTestBase {
     assertEquals(curveDefinition, cycleObject(YieldCurveDefinition.class, curveDefinition));
     curveDefinition.addStrip(new FixedIncomeStrip(StripInstrumentType.FUTURE, Tenor.TWO_YEARS, 3, "CONVENTIONAL"));
     assertEquals(curveDefinition, cycleObject(YieldCurveDefinition.class, curveDefinition));
+  }
+  
+  @Test
+  public void testRealCycle() {
+    final YieldCurveDefinition curveDefinition = CurveDefinitionAndSpecifications.buildUSDForwardCurveDefinition();
+    assertEquals(curveDefinition, cycleObject(YieldCurveDefinition.class, curveDefinition));
+    final YieldCurveDefinition curveDefinition2 = CurveDefinitionAndSpecifications.buildUSDFundingCurveDefinition();
+    assertEquals(curveDefinition2, cycleObject(YieldCurveDefinition.class, curveDefinition2));
+    
   }
 
 }

@@ -118,12 +118,12 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
 
   private ValueSpecification createResultSpecification(final Security security) {
     final ValueRequirement resultRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.SECURITY, security.getUniqueIdentifier());
-    final ValueSpecification resultSpec = new ValueSpecification(resultRequirement);
+    final ValueSpecification resultSpec = new ValueSpecification(resultRequirement, getUniqueIdentifier());
     return resultSpec;
   }
 
   private ValueRequirement getPriceRequirement(final UniqueIdentifier uid) {
-    return new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, ComputationTargetType.SECURITY, uid);
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, uid);
   }
 
   private ValueRequirement getDiscountCurveMarketDataRequirement(final UniqueIdentifier uid) {

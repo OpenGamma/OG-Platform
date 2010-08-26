@@ -4,7 +4,7 @@
   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.financial.security.db.cash">
   <union-subclass name="CashSecurityBean" extends="com.opengamma.financial.security.db.SecurityBean" table="sec_cash">
-    <many-to-one name="currency" column="currency_id" class="com.opengamma.financial.secuyrity.db.CurrencyBean" not-null="true" />
+    <many-to-one name="currency" column="currency_id" class="com.opengamma.financial.security.db.CurrencyBean" not-null="true" />
   	<component name="region" class="com.opengamma.financial.security.db.IdentifierBean">
   	  <property name="scheme" column="region_scheme" type="string" />
   	  <property name="identifier" column="region_identifier" type="string" />

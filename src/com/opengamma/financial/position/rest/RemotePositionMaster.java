@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.position.rest;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import java.net.URI;
+
+import javax.ws.rs.core.UriBuilder;
 
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
@@ -29,23 +27,32 @@ import com.opengamma.financial.position.master.PositionSearchHistoricResult;
 import com.opengamma.financial.position.master.PositionSearchRequest;
 import com.opengamma.financial.position.master.PositionSearchResult;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.transport.jaxrs.RestClient;
-import com.opengamma.transport.jaxrs.RestTarget;
+import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.rest.FudgeRestClient;
+import com.sun.jersey.api.client.WebResource.Builder;
 
 /**
  * Provides access to a remote {@link PositionMaster}.
  */
 public class RemotePositionMaster implements PositionMaster {
 
-  private final FudgeContext _fudgeContext;
-  private final RestTarget _baseTarget;
-  private final RestClient _restClient;
-  
-  public RemotePositionMaster(FudgeContext fudgeContext, RestTarget baseTarget) {
-    _fudgeContext = fudgeContext;
-    _baseTarget = baseTarget;
-    _restClient = RestClient.getInstance(fudgeContext, null);
+  /**
+   * The base URI to call.
+   */
+  private final URI _baseUri;
+  /**
+   * The client API.
+   */
+  private final FudgeRestClient _client;
+
+  /**
+   * Creates and instance.
+   * @param baseUri  the base target URI for all RESTful web services, not null
+   */
+  public RemotePositionMaster(final URI baseUri) {
+    _baseUri = baseUri;
+    _client = FudgeRestClient.create();
   }
 
   //-------------------------------------------------------------------------
@@ -61,7 +68,8 @@ public class RemotePositionMaster implements PositionMaster {
   public PortfolioTreeDocument getPortfolioTree(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     
-    throw new UnsupportedOperationException();
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataPortfolioResource.class).build(uid.toLatest());
+    return accessRemote(uri).get(PortfolioTreeDocument.class);
   }
 
   //-------------------------------------------------------------------------
@@ -71,11 +79,8 @@ public class RemotePositionMaster implements PositionMaster {
     ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
     ArgumentChecker.notNull(document.getPortfolio().getRootNode(), "document.portfolio.rootNode");
     
-    FudgeSerializationContext serializationContext = new FudgeSerializationContext(_fudgeContext);
-    MutableFudgeFieldContainer msg = serializationContext.objectToFudgeMsg(document);
-    FudgeMsgEnvelope response = _restClient.post(_baseTarget, new FudgeMsgEnvelope(msg));
-    FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(_fudgeContext);
-    return deserializationContext.fudgeMsgToObject(PortfolioTreeDocument.class, response.getMessage());
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataPortfoliosResource.class).build();
+    return accessRemote(uri).post(PortfolioTreeDocument.class, document);
   }
 
   //-------------------------------------------------------------------------
@@ -85,7 +90,8 @@ public class RemotePositionMaster implements PositionMaster {
     ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
     ArgumentChecker.notNull(document.getPortfolioId(), "document.portfolioId");
     
-    throw new UnsupportedOperationException();
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataPortfolioResource.class).build(document.getPortfolioId().toLatest());
+    return accessRemote(uri).put(PortfolioTreeDocument.class, document);
   }
 
   //-------------------------------------------------------------------------
@@ -93,16 +99,19 @@ public class RemotePositionMaster implements PositionMaster {
   public void removePortfolioTree(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     
-    throw new UnsupportedOperationException();
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataPortfolioResource.class).build(uid.toLatest());
+    accessRemote(uri).delete();
   }
 
   //-------------------------------------------------------------------------
   @Override
   public PortfolioTreeSearchHistoricResult searchPortfolioTreeHistoric(final PortfolioTreeSearchHistoricRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getPortfolioId(), "document.portfolioId");
+    ArgumentChecker.notNull(request.getPortfolioId(), "request.portfolioId");
     
     throw new UnsupportedOperationException();
+//    URI uri = UriBuilder.fromUri(_baseUri).path(DataPortfolioResource.class).build(request.getPortfolioId().toLatest());
+//    return accessRemote(uri).get(PortfolioTreeSearchHistoricResult.class);
   }
 
   //-------------------------------------------------------------------------
@@ -128,7 +137,8 @@ public class RemotePositionMaster implements PositionMaster {
   public PositionDocument getPosition(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     
-    throw new UnsupportedOperationException();
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataPositionResource.class).build(uid.toLatest());
+    return accessRemote(uri).get(PositionDocument.class);
   }
 
   //-------------------------------------------------------------------------
@@ -138,11 +148,8 @@ public class RemotePositionMaster implements PositionMaster {
     ArgumentChecker.notNull(document.getPosition(), "document.position");
     ArgumentChecker.notNull(document.getParentNodeId(), "document.parentNodeId");
     
-    FudgeSerializationContext serializationContext = new FudgeSerializationContext(_fudgeContext);
-    MutableFudgeFieldContainer msg = serializationContext.objectToFudgeMsg(document);
-    FudgeMsgEnvelope response = _restClient.post(_baseTarget, new FudgeMsgEnvelope(msg));
-    FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(_fudgeContext);
-    return deserializationContext.fudgeMsgToObject(PositionDocument.class, response.getMessage());
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataPositionsResource.class).build();
+    return accessRemote(uri).post(PositionDocument.class, document);
   }
 
   //-------------------------------------------------------------------------
@@ -152,7 +159,8 @@ public class RemotePositionMaster implements PositionMaster {
     ArgumentChecker.notNull(document.getPosition(), "document.position");
     ArgumentChecker.notNull(document.getPositionId(), "document.positionId");
     
-    throw new UnsupportedOperationException();
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataPositionResource.class).build(document.getPositionId().toLatest());
+    return accessRemote(uri).put(PositionDocument.class, document);
   }
 
   //-------------------------------------------------------------------------
@@ -160,7 +168,8 @@ public class RemotePositionMaster implements PositionMaster {
   public void removePosition(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     
-    throw new UnsupportedOperationException();
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataPositionResource.class).build(uid.toLatest());
+    accessRemote(uri).delete();
   }
 
   //-------------------------------------------------------------------------
@@ -211,12 +220,32 @@ public class RemotePositionMaster implements PositionMaster {
 
   //-------------------------------------------------------------------------
   /**
+   * Accesses the remote position master.
+   * @param uri  the URI to call, not null
+   * @return the resource, suitable for calling get/post/put/delete on, not null
+   */
+  protected Builder accessRemote(URI uri) {
+    // TODO: Fix properly. This just makes Bamboo happy
+    String uriStr = uri.toString();
+    int pos = uriStr.indexOf("/jax/data/");
+    if (pos > 0) {
+      pos = uriStr.indexOf("/data/", pos + 10);
+      if (pos > 0) {
+        uriStr = uriStr.substring(0, pos) + uriStr.substring(pos + 5);
+      }
+    }
+    uri = URI.create(uriStr);
+    return _client.access(uri).type(FudgeRest.MEDIA_TYPE).accept(FudgeRest.MEDIA_TYPE);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Returns a string summary of this position master.
    * @return the string summary, not null
    */
   @Override
   public String toString() {
-    return getClass().getSimpleName() + "[" + _baseTarget + "]";
+    return getClass().getSimpleName() + "[" + _baseUri + "]";
   }
 
 }

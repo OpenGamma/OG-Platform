@@ -15,9 +15,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.position.master.PortfolioTree;
+import com.opengamma.financial.position.master.ManageablePortfolio;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
-import com.opengamma.financial.position.master.PortfolioTreeNode;
+import com.opengamma.financial.position.master.ManageablePortfolioNode;
 import com.opengamma.financial.position.master.PortfolioTreeSearchRequest;
 import com.opengamma.financial.position.master.PortfolioTreeSearchResult;
 import com.opengamma.id.UniqueIdentifier;
@@ -72,11 +72,11 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreesTest ex
     assertEquals(null, doc0.getVersionToInstant());
     assertEquals(_version1Instant, doc0.getCorrectionFromInstant());
     assertEquals(null, doc0.getCorrectionToInstant());
-    PortfolioTree portfolio = doc0.getPortfolio();
+    ManageablePortfolio portfolio = doc0.getPortfolio();
     assertEquals(uid, portfolio.getUniqueIdentifier());
     assertEquals("TestPortfolio101", portfolio.getName());
     
-    PortfolioTreeNode rootNode = portfolio.getRootNode();
+    ManageablePortfolioNode rootNode = portfolio.getRootNode();
     assertEquals(UniqueIdentifier.of("DbPos", "111", "0"), rootNode.getUniqueIdentifier());
     assertEquals("TestNode111", rootNode.getName());
     assertEquals(1, rootNode.getChildNodes().size());
@@ -105,13 +105,13 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreesTest ex
     
     PortfolioTreeDocument doc0 = test.getDocuments().get(0);
     assertEquals(UniqueIdentifier.of("DbPos", "101", "0"), doc0.getPortfolioId());
-    PortfolioTreeNode rootNode0 = doc0.getPortfolio().getRootNode();
+    ManageablePortfolioNode rootNode0 = doc0.getPortfolio().getRootNode();
     assertEquals(UniqueIdentifier.of("DbPos", "111", "0"), rootNode0.getUniqueIdentifier());
     assertEquals(0, rootNode0.getChildNodes().size());
     
     PortfolioTreeDocument doc1 = test.getDocuments().get(1);
     assertEquals(UniqueIdentifier.of("DbPos", "201", "1"), doc1.getPortfolioId());
-    PortfolioTreeNode rootNode1 = doc1.getPortfolio().getRootNode();
+    ManageablePortfolioNode rootNode1 = doc1.getPortfolio().getRootNode();
     assertEquals(UniqueIdentifier.of("DbPos", "211", "1"), rootNode1.getUniqueIdentifier());
     assertEquals(0, rootNode1.getChildNodes().size());
   }
@@ -129,14 +129,14 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreesTest ex
     
     PortfolioTreeDocument doc0 = test.getDocuments().get(0);
     assertEquals(UniqueIdentifier.of("DbPos", "101", "0"), doc0.getPortfolioId());
-    PortfolioTreeNode rootNode0 = doc0.getPortfolio().getRootNode();
+    ManageablePortfolioNode rootNode0 = doc0.getPortfolio().getRootNode();
     assertEquals(UniqueIdentifier.of("DbPos", "111", "0"), rootNode0.getUniqueIdentifier());
     assertEquals(1, rootNode0.getChildNodes().size());
     assertEquals(0, rootNode0.getChildNodes().get(0).getChildNodes().size());
     
     PortfolioTreeDocument doc1 = test.getDocuments().get(1);
     assertEquals(UniqueIdentifier.of("DbPos", "201", "1"), doc1.getPortfolioId());
-    PortfolioTreeNode rootNode1 = doc1.getPortfolio().getRootNode();
+    ManageablePortfolioNode rootNode1 = doc1.getPortfolio().getRootNode();
     assertEquals(UniqueIdentifier.of("DbPos", "211", "1"), rootNode1.getUniqueIdentifier());
     assertEquals(0, rootNode1.getChildNodes().size());
   }

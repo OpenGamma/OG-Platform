@@ -45,17 +45,19 @@
         <value>com/opengamma/financial/security/db/future/UnitBean.hbm.xml</value>
         <value>com/opengamma/financial/security/db/bond/YieldConventionBean.hbm.xml</value>
         <value>com/opengamma/financial/security/db/swap/SwapSecurityBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/cash/CashSecurityBean.hbm.xml</value>
       </list>
+    </property>
+    <property name="hibernateProperties">
+      <props>
+        <prop key="hibernate.dialect">${opengamma.financial.hibernate.dialect}</prop>
+        <prop key="hibernate.show_sql">${opengamma.financial.hibernate.show_sql}</prop>
+      </props>
     </property>
   </bean>
   <bean id="financialMasterSessionFactory" parent="abstractFinancialMasterSessionFactory">
     <property name="dataSource" ref="finDataSource"/>
-    <property name="hibernateProperties">
-      <value>
-        hibernate.dialect=${opengamma.financial.hibernate.dialect}
-        hibernate.show_sql=${opengamma.financial.hibernate.show_sql}
-      </value>
-    </property>
+
   </bean>
 
   <!-- SecurityMaster -->

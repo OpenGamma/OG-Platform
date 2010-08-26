@@ -10,6 +10,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeSerializationContext;
+
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -67,7 +71,8 @@ public class SummingFunction extends AbstractFunction implements FunctionInvoker
     }
     ComputedValue computedValue = new ComputedValue(
         new ValueSpecification(
-            new ValueRequirement(_requirementName, ComputationTargetType.PORTFOLIO_NODE, node.getUniqueIdentifier())),
+            new ValueRequirement(_requirementName, ComputationTargetType.PORTFOLIO_NODE, node.getUniqueIdentifier()),
+            getUniqueIdentifier()),
         currentSum);
     return Collections.singleton(computedValue);
   }
@@ -115,7 +120,8 @@ public class SummingFunction extends AbstractFunction implements FunctionInvoker
       ComputationTarget target) {
     PortfolioNode node = target.getPortfolioNode();
     ValueSpecification result = new ValueSpecification(
-        new ValueRequirement(_requirementName, ComputationTargetType.PORTFOLIO_NODE, node.getUniqueIdentifier()));
+        new ValueRequirement(_requirementName, ComputationTargetType.PORTFOLIO_NODE, node.getUniqueIdentifier()),
+        getUniqueIdentifier());
     return Collections.singleton(result);
   }
 
@@ -127,6 +133,18 @@ public class SummingFunction extends AbstractFunction implements FunctionInvoker
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.PORTFOLIO_NODE;
+  }
+
+  private static final String REQUIREMENT_NAME_KEY = "requirementName";
+
+  @Override
+  public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+    super.toFudgeMsg(context, message);
+    message.add(REQUIREMENT_NAME_KEY, getRequirementName());
+  }
+
+  public static SummingFunction fromFudgeMsg(final FudgeFieldContainer message) {
+    return fromFudgeMsg(new SummingFunction(message.getString(REQUIREMENT_NAME_KEY)), message);
   }
 
 }

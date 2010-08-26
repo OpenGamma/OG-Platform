@@ -13,16 +13,16 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * Default implementation of ReferenceRateSource that uses an underlying ReferenceRateMaster as a data source. 
  */
-public class DefaultReferenceRateSource implements ReferenceRateSource {
+public class DefaultReferenceRateSource implements ConventionBundleSource {
 
-  private ReferenceRateRepository _referenceRateMaster;
+  private ConventionBundleMaster _referenceRateMaster;
   
-  public DefaultReferenceRateSource(ReferenceRateRepository referenceRateMaster) {
+  public DefaultReferenceRateSource(ConventionBundleMaster referenceRateMaster) {
     _referenceRateMaster = referenceRateMaster;
   }
   @Override
-  public ReferenceRate getSingleReferenceRate(Identifier identifier) {
-    ReferenceRateSearchResult result = _referenceRateMaster.searchReferenceRates(new ReferenceRateSearchRequest(identifier));
+  public ConventionBundle getSingleReferenceRate(Identifier identifier) {
+    ConventionBundleSearchResult result = _referenceRateMaster.searchConventionBundle(new ConventionBundleSearchRequest(identifier));
     final int size = result.getResults().size();
     switch (size) {
       case 0:
@@ -35,8 +35,8 @@ public class DefaultReferenceRateSource implements ReferenceRateSource {
   }
 
   @Override
-  public ReferenceRate getSingleReferenceRate(IdentifierBundle identifiers) {
-    ReferenceRateSearchResult result = _referenceRateMaster.searchReferenceRates(new ReferenceRateSearchRequest(identifiers));
+  public ConventionBundle getSingleReferenceRate(IdentifierBundle identifiers) {
+    ConventionBundleSearchResult result = _referenceRateMaster.searchConventionBundle(new ConventionBundleSearchRequest(identifiers));
     final int size = result.getResults().size();
     switch (size) {
       case 0:
@@ -49,8 +49,8 @@ public class DefaultReferenceRateSource implements ReferenceRateSource {
   }
 
   @Override
-  public ReferenceRate getReferenceRate(UniqueIdentifier identifier) {
-    ReferenceRateDocument doc = _referenceRateMaster.getReferenceRate(identifier);
+  public ConventionBundle getReferenceRate(UniqueIdentifier identifier) {
+    ConventionBundleDocument doc = _referenceRateMaster.getConventionBundle(identifier);
     if (doc != null) {
       return doc.getValue();
     } else {

@@ -70,7 +70,6 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private static final String SPOT_TICKER = "US00O/N Index"; //TODO shouldn't be hard-coded
   private static final String FLOAT_REFERENCE_TICKER = "US0006M Index"; //TODO shouldn't be hard-coded
   private static final String CURVE_NAME = "USD Yield Curve"; //TODO should'nt be hard-coded
-  private final Currency _currency;
   private YieldCurveDefinition _definition;
   private UniqueIdentifier _referenceRateIdentifier;
   private ValueRequirement _referenceRateRequirement;
@@ -79,58 +78,38 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private ValueSpecification _curveResult;
   private ValueSpecification _jacobianResult;
   private Set<ValueSpecification> _results;
+
   //TODO all interpolators should be passed in
 //  private final Interpolator1D<Interpolator1DCubicSplineDataBundle, InterpolationResult> _interpolator; // TODO this should not be hard-coded
   // TODO this should depend on the type of _fundingInterpolator
 //  private final Interpolator1D<Interpolator1DCubicSplineWithSensitivitiesDataBundle, InterpolationResultWithSensitivities> _interpolatorWithSensitivity;
   private LocalDate _curveDate;
   private String _curveName;
-  private InterpolatedYieldCurveSpecification _specification;
-  
-
-  // TODO kirk 2010-07-05 -- Must take in a curve definition name as well, rather than hard-coding to
-  // "ForwardAndFunding".
-
-  public MarketInstrumentImpliedYieldCurveFunction(final LocalDate curveDate, final Currency currency, final String name) {
-    Validate.notNull(curveDate, "Curve Date");
-    Validate.notNull(currency, "Currency");
-    Validate.notNull(name, "Name");
-    _curveDate = curveDate;
-    _curveName = _curveName;
-    _currency = currency;
+//  private final Interpolator1D<? extends Interpolator1DDataBundle> _interpolator;
+//  private final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> _sensitivityCalculator;
+//
+//  public MarketInstrumentImpliedYieldCurveFunction(final Currency currency, String interpolatorName, String leftExtrapolatorName, String rightExtrapolatorName, 
+//      boolean useFiniteDifferenceAsDefaultForSensitivities) {
+//    Validate.notNull(currency);
+//    _currency = currency;
 //    _interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
-    //_sensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
-  }
-
-  @Override
-  public void init(final FunctionCompilationContext context) {
-//    final InterpolatedYieldCurveDefinitionSource curveSource = OpenGammaCompilationContext.getDiscountCurveSource(context);
-//    final InterpolatedYieldCurveSpecificationBuilder specBuilder = OpenGammaCompilationContext.getYieldCurveSpecificationBuilder(context);
-//    _definition = curveSource.getDefinition(_currency, _curveName);
-//    _specification = specBuilder.buildCurve(_curveDate, _definition);
-//    //_requirements = Collections.unmodifiableSet(buildRequirements(_specification));
-//    _curveResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FUNDING_CURVE, _currency));
-//    _jacobianResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FUNDING_AND_FORWARD_JACOBIAN, _currency));
-//    _results = Sets.newHashSet(_curveResult, _jacobianResult);
-  }
-
-  @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+//    _sensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(interpolatorName, leftExtrapolatorName, 
+//        rightExtrapolatorName, useFiniteDifferenceAsDefaultForSensitivities);
+//  }
+//
+//  @Override
+//  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
 //    final LocalDate now = executionContext.getSnapshotClock().today();
 //    final HolidayRepository holidayRepository = OpenGammaExecutionContext.getHolidayRepository(executionContext);
 //    if (holidayRepository == null) {
 //      throw new IllegalStateException("Must have a holiday repository in the execution context");
 //    }
 //    final Calendar calendar = new HolidayRepositoryCalendarAdapter(holidayRepository, _currency);
-//    final Region region = OpenGammaExecutionContext.getRegionRepository(executionContext).getHierarchyNodes(now.toLocalDate(), InMemoryRegionRepository.POLITICAL_HIERARCHY_NAME, InMemoryRegionRepository.ISO_CURRENCY_3, _currency.getISOCode()).iterator().next();
-//    
-//    //final Region region = OpenGammaExecutionContext.getRegionRepository(executionContext).getHierarchyNode(now.toLocalDate(), _currency.getUniqueIdentifier());
+//    final Region region = OpenGammaExecutionContext.getRegionRepository(executionContext)
+//        .getHierarchyNodes(now.toLocalDate(), InMemoryRegionRepository.POLITICAL_HIERARCHY_NAME, InMemoryRegionRepository.ISO_CURRENCY_3, _currency.getISOCode()).iterator().next();
 //    final List<InterestRateDerivative> derivatives = new ArrayList<InterestRateDerivative>();
 //    final Set<FixedIncomeStrip> strips = _definition.getStrips();
 //    final int n = strips.size();
-////    final double[] marketRates = new double[n];
-////    final double[] initialRatesGuess = new double[n];
-////    final double[] nodeTimes = new double[n];
 //    final double[] marketRates = new double[n];
 //    final double[] initialRatesGuess = new double[n];
 //    final double[] nodeTimes = new double[n];
@@ -149,7 +128,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 //    
 //    int i = 0;
 //    for (final FixedIncomeStrip strip : strips) {
-//      stripRequirement = new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, strip.getMarketDataSpecification());
+//      stripRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getMarketDataSpecification());
 //      rate = (Double) inputs.getValue(stripRequirement);
 //      if (rate == null) {
 //        throw new NullPointerException("Could not get market data for " + strip);
@@ -158,15 +137,12 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 //      if (strip.getInstrumentType() != StripInstrument.FUTURE) {
 //        rate /= 100;
 //      }
-//  //    marketRates[i] = rate;
-//      
 //      derivative = getInterestRateDerivative(strip, calendar, region, now, rate);
 //      if (derivative == null) {
 //        throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
 //      }
 //      derivatives.add(derivative);
 //      initialRatesGuess[i] = 0.01;
-//      
 //      nodeTimes[i] = getLastTime(derivative);
 //      i++;
 //    }
@@ -192,26 +168,36 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 //    final YieldAndDiscountCurve curve = new InterpolatedYieldCurve(nodeTimes, yields, _interpolator);
 //    final DoubleMatrix2D jacobianMatrix = jacobian.evaluate(new DoubleMatrix1D(yields), (Function1D<DoubleMatrix1D, DoubleMatrix1D>[]) null);
 //    return Sets.newHashSet(new ComputedValue(_curveResult, curve), new ComputedValue(_jacobianResult, jacobianMatrix.getData()));
-    return null;
-  }
-
-
-
-//  public Set<ValueRequirement> buildRequirements(final InterpolatedYieldCurveSpecification specification) {
+//  }
+//
+//  @Override
+//  public void init(final FunctionCompilationContext context) {
+//    final InterpolatedYieldAndDiscountCurveSource curveSource = OpenGammaCompilationContext.getDiscountCurveSource(context);
+//    _definition = curveSource.getDefinition(_currency, "ForwardAndFunding");
+//    _requirements = Collections.unmodifiableSet(buildRequirements(_definition));
+//    _curveResult = new ValueSpecification(
+//        new ValueRequirement(ValueRequirementNames.FUNDING_CURVE, _currency),
+//        getUniqueIdentifier());
+//    _jacobianResult = new ValueSpecification(
+//        new ValueRequirement(ValueRequirementNames.FUNDING_AND_FORWARD_JACOBIAN, _currency),
+//        getUniqueIdentifier());
+//    _results = Sets.newHashSet(_curveResult, _jacobianResult);
+//  }
+//
+//  public Set<ValueRequirement> buildRequirements(final InterpolatedYieldAndDiscountCurveDefinition definition) {
 //    final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
-//    for (final ResolvedFixedIncomeStrip strip : specification.getStrips()) {
-//      final ValueRequirement requirement = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, strip.getSecurity().getIdentifiers());
+//    for (final FixedIncomeStrip strip : definition.getStrips()) {
+//      final ValueRequirement requirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getMarketDataSpecification());
 //      result.add(requirement);
 //    }
 //
 //    //TODO all of this section will need to be removed
 //    final String scheme = IdentificationScheme.BLOOMBERG_TICKER.getName();
 //    _referenceRateIdentifier = UniqueIdentifier.of(scheme, FLOAT_REFERENCE_TICKER);
-//    // wtf?
-//    final FixedIncomeStrip referenceRate = new FixedIncomeStrip(Period.ofMonths(6), _referenceRateIdentifier, StripInstrumentType.LIBOR);
-//    final FixedIncomeStrip spotRate = new FixedIncomeStrip(Period.ofDays(1), UniqueIdentifier.of(scheme, SPOT_TICKER), StripInstrumentType.CASH);
-//    _referenceRateRequirement = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, referenceRate.getMarketDataSpecification());
-//    _spotRateRequirement = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, spotRate.getMarketDataSpecification());
+//    final FixedIncomeStrip referenceRate = new FixedIncomeStrip(Period.ofMonths(6), _referenceRateIdentifier, StripInstrument.LIBOR);
+//    final FixedIncomeStrip spotRate = new FixedIncomeStrip(Period.ofDays(1), UniqueIdentifier.of(scheme, SPOT_TICKER), StripInstrument.CASH);
+//    _referenceRateRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, referenceRate.getMarketDataSpecification());
+//    _spotRateRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotRate.getMarketDataSpecification());
 //    result.add(_referenceRateRequirement);
 //    result.add(_spotRateRequirement);
 //    return result;
@@ -222,7 +208,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     if (target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }
-    return ObjectUtils.equals(target.getUniqueIdentifier(), _currency.getUniqueIdentifier());
+    return false;//ObjectUtils.equals(target.getUniqueIdentifier(), _currency.getUniqueIdentifier());
   }
 
   @Override
@@ -257,17 +243,17 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   }
 //
 //  //TODO everything from here down is rubbish
-//  private InterestRateDerivative getInterestRateDerivative(final FixedIncomeStrip strip, final Calendar calendar, final Region region, final LocalDate now, final double floatingRate) {
-//    if (strip.getInstrumentType() == StripInstrumentType.SWAP) {
-//      return getSwap(strip, calendar, region, now, floatingRate);
-//    } else if (strip.getInstrumentType() == StripInstrumentType.CASH) {
-//      return getCash(strip, calendar, now);
-//    } else if (strip.getInstrumentType() == StripInstrumentType.FRA) {
-//      return getFRA(strip, calendar, now);
-//    } else if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-//      return getIRFuture(strip, calendar, now);
-//    } else if (strip.getInstrumentType() == StripInstrumentType.LIBOR) {
-//      return getLibor(strip, calendar, now);
+//  private InterestRateDerivative getInterestRateDerivative(final FixedIncomeStrip strip, final Calendar calendar, final Region region, final LocalDate now, final double rateOrPrice) {
+//    if (strip.getInstrumentType() == StripInstrument.SWAP) {
+//      return getSwap(strip, calendar, region, now, rateOrPrice);
+//    } else if (strip.getInstrumentType() == StripInstrument.CASH) {
+//      return getCash(strip, calendar, now, rateOrPrice);
+//    } else if (strip.getInstrumentType() == StripInstrument.FRA) {
+//      return getFRA(strip, calendar, now, rateOrPrice);
+//    } else if (strip.getInstrumentType() == StripInstrument.FUTURE) {
+//      return getIRFuture(strip, calendar, now, rateOrPrice);
+//    } else if (strip.getInstrumentType() == StripInstrument.LIBOR) {
+//      return getLibor(strip, calendar, now, rateOrPrice);
 //    }
 //    return null;
 //  }
@@ -311,7 +297,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 //    final double startTime = dayCount.getDayCountFraction(nowWithTime, startAdjusted);
 //    final double endTime = dayCount.getDayCountFraction(nowWithTime, endAdjusted);
 //
-//    return new InterestRateFuture(startTime, endTime - startTime, price, CURVE_NAME);
+//    return new InterestRateFuture(startTime,endTime, endTime - startTime, price, CURVE_NAME);
 //
 //  }
 //
@@ -379,6 +365,11 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 //  }
 //
 //  private double getLastIRFutureTime(final InterestRateFuture irFuture) {
-//    return irFuture.getSettlementDate() + irFuture.getYearFraction();
+//    return irFuture.getMaturity();
 //  }
+
+  @Override
+  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
+    return null;
+  }
 }

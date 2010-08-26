@@ -8,8 +8,14 @@ package com.opengamma.financial.analytics.model.pnl;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.fudgemsg.FudgeField;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -18,7 +24,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
-import com.opengamma.engine.historicaldata.HistoricalDataProvider;
+import com.opengamma.engine.historicaldata.HistoricalDataSource;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ComputedValue;
@@ -73,10 +79,12 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction i
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
-    final HistoricalDataProvider historicalDataProvider = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
+    final HistoricalDataSource historicalDataProvider = OpenGammaExecutionContext.getHistoricalDataProvider(executionContext);
     final SecuritySource securitySource = executionContext.getSecuritySource();
 
-    final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position));
+    final ValueSpecification resultSpecification = new ValueSpecification(
+        new ValueRequirement(ValueRequirementNames.PNL_SERIES, position),
+        getUniqueIdentifier());
     final Map<Sensitivity<?>, RiskFactorResult> sensitivities = new HashMap<Sensitivity<?>, RiskFactorResult>();
     final Map<Sensitivity<?>, Map<Object, DoubleTimeSeries<?>>> tsReturns = new HashMap<Sensitivity<?>, Map<Object, DoubleTimeSeries<?>>>();
     for (final String valueGreekRequirementName : _valueGreekRequirementNames) {
@@ -139,7 +147,9 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction i
       return null;
     }
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-    results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition())));
+    results.add(new ValueSpecification(
+        new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition()),
+        getUniqueIdentifier()));
     return results;
   }
 
@@ -151,6 +161,26 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction i
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.POSITION;
+  }
+
+  private static final String REQUIREMENT_NAME_KEY = "requirementName";
+
+  @Override
+  public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+    super.toFudgeMsg(context, message);
+    for (String requirementName : _valueGreekRequirementNames) {
+      message.add(REQUIREMENT_NAME_KEY, requirementName);
+    }
+  }
+
+  public static PositionValueGreekSensitivityPnLFunction fromFudgeMsg(final FudgeFieldContainer message) {
+    final List<FudgeField> fields = message.getAllByName(REQUIREMENT_NAME_KEY);
+    final String[] requirementNames = new String[fields.size()];
+    int i = 0;
+    for (FudgeField field : fields) {
+      requirementNames[i++] = message.getFieldValue(String.class, field);
+    }
+    return fromFudgeMsg(new PositionValueGreekSensitivityPnLFunction(requirementNames), message);
   }
 
 }

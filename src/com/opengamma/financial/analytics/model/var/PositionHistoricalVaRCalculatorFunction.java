@@ -57,7 +57,9 @@ public class PositionHistoricalVaRCalculatorFunction extends AbstractFunction im
         final NormalStatistics<DoubleTimeSeries<?>> normalStats = new NormalStatistics<DoubleTimeSeries<?>>(s_meanCalculator, s_stdCalculator, pnlSeries);
         final double var = varCalculator.evaluate(normalStats);
         // System.err.println("VaR="+var);
-        return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPosition())), var));
+        return Sets.newHashSet(new ComputedValue(new ValueSpecification(
+            new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPosition()),
+            getUniqueIdentifier()), var));
       }
     }
     return null;
@@ -65,22 +67,24 @@ public class PositionHistoricalVaRCalculatorFunction extends AbstractFunction im
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() == ComputationTargetType.POSITION) {
-      System.err.println("canApplyTo returning true");
-    }
+    //if (target.getType() == ComputationTargetType.POSITION) {
+    //  System.err.println("canApplyTo returning true");
+    //}
     return target.getType() == ComputationTargetType.POSITION;
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
-    System.err.println("getRequirements");
+    //System.err.println("getRequirements");
     return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition()));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    System.err.println("getResults");
-    return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPosition())));
+    //System.err.println("getResults");
+    return Sets.newHashSet(new ValueSpecification(
+        new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPosition()),
+        getUniqueIdentifier()));
   }
 
   @Override

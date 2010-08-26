@@ -75,7 +75,9 @@ public class FXFutureAsForwardModelFunction extends AbstractFunction implements 
       greek = AVAILABLE_GREEKS.get(v.getValueName());
       assert greek != null : "Should have thrown IllegalArgumentException above.";
       final Double greekResult = greeks.get(greek);
-      final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(v.getValueName(), ComputationTargetType.SECURITY, future.getUniqueIdentifier()));
+      final ValueSpecification resultSpecification = new ValueSpecification(
+          new ValueRequirement(v.getValueName(), ComputationTargetType.SECURITY, future.getUniqueIdentifier()),
+          getUniqueIdentifier());
       final ComputedValue resultValue = new ComputedValue(resultSpecification, greekResult);
       results.add(resultValue);
     }
@@ -113,7 +115,9 @@ public class FXFutureAsForwardModelFunction extends AbstractFunction implements 
       final FXFutureSecurity future = (FXFutureSecurity) target.getSecurity();
       final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
       for (final String name : AVAILABLE_GREEKS.keySet()) {
-        results.add(new ValueSpecification(new ValueRequirement(name, ComputationTargetType.SECURITY, future.getUniqueIdentifier())));
+        results.add(new ValueSpecification(
+            new ValueRequirement(name, ComputationTargetType.SECURITY, future.getUniqueIdentifier()),
+            getUniqueIdentifier()));
       }
       return results;
     }
@@ -131,7 +135,7 @@ public class FXFutureAsForwardModelFunction extends AbstractFunction implements 
   }
 
   protected ValueRequirement getUnderlyingMarketDataRequirement(final UniqueIdentifier uid) {
-    return new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, ComputationTargetType.SECURITY, uid);
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, uid);
   }
 
   protected ValueRequirement getDiscountCurveMarketDataRequirement(final UniqueIdentifier uid) {

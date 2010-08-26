@@ -12,8 +12,11 @@ import org.fudgemsg.mapping.FudgeObjectDictionary;
 import com.opengamma.engine.world.Region;
 import com.opengamma.engine.world.RegionSource;
 import com.opengamma.financial.analytics.ircurve.BloombergFutureCurveInstrumentProvider;
+import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
+import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecification;
+import com.opengamma.financial.analytics.ircurve.ResolvedFixedIncomeStrip;
 import com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 
@@ -61,7 +64,10 @@ public class FinancialFudgeContextConfiguration extends FudgeContextConfiguratio
     dictionary.getDefaultBuilderFactory().addGenericBuilder(YieldCurveDefinition.class, new YieldCurveDefinitionBuilder());
     dictionary.getDefaultBuilderFactory().addGenericBuilder(StaticCurveInstrumentProvider.class, new StaticCurveInstrumentProviderBuilder());
     dictionary.getDefaultBuilderFactory().addGenericBuilder(BloombergFutureCurveInstrumentProvider.class, new BloombergFutureCurveInstrumentProviderBuilder());
+    dictionary.getDefaultBuilderFactory().addGenericBuilder(CurveInstrumentProvider.class, new CurveInstrumentProviderBuilder());
     dictionary.getDefaultBuilderFactory().addGenericBuilder(CurveSpecificationBuilderConfiguration.class, new CurveSpecificationBuilderConfigurationBuilder());
+    dictionary.getDefaultBuilderFactory().addGenericBuilder(ResolvedFixedIncomeStrip.class, new ResolvedFixedIncomeStripBuilder());
+    dictionary.getDefaultBuilderFactory().addGenericBuilder(InterpolatedYieldCurveSpecification.class, new InterpolatedYieldCurveSpecificationFudgeBuilder());
   }
 
 }

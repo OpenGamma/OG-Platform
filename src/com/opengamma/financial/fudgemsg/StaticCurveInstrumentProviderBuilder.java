@@ -18,11 +18,15 @@ import com.opengamma.id.Identifier;
  * Builder for converting Region instances to/from Fudge messages.
  */
 public class StaticCurveInstrumentProviderBuilder implements FudgeBuilder<StaticCurveInstrumentProvider> {
-
+  /**
+   * type used as a human readable subclass discriminator for mongo (which strips out type information).
+   */
+  public static final String TYPE = "Static";
   @Override
   public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, StaticCurveInstrumentProvider object) {
     MutableFudgeFieldContainer message = context.newMessage();
     FudgeSerializationContext.addClassHeader(message, StaticCurveInstrumentProvider.class);
+    message.add("type", TYPE); // so we can tell what type it is when mongo throws away the class header.
     context.objectToFudgeMsg(message, "instrument", null, object.getInstrument(null, null));
     return message; 
   }

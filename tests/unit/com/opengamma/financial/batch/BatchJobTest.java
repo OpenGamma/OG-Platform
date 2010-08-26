@@ -11,7 +11,7 @@ import com.opengamma.config.DefaultConfigDocument;
 import com.opengamma.config.db.MongoDBConfigMaster;
 import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewTestUtils;
+import com.opengamma.financial.ViewTestUtils;
 import com.opengamma.util.MongoDBConnectionSettings;
 import com.opengamma.util.test.MongoDBTestUtils;
 

@@ -8,22 +8,27 @@ package com.opengamma.financial.fudgemsg;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.world.Region;
 import com.opengamma.financial.InMemoryRegionRepository;
-import com.opengamma.financial.RegionRepository;
-import com.opengamma.financial.RegionSearchRequest;
+import com.opengamma.id.Identifier;
 
 public class RegionTest extends FinancialTestBase {
-
+  private final Logger s_logger = LoggerFactory.getLogger(getClass());
+  
   private Region getRef() {
-    return getRegionRepository().searchRegions(new RegionSearchRequest(RegionRepository.POLITICAL_HIERARCHY_NAME, InMemoryRegionRepository.ISO_COUNTRY_2, "UK")).getBestResult();
+    return getRegionSource().getHighestLevelRegion(Identifier.of(InMemoryRegionRepository.ISO_COUNTRY_2, "GB"));
   }
 
   @Test
   public void testCycle() {
     final Region ref = getRef();
-    assertEquals(ref, cycleObject(Region.class, ref));
+    final Region cycledRef = cycleObject(Region.class, ref);
+    s_logger.info("pre = " + ref);
+    s_logger.info("post=" + cycledRef);
+    assertEquals(ref, cycledRef);
   }
 
 }

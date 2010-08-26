@@ -10,9 +10,8 @@ import javax.ws.rs.core.UriInfo;
 
 import org.fudgemsg.FudgeContext;
 
-import com.opengamma.financial.livedata.rest.LiveDataResource;
-import com.opengamma.financial.livedata.user.InMemoryUserSnapshotProvider;
-import com.opengamma.financial.position.rest.PortfoliosResource;
+import com.opengamma.financial.position.rest.DataPortfoliosResource;
+import com.opengamma.financial.position.rest.DataPositionsResource;
 import com.opengamma.financial.security.MasterSecuritySource;
 import com.opengamma.financial.security.memory.InMemorySecurityMaster;
 import com.opengamma.financial.security.rest.SecurityMasterResource;
@@ -26,13 +25,17 @@ import com.opengamma.id.UniqueIdentifierTemplate;
 /**
  * Temporary RESTful resource representing a user's client session.
  */
-@Path("/users/{username}/clients/{clientUid}")
+@Path("/data/users/{username}/clients/{clientUid}")
 public class ClientResource {
   
   /**
    * The path used to retrieve user portfolios
    */
   public static final String PORTFOLIOS_PATH = "portfolios";
+  /**
+   * The path used to retrieve user positions
+   */
+  public static final String POSITIONS_PATH = "positions";
   /**
    * The path used to retrieve user securities
    */
@@ -42,15 +45,9 @@ public class ClientResource {
    */
   public static final String VIEW_DEFINITIONS_PATH = "viewDefinitions";
   
-  /**
-   * The path used to retrieve user Live Data
-   */
-  public static final String LIVEDATA_PATH = "livedata";
-  
   private final ClientsResource _clientsResource;
   private final MasterSecuritySource _securityMaster;
   private final ManageableViewDefinitionRepository _viewDefinitionRepository;
-  private final InMemoryUserSnapshotProvider _liveData;
   private final UsersResourceContext _usersResourceContext;
   
   public ClientResource(ClientsResource clientsResource, String clientName, UsersResourceContext context) {
@@ -59,7 +56,6 @@ public class ClientResource {
     _securityMaster = new MasterSecuritySource(new InMemorySecurityMaster(getTemplate(username, clientName, SECURITIES_PATH).createSupplier()));
     _usersResourceContext = context;
     // [FIN-124] The user SecuritySource is done wrongly throughout
-    _liveData = new InMemoryUserSnapshotProvider(getTemplate(username, clientName, LIVEDATA_PATH));
     _viewDefinitionRepository = new InMemoryViewDefinitionRepository();
   }
 
@@ -89,8 +85,13 @@ public class ClientResource {
   }
 
   @Path(PORTFOLIOS_PATH)
-  public PortfoliosResource getPortfolios() {
-    return new PortfoliosResource(getUriInfo(), _usersResourceContext.getPositionMaster());
+  public DataPortfoliosResource getPortfolios() {
+    return new DataPortfoliosResource(getUriInfo(), _usersResourceContext.getPositionMaster());
+  }
+  
+  @Path(POSITIONS_PATH)
+  public DataPositionsResource getPositions() {
+    return new DataPositionsResource(_usersResourceContext.getPositionMaster());
   }
   
   @Path(SECURITIES_PATH)
@@ -101,11 +102,6 @@ public class ClientResource {
   @Path(VIEW_DEFINITIONS_PATH)
   public ViewDefinitionsResource getViewDefinitions() {
     return new ViewDefinitionsResource(_viewDefinitionRepository);
-  }
-  
-  @Path(LIVEDATA_PATH)
-  public LiveDataResource getLiveDataResource() {
-    return new LiveDataResource(_liveData);
   }
   
 }

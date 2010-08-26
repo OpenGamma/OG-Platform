@@ -19,7 +19,7 @@ import javax.ws.rs.core.UriInfo;
  * 
  * This is where clients would be deleted if heartbeats stop, automatically clearing out all client-related state. 
  */
-@Path("/users/{username}/clients")
+@Path("/data/users/{username}/clients")
 public class ClientsResource {
 
   private final UserResource _userResource;

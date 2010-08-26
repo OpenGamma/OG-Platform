@@ -17,11 +17,16 @@ import com.opengamma.financial.analytics.ircurve.BloombergFutureCurveInstrumentP
  * Builder for converting Region instances to/from Fudge messages.
  */
 public class BloombergFutureCurveInstrumentProviderBuilder implements FudgeBuilder<BloombergFutureCurveInstrumentProvider> {
-
+  /**
+   * type used as a human readable subclass discriminator for mongo (which strips out type information).
+   */
+  public static final String TYPE = "Future";
+  
   @Override
   public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, BloombergFutureCurveInstrumentProvider object) {
     MutableFudgeFieldContainer message = context.newMessage();
     FudgeSerializationContext.addClassHeader(message, BloombergFutureCurveInstrumentProvider.class);
+    message.add("type", TYPE); // so we can tell what type it is when mongo throws away the class header.
     message.add("prefix", object.getFuturePrefix());
     message.add("marketSector", object.getMarketSector());
     return message; 

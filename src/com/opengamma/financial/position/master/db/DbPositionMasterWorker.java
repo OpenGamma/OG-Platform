@@ -134,7 +134,11 @@ public class DbPositionMasterWorker {
    * @return the extracted row id
    */
   protected long extractRowId(final UniqueIdentifier id) {
-    return Long.parseLong(id.getValue()) + Long.parseLong(id.getVersion());
+    try {
+      return Long.parseLong(id.getValue()) + Long.parseLong(id.getVersion());
+    } catch (NumberFormatException ex) {
+      throw new IllegalArgumentException("UniqueIdentifier is not from this position master: " + id, ex);
+    }
   }
 
   /**
@@ -143,7 +147,11 @@ public class DbPositionMasterWorker {
    * @return the extracted oid
    */
   protected long extractOid(final UniqueIdentifier id) {
-    return Long.parseLong(id.getValue());
+    try {
+      return Long.parseLong(id.getValue());
+    } catch (NumberFormatException ex) {
+      throw new IllegalArgumentException("UniqueIdentifier is not from this position master: " + id, ex);
+    }
   }
 
   //-------------------------------------------------------------------------

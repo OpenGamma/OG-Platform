@@ -50,13 +50,13 @@ public class CurveDefinitionAndSpecifications {
     Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
     strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, new Tenor(Period.ofDays(7)), "DEFAULT"));
     strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, new Tenor(Period.ofDays(14)), "DEFAULT"));
-    for (int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}) {
+    for (int i : new int[] {1, 3, 6 }) { //2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, new Tenor(Period.ofMonths(i)), "DEFAULT"));
     }
-    strips.add(new FixedIncomeStrip(StripInstrumentType.FUTURE, new Tenor(Period.ofYears(1)), 1, "DEFAULT"));
-    strips.add(new FixedIncomeStrip(StripInstrumentType.FUTURE, new Tenor(Period.ofYears(2)), 1, "DEFAULT"));
-    strips.add(new FixedIncomeStrip(StripInstrumentType.FUTURE, new Tenor(Period.ofYears(3)), 1, "DEFAULT"));
-    for (int i : new int[] {2, 3, 4, 5, 7, 10, 15, 20, 25, 30, 35, 50}) {
+//    strips.add(new FixedIncomeStrip(StripInstrumentType.FUTURE, new Tenor(Period.ofYears(1)), 1, "DEFAULT"));
+//    strips.add(new FixedIncomeStrip(StripInstrumentType.FUTURE, new Tenor(Period.ofYears(2)), 1, "DEFAULT"));
+//    strips.add(new FixedIncomeStrip(StripInstrumentType.FUTURE, new Tenor(Period.ofYears(3)), 1, "DEFAULT"));
+    for (int i : new int[] {2, 3, 4, 5, 7, 10}) { //, 15, 20, 25, 30, 35, 50}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, new Tenor(Period.ofYears(i)), "DEFAULT"));
     }
     YieldCurveDefinition definition = new YieldCurveDefinition(Currency.getInstance("USD"), "FUNDING", Interpolator1DFactory.NATURAL_CUBIC_SPLINE, strips);
@@ -85,11 +85,11 @@ public class CurveDefinitionAndSpecifications {
   
   public static CurveSpecificationBuilderConfiguration buildUSDCurveSpecificationBuilderConfiguration() {
     Map<Tenor, CurveInstrumentProvider> cashInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
-    cashInstrumentProviders.put(new Tenor(Period.ofDays(1)), new StaticCurveInstrumentProvider(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "US00O/N Curncy")));
-    cashInstrumentProviders.put(new Tenor(Period.ofDays(7)), new StaticCurveInstrumentProvider(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "US0001W Curncy")));
-    cashInstrumentProviders.put(new Tenor(Period.ofDays(14)), new StaticCurveInstrumentProvider(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "US0002W Curncy")));
+    cashInstrumentProviders.put(new Tenor(Period.ofDays(1)), new StaticCurveInstrumentProvider(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "US00O/N Index")));
+    cashInstrumentProviders.put(new Tenor(Period.ofDays(7)), new StaticCurveInstrumentProvider(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "US0001W Index")));
+    cashInstrumentProviders.put(new Tenor(Period.ofDays(14)), new StaticCurveInstrumentProvider(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "US0002W Index")));
     for (int i = 1; i <= 12; i++) {
-      cashInstrumentProviders.put(new Tenor(Period.ofMonths(i)), new StaticCurveInstrumentProvider(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "US000" + i + "M Curncy")));
+      cashInstrumentProviders.put(new Tenor(Period.ofMonths(i)), new StaticCurveInstrumentProvider(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "US000" + i + "M Index")));
     }
     
     Map<Tenor, CurveInstrumentProvider> fraInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();

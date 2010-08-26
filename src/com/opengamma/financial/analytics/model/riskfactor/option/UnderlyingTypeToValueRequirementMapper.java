@@ -31,7 +31,7 @@ public class UnderlyingTypeToValueRequirementMapper {
       Security optionUnderlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
       switch (underlying) {
         case SPOT_PRICE:
-          return new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, ComputationTargetType.SECURITY, optionUnderlying.getUniqueIdentifier());
+          return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, optionUnderlying.getUniqueIdentifier());
         case SPOT_VOLATILITY:
           throw new NotImplementedException("Don't know how to get spot volatility for " + option.getUniqueIdentifier());
         case IMPLIED_VOLATILITY:

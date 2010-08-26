@@ -30,7 +30,7 @@ import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.financial.position.master.FullPortfolioGetRequest;
 import com.opengamma.financial.position.master.FullPortfolioNodeGetRequest;
 import com.opengamma.financial.position.master.FullPositionGetRequest;
-import com.opengamma.financial.position.master.PortfolioTreePosition;
+import com.opengamma.financial.position.master.ManageablePosition;
 import com.opengamma.financial.position.master.PositionSearchHistoricRequest;
 import com.opengamma.financial.position.master.PositionSearchHistoricResult;
 import com.opengamma.id.Identifier;
@@ -86,7 +86,7 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
         Objects.firstNonNull(request.getVersionAsOfInstant(), now),
         Objects.firstNonNull(request.getCorrectedToInstant(), now));
     final PositionSearchHistoricResult searchResult = getMaster().searchPositionHistoric(searchRequest);
-    final PortfolioTreePosition firstPosition = searchResult.getFirstPosition();
+    final ManageablePosition firstPosition = searchResult.getFirstPosition();
     if (firstPosition == null || (request.getPositionId().isVersioned() && request.getPositionId().equals(firstPosition.getUniqueIdentifier()) == false)) {
       return null;
     }

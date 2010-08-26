@@ -8,6 +8,10 @@ package com.opengamma.financial.analytics;
 import java.util.Collections;
 import java.util.Set;
 
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeSerializationContext;
+
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -50,7 +54,7 @@ public class PositionScalingFunction extends AbstractFunction implements Functio
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, 
       ComputationTarget target) {
     ValueRequirement requirement = new ValueRequirement(_requirementName, target.toSpecification());
-    ValueSpecification specification = new ValueSpecification(requirement);
+    ValueSpecification specification = new ValueSpecification(requirement, getUniqueIdentifier());
     return Collections.singleton(specification);
   }
 
@@ -71,7 +75,7 @@ public class PositionScalingFunction extends AbstractFunction implements Functio
       Set<ValueRequirement> desiredValues) {
     Object value = inputs.getValue(_requirementName);
     ValueRequirement requirement = new ValueRequirement(_requirementName, target.toSpecification());
-    ValueSpecification specification = new ValueSpecification(requirement);
+    ValueSpecification specification = new ValueSpecification(requirement, getUniqueIdentifier());
     ComputedValue scaledValue = null;
     if (value instanceof Double) {
       Double doubleValue = (Double) value;
@@ -82,6 +86,18 @@ public class PositionScalingFunction extends AbstractFunction implements Functio
       scaledValue = new ComputedValue(specification, value);
     }
     return Collections.singleton(scaledValue);
+  }
+
+  private static final String REQUIREMENT_NAME_KEY = "requirementName";
+
+  @Override
+  public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+    super.toFudgeMsg(context, message);
+    message.add(REQUIREMENT_NAME_KEY, _requirementName);
+  }
+
+  public static PositionScalingFunction fromFudgeMsg(final FudgeFieldContainer message) {
+    return fromFudgeMsg(new PositionScalingFunction(message.getString(REQUIREMENT_NAME_KEY)), message);
   }
 
 }

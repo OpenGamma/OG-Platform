@@ -23,11 +23,13 @@ public class DefaultRegionSource implements RegionSource {
   @Override
   public Region getHighestLevelRegion(Identifier regionId) {
     RegionSearchRequest searchReq = new RegionSearchRequest(RegionRepository.POLITICAL_HIERARCHY_NAME, regionId);
+    searchReq.setGraphIncluded(true);
     return _regionMaster.searchRegions(searchReq).getBestResult();
   }
   @Override
   public Region getHighestLevelRegion(IdentifierBundle regionIdentifiers) {
     RegionSearchRequest searchReq = new RegionSearchRequest(RegionRepository.POLITICAL_HIERARCHY_NAME, regionIdentifiers);
+    searchReq.setGraphIncluded(true);
     return _regionMaster.searchRegions(searchReq).getBestResult();
   }
   @Override

@@ -99,15 +99,17 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
 //  private final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> _forwardSensitivityCalculator;
 
   public MarketInstrumentImpliedFundingAndForwardCurveFunction(final Currency currency, String fundingInterpolatorName, String fundingLeftExtrapolatorName, String fundingRightExtrapolatorName,
-      String forwardInterpolatorName, String forwardLeftExtrapolatorName, String forwardRightExtrapolatorName) {
+      String forwardInterpolatorName, String forwardLeftExtrapolatorName, String forwardRightExtrapolatorName, boolean useFiniteDifferenceAsDefaultForFundingSensitivities,
+      boolean useFiniteDifferenceAsDefaultForForwardSensitivities) {
     Validate.notNull(currency);
     _currency = currency;
- //   _fundingInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(fundingInterpolatorName, fundingLeftExtrapolatorName, fundingRightExtrapolatorName);
- //   _fundingSensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(fundingInterpolatorName, fundingLeftExtrapolatorName, 
-//        fundingRightExtrapolatorName);
- //   _forwardInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(forwardInterpolatorName, forwardLeftExtrapolatorName, forwardRightExtrapolatorName);
- //   _forwardSensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(forwardInterpolatorName, forwardLeftExtrapolatorName, 
- //       forwardRightExtrapolatorName);
+//    _fundingInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(fundingInterpolatorName, fundingLeftExtrapolatorName, fundingRightExtrapolatorName);
+//    _fundingSensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(fundingInterpolatorName, fundingLeftExtrapolatorName, 
+//        fundingRightExtrapolatorName, useFiniteDifferenceAsDefaultForFundingSensitivities);
+//    _forwardInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(forwardInterpolatorName, forwardLeftExtrapolatorName, forwardRightExtrapolatorName);
+//    _forwardSensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(forwardInterpolatorName, forwardLeftExtrapolatorName, 
+//        forwardRightExtrapolatorName, useFiniteDifferenceAsDefaultForForwardSensitivities);
+
   }
 
   @Override
@@ -133,18 +135,17 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
 //    if (rate == null) {
 //      throw new NullPointerException("Could not get first floating rate for " + _currency);
 //    }
-//    //final double referenceFloatingRate = rate;
 //    int i = 0;
-//    for (final ResolvedFixedIncomeStrip strip : fundingStrips) {     
-//      stripRequirement = new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, strip.getMarketDataSpecification());
+//    for (final FixedIncomeStrip strip : fundingStrips) {     
+//      stripRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getMarketDataSpecification());
 //      rate = (Double) inputs.getValue(stripRequirement);
 //      if (rate == null) {
 //        throw new NullPointerException("Could not get market data for " + strip);
 //      }
-//      if (strip.getInstrumentType() != StripInstrumentType.FUTURE) {
+//      if (strip.getInstrumentType() != StripInstrument.FUTURE) {
 //        rate = rate / 100.;
 //      }
-//      derivative = getInterestRateDerivative(strip, calendar, region, now,rate);
+//      derivative = getInterestRateDerivative(strip, calendar, region, now, rate);
 //      if (derivative == null) {
 //        throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
 //      }
@@ -159,15 +160,15 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
 //    int j = 0;
 //    for (final FixedIncomeStrip strip : forwardStrips) {
 //      
-//      stripRequirement = new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, strip.getMarketDataSpecification());
+//      stripRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getMarketDataSpecification());
 //      rate = (Double) inputs.getValue(stripRequirement);
 //      if (rate == null) {
 //        throw new NullPointerException("Could not get market data for " + strip);
 //      }
-//      if (strip.getInstrumentType() != StripInstrumentType.FUTURE) {
-//        rate = rate/100.;
+//      if (strip.getInstrumentType() != StripInstrument.FUTURE) {
+//        rate = rate / 100.;
 //      }
-//      derivative = getInterestRateDerivative(strip, calendar, region, now,rate);
+//      derivative = getInterestRateDerivative(strip, calendar, region, now, rate);
 //      if (derivative == null) {
 //        throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
 //      }
@@ -179,28 +180,25 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
 //      i++;
 //      j++;
 //    }
-
-//    LinkedHashMap<String, FixedNodeInterpolator1D> unknownCurves = new LinkedHashMap<String, FixedNodeInterpolator1D>();
-//    FixedNodeInterpolator1D fnInterpolator = new FixedNodeInterpolator1D(forwardNodeTimes, _interpolatorWithSensitivity);
-//    unknownCurves.put(LIBOR_CURVE_NAME, fnInterpolator);
-//    fnInterpolator = new FixedNodeInterpolator1D(fundingNodeTimes, _interpolatorWithSensitivity);
-//    unknownCurves.put(FUNDING_CURVE_NAME, fnInterpolator);
-//    final JacobianCalculator jacobian = new MultipleYieldCurveFinderJacobian(derivatives, unknownCurves, null,ParRateCurveSensitivityCalculator.getInstance());
-//
-//    unknownCurves = new LinkedHashMap<String, FixedNodeInterpolator1D>();
-//    fnInterpolator = new FixedNodeInterpolator1D(forwardNodeTimes, _interpolator);
-//    unknownCurves.put(LIBOR_CURVE_NAME, fnInterpolator);
-//    fnInterpolator = new FixedNodeInterpolator1D(fundingNodeTimes, _interpolator);
-//    unknownCurves.put(FUNDING_CURVE_NAME, fnInterpolator);
-//    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveFinder = new MultipleYieldCurveFinderFunction(derivatives, unknownCurves, null,ParRateDifferanceCalculator.getInstance());
-//
-//
+//    LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
+//    LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> curveInterpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
+//    LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> curveSensitivityCalculators = 
+//      new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+//    curveNodes.put(LIBOR_CURVE_NAME, forwardNodeTimes);
+//    curveNodes.put(FUNDING_CURVE_NAME, fundingNodeTimes);
+//    curveInterpolators.put(LIBOR_CURVE_NAME, _forwardInterpolator);
+//    curveInterpolators.put(FUNDING_CURVE_NAME, _fundingInterpolator);
+//    curveSensitivityCalculators.put(LIBOR_CURVE_NAME, _forwardSensitivityCalculator);
+//    curveSensitivityCalculators.put(FUNDING_CURVE_NAME, _fundingSensitivityCalculator);
+//    MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, null, curveNodes, curveInterpolators, curveSensitivityCalculators);
+//    JacobianCalculator jacobian = new MultipleYieldCurveFinderJacobian(data, ParRateCurveSensitivityCalculator.getInstance()); //TODO have calculator as input
+//    Function1D<DoubleMatrix1D, DoubleMatrix1D> curveFinder = new MultipleYieldCurveFinderFunction(data, ParRateDifferenceCalculator.getInstance()); //TODO have calculator as input
 //    final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, jacobian, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
 //    final double[] yields = rootFinder.getRoot(curveFinder, new DoubleMatrix1D(initialRatesGuess)).getData();
 //    final double[] forwardYields = Arrays.copyOfRange(yields, 0, nForward);
 //    final double[] fundingYields = Arrays.copyOfRange(yields, nForward, yields.length);
-//    final YieldAndDiscountCurve fundingCurve = new InterpolatedYieldCurve(fundingNodeTimes, fundingYields, _interpolator);
-//    final YieldAndDiscountCurve forwardCurve = new InterpolatedYieldCurve(forwardNodeTimes, forwardYields, _interpolator);
+//    final YieldAndDiscountCurve fundingCurve = new InterpolatedYieldCurve(fundingNodeTimes, fundingYields, _fundingInterpolator);
+//    final YieldAndDiscountCurve forwardCurve = new InterpolatedYieldCurve(forwardNodeTimes, forwardYields, _forwardInterpolator);
 //    final DoubleMatrix2D jacobianMatrix = jacobian.evaluate(new DoubleMatrix1D(yields), (Function1D<DoubleMatrix1D, DoubleMatrix1D>[]) null);
 //    return Sets.newHashSet(new ComputedValue(_fundingCurveResult, fundingCurve), new ComputedValue(_forwardCurveResult, forwardCurve), new ComputedValue(_jacobianResult, jacobianMatrix.getData()));
     return null;
@@ -208,30 +206,36 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
 
   @Override
   public void init(final FunctionCompilationContext context) {
-//    final InterpolatedYieldCurveDefinitionSource curveSource = OpenGammaCompilationContext.getDiscountCurveSource(context);
+//    final InterpolatedYieldAndDiscountCurveSource curveSource = OpenGammaCompilationContext.getDiscountCurveSource(context);
 //    _fundingDefinition = curveSource.getDefinition(_currency, "Funding");
 //    _forwardDefinition = curveSource.getDefinition(_currency, "Forward");
-////    _requirements = Collections.unmodifiableSet(buildRequirements(_fundingDefinition));
-//    _fundingCurveResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FUNDING_CURVE, _currency));
-//    _forwardCurveResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, _currency));
-//    _jacobianResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FUNDING_AND_FORWARD_JACOBIAN, _currency));
+//    _requirements = Collections.unmodifiableSet(buildRequirements(_fundingDefinition));
+//    _fundingCurveResult = new ValueSpecification(
+//        new ValueRequirement(ValueRequirementNames.FUNDING_CURVE, _currency), 
+//        getUniqueIdentifier());
+//    _forwardCurveResult = new ValueSpecification(
+//        new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, _currency), 
+//        getUniqueIdentifier());
+//    _jacobianResult = new ValueSpecification(
+//        new ValueRequirement(ValueRequirementNames.FUNDING_AND_FORWARD_JACOBIAN, _currency), 
+//        getUniqueIdentifier());
 //    _results = Sets.newHashSet(_fundingCurveResult, _forwardCurveResult, _jacobianResult);
   }
 
-//  public Set<ValueRequirement> buildRequirements(final YieldCurveDefinition definition) {
+//  public Set<ValueRequirement> buildRequirements(final InterpolatedYieldAndDiscountCurveDefinition definition) {
 //    final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
 //    for (final FixedIncomeStrip strip : definition.getStrips()) {
-//      final ValueRequirement requirement = new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, strip.getMarketDataSpecification());
+//      final ValueRequirement requirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getMarketDataSpecification());
 //      result.add(requirement);
 //    }
 //
 //    //TODO all of this section will need to be removed
 //    final String scheme = IdentificationScheme.BLOOMBERG_TICKER.getName();
 //    _referenceRateIdentifier = UniqueIdentifier.of(scheme, FLOAT_REFERENCE_TICKER);
-//    final FixedIncomeStrip referenceRate = new FixedIncomeStrip(Period.ofMonths(6), _referenceRateIdentifier, StripInstrumentType.LIBOR);
-//    final FixedIncomeStrip spotRate = new FixedIncomeStrip(Period.ofDays(1), UniqueIdentifier.of(scheme, SPOT_TICKER), StripInstrumentType.CASH);
-//    _referenceRateRequirement = new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, referenceRate.getMarketDataSpecification());
-//    _spotRateRequirement = new ValueRequirement(MarketDataRequirementNames.INDICATIVE_VALUE, spotRate.getMarketDataSpecification());
+//    final FixedIncomeStrip referenceRate = new FixedIncomeStrip(Period.ofMonths(6), _referenceRateIdentifier, StripInstrument.LIBOR);
+//    final FixedIncomeStrip spotRate = new FixedIncomeStrip(Period.ofDays(1), UniqueIdentifier.of(scheme, SPOT_TICKER), StripInstrument.CASH);
+//    _referenceRateRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, referenceRate.getMarketDataSpecification());
+//    _spotRateRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotRate.getMarketDataSpecification());
 //    result.add(_referenceRateRequirement);
 //    result.add(_spotRateRequirement);
 //    return result;
@@ -276,18 +280,17 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
     return ComputationTargetType.PRIMITIVE;
   }
 
-//  //TODO everything from here down is rubbish
 //  private InterestRateDerivative getInterestRateDerivative(final FixedIncomeStrip strip, final Calendar calendar, final Region region, final LocalDate now, final double rateOrPrice) {
 //    if (strip.getInstrumentType() == StripInstrument.SWAP) {
 //      return getSwap(strip, calendar, region, now, rateOrPrice);
 //    } else if (strip.getInstrumentType() == StripInstrument.CASH) {
-//      return getCash(strip, calendar, now,rateOrPrice);
+//      return getCash(strip, calendar, now, rateOrPrice);
 //    } else if (strip.getInstrumentType() == StripInstrument.FRA) {
-//      return getFRA(strip, calendar, now,rateOrPrice);
+//      return getFRA(strip, calendar, now, rateOrPrice);
 //    } else if (strip.getInstrumentType() == StripInstrument.FUTURE) {
-//      return getIRFuture(strip, calendar, now,rateOrPrice);
+//      return getIRFuture(strip, calendar, now, rateOrPrice);
 //    } else if (strip.getInstrumentType() == StripInstrument.LIBOR) {
-//      return getLibor(strip, calendar, now,rateOrPrice);
+//      return getLibor(strip, calendar, now, rateOrPrice);
 //    }
 //    return null;
 //  }
@@ -331,7 +334,7 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
 //    final double startTime = dayCount.getDayCountFraction(nowWithTime, startAdjusted);
 //    final double endTime = dayCount.getDayCountFraction(nowWithTime, endAdjusted);
 //
-//    return new InterestRateFuture(startTime, endTime - startTime, price, LIBOR_CURVE_NAME);
+//    return new InterestRateFuture(startTime,endTime, endTime - startTime, price, LIBOR_CURVE_NAME);
 //
 //  }
 //
@@ -362,8 +365,43 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
 //    for (int i = 0; i < n; i++) {
 //      delta[i] = 0;
 //    }
-//    return new FixedFloatSwap(swapPaymentDates,  swapPaymentDates, swapRate,delta, delta, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+//    return new FixedFloatSwap(swapPaymentDates,  swapPaymentDates, swapRate, delta, delta, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
 //  }
-  //TODO everything from here down is rubbish
- 
+//
+//  private double getLastTime(final InterestRateDerivative derivative) {
+//    if (derivative instanceof FixedFloatSwap) {
+//      return getLastSwapTime((FixedFloatSwap) derivative);
+//    } else if (derivative instanceof Cash) {
+//      return getLastCashTime((Cash) derivative);
+//    } else if (derivative instanceof ForwardRateAgreement) {
+//      return getLastFRATime((ForwardRateAgreement) derivative);
+//    } else if (derivative instanceof InterestRateFuture) {
+//      return getLastIRFutureTime((InterestRateFuture) derivative);
+//    } else if (derivative instanceof Libor) {
+//      return getLastLiborTime((Libor) derivative);
+//    }
+//    throw new IllegalArgumentException("This should never happen");
+//  }
+//
+//  private double getLastSwapTime(final FixedFloatSwap swap) {
+//    final int nFix = swap.getFixedLeg().getNumberOfPayments() - 1;
+//    final int nFloat = swap.getFloatingLeg().getNumberOfPayments() - 1;
+//    return Math.max(swap.getFixedLeg().getPaymentTimes()[nFix], swap.getFloatingLeg().getPaymentTimes()[nFloat] + swap.getFloatingLeg().getDeltaEnd()[nFloat]);
+//  }
+//
+//  private double getLastCashTime(final Cash cash) {
+//    return cash.getPaymentTime();
+//  }
+//
+//  private double getLastLiborTime(final Libor libor) {
+//    return libor.getMaturity();
+//  }
+//
+//  private double getLastFRATime(final ForwardRateAgreement fra) {
+//    return fra.getMaturity();
+//  }
+//
+//  private double getLastIRFutureTime(final InterestRateFuture irFuture) {
+//    return irFuture.getMaturity();
+//  }
 }

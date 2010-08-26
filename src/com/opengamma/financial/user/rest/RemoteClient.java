@@ -7,7 +7,6 @@ package com.opengamma.financial.user.rest;
 
 import org.fudgemsg.FudgeContext;
 
-import com.opengamma.financial.livedata.rest.RemoteUserLiveData;
 import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.financial.position.rest.RemotePositionMaster;
 import com.opengamma.financial.security.SecurityMaster;
@@ -24,27 +23,16 @@ public class RemoteClient {
 
   private final String _clientId;
   private final FudgeContext _fudgeContext;
-  private final RestTarget _positionMasterTarget;
+  private final RestTarget _baseTarget;
   private final RestTarget _securityMasterTarget;
   private final RestTarget _viewDefinitionRepositoryTarget;
-  private final RestTarget _userLiveDataTarget;
-  
+
   public RemoteClient(String clientId, FudgeContext fudgeContext, RestTarget baseTarget) {
     _clientId = clientId;
     _fudgeContext = fudgeContext;
-    _positionMasterTarget = baseTarget.resolveBase(ClientResource.PORTFOLIOS_PATH);
+    _baseTarget = baseTarget;
     _securityMasterTarget = baseTarget.resolveBase(ClientResource.SECURITIES_PATH);
     _viewDefinitionRepositoryTarget = baseTarget.resolveBase(ClientResource.VIEW_DEFINITIONS_PATH);
-    _userLiveDataTarget = baseTarget.resolveBase(ClientResource.LIVEDATA_PATH);
-  }
-
-  private RemoteClient(String clientId, FudgeContext fudgeContext, RestTarget baseTarget, RestTarget liveDataHack) {
-    _clientId = clientId;
-    _fudgeContext = fudgeContext;
-    _positionMasterTarget = baseTarget.resolveBase(ClientResource.PORTFOLIOS_PATH);
-    _securityMasterTarget = baseTarget.resolveBase(ClientResource.SECURITIES_PATH);
-    _viewDefinitionRepositoryTarget = baseTarget.resolveBase(ClientResource.VIEW_DEFINITIONS_PATH);
-    _userLiveDataTarget = liveDataHack;
   }
   
   public String getClientId() {
@@ -52,7 +40,7 @@ public class RemoteClient {
   }
   
   public PositionMaster getPositionMaster() {
-    return new RemotePositionMaster(_fudgeContext, _positionMasterTarget);
+    return new RemotePositionMaster(_baseTarget.getURI());
   }
 
   public SecurityMaster getSecurityMaster() {
@@ -61,10 +49,6 @@ public class RemoteClient {
   
   public ManageableViewDefinitionRepository getViewDefinitionRepository() {
     return new RemoteManagableViewDefinitionRepository(_fudgeContext, _viewDefinitionRepositoryTarget);
-  }
-  
-  public RemoteUserLiveData getLiveData() {
-    return new RemoteUserLiveData(_fudgeContext, _userLiveDataTarget);
   }
 
   /**
@@ -83,7 +67,7 @@ public class RemoteClient {
 
   public static RemoteClient forClient(FudgeContext fudgeContext, RestTarget usersUri, String username, String clientId) {
     RestTarget uri = usersUri.resolveBase(username).resolveBase("clients").resolveBase(clientId);
-    return new RemoteClient(clientId, fudgeContext, uri, usersUri.resolveBase("..").resolveBase(ClientResource.LIVEDATA_PATH));
+    return new RemoteClient(clientId, fudgeContext, uri);
   }
   
 }

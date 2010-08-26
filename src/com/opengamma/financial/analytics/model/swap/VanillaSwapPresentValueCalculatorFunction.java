@@ -69,7 +69,10 @@ public class VanillaSwapPresentValueCalculatorFunction extends AbstractFunction 
     final double floatPayment = SwapPaymentCalculator.getFirstFloatPayment(floatLeg, floatPaymentTimes, false);
     final YieldAndDiscountCurve fundingCurve = (YieldAndDiscountCurve) inputs.getValue(getRequirement(target));
     final double pv = CALCULATOR.getPresentValue(fixedPaymentTimes, fixedPayments, floatPaymentTimes[0], floatPayment, fundingCurve);
-    return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE, swap)), pv));
+    return Sets.newHashSet(new ComputedValue(new ValueSpecification(
+        new ValueRequirement(ValueRequirementNames.PRESENT_VALUE, swap),
+        getUniqueIdentifier()), 
+      pv));
   }
 
   @Override
@@ -116,7 +119,9 @@ public class VanillaSwapPresentValueCalculatorFunction extends AbstractFunction 
     if (!canApplyTo(context, target)) {
       return null;
     }
-    return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE, target.getSecurity())));
+    return Sets.newHashSet(new ValueSpecification(
+        new ValueRequirement(ValueRequirementNames.PRESENT_VALUE, target.getSecurity()),
+        getUniqueIdentifier()));
   }
 
   @Override

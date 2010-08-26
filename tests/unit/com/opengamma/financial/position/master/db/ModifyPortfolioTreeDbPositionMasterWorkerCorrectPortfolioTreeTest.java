@@ -18,9 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.position.master.PortfolioTree;
+import com.opengamma.financial.position.master.ManageablePortfolio;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
-import com.opengamma.financial.position.master.PortfolioTreeNode;
+import com.opengamma.financial.position.master.ManageablePortfolioNode;
 import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricRequest;
 import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricResult;
 import com.opengamma.id.UniqueIdentifier;
@@ -66,7 +66,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerCorrectPortfolioTreeTest e
 
   @Test(expected = NullPointerException.class)
   public void test_correctPortfolioTree_noPortfolioTreeId() {
-    PortfolioTree position = new PortfolioTree("Test");
+    ManageablePortfolio position = new ManageablePortfolio("Test");
     PortfolioTreeDocument doc = new PortfolioTreeDocument();
     doc.setPortfolio(position);
     _worker.correctPortfolioTree(doc);
@@ -81,9 +81,9 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerCorrectPortfolioTreeTest e
 
   @Test(expected = DataNotFoundException.class)
   public void test_correctPortfolioTree_notFound() {
-    PortfolioTree port = new PortfolioTree("Test");
+    ManageablePortfolio port = new ManageablePortfolio("Test");
     port.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "0", "0"));
-    port.setRootNode(new PortfolioTreeNode("Root"));
+    port.setRootNode(new ManageablePortfolioNode("Root"));
     PortfolioTreeDocument doc = new PortfolioTreeDocument(port);
     _worker.correctPortfolioTree(doc);
   }
@@ -102,7 +102,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerCorrectPortfolioTreeTest e
     
     UniqueIdentifier oldPortfolioId = UniqueIdentifier.of("DbPos", "201", "0");
     PortfolioTreeDocument base = _queryWorker.getPortfolioTree(oldPortfolioId);
-    PortfolioTree port = new PortfolioTree("NewName");
+    ManageablePortfolio port = new ManageablePortfolio("NewName");
     port.setUniqueIdentifier(oldPortfolioId);
     port.setRootNode(base.getPortfolio().getRootNode());
     PortfolioTreeDocument input = new PortfolioTreeDocument(port);
