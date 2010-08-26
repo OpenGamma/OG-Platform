@@ -64,7 +64,7 @@ public class ViewProcessor implements Lifecycle {
   private ViewComputationCacheSource _computationCacheSource;
   private JobDispatcher _computationJobDispatcher;
   private ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
-  private DependencyGraphExecutorFactory _dependencyGraphExecutorFactory;
+  private DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private ViewPermissionProvider _viewPermissionProvider;
   private Map<String, Object> _configurationResource;
   // State:
@@ -231,11 +231,11 @@ public class ViewProcessor implements Lifecycle {
     _viewProcessorQueryReceiver = calcNodeQueryReceiver;
   }
 
-  public DependencyGraphExecutorFactory getDependencyGraphExecutorFactory() {
+  public DependencyGraphExecutorFactory<?> getDependencyGraphExecutorFactory() {
     return _dependencyGraphExecutorFactory;
   }
 
-  public void setDependencyGraphExecutorFactory(DependencyGraphExecutorFactory dependencyGraphExecutorFactory) {
+  public void setDependencyGraphExecutorFactory(DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory) {
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
   }
 

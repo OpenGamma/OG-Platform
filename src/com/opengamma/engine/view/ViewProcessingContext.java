@@ -44,7 +44,7 @@ public class ViewProcessingContext {
   private final CachingComputationTargetResolver _computationTargetResolver;
   private final FunctionCompilationContext _compilationContext;
   private final ExecutorService _executorService;
-  private final DependencyGraphExecutorFactory _dependencyGraphExecutorFactory;
+  private final DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private final ViewPermissionProvider _permissionProvider;
 
   public ViewProcessingContext(
@@ -60,7 +60,7 @@ public class ViewProcessingContext {
       ViewProcessorQueryReceiver viewProcessorQueryReceiver,
       FunctionCompilationContext compilationContext,
       ExecutorService executorService,
-      DependencyGraphExecutorFactory dependencyGraphExecutorFactory,
+      DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory,
       ViewPermissionProvider permissionProvider) {
     ArgumentChecker.notNull(liveDataEntitlementChecker, "liveDataEntitlementChecker");
     ArgumentChecker.notNull(liveDataAvailabilityProvider, "liveDataAvailabilityProvider");
@@ -209,7 +209,7 @@ public class ViewProcessingContext {
    * 
    * @return  the dependency graph executor factory, not null
    */
-  public DependencyGraphExecutorFactory getDependencyGraphExecutorFactory() {
+  public DependencyGraphExecutorFactory<?> getDependencyGraphExecutorFactory() {
     return _dependencyGraphExecutorFactory;
   }
   
