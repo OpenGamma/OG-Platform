@@ -30,7 +30,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.fudgemsg.FudgeContext;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -72,6 +71,7 @@ import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.MongoDBConnectionSettings;
 import com.opengamma.util.NamedThreadPoolFactory;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * The entry point for running OpenGamma batches. 
@@ -146,8 +146,6 @@ public class BatchJob implements Job {
    */
   private BatchDbManager _batchDbManager;
   
-  private FudgeContext _fudgeContext = FudgeContext.GLOBAL_DEFAULT;
-
   // --------------------------------------------------------------------------
   // Variables initialized from command line input
   // --------------------------------------------------------------------------
@@ -433,14 +431,6 @@ public class BatchJob implements Job {
     _dbHandle = dbHandle;
   }
   
-  public void setFudgeContext(final FudgeContext fudgeContext) {
-    _fudgeContext = fudgeContext;
-  }
-
-  public FudgeContext getFudgeContext() {
-    return _fudgeContext;
-  }
-
   // --------------------------------------------------------------------------
   
   public MongoDBConnectionSettings getConfigDbConnectionSettings() {
@@ -582,7 +572,7 @@ public class BatchJob implements Job {
       throw new IllegalStateException("Config DB connection settings not given.");            
     }
     _configDb = new MongoDBConfigMaster<ViewDefinition>(ViewDefinition.class, 
-        getConfigDbConnectionSettings(), getFudgeContext(), true, null);
+        getConfigDbConnectionSettings(), OpenGammaFudgeContext.getInstance(), true, null);
 
     ConfigDocument<ViewDefinition> viewDefinitionDoc = getViewByNameWithTime();
     if (viewDefinitionDoc == null) {
@@ -604,7 +594,7 @@ public class BatchJob implements Job {
     }
       
     DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
-    InMemoryViewComputationCacheSource cacheFactory = new InMemoryViewComputationCacheSource(getFudgeContext());
+    InMemoryViewComputationCacheSource cacheFactory = new InMemoryViewComputationCacheSource(OpenGammaFudgeContext.getInstance());
     
     FunctionExecutionContext executionContext = new FunctionExecutionContext(); 
     executionContext.setSecuritySource(securitySource);

@@ -18,6 +18,7 @@ import org.fudgemsg.FudgeContext;
 
 import com.opengamma.financial.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * RESTful backend for {@link RemoteSecurityMaster}.
@@ -38,7 +39,7 @@ public class SecurityMasterService {
    * Creates an instance using the default Fudge context.
    */
   public SecurityMasterService() {
-    this(FudgeContext.GLOBAL_DEFAULT);
+    this(OpenGammaFudgeContext.getInstance());
   }
 
   /**
