@@ -6,7 +6,6 @@
 package com.opengamma.financial.fudgemsg;
 
 import org.fudgemsg.FudgeContextConfiguration;
-import org.fudgemsg.FudgeTypeDictionary;
 import org.fudgemsg.mapping.FudgeObjectDictionary;
 
 import com.opengamma.financial.Region;
@@ -36,13 +35,8 @@ public class FinancialFudgeContextConfiguration extends FudgeContextConfiguratio
 
   //-------------------------------------------------------------------------
   @Override
-  public void configureFudgeTypeDictionary(final FudgeTypeDictionary dictionary) {
-    dictionary.addAllAnnotatedSecondaryTypes();
-  }
-
-  @Override
   public void configureFudgeObjectDictionary(final FudgeObjectDictionary dictionary) {
-    // REVIEW kirk 2010-08-24 -- This is now optional if classpath is scanned.
+    // REVIEW kirk 2010-08-26 -- This is the one thing that needs changed to eliminate this class.
     dictionary.getDefaultBuilderFactory().addGenericBuilder(Region.class, new RegionBuilder(this));
   }
 
