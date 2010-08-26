@@ -5,10 +5,19 @@
  */
 package com.opengamma.util.rest;
 
+import java.io.IOException;
 import java.net.URI;
+
+import javax.ws.rs.ext.MessageBodyWriter;
+import javax.ws.rs.ext.Providers;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.joda.beans.Bean;
 
 import com.opengamma.transport.jaxrs.FudgeObjectBinaryConsumer;
 import com.opengamma.transport.jaxrs.FudgeObjectBinaryProducer;
+import com.opengamma.transport.jaxrs.FudgeRest;
 import com.sun.jersey.api.client.AsyncWebResource;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
@@ -50,10 +59,10 @@ public class FudgeRestClient {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the RESTful client.
+   * Gets the underlying Jersey RESTful client.
    * @return the client, not null
    */
-  protected Client getClient() {
+  public Client getClient() {
     return _client;
   }
 
@@ -76,6 +85,30 @@ public class FudgeRestClient {
    */
   public AsyncWebResource accessAsync(final URI uri) {
     return getClient().asyncResource(uri);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Encodes a bean in base-64 suitable for passing in the URI.
+   * <p>
+   * This is used to pass a bean in the URI, such as when calling a GET method.
+   * 
+   * @param bean  the bean to encode, not null
+   * @return the encoded version of the bean, not null
+   */
+  @SuppressWarnings("unchecked")
+  public String encodeBean(final Bean bean) {
+    Class cls = bean.getClass();
+    Providers providers = getClient().getProviders();
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    MessageBodyWriter mbw = providers.getMessageBodyWriter(
+        cls, cls, null, FudgeRest.MEDIA_TYPE);
+    try {
+      mbw.writeTo(bean, cls, cls, null, FudgeRest.MEDIA_TYPE, null, out);
+    } catch (IOException ex) {
+      throw new RuntimeException(ex);
+    }
+    return Base64.encodeBase64URLSafeString(out.toByteArray());
   }
 
 }

@@ -11,6 +11,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.StringReader;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -24,8 +25,10 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.UrlResource;
 import org.xml.sax.InputSource;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.PlatformConfigUtils;
 
 /**
@@ -37,10 +40,12 @@ import com.opengamma.util.PlatformConfigUtils;
 public abstract class AbstractPlatformSpringContextValidationTest {
 
   private final GenericApplicationContext _springContext;
+  private final XmlBeanDefinitionReader _xmlBeanDefinitionReader;
 
   protected AbstractPlatformSpringContextValidationTest(final String opengammaPlatformRunmode) {
     PlatformConfigUtils.configureSystemProperties(opengammaPlatformRunmode);
     _springContext = new GenericApplicationContext();
+    _xmlBeanDefinitionReader = new XmlBeanDefinitionReader(_springContext);
   }
 
   @Parameters
@@ -56,19 +61,25 @@ public abstract class AbstractPlatformSpringContextValidationTest {
   }
 
   protected void loadClassPathResource(final String name) {
-    XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(getSpringContext());
-    xmlReader.loadBeanDefinitions(new ClassPathResource(name));
+    _xmlBeanDefinitionReader.loadBeanDefinitions(new ClassPathResource(name));
   }
 
   protected void loadFileSystemResource(final String path) {
-    XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(getSpringContext());
-    xmlReader.loadBeanDefinitions(new FileSystemResource(path));
+    _xmlBeanDefinitionReader.loadBeanDefinitions(new FileSystemResource(path));
   }
 
   protected void loadXMLResource(final String xml) {
     XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(getSpringContext());
     xmlReader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_NONE);
     xmlReader.loadBeanDefinitions(new InputSource(new StringReader(xml)));
+  }
+
+  protected void loadUrlResource(final String url) {
+    try {
+      _xmlBeanDefinitionReader.loadBeanDefinitions(new UrlResource(url));
+    } catch (MalformedURLException ex) {
+      throw new OpenGammaRuntimeException("Malformed URL - " + url, ex);
+    }
   }
 
   @Before

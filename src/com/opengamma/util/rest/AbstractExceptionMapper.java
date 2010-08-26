@@ -41,8 +41,8 @@ public class AbstractExceptionMapper {
     if (_headers.getAcceptableMediaTypes().contains(FudgeRest.MEDIA_TYPE)) {
       // perform transparent exception tunneling for Fudge messages
       return Response.status(_status)
-        .header("ExceptionType", exception.getClass().getName())
-        .header("ExceptionMessage", exception.getMessage())
+        .header(ExceptionThrowingClientFilter.EXCEPTION_TYPE, exception.getClass().getName())
+        .header(ExceptionThrowingClientFilter.EXCEPTION_MESSAGE, exception.getMessage())
         .type(MediaType.TEXT_PLAIN_TYPE)
         .entity("Status: " + _status.getStatusCode() + " " + _status.getReasonPhrase() + "; Message: " + exception.getMessage())
         .build();

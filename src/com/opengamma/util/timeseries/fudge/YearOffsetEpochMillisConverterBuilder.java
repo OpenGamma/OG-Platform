@@ -13,16 +13,15 @@ import javax.time.calendar.TimeZone;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.util.timeseries.yearoffset.YearOffsetEpochMillisConverter;
 
 /**
- * 
- *
- * @author jim
  */
+@FudgeBuilderFor(YearOffsetEpochMillisConverter.class)
 public class YearOffsetEpochMillisConverterBuilder implements FudgeBuilder<YearOffsetEpochMillisConverter> {
 
   @Override

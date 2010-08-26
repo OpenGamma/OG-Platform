@@ -49,7 +49,11 @@ public final class ExtendedFudgeBuilderFactory extends FudgeBuilderFactoryAdapte
   @Override
   public <T> FudgeMessageBuilder<T> createMessageBuilder(final Class<T> clazz) {
     if (DirectBean.class.isAssignableFrom(clazz)) {
-      return createBeanBuilder(clazz);
+      FudgeMessageBuilder<T> bld = super.createMessageBuilder(clazz);
+      if (bld == null || bld.getClass().getSimpleName().equals("JavaBeanBuilder")) {  // best we can do
+        return createBeanBuilder(clazz);
+      }
+      return bld;
     }
     return super.createMessageBuilder(clazz);
   }
@@ -57,7 +61,11 @@ public final class ExtendedFudgeBuilderFactory extends FudgeBuilderFactoryAdapte
   @Override
   public <T> FudgeObjectBuilder<T> createObjectBuilder(final Class<T> clazz) {
     if (DirectBean.class.isAssignableFrom(clazz)) {
-      return createBeanBuilder(clazz);
+      FudgeObjectBuilder<T> bld = super.createObjectBuilder(clazz);
+      if (bld == null || bld.getClass().getSimpleName().equals("JavaBeanBuilder")) {  // best we can do
+        return createBeanBuilder(clazz);
+      }
+      return bld;
     }
     return super.createObjectBuilder(clazz);
   }

@@ -149,6 +149,18 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
     return _version;
   }
 
+  /**
+   * Returns a copy of this identifier with the specified version.
+   * @param version  the new version of the identifier, empty treated as null, null treated as latest version
+   * @return the created identifier with the specified version, never null
+   */
+  public UniqueIdentifier withVersion(final String version) {
+    if (ObjectUtils.equals(version, _version)) {
+      return this;
+    }
+    return new UniqueIdentifier(_scheme, _value, version);
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public UniqueIdentifier getUniqueIdentifier() {
@@ -193,6 +205,22 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
     } else {
       return this;
     }
+  }
+
+  /**
+   * Compares this identifier to another based on the scheme and value, ignoring the version.
+   * @param other  the other identifier, null returns false
+   * @return true if equal ignoring the version
+   */
+  public boolean equalsIgnoringVersion(UniqueIdentifier other) {
+    if (this == other) {
+      return true;
+    }
+    if (other == null) {
+      return false;
+    }
+    return _scheme.equals(other._scheme) &&
+            _value.equals(other._value);
   }
 
   //-------------------------------------------------------------------------

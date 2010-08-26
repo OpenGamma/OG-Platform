@@ -11,7 +11,7 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 /**
- * A JAX-RS provider to convert {@code Throwable} to a RESTful 500.
+ * A JAX-RS exception mapper to convert {@code Throwable} to a RESTful 500.
  */
 @Provider
 public class ThrowableExceptionMapper

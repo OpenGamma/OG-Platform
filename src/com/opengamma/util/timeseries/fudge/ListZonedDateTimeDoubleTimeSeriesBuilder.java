@@ -7,6 +7,8 @@ package com.opengamma.util.timeseries.fudge;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.fudgemsg.mapping.FudgeBuilderFor;
+
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.fast.FastTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
@@ -15,6 +17,7 @@ import com.opengamma.util.timeseries.zoneddatetime.ListZonedDateTimeDoubleTimeSe
 /**
  * Fudge message encoder/decoder (builder) for ListZonedDateTimeDoubleTimeSeries
  */
+@FudgeBuilderFor(ListZonedDateTimeDoubleTimeSeries.class)
 public class ListZonedDateTimeDoubleTimeSeriesBuilder extends FastBackedDoubleTimeSeriesBuilder<ZonedDateTime, ListZonedDateTimeDoubleTimeSeries> {
   @Override
   public ListZonedDateTimeDoubleTimeSeries makeSeries(DateTimeConverter<ZonedDateTime> converter, FastTimeSeries<?> dts) {
