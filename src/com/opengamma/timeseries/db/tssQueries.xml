@@ -39,10 +39,10 @@
         		<entry key="insertQuotedObject" value="INSERT INTO tss_identifier_bundle (name, description) VALUES (:name, :description)"/>
         		<entry key="selectQuotedObjectID" value="SELECT id FROM tss_identifier_bundle WHERE name = :name"/>
         		<entry> 
-        			<key><value>selectQuotedObjectFromIdentifiers</value></key>
+        			<key><value>selectBundleFromIdentifiers</value></key>
         			<value>
         				<![CDATA[
-        				    SELECT qo.id, qo.name, d.name as scheme, dsi.identifier_value
+        				    SELECT qo.id as bundleId, qo.name, d.name as scheme, dsi.identifier_value
         					FROM tss_identifier_bundle as qo
         					JOIN tss_identifier as dsi ON qo.id = dsi.bundle_id
         					JOIN tss_identification_scheme as d ON dsi.identification_scheme_id = d.id
@@ -56,6 +56,18 @@
         				]]>
         			</value>
         		</entry>
+        		<entry> 
+        			<key><value>selectAllIdentifierBundle</value></key>
+        			<value>
+        				<![CDATA[
+        				    SELECT qo.id as bundleId, qo.name, d.name as scheme, dsi.identifier_value
+							FROM tss_identifier as dsi
+							JOIN tss_identifier_bundle as qo ON qo.id = dsi.bundle_id
+							JOIN tss_identification_scheme as d ON dsi.identification_scheme_id = d.id
+        				]]>
+        			</value>
+        		</entry>
+        		
         		<entry key="insertScheme" value="INSERT INTO tss_identification_scheme (name, description) VALUES (:name, :description)"/>
         		<entry key="selectSchemeID" value="SELECT id FROM tss_identification_scheme WHERE name = :name"/>
         		<entry key="loadAllScheme" value="SELECT id, name, description FROM tss_identification_scheme"/>
@@ -100,16 +112,85 @@
         			</value>
         		</entry>	
         	    <entry> 
-        			<key><value>getActiveMetaDataByParameters</value></key>
+        			<key><value>getActiveMetaData</value></key>
         			<value>
         				<![CDATA[
-        					SELECT tskey.id as tsKey, ds.name as dataSource, dp.name as dataProvider, df.name as dataField, ot.name as observationTime 
+        					SELECT tskey.id as tsKey, tskey.bundle_id as bundleId, ds.name as dataSource, dp.name as dataProvider, df.name as dataField, ot.name as observationTime 
         					FROM tss_meta_data as tskey
         					JOIN tss_data_source as ds ON tskey.data_source_id = ds.id
         					JOIN tss_data_provider as dp ON tskey.data_provider_id = dp.id
         					JOIN tss_data_field as df ON tskey.data_field_id = df.id
         					JOIN tss_observation_time ot ON tskey.observation_time_id = ot.id
-        					WHERE tskey.bundle_id = :bundleId 
+        					WHERE tskey.bundle_id in (SELECT distinct bundle_id FROM tss_identifier)
+        					AND (:dataSource IS NULL OR ds.name = :dataSource) 
+        					AND (:dataProvider IS NULL OR dp.name = :dataProvider) 
+        					AND (:dataField IS NULL OR df.name = :dataField) 
+        					AND (:observationTime IS NULL OR ot.name = :observationTime)
+        					AND tsKey.active = 1
+        				]]>
+        			</value>
+        		</entry>
+        		<entry> 
+        			<key><value>getActiveMetaDataByIdentifiers</value></key>
+        			<value>
+        				<![CDATA[
+        					SELECT tskey.id as tsKey, tskey.bundle_id as bundleId, ds.name as dataSource, dp.name as dataProvider, df.name as dataField, ot.name as observationTime 
+        					FROM tss_meta_data as tskey
+        					JOIN tss_data_source as ds ON tskey.data_source_id = ds.id
+        					JOIN tss_data_provider as dp ON tskey.data_provider_id = dp.id
+        					JOIN tss_data_field as df ON tskey.data_field_id = df.id
+        					JOIN tss_observation_time ot ON tskey.observation_time_id = ot.id
+        					WHERE tskey.bundle_id in (:bundleIds)
+        					AND (:dataSource IS NULL OR ds.name = :dataSource) 
+        					AND (:dataProvider IS NULL OR dp.name = :dataProvider) 
+        					AND (:dataField IS NULL OR df.name = :dataField) 
+        					AND (:observationTime IS NULL OR ot.name = :observationTime)
+        					AND tsKey.active = 1
+        				]]>
+        			</value>
+        		</entry>
+        		<entry> 
+        			<key><value>getActiveMetaDataWithDates</value></key>
+        			<value>
+        				<![CDATA[
+        					SELECT tskey.id as tsKey, tskey.bundle_id as bundleId, ds.name as dataSource, 
+        					       dp.name as dataProvider, df.name as dataField, ot.name as observationTime,
+        					       dates.earliest, dates.latest
+        					FROM tss_meta_data as tskey
+        					JOIN tss_data_source as ds ON tskey.data_source_id = ds.id
+        					JOIN tss_data_provider as dp ON tskey.data_provider_id = dp.id
+        					JOIN tss_data_field as df ON tskey.data_field_id = df.id
+        					JOIN tss_observation_time ot ON tskey.observation_time_id = ot.id
+        					JOIN (SELECT meta_data_id, min(ts_date) as earliest, max(ts_date) as latest
+									FROM tss_data_point
+									GROUP BY meta_data_id
+								  ) dates ON tskey.id = dates.meta_data_id
+        					WHERE tskey.bundle_id in (SELECT distinct bundle_id FROM tss_identifier)
+        					AND (:dataSource IS NULL OR ds.name = :dataSource) 
+        					AND (:dataProvider IS NULL OR dp.name = :dataProvider) 
+        					AND (:dataField IS NULL OR df.name = :dataField) 
+        					AND (:observationTime IS NULL OR ot.name = :observationTime)
+        					AND tsKey.active = 1
+        				]]>
+        			</value>
+        		</entry>
+        		<entry> 
+        			<key><value>getActiveMetaDataWithDatesByIdentifiers</value></key>
+        			<value>
+        				<![CDATA[
+        					SELECT tskey.id as tsKey, tskey.bundle_id as bundleId, ds.name as dataSource, 
+        					       dp.name as dataProvider, df.name as dataField, ot.name as observationTime,
+        					       dates.earliest, dates.latest
+        					FROM tss_meta_data as tskey
+        					JOIN tss_data_source as ds ON tskey.data_source_id = ds.id
+        					JOIN tss_data_provider as dp ON tskey.data_provider_id = dp.id
+        					JOIN tss_data_field as df ON tskey.data_field_id = df.id
+        					JOIN tss_observation_time ot ON tskey.observation_time_id = ot.id
+        					JOIN (SELECT meta_data_id, min(ts_date) as earliest, max(ts_date) as latest
+									FROM tss_data_point
+									GROUP BY meta_data_id
+								  ) dates ON tskey.id = dates.meta_data_id
+        					WHERE tskey.bundle_id in (:bundleIds)
         					AND (:dataSource IS NULL OR ds.name = :dataSource) 
         					AND (:dataProvider IS NULL OR dp.name = :dataProvider) 
         					AND (:dataField IS NULL OR df.name = :dataField) 
@@ -132,6 +213,16 @@
         					JOIN tss_identification_scheme as d ON dsi.identification_scheme_id = d.id
         					WHERE tskey.id = :oid
         					AND tsKey.active = 1
+        				]]>
+        			</value>
+        		</entry>
+        		<entry>
+        			<key><value>getTimeSeriesDateRangeByOid</value></key>
+        			<value>
+        				<![CDATA[
+        					SELECT min(ts_date) as earliest, max(ts_date) as latest
+							FROM tss_data_point
+							WHERE meta_data_id = :oid
         				]]>
         			</value>
         		</entry>	
@@ -177,6 +268,19 @@
         				<![CDATA[
         					INSERT INTO tss_data_point_delta (meta_data_id, time_stamp, ts_date, old_value, operation) 
         					VALUES (:tsID, :timeStamp, :date, :oldValue, 'U')
+        				]]>
+        			</value>
+        		</entry>
+        		<entry> 
+        			<key><value>getTimeSeriesDates</value></key>
+        			<value>
+        				<![CDATA[
+        					SELECT ts_date, value 
+        					FROM tss_data_point 
+        					WHERE meta_data_id = :timeSeriesKey 
+        					AND (:startDate IS NULL OR ts_date >= :startDate)  
+        					AND (:endDate IS NULL OR ts_date < :endDate) 
+        					ORDER BY ts_date
         				]]>
         			</value>
         		</entry>

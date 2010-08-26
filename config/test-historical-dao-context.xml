@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xmlns:aop="http://www.springframework.org/schema/aop"
+     xmlns:tx="http://www.springframework.org/schema/tx"
+     xsi:schemaLocation="
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+     
 	<!--  import resources from OG-TimeSeriesStorage -->
   	<import resource="classpath:com/opengamma/timeseries/db/tssQueries.xml" />
 
@@ -17,12 +23,18 @@
 		<property name="password" value="${derby.jdbc.password}"/>
 	</bean>
 	
+	<!-- The postgres PlatformTransactionManager -->
+  	<bean id="postgresTxManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+  		<property name="dataSource" ref="postgresDataSource"/>
+  	</bean>
+  	
+  	<!-- The postgres PlatformTransactionManager -->
+  	<bean id="derbyTxManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+  		<property name="dataSource" ref="derbyDataSource"/>
+  	</bean>
+	
 	<bean id="derbyDao" class="com.opengamma.timeseries.db.DerbyTimeSeriesMaster">
-		<constructor-arg>
-			<bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-				<property name="dataSource" ref="derbyDataSource"/>
-			</bean>
-		</constructor-arg>
+		<constructor-arg ref="derbyTxManager"/>
 		<constructor-arg ref="tssNamedSQLMap"/>
 	</bean>
 	
@@ -37,12 +49,12 @@
 	</bean>
 	
 	<bean id="postgresDao" class="com.opengamma.timeseries.db.PostgresTimeSeriesMaster">
-		<constructor-arg>
-			<bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-				<property name="dataSource" ref="postgresDataSource"/>
-			</bean>
-		</constructor-arg>
+		<constructor-arg ref="postgresTxManager"/>
 		<constructor-arg ref="tssNamedSQLMap"/>
 	</bean>
+	
+	<!-- enable the configuration of transactional behavior based on annotations -->
+  	<tx:annotation-driven transaction-manager="derbyTxManager"/>
+  	<tx:annotation-driven transaction-manager="postgresTxManager"/>
 	
 </beans>

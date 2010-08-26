@@ -47,9 +47,9 @@ import com.opengamma.timeseries.ObservationTimeBean;
 import com.opengamma.timeseries.SchemeBean;
 import com.opengamma.timeseries.TimeSeriesDocument;
 import com.opengamma.timeseries.TimeSeriesMaster;
-import com.opengamma.timeseries.TimeSeriesRequest;
 import com.opengamma.timeseries.TimeSeriesSearchHistoricRequest;
 import com.opengamma.timeseries.TimeSeriesSearchHistoricResult;
+import com.opengamma.timeseries.TimeSeriesSearchRequest;
 import com.opengamma.timeseries.TimeSeriesSearchResult;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.time.DateUtil;
@@ -65,12 +65,19 @@ import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 public class TimeSeriesMasterTest extends DBTest {
   private static final Logger s_logger = LoggerFactory.getLogger(TimeSeriesMasterTest.class);
   
-  private static final int TS_DATASET_SIZE = 5;
+  private static final int TS_DATASET_SIZE = 1;
 
   private static final String LCLOSE_OBSERVATION_TIME = "LCLOSE";
   private static final String CLOSE_DATA_FIELD = "CLOSE";
   private static final String CMPL_DATA_PROVIDER = "CMPL";
   private static final String BBG_DATA_SOURCE = "BLOOMBERG";
+  
+  private static final String[] DATA_FIELDS = new String[] { CLOSE_DATA_FIELD, "VOLUME" };
+  private static final String[] DATA_PROVIDERS = new String[] { "UNKNOWN", CMPL_DATA_PROVIDER, "CMPT" };
+  private static final String[] DATA_SOURCES = new String[] { BBG_DATA_SOURCE, "REUTERS", "JPM" };
+
+  private static final LocalDate DEFAULT_START = DateUtil.previousWeekDay().minusDays(7);
+  private static final LocalDate DEFAULT_END = DateUtil.previousWeekDay();
 
   private Random _random = new Random();
   private TimeSeriesMaster _tsMaster;
@@ -260,7 +267,8 @@ public class TimeSeriesMasterTest extends DBTest {
       Identifier id1 = Identifier.of("sa" + i, "ida" + i);
       Identifier id2 = Identifier.of("sb" + i, "idb" + i);
       IdentifierBundle identifiers = IdentifierBundle.of(id1, id2);
-      LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries(null);
+      LocalDate previousWeekDay = DateUtil.previousWeekDay();
+      LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries(previousWeekDay.minusDays(7), previousWeekDay);
       expectedIds.add(identifiers);
       
       TimeSeriesDocument tsDocument = new TimeSeriesDocument();
@@ -280,19 +288,22 @@ public class TimeSeriesMasterTest extends DBTest {
     allIdentifiers = _tsMaster.getAllIdentifiers();
     assertNotNull(allIdentifiers);
     assertTrue(allIdentifiers.size() == expectedIds.size());
-    assertEquals(expectedIds, allIdentifiers);
+    for (IdentifierBundle identifierBundle : expectedIds) {
+      assertTrue(allIdentifiers.contains(identifierBundle));
+    }
+    
   }
   
   @Test
   public void searchByIdentifierBundle() throws Exception {
-    Map<IdentifierBundle, TimeSeriesDocument> tsMap = addAndTestTimeSeries();
-    for (IdentifierBundle identifiers : tsMap.keySet()) {
-      TimeSeriesRequest request = new TimeSeriesRequest();
-      request.setIdentifiers(identifiers);
-      request.setDataField(CLOSE_DATA_FIELD);
-      request.setDataProvider(CMPL_DATA_PROVIDER);
-      request.setDataSource(BBG_DATA_SOURCE);
-      request.setObservationTime(LCLOSE_OBSERVATION_TIME);
+    List<TimeSeriesDocument> expectedTS = addAndTestTimeSeries();
+    for (TimeSeriesDocument expectedTSDoc : expectedTS) {
+      TimeSeriesSearchRequest request = new TimeSeriesSearchRequest();
+      request.getIdentifiers().addAll(expectedTSDoc.getIdentifiers().getIdentifiers());
+      request.setDataField(expectedTSDoc.getDataField());
+      request.setDataProvider(expectedTSDoc.getDataProvider());
+      request.setDataSource(expectedTSDoc.getDataSource());
+      request.setObservationTime(expectedTSDoc.getObservationTime());
       request.setLoadTimeSeries(true);
       
       TimeSeriesSearchResult searchResult = _tsMaster.searchTimeSeries(request);
@@ -304,20 +315,20 @@ public class TimeSeriesMasterTest extends DBTest {
       TimeSeriesDocument searchedDoc = documents.get(0);
       assertNotNull(searchedDoc);
       
-      assertEqualTimeSeriesDocument(tsMap.get(identifiers), searchedDoc);
+      assertEqualTimeSeriesDocument(expectedTSDoc, searchedDoc);
     }
   }
   
   @Test
   public void searchByFieldProviderSource() throws Exception {
-    Map<IdentifierBundle, TimeSeriesDocument> tsMap = addAndTestTimeSeries();
-    for (IdentifierBundle identifiers : tsMap.keySet()) {
-      TimeSeriesRequest request = new TimeSeriesRequest();
-      request.setIdentifiers(identifiers);
-      request.setDataField(CLOSE_DATA_FIELD);
-      request.setDataProvider(CMPL_DATA_PROVIDER);
-      request.setDataSource(BBG_DATA_SOURCE);
-      request.setObservationTime(LCLOSE_OBSERVATION_TIME);
+    List<TimeSeriesDocument> tsList = addAndTestTimeSeries();
+    for (TimeSeriesDocument tsDoc : tsList) {
+      TimeSeriesSearchRequest request = new TimeSeriesSearchRequest();
+      request.getIdentifiers().addAll(tsDoc.getIdentifiers().getIdentifiers());
+      request.setDataField(tsDoc.getDataField());
+      request.setDataProvider(tsDoc.getDataProvider());
+      request.setDataSource(tsDoc.getDataSource());
+      request.setObservationTime(tsDoc.getObservationTime());
       request.setLoadTimeSeries(true);
       
       TimeSeriesSearchResult searchResult = _tsMaster.searchTimeSeries(request);
@@ -326,15 +337,15 @@ public class TimeSeriesMasterTest extends DBTest {
       assertNotNull(documents);
       assertTrue(documents.size() == 1);
       
-      assertEqualTimeSeriesDocument(tsMap.get(identifiers), documents.get(0));
+      assertEqualTimeSeriesDocument(tsDoc, documents.get(0));
     }
   }
   
   @Test
   public void searchByUID() throws Exception {
-    Map<IdentifierBundle, TimeSeriesDocument> tsMap = addAndTestTimeSeries();
-    for (TimeSeriesDocument tsDoc : tsMap.values()) {
-      TimeSeriesRequest request = new TimeSeriesRequest();
+    List<TimeSeriesDocument> tsList = addAndTestTimeSeries();
+    for (TimeSeriesDocument tsDoc : tsList) {
+      TimeSeriesSearchRequest request = new TimeSeriesSearchRequest();
       request.setTimeSeriesId(tsDoc.getUniqueIdentifier());
       request.setLoadTimeSeries(true);
       
@@ -352,38 +363,50 @@ public class TimeSeriesMasterTest extends DBTest {
   public void addTimeSeries() throws Exception {
     addAndTestTimeSeries();    
   }
-
-  private Map<IdentifierBundle, TimeSeriesDocument> addAndTestTimeSeries() {
-    Map<IdentifierBundle, TimeSeriesDocument> result = new HashMap<IdentifierBundle, TimeSeriesDocument>(); 
+  
+  private List<TimeSeriesDocument> addAndTestTimeSeries() {
+    List<TimeSeriesDocument> result = new ArrayList<TimeSeriesDocument>(); 
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
-      IdentifierBundle identifiers = IdentifierBundle.of(Identifier.of("sa" + i, "ida" + i), Identifier.of("sb" + i, "idb" + i));
-      LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries(null);
+      IdentifierBundle identifiers = IdentifierBundle.of(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "ticker" + i), Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "buid" + i));
+      LocalDate previousWeekDay = DateUtil.previousWeekDay();
+      LocalDate start = previousWeekDay.minusDays(7);
+      LocalDate end = previousWeekDay;
       
-      TimeSeriesDocument tsDocument = new TimeSeriesDocument();
-      tsDocument.setDataField(CLOSE_DATA_FIELD);
-      tsDocument.setDataProvider(CMPL_DATA_PROVIDER);
-      tsDocument.setDataSource(BBG_DATA_SOURCE);
-      tsDocument.setObservationTime(LCLOSE_OBSERVATION_TIME);
-      tsDocument.setIdentifiers(identifiers);
-      tsDocument.setTimeSeries(timeSeries);
-      
-      tsDocument = _tsMaster.addTimeSeries(tsDocument);
-      
-      assertNotNull(tsDocument);
-      assertNotNull(tsDocument.getUniqueIdentifier());
-      
-      TimeSeriesDocument actualDoc = _tsMaster.getTimeSeries(tsDocument.getUniqueIdentifier());
-      assertNotNull(actualDoc);
-      assertEqualTimeSeriesDocument(tsDocument, actualDoc);
-      result.put(identifiers, tsDocument);
+      for (String dataSource : DATA_SOURCES) {
+        for (String dataProvider : DATA_PROVIDERS) {
+          for (String datafield : DATA_FIELDS) {
+            TimeSeriesDocument tsDocument = new TimeSeriesDocument();
+            tsDocument.setDataField(datafield);
+            tsDocument.setDataProvider(dataProvider);
+            tsDocument.setDataSource(dataSource);
+            tsDocument.setObservationTime(LCLOSE_OBSERVATION_TIME);
+            tsDocument.setIdentifiers(identifiers);
+            LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries(start, end);
+            assertEquals(start, timeSeries.getEarliestTime());
+            assertEquals(end, timeSeries.getLatestTime());
+            tsDocument.setTimeSeries(timeSeries);
+            
+            tsDocument = _tsMaster.addTimeSeries(tsDocument);
+            
+            assertNotNull(tsDocument);
+            assertNotNull(tsDocument.getUniqueIdentifier());
+            
+            TimeSeriesDocument actualDoc = _tsMaster.getTimeSeries(tsDocument.getUniqueIdentifier());
+            assertNotNull(actualDoc);
+            assertEquals(timeSeries, actualDoc.getTimeSeries());
+            result.add(tsDocument);
+          }
+        }
+      }
     }
     return result;
   }
+
   
   @Test
   public void addDuplicateTimeSeries() throws Exception {
     IdentifierBundle identifiers = IdentifierBundle.of(Identifier.of("sa", "ida"), Identifier.of("sb", "idb"));
-    LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries(null);
+    LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries(DEFAULT_START, DEFAULT_END);
     
     TimeSeriesDocument tsDocument = new TimeSeriesDocument();
     tsDocument.setDataField(CLOSE_DATA_FIELD);
@@ -410,7 +433,7 @@ public class TimeSeriesMasterTest extends DBTest {
     otherDoc.setDataSource(BBG_DATA_SOURCE);
     otherDoc.setObservationTime(LCLOSE_OBSERVATION_TIME);
     otherDoc.setIdentifiers(identifiers);
-    otherDoc.setTimeSeries(makeRandomTimeSeries(null));
+    otherDoc.setTimeSeries(makeRandomTimeSeries(DEFAULT_START, DEFAULT_END));
     try {
       _tsMaster.addTimeSeries(otherDoc);
       fail();
@@ -421,10 +444,9 @@ public class TimeSeriesMasterTest extends DBTest {
   
   @Test
   public void updateTimeSeries() throws Exception {
-    
-    Map<IdentifierBundle, TimeSeriesDocument> tsMap = addAndTestTimeSeries();
-    for (TimeSeriesDocument tsDoc : tsMap.values()) {
-      tsDoc.setTimeSeries(makeRandomTimeSeries(null));
+    List<TimeSeriesDocument> tsList = addAndTestTimeSeries();
+    for (TimeSeriesDocument tsDoc : tsList) {
+      tsDoc.setTimeSeries(makeRandomTimeSeries(DEFAULT_START, DEFAULT_END));
       TimeSeriesDocument updatedDoc = _tsMaster.updateTimeSeries(tsDoc);
       assertNotNull(updatedDoc);
       assertNotNull(updatedDoc.getUniqueIdentifier());
@@ -445,8 +467,8 @@ public class TimeSeriesMasterTest extends DBTest {
   
   @Test
   public void removeTimeSeries() throws Exception {
-    Map<IdentifierBundle, TimeSeriesDocument> tsMap = addAndTestTimeSeries();
-    for (TimeSeriesDocument tsDoc : tsMap.values()) {
+    List<TimeSeriesDocument> tsList = addAndTestTimeSeries();
+    for (TimeSeriesDocument tsDoc : tsList) {
       _tsMaster.removeTimeSeries(tsDoc.getUniqueIdentifier());
       try {
         _tsMaster.getTimeSeries(tsDoc.getUniqueIdentifier());
@@ -481,10 +503,9 @@ public class TimeSeriesMasterTest extends DBTest {
   
   @Test
   public void resolveIdentifier() throws Exception {
-    Map<IdentifierBundle, TimeSeriesDocument> tsMap = addAndTestTimeSeries();
-    for (Entry<IdentifierBundle, TimeSeriesDocument> entry : tsMap.entrySet()) {
-      IdentifierBundle identifiers = entry.getKey();
-      TimeSeriesDocument tsDoc = entry.getValue();
+    List<TimeSeriesDocument> tsList = addAndTestTimeSeries();
+    for (TimeSeriesDocument tsDoc : tsList) {
+      IdentifierBundle identifiers = tsDoc.getIdentifiers();
       UniqueIdentifier resolveIdentifier = _tsMaster.resolveIdentifier(identifiers, tsDoc.getDataSource(), tsDoc.getDataProvider(), tsDoc.getDataField());
       assertNotNull(resolveIdentifier);
       assertEquals(tsDoc.getUniqueIdentifier(), resolveIdentifier);
@@ -495,12 +516,12 @@ public class TimeSeriesMasterTest extends DBTest {
         assertEquals(tsDoc.getUniqueIdentifier(), resolveIdentifier);
       }
       
-      resolveIdentifier = _tsMaster.resolveIdentifier(identifiers, "UNKNOWN", CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
+      resolveIdentifier = _tsMaster.resolveIdentifier(identifiers, "INVALID", CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
       assertNull(resolveIdentifier);
-      resolveIdentifier = _tsMaster.resolveIdentifier(identifiers, BBG_DATA_SOURCE, "UNKNOWN", CLOSE_DATA_FIELD);
+      resolveIdentifier = _tsMaster.resolveIdentifier(identifiers, BBG_DATA_SOURCE, "INVALID", CLOSE_DATA_FIELD);
       assertNull(resolveIdentifier);
       
-      resolveIdentifier = _tsMaster.resolveIdentifier(identifiers, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, "UNKNOWN");
+      resolveIdentifier = _tsMaster.resolveIdentifier(identifiers, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, "INVALID");
       assertNull(resolveIdentifier);
     }
     
@@ -519,14 +540,12 @@ public class TimeSeriesMasterTest extends DBTest {
   
   @Test
   public void getHistoricalTimeSeriesWithoutDataProvider() throws Exception {
-    addRandonTimeSeriesToDB(2);
-    String[] testDataProviders = new String[]{"DP1, DP2, DP3"};
     Map<String, LocalDateDoubleTimeSeries> expectedTSMap = new HashMap<String, LocalDateDoubleTimeSeries>();
     
     IdentifierBundle bundle = IdentifierBundle.of(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "id1"));
-    for (String dataProvider : testDataProviders) {
+    for (String dataProvider : DATA_PROVIDERS) {
       
-      LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries(null);
+      LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries(DEFAULT_START, DEFAULT_END);
       
       TimeSeriesDocument tsDocument = new TimeSeriesDocument();
       tsDocument.setDataField(CLOSE_DATA_FIELD);
@@ -544,9 +563,9 @@ public class TimeSeriesMasterTest extends DBTest {
     }
     
     //check you get expected timeseries with dataProvider specified
-    TimeSeriesRequest request = new TimeSeriesRequest();
-    for (String dataProvider : testDataProviders) {
-      request.setIdentifiers(bundle);
+    TimeSeriesSearchRequest request = new TimeSeriesSearchRequest();
+    for (String dataProvider : DATA_PROVIDERS) {
+      request.getIdentifiers().addAll(bundle.getIdentifiers());
       request.setDataSource(BBG_DATA_SOURCE);
       request.setDataProvider(dataProvider);
       request.setDataField(CLOSE_DATA_FIELD);
@@ -567,8 +586,8 @@ public class TimeSeriesMasterTest extends DBTest {
     }
     
     //search without dataProvider
-    request = new TimeSeriesRequest();
-    request.setIdentifiers(bundle);
+    request = new TimeSeriesSearchRequest();
+    request.getIdentifiers().addAll(bundle.getIdentifiers());
     request.setDataSource(BBG_DATA_SOURCE);
     request.setDataField(CLOSE_DATA_FIELD);
     request.setObservationTime(LCLOSE_OBSERVATION_TIME);
@@ -586,66 +605,15 @@ public class TimeSeriesMasterTest extends DBTest {
     }
         
   }
-  
-//  @Test
-//  public void getTimeSeriesWithDateRange() throws Exception {
-//    addRandonTimeSeriesToDB(2);
-//    for (int i = 0; i < TS_DATASET_SIZE; i++) {
-//      IdentifierBundle identifiers = IdentifierBundle.of(Identifier.of("sa" + i, "ida" + i), Identifier.of("sb" + i, "idb" + i));
-//      LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries(null);
-//      
-//      TimeSeriesDocument tsDocument = new TimeSeriesDocument();
-//      tsDocument.setDataField(CLOSE_DATA_FIELD);
-//      tsDocument.setDataProvider(CMPL_DATA_PROVIDER);
-//      tsDocument.setDataSource(BBG_DATA_SOURCE);
-//      tsDocument.setObservationTime(LCLOSE_OBSERVATION_TIME);
-//      tsDocument.setIdentifiers(identifiers);
-//      tsDocument.setTimeSeries(timeSeries);
-//      
-//      tsDocument = _tsMaster.addTimeSeries(tsDocument);
-//      
-//      assertNotNull(tsDocument);
-//      assertNotNull(tsDocument.getUniqueIdentifier());
-//            
-//      LocalDate earliestDate = timeSeries.getEarliestTime();
-//      LocalDate latestDate = timeSeries.getLatestTime();
-//      //test end dates
-//      DoubleTimeSeries<LocalDate> subSeries = timeSeries.subSeries(earliestDate, latestDate);
-//      s_logger.debug("earliestDate = {}", earliestDate);
-//      s_logger.debug("latestDate = {}", latestDate);
-////      Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = _tsMaster.getHistoricalTimeSeries(identifiers, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, earliestDate, latestDate);
-////      assertNotNull(tsPair);
-////      assertEquals(tsDocument.getUniqueIdentifier(), tsPair.getFirst());
-////      assertEquals(subSeries, tsPair.getSecond());
-//      TimeSeriesDocument loadedDoc = _tsMaster.getTimeSeries(tsDocument.getUniqueIdentifier());
-//      assertNotNull(loadedDoc);
-//      assertEquals(tsDocument.getUniqueIdentifier(), loadedDoc.getUniqueIdentifier());
-//      assertEquals(subSeries, loadedDoc.getTimeSeries());
-//      
-//      LocalDateDoubleTimeSeries actualTS = _tsMaster.getHistoricalTimeSeries(tsDocument.getUniqueIdentifier(), earliestDate, latestDate);
-//      assertEquals(subSeries, actualTS);
-//      
-//      //test subSeries
-//      LocalDate start = earliestDate.plusDays(1);
-//      LocalDate end = latestDate.minusDays(1);
-//      if (start.isBefore(end) || start.equals(end)) {
-//        timeSeries = (LocalDateDoubleTimeSeries)timeSeries.subSeries(start, end);
-//        tsPair = _tsMaster.getHistoricalTimeSeries(identifiers, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, start, end);
-//        assertEquals(timeSeries, tsPair.getSecond());
-//        
-//        actualTS = _tsMaster.getHistoricalTimeSeries(tsDocument.getUniqueIdentifier(), start, end);
-//        assertEquals(timeSeries, actualTS);
-//      }
-//    }
-//  }
-  
+    
   @Test
   public void appendTimeSeries() throws Exception {
-    Map<IdentifierBundle, TimeSeriesDocument> tsMap = addAndTestTimeSeries();
-    for (TimeSeriesDocument tsDoc : tsMap.values()) {
+    List<TimeSeriesDocument> tsList = addAndTestTimeSeries();
+    for (TimeSeriesDocument tsDoc : tsList) {
       LocalDateDoubleTimeSeries timeSeries = tsDoc.getTimeSeries();
       LocalDate start = timeSeries.getLatestTime().plusDays(1);
-      LocalDateDoubleTimeSeries appendedTS = makeRandomTimeSeries(start);
+      LocalDate end = start.plusDays(7);
+      LocalDateDoubleTimeSeries appendedTS = makeRandomTimeSeries(start, end);
       FastBackedDoubleTimeSeries<LocalDate> mergedTS = timeSeries.noIntersectionOperation(appendedTS);
       // append timeseries to existing identifiers in the datastore
       tsDoc.setTimeSeries(appendedTS);
@@ -660,10 +628,10 @@ public class TimeSeriesMasterTest extends DBTest {
   
   @Test
   public void searchNotAvailableTimeSeries() throws Exception {
-    addRandonTimeSeriesToDB(2);
+    addAndTestTimeSeries();
     IdentifierBundle bundle = IdentifierBundle.of(Identifier.of("BLOOMBERG_TICKER", "AAPL US Equity"), Identifier.of("BUID", "X-12345678"));
-    TimeSeriesRequest request = new TimeSeriesRequest();
-    request.setIdentifiers(bundle);
+    TimeSeriesSearchRequest request = new TimeSeriesSearchRequest();
+    request.getIdentifiers().addAll(bundle.getIdentifiers());
     request.setDataField(CLOSE_DATA_FIELD);
     request.setDataProvider(CMPL_DATA_PROVIDER);
     request.setDataSource(BBG_DATA_SOURCE);
@@ -675,10 +643,110 @@ public class TimeSeriesMasterTest extends DBTest {
   }
   
   @Test
+  public void searchMetaData() throws Exception {
+    List<TimeSeriesDocument> tsList = addAndTestTimeSeries();
+    List<TimeSeriesDocument> closeDataFields = new ArrayList<TimeSeriesDocument>();
+    List<TimeSeriesDocument> cmplDataProviders = new ArrayList<TimeSeriesDocument>();
+    List<TimeSeriesDocument> bbgDataSources = new ArrayList<TimeSeriesDocument>();
+    List<TimeSeriesDocument> lcloseObservations = new ArrayList<TimeSeriesDocument>();
+    
+    for (TimeSeriesDocument tsDoc : tsList) {
+      //set timeseries to null for metadata test
+      tsDoc.setTimeSeries(null);
+      if (tsDoc.getDataField().equals(CLOSE_DATA_FIELD)) {
+        closeDataFields.add(tsDoc);
+      }
+      if (tsDoc.getDataProvider().equals(CMPL_DATA_PROVIDER)) {
+        cmplDataProviders.add(tsDoc);
+      }
+      if (tsDoc.getDataSource().equals(BBG_DATA_SOURCE)) {
+        bbgDataSources.add(tsDoc);
+      }
+      if (tsDoc.getObservationTime().equals(LCLOSE_OBSERVATION_TIME)) {
+        lcloseObservations.add(tsDoc);
+      }
+    }
+    TimeSeriesSearchRequest request = new TimeSeriesSearchRequest();
+    request.setLoadTimeSeries(false); 
+    //return all timeseries meta data without loading timeseries data points
+    TimeSeriesSearchResult searchResult = _tsMaster.searchTimeSeries(request);
+    assertNotNull(searchResult);
+    List<TimeSeriesDocument> documents = searchResult.getDocuments();
+    assertNotNull(documents);
+    assertTrue(tsList.size() == documents.size());
+    for (TimeSeriesDocument expectedDoc : tsList) {
+      assertTrue(documents.contains(expectedDoc));
+    }
+    
+    request = new TimeSeriesSearchRequest();
+    request.setLoadTimeSeries(false);
+    request.setDataField(CLOSE_DATA_FIELD);
+    searchResult = _tsMaster.searchTimeSeries(request);
+    documents = searchResult.getDocuments();
+    assertTrue(closeDataFields.size() == documents.size());
+    for (TimeSeriesDocument tsDoc : documents) {
+      assertTrue(closeDataFields.contains(tsDoc));
+    }
+
+    request = new TimeSeriesSearchRequest();
+    request.setLoadTimeSeries(false);
+    request.setDataSource(BBG_DATA_SOURCE);
+    searchResult = _tsMaster.searchTimeSeries(request);
+    documents = searchResult.getDocuments();
+    assertTrue(bbgDataSources.size() == documents.size());
+    for (TimeSeriesDocument tsDoc : documents) {
+      assertTrue(bbgDataSources.contains(tsDoc));
+    }
+    
+    request = new TimeSeriesSearchRequest();
+    request.setLoadTimeSeries(false);
+    request.setObservationTime(LCLOSE_OBSERVATION_TIME);
+    searchResult = _tsMaster.searchTimeSeries(request);
+    documents = searchResult.getDocuments();
+    assertTrue(lcloseObservations.size() == documents.size());
+    for (TimeSeriesDocument tsDoc : documents) {
+      assertTrue(lcloseObservations.contains(tsDoc));
+    }
+    
+    request = new TimeSeriesSearchRequest();
+    request.setLoadTimeSeries(false);
+    request.setDataProvider(CMPL_DATA_PROVIDER);
+    searchResult = _tsMaster.searchTimeSeries(request);
+    documents = searchResult.getDocuments();
+    assertTrue(cmplDataProviders.size() == documents.size());
+    for (TimeSeriesDocument tsDoc : documents) {
+      assertTrue(cmplDataProviders.contains(tsDoc));
+    }
+  }
+  
+  @Test
+  public void searchMetaDataWithDates() throws Exception {
+    List<TimeSeriesDocument> tsList = addAndTestTimeSeries();
+    for (TimeSeriesDocument tsDoc : tsList) {
+      //set timeseries to null for metadata test and set dates
+      tsDoc.setEarliest(tsDoc.getTimeSeries().getEarliestTime());
+      tsDoc.setLatest(tsDoc.getTimeSeries().getLatestTime());
+      tsDoc.setTimeSeries(null);
+    }
+    TimeSeriesSearchRequest request = new TimeSeriesSearchRequest();
+    request.setLoadTimeSeries(false); 
+    request.setLoadDates(true);
+    //return all timeseries meta data with dates without loading timeseries data points
+    TimeSeriesSearchResult searchResult = _tsMaster.searchTimeSeries(request);
+    assertNotNull(searchResult);
+    List<TimeSeriesDocument> documents = searchResult.getDocuments();
+    assertNotNull(documents);
+    assertTrue(tsList.size() == documents.size());
+    for (TimeSeriesDocument expectedDoc : tsList) {
+      assertTrue(documents.contains(expectedDoc));
+    }
+  }
+  
+  @Test
   public void addDataPoint() throws Exception {
-    Map<IdentifierBundle, TimeSeriesDocument> tsMap = addAndTestTimeSeries();
-    for (TimeSeriesDocument tsDocument : tsMap.values()) {
-      LocalDateDoubleTimeSeries timeSeries = tsDocument.getTimeSeries();
+    List<TimeSeriesDocument> tsList = addAndTestTimeSeries();
+    for (TimeSeriesDocument tsDoc : tsList) {
+      LocalDateDoubleTimeSeries timeSeries = tsDoc.getTimeSeries();
       //add datapoint
       LocalDate latestTime = timeSeries.getLatestTime();
       LocalDate date = latestTime.plusDays(1);
@@ -692,23 +760,23 @@ public class TimeSeriesMasterTest extends DBTest {
       values.add(value);
       ArrayLocalDateDoubleTimeSeries updatedTS = new ArrayLocalDateDoubleTimeSeries(dates, values);
       
-      String scheme = tsDocument.getUniqueIdentifier().getScheme();
-      String timeSeriesID = tsDocument.getUniqueIdentifier().getValue();
+      String scheme = tsDoc.getUniqueIdentifier().getScheme();
+      String timeSeriesID = tsDoc.getUniqueIdentifier().getValue();
       DataPointDocument dataPointDocument = new DataPointDocument();
-      dataPointDocument.setTimeSeriesId(tsDocument.getUniqueIdentifier());
+      dataPointDocument.setTimeSeriesId(tsDoc.getUniqueIdentifier());
       dataPointDocument.setDate(date);
       dataPointDocument.setValue(value);
       
       dataPointDocument = _tsMaster.addDataPoint(dataPointDocument);
       assertNotNull(dataPointDocument);
       assertEquals(UniqueIdentifier.of(scheme, timeSeriesID + "-" + DateUtil.printYYYYMMDD(date)), dataPointDocument.getDataPointId());
-      TimeSeriesDocument updatedDoc = _tsMaster.getTimeSeries(tsDocument.getUniqueIdentifier());
+      TimeSeriesDocument updatedDoc = _tsMaster.getTimeSeries(tsDoc.getUniqueIdentifier());
       assertNotNull(updatedDoc);
       assertNotNull(updatedDoc.getUniqueIdentifier());
       assertEquals(updatedTS, updatedDoc.getTimeSeries());
       
       DataPointDocument actualDDoc = _tsMaster.getDataPoint(dataPointDocument.getDataPointId());
-      assertEquals(tsDocument.getUniqueIdentifier(), actualDDoc.getTimeSeriesId());
+      assertEquals(tsDoc.getUniqueIdentifier(), actualDDoc.getTimeSeriesId());
       assertEquals(dataPointDocument.getDataPointId(), actualDDoc.getDataPointId());
       assertEquals(dataPointDocument.getDate(), actualDDoc.getDate());
       assertEquals(dataPointDocument.getValue(), actualDDoc.getValue());
@@ -726,9 +794,9 @@ public class TimeSeriesMasterTest extends DBTest {
   
   @Test
   public void updateDataPoint() throws Exception {
-    Map<IdentifierBundle, TimeSeriesDocument> tsMap = addAndTestTimeSeries();
-    for (TimeSeriesDocument tsDocument : tsMap.values()) {
-      LocalDateDoubleTimeSeries timeSeries = tsDocument.getTimeSeries();
+    List<TimeSeriesDocument> tsList = addAndTestTimeSeries();
+    for (TimeSeriesDocument tsDoc : tsList) {
+      LocalDateDoubleTimeSeries timeSeries = tsDoc.getTimeSeries();
       //update datapoint
       List<LocalDate> dates = timeSeries.times();
       List<Double> values = timeSeries.values();
@@ -739,10 +807,10 @@ public class TimeSeriesMasterTest extends DBTest {
       
       ArrayLocalDateDoubleTimeSeries updatedTS = new ArrayLocalDateDoubleTimeSeries(dates, values);
       
-      String scheme = tsDocument.getUniqueIdentifier().getScheme();
-      String timeSeriesID = tsDocument.getUniqueIdentifier().getValue();
+      String scheme = tsDoc.getUniqueIdentifier().getScheme();
+      String timeSeriesID = tsDoc.getUniqueIdentifier().getValue();
       DataPointDocument dataPointDocument = new DataPointDocument();
-      dataPointDocument.setTimeSeriesId(tsDocument.getUniqueIdentifier());
+      dataPointDocument.setTimeSeriesId(tsDoc.getUniqueIdentifier());
       dataPointDocument.setDataPointId(UniqueIdentifier.of(scheme, timeSeriesID + "-" + DateUtil.printYYYYMMDD(date)));
       dataPointDocument.setDate(date);
       dataPointDocument.setValue(newValue);
@@ -754,7 +822,7 @@ public class TimeSeriesMasterTest extends DBTest {
       assertEquals(dataPointDocument.getDate(), updated.getDate());
       assertEquals(dataPointDocument.getValue(), updated.getValue());
       
-      TimeSeriesDocument updatedDoc = _tsMaster.getTimeSeries(tsDocument.getUniqueIdentifier());
+      TimeSeriesDocument updatedDoc = _tsMaster.getTimeSeries(tsDoc.getUniqueIdentifier());
       assertNotNull(updatedDoc);
       assertNotNull(updatedDoc.getUniqueIdentifier());
       assertEquals(updatedTS, updatedDoc.getTimeSeries());
@@ -764,8 +832,8 @@ public class TimeSeriesMasterTest extends DBTest {
   
   @Test
   public void removeDataPoint() throws Exception {
-    Map<IdentifierBundle, TimeSeriesDocument> tsMap = addAndTestTimeSeries();
-    for (TimeSeriesDocument tsDocument : tsMap.values()) {
+    List<TimeSeriesDocument> tsList = addAndTestTimeSeries();
+    for (TimeSeriesDocument tsDocument : tsList) {
       LocalDateDoubleTimeSeries timeSeries = tsDocument.getTimeSeries();
       //delete random datapoints
       List<LocalDate> dates = timeSeries.times();
@@ -791,7 +859,7 @@ public class TimeSeriesMasterTest extends DBTest {
     IdentifierBundle identifiers = IdentifierBundle.of(Identifier.of("sa", "ida"), Identifier.of("sb", "idb"));
     
     SortedMap<ZonedDateTime, DoubleTimeSeries<LocalDate>> timeStampTSMap = new TreeMap<ZonedDateTime, DoubleTimeSeries<LocalDate>>();
-    LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries(null);
+    LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries(DEFAULT_START, DEFAULT_END);
     
     SortedMap<LocalDate, Double> currentTimeSeriesMap = new TreeMap<LocalDate, Double>();
     for (int i = 0; i < timeSeries.size(); i++) {
@@ -860,7 +928,7 @@ public class TimeSeriesMasterTest extends DBTest {
     timeStampTSMap.put(Clock.system(javax.time.calendar.TimeZone.UTC).zonedDateTime(), timeSeries);
     
     //add new datapoints
-    timeSeries = makeRandomTimeSeries(null);
+    timeSeries = makeRandomTimeSeries(DEFAULT_START, DEFAULT_END);
     tsDocument.setTimeSeries(timeSeries);
     _tsMaster.updateTimeSeries(tsDocument);
     tsDocument = _tsMaster.getTimeSeries(tsDocument.getUniqueIdentifier());
@@ -920,13 +988,10 @@ public class TimeSeriesMasterTest extends DBTest {
     assertEquals(expectedDoc.getObservationTime(), actualDoc.getObservationTime());
   }
     
-  private LocalDateDoubleTimeSeries makeRandomTimeSeries(LocalDate start) {
-    if (start == null) {
-      start = LocalDate.of(2000, 1, 2);
-    }
+  private LocalDateDoubleTimeSeries makeRandomTimeSeries(LocalDate start, LocalDate end) {
     MapLocalDateDoubleTimeSeries tsMap = new MapLocalDateDoubleTimeSeries();
-    LocalDate end = start.plusDays(10);
     LocalDate current = start;
+    tsMap.putDataPoint(current, Math.random());
     while (current.isBefore(end)) {
       current = current.plusDays(1);
       if (isWeekday(current)) {
@@ -934,32 +999,10 @@ public class TimeSeriesMasterTest extends DBTest {
       }
     }
     return new ArrayLocalDateDoubleTimeSeries(tsMap);
-    
   }
   
   private boolean isWeekday(LocalDate day) {
     return (day.getDayOfWeek() != DayOfWeek.SATURDAY && day.getDayOfWeek() != DayOfWeek.SUNDAY);
-  }
-  
-  private void addRandonTimeSeriesToDB(int size) {
-    for (int i = 0; i < size; i++) {
-      Identifier identifier = Identifier.of("t" + i, "tid" + i);
-      IdentifierBundle identifiers = IdentifierBundle.of(identifier);
-      LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries(null);
-      
-      TimeSeriesDocument tsDocument = new TimeSeriesDocument();
-      tsDocument.setDataField(CLOSE_DATA_FIELD + i);
-      tsDocument.setDataProvider(CMPL_DATA_PROVIDER + i);
-      tsDocument.setDataSource(BBG_DATA_SOURCE + i);
-      tsDocument.setObservationTime(LCLOSE_OBSERVATION_TIME + i);
-      tsDocument.setIdentifiers(identifiers);
-      tsDocument.setTimeSeries(timeSeries);
-      
-      tsDocument = _tsMaster.addTimeSeries(tsDocument);
-      
-      assertNotNull(tsDocument);
-      assertNotNull(tsDocument.getUniqueIdentifier());
-    }
   }
 
 }

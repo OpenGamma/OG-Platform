@@ -82,8 +82,8 @@ public class MasterTimeSeriesSourceTest {
   
   @Test
   public void getHistoricalDataByIdentifier() throws Exception {
-    TimeSeriesRequest request = new TimeSeriesRequest();
-    request.setIdentifiers(IDENTIFIERS);
+    TimeSeriesSearchRequest request = new TimeSeriesSearchRequest();
+    request.getIdentifiers().addAll(IDENTIFIERS.getIdentifiers());
     request.setDataSource(BBG_DATA_SOURCE);
     request.setDataProvider(CMPL_DATA_PROVIDER);
     request.setDataField(CLOSE_DATA_FIELD);
@@ -121,7 +121,7 @@ public class MasterTimeSeriesSourceTest {
   
   @Test
   public void getHistoricalDataByUID() throws Exception {
-    TimeSeriesRequest request = new TimeSeriesRequest();
+    TimeSeriesSearchRequest request = new TimeSeriesSearchRequest();
     request.setTimeSeriesId(UID);
     request.setLoadTimeSeries(true);
     request.setStart(null);
@@ -145,8 +145,8 @@ public class MasterTimeSeriesSourceTest {
   
   @Test
   public void getHistoricalDataWithoutMetaData() throws Exception {
-    TimeSeriesRequest request = new TimeSeriesRequest();
-    request.setIdentifiers(IDENTIFIERS);
+    TimeSeriesSearchRequest request = new TimeSeriesSearchRequest();
+    request.getIdentifiers().addAll(IDENTIFIERS.getIdentifiers());
     request.setDataSource(BBG_DATA_SOURCE);
     request.setDataProvider(CMPL_DATA_PROVIDER);
     request.setDataField(CLOSE_DATA_FIELD);

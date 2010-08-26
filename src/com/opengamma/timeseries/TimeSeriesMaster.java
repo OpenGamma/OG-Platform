@@ -52,7 +52,7 @@ public interface TimeSeriesMaster {
    * @param request  the search request, not null
    * @return the search result, not null
    */
-  TimeSeriesSearchResult searchTimeSeries(TimeSeriesRequest request);
+  TimeSeriesSearchResult searchTimeSeries(TimeSeriesSearchRequest request);
 
   /**
    * Gets a Timeseries by unique identifier.
