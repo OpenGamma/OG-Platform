@@ -11,6 +11,8 @@ import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.net.URI;
+
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -25,7 +27,6 @@ import com.opengamma.financial.position.master.rest.DataPortfolioTreeResource;
 import com.opengamma.financial.position.master.rest.DataPortfolioTreesResource;
 import com.opengamma.id.UniqueIdentifier;
 import com.sun.jersey.api.client.ClientResponse.Status;
-import com.sun.jersey.api.uri.UriBuilderImpl;
 
 /**
  * Tests DataPortfoliosResource.
@@ -40,7 +41,7 @@ public class DataPortfolioTreesResourceTest {
   public void setUp() {
     _underlying = mock(PositionMaster.class);
     _uriInfo = mock(UriInfo.class);
-    when(_uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl().host("testhost"));
+    when(_uriInfo.getBaseUri()).thenReturn(URI.create("testhost"));
     _resource = new DataPortfolioTreesResource(_underlying);
   }
 

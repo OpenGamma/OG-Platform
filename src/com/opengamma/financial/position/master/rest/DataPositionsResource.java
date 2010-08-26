@@ -15,6 +15,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Providers;
 
@@ -71,7 +72,7 @@ public class DataPositionsResource extends AbstractDataResource {
   @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, PositionDocument request) {
     PositionDocument result = getPositionMaster().addPosition(request);
-    return Response.created(DataPositionResource.uri(uriInfo, result.getPositionId())).entity(result).build();
+    return Response.created(DataPositionResource.uri(uriInfo.getBaseUri(), result.getPositionId())).entity(result).build();
   }
 
   //-------------------------------------------------------------------------
@@ -84,11 +85,16 @@ public class DataPositionsResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   /**
    * Builds a URI for all positions.
-   * @param uriInfo  the URI information, not null
+   * @param baseUri  the base URI, not null
+   * @param searchMsg  the search message, may be null
    * @return the URI, not null
    */
-  public static URI uri(UriInfo uriInfo) {
-    return uriInfo.getBaseUriBuilder().path("/positions").build();
+  public static URI uri(URI baseUri, String searchMsg) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/positions");
+    if (searchMsg != null) {
+      bld.queryParam("msg", searchMsg);
+    }
+    return bld.build();
   }
 
 }

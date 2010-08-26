@@ -12,10 +12,11 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.ext.Providers;
 
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
@@ -38,9 +39,9 @@ public class DataPortfolioTreeResource extends AbstractDataResource {
    */
   private final DataPortfolioTreesResource _portfoliosResource;
   /**
-   * The portfolio unique identifier.
+   * The identifier specified in the URI.
    */
-  private final UniqueIdentifier _urlPortfolioId;
+  private UniqueIdentifier _urlResourceId;
 
   /**
    * Creates the resource.
@@ -51,7 +52,7 @@ public class DataPortfolioTreeResource extends AbstractDataResource {
     ArgumentChecker.notNull(portfoliosResource, "position master");
     ArgumentChecker.notNull(portfolioId, "portfolio");
     _portfoliosResource = portfoliosResource;
-    _urlPortfolioId = portfolioId;
+    _urlResourceId = portfolioId;
   }
 
   //-------------------------------------------------------------------------
@@ -68,7 +69,7 @@ public class DataPortfolioTreeResource extends AbstractDataResource {
    * @return the unique identifier, not null
    */
   public UniqueIdentifier getUrlPortfolioId() {
-    return _urlPortfolioId;
+    return _urlResourceId;
   }
 
   //-------------------------------------------------------------------------
@@ -116,15 +117,48 @@ public class DataPortfolioTreeResource extends AbstractDataResource {
     return Response.ok(result).build();
   }
 
+  @GET
+  @Path("versions/{versionId}")
+  public Response getVersioned(@PathParam("versionId") String versionId) {
+    _urlResourceId = _urlResourceId.withVersion(versionId);
+    return get();
+  }
+
   //-------------------------------------------------------------------------
   /**
-   * Builds a URI for a portfolio.
-   * @param uriInfo  the URI information, not null
-   * @param portfolioId  the portfolio unique identifier, not null
+   * Builds a URI for the resource.
+   * @param baseUri  the base URI, not null
+   * @param id  the resource identifier, not null
    * @return the URI, not null
    */
-  public static URI uri(UriInfo uriInfo, UniqueIdentifier portfolioId) {
-    return uriInfo.getBaseUriBuilder().path("/portfoliotrees/{portfolioId}").build(portfolioId);
+  public static URI uri(URI baseUri, UniqueIdentifier id) {
+    return UriBuilder.fromUri(baseUri).path("/portfoliotrees/{portfolioId}").build(id.toLatest());
+  }
+
+  /**
+   * Builds a URI for the versions of the resource.
+   * @param baseUri  the base URI, not null
+   * @param id  the resource identifier, not null
+   * @param searchMsg  the search message, may be null
+   * @return the URI, not null
+   */
+  public static URI uriVersions(URI baseUri, UniqueIdentifier id, String searchMsg) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/portfoliotrees/{portfolioId}/versions");
+    if (searchMsg != null) {
+      bld.queryParam("msg", searchMsg);
+    }
+    return bld.build(id.toLatest());
+  }
+
+  /**
+   * Builds a URI for a specific version of the resource.
+   * @param baseUri  the base URI, not null
+   * @param uid  the resource unique identifier, not null
+   * @return the URI, not null
+   */
+  public static URI uriVersion(URI baseUri, UniqueIdentifier uid) {
+    return UriBuilder.fromUri(baseUri).path("/portfoliotrees/{portfolioId}/versions/{versionId}")
+      .build(uid.toLatest(), uid.getVersion());
   }
 
 }
