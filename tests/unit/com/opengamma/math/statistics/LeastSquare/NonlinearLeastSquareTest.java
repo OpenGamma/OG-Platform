@@ -92,6 +92,18 @@ public class NonlinearLeastSquareTest {
     assertEquals(0.0, res.getParameters().getEntry(3), 1e-8);
   }
 
+  @Test
+  public void solveExactWithoutGradientTest() {
+
+    DoubleMatrix1D start = new DoubleMatrix1D(new double[] {1.2, 0.8, -0.2, -0.3});
+    LeastSquareResults res = LS.solve(PARM_FUNCTION, start);
+    assertEquals(0.0, res.getChiSq(), 1e-8);
+    assertEquals(1.0, res.getParameters().getEntry(0), 1e-8);
+    assertEquals(1.0, res.getParameters().getEntry(1), 1e-8);
+    assertEquals(0.0, res.getParameters().getEntry(2), 1e-8);
+    assertEquals(0.0, res.getParameters().getEntry(3), 1e-8);
+  }
+
   /**
    * This tests a fit to random data, so it could fail or rare occasions. Only consecutive fails indicate a bug 
    */

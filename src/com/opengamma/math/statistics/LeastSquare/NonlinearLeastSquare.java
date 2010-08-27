@@ -7,6 +7,7 @@ package com.opengamma.math.statistics.LeastSquare;
 
 import com.opengamma.math.ConvergenceException;
 import com.opengamma.math.UtilFunctions;
+import com.opengamma.math.differentiation.ScalarFieldFirstOrderDifferentiator;
 import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.linearalgebra.Decomposition;
 import com.opengamma.math.linearalgebra.DecompositionResult;
@@ -59,6 +60,20 @@ public class NonlinearLeastSquare {
     _decomposition = new LUDecompositionCommons();
     _algebra = new OGMatrixAlgebra();
     _eps = 1e-8;
+  }
+
+  public LeastSquareResults solve(final ParameterizedFunction<Double, DoubleMatrix1D, Double> func,
+      DoubleMatrix1D startPos) {
+    final ScalarFieldFirstOrderDifferentiator diff = new ScalarFieldFirstOrderDifferentiator();
+
+    //if a gradient with respect to the parameters is not supplied, calculate it with finite difference 
+    ParameterizedFunction<Double, DoubleMatrix1D, DoubleMatrix1D> grad = new ParameterizedFunction<Double, DoubleMatrix1D, DoubleMatrix1D>() {
+      @Override
+      public DoubleMatrix1D evaluate(Double x, DoubleMatrix1D parameters) {
+        return diff.derivative(func.asFuntionOfParameters(x)).evaluate(parameters);
+      }
+    };
+    return solve(func, grad, startPos);
   }
 
   public LeastSquareResults solve(ParameterizedFunction<Double, DoubleMatrix1D, Double> func,

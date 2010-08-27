@@ -30,10 +30,18 @@ public class ScalarFieldFirstOrderDifferentiator implements Derivative<DoubleMat
     this(DIFF_TYPE, DEFAULT_EPS);
   }
 
+  /**
+   * Approximates the derivative of a scalar function by finite difference. If the size of the domain is very small (i.e. << 1) or very large (>>1), consider rescaling first
+   * @param differenceType FORWARD, BACKWARD, or CENTRAL - unless you have a compelling reason not to (e.g. you are at the edge of the function domain) use CENTRAL 
+   * @param eps the step size used to approximate the derivative - Do NOT use too small a value, the result will most likely be dominated by noise (i.e. nonsense). 
+   * Use around 1e-5 times the domain size. 
+   * 
+   */
   public ScalarFieldFirstOrderDifferentiator(final FiniteDifferenceType differenceType, final double eps) {
     Validate.notNull(differenceType);
     if (eps < MIN_EPS) {
-      throw new IllegalArgumentException("eps is too small. A good value is 1e-5*size of domain. The minimum value is " + MIN_EPS);
+      throw new IllegalArgumentException("eps is too small. A good value is 1e-5*size of domain. The minimum value is "
+          + MIN_EPS);
     }
     _differenceType = differenceType;
     _eps = eps;
