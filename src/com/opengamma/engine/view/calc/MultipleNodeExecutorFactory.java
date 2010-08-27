@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view.calc;
 
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * 
  */
@@ -58,6 +60,7 @@ public class MultipleNodeExecutorFactory implements DependencyGraphExecutorFacto
 
   @Override
   public MultipleNodeExecutor createExecutor(final SingleComputationCycle cycle) {
+    ArgumentChecker.notNull(cycle, "cycle");
     return new MultipleNodeExecutor(cycle, getMinimumJobItems(), getMaximumJobItems(), getMinimumJobCost(), getMaximumJobCost(), getMaximumConcurrency());
   }
 
