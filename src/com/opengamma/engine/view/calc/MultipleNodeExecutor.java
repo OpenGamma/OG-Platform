@@ -89,6 +89,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     private AtomicInteger _blockCount;
 
     private int _startTime;
+    private int _startTimeCache;
     private int _executionCost;
 
     public GraphFragment() {
@@ -128,12 +129,20 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
       return _executionCost;
     }
 
-    public int getStartTime() {
-      return _startTime;
-    }
-
-    public void setStartTime(final int startTime) {
-      _startTime = startTime;
+    public int getStartTime(final int startTimeCache) {
+      if (startTimeCache == _startTimeCache) {
+        return _startTime;
+      }
+      _startTimeCache = startTimeCache;
+      int latest = 0;
+      for (GraphFragment input : _inputs) {
+        final int finish = input.getStartTime(startTimeCache) + input._executionCost;
+        if (finish > latest) {
+          latest = finish;
+        }
+      }
+      _startTime = latest;
+      return latest;
     }
 
     public void prependFragment(final GraphFragment fragment) {
@@ -244,32 +253,29 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
       fragment.executeImpl(graph);
       return fragment;
     }
-    final Set<GraphFragment> visited = new HashSet<GraphFragment>();
+    final Set<GraphFragment> allFragments = new HashSet<GraphFragment>((graph.getSize() * 4) / 3);
     final RootGraphFragment logicalRoot = new RootGraphFragment();
-    for (GraphFragment root : graphToFragments(graph)) {
+    for (GraphFragment root : graphToFragments(graph, allFragments)) {
       root.getDependencies().add(logicalRoot);
       logicalRoot.getInputs().add(root);
     }
     int failCount = 0;
     do {
-      visited.clear();
-      if (mergeSharedInputs(logicalRoot, visited)) {
+      if (mergeSharedInputs(logicalRoot, allFragments)) {
         failCount = 0;
       } else {
         if (++failCount >= 3) {
           break;
         }
       }
-      visited.clear();
-      if (mergeSingleDependencies(logicalRoot.getInputs(), visited)) {
+      if (mergeSingleDependencies(allFragments)) {
         failCount = 0;
       } else {
         if (++failCount >= 3) {
           break;
         }
       }
-      visited.clear();
-      if (reduceGraphConcurrency(logicalRoot, visited)) {
+      if (reduceConcurrency(logicalRoot, allFragments)) {
         failCount = 0;
       } else {
         if (++failCount >= 3) {
@@ -277,14 +283,18 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
         }
       }
     } while (true);
-    // visited.clear();
-    // printGraph("", logicalRoot.getInputs(), visited);
-    visited.clear();
-    setBlockCount(logicalRoot.getInputs(), visited);
+    // Set block counts on non-leaf nodes
     logicalRoot.initBlockCount();
-    visited.clear();
-    final Collection<GraphFragment> leaves = getLeafFragments(logicalRoot.getInputs(), visited);
-    for (GraphFragment fragment : leaves) {
+    final Iterator<GraphFragment> fragmentIterator = allFragments.iterator();
+    while (fragmentIterator.hasNext()) {
+      final GraphFragment fragment = fragmentIterator.next();
+      if (!fragment.getInputs().isEmpty()) {
+        fragment.initBlockCount();
+        fragmentIterator.remove();
+      }
+    }
+    // Execute anything left (leaf nodes)
+    for (GraphFragment fragment : allFragments) {
       fragment.execute(graph);
     }
     return logicalRoot;
@@ -326,16 +336,14 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     }
   }
 
-  private Collection<GraphFragment> graphToFragments(final DependencyGraph graph) {
+  private Collection<GraphFragment> graphToFragments(final DependencyGraph graph, final Set<GraphFragment> allFragments) {
     final Map<DependencyNode, GraphFragment> node2fragment = new HashMap<DependencyNode, GraphFragment>();
     final Collection<DependencyNode> rootNodes = graph.getRootNodes();
     final Collection<GraphFragment> rootFragments = new ArrayList<GraphFragment>(rootNodes.size());
     graphToFragments(graph, rootFragments, node2fragment, rootNodes);
+    allFragments.addAll(node2fragment.values());
     return rootFragments;
   }
-
-  // TODO 2010-08-27 Andrew -- Write some unit tests before tackling the note below
-  // REVIEW 2010-08-27 Andrew -- The graph walking is inefficient. The node coalescing doesn't even require a walk - just an "any-order" fragment iteration should work
 
   private void graphToFragments(final DependencyGraph graph, final Collection<GraphFragment> output, final Map<DependencyNode, GraphFragment> node2fragment, final Collection<DependencyNode> nodes) {
     for (DependencyNode node : nodes) {
@@ -346,8 +354,9 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
       if (fragment == null) {
         fragment = new GraphFragment(node);
         node2fragment.put(node, fragment);
-        if (!node.getInputNodes().isEmpty()) {
-          graphToFragments(graph, fragment.getInputs(), node2fragment, node.getInputNodes());
+        final Collection<DependencyNode> inputNodes = node.getInputNodes();
+        if (!inputNodes.isEmpty()) {
+          graphToFragments(graph, fragment.getInputs(), node2fragment, inputNodes);
           for (GraphFragment input : fragment.getInputs()) {
             input.getDependencies().add(fragment);
           }
@@ -361,15 +370,42 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
    * Finds pairs of nodes with the same input set (i.e. that would execute concurrently) that are below the minimum job size
    * and merge them together.
    */
-  private boolean mergeSharedInputs(final GraphFragment logicalRoot, final Set<GraphFragment> visited) {
-    final Map<GraphFragment, GraphFragment> candidates = new HashMap<GraphFragment, GraphFragment>();
+  private boolean mergeSharedInputs(final GraphFragment logicalRoot, final Set<GraphFragment> allFragments) {
+    final Map<Set<GraphFragment>, GraphFragment> possibleCandidates = new HashMap<Set<GraphFragment>, GraphFragment>();
+    // REVIEW 2010-08-27 Andrew -- Should we only create validCandidates when we're ready to use it?
+    final Map<GraphFragment, GraphFragment> validCandidates = new HashMap<GraphFragment, GraphFragment>();
     boolean result = false;
     do {
-      findSharedInputMergeCandidates(logicalRoot.getInputs(), new HashMap<Set<GraphFragment>, GraphFragment>(), visited, candidates);
-      if (candidates.isEmpty()) {
+      // Scan all fragments for possible merges
+      for (GraphFragment fragment : allFragments) {
+        if (fragment.getInputs().isEmpty()) {
+          // No inputs to consider
+          continue;
+        }
+        if ((fragment.getJobCost() >= getMinJobCost()) && (fragment.getJobItems() >= getMinJobItems())) {
+          // We already meet the minimum requirement for the graph
+          continue;
+        }
+        final GraphFragment mergeCandidate = possibleCandidates.get(fragment.getInputs());
+        if (mergeCandidate != null) {
+          if ((mergeCandidate.getJobCost() + fragment.getJobCost() <= getMaxJobCost()) && (mergeCandidate.getJobItems() + fragment.getJobItems() <= getMaxJobItems())) {
+            // Defer the merge because we're iterating through the dependent's inputs at the moment
+            validCandidates.put(fragment, mergeCandidate);
+            // Stop using the merge candidate
+            possibleCandidates.remove(fragment.getInputs());
+            continue;
+          }
+          if (fragment.getJobCost() >= mergeCandidate.getJobCost()) {
+            // We are a worse possible candidate as we're already more expensive
+            continue;
+          }
+        }
+        possibleCandidates.put(fragment.getInputs(), fragment);
+      }
+      if (validCandidates.isEmpty()) {
         return result;
       }
-      for (Map.Entry<GraphFragment, GraphFragment> merge : candidates.entrySet()) {
+      for (Map.Entry<GraphFragment, GraphFragment> merge : validCandidates.entrySet()) {
         final GraphFragment fragment = merge.getKey();
         final GraphFragment mergeCandidate = merge.getValue();
         mergeCandidate.appendFragment(fragment);
@@ -383,6 +419,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
         for (GraphFragment input : fragment.getInputs()) {
           input.getDependencies().remove(fragment);
         }
+        allFragments.remove(fragment);
       }
       // If deep nodes have merged with "root" nodes then we need to kill the roots
       final Iterator<GraphFragment> fragmentIterator = logicalRoot.getInputs().iterator();
@@ -393,168 +430,81 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
           fragmentIterator.remove();
         }
       }
-      candidates.clear();
-      visited.clear();
+      validCandidates.clear();
+      possibleCandidates.clear();
       result = true;
     } while (true);
   }
 
-  private void findSharedInputMergeCandidates(final Collection<GraphFragment> fragments, final Map<Set<GraphFragment>, GraphFragment> mergeCandidates, final Set<GraphFragment> visited,
-      final Map<GraphFragment, GraphFragment> merged) {
-    final Iterator<GraphFragment> fragmentIterator = fragments.iterator();
-    while (fragmentIterator.hasNext()) {
-      final GraphFragment fragment = fragmentIterator.next();
-      if (fragment.getInputs().isEmpty()) {
-        // No inputs to consider
-        continue;
-      }
-      if (!visited.add(fragment)) {
-        continue;
-      }
-      findSharedInputMergeCandidates(fragment.getInputs(), mergeCandidates, visited, merged);
-      if ((fragment.getJobCost() >= getMinJobCost()) && (fragment.getJobItems() >= getMinJobItems())) {
-        // We already meet the minimum requirement for the graph
-        continue;
-      }
-      final GraphFragment mergeCandidate = mergeCandidates.get(fragment.getInputs());
-      if (mergeCandidate != null) {
-        if ((mergeCandidate.getJobCost() + fragment.getJobCost() <= getMaxJobCost()) && (mergeCandidate.getJobItems() + fragment.getJobItems() <= getMaxJobItems())) {
-          // Defer the merge because we're iterating through the dependent's inputs at the moment
-          merged.put(fragment, mergeCandidate);
-          // Stop using the merge candidate
-          mergeCandidates.remove(fragment.getInputs());
-          continue;
-        }
-        if (fragment.getJobCost() >= mergeCandidate.getJobCost()) {
-          // We are a worse 'merge' candidate as we're already more expensive
-          continue;
-        }
-      }
-      mergeCandidates.put(fragment.getInputs(), fragment);
-    }
-  }
-
   /**
    * Traverses the tree from root to leaves. If a fragment has only one dependency, and both it and
-   * its dependent are below the minimum job size they are merged. The earliestStart metric is
-   * updated as it goes.
+   * its dependent are below the minimum job size they are merged.
    */
-  private boolean mergeSingleDependencies(final Collection<GraphFragment> fragments, final Set<GraphFragment> visited) {
+  private boolean mergeSingleDependencies(final Set<GraphFragment> allFragments) {
     int changes = 0;
-    for (GraphFragment fragment : fragments) {
-      changes += mergeSingleDependency(fragment, visited);
-    }
-    return changes > 0;
-  }
-
-  private int mergeSingleDependency(final GraphFragment fragment, final Set<GraphFragment> visited) {
-    if (fragment.getInputs().isEmpty() || !visited.add(fragment)) {
-      return 0;
-    }
-    Collection<GraphFragment> acquiredFragments = null;
-    final Iterator<GraphFragment> inputIterator = fragment.getInputs().iterator();
-    int latestFinish = 0;
-    int changes = 0;
-    while (inputIterator.hasNext()) {
-      final GraphFragment input = inputIterator.next();
-      changes += mergeSingleDependency(input, visited);
-      if ((input.getDependencies().size() == 1) && ((fragment.getJobItems() + input.getJobItems()) <= getMaxJobItems()) && ((fragment.getJobCost() + input.getJobCost()) <= getMaxJobCost())) {
-        changes++;
-        fragment.prependFragment(input);
-        // Slice it out of the graph
-        if (!input.getInputs().isEmpty()) {
-          if (acquiredFragments == null) {
-            acquiredFragments = new LinkedList<GraphFragment>();
-          }
-          for (GraphFragment inputInput : input.getInputs()) {
-            inputInput.getDependencies().remove(input);
-            inputInput.getDependencies().add(fragment);
-            acquiredFragments.add(inputInput);
-          }
-        }
-        inputIterator.remove();
-      } else {
-        final int finish = input.getStartTime() + input.getJobCost();
-        if (finish > latestFinish) {
-          latestFinish = finish;
-        }
-      }
-    }
-    // Anything underneath nodes we sliced out goes into our input set
-    if (acquiredFragments != null) {
-      for (GraphFragment acquiredFragment : acquiredFragments) {
-        fragment.getInputs().add(acquiredFragment);
-        final int finish = acquiredFragment.getStartTime() + acquiredFragment.getJobCost();
-        if (finish > latestFinish) {
-          latestFinish = finish;
-        }
-      }
-    }
-    // Update the start time to the latest finish of input nodes
-    fragment.setStartTime(latestFinish);
-    return changes;
-  }
-
-  private void setBlockCount(final Collection<GraphFragment> fragments, final Set<GraphFragment> visited) {
-    for (GraphFragment fragment : fragments) {
-      if (!fragment.getInputs().isEmpty() && visited.add(fragment)) {
-        fragment.initBlockCount();
-        setBlockCount(fragment.getInputs(), visited);
-      }
-    }
-  }
-
-  private Collection<GraphFragment> getLeafFragments(final Collection<GraphFragment> fragments, final Set<GraphFragment> visited) {
-    final Set<GraphFragment> leaves = new HashSet<GraphFragment>();
-    getLeafFragments(fragments, leaves, visited);
-    return leaves;
-  }
-
-  private void getLeafFragments(final Collection<GraphFragment> fragments, final Set<GraphFragment> leaves, final Set<GraphFragment> visited) {
-    for (GraphFragment fragment : fragments) {
-      if (!visited.add(fragment)) {
+    final Iterator<GraphFragment> fragmentIterator = allFragments.iterator();
+    while (fragmentIterator.hasNext()) {
+      final GraphFragment fragment = fragmentIterator.next();
+      if (fragment.getDependencies().size() != 1) {
         continue;
       }
-      if (fragment.getInputs().isEmpty()) {
-        leaves.add(fragment);
-      } else {
-        getLeafFragments(fragment.getInputs(), leaves, visited);
+      final GraphFragment dependency = fragment.getDependencies().iterator().next();
+      if (dependency.getNodes().isEmpty()) {
+        // Ignore the roots
+        continue;
       }
-    }
-  }
-
-  public void printFragment(final GraphFragment root) {
-    printFragment("", Collections.singleton(root), new HashSet<GraphFragment>());
-  }
-
-  private void printFragment(final String indent, final Collection<GraphFragment> fragments, final Set<GraphFragment> printed) {
-    if (indent.length() > 16) {
-      return;
-    }
-    for (GraphFragment fragment : fragments) {
-      /*
-       * if (!printed.add(fragment)) {
-       * System.out.println(indent + " Fragments " + fragment.fragmentList());
-       * continue;
-       * }
-       */
-      System.out.println(indent + " " + fragment);
-      if (!fragment.getInputs().isEmpty()) {
-        printFragment(indent + "  ", fragment.getInputs(), printed);
+      if ((fragment.getJobItems() + dependency.getJobItems() > getMaxJobItems()) || (fragment.getJobCost() + dependency.getJobCost() > getMaxJobCost())) {
+        // Can't merge
+        continue;
       }
+      // Merge fragment with it's dependency and slice it out of the graph
+      dependency.prependFragment(fragment);
+      fragmentIterator.remove();
+      dependency.getInputs().remove(fragment);
+      for (GraphFragment input : fragment.getInputs()) {
+        dependency.getInputs().add(input);
+        input.getDependencies().remove(fragment);
+        input.getDependencies().add(dependency);
+      }
+      changes++;
     }
+    return changes > 0;
   }
 
   /**
    * If max concurrency is less than Integer.MAX_VALUE, any nodes that would execute concurrently above
    * this limit are merged if possible within the maximum job size constraint.
    */
-  private boolean reduceGraphConcurrency(final GraphFragment logicalRoot, final Set<GraphFragment> visited) {
+  private boolean reduceConcurrency(final GraphFragment logicalRoot, final Set<GraphFragment> allFragments) {
     if (getMaxConcurrency() == Integer.MAX_VALUE) {
       return false;
     }
     final NavigableMap<Integer, Pair<List<GraphFragment>, List<GraphFragment>>> concurrencyEvent = new TreeMap<Integer, Pair<List<GraphFragment>, List<GraphFragment>>>();
-    estimateJobConcurrency(logicalRoot.getInputs(), concurrencyEvent, visited);
+    final int cacheKey = allFragments.size(); // Any changes to the graph reduce this, so we use it to cache the start time
+    for (GraphFragment fragment : allFragments) {
+      Pair<List<GraphFragment>, List<GraphFragment>> event = concurrencyEvent.get(fragment.getStartTime(cacheKey));
+      if (event == null) {
+        event = Pair.of((List<GraphFragment>) new LinkedList<GraphFragment>(), null);
+        concurrencyEvent.put(fragment.getStartTime(cacheKey), event);
+      } else {
+        if (event.getFirst() == null) {
+          event = Pair.of((List<GraphFragment>) new LinkedList<GraphFragment>(), event.getSecond());
+          concurrencyEvent.put(fragment.getStartTime(cacheKey), event);
+        }
+      }
+      event.getFirst().add(fragment);
+      event = concurrencyEvent.get(fragment.getStartTime(cacheKey) + fragment.getJobCost());
+      if (event == null) {
+        event = Pair.of(null, (List<GraphFragment>) new LinkedList<GraphFragment>());
+        concurrencyEvent.put(fragment.getStartTime(cacheKey) + fragment.getJobCost(), event);
+      } else {
+        if (event.getSecond() == null) {
+          event = Pair.of(event.getFirst(), (List<GraphFragment>) new LinkedList<GraphFragment>());
+          concurrencyEvent.put(fragment.getStartTime(cacheKey) + fragment.getJobCost(), event);
+        }
+      }
+      event.getSecond().add(fragment);
+    }
     final Set<GraphFragment> executing = new HashSet<GraphFragment>();
     int changes = 0;
     for (Map.Entry<Integer, Pair<List<GraphFragment>, List<GraphFragment>>> eventEntry : concurrencyEvent.entrySet()) {
@@ -586,6 +536,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
                 dependency.getInputs().add(mergeCandidate);
               }
             }
+            allFragments.remove(fragment);
             changes++;
             fragmentIterator.remove();
             if (--displace == 0) {
@@ -612,34 +563,25 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     return changes > 0;
   }
 
-  private void estimateJobConcurrency(final Collection<GraphFragment> fragments, final Map<Integer, Pair<List<GraphFragment>, List<GraphFragment>>> concurrencyEvents, final Set<GraphFragment> visited) {
+  public void printFragment(final GraphFragment root) {
+    printFragment("", Collections.singleton(root), new HashSet<GraphFragment>());
+  }
+
+  private void printFragment(final String indent, final Collection<GraphFragment> fragments, final Set<GraphFragment> printed) {
+    if (indent.length() > 16) {
+      return;
+    }
     for (GraphFragment fragment : fragments) {
-      if (!visited.add(fragment)) {
-        return;
+      /*
+       * if (!printed.add(fragment)) {
+       * System.out.println(indent + " Fragments " + fragment.fragmentList());
+       * continue;
+       * }
+       */
+      System.out.println(indent + " " + fragment);
+      if (!fragment.getInputs().isEmpty()) {
+        printFragment(indent + "  ", fragment.getInputs(), printed);
       }
-      Pair<List<GraphFragment>, List<GraphFragment>> event = concurrencyEvents.get(fragment.getStartTime());
-      if (event == null) {
-        event = Pair.of((List<GraphFragment>) new LinkedList<GraphFragment>(), null);
-        concurrencyEvents.put(fragment.getStartTime(), event);
-      } else {
-        if (event.getFirst() == null) {
-          event = Pair.of((List<GraphFragment>) new LinkedList<GraphFragment>(), event.getSecond());
-          concurrencyEvents.put(fragment.getStartTime(), event);
-        }
-      }
-      event.getFirst().add(fragment);
-      event = concurrencyEvents.get(fragment.getStartTime() + fragment.getJobCost());
-      if (event == null) {
-        event = Pair.of(null, (List<GraphFragment>) new LinkedList<GraphFragment>());
-        concurrencyEvents.put(fragment.getStartTime() + fragment.getJobCost(), event);
-      } else {
-        if (event.getSecond() == null) {
-          event = Pair.of(event.getFirst(), (List<GraphFragment>) new LinkedList<GraphFragment>());
-          concurrencyEvents.put(fragment.getStartTime() + fragment.getJobCost(), event);
-        }
-      }
-      event.getSecond().add(fragment);
-      estimateJobConcurrency(fragment.getInputs(), concurrencyEvents, visited);
     }
   }
 
