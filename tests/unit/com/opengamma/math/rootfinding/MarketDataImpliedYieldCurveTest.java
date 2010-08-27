@@ -42,9 +42,10 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
 import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
-import com.opengamma.math.rootfinding.newton.JacobianCalculator;
 import com.opengamma.math.rootfinding.newton.NewtonDefaultVectorRootFinder;
+import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.ShermanMorrisonVectorRootFinder;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.DoublesPair;
@@ -71,7 +72,7 @@ public class MarketDataImpliedYieldCurveTest {
   private static final String CURVE_NAME = "Market Data Curve";
 
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> SINGLE_CURVE_FINDER;
-  private static final JacobianCalculator SINGLE_CURVE_JACOBIAN;
+  private static final Function1D<DoubleMatrix1D, DoubleMatrix2D> SINGLE_CURVE_JACOBIAN;
 
   static {
     INSTRUMENTS = new ArrayList<InterestRateDerivative>();
@@ -144,40 +145,38 @@ public class MarketDataImpliedYieldCurveTest {
 
   @Test
   public void testNewton() {
-    final VectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN);
-    doHotSpot(rootFinder, "Newton", SINGLE_CURVE_FINDER);
-    doTest(rootFinder, SINGLE_CURVE_FINDER);
+    final NewtonVectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS);
+    doHotSpot(rootFinder, "Newton", SINGLE_CURVE_FINDER, SINGLE_CURVE_JACOBIAN);
   }
 
   @Test
   public void testBroyden() {
-    final VectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN);
-    doHotSpot(rootFinder, "Broyden", SINGLE_CURVE_FINDER);
-    doTest(rootFinder, SINGLE_CURVE_FINDER);
+    final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
+    doHotSpot(rootFinder, "Broyden", SINGLE_CURVE_FINDER, SINGLE_CURVE_JACOBIAN);
+
   }
 
   @Test
   public void testShermanMorrison() {
-    final VectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS, SINGLE_CURVE_JACOBIAN);
-    doHotSpot(rootFinder, "Sherman-Morrison", SINGLE_CURVE_FINDER);
-    doTest(rootFinder, SINGLE_CURVE_FINDER);
+    final NewtonVectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS);
+    doHotSpot(rootFinder, "Sherman-Morrison", SINGLE_CURVE_FINDER, SINGLE_CURVE_JACOBIAN);
   }
 
-  private void doHotSpot(final VectorRootFinder rootFinder, final String name, final Function1D<DoubleMatrix1D, DoubleMatrix1D> f) {
+  private void doHotSpot(final NewtonVectorRootFinder rootFinder, final String name, final Function1D<DoubleMatrix1D, DoubleMatrix1D> f, final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc) {
     for (int i = 0; i < HOTSPOT_WARMUP_CYCLES; i++) {
-      doTest(rootFinder, f);
+      doTest(rootFinder, f, jacFunc);
     }
     if (BENCHMARK_CYCLES > 0) {
       final OperationTimer timer = new OperationTimer(s_logger, "processing {} cycles for " + name, BENCHMARK_CYCLES);
       for (int i = 0; i < BENCHMARK_CYCLES; i++) {
-        doTest(rootFinder, f);
+        doTest(rootFinder, f, jacFunc);
       }
       timer.finished();
     }
   }
 
-  private void doTest(final VectorRootFinder rootFinder, final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor) {
-    final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(functor, X0);
+  private void doTest(final NewtonVectorRootFinder rootFinder, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc) {
+    final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(func, jacFunc, X0);
     final YieldAndDiscountCurve curve = new InterpolatedYieldCurve(NODE_TIMES, yieldCurveNodes.getData(), EXTRAPOLATOR);
     final YieldCurveBundle bundle = new YieldCurveBundle();
     bundle.setCurve(CURVE_NAME, curve);

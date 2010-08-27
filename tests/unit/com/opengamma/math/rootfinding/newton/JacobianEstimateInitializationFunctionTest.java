@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.rootfinding.newton;
@@ -12,31 +12,23 @@ import org.junit.Test;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.rootfinding.newton.FiniteDifferenceJacobianCalculator;
-import com.opengamma.math.rootfinding.newton.JacobianCalculator;
-import com.opengamma.math.rootfinding.newton.JacobianEstimateInitializationFunction;
 
 /**
  * 
  */
 public class JacobianEstimateInitializationFunctionTest {
-  private static final JacobianCalculator CALCULATOR = new FiniteDifferenceJacobianCalculator();
-  private static final JacobianEstimateInitializationFunction ESTIMATE = new JacobianEstimateInitializationFunction(CALCULATOR);
-  private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> F = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+
+  private static final JacobianEstimateInitializationFunction ESTIMATE = new JacobianEstimateInitializationFunction();
+  private static final Function1D<DoubleMatrix1D, DoubleMatrix2D> J = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
 
     @Override
-    public DoubleMatrix1D evaluate(DoubleMatrix1D v) {
+    public DoubleMatrix2D evaluate(DoubleMatrix1D v) {
       double[] x = v.getData();
-      return new DoubleMatrix1D(new double[] {x[0] * x[0] + 1, x[1] * x[2], 3 * x[2] * x[1], x[3] * x[3]});
+      return new DoubleMatrix2D(new double[][] { {x[0] * x[0], x[0] * x[1]}, {x[0] - x[1], x[1] * x[1]}});
     }
 
   };
-  private static final DoubleMatrix1D X = new DoubleMatrix1D(new double[] {1, 2, 3, 4});
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testNullJacobianCalculator() {
-    new JacobianEstimateInitializationFunction(null);
-  }
+  private static final DoubleMatrix1D X = new DoubleMatrix1D(new double[] {1, 2});
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullFunction() {
@@ -45,16 +37,15 @@ public class JacobianEstimateInitializationFunctionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullVector() {
-    ESTIMATE.getInitializedMatrix(F, null);
+    ESTIMATE.getInitializedMatrix(J, null);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void test() {
-    DoubleMatrix2D m1 = ESTIMATE.getInitializedMatrix(F, X);
-    DoubleMatrix2D m2 = CALCULATOR.evaluate(X, F);
-    for (int i = 0; i < 4; i++) {
-      for (int j = 0; j < 4; j++) {
+    DoubleMatrix2D m1 = ESTIMATE.getInitializedMatrix(J, X);
+    DoubleMatrix2D m2 = J.evaluate(X);
+    for (int i = 0; i < 2; i++) {
+      for (int j = 0; j < 2; j++) {
         assertEquals(m1.getEntry(i, j), m2.getEntry(i, j), 1e-9);
       }
     }

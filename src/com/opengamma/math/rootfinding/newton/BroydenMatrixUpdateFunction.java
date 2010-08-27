@@ -20,8 +20,7 @@ import com.opengamma.math.matrix.Matrix;
 public class BroydenMatrixUpdateFunction implements NewtonRootFinderMatrixUpdateFunction {
 
   @Override
-  public DoubleMatrix2D getUpdatedMatrix(final Function1D<DoubleMatrix1D, DoubleMatrix1D> f, DoubleMatrix1D x, final DoubleMatrix1D deltaX, final DoubleMatrix1D deltaY, final DoubleMatrix2D matrix) {
-    Validate.notNull(f);
+  public DoubleMatrix2D getUpdatedMatrix(final Function1D<DoubleMatrix1D, DoubleMatrix2D> j, DoubleMatrix1D x, final DoubleMatrix1D deltaX, final DoubleMatrix1D deltaY, final DoubleMatrix2D matrix) {
     Validate.notNull(deltaX);
     Validate.notNull(deltaY);
     Validate.notNull(matrix);

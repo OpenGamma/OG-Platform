@@ -21,11 +21,12 @@ public class ShermanMorrisonMatrixUpdateFunctionTest {
   private static final ShermanMorrisonMatrixUpdateFunction UPDATE = new ShermanMorrisonMatrixUpdateFunction(ALGEBRA);
   private static final DoubleMatrix1D V = new DoubleMatrix1D(new double[] {1, 2});
   private static final DoubleMatrix2D M = new DoubleMatrix2D(new double[][] {new double[] {3, 4}, new double[] {5, 6}});
-  private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> F = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+  private static final Function1D<DoubleMatrix1D, DoubleMatrix2D> J = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
 
+    @SuppressWarnings("synthetic-access")
     @Override
-    public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
-      return x;
+    public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
+      return ALGEBRA.getOuterProduct(x, x);
     }
 
   };
@@ -36,22 +37,17 @@ public class ShermanMorrisonMatrixUpdateFunctionTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNullFunction() {
-    UPDATE.getUpdatedMatrix(null, V, V, V, M);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
   public void testNullDeltaX() {
-    UPDATE.getUpdatedMatrix(F, V, null, V, M);
+    UPDATE.getUpdatedMatrix(J, V, null, V, M);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullDeltaY() {
-    UPDATE.getUpdatedMatrix(F, V, V, null, M);
+    UPDATE.getUpdatedMatrix(J, V, V, null, M);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullMatrix() {
-    UPDATE.getUpdatedMatrix(F, V, V, V, null);
+    UPDATE.getUpdatedMatrix(J, V, V, V, null);
   }
 }

@@ -14,12 +14,12 @@ public class QuasiNewtonTest extends MultidimensionalMinimizerWithGradiantTestCa
   private static VectorMinimizerWithGradient MINIMISER = new QuasiNewtonVectorMinimizer();
 
   @Test
-  public void testSolvingRosenbrock() {
+  public void solvingRosenbrockTest() {
     super.testSolvingRosenbrock(MINIMISER);
   }
 
   @Test
-  public void testSolvingCoupledRosenbrock() {
+  public void solvingCoupledRosenbrockTest() {
     super.testSolvingCoupledRosenbrock(MINIMISER);
   }
 
