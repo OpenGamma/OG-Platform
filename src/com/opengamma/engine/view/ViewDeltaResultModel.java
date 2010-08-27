@@ -27,7 +27,7 @@ import javax.time.Instant;
  *
  * @author kirk
  */
-public interface ViewDeltaResultModel extends ViewComputationResultModel {
+public interface ViewDeltaResultModel extends ViewResultModel {
 
   /**
    * The result timestamp for the previous delta, to chain them together

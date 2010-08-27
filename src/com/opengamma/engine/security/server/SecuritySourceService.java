@@ -19,6 +19,7 @@ import org.fudgemsg.FudgeContext;
 import com.opengamma.engine.security.RemoteSecuritySource;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * RESTful backend for {@link RemoteSecuritySource}.
@@ -39,7 +40,7 @@ public class SecuritySourceService {
    * Creates an instance using the default Fudge context.
    */
   public SecuritySourceService() {
-    this(FudgeContext.GLOBAL_DEFAULT);
+    this(OpenGammaFudgeContext.getInstance());
   }
 
   /**

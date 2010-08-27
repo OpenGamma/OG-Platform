@@ -47,11 +47,16 @@ public class MockFunction extends AbstractFunction implements FunctionInvoker {
    * @return A mock function with one input and one output
    */
   public static MockFunction getMockFunction(ComputationTarget target, Object output) {
-    ValueRequirement outputReq = new ValueRequirement("OUTPUT", target.toSpecification());
+    ValueRequirement outputReq = getOutputRequirement(target);
     
     MockFunction fn = new MockFunction(target);
     fn.addResult(outputReq, output);
     return fn;
+  }
+
+  public static ValueRequirement getOutputRequirement(ComputationTarget target) {
+    ValueRequirement outputReq = new ValueRequirement("OUTPUT", target.toSpecification());
+    return outputReq;
   }
   
   public static MockFunction getMockFunction(ComputationTarget target, Object output, ValueRequirement input) {
