@@ -15,9 +15,9 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.fudgemsg.mapping.MapBuilder;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
@@ -27,6 +27,7 @@ import com.opengamma.util.time.Tenor;
 /**
  * Builder for converting Region instances to/from Fudge messages.
  */
+@FudgeBuilderFor(CurveSpecificationBuilderConfiguration.class)
 public class CurveSpecificationBuilderConfigurationBuilder implements FudgeBuilder<CurveSpecificationBuilderConfiguration> {
 
   @Override
@@ -68,7 +69,6 @@ public class CurveSpecificationBuilderConfigurationBuilder implements FudgeBuild
     return message; 
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public CurveSpecificationBuilderConfiguration buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
     FudgeFieldContainer cashInstrumentProvidersMessage = message.getMessage("cashInstrumentProviders");

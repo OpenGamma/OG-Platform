@@ -7,6 +7,7 @@ package com.opengamma.financial.fudgemsg;
 
 import javax.time.calendar.Period;
 
+import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.types.StringFieldType;
 
@@ -20,6 +21,7 @@ public final class TenorSecondaryType extends SecondaryFieldType<Tenor, String> 
   /**
    * Singleton instance of the type.
    */
+  @FudgeSecondaryType
   public static final TenorSecondaryType INSTANCE = new TenorSecondaryType();
 
   private TenorSecondaryType() {

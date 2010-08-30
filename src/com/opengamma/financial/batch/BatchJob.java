@@ -271,6 +271,16 @@ public class BatchJob implements Job {
    */
   private Object _dbHandle;
 
+  /**
+   * Stores instances of all the various interfaces required by functions during execution
+   */
+  private FunctionExecutionContext _functionExecutionContext;
+
+  /**
+   * Stores instances of all the various interfaces required by functions during compilation
+   */
+  private FunctionCompilationContext _functionCompilationContext;
+
 
   //--------------------------------------------------------------------------
 
@@ -458,6 +468,22 @@ public class BatchJob implements Job {
   public void setFunctionRepository(FunctionRepository functionRepository) {
     _functionRepository = functionRepository;
   }
+  
+  public FunctionExecutionContext getFunctionExecutionContext() {
+    return _functionExecutionContext;
+  }
+  
+  public void setFunctionExecutionContext(FunctionExecutionContext executionContext) {
+    _functionExecutionContext = executionContext;
+  }
+  
+  public FunctionCompilationContext getFunctionCompilationContext() {
+    return _functionCompilationContext;
+  }
+  
+  public void setFunctionCompilationContext(FunctionCompilationContext compilationContext) {
+    _functionCompilationContext = compilationContext;
+  }
 
   public SecurityMaster getSecurityMaster() {
     return _securityMaster;
@@ -606,15 +632,10 @@ public class BatchJob implements Job {
     DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
     InMemoryViewComputationCacheSource cacheFactory = new InMemoryViewComputationCacheSource(getFudgeContext());
     
-    FunctionExecutionContext executionContext = new FunctionExecutionContext(); 
-    executionContext.setSecuritySource(securitySource);
-    
-    FunctionCompilationContext compilationContext = new FunctionCompilationContext();
-    compilationContext.setSecuritySource(securitySource);
-    
     ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
-    AbstractCalculationNode localNode = new LocalCalculationNode(cacheFactory, getFunctionRepository(), executionContext, targetResolver, viewProcessorQuerySender, Executors.newCachedThreadPool());
+    AbstractCalculationNode localNode = new LocalCalculationNode(cacheFactory, getFunctionRepository(), _functionExecutionContext, 
+                                                                 targetResolver, viewProcessorQuerySender, Executors.newCachedThreadPool());
     JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(localNode));
     
     ThreadFactory threadFactory = new NamedThreadPoolFactory("BatchJob-" + System.currentTimeMillis(), true);
@@ -632,7 +653,7 @@ public class BatchJob implements Job {
         cacheFactory, 
         jobDispatcher, 
         viewProcessorQueryReceiver, 
-        compilationContext, 
+        _functionCompilationContext, 
         executor,
         dependencyGraphExecutorFactory,
         new DefaultViewPermissionProvider());

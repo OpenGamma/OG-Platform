@@ -5,15 +5,13 @@
  */
 package com.opengamma.financial.fudgemsg;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.engine.security.Security;
 import com.opengamma.financial.analytics.ircurve.ResolvedFixedIncomeStrip;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.id.Identifier;
@@ -22,6 +20,7 @@ import com.opengamma.util.time.Tenor;
 /**
  * Builder for converting Region instances to/from Fudge messages.
  */
+@FudgeBuilderFor(ResolvedFixedIncomeStrip.class)
 public class ResolvedFixedIncomeStripBuilder implements FudgeBuilder<ResolvedFixedIncomeStrip> {
 
   @Override

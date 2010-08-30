@@ -44,26 +44,26 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     Frequency freq = null;
-    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US00O/N Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR O/N")), "LIBOR O/N", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0001W Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 1w")), "LIBOR 1w", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0002W Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 2w")), "LIBOR 2w", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0001M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 1m")), "LIBOR 1m", act360, modified, freq, 2);
-    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0002M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 2m")), "LIBOR 2m", act360, modified, freq, 2);
-    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0003M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 3m")), "LIBOR 3m", act360, modified, freq, 2);
-    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0004M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 4m")), "LIBOR 4m", act360, modified, freq, 2);
-    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0005M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 5m")), "LIBOR 5m", act360, modified, freq, 2);
-    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0006M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 6m")), "LIBOR 6m", act360, modified, freq, 2);
-    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0007M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 7m")), "LIBOR 7m", act360, modified, freq, 2);
-    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0008M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 8m")), "LIBOR 8m", act360, modified, freq, 2);
-    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0009M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 9m")), "LIBOR 9m", act360, modified, freq, 2);
-    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0010M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 10m")), "LIBOR 10m", act360, modified, freq, 2);
-    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0011M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 11m")), "LIBOR 11m", act360, modified, freq, 2);
-    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0012M Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 12m")), "LIBOR 12m", act360, modified, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US00O/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR O/N")), "LIBOR O/N", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0001W Index"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 1w")), "LIBOR 1w", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0002W Index"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 2w")), "LIBOR 2w", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0001M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 1m")), "LIBOR 1m", act360, modified, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0002M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 2m")), "LIBOR 2m", act360, modified, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0003M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 3m")), "LIBOR 3m", act360, modified, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0004M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 4m")), "LIBOR 4m", act360, modified, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0005M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 5m")), "LIBOR 5m", act360, modified, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0006M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 6m")), "LIBOR 6m", act360, modified, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0007M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 7m")), "LIBOR 7m", act360, modified, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0008M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 8m")), "LIBOR 8m", act360, modified, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0009M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 9m")), "LIBOR 9m", act360, modified, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0010M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 10m")), "LIBOR 10m", act360, modified, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0011M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 11m")), "LIBOR 11m", act360, modified, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0012M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 12m")), "LIBOR 12m", act360, modified, freq, 2);
     
     DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
     Frequency semiAnnual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
     Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_SWAP")), "USD_SWAP", thirty360, following, semiAnnual, 2, act360, following, quarterly, 2, Identifier.of(BLOOMBERG_TICKER, "US0003M Curncy") );
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_SWAP")), "USD_SWAP", thirty360, following, semiAnnual, 2, act360, following, quarterly, 2, Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 3m") );
   }
   
   @Override

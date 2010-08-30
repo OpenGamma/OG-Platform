@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import com.opengamma.engine.world.Region;
 
 /**
  * 

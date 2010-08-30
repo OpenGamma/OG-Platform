@@ -15,8 +15,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.world.Region;
-import com.opengamma.engine.world.RegionSource;
 import com.opengamma.id.Identifier;
 
 public class RegionNodeTest {

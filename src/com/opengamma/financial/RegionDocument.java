@@ -7,8 +7,6 @@ package com.opengamma.financial;
 
 import java.util.Comparator;
 
-import com.opengamma.engine.world.Region;
-import com.opengamma.engine.world.RegionType;
 
 /**
  * Document containing a Region + metadata

@@ -21,8 +21,6 @@ import javax.time.calendar.TimeZone;
 import org.junit.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.world.Region;
-import com.opengamma.engine.world.RegionType;
 
 /**
  * Test InMemoryRegionRepository.

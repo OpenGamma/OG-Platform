@@ -56,6 +56,7 @@ public class CoppClarkFileReader {
   
   private HolidayRepository _holidayRepo;
   
+  // REVIEW: jim 29-Aug-2010 -- this initialization in the constructor is horrible.
   public CoppClarkFileReader(HolidayRepository holidayRepo, File currencies, File financialCenters, File exchangeSettlement, File exchangeTrading) {
     _holidayRepo = holidayRepo;
     try {
@@ -66,6 +67,12 @@ public class CoppClarkFileReader {
     } catch (IOException ioe) {
       throw new OpenGammaRuntimeException("Problem parsing exchange/currency data files", ioe);
     }
+  }
+  
+  public static HolidaySource createPopulatedHolidaySource(HolidayRepository holidayMaster) {
+    new CoppClarkFileReader(holidayMaster, new File(CURRENCY_HOLIDAYS_FILE_PATH), new File(FINANCIAL_CENTRES_HOLIDAYS_FILE_PATH), 
+                                                         new File(EXCHANGE_SETTLEMENT_HOLIDAYS_FILE_PATH), new File(EXCHANGE_TRADING_HOLIDAYS_FILE_PATH));
+    return new DefaultHolidaySource(holidayMaster);
   }
 
   private void parseCurrencyFile(File currencyFile) throws IOException {

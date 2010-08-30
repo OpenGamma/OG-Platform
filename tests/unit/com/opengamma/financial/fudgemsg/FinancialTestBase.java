@@ -20,11 +20,11 @@ import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.world.RegionSource;
 import com.opengamma.financial.DefaultRegionSource;
 import com.opengamma.financial.InMemoryRegionRepository;
 import com.opengamma.financial.RegionFileReader;
 import com.opengamma.financial.RegionMaster;
+import com.opengamma.financial.RegionSource;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**

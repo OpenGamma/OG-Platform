@@ -12,6 +12,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.engine.security.Security;
+import com.opengamma.id.Identifier;
 
 /**
  *  
@@ -19,6 +20,7 @@ import com.opengamma.engine.security.Security;
 public class FixedIncomeStripWithSecurity {
   private StripInstrumentType _instrumentType;
   private ZonedDateTime _maturity;
+  private Identifier _securityIdentifier;
   private Security _security;
 
   /**
@@ -36,6 +38,15 @@ public class FixedIncomeStripWithSecurity {
   public ZonedDateTime getMaturity() {
     return _maturity;
   }
+  
+  /**
+   * Gets the identifier that was used to resolve the security
+   * This is available, just so the same identifier can be conveniently used to retrieve requested market data.
+   * @return
+   */
+  public Identifier getSecurityIdentifier() {
+    return _securityIdentifier;
+  }
 
   /**
    * Gets the security field.
@@ -45,9 +56,10 @@ public class FixedIncomeStripWithSecurity {
     return _security;
   }
 
-  public FixedIncomeStripWithSecurity(StripInstrumentType instrumentType, ZonedDateTime maturity, Security security) {
+  public FixedIncomeStripWithSecurity(StripInstrumentType instrumentType, ZonedDateTime maturity, Identifier securityIdentifier, Security security) {
     _instrumentType = instrumentType;
     _maturity = maturity;
+    _securityIdentifier = securityIdentifier;
     _security = security;
   }
   

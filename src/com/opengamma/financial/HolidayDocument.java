@@ -20,7 +20,7 @@ public class HolidayDocument {
         _name = holiday.getRegionId().getScheme().getName() + ":" + holiday.getRegionId().getValue();
         break;
       case CURRENCY:
-        _name = holiday.getCurrency().getISOCode();
+        _name = holiday.getCurrencyISO();
         break;
       case SETTLEMENT:
       case TRADING:

@@ -21,9 +21,6 @@ import org.apache.commons.lang.StringUtils;
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.world.Exchange;
-import com.opengamma.engine.world.ExchangeCalendarEntry;
-import com.opengamma.engine.world.ExchangeSource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 
@@ -39,6 +36,13 @@ public class ExchangeFileReader {
   public ExchangeFileReader(ExchangeRepository exchangeMaster) {
     _exchangeMaster = exchangeMaster;
     _exchangeSource = new DefaultExchangeSource(exchangeMaster);
+  }
+  
+  public static ExchangeSource createPopulatedExchangeSource() {
+    ExchangeRepository exchangeMaster = new InMemoryExchangeRepository();
+    ExchangeFileReader fileReader = new ExchangeFileReader(exchangeMaster);
+    fileReader.readFile(new File(CoppClarkFileReader.EXCHANGE_HOLIDAYS_REPOST_FILE_PATH));
+    return new DefaultExchangeSource(exchangeMaster);
   }
   
   public void readFile(File file) {

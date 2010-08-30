@@ -12,14 +12,13 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecuritySource;
-import com.opengamma.engine.world.Region;
-import com.opengamma.engine.world.RegionSource;
 import com.opengamma.financial.ConventionBundle;
 import com.opengamma.financial.ConventionBundleSource;
-import com.opengamma.financial.Currency;
 import com.opengamma.financial.DefaultConventionBundleSource;
 import com.opengamma.financial.InMemoryConventionBundleMaster;
 import com.opengamma.financial.InMemoryRegionRepository;
+import com.opengamma.financial.Region;
+import com.opengamma.financial.RegionSource;
 import com.opengamma.financial.security.DateTimeWithZone;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -48,7 +47,7 @@ public class ResolvedFixedIncomeStripSecurityAndMaturityBuilder {
   }
   
   public InterpolatedYieldCurveSpecificationWithSecurities resolveToSecurity(InterpolatedYieldCurveSpecification curveSpecification, Map<Identifier, Double> marketValues) {
-    Currency currency = curveSpecification.getCurrency();
+    //Currency currency = curveSpecification.getCurrency();
     LocalDate curveDate = curveSpecification.getCurveDate();
     Collection<FixedIncomeStripWithSecurity> securityStrips = new ArrayList<FixedIncomeStripWithSecurity>();
     for (ResolvedFixedIncomeStrip strip : curveSpecification.getStrips()) {
@@ -105,7 +104,7 @@ public class ResolvedFixedIncomeStripSecurityAndMaturityBuilder {
         default:
           throw new OpenGammaRuntimeException("Unhandled type of instrument in curve definition " + strip.getInstrumentType());
       }
-      securityStrips.add(new FixedIncomeStripWithSecurity(strip.getInstrumentType(), maturity, security));
+      securityStrips.add(new FixedIncomeStripWithSecurity(strip.getInstrumentType(), maturity, strip.getSecurity(), security));
     }
     return new InterpolatedYieldCurveSpecificationWithSecurities(curveDate, curveSpecification.getName(), curveSpecification.getCurrency(), curveSpecification.getInterpolator(), securityStrips);
   }
@@ -141,33 +140,43 @@ public class ResolvedFixedIncomeStripSecurityAndMaturityBuilder {
     String counterparty = "";
     Identifier region = Identifier.of(InMemoryRegionRepository.ISO_COUNTRY_2, "GB");
     // REVIEW: jim 25-Aug-2010 -- change this to pass the identifier from the convention straight in instead of resolving and using a unique ID
-    ConventionBundle floatRateConvention = source.getCpnventionBundle(convention.getSwapFloatingLegInitialRate());  
-    double initialRate = marketValues.get(convention.getSwapFloatingLegInitialRate()); // get the initial rate.
+    ConventionBundle floatRateConvention = source.getCpnventionBundle(convention.getSwapFloatingLegInitialRate());
+    Double initialRate = null; 
+    for (Identifier identifier :  floatRateConvention.getIdentifiers()) {
+      if (marketValues.containsKey(identifier)) {
+        initialRate = marketValues.get(identifier); // get the initial rate.
+        break;
+      }
+    }
+    if (initialRate == null) {
+      throw new OpenGammaRuntimeException("Could not get initial rate");
+    }
     double spread = 0;
     double fixedRate = rate;
     // REVIEW: jim 25-Aug-2010 -- we need to change the swap to take settlement days.
-    return new SwapSecurity(tradeDate, 
-                            effectiveDate, 
-                            maturityDate,
-                            counterparty, 
-                              new FloatingInterestRateLeg(
-                                  convention.getSwapFloatingLegDayCount(),
-                                  convention.getSwapFloatingLegFrequency(),
-                                  region,
-                                  convention.getBusinessDayConvention(),
-                                  new InterestRateNotional(spec.getCurrency(), 1),
-                                  floatRateConvention.getUniqueIdentifier(), 
-                                  initialRate, 
-                                  spread),
-                              new FixedInterestRateLeg(
-                                  convention.getSwapFixedLegDayCount(), 
-                                  convention.getSwapFixedLegFrequency(),
-                                  region, 
-                                  convention.getBusinessDayConvention(),
-                                  new InterestRateNotional(spec.getCurrency(), 1),
-                                  fixedRate)
-                            );
-                                
+    SwapSecurity swap =  new SwapSecurity(tradeDate, 
+                                          effectiveDate, 
+                                          maturityDate,
+                                          counterparty, 
+                                            new FloatingInterestRateLeg(
+                                                convention.getSwapFloatingLegDayCount(),
+                                                convention.getSwapFloatingLegFrequency(),
+                                                region,
+                                                convention.getSwapFloatingLegBusinessDayConvention(),
+                                                new InterestRateNotional(spec.getCurrency(), 1),
+                                                floatRateConvention.getUniqueIdentifier(), 
+                                                initialRate, 
+                                                spread),
+                                            new FixedInterestRateLeg(
+                                                convention.getSwapFixedLegDayCount(), 
+                                                convention.getSwapFixedLegFrequency(),
+                                                region, 
+                                                convention.getSwapFixedLegBusinessDayConvention(),
+                                                new InterestRateNotional(spec.getCurrency(), 1),
+                                                fixedRate)
+                                          );
+    swap.setIdentifiers(IdentifierBundle.of(swapIdentifier));
+    return swap;
   }
   
   private TimeZone ensureZone(TimeZone zone) {

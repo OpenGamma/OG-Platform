@@ -16,10 +16,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.opengamma.engine.world.Exchange;
-import com.opengamma.engine.world.ExchangeSource;
-import com.opengamma.engine.world.Region;
-import com.opengamma.engine.world.RegionSource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 
@@ -104,7 +100,7 @@ public class InMemoryHolidayAndExchangeRespositoriesTest {
     ExchangeSource exchangeSource = new DefaultExchangeSource(exchangeRepo);
     ExchangeFileReader exchangeReader = new ExchangeFileReader(exchangeRepo);
     exchangeReader.readFile(new File(CoppClarkFileReader.EXCHANGE_HOLIDAYS_REPOST_FILE_PATH));
-    HolidayRepository holidayRepo = new InMemoryHolidayRepository(regionSource, exchangeRepo);
+    HolidayRepository holidayRepo = new InMemoryHolidayRepository(regionSource, exchangeSource);
     
     HolidaySource holidaySource = new DefaultHolidaySource(holidayRepo);
     CoppClarkFileReader reader = new CoppClarkFileReader(holidayRepo, 

@@ -25,7 +25,6 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.world.RegionType;
 import com.opengamma.util.FileUtils;
 
 /**
@@ -36,6 +35,13 @@ public class RegionFileReader {
   private RegionMaster _regionMaster;
   private FudgeContext _fudgeContext;
 
+  static RegionSource createPopulatedRegionSource() {
+    RegionMaster regionMaster = new InMemoryRegionRepository();
+    RegionFileReader reader = new RegionFileReader(regionMaster);
+    reader.populate(new File(REGIONS_FILE_PATH));
+    return new DefaultRegionSource(regionMaster);
+  }
+  
   public RegionFileReader(RegionMaster regionMaster) {
     _regionMaster = regionMaster;
     _fudgeContext = FudgeContext.GLOBAL_DEFAULT;

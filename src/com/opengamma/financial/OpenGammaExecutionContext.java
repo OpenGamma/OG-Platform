@@ -5,10 +5,10 @@
  */
 package com.opengamma.financial;
 
+import com.opengamma.engine.config.ConfigSource;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.historicaldata.HistoricalDataSource;
 import com.opengamma.engine.security.SecuritySource;
-import com.opengamma.engine.world.RegionSource;
 
 /**
  * Utility methods to pull standard objects out of a {@link FunctionExecutionContext}.
@@ -35,14 +35,17 @@ public class OpenGammaExecutionContext {
   /**
    * The name under which an instance of {@link ConventionBundleMaster} should be bound.
    */
-  private static final String CONVENTION_BUNDLE_SOURCE_NAME = "conventionBundleSource";;
+  private static final String CONVENTION_BUNDLE_SOURCE_NAME = "conventionBundleSource";
+
+  /**
+   * The name under which an instance of {@link ConfigSource} should be bound.
+   */
+  public static final String CONFIG_SOURCE_NAME = "configSource";
   
   /**
-   * The name under which an instance of {@link ExchangeRepository} should be bound.
+   * The name under which an instance of {@link {ExchangeSource} should be bound.
    */
-  public static final String EXCHANGE_REPOSITORY_NAME = "exchangeRepository";
-
-
+  public static final String EXCHANGE_SOURCE_NAME = "exchangeSource";
   
   public static HistoricalDataSource getHistoricalDataSource(FunctionExecutionContext context) {
     return (HistoricalDataSource) context.get(HISTORICAL_DATA_SOURCE_NAME);
@@ -85,11 +88,19 @@ public class OpenGammaExecutionContext {
     context.put(HOLIDAY_SOURCE_NAME, holidayRepository);
   }
   
-  public static ExchangeRepository getExchangeRepository(FunctionExecutionContext context) {
-    return (ExchangeRepository) context.get(EXCHANGE_REPOSITORY_NAME);
+  public static ExchangeSource getExchangeSource(FunctionExecutionContext context) {
+    return (ExchangeSource) context.get(EXCHANGE_SOURCE_NAME);
   }
   
-  public static void setExchangeRepository(FunctionExecutionContext context, ExchangeRepository exchangeRepository) {
-    context.put(EXCHANGE_REPOSITORY_NAME, exchangeRepository);
+  public static void setExchangeSource(FunctionExecutionContext context, ExchangeSource exchangeSource) {
+    context.put(EXCHANGE_SOURCE_NAME, exchangeSource);
+  }
+  
+  public static ConfigSource getConfigSource(FunctionExecutionContext context) {
+    return (ConfigSource) context.get(CONFIG_SOURCE_NAME);
+  }
+  
+  public static void setConfigSource(FunctionExecutionContext context, ConfigSource configSource) {
+    context.put(CONFIG_SOURCE_NAME, configSource);
   }
 }

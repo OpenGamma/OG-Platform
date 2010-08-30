@@ -7,6 +7,7 @@ package com.opengamma.financial;
 
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.financial.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 

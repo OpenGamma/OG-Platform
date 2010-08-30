@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.world.RegionSource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleMapper;
@@ -34,18 +33,18 @@ public class InMemoryHolidayRepository implements HolidayRepository {
   public static final String HOLIDAY_SCHEME = "HOLIDAY_SCHEME";
   private static final String HOLIDAY_CURRENCY_SCHEME = "HOLIDAY_CURRENCY_SCHEME";
   
-  private IdentifierBundleMapper<Holiday> _idMapper = new IdentifierBundleMapper<Holiday>(HOLIDAY_SCHEME);
+  private IdentifierBundleMapper<HolidayImpl> _idMapper = new IdentifierBundleMapper<HolidayImpl>(HOLIDAY_SCHEME);
   private RegionSource _regionSource;
-  private ExchangeRepository _exchangeRepo;
+  private ExchangeSource _exchangeSource;
 
-  public InMemoryHolidayRepository(RegionSource regionSource, ExchangeRepository exchangeRepo) {
+  public InMemoryHolidayRepository(RegionSource regionSource, ExchangeSource exchangeSource) {
     _regionSource = regionSource;
-    _exchangeRepo = exchangeRepo;
+    _exchangeSource = exchangeSource;
   }
 
   @Override
   public synchronized UniqueIdentifier addHoliday(Currency currency, Collection<LocalDate> holidayDates) {
-    Holiday holiday = new Holiday(currency, holidayDates);
+    HolidayImpl holiday = new HolidayImpl(currency, holidayDates);
     UniqueIdentifier uniqueIdentifier = _idMapper.add(IdentifierBundle.of(Identifier.of(HOLIDAY_CURRENCY_SCHEME, currency.getISOCode())), holiday);
     holiday.setUniqueIdentifier(uniqueIdentifier);
     return uniqueIdentifier;
@@ -54,7 +53,7 @@ public class InMemoryHolidayRepository implements HolidayRepository {
   @Override
   public synchronized UniqueIdentifier addHoliday(Identifier exchangeOrRegionId, HolidayType holidayType, Collection<LocalDate> holidayDates) {
     Validate.notNull(holidayType, "HolidayType");
-    Holiday holiday = new Holiday(exchangeOrRegionId, holidayType, holidayDates);
+    HolidayImpl holiday = new HolidayImpl(exchangeOrRegionId, holidayType, holidayDates);
     UniqueIdentifier uniqueIdentifier = _idMapper.add(IdentifierBundle.of(exchangeOrRegionId), holiday);
     holiday.setUniqueIdentifier(uniqueIdentifier);
     return uniqueIdentifier;   
@@ -68,7 +67,7 @@ public class InMemoryHolidayRepository implements HolidayRepository {
   @Override
   public HolidaySearchResult searchHistoricHolidays(HolidaySearchHistoricRequest searchHistoricRequest) {
     Identifier identifier;
-    Collection<Holiday> holidays;
+    Collection<HolidayImpl> holidays;
     switch (searchHistoricRequest.getHolidayType()) {
       case CURRENCY:
         identifier = Identifier.of(HOLIDAY_CURRENCY_SCHEME, searchHistoricRequest.getCurrency().getISOCode());
@@ -82,8 +81,8 @@ public class InMemoryHolidayRepository implements HolidayRepository {
       case SETTLEMENT:
       case TRADING:
         identifier = searchHistoricRequest.getExchangeId();
-        ExchangeSearchResult result = _exchangeRepo.searchExchange(new ExchangeSearchRequest(identifier));
-        IdentifierBundle allIdentifiersForExchange = result.getSingleExchange().getIdentifiers();
+        Exchange exchange = _exchangeSource.getSingleExchange(identifier);
+        IdentifierBundle allIdentifiersForExchange = exchange.getIdentifiers();
         holidays = _idMapper.get(allIdentifiersForExchange);
         break;
       default:
@@ -92,7 +91,7 @@ public class InMemoryHolidayRepository implements HolidayRepository {
     return processResults(searchHistoricRequest, holidays, searchHistoricRequest.getHolidayType());
   }
     
-  public HolidaySearchResult processResults(HolidaySearchHistoricRequest searchHistoricRequest, Collection<Holiday> holidays, HolidayType holidayType) {
+  public HolidaySearchResult processResults(HolidaySearchHistoricRequest searchHistoricRequest, Collection<HolidayImpl> holidays, HolidayType holidayType) {
     for (Holiday holiday : holidays) {
       if (holiday.getHolidayType().equals(holidayType)) {
         if (searchHistoricRequest.getHolidayDate() == null) {
@@ -128,11 +127,11 @@ public class InMemoryHolidayRepository implements HolidayRepository {
       default:
         throw new OpenGammaRuntimeException("Unsupported holiday type");
     }
-    Collection<Holiday> holidays = _idMapper.get(identifiers);
+    Collection<HolidayImpl> holidays = _idMapper.get(identifiers);
     return processResults(searchRequest, holidays, searchRequest.getHolidayType());
   }
   
-  public HolidaySearchResult processResults(HolidaySearchRequest searchRequest, Collection<Holiday> holidays, HolidayType holidayType) {
+  public HolidaySearchResult processResults(HolidaySearchRequest searchRequest, Collection<HolidayImpl> holidays, HolidayType holidayType) {
     for (Holiday holiday : holidays) {
       if (holiday.getHolidayType().equals(holidayType)) {
         if (searchRequest.getHolidayDate() == null) {

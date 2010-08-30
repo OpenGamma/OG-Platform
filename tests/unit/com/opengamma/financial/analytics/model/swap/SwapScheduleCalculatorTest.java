@@ -17,9 +17,9 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMessageFactory;
 import org.junit.Test;
 
-import com.opengamma.engine.world.Region;
-import com.opengamma.engine.world.RegionType;
 import com.opengamma.financial.InMemoryRegionRepository;
+import com.opengamma.financial.Region;
+import com.opengamma.financial.RegionType;
 import com.opengamma.financial.convention.businessday.ModifiedBusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;

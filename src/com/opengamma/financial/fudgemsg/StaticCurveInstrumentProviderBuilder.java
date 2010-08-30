@@ -8,6 +8,7 @@ package com.opengamma.financial.fudgemsg;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
@@ -17,6 +18,7 @@ import com.opengamma.id.Identifier;
 /**
  * Builder for converting Region instances to/from Fudge messages.
  */
+@FudgeBuilderFor(StaticCurveInstrumentProvider.class)
 public class StaticCurveInstrumentProviderBuilder implements FudgeBuilder<StaticCurveInstrumentProvider> {
   /**
    * type used as a human readable subclass discriminator for mongo (which strips out type information).

@@ -34,14 +34,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.security.DefaultSecurity;
-import com.opengamma.engine.world.Region;
-import com.opengamma.engine.world.RegionSource;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.DefaultRegionSource;
 import com.opengamma.financial.GICSCode;
 import com.opengamma.financial.InMemoryRegionRepository;
+import com.opengamma.financial.Region;
 import com.opengamma.financial.RegionFileReader;
 import com.opengamma.financial.RegionMaster;
+import com.opengamma.financial.RegionSource;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;

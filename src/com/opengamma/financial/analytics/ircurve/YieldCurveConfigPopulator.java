@@ -17,11 +17,12 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
  */
 public class YieldCurveConfigPopulator {
   
-  public static void populateCurveDefinitionConfigRepository(MongoDBMasterConfigSource masterConfigSource) {
+  public static MongoDBMasterConfigSource populateCurveDefinitionConfigRepository(MongoDBMasterConfigSource masterConfigSource) {
     ConfigMaster<YieldCurveDefinition> curveDefinitionMaster = masterConfigSource.getConfigMasterFor(YieldCurveDefinition.class);
     populateCurveDefinitionConfigRepository(curveDefinitionMaster);
     ConfigMaster<CurveSpecificationBuilderConfiguration> curveSpecificationBuilderConfigMaster = masterConfigSource.getConfigMasterFor(CurveSpecificationBuilderConfiguration.class);
     populateCurveSpecificationBuilderConfigRepository(curveSpecificationBuilderConfigMaster);
+    return masterConfigSource;
   }
   
   public static void populateCurveDefinitionConfigRepository(ConfigMaster<YieldCurveDefinition> configRepo) {

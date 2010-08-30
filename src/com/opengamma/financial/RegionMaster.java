@@ -14,7 +14,6 @@ import java.util.SortedSet;
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.engine.world.Region;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.tuple.Pair;

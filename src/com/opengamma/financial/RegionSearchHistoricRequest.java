@@ -15,7 +15,6 @@ import java.util.Map;
 import javax.time.Instant;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.world.RegionType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 

@@ -8,11 +8,11 @@ package com.opengamma.financial.convention.businessday;
 import javax.time.calendar.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.world.Exchange;
-import com.opengamma.engine.world.Region;
 import com.opengamma.financial.Currency;
+import com.opengamma.financial.Exchange;
 import com.opengamma.financial.HolidaySource;
 import com.opengamma.financial.HolidayType;
+import com.opengamma.financial.Region;
 import com.opengamma.financial.convention.calendar.Calendar;
 
 /**

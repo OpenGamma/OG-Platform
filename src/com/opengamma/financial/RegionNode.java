@@ -17,8 +17,6 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
-import com.opengamma.engine.world.Region;
-import com.opengamma.engine.world.RegionType;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -260,8 +258,10 @@ public class RegionNode implements Region {
   public TimeZone getTimeZone() {
     String countryISO2 = getCountryISO2();
     if (countryISO2 != null) {
-      Territory territory = Territory.forID(countryISO2);
-      return territory.getZone();
+      return TimeZone.UTC;
+      // TODO: fix this!!!!
+      //Territory territory = Territory.forID(countryISO2);
+      //return territory.getZone();
     }  else {
       return null;
     }

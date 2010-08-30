@@ -18,11 +18,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
-import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -37,13 +32,18 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.ConventionBundle;
+import com.opengamma.financial.ConventionBundleSource;
 import com.opengamma.financial.Currency;
+import com.opengamma.financial.InMemoryConventionBundleMaster;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
@@ -82,15 +82,15 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     _results = null;
   }
   
-  private void initImpl() {
-    _interpolator = Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName());
-    _requirements = Collections.unmodifiableSet(buildRequirements(_specification));
-    _result = new ValueSpecification(new ValueRequirement(
-        _isYieldCurve ? ValueRequirementNames.YIELD_CURVE : ValueRequirementNames.DISCOUNT_CURVE, 
-         _definition.getCurrency()),
-         getUniqueIdentifier());
-    _results = Collections.singleton(_result);
-  }
+//  private void initImpl() {
+//    _interpolator = Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName());
+//    _requirements = Collections.unmodifiableSet(buildRequirements(_specification));
+//    _result = new ValueSpecification(new ValueRequirement(
+//        _isYieldCurve ? ValueRequirementNames.YIELD_CURVE : ValueRequirementNames.DISCOUNT_CURVE, 
+//         _definition.getCurrency()),
+//         getUniqueIdentifier());
+//    _results = Collections.singleton(_result);
+//  }
 
   @Override
   public void init(final FunctionCompilationContext context) {
@@ -100,17 +100,23 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     ConfigDBInterpolatedYieldCurveSpecificationBuilder curveSpecBuilder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
     _specification = curveSpecBuilder.buildCurve(_curveDate, _definition);
     _interpolator = Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName());
-    _requirements = Collections.unmodifiableSet(buildRequirements(_specification));
+    _requirements = Collections.unmodifiableSet(buildRequirements(_specification, context));
     _result = new ValueSpecification(new ValueRequirement(_isYieldCurve ? ValueRequirementNames.YIELD_CURVE : ValueRequirementNames.DISCOUNT_CURVE, _definition.getCurrency()), getUniqueIdentifier());
     _results = Collections.singleton(_result);
   }
 
-  public static Set<ValueRequirement> buildRequirements(final InterpolatedYieldCurveSpecification specification) {
+  public static Set<ValueRequirement> buildRequirements(final InterpolatedYieldCurveSpecification specification, final FunctionCompilationContext context) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
     for (final ResolvedFixedIncomeStrip strip : specification.getStrips()) {
       final ValueRequirement requirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getSecurity());
       result.add(requirement);
     }
+    ConventionBundleSource conventionBundleSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    // get the swap convention so we can find out the initial rate
+    ConventionBundle cpnventionBundle = conventionBundleSource.getCpnventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, specification.getCurrency().getISOCode()+ "_SWAP"));
+    ConventionBundle referenceRateConvention = conventionBundleSource.getConventionBundle(IdentifierBundle.of(cpnventionBundle.getSwapFloatingLegInitialRate()));
+    Identifier initialRefRateId = Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, referenceRateConvention.getIdentifiers().getIdentifier(IdentificationScheme.BLOOMBERG_TICKER));
+    result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, initialRefRateId));
     return result;
   }
 
@@ -188,7 +194,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     final Map<Double, Double> timeInYearsToRates = new TreeMap<Double, Double>();
     boolean isFirst = true;
     for (final FixedIncomeStripWithSecurity strip : specWithSecurities.getStrips()) {
-      final ValueRequirement stripRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getSecurity());
+      final ValueRequirement stripRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getSecurityIdentifier());
       Double price = (Double) inputs.getValue(stripRequirement);
       if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
         price = (100d - price);
@@ -222,11 +228,11 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     return Collections.singleton(resultValue);
   }
 
-  private static final String DEFINITION_KEY = "definition";
-  private static final String CURVE_CURRENCY_KEY = "curveCurrency";
-  private static final String CURVE_DATE_KEY = "curveDate";
-  private static final String CURVE_NAME_KEY = "curveName";
-  private static final String IS_YIELD_CURVE_KEY = "yieldCurve";
+//  private static final String DEFINITION_KEY = "definition";
+//  private static final String CURVE_CURRENCY_KEY = "curveCurrency";
+//  private static final String CURVE_DATE_KEY = "curveDate";
+//  private static final String CURVE_NAME_KEY = "curveName";
+//  private static final String IS_YIELD_CURVE_KEY = "yieldCurve";
 
 //  public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
 //    context.objectToFudgeMsgWithClassHeaders(message, DEFINITION_KEY, null, _definition, YieldCurveDefinition.class);

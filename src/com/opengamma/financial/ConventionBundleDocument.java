@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial;
 
+
 /**
  * Document to hold the reference rate and meta-data
  */

@@ -18,7 +18,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.engine.config.ConfigSource;
 import com.opengamma.engine.security.SecuritySource;
-import com.opengamma.engine.world.RegionSource;
+import com.opengamma.financial.RegionSource;
 import com.opengamma.id.Identifier;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;

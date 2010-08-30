@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.world.Exchange;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleMapper;

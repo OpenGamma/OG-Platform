@@ -9,25 +9,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.engine.security.Security;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecification;
 import com.opengamma.financial.analytics.ircurve.ResolvedFixedIncomeStrip;
-import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.math.interpolation.Interpolator1D;
 
 /**
  * Builder for converting Region instances to/from Fudge messages.
  */
+@FudgeBuilderFor(InterpolatedYieldCurveSpecification.class)
 public class InterpolatedYieldCurveSpecificationFudgeBuilder implements FudgeBuilder<InterpolatedYieldCurveSpecification> {
 
   @Override

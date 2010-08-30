@@ -28,6 +28,8 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.Currency;
+import com.opengamma.financial.DefaultConventionBundleSource;
+import com.opengamma.financial.InMemoryConventionBundleMaster;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.test.CurveConfigurationSetupHelper;
 import com.opengamma.id.Identifier;
@@ -69,8 +71,9 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     function.setUniqueIdentifier("testId");
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
-    context.put(OpenGammaCompilationContext.CONFIG_SOURCE_NAME, _configHelper.getConfigSource());
-    context.put(OpenGammaCompilationContext.REGION_SOURCE_NAME, _configHelper.getRegionSource());
+    OpenGammaCompilationContext.setConfigSource(context, _configHelper.getConfigSource());
+    OpenGammaCompilationContext.setRegionSource(context, _configHelper.getRegionSource());
+    OpenGammaCompilationContext.setConventionBundleSource(context, new DefaultConventionBundleSource(new InMemoryConventionBundleMaster()));
     context.setSecuritySource(_configHelper.getSecSource());
     function.init(context);
     
@@ -112,7 +115,8 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     function.setUniqueIdentifier("testId");
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
-    context.put(OpenGammaCompilationContext.CONFIG_SOURCE_NAME, _configHelper.getConfigSource());
+    OpenGammaCompilationContext.setConfigSource(context, _configHelper.getConfigSource());
+    OpenGammaCompilationContext.setConventionBundleSource(context, new DefaultConventionBundleSource(new InMemoryConventionBundleMaster()));
     function.init(context);
 
     requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency
@@ -151,8 +155,9 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     function.setUniqueIdentifier("testId");
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
-    context.put(OpenGammaCompilationContext.CONFIG_SOURCE_NAME, _configHelper.getConfigSource());
-    context.put(OpenGammaCompilationContext.REGION_SOURCE_NAME, _configHelper.getRegionSource());
+    OpenGammaCompilationContext.setConfigSource(context, _configHelper.getConfigSource());
+    OpenGammaCompilationContext.setRegionSource(context, _configHelper.getRegionSource());
+    OpenGammaCompilationContext.setConventionBundleSource(context, new DefaultConventionBundleSource(new InMemoryConventionBundleMaster()));
     function.init(context);
     
     requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("EUR")));
@@ -174,8 +179,9 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     function.setUniqueIdentifier("testId");
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
-    context.put(OpenGammaCompilationContext.CONFIG_SOURCE_NAME, _configHelper.getConfigSource());
-    context.put(OpenGammaCompilationContext.REGION_SOURCE_NAME, _configHelper.getRegionSource());
+    OpenGammaCompilationContext.setConfigSource(context, _configHelper.getConfigSource());
+    OpenGammaCompilationContext.setRegionSource(context, _configHelper.getRegionSource());
+    OpenGammaCompilationContext.setConventionBundleSource(context, new DefaultConventionBundleSource(new InMemoryConventionBundleMaster()));
     function.init(context);
 
     requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency

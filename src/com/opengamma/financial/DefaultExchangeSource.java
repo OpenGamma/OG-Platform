@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial;
 
-import com.opengamma.engine.world.Exchange;
-import com.opengamma.engine.world.ExchangeSource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 

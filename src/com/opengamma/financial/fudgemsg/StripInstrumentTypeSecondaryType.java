@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.fudgemsg;
 
+import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.types.StringFieldType;
 
@@ -18,6 +19,7 @@ public final class StripInstrumentTypeSecondaryType extends SecondaryFieldType<S
   /**
    * Singleton instance of the type.
    */
+  @FudgeSecondaryType
   public static final StripInstrumentTypeSecondaryType INSTANCE = new StripInstrumentTypeSecondaryType();
 
   private StripInstrumentTypeSecondaryType() {
