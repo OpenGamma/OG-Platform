@@ -8,15 +8,29 @@ package com.opengamma.util.fudge;
 import org.fudgemsg.FudgeContext;
 
 /**
- * A singleton holding the shared Fudge Context that should be used throughout
- * OpenGamma code. 
+ * Provides a shared singleton {@code FudgeContext} for use throughout OpenGamma.
+ * <p>
+ * The {@code FudgeContext} is a low-level object necessary to use the Fudge messaging system.
+ * Providing the context to Fudge on demand would clutter code and configuration.
+ * This class instead provides a singleton that can be used whenever necessary.
  */
 public final class OpenGammaFudgeContext {
+
+  /**
+   * Singleton instance.
+   */
+  private static volatile FudgeContext s_instance;
+
+  /**
+   * Restricted constructor.
+   */
   private OpenGammaFudgeContext() {
   }
-  
-  private static volatile FudgeContext s_instance;
-  
+
+  /**
+   * Gets the singleton instance of the context, creating it if necessary.
+   * @return the singleton instance, not null
+   */
   public static FudgeContext getInstance() {
     if (s_instance == null) {
       synchronized (OpenGammaFudgeContext.class) {
@@ -27,7 +41,12 @@ public final class OpenGammaFudgeContext {
     }
     return s_instance;
   }
-  
+
+  /**
+   * Creates a new Fudge context, which is an operation that should be avoided.
+   * @return the new context, not null
+   * @deprecated a warning to indicate that calling this method is bad practice
+   */
   @Deprecated
   public static FudgeContext constructContext() {
     FudgeContext fudgeContext = new FudgeContext();
