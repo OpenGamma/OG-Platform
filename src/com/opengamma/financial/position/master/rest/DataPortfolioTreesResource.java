@@ -15,6 +15,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Providers;
 
@@ -70,7 +71,7 @@ public class DataPortfolioTreesResource extends AbstractDataResource {
   @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, PortfolioTreeDocument request) {
     PortfolioTreeDocument result = getPositionMaster().addPortfolioTree(request);
-    return Response.created(DataPortfolioTreeResource.uri(uriInfo, result.getPortfolioId())).entity(result).build();
+    return Response.created(DataPortfolioTreeResource.uri(uriInfo.getBaseUri(), result.getPortfolioId())).entity(result).build();
   }
 
   //-------------------------------------------------------------------------
@@ -83,11 +84,16 @@ public class DataPortfolioTreesResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   /**
    * Builds a URI for all portfolios.
-   * @param uriInfo  the URI information, not null
+   * @param baseUri  the base URI, not null
+   * @param searchMsg  the search message, may be null
    * @return the URI, not null
    */
-  public static URI uri(UriInfo uriInfo) {
-    return uriInfo.getBaseUriBuilder().path("/portfoliotrees").build();
+  public static URI uri(URI baseUri, String searchMsg) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/portfoliotrees");
+    if (searchMsg != null) {
+      bld.queryParam("msg", searchMsg);
+    }
+    return bld.build();
   }
 
 }

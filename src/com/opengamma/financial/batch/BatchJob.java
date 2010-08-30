@@ -30,7 +30,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.fudgemsg.FudgeContext;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -72,6 +71,7 @@ import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.MongoDBConnectionSettings;
 import com.opengamma.util.NamedThreadPoolFactory;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * The entry point for running OpenGamma batches. 
@@ -146,8 +146,6 @@ public class BatchJob implements Job {
    */
   private BatchDbManager _batchDbManager;
   
-  private FudgeContext _fudgeContext = FudgeContext.GLOBAL_DEFAULT;
-
   // --------------------------------------------------------------------------
   // Variables initialized from command line input
   // --------------------------------------------------------------------------
@@ -443,14 +441,6 @@ public class BatchJob implements Job {
     _dbHandle = dbHandle;
   }
   
-  public void setFudgeContext(final FudgeContext fudgeContext) {
-    _fudgeContext = fudgeContext;
-  }
-
-  public FudgeContext getFudgeContext() {
-    return _fudgeContext;
-  }
-
   // --------------------------------------------------------------------------
   
   public MongoDBConnectionSettings getConfigDbConnectionSettings() {
@@ -493,11 +483,18 @@ public class BatchJob implements Job {
     _securityMaster = securityMaster;
   }
 
-  public SecuritySource getSecuritySource() {
+  /*package*/ SecuritySource getSecuritySource() {
     return _securitySource;
   }
 
-  public void setSecuritySource(final SecuritySource securitySource) {
+  /**
+   * This method should only be used in tests since if you use it 
+   * (instead of setSecurityMaster) you will not get historically
+   * fixed securities.
+   * 
+   * @param securitySource Security source
+   */
+  /*package*/ void setSecuritySource(final SecuritySource securitySource) {
     _securitySource = securitySource;
   }
 
@@ -509,11 +506,18 @@ public class BatchJob implements Job {
     _positionMaster = positionMaster;
   }
   
-  public PositionSource getPositionSource() {
+  /*package*/ PositionSource getPositionSource() {
     return _positionSource;
   }
 
-  public void setPositionSource(final PositionSource positionSource) {
+  /**
+   * This method should only be used in tests since if you use it 
+   * (instead of setPositionMaster) you will not get historically
+   * fixed positions.
+   * 
+   * @param positionSource Position source
+   */
+  /*package*/ void setPositionSource(final PositionSource positionSource) {
     _positionSource = positionSource;
   }
 
@@ -608,7 +612,7 @@ public class BatchJob implements Job {
       throw new IllegalStateException("Config DB connection settings not given.");            
     }
     _configDb = new MongoDBConfigMaster<ViewDefinition>(ViewDefinition.class, 
-        getConfigDbConnectionSettings(), getFudgeContext(), true, null);
+        getConfigDbConnectionSettings(), OpenGammaFudgeContext.getInstance(), true, null);
 
     ConfigDocument<ViewDefinition> viewDefinitionDoc = getViewByNameWithTime();
     if (viewDefinitionDoc == null) {
@@ -621,7 +625,7 @@ public class BatchJob implements Job {
     
     SecuritySource securitySource = getSecuritySource();
     if (securitySource == null) {
-      new HistoricallyFixedSecurityMaster(getSecurityMaster(), getSecurityMasterTime(), getSecurityMasterAsViewedAtTime());
+      securitySource = new HistoricallyFixedSecurityMaster(getSecurityMaster(), getSecurityMasterTime(), getSecurityMasterAsViewedAtTime());
     }
     
     PositionSource positionSource = getPositionSource();
@@ -630,7 +634,7 @@ public class BatchJob implements Job {
     }
       
     DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
-    InMemoryViewComputationCacheSource cacheFactory = new InMemoryViewComputationCacheSource(getFudgeContext());
+    InMemoryViewComputationCacheSource cacheFactory = new InMemoryViewComputationCacheSource(OpenGammaFudgeContext.getInstance());
     
     ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
