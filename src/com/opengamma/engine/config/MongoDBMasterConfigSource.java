@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,14 @@ public class MongoDBMasterConfigSource implements ConfigSource {
   
   public MongoDBMasterConfigSource() {
   }
+  
+  /**
+   * Primarily here to make Spring DI easier.
+   * @param initialMap a map of class to MongoDBConfigMasters
+   */
+  public MongoDBMasterConfigSource(Map<Class<?>, MongoDBConfigMaster<?>> initialMap) {
+    _configMasterMap.putAll(initialMap);
+  }
 
   @Override
   public <T> T get(Class<T> clazz, UniqueIdentifier identifier) {
@@ -56,6 +65,7 @@ public class MongoDBMasterConfigSource implements ConfigSource {
     ConfigSearchResult<T> searchResult = configMaster.search(request);
     List<ConfigDocument<T>> documents = searchResult.getDocuments();
     for (ConfigDocument<T> configDocument : documents) {
+      s_logger.info("configDocument = " + ToStringBuilder.reflectionToString(configDocument));
       result.add(configDocument.getValue());
     }
     return result;
