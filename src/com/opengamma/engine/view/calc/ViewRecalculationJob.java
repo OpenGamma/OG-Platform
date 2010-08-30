@@ -87,7 +87,7 @@ public class ViewRecalculationJob extends TerminatableJob {
       delay = Math.max(0, delay);
       delay /= NANOS_PER_MILLISECOND;
       delay += 1; // round up a bit to make sure it'll be enough
-      s_logger.info("Waiting for {} ms", delay);
+      s_logger.debug("Waiting for {} ms", delay);
       try {
         synchronized (this) {
           // This could wait until end of time if both minimum and full recalc periods are null.
