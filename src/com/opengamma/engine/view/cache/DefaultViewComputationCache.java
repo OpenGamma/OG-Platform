@@ -31,15 +31,22 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
   private static final int NATIVE_FIELD_INDEX = -1;
 
   private final IdentifierMap _identifierMap;
-  private final BinaryDataStore _dataStore;
+  private final BinaryDataStore _privateDataStore;
+  private final BinaryDataStore _sharedDataStore;
   private final FudgeContext _fudgeContext;
 
   public DefaultViewComputationCache(final IdentifierMap identifierMap, final BinaryDataStore dataStore, final FudgeContext fudgeContext) {
+    this(identifierMap, dataStore, dataStore, fudgeContext);
+  }
+
+  public DefaultViewComputationCache(final IdentifierMap identifierMap, final BinaryDataStore privateDataStore, final BinaryDataStore sharedDataStore, final FudgeContext fudgeContext) {
     ArgumentChecker.notNull(identifierMap, "Identifier map");
-    ArgumentChecker.notNull(dataStore, "Data Store");
+    ArgumentChecker.notNull(privateDataStore, "Private data store");
+    ArgumentChecker.notNull(sharedDataStore, "Shared data store");
     ArgumentChecker.notNull(fudgeContext, "Fudge context");
     _identifierMap = identifierMap;
-    _dataStore = dataStore;
+    _privateDataStore = privateDataStore;
+    _sharedDataStore = sharedDataStore;
     _fudgeContext = fudgeContext;
   }
 
@@ -52,11 +59,15 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
   }
 
   /**
-   * Gets the dataStore field.
+   * Gets the private / local data store.
    * @return the dataStore
    */
-  public BinaryDataStore getDataStore() {
-    return _dataStore;
+  public BinaryDataStore getPrivateDataStore() {
+    return _privateDataStore;
+  }
+
+  public BinaryDataStore getSharedDataStore() {
+    return _sharedDataStore;
   }
 
   /**
@@ -104,7 +115,10 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
     _getIdentifierTime += System.nanoTime();
     _dataRequests++;
     _getDataTime -= System.nanoTime();
-    byte[] data = getDataStore().get(identifier);
+    byte[] data = getPrivateDataStore().get(identifier);
+    if (data == null) {
+      data = getSharedDataStore().get(identifier);
+    }
     _getDataTime += System.nanoTime();
     if (data == null) {
       return null;
@@ -126,7 +140,23 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
     final Collection<Pair<ValueSpecification, Object>> returnValues = new ArrayList<Pair<ValueSpecification, Object>>(specifications.size());
     _dataRequests += specifications.size();
     _getDataTime -= System.nanoTime();
-    final Map<Long, byte[]> rawValues = getDataStore().get(identifiers.values());
+    final Collection<Long> identifierValues = identifiers.values();
+    Map<Long, byte[]> rawValues = getPrivateDataStore().get(identifierValues);
+    if (!rawValues.isEmpty()) {
+      _getDataTime += System.nanoTime();
+      _deserializeTime -= System.nanoTime();
+      final FudgeDeserializationContext context = new FudgeDeserializationContext(getFudgeContext());
+      for (Map.Entry<ValueSpecification, Long> identifier : identifiers.entrySet()) {
+        final byte[] data = rawValues.get(identifier.getValue());
+        returnValues.add(Pair.of(identifier.getKey(), (data != null) ? deserializeValue(context, data) : null));
+      }
+      _deserializeTime += System.nanoTime();
+      if (returnValues.size() == identifierValues.size()) {
+        return returnValues;
+      }
+      _getDataTime -= System.nanoTime();
+    }
+    rawValues = getSharedDataStore().get(identifierValues);
     _getDataTime += System.nanoTime();
     _deserializeTime -= System.nanoTime();
     final FudgeDeserializationContext context = new FudgeDeserializationContext(getFudgeContext());
@@ -138,9 +168,8 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
     return returnValues;
   }
 
-  @Override
-  public void putValue(ComputedValue value) {
-    ArgumentChecker.notNull(value, "Computed value");
+  protected void putValue(final ComputedValue value, final BinaryDataStore dataStore) {
+    ArgumentChecker.notNull(value, "value");
     _identifierRequests++;
     _getIdentifierTime -= System.nanoTime();
     final long identifier = getIdentifierMap().getIdentifier(value.getSpecification());
@@ -151,12 +180,21 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
     final byte[] data = serializeValue(context, value.getValue());
     _serializeTime += System.nanoTime();
     _putDataTime -= System.nanoTime();
-    getDataStore().put(identifier, data);
+    dataStore.put(identifier, data);
     _putDataTime += System.nanoTime();
   }
 
   @Override
-  public void putValues(final Collection<ComputedValue> values) {
+  public void putPrivateValue(final ComputedValue value) {
+    putValue(value, getPrivateDataStore());
+  }
+
+  @Override
+  public void putSharedValue(final ComputedValue value) {
+    putValue(value, getSharedDataStore());
+  }
+
+  protected void putValues(final Collection<ComputedValue> values, final BinaryDataStore dataStore) {
     ArgumentChecker.notNull(values, "values");
     _identifierRequests += values.size();
     _getIdentifierTime -= System.nanoTime();
@@ -175,8 +213,18 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
     }
     _serializeTime += System.nanoTime();
     _putDataTime -= System.nanoTime();
-    getDataStore().put(data);
+    dataStore.put(data);
     _putDataTime += System.nanoTime();
+  }
+
+  @Override
+  public void putPrivateValues(final Collection<ComputedValue> values) {
+    putValues(values, getPrivateDataStore());
+  }
+
+  @Override
+  public void putSharedValues(final Collection<ComputedValue> values) {
+    putValues(values, getSharedDataStore());
   }
 
   protected static byte[] serializeValue(final FudgeSerializationContext context, final Object value) {

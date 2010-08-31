@@ -17,15 +17,10 @@ import com.opengamma.util.tuple.Pair;
  * handle the multiple value operations more efficiently whenever possible.
  */
 public abstract class AbstractViewComputationCache implements ViewComputationCache {
-  
+
   @Override
   public Collection<Pair<ValueSpecification, Object>> getValues(final Collection<ValueSpecification> specifications) {
     return getValues(this, specifications);
-  }
-
-  @Override
-  public void putValues(Collection<ComputedValue> values) {
-    putValues(this, values);
   }
 
   public static Collection<Pair<ValueSpecification, Object>> getValues(final ViewComputationCache cache, final Collection<ValueSpecification> specifications) {
@@ -36,9 +31,25 @@ public abstract class AbstractViewComputationCache implements ViewComputationCac
     return values;
   }
 
-  public static void putValues(final ViewComputationCache cache, final Collection<ComputedValue> values) {
+  @Override
+  public void putSharedValues(Collection<ComputedValue> values) {
+    putSharedValues(this, values);
+  }
+
+  public static void putSharedValues(final ViewComputationCache cache, final Collection<ComputedValue> values) {
     for (ComputedValue value : values) {
-      cache.putValue(value);
+      cache.putSharedValue(value);
+    }
+  }
+
+  @Override
+  public void putPrivateValues(Collection<ComputedValue> values) {
+    putPrivateValues(this, values);
+  }
+
+  public static void putPrivateValues(final ViewComputationCache cache, final Collection<ComputedValue> values) {
+    for (ComputedValue value : values) {
+      cache.putPrivateValue(value);
     }
   }
 

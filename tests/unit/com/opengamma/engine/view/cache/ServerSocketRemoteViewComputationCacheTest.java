@@ -101,7 +101,7 @@ public class ServerSocketRemoteViewComputationCacheTest {
 
               if(putValue) {
                 ComputedValue cv = new ComputedValue(valueSpec, rand.nextDouble());
-                cache.putValue(cv);
+                cache.putSharedValue(cv);
               }
             }
           } catch (Throwable e) {

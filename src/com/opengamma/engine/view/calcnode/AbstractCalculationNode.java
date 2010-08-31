@@ -130,7 +130,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
       try {
         Set<ComputedValue> result = invoke(jobItem, cache);
         _cachePutTime -= System.nanoTime();
-        cache.putValues(result);
+        cache.putSharedValues(result);
         _cachePutTime += System.nanoTime();
         resultItem = new CalculationJobResultItem(jobItem);
       } catch (MissingInputException e) {

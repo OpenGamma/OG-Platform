@@ -43,7 +43,7 @@ public class StandardViewComputationCacheTest {
     final ValueRequirement valueReq = new ValueRequirement("foo", new ComputationTargetSpecification (null));
     final ValueSpecification valueSpec = new ValueSpecification(valueReq, "mockFunctionId");
     final ComputedValue value = new ComputedValue (valueSpec, expected);
-    _viewComputationCache.putValue(value);
+    _viewComputationCache.putSharedValue(value);
     final Object obj = _viewComputationCache.getValue (valueSpec);
     assertNotNull (obj);
     assertEquals (expected, obj);

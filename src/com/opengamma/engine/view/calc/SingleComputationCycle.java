@@ -251,7 +251,7 @@ public class SingleComputationCycle {
    */
   private void addToAllCaches(ComputedValue dataAsValue) {
     for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
-      getComputationCache(calcConfigurationName).putValue(dataAsValue);
+      getComputationCache(calcConfigurationName).putSharedValue(dataAsValue);
     }
   }
   
@@ -294,7 +294,7 @@ public class SingleComputationCycle {
         for (ValueSpecification spec : unchangedNode.getOutputValues()) {
           Object previousValue = previousCache.getValue(spec);
           if (previousValue != null) {
-            cache.putValue(new ComputedValue(spec, previousValue));
+            cache.putSharedValue(new ComputedValue(spec, previousValue));
           }
         }
       }
