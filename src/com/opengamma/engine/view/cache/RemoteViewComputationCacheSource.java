@@ -7,31 +7,12 @@ package com.opengamma.engine.view.cache;
 
 import org.fudgemsg.FudgeContext;
 
-import com.opengamma.transport.FudgeRequestSender;
-
 /**
  * Caching client for {@link ViewComputationCacheServer}. This is equivalent to constructing a {@link DefaultViewComputationCacheSource}
  * with a {@link RemoteIdentifierMap} wrapped in a {@link CachingIdentifierMap} and a {@link RemoteBinaryDataStore} wrapped in a
  * {@link CachingBinaryDataStore}.
  */
 public class RemoteViewComputationCacheSource extends DefaultViewComputationCacheSource {
-
-  public RemoteViewComputationCacheSource(final FudgeRequestSender requestSender, final BinaryDataStoreFactory privateDataStoreFactory) {
-    this(new RemoteCacheClient(requestSender), privateDataStoreFactory);
-  }
-
-  public RemoteViewComputationCacheSource(final FudgeRequestSender requestGet, final BinaryDataStoreFactory privateDataStoreFactory, final FudgeRequestSender requestPut) {
-    this(new RemoteCacheClient(requestGet, requestPut), privateDataStoreFactory);
-  }
-
-  public RemoteViewComputationCacheSource(final FudgeRequestSender requestSender, final BinaryDataStoreFactory privateDataStoreFactory, final int maxLocalCachedElements) {
-    this(new RemoteCacheClient(requestSender), privateDataStoreFactory, maxLocalCachedElements);
-  }
-
-  public RemoteViewComputationCacheSource(final FudgeRequestSender requestGet, final FudgeRequestSender requestPut, final BinaryDataStoreFactory privateDataStoreFactory,
-      final int maxLocalCachedElements) {
-    this(new RemoteCacheClient(requestGet, requestPut), privateDataStoreFactory, maxLocalCachedElements);
-  }
 
   public RemoteViewComputationCacheSource(final RemoteCacheClient client, final BinaryDataStoreFactory privateDataStoreFactory) {
     this(client, privateDataStoreFactory, client.getFudgeContext());
