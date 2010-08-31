@@ -5,6 +5,9 @@
  */
 package com.opengamma.math.minimization;
 
+import static com.opengamma.math.minimization.MinimizationTestFunctions.COUPLED_ROSENBROCK;
+import static com.opengamma.math.minimization.MinimizationTestFunctions.ROSENBROCK;
+import static com.opengamma.math.minimization.MinimizationTestFunctions.UNCOUPLED_ROSENBROCK;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -22,18 +25,8 @@ public class MultidimensionalMinimizerTestCase {
     }
 
   };
-  private static final Function1D<DoubleMatrix1D, Double> ROSENBROCK = new Function1D<DoubleMatrix1D, Double>() {
 
-    @Override
-    public Double evaluate(DoubleMatrix1D coord) {
-      final double x = coord.getEntry(0);
-      final double y = coord.getEntry(1);
-      return (1 - x) * (1 - x) + 100 * (y - x * x) * (y - x * x);
-    }
-
-  };
-
-  public void testInputs(final SimplexMinimizer minimizer) {
+  public void testInputs(final VectorMinimizer minimizer) {
     try {
       minimizer.minimize(null, new DoubleMatrix1D(new double[] {2., 3.}));
       fail();
@@ -48,12 +41,36 @@ public class MultidimensionalMinimizerTestCase {
     }
   }
 
-  public void test(final SimplexMinimizer minimizer) {
+  public void test(final VectorMinimizer minimizer, double tol) {
     DoubleMatrix1D r = minimizer.minimize(F_2D, new DoubleMatrix1D(new double[] {10., 10.}));
-    assertEquals(r.getEntry(0), -3.4, EPS);
-    assertEquals(r.getEntry(1), 1, EPS);
+    assertEquals(r.getEntry(0), -3.4, tol);
+    assertEquals(r.getEntry(1), 1, tol);
     r = (minimizer.minimize(ROSENBROCK, new DoubleMatrix1D(new double[] {10, -5})));
-    assertEquals(r.getEntry(0), 1, EPS);
-    assertEquals(r.getEntry(1), 1, EPS);
+    assertEquals(r.getEntry(0), 1, tol);
+    assertEquals(r.getEntry(1), 1, tol);
   }
+
+  public void testSolvingRosenbrock(final VectorMinimizer minimizer, double tol) {
+    final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {-1.0, 1.0});
+    final DoubleMatrix1D solution = minimizer.minimize(ROSENBROCK, start);
+    assertEquals(1.0, solution.getEntry(0), tol);
+    assertEquals(1.0, solution.getEntry(1), tol);
+  }
+
+  public void testSolvingUncoupledRosenbrock(final VectorMinimizer minimizer, double tol) {
+    final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {-1.0, 1.0, -1.0, 1.0, -1.0, 1.0});
+    final DoubleMatrix1D solution = minimizer.minimize(UNCOUPLED_ROSENBROCK, start);
+    for (int i = 0; i < solution.getNumberOfElements(); i++) {
+      assertEquals(1.0, solution.getEntry(i), tol);
+    }
+  }
+
+  public void testSolvingCoupledRosenbrock(final VectorMinimizer minimizer, double tol) {
+    final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {-1.0, 1.0, -1.0, 1.0, -1.0, 1.0, 1.0});
+    final DoubleMatrix1D solution = minimizer.minimize(COUPLED_ROSENBROCK, start);
+    for (int i = 0; i < solution.getNumberOfElements(); i++) {
+      assertEquals(1.0, solution.getEntry(i), tol);
+    }
+  }
+
 }

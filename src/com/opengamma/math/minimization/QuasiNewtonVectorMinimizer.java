@@ -21,13 +21,13 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class QuasiNewtonVectorMinimizer implements VectorMinimizerWithGradient {
 
-  private static final int RESET_FREQ = 20;
+  private static final int RESET_FREQ = 200;
   private static final double ALPHA = 1e-4;
   private static final double BETA = 1.5;
   private static final double EPS = 1e-8;
   private static final int DEF_MAX_STEPS = 200;
   private static final MatrixAlgebra MA = MatrixAlgebraFactory.getMatrixAlgebra("OG");
-  private static final QuasiNewtonInverseHessianUpdate DEF_UPDATER = new DavidonFletcherPowellInverseHessianUpdate();
+  private static final QuasiNewtonInverseHessianUpdate DEF_UPDATER = new BroydenFletcherGoldfarbShannoInverseHessianUpdate();
 
   private final double _absoluteTol, _relativeTol;
   private final int _maxSteps;
@@ -41,7 +41,8 @@ public class QuasiNewtonVectorMinimizer implements VectorMinimizerWithGradient {
     this(absTolerance, relTolerance, maxInterations, DEF_UPDATER);
   }
 
-  public QuasiNewtonVectorMinimizer(final double absoluteTol, final double relativeTol, final int maxInterations, final QuasiNewtonInverseHessianUpdate hessianUpdater) {
+  public QuasiNewtonVectorMinimizer(final double absoluteTol, final double relativeTol, final int maxInterations,
+      final QuasiNewtonInverseHessianUpdate hessianUpdater) {
     ArgumentChecker.notNull(hessianUpdater, "null updater");
     ArgumentChecker.notNegative(absoluteTol, "absolute tolerance");
     ArgumentChecker.notNegative(relativeTol, "relative tolerance");
@@ -52,13 +53,20 @@ public class QuasiNewtonVectorMinimizer implements VectorMinimizerWithGradient {
     _hessainUpdater = hessianUpdater;
   }
 
+  /**
+   * Disabled because not working properly (see JIRA issue)
+   */
   @Override
   public DoubleMatrix1D minimize(final Function1D<DoubleMatrix1D, Double> function, final DoubleMatrix1D startPosition) {
-    throw new NotImplementedException();
+    throw new NotImplementedException("Please supply gradient function or use ConjugateGradient");
+    //    ScalarFieldFirstOrderDifferentiator diff = new ScalarFieldFirstOrderDifferentiator();
+    //    Function1D<DoubleMatrix1D, DoubleMatrix1D> grad = diff.derivative(function);
+    //    return minimize(function, grad, startPosition);
   }
 
   @Override
-  public DoubleMatrix1D minimize(final Function1D<DoubleMatrix1D, Double> function, final Function1D<DoubleMatrix1D, DoubleMatrix1D> grad, final DoubleMatrix1D startPosition) {
+  public DoubleMatrix1D minimize(final Function1D<DoubleMatrix1D, Double> function,
+      final Function1D<DoubleMatrix1D, DoubleMatrix1D> grad, final DoubleMatrix1D startPosition) {
     final DataBundle data = new DataBundle();
     final double y = function.evaluate(startPosition);
     data.setX(startPosition);
@@ -90,13 +98,15 @@ public class QuasiNewtonVectorMinimizer implements VectorMinimizerWithGradient {
       count++;
       resetCount++;
       if (count > _maxSteps) {
-        throw new ConvergenceException("Failed to converge after " + _maxSteps + " iterations. Final point reached: " + data.getX().toString());
+        throw new ConvergenceException("Failed to converge after " + _maxSteps + " iterations. Final point reached: "
+            + data.getX().toString());
       }
     }
     return data.getX();
   }
 
-  private DoubleMatrix2D getInitializedMatrix(@SuppressWarnings("unused") final Function1D<DoubleMatrix1D, Double> function, final DoubleMatrix1D startPosition) {
+  private DoubleMatrix2D getInitializedMatrix(
+      @SuppressWarnings("unused") final Function1D<DoubleMatrix1D, Double> function, final DoubleMatrix1D startPosition) {
     return DoubleMatrixUtils.getIdentityMatrix2D(startPosition.getNumberOfElements());
   }
 
@@ -104,7 +114,8 @@ public class QuasiNewtonVectorMinimizer implements VectorMinimizerWithGradient {
     return (DoubleMatrix1D) MA.multiply(data.getInverseHessianEsimate(), MA.scale(data.getGrad(), -1.0));
   }
 
-  private boolean getNextPosition(final Function1D<DoubleMatrix1D, Double> function, final Function1D<DoubleMatrix1D, DoubleMatrix1D> grad, final DataBundle data) {
+  private boolean getNextPosition(final Function1D<DoubleMatrix1D, Double> function,
+      final Function1D<DoubleMatrix1D, DoubleMatrix1D> grad, final DataBundle data) {
     final DoubleMatrix1D p = getDirection(data);
     if (data.getLambda0() < 1.0) {
       data.setLambda0(1.0);
@@ -135,10 +146,14 @@ public class QuasiNewtonVectorMinimizer implements VectorMinimizerWithGradient {
     data.setDeltaGrad((DoubleMatrix1D) MA.subtract(gradNew, data.getGrad()));
     data.setGrad(gradNew);
 
+    //if (data.getX().getEntry(0) > 0.99 && data.getX().getEntry(1) > 0.99) {
+    //   System.out.println("position:," + data.getX().getEntry(0) + "," + data.getX().getEntry(1));
+    // }
     return true;
   }
 
-  protected void updatePosition(final DoubleMatrix1D p, final Function1D<DoubleMatrix1D, Double> function, final DataBundle data) {
+  protected void updatePosition(final DoubleMatrix1D p, final Function1D<DoubleMatrix1D, Double> function,
+      final DataBundle data) {
     final double lambda0 = data.getLambda0();
     final DoubleMatrix1D deltaX = (DoubleMatrix1D) MA.scale(p, lambda0);
     final DoubleMatrix1D xNew = (DoubleMatrix1D) MA.add(data.getX(), deltaX);
@@ -148,14 +163,17 @@ public class QuasiNewtonVectorMinimizer implements VectorMinimizerWithGradient {
     data.setG1(y * y);
   }
 
-  private void bisectBacktrack(final DoubleMatrix1D p, final Function1D<DoubleMatrix1D, Double> function, final DataBundle data) {
+  private void bisectBacktrack(final DoubleMatrix1D p, final Function1D<DoubleMatrix1D, Double> function,
+      final DataBundle data) {
     do {
       data.setLambda0(data.getLambda0() * 0.1);
       updatePosition(p, function, data);
-    } while (Double.isNaN(data.getG1()) || Double.isInfinite(data.getG1()) || Double.isNaN(data.getG2()) || Double.isInfinite(data.getG2()));
+    } while (Double.isNaN(data.getG1()) || Double.isInfinite(data.getG1()) || Double.isNaN(data.getG2())
+        || Double.isInfinite(data.getG2()));
   }
 
-  private void quadraticBacktrack(final DoubleMatrix1D p, final Function1D<DoubleMatrix1D, Double> function, final DataBundle data) {
+  private void quadraticBacktrack(final DoubleMatrix1D p, final Function1D<DoubleMatrix1D, Double> function,
+      final DataBundle data) {
     final double lambda0 = data.getLambda0();
     final double g0 = data.getG0();
     final double lambda = Math.max(0.01 * lambda0, g0 * lambda0 * lambda0 / (data.getG1() + g0 * (2 * lambda0 - 1)));
@@ -163,7 +181,8 @@ public class QuasiNewtonVectorMinimizer implements VectorMinimizerWithGradient {
     updatePosition(p, function, data);
   }
 
-  private void cubicBacktrack(final DoubleMatrix1D p, final Function1D<DoubleMatrix1D, Double> function, final DataBundle data) {
+  private void cubicBacktrack(final DoubleMatrix1D p, final Function1D<DoubleMatrix1D, Double> function,
+      final DataBundle data) {
     double temp1, temp2, temp3, temp4, temp5;
     final double lambda0 = data.getLambda0();
     final double lambda1 = data.getLambda1();

@@ -70,7 +70,7 @@ public class NonlinearLeastSquare {
     ParameterizedFunction<Double, DoubleMatrix1D, DoubleMatrix1D> grad = new ParameterizedFunction<Double, DoubleMatrix1D, DoubleMatrix1D>() {
       @Override
       public DoubleMatrix1D evaluate(Double x, DoubleMatrix1D parameters) {
-        return diff.derivative(func.asFuntionOfParameters(x)).evaluate(parameters);
+        return diff.derivative(func.asFunctionOfParameters(x)).evaluate(parameters);
       }
     };
     return solve(func, grad, startPos);

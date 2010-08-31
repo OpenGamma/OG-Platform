@@ -14,15 +14,25 @@ public class ConjugateGradientTest extends MultidimensionalMinimizerWithGradiant
   private static double EPS = 1e-8;
 
   private static ScalarMinimizer LINE_MINIMIZER = new BrentMinimizer1D();
-  private static VectorMinimizerWithGradient MINIMISER = new ConjugateGradientVectorMinimizer(LINE_MINIMIZER, EPS, 500);
+  private static VectorMinimizerWithGradient MINIMISER = new ConjugateGradientVectorMinimizer(LINE_MINIMIZER, EPS, 100);
 
   @Test
   public void testSolvingRosenbrock() {
-    super.testSolvingRosenbrock(MINIMISER);
+    super.testSolvingRosenbrock(MINIMISER, 10 * EPS);
+  }
+
+  @Test
+  public void testSolvingRosenbrockWithoutGradient() {
+    super.testSolvingRosenbrockWithoutGradient(MINIMISER, 10 * EPS);
   }
 
   @Test
   public void testSolvingCoupledRosenbrock() {
-    super.testSolvingCoupledRosenbrock(MINIMISER);
+    super.testSolvingCoupledRosenbrock(MINIMISER, EPS);
+  }
+
+  @Test
+  public void testSolvingCoupledRosenbrockWithoutGradient() {
+    super.testSolvingCoupledRosenbrockWithoutGradient(MINIMISER, 100 * EPS);
   }
 }

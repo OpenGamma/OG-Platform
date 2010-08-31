@@ -40,7 +40,10 @@ public class ParabolicMinimumBracketer extends MinimumBracketer {
     }
     double r, q, u, uLim, fu;
     int count = 0;
-    while (f2 > f3 && count < MAX_ITER) {
+    while (count < MAX_ITER) {
+      if (f2 < f3) {
+        return new double[] {x1, x2, x3};
+      }
       count++;
       r = (x2 - x1) * (f2 - f3);
       q = (x2 - x1) * (f2 - f1);

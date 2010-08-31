@@ -11,6 +11,7 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 
 import com.opengamma.math.ConvergenceException;
+import com.opengamma.math.UtilFunctions;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -40,7 +41,14 @@ public class ParabolicMinimumBracketerTest extends MinimumBracketerTestCase {
     public Double evaluate(final Double x) {
       return Math.abs(x * x - 4);
     }
+  };
 
+  private static final Function1D<Double, Double> STRETCHED_QUADRATIC = new Function1D<Double, Double>() {
+
+    @Override
+    public Double evaluate(final Double x) {
+      return UtilFunctions.square((x - 50) / 50.0);
+    }
   };
 
   @Test
@@ -66,6 +74,11 @@ public class ParabolicMinimumBracketerTest extends MinimumBracketerTestCase {
   public void testInitialGuessBracketsTwoMinima() {
     testFunction(MOD_QUADRATIC, -3, -1);
     testFunction(MOD_QUADRATIC, -3, 3.5);
+  }
+
+  @Test
+  public void testStretchedQuadratic() {
+    testFunction(STRETCHED_QUADRATIC, 0, 1);
   }
 
   private void testFunction(final Function1D<Double, Double> f, final double xLower, final double xUpper) {

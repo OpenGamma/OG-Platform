@@ -20,7 +20,7 @@ public class VectorFieldFirstOrderDifferentiator implements Derivative<DoubleMat
 
   private static final double DEFAULT_EPS = 1e-5;
   private static final double MIN_EPS = Math.sqrt(Double.MIN_NORMAL);
-  private static FiniteDifferenceType DIFF_TYPE = FiniteDifferenceType.CENTRAL;
+  private static final FiniteDifferenceType DIFF_TYPE = FiniteDifferenceType.CENTRAL;
 
   private final double _eps;
   private final double _twoEps;

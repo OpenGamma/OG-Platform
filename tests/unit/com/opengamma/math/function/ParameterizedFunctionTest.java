@@ -54,7 +54,7 @@ public class ParameterizedFunctionTest {
     Function1D<Double, Double> func = ARRAY_PARAMS.asFuntionOfArguments(parms);
     assertEquals(4.0, func.evaluate(-1.0), 0.0);
 
-    Function1D<double[], Double> param_func = ARRAY_PARAMS.asFuntionOfParameters(0.0);
+    Function1D<double[], Double> param_func = ARRAY_PARAMS.asFunctionOfParameters(0.0);
     assertEquals(10.0, param_func.evaluate(new double[] {10, 312, 423, 534}), 0.0);
   }
 
@@ -70,7 +70,7 @@ public class ParameterizedFunctionTest {
     Function1D<Double, Double> grad = diff.derivative(func);
     assertEquals(-0.5, grad.evaluate(0.0), 1e-8);
 
-    Function1D<DoubleMatrix1D, Double> params_func = VECTOR_PARAMS.asFuntionOfParameters(1.0);
+    Function1D<DoubleMatrix1D, Double> params_func = VECTOR_PARAMS.asFunctionOfParameters(1.0);
     ScalarFieldFirstOrderDifferentiator vdiff = new ScalarFieldFirstOrderDifferentiator();
     Function1D<DoubleMatrix1D, DoubleMatrix1D> vgrad = vdiff.derivative(params_func);
     DoubleMatrix1D res = vgrad.evaluate(new DoubleMatrix1D(new double[] {Math.PI, 0}));

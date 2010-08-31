@@ -55,12 +55,17 @@ public class ConjugateDirectionVectorMinimizer implements VectorMinimizer {
       double startValue = function.evaluate(x0);
       double f1 = startValue;
       double f2 = 0;
+      double lambda = 0.0;
 
       DoubleMatrix1D x = x0;
       for (int i = 0; i < n; i++) {
         DoubleMatrix1D direction = directionSet[i];
-        double lambda = _lineSearch.minimise(function, direction, x);
+
+        lambda = _lineSearch.minimise(function, direction, x);
+
         x = (DoubleMatrix1D) OG_ALGEBRA.add(x, OG_ALGEBRA.scale(direction, lambda));
+        //      System.out.println(x.getEntry(0) + "," + x.getEntry(1));
+
         f2 = function.evaluate(x);
         double temp = (f1 - f2); // LineSearch should return this
         if (temp > delta) {
@@ -79,16 +84,22 @@ public class ConjugateDirectionVectorMinimizer implements VectorMinimizer {
 
       double extrapValue = function.evaluate(extrapolatedPoint);
       // Powell's condition for updating the direction set
-      if (extrapValue < startValue && (2 * (startValue - 2 * f2 * extrapValue) * square(startValue - f2 - delta)) < (square(startValue - extrapValue) * delta)) {
-        double lambda = _lineSearch.minimise(function, deltaX, x);
+      if (extrapValue < startValue
+          && (2 * (startValue - 2 * f2 * extrapValue) * square(startValue - f2 - delta)) < (square(startValue
+              - extrapValue) * delta)) {
+
+        lambda = _lineSearch.minimise(function, deltaX, x);
+
         x = (DoubleMatrix1D) OG_ALGEBRA.add(x, OG_ALGEBRA.scale(deltaX, lambda));
+        //      System.out.println(x.getEntry(0) + "," + x.getEntry(1));
         directionSet[indexDelta] = directionSet[n - 1];
         directionSet[n - 1] = deltaX;
       }
 
       x0 = x;
     }
-    String s = "ConjugateDirection Failed to converge after " + _maxInterations + " interations, with a tolerance of " + _eps + " Final position reached was " + x0.toString();
+    String s = "ConjugateDirection Failed to converge after " + _maxInterations + " interations, with a tolerance of "
+        + _eps + " Final position reached was " + x0.toString();
     throw new ConvergenceException(s);
   }
 

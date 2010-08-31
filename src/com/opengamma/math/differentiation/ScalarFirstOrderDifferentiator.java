@@ -19,7 +19,7 @@ public class ScalarFirstOrderDifferentiator implements Derivative<Double, Double
   private static final double DEFAULT_EPS = 1e-5;
   private static final double MIN_EPS = Math.sqrt(Double.MIN_NORMAL);
 
-  private static FiniteDifferenceType DIFF_TYPE = FiniteDifferenceType.CENTRAL;
+  private static final FiniteDifferenceType DIFF_TYPE = FiniteDifferenceType.CENTRAL;
 
   private final double _eps;
   private final double _twoEps;
@@ -36,7 +36,8 @@ public class ScalarFirstOrderDifferentiator implements Derivative<Double, Double
   public ScalarFirstOrderDifferentiator(final FiniteDifferenceType differenceType, final double eps) {
     Validate.notNull(differenceType);
     if (eps < MIN_EPS) {
-      throw new IllegalArgumentException("eps is too small. A good value is 1e-5*size of domain. The minimum value is " + MIN_EPS);
+      throw new IllegalArgumentException("eps is too small. A good value is 1e-5*size of domain. The minimum value is "
+          + MIN_EPS);
     }
     _differenceType = differenceType;
     _eps = eps;

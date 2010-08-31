@@ -7,9 +7,8 @@ package com.opengamma.math.minimization;
 
 import static com.opengamma.math.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
 
-import org.apache.commons.lang.NotImplementedException;
-
 import com.opengamma.math.ConvergenceException;
+import com.opengamma.math.differentiation.ScalarFieldFirstOrderDifferentiator;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
@@ -19,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ConjugateGradientVectorMinimizer implements VectorMinimizerWithGradient {
 
-  private static final double SMALL = Double.MIN_NORMAL;
+  private static final double SMALL = 1e-25;
   private final double _eps;
   private final int _maxInterations;
   private final LineSearch _lineSearch;
@@ -46,37 +45,52 @@ public class ConjugateGradientVectorMinimizer implements VectorMinimizerWithGrad
 
   @Override
   public DoubleMatrix1D minimize(Function1D<DoubleMatrix1D, Double> function, DoubleMatrix1D startPosition) {
-    throw new NotImplementedException();
+    ScalarFieldFirstOrderDifferentiator diff = new ScalarFieldFirstOrderDifferentiator();
+    Function1D<DoubleMatrix1D, DoubleMatrix1D> grad = diff.derivative(function);
+    return minimize(function, grad, startPosition);
   }
 
   @Override
-  public DoubleMatrix1D minimize(Function1D<DoubleMatrix1D, Double> function, Function1D<DoubleMatrix1D, DoubleMatrix1D> grad, DoubleMatrix1D startPosition) {
+  public DoubleMatrix1D minimize(Function1D<DoubleMatrix1D, Double> function,
+      Function1D<DoubleMatrix1D, DoubleMatrix1D> grad, DoubleMatrix1D startPosition) {
 
     int n = startPosition.getNumberOfElements();
     DoubleMatrix1D x = startPosition;
+    DoubleMatrix1D deltaX;
     DoubleMatrix1D g = grad.evaluate(x);
     DoubleMatrix1D d = (DoubleMatrix1D) OG_ALGEBRA.scale(g, -1.0);
     double delta0 = OG_ALGEBRA.getInnerProduct(g, g);
     double deltaOld;
     double deltaNew = delta0;
-    double fOld = function.evaluate(x);
-    double fNew;
+    double lambda = 0.0;
     int resetCount = 0;
 
     for (int count = 0; count < _maxInterations; count++, resetCount++) {
-      double lambda = _lineSearch.minimise(function, d, x);
-      x = (DoubleMatrix1D) OG_ALGEBRA.add(x, OG_ALGEBRA.scale(d, lambda));
-      fNew = function.evaluate(x);
+
+      lambda = _lineSearch.minimise(function, d, x);
+
+      //    System.out.println("position:," + x.getEntry(0) + "," + x.getEntry(1));
+      deltaX = (DoubleMatrix1D) OG_ALGEBRA.scale(d, lambda);
+      x = (DoubleMatrix1D) OG_ALGEBRA.add(x, deltaX);
       DoubleMatrix1D gNew = grad.evaluate(x);
       double deltaMid = OG_ALGEBRA.getInnerProduct(g, gNew);
       g = gNew;
       deltaOld = deltaNew;
       deltaNew = OG_ALGEBRA.getInnerProduct(g, g);
 
-      if (deltaNew < _eps * _eps * delta0 + SMALL && (fOld - fNew) < _eps * (Math.abs(fOld) + Math.abs(fNew)) / 2 + SMALL) {
-        return x;
+      if (deltaNew < 1000 * _eps * _eps * delta0 //in practice may never get exactly zero gradient (especially if using finite difference to find it), so if shouldn't be the critical stopping criteria 
+          && OG_ALGEBRA.getNorm2(deltaX) < _eps * OG_ALGEBRA.getNorm2(x) + SMALL) {
+        boolean flag = true;
+        for (int i = 0; i < n; i++) {
+          if (Math.abs(deltaX.getEntry(i)) > _eps * Math.abs(x.getEntry(i)) + SMALL) {
+            flag = false;
+            break;
+          }
+        }
+        if (flag) {
+          return x;
+        }
       }
-      fOld = fNew;
       double beta = (deltaNew - deltaMid) / deltaOld;
 
       if (beta < 0 || resetCount == n) {
@@ -90,8 +104,8 @@ public class ConjugateGradientVectorMinimizer implements VectorMinimizerWithGrad
         }
       }
     }
-    String s = "ConjugateGradient Failed to converge after " + _maxInterations + " interations, with a tolerance of " + _eps + " Final position reached was " + x.toString();
+    String s = "ConjugateGradient Failed to converge after " + _maxInterations + " interations, with a tolerance of "
+        + _eps + " Final position reached was " + x.toString();
     throw new ConvergenceException(s);
   }
-
 }
