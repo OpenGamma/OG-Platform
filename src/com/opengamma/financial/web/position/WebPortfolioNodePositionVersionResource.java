@@ -19,7 +19,7 @@ import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * RESTful resource for all positions in a node.
+ * RESTful resource for a version of a position.
  */
 @Path("/portfolios/{portfolioId}/nodes/{nodeId}/positions/{positionId}/versions/{versionId}")
 @Produces(MediaType.TEXT_HTML)
