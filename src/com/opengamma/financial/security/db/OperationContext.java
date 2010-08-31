@@ -6,7 +6,7 @@
 
 package com.opengamma.financial.security.db;
 
-import com.opengamma.financial.RegionSource;
+import com.opengamma.financial.world.region.RegionSource;
 
 /**
  * Context for the bean operations - i.e. access to any resources that are needed

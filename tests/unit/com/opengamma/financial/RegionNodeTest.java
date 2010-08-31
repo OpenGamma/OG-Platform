@@ -15,6 +15,12 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.financial.world.region.DefaultRegionSource;
+import com.opengamma.financial.world.region.InMemoryRegionRepository;
+import com.opengamma.financial.world.region.Region;
+import com.opengamma.financial.world.region.RegionFileReader;
+import com.opengamma.financial.world.region.RegionMaster;
+import com.opengamma.financial.world.region.RegionSource;
 import com.opengamma.id.Identifier;
 
 public class RegionNodeTest {

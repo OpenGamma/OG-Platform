@@ -31,9 +31,9 @@ public class InterpolatedYieldCurveSpecification implements Serializable {
   private final Currency _currency;
   private final String _name;
   private final Interpolator1D<?> _interpolator;
-  private final Set<ResolvedFixedIncomeStrip> _strips = new HashSet<ResolvedFixedIncomeStrip>();
+  private final Set<FixedIncomeStripWithIdentifier> _strips = new HashSet<FixedIncomeStripWithIdentifier>();
   
-  public InterpolatedYieldCurveSpecification(LocalDate curveDate, String name, Currency currency,  Interpolator1D<?> interpolator, Collection<ResolvedFixedIncomeStrip> resolvedStrips) {
+  public InterpolatedYieldCurveSpecification(LocalDate curveDate, String name, Currency currency,  Interpolator1D<?> interpolator, Collection<FixedIncomeStripWithIdentifier> resolvedStrips) {
     Validate.notNull(curveDate, "CurveDate");
     Validate.notNull(currency, "Currency");
     Validate.notNull(interpolator, "Interpolator1D");
@@ -43,12 +43,12 @@ public class InterpolatedYieldCurveSpecification implements Serializable {
     _currency = currency;
     _name = name;
     _interpolator = interpolator;
-    for (ResolvedFixedIncomeStrip strip : resolvedStrips) {
+    for (FixedIncomeStripWithIdentifier strip : resolvedStrips) {
       addStrip(strip);
     }
   }
   
-  public void addStrip(ResolvedFixedIncomeStrip strip) {
+  public void addStrip(FixedIncomeStripWithIdentifier strip) {
     ArgumentChecker.notNull(strip, "Strip");
     _strips.add(strip);
   }
@@ -84,7 +84,7 @@ public class InterpolatedYieldCurveSpecification implements Serializable {
   /**
    * @return the strips
    */
-  public Set<ResolvedFixedIncomeStrip> getStrips() {
+  public Set<FixedIncomeStripWithIdentifier> getStrips() {
     return Collections.unmodifiableSet(_strips);
   }
 

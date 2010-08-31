@@ -12,7 +12,7 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.financial.analytics.ircurve.ResolvedFixedIncomeStrip;
+import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.time.Tenor;
@@ -20,11 +20,11 @@ import com.opengamma.util.time.Tenor;
 /**
  * Builder for converting Region instances to/from Fudge messages.
  */
-@FudgeBuilderFor(ResolvedFixedIncomeStrip.class)
-public class ResolvedFixedIncomeStripBuilder implements FudgeBuilder<ResolvedFixedIncomeStrip> {
+@FudgeBuilderFor(FixedIncomeStripWithIdentifier.class)
+public class ResolvedFixedIncomeStripBuilder implements FudgeBuilder<FixedIncomeStripWithIdentifier> {
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, ResolvedFixedIncomeStrip object) {
+  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, FixedIncomeStripWithIdentifier object) {
     MutableFudgeFieldContainer message = context.newMessage();
     context.objectToFudgeMsg(message, "type", null, object.getInstrumentType());
     context.objectToFudgeMsg(message, "maturity", null, object.getMaturity());
@@ -33,11 +33,11 @@ public class ResolvedFixedIncomeStripBuilder implements FudgeBuilder<ResolvedFix
   }
 
   @Override
-  public ResolvedFixedIncomeStrip buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public FixedIncomeStripWithIdentifier buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
     StripInstrumentType type = context.fieldValueToObject(StripInstrumentType.class, message.getByName("type"));
     Tenor maturity = context.fieldValueToObject(Tenor.class, message.getByName("maturity"));
     Identifier security = context.fieldValueToObject(Identifier.class, message.getByName("security"));
-    return new ResolvedFixedIncomeStrip(type, maturity, security);
+    return new FixedIncomeStripWithIdentifier(type, maturity, security);
   }
 
 }

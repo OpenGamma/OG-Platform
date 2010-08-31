@@ -13,9 +13,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.InMemoryRegionRepository;
-import com.opengamma.financial.RegionFileReader;
-import com.opengamma.financial.RegionMaster;
 import com.opengamma.financial.security.SecurityMasterTestCase;
 import com.opengamma.financial.security.SecurityTestCaseMethods;
 import com.opengamma.financial.security.db.bond.BondSecurityBean;
@@ -36,6 +33,9 @@ import com.opengamma.financial.security.db.future.FutureSecurityBean;
 import com.opengamma.financial.security.db.future.UnitBean;
 import com.opengamma.financial.security.db.option.OptionSecurityBean;
 import com.opengamma.financial.security.db.swap.SwapSecurityBean;
+import com.opengamma.financial.world.region.InMemoryRegionRepository;
+import com.opengamma.financial.world.region.RegionFileReader;
+import com.opengamma.financial.world.region.RegionMaster;
 import com.opengamma.util.test.HibernateTest;
 
 /**

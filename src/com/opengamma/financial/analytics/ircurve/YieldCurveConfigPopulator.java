@@ -17,15 +17,15 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
  */
 public class YieldCurveConfigPopulator {
   
-  public static MongoDBMasterConfigSource populateCurveDefinitionConfigRepository(MongoDBMasterConfigSource masterConfigSource) {
+  public static MongoDBMasterConfigSource populateCurveConfigSource(MongoDBMasterConfigSource masterConfigSource) {
     ConfigMaster<YieldCurveDefinition> curveDefinitionMaster = masterConfigSource.getConfigMasterFor(YieldCurveDefinition.class);
-    populateCurveDefinitionConfigRepository(curveDefinitionMaster);
+    populateCurveDefinitionConfigMaster(curveDefinitionMaster);
     ConfigMaster<CurveSpecificationBuilderConfiguration> curveSpecificationBuilderConfigMaster = masterConfigSource.getConfigMasterFor(CurveSpecificationBuilderConfiguration.class);
-    populateCurveSpecificationBuilderConfigRepository(curveSpecificationBuilderConfigMaster);
+    populateCurveSpecificationBuilderConfigMaster(curveSpecificationBuilderConfigMaster);
     return masterConfigSource;
   }
   
-  public static void populateCurveDefinitionConfigRepository(ConfigMaster<YieldCurveDefinition> configRepo) {
+  public static void populateCurveDefinitionConfigMaster(ConfigMaster<YieldCurveDefinition> configRepo) {
     DefaultConfigDocument<YieldCurveDefinition> forwardUSD = new DefaultConfigDocument<YieldCurveDefinition>();
     forwardUSD.setName("FORWARD_USD");
     forwardUSD.setValue(CurveDefinitionAndSpecifications.buildUSDForwardCurveDefinition());
@@ -36,7 +36,7 @@ public class YieldCurveConfigPopulator {
     configRepo.add(fundingUSD);
   }
   
-  public static void populateCurveSpecificationBuilderConfigRepository(ConfigMaster<CurveSpecificationBuilderConfiguration> configMaster) {
+  public static void populateCurveSpecificationBuilderConfigMaster(ConfigMaster<CurveSpecificationBuilderConfiguration> configMaster) {
     DefaultConfigDocument<CurveSpecificationBuilderConfiguration> doc = new DefaultConfigDocument<CurveSpecificationBuilderConfiguration>();
     doc.setName("DEFAULT_USD");
     doc.setValue(CurveDefinitionAndSpecifications.buildUSDCurveSpecificationBuilderConfiguration());

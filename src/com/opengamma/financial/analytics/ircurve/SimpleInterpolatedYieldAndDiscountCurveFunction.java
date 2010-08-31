@@ -32,12 +32,12 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.ConventionBundle;
-import com.opengamma.financial.ConventionBundleSource;
 import com.opengamma.financial.Currency;
-import com.opengamma.financial.InMemoryConventionBundleMaster;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.convention.ConventionBundle;
+import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -107,7 +107,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
 
   public static Set<ValueRequirement> buildRequirements(final InterpolatedYieldCurveSpecification specification, final FunctionCompilationContext context) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
-    for (final ResolvedFixedIncomeStrip strip : specification.getStrips()) {
+    for (final FixedIncomeStripWithIdentifier strip : specification.getStrips()) {
       final ValueRequirement requirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getSecurity());
       result.add(requirement);
     }
@@ -185,7 +185,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     // Note that this assumes that all strips are priced in decimal percent. We need to resolve
     // that ultimately in OG-LiveData normalization and pull out the OGRate key rather than
     // the crazy IndicativeValue name.
-    ResolvedFixedIncomeStripSecurityAndMaturityBuilder builder = new ResolvedFixedIncomeStripSecurityAndMaturityBuilder(OpenGammaExecutionContext.getRegionSource(executionContext),
+    FixedIncomeStripIdentifierAndMaturityBuilder builder = new FixedIncomeStripIdentifierAndMaturityBuilder(OpenGammaExecutionContext.getRegionSource(executionContext),
                                                                                                                         OpenGammaExecutionContext.getConventionBundleSource(executionContext),
                                                                                                                         executionContext.getSecuritySource());
     InterpolatedYieldCurveSpecificationWithSecurities specWithSecurities = builder.resolveToSecurity(getSpecification(), buildMarketDataMap(inputs));

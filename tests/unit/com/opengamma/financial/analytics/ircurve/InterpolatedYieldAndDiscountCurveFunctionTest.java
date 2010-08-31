@@ -28,9 +28,9 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.Currency;
-import com.opengamma.financial.DefaultConventionBundleSource;
-import com.opengamma.financial.InMemoryConventionBundleMaster;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.convention.DefaultConventionBundleSource;
+import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.test.CurveConfigurationSetupHelper;
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
@@ -95,7 +95,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     YieldCurveDefinition curveDefinition = curveDefinitionSource.getDefinition(Currency.getInstance("USD"),curveName);
     ConfigDBInterpolatedYieldCurveSpecificationBuilder curveSpecBuilder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(_configHelper.getConfigSource());
     InterpolatedYieldCurveSpecification curveSpecification = curveSpecBuilder.buildCurve(curveDate, curveDefinition);
-    for (ResolvedFixedIncomeStrip strip : curveSpecification.getStrips()) {
+    for (FixedIncomeStripWithIdentifier strip : curveSpecification.getStrips()) {
       if (!foundKeys.contains(strip.getSecurity())) {
         s_logger.info(strip.getSecurity().toString());
       }
@@ -109,7 +109,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     final String curveName = "FUNDING";
     final LocalDate curveDate = DateUtil.previousWeekDay();
     
-    YieldCurveConfigPopulator.populateCurveDefinitionConfigRepository((MongoDBMasterConfigSource)_configHelper.getConfigSource());
+    YieldCurveConfigPopulator.populateCurveConfigSource((MongoDBMasterConfigSource)_configHelper.getConfigSource());
     SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(curveDate,
         curveCurrency, curveName, false);
     function.setUniqueIdentifier("testId");
@@ -138,7 +138,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     ConfigDBInterpolatedYieldCurveSpecificationBuilder curveSpecBuilder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(_configHelper.getConfigSource());
     InterpolatedYieldCurveSpecification curveSpecification = curveSpecBuilder.buildCurve(curveDate, curveDefinition);
     
-    for (ResolvedFixedIncomeStrip strip : curveSpecification.getStrips()) {
+    for (FixedIncomeStripWithIdentifier strip : curveSpecification.getStrips()) {
       assertTrue(foundKeys.contains(strip.getSecurity()));
     }
   }
@@ -149,7 +149,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     final String curveName = "FUNDING";
     final LocalDate curveDate = DateUtil.previousWeekDay();
     
-    YieldCurveConfigPopulator.populateCurveDefinitionConfigRepository((MongoDBMasterConfigSource)_configHelper.getConfigSource());
+    YieldCurveConfigPopulator.populateCurveConfigSource((MongoDBMasterConfigSource)_configHelper.getConfigSource());
     SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(curveDate,
         curveCurrency, curveName, false);
     function.setUniqueIdentifier("testId");
@@ -173,7 +173,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     final String curveName = "FUNDING";
     final LocalDate curveDate = LocalDate.nowSystemClock();
     
-    YieldCurveConfigPopulator.populateCurveDefinitionConfigRepository((MongoDBMasterConfigSource)_configHelper.getConfigSource());
+    YieldCurveConfigPopulator.populateCurveConfigSource((MongoDBMasterConfigSource)_configHelper.getConfigSource());
     SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(curveDate,
         curveCurrency, curveName, false);
     function.setUniqueIdentifier("testId");

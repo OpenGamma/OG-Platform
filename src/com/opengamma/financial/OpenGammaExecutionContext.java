@@ -9,6 +9,12 @@ import com.opengamma.engine.config.ConfigSource;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.historicaldata.HistoricalDataSource;
 import com.opengamma.engine.security.SecuritySource;
+import com.opengamma.financial.convention.ConventionBundleMaster;
+import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.world.exchange.ExchangeSource;
+import com.opengamma.financial.world.holiday.HolidayMaster;
+import com.opengamma.financial.world.holiday.HolidaySource;
+import com.opengamma.financial.world.region.RegionSource;
 
 /**
  * Utility methods to pull standard objects out of a {@link FunctionExecutionContext}.
@@ -28,7 +34,7 @@ public class OpenGammaExecutionContext {
   public static final String REGION_SOURCE_NAME = "regionSource";
 
   /**
-   * The name under which an instance of {@link HolidayRepository} should be bound.
+   * The name under which an instance of {@link HolidayMaster} should be bound.
    */
   public static final String HOLIDAY_SOURCE_NAME = "holidaySource";
   

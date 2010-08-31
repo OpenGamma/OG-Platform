@@ -19,14 +19,14 @@ import com.opengamma.config.db.MongoDBConfigMaster;
 import com.opengamma.engine.config.ConfigSource;
 import com.opengamma.engine.config.MongoDBMasterConfigSource;
 import com.opengamma.engine.security.SecuritySource;
-import com.opengamma.financial.DefaultRegionSource;
-import com.opengamma.financial.InMemoryRegionRepository;
-import com.opengamma.financial.RegionFileReader;
-import com.opengamma.financial.RegionMaster;
-import com.opengamma.financial.RegionSource;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
+import com.opengamma.financial.world.region.DefaultRegionSource;
+import com.opengamma.financial.world.region.InMemoryRegionRepository;
+import com.opengamma.financial.world.region.RegionFileReader;
+import com.opengamma.financial.world.region.RegionMaster;
+import com.opengamma.financial.world.region.RegionSource;
 import com.opengamma.util.MongoDBConnectionSettings;
 import com.opengamma.util.PlatformConfigUtils;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
@@ -54,7 +54,7 @@ public class CurveConfigurationSetupHelper {
     MongoDBConfigMaster<YieldCurveDefinition> yieldCurveDefinitionConfigMaster = new MongoDBConfigMaster<YieldCurveDefinition>(YieldCurveDefinition.class, 
                                                                                                                                _yieldCurveDefinitionSettings, 
                                                                                                                                fudgeContext, true, null);
-    YieldCurveConfigPopulator.populateCurveDefinitionConfigRepository(yieldCurveDefinitionConfigMaster);
+    YieldCurveConfigPopulator.populateCurveDefinitionConfigMaster(yieldCurveDefinitionConfigMaster);
     
     MongoDBMasterConfigSource mongoDBMasterConfigSource = new MongoDBMasterConfigSource();
     mongoDBMasterConfigSource.addConfigMaster(YieldCurveDefinition.class, yieldCurveDefinitionConfigMaster);
@@ -62,7 +62,7 @@ public class CurveConfigurationSetupHelper {
       new MongoDBConfigMaster<CurveSpecificationBuilderConfiguration>(CurveSpecificationBuilderConfiguration.class, 
                                                                       _curveSpecificationBuilderConfigurationSettings, 
                                                                       fudgeContext, true, null);
-    YieldCurveConfigPopulator.populateCurveSpecificationBuilderConfigRepository(curveSpecificationBuilderConfigMaster);
+    YieldCurveConfigPopulator.populateCurveSpecificationBuilderConfigMaster(curveSpecificationBuilderConfigMaster);
     mongoDBMasterConfigSource.addConfigMaster(CurveSpecificationBuilderConfiguration.class, curveSpecificationBuilderConfigMaster);
     _configSource = mongoDBMasterConfigSource;
     

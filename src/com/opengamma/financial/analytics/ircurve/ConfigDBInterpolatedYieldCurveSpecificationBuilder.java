@@ -18,7 +18,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.engine.config.ConfigSource;
 import com.opengamma.engine.security.SecuritySource;
-import com.opengamma.financial.RegionSource;
+import com.opengamma.financial.world.region.RegionSource;
 import com.opengamma.id.Identifier;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
@@ -61,7 +61,7 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
   @Override
   public InterpolatedYieldCurveSpecification buildCurve(LocalDate curveDate, YieldCurveDefinition curveDefinition) {
     clearConfigCache();
-    Collection<ResolvedFixedIncomeStrip> securities = new ArrayList<ResolvedFixedIncomeStrip>();
+    Collection<FixedIncomeStripWithIdentifier> securities = new ArrayList<FixedIncomeStripWithIdentifier>();
     for (FixedIncomeStrip strip : curveDefinition.getStrips()) {
       CurveSpecificationBuilderConfiguration builderConfig = getBuilderConfig(strip.getConventionName() + "_" + curveDefinition.getCurrency().getISOCode());
       Identifier identifier;
@@ -84,7 +84,7 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
         default:
           throw new OpenGammaRuntimeException("Unhandled type of instrument in curve definition " + strip.getInstrumentType());
       }
-      securities.add(new ResolvedFixedIncomeStrip(strip.getInstrumentType(), strip.getCurveNodePointTime(), identifier));
+      securities.add(new FixedIncomeStripWithIdentifier(strip.getInstrumentType(), strip.getCurveNodePointTime(), identifier));
     }
     Interpolator1D<?> interpolator = Interpolator1DFactory.getInterpolator(curveDefinition.getInterpolatorName());  
     return new InterpolatedYieldCurveSpecification(curveDate, curveDefinition.getName(), curveDefinition.getCurrency(), interpolator, securities);

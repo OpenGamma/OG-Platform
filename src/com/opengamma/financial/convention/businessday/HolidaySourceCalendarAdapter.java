@@ -9,11 +9,11 @@ import javax.time.calendar.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.Currency;
-import com.opengamma.financial.Exchange;
-import com.opengamma.financial.HolidaySource;
-import com.opengamma.financial.HolidayType;
-import com.opengamma.financial.Region;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.world.exchange.Exchange;
+import com.opengamma.financial.world.holiday.HolidaySource;
+import com.opengamma.financial.world.holiday.HolidayType;
+import com.opengamma.financial.world.region.Region;
 
 /**
  * Temporary adapter to make the existing Calendar interface work with the holiday repository.  THIS MUST BE REFACTORED.

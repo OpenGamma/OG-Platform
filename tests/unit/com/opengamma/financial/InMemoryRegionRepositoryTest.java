@@ -21,6 +21,12 @@ import javax.time.calendar.TimeZone;
 import org.junit.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.world.region.InMemoryRegionRepository;
+import com.opengamma.financial.world.region.Region;
+import com.opengamma.financial.world.region.RegionFileReader;
+import com.opengamma.financial.world.region.RegionMaster;
+import com.opengamma.financial.world.region.RegionSearchRequest;
+import com.opengamma.financial.world.region.RegionType;
 
 /**
  * Test InMemoryRegionRepository.

@@ -12,8 +12,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.InMemoryRegionRepository;
-import com.opengamma.financial.Region;
+import com.opengamma.financial.world.region.InMemoryRegionRepository;
+import com.opengamma.financial.world.region.Region;
 import com.opengamma.id.Identifier;
 
 @Ignore

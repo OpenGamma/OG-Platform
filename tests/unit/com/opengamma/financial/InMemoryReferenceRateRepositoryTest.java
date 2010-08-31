@@ -10,6 +10,11 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import com.opengamma.financial.convention.ConventionBundle;
+import com.opengamma.financial.convention.ConventionBundleMaster;
+import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.DefaultConventionBundleSource;
+import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;

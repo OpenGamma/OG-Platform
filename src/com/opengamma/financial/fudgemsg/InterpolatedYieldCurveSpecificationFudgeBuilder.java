@@ -20,7 +20,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecification;
-import com.opengamma.financial.analytics.ircurve.ResolvedFixedIncomeStrip;
+import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithIdentifier;
 import com.opengamma.math.interpolation.Interpolator1D;
 
 /**
@@ -36,7 +36,7 @@ public class InterpolatedYieldCurveSpecificationFudgeBuilder implements FudgeBui
     message.add("name", object.getName());
     context.objectToFudgeMsg(message, "currency", null, object.getCurrency());
     context.objectToFudgeMsg(message, "interpolator", null, object.getInterpolator());
-    for (ResolvedFixedIncomeStrip resolvedStrip : object.getStrips()) {
+    for (FixedIncomeStripWithIdentifier resolvedStrip : object.getStrips()) {
       context.objectToFudgeMsg(message, "resolvedStrips", null, resolvedStrip);
     }
     return message; 
@@ -49,9 +49,9 @@ public class InterpolatedYieldCurveSpecificationFudgeBuilder implements FudgeBui
     Currency currency = context.fieldValueToObject(Currency.class, message.getByName("currency"));
     Interpolator1D<?> interpolator = context.fieldValueToObject(Interpolator1D.class, message.getByName("interpolator"));
     List<FudgeField> resolvedStripFields = message.getAllByName("resolvedStrips");
-    List<ResolvedFixedIncomeStrip> resolvedStrips = new ArrayList<ResolvedFixedIncomeStrip>();
+    List<FixedIncomeStripWithIdentifier> resolvedStrips = new ArrayList<FixedIncomeStripWithIdentifier>();
     for (FudgeField resolvedStripField : resolvedStripFields) {
-      resolvedStrips.add(context.fieldValueToObject(ResolvedFixedIncomeStrip.class, resolvedStripField));
+      resolvedStrips.add(context.fieldValueToObject(FixedIncomeStripWithIdentifier.class, resolvedStripField));
     }
     return new InterpolatedYieldCurveSpecification(curveDate, name, currency, interpolator, resolvedStrips);
   }
