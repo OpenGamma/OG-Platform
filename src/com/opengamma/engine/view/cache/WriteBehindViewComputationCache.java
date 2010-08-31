@@ -58,7 +58,10 @@ public class WriteBehindViewComputationCache implements ViewComputationCache {
 
     @Override
     public void run() {
+      int sharedCount = 0;
+      int privateCount = 0;
       do {
+        s_logger.info("Write-behind thread running for {}", WriteBehindViewComputationCache.this.hashCode());
         do {
           // Commit the shared values to the underlying
           if (_sharedValues.size() > 1) {
@@ -67,12 +70,14 @@ public class WriteBehindViewComputationCache implements ViewComputationCache {
             for (ComputedValue value : values) {
               getPending().remove(value.getSpecification());
             }
+            sharedCount += values.size();
           } else {
             ComputedValue value = _sharedValues.poll();
             while (value != null) {
               getUnderlying().putSharedValue(value);
               getPending().remove(value.getSpecification());
               value = _sharedValues.poll();
+              sharedCount++;
             }
           }
           // Commit the private values to the underlying
@@ -82,12 +87,14 @@ public class WriteBehindViewComputationCache implements ViewComputationCache {
             for (ComputedValue value : values) {
               getPending().remove(value.getSpecification());
             }
+            privateCount += values.size();
           } else {
             ComputedValue value = _privateValues.poll();
             while (value != null) {
               getUnderlying().putSharedValue(value);
               getPending().remove(value.getSpecification());
               value = _privateValues.poll();
+              privateCount++;
             }
           }
         } while (!_privateValues.isEmpty() || !_sharedValues.isEmpty());
@@ -98,6 +105,7 @@ public class WriteBehindViewComputationCache implements ViewComputationCache {
       // Note that if there is a failure anywhere in here, the writer task will die and things will
       // accumulate on the list until synchronize is called at which point the exception gets
       // propogated. Is this wasteful of compute cycles - should we fail the job sooner ?
+      s_logger.info("Write-behind thread terminated after {} shared, and {} private operations", sharedCount, privateCount);
     }
 
   };
@@ -172,7 +180,7 @@ public class WriteBehindViewComputationCache implements ViewComputationCache {
 
   private void startWriterIfNotRunning() {
     if (_valueWriter.getAndSet(_valueWriterRunnable) == null) {
-      s_logger.info("Starting write-behind thread");
+      s_logger.info("Starting write-behind thread for {}", WriteBehindViewComputationCache.this.hashCode());
       _valueWriterFuture = getExecutorService().submit(_valueWriterRunnable);
     }
   }
