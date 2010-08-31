@@ -26,7 +26,6 @@ import com.opengamma.util.time.Expiry;
  */
 public class DermanKaniImpliedTreeModel {
 
-  @SuppressWarnings("unchecked")
   public static RecombiningBinomialTree<List<Double>> getTrees(final OptionDefinition definition, final StandardOptionDataBundle data) {
     Validate.notNull(definition, "definition");
     Validate.notNull(data, "data");
@@ -49,71 +48,20 @@ public class DermanKaniImpliedTreeModel {
       t += dt;
       final double df1 = Math.exp(dt * data.getInterestRate(t));
       final double df2 = Math.exp(dt * data.getCostOfCarry());
+      final Expiry expiry = new Expiry(DateUtil.getDateOffsetWithYearFraction(date, t));
       final int mid = i / 2;
       if (i % 2 == 1) {
-        double c = crrModel.getTreeGeneratingFunction(new EuropeanVanillaOptionDefinition(spot, new Expiry(DateUtil.getDateOffsetWithYearFraction(date, t)), true)).evaluate(data).getNode(0, 0).second;
-        double sigma = 0;
-        for (int j = mid + 1; j < RecombiningBinomialTree.NODES.evaluate(i); j++) {
-          final double f = impliedTree[i - 1][j] * df2;
-          sigma += arrowDebreu[i - 1][j] * (f - impliedTree[i - 1][mid]);
-        }
+        final double c = crrModel.getTreeGeneratingFunction(new EuropeanVanillaOptionDefinition(spot, expiry, true)).evaluate(data).getNode(0, 0).second;
+        final double sigma = getUpperSigma(impliedTree, arrowDebreu, i - 1, df2, mid + 1);
         impliedTree[i][mid + 1] = spot * (df1 * c + arrowDebreu[i - 1][mid] * spot - sigma) / (arrowDebreu[i - 1][mid] * impliedTree[i - 1][mid] * df2 - df1 * c + sigma);
         impliedTree[i][mid] = spot * spot / impliedTree[i][mid + 1];
-
-        for (int j = mid + 2; j < RecombiningBinomialTree.NODES.evaluate(i); j++) {
-          sigma = 0;
-          for (int k = j; k < RecombiningBinomialTree.NODES.evaluate(i); k++) {
-            final double f = impliedTree[i - 1][k] * df2;
-            sigma += arrowDebreu[i - 1][k] * (f - impliedTree[i - 1][j - 1]);
-          }
-          c = crrModel.getTreeGeneratingFunction(new EuropeanVanillaOptionDefinition(impliedTree[i - 1][j - 1], new Expiry(DateUtil.getDateOffsetWithYearFraction(date, t)), true)).evaluate(data)
-              .getNode(0, 0).second;
-          final double forward = impliedTree[i - 1][j - 1] * df2;
-          impliedTree[i][j] = (impliedTree[i][j - 1] * (df1 * c - sigma) - arrowDebreu[i - 1][j - 1] * impliedTree[i - 1][j - 1] * (forward - impliedTree[i][j - 1]))
-              / (df1 * c - sigma - arrowDebreu[i - 1][j - 1] * (forward - impliedTree[i][j - 1]));
-        }
-        for (int j = mid - 1; j >= 0; j--) {
-          sigma = 0;
-          for (int k = j - 1; k >= 0; k--) {
-            final double f = impliedTree[i - 1][k] * df2;
-            sigma += arrowDebreu[i - 1][k] * (impliedTree[i - 1][j] - f);
-          }
-          final double p = crrModel.getTreeGeneratingFunction(new EuropeanVanillaOptionDefinition(impliedTree[i - 1][j], new Expiry(DateUtil.getDateOffsetWithYearFraction(date, t)), false)).evaluate(
-              data).getNode(0, 0).second;
-          final double forward = impliedTree[i - 1][j] * df2;
-          impliedTree[i][j] = (impliedTree[i][j + 1] * (df1 * p - sigma) + arrowDebreu[i - 1][j] * impliedTree[i - 1][j] * (forward - impliedTree[i][j + 1]))
-              / (df1 * p - sigma + arrowDebreu[i - 1][j] * (forward - impliedTree[i][j + 1]));
-        }
+        getUpperNodes(data, impliedTree, arrowDebreu, i, crrModel, df1, df2, expiry, mid + 2);
+        getLowerNodes(data, impliedTree, arrowDebreu, i, crrModel, df1, df2, expiry, mid - 1);
       } else {
         impliedTree[i][mid] = spot;
-        double sigma = 0;
-        for (int j = mid + 1; j < RecombiningBinomialTree.NODES.evaluate(i); j++) {
-          sigma = 0;
-          for (int k = j; k < RecombiningBinomialTree.NODES.evaluate(i); k++) {
-            final double f = impliedTree[i - 1][k] * df2;
-            sigma += arrowDebreu[i - 1][k] * (f - impliedTree[i - 1][j - 1]);
-          }
-          final double c = crrModel.getTreeGeneratingFunction(new EuropeanVanillaOptionDefinition(impliedTree[i - 1][j - 1], new Expiry(DateUtil.getDateOffsetWithYearFraction(date, t)), true))
-              .evaluate(data).getNode(0, 0).second;
-          final double forward = impliedTree[i - 1][j - 1] * df2;
-          impliedTree[i][j] = (impliedTree[i][j - 1] * (df1 * c - sigma) - arrowDebreu[i - 1][j - 1] * impliedTree[i - 1][j - 1] * (forward - impliedTree[i][j - 1]))
-              / (df1 * c - sigma - arrowDebreu[i - 1][j - 1] * (forward - impliedTree[i][j - 1]));
-        }
-        for (int j = mid - 1; j >= 0; j--) {
-          sigma = 0;
-          for (int k = j - 1; k >= 0; k--) {
-            final double f = impliedTree[i - 1][k] * df2;
-            sigma += arrowDebreu[i - 1][k] * (impliedTree[i - 1][j] - f);
-          }
-          final double p = crrModel.getTreeGeneratingFunction(new EuropeanVanillaOptionDefinition(impliedTree[i - 1][j], new Expiry(DateUtil.getDateOffsetWithYearFraction(date, t)), false)).evaluate(
-              data).getNode(0, 0).second;
-          final double forward = impliedTree[i - 1][j] * df2;
-          impliedTree[i][j] = (impliedTree[i][j + 1] * (df1 * p - sigma) + arrowDebreu[i - 1][j] * impliedTree[i - 1][j] * (forward - impliedTree[i][j + 1]))
-              / (df1 * p - sigma + arrowDebreu[i - 1][j] * (forward - impliedTree[i][j + 1]));
-        }
-
+        getUpperNodes(data, impliedTree, arrowDebreu, i, crrModel, df1, df2, expiry, mid + 1);
+        getLowerNodes(data, impliedTree, arrowDebreu, i, crrModel, df1, df2, expiry, mid - 1);
       }
-
       for (int j = 0; j < RecombiningBinomialTree.NODES.evaluate(i - 1); j++) {
         final double f = impliedTree[i - 1][j] * df2;
         transitionProbabilities[i - 1][j] = (f - impliedTree[i][j]) / (impliedTree[i][j + 1] - impliedTree[i][j]);
@@ -157,4 +105,47 @@ public class DermanKaniImpliedTreeModel {
     }
     return null;
   }
+
+  private static void getLowerNodes(final StandardOptionDataBundle data, final double[][] impliedTree, final double[][] arrowDebreu, final int step,
+      final BinomialOptionModel<StandardOptionDataBundle> crrModel, final double df1, final double df2, final Expiry expiry, final int mid) {
+    double sigma = getLowerSigma(impliedTree, arrowDebreu, step - 1, df2, mid);
+    for (int j = mid; j >= 0; j--) {
+      final double p = crrModel.getTreeGeneratingFunction(new EuropeanVanillaOptionDefinition(impliedTree[step - 1][j], expiry, false)).evaluate(data).getNode(0, 0).second;
+      final double forward = impliedTree[step - 1][j] * df2;
+      impliedTree[step][j] = (impliedTree[step][j + 1] * (df1 * p - sigma) + arrowDebreu[step - 1][j] * impliedTree[step - 1][j] * (forward - impliedTree[step][j + 1]))
+          / (df1 * p - sigma + arrowDebreu[step - 1][j] * (forward - impliedTree[step][j + 1]));
+      if (j > 0) {
+        sigma -= arrowDebreu[step - 1][j - 1] * (impliedTree[step - 1][j] - impliedTree[step - 1][j - 1] * df2);
+      }
+    }
+  }
+
+  private static void getUpperNodes(final StandardOptionDataBundle data, final double[][] impliedTree, final double[][] arrowDebreu, final int step,
+      final BinomialOptionModel<StandardOptionDataBundle> crrModel, final double df1, final double df2, final Expiry expiry, final int mid) {
+    double sigma = getUpperSigma(impliedTree, arrowDebreu, step - 1, df2, mid);
+    for (int j = mid; j < RecombiningBinomialTree.NODES.evaluate(step); j++) {
+      final double c = crrModel.getTreeGeneratingFunction(new EuropeanVanillaOptionDefinition(impliedTree[step - 1][j - 1], expiry, true)).evaluate(data).getNode(0, 0).second;
+      final double forward = impliedTree[step - 1][j - 1] * df2;
+      impliedTree[step][j] = (impliedTree[step][j - 1] * (df1 * c - sigma) - arrowDebreu[step - 1][j - 1] * impliedTree[step - 1][j - 1] * (forward - impliedTree[step][j - 1]))
+          / (df1 * c - sigma - arrowDebreu[step - 1][j - 1] * (forward - impliedTree[step][j - 1]));
+      sigma -= arrowDebreu[step - 1][j] * (impliedTree[step - 1][j] * df2 - impliedTree[step - 1][j - 1]);
+    }
+  }
+
+  private static double getLowerSigma(final double[][] impliedTree, final double[][] arrowDebreu, final int step, final double df2, final int start) {
+    double sigma = 0;
+    for (int i = start - 1; i >= 0; i--) {
+      sigma += arrowDebreu[step][i] * (impliedTree[step][start] - impliedTree[step][i] * df2);
+    }
+    return sigma;
+  }
+
+  private static double getUpperSigma(final double[][] impliedTree, final double[][] arrowDebreu, final int step, final double df2, final int start) {
+    double sigma = 0;
+    for (int i = start; i < RecombiningBinomialTree.NODES.evaluate(step + 1); i++) {
+      sigma += arrowDebreu[step][i] * (impliedTree[step][i] * df2 - impliedTree[step][start - 1]);
+    }
+    return sigma;
+  }
+
 }

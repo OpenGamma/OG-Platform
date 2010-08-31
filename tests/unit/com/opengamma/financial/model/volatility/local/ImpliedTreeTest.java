@@ -9,6 +9,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
+import com.opengamma.financial.interestrate.AnnualInterestRate;
+import com.opengamma.financial.interestrate.ContinuousInterestRate;
 import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
@@ -25,8 +27,10 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class ImpliedTreeTest {
   private static final double SPOT = 100;
-  private static final YieldAndDiscountCurve R = new ConstantYieldCurve(0.05);
-  private static final double B = 0.05;
+  private static final AnnualInterestRate ANNUAL_RATE = new AnnualInterestRate(0.03);
+  private static final ContinuousInterestRate CONTINUOUS_RATE = ANNUAL_RATE.toContinuous();
+  private static final YieldAndDiscountCurve R = new ConstantYieldCurve(0.05);//CONTINUOUS_RATE.getRate());
+  private static final double B = 0.05;//CONTINUOUS_RATE.getRate();
   private static final double GLOBAL_VOL = 0.15;
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
   private static final OptionDefinition OPTION = new EuropeanVanillaOptionDefinition(SPOT, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 5)), true);
