@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.swap;
 
+import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
@@ -16,7 +17,7 @@ import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 
 /**
- * 
+ * REVIEW: jim 10-Aug-2010 -- reverse crap time zone implementation.
  *
  */
 public class SwapScheduleCalculator {

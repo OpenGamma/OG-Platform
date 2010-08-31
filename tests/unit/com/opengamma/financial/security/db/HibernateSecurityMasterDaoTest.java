@@ -47,6 +47,7 @@ import com.opengamma.financial.security.db.bond.GuaranteeTypeBean;
 import com.opengamma.financial.security.db.bond.IssuerTypeBean;
 import com.opengamma.financial.security.db.bond.MarketBean;
 import com.opengamma.financial.security.db.bond.YieldConventionBean;
+import com.opengamma.financial.security.db.cash.CashSecurityBean;
 import com.opengamma.financial.security.db.equity.EquitySecurityBean;
 import com.opengamma.financial.security.db.equity.EquitySecurityBeanOperation;
 import com.opengamma.financial.security.db.equity.GICSCodeBean;
@@ -198,7 +199,7 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
 
   @Override
   public Class<?>[] getHibernateMappingClasses() {
-    return new Class<?>[] { BondFutureTypeBean.class, BondSecurityBean.class, BusinessDayConventionBean.class, CashRateTypeBean.class, CommodityFutureTypeBean.class,
+    return new Class<?>[] { BondFutureTypeBean.class, BondSecurityBean.class, BusinessDayConventionBean.class, CashSecurityBean.class, CashRateTypeBean.class, CommodityFutureTypeBean.class,
         CouponTypeBean.class, CurrencyBean.class, DayCountBean.class, EquitySecurityBean.class, ExchangeBean.class, FrequencyBean.class, FutureBundleBean.class,
         FutureSecurityBean.class, GICSCodeBean.class, GuaranteeTypeBean.class, IdentifierAssociationBean.class, IssuerTypeBean.class, MarketBean.class, OptionSecurityBean.class,
         SecurityBean.class, UnitBean.class, YieldConventionBean.class };

@@ -7,11 +7,8 @@ package com.opengamma.financial.analytics.ircurve;
 
 import java.io.Serializable;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeField;
@@ -19,145 +16,93 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.financial.fudgemsg.FixedIncomeStripBuilder;
+import com.opengamma.util.time.Tenor;
 
 /**
  * A fixed income strip.
  */
-public class FixedIncomeStrip implements Comparable<FixedIncomeStrip>, Serializable {
-
-  private final LocalDate _startDate;
-  private final LocalDate _endDate;
-  private final UniqueIdentifier _marketDataKey;
-  private final StripInstrument _instrumentType;
-  private DayCount _dayCount;
-  private BusinessDayConvention _businessDayConvention;
-  private String _regionISO;
+public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStrip> {
+  private final Logger s_logger = LoggerFactory.getLogger(this.getClass());
+  private final StripInstrumentType _instrumentType;
+  private final Tenor _curveNodePointTime;
+  private final String _conventionName;
+  private int _nthFutureFromTenor = 0;
 
   /**
-   * Creates the strip.  REVIEW: jim 30-June-2010 -- we need to change the isFuture parameter to get OGLD to do it.
-   * @param startDate the startDate of the strip
-   * @param endDate the endDate of the strip
-   * @param marketDataKey the market data key, not null
+   * Creates a strip for non-future instruments
    * @param instrumentType the instrument type
-   * @param dayCount the daycount for this instrument
-   * @param businessDayConvention the business day convention for this instrument or null if not applicable
-   * @param regionISO the region ISO code for this instrument or null if not applicable
+   * @param curveNodePointTime the time of the curve node point
+   * @param conventionName the name of the convention to use to resolve the strip into a security
    */
-  public FixedIncomeStrip(LocalDate startDate, LocalDate endDate, UniqueIdentifier marketDataKey, StripInstrument instrumentType, 
-                          DayCount dayCount, BusinessDayConvention businessDayConvention, String regionISO) {
-    ArgumentChecker.notNull(marketDataKey, "Market data key");
-    _startDate = startDate;
-    _endDate = endDate;
-    _marketDataKey = marketDataKey;
+  public FixedIncomeStrip(StripInstrumentType instrumentType, Tenor curveNodePointTime, String conventionName) {
+    Validate.notNull(instrumentType, "InstrumentType");
+    Validate.isTrue(instrumentType != StripInstrumentType.FUTURE);
+    Validate.notNull(curveNodePointTime, "Tenor");
+    Validate.notNull(conventionName, "ConventionName");
     _instrumentType = instrumentType;
-    _dayCount = dayCount;
-    _businessDayConvention = businessDayConvention;
-    _regionISO = regionISO;
+    _curveNodePointTime = curveNodePointTime;
+    _conventionName = conventionName;
   }
   
   /**
-   * Creates the strip.  REVIEW: jim 30-June-2010 -- we need to change the isFuture parameter to get OGLD to do it.
-   * This constructor assumes that the DayCountConvention is NONE.
-   * @param period from today when the strip ends
-   * @param marketDataKey the market data key, not null
+   * Creates a future strip
    * @param instrumentType the instrument type
+   * @param curveNodePointTime the time of the curve node point
+   * @param conventionName the name of the convention to use to resolve the strip into a security
+   * @param nthFutureFromTenor how many futures to step through from the curveDate + the tenor. 1-based, must be >0.
+   *   e.g. 3 (tenor = 1YR) => 3rd quarterly future after curveDate +  1YR.
+   *   
    */
-  public FixedIncomeStrip(Period period, UniqueIdentifier marketDataKey, StripInstrument instrumentType) {
-    ArgumentChecker.notNull(marketDataKey, "Market data key");
-    ArgumentChecker.notNegative(period.getDays(), "period");
-    _startDate = Clock.systemDefaultZone().today();
-    _endDate = _startDate.plus(period);
-    _marketDataKey = marketDataKey;
+  public FixedIncomeStrip(StripInstrumentType instrumentType, Tenor curveNodePointTime, int nthFutureFromTenor, String conventionName) {
+    Validate.isTrue(instrumentType == StripInstrumentType.FUTURE);
+    Validate.notNull(curveNodePointTime, "Tenor");
+    Validate.isTrue(nthFutureFromTenor > 0);
+    Validate.notNull(conventionName, "ConventionName");
     _instrumentType = instrumentType;
-    _dayCount = DayCountFactory.INSTANCE.getDayCount("30/360");
-    _businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified");
-    _regionISO = "US";
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the start date of the strip
-   * @return the start date
-   */
-  public LocalDate getStartDate() {
-    return _startDate;
+    _curveNodePointTime = curveNodePointTime;
+    _nthFutureFromTenor = nthFutureFromTenor;
+    _conventionName = conventionName;
   }
   
-  /**
-   * Gets the end date of the strip
-   * @return the end date
-   */
-  public LocalDate getEndDate() {
-    return _endDate;
-  }
-
-  /**
-   * Gets the market data identifier.
-   * @return the market data key, not null
-   */
-  public UniqueIdentifier getMarketDataKey() {
-    return _marketDataKey;
-  }
-
-  /**
-   * Gets the specification for the market data key.
-   * @return the specification, not null
-   */
-  public ComputationTargetSpecification getMarketDataSpecification() {
-    // REVIEW kirk 2009-12-30 -- We might want to cache this on construction if it's called a lot.
-    return new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, getMarketDataKey());
-  }
   
   /**
-   * Returns the type of instrument used to construct the strip.
-   * should be removed as soon as we can put the appropriate instruments in as securities.
    * @return an enum describing the instrument type used to construct this strip
    */
-  public StripInstrument getInstrumentType() {
+  public StripInstrumentType getInstrumentType() {
     return _instrumentType;
   }
-
+  
   /**
-   * @return the day count convention for this strip's instrument
+   * @return a tenor representing the time of the curve node point
    */
-  public DayCount getDayCount() {
-    return _dayCount;
+  public Tenor getCurveNodePointTime() {
+    return _curveNodePointTime;
   }
   
   /**
-   * @return the business day convention for this strips instrument
+   * Get the number of the quarterly IR futures after the tenor to choose.  
+   * NOTE: THIS DOESN'T REFER TO A GENERIC FUTURE
+   * @return number of futures after the tenor
+   * @throws IllegalStateException if called on a non-future strip
    */
-  public BusinessDayConvention getBusinessDayConvention() {
-    return _businessDayConvention;
-  }
-  
-  /**
-   * @return the 2 digit ISO code for this strips country/region
-   */
-  public String getRegion() {
-    return _regionISO;
-  }
-  
-  //-------------------------------------------------------------------------
-  @Override
-  public int compareTo(FixedIncomeStrip other) {
-    int dates = getEndDate().compareTo(other.getEndDate());
-    if (dates != 0) {
-      return dates;
-    } else {
-      return getMarketDataKey().compareTo(other.getMarketDataKey());
+  public int getNumberOfFuturesAfterTenor() {
+    if (_instrumentType != StripInstrumentType.FUTURE) {
+      throw new IllegalStateException("Cannot get number of futures after tenor for a non future strip "+toString());
     }
+    return _nthFutureFromTenor;
   }
-
+  
+  /**
+   * @return the name of the convention used to resolve this strip definition into a security
+   */
+  public String getConventionName() {
+    return _conventionName;
+  }
+  
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -165,12 +110,8 @@ public class FixedIncomeStrip implements Comparable<FixedIncomeStrip>, Serializa
     }
     if (obj instanceof FixedIncomeStrip) {
       FixedIncomeStrip other = (FixedIncomeStrip) obj;
-      return ObjectUtils.equals(_startDate, other._startDate) &&
-             ObjectUtils.equals(_endDate, other._endDate) &&
-             ObjectUtils.equals(_marketDataKey, other._marketDataKey) &&
-             ObjectUtils.equals(_dayCount, other._dayCount) &&
-             ObjectUtils.equals(_businessDayConvention, other._businessDayConvention) &&
-             ObjectUtils.equals(_regionISO, other._regionISO) &&
+      return ObjectUtils.equals(_curveNodePointTime, other._curveNodePointTime) &&
+             ObjectUtils.equals(_conventionName, other._conventionName) &&
              _instrumentType == other._instrumentType;
     }
     return false;
@@ -178,7 +119,7 @@ public class FixedIncomeStrip implements Comparable<FixedIncomeStrip>, Serializa
 
   @Override
   public int hashCode() {
-    return _startDate.hashCode();
+    return _curveNodePointTime.hashCode();
   }
 
   @Override
@@ -186,40 +127,33 @@ public class FixedIncomeStrip implements Comparable<FixedIncomeStrip>, Serializa
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
-  private static final String START_DATE_KEY = "start";
-  private static final String END_DATE_KEY = "end";
-  private static final String MARKET_DATA_KEY_KEY = "marketData";
-  private static final String INSTRUMENT_TYPE_KEY = "instrumentType";
-  private static final String DAY_COUNT_KEY = "dayCount";
-  private static final String BUSINESS_DAY_CONVENTION_KEY = "businessDayConvention";
-  private static final String REGION_ISO_KEY = "regionISO";
+  @Override
+  public int compareTo(FixedIncomeStrip o) {
+    int result = (int) getCurveNodePointTime().getPeriod().toPeriodFields().toEstimatedDuration().compareTo(o.getCurveNodePointTime().getPeriod().toPeriodFields().toEstimatedDuration());
+    if (result != 0) {
+      return result;
+    }
+    result = getInstrumentType().ordinal() - o.getInstrumentType().ordinal(); 
+    if (result != 0) {
+      return result;
+    } 
+    if (getInstrumentType() == StripInstrumentType.FUTURE) {
+      result = getNumberOfFuturesAfterTenor() - o.getNumberOfFuturesAfterTenor();
+    }
+    return result;
+  }
 
+  // REVIEW: jim 22-Aug-2010 -- get rid of these and use the builder directly
   public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
-    message.add(START_DATE_KEY, _startDate);
-    message.add(END_DATE_KEY, _endDate);
-    context.objectToFudgeMsgWithClassHeaders(message, MARKET_DATA_KEY_KEY, null, _marketDataKey, UniqueIdentifier.class);
-    context.objectToFudgeMsg(message, INSTRUMENT_TYPE_KEY, null, _instrumentType);
-    message.add(DAY_COUNT_KEY, _dayCount);
-    message.add(BUSINESS_DAY_CONVENTION_KEY, _businessDayConvention);
-    message.add(REGION_ISO_KEY, _regionISO);
+    FixedIncomeStripBuilder builder = new FixedIncomeStripBuilder();
+    MutableFudgeFieldContainer container = builder.buildMessage(context, this);
+    for (FudgeField field : container.getAllFields()) {
+      message.add(field);
+    }
   }
-
+  // REVIEW: jim 22-Aug-2010 -- get rid of these and use the builder directly
   public static FixedIncomeStrip fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    FudgeField field = message.getByName(START_DATE_KEY);
-    final LocalDate startDate = (field != null) ? message.getFieldValue(LocalDate.class, field) : null;
-    field = message.getByName(END_DATE_KEY);
-    final LocalDate endDate = (field != null) ? message.getFieldValue(LocalDate.class, field) : null;
-    field = message.getByName(MARKET_DATA_KEY_KEY);
-    final UniqueIdentifier marketDataKey = context.fieldValueToObject(UniqueIdentifier.class, field);
-    field = message.getByName(INSTRUMENT_TYPE_KEY);
-    final StripInstrument instrumentType = (field != null) ? context.fieldValueToObject(StripInstrument.class, field) : null;
-    field = message.getByName(DAY_COUNT_KEY);
-    final DayCount dayCount = (field != null) ? message.getFieldValue(DayCount.class, field) : null;
-    field = message.getByName(BUSINESS_DAY_CONVENTION_KEY);
-    final BusinessDayConvention businessDayConvention = (field != null) ? message.getFieldValue(BusinessDayConvention.class, field) : null;
-    field = message.getByName(REGION_ISO_KEY);
-    final String regionISO = (field != null) ? message.getFieldValue(String.class, field) : null;
-    return new FixedIncomeStrip(startDate, endDate, marketDataKey, instrumentType, dayCount, businessDayConvention, regionISO);
+    FixedIncomeStripBuilder builder = new FixedIncomeStripBuilder();
+    return builder.buildObject(context, message);
   }
-
 }

@@ -284,8 +284,12 @@ create table sec_cash (
     displayName varchar(255) not null,
     first_version_descriminator varchar(255),
     first_version_id bigint,
+    currency_id bigint,
+    region_scheme varchar(255) not null,
+    region_identifier varchar(255) not null,
     primary key (id),
-    constraint sec_fk_cash2cash foreign key (first_version_id) references sec_cash (id)
+    constraint sec_fk_cash2cash foreign key (first_version_id) references sec_cash (id),
+    constraint sec_fk_cash2currency foreign key (currency_id) references sec_currency (id)
 );
 
 create table sec_fra (

@@ -15,19 +15,13 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.Security;
-import com.opengamma.financial.fudgemsg.FinancialFudgeContextConfiguration;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 public class FudgeSecurityEncodingTest extends SecurityTestCase {
 
   private static final Logger s_logger = LoggerFactory.getLogger(FudgeSecurityEncodingTest.class);
 
-  private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.constructContext();
-  static {
-    final FinancialFudgeContextConfiguration config = new FinancialFudgeContextConfiguration();
-    config.setRegionRepository(getRegionRepository());
-    config.configureFudgeContext(s_fudgeContext);
-  }
+  private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
   @Override
   protected <T extends DefaultSecurity> void testSecurity(Class<T> securityClass, T security) {
