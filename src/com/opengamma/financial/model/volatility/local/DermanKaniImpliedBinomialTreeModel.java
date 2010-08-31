@@ -51,16 +51,16 @@ public class DermanKaniImpliedBinomialTreeModel implements ImpliedTreeModel<Opti
       final double df2 = Math.exp(dt * data.getCostOfCarry());
       final Expiry expiry = new Expiry(DateUtil.getDateOffsetWithYearFraction(date, t));
       final int mid = i / 2;
-      if (i % 2 == 1) {
+      if (i % 2 == 0) {
+        impliedTree[i][mid] = spot;
+        addUpperNodes(data, impliedTree, arrowDebreu, i, crrModel, df1, df2, expiry, mid + 1);
+        addLowerNodes(data, impliedTree, arrowDebreu, i, crrModel, df1, df2, expiry, mid - 1);
+      } else {
         final double c = crrModel.getTreeGeneratingFunction(new EuropeanVanillaOptionDefinition(spot, expiry, true)).evaluate(data).getNode(0, 0).second;
         final double sigma = getUpperSigma(impliedTree, arrowDebreu, i - 1, df2, mid + 1);
         impliedTree[i][mid + 1] = spot * (df1 * c + arrowDebreu[mid] * spot - sigma) / (arrowDebreu[mid] * impliedTree[i - 1][mid] * df2 - df1 * c + sigma);
         impliedTree[i][mid] = spot * spot / impliedTree[i][mid + 1];
         addUpperNodes(data, impliedTree, arrowDebreu, i, crrModel, df1, df2, expiry, mid + 2);
-        addLowerNodes(data, impliedTree, arrowDebreu, i, crrModel, df1, df2, expiry, mid - 1);
-      } else {
-        impliedTree[i][mid] = spot;
-        addUpperNodes(data, impliedTree, arrowDebreu, i, crrModel, df1, df2, expiry, mid + 1);
         addLowerNodes(data, impliedTree, arrowDebreu, i, crrModel, df1, df2, expiry, mid - 1);
       }
       for (int j = 0; j < previousNodes; j++) {

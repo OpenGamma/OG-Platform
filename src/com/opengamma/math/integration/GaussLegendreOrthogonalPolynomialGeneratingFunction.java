@@ -5,6 +5,10 @@
  */
 package com.opengamma.math.integration;
 
+import org.apache.commons.lang.Validate;
+
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * 
  */
@@ -20,18 +24,12 @@ public class GaussLegendreOrthogonalPolynomialGeneratingFunction extends Orthogo
   }
 
   @Override
-  public GaussianQuadratureFunction generate(final int n, final Double... params) {
-    if (n <= 0) {
-      throw new IllegalArgumentException("Must have n > 0");
-    }
-    if (params == null) {
-      throw new IllegalArgumentException("Parameter array cannot be null");
-    }
-    if (params.length == 0) {
-      throw new IllegalArgumentException("Parameter array is empty");
-    }
-    final double lower = params[0];
-    final double upper = params[1];
+  public GaussianQuadratureFunction generate(final int n, final Double... parameters) {
+    ArgumentChecker.notNegativeOrZero(n, "n");
+    Validate.notNull(parameters, "parameters");
+    ArgumentChecker.notEmpty(parameters, "parameters");
+    final double lower = parameters[0];
+    final double upper = parameters[1];
     final int m = (n + 1) / 2;
     final double xm = (upper + lower) / 2.;
     final double xl = (upper - lower) / 2.;

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.math.ConvergenceException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.special.NaturalLogGammaFunction;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -35,17 +36,15 @@ public class GaussJacobiOrthogonalPolynomialGeneratingFunction extends Orthogona
   }
 
   @Override
-  public GaussianQuadratureFunction generate(final int n, final Double... params) {
-    if (params != null) {
+  public GaussianQuadratureFunction generate(final int n, final Double... parameters) {
+    if (parameters != null) {
       s_logger.info("Limits for this integration method are -1 and 1; ignoring bounds");
     }
     return generate(n);
   }
 
-  public GaussianQuadratureFunction generate(final int n) {
-    if (n <= 0) {
-      throw new IllegalArgumentException("Must have n > 0");
-    }
+  private GaussianQuadratureFunction generate(final int n) {
+    ArgumentChecker.notNegativeOrZero(n, "n");
     final double alphaBeta = _alpha + _beta;
     double an, bn, r1, r2, r3;
     double a, b, c;
