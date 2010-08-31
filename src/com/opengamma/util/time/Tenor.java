@@ -7,6 +7,8 @@ package com.opengamma.util.time;
 
 import javax.time.calendar.Period;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 /**
  * A tenor.
  */
@@ -17,13 +19,105 @@ public class Tenor {
    */
   public static final Tenor DAY = new Tenor(Period.ofDays(1));
   /**
+   * A tenor of one day.
+   */
+  public static final Tenor ONE_DAY = new Tenor(Period.ofDays(1));
+  /**
+   * A tenor of two days.
+   */
+  public static final Tenor TWO_DAYS = new Tenor(Period.ofDays(2));
+  /**
+   * A tenor of two days.
+   */
+  public static final Tenor THREE_DAYS = new Tenor(Period.ofDays(2));
+  /**
+   * A tenor of 1 week.
+   */
+  public static final Tenor ONE_WEEK = new Tenor(Period.ofDays(7));
+  /**
+   * A tenor of 2 week.
+   */
+  public static final Tenor TWO_WEEKS = new Tenor(Period.ofDays(14));
+  /**
+   * A tenor of 3 week.
+   */
+  public static final Tenor THREE_WEEKS = new Tenor(Period.ofDays(21));
+  /**
+   * A tenor of 1 month.
+   */
+  public static final Tenor ONE_MONTH = new Tenor(Period.ofMonths(1));
+  /**
+   * A tenor of 2 month.
+   */
+  public static final Tenor TWO_MONTHS = new Tenor(Period.ofMonths(2));
+  /**
+   * A tenor of 3 month.
+   */
+  public static final Tenor THREE_MONTHS = new Tenor(Period.ofMonths(3));
+  /**
+   * A tenor of 4 month.
+   */
+  public static final Tenor FOUR_MONTHS = new Tenor(Period.ofMonths(4));
+  /**
+   * A tenor of 5 month.
+   */
+  public static final Tenor FIVE_MONTHS = new Tenor(Period.ofMonths(5));
+  /**
+   * A tenor of 6 month.
+   */
+  public static final Tenor SIX_MONTHS = new Tenor(Period.ofMonths(6));
+  /**
+   * A tenor of 7 months.
+   */
+  public static final Tenor SEVEN_MONTHS = new Tenor(Period.ofMonths(7));
+  /**
+   * A tenor of 8 months.
+   */
+  public static final Tenor EIGHT_MONTHS = new Tenor(Period.ofMonths(8));
+  /**
+   * A tenor of 9 month.
+   */
+  public static final Tenor NINE_MONTHS = new Tenor(Period.ofMonths(9));
+  /**
+   * A tenor of 10 month.
+   */
+  public static final Tenor TEN_MONTHS = new Tenor(Period.ofMonths(10));
+  /**
+   * A tenor of 11 month.
+   */
+  public static final Tenor ELEVEN_MONTHS = new Tenor(Period.ofMonths(11));
+  /**
+   * A tenor of 12 months.
+   */
+  public static final Tenor TWELVE_MONTHS = new Tenor(Period.ofMonths(12));
+  /**
+   * A tenor of 1 year.
+   */
+  public static final Tenor ONE_YEAR = new Tenor(Period.ofYears(1));
+  /**
+   * A tenor of 2 years.
+   */
+  public static final Tenor TWO_YEARS = new Tenor(Period.ofYears(2));
+  /**
+   * A tenor of 3 year.
+   */
+  public static final Tenor THREE_YEARS = new Tenor(Period.ofYears(3));
+  /**
+   * A tenor of 4 year.
+   */
+  public static final Tenor FOUR_YEARS = new Tenor(Period.ofYears(4));
+  /**
+   * A tenor of 4 year.
+   */
+  public static final Tenor FIVE_YEARS = new Tenor(Period.ofYears(5));
+  /**
    * A tenor of one working week (5 days).
    */
   public static final Tenor WORKING_WEEK = new Tenor(Period.ofDays(5));
   /**
    * A tenor of the working days in a year measured in hours (250 * 24 hours).
    */
-  public static final Tenor WORKING_DAYS_IN_YEAR = new Tenor(Period.ofHours(250 * 24));  // TODO: should be days???
+  public static final Tenor WORKING_DAYS_IN_YEAR = new Tenor(Period.ofHours(252 * 24));  // TODO: should be days???
   /**
    * A tenor of the working days in a month measured in hours (250 * 24 / 12 hours).
    */
@@ -70,4 +164,22 @@ public class Tenor {
     return _period;
   }
 
+  public boolean equals(Object o) {
+    if (o == null) {
+      return false;
+    }
+    if (!(o instanceof Tenor)) {
+      return false;
+    }
+    Tenor other = (Tenor) o;
+    return getPeriod().equals(other.getPeriod());
+  }
+  
+  public int hashCode() {
+    return getPeriod().hashCode();
+  }
+  
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this);
+  }
 }

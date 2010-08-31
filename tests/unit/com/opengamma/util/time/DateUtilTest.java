@@ -36,19 +36,19 @@ public class DateUtilTest {
     final ZonedDateTime startDate = ZonedDateTime.of(LocalDate.of(2000, 1, 1), LocalTime.MIDNIGHT, TimeZone.UTC);
     final ZonedDateTime endDate = ZonedDateTime.of(LocalDate.of(2001, 1, 1), LocalTime.MIDNIGHT, TimeZone.UTC);
     try {
-      DateUtil.getDifferenceInYears(null, endDate);
+      DateUtil.getDifferenceInYears((InstantProvider)null, endDate);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     try {
-      DateUtil.getDifferenceInYears(startDate, null);
+      DateUtil.getDifferenceInYears(startDate, (InstantProvider)null);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     final double leapYearDays = 366;
-    assertEquals(DateUtil.getDifferenceInYears(startDate, endDate) * DateUtil.DAYS_PER_YEAR / leapYearDays, 1, EPS);
+    assertEquals(DateUtil.getDifferenceInYears((InstantProvider)startDate, endDate) * DateUtil.DAYS_PER_YEAR / leapYearDays, 1, EPS);
     try {
       DateUtil.getDifferenceInYears(null, endDate, leapYearDays);
       fail();

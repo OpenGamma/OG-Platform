@@ -146,6 +146,27 @@ public class ArgumentCheckerTest {
     }
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void test_notEmpty_2DArray_null() {
+    Object[][] array = null;
+    try {
+      ArgumentChecker.notEmpty(array, "name");
+    } catch (IllegalArgumentException ex) {
+      assertEquals(ex.getMessage().contains("'name'"), true);
+      throw ex;
+    }
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void test_notEmpty_2DArray_empty() {
+    Object[][] array = new Object[0][0];
+    try {
+      ArgumentChecker.notEmpty(array, "name");
+    } catch (IllegalArgumentException ex) {
+      assertEquals(ex.getMessage().contains("'name'"), true);
+      throw ex;
+    }
+  }
   //-------------------------------------------------------------------------
   @Test
   public void test_notEmpty_Collection_ok() {
