@@ -21,8 +21,12 @@ public interface ViewComputationCache {
 
   Collection<Pair<ValueSpecification, Object>> getValues(Collection<ValueSpecification> specifications);
 
-  void putValue(ComputedValue value);
+  void putSharedValue(ComputedValue value);
+  
+  void putPrivateValue(ComputedValue value);
 
-  void putValues(Collection<ComputedValue> values);
+  void putSharedValues(Collection<ComputedValue> values);
+  
+  void putPrivateValues(Collection<ComputedValue> values);
 
 }

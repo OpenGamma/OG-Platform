@@ -32,6 +32,7 @@ import com.opengamma.transport.FudgeRequestReceiver;
 
 /**
  * Server for {@link RemoteBinaryDataStore} clients created by a {@link RemoteBinaryDataStoreFactory}.
+ * The underlying is the shared data store component of a {@link DefaultViewComputationCache}.
  */
 public class BinaryDataStoreServer implements FudgeRequestReceiver {
 
@@ -53,7 +54,7 @@ public class BinaryDataStoreServer implements FudgeRequestReceiver {
   }
 
   protected BinaryDataStore getUnderlyingDataStore(final BinaryDataStoreRequest request) {
-    return getUnderlyingCache(request).getDataStore();
+    return getUnderlyingCache(request).getSharedDataStore();
   }
 
   protected void handleDelete(final DeleteRequest request) {

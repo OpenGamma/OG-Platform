@@ -83,7 +83,7 @@ public class LiveDataDeltaCalculatorTest {
   
   private void put(ViewComputationCache cache, DependencyNode node, Object value) {
     ValueSpecification spec = ((MockFunction) node.getFunction().getFunction()).getRequiredLiveData().iterator().next();
-    cache.putValue(new ComputedValue(spec, value));
+    cache.putSharedValue(new ComputedValue(spec, value));
   }
   
   /**

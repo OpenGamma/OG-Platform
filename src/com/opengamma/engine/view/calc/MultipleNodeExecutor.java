@@ -5,9 +5,6 @@
  */
 package com.opengamma.engine.view.calc;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -325,6 +322,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     return _maxConcurrency;
   }
 
+  /*
   private void writeGraphForTestingPurposes(final DependencyGraph graph) {
     try {
       final ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("/tmp/graph.bin"));
@@ -335,6 +333,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
       e.printStackTrace();
     }
   }
+  */
 
   private Collection<GraphFragment> graphToFragments(final DependencyGraph graph, final Set<GraphFragment> allFragments) {
     final Map<DependencyNode, GraphFragment> node2fragment = new HashMap<DependencyNode, GraphFragment>();
