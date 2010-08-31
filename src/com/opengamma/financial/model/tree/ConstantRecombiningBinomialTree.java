@@ -28,6 +28,9 @@ public class ConstantRecombiningBinomialTree<T> extends RecombiningBinomialTree<
 
   @Override
   public T getNode(final int step, final int node) {
+    if (node > getMaxNodesForStep(step)) {
+      throw new IllegalArgumentException("Maximum number of nodes for step " + step + " is " + getMaxNodesForStep(step));
+    }
     return _value;
   }
 
