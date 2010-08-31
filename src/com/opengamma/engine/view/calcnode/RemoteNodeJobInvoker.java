@@ -7,7 +7,6 @@ package com.opengamma.engine.view.calcnode;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -22,7 +21,6 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.view.cache.CacheSelectFilter;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeJobMessage;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
@@ -104,20 +102,19 @@ import com.opengamma.util.monitor.OperationTimer;
   }
 
   @Override
-  public boolean invoke(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items, final JobInvocationReceiver receiver) {
+  public boolean invoke(final CalculationJob job, final JobInvocationReceiver receiver) {
     if (_launched.incrementAndGet() > _capacity) {
       _launched.decrementAndGet();
       s_logger.debug("Capacity reached");
       return false;
     }
-    s_logger.info("Dispatching job {}", jobSpec);
+    s_logger.info("Dispatching job {}", job.getSpecification());
     // Don't block the dispatcher with outgoing serialisation and I/O
     getExecutorService().execute(new Runnable() {
       @Override
       public void run() {
-        getJobCompletionCallbacks().put(jobSpec, receiver);
-        final OperationTimer timer = new OperationTimer(s_logger, "Invocation serialisation and send of job {}", jobSpec.getJobId());
-        final CalculationJob job = new CalculationJob(jobSpec, items, CacheSelectFilter.allShared());
+        getJobCompletionCallbacks().put(job.getSpecification(), receiver);
+        final OperationTimer timer = new OperationTimer(s_logger, "Invocation serialisation and send of job {}", job.getSpecification().getJobId());
         job.convertInputs(getIdentifierMap());
         final RemoteCalcNodeJobMessage message = new RemoteCalcNodeJobMessage(job);
         final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeMessageSender().getFudgeContext());

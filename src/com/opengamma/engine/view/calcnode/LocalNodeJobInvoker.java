@@ -7,7 +7,6 @@ package com.opengamma.engine.view.calcnode;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -18,7 +17,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.view.cache.CacheSelectFilter;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -77,12 +75,11 @@ public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContai
   }
 
   @Override
-  public boolean invoke(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items, final JobInvocationReceiver receiver) {
+  public boolean invoke(final CalculationJob job, final JobInvocationReceiver receiver) {
     final AbstractCalculationNode node = getNodes().poll();
     if (node == null) {
       return false;
     }
-    final CalculationJob job = new CalculationJob(jobSpec, items, CacheSelectFilter.allShared());
     final Runnable invokeTask = new Runnable() {
       @Override
       public void run() {

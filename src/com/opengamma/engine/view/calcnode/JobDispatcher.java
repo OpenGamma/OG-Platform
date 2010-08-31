@@ -35,11 +35,10 @@ public class JobDispatcher implements JobInvokerRegister {
   private static final Logger s_logger = LoggerFactory.getLogger(JobDispatcher.class);
   /* package */static final int DEFAULT_MAX_JOB_ATTEMPTS = 3;
   /* package */static final String DEFAULT_JOB_FAILURE_NODE_ID = "NOT EXECUTED";
-  
+
   private final class DispatchJob implements JobInvocationReceiver {
 
-    private final CalculationJobSpecification _jobSpec;
-    private final List<CalculationJobItem> _items;
+    private final CalculationJob _job;
     private final AtomicReference<JobResultReceiver> _resultReceiver = new AtomicReference<JobResultReceiver>();
     private final long _jobCreationTime;
     private final CapabilityRequirements _capabilityRequirements;
@@ -47,25 +46,28 @@ public class JobDispatcher implements JobInvokerRegister {
     private int _rescheduled;
     private Future<?> _timeout;
 
-    private DispatchJob(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items, final JobResultReceiver resultReceiver) {
-      _jobSpec = jobSpec;
-      _items = items;
+    private DispatchJob(final CalculationJob job, final JobResultReceiver resultReceiver) {
+      _job = job;
       _resultReceiver.set(resultReceiver);
       _jobCreationTime = System.nanoTime();
-      _capabilityRequirements = getCapabilityRequirementsProvider().getCapabilityRequirements(jobSpec, items);
+      _capabilityRequirements = getCapabilityRequirementsProvider().getCapabilityRequirements(job);
     }
 
     private long getDurationNanos() {
       return System.nanoTime() - getJobCreationTime();
     }
 
+    private CalculationJob getJob() {
+      return _job;
+    }
+
     @Override
     public void jobCompleted(final CalculationJobResult result) {
-      assert getJobSpec().equals(result.getSpecification());
+      assert getJob().getSpecification().equals(result.getSpecification());
       cancelTimeout();
       JobResultReceiver resultReceiver = _resultReceiver.getAndSet(null);
       if (resultReceiver != null) {
-        s_logger.debug("Job {} completed on node {}", getJobSpec().getJobId(), result.getComputeNodeId());
+        s_logger.debug("Job {} completed on node {}", getJob().getSpecification().getJobId(), result.getComputeNodeId());
         resultReceiver.resultReceived(result);
         final long durationNanos = getDurationNanos();
         s_logger.debug("Reported time = {}ms, non-executing job time = {}ms", (double) result.getDuration() / 1000000d, ((double) durationNanos - (double) result.getDuration()) / 1000000d);
@@ -73,7 +75,7 @@ public class JobDispatcher implements JobInvokerRegister {
           getStatisticsGatherer().jobCompleted(result.getComputeNodeId(), result.getDuration(), getDurationNanos());
         }
       } else {
-        s_logger.warn("Job {} completed on node {} but we've already completed or aborted from another node", getJobSpec().getJobId(), result.getComputeNodeId());
+        s_logger.warn("Job {} completed on node {} but we've already completed or aborted from another node", getJob().getSpecification().getJobId(), result.getComputeNodeId());
       }
     }
 
@@ -82,13 +84,13 @@ public class JobDispatcher implements JobInvokerRegister {
       cancelTimeout();
       final JobResultReceiver resultReceiver = _resultReceiver.getAndSet(null);
       if (resultReceiver != null) {
-        s_logger.debug("Job {} failed, {}", getJobSpec().getJobId(), (exception != null) ? exception.getMessage() : "no exception passed");
+        s_logger.debug("Job {} failed, {}", getJob().getSpecification().getJobId(), (exception != null) ? exception.getMessage() : "no exception passed");
         _rescheduled++;
         if (_rescheduled >= getMaxJobAttempts()) {
           _resultReceiver.set(resultReceiver);
           jobAbort(exception, "internal node error");
         } else {
-          s_logger.info("Retrying job {} (attempt {})", getJobSpec().getJobId(), _rescheduled);
+          s_logger.info("Retrying job {} (attempt {})", getJob().getSpecification().getJobId(), _rescheduled);
           if (_excludeJobInvoker == null) {
             _excludeJobInvoker = new HashSet<JobInvoker>();
           }
@@ -100,7 +102,7 @@ public class JobDispatcher implements JobInvokerRegister {
           getStatisticsGatherer().jobFailed(computeNodeId, getDurationNanos());
         }
       } else {
-        s_logger.warn("Job {} failed but we've already completed or aborted from another node", getJobSpec().getJobId());
+        s_logger.warn("Job {} failed but we've already completed or aborted from another node", getJob().getSpecification().getJobId());
       }
     }
 
@@ -108,20 +110,20 @@ public class JobDispatcher implements JobInvokerRegister {
       cancelTimeout();
       final JobResultReceiver resultReceiver = _resultReceiver.getAndSet(null);
       if (resultReceiver != null) {
-        s_logger.warn("Failed job {} after {} attempts", getJobSpec().getJobId(), _rescheduled);
+        s_logger.warn("Failed job {} after {} attempts", getJob().getSpecification().getJobId(), _rescheduled);
         if (exception == null) {
-          s_logger.error("Failed job {} with {}", getJobSpec().getJobId(), alternativeError);
+          s_logger.error("Failed job {} with {}", getJob().getSpecification().getJobId(), alternativeError);
           exception = new OpenGammaRuntimeException(alternativeError);
           exception.fillInStackTrace();
         }
-        final List<CalculationJobResultItem> failureItems = new ArrayList<CalculationJobResultItem>(getItems().size());
-        for (CalculationJobItem item : getItems()) {
+        final List<CalculationJobResultItem> failureItems = new ArrayList<CalculationJobResultItem>(getJob().getJobItems().size());
+        for (CalculationJobItem item : getJob().getJobItems()) {
           failureItems.add(new CalculationJobResultItem(item, exception));
         }
-        final CalculationJobResult jobResult = new CalculationJobResult(getJobSpec(), getDurationNanos(), failureItems, getJobFailureNodeId());
+        final CalculationJobResult jobResult = new CalculationJobResult(getJob().getSpecification(), getDurationNanos(), failureItems, getJobFailureNodeId());
         resultReceiver.resultReceived(jobResult);
       } else {
-        s_logger.warn("Job {} aborted but we've already completed or aborted from another node", getJobSpec().getJobId());
+        s_logger.warn("Job {} aborted but we've already completed or aborted from another node", getJob().getSpecification().getJobId());
       }
     }
 
@@ -144,14 +146,6 @@ public class JobDispatcher implements JobInvokerRegister {
         _timeout.cancel(false);
         _timeout = null;
       }
-    }
-
-    private CalculationJobSpecification getJobSpec() {
-      return _jobSpec;
-    }
-
-    private List<CalculationJobItem> getItems() {
-      return _items;
     }
 
     private CapabilityRequirements getRequirements() {
@@ -304,8 +298,8 @@ public class JobDispatcher implements JobInvokerRegister {
     while (iterator.hasNext()) {
       final JobInvoker jobInvoker = iterator.next();
       if (job.canRunOn(jobInvoker)) {
-        if (jobInvoker.invoke(job.getJobSpec(), job.getItems(), job)) {
-          s_logger.debug("Invoker {} accepted job {}", jobInvoker, job.getJobSpec().getJobId());
+        if (jobInvoker.invoke(job.getJob(), job)) {
+          s_logger.debug("Invoker {} accepted job {}", jobInvoker, job.getJob().getSpecification().getJobId());
           // request a job timeout
           job.setTimeout(jobInvoker);
           // put invoker to the end of the list
@@ -313,13 +307,13 @@ public class JobDispatcher implements JobInvokerRegister {
           getInvokers().add(jobInvoker);
           return true;
         } else {
-          s_logger.debug("Invoker {} refused to execute job {}", jobInvoker, job.getJobSpec().getJobId());
+          s_logger.debug("Invoker {} refused to execute job {}", jobInvoker, job.getJob().getSpecification().getJobId());
           iterator.remove();
           jobInvoker.notifyWhenAvailable(this);
         }
       }
     }
-    s_logger.debug("No invokers available for job {}", job.getJobSpec().getJobId());
+    s_logger.debug("No invokers available for job {}", job.getJob().getSpecification().getJobId());
     return false;
   }
 
@@ -333,12 +327,11 @@ public class JobDispatcher implements JobInvokerRegister {
     }
   }
 
-  public void dispatchJob(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items, final JobResultReceiver resultReceiver) {
-    ArgumentChecker.notNull(jobSpec, "jobSpec");
-    ArgumentChecker.notNull(items, "items");
+  public void dispatchJob(final CalculationJob job, final JobResultReceiver resultReceiver) {
+    ArgumentChecker.notNull(job, "job");
     ArgumentChecker.notNull(resultReceiver, "resultReceiver");
-    s_logger.info("Dispatching job {}", jobSpec.getJobId());
-    dispatchJobImpl(new DispatchJob(jobSpec, items, resultReceiver));
+    s_logger.info("Dispatching job {}", job.getSpecification().getJobId());
+    dispatchJobImpl(new DispatchJob(job, resultReceiver));
   }
 
 }

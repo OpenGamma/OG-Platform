@@ -23,6 +23,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.view.cache.CacheSelectFilter;
+import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
@@ -69,7 +71,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
   }
 
   protected void dispatchJob(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items, final JobResultReceiver jobResultReceiver) {
-    _cycle.getProcessingContext().getComputationJobDispatcher().dispatchJob(jobSpec, items, jobResultReceiver);
+    _cycle.getProcessingContext().getComputationJobDispatcher().dispatchJob(new CalculationJob(jobSpec, items, CacheSelectFilter.allShared()), jobResultReceiver);
   }
 
   private final AtomicInteger _graphFragmentIdentifiers = new AtomicInteger();
@@ -323,17 +325,17 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
   }
 
   /*
-  private void writeGraphForTestingPurposes(final DependencyGraph graph) {
-    try {
-      final ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("/tmp/graph.bin"));
-      out.writeObject(graph);
-      out.close();
-      System.exit(1);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-  */
+   * private void writeGraphForTestingPurposes(final DependencyGraph graph) {
+   * try {
+   * final ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("/tmp/graph.bin"));
+   * out.writeObject(graph);
+   * out.close();
+   * System.exit(1);
+   * } catch (IOException e) {
+   * e.printStackTrace();
+   * }
+   * }
+   */
 
   private Collection<GraphFragment> graphToFragments(final DependencyGraph graph, final Set<GraphFragment> allFragments) {
     final Map<DependencyNode, GraphFragment> node2fragment = new HashMap<DependencyNode, GraphFragment>();
