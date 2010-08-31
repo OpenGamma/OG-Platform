@@ -22,6 +22,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.view.cache.CacheSelectFilter;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeJobMessage;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
@@ -116,7 +117,7 @@ import com.opengamma.util.monitor.OperationTimer;
       public void run() {
         getJobCompletionCallbacks().put(jobSpec, receiver);
         final OperationTimer timer = new OperationTimer(s_logger, "Invocation serialisation and send of job {}", jobSpec.getJobId());
-        final CalculationJob job = new CalculationJob(jobSpec, items);
+        final CalculationJob job = new CalculationJob(jobSpec, items, CacheSelectFilter.allShared());
         job.convertInputs(getIdentifierMap());
         final RemoteCalcNodeJobMessage message = new RemoteCalcNodeJobMessage(job);
         final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeMessageSender().getFudgeContext());

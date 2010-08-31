@@ -38,17 +38,14 @@ public final class CalculationJobItem {
   // should these two be combined to ParameterizedFunction ID?
   private final String _functionUniqueIdentifier;
   private final FunctionParameters _functionParameters;
-  
+
   private final ComputationTargetSpecification _computationTargetSpecification;
   private final Set<ValueSpecification> _inputs = new HashSet<ValueSpecification>();
-  private Collection<Long> _inputIdentifiers;
+  private long[] _inputIdentifiers;
   private final Set<ValueRequirement> _desiredValues = new HashSet<ValueRequirement>();
 
-  public CalculationJobItem(String functionUniqueIdentifier, 
-      FunctionParameters functionParameters,
-      ComputationTargetSpecification computationTargetSpecification, 
-      Collection<ValueSpecification> inputs,
-      Collection<ValueRequirement> desiredValues) {
+  public CalculationJobItem(String functionUniqueIdentifier, FunctionParameters functionParameters, ComputationTargetSpecification computationTargetSpecification,
+      Collection<ValueSpecification> inputs, Collection<ValueRequirement> desiredValues) {
     _functionUniqueIdentifier = functionUniqueIdentifier;
     _functionParameters = functionParameters;
     _computationTargetSpecification = computationTargetSpecification;
@@ -56,19 +53,12 @@ public final class CalculationJobItem {
     _desiredValues.addAll(desiredValues);
   }
 
-  private CalculationJobItem(String functionUniqueIdentifier,
-      FunctionParameters functionParameters,
-      ComputationTargetSpecification computationTargetSpecification, 
-      Collection<ValueSpecification> inputs, 
-      Collection<Long> inputIdentifiers,
+  private CalculationJobItem(String functionUniqueIdentifier, FunctionParameters functionParameters, ComputationTargetSpecification computationTargetSpecification, long[] inputs,
       Collection<ValueRequirement> desiredValues) {
     _functionUniqueIdentifier = functionUniqueIdentifier;
     _functionParameters = functionParameters;
     _computationTargetSpecification = computationTargetSpecification;
-    if (inputs != null) {
-      _inputs.addAll(inputs);
-    }
-    _inputIdentifiers = inputIdentifiers;
+    _inputIdentifiers = inputs;
     _desiredValues.addAll(desiredValues);
   }
 
@@ -78,7 +68,7 @@ public final class CalculationJobItem {
   public String getFunctionUniqueIdentifier() {
     return _functionUniqueIdentifier;
   }
-  
+
   public FunctionParameters getFunctionParameters() {
     return _functionParameters;
   }
@@ -98,10 +88,14 @@ public final class CalculationJobItem {
    */
   public void resolveInputs(final IdentifierMap identifierMap) {
     if (_inputs.isEmpty()) {
-      if (_inputIdentifiers.size() == 1) {
-        _inputs.add(identifierMap.getValueSpecification(_inputIdentifiers.iterator().next()));
+      if (_inputIdentifiers.length == 1) {
+        _inputs.add(identifierMap.getValueSpecification(_inputIdentifiers[0]));
       } else {
-        _inputs.addAll(identifierMap.getValueSpecifications(_inputIdentifiers).values());
+        final Collection<Long> identifiers = new ArrayList<Long>(_inputIdentifiers.length);
+        for (long identifier : _inputIdentifiers) {
+          identifiers.add(identifier);
+        }
+        _inputs.addAll(identifierMap.getValueSpecifications(identifiers).values());
       }
     }
   }
@@ -115,9 +109,14 @@ public final class CalculationJobItem {
   public void convertInputs(final IdentifierMap identifierMap) {
     if (_inputIdentifiers == null) {
       if (_inputs.size() == 1) {
-        _inputIdentifiers = Collections.singleton(identifierMap.getIdentifier(_inputs.iterator().next()));
+        _inputIdentifiers = new long[] {identifierMap.getIdentifier(_inputs.iterator().next())};
       } else {
-        _inputIdentifiers = identifierMap.getIdentifiers(_inputs).values();
+        final Collection<Long> identifiers = identifierMap.getIdentifiers(_inputs).values();
+        _inputIdentifiers = new long[identifiers.size()];
+        int i = 0;
+        for (Long identifier : identifiers) {
+          _inputIdentifiers[i++] = identifier;
+        }
       }
     }
   }
@@ -151,15 +150,7 @@ public final class CalculationJobItem {
     msg.add(FUNCTION_UNIQUE_ID_FIELD_NAME, getFunctionUniqueIdentifier());
     fudgeContext.objectToFudgeMsgWithClassHeaders(msg, FUNCTION_PARAMETERS_FIELD_NAME, null, getFunctionParameters());
 
-    if (_inputIdentifiers != null) {
-      for (Long identifier : _inputIdentifiers) {
-        msg.add(INPUT_FIELD_NAME, identifier);
-      }
-    } else {
-      for (ValueSpecification inputSpecification : _inputs) {
-        msg.add(INPUT_FIELD_NAME, inputSpecification.toFudgeMsg(fudgeContext));
-      }
-    }
+    msg.add(INPUT_FIELD_NAME, _inputIdentifiers);
 
     for (ValueRequirement desiredValue : getDesiredValues()) {
       MutableFudgeFieldContainer valueMsg = fudgeContext.newMessage();
@@ -172,29 +163,11 @@ public final class CalculationJobItem {
 
   public static CalculationJobItem fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeFieldContainer msg) {
     String functionUniqueId = msg.getString(FUNCTION_UNIQUE_ID_FIELD_NAME);
-    FunctionParameters functionParameters = fudgeContext.fieldValueToObject(
-        FunctionParameters.class, 
-        msg.getByName(FUNCTION_PARAMETERS_FIELD_NAME));
+    FunctionParameters functionParameters = fudgeContext.fieldValueToObject(FunctionParameters.class, msg.getByName(FUNCTION_PARAMETERS_FIELD_NAME));
 
     ComputationTargetSpecification computationTargetSpecification = ComputationTargetSpecification.fromFudgeMsg(msg);
 
-    final List<FudgeField> inputFields = msg.getAllByName(INPUT_FIELD_NAME);
-    List<ValueSpecification> inputSpecifications = null;
-    List<Long> inputIdentifiers = null;
-    for (FudgeField field : inputFields) {
-      final Object value = field.getValue();
-      if (value instanceof Number) {
-        if (inputIdentifiers == null) {
-          inputIdentifiers = new ArrayList<Long>(inputFields.size());
-        }
-        inputIdentifiers.add(((Number) value).longValue());
-      } else {
-        if (inputSpecifications == null) {
-          inputSpecifications = new ArrayList<ValueSpecification>(inputFields.size());
-        }
-        inputSpecifications.add(ValueSpecification.fromFudgeMsg(fudgeContext, (FudgeFieldContainer) field.getValue()));
-      }
-    }
+    final long[] inputIdentifiers = (long[]) msg.getByName(INPUT_FIELD_NAME).getValue();
 
     List<ValueRequirement> desiredValues = new ArrayList<ValueRequirement>();
     for (FudgeField field : msg.getAllByName(DESIRED_VALUE_FIELD_NAME)) {
@@ -203,7 +176,7 @@ public final class CalculationJobItem {
       desiredValues.add(desiredValue);
     }
 
-    return new CalculationJobItem(functionUniqueId, functionParameters, computationTargetSpecification, inputSpecifications, inputIdentifiers, desiredValues);
+    return new CalculationJobItem(functionUniqueId, functionParameters, computationTargetSpecification, inputIdentifiers, desiredValues);
   }
 
   @Override

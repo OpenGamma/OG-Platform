@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
@@ -131,6 +132,27 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
   }
 
   @Override
+  public Object getValue(final ValueSpecification specification, final CacheSelectFilter filter) {
+    ArgumentChecker.notNull(specification, "Specification");
+    _identifierRequests++;
+    _getIdentifierTime -= System.nanoTime();
+    final long identifier = getIdentifierMap().getIdentifier(specification);
+    _getIdentifierTime += System.nanoTime();
+    _dataRequests++;
+    _getDataTime -= System.nanoTime();
+    byte[] data = (filter.isPrivateValue(specification) ? getPrivateDataStore() : getSharedDataStore()).get(identifier);
+    _getDataTime += System.nanoTime();
+    if (data == null) {
+      return null;
+    }
+    _deserializeTime -= System.nanoTime();
+    final FudgeDeserializationContext context = new FudgeDeserializationContext(getFudgeContext());
+    final Object value = deserializeValue(context, data);
+    _deserializeTime += System.nanoTime();
+    return value;
+  }
+
+  @Override
   public Collection<Pair<ValueSpecification, Object>> getValues(final Collection<ValueSpecification> specifications) {
     ArgumentChecker.notNull(specifications, "specifications");
     _identifierRequests += specifications.size();
@@ -168,6 +190,60 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
     return returnValues;
   }
 
+  @Override
+  public Collection<Pair<ValueSpecification, Object>> getValues(final Collection<ValueSpecification> specifications, final CacheSelectFilter filter) {
+    ArgumentChecker.notNull(specifications, "specifications");
+    _identifierRequests += specifications.size();
+    _getIdentifierTime -= System.nanoTime();
+    final Map<ValueSpecification, Long> identifiers = getIdentifierMap().getIdentifiers(specifications);
+    _getIdentifierTime += System.nanoTime();
+    final Collection<Pair<ValueSpecification, Object>> returnValues = new ArrayList<Pair<ValueSpecification, Object>>(specifications.size());
+    _dataRequests += specifications.size();
+    _getDataTime -= System.nanoTime();
+    List<Long> privateIdentifiers = null;
+    List<Long> sharedIdentifiers = null;
+    for (ValueSpecification specification : specifications) {
+      if (filter.isPrivateValue(specification)) {
+        if (privateIdentifiers == null) {
+          privateIdentifiers = new ArrayList<Long>(specifications.size());
+        }
+        privateIdentifiers.add(identifiers.get(specification));
+      } else {
+        if (sharedIdentifiers == null) {
+          sharedIdentifiers = new ArrayList<Long>(specifications.size());
+        }
+        sharedIdentifiers.add(identifiers.get(specification));
+      }
+    }
+    final Map<Long, byte[]> rawValues = new HashMap<Long, byte[]>();
+    // TODO Can we overlay the fetch of shared and private data?
+    if (sharedIdentifiers != null) {
+      if (sharedIdentifiers.size() == 1) {
+        final byte[] data = getSharedDataStore().get(sharedIdentifiers.get(0));
+        rawValues.put(sharedIdentifiers.get(0), data);
+      } else {
+        rawValues.putAll(getSharedDataStore().get(sharedIdentifiers));
+      }
+    }
+    if (privateIdentifiers != null) {
+      if (privateIdentifiers.size() == 1) {
+        final byte[] data = getPrivateDataStore().get(privateIdentifiers.get(0));
+        rawValues.put(privateIdentifiers.get(0), data);
+      } else {
+        rawValues.putAll(getPrivateDataStore().get(privateIdentifiers));
+      }
+    }
+    _getDataTime -= System.nanoTime();
+    _deserializeTime -= System.nanoTime();
+    final FudgeDeserializationContext context = new FudgeDeserializationContext(getFudgeContext());
+    for (Map.Entry<ValueSpecification, Long> identifier : identifiers.entrySet()) {
+      final byte[] data = rawValues.get(identifier.getValue());
+      returnValues.add(Pair.of(identifier.getKey(), (data != null) ? deserializeValue(context, data) : null));
+    }
+    _deserializeTime += System.nanoTime();
+    return returnValues;
+  }
+
   protected void putValue(final ComputedValue value, final BinaryDataStore dataStore) {
     ArgumentChecker.notNull(value, "value");
     _identifierRequests++;
@@ -192,6 +268,11 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
   @Override
   public void putSharedValue(final ComputedValue value) {
     putValue(value, getSharedDataStore());
+  }
+
+  @Override
+  public void putValue(final ComputedValue value, final CacheSelectFilter filter) {
+    AbstractViewComputationCache.putValue(this, value, filter);
   }
 
   protected void putValues(final Collection<ComputedValue> values, final BinaryDataStore dataStore) {
@@ -225,6 +306,47 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
   @Override
   public void putSharedValues(final Collection<ComputedValue> values) {
     putValues(values, getSharedDataStore());
+  }
+
+  @Override
+  public void putValues(final Collection<ComputedValue> values, final CacheSelectFilter filter) {
+    ArgumentChecker.notNull(values, "values");
+    _identifierRequests += values.size();
+    _getIdentifierTime -= System.nanoTime();
+    final Collection<ValueSpecification> specifications = new ArrayList<ValueSpecification>(values.size());
+    for (ComputedValue value : values) {
+      specifications.add(value.getSpecification());
+    }
+    final Map<ValueSpecification, Long> identifiers = getIdentifierMap().getIdentifiers(specifications);
+    _getIdentifierTime += System.nanoTime();
+    _putRequests += values.size();
+    _serializeTime -= System.nanoTime();
+    final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeContext());
+    Map<Long, byte[]> privateData = null;
+    Map<Long, byte[]> sharedData = null;
+    for (ComputedValue value : values) {
+      if (filter.isPrivateValue(value.getSpecification())) {
+        if (privateData == null) {
+          privateData = new HashMap<Long, byte[]>();
+        }
+        privateData.put(identifiers.get(value.getSpecification()), serializeValue(context, value.getValue()));
+      } else {
+        if (sharedData == null) {
+          sharedData = new HashMap<Long, byte[]>();
+        }
+        sharedData.put(identifiers.get(value.getSpecification()), serializeValue(context, value.getValue()));
+      }
+    }
+    _serializeTime += System.nanoTime();
+    _putDataTime -= System.nanoTime();
+    // TODO 2010-08-31 Andrew -- can we overlay the shared and private puts ?
+    if (sharedData != null) {
+      getSharedDataStore().put(sharedData);
+    }
+    if (privateData != null) {
+      getPrivateDataStore().put(privateData);
+    }
+    _putDataTime += System.nanoTime();
   }
 
   protected static byte[] serializeValue(final FudgeSerializationContext context, final Object value) {

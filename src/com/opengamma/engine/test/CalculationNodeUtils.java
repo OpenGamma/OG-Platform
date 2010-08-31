@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.test;
@@ -11,6 +11,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.view.cache.CacheSelectFilter;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
@@ -27,7 +28,7 @@ public class CalculationNodeUtils {
 
   public static TestCalculationNode getTestCalcNode(MockFunction mockFunction) {
     TestCalculationNode calcNode = new TestCalculationNode();
-    
+
     InMemoryFunctionRepository functionRepo = (InMemoryFunctionRepository) calcNode.getFunctionRepository();
     functionRepo.addFunction(mockFunction, mockFunction);
 
@@ -48,13 +49,9 @@ public class CalculationNodeUtils {
     long iterationTimestamp = System.currentTimeMillis();
     CalculationJobSpecification jobSpec = new CalculationJobSpecification("view", CALC_CONF_NAME, iterationTimestamp, 1L);
 
-    CalculationJobItem calculationJobItem = new CalculationJobItem(
-        function.getUniqueIdentifier(), 
-        function.getDefaultParameters(),
-        function.getTarget().toSpecification(), 
-        function.getRequirements(), 
+    CalculationJobItem calculationJobItem = new CalculationJobItem(function.getUniqueIdentifier(), function.getDefaultParameters(), function.getTarget().toSpecification(), function.getRequirements(),
         function.getResultRequirements());
-    CalculationJob calcJob = new CalculationJob(jobSpec, Collections.singletonList(calculationJobItem));
+    CalculationJob calcJob = new CalculationJob(jobSpec, Collections.singletonList(calculationJobItem), CacheSelectFilter.allShared());
     return calcJob;
   }
 

@@ -7,6 +7,7 @@ package com.opengamma.engine.view.cache;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
@@ -19,8 +20,18 @@ import com.opengamma.util.tuple.Pair;
 public abstract class AbstractViewComputationCache implements ViewComputationCache {
 
   @Override
+  public Object getValue(final ValueSpecification specification, final CacheSelectFilter filter) {
+    return getValue(specification);
+  }
+
+  @Override
   public Collection<Pair<ValueSpecification, Object>> getValues(final Collection<ValueSpecification> specifications) {
     return getValues(this, specifications);
+  }
+
+  @Override
+  public Collection<Pair<ValueSpecification, Object>> getValues(final Collection<ValueSpecification> specifications, final CacheSelectFilter filter) {
+    return getValues(specifications);
   }
 
   public static Collection<Pair<ValueSpecification, Object>> getValues(final ViewComputationCache cache, final Collection<ValueSpecification> specifications) {
@@ -29,6 +40,19 @@ public abstract class AbstractViewComputationCache implements ViewComputationCac
       values.add(Pair.of(specification, cache.getValue(specification)));
     }
     return values;
+  }
+
+  @Override
+  public void putValue(final ComputedValue value, final CacheSelectFilter filter) {
+    putValue(this, value, filter);
+  }
+
+  public static void putValue(final ViewComputationCache cache, final ComputedValue value, final CacheSelectFilter filter) {
+    if (filter.isPrivateValue(value.getSpecification())) {
+      cache.putPrivateValue(value);
+    } else {
+      cache.putSharedValue(value);
+    }
   }
 
   @Override
@@ -50,6 +74,63 @@ public abstract class AbstractViewComputationCache implements ViewComputationCac
   public static void putPrivateValues(final ViewComputationCache cache, final Collection<ComputedValue> values) {
     for (ComputedValue value : values) {
       cache.putPrivateValue(value);
+    }
+  }
+
+  @Override
+  public void putValues(final Collection<ComputedValue> values, final CacheSelectFilter filter) {
+    putValuesBatched(this, values, filter);
+  }
+
+  /**
+   * Implementation of {@link #putValues} that calls through to {@link #putSharedValues} and {@link #putPrivateValues}.
+   * 
+   * @param cache instance
+   * @param values values to put
+   * @param filter cache select filter
+   */
+  public static void putValuesBatched(final ViewComputationCache cache, final Collection<ComputedValue> values, final CacheSelectFilter filter) {
+    List<ComputedValue> privateValues = null;
+    List<ComputedValue> sharedValues = null;
+    for (ComputedValue value : values) {
+      if (filter.isPrivateValue(value.getSpecification())) {
+        if (privateValues == null) {
+          privateValues = new ArrayList<ComputedValue>(values.size());
+        }
+        privateValues.add(value);
+      } else {
+        if (sharedValues == null) {
+          sharedValues = new ArrayList<ComputedValue>(values.size());
+        }
+        sharedValues.add(value);
+      }
+    }
+    if (sharedValues != null) {
+      if (sharedValues.size() == 1) {
+        cache.putSharedValue(sharedValues.get(0));
+      } else {
+        cache.putSharedValues(sharedValues);
+      }
+    }
+    if (privateValues != null) {
+      if (privateValues.size() == 1) {
+        cache.putPrivateValue(privateValues.get(0));
+      } else {
+        cache.putPrivateValues(privateValues);
+      }
+    }
+  }
+
+  /**
+   * Implementation of {@link #putValues} that calls through to {@link #putValue}.
+   * 
+   * @param cache instance
+   * @param values values to put
+   * @param filter cache select filter
+   */
+  public static void putValuesDirect(final ViewComputationCache cache, final Collection<ComputedValue> values, final CacheSelectFilter filter) {
+    for (ComputedValue value : values) {
+      cache.putValue(value, filter);
     }
   }
 

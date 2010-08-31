@@ -19,14 +19,22 @@ public interface ViewComputationCache {
 
   Object getValue(ValueSpecification specification);
 
+  Object getValue(ValueSpecification specification, CacheSelectFilter filter);
+
   Collection<Pair<ValueSpecification, Object>> getValues(Collection<ValueSpecification> specifications);
 
+  Collection<Pair<ValueSpecification, Object>> getValues(Collection<ValueSpecification> specifications, CacheSelectFilter filter);
+
   void putSharedValue(ComputedValue value);
-  
+
   void putPrivateValue(ComputedValue value);
 
+  void putValue(ComputedValue value, CacheSelectFilter filter);
+
   void putSharedValues(Collection<ComputedValue> values);
-  
+
   void putPrivateValues(Collection<ComputedValue> values);
+
+  void putValues(Collection<ComputedValue> values, CacheSelectFilter filter);
 
 }

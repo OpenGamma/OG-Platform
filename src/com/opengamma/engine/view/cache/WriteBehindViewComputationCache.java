@@ -27,16 +27,14 @@ import com.opengamma.util.tuple.Pair;
 /**
  * A {@link ViewComputationCache} that supports a write behind update of the underlying cache.
  */
-public class WriteBehindViewComputationCache implements ViewComputationCache {
+public class WriteBehindViewComputationCache extends FilteredViewComputationCache {
 
   private static final Logger s_logger = LoggerFactory.getLogger(WriteBehindViewComputationCache.class);
 
-  private final ViewComputationCache _underlying;
   private final ExecutorService _executorService;
   private final Map<ValueSpecification, Object> _pending = new ConcurrentHashMap<ValueSpecification, Object>();
 
-  private final Queue<ComputedValue> _privateValues = new ConcurrentLinkedQueue<ComputedValue>();
-  private final Queue<ComputedValue> _sharedValues = new ConcurrentLinkedQueue<ComputedValue>();
+  private final Queue<ComputedValue> _pendingValues = new ConcurrentLinkedQueue<ComputedValue>();
   private final AtomicReference<Runnable> _valueWriter = new AtomicReference<Runnable>();
   private final Runnable _valueWriterRunnable = new Runnable() {
 
@@ -58,68 +56,44 @@ public class WriteBehindViewComputationCache implements ViewComputationCache {
 
     @Override
     public void run() {
-      int sharedCount = 0;
-      int privateCount = 0;
+      int count = 0;
       do {
         s_logger.info("Write-behind thread running for {}", WriteBehindViewComputationCache.this.hashCode());
         do {
-          // Commit the shared values to the underlying
-          if (_sharedValues.size() > 1) {
-            final Collection<ComputedValue> values = drain(_sharedValues);
-            getUnderlying().putSharedValues(values);
+          if (_pendingValues.size() > 1) {
+            final Collection<ComputedValue> values = drain(_pendingValues);
+            WriteBehindViewComputationCache.super.putValues(values);
             for (ComputedValue value : values) {
               getPending().remove(value.getSpecification());
             }
-            sharedCount += values.size();
+            count += values.size();
           } else {
-            ComputedValue value = _sharedValues.poll();
+            ComputedValue value = _pendingValues.poll();
             while (value != null) {
-              getUnderlying().putSharedValue(value);
+              WriteBehindViewComputationCache.super.putValue(value);
               getPending().remove(value.getSpecification());
-              value = _sharedValues.poll();
-              sharedCount++;
+              value = _pendingValues.poll();
+              count++;
             }
           }
-          // Commit the private values to the underlying
-          if (_privateValues.size() > 1) {
-            final Collection<ComputedValue> values = drain(_privateValues);
-            getUnderlying().putSharedValues(values);
-            for (ComputedValue value : values) {
-              getPending().remove(value.getSpecification());
-            }
-            privateCount += values.size();
-          } else {
-            ComputedValue value = _privateValues.poll();
-            while (value != null) {
-              getUnderlying().putSharedValue(value);
-              getPending().remove(value.getSpecification());
-              value = _privateValues.poll();
-              privateCount++;
-            }
-          }
-        } while (!_privateValues.isEmpty() || !_sharedValues.isEmpty());
+        } while (!_pendingValues.isEmpty());
         _valueWriter.set(null);
         // Values might have been written to the lists before we set valueWriter to null, so
         // check to see if we should carry on rather than terminate.
-      } while ((!_privateValues.isEmpty() || !_sharedValues.isEmpty()) && _valueWriter.compareAndSet(null, this));
+      } while (!_pendingValues.isEmpty() && _valueWriter.compareAndSet(null, this));
       // Note that if there is a failure anywhere in here, the writer task will die and things will
       // accumulate on the list until synchronize is called at which point the exception gets
       // propogated. Is this wasteful of compute cycles - should we fail the job sooner ?
-      s_logger.info("Write-behind thread terminated after {} shared, and {} private operations", sharedCount, privateCount);
+      s_logger.info("Write-behind thread terminated after {} operations", count);
     }
 
   };
 
   private volatile Future<?> _valueWriterFuture;
 
-  public WriteBehindViewComputationCache(final ViewComputationCache underlying, final ExecutorService executorService) {
-    _underlying = underlying;
+  public WriteBehindViewComputationCache(final ViewComputationCache underlying, final CacheSelectFilter filter, final ExecutorService executorService) {
+    super(underlying, filter);
     _executorService = executorService;
-  }
-
-  // TODO this should be protected, but is public as a hack for diagnostics in AbstractCalculationNode
-  public ViewComputationCache getUnderlying() {
-    return _underlying;
   }
 
   protected ExecutorService getExecutorService() {
@@ -137,7 +111,7 @@ public class WriteBehindViewComputationCache implements ViewComputationCache {
       s_logger.debug("Pending cache hit");
       return object;
     } else {
-      return getUnderlying().getValue(specification);
+      return super.getValue(specification);
     }
   }
 
@@ -167,15 +141,15 @@ public class WriteBehindViewComputationCache implements ViewComputationCache {
         s_logger.debug("{} pending cache hit(s), {} miss(es)", result.size(), size);
         if (size == 1) {
           final ValueSpecification specification2 = cacheMisses.get(0);
-          result.add(Pair.of(specification2, getUnderlying().getValue(specification2)));
+          result.add(Pair.of(specification2, super.getValue(specification2)));
         } else if (size > 1) {
-          result.addAll(getUnderlying().getValues(cacheMisses));
+          result.addAll(super.getValues(cacheMisses));
         }
         return result;
       }
     }
     // No pending cache hits
-    return getUnderlying().getValues(specifications);
+    return super.getValues(specifications);
   }
 
   private void startWriterIfNotRunning() {
@@ -185,38 +159,20 @@ public class WriteBehindViewComputationCache implements ViewComputationCache {
     }
   }
 
-  private void putValue(final ComputedValue value, final Queue<ComputedValue> values) {
+  @Override
+  public void putValue(final ComputedValue value) {
     getPending().put(value.getSpecification(), value.getValue());
-    values.add(value);
+    _pendingValues.add(value);
     startWriterIfNotRunning();
   }
 
   @Override
-  public void putPrivateValue(final ComputedValue value) {
-    putValue(value, _privateValues);
-  }
-
-  @Override
-  public void putSharedValue(final ComputedValue value) {
-    putValue(value, _sharedValues);
-  }
-
-  private void putValues(final Collection<ComputedValue> values, final Queue<ComputedValue> writeQueue) {
+  public void putValues(final Collection<ComputedValue> values) {
     for (ComputedValue value : values) {
       getPending().put(value.getSpecification(), value.getValue());
     }
-    writeQueue.addAll(values);
+    _pendingValues.addAll(values);
     startWriterIfNotRunning();
-  }
-
-  @Override
-  public void putPrivateValues(final Collection<ComputedValue> values) {
-    putValues(values, _privateValues);
-  }
-
-  @Override
-  public void putSharedValues(final Collection<ComputedValue> values) {
-    putValues(values, _sharedValues);
   }
 
   /**

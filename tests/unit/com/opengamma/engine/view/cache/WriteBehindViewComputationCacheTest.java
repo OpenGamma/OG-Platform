@@ -23,6 +23,9 @@ import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -32,9 +35,10 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
 
+@RunWith(Parameterized.class)
 public class WriteBehindViewComputationCacheTest {
 
-  private static class Underlying implements ViewComputationCache {
+  private static class Underlying extends AbstractViewComputationCache {
 
     private ValueSpecification _getValue;
     private Collection<ValueSpecification> _getValues;
@@ -108,15 +112,28 @@ public class WriteBehindViewComputationCacheTest {
   private static final ValueSpecification s_valueSpec2 = new ValueSpecification(new ValueRequirement("Value 2", new ComputationTargetSpecification(new DefaultSecurity("TEST"))), "Function UID");
   private static final ValueSpecification s_valueSpec3 = new ValueSpecification(new ValueRequirement("Value 3", new ComputationTargetSpecification(new DefaultSecurity("TEST"))), "Function UID");
 
+  private final CacheSelectFilter _filter;
   private ExecutorService _executorService;
   private Underlying _underlying;
   private WriteBehindViewComputationCache _cache;
+  
+  public WriteBehindViewComputationCacheTest (final CacheSelectFilter filter) {
+    _filter = filter;
+  }
+
+  @Parameters
+  public static List<Object[]> cacheSelectFilters () {
+    final List<Object[]> filters = new ArrayList<Object[]> (2);
+    filters.add (new Object[] { CacheSelectFilter.allPrivate () });
+    filters.add (new Object[] { CacheSelectFilter.allShared () });
+    return filters;
+  }
 
   @Before
   public void init() {
     _executorService = Executors.newCachedThreadPool();
     _underlying = new Underlying();
-    _cache = new WriteBehindViewComputationCache(_underlying, _executorService);
+    _cache = new WriteBehindViewComputationCache(_underlying, _filter, _executorService);
   }
 
   @After
@@ -132,18 +149,9 @@ public class WriteBehindViewComputationCacheTest {
   }
 
   @Test
-  public void getValueHittingPendingPrivate() {
+  public void getValueHittingPending() {
     final ComputedValue value = new ComputedValue(s_valueSpec1, "foo");
-    _cache.putPrivateValue(value);
-    assertEquals("foo", _cache.getValue(s_valueSpec1));
-    assertNull(_underlying._putValue);
-    assertNull(_underlying._getValue);
-  }
-
-  @Test
-  public void getValueHittingPendingShared() {
-    final ComputedValue value = new ComputedValue(s_valueSpec1, "foo");
-    _cache.putSharedValue(value);
+    _cache.putValue(value);
     assertEquals("foo", _cache.getValue(s_valueSpec1));
     assertNull(_underlying._putValue);
     assertNull(_underlying._getValue);
@@ -157,10 +165,10 @@ public class WriteBehindViewComputationCacheTest {
   }
 
   @Test
-  public void getValuesOneUnderlyingPrivate() {
+  public void getValuesOneUnderlying() {
     final Collection<ValueSpecification> valueSpec = Arrays.asList(s_valueSpec1, s_valueSpec2, s_valueSpec3);
-    _cache.putPrivateValue(new ComputedValue(s_valueSpec1, "foo"));
-    _cache.putPrivateValue(new ComputedValue(s_valueSpec2, "bar"));
+    _cache.putValue(new ComputedValue(s_valueSpec1, "foo"));
+    _cache.putValue(new ComputedValue(s_valueSpec2, "bar"));
     final Collection<Pair<ValueSpecification, Object>> values = _cache.getValues(valueSpec);
     assertEquals(valueSpec.size(), values.size());
     assertTrue(values.contains(Pair.of(s_valueSpec1, "foo")));
@@ -178,49 +186,9 @@ public class WriteBehindViewComputationCacheTest {
   }
 
   @Test
-  public void getValuesOneUnderlyingShared() {
+  public void getValuesSomeUnderlying() {
     final Collection<ValueSpecification> valueSpec = Arrays.asList(s_valueSpec1, s_valueSpec2, s_valueSpec3);
-    _cache.putSharedValue(new ComputedValue(s_valueSpec1, "foo"));
-    _cache.putSharedValue(new ComputedValue(s_valueSpec2, "bar"));
-    final Collection<Pair<ValueSpecification, Object>> values = _cache.getValues(valueSpec);
-    assertEquals(valueSpec.size(), values.size());
-    assertTrue(values.contains(Pair.of(s_valueSpec1, "foo")));
-    assertTrue(values.contains(Pair.of(s_valueSpec2, "bar")));
-    assertNull(_underlying._putValue);
-    assertNull(_underlying._putValues);
-    assertNull(_underlying._getValues);
-    assertEquals(s_valueSpec3, _underlying._getValue);
-    _underlying._allowPutValues.countDown();
-    _cache.waitForPendingWrites();
-    assertNotNull (_underlying._putValues);
-    // With nothing pending, we should hit the underlying completely
-    _cache.getValues(valueSpec);
-    assertEquals(valueSpec, _underlying._getValues);
-  }
-
-  @Test
-  public void getValuesSomeUnderlyingPrivate() {
-    final Collection<ValueSpecification> valueSpec = Arrays.asList(s_valueSpec1, s_valueSpec2, s_valueSpec3);
-    _cache.putPrivateValue(new ComputedValue(s_valueSpec1, "foo"));
-    final Collection<Pair<ValueSpecification, Object>> values = _cache.getValues(valueSpec);
-    assertEquals(1, values.size());
-    assertTrue(values.contains(Pair.of(s_valueSpec1, "foo")));
-    assertNull(_underlying._putValue);
-    assertNull(_underlying._putValues);
-    assertEquals(Arrays.asList(s_valueSpec2, s_valueSpec3), _underlying._getValues);
-    assertNull(_underlying._getValue);
-    _underlying._allowPutValue.countDown();
-    _cache.waitForPendingWrites();
-    assertNotNull (_underlying._putValue);
-    // With nothing pending, we should hit the underlying completely
-    _cache.getValues(valueSpec);
-    assertEquals(valueSpec, _underlying._getValues);
-  }
-
-  @Test
-  public void getValuesSomeUnderlyingShared() {
-    final Collection<ValueSpecification> valueSpec = Arrays.asList(s_valueSpec1, s_valueSpec2, s_valueSpec3);
-    _cache.putSharedValue(new ComputedValue(s_valueSpec1, "foo"));
+    _cache.putValue(new ComputedValue(s_valueSpec1, "foo"));
     final Collection<Pair<ValueSpecification, Object>> values = _cache.getValues(valueSpec);
     assertEquals(1, values.size());
     assertTrue(values.contains(Pair.of(s_valueSpec1, "foo")));
@@ -244,10 +212,10 @@ public class WriteBehindViewComputationCacheTest {
   }
 
   @Test
-  public void putValueDirectWritePrivate() {
+  public void putValueDirectWrite() {
     _underlying._allowPutValue.countDown();
     final ComputedValue value = new ComputedValue(s_valueSpec1, "foo");
-    _cache.putPrivateValue(value);
+    _cache.putValue(value);
     for (int i = 0; i < 100; i++) {
       if (_underlying._putValue != null) {
         break;
@@ -259,26 +227,11 @@ public class WriteBehindViewComputationCacheTest {
   }
 
   @Test
-  public void putValueDirectWriteShared() {
-    _underlying._allowPutValue.countDown();
-    final ComputedValue value = new ComputedValue(s_valueSpec1, "foo");
-    _cache.putSharedValue(value);
-    for (int i = 0; i < 100; i++) {
-      if (_underlying._putValue != null) {
-        break;
-      }
-      pause();
-    }
-    assertEquals(value, _underlying._putValue);
-    assertNull(_underlying._putValues);
-  }
-
-  @Test
-  public void putValueCollatedWritePrivate() {
+  public void putValueCollatedWrite() {
     final ComputedValue value1 = new ComputedValue(s_valueSpec1, "foo");
     final ComputedValue value2 = new ComputedValue(s_valueSpec2, "bar");
-    _cache.putPrivateValue(value1);
-    _cache.putPrivateValue(value2);
+    _cache.putValue(value1);
+    _cache.putValue(value2);
     _underlying._allowPutValues.countDown();
     for (int i = 0; i < 100; i++) {
       if (_underlying._putValues != null) {
@@ -291,27 +244,10 @@ public class WriteBehindViewComputationCacheTest {
   }
 
   @Test
-  public void putValueCollatedWriteShared() {
-    final ComputedValue value1 = new ComputedValue(s_valueSpec1, "foo");
-    final ComputedValue value2 = new ComputedValue(s_valueSpec2, "bar");
-    _cache.putSharedValue(value1);
-    _cache.putSharedValue(value2);
-    _underlying._allowPutValues.countDown();
-    for (int i = 0; i < 100; i++) {
-      if (_underlying._putValues != null) {
-        break;
-      }
-      pause();
-    }
-    assertNull(_underlying._putValue);
-    assertEquals(Arrays.asList(value1, value2), _underlying._putValues);
-  }
-
-  @Test
-  public void putValuesDirectWritePrivate() {
+  public void putValuesDirectWrite() {
     _underlying._allowPutValues.countDown();
     final List<ComputedValue> values = Arrays.asList(new ComputedValue(s_valueSpec1, "foo"), new ComputedValue(s_valueSpec2, "bar"));
-    _cache.putPrivateValues(values);
+    _cache.putValues(values);
     for (int i = 0; i < 100; i++) {
       if (_underlying._putValues != null) {
         break;
@@ -323,26 +259,11 @@ public class WriteBehindViewComputationCacheTest {
   }
 
   @Test
-  public void putValuesDirectWriteShared() {
-    _underlying._allowPutValues.countDown();
-    final List<ComputedValue> values = Arrays.asList(new ComputedValue(s_valueSpec1, "foo"), new ComputedValue(s_valueSpec2, "bar"));
-    _cache.putSharedValues(values);
-    for (int i = 0; i < 100; i++) {
-      if (_underlying._putValues != null) {
-        break;
-      }
-      pause();
-    }
-    assertEquals(values, _underlying._putValues);
-    assertNull(_underlying._putValue);
-  }
-
-  @Test
-  public void putValuesCollatedWritePrivate() {
+  public void putValuesCollatedWrite() {
     final List<ComputedValue> values1 = Arrays.asList(new ComputedValue(s_valueSpec1, "foo"), new ComputedValue(s_valueSpec2, "bar"));
     final List<ComputedValue> values2 = Arrays.asList(new ComputedValue(s_valueSpec3, "cow"));
-    _cache.putPrivateValues(values1);
-    _cache.putPrivateValues(values2);
+    _cache.putValues(values1);
+    _cache.putValues(values2);
     _underlying._allowPutValues.countDown();
     for (int i = 0; i < 100; i++) {
       if (_underlying._putValues != null) {
@@ -358,29 +279,9 @@ public class WriteBehindViewComputationCacheTest {
   }
 
   @Test
-  public void putValuesCollatedWriteShared() {
-    final List<ComputedValue> values1 = Arrays.asList(new ComputedValue(s_valueSpec1, "foo"), new ComputedValue(s_valueSpec2, "bar"));
-    final List<ComputedValue> values2 = Arrays.asList(new ComputedValue(s_valueSpec3, "cow"));
-    _cache.putSharedValues(values1);
-    _cache.putSharedValues(values2);
-    _underlying._allowPutValues.countDown();
-    for (int i = 0; i < 100; i++) {
-      if (_underlying._putValues != null) {
-        break;
-      }
-      pause();
-    }
-    Collection<ComputedValue> values = _underlying._putValues;
-    assertEquals(3, values.size());
-    assertTrue(values.containsAll(values1));
-    assertTrue(values.containsAll(values2));
-    assertNull(_underlying._putValue);
-  }
-
-  @Test
-  public void synchronizeCacheNoPendingPrivate() {
+  public void synchronizeCacheNoPending() {
     _underlying._allowPutValue.countDown();
-    _cache.putPrivateValue(new ComputedValue(s_valueSpec1, "foo"));
+    _cache.putValue(new ComputedValue(s_valueSpec1, "foo"));
     for (int i = 0; i < 100; i++) {
       if (_underlying._putValue != null) {
         break;
@@ -392,38 +293,8 @@ public class WriteBehindViewComputationCacheTest {
   }
 
   @Test
-  public void synchronizeCacheNoPendingShared() {
-    _underlying._allowPutValue.countDown();
-    _cache.putSharedValue(new ComputedValue(s_valueSpec1, "foo"));
-    for (int i = 0; i < 100; i++) {
-      if (_underlying._putValue != null) {
-        break;
-      }
-      pause();
-    }
-    assertNotNull(_underlying._putValue);
-    _cache.waitForPendingWrites();
-  }
-
-  @Test
-  public void synchronizeCacheWithPendingPrivate() {
-    _cache.putPrivateValue(new ComputedValue(s_valueSpec1, "foo"));
-    new Thread () {
-      @Override
-      public void run () {
-        try {
-          Thread.sleep (1000L);
-        } catch (InterruptedException e) {
-        }
-        _underlying._allowPutValue.countDown ();
-      }
-    }.start ();
-    _cache.waitForPendingWrites();
-  }
-
-  @Test
-  public void synchronizeCacheWithPendingShared() {
-    _cache.putSharedValue(new ComputedValue(s_valueSpec1, "foo"));
+  public void synchronizeCacheWithPending() {
+    _cache.putValue(new ComputedValue(s_valueSpec1, "foo"));
     new Thread () {
       @Override
       public void run () {
@@ -438,25 +309,8 @@ public class WriteBehindViewComputationCacheTest {
   }
 
   @Test(expected=OpenGammaRuntimeException.class)
-  public void synchronizeCacheWithPendingExceptionPrivate() {
-    _cache.putPrivateValue(new ComputedValue(s_valueSpec1, "foo"));
-    new Thread () {
-      @Override
-      public void run () {
-        try {
-          Thread.sleep (1000L);
-        } catch (InterruptedException e) {
-        }
-        _underlying._throwException = true;
-        _underlying._allowPutValue.countDown ();
-      }
-    }.start ();
-    _cache.waitForPendingWrites();
-  }
-
-  @Test(expected=OpenGammaRuntimeException.class)
-  public void synchronizeCacheWithPendingExceptionShared() {
-    _cache.putSharedValue(new ComputedValue(s_valueSpec1, "foo"));
+  public void synchronizeCacheWithPendingException() {
+    _cache.putValue(new ComputedValue(s_valueSpec1, "foo"));
     new Thread () {
       @Override
       public void run () {

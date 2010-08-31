@@ -25,7 +25,10 @@ import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.engine.view.cache.CacheSelectFilter;
 import com.opengamma.engine.view.cache.DefaultViewComputationCache;
+import com.opengamma.engine.view.cache.FilteredViewComputationCache;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.cache.WriteBehindViewComputationCache;
@@ -118,7 +121,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     getFunctionExecutionContext().setSnapshotEpochTime(spec.getIterationTimestamp());
     getFunctionExecutionContext().setSnapshotClock(DateUtil.epochFixedClockUTC(spec.getIterationTimestamp()));
 
-    WriteBehindViewComputationCache cache = new WriteBehindViewComputationCache(getCache(spec), getWriteBehindExecutorService());
+    WriteBehindViewComputationCache cache = new WriteBehindViewComputationCache(getCache(spec), CacheSelectFilter.allShared(), getWriteBehindExecutorService());
 
     long startNanos = System.nanoTime();
 
@@ -130,7 +133,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
       try {
         Set<ComputedValue> result = invoke(jobItem, cache);
         _cachePutTime -= System.nanoTime();
-        cache.putSharedValues(result);
+        cache.putValues(result);
         _cachePutTime += System.nanoTime();
         resultItem = new CalculationJobResultItem(jobItem);
       } catch (MissingInputException e) {
@@ -169,7 +172,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
      * + ((double) _invocationTime / totalTime) + "% invoke, " + ((double) _cachePutTime / totalTime) + "% cachePut");
      * }
      */
-    ((DefaultViewComputationCache) cache.getUnderlying()).resetTimes();
+    ((DefaultViewComputationCache) cache.getCache()).resetTimes();
     _resolutionTime = 0;
     _cacheGetTime = 0;
     _invocationTime = 0;
@@ -186,7 +189,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     return cache;
   }
 
-  private Set<ComputedValue> invoke(CalculationJobItem jobItem, ViewComputationCache cache) {
+  private Set<ComputedValue> invoke(CalculationJobItem jobItem, FilteredViewComputationCache cache) {
 
     String functionUniqueId = jobItem.getFunctionUniqueIdentifier();
 
@@ -207,7 +210,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     if (invoker == null) {
       throw new NullPointerException("Unable to locate " + functionUniqueId + " in function repository.");
     }
-    
+
     // set parameters
     getFunctionExecutionContext().setFunctionParameters(jobItem.getFunctionParameters());
 

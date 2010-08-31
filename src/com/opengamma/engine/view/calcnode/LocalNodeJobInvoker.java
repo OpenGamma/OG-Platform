@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.view.cache.CacheSelectFilter;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -81,7 +82,7 @@ public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContai
     if (node == null) {
       return false;
     }
-    final CalculationJob job = new CalculationJob(jobSpec, items);
+    final CalculationJob job = new CalculationJob(jobSpec, items, CacheSelectFilter.allShared());
     final Runnable invokeTask = new Runnable() {
       @Override
       public void run() {
