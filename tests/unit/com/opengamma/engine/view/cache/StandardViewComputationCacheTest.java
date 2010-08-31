@@ -29,7 +29,7 @@ public class StandardViewComputationCacheTest {
   public void createCache () {
     final IdentifierMap identifierSource = new InMemoryIdentifierMap ();
     final BinaryDataStore dataStore = new InMemoryBinaryDataStore ();
-    _viewComputationCache = new DefaultViewComputationCache (identifierSource, dataStore, FudgeContext.GLOBAL_DEFAULT);
+    _viewComputationCache = new DefaultViewComputationCache (identifierSource, dataStore, dataStore, FudgeContext.GLOBAL_DEFAULT);
   }
   
   @Test

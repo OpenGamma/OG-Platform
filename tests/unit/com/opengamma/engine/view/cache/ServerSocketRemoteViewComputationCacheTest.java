@@ -57,7 +57,7 @@ public class ServerSocketRemoteViewComputationCacheTest {
     _socketSender.setPortNumber(_serverSocketDispatcher.getPortNumber());
     
     RemoteCacheClient client = new RemoteCacheClient(_socketSender);
-    _cacheSource = new RemoteViewComputationCacheSource (client);
+    _cacheSource = new RemoteViewComputationCacheSource (client, new InMemoryBinaryDataStoreFactory ());
   }
   
   @After

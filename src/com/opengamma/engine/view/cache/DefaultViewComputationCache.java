@@ -35,7 +35,7 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
   private final BinaryDataStore _sharedDataStore;
   private final FudgeContext _fudgeContext;
 
-  public DefaultViewComputationCache(final IdentifierMap identifierMap, final BinaryDataStore dataStore, final FudgeContext fudgeContext) {
+  protected DefaultViewComputationCache(final IdentifierMap identifierMap, final BinaryDataStore dataStore, final FudgeContext fudgeContext) {
     this(identifierMap, dataStore, dataStore, fudgeContext);
   }
 
