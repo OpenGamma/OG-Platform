@@ -60,7 +60,7 @@ public class InMemoryRegionRepository implements RegionMaster {
   
   static final String SUB_REGIONS_COLUMN = "Sub Regions";
   static final IdentificationScheme REGION_FILE_SCHEME = new IdentificationScheme("REGION_FILE_SCHEME");
-  static final IdentificationScheme REGION_FILE_SCHEME_ISO2 = new IdentificationScheme("REGION_FILE_SCHEME_ISO2");
+  public static final IdentificationScheme REGION_FILE_SCHEME_ISO2 = new IdentificationScheme("REGION_FILE_SCHEME_ISO2");
 
   static final String REGION_SCHEME_PREFIX = "REGION_SCHEME_";
   
