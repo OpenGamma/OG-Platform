@@ -12,9 +12,7 @@ import com.opengamma.math.function.Function1D;
  * @param <T>
  */
 public class RecombiningBinomialTree<T> extends RecombiningTree<T> {
-  /**
-   * 
-   */
+  /** Number of nodes at each level */
   public static final Function1D<Integer, Integer> NODES = new Function1D<Integer, Integer>() {
 
     @Override
@@ -31,4 +29,5 @@ public class RecombiningBinomialTree<T> extends RecombiningTree<T> {
   protected int getMaxNodesForStep(final int step) {
     return NODES.evaluate(step);
   }
+
 }

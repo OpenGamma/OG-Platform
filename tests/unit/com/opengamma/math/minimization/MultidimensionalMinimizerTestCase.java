@@ -15,18 +15,17 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 
 public class MultidimensionalMinimizerTestCase {
-  private static final int DIMENSION = 2;
-  private static final double EPS = 1e-6;
   private static final Function1D<DoubleMatrix1D, Double> F_2D = new Function1D<DoubleMatrix1D, Double>() {
 
     @Override
-    public Double evaluate(DoubleMatrix1D x) {
+    public Double evaluate(final DoubleMatrix1D x) {
       return (x.getEntry(0) + 3.4) * (x.getEntry(0) + 3.4) + (x.getEntry(1) - 1) * (x.getEntry(1) - 1);
     }
 
   };
 
   public void testInputs(final VectorMinimizer minimizer) {
+
     try {
       minimizer.minimize(null, new DoubleMatrix1D(new double[] {2., 3.}));
       fail();

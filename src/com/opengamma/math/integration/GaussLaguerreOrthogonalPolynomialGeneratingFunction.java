@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.math.ConvergenceException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.special.NaturalLogGammaFunction;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -36,17 +37,16 @@ public class GaussLaguerreOrthogonalPolynomialGeneratingFunction extends Orthogo
   }
 
   @Override
-  public GaussianQuadratureFunction generate(final int n, final Double... params) {
-    if (params != null) {
+  public GaussianQuadratureFunction generate(final int n, final Double... parameters) {
+    if (parameters != null) {
       s_logger.info("Limits for this integration method are 0 and +infinity; ignoring bounds");
     }
     return generate(n);
   }
 
   public GaussianQuadratureFunction generate(final int n) {
-    if (n <= 0) {
-      throw new IllegalArgumentException("Number of divisions cannot be less than one");
-    }
+    ArgumentChecker.notNegativeOrZero(n, "n");
+
     double z = 0, z1 = 0, p1 = 0, p2 = 0, p3 = 0, pp = 0;
     int ai, j;
     final int max = getMaxIterations();

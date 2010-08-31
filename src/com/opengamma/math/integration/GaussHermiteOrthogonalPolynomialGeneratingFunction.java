@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.math.ConvergenceException;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -27,17 +28,15 @@ public class GaussHermiteOrthogonalPolynomialGeneratingFunction extends Orthogon
   }
 
   @Override
-  public GaussianQuadratureFunction generate(final int n, final Double... params) {
-    if (params != null) {
+  public GaussianQuadratureFunction generate(final int n, final Double... parameters) {
+    if (parameters != null) {
       s_logger.info("Limits for this integration method are +/-infinity; ignoring bounds");
     }
     return generate(n);
   }
 
-  public GaussianQuadratureFunction generate(final int n) {
-    if (n <= 0) {
-      throw new IllegalArgumentException("Must have n > 0");
-    }
+  private GaussianQuadratureFunction generate(final int n) {
+    ArgumentChecker.notNegativeOrZero(n, "n");
     final double[] x = new double[n];
     final double[] w = new double[n];
     int m, j = 0;

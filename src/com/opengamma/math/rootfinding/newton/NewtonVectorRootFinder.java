@@ -44,16 +44,18 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
 
   @Override
   public DoubleMatrix1D getRoot(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DoubleMatrix1D startPosition) {
-    VectorFieldFirstOrderDifferentiator jac = new VectorFieldFirstOrderDifferentiator();
+    final VectorFieldFirstOrderDifferentiator jac = new VectorFieldFirstOrderDifferentiator();
     return getRoot(function, jac.derivative(function), startPosition);
   }
 
   /**
    *@param function a vector function (i.e. vector to vector) 
+   *@param jacobianFunction calculates the Jacobian
   * @param startPosition where to start the root finder for. Note if multiple roots exist which one if found (if at all) will depend on startPosition 
   * @return the vector root of the collection of functions 
    */
 
+  @SuppressWarnings("synthetic-access")
   public DoubleMatrix1D getRoot(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFunction, final DoubleMatrix1D startPosition) {
     checkInputs(function, startPosition);
 

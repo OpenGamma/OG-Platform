@@ -57,12 +57,12 @@ public class ScalarFieldFirstOrderDifferentiator implements Derivative<DoubleMat
 
           @SuppressWarnings("synthetic-access")
           @Override
-          public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
-            double y = function.evaluate(x);
-            int n = x.getNumberOfElements();
-            double[] xData = x.getData();
+          public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
+            final double y = function.evaluate(x);
+            final int n = x.getNumberOfElements();
+            final double[] xData = x.getData();
             double oldValue;
-            double[] res = new double[n];
+            final double[] res = new double[n];
             for (int i = 0; i < n; i++) {
               oldValue = xData[i];
               xData[i] += _eps;
@@ -77,12 +77,12 @@ public class ScalarFieldFirstOrderDifferentiator implements Derivative<DoubleMat
 
           @SuppressWarnings("synthetic-access")
           @Override
-          public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
-            int n = x.getNumberOfElements();
-            double[] xData = x.getData();
+          public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
+            final int n = x.getNumberOfElements();
+            final double[] xData = x.getData();
             double oldValue;
             double up, down;
-            double[] res = new double[n];
+            final double[] res = new double[n];
             for (int i = 0; i < n; i++) {
               oldValue = xData[i];
               xData[i] += _eps;
@@ -100,12 +100,12 @@ public class ScalarFieldFirstOrderDifferentiator implements Derivative<DoubleMat
 
           @SuppressWarnings("synthetic-access")
           @Override
-          public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
-            double y = function.evaluate(x);
-            int n = x.getNumberOfElements();
-            double[] xData = x.getData();
+          public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
+            final double y = function.evaluate(x);
+            final int n = x.getNumberOfElements();
+            final double[] xData = x.getData();
             double oldValue;
-            double[] res = new double[n];
+            final double[] res = new double[n];
             for (int i = 0; i < n; i++) {
               oldValue = xData[i];
               xData[i] -= _eps;
