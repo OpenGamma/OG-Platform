@@ -20,8 +20,9 @@ public class BroydenMatrixUpdateFunctionTest {
   private static final DoubleMatrix2D M = new DoubleMatrix2D(new double[][] {new double[] {3, 4}, new double[] {5, 6}});
   private static final Function1D<DoubleMatrix1D, DoubleMatrix2D> J = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
 
+    @SuppressWarnings("synthetic-access")
     @Override
-    public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
+    public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
       return M;
     }
 

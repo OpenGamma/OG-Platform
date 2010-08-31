@@ -204,7 +204,7 @@ public class YieldCurveBootStrapTest {
 
   @Test
   public void testNewton() {
-    VectorFieldFirstOrderDifferentiator fd_jac_calculator = new VectorFieldFirstOrderDifferentiator();
+    final VectorFieldFirstOrderDifferentiator fd_jac_calculator = new VectorFieldFirstOrderDifferentiator();
 
     NewtonVectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS);
     doHotSpot(rootFinder, "default Newton, single curve", SINGLE_CURVE_FINDER, SINGLE_CURVE_JACOBIAN);
@@ -223,7 +223,7 @@ public class YieldCurveBootStrapTest {
 
   @Test
   public void testShermanMorrison() {
-    VectorFieldFirstOrderDifferentiator fd_jac_calculator = new VectorFieldFirstOrderDifferentiator();
+    final VectorFieldFirstOrderDifferentiator fd_jac_calculator = new VectorFieldFirstOrderDifferentiator();
 
     NewtonVectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS);
     doHotSpot(rootFinder, "Sherman Morrison, single curve", SINGLE_CURVE_FINDER, SINGLE_CURVE_JACOBIAN);
@@ -243,7 +243,7 @@ public class YieldCurveBootStrapTest {
 
   @Test
   public void testBroyden() {
-    VectorFieldFirstOrderDifferentiator fd_jac_calculator = new VectorFieldFirstOrderDifferentiator();
+    final VectorFieldFirstOrderDifferentiator fd_jac_calculator = new VectorFieldFirstOrderDifferentiator();
 
     NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
     doHotSpot(rootFinder, "Broyden, single curve", SINGLE_CURVE_FINDER, SINGLE_CURVE_JACOBIAN);
@@ -368,10 +368,9 @@ public class YieldCurveBootStrapTest {
     }
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testSingleCurveJacobian() {
-    VectorFieldFirstOrderDifferentiator fdCal = new VectorFieldFirstOrderDifferentiator();
+    final VectorFieldFirstOrderDifferentiator fdCal = new VectorFieldFirstOrderDifferentiator();
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFD = fdCal.derivative(SINGLE_CURVE_FINDER);
     final DoubleMatrix2D jacExact = SINGLE_CURVE_JACOBIAN.evaluate(X0);
     final DoubleMatrix2D jacFDSensitivity = SINGLE_CURVE_JACOBIAN_WITH_FD_INTERPOLATOR_SENSITIVITY.evaluate(X0);
@@ -380,10 +379,9 @@ public class YieldCurveBootStrapTest {
     assertMatrixEquals(jacExact, jacFD, 1e-6);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testDoubleCurveJacobian() {
-    VectorFieldFirstOrderDifferentiator fdCal = new VectorFieldFirstOrderDifferentiator();
+    final VectorFieldFirstOrderDifferentiator fdCal = new VectorFieldFirstOrderDifferentiator();
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFD = fdCal.derivative(DOUBLE_CURVE_FINDER);
     final DoubleMatrix2D jacExact = DOUBLE_CURVE_JACOBIAN.evaluate(X0);
     final DoubleMatrix2D jacFDSensitivity = DOUBLE_CURVE_JACOBIAN_WITH_FD_INTERPOLATOR_SENSITIVITY.evaluate(X0);

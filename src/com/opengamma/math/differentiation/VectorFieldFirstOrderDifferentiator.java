@@ -13,14 +13,13 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
  * Differentiates a vector field (i.e. there is a vector value for every point in some vector space) with respect to the vector space using finite difference. For a function <b>y</b> =f(<b>x</b>) 
- * where <b>x</b> is a n-dimensional vector and <b>y</b> is a m-dimensional vector this produces the Jacobian function, <b>J</b>(<b>x</b>), i.e. a function that returns the Jacobian for each point <b>x</b>,
- * where <b>J</b> is the m by n matrix dy_i/dx_j
+ * where <b>x</b> is a n-dimensional vector and <b>y</b> is a m-dimensional vector this produces the Jacobian function, <b>J</b>(<b>x</b>), i.e. a function that returns the Jacobian 
+ * for each point <b>x</b>, where <b>J</b> is the m by n matrix dy_i/dx_j
  */
 public class VectorFieldFirstOrderDifferentiator implements Derivative<DoubleMatrix1D, DoubleMatrix1D, DoubleMatrix2D> {
 
   private static final double DEFAULT_EPS = 1e-5;
-  private static final double MIN_EPS = Math.sqrt(Double.MIN_NORMAL);
-  private static FiniteDifferenceType DIFF_TYPE = FiniteDifferenceType.CENTRAL;
+  private static final FiniteDifferenceType DIFF_TYPE = FiniteDifferenceType.CENTRAL;
 
   private final double _eps;
   private final double _twoEps;
@@ -50,13 +49,13 @@ public class VectorFieldFirstOrderDifferentiator implements Derivative<DoubleMat
 
           @SuppressWarnings("synthetic-access")
           @Override
-          public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
-            DoubleMatrix1D y = function.evaluate(x);
-            int n = x.getNumberOfElements();
-            int m = y.getNumberOfElements();
-            double[] xData = x.getData();
+          public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
+            final DoubleMatrix1D y = function.evaluate(x);
+            final int n = x.getNumberOfElements();
+            final int m = y.getNumberOfElements();
+            final double[] xData = x.getData();
             double oldValue;
-            double[][] res = new double[m][n];
+            final double[][] res = new double[m][n];
             int i, j;
             DoubleMatrix1D up;
             for (j = 0; j < n; j++) {
@@ -76,13 +75,13 @@ public class VectorFieldFirstOrderDifferentiator implements Derivative<DoubleMat
 
           @SuppressWarnings("synthetic-access")
           @Override
-          public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
-            DoubleMatrix1D y = function.evaluate(x); // need this unused evaluation to get size of y
-            int n = x.getNumberOfElements();
-            int m = y.getNumberOfElements();
-            double[] xData = x.getData();
+          public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
+            final DoubleMatrix1D y = function.evaluate(x); // need this unused evaluation to get size of y
+            final int n = x.getNumberOfElements();
+            final int m = y.getNumberOfElements();
+            final double[] xData = x.getData();
             double oldValue;
-            double[][] res = new double[m][n];
+            final double[][] res = new double[m][n];
             int i, j;
             DoubleMatrix1D up, down;
             for (j = 0; j < n; j++) {
@@ -104,13 +103,13 @@ public class VectorFieldFirstOrderDifferentiator implements Derivative<DoubleMat
 
           @SuppressWarnings("synthetic-access")
           @Override
-          public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
-            DoubleMatrix1D y = function.evaluate(x);
-            int n = x.getNumberOfElements();
-            int m = y.getNumberOfElements();
-            double[] xData = x.getData();
+          public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
+            final DoubleMatrix1D y = function.evaluate(x);
+            final int n = x.getNumberOfElements();
+            final int m = y.getNumberOfElements();
+            final double[] xData = x.getData();
             double oldValue;
-            double[][] res = new double[m][n];
+            final double[][] res = new double[m][n];
             int i, j;
             DoubleMatrix1D down;
             for (j = 0; j < n; j++) {
