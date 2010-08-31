@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -34,7 +35,7 @@ public class JobDispatcher implements JobInvokerRegister {
   private static final Logger s_logger = LoggerFactory.getLogger(JobDispatcher.class);
   /* package */static final int DEFAULT_MAX_JOB_ATTEMPTS = 3;
   /* package */static final String DEFAULT_JOB_FAILURE_NODE_ID = "NOT EXECUTED";
-
+  
   private final class DispatchJob implements JobInvocationReceiver {
 
     private final CalculationJobSpecification _jobSpec;
@@ -173,7 +174,7 @@ public class JobDispatcher implements JobInvokerRegister {
   }
 
   private final Queue<DispatchJob> _pending = new LinkedList<DispatchJob>();
-  private final Queue<JobInvoker> _invokers = new LinkedList<JobInvoker>();
+  private final Queue<JobInvoker> _invokers = new ConcurrentLinkedQueue<JobInvoker>();
 
   private int _maxJobAttempts = DEFAULT_MAX_JOB_ATTEMPTS;
   private String _jobFailureNodeId = DEFAULT_JOB_FAILURE_NODE_ID;
