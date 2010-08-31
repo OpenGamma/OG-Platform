@@ -7,6 +7,8 @@ package com.opengamma.engine.view;
 
 import java.util.concurrent.ExecutorService;
 
+import org.quartz.impl.calendar.HolidayCalendar;
+
 import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
