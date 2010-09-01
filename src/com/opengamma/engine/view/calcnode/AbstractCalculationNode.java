@@ -26,7 +26,6 @@ import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewProcessor;
-import com.opengamma.engine.view.cache.CacheSelectFilter;
 import com.opengamma.engine.view.cache.DefaultViewComputationCache;
 import com.opengamma.engine.view.cache.FilteredViewComputationCache;
 import com.opengamma.engine.view.cache.ViewComputationCache;
@@ -121,7 +120,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     getFunctionExecutionContext().setSnapshotEpochTime(spec.getIterationTimestamp());
     getFunctionExecutionContext().setSnapshotClock(DateUtil.epochFixedClockUTC(spec.getIterationTimestamp()));
 
-    WriteBehindViewComputationCache cache = new WriteBehindViewComputationCache(getCache(spec), CacheSelectFilter.allShared(), getWriteBehindExecutorService());
+    WriteBehindViewComputationCache cache = new WriteBehindViewComputationCache(getCache(spec), job.getCacheSelectHint(), getWriteBehindExecutorService());
 
     long startNanos = System.nanoTime();
 

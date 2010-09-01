@@ -19,7 +19,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionCompilationService;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.test.TestCalculationNode;
-import com.opengamma.engine.view.cache.CacheSelectFilter;
+import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.cache.InMemoryIdentifierMap;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeJobMessage;
@@ -37,7 +37,7 @@ public class RemoteNodeClientTest {
   private static final long TIMEOUT = 1000L;
 
   protected static CalculationJob createTestCalculationJob() {
-    return new CalculationJob(JobDispatcherTest.createTestJobSpec(), JobDispatcherTest.createTestJobItems(), CacheSelectFilter.allShared());
+    return new CalculationJob(JobDispatcherTest.createTestJobSpec(), JobDispatcherTest.createTestJobItems(), CacheSelectHint.allShared());
   }
 
   @Test

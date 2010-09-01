@@ -91,7 +91,7 @@ public class WriteBehindViewComputationCache extends FilteredViewComputationCach
 
   private volatile Future<?> _valueWriterFuture;
 
-  public WriteBehindViewComputationCache(final ViewComputationCache underlying, final CacheSelectFilter filter, final ExecutorService executorService) {
+  public WriteBehindViewComputationCache(final ViewComputationCache underlying, final CacheSelectHint filter, final ExecutorService executorService) {
     super(underlying, filter);
     _executorService = executorService;
   }

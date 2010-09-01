@@ -9,7 +9,9 @@ import java.util.Collection;
 
 /**
  * Something that can invoke a job when required by the JobDispatcher. Capabilities are calculated
- * at an invoker level so an invoker should only dispatch to a homogenous set of calculation nodes.
+ * at an invoker level so an invoker should only dispatch to a homogeneous set of calculation nodes.
+ * The calculation nodes a given job invoker dispatches to are assumed to share the same local
+ * cache.
  */
 public interface JobInvoker {
 

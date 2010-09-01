@@ -132,7 +132,7 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
   }
 
   @Override
-  public Object getValue(final ValueSpecification specification, final CacheSelectFilter filter) {
+  public Object getValue(final ValueSpecification specification, final CacheSelectHint filter) {
     ArgumentChecker.notNull(specification, "Specification");
     _identifierRequests++;
     _getIdentifierTime -= System.nanoTime();
@@ -191,7 +191,7 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
   }
 
   @Override
-  public Collection<Pair<ValueSpecification, Object>> getValues(final Collection<ValueSpecification> specifications, final CacheSelectFilter filter) {
+  public Collection<Pair<ValueSpecification, Object>> getValues(final Collection<ValueSpecification> specifications, final CacheSelectHint filter) {
     ArgumentChecker.notNull(specifications, "specifications");
     _identifierRequests += specifications.size();
     _getIdentifierTime -= System.nanoTime();
@@ -271,7 +271,7 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
   }
 
   @Override
-  public void putValue(final ComputedValue value, final CacheSelectFilter filter) {
+  public void putValue(final ComputedValue value, final CacheSelectHint filter) {
     AbstractViewComputationCache.putValue(this, value, filter);
   }
 
@@ -309,7 +309,7 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
   }
 
   @Override
-  public void putValues(final Collection<ComputedValue> values, final CacheSelectFilter filter) {
+  public void putValues(final Collection<ComputedValue> values, final CacheSelectHint filter) {
     ArgumentChecker.notNull(values, "values");
     _identifierRequests += values.size();
     _getIdentifierTime -= System.nanoTime();

@@ -5,10 +5,11 @@
  */
 package com.opengamma.engine.view.calc;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +20,7 @@ import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.view.calc.MultipleNodeExecutor.GraphFragment;
 import com.opengamma.engine.view.calc.MultipleNodeExecutor.RootGraphFragment;
-import com.opengamma.engine.view.calcnode.CalculationJobItem;
+import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 
@@ -70,8 +71,7 @@ public class MultipleNodeExecutorTest {
       }
 
       @Override
-      protected void dispatchJob(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items,
-          final JobResultReceiver jobResultReceiver) {
+      protected void dispatchJob(final CalculationJob job, final JobResultReceiver jobResultReceiver) {
         // No action - we're just testing graph construction
       }
 

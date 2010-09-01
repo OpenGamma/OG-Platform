@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.cache.CacheSelectFilter;
+import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.util.ArgumentChecker;
 
@@ -38,18 +38,19 @@ public class CalculationJob implements Serializable {
   private final CalculationJobSpecification _specification;
   private final List<CalculationJobItem> _jobItems;
 
-  private final CacheSelectFilter _cacheSelectFilter;
+  private final CacheSelectHint _cacheSelect;
 
-  public CalculationJob(String viewName, String calcConfigName, long iterationTimestamp, long jobId, List<CalculationJobItem> jobItems, final CacheSelectFilter cacheSelectFilter) {
-    this(new CalculationJobSpecification(viewName, calcConfigName, iterationTimestamp, jobId), jobItems, cacheSelectFilter);
+  public CalculationJob(String viewName, String calcConfigName, long iterationTimestamp, long jobId, List<CalculationJobItem> jobItems, final CacheSelectHint cacheSelect) {
+    this(new CalculationJobSpecification(viewName, calcConfigName, iterationTimestamp, jobId), jobItems, cacheSelect);
   }
 
-  public CalculationJob(CalculationJobSpecification specification, List<CalculationJobItem> jobItems, final CacheSelectFilter cacheSelectFilter) {
-    ArgumentChecker.notNull(specification, "Job spec");
-    ArgumentChecker.notNull(jobItems, "Job items");
+  public CalculationJob(CalculationJobSpecification specification, List<CalculationJobItem> jobItems, final CacheSelectHint cacheSelect) {
+    ArgumentChecker.notNull(specification, "specification");
+    ArgumentChecker.notNull(jobItems, "jobItems");
+    ArgumentChecker.notNull(cacheSelect, "cacheSelect");
     _specification = specification;
     _jobItems = new ArrayList<CalculationJobItem>(jobItems);
-    _cacheSelectFilter = cacheSelectFilter;
+    _cacheSelect = cacheSelect;
   }
 
   /**
@@ -59,8 +60,8 @@ public class CalculationJob implements Serializable {
     return _specification;
   }
 
-  public CacheSelectFilter getCacheSelectFilter() {
-    return _cacheSelectFilter;
+  public CacheSelectHint getCacheSelectHint() {
+    return _cacheSelect;
   }
 
   public List<CalculationJobItem> getJobItems() {
@@ -73,10 +74,10 @@ public class CalculationJob implements Serializable {
    * @param identifierMap Identifier map to resolve the inputs with
    */
   public void resolveInputs(final IdentifierMap identifierMap) {
+    _cacheSelect.resolveSpecifications(identifierMap);
     for (CalculationJobItem item : _jobItems) {
       item.resolveInputs(identifierMap);
     }
-    _cacheSelectFilter.resolveSpecifications(identifierMap);
   }
 
   /**
@@ -85,10 +86,10 @@ public class CalculationJob implements Serializable {
    * @param identifierMap Identifier map to convert the inputs with
    */
   public void convertInputs(final IdentifierMap identifierMap) {
+    getCacheSelectHint().convertSpecifications(identifierMap);
     for (CalculationJobItem item : _jobItems) {
       item.convertInputs(identifierMap);
     }
-    getCacheSelectFilter().convertSpecifications(identifierMap);
   }
 
   @Override
@@ -102,7 +103,7 @@ public class CalculationJob implements Serializable {
     for (CalculationJobItem item : getJobItems()) {
       msg.add(ITEM_FIELD_NAME, item.toFudgeMsg(fudgeContext));
     }
-    getCacheSelectFilter().toFudgeMsg(msg);
+    getCacheSelectHint().toFudgeMsg(msg);
     return msg;
   }
 
@@ -114,7 +115,7 @@ public class CalculationJob implements Serializable {
       CalculationJobItem jobItem = CalculationJobItem.fromFudgeMsg(fudgeContext, (FudgeFieldContainer) field.getValue());
       jobItems.add(jobItem);
     }
-    final CacheSelectFilter cacheSelectFilter = CacheSelectFilter.fromFudgeMsg(msg);
+    final CacheSelectHint cacheSelectFilter = CacheSelectHint.fromFudgeMsg(msg);
     return new CalculationJob(jobSpec, jobItems, cacheSelectFilter);
   }
 }

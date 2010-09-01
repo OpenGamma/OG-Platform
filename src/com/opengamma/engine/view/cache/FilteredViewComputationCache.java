@@ -13,14 +13,14 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * A {@link ViewComputationCache} composed with a {@link CacheSelectFilter}.
+ * A {@link ViewComputationCache} composed with a {@link CacheSelectHint}.
  */
 public class FilteredViewComputationCache {
 
   private final ViewComputationCache _cache;
-  private final CacheSelectFilter _filter;
+  private final CacheSelectHint _filter;
 
-  public FilteredViewComputationCache(final ViewComputationCache cache, final CacheSelectFilter filter) {
+  public FilteredViewComputationCache(final ViewComputationCache cache, final CacheSelectHint filter) {
     ArgumentChecker.notNull(cache, "cache");
     ArgumentChecker.notNull(filter, "filter");
     _cache = cache;
@@ -32,7 +32,7 @@ public class FilteredViewComputationCache {
     return _cache;
   }
 
-  protected CacheSelectFilter getFilter() {
+  protected CacheSelectHint getFilter() {
     return _filter;
   }
 

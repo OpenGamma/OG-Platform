@@ -7,8 +7,10 @@ package com.opengamma.engine.view.calc;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
@@ -21,7 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.view.cache.CacheSelectFilter;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
@@ -52,7 +55,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
   }
 
   @Override
-  public Future<CalculationJobResult> execute(DependencyGraph graph) {
+  public Future<CalculationJobResult> execute(final DependencyGraph graph) {
     long jobId = JobIdSource.getId();
     CalculationJobSpecification jobSpec = new CalculationJobSpecification(_cycle.getViewName(), graph.getCalcConfName(), _cycle.getValuationTime().toEpochMillisLong(), jobId);
 
@@ -61,11 +64,46 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
     List<CalculationJobItem> items = new ArrayList<CalculationJobItem>();
     Map<CalculationJobItem, DependencyNode> item2Node = new HashMap<CalculationJobItem, DependencyNode>();
 
+    final Set<ValueSpecification> privateValues = new HashSet<ValueSpecification>();
+    final Set<ValueSpecification> sharedValues = new HashSet<ValueSpecification>(graph.getTerminalOutputValues());
     for (DependencyNode node : order) {
-      CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getUniqueIdentifier(), node.getFunction().getParameters(), node.getComputationTarget().toSpecification(),
-          node.getInputValues(), node.getOutputRequirements());
+      final Set<ValueSpecification> inputs = node.getInputValues();
+      final CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getUniqueIdentifier(), node.getFunction().getParameters(), node.getComputationTarget()
+          .toSpecification(), inputs, node.getOutputRequirements());
       items.add(jobItem);
       item2Node.put(jobItem, node);
+      // If node has dependencies which AREN'T in the graph, its outputs for those nodes are "shared" values
+      for (ValueSpecification specification : node.getOutputValues()) {
+        if (sharedValues.contains(specification)) {
+          continue;
+        }
+        boolean isPrivate = true;
+        for (DependencyNode dependent : node.getDependentNodes()) {
+          if (!graph.containsNode(dependent)) {
+            isPrivate = false;
+            break;
+          }
+        }
+        if (isPrivate) {
+          privateValues.add(specification);
+        } else {
+          sharedValues.add(specification);
+        }
+      }
+      // If node has inputs which haven't been seen already, they can't have been generated within this graph so are "shared"
+      for (ValueSpecification specification : inputs) {
+        if (sharedValues.contains(specification) || privateValues.contains(specification)) {
+          continue;
+        }
+        sharedValues.add(specification);
+      }
+    }
+    s_logger.debug("{} private values, {} shared values in graph", privateValues.size(), sharedValues.size());
+    final CacheSelectHint cacheHint;
+    if (privateValues.size() < sharedValues.size()) {
+      cacheHint = CacheSelectHint.privateValues(privateValues);
+    } else {
+      cacheHint = CacheSelectHint.sharedValues(sharedValues);
     }
 
     s_logger.info("Enqueuing {} to invoke {} functions", new Object[] {jobSpec, items.size()});
@@ -74,7 +112,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
     AtomicExecutorFuture future = new AtomicExecutorFuture(runnable, graph, item2Node);
     _executingSpecifications.put(jobSpec, future);
     _cycle.getProcessingContext().getViewProcessorQueryReceiver().addJob(jobSpec, graph);
-    _cycle.getProcessingContext().getComputationJobDispatcher().dispatchJob(new CalculationJob(jobSpec, items, CacheSelectFilter.allShared()), this);
+    _cycle.getProcessingContext().getComputationJobDispatcher().dispatchJob(new CalculationJob(jobSpec, items, cacheHint), this);
 
     return future;
   }

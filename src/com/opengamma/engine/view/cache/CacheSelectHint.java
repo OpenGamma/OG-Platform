@@ -20,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * A filter to determine whether given values are to go into a private or shared cache. 
  */
-public final class CacheSelectFilter {
+public final class CacheSelectHint {
 
   private static final String VALUES_FIELD_NAME = "cacheValues";
   private static final String PRIVATE_FIELD_NAME = "cacheValuesPrivate";
@@ -29,7 +29,7 @@ public final class CacheSelectFilter {
   private long[] _valueIdentifiers;
   private final boolean _isPrivate;
 
-  private CacheSelectFilter(final Collection<ValueSpecification> valueSpecifications, final long[] valueIdentifiers, final boolean isPrivate) {
+  private CacheSelectHint(final Collection<ValueSpecification> valueSpecifications, final long[] valueIdentifiers, final boolean isPrivate) {
     if (valueSpecifications != null) {
       _valueSpecifications = new HashSet<ValueSpecification>(valueSpecifications);
     } else {
@@ -39,22 +39,22 @@ public final class CacheSelectFilter {
     _isPrivate = isPrivate;
   }
 
-  public static CacheSelectFilter privateValues(final Collection<ValueSpecification> privateValues) {
+  public static CacheSelectHint privateValues(final Collection<ValueSpecification> privateValues) {
     ArgumentChecker.notNull(privateValues, "privateValues");
-    return new CacheSelectFilter(privateValues, null, true);
+    return new CacheSelectHint(privateValues, null, true);
   }
 
-  public static CacheSelectFilter sharedValues(final Collection<ValueSpecification> sharedValues) {
+  public static CacheSelectHint sharedValues(final Collection<ValueSpecification> sharedValues) {
     ArgumentChecker.notNull(sharedValues, "sharedValues");
-    return new CacheSelectFilter(sharedValues, null, false);
+    return new CacheSelectHint(sharedValues, null, false);
   }
 
-  public static CacheSelectFilter allShared() {
-    return new CacheSelectFilter(null, null, true);
+  public static CacheSelectHint allShared() {
+    return new CacheSelectHint(null, null, true);
   }
 
-  public static CacheSelectFilter allPrivate() {
-    return new CacheSelectFilter(null, null, false);
+  public static CacheSelectHint allPrivate() {
+    return new CacheSelectHint(null, null, false);
   }
 
   /**
@@ -101,10 +101,10 @@ public final class CacheSelectFilter {
     msg.add(PRIVATE_FIELD_NAME, _isPrivate);
   }
 
-  public static CacheSelectFilter fromFudgeMsg(final FudgeFieldContainer msg) {
+  public static CacheSelectHint fromFudgeMsg(final FudgeFieldContainer msg) {
     final long[] valueIdentifiers = (long[]) msg.getByName(VALUES_FIELD_NAME).getValue();
     final boolean isPrivate = msg.getBoolean(PRIVATE_FIELD_NAME);
-    return new CacheSelectFilter(null, valueIdentifiers, isPrivate);
+    return new CacheSelectHint(null, valueIdentifiers, isPrivate);
   }
 
 }

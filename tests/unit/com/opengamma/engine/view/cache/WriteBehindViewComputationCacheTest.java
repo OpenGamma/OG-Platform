@@ -112,20 +112,20 @@ public class WriteBehindViewComputationCacheTest {
   private static final ValueSpecification s_valueSpec2 = new ValueSpecification(new ValueRequirement("Value 2", new ComputationTargetSpecification(new DefaultSecurity("TEST"))), "Function UID");
   private static final ValueSpecification s_valueSpec3 = new ValueSpecification(new ValueRequirement("Value 3", new ComputationTargetSpecification(new DefaultSecurity("TEST"))), "Function UID");
 
-  private final CacheSelectFilter _filter;
+  private final CacheSelectHint _filter;
   private ExecutorService _executorService;
   private Underlying _underlying;
   private WriteBehindViewComputationCache _cache;
   
-  public WriteBehindViewComputationCacheTest (final CacheSelectFilter filter) {
+  public WriteBehindViewComputationCacheTest (final CacheSelectHint filter) {
     _filter = filter;
   }
 
   @Parameters
   public static List<Object[]> cacheSelectFilters () {
     final List<Object[]> filters = new ArrayList<Object[]> (2);
-    filters.add (new Object[] { CacheSelectFilter.allPrivate () });
-    filters.add (new Object[] { CacheSelectFilter.allShared () });
+    filters.add (new Object[] { CacheSelectHint.allPrivate () });
+    filters.add (new Object[] { CacheSelectHint.allShared () });
     return filters;
   }
 

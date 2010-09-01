@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.view.cache.CacheSelectFilter;
+import com.opengamma.engine.view.cache.CacheSelectHint;
 
 /**
  * 
@@ -46,7 +46,7 @@ public class JobDispatcherTest {
   }
 
   protected static CalculationJob createTestJob() {
-    return new CalculationJob(createTestJobSpec(), createTestJobItems(), CacheSelectFilter.allPrivate());
+    return new CalculationJob(createTestJobSpec(), createTestJobItems(), CacheSelectHint.allPrivate());
   }
 
   protected static CalculationJobResult createTestJobResult(final CalculationJobSpecification jobSpec, final long time, final String nodeId) {

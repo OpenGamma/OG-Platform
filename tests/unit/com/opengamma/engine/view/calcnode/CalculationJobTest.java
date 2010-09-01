@@ -24,7 +24,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.cache.CacheSelectFilter;
+import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.cache.InMemoryIdentifierMap;
 import com.opengamma.id.UniqueIdentifier;
@@ -44,7 +44,7 @@ public class CalculationJobTest {
     List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Collections.<ValueSpecification> emptySet(), Collections
         .<ValueRequirement> emptySet()));
 
-    CalculationJob inputJob = new CalculationJob(spec, items, CacheSelectFilter.allShared());
+    CalculationJob inputJob = new CalculationJob(spec, items, CacheSelectHint.allShared());
     inputJob.convertInputs(identifierMap);
 
     FudgeFieldContainer msg = inputJob.toFudgeMsg(new FudgeSerializationContext(context));
@@ -77,7 +77,7 @@ public class CalculationJobTest {
 
     List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Sets.newHashSet(inputSpec), Sets.newHashSet(desiredValue)));
 
-    CalculationJob inputJob = new CalculationJob(spec, items, CacheSelectFilter.allShared());
+    CalculationJob inputJob = new CalculationJob(spec, items, CacheSelectHint.allShared());
     inputJob.convertInputs(identifierMap);
 
     FudgeFieldContainer msg = inputJob.toFudgeMsg(new FudgeSerializationContext(context));

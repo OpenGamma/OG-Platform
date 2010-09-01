@@ -23,7 +23,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.view.cache.CacheSelectFilter;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
@@ -70,8 +71,8 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     _cycle.getProcessingContext().getViewProcessorQueryReceiver().addJob(jobSpec, graph);
   }
 
-  protected void dispatchJob(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items, final JobResultReceiver jobResultReceiver) {
-    _cycle.getProcessingContext().getComputationJobDispatcher().dispatchJob(new CalculationJob(jobSpec, items, CacheSelectFilter.allShared()), jobResultReceiver);
+  protected void dispatchJob(final CalculationJob job, final JobResultReceiver jobResultReceiver) {
+    _cycle.getProcessingContext().getComputationJobDispatcher().dispatchJob(job, jobResultReceiver);
   }
 
   private final AtomicInteger _graphFragmentIdentifiers = new AtomicInteger();
@@ -172,14 +173,48 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
       final CalculationJobSpecification jobSpec = createJobSpecification(graph);
       final List<CalculationJobItem> items = new ArrayList<CalculationJobItem>();
       _item2Node = new HashMap<CalculationJobItem, DependencyNode>();
+      final Set<ValueSpecification> privateValues = new HashSet<ValueSpecification>();
+      final Set<ValueSpecification> sharedValues = new HashSet<ValueSpecification>(graph.getTerminalOutputValues());
       for (DependencyNode node : _nodes) {
+        final Set<ValueSpecification> inputs = node.getInputValues();
         CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getUniqueIdentifier(), node.getFunction().getParameters(), node.getComputationTarget().toSpecification(),
-            node.getInputValues(), node.getOutputRequirements());
+            inputs, node.getOutputRequirements());
         items.add(jobItem);
         _item2Node.put(jobItem, node);
+        // If node has dependencies which AREN'T in the graph fragment, its outputs for those nodes are "shared" values
+        for (ValueSpecification specification : node.getOutputValues()) {
+          if (sharedValues.contains(specification)) {
+            continue;
+          }
+          boolean isPrivate = true;
+          for (DependencyNode dependent : node.getDependentNodes()) {
+            if (!_nodes.contains(dependent)) {
+              isPrivate = false;
+              break;
+            }
+          }
+          if (isPrivate) {
+            privateValues.add(specification);
+          } else {
+            sharedValues.add(specification);
+          }
+        }
+        // If node has inputs which haven't been seen already, they can't have been generated within this fragment so are "shared"
+        for (ValueSpecification specification : inputs) {
+          if (sharedValues.contains(specification) || privateValues.contains(specification)) {
+            continue;
+          }
+          sharedValues.add(specification);
+        }
+      }
+      final CacheSelectHint cacheHint;
+      if (privateValues.size() < sharedValues.size()) {
+        cacheHint = CacheSelectHint.privateValues(privateValues);
+      } else {
+        cacheHint = CacheSelectHint.sharedValues(sharedValues);
       }
       addJobToViewProcessorQuery(jobSpec, graph);
-      dispatchJob(jobSpec, items, this);
+      dispatchJob(new CalculationJob(jobSpec, items, cacheHint), this);
     }
 
     public void execute(final DependencyGraph graph) {

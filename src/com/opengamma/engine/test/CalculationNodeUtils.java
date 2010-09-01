@@ -11,7 +11,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.view.cache.CacheSelectFilter;
+import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
@@ -51,7 +51,7 @@ public class CalculationNodeUtils {
 
     CalculationJobItem calculationJobItem = new CalculationJobItem(function.getUniqueIdentifier(), function.getDefaultParameters(), function.getTarget().toSpecification(), function.getRequirements(),
         function.getResultRequirements());
-    CalculationJob calcJob = new CalculationJob(jobSpec, Collections.singletonList(calculationJobItem), CacheSelectFilter.allShared());
+    CalculationJob calcJob = new CalculationJob(jobSpec, Collections.singletonList(calculationJobItem), CacheSelectHint.allShared());
     return calcJob;
   }
 
