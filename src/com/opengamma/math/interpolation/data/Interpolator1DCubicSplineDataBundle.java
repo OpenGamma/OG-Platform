@@ -215,6 +215,7 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
       a[n - 1] = deltaX[n - 2] / 3.0;
       c[n - 2] = deltaX[n - 2] / 6.0;
     }
+
     final TridiagonalMatrix tridiagonal = new TridiagonalMatrix(a, b, c);
     return invertor.evaluate(tridiagonal);
   }

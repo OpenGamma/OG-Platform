@@ -14,13 +14,22 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
+import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.RealPolynomialFunction1D;
 
 /**
  * 
  */
 public class Interpolator1DCubicSplineDataBundleTest {
+  private static final RealPolynomialFunction1D LINEAR = new RealPolynomialFunction1D(new double[] {1, 3});
   private static final RealPolynomialFunction1D CUBIC = new RealPolynomialFunction1D(new double[] {1, 3, 3, 1});
+  private static final Function1D<Double, Double> NORMAL = new Function1D<Double, Double>() {
+
+    @Override
+    public Double evaluate(Double x) {
+      return Math.exp(-x * x / 2);
+    }
+  };
   private static final double[] X;
   private static final double[] Y;
   private static final Interpolator1DCubicSplineDataBundle DATA;
@@ -78,7 +87,8 @@ public class Interpolator1DCubicSplineDataBundleTest {
 
   @Test
   public void testEqualsAndHashCode() {
-    Interpolator1DCubicSplineDataBundle other = new Interpolator1DCubicSplineDataBundle(new ArrayInterpolator1DDataBundle(X, Y));
+    Interpolator1DCubicSplineDataBundle other = new Interpolator1DCubicSplineDataBundle(
+        new ArrayInterpolator1DDataBundle(X, Y));
     assertEquals(other, DATA);
     assertEquals(other.hashCode(), DATA.hashCode());
     other = new Interpolator1DCubicSplineDataBundle(new ArrayInterpolator1DDataBundle(Y, Y));
@@ -89,16 +99,70 @@ public class Interpolator1DCubicSplineDataBundleTest {
 
   @Test
   public void testSecondDerivatives() {
-    final double[] y2 = DATA.getSecondDerivatives();
+
+    int n = 10;
+    double x[] = new double[n];
+    double y[] = new double[n];
+    for (int i = 0; i < n; i++) {
+      x[i] = (i - 5);
+      y[i] = LINEAR.evaluate(x[i]);
+    }
+    Interpolator1DCubicSplineDataBundle data = new Interpolator1DCubicSplineDataBundle(
+        new ArrayInterpolator1DDataBundle(x, y));
+
+    double[] y2 = data.getSecondDerivatives();
     assertEquals(y2.length, 10);
     assertEquals(y2[0], 0, EPS);
     assertEquals(y2[y2.length - 1], 0, EPS);
-    //TODO finish tests
+
+    for (double element : y2) {
+      assertEquals(0.0, element, 0.0);
+    }
+
+    n = 150;
+    x = new double[n];
+    y = new double[n];
+    for (int i = 0; i < n; i++) {
+      x[i] = (i - 75) / 10.;
+      y[i] = NORMAL.evaluate(x[i]);
+    }
+    data = new Interpolator1DCubicSplineDataBundle(new ArrayInterpolator1DDataBundle(x, y));
+
+    y2 = data.getSecondDerivatives();
+    for (int i = 0; i < n; i++) {
+      double temp = (x[i] * x[i] - 1) * Math.exp(-x[i] * x[i] / 2.0);
+      assertEquals(temp, y2[i], 1e-2);
+      // System.out.println(y2[i] + "," + temp);
+    }
   }
+
+  //  @Test
+  //  public void testLargeData() {
+  //    int n = 499;
+  //    double x[] = new double[n];
+  //    double y[] = new double[n];
+  //    for (int i = 0; i < n; i++) {
+  //      x[i] = i / 20.0;
+  //      y[i] = Math.sin(x[i]);
+  //    }
+  //    Interpolator1DCubicSplineDataBundle data = new Interpolator1DCubicSplineDataBundle(
+  //        new ArrayInterpolator1DDataBundle(x, y));
+  //
+  //    double[] y2 = data.getSecondDerivatives();
+  //  }
 
   @Test
   public void testSecondDerivativesSensitivities() {
-    //TODO
+
+    double[][] sense = DATA.getSecondDerivativesSensitivities();
+    int n = X.length;
+    assertEquals(sense.length, n, 0);
+    assertEquals(sense[0].length, n, 0);
+    for (int i = 0; i < n; i++) {
+      assertEquals(sense[0][i], 0.0, 0.0);
+      assertEquals(sense[n - 1][i], 0.0, 0.0);
+    }
+
   }
 
   @Test
@@ -108,7 +172,8 @@ public class Interpolator1DCubicSplineDataBundleTest {
     final double[] y = Arrays.copyOf(Y, n);
     Arrays.sort(x);
     Arrays.sort(y);
-    Interpolator1DCubicSplineDataBundle data1 = new Interpolator1DCubicSplineDataBundle(new ArrayInterpolator1DDataBundle(x, y));
+    Interpolator1DCubicSplineDataBundle data1 = new Interpolator1DCubicSplineDataBundle(
+        new ArrayInterpolator1DDataBundle(x, y));
     Interpolator1DCubicSplineDataBundle data2;
     final double newY = 120;
     final double[] yData = Arrays.copyOf(y, n);
