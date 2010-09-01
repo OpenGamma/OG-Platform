@@ -22,7 +22,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class NonlinearLeastSquare {
+public class NonLinearLeastSquare {
   private final double[] _x;
   private final double[] _y;
   private final double[] _invSigmaSq;
@@ -31,7 +31,7 @@ public class NonlinearLeastSquare {
   private final Decomposition<?> _decomposition;
   private final MatrixAlgebra _algebra;
 
-  public NonlinearLeastSquare(final double[] x, final double[] y, final double[] sigma) {
+  public NonLinearLeastSquare(final double[] x, final double[] y, final double[] sigma) {
     ArgumentChecker.notNull(x, "x");
     ArgumentChecker.notNull(y, "y");
     ArgumentChecker.notNull(x, "sigma");
