@@ -31,7 +31,6 @@ import com.opengamma.util.time.DateUtil;
  * Position master worker to modify a position.
  */
 public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker {
-  // TODO: transactions
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyPositionDbPositionMasterWorker.class);
