@@ -18,7 +18,7 @@ public class ConjugateGradientTest extends MultidimensionalMinimizerWithGradiant
 
   @Test
   public void testSolvingRosenbrock() {
-    super.testSolvingRosenbrock(MINIMISER, 10 * EPS);
+    super.testSolvingRosenbrock(MINIMISER, EPS);
   }
 
   @Test

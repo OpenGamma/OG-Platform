@@ -9,7 +9,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.opengamma.math.UtilFunctions;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.linearalgebra.LUDecompositionCommons;
@@ -19,13 +22,19 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.DoubleMatrixUtils;
 import com.opengamma.math.matrix.MatrixAlgebra;
 import com.opengamma.math.matrix.OGMatrixAlgebra;
+import com.opengamma.math.minimization.BrentMinimizer1D;
+import com.opengamma.math.minimization.ConjugateGradientVectorMinimizer;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.monitor.OperationTimer;
 
 /**
  * 
  */
 public class NonlinearLeastSquareTest {
+  private static final Logger s_logger = LoggerFactory.getLogger(NonlinearLeastSquareTest.class);
+  private static final int HOTSPOT_WARMUP_CYCLES = 200;
+  private static final int BENCHMARK_CYCLES = 1000;
 
   private static final NormalDistribution NORMAL = new NormalDistribution(0, 1.0);
   private static final double[] X;
@@ -92,6 +101,49 @@ public class NonlinearLeastSquareTest {
     assertEquals(0.0, res.getParameters().getEntry(3), 1e-8);
   }
 
+  public void solveExactFromChiSqTest() {
+    DoubleMatrix1D start = new DoubleMatrix1D(new double[] {1.2, 0.8, -0.2, -0.3});
+    Function1D<DoubleMatrix1D, Double> f = getChiSqFunction(X, Y, SIGMA, PARM_FUNCTION);
+    ConjugateGradientVectorMinimizer minimizer = new ConjugateGradientVectorMinimizer(new BrentMinimizer1D());
+    DoubleMatrix1D solution = minimizer.minimize(f, start);
+    assertEquals(0.0, f.evaluate(solution), 1e-8);
+    assertEquals(1.0, solution.getEntry(0), 1e-8);
+    assertEquals(1.0, solution.getEntry(1), 1e-8);
+    assertEquals(0.0, solution.getEntry(2), 1e-8);
+    assertEquals(0.0, solution.getEntry(3), 1e-8);
+
+  }
+
+  @Test
+  public void doExactHotSpot() {
+    for (int i = 0; i < HOTSPOT_WARMUP_CYCLES; i++) {
+      solveExactWithoutGradientTest();
+    }
+    if (BENCHMARK_CYCLES > 0) {
+      final OperationTimer timer = new OperationTimer(s_logger, "processing {} cycles on Levebberg-Marquardt",
+          BENCHMARK_CYCLES);
+      for (int i = 0; i < BENCHMARK_CYCLES; i++) {
+        solveExactWithoutGradientTest();
+      }
+      timer.finished();
+    }
+  }
+
+  @Test
+  public void doChiSqHotSpot() {
+    for (int i = 0; i < HOTSPOT_WARMUP_CYCLES; i++) {
+      solveExactFromChiSqTest();
+    }
+    if (BENCHMARK_CYCLES > 0) {
+      final OperationTimer timer = new OperationTimer(s_logger, "processing {} cycles on Conugate gradient",
+          BENCHMARK_CYCLES);
+      for (int i = 0; i < BENCHMARK_CYCLES; i++) {
+        solveExactFromChiSqTest();
+      }
+      timer.finished();
+    }
+  }
+
   @Test
   public void solveExactWithoutGradientTest() {
 
@@ -139,4 +191,39 @@ public class NonlinearLeastSquareTest {
     //    System.out.println("covariance: " + res.getCovariance());
     //    System.out.println("z: " + z);
   }
+
+  private Function1D<DoubleMatrix1D, Double> getChiSqFunction(final double[] x, final double[] y, double[] sigma,
+      final ParameterizedFunction<Double, DoubleMatrix1D, Double> paramFunc) {
+
+    final int n = x.length;
+    if (y.length != n) {
+      throw new IllegalArgumentException("y wrong length");
+    }
+    if (sigma.length != n) {
+      throw new IllegalArgumentException("sigma wrong length");
+    }
+
+    final double[] invSigmaSq = new double[n];
+    for (int i = 0; i < n; i++) {
+      if (sigma[i] <= 0.0) {
+        throw new IllegalArgumentException("invalide sigma");
+      }
+      invSigmaSq[i] = 1 / sigma[i] / sigma[i];
+    }
+
+    Function1D<DoubleMatrix1D, Double> func = new Function1D<DoubleMatrix1D, Double>() {
+      @Override
+      public Double evaluate(DoubleMatrix1D params) {
+        double sum = 0;
+        for (int k = 0; k < n; k++) {
+          sum += invSigmaSq[k] * UtilFunctions.square(y[k] - paramFunc.evaluate(x[k], params));
+        }
+        return sum;
+      }
+
+    };
+
+    return func;
+  }
+
 }

@@ -19,27 +19,36 @@ import com.opengamma.util.ArgumentChecker;
 public class ConjugateGradientVectorMinimizer implements VectorMinimizerWithGradient {
 
   private static final double SMALL = 1e-25;
-  private final double _eps;
+  private static final double DEFAULT_TOL = 1e-8;
+  private static final int DEFAULT_MAX_STEPS = 100;
+  private final double _relTol;
+  private final double _absTol;
   private final int _maxInterations;
   private final LineSearch _lineSearch;
 
   public ConjugateGradientVectorMinimizer(final ScalarMinimizer minimizer) {
-    ArgumentChecker.notNull(minimizer, "minimizer");
-    _lineSearch = new LineSearch(minimizer);
-    _eps = 1e-8;
-    _maxInterations = 100;
+    this(minimizer, DEFAULT_TOL, DEFAULT_MAX_STEPS);
   }
 
   public ConjugateGradientVectorMinimizer(final ScalarMinimizer minimizer, double tolerance, int maxInterations) {
+    this(minimizer, tolerance, tolerance, maxInterations);
+  }
+
+  public ConjugateGradientVectorMinimizer(final ScalarMinimizer minimizer, double relativeTolerance,
+      double absoluteTolerance, int maxInterations) {
     ArgumentChecker.notNull(minimizer, "minimizer");
-    if (tolerance < SMALL || tolerance > 1.0) {
-      throw new IllegalArgumentException("Tolerance must be greater than " + SMALL + " and less than 1.0");
+    if (relativeTolerance < 0.0 || relativeTolerance > 1.0) {
+      throw new IllegalArgumentException("relativeTolerance must be greater than " + 0.0 + " and less than 1.0");
+    }
+    if (absoluteTolerance < SMALL) {
+      throw new IllegalArgumentException("absoluteTolerance must be greater than " + SMALL);
     }
     if (maxInterations < 1) {
       throw new IllegalArgumentException("Need at lest one interation");
     }
     _lineSearch = new LineSearch(minimizer);
-    _eps = tolerance;
+    _relTol = relativeTolerance;
+    _absTol = absoluteTolerance;
     _maxInterations = maxInterations;
   }
 
@@ -78,11 +87,14 @@ public class ConjugateGradientVectorMinimizer implements VectorMinimizerWithGrad
       deltaOld = deltaNew;
       deltaNew = OG_ALGEBRA.getInnerProduct(g, g);
 
-      if (deltaNew < 1000 * _eps * _eps * delta0 //in practice may never get exactly zero gradient (especially if using finite difference to find it), so if shouldn't be the critical stopping criteria 
-          && OG_ALGEBRA.getNorm2(deltaX) < _eps * OG_ALGEBRA.getNorm2(x) + SMALL) {
+      //      if (x.getEntry(0) > 0.99 && x.getEntry(1) > 0.99) {
+      //        System.out.println("position:," + x.getEntry(0) + "," + x.getEntry(1));
+      //      }
+      if (Math.sqrt(deltaNew) < _relTol * delta0 + _absTol //in practice may never get exactly zero gradient (especially if using finite difference to find it), so if shouldn't be the critical stopping criteria 
+          && OG_ALGEBRA.getNorm2(deltaX) < _relTol * OG_ALGEBRA.getNorm2(x) + _absTol) {
         boolean flag = true;
         for (int i = 0; i < n; i++) {
-          if (Math.abs(deltaX.getEntry(i)) > _eps * Math.abs(x.getEntry(i)) + SMALL) {
+          if (Math.abs(deltaX.getEntry(i)) > _relTol * Math.abs(x.getEntry(i)) + _absTol) {
             flag = false;
             break;
           }
@@ -105,7 +117,7 @@ public class ConjugateGradientVectorMinimizer implements VectorMinimizerWithGrad
       }
     }
     String s = "ConjugateGradient Failed to converge after " + _maxInterations + " interations, with a tolerance of "
-        + _eps + " Final position reached was " + x.toString();
+        + _relTol + " Final position reached was " + x.toString();
     throw new ConvergenceException(s);
   }
 }
