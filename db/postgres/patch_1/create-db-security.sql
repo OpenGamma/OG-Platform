@@ -1,5 +1,52 @@
-
 -- create-db-security.sql: Security Master
+
+-- design has one document
+--  security and associated identity key
+-- bitemporal versioning exists at the document level
+-- each time a document is changed, a new row is written
+-- with only the end instant being changed on the old row
+
+create sequence sec_master_seq
+    start with 1000 increment by 1 no cycle;
+-- "as bigint" required by Derby, not accepted by Postgresql
+
+create table sec_security (
+    id bigint not null,
+    oid bigint not null,
+    ver_from_instant timestamp not null,
+    ver_to_instant timestamp not null,
+    corr_from_instant timestamp not null,
+    corr_to_instant timestamp not null,
+    name varchar(255) not null,
+    sec_type varchar(255) not null,
+    primary key (id),
+    constraint sec_chk_sec_ver_order check (ver_from_instant <= ver_to_instant),
+    constraint sec_chk_sec_corr_order check (corr_from_instant <= corr_to_instant)
+);
+
+create table sec_identitykey (
+    id bigint not null,
+    security_id bigint not null,
+    id_scheme varchar(255) not null,
+    id_value varchar(255) not null,
+    primary key (id),
+    constraint sec_fk_identitykey2position foreign key (security_id) references sec_security (id)
+);
+-- sec_identitykey is fully dependent of pos_position
+
+--
+--
+--
+create table sec_identifier_association (
+    id bigint not null,
+    security_discriminator varchar(255),
+    security_id bigint,
+    scheme varchar(255) not null,
+    identifier varchar(255) not null,
+    validStartDate timestamp,
+    validEndDate timestamp,
+    primary key (id)
+);
 
 create table sec_currency (
     id bigint not null,
@@ -28,17 +75,6 @@ create table sec_cashrate (
 create table sec_unit (
     id bigint not null,
     name varchar(255) not null unique,
-    primary key (id)
-);
-
-create table sec_identifier_association (
-    id bigint not null,
-    security_discriminator varchar(255),
-    security_id bigint,
-    scheme varchar(255) not null,
-    identifier varchar(255) not null,
-    validStartDate timestamp,
-    validEndDate timestamp,
     primary key (id)
 );
 

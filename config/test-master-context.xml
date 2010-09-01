@@ -32,6 +32,18 @@
     <property name="identifierScheme" value="DbPos" />
   </bean>
 
+  <bean id="derbyDbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
+    <constructor-arg>
+      <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="derbyDataSource"/>
+      </bean>
+    </constructor-arg>
+    <constructor-arg ref="dbTransactionDefinition" />
+    <constructor-arg><bean class="com.opengamma.util.db.DerbyDbHelper" /></constructor-arg>
+    <!-- property name="timeSource" -->
+    <property name="identifierScheme" value="DbSec" />
+  </bean>
+
   <bean id="postgresDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
     <property name="driverClassName" value="${postgres.jdbc.driver}"/>
     <property name="url" value="${postgres.jdbc.url}/test_${user.name}"/>
@@ -49,6 +61,18 @@
     <constructor-arg><bean class="com.opengamma.util.db.PostgreSQLDbHelper" /></constructor-arg>
     <!-- property name="timeSource" -->
     <property name="identifierScheme" value="DbPos" />
+  </bean>
+
+  <bean id="postgresDbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
+    <constructor-arg>
+      <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="postgresDataSource"/>
+      </bean>
+    </constructor-arg>
+    <constructor-arg ref="dbTransactionDefinition" />
+    <constructor-arg><bean class="com.opengamma.util.db.PostgreSQLDbHelper" /></constructor-arg>
+    <!-- property name="timeSource" -->
+    <property name="identifierScheme" value="DbSec" />
   </bean>
 
 </beans>
