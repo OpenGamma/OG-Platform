@@ -25,14 +25,14 @@ public interface BatchDbManager {
    * 
    * @param batch The batch job which is starting, not null
    */
-  void startBatch(BatchJob batch);
+  void startBatch(BatchJobRun batch);
 
   /**
    * Marks the batch as complete.
    * 
    * @param batch The batch job which has finished, not null
    */
-  void endBatch(BatchJob batch);
+  void endBatch(BatchJobRun batch);
   
   /**
    * Creates a LiveData snapshot in the database. 
@@ -88,6 +88,6 @@ public interface BatchDbManager {
    * @return A factory used to execute the batch dependency graph
    * and write results into the database.
    */
-  DependencyGraphExecutorFactory createDependencyGraphExecutorFactory(BatchJob batch);
+  DependencyGraphExecutorFactory<?> createDependencyGraphExecutorFactory(BatchJobRun batch);
   
 }

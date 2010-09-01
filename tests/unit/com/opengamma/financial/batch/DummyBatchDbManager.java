@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.time.calendar.OffsetTime;
 
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
+import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
 
 /**
  * 
@@ -18,11 +19,11 @@ import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 public class DummyBatchDbManager implements BatchDbManager {
 
   @Override
-  public void startBatch(BatchJob batch) {
+  public void startBatch(BatchJobRun batch) {
   }
 
   @Override
-  public void endBatch(BatchJob batch) {
+  public void endBatch(BatchJobRun batch) {
   }
 
   @Override
@@ -47,8 +48,8 @@ public class DummyBatchDbManager implements BatchDbManager {
   }
 
   @Override
-  public DependencyGraphExecutorFactory createDependencyGraphExecutorFactory(BatchJob batch) {
-    return null;
+  public DependencyGraphExecutorFactory<?> createDependencyGraphExecutorFactory(BatchJobRun batch) {
+    return new SingleNodeExecutorFactory();
   }
 
 }
