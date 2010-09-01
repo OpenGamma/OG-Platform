@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.math.statistics.LeastSquare;
+package com.opengamma.math.statistics.leastsquare;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -20,6 +20,8 @@ import com.opengamma.math.matrix.DoubleMatrixUtils;
 import com.opengamma.math.matrix.MatrixAlgebra;
 import com.opengamma.math.matrix.OGMatrixAlgebra;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.math.statistics.leastsquare.NonlinearLeastSquare;
 import com.opengamma.util.ArgumentChecker;
 
 /**

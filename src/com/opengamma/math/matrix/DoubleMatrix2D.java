@@ -25,8 +25,8 @@ public class DoubleMatrix2D implements Matrix<Double> {
 
   /**
    * Sets up an empty matrix 
-   * @param rows
-   * @param columns
+   * @param rows Number of rows
+   * @param columns Number of columns
    */
   public DoubleMatrix2D(final int rows, final int columns) {
     ArgumentChecker.notNegativeOrZero(rows, "rows");
@@ -84,12 +84,12 @@ public class DoubleMatrix2D implements Matrix<Double> {
     }
   }
 
-  public DoubleMatrix1D getRowVector(int index) {
+  public DoubleMatrix1D getRowVector(final int index) {
     return new DoubleMatrix1D(_data[index]);
   }
 
-  public DoubleMatrix1D getColumnVector(int index) {
-    double[] res = new double[_rows];
+  public DoubleMatrix1D getColumnVector(final int index) {
+    final double[] res = new double[_rows];
     for (int i = 0; i < _rows; i++) {
       res[i] = _data[i][index];
     }
@@ -117,7 +117,7 @@ public class DoubleMatrix2D implements Matrix<Double> {
    * @return array of arrays containing a copy of matrix elements
    */
   public double[][] toArray() {
-    DoubleMatrix2D temp = new DoubleMatrix2D(_data);
+    final DoubleMatrix2D temp = new DoubleMatrix2D(_data);
     return temp.getData();
   }
 

@@ -15,7 +15,6 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class LineSearch {
-  private static final double EPS = 1e-3;
   private final ScalarMinimizer _minimizer;
   private final MinimumBracketer _bracketer;
 
@@ -25,19 +24,17 @@ public class LineSearch {
     _bracketer = new ParabolicMinimumBracketer();
   }
 
-  public double minimise(final Function1D<DoubleMatrix1D, Double> function, final DoubleMatrix1D direction,
-      final DoubleMatrix1D x) {
+  public double minimise(final Function1D<DoubleMatrix1D, Double> function, final DoubleMatrix1D direction, final DoubleMatrix1D x) {
 
     final LineSearchHelper f = new LineSearchHelper(function, direction, x);
 
-    double[] bracketPoints = _bracketer.getBracketedPoints(f, 0, 1.0);
+    final double[] bracketPoints = _bracketer.getBracketedPoints(f, 0, 1.0);
     if (bracketPoints[2] < bracketPoints[0]) {
-      double temp = bracketPoints[0];
+      final double temp = bracketPoints[0];
       bracketPoints[0] = bracketPoints[2];
       bracketPoints[2] = temp;
     }
     return _minimizer.minimize(f, bracketPoints[1], bracketPoints[0], bracketPoints[2]);
-    //return _minimizer.minimize(f, 0.1, 0, 10);
   }
 
   private static class LineSearchHelper extends Function1D<Double, Double> {
@@ -45,8 +42,7 @@ public class LineSearch {
     private final DoubleMatrix1D _p;
     private final DoubleMatrix1D _x0;
 
-    public LineSearchHelper(final Function1D<DoubleMatrix1D, Double> function, final DoubleMatrix1D direction,
-        final DoubleMatrix1D x) {
+    public LineSearchHelper(final Function1D<DoubleMatrix1D, Double> function, final DoubleMatrix1D direction, final DoubleMatrix1D x) {
       _f = function;
       _p = direction;
       _x0 = x;
