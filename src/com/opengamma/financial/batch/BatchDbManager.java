@@ -77,6 +77,8 @@ public interface BatchDbManager {
    * 
    * @param snapshotId The date and time of the snapshot, not null
    * @return The fixings associated with this snapshot, not null
+   * @throws IllegalArgumentException If a snapshot with the given
+   * ID does not exist
    */
   Set<LiveDataValue> getSnapshotValues(SnapshotId snapshotId);
   

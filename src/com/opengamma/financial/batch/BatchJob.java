@@ -18,7 +18,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
-import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.OffsetDateTime;
@@ -34,6 +33,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.config.ConfigDocument;
@@ -80,6 +81,8 @@ import com.opengamma.util.time.DateUtil;
  * The entry point for running OpenGamma batches. 
  */
 public class BatchJob {
+  
+  private static final Logger s_logger = LoggerFactory.getLogger(BatchJob.class);
   
   // --------------------------------------------------------------------------
   
@@ -619,15 +622,16 @@ public class BatchJob {
         "First valuation date (inclusive). If daterangestart and daterangeend are given, " +
         "observationdate and snapshotobservationdate are calculated from the range and " +
         "must not be given explicitly. In addition, valuationtime must be a time, " +
-        "HHmmss[Z], instead of a datetime as shown above. Saturdays and Sundays " +
-        "will be ignored when calculating the set of days the batch will be run for.");
+        "HHmmss[Z], instead of a datetime as shown above. The batch will be run " +
+        "for those dates within the range for which there is a snapshot in the database. " +
+        "If there is no snapshot, that date is simply ignored.");
     options.addOption("daterangeend", "daterangeend", true, 
         "Last valuation date (inclusive). Optional.");
     
     return options;
   }
   
-  private Set<LocalDate> getRunDates(String dateRangeStart, String dateRangeEnd) {
+  private Set<LocalDate> getDates(String dateRangeStart, String dateRangeEnd) {
     ArgumentChecker.notNull(dateRangeStart, "Date range start");
     ArgumentChecker.notNull(dateRangeStart, "Date range end");
     
@@ -638,12 +642,8 @@ public class BatchJob {
     
     int difference = DateUtil.getDaysBetween(startDate, true, endDate, true);
     for (int i = 0; i < difference; i++) {
-      LocalDate candidateDate = startDate.plusDays(i);
-      
-      // TODO - use a holiday calendar here
-      if (candidateDate.getDayOfWeek() != DayOfWeek.SATURDAY && candidateDate.getDayOfWeek() != DayOfWeek.SUNDAY) {
-        dates.add(candidateDate);
-      }
+      LocalDate date = startDate.plusDays(i);
+      dates.add(date);
     }
     
     return dates;
@@ -679,7 +679,7 @@ public class BatchJob {
     
     if (dateRangeStart != null && dateRangeEnd != null) {
       // multiple runs, on many different dates
-      Set<LocalDate> runDates = getRunDates(dateRangeStart, dateRangeEnd);
+      Set<LocalDate> runDates = getDates(dateRangeStart, dateRangeEnd);
       
       for (LocalDate runDate : runDates) {
         BatchJobRun run = createRun(line);
@@ -698,7 +698,19 @@ public class BatchJob {
         run.setValuationTime(valuationTime);
         
         run.init();
-        addRun(run);
+        
+        boolean snapshotExists = true;
+        try {
+          _batchDbManager.getSnapshotValues(run.getSnapshotId());
+        } catch (IllegalArgumentException e) {
+          snapshotExists = false;
+        }
+        
+        if (snapshotExists) {
+          addRun(run);
+        } else {
+          s_logger.info("Not running for day {} because there is no snapshot", runDate);
+        }
       }
     
     } else {
@@ -716,6 +728,8 @@ public class BatchJob {
   
   public void execute() {
     for (BatchJobRun run : _runs) {
+      s_logger.info("Running {}", run);
+      
       createView(run);
       
       _batchDbManager.startBatch(run);
@@ -723,6 +737,8 @@ public class BatchJob {
       getView().runOneCycle(run.getValuationTime().toInstant().toEpochMillisLong());
       
       _batchDbManager.endBatch(run);
+      
+      s_logger.info("Completed {}", run);
     }
   }
   
@@ -736,10 +752,17 @@ public class BatchJob {
     
     try {
       job.parse(args);
+    } catch (Exception e) {
+      s_logger.error("Failed to parse command line", e);
+      usage(job.getOptions());
+      System.exit(-1);
+    }
+      
+    try {
       job.createViewDefinition();
       job.execute();
     } catch (Exception e) {
-      System.out.println(e.getMessage());
+      s_logger.error("Failed to run batch", e);
       usage(job.getOptions());
       System.exit(-1);
     }

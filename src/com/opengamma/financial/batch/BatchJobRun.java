@@ -279,7 +279,10 @@ public class BatchJobRun {
   
   @Override
   public String toString() {
-    return new ToStringBuilder(this).append("Run reason", getRunReason()).toString(); 
+    return new ToStringBuilder(this)
+      .append("Observation date", getObservationDate())
+      .append("Observation time", getObservationTime())
+      .append("Run reason", getRunReason()).toString(); 
   }
 
 }
