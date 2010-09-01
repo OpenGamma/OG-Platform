@@ -181,6 +181,7 @@ public class DateUtilTest {
     assertEquals(DateUtil.getDaysBetween(startDate, true, endDate, false), 366);
     assertEquals(DateUtil.getDaysBetween(startDate, false, endDate, true), 366);
     assertEquals(DateUtil.getDaysBetween(startDate, true, endDate, true), 367);
+    assertEquals(DateUtil.getDaysBetween(startDate, endDate), 366);
   }
   
   @Test

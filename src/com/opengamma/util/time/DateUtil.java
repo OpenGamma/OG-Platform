@@ -279,6 +279,18 @@ public class DateUtil {
     }
     return (endDate.toInstant().getEpochSeconds() - startDate.toInstant().getEpochSeconds()) / SECONDS_PER_DAY;
   }
+  
+  /**
+   * Calculates the number of days in between two dates.
+   * 
+   * @param startDate  the start date, not null
+   * @param endDate  the end date, not null
+   * @return the number of days between two dates
+   * @throws IllegalArgumentException if the date is null
+   */
+  public static int getDaysBetween(final DateProvider startDate, final DateProvider endDate) {
+    return getDaysBetween(startDate, true, endDate, false);    
+  }
 
   /**
    * Calculates the number of days in between two dates.
@@ -290,7 +302,7 @@ public class DateUtil {
    * @return the number of days between two dates
    * @throws IllegalArgumentException if the date is null
    */
-  public static int getDaysBetween(final ZonedDateTime startDate, final boolean includeStart, final ZonedDateTime endDate, final boolean includeEnd) {
+  public static int getDaysBetween(final DateProvider startDate, final boolean includeStart, final DateProvider endDate, final boolean includeEnd) {
     if (startDate == null) {
       throw new IllegalArgumentException("Start date was null");
     }
