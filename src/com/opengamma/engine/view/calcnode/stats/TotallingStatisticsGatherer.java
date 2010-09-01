@@ -31,8 +31,8 @@ public class TotallingStatisticsGatherer implements StatisticsGatherer {
   }
 
   @Override
-  public void jobCompleted(String nodeId, long executionTime, long duration) {
-    getOrCreateNodeStatistics(nodeId).recordSuccessfulJob(executionTime, duration);
+  public void jobCompleted(String nodeId, int jobItems, int jobCycleCost, long executionTime, long duration) {
+    getOrCreateNodeStatistics(nodeId).recordSuccessfulJob(jobItems, jobCycleCost, executionTime, duration);
   }
 
   @Override

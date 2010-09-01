@@ -90,15 +90,15 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
 
     private int _startTime;
     private int _startTimeCache;
-    private int _executionCost;
+    private int _cycleCost;
 
     public GraphFragment() {
     }
 
     public GraphFragment(final DependencyNode node) {
       _nodes.add(node);
-      // TODO this should be some metric relating to the computational overhead of the function
-      _executionCost = 1;
+      // TODO [ENG-201] this should be some metric relating to the computational overhead of the function
+      _cycleCost = 1;
     }
 
     public GraphFragment(final Collection<DependencyNode> nodes) {
@@ -126,7 +126,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     }
 
     public int getJobCost() {
-      return _executionCost;
+      return _cycleCost;
     }
 
     public int getStartTime(final int startTimeCache) {
@@ -136,7 +136,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
       _startTimeCache = startTimeCache;
       int latest = 0;
       for (GraphFragment input : _inputs) {
-        final int finish = input.getStartTime(startTimeCache) + input._executionCost;
+        final int finish = input.getStartTime(startTimeCache) + input._cycleCost;
         if (finish > latest) {
           latest = finish;
         }
@@ -150,12 +150,12 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
       while (nodeIterator.hasNext()) {
         _nodes.addFirst(nodeIterator.next());
       }
-      _executionCost += fragment._executionCost;
+      _cycleCost += fragment._cycleCost;
     }
 
     public void appendFragment(final GraphFragment fragment) {
       _nodes.addAll(fragment._nodes);
-      _executionCost += fragment._executionCost;
+      _cycleCost += fragment._cycleCost;
     }
 
     public void inputCompleted(final DependencyGraph graph) {
@@ -223,7 +223,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
 
     @Override
     public String toString() {
-      return _graphFragmentIdentifier + ": " + _nodes.size() + " dep. node(s), earliestStart=" + _startTime + ", executionCost=" + _executionCost;
+      return _graphFragmentIdentifier + ": " + _nodes.size() + " dep. node(s), earliestStart=" + _startTime + ", executionCost=" + _cycleCost;
     }
 
     @Override

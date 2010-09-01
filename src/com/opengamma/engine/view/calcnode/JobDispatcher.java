@@ -72,7 +72,10 @@ public class JobDispatcher implements JobInvokerRegister {
         final long durationNanos = getDurationNanos();
         s_logger.debug("Reported time = {}ms, non-executing job time = {}ms", (double) result.getDuration() / 1000000d, ((double) durationNanos - (double) result.getDuration()) / 1000000d);
         if (getStatisticsGatherer() != null) {
-          getStatisticsGatherer().jobCompleted(result.getComputeNodeId(), result.getDuration(), getDurationNanos());
+          final Collection<CalculationJobItem> items = getJob().getJobItems();
+          final int cost = items.size();
+          // TODO [ENG-201] Report a better cost metric than the number of items
+          getStatisticsGatherer().jobCompleted(result.getComputeNodeId(), items.size(), cost, result.getDuration(), getDurationNanos());
         }
       } else {
         s_logger.warn("Job {} completed on node {} but we've already completed or aborted from another node", getJob().getSpecification().getJobId(), result.getComputeNodeId());
