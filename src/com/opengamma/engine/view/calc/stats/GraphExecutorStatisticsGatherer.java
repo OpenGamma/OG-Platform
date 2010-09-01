@@ -19,7 +19,7 @@ public interface GraphExecutorStatisticsGatherer {
    * @param meanJobSize Mean size of the jobs.
    * @param meanJobCycleCost Mean computational cost of the jobs.
    */
-  void graphProcessed(String calcConfig, int totalJobs, int meanJobSize, int meanJobCycleCost);
+  void graphProcessed(String calcConfig, int totalJobs, double meanJobSize, double meanJobCycleCost);
   
   /**
    * Reports a graph successfully executed by a {@link JobDispatcher}.

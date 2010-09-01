@@ -22,7 +22,7 @@ public class TotallingStatisticsGatherer implements CalculationNodeStatisticsGat
     CalculationNodeStatistics stats = _nodeStatistics.get(nodeId);
     if (stats == null) {
       stats = new CalculationNodeStatistics(nodeId);
-      CalculationNodeStatistics newStats = _nodeStatistics.putIfAbsent(nodeId, stats);
+      final CalculationNodeStatistics newStats = _nodeStatistics.putIfAbsent(nodeId, stats);
       if (newStats != null) {
         stats = newStats;
       }

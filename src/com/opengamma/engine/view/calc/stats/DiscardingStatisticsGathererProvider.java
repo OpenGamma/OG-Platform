@@ -13,7 +13,10 @@ import com.opengamma.engine.view.View;
  */
 public class DiscardingStatisticsGathererProvider implements GraphExecutorStatisticsGathererProvider {
 
-  private final GraphExecutorStatisticsGatherer _gatherer = new GraphExecutorStatisticsGatherer() {
+  /**
+   * Instance of a statistics gatherer that doesn't do anything.
+   */
+  public static final GraphExecutorStatisticsGatherer GATHERER_INSTANCE = new GraphExecutorStatisticsGatherer() {
 
     @Override
     public void graphExecuted(String calcConfig, int nodeCount, long executionTime, long duration) {
@@ -21,14 +24,14 @@ public class DiscardingStatisticsGathererProvider implements GraphExecutorStatis
     }
 
     @Override
-    public void graphProcessed(String calcConfig, int totalJobs, int meanJobSize, int meanJobCycleCost) {
+    public void graphProcessed(String calcConfig, int totalJobs, double meanJobSize, double meanJobCycleCost) {
       // No action
     }
 
   };
 
   public GraphExecutorStatisticsGatherer getStatisticsGatherer(final View view) {
-    return _gatherer;
+    return GATHERER_INSTANCE;
   }
 
 }

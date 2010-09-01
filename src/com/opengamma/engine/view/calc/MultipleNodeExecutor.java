@@ -20,6 +20,7 @@ import java.util.TreeMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -88,6 +89,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     private DependencyGraph _graph;
     private Map<CalculationJobItem, DependencyNode> _item2Node;
     private AtomicInteger _blockCount;
+    private AtomicLong _executionTime;
 
     private int _startTime;
     private int _startTimeCache;
@@ -112,6 +114,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
 
     public void initBlockCount() {
       _blockCount = new AtomicInteger(_inputs.size());
+      _executionTime = new AtomicLong();
     }
 
     public Set<GraphFragment> getInputs() {
@@ -126,7 +129,12 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
       return _nodes.size();
     }
 
+    public int getJobCycleCost() {
+      return _cycleCost;
+    }
+
     public int getJobCost() {
+      // TODO [ENG-202] this would include data costs from shared cache I/O
       return _cycleCost;
     }
 
@@ -159,7 +167,8 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
       _cycleCost += fragment._cycleCost;
     }
 
-    public void inputCompleted(final DependencyGraph graph) {
+    public void inputCompleted(final DependencyGraph graph, final long executionTime) {
+      _executionTime.addAndGet(executionTime);
       final int blockCount = _blockCount.decrementAndGet();
       if (blockCount == 0) {
         execute(graph);
@@ -242,12 +251,23 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
         }
       }
       // Release tree fragments up the tree
+      long executionTime = getExecutionTime();
       for (GraphFragment dependent : _dependencies) {
-        dependent.inputCompleted(_graph);
+        dependent.inputCompleted(_graph, executionTime + result.getDuration());
+        executionTime = 0;
       }
       // Release memory we don't need any more
       _item2Node = null;
       _graph = null;
+      _executionTime = null;
+    }
+
+    protected long getExecutionTime() {
+      return (_executionTime != null) ? _executionTime.get() : 0;
+    }
+
+    protected DependencyGraph getGraph() {
+      return _graph;
     }
 
   }
@@ -255,17 +275,24 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
   /* package */class RootGraphFragment extends GraphFragment {
 
     private final FutureTask<Object> _future = new FutureTask<Object>(NO_OP, null);
+    private final GraphExecutorStatisticsGatherer _statistics;
+    private final long _jobStarted = System.nanoTime();
 
-    public RootGraphFragment() {
+    public RootGraphFragment(final GraphExecutorStatisticsGatherer statistics) {
+      _statistics = statistics;
     }
 
-    public RootGraphFragment(final Collection<DependencyNode> nodes) {
+    public RootGraphFragment(final GraphExecutorStatisticsGatherer statistics, final Collection<DependencyNode> nodes) {
       super(nodes);
+      _statistics = statistics;
     }
 
     @Override
     public void execute(final DependencyGraph graph) {
       _future.run();
+      if (graph != null) {
+        _statistics.graphExecuted(graph.getCalcConfName(), graph.getSize(), getExecutionTime(), System.nanoTime() - _jobStarted);
+      }
     }
 
     /**
@@ -276,20 +303,23 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     public void resultReceived(final CalculationJobResult result) {
       super.resultReceived(result);
       execute(null);
+      _statistics.graphExecuted(getGraph().getCalcConfName(), getGraph().getSize(), result.getDuration(), System.nanoTime() - _jobStarted);
     }
 
   }
 
-  protected RootGraphFragment executeImpl(final DependencyGraph graph) {
+  protected RootGraphFragment executeImpl(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
     // writeGraphForTestingPurposes(graph);
     if (graph.getSize() <= getMinJobItems()) {
       // If the graph is too small, run it as-is
-      final RootGraphFragment fragment = new RootGraphFragment(graph.getExecutionOrder());
+      // TODO [ENG-201] pass cycle cost, not graph size
+      statistics.graphProcessed(graph.getCalcConfName(), 1, graph.getSize(), graph.getSize());
+      final RootGraphFragment fragment = new RootGraphFragment(statistics, graph.getExecutionOrder());
       fragment.executeImpl(graph);
       return fragment;
     }
     final Set<GraphFragment> allFragments = new HashSet<GraphFragment>((graph.getSize() * 4) / 3);
-    final RootGraphFragment logicalRoot = new RootGraphFragment();
+    final RootGraphFragment logicalRoot = new RootGraphFragment(statistics);
     for (GraphFragment root : graphToFragments(graph, allFragments)) {
       root.getDependencies().add(logicalRoot);
       logicalRoot.getInputs().add(root);
@@ -321,13 +351,19 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     // Set block counts on non-leaf nodes
     logicalRoot.initBlockCount();
     final Iterator<GraphFragment> fragmentIterator = allFragments.iterator();
+    final int count = allFragments.size();
+    int totalSize = 0;
+    int totalCycleCost = 0;
     while (fragmentIterator.hasNext()) {
       final GraphFragment fragment = fragmentIterator.next();
+      totalSize += fragment.getJobItems();
+      totalCycleCost += fragment.getJobCycleCost();
       if (!fragment.getInputs().isEmpty()) {
         fragment.initBlockCount();
         fragmentIterator.remove();
       }
     }
+    statistics.graphProcessed(graph.getCalcConfName(), count, (double) totalSize / (double) count, (double) totalCycleCost / (double) count);
     // Execute anything left (leaf nodes)
     for (GraphFragment fragment : allFragments) {
       fragment.execute(graph);
@@ -337,7 +373,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
 
   @Override
   public Future<Object> execute(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
-    return executeImpl(graph)._future;
+    return executeImpl(graph, statistics)._future;
   }
 
   public int getMinJobItems() {

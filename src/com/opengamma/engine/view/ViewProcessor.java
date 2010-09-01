@@ -34,7 +34,7 @@ import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
-import com.opengamma.engine.view.calc.stats.DiscardingStatisticsGathererProvider;
+import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.permission.ViewPermission;
@@ -68,6 +68,7 @@ public class ViewProcessor implements Lifecycle {
   private DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private ViewPermissionProvider _viewPermissionProvider;
   private Map<String, Object> _configurationResource;
+  private GraphExecutorStatisticsGathererProvider _graphExecutionStatistics;
   // State:
   private final ConcurrentMap<String, View> _viewsByName = new ConcurrentHashMap<String, View>();
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
@@ -256,6 +257,14 @@ public class ViewProcessor implements Lifecycle {
     return _configurationResource;
   }
 
+  public void setGraphExecutionStatistics(final GraphExecutorStatisticsGathererProvider graphExecutorStatistics) {
+    _graphExecutionStatistics = graphExecutorStatistics;
+  }
+
+  public GraphExecutorStatisticsGathererProvider getGraphExecutionStatistics() {
+    return _graphExecutionStatistics;
+  }
+
   /**
    * @return the executorService
    */
@@ -339,7 +348,7 @@ public class ViewProcessor implements Lifecycle {
     ViewProcessingContext vpc = new ViewProcessingContext(getLiveDataClient(), getLiveDataAvailabilityProvider(), new CombiningLiveDataSnapshotProvider(Arrays.asList(viewLevelLiveData,
         getLiveDataSnapshotProvider())), functionRepository, new DefaultFunctionResolver(functionRepository), getPositionSource(), getSecuritySource(), getComputationCacheSource(),
         getComputationJobDispatcher(), getViewProcessorQueryReceiver(), getFunctionCompilationService().getFunctionCompilationContext(), getExecutorService(), getDependencyGraphExecutorFactory(),
-        getViewPermissionProvider(), new DiscardingStatisticsGathererProvider());
+        getViewPermissionProvider(), getGraphExecutionStatistics());
     View freshView = new View(viewDefinition, vpc, viewLevelLiveData);
     View actualView = _viewsByName.putIfAbsent(viewName, freshView);
     if (actualView == null) {
