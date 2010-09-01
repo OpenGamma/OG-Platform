@@ -1,3 +1,5 @@
+-- create-db-position.sql: Position Master
+
 -- design has two documents
 --  portfolio and tree of nodes (nested set model)
 --  position and associated security key
