@@ -1,13 +1,11 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view;
 
 import java.util.concurrent.ExecutorService;
-
-import org.quartz.impl.calendar.HolidayCalendar;
 
 import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
@@ -21,6 +19,7 @@ import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
+import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.compilation.ViewCompilationServices;
@@ -48,22 +47,12 @@ public class ViewProcessingContext {
   private final ExecutorService _executorService;
   private final DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private final ViewPermissionProvider _permissionProvider;
+  private final GraphExecutorStatisticsGathererProvider _graphExecutorStatisticsGathererProvider;
 
-  public ViewProcessingContext(
-      LiveDataEntitlementChecker liveDataEntitlementChecker,
-      LiveDataAvailabilityProvider liveDataAvailabilityProvider,
-      LiveDataSnapshotProvider liveDataSnapshotProvider,
-      FunctionRepository functionRepository,
-      FunctionResolver functionResolver,
-      PositionSource positionSource,
-      SecuritySource securitySource,
-      ViewComputationCacheSource computationCacheSource,
-      JobDispatcher computationJobDispatcher,
-      ViewProcessorQueryReceiver viewProcessorQueryReceiver,
-      FunctionCompilationContext compilationContext,
-      ExecutorService executorService,
-      DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory,
-      ViewPermissionProvider permissionProvider) {
+  public ViewProcessingContext(LiveDataEntitlementChecker liveDataEntitlementChecker, LiveDataAvailabilityProvider liveDataAvailabilityProvider, LiveDataSnapshotProvider liveDataSnapshotProvider,
+      FunctionRepository functionRepository, FunctionResolver functionResolver, PositionSource positionSource, SecuritySource securitySource, ViewComputationCacheSource computationCacheSource,
+      JobDispatcher computationJobDispatcher, ViewProcessorQueryReceiver viewProcessorQueryReceiver, FunctionCompilationContext compilationContext, ExecutorService executorService,
+      DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory, ViewPermissionProvider permissionProvider, GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider) {
     ArgumentChecker.notNull(liveDataEntitlementChecker, "liveDataEntitlementChecker");
     ArgumentChecker.notNull(liveDataAvailabilityProvider, "liveDataAvailabilityProvider");
     ArgumentChecker.notNull(liveDataSnapshotProvider, "liveDataSnapshotProvider");
@@ -78,7 +67,8 @@ public class ViewProcessingContext {
     ArgumentChecker.notNull(executorService, "executorService");
     ArgumentChecker.notNull(dependencyGraphExecutorFactory, "dependencyGraphExecutorFactory");
     ArgumentChecker.notNull(permissionProvider, "permissionProvider");
-    
+    ArgumentChecker.notNull(graphExecutorStatisticsProvider, "graphExecutorStatisticsProvider");
+
     _liveDataEntitlementChecker = liveDataEntitlementChecker;
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
     _liveDataSnapshotProvider = liveDataSnapshotProvider;
@@ -93,12 +83,13 @@ public class ViewProcessingContext {
     _executorService = executorService;
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
     _permissionProvider = permissionProvider;
-    
+    _graphExecutorStatisticsGathererProvider = graphExecutorStatisticsProvider;
+
     // REVIEW kirk 2010-05-22 -- This isn't the right place to wrap this.
     _computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource));
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Gets the live data entitlement checker.
    * @return the live data entitlement checker, not null
@@ -205,7 +196,7 @@ public class ViewProcessingContext {
   public ExecutorService getExecutorService() {
     return _executorService;
   }
-  
+
   /**
    * Gets the dependency graph executor factory.
    * 
@@ -214,7 +205,7 @@ public class ViewProcessingContext {
   public DependencyGraphExecutorFactory<?> getDependencyGraphExecutorFactory() {
     return _dependencyGraphExecutorFactory;
   }
-  
+
   /**
    * Gets the view permission provider.
    * 
@@ -223,20 +214,18 @@ public class ViewProcessingContext {
   public ViewPermissionProvider getPermissionProvider() {
     return _permissionProvider;
   }
-  
-  //-------------------------------------------------------------------------
+
+  public GraphExecutorStatisticsGathererProvider getGraphExecutorStatisticsGathererProvider() {
+    return _graphExecutorStatisticsGathererProvider;
+  }
+
+  // -------------------------------------------------------------------------
   /**
    * Converts this context to a {@code ViewCompliationServices}.
    * @return the services, not null
    */
   public ViewCompilationServices asCompilationServices() {
-    return new ViewCompilationServices(
-        getLiveDataAvailabilityProvider(),
-        getFunctionResolver(),
-        getCompilationContext(),
-        getComputationTargetResolver(),
-        getExecutorService(),
-        getSecuritySource(),
+    return new ViewCompilationServices(getLiveDataAvailabilityProvider(), getFunctionResolver(), getCompilationContext(), getComputationTargetResolver(), getExecutorService(), getSecuritySource(),
         getPositionSource());
   }
 

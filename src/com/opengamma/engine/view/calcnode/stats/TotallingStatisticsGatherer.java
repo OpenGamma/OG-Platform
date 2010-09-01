@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * Maintains ever increasing tallies of the reported metrics. 
  */
-public class TotallingStatisticsGatherer implements StatisticsGatherer {
+public class TotallingStatisticsGatherer implements CalculationNodeStatisticsGatherer {
 
   private final ConcurrentMap<String, CalculationNodeStatistics> _nodeStatistics = new ConcurrentHashMap<String, CalculationNodeStatistics>();
 

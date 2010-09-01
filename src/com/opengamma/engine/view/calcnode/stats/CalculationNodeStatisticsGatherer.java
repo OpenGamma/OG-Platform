@@ -9,7 +9,7 @@ package com.opengamma.engine.view.calcnode.stats;
 /**
  * Receives information about job execution from the {@link JobDispatcher}.
  */
-public interface StatisticsGatherer {
+public interface CalculationNodeStatisticsGatherer {
 
   /**
    * Reports a job successfully completed.

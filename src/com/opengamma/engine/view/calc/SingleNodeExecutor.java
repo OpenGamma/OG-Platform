@@ -25,6 +25,7 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.CacheSelectHint;
+import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
@@ -55,7 +56,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
   }
 
   @Override
-  public Future<CalculationJobResult> execute(final DependencyGraph graph) {
+  public Future<CalculationJobResult> execute(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
     long jobId = JobIdSource.getId();
     CalculationJobSpecification jobSpec = new CalculationJobSpecification(_cycle.getViewName(), graph.getCalcConfName(), _cycle.getValuationTime().toEpochMillisLong(), jobId);
 

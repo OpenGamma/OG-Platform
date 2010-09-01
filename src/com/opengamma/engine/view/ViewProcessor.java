@@ -34,6 +34,7 @@ import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
+import com.opengamma.engine.view.calc.stats.DiscardingStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.permission.ViewPermission;
@@ -338,7 +339,7 @@ public class ViewProcessor implements Lifecycle {
     ViewProcessingContext vpc = new ViewProcessingContext(getLiveDataClient(), getLiveDataAvailabilityProvider(), new CombiningLiveDataSnapshotProvider(Arrays.asList(viewLevelLiveData,
         getLiveDataSnapshotProvider())), functionRepository, new DefaultFunctionResolver(functionRepository), getPositionSource(), getSecuritySource(), getComputationCacheSource(),
         getComputationJobDispatcher(), getViewProcessorQueryReceiver(), getFunctionCompilationService().getFunctionCompilationContext(), getExecutorService(), getDependencyGraphExecutorFactory(),
-        getViewPermissionProvider());
+        getViewPermissionProvider(), new DiscardingStatisticsGathererProvider());
     View freshView = new View(viewDefinition, vpc, viewLevelLiveData);
     View actualView = _viewsByName.putIfAbsent(viewName, freshView);
     if (actualView == null) {
