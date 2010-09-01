@@ -38,7 +38,7 @@ public class DbPositionMasterTest extends DBTest {
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    final String contextLocation =  "config/test-position-master-context.xml";
+    final String contextLocation =  "config/test-master-context.xml";
     final ApplicationContext context = new FileSystemXmlApplicationContext(contextLocation);
     _posMaster = (DbPositionMaster) context.getBean(getDatabaseType()+"DbPositionMaster");
   }

@@ -47,7 +47,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    final String contextLocation =  "config/test-position-master-context.xml";
+    final String contextLocation =  "config/test-master-context.xml";
     _springApplicationContext = new FileSystemXmlApplicationContext(contextLocation);
     _posMaster = (DbPositionMaster) _springApplicationContext.getBean(getDatabaseType() + "DbPositionMaster");
     
