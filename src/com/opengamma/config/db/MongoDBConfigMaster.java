@@ -319,7 +319,9 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
     }
     
     ConfigSearchResult<T> configSearchResult = new ConfigSearchResult<T>();
-    configSearchResult.getDocuments().add(lookupByName);
+    if (lookupByName != null) {
+      configSearchResult.getDocuments().add(lookupByName);
+    }
     
     return configSearchResult;
   }

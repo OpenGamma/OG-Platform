@@ -243,19 +243,19 @@ public abstract class MongoDBConfigMasterTestCase<T extends Serializable> {
     assertNull(findByName);
     
   }
-/**
-   * @param name
-   * @param after1
-   * @return
-   */
+
   private ConfigDocument<T> searchByNameWithEffectiveTime(String name, Instant time) {
     ConfigSearchRequest request = new ConfigSearchRequest();
     request.setName(name);
     request.setEffectiveTime(time);
     ConfigSearchResult<T> searchResult = _configMaster.search(request);
     List<ConfigDocument<T>> documents = searchResult.getDocuments();
-    assertTrue(documents.size() == 1);
-    return documents.get(0);
+    if (documents.isEmpty()) {
+      return null;
+    } else {
+      assertTrue(documents.size() == 1);
+      return documents.get(0);
+    }
   }
 
     

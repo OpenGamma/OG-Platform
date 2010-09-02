@@ -27,15 +27,14 @@ import com.opengamma.util.test.MongoDBTestUtils;
 public class UniqueIdentifierConfigMasterTest extends MongoDBConfigMasterTestCase<UniqueIdentifier> {
 
   private Random _random = new Random();
-
+  private MongoDBConnectionSettings _mongoSettings;
+  
   /**
    * @param entityType
    */
   public UniqueIdentifierConfigMasterTest() {
     super(UniqueIdentifier.class);
   }
-
-  private MongoDBConnectionSettings _mongoSettings;
 
   /**
    * @throws java.lang.Exception
