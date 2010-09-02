@@ -25,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * MongoDBMasterConfigSource is setup with all the supported ConfigMaster Types
- * and delegates search and call methods to the appropiate ConfigMaster
+ * and delegates search and call methods to the appropriate ConfigMaster
  */
 public class MongoDBMasterConfigSource implements ConfigSource {
   
