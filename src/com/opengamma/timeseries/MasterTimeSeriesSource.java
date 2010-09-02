@@ -37,13 +37,13 @@ public class MasterTimeSeriesSource implements HistoricalDataSource {
   /**
    * The timeseries request resolver
    */
-  private final TimeSeriesResolver _timeSeriesResolver;
+  private final TimeSeriesMetaDataResolver _timeSeriesResolver;
 
   /**
    * @param timeSeriesMaster the timeseries master, not-null
    * @param tsResolver the _timeSeries resolver, not-null
    */
-  public MasterTimeSeriesSource(TimeSeriesMaster timeSeriesMaster, TimeSeriesResolver tsResolver) {
+  public MasterTimeSeriesSource(TimeSeriesMaster timeSeriesMaster, TimeSeriesMetaDataResolver tsResolver) {
     ArgumentChecker.notNull(timeSeriesMaster, "timeSeriesMaster");
     ArgumentChecker.notNull(tsResolver, "timeSeriesResolver");
     _timeSeriesMaster = timeSeriesMaster;
@@ -125,7 +125,7 @@ public class MasterTimeSeriesSource implements HistoricalDataSource {
   @Override
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate start, LocalDate end) {
     ArgumentChecker.isTrue(identifiers != null && !identifiers.getIdentifiers().isEmpty(), "Cannot get historical data with null/empty identifiers");
-    TimeSeriesMetaData metaData = _timeSeriesResolver.resolve(identifiers);
+    TimeSeriesMetaData metaData = _timeSeriesResolver.getDefaultMetaData(identifiers);
     Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> result = new ObjectsPair<UniqueIdentifier, LocalDateDoubleTimeSeries>(null, new ArrayLocalDateDoubleTimeSeries());
     if (metaData != null) {
       result = getHistoricalData(identifiers, metaData.getDataSource(), metaData.getDataProvider(), metaData.getDataField(), start, end);

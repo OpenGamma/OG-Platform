@@ -39,7 +39,7 @@ public class MasterTimeSeriesSourceTest {
   private static final IdentifierBundle IDENTIFIERS = IdentifierBundle.of(Identifier.of("A", "B"));
   
   private TimeSeriesMaster _mockMaster;
-  private TimeSeriesResolver _mockResolver;
+  private TimeSeriesMetaDataResolver _mockResolver;
   private MasterTimeSeriesSource _tsSource;
   
   /**
@@ -48,7 +48,7 @@ public class MasterTimeSeriesSourceTest {
   @Before
   public void setUp() throws Exception {
     _mockMaster = mock(TimeSeriesMaster.class);
-    _mockResolver = mock(TimeSeriesResolver.class);
+    _mockResolver = mock(TimeSeriesMetaDataResolver.class);
     _tsSource = new MasterTimeSeriesSource(_mockMaster, _mockResolver);
   }
 
@@ -65,7 +65,7 @@ public class MasterTimeSeriesSourceTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void constructorWith1ArgNull() throws Exception {
-    TimeSeriesResolver mock = mock(TimeSeriesResolver.class);
+    TimeSeriesMetaDataResolver mock = mock(TimeSeriesMetaDataResolver.class);
     new MasterTimeSeriesSource(null, mock);
   }
   
@@ -167,7 +167,7 @@ public class MasterTimeSeriesSourceTest {
     metaData.setIdentifiers(IDENTIFIERS);
     
     when(_mockMaster.searchTimeSeries(request)).thenReturn(searchResult);
-    when(_mockResolver.resolve(IDENTIFIERS)).thenReturn(metaData);
+    when(_mockResolver.getDefaultMetaData(IDENTIFIERS)).thenReturn(metaData);
     
     Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = _tsSource.getHistoricalData(IDENTIFIERS);
     verify(_mockMaster, times(1)).searchTimeSeries(request);

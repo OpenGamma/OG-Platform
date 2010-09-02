@@ -22,7 +22,6 @@ import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.db.PagingRequest;
 
@@ -166,10 +165,10 @@ public class TimeSeriesSearchRequest extends DirectBean {
         setEnd((LocalDate) newValue);
         return;
       case 1833789738:  // loadTimeSeries
-        setLoadTimeSeries((boolean) (Boolean) newValue);
+        setLoadTimeSeries((Boolean) newValue);
         return;
       case 1364095295:  // loadDates
-        setLoadDates((boolean) (Boolean) newValue);
+        setLoadDates((Boolean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);

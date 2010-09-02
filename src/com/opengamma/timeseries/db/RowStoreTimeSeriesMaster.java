@@ -100,7 +100,6 @@ import com.opengamma.timeseries.ObservationTimeBean;
 import com.opengamma.timeseries.SchemeBean;
 import com.opengamma.timeseries.TimeSeriesDocument;
 import com.opengamma.timeseries.TimeSeriesMaster;
-import com.opengamma.timeseries.TimeSeriesMetaData;
 import com.opengamma.timeseries.TimeSeriesSearchHistoricRequest;
 import com.opengamma.timeseries.TimeSeriesSearchHistoricResult;
 import com.opengamma.timeseries.TimeSeriesSearchRequest;
@@ -235,7 +234,7 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
         .addValue("dataProvider", dataProvider, Types.VARCHAR)
         .addValue("observationTime", observationTime, Types.VARCHAR);
       
-      List<TimeSeriesMetaData> tsMetaDataList = _simpleJdbcTemplate.query(sql, new TimeSeriesMetaDataRowMapper(), parameters);
+      List<MetaData> tsMetaDataList = _simpleJdbcTemplate.query(sql, new TimeSeriesMetaDataRowMapper(), parameters);
       if (!tsMetaDataList.isEmpty()) {
         throw new IllegalArgumentException("cannot add duplicate TimeSeries for identifiers " + identifiers);
       }
@@ -705,9 +704,9 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     ArgumentChecker.isTrue(!StringUtils.isBlank(document.getDataProvider()), "cannot add timeseries with blank dataProvider");
   }
   
-  private TimeSeriesMetaData getTimeSeriesMetaData(long tsId) {
+  private MetaData getTimeSeriesMetaData(long tsId) {
     
-    TimeSeriesMetaData result = new TimeSeriesMetaData();
+    MetaData result = new MetaData();
     
     final Set<Identifier> identifiers = new HashSet<Identifier>();
     final Set<String> dataSourceSet = new HashSet<String>();
@@ -763,7 +762,7 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     TimeSeriesDocument result = new TimeSeriesDocument();
     result.setUniqueIdentifier(uid);
     
-    TimeSeriesMetaData metaData = getTimeSeriesMetaData(tsId);
+    MetaData metaData = getTimeSeriesMetaData(tsId);
     
     result.setIdentifiers(metaData.getIdentifiers());
     result.setDataField(metaData.getDataField());
@@ -956,7 +955,7 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     UniqueIdentifier uid = request.getTimeSeriesId();
     if (uid != null) {
       long tsId = validateAndGetTimeSeriesId(uid);
-      TimeSeriesMetaData tsMetaData = getTimeSeriesMetaData(tsId);
+      MetaData tsMetaData = getTimeSeriesMetaData(tsId);
       s_logger.debug("tsMetaData={}", tsMetaData);
       TimeSeriesDocument document = new TimeSeriesDocument();
       document.setDataField(tsMetaData.getDataField());
@@ -1011,8 +1010,8 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
       TimeSeriesMetaDataRowMapper rowMapper = new TimeSeriesMetaDataRowMapper();
       rowMapper.setLoadDates(request.isLoadDates());
       
-      List<TimeSeriesMetaData> tsMetaDataList = _simpleJdbcTemplate.query(metaDataSql, rowMapper, parameters);
-      for (TimeSeriesMetaData tsMetaData : tsMetaDataList) {
+      List<MetaData> tsMetaDataList = _simpleJdbcTemplate.query(metaDataSql, rowMapper, parameters);
+      for (MetaData tsMetaData : tsMetaDataList) {
         TimeSeriesDocument document = new TimeSeriesDocument();
         Long bundleId = tsMetaData.getIdentifierBundleId();
         long timeSeriesKey = tsMetaData.getTimeSeriesId();
@@ -1097,25 +1096,12 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
   @Override
   @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
   public TimeSeriesDocument updateTimeSeries(TimeSeriesDocument document) {
-    validateTimeSeriesDocument(document);
+    ArgumentChecker.notNull(document, "timeseries document");
+    ArgumentChecker.notNull(document.getTimeSeries(), "Timeseries");
     Long tsId = validateAndGetTimeSeriesId(document.getUniqueIdentifier());
-    
-    TimeSeriesMetaData metaData = getTimeSeriesMetaData(tsId);
-    if (!metaData.getDataField().equals(document.getDataField())) {
-      throw new OpenGammaRuntimeException("Cannot modify datafield for id: " + tsId);
-    }
-    if (!metaData.getDataProvider().equals(document.getDataProvider())) {
-      throw new OpenGammaRuntimeException("Cannot modify dataProvider for id: " + tsId);
-    }
-    if (!metaData.getDataSource().equals(document.getDataSource())) {
-      throw new OpenGammaRuntimeException("Cannot modify dataSource for id: " + tsId);
-    }
-    if (!metaData.getObservationTime().equals(document.getObservationTime())) {
-      throw new OpenGammaRuntimeException("Cannot modify ObservationTime for id: " + tsId);
-    }
-    if (!metaData.getIdentifiers().equals(document.getIdentifiers())) {
-      throw new OpenGammaRuntimeException("Cannot modify Identifiers for id: " + tsId);
-    }
+    //check we have timeseries with given Id
+    //getTimeSeriesMetaData() will throw DataNotFoundException if Id is not present
+    getTimeSeriesMetaData(tsId);
     
     deleteDataPoints(tsId);
     insertDataPoints(document.getTimeSeries().toSQLDateDoubleTimeSeries(), tsId);

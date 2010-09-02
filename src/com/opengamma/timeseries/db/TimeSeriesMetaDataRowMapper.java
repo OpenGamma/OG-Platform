@@ -13,13 +13,12 @@ import javax.time.calendar.LocalDate;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
-import com.opengamma.timeseries.TimeSeriesMetaData;
 import static com.opengamma.timeseries.TimeSeriesConstant.*;
 
 /**
  * TimeSeriesMetaDataRowMapper maps returned SQL row to TimeSeriesMetaData object 
  */
-/*package*/ class TimeSeriesMetaDataRowMapper implements ParameterizedRowMapper<TimeSeriesMetaData> {
+/*package*/ class TimeSeriesMetaDataRowMapper implements ParameterizedRowMapper<MetaData> {
   
   private boolean _loadDates;
   
@@ -32,8 +31,8 @@ import static com.opengamma.timeseries.TimeSeriesConstant.*;
   }
 
   @Override
-  public TimeSeriesMetaData mapRow(ResultSet rs, int rowNum) throws SQLException {
-    TimeSeriesMetaData result = new TimeSeriesMetaData();
+  public MetaData mapRow(ResultSet rs, int rowNum) throws SQLException {
+    MetaData result = new MetaData();
     result.setTimeSeriesId(rs.getLong(TS_ID_COLUMN));
     result.setDataSource(rs.getString(DATA_SOURCE_COLUMN));
     result.setDataProvider(rs.getString(DATA_PROVIDER_COLUMN));
