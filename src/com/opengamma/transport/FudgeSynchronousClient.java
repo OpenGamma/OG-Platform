@@ -100,9 +100,7 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
     ClientRequestHolder requestHolder = new ClientRequestHolder();
     _pendingRequests.put(correlationId, requestHolder);
     try {
-      synchronized (getRequestSender()) {
-        getRequestSender().sendRequest(requestMsg, this);
-      }
+      getRequestSender().sendRequest(requestMsg, this);
       try {
         requestHolder.latch.await(getTimeoutInMilliseconds(), TimeUnit.MILLISECONDS);
       } catch (InterruptedException e) {

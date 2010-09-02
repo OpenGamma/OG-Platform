@@ -5,6 +5,7 @@
  */
 package com.opengamma.id;
 
+import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.types.StringFieldType;
 
@@ -17,6 +18,7 @@ public final class UniqueIdentifierFudgeType extends SecondaryFieldType<UniqueId
   /**
    * Singleton instance of the type.
    */
+  @FudgeSecondaryType
   public static final UniqueIdentifierFudgeType INSTANCE = new UniqueIdentifierFudgeType();
 
   private UniqueIdentifierFudgeType() {

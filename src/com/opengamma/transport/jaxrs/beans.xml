@@ -33,4 +33,16 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
     <property name="fudgeContext" ref="fudgeContext" />
   </bean>
 
+  <bean id="dataNotFoundExceptionMapper" class="com.opengamma.util.rest.DataNotFoundExceptionMapper">
+  </bean>
+  <bean id="illegalArgumentExceptionMapper" class="com.opengamma.util.rest.IllegalArgumentExceptionMapper">
+  </bean>
+  <bean id="unsupportedOperationExceptionMapper" class="com.opengamma.util.rest.UnsupportedOperationExceptionMapper">
+  </bean>
+  <bean id="webApplicationExceptionMapper" class="com.opengamma.util.rest.WebApplicationExceptionMapper">
+  </bean>
+  <bean id="throwableExceptionMapper" class="com.opengamma.util.rest.ThrowableExceptionMapper">
+  </bean>
+
+
 </beans>

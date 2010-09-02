@@ -6,15 +6,14 @@
 package com.opengamma.util.timeseries.fudge;
 
 import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
 
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastListLongDoubleTimeSeries;
 
 /**
- * 
- *
- * @author jim
  */
+@FudgeBuilderFor(FastListLongDoubleTimeSeries.class)
 public class FastListLongDoubleTimeSeriesBuilder extends FastLongDoubleTimeSeriesBuilder<FastListLongDoubleTimeSeries> implements
     FudgeBuilder<FastListLongDoubleTimeSeries> {
 

@@ -5,13 +5,12 @@
  */
 package com.opengamma.transport.socket;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.net.Socket;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsgWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,9 +30,9 @@ import com.opengamma.util.ArgumentChecker;
 public class SocketFudgeMessageSender extends AbstractSocketProcess implements FudgeMessageSender {
   private static final Logger s_logger = LoggerFactory.getLogger(SocketFudgeMessageSender.class);
   private final FudgeContext _fudgeContext;
-  
-  private FudgeMsgWriter _msgWriter;
-  
+
+  private MessageBatchingWriter _writer;
+
   public SocketFudgeMessageSender() {
     this(FudgeContext.GLOBAL_DEFAULT);
   }
@@ -48,22 +47,29 @@ public class SocketFudgeMessageSender extends AbstractSocketProcess implements F
     return _fudgeContext;
   }
 
+  /**
+   * Note that a return from a call to {@link #send} does not guarantee the message has been
+   * received, or even sent. There may be buffering on the transport but also we batch
+   * messages up to a single thread if this is called concurrently.
+   * 
+   * @param message message to send
+   */
   @Override
-  public synchronized void send(FudgeFieldContainer message) {
+  public void send(FudgeFieldContainer message) {
     startIfNecessary();
     s_logger.info("Sending message with {} fields", message.getNumFields());
-    _msgWriter.writeMessage(message);
+    _writer.write(message);
   }
 
   @Override
   protected void socketClosed() {
     super.socketClosed();
-    _msgWriter = null;
+    _writer = null;
   }
 
   @Override
-  protected void socketOpened(Socket socket, OutputStream os, InputStream is) {
-    _msgWriter = getFudgeContext().createMessageWriter(os);
+  protected void socketOpened(Socket socket, BufferedOutputStream os, BufferedInputStream is) {
+    _writer = new MessageBatchingWriter(getFudgeContext(), os);
   }
 
 }

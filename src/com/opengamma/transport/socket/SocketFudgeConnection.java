@@ -8,15 +8,13 @@ package com.opengamma.transport.socket;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.FudgeMsgReader;
-import org.fudgemsg.FudgeMsgWriter;
 import org.fudgemsg.FudgeRuntimeIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +24,7 @@ import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionStateListener;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageSender;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.TerminatableJob;
 
 /**
@@ -36,13 +35,8 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
   private static final Logger s_logger = LoggerFactory.getLogger(SocketFudgeConnection.class);
 
   private final FudgeContext _fudgeContext;
-
-  private FudgeMessageReceiver _receiver;
-  private FudgeMsgWriter _msgWriter;
-  private TerminatableJob _receiverJob;
-  private volatile FudgeConnectionStateListener _stateListener;
-
-  private final FudgeMessageSender _sender = new FudgeMessageSender() {
+  private final ExecutorService _executorService;
+  private final MessageBatchingWriter _writer = new MessageBatchingWriter() {
 
     /**
      * Prevents re-entrant calls to startIfNecessary if a message is sent as part of a connection
@@ -51,12 +45,7 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
     private boolean _isSending;
 
     @Override
-    public FudgeContext getFudgeContext() {
-      return _fudgeContext;
-    }
-
-    @Override
-    public void send(FudgeFieldContainer message) {
+    protected void beforeWrite() {
       if (!_isSending) {
         _isSending = true;
         try {
@@ -74,8 +63,25 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
           _isSending = false;
         }
       }
+    }
+
+  };
+
+  private FudgeMessageReceiver _receiver;
+  private TerminatableJob _receiverJob;
+  private volatile FudgeConnectionStateListener _stateListener;
+
+  private final FudgeMessageSender _sender = new FudgeMessageSender() {
+
+    @Override
+    public FudgeContext getFudgeContext() {
+      return _fudgeContext;
+    }
+
+    @Override
+    public void send(FudgeFieldContainer message) {
       try {
-        _msgWriter.writeMessage(message);
+        _writer.write(message);
       } catch (FudgeRuntimeIOException e) {
         if (exceptionForcedByClose(e.getCause())) {
           s_logger.info("Connection terminated - message not sent");
@@ -89,10 +95,38 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
 
   };
 
+  /**
+   * Creates a connection where received messages are processed inline with socket read operations.
+   * 
+   * @param fudgeContext the Fudge context, not {@code null}
+   */
   public SocketFudgeConnection(final FudgeContext fudgeContext) {
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _fudgeContext = fudgeContext;
+    _executorService = null;
   }
 
+  /**
+   * Creates a connection where received messages run out of thread to the socket reader using the given
+   * {@link ExecutorService}. 
+   * 
+   * @param fudgeContext the Fudge context, not {@code null}
+   * @param executorService an executor service to run received messages via, not {@code null}
+   */
+  public SocketFudgeConnection(final FudgeContext fudgeContext, final ExecutorService executorService) {
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
+    ArgumentChecker.notNull(executorService, "executorService");
+    _fudgeContext = fudgeContext;
+    _executorService = executorService;
+  }
+
+  /**
+   * Note that the message sender may be called concurrently. All messages will be sent from a single thread
+   * with others returning immediately. Thus successful completion of a {@link FudgeMessageSender#send} does
+   * not guarantee message arrival or that it has even been (or will be) passed to the transport.
+   * 
+   * @return the Fudge message sender component of the connection
+   */
   @Override
   public FudgeMessageSender getFudgeMessageSender() {
     return _sender;
@@ -104,9 +138,9 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
   }
 
   @Override
-  protected void socketOpened(Socket socket, OutputStream os, InputStream is) {
-    final FudgeMsgReader reader = _fudgeContext.createMessageReader(new BufferedInputStream(is));
-    _msgWriter = _fudgeContext.createMessageWriter(new BufferedOutputStream(os));
+  protected void socketOpened(Socket socket, BufferedOutputStream os, BufferedInputStream is) {
+    final FudgeMsgReader reader = _fudgeContext.createMessageReader(is);
+    _writer.setFudgeMsgWriter(_fudgeContext, os);
     _receiverJob = new TerminatableJob() {
 
       @Override
@@ -130,19 +164,32 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
         }
         final FudgeMessageReceiver receiver = _receiver;
         if (receiver != null) {
-          try {
-            receiver.messageReceived(_fudgeContext, envelope);
-          } catch (Exception e) {
-            s_logger.warn("Unable to dispatch message to receiver", e);
+          if (_executorService != null) {
+            _executorService.execute(new Runnable() {
+              @Override
+              public void run() {
+                dispatch(receiver, envelope);
+              }
+            });
+          } else {
+            dispatch(receiver, envelope);
           }
         }
       }
 
+      private void dispatch(final FudgeMessageReceiver receiver, final FudgeMsgEnvelope envelope) {
+        try {
+          receiver.messageReceived(_fudgeContext, envelope);
+        } catch (Exception e) {
+          s_logger.warn("Unable to dispatch message to receiver", e);
+        }
+      }
+
     };
-    final Thread thread = new Thread(_receiverJob, "Incoming " + getInetAddress().toString() + ":" + getPortNumber());
+    final Thread thread = new Thread(_receiverJob, "Incoming " + socket.getRemoteSocketAddress());
     thread.setDaemon(true);
     thread.start();
-    // We don't keep hold of the thread as we're never going to join it; terminating the job will let it finish and be GCd
+    // We don't keep hold of the thread as we're never going to join it; terminating the socket will let cause it to stop, finish and be GCd
     final FudgeConnectionStateListener stateListener = _stateListener;
     if (stateListener != null) {
       stateListener.connectionReset(this);
@@ -151,7 +198,7 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
 
   @Override
   protected void socketClosed() {
-    _msgWriter = null;
+    _writer.setFudgeMsgWriter(null);
     _receiverJob.terminate();
   }
 
@@ -159,7 +206,7 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
   public String toString() {
     final StringBuilder sb = new StringBuilder();
     sb.append("FudgeConnection to ");
-    sb.append(getInetAddress());
+    sb.append(getInetAddresses());
     sb.append(':');
     sb.append(getPortNumber());
     if (!isRunning()) {

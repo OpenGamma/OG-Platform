@@ -5,12 +5,10 @@
  */
 package com.opengamma;
 
-import org.springframework.dao.DataAccessException;
-
 /**
- * Exception used when loading a row, typically by unique identifier, and the row is not found.
+ * Exception used when loading data, typically by unique identifier, and the data is not found.
  */
-public class DataNotFoundException extends DataAccessException {
+public class DataNotFoundException extends OpenGammaRuntimeException {
 
   /**
    * Creates an exception with a message.
