@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -64,7 +63,6 @@ import com.opengamma.financial.security.db.option.OptionSecurityType;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.test.HibernateTest;
 import com.opengamma.util.time.ExpiryAccuracy;
 
@@ -705,27 +703,15 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
       ExchangeBean exchangeBean = _hibernateSecurityMasterDao.getOrCreateExchangeBean("XNGS", "NASDAQ/NGS (GLOBAL SELECT MARKET)");
       equityOptionBean.setExchange(exchangeBean);
       equityOptionBean.setPointValue(1.0);
-      String displayName = "AAPL 2010-10-16 C 250.0";
-      equityOptionBean.setDisplayName(displayName);
+      equityOptionBean.setSecurityId(1000L);
       
       cal.set(Calendar.YEAR, 2001);
-      Date now = cal.getTime();
-      equityOptionBean.setFirstVersion(null);
-      equityOptionBean.setLastModifiedBy(null);
-      equityOptionBean.setEffectiveDateTime(now);
-      equityOptionBean.setDeleted(false);
-      equityOptionBean.setLastModifiedDateTime(now);
 
       SecurityBean bean = _hibernateSecurityMasterDao.persistSecurityBean(null, equityOptionBean);
             
       //test saved bean has same properties
       assertNotNull(bean);
       assertTrue(bean.getId() > 0);
-      assertEquals(displayName, bean.getDisplayName());
-      assertEquals(now, bean.getEffectiveDateTime());
-      assertEquals(bean, bean.getFirstVersion());
-      assertNull(bean.getLastModifiedBy());
-      assertEquals(now, bean.getLastModifiedDateTime());
       assertTrue(bean instanceof OptionSecurityBean);
       OptionSecurityBean persistedFirstVersion = (OptionSecurityBean) bean;
       assertEquals(optionSecurityType, persistedFirstVersion.getOptionSecurityType());
@@ -739,7 +725,6 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
       
       //add another version of AAPL Option
       cal.set(Calendar.YEAR, 2002);
-      Date later = cal.getTime();
       equityOptionBean = new OptionSecurityBean();
       equityOptionBean.setOptionExerciseType(OptionExerciseType.AMERICAN);
       equityOptionBean.setOptionPayoffStyle(OptionPayoffStyle.VANILLA);
@@ -754,24 +739,12 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
       equityOptionBean.setCurrency(gbpBean);
       equityOptionBean.setExchange(exchangeBean);
       equityOptionBean.setPointValue(1.0);
-      equityOptionBean.setDisplayName(displayName);
-     
-      equityOptionBean.setFirstVersion(persistedFirstVersion);
-      equityOptionBean.setLastModifiedBy(null);
-      equityOptionBean.setEffectiveDateTime(later);
-      equityOptionBean.setDeleted(false);
-      equityOptionBean.setLastModifiedDateTime(later);
       
       bean = _hibernateSecurityMasterDao.persistSecurityBean(null, equityOptionBean);
       
       //test saved 2nd version bean has same properties
       assertNotNull(bean);
       assertTrue(bean.getId() > 0);
-      assertEquals(displayName, bean.getDisplayName());
-      assertEquals(later, bean.getEffectiveDateTime());
-      assertEquals(persistedFirstVersion, bean.getFirstVersion());
-      assertNull(bean.getLastModifiedBy());
-      assertEquals(later, bean.getLastModifiedDateTime());
 
       assertTrue(bean instanceof OptionSecurityBean);
       OptionSecurityBean persistedSecondVersion = (OptionSecurityBean) bean;
@@ -825,7 +798,7 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     CurrencyBean usdBean = equityBean.getCurrency();
     GICSCodeBean gicsCodeBean = equityBean.getGICSCode();
     String companyName = equityBean.getCompanyName();
-    String displayName = equityBean.getDisplayName();
+    equityBean.setSecurityId(1000L);
     
     _hibernateSecurityMasterDao.persistSecurityBean(null, equityBean);
     List<EquitySecurityBean> equitySecurityBeans = _hibernateSecurityMasterDao.getAllSecurityBeans(EquitySecurityBean.class);
@@ -836,11 +809,6 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     //test saved bean has same properties
     assertNotNull(persistedFirstVersion);
     assertTrue(persistedFirstVersion.getId() > 0);
-    assertEquals(displayName, persistedFirstVersion.getDisplayName());
-    assertEquals(now, persistedFirstVersion.getEffectiveDateTime());
-    assertEquals(persistedFirstVersion, persistedFirstVersion.getFirstVersion());
-    assertNull(persistedFirstVersion.getLastModifiedBy());
-    assertEquals(now, persistedFirstVersion.getLastModifiedDateTime());
     assertEquals(exchangeBean, persistedFirstVersion.getExchange());
     assertEquals(companyName, persistedFirstVersion.getCompanyName());
     assertEquals(usdBean, persistedFirstVersion.getCurrency());
@@ -852,7 +820,6 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     equityBean = makeAAPLEquitySecurityBean(_hibernateSecurityMasterDao, persistedFirstVersion, null, later, false, later);
     String appleNewName = "APPLE 2";
     equityBean.setCompanyName(appleNewName);
-    equityBean.setDisplayName(appleNewName);
     //change the currency
     CurrencyBean gbpBean = _hibernateSecurityMasterDao.getOrCreateCurrencyBean("GBP");
     equityBean.setCurrency(gbpBean);
@@ -863,11 +830,6 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     assertNotNull(bean);
     assertTrue(bean.getId() > 0);
     
-    assertEquals(appleNewName, bean.getDisplayName());
-    assertEquals(later, bean.getEffectiveDateTime());
-    assertEquals(persistedFirstVersion, bean.getFirstVersion());
-    assertNull(bean.getLastModifiedBy());
-    assertEquals(later, bean.getLastModifiedDateTime());
     assertTrue(bean instanceof EquitySecurityBean);
     EquitySecurityBean persistedSecondVersion = (EquitySecurityBean) bean;
     assertEquals(exchangeBean, persistedSecondVersion.getExchange());
@@ -903,18 +865,12 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     CurrencyBean usdBean = equityBean.getCurrency();
     GICSCodeBean gicsCodeBean = equityBean.getGICSCode();
     String companyName = equityBean.getCompanyName();
-    String displayName = equityBean.getDisplayName();
     
     SecurityBean persistSecurityBean = _hibernateSecurityMasterDao.persistSecurityBean(null, equityBean);
     
     //test saved bean has same properties
     assertNotNull(persistSecurityBean);
     assertTrue(persistSecurityBean.getId() > 0);
-    assertEquals(displayName, persistSecurityBean.getDisplayName());
-    assertEquals(now, persistSecurityBean.getEffectiveDateTime());
-    assertEquals(persistSecurityBean, persistSecurityBean.getFirstVersion());
-    assertNull(persistSecurityBean.getLastModifiedBy());
-    assertEquals(now, persistSecurityBean.getLastModifiedDateTime());
     assertTrue(persistSecurityBean instanceof EquitySecurityBean);
     EquitySecurityBean persistedAAPLBean = (EquitySecurityBean) persistSecurityBean;
     assertEquals(exchangeBean, persistedAAPLBean.getExchange());
@@ -935,25 +891,11 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     _hibernateSecurityMasterDao.associateOrUpdateIdentifierWithSecurity(now, isin, persistSecurityBean);
     _hibernateSecurityMasterDao.associateOrUpdateIdentifierWithSecurity(now, sedol1, persistSecurityBean);
     
-    //search using identifiers
-    IdentifierBundle aaplIdentifierBundle = IdentifierBundle.of(aaplTicker, aaplBuid, cusip, isin, sedol1);
-    SecurityBean securityBean = _hibernateSecurityMasterDao.getSecurityBean(now, aaplIdentifierBundle);
-    assertNotNull(securityBean);
-    assertEquals(persistedAAPLBean, securityBean);
-    //search using individual identifier
-    Set<Identifier> identifiers = aaplIdentifierBundle.getIdentifiers();
-    for (Identifier identifier : identifiers) {
-      SecurityBean securityBeanByIdentifier = _hibernateSecurityMasterDao.getSecurityBean(now, IdentifierBundle.of(identifier));
-      assertNotNull(securityBeanByIdentifier);
-      assertEquals(persistedAAPLBean, securityBeanByIdentifier);
-    }
-    
     //saved another version of AAPL
     cal.set(Calendar.YEAR, 2001);
     Date later = cal.getTime();
     EquitySecurityBean secondVersionBean = makeAAPLEquitySecurityBean(_hibernateSecurityMasterDao, persistedAAPLBean, null, later, false, later);
     secondVersionBean.setCompanyName("APPLE 2");
-    secondVersionBean.setDisplayName("APPLE 2");
     secondVersionBean.setCurrency(persistedAAPLBean.getCurrency());
     secondVersionBean.setExchange(persistedAAPLBean.getExchange());
     secondVersionBean.setGICSCode(persistedAAPLBean.getGICSCode());
@@ -963,11 +905,6 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     //test saved bean has same properties
     assertNotNull(persistedSecondVersion);
     assertTrue(persistedSecondVersion.getId() > 0);
-    assertEquals("APPLE 2", persistedSecondVersion.getDisplayName());
-    assertEquals(later, persistedSecondVersion.getEffectiveDateTime());
-    assertEquals(persistSecurityBean, persistedSecondVersion.getFirstVersion());
-    assertNull(persistedSecondVersion.getLastModifiedBy());
-    assertEquals(later, persistedSecondVersion.getLastModifiedDateTime());
     assertTrue(persistedSecondVersion instanceof EquitySecurityBean);
     persistedAAPLBean = (EquitySecurityBean) persistedSecondVersion;
     assertEquals(exchangeBean, persistedAAPLBean.getExchange());
@@ -1049,7 +986,6 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     for (int i = 0; i < randomSize; i++) {
       final Calendar cal = Calendar.getInstance();
       cal.set(Calendar.YEAR, 2001);
-      Date date = cal.getTime();
       
       EquitySecurityBean firstVersion = new EquitySecurityBean();
       firstVersion.setCompanyName("CN" + _random.nextInt());
@@ -1063,32 +999,17 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
       }
       GICSCodeBean gicsCodeBean = _hibernateSecurityMasterDao.getOrCreateGICSCodeBean(gics, "GICSD" + nextRandomInt());
       firstVersion.setGICSCode(gicsCodeBean);
-      firstVersion.setDisplayName("DSP" + nextRandomInt());
-
-      firstVersion.setFirstVersion(null);
-      firstVersion.setLastModifiedBy(null);
-      firstVersion.setEffectiveDateTime(date);
-      firstVersion.setDeleted(false);
-      firstVersion.setLastModifiedDateTime(date);
       
       SecurityBean persistedFirstVersion = _hibernateSecurityMasterDao.persistSecurityBean(null, firstVersion);
       result.add(persistedFirstVersion);
       
       cal.set(Calendar.YEAR, 2002);
-      Date later = cal.getTime();
       EquitySecurityBean secondVersion = new EquitySecurityBean();
       //change company name
       secondVersion.setCompanyName("CN" + _random.nextInt());
       secondVersion.setExchange(exchangeBean);
       secondVersion.setCurrency(currencyBean);
       secondVersion.setGICSCode(gicsCodeBean);
-      secondVersion.setDisplayName("DSP" + nextRandomInt());
-      
-      secondVersion.setFirstVersion(persistedFirstVersion);
-      secondVersion.setLastModifiedBy(null);
-      secondVersion.setEffectiveDateTime(later);
-      secondVersion.setDeleted(false);
-      secondVersion.setLastModifiedDateTime(later);
 
       SecurityBean persistedSecondVersion = _hibernateSecurityMasterDao.persistSecurityBean(null, secondVersion);
       result.add(persistedSecondVersion);

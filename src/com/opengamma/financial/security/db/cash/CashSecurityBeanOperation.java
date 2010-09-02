@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  * 
  * Please see distribution for license.
  */
@@ -7,7 +7,7 @@
 package com.opengamma.financial.security.db.cash;
 
 import com.opengamma.financial.security.cash.CashSecurity;
-import com.opengamma.financial.security.db.AbstractBeanOperation;
+import com.opengamma.financial.security.db.AbstractSecurityBeanOperation;
 import com.opengamma.financial.security.db.CurrencyBean;
 import com.opengamma.financial.security.db.HibernateSecurityMasterDao;
 import com.opengamma.financial.security.db.IdentifierBean;
@@ -17,7 +17,7 @@ import static com.opengamma.financial.security.db.Converters.*;
 /**
  * Bean/security conversion operations.
  */
-public final class CashSecurityBeanOperation extends AbstractBeanOperation<CashSecurity, CashSecurityBean> {
+public final class CashSecurityBeanOperation extends AbstractSecurityBeanOperation<CashSecurity, CashSecurityBean> {
 
   /**
    * Singleton instance.

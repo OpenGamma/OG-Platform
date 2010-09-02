@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  * 
  * Please see distribution for license.
  */
@@ -11,7 +11,7 @@ import static com.opengamma.financial.security.db.Converters.zonedDateTimeBeanTo
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.financial.security.db.AbstractBeanOperation;
+import com.opengamma.financial.security.db.AbstractSecurityBeanOperation;
 import com.opengamma.financial.security.db.HibernateSecurityMasterDao;
 import com.opengamma.financial.security.db.OperationContext;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -19,7 +19,7 @@ import com.opengamma.financial.security.fra.FRASecurity;
 /**
  * Bean/security conversion operations.
  */
-public final class FRASecurityBeanOperation extends AbstractBeanOperation<FRASecurity, FRASecurityBean> {
+public final class FRASecurityBeanOperation extends AbstractSecurityBeanOperation<FRASecurity, FRASecurityBean> {
 
   /**
    * Singleton instance.

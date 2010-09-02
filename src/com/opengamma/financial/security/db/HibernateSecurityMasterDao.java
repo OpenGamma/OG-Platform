@@ -8,7 +8,7 @@ package com.opengamma.financial.security.db;
 import java.util.Date;
 import java.util.List;
 
-import com.opengamma.engine.security.Security;
+import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.financial.security.db.bond.CouponTypeBean;
 import com.opengamma.financial.security.db.bond.GuaranteeTypeBean;
 import com.opengamma.financial.security.db.bond.IssuerTypeBean;
@@ -22,15 +22,19 @@ import com.opengamma.financial.security.db.future.FutureBundleBean;
 import com.opengamma.financial.security.db.future.FutureSecurityBean;
 import com.opengamma.financial.security.db.future.UnitBean;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
 
 /**
  * HibernateSecurityMaster session and utility methods
- *
- * 
  */
 public interface HibernateSecurityMasterDao {
+
+  // Main security load/save
+  SecurityBean getSecurityBean(DefaultSecurity base);
+
+  <S extends DefaultSecurity, SBean extends SecurityBean> SBean createSecurityBean(
+      OperationContext context, SecurityBeanOperation<S, SBean> beanOperation, Date effectiveDateTime, S security);
+
+  SecurityBean persistSecurityBean(OperationContext context, final SecurityBean bean);
 
   // SESSION LEVEL METHODS
   // Exchanges
@@ -112,20 +116,6 @@ public interface HibernateSecurityMasterDao {
       String identifier, SecurityBean security);
 
   void associateOrUpdateIdentifierWithSecurity(Date now, Identifier identifier, SecurityBean security);
-
-  // Generic Securities
-  SecurityBean getSecurityBean(final UniqueIdentifier uid);
-
-  SecurityBean getSecurityBean(Date now, final UniqueIdentifier uid);
-
-  SecurityBean getSecurityBean(Date now, IdentifierBundle bundle);
-
-  // Specific securities through BeanOperation
-  <S extends Security, SBean extends SecurityBean> SBean createSecurityBean(OperationContext context,
-      final BeanOperation<S, SBean> beanOperation, final Date effectiveDateTime, final boolean deleted,
-      final Date lastModified, final String modifiedBy, final SBean firstVersion, final S security);
-
-  SecurityBean persistSecurityBean(OperationContext context, final SecurityBean bean);
 
   // Debug/testing
   <T extends SecurityBean> List<T> getAllSecurityBeans(Class<T> beanClass);

@@ -12,7 +12,6 @@ import com.opengamma.financial.security.db.equity.GICSCodeBean;
 
 /**
  * Utility class that creates Test Objects 
- *
  */
 /* package */class HibernateSecurityMasterTestUtils {
 
@@ -53,14 +52,6 @@ import com.opengamma.financial.security.db.equity.GICSCodeBean;
     equityBean.setCurrency(currencyBean);
     GICSCodeBean gicsCodeBean = hibernateSecurityMasterDao.getOrCreateGICSCodeBean("45202010", "Technology");
     equityBean.setGICSCode(gicsCodeBean);
-    equityBean.setDisplayName("APPLE INC");
-
-    equityBean.setFirstVersion(firstVersion);
-    equityBean.setLastModifiedBy(modifiedBy);
-    equityBean.setEffectiveDateTime(effectiveDate);
-    equityBean.setDeleted(deleted);
-    equityBean.setLastModifiedDateTime(lastModifiedDate);
-
     return equityBean;
   }
 
@@ -70,14 +61,6 @@ import com.opengamma.financial.security.db.equity.GICSCodeBean;
     equityBean.setExchange(makeExchangeBean("XNYS", "NEW YORK STOCK EXCHANGE INC."));
     equityBean.setCurrency(makeCurrencyBean("USD"));
     equityBean.setGICSCode(makeGICSCodeBean("50101020", "Technology"));
-    equityBean.setDisplayName("AT&T INC");
-
-    equityBean.setFirstVersion(firstVersion);
-    equityBean.setLastModifiedBy(modifiedBy);
-    equityBean.setEffectiveDateTime(effectiveDate);
-    equityBean.setDeleted(deleted);
-    equityBean.setLastModifiedDateTime(lastModifiedDate);
-
     return equityBean;
   }
 

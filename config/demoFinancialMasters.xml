@@ -32,6 +32,7 @@
         <value>com/opengamma/financial/security/db/DayCountBean.hbm.xml</value>
         <value>com/opengamma/financial/security/db/equity/EquitySecurityBean.hbm.xml</value>
         <value>com/opengamma/financial/security/db/ExchangeBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/fra/FRASecurityBean.hbm.xml</value>
         <value>com/opengamma/financial/security/db/FrequencyBean.hbm.xml</value>
         <value>com/opengamma/financial/security/db/future/FutureBundleBean.hbm.xml</value>
         <value>com/opengamma/financial/security/db/future/FutureSecurityBean.hbm.xml</value>
@@ -48,16 +49,15 @@
         <value>com/opengamma/financial/security/db/cash/CashSecurityBean.hbm.xml</value>
       </list>
     </property>
-    <property name="hibernateProperties">
-      <props>
-        <prop key="hibernate.dialect">${opengamma.financial.hibernate.dialect}</prop>
-        <prop key="hibernate.show_sql">${opengamma.financial.hibernate.show_sql}</prop>
-      </props>
-    </property>
   </bean>
   <bean id="financialMasterSessionFactory" parent="abstractFinancialMasterSessionFactory">
     <property name="dataSource" ref="finDataSource"/>
-
+    <property name="hibernateProperties">
+      <value>
+        hibernate.dialect=${opengamma.financial.hibernate.dialect}
+        hibernate.show_sql=${opengamma.financial.hibernate.show_sql}
+      </value>
+    </property>
   </bean>
 
   <!-- SecurityMaster -->

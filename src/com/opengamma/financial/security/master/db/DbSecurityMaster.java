@@ -5,14 +5,11 @@
  */
 package com.opengamma.financial.security.master.db;
 
-import javax.sql.DataSource;
 import javax.time.TimeSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.opengamma.financial.security.master.SecurityDocument;
@@ -62,23 +59,31 @@ public class DbSecurityMaster implements SecurityMaster {
    * The workers.
    */
   private DbSecurityMasterWorkers _workers;
+  /**
+   * The detail provider, null if detail loaded/stored directly.
+   */
+  private SecurityMasterDetailProvider _detailProvider;
 
   /**
    * Creates an instance.
-   * @param transManager  the transaction manager, not null
-   * @param transDefinition  the transaction definition, not null
+   * @param transTemplate  the transaction template, not null
+   * @param jdbcTemplate  the JDBC template, not null
    * @param dbHelper  the database specific helper, not null
+   * @param detailProvider  the detail provider for loading/storing the security itself, may be null
    */
-  public DbSecurityMaster(final DataSourceTransactionManager transManager, final TransactionDefinition transDefinition, final DbHelper dbHelper) {
-    ArgumentChecker.notNull(transManager, "transManager");
+  public DbSecurityMaster(
+      final TransactionTemplate transTemplate, final SimpleJdbcTemplate jdbcTemplate,
+      final DbHelper dbHelper, final SecurityMasterDetailProvider detailProvider) {
+    ArgumentChecker.notNull(transTemplate, "transTemplate");
     ArgumentChecker.notNull(dbHelper, "dbHelper");
-    s_logger.debug("installed DataSourceTransactionManager: {}", transManager);
+    s_logger.debug("installed TransactionTemplate: {}", transTemplate);
+    s_logger.debug("installed SimpleJdbcTemplate: {}", jdbcTemplate);
     s_logger.debug("installed DbHelper: {}", dbHelper);
-    DataSource dataSource = transManager.getDataSource();
-    _jdbcTemplate = new SimpleJdbcTemplate(dataSource);
-    _transactionTemplate = new TransactionTemplate(transManager, transDefinition);
+    _jdbcTemplate = jdbcTemplate;
+    _transactionTemplate = transTemplate;
     _dbHelper = dbHelper;
     setWorkers(new DbSecurityMasterWorkers());
+    _detailProvider = detailProvider;
   }
 
   //-------------------------------------------------------------------------
@@ -104,6 +109,14 @@ public class DbSecurityMaster implements SecurityMaster {
    */
   public DbHelper getDbHelper() {
     return _dbHelper;
+  }
+
+  /**
+   * Gets the detail provider.
+   * @return the detail provider, non-null
+   */
+  public SecurityMasterDetailProvider getDetailProvider() {
+    return _detailProvider;
   }
 
   //-------------------------------------------------------------------------

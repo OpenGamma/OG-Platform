@@ -90,6 +90,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
     s_logger.debug("getSecurityByLatest: {}", uid);
     final Instant now = Instant.now(getTimeSource());
     final SecuritySearchHistoricRequest request = new SecuritySearchHistoricRequest(uid, now, now);
+    request.setFullDetail(true);
     final SecuritySearchHistoricResult result = getMaster().searchHistoric(request);
     if (result.getDocuments().size() != 1) {
       throw new DataNotFoundException("Security not found: " + uid);
@@ -113,6 +114,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
     if (docs.isEmpty()) {
       throw new DataNotFoundException("Security not found: " + uid);
     }
+    loadDetail(docs);
     return docs.get(0);
   }
 
@@ -133,7 +135,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", Objects.firstNonNull(request.getVersionAsOfInstant(), now))
       .addTimestamp("corrected_to_instant", Objects.firstNonNull(request.getCorrectedToInstant(), now))
-      .addValue("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
+      .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
       .addValueNullIgnored("sec_type", request.getSecurityType());
     // TODO: identity key
     final String[] sql = sqlSearchSecurities(request);
@@ -144,6 +146,9 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
     if (count > 0) {
       final SecurityDocumentExtractor extractor = new SecurityDocumentExtractor();
       result.getDocuments().addAll((List<SecurityDocument>) namedJdbc.query(sql[0], args, extractor));
+      if (request.isFullDetail()) {
+        loadDetail(result.getDocuments());
+      }
     }
     return result;
   }
@@ -189,6 +194,9 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
     if (count > 0) {
       final SecurityDocumentExtractor extractor = new SecurityDocumentExtractor();
       result.getDocuments().addAll((List<SecurityDocument>) namedJdbc.query(sql[0], args, extractor));
+      if (request.isFullDetail()) {
+        loadDetail(result.getDocuments());
+      }
     }
     return result;
   }
@@ -233,6 +241,20 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
 
   //-------------------------------------------------------------------------
   /**
+   * Loads the detail of the security for the document.
+   * @param docs  the documents to load detail for, not null
+   */
+  protected void loadDetail(final List<SecurityDocument> docs) {
+    SecurityMasterDetailProvider detailProvider = getMaster().getDetailProvider();
+    if (detailProvider != null) {
+      for (SecurityDocument doc : docs) {
+        doc.setSecurity(detailProvider.loadSecurityDetail(doc.getSecurity()));
+      }
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Mapper from SQL rows to a SecurityDocument.
    */
   protected final class SecurityDocumentExtractor implements ResultSetExtractor {
@@ -251,8 +273,10 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
         }
         final String idScheme = rs.getString("IDKEY_SCHEME");
         final String idValue = rs.getString("IDKEY_VALUE");
-        Identifier id = Identifier.of(idScheme, idValue);
-        _security.setIdentifiers(_security.getIdentifiers().withIdentifier(id));
+        if (idScheme != null && idValue != null) {
+          Identifier id = Identifier.of(idScheme, idValue);
+          _security.setIdentifiers(_security.getIdentifiers().withIdentifier(id));
+        }
       }
       return _documents;
     }

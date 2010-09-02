@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  * 
  * Please see distribution for license.
  */
@@ -9,7 +9,7 @@ package com.opengamma.financial.security.db.swap;
 import static com.opengamma.financial.security.db.Converters.dateTimeWithZoneToZonedDateTimeBean;
 import static com.opengamma.financial.security.db.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
-import com.opengamma.financial.security.db.AbstractBeanOperation;
+import com.opengamma.financial.security.db.AbstractSecurityBeanOperation;
 import com.opengamma.financial.security.db.HibernateSecurityMasterDao;
 import com.opengamma.financial.security.db.OperationContext;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
@@ -19,7 +19,7 @@ import com.opengamma.financial.security.swap.SwapSecurityVisitor;
 /**
  * Bean/security conversion operations.
  */
-public final class SwapSecurityBeanOperation extends AbstractBeanOperation<SwapSecurity, SwapSecurityBean> {
+public final class SwapSecurityBeanOperation extends AbstractSecurityBeanOperation<SwapSecurity, SwapSecurityBean> {
 
   /**
    * Singleton instance.
@@ -73,8 +73,9 @@ public final class SwapSecurityBeanOperation extends AbstractBeanOperation<SwapS
       
       @Override
       public SwapSecurity visitForwardSwapSecurity(ForwardSwapSecurity ignore) {
-        return new ForwardSwapSecurity(zonedDateTimeBeanToDateTimeWithZone(bean.getTradeDate()), zonedDateTimeBeanToDateTimeWithZone(bean.getEffectiveDate()), zonedDateTimeBeanToDateTimeWithZone(bean
-            .getMaturityDate()), bean.getCounterparty(), SwapLegBeanOperation.createSwapLeg(bean.getPayLeg()), SwapLegBeanOperation.createSwapLeg(bean.getReceiveLeg()), zonedDateTimeBeanToDateTimeWithZone(bean.getForwardStartDate()));
+        return new ForwardSwapSecurity(zonedDateTimeBeanToDateTimeWithZone(bean.getTradeDate()), zonedDateTimeBeanToDateTimeWithZone(bean.getEffectiveDate()),
+            zonedDateTimeBeanToDateTimeWithZone(bean.getMaturityDate()), bean.getCounterparty(), SwapLegBeanOperation.createSwapLeg(bean.getPayLeg()),
+            SwapLegBeanOperation.createSwapLeg(bean.getReceiveLeg()), zonedDateTimeBeanToDateTimeWithZone(bean.getForwardStartDate()));
       }
 
       @Override

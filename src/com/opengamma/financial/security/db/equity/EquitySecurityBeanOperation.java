@@ -12,7 +12,7 @@ import java.util.Date;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.financial.GICSCode;
-import com.opengamma.financial.security.db.AbstractBeanOperation;
+import com.opengamma.financial.security.db.AbstractSecurityBeanOperation;
 import com.opengamma.financial.security.db.CurrencyBean;
 import com.opengamma.financial.security.db.ExchangeBean;
 import com.opengamma.financial.security.db.HibernateSecurityMasterDao;
@@ -22,7 +22,7 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 /**
  * 
  */
-public final class EquitySecurityBeanOperation extends AbstractBeanOperation<EquitySecurity, EquitySecurityBean> {
+public final class EquitySecurityBeanOperation extends AbstractSecurityBeanOperation<EquitySecurity, EquitySecurityBean> {
 
   /**
    * Singleton.
@@ -66,14 +66,6 @@ public final class EquitySecurityBeanOperation extends AbstractBeanOperation<Equ
       final String modifiedBy, final EquitySecurityBean firstVersion, final String displayName, final ExchangeBean exchange, final String companyName, final CurrencyBean currency,
       final GICSCodeBean gicsCode) {
     final EquitySecurityBean equity = createBean(exchange, companyName, currency, gicsCode);
-    // base properties
-    equity.setEffectiveDateTime(effectiveDateTime);
-    equity.setDeleted(deleted);
-    equity.setLastModifiedDateTime(lastModified);
-    equity.setLastModifiedBy(modifiedBy);
-    equity.setDisplayName(displayName);
-    // first version
-    equity.setFirstVersion(firstVersion);
     secMasterSession.persistSecurityBean(context, equity);
     return equity;
   }

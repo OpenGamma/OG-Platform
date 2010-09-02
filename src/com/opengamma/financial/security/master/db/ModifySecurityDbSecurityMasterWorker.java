@@ -18,7 +18,6 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import com.opengamma.financial.security.master.SecurityDocument;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifiables;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbMapSqlParameterSource;
@@ -167,8 +166,12 @@ public class ModifySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker
     getJdbcTemplate().batchUpdate(sqlInsertSecurityKey(), (DbMapSqlParameterSource[]) secKeyList.toArray(new DbMapSqlParameterSource[secKeyList.size()]));
     // set the uid
     final UniqueIdentifier uid = createUniqueIdentifier(securityOid, securityId, null);
-    UniqueIdentifiables.setInto(document.getSecurity(), uid);
+    document.getSecurity().setUniqueIdentifier(uid);
     document.setSecurityId(uid);
+    // store the detail
+    if (getMaster().getDetailProvider() != null) {
+      getMaster().getDetailProvider().storeSecurityDetail(document.getSecurity());
+    }
   }
 
   /**

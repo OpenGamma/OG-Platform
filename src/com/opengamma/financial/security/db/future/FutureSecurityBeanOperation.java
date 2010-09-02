@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -19,7 +19,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.financial.security.db.AbstractBeanOperation;
+import com.opengamma.financial.security.db.AbstractSecurityBeanOperation;
 import com.opengamma.financial.security.db.HibernateSecurityMasterDao;
 import com.opengamma.financial.security.db.IdentifierBean;
 import com.opengamma.financial.security.db.OperationContext;
@@ -41,7 +41,7 @@ import com.opengamma.id.IdentifierBundle;
 /**
  * 
  */
-public final class FutureSecurityBeanOperation extends AbstractBeanOperation<FutureSecurity, FutureSecurityBean> {
+public final class FutureSecurityBeanOperation extends AbstractSecurityBeanOperation<FutureSecurity, FutureSecurityBean> {
   
   /**
    * Singleton.

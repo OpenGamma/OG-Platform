@@ -35,6 +35,7 @@ create table sec_security (
     name varchar(255) not null,
     sec_type varchar(255) not null,
     primary key (id),
+    constraint sec_fk_sec2sec foreign key (oid) references sec_security (id),
     constraint sec_chk_sec_ver_order check (ver_from_instant <= ver_to_instant),
     constraint sec_chk_sec_corr_order check (corr_from_instant <= corr_to_instant)
 );
@@ -45,24 +46,11 @@ create table sec_identitykey (
     id_scheme varchar(255) not null,
     id_value varchar(255) not null,
     primary key (id),
-    constraint sec_fk_identitykey2position foreign key (security_id) references sec_security (id)
+    constraint sec_fk_identitykey2sec foreign key (security_id) references sec_security (id)
 );
 -- sec_identitykey is fully dependent of pos_position
 
---
---
---
-create table sec_identifier_association (
-    id bigint not null,
-    security_discriminator varchar(255),
-    security_id bigint,
-    scheme varchar(255) not null,
-    identifier varchar(255) not null,
-    validStartDate timestamp,
-    validEndDate timestamp,
-    primary key (id)
-);
-
+-- Hibernate parts
 create table sec_currency (
     id bigint not null,
     name varchar(255) not null unique,
@@ -109,20 +97,14 @@ create table sec_gics (
 
 create table sec_equity (
     id bigint not null,
-    effectiveDateTime timestamp not null,
-    deleted smallint not null,
-    lastModifiedDateTime timestamp not null,
-    lastModifiedBy varchar(255),
-    displayName varchar(255) not null,
+    security_id bigint not null,
     shortName varchar(255),
-    first_version_descriminator varchar(255),
-    first_version_id bigint,
     exchange_id bigint not null,
     companyName varchar(255) not null,
     currency_id bigint not null,
     gicscode_id bigint,
     primary key (id),
-    constraint sec_fk_equity2equity foreign key (first_version_id) references sec_equity(id),
+    constraint sec_fk_equity2sec foreign key (security_id) references sec_security (id),
     constraint sec_fk_equity2currency foreign key (currency_id) references sec_currency(id),
     constraint sec_fk_equity2exchange foreign key (exchange_id) references sec_exchange(id),
     constraint sec_fk_equity2gics foreign key (gicscode_id) references sec_gics(id)
@@ -130,13 +112,7 @@ create table sec_equity (
 
 create table sec_option (
     id bigint not null,
-    effectiveDateTime timestamp not null,
-    deleted smallint not null,
-    lastModifiedDateTime timestamp not null,
-    lastModifiedBy varchar(255),
-    displayName varchar(255) not null,
-    first_version_descriminator varchar(255),
-    first_version_id bigint,
+    security_id bigint not null,
     option_security_type varchar(32) not null,
     option_exercise_type varchar(32) not null,
     option_payoff_style varchar(32) not null,
@@ -165,7 +141,7 @@ create table sec_option (
     underlyingexpiry_accuracy smallint,
     reverse smallint,
     primary key (id),
-    constraint sec_fk_option2option foreign key (first_version_id) references sec_option (id),
+    constraint sec_fk_option2sec foreign key (security_id) references sec_security (id),
     constraint sec_fk_option2currency foreign key (currency_id) references sec_currency (id),
     constraint sec_fk_option2putcurrency foreign key (put_currency_id) references sec_currency (id),
     constraint sec_fk_option2callcurrency foreign key (call_currency_id) references sec_currency (id),
@@ -222,13 +198,7 @@ create table sec_coupontype (
 
 create table sec_bond (
     id bigint not null,
-    effectiveDateTime timestamp not null,
-    deleted smallint not null,
-    lastModifiedDateTime timestamp not null,
-    lastModifiedBy varchar(255),
-    displayName varchar(255) not null,
-    first_version_descriminator varchar(255),
-    first_version_id bigint,
+    security_id bigint not null,
     bond_type varchar(32) not null,
     issuername varchar(255) not null,
     issuertype_id bigint not null,
@@ -259,7 +229,7 @@ create table sec_bond (
     paramount double precision not null,
     redemptionvalue double precision not null,
     primary key (id),
-    constraint sec_fk_bond2bond foreign key (first_version_id) references sec_bond (id),
+    constraint sec_fk_bond2sec foreign key (security_id) references sec_security (id),
     constraint sec_fk_bond2issuertype foreign key (issuertype_id) references sec_issuertype (id),
     constraint sec_fk_bond2market foreign key (market_id) references sec_market (id),
     constraint sec_fk_bond2currency foreign key (currency_id) references sec_currency (id),
@@ -273,13 +243,7 @@ create table sec_bond (
 
 create table sec_future (
     id bigint not null,
-    effectiveDateTime timestamp not null,
-    deleted smallint not null,
-    lastModifiedDateTime timestamp not null,
-    lastModifiedBy varchar(255),
-    displayName varchar(255) not null,
-    first_version_descriminator varchar(255),
-    first_version_id bigint,
+    security_id bigint not null,
     future_type varchar(32) not null,
     expiry_date timestamp not null,
     expiry_accuracy smallint not null,
@@ -296,7 +260,7 @@ create table sec_future (
     underlying_scheme varchar(255),
     underlying_identifier varchar(255), 
     primary key (id),
-    constraint sec_fk_future2future foreign key (first_version_id) references sec_future (id),
+    constraint sec_fk_future2sec foreign key (security_id) references sec_security (id),
     constraint sec_fk_future2exchange1 foreign key (tradingexchange_id) references sec_exchange (id),
     constraint sec_fk_future2exchange2 foreign key (settlementexchange_id) references sec_exchange (id),
     constraint sec_fk_future2currency1 foreign key (currency1_id) references sec_currency (id),
@@ -328,47 +292,29 @@ create table sec_futurebundleidentifier (
 
 create table sec_cash (
     id bigint not null,
-    effectiveDateTime timestamp not null,
-    deleted smallint not null,
-    lastModifiedDateTime timestamp not null,
-    lastModifiedBy varchar(255),
-    displayName varchar(255) not null,
-    first_version_descriminator varchar(255),
-    first_version_id bigint,
+    security_id bigint not null,
     currency_id bigint,
     region_scheme varchar(255) not null,
     region_identifier varchar(255) not null,
     primary key (id),
-    constraint sec_fk_cash2cash foreign key (first_version_id) references sec_cash (id),
+    constraint sec_fk_cash2sec foreign key (security_id) references sec_security (id),
     constraint sec_fk_cash2currency foreign key (currency_id) references sec_currency (id)
 );
 
 create table sec_fra (
     id bigint not null,
-    effectiveDateTime timestamp not null,
-    deleted smallint not null,
-    lastModifiedDateTime timestamp not null,
-    lastModifiedBy varchar(255),
-    displayName varchar(255) not null,
-    first_version_descriminator varchar(255),
-    first_version_id bigint,
+    security_id bigint not null,
     start_date timestamp not null,
     start_zone varchar(50) not null,
     end_date timestamp not null,
     end_zone varchar(50) not null,
     primary key (id),
-    constraint sec_fk_fra2fra foreign key (first_version_id) references sec_fra (id)
+    constraint sec_fk_fra2sec foreign key (security_id) references sec_security (id)
 );
 
 create table sec_swap (
     id bigint not null,
-    effectiveDateTime timestamp not null,
-    deleted smallint not null,
-    lastModifiedDateTime timestamp not null,
-    lastModifiedBy varchar(255),
-    displayName varchar(255) not null,
-    first_version_descriminator varchar(255),
-    first_version_id bigint,
+    security_id bigint not null,
     swaptype varchar(32) not null,
     trade_date timestamp not null,
     trade_zone varchar(50) not null,
@@ -410,7 +356,7 @@ create table sec_swap (
     receive_rateidentifierscheme varchar(255),
     receive_rateidentifierid varchar(255),
     primary key (id),
-    constraint sec_fk_swap2swap foreign key (first_version_id) references sec_swap (id)
+    constraint sec_fk_swap2sec foreign key (security_id) references sec_security (id)
 );
 
 -- create-db-position.sql: Position Master
@@ -435,6 +381,7 @@ create table pos_portfolio (
     corr_to_instant timestamp not null,
     name varchar(255) not null,
     primary key (id),
+    constraint pos_fk_port2port foreign key (oid) references pos_portfolio (id),
     constraint pos_chk_port_ver_order check (ver_from_instant <= ver_to_instant),
     constraint pos_chk_port_corr_order check (corr_from_instant <= corr_to_instant)
 );
@@ -450,6 +397,7 @@ create table pos_node (
     tree_right bigint not null,
     name varchar(255),
     primary key (id),
+    constraint pos_fk_node2node foreign key (oid) references pos_node (id),
     constraint pos_fk_node2portfolio foreign key (portfolio_id) references pos_portfolio (id),
     constraint pos_fk_node2parentnode foreign key (parent_node_id) references pos_node (id)
 );
@@ -469,6 +417,7 @@ create table pos_position (
     corr_to_instant timestamp not null,
     quantity decimal(31,8) not null,
     primary key (id),
+    constraint pos_fk_posi2posi foreign key (oid) references pos_position (id),
     constraint pos_chk_posi_ver_order check (ver_from_instant <= ver_to_instant),
     constraint pos_chk_posi_corr_order check (corr_from_instant <= corr_to_instant)
 );

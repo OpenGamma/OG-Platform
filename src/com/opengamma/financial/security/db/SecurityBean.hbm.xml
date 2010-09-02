@@ -3,77 +3,21 @@
   "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.financial.security.db">
+
   <class name="SecurityBean" abstract="true">
-    <!-- these are from SecurityBean -->
-    <id name="id">
+    <id name="id" column="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
     </id>
-    <property name="effectiveDateTime" type="timestamp" not-null="true"/>
-    <property name="deleted" type="boolean" not-null="true"/>
-    <property name="lastModifiedDateTime" type="timestamp" not-null="true"/>
-    <property name="lastModifiedBy" type="string" not-null="false"/>
-    <property name="displayName" type="string" not-null="false"/>
-    <any name="firstVersion"
-         meta-type="string"
-         id-type="long"
-         cascade="save-update">
-      <meta-value value="BOND" class="com.opengamma.financial.security.db.bond.BondSecurityBean" />
-      <meta-value value="CASH" class="com.opengamma.financial.security.db.cash.CashSecurityBean" />
-      <meta-value value="EQUITY" class="com.opengamma.financial.security.db.equity.EquitySecurityBean"/>
-      <meta-value value="FRA" class="com.opengamma.financial.security.db.fra.FRASecurityBean" />
-      <meta-value value="FUTURE" class="com.opengamma.financial.security.db.future.FutureSecurityBean" />
-      <meta-value value="OPTION" class="com.opengamma.financial.security.db.option.OptionSecurityBean" />
-      <meta-value value="SWAP" class="com.opengamma.financial.security.db.swap.SwapSecurityBean" />
-      <!--  insert more subclasses of SecurityBean here -->
-      <!--  note the order is important here -->
-      <column name="first_version_descriminator"/> 
-      <column name="first_version_id"/>
-    </any>
+    <property name="securityId" type="long" column="security_id" />
   </class>
-  <query name="SecurityBean.one.byUid"><![CDATA[
+
+  <query name="SecurityBean.one.bySecurityId"><![CDATA[
     select 
       s
     from 
       SecurityBean as s
     where
-      s.id = :securityUid
+      s.securityId = :securityId
   ]]></query>
-  <query name="SecurityBean.one.byDateOid"><![CDATA[
-    select
-      s
-    from
-      SecurityBean as s
-    where
-      s.firstVersion.id = :securityOid and
-      s.effectiveDateTime <= :now and
-      not exists (select
-                    latest.id
-                  from
-                    SecurityBean as latest
-                  where
-                    latest.firstVersion.id = :securityOid and
-                    latest.effectiveDateTime > s.effectiveDateTime and
-                    latest.effectiveDateTime <= :now)
-  ]]></query>
-  <query name="SecurityBean.one.byDateIdentifiers"><![CDATA[ 
-    select 
-      s
-    from 
-      IdentifierAssociationBean as a,
-      SecurityBean as s
-    where
-      a.security = s.firstVersion and
-      (a.validStartDate is null or a.validStartDate <= :now) and
-      (a.validEndDate is null or a.validEndDate > :now) and
-      a.identifier.scheme = :scheme and
-      a.identifier.identifier in (:identifiers) and
-      not exists (select
-                    latest.id
-                  from
-                    SecurityBean as latest
-                  where
-                    latest.firstVersion.id = s.firstVersion.id and
-                    latest.effectiveDateTime > s.effectiveDateTime and
-                    latest.effectiveDateTime <= :now)
-  ]]></query>
+
 </hibernate-mapping>

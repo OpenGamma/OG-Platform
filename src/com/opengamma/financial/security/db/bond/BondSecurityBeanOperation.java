@@ -24,14 +24,14 @@ import com.opengamma.financial.security.bond.BondSecurityVisitor;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
-import com.opengamma.financial.security.db.AbstractBeanOperation;
+import com.opengamma.financial.security.db.AbstractSecurityBeanOperation;
 import com.opengamma.financial.security.db.HibernateSecurityMasterDao;
 import com.opengamma.financial.security.db.OperationContext;
 
 /**
  * 
  */
-public final class BondSecurityBeanOperation extends AbstractBeanOperation<BondSecurity, BondSecurityBean> {
+public final class BondSecurityBeanOperation extends AbstractSecurityBeanOperation<BondSecurity, BondSecurityBean> {
 
   /**
    * Singleton.

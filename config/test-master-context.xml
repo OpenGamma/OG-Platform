@@ -3,6 +3,38 @@
 
 <beans>
 
+  <bean id="abstractHibernateSessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean" abstract="true">
+    <property name="mappingResources">
+      <list>
+        <value>com/opengamma/financial/security/db/future/BondFutureTypeBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/bond/BondSecurityBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/BusinessDayConventionBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/future/CashRateTypeBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/future/CommodityFutureTypeBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/bond/CouponTypeBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/CurrencyBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/DayCountBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/equity/EquitySecurityBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/ExchangeBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/fra/FRASecurityBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/FrequencyBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/future/FutureBundleBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/future/FutureSecurityBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/equity/GICSCodeBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/bond/GuaranteeTypeBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/IdentifierAssociationBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/bond/IssuerTypeBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/bond/MarketBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/option/OptionSecurityBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/SecurityBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/future/UnitBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/bond/YieldConventionBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/swap/SwapSecurityBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/cash/CashSecurityBean.hbm.xml</value>
+      </list>
+    </property>
+  </bean>
+
   <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="location"><value>file:tests.properties</value></property>
   </bean>
@@ -10,14 +42,44 @@
   <bean id="dbTransactionDefinition" class="org.springframework.transaction.support.DefaultTransactionDefinition">
     <property name="isolationLevelName" value="ISOLATION_SERIALIZABLE" />
     <property name="propagationBehaviorName" value="PROPAGATION_REQUIRED" />
-    <!--property name="timeout" value="20" /-->
   </bean>
 
+  <!-- ============================================================================== -->
   <bean id="derbyDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
     <property name="driverClassName" value="${derby.jdbc.driver}"/>
     <property name="url" value="${derby.jdbc.url}/test_${user.name}"/>
     <property name="username" value="${derby.jdbc.username}"/>
     <property name="password" value="${derby.jdbc.password}"/>
+  </bean>
+
+  <bean id="derbyDbHelper" class="com.opengamma.util.db.DerbyDbHelper" />
+
+  <bean id="derbyJdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
+    <constructor-arg ref="derbyDataSource" />
+  </bean>
+
+  <bean id="derbyHibernateTransMgr" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    <property name="sessionFactory" ref="derbyHibernateSessionFactory"/>
+  </bean>
+
+  <bean id="derbyHibernateSessionFactory" parent="abstractHibernateSessionFactory">
+    <property name="dataSource" ref="derbyDataSource"/>
+    <property name="hibernateProperties">
+      <value>
+        hibernate.dialect=org.hibernate.dialect.DerbyDialect
+        hibernate.show_sql=false
+        hibernate.format_sql=false
+      </value>
+    </property>
+  </bean>
+
+  <bean id="derbyDbSecurityMasterDetail" class="com.opengamma.financial.security.master.db.HibernateSecurityMasterDetailProvider">
+    <property name="sessionFactory" ref="derbyHibernateSessionFactory" />
+  </bean>
+
+  <bean id="derbyTransTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+    <constructor-arg ref="derbyHibernateTransMgr" />
+    <constructor-arg ref="dbTransactionDefinition" />
   </bean>
 
   <bean id="derbyDbPositionMaster" class="com.opengamma.financial.position.master.db.DbPositionMaster">
@@ -27,28 +89,54 @@
       </bean>
     </constructor-arg>
     <constructor-arg ref="dbTransactionDefinition" />
-    <constructor-arg><bean class="com.opengamma.util.db.DerbyDbHelper" /></constructor-arg>
-    <!-- property name="timeSource" -->
+    <constructor-arg ref="derbyDbHelper" />
     <property name="identifierScheme" value="DbPos" />
   </bean>
 
   <bean id="derbyDbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
-    <constructor-arg>
-      <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="derbyDataSource"/>
-      </bean>
-    </constructor-arg>
-    <constructor-arg ref="dbTransactionDefinition" />
-    <constructor-arg><bean class="com.opengamma.util.db.DerbyDbHelper" /></constructor-arg>
-    <!-- property name="timeSource" -->
+    <constructor-arg ref="derbyTransTemplate" />
+    <constructor-arg ref="derbyJdbcTemplate" />
+    <constructor-arg ref="derbyDbHelper" />
+    <constructor-arg ref="derbyDbSecurityMasterDetail" />
     <property name="identifierScheme" value="DbSec" />
   </bean>
 
+  <!-- ============================================================================== -->
   <bean id="postgresDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
     <property name="driverClassName" value="${postgres.jdbc.driver}"/>
     <property name="url" value="${postgres.jdbc.url}/test_${user.name}"/>
     <property name="username" value="${postgres.jdbc.username}"/>
     <property name="password" value="${postgres.jdbc.password}"/>
+  </bean>
+
+  <bean id="postgresDbHelper" class="com.opengamma.util.db.PostgreSQLDbHelper" />
+
+  <bean id="postgresJdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
+    <constructor-arg ref="postgresDataSource" />
+  </bean>
+
+  <bean id="postgresHibernateTransMgr" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    <property name="sessionFactory" ref="postgresHibernateSessionFactory"/>
+  </bean>
+
+  <bean id="postgresHibernateSessionFactory" parent="abstractHibernateSessionFactory">
+    <property name="dataSource" ref="postgresDataSource"/>
+    <property name="hibernateProperties">
+      <value>
+        hibernate.dialect=org.hibernate.dialect.DerbyDialect
+        hibernate.show_sql=false
+        hibernate.format_sql=false
+      </value>
+    </property>
+  </bean>
+
+  <bean id="postgresDbSecurityMasterDetail" class="com.opengamma.financial.security.master.db.HibernateSecurityMasterDetailProvider">
+    <property name="sessionFactory" ref="postgresHibernateSessionFactory" />
+  </bean>
+
+  <bean id="postgresTransTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+    <constructor-arg ref="postgresHibernateTransMgr" />
+    <constructor-arg ref="dbTransactionDefinition" />
   </bean>
 
   <bean id="postgresDbPositionMaster" class="com.opengamma.financial.position.master.db.DbPositionMaster">
@@ -58,20 +146,15 @@
       </bean>
     </constructor-arg>
     <constructor-arg ref="dbTransactionDefinition" />
-    <constructor-arg><bean class="com.opengamma.util.db.PostgreSQLDbHelper" /></constructor-arg>
-    <!-- property name="timeSource" -->
+    <constructor-arg ref="postgresDbHelper" />
     <property name="identifierScheme" value="DbPos" />
   </bean>
 
   <bean id="postgresDbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
-    <constructor-arg>
-      <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="postgresDataSource"/>
-      </bean>
-    </constructor-arg>
-    <constructor-arg ref="dbTransactionDefinition" />
-    <constructor-arg><bean class="com.opengamma.util.db.PostgreSQLDbHelper" /></constructor-arg>
-    <!-- property name="timeSource" -->
+    <constructor-arg ref="postgresTransTemplate" />
+    <constructor-arg ref="postgresJdbcTemplate" />
+    <constructor-arg ref="postgresDbHelper" />
+    <constructor-arg ref="postgresDbSecurityMasterDetail" />
     <property name="identifierScheme" value="DbSec" />
   </bean>
 

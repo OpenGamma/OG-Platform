@@ -11,7 +11,7 @@ import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.security.Security;
+import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.financial.security.db.bond.CouponTypeBean;
 import com.opengamma.financial.security.db.bond.GuaranteeTypeBean;
 import com.opengamma.financial.security.db.bond.IssuerTypeBean;
@@ -25,7 +25,6 @@ import com.opengamma.financial.security.db.future.FutureBundleBean;
 import com.opengamma.financial.security.db.future.FutureSecurityBean;
 import com.opengamma.financial.security.db.future.UnitBean;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.monitor.OperationTimer;
 
@@ -436,77 +435,32 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
   public void associateOrUpdateIdentifierWithSecurity(Date now,
       Identifier identifier, SecurityBean security) {
     getCreateOrUpdateIdentifierAssociationBean(now, identifier
-        .getScheme().getName(), identifier.getValue(), security
-        .getFirstVersion());
+        .getScheme().getName(), identifier.getValue(), security);  // TODO: was .getFirstVersion()
   }
-  
+
   // Generic Securities
   @Override
-  public SecurityBean getSecurityBean(final UniqueIdentifier uid) {
-    if (uid.isLatest()) {
-      return getSecurityBean(new Date(), uid);
-    }
-    Query query = getSession().getNamedQuery("SecurityBean.one.byUid");
-    query.setLong("securityUid", Long.valueOf(uid.getVersion()));
-    SecurityBean security = (SecurityBean) query.uniqueResult();
-    return security;
+  public SecurityBean getSecurityBean(final DefaultSecurity base) {
+    Query query = getSession().getNamedQuery("SecurityBean.one.bySecurityId");
+    query.setLong("securityId", extractRowId(base.getUniqueIdentifier()));
+    return (SecurityBean) query.uniqueResult();
   }
 
-  @Override
-  public SecurityBean getSecurityBean(Date now, final UniqueIdentifier uid) {
-    Query query = getSession().getNamedQuery("SecurityBean.one.byDateOid");
-    query.setLong("securityOid", Long.valueOf(uid.getValue()));
-    query.setTimestamp("now", now);
-    SecurityBean security = (SecurityBean) query.uniqueResult();
-    return security;
-  }
-
-  @Override
-  public SecurityBean getSecurityBean(Date now, IdentifierBundle bundle) {
-    Collection<Identifier> identifiers = bundle.getIdentifiers();
-    Set<String> schemes = getListOfSchemes(identifiers);
-    for (String scheme : schemes) {
-      final Set<String> ids = getListOfValuesForScheme(scheme, identifiers);
-      Query query = getSession().getNamedQuery("SecurityBean.one.byDateIdentifiers");
-      query.setString("scheme", scheme);
-      query.setParameterList("identifiers", ids);
-      query.setTimestamp("now", now);
-      SecurityBean security = (SecurityBean) query.uniqueResult();
-      if (security != null) {
-        return security;
-      }
-    }
-    return null; // none of the dsid's matched.
-  }
-  
   // Specific securities through BeanOperation
   @Override
-  public <S extends Security, SBean extends SecurityBean> SBean createSecurityBean(final OperationContext context, final BeanOperation<S, SBean> beanOperation, final Date effectiveDateTime,
-      final boolean deleted, final Date lastModified, final String modifiedBy, final SBean firstVersion, final S security) {
+  public <S extends DefaultSecurity, SBean extends SecurityBean> SBean createSecurityBean(
+      final OperationContext context, final SecurityBeanOperation<S, SBean> beanOperation, final Date effectiveDateTime, final S security) {
     final SBean bean = beanOperation.createBean(context, this, security);
-    bean.setEffectiveDateTime(effectiveDateTime);
-    bean.setDeleted(deleted);
-    bean.setLastModifiedDateTime(lastModified);
-    bean.setLastModifiedBy(modifiedBy);
-    bean.setFirstVersion(firstVersion);
-    bean.setDisplayName(security.getName());
+    bean.setSecurityId(extractRowId(security.getUniqueIdentifier()));
     persistSecurityBean(context, bean);
     beanOperation.postPersistBean(context, this, effectiveDateTime, bean);
     return bean;
   }
-  
+
   @Override
   public SecurityBean persistSecurityBean(final OperationContext context, final SecurityBean bean) {
-    if (bean.getFirstVersion() == null) {
-      // link to itself as a parent
-      final Long id = (Long) getSession().save(bean);
-      bean.setId(id);
-      bean.setFirstVersion(bean);
-      getSession().update(bean);
-    } else {
-      final Long id = (Long) getSession().save(bean);
-      bean.setId(id);
-    }    
+    final Long id = (Long) getSession().save(bean);
+    bean.setId(id);
     getSession().flush();
     return bean;
   }
@@ -713,6 +667,18 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
     timer.finished();
   }
 
-  
-  
+  //-------------------------------------------------------------------------
+  /**
+   * Extracts the security row id.
+   * @param id  the identifier to extract from, not null
+   * @return the extracted row id
+   */
+  protected long extractRowId(final UniqueIdentifier id) {
+    try {
+      return Long.parseLong(id.getValue()) + Long.parseLong(id.getVersion());
+    } catch (NumberFormatException ex) {
+      throw new IllegalArgumentException("UniqueIdentifier is not from this security master: " + id, ex);
+    }
+  }
+
 }

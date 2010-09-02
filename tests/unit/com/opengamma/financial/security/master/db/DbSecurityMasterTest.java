@@ -18,6 +18,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
+import com.opengamma.financial.Currency;
+import com.opengamma.financial.GICSCode;
+import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.master.SecurityDocument;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.test.DBTest;
 
 /**
@@ -58,6 +64,21 @@ public class DbSecurityMasterTest extends DBTest {
     assertNotNull(_secMaster.getTimeSource());
     assertNotNull(_secMaster.getDbHelper());
     assertNotNull(_secMaster.getWorkers());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_equity() throws Exception {
+    EquitySecurity sec = new EquitySecurity("London", "LON", "OpenGamma Ltd", Currency.getInstance("GBP"));
+    sec.setName("OpenGamma");
+    sec.setGicsCode(GICSCode.getInstance(2));
+    sec.setShortName("OG");
+    sec.setIdentifiers(IdentifierBundle.of(Identifier.of("Test", "OG")));
+    SecurityDocument addDoc = new SecurityDocument(sec);
+    SecurityDocument added = _secMaster.add(addDoc);
+    
+    SecurityDocument loaded = _secMaster.get(added.getSecurityId());
+    assertEquals(added, loaded);
   }
 
   //-------------------------------------------------------------------------
