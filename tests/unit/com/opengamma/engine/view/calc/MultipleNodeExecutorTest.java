@@ -18,8 +18,6 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.test.MockFunction;
-import com.opengamma.engine.view.calc.MultipleNodeExecutor.GraphFragment;
-import com.opengamma.engine.view.calc.MultipleNodeExecutor.RootGraphFragment;
 import com.opengamma.engine.view.calc.stats.DiscardingStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;

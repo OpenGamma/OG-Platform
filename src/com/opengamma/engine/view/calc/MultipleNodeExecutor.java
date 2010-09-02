@@ -18,19 +18,11 @@ import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJob;
-import com.opengamma.engine.view.calcnode.CalculationJobItem;
-import com.opengamma.engine.view.calcnode.CalculationJobResult;
-import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.util.tuple.Pair;
@@ -40,12 +32,6 @@ import com.opengamma.util.tuple.Pair;
  * on a number of calculation nodes.
  */
 public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
-
-  private static final Runnable NO_OP = new Runnable() {
-    @Override
-    public void run() {
-    }
-  };
 
   private final SingleComputationCycle _cycle;
   private final int _minJobItems;
@@ -89,266 +75,20 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     getCycle().markFailed(node);
   }
 
-  private final AtomicInteger _graphFragmentIdentifiers = new AtomicInteger();
-
-  /* package */class GraphFragment implements JobResultReceiver {
-
-    private final int _graphFragmentIdentifier = _graphFragmentIdentifiers.incrementAndGet();
-
-    private final LinkedList<DependencyNode> _nodes = new LinkedList<DependencyNode>();
-    private final Set<GraphFragment> _inputs = new HashSet<GraphFragment>();
-    private final Set<GraphFragment> _dependencies = new HashSet<GraphFragment>();
-    private DependencyGraph _graph;
-    private Map<CalculationJobItem, DependencyNode> _item2Node;
-    private AtomicInteger _blockCount;
-    private AtomicLong _executionTime;
-    private GraphFragment _tail;
-
-    private int _startTime;
-    private int _startTimeCache;
-    private int _cycleCost;
-
-    public GraphFragment() {
-    }
-
-    public GraphFragment(final DependencyNode node) {
-      _nodes.add(node);
-      // TODO [ENG-201] this should be some metric relating to the computational overhead of the function
-      _cycleCost = 1;
-    }
-
-    public GraphFragment(final Collection<DependencyNode> nodes) {
-      _nodes.addAll(nodes);
-    }
-
-    public LinkedList<DependencyNode> getNodes() {
-      return _nodes;
-    }
-
-    public void initBlockCount() {
-      _blockCount = new AtomicInteger(getInputs().size());
-      _executionTime = new AtomicLong();
-    }
-
-    public void setTail(final GraphFragment fragment) {
-      _tail = fragment;
-    }
-
-    public GraphFragment getTail() {
-      return _tail;
-    }
-
-    public Set<GraphFragment> getInputs() {
-      return _inputs;
-    }
-
-    public Set<GraphFragment> getDependencies() {
-      return _dependencies;
-    }
-
-    public int getJobItems() {
-      return _nodes.size();
-    }
-
-    public int getJobCycleCost() {
-      return _cycleCost;
-    }
-
-    public int getJobCost() {
-      // TODO [ENG-202] this would include data costs from shared cache I/O
-      return _cycleCost;
-    }
-
-    public int getStartTime(final int startTimeCache) {
-      if (startTimeCache == _startTimeCache) {
-        return _startTime;
-      }
-      _startTimeCache = startTimeCache;
-      int latest = 0;
-      for (GraphFragment input : getInputs()) {
-        final int finish = input.getStartTime(startTimeCache) + input.getJobCost();
-        if (finish > latest) {
-          latest = finish;
-        }
-      }
-      _startTime = latest;
-      return latest;
-    }
-
-    public void prependFragment(final GraphFragment fragment) {
-      final Iterator<DependencyNode> nodeIterator = fragment.getNodes().descendingIterator();
-      while (nodeIterator.hasNext()) {
-        getNodes().addFirst(nodeIterator.next());
-      }
-      _cycleCost += fragment._cycleCost;
-    }
-
-    public void appendFragment(final GraphFragment fragment) {
-      getNodes().addAll(fragment.getNodes());
-      _cycleCost += fragment._cycleCost;
-    }
-
-    public void inputCompleted(final DependencyGraph graph, final long executionTime) {
-      // TODO [ENG-187] If we're a tail, we might already have completed our stage (parallel dispatch allows messages to be processed out of order at the server) so the execution time
-      // already passed up the tree doesn't include the input fragment that has just finished
-      _executionTime.addAndGet(executionTime);
-      // TODO [ENG-187] If we're a tail, we don't want to kick off an execution; we've already been dispatched
-      final int blockCount = _blockCount.decrementAndGet();
-      if (blockCount == 0) {
-        execute(graph);
-        // Help out the GC - we don't need these any more
-        _blockCount = null;
-        getInputs().clear();
-      }
-    }
-
-    public void executeImpl(final DependencyGraph graph) {
-      _graph = graph;
-      final CalculationJobSpecification jobSpec = createJobSpecification(graph);
-      final List<CalculationJobItem> items = new ArrayList<CalculationJobItem>();
-      _item2Node = new HashMap<CalculationJobItem, DependencyNode>();
-      final Set<ValueSpecification> privateValues = new HashSet<ValueSpecification>();
-      final Set<ValueSpecification> sharedValues = new HashSet<ValueSpecification>(graph.getTerminalOutputValues());
-      for (DependencyNode node : getNodes()) {
-        final Set<ValueSpecification> inputs = node.getInputValues();
-        CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getUniqueIdentifier(), node.getFunction().getParameters(), node.getComputationTarget().toSpecification(),
-            inputs, node.getOutputRequirements());
-        items.add(jobItem);
-        _item2Node.put(jobItem, node);
-        // If node has dependencies which AREN'T in the graph fragment, its outputs for those nodes are "shared" values
-        for (ValueSpecification specification : node.getOutputValues()) {
-          if (sharedValues.contains(specification)) {
-            continue;
-          }
-          boolean isPrivate = true;
-          for (DependencyNode dependent : node.getDependentNodes()) {
-            if (!getNodes().contains(dependent)) {
-              isPrivate = false;
-              break;
-            }
-          }
-          if (isPrivate) {
-            privateValues.add(specification);
-          } else {
-            sharedValues.add(specification);
-          }
-        }
-        // If node has inputs which haven't been seen already, they can't have been generated within this fragment so are "shared"
-        for (ValueSpecification specification : inputs) {
-          if (sharedValues.contains(specification) || privateValues.contains(specification)) {
-            continue;
-          }
-          sharedValues.add(specification);
-        }
-      }
-      final CacheSelectHint cacheHint;
-      if (privateValues.size() < sharedValues.size()) {
-        cacheHint = CacheSelectHint.privateValues(privateValues);
-      } else {
-        cacheHint = CacheSelectHint.sharedValues(sharedValues);
-      }
-      addJobToViewProcessorQuery(jobSpec, graph);
-      final CalculationJob job = new CalculationJob(jobSpec, items, cacheHint);
-      if (getTail() != null) {
-        // TODO [ENG-187] Add the tail to the job that's being sent to the dispatcher
-      }
-      dispatchJob(job, this);
-    }
-
-    public void execute(final DependencyGraph graph) {
-      executeImpl(graph);
-    }
-
-    @Override
-    public String toString() {
-      return _graphFragmentIdentifier + ": " + _nodes.size() + " dep. node(s), earliestStart=" + _startTime + ", executionCost=" + _cycleCost;
-    }
-    
-    @Override
-    public void resultReceived(final CalculationJobResult result) {
-      // Mark nodes as good or bad
-      for (CalculationJobResultItem item : result.getResultItems()) {
-        DependencyNode node = _item2Node.get(item.getItem());
-        if (node == null) {
-          continue;
-        }
-        markExecuted(node);
-
-        if (item.failed()) {
-          markFailed(node);
-        }
-      }
-      // Release tree fragments up the tree
-      long executionTime = getExecutionTime();
-      for (GraphFragment dependent : getDependencies()) {
-        dependent.inputCompleted(getGraph(), executionTime + result.getDuration());
-        executionTime = 0;
-      }
-      // Release memory we don't need any more
-      _item2Node = null;
-      _graph = null;
-      _executionTime = null;
-    }
-
-    protected long getExecutionTime() {
-      return (_executionTime != null) ? _executionTime.get() : 0;
-    }
-
-    protected DependencyGraph getGraph() {
-      return _graph;
-    }
-
-  }
-
-  /* package */class RootGraphFragment extends GraphFragment {
-
-    private final FutureTask<Object> _future = new FutureTask<Object>(NO_OP, null);
-    private final GraphExecutorStatisticsGatherer _statistics;
-    private final long _jobStarted = System.nanoTime();
-
-    public RootGraphFragment(final GraphExecutorStatisticsGatherer statistics) {
-      _statistics = statistics;
-    }
-
-    public RootGraphFragment(final GraphExecutorStatisticsGatherer statistics, final Collection<DependencyNode> nodes) {
-      super(nodes);
-      _statistics = statistics;
-    }
-
-    @Override
-    public void execute(final DependencyGraph graph) {
-      _future.run();
-      if (graph != null) {
-        _statistics.graphExecuted(graph.getCalcConfName(), graph.getSize(), getExecutionTime(), System.nanoTime() - _jobStarted);
-      }
-    }
-
-    /**
-     * Only gets called if this was the only node created because the dep graph was
-     * too small.
-     */
-    @Override
-    public void resultReceived(final CalculationJobResult result) {
-      super.resultReceived(result);
-      execute(null);
-      _statistics.graphExecuted(getGraph().getCalcConfName(), getGraph().getSize(), result.getDuration(), System.nanoTime() - _jobStarted);
-    }
-
-  }
-
   protected RootGraphFragment executeImpl(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
+    final GraphFragmentContext context = new GraphFragmentContext(this, graph);
     // writeGraphForTestingPurposes(graph);
     if (graph.getSize() <= getMinJobItems()) {
       // If the graph is too small, run it as-is
       // TODO [ENG-201] pass cycle cost, not graph size
       statistics.graphProcessed(graph.getCalcConfName(), 1, graph.getSize(), graph.getSize());
-      final RootGraphFragment fragment = new RootGraphFragment(statistics, graph.getExecutionOrder());
-      fragment.executeImpl(graph);
+      final RootGraphFragment fragment = new RootGraphFragment(context, statistics, graph.getExecutionOrder());
+      fragment.executeImpl();
       return fragment;
     }
     final Set<GraphFragment> allFragments = new HashSet<GraphFragment>((graph.getSize() * 4) / 3);
-    final RootGraphFragment logicalRoot = new RootGraphFragment(statistics);
-    for (GraphFragment root : graphToFragments(graph, allFragments)) {
+    final RootGraphFragment logicalRoot = new RootGraphFragment(context, statistics);
+    for (GraphFragment root : graphToFragments(context, graph, allFragments)) {
       root.getDependencies().add(logicalRoot);
       logicalRoot.getInputs().add(root);
     }
@@ -401,14 +141,14 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     statistics.graphProcessed(graph.getCalcConfName(), count, (double) totalSize / (double) count, (double) totalCycleCost / (double) count);
     // Execute anything left (leaf nodes)
     for (GraphFragment fragment : allFragments) {
-      fragment.execute(graph);
+      fragment.execute();
     }
     return logicalRoot;
   }
 
   @Override
   public Future<Object> execute(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
-    return executeImpl(graph, statistics)._future;
+    return executeImpl(graph, statistics).getFuture();
   }
 
   public int getMinJobItems() {
@@ -431,27 +171,29 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     return _maxConcurrency;
   }
 
-  private Collection<GraphFragment> graphToFragments(final DependencyGraph graph, final Set<GraphFragment> allFragments) {
+  private Collection<GraphFragment> graphToFragments(final GraphFragmentContext context, final DependencyGraph graph, final Set<GraphFragment> allFragments) {
     final Map<DependencyNode, GraphFragment> node2fragment = new HashMap<DependencyNode, GraphFragment>();
     final Collection<DependencyNode> rootNodes = graph.getRootNodes();
     final Collection<GraphFragment> rootFragments = new ArrayList<GraphFragment>(rootNodes.size());
-    graphToFragments(graph, rootFragments, node2fragment, rootNodes);
+    graphToFragments(context, graph, rootFragments, node2fragment, rootNodes);
     allFragments.addAll(node2fragment.values());
     return rootFragments;
   }
 
-  private void graphToFragments(final DependencyGraph graph, final Collection<GraphFragment> output, final Map<DependencyNode, GraphFragment> node2fragment, final Collection<DependencyNode> nodes) {
+  private void graphToFragments(final GraphFragmentContext context, final DependencyGraph graph, final Collection<GraphFragment> output, final Map<DependencyNode, GraphFragment> node2fragment,
+      final Collection<DependencyNode> nodes) {
+    // TODO Andrew 2010-09-02 -- Can we do this by iterating the graph nodes instead of walking the tree?
     for (DependencyNode node : nodes) {
       if (!graph.containsNode(node)) {
         continue;
       }
       GraphFragment fragment = node2fragment.get(node);
       if (fragment == null) {
-        fragment = new GraphFragment(node);
+        fragment = new GraphFragment(context, node);
         node2fragment.put(node, fragment);
         final Collection<DependencyNode> inputNodes = node.getInputNodes();
         if (!inputNodes.isEmpty()) {
-          graphToFragments(graph, fragment.getInputs(), node2fragment, inputNodes);
+          graphToFragments(context, graph, fragment.getInputs(), node2fragment, inputNodes);
           for (GraphFragment input : fragment.getInputs()) {
             input.getDependencies().add(fragment);
           }
