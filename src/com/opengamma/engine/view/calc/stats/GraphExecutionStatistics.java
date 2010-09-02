@@ -111,5 +111,14 @@ public class GraphExecutionStatistics {
     _processedJobs.addAndGet(totalJobs);
     _lastProcessedTime = Instant.nowSystemClock();
   }
+  
+  public void reset () {
+    _processedGraphs.set (0);
+    _executedGraphs.set (0);
+    _executedNodes.set (0);
+    _executionTime.set (0);
+    _actualTime.set (0);
+    _processedJobs.set (0);
+  }
 
 }

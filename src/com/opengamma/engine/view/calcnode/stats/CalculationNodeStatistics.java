@@ -110,4 +110,13 @@ public class CalculationNodeStatistics {
     _lastJobTime = Instant.nowSystemClock();
   }
 
+  public void reset() {
+    _successfulJobs.set(0);
+    _unsuccessfulJobs.set(0);
+    _jobItems.set(0);
+    _jobCycleCost.set(0);
+    _executionTime.set(0);
+    _nonExecutionTime.set(0);
+  }
+
 }
