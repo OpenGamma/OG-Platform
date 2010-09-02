@@ -13,6 +13,7 @@ import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionDefinition;
+import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -29,18 +30,19 @@ public class DependencyNode {
   
   // BELOW: COMPLETELY IMMUTABLE VARIABLES 
   
-  private final FunctionDefinition _functionDefinition;
   private final ComputationTarget _computationTarget;
-  private final Set<ValueSpecification> _inputValues;
   
   // COMPLETELY IMMUTABLE VARIABLES END
   
+  private ParameterizedFunction _function;
+  
   // BELOW: EVEN THOUGH VARIABLE ITSELF IS FINAL, CONTENTS ARE MUTABLE.
   
+  private final Set<ValueSpecification> _inputValues = new HashSet<ValueSpecification>();
+  private final Set<ValueSpecification> _outputValues = new HashSet<ValueSpecification>();
+
   private final Set<DependencyNode> _inputNodes = new HashSet<DependencyNode>();
   private final Set<DependencyNode> _dependentNodes = new HashSet<DependencyNode>();
-  
-  private final Set<ValueSpecification> _outputValues;
   
   /**
    * The final output values that cannot be stripped from the {@link #_outputValues} set no matter
@@ -50,29 +52,14 @@ public class DependencyNode {
   
   // MUTABLE CONTENTS VARIABLES END
   
-  public DependencyNode(FunctionDefinition functionDefinition,
-      ComputationTarget target,
-      Set<DependencyNode> inputNodes,
-      Set<ValueSpecification> inputValues,
-      Set<ValueSpecification> outputValues) {
-    ArgumentChecker.notNull(functionDefinition, "Function Definition");
+  public DependencyNode(ComputationTarget target) {
     ArgumentChecker.notNull(target, "Computation Target");
-    if (functionDefinition.getTargetType() != target.getType()) {
-      throw new IllegalArgumentException(
-          "Provided function of type " + functionDefinition.getTargetType()
-          + " but target of type " + target.getType());
-    }
-    ArgumentChecker.notNull(inputNodes, "Input nodes");
-    ArgumentChecker.notNull(inputValues, "Input values");
-    ArgumentChecker.notNull(outputValues, "Output values");
-    
-    _functionDefinition = functionDefinition;
     _computationTarget = target;
-    _inputValues = new HashSet<ValueSpecification>(inputValues);
-    _outputValues = new HashSet<ValueSpecification>(outputValues);
-    
+  }
+  
+  public void addInputNodes(Set<DependencyNode> inputNodes) {
     for (DependencyNode inputNode : inputNodes) {
-      addInputNode(inputNode);      
+      addInputNode(inputNode);
     }
   }
   
@@ -91,8 +78,34 @@ public class DependencyNode {
     return Collections.unmodifiableSet(_dependentNodes);
   }
   
+  public DependencyNode getDependentNode() {
+    if (_dependentNodes.isEmpty()) {
+      return null;
+    } else if (_dependentNodes.size() > 1) {
+      throw new IllegalStateException("More than one dependent node"); 
+    } else {
+      return _dependentNodes.iterator().next();      
+    }
+  }
+  
   public Set<DependencyNode> getInputNodes() {
     return Collections.unmodifiableSet(_inputNodes);
+  }
+  
+  public void addOutputValues(Set<ValueSpecification> outputValues) {
+    for (ValueSpecification outputValue : outputValues) {
+      addOutputValue(outputValue);
+    }
+  }
+  
+  public void addOutputValue(ValueSpecification outputValue) {
+    ArgumentChecker.notNull(outputValue, "Output value");
+    _outputValues.add(outputValue);
+  }
+  
+  /*package*/ void addInputValue(ValueSpecification inputValue) {
+    ArgumentChecker.notNull(inputValue, "Input value");
+    _inputValues.add(inputValue);
   }
   
   public Set<ValueSpecification> getOutputValues() {
@@ -124,19 +137,42 @@ public class DependencyNode {
   }
   
   /**
-   * @return The returned {@code ValueRequirements} only tell you what the function
+   * @return The returned {@code ValueSpecifications} only tell you what the function
    * of this <i>this</i> node requires. They tell you nothing about the 
    * functions of any child nodes. 
    */
-  public Set<ValueRequirement> getRequiredLiveData() {
-    return _functionDefinition.getRequiredLiveData();
+  public Set<ValueSpecification> getRequiredLiveData() {
+    return _function.getFunction().getRequiredLiveData();
   }
   
   /**
-   * @return the functionDefinition
+   * @return the function
    */
-  public FunctionDefinition getFunctionDefinition() {
-    return _functionDefinition;
+  public ParameterizedFunction getFunction() {
+    return _function;
+  }
+  
+  /**
+   * Uses default parameters to invoke the function. Useful in tests.
+   * @param function Function to be invoked
+   */
+  public void setFunction(FunctionDefinition function) {
+    setFunction(new ParameterizedFunction(function, function.getDefaultParameters()));
+  }
+  
+  public void setFunction(ParameterizedFunction function) {
+    ArgumentChecker.notNull(function, "Function");
+    if (_function != null) {
+      throw new IllegalStateException("The function was already set");
+    }
+    
+    if (function.getFunction().getTargetType() != getComputationTarget().getType()) {
+      throw new IllegalArgumentException(
+          "Provided function of type " + function.getFunction().getTargetType()
+          + " but target of type " + getComputationTarget().getType());
+    }
+
+    _function = function;
   }
 
   /**
@@ -199,7 +235,7 @@ public class DependencyNode {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("DependencyNode[");
-    sb.append(getFunctionDefinition().getShortName());
+    sb.append(getFunction().getFunction().getShortName());
     sb.append(" on ");
     sb.append(getComputationTarget().toSpecification());
     sb.append("]");

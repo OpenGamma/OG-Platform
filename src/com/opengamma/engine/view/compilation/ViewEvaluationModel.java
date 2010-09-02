@@ -17,7 +17,6 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.position.Portfolio;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
@@ -29,7 +28,7 @@ public class ViewEvaluationModel {
 
   private final Portfolio _portfolio;
   private final Map<String, DependencyGraph> _graphsByConfiguration;
-  private final Set<ValueRequirement> _liveDataRequirements;
+  private final Set<ValueSpecification> _liveDataRequirements;
   private final Set<String> _securityTypes;
     
   /**
@@ -64,12 +63,12 @@ public class ViewEvaluationModel {
     return _portfolio;
   }
   
-  public Set<ValueRequirement> getAllLiveDataRequirements() {
-    return _liveDataRequirements;
+  public Set<ValueSpecification> getAllLiveDataRequirements() {
+    return Collections.unmodifiableSet(_liveDataRequirements);
   }
   
   public Set<String> getAllSecurityTypes() {
-    return _securityTypes;
+    return Collections.unmodifiableSet(_securityTypes);
   }
   
   public Set<ComputationTargetSpecification> getAllComputationTargets() {
@@ -92,10 +91,10 @@ public class ViewEvaluationModel {
   }
   
   //--------------------------------------------------------------------------
-  private static Set<ValueRequirement> processLiveDataRequirements(Map<String, DependencyGraph> graphsByConfiguration) {
-    Set<ValueRequirement> result = new HashSet<ValueRequirement>();
+  private static Set<ValueSpecification> processLiveDataRequirements(Map<String, DependencyGraph> graphsByConfiguration) {
+    Set<ValueSpecification> result = new HashSet<ValueSpecification>();
     for (DependencyGraph dependencyGraph : graphsByConfiguration.values()) {
-      Set<ValueRequirement> requiredLiveData = dependencyGraph.getAllRequiredLiveData();
+      Set<ValueSpecification> requiredLiveData = dependencyGraph.getAllRequiredLiveData();
       result.addAll(requiredLiveData);
     }
     return result;

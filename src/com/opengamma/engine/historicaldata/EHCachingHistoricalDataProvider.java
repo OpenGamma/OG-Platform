@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.historicaldata;
@@ -32,14 +32,13 @@ import com.opengamma.util.tuple.Pair;
  */
 public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
   private static final Logger s_logger = LoggerFactory.getLogger(EHCachingHistoricalDataProvider.class);
-  
+
   private static final boolean INCLUDE_LAST_DAY = true;
   private static final String CACHE_NAME = "HistoricalDataCache";
   private final HistoricalDataSource _underlying;
   private final CacheManager _manager;
   private final Cache _cache;
-  
-  
+
   public EHCachingHistoricalDataProvider(HistoricalDataSource underlying) {
     ArgumentChecker.notNull(underlying, "Underlying Historical Data Provider");
     _underlying = underlying;
@@ -48,21 +47,18 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
     _cache = getCacheFromManager(manager, CACHE_NAME);
     _manager = manager;
   }
-  
-  public EHCachingHistoricalDataProvider(HistoricalDataSource underlying, int maxElementsInMemory,
-                                         MemoryStoreEvictionPolicy memoryStoreEvictionPolicy, boolean overflowToDisk,
-                                         String diskStorePath, boolean eternal, long timeToLiveSeconds, long timeToIdleSeconds,
-                                         boolean diskPersistent, long diskExpiryThreadIntervalSeconds, 
-                                         RegisteredEventListeners registeredEventListeners) {
+
+  public EHCachingHistoricalDataProvider(HistoricalDataSource underlying, int maxElementsInMemory, MemoryStoreEvictionPolicy memoryStoreEvictionPolicy, boolean overflowToDisk, String diskStorePath,
+      boolean eternal, long timeToLiveSeconds, long timeToIdleSeconds, boolean diskPersistent, long diskExpiryThreadIntervalSeconds, RegisteredEventListeners registeredEventListeners) {
     ArgumentChecker.notNull(underlying, "Underlying Historical Data Provider");
     _underlying = underlying;
     CacheManager manager = createCacheManager();
-    addCache(manager, CACHE_NAME, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal,
-             timeToLiveSeconds, timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners);
+    addCache(manager, CACHE_NAME, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent,
+        diskExpiryThreadIntervalSeconds, registeredEventListeners);
     _cache = getCacheFromManager(manager, CACHE_NAME);
     _manager = manager;
   }
-  
+
   public EHCachingHistoricalDataProvider(HistoricalDataSource underlying, CacheManager manager) {
     ArgumentChecker.notNull(underlying, "Underlying Historical Data Provider");
     ArgumentChecker.notNull(manager, "Cache Manager");
@@ -71,7 +67,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
     _cache = getCacheFromManager(manager, CACHE_NAME);
     _manager = manager;
   }
-  
+
   public EHCachingHistoricalDataProvider(HistoricalDataSource underlying, Cache cache) {
     ArgumentChecker.notNull(underlying, "Underlying Historical Data Provider");
     ArgumentChecker.notNull(cache, "Cache");
@@ -81,7 +77,6 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
     _cache = getCacheFromManager(manager, cache.getName());
     _manager = manager;
   }
-  
 
   protected CacheManager createCacheManager() {
     CacheManager manager = null;
@@ -106,20 +101,13 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
 
   }
 
-  protected void addCache(CacheManager manager, String name,
-      int maxElementsInMemory,
-      MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
-      boolean overflowToDisk, String diskStorePath, boolean eternal,
-      long timeToLiveSeconds, long timeToIdleSeconds, boolean diskPersistent,
-      long diskExpiryThreadIntervalSeconds,
-      RegisteredEventListeners registeredEventListeners) {
+  protected void addCache(CacheManager manager, String name, int maxElementsInMemory, MemoryStoreEvictionPolicy memoryStoreEvictionPolicy, boolean overflowToDisk, String diskStorePath,
+      boolean eternal, long timeToLiveSeconds, long timeToIdleSeconds, boolean diskPersistent, long diskExpiryThreadIntervalSeconds, RegisteredEventListeners registeredEventListeners) {
     ArgumentChecker.notNull(manager, "CacheManager");
     ArgumentChecker.notNull(name, "CacheName");
     if (!manager.cacheExists(name)) {
       try {
-        manager.addCache(new Cache(name, maxElementsInMemory,
-            memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal,
-            timeToLiveSeconds, timeToIdleSeconds, diskPersistent,
+        manager.addCache(new Cache(name, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent,
             diskExpiryThreadIntervalSeconds, registeredEventListeners));
       } catch (Exception e) {
         throw new OpenGammaRuntimeException("Unable to create cache " + name, e);
@@ -142,12 +130,10 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
     try {
       cache = manager.getCache(name);
     } catch (Exception e) {
-      throw new OpenGammaRuntimeException(
-          "Unable to retrieve from CacheManager, cache: " + name, e);
+      throw new OpenGammaRuntimeException("Unable to retrieve from CacheManager, cache: " + name, e);
     }
     return cache;
   }
-  
 
   /**
    * @return the underlying
@@ -162,12 +148,9 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
   public CacheManager getCacheManager() {
     return _manager;
   }
-  
+
   @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(
-      IdentifierBundle identifiers, String dataSource, String dataProvider,
-      String field) {
-    
+  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String dataSource, String dataProvider, String field) {
     MetaDataKey key = new MetaDataKey(identifiers, dataSource, dataProvider, field);
     Element element = _cache.get(key);
     if (element != null) {
@@ -190,19 +173,16 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
   }
 
   @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(
-      IdentifierBundle dsids, String dataSource, String dataProvider,
-      String field, LocalDate start, LocalDate end) {
+  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle dsids, String dataSource, String dataProvider, String field, LocalDate start, LocalDate end) {
     Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = getHistoricalData(dsids, dataSource, dataProvider, field);
     if (tsPair != null) {
       LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) tsPair.getSecond().subSeries(start, true, end, INCLUDE_LAST_DAY);
-      tsPair.setValue(timeSeries);
-      return tsPair;
+      return Pair.of(tsPair.getKey(), timeSeries);
     } else {
-      return null;  
+      return null;
     }
   }
-  
+
   @Override
   public LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uid) {
     Element element = _cache.get(uid);
@@ -229,7 +209,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
     if (ts != null) {
       return (LocalDateDoubleTimeSeries) ts.subSeries(start, true, end, INCLUDE_LAST_DAY);
     } else {
-      return null;  
+      return null;
     }
   }
 
@@ -238,14 +218,14 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
     private final String _dataSource;
     private final String _dataProvider;
     private final String _field;
-    
+
     public MetaDataKey(IdentifierBundle dsids, String dataSource, String dataProvider, String field) {
       _dsids = dsids;
       _dataSource = dataSource;
       _dataProvider = dataProvider;
       _field = field;
     }
-    
+
     @Override
     public int hashCode() {
       return _dsids.hashCode() ^ _field.hashCode();
@@ -305,5 +285,4 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
     return null;
   }
 
-  
 }

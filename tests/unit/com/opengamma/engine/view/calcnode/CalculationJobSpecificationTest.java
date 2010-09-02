@@ -60,7 +60,7 @@ public class CalculationJobSpecificationTest {
     FudgeContext context = FudgeContext.GLOBAL_DEFAULT;
     CalculationJobSpecification spec1 = new CalculationJobSpecification("view", "config", 1L, 1L);
     MutableFudgeFieldContainer msg = context.newMessage();
-    spec1.writeFields(msg);
+    spec1.toFudgeMsg(msg);
     FudgeFieldContainer msg2 = context.deserialize(context.toByteArray(msg)).getMessage();
     CalculationJobSpecification spec2 = CalculationJobSpecification.fromFudgeMsg(msg2);
     assertEquals(spec1, spec2);

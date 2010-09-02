@@ -15,8 +15,6 @@ import java.util.List;
 import org.fudgemsg.FudgeContext;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
@@ -31,21 +29,21 @@ public class StandardViewComputationCacheTest {
   public void createCache () {
     final IdentifierMap identifierSource = new InMemoryIdentifierMap ();
     final BinaryDataStore dataStore = new InMemoryBinaryDataStore ();
-    _viewComputationCache = new DefaultViewComputationCache (identifierSource, dataStore, FudgeContext.GLOBAL_DEFAULT);
+    _viewComputationCache = new DefaultViewComputationCache (identifierSource, dataStore, dataStore, FudgeContext.GLOBAL_DEFAULT);
   }
   
   @Test
   public void testMissingValueSpec () {
     final ValueRequirement valueReq = new ValueRequirement("missing", new ComputationTargetSpecification (null));
-    final ValueSpecification valueSpec = new ValueSpecification (valueReq);
+    final ValueSpecification valueSpec = new ValueSpecification(valueReq, "mockFunctionId");
     assertNull (_viewComputationCache.getValue(valueSpec));
   }
   
   private void testPutGetCycle (final Object expected) {
     final ValueRequirement valueReq = new ValueRequirement("foo", new ComputationTargetSpecification (null));
-    final ValueSpecification valueSpec = new ValueSpecification (valueReq);
+    final ValueSpecification valueSpec = new ValueSpecification(valueReq, "mockFunctionId");
     final ComputedValue value = new ComputedValue (valueSpec, expected);
-    _viewComputationCache.putValue(value);
+    _viewComputationCache.putSharedValue(value);
     final Object obj = _viewComputationCache.getValue (valueSpec);
     assertNotNull (obj);
     assertEquals (expected, obj);

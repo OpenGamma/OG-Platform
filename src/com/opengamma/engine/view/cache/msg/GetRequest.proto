@@ -8,7 +8,7 @@ namespace com.opengamma.engine.view.cache.msg {
 
   message GetRequest extends BinaryDataStoreRequest {
   
-    required long identifier;
+    required repeated long identifier;
   
   }
 

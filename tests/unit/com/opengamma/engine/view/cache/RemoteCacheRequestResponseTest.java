@@ -13,6 +13,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
@@ -51,14 +52,30 @@ public class RemoteCacheRequestResponseTest {
     RemoteCacheClient client = new RemoteCacheClient(conduit);
     IdentifierMap identifierMap = new RemoteIdentifierMap (client);
     
-    BitSet seenIds = new BitSet();
-    for(int i = 0; i < 10; i++) {
-      ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", "Value" + i))));
-      long id = identifierMap.getIdentifier(valueSpec);
+    final ValueSpecification[] valueSpec = new ValueSpecification[10];
+    for (int i = 0; i < valueSpec.length; i++) {
+      valueSpec[i] = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", "Value" + i))), "mockFunctionId");
+    }
+    // Make single value calls
+    s_logger.debug ("Begin single value lookup");
+    final BitSet seenIds = new BitSet();
+    for(int i = 0; i < valueSpec.length; i++) {
+      long id = identifierMap.getIdentifier(valueSpec[i]);
       assertTrue(id <= Integer.MAX_VALUE);
       assertFalse(seenIds.get((int) id));
       seenIds.set((int) id);
     }
+    s_logger.debug ("End single value lookup");
+    // Make a bulk lookup call
+    s_logger.debug ("Begin bulk lookup");
+    final Map<ValueSpecification, Long> identifiers = identifierMap.getIdentifiers (Arrays.asList(valueSpec));
+    assertNotNull (identifiers);
+    assertEquals (valueSpec.length, identifiers.size ());
+    for (ValueSpecification spec : valueSpec) {
+      assertTrue (identifiers.containsKey(spec));
+      assertTrue (seenIds.get ((int)(long)identifiers.get(spec)));
+    }
+    s_logger.debug ("End bulk lookup");
   }
   
   @Test(timeout=10000l)
@@ -72,14 +89,18 @@ public class RemoteCacheRequestResponseTest {
     Map<String, Long> _idsByValueName = new HashMap<String, Long>();
     for(int i = 0; i < 10; i++) {
       String valueName = "Value" + i;
-      ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", valueName))));
+      ValueSpecification valueSpec = new ValueSpecification(
+          new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", valueName))),
+          "mockFunctionId");
       long id = identifierMap.getIdentifier(valueSpec);
       _idsByValueName.put(valueName, id);
     }
 
     for(int i = 0; i < 10; i++) {
       String valueName = "Value" + i;
-      ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", valueName))));
+      ValueSpecification valueSpec = new ValueSpecification(
+          new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", valueName))),
+          "mockFunctionId");
       long id = identifierMap.getIdentifier(valueSpec);
       assertEquals(_idsByValueName.get(valueName), new Long(id));
     }
@@ -89,8 +110,9 @@ public class RemoteCacheRequestResponseTest {
   public void multiThreadLookupDifferentIdentifierValuesRepeatedSharedClient() throws InterruptedException {
     InMemoryViewComputationCacheSource cache = new InMemoryViewComputationCacheSource (FudgeContext.GLOBAL_DEFAULT);
     ViewComputationCacheServer server = new ViewComputationCacheServer (cache);
-    FudgeRequestSender conduit = InMemoryRequestConduit.create(server);
-    final RemoteCacheClient client = new RemoteCacheClient(conduit);
+    FudgeRequestSender conduit1 = InMemoryRequestConduit.create(server);
+    FudgeRequestSender conduit2 = InMemoryRequestConduit.create(server);
+    final RemoteCacheClient client = new RemoteCacheClient(conduit1, conduit2);
     final IdentifierMap identifierMap = new RemoteIdentifierMap (client);
 
     final ConcurrentMap<String, Long> _idsByValueName = new ConcurrentHashMap<String, Long>();
@@ -105,7 +127,9 @@ public class RemoteCacheRequestResponseTest {
             for(int j = 0; j < 1000; j++) {
               int randomValue = rand.nextInt(100);
               String valueName = "Value" + randomValue;
-              ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", valueName))));
+              ValueSpecification valueSpec = new ValueSpecification(
+                  new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", valueName))),
+                  "mockFunctionId");
               long id = identifierMap.getIdentifier(valueSpec);
               Long previousValue = _idsByValueName.putIfAbsent(valueName, id);
               if(previousValue != null) {
@@ -150,7 +174,8 @@ public class RemoteCacheRequestResponseTest {
               int randomValue = rand.nextInt(100);
               String valueName = "Value" + randomValue;
               ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value",
-                  new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", valueName))));
+                  new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", valueName))),
+                  "mockFunctionId");
               long id = identifierMap.getIdentifier (valueSpec);
               Long previousValue = _idsByValueName.putIfAbsent(valueName, id);
               if(previousValue != null) {
@@ -183,23 +208,42 @@ public class RemoteCacheRequestResponseTest {
     RemoteCacheClient client = new RemoteCacheClient(conduit);
     final long timestamp = System.currentTimeMillis();
     BinaryDataStore dataStore = new RemoteBinaryDataStore (client, new ViewComputationCacheKey ("View1", "Config1", timestamp));
-    final byte[] inputValue = new byte[256];
-    for (int i = 0; i < inputValue.length; i++) {
-      inputValue[i] = (byte)i;
+    
+    // Single value
+    final byte[] inputValue1 = new byte[256];
+    for (int i = 0; i < inputValue1.length; i++) {
+      inputValue1[i] = (byte)i;
     }
-    final long identifier = 1L;
-    dataStore.put(identifier, inputValue);
+    long identifier1 = 1L;
+    dataStore.put(identifier1, inputValue1);
     
-    byte[] outputValue = dataStore.get(identifier);
+    byte[] outputValue = dataStore.get(identifier1);
     assertNotNull (outputValue);
-    assertArrayEquals(inputValue, outputValue);
+    assertArrayEquals(inputValue1, outputValue);
     
-    outputValue = dataStore.get (identifier + 1);
+    outputValue = dataStore.get (identifier1 + 1);
     assertNull (outputValue);
     
-    outputValue = dataStore.get (identifier);
+    outputValue = dataStore.get (identifier1);
     assertNotNull (outputValue);
-    assertArrayEquals (inputValue, outputValue);
+    assertArrayEquals (inputValue1, outputValue);
+    
+    // Multiple value
+    final byte[] inputValue2 = new byte[256];
+    for (int i = 0; i < inputValue2.length; i++) {
+      inputValue2[i] = (byte)i;
+    }
+    final Map<Long, byte[]> inputMap = new HashMap<Long, byte[]> ();
+    identifier1 ++;
+    long identifier2 = identifier1 + 1;
+    inputMap.put (identifier1, inputValue1);
+    inputMap.put (identifier2, inputValue2);
+    dataStore.put (inputMap);
+    
+    final Map<Long, byte[]> outputMap = dataStore.get (Arrays.asList (identifier1, identifier2));
+    assertEquals (2, outputMap.size ());
+    assertArrayEquals (inputValue1, outputMap.get (identifier1));
+    assertArrayEquals (inputValue2, outputMap.get (identifier2));
     
   }
 

@@ -19,8 +19,8 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
 public class FunctionInputsImplTest {
-  private static final ValueSpecification SPEC1 = new ValueSpecification(new ValueRequirement("foo-1", "USD"));
-  private static final ValueSpecification SPEC2 = new ValueSpecification(new ValueRequirement("foo-2", "USD"));
+  private static final ValueSpecification SPEC1 = new ValueSpecification(new ValueRequirement("foo-1", "USD"), "mockFunctionId");
+  private static final ValueSpecification SPEC2 = new ValueSpecification(new ValueRequirement("foo-2", "USD"), "mockFunctionId");
   private static final ComputedValue VALUE1 = new ComputedValue(SPEC1, "1");
   private static final ComputedValue VALUE2 = new ComputedValue(SPEC2, "2");
 

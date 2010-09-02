@@ -18,7 +18,10 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.function.FunctionRepository;
+import com.opengamma.engine.view.cache.IdentifierMap;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeInitMessage;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeReadyMessage;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionReceiver;
 import com.opengamma.util.ArgumentChecker;
@@ -32,15 +35,15 @@ public class RemoteNodeServer implements FudgeConnectionReceiver {
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteNodeServer.class);
 
   private final JobInvokerRegister _jobInvokerRegister;
+  private final IdentifierMap _identifierMap;
   private final ExecutorService _executorService = Executors.newCachedThreadPool();
   private final Set<Capability> _capabilitiesToAdd = new HashSet<Capability>();
   private final Set<Capability> _capabilitiesToRemove = new HashSet<Capability>();
   private Set<Capability> _capabilitiesOverride;
-  private FunctionRepository _functionRepository;
 
-  public RemoteNodeServer(final JobInvokerRegister jobInvokerRegister, final FunctionRepository functionRepository) {
+  public RemoteNodeServer(final JobInvokerRegister jobInvokerRegister, final IdentifierMap identifierMap) {
     _jobInvokerRegister = jobInvokerRegister;
-    _functionRepository = functionRepository;
+    _identifierMap = identifierMap;
   }
 
   /**
@@ -118,8 +121,8 @@ public class RemoteNodeServer implements FudgeConnectionReceiver {
     return _executorService;
   }
 
-  protected FunctionRepository getFunctionRepository() {
-    return _functionRepository;
+  protected IdentifierMap getIdentifierMap() {
+    return _identifierMap;
   }
 
   @Override
@@ -129,9 +132,9 @@ public class RemoteNodeServer implements FudgeConnectionReceiver {
     if (remoteCalcNodeMessage instanceof RemoteCalcNodeReadyMessage) {
       s_logger.info("Remote node connected - {}", connection);
       final FudgeSerializationContext scontext = new FudgeSerializationContext(fudgeContext);
-      final RemoteCalcNodeInitMessage response = new RemoteCalcNodeInitMessage(getFunctionRepository());
+      final RemoteCalcNodeInitMessage response = new RemoteCalcNodeInitMessage();
       connection.getFudgeMessageSender().send(FudgeSerializationContext.addClassHeader(scontext.objectToFudgeMsg(response), RemoteCalcNodeInitMessage.class, RemoteCalcNodeMessage.class));
-      final RemoteNodeJobInvoker invoker = new RemoteNodeJobInvoker(getExecutorService(), (RemoteCalcNodeReadyMessage) remoteCalcNodeMessage, connection);
+      final RemoteNodeJobInvoker invoker = new RemoteNodeJobInvoker(getExecutorService(), (RemoteCalcNodeReadyMessage) remoteCalcNodeMessage, connection, getIdentifierMap());
       if (_capabilitiesOverride != null) {
         invoker.setCapabilities(_capabilitiesOverride);
       } else {

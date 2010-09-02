@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,14 @@ public class MongoDBMasterConfigSource implements ConfigSource {
   
   public MongoDBMasterConfigSource() {
   }
+  
+  /**
+   * Primarily here to make Spring DI easier.
+   * @param initialMap a map of class to MongoDBConfigMasters
+   */
+  public MongoDBMasterConfigSource(Map<Class<?>, MongoDBConfigMaster<?>> initialMap) {
+    _configMasterMap.putAll(initialMap);
+  }
 
   @Override
   public <T> T get(Class<T> clazz, UniqueIdentifier identifier) {
@@ -56,13 +65,16 @@ public class MongoDBMasterConfigSource implements ConfigSource {
     ConfigSearchResult<T> searchResult = configMaster.search(request);
     List<ConfigDocument<T>> documents = searchResult.getDocuments();
     for (ConfigDocument<T> configDocument : documents) {
+      s_logger.info("configDocument = " + ToStringBuilder.reflectionToString(configDocument));
       result.add(configDocument.getValue());
     }
     return result;
   }
 
+  // REVIEW: jim 10-Aug-2010 -- Spectacular hack here to make it possible to build a DefaultInterpolatedYieldAndDiscountCurveSource
+  //                            change to private ASAP.
   @SuppressWarnings("unchecked")
-  private <T> MongoDBConfigMaster<T> getConfigMasterFor(Class<T> clazz) {
+  public <T> MongoDBConfigMaster<T> getConfigMasterFor(Class<T> clazz) {
     MongoDBConfigMaster<T> configMaster = (MongoDBConfigMaster<T>) _configMasterMap.get(clazz);
     if (configMaster == null) {
       s_logger.warn("cannot do lookup on {} document type", clazz);

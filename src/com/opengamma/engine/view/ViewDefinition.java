@@ -50,6 +50,13 @@ public class ViewDefinition implements Serializable {
   private final Map<String, ViewCalculationConfiguration> _calculationConfigurationsByName =
     new TreeMap<String, ViewCalculationConfiguration>();
   
+  /**
+   * If true, when a single computation cycle completes, the outputs are written
+   * to a temporary file on the disk. This is not useful in a real production 
+   * deployment, but can be useful in tests.
+   */
+  private boolean _dumpComputationCacheToDisk;
+  
   //--------------------------------------------------------------------------
   /**
    * Constructs an instance, including a reference portfolio.
@@ -133,7 +140,7 @@ public class ViewDefinition implements Serializable {
    * 
    * @return  a set of every required portfolio output across all calculation configurations, not null
    */
-  public Set<String> getAllPortfolioRequirements() {
+  public Set<String> getAllPortfolioRequirementNames() {
     Set<String> requirements = new TreeSet<String>();
     for (ViewCalculationConfiguration calcConfig : _calculationConfigurationsByName.values()) {
       requirements.addAll(calcConfig.getAllPortfolioRequirements());
@@ -238,6 +245,14 @@ public class ViewDefinition implements Serializable {
   public ResultModelDefinition getResultModelDefinition() {
     return _resultModelDefinition;
   }
+  
+  public boolean isDumpComputationCacheToDisk() {
+    return _dumpComputationCacheToDisk;
+  }
+
+  public void setDumpComputationCacheToDisk(boolean dumpComputationCacheToDisk) {
+    _dumpComputationCacheToDisk = dumpComputationCacheToDisk;
+  }
 
   @Override
   public int hashCode() {
@@ -266,6 +281,7 @@ public class ViewDefinition implements Serializable {
       && ObjectUtils.equals(getLiveDataUser(), other.getLiveDataUser())
       && ObjectUtils.equals(_deltaRecalculationPeriod, other._deltaRecalculationPeriod)
       && ObjectUtils.equals(_fullRecalculationPeriod, other._fullRecalculationPeriod)
+      && ObjectUtils.equals(_dumpComputationCacheToDisk, other._dumpComputationCacheToDisk)
       && ObjectUtils.equals(getAllCalculationConfigurationNames(), other.getAllCalculationConfigurationNames());
     if (!basicPropertiesEqual) {
       return false;

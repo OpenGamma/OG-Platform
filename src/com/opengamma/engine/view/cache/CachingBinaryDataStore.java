@@ -5,6 +5,12 @@
  */
 package com.opengamma.engine.view.cache;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
@@ -68,7 +74,7 @@ public class CachingBinaryDataStore implements BinaryDataStore {
   }
 
   @Override
-  public void put(long identifier, byte[] data) {
+  public void put(final long identifier, final byte[] data) {
     s_logger.info("Put {} on {}", identifier, this);
     getUnderlying().put(identifier, data);
     getCache().put(new Element(identifier, data));
@@ -77,6 +83,44 @@ public class CachingBinaryDataStore implements BinaryDataStore {
   @Override
   public String toString() {
     return "CachingBinaryDataStore[" + getCache().getName() + "]";
+  }
+
+  @Override
+  public Map<Long, byte[]> get(Collection<Long> identifiers) {
+    final Map<Long, byte[]> result = new HashMap<Long, byte[]>();
+    final List<Long> missing = new ArrayList<Long>(identifiers.size());
+    for (Long identifier : identifiers) {
+      final Element cacheElement = getCache().get(identifier);
+      if (cacheElement != null) {
+        result.put(identifier, (byte[]) cacheElement.getObjectValue());
+      } else {
+        missing.add(identifier);
+      }
+    }
+    if (missing.isEmpty()) {
+      return result;
+    }
+    if (missing.size() == 1) {
+      final Long missingIdentifier = missing.get(0);
+      final byte[] data = getUnderlying().get(missingIdentifier);
+      result.put(missingIdentifier, data);
+      getCache().put(new Element(missingIdentifier, data));
+    } else {
+      final Map<Long, byte[]> missingData = getUnderlying().get(missing);
+      for (Map.Entry<Long, byte[]> data : missingData.entrySet()) {
+        result.put(data.getKey(), data.getValue());
+        getCache().put(new Element(data.getKey(), data.getValue()));
+      }
+    }
+    return result;
+  }
+
+  @Override
+  public void put(final Map<Long, byte[]> data) {
+    getUnderlying().put(data);
+    for (Map.Entry<Long, byte[]> element : data.entrySet()) {
+      getCache().put(new Element(element.getKey(), element.getValue()));
+    }
   }
 
 }

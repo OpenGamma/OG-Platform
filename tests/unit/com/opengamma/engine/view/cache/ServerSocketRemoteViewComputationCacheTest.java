@@ -39,7 +39,6 @@ import com.opengamma.util.ThreadUtil;
  */
 public class ServerSocketRemoteViewComputationCacheTest {
   private static final Logger s_logger = LoggerFactory.getLogger(ServerSocketRemoteViewComputationCacheTest.class);
-  // When attempting to fix ENG-100, set this constant to more than 1.
   private static final int NUM_THREADS = 5;
   private static final int NUM_LOOKUPS = 1000;
   private ViewComputationCacheSource _cacheSource;
@@ -50,7 +49,7 @@ public class ServerSocketRemoteViewComputationCacheTest {
   public void setupCacheSource() throws UnknownHostException {
     InMemoryViewComputationCacheSource cache = new InMemoryViewComputationCacheSource (FudgeContext.GLOBAL_DEFAULT);
     ViewComputationCacheServer server = new ViewComputationCacheServer (cache);
-    _serverSocketDispatcher = new ServerSocketFudgeRequestDispatcher(server);
+    _serverSocketDispatcher = new ServerSocketFudgeRequestDispatcher(server, cache.getFudgeContext ());
     _serverSocketDispatcher.start();
     
     _socketSender = new SocketFudgeRequestSender();
@@ -58,7 +57,7 @@ public class ServerSocketRemoteViewComputationCacheTest {
     _socketSender.setPortNumber(_serverSocketDispatcher.getPortNumber());
     
     RemoteCacheClient client = new RemoteCacheClient(_socketSender);
-    _cacheSource = new RemoteViewComputationCacheSource (client);
+    _cacheSource = new RemoteViewComputationCacheSource (client, new InMemoryBinaryDataStoreFactory ());
   }
   
   @After
@@ -88,7 +87,10 @@ public class ServerSocketRemoteViewComputationCacheTest {
             for(int j = 0; j < NUM_LOOKUPS; j++) {
               int randomValue = rand.nextInt(100);
               String valueName = "Value" + randomValue;
-              ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", valueName))));
+              ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement(
+                  "Test Value", 
+                  new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", valueName))),
+                  "mockFunctionId");
               
               boolean putValue = true;
               Object ultimateValue = cache.getValue(valueSpec);
@@ -99,7 +101,7 @@ public class ServerSocketRemoteViewComputationCacheTest {
 
               if(putValue) {
                 ComputedValue cv = new ComputedValue(valueSpec, rand.nextDouble());
-                cache.putValue(cv);
+                cache.putSharedValue(cv);
               }
             }
           } catch (Throwable e) {

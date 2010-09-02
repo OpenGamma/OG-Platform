@@ -15,6 +15,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -117,6 +118,26 @@ public class CalculationJobResultItem {
 
   public Set<ValueSpecification> getMissingInputs() {
     return Collections.unmodifiableSet(_missingInputs);
+  }
+
+  /**
+   * Numeric identifiers may have been passed when this was encoded as a Fudge message. This will resolve
+   * them to full {@link ValueSpecification} objects.
+   * 
+   * @param identifierMap Identifier map to resolve the inputs with
+   */
+  public void resolveInputs(final IdentifierMap identifierMap) {
+    _item.resolveInputs(identifierMap);
+  }
+
+  /**
+   * Convert full {@link ValueSpecification} objects to numeric identifiers for more efficient Fudge
+   * encoding.
+   * 
+   * @param identifierMap Identifier map to convert the inputs with
+   */
+  public void convertInputs(final IdentifierMap identifierMap) {
+    _item.convertInputs(identifierMap);
   }
 
   public FudgeFieldContainer toFudgeMsg(FudgeSerializationContext fudgeContext) {

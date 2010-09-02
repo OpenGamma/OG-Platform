@@ -8,7 +8,11 @@ namespace com.opengamma.engine.view.cache.msg {
 
   message GetResponse extends BinaryDataStoreResponse {
   
-    optional byte[] data;
+    /**
+     * Data items in the same order as requested. If an item is not available,
+     * a zero-length array is included to keep the correct ordering.
+     */
+    repeated required byte[] data;
   
   }
 

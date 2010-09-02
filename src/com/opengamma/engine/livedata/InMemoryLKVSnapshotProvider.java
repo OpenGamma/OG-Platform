@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.livedata;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,46 +14,38 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.livedata.msg.UserPrincipal;
 
 /**
- * An implementation of {@link LiveDataSnapshotProvider} which maintains an LKV
- * cache of externally provided values.
- * It is primarily useful for mock, testing, or demo scenarios.
- * 
+ * An implementation of {@link LiveDataSnapshotProvider} which maintains an LKV cache of externally provided values.
  */
 public class InMemoryLKVSnapshotProvider extends AbstractLiveDataSnapshotProvider implements
-    LiveDataAvailabilityProvider {
+    LiveDataInjector, LiveDataAvailabilityProvider {
   private static final Logger s_logger = LoggerFactory.getLogger(InMemoryLKVSnapshotProvider.class);
-  private final Map<ValueRequirement, ComputedValue> _lastKnownValues = new ConcurrentHashMap<ValueRequirement, ComputedValue>();
-  private final Map<Long, Map<ValueRequirement, ComputedValue>> _snapshots = new ConcurrentHashMap<Long, Map<ValueRequirement, ComputedValue>>();
+  private final Map<ValueRequirement, Object> _lastKnownValues = new ConcurrentHashMap<ValueRequirement, Object>();
+  private final Map<Long, Map<ValueRequirement, Object>> _snapshots = new ConcurrentHashMap<Long, Map<ValueRequirement, Object>>();
 
   @Override
   public void addSubscription(UserPrincipal user, ValueRequirement valueRequirement) {
-    // Do nothing. All values are externally provided.
-    s_logger.debug("Added subscription to {}", valueRequirement);
+    addSubscription(user, Collections.singleton(valueRequirement));
   }
 
   @Override
   public void addSubscription(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
-    for (ValueRequirement requirement : valueRequirements) {
-      addSubscription(user, requirement);
-    }
+    // No actual subscription to make, but we still need to acknowledge it.
+    s_logger.debug("Added subscriptions to {}", valueRequirements);
+    subscriptionSucceeded(valueRequirements);
   }
 
   @Override
   public Object querySnapshot(long snapshot, ValueRequirement requirement) {
-    Map<ValueRequirement, ComputedValue> snapshotValues = _snapshots.get(snapshot);
+    Map<ValueRequirement, Object> snapshotValues = _snapshots.get(snapshot);
     if (snapshotValues == null) {
       return null;
     }
-    ComputedValue value = snapshotValues.get(requirement);
-    if (value == null) {
-      return null;
-    }
-    return value.getValue();
+    Object value = snapshotValues.get(requirement);
+    return value;
   }
 
   @Override
@@ -71,7 +62,7 @@ public class InMemoryLKVSnapshotProvider extends AbstractLiveDataSnapshotProvide
    * @param snapshotTime the time of the snapshot
    */
   public void snapshot(long snapshotTime) {
-    Map<ValueRequirement, ComputedValue> snapshotValues = new HashMap<ValueRequirement, ComputedValue>(_lastKnownValues);
+    Map<ValueRequirement, Object> snapshotValues = new HashMap<ValueRequirement, Object>(_lastKnownValues);
     _snapshots.put(snapshotTime, snapshotValues);
   }
 
@@ -80,21 +71,23 @@ public class InMemoryLKVSnapshotProvider extends AbstractLiveDataSnapshotProvide
     _snapshots.remove(snapshot);
   }
 
-  public void addValue(ComputedValue value) {
-    _lastKnownValues.put(value.getSpecification().getRequirementSpecification(), value);
-    super.valueChanged(value.getSpecification().getRequirementSpecification());
+  @Override
+  public void addValue(ValueRequirement requirement, Object value) {
+    _lastKnownValues.put(requirement, value);
+    valueChanged(requirement);
   }
 
+  @Override
   public void removeValue(final ValueRequirement valueRequirement) {
     _lastKnownValues.remove(valueRequirement);
-    super.valueChanged(valueRequirement);
+    valueChanged(valueRequirement);
+  }
+ 
+  public Set<ValueRequirement> getAllValueKeys() {
+    return Collections.unmodifiableSet(_lastKnownValues.keySet());
   }
 
-  public Collection<ValueRequirement> getAllValueKeys() {
-    return Collections.unmodifiableCollection(_lastKnownValues.keySet());
-  }
-
-  public ComputedValue getCurrentValue(ValueRequirement valueRequirement) {
+  public Object getCurrentValue(ValueRequirement valueRequirement) {
     return _lastKnownValues.get(valueRequirement);
   }
 

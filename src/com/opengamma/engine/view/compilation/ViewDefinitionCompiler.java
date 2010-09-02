@@ -18,7 +18,7 @@ import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeFormatter;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.security.SecuritySource;
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.util.ArgumentChecker;
@@ -92,13 +92,13 @@ public final class ViewDefinitionCompiler {
     StringBuilder sb = new StringBuilder();
     for (Map.Entry<String, DependencyGraph> entry : graphsByConfiguration.entrySet()) {
       String configName = entry.getKey();
-      Collection<ValueRequirement> requiredLiveData = entry.getValue().getAllRequiredLiveData();
+      Collection<ValueSpecification> requiredLiveData = entry.getValue().getAllRequiredLiveData();
       if (requiredLiveData.isEmpty()) {
         sb.append(configName).append(" requires no live data.\n");
       } else {
         sb.append("Live data for ").append(configName).append("\n");
-        for (ValueRequirement liveRequirement : requiredLiveData) {
-          sb.append("\t").append(liveRequirement.getTargetSpecification().getRequiredLiveData(secMaster)).append("\n");
+        for (ValueSpecification liveRequirement : requiredLiveData) {
+          sb.append("\t").append(liveRequirement.getRequirementSpecification().getTargetSpecification().getRequiredLiveData(secMaster)).append("\n");
         }
       }
     }

@@ -21,8 +21,11 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.cache.IdentifierMap;
+import com.opengamma.engine.view.cache.InMemoryIdentifierMap;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -33,11 +36,13 @@ public class CalculationJobResultTest {
   @Test
   public void fudge() {
     FudgeContext context = FudgeContext.GLOBAL_DEFAULT;
+    IdentifierMap identifierMap = new InMemoryIdentifierMap ();
     CalculationJobSpecification spec = new CalculationJobSpecification("view", "config", 1L, 1L);
     ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueIdentifier.of("Scheme", "Value"));
     
     CalculationJobItem item = new CalculationJobItem(
-        "1", 
+        "1",
+        new EmptyFunctionParameters(),
         targetSpec,
         Collections.<ValueSpecification>emptySet(), 
         Collections.<ValueRequirement>emptySet());
@@ -48,11 +53,13 @@ public class CalculationJobResultTest {
         500, 
         Lists.newArrayList(item1, item2),
         "localhost");
+    result.convertInputs(identifierMap);
     
     FudgeFieldContainer msg = result.toFudgeMsg(new FudgeSerializationContext(context));
     msg = context.deserialize(context.toByteArray(msg)).getMessage();
     CalculationJobResult outputJob = CalculationJobResult.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
     assertNotNull(outputJob);
+    result.resolveInputs(identifierMap);
     assertEquals(spec, outputJob.getSpecification());
     assertEquals(500, outputJob.getDuration());
     assertEquals("localhost", outputJob.getComputeNodeId());

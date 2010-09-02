@@ -7,7 +7,6 @@ package com.opengamma.engine.view.calcnode;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -22,11 +21,17 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.view.cache.IdentifierMap;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeJobMessage;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeReadyMessage;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeResultMessage;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionStateListener;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageSender;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.monitor.OperationTimer;
 
 /**
  * A JobInvoker for invoking a job on a remote node connected by a FudgeConnection.
@@ -42,10 +47,12 @@ import com.opengamma.util.ArgumentChecker;
   private volatile int _capacity;
   private final AtomicInteger _launched = new AtomicInteger();
   private final AtomicReference<JobInvokerRegister> _dispatchCallback = new AtomicReference<JobInvokerRegister>();
+  private final IdentifierMap _identifierMap;
 
-  public RemoteNodeJobInvoker(final ExecutorService executorService, final RemoteCalcNodeReadyMessage initialMessage, final FudgeConnection fudgeConnection) {
+  public RemoteNodeJobInvoker(final ExecutorService executorService, final RemoteCalcNodeReadyMessage initialMessage, final FudgeConnection fudgeConnection, final IdentifierMap identifierMap) {
     _executorService = executorService;
     _fudgeMessageSender = fudgeConnection.getFudgeMessageSender();
+    _identifierMap = identifierMap;
     fudgeConnection.setFudgeMessageReceiver(this);
     fudgeConnection.setConnectionStateListener(this);
     handleReadyMessage(initialMessage);
@@ -90,22 +97,29 @@ import com.opengamma.util.ArgumentChecker;
     return _executorService;
   }
 
+  private IdentifierMap getIdentifierMap() {
+    return _identifierMap;
+  }
+
   @Override
-  public boolean invoke(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items, final JobInvocationReceiver receiver) {
+  public boolean invoke(final CalculationJob job, final JobInvocationReceiver receiver) {
     if (_launched.incrementAndGet() > _capacity) {
       _launched.decrementAndGet();
       s_logger.debug("Capacity reached");
       return false;
     }
-    s_logger.info("Dispatching job {}", jobSpec);
+    s_logger.info("Dispatching job {}", job.getSpecification());
     // Don't block the dispatcher with outgoing serialisation and I/O
     getExecutorService().execute(new Runnable() {
       @Override
       public void run() {
-        getJobCompletionCallbacks().put(jobSpec, receiver);
-        final RemoteCalcNodeJobMessage message = new RemoteCalcNodeJobMessage(new CalculationJob(jobSpec, items));
+        getJobCompletionCallbacks().put(job.getSpecification(), receiver);
+        final OperationTimer timer = new OperationTimer(s_logger, "Invocation serialisation and send of job {}", job.getSpecification().getJobId());
+        job.convertInputs(getIdentifierMap());
+        final RemoteCalcNodeJobMessage message = new RemoteCalcNodeJobMessage(job);
         final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeMessageSender().getFudgeContext());
         getFudgeMessageSender().send(FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(message), message.getClass(), RemoteCalcNodeMessage.class));
+        timer.finished();
       }
     });
     return true;
@@ -162,7 +176,9 @@ import com.opengamma.util.ArgumentChecker;
 
     final JobInvocationReceiver receiver = getJobCompletionCallbacks().remove(message.getResult().getSpecification());
     if (receiver != null) {
-      receiver.jobCompleted(message.getResult());
+      final CalculationJobResult result = message.getResult();
+      result.resolveInputs(getIdentifierMap());
+      receiver.jobCompleted(result);
     } else {
       s_logger.warn("Duplicate or result for cancelled callback {} received", message.getResult().getSpecification());
     }
@@ -185,12 +201,13 @@ import com.opengamma.util.ArgumentChecker;
   @Override
   public void connectionFailed(final FudgeConnection connection, final Exception cause) {
     s_logger.warn("Client connection {} dropped", connection, cause);
+    _launched.addAndGet(_capacity);
     for (CalculationJobSpecification jobSpec : getJobCompletionCallbacks().keySet()) {
       final JobInvocationReceiver callback = getJobCompletionCallbacks().remove(jobSpec);
       // There could still be late messages arriving from a buffer even though the connection has now failed
       if (callback != null) {
         s_logger.debug("Cancelling pending operation {}", jobSpec);
-        callback.jobFailed(this, cause);
+        callback.jobFailed(this, "node on " + toString(), cause);
       }
     }
   }
@@ -199,6 +216,11 @@ import com.opengamma.util.ArgumentChecker;
   public void connectionReset(final FudgeConnection connection) {
     s_logger.info("Connection reset by client");
     // We're the server end of a connection, so this isn't going to happen with the socket implementation
+  }
+
+  @Override
+  public String toString() {
+    return _fudgeMessageSender.toString();
   }
 
 }

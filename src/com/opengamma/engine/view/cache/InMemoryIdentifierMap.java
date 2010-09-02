@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.cache;
@@ -17,9 +17,12 @@ import com.opengamma.util.ArgumentChecker;
  * {@link ConcurrentMap}. This has no facilities for acting as a cache, or for persistence.
  * It should only be used for development and debugging purposes.
  */
-public class InMemoryIdentifierMap implements IdentifierMap {
+public class InMemoryIdentifierMap extends AbstractIdentifierMap implements IdentifierMap {
+
   private final AtomicLong _nextIdentifier = new AtomicLong(1L);
+
   private final ConcurrentMap<ValueSpecification, Long> _identifiers = new ConcurrentHashMap<ValueSpecification, Long>();
+  private final ConcurrentMap<Long, ValueSpecification> _specifications = new ConcurrentHashMap<Long, ValueSpecification>();
 
   @Override
   public long getIdentifier(ValueSpecification spec) {
@@ -32,8 +35,14 @@ public class InMemoryIdentifierMap implements IdentifierMap {
     result = _identifiers.putIfAbsent(spec, freshIdentifier);
     if (result == null) {
       result = freshIdentifier;
+      _specifications.put(freshIdentifier, spec);
     }
     return result;
+  }
+
+  @Override
+  public ValueSpecification getValueSpecification(long identifier) {
+    return _specifications.get(identifier);
   }
 
 }

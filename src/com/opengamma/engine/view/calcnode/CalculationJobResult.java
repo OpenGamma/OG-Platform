@@ -16,6 +16,8 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -69,9 +71,33 @@ public class CalculationJobResult implements Serializable {
     return _nodeId;
   }
 
+  /**
+   * Numeric identifiers may have been passed when the result items were encoded as a Fudge message. This will resolve
+   * them to full {@link ValueSpecification} objects.
+   * 
+   * @param identifierMap Identifier map to resolve the inputs with
+   */
+  public void resolveInputs(final IdentifierMap identifierMap) {
+    for (CalculationJobResultItem item : _resultItems) {
+      item.resolveInputs(identifierMap);
+    }
+  }
+
+  /**
+   * Convert full {@link ValueSpecification} objects to numeric identifiers within the result items for more efficient Fudge
+   * encoding.
+   * 
+   * @param identifierMap Identifier map to convert the inputs with
+   */
+  public void convertInputs(final IdentifierMap identifierMap) {
+    for (CalculationJobResultItem item : _resultItems) {
+      item.convertInputs(identifierMap);
+    }
+  }
+
   public FudgeFieldContainer toFudgeMsg(FudgeSerializationContext fudgeContext) {
     MutableFudgeFieldContainer msg = fudgeContext.newMessage();
-    getSpecification().writeFields(msg);
+    getSpecification().toFudgeMsg(msg);
     msg.add(DURATION_FIELD_NAME, getDuration());
     msg.add(COMPUTE_NODE_ID_FIELD_NAME, getComputeNodeId());
     for (CalculationJobResultItem item : getResultItems()) {

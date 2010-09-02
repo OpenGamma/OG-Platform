@@ -7,6 +7,7 @@ package com.opengamma.engine.view;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -16,12 +17,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.livedata.LiveDataSnapshotListener;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
+import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.SingleComputationCycle;
 import com.opengamma.engine.view.calc.ViewRecalculationJob;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
@@ -36,13 +40,15 @@ import com.opengamma.util.ThreadUtil;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
- * The base implementation of the {@link View} interface.
+ * A view represents a {@link ViewDefinition} in the context of a {@link ViewProcessor}; this is everything required
+ * to perform computations.
  */
 public class View implements Lifecycle, LiveDataSnapshotListener {
   private static final Logger s_logger = LoggerFactory.getLogger(View.class);
   // Injected dependencies:
   private final ViewDefinition _definition;
   private final ViewProcessingContext _processingContext;
+  private final LiveDataInjector _liveDataInjector;
   // Internal State:
   private ViewEvaluationModel _viewEvaluationModel;
   private Thread _recalculationThread;
@@ -52,16 +58,33 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   private final Set<ComputationResultListener> _resultListeners = new CopyOnWriteArraySet<ComputationResultListener>();
   private final Set<DeltaComputationResultListener> _deltaListeners = new CopyOnWriteArraySet<DeltaComputationResultListener>();
   private volatile boolean _populateResultModel = true;
-
+ 
+  /**
+   * Constructs an instance. 
+   * 
+   * @param definition  the view definition, not null
+   * @param processingContext  the context from the view processor, not null 
+   */
   public View(ViewDefinition definition, ViewProcessingContext processingContext) {
-    if (definition == null) {
-      throw new NullPointerException("Must provide a definition.");
-    }
-    if (processingContext == null) {
-      throw new NullPointerException("Must provide a processing context.");
-    }
+    this(definition, processingContext, null);
+  }
+  
+  /**
+   * Constructs an instance.
+   * 
+   * @param definition  the view definition, not null
+   * @param processingContext  the context from the view processor, not null
+   * @param liveDataInjector  an optional live data injector to be used for inserting user-provided live data for this
+   *                          view. For this to have any effect, the values injected should be included by the snapshot
+   *                          provider that is part of the processing context.
+   */
+  public View(ViewDefinition definition, ViewProcessingContext processingContext, LiveDataInjector liveDataInjector) {
+    ArgumentChecker.notNull(definition, "definition");
+    ArgumentChecker.notNull(processingContext, "processingContext");
+    
     _definition = definition;
     _processingContext = processingContext;
+    _liveDataInjector = liveDataInjector;
   }
   
   /**
@@ -76,6 +99,10 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
    */
   public ViewProcessingContext getProcessingContext() {
     return _processingContext;
+  }
+  
+  public LiveDataInjector getLiveDataInjector() {
+    return _liveDataInjector;
   }
 
   /**
@@ -168,7 +195,7 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     setCalculationState(ViewCalculationState.INITIALIZING);
 
     _viewEvaluationModel = ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices());
-    addLiveDataSubscriptions(getViewEvaluationModel().getAllLiveDataRequirements());
+    addLiveDataSubscriptions();
     
     setCalculationState(ViewCalculationState.NOT_STARTED);
     timer.finished();
@@ -177,8 +204,11 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   /**
    * Adds live data subscriptions to the view.
    */
-  private void addLiveDataSubscriptions(Set<ValueRequirement> liveDataRequirements) {
+  private void addLiveDataSubscriptions() {
+    Set<ValueRequirement> liveDataRequirements = getRequiredLiveData();
+    
     OperationTimer timer = new OperationTimer(s_logger, "Adding {} live data subscriptions for portfolio {}", liveDataRequirements.size(), getDefinition().getPortfolioId());
+    
     LiveDataSnapshotProvider snapshotProvider = getProcessingContext().getLiveDataSnapshotProvider();
     snapshotProvider.addListener(this);
     snapshotProvider.addSubscription(getDefinition().getLiveDataUser(), liveDataRequirements);
@@ -198,11 +228,12 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   }
 
   @Override
-  public void valueChanged(ValueRequirement requirement) {
-    Set<ValueRequirement> liveDataRequirements = getViewEvaluationModel().getAllLiveDataRequirements();
+  public void valueChanged(ValueRequirement value) {
+    ValueSpecification valueSpecification = new ValueSpecification(value, LiveDataSourcingFunction.UNIQUE_ID);
+    Set<ValueSpecification> liveDataRequirements = getViewEvaluationModel().getAllLiveDataRequirements();
     ViewRecalculationJob recalcJob = getRecalcJob();
-    if (recalcJob != null && liveDataRequirements.contains(requirement)) {
-      recalcJob.liveDataChanged();      
+    if (recalcJob != null && liveDataRequirements.contains(valueSpecification)) {
+      recalcJob.liveDataChanged();  
     }
   }
 
@@ -231,7 +262,7 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     // be an unnecessary burden. Have to factor in some type of win there.
     s_logger.debug("Recalculation Performed called.");
     // We swap these first so that in the callback the view is consistent.
-    ViewComputationResultModelImpl previousResult = _mostRecentResult;
+    ViewResultModelImpl previousResult = _mostRecentResult;
     _mostRecentResult = result;
     for (ComputationResultListener resultListener : _resultListeners) {
       resultListener.computationResultAvailable(result);
@@ -250,8 +281,8 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
    * @return
    */
   private ViewDeltaResultModel computeDeltaModel(
-      ViewComputationResultModelImpl previousResult,
-      ViewComputationResultModelImpl result) {
+      ViewResultModelImpl previousResult,
+      ViewResultModelImpl result) {
     ViewDeltaResultModelImpl deltaModel = new ViewDeltaResultModelImpl();
     deltaModel.setValuationTime(result.getValuationTime());
     deltaModel.setResultTimestamp(result.getResultTimestamp());
@@ -267,8 +298,8 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
   private void computeDeltaModel(
       ViewDeltaResultModelImpl deltaModel,
       ComputationTargetSpecification targetSpec,
-      ViewComputationResultModelImpl previousResult,
-      ViewComputationResultModelImpl result) {
+      ViewResultModelImpl previousResult,
+      ViewResultModelImpl result) {
     for (String calcConfigName : result.getCalculationConfigurationNames()) {
       ViewCalculationResultModel resultCalcModel = result.getCalculationResult(calcConfigName);
       ViewCalculationResultModel previousCalcModel = previousResult.getCalculationResult(calcConfigName);
@@ -452,12 +483,10 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
    * @throws ViewPermissionException  if any entitlement problems are found
    */
   public void assertAccessToLiveDataRequirements(UserPrincipal user) {
-    Set<ValueRequirement> requiredValues = getViewEvaluationModel().getAllLiveDataRequirements();
-    Collection<LiveDataSpecification> requiredLiveData = ValueRequirement.getRequiredLiveData(
-        requiredValues, 
-        getProcessingContext().getSecuritySource());
-    
     s_logger.info("Checking that {} is entitled to the results of {}", user, this);
+
+    Collection<LiveDataSpecification> requiredLiveData = getRequiredLiveDataSpecifications();
+    
     Map<LiveDataSpecification, Boolean> entitlements = getProcessingContext().getLiveDataEntitlementChecker().isEntitled(user, requiredLiveData);
     
     ArrayList<LiveDataSpecification> failures = new ArrayList<LiveDataSpecification>();
@@ -473,6 +502,29 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     }
   }
   
+  public Set<ValueRequirement> getRequiredLiveData() {
+    ViewEvaluationModel viewEvaluationModel = getViewEvaluationModel();
+    if (viewEvaluationModel == null) {
+      return null;
+    }
+    Set<ValueSpecification> requiredSpecs = viewEvaluationModel.getAllLiveDataRequirements();
+    
+    Set<ValueRequirement> returnValue = new HashSet<ValueRequirement>();
+    for (ValueSpecification requiredSpec : requiredSpecs) {
+      returnValue.add(requiredSpec.getRequirementSpecification());      
+    }
+    return returnValue;
+  }
+  
+  private Collection<LiveDataSpecification> getRequiredLiveDataSpecifications() {
+    Set<LiveDataSpecification> returnValue = new HashSet<LiveDataSpecification>();
+    for (ValueRequirement requirement : getRequiredLiveData()) {
+      LiveDataSpecification liveDataSpec = requirement.getRequiredLiveData(getProcessingContext().getSecuritySource());
+      returnValue.add(liveDataSpec);      
+    }
+    return returnValue;
+  }
+
   @Override
   public String toString() {
     return "View[" + getDefinition().getName() + "]";

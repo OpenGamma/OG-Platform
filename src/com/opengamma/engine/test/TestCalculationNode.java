@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.test;
 
-import org.fudgemsg.FudgeContext;
+import java.util.concurrent.Executors;
 
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -16,15 +16,17 @@ import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.calcnode.AbstractCalculationNode;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.util.InetAddressUtils;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 public class TestCalculationNode extends AbstractCalculationNode {
   
   public TestCalculationNode() {
-    super(new InMemoryViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT), 
+    super(new InMemoryViewComputationCacheSource(OpenGammaFudgeContext.getInstance()),
+        new InMemoryFunctionRepository (),
         new FunctionExecutionContext(), 
         new DefaultComputationTargetResolver(new MockSecuritySource(), new MockPositionSource()), 
         new ViewProcessorQuerySender(null), 
-        InetAddressUtils.getLocalHostName());
-    setFunctionRepository (new InMemoryFunctionRepository ());
+        InetAddressUtils.getLocalHostName(),
+        Executors.newCachedThreadPool ());
   }
 }

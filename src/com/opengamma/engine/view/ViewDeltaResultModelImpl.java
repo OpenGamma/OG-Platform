@@ -10,7 +10,7 @@ import javax.time.Instant;
 /**
  * 
  */
-public class ViewDeltaResultModelImpl extends ViewComputationResultModelImpl implements ViewDeltaResultModel {
+public class ViewDeltaResultModelImpl extends ViewResultModelImpl implements ViewDeltaResultModel {
   private Instant _previousResultTimestamp;
 
   /**

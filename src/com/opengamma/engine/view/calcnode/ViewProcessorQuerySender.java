@@ -16,6 +16,8 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.calcnode.msg.DependentValueSpecificationsReply;
+import com.opengamma.engine.view.calcnode.msg.DependentValueSpecificationsRequest;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeRequestSender;
 
