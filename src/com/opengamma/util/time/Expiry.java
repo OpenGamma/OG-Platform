@@ -94,6 +94,17 @@ public class Expiry implements InstantProvider {
       return ObjectUtils.equals(getExpiry(), other.getExpiry());
     }
     switch (getAccuracy()) {
+      case MIN_HOUR_DAY_MONTH_YEAR:
+        return (getExpiry().getMinuteOfHour() == other.getExpiry().getMinuteOfHour()) 
+          && (getExpiry().getHourOfDay() == other.getExpiry().getHourOfDay()) 
+          && (getExpiry().getDayOfMonth() == other.getExpiry().getDayOfMonth()) 
+          && (getExpiry().getMonthOfYear() == other.getExpiry().getMonthOfYear())
+          && (getExpiry().getYear() == other.getExpiry().getYear());
+      case HOUR_DAY_MONTH_YEAR:
+        return (getExpiry().getHourOfDay() == other.getExpiry().getHourOfDay()) 
+          && (getExpiry().getDayOfMonth() == other.getExpiry().getDayOfMonth()) 
+          && (getExpiry().getMonthOfYear() == other.getExpiry().getMonthOfYear())
+          && (getExpiry().getYear() == other.getExpiry().getYear());
       case DAY_MONTH_YEAR:
         return (getExpiry().getDayOfMonth() == other.getExpiry().getDayOfMonth()) && (getExpiry().getMonthOfYear() == other.getExpiry().getMonthOfYear())
             && (getExpiry().getYear() == other.getExpiry().getYear());
