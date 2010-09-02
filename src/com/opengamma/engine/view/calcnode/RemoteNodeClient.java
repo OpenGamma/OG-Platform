@@ -115,10 +115,18 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
       final CalculationJob job = message.getJob();
       job.resolveInputs(getIdentifierMap());
       final AbstractCalculationNode node = getNodes().take();
-      final CalculationJobResult result = node.executeJob(job);
+      CalculationJobResult result = null;
+      try {
+        result = node.executeJob(job);
+      } catch (Exception e) {
+        s_logger.warn("Exception thrown by job execution", e);
+        // TODO [ENG-204] propogate this error back to the server
+      }
       getNodes().add(node);
-      result.convertInputs(getIdentifierMap());
-      sendMessage(new RemoteCalcNodeResultMessage(result));
+      if (result != null) {
+        result.convertInputs(getIdentifierMap());
+        sendMessage(new RemoteCalcNodeResultMessage(result));
+      }
     } catch (InterruptedException e) {
       s_logger.warn("Thread interrupted");
     }
