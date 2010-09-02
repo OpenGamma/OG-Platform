@@ -9,7 +9,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A security master implementation that delegates to an underklying implementation.
+ * A security master implementation that delegates to an underlying implementation.
  */
 public class SecurityMasterAdapter implements SecurityMaster {
 
