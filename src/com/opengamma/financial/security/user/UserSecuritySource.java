@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.security.user;
@@ -67,9 +67,13 @@ public class UserSecuritySource implements SecuritySource {
     }
   }
 
+  public String getScheme() {
+    return UserUniqueIdentifierUtils.getUserScheme();
+  }
+
   private UniqueIdentifier getUid(IdentifierBundle secKey) {
     // TODO: improve
-    final String userScheme = UserUniqueIdentifierUtils.getUserScheme();
+    final String userScheme = getScheme();
     String idValue = secKey.getIdentifier(new IdentificationScheme(userScheme));
     if (idValue != null) {
       return UniqueIdentifier.of(userScheme, idValue);

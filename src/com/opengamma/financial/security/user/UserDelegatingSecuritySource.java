@@ -7,7 +7,6 @@ package com.opengamma.financial.security.user;
 
 import com.opengamma.engine.security.DelegatingSecuritySource;
 import com.opengamma.engine.security.SecuritySource;
-import com.opengamma.financial.user.UserUniqueIdentifierUtils;
 
 /**
  * Delegates between a {@link UserSecuritySource} and a default {@link SecuritySource}. Just a wrapper to aid
@@ -17,7 +16,7 @@ public class UserDelegatingSecuritySource extends DelegatingSecuritySource {
   
   public UserDelegatingSecuritySource(UserSecuritySource userSecurityMaster, SecuritySource defaultMaster) {
     super(defaultMaster);
-    registerDelegate(UserUniqueIdentifierUtils.getUserScheme(), userSecurityMaster);
+    registerDelegate(userSecurityMaster.getScheme(), userSecurityMaster);
   }
 
 }
