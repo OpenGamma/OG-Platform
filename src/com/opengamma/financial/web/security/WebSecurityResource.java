@@ -21,7 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.engine.security.DefaultSecurity;
-import com.opengamma.financial.security.SecurityDocument;
+import com.opengamma.financial.security.master.SecurityDocument;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -87,7 +87,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   @DELETE
   public Response delete() {
     SecurityDocument doc = data().getSecurity();
-    data().getSecurityMaster().remove(doc.getUniqueIdentifier());
+    data().getSecurityMaster().remove(doc.getSecurityId());
     URI uri = WebSecuritiesResource.uri(data());
     return Response.seeOther(uri).build();
   }

@@ -20,7 +20,6 @@ import java.util.Set;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.financial.security.db.AbstractSecurityBeanOperation;
-import com.opengamma.financial.security.db.HibernateSecurityMasterDao;
 import com.opengamma.financial.security.db.IdentifierBean;
 import com.opengamma.financial.security.db.OperationContext;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
@@ -35,6 +34,7 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
+import com.opengamma.financial.security.master.db.HibernateSecurityMasterDao;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 

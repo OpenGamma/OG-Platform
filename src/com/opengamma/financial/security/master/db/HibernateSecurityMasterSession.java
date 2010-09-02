@@ -1,8 +1,6 @@
-package com.opengamma.financial.security.db;
+package com.opengamma.financial.security.master.db;
 
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -12,6 +10,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.security.DefaultSecurity;
+import com.opengamma.financial.security.db.BusinessDayConventionBean;
+import com.opengamma.financial.security.db.CurrencyBean;
+import com.opengamma.financial.security.db.DayCountBean;
+import com.opengamma.financial.security.db.EnumBean;
+import com.opengamma.financial.security.db.ExchangeBean;
+import com.opengamma.financial.security.db.FrequencyBean;
+import com.opengamma.financial.security.db.IdentifierAssociationBean;
+import com.opengamma.financial.security.db.IdentifierBean;
+import com.opengamma.financial.security.db.OperationContext;
+import com.opengamma.financial.security.db.SecurityBean;
+import com.opengamma.financial.security.db.SecurityBeanOperation;
 import com.opengamma.financial.security.db.bond.CouponTypeBean;
 import com.opengamma.financial.security.db.bond.GuaranteeTypeBean;
 import com.opengamma.financial.security.db.bond.IssuerTypeBean;
@@ -46,26 +55,6 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
   }
 
   // UTILITY METHODS
-  private Set<String> getListOfSchemes(
-      Collection<Identifier> identifiers) {
-    Set<String> schemes = new HashSet<String>();
-    for (Identifier id : identifiers) {
-      schemes.add(id.getScheme().getName());
-    }
-    return schemes;
-  }
-
-  private Set<String> getListOfValuesForScheme(String scheme,
-      Collection<Identifier> identifiers) {
-    Set<String> values = new HashSet<String>();
-    for (Identifier id : identifiers) {
-      if (id.getScheme().getName().equals(scheme)) {
-        values.add(id.getValue());
-      }
-    }
-    return values;
-  }
-  
   private <T extends EnumBean> T persistBean(T bean) {
     Long id = (Long) getSession().save(bean);
     getSession().flush();

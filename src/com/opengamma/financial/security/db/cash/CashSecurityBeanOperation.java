@@ -9,9 +9,10 @@ package com.opengamma.financial.security.db.cash;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.db.AbstractSecurityBeanOperation;
 import com.opengamma.financial.security.db.CurrencyBean;
-import com.opengamma.financial.security.db.HibernateSecurityMasterDao;
 import com.opengamma.financial.security.db.IdentifierBean;
 import com.opengamma.financial.security.db.OperationContext;
+import com.opengamma.financial.security.master.db.HibernateSecurityMasterDao;
+
 import static com.opengamma.financial.security.db.Converters.*;
 
 /**

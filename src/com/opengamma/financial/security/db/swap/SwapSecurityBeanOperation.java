@@ -10,8 +10,8 @@ import static com.opengamma.financial.security.db.Converters.dateTimeWithZoneToZ
 import static com.opengamma.financial.security.db.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
 import com.opengamma.financial.security.db.AbstractSecurityBeanOperation;
-import com.opengamma.financial.security.db.HibernateSecurityMasterDao;
 import com.opengamma.financial.security.db.OperationContext;
+import com.opengamma.financial.security.master.db.HibernateSecurityMasterDao;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurityVisitor;

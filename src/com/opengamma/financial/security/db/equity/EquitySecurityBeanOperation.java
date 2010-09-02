@@ -15,9 +15,9 @@ import com.opengamma.financial.GICSCode;
 import com.opengamma.financial.security.db.AbstractSecurityBeanOperation;
 import com.opengamma.financial.security.db.CurrencyBean;
 import com.opengamma.financial.security.db.ExchangeBean;
-import com.opengamma.financial.security.db.HibernateSecurityMasterDao;
 import com.opengamma.financial.security.db.OperationContext;
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.master.db.HibernateSecurityMasterDao;
 
 /**
  * 

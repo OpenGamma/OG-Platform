@@ -14,6 +14,10 @@ import javax.time.InstantProvider;
 
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecuritySource;
+import com.opengamma.financial.security.master.SecurityDocument;
+import com.opengamma.financial.security.master.SecurityMaster;
+import com.opengamma.financial.security.master.SecuritySearchHistoricRequest;
+import com.opengamma.financial.security.master.SecuritySearchHistoricResult;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -59,15 +63,16 @@ public class HistoricallyFixedSecurityMaster implements SecuritySource {
 
   protected SecuritySearchHistoricRequest createRequest() {
     final SecuritySearchHistoricRequest request = new SecuritySearchHistoricRequest();
-    request.setCorrectedTo(getCorrectionInstant());
-    request.setVersionFrom(getFixInstant());
-    request.setVersionTo(getFixInstant());
+    request.setCorrectionsFromInstant(getCorrectionInstant());
+    request.setCorrectionsToInstant(getCorrectionInstant());
+    request.setVersionsFromInstant(getFixInstant());
+    request.setVersionsToInstant(getFixInstant());
     return request;
   }
 
   protected Security returnOne(final SecuritySearchHistoricRequest request) {
     final SecuritySearchHistoricResult result = getDelegate().searchHistoric(request);
-    final List<SecurityDocument> documents = result.getDocument();
+    final List<SecurityDocument> documents = result.getDocuments();
     if (documents.size() > 0) {
       return documents.get(0).getSecurity();
     } else {
@@ -77,7 +82,7 @@ public class HistoricallyFixedSecurityMaster implements SecuritySource {
 
   protected Collection<Security> returnAll(final SecuritySearchHistoricRequest request) {
     final SecuritySearchHistoricResult result = getDelegate().searchHistoric(request);
-    final List<SecurityDocument> documents = result.getDocument();
+    final List<SecurityDocument> documents = result.getDocuments();
     final Collection<Security> securities = new ArrayList<Security>(documents.size());
     for (SecurityDocument document : documents) {
       securities.add(document.getSecurity());
@@ -88,7 +93,7 @@ public class HistoricallyFixedSecurityMaster implements SecuritySource {
   @Override
   public Security getSecurity(UniqueIdentifier uid) {
     final SecuritySearchHistoricRequest request = createRequest();
-    request.setObjectIdentifier(uid);
+    request.setSecurityId(uid);
     return returnOne(request);
   }
 

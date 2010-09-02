@@ -22,6 +22,10 @@ import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.Security;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.master.SecurityDocument;
+import com.opengamma.financial.security.master.SecurityMaster;
+import com.opengamma.financial.security.master.SecuritySearchRequest;
+import com.opengamma.financial.security.master.SecuritySearchResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -40,23 +44,23 @@ public class SecurityMasterTestCase extends SecurityTestCase {
     _secMaster = secMaster;
   }
 
-  private UniqueIdentifier putSecurity(final Security security) {
+  private UniqueIdentifier putSecurity(final DefaultSecurity security) {
     SecurityDocument document = new SecurityDocument();
     document.setSecurity(security);
     document = _secMaster.add(document);
     assertNotNull(document);
-    final UniqueIdentifier uid = document.getUniqueIdentifier();
+    final UniqueIdentifier uid = document.getSecurityId();
     s_logger.debug("Security {} stored with identifier {}", security.getClass(), uid);
     return uid;
   }
 
-  private UniqueIdentifier updateSecurity(final Security security) {
+  private UniqueIdentifier updateSecurity(final DefaultSecurity security) {
     SecurityDocument document = new SecurityDocument();
     document.setSecurity(security);
-    document.setUniqueIdentifier(security.getUniqueIdentifier());
+    document.setSecurityId(security.getUniqueIdentifier());
     document = _secMaster.update(document);
     assertNotNull(document);
-    final UniqueIdentifier uid = document.getUniqueIdentifier();
+    final UniqueIdentifier uid = document.getSecurityId();
     s_logger.debug("Security {} updated; new identifier {}", security.getClass(), uid);
     return uid;
   }
@@ -64,10 +68,10 @@ public class SecurityMasterTestCase extends SecurityTestCase {
   private Security getSecurity(final IdentifierBundle identifiers) {
     s_logger.debug("Search for security with identifiers {}", identifiers);
     final SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setIdentifiers(identifiers);
+    request.setIdentityKey(identifiers);
     final SecuritySearchResult result = _secMaster.search(request);
     assertNotNull(result);
-    final List<SecurityDocument> documents = result.getDocument();
+    final List<SecurityDocument> documents = result.getDocuments();
     assertNotNull(documents);
     assertEquals(1, documents.size());
     final SecurityDocument document = documents.get(0);

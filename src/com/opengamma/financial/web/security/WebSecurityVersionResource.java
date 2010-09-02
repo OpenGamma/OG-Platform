@@ -14,7 +14,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.security.SecurityDocument;
+import com.opengamma.financial.security.master.SecurityDocument;
 import com.opengamma.id.UniqueIdentifier;
 
 /**

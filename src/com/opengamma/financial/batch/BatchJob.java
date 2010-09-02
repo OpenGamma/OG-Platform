@@ -65,7 +65,7 @@ import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.financial.position.master.MasterPositionSource;
 import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.financial.security.HistoricallyFixedSecurityMaster;
-import com.opengamma.financial.security.SecurityMaster;
+import com.opengamma.financial.security.master.SecurityMaster;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.InMemoryRequestConduit;

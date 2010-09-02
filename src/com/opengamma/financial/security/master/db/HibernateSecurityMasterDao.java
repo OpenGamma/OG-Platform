@@ -3,12 +3,21 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security.db;
+package com.opengamma.financial.security.master.db;
 
 import java.util.Date;
 import java.util.List;
 
 import com.opengamma.engine.security.DefaultSecurity;
+import com.opengamma.financial.security.db.BusinessDayConventionBean;
+import com.opengamma.financial.security.db.CurrencyBean;
+import com.opengamma.financial.security.db.DayCountBean;
+import com.opengamma.financial.security.db.ExchangeBean;
+import com.opengamma.financial.security.db.FrequencyBean;
+import com.opengamma.financial.security.db.IdentifierAssociationBean;
+import com.opengamma.financial.security.db.OperationContext;
+import com.opengamma.financial.security.db.SecurityBean;
+import com.opengamma.financial.security.db.SecurityBeanOperation;
 import com.opengamma.financial.security.db.bond.CouponTypeBean;
 import com.opengamma.financial.security.db.bond.GuaranteeTypeBean;
 import com.opengamma.financial.security.db.bond.IssuerTypeBean;

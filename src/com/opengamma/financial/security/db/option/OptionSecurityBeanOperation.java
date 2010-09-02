@@ -16,8 +16,8 @@ import static com.opengamma.financial.security.db.Converters.zonedDateTimeBeanTo
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.financial.security.db.AbstractSecurityBeanOperation;
-import com.opengamma.financial.security.db.HibernateSecurityMasterDao;
 import com.opengamma.financial.security.db.OperationContext;
+import com.opengamma.financial.security.master.db.HibernateSecurityMasterDao;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
 import com.opengamma.financial.security.option.AssetOrNothingPayoffStyle;

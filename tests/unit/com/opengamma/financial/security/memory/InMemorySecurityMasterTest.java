@@ -17,10 +17,9 @@ import org.junit.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.security.DefaultSecurity;
-import com.opengamma.engine.security.Security;
-import com.opengamma.financial.security.SecurityDocument;
-import com.opengamma.financial.security.SecuritySearchRequest;
-import com.opengamma.financial.security.SecuritySearchResult;
+import com.opengamma.financial.security.master.SecurityDocument;
+import com.opengamma.financial.security.master.SecuritySearchRequest;
+import com.opengamma.financial.security.master.SecuritySearchResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -39,8 +38,8 @@ public class InMemorySecurityMasterTest {
   private static final IdentifierBundle BUNDLE1 = IdentifierBundle.of(ID1);
   private static final IdentifierBundle BUNDLE2 = IdentifierBundle.of(ID2);
   private static final IdentifierBundle BUNDLE1AND2 = IdentifierBundle.of(ID1, ID2);
-  private static final Security SEC1 = new DefaultSecurity(UniqueIdentifier.of ("Test", "sec1"), "Test 1", "TYPE1", BUNDLE1);
-  private static final Security SEC2 = new DefaultSecurity(UniqueIdentifier.of ("Test", "sec2"), "Test 2", "TYPE2", BUNDLE2);
+  private static final DefaultSecurity SEC1 = new DefaultSecurity(UniqueIdentifier.of ("Test", "sec1"), "Test 1", "TYPE1", BUNDLE1);
+  private static final DefaultSecurity SEC2 = new DefaultSecurity(UniqueIdentifier.of ("Test", "sec2"), "Test 2", "TYPE2", BUNDLE2);
 
   private InMemorySecurityMaster testEmpty;
   private InMemorySecurityMaster testPopulated;
@@ -71,7 +70,7 @@ public class InMemorySecurityMasterTest {
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(SEC1);
     SecurityDocument added = master.add(doc);
-    assertEquals("Memory", added.getUniqueIdentifier().getScheme());
+    assertEquals("Memory", added.getSecurityId().getScheme());
   }
 
   @Test
@@ -80,7 +79,7 @@ public class InMemorySecurityMasterTest {
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(SEC1);
     SecurityDocument added = master.add(doc);
-    assertEquals("Hello", added.getUniqueIdentifier().getScheme());
+    assertEquals("Hello", added.getSecurityId().getScheme());
   }
 
   //-------------------------------------------------------------------------
@@ -89,7 +88,7 @@ public class InMemorySecurityMasterTest {
     SecuritySearchRequest request = new SecuritySearchRequest();
     SecuritySearchResult result = testEmpty.search(request);
     assertEquals(0, result.getPaging().getTotalItems());
-    assertEquals(0, result.getDocument().size());
+    assertEquals(0, result.getDocuments().size());
   }
 
   @Test
@@ -97,7 +96,7 @@ public class InMemorySecurityMasterTest {
     SecuritySearchRequest request = new SecuritySearchRequest();
     SecuritySearchResult result = testPopulated.search(request);
     assertEquals(2, result.getPaging().getTotalItems());
-    List<SecurityDocument> docs = result.getDocument();
+    List<SecurityDocument> docs = result.getDocuments();
     assertEquals(2, docs.size());
     assertEquals(true, docs.contains(doc1));
     assertEquals(true, docs.contains(doc2));
@@ -106,20 +105,20 @@ public class InMemorySecurityMasterTest {
   @Test
   public void test_search_populatedMaster_filterByBundle() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setIdentifiers(BUNDLE1);
+    request.setIdentityKey(BUNDLE1);
     SecuritySearchResult result = testPopulated.search(request);
     assertEquals(1, result.getPaging().getTotalItems());
-    assertEquals(1, result.getDocument().size());
-    assertEquals(true, result.getDocument().contains(doc1));
+    assertEquals(1, result.getDocuments().size());
+    assertEquals(true, result.getDocuments().contains(doc1));
   }
 
   @Test
   public void test_search_populatedMaster_filterByBundle_both() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setIdentifiers(BUNDLE1AND2);
+    request.setIdentityKey(BUNDLE1AND2);
     SecuritySearchResult result = testPopulated.search(request);
     assertEquals(2, result.getPaging().getTotalItems());
-    List<SecurityDocument> docs = result.getDocument();
+    List<SecurityDocument> docs = result.getDocuments();
     assertEquals(2, docs.size());
     assertEquals(true, docs.contains(doc1));
     assertEquals(true, docs.contains(doc2));
@@ -133,8 +132,8 @@ public class InMemorySecurityMasterTest {
 
   @Test
   public void test_get_populatedMaster() {
-    assertSame(doc1, testPopulated.get(doc1.getUniqueIdentifier()));
-    assertSame(doc2, testPopulated.get(doc2.getUniqueIdentifier()));
+    assertSame(doc1, testPopulated.get(doc1.getSecurityId()));
+    assertSame(doc2, testPopulated.get(doc2.getSecurityId()));
   }
 
   //-------------------------------------------------------------------------
@@ -142,10 +141,10 @@ public class InMemorySecurityMasterTest {
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(SEC1);
     SecurityDocument added = testEmpty.add(doc);
-    assertNotNull(added.getLastModified());
-    assertNotNull(added.getValidFrom());
-    assertEquals(added.getLastModified(), added.getValidFrom());
-    assertEquals("Test", added.getUniqueIdentifier().getScheme());
+    assertNotNull(added.getVersionFromInstant());
+    assertNotNull(added.getCorrectionFromInstant());
+    assertEquals(added.getVersionFromInstant(), added.getCorrectionFromInstant());
+    assertEquals("Test", added.getSecurityId().getScheme());
     assertSame(SEC1, added.getSecurity());
   }
 
@@ -154,19 +153,19 @@ public class InMemorySecurityMasterTest {
   public void test_update_emptyMaster() {
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(SEC1);
-    doc.setUniqueIdentifier(OTHER_UID);
+    doc.setSecurityId(OTHER_UID);
     testEmpty.update(doc);
   }
 
   public void test_update_populatedMaster() {
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(SEC1);
-    doc.setUniqueIdentifier(doc1.getUniqueIdentifier());
+    doc.setSecurityId(doc1.getSecurityId());
     SecurityDocument updated = testPopulated.update(doc);
-    assertEquals(doc1.getUniqueIdentifier(), updated.getUniqueIdentifier());
-    assertNotNull(doc1.getLastModified());
-    assertNotNull(updated.getLastModified());
-    assertEquals(false, doc1.getLastModified().equals(updated.getLastModified()));
+    assertEquals(doc1.getSecurityId(), updated.getSecurityId());
+    assertNotNull(doc1.getVersionFromInstant());
+    assertNotNull(updated.getVersionFromInstant());
+    assertEquals(false, doc1.getVersionFromInstant().equals(updated.getVersionFromInstant()));
   }
 
   //-------------------------------------------------------------------------
@@ -177,11 +176,11 @@ public class InMemorySecurityMasterTest {
 
   @Test
   public void test_remove_populatedMaster() {
-    testPopulated.remove(doc1.getUniqueIdentifier());
+    testPopulated.remove(doc1.getSecurityId());
     SecuritySearchRequest request = new SecuritySearchRequest();
     SecuritySearchResult result = testPopulated.search(request);
     assertEquals(1, result.getPaging().getTotalItems());
-    List<SecurityDocument> docs = result.getDocument();
+    List<SecurityDocument> docs = result.getDocuments();
     assertEquals(1, docs.size());
     assertEquals(true, docs.contains(doc2));
   }

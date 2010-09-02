@@ -6,7 +6,6 @@
 package com.opengamma.financial.web.security;
 
 import java.net.URI;
-import java.util.ArrayList;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -23,12 +22,11 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.engine.security.DefaultSecurity;
-import com.opengamma.financial.security.SecurityDocument;
-import com.opengamma.financial.security.SecurityMaster;
-import com.opengamma.financial.security.SecuritySearchRequest;
-import com.opengamma.financial.security.SecuritySearchResult;
+import com.opengamma.financial.security.master.SecurityDocument;
+import com.opengamma.financial.security.master.SecurityMaster;
+import com.opengamma.financial.security.master.SecuritySearchRequest;
+import com.opengamma.financial.security.master.SecuritySearchResult;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.db.PagingRequest;
 
@@ -62,14 +60,10 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
     searchRequest.setName(StringUtils.trimToNull(name));
     searchRequest.setSecurityType(StringUtils.trimToNull(type));
-    searchRequest.setIdentifiers(IdentifierBundle.EMPTY);  // bug? in HibernateSecmaster
     out.put("searchRequest", searchRequest);
     
     if (data().getUriInfo().getQueryParameters().size() > 0) {
       SecuritySearchResult searchResult = data().getSecurityMaster().search(searchRequest);
-      if (searchResult.getDocument() == null) {  // bad spelling
-        searchResult.setDocument(new ArrayList<SecurityDocument>());  // horrid hack
-      }
       out.put("searchResult", searchResult);
     }
     return getFreemarker().build("securities/securities.ftl", out);
@@ -110,7 +104,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(security);
     SecurityDocument added = data().getSecurityMaster().add(doc);
-    URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueIdentifier().toLatest().toString()).build();
+    URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getSecurityId().toLatest().toString()).build();
     return Response.seeOther(uri).build();
   }
 

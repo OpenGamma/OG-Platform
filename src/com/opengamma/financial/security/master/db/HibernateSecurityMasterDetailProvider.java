@@ -23,8 +23,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.Security;
 import com.opengamma.financial.security.db.SecurityBeanOperation;
-import com.opengamma.financial.security.db.HibernateSecurityMasterDao;
-import com.opengamma.financial.security.db.HibernateSecurityMasterSession;
 import com.opengamma.financial.security.db.OperationContext;
 import com.opengamma.financial.security.db.SecurityBean;
 import com.opengamma.financial.security.db.bond.BondSecurityBeanOperation;
