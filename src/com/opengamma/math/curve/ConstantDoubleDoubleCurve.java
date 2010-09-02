@@ -5,7 +5,6 @@
  */
 package com.opengamma.math.curve;
 
-
 /**
  * 
  */
@@ -43,7 +42,7 @@ public class ConstantDoubleDoubleCurve extends AbstractDoubleDoubleCurve {
 
   @Override
   public Double getYValue(final Double x) {
-    return x;
+    return _y;
   }
 
   @Override

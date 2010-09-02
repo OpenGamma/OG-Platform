@@ -58,6 +58,10 @@ public class FunctionalDoubleDoubleCurve extends AbstractDoubleDoubleCurve {
     throw new UnsupportedOperationException("Cannot get size - this curve is defined by a function (x -> y)");
   }
 
+  public Function1D<Double, Double> getFunction() {
+    return _function;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -70,6 +74,9 @@ public class FunctionalDoubleDoubleCurve extends AbstractDoubleDoubleCurve {
   public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
     }
     if (getClass() != obj.getClass()) {
       return false;

@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.ParallelArrayBinarySort;
@@ -18,8 +19,9 @@ import com.opengamma.util.tuple.DoublesPair;
  * 
  */
 //TODO test for distinctness of nodes?
+//TODO add list of pair
 public abstract class DoubleDoubleCurve extends AbstractDoubleDoubleCurve {
-  private int _n;
+  private final int _n;
   private final double[] _xData;
   private final double[] _yData;
 
@@ -72,7 +74,7 @@ public abstract class DoubleDoubleCurve extends AbstractDoubleDoubleCurve {
     _xData = Arrays.copyOf(xData, _n);
     _yData = Arrays.copyOf(yData, _n);
     if (!isSorted) {
-      ParallelArrayBinarySort.parallelBinarySort(xData, yData);
+      ParallelArrayBinarySort.parallelBinarySort(_xData, _yData);
     }
   }
 
@@ -80,7 +82,8 @@ public abstract class DoubleDoubleCurve extends AbstractDoubleDoubleCurve {
     super();
     Validate.notNull(xData, "x data");
     Validate.notNull(yData, "y data");
-    Validate.isTrue(xData.length == yData.length);
+    _n = xData.length;
+    Validate.isTrue(_n == yData.length);
     _xData = new double[_n];
     _yData = new double[_n];
     for (int i = 0; i < _n; i++) {
@@ -100,12 +103,12 @@ public abstract class DoubleDoubleCurve extends AbstractDoubleDoubleCurve {
     _n = data.size();
     _xData = new double[_n];
     _yData = new double[_n];
-    final int i = 0;
+    int i = 0;
     for (final Map.Entry<Double, Double> entry : data.entrySet()) {
       Validate.notNull(entry.getKey(), "element " + i + " of x data");
       Validate.notNull(entry.getValue(), "element " + i + " of y data");
       _xData[i] = entry.getKey();
-      _yData[i] = entry.getValue();
+      _yData[i++] = entry.getValue();
     }
     if (!isSorted) {
       ParallelArrayBinarySort.parallelBinarySort(_xData, _yData);
@@ -134,11 +137,11 @@ public abstract class DoubleDoubleCurve extends AbstractDoubleDoubleCurve {
     _n = data.size();
     _xData = new double[_n];
     _yData = new double[_n];
-    final int i = 0;
+    int i = 0;
     for (final DoublesPair entry : data) {
       Validate.notNull(entry, "element " + i + " of data");
       _xData[i] = entry.first;
-      _yData[i] = entry.second;
+      _yData[i++] = entry.second;
     }
     if (!isSorted) {
       ParallelArrayBinarySort.parallelBinarySort(_xData, _yData);
@@ -154,15 +157,16 @@ public abstract class DoubleDoubleCurve extends AbstractDoubleDoubleCurve {
     _xData = Arrays.copyOf(xData, _n);
     _yData = Arrays.copyOf(yData, _n);
     if (!isSorted) {
-      ParallelArrayBinarySort.parallelBinarySort(xData, yData);
+      ParallelArrayBinarySort.parallelBinarySort(_xData, _yData);
     }
   }
 
   public DoubleDoubleCurve(final Double[] xData, final Double[] yData, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(xData, "x data");
+    _n = xData.length;
     Validate.notNull(yData, "y data");
-    Validate.isTrue(xData.length == yData.length);
+    Validate.isTrue(_n == yData.length);
     _xData = new double[_n];
     _yData = new double[_n];
     for (int i = 0; i < _n; i++) {
@@ -182,12 +186,12 @@ public abstract class DoubleDoubleCurve extends AbstractDoubleDoubleCurve {
     _n = data.size();
     _xData = new double[_n];
     _yData = new double[_n];
-    final int i = 0;
+    int i = 0;
     for (final Map.Entry<Double, Double> entry : data.entrySet()) {
       Validate.notNull(entry.getKey(), "element " + i + " of x data");
       Validate.notNull(entry.getValue(), "element " + i + " of y data");
       _xData[i] = entry.getKey();
-      _yData[i] = entry.getValue();
+      _yData[i++] = entry.getValue();
     }
     if (!isSorted) {
       ParallelArrayBinarySort.parallelBinarySort(_xData, _yData);
@@ -216,11 +220,11 @@ public abstract class DoubleDoubleCurve extends AbstractDoubleDoubleCurve {
     _n = data.size();
     _xData = new double[_n];
     _yData = new double[_n];
-    final int i = 0;
+    int i = 0;
     for (final DoublesPair entry : data) {
       Validate.notNull(entry, "element " + i + " of data");
       _xData[i] = entry.first;
-      _yData[i] = entry.second;
+      _yData[i++] = entry.second;
     }
     if (!isSorted) {
       ParallelArrayBinarySort.parallelBinarySort(_xData, _yData);
@@ -281,7 +285,7 @@ public abstract class DoubleDoubleCurve extends AbstractDoubleDoubleCurve {
       return false;
     }
     final DoubleDoubleCurve other = (DoubleDoubleCurve) obj;
-    return Arrays.equals(_xData, other._xData) && Arrays.equals(_yData, other._yData);
+    return ArrayUtils.isEquals(_xData, other._xData) && ArrayUtils.isEquals(_yData, other._yData);
   }
 
 }

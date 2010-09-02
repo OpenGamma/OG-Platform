@@ -145,6 +145,6 @@ public class NodalDoubleDoubleCurve extends DoubleDoubleCurve {
     if (index < 0) {
       throw new IllegalArgumentException("Curve does not contain data for x point " + x);
     }
-    return getXDataAsPrimitive()[index];
+    return getYDataAsPrimitive()[index];
   }
 }
