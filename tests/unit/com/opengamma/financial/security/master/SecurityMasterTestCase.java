@@ -70,8 +70,8 @@ public class SecurityMasterTestCase extends SecurityTestCase {
     assertNotNull(result);
     final List<SecurityDocument> documents = result.getDocuments();
     assertNotNull(documents);
-    assertEquals(1, documents.size());
-    final SecurityDocument document = documents.get(0);
+    assertEquals(true, documents.size() > 0);
+    final SecurityDocument document = documents.get(documents.size() - 1);
     assertNotNull(document);
     final Security security = document.getSecurity();
     assertNotNull(security);
