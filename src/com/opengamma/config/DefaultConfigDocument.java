@@ -50,8 +50,6 @@ public class DefaultConfigDocument<T> implements ConfigDocument<T> {
     _value = value;
   }
   
-  
-
   /**
    * @param id the id to set
    */

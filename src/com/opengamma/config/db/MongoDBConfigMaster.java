@@ -20,7 +20,6 @@ import javax.time.TimeSource;
 import org.bson.types.ObjectId;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
@@ -45,6 +44,7 @@ import com.opengamma.config.DefaultConfigDocument;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.MongoDBConnectionSettings;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * General purpose configuration data loader backed by MongoDB
@@ -57,6 +57,8 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
   private static final Logger s_logger = LoggerFactory.getLogger(MongoDBConfigMaster.class);
 
   private static final String[] INDICES = {OID_FUDGE_FIELD_NAME, NAME_FUDGE_FIELD_NAME, CREATION_INSTANT_FUDGE_FIELD_NAME, LAST_READ_INSTANT_FUDGE_FIELD_NAME};
+  
+  private static final FudgeContext DEFAULT_FUDGE_CONTEXT = OpenGammaFudgeContext.getInstance();
   
   /**
    * The scheme used by the master by default.
@@ -83,14 +85,14 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
   private TimeSource _timeSource = TimeSource.system();
   
   public MongoDBConfigMaster(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings,
-      final FudgeContext fudgeContext, boolean updateLastRead, final FudgeBuilder<T> messageBuilder) {
+      final FudgeContext fudgeContext, boolean updateLastRead) {
     ArgumentChecker.notNull(documentClazz, "document class");
     ArgumentChecker.notNull(mongoSettings, "MongoDB settings");
-    ArgumentChecker.notNull(fudgeContext, "FudgeContext");
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
 
-    _entityClazz = documentClazz;
     _fudgeContext = fudgeContext;
-
+    _entityClazz = documentClazz;
+    
     _mongoHost = mongoSettings.getHost();
     _mongoPort = mongoSettings.getPort();
     if (mongoSettings.getCollectionName() != null) {
@@ -108,22 +110,14 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
       throw new OpenGammaRuntimeException("Unable to connect to MongoDB at " + mongoSettings, e);
     }
 
-    if (messageBuilder != null) {
-      fudgeContext.getObjectDictionary().addBuilder(_entityClazz, messageBuilder);
-    }
-
     ensureIndices();
     _updateLastReadTime = updateLastRead;
     String status = _updateLastReadTime ? "updateLastReadTime" : "readWithoutUpdate";
     s_logger.info("creating MongoDBConfigurationRepo for {}", status);
   }
   
-  public MongoDBConfigMaster(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings, boolean updateLastRead, final FudgeBuilder<T> messageBuilder) {
-    this(documentClazz, mongoSettings, new FudgeContext(), updateLastRead, messageBuilder);
-  }
-
   public MongoDBConfigMaster(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings, boolean updateLastRead) {
-    this(documentClazz, mongoSettings, updateLastRead, null);
+    this(documentClazz, mongoSettings, DEFAULT_FUDGE_CONTEXT, updateLastRead);
   }
   
   public MongoDBConfigMaster(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings) {
@@ -224,6 +218,8 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
     
     msg.add(VALUE_FUDGE_FIELD_NAME, _fudgeContext.toFudgeMsg(value).getMessage());
 
+    s_logger.debug("msg = {}", msg);
+    
     DBCollection dbCollection = getMongoDB().getCollection(getCollectionName());
     FudgeDeserializationContext fdc = new FudgeDeserializationContext(getFudgeContext());
 
