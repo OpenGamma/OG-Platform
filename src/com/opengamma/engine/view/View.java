@@ -1,538 +1,168 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
 package com.opengamma.engine.view;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.Lifecycle;
-
-import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.function.LiveDataSourcingFunction;
-import com.opengamma.engine.livedata.LiveDataSnapshotListener;
-import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.position.Portfolio;
-import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.SingleComputationCycle;
-import com.opengamma.engine.view.calc.ViewRecalculationJob;
-import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
 import com.opengamma.engine.view.compilation.ViewEvaluationModel;
-import com.opengamma.engine.view.permission.ViewPermission;
-import com.opengamma.engine.view.permission.ViewPermissionException;
-import com.opengamma.engine.view.permission.ViewPermissionProvider;
-import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.UserPrincipal;
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.ThreadUtil;
-import com.opengamma.util.monitor.OperationTimer;
 
 /**
  * A view represents a {@link ViewDefinition} in the context of a {@link ViewProcessor}; this is everything required
- * to perform computations.
+ * to perform computations and listen to the output.
  */
-public class View implements Lifecycle, LiveDataSnapshotListener {
-  private static final Logger s_logger = LoggerFactory.getLogger(View.class);
-  // Injected dependencies:
-  private final ViewDefinition _definition;
-  private final ViewProcessingContext _processingContext;
-  private final LiveDataInjector _liveDataInjector;
-  // Internal State:
-  private ViewEvaluationModel _viewEvaluationModel;
-  private Thread _recalculationThread;
-  private ViewCalculationState _calculationState = ViewCalculationState.NOT_INITIALIZED;
-  private ViewRecalculationJob _recalcJob;
-  private ViewComputationResultModelImpl _mostRecentResult;
-  private final Set<ComputationResultListener> _resultListeners = new CopyOnWriteArraySet<ComputationResultListener>();
-  private final Set<DeltaComputationResultListener> _deltaListeners = new CopyOnWriteArraySet<DeltaComputationResultListener>();
-  private volatile boolean _populateResultModel = true;
- 
+public interface View {
+
   /**
-   * Constructs an instance. 
+   * Gets the name of the view
    * 
-   * @param definition  the view definition, not null
-   * @param processingContext  the context from the view processor, not null 
+   * @return  the name of the view
    */
-  public View(ViewDefinition definition, ViewProcessingContext processingContext) {
-    this(definition, processingContext, null);
-  }
+  String getName();
   
   /**
-   * Constructs an instance.
+   * Gets the underlying view definition
    * 
-   * @param definition  the view definition, not null
-   * @param processingContext  the context from the view processor, not null
-   * @param liveDataInjector  an optional live data injector to be used for inserting user-provided live data for this
-   *                          view. For this to have any effect, the values injected should be included by the snapshot
-   *                          provider that is part of the processing context.
+   * @return  the underlying view definition
    */
-  public View(ViewDefinition definition, ViewProcessingContext processingContext, LiveDataInjector liveDataInjector) {
-    ArgumentChecker.notNull(definition, "definition");
-    ArgumentChecker.notNull(processingContext, "processingContext");
-    
-    _definition = definition;
-    _processingContext = processingContext;
-    _liveDataInjector = liveDataInjector;
-  }
+  ViewDefinition getDefinition();
   
   /**
-   * @return the definition
+   * Gets the view processing context
+   * 
+   * @return  the view processing context
    */
-  public ViewDefinition getDefinition() {
-    return _definition;
-  }
-
-  /**
-   * @return the processingContext
-   */
-  public ViewProcessingContext getProcessingContext() {
-    return _processingContext;
-  }
-  
-  public LiveDataInjector getLiveDataInjector() {
-    return _liveDataInjector;
-  }
-
-  /**
-   * @return the recalculationThread
-   */
-  public Thread getRecalculationThread() {
-    return _recalculationThread;
-  }
-
-  /**
-   * @param recalculationThread the recalculationThread to set
-   */
-  protected void setRecalculationThread(Thread recalculationThread) {
-    _recalculationThread = recalculationThread;
-  }
-
-  /**
-   * @return the calculationState
-   */
-  public ViewCalculationState getCalculationState() {
-    return _calculationState;
-  }
-
-  /**
-   * @param calculationState the calculationState to set
-   */
-  protected void setCalculationState(ViewCalculationState calculationState) {
-    _calculationState = calculationState;
-  }
-
-  /**
-   * @return the recalcJob
-   */
-  public ViewRecalculationJob getRecalcJob() {
-    return _recalcJob;
-  }
-
-  /**
-   * @param recalcJob the recalcJob to set
-   */
-  protected void setRecalcJob(ViewRecalculationJob recalcJob) {
-    _recalcJob = recalcJob;
-  }
+  ViewProcessingContext getProcessingContext();
   
   /**
-   * @return the latest view evaluation model
+   * Gets the view evaluation model for the compiled view definition
+   * 
+   * @return  the view evaluation model
    */
-  public ViewEvaluationModel getViewEvaluationModel() {
-    return _viewEvaluationModel;
-  }
-  
-  public ViewPermissionProvider getPermissionProvider() {
-    return getProcessingContext().getPermissionProvider();
-  }
-    
-  public void addResultListener(ComputationResultListener resultListener) {
-    ArgumentChecker.notNull(resultListener, "Result listener");
-    
-    getPermissionProvider().assertPermission(ViewPermission.READ_RESULTS, resultListener.getUser(), this);
-    _resultListeners.add(resultListener);
-  }
-  
-  public void removeResultListener(ComputationResultListener resultListener) {
-    ArgumentChecker.notNull(resultListener, "Result listener");
-    _resultListeners.remove(resultListener);
-  }
-  
-  public void addDeltaResultListener(DeltaComputationResultListener deltaListener) {
-    ArgumentChecker.notNull(deltaListener, "Delta listener");
-    
-    getPermissionProvider().assertPermission(ViewPermission.READ_RESULTS, deltaListener.getUser(), this);
-    _deltaListeners.add(deltaListener);
-  }
-  
-  public void removeDeltaResultLister(DeltaComputationResultListener deltaListener) {
-    ArgumentChecker.notNull(deltaListener, "Delta listener");
-    _deltaListeners.remove(deltaListener);
-  }
-  
-  public String getName() {
-    return getDefinition().getName();
-  }
-  
-  public Set<ComputationTargetSpecification> getAllComputationTargets() {
-    return getViewEvaluationModel().getAllComputationTargets();
-  }
-  
-  public synchronized void init() {
-    OperationTimer timer = new OperationTimer(s_logger, "Initializing view {}", getDefinition().getName());
-    setCalculationState(ViewCalculationState.INITIALIZING);
-
-    _viewEvaluationModel = ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices());
-    addLiveDataSubscriptions();
-    
-    setCalculationState(ViewCalculationState.NOT_STARTED);
-    timer.finished();
-  }
-
-  /**
-   * Adds live data subscriptions to the view.
-   */
-  private void addLiveDataSubscriptions() {
-    Set<ValueRequirement> liveDataRequirements = getRequiredLiveData();
-    
-    OperationTimer timer = new OperationTimer(s_logger, "Adding {} live data subscriptions for portfolio {}", liveDataRequirements.size(), getDefinition().getPortfolioId());
-    
-    LiveDataSnapshotProvider snapshotProvider = getProcessingContext().getLiveDataSnapshotProvider();
-    snapshotProvider.addListener(this);
-    snapshotProvider.addSubscription(getDefinition().getLiveDataUser(), liveDataRequirements);
-    timer.finished();
-  }
-  
-  @Override
-  public void subscriptionFailed(ValueRequirement requirement, String msg) {
-  }
-
-  @Override
-  public void subscriptionStopped(ValueRequirement requirement) {
-  }
-
-  @Override
-  public void subscriptionSucceeded(ValueRequirement requirement) {
-  }
-
-  @Override
-  public void valueChanged(ValueRequirement value) {
-    ValueSpecification valueSpecification = new ValueSpecification(value, LiveDataSourcingFunction.UNIQUE_ID);
-    Set<ValueSpecification> liveDataRequirements = getViewEvaluationModel().getAllLiveDataRequirements();
-    ViewRecalculationJob recalcJob = getRecalcJob();
-    if (recalcJob != null && liveDataRequirements.contains(valueSpecification)) {
-      recalcJob.liveDataChanged();  
-    }
-  }
-
-  public synchronized ViewComputationResultModel getMostRecentResult() {
-    return _mostRecentResult;
-  }
-
-  public Portfolio getPortfolio() {
-    if (getViewEvaluationModel() == null) {
-      return null;
-    }
-    return getViewEvaluationModel().getPortfolio();
-  }
-
-  public PortfolioNode getPositionRoot() {
-    if (getViewEvaluationModel() == null) {
-      return null;
-    }
-    return getViewEvaluationModel().getPortfolio().getRootNode();
-  }
-
-  public synchronized void recalculationPerformed(ViewComputationResultModelImpl result) {
-    // REVIEW kirk 2009-09-24 -- We need to consider this method for background execution
-    // of some kind. It's synchronized and blocks the recalc thread, so a slow
-    // callback implementation (or just the cost of computing the delta model) will
-    // be an unnecessary burden. Have to factor in some type of win there.
-    s_logger.debug("Recalculation Performed called.");
-    // We swap these first so that in the callback the view is consistent.
-    ViewResultModelImpl previousResult = _mostRecentResult;
-    _mostRecentResult = result;
-    for (ComputationResultListener resultListener : _resultListeners) {
-      resultListener.computationResultAvailable(result);
-    }
-    if (!_deltaListeners.isEmpty() && (previousResult != null)) {
-      ViewDeltaResultModel deltaModel = computeDeltaModel(previousResult, result);
-      for (DeltaComputationResultListener deltaListener : _deltaListeners) {
-        deltaListener.deltaResultAvailable(deltaModel);
-      }
-    }
-  }
+  ViewEvaluationModel getViewEvaluationModel();
   
   /**
-   * @param previousResult
-   * @param result
-   * @return
-   */
-  private ViewDeltaResultModel computeDeltaModel(
-      ViewResultModelImpl previousResult,
-      ViewResultModelImpl result) {
-    ViewDeltaResultModelImpl deltaModel = new ViewDeltaResultModelImpl();
-    deltaModel.setValuationTime(result.getValuationTime());
-    deltaModel.setResultTimestamp(result.getResultTimestamp());
-    deltaModel.setPreviousResultTimestamp(previousResult.getResultTimestamp());
-    deltaModel.setCalculationConfigurationNames(result.getCalculationConfigurationNames());
-    for (ComputationTargetSpecification targetSpec : result.getAllTargets()) {
-      computeDeltaModel(deltaModel, targetSpec, previousResult, result);
-    }
-    
-    return deltaModel;
-  }
-  
-  private void computeDeltaModel(
-      ViewDeltaResultModelImpl deltaModel,
-      ComputationTargetSpecification targetSpec,
-      ViewResultModelImpl previousResult,
-      ViewResultModelImpl result) {
-    for (String calcConfigName : result.getCalculationConfigurationNames()) {
-      ViewCalculationResultModel resultCalcModel = result.getCalculationResult(calcConfigName);
-      ViewCalculationResultModel previousCalcModel = previousResult.getCalculationResult(calcConfigName);
-      
-      computeDeltaModel(deltaModel, targetSpec, calcConfigName, previousCalcModel, resultCalcModel);
-    }
-  }
-
-  private void computeDeltaModel(
-      ViewDeltaResultModelImpl deltaModel,
-      ComputationTargetSpecification targetSpec,
-      String calcConfigName,
-      ViewCalculationResultModel previousCalcModel,
-      ViewCalculationResultModel resultCalcModel) {
-    if (previousCalcModel == null) {
-      // Everything is new/delta because this is a new calculation context.
-      Map<String, ComputedValue> resultValues = resultCalcModel.getValues(targetSpec);
-      for (Map.Entry<String, ComputedValue> resultEntry : resultValues.entrySet()) {
-        deltaModel.addValue(calcConfigName, resultEntry.getValue());
-      }
-    } else {
-      Map<String, ComputedValue> resultValues = resultCalcModel.getValues(targetSpec);
-      Map<String, ComputedValue> previousValues = previousCalcModel.getValues(targetSpec);
-      
-      if (previousValues == null) {
-        // Everything is new/delta because this is a new target.
-        for (Map.Entry<String, ComputedValue> resultEntry : resultValues.entrySet()) {
-          deltaModel.addValue(calcConfigName, resultEntry.getValue());
-        }
-      } else {
-        // Have to individual delta.
-        DeltaDefinition deltaDefinition = getDefinition().getCalculationConfiguration(calcConfigName).getDeltaDefinition();
-        for (Map.Entry<String, ComputedValue> resultEntry : resultValues.entrySet()) {
-          ComputedValue resultValue = resultEntry.getValue();
-          ComputedValue previousValue = previousValues.get(resultEntry.getKey());
-          // REVIEW jonathan 2010-05-07 -- The previous value that we're comparing with is the value from the last
-          // computation cycle, not the value that we last emitted as a delta. It is therefore important that the
-          // DeltaComparers take this into account in their implementation of isDelta. E.g. they should compare the
-          // values after truncation to the required decimal place, rather than testing whether the difference of the
-          // full values is greater than some threshold; this way, there will always be a point beyond which a change
-          // is detected, even in the event of gradual creep.
-          if (deltaDefinition.isDelta(previousValue, resultValue)) {
-            deltaModel.addValue(calcConfigName, resultEntry.getValue());
-          }
-        }
-      }
-    }
-  }
-
-  // REVIEW kirk 2009-09-11 -- Need to resolve the synchronization on the lifecycle
-  // methods.
-
-  @Override
-  public synchronized boolean isRunning() {
-    return getCalculationState() == ViewCalculationState.RUNNING;
-  }
-  
-  public boolean hasListeners() {
-    return !_resultListeners.isEmpty() || !_deltaListeners.isEmpty();
-  }
-  
-  public boolean isPopulateResultModel() {
-    return _populateResultModel;
-  }
-
-  public void setPopulateResultModel(boolean populateResultModel) {
-    _populateResultModel = populateResultModel;
-  }
-
-  public synchronized void runOneCycle() {
-    long snapshotTime = getProcessingContext().getLiveDataSnapshotProvider().snapshot();
-    runOneCycle(snapshotTime);
-  }
-  
-  public synchronized void runOneCycle(long valuationTime) {
-    SingleComputationCycle cycle = createCycle(valuationTime);
-    cycle.prepareInputs();
-    cycle.executePlans();
-    
-    if (isPopulateResultModel()) {
-      cycle.populateResultModel();
-      recalculationPerformed(cycle.getResultModel());
-    }
-    
-    cycle.releaseResources();
-  }
-
-  @Override
-  public synchronized void start() {
-    s_logger.info("Starting...");
-    switch(getCalculationState()) {
-      case NOT_STARTED:
-      case TERMINATED:
-        // Normal state of play. Continue as normal.
-        break;
-      case TERMINATING:
-        // In the middle of termination. This is really bad, as we're now holding the lock
-        // that will allow termination to complete successfully. Therefore, we have to throw
-        // an exception rather than just waiting or something.
-        throw new IllegalStateException("Instructed to start while still terminating.");
-      case INITIALIZING:
-        // Must have thrown an exception in initialization. Can't start.
-        throw new IllegalStateException("Initialization didn't completely successfully. Can't start.");
-      case NOT_INITIALIZED:
-        throw new IllegalStateException("Must call init() before starting.");
-      case STARTING:
-        // Must have thrown an exception when start() called previously.
-        throw new IllegalStateException("start() already called, but failed to start. Cannot start again.");
-      case RUNNING:
-        throw new IllegalStateException("Already running.");
-    }
-    
-    setCalculationState(ViewCalculationState.STARTING);
-    ViewRecalculationJob recalcJob = new ViewRecalculationJob(this);
-    Thread recalcThread = new Thread(recalcJob, "Recalc Thread for " + getDefinition().getName());
-    
-    setRecalcJob(recalcJob);
-    setRecalculationThread(recalcThread);
-    setCalculationState(ViewCalculationState.RUNNING);
-    recalcThread.start();
-    s_logger.info("Started.");
-  }
-
-  @Override
-  public void stop() {
-    s_logger.info("Stopping.....");
-    synchronized (this) {
-      switch(getCalculationState()) {
-        case STARTING:
-          // Something went horribly wrong during start, and it must have thrown an exception.
-          s_logger.warn("Instructed to stop the ViewImpl, but still starting. Starting must have failed. Doing nothing.");
-          break;
-        case RUNNING:
-          // This is the normal state of play. Do nothing.
-          break;
-        default:
-          throw new IllegalStateException("Cannot stop a ViewImpl that isn't running. State: " + getCalculationState());
-      }
-    }
-    
-    assert getRecalcJob() != null;
-    assert getRecalculationThread() != null;
-    
-    synchronized (this) {
-      if ((getCalculationState() == ViewCalculationState.TERMINATED)
-          || (getCalculationState() == ViewCalculationState.TERMINATING)) {
-        s_logger.info("Multiple requests to stop() made, this invocation will do nothing.");
-        return;
-      }
-      setCalculationState(ViewCalculationState.TERMINATING);
-    }
-    
-    getRecalcJob().terminate();
-    if (getRecalculationThread().getState() == Thread.State.TIMED_WAITING) {
-      // In this case it might be waiting on a recalculation pass. Interrupt it.
-      getRecalculationThread().interrupt();
-    }
-    
-    // TODO kirk 2009-09-11 -- Have a heuristic on when to set the timeout based on
-    // how long the job is currently taking to cycle.
-    long timeout = 100 * 1000L;
-    boolean successful = ThreadUtil.safeJoin(getRecalculationThread(), timeout);
-    if (!successful) {
-      s_logger.warn("Unable to shut down recalc thread in {}ms", timeout);
-    }
-    
-    synchronized (this) {
-      setCalculationState(ViewCalculationState.TERMINATED);
-      
-      setRecalcJob(null);
-      setRecalculationThread(null);
-    }
-    s_logger.info("Stopped.");
-  }
-  
-  /**
-   * Checks that the given user has access to every market data line required to compute the results of the view, and
-   * throws an exception if this is not the case.
+   * Checks that the given user has access to the live data inputs required for computation of this view.
    * 
    * @param user  the user
-   * @throws ViewPermissionException  if any entitlement problems are found
    */
-  public void assertAccessToLiveDataRequirements(UserPrincipal user) {
-    s_logger.info("Checking that {} is entitled to the results of {}", user, this);
-
-    Collection<LiveDataSpecification> requiredLiveData = getRequiredLiveDataSpecifications();
-    
-    Map<LiveDataSpecification, Boolean> entitlements = getProcessingContext().getLiveDataEntitlementChecker().isEntitled(user, requiredLiveData);
-    
-    ArrayList<LiveDataSpecification> failures = new ArrayList<LiveDataSpecification>();
-    for (Map.Entry<LiveDataSpecification, Boolean> entry : entitlements.entrySet()) {
-      if (entry.getValue().booleanValue() == false) {
-        failures.add(entry.getKey());
-      }
-    }
-    
-    if (!failures.isEmpty()) {
-      throw new ViewPermissionException(user + " is not entitled to the output of " + this + 
-          " because they do not have permissions to " + failures.get(0));
-    }
-  }
+  void assertAccessToLiveDataRequirements(UserPrincipal user);
   
-  public Set<ValueRequirement> getRequiredLiveData() {
-    ViewEvaluationModel viewEvaluationModel = getViewEvaluationModel();
-    if (viewEvaluationModel == null) {
-      return null;
-    }
-    Set<ValueSpecification> requiredSpecs = viewEvaluationModel.getAllLiveDataRequirements();
-    
-    Set<ValueRequirement> returnValue = new HashSet<ValueRequirement>();
-    for (ValueSpecification requiredSpec : requiredSpecs) {
-      returnValue.add(requiredSpec.getRequirementSpecification());      
-    }
-    return returnValue;
-  }
+  /**
+   * Adds a listener to updates of the full set of computation results.
+   * 
+   * @param resultListener  the listener to add
+   * @return  <code>true</code> if the listener was newly added, or <code>false</code> if the listener was already
+   *          present. 
+   */
+  boolean addResultListener(ComputationResultListener resultListener);
   
-  private Collection<LiveDataSpecification> getRequiredLiveDataSpecifications() {
-    Set<LiveDataSpecification> returnValue = new HashSet<LiveDataSpecification>();
-    for (ValueRequirement requirement : getRequiredLiveData()) {
-      LiveDataSpecification liveDataSpec = requirement.getRequiredLiveData(getProcessingContext().getSecuritySource());
-      returnValue.add(liveDataSpec);      
-    }
-    return returnValue;
-  }
-
-  @Override
-  public String toString() {
-    return "View[" + getDefinition().getName() + "]";
-  }
+  /**
+   * Removes a listener from updates of the full set of computation results.
+   * 
+   * @param resultListener  the listener to remove
+   * @return  <code>true</code> if the listener was removed, or <code>false</code> if the listener was not known.
+   */
+  boolean removeResultListener(ComputationResultListener resultListener);
   
-  public SingleComputationCycle createCycle(long valuationTime) {
-    SingleComputationCycle cycle = new SingleComputationCycle(this, valuationTime);
-    return cycle;
-  }
-
+  /**
+   * Adds a listener to delta updates of the computation results.
+   * 
+   * @param deltaListener  the listener to add
+   * @return  <code>true</code> if the listener was newly added, or <code>false</code> if the listener was already
+   *          present. 
+   */
+  boolean addDeltaResultListener(DeltaComputationResultListener deltaListener);
+  
+  /**
+   * Removes a listener from delta updates of the computation results.
+   * 
+   * @param deltaListener  the listener to remove
+   * @return  <code>true</code> if the listener was removed, or <code>false</code> if the listener was not known.
+   */  
+  boolean removeDeltaResultLister(DeltaComputationResultListener deltaListener);
+  
+  /**
+   * Notifies the view that a recalculation has been performed.
+   * 
+   * @param result  the result of the recalculation
+   */
+  void recalculationPerformed(ViewComputationResultModel result);
+  
+  /**
+   * Creates a new computation cycle for the view, to use data from the given time.
+   * 
+   * @param valuationTime  the time of an existing snapshot of live data, which should be used during the computation
+   *                       cycle
+   * @return  the new computation cycle
+   */
+  SingleComputationCycle createCycle(long valuationTime);
+  
+  /**
+   * Gets the result of the latest calculation, if applicable.
+   * 
+   * @return  the result of the latest calculation, or <code>null</code> if no calculation has yet completed. 
+   */
+  ViewComputationResultModel getLatestResult();
+  
+  /**
+   * Gets the fully-resolved reference portfolio for the view definition.
+   * 
+   * @return  the fully-resolved reference portfolio for the view definition
+   */
+  Portfolio getPortfolio();
+  
+  /**
+   * Gets the live data required for computation of the view
+   * 
+   * @return  a set of value requirements describing the live data required for computation of the view
+   */
+  Set<ValueRequirement> getRequiredLiveData();
+  
+  /**
+   * Synchronously runs a single computation cycle using live data.
+   */
+  void runOneCycle();
+  
+  /**
+   * Synchronously runs a single computation cycle using data snapshotted at the given time. This cannot be used while
+   * live computation is running.
+   * 
+   * @param valuationTime  the time of an existing snapshot of live data, which should be used during the computation
+   *                       cycle
+   */
+  void runOneCycle(long valuationTime);
+  
+  /**
+   * Indicates whether the view has been started. A view in this state will perform a computation cycle when changes to
+   * its inputs are detected.  
+   * 
+   * @return  <code>true</code> if the view has been started, <code>false</code> otherwise
+   */
+  boolean isRunning();
+  
+  /**
+   * Gets the live data injector for storing arbitrary user live data for the view.
+   * 
+   * @return the live data injector, not null
+   */
+  LiveDataInjector getLiveDataInjector();
+  
+  /**
+   * Starts live computation of the view.
+   */
+  void start();
+  
+  /**
+   * Stops live computation of the view.
+   */
+  void stop();
+  
 }
