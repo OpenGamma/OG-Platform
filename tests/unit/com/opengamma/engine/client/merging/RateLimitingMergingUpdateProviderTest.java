@@ -6,6 +6,7 @@
 package com.opengamma.engine.client.merging;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
@@ -29,17 +30,17 @@ public class RateLimitingMergingUpdateProviderTest {
     provider.addUpdateListener(testListener);
     
     // OK, it doesn't really test the 'synchronous' bit, but it at least checks that no merging has happened.
-    addMockResults(provider, 1000);
+    addResultBurst(provider, 1000);
     assertEquals(1000, testListener.consumeResults().size());
     
     provider.setPaused(true);
-    addMockResults(provider, 1000);
+    addResultBurst(provider, 1000);
     assertEquals(0, testListener.consumeResults().size());
     provider.setPaused(false);
     assertEquals(1, testListener.consumeResults().size());
     
     provider.setPaused(false);
-    addMockResults(provider, 1000);
+    addResultBurst(provider, 1000);
     assertEquals(1000, testListener.consumeResults().size());
   }
   
@@ -50,8 +51,8 @@ public class RateLimitingMergingUpdateProviderTest {
     TestMergingUpdateListener testListener = new TestMergingUpdateListener();
     provider.addUpdateListener(testListener);
     
-    addMockResults(provider, 1000);
-    Thread.sleep(600);
+    addResultBurst(provider, 1000);
+    Thread.sleep(500);
     assertEquals(1, testListener.consumeResults().size());
     
     provider.destroy();
@@ -73,18 +74,12 @@ public class RateLimitingMergingUpdateProviderTest {
 
   private void assertCorrectUpdateRate(RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider, TestMergingUpdateListener testListener, int period) throws InterruptedException {
     provider.setMinimumUpdatePeriodMillis(period);
-    for (int i = 0; i < 10; i++) {
-      addMockResults(provider, 10);
-      Thread.sleep(period);
-    }
-    // Allow an extra couple of periods to make sure there are no stragglers to come through
-    Thread.sleep(2 * period);
-    assertEquals(10, testListener.consumeResults().size());
+    testUpdateRate(provider, testListener, period);
     
     // If the provider is paused then all updates should be merged regardless of the time elapsed or the rate
     provider.setPaused(true);
     for (int i = 0; i < 3; i++) {
-      addMockResults(provider, 10);
+      addResultBurst(provider, 10);
       Thread.sleep(period);
     }
     assertEquals(0, testListener.consumeResults().size());
@@ -93,19 +88,37 @@ public class RateLimitingMergingUpdateProviderTest {
     assertEquals(1, testListener.consumeResults().size());
     
     // Once unpaused, everything should be back to normal
-    for (int i = 0; i < 10; i++) {
-      addMockResults(provider, 10);
-      Thread.sleep(period);
-    }
-    // Allow an extra couple of periods to make sure there are no stragglers to come through
-    Thread.sleep(2 * period);
-    assertEquals(10, testListener.consumeResults().size());
+    testUpdateRate(provider, testListener, period);
   }
 
-  private void addMockResults(RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider, int count) {
+  private void testUpdateRate(RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider, TestMergingUpdateListener testListener, int period) throws InterruptedException {
+    long startTime = System.currentTimeMillis();
+    for (int i = 0; i < 100; i++) {
+      addResultBurst(provider, 10);
+      Thread.sleep(10);
+    }
+    long endTime = System.currentTimeMillis();
+    int timeTaken = (int) (endTime - startTime);
+    // Allow an extra couple of periods to make sure there are no stragglers to come through
+    Thread.sleep(2 * period);
+    assertAcceptableResultCount(timeTaken / period, testListener.consumeResults().size());
+  }
+
+  private void addResultBurst(RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider, int count) {
     for (int i = 0; i < count; i++) {
       provider.newResult(mock(ViewComputationResultModel.class));
     }
+  }
+  
+  private void assertAcceptableResultCount(int periodCount, int numberOfResults) {
+    // Timer delays could result in fewer results than the theoretical number of periods.
+    int lowerLimit = periodCount - 1;
+    
+    // If we're unlucky, the timer could go off mid-burst, splitting a burst into two, and producing an extra result.
+    int upperLimit = periodCount + 1;
+    
+    boolean isAcceptable = numberOfResults >= lowerLimit && numberOfResults <= upperLimit;
+    assertTrue("Expecting " + lowerLimit + " to " + upperLimit + " results, got " + numberOfResults, isAcceptable);
   }
   
   private class TestMergingUpdateListener implements MergedUpdateListener<ViewComputationResultModel> {
