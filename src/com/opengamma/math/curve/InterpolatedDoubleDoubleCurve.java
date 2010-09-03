@@ -59,6 +59,10 @@ public class InterpolatedDoubleDoubleCurve extends DoubleDoubleCurve {
     return new InterpolatedDoubleDoubleCurve(data, interpolator, false, name);
   }
 
+  public static InterpolatedDoubleDoubleCurve of(final Set<DoublesPair> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+    return new InterpolatedDoubleDoubleCurve(data, interpolator, false, name);
+  }
+
   public static InterpolatedDoubleDoubleCurve of(final double[] xData, final double[] yData, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
     return new InterpolatedDoubleDoubleCurve(xData, yData, interpolators, false);
   }
@@ -132,6 +136,10 @@ public class InterpolatedDoubleDoubleCurve extends DoubleDoubleCurve {
   }
 
   public static InterpolatedDoubleDoubleCurve ofSorted(final DoublesPair[] data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+    return new InterpolatedDoubleDoubleCurve(data, interpolator, true, name);
+  }
+
+  public static InterpolatedDoubleDoubleCurve ofSorted(final Set<DoublesPair> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
     return new InterpolatedDoubleDoubleCurve(data, interpolator, true, name);
   }
 
@@ -284,7 +292,7 @@ public class InterpolatedDoubleDoubleCurve extends DoubleDoubleCurve {
   }
 
   private void init(final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
-    init(Collections.<Double, Interpolator1D<? extends Interpolator1DDataBundle>> singletonMap(Double.POSITIVE_INFINITY, interpolator));
+    init(Collections.<Double, Interpolator1D<? extends Interpolator1DDataBundle>>singletonMap(Double.POSITIVE_INFINITY, interpolator));
   }
 
   @SuppressWarnings("unchecked")
@@ -294,8 +302,8 @@ public class InterpolatedDoubleDoubleCurve extends DoubleDoubleCurve {
     Validate.noNullElements(interpolators.keySet(), "x values for interpolators");
     Validate.noNullElements(interpolators.values(), "interpolators");
     Validate.isTrue(size() > 2);
-    _xForInterpolators = (Double[]) interpolators.keySet().toArray();
-    _interpolators = (Interpolator1D<? extends Interpolator1DDataBundle>[]) interpolators.values().toArray();
+    _xForInterpolators = interpolators.keySet().toArray(new Double[0]);
+    _interpolators = interpolators.values().toArray(new Interpolator1D[0]);
     ParallelArrayBinarySort.parallelBinarySort(_xForInterpolators, _interpolators);
     _dataBundles = new HashMap<Interpolator1D<? extends Interpolator1DDataBundle>, Interpolator1DDataBundle>();
     for (final Interpolator1D<? extends Interpolator1DDataBundle> interpolator : interpolators.values()) {
@@ -312,8 +320,8 @@ public class InterpolatedDoubleDoubleCurve extends DoubleDoubleCurve {
     int index;
     if (_interpolators.length == 1 || x < _xForInterpolators[0]) {
       index = 0;
-    } else if (x > _xForInterpolators[size() - 1]) {
-      index = size() - 1;
+    } else if (x > _xForInterpolators[_xForInterpolators.length - 1]) {
+      index = _xForInterpolators.length - 1;
     } else {
       index = Arrays.binarySearch(_xForInterpolators, x);
     }

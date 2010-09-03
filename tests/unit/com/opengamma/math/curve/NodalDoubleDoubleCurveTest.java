@@ -93,6 +93,46 @@ public class NodalDoubleDoubleCurveTest extends DoubleDoubleCurveTestCase {
     curve = new NodalDoubleDoubleCurve(PAIR_SET_SORTED, true, NAME1);
     other = NodalDoubleDoubleCurve.ofSorted(PAIR_SET_SORTED, NAME1);
     assertEquals(curve, other);
+    curve = new NodalDoubleDoubleCurve(X_PRIMITIVE, Y_PRIMITIVE, false);
+    other = NodalDoubleDoubleCurve.of(X_PRIMITIVE, Y_PRIMITIVE);
+    assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
+    assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
+    curve = new NodalDoubleDoubleCurve(X_PRIMITIVE_SORTED, Y_PRIMITIVE_SORTED, true);
+    other = NodalDoubleDoubleCurve.ofSorted(X_PRIMITIVE_SORTED, Y_PRIMITIVE_SORTED);
+    assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
+    assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
+    curve = new NodalDoubleDoubleCurve(X_OBJECT, Y_OBJECT, false);
+    other = NodalDoubleDoubleCurve.of(X_OBJECT, Y_OBJECT);
+    assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
+    assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
+    curve = new NodalDoubleDoubleCurve(X_OBJECT_SORTED, Y_OBJECT_SORTED, true);
+    other = NodalDoubleDoubleCurve.ofSorted(X_OBJECT_SORTED, Y_OBJECT_SORTED);
+    assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
+    assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
+    curve = new NodalDoubleDoubleCurve(MAP, false);
+    other = NodalDoubleDoubleCurve.of(MAP);
+    assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
+    assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
+    curve = new NodalDoubleDoubleCurve(MAP_SORTED, true);
+    other = NodalDoubleDoubleCurve.ofSorted(MAP_SORTED);
+    assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
+    assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
+    curve = new NodalDoubleDoubleCurve(PAIR_ARRAY, false);
+    other = NodalDoubleDoubleCurve.of(PAIR_ARRAY);
+    assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
+    assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
+    curve = new NodalDoubleDoubleCurve(PAIR_ARRAY_SORTED, true);
+    other = NodalDoubleDoubleCurve.ofSorted(PAIR_ARRAY_SORTED);
+    assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
+    assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
+    curve = new NodalDoubleDoubleCurve(PAIR_SET, false);
+    other = NodalDoubleDoubleCurve.of(PAIR_SET);
+    assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
+    assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
+    curve = new NodalDoubleDoubleCurve(PAIR_SET_SORTED, true);
+    other = NodalDoubleDoubleCurve.ofSorted(PAIR_SET_SORTED);
+    assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
+    assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
   }
 
   @Test
