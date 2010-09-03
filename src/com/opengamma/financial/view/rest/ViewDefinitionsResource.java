@@ -18,7 +18,6 @@ import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 
 import com.opengamma.engine.view.ViewDefinitionRepository;
-import com.opengamma.financial.fudgemsg.FinancialFudgeContextConfiguration;
 import com.opengamma.financial.view.AddViewDefinitionRequest;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.util.ArgumentChecker;
@@ -53,8 +52,7 @@ public class ViewDefinitionsResource {
     ArgumentChecker.notNull(repository, "repository");
     _repository = repository;
     
-    _fudgeContext = OpenGammaFudgeContext.constructContext();
-    FinancialFudgeContextConfiguration.INSTANCE.configureFudgeContext(_fudgeContext);
+    _fudgeContext = OpenGammaFudgeContext.getInstance();
   }
   
   /**

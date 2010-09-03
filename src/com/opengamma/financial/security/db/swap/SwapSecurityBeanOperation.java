@@ -74,15 +74,13 @@ public final class SwapSecurityBeanOperation extends AbstractBeanOperation<SwapS
       @Override
       public SwapSecurity visitForwardSwapSecurity(ForwardSwapSecurity ignore) {
         return new ForwardSwapSecurity(zonedDateTimeBeanToDateTimeWithZone(bean.getTradeDate()), zonedDateTimeBeanToDateTimeWithZone(bean.getEffectiveDate()), zonedDateTimeBeanToDateTimeWithZone(bean
-            .getMaturityDate()), bean.getCounterparty(), SwapLegBeanOperation.createSwapLeg(context.getRegionRepository(), bean.getPayLeg()), SwapLegBeanOperation.createSwapLeg(context
-            .getRegionRepository(), bean.getReceiveLeg()), zonedDateTimeBeanToDateTimeWithZone(bean.getForwardStartDate()));
+            .getMaturityDate()), bean.getCounterparty(), SwapLegBeanOperation.createSwapLeg(bean.getPayLeg()), SwapLegBeanOperation.createSwapLeg(bean.getReceiveLeg()), zonedDateTimeBeanToDateTimeWithZone(bean.getForwardStartDate()));
       }
 
       @Override
       public SwapSecurity visitSwapSecurity(SwapSecurity ignore) {
         return new SwapSecurity(zonedDateTimeBeanToDateTimeWithZone(bean.getTradeDate()), zonedDateTimeBeanToDateTimeWithZone(bean.getEffectiveDate()), zonedDateTimeBeanToDateTimeWithZone(bean
-            .getMaturityDate()), bean.getCounterparty(), SwapLegBeanOperation.createSwapLeg(context.getRegionRepository(), bean.getPayLeg()), SwapLegBeanOperation.createSwapLeg(context
-            .getRegionRepository(), bean.getReceiveLeg()));
+            .getMaturityDate()), bean.getCounterparty(), SwapLegBeanOperation.createSwapLeg(bean.getPayLeg()), SwapLegBeanOperation.createSwapLeg(bean.getReceiveLeg()));
       }
 
     });

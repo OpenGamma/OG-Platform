@@ -13,6 +13,7 @@ import javax.time.TimeSource;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -25,6 +26,7 @@ import com.opengamma.util.time.DateUtil;
 /**
  * Base tests for DbPositionMasterWorker via DbPositionMaster.
  */
+@Ignore
 public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbPositionMasterWorkerTest.class);

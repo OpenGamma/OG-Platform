@@ -5,9 +5,16 @@
  */
 package com.opengamma.financial;
 
+import com.opengamma.engine.config.ConfigSource;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.historicaldata.HistoricalDataSource;
 import com.opengamma.engine.security.SecuritySource;
+import com.opengamma.financial.convention.ConventionBundleMaster;
+import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.world.exchange.ExchangeSource;
+import com.opengamma.financial.world.holiday.HolidayMaster;
+import com.opengamma.financial.world.holiday.HolidaySource;
+import com.opengamma.financial.world.region.RegionSource;
 
 /**
  * Utility methods to pull standard objects out of a {@link FunctionExecutionContext}.
@@ -19,35 +26,40 @@ public class OpenGammaExecutionContext {
   /**
    * The name under which an instance of {@link TimeSeriesSource} should be bound.
    */
-  public static final String HISTORICAL_DATA_PROVIDER_NAME = "historicalDataProvider";
+  public static final String HISTORICAL_DATA_SOURCE_NAME = "historicalDataSource";
 
   /**
-   * The name under which an instance of {@link RegionRepository} should be bound.
+   * The name under which an instance of {@link RegionSource} should be bound.
    */
-  public static final String REGION_REPOSITORY_NAME = "regionRepository";
+  public static final String REGION_SOURCE_NAME = "regionSource";
 
   /**
-   * The name under which an instance of {@link HolidayRepository} should be bound.
+   * The name under which an instance of {@link HolidayMaster} should be bound.
    */
-  public static final String HOLIDAY_REPOSITORY_NAME = "holidayRepostiory";
+  public static final String HOLIDAY_SOURCE_NAME = "holidaySource";
   
   /**
-   * The name under which an instance of {@link ReferenceRateRepository} should be bound.
+   * The name under which an instance of {@link ConventionBundleMaster} should be bound.
    */
-  public static final String REFERENCE_RATE_REPOSITORY_NAME = "referenceRateRepository";
+  private static final String CONVENTION_BUNDLE_SOURCE_NAME = "conventionBundleSource";
+
+  /**
+   * The name under which an instance of {@link ConfigSource} should be bound.
+   */
+  public static final String CONFIG_SOURCE_NAME = "configSource";
   
   /**
-   * The name under which an instance of {@link ExchangeRepository} should be bound.
+   * The name under which an instance of {@link {ExchangeSource} should be bound.
    */
-  public static final String EXCHANGE_REPOSITORY_NAME = "exchangeRespotiroy";
+  public static final String EXCHANGE_SOURCE_NAME = "exchangeSource";
   
-  public static HistoricalDataSource getHistoricalDataProvider(FunctionExecutionContext context) {
-    return (HistoricalDataSource) context.get(HISTORICAL_DATA_PROVIDER_NAME);
+  public static HistoricalDataSource getHistoricalDataSource(FunctionExecutionContext context) {
+    return (HistoricalDataSource) context.get(HISTORICAL_DATA_SOURCE_NAME);
   }
   
-  public static void setHistoricalDataProvider(FunctionExecutionContext context, 
+  public static void setHistoricalDataSource(FunctionExecutionContext context, 
       HistoricalDataSource historicalDataProvider) {
-    context.put(HISTORICAL_DATA_PROVIDER_NAME, historicalDataProvider);
+    context.put(HISTORICAL_DATA_SOURCE_NAME, historicalDataProvider);
   }
   
   public static SecuritySource getSecuritySource(FunctionExecutionContext context) {
@@ -58,35 +70,43 @@ public class OpenGammaExecutionContext {
     context.setSecuritySource(secSource);
   }
   
-  public static RegionRepository getRegionRepository(FunctionExecutionContext context) {
-    return (RegionRepository) context.get(REGION_REPOSITORY_NAME);
+  public static ConventionBundleSource getConventionBundleSource(FunctionExecutionContext context) {
+    return (ConventionBundleSource) context.get(CONVENTION_BUNDLE_SOURCE_NAME);
   }
   
-  public static void setRegionRepository(FunctionExecutionContext context, RegionRepository regionRepository) {
-    context.put(REGION_REPOSITORY_NAME, regionRepository);
+  public static void setConventionBundleSource(FunctionExecutionContext context, ConventionBundleSource conventionBundleSource) {
+    context.put(CONVENTION_BUNDLE_SOURCE_NAME, conventionBundleSource);
   }
   
-  public static HolidayRepository getHolidayRepository(FunctionExecutionContext context) {
-    return (HolidayRepository) context.get(HOLIDAY_REPOSITORY_NAME);
+  public static RegionSource getRegionSource(FunctionExecutionContext context) {
+    return (RegionSource) context.get(REGION_SOURCE_NAME);
   }
   
-  public static void setHolidayRepository(FunctionExecutionContext context, HolidayRepository holidayRepository) {
-    context.put(HOLIDAY_REPOSITORY_NAME, holidayRepository);
+  public static void setRegionSource(FunctionExecutionContext context, RegionSource regionSource) {
+    context.put(REGION_SOURCE_NAME, regionSource);
   }
   
-  public static ReferenceRateRepository getReferenceRateRepository(FunctionExecutionContext context) {
-    return (ReferenceRateRepository) context.get(REFERENCE_RATE_REPOSITORY_NAME);
+  public static HolidaySource getHolidaySource(FunctionExecutionContext context) {
+    return (HolidaySource) context.get(HOLIDAY_SOURCE_NAME);
   }
   
-  public static void setReferenceRateRepository(FunctionExecutionContext context, ReferenceRateRepository referenceRateRepository) {
-    context.put(REFERENCE_RATE_REPOSITORY_NAME, referenceRateRepository);
+  public static void setHolidaySource(FunctionExecutionContext context, HolidaySource holidayRepository) {
+    context.put(HOLIDAY_SOURCE_NAME, holidayRepository);
   }
   
-  public static ExchangeRepository getExchangeRepository(FunctionExecutionContext context) {
-    return (ExchangeRepository) context.get(EXCHANGE_REPOSITORY_NAME);
+  public static ExchangeSource getExchangeSource(FunctionExecutionContext context) {
+    return (ExchangeSource) context.get(EXCHANGE_SOURCE_NAME);
   }
   
-  public static void setExchangeRepository(FunctionExecutionContext context, ExchangeRepository exchangeRepository) {
-    context.put(EXCHANGE_REPOSITORY_NAME, exchangeRepository);
+  public static void setExchangeSource(FunctionExecutionContext context, ExchangeSource exchangeSource) {
+    context.put(EXCHANGE_SOURCE_NAME, exchangeSource);
+  }
+  
+  public static ConfigSource getConfigSource(FunctionExecutionContext context) {
+    return (ConfigSource) context.get(CONFIG_SOURCE_NAME);
+  }
+  
+  public static void setConfigSource(FunctionExecutionContext context, ConfigSource configSource) {
+    context.put(CONFIG_SOURCE_NAME, configSource);
   }
 }

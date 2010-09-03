@@ -7,25 +7,30 @@ package com.opengamma.financial.fudgemsg;
 
 import static org.junit.Assert.assertEquals;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.TimeZone;
-
+import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.Region;
+import com.opengamma.financial.world.region.InMemoryRegionRepository;
+import com.opengamma.financial.world.region.Region;
+import com.opengamma.id.Identifier;
 
+@Ignore
 public class RegionTest extends FinancialTestBase {
-
+  private final Logger s_logger = LoggerFactory.getLogger(getClass());
+  
   private Region getRef() {
-    return getRegionRepository().getHierarchyNode(LocalDate.now(Clock.system(TimeZone.UTC)), "Political",
-        "United Kingdom");
+    return getRegionSource().getHighestLevelRegion(Identifier.of(InMemoryRegionRepository.ISO_COUNTRY_2, "GB"));
   }
 
   @Test
   public void testCycle() {
     final Region ref = getRef();
-    assertEquals(ref, cycleObject(Region.class, ref));
+    final Region cycledRef = cycleObject(Region.class, ref);
+    s_logger.info("pre = " + ref);
+    s_logger.info("post=" + cycledRef);
+    assertEquals(ref, cycledRef);
   }
 
 }

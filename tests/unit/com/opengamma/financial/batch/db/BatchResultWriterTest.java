@@ -618,7 +618,7 @@ public class BatchResultWriterTest extends HibernateTest {
   
   private void putValue(ComputedValue value) {
     ViewComputationCache cache = getCache();
-    cache.putValue(value);
+    cache.putSharedValue(value);
   }
 
   private ViewComputationCache getCache() {

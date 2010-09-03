@@ -6,20 +6,20 @@
 
 package com.opengamma.financial.security.db;
 
-import com.opengamma.financial.RegionRepository;
+import com.opengamma.financial.world.region.RegionSource;
 
 /**
  * Context for the bean operations - i.e. access to any resources that are needed
  */
 public final class OperationContext {
 
-  private RegionRepository _regionRepository;
+  private RegionSource _regionRepository;
 
-  public void setRegionRepository(final RegionRepository regionRepository) {
+  public void setRegionRepository(final RegionSource regionRepository) {
     _regionRepository = regionRepository;
   }
 
-  public RegionRepository getRegionRepository() {
+  public RegionSource getRegionRepository() {
     return _regionRepository;
   }
 

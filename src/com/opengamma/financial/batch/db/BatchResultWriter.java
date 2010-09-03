@@ -700,7 +700,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
           }
           
           // failures are propagated up from children via the computation cache
-          cache.putValue(new ComputedValue(outputValue, cachedFailure));
+          cache.putSharedValue(new ComputedValue(outputValue, cachedFailure));
         } 
       }
     }

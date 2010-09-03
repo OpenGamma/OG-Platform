@@ -9,6 +9,8 @@ namespace com.opengamma.financial.security.cash {
   message CashSecurity extends FinancialSecurity {
   
     required string securityType [default="Cash"];
+    required Currency currency;
+    required id.Identifier region;
     
     /* No additional fields */
     

@@ -17,6 +17,7 @@ import javax.sql.DataSource;
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
+import javax.time.calendar.ZonedDateTime;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -43,6 +44,7 @@ import com.opengamma.engine.view.calc.SingleNodeExecutor;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.financial.batch.BatchDbManager;
 import com.opengamma.financial.batch.BatchJob;
+import com.opengamma.financial.batch.BatchJobRun;
 import com.opengamma.financial.batch.LiveDataValue;
 import com.opengamma.financial.batch.SnapshotId;
 import com.opengamma.util.ArgumentChecker;
@@ -155,7 +157,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
   }
   
   
-  /*package*/ ObservationTime getObservationTime(final BatchJob job) {
+  /*package*/ ObservationTime getObservationTime(final BatchJobRun job) {
     return getObservationTime(job.getObservationTime());
   }
   
@@ -178,7 +180,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
   }
  
   
-  /*package*/ ObservationDateTime getObservationDateTime(final BatchJob job) {
+  /*package*/ ObservationDateTime getObservationDateTime(final BatchJobRun job) {
     return getObservationDateTime(job.getObservationDate(), job.getObservationTime());     
   }
   
@@ -251,7 +253,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
     return getComputeNode(InetAddressUtils.getLocalHostName());
   }
   
-  /*package*/ LiveDataSnapshot getLiveDataSnapshot(final BatchJob job) {
+  /*package*/ LiveDataSnapshot getLiveDataSnapshot(final BatchJobRun job) {
 
     LiveDataSnapshot liveDataSnapshot = getLiveDataSnapshot(
         job.getSnapshotObservationDate(),
@@ -340,7 +342,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
     return riskValueName;
   }
   
-  /*package*/ RiskRun getRiskRunFromDb(final BatchJob job) {
+  /*package*/ RiskRun getRiskRunFromDb(final BatchJobRun job) {
     RiskRun riskRun = null;
     
     if (job.isForceNewRun() == false) {
@@ -363,8 +365,8 @@ public class BatchDbManagerImpl implements BatchDbManager {
     return riskRun;
   }
   
-  /*package*/ RiskRun createRiskRun(final BatchJob job) {
-    Instant now = Instant.nowSystemClock();
+  /*package*/ RiskRun createRiskRun(final BatchJobRun job) {
+    ZonedDateTime now = job.getCreationTime();
     
     LiveDataSnapshot snapshot = getLiveDataSnapshot(job);
     if (!snapshot.isComplete()) {
@@ -372,7 +374,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
     }
     
     RiskRun riskRun = new RiskRun();
-    riskRun.setOpenGammaVersion(getOpenGammaVersion(job));
+    riskRun.setOpenGammaVersion(getOpenGammaVersion(job.getJob()));
     riskRun.setMasterProcessHost(getLocalComputeHost());
     riskRun.setRunReason(job.getRunReason());
     riskRun.setRunTime(getObservationDateTime(job));
@@ -418,11 +420,11 @@ public class BatchDbManagerImpl implements BatchDbManager {
     _hibernateTemplate.update(riskRun);
   }
   
-  /*package*/ RiskRun getRiskRunFromHandle(BatchJob job) {
+  /*package*/ RiskRun getRiskRunFromHandle(BatchJobRun job) {
     return getDbHandle(job)._riskRun;
   }
   
-  private DbHandle getDbHandle(BatchJob job) {
+  private DbHandle getDbHandle(BatchJobRun job) {
     Object handle = job.getDbHandle();
     if (handle == null) {
       throw new IllegalStateException("Job db handle is null");
@@ -433,7 +435,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
     return (DbHandle) handle;
   }
   
-  /*package*/ Set<RiskValueName> populateRiskValueNames(BatchJob job) {
+  /*package*/ Set<RiskValueName> populateRiskValueNames(BatchJobRun job) {
     Set<RiskValueName> returnValue = new HashSet<RiskValueName>();
     
     Set<String> riskValueNames = job.getView().getViewEvaluationModel().getAllOutputValueNames();
@@ -445,7 +447,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
     return returnValue;
   }
   
-  /*package*/ Set<ComputationTarget> populateComputationTargets(BatchJob job) {
+  /*package*/ Set<ComputationTarget> populateComputationTargets(BatchJobRun job) {
     Set<ComputationTarget> returnValue = new HashSet<ComputationTarget>();
     
     Set<ComputationTargetSpecification> computationTargets = job.getView().getAllComputationTargets();
@@ -534,7 +536,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
   }
 
   @Override
-  public void endBatch(BatchJob batch) {
+  public void endBatch(BatchJobRun batch) {
     s_logger.info("Ending batch {}", batch);
     
     try {
@@ -629,7 +631,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
   }
 
   @Override
-  public void startBatch(BatchJob batch) {
+  public void startBatch(BatchJobRun batch) {
     s_logger.info("Starting batch {}", batch);
     
     try {
@@ -651,7 +653,6 @@ public class BatchDbManagerImpl implements BatchDbManager {
       dbHandle._computationTargets = computationTargets;
       
       batch.setDbHandle(dbHandle);
-      batch.setCreationTime(DateUtil.fromSqlTimestamp(run.getCreateInstant()));
       
       getSessionFactory().getCurrentSession().getTransaction().commit();
     } catch (RuntimeException e) {
@@ -667,20 +668,20 @@ public class BatchDbManagerImpl implements BatchDbManager {
   }
   
   @Override
-  public DependencyGraphExecutorFactory createDependencyGraphExecutorFactory(BatchJob batch) {
+  public DependencyGraphExecutorFactory<Object> createDependencyGraphExecutorFactory(BatchJobRun batch) {
     return new BatchResultWriterFactory(batch);
   }
   
-  public BatchResultWriter createTestResultWriter(BatchJob batch) {
+  public BatchResultWriter createTestResultWriter(BatchJobRun batch) {
     BatchResultWriterFactory factory = new BatchResultWriterFactory(batch);
     return factory.createTestWriter();    
   }
   
-  private class BatchResultWriterFactory implements DependencyGraphExecutorFactory {
+  private class BatchResultWriterFactory implements DependencyGraphExecutorFactory<Object> {
     
-    private final BatchJob _batch;
+    private final BatchJobRun _batch;
     
-    public BatchResultWriterFactory(BatchJob batch) {
+    public BatchResultWriterFactory(BatchJobRun batch) {
       ArgumentChecker.notNull(batch, "batch");
       _batch = batch;
     }

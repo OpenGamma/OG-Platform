@@ -5,7 +5,10 @@
  */
 package com.opengamma.financial.batch;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -18,6 +21,7 @@ import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.OffsetDateTime;
+import javax.time.calendar.OffsetTime;
 import javax.time.calendar.ZonedDateTime;
 import javax.time.calendar.format.CalendricalParseException;
 import javax.time.calendar.format.DateTimeFormatter;
@@ -29,10 +33,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.config.ConfigDocument;
@@ -49,9 +51,9 @@ import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewImpl;
 import com.opengamma.engine.view.ViewProcessingContext;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
@@ -69,31 +71,71 @@ import com.opengamma.financial.security.SecurityMaster;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.InMemoryRequestConduit;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.MongoDBConnectionSettings;
 import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.time.DateUtil;
 
 /**
  * The entry point for running OpenGamma batches. 
  */
-public class BatchJob implements Job {
+public class BatchJob {
   
-  /**
-   * Used as a default "observation time" for ad hoc batches, i.e., batches that are
-   * started manually by users and whose results should NOT flow to downstream
-   * systems.  
-   */
-  public static final String AD_HOC_OBSERVATION_TIME = "AD_HOC_RUN";
+  private static final Logger s_logger = LoggerFactory.getLogger(BatchJob.class);
+  
+  // --------------------------------------------------------------------------
+  
+  /** yyyyMMddHHmmss[Z] */
+  private static final DateTimeFormatter s_dateTimeFormatter;
+  
+  /** yyyyMMdd */
+  private static final DateTimeFormatter s_dateFormatter;
+  
+  /** HHmmss[Z] */
+  private static final DateTimeFormatter s_timeFormatter;
+  
+  static {
+    DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
+    builder.appendPattern("yyyyMMddHHmmss[Z]");
+    s_dateTimeFormatter = builder.toFormatter();
+    
+    builder = new DateTimeFormatterBuilder();
+    builder.appendPattern("yyyyMMdd");
+    s_dateFormatter = builder.toFormatter();
+    
+    builder = new DateTimeFormatterBuilder();
+    builder.appendPattern("HHmmss[Z]");
+    s_timeFormatter = builder.toFormatter();
+  }
+  
+  /*package*/ static OffsetDateTime parseDateTime(String dateTime) {
+    if (dateTime == null) {
+      return null;
+    }
+    try {
+      // try first to parse as if time zone explicitly provided, e.g., 20100621162200+0000
+      return s_dateTimeFormatter.parse(dateTime, OffsetDateTime.rule());
+    } catch (CalendricalParseException e) {
+      // try to parse as if no time zone provided, e.g. 20100621162200. Use the system time zone. 
+      LocalDateTime localDateTime = s_dateTimeFormatter.parse(dateTime, LocalDateTime.rule());
+      return OffsetDateTime.of(localDateTime, ZonedDateTime.nowSystemClock().toOffsetDateTime().getOffset());
+    }
+  }
+  
+  /*package*/ static LocalDate parseDate(String date) {
+    return s_dateFormatter.parse(date, LocalDate.rule());
+  }
+  
+  /*package*/ static OffsetTime parseTime(String time) {
+    return s_timeFormatter.parse(time, OffsetTime.rule());
+  }
   
   // --------------------------------------------------------------------------
   // Variables automatically initialized at construction time
   // --------------------------------------------------------------------------
   
-  /** yyyyMMddHHmmss[Z] */
-  private final DateTimeFormatter _dateTimeFormatter;
-  
-  /** yyyyMMdd */
-  private final DateTimeFormatter _dateFormatter;
+  private final ZonedDateTime _creationTime;
   
   /** 
    * User from the operating system - System.getProperty("user.name").
@@ -124,7 +166,7 @@ public class BatchJob implements Job {
   private SecurityMaster _securityMaster;
 
   /**
-   * Used to load Securities (needed for building the dependency grapth). If not
+   * Used to load Securities (needed for building the dependency graph). If not
    * specified will be constructed from the SecurityMaster.
    */
   private SecuritySource _securitySource;
@@ -146,41 +188,19 @@ public class BatchJob implements Job {
    */
   private BatchDbManager _batchDbManager;
   
+  /**
+   * Stores instances of all the various interfaces required by functions during execution
+   */
+  private FunctionExecutionContext _functionExecutionContext;
+
+  /**
+   * Stores instances of all the various interfaces required by functions during compilation
+   */
+  private FunctionCompilationContext _functionCompilationContext;
+
   // --------------------------------------------------------------------------
   // Variables initialized from command line input
   // --------------------------------------------------------------------------
-  
-  /** 
-   * Why the batch is being run. Would typically tell whether the run is an automatic/manual
-   * run, and if manual, who started it and maybe why.
-   * 
-   * Not null.
-   */
-  private String _runReason;
-  
-  /** 
-   * A label for the run. Examples: LDN_CLOSE, AD_HOC_RUN. The exact time of LDN_CLOSE could vary
-   * daily due to this time being set by the head trader.
-   * So one day it might be 16:32, the next 16:46, etc. 
-   * 
-   * Not null.
-   */
-  private String _observationTime;
-  
-  /**
-   * What day's batch this is. 
-   * 
-   * Not null.
-   */
-  private LocalDate _observationDate;
-  
-  /**
-   * Valuation time for purposes of calculating all risk figures. Often referred to 'T'
-   * in mathematical formulas.
-   * 
-   * Not null.
-   */
-  private OffsetDateTime _valuationTime;
   
   /**
    * This view name references the OpenGamma configuration database.
@@ -197,23 +217,6 @@ public class BatchJob implements Job {
    * Not null.
    */
   private OffsetDateTime _viewDateTime;
-  
-  /**
-   * The batch will run against a defined set of market data.
-   * 
-   * This variable tells which set exactly. The contents are 
-   * similar to {@link #_observationTime}.
-   * 
-   * Not null.
-   */
-  private String _snapshotObservationTime;
-
-  /**
-   * What day's market data snapshot to use.
-   * 
-   * Not null.
-   */
-  private LocalDate _snapshotObservationDate;
   
   /**
    * If true, a new run is always created - no existing results are used. 
@@ -233,6 +236,11 @@ public class BatchJob implements Job {
    */
   private OffsetDateTime _positionMasterTime;
   
+  /**
+   * The batch may be run for multiple days in sequence, therefore we need multiple runs
+   */
+  private final List<BatchJobRun> _runs = new ArrayList<BatchJobRun>();
+  
   // --------------------------------------------------------------------------
   // Variables initialized during the batch run
   // --------------------------------------------------------------------------
@@ -242,150 +250,26 @@ public class BatchJob implements Job {
    */
   private ConfigMaster<ViewDefinition> _configDb;
   
-  /** 
-   * Object ID of ViewDefinition loaded from config DB
-   */
-  private String _viewOid = "UNDEFINED";
-  
   /**
-   * Version of ViewDefinition loaded from config DB
+   * The ViewDefinition (more precisely, a representation of it in the config DB)
    */
-  private int _viewVersion = -1;
-
+  private ConfigDocument<ViewDefinition> _viewDefinitionConfig;
+  
   /**
    * To initialize _view, you need a ViewDefinition, but also
    * many other properties - positions loaded from a position master, 
    * securities from security master, etc.
    */
-  private ViewImpl _view;
+  private View _view;
   
-  /**
-   * Set by _batchDbManager
-   */
-  private Instant _creationTime;
-  
-  /**
-   * Set by _batchDbManager
-   */
-  private Object _dbHandle;
-
-
   //--------------------------------------------------------------------------
 
-  
   public BatchJob() {
-    DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
-    builder.appendPattern("yyyyMMddHHmmss[Z]");
-    _dateTimeFormatter = builder.toFormatter();
-    
-    builder = new DateTimeFormatterBuilder();
-    builder.appendPattern("yyyyMMdd");
-    _dateFormatter = builder.toFormatter();
-    
     _user = UserPrincipal.getLocalUser();
+    _creationTime = ZonedDateTime.nowSystemClock();
   }
   
-  private OffsetDateTime parseDateTime(String dateTime) {
-    if (dateTime == null) {
-      return null;
-    }
-    try {
-      // try first to parse as if time zone explicitly provided, e.g., 20100621162200+0000
-      return _dateTimeFormatter.parse(dateTime, OffsetDateTime.rule());
-    } catch (CalendricalParseException e) {
-      // try to parse as if no time zone provided, e.g. 20100621162200. Use the system time zone. 
-      LocalDateTime localDateTime = _dateTimeFormatter.parse(dateTime, LocalDateTime.rule());
-      return OffsetDateTime.of(localDateTime, ZonedDateTime.nowSystemClock().toOffsetDateTime().getOffset());
-    }
-  }
-  
-  @Override
-  public void execute(JobExecutionContext context) throws JobExecutionException {
-  }
-  
-  public String getRunReason() {
-    return _runReason;
-  }
-
-  public void setRunReason(String runReason) {
-    _runReason = runReason;
-  }
-
-  public String getObservationTime() {
-    return _observationTime;
-  }
-
-  public void setObservationTime(String observationTime) {
-    _observationTime = observationTime;
-  }
-
-  public LocalDate getObservationDate() {
-    return _observationDate;
-  }
-
-  public void setObservationDate(String observationDate) {
-    if (observationDate == null) {
-      _observationDate = null;
-    } else { 
-      _observationDate = _dateFormatter.parse(observationDate, LocalDate.rule());
-    }
-  }
-
-  public OffsetDateTime getValuationTime() {
-    return _valuationTime;
-  }
-
-  public void setValuationTime(String valuationTime) {
-    _valuationTime = parseDateTime(valuationTime);
-  }
-
-  public String getViewName() {
-    return _viewName;
-  }
-
-  public void setViewName(String viewName) {
-    _viewName = viewName;
-  }
-
-  public OffsetDateTime getViewDateTime() {
-    return _viewDateTime;
-  }
-
-  public void setViewDateTime(String viewDateTime) {
-    _viewDateTime = parseDateTime(viewDateTime);
-  }
-
-  public LocalDate getSnapshotObservationDate() {
-    return _snapshotObservationDate;
-  }
-
-  public void setSnapshotObservationDate(String snapshotObservationDate) {
-    if (snapshotObservationDate == null) {
-      _snapshotObservationDate = null;
-    } else {
-      _snapshotObservationDate = _dateFormatter.parse(snapshotObservationDate, LocalDate.rule());
-    }
-  }
-  
-  public String getSnapshotObservationTime() {
-    return _snapshotObservationTime;
-  }
-  
-  public void setSnapshotObservationTime(String snapshotObservationTime) {
-    _snapshotObservationTime = snapshotObservationTime;
-  }
-  
-  public SnapshotId getSnapshotId() {
-    return new SnapshotId(getSnapshotObservationDate(), getSnapshotObservationTime());
-  }
-
-  public boolean isForceNewRun() {
-    return _forceNewRun;
-  }
-
-  public void setForceNewRun(boolean forceNewRun) {
-    _forceNewRun = forceNewRun;
-  }
+  //--------------------------------------------------------------------------
   
   public String getOpenGammaVersion() {
     return "0.1";
@@ -395,43 +279,96 @@ public class BatchJob implements Job {
     return "undefined";
   }
   
-  public ViewImpl getView() {
+  public View getView() {
     return _view;
   }
   
-  public void setView(ViewImpl view) {
+  public void setView(View view) {
     _view = view;
   }
   
+  public String getViewName() {
+    return _viewName;
+  }
+
+  public void setViewName(String viewName) {
+    _viewName = viewName;
+  }
+  
+  public OffsetDateTime getViewDateTime() {
+    return _viewDateTime;
+  }
+
+  public void setViewDateTime(String viewDateTime) {
+    _viewDateTime = parseDateTime(viewDateTime);
+  }
+
   public Collection<ViewCalculationConfiguration> getCalculationConfigurations() {
     return getView().getDefinition().getAllCalculationConfigurations();
   }
   
+  public ConfigDocument<ViewDefinition> getViewDefinitionConfig() {
+    return _viewDefinitionConfig;
+  }
+
+  public void setViewDefinitionConfig(ConfigDocument<ViewDefinition> viewDefinitionConfig) {
+    _viewDefinitionConfig = viewDefinitionConfig;
+  }
+
   public String getViewOid() {
-    return _viewOid; 
+    return _viewDefinitionConfig.getOid(); 
   }
   
   public int getViewVersion() {
-    return _viewVersion;    
+    return _viewDefinitionConfig.getVersion();    
   }
   
-  public Instant getCreationTime() {
-    return _creationTime;
+  public boolean isForceNewRun() {
+    return _forceNewRun;
   }
 
-  public void setCreationTime(Instant creationTime) {
-    _creationTime = creationTime;
-  }
-
-  public Object getDbHandle() {
-    return _dbHandle;
-  }
-
-  public void setDbHandle(Object dbHandle) {
-    _dbHandle = dbHandle;
+  public void setForceNewRun(boolean forceNewRun) {
+    _forceNewRun = forceNewRun;
   }
   
-  // --------------------------------------------------------------------------
+  /**
+   * @return Historical time used for loading entities out of PositionMaster.
+   * and SecurityMaster. 
+   */
+  public OffsetDateTime getPositionMasterTime() {
+    return _positionMasterTime; 
+  }
+  
+  public void setPositionMasterTime(OffsetDateTime positionMasterTime) {
+    _positionMasterTime = positionMasterTime;
+  }
+  
+  public void setPositionMasterTime(String positionMasterTime) {
+    _positionMasterTime = parseDateTime(positionMasterTime);
+  }
+
+  /**
+   * Some static data masters may have the capability for
+   * their users to modify the historical record. For the purposes of batch,
+   * we want the data returned from the masters to be 100% fixed.
+   * Therefore, we also have the concept of "as viewed at" time,
+   * which ensures that the historical data will always be the same.
+   * 
+   * @return At the moment, the "as viewed at" time
+   * is simply the (original) creation time of the batch. This ensures
+   * that even if the batch is restarted, data will not change. 
+   */
+  public Instant getPositionMasterAsViewedAtTime() {
+    return getCreationTime().toInstant();        
+  }
+  
+  public OffsetDateTime getSecurityMasterTime() {
+    return getPositionMasterTime(); // assume this for now
+  }
+  
+  public Instant getSecurityMasterAsViewedAtTime() {
+    return getPositionMasterAsViewedAtTime(); // assume this for now
+  }
   
   public MongoDBConnectionSettings getConfigDbConnectionSettings() {
     return _configDbConnectionSettings;
@@ -448,7 +385,7 @@ public class BatchJob implements Job {
   public void setFunctionRepository(FunctionRepository functionRepository) {
     _functionRepository = functionRepository;
   }
-
+  
   public SecurityMaster getSecurityMaster() {
     return _securityMaster;
   }
@@ -502,25 +439,53 @@ public class BatchJob implements Job {
   public void setBatchDbManager(BatchDbManager batchDbManager) {
     _batchDbManager = batchDbManager;
   }
-
-  // --------------------------------------------------------------------------
+  
+  public FunctionExecutionContext getFunctionExecutionContext() {
+    return _functionExecutionContext;
+  }
+  
+  public void setFunctionExecutionContext(FunctionExecutionContext executionContext) {
+    _functionExecutionContext = executionContext;
+  }
+  
+  public FunctionCompilationContext getFunctionCompilationContext() {
+    return _functionCompilationContext;
+  }
+  
+  public void setFunctionCompilationContext(FunctionCompilationContext compilationContext) {
+    _functionCompilationContext = compilationContext;
+  }
   
   public UserPrincipal getUser() {
     return _user;
   }
   
-  @Override
-  public String toString() {
-    return new ToStringBuilder(this).append("Run reason", getRunReason()).toString(); 
+  public ZonedDateTime getCreationTime() {
+    return _creationTime;
   }
 
+  public List<BatchJobRun> getRuns() {
+    return Collections.unmodifiableList(_runs);
+  }
+  
+  public void addRun(BatchJobRun run) {
+    _runs.add(run);
+  }
+
+  private OffsetDateTime getLastValuationTime() {
+    if (getRuns().isEmpty()) {
+      throw new IllegalStateException("No runs defined");      
+    }
+    BatchJobRun lastRun = getRuns().get(getRuns().size() - 1);
+    return lastRun.getValuationTime();
+  }
   
   // --------------------------------------------------------------------------
-  
-  public InMemoryLKVSnapshotProvider getSnapshotProvider() {
+
+  public InMemoryLKVSnapshotProvider getSnapshotProvider(BatchJobRun run) {
     InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
     
-    Set<LiveDataValue> liveDataValues = _batchDbManager.getSnapshotValues(getSnapshotId());
+    Set<LiveDataValue> liveDataValues = _batchDbManager.getSnapshotValues(run.getSnapshotId());
     
     for (LiveDataValue value : liveDataValues) {
       ValueRequirement valueRequirement = new ValueRequirement(
@@ -529,57 +494,20 @@ public class BatchJob implements Job {
       snapshotProvider.addValue(valueRequirement, value.getValue());
     }
     
-    snapshotProvider.snapshot(getValuationTime().toInstant().toEpochMillisLong());
+    snapshotProvider.snapshot(run.getValuationTime().toInstant().toEpochMillisLong());
     return snapshotProvider;
   }
   
-  /**
-   * @return Historical time used for loading entities out of PositionMaster.
-   * and SecurityMaster. 
-   */
-  public OffsetDateTime getPositionMasterTime() {
-    return _positionMasterTime; 
-  }
+  // --------------------------------------------------------------------------
   
-  public void setPositionMasterTime(OffsetDateTime positionMasterTime) {
-    _positionMasterTime = positionMasterTime;
-  }
-  
-  public void setPositionMasterTime(String positionMasterTime) {
-    _positionMasterTime = parseDateTime(positionMasterTime);
-  }
-
-  /**
-   * Some static data masters may have the capability for
-   * their users to modify the historical record. For the purposes of batch,
-   * we want the data returned from the masters to be 100% fixed.
-   * Therefore, we also have the concept of "as viewed at" time,
-   * which ensures that the historical data will always be the same.
-   * 
-   * @return At the moment, the "as viewed at" time
-   * is simply the (original) creation time of the batch. This ensures
-   * that even if the batch is restarted, data will not change. 
-   */
-  public Instant getPositionMasterAsViewedAtTime() {
-    return getCreationTime();        
-  }
-  
-  public OffsetDateTime getSecurityMasterTime() {
-    return getPositionMasterTime(); // assume this for now
-  }
-  
-  public Instant getSecurityMasterAsViewedAtTime() {
-    return getPositionMasterAsViewedAtTime(); // assume this for now
-  }
-  
-  public void initView() {
+  public void createViewDefinition() {
     
     if (getViewName() == null) {
       throw new IllegalStateException("Please specify view name.");
     }
     
     if (_viewDateTime == null) {
-      _viewDateTime = _valuationTime;      
+      _viewDateTime = getLastValuationTime();
     }
     
     if (_configDbConnectionSettings == null) {
@@ -588,14 +516,18 @@ public class BatchJob implements Job {
     _configDb = new MongoDBConfigMaster<ViewDefinition>(ViewDefinition.class, 
         getConfigDbConnectionSettings(), OpenGammaFudgeContext.getInstance(), true, null);
 
-    ConfigDocument<ViewDefinition> viewDefinitionDoc = getViewByNameWithTime();
-    if (viewDefinitionDoc == null) {
+    _viewDefinitionConfig = getViewByNameWithTime();
+    if (_viewDefinitionConfig == null) {
       throw new IllegalStateException("Config DB does not contain ViewDefinition with name " + getViewName() + " at " + _viewDateTime);      
     }
-    _viewOid = viewDefinitionDoc.getOid();
-    _viewVersion = viewDefinitionDoc.getVersion();
     
-    InMemoryLKVSnapshotProvider snapshotProvider = getSnapshotProvider();
+    if (_positionMasterTime == null) {
+      _positionMasterTime = _viewDateTime;
+    }
+  }
+  
+  public void createView(BatchJobRun run) {
+    InMemoryLKVSnapshotProvider snapshotProvider = getSnapshotProvider(run);
     
     SecuritySource securitySource = getSecuritySource();
     if (securitySource == null) {
@@ -610,25 +542,21 @@ public class BatchJob implements Job {
     DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
     InMemoryViewComputationCacheSource cacheFactory = new InMemoryViewComputationCacheSource(OpenGammaFudgeContext.getInstance());
     
-    FunctionExecutionContext executionContext = new FunctionExecutionContext(); 
-    executionContext.setSecuritySource(securitySource);
-    
-    FunctionCompilationContext compilationContext = new FunctionCompilationContext();
-    compilationContext.setSecuritySource(securitySource);
-    
     ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
-    AbstractCalculationNode localNode = new LocalCalculationNode(cacheFactory, getFunctionRepository(), executionContext, targetResolver, viewProcessorQuerySender, Executors.newCachedThreadPool());
+    AbstractCalculationNode localNode = new LocalCalculationNode(cacheFactory, getFunctionRepository(), getFunctionExecutionContext(), 
+                                                                 targetResolver, viewProcessorQuerySender, Executors.newCachedThreadPool());
     JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(localNode));
     
     ThreadFactory threadFactory = new NamedThreadPoolFactory("BatchJob-" + System.currentTimeMillis(), true);
     ThreadPoolExecutor executor = new ThreadPoolExecutor(0, 1, 5L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), threadFactory);
     
-    DependencyGraphExecutorFactory dependencyGraphExecutorFactory = getBatchDbManager().createDependencyGraphExecutorFactory(this);
+    DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory = getBatchDbManager().createDependencyGraphExecutorFactory(run);
     
     ViewProcessingContext vpc = new ViewProcessingContext(
         new PermissiveLiveDataEntitlementChecker(), 
-        snapshotProvider, snapshotProvider, 
+        snapshotProvider, 
+        snapshotProvider, 
         getFunctionRepository(), 
         new DefaultFunctionResolver(getFunctionRepository()), 
         positionSource, 
@@ -636,12 +564,12 @@ public class BatchJob implements Job {
         cacheFactory, 
         jobDispatcher, 
         viewProcessorQueryReceiver, 
-        compilationContext, 
+        getFunctionCompilationContext(), 
         executor,
         dependencyGraphExecutorFactory,
         new DefaultViewPermissionProvider());
     
-    _view = new ViewImpl(viewDefinitionDoc.getValue(), vpc);
+    _view = new View(_viewDefinitionConfig.getValue(), vpc);
     _view.setPopulateResultModel(false);
     _view.init();
   }
@@ -658,40 +586,6 @@ public class BatchJob implements Job {
     return documents.get(0);
   }
   
-  public void init() {
-    ZonedDateTime now = ZonedDateTime.nowSystemClock();
-    
-    if (_runReason == null) {
-      _runReason = "Manual run started on " + 
-        ZonedDateTime.nowSystemClock().toString() + " by " + 
-        getUser().getUserName();                   
-    }
-    
-    if (_observationTime == null) {
-      _observationTime = AD_HOC_OBSERVATION_TIME;      
-    }
-
-    if (_observationDate == null) {
-      _observationDate = LocalDate.of(now);      
-    }
-    
-    if (_valuationTime == null) {
-      _valuationTime = OffsetDateTime.of(_observationDate, now, now.getOffset()); 
-    }
-    
-    if (_snapshotObservationDate == null) {
-      _snapshotObservationDate = _observationDate;
-    }
-    
-    if (_snapshotObservationTime == null) {
-      _snapshotObservationTime = _observationTime;
-    }
-    
-    if (_positionMasterTime == null) {
-      _positionMasterTime = _valuationTime;
-    }
-  }
-  
   public Options getOptions() {
     Options options = new Options();
 
@@ -699,12 +593,12 @@ public class BatchJob implements Job {
         "Run reason. Default - Manual run started on {yyyy-MM-ddTHH:mm:ssZZ} by {user.name}.");
     
     options.addOption("observationtime", "observationtime", true, 
-        "Observation time - for example, LDN_CLOSE. Default - " + AD_HOC_OBSERVATION_TIME + ".");
+        "Observation time - for example, LDN_CLOSE. Default - " + BatchJobRun.AD_HOC_OBSERVATION_TIME + ".");
     options.addOption("observationdate", "observationdate", true, 
         "Observation date. yyyyMMdd - for example, 20100621. Default - system clock date.");
     options.addOption("valuationtime", "valuationtime", true, 
         "Valuation time. yyyyMMddHHmmss[Z] - for example, 20100621162200+0000. If no time zone (e.g., +0000) " +
-        " is given, the system time zone is used. Default - system clock on observation date.");
+        "is given, the system time zone is used. Default - system clock on observation date.");
     
     options.addOption("view", "view", true, 
         "View name in configuration database. You must specify this.");
@@ -722,9 +616,48 @@ public class BatchJob implements Job {
         "If there is, that run is reused.");
     
     options.addOption("positionmastertime", "positionmastertime", true, 
-      "Instant at which positions should be loaded. yyyyMMddHHmmss[Z]. Default - same as valuationtime.");
+      "Instant at which positions should be loaded. yyyyMMddHHmmss[Z]. Default - same as viewdatetime.");
+    
+    options.addOption("daterangestart", "daterangestart", true, 
+        "First valuation date (inclusive). If daterangestart and daterangeend are given, " +
+        "observationdate and snapshotobservationdate are calculated from the range and " +
+        "must not be given explicitly. In addition, valuationtime must be a time, " +
+        "HHmmss[Z], instead of a datetime as shown above. The batch will be run " +
+        "for those dates within the range for which there is a snapshot in the database. " +
+        "If there is no snapshot, that date is simply ignored.");
+    options.addOption("daterangeend", "daterangeend", true, 
+        "Last valuation date (inclusive). Optional.");
     
     return options;
+  }
+  
+  private Set<LocalDate> getDates(String dateRangeStart, String dateRangeEnd) {
+    ArgumentChecker.notNull(dateRangeStart, "Date range start");
+    ArgumentChecker.notNull(dateRangeStart, "Date range end");
+    
+    LocalDate startDate = parseDate(dateRangeStart);
+    LocalDate endDate = parseDate(dateRangeEnd);
+    
+    Set<LocalDate> dates = new HashSet<LocalDate>();
+    
+    int difference = DateUtil.getDaysBetween(startDate, true, endDate, true);
+    for (int i = 0; i < difference; i++) {
+      LocalDate date = startDate.plusDays(i);
+      dates.add(date);
+    }
+    
+    return dates;
+  }
+  
+  private BatchJobRun createRun(CommandLine line) {
+    BatchJobRun run = new BatchJobRun(this);
+    
+    // attributes that do not vary by date
+    run.setRunReason(line.getOptionValue("reason"));
+    run.setObservationTime(line.getOptionValue("observationtime"));
+    run.setSnapshotObservationTime(line.getOptionValue("snapshotobservationtime"));
+    
+    return run;
   }
   
   public void parse(String[] args) throws CalendricalParseException, OpenGammaRuntimeException {
@@ -735,29 +668,78 @@ public class BatchJob implements Job {
     } catch (ParseException e) {
       throw new OpenGammaRuntimeException("Could not parse command line", e);
     }
-
-    setRunReason(line.getOptionValue("reason"));
-    setObservationTime(line.getOptionValue("observationtime"));
-    setObservationDate(line.getOptionValue("observationdate"));
-    setValuationTime(line.getOptionValue("valuationtime"));
+    
     setViewName(line.getOptionValue("view"));
     setViewDateTime(line.getOptionValue("viewdatetime"));
-    setSnapshotObservationTime(line.getOptionValue("snapshotobservationtime"));
-    setSnapshotObservationDate(line.getOptionValue("snapshotobservationdate"));
     setForceNewRun(line.hasOption("forcenewrun"));
     setPositionMasterTime(line.getOptionValue("positionmastertime"));
+    
+    String dateRangeStart = line.getOptionValue("daterangestart");
+    String dateRangeEnd = line.getOptionValue("daterangeend");
+    
+    if (dateRangeStart != null && dateRangeEnd != null) {
+      // multiple runs, on many different dates
+      Set<LocalDate> runDates = getDates(dateRangeStart, dateRangeEnd);
+      
+      for (LocalDate runDate : runDates) {
+        BatchJobRun run = createRun(line);
+        
+        run.setObservationDate(runDate);
+        run.setSnapshotObservationDate(runDate);
+        
+        String valuationTimePartStr = line.getOptionValue("valuationtime");
+        OffsetTime valuationTimePart;
+        if (valuationTimePartStr == null) {
+          valuationTimePart = getCreationTime().toOffsetTime();
+        } else {
+          valuationTimePart = parseTime(valuationTimePartStr);
+        }
+        OffsetDateTime valuationTime = OffsetDateTime.of(runDate, valuationTimePart, valuationTimePart.getOffset());
+        run.setValuationTime(valuationTime);
+        
+        run.init();
+        
+        boolean snapshotExists = true;
+        try {
+          _batchDbManager.getSnapshotValues(run.getSnapshotId());
+        } catch (IllegalArgumentException e) {
+          snapshotExists = false;
+        }
+        
+        if (snapshotExists) {
+          addRun(run);
+        } else {
+          s_logger.info("Not running for day {} because there is no snapshot", runDate);
+        }
+      }
+    
+    } else {
+      // a single run, on a single date
+      BatchJobRun run = createRun(line);
+      
+      run.setObservationDate(line.getOptionValue("observationdate"));
+      run.setSnapshotObservationDate(line.getOptionValue("snapshotobservationdate"));
+      run.setValuationTime(line.getOptionValue("valuationtime"));
+      
+      run.init();
+      addRun(run);
+    }
   }
   
   public void execute() {
-    if (getView() == null) {
-      initView();
+    for (BatchJobRun run : _runs) {
+      s_logger.info("Running {}", run);
+      
+      createView(run);
+      
+      _batchDbManager.startBatch(run);
+      
+      getView().runOneCycle(run.getValuationTime().toInstant().toEpochMillisLong());
+      
+      _batchDbManager.endBatch(run);
+      
+      s_logger.info("Completed {}", run);
     }
-
-    _batchDbManager.startBatch(this);
-    
-    getView().runOneCycle(getValuationTime().toInstant().toEpochMillisLong());
-    
-    _batchDbManager.endBatch(this);
   }
   
   public static void usage(Options options) {
@@ -770,10 +752,17 @@ public class BatchJob implements Job {
     
     try {
       job.parse(args);
-      job.init();
+    } catch (Exception e) {
+      s_logger.error("Failed to parse command line", e);
+      usage(job.getOptions());
+      System.exit(-1);
+    }
+      
+    try {
+      job.createViewDefinition();
       job.execute();
     } catch (Exception e) {
-      System.out.println(e.getMessage());
+      s_logger.error("Failed to run batch", e);
       usage(job.getOptions());
       System.exit(-1);
     }
