@@ -37,6 +37,7 @@ import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.client.LocalViewProcessorClient;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewProcessorClient;
@@ -158,13 +159,15 @@ public class ViewProcessorResource {
     if (!(getViewProcessorClient() instanceof LocalViewProcessorClient)) {
       return null;
     }
+    // TODO DVI-101 -- configurationResource should be moved, which will remove these casts
     final ViewProcessor vp = ((LocalViewProcessorClient) getViewProcessorClient()).getViewProcessor();
-    if (vp.getConfigurationResource() == null) {
+    Map<String, Object> configurationResource = ((ViewProcessorImpl) vp).getConfigurationResource();
+    if (configurationResource == null) {
       return null;
     }
     final FudgeSerializationContext context = getFudgeSerializationContext();
     final MutableFudgeFieldContainer message = context.newMessage();
-    for (Map.Entry<String, Object> config : vp.getConfigurationResource().entrySet()) {
+    for (Map.Entry<String, Object> config : configurationResource.entrySet()) {
       context.objectToFudgeMsg(message, config.getKey(), null, config.getValue());
     }
     return new FudgeFieldContainerBrowser(message);
