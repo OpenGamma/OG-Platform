@@ -78,7 +78,8 @@ public class Interpolator1DDoubleQuadraticDataBundleTest {
 
   @Test
   public void testEqualsAndHashCode() {
-    Interpolator1DDoubleQuadraticDataBundle other = new Interpolator1DDoubleQuadraticDataBundle(new ArrayInterpolator1DDataBundle(X, Y));
+    Interpolator1DDoubleQuadraticDataBundle other = new Interpolator1DDoubleQuadraticDataBundle(
+        new ArrayInterpolator1DDataBundle(X, Y));
     assertEquals(other, DATA);
     assertEquals(other.hashCode(), DATA.hashCode());
     other = new Interpolator1DDoubleQuadraticDataBundle(new ArrayInterpolator1DDataBundle(Y, Y));
@@ -89,7 +90,15 @@ public class Interpolator1DDoubleQuadraticDataBundleTest {
 
   @Test
   public void testQuadratics() {
-    //TODO
+    for (int i = 0; i < (X.length - 2); i++) {
+      RealPolynomialFunction1D quad = DATA.getQuadratic(i);
+      double[] coeff = quad.getCoefficients();
+      assertTrue(coeff.length == 3);
+      double x = X[i + 1];
+      assertEquals(2 + 3 * x + 4 * x * x, coeff[0], 0);
+      assertEquals(3 + 2 * 4 * x, coeff[1], 0);
+      assertEquals(4, coeff[2], 0);
+    }
   }
 
   @Test
@@ -99,7 +108,8 @@ public class Interpolator1DDoubleQuadraticDataBundleTest {
     final double[] y = Arrays.copyOf(Y, n);
     Arrays.sort(x);
     Arrays.sort(y);
-    Interpolator1DDoubleQuadraticDataBundle data1 = new Interpolator1DDoubleQuadraticDataBundle(new ArrayInterpolator1DDataBundle(x, y));
+    Interpolator1DDoubleQuadraticDataBundle data1 = new Interpolator1DDoubleQuadraticDataBundle(
+        new ArrayInterpolator1DDataBundle(x, y));
     Interpolator1DDoubleQuadraticDataBundle data2;
     final double newY = 120;
     final double[] yData = Arrays.copyOf(y, n);

@@ -11,7 +11,6 @@ import org.junit.Test;
 
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 
 /**
  * 

@@ -39,7 +39,7 @@ public class NonLinearLeastSquare {
     ArgumentChecker.notEmpty(y, "y");
     ArgumentChecker.notEmpty(sigma, "sigma");
 
-    final int n = x.length;
+    int n = x.length;
     if (y.length != n) {
       throw new IllegalArgumentException("y wrong length");
     }
@@ -61,21 +61,22 @@ public class NonLinearLeastSquare {
     _eps = 1e-8;
   }
 
-  public LeastSquareResults solve(final ParameterizedFunction<Double, DoubleMatrix1D, Double> func, final DoubleMatrix1D startPos) {
+  public LeastSquareResults solve(final ParameterizedFunction<Double, DoubleMatrix1D, Double> func,
+      final DoubleMatrix1D startPos) {
     final ScalarFieldFirstOrderDifferentiator diff = new ScalarFieldFirstOrderDifferentiator();
 
     //if a gradient with respect to the parameters is not supplied, calculate it with finite difference 
-    final ParameterizedFunction<Double, DoubleMatrix1D, DoubleMatrix1D> grad = new ParameterizedFunction<Double, DoubleMatrix1D, DoubleMatrix1D>() {
+    ParameterizedFunction<Double, DoubleMatrix1D, DoubleMatrix1D> grad = new ParameterizedFunction<Double, DoubleMatrix1D, DoubleMatrix1D>() {
       @Override
-      public DoubleMatrix1D evaluate(final Double x, final DoubleMatrix1D parameters) {
+      public DoubleMatrix1D evaluate(Double x, DoubleMatrix1D parameters) {
         return diff.derivative(func.asFunctionOfParameters(x)).evaluate(parameters);
       }
     };
     return solve(func, grad, startPos);
   }
 
-  public LeastSquareResults solve(final ParameterizedFunction<Double, DoubleMatrix1D, Double> func, final ParameterizedFunction<Double, DoubleMatrix1D, DoubleMatrix1D> grad,
-      final DoubleMatrix1D startPos) {
+  public LeastSquareResults solve(final ParameterizedFunction<Double, DoubleMatrix1D, Double> func,
+      final ParameterizedFunction<Double, DoubleMatrix1D, DoubleMatrix1D> grad, final DoubleMatrix1D startPos) {
 
     DoubleMatrix1D theta = startPos;
 
@@ -87,13 +88,13 @@ public class NonLinearLeastSquare {
 
     oldChiSqr = getChiSqr(modelValues);
     DoubleMatrix1D beta = getChiSqrGrad(modelValues, modelGrads);
-    final double g0 = _algebra.getNorm2(beta);
+    double g0 = _algebra.getNorm2(beta);
 
     for (int count = 0; count < 100; count++) {
       DoubleMatrix2D alpha = getModifiedCurvatureMatrix(modelGrads, lambda);
       DecompositionResult decmp = _decomposition.evaluate(alpha);
-      final DoubleMatrix1D deltaTheta = decmp.solve(beta);
-      final DoubleMatrix1D newTheta = (DoubleMatrix1D) _algebra.add(theta, deltaTheta);
+      DoubleMatrix1D deltaTheta = decmp.solve(beta);
+      DoubleMatrix1D newTheta = (DoubleMatrix1D) _algebra.add(theta, deltaTheta);
       newModelValues = getModelValues(func, newTheta);
       newChiSqr = getChiSqr(newModelValues);
       if (newChiSqr < oldChiSqr) {
@@ -107,7 +108,7 @@ public class NonLinearLeastSquare {
         if (_algebra.getNorm2(beta) < _eps * g0) {
           alpha = getModifiedCurvatureMatrix(modelGrads, 0.0);
           decmp = _decomposition.evaluate(alpha);
-          final DoubleMatrix2D covariance = decmp.solve(DoubleMatrixUtils.getIdentityMatrix2D(alpha.getNumberOfRows()));
+          DoubleMatrix2D covariance = decmp.solve(DoubleMatrixUtils.getIdentityMatrix2D(alpha.getNumberOfRows()));
           return new LeastSquareResults(newChiSqr, newTheta, covariance);
         }
         oldChiSqr = newChiSqr;
@@ -121,16 +122,18 @@ public class NonLinearLeastSquare {
     throw new ConvergenceException("failed to converge");
   }
 
-  private double[] getModelValues(final ParameterizedFunction<Double, DoubleMatrix1D, Double> func, final DoubleMatrix1D theta) {
-    final double[] res = new double[_n];
+  private double[] getModelValues(final ParameterizedFunction<Double, DoubleMatrix1D, Double> func,
+      final DoubleMatrix1D theta) {
+    double[] res = new double[_n];
     for (int i = 0; i < _n; i++) {
       res[i] = func.evaluate(_x[i], theta);
     }
     return res;
   }
 
-  private DoubleMatrix1D[] getModelGradients(final ParameterizedFunction<Double, DoubleMatrix1D, DoubleMatrix1D> grad, final DoubleMatrix1D theta) {
-    final DoubleMatrix1D[] res = new DoubleMatrix1D[_n];
+  private DoubleMatrix1D[] getModelGradients(final ParameterizedFunction<Double, DoubleMatrix1D, DoubleMatrix1D> grad,
+      final DoubleMatrix1D theta) {
+    DoubleMatrix1D[] res = new DoubleMatrix1D[_n];
     for (int i = 0; i < _n; i++) {
       res[i] = grad.evaluate(_x[i], theta);
     }
@@ -146,9 +149,9 @@ public class NonLinearLeastSquare {
   }
 
   private DoubleMatrix1D getChiSqrGrad(final double[] modelValues, final DoubleMatrix1D[] modelGrads) {
-    final int size = modelGrads[0].getNumberOfElements();
+    int size = modelGrads[0].getNumberOfElements();
 
-    final double[] beta = new double[size];
+    double[] beta = new double[size];
 
     for (int i = 0; i < size; i++) {
       double sum = 0.0;
@@ -161,9 +164,9 @@ public class NonLinearLeastSquare {
   }
 
   private DoubleMatrix2D getModifiedCurvatureMatrix(final DoubleMatrix1D[] modelGrads, final double lambda) {
-    final int size = modelGrads[0].getNumberOfElements();
-    final DoubleMatrix2D res = new DoubleMatrix2D(size, size);
-    final double[][] alpha = res.getData();
+    int size = modelGrads[0].getNumberOfElements();
+    DoubleMatrix2D res = new DoubleMatrix2D(size, size);
+    double[][] alpha = res.getData();
 
     for (int i = 0; i < size; i++) {
       double sum = 0.0;
