@@ -194,10 +194,6 @@ public class ViewImpl implements View, Lifecycle, LiveDataSnapshotListener {
     return getDefinition().getName();
   }
   
-  public Set<ComputationTargetSpecification> getAllComputationTargets() {
-    return getViewEvaluationModel().getAllComputationTargets();
-  }
-  
   public synchronized void init() {
     OperationTimer timer = new OperationTimer(s_logger, "Initializing view {}", getDefinition().getName());
     setCalculationState(ViewCalculationState.INITIALIZING);
