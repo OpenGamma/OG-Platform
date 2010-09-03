@@ -21,10 +21,10 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Allows synchronous RPC-style semantics to be applied over a {@link FudgeRequestSender}.
- * This class also supports multiplexing different clients over the same
- * underlying transport channel using correlation IDs to multiplex the requests
- * and responses. 
+ * Allows synchronous RPC-style semantics to be applied over a {@link FudgeRequestSender}
+ * or {@link FudgeConnection}. This class also supports multiplexing different clients over
+ * the same underlying transport channel using correlation IDs to multiplex the requests
+ * and responses.
  */
 public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
 
@@ -39,9 +39,9 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
    */
   private final AtomicLong _nextCorrelationId = new AtomicLong();
   /**
-   * The Fudge request sender.
+   * The Fudge message sender.
    */
-  private final FudgeRequestSender _requestSender;
+  private final FudgeMessageSender _messageSender;
   /**
    * The map of pending requests keyed by correlation id.
    */
@@ -50,6 +50,10 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
    * The timeout.
    */
   private long _timeoutInMilliseconds = DEFAULT_TIMEOUT_IN_MILLISECONDS;
+  /**
+   * Handler for asynchronous messages.
+   */
+  private FudgeMessageReceiver _asynchronousMessageReceiver;
 
   /**
    * Creates the client.
@@ -57,16 +61,34 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
    */
   protected FudgeSynchronousClient(final FudgeRequestSender requestSender) {
     ArgumentChecker.notNull(requestSender, "requestSender");
-    _requestSender = requestSender;
+    _messageSender = new FudgeMessageSender() {
+
+      @Override
+      public FudgeContext getFudgeContext() {
+        return requestSender.getFudgeContext();
+      }
+
+      @Override
+      public void send(FudgeFieldContainer message) {
+        requestSender.sendRequest(message, FudgeSynchronousClient.this);
+      }
+
+    };
+  }
+
+  protected FudgeSynchronousClient(final FudgeConnection connection) {
+    ArgumentChecker.notNull(connection, "connection");
+    connection.setFudgeMessageReceiver(this);
+    _messageSender = connection.getFudgeMessageSender();
   }
 
   // -------------------------------------------------------------------------
   /**
-   * Gets the request sender.
-   * @return the request sender, not null
+   * Gets the message sender.
+   * @return the message sender, not null
    */
-  public FudgeRequestSender getRequestSender() {
-    return _requestSender;
+  public FudgeMessageSender getMessageSender() {
+    return _messageSender;
   }
 
   /**
@@ -79,6 +101,14 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
 
   public void setTimeoutInMilliseconds(final long timeoutMilliseconds) {
     _timeoutInMilliseconds = timeoutMilliseconds;
+  }
+
+  public void setAsynchronousMessageReceiver(final FudgeMessageReceiver asynchronousMessageReceiver) {
+    _asynchronousMessageReceiver = asynchronousMessageReceiver;
+  }
+
+  public FudgeMessageReceiver getAsynchronousMessageReceiver() {
+    return _asynchronousMessageReceiver;
   }
 
   /**
@@ -100,7 +130,7 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
     ClientRequestHolder requestHolder = new ClientRequestHolder();
     _pendingRequests.put(correlationId, requestHolder);
     try {
-      getRequestSender().sendRequest(requestMsg, this);
+      getMessageSender().send(requestMsg);
       try {
         requestHolder.latch.await(getTimeoutInMilliseconds(), TimeUnit.MILLISECONDS);
       } catch (InterruptedException e) {
@@ -117,6 +147,10 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
     }
   }
 
+  protected void sendMessage(FudgeFieldContainer message) {
+    getMessageSender().send(message);
+  }
+
   /**
    * Receives a message from Fudge.
    * @param fudgeContext  the Fudge context, not null
@@ -125,7 +159,16 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
   @Override
   public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
     final FudgeFieldContainer reply = msgEnvelope.getMessage();
-    final long correlationId = getCorrelationIdFromReply(reply);
+    final Long correlationId = getCorrelationIdFromReply(reply);
+    if (correlationId == null) {
+      final FudgeMessageReceiver receiver = getAsynchronousMessageReceiver();
+      if (receiver == null) {
+        s_logger.info("Unhandled asynchronous message {}", msgEnvelope);
+      } else {
+        receiver.messageReceived(fudgeContext, msgEnvelope);
+      }
+      return;
+    }
     final ClientRequestHolder requestHolder = _pendingRequests.remove(correlationId);
     if (requestHolder == null) {
       s_logger.warn("Got a response on non-pending correlation Id {}", correlationId);
@@ -138,9 +181,9 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
   /**
    * Extracts the correlation id from the reply object.
    * @param reply  the reply
-   * @return the id
+   * @return the id, or {@code null} if it's an asynchronous message (over {@link FudgeConnection} transport only)
    */
-  protected abstract long getCorrelationIdFromReply(FudgeFieldContainer reply);
+  protected abstract Long getCorrelationIdFromReply(FudgeFieldContainer reply);
 
   // -------------------------------------------------------------------------
   /**
