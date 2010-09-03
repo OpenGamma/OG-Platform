@@ -29,7 +29,7 @@ import com.opengamma.financial.world.holiday.HolidaySource;
 import com.opengamma.financial.world.holiday.HolidayType;
 import com.opengamma.financial.world.holiday.InMemoryHolidayMaster;
 import com.opengamma.financial.world.region.DefaultRegionSource;
-import com.opengamma.financial.world.region.InMemoryRegionRepository;
+import com.opengamma.financial.world.region.InMemoryRegionMaster;
 import com.opengamma.financial.world.region.Region;
 import com.opengamma.financial.world.region.RegionFileReader;
 import com.opengamma.financial.world.region.RegionMaster;
@@ -41,17 +41,16 @@ import com.opengamma.id.IdentifierBundle;
  * Unit tests for {@see InMemoryHolidayRepository} and {@see InMemoryExchangeRepository}
  */
 public class InMemoryHolidayAndExchangeRespositoriesTest {
-  private static final String REGION_HIERARCHY = InMemoryRegionRepository.POLITICAL_HIERARCHY_NAME;
+  private static final String REGION_HIERARCHY = InMemoryRegionMaster.POLITICAL_HIERARCHY_NAME;
   
   @Test
   public void testExchangeRepository() throws URISyntaxException {
-    RegionMaster regionRepo = new InMemoryRegionRepository();
-    RegionFileReader.populateMaster(regionRepo, new File(RegionFileReader.REGIONS_FILE_PATH));
-    RegionSource regionSource = new DefaultRegionSource(regionRepo);
+    RegionMaster regionMaster = RegionFileReader.createPopulatedRegionMaster();
+    RegionSource regionSource = new DefaultRegionSource(regionMaster);
     InMemoryExchangeMaster exchangeRepo = new InMemoryExchangeMaster();
     ExchangeSource exchangeSource = new DefaultExchangeSource(exchangeRepo);
     
-    Region uk = regionSource.getHighestLevelRegion(Identifier.of(InMemoryRegionRepository.ISO_COUNTRY_2, "GB"));
+    Region uk = regionSource.getHighestLevelRegion(Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, "GB"));
 
     Identifier euronextLiffeMIC = Identifier.of(ExchangeMaster.ISO_MIC, "XLIF");
     Identifier euronextLiffeCCID = Identifier.of(ExchangeMaster.COPP_CLARK_CENTER_ID, "979");
@@ -111,21 +110,11 @@ public class InMemoryHolidayAndExchangeRespositoriesTest {
   
   @Test
   public void testHolidayRespository() throws URISyntaxException {
-    InMemoryRegionRepository regionRepo = new InMemoryRegionRepository();
+    InMemoryRegionMaster regionRepo = new InMemoryRegionMaster();
     RegionFileReader.populateMaster(regionRepo, new File(RegionFileReader.REGIONS_FILE_PATH));
     RegionSource regionSource = new DefaultRegionSource(regionRepo);
-    InMemoryExchangeMaster exchangeRepo = new InMemoryExchangeMaster();
-    ExchangeSource exchangeSource = new DefaultExchangeSource(exchangeRepo);
-    ExchangeFileReader exchangeReader = new ExchangeFileReader(exchangeRepo);
-    exchangeReader.readFile(new File(CoppClarkFileReader.EXCHANGE_HOLIDAYS_REPOST_FILE_PATH));
-    HolidayMaster holidayRepo = new InMemoryHolidayMaster(regionSource, exchangeSource);
-    
-    HolidaySource holidaySource = new DefaultHolidaySource(holidayRepo);
-    CoppClarkFileReader reader = new CoppClarkFileReader(holidayRepo, 
-                            new File(CoppClarkFileReader.CURRENCY_HOLIDAYS_FILE_PATH), 
-                            new File(CoppClarkFileReader.FINANCIAL_CENTRES_HOLIDAYS_FILE_PATH),
-                            new File(CoppClarkFileReader.EXCHANGE_TRADING_HOLIDAYS_FILE_PATH),
-                            new File(CoppClarkFileReader.EXCHANGE_SETTLEMENT_HOLIDAYS_FILE_PATH));
+    ExchangeSource exchangeSource = ExchangeFileReader.createPopulatedExchangeSource();
+    HolidaySource holidaySource = CoppClarkFileReader.createPopulatedHolidaySource(new InMemoryHolidayMaster(regionSource, exchangeSource)); 
     Identifier euronextLiffeId = Identifier.of(ExchangeMaster.ISO_MIC, "XLIF");
     Exchange euronextLiffe = exchangeSource.getSingleExchange(euronextLiffeId);
     Assert.assertNotNull(euronextLiffe);
@@ -135,7 +124,7 @@ public class InMemoryHolidayAndExchangeRespositoriesTest {
     Assert.assertFalse(holidaySource.isHoliday(euronextLiffe.getRegion(), LocalDate.of(2012, 06, 06), HolidayType.BANK));
     Assert.assertTrue(holidaySource.isHoliday(euronextLiffeId, LocalDate.of(2012, 06, 05), HolidayType.TRADING));
     Assert.assertFalse(holidaySource.isHoliday(euronextLiffeId, LocalDate.of(2012, 06, 06), HolidayType.TRADING));
-    String curncy = regionSource.getHighestLevelRegion(euronextLiffe.getRegion()).getData().getString(InMemoryRegionRepository.ISO_CURRENCY_3);
+    String curncy = regionSource.getHighestLevelRegion(euronextLiffe.getRegion()).getData().getString(InMemoryRegionMaster.ISO_CURRENCY_3);
     Currency currency = Currency.getInstance(curncy);
     Assert.assertTrue(holidaySource.isHoliday(currency, LocalDate.of(2012, 06, 05)));
     Assert.assertFalse(holidaySource.isHoliday(currency, LocalDate.of(2012, 06, 06)));

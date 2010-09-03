@@ -5,10 +5,13 @@
  */
 package com.opengamma.financial.world.exchange;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalTime;
@@ -22,7 +25,7 @@ import au.com.bytecode.opencsv.CSVReader;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.world.CoppClarkFileReader;
-import com.opengamma.financial.world.region.InMemoryRegionRepository;
+import com.opengamma.financial.world.region.InMemoryRegionMaster;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 
@@ -32,6 +35,9 @@ import com.opengamma.id.IdentifierBundle;
 public class ExchangeFileReader {
   private static final DateTimeFormatter s_timeFormat = DateTimeFormatters.pattern("HH:mm:ss");
   private static final DateTimeFormatter s_dateFormat = DateTimeFormatters.pattern("dd-MMM-yyyy");
+  private static final String VERSION = "20100630";
+  
+  private static final String EXCHANGE_HOLIDAYS_REPOST_RESOURCE = "/com/coppclark/exchange/THR_" + VERSION + ".csv.txt";
   private ExchangeMaster _exchangeMaster;
   private ExchangeSource _exchangeSource;
   
@@ -43,13 +49,15 @@ public class ExchangeFileReader {
   public static ExchangeSource createPopulatedExchangeSource() {
     ExchangeMaster exchangeMaster = new InMemoryExchangeMaster();
     ExchangeFileReader fileReader = new ExchangeFileReader(exchangeMaster);
-    fileReader.readFile(new File(CoppClarkFileReader.EXCHANGE_HOLIDAYS_REPOST_FILE_PATH));
+    fileReader.readFile(fileReader.getClass().getResourceAsStream(EXCHANGE_HOLIDAYS_REPOST_RESOURCE));
     return new DefaultExchangeSource(exchangeMaster);
   }
   
-  public void readFile(File file) {
+  
+  
+  public void readFile(InputStream inputStream) {
     try {
-      CSVReader reader = new CSVReader(new BufferedReader(new FileReader(file)));
+      CSVReader reader = new CSVReader(new InputStreamReader(new BufferedInputStream(inputStream)));
       String[] line = reader.readNext();
       line = reader.readNext(); // deliberate, headers...
       while (line != null) {
@@ -63,7 +71,7 @@ public class ExchangeFileReader {
   
   private void readLine(String[]rawFields) {
     String countryISO = rawFields[2];
-    Identifier region = Identifier.of(InMemoryRegionRepository.ISO_COUNTRY_2, countryISO);
+    Identifier region = Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, countryISO);
     String exchangeMIC = rawFields[3];
     Identifier mic = Identifier.of(ExchangeMaster.ISO_MIC, exchangeMIC);
     String exchangeName = rawFields[4];

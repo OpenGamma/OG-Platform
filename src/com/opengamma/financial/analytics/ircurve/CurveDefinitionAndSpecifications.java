@@ -89,7 +89,7 @@ public class CurveDefinitionAndSpecifications {
     cashInstrumentProviders.put(new Tenor(Period.ofDays(7)), new StaticCurveInstrumentProvider(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "US0001W Index")));
     cashInstrumentProviders.put(new Tenor(Period.ofDays(14)), new StaticCurveInstrumentProvider(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "US0002W Index")));
     for (int i = 1; i <= 12; i++) {
-      cashInstrumentProviders.put(new Tenor(Period.ofMonths(i)), new StaticCurveInstrumentProvider(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "US000" + i + "M Index")));
+      cashInstrumentProviders.put(new Tenor(Period.ofMonths(i)), new StaticCurveInstrumentProvider(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "US00" + (i<10 ? "0" : "") + i + "M Index")));
     }
     
     Map<Tenor, CurveInstrumentProvider> fraInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
@@ -125,19 +125,19 @@ public class CurveDefinitionAndSpecifications {
     
     Map<Tenor, CurveInstrumentProvider> futureInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     // note that these are start points, so 1 yr + (as many quarterly futures as you want)
-    futureInstrumentProviders.put(new Tenor(Period.ofYears(1)), new BloombergFutureCurveInstrumentProvider("ED", "Curncy"));
+    futureInstrumentProviders.put(new Tenor(Period.ofYears(1)), new BloombergFutureCurveInstrumentProvider("ED", "Comdty"));
     // note that these are start points, so 1 yr + (as many quarterly futures as you want)
-    futureInstrumentProviders.put(new Tenor(Period.ofMonths(12)), new BloombergFutureCurveInstrumentProvider("ED", "Curncy"));
+    futureInstrumentProviders.put(new Tenor(Period.ofMonths(12)), new BloombergFutureCurveInstrumentProvider("ED", "Comdty"));
     // note that these are start points, so 1.5 yr + (as many quarterly futures as you want)
-    futureInstrumentProviders.put(new Tenor(Period.ofMonths(18)), new BloombergFutureCurveInstrumentProvider("ED", "Curncy"));
+    futureInstrumentProviders.put(new Tenor(Period.ofMonths(18)), new BloombergFutureCurveInstrumentProvider("ED", "Comdty"));
     // note that these are start points, so 2 yr + (as many quarterly futures as you want)
-    futureInstrumentProviders.put(new Tenor(Period.ofYears(2)), new BloombergFutureCurveInstrumentProvider("ED", "Curncy")); 
+    futureInstrumentProviders.put(new Tenor(Period.ofYears(2)), new BloombergFutureCurveInstrumentProvider("ED", "Comdty")); 
     // note that these are start points, so 2 yr + (as many quarterly futures as you want)
-    futureInstrumentProviders.put(new Tenor(Period.ofMonths(24)), new BloombergFutureCurveInstrumentProvider("ED", "Curncy")); 
+    futureInstrumentProviders.put(new Tenor(Period.ofMonths(24)), new BloombergFutureCurveInstrumentProvider("ED", "Comdty")); 
     // note that these are start points, so 2 yr + (as many quarterly futures as you want)
-    futureInstrumentProviders.put(new Tenor(Period.ofYears(3)), new BloombergFutureCurveInstrumentProvider("ED", "Curncy")); 
+    futureInstrumentProviders.put(new Tenor(Period.ofYears(3)), new BloombergFutureCurveInstrumentProvider("ED", "Comdty")); 
     // note that these are start points, so 2 yr + (as many quarterly futures as you want)
-    futureInstrumentProviders.put(new Tenor(Period.ofMonths(36)), new BloombergFutureCurveInstrumentProvider("ED", "Curncy")); 
+    futureInstrumentProviders.put(new Tenor(Period.ofMonths(36)), new BloombergFutureCurveInstrumentProvider("ED", "Comdty")); 
     
     Map<Tenor, CurveInstrumentProvider> swapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     final int[] availableYears = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 25, 30, 35, 40, 45, 50, 60 };
