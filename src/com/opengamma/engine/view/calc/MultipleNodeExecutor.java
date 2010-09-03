@@ -116,28 +116,23 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
         }
       }
     } while (true);
-    // Find tail fragments
     findTailFragments(allFragments);
-    // Set block counts on non-leaf nodes
+    context.allocateFragmentMap(allFragments.size());
+    // Set block counts on non-leaf nodes & leave only the leaves in the set
     logicalRoot.initBlockCount();
     final Iterator<GraphFragment> fragmentIterator = allFragments.iterator();
     final int count = allFragments.size();
     int totalSize = 0;
     int totalCycleCost = 0;
-    int tails = 0;
     while (fragmentIterator.hasNext()) {
       final GraphFragment fragment = fragmentIterator.next();
       totalSize += fragment.getJobItems();
       totalCycleCost += fragment.getJobCycleCost();
-      if (fragment.getTail() != null) {
-        tails++;
-      }
       if (!fragment.getInputs().isEmpty()) {
         fragment.initBlockCount();
         fragmentIterator.remove();
       }
     }
-    System.err.println(tails + " tail job(s) of " + count + " total");
     statistics.graphProcessed(graph.getCalcConfName(), count, (double) totalSize / (double) count, (double) totalCycleCost / (double) count);
     // Execute anything left (leaf nodes)
     for (GraphFragment fragment : allFragments) {

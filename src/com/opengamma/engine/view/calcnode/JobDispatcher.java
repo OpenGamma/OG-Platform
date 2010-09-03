@@ -13,7 +13,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -37,10 +39,20 @@ public class JobDispatcher implements JobInvokerRegister {
   /* package */static final int DEFAULT_MAX_JOB_ATTEMPTS = 3;
   /* package */static final String DEFAULT_JOB_FAILURE_NODE_ID = "NOT EXECUTED";
 
+  private static List<CalculationJob> getAllJobs(CalculationJob job, List<CalculationJob> jobs) {
+    jobs = new LinkedList<CalculationJob>();
+    while (job != null) {
+      jobs.add(job);
+      job = job.getTail();
+    }
+    return jobs;
+  }
+
   private final class DispatchJob implements JobInvocationReceiver {
 
-    private final CalculationJob _job;
-    private final AtomicReference<JobResultReceiver> _resultReceiver = new AtomicReference<JobResultReceiver>();
+    private final CalculationJob _rootJob;
+    private final ConcurrentMap<CalculationJobSpecification, JobResultReceiver> _resultReceivers;
+    private final AtomicReference<JobResultReceiver> _resultReceiver;
     private final long _jobCreationTime;
     private final CapabilityRequirements _capabilityRequirements;
     private Set<JobInvoker> _excludeJobInvoker;
@@ -48,10 +60,15 @@ public class JobDispatcher implements JobInvokerRegister {
     private Future<?> _timeout;
 
     private DispatchJob(final CalculationJob job, final JobResultReceiver resultReceiver) {
-      _job = job;
-      _resultReceiver.set(resultReceiver);
+      _rootJob = job;
+      _resultReceivers = new ConcurrentHashMap<CalculationJobSpecification, JobResultReceiver>();
+      _resultReceiver = new AtomicReference<JobResultReceiver>(resultReceiver);
+      final List<CalculationJob> jobs = getAllJobs(job, null);
+      for (CalculationJob jobref : jobs) {
+        _resultReceivers.put(jobref.getSpecification(), resultReceiver);
+      }
       _jobCreationTime = System.nanoTime();
-      _capabilityRequirements = getCapabilityRequirementsProvider().getCapabilityRequirements(job);
+      _capabilityRequirements = getCapabilityRequirementsProvider().getCapabilityRequirements(jobs);
     }
 
     private long getDurationNanos() {
@@ -59,27 +76,35 @@ public class JobDispatcher implements JobInvokerRegister {
     }
 
     private CalculationJob getJob() {
-      return _job;
+      return _rootJob;
     }
 
     @Override
     public void jobCompleted(final CalculationJobResult result) {
-      assert getJob().getSpecification().equals(result.getSpecification());
-      cancelTimeout();
-      JobResultReceiver resultReceiver = _resultReceiver.getAndSet(null);
-      if (resultReceiver != null) {
-        s_logger.debug("Job {} completed on node {}", getJob().getSpecification().getJobId(), result.getComputeNodeId());
-        resultReceiver.resultReceived(result);
-        final long durationNanos = getDurationNanos();
-        s_logger.debug("Reported time = {}ms, non-executing job time = {}ms", (double) result.getDuration() / 1000000d, ((double) durationNanos - (double) result.getDuration()) / 1000000d);
-        if (getStatisticsGatherer() != null) {
-          final Collection<CalculationJobItem> items = getJob().getJobItems();
-          final int cost = items.size();
-          // TODO [ENG-201] Report a better cost metric than the number of items
-          getStatisticsGatherer().jobCompleted(result.getComputeNodeId(), items.size(), cost, result.getDuration(), getDurationNanos());
+      JobResultReceiver resultReceiver = _resultReceivers.remove(result.getSpecification());
+      if (resultReceiver == null) {
+        s_logger.warn("Job {} completed on node {} but is not currently pending", result.getSpecification().getJobId(), result.getComputeNodeId());
+        // Note the above warning can happen if we've been retried and tail jobs are being re-executed
+        return;
+      }
+      if (_resultReceivers.isEmpty()) {
+        // This is the last one to complete
+        cancelTimeout();
+        resultReceiver = _resultReceiver.getAndSet(null);
+        if (resultReceiver == null) {
+          // The whole batch has failed or aborted however
+          s_logger.warn("Job {} completed on node {} but batch has already failed or aborted", result.getSpecification().getJobId(), result.getComputeNodeId());
+          return;
         }
-      } else {
-        s_logger.warn("Job {} completed on node {} but we've already completed or aborted from another node", getJob().getSpecification().getJobId(), result.getComputeNodeId());
+      }
+      s_logger.debug("Job {} completed on node {}", result.getSpecification().getJobId(), result.getComputeNodeId());
+      resultReceiver.resultReceived(result);
+      final long durationNanos = getDurationNanos();
+      s_logger.debug("Reported time = {}ms, non-executing job time = {}ms", (double) result.getDuration() / 1000000d, ((double) durationNanos - (double) result.getDuration()) / 1000000d);
+      if (getStatisticsGatherer() != null) {
+        final int size = result.getResultItems().size();
+        // TODO [ENG-201] Report a better cost metric than the number of items; should we push the metric as part of the dispatch?
+        getStatisticsGatherer().jobCompleted(result.getComputeNodeId(), size, size, result.getDuration(), getDurationNanos());
       }
     }
 
@@ -89,24 +114,29 @@ public class JobDispatcher implements JobInvokerRegister {
       final JobResultReceiver resultReceiver = _resultReceiver.getAndSet(null);
       if (resultReceiver != null) {
         s_logger.debug("Job {} failed, {}", getJob().getSpecification().getJobId(), (exception != null) ? exception.getMessage() : "no exception passed");
-        _rescheduled++;
-        if (_rescheduled >= getMaxJobAttempts()) {
+        if ((_excludeJobInvoker != null) && _excludeJobInvoker.contains(jobInvoker)) {
           _resultReceiver.set(resultReceiver);
-          jobAbort(exception, "internal node error");
+          s_logger.debug("Duplicate invoker failure from node {}", computeNodeId);
         } else {
-          s_logger.info("Retrying job {} (attempt {})", getJob().getSpecification().getJobId(), _rescheduled);
-          if (_excludeJobInvoker == null) {
-            _excludeJobInvoker = new HashSet<JobInvoker>();
+          _rescheduled++;
+          if (_rescheduled >= getMaxJobAttempts()) {
+            _resultReceiver.set(resultReceiver);
+            jobAbort(exception, "internal node error");
+          } else {
+            s_logger.info("Retrying job {} (attempt {})", getJob().getSpecification().getJobId(), _rescheduled);
+            if (_excludeJobInvoker == null) {
+              _excludeJobInvoker = new HashSet<JobInvoker>();
+            }
+            _excludeJobInvoker.add(jobInvoker);
+            _resultReceiver.set(resultReceiver);
+            dispatchJobImpl(this);
           }
-          _excludeJobInvoker.add(jobInvoker);
-          _resultReceiver.set(resultReceiver);
-          dispatchJobImpl(this);
         }
         if (getStatisticsGatherer() != null) {
           getStatisticsGatherer().jobFailed(computeNodeId, getDurationNanos());
         }
       } else {
-        s_logger.warn("Job {} failed but we've already completed or aborted from another node", getJob().getSpecification().getJobId());
+        s_logger.warn("Job {} failed on node {} but we've already completed, aborted or failed", getJob().getSpecification().getJobId(), computeNodeId);
       }
     }
 

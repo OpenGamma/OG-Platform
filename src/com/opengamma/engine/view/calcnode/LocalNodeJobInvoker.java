@@ -7,9 +7,7 @@ package com.opengamma.engine.view.calcnode;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
@@ -22,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Invokes jobs on one or more local calculation node implementations.
  */
-public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContainer<Queue<AbstractCalculationNode>> implements JobInvoker {
+public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContainer implements JobInvoker {
 
   private static final Logger s_logger = LoggerFactory.getLogger(LocalNodeJobInvoker.class);
 
@@ -32,7 +30,6 @@ public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContai
   private final Set<Capability> _capabilities = new HashSet<Capability>();
 
   public LocalNodeJobInvoker() {
-    super(new ConcurrentLinkedQueue<AbstractCalculationNode>());
     _executorService = Executors.newCachedThreadPool();
   }
 
@@ -83,17 +80,26 @@ public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContai
     final Runnable invokeTask = new Runnable() {
       @Override
       public void run() {
-        CalculationJobResult result = null;
-        try {
-          result = node.executeJob(job);
-        } catch (Exception e) {
-          s_logger.warn("Exception thrown by job execution", e);
-          receiver.jobFailed(LocalNodeJobInvoker.this, node.getNodeId(), e);
+        final ExecutionReceiver callback = new ExecutionReceiver() {
+
+          @Override
+          public void executionComplete(final CalculationJobResult result) {
+            receiver.jobCompleted(result);
+          }
+
+          @Override
+          public void executionFailed(final AbstractCalculationNode node, final Exception exception) {
+            s_logger.warn("Exception thrown by job execution", exception);
+            receiver.jobFailed(LocalNodeJobInvoker.this, node.getNodeId(), exception);
+          }
+
+        };
+        executeJob(node, job, callback);
+        CalculationJob tail = job.getTail();
+        while (tail != null) {
+          executeJob(null, tail, callback);
+          tail = tail.getTail();
         }
-        if (result != null) {
-          receiver.jobCompleted(result);
-        }
-        addNode(node);
       }
     };
     getExecutorService().execute(invokeTask);

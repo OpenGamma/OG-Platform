@@ -37,7 +37,7 @@ public class RemoteNodeClientTest {
   private static final long TIMEOUT = 1000L;
 
   protected static CalculationJob createTestCalculationJob() {
-    return new CalculationJob(JobDispatcherTest.createTestJobSpec(), JobDispatcherTest.createTestJobItems(), CacheSelectHint.allShared());
+    return new CalculationJob(JobDispatcherTest.createTestJobSpec(), null, JobDispatcherTest.createTestJobItems(), CacheSelectHint.allShared());
   }
 
   @Test

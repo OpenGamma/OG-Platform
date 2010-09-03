@@ -44,7 +44,7 @@ public class CalculationJobTest {
     List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Collections.<ValueSpecification> emptySet(), Collections
         .<ValueRequirement> emptySet()));
 
-    CalculationJob inputJob = new CalculationJob(spec, items, CacheSelectHint.allShared());
+    CalculationJob inputJob = new CalculationJob(spec, null, items, CacheSelectHint.allShared());
     inputJob.convertInputs(identifierMap);
 
     FudgeFieldContainer msg = inputJob.toFudgeMsg(new FudgeSerializationContext(context));
@@ -77,7 +77,7 @@ public class CalculationJobTest {
 
     List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Sets.newHashSet(inputSpec), Sets.newHashSet(desiredValue)));
 
-    CalculationJob inputJob = new CalculationJob(spec, items, CacheSelectHint.allShared());
+    CalculationJob inputJob = new CalculationJob(spec, null, items, CacheSelectHint.allShared());
     inputJob.convertInputs(identifierMap);
 
     FudgeFieldContainer msg = inputJob.toFudgeMsg(new FudgeSerializationContext(context));

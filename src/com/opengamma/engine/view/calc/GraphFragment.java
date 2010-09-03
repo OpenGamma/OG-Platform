@@ -7,7 +7,7 @@ package com.opengamma.engine.view.calc;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -15,20 +15,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
-import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
-import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
-import com.opengamma.engine.view.calcnode.JobResultReceiver;
 
-/* package */class GraphFragment implements JobResultReceiver {
+/* package */class GraphFragment {
 
   private final int _graphFragmentIdentifier;
   private final GraphFragmentContext _context;
@@ -36,6 +32,7 @@ import com.opengamma.engine.view.calcnode.JobResultReceiver;
   private final Set<GraphFragment> _inputs = new HashSet<GraphFragment>();
   private final Set<GraphFragment> _dependencies = new HashSet<GraphFragment>();
   private AtomicInteger _blockCount;
+  private Long _requiredJob;
   private GraphFragment _tail;
 
   private int _startTime;
@@ -130,66 +127,106 @@ import com.opengamma.engine.view.calcnode.JobResultReceiver;
   }
 
   public void inputCompleted() {
-    // TODO [ENG-187] If we're a tail, we don't want to kick off an execution; we've already been dispatched
-    final int blockCount = _blockCount.decrementAndGet();
-    if (blockCount == 0) {
-      execute();
-      // Help out the GC - we don't need these any more
-      _blockCount = null;
-      getInputs().clear();
+    // If _blockCount is null, we are a tail job that has already been dispatched
+    if (_blockCount != null) {
+      final int blockCount = _blockCount.decrementAndGet();
+      if (blockCount == 0) {
+        execute();
+        _blockCount = null;
+      }
     }
   }
 
-  public void executeImpl() {
+  public CalculationJob createCalculationJob(final Integer executionId) {
     final CalculationJobSpecification jobSpec = getContext().getExecutor().createJobSpecification(getContext().getGraph());
+    final Map<DependencyNode, Integer> node2executionId = getContext().getNode2ExecutionId();
     final List<CalculationJobItem> items = new ArrayList<CalculationJobItem>();
     final Map<CalculationJobItem, DependencyNode> item2Node = getContext().getItem2Node();
-    final Set<ValueSpecification> privateValues = new HashSet<ValueSpecification>();
-    final Set<ValueSpecification> sharedValues = new HashSet<ValueSpecification>(getContext().getGraph().getTerminalOutputValues());
+    final Map<ValueSpecification, Boolean> sharedValues = getContext().getSharedCacheValues();
+    final Set<ValueSpecification> localPrivateValues = new HashSet<ValueSpecification>();
+    final Set<ValueSpecification> localSharedValues = new HashSet<ValueSpecification>();
     for (DependencyNode node : getNodes()) {
       final Set<ValueSpecification> inputs = node.getInputValues();
       CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getUniqueIdentifier(), node.getFunction().getParameters(), node.getComputationTarget().toSpecification(),
           inputs, node.getOutputRequirements());
       items.add(jobItem);
       item2Node.put(jobItem, node);
-      // If node has dependencies which AREN'T in the graph fragment, its outputs for those nodes are "shared" values
+      // If node has dependencies which aren't in the execution fragment, its outputs for those nodes are "shared" values
+      final Collection<DependencyNode> dependencies = node.getDependentNodes();
       for (ValueSpecification specification : node.getOutputValues()) {
-        if (sharedValues.contains(specification)) {
+        // Output values are unique in the graph, so this code executes ONCE for each ValueSpecification
+        if (sharedValues.containsKey(specification)) {
+          // A terminal output
+          localSharedValues.add(specification);
           continue;
         }
         boolean isPrivate = true;
-        for (DependencyNode dependent : node.getDependentNodes()) {
-          if (!getNodes().contains(dependent)) {
+        for (DependencyNode dependent : dependencies) {
+          if (!dependent.hasInputValue(specification)) {
+            // The dependent node doesn't need this value
+            continue;
+          }
+          if (node2executionId.get(dependent) != executionId) {
+            // Node is not part of our execution
             isPrivate = false;
             break;
           }
         }
         if (isPrivate) {
-          privateValues.add(specification);
+          localPrivateValues.add(specification);
+          sharedValues.put(specification, Boolean.FALSE);
         } else {
-          sharedValues.add(specification);
+          localSharedValues.add(specification);
+          sharedValues.put(specification, Boolean.TRUE);
         }
       }
-      // If node has inputs which haven't been seen already, they can't have been generated within this fragment so are "shared"
+      // Any input graph fragments will have been processed (but maybe not executed), so inputs coming from
+      // them will be in the shared value map. Anything not in the map is an input that will be in the
+      // shared cache before the graph starts executing.
       for (ValueSpecification specification : inputs) {
-        if (sharedValues.contains(specification) || privateValues.contains(specification)) {
-          continue;
+        if (!localSharedValues.contains(specification) && !localPrivateValues.contains(specification)) {
+          final Boolean shared = sharedValues.get(specification);
+          if (shared == Boolean.FALSE) {
+            localPrivateValues.add(specification);
+          } else {
+            localSharedValues.add(specification);
+          }
         }
-        sharedValues.add(specification);
       }
     }
+    //System.err.println(localPrivateValues.size() + " private value(s), " + localSharedValues.size() + " shared value(s)");
     final CacheSelectHint cacheHint;
-    if (privateValues.size() < sharedValues.size()) {
-      cacheHint = CacheSelectHint.privateValues(privateValues);
+    if (localPrivateValues.size() < localSharedValues.size()) {
+      cacheHint = CacheSelectHint.privateValues(localPrivateValues);
     } else {
-      cacheHint = CacheSelectHint.sharedValues(sharedValues);
+      cacheHint = CacheSelectHint.sharedValues(localSharedValues);
     }
     getContext().getExecutor().addJobToViewProcessorQuery(jobSpec, getContext().getGraph());
-    final CalculationJob job = new CalculationJob(jobSpec, items, cacheHint);
+    final CalculationJob job = new CalculationJob(jobSpec, _requiredJob != null ? Collections.singleton(_requiredJob) : null, items, cacheHint);
     if (getTail() != null) {
-      // TODO [ENG-187] Add the tail to the job that's being sent to the dispatcher
+      final GraphFragment tail = getTail();
+      tail._blockCount = null;
+      tail._requiredJob = jobSpec.getJobId();
+      final CalculationJob tailJob = tail.createCalculationJob(executionId);
+      job.setTail(tailJob);
     }
-    getContext().getExecutor().dispatchJob(job, this);
+    getContext().registerCallback(jobSpec, this);
+    return job;
+  }
+
+  private void markNodes(final Integer executionId) {
+    final Map<DependencyNode, Integer> node2executionId = getContext().getNode2ExecutionId();
+    for (DependencyNode node : getNodes()) {
+      node2executionId.put(node, executionId);
+    }
+    if (getTail() != null) {
+      getTail().markNodes(executionId);
+    }
+  }
+
+  public void executeImpl() {
+    markNodes(_graphFragmentIdentifier);
+    getContext().getExecutor().dispatchJob(createCalculationJob(_graphFragmentIdentifier), getContext());
   }
 
   public void execute() {
@@ -201,26 +238,12 @@ import com.opengamma.engine.view.calcnode.JobResultReceiver;
     return _graphFragmentIdentifier + ": " + _nodes.size() + " dep. node(s), earliestStart=" + _startTime + ", executionCost=" + _cycleCost;
   }
 
-  @Override
   public void resultReceived(final CalculationJobResult result) {
-    // Mark nodes as good or bad
-    final Map<CalculationJobItem, DependencyNode> item2Node = getContext().getItem2Node();
-    for (CalculationJobResultItem item : result.getResultItems()) {
-      DependencyNode node = item2Node.get(item.getItem());
-      if (node == null) {
-        continue;
-      }
-      getContext().getExecutor().markExecuted(node);
-
-      if (item.failed()) {
-        getContext().getExecutor().markFailed(node);
-      }
-    }
     // Release tree fragments up the tree
+    getContext().addExecutionTime(result.getDuration());
     for (GraphFragment dependent : getDependencies()) {
       dependent.inputCompleted();
     }
-    getContext().addExecutionTime(result.getDuration());
   }
 
 }

@@ -32,7 +32,7 @@ public class FilteredViewComputationCache {
     return _cache;
   }
 
-  protected CacheSelectHint getFilter() {
+  public CacheSelectHint getFilter() {
     return _filter;
   }
 
