@@ -134,7 +134,7 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
     //create necessary indices
     DBCollection dbCollection = _mongoDB.getCollection(_collectionName);
     for (String field : INDICES) {
-      s_logger.info("creating index for {} {}:{}", new Object[] {field, getMongoDB().getName(), getCollectionName()});
+      s_logger.info("ensuring index for {} {}:{}", new Object[] {field, getMongoDB().getName(), getCollectionName()});
       //create ascending and descending index
       dbCollection.ensureIndex(new BasicDBObject(field, 1), "ix_" + getCollectionName() + "_" + field + "_asc");
       dbCollection.ensureIndex(new BasicDBObject(field, -1), "ix_" + getCollectionName() + "_" + field + "_desc");
@@ -206,7 +206,11 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
     ArgumentChecker.notNull(document.getValue(), "document value");
     
     String objectId = ObjectId.get().toString();
-    Date now = new Date(_timeSource.instant().toEpochMillisLong());
+    Date creationDate = new Date(_timeSource.instant().toEpochMillisLong());
+    Instant creationInstant = document.getCreationInstant();
+    if (creationInstant != null) {
+      creationDate = new Date(creationInstant.toEpochMillisLong());
+    }
     int version = 1;
     MutableFudgeFieldContainer msg = _fudgeContext.newMessage();
     String name = document.getName();
@@ -215,8 +219,8 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
     msg.add(OID_FUDGE_FIELD_NAME, objectId);
     msg.add(VERSION_FUDGE_FIELD_NAME, version);
     msg.add(NAME_FUDGE_FIELD_NAME, name);
-    msg.add(CREATION_INSTANT_FUDGE_FIELD_NAME, now);
-    msg.add(LAST_READ_INSTANT_FUDGE_FIELD_NAME, now);
+    msg.add(CREATION_INSTANT_FUDGE_FIELD_NAME, creationDate);
+    msg.add(LAST_READ_INSTANT_FUDGE_FIELD_NAME, creationDate);
     
     msg.add(VALUE_FUDGE_FIELD_NAME, _fudgeContext.toFudgeMsg(value).getMessage());
 
@@ -226,14 +230,15 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
     DBObject doc = fdc.fudgeMsgToObject(DBObject.class, msg);
     doc.put(ACTIVE_FIELD, ACTIVE_VALUE);
     
-    //s_logger.debug("inserting new doc {}", doc);
+    s_logger.debug("inserting new doc {}", doc);
     dbCollection.insert(doc);
     DBObject lastErr = getMongoDB().getLastError();
     if (lastErr.get("err") != null) {
       throw new OpenGammaRuntimeException("Error: " + lastErr.toString());
     }
-
-    Instant creationInstant = Instant.ofEpochMillis(now.getTime());
+    if (creationInstant == null) {
+      creationInstant = Instant.ofEpochMillis(creationDate.getTime());
+    }
     DefaultConfigDocument<T> configDocument = new DefaultConfigDocument<T>(objectId, objectId, version, name, creationInstant, creationInstant, value);
     configDocument.setUniqueIdentifier(UniqueIdentifier.of(_identifierScheme, objectId, String.valueOf(version)));
     return configDocument;

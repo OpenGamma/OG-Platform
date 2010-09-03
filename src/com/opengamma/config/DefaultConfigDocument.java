@@ -8,6 +8,8 @@ package com.opengamma.config;
 import javax.time.Instant;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.id.UniqueIdentifier;
 
@@ -39,14 +41,6 @@ public class DefaultConfigDocument<T> implements ConfigDocument<T> {
    * @param value the actual configuation type, not-null
    */
   public DefaultConfigDocument(String id, String oid, int version, String name, Instant creationInstant, Instant lastReadInstant, T value) {
-//    ArgumentChecker.notNull(id, "id");
-//    ArgumentChecker.notNull(oid, "oid");
-//    ArgumentChecker.isTrue(version > 0, "negative version not allowed");
-//    ArgumentChecker.notNull(name, "name");
-//    ArgumentChecker.notNull(creationInstant, "creationInstant");
-//    ArgumentChecker.notNull(lastReadInstant, "lastReadInstant");
-//    ArgumentChecker.notNull(value, "value");
-    
     _id = id;
     _oid = oid;
     _version = version;
@@ -142,7 +136,17 @@ public class DefaultConfigDocument<T> implements ConfigDocument<T> {
     return _lastReadInstant;
   }
   
-  
+  @Override
+  public UniqueIdentifier getUniqueIdentifier() {
+    return _uniqueIdentifier;
+  }
+
+  /**
+   * @param uid the uniqueIdentifier
+   */
+  public void setUniqueIdentifier(UniqueIdentifier uid) {
+    _uniqueIdentifier = uid;
+  }
 
   @Override
   public int hashCode() {
@@ -168,15 +172,8 @@ public class DefaultConfigDocument<T> implements ConfigDocument<T> {
   }
 
   @Override
-  public UniqueIdentifier getUniqueIdentifier() {
-    return _uniqueIdentifier;
-  }
-
-  /**
-   * @param uid the uniqueIdentifier
-   */
-  public void setUniqueIdentifier(UniqueIdentifier uid) {
-    _uniqueIdentifier = uid;
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
   
 }

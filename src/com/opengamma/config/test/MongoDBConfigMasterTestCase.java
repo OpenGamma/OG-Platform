@@ -138,7 +138,7 @@ public abstract class MongoDBConfigMasterTestCase<T extends Serializable> {
   
   @Test
   public void update() throws Exception {
-//    addRandomDocs();
+    addRandomDocs();
     
     ConfigDocument<T> version1 = makeTestConfigDoc(1);
     version1 = _configMaster.add(version1);
