@@ -30,17 +30,17 @@ public class RateLimitingMergingUpdateProviderTest {
     provider.addUpdateListener(testListener);
     
     // OK, it doesn't really test the 'synchronous' bit, but it at least checks that no merging has happened.
-    addResultBurst(provider, 1000);
+    addResults(provider, 1000);
     assertEquals(1000, testListener.consumeResults().size());
     
     provider.setPaused(true);
-    addResultBurst(provider, 1000);
+    addResults(provider, 1000);
     assertEquals(0, testListener.consumeResults().size());
     provider.setPaused(false);
     assertEquals(1, testListener.consumeResults().size());
     
     provider.setPaused(false);
-    addResultBurst(provider, 1000);
+    addResults(provider, 1000);
     assertEquals(1000, testListener.consumeResults().size());
   }
   
@@ -51,7 +51,7 @@ public class RateLimitingMergingUpdateProviderTest {
     TestMergingUpdateListener testListener = new TestMergingUpdateListener();
     provider.addUpdateListener(testListener);
     
-    addResultBurst(provider, 1000);
+    addResults(provider, 1000);
     Thread.sleep(500);
     assertEquals(1, testListener.consumeResults().size());
     
@@ -79,7 +79,7 @@ public class RateLimitingMergingUpdateProviderTest {
     // If the provider is paused then all updates should be merged regardless of the time elapsed or the rate
     provider.setPaused(true);
     for (int i = 0; i < 3; i++) {
-      addResultBurst(provider, 10);
+      addResults(provider, 10);
       Thread.sleep(period);
     }
     assertEquals(0, testListener.consumeResults().size());
@@ -94,7 +94,7 @@ public class RateLimitingMergingUpdateProviderTest {
   private void testUpdateRate(RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider, TestMergingUpdateListener testListener, int period) throws InterruptedException {
     long startTime = System.currentTimeMillis();
     for (int i = 0; i < 100; i++) {
-      addResultBurst(provider, 10);
+      addResults(provider, 1);
       Thread.sleep(10);
     }
     long endTime = System.currentTimeMillis();
@@ -104,7 +104,7 @@ public class RateLimitingMergingUpdateProviderTest {
     assertAcceptableResultCount(timeTaken / period, testListener.consumeResults().size());
   }
 
-  private void addResultBurst(RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider, int count) {
+  private void addResults(RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider, int count) {
     for (int i = 0; i < count; i++) {
       provider.newResult(mock(ViewComputationResultModel.class));
     }
