@@ -7,7 +7,6 @@ package com.opengamma.engine.view.calcnode;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -103,20 +102,19 @@ import com.opengamma.util.monitor.OperationTimer;
   }
 
   @Override
-  public boolean invoke(final CalculationJobSpecification jobSpec, final List<CalculationJobItem> items, final JobInvocationReceiver receiver) {
+  public boolean invoke(final CalculationJob job, final JobInvocationReceiver receiver) {
     if (_launched.incrementAndGet() > _capacity) {
       _launched.decrementAndGet();
       s_logger.debug("Capacity reached");
       return false;
     }
-    s_logger.info("Dispatching job {}", jobSpec);
+    s_logger.info("Dispatching job {}", job.getSpecification());
     // Don't block the dispatcher with outgoing serialisation and I/O
     getExecutorService().execute(new Runnable() {
       @Override
       public void run() {
-        getJobCompletionCallbacks().put(jobSpec, receiver);
-        final OperationTimer timer = new OperationTimer(s_logger, "Invocation serialisation and send of job {}", jobSpec.getJobId());
-        final CalculationJob job = new CalculationJob(jobSpec, items);
+        getJobCompletionCallbacks().put(job.getSpecification(), receiver);
+        final OperationTimer timer = new OperationTimer(s_logger, "Invocation serialisation and send of job {}", job.getSpecification().getJobId());
         job.convertInputs(getIdentifierMap());
         final RemoteCalcNodeJobMessage message = new RemoteCalcNodeJobMessage(job);
         final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeMessageSender().getFudgeContext());
@@ -203,6 +201,7 @@ import com.opengamma.util.monitor.OperationTimer;
   @Override
   public void connectionFailed(final FudgeConnection connection, final Exception cause) {
     s_logger.warn("Client connection {} dropped", connection, cause);
+    _launched.addAndGet(_capacity);
     for (CalculationJobSpecification jobSpec : getJobCompletionCallbacks().keySet()) {
       final JobInvocationReceiver callback = getJobCompletionCallbacks().remove(jobSpec);
       // There could still be late messages arriving from a buffer even though the connection has now failed

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.calcnode;
@@ -24,32 +24,34 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.cache.CacheSelectHint;
+import com.opengamma.engine.view.cache.IdentifierMap;
+import com.opengamma.engine.view.cache.InMemoryIdentifierMap;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
  * 
  */
 public class CalculationJobTest {
-  
+
   @Test
   public void fudgeEncodingNoInputsOutputs() {
     FudgeContext context = FudgeContext.GLOBAL_DEFAULT;
+    IdentifierMap identifierMap = new InMemoryIdentifierMap();
     CalculationJobSpecification spec = new CalculationJobSpecification("view", "config", 1L, 1L);
     ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueIdentifier.of("Scheme", "Value"));
-    
-    List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem(
-        "1", 
-        new EmptyFunctionParameters(),
-        targetSpec,
-        Collections.<ValueSpecification>emptySet(), 
-        Collections.<ValueRequirement>emptySet()));
-    
-    CalculationJob inputJob = new CalculationJob(spec, items);
-    
+
+    List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Collections.<ValueSpecification> emptySet(), Collections
+        .<ValueRequirement> emptySet()));
+
+    CalculationJob inputJob = new CalculationJob(spec, items, CacheSelectHint.allShared());
+    inputJob.convertInputs(identifierMap);
+
     FudgeFieldContainer msg = inputJob.toFudgeMsg(new FudgeSerializationContext(context));
     msg = context.deserialize(context.toByteArray(msg)).getMessage();
     CalculationJob outputJob = CalculationJob.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
     assertNotNull(outputJob);
+    outputJob.resolveInputs(identifierMap);
     assertEquals(inputJob.getSpecification(), outputJob.getSpecification());
     assertNotNull(outputJob.getJobItems());
     assertEquals(1, outputJob.getJobItems().size());
@@ -66,37 +68,33 @@ public class CalculationJobTest {
   @Test
   public void fudgeEncodingOneInputOneOutput() {
     FudgeContext context = FudgeContext.GLOBAL_DEFAULT;
+    IdentifierMap identifierMap = new InMemoryIdentifierMap();
     CalculationJobSpecification spec = new CalculationJobSpecification("view", "config", 1L, 1L);
     ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueIdentifier.of("Scheme", "Value"));
-    
+
     ValueRequirement desiredValue = new ValueRequirement("Foo", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "Value2"));
-    ValueSpecification inputSpec = new ValueSpecification(
-        new ValueRequirement("Foo", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "Value3")),
-        "mockFunctionId");
-    
-    List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem(
-        "1", 
-        new EmptyFunctionParameters(),
-        targetSpec,
-        Sets.newHashSet(inputSpec),
-        Sets.newHashSet(desiredValue)));
-    
-    CalculationJob inputJob = new CalculationJob(spec, items);
-    
+    ValueSpecification inputSpec = new ValueSpecification(new ValueRequirement("Foo", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "Value3")), "mockFunctionId");
+
+    List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Sets.newHashSet(inputSpec), Sets.newHashSet(desiredValue)));
+
+    CalculationJob inputJob = new CalculationJob(spec, items, CacheSelectHint.allShared());
+    inputJob.convertInputs(identifierMap);
+
     FudgeFieldContainer msg = inputJob.toFudgeMsg(new FudgeSerializationContext(context));
     msg = context.deserialize(context.toByteArray(msg)).getMessage();
     CalculationJob outputJob = CalculationJob.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
     assertNotNull(outputJob);
+    outputJob.resolveInputs(identifierMap);
     assertEquals(inputJob.getSpecification(), outputJob.getSpecification());
-    
+
     assertNotNull(outputJob.getJobItems());
     assertEquals(1, outputJob.getJobItems().size());
     CalculationJobItem outputItem = outputJob.getJobItems().get(0);
     assertNotNull(outputItem);
-    
+
     assertEquals(1, outputItem.getInputs().size());
     assertTrue(outputItem.getInputs().contains(inputSpec));
-    
+
     assertEquals(1, outputItem.getDesiredValues().size());
     assertTrue(outputItem.getDesiredValues().contains(desiredValue));
   }

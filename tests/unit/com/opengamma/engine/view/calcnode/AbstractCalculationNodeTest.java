@@ -52,7 +52,7 @@ public class AbstractCalculationNodeTest {
     ComputedValue inputValue = new ComputedValue(inputSpec, "Just an input object");
     
     ViewComputationCache cache = calcNode.getCache(calcJob.getSpecification());
-    cache.putValue(inputValue);
+    cache.putSharedValue(inputValue);
     
     CalculationJobResult jobResult = calcNode.executeJob(calcJob);
     assertNotNull(jobResult);

@@ -6,10 +6,11 @@
 package com.opengamma.engine.view.calc;
 
 /**
- * 
+ *
+ * @param <T> return type of the executor
  */
-public interface DependencyGraphExecutorFactory {
+public interface DependencyGraphExecutorFactory<T> {
   
-  DependencyGraphExecutor<?> createExecutor(SingleComputationCycle cycle);
+  DependencyGraphExecutor<T> createExecutor(SingleComputationCycle cycle);
 
 }

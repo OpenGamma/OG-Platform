@@ -1,14 +1,16 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.calc;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
@@ -21,6 +23,9 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.cache.CacheSelectHint;
+import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
@@ -37,61 +42,86 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJobResult>, JobResultReceiver {
-  
+
   private static final Logger s_logger = LoggerFactory.getLogger(SingleNodeExecutor.class);
-  
+
   private final SingleComputationCycle _cycle;
-  
-  private final Map<CalculationJobSpecification, AtomicExecutorFuture> _executingSpecifications =
-    new ConcurrentHashMap<CalculationJobSpecification, AtomicExecutorFuture>();
-  
+
+  private final Map<CalculationJobSpecification, AtomicExecutorFuture> _executingSpecifications = new ConcurrentHashMap<CalculationJobSpecification, AtomicExecutorFuture>();
+
   public SingleNodeExecutor(SingleComputationCycle cycle) {
     ArgumentChecker.notNull(cycle, "Computation cycle");
-    _cycle = cycle; 
+    _cycle = cycle;
   }
 
   @Override
-  public Future<CalculationJobResult> execute(DependencyGraph graph) {
+  public Future<CalculationJobResult> execute(final DependencyGraph graph) {
     long jobId = JobIdSource.getId();
-    CalculationJobSpecification jobSpec = new CalculationJobSpecification(
-        _cycle.getViewName(),
-        graph.getCalcConfName(),
-        _cycle.getValuationTime().toEpochMillisLong(),
-        jobId);
-    
+    CalculationJobSpecification jobSpec = new CalculationJobSpecification(_cycle.getViewName(), graph.getCalcConfName(), _cycle.getValuationTime().toEpochMillisLong(), jobId);
+
     List<DependencyNode> order = graph.getExecutionOrder();
-    
+
     List<CalculationJobItem> items = new ArrayList<CalculationJobItem>();
     Map<CalculationJobItem, DependencyNode> item2Node = new HashMap<CalculationJobItem, DependencyNode>();
-    
+
+    final Set<ValueSpecification> privateValues = new HashSet<ValueSpecification>();
+    final Set<ValueSpecification> sharedValues = new HashSet<ValueSpecification>(graph.getTerminalOutputValues());
     for (DependencyNode node : order) {
-      CalculationJobItem jobItem = new CalculationJobItem(
-          node.getFunction().getFunction().getUniqueIdentifier(),
-          node.getFunction().getParameters(),
-          node.getComputationTarget().toSpecification(),
-          node.getInputValues(), 
-          node.getOutputRequirements());
+      final Set<ValueSpecification> inputs = node.getInputValues();
+      final CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getUniqueIdentifier(), node.getFunction().getParameters(), node.getComputationTarget()
+          .toSpecification(), inputs, node.getOutputRequirements());
       items.add(jobItem);
       item2Node.put(jobItem, node);
+      // If node has dependencies which AREN'T in the graph, its outputs for those nodes are "shared" values
+      for (ValueSpecification specification : node.getOutputValues()) {
+        if (sharedValues.contains(specification)) {
+          continue;
+        }
+        boolean isPrivate = true;
+        for (DependencyNode dependent : node.getDependentNodes()) {
+          if (!graph.containsNode(dependent)) {
+            isPrivate = false;
+            break;
+          }
+        }
+        if (isPrivate) {
+          privateValues.add(specification);
+        } else {
+          sharedValues.add(specification);
+        }
+      }
+      // If node has inputs which haven't been seen already, they can't have been generated within this graph so are "shared"
+      for (ValueSpecification specification : inputs) {
+        if (sharedValues.contains(specification) || privateValues.contains(specification)) {
+          continue;
+        }
+        sharedValues.add(specification);
+      }
     }
-    
-    s_logger.info("Enqueuing {} to invoke {} functions",
-        new Object[]{jobSpec, items.size()});
-    
+    s_logger.debug("{} private values, {} shared values in graph", privateValues.size(), sharedValues.size());
+    final CacheSelectHint cacheHint;
+    if (privateValues.size() < sharedValues.size()) {
+      cacheHint = CacheSelectHint.privateValues(privateValues);
+    } else {
+      cacheHint = CacheSelectHint.sharedValues(sharedValues);
+    }
+
+    s_logger.info("Enqueuing {} to invoke {} functions", new Object[] {jobSpec, items.size()});
+
     AtomicExecutorCallable runnable = new AtomicExecutorCallable();
     AtomicExecutorFuture future = new AtomicExecutorFuture(runnable, graph, item2Node);
     _executingSpecifications.put(jobSpec, future);
     _cycle.getProcessingContext().getViewProcessorQueryReceiver().addJob(jobSpec, graph);
-    _cycle.getProcessingContext().getComputationJobDispatcher().dispatchJob(jobSpec, items, this);
-    
+    _cycle.getProcessingContext().getComputationJobDispatcher().dispatchJob(new CalculationJob(jobSpec, items, cacheHint), this);
+
     return future;
   }
-  
+
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
-  
+
   @Override
   public void resultReceived(CalculationJobResult result) {
     AtomicExecutorFuture future = _executingSpecifications.remove(result.getSpecification());
@@ -99,7 +129,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
       s_logger.error("Got unexpected result {}", result);
       return;
     }
-    
+
     try {
       for (CalculationJobResultItem item : result.getResultItems()) {
         DependencyNode node = future._item2Node.get(item.getItem());
@@ -107,34 +137,31 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
           s_logger.error("Got unexpected item {}", item);
           continue;
         }
-        
+
         _cycle.markExecuted(node);
-        
+
         if (item.failed()) {
           _cycle.markFailed(node);
         }
       }
-      
+
       // mark Future complete
       future._callable._result = result;
       future.run();
-    
+
     } catch (RuntimeException e) {
       future._callable._exception = e;
       future.run();
     }
   }
-  
+
   private class AtomicExecutorFuture extends FutureTask<CalculationJobResult> {
-    
+
     private AtomicExecutorCallable _callable;
     private DependencyGraph _graph;
     private Map<CalculationJobItem, DependencyNode> _item2Node;
-    
-    public AtomicExecutorFuture(
-        AtomicExecutorCallable callable,
-        DependencyGraph graph, 
-        Map<CalculationJobItem, DependencyNode> item2Node) {
+
+    public AtomicExecutorFuture(AtomicExecutorCallable callable, DependencyGraph graph, Map<CalculationJobItem, DependencyNode> item2Node) {
       super(callable);
       _callable = callable;
       _graph = graph;
@@ -145,9 +172,9 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
     public String toString() {
       return "AtomicExecutorFuture[graph=" + _graph + "]";
     }
-    
+
   }
-  
+
   private class AtomicExecutorCallable implements Callable<CalculationJobResult> {
     private RuntimeException _exception;
     private CalculationJobResult _result;

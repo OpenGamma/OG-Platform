@@ -6,7 +6,6 @@
 package com.opengamma.engine.view.calcnode;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Always returns a static set of capabilities regardless of the job spec. 
@@ -16,7 +15,7 @@ public class StaticCapabilityRequirementsProvider implements CapabilityRequireme
   private CapabilityRequirements _currentRequirements = new CapabilityRequirements();
 
   @Override
-  public CapabilityRequirements getCapabilityRequirements(CalculationJobSpecification jobSpec, List<CalculationJobItem> items) {
+  public CapabilityRequirements getCapabilityRequirements(final CalculationJob job) {
     return _currentRequirements;
   }
 

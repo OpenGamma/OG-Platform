@@ -6,11 +6,12 @@
 package com.opengamma.engine.view.calcnode;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Something that can invoke a job when required by the JobDispatcher. Capabilities are calculated
- * at an invoker level so an invoker should only dispatch to a homogenous set of calculation nodes.
+ * at an invoker level so an invoker should only dispatch to a homogeneous set of calculation nodes.
+ * The calculation nodes a given job invoker dispatches to are assumed to share the same local
+ * cache.
  */
 public interface JobInvoker {
 
@@ -25,14 +26,14 @@ public interface JobInvoker {
   /**
    * Invokes a job on a calculation node.
    * 
-   * @param jobSpec the job spec
-   * @param items the items
-   * @param receiver the result receiver; must be signaled with either success or failure
+   * @param job the job to run
+   * @param receiver the result receiver; must be signaled with either success or failure unless
+   * {@code false} is returned to indicate the invoker did not accept the job.
    * @return {@code true} if the invoker has caused the job to execute or {@code false} if
    * capacity problems mean it cannot be executed. After returning {@code false} to the
    * dispatcher the invoker will be unregistered.
    */
-  boolean invoke(CalculationJobSpecification jobSpec, List<CalculationJobItem> items, JobInvocationReceiver receiver);
+  boolean invoke(CalculationJob job, JobInvocationReceiver receiver);
 
   /**
    * Called after invocation failure for the invoker to notify the dispatch object if/when

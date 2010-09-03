@@ -5,12 +5,16 @@
  */
 package com.opengamma.engine.view.calc;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -251,7 +255,7 @@ public class SingleComputationCycle {
    */
   private void addToAllCaches(ComputedValue dataAsValue) {
     for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
-      getComputationCache(calcConfigurationName).putValue(dataAsValue);
+      getComputationCache(calcConfigurationName).putSharedValue(dataAsValue);
     }
   }
   
@@ -294,7 +298,7 @@ public class SingleComputationCycle {
         for (ValueSpecification spec : unchangedNode.getOutputValues()) {
           Object previousValue = previousCache.getValue(spec);
           if (previousValue != null) {
-            cache.putValue(new ComputedValue(spec, previousValue));
+            cache.putSharedValue(new ComputedValue(spec, previousValue));
           }
         }
       }
@@ -312,7 +316,7 @@ public class SingleComputationCycle {
     
     for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
       s_logger.info("Executing plans for calculation configuration {}", calcConfigurationName);
-      DependencyGraph depGraph = getDependencyGraph(calcConfigurationName);
+      DependencyGraph depGraph = getExecutableDependencyGraph(calcConfigurationName);
       
       s_logger.info("Submitting {} for execution by {}", depGraph, getDependencyGraphExecutor());
       
@@ -340,13 +344,18 @@ public class SingleComputationCycle {
     
     _state = State.FINISHED;
   }
+  
+  private DependencyGraph getDependencyGraph(String calcConfName) {
+    DependencyGraph depGraph = getViewEvaluationModel().getDependencyGraph(calcConfName);
+    return depGraph;
+  }
 
   /**
    * @return A dependency graph with nodes already executed stripped out.
    * See {@link #computeDelta} and how it calls {@link #markExecuted}.
    */
-  private DependencyGraph getDependencyGraph(String calcConfName) {
-    DependencyGraph originalDepGraph = getViewEvaluationModel().getDependencyGraph(calcConfName);
+  private DependencyGraph getExecutableDependencyGraph(String calcConfName) {
+    DependencyGraph originalDepGraph = getDependencyGraph(calcConfName);
     
     DependencyGraph dependencyGraph = originalDepGraph.subGraph(new DependencyNodeFilter() {
       public boolean accept(DependencyNode node) {
@@ -393,10 +402,37 @@ public class SingleComputationCycle {
       throw new IllegalStateException("State must be " + State.FINISHED);
     }
     
+    if (getViewDefinition().isDumpComputationCacheToDisk()) {
+      dumpComputationCachesToDisk();
+    }
+    
     getProcessingContext().getLiveDataSnapshotProvider().releaseSnapshot(getValuationTime().toEpochMillisLong());
     getProcessingContext().getComputationCacheSource().releaseCaches(getViewName(), getValuationTime().toEpochMillisLong());
     
     _state = State.CLEANED;
+  }
+  
+  public void dumpComputationCachesToDisk() {
+    for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
+      DependencyGraph depGraph = getDependencyGraph(calcConfigurationName);
+      ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
+      
+      TreeMap<String, Object> key2Value = new TreeMap<String, Object>();
+      for (ValueSpecification outputSpec : depGraph.getOutputValues()) {
+        Object value = computationCache.getValue(outputSpec);
+        key2Value.put(outputSpec.toString(), value);
+      }
+      
+      try {
+        File file = File.createTempFile("computation-cache-" + calcConfigurationName + "-", ".txt");
+        s_logger.info("Dumping cache for calc conf " + calcConfigurationName + " to " + file.getAbsolutePath());
+        FileWriter writer = new FileWriter(file);
+        writer.write(key2Value.toString());
+        writer.close();
+      } catch (IOException e) {
+        throw new RuntimeException("Writing cache to file failed", e);
+      }
+    }
   }
     
   // --------------------------------------------------------------------------

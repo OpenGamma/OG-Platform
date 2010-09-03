@@ -26,6 +26,8 @@ public class CachingIdentifierMap implements IdentifierMap {
   // Since getting a remote value specification identifier has to be a super-fast operation
   // (probably faster than disk anyway), and the only reason we'd ever want to flush is
   // based on low GCs, and the elements are so small, EHCache doesn't actually work here.
+  
+  // TODO 2010-08-31 Andrew -- How often do value specifications get GCd? They are arbitrarily constructed - would this be more effective if we canonicalized them?
 
   private final ConcurrentMap<ValueSpecification, Long> _specificationToIdentifier = new MapMaker().weakKeys().makeMap();
   private final ConcurrentMap<Long, ValueSpecification> _identifierToSpecification = new MapMaker().weakValues().makeMap();

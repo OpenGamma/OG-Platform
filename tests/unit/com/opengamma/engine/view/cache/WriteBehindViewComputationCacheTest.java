@@ -23,6 +23,9 @@ import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -32,9 +35,10 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
 
+@RunWith(Parameterized.class)
 public class WriteBehindViewComputationCacheTest {
 
-  private static class Underlying implements ViewComputationCache {
+  private static class Underlying extends AbstractViewComputationCache {
 
     private ValueSpecification _getValue;
     private Collection<ValueSpecification> _getValues;
@@ -58,8 +62,7 @@ public class WriteBehindViewComputationCacheTest {
       return Collections.emptyList();
     }
 
-    @Override
-    public void putValue(ComputedValue value) {
+    private void putValueImpl(final ComputedValue value) {
       try {
         _allowPutValue.await(2000L, TimeUnit.MILLISECONDS);
       } catch (InterruptedException ex) {
@@ -70,9 +73,18 @@ public class WriteBehindViewComputationCacheTest {
       }
       _putValue = value;
     }
-
+    
     @Override
-    public void putValues(Collection<ComputedValue> values) {
+    public void putPrivateValue (final ComputedValue value) {
+      putValueImpl (value);
+    }
+    
+    @Override
+    public void putSharedValue (final ComputedValue value) {
+      putValueImpl (value);
+    }
+
+    private void putValuesImpl(final Collection<ComputedValue> values) {
       try {
         _allowPutValues.await(2000L, TimeUnit.MILLISECONDS);
       } catch (InterruptedException ex) {
@@ -83,6 +95,16 @@ public class WriteBehindViewComputationCacheTest {
       }
       _putValues = new ArrayList<ComputedValue>(values);
     }
+    
+    @Override
+    public void putPrivateValues (final Collection<ComputedValue> values) {
+      putValuesImpl (values);
+    }
+    
+    @Override
+    public void putSharedValues (final Collection<ComputedValue> values) {
+      putValuesImpl (values);
+    }
 
   }
 
@@ -90,15 +112,28 @@ public class WriteBehindViewComputationCacheTest {
   private static final ValueSpecification s_valueSpec2 = new ValueSpecification(new ValueRequirement("Value 2", new ComputationTargetSpecification(new DefaultSecurity("TEST"))), "Function UID");
   private static final ValueSpecification s_valueSpec3 = new ValueSpecification(new ValueRequirement("Value 3", new ComputationTargetSpecification(new DefaultSecurity("TEST"))), "Function UID");
 
+  private final CacheSelectHint _filter;
   private ExecutorService _executorService;
   private Underlying _underlying;
   private WriteBehindViewComputationCache _cache;
+  
+  public WriteBehindViewComputationCacheTest (final CacheSelectHint filter) {
+    _filter = filter;
+  }
+
+  @Parameters
+  public static List<Object[]> cacheSelectFilters () {
+    final List<Object[]> filters = new ArrayList<Object[]> (2);
+    filters.add (new Object[] { CacheSelectHint.allPrivate () });
+    filters.add (new Object[] { CacheSelectHint.allShared () });
+    return filters;
+  }
 
   @Before
   public void init() {
     _executorService = Executors.newCachedThreadPool();
     _underlying = new Underlying();
-    _cache = new WriteBehindViewComputationCache(_underlying, _executorService);
+    _cache = new WriteBehindViewComputationCache(_underlying, _filter, _executorService);
   }
 
   @After

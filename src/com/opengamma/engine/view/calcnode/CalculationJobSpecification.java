@@ -101,15 +101,13 @@ public class CalculationJobSpecification implements Serializable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
   
-  public void writeFields(MutableFudgeFieldContainer fudgeMsg) {
+  public void toFudgeMsg(MutableFudgeFieldContainer fudgeMsg) {
     fudgeMsg.add(VIEW_NAME_FIELD_NAME, getViewName());
     fudgeMsg.add(CALCULATION_CONFIGURATION_FIELD_NAME, getCalcConfigName());
     fudgeMsg.add(ITERATION_TIMESTAMP_FIELD_NAME, getIterationTimestamp());
     fudgeMsg.add(JOB_ID_FIELD_NAME, getJobId());
   }
   
-//  public static CalculationJobSpecification fromFudgeMsg(FudgeMsgEnvelope envelope) {
-//    FudgeFieldContainer msg = envelope.getMessage();
   public static CalculationJobSpecification fromFudgeMsg(FudgeFieldContainer msg) {
     String viewName = msg.getString(VIEW_NAME_FIELD_NAME);
     String calcConfigName = msg.getString(CALCULATION_CONFIGURATION_FIELD_NAME);

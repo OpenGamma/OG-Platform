@@ -29,15 +29,23 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
   private final ConcurrentMap<ViewComputationCacheKey, DefaultViewComputationCache> _cachesByKey = new ConcurrentHashMap<ViewComputationCacheKey, DefaultViewComputationCache>();
   private final ConcurrentMap<Pair<String, Long>, Set<BinaryDataStore>> _activeStores = new ConcurrentHashMap<Pair<String, Long>, Set<BinaryDataStore>>();
   private final ReentrantLock _cacheManagementLock = new ReentrantLock();
-  private final BinaryDataStoreFactory _dataStoreFactory;
+  private final BinaryDataStoreFactory _privateDataStoreFactory;
+  private final BinaryDataStoreFactory _sharedDataStoreFactory;
 
-  public DefaultViewComputationCacheSource(final IdentifierMap identifierMap, final FudgeContext fudgeContext, final BinaryDataStoreFactory dataStoreFactory) {
+  protected DefaultViewComputationCacheSource(final IdentifierMap identifierMap, final FudgeContext fudgeContext, final BinaryDataStoreFactory dataStoreFactory) {
+    this(identifierMap, fudgeContext, dataStoreFactory, dataStoreFactory);
+  }
+
+  public DefaultViewComputationCacheSource(final IdentifierMap identifierMap, final FudgeContext fudgeContext, final BinaryDataStoreFactory privateDataStoreFactory,
+      final BinaryDataStoreFactory sharedDataStoreFactory) {
     ArgumentChecker.notNull(identifierMap, "Identifier map");
     ArgumentChecker.notNull(fudgeContext, "Fudge context");
-    ArgumentChecker.notNull(dataStoreFactory, "Data store factory");
+    ArgumentChecker.notNull(privateDataStoreFactory, "Private data store factory");
+    ArgumentChecker.notNull(sharedDataStoreFactory, "Shared data store factory");
     _identifierMap = identifierMap;
     _fudgeContext = fudgeContext;
-    _dataStoreFactory = dataStoreFactory;
+    _privateDataStoreFactory = privateDataStoreFactory;
+    _sharedDataStoreFactory = sharedDataStoreFactory;
   }
 
   /**
@@ -65,7 +73,7 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
     for (Pair<ValueSpecification, byte[]> value : cache) {
       dataStore.put(identifierMap.getIdentifier(value.getKey()), value.getValue());
     }
-    return new DefaultViewComputationCache(identifierMap, dataStore, getFudgeContext());
+    return new DefaultViewComputationCache(identifierMap, dataStore, dataStore, getFudgeContext());
   }
 
   @Override
@@ -85,9 +93,17 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
       // Have to double-check. Too expensive to construct otherwise.
       cache = _cachesByKey.get(key);
       if (cache == null) {
-        BinaryDataStore dataStore = _dataStoreFactory.createDataStore(key);
-        addDataStoreForRelease(key, dataStore);
-        cache = createViewComputationCache(getIdentifierMap(), dataStore, getFudgeContext());
+        final BinaryDataStore privateDataStore = _privateDataStoreFactory.createDataStore(key);
+        addDataStoreForRelease(key, privateDataStore);
+        final BinaryDataStore sharedDataStore;
+        if (_privateDataStoreFactory == _sharedDataStoreFactory) {
+          // If factories are the same, don't create another
+          sharedDataStore = privateDataStore;
+        } else {
+          sharedDataStore = _sharedDataStoreFactory.createDataStore(key);
+          addDataStoreForRelease(key, sharedDataStore);
+        }
+        cache = createViewComputationCache(getIdentifierMap(), privateDataStore, sharedDataStore, getFudgeContext());
         _cachesByKey.put(key, cache);
       }
     } finally {
@@ -100,12 +116,14 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
    * Override this method if you need to create a different sub-class of {@link DefaultViewComputationCache}.
    * 
    * @param identifierMap the identifier map
-   * @param dataStore the binary data store
+   * @param privateDataStore the binary data store for private values
+   * @param sharedDataStore the binary data store for shared values 
    * @param fudgeContext the Fudge context
    * @return a new {@link DefaultViewComputationCache} instance
    */
-  protected DefaultViewComputationCache createViewComputationCache(final IdentifierMap identifierMap, final BinaryDataStore dataStore, final FudgeContext fudgeContext) {
-    return new DefaultViewComputationCache(identifierMap, dataStore, fudgeContext);
+  protected DefaultViewComputationCache createViewComputationCache(final IdentifierMap identifierMap, final BinaryDataStore privateDataStore, final BinaryDataStore sharedDataStore,
+      final FudgeContext fudgeContext) {
+    return new DefaultViewComputationCache(identifierMap, privateDataStore, sharedDataStore, fudgeContext);
   }
 
   protected void addDataStoreForRelease(ViewComputationCacheKey key, BinaryDataStore dataStore) {
@@ -138,7 +156,7 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
       dataStore.delete();
     }
   }
-  
+
   // TODO 2010-08-18 There's a memory leak here; the _cachesByKey never gets emptied of things
 
 }
