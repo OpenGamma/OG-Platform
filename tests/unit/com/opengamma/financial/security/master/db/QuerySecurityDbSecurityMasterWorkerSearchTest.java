@@ -185,6 +185,62 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_search_id_oneOfOne_101() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setIdentityKey(IdentifierBundle.of(Identifier.of("TICKER", "ORCL")));
+    SecuritySearchResult test = _worker.search(request);
+    
+    assertEquals(1, test.getDocuments().size());
+    SecurityDocument doc0 = test.getDocuments().get(0);
+    assertEquals(_worker.get(UniqueIdentifier.of("DbSec", "101", "0")), doc0);
+  }
+
+  @Test
+  public void test_search_id_oneOfOneLatest_201() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setIdentityKey(IdentifierBundle.of(Identifier.of("TICKER", "IBMC")));
+    SecuritySearchResult test = _worker.search(request);
+    
+    assertEquals(1, test.getDocuments().size());
+    SecurityDocument doc0 = test.getDocuments().get(0);
+    assertEquals(_worker.get(UniqueIdentifier.of("DbSec", "201", "1")), doc0);
+  }
+
+  @Test
+  public void test_search_id_oneOfTwo_102() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setIdentityKey(IdentifierBundle.of(Identifier.of("TICKER", "MSFT")));
+    SecuritySearchResult test = _worker.search(request);
+    
+    assertEquals(1, test.getDocuments().size());
+    SecurityDocument doc0 = test.getDocuments().get(0);
+    assertEquals(_worker.get(UniqueIdentifier.of("DbSec", "102", "0")), doc0);
+  }
+
+  @Test
+  public void test_search_id_twoOfTwo_102() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setIdentityKey(IdentifierBundle.of(Identifier.of("TICKER", "MSFT"), Identifier.of("NASDAQ", "Micro")));
+    SecuritySearchResult test = _worker.search(request);
+    
+    assertEquals(1, test.getDocuments().size());
+    SecurityDocument doc0 = test.getDocuments().get(0);
+    assertEquals(_worker.get(UniqueIdentifier.of("DbSec", "102", "0")), doc0);
+  }
+
+  @Test
+  public void test_search_id_twoOfTwoWhereOneMatches_102() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setIdentityKey(IdentifierBundle.of(Identifier.of("TICKER", "MSFT"), Identifier.of("RUBBISH", "Micro")));
+    SecuritySearchResult test = _worker.search(request);
+    
+    assertEquals(1, test.getDocuments().size());
+    SecurityDocument doc0 = test.getDocuments().get(0);
+    assertEquals(_worker.get(UniqueIdentifier.of("DbSec", "102", "0")), doc0);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_search_versionAsOf_below() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.setVersionAsOfInstant(_version1Instant.minusSeconds(5));

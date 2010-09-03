@@ -14,6 +14,7 @@ import java.util.Map;
 
 import javax.time.Instant;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -132,14 +133,32 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
   @Override
   protected SecuritySearchResult search(SecuritySearchRequest request) {
     s_logger.debug("searchSecurities: {}", request);
+    // id search
+    String ids = null;
+    if (request.getIdentityKey() != null) {
+      final DbMapSqlParameterSource idArgs = new DbMapSqlParameterSource();
+      int i = 0;
+      for (Identifier idKey : request.getIdentityKey().getIdentifiers()) {
+        idArgs.addValue("key_scheme" + i, idKey.getScheme().getName());
+        idArgs.addValue("key_value" + i, idKey.getValue());
+        i++;
+      }
+      List<Map<String, Object>> idResults = getJdbcTemplate().queryForList(sqlSelectIdKeys(request), idArgs);
+      List<String> idList = new ArrayList<String>();
+      for (Map<String, Object> map : idResults) {
+        idList.add(map.get("ID").toString());
+      }
+      ids = StringUtils.join(idList, ", ");
+    }
+    
+    // main search
     final Instant now = Instant.now(getTimeSource());
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", Objects.firstNonNull(request.getVersionAsOfInstant(), now))
       .addTimestamp("corrected_to_instant", Objects.firstNonNull(request.getCorrectedToInstant(), now))
       .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
       .addValueNullIgnored("sec_type", request.getSecurityType());
-    // TODO: identity key
-    final String[] sql = sqlSearchSecurities(request);
+    final String[] sql = sqlSearchSecurities(request, ids);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final int count = namedJdbc.queryForInt(sql[1], args);
     final SecuritySearchResult result = new SecuritySearchResult();
@@ -155,11 +174,26 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
   }
 
   /**
-   * Gets the SQL to search for securities.
+   * Gets the SQL to search for idkeys.
    * @param request  the request, not null
    * @return the SQL search and count, not null
    */
-  protected String[] sqlSearchSecurities(final SecuritySearchRequest request) {
+  protected String sqlSelectIdKeys(final SecuritySearchRequest request) {
+    String select = "SELECT id FROM sec_idkey ";
+    for (int i = 0; i < request.getIdentityKey().getIdentifiers().size(); i++) {
+      select += (i == 0 ? "WHERE " : "OR ");
+      select += "(key_scheme = :key_scheme" + i + " AND key_value = :key_value" + i + ") ";
+    }
+    return select;
+  }
+
+  /**
+   * Gets the SQL to search for securities.
+   * @param request  the request, not null
+   * @param ids  the idkey ids, null if none
+   * @return the SQL search and count, not null
+   */
+  protected String[] sqlSearchSecurities(final SecuritySearchRequest request, final String ids) {
     String where = "WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant " +
                 "AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant ";
     if (request.getName() != null) {
@@ -168,7 +202,9 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
     if (request.getSecurityType() != null) {
       where += "AND sec_type = :sec_type ";
     }
-    // TODO: identity key
+    if (StringUtils.isNotEmpty(ids)) {
+      where += "AND id IN (SELECT DISTINCT security_id FROM sec_security2idkey WHERE idkey_id IN (" + ids + ")) ";
+    }
     String selectFromWhereInner = "SELECT id FROM sec_security " + where;
     String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
     String search = SELECT + FROM + "WHERE s.id IN (" + inner + ") ORDER BY s.id";
