@@ -120,6 +120,15 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_search_name_noMatch() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setName("FooBar");
+    SecuritySearchResult test = _worker.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+
+  @Test
   public void test_search_name() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.setName("TestSecurity102");
