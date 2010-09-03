@@ -162,7 +162,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
     String where = "WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant " +
                 "AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant ";
     if (request.getName() != null) {
-      where += getDbHelper().sqlWildcardQuery("AND name ", ":name", request.getName());
+      where += getDbHelper().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
     }
     if (request.getSecurityType() != null) {
       where += "AND sec_type = :sec_type ";

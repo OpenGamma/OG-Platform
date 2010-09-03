@@ -131,9 +131,33 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   }
 
   @Test
+  public void test_search_name_case() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setName("TESTSecurity102");
+    SecuritySearchResult test = _worker.search(request);
+    
+    assertEquals(1, test.getDocuments().size());
+    SecurityDocument doc0 = test.getDocuments().get(0);
+    assertEquals(UniqueIdentifier.of("DbSec", "102", "0"), doc0.getSecurityId());
+  }
+
+  @Test
   public void test_search_name_wildcard() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.setName("TestSecurity1*");
+    SecuritySearchResult test = _worker.search(request);
+    
+    assertEquals(2, test.getDocuments().size());
+    SecurityDocument doc0 = test.getDocuments().get(0);
+    SecurityDocument doc1 = test.getDocuments().get(1);
+    assertEquals(UniqueIdentifier.of("DbSec", "101", "0"), doc0.getSecurityId());
+    assertEquals(UniqueIdentifier.of("DbSec", "102", "0"), doc1.getSecurityId());
+  }
+
+  @Test
+  public void test_search_name_wildcardCase() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setName("TESTSecurity1*");
     SecuritySearchResult test = _worker.search(request);
     
     assertEquals(2, test.getDocuments().size());
