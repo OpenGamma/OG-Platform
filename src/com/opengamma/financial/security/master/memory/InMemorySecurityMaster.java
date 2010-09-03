@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security.memory;
+package com.opengamma.financial.security.master.memory;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;

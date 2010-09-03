@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security.memory;
+package com.opengamma.financial.security.master.memory;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -20,6 +20,7 @@ import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.financial.security.master.SecurityDocument;
 import com.opengamma.financial.security.master.SecuritySearchRequest;
 import com.opengamma.financial.security.master.SecuritySearchResult;
+import com.opengamma.financial.security.master.memory.InMemorySecurityMaster;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
