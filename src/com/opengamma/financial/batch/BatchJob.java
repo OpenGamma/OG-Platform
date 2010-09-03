@@ -513,8 +513,7 @@ public class BatchJob {
     if (_configDbConnectionSettings == null) {
       throw new IllegalStateException("Config DB connection settings not given.");            
     }
-    _configDb = new MongoDBConfigMaster<ViewDefinition>(ViewDefinition.class, 
-        getConfigDbConnectionSettings(), OpenGammaFudgeContext.getInstance(), true, null);
+    _configDb = new MongoDBConfigMaster<ViewDefinition>(ViewDefinition.class, getConfigDbConnectionSettings(), true);
 
     _viewDefinitionConfig = getViewByNameWithTime();
     if (_viewDefinitionConfig == null) {

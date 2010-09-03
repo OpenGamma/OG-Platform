@@ -25,14 +25,12 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.ViewTestUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.MongoDBConnectionSettings;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
 import com.opengamma.util.test.MongoDBTestUtils;
 
 /**
  * 
  */
 public class BatchJobTest {
-  
   @Test
   public void minimumCommandLine() {
     BatchJob job = new BatchJob();
@@ -95,8 +93,7 @@ public class BatchJobTest {
     View testView = ViewTestUtils.getMockView();
     
     MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings(null, false);
-    MongoDBConfigMaster<ViewDefinition> configRepo = new MongoDBConfigMaster<ViewDefinition>(ViewDefinition.class, 
-        settings, OpenGammaFudgeContext.getInstance(), true, null);
+    MongoDBConfigMaster<ViewDefinition> configRepo = new MongoDBConfigMaster<ViewDefinition>(ViewDefinition.class, settings, true);
     DefaultConfigDocument<ViewDefinition> configDocument = new DefaultConfigDocument<ViewDefinition>();
     configDocument.setName("MyView");
     configDocument.setValue(testView.getDefinition());
@@ -122,6 +119,7 @@ public class BatchJobTest {
     job.parse("-view MyView -observationdate 99990901".split(" "));
     job.createViewDefinition();
     job.createView(job.getRuns().get(0));
+    
   }
   
   
