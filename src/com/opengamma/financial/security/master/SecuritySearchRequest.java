@@ -47,7 +47,8 @@ public class SecuritySearchRequest extends DirectBean {
   /**
    * The identity key to match, null to not match on identity key.
    * This will return securities where at least one key in the security matches
-   * at least one key in this bundle.
+   * at least one key in this bundle. Note that an empty bundle will not match
+   * any securities, whereas a null bundle places no restrictions on the result.
    */
   @PropertyDefinition
   private IdentifierBundle _identityKey;
@@ -222,7 +223,8 @@ public class SecuritySearchRequest extends DirectBean {
   /**
    * Gets the identity key to match, null to not match on identity key.
    * This will return securities where at least one key in the security matches
-   * at least one key in this bundle.
+   * at least one key in this bundle. Note that an empty bundle will not match
+   * any securities, whereas a null bundle places no restrictions on the result.
    * @return the value of the property
    */
   public IdentifierBundle getIdentityKey() {
@@ -232,7 +234,8 @@ public class SecuritySearchRequest extends DirectBean {
   /**
    * Sets the identity key to match, null to not match on identity key.
    * This will return securities where at least one key in the security matches
-   * at least one key in this bundle.
+   * at least one key in this bundle. Note that an empty bundle will not match
+   * any securities, whereas a null bundle places no restrictions on the result.
    * @param identityKey  the new value of the property
    */
   public void setIdentityKey(IdentifierBundle identityKey) {
@@ -242,7 +245,8 @@ public class SecuritySearchRequest extends DirectBean {
   /**
    * Gets the the {@code identityKey} property.
    * This will return securities where at least one key in the security matches
-   * at least one key in this bundle.
+   * at least one key in this bundle. Note that an empty bundle will not match
+   * any securities, whereas a null bundle places no restrictions on the result.
    * @return the property, not null
    */
   public final Property<IdentifierBundle> identityKey() {

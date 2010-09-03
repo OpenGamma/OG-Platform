@@ -185,6 +185,15 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_search_id_emptyBundle() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setIdentityKey(IdentifierBundle.EMPTY);
+    SecuritySearchResult test = _worker.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+
+  @Test
   public void test_search_id_oneOfOne_101() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.setIdentityKey(IdentifierBundle.of(Identifier.of("TICKER", "ORCL")));
