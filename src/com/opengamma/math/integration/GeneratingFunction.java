@@ -12,5 +12,5 @@ package com.opengamma.math.integration;
  */
 public interface GeneratingFunction<S, T> {
 
-  T generate(int n, S... params);
+  T generate(int n, S... parameters);
 }

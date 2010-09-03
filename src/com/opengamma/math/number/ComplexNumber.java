@@ -38,7 +38,7 @@ public class ComplexNumber extends Number {
     if (CompareUtils.closeEquals(0, _imaginary)) {
       return Double.toString(_real);
     }
-    return Double.toString(_real) + " + " + Double.toString(_imaginary) + "i";
+    return Double.toString(_real) + (_imaginary < 0 ? " " : " + ") + Double.toString(_imaginary) + "i";
   }
 
   @Override
