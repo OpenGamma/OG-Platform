@@ -8,7 +8,7 @@ package com.opengamma.math.curve;
 /**
  * 
  */
-public class ConstantDoubleDoubleCurve extends AbstractDoubleDoubleCurve {
+public class ConstantDoubleDoubleCurve extends Curve<Double, Double> {
 
   public static ConstantDoubleDoubleCurve of(final double y) {
     return new ConstantDoubleDoubleCurve(y);

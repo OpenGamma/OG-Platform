@@ -19,8 +19,8 @@ import com.opengamma.util.tuple.DoublesPair;
  * 
  */
 //TODO test for distinctness of nodes?
-//TODO add list of pair
-public abstract class DoubleDoubleCurve extends AbstractDoubleDoubleCurve {
+//TODO add list of pair and lists of Double
+public abstract class DoubleDoubleCurve extends Curve<Double, Double> {
   private final int _n;
   private final double[] _xData;
   private final double[] _yData;

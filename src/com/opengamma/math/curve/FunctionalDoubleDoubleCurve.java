@@ -13,7 +13,7 @@ import com.opengamma.math.function.Function1D;
 /**
  * 
  */
-public class FunctionalDoubleDoubleCurve extends AbstractDoubleDoubleCurve {
+public class FunctionalDoubleDoubleCurve extends Curve<Double, Double> {
 
   public static FunctionalDoubleDoubleCurve of(final Function1D<Double, Double> function) {
     return new FunctionalDoubleDoubleCurve(function);
