@@ -11,7 +11,7 @@ import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_C
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_DELTARESULT;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_LIVECOMPUTATIONRUNNING;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_LIVE_DATA_INJECTOR;
-import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_MOSTRECENTRESULT;
+import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_LATESTRESULT;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_PERFORMCOMPUTATION;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_PORTFOLIO;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_REQUIRED_LIVE_DATA;
@@ -64,7 +64,7 @@ import com.opengamma.util.ArgumentChecker;
   
   private final RestTarget _targetAllSecurityTypes;
   private final RestTarget _targetAllValueNames;
-  private final RestTarget _targetMostRecentResult;
+  private final RestTarget _targetLatestResult;
   private final RestTarget _targetPortfolio;
   private final RestTarget _targetRequirementNames;
   private final RestTarget _targetRequiredLiveData;
@@ -85,7 +85,7 @@ import com.opengamma.util.ArgumentChecker;
     _name = name;
     _targetAllSecurityTypes = target.resolve(VIEW_ALLSECURITYTYPES);
     _targetAllValueNames = target.resolve(VIEW_ALLVALUENAMES);
-    _targetMostRecentResult = target.resolve(VIEW_MOSTRECENTRESULT);
+    _targetLatestResult = target.resolve(VIEW_LATESTRESULT);
     _targetPortfolio = target.resolve(VIEW_PORTFOLIO);
     _targetRequirementNames = target.resolve(VIEW_REQUIREMENTNAMES);
     _targetRequiredLiveData = target.resolve(VIEW_REQUIRED_LIVE_DATA);
@@ -239,8 +239,8 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public ViewComputationResultModel getMostRecentResult() {
-    return getRestClient().getSingleValue(ViewComputationResultModel.class, _targetMostRecentResult, VIEW_MOSTRECENTRESULT);
+  public ViewComputationResultModel getLatestResult() {
+    return getRestClient().getSingleValue(ViewComputationResultModel.class, _targetLatestResult, VIEW_LATESTRESULT);
   }
   
   @Override

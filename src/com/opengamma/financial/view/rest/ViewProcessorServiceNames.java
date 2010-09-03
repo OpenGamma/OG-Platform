@@ -30,7 +30,7 @@ public interface ViewProcessorServiceNames {
   
   public static final String VIEW_ALLSECURITYTYPES = "allSecurityTypes";
   public static final String VIEW_ALLVALUENAMES = "allValueNames";
-  public static final String VIEW_MOSTRECENTRESULT = "mostRecentResult";
+  public static final String VIEW_LATESTRESULT = "latestResult";
   public static final String VIEW_NAME = "name";
   public static final String VIEW_PORTFOLIO = "portfolio";
   public static final String VIEW_REQUIREMENTNAMES = "requirementNames";

@@ -49,9 +49,9 @@ import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.ViewImpl;
 import com.opengamma.engine.view.ViewProcessingContext;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
@@ -257,7 +257,7 @@ public class BatchJob implements Job {
    * many other properties - positions loaded from a position master, 
    * securities from security master, etc.
    */
-  private View _view;
+  private ViewImpl _view;
   
   /**
    * Set by _batchDbManager
@@ -395,11 +395,11 @@ public class BatchJob implements Job {
     return "undefined";
   }
   
-  public View getView() {
+  public ViewImpl getView() {
     return _view;
   }
   
-  public void setView(View view) {
+  public void setView(ViewImpl view) {
     _view = view;
   }
   
@@ -641,7 +641,7 @@ public class BatchJob implements Job {
         dependencyGraphExecutorFactory,
         new DefaultViewPermissionProvider());
     
-    _view = new View(viewDefinitionDoc.getValue(), vpc);
+    _view = new ViewImpl(viewDefinitionDoc.getValue(), vpc);
     _view.setPopulateResultModel(false);
     _view.init();
   }
