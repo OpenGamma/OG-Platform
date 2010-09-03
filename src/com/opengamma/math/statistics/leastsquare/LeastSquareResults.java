@@ -18,7 +18,7 @@ public class LeastSquareResults {
   private final DoubleMatrix1D _parameters;
   private final DoubleMatrix2D _covariance;
 
-  public LeastSquareResults(double chiSq, DoubleMatrix1D parameters, DoubleMatrix2D covariance) {
+  public LeastSquareResults(final double chiSq, final DoubleMatrix1D parameters, final DoubleMatrix2D covariance) {
     ArgumentChecker.notNegative(chiSq, "chi square");
     ArgumentChecker.notNull(parameters, "parameters");
     ArgumentChecker.notNull(covariance, "covariance");
