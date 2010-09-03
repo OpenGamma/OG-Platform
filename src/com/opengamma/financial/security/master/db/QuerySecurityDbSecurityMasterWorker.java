@@ -56,13 +56,13 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
         "s.corr_to_instant AS corr_to_instant, " +
         "s.name AS name, " +
         "s.sec_type AS sec_type, " +
-        "i.id_scheme AS idkey_scheme, " +
-        "i.id_value AS idkey_value ";
+        "i.key_scheme AS key_scheme, " +
+        "i.key_value AS key_value ";
   /**
    * SQL from.
    */
   protected static final String FROM =
-      "FROM sec_security s LEFT JOIN sec_identitykey i ON (i.security_id = s.id) ";
+      "FROM sec_security s LEFT JOIN sec_security2idkey si ON (si.security_id = s.id) LEFT JOIN sec_idkey i ON (si.idkey_id = i.id) ";
 
   /**
    * Creates an instance.
@@ -108,6 +108,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
     s_logger.debug("getSecurityById {}", uid);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("security_id", extractRowId(uid));
+    
     final SecurityDocumentExtractor extractor = new SecurityDocumentExtractor();
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final List<SecurityDocument> docs = (List<SecurityDocument>) namedJdbc.query(sqlGetSecurityById(), args, extractor);
@@ -271,8 +272,8 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
           _lastSecurityId = securityId;
           buildSecurity(rs, securityId);
         }
-        final String idScheme = rs.getString("IDKEY_SCHEME");
-        final String idValue = rs.getString("IDKEY_VALUE");
+        final String idScheme = rs.getString("KEY_SCHEME");
+        final String idValue = rs.getString("KEY_VALUE");
         if (idScheme != null && idValue != null) {
           Identifier id = Identifier.of(idScheme, idValue);
           _security.setIdentifiers(_security.getIdentifiers().withIdentifier(id));

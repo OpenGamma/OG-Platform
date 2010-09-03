@@ -6,7 +6,9 @@
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
-create sequence sec_master_seq as bigint
+create sequence sec_security_seq as bigint
+    start with 1000 increment by 1 no cycle;
+create sequence sec_idkey_seq as bigint
     start with 1000 increment by 1 no cycle;
 -- "as bigint" required by Derby, not accepted by Postgresql
 
@@ -25,17 +27,23 @@ create table sec_security (
     constraint sec_chk_sec_corr_order check (corr_from_instant <= corr_to_instant)
 );
 
-create table sec_identitykey (
+create table sec_idkey (
     id bigint not null,
-    security_id bigint not null,
-    id_scheme varchar(255) not null,
-    id_value varchar(255) not null,
+    key_scheme varchar(255) not null,
+    key_value varchar(255) not null,
     primary key (id),
-    constraint sec_fk_identitykey2sec foreign key (security_id) references sec_security (id)
+    constraint sec_chk_idkey unique (key_scheme, key_value)
 );
--- sec_identitykey is fully dependent of pos_position
 
--- Hibernate parts
+create table sec_security2idkey (
+    security_id bigint not null,
+    idkey_id bigint not null,
+    constraint sec_fk_secidkey2sec foreign key (security_id) references sec_security (id),
+    constraint sec_fk_secidkey2idkey foreign key (idkey_id) references sec_idkey (id)
+);
+-- sec_security_idkey is fully dependent of sec_security
+
+-- Hibernate controlled tables
 create table sec_currency (
     id bigint not null,
     name varchar(255) not null unique,

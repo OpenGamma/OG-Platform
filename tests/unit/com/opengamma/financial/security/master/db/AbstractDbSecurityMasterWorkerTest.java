@@ -74,19 +74,28 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
         202, 201, DateUtil.toSqlTimestamp(_version2Instant), DateUtil.MAX_SQL_TIMESTAMP, DateUtil.toSqlTimestamp(_version2Instant), DateUtil.MAX_SQL_TIMESTAMP, "TestSecurity202", "EQUITY");
     _totalSecurities = 3;
 //    id bigint not null,
+//    key_scheme varchar(255) not null,
+//    key_value varchar(255) not null,
+    template.update("INSERT INTO sec_idkey VALUES (?,?,?)",
+        1, "TICKER", "ORCL");
+    template.update("INSERT INTO sec_idkey VALUES (?,?,?)",
+        2, "TICKER", "MSFT");
+    template.update("INSERT INTO sec_idkey VALUES (?,?,?)",
+        3, "NASDAQ", "Micro");
+    template.update("INSERT INTO sec_idkey VALUES (?,?,?)",
+        4, "TICKER", "IBMC");
 //    security_id bigint not null,
-//    id_scheme varchar(255) not null,
-//    id_value varchar(255) not null,
-    template.update("INSERT INTO sec_identitykey VALUES (?,?,?,?)",
-        111, 101, "TICKER", "ORCL");
-    template.update("INSERT INTO sec_identitykey VALUES (?,?,?,?)",
-        112, 102, "TICKER", "MSFT");
-    template.update("INSERT INTO sec_identitykey VALUES (?,?,?,?)",
-        113, 102, "NASDAQ", "Micro");
-    template.update("INSERT INTO sec_identitykey VALUES (?,?,?,?)",
-        211, 201, "TICKER", "IBMC");
-    template.update("INSERT INTO sec_identitykey VALUES (?,?,?,?)",
-        212, 202, "TICKER", "IBMC");
+//    idkey_id bigint not null,
+    template.update("INSERT INTO sec_security2idkey VALUES (?,?)",
+        101, 1);
+    template.update("INSERT INTO sec_security2idkey VALUES (?,?)",
+        102, 2);
+    template.update("INSERT INTO sec_security2idkey VALUES (?,?)",
+        102, 3);
+    template.update("INSERT INTO sec_security2idkey VALUES (?,?)",
+        201, 4);
+    template.update("INSERT INTO sec_security2idkey VALUES (?,?)",
+        202, 4);
   }
 
   @After

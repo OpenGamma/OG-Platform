@@ -135,11 +135,20 @@ public class ModifySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the next database id.
+   * @param sequenceName TODO
+   * @return the next database id
+   */
+  protected long nextId(String sequenceName) {
+    return getJdbcTemplate().queryForLong(getDbHelper().sqlNextSequenceValueSelect(sequenceName));
+  }
+
+  /**
    * Inserts a security.
    * @param document  the document, not null
    */
   protected void insertSecurity(final SecurityDocument document) {
-    final long securityId = nextId();
+    final long securityId = nextId("sec_security_seq");
     final long securityOid = (document.getSecurityId() != null ? extractOid(document.getSecurityId()) : securityId);
     // the arguments for inserting into the security table
     final DbMapSqlParameterSource securityArgs = new DbMapSqlParameterSource()
@@ -151,19 +160,28 @@ public class ModifySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker
       .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
       .addValue("name", document.getSecurity().getName())
       .addValue("sec_type", document.getSecurity().getSecurityType());
-    // the arguments for inserting into the idkey table
-    final List<DbMapSqlParameterSource> secKeyList = new ArrayList<DbMapSqlParameterSource>();
+    // the arguments for inserting into the idkey tables
+    final List<DbMapSqlParameterSource> assocList = new ArrayList<DbMapSqlParameterSource>();
+    final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
     for (Identifier id : document.getSecurity().getIdentifiers()) {
-      final long secKeyId = nextId();
-      final DbMapSqlParameterSource treeArgs = new DbMapSqlParameterSource()
-        .addValue("idkey_id", secKeyId)
+      final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
         .addValue("security_id", securityId)
-        .addValue("id_scheme", id.getScheme().getName())
-        .addValue("id_value", id.getValue());
-      secKeyList.add(treeArgs);
+        .addValue("key_scheme", id.getScheme().getName())
+        .addValue("key_value", id.getValue());
+      assocList.add(assocArgs);
+      if (getJdbcTemplate().queryForList(sqlSelectIdKey(), assocArgs).isEmpty()) {
+        // select avoids creating unecessary id, but id may still not be used
+        final long idKeyId = nextId("sec_idkey_seq");
+        final DbMapSqlParameterSource idkeyArgs = new DbMapSqlParameterSource()
+          .addValue("idkey_id", idKeyId)
+          .addValue("key_scheme", id.getScheme().getName())
+          .addValue("key_value", id.getValue());
+        idKeyList.add(idkeyArgs);
+      }
     }
     getJdbcTemplate().update(sqlInsertSecurity(), securityArgs);
-    getJdbcTemplate().batchUpdate(sqlInsertSecurityKey(), (DbMapSqlParameterSource[]) secKeyList.toArray(new DbMapSqlParameterSource[secKeyList.size()]));
+    getJdbcTemplate().batchUpdate(sqlInsertIdKey(), (DbMapSqlParameterSource[]) idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
+    getJdbcTemplate().batchUpdate(sqlInsertSecurityIdKey(), (DbMapSqlParameterSource[]) assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));
     // set the uid
     final UniqueIdentifier uid = createUniqueIdentifier(securityOid, securityId, null);
     document.getSecurity().setUniqueIdentifier(uid);
@@ -186,14 +204,31 @@ public class ModifySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker
   }
 
   /**
-   * Gets the SQL for inserting a security key.
+   * Gets the SQL for inserting a security-idkey association.
    * @return the SQL, not null
    */
-  protected String sqlInsertSecurityKey() {
-    return "INSERT INTO sec_identitykey " +
-              "(id, security_id, id_scheme, id_value) " +
+  protected String sqlInsertSecurityIdKey() {
+    return "INSERT INTO sec_security2idkey " +
+              "(security_id, idkey_id) " +
             "VALUES " +
-              "(:idkey_id, :security_id, :id_scheme, :id_value)";
+              "(:security_id, (" + sqlSelectIdKey() + "))";
+  }
+
+  /**
+   * Gets the SQL for selecting an idkey.
+   * @return the SQL, not null
+   */
+  protected String sqlSelectIdKey() {
+    return "SELECT id FROM sec_idkey WHERE key_scheme = :key_scheme AND key_value = :key_value";
+  }
+
+  /**
+   * Gets the SQL for inserting an idkey.
+   * @return the SQL, not null
+   */
+  protected String sqlInsertIdKey() {
+    return "INSERT INTO sec_idkey (id, key_scheme, key_value) " +
+            "VALUES (:idkey_id, :key_scheme, :key_value)";
   }
 
   //-------------------------------------------------------------------------

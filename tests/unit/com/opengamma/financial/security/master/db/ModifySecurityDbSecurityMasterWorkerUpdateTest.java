@@ -132,7 +132,8 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
   @Test
   public void test_update_rollback() {
     ModifySecurityDbSecurityMasterWorker w = new ModifySecurityDbSecurityMasterWorker() {
-      protected String sqlInsertSecurityKey() {
+      @Override
+      protected String sqlInsertSecurityIdKey() {
         return "INSERT";  // bad sql
       };
     };

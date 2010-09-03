@@ -111,14 +111,6 @@ public class DbSecurityMasterWorker {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the next database id.
-   * @return the next database id
-   */
-  protected long nextId() {
-    return getJdbcTemplate().queryForLong(getDbHelper().sqlNextSequenceValueSelect("sec_master_seq"));
-  }
-
-  /**
    * Extracts the row id.
    * @param id  the identifier to extract from, not null
    * @return the extracted row id
