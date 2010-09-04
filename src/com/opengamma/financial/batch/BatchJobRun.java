@@ -13,8 +13,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.livedata.msg.UserPrincipal;

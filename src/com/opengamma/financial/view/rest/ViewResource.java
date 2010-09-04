@@ -13,7 +13,7 @@ import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_C
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_DELTARESULT;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_LIVECOMPUTATIONRUNNING;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_LIVE_DATA_INJECTOR;
-import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_MOSTRECENTRESULT;
+import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_LATESTRESULT;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_NAME;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_PERFORMCOMPUTATION;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_PORTFOLIO;
@@ -95,15 +95,15 @@ public class ViewResource {
   }
   
   @GET
-  @Path (VIEW_MOSTRECENTRESULT)
+  @Path (VIEW_LATESTRESULT)
   public FudgeMsgEnvelope getMostRecentResult() {
-    final ViewComputationResultModel mostRecentResult = getViewClient().getMostRecentResult();
+    final ViewComputationResultModel mostRecentResult = getViewClient().getLatestResult();
     if (mostRecentResult == null) {
       return null;
     }
     final FudgeSerializationContext context = getFudgeSerializationContext();
     final MutableFudgeFieldContainer msg = context.newMessage();
-    context.objectToFudgeMsg(msg, VIEW_MOSTRECENTRESULT, null, mostRecentResult);
+    context.objectToFudgeMsg(msg, VIEW_LATESTRESULT, null, mostRecentResult);
     return new FudgeMsgEnvelope(msg);
   }
   

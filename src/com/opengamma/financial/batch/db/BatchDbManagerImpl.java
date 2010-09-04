@@ -450,7 +450,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
   /*package*/ Set<ComputationTarget> populateComputationTargets(BatchJobRun job) {
     Set<ComputationTarget> returnValue = new HashSet<ComputationTarget>();
     
-    Set<ComputationTargetSpecification> computationTargets = job.getView().getAllComputationTargets();
+    Set<ComputationTargetSpecification> computationTargets = job.getView().getViewEvaluationModel().getAllComputationTargets();
     for (ComputationTargetSpecification ct : computationTargets) {
       ComputationTarget computationTarget = getComputationTarget(ct);
       returnValue.add(computationTarget);
