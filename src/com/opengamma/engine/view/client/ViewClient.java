@@ -111,7 +111,7 @@ public interface ViewClient {
    * @return  the latest result, or <code>null</code> if no result yet exists
    * @see #isResultAvailable()
    */
-  ViewComputationResultModel getMostRecentResult();
+  ViewComputationResultModel getLatestResult();
   
   /**
    * Adds a listener to receive notifications when new results are available.

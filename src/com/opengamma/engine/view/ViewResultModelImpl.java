@@ -50,8 +50,20 @@ public abstract class ViewResultModelImpl implements
   
   public void setCalculationConfigurationNames(Collection<String> calcConfigNames) {
     for (String calcConfigName : calcConfigNames) {
-      _resultModels.put(calcConfigName, new ViewCalculationResultModelImpl());
+      putFreshCalculationResultModel(calcConfigName);
     }
+  }
+  
+  public void ensureCalculationConfigurationNames(Collection<String> calcConfigNames) {
+    for (String calcConfigName : calcConfigNames) {
+      if (!_resultModels.containsKey(calcConfigName)) {
+        putFreshCalculationResultModel(calcConfigName);
+      }
+    }
+  }
+  
+  private void putFreshCalculationResultModel(String calcConfigName) {
+    _resultModels.put(calcConfigName, new ViewCalculationResultModelImpl());
   }
 
   public void setPortfolio(Portfolio portfolio) {
