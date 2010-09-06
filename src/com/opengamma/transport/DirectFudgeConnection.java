@@ -18,6 +18,7 @@ public class DirectFudgeConnection {
   private final FudgeContext _fudgeContext;
 
   private FudgeMessageReceiver _end1Receiver;
+  private FudgeConnectionReceiver _end1Connection;
 
   private final FudgeMessageSender _end1Sender = new FudgeMessageSender() {
 
@@ -30,6 +31,10 @@ public class DirectFudgeConnection {
     public void send(FudgeFieldContainer message) {
       if (_end2Receiver != null) {
         _end2Receiver.messageReceived(_fudgeContext, new FudgeMsgEnvelope(message));
+      } else {
+        if (_end2Connection != null) {
+          _end2Connection.connectionReceived(_fudgeContext, new FudgeMsgEnvelope(message), _end2);
+        }
       }
     }
 
@@ -55,6 +60,7 @@ public class DirectFudgeConnection {
   };
 
   private FudgeMessageReceiver _end2Receiver;
+  private FudgeConnectionReceiver _end2Connection;
 
   private final FudgeMessageSender _end2Sender = new FudgeMessageSender() {
 
@@ -67,6 +73,10 @@ public class DirectFudgeConnection {
     public void send(FudgeFieldContainer message) {
       if (_end1Receiver != null) {
         _end1Receiver.messageReceived(_fudgeContext, new FudgeMsgEnvelope(message));
+      } else {
+        if (_end1Connection != null) {
+          _end1Connection.connectionReceived(_fudgeContext, new FudgeMsgEnvelope(message), _end1);
+        }
       }
     }
 
@@ -101,6 +111,14 @@ public class DirectFudgeConnection {
 
   public FudgeConnection getEnd2() {
     return _end2;
+  }
+
+  public void connectEnd1(final FudgeConnectionReceiver receiver) {
+    _end1Connection = receiver;
+  }
+
+  public void connectEnd2(final FudgeConnectionReceiver receiver) {
+    _end2Connection = receiver;
   }
 
 }
