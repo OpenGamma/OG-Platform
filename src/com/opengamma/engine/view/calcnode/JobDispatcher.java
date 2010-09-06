@@ -156,6 +156,7 @@ public class JobDispatcher implements JobInvokerRegister {
         }
         final CalculationJobResult jobResult = new CalculationJobResult(getJob().getSpecification(), getDurationNanos(), failureItems, getJobFailureNodeId());
         resultReceiver.resultReceived(jobResult);
+        // TODO [ENG-178] If the job had tails, these need to be passed to the resultReceiver too
       } else {
         s_logger.warn("Job {} aborted but we've already completed or aborted from another node", getJob().getSpecification().getJobId());
       }
@@ -163,12 +164,14 @@ public class JobDispatcher implements JobInvokerRegister {
 
     private synchronized void setTimeout(final JobInvoker jobInvoker) {
       if (_maxJobExecutionTime > 0) {
+        // TODO [ENG-178] If the job has tails, the max execution time needs to be longer (how about the number of tails?)
         _timeout = _jobTimeoutExecutor.schedule(new Runnable() {
           @Override
           public void run() {
             synchronized (JobDispatcher.this) {
               _timeout = null;
             }
+            // TODO [ENG-178] Instead of immediate failure we should ask the node if the job is still running 
             jobFailed(jobInvoker, "node on " + jobInvoker.toString(), new OpenGammaRuntimeException("Invocation limit of " + _maxJobExecutionTime + "ms exceeded"));
           }
         }, _maxJobExecutionTime, TimeUnit.MILLISECONDS);
