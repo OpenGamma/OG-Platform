@@ -13,39 +13,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import com.opengamma.financial.master.db.DbMasterTestUtils;
-import com.opengamma.financial.security.db.BusinessDayConventionBean;
-import com.opengamma.financial.security.db.CurrencyBean;
-import com.opengamma.financial.security.db.DayCountBean;
-import com.opengamma.financial.security.db.ExchangeBean;
-import com.opengamma.financial.security.db.FrequencyBean;
-import com.opengamma.financial.security.db.IdentifierAssociationBean;
-import com.opengamma.financial.security.db.SecurityBean;
-import com.opengamma.financial.security.db.bond.BondSecurityBean;
-import com.opengamma.financial.security.db.bond.CouponTypeBean;
-import com.opengamma.financial.security.db.bond.GuaranteeTypeBean;
-import com.opengamma.financial.security.db.bond.IssuerTypeBean;
-import com.opengamma.financial.security.db.bond.MarketBean;
-import com.opengamma.financial.security.db.bond.YieldConventionBean;
-import com.opengamma.financial.security.db.cash.CashSecurityBean;
-import com.opengamma.financial.security.db.equity.EquitySecurityBean;
-import com.opengamma.financial.security.db.equity.GICSCodeBean;
-import com.opengamma.financial.security.db.fra.FRASecurityBean;
-import com.opengamma.financial.security.db.future.BondFutureTypeBean;
-import com.opengamma.financial.security.db.future.CashRateTypeBean;
-import com.opengamma.financial.security.db.future.CommodityFutureTypeBean;
-import com.opengamma.financial.security.db.future.FutureBundleBean;
-import com.opengamma.financial.security.db.future.FutureSecurityBean;
-import com.opengamma.financial.security.db.future.UnitBean;
-import com.opengamma.financial.security.db.option.OptionSecurityBean;
-import com.opengamma.financial.security.db.swap.SwapSecurityBean;
 import com.opengamma.financial.security.master.SecurityMasterTestCase;
 import com.opengamma.financial.security.master.SecurityTestCaseMethods;
-import com.opengamma.util.test.HibernateTest;
+import com.opengamma.util.test.DBTest;
 
 /**
  * Test DbSecurityMaster.
  */
-public class DbSecurityMasterRandomTest extends HibernateTest implements SecurityTestCaseMethods {
+public class DbSecurityMasterRandomTest extends DBTest implements SecurityTestCaseMethods {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbSecurityMasterRandomTest.class);
@@ -61,14 +36,6 @@ public class DbSecurityMasterRandomTest extends HibernateTest implements Securit
     s_logger.info("running test for database={} version={}", databaseType, databaseVersion);
   }
 
-  @Override
-  public Class<?>[] getHibernateMappingClasses() {
-    return new Class<?>[] {BondFutureTypeBean.class, BondSecurityBean.class, BusinessDayConventionBean.class, CashRateTypeBean.class, CommodityFutureTypeBean.class, CouponTypeBean.class,
-        CurrencyBean.class, DayCountBean.class, EquitySecurityBean.class, ExchangeBean.class, FrequencyBean.class, FutureBundleBean.class, FutureSecurityBean.class, GICSCodeBean.class,
-        GuaranteeTypeBean.class, IdentifierAssociationBean.class, IssuerTypeBean.class, MarketBean.class, OptionSecurityBean.class, SecurityBean.class, UnitBean.class, YieldConventionBean.class,
-        CashSecurityBean.class, SwapSecurityBean.class, FRASecurityBean.class };
-  }
-  
   /**
    * @throws java.lang.Exception
    */
@@ -77,8 +44,6 @@ public class DbSecurityMasterRandomTest extends HibernateTest implements Securit
     super.setUp();
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
     DbSecurityMaster secMaster = (DbSecurityMaster) context.getBean(getDatabaseType() + "DbSecurityMaster");
-//    final RegionMaster regionRepository = new InMemoryRegionRepository();
-//    RegionFileReader.populateMaster(regionRepository, new File(RegionFileReader.REGIONS_FILE_PATH));
     s_logger.debug("SecMaster initialization complete {}", secMaster);
     _testCase = new SecurityMasterTestCase(secMaster);
   }
