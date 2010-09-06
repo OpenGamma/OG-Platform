@@ -120,7 +120,8 @@ public class DBTool extends Task {
     
     Map<String, DBDialect> url2Dialect = new HashMap<String, DBDialect>(); // add new supported DB types to this Map
     url2Dialect.put("jdbc:postgresql", PostgresDialect.getInstance());
-    url2Dialect.put("jdbc:derby", DerbyDialect.getInstance());  
+    url2Dialect.put("jdbc:derby", DerbyDialect.getInstance());
+    url2Dialect.put("jdbc:hsqldb", HSQLDialect.getInstance());
     
     String dbUrlLowercase = _dbServerHost.toLowerCase();
     for (Map.Entry<String, DBDialect> entry : url2Dialect.entrySet()) {
@@ -137,9 +138,13 @@ public class DBTool extends Task {
     _dialect.initialise(_dbServerHost, _user, _password);
   }
   
-  public void shutdown() {
-    System.out.println("Closing connection...");
-    _dialect.shutdown();
+  public void shutdownTestCatalog() {
+    shutdown(getTestCatalog());    
+  }
+  
+  public void shutdown(String catalog) {
+    System.out.println("Closing connection to " + catalog + "...");
+    _dialect.shutdown(catalog);
   }
   
   public void setDbServerHost(String dbServerHost) {
@@ -526,7 +531,7 @@ public class DBTool extends Task {
       System.out.println("Creating tables...");
       initialize();
       createTables(_catalog, null);
-      shutdown();
+      shutdown(_catalog);
     }
     
     if (_createTestDb) {
@@ -547,7 +552,7 @@ public class DBTool extends Task {
         dropTestSchema(); // make sure it's empty if it already existed
         createTestSchema();
         createTestTables(null);
-        shutdown();
+        shutdownTestCatalog();
       }
     }
     

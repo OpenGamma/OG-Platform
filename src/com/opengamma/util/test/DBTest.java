@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.test.DBTool.TableCreationCallback;
@@ -60,7 +61,7 @@ abstract public class DBTest implements TableCreationCallback {
 
   @After
   public void tearDown() throws Exception {
-    _dbtool.shutdown(); // avoids locking issues with Derby
+    _dbtool.shutdownTestCatalog(); // avoids locking issues with Derby
   }
 
   protected static Collection<Object[]> getParameters (final String databaseType, final int previousVersionCount) {
@@ -79,7 +80,7 @@ abstract public class DBTest implements TableCreationCallback {
   protected static Collection<Object[]> getParameters (final int previousVersionCount) {
     String databaseType = System.getProperty("test.database.type");
     if (databaseType == null) {
-      databaseType = "derby"; // If you run from Eclipse, use Derby only
+      databaseType = "hsqldb"; // If you run from Eclipse, use Derby only
     }
     return getParameters (databaseType, previousVersionCount);
   }
@@ -108,6 +109,10 @@ abstract public class DBTest implements TableCreationCallback {
     return _databaseVersion;
   }
   
+  public DataSourceTransactionManager getTransactionManager() {
+    return getDbTool().getTransactionManager();
+  }
+
   /**
    * Override this if you wish to do something with the database while it is in its "upgrading" state - e.g. populate with test data
    * at a particular version to test the data transformations on the next version upgrades.
