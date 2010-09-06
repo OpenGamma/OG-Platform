@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * Maintains ever increasing tallies of the reported metrics. 
  */
-public class TotallingStatisticsGatherer implements StatisticsGatherer {
+public class TotallingStatisticsGatherer implements CalculationNodeStatisticsGatherer {
 
   private final ConcurrentMap<String, CalculationNodeStatistics> _nodeStatistics = new ConcurrentHashMap<String, CalculationNodeStatistics>();
 
@@ -22,7 +22,7 @@ public class TotallingStatisticsGatherer implements StatisticsGatherer {
     CalculationNodeStatistics stats = _nodeStatistics.get(nodeId);
     if (stats == null) {
       stats = new CalculationNodeStatistics(nodeId);
-      CalculationNodeStatistics newStats = _nodeStatistics.putIfAbsent(nodeId, stats);
+      final CalculationNodeStatistics newStats = _nodeStatistics.putIfAbsent(nodeId, stats);
       if (newStats != null) {
         stats = newStats;
       }
@@ -31,8 +31,8 @@ public class TotallingStatisticsGatherer implements StatisticsGatherer {
   }
 
   @Override
-  public void jobCompleted(String nodeId, long executionTime, long duration) {
-    getOrCreateNodeStatistics(nodeId).recordSuccessfulJob(executionTime, duration);
+  public void jobCompleted(String nodeId, int jobItems, int jobCycleCost, long executionTime, long duration) {
+    getOrCreateNodeStatistics(nodeId).recordSuccessfulJob(jobItems, jobCycleCost, executionTime, duration);
   }
 
   @Override

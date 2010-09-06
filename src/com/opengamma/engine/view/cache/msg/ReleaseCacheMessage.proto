@@ -6,12 +6,11 @@
  
 namespace com.opengamma.engine.view.cache.msg {
 
-  message DeleteRequest extends BinaryDataStoreRequest {
+  message ReleaseCacheMessage extends BinaryDataStoreResponse {
   
     required string viewName;
-    required string calculationConfigurationName;
-    required long snapshotTimestamp;
-  
+    required long timestamp;
+    
   }
 
 }

@@ -15,7 +15,9 @@ import com.opengamma.engine.view.cache.msg.BinaryDataStoreResponse;
 import com.opengamma.engine.view.cache.msg.CacheMessage;
 import com.opengamma.engine.view.cache.msg.IdentifierMapRequest;
 import com.opengamma.engine.view.cache.msg.IdentifierMapResponse;
-import com.opengamma.transport.FudgeRequestSender;
+import com.opengamma.engine.view.cache.msg.SlaveChannelMessage;
+import com.opengamma.transport.FudgeConnection;
+import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeSynchronousClient;
 import com.opengamma.util.ArgumentChecker;
 
@@ -24,29 +26,34 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class RemoteCacheClient {
 
-  private static class FudgeClient extends FudgeSynchronousClient {
+  private class FudgeClient extends FudgeSynchronousClient {
 
     /**
      * @param requestSender
      */
-    protected FudgeClient(final FudgeRequestSender requestSender) {
-      super(requestSender);
+    protected FudgeClient(final FudgeConnection connection) {
+      super(connection);
     }
 
     @Override
-    protected long getCorrelationIdFromReply(final FudgeFieldContainer reply) {
+    protected Long getCorrelationIdFromReply(final FudgeFieldContainer reply) {
       return reply.getLong(CacheMessage.CORRELATION_ID_KEY);
     }
 
     private <Request extends CacheMessage, Response extends CacheMessage> Response sendMessage(final Request request, final Class<Request> requestClass, final Class<Response> responseClass) {
-      final FudgeSerializationContext scontext = new FudgeSerializationContext(getRequestSender().getFudgeContext());
+      final FudgeSerializationContext scontext = new FudgeSerializationContext(getMessageSender().getFudgeContext());
       final long correlationId = getNextCorrelationId();
       request.setCorrelationId(correlationId);
       final FudgeFieldContainer responseMsg = sendRequestAndWaitForResponse(FudgeSerializationContext.addClassHeader(scontext.objectToFudgeMsg(request), request.getClass(), requestClass),
           correlationId);
-      final FudgeDeserializationContext dcontext = new FudgeDeserializationContext(getRequestSender().getFudgeContext());
+      final FudgeDeserializationContext dcontext = new FudgeDeserializationContext(getMessageSender().getFudgeContext());
       final Response response = dcontext.fudgeMsgToObject(responseClass, responseMsg);
       return response;
+    }
+
+    private <Message extends CacheMessage> void postMessage(final Message message, final Class<Message> messageClass) {
+      final FudgeSerializationContext scontext = new FudgeSerializationContext(getMessageSender().getFudgeContext());
+      sendMessage(FudgeSerializationContext.addClassHeader(scontext.objectToFudgeMsg(message), message.getClass(), messageClass));
     }
 
   }
@@ -57,11 +64,11 @@ public class RemoteCacheClient {
   /**
    * Creates a new client using a single underlying transport.
    * 
-   * @param requestSender the underlying transport
+   * @param connection the underlying transport
    */
-  public RemoteCacheClient(final FudgeRequestSender requestSender) {
-    ArgumentChecker.notNull(requestSender, "requestSender");
-    _fudgeGets = new FudgeClient(requestSender);
+  public RemoteCacheClient(final FudgeConnection connection) {
+    ArgumentChecker.notNull(connection, "connection");
+    _fudgeGets = new FudgeClient(connection);
     _fudgePuts = _fudgeGets;
   }
 
@@ -71,15 +78,20 @@ public class RemoteCacheClient {
    * @param requestGets get operations
    * @param requestPuts put operations
    */
-  public RemoteCacheClient(final FudgeRequestSender requestGets, final FudgeRequestSender requestPuts) {
-    ArgumentChecker.notNull(requestGets, "requestPrioritySender");
-    ArgumentChecker.notNull(requestPuts, "requestSender");
+  public RemoteCacheClient(final FudgeConnection requestGets, final FudgeConnection requestPuts) {
+    ArgumentChecker.notNull(requestGets, "requestGets");
+    ArgumentChecker.notNull(requestPuts, "requestPuts");
     _fudgeGets = new FudgeClient(requestGets);
     if (requestPuts != requestGets) {
+      _fudgeGets.postMessage(new SlaveChannelMessage(), BinaryDataStoreRequest.class);
       _fudgePuts = new FudgeClient(requestPuts);
     } else {
       _fudgePuts = _fudgeGets;
     }
+  }
+
+  protected void setAsynchronousMessageReceiver(final FudgeMessageReceiver asynchronousMessageReceiver) {
+    _fudgePuts.setAsynchronousMessageReceiver(asynchronousMessageReceiver);
   }
 
   protected <T extends IdentifierMapResponse> T sendGetMessage(final IdentifierMapRequest request, final Class<T> expectedResponse) {
@@ -95,7 +107,7 @@ public class RemoteCacheClient {
   }
 
   protected FudgeContext getFudgeContext() {
-    return _fudgeGets.getRequestSender().getFudgeContext();
+    return _fudgeGets.getMessageSender().getFudgeContext();
   }
 
 }

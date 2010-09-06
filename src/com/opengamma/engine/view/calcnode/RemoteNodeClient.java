@@ -6,9 +6,7 @@
 package com.opengamma.engine.view.calcnode;
 
 import java.util.Collection;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
@@ -21,6 +19,7 @@ import org.springframework.context.Lifecycle;
 
 import com.opengamma.engine.function.FunctionCompilationService;
 import com.opengamma.engine.view.cache.IdentifierMap;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeBusyMessage;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeInitMessage;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeJobMessage;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
@@ -34,7 +33,7 @@ import com.opengamma.transport.FudgeMessageSender;
 /**
  * Client end to RemoteNodeServer for registering one or more AbstractCalculationNodes with a remote job dispatcher.
  */
-public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer<BlockingQueue<AbstractCalculationNode>> implements FudgeMessageReceiver, Lifecycle, FudgeConnectionStateListener {
+public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer implements FudgeMessageReceiver, Lifecycle, FudgeConnectionStateListener {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteNodeClient.class);
 
@@ -44,7 +43,6 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
   private boolean _started;
 
   public RemoteNodeClient(final FudgeConnection connection, final FunctionCompilationService functionCompilationService, final IdentifierMap identifierMap) {
-    super(new LinkedBlockingQueue<AbstractCalculationNode>());
     _connection = connection;
     _functionCompilationService = functionCompilationService;
     _identifierMap = identifierMap;
@@ -110,18 +108,31 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
     }
   }
 
-  private void handleJobMessage(final RemoteCalcNodeJobMessage message) {
-    try {
-      final CalculationJob job = message.getJob();
-      job.resolveInputs(getIdentifierMap());
-      final AbstractCalculationNode node = getNodes().take();
-      final CalculationJobResult result = node.executeJob(job);
-      getNodes().add(node);
-      result.convertInputs(getIdentifierMap());
-      sendMessage(new RemoteCalcNodeResultMessage(result));
-    } catch (InterruptedException e) {
-      s_logger.warn("Thread interrupted");
+  @Override
+  protected void onJobStart(final CalculationJob job) {
+    if (job.getRequiredJobIds() != null) {
+      sendMessage(new RemoteCalcNodeBusyMessage());
     }
+  }
+
+  private void handleJobMessage(final RemoteCalcNodeJobMessage message) {
+    final CalculationJob job = message.getJob();
+    job.resolveInputs(getIdentifierMap());
+    executeJob(null, job, new ExecutionReceiver() {
+
+      @Override
+      public void executionComplete(final CalculationJobResult result) {
+        result.convertInputs(getIdentifierMap());
+        sendMessage(new RemoteCalcNodeResultMessage(result));
+      }
+
+      @Override
+      public void executionFailed(final AbstractCalculationNode node, final Exception exception) {
+        s_logger.warn("Exception thrown by job execution", exception);
+        // TODO [ENG-204] propogate this error back to the server
+      }
+
+    });
   }
 
   private void handleInitMessage(final RemoteCalcNodeInitMessage message) {

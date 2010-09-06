@@ -30,7 +30,7 @@ import com.opengamma.util.tuple.Pair;
 public class DefaultViewComputationCache implements ViewComputationCache, Iterable<Pair<ValueSpecification, byte[]>> {
 
   private static final int NATIVE_FIELD_INDEX = -1;
-
+  
   private final IdentifierMap _identifierMap;
   private final BinaryDataStore _privateDataStore;
   private final BinaryDataStore _sharedDataStore;

@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.view.cache.IdentifierMap;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeBusyMessage;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeJobMessage;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeReadyMessage;
@@ -102,24 +103,28 @@ import com.opengamma.util.monitor.OperationTimer;
   }
 
   @Override
-  public boolean invoke(final CalculationJob job, final JobInvocationReceiver receiver) {
+  public boolean invoke(final CalculationJob rootJob, final JobInvocationReceiver receiver) {
     if (_launched.incrementAndGet() > _capacity) {
       _launched.decrementAndGet();
       s_logger.debug("Capacity reached");
       return false;
     }
-    s_logger.info("Dispatching job {}", job.getSpecification());
-    // Don't block the dispatcher with outgoing serialisation and I/O
+    s_logger.info("Dispatching job {}", rootJob.getSpecification());
+    // Don't block the dispatcher with outgoing serialization and I/O
     getExecutorService().execute(new Runnable() {
       @Override
       public void run() {
-        getJobCompletionCallbacks().put(job.getSpecification(), receiver);
-        final OperationTimer timer = new OperationTimer(s_logger, "Invocation serialisation and send of job {}", job.getSpecification().getJobId());
-        job.convertInputs(getIdentifierMap());
-        final RemoteCalcNodeJobMessage message = new RemoteCalcNodeJobMessage(job);
-        final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeMessageSender().getFudgeContext());
-        getFudgeMessageSender().send(FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(message), message.getClass(), RemoteCalcNodeMessage.class));
-        timer.finished();
+        CalculationJob job = rootJob;
+        do {
+          getJobCompletionCallbacks().put(job.getSpecification(), receiver);
+          final OperationTimer timer = new OperationTimer(s_logger, "Invocation serialisation and send of job {}", job.getSpecification().getJobId());
+          job.convertInputs(getIdentifierMap());
+          final RemoteCalcNodeJobMessage message = new RemoteCalcNodeJobMessage(job);
+          final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeMessageSender().getFudgeContext());
+          getFudgeMessageSender().send(FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(message), message.getClass(), RemoteCalcNodeMessage.class));
+          timer.finished();
+          job = job.getTail();
+        } while (job != null);
       }
     });
     return true;
@@ -151,6 +156,8 @@ import com.opengamma.util.monitor.OperationTimer;
     final RemoteCalcNodeMessage message = context.fudgeMsgToObject(RemoteCalcNodeMessage.class, msgEnvelope.getMessage());
     if (message instanceof RemoteCalcNodeResultMessage) {
       handleResultMessage((RemoteCalcNodeResultMessage) message);
+    } else if (message instanceof RemoteCalcNodeBusyMessage) {
+      handleBusyMessage((RemoteCalcNodeBusyMessage) message);
     } else if (message instanceof RemoteCalcNodeReadyMessage) {
       handleReadyMessage((RemoteCalcNodeReadyMessage) message);
     } else {
@@ -170,9 +177,7 @@ import com.opengamma.util.monitor.OperationTimer;
         s_logger.debug("Notified dispatcher of capacity available");
       }
     }
-    // We decrement the count (and re-register) first as the remote node is already available if it's sent us its data. Note that
-    // we could split the messages and re-register before the node starts sending data so it's next job can be overlaid (assumes
-    // duplex network).
+    // We decrement the count (and re-register) first as the remote node is already available if it's sent us its data.
 
     final JobInvocationReceiver receiver = getJobCompletionCallbacks().remove(message.getResult().getSpecification());
     if (receiver != null) {
@@ -182,6 +187,11 @@ import com.opengamma.util.monitor.OperationTimer;
     } else {
       s_logger.warn("Duplicate or result for cancelled callback {} received", message.getResult().getSpecification());
     }
+  }
+
+  private void handleBusyMessage(final RemoteCalcNodeBusyMessage message) {
+    s_logger.debug("Remote calc node on {} started a tail job", this);
+    _launched.incrementAndGet();
   }
 
   private void handleReadyMessage(final RemoteCalcNodeReadyMessage message) {

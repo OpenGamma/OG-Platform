@@ -34,6 +34,8 @@ import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
+import com.opengamma.engine.view.calc.stats.DiscardingStatisticsGathererProvider;
+import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.permission.ViewPermission;
@@ -67,6 +69,7 @@ public class ViewProcessorImpl implements ViewProcessor, Lifecycle {
   private DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private ViewPermissionProvider _viewPermissionProvider;
   private Map<String, Object> _configurationResource;
+  private GraphExecutorStatisticsGathererProvider _graphExecutionStatistics = new DiscardingStatisticsGathererProvider();
   // State:
   private final ConcurrentMap<String, ViewImpl> _viewsByName = new ConcurrentHashMap<String, ViewImpl>();
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
@@ -324,7 +327,7 @@ public class ViewProcessorImpl implements ViewProcessor, Lifecycle {
     ViewProcessingContext vpc = new ViewProcessingContext(getLiveDataClient(), getLiveDataAvailabilityProvider(), new CombiningLiveDataSnapshotProvider(Arrays.asList(viewLevelLiveData,
         getLiveDataSnapshotProvider())), functionRepository, new DefaultFunctionResolver(functionRepository), getPositionSource(), getSecuritySource(), getComputationCacheSource(),
         getComputationJobDispatcher(), getViewProcessorQueryReceiver(), getFunctionCompilationService().getFunctionCompilationContext(), getExecutorService(), getDependencyGraphExecutorFactory(),
-        getViewPermissionProvider());
+        getViewPermissionProvider(), getGraphExecutionStatistics());
     ViewImpl freshView = new ViewImpl(viewDefinition, vpc, viewLevelLiveData);
     ViewImpl actualView = _viewsByName.putIfAbsent(viewName, freshView);
     if (actualView == null) {
@@ -511,6 +514,22 @@ public class ViewProcessorImpl implements ViewProcessor, Lifecycle {
     ArgumentChecker.notNullInjected(getLiveDataSnapshotProvider(), "liveDataSnapshotProvider");
     ArgumentChecker.notNullInjected(getComputationCacheSource(), "computationCacheSource");
     ArgumentChecker.notNullInjected(getComputationJobDispatcher(), "computationJobRequestSender");
+  }
+
+  /**
+   * Sets the graphExecutionStatistics field.
+   * @param graphExecutionStatistics  the graphExecutionStatistics
+   */
+  public void setGraphExecutionStatistics(GraphExecutorStatisticsGathererProvider graphExecutionStatistics) {
+    _graphExecutionStatistics = graphExecutionStatistics;
+  }
+
+  /**
+   * Gets the graphExecutionStatistics field.
+   * @return the graphExecutionStatistics
+   */
+  public GraphExecutorStatisticsGathererProvider getGraphExecutionStatistics() {
+    return _graphExecutionStatistics;
   }
 
 }

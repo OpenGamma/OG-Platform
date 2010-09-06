@@ -6,7 +6,7 @@
  
 namespace com.opengamma.engine.view.cache.msg {
 
-  message BinaryDataStoreRequest extends CacheMessage {
+  message SlaveChannelMessage extends BinaryDataStoreRequest {
   
   }
 

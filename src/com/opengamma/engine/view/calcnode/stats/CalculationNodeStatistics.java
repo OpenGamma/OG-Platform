@@ -17,6 +17,8 @@ public class CalculationNodeStatistics {
   private final String _nodeId;
   private final AtomicLong _successfulJobs = new AtomicLong();
   private final AtomicLong _unsuccessfulJobs = new AtomicLong();
+  private final AtomicLong _jobItems = new AtomicLong();
+  private final AtomicLong _jobCycleCost = new AtomicLong();
   private final AtomicLong _executionTime = new AtomicLong();
   private final AtomicLong _nonExecutionTime = new AtomicLong();
   private volatile Instant _lastJobTime;
@@ -31,6 +33,14 @@ public class CalculationNodeStatistics {
 
   public long getSuccessfulJobs() {
     return _successfulJobs.get();
+  }
+
+  public long getJobItems() {
+    return _jobItems.get();
+  }
+
+  public long getJobCycleCost() {
+    return _jobCycleCost.get();
   }
 
   public long getUnsuccessfulJobs() {
@@ -49,8 +59,46 @@ public class CalculationNodeStatistics {
     return _lastJobTime;
   }
 
-  public void recordSuccessfulJob(final long executionTime, final long duration) {
+  public double getAverageExecutionTime() {
+    final long jobs = getSuccessfulJobs();
+    if (jobs > 0) {
+      return (double) getExecutionTime() / (double) jobs / 1e9;
+    } else {
+      return 0;
+    }
+  }
+
+  public double getAverageNonExecutionTime() {
+    final long jobs = getSuccessfulJobs();
+    if (jobs > 0) {
+      return (double) getNonExecutionTime() / (double) jobs / 1e9;
+    } else {
+      return 0;
+    }
+  }
+
+  public double getAverageJobItems() {
+    final long jobs = getSuccessfulJobs();
+    if (jobs > 0) {
+      return (double) getJobItems() / (double) jobs;
+    } else {
+      return 0;
+    }
+  }
+
+  public double getAverageJobCycleCost() {
+    final long jobs = getSuccessfulJobs();
+    if (jobs > 0) {
+      return (double) getJobCycleCost() / (double) jobs;
+    } else {
+      return 0;
+    }
+  }
+
+  public void recordSuccessfulJob(final int jobItems, final int jobCycleCost, final long executionTime, final long duration) {
     _successfulJobs.incrementAndGet();
+    _jobItems.addAndGet(jobItems);
+    _jobCycleCost.addAndGet(jobCycleCost);
     _executionTime.addAndGet(executionTime);
     _nonExecutionTime.addAndGet(duration - executionTime);
     _lastJobTime = Instant.nowSystemClock();
@@ -60,6 +108,15 @@ public class CalculationNodeStatistics {
     _unsuccessfulJobs.incrementAndGet();
     _nonExecutionTime.addAndGet(duration);
     _lastJobTime = Instant.nowSystemClock();
+  }
+
+  public void reset() {
+    _successfulJobs.set(0);
+    _unsuccessfulJobs.set(0);
+    _jobItems.set(0);
+    _jobCycleCost.set(0);
+    _executionTime.set(0);
+    _nonExecutionTime.set(0);
   }
 
 }
