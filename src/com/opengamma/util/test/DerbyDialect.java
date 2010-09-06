@@ -32,8 +32,8 @@ public final class DerbyDialect extends AbstractDBDialect {
   }
   
   @Override
-  public void shutdown() {
-    super.shutdown();
+  public void shutdown(String catalog) {
+    super.shutdown(catalog);
     
     try {
       DriverManager.getConnection("jdbc:derby:;shutdown=true");

@@ -57,7 +57,7 @@ public class TestProperties {
   }
 
   public static Collection<String> getAllSupportedDatabaseTypes() {
-    return Arrays.asList(new String[] { "derby", "postgres" });
+    return Arrays.asList(new String[] { "hsqldb", "postgres" });
   }
 
   /**

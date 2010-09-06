@@ -53,7 +53,4 @@ public abstract class HibernateTest extends DBTest {
     super.tearDown();
   }
   
-  public DataSourceTransactionManager getTransactionManager() {
-    return getDbTool().getTransactionManager();
-  }
 }

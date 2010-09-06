@@ -16,7 +16,7 @@ import org.hibernate.dialect.Dialect;
 public interface DBDialect {
   
   void initialise(String dbServerHost, String user, String password);
-  void shutdown();
+  void shutdown(String catalog);
   
   Dialect getHibernateDialect();
   
