@@ -5,12 +5,12 @@
  */
 package com.opengamma.util.time;
 
-import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import org.fudgemsg.types.DateFieldType;
-import org.fudgemsg.types.FudgeDate;
+import org.fudgemsg.types.DateTimeAccuracy;
+import org.fudgemsg.types.DateTimeFieldType;
+import org.fudgemsg.types.FudgeDateTime;
 import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
 
@@ -19,8 +19,7 @@ import org.fudgemsg.types.SecondaryFieldType;
  *
  * @author Andrew Griffin
  */
-public final class ExpiryFieldType extends SecondaryFieldType<Expiry, FudgeDate> {
-
+public final class ExpiryFieldType extends SecondaryFieldType<Expiry, FudgeDateTime> {
   /**
    * Singleton instance of the type.
    */
@@ -28,7 +27,7 @@ public final class ExpiryFieldType extends SecondaryFieldType<Expiry, FudgeDate>
   public static final ExpiryFieldType INSTANCE = new ExpiryFieldType();
 
   private ExpiryFieldType() {
-    super(DateFieldType.INSTANCE, Expiry.class);
+    super(DateTimeFieldType.INSTANCE, Expiry.class);
   }
 
   /**
@@ -37,19 +36,22 @@ public final class ExpiryFieldType extends SecondaryFieldType<Expiry, FudgeDate>
    * @return the FudgeDate representation of the Expiry
    */
   @Override
-  public FudgeDate secondaryToPrimary(final Expiry object) {
+  public FudgeDateTime secondaryToPrimary(final Expiry object) {
     ExpiryAccuracy accuracy = object.getAccuracy();
     if (accuracy == null) {
       accuracy = ExpiryAccuracy.DAY_MONTH_YEAR;
     }
     switch (accuracy) {
+      case MIN_HOUR_DAY_MONTH_YEAR:
+        return new FudgeDateTime(DateTimeAccuracy.MINUTE, object.getExpiry().toInstant());
+      case HOUR_DAY_MONTH_YEAR:
+        return new FudgeDateTime(DateTimeAccuracy.HOUR, object.getExpiry().toInstant());
       case DAY_MONTH_YEAR:
-        return new FudgeDate(object.getExpiry().getYear(), object.getExpiry().getMonthOfYear().getValue(), object
-            .getExpiry().getDayOfMonth());
+        return new FudgeDateTime(DateTimeAccuracy.DAY, object.getExpiry().toInstant());
       case MONTH_YEAR:
-        return new FudgeDate(object.getExpiry().getYear(), object.getExpiry().getMonthOfYear().getValue());
-      case YEAR:
-        return new FudgeDate(object.getExpiry().getYear());
+        return new FudgeDateTime(DateTimeAccuracy.MONTH, object.getExpiry().toInstant());
+      case YEAR: 
+        return new FudgeDateTime(DateTimeAccuracy.YEAR, object.getExpiry().toInstant());
       default:
         throw new IllegalArgumentException("Invalid accuracy value on " + object);
     }
@@ -61,9 +63,13 @@ public final class ExpiryFieldType extends SecondaryFieldType<Expiry, FudgeDate>
    * @return the Expiry
    */
   @Override
-  public Expiry primaryToSecondary(final FudgeDate data) {
-    final ZonedDateTime zdt = ZonedDateTime.of(LocalDateTime.ofMidnight(data), TimeZone.UTC);
+  public Expiry primaryToSecondary(final FudgeDateTime data) {
+    final ZonedDateTime zdt = ZonedDateTime.ofInstant(data.toInstant(), TimeZone.UTC);
     switch (data.getAccuracy()) {
+      case MINUTE:
+        return new Expiry(zdt, ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR);
+      case HOUR:
+        return new Expiry(zdt, ExpiryAccuracy.HOUR_DAY_MONTH_YEAR);
       case DAY:
         return new Expiry(zdt, ExpiryAccuracy.DAY_MONTH_YEAR);
       case MONTH:

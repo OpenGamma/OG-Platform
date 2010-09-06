@@ -7,9 +7,12 @@ package com.opengamma.util.time;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
+import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * An indication of when something expires.
@@ -35,10 +38,11 @@ public class Expiry implements InstantProvider {
 
   /**
    * Creates an expiry with an accuracy.
-   * @param expiry  the expiry date-time
+   * @param expiry  the expiry date-time, not-null
    * @param accuracy  the accuracy
    */
   public Expiry(final ZonedDateTime expiry, final ExpiryAccuracy accuracy) {
+    ArgumentChecker.notNull(expiry, "expiry");
     _expiry = expiry;
     _accuracy = accuracy;
   }
@@ -69,10 +73,14 @@ public class Expiry implements InstantProvider {
   //-------------------------------------------------------------------------
   @Override
   public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
     if (!(obj instanceof Expiry)) {
       return false;
     }
     final Expiry other = (Expiry) obj;
+    //REVIEW Yomi 20100905 expiry should not be null to start with
     if (getExpiry() == null) {
       return (other.getExpiry() == null);
     }
@@ -90,28 +98,32 @@ public class Expiry implements InstantProvider {
       }
     }
     // Only compare to the accuracy agreed
+    //REVIEW Yomi 20100905 is above "getExpiry().equalInstant(other.getExpiry()" not testing the same?
     if (getAccuracy() == null) {
       return ObjectUtils.equals(getExpiry(), other.getExpiry());
     }
+    // convert both to UTC to compare with accuracy
+    ZonedDateTime utc = ZonedDateTime.ofInstant(toInstant(), TimeZone.UTC);
+    ZonedDateTime otherUtc = ZonedDateTime.ofInstant(other.toInstant(), TimeZone.UTC);
     switch (getAccuracy()) {
       case MIN_HOUR_DAY_MONTH_YEAR:
-        return (getExpiry().getMinuteOfHour() == other.getExpiry().getMinuteOfHour()) 
-          && (getExpiry().getHourOfDay() == other.getExpiry().getHourOfDay()) 
-          && (getExpiry().getDayOfMonth() == other.getExpiry().getDayOfMonth()) 
-          && (getExpiry().getMonthOfYear() == other.getExpiry().getMonthOfYear())
-          && (getExpiry().getYear() == other.getExpiry().getYear());
+        return (utc.getMinuteOfHour() == otherUtc.getMinuteOfHour()) 
+          && (utc.getHourOfDay() == otherUtc.getHourOfDay()) 
+          && (utc.getDayOfMonth() == otherUtc.getDayOfMonth()) 
+          && (utc.getMonthOfYear() == otherUtc.getMonthOfYear())
+          && (utc.getYear() == otherUtc.getYear());
       case HOUR_DAY_MONTH_YEAR:
-        return (getExpiry().getHourOfDay() == other.getExpiry().getHourOfDay()) 
-          && (getExpiry().getDayOfMonth() == other.getExpiry().getDayOfMonth()) 
-          && (getExpiry().getMonthOfYear() == other.getExpiry().getMonthOfYear())
-          && (getExpiry().getYear() == other.getExpiry().getYear());
+        return (utc.getHourOfDay() == otherUtc.getHourOfDay()) 
+          && (utc.getDayOfMonth() == otherUtc.getDayOfMonth()) 
+          && (utc.getMonthOfYear() == otherUtc.getMonthOfYear())
+          && (utc.getYear() == otherUtc.getYear());
       case DAY_MONTH_YEAR:
-        return (getExpiry().getDayOfMonth() == other.getExpiry().getDayOfMonth()) && (getExpiry().getMonthOfYear() == other.getExpiry().getMonthOfYear())
-            && (getExpiry().getYear() == other.getExpiry().getYear());
+        return (utc.getDayOfMonth() == otherUtc.getDayOfMonth()) && (utc.getMonthOfYear() == otherUtc.getMonthOfYear())
+            && (utc.getYear() == otherUtc.getYear());
       case MONTH_YEAR:
-        return (getExpiry().getMonthOfYear() == other.getExpiry().getMonthOfYear()) && (getExpiry().getYear() == other.getExpiry().getYear());
+        return (utc.getMonthOfYear() == otherUtc.getMonthOfYear()) && (utc.getYear() == otherUtc.getYear());
       case YEAR:
-        return (getExpiry().getYear() == other.getExpiry().getYear());
+        return (utc.getYear() == otherUtc.getYear());
     }
     return false;
   }
