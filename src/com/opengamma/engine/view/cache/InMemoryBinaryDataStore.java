@@ -16,8 +16,6 @@ import java.util.concurrent.ConcurrentMap;
 public class InMemoryBinaryDataStore extends AbstractBinaryDataStore implements BinaryDataStore {
   private final ConcurrentMap<Long, byte[]> _underlyingMap = new ConcurrentHashMap<Long, byte[]>();
 
-  // promote a Factory to top level for this
-
   @Override
   public void delete() {
     // Technically we don't have to do anything here. But just in case this isn't reclaimed

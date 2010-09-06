@@ -18,13 +18,14 @@ import com.opengamma.engine.view.cache.msg.CacheMessage;
 import com.opengamma.engine.view.cache.msg.IdentifierMapRequest;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionReceiver;
+import com.opengamma.transport.FudgeConnectionStateListener;
 import com.opengamma.transport.FudgeMessageReceiver;
 
 /**
  * Composite server class for dispatching calls to a {@link IdentifierMapServer} and 
  * {@link BinaryDataStoreServer} within the same JVM.
  */
-public class ViewComputationCacheServer implements FudgeConnectionReceiver {
+public class ViewComputationCacheServer implements FudgeConnectionReceiver, FudgeConnectionStateListener {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewComputationCacheServer.class);
 
@@ -87,6 +88,7 @@ public class ViewComputationCacheServer implements FudgeConnectionReceiver {
   @Override
   public void connectionReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope message, final FudgeConnection connection) {
     handleMessage(connection, fudgeContext, message);
+    getBinaryDataStore().onNewConnection(connection);
     connection.setFudgeMessageReceiver(new FudgeMessageReceiver() {
 
       @Override
@@ -95,6 +97,16 @@ public class ViewComputationCacheServer implements FudgeConnectionReceiver {
       }
 
     });
+  }
+
+  @Override
+  public void connectionFailed(final FudgeConnection connection, Exception cause) {
+    getBinaryDataStore().onDroppedConnection(connection);
+  }
+
+  @Override
+  public void connectionReset(final FudgeConnection connection) {
+    // Shouldn't happen
   }
 
 }

@@ -147,16 +147,16 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
   public void onReleaseCaches(final String viewName, final long timestamp) {
     final MutableFudgeFieldContainer message = getUnderlying().getFudgeContext().newMessage();
     new ReleaseCacheMessage(viewName, timestamp).toFudgeMsg(getUnderlying().getFudgeContext(), message);
-    FudgeSerializationContext.addClassHeader(message, message.getClass(), CacheMessage.class);
-    final FudgeFieldContainer releaseCacheMessage = new ReleaseCacheMessage(viewName, timestamp).toFudgeMsg(getUnderlying().getFudgeContext());
+    FudgeSerializationContext.addClassHeader(message, ReleaseCacheMessage.class, CacheMessage.class);
     for (Map.Entry<FudgeConnection, Object> connectionEntry : getConnections().entrySet()) {
       final FudgeConnection connection = connectionEntry.getKey();
+      s_logger.debug("onReleaseCaches - {}/{} on {}", new Object[] {viewName, timestamp, connection});
       _executorService.execute(new Runnable() {
 
         @Override
         public void run() {
           s_logger.debug("Releasing {}/{} on connection {}", new Object[] {viewName, timestamp, connection});
-          connection.getFudgeMessageSender().send(releaseCacheMessage);
+          connection.getFudgeMessageSender().send(message);
         }
 
       });
@@ -177,11 +177,19 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
     }
   }
 
+  protected void onNewConnection(final FudgeConnection connection) {
+    getConnections().put(connection, EMPTY_ARRAY);
+  }
+
+  protected void onDroppedConnection(final FudgeConnection connection) {
+    getConnections().remove(connection);
+  }
+
   @Override
   public void connectionReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope message, final FudgeConnection connection) {
     s_logger.info("New connection from {}", connection);
     connection.setConnectionStateListener(this);
-    getConnections().put(connection, EMPTY_ARRAY);
+    onNewConnection(connection);
     handleMessage(connection, fudgeContext, message);
     connection.setFudgeMessageReceiver(new FudgeMessageReceiver() {
 
@@ -196,7 +204,7 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
   @Override
   public void connectionFailed(final FudgeConnection connection, final Exception cause) {
     s_logger.info("Dropped connection from {}", connection);
-    getConnections().remove(connection);
+    onDroppedConnection(connection);
   }
 
   @Override
