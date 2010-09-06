@@ -28,7 +28,7 @@ public class FudgeSecurityEncodingTest extends SecurityTestCase {
     final FudgeSerializationContext context = new FudgeSerializationContext(s_fudgeContext);
     FudgeFieldContainer msg = context.objectToFudgeMsg(security);
     s_logger.debug("Security {}", security);
-    s_logger.debug("Encoded to {}", security);
+    s_logger.debug("Encoded to {}", msg);
     final byte[] bytes = s_fudgeContext.toByteArray(msg);
     msg = s_fudgeContext.deserialize(bytes).getMessage();
     s_logger.debug("Serialised to to {}", msg);

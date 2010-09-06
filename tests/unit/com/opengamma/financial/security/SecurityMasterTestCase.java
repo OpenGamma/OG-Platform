@@ -41,6 +41,7 @@ public class SecurityMasterTestCase extends SecurityTestCase {
   }
 
   private UniqueIdentifier putSecurity(final Security security) {
+    s_logger.debug("putting security = {}", security);
     SecurityDocument document = new SecurityDocument();
     document.setSecurity(security);
     document = _secMaster.add(document);

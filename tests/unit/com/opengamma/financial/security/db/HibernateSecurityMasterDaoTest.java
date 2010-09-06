@@ -31,6 +31,7 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.time.calendar.TimeZone;
 
 import org.hibernate.SessionFactory;
 import org.junit.After;
@@ -688,7 +689,11 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
       cal.set(Calendar.YEAR, 2010);
       cal.set(Calendar.MONTH, Calendar.OCTOBER);
       cal.set(Calendar.DAY_OF_MONTH, 16);
-      expiry.setDate(cal.getTime());
+//      expiry.setDate(cal.getTime());
+      ZonedDateTimeBean zonedDateTimeBean = new ZonedDateTimeBean();
+      zonedDateTimeBean.setDate(cal.getTime());
+      zonedDateTimeBean.setZone(TimeZone.UTC.getID());
+      expiry.setExpiry(zonedDateTimeBean);
       expiry.setAccuracy(ExpiryAccuracy.DAY_MONTH_YEAR);
       
       OptionSecurityBean equityOptionBean = new OptionSecurityBean();
