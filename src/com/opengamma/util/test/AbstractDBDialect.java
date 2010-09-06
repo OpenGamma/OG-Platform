@@ -50,7 +50,7 @@ public abstract class AbstractDBDialect implements DBDialect {
   }
   
   @Override
-  public void shutdown() {
+  public void shutdown(String catalog) {
     // By default, do nothing
   }
 
