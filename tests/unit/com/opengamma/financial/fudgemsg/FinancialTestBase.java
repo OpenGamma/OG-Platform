@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.world.region.DefaultRegionSource;
-import com.opengamma.financial.world.region.InMemoryRegionRepository;
+import com.opengamma.financial.world.region.InMemoryRegionMaster;
 import com.opengamma.financial.world.region.RegionFileReader;
 import com.opengamma.financial.world.region.RegionMaster;
 import com.opengamma.financial.world.region.RegionSource;
@@ -40,7 +40,7 @@ public class FinancialTestBase {
   @Before
   public void createFudgeContext() {
     _fudgeContext = OpenGammaFudgeContext.getInstance();
-    RegionMaster regionMaster = new InMemoryRegionRepository();
+    RegionMaster regionMaster = new InMemoryRegionMaster();
     RegionFileReader.populateMaster(regionMaster, new File(RegionFileReader.REGIONS_FILE_PATH));
     _regionSource = new DefaultRegionSource(regionMaster);
   }

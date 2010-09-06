@@ -23,7 +23,7 @@ import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfig
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.world.region.DefaultRegionSource;
-import com.opengamma.financial.world.region.InMemoryRegionRepository;
+import com.opengamma.financial.world.region.InMemoryRegionMaster;
 import com.opengamma.financial.world.region.RegionFileReader;
 import com.opengamma.financial.world.region.RegionMaster;
 import com.opengamma.financial.world.region.RegionSource;
@@ -66,7 +66,7 @@ public class CurveConfigurationSetupHelper {
     mongoDBMasterConfigSource.addConfigMaster(CurveSpecificationBuilderConfiguration.class, curveSpecificationBuilderConfigMaster);
     _configSource = mongoDBMasterConfigSource;
     
-    RegionMaster regionMaster = new InMemoryRegionRepository();
+    RegionMaster regionMaster = new InMemoryRegionMaster();
     RegionFileReader.populateMaster(regionMaster, new File(RegionFileReader.REGIONS_FILE_PATH));
     RegionSource regionSource = new DefaultRegionSource(regionMaster);
     _regionSource = regionSource;

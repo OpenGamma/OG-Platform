@@ -14,7 +14,6 @@ import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEWPR
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEWPROCESSOR_LIVECOMPUTINGVIEWNAMES;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEWPROCESSOR_ONEOFFCOMPUTATIONSUPPORTED;
 
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -36,12 +35,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.view.ViewProcessor;
-import com.opengamma.engine.view.ViewProcessorImpl;
-import com.opengamma.engine.view.client.LocalViewProcessorClient;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewProcessorClient;
-import com.opengamma.transport.jaxrs.FudgeFieldContainerBrowser;
 import com.opengamma.transport.jms.JmsByteArrayMessageSenderService;
 import com.opengamma.util.ArgumentChecker;
 
@@ -152,25 +147,6 @@ public class ViewProcessorResource {
     } catch (NoSuchElementException e) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
-  }
-
-  @Path("configuration")
-  public FudgeFieldContainerBrowser getConfigurationResource() {
-    if (!(getViewProcessorClient() instanceof LocalViewProcessorClient)) {
-      return null;
-    }
-    // TODO DVI-101 -- configurationResource should be moved, which will remove these casts
-    final ViewProcessor vp = ((LocalViewProcessorClient) getViewProcessorClient()).getViewProcessor();
-    Map<String, Object> configurationResource = ((ViewProcessorImpl) vp).getConfigurationResource();
-    if (configurationResource == null) {
-      return null;
-    }
-    final FudgeSerializationContext context = getFudgeSerializationContext();
-    final MutableFudgeFieldContainer message = context.newMessage();
-    for (Map.Entry<String, Object> config : configurationResource.entrySet()) {
-      context.objectToFudgeMsg(message, config.getKey(), null, config.getValue());
-    }
-    return new FudgeFieldContainerBrowser(message);
   }
 
   private ConcurrentMap<String, ResultListener> getListeners() {

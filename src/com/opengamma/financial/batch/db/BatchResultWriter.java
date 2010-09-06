@@ -50,6 +50,7 @@ import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.DependencyGraphExecutor;
+import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
@@ -896,8 +897,8 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
   }
 
   @Override
-  public Future<Object> execute(DependencyGraph graph) {
-    BatchResultWriterCallable runnable = new BatchResultWriterCallable(graph);
+  public Future<Object> execute(DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
+    BatchResultWriterCallable runnable = new BatchResultWriterCallable(graph, statistics);
     return _executor.submit(runnable);
   }
   
@@ -943,18 +944,20 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
   }
   
   private class BatchResultWriterCallable implements Callable<Object> {
-    private DependencyGraph _graph;
+    private final DependencyGraph _graph;
+    private final GraphExecutorStatisticsGatherer _statistics;
     
-    public BatchResultWriterCallable(DependencyGraph graph) {
+    public BatchResultWriterCallable(DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
       ArgumentChecker.notNull(graph, "Graph");
       _graph = graph;
+      _statistics = statistics;
     }
 
     @Override
     public Object call() {
       DependencyGraph subGraph = getGraphToExecute(_graph);
       
-      Future<CalculationJobResult> future = _delegate.execute(subGraph);
+      Future<CalculationJobResult> future = _delegate.execute(subGraph, _statistics);
       
       CalculationJobResult result;
       try {
