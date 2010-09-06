@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.fudgemsg.FudgeField;
@@ -43,11 +44,10 @@ public class CalculationJob implements Serializable {
   private final CacheSelectHint _cacheSelect;
 
   /**
-   * The tail is a job that must execute at the same location. It is not however part of the job so is not
+   * The tail is a set of jobs that must execute at the same location. It is not however part of the job so is not
    * serialized.
    */
-  // TODO make the tail a set of jobs
-  private CalculationJob _tail;
+  private Collection<CalculationJob> _tail;
 
   public CalculationJob(String viewName, String calcConfigName, long iterationTimestamp, long jobId, List<CalculationJobItem> jobItems, final CacheSelectHint cacheSelect) {
     this(new CalculationJobSpecification(viewName, calcConfigName, iterationTimestamp, jobId), null, jobItems, cacheSelect);
@@ -89,12 +89,15 @@ public class CalculationJob implements Serializable {
     return Collections.unmodifiableList(_jobItems);
   }
 
-  public CalculationJob getTail() {
+  public Collection<CalculationJob> getTail() {
     return _tail;
   }
 
-  public void setTail(final CalculationJob tail) {
-    _tail = tail;
+  public void addTail(final CalculationJob tail) {
+    if (_tail == null) {
+      _tail = new LinkedList<CalculationJob>();
+    }
+    _tail.add(tail);
   }
 
   /**
