@@ -72,7 +72,7 @@ import com.opengamma.util.tuple.Pair;
  * <p>
  * Expects the subclass to provide a map for specific database SQL queries
  */
-public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
+public class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
   
   private static final String DEACTIVATE_META_DATA = "deactivateMetaData";
   private static final String DELETE_DATA_POINT = "deleteDataPoint";
@@ -171,17 +171,23 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
   private DataSourceTransactionManager _transactionManager;
   private SimpleJdbcTemplate _simpleJdbcTemplate;
   private Map<String, String> _namedSQLMap;
+  private final boolean _isTriggerSupported;
 
-  public RowStoreTimeSeriesMaster(DataSourceTransactionManager transactionManager, Map<String, String> namedSQLMap) {
+  public RowStoreTimeSeriesMaster(DataSourceTransactionManager transactionManager, 
+      Map<String, String> namedSQLMap,
+      boolean isTriggerSupported) {
     ArgumentChecker.notNull(transactionManager, "transactionManager");
     _transactionManager = transactionManager;
     DataSource dataSource = _transactionManager.getDataSource();
     _simpleJdbcTemplate = new SimpleJdbcTemplate(dataSource);   
     checkNamedSQLMap(namedSQLMap);
     _namedSQLMap = Collections.unmodifiableMap(namedSQLMap);
+    _isTriggerSupported = isTriggerSupported;
   }
   
-  protected abstract boolean isTriggerSupported();
+  public boolean isTriggerSupported() {
+    return _isTriggerSupported;
+  }
   
   @Override
   public List<IdentifierBundle> getAllIdentifiers() {
@@ -210,18 +216,7 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     if (bundleBean.getIds().size() == 1) {
       //check there are no timeseries with same metadata
       bundleId = bundleBean.getIds().iterator().next();
-      s_logger.debug("Looking up timeSeriesMetaData by quotedObj for identifiers={}, dataSource={}, dataProvider={}, dataField={}, observationTime={}, bundleId={}", 
-          new Object[]{identifiers, dataSource, dataProvider, field, observationTime, bundleId});
-      
-      String sql = _namedSQLMap.get(GET_ACTIVE_META_DATA_BY_PARAMETERS);
-      
-      MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("bundleId", bundleId, Types.BIGINT)
-        .addValue("dataSource", dataSource, Types.VARCHAR)
-        .addValue("dataField", field, Types.VARCHAR)
-        .addValue("dataProvider", dataProvider, Types.VARCHAR)
-        .addValue("observationTime", observationTime, Types.VARCHAR);
-      
-      List<TimeSeriesMetaData> tsMetaDataList = _simpleJdbcTemplate.query(sql, new TimeSeriesMetaDataRowMapper(), parameters);
+      List<TimeSeriesMetaData> tsMetaDataList = getTimeSeriesMetaData(bundleId, identifiers, dataSource, dataProvider, field, observationTime);
       if (!tsMetaDataList.isEmpty()) {
         throw new IllegalArgumentException("cannot add duplicate TimeSeries for identifiers " + identifiers);
       }
@@ -425,8 +420,7 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
       .addValue("dataSource", dataSource, Types.VARCHAR)
       .addValue("dataProvider", dataProvider, Types.VARCHAR)
       .addValue("dataField", dataField, Types.VARCHAR)
-      .addValue("observationTime", observationTime, Types.VARCHAR)
-      .addValue("quotedObject", null);
+      .addValue("observationTime", observationTime, Types.VARCHAR);
       
     try {
       result = _simpleJdbcTemplate.queryForInt(sql, parameterSource);
@@ -501,15 +495,26 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
   }
     
   private DoubleTimeSeries<Date> loadTimeSeries(long timeSeriesKey, LocalDate start, LocalDate end) {
+    String sql = _namedSQLMap.get(LOAD_TIME_SERIES_WITH_DATES);
     MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("timeSeriesKey", timeSeriesKey, Types.INTEGER);
-    parameters.addValue("startDate", start != null ? toSQLDate(start) : null, Types.DATE);
-    parameters.addValue("endDate", end != null ? toSQLDate(end) : null, Types.DATE);
+    
+    if (start != null) {
+      sql += " AND ts_date >= :startDate";
+      parameters.addValue("startDate", toSQLDate(start), Types.DATE);
+    }
+    
+    if (end != null) {
+      sql += " AND ts_date < :endDate";
+      parameters.addValue("endDate", toSQLDate(end), Types.DATE);
+    }
+    
+    sql += " ORDER BY ts_date";
     
     final List<Date> dates = new LinkedList<Date>();
     final List<Double> values = new LinkedList<Double>();
     
     NamedParameterJdbcOperations parameterJdbcOperations = _simpleJdbcTemplate.getNamedParameterJdbcOperations();
-    parameterJdbcOperations.query(_namedSQLMap.get(LOAD_TIME_SERIES_WITH_DATES), parameters, new RowCallbackHandler() {
+    parameterJdbcOperations.query(sql, parameters, new RowCallbackHandler() {
       
       @Override
       public void processRow(ResultSet rs) throws SQLException {
@@ -1005,18 +1010,7 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
           String dataField = request.getDataField();
           String observationTime = request.getObservationTime();
           
-          s_logger.debug("Looking up timeSeriesMetaData by quotedObj for identifiers={}, dataSource={}, dataProvider={}, dataField={}, observationTime={}, bundleId={}", 
-              new Object[]{identifiers, dataSource, dataProvider, dataField, observationTime, bundleId});
-          
-          String sql = _namedSQLMap.get(GET_ACTIVE_META_DATA_BY_PARAMETERS);
-          
-          MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("bundleId", bundleId, Types.BIGINT)
-            .addValue("dataSource", dataSource, Types.VARCHAR)
-            .addValue("dataField", dataField, Types.VARCHAR)
-            .addValue("dataProvider", dataProvider, Types.VARCHAR)
-            .addValue("observationTime", observationTime, Types.VARCHAR);
-          
-          List<TimeSeriesMetaData> tsMetaDataList = _simpleJdbcTemplate.query(sql, new TimeSeriesMetaDataRowMapper(), parameters);
+          List<TimeSeriesMetaData> tsMetaDataList = getTimeSeriesMetaData(bundleId, identifiers, dataSource, dataProvider, dataField, observationTime);
           for (TimeSeriesMetaData tsMetaData : tsMetaDataList) {
             TimeSeriesDocument document = new TimeSeriesDocument();
             long timeSeriesKey = tsMetaData.getTimeSeriesId();
@@ -1036,6 +1030,38 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
       }
     }
     return result;
+  }
+
+  private List<TimeSeriesMetaData> getTimeSeriesMetaData(long bundleId, IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField, String observationTime) {
+    s_logger.debug("Looking up timeSeriesMetaData by quotedObj for identifiers={}, dataSource={}, dataProvider={}, dataField={}, observationTime={}, bundleId={}", 
+        new Object[]{identifiers, dataSource, dataProvider, dataField, observationTime, bundleId});
+    
+    String sql = _namedSQLMap.get(GET_ACTIVE_META_DATA_BY_PARAMETERS);
+    
+    MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("bundleId", bundleId, Types.BIGINT);
+    
+    if (dataSource != null) {
+      sql += " AND ds.name = :dataSource";
+      parameters.addValue("dataSource", dataSource, Types.VARCHAR);
+    }
+    
+    if (dataField != null) {
+      sql += " AND df.name = :dataField"; 
+      parameters.addValue("dataField", dataField, Types.VARCHAR); 
+    }
+    
+    if (dataProvider != null) {
+      sql += " AND dp.name = :dataProvider";
+      parameters.addValue("dataProvider", dataProvider, Types.VARCHAR);
+    }
+    
+    if (observationTime != null) {
+      sql += " AND ot.name = :observationTime";
+      parameters.addValue("observationTime", observationTime, Types.VARCHAR);
+    }
+    
+    List<TimeSeriesMetaData> tsMetaDataList = _simpleJdbcTemplate.query(sql, new TimeSeriesMetaDataRowMapper(), parameters);
+    return tsMetaDataList;
   }
 
   @Override

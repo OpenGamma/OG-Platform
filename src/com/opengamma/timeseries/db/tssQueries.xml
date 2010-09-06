@@ -84,8 +84,8 @@
         					JOIN tss_data_provider as dp ON tskey.data_provider_id = dp.id
         					JOIN tss_data_field as df ON tskey.data_field_id = df.id
         					JOIN tss_observation_time as ot ON tskey.observation_time_id = ot.id
-        					WHERE ds.name = :dataSource AND dp.name = :dataProvider AND df.name = :dataField AND ot.name = :observationTime
-        					AND (:quotedObject IS NULL OR qo.name = :quotedObject) AND (:bundleId IS NULL OR qo.id = :bundleId)
+        					WHERE ds.name = :dataSource AND dp.name = :dataProvider AND df.name = :dataField 
+        					AND ot.name = :observationTime AND qo.id = :bundleId
         				]]>
         			</value>
         		</entry>
@@ -110,10 +110,6 @@
         					JOIN tss_data_field as df ON tskey.data_field_id = df.id
         					JOIN tss_observation_time ot ON tskey.observation_time_id = ot.id
         					WHERE tskey.bundle_id = :bundleId 
-        					AND (:dataSource IS NULL OR ds.name = :dataSource) 
-        					AND (:dataProvider IS NULL OR dp.name = :dataProvider) 
-        					AND (:dataField IS NULL OR df.name = :dataField) 
-        					AND (:observationTime IS NULL OR ot.name = :observationTime)
         					AND tsKey.active = 1
         				]]>
         			</value>
@@ -187,9 +183,6 @@
         					SELECT ts_date, value 
         					FROM tss_data_point 
         					WHERE meta_data_id = :timeSeriesKey 
-        					AND (:startDate IS NULL OR ts_date >= :startDate)  
-        					AND (:endDate IS NULL OR ts_date < :endDate) 
-        					ORDER BY ts_date
         				]]>
         			</value>
         		</entry>
