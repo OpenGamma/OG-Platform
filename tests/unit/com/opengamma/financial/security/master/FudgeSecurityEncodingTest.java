@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security;
+package com.opengamma.financial.security.master;
 
 import static org.junit.Assert.fail;
 
