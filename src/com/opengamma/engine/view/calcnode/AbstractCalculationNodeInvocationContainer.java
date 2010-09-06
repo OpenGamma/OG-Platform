@@ -289,7 +289,7 @@ public abstract class AbstractCalculationNodeInvocationContainer {
         }
       }
       s_logger.debug("Returning calculation node to pool");
-      addNode(node);
+      getNodes().add(node);
       node = null;
       if (result != null) {
         jobexec.getReceiver().executionComplete(result);

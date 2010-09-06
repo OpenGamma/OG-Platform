@@ -83,6 +83,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
       // TODO [ENG-201] pass cycle cost, not graph size
       statistics.graphProcessed(graph.getCalcConfName(), 1, graph.getSize(), graph.getSize());
       final RootGraphFragment fragment = new RootGraphFragment(context, statistics, graph.getExecutionOrder());
+      context.allocateFragmentMap(1);
       fragment.executeImpl();
       return fragment;
     }
