@@ -16,9 +16,9 @@ import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
+import com.opengamma.financial.master.db.DbMasterTestUtils;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.time.DateUtil;
 
@@ -30,7 +30,6 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbSecurityMasterWorkerTest.class);
 
-  private ConfigurableApplicationContext _springApplicationContext;
   protected DbSecurityMaster _secMaster;
   protected Instant _version1Instant;
   protected Instant _version2Instant;
@@ -45,9 +44,8 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    final String contextLocation =  "config/test-master-context.xml";
-    _springApplicationContext = new FileSystemXmlApplicationContext(contextLocation);
-    _secMaster = (DbSecurityMaster) _springApplicationContext.getBean(getDatabaseType() + "DbSecurityMaster");
+    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
+    _secMaster = (DbSecurityMaster) context.getBean(getDatabaseType() + "DbSecurityMaster");
     
 //    id bigint not null,
 //    oid bigint not null,
@@ -100,8 +98,6 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
 
   @After
   public void tearDown() throws Exception {
-    _springApplicationContext.close();
-    _springApplicationContext = null;
     _secMaster = null;
     super.tearDown();
   }

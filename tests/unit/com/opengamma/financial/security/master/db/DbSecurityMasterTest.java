@@ -15,11 +15,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.GICSCode;
+import com.opengamma.financial.master.db.DbMasterTestUtils;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.master.SecurityDocument;
 import com.opengamma.id.Identifier;
@@ -44,9 +44,8 @@ public class DbSecurityMasterTest extends DBTest {
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    final String contextLocation = "config/test-master-context.xml";
-    final ApplicationContext context = new FileSystemXmlApplicationContext(contextLocation);
-    _secMaster = (DbSecurityMaster) context.getBean(getDatabaseType()+"DbSecurityMaster");
+    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
+    _secMaster = (DbSecurityMaster) context.getBean(getDatabaseType() + "DbSecurityMaster");
   }
 
   @After

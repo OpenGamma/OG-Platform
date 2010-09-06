@@ -10,9 +10,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 
+import com.opengamma.financial.master.db.DbMasterTestUtils;
 import com.opengamma.financial.security.db.BusinessDayConventionBean;
 import com.opengamma.financial.security.db.CurrencyBean;
 import com.opengamma.financial.security.db.DayCountBean;
@@ -75,13 +75,10 @@ public class DbSecurityMasterRandomTest extends HibernateTest implements Securit
   @Before
   public void setUp() throws Exception {
     super.setUp();
+    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
+    DbSecurityMaster secMaster = (DbSecurityMaster) context.getBean(getDatabaseType() + "DbSecurityMaster");
 //    final RegionMaster regionRepository = new InMemoryRegionRepository();
 //    RegionFileReader.populateMaster(regionRepository, new File(RegionFileReader.REGIONS_FILE_PATH));
-    
-    final String contextLocation = "config/test-master-context.xml";
-    final ApplicationContext context = new FileSystemXmlApplicationContext(contextLocation);
-    
-    DbSecurityMaster secMaster = (DbSecurityMaster) context.getBean(getDatabaseType()+"DbSecurityMaster");
     s_logger.debug("SecMaster initialization complete {}", secMaster);
     _testCase = new SecurityMasterTestCase(secMaster);
   }
