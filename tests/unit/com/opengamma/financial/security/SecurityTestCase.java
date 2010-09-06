@@ -99,7 +99,7 @@ import com.opengamma.financial.security.swap.SecurityNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.world.region.DefaultRegionSource;
-import com.opengamma.financial.world.region.InMemoryRegionRepository;
+import com.opengamma.financial.world.region.InMemoryRegionMaster;
 import com.opengamma.financial.world.region.Region;
 import com.opengamma.financial.world.region.RegionFileReader;
 import com.opengamma.financial.world.region.RegionMaster;
@@ -182,7 +182,7 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
   
   private static RegionSource s_regionSource;
   static {
-    RegionMaster regionMaster = new InMemoryRegionRepository();
+    RegionMaster regionMaster = new InMemoryRegionMaster();
     RegionFileReader.populateMaster(regionMaster, new File(RegionFileReader.REGIONS_FILE_PATH));
     s_regionSource = new DefaultRegionSource(regionMaster);
   }
@@ -463,8 +463,8 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
     s_dataProviders.put(Region.class, new TestDataProvider<Region>() {
       @Override
       public void getValues(final Collection<Region> values) {
-        values.add(getRegionSource().getHighestLevelRegion(Identifier.of(InMemoryRegionRepository.ISO_COUNTRY_2, "US")));
-        values.add(getRegionSource().getHighestLevelRegion(Identifier.of(InMemoryRegionRepository.NAME_COLUMN, "United Kingdom")));
+        values.add(getRegionSource().getHighestLevelRegion(Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, "US")));
+        values.add(getRegionSource().getHighestLevelRegion(Identifier.of(InMemoryRegionMaster.NAME_COLUMN, "United Kingdom")));
       }
     });
     s_dataProviders.put(Notional.class, new TestDataProvider<Notional>() {

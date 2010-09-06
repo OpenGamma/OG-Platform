@@ -6,11 +6,9 @@
 --
 -- Please do not modify it - modify the originals and recreate this using 'ant create-db-sql'.
 
-    create table hibernate_sequence (
-         next_val bigint
-    );
 
-    insert into hibernate_sequence values ( 1 );
+    create sequence hibernate_sequence start with 1 increment by 1;
+
 
 -- create-db-security.sql: Security Master
 
@@ -72,7 +70,7 @@ create table sec_gics (
 create table sec_equity (
     id bigint not null,
     effectiveDateTime timestamp not null,
-    deleted smallint not null,
+    deleted boolean not null,
     lastModifiedDateTime timestamp not null,
     lastModifiedBy varchar(255),
     displayName varchar(255) not null,
@@ -93,7 +91,7 @@ create table sec_equity (
 create table sec_option (
     id bigint not null,
     effectiveDateTime timestamp not null,
-    deleted smallint not null,
+    deleted boolean not null,
     lastModifiedDateTime timestamp not null,
     lastModifiedBy varchar(255),
     displayName varchar(255) not null,
@@ -105,7 +103,7 @@ create table sec_option (
     option_type varchar(32) not null,
     strike double precision not null,
     expiry_date timestamp not null,
-    expiry_accuracy smallint not null,
+    expiry_accuracy SMALLINT not null,
     underlying_scheme varchar(255) not null,
     underlying_identifier varchar(255) not null,
     currency_id bigint not null,
@@ -115,7 +113,7 @@ create table sec_option (
     counterparty varchar(255),
     power double precision,
     cap double precision,
-    margined smallint,
+    margined boolean,
     pointValue double precision,
     payment double precision,
     lowerbound double precision,
@@ -125,7 +123,7 @@ create table sec_option (
     underlyingstrike double precision,
     underlyingexpiry_date timestamp,
     underlyingexpiry_accuracy smallint,
-    reverse smallint,
+    reverse boolean,
     primary key (id),
     constraint sec_fk_option2option foreign key (first_version_id) references sec_option (id),
     constraint sec_fk_option2currency foreign key (currency_id) references sec_currency (id),
@@ -185,7 +183,7 @@ create table sec_coupontype (
 create table sec_bond (
     id bigint not null,
     effectiveDateTime timestamp not null,
-    deleted smallint not null,
+    deleted boolean not null,
     lastModifiedDateTime timestamp not null,
     lastModifiedBy varchar(255),
     displayName varchar(255) not null,
@@ -200,7 +198,7 @@ create table sec_bond (
     yieldconvention_id bigint not null,
     guaranteetype_id bigint not null,
     maturity_date timestamp not null,
-    maturity_accuracy smallint not null,
+    maturity_accuracy SMALLINT not null,
     coupontype_id bigint not null,
     couponrate double precision not null,
     couponfrequency_id bigint not null,
@@ -236,7 +234,7 @@ create table sec_bond (
 create table sec_future (
     id bigint not null,
     effectiveDateTime timestamp not null,
-    deleted smallint not null,
+    deleted boolean not null,
     lastModifiedDateTime timestamp not null,
     lastModifiedBy varchar(255),
     displayName varchar(255) not null,
@@ -244,7 +242,7 @@ create table sec_future (
     first_version_id bigint,
     future_type varchar(32) not null,
     expiry_date timestamp not null,
-    expiry_accuracy smallint not null,
+    expiry_accuracy SMALLINT not null,
     tradingexchange_id bigint not null,
     settlementexchange_id bigint not null,
     currency1_id bigint,
@@ -275,7 +273,7 @@ create table sec_futurebundle (
     future_id bigint not null,
     startDate timestamp,
     endDate timestamp,
-    conversionFactor double not null,
+    conversionFactor double precision not null,
     primary key (id),
     constraint sec_fk_futurebundle2future foreign key (future_id) references sec_future (id)
 );
@@ -291,7 +289,7 @@ create table sec_futurebundleidentifier (
 create table sec_cash (
     id bigint not null,
     effectiveDateTime timestamp not null,
-    deleted smallint not null,
+    deleted boolean not null,
     lastModifiedDateTime timestamp not null,
     lastModifiedBy varchar(255),
     displayName varchar(255) not null,
@@ -308,7 +306,7 @@ create table sec_cash (
 create table sec_fra (
     id bigint not null,
     effectiveDateTime timestamp not null,
-    deleted smallint not null,
+    deleted boolean not null,
     lastModifiedDateTime timestamp not null,
     lastModifiedBy varchar(255),
     displayName varchar(255) not null,
@@ -325,7 +323,7 @@ create table sec_fra (
 create table sec_swap (
     id bigint not null,
     effectiveDateTime timestamp not null,
-    deleted smallint not null,
+    deleted boolean not null,
     lastModifiedDateTime timestamp not null,
     lastModifiedBy varchar(255),
     displayName varchar(255) not null,
@@ -374,6 +372,7 @@ create table sec_swap (
     primary key (id),
     constraint sec_fk_swap2swap foreign key (first_version_id) references sec_swap (id)
 );
+
 -- design has two documents
 --  portfolio and tree of nodes (nested set model)
 --  position and associated security key
@@ -381,7 +380,7 @@ create table sec_swap (
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
-create sequence pos_master_seq as bigint
+create sequence pos_master_seq
     start with 1000 increment by 1 no cycle;
 -- "as bigint" required by Derby, not accepted by Postgresql
 
@@ -442,6 +441,7 @@ create table pos_securitykey (
     constraint pos_fk_securitykey2position foreign key (position_id) references pos_position (id)
 );
 -- pos_securitykey is fully dependent of pos_position
+
 -------------------------------------
 -- Static data
 -------------------------------------
@@ -458,7 +458,7 @@ create table rsk_observation_time (
 create table rsk_observation_datetime (
 	id int not null,
 	date_part date not null,  
-	time_part time,						-- null if time of LDN_CLOSE not fixed yet
+	time_part time null,						-- null if time of LDN_CLOSE not fixed yet
 	observation_time_id int not null,    		  
 	
 	primary key (id),
@@ -507,7 +507,7 @@ create table rsk_opengamma_version (
 );
 
 -- DBTOOLDONOTCLEAR
-create table rsk_computation_target_type ( 
+create table rsk_computation_target_type (
 	id int not null,	 	            
     name varchar(255) not null,
     
@@ -555,7 +555,7 @@ create table rsk_live_data_field (
 create table rsk_live_data_snapshot (
 	id int not null,
 	observation_datetime_id int not null,
-	complete smallint not null,
+	complete boolean not null,
 	
 	primary key (id),
 	
@@ -600,7 +600,7 @@ create table rsk_run (
     start_instant timestamp not null,       -- can be different from create_instant if is run is restarted
     end_instant	timestamp,
     num_restarts int not null,
-    complete smallint not null,
+    complete boolean not null,
     
     primary key (id),
     
@@ -633,15 +633,15 @@ create table rsk_calculation_configuration (
 -- 	- PositionMasterTime = 20100615170000
 --  - GlobalRandomSeed = 54321
 create table rsk_run_property (		
-    id int not null,
-    run_id int not null,
-    property_key varchar(255) not null,
-    property_value varchar(2000) not null,		    -- varchar(255) not enough
+	id int not null,
+	run_id int not null,
+	property_key varchar(255) not null,
+	property_value varchar(2000) not null,		    -- varchar(255) not enough
 	
-    primary key (id),
+	primary key (id),
 
-    constraint fk_rsk_run_property2run 
-        foreign key (run_id) references rsk_run (id)
+	constraint fk_rsk_run_property2run 
+	    foreign key (run_id) references rsk_run (id)
 );
 
 create table rsk_run_status (
@@ -698,6 +698,7 @@ create table rsk_value (
     unique (calculation_configuration_id, value_name_id, computation_target_id)
 );
 
+
 create table rsk_compute_failure (			
     id bigint not null,
     function_id varchar(255) not null,
@@ -751,3 +752,5 @@ create table rsk_failure_reason (
 
    unique (rsk_failure_id, compute_failure_id)
 );
+
+

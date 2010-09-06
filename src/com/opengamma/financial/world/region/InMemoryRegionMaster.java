@@ -36,9 +36,9 @@ import com.opengamma.util.tuple.Pair;
  * In memory implementation of a region repository.  Repository is populated from a CSV file.  
  * THERE IS CURRENTLY NO SUPPORT FOR VERSIONING, THE DATES ARE IGNORED
  */
-public class InMemoryRegionRepository implements RegionMaster {
+public class InMemoryRegionMaster implements RegionMaster {
   // TODO: jim 2-Jul-2010 -- Make this cope with versioning...
-  private static final Logger s_logger = LoggerFactory.getLogger(InMemoryRegionRepository.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(InMemoryRegionMaster.class);
 
   static final String HIERARCHY_COLUMN = "Hierarchy";
   /**
@@ -68,7 +68,7 @@ public class InMemoryRegionRepository implements RegionMaster {
   private Map<String, IdentifierBundleMapper<Region>> _uniqueIdFactories = new HashMap<String, IdentifierBundleMapper<Region>>();
   private Map<String, Map<Pair<String, Object>, SortedSet<Region>>> _fieldIndex = new HashMap<String, Map<Pair<String, Object>, SortedSet<Region>>>();
 
-  public InMemoryRegionRepository() {
+  public InMemoryRegionMaster() {
   }
   
   public void addRegionTree(String hierarchyName, Map<String, RegionDefinition> nameToDef) {

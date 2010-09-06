@@ -5,11 +5,15 @@
  */
 package com.opengamma.financial.world;
 
-import static com.opengamma.financial.world.region.InMemoryRegionRepository.ISO_COUNTRY_2;
+import static com.opengamma.financial.world.region.InMemoryRegionMaster.ISO_COUNTRY_2;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -61,7 +65,13 @@ public class CoppClarkFileReader {
    * Path to exchange trading holiday calendars CSV file
    */
   public static final String EXCHANGE_TRADING_HOLIDAYS_FILE_PATH = HOLIDAYS_DIR_PATH + File.separator + "ExchangeTrading_20100610.csv";
+  
   public static final String EXCHANGE_HOLIDAYS_REPOST_FILE_PATH = RegionFileReader.WORLD_DATA_DIR_PATH + File.separator + "exchanges" + File.separator + "THR_20100630.csv.txt";
+  private static final String VERSION = "20100610";
+  private static final String CURRENCY_HOLIDAYS_RESOURCE = "/com/coppclark/holiday/Currencies_" + VERSION + ".csv";
+  private static final String FINANCIAL_CENTERS_RESOURCE = "/com/coppclark/holiday/FinancialCentres_" + VERSION + ".csv";
+  private static final String EXCHANGE_SETTLEMENT_RESOURCE = "/com/coppclark/holiday/ExchangeSettlement_" + VERSION + ".csv";;
+  private static final String EXCHANGE_TRADING_RESOURCE = "/com/coppclark/holiday/ExchangeTrading_" + VERSION + ".csv";
   
   private HolidayMaster _holidayRepo;
   
@@ -69,22 +79,41 @@ public class CoppClarkFileReader {
   public CoppClarkFileReader(HolidayMaster holidayRepo, File currencies, File financialCenters, File exchangeSettlement, File exchangeTrading) {
     _holidayRepo = holidayRepo;
     try {
-      parseCurrencyFile(currencies);
-      parseFinancialCentersFile(financialCenters);
-      parseExchangeSettlementFile(exchangeSettlement);
-      parseExchangeTradingFile(exchangeTrading);
+      parseCurrencyFile(new FileInputStream(currencies));
+      parseFinancialCentersFile(new FileInputStream(financialCenters));
+      parseExchangeSettlementFile(new FileInputStream(exchangeSettlement));
+      parseExchangeTradingFile(new FileInputStream(exchangeTrading));
     } catch (IOException ioe) {
       throw new OpenGammaRuntimeException("Problem parsing exchange/currency data files", ioe);
     }
   }
   
+  public CoppClarkFileReader(HolidayMaster holidayRepo) {
+    _holidayRepo = holidayRepo;
+  }
+  
   public static HolidaySource createPopulatedHolidaySource(HolidayMaster holidayMaster) {
-    new CoppClarkFileReader(holidayMaster, new File(CURRENCY_HOLIDAYS_FILE_PATH), new File(FINANCIAL_CENTRES_HOLIDAYS_FILE_PATH), 
-                                                         new File(EXCHANGE_SETTLEMENT_HOLIDAYS_FILE_PATH), new File(EXCHANGE_TRADING_HOLIDAYS_FILE_PATH));
+    CoppClarkFileReader fileReader = new CoppClarkFileReader(holidayMaster);
+    InputStream currencyStream = fileReader.getClass().getResourceAsStream(CURRENCY_HOLIDAYS_RESOURCE);
+    InputStream financialCentersStream = fileReader.getClass().getResourceAsStream(FINANCIAL_CENTERS_RESOURCE);
+    InputStream exchangeSettlementStream = fileReader.getClass().getResourceAsStream(EXCHANGE_SETTLEMENT_RESOURCE);
+    InputStream exchangeTradingStream = fileReader.getClass().getResourceAsStream(EXCHANGE_TRADING_RESOURCE);
+    fileReader.parseStreams(currencyStream, financialCentersStream, exchangeSettlementStream, exchangeTradingStream);
     return new DefaultHolidaySource(holidayMaster);
   }
+  
+  public void parseStreams(InputStream currencyStream, InputStream financialCentersStream, InputStream exchangeSettlementStream, InputStream exchangeTradingStream) {
+    try {
+      parseCurrencyFile(currencyStream);
+      parseFinancialCentersFile(financialCentersStream);
+      parseExchangeSettlementFile(exchangeSettlementStream);
+      parseExchangeTradingFile(exchangeTradingStream);
+    } catch (IOException ioe) {
+      throw new OpenGammaRuntimeException("Problem parsing exchange/currency data files", ioe);
+    }
+  }
 
-  private void parseCurrencyFile(File currencyFile) throws IOException {
+  private void parseCurrencyFile(InputStream currencyStream) throws IOException {
     final List<String> columnNames = Arrays.asList(new String[] {"CenterID", "ISOCurrencyCode", "ISOCountryCode", "RelatedFinancialCentre", 
                                                                  "EventYear", "EventDate", "EventDayOfWeek", "EventName", "FileType" });
     final int isoCurrencyIdx = columnNames.indexOf("ISOCurrencyCode");
@@ -92,7 +121,7 @@ public class CoppClarkFileReader {
     
     DateTimeFormatter formatter = DateTimeFormatters.pattern("yyyyMMdd");
     
-    CSVReader reader = new CSVReader(new FileReader(currencyFile));
+    CSVReader reader = new CSVReader(new InputStreamReader(new BufferedInputStream(currencyStream)));
     String[] row = reader.readNext(); // throw away the header.
     while ((row = reader.readNext()) != null) {
       String isoCurrency = row[isoCurrencyIdx];
@@ -117,7 +146,7 @@ public class CoppClarkFileReader {
     }
   }
   
-  private void parseFinancialCentersFile(File financialCentersFile) throws IOException {
+  private void parseFinancialCentersFile(InputStream financialCentersStream) throws IOException {
     final List<String> columnNames = Arrays.asList(new String[] {"CenterID", "ISOCurrencyCode", "ISOCountryCode", "FinancialCentre", 
                                                                  "UN/LOCODE", "EventYear", "EventDate", "EventDayOfWeek", "EventName", 
                                                                  "FileType" });
@@ -126,7 +155,7 @@ public class CoppClarkFileReader {
     
     DateTimeFormatter formatter = DateTimeFormatters.pattern("yyyyMMdd");
     
-    CSVReader reader = new CSVReader(new FileReader(financialCentersFile));
+    CSVReader reader = new CSVReader(new InputStreamReader(new BufferedInputStream(financialCentersStream)));
     String[] row = reader.readNext(); // throw away the header.
     while ((row = reader.readNext()) != null) {
       String isoCountry = row[isoCountryIdx];
@@ -147,7 +176,7 @@ public class CoppClarkFileReader {
     }
   }
   
-  private void parseExchangeSettlementFile(File exchangeSettlementFile) throws IOException {
+  private void parseExchangeSettlementFile(InputStream exchangeSettlementStream) throws IOException {
     final List<String> columnNames = Arrays.asList(new String[] {"CenterID", "ISO MIC Code", "ISOCountryCode", "ExchangeName", "EventYear", "EventDate", "EventDayOfWeek", "EventName", "FileType" });
     //final int centerIdIdx = columnNames.indexOf("CenterID");
     final int isoMICCodeIdx = columnNames.indexOf("ISO MIC Code");
@@ -156,7 +185,7 @@ public class CoppClarkFileReader {
     
     DateTimeFormatter formatter = DateTimeFormatters.pattern("yyyyMMdd");
     
-    CSVReader reader = new CSVReader(new FileReader(exchangeSettlementFile));
+    CSVReader reader = new CSVReader(new InputStreamReader(new BufferedInputStream(exchangeSettlementStream)));
     String[] row = reader.readNext(); // throw away the header.
     while ((row = reader.readNext()) != null) {
       //String centerId = row[centerIdIdx];
@@ -185,13 +214,13 @@ public class CoppClarkFileReader {
     }
   }
   
-  private void parseExchangeTradingFile(File exchangeTradingFile) throws IOException {
+  private void parseExchangeTradingFile(InputStream exchangeTradingStream) throws IOException {
     final List<String> columnNames = Arrays.asList(new String[] {"CenterID", "ISO MIC Code", "ISOCountryCode", "ExchangeName", "EventYear", "EventDate", "EventDayOfWeek", "EventName", "FileType" });
     final int isoMICCodeIdx = columnNames.indexOf("ISO MIC Code");
     final int eventDateIdx = columnNames.indexOf("EventDate");
     DateTimeFormatter formatter = DateTimeFormatters.pattern("yyyyMMdd");
     
-    CSVReader reader = new CSVReader(new FileReader(exchangeTradingFile));
+    CSVReader reader = new CSVReader(new InputStreamReader(new BufferedInputStream(exchangeTradingStream)));
     String[] row = reader.readNext(); //skip header
     while ((row = reader.readNext()) != null) {
       String isoMICCode = row[isoMICCodeIdx];

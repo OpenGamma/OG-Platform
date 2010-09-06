@@ -5,13 +5,18 @@
  */
 package com.opengamma.financial.world.region;
 
-import static com.opengamma.financial.world.region.InMemoryRegionRepository.HIERARCHY_COLUMN;
-import static com.opengamma.financial.world.region.InMemoryRegionRepository.NAME_COLUMN;
-import static com.opengamma.financial.world.region.InMemoryRegionRepository.SUB_REGIONS_COLUMN;
-import static com.opengamma.financial.world.region.InMemoryRegionRepository.TYPE_COLUMN;
+import static com.opengamma.financial.world.region.InMemoryRegionMaster.HIERARCHY_COLUMN;
+import static com.opengamma.financial.world.region.InMemoryRegionMaster.NAME_COLUMN;
+import static com.opengamma.financial.world.region.InMemoryRegionMaster.SUB_REGIONS_COLUMN;
+import static com.opengamma.financial.world.region.InMemoryRegionMaster.TYPE_COLUMN;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,18 +33,24 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.FileUtils;
 
 /**
- * 
+ * Loads a region file an populated a region master with it. 
  */
 public class RegionFileReader {
+  private static final String REGIONS_RESOURCE = "/com/opengamma/region/countrylist_test.csv";
   
   private RegionMaster _regionMaster;
   private FudgeContext _fudgeContext;
 
-  static RegionSource createPopulatedRegionSource() {
-    RegionMaster regionMaster = new InMemoryRegionRepository();
+  public static RegionSource createPopulatedRegionSource() {
+    return new DefaultRegionSource(createPopulatedRegionMaster());
+  }
+  
+  public static RegionMaster createPopulatedRegionMaster() {
+    RegionMaster regionMaster = new InMemoryRegionMaster();
     RegionFileReader reader = new RegionFileReader(regionMaster);
-    reader.populate(new File(REGIONS_FILE_PATH));
-    return new DefaultRegionSource(regionMaster);
+    InputStream stream = reader.getClass().getResourceAsStream(REGIONS_RESOURCE);
+    reader.populate(stream);
+    return regionMaster;
   }
   
   public RegionFileReader(RegionMaster regionMaster) {
@@ -54,11 +65,23 @@ public class RegionFileReader {
   
   public void populate(File file) {
     try {
+      populate(new FileReader(file));
+    } catch (FileNotFoundException ex) {
+      throw new OpenGammaRuntimeException("Region file not found", ex);
+    }
+  }
+  
+  public void populate(InputStream is) {
+    populate(new InputStreamReader(new BufferedInputStream(is)));
+  }
+  
+  public void populate(Reader aReader) {
+    try {
       // Hierarchy Name -> (Region Name -> Region Definition (Super/Sub name + data))
       Map<String, Map<String, RegionDefinition>> roots = new HashMap<String, Map<String, RegionDefinition>>();
       
       // Open CSV file
-      CSVReader reader = new CSVReader(new FileReader(file));
+      CSVReader reader = new CSVReader(aReader);
       List<String> columns = Arrays.asList(reader.readNext());
 
       // Special columns that don't go in fudge field container.
