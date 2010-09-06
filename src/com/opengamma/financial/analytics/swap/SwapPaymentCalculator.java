@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.swap;
+package com.opengamma.financial.analytics.swap;
 
 import org.apache.commons.lang.Validate;
 
