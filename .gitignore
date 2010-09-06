@@ -11,6 +11,7 @@ tests/output/
 .settings/org.eclipse.ltk.core.refactoring.prefs
 derby.log
 db/derby/test_*
+db/hsqldb/test_*
 generated/
 build/
 doc/
