@@ -270,7 +270,7 @@ create table sec_futurebundle (
     future_id bigint not null,
     startDate timestamp,
     endDate timestamp,
-    conversionFactor double not null,
+    conversionFactor double precision not null,
     primary key (id),
     constraint sec_fk_futurebundle2future foreign key (future_id) references sec_future (id)
 );

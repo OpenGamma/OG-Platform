@@ -122,7 +122,7 @@ create table sec_option (
     counterparty varchar(255),
     power double precision,
     cap double precision,
-    margined smallint,
+    margined boolean,
     pointValue double precision,
     payment double precision,
     lowerbound double precision,
@@ -132,7 +132,7 @@ create table sec_option (
     underlyingstrike double precision,
     underlyingexpiry_date timestamp,
     underlyingexpiry_accuracy smallint,
-    reverse smallint,
+    reverse boolean,
     primary key (id),
     constraint sec_fk_option2sec foreign key (security_id) references sec_security (id),
     constraint sec_fk_option2currency foreign key (currency_id) references sec_currency (id),
@@ -270,7 +270,7 @@ create table sec_futurebundle (
     future_id bigint not null,
     startDate timestamp,
     endDate timestamp,
-    conversionFactor double not null,
+    conversionFactor double precision not null,
     primary key (id),
     constraint sec_fk_futurebundle2future foreign key (future_id) references sec_future (id)
 );
