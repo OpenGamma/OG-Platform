@@ -14,7 +14,7 @@ create table rsk_observation_time (
 create table rsk_observation_datetime (
 	id int not null,
 	date_part date not null,  
-	time_part time,						-- null if time of LDN_CLOSE not fixed yet
+	time_part time null,						-- null if time of LDN_CLOSE not fixed yet
 	observation_time_id int not null,    		  
 	
 	primary key (id),
@@ -63,7 +63,7 @@ create table rsk_opengamma_version (
 );
 
 -- DBTOOLDONOTCLEAR
-create table rsk_computation_target_type ( 
+create table rsk_computation_target_type (
 	id int not null,	 	            
     name varchar(255) not null,
     
@@ -111,7 +111,7 @@ create table rsk_live_data_field (
 create table rsk_live_data_snapshot (
 	id int not null,
 	observation_datetime_id int not null,
-	complete smallint not null,
+	complete boolean not null,
 	
 	primary key (id),
 	
@@ -156,7 +156,7 @@ create table rsk_run (
     start_instant timestamp not null,       -- can be different from create_instant if is run is restarted
     end_instant	timestamp,
     num_restarts int not null,
-    complete smallint not null,
+    complete boolean not null,
     
     primary key (id),
     
@@ -189,15 +189,15 @@ create table rsk_calculation_configuration (
 -- 	- PositionMasterTime = 20100615170000
 --  - GlobalRandomSeed = 54321
 create table rsk_run_property (		
-    id int not null,
-    run_id int not null,
-    property_key varchar(255) not null,
-    property_value varchar(2000) not null,		    -- varchar(255) not enough
+	id int not null,
+	run_id int not null,
+	property_key varchar(255) not null,
+	property_value varchar(2000) not null,		    -- varchar(255) not enough
 	
-    primary key (id),
+	primary key (id),
 
-    constraint fk_rsk_run_property2run 
-        foreign key (run_id) references rsk_run (id)
+	constraint fk_rsk_run_property2run 
+	    foreign key (run_id) references rsk_run (id)
 );
 
 create table rsk_run_status (
@@ -253,6 +253,7 @@ create table rsk_value (
         
     unique (calculation_configuration_id, value_name_id, computation_target_id)
 );
+
 
 create table rsk_compute_failure (			
     id bigint not null,

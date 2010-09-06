@@ -13,21 +13,21 @@
     <!--property name="timeout" value="20" /-->
   </bean>
 
-  <bean id="derbyDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-    <property name="driverClassName" value="${derby.jdbc.driver}"/>
-    <property name="url" value="${derby.jdbc.url}/test_${user.name}"/>
-    <property name="username" value="${derby.jdbc.username}"/>
-    <property name="password" value="${derby.jdbc.password}"/>
+  <bean id="hsqldbDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <property name="driverClassName" value="${hsqldb.jdbc.driver}"/>
+    <property name="url" value="${hsqldb.jdbc.url}/test_${user.name}"/>
+    <property name="username" value="${hsqldb.jdbc.username}"/>
+    <property name="password" value="${hsqldb.jdbc.password}"/>
   </bean>
 
-  <bean id="derbyDbPositionMaster" class="com.opengamma.financial.position.master.db.DbPositionMaster">
+  <bean id="hsqldbDbPositionMaster" class="com.opengamma.financial.position.master.db.DbPositionMaster">
     <constructor-arg>
       <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="derbyDataSource"/>
+        <property name="dataSource" ref="hsqldbDataSource"/>
       </bean>
     </constructor-arg>
     <constructor-arg ref="dbTransactionDefinition" />
-    <constructor-arg><bean class="com.opengamma.util.db.DerbyDbHelper" /></constructor-arg>
+    <constructor-arg><bean class="com.opengamma.util.db.HSQLDbHelper" /></constructor-arg>
     <!-- property name="timeSource" -->
     <property name="identifierScheme" value="DbPos" />
   </bean>

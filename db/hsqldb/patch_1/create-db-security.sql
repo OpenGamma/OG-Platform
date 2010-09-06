@@ -59,7 +59,7 @@ create table sec_gics (
 create table sec_equity (
     id bigint not null,
     effectiveDateTime timestamp not null,
-    deleted smallint not null,
+    deleted boolean not null,
     lastModifiedDateTime timestamp not null,
     lastModifiedBy varchar(255),
     displayName varchar(255) not null,
@@ -80,7 +80,7 @@ create table sec_equity (
 create table sec_option (
     id bigint not null,
     effectiveDateTime timestamp not null,
-    deleted smallint not null,
+    deleted boolean not null,
     lastModifiedDateTime timestamp not null,
     lastModifiedBy varchar(255),
     displayName varchar(255) not null,
@@ -103,7 +103,7 @@ create table sec_option (
     counterparty varchar(255),
     power double precision,
     cap double precision,
-    margined smallint,
+    margined boolean,
     pointValue double precision,
     payment double precision,
     lowerbound double precision,
@@ -114,7 +114,7 @@ create table sec_option (
     underlyingexpiry_date timestamp,
     underlyingexpiry_zone varchar(50),
     underlyingexpiry_accuracy smallint,
-    reverse smallint,
+    reverse boolean,
     primary key (id),
     constraint sec_fk_option2option foreign key (first_version_id) references sec_option (id),
     constraint sec_fk_option2currency foreign key (currency_id) references sec_currency (id),
@@ -174,7 +174,7 @@ create table sec_coupontype (
 create table sec_bond (
     id bigint not null,
     effectiveDateTime timestamp not null,
-    deleted smallint not null,
+    deleted boolean not null,
     lastModifiedDateTime timestamp not null,
     lastModifiedBy varchar(255),
     displayName varchar(255) not null,
@@ -226,7 +226,7 @@ create table sec_bond (
 create table sec_future (
     id bigint not null,
     effectiveDateTime timestamp not null,
-    deleted smallint not null,
+    deleted boolean not null,
     lastModifiedDateTime timestamp not null,
     lastModifiedBy varchar(255),
     displayName varchar(255) not null,
@@ -266,7 +266,7 @@ create table sec_futurebundle (
     future_id bigint not null,
     startDate timestamp,
     endDate timestamp,
-    conversionFactor double not null,
+    conversionFactor double precision not null,
     primary key (id),
     constraint sec_fk_futurebundle2future foreign key (future_id) references sec_future (id)
 );
@@ -282,7 +282,7 @@ create table sec_futurebundleidentifier (
 create table sec_cash (
     id bigint not null,
     effectiveDateTime timestamp not null,
-    deleted smallint not null,
+    deleted boolean not null,
     lastModifiedDateTime timestamp not null,
     lastModifiedBy varchar(255),
     displayName varchar(255) not null,
@@ -299,7 +299,7 @@ create table sec_cash (
 create table sec_fra (
     id bigint not null,
     effectiveDateTime timestamp not null,
-    deleted smallint not null,
+    deleted boolean not null,
     lastModifiedDateTime timestamp not null,
     lastModifiedBy varchar(255),
     displayName varchar(255) not null,
@@ -316,7 +316,7 @@ create table sec_fra (
 create table sec_swap (
     id bigint not null,
     effectiveDateTime timestamp not null,
-    deleted smallint not null,
+    deleted boolean not null,
     lastModifiedDateTime timestamp not null,
     lastModifiedBy varchar(255),
     displayName varchar(255) not null,
