@@ -23,8 +23,8 @@ import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.position.MockPositionSource;
 import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.security.MockSecuritySource;
-import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.ViewImpl;
 import com.opengamma.engine.view.ViewProcessingContext;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
@@ -44,8 +44,8 @@ import com.opengamma.util.NamedThreadPoolFactory;
  * Utility to setup a View for testing.
  */
 public class ViewTestUtils {
-
-  public static View getMockView() {
+  
+  public static ViewImpl getMockView() {
     UniqueIdentifier portfolioId = UniqueIdentifier.of("foo", "bar");
 
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
@@ -75,7 +75,7 @@ public class ViewTestUtils {
 
     ViewDefinition viewDefinition = new ViewDefinition("mock_view", portfolioId, "ViewTestUser");
 
-    View viewImpl = new View(viewDefinition, vpc);
+    ViewImpl viewImpl = new ViewImpl(viewDefinition, vpc);
     viewImpl.init();
 
     return viewImpl;
