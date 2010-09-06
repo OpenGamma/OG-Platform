@@ -58,6 +58,7 @@ import com.opengamma.engine.view.ViewImpl;
 import com.opengamma.engine.view.ViewProcessingContext;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
+import com.opengamma.engine.view.calc.stats.DiscardingStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.AbstractCalculationNode;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.LocalCalculationNode;
@@ -568,7 +569,7 @@ public class BatchJob {
         getFunctionCompilationContext(), 
         executor,
         dependencyGraphExecutorFactory,
-        new DefaultViewPermissionProvider());
+        new DefaultViewPermissionProvider(), new DiscardingStatisticsGathererProvider());
     
     ViewImpl view = new ViewImpl(_viewDefinitionConfig.getValue(), vpc);
     view.setPopulateResultModel(false);

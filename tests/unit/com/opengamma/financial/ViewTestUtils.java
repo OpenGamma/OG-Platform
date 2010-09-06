@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial;
@@ -28,6 +28,7 @@ import com.opengamma.engine.view.ViewImpl;
 import com.opengamma.engine.view.ViewProcessingContext;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
+import com.opengamma.engine.view.calc.stats.DiscardingStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.LocalCalculationNode;
 import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
@@ -46,49 +47,37 @@ public class ViewTestUtils {
   
   public static ViewImpl getMockView() {
     UniqueIdentifier portfolioId = UniqueIdentifier.of("foo", "bar");
-    
+
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
-    
+
     MockSecuritySource securitySource = new MockSecuritySource();
 
     MockPositionSource positionSource = new MockPositionSource();
     positionSource.addPortfolio(new PortfolioImpl(portfolioId, "test_portfolio"));
-    
+
     DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
-    
+
     InMemoryViewComputationCacheSource cacheFactory = new InMemoryViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT);
-    
+
     FunctionExecutionContext executionContext = new FunctionExecutionContext();
-    
+
     ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
     LocalCalculationNode localNode = new LocalCalculationNode(cacheFactory, functionRepo, executionContext, targetResolver, viewProcessorQuerySender, Executors.newCachedThreadPool());
-    JobDispatcher jobDispatcher = new JobDispatcher (new LocalNodeJobInvoker (localNode));
-    
+    JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(localNode));
+
     ThreadFactory threadFactory = new NamedThreadPoolFactory("ViewTestUtils-" + System.currentTimeMillis(), true);
     ThreadPoolExecutor executor = new ThreadPoolExecutor(0, 1, 5l, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), threadFactory);
-    
-    ViewProcessingContext vpc = new ViewProcessingContext(
-        new TestLiveDataClient(), 
-        new FixedLiveDataAvailabilityProvider(), 
-        new InMemoryLKVSnapshotProvider(), 
-        functionRepo, 
-        new DefaultFunctionResolver(functionRepo),
-        positionSource, 
-        securitySource, 
-        cacheFactory, 
-        jobDispatcher, 
-        viewProcessorQueryReceiver,
-        new FunctionCompilationContext(), 
-        executor,
-        new SingleNodeExecutorFactory(),
-        new DefaultViewPermissionProvider());
-    
+
+    ViewProcessingContext vpc = new ViewProcessingContext(new TestLiveDataClient(), new FixedLiveDataAvailabilityProvider(), new InMemoryLKVSnapshotProvider(), functionRepo,
+        new DefaultFunctionResolver(functionRepo), positionSource, securitySource, cacheFactory, jobDispatcher, viewProcessorQueryReceiver, new FunctionCompilationContext(), executor,
+        new SingleNodeExecutorFactory(), new DefaultViewPermissionProvider(), new DiscardingStatisticsGathererProvider());
+
     ViewDefinition viewDefinition = new ViewDefinition("mock_view", portfolioId, "ViewTestUser");
 
     ViewImpl viewImpl = new ViewImpl(viewDefinition, vpc);
     viewImpl.init();
-    
+
     return viewImpl;
   }
 
