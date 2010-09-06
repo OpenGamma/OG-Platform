@@ -66,8 +66,8 @@ public class LocalViewClient implements ViewClient {
   }
 
   @Override
-  public ViewComputationResultModel getMostRecentResult() {
-    return getView().getMostRecentResult();
+  public ViewComputationResultModel getLatestResult() {
+    return getView().getLatestResult();
   }
 
   @Override
@@ -97,7 +97,7 @@ public class LocalViewClient implements ViewClient {
 
   @Override
   public boolean isResultAvailable() {
-    return getView().getMostRecentResult() != null;
+    return getView().getLatestResult() != null;
   }
 
   @Override

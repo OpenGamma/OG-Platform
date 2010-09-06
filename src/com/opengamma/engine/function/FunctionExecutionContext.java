@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.function;
 
-import java.util.Map;
-
 import javax.time.calendar.Clock;
 
 import com.opengamma.engine.security.SecuritySource;
