@@ -6,6 +6,7 @@
 package com.opengamma.math.statistics.leastsquare;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
@@ -44,6 +45,11 @@ public class LeastSquareResultTest {
     new LeastSquareResults(1, new DoubleMatrix1D(new double[] {1.2}), COVAR);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testNotSquare() {
+    new LeastSquareResults(1, PARAMS, new DoubleMatrix2D(new double[][] {{0.2, 0.3}}));
+  }
+
   @Test
   public void testRecall() {
     double chiSq = 12.46;
@@ -56,4 +62,29 @@ public class LeastSquareResultTest {
       }
     }
   }
+
+  @Test
+  public void testHashcode() {
+    LeastSquareResults ls1 = new LeastSquareResults(1.0, PARAMS, COVAR);
+    LeastSquareResults ls2 = new LeastSquareResults(1.0, new DoubleMatrix1D(new double[] {1.0, 2.0}),
+        new DoubleMatrix2D(new double[][] { {0.1, 0.2}, {0.2, 0.3}}));
+    assertEquals(ls1.hashCode(), ls2.hashCode(), 0);
+  }
+
+  @Test
+  public void testEquals() {
+    LeastSquareResults ls1 = new LeastSquareResults(1.0, PARAMS, COVAR);
+    LeastSquareResults ls2 = new LeastSquareResults(1.0, new DoubleMatrix1D(new double[] {1.0, 2.0}),
+        new DoubleMatrix2D(new double[][] { {0.1, 0.2}, {0.2, 0.3}}));
+    assertEquals(ls1, ls2);
+    ls2 = new LeastSquareResults(1.1, PARAMS, COVAR);
+    assertFalse(ls1.equals(ls2));
+    ls2 = new LeastSquareResults(1.0, new DoubleMatrix1D(new double[] {1.1, 2.0}), new DoubleMatrix2D(new double[][] {
+        {0.1, 0.2}, {0.2, 0.3}}));
+    assertFalse(ls1.equals(ls2));
+    ls2 = new LeastSquareResults(1.0, new DoubleMatrix1D(new double[] {1.0, 2.0}), new DoubleMatrix2D(new double[][] {
+        {0.1, 0.2}, {0.2, 0.4}}));
+    assertFalse(ls1.equals(ls2));
+  }
+
 }
