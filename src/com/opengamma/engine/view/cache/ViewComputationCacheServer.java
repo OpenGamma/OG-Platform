@@ -87,6 +87,7 @@ public class ViewComputationCacheServer implements FudgeConnectionReceiver, Fudg
 
   @Override
   public void connectionReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope message, final FudgeConnection connection) {
+    connection.setConnectionStateListener(this);
     handleMessage(connection, fudgeContext, message);
     getBinaryDataStore().onNewConnection(connection);
     connection.setFudgeMessageReceiver(new FudgeMessageReceiver() {

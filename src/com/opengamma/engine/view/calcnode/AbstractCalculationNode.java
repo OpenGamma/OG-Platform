@@ -164,7 +164,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     s_logger.info("Executed {}", job);
 
     /*
-     * ((DefaultViewComputationCache) cache.getUnderlying()).reportTimes();
+     * ((DefaultViewComputationCache) cache.getCache()).reportTimes();
      * final double totalTime = (double) (_resolutionTime + _cacheGetTime + _invocationTime + _cachePutTime) / 100d;
      * if (totalTime > 0) {
      * System.err.println("Total = " + durationNanos + "ns - " + ((double) _resolutionTime / totalTime) + "% resolution, " + ((double) _cacheGetTime / totalTime) + "% cacheGet, "
