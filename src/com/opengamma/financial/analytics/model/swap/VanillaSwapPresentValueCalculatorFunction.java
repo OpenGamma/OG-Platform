@@ -23,6 +23,8 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.swap.SwapPaymentCalculator;
+import com.opengamma.financial.analytics.swap.SwapScheduleCalculator;
 import com.opengamma.financial.convention.businessday.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.interestrate.swap.VanillaSwapPresentValueCalculator;

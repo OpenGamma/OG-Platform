@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.swap;
+package com.opengamma.financial.analytics.swap;
 
 import static org.junit.Assert.assertEquals;
 
@@ -17,6 +17,7 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMessageFactory;
 import org.junit.Test;
 
+import com.opengamma.financial.analytics.swap.SwapScheduleCalculator;
 import com.opengamma.financial.convention.businessday.ModifiedBusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -159,64 +160,5 @@ public class SwapScheduleCalculatorTest {
       assertEquals(payTimes[i], receiveTimes[i], 1e-15);
       assertEquals(payTimes[i], 0.5 * (i + 1), 1e-15);
     }
-  }
-
-  private static final class MyRegion implements Region {
-
-    @Override
-    public FudgeFieldContainer getData() {
-      return null;
-    }
-
-    @Override
-    public FudgeFieldContainer getDataUp() {
-      return null;
-    }
-
-    @Override
-    public String getName() {
-      return null;
-    }
-
-    @Override
-    public RegionType getRegionType() {
-      return null;
-    }
-
-    @Override
-    public Set<Region> getSubRegions() {
-      return null;
-    }
-
-    @Override
-    public Region getSuperRegion() {
-      return null;
-    }
-
-    @Override
-    public IdentifierBundle getIdentifiers() {
-      return null;
-    }
-
-    @Override
-    public UniqueIdentifier getUniqueIdentifier() {
-      return null;
-    }
-
-    @Override
-    public String getCountryISO2() {
-      return null;
-    }
-
-    @Override
-    public String getCurrencyISO3() {
-      return null;
-    }
-
-    @Override
-    public TimeZone getTimeZone() {
-      return null;
-    }
-
   }
 }
