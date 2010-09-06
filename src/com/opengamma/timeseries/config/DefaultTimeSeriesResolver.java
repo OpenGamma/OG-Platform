@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -17,7 +18,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.engine.config.ConfigSource;
@@ -71,7 +72,7 @@ public class DefaultTimeSeriesResolver implements TimeSeriesMetaDataResolver {
   private static final String[][] NON_EXCHANGE_DATA_PROVIDER_ARRAY = new String[][] {
     {"CMPL", "LONDON_CLOSE"}, {"CMPT", "TOKYO_CLOSE"}, {"CMPN", "NEWYORK_CLOSE"}
   };
-  protected static final Map<String, String> NON_EXCHANGE_DATA_MAP = buildNonExchangeDataMap();
+  private static final Map<String, String> NON_EXCHANGE_DATA_MAP = buildNonExchangeDataMap();
 
   private static final String[][] BLOOMBERG_EXCHANGE_CODE_WITH_CITY = new String[][] {
     {"UA", "NEWYORK_CLOSE"},
@@ -103,7 +104,7 @@ public class DefaultTimeSeriesResolver implements TimeSeriesMetaDataResolver {
     {"BY", "STOCKHOLM_CLOSE"},
   };
   
-  protected static final Map<String, String> BLOOMBERG_EXCHANGE_CODE_WITH_CITY_MAP = buildBloombergExchangeCodeMap();
+  private static final Map<String, String> BLOOMBERG_EXCHANGE_CODE_WITH_CITY_MAP = buildBloombergExchangeCodeMap();
   
   /**
    * DataProvider Prefix for Exchange Traded Security
@@ -113,7 +114,7 @@ public class DefaultTimeSeriesResolver implements TimeSeriesMetaDataResolver {
   private final SecuritySource _secSource;
   private final ExchangeDataProvider _exchangeDataProvider;
   private final ConfigSource _configSource;
-  private Map<String, TimeSeriesMetaDataDefinition> _timeSeriesDefinitionMap = new ConcurrentHashMap<String, TimeSeriesMetaDataDefinition>();
+  private Map<String, TimeSeriesMetaDataConfiguration> _timeSeriesDefinitionMap = new ConcurrentHashMap<String, TimeSeriesMetaDataConfiguration>();
   
   public DefaultTimeSeriesResolver(SecuritySource secSource, ExchangeDataProvider exchangeDataProvider, ConfigSource configSoure) {
     ArgumentChecker.notNull(secSource, "security source");
@@ -136,121 +137,119 @@ public class DefaultTimeSeriesResolver implements TimeSeriesMetaDataResolver {
       String dataProvider = finSec.accept(new FinancialSecurityVisitorAdapter<String>(new BondSecurityVisitor<String>() {
         @Override
         public String visitCorporateBondSecurity(CorporateBondSecurity security) {
-          final String securityType = security.getSecurityType();
-          return getDefaultDataProvider(securityType);
+          return getDefaultDataProvider(security.getSecurityType());
         }
 
         @Override
         public String visitGovernmentBondSecurity(GovernmentBondSecurity security) {
-          return null;
+          return getDefaultDataProvider(security.getSecurityType());
         }
 
         @Override
         public String visitMunicipalBondSecurity(MunicipalBondSecurity security) {
-          return null;
+          return getDefaultDataProvider(security.getSecurityType());
         }
       }, new CashSecurityVisitor<String>() {
 
         @Override
         public String visitCashSecurity(CashSecurity security) {
-          return null;
+          return getDefaultDataProvider(security.getSecurityType());
         }
 
       }, new EquitySecurityVisitor<String>() {
 
         @Override
         public String visitEquitySecurity(EquitySecurity security) {
-          s_logger.debug("default sec exchange={}", security.getExchangeCode());
           return EXCH_PREFIX + security.getExchangeCode();
         }
       }, new FRASecurityVisitor<String>() {
 
         @Override
         public String visitFRASecurity(FRASecurity security) {
-          return null;
+          return getDefaultDataProvider(security.getSecurityType());
         }
       }, new FutureSecurityVisitor<String>() {
 
         @Override
         public String visitAgricultureFutureSecurity(AgricultureFutureSecurity security) {
-          return null;
+          return EXCH_PREFIX + security.getTradingExchange();
         }
 
         @Override
         public String visitBondFutureSecurity(BondFutureSecurity security) {
-          return null;
+          return EXCH_PREFIX + security.getTradingExchange();
         }
 
         @Override
         public String visitEnergyFutureSecurity(EnergyFutureSecurity security) {
-          return null;
+          return EXCH_PREFIX + security.getTradingExchange();
         }
 
         @Override
         public String visitFXFutureSecurity(FXFutureSecurity security) {
-          return null;
+          return EXCH_PREFIX + security.getTradingExchange();
         }
 
         @Override
         public String visitIndexFutureSecurity(IndexFutureSecurity security) {
-          return null;
+          return EXCH_PREFIX + security.getTradingExchange();
         }
 
         @Override
         public String visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
-          return null;
+          return EXCH_PREFIX + security.getTradingExchange();
         }
 
         @Override
         public String visitMetalFutureSecurity(MetalFutureSecurity security) {
-          return null;
+          return EXCH_PREFIX + security.getTradingExchange();
         }
 
         @Override
         public String visitStockFutureSecurity(StockFutureSecurity security) {
-          return null;
+          return EXCH_PREFIX + security.getTradingExchange();
         }
       }, new OptionSecurityVisitor<String>() {
 
         @Override
         public String visitBondOptionSecurity(BondOptionSecurity security) {
-          return null;
+          return getDefaultDataProvider(security.getSecurityType());
         }
 
         @Override
         public String visitEquityOptionSecurity(EquityOptionSecurity security) {
-          return null;
+          return EXCH_PREFIX + security.getExchange();
         }
 
         @Override
         public String visitFutureOptionSecurity(FutureOptionSecurity security) {
-          return null;
+          return EXCH_PREFIX + security.getExchange();
         }
 
         @Override
         public String visitFXOptionSecurity(FXOptionSecurity security) {
-          return null;
+          return getDefaultDataProvider(security.getSecurityType());
         }
 
         @Override
         public String visitOptionOptionSecurity(OptionOptionSecurity security) {
-          return null;
+          return getDefaultDataProvider(security.getSecurityType());
         }
 
         @Override
         public String visitSwapOptionSecurity(SwapOptionSecurity security) {
-          return null;
+          return getDefaultDataProvider(security.getSecurityType());
         }
       }, new SwapSecurityVisitor<String>() {
 
         @Override
         public String visitForwardSwapSecurity(ForwardSwapSecurity security) {
-          return null;
+          return getDefaultDataProvider(security.getSecurityType());
         }
 
         @Override
         public String visitSwapSecurity(SwapSecurity security) {
-          return null;
+          return getDefaultDataProvider(security.getSecurityType());
         }
       }));
       result.setDataProvider(dataProvider);
@@ -290,17 +289,17 @@ public class DefaultTimeSeriesResolver implements TimeSeriesMetaDataResolver {
   }
  
   private String getDefaultDataProvider(String securityType) {
-    TimeSeriesMetaDataDefinition metaDataDefinition = getMetaDataBySecurityType(securityType);
+    TimeSeriesMetaDataConfiguration metaDataDefinition = getMetaDataBySecurityType(securityType);
     return metaDataDefinition.getDefaultDataProvider();
   }
 
-  private TimeSeriesMetaDataDefinition getMetaDataBySecurityType(String securityType) {
+  private TimeSeriesMetaDataConfiguration getMetaDataBySecurityType(String securityType) {
     //get latest config document
-    TimeSeriesMetaDataDefinition definition = _timeSeriesDefinitionMap.get(securityType);
+    TimeSeriesMetaDataConfiguration definition = _timeSeriesDefinitionMap.get(securityType);
     if (definition == null) {
       ConfigSearchRequest request = new ConfigSearchRequest();
       request.setName(securityType);
-      List<TimeSeriesMetaDataDefinition> searchResult = _configSource.search(TimeSeriesMetaDataDefinition.class, request);
+      List<TimeSeriesMetaDataConfiguration> searchResult = _configSource.search(TimeSeriesMetaDataConfiguration.class, request);
       //should return the lastest configuration
       if (searchResult.isEmpty()) {
         s_logger.warn("Unable to look up config document for securityType {}", securityType);
@@ -313,27 +312,27 @@ public class DefaultTimeSeriesResolver implements TimeSeriesMetaDataResolver {
   }
 
   private String getDefaultDataField(String securityType) {
-    TimeSeriesMetaDataDefinition metaDataDefinition = getMetaDataBySecurityType(securityType);
+    TimeSeriesMetaDataConfiguration metaDataDefinition = getMetaDataBySecurityType(securityType);
     return metaDataDefinition.getDefaultDataField();
   }
 
   private String getDefaultDataSource(final String securityType) {
-    TimeSeriesMetaDataDefinition metaDataDefinition = getMetaDataBySecurityType(securityType);
+    TimeSeriesMetaDataConfiguration metaDataDefinition = getMetaDataBySecurityType(securityType);
     return metaDataDefinition.getDefaultDataSource();
   }
   
-  private List<String> getAvailableDataSources(String securityType) {
-    TimeSeriesMetaDataDefinition metaDataDefinition = getMetaDataBySecurityType(securityType);
+  private Set<String> getAvailableDataSources(String securityType) {
+    TimeSeriesMetaDataConfiguration metaDataDefinition = getMetaDataBySecurityType(securityType);
     return metaDataDefinition.getDataSources();
   }
 
-  private List<String> getAvailableDataFields(String securityType) {
-    TimeSeriesMetaDataDefinition metaDataDefinition = getMetaDataBySecurityType(securityType);
+  private Set<String> getAvailableDataFields(String securityType) {
+    TimeSeriesMetaDataConfiguration metaDataDefinition = getMetaDataBySecurityType(securityType);
     return metaDataDefinition.getDataFields();
   }
   
-  private List<String> getAvailableDataProviders(String securityType) {
-    TimeSeriesMetaDataDefinition metaDataDefinition = getMetaDataBySecurityType(securityType);
+  private Set<String> getAvailableDataProviders(String securityType) {
+    TimeSeriesMetaDataConfiguration metaDataDefinition = getMetaDataBySecurityType(securityType);
     return metaDataDefinition.getDataProviders();
   }
 
@@ -344,143 +343,143 @@ public class DefaultTimeSeriesResolver implements TimeSeriesMetaDataResolver {
     if (security instanceof FinancialSecurity) {
       final FinancialSecurity finSec = (FinancialSecurity) security;
       final String securityType = finSec.getSecurityType();
-      List<String> dataFields = getAvailableDataFields(securityType);
-      List<String> dataSources = getAvailableDataSources(securityType);
-      List<String> dataProviders = finSec.accept(new FinancialSecurityVisitorAdapter<List<String>>(new BondSecurityVisitor<List<String>>() {
+      Set<String> dataFields = getAvailableDataFields(securityType);
+      Set<String> dataSources = getAvailableDataSources(securityType);
+      Set<String> dataProviders = finSec.accept(new FinancialSecurityVisitorAdapter<Set<String>>(new BondSecurityVisitor<Set<String>>() {
 
         @Override
-        public List<String> visitCorporateBondSecurity(CorporateBondSecurity security) {
+        public Set<String> visitCorporateBondSecurity(CorporateBondSecurity security) {
           final String securityType = security.getSecurityType();
           return getAvailableDataProviders(securityType);
         }
 
         @Override
-        public List<String> visitGovernmentBondSecurity(GovernmentBondSecurity security) {
+        public Set<String> visitGovernmentBondSecurity(GovernmentBondSecurity security) {
           final String securityType = security.getSecurityType();
           return getAvailableDataProviders(securityType);
         }
 
         @Override
-        public List<String> visitMunicipalBondSecurity(MunicipalBondSecurity security) {
+        public Set<String> visitMunicipalBondSecurity(MunicipalBondSecurity security) {
           final String securityType = security.getSecurityType();
           return getAvailableDataProviders(securityType);
         }
-      }, new CashSecurityVisitor<List<String>>() {
+      }, new CashSecurityVisitor<Set<String>>() {
 
         @Override
-        public List<String> visitCashSecurity(CashSecurity security) {
+        public Set<String> visitCashSecurity(CashSecurity security) {
           final String securityType = security.getSecurityType();
           return getAvailableDataProviders(securityType);
         }
-      }, new EquitySecurityVisitor<List<String>>() {
+      }, new EquitySecurityVisitor<Set<String>>() {
 
         @Override
-        public List<String> visitEquitySecurity(EquitySecurity security) {
-          List<String> result = Lists.newArrayList(EXCH_PREFIX + security.getExchangeCode());
+        public Set<String> visitEquitySecurity(EquitySecurity security) {
+          Set<String> result = Sets.newHashSet(EXCH_PREFIX + security.getExchangeCode());
           return result;
         }
-      }, new FRASecurityVisitor<List<String>>() {
+      }, new FRASecurityVisitor<Set<String>>() {
 
         @Override
-        public List<String> visitFRASecurity(FRASecurity security) {
+        public Set<String> visitFRASecurity(FRASecurity security) {
           final String securityType = security.getSecurityType();
           return getAvailableDataProviders(securityType);
         }
-      }, new FutureSecurityVisitor<List<String>>() {
+      }, new FutureSecurityVisitor<Set<String>>() {
 
         @Override
-        public List<String> visitAgricultureFutureSecurity(AgricultureFutureSecurity security) {
-          final String securityType = security.getSecurityType();
-          return getAvailableDataProviders(securityType);
-        }
-
-        @Override
-        public List<String> visitBondFutureSecurity(BondFutureSecurity security) {
+        public Set<String> visitAgricultureFutureSecurity(AgricultureFutureSecurity security) {
           final String securityType = security.getSecurityType();
           return getAvailableDataProviders(securityType);
         }
 
         @Override
-        public List<String> visitEnergyFutureSecurity(EnergyFutureSecurity security) {
+        public Set<String> visitBondFutureSecurity(BondFutureSecurity security) {
+          final String securityType = security.getSecurityType();
+          return getAvailableDataProviders(securityType);
+        }
+
+        @Override
+        public Set<String> visitEnergyFutureSecurity(EnergyFutureSecurity security) {
           return null;
         }
 
         @Override
-        public List<String> visitFXFutureSecurity(FXFutureSecurity security) {
+        public Set<String> visitFXFutureSecurity(FXFutureSecurity security) {
           final String securityType = security.getSecurityType();
           return getAvailableDataProviders(securityType);
         }
 
         @Override
-        public List<String> visitIndexFutureSecurity(IndexFutureSecurity security) {
+        public Set<String> visitIndexFutureSecurity(IndexFutureSecurity security) {
           final String securityType = security.getSecurityType();
           return getAvailableDataProviders(securityType);
         }
 
         @Override
-        public List<String> visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
+        public Set<String> visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
           final String securityType = security.getSecurityType();
           return getAvailableDataProviders(securityType);
         }
 
         @Override
-        public List<String> visitMetalFutureSecurity(MetalFutureSecurity security) {
+        public Set<String> visitMetalFutureSecurity(MetalFutureSecurity security) {
           final String securityType = security.getSecurityType();
           return getAvailableDataProviders(securityType);
         }
 
         @Override
-        public List<String> visitStockFutureSecurity(StockFutureSecurity security) {
+        public Set<String> visitStockFutureSecurity(StockFutureSecurity security) {
           final String securityType = security.getSecurityType();
           return getAvailableDataProviders(securityType);
         }
-      }, new OptionSecurityVisitor<List<String>>() {
+      }, new OptionSecurityVisitor<Set<String>>() {
 
         @Override
-        public List<String> visitBondOptionSecurity(BondOptionSecurity security) {
-          final String securityType = security.getSecurityType();
-          return getAvailableDataProviders(securityType);
-        }
-
-        @Override
-        public List<String> visitEquityOptionSecurity(EquityOptionSecurity security) {
+        public Set<String> visitBondOptionSecurity(BondOptionSecurity security) {
           final String securityType = security.getSecurityType();
           return getAvailableDataProviders(securityType);
         }
 
         @Override
-        public List<String> visitFXOptionSecurity(FXOptionSecurity security) {
+        public Set<String> visitEquityOptionSecurity(EquityOptionSecurity security) {
           final String securityType = security.getSecurityType();
           return getAvailableDataProviders(securityType);
         }
 
         @Override
-        public List<String> visitFutureOptionSecurity(FutureOptionSecurity security) {
+        public Set<String> visitFXOptionSecurity(FXOptionSecurity security) {
           final String securityType = security.getSecurityType();
           return getAvailableDataProviders(securityType);
         }
 
         @Override
-        public List<String> visitOptionOptionSecurity(OptionOptionSecurity security) {
+        public Set<String> visitFutureOptionSecurity(FutureOptionSecurity security) {
           final String securityType = security.getSecurityType();
           return getAvailableDataProviders(securityType);
         }
 
         @Override
-        public List<String> visitSwapOptionSecurity(SwapOptionSecurity security) {
-          final String securityType = security.getSecurityType();
-          return getAvailableDataProviders(securityType);
-        }
-      }, new SwapSecurityVisitor<List<String>>() {
-
-        @Override
-        public List<String> visitForwardSwapSecurity(ForwardSwapSecurity security) {
+        public Set<String> visitOptionOptionSecurity(OptionOptionSecurity security) {
           final String securityType = security.getSecurityType();
           return getAvailableDataProviders(securityType);
         }
 
         @Override
-        public List<String> visitSwapSecurity(SwapSecurity security) {
+        public Set<String> visitSwapOptionSecurity(SwapOptionSecurity security) {
+          final String securityType = security.getSecurityType();
+          return getAvailableDataProviders(securityType);
+        }
+      }, new SwapSecurityVisitor<Set<String>>() {
+
+        @Override
+        public Set<String> visitForwardSwapSecurity(ForwardSwapSecurity security) {
+          final String securityType = security.getSecurityType();
+          return getAvailableDataProviders(securityType);
+        }
+
+        @Override
+        public Set<String> visitSwapSecurity(SwapSecurity security) {
           final String securityType = security.getSecurityType();
           return getAvailableDataProviders(securityType);
         }

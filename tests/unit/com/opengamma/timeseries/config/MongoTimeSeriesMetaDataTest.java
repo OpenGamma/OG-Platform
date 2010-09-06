@@ -25,7 +25,7 @@ import com.opengamma.util.test.MongoDBTestUtils;
 /**
  * Test that TimeSeriesMetaDataDefinition can be serialized
  */
-public class MongoTimeSeriesMetaDataTest extends MongoDBConfigMasterTestCase<TimeSeriesMetaDataDefinition>{
+public class MongoTimeSeriesMetaDataTest extends MongoDBConfigMasterTestCase<TimeSeriesMetaDataConfiguration>{
 
   private MongoDBConnectionSettings _mongoSettings;
   private Random _random = new Random();
@@ -34,7 +34,7 @@ public class MongoTimeSeriesMetaDataTest extends MongoDBConfigMasterTestCase<Tim
    * @param entityType
    */
   public MongoTimeSeriesMetaDataTest() {
-    super(TimeSeriesMetaDataDefinition.class);
+    super(TimeSeriesMetaDataConfiguration.class);
   }
   
   /**
@@ -54,7 +54,7 @@ public class MongoTimeSeriesMetaDataTest extends MongoDBConfigMasterTestCase<Tim
   }
 
   @Override
-  protected void assertConfigDocumentValue(TimeSeriesMetaDataDefinition expected, TimeSeriesMetaDataDefinition actual) {
+  protected void assertConfigDocumentValue(TimeSeriesMetaDataConfiguration expected, TimeSeriesMetaDataConfiguration actual) {
     assertEquals(expected.getDefaultDataField(), actual.getDefaultDataField());
     assertEquals(expected.getDataFields(), actual.getDataFields());
     assertEquals(expected.getDefaultDataProvider(), actual.getDefaultDataProvider());
@@ -65,11 +65,11 @@ public class MongoTimeSeriesMetaDataTest extends MongoDBConfigMasterTestCase<Tim
   }
 
   @Override
-  protected ConfigMaster<TimeSeriesMetaDataDefinition> createMongoConfigMaster() {
+  protected ConfigMaster<TimeSeriesMetaDataConfiguration> createMongoConfigMaster() {
     //use className as collection so do not set collectionName
     MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings(null, false);
     _mongoSettings = settings;
-    return new MongoDBConfigMaster<TimeSeriesMetaDataDefinition>(TimeSeriesMetaDataDefinition.class, settings, true);
+    return new MongoDBConfigMaster<TimeSeriesMetaDataConfiguration>(TimeSeriesMetaDataConfiguration.class, settings, true);
   }
 
   @Override
@@ -78,22 +78,22 @@ public class MongoTimeSeriesMetaDataTest extends MongoDBConfigMasterTestCase<Tim
   }
 
   @Override
-  protected TimeSeriesMetaDataDefinition makeRandomConfigDoc() {
+  protected TimeSeriesMetaDataConfiguration makeRandomConfigDoc() {
     String securityType = EquitySecurity.SECURITY_TYPE;
     String dataSourceDefault = "BLOOMBERG" + _random.nextInt();
     String dataFieldDefault = "PX_LAST" + _random.nextInt();
     String dataProviderDefault = "EXCH";
-    TimeSeriesMetaDataDefinition definition = new TimeSeriesMetaDataDefinition(securityType, dataSourceDefault, dataFieldDefault, dataProviderDefault);
-    definition.addDataFields(dataFieldDefault);
-    definition.addDataFields("VOLUME" + _random.nextInt());
-    definition.addDataSources(dataSourceDefault);
-    definition.addDataSources("REUTERS" + _random.nextInt());
+    TimeSeriesMetaDataConfiguration definition = new TimeSeriesMetaDataConfiguration(securityType, dataSourceDefault, dataFieldDefault, dataProviderDefault);
+    definition.addDataField(dataFieldDefault);
+    definition.addDataField("VOLUME" + _random.nextInt());
+    definition.addDataSource(dataSourceDefault);
+    definition.addDataSource("REUTERS" + _random.nextInt());
     return definition;
   }
 
   @Override
-  protected ConfigDocument<TimeSeriesMetaDataDefinition> makeTestConfigDoc(int version) {
-    DefaultConfigDocument<TimeSeriesMetaDataDefinition> doc = new DefaultConfigDocument<TimeSeriesMetaDataDefinition>();
+  protected ConfigDocument<TimeSeriesMetaDataConfiguration> makeTestConfigDoc(int version) {
+    DefaultConfigDocument<TimeSeriesMetaDataConfiguration> doc = new DefaultConfigDocument<TimeSeriesMetaDataConfiguration>();
     doc.setName("TestName" + version);
     doc.setValue(makeRandomConfigDoc());
     return doc;

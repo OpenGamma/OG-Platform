@@ -176,20 +176,10 @@ public final class TimeseriesMasterTestUtils {
     OptionType optionType = OptionType.CALL;
     double strike = 1100.0;
     Expiry expiry = new Expiry(DateUtil.getUTCDate(2010, 12, 18));
-    // String underlingTicker = "SPX      Index";
     Identifier underlyingUniqueID = Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "EI09SPX");
-    /*
-     * DomainSpecificIdentifier underlingDSI1 = new DomainSpecificIdentifier(new
-     * IdentificationDomain(BBG_SECURITY_ID_KEY_NAME), underlingTicker);
-     * DomainSpecificIdentifier underlingDSI2 = new DomainSpecificIdentifier(new
-     * IdentificationDomain(BBG_UNIQUE_SECURITY_ID_KEY_NAME),
-     * underlyingUniqueID);
-     * SecurityKey underlingKey = new SecurityKeyImpl(underlingDSI2,
-     * underlingDSI1);
-     */
     final EquityOptionSecurity security = new EquityOptionSecurity(new EuropeanExerciseType(),
         new VanillaPayoffStyle(), optionType, strike, expiry, underlyingUniqueID, USD,
-        1, //TODO change when the point value is properly added
+        5.0, 
         "US");
 
     Set<Identifier> identifiers = new HashSet<Identifier>();
@@ -204,17 +194,7 @@ public final class TimeseriesMasterTestUtils {
     OptionType optionType = OptionType.CALL;
     double strike = 190.0;
     Expiry expiry = new Expiry(DateUtil.getUTCDate(2010, 01, 16));
-    // String underlingTicker = "AAPL US Equity";
     Identifier underlyingUniqueID = Identifier.of(IdentificationScheme.BLOOMBERG_BUID, AAPL_BUID);
-    /*
-     * DomainSpecificIdentifier underlingDSI1 = new DomainSpecificIdentifier(new
-     * IdentificationDomain(BBG_SECURITY_ID_KEY_NAME), underlingTicker);
-     * DomainSpecificIdentifier underlingDSI2 = new DomainSpecificIdentifier(new
-     * IdentificationDomain(BBG_UNIQUE_SECURITY_ID_KEY_NAME),
-     * underlyingUniqueID);
-     * SecurityKey underlingKey = new SecurityKeyImpl(underlingDSI1,
-     * underlingDSI2);
-     */
     final EquityOptionSecurity security = new EquityOptionSecurity(new AmericanExerciseType(),
         new VanillaPayoffStyle(), optionType,
         strike, 
