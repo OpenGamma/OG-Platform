@@ -238,8 +238,8 @@ public class RegionNode implements Region {
 
   @Override
   public String getCountryISO2() {
-    if (getData().hasField(InMemoryRegionRepository.ISO_COUNTRY_2)) {
-      return getData().getString(InMemoryRegionRepository.ISO_COUNTRY_2);
+    if (getData().hasField(InMemoryRegionMaster.ISO_COUNTRY_2)) {
+      return getData().getString(InMemoryRegionMaster.ISO_COUNTRY_2);
     } else {
       return null;
     }
@@ -247,8 +247,8 @@ public class RegionNode implements Region {
   
   @Override
   public String getCurrencyISO3() {
-    if (getData().hasField(InMemoryRegionRepository.ISO_CURRENCY_3)) {
-      return getData().getString(InMemoryRegionRepository.ISO_CURRENCY_3);
+    if (getData().hasField(InMemoryRegionMaster.ISO_CURRENCY_3)) {
+      return getData().getString(InMemoryRegionMaster.ISO_CURRENCY_3);
     } else {
       return null;
     }
