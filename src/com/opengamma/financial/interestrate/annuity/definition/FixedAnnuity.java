@@ -25,49 +25,6 @@ public class FixedAnnuity implements Annuity {
   private final int _n;
   private final String _curveName;
 
-  // /**
-  // * @param paymentTimes time in years from now where payments are made
-  // * @param paymentAmounts actual cash amounts paid on paymentTimes time
-  // * @param yieldCurveName name of curve to take discount factors off
-  // */
-  // public FixedAnnuity(final double[] paymentTimes, final double[] paymentAmounts, final String yieldCurveName) {
-  // Validate.notNull(paymentTimes);
-  // ArgumentChecker.notEmpty(paymentTimes, "payment times");
-  // Validate.notNull(paymentAmounts);
-  // ArgumentChecker.notEmpty(paymentAmounts, "payment amounts");
-  // Validate.notNull(yieldCurveName);
-  // _n = paymentTimes.length;
-  // Validate.isTrue(paymentAmounts.length == _n);
-  // _paymentTimes = paymentTimes;
-  // _paymentAmounts = paymentAmounts;
-  // _yearFractions = setupActualActualYearFractions(paymentTimes);
-  // _curveName = yieldCurveName;
-  // }
-  //
-  // /**
-  // *
-  // * @param paymentTimes time in years from now where payments are made
-  // * @param paymentAmounts actual cash amounts paid on paymentTimes time
-  // * @param yearFractions year fractions between payments - <b>note</b> this has no effect on the paymentAmounts
-  // * @param yieldCurveName name of curve to take discount factors off
-  // */
-  // public FixedAnnuity(final double[] paymentTimes, final double[] paymentAmounts, final double[] yearFractions, final String yieldCurveName) {
-  // Validate.notNull(paymentTimes);
-  // ArgumentChecker.notEmpty(paymentTimes, "payment times");
-  // Validate.notNull(paymentAmounts);
-  // ArgumentChecker.notEmpty(paymentAmounts, "payment amounts");
-  // Validate.notNull(yieldCurveName);
-  // Validate.notNull(yearFractions);
-  // ArgumentChecker.notEmpty(yearFractions, "year fraction");
-  // _n = paymentTimes.length;
-  // Validate.isTrue(paymentAmounts.length == _n);
-  // Validate.isTrue(yearFractions.length == _n);
-  // _paymentTimes = paymentTimes;
-  // _paymentAmounts = paymentAmounts;
-  // _yearFractions = yearFractions;
-  // _curveName = yieldCurveName;
-  // }
-
   /**
    * 
    * @param paymentTimes paymentTimes time in years from now where payments are made 
