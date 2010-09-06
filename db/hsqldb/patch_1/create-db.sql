@@ -9,7 +9,6 @@
 
     create sequence hibernate_sequence start with 1 increment by 1;
 
-
 -- create-db-security.sql: Security Master
 
 -- design has one document
@@ -22,7 +21,7 @@ create sequence sec_security_seq as bigint
     start with 1000 increment by 1 no cycle;
 create sequence sec_idkey_seq as bigint
     start with 1000 increment by 1 no cycle;
--- "as bigint" required by Derby, not accepted by Postgresql
+-- "as bigint" required by Derby/HSQL, not accepted by Postgresql
 
 create table sec_security (
     id bigint not null,
