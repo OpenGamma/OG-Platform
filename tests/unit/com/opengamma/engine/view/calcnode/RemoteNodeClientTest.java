@@ -15,6 +15,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.junit.Test;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionCompilationService;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
@@ -22,6 +23,7 @@ import com.opengamma.engine.test.TestCalculationNode;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.cache.InMemoryIdentifierMap;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeFailureMessage;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeJobMessage;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeReadyMessage;
@@ -71,6 +73,46 @@ public class RemoteNodeClientTest {
     assertTrue(resultMessage instanceof RemoteCalcNodeResultMessage);
     final RemoteCalcNodeResultMessage result = (RemoteCalcNodeResultMessage) resultMessage;
     assertEquals(job.getSpecification(), result.getResult().getSpecification());
+  }
+
+  @Test
+  public void errorInvocation() {
+    final IdentifierMap identifierMap = new InMemoryIdentifierMap ();
+    final DirectFudgeConnection conduit = new DirectFudgeConnection(FudgeContext.GLOBAL_DEFAULT);
+    final CollectingFudgeMessageReceiver messages = new CollectingFudgeMessageReceiver();
+    conduit.getEnd2().setFudgeMessageReceiver(messages);
+    final RemoteNodeClient client = new RemoteNodeClient(conduit.getEnd1(), new FunctionCompilationService (new InMemoryFunctionRepository (), new FunctionCompilationContext ()), new InMemoryIdentifierMap ());
+    final AbstractCalculationNode failingNode = new TestCalculationNode() {
+      
+      @Override
+      public CalculationJobResult executeJob(CalculationJob job) {
+        throw new OpenGammaRuntimeException ("Remote node not working"); 
+      }
+      
+    };
+    assertEquals(0, messages.getMessages().size());
+    client.addNode(failingNode);
+    assertEquals(0, messages.getMessages().size());
+    client.start();
+    assertEquals(1, messages.getMessages().size());
+    final FudgeMsgEnvelope readyMsgEnvelope = messages.getMessages().get(0);
+    messages.clear();
+    final FudgeDeserializationContext dcontext = new FudgeDeserializationContext(FudgeContext.GLOBAL_DEFAULT);
+    final FudgeSerializationContext scontext = new FudgeSerializationContext(FudgeContext.GLOBAL_DEFAULT);
+    final RemoteCalcNodeMessage readyMessage = dcontext.fudgeMsgToObject(RemoteCalcNodeMessage.class, readyMsgEnvelope.getMessage());
+    assertTrue(readyMessage instanceof RemoteCalcNodeReadyMessage);
+    final RemoteCalcNodeReadyMessage ready = (RemoteCalcNodeReadyMessage) readyMessage;
+    assertEquals(1, ready.getCapacity());
+    final CalculationJob job = createTestCalculationJob();
+    job.convertInputs(identifierMap);
+    conduit.getEnd2().getFudgeMessageSender().send(
+        FudgeSerializationContext.addClassHeader(scontext.objectToFudgeMsg(new RemoteCalcNodeJobMessage(job)), RemoteCalcNodeJobMessage.class, RemoteCalcNodeMessage.class));
+    final FudgeMsgEnvelope resultMsgEnvelope = messages.waitForMessage(TIMEOUT);
+    assertNotNull(resultMsgEnvelope);
+    final RemoteCalcNodeMessage resultMessage = dcontext.fudgeMsgToObject(RemoteCalcNodeMessage.class, resultMsgEnvelope.getMessage());
+    assertTrue(resultMessage instanceof RemoteCalcNodeFailureMessage);
+    final RemoteCalcNodeFailureMessage failure = (RemoteCalcNodeFailureMessage) resultMessage;
+    assertEquals(job.getSpecification(), failure.getJob ());
   }
 
 }

@@ -97,7 +97,7 @@ public class CalculationJobResult implements Serializable {
 
   public FudgeFieldContainer toFudgeMsg(FudgeSerializationContext fudgeContext) {
     MutableFudgeFieldContainer msg = fudgeContext.newMessage();
-    getSpecification().toFudgeMsg(msg);
+    getSpecification().toFudgeMsg(fudgeContext, msg);
     msg.add(DURATION_FIELD_NAME, getDuration());
     msg.add(COMPUTE_NODE_ID_FIELD_NAME, getComputeNodeId());
     for (CalculationJobResultItem item : getResultItems()) {

@@ -128,7 +128,7 @@ public class CalculationJob implements Serializable {
 
   public FudgeFieldContainer toFudgeMsg(FudgeSerializationContext fudgeContext) {
     MutableFudgeFieldContainer msg = fudgeContext.newMessage();
-    getSpecification().toFudgeMsg(msg);
+    getSpecification().toFudgeMsg(fudgeContext, msg);
     if (_required != null) {
       for (Long required : _required) {
         msg.add(REQUIRED_FIELD_NAME, required);

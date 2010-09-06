@@ -11,6 +11,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
 /**
@@ -101,7 +102,7 @@ public class CalculationJobSpecification implements Serializable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
   
-  public void toFudgeMsg(MutableFudgeFieldContainer fudgeMsg) {
+  public void toFudgeMsg(FudgeMessageFactory messageFactory, MutableFudgeFieldContainer fudgeMsg) {
     fudgeMsg.add(VIEW_NAME_FIELD_NAME, getViewName());
     fudgeMsg.add(CALCULATION_CONFIGURATION_FIELD_NAME, getCalcConfigName());
     fudgeMsg.add(ITERATION_TIMESTAMP_FIELD_NAME, getIterationTimestamp());
@@ -113,7 +114,6 @@ public class CalculationJobSpecification implements Serializable {
     String calcConfigName = msg.getString(CALCULATION_CONFIGURATION_FIELD_NAME);
     long iterationTimestamp = msg.getLong(ITERATION_TIMESTAMP_FIELD_NAME);
     long jobId = msg.getLong(JOB_ID_FIELD_NAME);
-    
     return new CalculationJobSpecification(viewName, calcConfigName, iterationTimestamp, jobId);
   }
 }

@@ -21,8 +21,10 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeBusyMessage;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeFailureMessage;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeJobMessage;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeReadyMessage;
@@ -160,6 +162,8 @@ import com.opengamma.util.monitor.OperationTimer;
       handleBusyMessage((RemoteCalcNodeBusyMessage) message);
     } else if (message instanceof RemoteCalcNodeReadyMessage) {
       handleReadyMessage((RemoteCalcNodeReadyMessage) message);
+    } else if (message instanceof RemoteCalcNodeFailureMessage) {
+      handleFailureMessage((RemoteCalcNodeFailureMessage) message);
     } else {
       s_logger.warn("Unexpected message - {}", message);
     }
@@ -167,18 +171,17 @@ import com.opengamma.util.monitor.OperationTimer;
 
   private void handleResultMessage(final RemoteCalcNodeResultMessage message) {
     s_logger.info("Received result for job {}", message.getResult().getSpecification());
-    // We check for below capacity. We can get "equal" here, but that means there is an invoke taking place which will be dealt with
-    // by the notifyWhenAvailable that gets called to reschedule the invoker
     if (message.getReady() != null) {
       handleReadyMessage(message.getReady());
     }
+    // We check for below capacity. We can get "equal" here, but that means there is an invoke taking place which will be dealt with
+    // by the notifyWhenAvailable that gets called to reschedule the invoker
     if (_launched.decrementAndGet() < _capacity) {
       if (registerIfRequired()) {
         s_logger.debug("Notified dispatcher of capacity available");
       }
     }
-    // We decrement the count (and re-register) first as the remote node is already available if it's sent us its data.
-
+    // We decrement the count (and re-register) before processing the data as the remote node is already available if it's sent us its data.
     final JobInvocationReceiver receiver = getJobCompletionCallbacks().remove(message.getResult().getSpecification());
     if (receiver != null) {
       final CalculationJobResult result = message.getResult();
@@ -205,6 +208,28 @@ import com.opengamma.util.monitor.OperationTimer;
       }
     } else {
       s_logger.info("Remote invoker over capacity {} with {} jobs", message.getCapacity(), launched);
+    }
+  }
+
+  private void handleFailureMessage(final RemoteCalcNodeFailureMessage message) {
+    s_logger.info("Received failure for job {}", message.getJob());
+    if (message.getReady() != null) {
+      handleReadyMessage(message.getReady());
+    }
+    // We check for below capacity. We can get "equal" here, but that means there is an invoke taking place which will be dealt with
+    // by the notifyWhenAvailable that gets called to reschedule the invoker
+    if (_launched.decrementAndGet() < _capacity) {
+      if (registerIfRequired()) {
+        s_logger.debug("Notified dispatcher of capacity available");
+      }
+    }
+    // We decrement the count (and re-register) before processing the data as the remote node is already available if it's sent us its data.
+    final JobInvocationReceiver receiver = getJobCompletionCallbacks().remove(message.getJob());
+    if (receiver != null) {
+      s_logger.debug("Failed job on {} with message {}", message.getComputeNodeId(), message.getErrorMessage());
+      receiver.jobFailed(this, message.getComputeNodeId(), new OpenGammaRuntimeException(message.getErrorMessage()));
+    } else {
+      s_logger.warn("Duplicate or failure for cancelled callback {} received", message.getJob());
     }
   }
 

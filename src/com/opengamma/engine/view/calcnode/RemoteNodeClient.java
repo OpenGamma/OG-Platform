@@ -20,6 +20,7 @@ import org.springframework.context.Lifecycle;
 import com.opengamma.engine.function.FunctionCompilationService;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeBusyMessage;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeFailureMessage;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeInitMessage;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeJobMessage;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
@@ -129,7 +130,7 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
       @Override
       public void executionFailed(final AbstractCalculationNode node, final Exception exception) {
         s_logger.warn("Exception thrown by job execution", exception);
-        // TODO [ENG-204] propogate this error back to the server
+        sendMessage(new RemoteCalcNodeFailureMessage(job.getSpecification(), exception.getMessage(), node.getNodeId()));
       }
 
     });
