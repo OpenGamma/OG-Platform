@@ -38,7 +38,7 @@ import com.opengamma.id.Identifier;
 public interface HibernateSecurityMasterDao {
 
   // Main security load/save
-  SecurityBean getSecurityBean(DefaultSecurity base);
+  SecurityBean getSecurityBean(DefaultSecurity base, SecurityBeanOperation<?, ?> beanOperation);
 
   <S extends DefaultSecurity, SBean extends SecurityBean> SBean createSecurityBean(
       OperationContext context, SecurityBeanOperation<S, SBean> beanOperation, Date effectiveDateTime, S security);

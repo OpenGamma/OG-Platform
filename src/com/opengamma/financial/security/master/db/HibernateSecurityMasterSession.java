@@ -429,8 +429,9 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
 
   // Generic Securities
   @Override
-  public SecurityBean getSecurityBean(final DefaultSecurity base) {
-    Query query = getSession().getNamedQuery("SecurityBean.one.bySecurityId");
+  public SecurityBean getSecurityBean(final DefaultSecurity base, SecurityBeanOperation<?, ?> beanOperation) {
+    String beanType = beanOperation.getBeanClass().getSimpleName();
+    Query query = getSession().getNamedQuery(beanType + ".one.bySecurityId");
     query.setLong("securityId", extractRowId(base.getUniqueIdentifier()));
     return (SecurityBean) query.uniqueResult();
   }

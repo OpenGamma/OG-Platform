@@ -40,7 +40,16 @@
     </component>
     <property name="reverse" column="reverse" type="boolean" />
   </union-subclass>
+
+  <query name="OptionSecurityBean.one.bySecurityId"><![CDATA[
+    from 
+      OptionSecurityBean as s
+    where
+      s.securityId = :securityId
+  ]]></query>
+
   <query name="OptionSecurityBean.all">
     from OptionSecurityBean
   </query>
+
 </hibernate-mapping>

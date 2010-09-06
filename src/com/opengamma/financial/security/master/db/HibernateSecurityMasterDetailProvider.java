@@ -7,6 +7,7 @@ package com.opengamma.financial.security.master.db;
 
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -43,6 +44,7 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
   private static final Logger s_logger = LoggerFactory.getLogger(HibernateSecurityMasterDetailProvider.class);
   private static final ConcurrentMap<Class<?>, SecurityBeanOperation<?, ?>> BEAN_OPERATIONS_BY_SECURITY = new ConcurrentHashMap<Class<?>, SecurityBeanOperation<?, ?>>();
   private static final ConcurrentMap<Class<?>, SecurityBeanOperation<?, ?>> BEAN_OPERATIONS_BY_BEAN = new ConcurrentHashMap<Class<?>, SecurityBeanOperation<?, ?>>();
+  private static final ConcurrentMap<String, SecurityBeanOperation<?, ?>> BEAN_OPERATIONS_BY_TYPE = new ConcurrentHashMap<String, SecurityBeanOperation<?, ?>>();
 
   /**
    * The Hibernate Spring template.
@@ -57,6 +59,7 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
   private static void loadBeanOperation(final SecurityBeanOperation<?, ?> beanOperation) {
     BEAN_OPERATIONS_BY_SECURITY.put(beanOperation.getSecurityClass(), beanOperation);
     BEAN_OPERATIONS_BY_BEAN.put(beanOperation.getBeanClass(), beanOperation);
+    BEAN_OPERATIONS_BY_TYPE.put(beanOperation.getSecurityType(), beanOperation);
   }
 
   private static SecurityBeanOperation<?, ?> getBeanOperation(final ConcurrentMap<Class<?>, SecurityBeanOperation<?, ?>> map, final Class<?> clazz) {
@@ -83,11 +86,25 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
     return (SecurityBeanOperation<T, SecurityBean>) beanOperation;
   }
 
+//  @SuppressWarnings("unchecked")
+//  private static <T extends SecurityBean> SecurityBeanOperation<Security, T> getBeanOperation(final T bean) {
+//    final SecurityBeanOperation<?, ?> beanOperation = getBeanOperation(BEAN_OPERATIONS_BY_BEAN, bean.getClass());
+//    if (beanOperation == null) {
+//      throw new OpenGammaRuntimeException("can't find BeanOperation for " + bean);
+//    }
+//    return (SecurityBeanOperation<Security, T>) beanOperation;
+//  }
+
   @SuppressWarnings("unchecked")
-  private static <T extends SecurityBean> SecurityBeanOperation<Security, T> getBeanOperation(final T bean) {
-    final SecurityBeanOperation<?, ?> beanOperation = getBeanOperation(BEAN_OPERATIONS_BY_BEAN, bean.getClass());
+  private static <T extends SecurityBean> SecurityBeanOperation<Security, T> getBeanOperation(final String type) {
+    SecurityBeanOperation<?, ?> beanOperation = BEAN_OPERATIONS_BY_TYPE.get(type.toUpperCase(Locale.ENGLISH));  // upper case handles "Cash"
     if (beanOperation == null) {
-      throw new OpenGammaRuntimeException("can't find BeanOperation for " + bean);
+      if (type.contains("_")) {
+        beanOperation = BEAN_OPERATIONS_BY_TYPE.get(type.substring(type.indexOf('_') + 1));
+      }
+      if (beanOperation == null) {
+        throw new OpenGammaRuntimeException("can't find BeanOperation for " + type);
+      }
     }
     return (SecurityBeanOperation<Security, T>) beanOperation;
   }
@@ -145,13 +162,14 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
       @SuppressWarnings("unchecked")
       @Override
       public Object doInHibernate(Session session) throws HibernateException, SQLException {
+        final SecurityBeanOperation beanOperation = getBeanOperation(base.getSecurityType());
         HibernateSecurityMasterDao secMasterSession = getHibernateSecurityMasterSession(session);
-        SecurityBean security = secMasterSession.getSecurityBean(base);
+        SecurityBean security = secMasterSession.getSecurityBean(base, beanOperation);
         if (security == null) {
           s_logger.debug("no detail found for security {}", base.getUniqueIdentifier());
           return base;
         }
-        final SecurityBeanOperation beanOperation = getBeanOperation(security);
+//        final SecurityBeanOperation beanOperation = getBeanOperation(security);
         security = beanOperation.resolve(getOperationContext(), secMasterSession, null, security);
         final DefaultSecurity result = (DefaultSecurity) beanOperation.createSecurity(getOperationContext(), security);
         if (Objects.equal(base.getSecurityType(), result.getSecurityType()) == false) {
