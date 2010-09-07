@@ -153,11 +153,12 @@ public abstract class AbstractCalculationNode implements CalculationNode {
        */
     }
 
+    long endNanos = System.nanoTime();
+
     _cachePutTime -= System.nanoTime();
     cache.waitForPendingWrites();
     _cachePutTime += System.nanoTime();
 
-    long endNanos = System.nanoTime();
     long durationNanos = endNanos - startNanos;
     CalculationJobResult jobResult = new CalculationJobResult(spec, durationNanos, resultItems, getNodeId());
 
