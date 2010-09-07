@@ -187,7 +187,7 @@ import com.opengamma.util.monitor.OperationTimer;
     // We check for below capacity. We can get "equal" here, but that means there is an invoke taking place which will be dealt with
     // by the notifyWhenAvailable that gets called to reschedule the invoker
     if (_launched.decrementAndGet() < _capacity) {
-      if (registerIfRequired(false)) {
+      if (registerIfRequired(true)) {
         s_logger.debug("Notified dispatcher of capacity available");
       }
     }
@@ -213,7 +213,7 @@ import com.opengamma.util.monitor.OperationTimer;
     _capacity = message.getCapacity();
     final int launched = _launched.get();
     if (launched < _capacity) {
-      if (registerIfRequired(false)) {
+      if (registerIfRequired(true)) {
         s_logger.info("Remote invoker ready for use by dispatcher, capacity {}", message.getCapacity());
       }
     } else {
@@ -229,7 +229,7 @@ import com.opengamma.util.monitor.OperationTimer;
     // We check for below capacity. We can get "equal" here, but that means there is an invoke taking place which will be dealt with
     // by the notifyWhenAvailable that gets called to reschedule the invoker
     if (_launched.decrementAndGet() < _capacity) {
-      if (registerIfRequired(false)) {
+      if (registerIfRequired(true)) {
         s_logger.debug("Notified dispatcher of capacity available");
       }
     }

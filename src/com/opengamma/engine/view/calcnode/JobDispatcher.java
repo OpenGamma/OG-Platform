@@ -56,6 +56,7 @@ public class JobDispatcher implements JobInvokerRegister {
 
     private final CalculationJob _rootJob;
     private final ConcurrentMap<CalculationJobSpecification, JobResultReceiver> _resultReceivers;
+    // TODO the result receiver doesn't need to be a reference; it's just a flag as to whether the whole chain of tailed jobs has failed
     private final AtomicReference<JobResultReceiver> _resultReceiver;
     private final long _jobCreationTime;
     private final CapabilityRequirements _capabilityRequirements;
@@ -85,7 +86,7 @@ public class JobDispatcher implements JobInvokerRegister {
 
     @Override
     public void jobCompleted(final CalculationJobResult result) {
-      JobResultReceiver resultReceiver = _resultReceivers.remove(result.getSpecification());
+      final JobResultReceiver resultReceiver = _resultReceivers.remove(result.getSpecification());
       if (resultReceiver == null) {
         s_logger.warn("Job {} completed on node {} but is not currently pending", result.getSpecification().getJobId(), result.getComputeNodeId());
         // Note the above warning can happen if we've been retried and tail jobs are being re-executed
@@ -94,10 +95,10 @@ public class JobDispatcher implements JobInvokerRegister {
       if (_resultReceivers.isEmpty()) {
         // This is the last one to complete
         cancelTimeout();
-        resultReceiver = _resultReceiver.getAndSet(null);
-        if (resultReceiver == null) {
-          // The whole batch has failed or aborted however
-          s_logger.warn("Job {} completed on node {} but batch has already failed or aborted", result.getSpecification().getJobId(), result.getComputeNodeId());
+        if (_resultReceiver.getAndSet(null) == null) {
+          // The whole tree has failed or aborted however
+          s_logger.warn("Job {} completed on node {} but tree has already failed or aborted", result.getSpecification().getJobId(), result.getComputeNodeId());
+          resultReceiver.resultReceived(result);
           return;
         }
       }
@@ -144,32 +145,36 @@ public class JobDispatcher implements JobInvokerRegister {
       }
     }
 
-    private void failBatch(final CalculationJob job, final Exception exception, final JobResultReceiver resultReceiver) {
-      final List<CalculationJobResultItem> failureItems = new ArrayList<CalculationJobResultItem>(job.getJobItems().size());
-      for (CalculationJobItem item : job.getJobItems()) {
-        failureItems.add(new CalculationJobResultItem(item, exception));
+    private void failTree(final CalculationJob job, final Exception exception) {
+      final JobResultReceiver resultReceiver = _resultReceivers.remove(job.getSpecification());
+      if (resultReceiver != null) {
+        final List<CalculationJobResultItem> failureItems = new ArrayList<CalculationJobResultItem>(job.getJobItems().size());
+        for (CalculationJobItem item : job.getJobItems()) {
+          failureItems.add(new CalculationJobResultItem(item, exception));
+        }
+        final CalculationJobResult jobResult = new CalculationJobResult(job.getSpecification(), getDurationNanos(), failureItems, getJobFailureNodeId());
+        resultReceiver.resultReceived(jobResult);
+      } else {
+        s_logger.warn("Job {} already completed at propogation of failure", job.getSpecification().getJobId());
+        // This can happen if the root job timed out but things had started to complete
       }
-      final CalculationJobResult jobResult = new CalculationJobResult(job.getSpecification(), getDurationNanos(), failureItems, getJobFailureNodeId());
-      resultReceiver.resultReceived(jobResult);
       if (job.getTail() != null) {
         for (CalculationJob tail : job.getTail()) {
-          s_logger.warn("Failed tail job {}", tail.getSpecification().getJobId());
-          failBatch(tail, exception, resultReceiver);
+          failTree(tail, exception);
         }
       }
     }
 
     private void jobAbort(Exception exception, final String alternativeError) {
       cancelTimeout();
-      final JobResultReceiver resultReceiver = _resultReceiver.getAndSet(null);
-      if (resultReceiver != null) {
+      if (_resultReceiver.getAndSet(null) != null) {
         s_logger.warn("Failed job {} after {} attempts", getJob().getSpecification().getJobId(), _rescheduled);
         if (exception == null) {
           s_logger.error("Failed job {} with {}", getJob().getSpecification().getJobId(), alternativeError);
           exception = new OpenGammaRuntimeException(alternativeError);
           exception.fillInStackTrace();
         }
-        failBatch(getJob(), exception, resultReceiver);
+        failTree(getJob(), exception);
       } else {
         s_logger.warn("Job {} aborted but we've already completed or aborted from another node", getJob().getSpecification().getJobId());
       }
