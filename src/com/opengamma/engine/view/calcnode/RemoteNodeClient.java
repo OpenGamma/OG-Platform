@@ -119,7 +119,7 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
   private void handleJobMessage(final RemoteCalcNodeJobMessage message) {
     final CalculationJob job = message.getJob();
     job.resolveInputs(getIdentifierMap());
-    executeJob(null, job, new ExecutionReceiver() {
+    addJob(job, new ExecutionReceiver() {
 
       @Override
       public void executionComplete(final CalculationJobResult result) {
@@ -133,7 +133,7 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
         sendMessage(new RemoteCalcNodeFailureMessage(job.getSpecification(), exception.getMessage(), node.getNodeId()));
       }
 
-    });
+    }, (job.getRequiredJobIds() == null) ? getNodes().poll() : null);
   }
 
   private void handleInitMessage(final RemoteCalcNodeInitMessage message) {

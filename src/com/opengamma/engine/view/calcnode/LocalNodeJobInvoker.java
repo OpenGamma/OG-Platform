@@ -8,8 +8,6 @@ package com.opengamma.engine.view.calcnode;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
@@ -25,21 +23,17 @@ public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContai
   private static final Logger s_logger = LoggerFactory.getLogger(LocalNodeJobInvoker.class);
 
   private final AtomicReference<JobInvokerRegister> _notifyWhenAvailable = new AtomicReference<JobInvokerRegister>();
-  private final ExecutorService _executorService;
 
   private final Set<Capability> _capabilities = new HashSet<Capability>();
 
   public LocalNodeJobInvoker() {
-    _executorService = Executors.newCachedThreadPool();
   }
 
   public LocalNodeJobInvoker(final AbstractCalculationNode node) {
-    this();
     addNode(node);
   }
 
   public LocalNodeJobInvoker(final Collection<AbstractCalculationNode> nodes) {
-    this();
     getNodes().addAll(nodes);
   }
 
@@ -62,10 +56,6 @@ public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContai
     getCapabilities().addAll(capabilities);
   }
 
-  protected ExecutorService getExecutorService() {
-    return _executorService;
-  }
-
   @Override
   public Collection<Capability> getCapabilities() {
     return _capabilities;
@@ -77,43 +67,44 @@ public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContai
     if (node == null) {
       return false;
     }
-    final Runnable invokeTask = new Runnable() {
+    final ExecutionReceiver executionReceiver = new ExecutionReceiver() {
 
-      private void execute(final AbstractCalculationNode node, final CalculationJob job, final ExecutionReceiver callback) {
-        executeJob(node, job, callback);
-        if (job.getTail() != null) {
-          for (CalculationJob tail : job.getTail()) {
-            execute(null, tail, callback);
+      @Override
+      public void executionComplete(CalculationJobResult result) {
+        receiver.jobCompleted(result);
+      }
+
+      @Override
+      public void executionFailed(AbstractCalculationNode node, Exception exception) {
+        s_logger.warn("Exception thrown by job execution", exception);
+        receiver.jobFailed(LocalNodeJobInvoker.this, node.getNodeId(), exception);
+      }
+
+    };
+    getExecutorService().execute(new Runnable() {
+
+      private void addTail(final Collection<CalculationJob> tails) {
+        if (tails != null) {
+          for (CalculationJob tail : tails) {
+            addJob(tail, executionReceiver, null);
+            addTail(tail.getTail());
           }
         }
       }
 
       @Override
       public void run() {
-        final ExecutionReceiver callback = new ExecutionReceiver() {
-
-          @Override
-          public void executionComplete(final CalculationJobResult result) {
-            receiver.jobCompleted(result);
-          }
-
-          @Override
-          public void executionFailed(final AbstractCalculationNode node, final Exception exception) {
-            s_logger.warn("Exception thrown by job execution", exception);
-            receiver.jobFailed(LocalNodeJobInvoker.this, node.getNodeId(), exception);
-          }
-
-        };
-        execute(node, job, callback);
-        if (!getNodes().isEmpty()) {
-          // This can only be empty if there is another thread processing runnable jobs. When that ends, it too will
-          // only see an empty nodeset if there is yet another thread processing the runnables.
-          onNodeChange();
-        }
+        addTail(job.getTail());
+        addJob(job, executionReceiver, node);
       }
-    };
-    getExecutorService().execute(invokeTask);
+      
+    });
     return true;
+  }
+
+  @Override
+  protected void onJobExecutionComplete() {
+    onNodeChange();
   }
 
   @Override

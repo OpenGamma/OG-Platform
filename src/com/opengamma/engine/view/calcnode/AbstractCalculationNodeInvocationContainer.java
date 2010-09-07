@@ -16,6 +16,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -140,6 +142,7 @@ public abstract class AbstractCalculationNodeInvocationContainer {
   private final Queue<AbstractCalculationNode> _nodes = new ConcurrentLinkedQueue<AbstractCalculationNode>();
   private final ConcurrentMap<Long, JobExecution> _executions = new ConcurrentSkipListMap<Long, JobExecution>();
   private final Queue<JobEntry> _runnableJobs = new ConcurrentLinkedQueue<JobEntry>();
+  private final ExecutorService _executorService = Executors.newCachedThreadPool();
   private final AtomicInteger _jobCount = new AtomicInteger();
 
   protected Queue<AbstractCalculationNode> getNodes() {
@@ -177,6 +180,13 @@ public abstract class AbstractCalculationNodeInvocationContainer {
   protected void onJobStart(final CalculationJob job) {
   }
 
+  protected void onJobExecutionComplete() {
+  }
+
+  protected ExecutorService getExecutorService() {
+    return _executorService;
+  }
+
   private JobExecution getExecution(final Long jobId) {
     JobExecution execution = _executions.get(jobId);
     if (execution == null) {
@@ -189,7 +199,11 @@ public abstract class AbstractCalculationNodeInvocationContainer {
     return execution;
   }
 
-  private void addJobToRunnableQueue(final JobEntry jobexec) {
+  /**
+   * If a node is passed in, it will run inline if the job is runnable, otherwise a thread will
+   * be forked. 
+   */
+  private void spawnOrQueueJob(final JobEntry jobexec, AbstractCalculationNode node) {
     final Collection<Long> requiredJobIds = jobexec.getJob().getRequiredJobIds();
     if (requiredJobIds != null) {
       if (jobexec.getRequired() == null) {
@@ -218,8 +232,32 @@ public abstract class AbstractCalculationNodeInvocationContainer {
         }
       }
     }
-    s_logger.debug("Adding job {} to runnable queue", jobexec.getJob().getSpecification().getJobId());
-    _runnableJobs.add(jobexec);
+    if (node == null) {
+      node = getNodes().poll();
+      if (node == null) {
+        synchronized (this) {
+          node = getNodes().poll();
+          if (node == null) {
+            s_logger.debug("Adding job {} to runnable queue", jobexec.getJob().getSpecification().getJobId());
+            _runnableJobs.add(jobexec);
+            return;
+          }
+        }
+      }
+      s_logger.debug("Starting parallel execution for job {}", jobexec.getJob().getSpecification().getJobId());
+      final AbstractCalculationNode parallelNode = node;
+      getExecutorService().execute(new Runnable() {
+
+        @Override
+        public void run() {
+          executeJobs(parallelNode, jobexec);
+        }
+
+      });
+    } else {
+      s_logger.debug("Starting inline execution for job {}", jobexec.getJob().getSpecification().getJobId());
+      executeJobs(node, jobexec);
+    }
   }
 
   private void failExecution(final JobExecution execution) {
@@ -236,30 +274,19 @@ public abstract class AbstractCalculationNodeInvocationContainer {
     }
   }
 
+  protected void addJob(final CalculationJob job, final ExecutionReceiver receiver, final AbstractCalculationNode node) {
+    spawnOrQueueJob(new JobEntry(job, receiver), node);
+  }
+
   /**
-   * Executes a job, or queues it somewhere to run. This may return immediately if there is another thread that will
-   * end up executing the job, or may run more than one job before returning. 
+   * Executes jobs from the runnable queue until it is empty.
    * 
-   * @param node Node to run on, or {@code null} to wait for one to become available. The node will be returned to the container
-   * after execution.
-   * @param job The job to run.
-   * @param receiver The callback object for successful or failed execution.
+   * @param node Node to run on, not {@code null}
+   * @param jobexec The first job to run, not {@code null}
    */
-  protected void executeJob(AbstractCalculationNode node, final CalculationJob job, final ExecutionReceiver receiver) {
-    addJobToRunnableQueue(new JobEntry(job, receiver));
-    JobEntry jobexec = _runnableJobs.poll();
-    while (jobexec != null) {
-      if (node == null) {
-        s_logger.debug("Requesting calculation node from pool");
-        node = getNodes().poll();
-        if (node == null) {
-          // No nodes available - one of the other threads will take something from the runnable queue
-          _runnableJobs.add(jobexec);
-          s_logger.debug("No nodes available");
-          break;
-        }
-      }
-      s_logger.info("Executing job {}", jobexec.getJob().getSpecification().getJobId());
+  private void executeJobs(final AbstractCalculationNode node, JobEntry jobexec) {
+    do {
+      s_logger.info("Executing job {} on {}", jobexec.getJob().getSpecification().getJobId(), node.getNodeId());
       onJobStart(jobexec.getJob());
       final JobExecution execution = getExecution(jobexec.getJob().getSpecification().getJobId());
       CalculationJobResult result = null;
@@ -281,21 +308,29 @@ public abstract class AbstractCalculationNodeInvocationContainer {
           s_logger.info("Job {} completed - releasing blocked jobs", jobexec.getJob().getSpecification().getJobId());
           for (JobEntry tail : blocked) {
             if (tail.getReceiver() != null) {
-              addJobToRunnableQueue(tail);
+              spawnOrQueueJob(tail, null);
             }
           }
         } else {
           s_logger.info("Job {} completed - no tail jobs", jobexec.getJob().getSpecification().getJobId());
         }
       }
-      s_logger.debug("Returning calculation node to pool");
-      getNodes().add(node);
-      node = null;
       if (result != null) {
         jobexec.getReceiver().executionComplete(result);
       }
       jobexec = _runnableJobs.poll();
-    }
+      if (jobexec == null) {
+        synchronized (this) {
+          jobexec = _runnableJobs.poll();
+          if (jobexec == null) {
+            getNodes().add(node);
+            break;
+          }
+        }
+      }
+    } while (true);
+    s_logger.debug("Finished job execution on {}", node.getNodeId());
+    onJobExecutionComplete();
     if (_jobCount.incrementAndGet() % CLEANUP_PERIOD == 0) {
       int count = 0;
       final Iterator<Map.Entry<Long, JobExecution>> entryIterator = _executions.entrySet().iterator();
