@@ -6,10 +6,12 @@
 package com.opengamma.engine.view.cache;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.google.common.collect.MapMaker;
@@ -26,10 +28,9 @@ public class CachingIdentifierMap implements IdentifierMap {
   // Since getting a remote value specification identifier has to be a super-fast operation
   // (probably faster than disk anyway), and the only reason we'd ever want to flush is
   // based on low GCs, and the elements are so small, EHCache doesn't actually work here.
-  
-  // TODO 2010-08-31 Andrew -- How often do value specifications get GCd? They are arbitrarily constructed - would this be more effective if we canonicalized them?
 
-  private final ConcurrentMap<ValueSpecification, Long> _specificationToIdentifier = new MapMaker().weakKeys().makeMap();
+  // NOTE andrew 2010-09-06 -- Don't use the Google map with weakKeys; it will do comparison by identity which isn't right!
+  private final Map<ValueSpecification, Long> _specificationToIdentifier = Collections.synchronizedMap(new WeakHashMap<ValueSpecification, Long>());
   private final ConcurrentMap<Long, ValueSpecification> _identifierToSpecification = new MapMaker().weakValues().makeMap();
 
   public CachingIdentifierMap(IdentifierMap underlying) {

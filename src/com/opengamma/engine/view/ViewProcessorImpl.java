@@ -7,7 +7,6 @@ package com.opengamma.engine.view;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -68,7 +67,6 @@ public class ViewProcessorImpl implements ViewProcessor, Lifecycle {
   private ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
   private DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private ViewPermissionProvider _viewPermissionProvider;
-  private Map<String, Object> _configurationResource;
   private GraphExecutorStatisticsGathererProvider _graphExecutionStatistics = new DiscardingStatisticsGathererProvider();
   // State:
   private final ConcurrentMap<String, ViewImpl> _viewsByName = new ConcurrentHashMap<String, ViewImpl>();
@@ -248,15 +246,6 @@ public class ViewProcessorImpl implements ViewProcessor, Lifecycle {
 
   public void setViewPermissionProvider(ViewPermissionProvider viewPermissionProvider) {
     _viewPermissionProvider = viewPermissionProvider;
-  }
-
-  public void setConfigurationResource(final Map<String, Object> configurationResource) {
-    _configurationResource = configurationResource;
-  }
-
-  // TODO DVI-101 -- this doesn't belong here, so has been excluded from the ViewProcessor interface
-  public Map<String, Object> getConfigurationResource() {
-    return _configurationResource;
   }
 
   /**
