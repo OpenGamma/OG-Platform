@@ -7,7 +7,9 @@
  namespace com.opengamma.engine.view.calcnode.msg {
 
   message DependentValueSpecificationsReply extends ViewProcessorQueryMessage {
-    repeated com.opengamma.engine.value.ValueSpecification valueSpecification;
+    
+    repeated value.ValueSpecification valueSpecification;
+  
   }
 
 }
