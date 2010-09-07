@@ -32,8 +32,8 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
   private final Set<GraphFragment> _inputs = new HashSet<GraphFragment>();
   private final Set<GraphFragment> _dependencies = new HashSet<GraphFragment>();
   private AtomicInteger _blockCount;
-  private Long _requiredJob;
-  private GraphFragment _tail;
+  private Collection<Long> _requiredJobs;
+  private Collection<GraphFragment> _tail;
 
   private int _startTime;
   private int _startTimeCache;
@@ -68,11 +68,14 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
     _blockCount = new AtomicInteger(getInputs().size());
   }
 
-  public void setTail(final GraphFragment fragment) {
-    _tail = fragment;
+  public void addTail(final GraphFragment fragment) {
+    if (_tail == null) {
+      _tail = new LinkedList<GraphFragment>();
+    }
+    _tail.add(fragment);
   }
 
-  public GraphFragment getTail() {
+  public Collection<GraphFragment> getTail() {
     return _tail;
   }
 
@@ -95,6 +98,20 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
   public int getJobCost() {
     // TODO [ENG-202] this would include data costs from shared cache I/O
     return _cycleCost;
+  }
+
+  /**
+   * Set an attribute used for graph coloring type algorithms.
+   */
+  public void setColour(final int colour) {
+    _startTimeCache = colour;
+  }
+
+  /**
+   * Returns an attribute used for graph coloring type algorithms.
+   */
+  public int getColour() {
+    return _startTimeCache;
   }
 
   public int getStartTime(final int startTimeCache) {
@@ -194,7 +211,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
         }
       }
     }
-    //System.err.println(localPrivateValues.size() + " private value(s), " + localSharedValues.size() + " shared value(s)");
+    // System.err.println(localPrivateValues.size() + " private value(s), " + localSharedValues.size() + " shared value(s)");
     final CacheSelectHint cacheHint;
     if (localPrivateValues.size() < localSharedValues.size()) {
       cacheHint = CacheSelectHint.privateValues(localPrivateValues);
@@ -202,13 +219,26 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
       cacheHint = CacheSelectHint.sharedValues(localSharedValues);
     }
     getContext().getExecutor().addJobToViewProcessorQuery(jobSpec, getContext().getGraph());
-    final CalculationJob job = new CalculationJob(jobSpec, _requiredJob != null ? Collections.singleton(_requiredJob) : null, items, cacheHint);
+    final CalculationJob job = new CalculationJob(jobSpec, _requiredJobs, items, cacheHint);
     if (getTail() != null) {
-      final GraphFragment tail = getTail();
-      tail._blockCount = null;
-      tail._requiredJob = jobSpec.getJobId();
-      final CalculationJob tailJob = tail.createCalculationJob(executionId);
-      job.setTail(tailJob);
+      for (GraphFragment tail : getTail()) {
+        tail._blockCount = null;
+        final int size = tail.getInputs().size();
+        if (tail._requiredJobs == null) {
+          if (size == 1) {
+            tail._requiredJobs = Collections.singleton(jobSpec.getJobId());
+          } else {
+            tail._requiredJobs = new ArrayList<Long>(size);
+            tail._requiredJobs.add(jobSpec.getJobId());
+          }
+        } else {
+          tail._requiredJobs.add(jobSpec.getJobId());
+        }
+        if (tail._requiredJobs.size() == size) {
+          final CalculationJob tailJob = tail.createCalculationJob(executionId);
+          job.addTail(tailJob);
+        }
+      }
     }
     getContext().registerCallback(jobSpec, this);
     return job;
@@ -220,7 +250,9 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
       node2executionId.put(node, executionId);
     }
     if (getTail() != null) {
-      getTail().markNodes(executionId);
+      for (GraphFragment tail : getTail()) {
+        tail.markNodes(executionId);
+      }
     }
   }
 

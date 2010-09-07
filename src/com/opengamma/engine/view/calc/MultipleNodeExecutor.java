@@ -18,6 +18,7 @@ import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -98,21 +99,14 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
       if (mergeSharedInputs(logicalRoot, allFragments)) {
         failCount = 0;
       } else {
-        if (++failCount >= 3) {
+        if (++failCount >= 2) {
           break;
         }
       }
       if (mergeSingleDependencies(allFragments)) {
         failCount = 0;
       } else {
-        if (++failCount >= 3) {
-          break;
-        }
-      }
-      if (reduceConcurrency(logicalRoot, allFragments)) {
-        failCount = 0;
-      } else {
-        if (++failCount >= 3) {
+        if (++failCount >= 2) {
           break;
         }
       }
@@ -305,26 +299,11 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
   }
 
   /**
-   * If a fragment has only a single input, it can be a tail to the fragment generating that input.
+   * If a fragment has only a single input, it can be a tail to the fragment generating that input. A fragment with multiple inputs can
+   * be a tail to all of them iff they are tails to a common fragment (i.e. all will end up at the same node).
    */
   private void findTailFragments(final Set<GraphFragment> allFragments) {
-    for (GraphFragment fragment : allFragments) {
-      if (fragment.getInputs().size() == 1) {
-        // TODO 2010-09-02 Andrew -- This would be a better place to use the "max concurrency" metric; at the moment we only allow a single tail, precluding any job concurrency at an invoker
-        fragment.getInputs().iterator().next().setTail(fragment);
-      }
-    }
-  }
-
-  /**
-   * If max concurrency is less than Integer.MAX_VALUE, any nodes that would execute concurrently above
-   * this limit are merged if possible within the maximum job size constraint.
-   */
-  private boolean reduceConcurrency(final GraphFragment logicalRoot, final Set<GraphFragment> allFragments) {
-    if (getMaxConcurrency() == Integer.MAX_VALUE) {
-      return false;
-    }
-    // REVIEW 2010-09-02 Andrew -- I don't think this is particularly valuable; it's an inefficient merge at best so we're better controlling max. concurrency through job sizes
+    // Estimate start times based on fragment costs and dependencies
     final NavigableMap<Integer, Pair<List<GraphFragment>, List<GraphFragment>>> concurrencyEvent = new TreeMap<Integer, Pair<List<GraphFragment>, List<GraphFragment>>>();
     final int cacheKey = allFragments.size(); // Any changes to the graph reduce this, so we use it to cache the start time
     for (GraphFragment fragment : allFragments) {
@@ -351,62 +330,74 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
       }
       event.getSecond().add(fragment);
     }
-    final Set<GraphFragment> executing = new HashSet<GraphFragment>();
-    int changes = 0;
+    // Walk the execution plan, coloring the graph with potential invocation sites
+    final Map<Integer, AtomicInteger> executing = new HashMap<Integer, AtomicInteger>();
+    int nextColour = 0;
     for (Map.Entry<Integer, Pair<List<GraphFragment>, List<GraphFragment>>> eventEntry : concurrencyEvent.entrySet()) {
       final Pair<List<GraphFragment>, List<GraphFragment>> event = eventEntry.getValue();
-      if (event.getFirst() != null) {
-        executing.addAll(event.getFirst());
-      }
       if (event.getSecond() != null) {
-        executing.removeAll(event.getSecond());
+        for (GraphFragment finishing : event.getSecond()) {
+          // Decrement the concurrency count for the graph color
+          executing.get(finishing.getColour()).decrementAndGet();
+        }
       }
-      int displace = executing.size() - getMaxConcurrency();
-      if (displace > 0) {
-        // TODO should sort the fragments by lowest cost
-        final Iterator<GraphFragment> fragmentIterator = executing.iterator();
-        GraphFragment mergeCandidate = fragmentIterator.next();
-        while (fragmentIterator.hasNext()) {
-          final GraphFragment fragment = fragmentIterator.next();
-          if ((mergeCandidate.getJobCost() + fragment.getJobCost() <= getMaxJobCost()) && (mergeCandidate.getJobItems() + fragment.getJobItems() <= getMaxJobItems())) {
-            mergeCandidate.appendFragment(fragment);
-            for (GraphFragment input : fragment.getInputs()) {
-              input.getDependencies().remove(fragment);
-              if (mergeCandidate.getInputs().add(input)) {
-                input.getDependencies().add(mergeCandidate);
-              }
-            }
-            for (GraphFragment dependency : fragment.getDependencies()) {
-              dependency.getInputs().remove(fragment);
-              if (mergeCandidate.getDependencies().add(dependency)) {
-                dependency.getInputs().add(mergeCandidate);
-              }
-            }
-            allFragments.remove(fragment);
-            changes++;
-            fragmentIterator.remove();
-            if (--displace == 0) {
-              // We've done enough
-              break;
+      if (event.getFirst() != null) {
+        for (GraphFragment starting : event.getFirst()) {
+          if (starting.getInputs().isEmpty()) {
+            // No inputs, so we're a leaf node = new graph color
+            nextColour++;
+            starting.setColour(nextColour);
+            executing.put(nextColour, new AtomicInteger(1));
+          } else if (starting.getInputs().size() == 1) {
+            // Single input, become the tail with the same graph color if below the concurrency limit
+            final GraphFragment tailOf = starting.getInputs().iterator().next();
+            final AtomicInteger concurrency = executing.get(tailOf.getColour());
+            if (concurrency.get() >= getMaxConcurrency()) {
+              // Concurrency limit exceeded so start a new color
+              nextColour++;
+              starting.setColour(nextColour);
+              executing.put(nextColour, new AtomicInteger(1));
+            } else {
+              // Below concurrency limit so use same color and add as tail
+              tailOf.addTail(starting);
+              starting.setColour(tailOf.getColour());
+              concurrency.incrementAndGet();
             }
           } else {
-            if (fragment.getJobCost() < mergeCandidate.getJobCost()) {
-              mergeCandidate = fragment;
+            final Iterator<GraphFragment> inputIterator = starting.getInputs().iterator();
+            int nodeColour = inputIterator.next().getColour();
+            while (inputIterator.hasNext()) {
+              final GraphFragment input = inputIterator.next();
+              if (input.getColour() != nodeColour) {
+                // Inputs are from different colored graph fragments = new graph color
+                nextColour++;
+                starting.setColour(nextColour);
+                executing.put(nextColour, new AtomicInteger(1));
+                nodeColour = -1;
+                break;
+              }
+            }
+            if (nodeColour > 0) {
+              // Inputs are all from the same colored graph fragments = become tail with the same color if below concurrency limit
+              final AtomicInteger concurrency = executing.get(nodeColour);
+              if (concurrency.get() >= getMaxConcurrency()) {
+                // Concurrency limit exceeded so start a new color
+                nextColour++;
+                starting.setColour(nextColour);
+                executing.put(nextColour, new AtomicInteger(1));
+              } else {
+                // Below concurrency limit so use same color and add as tails
+                starting.setColour(nodeColour);
+                concurrency.incrementAndGet();
+                for (GraphFragment input : starting.getInputs()) {
+                  input.addTail(starting);
+                }
+              }
             }
           }
         }
       }
     }
-    // If any "root" nodes were merged with non-root nodes, we need to kill the roots
-    final Iterator<GraphFragment> fragmentIterator = logicalRoot.getInputs().iterator();
-    while (fragmentIterator.hasNext()) {
-      final GraphFragment fragment = fragmentIterator.next();
-      if (fragment.getDependencies().size() > 1) {
-        fragment.getDependencies().remove(logicalRoot);
-        fragmentIterator.remove();
-      }
-    }
-    return changes > 0;
   }
 
   public void printFragment(final GraphFragment root) {

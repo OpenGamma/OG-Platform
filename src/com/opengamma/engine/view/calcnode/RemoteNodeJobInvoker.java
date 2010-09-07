@@ -114,19 +114,25 @@ import com.opengamma.util.monitor.OperationTimer;
     s_logger.info("Dispatching job {}", rootJob.getSpecification());
     // Don't block the dispatcher with outgoing serialization and I/O
     getExecutorService().execute(new Runnable() {
+
+      private void sendJob(final CalculationJob job) {
+        getJobCompletionCallbacks().put(job.getSpecification(), receiver);
+        final OperationTimer timer = new OperationTimer(s_logger, "Invocation serialisation and send of job {}", job.getSpecification().getJobId());
+        job.convertInputs(getIdentifierMap());
+        final RemoteCalcNodeJobMessage message = new RemoteCalcNodeJobMessage(job);
+        final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeMessageSender().getFudgeContext());
+        getFudgeMessageSender().send(FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(message), message.getClass(), RemoteCalcNodeMessage.class));
+        timer.finished();
+        if (job.getTail() != null) {
+          for (CalculationJob tail : job.getTail()) {
+            sendJob(tail);
+          }
+        }
+      }
+
       @Override
       public void run() {
-        CalculationJob job = rootJob;
-        do {
-          getJobCompletionCallbacks().put(job.getSpecification(), receiver);
-          final OperationTimer timer = new OperationTimer(s_logger, "Invocation serialisation and send of job {}", job.getSpecification().getJobId());
-          job.convertInputs(getIdentifierMap());
-          final RemoteCalcNodeJobMessage message = new RemoteCalcNodeJobMessage(job);
-          final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeMessageSender().getFudgeContext());
-          getFudgeMessageSender().send(FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(message), message.getClass(), RemoteCalcNodeMessage.class));
-          timer.finished();
-          job = job.getTail();
-        } while (job != null);
+        sendJob(rootJob);
       }
     });
     return true;

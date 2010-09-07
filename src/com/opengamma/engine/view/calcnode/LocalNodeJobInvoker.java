@@ -78,6 +78,16 @@ public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContai
       return false;
     }
     final Runnable invokeTask = new Runnable() {
+
+      private void execute(final AbstractCalculationNode node, final CalculationJob job, final ExecutionReceiver callback) {
+        executeJob(node, job, callback);
+        if (job.getTail() != null) {
+          for (CalculationJob tail : job.getTail()) {
+            execute(null, tail, callback);
+          }
+        }
+      }
+
       @Override
       public void run() {
         final ExecutionReceiver callback = new ExecutionReceiver() {
@@ -94,11 +104,11 @@ public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContai
           }
 
         };
-        executeJob(node, job, callback);
-        CalculationJob tail = job.getTail();
-        while (tail != null) {
-          executeJob(null, tail, callback);
-          tail = tail.getTail();
+        execute(node, job, callback);
+        if (!getNodes().isEmpty()) {
+          // This can only be empty if there is another thread processing runnable jobs. When that ends, it too will
+          // only see an empty nodeset if there is yet another thread processing the runnables.
+          onNodeChange();
         }
       }
     };

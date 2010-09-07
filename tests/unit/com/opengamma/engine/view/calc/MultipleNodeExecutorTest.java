@@ -182,37 +182,90 @@ public class MultipleNodeExecutorTest {
   }
   
   /**
-   * Single-dep merge N4+N3, concurrency merge N0+N1+N(4+3).
+   * Single-dep merge N4+N3, single tail on N2 (one of N0, N1 or N(4+3)).
    */
   @Test
-  public void testThread1Max () {
+  public void testThread1 () {
     final MultipleNodeExecutor executor = createExecutor(1, 4, 1);
     final RootGraphFragment root = executor.executeImpl(_testGraph, DiscardingStatisticsGathererProvider.GATHERER_INSTANCE);
-    System.out.println ("testThread1Max");
+    System.out.println ("testThread1");
     executor.printFragment(root);
-    assertEquals (1, root.getInputs ().size ());
-    GraphFragment node = root.getInputs ().iterator ().next ();
-    assertEquals (4, node.getNodes ().size ());
-    assertTrue (node.getNodes ().contains (_testNode[0]));
-    assertTrue (node.getNodes ().contains (_testNode[1]));
-    assertTrue (node.getNodes ().contains (_testNode[4]));
-    assertTrue (node.getNodes ().contains (_testNode[3]));
-    assertEquals (1, node.getInputs ().size ());
-    assertTrue (singletonFragment (node.getInputs ().iterator ().next (), _testNode[2]));
+    assertEquals (3, root.getInputs ().size ());
+    int mask = 0;
+    for (GraphFragment fragment : root.getInputs ()) {
+      assertEquals (1, fragment.getInputs ().size ());
+      GraphFragment input = fragment.getInputs ().iterator ().next ();
+      assertTrue (singletonFragment (input, _testNode[2]));
+      assertEquals (1, input.getTail ().size ());
+      if (fragment.getNodes ().contains (_testNode[0])) {
+        mask |= 1;
+      } else if (fragment.getNodes ().contains (_testNode[1])) {
+        mask |= 2;
+      } else if (fragment.getNodes ().contains (_testNode[3]) && fragment.getNodes ().contains (_testNode[4])) {
+        mask |= 4;
+      } else {
+        fail ();
+      }
+    }
+    assertEquals (7, mask);
   }
   
   /**
-   * Single-dep merge N4+N3, concurrency merge N0+N1+N(4+3), single-dep merge on N(0+1+4+3)+N2
+   * Single-dep merge N4+N3, two tails on N2.
    */
   @Test
-  public void testThread1NoMax () {
-    final MultipleNodeExecutor executor = createExecutor(1, Integer.MAX_VALUE, 1);
+  public void testThread2 () {
+    final MultipleNodeExecutor executor = createExecutor(1, Integer.MAX_VALUE, 2);
     final RootGraphFragment root = executor.executeImpl(_testGraph, DiscardingStatisticsGathererProvider.GATHERER_INSTANCE);
-    System.out.println ("testThread1NoMax");
+    System.out.println ("testThread2");
     executor.printFragment(root);
-    assertEquals (1, root.getInputs ().size ());
-    GraphFragment node = root.getInputs ().iterator ().next ();
-    assertTrue (node.getNodes ().containsAll(Arrays.asList(_testNode)));
+    assertEquals (3, root.getInputs ().size ());
+    int mask = 0;
+    for (GraphFragment fragment : root.getInputs ()) {
+      assertEquals (1, fragment.getInputs ().size ());
+      GraphFragment input = fragment.getInputs ().iterator ().next ();
+      assertTrue (singletonFragment (input, _testNode[2]));
+      assertEquals (2, input.getTail ().size ());
+      if (fragment.getNodes ().contains (_testNode[0])) {
+        mask |= 1;
+      } else if (fragment.getNodes ().contains (_testNode[1])) {
+        mask |= 2;
+      } else if (fragment.getNodes ().contains (_testNode[3]) && fragment.getNodes ().contains (_testNode[4])) {
+        mask |= 4;
+      } else {
+        fail ();
+      }
+    }
+    assertEquals (7, mask);
+  }
+  
+  /**
+   * Single-dep merge N4+N3, three tails on N2.
+   */
+  @Test
+  public void testThread3 () {
+    final MultipleNodeExecutor executor = createExecutor(1, Integer.MAX_VALUE, 3);
+    final RootGraphFragment root = executor.executeImpl(_testGraph, DiscardingStatisticsGathererProvider.GATHERER_INSTANCE);
+    System.out.println ("testThread3");
+    executor.printFragment(root);
+    assertEquals (3, root.getInputs ().size ());
+    int mask = 0;
+    for (GraphFragment fragment : root.getInputs ()) {
+      assertEquals (1, fragment.getInputs ().size ());
+      GraphFragment input = fragment.getInputs ().iterator ().next ();
+      assertTrue (singletonFragment (input, _testNode[2]));
+      assertEquals (3, input.getTail ().size ());
+      if (fragment.getNodes ().contains (_testNode[0])) {
+        mask |= 1;
+      } else if (fragment.getNodes ().contains (_testNode[1])) {
+        mask |= 2;
+      } else if (fragment.getNodes ().contains (_testNode[3]) && fragment.getNodes ().contains (_testNode[4])) {
+        mask |= 4;
+      } else {
+        fail ();
+      }
+    }
+    assertEquals (7, mask);
   }
   
 }
