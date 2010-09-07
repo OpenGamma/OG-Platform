@@ -221,6 +221,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
     getContext().getExecutor().addJobToViewProcessorQuery(jobSpec, getContext().getGraph());
     final CalculationJob job = new CalculationJob(jobSpec, _requiredJobs, items, cacheHint);
     if (getTail() != null) {
+      getContext().collectMaxConcurrency(getTail().size());
       for (GraphFragment tail : getTail()) {
         tail._blockCount = null;
         final int size = tail.getInputs().size();

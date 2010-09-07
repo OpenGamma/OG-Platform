@@ -37,6 +37,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobResult;
   @Override
   public void execute() {
     _future.run();
+    //System.err.println("Max tail concurrency = " + getContext().getMaxConcurrency());
     _statistics.graphExecuted(getContext().getGraph().getCalcConfName(), getContext().getGraph().getSize(), getContext().getExecutionTime(), System.nanoTime() - _jobStarted);
   }
 

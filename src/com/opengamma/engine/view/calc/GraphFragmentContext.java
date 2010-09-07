@@ -29,6 +29,7 @@ import com.opengamma.engine.view.calcnode.JobResultReceiver;
   private final Map<CalculationJobItem, DependencyNode> _item2node;
   private final Map<DependencyNode, Integer> _node2executionId;
   private final Map<ValueSpecification, Boolean> _sharedCacheValues;
+  private final AtomicInteger _maxConcurrency = new AtomicInteger();
   private Map<CalculationJobSpecification, GraphFragment> _job2fragment;
 
   public GraphFragmentContext(final MultipleNodeExecutor executor, final DependencyGraph graph) {
@@ -81,6 +82,20 @@ import com.opengamma.engine.view.calcnode.JobResultReceiver;
 
   public void registerCallback(final CalculationJobSpecification jobspec, final GraphFragment fragment) {
     _job2fragment.put(jobspec, fragment);
+  }
+
+  public void collectMaxConcurrency(final int tailCount) {
+    int maxCon = _maxConcurrency.get();
+    while (tailCount > maxCon) {
+      if (_maxConcurrency.compareAndSet(maxCon, tailCount)) {
+        return;
+      }
+      maxCon = _maxConcurrency.get();
+    }
+  }
+
+  public int getMaxConcurrency() {
+    return _maxConcurrency.get();
   }
 
   @Override
