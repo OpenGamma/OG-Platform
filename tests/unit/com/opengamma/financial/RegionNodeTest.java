@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.world.region.DefaultRegionSource;
-import com.opengamma.financial.world.region.InMemoryRegionRepository;
+import com.opengamma.financial.world.region.InMemoryRegionMaster;
 import com.opengamma.financial.world.region.Region;
 import com.opengamma.financial.world.region.RegionFileReader;
 import com.opengamma.financial.world.region.RegionMaster;
@@ -35,26 +35,26 @@ public class RegionNodeTest {
   @Before
   public void setup() {
     // Use two repositories so that objects are not referentially equal
-    _regionRepository1 = new InMemoryRegionRepository();
+    _regionRepository1 = new InMemoryRegionMaster();
     RegionFileReader.populateMaster(_regionRepository1, new File(RegionFileReader.REGIONS_FILE_PATH));
     _regionSource1 = new DefaultRegionSource(_regionRepository1);
-    _regionRepository2 = new InMemoryRegionRepository();
+    _regionRepository2 = new InMemoryRegionMaster();
     RegionFileReader.populateMaster(_regionRepository2, new File(RegionFileReader.REGIONS_FILE_PATH));
     _regionSource2 = new DefaultRegionSource(_regionRepository2);
   }
 
   @Test
   public void testHashCode () {
-    final Region ukRegion = _regionSource1.getHighestLevelRegion(Identifier.of(InMemoryRegionRepository.ISO_COUNTRY_2, "GB"));
+    final Region ukRegion = _regionSource1.getHighestLevelRegion(Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, "GB"));
     int hc = ukRegion.hashCode();
     s_logger.debug("Hashcode = {}", hc);
   }
 
   @Test
   public void testEquals() {
-    final Region ukRegion1 = _regionSource1.getHighestLevelRegion(Identifier.of(InMemoryRegionRepository.ISO_COUNTRY_2, "GB"));
-    final Region usRegion = _regionSource1.getHighestLevelRegion(Identifier.of(InMemoryRegionRepository.ISO_COUNTRY_2, "US"));
-    final Region ukRegion2 = _regionSource2.getHighestLevelRegion(Identifier.of(InMemoryRegionRepository.ISO_COUNTRY_2, "GB"));
+    final Region ukRegion1 = _regionSource1.getHighestLevelRegion(Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, "GB"));
+    final Region usRegion = _regionSource1.getHighestLevelRegion(Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, "US"));
+    final Region ukRegion2 = _regionSource2.getHighestLevelRegion(Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, "GB"));
     assertTrue(ukRegion1.equals(ukRegion1));
     assertFalse(ukRegion1.equals(usRegion));
     assertTrue(ukRegion1.equals(ukRegion2));

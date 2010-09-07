@@ -33,7 +33,7 @@ import com.opengamma.financial.security.db.future.FutureSecurityBean;
 import com.opengamma.financial.security.db.future.UnitBean;
 import com.opengamma.financial.security.db.option.OptionSecurityBean;
 import com.opengamma.financial.security.db.swap.SwapSecurityBean;
-import com.opengamma.financial.world.region.InMemoryRegionRepository;
+import com.opengamma.financial.world.region.InMemoryRegionMaster;
 import com.opengamma.financial.world.region.RegionFileReader;
 import com.opengamma.financial.world.region.RegionMaster;
 import com.opengamma.util.test.HibernateTest;
@@ -71,7 +71,7 @@ public class HibernateSecurityMasterTest extends HibernateTest implements Securi
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    final RegionMaster regionRepository = new InMemoryRegionRepository();
+    final RegionMaster regionRepository = new InMemoryRegionMaster();
     RegionFileReader.populateMaster(regionRepository, new File(RegionFileReader.REGIONS_FILE_PATH));
     _testCase = new SecurityMasterTestCase(createSecurityMaster(regionRepository));
   }

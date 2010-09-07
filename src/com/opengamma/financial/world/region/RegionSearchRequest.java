@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.world.region;
 
-import static com.opengamma.financial.world.region.InMemoryRegionRepository.ISO_COUNTRY_2;
-import static com.opengamma.financial.world.region.InMemoryRegionRepository.ISO_CURRENCY_3;
-import static com.opengamma.financial.world.region.InMemoryRegionRepository.TYPE_COLUMN;
+import static com.opengamma.financial.world.region.InMemoryRegionMaster.ISO_COUNTRY_2;
+import static com.opengamma.financial.world.region.InMemoryRegionMaster.ISO_CURRENCY_3;
+import static com.opengamma.financial.world.region.InMemoryRegionMaster.TYPE_COLUMN;
 
 import java.util.HashMap;
 import java.util.Map;

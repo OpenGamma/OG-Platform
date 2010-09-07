@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.swap;
+package com.opengamma.financial.analytics.swap;
 
 import static org.junit.Assert.assertEquals;
 
@@ -17,6 +17,7 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMessageFactory;
 import org.junit.Test;
 
+import com.opengamma.financial.analytics.swap.SwapScheduleCalculator;
 import com.opengamma.financial.convention.businessday.ModifiedBusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -27,7 +28,7 @@ import com.opengamma.financial.security.swap.NotionalVisitor;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.financial.world.region.InMemoryRegionRepository;
+import com.opengamma.financial.world.region.InMemoryRegionMaster;
 import com.opengamma.financial.world.region.Region;
 import com.opengamma.financial.world.region.RegionType;
 import com.opengamma.id.Identifier;
@@ -42,7 +43,7 @@ import com.opengamma.util.time.DateUtil;
 public class SwapScheduleCalculatorTest {
   private static final ZonedDateTime EFFECTIVE = DateUtil.getUTCDate(2010, 6, 1);
   private static final ZonedDateTime MATURITY = DateUtil.getUTCDate(2020, 6, 1);
-  private static final Identifier REGION_ID = Identifier.of(InMemoryRegionRepository.ISO_COUNTRY_2, "US");
+  private static final Identifier REGION_ID = Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, "US");
   private static final Notional NOTIONAL = new Notional () {
 
     @Override
@@ -159,64 +160,5 @@ public class SwapScheduleCalculatorTest {
       assertEquals(payTimes[i], receiveTimes[i], 1e-15);
       assertEquals(payTimes[i], 0.5 * (i + 1), 1e-15);
     }
-  }
-
-  private static final class MyRegion implements Region {
-
-    @Override
-    public FudgeFieldContainer getData() {
-      return null;
-    }
-
-    @Override
-    public FudgeFieldContainer getDataUp() {
-      return null;
-    }
-
-    @Override
-    public String getName() {
-      return null;
-    }
-
-    @Override
-    public RegionType getRegionType() {
-      return null;
-    }
-
-    @Override
-    public Set<Region> getSubRegions() {
-      return null;
-    }
-
-    @Override
-    public Region getSuperRegion() {
-      return null;
-    }
-
-    @Override
-    public IdentifierBundle getIdentifiers() {
-      return null;
-    }
-
-    @Override
-    public UniqueIdentifier getUniqueIdentifier() {
-      return null;
-    }
-
-    @Override
-    public String getCountryISO2() {
-      return null;
-    }
-
-    @Override
-    public String getCurrencyISO3() {
-      return null;
-    }
-
-    @Override
-    public TimeZone getTimeZone() {
-      return null;
-    }
-
   }
 }

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.schedule;
+package com.opengamma.financial.analytics.schedule;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +59,7 @@ public class ScheduleCalculator {
     }
     final Period period = periodFrequency.getPeriod();
     final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
-    ZonedDateTime date = effectiveDate; // TODO this is only correct if effective date = maturity date
+    ZonedDateTime date = effectiveDate; // TODO this is only correct if effective date = accrual date
     while (date.isBefore(maturityDate)) { // REVIEW: could speed this up by working out how many periods between start and end date?
       date = date.plus(period);
       dates.add(date);
@@ -80,15 +80,29 @@ public class ScheduleCalculator {
     return result;
   }
 
-  public static double[] getTimes(final ZonedDateTime[] dates, final DayCount dayCount, final ZonedDateTime now) {
+  public static double[] getTimes(final ZonedDateTime[] dates, final DayCount dayCount, final ZonedDateTime effectiveDate) {
     Validate.notNull(dates);
     Validate.notEmpty(dates);
     Validate.notNull(dayCount);
-    Validate.notNull(now);
+    Validate.notNull(effectiveDate);
     final int n = dates.length;
     final double[] result = new double[n];
     for (int i = 0; i < n; i++) {
-      result[i] = dayCount.getDayCountFraction(now, dates[i]);
+      result[i] = dayCount.getDayCountFraction(effectiveDate, dates[i]);
+    }
+    return result;
+  }
+  
+  public static double[] getYearFractions(final ZonedDateTime[] dates, final DayCount dayCount, final ZonedDateTime effectiveDate) {
+    Validate.notNull(dates);
+    Validate.notEmpty(dates);
+    Validate.notNull(dayCount);
+    Validate.notNull(effectiveDate);
+    final int n = dates.length;
+    final double[] result = new double[n];
+    result[0] = dayCount.getDayCountFraction(effectiveDate, dates[0]);
+    for (int i = 1; i < n; i++) {
+      result[i] = dayCount.getDayCountFraction(dates[i - 1], dates[i]);
     }
     return result;
   }
