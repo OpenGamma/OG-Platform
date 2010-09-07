@@ -11,6 +11,7 @@ tests/output/
 build/
 lib/
 db/derby/test_*
+db/hsqldb/test_*
 /.fudge-proto-gitignore
 MANIFEST.MF
 .clover/

@@ -120,7 +120,8 @@ import com.opengamma.util.tuple.Pair;
  * Expects the subclass to provide a map for specific database SQL queries
  */
 @Transactional(readOnly = true)
-public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
+public class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
+  
   /**
    * List of keys expected in the Map containing SQL queries injected to RowStoreTimeSeriesMaster
    */
@@ -179,17 +180,23 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
   private DataSourceTransactionManager _transactionManager;
   private SimpleJdbcTemplate _simpleJdbcTemplate;
   private Map<String, String> _namedSQLMap;
+  private final boolean _isTriggerSupported;
 
-  public RowStoreTimeSeriesMaster(DataSourceTransactionManager transactionManager, Map<String, String> namedSQLMap) {
+  public RowStoreTimeSeriesMaster(DataSourceTransactionManager transactionManager, 
+      Map<String, String> namedSQLMap,
+      boolean isTriggerSupported) {
     ArgumentChecker.notNull(transactionManager, "transactionManager");
     _transactionManager = transactionManager;
     DataSource dataSource = _transactionManager.getDataSource();
     _simpleJdbcTemplate = new SimpleJdbcTemplate(dataSource);   
     checkNamedSQLMap(namedSQLMap);
     _namedSQLMap = Collections.unmodifiableMap(namedSQLMap);
+    _isTriggerSupported = isTriggerSupported;
   }
   
-  protected abstract boolean isTriggerSupported();
+  public boolean isTriggerSupported() {
+    return _isTriggerSupported;
+  }
   
   @Override
   public List<IdentifierBundle> getAllIdentifiers() {
@@ -543,9 +550,6 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     }
     
     sql += " ORDER BY ts_date";
-    
-    parameters.addValue("startDate", start != null ? toSQLDate(start) : null, Types.DATE);
-    parameters.addValue("endDate", end != null ? toSQLDate(end) : null, Types.DATE);
     
     final List<Date> dates = new LinkedList<Date>();
     final List<Double> values = new LinkedList<Double>();

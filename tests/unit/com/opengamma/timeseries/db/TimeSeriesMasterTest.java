@@ -15,18 +15,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.SortedMap;
 import java.util.TimeZone;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 
 import javax.time.calendar.Clock;
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -94,23 +93,17 @@ public class TimeSeriesMasterTest extends DBTest {
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    String fileSeparator = System.getProperty("file.separator");
-    String contextLocation =  "config" + fileSeparator + "test-historical-dao-context.xml";
-    ApplicationContext context = new FileSystemXmlApplicationContext(contextLocation);
-
-    TimeSeriesMaster ts = (TimeSeriesMaster) context.getBean(getDatabaseType()+"Dao");
-    _tsMaster = ts;
     
+    ApplicationContext context = new FileSystemXmlApplicationContext("src/com/opengamma/timeseries/db/tssQueries.xml");
+    Map<String, String> namedSQLMap = (Map<String, String>) context.getBean("tssNamedSQLMap");
+
+    TimeSeriesMaster ts = new RowStoreTimeSeriesMaster(
+        getTransactionManager(), 
+        namedSQLMap,
+        false);
+    _tsMaster = ts;
   }
 
-  /**
-   * @throws java.lang.Exception
-   */
-  @After
-  public void tearDown() throws Exception {
-    _tsMaster = null;
-  }
-  
   @Test
   public void createDataSource() throws Exception {
     
@@ -1001,7 +994,7 @@ public class TimeSeriesMasterTest extends DBTest {
     return new ArrayLocalDateDoubleTimeSeries(tsMap);
   }
   
-  private boolean isWeekday(LocalDate day) {
+  public static boolean isWeekday(LocalDate day) {
     return (day.getDayOfWeek() != DayOfWeek.SATURDAY && day.getDayOfWeek() != DayOfWeek.SUNDAY);
   }
 
