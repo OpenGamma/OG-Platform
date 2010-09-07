@@ -246,11 +246,11 @@ public class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
         parameters.addValue("dataProvider", dataProvider, Types.VARCHAR);
       }
       if (field != null) {
-        sql +=  " df.name = :dataField ";
+        sql +=  " AND df.name = :dataField ";
         parameters.addValue("dataField", field, Types.VARCHAR);
       }
       if (observationTime != null) {
-        sql +=  " ot.name = :observationTime ";
+        sql +=  " AND ot.name = :observationTime ";
         parameters.addValue("observationTime", observationTime, Types.VARCHAR);
       }
       
@@ -1039,11 +1039,11 @@ public class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
         parameters.addValue("dataProvider", dataProvider, Types.VARCHAR);
       }
       if (dataField != null) {
-        metaDataSql +=  " df.name = :dataField ";
+        metaDataSql +=  " AND df.name = :dataField ";
         parameters.addValue("dataField", dataField, Types.VARCHAR);
       }
       if (observationTime != null) {
-        metaDataSql +=  " ot.name = :observationTime ";
+        metaDataSql +=  " AND ot.name = :observationTime ";
         parameters.addValue("observationTime", observationTime, Types.VARCHAR);
       }
       
