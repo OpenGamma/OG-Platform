@@ -228,11 +228,24 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
       
       String sql = _namedSQLMap.get(GET_ACTIVE_META_DATA_BY_IDENTIFIERS);
       
-      MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("bundleIds", bundleId, Types.BIGINT)
-        .addValue("dataSource", dataSource, Types.VARCHAR)
-        .addValue("dataField", field, Types.VARCHAR)
-        .addValue("dataProvider", dataProvider, Types.VARCHAR)
-        .addValue("observationTime", observationTime, Types.VARCHAR);
+      MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("bundleIds", bundleId, Types.BIGINT);
+      
+      if (dataSource != null) {
+        sql +=  " AND ds.name = :dataSource ";
+        parameters.addValue("dataSource", dataSource, Types.VARCHAR);
+      }
+      if (dataProvider != null) {
+        sql +=  " AND dp.name = :dataProvider ";
+        parameters.addValue("dataProvider", dataProvider, Types.VARCHAR);
+      }
+      if (field != null) {
+        sql +=  " df.name = :dataField ";
+        parameters.addValue("dataField", field, Types.VARCHAR);
+      }
+      if (observationTime != null) {
+        sql +=  " ot.name = :observationTime ";
+        parameters.addValue("observationTime", observationTime, Types.VARCHAR);
+      }
       
       List<MetaData> tsMetaDataList = _simpleJdbcTemplate.query(sql, new TimeSeriesMetaDataRowMapper(), parameters);
       if (!tsMetaDataList.isEmpty()) {
@@ -273,10 +286,10 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     _simpleJdbcTemplate.batchUpdate(insertSQL, batchArgs);
   }
 
-  private long getOrCreateTimeSeriesKey(long quotedObjId, String dataSource, String dataProvider, String field, String observationTime) {
-    long timeSeriesKeyID = getTimeSeriesKey(quotedObjId, dataSource, dataProvider, field, observationTime);
+  private long getOrCreateTimeSeriesKey(long bundleId, String dataSource, String dataProvider, String field, String observationTime) {
+    long timeSeriesKeyID = getTimeSeriesKey(bundleId, dataSource, dataProvider, field, observationTime);
     if (timeSeriesKeyID == INVALID_KEY) {
-      timeSeriesKeyID = createTimeSeriesKey(quotedObjId, dataSource, dataProvider, field, observationTime);
+      timeSeriesKeyID = createTimeSeriesKey(bundleId, dataSource, dataProvider, field, observationTime);
     }
     return timeSeriesKeyID;
   }
@@ -431,18 +444,17 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     return getTimeSeriesKey(bundleId, dataSourceBean.getId(), dataProviderBean.getId(), dataFieldBean.getId(), observationTimeBean.getId());
   }
  
-  private long getTimeSeriesKey(long quotedObjId, String dataSource, String dataProvider, String dataField, String observationTime) {
+  private long getTimeSeriesKey(long bundleId, String dataSource, String dataProvider, String dataField, String observationTime) {
     long result = INVALID_KEY;
-    s_logger.debug("looking up timeSeriesKey quotedObjId={}, dataSource={}, dataProvider={}, dataField={}, observationTime={}", 
-        new Object[]{quotedObjId, dataSource, dataProvider, dataField, observationTime});
+    s_logger.debug("looking up timeSeriesKey bundleId={}, dataSource={}, dataProvider={}, dataField={}, observationTime={}", 
+        new Object[]{bundleId, dataSource, dataProvider, dataField, observationTime});
     String sql = _namedSQLMap.get(GET_TIME_SERIES_KEY);
     SqlParameterSource parameterSource = new MapSqlParameterSource()
-      .addValue("bundleId", quotedObjId, Types.BIGINT)
+      .addValue("bundleId", bundleId, Types.BIGINT)
       .addValue("dataSource", dataSource, Types.VARCHAR)
       .addValue("dataProvider", dataProvider, Types.VARCHAR)
       .addValue("dataField", dataField, Types.VARCHAR)
-      .addValue("observationTime", observationTime, Types.VARCHAR)
-      .addValue("quotedObject", null);
+      .addValue("observationTime", observationTime, Types.VARCHAR);
       
     try {
       result = _simpleJdbcTemplate.queryForInt(sql, parameterSource);
@@ -517,7 +529,21 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
   }
     
   private DoubleTimeSeries<Date> loadTimeSeries(long timeSeriesKey, LocalDate start, LocalDate end) {
+    String sql = _namedSQLMap.get(LOAD_TIME_SERIES_WITH_DATES);
     MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("timeSeriesKey", timeSeriesKey, Types.INTEGER);
+    
+    if (start != null) {
+      sql += " AND ts_date >= :startDate";
+      parameters.addValue("startDate", toSQLDate(start), Types.DATE);
+    }
+    
+    if (end != null) {
+      sql += " AND ts_date < :endDate";
+      parameters.addValue("endDate", toSQLDate(end), Types.DATE);
+    }
+    
+    sql += " ORDER BY ts_date";
+    
     parameters.addValue("startDate", start != null ? toSQLDate(start) : null, Types.DATE);
     parameters.addValue("endDate", end != null ? toSQLDate(end) : null, Types.DATE);
     
@@ -525,7 +551,7 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
     final List<Double> values = new LinkedList<Double>();
     
     NamedParameterJdbcOperations parameterJdbcOperations = _simpleJdbcTemplate.getNamedParameterJdbcOperations();
-    parameterJdbcOperations.query(_namedSQLMap.get(LOAD_TIME_SERIES_WITH_DATES), parameters, new RowCallbackHandler() {
+    parameterJdbcOperations.query(sql, parameters, new RowCallbackHandler() {
       
       @Override
       public void processRow(ResultSet rs) throws SQLException {
@@ -1000,10 +1026,23 @@ public abstract class RowStoreTimeSeriesMaster implements TimeSeriesMaster {
         }
       }
       MapSqlParameterSource parameters = new MapSqlParameterSource();
-      parameters.addValue("dataSource", dataSource, Types.VARCHAR);
-      parameters.addValue("dataField", dataField, Types.VARCHAR);
-      parameters.addValue("dataProvider", dataProvider, Types.VARCHAR);
-      parameters.addValue("observationTime", observationTime, Types.VARCHAR);
+      if (dataSource != null) {
+        metaDataSql +=  " AND ds.name = :dataSource ";
+        parameters.addValue("dataSource", dataSource, Types.VARCHAR);
+      }
+      if (dataProvider != null) {
+        metaDataSql +=  " AND dp.name = :dataProvider ";
+        parameters.addValue("dataProvider", dataProvider, Types.VARCHAR);
+      }
+      if (dataField != null) {
+        metaDataSql +=  " df.name = :dataField ";
+        parameters.addValue("dataField", dataField, Types.VARCHAR);
+      }
+      if (observationTime != null) {
+        metaDataSql +=  " ot.name = :observationTime ";
+        parameters.addValue("observationTime", observationTime, Types.VARCHAR);
+      }
+      
       if (requestIdentifiers != null && !requestIdentifiers.isEmpty()) {
         parameters.addValue("bundleIds", bundles.keySet());
       }
