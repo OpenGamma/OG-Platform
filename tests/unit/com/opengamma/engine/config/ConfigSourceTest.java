@@ -34,7 +34,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.MongoDBConnectionSettings;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
 import com.opengamma.util.test.MongoDBTestUtils;
 
 /**
@@ -57,7 +56,7 @@ public class ConfigSourceTest {
   public void setUp() throws Exception {
     MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings("ViewDefinitions", true);
     _mongoSettings = settings;
-    MongoDBConfigMaster<ViewDefinition> viewDefinitionConfigMaster = new MongoDBConfigMaster<ViewDefinition>(ViewDefinition.class, settings, OpenGammaFudgeContext.getInstance(), true, null);
+    MongoDBConfigMaster<ViewDefinition> viewDefinitionConfigMaster = new MongoDBConfigMaster<ViewDefinition>(ViewDefinition.class, settings, true);
     Map<String, ConfigDocument<ViewDefinition>> viewDefinitions = populateWithViewDefinitions(viewDefinitionConfigMaster);
     _viewDefinitions = viewDefinitions;
     MongoDBMasterConfigSource mongoDBMasterConfigSource = new MongoDBMasterConfigSource();
