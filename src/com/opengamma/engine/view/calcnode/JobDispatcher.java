@@ -101,7 +101,7 @@ public class JobDispatcher implements JobInvokerRegister {
           return;
         }
       }
-      s_logger.debug("Job {} completed on node {}", result.getSpecification().getJobId(), result.getComputeNodeId());
+      s_logger.info("Job {} completed on node {}", result.getSpecification().getJobId(), result.getComputeNodeId());
       resultReceiver.resultReceived(result);
       final long durationNanos = getDurationNanos();
       s_logger.debug("Reported time = {}ms, non-executing job time = {}ms", (double) result.getDuration() / 1000000d, ((double) durationNanos - (double) result.getDuration()) / 1000000d);
@@ -117,7 +117,7 @@ public class JobDispatcher implements JobInvokerRegister {
       cancelTimeout();
       final JobResultReceiver resultReceiver = _resultReceiver.getAndSet(null);
       if (resultReceiver != null) {
-        s_logger.debug("Job {} failed, {}", getJob().getSpecification().getJobId(), (exception != null) ? exception.getMessage() : "no exception passed");
+        s_logger.info("Job {} failed, {}", getJob().getSpecification().getJobId(), (exception != null) ? exception.getMessage() : "no exception passed");
         if ((_excludeJobInvoker != null) && _excludeJobInvoker.contains(jobInvoker)) {
           _resultReceiver.set(resultReceiver);
           s_logger.debug("Duplicate invoker failure from node {}", computeNodeId);
@@ -144,6 +144,21 @@ public class JobDispatcher implements JobInvokerRegister {
       }
     }
 
+    private void failBatch(final CalculationJob job, final Exception exception, final JobResultReceiver resultReceiver) {
+      final List<CalculationJobResultItem> failureItems = new ArrayList<CalculationJobResultItem>(job.getJobItems().size());
+      for (CalculationJobItem item : job.getJobItems()) {
+        failureItems.add(new CalculationJobResultItem(item, exception));
+      }
+      final CalculationJobResult jobResult = new CalculationJobResult(job.getSpecification(), getDurationNanos(), failureItems, getJobFailureNodeId());
+      resultReceiver.resultReceived(jobResult);
+      if (job.getTail() != null) {
+        for (CalculationJob tail : job.getTail()) {
+          s_logger.warn("Failed tail job {}", tail.getSpecification().getJobId());
+          failBatch(tail, exception, resultReceiver);
+        }
+      }
+    }
+
     private void jobAbort(Exception exception, final String alternativeError) {
       cancelTimeout();
       final JobResultReceiver resultReceiver = _resultReceiver.getAndSet(null);
@@ -154,13 +169,7 @@ public class JobDispatcher implements JobInvokerRegister {
           exception = new OpenGammaRuntimeException(alternativeError);
           exception.fillInStackTrace();
         }
-        final List<CalculationJobResultItem> failureItems = new ArrayList<CalculationJobResultItem>(getJob().getJobItems().size());
-        for (CalculationJobItem item : getJob().getJobItems()) {
-          failureItems.add(new CalculationJobResultItem(item, exception));
-        }
-        final CalculationJobResult jobResult = new CalculationJobResult(getJob().getSpecification(), getDurationNanos(), failureItems, getJobFailureNodeId());
-        resultReceiver.resultReceived(jobResult);
-        // TODO [ENG-178] If the job had tails, these need to be passed to the resultReceiver too
+        failBatch(getJob(), exception, resultReceiver);
       } else {
         s_logger.warn("Job {} aborted but we've already completed or aborted from another node", getJob().getSpecification().getJobId());
       }
@@ -330,30 +339,45 @@ public class JobDispatcher implements JobInvokerRegister {
   }
 
   // TODO [ENG-42] schedule retryPending to be called periodically with failJobsBefore set to `System.nanoTime() - a timeout` to cancel jobs which can't be executed at all
-  // TODO [ENG-42] the invoker selection logic is inefficient; it's likely that capabilityrequirements objects won't vary much so comparison against the capabilities of invokers should be cached
+  // TODO [ENG-42] the invoker selection logic is inefficient; it's likely that capability requirements objects won't vary much so comparison against the capabilities of invokers should be cached
   // TODO [ENG-42] job dispatch should not be O(n) on number of invokers; the caching of capabilities should allow a nearer O(1) selection
 
   // caller must already own monitor
   private boolean invoke(final DispatchJob job) {
-    final Iterator<JobInvoker> iterator = getInvokers().iterator();
-    while (iterator.hasNext()) {
-      final JobInvoker jobInvoker = iterator.next();
-      if (job.canRunOn(jobInvoker)) {
-        if (jobInvoker.invoke(job.getJob(), job)) {
-          s_logger.debug("Invoker {} accepted job {}", jobInvoker, job.getJob().getSpecification().getJobId());
-          // request a job timeout
-          job.setTimeout(jobInvoker);
-          // put invoker to the end of the list
-          iterator.remove();
-          getInvokers().add(jobInvoker);
-          return true;
-        } else {
-          s_logger.debug("Invoker {} refused to execute job {}", jobInvoker, job.getJob().getSpecification().getJobId());
-          iterator.remove();
-          jobInvoker.notifyWhenAvailable(this);
+    Collection<JobInvoker> retry = null;
+    do {
+      final Iterator<JobInvoker> iterator = getInvokers().iterator();
+      while (iterator.hasNext()) {
+        final JobInvoker jobInvoker = iterator.next();
+        if (job.canRunOn(jobInvoker)) {
+          if (jobInvoker.invoke(job.getJob(), job)) {
+            s_logger.debug("Invoker {} accepted job {}", jobInvoker, job.getJob().getSpecification().getJobId());
+            // request a job timeout
+            job.setTimeout(jobInvoker);
+            // put invoker to the end of the list
+            iterator.remove();
+            getInvokers().add(jobInvoker);
+            return true;
+          } else {
+            s_logger.debug("Invoker {} refused to execute job {}", jobInvoker, job.getJob().getSpecification().getJobId());
+            iterator.remove();
+            if (jobInvoker.notifyWhenAvailable(this)) {
+              s_logger.info("Invoker {} requested immediate retry", jobInvoker);
+              if (retry == null) {
+                retry = new LinkedList<JobInvoker>();
+              }
+              retry.add(jobInvoker);
+            }
+          }
         }
       }
-    }
+      if (retry != null) {
+        getInvokers().addAll(retry);
+        retry = null;
+      } else {
+        break;
+      }
+    } while (true);
     s_logger.debug("No invokers available for job {}", job.getJob().getSpecification().getJobId());
     return false;
   }

@@ -78,8 +78,9 @@ public class JobDispatcherTest {
     }
 
     @Override
-    public void notifyWhenAvailable(JobInvokerRegister callback) {
+    public boolean notifyWhenAvailable(JobInvokerRegister callback) {
       _callback = callback;
+      return false;
     }
 
     @Override
@@ -201,15 +202,16 @@ public class JobDispatcherTest {
         }
 
         @Override
-        public void notifyWhenAvailable(final JobInvokerRegister callback) {
+        public boolean notifyWhenAvailable(final JobInvokerRegister callback) {
           synchronized (this) {
             if (_busy) {
               assertNull(_callback);
               s_logger.debug("invoker {} busy - storing callback", iid);
               _callback = callback;
+              return false;
             } else {
               s_logger.debug("invoker {} ready - immediate callback", iid);
-              callback.registerJobInvoker(this);
+              return true;
             }
           }
         }
@@ -260,9 +262,10 @@ public class JobDispatcherTest {
     }
 
     @Override
-    public void notifyWhenAvailable(final JobInvokerRegister callback) {
+    public boolean notifyWhenAvailable(final JobInvokerRegister callback) {
       // shouldn't get called
       fail();
+      return true;
     }
 
     @Override
@@ -323,7 +326,10 @@ public class JobDispatcherTest {
     }
 
     @Override
-    public void notifyWhenAvailable(JobInvokerRegister callback) {
+    public boolean notifyWhenAvailable(JobInvokerRegister callback) {
+      // Shouldn't get called
+      fail ();
+      return true;
     }
 
   }

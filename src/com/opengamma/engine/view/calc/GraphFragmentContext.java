@@ -100,17 +100,19 @@ import com.opengamma.engine.view.calcnode.JobResultReceiver;
 
   @Override
   public void resultReceived(final CalculationJobResult result) {
-    final GraphFragment fragment = _job2fragment.get(result.getSpecification());
-    fragment.resultReceived(result);
-    // Mark nodes as good or bad
-    for (CalculationJobResultItem item : result.getResultItems()) {
-      DependencyNode node = _item2node.get(item.getItem());
-      if (node == null) {
-        continue;
-      }
-      getExecutor().markExecuted(node);
-      if (item.failed()) {
-        getExecutor().markFailed(node);
+    final GraphFragment fragment = _job2fragment.remove(result.getSpecification());
+    if (fragment != null) {
+      fragment.resultReceived(result);
+      // Mark nodes as good or bad
+      for (CalculationJobResultItem item : result.getResultItems()) {
+        DependencyNode node = _item2node.get(item.getItem());
+        if (node == null) {
+          continue;
+        }
+        getExecutor().markExecuted(node);
+        if (item.failed()) {
+          getExecutor().markFailed(node);
+        }
       }
     }
   }

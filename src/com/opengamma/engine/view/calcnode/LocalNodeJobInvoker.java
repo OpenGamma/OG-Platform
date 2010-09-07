@@ -108,14 +108,15 @@ public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContai
   }
 
   @Override
-  public void notifyWhenAvailable(JobInvokerRegister callback) {
+  public boolean notifyWhenAvailable(JobInvokerRegister callback) {
     _notifyWhenAvailable.set(callback);
     if (!getNodes().isEmpty()) {
       callback = _notifyWhenAvailable.getAndSet(null);
       if (callback != null) {
-        callback.registerJobInvoker(this);
+        return true;
       }
     }
+    return false;
   }
 
   @Override

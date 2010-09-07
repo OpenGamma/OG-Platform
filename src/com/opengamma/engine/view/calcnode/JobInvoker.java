@@ -40,8 +40,11 @@ public interface JobInvoker {
    * it becomes available again.
    * 
    * @param callback the object the invoker should register itself with when it is ready to
-   * receive {@link #invoke} calls again. 
+   * receive {@link #invoke} calls again. This must not be called inline from this method,
+   * if the invoker is ready it must return {@code true}.
+   * @return return {@code false} if the callback will be invoked in the future. If the
+   * invoker is ready now, {@code true}.  
    */
-  void notifyWhenAvailable(JobInvokerRegister callback);
+  boolean notifyWhenAvailable(JobInvokerRegister callback);
 
 }
