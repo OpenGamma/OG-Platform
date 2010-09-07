@@ -5,7 +5,11 @@
  */
 package com.opengamma.timeseries.db;
 
+import static org.junit.Assert.*;
+
 import java.util.Map;
+
+import javax.time.calendar.LocalDate;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -21,6 +25,7 @@ import com.opengamma.timeseries.DataPointDocument;
 import com.opengamma.timeseries.TimeSeriesDocument;
 import com.opengamma.timeseries.TimeSeriesMaster;
 import com.opengamma.util.test.DBTest;
+import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
@@ -63,7 +68,6 @@ public class PerformanceTest extends DBTest {
       
       Identifier id1 = Identifier.of("sa" + i, "ida" + i);
       IdentifierBundle identifiers = IdentifierBundle.of(id1);
-      
       LocalDateDoubleTimeSeries timeSeries = TimeSeriesMasterTest.makeRandomTimeSeries(1);
       
       tsDocument.setDataField("CLOSE");

@@ -980,8 +980,23 @@ public class TimeSeriesMasterTest extends DBTest {
     assertEquals(expectedDoc.getIdentifiers(), actualDoc.getIdentifiers());
     assertEquals(expectedDoc.getObservationTime(), actualDoc.getObservationTime());
   }
-    
-  private LocalDateDoubleTimeSeries makeRandomTimeSeries(LocalDate start, LocalDate end) {
+  
+  public static LocalDateDoubleTimeSeries makeRandomTimeSeries(int numDdays) {
+    LocalDate previousWeekDay = DateUtil.previousWeekDay();
+    int counter = 1;
+    LocalDate start = null;
+    while (counter < numDdays) {
+      start = previousWeekDay.minusDays(1);
+      if (isWeekday(start)) {
+        counter++;
+      }
+    }
+    LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries(start, previousWeekDay);
+    assertTrue(timeSeries.size() == 1);
+    return timeSeries;
+  }
+  
+  public static LocalDateDoubleTimeSeries makeRandomTimeSeries(LocalDate start, LocalDate end) {
     MapLocalDateDoubleTimeSeries tsMap = new MapLocalDateDoubleTimeSeries();
     LocalDate current = start;
     tsMap.putDataPoint(current, Math.random());
