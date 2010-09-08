@@ -8,6 +8,8 @@ package com.opengamma.engine.view.calc;
 import java.util.Collection;
 import java.util.Map;
 
+import javax.time.Instant;
+
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -15,8 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.view.calc.stats.GraphExecutionStatistics;
-import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
-import com.opengamma.engine.view.calc.stats.PerViewStatisticsGathererProvider;
 import com.opengamma.engine.view.calc.stats.TotallingStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.Capability;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
@@ -43,8 +43,10 @@ public class MultipleNodeExecutorTuner implements Runnable {
   private final MultipleNodeExecutorFactory _factory;
 
   private JobDispatcher _jobDispatcher;
-  private PerViewStatisticsGathererProvider _graphExecutionStatistics;
+  private TotallingStatisticsGathererProvider _graphExecutionStatistics;
   private TotallingStatisticsGatherer _jobDispatchStatistics;
+  private double _statisticDecayRate = 0.1; // 10% decay every schedule
+  private int _statisticsKeepAlive = 300; // keep for 5 minutes
 
   /**
    * @param factory The factory to tune
@@ -66,11 +68,11 @@ public class MultipleNodeExecutorTuner implements Runnable {
     return _jobDispatcher;
   }
 
-  public void setGraphExecutionStatistics(final PerViewStatisticsGathererProvider graphExecutionStatistics) {
+  public void setGraphExecutionStatistics(final TotallingStatisticsGathererProvider graphExecutionStatistics) {
     _graphExecutionStatistics = graphExecutionStatistics;
   }
 
-  protected PerViewStatisticsGathererProvider getGraphExecutionStatistics() {
+  protected TotallingStatisticsGathererProvider getGraphExecutionStatistics() {
     return _graphExecutionStatistics;
   }
 
@@ -82,12 +84,29 @@ public class MultipleNodeExecutorTuner implements Runnable {
     return _jobDispatchStatistics;
   }
 
+  public void setStatisticsKeepAlive(final int seconds) {
+    _statisticsKeepAlive = seconds;
+  }
+
+  protected int getStatisticsKeepAlive() {
+    return _statisticsKeepAlive;
+  }
+
+  public void setStatisticsDecayRate(final double decayRate) {
+    _statisticDecayRate = decayRate;
+  }
+
+  protected double getStatisticsDecayRate() {
+    return _statisticDecayRate;
+  }
+
   /**
    * Makes one tuning adjustment.
    */
   @Override
   public void run() {
     if (getJobDispatcher() != null) {
+      s_logger.debug("Processing capabilities");
       final Map<String, Collection<Capability>> allCapabilities = getJobDispatcher().getAllCapabilities();
       int nodesPerInvokerCount = 0;
       double nodesPerInvoker = 0;
@@ -110,21 +129,26 @@ public class MultipleNodeExecutorTuner implements Runnable {
       }
     }
     if (getGraphExecutionStatistics() != null) {
-      for (GraphExecutorStatisticsGatherer gatherer : getGraphExecutionStatistics().getViewStatistics()) {
-        for (GraphExecutionStatistics statistics : ((TotallingStatisticsGathererProvider.Statistics) gatherer).getExecutionStatistics()) {
-          statistics.decay(0.1);
+      s_logger.debug("Processing graph execution statistics");
+      for (TotallingStatisticsGathererProvider.Statistics gatherer : getGraphExecutionStatistics().getViewStatistics()) {
+        for (GraphExecutionStatistics statistics : gatherer.getExecutionStatistics()) {
+          statistics.decay(getStatisticsDecayRate());
         }
       }
+      getGraphExecutionStatistics().dropStatisticsBefore(Instant.nowSystemClock().minusSeconds(getStatisticsKeepAlive()));
     }
     if (getJobDispatchStatistics() != null) {
+      s_logger.debug("Processing job dispatch statistics");
       for (CalculationNodeStatistics statistics : getJobDispatchStatistics().getNodeStatistics()) {
-        statistics.decay(0.1);
+        statistics.decay(getStatisticsDecayRate());
       }
+      getJobDispatchStatistics().dropStatisticsBefore(Instant.nowSystemClock().minusSeconds(getStatisticsKeepAlive()));
     }
   }
 
-  private FudgeFieldContainer dumpCapabilities(final FudgeSerializationContext context, final Collection<Capability> capabilities) {
+  private FudgeFieldContainer dumpCapabilities(final FudgeSerializationContext context, final String invokerId, final Collection<Capability> capabilities) {
     final MutableFudgeFieldContainer message = context.newMessage();
+    message.add("identifier", invokerId);
     for (Capability capability : capabilities) {
       context.objectToFudgeMsgWithClassHeaders(message, capability.getIdentifier(), null, capability, Capability.class);
     }
@@ -136,7 +160,7 @@ public class MultipleNodeExecutorTuner implements Runnable {
     context.objectToFudgeMsg(message, "factory", null, getFactory());
     if (getJobDispatcher() != null) {
       for (Map.Entry<String, Collection<Capability>> capabilities : getJobDispatcher().getAllCapabilities().entrySet()) {
-        message.add(capabilities.getKey(), dumpCapabilities(context, capabilities.getValue()));
+        message.add("Invoker", dumpCapabilities(context, capabilities.getKey(), capabilities.getValue()));
       }
     }
     return message;

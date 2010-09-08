@@ -27,7 +27,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.MapMaker;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.calcnode.stats.CalculationNodeStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.stats.DiscardingStatisticsGatherer;
@@ -222,7 +221,7 @@ public class JobDispatcher implements JobInvokerRegister {
 
   private final Queue<DispatchJob> _pending = new LinkedList<DispatchJob>();
   private final Queue<JobInvoker> _invokers = new ConcurrentLinkedQueue<JobInvoker>();
-  private final Map<JobInvoker, Collection<Capability>> _capabilityCache = new MapMaker().softKeys().makeMap();
+  private final Map<JobInvoker, Collection<Capability>> _capabilityCache = new ConcurrentHashMap<JobInvoker, Collection<Capability>>();
 
   private int _maxJobAttempts = DEFAULT_MAX_JOB_ATTEMPTS;
   private String _jobFailureNodeId = DEFAULT_JOB_FAILURE_NODE_ID;
@@ -412,9 +411,16 @@ public class JobDispatcher implements JobInvokerRegister {
    * @return Map of invoker identifier to capability set.
    */
   public Map<String, Collection<Capability>> getAllCapabilities() {
+    final Iterator<Map.Entry<JobInvoker, Collection<Capability>>> invokerCapabilityIterator = getCapabilityCache().entrySet().iterator();
     final Map<String, Collection<Capability>> result = new HashMap<String, Collection<Capability>>();
-    for (Map.Entry<JobInvoker, Collection<Capability>> invokerCapability : getCapabilityCache().entrySet()) {
-      result.put(invokerCapability.getKey().getInvokerId(), invokerCapability.getValue());
+    while (invokerCapabilityIterator.hasNext()) {
+      final Map.Entry<JobInvoker, Collection<Capability>> invokerCapability = invokerCapabilityIterator.next();
+      final String identifier = invokerCapability.getKey().getInvokerId();
+      if (identifier == null) {
+        invokerCapabilityIterator.remove();
+      } else {
+        result.put(identifier, invokerCapability.getValue());
+      }
     }
     return result;
   }

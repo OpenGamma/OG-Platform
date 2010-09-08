@@ -7,9 +7,14 @@
 package com.opengamma.engine.view.calcnode.stats;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import javax.time.Instant;
+import javax.time.InstantProvider;
 
 /**
  * Maintains ever increasing tallies of the reported metrics. 
@@ -42,6 +47,17 @@ public class TotallingStatisticsGatherer implements CalculationNodeStatisticsGat
 
   public List<CalculationNodeStatistics> getNodeStatistics() {
     return new ArrayList<CalculationNodeStatistics>(_nodeStatistics.values());
+  }
+
+  public void dropStatisticsBefore(final InstantProvider instantProvider) {
+    final Instant dropBefore = Instant.of(instantProvider);
+    final Iterator<Map.Entry<String, CalculationNodeStatistics>> nodeStatisticsIterator = _nodeStatistics.entrySet().iterator();
+    while (nodeStatisticsIterator.hasNext()) {
+      final Map.Entry<String, CalculationNodeStatistics> nodeStatistics = nodeStatisticsIterator.next();
+      if (nodeStatistics.getValue().getLastJobTime().isBefore(dropBefore)) {
+        nodeStatisticsIterator.remove();
+      }
+    }
   }
 
 }
