@@ -45,59 +45,59 @@
   </bean>
 
   <!-- ============================================================================== -->
-  <bean id="derbyDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-    <property name="driverClassName" value="${derby.jdbc.driver}"/>
-    <property name="url" value="${derby.jdbc.url}/test_${user.name}"/>
-    <property name="username" value="${derby.jdbc.username}"/>
-    <property name="password" value="${derby.jdbc.password}"/>
+  <bean id="hsqldbDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <property name="driverClassName" value="${hsqldb.jdbc.driver}"/>
+    <property name="url" value="${hsqldb.jdbc.url}/test_${user.name}"/>
+    <property name="username" value="${hsqldb.jdbc.username}"/>
+    <property name="password" value="${hsqldb.jdbc.password}"/>
   </bean>
 
-  <bean id="derbyDbHelper" class="com.opengamma.util.db.DerbyDbHelper" />
+  <bean id="hsqldbDbHelper" class="com.opengamma.util.db.HSQLDbHelper" />
 
-  <bean id="derbyJdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
-    <constructor-arg ref="derbyDataSource" />
+  <bean id="hsqldbJdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
+    <constructor-arg ref="hsqldbDataSource" />
   </bean>
 
-  <bean id="derbyHibernateTransMgr" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-    <property name="sessionFactory" ref="derbyHibernateSessionFactory"/>
+  <bean id="hsqldbHibernateTransMgr" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    <property name="sessionFactory" ref="hsqldbHibernateSessionFactory"/>
   </bean>
 
-  <bean id="derbyHibernateSessionFactory" parent="abstractHibernateSessionFactory">
-    <property name="dataSource" ref="derbyDataSource"/>
+  <bean id="hsqldbHibernateSessionFactory" parent="abstractHibernateSessionFactory">
+    <property name="dataSource" ref="hsqldbDataSource"/>
     <property name="hibernateProperties">
       <value>
-        hibernate.dialect=org.hibernate.dialect.DerbyDialect
+        hibernate.dialect=org.hibernate.dialect.HSQLDialect
         hibernate.show_sql=false
         hibernate.format_sql=false
       </value>
     </property>
   </bean>
 
-  <bean id="derbyDbSecurityMasterDetail" class="com.opengamma.financial.security.master.db.HibernateSecurityMasterDetailProvider">
-    <property name="sessionFactory" ref="derbyHibernateSessionFactory" />
+  <bean id="hsqldbDbSecurityMasterDetail" class="com.opengamma.financial.security.master.db.HibernateSecurityMasterDetailProvider">
+    <property name="sessionFactory" ref="hsqldbHibernateSessionFactory" />
   </bean>
 
-  <bean id="derbyTransTemplate" class="org.springframework.transaction.support.TransactionTemplate">
-    <constructor-arg ref="derbyHibernateTransMgr" />
+  <bean id="hsqldbTransTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+    <constructor-arg ref="hsqldbHibernateTransMgr" />
     <constructor-arg ref="dbTransactionDefinition" />
   </bean>
 
-  <bean id="derbyDbPositionMaster" class="com.opengamma.financial.position.master.db.DbPositionMaster">
+  <bean id="hsqldbDbPositionMaster" class="com.opengamma.financial.position.master.db.DbPositionMaster">
     <constructor-arg>
       <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="derbyDataSource"/>
+        <property name="dataSource" ref="hsqldbDataSource"/>
       </bean>
     </constructor-arg>
     <constructor-arg ref="dbTransactionDefinition" />
-    <constructor-arg ref="derbyDbHelper" />
+    <constructor-arg ref="hsqldbDbHelper" />
     <property name="identifierScheme" value="DbPos" />
   </bean>
 
-  <bean id="derbyDbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
-    <constructor-arg ref="derbyTransTemplate" />
-    <constructor-arg ref="derbyJdbcTemplate" />
-    <constructor-arg ref="derbyDbHelper" />
-    <constructor-arg ref="derbyDbSecurityMasterDetail" />
+  <bean id="hsqldbDbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
+    <constructor-arg ref="hsqldbTransTemplate" />
+    <constructor-arg ref="hsqldbJdbcTemplate" />
+    <constructor-arg ref="hsqldbDbHelper" />
+    <constructor-arg ref="hsqldbDbSecurityMasterDetail" />
     <property name="identifierScheme" value="DbSec" />
   </bean>
 
