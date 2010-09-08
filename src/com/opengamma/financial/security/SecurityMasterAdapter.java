@@ -5,11 +5,17 @@
  */
 package com.opengamma.financial.security;
 
+import com.opengamma.financial.security.master.SecurityDocument;
+import com.opengamma.financial.security.master.SecurityMaster;
+import com.opengamma.financial.security.master.SecuritySearchHistoricRequest;
+import com.opengamma.financial.security.master.SecuritySearchHistoricResult;
+import com.opengamma.financial.security.master.SecuritySearchRequest;
+import com.opengamma.financial.security.master.SecuritySearchResult;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A security master implementation that delegates to an underklying implementation.
+ * A security master implementation that delegates to an underlying implementation.
  */
 public class SecurityMasterAdapter implements SecurityMaster {
 
@@ -27,10 +33,16 @@ public class SecurityMasterAdapter implements SecurityMaster {
     _securityMaster = securityMaster;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the underlying security master.
+   * @return the underlying master, not null
+   */
   protected SecurityMaster getSecurityMaster() {
     return _securityMaster;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public SecurityDocument add(SecurityDocument document) {
     return getSecurityMaster().add(document);

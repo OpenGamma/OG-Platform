@@ -10,7 +10,7 @@ import static com.opengamma.financial.security.db.Converters.currencyBeanToCurre
 import static com.opengamma.financial.security.db.Converters.identifierBeanToIdentifier;
 import static com.opengamma.financial.security.db.Converters.identifierToIdentifierBean;
 
-import com.opengamma.financial.security.db.HibernateSecurityMasterDao;
+import com.opengamma.financial.security.master.db.HibernateSecurityMasterDao;
 import com.opengamma.financial.security.swap.CommodityNotional;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.Notional;

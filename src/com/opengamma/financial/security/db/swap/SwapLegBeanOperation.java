@@ -12,7 +12,7 @@ import static com.opengamma.financial.security.db.Converters.frequencyBeanToFreq
 import static com.opengamma.financial.security.db.Converters.identifierBeanToIdentifier;
 import static com.opengamma.financial.security.db.Converters.identifierToIdentifierBean;
 
-import com.opengamma.financial.security.db.HibernateSecurityMasterDao;
+import com.opengamma.financial.security.master.db.HibernateSecurityMasterDao;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateLeg;

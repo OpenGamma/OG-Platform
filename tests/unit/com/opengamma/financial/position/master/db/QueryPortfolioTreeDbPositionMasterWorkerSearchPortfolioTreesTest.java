@@ -16,8 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.position.master.ManageablePortfolio;
-import com.opengamma.financial.position.master.PortfolioTreeDocument;
 import com.opengamma.financial.position.master.ManageablePortfolioNode;
+import com.opengamma.financial.position.master.PortfolioTreeDocument;
 import com.opengamma.financial.position.master.PortfolioTreeSearchRequest;
 import com.opengamma.financial.position.master.PortfolioTreeSearchResult;
 import com.opengamma.id.UniqueIdentifier;
@@ -54,7 +54,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreesTest ex
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_searchPortfolioTrees_documents_maxDepth() {
+  public void test_search_documents_maxDepth() {
     PortfolioTreeSearchRequest request = new PortfolioTreeSearchRequest();
     request.setDepth(-1);
     PortfolioTreeSearchResult test = _worker.searchPortfolioTrees(request);
@@ -94,7 +94,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreesTest ex
   }
 
   @Test
-  public void test_searchPortfolioTrees_documents_depthZero() {
+  public void test_search_documents_depthZero() {
     PortfolioTreeSearchRequest request = new PortfolioTreeSearchRequest();
     PortfolioTreeSearchResult test = _worker.searchPortfolioTrees(request);
     
@@ -117,7 +117,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreesTest ex
   }
 
   @Test
-  public void test_searchPortfolioTrees_documents_depthOne() {
+  public void test_search_documents_depthOne() {
     PortfolioTreeSearchRequest request = new PortfolioTreeSearchRequest();
     request.setDepth(1);
     PortfolioTreeSearchResult test = _worker.searchPortfolioTrees(request);
@@ -143,7 +143,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreesTest ex
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_searchPortfolios_pageOne() {
+  public void test_search_pageOne() {
     PortfolioTreeSearchRequest request = new PortfolioTreeSearchRequest();
     request.setPagingRequest(new PagingRequest(1, 1));
     PortfolioTreeSearchResult test = _worker.searchPortfolioTrees(request);
@@ -158,7 +158,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreesTest ex
   }
 
   @Test
-  public void test_searchPortfolios_pageTwo() {
+  public void test_search_pageTwo() {
     PortfolioTreeSearchRequest request = new PortfolioTreeSearchRequest();
     request.setPagingRequest(new PagingRequest(2, 1));
     PortfolioTreeSearchResult test = _worker.searchPortfolioTrees(request);
@@ -174,7 +174,16 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreesTest ex
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_searchPortfolios_name_exactMatch() {
+  public void test_search_name_noMatch() {
+    PortfolioTreeSearchRequest request = new PortfolioTreeSearchRequest();
+    request.setName("FooBar");
+    PortfolioTreeSearchResult test = _worker.searchPortfolioTrees(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+
+  @Test
+  public void test_search_name_exactMatch() {
     PortfolioTreeSearchRequest request = new PortfolioTreeSearchRequest();
     request.setName("TestPortfolio101");
     PortfolioTreeSearchResult test = _worker.searchPortfolioTrees(request);
@@ -185,16 +194,18 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreesTest ex
   }
 
   @Test
-  public void test_searchPortfolios_name_noMatch() {
+  public void test_search_name_case() {
     PortfolioTreeSearchRequest request = new PortfolioTreeSearchRequest();
-    request.setName("FooBar");
+    request.setName("TESTPortfolio101");
     PortfolioTreeSearchResult test = _worker.searchPortfolioTrees(request);
     
-    assertEquals(0, test.getDocuments().size());
+    assertEquals(1, test.getDocuments().size());
+    PortfolioTreeDocument doc0 = test.getDocuments().get(0);
+    assertEquals(UniqueIdentifier.of("DbPos", "101", "0"), doc0.getPortfolioId());
   }
 
   @Test
-  public void test_searchPortfolios_name_wildcardMatch_one() {
+  public void test_search_name_wildcardMatch_one() {
     PortfolioTreeSearchRequest request = new PortfolioTreeSearchRequest();
     request.setName("TestPortfolio1*");
     PortfolioTreeSearchResult test = _worker.searchPortfolioTrees(request);
@@ -205,7 +216,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreesTest ex
   }
 
   @Test
-  public void test_searchPortfolios_name_wildcardMatch_two() {
+  public void test_search_name_wildcardMatch_two() {
     PortfolioTreeSearchRequest request = new PortfolioTreeSearchRequest();
     request.setName("TestPort*");
     PortfolioTreeSearchResult test = _worker.searchPortfolioTrees(request);
@@ -217,9 +228,20 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreesTest ex
     assertEquals(UniqueIdentifier.of("DbPos", "201", "1"), doc1.getPortfolioId());
   }
 
+  @Test
+  public void test_search_name_wildcardCase() {
+    PortfolioTreeSearchRequest request = new PortfolioTreeSearchRequest();
+    request.setName("TESTPortfolio1*");
+    PortfolioTreeSearchResult test = _worker.searchPortfolioTrees(request);
+    
+    assertEquals(1, test.getDocuments().size());
+    PortfolioTreeDocument doc0 = test.getDocuments().get(0);
+    assertEquals(UniqueIdentifier.of("DbPos", "101", "0"), doc0.getPortfolioId());
+  }
+
   //-------------------------------------------------------------------------
   @Test
-  public void test_searchPortfolios_versionAsOf_below() {
+  public void test_search_versionAsOf_below() {
     PortfolioTreeSearchRequest request = new PortfolioTreeSearchRequest();
     request.setVersionAsOfInstant(_version1Instant.minusSeconds(5));
     PortfolioTreeSearchResult test = _worker.searchPortfolioTrees(request);
@@ -228,7 +250,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreesTest ex
   }
 
   @Test
-  public void test_searchPortfolios_versionAsOf_mid() {
+  public void test_search_versionAsOf_mid() {
     PortfolioTreeSearchRequest request = new PortfolioTreeSearchRequest();
     request.setVersionAsOfInstant(_version1Instant.plusSeconds(5));
     PortfolioTreeSearchResult test = _worker.searchPortfolioTrees(request);
@@ -241,7 +263,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreesTest ex
   }
 
   @Test
-  public void test_searchPortfolios_versionAsOf_above() {
+  public void test_search_versionAsOf_above() {
     PortfolioTreeSearchRequest request = new PortfolioTreeSearchRequest();
     request.setVersionAsOfInstant(_version2Instant.plusSeconds(5));
     PortfolioTreeSearchResult test = _worker.searchPortfolioTrees(request);

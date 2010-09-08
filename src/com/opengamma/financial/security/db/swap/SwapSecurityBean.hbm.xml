@@ -73,7 +73,16 @@
       </component>
     </component>
   </union-subclass>
+
+  <query name="SwapSecurityBean.one.bySecurityId"><![CDATA[
+    from 
+      SwapSecurityBean as s
+    where
+      s.securityId = :securityId
+  ]]></query>
+
   <query name="SwapSecurityBean.all">
     from SwapSecurityBean
   </query>
+
 </hibernate-mapping>

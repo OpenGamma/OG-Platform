@@ -204,7 +204,7 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
     String where = "WHERE (ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant) " +
                 "AND (corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant) ";
     if (request.getName() != null) {
-      where += getDbHelper().sqlWildcardQuery("AND name ", ":name", request.getName());
+      where += getDbHelper().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
     }
     String selectFromWhereInner = "SELECT id FROM pos_portfolio " + where;
     String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
