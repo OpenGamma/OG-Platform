@@ -27,6 +27,7 @@ public class VariableAnnuityTest {
   private static final VariableAnnuity ANNUITY2 = new VariableAnnuity(T, NOTIONAL, FUNDING, LIBOR);
   private static final VariableAnnuity ANNUITY3 = new VariableAnnuity(T, NOTIONAL, DELTA_START, DELTA_END, FUNDING, LIBOR);
   private static final VariableAnnuity ANNUITY4 = new VariableAnnuity(T, NOTIONAL, DELTA_START, DELTA_END, YEAR_FRACTIONS, SPREADS, FUNDING, LIBOR);
+  private static final VariableAnnuity ANNUITY5 = new VariableAnnuity(T, NOTIONAL, DELTA_START, DELTA_END, YEAR_FRACTIONS, FUNDING, LIBOR);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullPaymentTimes1() {
@@ -226,6 +227,7 @@ public class VariableAnnuityTest {
     assertEquals(ANNUITY1, ANNUITY4);
     assertEquals(ANNUITY2, ANNUITY4);
     assertEquals(ANNUITY3, ANNUITY4);
+    assertEquals(ANNUITY5, ANNUITY4);
     final double[] data = new double[] {100, 100, 100, 5};
     other = new VariableAnnuity(data, NOTIONAL, DELTA_START, DELTA_END, YEAR_FRACTIONS, SPREADS, FUNDING, LIBOR);
     assertFalse(other.equals(ANNUITY4));
@@ -240,6 +242,8 @@ public class VariableAnnuityTest {
     other = new VariableAnnuity(T, NOTIONAL, DELTA_START, DELTA_END, YEAR_FRACTIONS, data, FUNDING, LIBOR);
     assertFalse(other.equals(ANNUITY4));
     other = new VariableAnnuity(T, NOTIONAL, DELTA_START, DELTA_END, YEAR_FRACTIONS, SPREADS, "X", LIBOR);
+    assertFalse(other.equals(ANNUITY4));
+    other = new VariableAnnuity(T, NOTIONAL, DELTA_START, DELTA_END, YEAR_FRACTIONS, "X", LIBOR);
     assertFalse(other.equals(ANNUITY4));
     other = new VariableAnnuity(T, NOTIONAL, DELTA_START, DELTA_END, YEAR_FRACTIONS, SPREADS, FUNDING, "x");
     assertFalse(other.equals(ANNUITY4));

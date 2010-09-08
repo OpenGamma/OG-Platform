@@ -110,6 +110,21 @@ public class VariableAnnuity implements Annuity {
    * @param fwdStartOffsets offset in years of start of libor fixing date from <b>previous</b> floating payment time (or trade date if spot libor)
    * @param fwdEndOffsets  offset in years of end of libor maturity from floating payment time
    * @param yearFraction year fractions used to calculate payment amounts and reference rate
+   * @param fundingCurveName  Name of curve from which payments are discounted
+   * @param liborCurveName Name of curve from which forward rates are calculated
+   */
+  public VariableAnnuity(final double[] paymentTimes, final double notional, final double[] fwdStartOffsets, final double[] fwdEndOffsets, final double[] yearFraction, final String fundingCurveName,
+      final String liborCurveName) {
+    this(paymentTimes, notional, fwdStartOffsets, fwdEndOffsets, yearFraction, new double[paymentTimes.length], fundingCurveName, liborCurveName);
+  }
+
+  /**
+   * A variable annuity (e.g. the floating leg of a swap) 
+   * @param paymentTimes time in years from now of payments 
+   * @param notional the notional amount (OK to set to 1.0) 
+   * @param fwdStartOffsets offset in years of start of libor fixing date from <b>previous</b> floating payment time (or trade date if spot libor)
+   * @param fwdEndOffsets  offset in years of end of libor maturity from floating payment time
+   * @param yearFraction year fractions used to calculate payment amounts and reference rate
    * @param spreads fixed payments on top of variable amounts (can be negative)
    * @param fundingCurveName  Name of curve from which payments are discounted
    * @param liborCurveName Name of curve from which forward rates are calculated
