@@ -32,7 +32,8 @@ import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageSender;
 
 /**
- * Client end to RemoteNodeServer for registering one or more AbstractCalculationNodes with a remote job dispatcher.
+ * Client end to RemoteNodeServer for registering one or more AbstractCalculationNodes with a remote job dispatcher. The connection must
+ * deliver messages in network order (i.e. not use an executor service).
  */
 public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer implements FudgeMessageReceiver, Lifecycle, FudgeConnectionStateListener {
 
@@ -94,6 +95,12 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
     sendMessage(ready);
   }
 
+  /**
+   * Needs to run sequentially, preserving network message order.
+   * 
+   * @param fudgeContext the Fudge context for processing the message
+   * @param msgEnvelope the received message
+   */
   @Override
   public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
     final FudgeFieldContainer msg = msgEnvelope.getMessage();
@@ -116,6 +123,9 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
     }
   }
 
+  /**
+   * Needs to run sequentially with jobs in the order they've arrived over the network.
+   */
   private void handleJobMessage(final RemoteCalcNodeJobMessage message) {
     final CalculationJob job = message.getJob();
     job.resolveInputs(getIdentifierMap());
@@ -133,11 +143,11 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
         sendMessage(new RemoteCalcNodeFailureMessage(job.getSpecification(), exception.getMessage(), node.getNodeId()));
       }
 
-    }, (job.getRequiredJobIds() == null) ? getNodes().poll() : null);
+    }, null);
   }
 
   private void handleInitMessage(final RemoteCalcNodeInitMessage message) {
-    // TODO
+    // TODO Did we want to force a particular seed value or other local state ?
   }
 
   @Override

@@ -61,6 +61,15 @@ public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContai
     return _capabilities;
   }
 
+  private void addTail(final Collection<CalculationJob> tails, final ExecutionReceiver executionReceiver) {
+    if (tails != null) {
+      for (CalculationJob tail : tails) {
+        addJob(tail, executionReceiver, null);
+        addTail(tail.getTail(), executionReceiver);
+      }
+    }
+  }
+
   @Override
   public boolean invoke(final CalculationJob job, final JobInvocationReceiver receiver) {
     final AbstractCalculationNode node = getNodes().poll();
@@ -81,24 +90,8 @@ public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContai
       }
 
     };
-    getExecutorService().execute(new Runnable() {
-
-      private void addTail(final Collection<CalculationJob> tails) {
-        if (tails != null) {
-          for (CalculationJob tail : tails) {
-            addJob(tail, executionReceiver, null);
-            addTail(tail.getTail());
-          }
-        }
-      }
-
-      @Override
-      public void run() {
-        addTail(job.getTail());
-        addJob(job, executionReceiver, node);
-      }
-      
-    });
+    addJob(job, executionReceiver, node);
+    addTail(job.getTail(), executionReceiver);
     return true;
   }
 

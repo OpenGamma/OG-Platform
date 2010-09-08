@@ -123,9 +123,15 @@ import com.opengamma.util.monitor.OperationTimer;
         final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeMessageSender().getFudgeContext());
         getFudgeMessageSender().send(FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(message), message.getClass(), RemoteCalcNodeMessage.class));
         timer.finished();
+      }
+
+      private void sendJobTail(final CalculationJob job) {
         if (job.getTail() != null) {
           for (CalculationJob tail : job.getTail()) {
             sendJob(tail);
+          }
+          for (CalculationJob tail : job.getTail()) {
+            sendJobTail(tail);
           }
         }
       }
@@ -133,6 +139,7 @@ import com.opengamma.util.monitor.OperationTimer;
       @Override
       public void run() {
         sendJob(rootJob);
+        sendJobTail(rootJob);
       }
     });
     return true;
