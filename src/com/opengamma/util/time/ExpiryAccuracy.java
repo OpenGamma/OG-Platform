@@ -9,7 +9,14 @@ package com.opengamma.util.time;
  * The accuracy of an {@code Expiry}.
  */
 public enum ExpiryAccuracy {
-
+  /**
+   * Accurate to a minute
+   */
+  MIN_HOUR_DAY_MONTH_YEAR,
+  /**
+   * Accurate to an hour
+   */
+  HOUR_DAY_MONTH_YEAR,
   /**
    * Accurate to a day.
    */
@@ -22,5 +29,4 @@ public enum ExpiryAccuracy {
    * Accurate to a year.
    */
   YEAR,
-
 }
