@@ -32,7 +32,7 @@ import com.opengamma.math.statistics.distribution.NormalDistribution;
 /**
  * 
  */
-public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingTest {
+public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
   private double[] _swapValues;
 
   public YieldCurveFittingFromSwapsTest() {

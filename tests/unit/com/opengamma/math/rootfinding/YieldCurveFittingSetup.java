@@ -51,7 +51,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * 
  */
-public abstract class YieldCurveFittingTest {
+public abstract class YieldCurveFittingSetup {
   protected static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   protected static final InterestRateDerivativeVisitor<Double> PAR_RATE_CALCULATOR = ParRateCalculator.getInstance();
   protected static final InterestRateDerivativeVisitor<Double> PAR_RATE_DIFFERENCE_CALCULATOR = ParRateDifferenceCalculator
