@@ -44,9 +44,25 @@ public final class DerbyDialect extends AbstractDBDialect {
 
   //-------------------------------------------------------------------------
   @Override
+  public void reset(String catalog) {
+    super.reset(catalog);
+    
+    // for Derby, we shutdown the database to avoid locking issues
+    System.out.println("Closing connection to " + catalog + "...");
+    try {
+      DriverManager.getConnection("jdbc:derby:;shutdown=true");
+    } catch (SQLException e) {
+      if (e.getErrorCode() != 50000 || !"XJ015".equals(e.getSQLState())) {
+        throw new OpenGammaRuntimeException("Could not shutdown Derby " + e.getErrorCode() + " - " + e.getSQLState() + " - " + e.getMessage(), e);        
+      }
+    }
+  }
+
+  @Override
   public void shutdown(String catalog) {
     super.shutdown(catalog);
     
+    System.out.println("Closing connection to " + catalog + "...");
     try {
       DriverManager.getConnection("jdbc:derby:;shutdown=true");
     } catch (SQLException e) {

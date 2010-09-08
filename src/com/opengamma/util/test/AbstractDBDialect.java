@@ -59,6 +59,11 @@ public abstract class AbstractDBDialect implements DBDialect {
   }
 
   @Override
+  public void reset(String catalog) {
+    // by default, do nothing
+  }
+
+  @Override
   public void shutdown(String catalog) {
     // by default, do nothing
   }

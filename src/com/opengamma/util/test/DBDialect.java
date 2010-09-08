@@ -24,6 +24,12 @@ public interface DBDialect {
   void initialise(String dbServerHost, String user, String password);
 
   /**
+   * Resets a database catalog, usually called between two tests.
+   * @param catalog  the catalog to shut, not null
+   */
+  void reset(String catalog);
+
+  /**
    * Shuts down a database catalog.
    * @param catalog  the catalog to shut, not null
    */
