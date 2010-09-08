@@ -10,7 +10,16 @@
     <many-to-one name="currency" column="currency_id" class="com.opengamma.financial.security.db.CurrencyBean" not-null="true"/>
     <many-to-one name="GICSCode" column="gicscode_id" class="GICSCodeBean" not-null="false"/>
   </union-subclass>
+
+  <query name="EquitySecurityBean.one.bySecurityId"><![CDATA[
+    from 
+      EquitySecurityBean as s
+    where
+      s.securityId = :securityId
+  ]]></query>
+
   <query name="EquitySecurityBean.all">
     from EquitySecurityBean
   </query>
+
 </hibernate-mapping>

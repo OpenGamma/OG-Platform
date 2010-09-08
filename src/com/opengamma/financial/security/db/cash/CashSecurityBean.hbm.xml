@@ -10,7 +10,16 @@
   	  <property name="identifier" column="region_identifier" type="string" />
   	</component>
   </union-subclass>
+
+  <query name="CashSecurityBean.one.bySecurityId"><![CDATA[
+    from 
+      CashSecurityBean as s
+    where
+      s.securityId = :securityId
+  ]]></query>
+
   <query name="CashSecurityBean.all">
     from CashSecurityBean
   </query>
+
 </hibernate-mapping>

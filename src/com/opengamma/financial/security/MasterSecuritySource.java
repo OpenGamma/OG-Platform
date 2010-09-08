@@ -12,6 +12,9 @@ import java.util.Collections;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecuritySource;
+import com.opengamma.financial.security.master.SecurityDocument;
+import com.opengamma.financial.security.master.SecurityMaster;
+import com.opengamma.financial.security.master.SecuritySearchRequest;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -48,8 +51,8 @@ public class MasterSecuritySource extends SecurityMasterAdapter implements Secur
   public Collection<Security> getSecurities(final IdentifierBundle securityKey) {
     ArgumentChecker.notNull(securityKey, "securityKey");
     final SecuritySearchRequest req = new SecuritySearchRequest();
-    req.setIdentifiers(securityKey);
-    final Collection<SecurityDocument> documents = search(req).getDocument();
+    req.setIdentityKey(securityKey);
+    final Collection<SecurityDocument> documents = search(req).getDocuments();
     if (documents == null) {
       return Collections.emptyList();
     }

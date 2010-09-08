@@ -30,7 +30,6 @@ import com.opengamma.util.time.DateUtil;
  * Position master worker to modify a portfolio tree.
  */
 public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWorker {
-  // TODO: transactions
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyPortfolioTreeDbPositionMasterWorker.class);

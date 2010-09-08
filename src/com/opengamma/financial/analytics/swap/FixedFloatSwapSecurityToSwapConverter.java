@@ -52,12 +52,16 @@ public class FixedFloatSwapSecurityToSwapConverter {
       String fundingCurveName, String liborCurveName, Calendar calendar) {
     ZonedDateTime[] unadjustedDates = ScheduleCalculator.getUnadjustedDateSchedule(effectiveDate, maturityDate, floatLeg.getFrequency());
     ZonedDateTime[] adjustedDates = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, floatLeg.getBusinessDayConvention(), calendar); 
+    ZonedDateTime[] resetDates = ScheduleCalculator.getAdjustedResetDateSchedule(effectiveDate,unadjustedDates, floatLeg.getBusinessDayConvention(), calendar);
+    ZonedDateTime[] maturityDates = ScheduleCalculator.getAdjustedMaturityDateSchedule(effectiveDate, unadjustedDates, floatLeg.getBusinessDayConvention(),calendar, floatLeg.getFrequency());
+    
     double[] paymentTimes = ScheduleCalculator.getTimes(adjustedDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), tradeDate);
+    double[] resetTimes = ScheduleCalculator.getTimes(resetDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), tradeDate);
+    double[] maturityTimes = ScheduleCalculator.getTimes(maturityDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), tradeDate);
     double[] yearFractions = ScheduleCalculator.getYearFractions(adjustedDates, floatLeg.getDayCount(), effectiveDate);
     double notional = ((InterestRateNotional) floatLeg.getNotional()).getAmount();
-    double[] fwdStartOffsets = new double[paymentTimes.length]; //TODO
-    double[] fwdEndOffsets = new double[paymentTimes.length]; //TODO 
-    return new VariableAnnuity(paymentTimes, notional, fwdStartOffsets, fwdEndOffsets, yearFractions, fundingCurveName, liborCurveName);
+  
+    return new VariableAnnuity(paymentTimes, resetTimes,maturityTimes, yearFractions, notional, fundingCurveName, liborCurveName);
   }
   
   public static ConstantCouponAnnuity getFixedLeg(FixedInterestRateLeg fixedLeg, ZonedDateTime tradeDate, ZonedDateTime effectiveDate, ZonedDateTime maturityDate, double marketRate, 
@@ -69,4 +73,7 @@ public class FixedFloatSwapSecurityToSwapConverter {
     double notional = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
     return new ConstantCouponAnnuity(paymentTimes, notional, marketRate, yearFractions, fundingCurveName);
   }
+  
+  
+  
 }
