@@ -321,10 +321,11 @@ public abstract class YieldCurveFittingTest {
       final String liborCurveName) {
     final double[] fixed = new double[payments];
     final double[] floating = new double[2 * payments];
-    final double[] deltaStart = new double[2 * payments];
-    final double[] deltaEnd = new double[2 * payments];
+    final double[] indexFixing = new double[2 * payments];
+    final double[] indexMaturity = new double[2 * payments];
+    final double[] yearFrac = new double[2 * payments];
 
-    final double sigma = 0.0;//2.0 / 365.0;
+    final double sigma = 4.0 / 365.0;
 
     for (int i = 0; i < payments; i++) {
       floating[2 * i + 1] = fixed[i] = 0.5 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
@@ -333,12 +334,13 @@ public abstract class YieldCurveFittingTest {
       if (i % 2 == 0) {
         floating[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
       }
-      deltaStart[i] = sigma * (i == 0 ? RANDOM.nextDouble() : (RANDOM.nextDouble() - 0.5));
-      deltaEnd[i] = sigma * (RANDOM.nextDouble() - 0.5);
+      yearFrac[i] = 0.25 + sigma * (RANDOM.nextDouble() - 0.5);
+      indexFixing[i] = 0.25 * i + sigma * (i == 0 ? RANDOM.nextDouble() / 2 : (RANDOM.nextDouble() - 0.5));
+      indexMaturity[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
     }
     final ConstantCouponAnnuity fixedLeg = new ConstantCouponAnnuity(fixed, 0.0, fundingCurveName);
-    final VariableAnnuity floatingLeg = new VariableAnnuity(floating, 1.0, deltaStart, deltaEnd, fundingCurveName,
-        liborCurveName);
+    final VariableAnnuity floatingLeg = new VariableAnnuity(floating, indexFixing, indexMaturity, yearFrac, 1.0,
+        fundingCurveName, liborCurveName);
     return new FixedFloatSwap(fixedLeg, floatingLeg);
   }
 

@@ -30,6 +30,7 @@ import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.ParRateDifferenceCalculator;
+import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.ConstantCouponAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
@@ -145,11 +146,15 @@ public class YieldCurveBootStrapTest {
     InterestRateDerivative instrument;
     double swapRate;
     for (int i = 0; i < n; i++) {
-      instrument = setupSwap(payments[i], 0.0, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+      instrument = setupSwap(payments[i], FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
       swapRate = SWAP_RATE_CALCULATOR.getValue(instrument, curveBundle);
-      instrument = setupSwap(payments[i], swapRate, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+      instrument = setParSwapRate((FixedFloatSwap) instrument, swapRate);
+      //debug
+      double temp = PresentValueCalculator.getInstance().getValue(instrument, curveBundle);
+
       DOUBLE_CURVE_INSTRUMENTS.add(instrument);
-      instrument = setupSwap(payments[i], swapRate, LIBOR_CURVE_NAME, LIBOR_CURVE_NAME);
+      instrument = setupSwap(payments[i], LIBOR_CURVE_NAME, LIBOR_CURVE_NAME);
+      instrument = setParSwapRate((FixedFloatSwap) instrument, swapRate);
       SINGLE_CURVE_INSTRUMENTS.add(instrument);
       TIME_GRID[i] = payments[i] * 0.5;
       SWAP_VALUES[i] = swapRate;
@@ -260,24 +265,19 @@ public class YieldCurveBootStrapTest {
   @Test
   public void testBroyden() {
     final VectorFieldFirstOrderDifferentiator fd_jac_calculator = new VectorFieldFirstOrderDifferentiator();
-
     NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
-    doHotSpot(rootFinder, "Broyden, single curve", SINGLE_CURVE_FINDER, SINGLE_CURVE_JACOBIAN);
-    rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
-    doHotSpot(rootFinder, "Broyden, single curve, finite difference", SINGLE_CURVE_FINDER, fd_jac_calculator
-        .derivative(SINGLE_CURVE_FINDER));
-    rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
-    doHotSpot(rootFinder, "Broyden, single curve, FD sensitivity", SINGLE_CURVE_FINDER,
-        SINGLE_CURVE_JACOBIAN_WITH_FD_INTERPOLATOR_SENSITIVITY);
 
-    rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
+    //    doHotSpot(rootFinder, "Broyden, single curve", SINGLE_CURVE_FINDER, SINGLE_CURVE_JACOBIAN);
+    //    doHotSpot(rootFinder, "Broyden, single curve, finite difference", SINGLE_CURVE_FINDER, fd_jac_calculator
+    //        .derivative(SINGLE_CURVE_FINDER));
+    //    doHotSpot(rootFinder, "Broyden, single curve, FD sensitivity", SINGLE_CURVE_FINDER,
+    //        SINGLE_CURVE_JACOBIAN_WITH_FD_INTERPOLATOR_SENSITIVITY);
+
     doHotSpot(rootFinder, "Broyden, double curve", DOUBLE_CURVE_FINDER, DOUBLE_CURVE_JACOBIAN, true);
-    rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
-    doHotSpot(rootFinder, "Broyden, double curve, finite difference", DOUBLE_CURVE_FINDER, fd_jac_calculator
-        .derivative(DOUBLE_CURVE_FINDER), true);
-    rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS);
-    doHotSpot(rootFinder, "Broyden, double curve FD sensitivity", DOUBLE_CURVE_FINDER,
-        DOUBLE_CURVE_JACOBIAN_WITH_FD_INTERPOLATOR_SENSITIVITY, true);
+    //    doHotSpot(rootFinder, "Broyden, double curve, finite difference", DOUBLE_CURVE_FINDER, fd_jac_calculator
+    //        .derivative(DOUBLE_CURVE_FINDER), true);
+    //    doHotSpot(rootFinder, "Broyden, double curve FD sensitivity", DOUBLE_CURVE_FINDER,
+    //        DOUBLE_CURVE_JACOBIAN_WITH_FD_INTERPOLATOR_SENSITIVITY, true);
   }
 
   private void doHotSpot(final NewtonVectorRootFinder rootFinder, final String name,
@@ -484,6 +484,14 @@ public class YieldCurveBootStrapTest {
     return new InterpolatedYieldCurve(times, yields, interpolator);
   }
 
+  protected static FixedFloatSwap setParSwapRate(FixedFloatSwap swap, double rate) {
+    VariableAnnuity floatingLeg = swap.getFloatingLeg();
+    ConstantCouponAnnuity fixedLeg = swap.getFixedLeg();
+    ConstantCouponAnnuity newLeg = new ConstantCouponAnnuity(fixedLeg.getPaymentTimes(), fixedLeg.getNotional(), rate,
+        fixedLeg.getYearFractions(), fixedLeg.getFundingCurveName());
+    return new FixedFloatSwap(newLeg, floatingLeg);
+  }
+
   /**
    * 
    * @param payments
@@ -491,14 +499,15 @@ public class YieldCurveBootStrapTest {
    * @param liborCurveName
    * @return
    */
-  private static FixedFloatSwap setupSwap(final int payments, final double swapRate, final String fundingCurveName,
+  protected static FixedFloatSwap setupSwap(final int payments, final String fundingCurveName,
       final String liborCurveName) {
     final double[] fixed = new double[payments];
     final double[] floating = new double[2 * payments];
-    final double[] deltaStart = new double[2 * payments];
-    final double[] deltaEnd = new double[2 * payments];
+    final double[] indexFixing = new double[2 * payments];
+    final double[] indexMaturity = new double[2 * payments];
+    final double[] yearFrac = new double[2 * payments];
 
-    final double sigma = 0.0;
+    final double sigma = 0.0 / 365.0;
 
     for (int i = 0; i < payments; i++) {
       floating[2 * i + 1] = fixed[i] = 0.5 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
@@ -507,12 +516,13 @@ public class YieldCurveBootStrapTest {
       if (i % 2 == 0) {
         floating[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
       }
-      deltaStart[i] = sigma * (i == 0 ? RANDOM.nextDouble() : (RANDOM.nextDouble() - 0.5));
-      deltaEnd[i] = sigma * (RANDOM.nextDouble() - 0.5);
+      yearFrac[i] = 0.25 + sigma * (RANDOM.nextDouble() - 0.5);
+      indexFixing[i] = 0.25 * i + sigma * (i == 0 ? RANDOM.nextDouble() / 2 : (RANDOM.nextDouble() - 0.5));
+      indexMaturity[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
     }
-    final ConstantCouponAnnuity fixedLeg = new ConstantCouponAnnuity(fixed, swapRate, fundingCurveName);
-    final VariableAnnuity floatingLeg = new VariableAnnuity(floating, 1.0, deltaStart, deltaEnd, fundingCurveName,
-        liborCurveName);
+    final ConstantCouponAnnuity fixedLeg = new ConstantCouponAnnuity(fixed, 0.0, fundingCurveName);
+    final VariableAnnuity floatingLeg = new VariableAnnuity(floating, indexFixing, indexMaturity, yearFrac, 1.0,
+        fundingCurveName, liborCurveName);
     return new FixedFloatSwap(fixedLeg, floatingLeg);
   }
 

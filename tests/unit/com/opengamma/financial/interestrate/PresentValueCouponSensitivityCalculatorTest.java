@@ -132,8 +132,6 @@ public class PresentValueCouponSensitivityCalculatorTest {
     final int n = 20;
     final double[] fixedPaymentTimes = new double[n];
     final double[] floatPaymentTimes = new double[2 * n];
-    final double[] fwdStartOffsets = new double[2 * n];
-    final double[] fwdEndOffsets = new double[2 * n];
 
     for (int i = 0; i < n * 2; i++) {
       if (i % 2 == 0) {
@@ -143,12 +141,12 @@ public class PresentValueCouponSensitivityCalculatorTest {
     }
     final double swapRate = 0.04;
 
-    final Swap swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, fwdStartOffsets,
-        fwdEndOffsets, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    final Swap swapUp = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate + DELTA, fwdStartOffsets,
-        fwdEndOffsets, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    final Swap swapDown = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate - DELTA, fwdStartOffsets,
-        fwdEndOffsets, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final Swap swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, FIVE_PC_CURVE_NAME,
+        FIVE_PC_CURVE_NAME);
+    final Swap swapUp = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate + DELTA, FIVE_PC_CURVE_NAME,
+        FIVE_PC_CURVE_NAME);
+    final Swap swapDown = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate - DELTA,
+        FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
 
     double pvUp = PVC.getValue(swapUp, CURVES);
     double pvDown = PVC.getValue(swapDown, CURVES);
@@ -166,25 +164,27 @@ public class PresentValueCouponSensitivityCalculatorTest {
     final double[] spreadsUp = new double[n];
     final double[] spreadsDown = new double[n];
     final double[] yearFracs = new double[n];
-    final double[] fwdStartOffsets = new double[n];
-    final double[] fwdEndOffsets = new double[n];
+    final double[] indexFixing = new double[n];
+    final double[] indexMaturity = new double[n];
     final double spread = 0.001;
     for (int i = 0; i < n; i++) {
+      indexFixing[i] = i * tau;
       paymentTimes[i] = (i + 1) * tau;
+      indexMaturity[i] = paymentTimes[i];
       spreads[i] = spread;
       spreadsUp[i] = spread + DELTA;
       spreadsDown[i] = spread - DELTA;
       yearFracs[i] = tau;
     }
 
-    final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, 1.0, fwdStartOffsets, fwdEndOffsets, yearFracs,
-        new double[n], FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    final VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, 1.0, fwdStartOffsets, fwdEndOffsets,
-        yearFracs, spreads, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
-    final VariableAnnuity receiveLegUp = new VariableAnnuity(paymentTimes, 1.0, fwdStartOffsets, fwdEndOffsets,
-        yearFracs, spreadsUp, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
-    final VariableAnnuity receiveLegDown = new VariableAnnuity(paymentTimes, 1.0, fwdStartOffsets, fwdEndOffsets,
-        yearFracs, spreadsDown, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
+    final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0,
+        FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs,
+        spreads, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
+    final VariableAnnuity receiveLegUp = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs,
+        spreadsUp, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
+    final VariableAnnuity receiveLegDown = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs,
+        spreadsDown, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
 
     final Swap swap = new BasisSwap(payLeg, receiveLeg);
     final Swap swapUp = new BasisSwap(payLeg, receiveLegUp);
