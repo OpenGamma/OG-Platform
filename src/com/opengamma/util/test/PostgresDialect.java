@@ -9,36 +9,54 @@ import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.PostgreSQLDialect;
 
 /**
- * 
- *
+ * Implementation of the database dialect for Postgres.
  */
 public final class PostgresDialect extends AbstractDBDialect {
+
+  /**
+   * SQL to retrieve all the columns.
+   */
   private static final String GET_ALL_COLUMNS_SQL =
     "SELECT column_name AS name,data_type AS datatype,is_nullable AS allowsnull,column_default AS defaultvalue FROM information_schema.columns WHERE table_catalog='";
-
-  private static final PostgresDialect INSTANCE = new PostgresDialect();
-  
+  /**
+   * The Postgres default schema.
+   */
   private static final String POSTGRES_DEFAULT_SCHEMA = "public";
-  
+
+  /**
+   * Singleton instance.
+   */
+  private static final PostgresDialect INSTANCE = new PostgresDialect();
+  /**
+   * The underlying Hibernate dialect.
+   */
   private PostgreSQLDialect _hibernateDialect;
-  
+
+  /**
+   * Restricted constructor.
+   */
   private PostgresDialect() {
   }
-  
+
+  /**
+   * Gets the singleton instance.
+   * @return the instance, not null
+   */
   public static PostgresDialect getInstance() {
     return INSTANCE;
-  }  
-  
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public Class<?> getJDBCDriverClass() {
     return org.postgresql.Driver.class;
   }
-  
+
   @Override
   public String getDatabaseName() {
     return "postgres";
   }
-  
+
   @Override
   public String getAllSchemasSQL(String catalog) {
     return "SELECT nspname AS name from pg_namespace";
@@ -108,5 +126,5 @@ public final class PostgresDialect extends AbstractDBDialect {
         "SELECT datname AS name FROM pg_database",
         "template1");
   }
-  
+
 }

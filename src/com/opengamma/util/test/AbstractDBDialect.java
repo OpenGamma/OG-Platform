@@ -27,15 +27,24 @@ import com.opengamma.util.tuple.FirstThenSecondPairComparator;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
- *
+ * Abstract implementation of DBDialect.
  */
 public abstract class AbstractDBDialect implements DBDialect {
-  
+
+  /**
+   * The database server.
+   */
   private String _dbServerHost;
+  /**
+   * The user name.
+   */
   private String _user;
+  /**
+   * The password.
+   */
   private String _password;
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public void initialise(String dbServerHost, String user, String password) {
     _dbServerHost = dbServerHost;
@@ -48,10 +57,10 @@ public abstract class AbstractDBDialect implements DBDialect {
       throw new OpenGammaRuntimeException("Cannot load JDBC driver", e);
     }
   }
-  
+
   @Override
   public void shutdown(String catalog) {
-    // By default, do nothing
+    // by default, do nothing
   }
 
   public String getDbHost() {
@@ -65,7 +74,8 @@ public abstract class AbstractDBDialect implements DBDialect {
   public String getPassword() {
     return _password;
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * Generic representation of a column.
    */

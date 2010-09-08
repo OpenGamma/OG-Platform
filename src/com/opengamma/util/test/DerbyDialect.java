@@ -15,22 +15,34 @@ import org.hibernate.dialect.Dialect;
 import com.opengamma.OpenGammaRuntimeException;
 
 /**
- * 
- * 
+ * Implementation of the database dialect for Derby.
  */
 public final class DerbyDialect extends AbstractDBDialect {
-  
+
+  /**
+   * Singleton instance.
+   */
   private static final DerbyDialect INSTANCE = new DerbyDialect(); 
-  
+  /**
+   * The underlying Hibernate dialect.
+   */
   private org.hibernate.dialect.DerbyDialect _hibernateDialect;
-  
+
+  /**
+   * Restricted constructor.
+   */
   private DerbyDialect() {
   }
-  
+
+  /**
+   * Gets the singleton instance.
+   * @return the instance, not null
+   */
   public static DerbyDialect getInstance() {
     return INSTANCE;
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public void shutdown(String catalog) {
     super.shutdown(catalog);
@@ -48,12 +60,12 @@ public final class DerbyDialect extends AbstractDBDialect {
   public Class<?> getJDBCDriverClass() {
     return org.apache.derby.jdbc.EmbeddedDriver.class;
   }
-  
+
   @Override
   public String getDatabaseName() {
     return "derby";
   }
-  
+
   @Override
   public String getAllSchemasSQL(String catalog) {
     return "SELECT schemaname AS name FROM SYS.SYSSCHEMAS";
@@ -88,7 +100,7 @@ public final class DerbyDialect extends AbstractDBDialect {
     }
     return sql;
   }
-  
+
   @Override
   public String getAllColumnsSQL(String catalog, String schema, String table) {
     StringBuilder sql = new StringBuilder("SELECT c.columnname AS name,c.columndatatype AS datatype,'' AS allowsnull,c.columndefault AS defaultvalue " +
@@ -113,14 +125,18 @@ public final class DerbyDialect extends AbstractDBDialect {
     }
     return _hibernateDialect;
   }
-  
+
   @Override
   public CatalogCreationStrategy getCatalogCreationStrategy() {
     return new DerbyCatalogCreationStrategy();
   }
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Strategy for creating a Derby database.
+   */
   private class DerbyCatalogCreationStrategy implements CatalogCreationStrategy {
-    
+
     private File getFile() {
       String dbHost = getDbHost().trim();
       String filePart = dbHost.substring("jdbc:derby:".length());
@@ -144,6 +160,6 @@ public final class DerbyDialect extends AbstractDBDialect {
         }
       }
     }
-    
   }
+
 }
