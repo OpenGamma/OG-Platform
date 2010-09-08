@@ -5,10 +5,14 @@
  */
 package com.opengamma.math.curve;
 
+import java.util.Map;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * 
@@ -56,6 +60,33 @@ public class FunctionalDoubleDoubleCurve extends Curve<Double, Double> {
   @Override
   public int size() {
     throw new UnsupportedOperationException("Cannot get size - this curve is defined by a function (x -> y)");
+  }
+
+  public InterpolatedDoubleDoubleCurve toInterpolatedDoubleDoubleCurve(double[] x, Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+    int n = x.length;
+    double[] y = new double[n];
+    for (int i = 0; i < n; i++) {
+      y[i] = _function.evaluate(x[i]);
+    }
+    return InterpolatedDoubleDoubleCurve.of(x, y, interpolator);
+  }
+
+  public InterpolatedDoubleDoubleCurve toInterpolatedDoubleDoubleCurve(double[] x, Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
+    int n = x.length;
+    double[] y = new double[n];
+    for (int i = 0; i < n; i++) {
+      y[i] = _function.evaluate(x[i]);
+    }
+    return InterpolatedDoubleDoubleCurve.of(x, y, interpolators);
+  }
+
+  public NodalDoubleDoubleCurve toNodalDoubleDoubleCurve(double[] x) {
+    int n = x.length;
+    double[] y = new double[n];
+    for (int i = 0; i < n; i++) {
+      y[i] = _function.evaluate(x[i]);
+    }
+    return NodalDoubleDoubleCurve.of(x, y);
   }
 
   public Function1D<Double, Double> getFunction() {

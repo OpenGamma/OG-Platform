@@ -188,6 +188,7 @@ public class InterpolatedDoubleDoubleCurve extends DoubleDoubleCurve {
   private Double[] _xForInterpolators;
   private Interpolator1D<? extends Interpolator1DDataBundle>[] _interpolators;
   private Map<Interpolator1D<? extends Interpolator1DDataBundle>, Interpolator1DDataBundle> _dataBundles;
+  private Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> _interpolatorMap;
 
   public InterpolatedDoubleDoubleCurve(final double[] xData, final double[] yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final boolean isSorted) {
     super(xData, yData, isSorted);
@@ -292,7 +293,7 @@ public class InterpolatedDoubleDoubleCurve extends DoubleDoubleCurve {
   }
 
   private void init(final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
-    init(Collections.<Double, Interpolator1D<? extends Interpolator1DDataBundle>>singletonMap(Double.POSITIVE_INFINITY, interpolator));
+    init(Collections.<Double, Interpolator1D<? extends Interpolator1DDataBundle>> singletonMap(Double.POSITIVE_INFINITY, interpolator));
   }
 
   @SuppressWarnings("unchecked")
@@ -304,6 +305,7 @@ public class InterpolatedDoubleDoubleCurve extends DoubleDoubleCurve {
     Validate.isTrue(size() > 2);
     _xForInterpolators = interpolators.keySet().toArray(new Double[0]);
     _interpolators = interpolators.values().toArray(new Interpolator1D[0]);
+    _interpolatorMap = interpolators;
     ParallelArrayBinarySort.parallelBinarySort(_xForInterpolators, _interpolators);
     _dataBundles = new HashMap<Interpolator1D<? extends Interpolator1DDataBundle>, Interpolator1DDataBundle>();
     for (final Interpolator1D<? extends Interpolator1DDataBundle> interpolator : interpolators.values()) {
@@ -330,6 +332,10 @@ public class InterpolatedDoubleDoubleCurve extends DoubleDoubleCurve {
     }
     final Interpolator1D interpolator = _interpolators[index];
     return interpolator.interpolate(_dataBundles.get(interpolator), x);
+  }
+
+  public Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> getInterpolators() {
+    return _interpolatorMap;
   }
 
   @Override

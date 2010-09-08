@@ -5,6 +5,12 @@
  */
 package com.opengamma.math.curve;
 
+import java.util.Arrays;
+import java.util.Map;
+
+import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
+
 /**
  * 
  */
@@ -43,6 +49,24 @@ public class ConstantDoubleDoubleCurve extends Curve<Double, Double> {
   @Override
   public Double getYValue(final Double x) {
     return _y;
+  }
+
+  public InterpolatedDoubleDoubleCurve toInterpolatedDoubleDoubleCurve(double[] x, Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+    double[] y = new double[x.length];
+    Arrays.fill(y, _y);
+    return InterpolatedDoubleDoubleCurve.of(x, y, interpolator);
+  }
+
+  public InterpolatedDoubleDoubleCurve toInterpolatedDoubleDoubleCurve(double[] x, Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
+    double[] y = new double[x.length];
+    Arrays.fill(y, _y);
+    return InterpolatedDoubleDoubleCurve.of(x, y, interpolators);
+  }
+
+  public NodalDoubleDoubleCurve toNodalDoubleDoubleCurve(double[] x) {
+    double[] y = new double[x.length];
+    Arrays.fill(y, _y);
+    return NodalDoubleDoubleCurve.of(x, y);
   }
 
   @Override
