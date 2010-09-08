@@ -8,12 +8,21 @@ package com.opengamma.engine.view.calc;
 import java.util.Collection;
 import java.util.Map;
 
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.view.calc.stats.GraphExecutionStatistics;
+import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
+import com.opengamma.engine.view.calc.stats.PerViewStatisticsGathererProvider;
+import com.opengamma.engine.view.calc.stats.TotallingStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.Capability;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.PlatformCapabilities;
+import com.opengamma.engine.view.calcnode.stats.CalculationNodeStatistics;
+import com.opengamma.engine.view.calcnode.stats.TotallingStatisticsGatherer;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -34,6 +43,8 @@ public class MultipleNodeExecutorTuner implements Runnable {
   private final MultipleNodeExecutorFactory _factory;
 
   private JobDispatcher _jobDispatcher;
+  private PerViewStatisticsGathererProvider _graphExecutionStatistics;
+  private TotallingStatisticsGatherer _jobDispatchStatistics;
 
   /**
    * @param factory The factory to tune
@@ -53,6 +64,22 @@ public class MultipleNodeExecutorTuner implements Runnable {
 
   protected JobDispatcher getJobDispatcher() {
     return _jobDispatcher;
+  }
+
+  public void setGraphExecutionStatistics(final PerViewStatisticsGathererProvider graphExecutionStatistics) {
+    _graphExecutionStatistics = graphExecutionStatistics;
+  }
+
+  protected PerViewStatisticsGathererProvider getGraphExecutionStatistics() {
+    return _graphExecutionStatistics;
+  }
+
+  public void setJobDispatchStatistics(final TotallingStatisticsGatherer jobDispatchStatistics) {
+    _jobDispatchStatistics = jobDispatchStatistics;
+  }
+
+  protected TotallingStatisticsGatherer getJobDispatchStatistics() {
+    return _jobDispatchStatistics;
   }
 
   /**
@@ -82,6 +109,37 @@ public class MultipleNodeExecutorTuner implements Runnable {
         }
       }
     }
+    if (getGraphExecutionStatistics() != null) {
+      for (GraphExecutorStatisticsGatherer gatherer : getGraphExecutionStatistics().getViewStatistics()) {
+        for (GraphExecutionStatistics statistics : ((TotallingStatisticsGathererProvider.Statistics) gatherer).getExecutionStatistics()) {
+          statistics.decay(0.1);
+        }
+      }
+    }
+    if (getJobDispatchStatistics() != null) {
+      for (CalculationNodeStatistics statistics : getJobDispatchStatistics().getNodeStatistics()) {
+        statistics.decay(0.1);
+      }
+    }
+  }
+
+  private FudgeFieldContainer dumpCapabilities(final FudgeSerializationContext context, final Collection<Capability> capabilities) {
+    final MutableFudgeFieldContainer message = context.newMessage();
+    for (Capability capability : capabilities) {
+      context.objectToFudgeMsgWithClassHeaders(message, capability.getIdentifier(), null, capability, Capability.class);
+    }
+    return message;
+  }
+
+  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
+    final MutableFudgeFieldContainer message = context.newMessage();
+    context.objectToFudgeMsg(message, "factory", null, getFactory());
+    if (getJobDispatcher() != null) {
+      for (Map.Entry<String, Collection<Capability>> capabilities : getJobDispatcher().getAllCapabilities().entrySet()) {
+        message.add(capabilities.getKey(), dumpCapabilities(context, capabilities.getValue()));
+      }
+    }
+    return message;
   }
 
 }
