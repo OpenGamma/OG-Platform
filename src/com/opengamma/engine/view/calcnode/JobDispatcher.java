@@ -7,10 +7,12 @@ package com.opengamma.engine.view.calcnode;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,11 +22,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.MapMaker;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.calcnode.stats.CalculationNodeStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.stats.DiscardingStatisticsGatherer;
@@ -56,8 +59,7 @@ public class JobDispatcher implements JobInvokerRegister {
 
     private final CalculationJob _rootJob;
     private final ConcurrentMap<CalculationJobSpecification, JobResultReceiver> _resultReceivers;
-    // TODO the result receiver doesn't need to be a reference; it's just a flag as to whether the whole chain of tailed jobs has failed
-    private final AtomicReference<JobResultReceiver> _resultReceiver;
+    private final AtomicBoolean _completed = new AtomicBoolean(false);
     private final long _jobCreationTime;
     private final CapabilityRequirements _capabilityRequirements;
     private Set<JobInvoker> _excludeJobInvoker;
@@ -67,7 +69,6 @@ public class JobDispatcher implements JobInvokerRegister {
     private DispatchJob(final CalculationJob job, final JobResultReceiver resultReceiver) {
       _rootJob = job;
       _resultReceivers = new ConcurrentHashMap<CalculationJobSpecification, JobResultReceiver>();
-      _resultReceiver = new AtomicReference<JobResultReceiver>(resultReceiver);
       final List<CalculationJob> jobs = getAllJobs(job, null);
       for (CalculationJob jobref : jobs) {
         _resultReceivers.put(jobref.getSpecification(), resultReceiver);
@@ -95,11 +96,9 @@ public class JobDispatcher implements JobInvokerRegister {
       if (_resultReceivers.isEmpty()) {
         // This is the last one to complete
         cancelTimeout();
-        if (_resultReceiver.getAndSet(null) == null) {
-          // The whole tree has failed or aborted however
+        if (_completed.getAndSet(true) != false) {
+          // The whole tree has already failed or aborted however
           s_logger.warn("Job {} completed on node {} but tree has already failed or aborted", result.getSpecification().getJobId(), result.getComputeNodeId());
-          resultReceiver.resultReceived(result);
-          return;
         }
       }
       s_logger.info("Job {} completed on node {}", result.getSpecification().getJobId(), result.getComputeNodeId());
@@ -116,16 +115,15 @@ public class JobDispatcher implements JobInvokerRegister {
     @Override
     public void jobFailed(final JobInvoker jobInvoker, final String computeNodeId, final Exception exception) {
       cancelTimeout();
-      final JobResultReceiver resultReceiver = _resultReceiver.getAndSet(null);
-      if (resultReceiver != null) {
+      if (_completed.getAndSet(true) == false) {
         s_logger.warn("Job {} failed, {}", getJob().getSpecification().getJobId(), (exception != null) ? exception.getMessage() : "no exception passed");
         if ((_excludeJobInvoker != null) && _excludeJobInvoker.contains(jobInvoker)) {
-          _resultReceiver.set(resultReceiver);
+          _completed.set(false);
           jobAbort(exception, "duplicate invoker failure from node " + computeNodeId);
         } else {
           _rescheduled++;
           if (_rescheduled >= getMaxJobAttempts()) {
-            _resultReceiver.set(resultReceiver);
+            _completed.set(false);
             jobAbort(exception, "internal node error");
           } else {
             s_logger.info("Retrying job {} (attempt {})", getJob().getSpecification().getJobId(), _rescheduled);
@@ -133,7 +131,7 @@ public class JobDispatcher implements JobInvokerRegister {
               _excludeJobInvoker = new HashSet<JobInvoker>();
             }
             _excludeJobInvoker.add(jobInvoker);
-            _resultReceiver.set(resultReceiver);
+            _completed.set(false);
             dispatchJobImpl(this);
           }
         }
@@ -167,7 +165,7 @@ public class JobDispatcher implements JobInvokerRegister {
 
     private void jobAbort(Exception exception, final String alternativeError) {
       cancelTimeout();
-      if (_resultReceiver.getAndSet(null) != null) {
+      if (_completed.getAndSet(true) == false) {
         s_logger.error("Failed job {} after {} attempts", getJob().getSpecification().getJobId(), _rescheduled);
         if (exception == null) {
           s_logger.error("Failed job {} with {}", getJob().getSpecification().getJobId(), alternativeError);
@@ -190,7 +188,7 @@ public class JobDispatcher implements JobInvokerRegister {
               _timeout = null;
             }
             // TODO [ENG-178] Instead of immediate failure we should ask the node if the job is still running
-            jobFailed(jobInvoker, "node on " + jobInvoker.toString(), new OpenGammaRuntimeException("Invocation limit of " + _maxJobExecutionTime + "ms exceeded"));
+            jobFailed(jobInvoker, "node on " + jobInvoker.getInvokerId(), new OpenGammaRuntimeException("Invocation limit of " + _maxJobExecutionTime + "ms exceeded"));
           }
         }, _maxJobExecutionTime, TimeUnit.MILLISECONDS);
       }
@@ -224,6 +222,7 @@ public class JobDispatcher implements JobInvokerRegister {
 
   private final Queue<DispatchJob> _pending = new LinkedList<DispatchJob>();
   private final Queue<JobInvoker> _invokers = new ConcurrentLinkedQueue<JobInvoker>();
+  private final Map<JobInvoker, Collection<Capability>> _capabilityCache = new MapMaker().softKeys().makeMap();
 
   private int _maxJobAttempts = DEFAULT_MAX_JOB_ATTEMPTS;
   private String _jobFailureNodeId = DEFAULT_JOB_FAILURE_NODE_ID;
@@ -243,7 +242,9 @@ public class JobDispatcher implements JobInvokerRegister {
   }
 
   public JobDispatcher(final Collection<JobInvoker> invokers) {
-    addInvokers(invokers);
+    for (JobInvoker invoker : invokers) {
+      registerJobInvoker(invoker);
+    }
   }
 
   public int getMaxJobAttempts() {
@@ -290,10 +291,6 @@ public class JobDispatcher implements JobInvokerRegister {
     return _statisticsGatherer;
   }
 
-  public synchronized void addInvokers(final Collection<JobInvoker> invokers) {
-    _invokers.addAll(invokers);
-  }
-
   public void setCapabilityRequirementsProvider(final CapabilityRequirementsProvider capabilityRequirementsProvider) {
     ArgumentChecker.notNull(capabilityRequirementsProvider, "capabilityRequirementsProvider");
     _capabilityRequirementsProvider = capabilityRequirementsProvider;
@@ -311,11 +308,16 @@ public class JobDispatcher implements JobInvokerRegister {
     return _invokers;
   }
 
+  protected Map<JobInvoker, Collection<Capability>> getCapabilityCache() {
+    return _capabilityCache;
+  }
+
   @Override
   public synchronized void registerJobInvoker(final JobInvoker invoker) {
     ArgumentChecker.notNull(invoker, "invoker");
     s_logger.debug("Registering job invoker {}", invoker);
     getInvokers().add(invoker);
+    getCapabilityCache().put(invoker, invoker.getCapabilities());
     if (!getPending().isEmpty()) {
       retryPending(0L);
     }
@@ -402,6 +404,19 @@ public class JobDispatcher implements JobInvokerRegister {
     ArgumentChecker.notNull(resultReceiver, "resultReceiver");
     s_logger.info("Dispatching job {}", job.getSpecification().getJobId());
     dispatchJobImpl(new DispatchJob(job, resultReceiver));
+  }
+
+  /**
+   * Returns capabilities from all available invokers.
+   * 
+   * @return Map of invoker identifier to capability set.
+   */
+  public Map<String, Collection<Capability>> getAllCapabilities() {
+    final Map<String, Collection<Capability>> result = new HashMap<String, Collection<Capability>>();
+    for (Map.Entry<JobInvoker, Collection<Capability>> invokerCapability : getCapabilityCache().entrySet()) {
+      result.put(invokerCapability.getKey().getInvokerId(), invokerCapability.getValue());
+    }
+    return result;
   }
 
 }

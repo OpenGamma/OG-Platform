@@ -6,8 +6,6 @@
 package com.opengamma.engine.view.calcnode;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
@@ -33,7 +31,6 @@ import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionStateListener;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageSender;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
@@ -46,7 +43,7 @@ import com.opengamma.util.monitor.OperationTimer;
   private final ConcurrentMap<CalculationJobSpecification, JobInvocationReceiver> _jobCompletionCallbacks = new ConcurrentHashMap<CalculationJobSpecification, JobInvocationReceiver>();
   private final ExecutorService _executorService;
   private final FudgeMessageSender _fudgeMessageSender;
-  private final Set<Capability> _capabilities = new HashSet<Capability>();
+  private final CapabilitySet _capabilitySet = new CapabilitySet();
   private volatile int _capacity;
   private final AtomicInteger _launched = new AtomicInteger();
   private final AtomicReference<JobInvokerRegister> _dispatchCallback = new AtomicReference<JobInvokerRegister>();
@@ -62,30 +59,17 @@ import com.opengamma.util.monitor.OperationTimer;
     s_logger.info("Remote node invoker created with capacity {}", _capacity);
   }
 
-  public void addCapability(final Capability capability) {
-    ArgumentChecker.notNull(capability, "capability");
-    getCapabilities().add(capability);
+  private CapabilitySet getCapabilitySet() {
+    return _capabilitySet;
   }
 
-  public void addCapabilities(final Collection<Capability> capabilities) {
-    ArgumentChecker.notNull(capabilities, "capabilities");
-    getCapabilities().addAll(capabilities);
-  }
-
-  public void removeCapabilities(final Collection<Capability> capabilities) {
-    ArgumentChecker.notNull(capabilities, "capabilities");
-    getCapabilities().removeAll(capabilities);
-  }
-
-  public void setCapabilities(final Collection<Capability> capabilities) {
-    ArgumentChecker.notNull(capabilities, "capabilities");
-    getCapabilities().clear();
-    getCapabilities().addAll(capabilities);
+  protected void addCapabilities(final Collection<Capability> capabilities) {
+    getCapabilitySet().addCapabilities(capabilities);
   }
 
   @Override
   public Collection<Capability> getCapabilities() {
-    return _capabilities;
+    return getCapabilitySet().getCapabilities();
   }
 
   private ConcurrentMap<CalculationJobSpecification, JobInvocationReceiver> getJobCompletionCallbacks() {
@@ -138,6 +122,7 @@ import com.opengamma.util.monitor.OperationTimer;
 
       @Override
       public void run() {
+        // Breadth first sending of jobs, just in case some can start before we've sent everything
         sendJob(rootJob);
         sendJobTail(rootJob);
       }
@@ -216,7 +201,8 @@ import com.opengamma.util.monitor.OperationTimer;
 
   private void handleReadyMessage(final RemoteCalcNodeReadyMessage message) {
     s_logger.debug("Remote invoker ready message - {}", message);
-    // [ENG-42] this is where we'd detect capability changes
+    getCapabilitySet().setParameterCapability(PlatformCapabilities.NODE_COUNT, message.getCapacity());
+    // [ENG-42] this is where we'd detect any other capability changes
     _capacity = message.getCapacity();
     final int launched = _launched.get();
     if (launched < _capacity) {
@@ -272,6 +258,11 @@ import com.opengamma.util.monitor.OperationTimer;
 
   @Override
   public String toString() {
+    return getInvokerId();
+  }
+
+  @Override
+  public String getInvokerId() {
     return _fudgeMessageSender.toString();
   }
 

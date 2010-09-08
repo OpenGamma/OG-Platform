@@ -119,4 +119,37 @@ public class CalculationNodeStatistics {
     _nonExecutionTime.set(0);
   }
 
+  private static void decay(final AtomicLong value, final double factor) {
+    value.addAndGet(-(long) ((double) value.get() * factor));
+  }
+
+  public void decay(final double factor) {
+    decay(_successfulJobs, factor);
+    decay(_unsuccessfulJobs, factor);
+    decay(_jobItems, factor);
+    decay(_jobCycleCost, factor);
+    decay(_executionTime, factor);
+    decay(_nonExecutionTime, factor);
+  }
+
+  public CalculationNodeStatistics snapshot() {
+    final CalculationNodeStatistics stats = new CalculationNodeStatistics(getNodeId());
+    stats._successfulJobs.set(getSuccessfulJobs());
+    stats._unsuccessfulJobs.set(getUnsuccessfulJobs());
+    stats._jobItems.set(getJobItems());
+    stats._jobCycleCost.set(getJobCycleCost());
+    stats._executionTime.set(getExecutionTime());
+    stats._nonExecutionTime.set(getNonExecutionTime());
+    return stats;
+  }
+
+  public void delta(final CalculationNodeStatistics future) {
+    _successfulJobs.set(future.getSuccessfulJobs() - getSuccessfulJobs());
+    _unsuccessfulJobs.set(future.getUnsuccessfulJobs() - getUnsuccessfulJobs());
+    _jobItems.set(future.getJobItems() - getJobItems());
+    _jobCycleCost.set(future.getJobCycleCost() - getJobCycleCost());
+    _executionTime.set(future.getExecutionTime() - getExecutionTime());
+    _nonExecutionTime.set(future.getNonExecutionTime() - getNonExecutionTime());
+  }
+
 }

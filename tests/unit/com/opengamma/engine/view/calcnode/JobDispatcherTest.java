@@ -88,6 +88,11 @@ public class JobDispatcherTest {
       return Collections.emptySet();
     }
 
+    @Override
+    public String getInvokerId() {
+      return "test";
+    }
+
   }
 
   @Test
@@ -217,8 +222,13 @@ public class JobDispatcherTest {
         }
 
         @Override
-        public String toString() {
+        public String getInvokerId() {
           return "invoker " + iid;
+        }
+
+        @Override
+        public String toString() {
+          return getInvokerId();
         }
 
         @Override
@@ -273,6 +283,11 @@ public class JobDispatcherTest {
       return Collections.emptySet();
     }
 
+    @Override
+    public String getInvokerId() {
+      return "failing";
+    }
+
   }
 
   @Test
@@ -280,7 +295,7 @@ public class JobDispatcherTest {
     s_logger.info("testJobRetry");
     final JobDispatcher jobDispatcher = new JobDispatcher();
     final TestJobResultReceiver result = new TestJobResultReceiver();
-    final CalculationJob job = createTestJob ();
+    final CalculationJob job = createTestJob();
     jobDispatcher.dispatchJob(job, result);
     assertNull(result.getResult());
     final FailingJobInvoker failingInvoker = new FailingJobInvoker();
@@ -328,8 +343,13 @@ public class JobDispatcherTest {
     @Override
     public boolean notifyWhenAvailable(JobInvokerRegister callback) {
       // Shouldn't get called
-      fail ();
+      fail();
       return true;
+    }
+
+    @Override
+    public String getInvokerId() {
+      return "blocking";
     }
 
   }
@@ -341,7 +361,7 @@ public class JobDispatcherTest {
     jobDispatcher.setMaxJobExecutionTime(TIMEOUT);
     jobDispatcher.setMaxJobAttempts(1);
     final TestJobResultReceiver result = new TestJobResultReceiver();
-    jobDispatcher.dispatchJob(createTestJob (), result);
+    jobDispatcher.dispatchJob(createTestJob(), result);
     assertNull(result.getResult());
     final BlockingJobInvoker blockingInvoker = new BlockingJobInvoker(2 * TIMEOUT);
     jobDispatcher.registerJobInvoker(blockingInvoker);
@@ -357,7 +377,7 @@ public class JobDispatcherTest {
     jobDispatcher.setMaxJobExecutionTime(2 * TIMEOUT);
     jobDispatcher.setMaxJobAttempts(1);
     final TestJobResultReceiver result = new TestJobResultReceiver();
-    jobDispatcher.dispatchJob(createTestJob (), result);
+    jobDispatcher.dispatchJob(createTestJob(), result);
     assertNull(result.getResult());
     final BlockingJobInvoker blockingInvoker = new BlockingJobInvoker(TIMEOUT);
     jobDispatcher.registerJobInvoker(blockingInvoker);
