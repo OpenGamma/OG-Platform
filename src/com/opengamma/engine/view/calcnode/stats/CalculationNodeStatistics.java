@@ -134,13 +134,17 @@ public class CalculationNodeStatistics {
 
   public CalculationNodeStatistics snapshot() {
     final CalculationNodeStatistics stats = new CalculationNodeStatistics(getNodeId());
-    stats._successfulJobs.set(getSuccessfulJobs());
-    stats._unsuccessfulJobs.set(getUnsuccessfulJobs());
-    stats._jobItems.set(getJobItems());
-    stats._jobCycleCost.set(getJobCycleCost());
-    stats._executionTime.set(getExecutionTime());
-    stats._nonExecutionTime.set(getNonExecutionTime());
+    stats.snapshot(this);
     return stats;
+  }
+
+  public void snapshot(final CalculationNodeStatistics other) {
+    _successfulJobs.set(other.getSuccessfulJobs());
+    _unsuccessfulJobs.set(other.getUnsuccessfulJobs());
+    _jobItems.set(other.getJobItems());
+    _jobCycleCost.set(other.getJobCycleCost());
+    _executionTime.set(other.getExecutionTime());
+    _nonExecutionTime.set(other.getNonExecutionTime());
   }
 
   public void delta(final CalculationNodeStatistics future) {

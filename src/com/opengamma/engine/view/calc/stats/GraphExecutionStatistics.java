@@ -111,14 +111,50 @@ public class GraphExecutionStatistics {
     _processedJobs.addAndGet(totalJobs);
     _lastProcessedTime = Instant.nowSystemClock();
   }
-  
-  public void reset () {
-    _processedGraphs.set (0);
-    _executedGraphs.set (0);
-    _executedNodes.set (0);
-    _executionTime.set (0);
-    _actualTime.set (0);
-    _processedJobs.set (0);
+
+  public void reset() {
+    _processedGraphs.set(0);
+    _executedGraphs.set(0);
+    _executedNodes.set(0);
+    _executionTime.set(0);
+    _actualTime.set(0);
+    _processedJobs.set(0);
   }
 
+  private static void decay(final AtomicLong value, final double factor) {
+    value.addAndGet(-(long) ((double) value.get() * factor));
+  }
+
+  public void decay(final double factor) {
+    decay(_processedGraphs, factor);
+    decay(_executedGraphs, factor);
+    decay(_executedNodes, factor);
+    decay(_executionTime, factor);
+    decay(_actualTime, factor);
+    decay(_processedJobs, factor);
+  }
+
+  public GraphExecutionStatistics snapshot() {
+    final GraphExecutionStatistics stats = new GraphExecutionStatistics(getViewName(), getCalcConfigName());
+    stats.snapshot(this);
+    return stats;
+  }
+
+  public void snapshot(final GraphExecutionStatistics other) {
+    _processedGraphs.set(other.getProcessedGraphs());
+    _executedGraphs.set(other.getExecutedGraphs());
+    _executedNodes.set(other.getExecutedNodes());
+    _executionTime.set(other.getExecutionTime());
+    _actualTime.set(other.getActualTime());
+    _processedJobs.set(other.getProcessedJobs());
+  }
+
+  public void delta(final GraphExecutionStatistics future) {
+    _processedGraphs.set(future.getProcessedGraphs() - getProcessedGraphs());
+    _executedGraphs.set(future.getExecutedGraphs() - getExecutedGraphs());
+    _executedNodes.set(future.getExecutedNodes() - getExecutedNodes());
+    _executionTime.set(future.getExecutionTime() - getExecutionTime());
+    _actualTime.set(future.getActualTime() - getActualTime());
+    _processedJobs.set(future.getProcessedJobs() - getProcessedJobs());
+  }
 }
