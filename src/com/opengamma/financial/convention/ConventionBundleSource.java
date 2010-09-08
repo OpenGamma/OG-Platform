@@ -13,7 +13,7 @@ import com.opengamma.id.UniqueIdentifier;
  * Simple to use interface to a ReferenceRateMaster
  */
 public interface ConventionBundleSource {
-  ConventionBundle getCpnventionBundle(Identifier identifier);
+  ConventionBundle getConventionBundle(Identifier identifier);
   ConventionBundle getConventionBundle(IdentifierBundle identifiers);
   ConventionBundle getConventionBundle(UniqueIdentifier identifier);
 }

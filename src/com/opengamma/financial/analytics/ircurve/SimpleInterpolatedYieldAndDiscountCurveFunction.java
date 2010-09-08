@@ -113,7 +113,8 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     }
     ConventionBundleSource conventionBundleSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     // get the swap convention so we can find out the initial rate
-    ConventionBundle cpnventionBundle = conventionBundleSource.getCpnventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, specification.getCurrency().getISOCode()+ "_SWAP"));
+    ConventionBundle cpnventionBundle = conventionBundleSource
+        .getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, specification.getCurrency().getISOCode() + "_SWAP"));
     ConventionBundle referenceRateConvention = conventionBundleSource.getConventionBundle(IdentifierBundle.of(cpnventionBundle.getSwapFloatingLegInitialRate()));
     Identifier initialRefRateId = Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, referenceRateConvention.getIdentifiers().getIdentifier(IdentificationScheme.BLOOMBERG_TICKER));
     result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, initialRefRateId));
