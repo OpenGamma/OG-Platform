@@ -118,10 +118,10 @@ public class JobDispatcher implements JobInvokerRegister {
       cancelTimeout();
       final JobResultReceiver resultReceiver = _resultReceiver.getAndSet(null);
       if (resultReceiver != null) {
-        s_logger.info("Job {} failed, {}", getJob().getSpecification().getJobId(), (exception != null) ? exception.getMessage() : "no exception passed");
+        s_logger.warn("Job {} failed, {}", getJob().getSpecification().getJobId(), (exception != null) ? exception.getMessage() : "no exception passed");
         if ((_excludeJobInvoker != null) && _excludeJobInvoker.contains(jobInvoker)) {
           _resultReceiver.set(resultReceiver);
-          s_logger.debug("Duplicate invoker failure from node {}", computeNodeId);
+          jobAbort(exception, "duplicate invoker failure from node " + computeNodeId);
         } else {
           _rescheduled++;
           if (_rescheduled >= getMaxJobAttempts()) {
@@ -168,7 +168,7 @@ public class JobDispatcher implements JobInvokerRegister {
     private void jobAbort(Exception exception, final String alternativeError) {
       cancelTimeout();
       if (_resultReceiver.getAndSet(null) != null) {
-        s_logger.warn("Failed job {} after {} attempts", getJob().getSpecification().getJobId(), _rescheduled);
+        s_logger.error("Failed job {} after {} attempts", getJob().getSpecification().getJobId(), _rescheduled);
         if (exception == null) {
           s_logger.error("Failed job {} with {}", getJob().getSpecification().getJobId(), alternativeError);
           exception = new OpenGammaRuntimeException(alternativeError);
