@@ -9,6 +9,7 @@
 
     create sequence hibernate_sequence start with 1 increment by 1;
 
+
 -- create-db-security.sql: Security Master
 
 -- design has one document
@@ -123,6 +124,7 @@ create table sec_option (
     option_type varchar(32) not null,
     strike double precision not null,
     expiry_date timestamp not null,
+    expiry_zone varchar(50) not null,
     expiry_accuracy smallint not null,
     underlying_scheme varchar(255) not null,
     underlying_identifier varchar(255) not null,
@@ -142,6 +144,7 @@ create table sec_option (
     choose_zone varchar(50),
     underlyingstrike double precision,
     underlyingexpiry_date timestamp,
+    underlyingexpiry_zone varchar(50),
     underlyingexpiry_accuracy smallint,
     reverse boolean,
     primary key (id),
@@ -212,6 +215,7 @@ create table sec_bond (
     yieldconvention_id bigint not null,
     guaranteetype_id bigint not null,
     maturity_date timestamp not null,
+    maturity_zone varchar(50) not null,
     maturity_accuracy smallint not null,
     coupontype_id bigint not null,
     couponrate double precision not null,
@@ -250,6 +254,7 @@ create table sec_future (
     security_id bigint not null,
     future_type varchar(32) not null,
     expiry_date timestamp not null,
+    expiry_zone varchar(50) not null,
     expiry_accuracy smallint not null,
     tradingexchange_id bigint not null,
     settlementexchange_id bigint not null,
@@ -297,7 +302,7 @@ create table sec_futurebundleidentifier (
 create table sec_cash (
     id bigint not null,
     security_id bigint not null,
-    currency_id bigint,
+    currency_id bigint not null,
     region_scheme varchar(255) not null,
     region_identifier varchar(255) not null,
     primary key (id),

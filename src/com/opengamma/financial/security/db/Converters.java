@@ -5,12 +5,9 @@
  */
 package com.opengamma.financial.security.db;
 
-import java.util.Calendar;
 import java.util.Date;
 
-import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZoneOffset;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -55,11 +52,17 @@ public final class Converters {
     if (bean == null) {
       return null;
     }
-    final Calendar c = Calendar.getInstance();
-    c.setTime(bean.getDate());
-    // TODO: timezone ?
-    return new Expiry(ZonedDateTime.ofInstant(OffsetDateTime.ofMidnight(c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1, c.get(Calendar.DAY_OF_MONTH), ZoneOffset.UTC), TimeZone.UTC), bean
-        .getAccuracy());
+    ZonedDateTimeBean zonedDateTimeBean = bean.getExpiry();
+
+    final long epochSeconds = zonedDateTimeBean.getDate().getTime() / 1000;
+    ZonedDateTime zdt = null;
+    if (zonedDateTimeBean.getZone() == null) {
+      zdt = ZonedDateTime.ofEpochSeconds(epochSeconds, TimeZone.UTC);
+    } else {
+      zdt = ZonedDateTime.ofEpochSeconds(epochSeconds, TimeZone.of(zonedDateTimeBean.getZone()));
+    }
+
+    return new Expiry(zdt, bean.getAccuracy());
   }
 
   public static ExpiryBean expiryToExpiryBean(final Expiry expiry) {
@@ -67,7 +70,11 @@ public final class Converters {
       return null;
     }
     final ExpiryBean bean = new ExpiryBean();
-    bean.setDate(new Date(expiry.toInstant().toEpochMillisLong()));
+    
+    final ZonedDateTimeBean zonedDateTimeBean = new ZonedDateTimeBean();
+    zonedDateTimeBean.setDate(new Date(expiry.getExpiry().toInstant().toEpochMillisLong()));
+    zonedDateTimeBean.setZone(expiry.getExpiry().getZone().getID());
+    bean.setExpiry(zonedDateTimeBean);
     bean.setAccuracy(expiry.getAccuracy());
     return bean;
   }

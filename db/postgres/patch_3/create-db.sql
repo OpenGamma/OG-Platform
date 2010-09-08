@@ -6,7 +6,6 @@
 --
 -- Please do not modify it - modify the originals and recreate this using 'ant create-db-sql'.
 
-
     create sequence hibernate_sequence start 1 increment 1;
 
 -- create-db-security.sql: Security Master
@@ -102,6 +101,7 @@ create table sec_option (
     option_type varchar(32) not null,
     strike double precision not null,
     expiry_date timestamp not null,
+    expiry_zone varchar(50) not null,
     expiry_accuracy int2 not null,
     underlying_scheme varchar(255) not null,
     underlying_identifier varchar(255) not null,
@@ -121,6 +121,7 @@ create table sec_option (
     choose_zone varchar(50),
     underlyingstrike double precision,
     underlyingexpiry_date timestamp,
+    underlyingexpiry_zone varchar(50),
     underlyingexpiry_accuracy smallint,
     reverse bool,
     primary key (id),
@@ -197,6 +198,7 @@ create table sec_bond (
     yieldconvention_id bigint not null,
     guaranteetype_id bigint not null,
     maturity_date timestamp not null,
+    maturity_zone varchar(50) not null,
     maturity_accuracy int2 not null,
     coupontype_id bigint not null,
     couponrate double precision not null,
@@ -241,6 +243,7 @@ create table sec_future (
     first_version_id bigint,
     future_type varchar(32) not null,
     expiry_date timestamp not null,
+    expiry_zone varchar(50) not null,
     expiry_accuracy int2 not null,
     tradingexchange_id bigint not null,
     settlementexchange_id bigint not null,
@@ -294,8 +297,12 @@ create table sec_cash (
     displayName varchar(255) not null,
     first_version_descriminator varchar(255),
     first_version_id bigint,
+    currency_id bigint not null,
+    region_scheme varchar(255) not null,
+    region_identifier varchar(255) not null,
     primary key (id),
-    constraint sec_fk_cash2cash foreign key (first_version_id) references sec_cash (id)
+    constraint sec_fk_cash2cash foreign key (first_version_id) references sec_cash (id),
+    constraint sec_fk_cash2currency foreign key (currency_id) references sec_currency (id)
 );
 
 create table sec_fra (
@@ -367,7 +374,6 @@ create table sec_swap (
     primary key (id),
     constraint sec_fk_swap2swap foreign key (first_version_id) references sec_swap (id)
 );
-
 -- design has two documents
 --  portfolio and tree of nodes (nested set model)
 --  position and associated security key
@@ -436,7 +442,6 @@ create table pos_securitykey (
     constraint pos_fk_securitykey2position foreign key (position_id) references pos_position (id)
 );
 -- pos_securitykey is fully dependent of pos_position
-
 -------------------------------------
 -- Static data
 -------------------------------------
@@ -747,5 +752,3 @@ create table rsk_failure_reason (
 
    unique (rsk_failure_id, compute_failure_id)
 );
-
-

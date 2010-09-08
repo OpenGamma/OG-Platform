@@ -10,7 +10,10 @@
     <property name="optionType" column="option_type" type="com.opengamma.financial.security.db.option.OptionTypeUserType" not-null="true" />
     <property name="strike" type="double" not-null="true" />
     <component name="expiry" class="com.opengamma.financial.security.db.ExpiryBean">
-      <property name="date" column="expiry_date" type="date" not-null="true" />
+      <component name="expiry" class="com.opengamma.financial.security.db.ZonedDateTimeBean">
+        <property name="date" column="expiry_date" type="timestamp" not-null="true" />
+        <property name="zone" column="expiry_zone" type="string" not-null="true" />
+      </component>
       <property name="accuracy" column="expiry_accuracy" type="com.opengamma.financial.security.db.ExpiryAccuracyUserType" not-null="true" />
     </component>
     <component name="underlying" class="com.opengamma.financial.security.db.IdentifierBean">
@@ -35,7 +38,10 @@
     </component>
     <property name="underlyingStrike" column="underlyingstrike" type="double" />
     <component name="underlyingExpiry" class="com.opengamma.financial.security.db.ExpiryBean">
-      <property name="date" column="underlyingexpiry_date" type="date" />
+      <component name="expiry" class="com.opengamma.financial.security.db.ZonedDateTimeBean">
+        <property name="date" column="underlyingexpiry_date" type="timestamp" />
+        <property name="zone" column="underlyingexpiry_zone" type="string" />
+      </component>
       <property name="accuracy" column="underlyingexpiry_accuracy" type="com.opengamma.financial.security.db.ExpiryAccuracyUserType" />
     </component>
     <property name="reverse" column="reverse" type="boolean" />

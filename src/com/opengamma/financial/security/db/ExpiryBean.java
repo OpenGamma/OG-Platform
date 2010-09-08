@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.security.db;
 
-import java.util.Date;
-
 import com.opengamma.util.time.ExpiryAccuracy;
 
 /**
@@ -15,15 +13,15 @@ import com.opengamma.util.time.ExpiryAccuracy;
 public class ExpiryBean {
 
   // No id as it's part of the other securities
-  private Date _date;
+  private ZonedDateTimeBean _expiry;
   private ExpiryAccuracy _accuracy;
 
-  public Date getDate() {
-    return _date;
+  public ZonedDateTimeBean getExpiry() {
+    return _expiry;
   }
 
-  public void setDate(final Date date) {
-    _date = date;
+  public void setExpiry(final ZonedDateTimeBean expiry) {
+    _expiry = expiry;
   }
 
   public ExpiryAccuracy getAccuracy() {

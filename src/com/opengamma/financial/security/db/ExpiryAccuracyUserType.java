@@ -71,6 +71,10 @@ public class ExpiryAccuracyUserType implements UserType {
         return ExpiryAccuracy.MONTH_YEAR;
       case 3:
         return ExpiryAccuracy.DAY_MONTH_YEAR;
+      case 4:
+        return ExpiryAccuracy.HOUR_DAY_MONTH_YEAR;
+      case 5:
+        return ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR;
       default:
         return null;
     }
@@ -83,6 +87,12 @@ public class ExpiryAccuracyUserType implements UserType {
       stmt.setNull(index, Hibernate.INTEGER.sqlType());
     } else {
       switch ((ExpiryAccuracy) value) {
+        case MIN_HOUR_DAY_MONTH_YEAR:
+          stmt.setInt(index, 5);
+          break;
+        case HOUR_DAY_MONTH_YEAR:
+          stmt.setInt(index, 4);
+          break;
         case DAY_MONTH_YEAR:
           stmt.setInt(index, 3);
           break;
