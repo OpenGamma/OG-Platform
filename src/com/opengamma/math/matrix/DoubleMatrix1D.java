@@ -41,7 +41,7 @@ public class DoubleMatrix1D implements Matrix<Double> {
 
   /**
    * Returns the underlying vector data. If this is changed so is the vector
-   * @see toArray() to get clone of data
+   * @see #toArray to get clone of data
    * @return array containing the vector elements 
    */
   public double[] getData() {

@@ -93,7 +93,7 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
    * 
    * This method is not implemented
    * 
-   * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#getInverseCDF(java.lang.Double)
+   * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#getInverseCDF
    * @param p {@latex.inline $p$}
    * @return Method is not implemented
    * @throws NotImplementedException

@@ -46,7 +46,7 @@ public class TwoAssetCorrelationOptionDefinitionTest {
 
   @Test
   public void test() {
-    assertEquals(CALL.getPayout(), PAYOUT, 0);
+    assertEquals(CALL.getPayoutLevel(), PAYOUT, 0);
     TwoAssetCorrelationOptionDefinition other = new TwoAssetCorrelationOptionDefinition(K, EXPIRY, true, PAYOUT);
     assertEquals(CALL, other);
     assertEquals(CALL.hashCode(), other.hashCode());

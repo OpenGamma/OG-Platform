@@ -104,7 +104,7 @@ public class DoubleMatrix2D implements Matrix<Double> {
 
   /**
    * Returns the underlying matrix data. If this is changed so is the matrix
-   * @see toArray() to get clone of data
+   * @see #toArray to get clone of data
    * @return array of arrays containing the matrix elements 
    */
   public double[][] getData() {
