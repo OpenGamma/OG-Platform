@@ -52,8 +52,8 @@ public class FixedFloatSwapSecurityToSwapConverter {
       String fundingCurveName, String liborCurveName, Calendar calendar) {
     ZonedDateTime[] unadjustedDates = ScheduleCalculator.getUnadjustedDateSchedule(effectiveDate, maturityDate, floatLeg.getFrequency());
     ZonedDateTime[] adjustedDates = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, floatLeg.getBusinessDayConvention(), calendar); 
-    ZonedDateTime[] resetDates = ScheduleCalculator.getAdjustedResetDateSchedule(effectiveDate,unadjustedDates, floatLeg.getBusinessDayConvention(), calendar);
-    ZonedDateTime[] maturityDates = ScheduleCalculator.getAdjustedMaturityDateSchedule(effectiveDate, unadjustedDates, floatLeg.getBusinessDayConvention(),calendar, floatLeg.getFrequency());
+    ZonedDateTime[] resetDates = ScheduleCalculator.getAdjustedResetDateSchedule(effectiveDate, unadjustedDates, floatLeg.getBusinessDayConvention(), calendar);
+    ZonedDateTime[] maturityDates = ScheduleCalculator.getAdjustedMaturityDateSchedule(effectiveDate, unadjustedDates, floatLeg.getBusinessDayConvention(), calendar, floatLeg.getFrequency());
     
     double[] paymentTimes = ScheduleCalculator.getTimes(adjustedDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), tradeDate);
     double[] resetTimes = ScheduleCalculator.getTimes(resetDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), tradeDate);
@@ -61,7 +61,7 @@ public class FixedFloatSwapSecurityToSwapConverter {
     double[] yearFractions = ScheduleCalculator.getYearFractions(adjustedDates, floatLeg.getDayCount(), effectiveDate);
     double notional = ((InterestRateNotional) floatLeg.getNotional()).getAmount();
   
-    return new VariableAnnuity(paymentTimes, resetTimes,maturityTimes, yearFractions, notional, fundingCurveName, liborCurveName);
+    return new VariableAnnuity(paymentTimes, resetTimes, maturityTimes, yearFractions, notional, fundingCurveName, liborCurveName);
   }
   
   public static ConstantCouponAnnuity getFixedLeg(FixedInterestRateLeg fixedLeg, ZonedDateTime tradeDate, ZonedDateTime effectiveDate, ZonedDateTime maturityDate, double marketRate, 
