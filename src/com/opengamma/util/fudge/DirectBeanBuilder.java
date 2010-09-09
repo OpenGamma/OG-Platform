@@ -82,7 +82,7 @@ public final class DirectBeanBuilder<T extends Bean> implements FudgeBuilder<T> 
             MutableFudgeFieldContainer subMsg = buildMessageMap(context, prop, (Map<?, ?>) obj);
             msg.add(prop.name(), null, FudgeMsgFieldType.INSTANCE, subMsg);
           } else {
-            context.objectToFudgeMsg(msg, prop.name(), null, obj);  // ignores null
+            context.objectToFudgeMsgWithClassHeaders(msg, prop.name(), null, obj, prop.propertyType()); // ignores null
           }
         }
       }
