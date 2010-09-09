@@ -82,7 +82,9 @@ public final class PresentValueCalculator implements InterestRateDerivativeVisit
     final YieldAndDiscountCurve liborCurve = curves.getCurve(fra.getLiborCurveName());
     final double fwdAlpha = fra.getForwardYearFraction();
     final double discountAlpha = fra.getDiscountingYearFraction();
-    final double forward = (liborCurve.getDiscountFactor(fra.getFixingDate()) / liborCurve.getDiscountFactor(fra.getMaturity()) - 1.0) / fwdAlpha;
+    final double forward = (liborCurve.getDiscountFactor(fra.getFixingDate())
+        / liborCurve.getDiscountFactor(fra.getMaturity()) - 1.0)
+        / fwdAlpha;
     final double fv = (forward - fra.getStrike()) * fwdAlpha / (1 + forward * discountAlpha);
     return fv * fundingCurve.getDiscountFactor(fra.getSettlementDate());
   }
@@ -92,7 +94,8 @@ public final class PresentValueCalculator implements InterestRateDerivativeVisit
     final YieldAndDiscountCurve liborCurve = curves.getCurve(future.getCurveName());
     final double ta = future.getFixingDate();
     final double tb = future.getMaturity();
-    final double rate = (liborCurve.getDiscountFactor(ta) / liborCurve.getDiscountFactor(tb) - 1.0) / future.getIndexYearFraction();
+    final double rate = (liborCurve.getDiscountFactor(ta) / liborCurve.getDiscountFactor(tb) - 1.0)
+        / future.getIndexYearFraction();
     return future.getValueYearFraction() * (1 - rate - future.getPrice() / 100);
   }
 
@@ -136,16 +139,13 @@ public final class PresentValueCalculator implements InterestRateDerivativeVisit
 
     final YieldAndDiscountCurve curve = curves.getCurve(annuity.getLiborCurveName());
     final int n = annuity.getNumberOfPayments();
-    final double[] paymentTimes = annuity.getPaymentTimes();
-    final double[] deltaStart = annuity.getDeltaStart();
-    final double[] deltaEnd = annuity.getDeltaEnd();
+    final double[] indexFixing = annuity.getIndexFixingTimes();
+    final double[] indexMaturity = annuity.getIndexMaturityTimes();
     final double[] alpha = annuity.getYearFractions();
     final double[] libors = new double[n];
-    double ta, tb;
     for (int i = 0; i < n; i++) {
-      ta = (i == 0 ? 0.0 : paymentTimes[i - 1]) + deltaStart[i];
-      tb = paymentTimes[i] + deltaEnd[i];
-      libors[i] = (curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) - 1.0) / alpha[i];
+      libors[i] = (curve.getDiscountFactor(indexFixing[i]) / curve.getDiscountFactor(indexMaturity[i]) - 1.0)
+          / alpha[i];
     }
     return libors;
   }

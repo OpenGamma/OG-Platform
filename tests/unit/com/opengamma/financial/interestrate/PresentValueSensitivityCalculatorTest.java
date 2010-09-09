@@ -94,7 +94,8 @@ public class PresentValueSensitivityCalculatorTest {
     final double tau = 1.0 / 12.0;
     final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
     final double strike = (curve.getDiscountFactor(settlement) / curve.getDiscountFactor(maturity) - 1.0) / tau;
-    final ForwardRateAgreement fra = new ForwardRateAgreement(settlement, maturity, strike, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final ForwardRateAgreement fra = new ForwardRateAgreement(settlement, maturity, strike, ZERO_PC_CURVE_NAME,
+        FIVE_PC_CURVE_NAME);
     final double ratio = curve.getDiscountFactor(settlement) / curve.getDiscountFactor(maturity) / (1 + tau * strike);
 
     final Map<String, List<DoublesPair>> sense = PVSC.getValue(fra, CURVES);
@@ -130,11 +131,14 @@ public class PresentValueSensitivityCalculatorTest {
     final double indexYearFraction = 0.267;
     final double valueYearFraction = 0.25;
     final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
-    final double rate = (curve.getDiscountFactor(fixingDate) / curve.getDiscountFactor(maturity) - 1.0) / indexYearFraction;
+    final double rate = (curve.getDiscountFactor(fixingDate) / curve.getDiscountFactor(maturity) - 1.0)
+        / indexYearFraction;
     final double price = 100 * (1 - rate);
-    final InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, price, FIVE_PC_CURVE_NAME);
+    final InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction,
+        valueYearFraction, price, FIVE_PC_CURVE_NAME);
     final Map<String, List<DoublesPair>> sense = PVSC.getValue(edf, CURVES);
-    final double ratio = valueYearFraction / indexYearFraction * curve.getDiscountFactor(fixingDate) / curve.getDiscountFactor(maturity);
+    final double ratio = valueYearFraction / indexYearFraction * curve.getDiscountFactor(fixingDate)
+        / curve.getDiscountFactor(maturity);
 
     final List<DoublesPair> temp = sense.get(FIVE_PC_CURVE_NAME);
     for (final DoublesPair pair : temp) {
@@ -189,8 +193,8 @@ public class PresentValueSensitivityCalculatorTest {
     final double alpha = 0.245;
     final double yearFrac = 0.25;
     final double[] paymentTimes = new double[n];
-    final double[] deltaStart = new double[n];
-    final double[] deltaEnd = new double[n];
+    final double[] indexFixing = new double[n];
+    final double[] indexMaturity = new double[n];
     final double[] yearFracs = new double[n];
     final double[] spreads = new double[n];
     final double[] nodeTimes = new double[n + 1];
@@ -199,7 +203,8 @@ public class PresentValueSensitivityCalculatorTest {
     yields[0] = yield;
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = (i + 1) * alpha;
-      deltaStart[i] = deltaEnd[i] = 0.0;
+      indexFixing[i] = i * alpha;
+      indexMaturity[i] = paymentTimes[i];
       yearFracs[i] = yearFrac;
       nodeTimes[i + 1] = paymentTimes[i];
       yields[i + 1] = yield;
@@ -207,8 +212,10 @@ public class PresentValueSensitivityCalculatorTest {
 
     final YieldAndDiscountCurve tempCurve = new InterpolatedYieldCurve(nodeTimes, yields, new LinearInterpolator1D());
 
-    final VariableAnnuity annuity = new VariableAnnuity(paymentTimes, Math.E, deltaStart, deltaEnd, yearFracs, spreads, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    final VariableAnnuity bumpedAnnuity = new VariableAnnuity(paymentTimes, Math.E, deltaStart, deltaEnd, yearFracs, spreads, ZERO_PC_CURVE_NAME, "Bumped Curve");
+    final VariableAnnuity annuity = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreads,
+        Math.E, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final VariableAnnuity bumpedAnnuity = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs,
+        spreads, Math.E, ZERO_PC_CURVE_NAME, "Bumped Curve");
     final double pv = PVC.getValue(annuity, CURVES);
     final Map<String, List<DoublesPair>> sense = PVSC.getValue(annuity, CURVES);
 

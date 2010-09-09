@@ -16,7 +16,7 @@ import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
 public class FixedFloatSwap extends Swap {
 
   /**
-   *  This sets up a payer swap (i.e. pay the fixed leg and receive the floating leg)
+   * This sets up a payer swap (i.e. pay the fixed leg and receive the floating leg)
    * @param fixedLeg a fixed annuity for the receive leg
    * @param floatingLeg a variable (floating) annuity for the pay leg
    */
@@ -25,36 +25,54 @@ public class FixedFloatSwap extends Swap {
   }
 
   /**
-   * This sets up a payer swap (i.e. pay the fixed leg and receive the floating leg) with notional of 1.0
+   * Sets up a basic fixed float swap for testing purposes. For a real world swap, set up the fixed and floating leg separately and pass them to other constructor
    * @param fixedPaymentTimes Time in years of fixed payments 
-   * @param floatingPaymentTimes Time in Years of floating payments
+   * @param floatingPaymentTimes  Time in Years of floating payments
    * @param couponRate fixed rate paid on the notional amount on fixed payment dates (amount paid is notional*rate*yearFraction)
-   * @param fwdStartOffsets offset in years of start of libor accruing period from <b>previous</b> floating payment time (or trade date if spot libor)
-   * @param fwdEndOffsets  offset in years of end of libor accruing period from floating payment time
-   * @param fundingCurveName Name of curve from which payments are discounted
+   * @param fundingCurveName  Name of curve from which payments are discounted
    * @param liborCurveName Name of curve from which forward rates are calculated
+   * @see #FixedFloatSwap(ConstantCouponAnnuity,VariableAnnuity)
    */
-  public FixedFloatSwap(final double[] fixedPaymentTimes, final double[] floatingPaymentTimes, double couponRate, final double[] fwdStartOffsets, final double[] fwdEndOffsets,
+  public FixedFloatSwap(final double[] fixedPaymentTimes, final double[] floatingPaymentTimes, double couponRate,
       String fundingCurveName, String liborCurveName) {
-    this(fixedPaymentTimes, floatingPaymentTimes, 1.0, couponRate, fwdStartOffsets, fwdEndOffsets, fundingCurveName, liborCurveName);
+    this(new ConstantCouponAnnuity(fixedPaymentTimes, couponRate, fundingCurveName), new VariableAnnuity(
+        floatingPaymentTimes, fundingCurveName, liborCurveName));
   }
 
-  /**
-   * This sets up a payer swap (i.e. pay the fixed leg and receive the floating leg)
-   * @param fixedPaymentTimes Time in years of fixed payments 
-   * @param floatingPaymentTimes Time in Years of floating payments
-   * @param notional the notional amount of the swap (payments are calculated as interest payments on this amount) 
-   * @param couponRate fixed rate paid on the notional amount on fixed payment dates (amount paid is notional*rate*yearFraction)
-   * @param fwdStartOffsets offset in years of start of libor accruing period from <b>previous</b> floating payment time (or trade date if spot libor)
-   * @param fwdEndOffsets  offset in years of end of libor accruing period from floating payment time
-   * @param fundingCurveName Name of curve from which payments are discounted
-   * @param liborCurveName Name of curve from which forward rates are calculated
-   */
-  public FixedFloatSwap(final double[] fixedPaymentTimes, final double[] floatingPaymentTimes, double notional, double couponRate, final double[] fwdStartOffsets, final double[] fwdEndOffsets,
-      String fundingCurveName, String liborCurveName) {
-    super(new ConstantCouponAnnuity(fixedPaymentTimes, notional, couponRate, fundingCurveName), new VariableAnnuity(floatingPaymentTimes, notional, fwdStartOffsets, fwdEndOffsets, fundingCurveName,
-        liborCurveName));
-  }
+  //  /**
+  //   * This sets up a payer swap (i.e. pay the fixed leg and receive the floating leg) with notional of 1.0
+  //   * @param fixedPaymentTimes Time in years of fixed payments 
+  //   * @param floatingPaymentTimes Time in Years of floating payments
+  //   * @param couponRate fixed rate paid on the notional amount on fixed payment dates (amount paid is notional*rate*yearFraction)
+  //   * @param fwdStartOffsets offset in years of start of libor accruing period from <b>previous</b> floating payment time (or trade date if spot libor)
+  //   * @param fwdEndOffsets  offset in years of end of libor accruing period from floating payment time
+  //   * @param fundingCurveName Name of curve from which payments are discounted
+  //   * @param liborCurveName Name of curve from which forward rates are calculated
+  //   */
+  //  public FixedFloatSwap(final double[] fixedPaymentTimes, final double[] floatingPaymentTimes, double couponRate,
+  //      final double[] fwdStartOffsets, final double[] fwdEndOffsets, String fundingCurveName, String liborCurveName) {
+  //    this(fixedPaymentTimes, floatingPaymentTimes, 1.0, couponRate, fwdStartOffsets, fwdEndOffsets, fundingCurveName,
+  //        liborCurveName);
+  //  }
+  //
+  //  /**
+  //   * This sets up a payer swap (i.e. pay the fixed leg and receive the floating leg)
+  //   * @param fixedPaymentTimes Time in years of fixed payments 
+  //   * @param floatingPaymentTimes Time in Years of floating payments
+  //   * @param notional the notional amount of the swap (payments are calculated as interest payments on this amount) 
+  //   * @param couponRate fixed rate paid on the notional amount on fixed payment dates (amount paid is notional*rate*yearFraction)
+  //   * @param indexFixingTimes time in years from now to the fixing dates of the reference index (e.g. Libor) 
+  //   * @param indexMaturityTimes time in years from now to the maturity of the reference rate  
+  //   * @param fundingCurveName Name of curve from which payments are discounted
+  //   * @param liborCurveName Name of curve from which forward rates are calculated
+  //   */
+  //  public FixedFloatSwap(final double[] fixedPaymentTimes, final double[] floatingPaymentTimes,
+  //      final double[] indexFixingTimes, final double[] indexMaturityTimes, final double[] yearFraction, double notional,
+  //      double couponRate, String fundingCurveName, String liborCurveName) {
+  //    super(new ConstantCouponAnnuity(fixedPaymentTimes, notional, couponRate, fundingCurveName), new VariableAnnuity(
+  //        floatingPaymentTimes, indexFixingTimes, indexMaturityTimes, yearFraction, notional, fundingCurveName,
+  //        liborCurveName));
+  //  }
 
   public ConstantCouponAnnuity getFixedLeg() {
     return (ConstantCouponAnnuity) getPayLeg();

@@ -82,7 +82,8 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
 
   private static final ParRateCalculator RATE_CALCULATOR = ParRateCalculator.getInstance();
   private static final InterestRateDerivativeVisitor<Double> CALCULATOR = ParRateDifferenceCalculator.getInstance();
-  private static final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
+  private static final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator
+      .getInstance();
 
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> DOUBLE_CURVE_FINDER;
   private static final Function1D<DoubleMatrix1D, DoubleMatrix2D> DOUBLE_CURVE_JACOBIAN;
@@ -120,7 +121,8 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
     final double[] liborMaturities = new double[] {1. / 12, 2. / 12, 3. / 12}; // 
     final double[] fraMaturities = new double[] {0.5, 0.75};
     final double[] cashMaturities = new double[] {1. / 365, 1. / 52., 2. / 52., 1. / 12, 3. / 12, 6. / 12};
-    final double[] swapMaturities = new double[] {1.00, 2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15, 20.00277778, 25.00555556, 30.00555556, 35.00833333, 50.01388889};
+    final double[] swapMaturities = new double[] {1.00, 2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15,
+        20.00277778, 25.00555556, 30.00555556, 35.00833333, 50.01388889};
 
     final double[] remainingFwdNodes = new double[] {3.0, 5.0, 7.0, 10.0, 20.0, 40.0};
     final double[] remainingFundNodes = new double[] {2.0, 3.0, 5.0, 7.0, 10.0, 20.0, 40.0};
@@ -151,10 +153,11 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
       FUND_NODE_TIMES[fundIndex++] = t;
     }
 
-    EXTRAPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
-        Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-    EXTRAPOLATOR_WITH_SENSITIVITY = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE,
-        Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
+    EXTRAPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE,
+        Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    EXTRAPOLATOR_WITH_SENSITIVITY = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
+        .getSensitivityCalculator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE,
+            Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
 
     Arrays.sort(FWD_NODE_TIMES);
     Arrays.sort(FUND_NODE_TIMES);
@@ -204,9 +207,9 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
     }
 
     for (final double t : swapMaturities) {
-      ird = setupSwap(t, 0.0, FUNDING_CURVE_NAME, FORWARD_CURVE_NAME);
+      ird = setupSwap(t, FUNDING_CURVE_NAME, FORWARD_CURVE_NAME);
       final double rate = RATE_CALCULATOR.getValue(ird, bundle);
-      ird = setupSwap(t, rate, FUNDING_CURVE_NAME, FORWARD_CURVE_NAME);
+      ird = setParSwapRate((FixedFloatSwap) ird, rate);
       INSTRUMENTS.add(ird);
     }
 
@@ -236,7 +239,8 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
     unknownCurveInterpolators.put(FORWARD_CURVE_NAME, EXTRAPOLATOR);
     unknownCurveNodes.put(FORWARD_CURVE_NAME, FWD_NODE_TIMES);
     unknownCurveNodeSensitivityCalculators.put(FORWARD_CURVE_NAME, EXTRAPOLATOR_WITH_SENSITIVITY);
-    final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(INSTRUMENTS, null, unknownCurveNodes, unknownCurveInterpolators, unknownCurveNodeSensitivityCalculators);
+    final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(INSTRUMENTS, null,
+        unknownCurveNodes, unknownCurveInterpolators, unknownCurveNodeSensitivityCalculators);
     DOUBLE_CURVE_FINDER = new MultipleYieldCurveFinderFunction(data, CALCULATOR);
     DOUBLE_CURVE_JACOBIAN = new MultipleYieldCurveFinderJacobian(data, SENSITIVITY_CALCULATOR);
   }
@@ -270,7 +274,8 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
     assertMatrixEquals(jacExact, jacFD, 1e-5);
   }
 
-  private void doHotSpot(final NewtonVectorRootFinder rootFinder, final String name, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc) {
+  private void doHotSpot(final NewtonVectorRootFinder rootFinder, final String name,
+      final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc) {
     for (int i = 0; i < HOTSPOT_WARMUP_CYCLES; i++) {
       doTest(rootFinder, func, jacFunc);
     }
@@ -283,7 +288,8 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
     }
   }
 
-  private void doTest(final NewtonVectorRootFinder rootFinder, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc) {
+  private void doTest(final NewtonVectorRootFinder rootFinder, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
+      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc) {
     final double[] yieldCurveNodes = rootFinder.getRoot(func, jacFunc, X0).getData();
     final double[] fundYields = Arrays.copyOfRange(yieldCurveNodes, 0, FUND_NODE_TIMES.length);
     final YieldAndDiscountCurve fundCurve = makeYieldCurve(fundYields, FUND_NODE_TIMES, EXTRAPOLATOR);
@@ -299,7 +305,8 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
     }
   }
 
-  private static YieldAndDiscountCurve makeYieldCurve(final double[] yields, final double[] times, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+  private static YieldAndDiscountCurve makeYieldCurve(final double[] yields, final double[] times,
+      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
     final int n = yields.length;
     if (n != times.length) {
       throw new IllegalArgumentException("rates and times different lengths");
@@ -307,31 +314,44 @@ public class MultiInstrumentDoubleCurveBootstrapTest {
     return new InterpolatedYieldCurve(times, yields, interpolator);
   }
 
-  private static FixedFloatSwap setupSwap(final double time, final double swapRate, final String fundCurveName, final String liborCurveName) {
-    final int index = (int) Math.round(2 * time);
-    return setupSwap(index, swapRate, fundCurveName, liborCurveName);
+  protected static FixedFloatSwap setParSwapRate(FixedFloatSwap swap, double rate) {
+    VariableAnnuity floatingLeg = swap.getFloatingLeg();
+    ConstantCouponAnnuity fixedLeg = swap.getFixedLeg();
+    ConstantCouponAnnuity newLeg = new ConstantCouponAnnuity(fixedLeg.getPaymentTimes(), fixedLeg.getNotional(), rate,
+        fixedLeg.getYearFractions(), fixedLeg.getFundingCurveName());
+    return new FixedFloatSwap(newLeg, floatingLeg);
   }
 
-  private static FixedFloatSwap setupSwap(final int payments, final double swapRate, final String fundCurveName, final String liborCurveName) {
-    final double[] fixed = new double[payments];
+  private static FixedFloatSwap setupSwap(final double time, final String fundCurveName, final String liborCurveName) {
+    final int index = (int) Math.round(2 * time);
+    return setupSwap(index, fundCurveName, liborCurveName);
+  }
 
+  protected static FixedFloatSwap setupSwap(final int payments, final String fundingCurveName,
+      final String liborCurveName) {
+    final double[] fixed = new double[payments];
     final double[] floating = new double[2 * payments];
-    final double[] deltaStart = new double[2 * payments];
-    final double[] deltaEnd = new double[2 * payments];
-    final double sigma = 0.0 / 365.0;
+    final double[] indexFixing = new double[2 * payments];
+    final double[] indexMaturity = new double[2 * payments];
+    final double[] yearFrac = new double[2 * payments];
+
+    final double sigma = 4.0 / 365.0;
+
     for (int i = 0; i < payments; i++) {
-      fixed[i] = 0.5 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
-      floating[2 * i + 1] = fixed[i];
+      floating[2 * i + 1] = fixed[i] = 0.5 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
     }
     for (int i = 0; i < 2 * payments; i++) {
       if (i % 2 == 0) {
         floating[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
       }
-      deltaStart[i] = sigma * (i == 0 ? RANDOM.nextDouble() : (RANDOM.nextDouble() - 0.5));
-      deltaEnd[i] = sigma * (RANDOM.nextDouble() - 0.5);
+      yearFrac[i] = +sigma * (RANDOM.nextDouble() - 0.5);
+
+      indexFixing[i] = 0.25 * i + sigma * (i == 0 ? RANDOM.nextDouble() / 2 : (RANDOM.nextDouble() - 0.5));
+      indexMaturity[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
     }
-    final ConstantCouponAnnuity fixedLeg = new ConstantCouponAnnuity(fixed, swapRate, fundCurveName);
-    final VariableAnnuity floatingLeg = new VariableAnnuity(floating, 1.0, deltaStart, deltaEnd, fundCurveName, liborCurveName);
+    final ConstantCouponAnnuity fixedLeg = new ConstantCouponAnnuity(fixed, 0, fundingCurveName);
+    final VariableAnnuity floatingLeg = new VariableAnnuity(floating, indexFixing, indexMaturity, yearFrac, 1.0,
+        fundingCurveName, liborCurveName);
     return new FixedFloatSwap(fixedLeg, floatingLeg);
   }
 

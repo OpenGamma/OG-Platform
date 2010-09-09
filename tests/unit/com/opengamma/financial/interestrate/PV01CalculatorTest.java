@@ -64,7 +64,8 @@ public class PV01CalculatorTest {
     final double fixingDate = settlement - 2.0 / 365.0;
     final double forwardYearFrac = 31.0 / 365.0;
     final double discountYearFrac = 30.0 / 360;
-    final ForwardRateAgreement fra = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, strike, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    final ForwardRateAgreement fra = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac,
+        discountYearFrac, strike, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
     doTest(fra, CURVES);
   }
 
@@ -76,7 +77,8 @@ public class PV01CalculatorTest {
     final double indexYearFraction = 0.267;
     final double valueYearFraction = 0.25;
     final double price = 97.3;
-    final InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, price, LIBOR_CURVE_NAME);
+    final InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction,
+        valueYearFraction, price, LIBOR_CURVE_NAME);
     doTest(edf, CURVES);
   }
 
@@ -105,18 +107,20 @@ public class PV01CalculatorTest {
     final double yearFrac = 0.25;
     final double spread = 0.01;
     final double[] paymentTimes = new double[n];
-    final double[] deltaStart = new double[n];
-    final double[] deltaEnd = new double[n];
+    final double[] indexFixing = new double[n];
+    final double[] indexMaturity = new double[n];
     final double[] yearFracs = new double[n];
     final double[] spreads = new double[n];
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = (i + 1) * alpha;
-      deltaStart[i] = deltaEnd[i] = 0.1;
+      indexFixing[i] = i * alpha + 0.1;
+      indexMaturity[i] = paymentTimes[i] + 0.1;
       yearFracs[i] = yearFrac;
       spreads[i] = spread;
     }
 
-    final VariableAnnuity annuity = new VariableAnnuity(paymentTimes, Math.E, deltaStart, deltaEnd, yearFracs, spreads, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    final VariableAnnuity annuity = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreads,
+        Math.E, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
     doTest(annuity, CURVES);
   }
 
@@ -144,8 +148,6 @@ public class PV01CalculatorTest {
     final int n = 20;
     final double[] fixedPaymentTimes = new double[n];
     final double[] floatPaymentTimes = new double[2 * n];
-    final double[] fwdStartOffsets = new double[2 * n];
-    final double[] fwdEndOffsets = new double[2 * n];
 
     for (int i = 0; i < n * 2; i++) {
       if (i % 2 == 0) {
@@ -155,7 +157,8 @@ public class PV01CalculatorTest {
     }
     final double swapRate = 0.04;
 
-    final Swap swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, fwdStartOffsets, fwdEndOffsets, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    final Swap swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, FUNDING_CURVE_NAME,
+        LIBOR_CURVE_NAME);
     doTest(swap, CURVES);
   }
 
@@ -166,16 +169,20 @@ public class PV01CalculatorTest {
     final double[] paymentTimes = new double[n];
     final double[] spreads = new double[n];
     final double[] yearFracs = new double[n];
-    final double[] fwdStartOffsets = new double[n];
-    final double[] fwdEndOffsets = new double[n];
+    final double[] indexFixing = new double[n];
+    final double[] indexMaturity = new double[n];
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = (i + 1) * tau;
+      indexFixing[i] = i * tau;
+      indexMaturity[i] = paymentTimes[i];
       spreads[i] = i * 0.001;
       yearFracs[i] = tau;
     }
 
-    final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, 1.0, fwdStartOffsets, fwdEndOffsets, yearFracs, new double[n], FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
-    final VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, 1.0, fwdStartOffsets, fwdEndOffsets, yearFracs, spreads, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME);
+    final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0,
+        FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    final VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs,
+        spreads, 1.0, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME);
 
     final Swap swap = new BasisSwap(payLeg, receiveLeg);
     doTest(swap, CURVES);
