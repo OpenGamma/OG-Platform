@@ -9,7 +9,7 @@ package com.opengamma.engine.view.calcnode.stats;
 /**
  * Discards the statistics
  */
-public final class DiscardingStatisticsGatherer implements CalculationNodeStatisticsGatherer {
+public final class DiscardingNodeStatisticsGatherer implements CalculationNodeStatisticsGatherer {
   
   @Override
   public void jobCompleted(String nodeId, int jobItems, int jobCycleCost, long executionTime, long duration) {

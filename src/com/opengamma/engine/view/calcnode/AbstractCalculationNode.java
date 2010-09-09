@@ -31,6 +31,7 @@ import com.opengamma.engine.view.cache.FilteredViewComputationCache;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.cache.WriteBehindViewComputationCache;
+import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsGatherer;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.tuple.Pair;
@@ -41,7 +42,7 @@ import com.opengamma.util.tuple.Pair;
  * <p>
  * The function repository (and anything else) must be properly initialized and ready for use by the node when it receives its first
  * job. Responsibility for initialization should therefore lie with whatever will logically be dispatching jobs. This is typically a
- * {@link ViewProcessor} for local calc nodes or a {@link RemoteNodeClient} for remote nodes.
+ * {@link ViewProcessor} for local nodes or a {@link RemoteNodeClient} for remote nodes.
  */
 public abstract class AbstractCalculationNode implements CalculationNode {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractCalculationNode.class);
@@ -50,22 +51,25 @@ public abstract class AbstractCalculationNode implements CalculationNode {
   private final FunctionExecutionContext _functionExecutionContext;
   private final ComputationTargetResolver _targetResolver;
   private final ViewProcessorQuerySender _viewProcessorQuerySender;
+  private final FunctionInvocationStatisticsGatherer _functionInvocationStatistics;
   private String _nodeId;
   private final ExecutorService _writeBehindExecutorService;
 
   private long _resolutionTime;
   private long _cacheGetTime;
-  private long _invocationTime;
   private long _cachePutTime;
 
   protected AbstractCalculationNode(ViewComputationCacheSource cacheSource, FunctionRepository functionRepository, FunctionExecutionContext functionExecutionContext,
-      ComputationTargetResolver targetResolver, ViewProcessorQuerySender calcNodeQuerySender, String nodeId, final ExecutorService writeBehindExecutorService) {
+      ComputationTargetResolver targetResolver, ViewProcessorQuerySender calcNodeQuerySender, String nodeId, final ExecutorService writeBehindExecutorService,
+      FunctionInvocationStatisticsGatherer functionInvocationStatistics) {
     ArgumentChecker.notNull(cacheSource, "Cache Source");
     ArgumentChecker.notNull(functionRepository, "Function repository");
     ArgumentChecker.notNull(functionExecutionContext, "Function Execution Context");
     ArgumentChecker.notNull(targetResolver, "Target Resolver");
     ArgumentChecker.notNull(calcNodeQuerySender, "Calc Node Query Sender");
     ArgumentChecker.notNull(nodeId, "Calculation node ID");
+    ArgumentChecker.notNull(writeBehindExecutorService, "Write behind Executor Service");
+    ArgumentChecker.notNull(functionInvocationStatistics, "function invocation statistics");
 
     _cacheSource = cacheSource;
     _functionRepository = functionRepository;
@@ -75,6 +79,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     _viewProcessorQuerySender = calcNodeQuerySender;
     _nodeId = nodeId;
     _writeBehindExecutorService = writeBehindExecutorService;
+    _functionInvocationStatistics = functionInvocationStatistics;
   }
 
   public ViewComputationCacheSource getCacheSource() {
@@ -99,6 +104,10 @@ public abstract class AbstractCalculationNode implements CalculationNode {
 
   protected ExecutorService getWriteBehindExecutorService() {
     return _writeBehindExecutorService;
+  }
+
+  protected FunctionInvocationStatisticsGatherer getFunctionInvocationStatistics() {
+    return _functionInvocationStatistics;
   }
 
   @Override
@@ -130,10 +139,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
 
       CalculationJobResultItem resultItem;
       try {
-        Set<ComputedValue> result = invoke(jobItem, cache);
-        _cachePutTime -= System.nanoTime();
-        cache.putValues(result);
-        _cachePutTime += System.nanoTime();
+        invoke(jobItem, cache);
         resultItem = new CalculationJobResultItem(jobItem);
       } catch (MissingInputException e) {
         // NOTE kirk 2009-10-20 -- We intentionally only do the message here so that we don't
@@ -153,11 +159,11 @@ public abstract class AbstractCalculationNode implements CalculationNode {
        */
     }
 
-    long endNanos = System.nanoTime();
-
     _cachePutTime -= System.nanoTime();
     cache.waitForPendingWrites();
     _cachePutTime += System.nanoTime();
+
+    long endNanos = System.nanoTime();
 
     long durationNanos = endNanos - startNanos;
     CalculationJobResult jobResult = new CalculationJobResult(spec, durationNanos, resultItems, getNodeId());
@@ -175,13 +181,12 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     ((DefaultViewComputationCache) cache.getCache()).resetTimes();
     _resolutionTime = 0;
     _cacheGetTime = 0;
-    _invocationTime = 0;
     _cachePutTime = 0;
 
     return jobResult;
   }
 
-  // TODO Remove the time code that I've been using for debug and tuning
+  // TODO [ENG-57] Get rid of or formalize the timing code to collect useful statistics about function execution
 
   @Override
   public ViewComputationCache getCache(CalculationJobSpecification spec) {
@@ -189,11 +194,11 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     return cache;
   }
 
-  private Set<ComputedValue> invoke(CalculationJobItem jobItem, FilteredViewComputationCache cache) {
+  private void invoke(CalculationJobItem jobItem, FilteredViewComputationCache cache) {
 
-    String functionUniqueId = jobItem.getFunctionUniqueIdentifier();
+    final String functionUniqueId = jobItem.getFunctionUniqueIdentifier();
 
-    ComputationTarget target;
+    final ComputationTarget target;
     _resolutionTime -= System.nanoTime();
     try {
       target = getTargetResolver().resolve(jobItem.getComputationTargetSpecification());
@@ -206,7 +211,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
 
     s_logger.debug("Invoking {} on target {}", functionUniqueId, target);
 
-    FunctionInvoker invoker = getFunctionRepository().getInvoker(functionUniqueId);
+    final FunctionInvoker invoker = getFunctionRepository().getInvoker(functionUniqueId);
     if (invoker == null) {
       throw new NullPointerException("Unable to locate " + functionUniqueId + " in function repository.");
     }
@@ -215,8 +220,8 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     getFunctionExecutionContext().setFunctionParameters(jobItem.getFunctionParameters());
 
     // assemble inputs
-    Collection<ComputedValue> inputs = new HashSet<ComputedValue>();
-    Collection<ValueSpecification> missingInputs = new HashSet<ValueSpecification>();
+    final Collection<ComputedValue> inputs = new HashSet<ComputedValue>();
+    final Collection<ValueSpecification> missingInputs = new HashSet<ValueSpecification>();
     _cacheGetTime -= System.nanoTime();
     try {
       for (Pair<ValueSpecification, Object> input : cache.getValues(jobItem.getInputs())) {
@@ -235,19 +240,21 @@ public abstract class AbstractCalculationNode implements CalculationNode {
       throw new MissingInputException(missingInputs, functionUniqueId);
     }
 
-    FunctionInputs functionInputs = new FunctionInputsImpl(inputs);
+    final FunctionInputs functionInputs = new FunctionInputsImpl(inputs);
 
-    _invocationTime -= System.nanoTime();
-    Set<ComputedValue> results;
-    try {
-      results = invoker.execute(getFunctionExecutionContext(), functionInputs, target, jobItem.getDesiredValues());
-    } finally {
-      _invocationTime += System.nanoTime();
-    }
+    long invocationTime = System.nanoTime();
+    final Set<ComputedValue> results = invoker.execute(getFunctionExecutionContext(), functionInputs, target, jobItem.getDesiredValues());
     if (results == null) {
       throw new NullPointerException("No results returned by invoker " + invoker);
     }
-    return results;
-  }
+    invocationTime = System.nanoTime() - invocationTime;
 
+    _cachePutTime -= System.nanoTime();
+    cache.putValues(results);
+    _cachePutTime += System.nanoTime();
+
+    // [ENG-57] Store the volume of data fetched against the function
+    // [ENG-57] Store the volume of data written against the function
+    getFunctionInvocationStatistics().functionInvoked(functionUniqueId, invocationTime, 0L, 0L);
+  }
 }

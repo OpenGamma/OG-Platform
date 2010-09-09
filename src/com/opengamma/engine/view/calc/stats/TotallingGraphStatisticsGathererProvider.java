@@ -21,7 +21,7 @@ import com.opengamma.engine.view.View;
 /**
  * Maintains ever increasing tallies.
  */
-public class TotallingStatisticsGathererProvider extends PerViewStatisticsGathererProvider<TotallingStatisticsGathererProvider.Statistics> {
+public class TotallingGraphStatisticsGathererProvider extends PerViewStatisticsGathererProvider<TotallingGraphStatisticsGathererProvider.Statistics> {
 
   /**
    * 

@@ -19,7 +19,7 @@ import javax.time.InstantProvider;
 /**
  * Maintains ever increasing tallies of the reported metrics. 
  */
-public class TotallingStatisticsGatherer implements CalculationNodeStatisticsGatherer {
+public class TotallingNodeStatisticsGatherer implements CalculationNodeStatisticsGatherer {
 
   private final ConcurrentMap<String, CalculationNodeStatistics> _nodeStatistics = new ConcurrentHashMap<String, CalculationNodeStatistics>();
 

@@ -17,12 +17,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.view.calc.stats.GraphExecutionStatistics;
-import com.opengamma.engine.view.calc.stats.TotallingStatisticsGathererProvider;
+import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.Capability;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.PlatformCapabilities;
 import com.opengamma.engine.view.calcnode.stats.CalculationNodeStatistics;
-import com.opengamma.engine.view.calcnode.stats.TotallingStatisticsGatherer;
+import com.opengamma.engine.view.calcnode.stats.TotallingNodeStatisticsGatherer;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -37,14 +37,18 @@ import com.opengamma.util.ArgumentChecker;
  * <p>TODO: [ENG-200] Tuning of job size and cost parameters</p>
  */
 public class MultipleNodeExecutorTuner implements Runnable {
+  
+  // REVIEW 2010-09-09 Andrew -- Instead of running periodically and relying on other statistics gatherers, this
+  // should implement the gathering interfaces and make adjustments as statistical data arrives, possibly acting
+  // as a pass-through so it can sit on top of other gathering implementations
 
   private static final Logger s_logger = LoggerFactory.getLogger(MultipleNodeExecutorTuner.class);
 
   private final MultipleNodeExecutorFactory _factory;
 
   private JobDispatcher _jobDispatcher;
-  private TotallingStatisticsGathererProvider _graphExecutionStatistics;
-  private TotallingStatisticsGatherer _jobDispatchStatistics;
+  private TotallingGraphStatisticsGathererProvider _graphExecutionStatistics;
+  private TotallingNodeStatisticsGatherer _jobDispatchStatistics;
   private double _statisticDecayRate = 0.1; // 10% decay every schedule
   private int _statisticsKeepAlive = 300; // keep for 5 minutes
 
@@ -68,19 +72,19 @@ public class MultipleNodeExecutorTuner implements Runnable {
     return _jobDispatcher;
   }
 
-  public void setGraphExecutionStatistics(final TotallingStatisticsGathererProvider graphExecutionStatistics) {
+  public void setGraphExecutionStatistics(final TotallingGraphStatisticsGathererProvider graphExecutionStatistics) {
     _graphExecutionStatistics = graphExecutionStatistics;
   }
 
-  protected TotallingStatisticsGathererProvider getGraphExecutionStatistics() {
+  protected TotallingGraphStatisticsGathererProvider getGraphExecutionStatistics() {
     return _graphExecutionStatistics;
   }
 
-  public void setJobDispatchStatistics(final TotallingStatisticsGatherer jobDispatchStatistics) {
+  public void setJobDispatchStatistics(final TotallingNodeStatisticsGatherer jobDispatchStatistics) {
     _jobDispatchStatistics = jobDispatchStatistics;
   }
 
-  protected TotallingStatisticsGatherer getJobDispatchStatistics() {
+  protected TotallingNodeStatisticsGatherer getJobDispatchStatistics() {
     return _jobDispatchStatistics;
   }
 
@@ -130,7 +134,7 @@ public class MultipleNodeExecutorTuner implements Runnable {
     }
     if (getGraphExecutionStatistics() != null) {
       s_logger.debug("Processing graph execution statistics");
-      for (TotallingStatisticsGathererProvider.Statistics gatherer : getGraphExecutionStatistics().getViewStatistics()) {
+      for (TotallingGraphStatisticsGathererProvider.Statistics gatherer : getGraphExecutionStatistics().getViewStatistics()) {
         for (GraphExecutionStatistics statistics : gatherer.getExecutionStatistics()) {
           statistics.decay(getStatisticsDecayRate());
         }

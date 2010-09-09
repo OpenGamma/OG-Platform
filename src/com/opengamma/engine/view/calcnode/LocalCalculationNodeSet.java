@@ -17,6 +17,8 @@ import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
+import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
+import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsGatherer;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -30,6 +32,7 @@ public class LocalCalculationNodeSet extends AbstractCollection<LocalCalculation
   private ComputationTargetResolver _computationTargetResolver;
   private ViewProcessorQuerySender _viewProcessorQuery;
   private ExecutorService _writeBehindExecutorService;
+  private FunctionInvocationStatisticsGatherer _functionInvocationStatistics = new DiscardingInvocationStatisticsGatherer();
   private String _nodeIdentifier;
 
   private int _nodeCount;
@@ -165,6 +168,15 @@ public class LocalCalculationNodeSet extends AbstractCollection<LocalCalculation
     return _nodeIdentifier;
   }
 
+  public void setFunctionInvocationStatistics(final FunctionInvocationStatisticsGatherer functionInvocationStatistics) {
+    ArgumentChecker.notNull(functionInvocationStatistics, "functionInvocationStatistics");
+    _functionInvocationStatistics = functionInvocationStatistics;
+  }
+
+  public FunctionInvocationStatisticsGatherer getFunctionInvocationStatistics() {
+    return _functionInvocationStatistics;
+  }
+
   protected int getCores() {
     return Runtime.getRuntime().availableProcessors();
   }
@@ -199,7 +211,7 @@ public class LocalCalculationNodeSet extends AbstractCollection<LocalCalculation
     _nodes = new ArrayList<LocalCalculationNode>(nodes);
     for (int i = 0; i < nodes; i++) {
       final LocalCalculationNode node = new LocalCalculationNode(getViewComputationCache(), getFunctionRepository(), getFunctionExecutionContext(), getComputationTargetResolver(),
-          getViewProcessorQuery(), getWriteBehindExecutorService());
+          getViewProcessorQuery(), getWriteBehindExecutorService(), getFunctionInvocationStatistics());
       if (getNodeIdentifier() != null) {
         if (nodes > 1) {
           node.setNodeId(getNodeIdentifier() + ":" + (i + 1));

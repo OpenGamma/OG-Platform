@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.calcnode.stats.CalculationNodeStatisticsGatherer;
-import com.opengamma.engine.view.calcnode.stats.DiscardingStatisticsGatherer;
+import com.opengamma.engine.view.calcnode.stats.DiscardingNodeStatisticsGatherer;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -231,7 +231,7 @@ public class JobDispatcher implements JobInvokerRegister {
    */
   private long _maxJobExecutionTime;
   private ScheduledExecutorService _jobTimeoutExecutor;
-  private CalculationNodeStatisticsGatherer _statisticsGatherer = new DiscardingStatisticsGatherer();
+  private CalculationNodeStatisticsGatherer _statisticsGatherer = new DiscardingNodeStatisticsGatherer();
 
   public JobDispatcher() {
   }

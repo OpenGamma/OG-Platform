@@ -18,6 +18,7 @@ import com.opengamma.engine.security.MockSecuritySource;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.calcnode.AbstractCalculationNode;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
+import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.InetAddressUtils;
@@ -44,6 +45,7 @@ public class TestCalculationNode extends AbstractCalculationNode {
           
         }), 
         InetAddressUtils.getLocalHostName(),
-        Executors.newCachedThreadPool ());
+        Executors.newCachedThreadPool (),
+        new DiscardingInvocationStatisticsGatherer ());
   }
 }
