@@ -10,7 +10,7 @@ import com.opengamma.math.function.Function;
 /**
  * 
  */
-public interface DoubleDoubleCurveSpreadFunction extends Function<Curve<Double, Double>, Function<Double, Double>> {
+public interface CurveSpreadFunction extends Function<Curve<Double, Double>, Function<Double, Double>> {
 
   String getOperationName();
 }

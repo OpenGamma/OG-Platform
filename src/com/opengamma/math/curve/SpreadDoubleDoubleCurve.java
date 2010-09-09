@@ -5,9 +5,9 @@
  */
 package com.opengamma.math.curve;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
@@ -18,11 +18,19 @@ import com.opengamma.math.function.Function;
  * 
  */
 public class SpreadDoubleDoubleCurve extends Curve<Double, Double> {
-  private final DoubleDoubleCurveSpreadFunction _spreadFunction;
+  private final CurveSpreadFunction _spreadFunction;
   private final Function<Double, Double> _f;
   private final Curve<Double, Double>[] _curves;
 
-  public SpreadDoubleDoubleCurve(Curve<Double, Double>[] curves, DoubleDoubleCurveSpreadFunction spreadFunction) {
+  public static SpreadDoubleDoubleCurve from(final Curve<Double, Double>[] curves, final CurveSpreadFunction spreadFunction) {
+    return new SpreadDoubleDoubleCurve(curves, spreadFunction);
+  }
+
+  public static SpreadDoubleDoubleCurve from(final Curve<Double, Double>[] curves, final CurveSpreadFunction spreadFunction, final String name) {
+    return new SpreadDoubleDoubleCurve(curves, spreadFunction, name);
+  }
+
+  public SpreadDoubleDoubleCurve(final Curve<Double, Double>[] curves, final CurveSpreadFunction spreadFunction) {
     super();
     Validate.notNull(curves, "curves");
     Validate.isTrue(curves.length > 1, "curves");
@@ -32,7 +40,7 @@ public class SpreadDoubleDoubleCurve extends Curve<Double, Double> {
     _f = spreadFunction.evaluate(curves);
   }
 
-  public SpreadDoubleDoubleCurve(Curve<Double, Double>[] curves, DoubleDoubleCurveSpreadFunction spreadFunction, String name) {
+  public SpreadDoubleDoubleCurve(final Curve<Double, Double>[] curves, final CurveSpreadFunction spreadFunction, final String name) {
     super(name);
     Validate.notNull(curves, "curves");
     Validate.isTrue(curves.length > 1, "curves");
@@ -42,9 +50,9 @@ public class SpreadDoubleDoubleCurve extends Curve<Double, Double> {
     _f = spreadFunction.evaluate(curves);
   }
 
-  public List<String> getUnderlyingNames() {
-    List<String> result = new ArrayList<String>();
-    for (Curve<Double, Double> curve : _curves) {
+  public Set<String> getUnderlyingNames() {
+    final Set<String> result = new HashSet<String>();
+    for (final Curve<Double, Double> curve : _curves) {
       if (curve instanceof SpreadDoubleDoubleCurve) {
         result.addAll(((SpreadDoubleDoubleCurve) curve).getUnderlyingNames());
       } else {
@@ -55,22 +63,22 @@ public class SpreadDoubleDoubleCurve extends Curve<Double, Double> {
   }
 
   public String getLongName() {
-    StringBuffer sb = new StringBuffer(getName());
+    final StringBuffer sb = new StringBuffer(getName());
     sb.append("=");
     int i = 0;
-    for (Curve<Double, Double> curve : _curves) {
-      sb.append("(");
+    sb.append("(");
+    for (final Curve<Double, Double> curve : _curves) {
       if (curve instanceof SpreadDoubleDoubleCurve) {
-        sb.append(((SpreadDoubleDoubleCurve) curve).getLongName());
+        sb.append(((SpreadDoubleDoubleCurve) curve).getLongName().substring(2));
       } else {
         sb.append(curve.getName());
       }
       if (i != _curves.length - 1) {
         sb.append(_spreadFunction.getOperationName());
       }
-      sb.append(")");
       i++;
     }
+    sb.append(")");
     return sb.toString();
   }
 
@@ -89,7 +97,7 @@ public class SpreadDoubleDoubleCurve extends Curve<Double, Double> {
   }
 
   @Override
-  public Double getYValue(Double x) {
+  public Double getYValue(final Double x) {
     Validate.notNull(x, "x");
     return _f.evaluate(x);
   }
@@ -109,7 +117,7 @@ public class SpreadDoubleDoubleCurve extends Curve<Double, Double> {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -119,7 +127,7 @@ public class SpreadDoubleDoubleCurve extends Curve<Double, Double> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    SpreadDoubleDoubleCurve other = (SpreadDoubleDoubleCurve) obj;
+    final SpreadDoubleDoubleCurve other = (SpreadDoubleDoubleCurve) obj;
     if (!Arrays.equals(_curves, other._curves)) {
       return false;
     }

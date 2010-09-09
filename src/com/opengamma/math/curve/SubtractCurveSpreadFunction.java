@@ -12,7 +12,8 @@ import com.opengamma.math.function.Function;
 /**
  * 
  */
-public class DivisiveDoubleDoubleCurveSpreadFunction implements DoubleDoubleCurveSpreadFunction {
+public class SubtractCurveSpreadFunction implements CurveSpreadFunction {
+  private static final String NAME = "-";
 
   @Override
   public Function<Double, Double> evaluate(final Curve<Double, Double>... curves) {
@@ -27,7 +28,7 @@ public class DivisiveDoubleDoubleCurveSpreadFunction implements DoubleDoubleCurv
         double x0 = x[0];
         double y = curves[0].getYValue(x0);
         for (int i = 1; i < curves.length; i++) {
-          y /= curves[i].getYValue(x0);
+          y -= curves[i].getYValue(x0);
         }
         return y;
       }
@@ -36,6 +37,6 @@ public class DivisiveDoubleDoubleCurveSpreadFunction implements DoubleDoubleCurv
   }
 
   public String getOperationName() {
-    return "/";
+    return NAME;
   }
 }

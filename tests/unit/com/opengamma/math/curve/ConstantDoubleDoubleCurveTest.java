@@ -9,7 +9,13 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+import java.util.Collections;
+
 import org.junit.Test;
+
+import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.math.interpolation.LinearInterpolator1D;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * 
@@ -56,5 +62,22 @@ public class ConstantDoubleDoubleCurveTest {
     curve = new ConstantDoubleDoubleCurve(Y1, NAME1);
     other = ConstantDoubleDoubleCurve.of(Y1, NAME1);
     assertEquals(curve, other);
+  }
+
+  @Test
+  public void testConvert() {
+    final double eps = 1e-15;
+    final double[] x = new double[] {0, 1, 2};
+    final double[] y = new double[] {Y1, Y1, Y1};
+    final LinearInterpolator1D interpolator = new LinearInterpolator1D();
+    DoubleDoubleCurve other = CURVE.toNodalDoubleDoubleCurve(x);
+    assertArrayEquals(other.getXDataAsPrimitive(), x, eps);
+    assertArrayEquals(other.getYDataAsPrimitive(), y, eps);
+    other = CURVE.toInterpolatedDoubleDoubleCurve(x, interpolator);
+    assertArrayEquals(other.getXDataAsPrimitive(), x, eps);
+    assertArrayEquals(other.getYDataAsPrimitive(), y, eps);
+    other = CURVE.toInterpolatedDoubleDoubleCurve(x, Collections.<Double, Interpolator1D<? extends Interpolator1DDataBundle>> singletonMap(Double.POSITIVE_INFINITY, interpolator));
+    assertArrayEquals(other.getXDataAsPrimitive(), x, eps);
+    assertArrayEquals(other.getYDataAsPrimitive(), y, eps);
   }
 }

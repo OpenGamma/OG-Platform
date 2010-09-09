@@ -293,7 +293,7 @@ public class InterpolatedDoubleDoubleCurve extends DoubleDoubleCurve {
   }
 
   private void init(final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
-    init(Collections.<Double, Interpolator1D<? extends Interpolator1DDataBundle>> singletonMap(Double.POSITIVE_INFINITY, interpolator));
+    init(Collections.<Double, Interpolator1D<? extends Interpolator1DDataBundle>>singletonMap(Double.POSITIVE_INFINITY, interpolator));
   }
 
   @SuppressWarnings("unchecked")

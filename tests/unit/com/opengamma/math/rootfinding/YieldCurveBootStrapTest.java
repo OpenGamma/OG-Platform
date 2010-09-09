@@ -30,7 +30,6 @@ import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.ParRateDifferenceCalculator;
-import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.ConstantCouponAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
@@ -150,7 +149,7 @@ public class YieldCurveBootStrapTest {
       swapRate = SWAP_RATE_CALCULATOR.getValue(instrument, curveBundle);
       instrument = setParSwapRate((FixedFloatSwap) instrument, swapRate);
       //debug
-      double temp = PresentValueCalculator.getInstance().getValue(instrument, curveBundle);
+      //double temp = PresentValueCalculator.getInstance().getValue(instrument, curveBundle);
 
       DOUBLE_CURVE_INSTRUMENTS.add(instrument);
       instrument = setupSwap(payments[i], LIBOR_CURVE_NAME, LIBOR_CURVE_NAME);
@@ -264,7 +263,7 @@ public class YieldCurveBootStrapTest {
 
   @Test
   public void testBroyden() {
-    final VectorFieldFirstOrderDifferentiator fd_jac_calculator = new VectorFieldFirstOrderDifferentiator();
+    //final VectorFieldFirstOrderDifferentiator fd_jac_calculator = new VectorFieldFirstOrderDifferentiator();
     NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
 
     //    doHotSpot(rootFinder, "Broyden, single curve", SINGLE_CURVE_FINDER, SINGLE_CURVE_JACOBIAN);

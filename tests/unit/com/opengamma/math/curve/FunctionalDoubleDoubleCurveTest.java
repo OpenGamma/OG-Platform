@@ -5,12 +5,18 @@
  */
 package com.opengamma.math.curve;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+
+import java.util.Collections;
 
 import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.math.interpolation.LinearInterpolator1D;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * 
@@ -79,5 +85,21 @@ public class FunctionalDoubleDoubleCurveTest {
     curve = new FunctionalDoubleDoubleCurve(F, NAME1);
     other = FunctionalDoubleDoubleCurve.of(F, NAME1);
     assertEquals(curve, other);
+  }
+
+  @Test
+  public void testConvert() {
+    final double eps = 1e-15;
+    final double[] x = new double[] {0, 1, 2};
+    final LinearInterpolator1D interpolator = new LinearInterpolator1D();
+    DoubleDoubleCurve other = CURVE.toNodalDoubleDoubleCurve(x);
+    assertArrayEquals(other.getXDataAsPrimitive(), x, eps);
+    assertArrayEquals(other.getYDataAsPrimitive(), new double[] {F.evaluate(x[0]), F.evaluate(x[1]), F.evaluate(x[2])}, eps);
+    other = CURVE.toInterpolatedDoubleDoubleCurve(x, interpolator);
+    assertArrayEquals(other.getXDataAsPrimitive(), x, eps);
+    assertArrayEquals(other.getYDataAsPrimitive(), new double[] {F.evaluate(x[0]), F.evaluate(x[1]), F.evaluate(x[2])}, eps);
+    other = CURVE.toInterpolatedDoubleDoubleCurve(x, Collections.<Double, Interpolator1D<? extends Interpolator1DDataBundle>> singletonMap(Double.POSITIVE_INFINITY, interpolator));
+    assertArrayEquals(other.getXDataAsPrimitive(), x, eps);
+    assertArrayEquals(other.getYDataAsPrimitive(), new double[] {F.evaluate(x[0]), F.evaluate(x[1]), F.evaluate(x[2])}, eps);
   }
 }
