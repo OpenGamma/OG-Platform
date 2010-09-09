@@ -23,11 +23,11 @@ import com.opengamma.engine.test.TestCalculationNode;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.cache.InMemoryIdentifierMap;
-import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeFailureMessage;
-import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeJobMessage;
+import com.opengamma.engine.view.calcnode.msg.Failure;
+import com.opengamma.engine.view.calcnode.msg.Execute;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
-import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeReadyMessage;
-import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeResultMessage;
+import com.opengamma.engine.view.calcnode.msg.Ready;
+import com.opengamma.engine.view.calcnode.msg.Result;
 import com.opengamma.transport.CollectingFudgeMessageReceiver;
 import com.opengamma.transport.DirectFudgeConnection;
 
@@ -60,18 +60,18 @@ public class RemoteNodeClientTest {
     final FudgeDeserializationContext dcontext = new FudgeDeserializationContext(FudgeContext.GLOBAL_DEFAULT);
     final FudgeSerializationContext scontext = new FudgeSerializationContext(FudgeContext.GLOBAL_DEFAULT);
     final RemoteCalcNodeMessage readyMessage = dcontext.fudgeMsgToObject(RemoteCalcNodeMessage.class, readyMsgEnvelope.getMessage());
-    assertTrue(readyMessage instanceof RemoteCalcNodeReadyMessage);
-    final RemoteCalcNodeReadyMessage ready = (RemoteCalcNodeReadyMessage) readyMessage;
+    assertTrue(readyMessage instanceof Ready);
+    final Ready ready = (Ready) readyMessage;
     assertEquals(1, ready.getCapacity());
     final CalculationJob job = createTestCalculationJob();
     job.convertInputs(identifierMap);
     conduit.getEnd2().getFudgeMessageSender().send(
-        FudgeSerializationContext.addClassHeader(scontext.objectToFudgeMsg(new RemoteCalcNodeJobMessage(job)), RemoteCalcNodeJobMessage.class, RemoteCalcNodeMessage.class));
+        FudgeSerializationContext.addClassHeader(scontext.objectToFudgeMsg(new Execute(job)), Execute.class, RemoteCalcNodeMessage.class));
     final FudgeMsgEnvelope resultMsgEnvelope = messages.waitForMessage(TIMEOUT);
     assertNotNull(resultMsgEnvelope);
     final RemoteCalcNodeMessage resultMessage = dcontext.fudgeMsgToObject(RemoteCalcNodeMessage.class, resultMsgEnvelope.getMessage());
-    assertTrue(resultMessage instanceof RemoteCalcNodeResultMessage);
-    final RemoteCalcNodeResultMessage result = (RemoteCalcNodeResultMessage) resultMessage;
+    assertTrue(resultMessage instanceof Result);
+    final Result result = (Result) resultMessage;
     assertEquals(job.getSpecification(), result.getResult().getSpecification());
   }
 
@@ -100,18 +100,18 @@ public class RemoteNodeClientTest {
     final FudgeDeserializationContext dcontext = new FudgeDeserializationContext(FudgeContext.GLOBAL_DEFAULT);
     final FudgeSerializationContext scontext = new FudgeSerializationContext(FudgeContext.GLOBAL_DEFAULT);
     final RemoteCalcNodeMessage readyMessage = dcontext.fudgeMsgToObject(RemoteCalcNodeMessage.class, readyMsgEnvelope.getMessage());
-    assertTrue(readyMessage instanceof RemoteCalcNodeReadyMessage);
-    final RemoteCalcNodeReadyMessage ready = (RemoteCalcNodeReadyMessage) readyMessage;
+    assertTrue(readyMessage instanceof Ready);
+    final Ready ready = (Ready) readyMessage;
     assertEquals(1, ready.getCapacity());
     final CalculationJob job = createTestCalculationJob();
     job.convertInputs(identifierMap);
     conduit.getEnd2().getFudgeMessageSender().send(
-        FudgeSerializationContext.addClassHeader(scontext.objectToFudgeMsg(new RemoteCalcNodeJobMessage(job)), RemoteCalcNodeJobMessage.class, RemoteCalcNodeMessage.class));
+        FudgeSerializationContext.addClassHeader(scontext.objectToFudgeMsg(new Execute(job)), Execute.class, RemoteCalcNodeMessage.class));
     final FudgeMsgEnvelope resultMsgEnvelope = messages.waitForMessage(TIMEOUT);
     assertNotNull(resultMsgEnvelope);
     final RemoteCalcNodeMessage resultMessage = dcontext.fudgeMsgToObject(RemoteCalcNodeMessage.class, resultMsgEnvelope.getMessage());
-    assertTrue(resultMessage instanceof RemoteCalcNodeFailureMessage);
-    final RemoteCalcNodeFailureMessage failure = (RemoteCalcNodeFailureMessage) resultMessage;
+    assertTrue(resultMessage instanceof Failure);
+    final Failure failure = (Failure) resultMessage;
     assertEquals(job.getSpecification(), failure.getJob ());
   }
 

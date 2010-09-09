@@ -6,10 +6,11 @@
 package com.opengamma.engine.view.calcnode.stats;
 
 /**
- * Receives statistics on function execution from calculation node.
+ * Receives statistics on function execution from calculation node. The statistics must be normalized to a
+ * common reference to eliminate differences in node performance.
  */
 public interface FunctionInvocationStatisticsGatherer {
 
-  void functionInvoked(String functionIdentifier, long invocationTime, long dataInputVolume, long dataOutputVolume);
+  void functionInvoked(String configurationName, String functionIdentifier, int count, double invocationTime, double dataInput, double dataOutput);
 
 }

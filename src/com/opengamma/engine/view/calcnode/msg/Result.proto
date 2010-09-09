@@ -6,23 +6,19 @@
  
 namespace com.opengamma.engine.view.calcnode {
 
-  extern message CalculationJobSpecification;
-
+  extern message CalculationJobResult;
+  
   namespace msg {
-
-    message RemoteCalcNodeFailureMessage extends RemoteCalcNodeMessage {
-    
-      required CalculationJobSpecification job;
-      required string errorMessage;
-      required string computeNodeId;
+  
+    message Result extends RemoteCalcNodeMessage {
+      required CalculationJobResult result;
       
       /**
        * If a node's capabilities have changed or it wants to explicitly set its capacity for additional
        * jobs, it can attach a ready message to the result. This may be more efficient than sending an
        * arbitrary ready message.
        */
-      optional RemoteCalcNodeReadyMessage ready;
-      
+      optional Ready ready;
     }
     
   }

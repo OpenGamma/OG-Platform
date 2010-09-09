@@ -135,11 +135,12 @@ public abstract class AbstractCalculationNode implements CalculationNode {
 
     List<CalculationJobResultItem> resultItems = new ArrayList<CalculationJobResultItem>();
 
+    final String calculationConfiguration = spec.getCalcConfigName();
     for (CalculationJobItem jobItem : job.getJobItems()) {
 
       CalculationJobResultItem resultItem;
       try {
-        invoke(jobItem, cache);
+        invoke(jobItem, cache, calculationConfiguration);
         resultItem = new CalculationJobResultItem(jobItem);
       } catch (MissingInputException e) {
         // NOTE kirk 2009-10-20 -- We intentionally only do the message here so that we don't
@@ -194,7 +195,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     return cache;
   }
 
-  private void invoke(CalculationJobItem jobItem, FilteredViewComputationCache cache) {
+  private void invoke(CalculationJobItem jobItem, FilteredViewComputationCache cache, String calculationConfiguration) {
 
     final String functionUniqueId = jobItem.getFunctionUniqueIdentifier();
 
@@ -255,6 +256,6 @@ public abstract class AbstractCalculationNode implements CalculationNode {
 
     // [ENG-57] Store the volume of data fetched against the function
     // [ENG-57] Store the volume of data written against the function
-    getFunctionInvocationStatistics().functionInvoked(functionUniqueId, invocationTime, 0L, 0L);
+    getFunctionInvocationStatistics().functionInvoked(calculationConfiguration, functionUniqueId, 1, invocationTime, 0L, 0L);
   }
 }
