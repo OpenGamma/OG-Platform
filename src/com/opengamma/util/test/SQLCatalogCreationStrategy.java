@@ -14,18 +14,24 @@ import java.sql.Statement;
 import com.opengamma.OpenGammaRuntimeException;
 
 /**
- * 
- *
- * @author pietari
+ * A database catalog creation strategy implementation that uses SQL.
  */
 public class SQLCatalogCreationStrategy implements CatalogCreationStrategy {
-  
+
   private String _dbServerHost;
   private String _user;
   private String _password;
   private String _allCatalogsSql;
   private String _blankCatalog;
-  
+
+  /**
+   * Creates an instance.
+   * @param dbServerHost  the database server, not null
+   * @param user  the user name
+   * @param password  the password
+   * @param getAllCatalogsSql  the SQL to get all catalogs, not null
+   * @param blankCatalog  the catalog name to create, not null 
+   */
   public SQLCatalogCreationStrategy(
       String dbServerHost, 
       String user, 
@@ -38,14 +44,13 @@ public class SQLCatalogCreationStrategy implements CatalogCreationStrategy {
     _allCatalogsSql = getAllCatalogsSql;
     _blankCatalog = blankCatalog;
   }
-  
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public boolean catalogExists(String catalog) {
     Connection conn = null;
     try {
-      conn = DriverManager.getConnection(_dbServerHost + "/" + _blankCatalog, 
-          _user, _password);
+      conn = DriverManager.getConnection(_dbServerHost + "/" + _blankCatalog, _user, _password);
       conn.setAutoCommit(true);
   
       Statement statement = conn.createStatement();
@@ -63,7 +68,7 @@ public class SQLCatalogCreationStrategy implements CatalogCreationStrategy {
       statement.close();
       
       return catalogAlreadyExists;
-    
+      
     } catch (SQLException e) {
       throw new OpenGammaRuntimeException("Failed to create catalog", e);     
     } finally {
@@ -75,8 +80,6 @@ public class SQLCatalogCreationStrategy implements CatalogCreationStrategy {
       }
     } 
   }
-
-
 
   @Override
   public void create(String catalog) {

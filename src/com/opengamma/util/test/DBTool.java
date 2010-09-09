@@ -137,13 +137,12 @@ public class DBTool extends Task {
 
     _dialect.initialise(_dbServerHost, _user, _password);
   }
-  
-  public void shutdownTestCatalog() {
-    shutdown(getTestCatalog());    
+
+  public void resetTestCatalog() {
+    _dialect.reset(getTestCatalog());
   }
-  
+
   public void shutdown(String catalog) {
-    System.out.println("Closing connection to " + catalog + "...");
     _dialect.shutdown(catalog);
   }
   
@@ -552,7 +551,7 @@ public class DBTool extends Task {
         dropTestSchema(); // make sure it's empty if it already existed
         createTestSchema();
         createTestTables(null);
-        shutdownTestCatalog();
+        shutdown(getTestCatalog());
       }
     }
     

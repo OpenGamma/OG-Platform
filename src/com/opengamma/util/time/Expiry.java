@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.util.time;
@@ -11,6 +11,9 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMessageFactory;
+import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -48,7 +51,7 @@ public class Expiry implements InstantProvider {
     _accuracy = accuracy;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Gets the expiry date-time.
    * @return the date-time
@@ -71,7 +74,7 @@ public class Expiry implements InstantProvider {
     return _expiry.toInstant();
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {
@@ -81,7 +84,7 @@ public class Expiry implements InstantProvider {
       return false;
     }
     final Expiry other = (Expiry) obj;
-    //REVIEW Yomi 20100905 expiry should not be null to start with
+    // REVIEW Yomi 20100905 expiry should not be null to start with
     if (getExpiry() == null) {
       return (other.getExpiry() == null);
     }
@@ -99,7 +102,7 @@ public class Expiry implements InstantProvider {
       }
     }
     // Only compare to the accuracy agreed
-    //REVIEW Yomi 20100905 is above "getExpiry().equalInstant(other.getExpiry()" not testing the same?
+    // REVIEW Yomi 20100905 is above "getExpiry().equalInstant(other.getExpiry()" not testing the same?
     if (getAccuracy() == null) {
       return ObjectUtils.equals(getExpiry(), other.getExpiry());
     }
@@ -108,19 +111,13 @@ public class Expiry implements InstantProvider {
     ZonedDateTime otherUtc = ZonedDateTime.ofInstant(other.toInstant(), TimeZone.UTC);
     switch (getAccuracy()) {
       case MIN_HOUR_DAY_MONTH_YEAR:
-        return (utc.getMinuteOfHour() == otherUtc.getMinuteOfHour()) 
-          && (utc.getHourOfDay() == otherUtc.getHourOfDay()) 
-          && (utc.getDayOfMonth() == otherUtc.getDayOfMonth()) 
-          && (utc.getMonthOfYear() == otherUtc.getMonthOfYear())
-          && (utc.getYear() == otherUtc.getYear());
+        return (utc.getMinuteOfHour() == otherUtc.getMinuteOfHour()) && (utc.getHourOfDay() == otherUtc.getHourOfDay()) && (utc.getDayOfMonth() == otherUtc.getDayOfMonth())
+            && (utc.getMonthOfYear() == otherUtc.getMonthOfYear()) && (utc.getYear() == otherUtc.getYear());
       case HOUR_DAY_MONTH_YEAR:
-        return (utc.getHourOfDay() == otherUtc.getHourOfDay()) 
-          && (utc.getDayOfMonth() == otherUtc.getDayOfMonth()) 
-          && (utc.getMonthOfYear() == otherUtc.getMonthOfYear())
-          && (utc.getYear() == otherUtc.getYear());
-      case DAY_MONTH_YEAR:
-        return (utc.getDayOfMonth() == otherUtc.getDayOfMonth()) && (utc.getMonthOfYear() == otherUtc.getMonthOfYear())
+        return (utc.getHourOfDay() == otherUtc.getHourOfDay()) && (utc.getDayOfMonth() == otherUtc.getDayOfMonth()) && (utc.getMonthOfYear() == otherUtc.getMonthOfYear())
             && (utc.getYear() == otherUtc.getYear());
+      case DAY_MONTH_YEAR:
+        return (utc.getDayOfMonth() == otherUtc.getDayOfMonth()) && (utc.getMonthOfYear() == otherUtc.getMonthOfYear()) && (utc.getYear() == otherUtc.getYear());
       case MONTH_YEAR:
         return (utc.getMonthOfYear() == otherUtc.getMonthOfYear()) && (utc.getYear() == otherUtc.getYear());
       case YEAR:
@@ -141,6 +138,28 @@ public class Expiry implements InstantProvider {
     } else {
       return "Expiry[" + _expiry + "]";
     }
+  }
+
+  /**
+   * This is for more efficient code within the .proto representations of securities, allowing Expiry to be
+   * used directly as a message type instead of through the serialization framework.
+   * 
+   * @param factory the Fudge message factory
+   * @param message the message to populate
+   */
+  public void toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer message) {
+    ExpiryBuilder.toFudgeMsg(this, message);
+  }
+
+  /**
+   * This is for more efficient code within the .proto representations of securities, allowing Expiry to be
+   * used directly as a message type instead of through the serialization framework.
+   * 
+   * @param message the message to decode
+   * @return the Expiry object
+   */
+  public static Expiry fromFudgeMsg(final FudgeFieldContainer message) {
+    return ExpiryBuilder.fromFudgeMsg(message);
   }
 
 }

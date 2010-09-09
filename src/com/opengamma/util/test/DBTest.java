@@ -61,7 +61,7 @@ abstract public class DBTest implements TableCreationCallback {
 
   @After
   public void tearDown() throws Exception {
-    _dbtool.shutdownTestCatalog(); // avoids locking issues with Derby
+    _dbtool.resetTestCatalog(); // avoids locking issues with Derby
   }
 
   protected static Collection<Object[]> getParameters (final String databaseType, final int previousVersionCount) {

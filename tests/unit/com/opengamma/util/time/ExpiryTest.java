@@ -5,7 +5,7 @@
  */
 package com.opengamma.util.time;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
 
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.TimeZone;
@@ -13,35 +13,47 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
 public class ExpiryTest {
-  private static final Logger s_logger = LoggerFactory.getLogger(ExpiryTest.class);  
-  private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
+
+  private static final FudgeContext s_fudgeContext = new FudgeContext();
+
+  static {
+    s_fudgeContext.getTypeDictionary().addType(ExpiryBuilder.SECONDARY_TYPE_INSTANCE);
+    s_fudgeContext.getObjectDictionary().addBuilder(Expiry.class, new ExpiryBuilder());
+  }
+
+  private static FudgeFieldContainer cycleMessage(final FudgeFieldContainer message) {
+    final byte[] encoded = s_fudgeContext.toByteArray(message);
+    return s_fudgeContext.deserialize(encoded).getMessage();
+  }
+
+  private static void testExpiry(final Expiry expiry) {
+    final FudgeSerializationContext serContext = new FudgeSerializationContext(s_fudgeContext);
+    final MutableFudgeFieldContainer messageIn = serContext.newMessage();
+    serContext.objectToFudgeMsg(messageIn, "test", null, expiry);
+    final FudgeFieldContainer messageOut = cycleMessage(messageIn);
+    final FudgeDeserializationContext dsrContext = new FudgeDeserializationContext(s_fudgeContext);
+    final Expiry result = dsrContext.fieldValueToObject(Expiry.class, messageOut.getByName("test"));
+    assertEquals(expiry, result);
+    assertEquals(expiry.getExpiry().getZone(), result.getExpiry().getZone());
+  }
 
   @Test
-  public void testFudgeMessage () {
-    final Expiry expiry = new Expiry(ZonedDateTime.of(LocalDateTime.ofMidnight(2010, 7, 1), TimeZone.UTC),
-        ExpiryAccuracy.MONTH_YEAR);    
-    final FudgeSerializationContext context = new FudgeSerializationContext(s_fudgeContext);
-    FudgeFieldContainer msg = context.objectToFudgeMsg(expiry);
-    s_logger.debug("Expiry {}", expiry);
-    s_logger.debug("Encoded to {}", msg);
-    final byte[] bytes = s_fudgeContext.toByteArray(msg);
-    msg = s_fudgeContext.deserialize(bytes).getMessage();
-    s_logger.debug("Serialised to {}", msg);
-    final Expiry decoded = s_fudgeContext.fromFudgeMsg(Expiry.class, msg);
-    s_logger.debug("Decoded to {}", decoded);
-    if (!expiry.equals(decoded)) {
-      s_logger.warn("Expected {}", expiry);
-      s_logger.warn("Received {}", decoded);
-      fail();
+  public void testFudgeMessageUTC() {
+    for (ExpiryAccuracy accuracy : ExpiryAccuracy.values()) {
+      testExpiry(new Expiry(ZonedDateTime.of(LocalDateTime.nowSystemClock(), TimeZone.UTC), accuracy));
     }
-    
+  }
+
+  @Test
+  public void testFudgeMessageNonUTC() {
+    for (ExpiryAccuracy accuracy : ExpiryAccuracy.values()) {
+      testExpiry(new Expiry(ZonedDateTime.of(LocalDateTime.nowSystemClock(), TimeZone.of("GMT+02:00")), accuracy));
+    }
   }
 
 }

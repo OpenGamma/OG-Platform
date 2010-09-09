@@ -10,21 +10,34 @@ import java.io.File;
 import org.hibernate.dialect.Dialect;
 
 /**
- * 
+ * Implementation of the database dialect for HSQL.
  */
 public final class HSQLDialect extends AbstractDBDialect {
-  
+
+  /**
+   * Singleton instance.
+   */
   private static final HSQLDialect INSTANCE = new HSQLDialect(); 
-  
+  /**
+   * The underlying Hibernate dialect.
+   */
   private org.hibernate.dialect.HSQLDialect _hibernateDialect;
-  
+
+  /**
+   * Restricted constructor.
+   */
   private HSQLDialect() {
   }
-  
+
+  /**
+   * Gets the singleton instance.
+   * @return the instance, not null
+   */
   public static HSQLDialect getInstance() {
     return INSTANCE;
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public void shutdown(String catalog) {
     super.shutdown(catalog);
@@ -36,12 +49,12 @@ public final class HSQLDialect extends AbstractDBDialect {
   public Class<?> getJDBCDriverClass() {
     return org.hsqldb.jdbcDriver.class;
   }
-  
+
   @Override
   public String getDatabaseName() {
     return "hsqldb";
   }
-  
+
   @Override
   public String getAllSchemasSQL(String catalog) {
     return "SELECT TABLE_SCHEM AS name FROM INFORMATION_SCHEMA.SYSTEM_SCHEMAS";
@@ -76,7 +89,7 @@ public final class HSQLDialect extends AbstractDBDialect {
     }
     return sql;
   }
-  
+
   @Override
   public String getAllColumnsSQL(String catalog, String schema, String table) {
     StringBuilder sql = new StringBuilder("SELECT COLUMN_NAME AS name, DATA_TYPE AS datatype, IS_NULLABLE AS allowsnull, COLUMN_DEF AS defaultvalue " +
@@ -101,14 +114,18 @@ public final class HSQLDialect extends AbstractDBDialect {
     }
     return _hibernateDialect;
   }
-  
+
   @Override
   public CatalogCreationStrategy getCatalogCreationStrategy() {
     return new HSQLCatalogCreationStrategy();
   }
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Strategy for catalog creation.
+   */
   private class HSQLCatalogCreationStrategy implements CatalogCreationStrategy {
-    
+
     private File getFile() {
       String dbHost = getDbHost().trim();
       String filePart = dbHost.substring("jdbc:hsqldb:file:".length());
@@ -128,6 +145,6 @@ public final class HSQLDialect extends AbstractDBDialect {
     public void create(String catalog) {
       return; // HSQLDB creates DB automatically on first connect
     }
-    
   }
+
 }
