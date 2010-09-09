@@ -34,6 +34,16 @@ public class HistoricalCovarianceCalculatorTest {
     new HistoricalCovarianceCalculator(null);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullArray() {
+    CALCULATOR.evaluate((DoubleTimeSeries<?>[]) null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testWrongSizeArray() {
+    CALCULATOR.evaluate(TS1);
+  }
+
   @Test
   public void test() {
     final double n = TS1.size();

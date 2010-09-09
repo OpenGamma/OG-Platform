@@ -10,6 +10,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
+ * Interface for volatility calculation.
  */
 public interface VolatilityCalculator extends Function<DoubleTimeSeries<?>, Double> {
 

@@ -16,7 +16,7 @@ public class CovarianceCalculatorTest {
   private static final CovarianceCalculator CALCULATOR = new CovarianceCalculator() {
 
     @Override
-    public Double evaluate(final DoubleTimeSeries<?> x1, final DoubleTimeSeries<?> x2) {
+    public Double evaluate(final DoubleTimeSeries<?>... x1) {
       return null;
     }
 

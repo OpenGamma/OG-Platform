@@ -9,15 +9,22 @@ import java.util.List;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.function.Function2D;
+import com.opengamma.math.function.Function;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeriesException;
 
 /**
  * 
+ * Base class for calculating the covariance of two time series.
  */
-public abstract class CovarianceCalculator extends Function2D<DoubleTimeSeries<?>, Double> {
+public abstract class CovarianceCalculator implements Function<DoubleTimeSeries<?>, Double> {
 
+  /**
+   * 
+   * @param ts1 The first time series
+   * @param ts2 The second time series
+   * @throws IllegalArgumentException If either time series is: null; empty; contains fewer than two data points; are not the same length; do not contain the same dates 
+   */
   protected void testTimeSeries(final DoubleTimeSeries<?> ts1, final DoubleTimeSeries<?> ts2) {
     Validate.notNull(ts1, "ts1");
     Validate.notNull(ts2, "ts2");

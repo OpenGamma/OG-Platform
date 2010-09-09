@@ -9,8 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CalculationMode;
@@ -18,37 +16,58 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeriesException;
 
 /**
- * 
+ * Base class for historical volatility calculators. 
  */
 public abstract class HistoricalVolatilityCalculator implements VolatilityCalculator {
-  private static final Logger s_logger = LoggerFactory.getLogger(HistoricalVolatilityCalculator.class);
   private static final CalculationMode DEFAULT_CALCULATION_MODE = CalculationMode.STRICT;
   private static final double DEFAULT_PERCENT_BAD_DATA_POINTS = 0.0;
   private final CalculationMode _mode;
   private final double _percentBadDataPoints;
 
+  /**
+   * Sets the calculation mode and acceptable percentage of bad data points to the default value (strict and 0 respectively)
+   */
   public HistoricalVolatilityCalculator() {
-    this(DEFAULT_CALCULATION_MODE);
+    this(DEFAULT_CALCULATION_MODE, DEFAULT_PERCENT_BAD_DATA_POINTS);
   }
 
+  /**
+   * Sets the acceptable percentage of bad data points to the default value, 0
+   * @param mode The calculation mode
+   */
   public HistoricalVolatilityCalculator(final CalculationMode mode) {
     this(mode, DEFAULT_PERCENT_BAD_DATA_POINTS);
   }
 
+  /**
+   * 
+   * @param mode The calculation mode
+   * @param percentBadDataPoints The acceptable percentage of bad data points
+   * @throws IllegalArgumentException If the percentage of bad data points {@latex.inline $p$} does not satisfy {@latex.inline $0 \\leq p \\leq 1$}
+   */
   public HistoricalVolatilityCalculator(final CalculationMode mode, final double percentBadDataPoints) {
+    ArgumentChecker.isInRangeInclusive(0, 1, percentBadDataPoints);
     _mode = mode;
-    if (percentBadDataPoints > 1) {
-      s_logger.warn("Fraction of bad high / low / close data points that will be accepted is greater than one; this is probably not what was intended");
-    }
     _percentBadDataPoints = percentBadDataPoints;
   }
 
+  /**
+   * Tests the array of time series 
+   * @param x An array of time series
+   * @throws IllegalArgumentException If the array is null; if the array is empty; if the first element of the array is null
+   */
   protected void testInput(final DoubleTimeSeries<?>[] x) {
     Validate.notNull(x);
     ArgumentChecker.notEmpty(x, "x");
     Validate.notNull(x[0], "first time series");
   }
 
+  /**
+   * Tests that each time series has a minimum length
+   * @param x An array of time series 
+   * @param minLength The minimum allowed length of a time series
+   * @throws IllegalArgumentException If a time series is less than the minimum 
+   */
   protected void testTimeSeries(final DoubleTimeSeries<?>[] x, final int minLength) {
     for (final DoubleTimeSeries<?> ts : x) {
       if (ts.size() < minLength) {
@@ -57,6 +76,11 @@ public abstract class HistoricalVolatilityCalculator implements VolatilityCalcul
     }
   }
 
+  /**
+   * Tests that each time series contains the same dates.
+   * @param x An array of time series
+   * @throws IllegalArgumentException If the time series are not all the same length; if the time series contain different dates
+   */
   protected void testDatesCoincide(final DoubleTimeSeries<?>[] x) {
     final int size = x[0].size();
     for (int i = 1; i < x.length; i++) {
@@ -76,6 +100,13 @@ public abstract class HistoricalVolatilityCalculator implements VolatilityCalcul
     }
   }
 
+  /**
+   * Tests that the high price for a date is greater than the low value for the same date.
+   * @param high The period high price time series
+   * @param low The period low price time series
+   * @throws IllegalArgumentException Strict calculation mode: if the low value for a date is greater than the high value. Lenient calculation mode: if the percentage of times 
+   * that the low value for a date is greater than the high value is greater than the maximum allowed
+   */
   protected void testHighLow(final DoubleTimeSeries<?> high, final DoubleTimeSeries<?> low) {
     final double size = high.size();
     int count = 0;
@@ -97,6 +128,15 @@ public abstract class HistoricalVolatilityCalculator implements VolatilityCalcul
     }
   }
 
+  /**
+   * Tests that the high price for a date is greater than the low value for the same date and that the close price falls in this (inclusive) range
+   * @param high The period high price time series
+   * @param low The period low price time series
+   * @param close The period close price time series
+   * @throws IllegalArgumentException Strict calculation mode: if the low value for a date is greater than the high value or if the close value is not in the range bounded
+   * by the high and low prices. Lenient calculation mode: if the percentage of times that the low value for a date is greater than the high value or that the close value is
+   * not in the range bounded by the high and low values is greater than the maximum allowed
+   */
   protected void testHighLowClose(final DoubleTimeSeries<?> high, final DoubleTimeSeries<?> low, final DoubleTimeSeries<?> close) {
     final double size = high.size();
     int count = 0;
@@ -123,10 +163,18 @@ public abstract class HistoricalVolatilityCalculator implements VolatilityCalcul
     }
   }
 
-  protected static CalculationMode getCalculationMode() {
+  /**
+   * 
+   * @return The default calculation mode
+   */
+  protected static CalculationMode getDefaultCalculationMode() {
     return DEFAULT_CALCULATION_MODE;
   }
 
+  /**
+   * 
+   * @return The default percentage of bad data points
+   */
   protected static double getDefaultBadDataPoints() {
     return DEFAULT_PERCENT_BAD_DATA_POINTS;
   }
