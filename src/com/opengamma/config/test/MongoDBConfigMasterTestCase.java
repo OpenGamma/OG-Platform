@@ -266,6 +266,12 @@ public abstract class MongoDBConfigMasterTestCase<T extends Serializable> {
     ConfigDocument<T> doc1 = _configMaster.add(makeTestConfigDoc(1));
     assertNotNull(doc1);
     
+    // Make sure at least some time elapses so that we can check the lastReadInstant later
+    try {
+      Thread.sleep(1);
+    } catch (InterruptedException e) {
+    }
+
     ConfigDocument<T> findById = _configMaster.get(UniqueIdentifier.of(MongoDBConfigMaster.IDENTIFIER_SCHEME_DEFAULT, doc1.getOid(), String.valueOf(doc1.getVersion())));
     assertNotNull(findById);
     assertConfigDoc(doc1, findById);
@@ -281,7 +287,13 @@ public abstract class MongoDBConfigMasterTestCase<T extends Serializable> {
     Thread.sleep(1000);
     doc2 = _configMaster.update(configDoc);
     assertNotNull(doc2);
-    
+
+    // Make sure at least some time elapses so that we can check the lastReadInstant later
+    try {
+      Thread.sleep(1);
+    } catch (InterruptedException e) {
+    }
+
     findById = _configMaster.get(UniqueIdentifier.of(MongoDBConfigMaster.IDENTIFIER_SCHEME_DEFAULT, doc2.getOid(), String.valueOf(doc2.getVersion())));
     assertNotNull(findById);
     assertConfigDoc(doc2, findById);
