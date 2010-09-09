@@ -19,15 +19,29 @@ import com.opengamma.financial.model.option.pricing.OptionModel;
 import com.opengamma.math.function.Function1D;
 
 /**
- * 
+ * Base class for the analytic pricing of two-asset options.  
  * @param <T> Type of the option definition
  * @param <U> Type of the two asset data bundle
  */
 public abstract class TwoAssetAnalyticOptionModel<T extends OptionDefinition, U extends StandardTwoAssetOptionDataBundle> implements OptionModel<T, U> {
   private static final Logger s_logger = LoggerFactory.getLogger(TwoAssetAnalyticOptionModel.class);
 
+  /**
+   * 
+   * @param definition The option definition
+   * @return A function that prices the option given a {@link StandardTwoAssetOptionDataBundle} or descendant class
+   */
   public abstract Function1D<U, Double> getPricingFunction(T definition);
 
+  /**
+   * Note that currently the only greek that can be calculated is the fair price. If other greeks are requested a warning is given and
+   * nothing is added to the result
+   * @param definition The option definition
+   * @param data The type of the data
+   * @param requiredGreeks The greeks that are to be calculated
+   * @return A {@link GreekResultCollection} containing the results
+   * @throws IllegalArgumentException If any of the arguments are null, or if the set of required greeks is empty
+   */
   @Override
   public GreekResultCollection getGreeks(final T definition, final U data, final Set<Greek> requiredGreeks) {
     Validate.notNull(definition, "definition");

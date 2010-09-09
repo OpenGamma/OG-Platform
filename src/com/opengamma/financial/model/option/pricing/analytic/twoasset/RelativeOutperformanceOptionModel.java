@@ -14,11 +14,49 @@ import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
- * 
+ * The value of a European-style relative outperformance call option is given by:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{eqnarray*}
+ * c = e^{-rT}\\left(F N(d_2) - K N(d_1)\\right)
+ * \\end{eqnarray*}}
+ * and the value of a put is:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{eqnarray*}
+ * p = e^{-rT}\\left(K N(d_1) - F N(d_2)\\right)
+ * \\end{eqnarray*}}
+ * where 
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{eqnarray*}
+ * F &=& \\frac{S_1}{S_2}e^{\\left(b_1 - b_2 + \\sigma_2^2 - \\rho \\sigma_1 \\sigma_2\\right)T}\\\\
+ * \\hat{\\sigma} &=& \\sqrt{\\sigma_1 ^2 + \\sigma_2 ^2 - 2 \\rho\\sigma_1\\sigma_2}\\\\
+ * d_1 &=& \\frac{\\ln{\\frac{F}{K}} + \\frac{T\\hat{\\sigma}^2}{2}}{\\hat{\\sigma} \\sqrt{T}}\\\\
+ * d_2 &=& d_1 - \\hat{\\sigma}\\sqrt{T}
+ * \\end{eqnarray*}}
+ * and
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{itemize}
+ * \\item $K$ is the strike
+ * \\item $S_1$ is the spot value of the first asset
+ * \\item $S_2$ is the spot value of the second asset
+ * \\item $b_1$ is the cost-of-carry of the first asset
+ * \\item $b_2$ is the cost-of-carry of the second asset
+ * \\item $T$ is the time to expiry of the option
+ * \\item $r$ is the spot interest rate for time $T$
+ * \\item $\\sigma_1$ is the annualized volatility of the first asset
+ * \\item $\\sigma_2$ is the annualized volatility of the second asset
+ * \\item $\\rho$ is the correlation between the returns of the two assets
+ * \\item $N(x)$ is the CDF of the normal distribution $N(0, 1)$  
+ * \\end{itemize}}
  */
 public class RelativeOutperformanceOptionModel extends TwoAssetAnalyticOptionModel<RelativeOutperformanceOptionDefinition, StandardTwoAssetOptionDataBundle> {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
+  /**
+   * Gets the pricing function for a European-style relative outperformance option
+   * @param definition The option definition
+   * @return The pricing function
+   * @throws IllegalArgumentException If the definition is null
+   */
   @Override
   public Function1D<StandardTwoAssetOptionDataBundle, Double> getPricingFunction(final RelativeOutperformanceOptionDefinition definition) {
     Validate.notNull(definition, "definition");

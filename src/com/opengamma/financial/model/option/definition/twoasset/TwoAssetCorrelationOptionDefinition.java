@@ -16,7 +16,7 @@ import com.opengamma.util.time.Expiry;
 /**
  * Defines a European-style two-asset correlation option.
  * <p>
- * The payoff of a relative outperformance call option is  
+ * The payoff of a two-asset correlation call option is  
  * {@latex.ilb %preamble{\\usepackage{amsmath}}
  * \\begin{eqnarray*}
  * max\\left(S_2 - P, 0\\right) \\quad\\quad\\text{if}\\quad S_1 > K

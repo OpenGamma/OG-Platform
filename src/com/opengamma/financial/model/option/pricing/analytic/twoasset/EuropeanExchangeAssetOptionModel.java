@@ -14,11 +14,43 @@ import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
- * 
+ * The value of a European-style exchange-asset option is given by:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{eqnarray*}
+ * Q_1 S_1 e^{(b_1 - r)T} N(d_1) - Q_2 S_2 e^{(b_2 - r)T} N(d_2)
+ * \\end{eqnarray*}} 
+ * where
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{eqnarray*}
+ * \\hat{\\sigma} &=& \\sqrt{\\sigma_1 ^2 + \\sigma_2 ^2 - 2 \\rho\\sigma_1\\sigma_2}\\\\
+ * d_1 &=& \\frac{\\ln{\\frac{Q_1 S_1}{Q_2 S_2}} + \\left(b_1 - b_2 + \\frac{\\hat{\\sigma}^2}{2}\\right) T }{\\hat{\\sigma} \\sqrt{T}}\\\\
+ * d_2 &=& d_1 - \\hat{\\sigma}\\sqrt{T}
+ * \\end{eqnarray*}}
+ * and
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{itemize}
+ * \\item $Q_1$ is the quantity of the first asset
+ * \\item $Q_2$ is the quantity of the second asset
+ * \\item $S_1$ is the spot value of the first asset
+ * \\item $S_2$ is the spot value of the second asset
+ * \\item $b_1$ is the cost-of-carry of the first asset
+ * \\item $b_2$ is the cost-of-carry of the second asset
+ * \\item $T$ is the time to expiry of the option
+ * \\item $r$ is the spot interest rate for time $T$
+ * \\item $\\sigma_1$ is the annualized volatility of the first asset
+ * \\item $\\sigma_2$ is the annualized volatility of the second asset
+ * \\item $N(x)$ is the CDF of the normal distribution $N(0, 1)$  
+ * \\end{itemize}}
  */
 public class EuropeanExchangeAssetOptionModel extends TwoAssetAnalyticOptionModel<EuropeanExchangeAssetOptionDefinition, StandardTwoAssetOptionDataBundle> {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
+  /**
+   * Gets the pricing function for a European-style exchange asset option 
+   * @param definition The option definition
+   * @return The pricing function
+   * @throws IllegalArgumentException If the definition is null
+   */
   @Override
   public Function1D<StandardTwoAssetOptionDataBundle, Double> getPricingFunction(final EuropeanExchangeAssetOptionDefinition definition) {
     Validate.notNull(definition, "definition");

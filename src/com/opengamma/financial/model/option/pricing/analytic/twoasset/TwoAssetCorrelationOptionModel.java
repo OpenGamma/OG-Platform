@@ -15,10 +15,49 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
  * 
+ * The value of a two-asset correlation call option is:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{eqnarray*}
+ * c = S_2 e ^ {(b_2 - r)T} M(y_2 + \\sigma_2\\sqrt{T}, y_1 + \\rho\\sigma_2\\sqrt{T}; \\rho) - P e^{-rT} M(y_2, y_1; \\rho)
+ * \\end{eqnarray*}}
+ * and that of a put is:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{eqnarray*}
+ * p = P e^{-rT} M(-y_2, -y_1; \\rho) - S_2 e^{(b_2 - r)T} M(-y_2 - \\sigma_2\\sqrt{T}, -y_1 - \\rho\\sigma_2\\sqrt{T}; \\rho)
+ * \\end{eqnarray*}}
+ * where
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{eqnarray*}
+ * y_1 &=& \\frac{\\ln{\\frac{S_1}{K_1}} + (b_1 - \\frac{\\sigma_1^2}{2})T}{\\sigma_1\\sqrt{T}}\\\\
+ * y_2 &=& \\frac{\\ln{\\frac{S_2}{P}} + (b_2 - \\frac{\\sigma_2^2}{2})T}{\\sigma_2\\sqrt{T}}
+ * \\end{eqnarray*}}
+ * and
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{itemize}
+ * \\item $K$ is the strike
+ * \\item $P$ is the payoff
+ * \\item $S_1$ is the spot value of the first asset
+ * \\item $S_2$ is the spot value of the second asset
+ * \\item $b_1$ is the cost-of-carry of the first asset
+ * \\item $b_2$ is the cost-of-carry of the second asset
+ * \\item $T$ is the time to expiry of the option
+ * \\item $r$ is the spot interest rate for time $T$
+ * \\item $\\sigma_1$ is the annualized volatility of the first asset
+ * \\item $\\sigma_2$ is the annualized volatility of the second asset
+ * \\item $\\rho$ is the correlation between the returns of the two assets
+ * \\item $M(x, y; \\rho)$ is the CDF of the bivariate normal distribution   
+ * \\end{itemize}}
+
  */
 public class TwoAssetCorrelationOptionModel extends TwoAssetAnalyticOptionModel<TwoAssetCorrelationOptionDefinition, StandardTwoAssetOptionDataBundle> {
   private static final ProbabilityDistribution<double[]> BIVARIATE = new BivariateNormalDistribution();
 
+  /**
+   * Gets the pricing function for a European-style two-asset correlation option
+   * @param definition The option definition
+   * @return The pricing function
+   * @throws IllegalArgumentException If the definition is null
+   */
   @Override
   public Function1D<StandardTwoAssetOptionDataBundle, Double> getPricingFunction(final TwoAssetCorrelationOptionDefinition definition) {
     Validate.notNull(definition, "definition");
@@ -31,7 +70,7 @@ public class TwoAssetCorrelationOptionModel extends TwoAssetAnalyticOptionModel<
         final double s1 = data.getFirstSpot();
         final double s2 = data.getSecondSpot();
         final double k = definition.getStrike();
-        final double payout = definition.getPayout();
+        final double payout = definition.getPayoutLevel();
         final double b1 = data.getFirstCostOfCarry();
         final double b2 = data.getSecondCostOfCarry();
         final double t = definition.getTimeToExpiry(data.getDate());
