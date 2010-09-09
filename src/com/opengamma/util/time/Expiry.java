@@ -43,6 +43,7 @@ public class Expiry implements InstantProvider {
    */
   public Expiry(final ZonedDateTime expiry, final ExpiryAccuracy accuracy) {
     ArgumentChecker.notNull(expiry, "expiry");
+    ArgumentChecker.notNull(accuracy, "accuracy");
     _expiry = expiry;
     _accuracy = accuracy;
   }
