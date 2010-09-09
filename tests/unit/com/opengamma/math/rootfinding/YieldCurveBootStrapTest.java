@@ -30,7 +30,6 @@ import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.ParRateDifferenceCalculator;
-import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.ConstantCouponAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
@@ -149,8 +148,6 @@ public class YieldCurveBootStrapTest {
       instrument = setupSwap(payments[i], FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
       swapRate = SWAP_RATE_CALCULATOR.getValue(instrument, curveBundle);
       instrument = setParSwapRate((FixedFloatSwap) instrument, swapRate);
-      //debug
-      double temp = PresentValueCalculator.getInstance().getValue(instrument, curveBundle);
 
       DOUBLE_CURVE_INSTRUMENTS.add(instrument);
       instrument = setupSwap(payments[i], LIBOR_CURVE_NAME, LIBOR_CURVE_NAME);
@@ -199,13 +196,16 @@ public class YieldCurveBootStrapTest {
         unknownCurveInterpolators, unknownCurveNodeSensitivityCalculators);
     DOUBLE_CURVE_JACOBIAN_WITH_FD_INTERPOLATOR_SENSITIVITY = new MultipleYieldCurveFinderJacobian(data,
         PAR_RATE_SENSITIVITY_CALCULATOR);
+
+    //There is at least one other root in the double curve finding problem (i.e. two curves that give the correct par rates but are different from the curves used to generate the par rates in the first place),
+    //Starting close to the solution ensures we get the right one
     final double[] rates = new double[TIME_GRID.length];
     for (int i = 0; i < FUNDING_YIELDS.length; i++) {
-      rates[i] = 0.05;
+      rates[i] = FUNDING_YIELDS[i] + 0.02;
     }
 
     for (int i = 0; i < LIBOR_YIELDS.length; i++) {
-      rates[i + FUNDING_YIELDS.length] = LIBOR_YIELDS[i] + 0.03;
+      rates[i + FUNDING_YIELDS.length] = LIBOR_YIELDS[i] + 0.02;
     }
     X0 = new DoubleMatrix1D(rates);
   }
@@ -267,17 +267,17 @@ public class YieldCurveBootStrapTest {
     final VectorFieldFirstOrderDifferentiator fd_jac_calculator = new VectorFieldFirstOrderDifferentiator();
     NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
 
-    //    doHotSpot(rootFinder, "Broyden, single curve", SINGLE_CURVE_FINDER, SINGLE_CURVE_JACOBIAN);
-    //    doHotSpot(rootFinder, "Broyden, single curve, finite difference", SINGLE_CURVE_FINDER, fd_jac_calculator
-    //        .derivative(SINGLE_CURVE_FINDER));
-    //    doHotSpot(rootFinder, "Broyden, single curve, FD sensitivity", SINGLE_CURVE_FINDER,
-    //        SINGLE_CURVE_JACOBIAN_WITH_FD_INTERPOLATOR_SENSITIVITY);
+    doHotSpot(rootFinder, "Broyden, single curve", SINGLE_CURVE_FINDER, SINGLE_CURVE_JACOBIAN);
+    doHotSpot(rootFinder, "Broyden, single curve, finite difference", SINGLE_CURVE_FINDER, fd_jac_calculator
+        .derivative(SINGLE_CURVE_FINDER));
+    doHotSpot(rootFinder, "Broyden, single curve, FD sensitivity", SINGLE_CURVE_FINDER,
+        SINGLE_CURVE_JACOBIAN_WITH_FD_INTERPOLATOR_SENSITIVITY);
 
     doHotSpot(rootFinder, "Broyden, double curve", DOUBLE_CURVE_FINDER, DOUBLE_CURVE_JACOBIAN, true);
-    //    doHotSpot(rootFinder, "Broyden, double curve, finite difference", DOUBLE_CURVE_FINDER, fd_jac_calculator
-    //        .derivative(DOUBLE_CURVE_FINDER), true);
-    //    doHotSpot(rootFinder, "Broyden, double curve FD sensitivity", DOUBLE_CURVE_FINDER,
-    //        DOUBLE_CURVE_JACOBIAN_WITH_FD_INTERPOLATOR_SENSITIVITY, true);
+    doHotSpot(rootFinder, "Broyden, double curve, finite difference", DOUBLE_CURVE_FINDER, fd_jac_calculator
+        .derivative(DOUBLE_CURVE_FINDER), true);
+    doHotSpot(rootFinder, "Broyden, double curve FD sensitivity", DOUBLE_CURVE_FINDER,
+        DOUBLE_CURVE_JACOBIAN_WITH_FD_INTERPOLATOR_SENSITIVITY, true);
   }
 
   private void doHotSpot(final NewtonVectorRootFinder rootFinder, final String name,
@@ -507,7 +507,7 @@ public class YieldCurveBootStrapTest {
     final double[] indexMaturity = new double[2 * payments];
     final double[] yearFrac = new double[2 * payments];
 
-    final double sigma = 0.0 / 365.0;
+    final double sigma = 4.0 / 365.0;
 
     for (int i = 0; i < payments; i++) {
       floating[2 * i + 1] = fixed[i] = 0.5 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
