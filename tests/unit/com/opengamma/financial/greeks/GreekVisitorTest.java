@@ -17,7 +17,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("synthetic-access")
-public class AbstractGreekVisitorTest {
+public class GreekVisitorTest {
   private static final String STRING = "X";
   private static final GreekVisitor<?> NO_ACTION = new NoActionGreekVisitor();
   private static final GreekVisitor<?> DELTA_ONLY = new DeltaOnlyGreekVisitor();
@@ -26,7 +26,6 @@ public class AbstractGreekVisitorTest {
   public void testExceptions() {
     final Set<Greek> greeks = Greek.getAllGreeks();
     for (final Greek g : greeks) {
-      System.out.println(g);
       try {
         g.accept(NO_ACTION);
         fail();

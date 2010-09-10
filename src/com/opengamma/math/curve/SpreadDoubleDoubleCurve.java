@@ -15,21 +15,41 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.function.Function;
 
 /**
- * 
+ * Class defining a spread curve. The spread curve is in the same hierarchy as the other curves, so a spread curve could be defined on
+ * another spread curve.
  */
 public class SpreadDoubleDoubleCurve extends Curve<Double, Double> {
   private final CurveSpreadFunction _spreadFunction;
   private final Function<Double, Double> _f;
   private final Curve<Double, Double>[] _curves;
 
+  /**
+   * Takes an array of curves that are to be operated on by the spread function and the spread function. The name of the spread
+   * curve is automatically-generated
+   * @param curves The curves 
+   * @param spreadFunction The spread function
+   * @return The spread curve
+   */
   public static SpreadDoubleDoubleCurve from(final Curve<Double, Double>[] curves, final CurveSpreadFunction spreadFunction) {
     return new SpreadDoubleDoubleCurve(curves, spreadFunction);
   }
 
+  /**
+   * Takes an array of curves that are to be operated on by the spread function and the spread function.
+   * @param curves The curves 
+   * @param spreadFunction The spread function
+   * @param name The name of the curve
+   * @return The spread curve
+   */
   public static SpreadDoubleDoubleCurve from(final Curve<Double, Double>[] curves, final CurveSpreadFunction spreadFunction, final String name) {
     return new SpreadDoubleDoubleCurve(curves, spreadFunction, name);
   }
 
+  /**
+   * The name of the curve is generated automatically.
+   * @param curves The curves
+   * @param spreadFunction The spread function
+   */
   public SpreadDoubleDoubleCurve(final Curve<Double, Double>[] curves, final CurveSpreadFunction spreadFunction) {
     super();
     Validate.notNull(curves, "curves");
@@ -40,6 +60,12 @@ public class SpreadDoubleDoubleCurve extends Curve<Double, Double> {
     _f = spreadFunction.evaluate(curves);
   }
 
+  /**
+   * 
+   * @param curves The curves
+   * @param spreadFunction The spread function
+   * @param name The name of the curve
+   */
   public SpreadDoubleDoubleCurve(final Curve<Double, Double>[] curves, final CurveSpreadFunction spreadFunction, final String name) {
     super(name);
     Validate.notNull(curves, "curves");
@@ -50,6 +76,11 @@ public class SpreadDoubleDoubleCurve extends Curve<Double, Double> {
     _f = spreadFunction.evaluate(curves);
   }
 
+  /**
+   * Returns a set of the unique names of the curves that were used to construct this curve. If a constituent curve is a spread curve,
+   * then all of its underlyings are included.
+   * @return The set of underlying names
+   */
   public Set<String> getUnderlyingNames() {
     final Set<String> result = new HashSet<String>();
     for (final Curve<Double, Double> curve : _curves) {
@@ -62,6 +93,10 @@ public class SpreadDoubleDoubleCurve extends Curve<Double, Double> {
     return result;
   }
 
+  /**
+   * Returns a string that represents the mathematical form of this curve
+   * @return The long name of this curve
+   */
   public String getLongName() {
     final StringBuffer sb = new StringBuffer(getName());
     sb.append("=");
@@ -82,15 +117,27 @@ public class SpreadDoubleDoubleCurve extends Curve<Double, Double> {
     return sb.toString();
   }
 
+  /**
+   * 
+   * @return The underlying curves
+   */
   public Curve<Double, Double>[] getUnderlyingCurves() {
     return _curves;
   }
 
+  /**
+   * @return Not supported
+   * @throws UnsupportedOperationException
+   */
   @Override
   public Double[] getXData() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @return Not supported
+   * @throws UnsupportedOperationException
+   */
   @Override
   public Double[] getYData() {
     throw new UnsupportedOperationException();
@@ -102,6 +149,10 @@ public class SpreadDoubleDoubleCurve extends Curve<Double, Double> {
     return _f.evaluate(x);
   }
 
+  /**
+   * @return Not supported
+   * @throws UnsupportedOperationException
+   */
   @Override
   public int size() {
     throw new UnsupportedOperationException();
