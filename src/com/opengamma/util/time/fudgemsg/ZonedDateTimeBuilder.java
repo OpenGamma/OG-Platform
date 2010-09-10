@@ -21,7 +21,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
  * Builder to convert ZonedDateTime to and from Fudge.
  */
 @FudgeBuilderFor(ZonedDateTime.class)
-public final class ZonedTimeDateBuilder implements FudgeBuilder<ZonedDateTime> {
+public final class ZonedDateTimeBuilder implements FudgeBuilder<ZonedDateTime> {
 
   @Override
   public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, ZonedDateTime object) {

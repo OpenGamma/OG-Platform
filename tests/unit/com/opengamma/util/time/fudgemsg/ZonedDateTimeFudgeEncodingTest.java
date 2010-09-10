@@ -25,8 +25,8 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
 /**
  * 
  */
-public class ZonedTimeDateFudgeEncodingTest {
-  private static final Logger s_logger = LoggerFactory.getLogger(ZonedTimeDateFudgeEncodingTest.class);
+public class ZonedDateTimeFudgeEncodingTest {
+  private static final Logger s_logger = LoggerFactory.getLogger(ZonedDateTimeFudgeEncodingTest.class);
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
   
   @Test
