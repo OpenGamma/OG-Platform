@@ -34,6 +34,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.DirectFudgeConnection;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * 
@@ -42,10 +43,11 @@ import com.opengamma.transport.DirectFudgeConnection;
  */
 public class RemoteCacheRequestResponseTest {
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteCacheRequestResponseTest.class);
+  private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
   @Test(timeout = 10000l)
   public void singleThreadSpecLookupDifferentIdentifierValues() {
-    InMemoryViewComputationCacheSource cache = new InMemoryViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT);
+    InMemoryViewComputationCacheSource cache = new InMemoryViewComputationCacheSource(s_fudgeContext);
     ViewComputationCacheServer server = new ViewComputationCacheServer(cache);
     DirectFudgeConnection conduit = new DirectFudgeConnection(cache.getFudgeContext());
     RemoteCacheClient client = new RemoteCacheClient(conduit.getEnd1());
@@ -81,7 +83,7 @@ public class RemoteCacheRequestResponseTest {
 
   @Test(timeout = 10000l)
   public void singleThreadLookupDifferentIdentifierValuesRepeated() {
-    InMemoryViewComputationCacheSource cache = new InMemoryViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT);
+    InMemoryViewComputationCacheSource cache = new InMemoryViewComputationCacheSource(s_fudgeContext);
     ViewComputationCacheServer server = new ViewComputationCacheServer(cache);
     DirectFudgeConnection conduit = new DirectFudgeConnection(cache.getFudgeContext());
     conduit.connectEnd2(server);
@@ -108,7 +110,7 @@ public class RemoteCacheRequestResponseTest {
 
   @Test(timeout = 30000l)
   public void multiThreadLookupDifferentIdentifierValuesRepeatedSharedClient() throws InterruptedException {
-    InMemoryViewComputationCacheSource cache = new InMemoryViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT);
+    InMemoryViewComputationCacheSource cache = new InMemoryViewComputationCacheSource(s_fudgeContext);
     ViewComputationCacheServer server = new ViewComputationCacheServer(cache);
     DirectFudgeConnection conduit1 = new DirectFudgeConnection(cache.getFudgeContext());
     conduit1.connectEnd2(server);
@@ -156,7 +158,7 @@ public class RemoteCacheRequestResponseTest {
 
   @Test(timeout = 30000l)
   public void multiThreadLookupDifferentIdentifierValuesRepeatedDifferentClient() throws InterruptedException {
-    InMemoryViewComputationCacheSource cache = new InMemoryViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT);
+    InMemoryViewComputationCacheSource cache = new InMemoryViewComputationCacheSource(s_fudgeContext);
     final ViewComputationCacheServer server = new ViewComputationCacheServer(cache);
 
     final ConcurrentMap<String, Long> _idsByValueName = new ConcurrentHashMap<String, Long>();
@@ -203,7 +205,7 @@ public class RemoteCacheRequestResponseTest {
   // @Test(timeout=10000l)
   @Test
   public void singleThreadPutLoad() throws InterruptedException {
-    InMemoryViewComputationCacheSource cache = new InMemoryViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT);
+    InMemoryViewComputationCacheSource cache = new InMemoryViewComputationCacheSource(s_fudgeContext);
     ViewComputationCacheServer server = new ViewComputationCacheServer(cache);
     DirectFudgeConnection conduit = new DirectFudgeConnection (cache.getFudgeContext ());
     conduit.connectEnd2  (server);
@@ -251,7 +253,7 @@ public class RemoteCacheRequestResponseTest {
 
   @Test(timeout = 10000l)
   public void singleThreadPutLoadPurgeLoad() throws InterruptedException {
-    InMemoryViewComputationCacheSource cache = new InMemoryViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT);
+    InMemoryViewComputationCacheSource cache = new InMemoryViewComputationCacheSource(s_fudgeContext);
     ViewComputationCacheServer server = new ViewComputationCacheServer(cache);
     DirectFudgeConnection conduit = new DirectFudgeConnection (cache.getFudgeContext ());
     conduit.connectEnd2 (server);
