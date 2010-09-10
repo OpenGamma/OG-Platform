@@ -55,10 +55,6 @@ public abstract class AbstractCalculationNode implements CalculationNode {
   private String _nodeId;
   private final ExecutorService _writeBehindExecutorService;
 
-  private long _resolutionTime;
-  private long _cacheGetTime;
-  private long _cachePutTime;
-
   protected AbstractCalculationNode(ViewComputationCacheSource cacheSource, FunctionRepository functionRepository, FunctionExecutionContext functionExecutionContext,
       ComputationTargetResolver targetResolver, ViewProcessorQuerySender calcNodeQuerySender, String nodeId, final ExecutorService writeBehindExecutorService,
       FunctionInvocationStatisticsGatherer functionInvocationStatistics) {
@@ -137,7 +133,6 @@ public abstract class AbstractCalculationNode implements CalculationNode {
 
     final String calculationConfiguration = spec.getCalcConfigName();
     for (CalculationJobItem jobItem : job.getJobItems()) {
-
       CalculationJobResultItem resultItem;
       try {
         invoke(jobItem, cache, calculationConfiguration);
@@ -152,17 +147,9 @@ public abstract class AbstractCalculationNode implements CalculationNode {
         resultItem = new CalculationJobResultItem(jobItem, e);
       }
       resultItems.add(resultItem);
-
-      /*
-       * ((DefaultViewComputationCache) cache.getUnderlying()).reportTimes();
-       * System.err.println("resolution=" + (_resolutionTime / 1000000d) + "ms, cacheGet=" + (_cacheGetTime / 1000000d) + "ms, invoke=" + (_invocationTime / 1000000d) + "ms, cachePut="
-       * + (_cachePutTime / 1000000d) + "ms");
-       */
     }
 
-    _cachePutTime -= System.nanoTime();
     cache.waitForPendingWrites();
-    _cachePutTime += System.nanoTime();
 
     long endNanos = System.nanoTime();
 
@@ -171,23 +158,8 @@ public abstract class AbstractCalculationNode implements CalculationNode {
 
     s_logger.info("Executed {}", job);
 
-    /*
-     * ((DefaultViewComputationCache) cache.getCache()).reportTimes();
-     * final double totalTime = (double) (_resolutionTime + _cacheGetTime + _invocationTime + _cachePutTime) / 100d;
-     * if (totalTime > 0) {
-     * System.err.println("Total = " + durationNanos + "ns - " + ((double) _resolutionTime / totalTime) + "% resolution, " + ((double) _cacheGetTime / totalTime) + "% cacheGet, "
-     * + ((double) _invocationTime / totalTime) + "% invoke, " + ((double) _cachePutTime / totalTime) + "% cachePut");
-     * }
-     */
-    ((DefaultViewComputationCache) cache.getCache()).resetTimes();
-    _resolutionTime = 0;
-    _cacheGetTime = 0;
-    _cachePutTime = 0;
-
     return jobResult;
   }
-
-  // TODO [ENG-57] Get rid of or formalize the timing code to collect useful statistics about function execution
 
   @Override
   public ViewComputationCache getCache(CalculationJobSpecification spec) {
@@ -199,13 +171,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
 
     final String functionUniqueId = jobItem.getFunctionUniqueIdentifier();
 
-    final ComputationTarget target;
-    _resolutionTime -= System.nanoTime();
-    try {
-      target = getTargetResolver().resolve(jobItem.getComputationTargetSpecification());
-    } finally {
-      _resolutionTime += System.nanoTime();
-    }
+    final ComputationTarget target = getTargetResolver().resolve(jobItem.getComputationTargetSpecification());
     if (target == null) {
       throw new OpenGammaRuntimeException("Unable to resolve specification " + jobItem.getComputationTargetSpecification());
     }
@@ -223,18 +189,15 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     // assemble inputs
     final Collection<ComputedValue> inputs = new HashSet<ComputedValue>();
     final Collection<ValueSpecification> missingInputs = new HashSet<ValueSpecification>();
-    _cacheGetTime -= System.nanoTime();
-    try {
-      for (Pair<ValueSpecification, Object> input : cache.getValues(jobItem.getInputs())) {
-        if ((input.getValue() == null) || (input.getValue() instanceof MissingInput)) {
-          missingInputs.add(input.getKey());
-        } else {
-          inputs.add(new ComputedValue(input.getKey(), input.getValue()));
-        }
+    long dataInputTime = System.nanoTime();
+    for (Pair<ValueSpecification, Object> input : cache.getValues(jobItem.getInputs())) {
+      if ((input.getValue() == null) || (input.getValue() instanceof MissingInput)) {
+        missingInputs.add(input.getKey());
+      } else {
+        inputs.add(new ComputedValue(input.getKey(), input.getValue()));
       }
-    } finally {
-      _cacheGetTime += System.nanoTime();
     }
+    dataInputTime = System.nanoTime() - dataInputTime;
 
     if (!missingInputs.isEmpty()) {
       s_logger.info("Not able to execute as missing inputs {}", missingInputs);
@@ -250,12 +213,9 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     }
     invocationTime = System.nanoTime() - invocationTime;
 
-    _cachePutTime -= System.nanoTime();
     cache.putValues(results);
-    _cachePutTime += System.nanoTime();
-
-    // [ENG-57] Store the volume of data fetched against the function
-    // [ENG-57] Store the volume of data written against the function
-    getFunctionInvocationStatistics().functionInvoked(calculationConfiguration, functionUniqueId, 1, invocationTime, 0L, 0L);
+    // [ENG-57] Move the invocation recording to the write behind cache so it sends the data when the target time is known
+    // [ENG-57] The data input time should only be divided by write behind pending cache misses
+    getFunctionInvocationStatistics().functionInvoked(calculationConfiguration, functionUniqueId, 1, invocationTime, (double) dataInputTime / inputs.size(), Double.NaN);
   }
 }

@@ -64,6 +64,9 @@ public class FunctionInvocationStatisticsSender implements FunctionInvocationSta
    * to the "standard" (typically a node running on the view processor). The default initial
    * value is 1.0.
    * 
+   * <p>If a manual value is set (other than {@code 1.0}) and hints from the server are disabled,
+   * convergence should also be disabled to prevent it being shifted towards {@code 1.0}.</p>
+   * 
    * @param invocationTimeScale scaling factor, must be positive and non-zero
    */
   public void setInvocationTimeScale(final double invocationTimeScale) {
@@ -76,6 +79,9 @@ public class FunctionInvocationStatisticsSender implements FunctionInvocationSta
    * "standard" (typically a node running on the view processor). The default initial value is
    * {@code 1.0}.
    * 
+   * <p>If a manual value is set (other than {@code 1.0}) and hints from the server are disabled,
+   * convergence should also be disabled to prevent it being shifted towards {@code 1.0}.</p>
+   * 
    * @param dataInputScale scaling factor, must be positive and non-zero
    */
   public void setDataInputScale(final double dataInputScale) {
@@ -87,6 +93,9 @@ public class FunctionInvocationStatisticsSender implements FunctionInvocationSta
    * Sets the scale for the data output metric. This is the ratio of local node performance to the
    * "standard" (typically a node running on the view processor). The default initial value is
    * {@code 1.0}.
+   * 
+   * <p>If a manual value is set (other than {@code 1.0}) and hints from the server are disabled,
+   * convergence should also be disabled to prevent it being shifted towards {@code 1.0}.</p>
    * 
    * @param dataOutputScale scaling factor, must be positive and non-zero
    */
