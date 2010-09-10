@@ -18,6 +18,8 @@
         
         <dependency org="javax.mail" name="javamail" rev="1.4.3"/>
         <dependency org="com.opengamma" name="worlddata" rev="20100610"/>
+        
+        <exclude org="org.apache.log4j" module="log4j" />
     </dependencies>
 </ivy-module>
 
