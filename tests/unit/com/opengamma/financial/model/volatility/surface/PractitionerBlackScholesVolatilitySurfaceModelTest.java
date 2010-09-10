@@ -57,6 +57,7 @@ public class PractitionerBlackScholesVolatilitySurfaceModelTest {
     MODEL.getSurface(Collections.<OptionDefinition, Double> emptyMap(), null);
   }
 
+  @Test
   public void testFlatSurface() {
     final Map<OptionDefinition, Double> prices = new HashMap<OptionDefinition, Double>();
     final double sigma = 0.3;

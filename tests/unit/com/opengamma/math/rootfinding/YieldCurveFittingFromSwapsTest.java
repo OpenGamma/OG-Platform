@@ -45,6 +45,8 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
     setupExtrapolator();
     setupSingleCurveInstruments();
     setupSingleCurveFinder();
+    //setupDoubleCurveInstruments();
+    //setupDoubleCurveFinder();
   }
 
   @Before
@@ -55,15 +57,14 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
   @Override
   protected void setupSingleCurveInstruments() {
 
-    _curve1Knots = new double[] {0.5, 1.00, 1.5, 2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15, 20.00277778,
-        25.00555556, 30.00555556};
+    _curve1Knots = new double[] {0.5, 1.00, 1.5, 2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15, 20.00277778, 25.00555556, 30.00555556};
     final double[] yields = {0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.052, 0.049, 0.045, 0.044, 0.043, 0.041, 0.04};
 
     final YieldCurveBundle curveBundle = new YieldCurveBundle();
     _curve1 = makeYieldCurve(yields, _curve1Knots, EXTRAPOLATOR);
     curveBundle.setCurve(_curve1Name, _curve1);
 
-    int n = _curve1Knots.length;
+    final int n = _curve1Knots.length;
 
     InterestRateDerivative instrument;
     _swapValues = new double[n];
@@ -100,7 +101,7 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
 
     InterestRateDerivative instrument;
     double swapRate;
-    int n = payments.length;
+    final int n = payments.length;
     for (int i = 0; i < n; i++) {
       instrument = setupSwap(payments[i], _curve1Name, _curve2Name);
       swapRate = PAR_RATE_CALCULATOR.getValue(instrument, curveBundle);
@@ -119,32 +120,32 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
 
   @Test
   public void testNewton() {
-    NewtonVectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS);
+    final NewtonVectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS);
     testRootFindingMethods(rootFinder, "Newton");
   }
 
   @Test
   public void testShermanMorrison() {
-    NewtonVectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS);
+    final NewtonVectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS);
     testRootFindingMethods(rootFinder, "ShermanMorrison");
   }
 
   @Test
   public void testBroyden() {
-    NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
+    final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
     testRootFindingMethods(rootFinder, "Broyden");
   }
 
   @Test
   public void testTickingForwardRates() {
     final NormalDistribution normDist = new NormalDistribution(0, 1.0, RANDOM);
-    double sigma = 0.3;
-    double dt = 1. / 12.;
-    double rootdt = Math.sqrt(dt);
+    final double sigma = 0.3;
+    final double dt = 1. / 12.;
+    final double rootdt = Math.sqrt(dt);
 
-    double tol = 1e-8;
+    final double tol = 1e-8;
     final VectorRootFinder rootFinder = new BroydenVectorRootFinder(tol, tol, STEPS);
-    int n = _curve1Knots.length;
+    final int n = _curve1Knots.length;
     final double[] yields = new double[n];
     final double[] forwards = new double[n];
     DoubleMatrix1D yieldCurveNodes = _startPosition;
@@ -163,7 +164,7 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
       }
 
       final YieldCurveBundle curveBundle = new YieldCurveBundle();
-      YieldAndDiscountCurve curve = makeYieldCurve(yields, _curve1Knots, EXTRAPOLATOR);
+      final YieldAndDiscountCurve curve = makeYieldCurve(yields, _curve1Knots, EXTRAPOLATOR);
       curveBundle.setCurve(_curve1Name, curve);
 
       InterestRateDerivative instrument;
@@ -174,10 +175,8 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
         instrument = setParSwapRate((FixedFloatSwap) instrument, swapRates[i]);
         instruments.add(instrument);
       }
-      final MultipleYieldCurveFinderDataBundle data = getSingleYieldCurveFinderDataBundle(instruments, EXTRAPOLATOR,
-          EXTRAPOLATOR_WITH_SENSITIVITY);
-      final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new MultipleYieldCurveFinderFunction(data,
-          _marketValueCalculator);
+      final MultipleYieldCurveFinderDataBundle data = getSingleYieldCurveFinderDataBundle(instruments, EXTRAPOLATOR, EXTRAPOLATOR_WITH_SENSITIVITY);
+      final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new MultipleYieldCurveFinderFunction(data, _marketValueCalculator);
 
       yieldCurveNodes = rootFinder.getRoot(functor, yieldCurveNodes);
       for (int i = 0; i < n; i++) {
