@@ -56,11 +56,11 @@ public class ConstantDoubleDoubleCurveTest {
   @Test
   public void testStaticConstruction() {
     ConstantDoubleDoubleCurve curve = new ConstantDoubleDoubleCurve(Y1);
-    ConstantDoubleDoubleCurve other = ConstantDoubleDoubleCurve.of(Y1);
+    ConstantDoubleDoubleCurve other = ConstantDoubleDoubleCurve.from(Y1);
     assertArrayEquals(curve.getYData(), other.getYData());
     assertFalse(curve.getName().equals(other.getName()));
     curve = new ConstantDoubleDoubleCurve(Y1, NAME1);
-    other = ConstantDoubleDoubleCurve.of(Y1, NAME1);
+    other = ConstantDoubleDoubleCurve.from(Y1, NAME1);
     assertEquals(curve, other);
   }
 

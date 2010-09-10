@@ -16,11 +16,11 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
  */
 public class ConstantDoubleDoubleCurve extends Curve<Double, Double> {
 
-  public static ConstantDoubleDoubleCurve of(final double y) {
+  public static ConstantDoubleDoubleCurve from(final double y) {
     return new ConstantDoubleDoubleCurve(y);
   }
 
-  public static ConstantDoubleDoubleCurve of(final double y, final String name) {
+  public static ConstantDoubleDoubleCurve from(final double y, final String name) {
     return new ConstantDoubleDoubleCurve(y, name);
   }
 
@@ -51,22 +51,22 @@ public class ConstantDoubleDoubleCurve extends Curve<Double, Double> {
     return _y;
   }
 
-  public InterpolatedDoubleDoubleCurve toInterpolatedDoubleDoubleCurve(double[] x, Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
-    double[] y = new double[x.length];
+  public InterpolatedDoubleDoubleCurve toInterpolatedDoubleDoubleCurve(final double[] x, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+    final double[] y = new double[x.length];
     Arrays.fill(y, _y);
-    return InterpolatedDoubleDoubleCurve.of(x, y, interpolator);
+    return InterpolatedDoubleDoubleCurve.from(x, y, interpolator);
   }
 
-  public InterpolatedDoubleDoubleCurve toInterpolatedDoubleDoubleCurve(double[] x, Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
-    double[] y = new double[x.length];
+  public InterpolatedDoubleDoubleCurve toInterpolatedDoubleDoubleCurve(final double[] x, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
+    final double[] y = new double[x.length];
     Arrays.fill(y, _y);
-    return InterpolatedDoubleDoubleCurve.of(x, y, interpolators);
+    return InterpolatedDoubleDoubleCurve.from(x, y, interpolators);
   }
 
-  public NodalDoubleDoubleCurve toNodalDoubleDoubleCurve(double[] x) {
-    double[] y = new double[x.length];
+  public NodalDoubleDoubleCurve toNodalDoubleDoubleCurve(final double[] x) {
+    final double[] y = new double[x.length];
     Arrays.fill(y, _y);
-    return NodalDoubleDoubleCurve.of(x, y);
+    return NodalDoubleDoubleCurve.from(x, y);
   }
 
   @Override

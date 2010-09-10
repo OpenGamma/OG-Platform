@@ -23,165 +23,165 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class InterpolatedDoubleDoubleCurve extends DoubleDoubleCurve {
 
-  public static InterpolatedDoubleDoubleCurve of(final double[] xData, final double[] yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+  public static InterpolatedDoubleDoubleCurve from(final double[] xData, final double[] yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
     return new InterpolatedDoubleDoubleCurve(xData, yData, interpolator, false);
   }
 
-  public static InterpolatedDoubleDoubleCurve of(final Double[] xData, final Double[] yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+  public static InterpolatedDoubleDoubleCurve from(final Double[] xData, final Double[] yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
     return new InterpolatedDoubleDoubleCurve(xData, yData, interpolator, false);
   }
 
-  public static InterpolatedDoubleDoubleCurve of(final Map<Double, Double> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+  public static InterpolatedDoubleDoubleCurve from(final Map<Double, Double> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
     return new InterpolatedDoubleDoubleCurve(data, interpolator, false);
   }
 
-  public static InterpolatedDoubleDoubleCurve of(final DoublesPair[] data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+  public static InterpolatedDoubleDoubleCurve from(final DoublesPair[] data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
     return new InterpolatedDoubleDoubleCurve(data, interpolator, false);
   }
 
-  public static InterpolatedDoubleDoubleCurve of(final Set<DoublesPair> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+  public static InterpolatedDoubleDoubleCurve from(final Set<DoublesPair> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
     return new InterpolatedDoubleDoubleCurve(data, interpolator, false);
   }
 
-  public static InterpolatedDoubleDoubleCurve of(final double[] xData, final double[] yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+  public static InterpolatedDoubleDoubleCurve from(final double[] xData, final double[] yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
     return new InterpolatedDoubleDoubleCurve(xData, yData, interpolator, false, name);
   }
 
-  public static InterpolatedDoubleDoubleCurve of(final Double[] xData, final Double[] yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+  public static InterpolatedDoubleDoubleCurve from(final Double[] xData, final Double[] yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
     return new InterpolatedDoubleDoubleCurve(xData, yData, interpolator, false, name);
   }
 
-  public static InterpolatedDoubleDoubleCurve of(final Map<Double, Double> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+  public static InterpolatedDoubleDoubleCurve from(final Map<Double, Double> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
     return new InterpolatedDoubleDoubleCurve(data, interpolator, false, name);
   }
 
-  public static InterpolatedDoubleDoubleCurve of(final DoublesPair[] data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+  public static InterpolatedDoubleDoubleCurve from(final DoublesPair[] data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
     return new InterpolatedDoubleDoubleCurve(data, interpolator, false, name);
   }
 
-  public static InterpolatedDoubleDoubleCurve of(final Set<DoublesPair> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+  public static InterpolatedDoubleDoubleCurve from(final Set<DoublesPair> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
     return new InterpolatedDoubleDoubleCurve(data, interpolator, false, name);
   }
 
-  public static InterpolatedDoubleDoubleCurve of(final double[] xData, final double[] yData, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
+  public static InterpolatedDoubleDoubleCurve from(final double[] xData, final double[] yData, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
     return new InterpolatedDoubleDoubleCurve(xData, yData, interpolators, false);
   }
 
-  public static InterpolatedDoubleDoubleCurve of(final Double[] xData, final Double[] yData, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
+  public static InterpolatedDoubleDoubleCurve from(final Double[] xData, final Double[] yData, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
     return new InterpolatedDoubleDoubleCurve(xData, yData, interpolators, false);
   }
 
-  public static InterpolatedDoubleDoubleCurve of(final Map<Double, Double> data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
+  public static InterpolatedDoubleDoubleCurve from(final Map<Double, Double> data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
     return new InterpolatedDoubleDoubleCurve(data, interpolators, false);
   }
 
-  public static InterpolatedDoubleDoubleCurve of(final DoublesPair[] data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
+  public static InterpolatedDoubleDoubleCurve from(final DoublesPair[] data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
     return new InterpolatedDoubleDoubleCurve(data, interpolators, false);
   }
 
-  public static InterpolatedDoubleDoubleCurve of(final Set<DoublesPair> data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
+  public static InterpolatedDoubleDoubleCurve from(final Set<DoublesPair> data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
     return new InterpolatedDoubleDoubleCurve(data, interpolators, false);
   }
 
-  public static InterpolatedDoubleDoubleCurve of(final double[] xData, final double[] yData, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators, final String name) {
+  public static InterpolatedDoubleDoubleCurve from(final double[] xData, final double[] yData, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators, final String name) {
     return new InterpolatedDoubleDoubleCurve(xData, yData, interpolators, false, name);
   }
 
-  public static InterpolatedDoubleDoubleCurve of(final Double[] xData, final Double[] yData, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators, final String name) {
+  public static InterpolatedDoubleDoubleCurve from(final Double[] xData, final Double[] yData, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators, final String name) {
     return new InterpolatedDoubleDoubleCurve(xData, yData, interpolators, false, name);
   }
 
-  public static InterpolatedDoubleDoubleCurve of(final Map<Double, Double> data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators, final String name) {
+  public static InterpolatedDoubleDoubleCurve from(final Map<Double, Double> data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators, final String name) {
     return new InterpolatedDoubleDoubleCurve(data, interpolators, false, name);
   }
 
-  public static InterpolatedDoubleDoubleCurve of(final DoublesPair[] data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators, final String name) {
+  public static InterpolatedDoubleDoubleCurve from(final DoublesPair[] data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators, final String name) {
     return new InterpolatedDoubleDoubleCurve(data, interpolators, false, name);
   }
 
-  public static InterpolatedDoubleDoubleCurve of(final Set<DoublesPair> data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators, final String name) {
+  public static InterpolatedDoubleDoubleCurve from(final Set<DoublesPair> data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators, final String name) {
     return new InterpolatedDoubleDoubleCurve(data, interpolators, false, name);
   }
 
-  public static InterpolatedDoubleDoubleCurve ofSorted(final double[] xData, final double[] yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+  public static InterpolatedDoubleDoubleCurve fromSorted(final double[] xData, final double[] yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
     return new InterpolatedDoubleDoubleCurve(xData, yData, interpolator, true);
   }
 
-  public static InterpolatedDoubleDoubleCurve ofSorted(final Double[] xData, final Double[] yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+  public static InterpolatedDoubleDoubleCurve fromSorted(final Double[] xData, final Double[] yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
     return new InterpolatedDoubleDoubleCurve(xData, yData, interpolator, true);
   }
 
-  public static InterpolatedDoubleDoubleCurve ofSorted(final Map<Double, Double> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+  public static InterpolatedDoubleDoubleCurve fromSorted(final Map<Double, Double> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
     return new InterpolatedDoubleDoubleCurve(data, interpolator, true);
   }
 
-  public static InterpolatedDoubleDoubleCurve ofSorted(final DoublesPair[] data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+  public static InterpolatedDoubleDoubleCurve fromSorted(final DoublesPair[] data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
     return new InterpolatedDoubleDoubleCurve(data, interpolator, true);
   }
 
-  public static InterpolatedDoubleDoubleCurve ofSorted(final Set<DoublesPair> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+  public static InterpolatedDoubleDoubleCurve fromSorted(final Set<DoublesPair> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
     return new InterpolatedDoubleDoubleCurve(data, interpolator, true);
   }
 
-  public static InterpolatedDoubleDoubleCurve ofSorted(final double[] xData, final double[] yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+  public static InterpolatedDoubleDoubleCurve fromSorted(final double[] xData, final double[] yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
     return new InterpolatedDoubleDoubleCurve(xData, yData, interpolator, true, name);
   }
 
-  public static InterpolatedDoubleDoubleCurve ofSorted(final Double[] xData, final Double[] yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+  public static InterpolatedDoubleDoubleCurve fromSorted(final Double[] xData, final Double[] yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
     return new InterpolatedDoubleDoubleCurve(xData, yData, interpolator, true, name);
   }
 
-  public static InterpolatedDoubleDoubleCurve ofSorted(final Map<Double, Double> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+  public static InterpolatedDoubleDoubleCurve fromSorted(final Map<Double, Double> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
     return new InterpolatedDoubleDoubleCurve(data, interpolator, true, name);
   }
 
-  public static InterpolatedDoubleDoubleCurve ofSorted(final DoublesPair[] data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+  public static InterpolatedDoubleDoubleCurve fromSorted(final DoublesPair[] data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
     return new InterpolatedDoubleDoubleCurve(data, interpolator, true, name);
   }
 
-  public static InterpolatedDoubleDoubleCurve ofSorted(final Set<DoublesPair> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+  public static InterpolatedDoubleDoubleCurve fromSorted(final Set<DoublesPair> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
     return new InterpolatedDoubleDoubleCurve(data, interpolator, true, name);
   }
 
-  public static InterpolatedDoubleDoubleCurve ofSorted(final double[] xData, final double[] yData, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
+  public static InterpolatedDoubleDoubleCurve fromSorted(final double[] xData, final double[] yData, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
     return new InterpolatedDoubleDoubleCurve(xData, yData, interpolators, true);
   }
 
-  public static InterpolatedDoubleDoubleCurve ofSorted(final Double[] xData, final Double[] yData, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
+  public static InterpolatedDoubleDoubleCurve fromSorted(final Double[] xData, final Double[] yData, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
     return new InterpolatedDoubleDoubleCurve(xData, yData, interpolators, true);
   }
 
-  public static InterpolatedDoubleDoubleCurve ofSorted(final Map<Double, Double> data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
+  public static InterpolatedDoubleDoubleCurve fromSorted(final Map<Double, Double> data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
     return new InterpolatedDoubleDoubleCurve(data, interpolators, true);
   }
 
-  public static InterpolatedDoubleDoubleCurve ofSorted(final DoublesPair[] data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
+  public static InterpolatedDoubleDoubleCurve fromSorted(final DoublesPair[] data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
     return new InterpolatedDoubleDoubleCurve(data, interpolators, true);
   }
 
-  public static InterpolatedDoubleDoubleCurve ofSorted(final Set<DoublesPair> data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
+  public static InterpolatedDoubleDoubleCurve fromSorted(final Set<DoublesPair> data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
     return new InterpolatedDoubleDoubleCurve(data, interpolators, true);
   }
 
-  public static InterpolatedDoubleDoubleCurve ofSorted(final double[] xData, final double[] yData, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators,
+  public static InterpolatedDoubleDoubleCurve fromSorted(final double[] xData, final double[] yData, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators,
       final String name) {
     return new InterpolatedDoubleDoubleCurve(xData, yData, interpolators, true, name);
   }
 
-  public static InterpolatedDoubleDoubleCurve ofSorted(final Double[] xData, final Double[] yData, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators,
+  public static InterpolatedDoubleDoubleCurve fromSorted(final Double[] xData, final Double[] yData, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators,
       final String name) {
     return new InterpolatedDoubleDoubleCurve(xData, yData, interpolators, true, name);
   }
 
-  public static InterpolatedDoubleDoubleCurve ofSorted(final Map<Double, Double> data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators, final String name) {
+  public static InterpolatedDoubleDoubleCurve fromSorted(final Map<Double, Double> data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators, final String name) {
     return new InterpolatedDoubleDoubleCurve(data, interpolators, true, name);
   }
 
-  public static InterpolatedDoubleDoubleCurve ofSorted(final DoublesPair[] data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators, final String name) {
+  public static InterpolatedDoubleDoubleCurve fromSorted(final DoublesPair[] data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators, final String name) {
     return new InterpolatedDoubleDoubleCurve(data, interpolators, true, name);
   }
 
-  public static InterpolatedDoubleDoubleCurve ofSorted(final Set<DoublesPair> data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators, final String name) {
+  public static InterpolatedDoubleDoubleCurve fromSorted(final Set<DoublesPair> data, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators, final String name) {
     return new InterpolatedDoubleDoubleCurve(data, interpolators, true, name);
   }
 

@@ -18,83 +18,83 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class NodalDoubleDoubleCurve extends DoubleDoubleCurve {
 
-  public static NodalDoubleDoubleCurve of(final double[] xData, final double[] yData) {
+  public static NodalDoubleDoubleCurve from(final double[] xData, final double[] yData) {
     return new NodalDoubleDoubleCurve(xData, yData, false);
   }
 
-  public static NodalDoubleDoubleCurve of(final Double[] xData, final Double[] yData) {
+  public static NodalDoubleDoubleCurve from(final Double[] xData, final Double[] yData) {
     return new NodalDoubleDoubleCurve(xData, yData, false);
   }
 
-  public static NodalDoubleDoubleCurve of(final Map<Double, Double> data) {
+  public static NodalDoubleDoubleCurve from(final Map<Double, Double> data) {
     return new NodalDoubleDoubleCurve(data, false);
   }
 
-  public static NodalDoubleDoubleCurve of(final DoublesPair[] data) {
+  public static NodalDoubleDoubleCurve from(final DoublesPair[] data) {
     return new NodalDoubleDoubleCurve(data, false);
   }
 
-  public static NodalDoubleDoubleCurve of(final Set<DoublesPair> data) {
+  public static NodalDoubleDoubleCurve from(final Set<DoublesPair> data) {
     return new NodalDoubleDoubleCurve(data, false);
   }
 
-  public static NodalDoubleDoubleCurve of(final double[] xData, final double[] yData, final String name) {
+  public static NodalDoubleDoubleCurve from(final double[] xData, final double[] yData, final String name) {
     return new NodalDoubleDoubleCurve(xData, yData, false, name);
   }
 
-  public static NodalDoubleDoubleCurve of(final Double[] xData, final Double[] yData, final String name) {
+  public static NodalDoubleDoubleCurve from(final Double[] xData, final Double[] yData, final String name) {
     return new NodalDoubleDoubleCurve(xData, yData, false, name);
   }
 
-  public static NodalDoubleDoubleCurve of(final Map<Double, Double> data, final String name) {
+  public static NodalDoubleDoubleCurve from(final Map<Double, Double> data, final String name) {
     return new NodalDoubleDoubleCurve(data, false, name);
   }
 
-  public static NodalDoubleDoubleCurve of(final DoublesPair[] data, final String name) {
+  public static NodalDoubleDoubleCurve from(final DoublesPair[] data, final String name) {
     return new NodalDoubleDoubleCurve(data, false, name);
   }
 
-  public static NodalDoubleDoubleCurve of(final Set<DoublesPair> data, final String name) {
+  public static NodalDoubleDoubleCurve from(final Set<DoublesPair> data, final String name) {
     return new NodalDoubleDoubleCurve(data, false, name);
   }
 
-  public static NodalDoubleDoubleCurve ofSorted(final double[] xData, final double[] yData) {
+  public static NodalDoubleDoubleCurve fromSorted(final double[] xData, final double[] yData) {
     return new NodalDoubleDoubleCurve(xData, yData, true);
   }
 
-  public static NodalDoubleDoubleCurve ofSorted(final Double[] xData, final Double[] yData) {
+  public static NodalDoubleDoubleCurve fromSorted(final Double[] xData, final Double[] yData) {
     return new NodalDoubleDoubleCurve(xData, yData, true);
   }
 
-  public static NodalDoubleDoubleCurve ofSorted(final Map<Double, Double> data) {
+  public static NodalDoubleDoubleCurve fromSorted(final Map<Double, Double> data) {
     return new NodalDoubleDoubleCurve(data, true);
   }
 
-  public static NodalDoubleDoubleCurve ofSorted(final DoublesPair[] data) {
+  public static NodalDoubleDoubleCurve fromSorted(final DoublesPair[] data) {
     return new NodalDoubleDoubleCurve(data, true);
   }
 
-  public static NodalDoubleDoubleCurve ofSorted(final Set<DoublesPair> data) {
+  public static NodalDoubleDoubleCurve fromSorted(final Set<DoublesPair> data) {
     return new NodalDoubleDoubleCurve(data, true);
   }
 
-  public static NodalDoubleDoubleCurve ofSorted(final double[] xData, final double[] yData, final String name) {
+  public static NodalDoubleDoubleCurve fromSorted(final double[] xData, final double[] yData, final String name) {
     return new NodalDoubleDoubleCurve(xData, yData, true, name);
   }
 
-  public static NodalDoubleDoubleCurve ofSorted(final Double[] xData, final Double[] yData, final String name) {
+  public static NodalDoubleDoubleCurve fromSorted(final Double[] xData, final Double[] yData, final String name) {
     return new NodalDoubleDoubleCurve(xData, yData, true, name);
   }
 
-  public static NodalDoubleDoubleCurve ofSorted(final Map<Double, Double> data, final String name) {
+  public static NodalDoubleDoubleCurve fromSorted(final Map<Double, Double> data, final String name) {
     return new NodalDoubleDoubleCurve(data, true, name);
   }
 
-  public static NodalDoubleDoubleCurve ofSorted(final DoublesPair[] data, final String name) {
+  public static NodalDoubleDoubleCurve fromSorted(final DoublesPair[] data, final String name) {
     return new NodalDoubleDoubleCurve(data, true, name);
   }
 
-  public static NodalDoubleDoubleCurve ofSorted(final Set<DoublesPair> data, final String name) {
+  public static NodalDoubleDoubleCurve fromSorted(final Set<DoublesPair> data, final String name) {
     return new NodalDoubleDoubleCurve(data, true, name);
   }
 

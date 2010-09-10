@@ -79,11 +79,11 @@ public class FunctionalDoubleDoubleCurveTest {
   @Test
   public void testStaticConstruction() {
     FunctionalDoubleDoubleCurve curve = new FunctionalDoubleDoubleCurve(F);
-    FunctionalDoubleDoubleCurve other = FunctionalDoubleDoubleCurve.of(F);
+    FunctionalDoubleDoubleCurve other = FunctionalDoubleDoubleCurve.from(F);
     assertEquals(curve.getFunction(), other.getFunction());
     assertFalse(curve.getName().equals(other.getName()));
     curve = new FunctionalDoubleDoubleCurve(F, NAME1);
-    other = FunctionalDoubleDoubleCurve.of(F, NAME1);
+    other = FunctionalDoubleDoubleCurve.from(F, NAME1);
     assertEquals(curve, other);
   }
 

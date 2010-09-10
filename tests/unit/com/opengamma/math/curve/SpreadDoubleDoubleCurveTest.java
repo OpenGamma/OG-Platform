@@ -25,8 +25,8 @@ public class SpreadDoubleDoubleCurveTest {
   private static final double[] X = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
   private static final double[] Y1 = new double[] {2, 4, 6, 8, 10, 12, 14, 16, 18};
   private static final double[] Y2 = new double[] {1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1};
-  private static final InterpolatedDoubleDoubleCurve INTERPOLATED1 = InterpolatedDoubleDoubleCurve.of(X, Y1, new LinearInterpolator1D(), "a");
-  private static final InterpolatedDoubleDoubleCurve INTERPOLATED2 = InterpolatedDoubleDoubleCurve.of(X, Y2, new LinearInterpolator1D(), "b");
+  private static final InterpolatedDoubleDoubleCurve INTERPOLATED1 = InterpolatedDoubleDoubleCurve.from(X, Y1, new LinearInterpolator1D(), "a");
+  private static final InterpolatedDoubleDoubleCurve INTERPOLATED2 = InterpolatedDoubleDoubleCurve.from(X, Y2, new LinearInterpolator1D(), "b");
   private static final CurveSpreadFunction ADD = new AddCurveSpreadFunction();
   private static final CurveSpreadFunction SUBTRACT = new SubtractCurveSpreadFunction();
   private static final String NAME1 = "X";

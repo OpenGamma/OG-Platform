@@ -24,12 +24,12 @@ public class CurveSpreadFunctionTest {
   private static final double[] X = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
   private static final double[] Y1 = new double[] {2, 4, 6, 8, 10, 12, 14, 16, 18};
   private static final double[] Y2 = new double[] {1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1};
-  private static final NodalDoubleDoubleCurve NODAL1 = NodalDoubleDoubleCurve.of(X, Y1);
-  private static final NodalDoubleDoubleCurve NODAL2 = NodalDoubleDoubleCurve.of(X, Y2);
-  private static final InterpolatedDoubleDoubleCurve INTERPOLATED1 = InterpolatedDoubleDoubleCurve.of(X, Y1, new LinearInterpolator1D());
-  private static final InterpolatedDoubleDoubleCurve INTERPOLATED2 = InterpolatedDoubleDoubleCurve.of(X, Y2, new LinearInterpolator1D());
-  private static final ConstantDoubleDoubleCurve CONSTANT1 = ConstantDoubleDoubleCurve.of(2);
-  private static final ConstantDoubleDoubleCurve CONSTANT2 = ConstantDoubleDoubleCurve.of(1.1);
+  private static final NodalDoubleDoubleCurve NODAL1 = NodalDoubleDoubleCurve.fromSorted(X, Y1);
+  private static final NodalDoubleDoubleCurve NODAL2 = NodalDoubleDoubleCurve.fromSorted(X, Y2);
+  private static final InterpolatedDoubleDoubleCurve INTERPOLATED1 = InterpolatedDoubleDoubleCurve.fromSorted(X, Y1, new LinearInterpolator1D());
+  private static final InterpolatedDoubleDoubleCurve INTERPOLATED2 = InterpolatedDoubleDoubleCurve.fromSorted(X, Y2, new LinearInterpolator1D());
+  private static final ConstantDoubleDoubleCurve CONSTANT1 = ConstantDoubleDoubleCurve.from(2);
+  private static final ConstantDoubleDoubleCurve CONSTANT2 = ConstantDoubleDoubleCurve.from(1.1);
   private static final Function1D<Double, Double> F1 = new Function1D<Double, Double>() {
 
     @Override
@@ -46,8 +46,8 @@ public class CurveSpreadFunctionTest {
     }
 
   };
-  private static final FunctionalDoubleDoubleCurve FUNCTIONAL1 = FunctionalDoubleDoubleCurve.of(F1);
-  private static final FunctionalDoubleDoubleCurve FUNCTIONAL2 = FunctionalDoubleDoubleCurve.of(F2);
+  private static final FunctionalDoubleDoubleCurve FUNCTIONAL1 = FunctionalDoubleDoubleCurve.from(F1);
+  private static final FunctionalDoubleDoubleCurve FUNCTIONAL2 = FunctionalDoubleDoubleCurve.from(F2);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullCurves1() {

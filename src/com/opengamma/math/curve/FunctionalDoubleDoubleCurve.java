@@ -19,11 +19,11 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
  */
 public class FunctionalDoubleDoubleCurve extends Curve<Double, Double> {
 
-  public static FunctionalDoubleDoubleCurve of(final Function1D<Double, Double> function) {
+  public static FunctionalDoubleDoubleCurve from(final Function1D<Double, Double> function) {
     return new FunctionalDoubleDoubleCurve(function);
   }
 
-  public static FunctionalDoubleDoubleCurve of(final Function1D<Double, Double> function, final String name) {
+  public static FunctionalDoubleDoubleCurve from(final Function1D<Double, Double> function, final String name) {
     return new FunctionalDoubleDoubleCurve(function, name);
   }
 
@@ -70,7 +70,7 @@ public class FunctionalDoubleDoubleCurve extends Curve<Double, Double> {
     for (int i = 0; i < n; i++) {
       y[i] = _function.evaluate(x[i]);
     }
-    return InterpolatedDoubleDoubleCurve.of(x, y, interpolator);
+    return InterpolatedDoubleDoubleCurve.from(x, y, interpolator);
   }
 
   public InterpolatedDoubleDoubleCurve toInterpolatedDoubleDoubleCurve(final double[] x, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
@@ -81,7 +81,7 @@ public class FunctionalDoubleDoubleCurve extends Curve<Double, Double> {
     for (int i = 0; i < n; i++) {
       y[i] = _function.evaluate(x[i]);
     }
-    return InterpolatedDoubleDoubleCurve.of(x, y, interpolators);
+    return InterpolatedDoubleDoubleCurve.from(x, y, interpolators);
   }
 
   public NodalDoubleDoubleCurve toNodalDoubleDoubleCurve(final double[] x) {
@@ -91,7 +91,7 @@ public class FunctionalDoubleDoubleCurve extends Curve<Double, Double> {
     for (int i = 0; i < n; i++) {
       y[i] = _function.evaluate(x[i]);
     }
-    return NodalDoubleDoubleCurve.of(x, y);
+    return NodalDoubleDoubleCurve.from(x, y);
   }
 
   public Function1D<Double, Double> getFunction() {
