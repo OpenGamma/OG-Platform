@@ -11,6 +11,8 @@
         <dependency name="og-util" rev="latest.integration" conf="opengamma->*"/>
         <dependency name="og-engine" rev="latest.integration" conf="opengamma->*"/>
         <dependency name="og-financial" rev="latest.integration" conf="opengamma->*"/>
+        
+        <exclude org="org.apache.log4j" module="log4j" />
     </dependencies>
 </ivy-module>
 
