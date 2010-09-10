@@ -10,9 +10,9 @@ package com.opengamma.engine.view.calcnode.stats;
  * every so-many samples to indicate cost. Old data is decayed to be less relevant.
  */
 public class FunctionInvocationStatistics {
-  
+
   private static final double DATA_DECAY = 0.1;
-  
+
   private static final int SNAPSHOT_SAMPLES = 100;
 
   private final String _functionIdentifier;

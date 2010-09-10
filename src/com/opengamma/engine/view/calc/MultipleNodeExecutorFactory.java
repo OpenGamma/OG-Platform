@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.calc;
 
+import com.opengamma.engine.view.calcnode.stats.FunctionCost;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -14,9 +15,10 @@ public class MultipleNodeExecutorFactory implements DependencyGraphExecutorFacto
 
   private int _minimumJobItems = 1;
   private int _maximumJobItems = Integer.MAX_VALUE;
-  private int _minimumJobCost = 1;
-  private int _maximumJobCost = Integer.MAX_VALUE;
+  private long _minimumJobCost = 1;
+  private long _maximumJobCost = Long.MAX_VALUE;
   private int _maximumConcurrency = Integer.MAX_VALUE;
+  private FunctionCost _functionCost;
 
   public void setMinimumJobItems(final int minimumJobItems) {
     _minimumJobItems = minimumJobItems;
@@ -34,19 +36,19 @@ public class MultipleNodeExecutorFactory implements DependencyGraphExecutorFacto
     return _maximumJobItems;
   }
 
-  public void setMinimumJobCost(final int minimumJobCost) {
+  public void setMinimumJobCost(final long minimumJobCost) {
     _minimumJobCost = minimumJobCost;
   }
 
-  public int getMinimumJobCost() {
+  public long getMinimumJobCost() {
     return _minimumJobCost;
   }
 
-  public void setMaximumJobCost(final int maximumJobCost) {
+  public void setMaximumJobCost(final long maximumJobCost) {
     _maximumJobCost = maximumJobCost;
   }
 
-  public int getMaximumJobCost() {
+  public long getMaximumJobCost() {
     return _maximumJobCost;
   }
 
@@ -58,10 +60,19 @@ public class MultipleNodeExecutorFactory implements DependencyGraphExecutorFacto
     return _maximumConcurrency;
   }
 
+  public void setFunctionCost(final FunctionCost functionCost) {
+    ArgumentChecker.notNull(functionCost, "functionCost");
+    _functionCost = functionCost;
+  }
+
+  public FunctionCost getFunctionCost() {
+    return _functionCost;
+  }
+
   @Override
   public MultipleNodeExecutor createExecutor(final SingleComputationCycle cycle) {
     ArgumentChecker.notNull(cycle, "cycle");
-    return new MultipleNodeExecutor(cycle, getMinimumJobItems(), getMaximumJobItems(), getMinimumJobCost(), getMaximumJobCost(), getMaximumConcurrency());
+    return new MultipleNodeExecutor(cycle, getMinimumJobItems(), getMaximumJobItems(), getMinimumJobCost(), getMaximumJobCost(), getMaximumConcurrency(), getFunctionCost());
   }
 
 }

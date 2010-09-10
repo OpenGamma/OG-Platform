@@ -62,15 +62,15 @@ public class FunctionInvocationStatisticsSenderTest {
     sender.functionInvoked ("A", "3", 300, 300 * 4.0, 300 * 5.0, 300 * 6.0);
     sender.flush ();
     assertEquals (3, messages.get ());
-    assertEquals (2.0, _cost.getFunctionCost("A", "1").getInvocationCost (), 1e-5);
-    assertEquals (3.0, _cost.getFunctionCost("A", "1").getDataInputCost (), 1e-5);
-    assertEquals (4.0, _cost.getFunctionCost("A", "1").getDataOutputCost (), 1e-5);
-    assertEquals (2.0, _cost.getFunctionCost("A", "2").getInvocationCost (), 1e-5);
-    assertEquals (3.0, _cost.getFunctionCost("A", "2").getDataInputCost (), 1e-5);
-    assertEquals (4.0, _cost.getFunctionCost("A", "2").getDataOutputCost (), 1e-5);
-    assertEquals (4.0, _cost.getFunctionCost("A", "3").getInvocationCost (), 1e-5);
-    assertEquals (5.0, _cost.getFunctionCost("A", "3").getDataInputCost (), 1e-5);
-    assertEquals (6.0, _cost.getFunctionCost("A", "3").getDataOutputCost (), 1e-5);
+    assertEquals (2.0, _cost.getStatistics ("A", "1").getInvocationCost (), 1e-5);
+    assertEquals (3.0, _cost.getStatistics ("A", "1").getDataInputCost (), 1e-5);
+    assertEquals (4.0, _cost.getStatistics ("A", "1").getDataOutputCost (), 1e-5);
+    assertEquals (2.0, _cost.getStatistics ("A", "2").getInvocationCost (), 1e-5);
+    assertEquals (3.0, _cost.getStatistics ("A", "2").getDataInputCost (), 1e-5);
+    assertEquals (4.0, _cost.getStatistics ("A", "2").getDataOutputCost (), 1e-5);
+    assertEquals (4.0, _cost.getStatistics ("A", "3").getInvocationCost (), 1e-5);
+    assertEquals (5.0, _cost.getStatistics ("A", "3").getDataInputCost (), 1e-5);
+    assertEquals (6.0, _cost.getStatistics ("A", "3").getDataOutputCost (), 1e-5);
   }
   
 }

@@ -22,6 +22,7 @@ import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
 import com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration;
 import com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration.PerFunction;
 import com.opengamma.transport.FudgeMessageSender;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Sends statistics from the local node to a master.
@@ -32,6 +33,8 @@ public class FunctionInvocationStatisticsSender implements FunctionInvocationSta
   private final AtomicLong _lastSent = new AtomicLong();
   private FudgeMessageSender _messageSender;
   private ExecutorService _executorService;
+  private double _convergenceFactor = 0.8;
+  private double _serverScalingHint = 1.0;
   private volatile double _invocationTimeScale = 1.0;
   private volatile double _dataInputScale = 1.0;
   private volatile double _dataOutputScale = 1.0;
@@ -56,11 +59,73 @@ public class FunctionInvocationStatisticsSender implements FunctionInvocationSta
     return _executorService;
   }
 
+  /**
+   * Sets the scale for the invocation time metric. This is the ratio of local node performance
+   * to the "standard" (typically a node running on the view processor). The default initial
+   * value is 1.0.
+   * 
+   * @param invocationTimeScale scaling factor, must be positive and non-zero
+   */
+  public void setInvocationTimeScale(final double invocationTimeScale) {
+    ArgumentChecker.notNegativeOrZero(invocationTimeScale, "invocationTimeScale");
+    _invocationTimeScale = invocationTimeScale;
+  }
+
+  /**
+   * Sets the scale for the data input metric. This is the ratio of local node performance to the
+   * "standard" (typically a node running on the view processor). The default initial value is
+   * {@code 1.0}.
+   * 
+   * @param dataInputScale scaling factor, must be positive and non-zero
+   */
+  public void setDataInputScale(final double dataInputScale) {
+    ArgumentChecker.notNegativeOrZero(dataInputScale, "dataInputScale");
+    _dataInputScale = dataInputScale;
+  }
+
+  /**
+   * Sets the scale for the data output metric. This is the ratio of local node performance to the
+   * "standard" (typically a node running on the view processor). The default initial value is
+   * {@code 1.0}.
+   * 
+   * @param dataOutputScale scaling factor, must be positive and non-zero
+   */
+  public void setDataOutputScale(final double dataOutputScale) {
+    ArgumentChecker.notNegativeOrZero(dataOutputScale, "dataOutputScale");
+    _dataOutputScale = dataOutputScale;
+  }
+
+  /**
+   * If set to {@code 1.0} has no effect, otherwise forces the scales to attempt to converge towards
+   * {@code 1.0}. This is useful if there are no local nodes to act as reference point - a set of purely
+   * remote (and identical) notes all automatically tuning their parameters will converge on similar
+   * scales but the exact value may drift if there is no fixed reference. The default value is {@code 0.8}.
+   * 
+   * @param convergenceFactor power, must be in the range {@code (0..1]}.
+   */
+  public void setConvergenceFactor(final double convergenceFactor) {
+    ArgumentChecker.isInRangeExcludingLow(0d, 1d, convergenceFactor);
+    _convergenceFactor = convergenceFactor;
+  }
+
+  /**
+   * Set to {@code 1.0} to use the hints from the server, {@code 0.0} to completely ignore the hints
+   * from the server. Values in between will have a partial effect. The default value is {@code 1.0}.
+   * 
+   * @param serverScalingHint power, must be in the range {@code [0,1]}.
+   */
+  public void setServerScalingHint(final double serverScalingHint) {
+    ArgumentChecker.isInRangeInclusive(0d, 1d, serverScalingHint);
+    _serverScalingHint = serverScalingHint;
+  }
+
   public void setScaling(final double invocationTimeScale, final double dataInputScale, final double dataOutputScale) {
     // Doesn't matter that these three aren't updated and used atomically
-    _invocationTimeScale = invocationTimeScale;
-    _dataInputScale = dataInputScale;
-    _dataOutputScale = dataOutputScale;
+    // Note the scale we get sent is relative to the values we previously sent so is used to adjust the scales we previously used.
+    // We also want a reluctance to head away from 1.0 to avoid the creep that otherwise occurs
+    setInvocationTimeScale(Math.pow(_invocationTimeScale * Math.pow(invocationTimeScale, _serverScalingHint), _convergenceFactor));
+    setDataInputScale(Math.pow(_dataInputScale * Math.pow(dataInputScale, _serverScalingHint), _convergenceFactor));
+    setDataOutputScale(Math.pow(_dataOutputScale * Math.pow(dataOutputScale, _serverScalingHint), _convergenceFactor));
   }
 
   public void setUpdatePeriod(final long seconds) {

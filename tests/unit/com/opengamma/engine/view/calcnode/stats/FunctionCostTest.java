@@ -17,7 +17,7 @@ public class FunctionCostTest {
   
   @Test
   public void testBasicBehaviour () {
-    FunctionInvocationStatistics stats = _cost.getFunctionCost("Default", "Foo");
+    FunctionInvocationStatistics stats = _cost.getStatistics("Default", "Foo");
     assertNotNull (stats);
     // Initial values
     assertEquals (1.0, stats.getInvocationCost(), 1e-5);
@@ -46,9 +46,9 @@ public class FunctionCostTest {
   
   @Test
   public void testMaps () {
-    assertSame (_cost.getFunctionCost ("A", "1"), _cost.getFunctionCost ("A", "1"));
-    assertNotSame (_cost.getFunctionCost ("A", "2"), _cost.getFunctionCost ("B", "2"));
-    assertNotSame (_cost.getFunctionCost ("B", "1"), _cost.getFunctionCost ("A", "1"));
+    assertSame (_cost.getStatistics ("A", "1"), _cost.getStatistics ("A", "1"));
+    assertNotSame (_cost.getStatistics ("A", "2"), _cost.getStatistics ("B", "2"));
+    assertNotSame (_cost.getStatistics ("B", "1"), _cost.getStatistics ("A", "1"));
   }
   
 }

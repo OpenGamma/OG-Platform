@@ -35,9 +35,9 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
   private Collection<Long> _requiredJobs;
   private Collection<GraphFragment> _tail;
 
-  private int _startTime;
+  private long _startTime;
   private int _startTimeCache;
-  private int _cycleCost;
+  private long _invocationCost;
 
   public GraphFragment(final GraphFragmentContext context) {
     _context = context;
@@ -47,13 +47,16 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
   public GraphFragment(final GraphFragmentContext context, final DependencyNode node) {
     this(context);
     _nodes.add(node);
-    // TODO [ENG-201] this should be some metric relating to the computational overhead of the function
-    _cycleCost = 1;
+    _invocationCost = (long) getContext().getFunctionStatistics(node.getFunction().getFunction()).getInvocationCost();
   }
 
   public GraphFragment(final GraphFragmentContext context, final Collection<DependencyNode> nodes) {
     this(context);
     _nodes.addAll(nodes);
+    _invocationCost = 0;
+    for (DependencyNode node : nodes) {
+      _invocationCost += (long) getContext().getFunctionStatistics(node.getFunction().getFunction()).getInvocationCost();
+    }
   }
 
   public GraphFragmentContext getContext() {
@@ -91,13 +94,13 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
     return _nodes.size();
   }
 
-  public int getJobCycleCost() {
-    return _cycleCost;
+  public long getJobInvocationCost() {
+    return _invocationCost;
   }
 
-  public int getJobCost() {
+  public long getJobCost() {
     // TODO [ENG-202] this would include data costs from shared cache I/O
-    return _cycleCost;
+    return _invocationCost;
   }
 
   /**
@@ -114,14 +117,14 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
     return _startTimeCache;
   }
 
-  public int getStartTime(final int startTimeCache) {
+  public long getStartTime(final int startTimeCache) {
     if (startTimeCache == _startTimeCache) {
       return _startTime;
     }
     _startTimeCache = startTimeCache;
-    int latest = 0;
+    long latest = 0;
     for (GraphFragment input : getInputs()) {
-      final int finish = input.getStartTime(startTimeCache) + input.getJobCost();
+      final long finish = input.getStartTime(startTimeCache) + input.getJobCost();
       if (finish > latest) {
         latest = finish;
       }
@@ -135,12 +138,14 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
     while (nodeIterator.hasNext()) {
       getNodes().addFirst(nodeIterator.next());
     }
-    _cycleCost += fragment._cycleCost;
+    // TODO [ENG-202] Take care merging the data input / output costs as it's only stuff going to/from shared that matters
+    _invocationCost += fragment._invocationCost;
   }
 
   public void appendFragment(final GraphFragment fragment) {
     getNodes().addAll(fragment.getNodes());
-    _cycleCost += fragment._cycleCost;
+    // TODO [ENG-202] Take care merging the data input / output costs as it's only stuff going to/from shared that matters
+    _invocationCost += fragment._invocationCost;
   }
 
   public void inputCompleted() {
@@ -268,7 +273,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 
   @Override
   public String toString() {
-    return _graphFragmentIdentifier + ": " + _nodes.size() + " dep. node(s), earliestStart=" + _startTime + ", executionCost=" + _cycleCost;
+    return _graphFragmentIdentifier + ": " + _nodes.size() + " dep. node(s), earliestStart=" + _startTime + ", executionCost=" + _invocationCost;
   }
 
   public void resultReceived(final CalculationJobResult result) {

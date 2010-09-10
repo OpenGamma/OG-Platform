@@ -16,11 +16,10 @@ public interface CalculationNodeStatisticsGatherer {
    * 
    * @param nodeId Node the job completed on
    * @param jobItems Number of items in the job
-   * @param jobCycleCost Total computational cost of the items in the job
    * @param executionTime Time reported by the node, in nanoseconds
    * @param duration Time from first scheduling to completion, in nanoseconds
    */
-  void jobCompleted(String nodeId, int jobItems, int jobCycleCost, long executionTime, long duration);
+  void jobCompleted(String nodeId, int jobItems, long executionTime, long duration);
 
   /**
    * Reports a job failure.

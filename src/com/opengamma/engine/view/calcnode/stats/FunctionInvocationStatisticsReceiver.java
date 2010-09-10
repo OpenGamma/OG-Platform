@@ -11,6 +11,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 
 import com.opengamma.engine.view.calcnode.msg.Invocations;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
+import com.opengamma.engine.view.calcnode.msg.Scaling;
 import com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration;
 import com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration.PerFunction;
 import com.opengamma.transport.FudgeMessageReceiver;
@@ -20,21 +21,40 @@ import com.opengamma.transport.FudgeMessageReceiver;
  */
 public class FunctionInvocationStatisticsReceiver implements FudgeMessageReceiver {
 
-  private final FunctionInvocationStatisticsGatherer _underlying;
+  private final FunctionCost _underlying;
 
-  public FunctionInvocationStatisticsReceiver(final FunctionInvocationStatisticsGatherer underlying) {
+  public FunctionInvocationStatisticsReceiver(final FunctionCost underlying) {
     _underlying = underlying;
   }
 
-  public FunctionInvocationStatisticsGatherer getUnderlying() {
+  public FunctionCost getUnderlying() {
     return _underlying;
   }
 
-  public static void messageReceived(final FunctionInvocationStatisticsGatherer underlying, final Invocations invocations) {
+  public static Scaling messageReceived(final FunctionCost underlying, final Invocations invocations) {
+    double remoteInvocationCost = 0;
+    double remoteDataInputCost = 0;
+    double remoteDataOutputCost = 0;
+    double localInvocationCost = 0;
+    double localDataInputCost = 0;
+    double localDataOutputCost = 0;
     for (PerConfiguration configuration : invocations.getConfiguration()) {
+      final FunctionCost.ForConfiguration configurationStats = underlying.getStatistics(configuration.getConfiguration());
       for (PerFunction function : configuration.getFunction()) {
-        underlying.functionInvoked(configuration.getConfiguration(), function.getIdentifier(), function.getCount(), function.getInvocation(), function.getDataInput(), function.getDataOutput());
+        final FunctionInvocationStatistics statistics = configurationStats.getStatistics(function.getIdentifier());
+        localInvocationCost += statistics.getInvocationCost();
+        localDataInputCost += statistics.getDataInputCost();
+        localDataOutputCost += statistics.getDataOutputCost();
+        statistics.recordInvocation(function.getCount(), function.getInvocation(), function.getDataInput(), function.getDataOutput());
+        remoteInvocationCost += function.getInvocation() / function.getCount();
+        remoteDataInputCost += function.getDataInput() / function.getCount();
+        remoteDataOutputCost += function.getDataOutput() / function.getCount();
       }
+    }
+    if (remoteInvocationCost > 0) {
+      return new Scaling(localInvocationCost / remoteInvocationCost, localDataInputCost / remoteDataInputCost, localDataOutputCost / remoteDataOutputCost);
+    } else {
+      return null;
     }
   }
 

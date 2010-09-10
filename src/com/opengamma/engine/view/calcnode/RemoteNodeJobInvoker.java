@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
@@ -22,11 +23,15 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.calcnode.msg.Busy;
-import com.opengamma.engine.view.calcnode.msg.Failure;
 import com.opengamma.engine.view.calcnode.msg.Execute;
-import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
+import com.opengamma.engine.view.calcnode.msg.Failure;
+import com.opengamma.engine.view.calcnode.msg.Invocations;
 import com.opengamma.engine.view.calcnode.msg.Ready;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
 import com.opengamma.engine.view.calcnode.msg.Result;
+import com.opengamma.engine.view.calcnode.msg.Scaling;
+import com.opengamma.engine.view.calcnode.stats.FunctionCost;
+import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsReceiver;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionStateListener;
 import com.opengamma.transport.FudgeMessageReceiver;
@@ -48,13 +53,16 @@ import com.opengamma.util.monitor.OperationTimer;
   private final AtomicInteger _launched = new AtomicInteger();
   private final AtomicReference<JobInvokerRegister> _dispatchCallback = new AtomicReference<JobInvokerRegister>();
   private final IdentifierMap _identifierMap;
+  private final FunctionCost _functionCost;
   private volatile String _invokerId;
 
-  public RemoteNodeJobInvoker(final ExecutorService executorService, final Ready initialMessage, final FudgeConnection fudgeConnection, final IdentifierMap identifierMap) {
+  public RemoteNodeJobInvoker(final ExecutorService executorService, final Ready initialMessage, final FudgeConnection fudgeConnection, final IdentifierMap identifierMap,
+      final FunctionCost functionCost) {
     _executorService = executorService;
     _fudgeMessageSender = fudgeConnection.getFudgeMessageSender();
     _identifierMap = identifierMap;
     _invokerId = fudgeConnection.toString();
+    _functionCost = functionCost;
     fudgeConnection.setFudgeMessageReceiver(this);
     fudgeConnection.setConnectionStateListener(this);
     handleReadyMessage(initialMessage);
@@ -88,6 +96,10 @@ import com.opengamma.util.monitor.OperationTimer;
 
   private IdentifierMap getIdentifierMap() {
     return _identifierMap;
+  }
+
+  private FunctionCost getFunctionCost() {
+    return _functionCost;
   }
 
   @Override
@@ -174,6 +186,8 @@ import com.opengamma.util.monitor.OperationTimer;
       handleReadyMessage((Ready) message);
     } else if (message instanceof Failure) {
       handleFailureMessage((Failure) message);
+    } else if (message instanceof Invocations) {
+      handleInvocationsMessage((Invocations) message);
     } else {
       s_logger.warn("Unexpected message - {}", message);
     }
@@ -241,6 +255,18 @@ import com.opengamma.util.monitor.OperationTimer;
       receiver.jobFailed(this, message.getComputeNodeId(), new OpenGammaRuntimeException(message.getErrorMessage()));
     } else {
       s_logger.warn("Duplicate or failure for cancelled callback {} received", message.getJob());
+    }
+  }
+
+  private void handleInvocationsMessage(final Invocations message) {
+    s_logger.info("Received invocation statistics");
+    final Scaling scaling = FunctionInvocationStatisticsReceiver.messageReceived(getFunctionCost(), message);
+    if (scaling != null) {
+      s_logger.debug("Sending scaling message ", scaling);
+      final MutableFudgeFieldContainer scalingMessage = getFudgeMessageSender().getFudgeContext().newMessage();
+      FudgeSerializationContext.addClassHeader(scalingMessage, scaling.getClass(), RemoteCalcNodeMessage.class);
+      scaling.toFudgeMsg(getFudgeMessageSender().getFudgeContext(), scalingMessage);
+      getFudgeMessageSender().send(scalingMessage);
     }
   }
 

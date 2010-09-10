@@ -9,8 +9,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.Arrays;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,6 +20,7 @@ import com.opengamma.engine.view.calc.stats.DiscardingGraphStatisticsGathererPro
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
+import com.opengamma.engine.view.calcnode.stats.FunctionCost;
 
 /**
  * Tests the graph partitioning logic in MultipleNodeExecutor.
@@ -57,7 +56,7 @@ public class MultipleNodeExecutorTest {
   }
   
   private MultipleNodeExecutor createExecutor(final int minimum, final int maximum, final int concurrency) {
-    return new MultipleNodeExecutor(null, minimum, maximum, minimum, maximum, concurrency) {
+    return new MultipleNodeExecutor(null, minimum, maximum, minimum, maximum, concurrency, new FunctionCost ()) {
 
       @Override
       protected CalculationJobSpecification createJobSpecification(final DependencyGraph graph) {

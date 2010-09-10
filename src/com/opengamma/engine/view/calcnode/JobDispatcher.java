@@ -106,8 +106,7 @@ public class JobDispatcher implements JobInvokerRegister {
       s_logger.debug("Reported time = {}ms, non-executing job time = {}ms", (double) result.getDuration() / 1000000d, ((double) durationNanos - (double) result.getDuration()) / 1000000d);
       if (getStatisticsGatherer() != null) {
         final int size = result.getResultItems().size();
-        // TODO [ENG-201] Report a better cost metric than the number of items; should we push the metric as part of the dispatch?
-        getStatisticsGatherer().jobCompleted(result.getComputeNodeId(), size, size, result.getDuration(), getDurationNanos());
+        getStatisticsGatherer().jobCompleted(result.getComputeNodeId(), size, result.getDuration(), getDurationNanos());
       }
     }
 
