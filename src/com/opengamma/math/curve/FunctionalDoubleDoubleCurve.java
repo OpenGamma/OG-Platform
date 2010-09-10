@@ -15,37 +15,65 @@ import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
- * 
+ * A curve that is defined by a function 
  */
 public class FunctionalDoubleDoubleCurve extends Curve<Double, Double> {
 
+  /**
+   * 
+   * @param function The function that defines the curve
+   * @return A functional curve with an automatically-generated name
+   */
   public static FunctionalDoubleDoubleCurve from(final Function1D<Double, Double> function) {
     return new FunctionalDoubleDoubleCurve(function);
   }
 
+  /**
+   * 
+   * @param function The function that defines the curve
+   * @param name Name of the curve 
+   * @return A functional curve
+   */
   public static FunctionalDoubleDoubleCurve from(final Function1D<Double, Double> function, final String name) {
     return new FunctionalDoubleDoubleCurve(function, name);
   }
 
   private final Function1D<Double, Double> _function;
 
+  /**
+   * 
+   * @param function The function that defines the curve
+   */
   public FunctionalDoubleDoubleCurve(final Function1D<Double, Double> function) {
     super();
     Validate.notNull(function, "function");
     _function = function;
   }
 
+  /**
+   * 
+   * @param function The function that defines the curve
+   * @param name The name of the curve
+   */
   public FunctionalDoubleDoubleCurve(final Function1D<Double, Double> function, final String name) {
     super(name);
     Validate.notNull(function, "function");
     _function = function;
   }
 
+  /**
+   * @return Not supported
+   * @throws UnsupportedOperationException
+   */
   @Override
   public Double[] getXData() {
     throw new UnsupportedOperationException("Cannot get x data - this curve is defined by a function (x -> y)");
   }
 
+  /**
+   * @return Not supported
+   * @throws UnsupportedOperationException
+   */
   @Override
   public Double[] getYData() {
     throw new UnsupportedOperationException("Cannot get y data - this curve is defined by a function (x -> y)");
@@ -57,11 +85,21 @@ public class FunctionalDoubleDoubleCurve extends Curve<Double, Double> {
     return _function.evaluate(x);
   }
 
+  /**
+   * @return Not supported
+   * @throws UnsupportedOperationException
+   */
   @Override
   public int size() {
     throw new UnsupportedOperationException("Cannot get size - this curve is defined by a function (x -> y)");
   }
 
+  /**
+   * 
+   * @param x An array of x values
+   * @param interpolator An interpolator
+   * @return An interpolated curve with values {@latex.inline $(x, F(x))$} 
+   */
   public InterpolatedDoubleDoubleCurve toInterpolatedDoubleDoubleCurve(final double[] x, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
     Validate.notNull(x, "x");
     Validate.notNull(interpolator);
@@ -72,6 +110,13 @@ public class FunctionalDoubleDoubleCurve extends Curve<Double, Double> {
     }
     return InterpolatedDoubleDoubleCurve.from(x, y, interpolator);
   }
+
+  /**
+   * 
+   * @param x An array of x values
+   * @param interpolators A map of (time valid -> interpolator)
+   * @return An interpolated curve with values {@latex.inline $(x, F(x))$} 
+   */
 
   public InterpolatedDoubleDoubleCurve toInterpolatedDoubleDoubleCurve(final double[] x, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
     Validate.notNull(x, "x");
@@ -84,6 +129,11 @@ public class FunctionalDoubleDoubleCurve extends Curve<Double, Double> {
     return InterpolatedDoubleDoubleCurve.from(x, y, interpolators);
   }
 
+  /**
+   * 
+   * @param x An array of x values
+   * @return A nodal curve with values {@latex.inline $(x, F(x))$} 
+   */
   public NodalDoubleDoubleCurve toNodalDoubleDoubleCurve(final double[] x) {
     Validate.notNull(x, "x");
     final int n = x.length;
@@ -94,6 +144,10 @@ public class FunctionalDoubleDoubleCurve extends Curve<Double, Double> {
     return NodalDoubleDoubleCurve.from(x, y);
   }
 
+  /**
+   * 
+   * @return The function
+   */
   public Function1D<Double, Double> getFunction() {
     return _function;
   }
