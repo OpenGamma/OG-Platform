@@ -23,9 +23,10 @@ public class AbstractGreekVisitorTest {
   private static final GreekVisitor<?> DELTA_ONLY = new DeltaOnlyGreekVisitor();
 
   @Test
-  public void test() {
+  public void testExceptions() {
     final Set<Greek> greeks = Greek.getAllGreeks();
     for (final Greek g : greeks) {
+      System.out.println(g);
       try {
         g.accept(NO_ACTION);
         fail();
