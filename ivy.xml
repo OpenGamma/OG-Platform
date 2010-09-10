@@ -13,7 +13,8 @@
       	<dependency name="og-util" rev="latest.integration" conf="opengamma->*"/>
       	
       	<dependency org="org.ehcache" name="ehcache" rev="[1.6.0,2.0["/>
-    	
+        
+        <exclude org="org.apache.log4j" module="log4j" />
     </dependencies>
 </ivy-module>
 
