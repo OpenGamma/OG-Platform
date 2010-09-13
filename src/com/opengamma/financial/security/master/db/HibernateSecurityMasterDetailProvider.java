@@ -23,16 +23,16 @@ import com.google.common.base.Objects;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.Security;
-import com.opengamma.financial.security.db.SecurityBeanOperation;
-import com.opengamma.financial.security.db.OperationContext;
-import com.opengamma.financial.security.db.SecurityBean;
-import com.opengamma.financial.security.db.bond.BondSecurityBeanOperation;
-import com.opengamma.financial.security.db.cash.CashSecurityBeanOperation;
-import com.opengamma.financial.security.db.equity.EquitySecurityBeanOperation;
-import com.opengamma.financial.security.db.fra.FRASecurityBeanOperation;
-import com.opengamma.financial.security.db.future.FutureSecurityBeanOperation;
-import com.opengamma.financial.security.db.option.OptionSecurityBeanOperation;
-import com.opengamma.financial.security.db.swap.SwapSecurityBeanOperation;
+import com.opengamma.financial.security.master.db.hibernate.OperationContext;
+import com.opengamma.financial.security.master.db.hibernate.SecurityBean;
+import com.opengamma.financial.security.master.db.hibernate.SecurityBeanOperation;
+import com.opengamma.financial.security.master.db.hibernate.bond.BondSecurityBeanOperation;
+import com.opengamma.financial.security.master.db.hibernate.cash.CashSecurityBeanOperation;
+import com.opengamma.financial.security.master.db.hibernate.equity.EquitySecurityBeanOperation;
+import com.opengamma.financial.security.master.db.hibernate.fra.FRASecurityBeanOperation;
+import com.opengamma.financial.security.master.db.hibernate.future.FutureSecurityBeanOperation;
+import com.opengamma.financial.security.master.db.hibernate.option.OptionSecurityBeanOperation;
+import com.opengamma.financial.security.master.db.hibernate.swap.SwapSecurityBeanOperation;
 
 /**
  * Provides access to persist the full bean structure of the security.
