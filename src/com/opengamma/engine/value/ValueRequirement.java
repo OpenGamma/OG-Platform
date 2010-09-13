@@ -24,13 +24,12 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * An immutable requirement to obtain a value needed to perform a calculation.
+ * This is a metadata-based requirement, and specifies only the minimal number of parameters
+ * that are necessary to specify the user requirements.
+ * The actual value which is computed is available as a matching {@link ValueSpecification}.
  */
 public final class ValueRequirement implements Serializable {
-
-  /**
-   * Fudge field name.
-   */
-  public static final String VALUE_NAME_FIELD_NAME = "valueName";
+  private static final String VALUE_NAME_FIELD_NAME = "valueName";
 
   /**
    * The value being requested.
