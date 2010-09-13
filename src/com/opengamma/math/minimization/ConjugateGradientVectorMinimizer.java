@@ -34,8 +34,7 @@ public class ConjugateGradientVectorMinimizer implements VectorMinimizerWithGrad
     this(minimizer, tolerance, tolerance, maxInterations);
   }
 
-  public ConjugateGradientVectorMinimizer(final ScalarMinimizer minimizer, double relativeTolerance,
-      double absoluteTolerance, int maxInterations) {
+  public ConjugateGradientVectorMinimizer(final ScalarMinimizer minimizer, double relativeTolerance, double absoluteTolerance, int maxInterations) {
     ArgumentChecker.notNull(minimizer, "minimizer");
     if (relativeTolerance < 0.0 || relativeTolerance > 1.0) {
       throw new IllegalArgumentException("relativeTolerance must be greater than " + 0.0 + " and less than 1.0");
@@ -60,8 +59,7 @@ public class ConjugateGradientVectorMinimizer implements VectorMinimizerWithGrad
   }
 
   @Override
-  public DoubleMatrix1D minimize(final Function1D<DoubleMatrix1D, Double> function,
-      final Function1D<DoubleMatrix1D, DoubleMatrix1D> grad, final DoubleMatrix1D startPosition) {
+  public DoubleMatrix1D minimize(final Function1D<DoubleMatrix1D, Double> function, final Function1D<DoubleMatrix1D, DoubleMatrix1D> grad, final DoubleMatrix1D startPosition) {
 
     final int n = startPosition.getNumberOfElements();
     DoubleMatrix1D x = startPosition;
@@ -86,7 +84,8 @@ public class ConjugateGradientVectorMinimizer implements VectorMinimizerWithGrad
       deltaOld = deltaNew;
       deltaNew = OG_ALGEBRA.getInnerProduct(g, g);
 
-      if (Math.sqrt(deltaNew) < _relTol * delta0 + _absTol //in practice may never get exactly zero gradient (especially if using finite difference to find it), so if shouldn't be the critical stopping criteria 
+      if (Math.sqrt(deltaNew) < _relTol * delta0 + _absTol
+      //in practice may never get exactly zero gradient (especially if using finite difference to find it), so it shouldn't be the critical stopping criterion 
           && OG_ALGEBRA.getNorm2(deltaX) < _relTol * OG_ALGEBRA.getNorm2(x) + _absTol) {
 
         boolean flag = true;
@@ -114,8 +113,7 @@ public class ConjugateGradientVectorMinimizer implements VectorMinimizerWithGrad
       }
     }
 
-    String s = "ConjugateGradient Failed to converge after " + _maxInterations + " interations, with a tolerance of "
-        + _relTol + " Final position reached was " + x.toString();
+    String s = "ConjugateGradient Failed to converge after " + _maxInterations + " interations, with a tolerance of " + _relTol + " Final position reached was " + x.toString();
 
     throw new ConvergenceException(s);
   }

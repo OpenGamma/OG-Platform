@@ -39,17 +39,10 @@ public class DeltaCovarianceMatrixStandardDeviationCalculatorTest {
     F.evaluate((ParametricWithMeanVaRDataBundle) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testEmptyValueDeltaVector() {
-    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<Integer, DoubleMatrix1D>singletonMap(1, VECTOR), Collections
-        .<Integer, Matrix<?>>singletonMap(1, EMPTY_VECTOR), Collections.<Integer, DoubleMatrix2D>singletonMap(1, MATRIX));
-    F.evaluate(data);
-  }
-
   @Test
   public void testEqualsAndHashCode() {
-    Function1D<ParametricVaRDataBundle, Double> f1 = new DeltaCovarianceMatrixStandardDeviationCalculator(ALGEBRA);
-    Function1D<ParametricVaRDataBundle, Double> f2 = new DeltaCovarianceMatrixStandardDeviationCalculator(new ColtMatrixAlgebra());
+    final Function1D<ParametricVaRDataBundle, Double> f1 = new DeltaCovarianceMatrixStandardDeviationCalculator(ALGEBRA);
+    final Function1D<ParametricVaRDataBundle, Double> f2 = new DeltaCovarianceMatrixStandardDeviationCalculator(new ColtMatrixAlgebra());
     assertEquals(f1, F);
     assertEquals(f1.hashCode(), F.hashCode());
     assertFalse(f1.equals(f2));
@@ -57,8 +50,8 @@ public class DeltaCovarianceMatrixStandardDeviationCalculatorTest {
 
   @Test
   public void test() {
-    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<Integer, DoubleMatrix1D>singletonMap(1, VECTOR), Collections
-        .<Integer, Matrix<?>>singletonMap(1, VECTOR), Collections.<Integer, DoubleMatrix2D>singletonMap(1, MATRIX));
+    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<Integer, DoubleMatrix1D> singletonMap(1, VECTOR), Collections.<Integer, Matrix<?>> singletonMap(1,
+        VECTOR), Collections.<Integer, DoubleMatrix2D> singletonMap(1, MATRIX));
     assertEquals(F.evaluate(data), Math.sqrt(45), 1e-9);
   }
 }

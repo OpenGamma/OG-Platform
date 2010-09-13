@@ -8,7 +8,7 @@ package com.opengamma.math.matrix;
 import org.apache.commons.lang.NotImplementedException;
 
 /**
- * An absolutely minimal implementation of matrix algebra - only various multiplications covered. For more advanced stuff (e.g. {@link getInverse}) use {@link ColtMatrixAlgebra} or
+ * An absolutely minimal implementation of matrix algebra - only various multiplications covered. For more advanced stuff (e.g. calculating the inverse) use {@link ColtMatrixAlgebra} or
  * {@link CommonsMatrixAlgebra}
  */
 public class OGMatrixAlgebra extends MatrixAlgebra {

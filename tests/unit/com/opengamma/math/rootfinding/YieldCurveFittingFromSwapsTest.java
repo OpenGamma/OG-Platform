@@ -52,8 +52,9 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
 
   public YieldCurveFittingFromSwapsTest() {
     _logger = LoggerFactory.getLogger(YieldCurveBootStrapTest.class);
-    _hotspotWarmupCycles = 200;
-    _benchmarkCycles = 1000;
+
+    _hotspotWarmupCycles = 0;
+    _benchmarkCycles = 1;
 
   }
 
@@ -123,6 +124,7 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
 
   @Test
   public void testNewton() {
+
     NewtonVectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS);
     YieldCurveFittingTestDataBundle data = getSingleCurveSetup();
     doHotSpot(rootFinder, data, "Single curve, swaps only. Root finder: Newton");
@@ -131,10 +133,12 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
 
     data = getDoubleCurveSetup();
     doHotSpot(rootFinder, data, "Double curve, swaps only. Root finder: Newton");
+
   }
 
   @Test
   public void testShermanMorrison() {
+
     NewtonVectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS);
     YieldCurveFittingTestDataBundle data = getSingleCurveSetup();
     doHotSpot(rootFinder, data, "Single curve, swaps only. Root finder: ShermanMorrison");
@@ -143,10 +147,12 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
 
     data = getDoubleCurveSetup();
     doHotSpot(rootFinder, data, "Double curve, swaps only. Root finder: ShermanMorrison");
+
   }
 
   @Test
   public void testBroyden() {
+
     NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
     YieldCurveFittingTestDataBundle data = getSingleCurveSetup();
     doHotSpot(rootFinder, data, "Single curve, swaps only. Root finder: Broyden");
@@ -166,16 +172,18 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
   public void testTickingForwardRates() {
     YieldCurveFittingTestDataBundle data = getSingleCurveSetup();
     final NormalDistribution normDist = new NormalDistribution(0, 1.0, RANDOM);
-    double sigma = 0.3;
-    double dt = 1. / 12.;
-    double rootdt = Math.sqrt(dt);
+    final double sigma = 0.3;
+    final double dt = 1. / 12.;
+    final double rootdt = Math.sqrt(dt);
 
-    double tol = 1e-8;
+    final double tol = 1e-8;
     final VectorRootFinder rootFinder = new BroydenVectorRootFinder(tol, tol, STEPS);
+
     String curveName = data.getCurveNames().get(0);
     double[] curveKnots = data.getCurveNodePointsForCurve(curveName);
 
     int n = curveKnots.length;
+
     final double[] yields = new double[n];
     final double[] forwards = new double[n];
     DoubleMatrix1D yieldCurveNodes = data.getStartPosition();
@@ -196,6 +204,7 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
       }
 
       final YieldCurveBundle curveBundle = new YieldCurveBundle();
+
       YieldAndDiscountCurve curve = makeYieldCurve(yields, curveKnots, data.getInterpolatorForCurve(curveName));
       curveBundle.setCurve(curveName, curve);
 

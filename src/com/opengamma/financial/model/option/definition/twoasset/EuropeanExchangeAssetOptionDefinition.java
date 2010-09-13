@@ -15,7 +15,16 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
+ * Defines a European-style exchange-one-asset-for-another option. The holder can exchange an amount {@latex.inline $Q_1$} of the first underlying for an amount {@latex.inline $Q_2$}
+ * of the second underlying.
+ * <p>
+ * The payoff of this option is  
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{eqnarray*}
+ * max\\left(Q_1S_1 - Q_2S_2, 0\\right)
+ * \\end{eqnarray*}}
+ * where {@latex.inline $Q_1$} is the quantity of the first asset, {@latex.inline $S_1$} is the spot price of the first underlying, {@latex.inline $Q_2$} is the quantity of the second asset 
+ * and {@latex.inline $S_2$} is the spot price of the second underlying.
  */
 public class EuropeanExchangeAssetOptionDefinition extends OptionDefinition {
   private final OptionExerciseFunction<StandardTwoAssetOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardTwoAssetOptionDataBundle>();
@@ -34,6 +43,12 @@ public class EuropeanExchangeAssetOptionDefinition extends OptionDefinition {
   private final double _firstQuantity;
   private final double _secondQuantity;
 
+  /**
+   * 
+   * @param expiry The expiry
+   * @param firstQuantity The quantity of the first asset
+   * @param secondQuantity The quantity of the second asset
+   */
   public EuropeanExchangeAssetOptionDefinition(Expiry expiry, double firstQuantity, double secondQuantity) {
     super(null, expiry, null);
     ArgumentChecker.notNegativeOrZero(firstQuantity, "quantity 1");
@@ -42,20 +57,35 @@ public class EuropeanExchangeAssetOptionDefinition extends OptionDefinition {
     _secondQuantity = secondQuantity;
   }
 
+  /**
+   * 
+   * @return The quantity of the first asset
+   */
   public double getFirstQuantity() {
     return _firstQuantity;
   }
 
+  /**
+   * 
+   * @return The quantity of the second asset
+   */
   public double getSecondQuantity() {
     return _secondQuantity;
   }
 
+  /**
+   * The exercise function of this option is European (see {@link EuropeanExerciseFunction})
+   * @return The exercise function
+   */
   @SuppressWarnings("unchecked")
   @Override
   public OptionExerciseFunction<StandardTwoAssetOptionDataBundle> getExerciseFunction() {
     return _exerciseFunction;
   }
 
+  /**
+   * @return The payoff function
+   */
   @SuppressWarnings("unchecked")
   @Override
   public OptionPayoffFunction<StandardTwoAssetOptionDataBundle> getPayoffFunction() {

@@ -20,51 +20,51 @@ import com.opengamma.util.tuple.Pair;
  */
 public class NodalObjectObjectCurve<T extends Comparable<T>, U> extends ObjectObjectCurve<T, U> {
 
-  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> of(final T[] xData, final U[] yData) {
+  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> from(final T[] xData, final U[] yData) {
     return new NodalObjectObjectCurve<T, U>(xData, yData, false);
   }
 
-  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> of(final Map<T, U> data) {
+  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> from(final Map<T, U> data) {
     return new NodalObjectObjectCurve<T, U>(data, false);
   }
 
-  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> of(final Set<Pair<T, U>> data) {
+  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> from(final Set<Pair<T, U>> data) {
     return new NodalObjectObjectCurve<T, U>(data, false);
   }
 
-  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> of(final T[] xData, final U[] yData, final String name) {
+  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> from(final T[] xData, final U[] yData, final String name) {
     return new NodalObjectObjectCurve<T, U>(xData, yData, false, name);
   }
 
-  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> of(final Map<T, U> data, final String name) {
+  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> from(final Map<T, U> data, final String name) {
     return new NodalObjectObjectCurve<T, U>(data, false, name);
   }
 
-  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> of(final Set<Pair<T, U>> data, final String name) {
+  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> from(final Set<Pair<T, U>> data, final String name) {
     return new NodalObjectObjectCurve<T, U>(data, false, name);
   }
 
-  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> ofSorted(final T[] xData, final U[] yData) {
+  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> fromSorted(final T[] xData, final U[] yData) {
     return new NodalObjectObjectCurve<T, U>(xData, yData, true);
   }
 
-  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> ofSorted(final Map<T, U> data) {
+  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> fromSorted(final Map<T, U> data) {
     return new NodalObjectObjectCurve<T, U>(data, true);
   }
 
-  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> ofSorted(final Set<Pair<T, U>> data) {
+  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> fromSorted(final Set<Pair<T, U>> data) {
     return new NodalObjectObjectCurve<T, U>(data, true);
   }
 
-  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> ofSorted(final T[] xData, final U[] yData, final String name) {
+  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> fromSorted(final T[] xData, final U[] yData, final String name) {
     return new NodalObjectObjectCurve<T, U>(xData, yData, true, name);
   }
 
-  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> ofSorted(final Map<T, U> data, final String name) {
+  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> fromSorted(final Map<T, U> data, final String name) {
     return new NodalObjectObjectCurve<T, U>(data, true, name);
   }
 
-  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> ofSorted(final Set<Pair<T, U>> data, final String name) {
+  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> fromSorted(final Set<Pair<T, U>> data, final String name) {
     return new NodalObjectObjectCurve<T, U>(data, true, name);
   }
 

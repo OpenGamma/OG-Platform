@@ -51,6 +51,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * 
  */
 public abstract class YieldCurveFittingSetup {
+  //CSOFF
   protected static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
 
   protected static final double EPS = 1e-8;
@@ -111,11 +112,14 @@ public abstract class YieldCurveFittingSetup {
   public void doHotSpot(final NewtonVectorRootFinder rootFinder, YieldCurveFittingTestDataBundle data, final String name) {
     for (int i = 0; i < _hotspotWarmupCycles; i++) {
       doTestForCurveFinding(rootFinder, data);
+
     }
     if (_benchmarkCycles > 0) {
       final OperationTimer timer = new OperationTimer(_logger, "processing {} cycles on " + name, _benchmarkCycles);
       for (int i = 0; i < _benchmarkCycles; i++) {
+
         doTestForCurveFinding(rootFinder, data);
+
       }
       timer.finished();
     }
@@ -134,6 +138,7 @@ public abstract class YieldCurveFittingSetup {
       jac = fdJacCalculator.derivative(func);
     } else {
       throw new IllegalArgumentException("unknown TestType " + data.getTestType());
+
     }
 
     final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(func, jac, data.getStartPosition());
@@ -172,6 +177,7 @@ public abstract class YieldCurveFittingSetup {
         }
       }
     }
+
   }
 
   private HashMap<String, double[]> unpackYieldVector(YieldCurveFittingTestDataBundle data,
@@ -199,6 +205,7 @@ public abstract class YieldCurveFittingSetup {
     final DoubleMatrix2D jacExact = jac.evaluate(data.getStartPosition());
     final DoubleMatrix2D jacFD = jacobianFD.evaluate(data.getStartPosition());
     assertMatrixEquals(jacExact, jacFD, 1e-6);
+
   }
 
   protected static YieldAndDiscountCurve makeYieldCurve(final double[] yields, final double[] times,
@@ -244,6 +251,7 @@ public abstract class YieldCurveFittingSetup {
     InterestRateDerivative ird = new Libor(time, 0.0, indexCurveName);
     double rate = ParRateCalculator.getInstance().getValue(ird, curves);
     return new Libor(time, rate, indexCurveName);
+
   }
 
   protected static InterestRateDerivative makeFRA(final double time, final String fundCurveName,
@@ -283,6 +291,7 @@ public abstract class YieldCurveFittingSetup {
    */
   protected static FixedFloatSwap makeSwap(final int payments, final String fundingCurveName,
       final String liborCurveName, final YieldCurveBundle curves) {
+
     final double[] fixed = new double[payments];
     final double[] floating = new double[2 * payments];
     final double[] indexFixing = new double[2 * payments];
@@ -304,6 +313,7 @@ public abstract class YieldCurveFittingSetup {
       indexMaturity[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
     }
     final ConstantCouponAnnuity fixedLeg = new ConstantCouponAnnuity(fixed, 0.0, fundingCurveName);
+
     final VariableAnnuity floatingLeg = new VariableAnnuity(floating, indexFixing, indexMaturity, yearFrac, 1.0,
         fundingCurveName, liborCurveName);
     InterestRateDerivative ird = new FixedFloatSwap(fixedLeg, floatingLeg);
@@ -311,6 +321,7 @@ public abstract class YieldCurveFittingSetup {
     ConstantCouponAnnuity newLeg = new ConstantCouponAnnuity(fixedLeg.getPaymentTimes(), fixedLeg.getNotional(), rate,
         fixedLeg.getYearFractions(), fixedLeg.getFundingCurveName());
     return new FixedFloatSwap(newLeg, floatingLeg);
+
   }
 
   protected void assertMatrixEquals(final DoubleMatrix2D m1, final DoubleMatrix2D m2, final double eps) {

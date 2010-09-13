@@ -52,7 +52,7 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
    * @throws IllegalArgumentException
    *           If {@latex.inline $\\sigma < 0$}
    * @throws IllegalArgumentException
-   *           If {@latex.inline $\\ksi = 0$}
+   *           If {@latex.inline $\\xi = 0$}
    */
   public GeneralizedParetoDistribution(final double mu, final double sigma, final double ksi) {
     ArgumentChecker.notNegative(sigma, "sigma");

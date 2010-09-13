@@ -42,30 +42,15 @@ public class DeltaMeanCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyValueDeltaVector() {
-    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<Integer, DoubleMatrix1D>singletonMap(1, EMPTY_VECTOR), Collections
-        .<Integer, Matrix<?>>singletonMap(1, EMPTY_VECTOR), Collections.<Integer, DoubleMatrix2D>singletonMap(1, EMPTY_MATRIX));
-    F.evaluate(data);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testEmptyMeanVector() {
-    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<Integer, DoubleMatrix1D>singletonMap(1, EMPTY_VECTOR), Collections
-        .<Integer, Matrix<?>>singletonMap(1, VECTOR), Collections.<Integer, DoubleMatrix2D>singletonMap(1, MATRIX));
-    F.evaluate(data);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testDifferentVectorSizes() {
-    final DoubleMatrix1D v = new DoubleMatrix1D(new double[] {3., 4.});
-    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<Integer, DoubleMatrix1D>singletonMap(1, v), Collections
-        .<Integer, Matrix<?>>singletonMap(1, VECTOR), Collections.<Integer, DoubleMatrix2D>singletonMap(1, MATRIX));
+    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<Integer, DoubleMatrix1D> singletonMap(1, EMPTY_VECTOR), Collections
+        .<Integer, Matrix<?>> singletonMap(1, EMPTY_VECTOR), Collections.<Integer, DoubleMatrix2D> singletonMap(1, EMPTY_MATRIX));
     F.evaluate(data);
   }
 
   @Test
   public void testEqualsAndHashCode() {
-    Function1D<ParametricWithMeanVaRDataBundle, Double> f1 = new DeltaMeanCalculator(ALGEBRA);
-    Function1D<ParametricWithMeanVaRDataBundle, Double> f2 = new DeltaMeanCalculator(new ColtMatrixAlgebra());
+    final Function1D<ParametricWithMeanVaRDataBundle, Double> f1 = new DeltaMeanCalculator(ALGEBRA);
+    final Function1D<ParametricWithMeanVaRDataBundle, Double> f2 = new DeltaMeanCalculator(new ColtMatrixAlgebra());
     assertEquals(f1, F);
     assertEquals(f1.hashCode(), F.hashCode());
     assertFalse(f1.equals(f2));
@@ -73,8 +58,8 @@ public class DeltaMeanCalculatorTest {
 
   @Test
   public void test() {
-    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<Integer, DoubleMatrix1D>singletonMap(1, VECTOR), Collections
-        .<Integer, Matrix<?>>singletonMap(1, VECTOR), Collections.<Integer, DoubleMatrix2D>singletonMap(1, MATRIX));
+    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<Integer, DoubleMatrix1D> singletonMap(1, VECTOR), Collections.<Integer, Matrix<?>> singletonMap(1,
+        VECTOR), Collections.<Integer, DoubleMatrix2D> singletonMap(1, MATRIX));
     assertEquals(F.evaluate(data), 9, 1e-9);
   }
 }

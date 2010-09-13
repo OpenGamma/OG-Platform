@@ -134,150 +134,150 @@ public class InterpolatedDoubleDoubleCurveTest extends DoubleDoubleCurveTestCase
   @Test
   public void testStaticConstruction() {
     InterpolatedDoubleDoubleCurve curve = new InterpolatedDoubleDoubleCurve(X_PRIMITIVE, Y_PRIMITIVE, LINEAR, false, NAME1);
-    InterpolatedDoubleDoubleCurve other = InterpolatedDoubleDoubleCurve.of(X_PRIMITIVE, Y_PRIMITIVE, LINEAR, NAME1);
+    InterpolatedDoubleDoubleCurve other = InterpolatedDoubleDoubleCurve.from(X_PRIMITIVE, Y_PRIMITIVE, LINEAR, NAME1);
     assertEquals(curve, other);
     curve = new InterpolatedDoubleDoubleCurve(X_OBJECT, Y_OBJECT, LINEAR, false, NAME1);
-    other = InterpolatedDoubleDoubleCurve.of(X_OBJECT, Y_OBJECT, LINEAR, NAME1);
+    other = InterpolatedDoubleDoubleCurve.from(X_OBJECT, Y_OBJECT, LINEAR, NAME1);
     assertEquals(curve, other);
     curve = new InterpolatedDoubleDoubleCurve(MAP, LINEAR, false, NAME1);
-    other = InterpolatedDoubleDoubleCurve.of(MAP, LINEAR, NAME1);
+    other = InterpolatedDoubleDoubleCurve.from(MAP, LINEAR, NAME1);
     assertEquals(curve, other);
     curve = new InterpolatedDoubleDoubleCurve(PAIR_ARRAY, LINEAR, false, NAME1);
-    other = InterpolatedDoubleDoubleCurve.of(PAIR_ARRAY, LINEAR, NAME1);
+    other = InterpolatedDoubleDoubleCurve.from(PAIR_ARRAY, LINEAR, NAME1);
     assertEquals(curve, other);
     curve = new InterpolatedDoubleDoubleCurve(PAIR_SET, LINEAR, false, NAME1);
-    other = InterpolatedDoubleDoubleCurve.of(PAIR_SET, LINEAR, NAME1);
+    other = InterpolatedDoubleDoubleCurve.from(PAIR_SET, LINEAR, NAME1);
     assertEquals(curve, other);
     curve = new InterpolatedDoubleDoubleCurve(X_PRIMITIVE, Y_PRIMITIVE, INTERPOLATORS, false, NAME1);
-    other = InterpolatedDoubleDoubleCurve.of(X_PRIMITIVE, Y_PRIMITIVE, INTERPOLATORS, NAME1);
+    other = InterpolatedDoubleDoubleCurve.from(X_PRIMITIVE, Y_PRIMITIVE, INTERPOLATORS, NAME1);
     assertEquals(curve, other);
     curve = new InterpolatedDoubleDoubleCurve(X_OBJECT, Y_OBJECT, INTERPOLATORS, false, NAME1);
-    other = InterpolatedDoubleDoubleCurve.of(X_OBJECT, Y_OBJECT, INTERPOLATORS, NAME1);
+    other = InterpolatedDoubleDoubleCurve.from(X_OBJECT, Y_OBJECT, INTERPOLATORS, NAME1);
     assertEquals(curve, other);
     curve = new InterpolatedDoubleDoubleCurve(MAP, INTERPOLATORS, false, NAME1);
-    other = InterpolatedDoubleDoubleCurve.of(MAP, INTERPOLATORS, NAME1);
+    other = InterpolatedDoubleDoubleCurve.from(MAP, INTERPOLATORS, NAME1);
     assertEquals(curve, other);
     curve = new InterpolatedDoubleDoubleCurve(PAIR_ARRAY, INTERPOLATORS, false, NAME1);
-    other = InterpolatedDoubleDoubleCurve.of(PAIR_ARRAY, INTERPOLATORS, NAME1);
+    other = InterpolatedDoubleDoubleCurve.from(PAIR_ARRAY, INTERPOLATORS, NAME1);
     assertEquals(curve, other);
     curve = new InterpolatedDoubleDoubleCurve(PAIR_SET, INTERPOLATORS, false, NAME1);
-    other = InterpolatedDoubleDoubleCurve.of(PAIR_SET, INTERPOLATORS, NAME1);
+    other = InterpolatedDoubleDoubleCurve.from(PAIR_SET, INTERPOLATORS, NAME1);
     assertEquals(curve, other);
     curve = new InterpolatedDoubleDoubleCurve(X_PRIMITIVE_SORTED, Y_PRIMITIVE_SORTED, LINEAR, true, NAME1);
-    other = InterpolatedDoubleDoubleCurve.ofSorted(X_PRIMITIVE_SORTED, Y_PRIMITIVE_SORTED, LINEAR, NAME1);
+    other = InterpolatedDoubleDoubleCurve.fromSorted(X_PRIMITIVE_SORTED, Y_PRIMITIVE_SORTED, LINEAR, NAME1);
     assertEquals(curve, other);
     curve = new InterpolatedDoubleDoubleCurve(X_OBJECT_SORTED, Y_OBJECT_SORTED, LINEAR, true, NAME1);
-    other = InterpolatedDoubleDoubleCurve.ofSorted(X_OBJECT_SORTED, Y_OBJECT_SORTED, LINEAR, NAME1);
+    other = InterpolatedDoubleDoubleCurve.fromSorted(X_OBJECT_SORTED, Y_OBJECT_SORTED, LINEAR, NAME1);
     assertEquals(curve, other);
     curve = new InterpolatedDoubleDoubleCurve(MAP_SORTED, LINEAR, true, NAME1);
-    other = InterpolatedDoubleDoubleCurve.ofSorted(MAP_SORTED, LINEAR, NAME1);
+    other = InterpolatedDoubleDoubleCurve.fromSorted(MAP_SORTED, LINEAR, NAME1);
     assertEquals(curve, other);
     curve = new InterpolatedDoubleDoubleCurve(PAIR_ARRAY_SORTED, LINEAR, true, NAME1);
-    other = InterpolatedDoubleDoubleCurve.ofSorted(PAIR_ARRAY_SORTED, LINEAR, NAME1);
+    other = InterpolatedDoubleDoubleCurve.fromSorted(PAIR_ARRAY_SORTED, LINEAR, NAME1);
     assertEquals(curve, other);
     curve = new InterpolatedDoubleDoubleCurve(PAIR_SET_SORTED, LINEAR, true, NAME1);
-    other = InterpolatedDoubleDoubleCurve.ofSorted(PAIR_SET_SORTED, LINEAR, NAME1);
+    other = InterpolatedDoubleDoubleCurve.fromSorted(PAIR_SET_SORTED, LINEAR, NAME1);
     assertEquals(curve, other);
     curve = new InterpolatedDoubleDoubleCurve(X_PRIMITIVE_SORTED, Y_PRIMITIVE_SORTED, INTERPOLATORS, true, NAME1);
-    other = InterpolatedDoubleDoubleCurve.ofSorted(X_PRIMITIVE_SORTED, Y_PRIMITIVE_SORTED, INTERPOLATORS, NAME1);
+    other = InterpolatedDoubleDoubleCurve.fromSorted(X_PRIMITIVE_SORTED, Y_PRIMITIVE_SORTED, INTERPOLATORS, NAME1);
     assertEquals(curve, other);
     curve = new InterpolatedDoubleDoubleCurve(X_OBJECT_SORTED, Y_OBJECT_SORTED, INTERPOLATORS, true, NAME1);
-    other = InterpolatedDoubleDoubleCurve.ofSorted(X_OBJECT_SORTED, Y_OBJECT_SORTED, INTERPOLATORS, NAME1);
+    other = InterpolatedDoubleDoubleCurve.fromSorted(X_OBJECT_SORTED, Y_OBJECT_SORTED, INTERPOLATORS, NAME1);
     assertEquals(curve, other);
     curve = new InterpolatedDoubleDoubleCurve(MAP_SORTED, INTERPOLATORS, true, NAME1);
-    other = InterpolatedDoubleDoubleCurve.ofSorted(MAP_SORTED, INTERPOLATORS, NAME1);
+    other = InterpolatedDoubleDoubleCurve.fromSorted(MAP_SORTED, INTERPOLATORS, NAME1);
     assertEquals(curve, other);
     curve = new InterpolatedDoubleDoubleCurve(PAIR_ARRAY_SORTED, INTERPOLATORS, true, NAME1);
-    other = InterpolatedDoubleDoubleCurve.ofSorted(PAIR_ARRAY_SORTED, INTERPOLATORS, NAME1);
+    other = InterpolatedDoubleDoubleCurve.fromSorted(PAIR_ARRAY_SORTED, INTERPOLATORS, NAME1);
     assertEquals(curve, other);
     curve = new InterpolatedDoubleDoubleCurve(PAIR_SET_SORTED, INTERPOLATORS, true, NAME1);
-    other = InterpolatedDoubleDoubleCurve.ofSorted(PAIR_SET_SORTED, INTERPOLATORS, NAME1);
+    other = InterpolatedDoubleDoubleCurve.fromSorted(PAIR_SET_SORTED, INTERPOLATORS, NAME1);
     assertEquals(curve, other);
     curve = new InterpolatedDoubleDoubleCurve(X_PRIMITIVE, Y_PRIMITIVE, LINEAR, false);
-    other = InterpolatedDoubleDoubleCurve.of(X_PRIMITIVE, Y_PRIMITIVE, LINEAR);
+    other = InterpolatedDoubleDoubleCurve.from(X_PRIMITIVE, Y_PRIMITIVE, LINEAR);
     assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
     assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
     curve = new InterpolatedDoubleDoubleCurve(X_OBJECT, Y_OBJECT, LINEAR, false);
-    other = InterpolatedDoubleDoubleCurve.of(X_OBJECT, Y_OBJECT, LINEAR);
+    other = InterpolatedDoubleDoubleCurve.from(X_OBJECT, Y_OBJECT, LINEAR);
     assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
     assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
     curve = new InterpolatedDoubleDoubleCurve(MAP, LINEAR, false);
-    other = InterpolatedDoubleDoubleCurve.of(MAP, LINEAR);
+    other = InterpolatedDoubleDoubleCurve.from(MAP, LINEAR);
     assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
     assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
     curve = new InterpolatedDoubleDoubleCurve(PAIR_ARRAY, LINEAR, false);
-    other = InterpolatedDoubleDoubleCurve.of(PAIR_ARRAY, LINEAR);
+    other = InterpolatedDoubleDoubleCurve.from(PAIR_ARRAY, LINEAR);
     assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
     assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
     curve = new InterpolatedDoubleDoubleCurve(PAIR_SET, LINEAR, false);
-    other = InterpolatedDoubleDoubleCurve.of(PAIR_SET, LINEAR);
+    other = InterpolatedDoubleDoubleCurve.from(PAIR_SET, LINEAR);
     assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
     assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
     curve = new InterpolatedDoubleDoubleCurve(X_PRIMITIVE, Y_PRIMITIVE, INTERPOLATORS, false);
-    other = InterpolatedDoubleDoubleCurve.of(X_PRIMITIVE, Y_PRIMITIVE, INTERPOLATORS);
+    other = InterpolatedDoubleDoubleCurve.from(X_PRIMITIVE, Y_PRIMITIVE, INTERPOLATORS);
     assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
     assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
     curve = new InterpolatedDoubleDoubleCurve(X_OBJECT, Y_OBJECT, INTERPOLATORS, false);
-    other = InterpolatedDoubleDoubleCurve.of(X_OBJECT, Y_OBJECT, INTERPOLATORS);
+    other = InterpolatedDoubleDoubleCurve.from(X_OBJECT, Y_OBJECT, INTERPOLATORS);
     assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
     assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
     curve = new InterpolatedDoubleDoubleCurve(MAP, INTERPOLATORS, false);
-    other = InterpolatedDoubleDoubleCurve.of(MAP, INTERPOLATORS);
+    other = InterpolatedDoubleDoubleCurve.from(MAP, INTERPOLATORS);
     assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
     assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
     curve = new InterpolatedDoubleDoubleCurve(PAIR_ARRAY, INTERPOLATORS, false);
-    other = InterpolatedDoubleDoubleCurve.of(PAIR_ARRAY, INTERPOLATORS);
+    other = InterpolatedDoubleDoubleCurve.from(PAIR_ARRAY, INTERPOLATORS);
     assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
     assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
     curve = new InterpolatedDoubleDoubleCurve(PAIR_SET, INTERPOLATORS, false);
-    other = InterpolatedDoubleDoubleCurve.of(PAIR_SET, INTERPOLATORS);
+    other = InterpolatedDoubleDoubleCurve.from(PAIR_SET, INTERPOLATORS);
     assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
     assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
     curve = new InterpolatedDoubleDoubleCurve(X_PRIMITIVE_SORTED, Y_PRIMITIVE_SORTED, LINEAR, true);
-    other = InterpolatedDoubleDoubleCurve.ofSorted(X_PRIMITIVE_SORTED, Y_PRIMITIVE_SORTED, LINEAR);
+    other = InterpolatedDoubleDoubleCurve.fromSorted(X_PRIMITIVE_SORTED, Y_PRIMITIVE_SORTED, LINEAR);
     assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
     assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
     curve = new InterpolatedDoubleDoubleCurve(X_OBJECT_SORTED, Y_OBJECT_SORTED, LINEAR, true);
-    other = InterpolatedDoubleDoubleCurve.ofSorted(X_OBJECT_SORTED, Y_OBJECT_SORTED, LINEAR);
+    other = InterpolatedDoubleDoubleCurve.fromSorted(X_OBJECT_SORTED, Y_OBJECT_SORTED, LINEAR);
     assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
     assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
     curve = new InterpolatedDoubleDoubleCurve(MAP_SORTED, LINEAR, true);
-    other = InterpolatedDoubleDoubleCurve.ofSorted(MAP_SORTED, LINEAR);
+    other = InterpolatedDoubleDoubleCurve.fromSorted(MAP_SORTED, LINEAR);
     assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
     assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
     curve = new InterpolatedDoubleDoubleCurve(PAIR_ARRAY_SORTED, LINEAR, true);
-    other = InterpolatedDoubleDoubleCurve.ofSorted(PAIR_ARRAY_SORTED, LINEAR);
+    other = InterpolatedDoubleDoubleCurve.fromSorted(PAIR_ARRAY_SORTED, LINEAR);
     assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
     assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
     curve = new InterpolatedDoubleDoubleCurve(PAIR_SET_SORTED, LINEAR, true);
-    other = InterpolatedDoubleDoubleCurve.ofSorted(PAIR_SET_SORTED, LINEAR);
+    other = InterpolatedDoubleDoubleCurve.fromSorted(PAIR_SET_SORTED, LINEAR);
     assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
     assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
     curve = new InterpolatedDoubleDoubleCurve(X_PRIMITIVE_SORTED, Y_PRIMITIVE_SORTED, INTERPOLATORS, true);
-    other = InterpolatedDoubleDoubleCurve.ofSorted(X_PRIMITIVE_SORTED, Y_PRIMITIVE_SORTED, INTERPOLATORS);
+    other = InterpolatedDoubleDoubleCurve.fromSorted(X_PRIMITIVE_SORTED, Y_PRIMITIVE_SORTED, INTERPOLATORS);
     assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
     assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
     curve = new InterpolatedDoubleDoubleCurve(X_OBJECT_SORTED, Y_OBJECT_SORTED, INTERPOLATORS, true);
-    other = InterpolatedDoubleDoubleCurve.ofSorted(X_OBJECT_SORTED, Y_OBJECT_SORTED, INTERPOLATORS);
+    other = InterpolatedDoubleDoubleCurve.fromSorted(X_OBJECT_SORTED, Y_OBJECT_SORTED, INTERPOLATORS);
     assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
     assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
     curve = new InterpolatedDoubleDoubleCurve(MAP_SORTED, INTERPOLATORS, true);
-    other = InterpolatedDoubleDoubleCurve.ofSorted(MAP_SORTED, INTERPOLATORS);
+    other = InterpolatedDoubleDoubleCurve.fromSorted(MAP_SORTED, INTERPOLATORS);
     assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
     assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
     curve = new InterpolatedDoubleDoubleCurve(PAIR_ARRAY_SORTED, INTERPOLATORS, true);
-    other = InterpolatedDoubleDoubleCurve.ofSorted(PAIR_ARRAY_SORTED, INTERPOLATORS);
+    other = InterpolatedDoubleDoubleCurve.fromSorted(PAIR_ARRAY_SORTED, INTERPOLATORS);
     assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
     assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
     curve = new InterpolatedDoubleDoubleCurve(PAIR_SET_SORTED, INTERPOLATORS, true);
-    other = InterpolatedDoubleDoubleCurve.ofSorted(PAIR_SET_SORTED, INTERPOLATORS);
+    other = InterpolatedDoubleDoubleCurve.fromSorted(PAIR_SET_SORTED, INTERPOLATORS);
     assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
     assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
   }
 
   @Test
   public void testGetters() {
-    final InterpolatedDoubleDoubleCurve curve = InterpolatedDoubleDoubleCurve.of(PAIR_SET, EXPONENTIAL, NAME1);
+    final InterpolatedDoubleDoubleCurve curve = InterpolatedDoubleDoubleCurve.from(PAIR_SET, EXPONENTIAL, NAME1);
     assertEquals(curve.getName(), NAME1);
     assertArrayEquals(curve.getXData(), X_OBJECT_SORTED);
     assertArrayEquals(curve.getXDataAsPrimitive(), X_PRIMITIVE_SORTED, 0);
@@ -288,24 +288,24 @@ public class InterpolatedDoubleDoubleCurveTest extends DoubleDoubleCurveTestCase
 
   @Test(expected = IllegalArgumentException.class)
   public void testNonExtrapolatingInterpolator1() {
-    final InterpolatedDoubleDoubleCurve curve = InterpolatedDoubleDoubleCurve.of(MAP, LINEAR, NAME1);
+    final InterpolatedDoubleDoubleCurve curve = InterpolatedDoubleDoubleCurve.from(MAP, LINEAR, NAME1);
     curve.getYValue(-20.);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNonExtrapolatingInterpolator2() {
-    final InterpolatedDoubleDoubleCurve curve = InterpolatedDoubleDoubleCurve.of(MAP, LINEAR, NAME1);
+    final InterpolatedDoubleDoubleCurve curve = InterpolatedDoubleDoubleCurve.from(MAP, LINEAR, NAME1);
     curve.getYValue(120.);
   }
 
   @Test
   public void testGetYValueSingleInterpolator() {
-    InterpolatedDoubleDoubleCurve curve = InterpolatedDoubleDoubleCurve.of(MAP, LINEAR, NAME1);
+    InterpolatedDoubleDoubleCurve curve = InterpolatedDoubleDoubleCurve.from(MAP, LINEAR, NAME1);
     assertEquals(curve.getYValue(2.), 6, 0);
     for (double i = 0; i < 9; i += 0.2) {
       assertEquals(curve.getYValue(i), 3 * i, EPS);
     }
-    curve = InterpolatedDoubleDoubleCurve.of(MAP, INTERPOLATOR, NAME1);
+    curve = InterpolatedDoubleDoubleCurve.from(MAP, INTERPOLATOR, NAME1);
     assertEquals(curve.getYValue(2.), 6, 0);
     for (double i = 0; i < 9; i += 0.2) {
       assertEquals(curve.getYValue(i), 3 * i, EPS);
@@ -314,7 +314,7 @@ public class InterpolatedDoubleDoubleCurveTest extends DoubleDoubleCurveTestCase
 
   @Test
   public void testGetYValueManyInterpolators() {
-    final InterpolatedDoubleDoubleCurve curve = InterpolatedDoubleDoubleCurve.of(MAP, INTERPOLATORS, NAME1);
+    final InterpolatedDoubleDoubleCurve curve = InterpolatedDoubleDoubleCurve.from(MAP, INTERPOLATORS, NAME1);
     for (double i = 0; i < 6; i += 1) {
       assertEquals(curve.getYValue(i), 3 * i, EPS);
     }

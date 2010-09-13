@@ -15,13 +15,12 @@ import org.junit.Test;
 public class OGMatrixAlgebraTest {
 
   private static final MatrixAlgebra ALGEBRA = MatrixAlgebraFactory.getMatrixAlgebra("OG");
-  private static final DoubleMatrix2D A = new DoubleMatrix2D(new double[][] { { 1., 2., 3. }, { -1., 1., 0. },
-      { -2., 1., -2. } });
-  private static final DoubleMatrix2D B = new DoubleMatrix2D(new double[][] { { 1, 1 }, { 2, -2 }, { 3, 1 } });
-  private static final DoubleMatrix2D C = new DoubleMatrix2D(new double[][] { { 14, 0 }, { 1, -3 }, { -6, -6 } });
-  private static final DoubleMatrix1D D = new DoubleMatrix1D(new double[] { 1, 1, 1 });
-  private static final DoubleMatrix1D E = new DoubleMatrix1D(new double[] { -1, 2, 3 });
-  private static final DoubleMatrix1D F = new DoubleMatrix1D(new double[] { 2, -2, 1 });
+  private static final DoubleMatrix2D A = new DoubleMatrix2D(new double[][] { {1., 2., 3.}, {-1., 1., 0.}, {-2., 1., -2.}});
+  private static final DoubleMatrix2D B = new DoubleMatrix2D(new double[][] { {1, 1}, {2, -2}, {3, 1}});
+  private static final DoubleMatrix2D C = new DoubleMatrix2D(new double[][] { {14, 0}, {1, -3}, {-6, -6}});
+  private static final DoubleMatrix1D D = new DoubleMatrix1D(new double[] {1, 1, 1});
+  private static final DoubleMatrix1D E = new DoubleMatrix1D(new double[] {-1, 2, 3});
+  private static final DoubleMatrix1D F = new DoubleMatrix1D(new double[] {2, -2, 1});
 
   @Test(expected = IllegalArgumentException.class)
   public void testMatrixSizeMismatch() {
@@ -36,8 +35,9 @@ public class OGMatrixAlgebraTest {
     assertEquals(Math.sqrt(14.0), res, 1e-15);
   }
 
+  @Test
   public void testOuterProduct() {
-    DoubleMatrix2D res = ALGEBRA.getOuterProduct(E, F);
+    final DoubleMatrix2D res = ALGEBRA.getOuterProduct(E, F);
     final int rows = res.getNumberOfRows();
     final int cols = res.getNumberOfColumns();
     int i, j;
@@ -51,7 +51,7 @@ public class OGMatrixAlgebraTest {
 
   @Test
   public void testMultiply() {
-    DoubleMatrix2D c = (DoubleMatrix2D) ALGEBRA.multiply(A, B);
+    final DoubleMatrix2D c = (DoubleMatrix2D) ALGEBRA.multiply(A, B);
     final int rows = c.getNumberOfRows();
     final int cols = c.getNumberOfColumns();
     int i, j;

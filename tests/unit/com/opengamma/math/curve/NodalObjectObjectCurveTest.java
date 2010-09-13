@@ -112,28 +112,46 @@ public class NodalObjectObjectCurveTest {
   @Test
   public void testStaticConstruction() {
     NodalObjectObjectCurve<Float, Double> curve = new NodalObjectObjectCurve<Float, Double>(X_OBJECT, Y_OBJECT, false, NAME1);
-    NodalObjectObjectCurve<Float, Double> other = NodalObjectObjectCurve.of(X_OBJECT, Y_OBJECT, NAME1);
+    NodalObjectObjectCurve<Float, Double> other = NodalObjectObjectCurve.from(X_OBJECT, Y_OBJECT, NAME1);
     assertEquals(curve, other);
     curve = new NodalObjectObjectCurve<Float, Double>(X_OBJECT_SORTED, Y_OBJECT_SORTED, true, NAME1);
-    other = NodalObjectObjectCurve.ofSorted(X_OBJECT_SORTED, Y_OBJECT_SORTED, NAME1);
+    other = NodalObjectObjectCurve.fromSorted(X_OBJECT_SORTED, Y_OBJECT_SORTED, NAME1);
     assertEquals(curve, other);
     curve = new NodalObjectObjectCurve<Float, Double>(MAP, false, NAME1);
-    other = NodalObjectObjectCurve.of(MAP, NAME1);
+    other = NodalObjectObjectCurve.from(MAP, NAME1);
     assertEquals(curve, other);
     curve = new NodalObjectObjectCurve<Float, Double>(MAP_SORTED, true, NAME1);
-    other = NodalObjectObjectCurve.ofSorted(MAP_SORTED, NAME1);
+    other = NodalObjectObjectCurve.fromSorted(MAP_SORTED, NAME1);
     assertEquals(curve, other);
     curve = new NodalObjectObjectCurve<Float, Double>(PAIR_SET, false, NAME1);
-    other = NodalObjectObjectCurve.of(PAIR_SET, NAME1);
+    other = NodalObjectObjectCurve.from(PAIR_SET, NAME1);
     assertEquals(curve, other);
     curve = new NodalObjectObjectCurve<Float, Double>(PAIR_SET_SORTED, true, NAME1);
-    other = NodalObjectObjectCurve.ofSorted(PAIR_SET_SORTED, NAME1);
+    other = NodalObjectObjectCurve.fromSorted(PAIR_SET_SORTED, NAME1);
     assertEquals(curve, other);
+    curve = new NodalObjectObjectCurve<Float, Double>(X_OBJECT, Y_OBJECT, false);
+    other = NodalObjectObjectCurve.from(X_OBJECT, Y_OBJECT);
+    assertFalse(curve.equals(other));
+    curve = new NodalObjectObjectCurve<Float, Double>(X_OBJECT_SORTED, Y_OBJECT_SORTED, true);
+    other = NodalObjectObjectCurve.fromSorted(X_OBJECT_SORTED, Y_OBJECT_SORTED);
+    assertFalse(curve.equals(other));
+    curve = new NodalObjectObjectCurve<Float, Double>(MAP, false);
+    other = NodalObjectObjectCurve.from(MAP);
+    assertFalse(curve.equals(other));
+    curve = new NodalObjectObjectCurve<Float, Double>(MAP_SORTED, true);
+    other = NodalObjectObjectCurve.fromSorted(MAP_SORTED);
+    assertFalse(curve.equals(other));
+    curve = new NodalObjectObjectCurve<Float, Double>(PAIR_SET, false);
+    other = NodalObjectObjectCurve.from(PAIR_SET);
+    assertFalse(curve.equals(other));
+    curve = new NodalObjectObjectCurve<Float, Double>(PAIR_SET_SORTED, true);
+    other = NodalObjectObjectCurve.fromSorted(PAIR_SET_SORTED);
+    assertFalse(curve.equals(other));
   }
 
   @Test
   public void testGetters() {
-    final NodalObjectObjectCurve<Float, Double> curve = NodalObjectObjectCurve.of(PAIR_SET, NAME1);
+    final NodalObjectObjectCurve<Float, Double> curve = NodalObjectObjectCurve.from(PAIR_SET, NAME1);
     assertEquals(curve.getName(), NAME1);
     assertArrayEquals(curve.getXData(), X_OBJECT_SORTED);
     assertArrayEquals(curve.getYData(), Y_OBJECT_SORTED);
@@ -141,12 +159,12 @@ public class NodalObjectObjectCurveTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNonNodalPoint() {
-    NodalObjectObjectCurve.of(MAP).getYValue(3.1f);
+    NodalObjectObjectCurve.from(MAP).getYValue(3.1f);
   }
 
   @Test
   public void testGetYValue() {
-    final NodalObjectObjectCurve<Float, Double> curve = NodalObjectObjectCurve.of(MAP_SORTED, NAME1);
+    final NodalObjectObjectCurve<Float, Double> curve = NodalObjectObjectCurve.from(MAP_SORTED, NAME1);
     for (int i = 0; i < 10; i++) {
       assertEquals(curve.getYValue(X_OBJECT[i]), Y_OBJECT[i], 0);
     }

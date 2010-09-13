@@ -8,6 +8,7 @@ package com.opengamma.financial.covariance;
 import java.util.Iterator;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,27 +17,62 @@ import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
- * 
+ * Calculates the historical volatility of a time series with a given return calculation method.
+ * <p>
+ * The historical volatility of a time series with close price data {@latex.inline $x_i$} is given by:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}} 
+ * \\begin{eqnarray*}
+ * \\sigma = \\sqrt{\\frac{1}{n(n-1)}\\sum\\limits_{i=1}^n (r_i - \\overline{r})^2}
+ * \\end{eqnarray*}}
+ * where {@latex.inline $r_i$} is the {@latex.inline %preamble{\\usepackage{amsmath}} $i^\\text{th}$} period return of the time series and {@latex.inline $n$} is the number of data points
+ * in the return series.
  */
 public class HistoricalVolatilityCloseCalculator extends HistoricalVolatilityCalculator {
   private static final Logger s_logger = LoggerFactory.getLogger(HistoricalVolatilityCloseCalculator.class);
   private final TimeSeriesReturnCalculator _returnCalculator;
 
+  /**
+   * Creates a historical volatility calculator with the given return calculation method and default values for the calculation mode and allowable percentage of bad data points
+   * @param returnCalculator The return calculator
+   * @throws IllegalArgumentException If the return calculator is null
+   */
   public HistoricalVolatilityCloseCalculator(final TimeSeriesReturnCalculator returnCalculator) {
     super();
+    Validate.notNull(returnCalculator, "return calculator");
     _returnCalculator = returnCalculator;
   }
 
+  /**
+   * Creates a historical volatility calculator with the given return calculation method and calculation mode and the default value for the allowable percentage of bad data points
+   * @param returnCalculator The return calculator
+   * @param mode The calculation mode
+   * @throws IllegalArgumentException If the return calculator is null
+   */
   public HistoricalVolatilityCloseCalculator(final TimeSeriesReturnCalculator returnCalculator, final CalculationMode mode) {
     super(mode);
+    Validate.notNull(returnCalculator, "return calculator");
     _returnCalculator = returnCalculator;
   }
 
+  /**
+   * Creates a historical volatility calculator with the given return calculation method, calculation mode and allowable percentage of bad data points
+   * @param returnCalculator The return calculator
+   * @param mode The calculation mode
+   * @param percentBadDataPoints The maximum allowable percentage of bad data points
+   * @throws IllegalArgumentException If the return calculator is null
+   */
   public HistoricalVolatilityCloseCalculator(final TimeSeriesReturnCalculator returnCalculator, final CalculationMode mode, final double percentBadDataPoints) {
     super(mode, percentBadDataPoints);
+    Validate.notNull(returnCalculator, "return calculator");
     _returnCalculator = returnCalculator;
   }
 
+  /**
+   * If more than one price time series is provided, the first element of the array is used. 
+   * @param x The array of price time series
+   * @return The historical close volatility
+   * @throws IllegalArgumentException If the array is null or empty; if the first element of the array is null; if the price series does not contain at least two data points 
+   */
   @Override
   public Double evaluate(final DoubleTimeSeries<?>... x) {
     testInput(x);
