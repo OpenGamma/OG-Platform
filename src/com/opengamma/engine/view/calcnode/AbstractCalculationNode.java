@@ -175,10 +175,13 @@ public abstract class AbstractCalculationNode implements CalculationNode {
       if ((input.getValue() == null) || (input.getValue() instanceof MissingInput)) {
         missingInputs.add(input.getKey());
       } else {
-        inputs.add(new ComputedValue(input.getKey(), input.getValue()));
-        // [ENG-220] Record the byte -size of this value
-        inputBytes += 1;
-        inputSamples++;
+        final ComputedValue value = new ComputedValue(input.getKey(), input.getValue());
+        inputs.add(value);
+        final Integer bytes = cache.estimateValueSize(value);
+        if (bytes != null) {
+          inputBytes += bytes;
+          inputSamples++;
+        }
       }
     }
     statistics.setDataInputBytes(inputBytes, inputSamples);

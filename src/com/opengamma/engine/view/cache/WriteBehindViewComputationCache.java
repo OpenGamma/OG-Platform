@@ -58,11 +58,12 @@ public class WriteBehindViewComputationCache extends FilteredViewComputationCach
 
     private void valueWritten(final ComputedValue value) {
       getPending().remove(value.getSpecification());
-      DeferredInvocationStatistics statistics = _pendingStatistics.peek();
-      int bytes = 1;
-      // [ENG-221] lookup fudge encoded bytes for the value
-      if (statistics.addDataOutputBytes(bytes)) {
-        _pendingStatistics.poll();
+      final DeferredInvocationStatistics statistics = _pendingStatistics.peek();
+      if (statistics != null) {
+        final Integer bytes = estimateValueSize(value);
+        if (statistics.addDataOutputBytes(bytes)) {
+          _pendingStatistics.poll();
+        }
       }
     }
 

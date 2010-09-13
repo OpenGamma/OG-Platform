@@ -39,7 +39,7 @@ public class StandardViewComputationCacheTest {
     assertNull (_viewComputationCache.getValue(valueSpec));
   }
   
-  private void testPutGetCycle (final Object expected) {
+  private void testPutGetCycle (final Object expected, final int fudgeSize) {
     final ValueRequirement valueReq = new ValueRequirement("foo", new ComputationTargetSpecification (null));
     final ValueSpecification valueSpec = new ValueSpecification(valueReq, "mockFunctionId");
     final ComputedValue value = new ComputedValue (valueSpec, expected);
@@ -47,21 +47,22 @@ public class StandardViewComputationCacheTest {
     final Object obj = _viewComputationCache.getValue (valueSpec);
     assertNotNull (obj);
     assertEquals (expected, obj);
+    assertEquals ((Integer)fudgeSize, _viewComputationCache.estimateValueSize(value));
   }
   
   @Test
   public void testPutGetCycle_primInt () {
-    testPutGetCycle (Integer.MAX_VALUE);
+    testPutGetCycle (Integer.MAX_VALUE, 12 + 4);
   }
   
   @Test
   public void testPutGetCycle_primString () {
-    testPutGetCycle ("Hello World");
+    testPutGetCycle ("Hello World", 13 + 11);
   }
   
   @Test
   public void testPutGetCycle_primDouble () {
-    testPutGetCycle (3.14);
+    testPutGetCycle (3.14, 12 + 8);
   }
   
   public static final class Bean {
@@ -98,7 +99,7 @@ public class StandardViewComputationCacheTest {
     final Bean bean = new Bean ();
     bean.setFoo (42.0);
     bean.setBar (-1.0);
-    testPutGetCycle (bean);
+    testPutGetCycle (bean, 110);
   }
   
   @Test
@@ -108,7 +109,7 @@ public class StandardViewComputationCacheTest {
     bean.setFoo (42.0);
     bean.setBar (-1.0);
     list.add (bean);
-    testPutGetCycle (list);
+    testPutGetCycle (list, 113);
   }
   
 }

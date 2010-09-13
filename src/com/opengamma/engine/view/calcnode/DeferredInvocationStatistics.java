@@ -52,16 +52,19 @@ public class DeferredInvocationStatistics {
 
   /**
    * 
-   * @param bytes size of output sample
+   * @param bytes size of output sample, or {@code null} if no size available
    * @return {@code true} if this was the last one expected, {@code false} if expecting more
    */
-  public boolean addDataOutputBytes(final int bytes) {
-    _dataOutputBytes += bytes;
-    _dataOutputSamples++;
-    if (_dataOutputSamples < _expectedDataOutputSamples) {
+  public boolean addDataOutputBytes(final Integer bytes) {
+    if (bytes != null) {
+      _dataOutputBytes += bytes;
+      _dataOutputSamples++;
+    }
+    _expectedDataOutputSamples--;
+    if (_expectedDataOutputSamples > 0) {
       return false;
     }
-    _gatherer.functionInvoked(_configuration, _functionIdentifier, 1, _invocationTime, _dataInputBytes, _dataOutputBytes / _expectedDataOutputSamples);
+    _gatherer.functionInvoked(_configuration, _functionIdentifier, 1, _invocationTime, _dataInputBytes, (_dataOutputSamples > 0) ? _dataOutputBytes / _dataOutputSamples : Double.NaN);
     return true;
   }
 

@@ -27,8 +27,7 @@ public class FilteredViewComputationCache {
     _filter = filter;
   }
 
-  // TODO 2010-08-31 Andrew -- This is a hack for resetting the times on the underlying; make this protected when AbstractCalculationNode no longer calls it
-  public ViewComputationCache getCache() {
+  protected ViewComputationCache getCache() {
     return _cache;
   }
 
@@ -42,6 +41,10 @@ public class FilteredViewComputationCache {
 
   public Collection<Pair<ValueSpecification, Object>> getValues(Collection<ValueSpecification> specifications) {
     return getCache().getValues(specifications, getFilter());
+  }
+
+  public Integer estimateValueSize(final ComputedValue value) {
+    return getCache().estimateValueSize(value);
   }
 
   public void putValue(final ComputedValue value) {

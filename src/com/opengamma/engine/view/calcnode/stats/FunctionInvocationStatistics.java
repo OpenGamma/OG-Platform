@@ -52,14 +52,29 @@ public class FunctionInvocationStatistics {
     return _functionIdentifier;
   }
 
+  /**
+   * Invocation cost - mean "standard" time to execute in nanoseconds.
+   * 
+   * @return invocation cost in nanoseconds
+   */
   public double getInvocationCost() {
     return _invocationCost;
   }
 
+  /**
+   * Data input cost - mean bytes per input value.
+   * 
+   * @return data input cost in bytes per value
+   */
   public double getDataInputCost() {
     return _dataInputCost;
   }
 
+  /**
+   * Data output cost - mean bytes per output value.
+   * 
+   * @return data output cost in bytes per value
+   */
   public double getDataOutputCost() {
     return _dataOutputCost;
   }

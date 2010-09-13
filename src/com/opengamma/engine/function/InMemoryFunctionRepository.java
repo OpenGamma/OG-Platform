@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.function;
@@ -21,19 +21,18 @@ import com.opengamma.util.ArgumentChecker;
  *
  */
 public class InMemoryFunctionRepository implements FunctionRepository {
-  private final Map<String, FunctionInvoker> _invokersByUniqueIdentifier =
-    new HashMap<String, FunctionInvoker>();
+  private final Map<String, FunctionInvoker> _invokersByUniqueIdentifier = new HashMap<String, FunctionInvoker>();
   private final Set<FunctionDefinition> _functions = new HashSet<FunctionDefinition>();
-  
+
   public InMemoryFunctionRepository() {
   }
-  
+
   public synchronized void addFunction(AbstractFunction function, FunctionInvoker invoker) {
     ArgumentChecker.notNull(function, "Function definition");
     ArgumentChecker.notNull(invoker, "Function invoker");
     _functions.add(function);
     if (function.getUniqueIdentifier() == null) {
-      function.setUniqueIdentifier(Integer.toString(_functions.size()));
+      function.setUniqueIdentifier(Integer.toString(_functions.size()) + " (" + function.getClass().getSimpleName() + ")");
     }
     _invokersByUniqueIdentifier.put(function.getUniqueIdentifier(), invoker);
   }
