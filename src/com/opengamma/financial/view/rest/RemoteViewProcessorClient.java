@@ -36,6 +36,7 @@ import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestRuntimeException;
 import com.opengamma.transport.jaxrs.RestTarget;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * Implementation of a ViewProcessorClient for working with a remote engine
@@ -58,11 +59,11 @@ public class RemoteViewProcessorClient implements ViewProcessorClient {
   
   private final JmsTemplate _jmsTemplate = new JmsTemplate();
   
-  public RemoteViewProcessorClient(final FudgeContext fudgeContext, 
+  public RemoteViewProcessorClient(
       final ConnectionFactory connectionFactory, 
       final RestTarget baseTarget,
       final UserPrincipal user) {
-    _restClient = RestClient.getInstance(fudgeContext, null);
+    _restClient = RestClient.getInstance(OpenGammaFudgeContext.getInstance(), null);
     _targetAvailableViewNames = baseTarget.resolve(VIEWPROCESSOR_AVAILABLEVIEWNAMES);
     _targetLiveComputingViewNames = baseTarget.resolve(VIEWPROCESSOR_LIVECOMPUTINGVIEWNAMES);
     _targetSupported = baseTarget.resolve(VIEWPROCESSOR_SUPPORTED);
