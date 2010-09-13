@@ -28,7 +28,7 @@ public class FunctionCostTest {
     assertEquals (2.0, stats.getInvocationCost(), 1e-5);
     assertEquals (3.0, stats.getDataInputCost(), 1e-5);
     assertEquals (4.0, stats.getDataOutputCost (), 1e-5);
-    _cost.functionInvoked("Default", "Foo", 99, 3.0, 4.0, 5.0);
+    _cost.functionInvoked("Default", "Foo", 99, 99.0 * 3.0, 99.0 * 4.0, 99.0 * 5.0);
     assertEquals (2.0, stats.getInvocationCost(), 1e-5);
     assertEquals (3.0, stats.getDataInputCost(), 1e-5);
     assertEquals (4.0, stats.getDataOutputCost (), 1e-5);
@@ -37,7 +37,7 @@ public class FunctionCostTest {
     assertEquals (2.991, stats.getInvocationCost (), 0.0005);
     assertEquals (3.991, stats.getDataInputCost(), 0.0005);
     assertEquals (4.991, stats.getDataOutputCost (), 0.0005);
-    _cost.functionInvoked("Default", "Foo", 100, 3.0, 4.0, 5.0);
+    _cost.functionInvoked("Default", "Foo", 100, 100.0 * 3.0, 100.0 * 4.0, 100.0 * 5.0);
     // Older data less relevant
     assertEquals (2.996, stats.getInvocationCost(), 0.0005);
     assertEquals (3.996, stats.getDataInputCost(), 0.0005);
