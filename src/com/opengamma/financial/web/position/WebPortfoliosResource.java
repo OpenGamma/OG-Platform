@@ -99,11 +99,10 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
-  public FlexiBean createRootData() {
+  protected FlexiBean createRootData() {
+    FlexiBean out = super.createRootData();
     PortfolioTreeSearchRequest searchRequest = new PortfolioTreeSearchRequest();
-    FlexiBean out = getFreemarker().createRootData();
     out.put("searchRequest", searchRequest);
-    out.put("uris", new WebPortfoliosUris(data()));
     return out;
   }
 

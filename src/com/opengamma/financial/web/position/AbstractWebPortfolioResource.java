@@ -8,7 +8,10 @@ package com.opengamma.financial.web.position;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
+import org.joda.beans.impl.flexi.FlexiBean;
+
 import com.opengamma.financial.position.master.PositionMaster;
+import com.opengamma.financial.web.WebHomeUris;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractWebResource;
 
@@ -50,6 +53,18 @@ public abstract class AbstractWebPortfolioResource extends AbstractWebResource {
   @Context
   public void setUriInfo(final UriInfo uriInfo) {
     data().setUriInfo(uriInfo);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates the output root data.
+   * @return the output root data, not null
+   */
+  protected FlexiBean createRootData() {
+    FlexiBean out = getFreemarker().createRootData();
+    out.put("homeUris", new WebHomeUris(data().getUriInfo()));
+    out.put("uris", new WebPortfoliosUris(data()));
+    return out;
   }
 
   //-------------------------------------------------------------------------
