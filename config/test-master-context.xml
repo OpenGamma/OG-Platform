@@ -73,7 +73,7 @@
     </property>
   </bean>
 
-  <bean id="hsqldbDbSecurityMasterDetail" class="com.opengamma.financial.security.master.db.HibernateSecurityMasterDetailProvider">
+  <bean id="hsqldbDbSecurityMasterDetail" class="com.opengamma.financial.security.master.db.hibernate.HibernateSecurityMasterDetailProvider">
     <property name="sessionFactory" ref="hsqldbHibernateSessionFactory" />
   </bean>
 

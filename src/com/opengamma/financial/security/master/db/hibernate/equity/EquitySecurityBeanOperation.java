@@ -13,10 +13,10 @@ import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.financial.GICSCode;
 import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.financial.security.master.db.HibernateSecurityMasterDao;
 import com.opengamma.financial.security.master.db.hibernate.AbstractSecurityBeanOperation;
 import com.opengamma.financial.security.master.db.hibernate.CurrencyBean;
 import com.opengamma.financial.security.master.db.hibernate.ExchangeBean;
+import com.opengamma.financial.security.master.db.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.financial.security.master.db.hibernate.OperationContext;
 
 /**

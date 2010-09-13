@@ -8,7 +8,6 @@ package com.opengamma.financial.security.master.db.hibernate;
 import java.util.Date;
 
 import com.opengamma.engine.security.Security;
-import com.opengamma.financial.security.master.db.HibernateSecurityMasterDao;
 
 /**
  * Operations to convert a real entity to/from a bean and hence to/from the Hibernate database.

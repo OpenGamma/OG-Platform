@@ -7,9 +7,9 @@
 package com.opengamma.financial.security.master.db.hibernate.cash;
 
 import com.opengamma.financial.security.cash.CashSecurity;
-import com.opengamma.financial.security.master.db.HibernateSecurityMasterDao;
 import com.opengamma.financial.security.master.db.hibernate.AbstractSecurityBeanOperation;
 import com.opengamma.financial.security.master.db.hibernate.CurrencyBean;
+import com.opengamma.financial.security.master.db.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.financial.security.master.db.hibernate.IdentifierBean;
 import com.opengamma.financial.security.master.db.hibernate.OperationContext;
 

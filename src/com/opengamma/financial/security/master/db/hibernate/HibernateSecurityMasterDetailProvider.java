@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.security.master.db;
+package com.opengamma.financial.security.master.db.hibernate;
 
 import java.sql.SQLException;
 import java.util.Date;
@@ -23,9 +23,8 @@ import com.google.common.base.Objects;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.Security;
-import com.opengamma.financial.security.master.db.hibernate.OperationContext;
-import com.opengamma.financial.security.master.db.hibernate.SecurityBean;
-import com.opengamma.financial.security.master.db.hibernate.SecurityBeanOperation;
+import com.opengamma.financial.security.master.db.DbSecurityMaster;
+import com.opengamma.financial.security.master.db.SecurityMasterDetailProvider;
 import com.opengamma.financial.security.master.db.hibernate.bond.BondSecurityBeanOperation;
 import com.opengamma.financial.security.master.db.hibernate.cash.CashSecurityBeanOperation;
 import com.opengamma.financial.security.master.db.hibernate.equity.EquitySecurityBeanOperation;

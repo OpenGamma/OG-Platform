@@ -15,8 +15,8 @@ import static com.opengamma.financial.security.master.db.hibernate.Converters.zo
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.financial.security.master.db.HibernateSecurityMasterDao;
 import com.opengamma.financial.security.master.db.hibernate.AbstractSecurityBeanOperation;
+import com.opengamma.financial.security.master.db.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.financial.security.master.db.hibernate.OperationContext;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;

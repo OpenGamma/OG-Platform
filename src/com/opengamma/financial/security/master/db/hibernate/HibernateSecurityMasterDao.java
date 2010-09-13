@@ -3,21 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security.master.db;
+package com.opengamma.financial.security.master.db.hibernate;
 
 import java.util.Date;
 import java.util.List;
 
 import com.opengamma.engine.security.DefaultSecurity;
-import com.opengamma.financial.security.master.db.hibernate.BusinessDayConventionBean;
-import com.opengamma.financial.security.master.db.hibernate.CurrencyBean;
-import com.opengamma.financial.security.master.db.hibernate.DayCountBean;
-import com.opengamma.financial.security.master.db.hibernate.ExchangeBean;
-import com.opengamma.financial.security.master.db.hibernate.FrequencyBean;
-import com.opengamma.financial.security.master.db.hibernate.IdentifierAssociationBean;
-import com.opengamma.financial.security.master.db.hibernate.OperationContext;
-import com.opengamma.financial.security.master.db.hibernate.SecurityBean;
-import com.opengamma.financial.security.master.db.hibernate.SecurityBeanOperation;
 import com.opengamma.financial.security.master.db.hibernate.bond.CouponTypeBean;
 import com.opengamma.financial.security.master.db.hibernate.bond.GuaranteeTypeBean;
 import com.opengamma.financial.security.master.db.hibernate.bond.IssuerTypeBean;

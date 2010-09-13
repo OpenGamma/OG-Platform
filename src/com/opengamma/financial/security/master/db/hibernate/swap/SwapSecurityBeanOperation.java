@@ -9,8 +9,8 @@ package com.opengamma.financial.security.master.db.hibernate.swap;
 import static com.opengamma.financial.security.master.db.hibernate.Converters.dateTimeWithZoneToZonedDateTimeBean;
 import static com.opengamma.financial.security.master.db.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
-import com.opengamma.financial.security.master.db.HibernateSecurityMasterDao;
 import com.opengamma.financial.security.master.db.hibernate.AbstractSecurityBeanOperation;
+import com.opengamma.financial.security.master.db.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.financial.security.master.db.hibernate.OperationContext;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
