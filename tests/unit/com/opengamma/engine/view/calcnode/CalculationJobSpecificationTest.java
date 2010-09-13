@@ -12,7 +12,11 @@ import static org.junit.Assert.assertTrue;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.junit.Test;
+
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * 
@@ -57,12 +61,13 @@ public class CalculationJobSpecificationTest {
   
   @Test
   public void fudgeEncoding() {
-    FudgeContext context = FudgeContext.GLOBAL_DEFAULT;
+    FudgeContext context = OpenGammaFudgeContext.getInstance();
     CalculationJobSpecification spec1 = new CalculationJobSpecification("view", "config", 1L, 1L);
-    MutableFudgeFieldContainer msg = context.newMessage();
-    spec1.toFudgeMsg(context, msg);
-    FudgeFieldContainer msg2 = context.deserialize(context.toByteArray(msg)).getMessage();
-    CalculationJobSpecification spec2 = CalculationJobSpecification.fromFudgeMsg(msg2);
+    FudgeSerializationContext serializationContext = new FudgeSerializationContext(context);
+    MutableFudgeFieldContainer inMsg = serializationContext.objectToFudgeMsg(spec1);
+    FudgeFieldContainer outMsg = context.deserialize(context.toByteArray(inMsg)).getMessage();
+    FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(context);
+    CalculationJobSpecification spec2 = deserializationContext.fudgeMsgToObject(CalculationJobSpecification.class, outMsg);
     assertEquals(spec1, spec2);
   }
 
