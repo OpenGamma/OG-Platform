@@ -29,15 +29,8 @@ import com.opengamma.util.ArgumentChecker;
  * later on in a computation process.
  */
 public final class ComputationTargetSpecification implements Serializable {
-
-  /**
-   * Fudge field name.
-   */
-  public static final String TYPE_FIELD_NAME = "computationTargetType";
-  /**
-   * Fudge field name.
-   */
-  public static final String IDENTIFIER_FIELD_NAME = "computationTargetIdentifier";
+  private static final String TYPE_FIELD_NAME = "computationTargetType";
+  private static final String IDENTIFIER_FIELD_NAME = "computationTargetIdentifier";
 
   /**
    * The type of the target.
