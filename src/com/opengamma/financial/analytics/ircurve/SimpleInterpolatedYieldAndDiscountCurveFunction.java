@@ -154,11 +154,6 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
   }
 
   @Override
-  public boolean buildsOwnSubGraph() {
-    return false;
-  }
-
-  @Override
   public String getShortName() {
     return _curveCurrency + "-" + _curveName + (_isYieldCurve ? " Yield Curve" : " Discount Curve");
   }
