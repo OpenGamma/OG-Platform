@@ -9,9 +9,6 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMessageFactory;
-import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -24,14 +21,11 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * An immutable requirement to obtain a value needed to perform a calculation.
+ * This is a metadata-based requirement, and specifies only the minimal number of parameters
+ * that are necessary to specify the user requirements.
+ * The actual value which is computed is available as a matching {@link ValueSpecification}.
  */
 public final class ValueRequirement implements Serializable {
-
-  /**
-   * Fudge field name.
-   */
-  public static final String VALUE_NAME_FIELD_NAME = "valueName";
-
   /**
    * The value being requested.
    */
@@ -124,18 +118,6 @@ public final class ValueRequirement implements Serializable {
       .toString();
   }
 
-  //-------------------------------------------------------------------------
-  public void toFudgeMsg(FudgeMessageFactory fudgeContext, MutableFudgeFieldContainer msg) {
-    msg.add(VALUE_NAME_FIELD_NAME, _valueName);
-    _targetSpecification.toFudgeMsg(fudgeContext, msg);
-  }
-
-  public static ValueRequirement fromFudgeMsg(FudgeFieldContainer msg) {
-    String valueName = msg.getString(VALUE_NAME_FIELD_NAME);
-    ComputationTargetSpecification targetSpecification = ComputationTargetSpecification.fromFudgeMsg(msg); 
-    return new ValueRequirement(valueName, targetSpecification);
-  }
-  
   public LiveDataSpecification getRequiredLiveData(SecuritySource securitySource) {
     return getTargetSpecification().getRequiredLiveData(securitySource);
   }

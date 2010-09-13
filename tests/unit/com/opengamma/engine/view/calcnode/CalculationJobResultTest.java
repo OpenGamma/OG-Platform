@@ -14,6 +14,7 @@ import java.util.Collections;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.junit.Test;
@@ -27,15 +28,16 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.cache.InMemoryIdentifierMap;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * 
  */
 public class CalculationJobResultTest {
+  private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
   
   @Test
   public void fudge() {
-    FudgeContext context = FudgeContext.GLOBAL_DEFAULT;
     IdentifierMap identifierMap = new InMemoryIdentifierMap ();
     CalculationJobSpecification spec = new CalculationJobSpecification("view", "config", 1L, 1L);
     ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueIdentifier.of("Scheme", "Value"));
@@ -54,10 +56,13 @@ public class CalculationJobResultTest {
         Lists.newArrayList(item1, item2),
         "localhost");
     result.convertInputs(identifierMap);
+    FudgeSerializationContext serializationContext = new FudgeSerializationContext(s_fudgeContext);
+    MutableFudgeFieldContainer inputMsg = serializationContext.objectToFudgeMsg(result);
+    FudgeFieldContainer outputMsg = s_fudgeContext.deserialize(s_fudgeContext.toByteArray(inputMsg)).getMessage();
     
-    FudgeFieldContainer msg = result.toFudgeMsg(new FudgeSerializationContext(context));
-    msg = context.deserialize(context.toByteArray(msg)).getMessage();
-    CalculationJobResult outputJob = CalculationJobResult.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
+    FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(s_fudgeContext);
+    CalculationJobResult outputJob = deserializationContext.fudgeMsgToObject(CalculationJobResult.class, outputMsg);
+    
     assertNotNull(outputJob);
     result.resolveInputs(identifierMap);
     assertEquals(spec, outputJob.getSpecification());
