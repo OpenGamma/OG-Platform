@@ -16,11 +16,14 @@ import org.junit.Test;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * Test ComputedValue.
  */
 public class ComputedValueTest {
+  
+  private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
   @Test
   public void test_constructor_Object_Portfolio() {
@@ -65,12 +68,12 @@ public class ComputedValueTest {
   }
 
   private void cycleComputedValue(final ComputedValue value) {
-    final FudgeMsgEnvelope fme = FudgeContext.GLOBAL_DEFAULT.toFudgeMsg(value);
+    final FudgeMsgEnvelope fme = s_fudgeContext.toFudgeMsg(value);
     assertNotNull(fme);
     final FudgeFieldContainer msg = fme.getMessage();
     assertNotNull(msg);
     System.out.println(msg);
-    final ComputedValue cycledValue = FudgeContext.GLOBAL_DEFAULT.fromFudgeMsg(ComputedValue.class, msg);
+    final ComputedValue cycledValue = s_fudgeContext.fromFudgeMsg(ComputedValue.class, msg);
     assertNotNull(cycledValue);
     assertEquals(value, cycledValue);
   }

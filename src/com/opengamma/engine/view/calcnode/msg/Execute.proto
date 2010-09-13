@@ -10,7 +10,7 @@ namespace com.opengamma.engine.view.calcnode {
   
   namespace msg {
   
-    message RemoteCalcNodeJobMessage extends RemoteCalcNodeMessage {
+    message Execute extends RemoteCalcNodeMessage {
       required CalculationJob job;
     }
     

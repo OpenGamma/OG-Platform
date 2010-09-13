@@ -7,16 +7,21 @@
 package com.opengamma.engine.view.calc.stats;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import javax.time.Instant;
+import javax.time.InstantProvider;
 
 import com.opengamma.engine.view.View;
 
 /**
  * Maintains ever increasing tallies.
  */
-public class TotallingStatisticsGathererProvider extends PerViewStatisticsGathererProvider {
+public class TotallingGraphStatisticsGathererProvider extends PerViewStatisticsGathererProvider<TotallingGraphStatisticsGathererProvider.Statistics> {
 
   /**
    * 
@@ -56,11 +61,28 @@ public class TotallingStatisticsGathererProvider extends PerViewStatisticsGather
       return new ArrayList<GraphExecutionStatistics>(_statistics.values());
     }
 
+    public boolean dropStatisticsBefore(final InstantProvider instantProvider) {
+      final Instant dropBefore = Instant.of(instantProvider);
+      final Iterator<Map.Entry<String, GraphExecutionStatistics>> iterator = _statistics.entrySet().iterator();
+      while (iterator.hasNext()) {
+        final Map.Entry<String, GraphExecutionStatistics> entry = iterator.next();
+        if (entry.getValue().getLastProcessedTime().isBefore(dropBefore)) {
+          iterator.remove();
+        }
+      }
+      return _statistics.isEmpty();
+    }
+
   }
 
   @Override
-  protected GraphExecutorStatisticsGatherer createStatisticsGatherer(final View view) {
+  protected Statistics createStatisticsGatherer(final View view) {
     return new Statistics(view.getName());
+  }
+
+  @Override
+  protected boolean dropStatisticsBefore(Statistics gatherer, Instant dropBefore) {
+    return gatherer.dropStatisticsBefore(dropBefore);
   }
 
 }

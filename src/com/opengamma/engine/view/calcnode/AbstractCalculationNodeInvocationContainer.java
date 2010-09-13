@@ -5,14 +5,13 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -31,8 +30,15 @@ import com.opengamma.util.ArgumentChecker;
  */
 public abstract class AbstractCalculationNodeInvocationContainer {
 
-  private static final int CLEANUP_PERIOD = 100; // clean up after every 100 jobs
-  private static final long RETENTION = 1000000000L; // 10s
+  /**
+   * After how many failed jobs should a cleanup be attempted.
+   */
+  private static final int FAILURE_CLEANUP_PERIOD = 100; // clean up after every 100 failed jobs
+
+  /**
+   * Retention period for failed jobs needs to be long enough for any tail jobs to have arrived.
+   */
+  private static final long FAILURE_RETENTION = 5L * 60L * 100000000L; // 5m
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractCalculationNodeInvocationContainer.class);
 
@@ -50,11 +56,13 @@ public abstract class AbstractCalculationNodeInvocationContainer {
   private static class JobEntry {
 
     private final CalculationJob _job;
+    private final JobExecution _execution;
     private ExecutionReceiver _receiver;
-    private Collection<JobExecution> _required;
+    private AtomicInteger _blockCount;
 
-    public JobEntry(final CalculationJob job, final ExecutionReceiver receiver) {
+    public JobEntry(final CalculationJob job, final JobExecution execution, final ExecutionReceiver receiver) {
       _job = job;
+      _execution = execution;
       _receiver = receiver;
     }
 
@@ -62,16 +70,38 @@ public abstract class AbstractCalculationNodeInvocationContainer {
       return _job;
     }
 
+    public JobExecution getExecution() {
+      return _execution;
+    }
+
     public ExecutionReceiver getReceiver() {
       return _receiver;
     }
 
-    public Collection<JobExecution> getRequired() {
-      return _required;
+    /**
+     * This is only called from a single thread - doing the addJob operation - once it has been called once,
+     * another thread may need to manipulate the block count (e.g. if a job is finishing).
+     */
+    public void incrementBlockCount() {
+      if (_blockCount == null) {
+        _blockCount = new AtomicInteger(1);
+      } else {
+        _blockCount.incrementAndGet();
+      }
     }
 
-    public void setRequired(final Collection<JobExecution> required) {
-      _required = required;
+    /**
+     * This is only called from the same thread that calls incrementBlockCount as part of the addJob operation.
+     */
+    public int getBlockCount() {
+      return (_blockCount == null) ? 0 : _blockCount.get();
+    }
+
+    /**
+     * Decrements the block count, returns {@code true} when the count reaches zero.
+     */
+    public boolean releaseBlockCount() {
+      return _blockCount.decrementAndGet() == 0;
     }
 
     public void invalidate() {
@@ -102,12 +132,19 @@ public abstract class AbstractCalculationNodeInvocationContainer {
       RUNNING, COMPLETED, FAILED;
     }
 
+    private final long _jobId;
     private final long _timestamp;
-    private Status _status = Status.RUNNING;
+    private Status _status;
     private Set<JobEntry> _blocked;
 
-    public JobExecution() {
+    public JobExecution(final long jobId) {
+      _jobId = jobId;
       _timestamp = System.nanoTime();
+      _status = Status.RUNNING;
+    }
+
+    public long getJobId() {
+      return _jobId;
     }
 
     public long getAge() {
@@ -140,10 +177,20 @@ public abstract class AbstractCalculationNodeInvocationContainer {
   }
 
   private final Queue<AbstractCalculationNode> _nodes = new ConcurrentLinkedQueue<AbstractCalculationNode>();
-  private final ConcurrentMap<Long, JobExecution> _executions = new ConcurrentSkipListMap<Long, JobExecution>();
+
+  /**
+   * The set of jobs that are either running, in the runnable queue or blocked by other jobs.
+   */
+  private final ConcurrentMap<Long, JobExecution> _executions = new ConcurrentHashMap<Long, JobExecution>();
+
+  /**
+   * The set of failed jobs. Anything not in this set or {@link #_executions} has completed successfully.
+   */
+  private final ConcurrentMap<Long, JobExecution> _failures = new ConcurrentSkipListMap<Long, JobExecution>();
+  private final AtomicInteger _failureCount = new AtomicInteger();
+
   private final Queue<JobEntry> _runnableJobs = new ConcurrentLinkedQueue<JobEntry>();
   private final ExecutorService _executorService = Executors.newCachedThreadPool();
-  private final AtomicInteger _jobCount = new AtomicInteger();
 
   protected Queue<AbstractCalculationNode> getNodes() {
     return _nodes;
@@ -187,51 +234,25 @@ public abstract class AbstractCalculationNodeInvocationContainer {
     return _executorService;
   }
 
+  private JobExecution createExecution(final Long jobId) {
+    final JobExecution jobexec = new JobExecution(jobId);
+    _executions.put(jobId, jobexec);
+    return jobexec;
+  }
+
   private JobExecution getExecution(final Long jobId) {
-    JobExecution execution = _executions.get(jobId);
-    if (execution == null) {
-      execution = new JobExecution();
-      final JobExecution newExecution = _executions.putIfAbsent(jobId, execution);
-      if (newExecution != null) {
-        return newExecution;
-      }
-    }
-    return execution;
+    return _executions.get(jobId);
+  }
+
+  private JobExecution getFailure(final Long jobId) {
+    return _failures.get(jobId);
   }
 
   /**
-   * If a node is passed in, it will run inline if the job is runnable, otherwise a thread will
-   * be forked. 
+   * Adds a job to the runnable queue, spawning a worker thread if a node is supplied or one is
+   * available. 
    */
   private void spawnOrQueueJob(final JobEntry jobexec, AbstractCalculationNode node) {
-    final Collection<Long> requiredJobIds = jobexec.getJob().getRequiredJobIds();
-    if (requiredJobIds != null) {
-      if (jobexec.getRequired() == null) {
-        final List<JobExecution> required = new ArrayList<JobExecution>(requiredJobIds.size());
-        for (Long requiredId : requiredJobIds) {
-          required.add(getExecution(requiredId));
-        }
-        jobexec.setRequired(required);
-      }
-      for (JobExecution execution : jobexec.getRequired()) {
-        synchronized (execution) {
-          switch (execution.getStatus()) {
-            case COMPLETED:
-              // Job can run
-              break;
-            case FAILED:
-              // Job is not to run - something's already failed
-              s_logger.debug("Job {} dropped by failure of earlier job", jobexec.getJob().getSpecification().getJobId());
-              return;
-            case RUNNING:
-              // Job is blocked
-              execution.blockJob(jobexec);
-              s_logger.debug("Job {} blocked", jobexec.getJob().getSpecification().getJobId());
-              return;
-          }
-        }
-      }
-    }
     if (node == null) {
       node = getNodes().poll();
       if (node == null) {
@@ -244,20 +265,17 @@ public abstract class AbstractCalculationNodeInvocationContainer {
           }
         }
       }
-      s_logger.debug("Starting parallel execution for job {}", jobexec.getJob().getSpecification().getJobId());
-      final AbstractCalculationNode parallelNode = node;
-      getExecutorService().execute(new Runnable() {
-
-        @Override
-        public void run() {
-          executeJobs(parallelNode, jobexec);
-        }
-
-      });
-    } else {
-      s_logger.debug("Starting inline execution for job {}", jobexec.getJob().getSpecification().getJobId());
-      executeJobs(node, jobexec);
     }
+    s_logger.debug("Spawning execution of job {}", jobexec.getJob().getSpecification().getJobId());
+    final AbstractCalculationNode parallelNode = node;
+    getExecutorService().execute(new Runnable() {
+
+      @Override
+      public void run() {
+        executeJobs(parallelNode, jobexec);
+      }
+
+    });
   }
 
   private void failExecution(final JobExecution execution) {
@@ -265,17 +283,81 @@ public abstract class AbstractCalculationNodeInvocationContainer {
     synchronized (execution) {
       execution.setStatus(JobExecution.Status.FAILED);
       blocked = execution.getBlocked();
+      // Add to failure set first, so the job is never missing from both
+      _failures.put(execution.getJobId(), execution);
+      _executions.remove(execution.getJobId());
+      _failureCount.incrementAndGet();
     }
     if (blocked != null) {
       for (JobEntry tail : blocked) {
         tail.invalidate();
-        failExecution(getExecution(tail.getJob().getSpecification().getJobId()));
+        failExecution(tail.getExecution());
       }
     }
   }
 
+  /**
+   * Adds jobs to the runnable queue, spawning a worker thread if a node is supplied or one is available. Jobs must be
+   * added in dependency order - i.e. a job must be submitted before any that require it. This is to simplify
+   * retention of job status as we only need to track jobs that are still running or have failed which saves a lot
+   * of housekeeping overhead.
+   * 
+   * @param job job to run, not {@code null}
+   * @param receiver execution status receiver, not {@code null}
+   * @param node optional node to start a worker thread with
+   */
   protected void addJob(final CalculationJob job, final ExecutionReceiver receiver, final AbstractCalculationNode node) {
-    spawnOrQueueJob(new JobEntry(job, receiver), node);
+    final JobExecution jobExecution = createExecution(job.getSpecification().getJobId());
+    final Collection<Long> requiredJobIds = job.getRequiredJobIds();
+    final JobEntry jobEntry = new JobEntry(job, jobExecution, receiver);
+    if (requiredJobIds != null) {
+      // Shouldn't be passing a node in with a job that might not be runnable
+      assert node == null;
+      boolean failed = false;
+      for (Long requiredId : requiredJobIds) {
+        JobExecution required = getExecution(requiredId);
+        s_logger.debug("Job {} requires {}", jobExecution.getJobId(), requiredId);
+        if (required != null) {
+          synchronized (required) {
+            switch (required.getStatus()) {
+              case COMPLETED:
+                // No action needed - we can continue
+                s_logger.debug("Required job {} completed (from execution cache)", requiredId);
+                break;
+              case FAILED:
+                // We can't run
+                failed = true;
+                s_logger.debug("Required job {} failed (from execution cache)", requiredId);
+                break;
+              case RUNNING:
+                // We're blocked
+                jobEntry.incrementBlockCount();
+                required.blockJob(jobEntry);
+                s_logger.debug("Required job {} blocking us", requiredId);
+                break;
+            }
+          }
+        } else {
+          required = getFailure(requiredId);
+          if (required != null) {
+            failed = true;
+            s_logger.debug("Required job {} failed (from failure cache)", requiredId);
+          } else {
+            s_logger.debug("Required job {} completion inferred", requiredId);
+          }
+        }
+      }
+      if (failed) {
+        s_logger.debug("Failing execution of {}", jobExecution.getJobId());
+        failExecution(jobExecution);
+        return;
+      }
+      if (jobEntry.getBlockCount() > 0) {
+        s_logger.debug("Blocked execution of {}", jobExecution.getJobId());
+        return;
+      }
+    }
+    spawnOrQueueJob(jobEntry, node);
   }
 
   /**
@@ -288,31 +370,33 @@ public abstract class AbstractCalculationNodeInvocationContainer {
     do {
       s_logger.info("Executing job {} on {}", jobexec.getJob().getSpecification().getJobId(), node.getNodeId());
       onJobStart(jobexec.getJob());
-      final JobExecution execution = getExecution(jobexec.getJob().getSpecification().getJobId());
       CalculationJobResult result = null;
       try {
         result = node.executeJob(jobexec.getJob());
       } catch (Exception e) {
         // Any tail jobs will be abandoned
-        s_logger.warn("Job {} failed", jobexec.getJob().getSpecification().getJobId());
-        failExecution(execution);
+        s_logger.warn("Job {} failed", jobexec.getExecution().getJobId());
+        failExecution(jobexec.getExecution());
         jobexec.getReceiver().executionFailed(node, e);
       }
       if (result != null) {
         final Set<JobEntry> blocked;
-        synchronized (execution) {
-          execution.setStatus(JobExecution.Status.COMPLETED);
-          blocked = execution.getBlocked();
+        synchronized (jobexec.getExecution()) {
+          jobexec.getExecution().setStatus(JobExecution.Status.COMPLETED);
+          blocked = jobexec.getExecution().getBlocked();
+          _executions.remove(jobexec.getExecution().getJobId());
         }
         if (blocked != null) {
-          s_logger.info("Job {} completed - releasing blocked jobs", jobexec.getJob().getSpecification().getJobId());
+          s_logger.info("Job {} completed - releasing blocked jobs", jobexec.getExecution().getJobId());
           for (JobEntry tail : blocked) {
             if (tail.getReceiver() != null) {
-              spawnOrQueueJob(tail, null);
+              if (tail.releaseBlockCount()) {
+                spawnOrQueueJob(tail, null);
+              }
             }
           }
         } else {
-          s_logger.info("Job {} completed - no tail jobs", jobexec.getJob().getSpecification().getJobId());
+          s_logger.info("Job {} completed - no tail jobs", jobexec.getExecution().getJobId());
         }
       }
       if (result != null) {
@@ -331,22 +415,23 @@ public abstract class AbstractCalculationNodeInvocationContainer {
     } while (true);
     s_logger.debug("Finished job execution on {}", node.getNodeId());
     onJobExecutionComplete();
-    if (_jobCount.incrementAndGet() % CLEANUP_PERIOD == 0) {
+    // Housekeeping
+    if (_failureCount.get() > FAILURE_CLEANUP_PERIOD) {
+      _failureCount.set(0);
       int count = 0;
-      final Iterator<Map.Entry<Long, JobExecution>> entryIterator = _executions.entrySet().iterator();
+      final Iterator<Map.Entry<Long, JobExecution>> entryIterator = _failures.entrySet().iterator();
       while (entryIterator.hasNext()) {
         final Map.Entry<Long, JobExecution> entry = entryIterator.next();
-        if (entry.getValue().getStatus() != JobExecution.Status.RUNNING) {
-          if (entry.getValue().getAge() > RETENTION) {
-            s_logger.debug("Removed job {} from execution map", entry.getKey());
-            entryIterator.remove();
-            count++;
-          } else {
-            break;
-          }
+        if (entry.getValue().getAge() > FAILURE_RETENTION) {
+          s_logger.debug("Removed job {} from failure set", entry.getKey());
+          entryIterator.remove();
+          count++;
+        } else {
+          break;
         }
       }
-      s_logger.info("Removed {} dead entries from execution map, {} remaining", count, _executions.size());
+      s_logger.info("Removed {} dead entries from failure map, {} remaining", count, _failures.size());
     }
+    s_logger.debug("Failure map size = {}, execution map size = {}", _failures.size(), _executions.size());
   }
 }

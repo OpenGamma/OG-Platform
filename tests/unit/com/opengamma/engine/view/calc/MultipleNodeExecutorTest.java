@@ -9,8 +9,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.Arrays;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,10 +16,11 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.test.MockFunction;
-import com.opengamma.engine.view.calc.stats.DiscardingStatisticsGathererProvider;
+import com.opengamma.engine.view.calc.stats.DiscardingGraphStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
+import com.opengamma.engine.view.calcnode.stats.FunctionCost;
 
 /**
  * Tests the graph partitioning logic in MultipleNodeExecutor.
@@ -57,7 +56,7 @@ public class MultipleNodeExecutorTest {
   }
   
   private MultipleNodeExecutor createExecutor(final int minimum, final int maximum, final int concurrency) {
-    return new MultipleNodeExecutor(null, minimum, maximum, minimum, maximum, concurrency) {
+    return new MultipleNodeExecutor(null, minimum, maximum, minimum, maximum, concurrency, new FunctionCost ()) {
 
       @Override
       protected CalculationJobSpecification createJobSpecification(final DependencyGraph graph) {
@@ -83,7 +82,7 @@ public class MultipleNodeExecutorTest {
   @Test
   public void testMin5 () {
     final MultipleNodeExecutor executor = createExecutor(5, Integer.MAX_VALUE, Integer.MAX_VALUE);
-    final RootGraphFragment root = executor.executeImpl(_testGraph, DiscardingStatisticsGathererProvider.GATHERER_INSTANCE);
+    final RootGraphFragment root = executor.executeImpl(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     System.out.println ("testMin5");
     executor.printFragment(root);
     assertEquals (5, root.getNodes ().size ());
@@ -100,7 +99,7 @@ public class MultipleNodeExecutorTest {
   @Test
   public void testMax1 () {
     final MultipleNodeExecutor executor = createExecutor(1, 1, Integer.MAX_VALUE);
-    final RootGraphFragment root = executor.executeImpl(_testGraph, DiscardingStatisticsGathererProvider.GATHERER_INSTANCE);
+    final RootGraphFragment root = executor.executeImpl(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     System.out.println ("testMax1");
     executor.printFragment(root);
     assertEquals (3, root.getInputs ().size ());
@@ -139,7 +138,7 @@ public class MultipleNodeExecutorTest {
   @Test
   public void testMinMax2 () {
     final MultipleNodeExecutor executor = createExecutor(2, 2, Integer.MAX_VALUE);
-    final RootGraphFragment root = executor.executeImpl(_testGraph, DiscardingStatisticsGathererProvider.GATHERER_INSTANCE);
+    final RootGraphFragment root = executor.executeImpl(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     System.out.println ("testMinMax2");
     executor.printFragment(root);
     assertEquals (2, root.getInputs ().size ());
@@ -167,7 +166,7 @@ public class MultipleNodeExecutorTest {
   @Test
   public void testMinMax4 () {
     final MultipleNodeExecutor executor = createExecutor(3, 4, Integer.MAX_VALUE);
-    final RootGraphFragment root = executor.executeImpl(_testGraph, DiscardingStatisticsGathererProvider.GATHERER_INSTANCE);
+    final RootGraphFragment root = executor.executeImpl(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     System.out.println ("testMinMax4");
     executor.printFragment(root);
     assertEquals (1, root.getInputs ().size ());
@@ -187,7 +186,7 @@ public class MultipleNodeExecutorTest {
   @Test
   public void testThread1 () {
     final MultipleNodeExecutor executor = createExecutor(1, 4, 1);
-    final RootGraphFragment root = executor.executeImpl(_testGraph, DiscardingStatisticsGathererProvider.GATHERER_INSTANCE);
+    final RootGraphFragment root = executor.executeImpl(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     System.out.println ("testThread1");
     executor.printFragment(root);
     assertEquals (3, root.getInputs ().size ());
@@ -216,7 +215,7 @@ public class MultipleNodeExecutorTest {
   @Test
   public void testThread2 () {
     final MultipleNodeExecutor executor = createExecutor(1, Integer.MAX_VALUE, 2);
-    final RootGraphFragment root = executor.executeImpl(_testGraph, DiscardingStatisticsGathererProvider.GATHERER_INSTANCE);
+    final RootGraphFragment root = executor.executeImpl(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     System.out.println ("testThread2");
     executor.printFragment(root);
     assertEquals (3, root.getInputs ().size ());
@@ -245,7 +244,7 @@ public class MultipleNodeExecutorTest {
   @Test
   public void testThread3 () {
     final MultipleNodeExecutor executor = createExecutor(1, Integer.MAX_VALUE, 3);
-    final RootGraphFragment root = executor.executeImpl(_testGraph, DiscardingStatisticsGathererProvider.GATHERER_INSTANCE);
+    final RootGraphFragment root = executor.executeImpl(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     System.out.println ("testThread3");
     executor.printFragment(root);
     assertEquals (3, root.getInputs ().size ());

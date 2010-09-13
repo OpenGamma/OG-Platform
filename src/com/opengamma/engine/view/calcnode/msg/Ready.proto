@@ -6,7 +6,7 @@
  
 namespace com.opengamma.engine.view.calcnode.msg {
 
-  message RemoteCalcNodeReadyMessage extends RemoteCalcNodeMessage {
+  message Ready extends RemoteCalcNodeMessage {
     // TODO this is where published capabilities could go, but make them optional so they only go on the first and if they've changed (if changes are allowed)
     
     /**

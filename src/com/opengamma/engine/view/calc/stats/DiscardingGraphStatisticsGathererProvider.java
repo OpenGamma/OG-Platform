@@ -11,7 +11,7 @@ import com.opengamma.engine.view.View;
 /**
  * Discards any statistics.
  */
-public class DiscardingStatisticsGathererProvider implements GraphExecutorStatisticsGathererProvider {
+public class DiscardingGraphStatisticsGathererProvider implements GraphExecutorStatisticsGathererProvider {
 
   /**
    * Instance of a statistics gatherer that doesn't do anything.

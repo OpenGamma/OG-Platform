@@ -33,7 +33,7 @@ import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
-import com.opengamma.engine.view.calc.stats.DiscardingStatisticsGathererProvider;
+import com.opengamma.engine.view.calc.stats.DiscardingGraphStatisticsGathererProvider;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
@@ -67,7 +67,7 @@ public class ViewProcessorImpl implements ViewProcessor, Lifecycle {
   private ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
   private DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private ViewPermissionProvider _viewPermissionProvider;
-  private GraphExecutorStatisticsGathererProvider _graphExecutionStatistics = new DiscardingStatisticsGathererProvider();
+  private GraphExecutorStatisticsGathererProvider _graphExecutionStatistics = new DiscardingGraphStatisticsGathererProvider();
   // State:
   private final ConcurrentMap<String, ViewImpl> _viewsByName = new ConcurrentHashMap<String, ViewImpl>();
   private final ReentrantLock _lifecycleLock = new ReentrantLock();

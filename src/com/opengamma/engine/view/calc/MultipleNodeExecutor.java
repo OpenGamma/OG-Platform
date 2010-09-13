@@ -26,6 +26,7 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
+import com.opengamma.engine.view.calcnode.stats.FunctionCost;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -37,12 +38,13 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
   private final SingleComputationCycle _cycle;
   private final int _minJobItems;
   private final int _maxJobItems;
-  private final int _minJobCost;
-  private final int _maxJobCost;
+  private final long _minJobCost;
+  private final long _maxJobCost;
   private final int _maxConcurrency;
+  private final FunctionCost _functionCost;
 
-  protected MultipleNodeExecutor(final SingleComputationCycle cycle, final int minimumJobItems, final int maximumJobItems, final int minimumJobCost, final int maximumJobCost,
-      final int maximumConcurrency) {
+  protected MultipleNodeExecutor(final SingleComputationCycle cycle, final int minimumJobItems, final int maximumJobItems, final long minimumJobCost, final long maximumJobCost,
+      final int maximumConcurrency, final FunctionCost functionCost) {
     // Don't check for null as the factory does this, plus for testing we don't have a cycle and override the methods that use it
     _cycle = cycle;
     _minJobItems = minimumJobItems;
@@ -50,6 +52,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     _minJobCost = minimumJobCost;
     _maxJobCost = maximumJobCost;
     _maxConcurrency = maximumConcurrency;
+    _functionCost = functionCost;
   }
 
   protected SingleComputationCycle getCycle() {
@@ -81,9 +84,8 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     // writeGraphForTestingPurposes(graph);
     if (graph.getSize() <= getMinJobItems()) {
       // If the graph is too small, run it as-is
-      // TODO [ENG-201] pass cycle cost, not graph size
-      statistics.graphProcessed(graph.getCalcConfName(), 1, graph.getSize(), graph.getSize());
       final RootGraphFragment fragment = new RootGraphFragment(context, statistics, graph.getExecutionOrder());
+      statistics.graphProcessed(graph.getCalcConfName(), 1, graph.getSize(), fragment.getJobInvocationCost());
       context.allocateFragmentMap(1);
       fragment.executeImpl();
       return fragment;
@@ -118,17 +120,18 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     final Iterator<GraphFragment> fragmentIterator = allFragments.iterator();
     final int count = allFragments.size();
     int totalSize = 0;
-    int totalCycleCost = 0;
+    long totalInvocationCost = 0;
     while (fragmentIterator.hasNext()) {
       final GraphFragment fragment = fragmentIterator.next();
       totalSize += fragment.getJobItems();
-      totalCycleCost += fragment.getJobCycleCost();
+      totalInvocationCost += fragment.getJobInvocationCost();
       if (!fragment.getInputs().isEmpty()) {
         fragment.initBlockCount();
         fragmentIterator.remove();
       }
     }
-    statistics.graphProcessed(graph.getCalcConfName(), count, (double) totalSize / (double) count, (double) totalCycleCost / (double) count);
+    statistics.graphProcessed(graph.getCalcConfName(), count, (double) totalSize / (double) count, (double) totalInvocationCost / (double) count);
+    //printFragment(logicalRoot);
     // Execute anything left (leaf nodes)
     for (GraphFragment fragment : allFragments) {
       fragment.execute();
@@ -149,16 +152,20 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     return _maxJobItems;
   }
 
-  public int getMinJobCost() {
+  public long getMinJobCost() {
     return _minJobCost;
   }
 
-  public int getMaxJobCost() {
+  public long getMaxJobCost() {
     return _maxJobCost;
   }
 
   public int getMaxConcurrency() {
     return _maxConcurrency;
+  }
+
+  public FunctionCost getFunctionCost() {
+    return _functionCost;
   }
 
   private Collection<GraphFragment> graphToFragments(final GraphFragmentContext context, final DependencyGraph graph, final Set<GraphFragment> allFragments) {
@@ -304,7 +311,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
    */
   private void findTailFragments(final Set<GraphFragment> allFragments) {
     // Estimate start times based on fragment costs and dependencies
-    final NavigableMap<Integer, Pair<List<GraphFragment>, List<GraphFragment>>> concurrencyEvent = new TreeMap<Integer, Pair<List<GraphFragment>, List<GraphFragment>>>();
+    final NavigableMap<Long, Pair<List<GraphFragment>, List<GraphFragment>>> concurrencyEvent = new TreeMap<Long, Pair<List<GraphFragment>, List<GraphFragment>>>();
     final int cacheKey = allFragments.size(); // Any changes to the graph reduce this, so we use it to cache the start time
     for (GraphFragment fragment : allFragments) {
       Pair<List<GraphFragment>, List<GraphFragment>> event = concurrencyEvent.get(fragment.getStartTime(cacheKey));
@@ -333,7 +340,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     // Walk the execution plan, coloring the graph with potential invocation sites
     final Map<Integer, AtomicInteger> executing = new HashMap<Integer, AtomicInteger>();
     int nextColour = 0;
-    for (Map.Entry<Integer, Pair<List<GraphFragment>, List<GraphFragment>>> eventEntry : concurrencyEvent.entrySet()) {
+    for (Map.Entry<Long, Pair<List<GraphFragment>, List<GraphFragment>>> eventEntry : concurrencyEvent.entrySet()) {
       final Pair<List<GraphFragment>, List<GraphFragment>> event = eventEntry.getValue();
       if (event.getSecond() != null) {
         for (GraphFragment finishing : event.getSecond()) {
