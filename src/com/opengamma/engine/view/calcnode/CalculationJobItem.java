@@ -9,15 +9,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionParameters;
@@ -29,11 +23,6 @@ import com.opengamma.engine.view.cache.IdentifierMap;
  * 
  */
 public final class CalculationJobItem {
-
-  private static final String FUNCTION_UNIQUE_ID_FIELD_NAME = "functionUniqueIdentifier";
-  private static final String FUNCTION_PARAMETERS_FIELD_NAME = "functionParameters";
-  private static final String INPUT_FIELD_NAME = "valueInput";
-  private static final String DESIRED_VALUE_FIELD_NAME = "desiredValue";
 
   // should these two be combined to ParameterizedFunction ID?
   private final String _functionUniqueIdentifier;
@@ -71,6 +60,14 @@ public final class CalculationJobItem {
 
   public FunctionParameters getFunctionParameters() {
     return _functionParameters;
+  }
+
+  /**
+   * Gets the inputIdentifiers field.
+   * @return the inputIdentifiers
+   */
+  public long[] getInputIdentifiers() {
+    return _inputIdentifiers;
   }
 
   /**
@@ -143,42 +140,6 @@ public final class CalculationJobItem {
     return outputs;
   }
 
-  public FudgeFieldContainer toFudgeMsg(FudgeSerializationContext fudgeContext) {
-    MutableFudgeFieldContainer msg = fudgeContext.newMessage();
-
-    getComputationTargetSpecification().toFudgeMsg(fudgeContext, msg);
-    msg.add(FUNCTION_UNIQUE_ID_FIELD_NAME, getFunctionUniqueIdentifier());
-    fudgeContext.objectToFudgeMsgWithClassHeaders(msg, FUNCTION_PARAMETERS_FIELD_NAME, null, getFunctionParameters());
-
-    msg.add(INPUT_FIELD_NAME, _inputIdentifiers);
-
-    for (ValueRequirement desiredValue : getDesiredValues()) {
-      MutableFudgeFieldContainer valueMsg = fudgeContext.newMessage();
-      desiredValue.toFudgeMsg(fudgeContext, valueMsg);
-      msg.add(DESIRED_VALUE_FIELD_NAME, valueMsg);
-    }
-
-    return msg;
-  }
-
-  public static CalculationJobItem fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeFieldContainer msg) {
-    String functionUniqueId = msg.getString(FUNCTION_UNIQUE_ID_FIELD_NAME);
-    FunctionParameters functionParameters = fudgeContext.fieldValueToObject(FunctionParameters.class, msg.getByName(FUNCTION_PARAMETERS_FIELD_NAME));
-
-    ComputationTargetSpecification computationTargetSpecification = ComputationTargetSpecification.fromFudgeMsg(msg);
-
-    final long[] inputIdentifiers = (long[]) msg.getByName(INPUT_FIELD_NAME).getValue();
-
-    List<ValueRequirement> desiredValues = new ArrayList<ValueRequirement>();
-    for (FudgeField field : msg.getAllByName(DESIRED_VALUE_FIELD_NAME)) {
-      FudgeFieldContainer valueMsg = (FudgeFieldContainer) field.getValue();
-      ValueRequirement desiredValue = ValueRequirement.fromFudgeMsg(valueMsg);
-      desiredValues.add(desiredValue);
-    }
-
-    return new CalculationJobItem(functionUniqueId, functionParameters, computationTargetSpecification, inputIdentifiers, desiredValues);
-  }
-
   @Override
   public String toString() {
     return new ToStringBuilder(this).append("Function unique ID", getFunctionUniqueIdentifier()).append("Computation target", getComputationTargetSpecification()).toString();
@@ -207,6 +168,11 @@ public final class CalculationJobItem {
     hc += _desiredValues.hashCode();
     hc *= multiplier;
     return hc;
+  }
+  
+  public static CalculationJobItem create(String functionUniqueIdentifier, FunctionParameters functionParameters, ComputationTargetSpecification computationTargetSpecification, long[] inputs,
+      Collection<ValueRequirement> desiredValues) {
+    return new CalculationJobItem(functionUniqueIdentifier, functionParameters, computationTargetSpecification, inputs, desiredValues);
   }
 
 }
