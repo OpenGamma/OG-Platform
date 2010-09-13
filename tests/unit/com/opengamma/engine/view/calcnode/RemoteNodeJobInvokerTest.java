@@ -25,19 +25,21 @@ import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeResultMessage;
 import com.opengamma.transport.DirectFudgeConnection;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeMessageReceiver;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * Tests the RemoteNodeJobInvoker
  */
 public class RemoteNodeJobInvokerTest {
 
+  private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
   private static final long TIMEOUT = 1000L;
 
   @Test
   public void simpleInvocation() {
     final JobDispatcher jobDispatcher = new JobDispatcher();
     final RemoteCalcNodeReadyMessage initialMessage = new RemoteCalcNodeReadyMessage(1);
-    final DirectFudgeConnection conduit = new DirectFudgeConnection(FudgeContext.GLOBAL_DEFAULT);
+    final DirectFudgeConnection conduit = new DirectFudgeConnection(s_fudgeContext);
     final RemoteNodeJobInvoker jobInvoker = new RemoteNodeJobInvoker(Executors.newCachedThreadPool(), initialMessage, conduit.getEnd1(), new InMemoryIdentifierMap());
     jobDispatcher.registerJobInvoker(jobInvoker);
     final TestJobResultReceiver resultReceiver = new TestJobResultReceiver();
@@ -65,7 +67,7 @@ public class RemoteNodeJobInvokerTest {
   public void saturate() {
     final JobDispatcher jobDispatcher = new JobDispatcher();
     final RemoteCalcNodeReadyMessage initialMessage = new RemoteCalcNodeReadyMessage(3);
-    final DirectFudgeConnection conduit = new DirectFudgeConnection(FudgeContext.GLOBAL_DEFAULT);
+    final DirectFudgeConnection conduit = new DirectFudgeConnection(s_fudgeContext);
     final RemoteNodeJobInvoker jobInvoker = new RemoteNodeJobInvoker(Executors.newCachedThreadPool(), initialMessage, conduit.getEnd1(), new InMemoryIdentifierMap());
     jobDispatcher.registerJobInvoker(jobInvoker);
     final FudgeConnection remoteNode = conduit.getEnd2();
