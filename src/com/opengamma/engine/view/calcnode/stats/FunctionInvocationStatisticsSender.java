@@ -36,8 +36,6 @@ public class FunctionInvocationStatisticsSender implements FunctionInvocationSta
   private double _convergenceFactor = 0.8;
   private double _serverScalingHint = 1.0;
   private volatile double _invocationTimeScale = 1.0;
-  private volatile double _dataInputScale = 1.0;
-  private volatile double _dataOutputScale = 1.0;
   private long _updatePeriod = 5000000000L; // 5s
 
   public FunctionInvocationStatisticsSender() {
@@ -75,36 +73,6 @@ public class FunctionInvocationStatisticsSender implements FunctionInvocationSta
   }
 
   /**
-   * Sets the scale for the data input metric. This is the ratio of local node performance to the
-   * "standard" (typically a node running on the view processor). The default initial value is
-   * {@code 1.0}.
-   * 
-   * <p>If a manual value is set (other than {@code 1.0}) and hints from the server are disabled,
-   * convergence should also be disabled to prevent it being shifted towards {@code 1.0}.</p>
-   * 
-   * @param dataInputScale scaling factor, must be positive and non-zero
-   */
-  public void setDataInputScale(final double dataInputScale) {
-    ArgumentChecker.notNegativeOrZero(dataInputScale, "dataInputScale");
-    _dataInputScale = dataInputScale;
-  }
-
-  /**
-   * Sets the scale for the data output metric. This is the ratio of local node performance to the
-   * "standard" (typically a node running on the view processor). The default initial value is
-   * {@code 1.0}.
-   * 
-   * <p>If a manual value is set (other than {@code 1.0}) and hints from the server are disabled,
-   * convergence should also be disabled to prevent it being shifted towards {@code 1.0}.</p>
-   * 
-   * @param dataOutputScale scaling factor, must be positive and non-zero
-   */
-  public void setDataOutputScale(final double dataOutputScale) {
-    ArgumentChecker.notNegativeOrZero(dataOutputScale, "dataOutputScale");
-    _dataOutputScale = dataOutputScale;
-  }
-
-  /**
    * If set to {@code 1.0} has no effect, otherwise forces the scales to attempt to converge towards
    * {@code 1.0}. This is useful if there are no local nodes to act as reference point - a set of purely
    * remote (and identical) notes all automatically tuning their parameters will converge on similar
@@ -128,13 +96,11 @@ public class FunctionInvocationStatisticsSender implements FunctionInvocationSta
     _serverScalingHint = serverScalingHint;
   }
 
-  public void setScaling(final double invocationTimeScale, final double dataInputScale, final double dataOutputScale) {
+  public void setScaling(final double invocationTimeScale) {
     // Doesn't matter that these three aren't updated and used atomically
     // Note the scale we get sent is relative to the values we previously sent so is used to adjust the scales we previously used.
     // We also want a reluctance to head away from 1.0 to avoid the creep that otherwise occurs
     setInvocationTimeScale(Math.pow(_invocationTimeScale * Math.pow(invocationTimeScale, _serverScalingHint), _convergenceFactor));
-    setDataInputScale(Math.pow(_dataInputScale * Math.pow(dataInputScale, _serverScalingHint), _convergenceFactor));
-    setDataOutputScale(Math.pow(_dataOutputScale * Math.pow(dataOutputScale, _serverScalingHint), _convergenceFactor));
   }
 
   public void setUpdatePeriod(final long seconds) {
@@ -170,10 +136,20 @@ public class FunctionInvocationStatisticsSender implements FunctionInvocationSta
       stats = newStats;
     }
     synchronized (stats) {
-      stats.setCount(stats.getCount() + count);
       stats.setInvocation(stats.getInvocation() + invocationTime * _invocationTimeScale);
-      stats.setDataInput(stats.getDataInput() + dataInput * _dataInputScale);
-      stats.setDataOutput(stats.getDataOutput() + dataOutput * _dataOutputScale);
+      if (Double.isNaN(dataInput)) {
+        // No data available, so increase at previous rate to keep average the same
+        stats.setDataInput(stats.getDataInput() * (1.0 + (double) count / (double) stats.getCount()));
+      } else {
+        stats.setDataInput(stats.getDataInput() + dataInput);
+      }
+      if (Double.isNaN(dataOutput)) {
+        // No data available, so increase at previous rate to keep average the same
+        stats.setDataOutput(stats.getDataOutput() * (1.0 + (double) count / (double) stats.getCount()));
+      } else {
+        stats.setDataOutput(stats.getDataOutput() + dataOutput);
+      }
+      stats.setCount(stats.getCount() + count);
     }
     long timeNow = System.nanoTime();
     long lastSent = _lastSent.get();

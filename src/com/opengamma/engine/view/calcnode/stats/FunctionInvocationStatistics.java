@@ -33,8 +33,8 @@ public class FunctionInvocationStatistics {
   protected synchronized void recordInvocation(final int count, final double invocationTime, final double dataInput, final double dataOutput) {
     _invocations += count;
     _invocationTime += invocationTime;
-    _dataInput += dataInput;
-    _dataOutput += dataOutput;
+    _dataInput += Double.isNaN(dataInput) ? ((_invocations > 0) ? (_dataInput / _invocations) : 0) : dataInput;
+    _dataOutput += Double.isNaN(dataOutput) ? ((_invocations > 0) ? (_dataOutput / _invocations) : 0) : dataOutput;
     _cost += count;
     if (_cost >= SNAPSHOT_SAMPLES) {
       _cost = 0;

@@ -9,8 +9,6 @@ namespace com.opengamma.engine.view.calcnode.msg {
   message Scaling extends RemoteCalcNodeMessage {
     
     required double invocation;
-    required double dataInput;
-    required double dataOutput;
         
   }
   

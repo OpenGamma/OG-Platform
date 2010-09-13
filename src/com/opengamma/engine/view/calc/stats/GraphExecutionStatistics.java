@@ -111,7 +111,7 @@ public class GraphExecutionStatistics {
   public double getAverageJobSize() {
     final long executions = getProcessedGraphs();
     if (executions > 0) {
-      return (double) getProcessedJobCost() / (double) executions;
+      return (double) getProcessedJobSize() / (double) executions;
     } else {
       return 0;
     }

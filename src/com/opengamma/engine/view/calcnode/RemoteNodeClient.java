@@ -162,7 +162,7 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
 
   private void handleScalingMessage(final Scaling message) {
     s_logger.info("Scaling data received {}", message);
-    getStatistics().setScaling(message.getInvocation(), message.getDataInput(), message.getDataOutput());
+    getStatistics().setScaling(message.getInvocation());
   }
 
   private void handleInitMessage(final Init message) {
