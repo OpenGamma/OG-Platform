@@ -11,7 +11,7 @@ package com.opengamma.engine.view.calcnode.stats;
 public class DiscardingInvocationStatisticsGatherer implements FunctionInvocationStatisticsGatherer {
 
   @Override
-  public void functionInvoked(final String functionIdentifier, final long invocationTime, final long dataInputVolume, final long dataOutputVolume) {
+  public void functionInvoked(final String configurationName, final String functionIdentifier, final int count, final double invocationTime, final double dataInput, final double dataOutput) {
     // No action
   }
 

@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
@@ -21,12 +22,16 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.cache.IdentifierMap;
-import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeBusyMessage;
-import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeFailureMessage;
-import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeJobMessage;
+import com.opengamma.engine.view.calcnode.msg.Busy;
+import com.opengamma.engine.view.calcnode.msg.Execute;
+import com.opengamma.engine.view.calcnode.msg.Failure;
+import com.opengamma.engine.view.calcnode.msg.Invocations;
+import com.opengamma.engine.view.calcnode.msg.Ready;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
-import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeReadyMessage;
-import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeResultMessage;
+import com.opengamma.engine.view.calcnode.msg.Result;
+import com.opengamma.engine.view.calcnode.msg.Scaling;
+import com.opengamma.engine.view.calcnode.stats.FunctionCost;
+import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsReceiver;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionStateListener;
 import com.opengamma.transport.FudgeMessageReceiver;
@@ -48,13 +53,16 @@ import com.opengamma.util.monitor.OperationTimer;
   private final AtomicInteger _launched = new AtomicInteger();
   private final AtomicReference<JobInvokerRegister> _dispatchCallback = new AtomicReference<JobInvokerRegister>();
   private final IdentifierMap _identifierMap;
+  private final FunctionCost _functionCost;
   private volatile String _invokerId;
 
-  public RemoteNodeJobInvoker(final ExecutorService executorService, final RemoteCalcNodeReadyMessage initialMessage, final FudgeConnection fudgeConnection, final IdentifierMap identifierMap) {
+  public RemoteNodeJobInvoker(final ExecutorService executorService, final Ready initialMessage, final FudgeConnection fudgeConnection, final IdentifierMap identifierMap,
+      final FunctionCost functionCost) {
     _executorService = executorService;
     _fudgeMessageSender = fudgeConnection.getFudgeMessageSender();
     _identifierMap = identifierMap;
     _invokerId = fudgeConnection.toString();
+    _functionCost = functionCost;
     fudgeConnection.setFudgeMessageReceiver(this);
     fudgeConnection.setConnectionStateListener(this);
     handleReadyMessage(initialMessage);
@@ -90,6 +98,10 @@ import com.opengamma.util.monitor.OperationTimer;
     return _identifierMap;
   }
 
+  private FunctionCost getFunctionCost() {
+    return _functionCost;
+  }
+
   @Override
   public boolean invoke(final CalculationJob rootJob, final JobInvocationReceiver receiver) {
     if (_launched.incrementAndGet() > _capacity) {
@@ -106,7 +118,7 @@ import com.opengamma.util.monitor.OperationTimer;
           getJobCompletionCallbacks().put(job.getSpecification(), receiver);
           final OperationTimer timer = new OperationTimer(s_logger, "Invocation serialisation and send of job {}", job.getSpecification().getJobId());
           job.convertInputs(getIdentifierMap());
-          final RemoteCalcNodeJobMessage message = new RemoteCalcNodeJobMessage(job);
+          final Execute message = new Execute(job);
           final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeMessageSender().getFudgeContext());
           getFudgeMessageSender().send(FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(message), message.getClass(), RemoteCalcNodeMessage.class));
           timer.finished();
@@ -166,20 +178,22 @@ import com.opengamma.util.monitor.OperationTimer;
   public void messageReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope msgEnvelope) {
     final FudgeDeserializationContext context = new FudgeDeserializationContext(fudgeContext);
     final RemoteCalcNodeMessage message = context.fudgeMsgToObject(RemoteCalcNodeMessage.class, msgEnvelope.getMessage());
-    if (message instanceof RemoteCalcNodeResultMessage) {
-      handleResultMessage((RemoteCalcNodeResultMessage) message);
-    } else if (message instanceof RemoteCalcNodeBusyMessage) {
-      handleBusyMessage((RemoteCalcNodeBusyMessage) message);
-    } else if (message instanceof RemoteCalcNodeReadyMessage) {
-      handleReadyMessage((RemoteCalcNodeReadyMessage) message);
-    } else if (message instanceof RemoteCalcNodeFailureMessage) {
-      handleFailureMessage((RemoteCalcNodeFailureMessage) message);
+    if (message instanceof Result) {
+      handleResultMessage((Result) message);
+    } else if (message instanceof Busy) {
+      handleBusyMessage((Busy) message);
+    } else if (message instanceof Ready) {
+      handleReadyMessage((Ready) message);
+    } else if (message instanceof Failure) {
+      handleFailureMessage((Failure) message);
+    } else if (message instanceof Invocations) {
+      handleInvocationsMessage((Invocations) message);
     } else {
       s_logger.warn("Unexpected message - {}", message);
     }
   }
 
-  private void handleResultMessage(final RemoteCalcNodeResultMessage message) {
+  private void handleResultMessage(final Result message) {
     s_logger.info("Received result for job {}", message.getResult().getSpecification());
     if (message.getReady() != null) {
       handleReadyMessage(message.getReady());
@@ -202,12 +216,12 @@ import com.opengamma.util.monitor.OperationTimer;
     }
   }
 
-  private void handleBusyMessage(final RemoteCalcNodeBusyMessage message) {
+  private void handleBusyMessage(final Busy message) {
     s_logger.debug("Remote calc node on {} started a tail job", this);
     _launched.incrementAndGet();
   }
 
-  private void handleReadyMessage(final RemoteCalcNodeReadyMessage message) {
+  private void handleReadyMessage(final Ready message) {
     s_logger.debug("Remote invoker ready message - {}", message);
     getCapabilitySet().setParameterCapability(PlatformCapabilities.NODE_COUNT, message.getCapacity());
     // [ENG-42] this is where we'd detect any other capability changes
@@ -222,7 +236,7 @@ import com.opengamma.util.monitor.OperationTimer;
     }
   }
 
-  private void handleFailureMessage(final RemoteCalcNodeFailureMessage message) {
+  private void handleFailureMessage(final Failure message) {
     s_logger.info("Received failure for job {}", message.getJob());
     if (message.getReady() != null) {
       handleReadyMessage(message.getReady());
@@ -241,6 +255,18 @@ import com.opengamma.util.monitor.OperationTimer;
       receiver.jobFailed(this, message.getComputeNodeId(), new OpenGammaRuntimeException(message.getErrorMessage()));
     } else {
       s_logger.warn("Duplicate or failure for cancelled callback {} received", message.getJob());
+    }
+  }
+
+  private void handleInvocationsMessage(final Invocations message) {
+    s_logger.info("Received invocation statistics");
+    final Scaling scaling = FunctionInvocationStatisticsReceiver.messageReceived(getFunctionCost(), message);
+    if (scaling != null) {
+      s_logger.debug("Sending scaling message ", scaling);
+      final MutableFudgeFieldContainer scalingMessage = getFudgeMessageSender().getFudgeContext().newMessage();
+      FudgeSerializationContext.addClassHeader(scalingMessage, scaling.getClass(), RemoteCalcNodeMessage.class);
+      scaling.toFudgeMsg(getFudgeMessageSender().getFudgeContext(), scalingMessage);
+      getFudgeMessageSender().send(scalingMessage);
     }
   }
 

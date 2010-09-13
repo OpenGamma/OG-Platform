@@ -6,7 +6,7 @@
  
 namespace com.opengamma.engine.view.calcnode.msg {
 
-  message RemoteCalcNodeBusyMessage extends RemoteCalcNodeMessage {
+  message Busy extends RemoteCalcNodeMessage {
   }
     
 }
