@@ -5,16 +5,15 @@
  */
 package com.opengamma.math.rootfinding;
 
-import static com.opengamma.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
-import static com.opengamma.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 
 import cern.jet.random.engine.MersenneTwister64;
@@ -26,24 +25,24 @@ import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
 import com.opengamma.financial.interestrate.ParRateCalculator;
-import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
-import com.opengamma.financial.interestrate.ParRateDifferenceCalculator;
-import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
+import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.ConstantCouponAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
+import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.libor.definition.Libor;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
 import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.rootfinding.YieldCurveFittingTestDataBundle.TestType;
 import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.DoublesPair;
@@ -54,11 +53,6 @@ import com.opengamma.util.tuple.DoublesPair;
 public abstract class YieldCurveFittingSetup {
   //CSOFF
   protected static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  protected static final InterestRateDerivativeVisitor<Double> PAR_RATE_CALCULATOR = ParRateCalculator.getInstance();
-  protected static final InterestRateDerivativeVisitor<Double> PAR_RATE_DIFFERENCE_CALCULATOR = ParRateDifferenceCalculator.getInstance();
-  protected static final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> PAR_RATE_SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
-  protected static final InterestRateDerivativeVisitor<Double> PV_CALCULATOR = PresentValueCalculator.getInstance();
-  protected static final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> PV_SENSITIVITY_CALCULATOR = PresentValueSensitivityCalculator.getInstance();
 
   protected static final double EPS = 1e-8;
   protected static final int STEPS = 100;
@@ -67,209 +61,155 @@ public abstract class YieldCurveFittingSetup {
   protected int _hotspotWarmupCycles;
   protected int _benchmarkCycles;
 
-  protected InterestRateDerivativeVisitor<Double> _marketValueCalculator = null;
-  protected InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> _marketValueSensitivityCalculator = null;
+  protected YieldCurveFittingTestDataBundle getYieldCurveFittingTestDataBundle(
+      List<InterestRateDerivative> instruments, final YieldCurveBundle knownCurves, final List<String> curveNames,
+      final List<double[]> curvesKnots, final Interpolator1D<? extends Interpolator1DDataBundle> extrapolator,
+      final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> extrapolatorWithSense,
+      InterestRateDerivativeVisitor<Double> marketValueCalculator,
+      InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> marketValueSensitivityCalculator,
+      double[] marketRates, DoubleMatrix1D startPosition, List<double[]> curveYields) {
 
-  protected String _interolatorName = null;
-  protected Interpolator1D<? extends Interpolator1DDataBundle> EXTRAPOLATOR;
-  protected Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> EXTRAPOLATOR_WITH_SENSITIVITY;
-  protected Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> EXTRAPOLATOR_WITH_FD_SENSITIVITY;
+    Validate.notNull(curveNames);
+    Validate.notNull(curvesKnots);
+    Validate.notNull(instruments);
+    Validate.notNull(extrapolator);
+    Validate.notNull(extrapolatorWithSense);
 
-  protected List<InterestRateDerivative> SINGLE_CURVE_INSTRUMENTS;
-  protected List<InterestRateDerivative> DOUBLE_CURVE_INSTRUMENTS;
-  protected double[] _marketRates;
-  protected final double[] _knotPoints = null;
-
-  protected DoubleMatrix1D _startPosition = null;
-
-  MultipleYieldCurveFinderDataBundle _yieldFinderData;
-  protected Function1D<DoubleMatrix1D, DoubleMatrix1D> SINGLE_CURVE_FINDER;
-  protected Function1D<DoubleMatrix1D, DoubleMatrix1D> DOUBLE_CURVE_FINDER;
-  protected Function1D<DoubleMatrix1D, DoubleMatrix2D> SINGLE_CURVE_JACOBIAN;
-  protected Function1D<DoubleMatrix1D, DoubleMatrix2D> DOUBLE_CURVE_JACOBIAN;
-  protected Function1D<DoubleMatrix1D, DoubleMatrix2D> SINGLE_CURVE_JACOBIAN_WITH_FD_INTERPOLATOR_SENSITIVITY;
-  protected Function1D<DoubleMatrix1D, DoubleMatrix2D> DOUBLE_CURVE_JACOBIAN_WITH_FD_INTERPOLATOR_SENSITIVITY;
-  protected final String _curve1Name = "Curve 1";
-  protected final String _curve2Name = "Curve 2";
-  protected YieldAndDiscountCurve _curve1;
-  protected YieldAndDiscountCurve _curve2;
-  protected double[] _curve1Knots = null;
-  protected double[] _curve2Knots = null;
-  protected double[] _curve1Yields = null;
-  protected double[] _curve2Yields = null;
-
-  //CSON
-  protected void setupExtrapolator() {
-    SINGLE_CURVE_INSTRUMENTS = new ArrayList<InterestRateDerivative>();
-    DOUBLE_CURVE_INSTRUMENTS = new ArrayList<InterestRateDerivative>();
-    EXTRAPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_interolatorName, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
-    EXTRAPOLATOR_WITH_SENSITIVITY = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(_interolatorName, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, false);
-    EXTRAPOLATOR_WITH_FD_SENSITIVITY = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(_interolatorName, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, true);
-
-  }
-
-  protected abstract void setupSingleCurveInstruments();
-
-  protected abstract void setupDoubleCurveInstruments();
-
-  protected MultipleYieldCurveFinderDataBundle getSingleYieldCurveFinderDataBundle(List<InterestRateDerivative> instruments, final Interpolator1D<? extends Interpolator1DDataBundle> extrapolator,
-      final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> extrapolatorWithSense) {
+    int n = curveNames.size();
+    Validate.isTrue(n == curvesKnots.size());
+    int count = 0;
+    for (int i = 0; i < n; i++) {
+      Validate.notNull(curvesKnots.get(i));
+      count += curvesKnots.get(i).length;
+    }
+    Validate.isTrue(count == instruments.size());
 
     LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> unknownCurveInterpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
     LinkedHashMap<String, double[]> unknownCurveNodes = new LinkedHashMap<String, double[]>();
-    LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators = 
-      new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+    LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
 
-    unknownCurveInterpolators.put(_curve1Name, extrapolator);
-    unknownCurveNodes.put(_curve1Name, _curve1Knots);
-    unknownCurveNodeSensitivityCalculators.put(_curve1Name, extrapolatorWithSense);
-    return new MultipleYieldCurveFinderDataBundle(instruments, null, unknownCurveNodes, unknownCurveInterpolators, unknownCurveNodeSensitivityCalculators);
+    for (int i = 0; i < n; i++) {
+      unknownCurveInterpolators.put(curveNames.get(i), extrapolator);
+      unknownCurveNodes.put(curveNames.get(i), curvesKnots.get(i));
+      unknownCurveNodeSensitivityCalculators.put(curveNames.get(i), extrapolatorWithSense);
+    }
+    if (curveYields == null) {
+      return new YieldCurveFittingTestDataBundle(instruments, knownCurves, unknownCurveNodes,
+          unknownCurveInterpolators, unknownCurveNodeSensitivityCalculators, marketValueCalculator,
+          marketValueSensitivityCalculator, marketRates, startPosition);
+    }
+
+    Validate.isTrue(curveYields.size() == n, "wrong number of true yields");
+    HashMap<String, double[]> yields = new HashMap<String, double[]>();
+    for (int i = 0; i < n; i++) {
+      yields.put(curveNames.get(i), curveYields.get(i));
+    }
+    return new YieldCurveFittingTestDataBundle(instruments, knownCurves, unknownCurveNodes, unknownCurveInterpolators,
+        unknownCurveNodeSensitivityCalculators, marketValueCalculator, marketValueSensitivityCalculator, marketRates,
+        startPosition, yields);
   }
 
-  protected MultipleYieldCurveFinderDataBundle getDoubleYieldCurveFinderDataBundle(List<InterestRateDerivative> instruments, final Interpolator1D<? extends Interpolator1DDataBundle> extrapolator,
-      final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> extrapolatorWithSense) {
-
-    LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> unknownCurveInterpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
-    LinkedHashMap<String, double[]> unknownCurveNodes = new LinkedHashMap<String, double[]>();
-    LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators = 
-      new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
-
-    unknownCurveInterpolators.put(_curve1Name, extrapolator);
-    unknownCurveInterpolators.put(_curve2Name, extrapolator);
-    unknownCurveNodes.put(_curve1Name, _curve1Knots);
-    unknownCurveNodes.put(_curve2Name, _curve2Knots);
-    unknownCurveNodeSensitivityCalculators.put(_curve1Name, extrapolatorWithSense);
-    unknownCurveNodeSensitivityCalculators.put(_curve2Name, extrapolatorWithSense);
-    return new MultipleYieldCurveFinderDataBundle(instruments, null, unknownCurveNodes, unknownCurveInterpolators, unknownCurveNodeSensitivityCalculators);
-  }
-
-  protected void setupSingleCurveFinder() {
-
-    MultipleYieldCurveFinderDataBundle data = getSingleYieldCurveFinderDataBundle(SINGLE_CURVE_INSTRUMENTS, EXTRAPOLATOR, EXTRAPOLATOR_WITH_SENSITIVITY);
-    SINGLE_CURVE_FINDER = new MultipleYieldCurveFinderFunction(data, _marketValueCalculator);
-    SINGLE_CURVE_JACOBIAN = new MultipleYieldCurveFinderJacobian(data, _marketValueSensitivityCalculator);
-
-    data = getSingleYieldCurveFinderDataBundle(SINGLE_CURVE_INSTRUMENTS, EXTRAPOLATOR, EXTRAPOLATOR_WITH_FD_SENSITIVITY);
-    SINGLE_CURVE_JACOBIAN_WITH_FD_INTERPOLATOR_SENSITIVITY = new MultipleYieldCurveFinderJacobian(data, _marketValueSensitivityCalculator);
-  }
-
-  protected void setupDoubleCurveFinder() {
-
-    MultipleYieldCurveFinderDataBundle data = getDoubleYieldCurveFinderDataBundle(DOUBLE_CURVE_INSTRUMENTS, EXTRAPOLATOR, EXTRAPOLATOR_WITH_SENSITIVITY);
-    DOUBLE_CURVE_FINDER = new MultipleYieldCurveFinderFunction(data, _marketValueCalculator);
-    DOUBLE_CURVE_JACOBIAN = new MultipleYieldCurveFinderJacobian(data, _marketValueSensitivityCalculator);
-
-    data = getDoubleYieldCurveFinderDataBundle(DOUBLE_CURVE_INSTRUMENTS, EXTRAPOLATOR, EXTRAPOLATOR_WITH_FD_SENSITIVITY);
-    DOUBLE_CURVE_JACOBIAN_WITH_FD_INTERPOLATOR_SENSITIVITY = new MultipleYieldCurveFinderJacobian(data, _marketValueSensitivityCalculator);
-  }
-
-  public void testRootFindingMethods(@SuppressWarnings("unused") NewtonVectorRootFinder rootFinder, @SuppressWarnings("unused") String name) {
-    //final VectorFieldFirstOrderDifferentiator fd_jac_calculator = new VectorFieldFirstOrderDifferentiator();
-
-    //   doHotSpot(rootFinder, name + ", single curve", SINGLE_CURVE_FINDER, SINGLE_CURVE_JACOBIAN);
-    //    doHotSpot(rootFinder, name + ", single curve, finite difference", SINGLE_CURVE_FINDER, fd_jac_calculator
-    //        .derivative(SINGLE_CURVE_FINDER));
-    //    doHotSpot(rootFinder, name + ", single curve FD interpolator sensitivity", SINGLE_CURVE_FINDER,
-    //        SINGLE_CURVE_JACOBIAN_WITH_FD_INTERPOLATOR_SENSITIVITY);
-
-    //    doHotSpot(rootFinder, name + ", double curve", DOUBLE_CURVE_FINDER, DOUBLE_CURVE_JACOBIAN, true);
-    //    doHotSpot(rootFinder, name + ", double curve, finite difference", DOUBLE_CURVE_FINDER, fd_jac_calculator
-    //        .derivative(DOUBLE_CURVE_FINDER), true);
-    //    doHotSpot(rootFinder, name + ", double curve FD interpolator sensitivity", DOUBLE_CURVE_FINDER,
-    //        DOUBLE_CURVE_JACOBIAN_WITH_FD_INTERPOLATOR_SENSITIVITY, true);
-  }
-
-  @SuppressWarnings("unused")
-  private void doHotSpot(final NewtonVectorRootFinder rootFinder, final String name, final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor,
-      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFunction) {
-    doHotSpot(rootFinder, name, functor, jacobianFunction, false);
-  }
-
-  private void doHotSpot(final NewtonVectorRootFinder rootFinder, final String name, final Function1D<DoubleMatrix1D, DoubleMatrix1D> function,
-      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFunction, final Boolean doubleCurveTest) {
+  public void doHotSpot(final NewtonVectorRootFinder rootFinder, YieldCurveFittingTestDataBundle data, final String name) {
     for (int i = 0; i < _hotspotWarmupCycles; i++) {
-      doTest(rootFinder, function, jacobianFunction, doubleCurveTest);
+      doTestForCurveFinding(rootFinder, data);
+
     }
     if (_benchmarkCycles > 0) {
       final OperationTimer timer = new OperationTimer(_logger, "processing {} cycles on " + name, _benchmarkCycles);
       for (int i = 0; i < _benchmarkCycles; i++) {
-        doTest(rootFinder, function, jacobianFunction, doubleCurveTest);
+
+        doTestForCurveFinding(rootFinder, data);
+
       }
       timer.finished();
     }
   }
 
-  private void doTest(final NewtonVectorRootFinder rootFinder, final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFunction,
-      final Boolean doubleCurveTest) {
-    if (doubleCurveTest) {
-      doTestForDoubleCurve(rootFinder, function, jacobianFunction);
+  private void doTestForCurveFinding(final NewtonVectorRootFinder rootFinder, YieldCurveFittingTestDataBundle data) {
+
+    Function1D<DoubleMatrix1D, DoubleMatrix1D> func = new MultipleYieldCurveFinderFunction(data, data
+        .getMarketValueCalculator());
+    Function1D<DoubleMatrix1D, DoubleMatrix2D> jac = null;
+
+    if (data.getTestType() == TestType.ANALYTIC_JACOBIAN) {
+      jac = new MultipleYieldCurveFinderJacobian(data, data.getMarketValueSensitivityCalculator());
+    } else if (data.getTestType() == TestType.FD_JACOBIAN) {
+      final VectorFieldFirstOrderDifferentiator fdJacCalculator = new VectorFieldFirstOrderDifferentiator();
+      jac = fdJacCalculator.derivative(func);
     } else {
-      doTestForSingleCurve(rootFinder, function, jacobianFunction);
+      throw new IllegalArgumentException("unknown TestType " + data.getTestType());
+
     }
-  }
 
-  private void doTestForSingleCurve(final NewtonVectorRootFinder rootFinder, final Function1D<DoubleMatrix1D, DoubleMatrix1D> f, final Function1D<DoubleMatrix1D, DoubleMatrix2D> j) {
-    final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(f, j, _startPosition);
-    final DoubleMatrix1D modelMarketValueDiff = f.evaluate(yieldCurveNodes);
-
-    for (int i = 0; i < modelMarketValueDiff.getNumberOfElements(); i++) {
-      assertEquals(0.0, modelMarketValueDiff.getEntry(i), EPS);
-    }
-  }
-
-  private void doTestForDoubleCurve(final NewtonVectorRootFinder rootFinder, final Function1D<DoubleMatrix1D, DoubleMatrix1D> f, final Function1D<DoubleMatrix1D, DoubleMatrix2D> j) {
-
-    final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(f, j, _startPosition);
-    final DoubleMatrix1D modelMarketValueDiff = f.evaluate(yieldCurveNodes);
+    final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(func, jac, data.getStartPosition());
+    final DoubleMatrix1D modelMarketValueDiff = func.evaluate(yieldCurveNodes);
 
     for (int i = 0; i < modelMarketValueDiff.getNumberOfElements(); i++) {
       assertEquals(0.0, modelMarketValueDiff.getEntry(i), EPS);
     }
 
-    @SuppressWarnings("unused")
-    final double[] fundingYields = Arrays.copyOfRange(yieldCurveNodes.getData(), 0, _curve1Knots.length);
-    @SuppressWarnings("unused")
-    final double[] liborYields = Arrays.copyOfRange(yieldCurveNodes.getData(), _curve1Knots.length, yieldCurveNodes.getNumberOfElements());
+    HashMap<String, double[]> yields = unpackYieldVector(data, yieldCurveNodes);
 
-    //    for (int i = 0; i < FUNDING_CURVE_TIMES.length; i++) {
-    //      assertEquals(FUNDING_YIELDS[i], fundingYields[i], EPS);
-    //    }
-    //    for (int i = 0; i < LIBOR_CURVE_TIMES.length; i++) {
-    //      assertEquals(LIBOR_YIELDS[i], liborYields[i], EPS);
-    //    }
-    //    //
-    //    final YieldAndDiscountCurve fundingCurve = makeYieldCurve(fundingYields, _curve1Knots, EXTRAPOLATOR);
-    //    final YieldAndDiscountCurve liborCurve = makeYieldCurve(liborYields, _curve2Knots, EXTRAPOLATOR);
-    //    final YieldCurveBundle bundle = new YieldCurveBundle();
-    //    bundle.setCurve(_curve1Name, liborCurve);
-    //    bundle.setCurve(_curve2Name, fundingCurve);
-    //
-    //    for (int i = 0; i < _marketRates.length; i++) {
-    //      assertEquals(_marketRates[i], PAR_RATE_CALCULATOR.getValue(DOUBLE_CURVE_INSTRUMENTS.get(i), bundle), EPS);
-    //    }
+    final YieldCurveBundle bundle = new YieldCurveBundle();
+    for (String name : data.getCurveNames()) {
+      YieldAndDiscountCurve curve = makeYieldCurve(yields.get(name), data.getCurveNodePointsForCurve(name), data
+          .getInterpolatorForCurve(name));
+      bundle.setCurve(name, curve);
+    }
+    if (data.getKnownCurves() != null) {
+      bundle.addAll(data.getKnownCurves());
+    }
+
+    //this is possibly a redundant test, especially if we are working in par-rate space (vs present value) as the very fact that 
+    //the root finder converged (and  modelMarketValueDiff are within EPS of 0) means this will also pass
+    for (int i = 0; i < data.getMarketRates().length; i++) {
+      assertEquals(data.getMarketRates()[i], ParRateCalculator.getInstance().getValue(data.getDerivative(i), bundle),
+          EPS);
+    }
+
+    //this test cannot be performed when we don't know what the true yield curves are - i.e. we start from market data
+    if (data.getCurveYields() != null) {
+      for (String name : data.getCurveNames()) {
+        double[] trueYields = data.getCurveYields().get(name);
+        double[] fittedYields = yields.get(name);
+        for (int i = 0; i < trueYields.length; i++) {
+          assertEquals(trueYields[i], fittedYields[i], EPS);
+        }
+      }
+    }
+
   }
 
-  public void testSingleCurveJacobian(DoubleMatrix1D position) {
+  private HashMap<String, double[]> unpackYieldVector(YieldCurveFittingTestDataBundle data,
+      DoubleMatrix1D yieldCurveNodes) {
+
+    HashMap<String, double[]> res = new HashMap<String, double[]>();
+    int start = 0;
+    int end = 0;
+    for (String name : data.getCurveNames()) {
+      end += data.getCurveNodePointsForCurve(name).length;
+      double[] temp = Arrays.copyOfRange(yieldCurveNodes.getData(), start, end);
+      res.put(name, temp);
+      start = end;
+    }
+
+    return res;
+  }
+
+  public void testJacobian(YieldCurveFittingTestDataBundle data) {
+    MultipleYieldCurveFinderFunction func = new MultipleYieldCurveFinderFunction(data, data.getMarketValueCalculator());
+    MultipleYieldCurveFinderJacobian jac = new MultipleYieldCurveFinderJacobian(data, data
+        .getMarketValueSensitivityCalculator());
     final VectorFieldFirstOrderDifferentiator fdCal = new VectorFieldFirstOrderDifferentiator();
-    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFD = fdCal.derivative(SINGLE_CURVE_FINDER);
-    final DoubleMatrix2D jacExact = SINGLE_CURVE_JACOBIAN.evaluate(position);
-    final DoubleMatrix2D jacFDSensitivity = SINGLE_CURVE_JACOBIAN_WITH_FD_INTERPOLATOR_SENSITIVITY.evaluate(position);
-    final DoubleMatrix2D jacFD = jacobianFD.evaluate(position);
-    assertMatrixEquals(jacExact, jacFDSensitivity, 1e-6);
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFD = fdCal.derivative(func);
+    final DoubleMatrix2D jacExact = jac.evaluate(data.getStartPosition());
+    final DoubleMatrix2D jacFD = jacobianFD.evaluate(data.getStartPosition());
     assertMatrixEquals(jacExact, jacFD, 1e-6);
+
   }
 
-  public void testDoubleCurveJacobian(@SuppressWarnings("unused") DoubleMatrix1D position) {
-    //    final VectorFieldFirstOrderDifferentiator fdCal = new VectorFieldFirstOrderDifferentiator();
-    //    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFD = fdCal.derivative(DOUBLE_CURVE_FINDER);
-    //    final DoubleMatrix2D jacExact = DOUBLE_CURVE_JACOBIAN.evaluate(position);
-    //    final DoubleMatrix2D jacFDSensitivity = DOUBLE_CURVE_JACOBIAN_WITH_FD_INTERPOLATOR_SENSITIVITY.evaluate(position);
-    //    final DoubleMatrix2D jacFD = jacobianFD.evaluate(position);
-    //    assertMatrixEquals(jacExact, jacFDSensitivity, 1e-6);
-    //    assertMatrixEquals(jacExact, jacFD, 1e-6);
-  }
-
-  protected static YieldAndDiscountCurve makeYieldCurve(final double[] yields, final double[] times, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+  protected static YieldAndDiscountCurve makeYieldCurve(final double[] yields, final double[] times,
+      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
     final int n = yields.length;
     if (n != times.length) {
       throw new IllegalArgumentException("rates and times different lengths");
@@ -277,24 +217,81 @@ public abstract class YieldCurveFittingSetup {
     return new InterpolatedYieldCurve(times, yields, interpolator);
   }
 
-  protected static MultipleYieldCurveFinderDataBundle upDateInstruments(MultipleYieldCurveFinderDataBundle old, final List<InterestRateDerivative> instruments) {
-    return new MultipleYieldCurveFinderDataBundle(instruments, old.getKnownCurves(), old.getUnknownCurveNodePoints(), old.getUnknownCurveInterpolators(), old
-        .getUnknownCurveNodeSensitivityCalculators());
+  protected static MultipleYieldCurveFinderDataBundle updateInstruments(MultipleYieldCurveFinderDataBundle old,
+      final List<InterestRateDerivative> instruments) {
+    return new MultipleYieldCurveFinderDataBundle(instruments, old.getKnownCurves(), old.getUnknownCurveNodePoints(),
+        old.getUnknownCurveInterpolators(), old.getUnknownCurveNodeSensitivityCalculators());
   }
 
-  protected static FixedFloatSwap setParSwapRate(FixedFloatSwap swap, double rate) {
-    VariableAnnuity floatingLeg = swap.getFloatingLeg();
-    ConstantCouponAnnuity fixedLeg = swap.getFixedLeg();
-    ConstantCouponAnnuity newLeg = new ConstantCouponAnnuity(fixedLeg.getPaymentTimes(), fixedLeg.getNotional(), rate, fixedLeg.getYearFractions(), fixedLeg.getFundingCurveName());
-    return new FixedFloatSwap(newLeg, floatingLeg);
+  protected static InterestRateDerivative makeIRD(String type, final double maturity, final String fundCurveName,
+      final String indexCurveName, final YieldCurveBundle curves) {
+    if ("cash".equals(type)) {
+      return makeCash(maturity, fundCurveName, curves);
+    } else if ("libor".equals(type)) {
+      return makeLibor(maturity, indexCurveName, curves);
+    } else if ("fra".equals(type)) {
+      return makeFRA(maturity, fundCurveName, indexCurveName, curves);
+    } else if ("future".equals(type)) {
+      return makeFutrure(maturity, indexCurveName, curves);
+    } else if ("swap".equals(type)) {
+      return makeSwap(maturity, fundCurveName, indexCurveName, curves);
+    }
+    throw new IllegalArgumentException("unknown IRD type " + type);
   }
 
-  protected static FixedFloatSwap setupSwap(final double time, final String fundCurveName, final String liborCurveName) {
+  protected static InterestRateDerivative makeCash(final double time, final String fundCurveName,
+      final YieldCurveBundle curves) {
+    InterestRateDerivative ird = new Cash(time, 0.0, fundCurveName);
+    double rate = ParRateCalculator.getInstance().getValue(ird, curves);
+    return new Cash(time, rate, fundCurveName);
+  }
+
+  protected static InterestRateDerivative makeLibor(final double time, final String indexCurveName,
+      final YieldCurveBundle curves) {
+    InterestRateDerivative ird = new Libor(time, 0.0, indexCurveName);
+    double rate = ParRateCalculator.getInstance().getValue(ird, curves);
+    return new Libor(time, rate, indexCurveName);
+
+  }
+
+  protected static InterestRateDerivative makeFRA(final double time, final String fundCurveName,
+      final String indexCurveName, final YieldCurveBundle curves) {
+    InterestRateDerivative ird = new ForwardRateAgreement(time - 0.25, time, 0.0, fundCurveName, indexCurveName);
+    double rate = ParRateCalculator.getInstance().getValue(ird, curves);
+    return new ForwardRateAgreement(time - 0.25, time, rate, fundCurveName, indexCurveName);
+  }
+
+  protected static InterestRateDerivative makeFutrure(final double time, final String indexCurveName,
+      final YieldCurveBundle curves) {
+    InterestRateDerivative ird = new InterestRateFuture(time, time + 0.25, 0.25, 0.0, indexCurveName);
+    double rate = ParRateCalculator.getInstance().getValue(ird, curves);
+    return new InterestRateFuture(time, time + 0.25, 0.25, rate, indexCurveName);
+  }
+
+  protected static FixedFloatSwap makeSwap(final double time, final String fundCurveName, final String liborCurveName,
+      final YieldCurveBundle curves) {
     final int index = (int) Math.round(2 * time);
-    return setupSwap(index, fundCurveName, liborCurveName);
+    return makeSwap(index, fundCurveName, liborCurveName, curves);
   }
 
-  protected static FixedFloatSwap setupSwap(final int payments, final String fundingCurveName, final String liborCurveName) {
+  //  protected static FixedFloatSwap setParSwapRate(FixedFloatSwap swap, double rate) {
+  //    VariableAnnuity floatingLeg = swap.getFloatingLeg();
+  //    ConstantCouponAnnuity fixedLeg = swap.getFixedLeg();
+  //    ConstantCouponAnnuity newLeg = new ConstantCouponAnnuity(fixedLeg.getPaymentTimes(), fixedLeg.getNotional(), rate,
+  //        fixedLeg.getYearFractions(), fixedLeg.getFundingCurveName());
+  //    return new FixedFloatSwap(newLeg, floatingLeg);
+  //  }
+
+  /**
+   * 
+   * @param payments
+   * @param fundingCurveName
+   * @param liborCurveName
+   * @return
+   */
+  protected static FixedFloatSwap makeSwap(final int payments, final String fundingCurveName,
+      final String liborCurveName, final YieldCurveBundle curves) {
+
     final double[] fixed = new double[payments];
     final double[] floating = new double[2 * payments];
     final double[] indexFixing = new double[2 * payments];
@@ -316,8 +313,15 @@ public abstract class YieldCurveFittingSetup {
       indexMaturity[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
     }
     final ConstantCouponAnnuity fixedLeg = new ConstantCouponAnnuity(fixed, 0.0, fundingCurveName);
-    final VariableAnnuity floatingLeg = new VariableAnnuity(floating, indexFixing, indexMaturity, yearFrac, 1.0, fundingCurveName, liborCurveName);
-    return new FixedFloatSwap(fixedLeg, floatingLeg);
+
+    final VariableAnnuity floatingLeg = new VariableAnnuity(floating, indexFixing, indexMaturity, yearFrac, 1.0,
+        fundingCurveName, liborCurveName);
+    InterestRateDerivative ird = new FixedFloatSwap(fixedLeg, floatingLeg);
+    double rate = ParRateCalculator.getInstance().getValue(ird, curves);
+    ConstantCouponAnnuity newLeg = new ConstantCouponAnnuity(fixedLeg.getPaymentTimes(), fixedLeg.getNotional(), rate,
+        fixedLeg.getYearFractions(), fixedLeg.getFundingCurveName());
+    return new FixedFloatSwap(newLeg, floatingLeg);
+
   }
 
   protected void assertMatrixEquals(final DoubleMatrix2D m1, final DoubleMatrix2D m2, final double eps) {
