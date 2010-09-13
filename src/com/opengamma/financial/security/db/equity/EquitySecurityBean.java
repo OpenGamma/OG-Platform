@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -9,16 +9,14 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import com.opengamma.engine.security.Security;
 import com.opengamma.financial.security.db.CurrencyBean;
 import com.opengamma.financial.security.db.ExchangeBean;
 import com.opengamma.financial.security.db.SecurityBean;
 
 /**
  * A concrete, JavaBean-based implementation of {@link Security}. 
- *
- * @author kirk
  */
-
 public class EquitySecurityBean extends SecurityBean {
   private ExchangeBean _exchange;
   private String _shortName;
@@ -106,17 +104,13 @@ public class EquitySecurityBean extends SecurityBean {
     }
     return new EqualsBuilder().append(getExchange(), equity.getExchange())
                               .append(getCompanyName(), equity.getCompanyName())
-                              .append(getCurrency(), equity.getCurrency())
-                              .append(getEffectiveDateTime(), equity.getEffectiveDateTime())
-                              .append(isDeleted(), equity.isDeleted()).isEquals(); 
+                              .append(getCurrency(), equity.getCurrency()).isEquals();
   }
   
   public int hashCode() {
     return new HashCodeBuilder().append(getExchange())
                                 .append(getCompanyName())
                                 .append(getCurrency())
-                                .append(getEffectiveDateTime())
-                                .append(isDeleted())
                                 .toHashCode(); 
   }
   

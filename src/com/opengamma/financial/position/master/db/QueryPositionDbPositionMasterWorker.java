@@ -264,8 +264,10 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
         }
         final String idScheme = rs.getString("SECKEY_SCHEME");
         final String idValue = rs.getString("SECKEY_VALUE");
-        Identifier id = Identifier.of(idScheme, idValue);
-        _position.setSecurityKey(_position.getSecurityKey().withIdentifier(id));
+        if (idScheme != null && idValue != null) {
+          Identifier id = Identifier.of(idScheme, idValue);
+          _position.setSecurityKey(_position.getSecurityKey().withIdentifier(id));
+        }
       }
       return _documents;
     }

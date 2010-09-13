@@ -33,7 +33,7 @@ public class InMemoryReferenceRateRepositoryTest {
   public void testRepostiory() {
     ConventionBundleMaster repo = new InMemoryConventionBundleMaster();
     ConventionBundleSource source = new DefaultConventionBundleSource(repo);
-    ConventionBundle referenceRate = source.getCpnventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "LIBOR O/N"));
+    ConventionBundle referenceRate = source.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "LIBOR O/N"));
     BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified");
     BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -44,7 +44,7 @@ public class InMemoryReferenceRateRepositoryTest {
     Assert.assertEquals(following, referenceRate.getBusinessDayConvention());
     Assert.assertEquals(2, referenceRate.getSettlementDays());
     
-    ConventionBundle referenceRate2 = source.getCpnventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "LIBOR 3m"));
+    ConventionBundle referenceRate2 = source.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "LIBOR 3m"));
     Assert.assertEquals("LIBOR 3m", referenceRate2.getName());
     Assert.assertEquals(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0003M Index"), Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "LIBOR 3m")), referenceRate2.getIdentifiers());
     Assert.assertEquals(UniqueIdentifier.of(InMemoryConventionBundleMaster.IN_MEMORY_UNIQUE_SCHEME.getName(), "6"), referenceRate2.getUniqueIdentifier());

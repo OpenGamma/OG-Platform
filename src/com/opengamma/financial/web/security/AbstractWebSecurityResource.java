@@ -8,7 +8,7 @@ package com.opengamma.financial.web.security;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
-import com.opengamma.financial.security.SecurityMaster;
+import com.opengamma.financial.security.master.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractWebResource;
 

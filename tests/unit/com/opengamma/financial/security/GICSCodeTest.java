@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -14,8 +14,7 @@ import org.junit.Test;
 import com.opengamma.financial.GICSCode;
 
 /**
- * 
- *
+ * Test GICSCode.
  */
 public class GICSCodeTest {
 

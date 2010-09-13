@@ -1,4 +1,3 @@
-
 -- create-db-security.sql: Security Master
 
 create table sec_currency (

@@ -13,7 +13,7 @@ import org.fudgemsg.FudgeContext;
 import com.opengamma.financial.position.master.rest.DataPortfolioTreesResource;
 import com.opengamma.financial.position.master.rest.DataPositionsResource;
 import com.opengamma.financial.security.MasterSecuritySource;
-import com.opengamma.financial.security.memory.InMemorySecurityMaster;
+import com.opengamma.financial.security.master.memory.InMemorySecurityMaster;
 import com.opengamma.financial.security.rest.SecurityMasterResource;
 import com.opengamma.financial.user.UserResourceDetails;
 import com.opengamma.financial.user.UserUniqueIdentifierUtils;
