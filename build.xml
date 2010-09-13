@@ -178,7 +178,7 @@
 		</clover-html-report>
 	</target>
 
-	<target name="clone-or-pull" description="clone or pull all projects from git">
+	<target name="clone-or-pull" depends="clean-src" description="clone or pull all projects from git">
 		<mkdir dir="projects" />
 		<git-clone-pull repository="git@github.com:OpenGamma/Fudge-Java.git" dest="projects/Fudge-Java" />
 		<git-clone-pull repository="git@github.com:OpenGamma/Fudge-Proto.git" dest="projects/Fudge-Proto" />
@@ -196,7 +196,7 @@
 		<git-clone-pull repository="git@github.com:OpenGamma/OG-Excel.git" dest="projects/OG-Excel" />
 	</target>
 
-	<target name="pull" description="pull origin master all projects from git">
+	<target name="pull" depends="clean-src" description="pull origin master all projects from git">
 		<git-pull dest="." />
 		<git-pull dest="projects/Fudge-Java" />
 		<git-pull dest="projects/Fudge-Proto" />
