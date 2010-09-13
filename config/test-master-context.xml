@@ -130,7 +130,7 @@
     </property>
   </bean>
 
-  <bean id="postgresDbSecurityMasterDetail" class="com.opengamma.financial.security.master.db.HibernateSecurityMasterDetailProvider">
+  <bean id="postgresDbSecurityMasterDetail" class="com.opengamma.financial.security.master.db.hibernate.HibernateSecurityMasterDetailProvider">
     <property name="sessionFactory" ref="postgresHibernateSessionFactory" />
   </bean>
 

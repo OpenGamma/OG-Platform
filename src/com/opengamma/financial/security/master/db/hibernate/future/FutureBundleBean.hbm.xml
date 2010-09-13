@@ -2,7 +2,7 @@
 <!DOCTYPE hibernate-mapping PUBLIC
   "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<hibernate-mapping package="com.opengamma.financial.security.db.future">
+<hibernate-mapping package="com.opengamma.financial.security.master.db.hibernate.future">
   <class name="FutureBundleBean" table="sec_futurebundle">
     <id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
@@ -13,7 +13,7 @@
     <property name="conversionFactor" type="double" not-null="true" />
     <set name="identifiers" table="sec_futurebundleidentifier">
       <key column="bundle_id" />
-      <composite-element class="com.opengamma.financial.security.db.IdentifierBean">
+      <composite-element class="com.opengamma.financial.security.master.db.hibernate.IdentifierBean">
         <property name="scheme" type="string" not-null="true" />
         <property name="identifier" type="string" not-null="true" />
       </composite-element>
