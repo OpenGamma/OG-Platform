@@ -96,6 +96,10 @@ public class YieldCurveBundle {
     return _curves.keySet();
   }
 
+  public Boolean containsName(String curveName) {
+    return _curves.containsKey(curveName);
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
