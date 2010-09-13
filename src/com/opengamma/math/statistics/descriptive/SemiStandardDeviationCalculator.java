@@ -22,14 +22,14 @@ import com.opengamma.math.function.Function1D;
  * \\sigma_{semi} = \\sqrt{\\frac{1}{k}\\sum\\limits_{i=1}^{k}(x_i - x_0)^2}
  * \\end{eqnarray*}}
  */
-public class SampleSemiStandardDeviationCalculator extends Function1D<double[], Double> {
+public class SemiStandardDeviationCalculator extends Function1D<double[], Double> {
   private final double _threshold;
   private final boolean _useDownSide;
 
   /**
    * Creates calculator with default values: threshold = 0 and useDownSide = true
    */
-  public SampleSemiStandardDeviationCalculator() {
+  public SemiStandardDeviationCalculator() {
     this(0, true);
   }
 
@@ -38,7 +38,7 @@ public class SampleSemiStandardDeviationCalculator extends Function1D<double[], 
    * @param threshold The threshold value for the data
    * @param useDownSide If true, all data below the threshold is used
    */
-  public SampleSemiStandardDeviationCalculator(final double threshold, final boolean useDownSide) {
+  public SemiStandardDeviationCalculator(final double threshold, final boolean useDownSide) {
     _threshold = threshold;
     _useDownSide = useDownSide;
   }
@@ -57,7 +57,10 @@ public class SampleSemiStandardDeviationCalculator extends Function1D<double[], 
     double sum = 0;
     if (_useDownSide) {
       int i = 0;
-      while (copyX[i] < _threshold) {
+      if (copyX[i] > _threshold) {
+        return 0.;
+      }
+      while (i < n && copyX[i] < _threshold) {
         sum += (copyX[i] - _threshold) * (copyX[i] - _threshold);
         i++;
       }
@@ -65,7 +68,10 @@ public class SampleSemiStandardDeviationCalculator extends Function1D<double[], 
     }
     int i = n - 1;
     int count = 0;
-    while (copyX[i] > _threshold) {
+    if (copyX[i] < _threshold) {
+      return 0.;
+    }
+    while (i >= 0 && copyX[i] > _threshold) {
       sum += (copyX[i] - _threshold) * (copyX[i] - _threshold);
       count++;
       i--;
