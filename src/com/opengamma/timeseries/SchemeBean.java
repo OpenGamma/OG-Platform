@@ -5,7 +5,7 @@
  */
 package com.opengamma.timeseries;
 
-import com.opengamma.financial.security.db.EnumWithDescriptionBean;
+import com.opengamma.financial.security.master.db.hibernate.EnumWithDescriptionBean;
 
 /**
  * Representation of a scheme in the datastore
