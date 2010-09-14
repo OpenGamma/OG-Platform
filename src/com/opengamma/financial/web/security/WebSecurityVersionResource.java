@@ -44,15 +44,14 @@ public class WebSecurityVersionResource extends AbstractWebSecurityResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
-  public FlexiBean createRootData() {
+  protected FlexiBean createRootData() {
+    FlexiBean out = super.createRootData();
     SecurityDocument latestSecDoc = data().getSecurity();
     SecurityDocument versionedSecurity = data().getVersioned();
-    FlexiBean out = getFreemarker().createRootData();
     out.put("latestSecurityDoc", latestSecDoc);
     out.put("latestSecurity", latestSecDoc.getSecurity());
     out.put("securityDoc", versionedSecurity);
     out.put("security", versionedSecurity.getSecurity());
-    out.put("uris", new WebSecuritiesUris(data()));
     return out;
   }
 

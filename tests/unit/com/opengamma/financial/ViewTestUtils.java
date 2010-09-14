@@ -28,12 +28,13 @@ import com.opengamma.engine.view.ViewImpl;
 import com.opengamma.engine.view.ViewProcessingContext;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
-import com.opengamma.engine.view.calc.stats.DiscardingStatisticsGathererProvider;
+import com.opengamma.engine.view.calc.stats.DiscardingGraphStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.LocalCalculationNode;
 import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
+import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.test.TestLiveDataClient;
@@ -44,7 +45,7 @@ import com.opengamma.util.NamedThreadPoolFactory;
  * Utility to setup a View for testing.
  */
 public class ViewTestUtils {
-  
+
   public static ViewImpl getMockView() {
     UniqueIdentifier portfolioId = UniqueIdentifier.of("foo", "bar");
 
@@ -63,7 +64,8 @@ public class ViewTestUtils {
 
     ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
-    LocalCalculationNode localNode = new LocalCalculationNode(cacheFactory, functionRepo, executionContext, targetResolver, viewProcessorQuerySender, Executors.newCachedThreadPool());
+    LocalCalculationNode localNode = new LocalCalculationNode(cacheFactory, functionRepo, executionContext, targetResolver, viewProcessorQuerySender, Executors.newCachedThreadPool(),
+        new DiscardingInvocationStatisticsGatherer());
     JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(localNode));
 
     ThreadFactory threadFactory = new NamedThreadPoolFactory("ViewTestUtils-" + System.currentTimeMillis(), true);
@@ -71,7 +73,7 @@ public class ViewTestUtils {
 
     ViewProcessingContext vpc = new ViewProcessingContext(new TestLiveDataClient(), new FixedLiveDataAvailabilityProvider(), new InMemoryLKVSnapshotProvider(), functionRepo,
         new DefaultFunctionResolver(functionRepo), positionSource, securitySource, cacheFactory, jobDispatcher, viewProcessorQueryReceiver, new FunctionCompilationContext(), executor,
-        new SingleNodeExecutorFactory(), new DefaultViewPermissionProvider(), new DiscardingStatisticsGathererProvider());
+        new SingleNodeExecutorFactory(), new DefaultViewPermissionProvider(), new DiscardingGraphStatisticsGathererProvider());
 
     ViewDefinition viewDefinition = new ViewDefinition("mock_view", portfolioId, "ViewTestUser");
 

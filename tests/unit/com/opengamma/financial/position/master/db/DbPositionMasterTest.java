@@ -53,10 +53,8 @@ public class DbPositionMasterTest extends DBTest {
   public void test_basics() throws Exception {
     assertNotNull(_posMaster);
     assertEquals(true, _posMaster.getIdentifierScheme().equals("DbPos"));
-    assertNotNull(_posMaster.getJdbcTemplate());
+    assertNotNull(_posMaster.getDbSource());
     assertNotNull(_posMaster.getTimeSource());
-    assertNotNull(_posMaster.getDbHelper());
-    assertNotNull(_posMaster.getWorkers());
   }
 
   //-------------------------------------------------------------------------

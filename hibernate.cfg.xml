@@ -9,13 +9,13 @@
         <property name="hibernate.connection.driver_class">${hibernate.connection.driver_class}</property>
         <property name="hibernate.connection.url">${hibernate.connection.url}</property>
         <property name="hibernate.dialect">${hibernate.dialect}</property>
-        <mapping resource="com/opengamma/financial/security/db/DomainSpecificIdentifierBean.hbm.xml"/>
-        <mapping resource="com/opengamma/financial/security/db/ExchangeBean.hbm.xml"/>
-        <mapping resource="com/opengamma/financial/security/db/CurrencyBean.hbm.xml"/>
-        <mapping resource="com/opengamma/financial/security/db/GICSCodeBean.hbm.xml"/>
-        <mapping resource="com/opengamma/financial/security/db/FrequencyBean.hbm.xml"/>
-        <mapping resource="com/opengamma/financial/security/db/DayCountBean.hbm.xml"/>
-        <mapping resource="com/opengamma/financial/security/db/BusinessDayConventionBean.hbm.xml"/>
-        <mapping resource="com/opengamma/financial/security/db/SecurityBean.hbm.xml"/>     
+        <mapping resource="com/opengamma/financial/security/master/db/hibernate/DomainSpecificIdentifierBean.hbm.xml"/>
+        <mapping resource="com/opengamma/financial/security/master/db/hibernate/ExchangeBean.hbm.xml"/>
+        <mapping resource="com/opengamma/financial/security/master/db/hibernate/CurrencyBean.hbm.xml"/>
+        <mapping resource="com/opengamma/financial/security/master/db/hibernate/GICSCodeBean.hbm.xml"/>
+        <mapping resource="com/opengamma/financial/security/master/db/hibernate/FrequencyBean.hbm.xml"/>
+        <mapping resource="com/opengamma/financial/security/master/db/hibernate/DayCountBean.hbm.xml"/>
+        <mapping resource="com/opengamma/financial/security/master/db/hibernate/BusinessDayConventionBean.hbm.xml"/>
+        <mapping resource="com/opengamma/financial/security/master/db/hibernate/SecurityBean.hbm.xml"/>     
     </session-factory>
 </hibernate-configuration>

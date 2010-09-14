@@ -166,7 +166,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     if (target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }
-    return false;//ObjectUtils.equals(target.getUniqueIdentifier(), _currency.getUniqueIdentifier());
+    return false; //ObjectUtils.equals(target.getUniqueIdentifier(), _currency.getUniqueIdentifier());
   }
 
   @Override
@@ -175,11 +175,6 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       return _requirements;
     }
     return null;
-  }
-
-  @Override
-  public boolean buildsOwnSubGraph() {
-    return false;
   }
 
   @Override

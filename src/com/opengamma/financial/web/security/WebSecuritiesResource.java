@@ -122,11 +122,10 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
-  public FlexiBean createRootData() {
+  protected FlexiBean createRootData() {
+    FlexiBean out = super.createRootData();
     SecuritySearchRequest searchRequest = new SecuritySearchRequest();
-    FlexiBean out = getFreemarker().createRootData();
     out.put("searchRequest", searchRequest);
-    out.put("uris", new WebSecuritiesUris(data()));
     return out;
   }
 
