@@ -87,7 +87,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.security.db.EnumWithDescriptionBean;
+import com.opengamma.financial.security.master.db.hibernate.EnumWithDescriptionBean;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
