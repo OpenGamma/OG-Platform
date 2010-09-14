@@ -15,7 +15,7 @@ package com.opengamma.financial.riskreward;
  * \\end{eqnarray*}}
  * where {@latex.inline $RAP_i$} is the risk-adjusted performance measure of the asset and {@latex.inline $RAP_M$} is the risk-adjusted performance measure of the market.
  */
-public class MSquaredPerformanceCalculator {
+public class MTwoPerformanceCalculator {
   private static final RiskAdjustedPerformanceCalculator RAP = new RiskAdjustedPerformanceCalculator();
 
   /**

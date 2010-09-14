@@ -12,7 +12,7 @@ import org.junit.Test;
 /**
  * 
  */
-public class MSquaredPerformanceCalculatorTest {
+public class MTwoPerformanceCalculatorTest {
 
   @Test
   public void test() {
@@ -21,6 +21,6 @@ public class MSquaredPerformanceCalculatorTest {
     final double marketReturn = 0.11;
     final double assetStandardDeviation = 0.15;
     final double marketStandardDeviation = 0.17;
-    assertEquals(new MSquaredPerformanceCalculator().calculate(assetReturn, riskFreeReturn, marketReturn, assetStandardDeviation, marketStandardDeviation), 0.022, 1e-3);
+    assertEquals(new MTwoPerformanceCalculator().calculate(assetReturn, riskFreeReturn, marketReturn, assetStandardDeviation, marketStandardDeviation), 0.022, 1e-3);
   }
 }

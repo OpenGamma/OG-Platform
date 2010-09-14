@@ -13,7 +13,7 @@ package com.opengamma.financial.riskreward;
  * \\end{eqnarray*}} 
  * where {@latex.inline $MRAP_i$} is the market-risk-adjusted performance of the asset and {@latex.inline $MRAP_M$} is the market-risk-adjusted performance of the market.
  */
-public class TSquaredPerformanceCalculator {
+public class TTwoPerformanceCalculator {
   private static final MarketRiskAdjustedPerformanceCalculator MRAP = new MarketRiskAdjustedPerformanceCalculator();
 
   /**

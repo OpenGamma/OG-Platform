@@ -22,11 +22,11 @@ public class RiskRewardCrossTest {
   private static final TotalRiskAlphaCalculator TRA = new TotalRiskAlphaCalculator();
   private static final SharpeRatioCalculator SHARPE = new SharpeRatioCalculator();
   private static final RiskAdjustedPerformanceCalculator RAP = new RiskAdjustedPerformanceCalculator();
-  private static final MSquaredPerformanceCalculator M2 = new MSquaredPerformanceCalculator();
+  private static final MTwoPerformanceCalculator M2 = new MTwoPerformanceCalculator();
   private static final TreynorRatioCalculator TREYNOR = new TreynorRatioCalculator();
   private static final JensenAlphaCalculator JENSEN = new JensenAlphaCalculator();
   private static final MarketRiskAdjustedPerformanceCalculator MRAP = new MarketRiskAdjustedPerformanceCalculator();
-  private static final TSquaredPerformanceCalculator T2 = new TSquaredPerformanceCalculator();
+  private static final TTwoPerformanceCalculator T2 = new TTwoPerformanceCalculator();
   private static final double EPS = 1e-15;
 
   @Test
