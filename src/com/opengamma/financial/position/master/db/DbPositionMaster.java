@@ -35,6 +35,7 @@ import com.opengamma.financial.position.master.PositionSearchResult;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbHelper;
+import com.opengamma.util.db.DbSource;
 
 /**
  * Low level SQL focused part of the database backed position master.
@@ -89,6 +90,19 @@ public class DbPositionMaster implements PositionMaster {
     _jdbcTemplate = new SimpleJdbcTemplate(dataSource);
     _transactionTemplate = new TransactionTemplate(transManager, transDefinition);
     _dbHelper = dbHelper;
+    setWorkers(new DbPositionMasterWorkers());
+  }
+
+  /**
+   * Creates an instance.
+   * @param dbSource  the database source combining all configuration, not null
+   */
+  public DbPositionMaster(final DbSource dbSource) {
+    ArgumentChecker.notNull(dbSource, "dbSource");
+    s_logger.debug("installed DbSource: {}", dbSource);
+    _jdbcTemplate = dbSource.getJdbcTemplate();
+    _transactionTemplate = dbSource.getTransactionTemplate();
+    _dbHelper = dbSource.getDialect();
     setWorkers(new DbPositionMasterWorkers());
   }
 

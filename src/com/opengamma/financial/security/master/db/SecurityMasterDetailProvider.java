@@ -6,6 +6,7 @@
 package com.opengamma.financial.security.master.db;
 
 import com.opengamma.engine.security.DefaultSecurity;
+import com.opengamma.util.db.DbSource;
 
 /**
  * Provider allowing the detail of loading and storing a security to be separated
@@ -16,6 +17,13 @@ import com.opengamma.engine.security.DefaultSecurity;
  * For example, using JDBC for the basic load and Hibernate for the detail.
  */
 public interface SecurityMasterDetailProvider {
+
+  /**
+   * Initializes the detail provider with the same database source as the master.
+   * 
+   * @param dbSource  the database source, not null
+   */
+  void init(DbSource dbSource);
 
   /**
    * Loads the security based on the supplied base.
