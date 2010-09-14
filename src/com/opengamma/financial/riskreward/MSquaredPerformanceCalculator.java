@@ -28,6 +28,6 @@ public class MSquaredPerformanceCalculator {
    * @return M<sup>2</sup>
    */
   public double calculate(final double assetReturn, final double riskFreeReturn, final double marketReturn, final double assetStandardDeviation, final double marketStandardDeviation) {
-    return RAP.calculate(assetReturn, riskFreeReturn, assetStandardDeviation, marketStandardDeviation) - RAP.calculate(marketReturn, riskFreeReturn, marketStandardDeviation, marketStandardDeviation);
+    return RAP.calculate(assetReturn, riskFreeReturn, assetStandardDeviation, marketStandardDeviation) - marketReturn;
   }
 }
