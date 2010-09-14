@@ -44,7 +44,7 @@ public class WriteBehindViewComputationCacheTest {
     private Collection<ValueSpecification> _getValues;
     private ComputedValue _putValue;
     private Collection<ComputedValue> _putValues;
-    
+
     private volatile boolean _throwException;
 
     private final CountDownLatch _allowPutValue = new CountDownLatch(1);
@@ -69,19 +69,19 @@ public class WriteBehindViewComputationCacheTest {
         ex.printStackTrace();
       }
       if (_throwException) {
-        throw new OpenGammaRuntimeException ("woot");
+        throw new OpenGammaRuntimeException("woot");
       }
       _putValue = value;
     }
-    
+
     @Override
-    public void putPrivateValue (final ComputedValue value) {
-      putValueImpl (value);
+    public void putPrivateValue(final ComputedValue value) {
+      putValueImpl(value);
     }
-    
+
     @Override
-    public void putSharedValue (final ComputedValue value) {
-      putValueImpl (value);
+    public void putSharedValue(final ComputedValue value) {
+      putValueImpl(value);
     }
 
     private void putValuesImpl(final Collection<ComputedValue> values) {
@@ -91,19 +91,24 @@ public class WriteBehindViewComputationCacheTest {
         ex.printStackTrace();
       }
       if (_throwException) {
-        throw new OpenGammaRuntimeException ("woot");
+        throw new OpenGammaRuntimeException("woot");
       }
       _putValues = new ArrayList<ComputedValue>(values);
     }
-    
+
     @Override
-    public void putPrivateValues (final Collection<ComputedValue> values) {
-      putValuesImpl (values);
+    public void putPrivateValues(final Collection<ComputedValue> values) {
+      putValuesImpl(values);
     }
-    
+
     @Override
-    public void putSharedValues (final Collection<ComputedValue> values) {
-      putValuesImpl (values);
+    public void putSharedValues(final Collection<ComputedValue> values) {
+      putValuesImpl(values);
+    }
+
+    @Override
+    public Integer estimateValueSize(final ComputedValue value) {
+      return null;
     }
 
   }
@@ -116,16 +121,16 @@ public class WriteBehindViewComputationCacheTest {
   private ExecutorService _executorService;
   private Underlying _underlying;
   private WriteBehindViewComputationCache _cache;
-  
-  public WriteBehindViewComputationCacheTest (final CacheSelectHint filter) {
+
+  public WriteBehindViewComputationCacheTest(final CacheSelectHint filter) {
     _filter = filter;
   }
 
   @Parameters
-  public static List<Object[]> cacheSelectFilters () {
-    final List<Object[]> filters = new ArrayList<Object[]> (2);
-    filters.add (new Object[] { CacheSelectHint.allPrivate () });
-    filters.add (new Object[] { CacheSelectHint.allShared () });
+  public static List<Object[]> cacheSelectFilters() {
+    final List<Object[]> filters = new ArrayList<Object[]>(2);
+    filters.add(new Object[] {CacheSelectHint.allPrivate()});
+    filters.add(new Object[] {CacheSelectHint.allShared()});
     return filters;
   }
 
@@ -179,7 +184,7 @@ public class WriteBehindViewComputationCacheTest {
     assertEquals(s_valueSpec3, _underlying._getValue);
     _underlying._allowPutValues.countDown();
     _cache.waitForPendingWrites();
-    assertNotNull (_underlying._putValues);
+    assertNotNull(_underlying._putValues);
     // With nothing pending, we should hit the underlying completely
     _cache.getValues(valueSpec);
     assertEquals(valueSpec, _underlying._getValues);
@@ -198,7 +203,7 @@ public class WriteBehindViewComputationCacheTest {
     assertNull(_underlying._getValue);
     _underlying._allowPutValue.countDown();
     _cache.waitForPendingWrites();
-    assertNotNull (_underlying._putValue);
+    assertNotNull(_underlying._putValue);
     // With nothing pending, we should hit the underlying completely
     _cache.getValues(valueSpec);
     assertEquals(valueSpec, _underlying._getValues);
@@ -295,33 +300,33 @@ public class WriteBehindViewComputationCacheTest {
   @Test
   public void synchronizeCacheWithPending() {
     _cache.putValue(new ComputedValue(s_valueSpec1, "foo"));
-    new Thread () {
+    new Thread() {
       @Override
-      public void run () {
+      public void run() {
         try {
-          Thread.sleep (1000L);
+          Thread.sleep(1000L);
         } catch (InterruptedException e) {
         }
-        _underlying._allowPutValue.countDown ();
+        _underlying._allowPutValue.countDown();
       }
-    }.start ();
+    }.start();
     _cache.waitForPendingWrites();
   }
 
-  @Test(expected=OpenGammaRuntimeException.class)
+  @Test(expected = OpenGammaRuntimeException.class)
   public void synchronizeCacheWithPendingException() {
     _cache.putValue(new ComputedValue(s_valueSpec1, "foo"));
-    new Thread () {
+    new Thread() {
       @Override
-      public void run () {
+      public void run() {
         try {
-          Thread.sleep (1000L);
+          Thread.sleep(1000L);
         } catch (InterruptedException e) {
         }
         _underlying._throwException = true;
-        _underlying._allowPutValue.countDown ();
+        _underlying._allowPutValue.countDown();
       }
-    }.start ();
+    }.start();
     _cache.waitForPendingWrites();
   }
 

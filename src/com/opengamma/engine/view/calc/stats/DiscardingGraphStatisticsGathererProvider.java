@@ -11,7 +11,7 @@ import com.opengamma.engine.view.View;
 /**
  * Discards any statistics.
  */
-public class DiscardingStatisticsGathererProvider implements GraphExecutorStatisticsGathererProvider {
+public class DiscardingGraphStatisticsGathererProvider implements GraphExecutorStatisticsGathererProvider {
 
   /**
    * Instance of a statistics gatherer that doesn't do anything.
@@ -24,7 +24,7 @@ public class DiscardingStatisticsGathererProvider implements GraphExecutorStatis
     }
 
     @Override
-    public void graphProcessed(String calcConfig, int totalJobs, double meanJobSize, double meanJobCycleCost) {
+    public void graphProcessed(String calcConfig, int totalJobs, double meanJobSize, double meanJobCycleCost, double meanJobIOCost) {
       // No action
     }
 

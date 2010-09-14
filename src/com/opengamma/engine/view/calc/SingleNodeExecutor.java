@@ -108,8 +108,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
     }
 
     s_logger.info("Enqueuing {} to invoke {} functions", new Object[] {jobSpec, items.size()});
-    // TODO [ENG-201] Should use a proper "cost" measure
-    statistics.graphProcessed(graph.getCalcConfName(), 1, items.size(), items.size());
+    statistics.graphProcessed(graph.getCalcConfName(), 1, items.size(), Double.NaN, Double.NaN);
 
     AtomicExecutorCallable runnable = new AtomicExecutorCallable();
     AtomicExecutorFuture future = new AtomicExecutorFuture(runnable, graph, item2Node, statistics);

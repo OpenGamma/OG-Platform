@@ -37,12 +37,6 @@ public abstract class AbstractFunction implements FunctionDefinition {
   }
 
   @Override
-  public boolean buildsOwnSubGraph() {
-    // TODO Auto-generated method stub
-    return false;
-  }
-
-  @Override
   public void init(FunctionCompilationContext context) {
   }
 

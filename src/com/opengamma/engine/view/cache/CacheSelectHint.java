@@ -11,9 +11,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
-
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
@@ -21,9 +18,6 @@ import com.opengamma.util.ArgumentChecker;
  * A filter to determine whether given values are to go into a private or shared cache. 
  */
 public final class CacheSelectHint {
-
-  private static final String VALUES_FIELD_NAME = "cacheValues";
-  private static final String PRIVATE_FIELD_NAME = "cacheValuesPrivate";
 
   private final Set<ValueSpecification> _valueSpecifications;
   private long[] _valueIdentifiers;
@@ -95,16 +89,24 @@ public final class CacheSelectHint {
       return !_valueSpecifications.contains(valueSpecification);
     }
   }
-
-  public void toFudgeMsg(final MutableFudgeFieldContainer msg) {
-    msg.add(VALUES_FIELD_NAME, _valueIdentifiers);
-    msg.add(PRIVATE_FIELD_NAME, _isPrivate);
+  
+  /**
+   * Gets the valueIdentifiers field.
+   * @return the valueIdentifiers
+   */
+  public long[] getValueIdentifiers() {
+    return _valueIdentifiers;
   }
 
-  public static CacheSelectHint fromFudgeMsg(final FudgeFieldContainer msg) {
-    final long[] valueIdentifiers = (long[]) msg.getByName(VALUES_FIELD_NAME).getValue();
-    final boolean isPrivate = msg.getBoolean(PRIVATE_FIELD_NAME);
+  /**
+   * Gets the isPrivate field.
+   * @return the isPrivate
+   */
+  public boolean isPrivate() {
+    return _isPrivate;
+  }
+
+  public static CacheSelectHint create(long[] valueIdentifiers, boolean isPrivate) {
     return new CacheSelectHint(null, valueIdentifiers, isPrivate);
   }
-
 }

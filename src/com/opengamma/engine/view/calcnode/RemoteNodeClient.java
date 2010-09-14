@@ -19,13 +19,15 @@ import org.springframework.context.Lifecycle;
 
 import com.opengamma.engine.function.FunctionCompilationService;
 import com.opengamma.engine.view.cache.IdentifierMap;
-import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeBusyMessage;
-import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeFailureMessage;
-import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeInitMessage;
-import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeJobMessage;
+import com.opengamma.engine.view.calcnode.msg.Busy;
+import com.opengamma.engine.view.calcnode.msg.Execute;
+import com.opengamma.engine.view.calcnode.msg.Failure;
+import com.opengamma.engine.view.calcnode.msg.Init;
+import com.opengamma.engine.view.calcnode.msg.Ready;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
-import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeReadyMessage;
-import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeResultMessage;
+import com.opengamma.engine.view.calcnode.msg.Result;
+import com.opengamma.engine.view.calcnode.msg.Scaling;
+import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsSender;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionStateListener;
 import com.opengamma.transport.FudgeMessageReceiver;
@@ -42,23 +44,29 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
   private final FudgeConnection _connection;
   private final FunctionCompilationService _functionCompilationService;
   private final IdentifierMap _identifierMap;
+  private final FunctionInvocationStatisticsSender _statistics;
   private boolean _started;
 
-  public RemoteNodeClient(final FudgeConnection connection, final FunctionCompilationService functionCompilationService, final IdentifierMap identifierMap) {
+  public RemoteNodeClient(final FudgeConnection connection, final FunctionCompilationService functionCompilationService, final IdentifierMap identifierMap,
+      final FunctionInvocationStatisticsSender statistics) {
     _connection = connection;
     _functionCompilationService = functionCompilationService;
     _identifierMap = identifierMap;
     connection.setFudgeMessageReceiver(this);
+    _statistics = statistics;
+    statistics.setExecutorService(getExecutorService());
+    statistics.setFudgeMessageSender(connection.getFudgeMessageSender());
   }
 
-  public RemoteNodeClient(final FudgeConnection connection, final FunctionCompilationService functionCompilationService, final IdentifierMap identifierMap, final AbstractCalculationNode node) {
-    this(connection, functionCompilationService, identifierMap);
+  public RemoteNodeClient(final FudgeConnection connection, final FunctionCompilationService functionCompilationService, final IdentifierMap identifierMap,
+      final FunctionInvocationStatisticsSender statistics, final AbstractCalculationNode node) {
+    this(connection, functionCompilationService, identifierMap, statistics);
     setNode(node);
   }
 
   public RemoteNodeClient(final FudgeConnection connection, final FunctionCompilationService functionCompilationService, final IdentifierMap identifierMap,
-      final Collection<AbstractCalculationNode> nodes) {
-    this(connection, functionCompilationService, identifierMap);
+      final FunctionInvocationStatisticsSender statistics, final Collection<AbstractCalculationNode> nodes) {
+    this(connection, functionCompilationService, identifierMap, statistics);
     setNodes(nodes);
   }
 
@@ -81,6 +89,10 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
     return _identifierMap;
   }
 
+  protected FunctionInvocationStatisticsSender getStatistics() {
+    return _statistics;
+  }
+
   private void sendMessage(final RemoteCalcNodeMessage message) {
     final FudgeMessageSender sender = getConnection().getFudgeMessageSender();
     final FudgeSerializationContext context = new FudgeSerializationContext(sender.getFudgeContext());
@@ -90,7 +102,7 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
   }
 
   protected void sendCapabilities() {
-    final RemoteCalcNodeReadyMessage ready = new RemoteCalcNodeReadyMessage(getNodes().size());
+    final Ready ready = new Ready(getNodes().size());
     // TODO any other capabilities to add
     sendMessage(ready);
   }
@@ -107,10 +119,12 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
     s_logger.debug("Received ({} fields) from {}", msg.getNumFields(), _connection);
     final FudgeDeserializationContext context = new FudgeDeserializationContext(fudgeContext);
     final RemoteCalcNodeMessage message = context.fudgeMsgToObject(RemoteCalcNodeMessage.class, msgEnvelope.getMessage());
-    if (message instanceof RemoteCalcNodeJobMessage) {
-      handleJobMessage((RemoteCalcNodeJobMessage) message);
-    } else if (message instanceof RemoteCalcNodeInitMessage) {
-      handleInitMessage((RemoteCalcNodeInitMessage) message);
+    if (message instanceof Execute) {
+      handleJobMessage((Execute) message);
+    } else if (message instanceof Scaling) {
+      handleScalingMessage((Scaling) message);
+    } else if (message instanceof Init) {
+      handleInitMessage((Init) message);
     } else {
       s_logger.warn("Unexpected message - {}", message);
     }
@@ -119,14 +133,14 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
   @Override
   protected void onJobStart(final CalculationJob job) {
     if (job.getRequiredJobIds() != null) {
-      sendMessage(new RemoteCalcNodeBusyMessage());
+      sendMessage(new Busy());
     }
   }
 
   /**
    * Needs to run sequentially with jobs in the order they've arrived over the network.
    */
-  private void handleJobMessage(final RemoteCalcNodeJobMessage message) {
+  private void handleJobMessage(final Execute message) {
     final CalculationJob job = message.getJob();
     job.resolveInputs(getIdentifierMap());
     addJob(job, new ExecutionReceiver() {
@@ -134,19 +148,24 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
       @Override
       public void executionComplete(final CalculationJobResult result) {
         result.convertInputs(getIdentifierMap());
-        sendMessage(new RemoteCalcNodeResultMessage(result));
+        sendMessage(new Result(result));
       }
 
       @Override
       public void executionFailed(final AbstractCalculationNode node, final Exception exception) {
         s_logger.warn("Exception thrown by job execution", exception);
-        sendMessage(new RemoteCalcNodeFailureMessage(job.getSpecification(), exception.getMessage(), node.getNodeId()));
+        sendMessage(new Failure(job.getSpecification(), exception.getMessage(), node.getNodeId()));
       }
 
     }, null);
   }
 
-  private void handleInitMessage(final RemoteCalcNodeInitMessage message) {
+  private void handleScalingMessage(final Scaling message) {
+    s_logger.info("Scaling data received {}", message);
+    getStatistics().setScaling(message.getInvocation());
+  }
+
+  private void handleInitMessage(final Init message) {
     // TODO Did we want to force a particular seed value or other local state ?
   }
 

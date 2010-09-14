@@ -99,4 +99,13 @@ public interface ViewComputationCache {
    */
   void putValues(Collection<ComputedValue> values, CacheSelectHint filter);
 
+  /**
+   * Estimates the size of a value in bytes. If the value has been recently processed, the actual byte count of the
+   * Fudge encoding should be used. Other possibilities could be the average size of objects of that class.
+   * 
+   * @param value the value to estimate
+   * @return the size in bytes, or {@code null} if no meaningful estimate is available
+   */
+  Integer estimateValueSize(ComputedValue value);
+
 }

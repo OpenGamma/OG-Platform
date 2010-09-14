@@ -8,6 +8,7 @@ package com.opengamma.engine.view.calc;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -23,21 +24,33 @@ import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
+import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
 
 /* package */class GraphFragment {
+
+  /**
+   * Data input/output rate from shared cache. Assumes 1Gb/s. This needs to be tunable through the
+   * executor.
+   */
+  private static final double NANOS_PER_BYTE = 1.0;
 
   private final int _graphFragmentIdentifier;
   private final GraphFragmentContext _context;
   private final LinkedList<DependencyNode> _nodes = new LinkedList<DependencyNode>();
-  private final Set<GraphFragment> _inputs = new HashSet<GraphFragment>();
-  private final Set<GraphFragment> _dependencies = new HashSet<GraphFragment>();
+  private final Set<GraphFragment> _inputFragments = new HashSet<GraphFragment>();
+  private final Set<GraphFragment> _outputFragments = new HashSet<GraphFragment>();
+  private final Map<ValueSpecification, Integer> _inputValues = new HashMap<ValueSpecification, Integer>();
+  private final Map<ValueSpecification, Integer> _outputValues = new HashMap<ValueSpecification, Integer>();
+  private final Set<ValueSpecification> _localPrivateValues = new HashSet<ValueSpecification>();
   private AtomicInteger _blockCount;
   private Collection<Long> _requiredJobs;
   private Collection<GraphFragment> _tail;
+  private int _executionId;
 
-  private int _startTime;
-  private int _startTimeCache;
-  private int _cycleCost;
+  private long _startTime = -1;
+  private long _invocationCost;
+  private long _dataInputCost;
+  private long _dataOutputCost;
 
   public GraphFragment(final GraphFragmentContext context) {
     _context = context;
@@ -47,13 +60,27 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
   public GraphFragment(final GraphFragmentContext context, final DependencyNode node) {
     this(context);
     _nodes.add(node);
-    // TODO [ENG-201] this should be some metric relating to the computational overhead of the function
-    _cycleCost = 1;
+    final FunctionInvocationStatistics statistics = getContext().getFunctionStatistics(node.getFunction().getFunction());
+    _invocationCost = (long) statistics.getInvocationCost();
+    final Integer inputCost = (Integer) (int) (statistics.getDataInputCost() * NANOS_PER_BYTE);
+    for (ValueSpecification input : node.getInputValues()) {
+      _inputValues.put(input, inputCost);
+    }
+    _dataInputCost = node.getInputValues().size() * inputCost;
+    final Integer outputCost = (Integer) (int) (statistics.getDataOutputCost() * NANOS_PER_BYTE);
+    for (ValueSpecification output : node.getOutputValues()) {
+      _outputValues.put(output, outputCost);
+    }
+    _dataOutputCost = node.getOutputValues().size() * outputCost;
   }
 
   public GraphFragment(final GraphFragmentContext context, final Collection<DependencyNode> nodes) {
     this(context);
     _nodes.addAll(nodes);
+    _invocationCost = 0;
+    for (DependencyNode node : nodes) {
+      _invocationCost += (long) getContext().getFunctionStatistics(node.getFunction().getFunction()).getInvocationCost();
+    }
   }
 
   public GraphFragmentContext getContext() {
@@ -65,7 +92,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
   }
 
   public void initBlockCount() {
-    _blockCount = new AtomicInteger(getInputs().size());
+    _blockCount = new AtomicInteger(getInputFragments().size());
   }
 
   public void addTail(final GraphFragment fragment) {
@@ -79,49 +106,61 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
     return _tail;
   }
 
-  public Set<GraphFragment> getInputs() {
-    return _inputs;
+  public Set<GraphFragment> getInputFragments() {
+    return _inputFragments;
   }
 
-  public Set<GraphFragment> getDependencies() {
-    return _dependencies;
+  public Set<GraphFragment> getOutputFragments() {
+    return _outputFragments;
+  }
+
+  private Map<ValueSpecification, Integer> getInputValues() {
+    return _inputValues;
+  }
+
+  private Map<ValueSpecification, Integer> getOutputValues() {
+    return _outputValues;
+  }
+
+  private Set<ValueSpecification> getPrivateValues() {
+    return _localPrivateValues;
   }
 
   public int getJobItems() {
     return _nodes.size();
   }
 
-  public int getJobCycleCost() {
-    return _cycleCost;
+  public long getJobInvocationCost() {
+    return _invocationCost;
   }
 
-  public int getJobCost() {
-    // TODO [ENG-202] this would include data costs from shared cache I/O
-    return _cycleCost;
+  public long getJobDataInputCost() {
+    return _dataInputCost;
   }
 
-  /**
-   * Set an attribute used for graph coloring type algorithms.
-   */
-  public void setColour(final int colour) {
-    _startTimeCache = colour;
+  public long getJobDataOutputCost() {
+    return _dataOutputCost;
   }
 
-  /**
-   * Returns an attribute used for graph coloring type algorithms.
-   */
-  public int getColour() {
-    return _startTimeCache;
+  public long getJobCost() {
+    return getJobInvocationCost() + getJobDataInputCost() + getJobDataOutputCost();
   }
 
-  public int getStartTime(final int startTimeCache) {
-    if (startTimeCache == _startTimeCache) {
+  public void setExecutionId(final int executionId) {
+    _executionId = executionId;
+  }
+
+  public int getExecutionId() {
+    return _executionId;
+  }
+
+  public long getStartTime() {
+    if (_startTime >= 0) {
       return _startTime;
     }
-    _startTimeCache = startTimeCache;
-    int latest = 0;
-    for (GraphFragment input : getInputs()) {
-      final int finish = input.getStartTime(startTimeCache) + input.getJobCost();
+    long latest = 0;
+    for (GraphFragment input : getInputFragments()) {
+      final long finish = input.getStartTime() + input.getJobCost();
       if (finish > latest) {
         latest = finish;
       }
@@ -130,17 +169,118 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
     return latest;
   }
 
+  /**
+   * Merges input and invocation costs.
+   */
+  private void mergeFragmentCost(final GraphFragment fragment) {
+    for (final Map.Entry<ValueSpecification, Integer> input : fragment.getInputValues().entrySet()) {
+      if (!getInputValues().containsKey(input.getKey())) {
+        // We don't already require the value
+        getInputValues().put(input.getKey(), input.getValue());
+        _dataInputCost += input.getValue();
+      }
+    }
+    _invocationCost += fragment.getJobInvocationCost();
+  }
+
+  public boolean canPrependFragment(final GraphFragment fragment, final int maxItems, final long maxCost) {
+    if (getJobItems() + fragment.getJobItems() > maxItems) {
+      return false;
+    }
+    long cost = getJobInvocationCost() + getJobDataOutputCost() + fragment.getJobInvocationCost() + fragment.getJobDataInputCost();
+    if (cost > maxCost) {
+      return false;
+    }
+    if (cost + getJobDataInputCost() + fragment.getJobDataOutputCost() <= maxCost) {
+      return true;
+    }
+    // In the interests of getting an answer quickly, outputs that need to go into shared cache are ignored so the prepend might end up exceeding our maximum
+    for (final Map.Entry<ValueSpecification, Integer> input : getInputValues().entrySet()) {
+      if (!fragment.getInputValues().containsKey(input.getKey()) && !fragment.getOutputValues().containsKey(input.getKey())) {
+        cost += input.getValue();
+      }
+    }
+    if (cost > maxCost) {
+      return false;
+    }
+    for (final Map.Entry<ValueSpecification, Integer> output : fragment.getOutputValues().entrySet()) {
+      if (!getInputValues().containsKey(output.getKey())) {
+        cost += output.getValue();
+      }
+    }
+    return cost <= maxCost;
+  }
+
+  /**
+   * Prepends a fragment. A fragment can be prepended if it produces values needed by this. If output from
+   * one doesn't feed into the other, use the cheaper append operation.
+   */
   public void prependFragment(final GraphFragment fragment) {
     final Iterator<DependencyNode> nodeIterator = fragment.getNodes().descendingIterator();
     while (nodeIterator.hasNext()) {
       getNodes().addFirst(nodeIterator.next());
     }
-    _cycleCost += fragment._cycleCost;
+    final Map<ValueSpecification, Boolean> sharedCacheValues = getContext().getSharedCacheValues();
+    for (final Map.Entry<ValueSpecification, Integer> output : fragment.getOutputValues().entrySet()) {
+      final Integer required = getInputValues().remove(output.getKey());
+      if (required != null) {
+        // This fragment requires the output the other fragment produces, so lower data input cost
+        _dataInputCost -= required;
+        // If the value is not needed by any other fragments it supplies it doesn't need to go into our output
+        if (sharedCacheValues.get(output.getKey()) != Boolean.TRUE) {
+          boolean isPrivate = true;
+          for (GraphFragment outputFragment : fragment.getOutputFragments()) {
+            if (outputFragment != this) {
+              if (outputFragment.getInputValues().containsKey(output.getKey())) {
+                isPrivate = false;
+                break;
+              }
+            }
+          }
+          if (isPrivate) {
+            // Don't need to add it to our output values, and now know it is a PRIVATE value only
+            getPrivateValues().add(output.getKey());
+            continue;
+          }
+        }
+      }
+      getOutputValues().put(output.getKey(), output.getValue());
+      _dataOutputCost += output.getValue();
+    }
+    mergeFragmentCost(fragment);
   }
 
+  /**
+   * Tests whether {@link #appendFragment} would produce a fragment within the maximum limits.
+   */
+  public boolean canAppendFragment(final GraphFragment fragment, final int maxItems, final long maxCost) {
+    if (getJobItems() + fragment.getJobItems() > maxItems) {
+      return false;
+    }
+    long cost = getJobInvocationCost() + fragment.getJobInvocationCost() + getJobDataOutputCost() + fragment.getJobDataOutputCost() + getJobDataInputCost();
+    if (cost > maxCost) {
+      return false;
+    }
+    if (cost + fragment.getJobDataInputCost() <= maxCost) {
+      return true;
+    }
+    for (final Map.Entry<ValueSpecification, Integer> input : fragment.getInputValues().entrySet()) {
+      if (!getInputValues().containsKey(input.getKey())) {
+        cost += input.getValue();
+      }
+    }
+    return cost <= maxCost;
+  }
+
+  /**
+   * Appends a fragment. A fragment can be appended if it does not require any input from this. If output from one
+   * feeds into the other, use the most expensive prepend operation. 
+   */
   public void appendFragment(final GraphFragment fragment) {
     getNodes().addAll(fragment.getNodes());
-    _cycleCost += fragment._cycleCost;
+    getOutputValues().putAll(fragment.getOutputValues());
+    _dataOutputCost += fragment.getJobDataOutputCost();
+    mergeFragmentCost(fragment);
   }
 
   public void inputCompleted() {
@@ -154,13 +294,12 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
     }
   }
 
-  public CalculationJob createCalculationJob(final Integer executionId) {
+  public CalculationJob createCalculationJob() {
     final CalculationJobSpecification jobSpec = getContext().getExecutor().createJobSpecification(getContext().getGraph());
-    final Map<DependencyNode, Integer> node2executionId = getContext().getNode2ExecutionId();
     final List<CalculationJobItem> items = new ArrayList<CalculationJobItem>();
     final Map<CalculationJobItem, DependencyNode> item2Node = getContext().getItem2Node();
     final Map<ValueSpecification, Boolean> sharedValues = getContext().getSharedCacheValues();
-    final Set<ValueSpecification> localPrivateValues = new HashSet<ValueSpecification>();
+    final Set<ValueSpecification> localPrivateValues = getPrivateValues();
     final Set<ValueSpecification> localSharedValues = new HashSet<ValueSpecification>();
     for (DependencyNode node : getNodes()) {
       final Set<ValueSpecification> inputs = node.getInputValues();
@@ -168,46 +307,45 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
           inputs, node.getOutputRequirements());
       items.add(jobItem);
       item2Node.put(jobItem, node);
-      // If node has dependencies which aren't in the execution fragment, its outputs for those nodes are "shared" values
-      final Collection<DependencyNode> dependencies = node.getDependentNodes();
-      for (ValueSpecification specification : node.getOutputValues()) {
-        // Output values are unique in the graph, so this code executes ONCE for each ValueSpecification
-        if (sharedValues.containsKey(specification)) {
-          // A terminal output
-          localSharedValues.add(specification);
+    }
+    // If fragment has dependencies which aren't in the execution fragment, its outputs for those are "shared" values
+    for (ValueSpecification outputValue : getOutputValues().keySet()) {
+      // Output values are unique in the graph, so this code executes ONCE for each ValueSpecification
+      if (sharedValues.containsKey(outputValue)) {
+        // A terminal output
+        localSharedValues.add(outputValue);
+        continue;
+      }
+      boolean isPrivate = true;
+      for (GraphFragment outputFragment : getOutputFragments()) {
+        if (!outputFragment.getInputValues().containsKey(outputValue)) {
+          // The fragment doesn't need this value
           continue;
         }
-        boolean isPrivate = true;
-        for (DependencyNode dependent : dependencies) {
-          if (!dependent.hasInputValue(specification)) {
-            // The dependent node doesn't need this value
-            continue;
-          }
-          if (node2executionId.get(dependent) != executionId) {
-            // Node is not part of our execution
-            isPrivate = false;
-            break;
-          }
-        }
-        if (isPrivate) {
-          localPrivateValues.add(specification);
-          sharedValues.put(specification, Boolean.FALSE);
-        } else {
-          localSharedValues.add(specification);
-          sharedValues.put(specification, Boolean.TRUE);
+        if (outputFragment.getExecutionId() != getExecutionId()) {
+          // Node is not part of our execution
+          isPrivate = false;
+          break;
         }
       }
-      // Any input graph fragments will have been processed (but maybe not executed), so inputs coming from
-      // them will be in the shared value map. Anything not in the map is an input that will be in the
-      // shared cache before the graph starts executing.
-      for (ValueSpecification specification : inputs) {
-        if (!localSharedValues.contains(specification) && !localPrivateValues.contains(specification)) {
-          final Boolean shared = sharedValues.get(specification);
-          if (shared == Boolean.FALSE) {
-            localPrivateValues.add(specification);
-          } else {
-            localSharedValues.add(specification);
-          }
+      if (isPrivate) {
+        localPrivateValues.add(outputValue);
+        sharedValues.put(outputValue, Boolean.FALSE);
+      } else {
+        localSharedValues.add(outputValue);
+        sharedValues.put(outputValue, Boolean.TRUE);
+      }
+    }
+    // Any input graph fragments will have been processed (but maybe not executed), so inputs coming from
+    // them will be in the shared value map. Anything not in the map is an input that will be in the
+    // shared cache before the graph starts executing.
+    for (ValueSpecification inputValue : getInputValues().keySet()) {
+      if (!localSharedValues.contains(inputValue) && !localPrivateValues.contains(inputValue)) {
+        final Boolean shared = sharedValues.get(inputValue);
+        if (shared == Boolean.FALSE) {
+          localPrivateValues.add(inputValue);
+        } else {
+          localSharedValues.add(inputValue);
         }
       }
     }
@@ -224,7 +362,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
       getContext().collectMaxConcurrency(getTail().size());
       for (GraphFragment tail : getTail()) {
         tail._blockCount = null;
-        final int size = tail.getInputs().size();
+        final int size = tail.getInputFragments().size();
         if (tail._requiredJobs == null) {
           if (size == 1) {
             tail._requiredJobs = Collections.singleton(jobSpec.getJobId());
@@ -236,7 +374,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
           tail._requiredJobs.add(jobSpec.getJobId());
         }
         if (tail._requiredJobs.size() == size) {
-          final CalculationJob tailJob = tail.createCalculationJob(executionId);
+          final CalculationJob tailJob = tail.createCalculationJob();
           job.addTail(tailJob);
         }
       }
@@ -245,21 +383,8 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
     return job;
   }
 
-  private void markNodes(final Integer executionId) {
-    final Map<DependencyNode, Integer> node2executionId = getContext().getNode2ExecutionId();
-    for (DependencyNode node : getNodes()) {
-      node2executionId.put(node, executionId);
-    }
-    if (getTail() != null) {
-      for (GraphFragment tail : getTail()) {
-        tail.markNodes(executionId);
-      }
-    }
-  }
-
   public void executeImpl() {
-    markNodes(_graphFragmentIdentifier);
-    getContext().getExecutor().dispatchJob(createCalculationJob(_graphFragmentIdentifier), getContext());
+    getContext().getExecutor().dispatchJob(createCalculationJob(), getContext());
   }
 
   public void execute() {
@@ -268,13 +393,13 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 
   @Override
   public String toString() {
-    return _graphFragmentIdentifier + ": " + _nodes.size() + " dep. node(s), earliestStart=" + _startTime + ", executionCost=" + _cycleCost;
+    return _graphFragmentIdentifier + ": " + _nodes.size() + " dep. node(s), earliestStart=" + _startTime + ", executionCost=" + _invocationCost;
   }
 
   public void resultReceived(final CalculationJobResult result) {
     // Release tree fragments up the tree
     getContext().addExecutionTime(result.getDuration());
-    for (GraphFragment dependent : getDependencies()) {
+    for (GraphFragment dependent : getOutputFragments()) {
       dependent.inputCompleted();
     }
   }

@@ -18,10 +18,12 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.transport.DirectFudgeConnection;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 public class ReleaseCacheMessageTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ReleaseCacheMessageTest.class);
+  private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
   private static class ReportingBinaryDataStoreFactory implements BinaryDataStoreFactory {
 
@@ -80,7 +82,7 @@ public class ReleaseCacheMessageTest {
   public void testCacheReleaseMessage() {
     final ReportingBinaryDataStoreFactory privateServerStore = new ReportingBinaryDataStoreFactory("server private");
     final ReportingBinaryDataStoreFactory sharedStore = new ReportingBinaryDataStoreFactory("server shared");
-    final DefaultViewComputationCacheSource cacheSource = new DefaultViewComputationCacheSource(new InMemoryIdentifierMap(), FudgeContext.GLOBAL_DEFAULT, privateServerStore, sharedStore);
+    final DefaultViewComputationCacheSource cacheSource = new DefaultViewComputationCacheSource(new InMemoryIdentifierMap(), s_fudgeContext, privateServerStore, sharedStore);
     s_logger.info("Creating server local caches");
     putStuffIntoCache(cacheSource.getCache("Test View 1", "Config 1", 1L));
     putStuffIntoCache(cacheSource.getCache("Test View 1", "Config 2", 1L));

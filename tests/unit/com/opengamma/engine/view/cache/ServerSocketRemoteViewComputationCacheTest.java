@@ -31,6 +31,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver;
 import com.opengamma.transport.socket.SocketFudgeConnection;
 import com.opengamma.util.ThreadUtil;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * A test of the remote View Computation Cache Source infrastucture operating
@@ -39,6 +40,7 @@ import com.opengamma.util.ThreadUtil;
  */
 public class ServerSocketRemoteViewComputationCacheTest {
   private static final Logger s_logger = LoggerFactory.getLogger(ServerSocketRemoteViewComputationCacheTest.class);
+  private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
   private static final int NUM_THREADS = 5;
   private static final int NUM_LOOKUPS = 1000;
   private ViewComputationCacheSource _cacheSource;
@@ -47,7 +49,7 @@ public class ServerSocketRemoteViewComputationCacheTest {
   
   @Before
   public void setupCacheSource() throws UnknownHostException {
-    InMemoryViewComputationCacheSource cache = new InMemoryViewComputationCacheSource (FudgeContext.GLOBAL_DEFAULT);
+    InMemoryViewComputationCacheSource cache = new InMemoryViewComputationCacheSource (s_fudgeContext);
     ViewComputationCacheServer server = new ViewComputationCacheServer (cache);
     _serverSocket = new ServerSocketFudgeConnectionReceiver(cache.getFudgeContext (), server);
     _serverSocket.start();

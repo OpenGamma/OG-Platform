@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
-import com.sleepycat.je.EnvironmentLockedException;
 
 /**
  * An implementation of {@link ViewComputationCacheSource} which will use an injected
@@ -46,8 +45,8 @@ public class BerkeleyDBViewComputationCacheSource extends DefaultViewComputation
   public static Environment constructDatabaseEnvironment(File dbDir, boolean transactional) {
     try {
       return constructDatabaseEnvironmentImpl(dbDir, transactional);
-    } catch (EnvironmentLockedException e) {
-      s_logger.warn("Error locking DB environment, deleting {} and trying again", dbDir);
+    } catch (RuntimeException e) {
+      s_logger.warn("Error creating DB environment, deleting {} and trying again", dbDir);
       deleteFile(dbDir);
       return constructDatabaseEnvironmentImpl(dbDir, transactional);
     }

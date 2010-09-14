@@ -9,9 +9,6 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMessageFactory;
-import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.Security;
@@ -29,15 +26,6 @@ import com.opengamma.util.ArgumentChecker;
  * later on in a computation process.
  */
 public final class ComputationTargetSpecification implements Serializable {
-
-  /**
-   * Fudge field name.
-   */
-  public static final String TYPE_FIELD_NAME = "computationTargetType";
-  /**
-   * Fudge field name.
-   */
-  public static final String IDENTIFIER_FIELD_NAME = "computationTargetIdentifier";
 
   /**
    * The type of the target.
@@ -185,23 +173,6 @@ public final class ComputationTargetSpecification implements Serializable {
       .append(getUniqueIdentifier())
       .append(']')
       .toString();
-  }
-
-  //-------------------------------------------------------------------------
-  public void toFudgeMsg(final FudgeMessageFactory fudgeContext, final MutableFudgeFieldContainer msg) {
-    msg.add(TYPE_FIELD_NAME, _type.name());
-    if (_uid != null) {
-      msg.add(IDENTIFIER_FIELD_NAME, _uid.toFudgeMsg(fudgeContext));
-    }
-  }
-
-  public static ComputationTargetSpecification fromFudgeMsg(final FudgeFieldContainer msg) {
-    final ComputationTargetType type = ComputationTargetType.valueOf(msg.getString(TYPE_FIELD_NAME));
-    UniqueIdentifier uid = null;
-    if (msg.hasField(IDENTIFIER_FIELD_NAME)) {
-      uid = UniqueIdentifier.fromFudgeMsg(msg.getMessage(IDENTIFIER_FIELD_NAME));
-    }
-    return new ComputationTargetSpecification(type, uid);
   }
 
 }

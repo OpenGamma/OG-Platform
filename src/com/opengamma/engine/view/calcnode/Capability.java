@@ -13,13 +13,13 @@ import com.opengamma.util.ArgumentChecker;
  * Capability exported by a {@link JobInvoker} about the node(s) it is invoking jobs on, or a requirement
  * of a job.
  */
-public final class Capability {
+public final class Capability implements Comparable<Capability> {
 
   private final String _identifier;
-  private final Long _parameterLow;
-  private final Long _parameterHigh;
+  private final Double _parameterLow;
+  private final Double _parameterHigh;
 
-  private Capability(final String identifier, final Long parameterLow, final Long parameterHigh) {
+  private Capability(final String identifier, final Double parameterLow, final Double parameterHigh) {
     ArgumentChecker.notNull(identifier, "identifier");
     _identifier = identifier;
     _parameterLow = parameterLow;
@@ -30,19 +30,19 @@ public final class Capability {
     return new Capability(identifier, null, null);
   }
 
-  public static Capability parameterInstanceOf(final String identifier, final long parameter) {
+  public static Capability parameterInstanceOf(final String identifier, final double parameter) {
     return new Capability(identifier, parameter, parameter);
   }
 
-  public static Capability lowerBoundInstanceOf(final String identifier, final long lowerBoundParameter) {
+  public static Capability lowerBoundInstanceOf(final String identifier, final double lowerBoundParameter) {
     return new Capability(identifier, lowerBoundParameter, null);
   }
 
-  public static Capability upperBoundInstanceOf(final String identifier, final long upperBoundParameter) {
+  public static Capability upperBoundInstanceOf(final String identifier, final double upperBoundParameter) {
     return new Capability(identifier, null, upperBoundParameter);
   }
 
-  public static Capability boundedInstanceOf(final String identifier, final long lowerBoundParameter, final long upperBoundParameter) {
+  public static Capability boundedInstanceOf(final String identifier, final double lowerBoundParameter, final double upperBoundParameter) {
     ArgumentChecker.isTrue(lowerBoundParameter <= upperBoundParameter, "lower bound must be less than upper bound");
     return new Capability(identifier, lowerBoundParameter, upperBoundParameter);
   }
@@ -51,11 +51,11 @@ public final class Capability {
     return _identifier;
   }
 
-  public Long getLowerBoundParameter() {
+  public Double getLowerBoundParameter() {
     return _parameterLow;
   }
 
-  public Long getUpperBoundParameter() {
+  public Double getUpperBoundParameter() {
     return _parameterHigh;
   }
 
@@ -86,6 +86,47 @@ public final class Capability {
     final Capability other = (Capability) o;
     return ObjectUtils.equals(getIdentifier(), other.getIdentifier()) && ObjectUtils.equals(getLowerBoundParameter(), other.getLowerBoundParameter())
         && ObjectUtils.equals(getUpperBoundParameter(), other.getUpperBoundParameter());
+  }
+
+  /**
+   * Capabilities are ordered by identifier, then by lower bound (with unbounded before bounded), then by upper bound (with bounded before unbounded).
+   * 
+   * @param o capability to compare to
+   * @return result of the comparison
+   */
+  @Override
+  public int compareTo(Capability o) {
+    int cmp = getIdentifier().compareTo(o.getIdentifier());
+    if (cmp != 0) {
+      return cmp;
+    }
+    if (getLowerBoundParameter() == null) {
+      if (o.getLowerBoundParameter() != null) {
+        return -1;
+      }
+    } else {
+      if (o.getLowerBoundParameter() == null) {
+        return 1;
+      } else {
+        cmp = getLowerBoundParameter().compareTo(o.getLowerBoundParameter());
+        if (cmp != 0) {
+          return cmp;
+        }
+      }
+    }
+    if (getUpperBoundParameter() != null) {
+      if (o.getUpperBoundParameter() != null) {
+        return getUpperBoundParameter().compareTo(o.getUpperBoundParameter());
+      } else {
+        return -1;
+      }
+    } else {
+      if (o.getUpperBoundParameter() != null) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }
   }
 
 }

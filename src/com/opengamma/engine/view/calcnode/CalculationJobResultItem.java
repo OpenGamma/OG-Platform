@@ -8,11 +8,6 @@ package com.opengamma.engine.view.calcnode;
 import java.util.Collections;
 import java.util.Set;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
-
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.IdentifierMap;
@@ -22,13 +17,6 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class CalculationJobResultItem {
-
-  private static final String ITEM_FIELD_NAME = "item";
-  private static final String INVOCATION_RESULT_FIELD_NAME = "result";
-  private static final String EXCEPTION_CLASS_FIELD_NAME = "exceptionClass";
-  private static final String EXCEPTION_MSG_FIELD_NAME = "exceptionMsg";
-  private static final String STACK_TRACE_FIELD_NAME = "stackTrace";
-  private static final String MISSING_INPUTS_FIELD_NAME = "missingInputs";
 
   private final CalculationJobItem _item;
   private final InvocationResult _result;
@@ -140,26 +128,8 @@ public class CalculationJobResultItem {
     _item.convertInputs(identifierMap);
   }
 
-  public FudgeFieldContainer toFudgeMsg(FudgeSerializationContext fudgeContext) {
-    MutableFudgeFieldContainer msg = fudgeContext.newMessage();
-    msg.add(ITEM_FIELD_NAME, getItem().toFudgeMsg(fudgeContext));
-    msg.add(INVOCATION_RESULT_FIELD_NAME, getResult().name());
-    msg.add(EXCEPTION_CLASS_FIELD_NAME, getExceptionClass());
-    msg.add(EXCEPTION_MSG_FIELD_NAME, getExceptionMsg());
-    msg.add(STACK_TRACE_FIELD_NAME, getStackTrace());
-    fudgeContext.objectToFudgeMsg(msg, MISSING_INPUTS_FIELD_NAME, null, getMissingInputs());
-    return msg;
-  }
-
-  @SuppressWarnings("unchecked")
-  public static CalculationJobResultItem fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeFieldContainer msg) {
-    CalculationJobItem item = CalculationJobItem.fromFudgeMsg(fudgeContext, msg.getMessage(ITEM_FIELD_NAME));
-    InvocationResult result = InvocationResult.valueOf(msg.getString(INVOCATION_RESULT_FIELD_NAME));
-    String exceptionClass = msg.getString(EXCEPTION_CLASS_FIELD_NAME);
-    String exceptionMsg = msg.getString(EXCEPTION_MSG_FIELD_NAME);
-    String stackTrace = msg.getString(STACK_TRACE_FIELD_NAME);
-    Set<ValueSpecification> missingInputs = fudgeContext.fieldValueToObject(Set.class, msg.getByName(MISSING_INPUTS_FIELD_NAME));
-
+  public static CalculationJobResultItem create(CalculationJobItem item, InvocationResult result, 
+      String exceptionClass, String exceptionMsg, String stackTrace, Set<ValueSpecification> missingInputs) {
     return new CalculationJobResultItem(item, result, exceptionClass, exceptionMsg, stackTrace, missingInputs);
   }
 

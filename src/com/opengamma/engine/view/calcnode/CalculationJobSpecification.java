@@ -10,9 +10,6 @@ import java.io.Serializable;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMessageFactory;
-import org.fudgemsg.MutableFudgeFieldContainer;
 
 /**
  * A description of a job that will be executed by a Calculation Node.
@@ -20,10 +17,6 @@ import org.fudgemsg.MutableFudgeFieldContainer;
  * specification of that job is returned by the Calculation Node.
  */
 public class CalculationJobSpecification implements Serializable {
-  private static final String VIEW_NAME_FIELD_NAME = "viewName";
-  private static final String CALCULATION_CONFIGURATION_FIELD_NAME = "calcConfig";
-  private static final String ITERATION_TIMESTAMP_FIELD_NAME = "iterationTimestamp";
-  private static final String JOB_ID_FIELD_NAME = "jobId";
   
   private final String _viewName;
   private final String _calcConfigName;
@@ -102,18 +95,4 @@ public class CalculationJobSpecification implements Serializable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
   
-  public void toFudgeMsg(FudgeMessageFactory messageFactory, MutableFudgeFieldContainer fudgeMsg) {
-    fudgeMsg.add(VIEW_NAME_FIELD_NAME, getViewName());
-    fudgeMsg.add(CALCULATION_CONFIGURATION_FIELD_NAME, getCalcConfigName());
-    fudgeMsg.add(ITERATION_TIMESTAMP_FIELD_NAME, getIterationTimestamp());
-    fudgeMsg.add(JOB_ID_FIELD_NAME, getJobId());
-  }
-  
-  public static CalculationJobSpecification fromFudgeMsg(FudgeFieldContainer msg) {
-    String viewName = msg.getString(VIEW_NAME_FIELD_NAME);
-    String calcConfigName = msg.getString(CALCULATION_CONFIGURATION_FIELD_NAME);
-    long iterationTimestamp = msg.getLong(ITERATION_TIMESTAMP_FIELD_NAME);
-    long jobId = msg.getLong(JOB_ID_FIELD_NAME);
-    return new CalculationJobSpecification(viewName, calcConfigName, iterationTimestamp, jobId);
-  }
 }

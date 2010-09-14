@@ -13,7 +13,10 @@ import static org.junit.Assert.assertTrue;
 import java.math.BigDecimal;
 
 import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.junit.Test;
 
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -22,6 +25,7 @@ import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * Test ValueRequirement.
@@ -136,13 +140,15 @@ public class ValueRequirementTest {
   @Test
   public void test_fudgeEncoding() {
     ValueRequirement test = new ValueRequirement("DATA", ComputationTargetType.PRIMITIVE, USD);
-    FudgeContext context = new FudgeContext();
-    MutableFudgeFieldContainer msg = context.newMessage();
-    test.toFudgeMsg(context, msg);
-    assertNotNull(msg);
-    assertEquals(3, msg.getNumFields());
+    FudgeContext context = OpenGammaFudgeContext.getInstance();
+    FudgeSerializationContext serializationContext = new FudgeSerializationContext(context);
+    MutableFudgeFieldContainer inMsg = serializationContext.objectToFudgeMsg(test);
+    assertNotNull(inMsg);
+    assertEquals(3, inMsg.getNumFields());
+    FudgeFieldContainer outMsg = context.deserialize(context.toByteArray(inMsg)).getMessage();
+    FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(context);
+    ValueRequirement decoded = deserializationContext.fudgeMsgToObject(ValueRequirement.class, outMsg);
     
-    ValueRequirement decoded = ValueRequirement.fromFudgeMsg(msg);
     assertEquals(test, decoded);
   }
 

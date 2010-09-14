@@ -17,7 +17,9 @@ public interface JobInvoker {
 
   /**
    * Returns the exported capabilities of the node(s) this invoker is responsible for. These will
-   * be used to determine which jobs will get farmed to this invoker.
+   * be used to determine which jobs will get farmed to this invoker. It will not be modified by
+   * the job dispatcher. An iterator on the collection must return the capabilities in their natural
+   * order. It should have very efficient hashCode and equals operations.
    * 
    * @return the capabilities, not {@code null}
    */
@@ -46,5 +48,7 @@ public interface JobInvoker {
    * invoker is ready now, {@code true}.  
    */
   boolean notifyWhenAvailable(JobInvokerRegister callback);
+
+  String getInvokerId();
 
 }

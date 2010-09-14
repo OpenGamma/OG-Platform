@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.view.calc;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -13,12 +12,15 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
+import com.opengamma.engine.view.calcnode.stats.FunctionCost;
+import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
 
 /* package */class GraphFragmentContext implements JobResultReceiver {
 
@@ -27,9 +29,9 @@ import com.opengamma.engine.view.calcnode.JobResultReceiver;
   private final MultipleNodeExecutor _executor;
   private final DependencyGraph _graph;
   private final Map<CalculationJobItem, DependencyNode> _item2node;
-  private final Map<DependencyNode, Integer> _node2executionId;
   private final Map<ValueSpecification, Boolean> _sharedCacheValues;
   private final AtomicInteger _maxConcurrency = new AtomicInteger();
+  private final FunctionCost.ForConfiguration _functionCost;
   private Map<CalculationJobSpecification, GraphFragment> _job2fragment;
 
   public GraphFragmentContext(final MultipleNodeExecutor executor, final DependencyGraph graph) {
@@ -37,11 +39,11 @@ import com.opengamma.engine.view.calcnode.JobResultReceiver;
     _graph = graph;
     final int hashSize = (graph.getSize() * 4) / 3;
     _item2node = new ConcurrentHashMap<CalculationJobItem, DependencyNode>(hashSize);
-    _node2executionId = new HashMap<DependencyNode, Integer>(hashSize);
     _sharedCacheValues = new ConcurrentHashMap<ValueSpecification, Boolean>();
     for (ValueSpecification specification : graph.getTerminalOutputValues()) {
       _sharedCacheValues.put(specification, Boolean.TRUE);
     }
+    _functionCost = executor.getFunctionCost().getStatistics(graph.getCalcConfName());
   }
 
   public MultipleNodeExecutor getExecutor() {
@@ -68,10 +70,6 @@ import com.opengamma.engine.view.calcnode.JobResultReceiver;
     return _item2node;
   }
 
-  public Map<DependencyNode, Integer> getNode2ExecutionId() {
-    return _node2executionId;
-  }
-
   public Map<ValueSpecification, Boolean> getSharedCacheValues() {
     return _sharedCacheValues;
   }
@@ -96,6 +94,10 @@ import com.opengamma.engine.view.calcnode.JobResultReceiver;
 
   public int getMaxConcurrency() {
     return _maxConcurrency.get();
+  }
+
+  public FunctionInvocationStatistics getFunctionStatistics(final FunctionDefinition function) {
+    return _functionCost.getStatistics(function.getUniqueIdentifier());
   }
 
   @Override
