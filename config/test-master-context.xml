@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
 <beans>
 
-  <bean id="abstractHibernateSessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean" abstract="true">
-    <property name="mappingResources">
+  <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="location"><value>file:tests.properties</value></property>
+  </bean>
+
+  <bean id="abstractDbSource" class="com.opengamma.util.db.DbSourceFactoryBean" abstract="true">
+    <property name="transactionIsolationLevelName" value="ISOLATION_SERIALIZABLE" />
+    <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
+    <property name="hibernateMappingResources">
       <list>
         <value>com/opengamma/financial/security/master/db/hibernate/future/BondFutureTypeBean.hbm.xml</value>
         <value>com/opengamma/financial/security/master/db/hibernate/bond/BondSecurityBean.hbm.xml</value>
@@ -35,15 +40,6 @@
     </property>
   </bean>
 
-  <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-    <property name="location"><value>file:tests.properties</value></property>
-  </bean>
-
-  <bean id="dbTransactionDefinition" class="org.springframework.transaction.support.DefaultTransactionDefinition">
-    <property name="isolationLevelName" value="ISOLATION_SERIALIZABLE" />
-    <property name="propagationBehaviorName" value="PROPAGATION_REQUIRED" />
-  </bean>
-
   <!-- ============================================================================== -->
   <bean id="hsqldbDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
     <property name="driverClassName" value="${hsqldb.jdbc.driver}"/>
@@ -52,51 +48,22 @@
     <property name="password" value="${hsqldb.jdbc.password}"/>
   </bean>
 
-  <bean id="hsqldbDbHelper" class="com.opengamma.util.db.HSQLDbHelper" />
-
-  <bean id="hsqldbJdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
-    <constructor-arg ref="hsqldbDataSource" />
-  </bean>
-
-  <bean id="hsqldbHibernateTransMgr" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-    <property name="sessionFactory" ref="hsqldbHibernateSessionFactory"/>
-  </bean>
-
-  <bean id="hsqldbHibernateSessionFactory" parent="abstractHibernateSessionFactory">
+  <bean id="hsqldbDbSource" parent="abstractDbSource">
+    <property name="name" value="FinancialTestsHSQL"/>
     <property name="dataSource" ref="hsqldbDataSource"/>
-    <property name="hibernateProperties">
-      <value>
-        hibernate.dialect=org.hibernate.dialect.HSQLDialect
-        hibernate.show_sql=false
-        hibernate.format_sql=false
-      </value>
-    </property>
+    <property name="dialect" value="com.opengamma.util.db.HSQLDbHelper"/>
   </bean>
 
   <bean id="hsqldbDbSecurityMasterDetail" class="com.opengamma.financial.security.master.db.hibernate.HibernateSecurityMasterDetailProvider">
-    <property name="sessionFactory" ref="hsqldbHibernateSessionFactory" />
-  </bean>
-
-  <bean id="hsqldbTransTemplate" class="org.springframework.transaction.support.TransactionTemplate">
-    <constructor-arg ref="hsqldbHibernateTransMgr" />
-    <constructor-arg ref="dbTransactionDefinition" />
   </bean>
 
   <bean id="hsqldbDbPositionMaster" class="com.opengamma.financial.position.master.db.DbPositionMaster">
-    <constructor-arg>
-      <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="hsqldbDataSource"/>
-      </bean>
-    </constructor-arg>
-    <constructor-arg ref="dbTransactionDefinition" />
-    <constructor-arg ref="hsqldbDbHelper" />
+    <constructor-arg ref="hsqldbDbSource" />
     <property name="identifierScheme" value="DbPos" />
   </bean>
 
   <bean id="hsqldbDbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
-    <constructor-arg ref="hsqldbTransTemplate" />
-    <constructor-arg ref="hsqldbJdbcTemplate" />
-    <constructor-arg ref="hsqldbDbHelper" />
+    <constructor-arg ref="hsqldbDbSource" />
     <constructor-arg ref="hsqldbDbSecurityMasterDetail" />
     <property name="identifierScheme" value="DbSec" />
   </bean>
@@ -109,51 +76,22 @@
     <property name="password" value="${postgres.jdbc.password}"/>
   </bean>
 
-  <bean id="postgresDbHelper" class="com.opengamma.util.db.PostgreSQLDbHelper" />
-
-  <bean id="postgresJdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
-    <constructor-arg ref="postgresDataSource" />
-  </bean>
-
-  <bean id="postgresHibernateTransMgr" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-    <property name="sessionFactory" ref="postgresHibernateSessionFactory"/>
-  </bean>
-
-  <bean id="postgresHibernateSessionFactory" parent="abstractHibernateSessionFactory">
+  <bean id="postgresDbSource" parent="abstractDbSource">
+    <property name="name" value="FinancialTestsPostgres"/>
     <property name="dataSource" ref="postgresDataSource"/>
-    <property name="hibernateProperties">
-      <value>
-        hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
-        hibernate.show_sql=false
-        hibernate.format_sql=false
-      </value>
-    </property>
+    <property name="dialect" value="com.opengamma.util.db.PostgreSQLDbHelper"/>
   </bean>
 
   <bean id="postgresDbSecurityMasterDetail" class="com.opengamma.financial.security.master.db.hibernate.HibernateSecurityMasterDetailProvider">
-    <property name="sessionFactory" ref="postgresHibernateSessionFactory" />
-  </bean>
-
-  <bean id="postgresTransTemplate" class="org.springframework.transaction.support.TransactionTemplate">
-    <constructor-arg ref="postgresHibernateTransMgr" />
-    <constructor-arg ref="dbTransactionDefinition" />
   </bean>
 
   <bean id="postgresDbPositionMaster" class="com.opengamma.financial.position.master.db.DbPositionMaster">
-    <constructor-arg>
-      <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="postgresDataSource"/>
-      </bean>
-    </constructor-arg>
-    <constructor-arg ref="dbTransactionDefinition" />
-    <constructor-arg ref="postgresDbHelper" />
+    <constructor-arg ref="postgresDbSource" />
     <property name="identifierScheme" value="DbPos" />
   </bean>
 
   <bean id="postgresDbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
-    <constructor-arg ref="postgresTransTemplate" />
-    <constructor-arg ref="postgresJdbcTemplate" />
-    <constructor-arg ref="postgresDbHelper" />
+    <constructor-arg ref="postgresDbSource" />
     <constructor-arg ref="postgresDbSecurityMasterDetail" />
     <property name="identifierScheme" value="DbSec" />
   </bean>

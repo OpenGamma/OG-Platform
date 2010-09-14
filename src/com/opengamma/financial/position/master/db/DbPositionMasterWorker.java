@@ -84,7 +84,7 @@ public class DbPositionMasterWorker {
    * @return the database template, non-null if correctly initialized
    */
   protected SimpleJdbcTemplate getJdbcTemplate() {
-    return _master.getJdbcTemplate();
+    return _master.getDbSource().getJdbcTemplate();
   }
 
   /**
@@ -92,7 +92,7 @@ public class DbPositionMasterWorker {
    * @return the transaction template, non-null if correctly initialized
    */
   protected TransactionTemplate getTransactionTemplate() {
-    return _master.getTransactionTemplate();
+    return _master.getDbSource().getTransactionTemplate();
   }
 
   /**
@@ -100,7 +100,7 @@ public class DbPositionMasterWorker {
    * @return the helper, non-null if correctly initialized
    */
   protected DbHelper getDbHelper() {
-    return _master.getDbHelper();
+    return _master.getDbSource().getDialect();
   }
 
   /**
