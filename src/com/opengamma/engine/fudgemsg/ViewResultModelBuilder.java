@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.fudgemsg;
@@ -19,8 +19,11 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.engine.view.ViewTargetResultModel;
 
 /**
  * Base operation for {@link ViewDeltaResultModelBuilder} and {@link ViewComputationResultModelBuilder}.
@@ -43,11 +46,22 @@ public abstract class ViewResultModelBuilder {
     message.add(FIELD_RESULTS, resultMsg);
     return message;
   }
-  
+
+  private static final class ViewTargetResultModelImpl extends com.opengamma.engine.view.ViewTargetResultModelImpl {
+
+    private void putAll(final String configuration, final Collection<ComputedValue> values) {
+      for (ComputedValue value : values) {
+        addValue(configuration, value);
+      }
+    }
+
+  }
+
+  @SuppressWarnings("unchecked")
   protected ViewResultModel bootstrapCommonDataFromMessage(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
     final Instant inputDataTimestamp = message.getFieldValue(Instant.class, message.getByName(FIELD_VALUATIONTS));
     final Instant resultTimestamp = message.getFieldValue(Instant.class, message.getByName(FIELD_RESULTTS));
-    final Map<String, ViewCalculationResultModel> map = new HashMap<String, ViewCalculationResultModel>();
+    final Map<String, ViewCalculationResultModel> configurationMap = new HashMap<String, ViewCalculationResultModel>();
     final Queue<String> keys = new LinkedList<String>();
     final Queue<ViewCalculationResultModel> values = new LinkedList<ViewCalculationResultModel>();
     for (FudgeField field : message.getFieldValue(FudgeFieldContainer.class, message.getByName(FIELD_RESULTS))) {
@@ -56,24 +70,33 @@ public abstract class ViewResultModelBuilder {
         if (values.isEmpty()) {
           keys.add(key);
         } else {
-          map.put(key, values.remove());
+          configurationMap.put(key, values.remove());
         }
       } else if (field.getOrdinal() == 2) {
         final ViewCalculationResultModel value = context.fieldValueToObject(ViewCalculationResultModel.class, field);
         if (keys.isEmpty()) {
           values.add(value);
         } else {
-          map.put(keys.remove(), value);
+          configurationMap.put(keys.remove(), value);
         }
       }
     }
-    
-    return constructImpl(context, message, inputDataTimestamp, resultTimestamp, map);
+    final Map<ComputationTargetSpecification, ViewTargetResultModelImpl> targetMap = new HashMap<ComputationTargetSpecification, ViewTargetResultModelImpl>();
+    for (Map.Entry<String, ViewCalculationResultModel> configurationEntry : configurationMap.entrySet()) {
+      for (ComputationTargetSpecification targetSpec : configurationEntry.getValue().getAllTargets()) {
+        ViewTargetResultModelImpl targetResult = targetMap.get(targetSpec);
+        if (targetResult == null) {
+          targetResult = new ViewTargetResultModelImpl();
+          targetMap.put(targetSpec, targetResult);
+        }
+        targetResult.putAll(configurationEntry.getKey(), configurationEntry.getValue().getValues(targetSpec).values());
+      }
+    }
+    return constructImpl(context, message, inputDataTimestamp, resultTimestamp, configurationMap,
+        (Map<ComputationTargetSpecification, ViewTargetResultModel>) (Map<ComputationTargetSpecification, ?>) targetMap);
   }
 
-  protected abstract ViewResultModel constructImpl(
-      FudgeDeserializationContext context, FudgeFieldContainer message,
-      Instant inputDataTimestamp, Instant resultTimestamp,
-      Map<String, ViewCalculationResultModel> map);
-  
+  protected abstract ViewResultModel constructImpl(FudgeDeserializationContext context, FudgeFieldContainer message, Instant inputDataTimestamp, Instant resultTimestamp,
+      Map<String, ViewCalculationResultModel> configurationMap, Map<ComputationTargetSpecification, ViewTargetResultModel> targetMap);
+
 }

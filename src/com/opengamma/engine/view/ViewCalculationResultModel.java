@@ -12,13 +12,12 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
 
 /**
- * 
- *
- * @author kirk
+ * The result of a single configuration of a view calculation. 
  */
 public interface ViewCalculationResultModel {
   
   Collection<ComputationTargetSpecification> getAllTargets();
 
   Map<String, ComputedValue> getValues(ComputationTargetSpecification target);
+  
 }
