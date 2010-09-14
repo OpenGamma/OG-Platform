@@ -30,8 +30,8 @@ import com.opengamma.util.monitor.OperationTimer;
 public class YieldCurveFittingTest extends YieldCurveFittingFromSwapsTest {
 
   public YieldCurveFittingTest() {
-    _hotspotWarmupCycles = 200;
-    _benchmarkCycles = 1000;
+    _hotspotWarmupCycles = 0;
+    _benchmarkCycles = 1;
   }
 
   protected YieldCurveFittingTestDataBundle getOverSpecifiedSetup() {
