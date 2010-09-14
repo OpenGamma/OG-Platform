@@ -18,11 +18,14 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +57,35 @@ public class JobDispatcher implements JobInvokerRegister {
     return jobs;
   }
 
+  private static final Future<?> FINISHED = new Future<Object>() {
+
+    @Override
+    public boolean cancel(boolean mayInterruptIfRunning) {
+      return false;
+    }
+
+    @Override
+    public Object get() throws InterruptedException, ExecutionException {
+      return null;
+    }
+
+    @Override
+    public Object get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+      return null;
+    }
+
+    @Override
+    public boolean isCancelled() {
+      return false;
+    }
+
+    @Override
+    public boolean isDone() {
+      return false;
+    }
+
+  };
+
   private final class DispatchJob implements JobInvocationReceiver {
 
     private final CalculationJob _rootJob;
@@ -61,9 +93,9 @@ public class JobDispatcher implements JobInvokerRegister {
     private final AtomicBoolean _completed = new AtomicBoolean(false);
     private final long _jobCreationTime;
     private final CapabilityRequirements _capabilityRequirements;
+    private final AtomicReference<Future<?>> _timeout = new AtomicReference<Future<?>>();
     private Set<JobInvoker> _excludeJobInvoker;
     private int _rescheduled;
-    private Future<?> _timeout;
 
     private DispatchJob(final CalculationJob job, final JobResultReceiver resultReceiver) {
       _rootJob = job;
@@ -94,8 +126,8 @@ public class JobDispatcher implements JobInvokerRegister {
       }
       if (_resultReceivers.isEmpty()) {
         // This is the last one to complete. Note that if the last few jobs complete concurrently, both may execute this code.
-        cancelTimeout();
         _completed.set(true);
+        cancelTimeout(false);
       }
       s_logger.info("Job {} completed on node {}", result.getSpecification().getJobId(), result.getComputeNodeId());
       resultReceiver.resultReceived(result);
@@ -109,9 +141,9 @@ public class JobDispatcher implements JobInvokerRegister {
 
     @Override
     public void jobFailed(final JobInvoker jobInvoker, final String computeNodeId, final Exception exception) {
-      cancelTimeout();
       s_logger.warn("Job {} failed, {}", getJob().getSpecification().getJobId(), (exception != null) ? exception.getMessage() : "no exception passed");
       if (_completed.getAndSet(true) == false) {
+        cancelTimeout(true);
         if ((_excludeJobInvoker != null) && _excludeJobInvoker.contains(jobInvoker)) {
           _completed.set(false);
           jobAbort(exception, "duplicate invoker failure from node " + computeNodeId);
@@ -159,9 +191,9 @@ public class JobDispatcher implements JobInvokerRegister {
     }
 
     private void jobAbort(Exception exception, final String alternativeError) {
-      cancelTimeout();
       s_logger.error("Aborted job {} after {} attempts", getJob().getSpecification().getJobId(), _rescheduled);
       if (_completed.getAndSet(true) == false) {
+        cancelTimeout(false);
         if (exception == null) {
           s_logger.error("Aborted job {} with {}", getJob().getSpecification().getJobId(), alternativeError);
           exception = new OpenGammaRuntimeException(alternativeError);
@@ -173,26 +205,35 @@ public class JobDispatcher implements JobInvokerRegister {
       }
     }
 
-    private synchronized void setTimeout(final JobInvoker jobInvoker) {
+    private void setTimeout(final JobInvoker jobInvoker) {
       if (_maxJobExecutionTime > 0) {
         // TODO [ENG-178] If the job has tails, the max execution time needs to be longer (how about the number of tails?)
-        _timeout = _jobTimeoutExecutor.schedule(new Runnable() {
+        final Future<?> timeout = _jobTimeoutExecutor.schedule(new Runnable() {
           @Override
           public void run() {
-            synchronized (JobDispatcher.this) {
-              _timeout = null;
-            }
+            _timeout.set(FINISHED);
             // TODO [ENG-178] Instead of immediate failure we should ask the node if the job is still running
             jobFailed(jobInvoker, "node on " + jobInvoker.getInvokerId(), new OpenGammaRuntimeException("Invocation limit of " + _maxJobExecutionTime + "ms exceeded"));
           }
         }, _maxJobExecutionTime, TimeUnit.MILLISECONDS);
+        if (_timeout.compareAndSet(null, timeout)) {
+          s_logger.debug("Timeout set for job {}", getJob().getSpecification().getJobId());
+        } else {
+          s_logger.debug("Job {} completed or timeout already set", getJob().getSpecification().getJobId());
+          timeout.cancel(false);
+        }
       }
     }
 
-    private synchronized void cancelTimeout() {
-      if (_timeout != null) {
-        _timeout.cancel(false);
-        _timeout = null;
+    private void cancelTimeout(boolean allowRetry) {
+      Future<?> timeout = _timeout.getAndSet(allowRetry ? null : FINISHED);
+      if (timeout == null) {
+        s_logger.debug("Cancel timeout {} for {} - no timeout set", allowRetry ? "with retry" : "at finish", getJob().getSpecification().getJobId());
+      } else if (timeout == FINISHED) {
+        s_logger.debug("Cancel timeout {} for {} - job finished", allowRetry ? "with retry" : "at finish", getJob().getSpecification().getJobId());
+      } else {
+        s_logger.debug("Cancelling timeout {} for {}", allowRetry ? "with retry" : "at finish", getJob().getSpecification().getJobId());
+        timeout.cancel(false);
       }
     }
 
