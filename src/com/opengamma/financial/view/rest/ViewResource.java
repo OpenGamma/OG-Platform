@@ -11,20 +11,21 @@ import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_A
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_ALLVALUENAMES;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_COMPUTATIONRESULT;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_DELTARESULT;
+import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_LATESTRESULT;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_LIVECOMPUTATIONRUNNING;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_LIVE_DATA_INJECTOR;
-import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_LATESTRESULT;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_NAME;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_PERFORMCOMPUTATION;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_PORTFOLIO;
-import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_REQUIREMENTNAMES;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_REQUIRED_LIVE_DATA;
+import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_REQUIREMENTNAMES;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_RESULTAVAILABLE;
 import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_STATUS;
 
 import java.util.Set;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
@@ -159,13 +160,13 @@ public class ViewResource {
     return new FudgeMsgEnvelope(msg);
   }
   
-  @GET
+  @POST
   @Path (VIEW_PERFORMCOMPUTATION)
   public void performComputation() {
     getViewClient().performComputation();
   }
   
-  @GET
+  @POST
   @Path (VIEW_PERFORMCOMPUTATION + "/{snapshotTime}")
   public void performComputation(@PathParam("snapshotTime") long snapshotTime) {
     getViewClient().performComputation(snapshotTime);
