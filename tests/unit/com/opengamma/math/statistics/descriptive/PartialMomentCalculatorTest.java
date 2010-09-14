@@ -14,11 +14,11 @@ import com.opengamma.math.function.Function1D;
 /**
  * 
  */
-public class SemiStandardDeviationCalculatorTest {
-  private static final Function1D<double[], Double> UPSIDE1 = new SemiStandardDeviationCalculator(0, false);
-  private static final Function1D<double[], Double> DOWNSIDE1 = new SemiStandardDeviationCalculator();
-  private static final Function1D<double[], Double> UPSIDE2 = new SemiStandardDeviationCalculator(0.5, false);
-  private static final Function1D<double[], Double> DOWNSIDE2 = new SemiStandardDeviationCalculator(-0.5, true);
+public class PartialMomentCalculatorTest {
+  private static final Function1D<double[], Double> UPSIDE1 = new PartialMomentCalculator(0, false);
+  private static final Function1D<double[], Double> DOWNSIDE1 = new PartialMomentCalculator();
+  private static final Function1D<double[], Double> UPSIDE2 = new PartialMomentCalculator(0.5, false);
+  private static final Function1D<double[], Double> DOWNSIDE2 = new PartialMomentCalculator(-0.5, true);
   private static final int N = 100;
   private static final double[] POSITIVE_X = new double[N];
   private static final double[] NEGATIVE_X = new double[N];

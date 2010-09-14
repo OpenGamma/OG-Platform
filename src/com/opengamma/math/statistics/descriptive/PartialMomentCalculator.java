@@ -12,24 +12,24 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.function.Function1D;
 
 /**
- * The sample standard deviation of a series of asset return data can be used as a measure of the risk of that asset. However, in many instances 
- * a large positive return is not regarded as a risk. The semi-standard deviation can be used as an alternative.
+ * The partial moment of a series of asset return data can be used as a measure of the risk of that asset. However, in many instances 
+ * a large positive return is not regarded as a risk. The lower partial moment can be used as an alternative.
  * <p>
- * The semi-standard deviation considers only those values that are above or below a threshold. Given a series of data {@latex.inline $x_1, x_2, \\dots, x_n$} sorted 
- * from lowest to highest, the first (last) {@latex.inline $k$} values are below (above) the threshold {@latex.inline $x_0$}. The semi-standard deviation is given by:
+ * The lower (higher) partial moment considers only those values that are below (above) a threshold. Given a series of data {@latex.inline $x_1, x_2, \\dots, x_n$} sorted 
+ * from lowest to highest, the first (last) {@latex.inline $k$} values are below (above) the threshold {@latex.inline $x_0$}. The partial moment is given by:
  * {@latex.ilb %preamble{\\usepackage{amsmath}} 
  * \\begin{eqnarray*}
- * \\sigma_{semi} = \\sqrt{\\frac{1}{k}\\sum\\limits_{i=1}^{k}(x_i - x_0)^2}
+ * \\pm = \\sqrt{\\frac{1}{k}\\sum\\limits_{i=1}^{k}(x_i - x_0)^2}
  * \\end{eqnarray*}}
  */
-public class SemiStandardDeviationCalculator extends Function1D<double[], Double> {
+public class PartialMomentCalculator extends Function1D<double[], Double> {
   private final double _threshold;
   private final boolean _useDownSide;
 
   /**
    * Creates calculator with default values: threshold = 0 and useDownSide = true
    */
-  public SemiStandardDeviationCalculator() {
+  public PartialMomentCalculator() {
     this(0, true);
   }
 
@@ -38,14 +38,14 @@ public class SemiStandardDeviationCalculator extends Function1D<double[], Double
    * @param threshold The threshold value for the data
    * @param useDownSide If true, all data below the threshold is used
    */
-  public SemiStandardDeviationCalculator(final double threshold, final boolean useDownSide) {
+  public PartialMomentCalculator(final double threshold, final boolean useDownSide) {
     _threshold = threshold;
     _useDownSide = useDownSide;
   }
 
   /**
    * @param x The array of data
-   * @return The semi-standard deviation
+   * @return The partial moment
    * @throws IllegalArgumentException If the array is null
    */
   @Override
