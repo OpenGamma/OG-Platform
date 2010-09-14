@@ -200,6 +200,9 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
   protected SessionFactory createSessionFactory(DbHelper dialect) {
     LocalSessionFactoryBean factory = getHibernateFactoryBean();
     if (factory == null) {
+      if (getHibernateMappingResources() == null) {
+        return null;  // Hibernate not required
+      }
       factory = new LocalSessionFactoryBean();
       factory.setMappingResources(getHibernateMappingResources());
       factory.setDataSource(getDataSource());
