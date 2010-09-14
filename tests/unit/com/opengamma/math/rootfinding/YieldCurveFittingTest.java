@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.ParRateCalculator;
-import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
+import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
+import com.opengamma.financial.interestrate.ParRateDifferenceCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.function.Function1D;
@@ -46,7 +46,7 @@ import com.opengamma.util.tuple.DoublesPair;
 public class YieldCurveFittingTest extends YieldCurveFittingSetup {
 
   public YieldCurveFittingTest() {
-    _logger = LoggerFactory.getLogger(YieldCurveBootStrapTest.class);
+    _logger = LoggerFactory.getLogger(YieldCurveFittingTest.class);
     _hotspotWarmupCycles = 0;
     _benchmarkCycles = 1;
 
@@ -66,45 +66,59 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
     }
   };
 
+  protected static final Function1D<Double, Double> DUMMY_SPEAD_CURVE = new Function1D<Double, Double>() {
+
+    private static final double a = 0.0025;
+    private static final double b = 0.0021;
+    private static final double c = 0.2;
+    private static final double d = 0.0;
+
+    @Override
+    public Double evaluate(final Double x) {
+      return (a + b * x) * Math.exp(-c * x) + d;
+    }
+  };
+
   @Test
   public void testNewton() {
     NewtonVectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS);
     YieldCurveFittingTestDataBundle data = getSingleCurveSetup();
-    doHotSpot(rootFinder, data, "Single curve, swaps only. Root finder: Newton");
+    doHotSpot(rootFinder, data, "Single curve, Libor, cash, FRA, swaps. Root finder: Newton");
     data.setTestType(TestType.FD_JACOBIAN);
-    doHotSpot(rootFinder, data, "Single curve, swaps only. Root finder: Newton (FD Jacobian)");
+    doHotSpot(rootFinder, data, "Single curve, Libor, cash, FRA, swaps. Root finder: Newton (FD Jacobian)");
 
-    //    data = getDoubleCurveSetup();
-    //    doHotSpot(rootFinder, data, "Double curve, swaps only. Root finder: Newton");
+    data = getDoubleCurveSetup();
+    doHotSpot(rootFinder, data, "Double curve, Libor, cash, FRA, swaps, basis swaps. Root finder: Newton");
   }
 
   @Test
   public void testShermanMorrison() {
     NewtonVectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS);
     YieldCurveFittingTestDataBundle data = getSingleCurveSetup();
-    doHotSpot(rootFinder, data, "Single curve, swaps only. Root finder: ShermanMorrison");
+    doHotSpot(rootFinder, data, "Single curve, Libor, cash, FRA, swaps. Root finder: ShermanMorrison");
     data.setTestType(TestType.FD_JACOBIAN);
-    doHotSpot(rootFinder, data, "Single curve, swaps only. Root finder:ShermanMorrison (FD Jacobian)");
+    doHotSpot(rootFinder, data, "Single curve, Libor, cash, FRA, swaps. Root finder:ShermanMorrison (FD Jacobian)");
 
-    //    data = getDoubleCurveSetup();
-    //    doHotSpot(rootFinder, data, "Double curve, swaps only. Root finder: ShermanMorrison");
+    data = getDoubleCurveSetup();
+    doHotSpot(rootFinder, data, "Double curve, Libor, cash, FRA, swaps, basis swaps. Root finder: ShermanMorrison");
   }
 
   @Test
   public void testBroyden() {
     NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
     YieldCurveFittingTestDataBundle data = getSingleCurveSetup();
-    doHotSpot(rootFinder, data, "Single curve, swaps only. Root finder: Broyden");
+    doHotSpot(rootFinder, data, "Single curve,Libor, cash, FRA, swaps. Root finder: Broyden");
     data.setTestType(TestType.FD_JACOBIAN);
-    doHotSpot(rootFinder, data, "Single curve, swaps only. Root finder: Broyden (FD Jacobian)");
+    doHotSpot(rootFinder, data, "Single curve, Libor, cash, FRA, swaps. Root finder: Broyden (FD Jacobian)");
 
-    //    data = getDoubleCurveSetup();
-    //    doHotSpot(rootFinder, data, "Single curve, swaps only. Root finder: Broyden");
+    data = getDoubleCurveSetup();
+    doHotSpot(rootFinder, data, "Double curve, Libor, cash, FRA, swaps, basis swaps. Root finder: Broyden");
   }
 
   @Test
   public void testJacobian() {
-    testJacobian(getSingleCurveSetup());
+    // testJacobian(getSingleCurveSetup());
+    testJacobian(getDoubleCurveSetup());
   }
 
   private YieldCurveFittingTestDataBundle getSingleCurveSetup() {
@@ -118,8 +132,8 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
     CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> extrapolatorWithSense = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
         .getSensitivityCalculator(interpolator, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, false);
 
-    InterestRateDerivativeVisitor<Double> calculator = PresentValueCalculator.getInstance();
-    InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> sensitivityCalculator = PresentValueSensitivityCalculator
+    InterestRateDerivativeVisitor<Double> calculator = ParRateDifferenceCalculator.getInstance();
+    InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> sensitivityCalculator = ParRateCurveSensitivityCalculator
         .getInstance();
 
     HashMap<String, double[]> maturities = new LinkedHashMap<String, double[]>();
@@ -167,9 +181,10 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
     for (String name : maturities.keySet()) {
       double[] times = maturities.get(name);
       for (final double t : times) {
-        ird = makeIRD(name, t, curveNames.get(0), curveNames.get(0), bundle);
-        instruments.add(ird);
-        marketValues[index++] = ParRateCalculator.getInstance().getValue(ird, bundle);
+        ird = makeIRD(name, t, curveNames.get(0), curveNames.get(0), 0.0);
+        marketValues[index] = ParRateCalculator.getInstance().getValue(ird, bundle);
+        instruments.add(updateRate(ird, marketValues[index]));
+        index++;
       }
     }
 
@@ -184,6 +199,109 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
         startPosition, yields);
 
     return data;
+  }
 
+  private double[] catMap(HashMap<String, double[]> map) {
+    int nNodes = 0;
+    for (double[] temp : map.values()) {
+      nNodes += temp.length;
+    }
+
+    double[] temp = new double[nNodes];
+    int index = 0;
+    for (double[] times : map.values()) {
+      for (final double t : times) {
+        temp[index++] = t;
+      }
+    }
+    Arrays.sort(temp);
+    return temp;
+  }
+
+  private YieldCurveFittingTestDataBundle getDoubleCurveSetup() {
+
+    List<String> curveNames = new ArrayList<String>();
+    curveNames.add("funding curve");
+    curveNames.add("Libor curve");
+    String interpolator = Interpolator1DFactory.DOUBLE_QUADRATIC;
+
+    CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> extrapolator = CombinedInterpolatorExtrapolatorFactory
+        .getInterpolator(interpolator, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
+    CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> extrapolatorWithSense = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
+        .getSensitivityCalculator(interpolator, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, false);
+
+    InterestRateDerivativeVisitor<Double> calculator = ParRateDifferenceCalculator.getInstance();
+    InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> sensitivityCalculator = ParRateCurveSensitivityCalculator
+        .getInstance();
+
+    HashMap<String, double[]> fundingMaturities = new LinkedHashMap<String, double[]>();
+    HashMap<String, double[]> liborMaturities = new LinkedHashMap<String, double[]>();
+    HashMap<String, double[]> maturities = new LinkedHashMap<String, double[]>();
+
+    fundingMaturities.put("cash", new double[] {1. / 365, 1. / 52, 2. / 52.});
+    fundingMaturities.put("basisSwap", new double[] {1, 2, 5, 10, 20, 30, 50});
+
+    liborMaturities.put("libor", new double[] {1. / 12, 2. / 12, 3. / 12}); //
+    liborMaturities.put("fra", new double[] {0.5, 0.75});
+    liborMaturities.put("swap", new double[] {1.00, 2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15, 20.00277778,
+        25.00555556, 30.00555556, 35.00833333, 50.01388889});
+
+    maturities.putAll(fundingMaturities);
+    maturities.putAll(liborMaturities);
+
+    List<double[]> curveKnots = new ArrayList<double[]>();
+    curveKnots.add(catMap(fundingMaturities));
+    curveKnots.add(catMap(liborMaturities));
+
+    // set up curve to obtain "market" prices
+    List<double[]> yields = new ArrayList<double[]>();
+    double[] temp = new double[curveKnots.get(0).length];
+    int index = 0;
+    for (double t : curveKnots.get(0)) {
+      temp[index++] = DUMMY_CURVE.evaluate(t);
+    }
+    yields.add(temp);
+    temp = new double[curveKnots.get(1).length];
+    index = 0;
+    for (double t : curveKnots.get(1)) {
+      temp[index++] = DUMMY_CURVE.evaluate(t) + DUMMY_SPEAD_CURVE.evaluate(t);
+    }
+    yields.add(temp);
+
+    // now get market prices
+    int nNodes = curveKnots.get(0).length + curveKnots.get(1).length;
+    double[] marketValues = new double[nNodes];
+
+    final YieldCurveBundle bundle = new YieldCurveBundle();
+    if (curveKnots.get(0).length > 0) {
+      bundle.setCurve(curveNames.get(0), makeYieldCurve(yields.get(0), curveKnots.get(0), extrapolator));
+    }
+    if (curveKnots.get(1).length > 0) {
+      bundle.setCurve(curveNames.get(1), makeYieldCurve(yields.get(1), curveKnots.get(1), extrapolator));
+    }
+
+    List<InterestRateDerivative> instruments = new ArrayList<InterestRateDerivative>();
+    InterestRateDerivative ird;
+    index = 0;
+    for (String name : maturities.keySet()) {
+      for (final double t : maturities.get(name)) {
+        ird = makeIRD(name, t, curveNames.get(0), curveNames.get(1), 0.0);
+        marketValues[index] = ParRateCalculator.getInstance().getValue(ird, bundle);
+        instruments.add(updateRate(ird, marketValues[index]));
+        index++;
+      }
+    }
+
+    final double[] rates = new double[nNodes];
+    for (int i = 0; i < nNodes; i++) {
+      rates[i] = 0.05;
+    }
+    DoubleMatrix1D startPosition = new DoubleMatrix1D(rates);
+
+    YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, curveNames,
+        curveKnots, extrapolator, extrapolatorWithSense, calculator, sensitivityCalculator, marketValues,
+        startPosition, yields);
+
+    return data;
   }
 }

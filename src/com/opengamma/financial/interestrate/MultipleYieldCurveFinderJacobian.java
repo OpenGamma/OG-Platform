@@ -28,7 +28,8 @@ public class MultipleYieldCurveFinderJacobian extends Function1D<DoubleMatrix1D,
   private final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> _calculator;
   private final MultipleYieldCurveFinderDataBundle _data;
 
-  public MultipleYieldCurveFinderJacobian(final MultipleYieldCurveFinderDataBundle data, final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> calculator) {
+  public MultipleYieldCurveFinderJacobian(final MultipleYieldCurveFinderDataBundle data,
+      final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> calculator) {
     Validate.notNull(data, "data");
     Validate.notNull(calculator, "calculator");
     _data = data;
@@ -55,7 +56,8 @@ public class MultipleYieldCurveFinderJacobian extends Function1D<DoubleMatrix1D,
       numberOfNodes = unknownCurveNodePoints.length;
       final double[] yields = Arrays.copyOfRange(x.getData(), index, index + numberOfNodes);
       index += numberOfNodes;
-      final InterpolatedYieldAndDiscountCurve curve = new InterpolatedYieldCurve(unknownCurveNodePoints, yields, interpolator);
+      final InterpolatedYieldAndDiscountCurve curve = new InterpolatedYieldCurve(unknownCurveNodePoints, yields,
+          interpolator);
       curves.setCurve(name, curve);
     }
     final YieldCurveBundle knownCurves = _data.getKnownCurves();
@@ -64,15 +66,16 @@ public class MultipleYieldCurveFinderJacobian extends Function1D<DoubleMatrix1D,
       curves.addAll(knownCurves);
     }
 
-    final double[][] res = new double[totalNodes][totalNodes];
-    for (int i = 0; i < totalNodes; i++) { // loop over all instruments
+    final double[][] res = new double[_data.getNumInstruments()][totalNodes];
+    for (int i = 0; i < _data.getNumInstruments(); i++) { // loop over all instruments
       final Map<String, List<DoublesPair>> senseMap = _calculator.getValue(_data.getDerivative(i), curves);
       int offset = 0;
       for (final String name : curveNames) { // loop over all curves (by name)
         if (senseMap.containsKey(name)) {
           final InterpolatedYieldAndDiscountCurve curve = (InterpolatedYieldAndDiscountCurve) curves.getCurve(name);
           final Interpolator1DDataBundle data = curve.getDataBundles().values().iterator().next();
-          final Interpolator1DNodeSensitivityCalculator sensitivityCalculator = _data.getSensitivityCalculatorForName(name);
+          final Interpolator1DNodeSensitivityCalculator sensitivityCalculator = _data
+              .getSensitivityCalculatorForName(name);
           final List<DoublesPair> senseList = senseMap.get(name);
           final double[][] sensitivity = new double[senseList.size()][];
           int k = 0;

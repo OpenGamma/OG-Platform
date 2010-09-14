@@ -118,7 +118,7 @@ public class YieldCurveFittingTestDataBundle extends MultipleYieldCurveFinderDat
     Validate.notNull(marketRates);
     Validate.notNull(startPosition);
     Validate.notNull(curveYields);
-    Validate.isTrue(marketRates.length == startPosition.getNumberOfElements());
+    Validate.isTrue(getTotalNodes() == startPosition.getNumberOfElements());
 
     for (String name : getCurveNames()) {
       Validate.isTrue(getCurveNodePointsForCurve(name).length == curveYields.get(name).length);

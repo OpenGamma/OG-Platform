@@ -30,7 +30,10 @@ public class MultipleYieldCurveFinderDataBundle {
   private final int _totalNodes;
   private final List<String> _names;
 
-  public MultipleYieldCurveFinderDataBundle(final List<InterestRateDerivative> derivatives, final YieldCurveBundle knownCurves, final LinkedHashMap<String, double[]> unknownCurveNodePoints,
+  public MultipleYieldCurveFinderDataBundle(
+      final List<InterestRateDerivative> derivatives,
+      final YieldCurveBundle knownCurves,
+      final LinkedHashMap<String, double[]> unknownCurveNodePoints,
       final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> unknownCurveInterpolators,
       final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators) {
     Validate.notNull(derivatives);
@@ -41,7 +44,7 @@ public class MultipleYieldCurveFinderDataBundle {
     Validate.notEmpty(unknownCurveNodePoints, "unknown curve node points");
     Validate.notEmpty(unknownCurveInterpolators, "unknown curve interpolators");
     Validate.notEmpty(unknownCurveNodeSensitivityCalculators, "unknown curve sensitivity calculators");
-    _totalNodes = derivatives.size();
+
     if (knownCurves != null) {
       for (final String name : knownCurves.getAllNames()) {
         if (unknownCurveInterpolators.containsKey(name)) {
@@ -60,14 +63,16 @@ public class MultipleYieldCurveFinderDataBundle {
       throw new IllegalArgumentException("Number of unknown curve not the same as curve sensitivity calculators");
     }
     final Iterator<Entry<String, double[]>> nodePointsIterator = unknownCurveNodePoints.entrySet().iterator();
-    final Iterator<Entry<String, Interpolator1D<? extends Interpolator1DDataBundle>>> unknownCurvesIterator = unknownCurveInterpolators.entrySet().iterator();
+    final Iterator<Entry<String, Interpolator1D<? extends Interpolator1DDataBundle>>> unknownCurvesIterator = unknownCurveInterpolators
+        .entrySet().iterator();
     final Iterator<Entry<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>> unknownNodeSensitivityCalculatorIterator = unknownCurveNodeSensitivityCalculators
         .entrySet().iterator();
     _names = new ArrayList<String>();
     while (nodePointsIterator.hasNext()) {
       final Entry<String, double[]> entry1 = nodePointsIterator.next();
       final Entry<String, Interpolator1D<? extends Interpolator1DDataBundle>> entry2 = unknownCurvesIterator.next();
-      final Entry<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> entry3 = unknownNodeSensitivityCalculatorIterator.next();
+      final Entry<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> entry3 = unknownNodeSensitivityCalculatorIterator
+          .next();
       final String name1 = entry1.getKey();
       if (!name1.equals(entry2.getKey()) || !name1.equals(entry3.getKey())) {
         throw new IllegalArgumentException("Names must be the same");
@@ -81,9 +86,11 @@ public class MultipleYieldCurveFinderDataBundle {
     for (final double[] nodes : unknownCurveNodePoints.values()) {
       nNodes += nodes.length;
     }
-    if (nNodes != _totalNodes) {
-      throw new IllegalArgumentException("Total number of nodes does not match number of instruments: " + nNodes + ", " + _totalNodes);
+    if (nNodes > derivatives.size()) {
+      throw new IllegalArgumentException("Total number of nodes (" + nNodes
+          + ") is greater than the number of instruments (" + derivatives.size() + ")");
     }
+    _totalNodes = nNodes;
     _unknownCurveNodePoints = unknownCurveNodePoints;
     _unknownCurveInterpolators = unknownCurveInterpolators;
     _unknownCurveNodeSensitivityCalculators = unknownCurveNodeSensitivityCalculators;
@@ -107,6 +114,10 @@ public class MultipleYieldCurveFinderDataBundle {
 
   public LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> getUnknownCurveNodeSensitivityCalculators() {
     return _unknownCurveNodeSensitivityCalculators;
+  }
+
+  public int getNumInstruments() {
+    return _derivatives.size();
   }
 
   public int getTotalNodes() {
@@ -135,9 +146,11 @@ public class MultipleYieldCurveFinderDataBundle {
     return result;
   }
 
-  public Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> getSensitivityCalculatorForName(final String name) {
+  public Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> getSensitivityCalculatorForName(
+      final String name) {
     Validate.notNull(name, "name");
-    final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> result = _unknownCurveNodeSensitivityCalculators.get(name);
+    final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> result = _unknownCurveNodeSensitivityCalculators
+        .get(name);
     if (result == null) {
       throw new IllegalArgumentException("Data for name " + name + " not found");
     }
@@ -156,7 +169,8 @@ public class MultipleYieldCurveFinderDataBundle {
     result = prime * result + ((_knownCurves == null) ? 0 : _knownCurves.hashCode());
     result = prime * result + ((_unknownCurveInterpolators == null) ? 0 : _unknownCurveInterpolators.hashCode());
     result = prime * result + ((_unknownCurveNodePoints == null) ? 0 : _unknownCurveNodePoints.hashCode());
-    result = prime * result + ((_unknownCurveNodeSensitivityCalculators == null) ? 0 : _unknownCurveNodeSensitivityCalculators.hashCode());
+    result = prime * result
+        + ((_unknownCurveNodeSensitivityCalculators == null) ? 0 : _unknownCurveNodeSensitivityCalculators.hashCode());
     return result;
   }
 

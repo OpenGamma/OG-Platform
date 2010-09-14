@@ -71,43 +71,6 @@ public class VariableAnnuity implements Annuity {
     _liborCurveName = liborCurveName;
   }
 
-  //  /**
-  //   * A variable annuity (e.g. the floating leg of a swap) - spreads are set to zero and year fraction is ACT/ACT
-  //   * @param paymentTimes time in years from now of payments 
-  //   * @param notional the notional amount (OK to set to 1.0) 
-  //   * @param fwdStartOffsets offset in years of start of libor fixing date from <b>previous</b> floating payment time (or trade date if spot libor)
-  //   * @param fwdEndOffsets  offset in years of end of libor maturity from floating payment time
-  //   * @param fundingCurveName  Name of curve from which payments are discounted
-  //   * @param liborCurveName Name of curve from which forward rates are calculated
-  //   */
-  //  public VariableAnnuity(final double[] paymentTimes, final double notional, final double[] fwdStartOffsets,
-  //      final double[] fwdEndOffsets, final String fundingCurveName, final String liborCurveName) {
-  //    Validate.notNull(fundingCurveName);
-  //    Validate.notNull(liborCurveName);
-  //    Validate.notNull(paymentTimes);
-  //    ArgumentChecker.notEmpty(paymentTimes, "paymentTime");
-  //    Validate.notNull(fwdStartOffsets);
-  //    ArgumentChecker.notEmpty(fwdStartOffsets, "fwdStartOffsets");
-  //    Validate.notNull(fwdEndOffsets);
-  //    ArgumentChecker.notEmpty(fwdEndOffsets, "fwdStartOffsets");
-  //    _notional = notional;
-  //    _n = paymentTimes.length;
-  //    Validate.isTrue(fwdStartOffsets.length == _n);
-  //    Validate.isTrue(fwdEndOffsets.length == _n);
-  //
-  //    _paymentTimes = paymentTimes;
-  //    _deltaStart = fwdStartOffsets;
-  //    _deltaEnd = fwdEndOffsets;
-  //    _spreads = new double[_n];
-  //    _yearFractions = new double[_n];
-  //    _yearFractions[0] = paymentTimes[0];
-  //    for (int i = 1; i < _n; i++) {
-  //      _yearFractions[i] = (paymentTimes[i] - paymentTimes[i - 1]);
-  //    }
-  //    _fundingCurveName = fundingCurveName;
-  //    _liborCurveName = liborCurveName;
-  //  }
-
   /**
    * A variable annuity (e.g. the floating leg of a swap) 
    * * For n payments indexed 0 to n-1, the indexFixingTimes, indexMaturityTimes and yearFractions corresponding to a payment are indexed the same way
@@ -125,8 +88,8 @@ public class VariableAnnuity implements Annuity {
 
     Validate.notNull(paymentTimes);
     double[] spreads = new double[paymentTimes.length];
-    argumentCheck(paymentTimes, indexFixingTimes, indexMaturityTimes, yearFraction, spreads, notional,
-        fundingCurveName, liborCurveName);
+    argumentCheck(paymentTimes, indexFixingTimes, indexMaturityTimes, yearFraction, spreads, fundingCurveName,
+        liborCurveName);
 
     _notional = notional;
     _n = paymentTimes.length;
@@ -155,8 +118,8 @@ public class VariableAnnuity implements Annuity {
       final double[] indexMaturityTimes, final double[] yearFraction, final double[] spreads, final double notional,
       final String fundingCurveName, final String liborCurveName) {
 
-    argumentCheck(paymentTimes, indexFixingTimes, indexMaturityTimes, yearFraction, spreads, notional,
-        fundingCurveName, liborCurveName);
+    argumentCheck(paymentTimes, indexFixingTimes, indexMaturityTimes, yearFraction, spreads, fundingCurveName,
+        liborCurveName);
 
     _notional = notional;
     _n = paymentTimes.length;
@@ -170,7 +133,7 @@ public class VariableAnnuity implements Annuity {
   }
 
   private void argumentCheck(final double[] paymentTimes, final double[] indexFixingTimes,
-      final double[] indexMaturityTimes, final double[] yearFraction, final double[] spreads, final double notional,
+      final double[] indexMaturityTimes, final double[] yearFraction, final double[] spreads,
       final String fundingCurveName, final String liborCurveName) {
     Validate.notNull(fundingCurveName);
     Validate.notNull(liborCurveName);

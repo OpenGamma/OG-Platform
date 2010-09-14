@@ -22,8 +22,6 @@ import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.ParRateCalculator;
-import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
-import com.opengamma.financial.interestrate.ParRateDifferenceCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -51,7 +49,7 @@ import com.opengamma.util.tuple.DoublesPair;
 public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
 
   public YieldCurveFittingFromSwapsTest() {
-    _logger = LoggerFactory.getLogger(YieldCurveBootStrapTest.class);
+    _logger = LoggerFactory.getLogger(YieldCurveFittingFromSwapsTest.class);
 
     _hotspotWarmupCycles = 0;
     _benchmarkCycles = 1;
@@ -83,8 +81,11 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
     }
     DoubleMatrix1D startPosition = new DoubleMatrix1D(rates);
 
-    ParRateDifferenceCalculator calculator = ParRateDifferenceCalculator.getInstance();
-    ParRateCurveSensitivityCalculator sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
+    //   ParRateDifferenceCalculator calculator = ParRateDifferenceCalculator.getInstance();
+    // ParRateCurveSensitivityCalculator sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
+    final InterestRateDerivativeVisitor<Double> calculator = PresentValueCalculator.getInstance();
+    final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> sensitivityCalculator = PresentValueSensitivityCalculator
+        .getInstance();
 
     return getSwapOnlySetup(payments, curveNames, null, curveKnots, yields, startPosition, interpolatorName,
         calculator, sensitivityCalculator);
@@ -115,8 +116,11 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
 
     DoubleMatrix1D startPosition = new DoubleMatrix1D(rates);
 
-    ParRateDifferenceCalculator calculator = ParRateDifferenceCalculator.getInstance();
-    ParRateCurveSensitivityCalculator sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
+    // ParRateDifferenceCalculator calculator = ParRateDifferenceCalculator.getInstance();
+    //ParRateCurveSensitivityCalculator sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
+    final InterestRateDerivativeVisitor<Double> calculator = PresentValueCalculator.getInstance();
+    final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> sensitivityCalculator = PresentValueSensitivityCalculator
+        .getInstance();
 
     return getSwapOnlySetup(payments, curveNames, null, curveKnots, yields, startPosition, interpolatorName,
         calculator, sensitivityCalculator);
@@ -160,12 +164,13 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
     doHotSpot(rootFinder, data, "Single curve, swaps only. Root finder: Broyden (FD Jacobian)");
 
     data = getDoubleCurveSetup();
-    doHotSpot(rootFinder, data, "Single curve, swaps only. Root finder: Broyden");
+    doHotSpot(rootFinder, data, "Double curve, swaps only. Root finder: Broyden");
   }
 
   @Test
   public void testJacobian() {
     testJacobian(getSingleCurveSetup());
+    testJacobian(getDoubleCurveSetup());
   }
 
   @Test
@@ -211,8 +216,9 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
       InterestRateDerivative instrument;
       final double[] swapRates = new double[n];
       for (int i = 0; i < n; i++) {
-        instrument = makeSwap(curveKnots[i], curveName, curveName, curveBundle);
+        instrument = makeSwap(curveKnots[i], curveName, curveName, 0.0);
         swapRates[i] = ParRateCalculator.getInstance().getValue(instrument, curveBundle);
+        instrument = updateRate(instrument, swapRates[i]);
         instruments.add(instrument);
       }
 
@@ -304,7 +310,7 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
     doHotSpot(rootFinder, data, "Fit Funding curve only. Rootfinder: Broyden");
   }
 
-  private YieldCurveFittingTestDataBundle getSwapOnlySetup(final int[] swapMaturities, List<String> curveNames,
+  protected YieldCurveFittingTestDataBundle getSwapOnlySetup(final int[] swapMaturities, List<String> curveNames,
       final List<String> fixedCurveNames, List<double[]> curveKnots, List<double[]> yields,
       DoubleMatrix1D startPosition, final String interpolator,
       final InterestRateDerivativeVisitor<Double> marketValueCalculator,
@@ -336,9 +342,9 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
       curve2 = curveNames.get(1);
     }
     for (int i = 0; i < n; i++) {
-      instrument = makeSwap(swapMaturities[i], curve1, curve2, curveBundle);
+      instrument = makeSwap(swapMaturities[i], curve1, curve2, 0);
       swapValues[i] = ParRateCalculator.getInstance().getValue(instrument, curveBundle);
-      instruments.add(instrument);
+      instruments.add(updateRate(instrument, swapValues[i]));
     }
 
     YieldCurveBundle knowCurves = null;

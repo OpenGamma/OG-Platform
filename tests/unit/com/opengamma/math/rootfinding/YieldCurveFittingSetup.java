@@ -32,6 +32,7 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.libor.definition.Libor;
+import com.opengamma.financial.interestrate.swap.definition.BasisSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -82,7 +83,7 @@ public abstract class YieldCurveFittingSetup {
       Validate.notNull(curvesKnots.get(i));
       count += curvesKnots.get(i).length;
     }
-    Validate.isTrue(count == instruments.size());
+    Validate.isTrue(count <= instruments.size(), "more nodes than instruments");
 
     LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> unknownCurveInterpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
     LinkedHashMap<String, double[]> unknownCurveNodes = new LinkedHashMap<String, double[]>();
@@ -148,6 +149,10 @@ public abstract class YieldCurveFittingSetup {
       assertEquals(0.0, modelMarketValueDiff.getEntry(i), EPS);
     }
 
+    checkResult(yieldCurveNodes, data);
+  }
+
+  protected void checkResult(final DoubleMatrix1D yieldCurveNodes, YieldCurveFittingTestDataBundle data) {
     HashMap<String, double[]> yields = unpackYieldVector(data, yieldCurveNodes);
 
     final YieldCurveBundle bundle = new YieldCurveBundle();
@@ -177,7 +182,6 @@ public abstract class YieldCurveFittingSetup {
         }
       }
     }
-
   }
 
   private HashMap<String, double[]> unpackYieldVector(YieldCurveFittingTestDataBundle data,
@@ -204,7 +208,10 @@ public abstract class YieldCurveFittingSetup {
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFD = fdCal.derivative(func);
     final DoubleMatrix2D jacExact = jac.evaluate(data.getStartPosition());
     final DoubleMatrix2D jacFD = jacobianFD.evaluate(data.getStartPosition());
-    assertMatrixEquals(jacExact, jacFD, 1e-6);
+
+    //   System.out.println("exact: " + jacExact);
+    // System.out.println("FD: " + jacFD);
+    assertMatrixEquals(jacExact, jacFD, 1e-5);
 
   }
 
@@ -223,64 +230,108 @@ public abstract class YieldCurveFittingSetup {
         old.getUnknownCurveInterpolators(), old.getUnknownCurveNodeSensitivityCalculators());
   }
 
+  protected static InterestRateDerivative updateRate(final InterestRateDerivative ird, final double rate) {
+    if (ird instanceof Cash) {
+      Cash cash = (Cash) ird;
+      return new Cash(cash.getPaymentTime(), rate, cash.getTradeTime(), cash.getYearFraction(), cash
+          .getYieldCurveName());
+    } else if (ird instanceof Libor) {
+      Libor libor = (Libor) ird;
+      return new Libor(libor.getFixingDate(), libor.getMaturity(), libor.getForwardYearFraction(), rate, libor
+          .getLiborCurveName());
+    } else if (ird instanceof ForwardRateAgreement) {
+      ForwardRateAgreement fra = (ForwardRateAgreement) ird;
+      return new ForwardRateAgreement(fra.getSettlementDate(), fra.getMaturity(), fra.getFixingDate(), fra
+          .getForwardYearFraction(), fra.getDiscountingYearFraction(), rate, fra.getFundingCurveName(), fra
+          .getLiborCurveName());
+    } else if (ird instanceof InterestRateFuture) {
+      InterestRateFuture future = (InterestRateFuture) ird;
+      return new InterestRateFuture(future.getSettlementDate(), future.getFixingDate(), future.getMaturity(), future
+          .getIndexYearFraction(), future.getValueYearFraction(), 100 * (1 - rate), future.getCurveName());
+    } else if (ird instanceof FixedFloatSwap) {
+      FixedFloatSwap swap = (FixedFloatSwap) ird;
+      ConstantCouponAnnuity fixedLeg = swap.getFixedLeg();
+      ConstantCouponAnnuity newLeg = new ConstantCouponAnnuity(fixedLeg.getPaymentTimes(), fixedLeg.getNotional(),
+          rate, fixedLeg.getYearFractions(), fixedLeg.getFundingCurveName());
+      return new FixedFloatSwap(newLeg, swap.getFloatingLeg());
+    } else if (ird instanceof BasisSwap) {
+      BasisSwap swap = (BasisSwap) ird;
+      VariableAnnuity receieveLeg = swap.getReceiveLeg();
+      double[] spreads = new double[receieveLeg.getPaymentTimes().length];
+      for (int i = 0; i < receieveLeg.getPaymentTimes().length; i++) {
+        spreads[i] = rate;
+      }
+      VariableAnnuity newLeg = new VariableAnnuity(receieveLeg.getPaymentTimes(), receieveLeg.getIndexFixingTimes(),
+          receieveLeg.getIndexMaturityTimes(), receieveLeg.getYearFractions(), spreads, receieveLeg.getNotional(),
+          receieveLeg.getFundingCurveName(), receieveLeg.getLiborCurveName());
+      return new BasisSwap(swap.getPayLeg(), newLeg);
+    }
+    throw new IllegalArgumentException("unknown IRD type " + ird);
+  }
+
   protected static InterestRateDerivative makeIRD(String type, final double maturity, final String fundCurveName,
-      final String indexCurveName, final YieldCurveBundle curves) {
+      final String indexCurveName, final double rate) {
     if ("cash".equals(type)) {
-      return makeCash(maturity, fundCurveName, curves);
+      return makeCash(maturity, fundCurveName, rate);
     } else if ("libor".equals(type)) {
-      return makeLibor(maturity, indexCurveName, curves);
+      return makeLibor(maturity, indexCurveName, rate);
     } else if ("fra".equals(type)) {
-      return makeFRA(maturity, fundCurveName, indexCurveName, curves);
+      return makeFRA(maturity, fundCurveName, indexCurveName, rate);
     } else if ("future".equals(type)) {
-      return makeFutrure(maturity, indexCurveName, curves);
+      return makeFutrure(maturity, indexCurveName, rate);
     } else if ("swap".equals(type)) {
-      return makeSwap(maturity, fundCurveName, indexCurveName, curves);
+      return makeSwap(maturity, fundCurveName, indexCurveName, rate);
+    } else if ("basisSwap".equals(type)) {
+      return makeBasisSwap(maturity, fundCurveName, indexCurveName, rate);
     }
     throw new IllegalArgumentException("unknown IRD type " + type);
   }
 
-  protected static InterestRateDerivative makeCash(final double time, final String fundCurveName,
-      final YieldCurveBundle curves) {
-    InterestRateDerivative ird = new Cash(time, 0.0, fundCurveName);
-    double rate = ParRateCalculator.getInstance().getValue(ird, curves);
+  protected static InterestRateDerivative makeCash(final double time, final String fundCurveName, final double rate) {
     return new Cash(time, rate, fundCurveName);
   }
 
-  protected static InterestRateDerivative makeLibor(final double time, final String indexCurveName,
-      final YieldCurveBundle curves) {
-    InterestRateDerivative ird = new Libor(time, 0.0, indexCurveName);
-    double rate = ParRateCalculator.getInstance().getValue(ird, curves);
+  protected static InterestRateDerivative makeLibor(final double time, final String indexCurveName, final double rate) {
     return new Libor(time, rate, indexCurveName);
-
   }
 
   protected static InterestRateDerivative makeFRA(final double time, final String fundCurveName,
-      final String indexCurveName, final YieldCurveBundle curves) {
-    InterestRateDerivative ird = new ForwardRateAgreement(time - 0.25, time, 0.0, fundCurveName, indexCurveName);
-    double rate = ParRateCalculator.getInstance().getValue(ird, curves);
+      final String indexCurveName, final double rate) {
     return new ForwardRateAgreement(time - 0.25, time, rate, fundCurveName, indexCurveName);
   }
 
-  protected static InterestRateDerivative makeFutrure(final double time, final String indexCurveName,
-      final YieldCurveBundle curves) {
-    InterestRateDerivative ird = new InterestRateFuture(time, time + 0.25, 0.25, 0.0, indexCurveName);
-    double rate = ParRateCalculator.getInstance().getValue(ird, curves);
+  protected static InterestRateDerivative makeFutrure(final double time, final String indexCurveName, final double rate) {
     return new InterestRateFuture(time, time + 0.25, 0.25, rate, indexCurveName);
   }
 
   protected static FixedFloatSwap makeSwap(final double time, final String fundCurveName, final String liborCurveName,
-      final YieldCurveBundle curves) {
+      final double rate) {
     final int index = (int) Math.round(2 * time);
-    return makeSwap(index, fundCurveName, liborCurveName, curves);
+    return makeSwap(index, fundCurveName, liborCurveName, rate);
   }
 
-  //  protected static FixedFloatSwap setParSwapRate(FixedFloatSwap swap, double rate) {
-  //    VariableAnnuity floatingLeg = swap.getFloatingLeg();
-  //    ConstantCouponAnnuity fixedLeg = swap.getFixedLeg();
-  //    ConstantCouponAnnuity newLeg = new ConstantCouponAnnuity(fixedLeg.getPaymentTimes(), fixedLeg.getNotional(), rate,
-  //        fixedLeg.getYearFractions(), fixedLeg.getFundingCurveName());
-  //    return new FixedFloatSwap(newLeg, floatingLeg);
-  //  }
+  protected static BasisSwap makeBasisSwap(final double time, final String fundCurveName, final String liborCurveName,
+      final double rate) {
+
+    final int index = (int) Math.round(4 * time);
+    final double[] paymentTimes = new double[index];
+
+    final double[] spreads = new double[index];
+    final double[] indexFixing = new double[index];
+    final double[] indexMaturity = new double[index];
+    final double[] yearFracs = new double[index];
+    for (int i = 0; i < index; i++) {
+      indexFixing[i] = 0.25 * i;
+      paymentTimes[i] = 0.25 * (i + 1);
+      indexMaturity[i] = paymentTimes[i];
+      spreads[i] = rate;
+      yearFracs[i] = 0.25;
+    }
+    final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, 1.0, fundCurveName, fundCurveName);
+    final VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs,
+        spreads, 1.0, fundCurveName, liborCurveName);
+    return new BasisSwap(payLeg, receiveLeg);
+  }
 
   /**
    * 
@@ -290,7 +341,7 @@ public abstract class YieldCurveFittingSetup {
    * @return
    */
   protected static FixedFloatSwap makeSwap(final int payments, final String fundingCurveName,
-      final String liborCurveName, final YieldCurveBundle curves) {
+      final String liborCurveName, final double rate) {
 
     final double[] fixed = new double[payments];
     final double[] floating = new double[2 * payments];
@@ -312,16 +363,11 @@ public abstract class YieldCurveFittingSetup {
       indexFixing[i] = 0.25 * i + sigma * (i == 0 ? RANDOM.nextDouble() / 2 : (RANDOM.nextDouble() - 0.5));
       indexMaturity[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
     }
-    final ConstantCouponAnnuity fixedLeg = new ConstantCouponAnnuity(fixed, 0.0, fundingCurveName);
+    final ConstantCouponAnnuity fixedLeg = new ConstantCouponAnnuity(fixed, rate, fundingCurveName);
 
     final VariableAnnuity floatingLeg = new VariableAnnuity(floating, indexFixing, indexMaturity, yearFrac, 1.0,
         fundingCurveName, liborCurveName);
-    InterestRateDerivative ird = new FixedFloatSwap(fixedLeg, floatingLeg);
-    double rate = ParRateCalculator.getInstance().getValue(ird, curves);
-    ConstantCouponAnnuity newLeg = new ConstantCouponAnnuity(fixedLeg.getPaymentTimes(), fixedLeg.getNotional(), rate,
-        fixedLeg.getYearFractions(), fixedLeg.getFundingCurveName());
-    return new FixedFloatSwap(newLeg, floatingLeg);
-
+    return new FixedFloatSwap(fixedLeg, floatingLeg);
   }
 
   protected void assertMatrixEquals(final DoubleMatrix2D m1, final DoubleMatrix2D m2, final double eps) {
