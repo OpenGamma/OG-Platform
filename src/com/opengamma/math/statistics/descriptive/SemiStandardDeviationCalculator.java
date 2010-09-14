@@ -41,7 +41,8 @@ public class SemiStandardDeviationCalculator extends Function1D<double[], Double
   public Double evaluate(final double[] x) {
     Validate.notNull(x, "x");
     final double mean = MEAN.evaluate(x);
-    return new PartialMomentCalculator(mean, _useDownSide).evaluate(x);
+    final int n = x.length;
+    return new PartialMomentCalculator(mean, _useDownSide).evaluate(x) * n / (n - 1);
   }
 
 }
