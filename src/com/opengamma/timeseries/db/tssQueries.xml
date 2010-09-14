@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
+
+
+	<!--  IMPORTANT NOTE: 
+	      {tss_data_point} will be replaced by tss_data_point OR tss_intraday_data_point
+	      {tss_data_point_delta} will be replaced by tss_data_point_delta OR tss_intraday_data_point_delta
+	      See the constructor of RowStoreTimeSeriesMaster class
+	-->
+
 	<bean id="tssNamedSQLMap"  class="org.springframework.beans.factory.config.MapFactoryBean">
    		<property name="sourceMap">
       		<map>
@@ -154,7 +162,7 @@
         					JOIN tss_data_field as df ON tskey.data_field_id = df.id
         					JOIN tss_observation_time ot ON tskey.observation_time_id = ot.id
         					JOIN (SELECT meta_data_id, min(ts_date) as earliest, max(ts_date) as latest
-									FROM tss_data_point
+									FROM {tss_data_point}
 									GROUP BY meta_data_id
 								  ) dates ON tskey.id = dates.meta_data_id
         					WHERE tskey.bundle_id in (SELECT distinct bundle_id FROM tss_identifier)
@@ -175,7 +183,7 @@
         					JOIN tss_data_field as df ON tskey.data_field_id = df.id
         					JOIN tss_observation_time ot ON tskey.observation_time_id = ot.id
         					JOIN (SELECT meta_data_id, min(ts_date) as earliest, max(ts_date) as latest
-									FROM tss_data_point
+									FROM {tss_data_point}
 									GROUP BY meta_data_id
 								  ) dates ON tskey.id = dates.meta_data_id
         					WHERE tskey.bundle_id in (:bundleIds)
@@ -205,7 +213,7 @@
         			<value>
         				<![CDATA[
         					SELECT min(ts_date) as earliest, max(ts_date) as latest
-							FROM tss_data_point
+							FROM {tss_data_point}
 							WHERE meta_data_id = :oid
         				]]>
         			</value>
@@ -223,7 +231,7 @@
         			<key><value>insertTimeSeries</value></key>
         			<value>
         				<![CDATA[
-        					INSERT INTO tss_data_point (meta_data_id, ts_date, value) 
+        					INSERT INTO {tss_data_point} (meta_data_id, ts_date, value) 
         					VALUES (:timeSeriesID, :date, :value)
         				]]>
         			</value>
@@ -232,7 +240,7 @@
         			<key><value>insertTimeSeriesDeltaI</value></key>
         			<value>
         				<![CDATA[
-        					INSERT INTO tss_data_point_delta (meta_data_id, time_stamp, ts_date, old_value, operation) 
+        					INSERT INTO {tss_data_point_delta} (meta_data_id, time_stamp, ts_date, old_value, operation) 
         					VALUES (:timeSeriesID, :timeStamp, :date, :value, 'I')
         				]]>
         			</value>
@@ -241,7 +249,7 @@
         			<key><value>insertTimeSeriesDeltaD</value></key>
         			<value>
         				<![CDATA[
-        					INSERT INTO tss_data_point_delta (meta_data_id, time_stamp, ts_date, old_value, operation) 
+        					INSERT INTO {tss_data_point_delta} (meta_data_id, time_stamp, ts_date, old_value, operation) 
         					VALUES (:timeSeriesID, :timeStamp, :date, :value, 'D')
         				]]>
         			</value>
@@ -250,7 +258,7 @@
         			<key><value>insertTimeSeriesDeltaU</value></key>
         			<value>
         				<![CDATA[
-        					INSERT INTO tss_data_point_delta (meta_data_id, time_stamp, ts_date, old_value, operation) 
+        					INSERT INTO {tss_data_point_delta} (meta_data_id, time_stamp, ts_date, old_value, operation) 
         					VALUES (:tsID, :timeStamp, :date, :oldValue, 'U')
         				]]>
         			</value>
@@ -260,17 +268,21 @@
         			<value>
         				<![CDATA[
         					SELECT ts_date, value 
-        					FROM tss_data_point 
+        					FROM {tss_data_point} 
         					WHERE meta_data_id = :timeSeriesKey 
         				]]>
         			</value>
         		</entry>
-        		<entry key="updateTimeSeries" value="UPDATE tss_data_point SET value = :newValue WHERE meta_data_id = :tsID AND ts_date = :date "/>
-        		<entry key="getTimeSeriesByID" value="SELECT ts_date, value FROM tss_data_point where meta_data_id = :tsID"/>
-        		<entry key="deleteTimeSeriesByID" value="DELETE FROM tss_data_point WHERE meta_data_id = :tsID"/>
-        		<entry key="findDataPointByDateAndID" value="SELECT value FROM tss_data_point WHERE meta_data_id = :tsID AND ts_date = :date"/>
-        		<entry key="deleteDataPoint" value="DELETE FROM tss_data_point WHERE meta_data_id = :tsID AND ts_date = :date"/>
-        		<entry key="loadTimeSeriesDelta" value="SELECT ts_date, old_value, operation FROM tss_data_point_delta WHERE meta_data_id = :tsID AND time_stamp >= :time ORDER BY time_stamp desc"/>
+        		
+        		<!--  See the comment at the beginning of the file to understand the bracketed table names -->
+        		
+        		<entry key="updateTimeSeries" value="UPDATE {tss_data_point} SET value = :newValue WHERE meta_data_id = :tsID AND ts_date = :date "/>
+        		<entry key="getTimeSeriesByID" value="SELECT ts_date, value FROM {tss_data_point} where meta_data_id = :tsID"/>
+        		<entry key="deleteTimeSeriesByID" value="DELETE FROM {tss_data_point} WHERE meta_data_id = :tsID"/>
+        		<entry key="findDataPointByDateAndID" value="SELECT value FROM {tss_data_point} WHERE meta_data_id = :tsID AND ts_date = :date"/>
+        		<entry key="deleteDataPoint" value="DELETE FROM {tss_data_point} WHERE meta_data_id = :tsID AND ts_date = :date"/>
+        		<entry key="deleteDataPointsByDate" value="DELETE FROM {tss_data_point} WHERE meta_data_id = :tsID AND ts_date &lt; :date"/>
+        		<entry key="loadTimeSeriesDelta" value="SELECT ts_date, old_value, operation FROM {tss_data_point_delta} WHERE meta_data_id = :tsID AND time_stamp >= :time ORDER BY time_stamp desc"/>
         	</map>	
     	</property>
 	</bean>

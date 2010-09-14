@@ -16,8 +16,10 @@ import com.opengamma.id.UniqueIdentifier;
  * <p>
  * The timeseries master provides a uniform view over the timeseries database
  * This interface provides methods that allow the master to be searched and updated.
+ * 
+ * @param <T> Type of time series (LocalDate/Date) to operate on
  */
-public interface TimeSeriesMaster {
+public interface TimeSeriesMaster<T> {
   /**
    * Create or get a data source with description  
    * @param dataSource the datsource name, not-null
@@ -52,7 +54,7 @@ public interface TimeSeriesMaster {
    * @param request  the search request, not null
    * @return the search result, not null
    */
-  TimeSeriesSearchResult searchTimeSeries(TimeSeriesSearchRequest request);
+  TimeSeriesSearchResult<T> searchTimeSeries(TimeSeriesSearchRequest<T> request);
 
   /**
    * Gets a Timeseries by unique identifier.
@@ -62,7 +64,7 @@ public interface TimeSeriesMaster {
    * @throws IllegalArgumentException if the identifier is not from this timeseries master
    * @throws DataNotFoundException if there is no timeseries with that unique identifier
    */
-  TimeSeriesDocument getTimeSeries(UniqueIdentifier uid);
+  TimeSeriesDocument<T> getTimeSeries(UniqueIdentifier uid);
     
   /**
    * Adds a TimeSeries to the data store.
@@ -74,7 +76,7 @@ public interface TimeSeriesMaster {
    * @return the updated timeseries document, not null
    * @throws IllegalArgumentException if the request is invalid
    */
-  TimeSeriesDocument addTimeSeries(TimeSeriesDocument document);
+  TimeSeriesDocument<T> addTimeSeries(TimeSeriesDocument<T> document);
   
   /**
    * Updates a timeseries in the data store.
@@ -86,7 +88,7 @@ public interface TimeSeriesMaster {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no timeseries with that unique identifier
    */
-  TimeSeriesDocument updateTimeSeries(TimeSeriesDocument document);
+  TimeSeriesDocument<T> updateTimeSeries(TimeSeriesDocument<T> document);
 
   /**
    * Removes a timeseries from the data store.
@@ -105,7 +107,7 @@ public interface TimeSeriesMaster {
    * @param request  the search request, not null
    * @return the search result, not null
    */
-  TimeSeriesSearchHistoricResult searchHistoric(TimeSeriesSearchHistoricRequest request);
+  TimeSeriesSearchHistoricResult<T> searchHistoric(TimeSeriesSearchHistoricRequest request);
   
   /**
    * Adds a data point to existing timeseries
@@ -117,7 +119,7 @@ public interface TimeSeriesMaster {
    * @return the updated timeseriesDataPoint document, not null
    * @throws IllegalArgumentException if the request is invalid
    */
-  DataPointDocument addDataPoint(DataPointDocument document);
+  DataPointDocument<T> addDataPoint(DataPointDocument<T> document);
   
   /**
    * Gets a DataPoint by unique identifier.
@@ -129,7 +131,7 @@ public interface TimeSeriesMaster {
    * @throws IllegalArgumentException if the identifier is not from this security master
    * @throws DataNotFoundException if there is no data point with that unique identifier
    */
-  DataPointDocument getDataPoint(UniqueIdentifier uid);
+  DataPointDocument<T> getDataPoint(UniqueIdentifier uid);
   
   /**
    * Removes a timeseries datapoint.
@@ -152,7 +154,7 @@ public interface TimeSeriesMaster {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no datapoint with that unique identifier
    */
-  DataPointDocument updateDataPoint(DataPointDocument document);
+  DataPointDocument<T> updateDataPoint(DataPointDocument<T> document);
   
   /**
    * Append datapoints to an existing timeseries
@@ -163,7 +165,7 @@ public interface TimeSeriesMaster {
    * @throws IllegalArgumentException if the document has no Unique identifier for timeseries
    * @throws DataNotFoundException if there is no timeseries with that unique identifier
    */
-  void appendTimeSeries(TimeSeriesDocument document);
+  void appendTimeSeries(TimeSeriesDocument<T> document);
   
   /**
    * Finds the Timeseries UID
@@ -175,5 +177,13 @@ public interface TimeSeriesMaster {
    * @return the UID if found or null
    */
   UniqueIdentifier resolveIdentifier(IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField);
+  
+  /**
+   * Removes all data points before the given date.
+   * 
+   * @param timeSeriesUid Time series to operate on
+   * @param firstDateToRetain Remove all data points before this date
+   */
+  void removeDataPoints(UniqueIdentifier timeSeriesUid, T firstDateToRetain);
 
 }

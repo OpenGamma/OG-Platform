@@ -23,9 +23,12 @@ import com.opengamma.id.UniqueIdentifier;
 
 /**
  * A document used to update TimeSeries data point.
+ * 
+ * @param <T> LocalDate/java.util.Date depending on whether this is a
+ * daily or an intraday time series
  */
 @BeanDefinition
-public class DataPointDocument extends DirectBean {
+public class DataPointDocument<T> extends DirectBean {
   /**
    * The timeseries object identifier.
    */
@@ -40,7 +43,7 @@ public class DataPointDocument extends DirectBean {
    * The datapoint date
    */
   @PropertyDefinition
-  private LocalDate _date;
+  private T _date;
   /**
    * The timeseries value
    */
@@ -89,7 +92,7 @@ public class DataPointDocument extends DirectBean {
         setDataPointId((UniqueIdentifier) newValue);
         return;
       case 3076014:  // date
-        setDate((LocalDate) newValue);
+        setDate((T) newValue);
         return;
       case 111972721:  // value
         setValue((Double) newValue);
@@ -153,7 +156,7 @@ public class DataPointDocument extends DirectBean {
    * Gets the datapoint date
    * @return the value of the property
    */
-  public LocalDate getDate() {
+  public T getDate() {
     return _date;
   }
 
@@ -161,7 +164,7 @@ public class DataPointDocument extends DirectBean {
    * Sets the datapoint date
    * @param date  the new value of the property
    */
-  public void setDate(LocalDate date) {
+  public void setDate(T date) {
     this._date = date;
   }
 

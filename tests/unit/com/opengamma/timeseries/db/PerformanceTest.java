@@ -7,6 +7,8 @@ package com.opengamma.timeseries.db;
 
 import java.util.Map;
 
+import javax.time.calendar.LocalDate;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -31,7 +33,7 @@ public class PerformanceTest extends DBTest {
   
   private static final Logger s_logger = LoggerFactory.getLogger(PerformanceTest.class);
   
-  private TimeSeriesMaster _tsMaster;
+  private TimeSeriesMaster<LocalDate> _tsMaster;
   
   public PerformanceTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
@@ -44,7 +46,7 @@ public class PerformanceTest extends DBTest {
     ApplicationContext context = new FileSystemXmlApplicationContext("src/com/opengamma/timeseries/db/tssQueries.xml");
     Map<String, String> namedSQLMap = (Map<String, String>) context.getBean("tssNamedSQLMap");
     
-    TimeSeriesMaster ts = new RowStoreTimeSeriesMaster(
+    TimeSeriesMaster<LocalDate> ts = new LocalDateRowStoreTimeSeriesMaster(
         getTransactionManager(), 
         namedSQLMap,
         false);
@@ -59,11 +61,11 @@ public class PerformanceTest extends DBTest {
     int NUM_POINTS = 100;
     
     for (int i = 0; i < NUM_SERIES; i++) {
-      TimeSeriesDocument tsDocument = new TimeSeriesDocument();
+      TimeSeriesDocument<LocalDate> tsDocument = new TimeSeriesDocument<LocalDate>();
       
       Identifier id1 = Identifier.of("sa" + i, "ida" + i);
       IdentifierBundle identifiers = IdentifierBundle.of(id1);
-      LocalDateDoubleTimeSeries timeSeries = TimeSeriesMasterTest.makeRandomTimeSeries(1);
+      LocalDateDoubleTimeSeries timeSeries = TimeSeriesMasterTest.makeRandomTimeSeriesStatic(1);
       
       tsDocument.setDataField("CLOSE");
       tsDocument.setDataProvider("CMPL");
@@ -74,10 +76,10 @@ public class PerformanceTest extends DBTest {
       s_logger.debug("adding timeseries {}", tsDocument);
       _tsMaster.addTimeSeries(tsDocument);
       
-      timeSeries = TimeSeriesMasterTest.makeRandomTimeSeries(NUM_POINTS);
+      timeSeries = TimeSeriesMasterTest.makeRandomTimeSeriesStatic(NUM_POINTS);
       
       for (int j = 1; j < NUM_POINTS; j++) {
-        DataPointDocument dataPointDocument = new DataPointDocument();
+        DataPointDocument<LocalDate> dataPointDocument = new DataPointDocument<LocalDate>();
         dataPointDocument.setTimeSeriesId(tsDocument.getUniqueIdentifier());
         dataPointDocument.setDate(timeSeries.getTime(j));
         dataPointDocument.setValue(timeSeries.getValueAt(j));

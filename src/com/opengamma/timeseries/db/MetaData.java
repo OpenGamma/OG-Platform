@@ -25,7 +25,7 @@ import com.opengamma.id.IdentifierBundle;
  * TimeSeriesMetaData hold metadata info for TimeSeries in dataStore for internal use
  */
 @BeanDefinition
-/*package*/ class MetaData extends DirectBean {
+/*package*/ class MetaData<T> extends DirectBean {
   /**
    * The timeseries db id
    */
@@ -68,12 +68,12 @@ import com.opengamma.id.IdentifierBundle;
    * the start date
    */
   @PropertyDefinition
-  private LocalDate _earliestDate;
+  private T _earliestDate;
   /**
    * the end date
    */
   @PropertyDefinition
-  private LocalDate _latestDate;
+  private T _latestDate;
   
   public MetaData() {
   }
@@ -142,10 +142,10 @@ import com.opengamma.id.IdentifierBundle;
         setIdentifiers((IdentifierBundle) newValue);
         return;
       case 239226785:  // earliestDate
-        setEarliestDate((LocalDate) newValue);
+        setEarliestDate((T) newValue);
         return;
       case -125315115:  // latestDate
-        setLatestDate((LocalDate) newValue);
+        setLatestDate((T) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -331,7 +331,7 @@ import com.opengamma.id.IdentifierBundle;
    * Gets the start date
    * @return the value of the property
    */
-  public LocalDate getEarliestDate() {
+  public T getEarliestDate() {
     return _earliestDate;
   }
 
@@ -339,7 +339,7 @@ import com.opengamma.id.IdentifierBundle;
    * Sets the start date
    * @param earliestDate  the new value of the property
    */
-  public void setEarliestDate(LocalDate earliestDate) {
+  public void setEarliestDate(T earliestDate) {
     this._earliestDate = earliestDate;
   }
 
@@ -356,7 +356,7 @@ import com.opengamma.id.IdentifierBundle;
    * Gets the end date
    * @return the value of the property
    */
-  public LocalDate getLatestDate() {
+  public T getLatestDate() {
     return _latestDate;
   }
 
@@ -364,7 +364,7 @@ import com.opengamma.id.IdentifierBundle;
    * Sets the end date
    * @param latestDate  the new value of the property
    */
-  public void setLatestDate(LocalDate latestDate) {
+  public void setLatestDate(T latestDate) {
     this._latestDate = latestDate;
   }
 

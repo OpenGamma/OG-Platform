@@ -6,6 +6,7 @@
 package com.opengamma.timeseries;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,9 +28,11 @@ import com.opengamma.util.db.PagingRequest;
 
 /**
  * Request for searching for TimeSeries.
+ * 
+ * @param <T> LocalDate/java.sql.Date
  */
 @BeanDefinition
-public class TimeSeriesSearchRequest extends DirectBean {
+public class TimeSeriesSearchRequest<T> extends DirectBean {
   /**
    * The request for paging.
    * By default all matching items will be returned.
@@ -70,12 +73,12 @@ public class TimeSeriesSearchRequest extends DirectBean {
    * The start date, null to search from start date in datastore.
    */
   @PropertyDefinition
-  private LocalDate _start; 
+  private T _start; 
   /**
    * The end date, null to search till end date in datastore.
    */
   @PropertyDefinition
-  private LocalDate _end;
+  private T _end;
   /**
    * Set to true if to load datapoints, otherwise return just meta data
    */
@@ -159,10 +162,10 @@ public class TimeSeriesSearchRequest extends DirectBean {
         setObservationTime((String) newValue);
         return;
       case 109757538:  // start
-        setStart((LocalDate) newValue);
+        setStart((T) newValue);
         return;
       case 100571:  // end
-        setEnd((LocalDate) newValue);
+        setEnd((T) newValue);
         return;
       case 1833789738:  // loadTimeSeries
         setLoadTimeSeries((Boolean) newValue);
@@ -232,7 +235,7 @@ public class TimeSeriesSearchRequest extends DirectBean {
    * Gets list of Identifiers to search
    * @return the value of the property
    */
-  public List<Identifier> getIdentifiers() {
+  public Collection<Identifier> getIdentifiers() {
     return _identifiers;
   }
 
@@ -240,7 +243,7 @@ public class TimeSeriesSearchRequest extends DirectBean {
    * Sets list of Identifiers to search
    * @param identifiers  the new value of the property
    */
-  public void setIdentifiers(List<Identifier> identifiers) {
+  public void setIdentifiers(Collection<Identifier> identifiers) {
     this._identifiers.clear();
     this._identifiers.addAll(identifiers);
   }
@@ -358,7 +361,7 @@ public class TimeSeriesSearchRequest extends DirectBean {
    * Gets the start date, null to search from start date in datastore.
    * @return the value of the property
    */
-  public LocalDate getStart() {
+  public T getStart() {
     return _start;
   }
 
@@ -366,7 +369,7 @@ public class TimeSeriesSearchRequest extends DirectBean {
    * Sets the start date, null to search from start date in datastore.
    * @param start  the new value of the property
    */
-  public void setStart(LocalDate start) {
+  public void setStart(T start) {
     this._start = start;
   }
 
@@ -383,7 +386,7 @@ public class TimeSeriesSearchRequest extends DirectBean {
    * Gets the end date, null to search till end date in datastore.
    * @return the value of the property
    */
-  public LocalDate getEnd() {
+  public T getEnd() {
     return _end;
   }
 
@@ -391,7 +394,7 @@ public class TimeSeriesSearchRequest extends DirectBean {
    * Sets the end date, null to search till end date in datastore.
    * @param end  the new value of the property
    */
-  public void setEnd(LocalDate end) {
+  public void setEnd(T end) {
     this._end = end;
   }
 
