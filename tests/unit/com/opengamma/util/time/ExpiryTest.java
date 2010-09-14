@@ -22,7 +22,8 @@ public class ExpiryTest {
   private static final FudgeContext s_fudgeContext = new FudgeContext();
 
   static {
-    s_fudgeContext.getTypeDictionary().addType(ExpiryFieldType.INSTANCE);
+    s_fudgeContext.getTypeDictionary().addType(ExpiryBuilder.SECONDARY_TYPE_INSTANCE);
+    s_fudgeContext.getObjectDictionary().addBuilder(Expiry.class, new ExpiryBuilder());
   }
 
   private static FudgeFieldContainer cycleMessage(final FudgeFieldContainer message) {
@@ -30,10 +31,7 @@ public class ExpiryTest {
     return s_fudgeContext.deserialize(encoded).getMessage();
   }
 
-  @Test
-  public void testFudgeMessage () {
-    final Expiry expiry = new Expiry(ZonedDateTime.of(LocalDateTime.ofMidnight(2010, 7, 1), TimeZone.UTC),
-        ExpiryAccuracy.MONTH_YEAR);
+  private static void testExpiry(final Expiry expiry) {
     final FudgeSerializationContext serContext = new FudgeSerializationContext(s_fudgeContext);
     final MutableFudgeFieldContainer messageIn = serContext.newMessage();
     serContext.objectToFudgeMsg(messageIn, "test", null, expiry);
@@ -41,6 +39,21 @@ public class ExpiryTest {
     final FudgeDeserializationContext dsrContext = new FudgeDeserializationContext(s_fudgeContext);
     final Expiry result = dsrContext.fieldValueToObject(Expiry.class, messageOut.getByName("test"));
     assertEquals(expiry, result);
+    assertEquals(expiry.getExpiry().getZone(), result.getExpiry().getZone());
+  }
+
+  @Test
+  public void testFudgeMessageUTC() {
+    for (ExpiryAccuracy accuracy : ExpiryAccuracy.values()) {
+      testExpiry(new Expiry(ZonedDateTime.of(LocalDateTime.nowSystemClock(), TimeZone.UTC), accuracy));
+    }
+  }
+
+  @Test
+  public void testFudgeMessageNonUTC() {
+    for (ExpiryAccuracy accuracy : ExpiryAccuracy.values()) {
+      testExpiry(new Expiry(ZonedDateTime.of(LocalDateTime.nowSystemClock(), TimeZone.of("GMT+02:00")), accuracy));
+    }
   }
 
 }
