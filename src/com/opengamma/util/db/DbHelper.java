@@ -5,12 +5,20 @@
  */
 package com.opengamma.util.db;
 
+import java.sql.Driver;
+
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.dialect.Dialect;
 
 /**
  * Helper for working with databases with subclasses for different databases.
  */
 public abstract class DbHelper {
+
+  /**
+   * The cached hibernate dialect.
+   */
+  private volatile Dialect _hibernateDialect;
 
   /**
    * Restrictive constructor.
@@ -20,7 +28,7 @@ public abstract class DbHelper {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the name of the database
+   * Gets the name of the database.
    * @return the name of the database
    */
   public String getName() {
@@ -28,6 +36,31 @@ public abstract class DbHelper {
     int endPos = name.lastIndexOf("DbHelper");
     return (endPos < 0 ? name : name.substring(0, endPos));
   }
+
+  /**
+   * Gets the JDBC driver class.
+   * @return the driver, not null
+   */
+  public abstract Class<? extends Driver> getJDBCDriverClass();
+
+  /**
+   * Gets the Hibernate dialect object for the database.
+   * @return the dialect, not null
+   */
+  public final Dialect getHibernateDialect() {
+    if (_hibernateDialect == null) {
+      // constructed lazily so we don't get log message about 'using dialect' if we're not actually using it
+      _hibernateDialect = createHibernateDialect();
+    }
+    return _hibernateDialect;
+  }
+
+  /**
+   * Creates the Hibernate dialect object for the database.
+   * This will be cached by the base class.
+   * @return the dialect, not null
+   */
+  protected abstract Dialect createHibernateDialect();
 
   //-------------------------------------------------------------------------
   /**

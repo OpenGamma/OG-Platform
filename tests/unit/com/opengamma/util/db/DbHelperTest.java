@@ -14,7 +14,7 @@ import org.junit.Test;
  */
 public class DbHelperTest {
 
-  protected DbHelper _helper = new DbHelper() {};
+  protected DbHelper _helper = new MockDbHelper();
 
   //-------------------------------------------------------------------------
   @Test

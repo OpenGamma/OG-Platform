@@ -5,6 +5,11 @@
  */
 package com.opengamma.util.db;
 
+import java.sql.Driver;
+
+import org.hibernate.dialect.Dialect;
+import org.hibernate.dialect.HSQLDialect;
+
 /**
  * Helper for working with the Hypersonic SQL database.
  */
@@ -21,6 +26,17 @@ public class HSQLDbHelper extends DbHelper {
   public HSQLDbHelper() {
   }
   
+  //-------------------------------------------------------------------------
+  @Override
+  public Class<? extends Driver> getJDBCDriverClass() {
+    return org.hsqldb.jdbcDriver.class;
+  }
+
+  @Override
+  protected Dialect createHibernateDialect() {
+    return new HSQLDialect();
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public String sqlNextSequenceValueSelect(final String sequenceName) {

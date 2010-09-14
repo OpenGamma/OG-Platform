@@ -5,6 +5,11 @@
  */
 package com.opengamma.util.db;
 
+import java.sql.Driver;
+
+import org.hibernate.dialect.DerbyDialect;
+import org.hibernate.dialect.Dialect;
+
 /**
  * Helper for working with the Derby database.
  * <p>
@@ -22,6 +27,17 @@ public class DerbyDbHelper extends DbHelper {
    * Restrictive constructor.
    */
   public DerbyDbHelper() {
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public Class<? extends Driver> getJDBCDriverClass() {
+    return org.apache.derby.jdbc.EmbeddedDriver.class;
+  }
+
+  @Override
+  protected Dialect createHibernateDialect() {
+    return new DerbyDialect();
   }
 
   //-------------------------------------------------------------------------

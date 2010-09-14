@@ -5,6 +5,11 @@
  */
 package com.opengamma.util.db;
 
+import java.sql.Driver;
+
+import org.hibernate.dialect.Dialect;
+import org.hibernate.dialect.PostgreSQLDialect;
+
 /**
  * Helper for working with the PostgreSQL database.
  * <p>
@@ -21,6 +26,17 @@ public class PostgreSQLDbHelper extends DbHelper {
    * Restrictive constructor.
    */
   public PostgreSQLDbHelper() {
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public Class<? extends Driver> getJDBCDriverClass() {
+    return org.postgresql.Driver.class;
+  }
+
+  @Override
+  protected Dialect createHibernateDialect() {
+    return new PostgreSQLDialect();
   }
 
   //-------------------------------------------------------------------------
