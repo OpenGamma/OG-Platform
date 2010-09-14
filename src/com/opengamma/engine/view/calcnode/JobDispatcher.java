@@ -93,12 +93,9 @@ public class JobDispatcher implements JobInvokerRegister {
         return;
       }
       if (_resultReceivers.isEmpty()) {
-        // This is the last one to complete
+        // This is the last one to complete. Note that if the last few jobs complete concurrently, both may execute this code.
         cancelTimeout();
-        if (_completed.getAndSet(true) != false) {
-          // The whole tree has already failed or aborted however
-          s_logger.warn("Job {} completed on node {} but tree has already failed or aborted", result.getSpecification().getJobId(), result.getComputeNodeId());
-        }
+        _completed.set(true);
       }
       s_logger.info("Job {} completed on node {}", result.getSpecification().getJobId(), result.getComputeNodeId());
       resultReceiver.resultReceived(result);
@@ -113,8 +110,8 @@ public class JobDispatcher implements JobInvokerRegister {
     @Override
     public void jobFailed(final JobInvoker jobInvoker, final String computeNodeId, final Exception exception) {
       cancelTimeout();
+      s_logger.warn("Job {} failed, {}", getJob().getSpecification().getJobId(), (exception != null) ? exception.getMessage() : "no exception passed");
       if (_completed.getAndSet(true) == false) {
-        s_logger.warn("Job {} failed, {}", getJob().getSpecification().getJobId(), (exception != null) ? exception.getMessage() : "no exception passed");
         if ((_excludeJobInvoker != null) && _excludeJobInvoker.contains(jobInvoker)) {
           _completed.set(false);
           jobAbort(exception, "duplicate invoker failure from node " + computeNodeId);
@@ -163,10 +160,10 @@ public class JobDispatcher implements JobInvokerRegister {
 
     private void jobAbort(Exception exception, final String alternativeError) {
       cancelTimeout();
+      s_logger.error("Aborted job {} after {} attempts", getJob().getSpecification().getJobId(), _rescheduled);
       if (_completed.getAndSet(true) == false) {
-        s_logger.error("Failed job {} after {} attempts", getJob().getSpecification().getJobId(), _rescheduled);
         if (exception == null) {
-          s_logger.error("Failed job {} with {}", getJob().getSpecification().getJobId(), alternativeError);
+          s_logger.error("Aborted job {} with {}", getJob().getSpecification().getJobId(), alternativeError);
           exception = new OpenGammaRuntimeException(alternativeError);
           exception.fillInStackTrace();
         }

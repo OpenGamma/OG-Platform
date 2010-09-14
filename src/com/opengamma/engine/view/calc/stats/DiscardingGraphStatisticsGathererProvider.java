@@ -24,7 +24,7 @@ public class DiscardingGraphStatisticsGathererProvider implements GraphExecutorS
     }
 
     @Override
-    public void graphProcessed(String calcConfig, int totalJobs, double meanJobSize, double meanJobCycleCost) {
+    public void graphProcessed(String calcConfig, int totalJobs, double meanJobSize, double meanJobCycleCost, double meanJobIOCost) {
       // No action
     }
 

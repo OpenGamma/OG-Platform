@@ -53,8 +53,8 @@ public class TotallingGraphStatisticsGathererProvider extends PerViewStatisticsG
     }
 
     @Override
-    public void graphProcessed(String calcConfig, int totalJobs, double meanJobSize, double meanJobCycleCost) {
-      getOrCreateConfiguration(calcConfig).recordProcessing(totalJobs, meanJobSize, meanJobCycleCost);
+    public void graphProcessed(String calcConfig, int totalJobs, double meanJobSize, double meanJobCycleCost, double meanJobIOCost) {
+      getOrCreateConfiguration(calcConfig).recordProcessing(totalJobs, meanJobSize, meanJobCycleCost, meanJobIOCost);
     }
 
     public List<GraphExecutionStatistics> getExecutionStatistics() {

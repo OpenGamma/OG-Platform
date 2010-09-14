@@ -24,7 +24,8 @@ public class GraphExecutionStatistics {
   private final AtomicLong _actualTime = new AtomicLong();
   private final AtomicLong _processedJobs = new AtomicLong();
   private final AtomicLong _processedJobSize = new AtomicLong();
-  private final AtomicLong _processedJobCost = new AtomicLong();
+  private final AtomicLong _processedJobCycleCost = new AtomicLong();
+  private final AtomicLong _processedJobDataCost = new AtomicLong();
   private volatile Instant _lastProcessedTime;
   private volatile Instant _lastExecutedTime;
 
@@ -69,8 +70,12 @@ public class GraphExecutionStatistics {
     return _processedJobSize.get();
   }
 
-  public long getProcessedJobCost() {
-    return _processedJobCost.get();
+  public long getProcessedJobCycleCost() {
+    return _processedJobCycleCost.get();
+  }
+
+  public long getProcessedJobDataCost() {
+    return _processedJobDataCost.get();
   }
 
   public Instant getLastProcessedTime() {
@@ -117,10 +122,19 @@ public class GraphExecutionStatistics {
     }
   }
 
-  public double getAverageJobCost() {
+  public double getAverageJobCycleCost() {
     final long executions = getProcessedGraphs();
     if (executions > 0) {
-      return (double) getProcessedJobCost() / (double) executions;
+      return (double) getProcessedJobCycleCost() / (double) executions;
+    } else {
+      return 0;
+    }
+  }
+
+  public double getAverageJobDataCost() {
+    final long executions = getProcessedGraphs();
+    if (executions > 0) {
+      return (double) getProcessedJobDataCost() / (double) executions;
     } else {
       return 0;
     }
@@ -134,11 +148,18 @@ public class GraphExecutionStatistics {
     _lastExecutedTime = Instant.nowSystemClock();
   }
 
-  public void recordProcessing(final int totalJobs, final double meanJobSize, final double meanJobCycleCost) {
+  public void recordProcessing(final int totalJobs, final double meanJobSize, double meanJobCycleCost, double meanJobIOCost) {
+    if (Double.isNaN(meanJobCycleCost)) {
+      meanJobCycleCost = getAverageJobCycleCost();
+    }
+    if (Double.isNaN(meanJobIOCost)) {
+      meanJobIOCost = getAverageJobDataCost();
+    }
     _processedGraphs.incrementAndGet();
     _processedJobs.addAndGet(totalJobs);
     _processedJobSize.addAndGet((long) meanJobSize);
-    _processedJobCost.addAndGet((long) meanJobCycleCost);
+    _processedJobCycleCost.addAndGet((long) meanJobCycleCost);
+    _processedJobDataCost.addAndGet((long) meanJobIOCost);
     _lastProcessedTime = Instant.nowSystemClock();
   }
 
@@ -150,7 +171,8 @@ public class GraphExecutionStatistics {
     _actualTime.set(0);
     _processedJobs.set(0);
     _processedJobSize.set(0);
-    _processedJobCost.set(0);
+    _processedJobCycleCost.set(0);
+    _processedJobDataCost.set(0);
   }
 
   private static void decay(final AtomicLong value, final double factor) {
@@ -165,7 +187,8 @@ public class GraphExecutionStatistics {
     decay(_actualTime, factor);
     decay(_processedJobs, factor);
     decay(_processedJobSize, factor);
-    decay(_processedJobCost, factor);
+    decay(_processedJobCycleCost, factor);
+    decay(_processedJobDataCost, factor);
   }
 
   public GraphExecutionStatistics snapshot() {
@@ -182,7 +205,8 @@ public class GraphExecutionStatistics {
     _actualTime.set(other.getActualTime());
     _processedJobs.set(other.getProcessedJobs());
     _processedJobSize.set(other.getProcessedJobSize());
-    _processedJobCost.set(other.getProcessedJobCost());
+    _processedJobCycleCost.set(other.getProcessedJobCycleCost());
+    _processedJobDataCost.set(other.getProcessedJobDataCost());
   }
 
   public void delta(final GraphExecutionStatistics future) {
@@ -193,6 +217,7 @@ public class GraphExecutionStatistics {
     _actualTime.set(future.getActualTime() - getActualTime());
     _processedJobs.set(future.getProcessedJobs() - getProcessedJobs());
     _processedJobSize.set(future.getProcessedJobSize() - getProcessedJobSize());
-    _processedJobCost.set(future.getProcessedJobCost() - getProcessedJobCost());
+    _processedJobCycleCost.set(future.getProcessedJobCycleCost() - getProcessedJobCycleCost());
+    _processedJobDataCost.set(future.getProcessedJobDataCost() - getProcessedJobDataCost());
   }
 }

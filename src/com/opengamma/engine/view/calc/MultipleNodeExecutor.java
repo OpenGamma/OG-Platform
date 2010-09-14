@@ -85,7 +85,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     if (graph.getSize() <= getMinJobItems()) {
       // If the graph is too small, run it as-is
       final RootGraphFragment fragment = new RootGraphFragment(context, statistics, graph.getExecutionOrder());
-      statistics.graphProcessed(graph.getCalcConfName(), 1, graph.getSize(), fragment.getJobInvocationCost());
+      statistics.graphProcessed(graph.getCalcConfName(), 1, graph.getSize(), fragment.getJobInvocationCost(), Double.NaN);
       context.allocateFragmentMap(1);
       fragment.executeImpl();
       return fragment;
@@ -93,8 +93,8 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     final Set<GraphFragment> allFragments = new HashSet<GraphFragment>((graph.getSize() * 4) / 3);
     final RootGraphFragment logicalRoot = new RootGraphFragment(context, statistics);
     for (GraphFragment root : graphToFragments(context, graph, allFragments)) {
-      root.getDependencies().add(logicalRoot);
-      logicalRoot.getInputs().add(root);
+      root.getOutputFragments().add(logicalRoot);
+      logicalRoot.getInputFragments().add(root);
     }
     int failCount = 0;
     do {
@@ -121,17 +121,19 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     final int count = allFragments.size();
     int totalSize = 0;
     long totalInvocationCost = 0;
+    long totalDataCost = 0;
     while (fragmentIterator.hasNext()) {
       final GraphFragment fragment = fragmentIterator.next();
       totalSize += fragment.getJobItems();
       totalInvocationCost += fragment.getJobInvocationCost();
-      if (!fragment.getInputs().isEmpty()) {
+      totalDataCost += fragment.getJobDataInputCost() + fragment.getJobDataOutputCost();
+      if (!fragment.getInputFragments().isEmpty()) {
         fragment.initBlockCount();
         fragmentIterator.remove();
       }
     }
-    statistics.graphProcessed(graph.getCalcConfName(), count, (double) totalSize / (double) count, (double) totalInvocationCost / (double) count);
-    //printFragment(logicalRoot);
+    statistics.graphProcessed(graph.getCalcConfName(), count, (double) totalSize / (double) count, (double) totalInvocationCost / (double) count, (double) totalDataCost / (double) count);
+    // printFragment(logicalRoot);
     // Execute anything left (leaf nodes)
     for (GraphFragment fragment : allFragments) {
       fragment.execute();
@@ -190,9 +192,9 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
         node2fragment.put(node, fragment);
         final Collection<DependencyNode> inputNodes = node.getInputNodes();
         if (!inputNodes.isEmpty()) {
-          graphToFragments(context, graph, fragment.getInputs(), node2fragment, inputNodes);
-          for (GraphFragment input : fragment.getInputs()) {
-            input.getDependencies().add(fragment);
+          graphToFragments(context, graph, fragment.getInputFragments(), node2fragment, inputNodes);
+          for (GraphFragment input : fragment.getInputFragments()) {
+            input.getOutputFragments().add(fragment);
           }
         }
       }
@@ -212,7 +214,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     do {
       // Scan all fragments for possible merges
       for (GraphFragment fragment : allFragments) {
-        if (fragment.getInputs().isEmpty()) {
+        if (fragment.getInputFragments().isEmpty()) {
           // No inputs to consider
           continue;
         }
@@ -220,13 +222,13 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
           // We already meet the minimum requirement for the graph
           continue;
         }
-        final GraphFragment mergeCandidate = possibleCandidates.get(fragment.getInputs());
+        final GraphFragment mergeCandidate = possibleCandidates.get(fragment.getInputFragments());
         if (mergeCandidate != null) {
-          if ((mergeCandidate.getJobCost() + fragment.getJobCost() <= getMaxJobCost()) && (mergeCandidate.getJobItems() + fragment.getJobItems() <= getMaxJobItems())) {
+          if (mergeCandidate.canAppendFragment(fragment, getMaxJobItems(), getMaxJobCost())) {
             // Defer the merge because we're iterating through the dependent's inputs at the moment
             validCandidates.put(fragment, mergeCandidate);
             // Stop using the merge candidate
-            possibleCandidates.remove(fragment.getInputs());
+            possibleCandidates.remove(fragment.getInputFragments());
             continue;
           }
           if (fragment.getJobCost() >= mergeCandidate.getJobCost()) {
@@ -234,7 +236,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
             continue;
           }
         }
-        possibleCandidates.put(fragment.getInputs(), fragment);
+        possibleCandidates.put(fragment.getInputFragments(), fragment);
       }
       if (validCandidates.isEmpty()) {
         return result;
@@ -244,23 +246,23 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
         final GraphFragment mergeCandidate = merge.getValue();
         mergeCandidate.appendFragment(fragment);
         // Merge candidate already has the correct inputs by definition
-        for (GraphFragment dependency : fragment.getDependencies()) {
-          dependency.getInputs().remove(fragment);
-          if (mergeCandidate.getDependencies().add(dependency)) {
-            dependency.getInputs().add(mergeCandidate);
+        for (GraphFragment dependency : fragment.getOutputFragments()) {
+          dependency.getInputFragments().remove(fragment);
+          if (mergeCandidate.getOutputFragments().add(dependency)) {
+            dependency.getInputFragments().add(mergeCandidate);
           }
         }
-        for (GraphFragment input : fragment.getInputs()) {
-          input.getDependencies().remove(fragment);
+        for (GraphFragment input : fragment.getInputFragments()) {
+          input.getOutputFragments().remove(fragment);
         }
         allFragments.remove(fragment);
       }
       // If deep nodes have merged with "root" nodes then we need to kill the roots
-      final Iterator<GraphFragment> fragmentIterator = logicalRoot.getInputs().iterator();
+      final Iterator<GraphFragment> fragmentIterator = logicalRoot.getInputFragments().iterator();
       while (fragmentIterator.hasNext()) {
         final GraphFragment fragment = fragmentIterator.next();
-        if (fragment.getDependencies().size() > 1) {
-          fragment.getDependencies().remove(logicalRoot);
+        if (fragment.getOutputFragments().size() > 1) {
+          fragment.getOutputFragments().remove(logicalRoot);
           fragmentIterator.remove();
         }
       }
@@ -279,26 +281,26 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     final Iterator<GraphFragment> fragmentIterator = allFragments.iterator();
     while (fragmentIterator.hasNext()) {
       final GraphFragment fragment = fragmentIterator.next();
-      if (fragment.getDependencies().size() != 1) {
+      if (fragment.getOutputFragments().size() != 1) {
         continue;
       }
-      final GraphFragment dependency = fragment.getDependencies().iterator().next();
+      final GraphFragment dependency = fragment.getOutputFragments().iterator().next();
       if (dependency.getNodes().isEmpty()) {
         // Ignore the roots
         continue;
       }
-      if ((fragment.getJobItems() + dependency.getJobItems() > getMaxJobItems()) || (fragment.getJobCost() + dependency.getJobCost() > getMaxJobCost())) {
+      if (!dependency.canPrependFragment(fragment, getMaxJobItems(), getMaxJobCost())) {
         // Can't merge
         continue;
       }
       // Merge fragment with it's dependency and slice it out of the graph
       dependency.prependFragment(fragment);
       fragmentIterator.remove();
-      dependency.getInputs().remove(fragment);
-      for (GraphFragment input : fragment.getInputs()) {
-        dependency.getInputs().add(input);
-        input.getDependencies().remove(fragment);
-        input.getDependencies().add(dependency);
+      dependency.getInputFragments().remove(fragment);
+      for (GraphFragment input : fragment.getInputFragments()) {
+        dependency.getInputFragments().add(input);
+        input.getOutputFragments().remove(fragment);
+        input.getOutputFragments().add(dependency);
       }
       changes++;
     }
@@ -312,74 +314,73 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
   private void findTailFragments(final Set<GraphFragment> allFragments) {
     // Estimate start times based on fragment costs and dependencies
     final NavigableMap<Long, Pair<List<GraphFragment>, List<GraphFragment>>> concurrencyEvent = new TreeMap<Long, Pair<List<GraphFragment>, List<GraphFragment>>>();
-    final int cacheKey = allFragments.size(); // Any changes to the graph reduce this, so we use it to cache the start time
     for (GraphFragment fragment : allFragments) {
-      Pair<List<GraphFragment>, List<GraphFragment>> event = concurrencyEvent.get(fragment.getStartTime(cacheKey));
+      Pair<List<GraphFragment>, List<GraphFragment>> event = concurrencyEvent.get(fragment.getStartTime());
       if (event == null) {
         event = Pair.of((List<GraphFragment>) new LinkedList<GraphFragment>(), null);
-        concurrencyEvent.put(fragment.getStartTime(cacheKey), event);
+        concurrencyEvent.put(fragment.getStartTime(), event);
       } else {
         if (event.getFirst() == null) {
           event = Pair.of((List<GraphFragment>) new LinkedList<GraphFragment>(), event.getSecond());
-          concurrencyEvent.put(fragment.getStartTime(cacheKey), event);
+          concurrencyEvent.put(fragment.getStartTime(), event);
         }
       }
       event.getFirst().add(fragment);
-      event = concurrencyEvent.get(fragment.getStartTime(cacheKey) + fragment.getJobCost());
+      event = concurrencyEvent.get(fragment.getStartTime() + fragment.getJobCost());
       if (event == null) {
         event = Pair.of(null, (List<GraphFragment>) new LinkedList<GraphFragment>());
-        concurrencyEvent.put(fragment.getStartTime(cacheKey) + fragment.getJobCost(), event);
+        concurrencyEvent.put(fragment.getStartTime() + fragment.getJobCost(), event);
       } else {
         if (event.getSecond() == null) {
           event = Pair.of(event.getFirst(), (List<GraphFragment>) new LinkedList<GraphFragment>());
-          concurrencyEvent.put(fragment.getStartTime(cacheKey) + fragment.getJobCost(), event);
+          concurrencyEvent.put(fragment.getStartTime() + fragment.getJobCost(), event);
         }
       }
       event.getSecond().add(fragment);
     }
     // Walk the execution plan, coloring the graph with potential invocation sites
     final Map<Integer, AtomicInteger> executing = new HashMap<Integer, AtomicInteger>();
-    int nextColour = 0;
+    int nextExecutionId = 0;
     for (Map.Entry<Long, Pair<List<GraphFragment>, List<GraphFragment>>> eventEntry : concurrencyEvent.entrySet()) {
       final Pair<List<GraphFragment>, List<GraphFragment>> event = eventEntry.getValue();
       if (event.getSecond() != null) {
         for (GraphFragment finishing : event.getSecond()) {
           // Decrement the concurrency count for the graph color
-          executing.get(finishing.getColour()).decrementAndGet();
+          executing.get(finishing.getExecutionId()).decrementAndGet();
         }
       }
       if (event.getFirst() != null) {
         for (GraphFragment starting : event.getFirst()) {
-          if (starting.getInputs().isEmpty()) {
+          if (starting.getInputFragments().isEmpty()) {
             // No inputs, so we're a leaf node = new graph color
-            nextColour++;
-            starting.setColour(nextColour);
-            executing.put(nextColour, new AtomicInteger(1));
-          } else if (starting.getInputs().size() == 1) {
+            nextExecutionId++;
+            starting.setExecutionId(nextExecutionId);
+            executing.put(nextExecutionId, new AtomicInteger(1));
+          } else if (starting.getInputFragments().size() == 1) {
             // Single input, become the tail with the same graph color if below the concurrency limit
-            final GraphFragment tailOf = starting.getInputs().iterator().next();
-            final AtomicInteger concurrency = executing.get(tailOf.getColour());
+            final GraphFragment tailOf = starting.getInputFragments().iterator().next();
+            final AtomicInteger concurrency = executing.get(tailOf.getExecutionId());
             if (concurrency.get() >= getMaxConcurrency()) {
               // Concurrency limit exceeded so start a new color
-              nextColour++;
-              starting.setColour(nextColour);
-              executing.put(nextColour, new AtomicInteger(1));
+              nextExecutionId++;
+              starting.setExecutionId(nextExecutionId);
+              executing.put(nextExecutionId, new AtomicInteger(1));
             } else {
               // Below concurrency limit so use same color and add as tail
               tailOf.addTail(starting);
-              starting.setColour(tailOf.getColour());
+              starting.setExecutionId(tailOf.getExecutionId());
               concurrency.incrementAndGet();
             }
           } else {
-            final Iterator<GraphFragment> inputIterator = starting.getInputs().iterator();
-            int nodeColour = inputIterator.next().getColour();
+            final Iterator<GraphFragment> inputIterator = starting.getInputFragments().iterator();
+            int nodeColour = inputIterator.next().getExecutionId();
             while (inputIterator.hasNext()) {
               final GraphFragment input = inputIterator.next();
-              if (input.getColour() != nodeColour) {
+              if (input.getExecutionId() != nodeColour) {
                 // Inputs are from different colored graph fragments = new graph color
-                nextColour++;
-                starting.setColour(nextColour);
-                executing.put(nextColour, new AtomicInteger(1));
+                nextExecutionId++;
+                starting.setExecutionId(nextExecutionId);
+                executing.put(nextExecutionId, new AtomicInteger(1));
                 nodeColour = -1;
                 break;
               }
@@ -389,14 +390,14 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
               final AtomicInteger concurrency = executing.get(nodeColour);
               if (concurrency.get() >= getMaxConcurrency()) {
                 // Concurrency limit exceeded so start a new color
-                nextColour++;
-                starting.setColour(nextColour);
-                executing.put(nextColour, new AtomicInteger(1));
+                nextExecutionId++;
+                starting.setExecutionId(nextExecutionId);
+                executing.put(nextExecutionId, new AtomicInteger(1));
               } else {
                 // Below concurrency limit so use same color and add as tails
-                starting.setColour(nodeColour);
+                starting.setExecutionId(nodeColour);
                 concurrency.incrementAndGet();
-                for (GraphFragment input : starting.getInputs()) {
+                for (GraphFragment input : starting.getInputFragments()) {
                   input.addTail(starting);
                 }
               }
@@ -423,8 +424,8 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
        * }
        */
       System.out.println(indent + " " + fragment);
-      if (!fragment.getInputs().isEmpty()) {
-        printFragment(indent + "  ", fragment.getInputs(), printed);
+      if (!fragment.getInputFragments().isEmpty()) {
+        printFragment(indent + "  ", fragment.getInputFragments(), printed);
       }
     }
   }

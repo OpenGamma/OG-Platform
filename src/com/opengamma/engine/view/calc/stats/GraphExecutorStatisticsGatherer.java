@@ -17,9 +17,10 @@ public interface GraphExecutorStatisticsGatherer {
    * @param calcConfig Calculation configuration name.
    * @param totalJobs Number of jobs to be dispatched - not all might have gone yet.
    * @param meanJobSize Mean size of the jobs.
-   * @param meanJobCycleCost Mean computational cost of the jobs.
+   * @param meanJobCycleCost Mean computational cost of the jobs, or {@code NaN} if not available
+   * @param meanJobIOCost Mean shared cache input/output cost of the jobs, or {@code NaN} if not available
    */
-  void graphProcessed(String calcConfig, int totalJobs, double meanJobSize, double meanJobCycleCost);
+  void graphProcessed(String calcConfig, int totalJobs, double meanJobSize, double meanJobCycleCost, double meanJobIOCost);
   
   /**
    * Reports a graph successfully executed by a {@link JobDispatcher}.
