@@ -19,9 +19,9 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 
 /**
- * 
+ * Tests the {@link AbstractCalculationNode} class. Note the name so that Clover doesn't ignore it.
  */
-public class AbstractCalculationNodeTest {
+public class CalculationNodeTest {
   
   @Test
   public void mockFunctionInvocationOneInputMissing() {
