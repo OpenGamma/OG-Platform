@@ -21,6 +21,7 @@ import com.opengamma.financial.security.master.SecuritySearchResult;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbHelper;
+import com.opengamma.util.db.DbSource;
 
 /**
  * Low level SQL focused part of the database backed security master.
@@ -84,6 +85,24 @@ public class DbSecurityMaster implements SecurityMaster {
     _dbHelper = dbHelper;
     setWorkers(new DbSecurityMasterWorkers());
     _detailProvider = detailProvider;
+  }
+
+  /**
+   * Creates an instance.
+   * @param dbSource  the database source combining all configuration, not null
+   * @param detailProvider  the detail provider for loading/storing the security itself, may be null
+   */
+  public DbSecurityMaster(DbSource dbSource, final SecurityMasterDetailProvider detailProvider) {
+    ArgumentChecker.notNull(dbSource, "dbSource");
+    s_logger.debug("installed DbSource: {}", dbSource);
+    _jdbcTemplate = dbSource.getJdbcTemplate();
+    _transactionTemplate = dbSource.getTransactionTemplate();
+    _dbHelper = dbSource.getDialect();
+    setWorkers(new DbSecurityMasterWorkers());
+    _detailProvider = detailProvider;
+    if (detailProvider != null) {
+      detailProvider.init(dbSource);
+    }
   }
 
   //-------------------------------------------------------------------------

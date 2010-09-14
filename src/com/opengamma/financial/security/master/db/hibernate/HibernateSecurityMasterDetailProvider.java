@@ -32,6 +32,7 @@ import com.opengamma.financial.security.master.db.hibernate.fra.FRASecurityBeanO
 import com.opengamma.financial.security.master.db.hibernate.future.FutureSecurityBeanOperation;
 import com.opengamma.financial.security.master.db.hibernate.option.OptionSecurityBeanOperation;
 import com.opengamma.financial.security.master.db.hibernate.swap.SwapSecurityBeanOperation;
+import com.opengamma.util.db.DbSource;
 
 /**
  * Provides access to persist the full bean structure of the security.
@@ -128,10 +129,16 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
     return _operationContext;
   }
 
+  @Override
+  public void init(DbSource dbSource) {
+    _hibernateTemplate = dbSource.getHibernateTemplate();
+  }
+
   /**
    * Sets the Hibernate session factory.
    * @param sessionFactory  the session factory.
    */
+  @Deprecated
   public void setSessionFactory(SessionFactory sessionFactory) {
     _hibernateTemplate = new HibernateTemplate(sessionFactory);
   }
