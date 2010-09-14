@@ -75,6 +75,7 @@
 	</target>
 
 	<target name="buildlist" depends="load-ivy">
+		<mkdir dir="projects" />
 		<ivy:buildlist reference="build-path">
 			<fileset dir="projects">
 				<include name="*/build.xml" />
@@ -109,10 +110,9 @@
 		<og-subant target="publish-local" buildpathref="build-path" />
 	</target>
 
-    <target name="resolve-all" depends="buildlist"
-        description="resolve all projects in the right order">
-        <og-subant target="resolve" buildpathref="build-path" />
-    </target>
+	<target name="resolve-all" depends="buildlist" description="resolve all projects in the right order">
+		<og-subant target="resolve" buildpathref="build-path" />
+	</target>
 
 	<target name="compile" depends="buildlist"
 		description="compile all projects in the right order">
@@ -179,7 +179,6 @@
 	</target>
 
 	<target name="clone-or-pull" depends="clean-src" description="clone or pull all projects from git">
-		<mkdir dir="projects" />
 		<git-clone-pull repository="git@github.com:OpenGamma/Fudge-Java.git" dest="projects/Fudge-Java" />
 		<git-clone-pull repository="git@github.com:OpenGamma/Fudge-Proto.git" dest="projects/Fudge-Proto" />
 		<git-clone-pull repository="git@github.com:OpenGamma/OG-Analytics.git" dest="projects/OG-Analytics" />
