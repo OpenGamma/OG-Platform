@@ -151,10 +151,11 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
     // if either is -1, make it zero
     startPos = startPos >= 0 ? startPos : -(startPos + 1);
     endPos = endPos >= 0 ? endPos : -(endPos + 1);
+    final int length = endPos - startPos; // trying it out anyway.
     if (endPos >= _times.length) {
       endPos--;
     }
-    final int length = endPos - startPos;
+    
     final int[] resultTimes = new int[length];
     final double[] resultValues = new double[length];
     System.arraycopy(_times, startPos, resultTimes, 0, length);
