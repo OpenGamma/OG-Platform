@@ -125,16 +125,17 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
     Map<Long, byte[]> rawValues = getPrivateDataStore().get(identifierValues);
     if (!rawValues.isEmpty()) {
       final FudgeDeserializationContext context = new FudgeDeserializationContext(getFudgeContext());
-      for (Map.Entry<ValueSpecification, Long> identifier : identifiers.entrySet()) {
+      final Iterator<Map.Entry<ValueSpecification, Long>> identifierIterator = identifiers.entrySet().iterator();
+      while (identifierIterator.hasNext()) {
+        final Map.Entry<ValueSpecification, Long> identifier = identifierIterator.next();
         final byte[] data = rawValues.get(identifier.getValue());
         if (data != null) {
           _valueSizeCache.put(identifier.getKey(), data.length);
           returnValues.add(Pair.of(identifier.getKey(), deserializeValue(context, data)));
-        } else {
-          returnValues.add(Pair.of(identifier.getKey(), null));
+          identifierIterator.remove();
         }
       }
-      if (returnValues.size() == identifierValues.size()) {
+      if (returnValues.size() == specifications.size()) {
         return returnValues;
       }
     }
