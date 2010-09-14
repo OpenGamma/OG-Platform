@@ -125,6 +125,10 @@ public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvid
   public long snapshot() {
     return getUnderlyingProvider().snapshot();
   }
+  
+  public long snapshot(long snapshot) {
+    return getUnderlyingProvider().snapshot(snapshot);
+  }
 
   @Override
   public void subscriptionResultReceived(LiveDataSubscriptionResponse subscriptionResult) {

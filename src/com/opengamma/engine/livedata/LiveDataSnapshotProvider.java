@@ -51,6 +51,13 @@ public interface LiveDataSnapshotProvider {
    *          {@link System#currentTimeMillis()}). This must be used subsequently to operate on the snapshot.
    */
   long snapshot();
+  
+  /**
+   * Takes a new snapshot, associating it with a specific snapshot time.  This allows for snapshot providers that don't run in real time.
+   * 
+   * @return  the time at which the snapshot was taken (provided).  This must be used subsequently to operate on the snapshot.
+   */
+  long snapshot(long snapshot);
 
   /**
    * Queries an existing snapshot for a particular piece of data.
