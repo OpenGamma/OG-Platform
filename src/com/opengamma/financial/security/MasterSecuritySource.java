@@ -52,6 +52,7 @@ public class MasterSecuritySource extends SecurityMasterAdapter implements Secur
     ArgumentChecker.notNull(securityKey, "securityKey");
     final SecuritySearchRequest req = new SecuritySearchRequest();
     req.setIdentityKey(securityKey);
+    req.setFullDetail(true);
     final Collection<SecurityDocument> documents = search(req).getDocuments();
     if (documents == null) {
       return Collections.emptyList();
