@@ -19,6 +19,6 @@ public class TreynorRatioCalculatorTest {
     final double assetReturn = 0.12;
     final double riskFreeReturn = 0.03;
     final double beta = 0.7;
-    assertEquals(new TreynorRatioCalculator().calculator(assetReturn, riskFreeReturn, beta), 0.1286, 1e-4);
+    assertEquals(new TreynorRatioCalculator().calculate(assetReturn, riskFreeReturn, beta), 0.1286, 1e-4);
   }
 }

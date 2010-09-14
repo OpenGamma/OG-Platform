@@ -25,7 +25,7 @@ public class TreynorRatioCalculator {
    * @param beta The beta of the asset
    * @return The Treynor ratio
    */
-  public double calculator(final double assetReturn, final double riskFreeReturn, final double beta) {
+  public double calculate(final double assetReturn, final double riskFreeReturn, final double beta) {
     return (assetReturn - riskFreeReturn) / beta;
   }
 }
