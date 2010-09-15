@@ -21,7 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.engine.security.DefaultSecurity;
-import com.opengamma.financial.security.SecurityDocument;
+import com.opengamma.financial.security.master.SecurityDocument;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -52,21 +52,21 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response put(
       @FormParam("name") String name,
-      @FormParam("scheme") String scheme,
-      @FormParam("schemevalue") String schemeValue) {
+      @FormParam("idscheme") String idScheme,
+      @FormParam("idvalue") String idValue) {
     name = StringUtils.trimToNull(name);
-    scheme = StringUtils.trimToNull(scheme);
-    schemeValue = StringUtils.trimToNull(schemeValue);
-    if (name == null || scheme == null || schemeValue == null) {
+    idScheme = StringUtils.trimToNull(idScheme);
+    idValue = StringUtils.trimToNull(idValue);
+    if (name == null || idScheme == null || idValue == null) {
       FlexiBean out = createRootData();
       if (name == null) {
         out.put("err_nameMissing", true);
       }
-      if (scheme == null) {
-        out.put("err_schemeMissing", true);
+      if (idScheme == null) {
+        out.put("err_idschemeMissing", true);
       }
-      if (schemeValue == null) {
-        out.put("err_schemevalueMissing", true);
+      if (idValue == null) {
+        out.put("err_idvalueMissing", true);
       }
       String html = getFreemarker().build("securities/security-update.ftl", out);
       return Response.ok(html).build();
@@ -77,7 +77,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
     }
     DefaultSecurity ds = (DefaultSecurity) doc.getSecurity();
     ds.setName(name);
-    ds.setIdentifiers(IdentifierBundle.of(Identifier.of(scheme, schemeValue)));
+    ds.setIdentifiers(IdentifierBundle.of(Identifier.of(idScheme, idValue)));
     doc = data().getSecurityMaster().update(doc);
     data().setSecurity(doc);
     URI uri = WebSecurityResource.uri(data());
@@ -87,7 +87,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   @DELETE
   public Response delete() {
     SecurityDocument doc = data().getSecurity();
-    data().getSecurityMaster().remove(doc.getUniqueIdentifier());
+    data().getSecurityMaster().remove(doc.getSecurityId());
     URI uri = WebSecuritiesResource.uri(data());
     return Response.seeOther(uri).build();
   }
@@ -97,12 +97,11 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
-  public FlexiBean createRootData() {
+  protected FlexiBean createRootData() {
+    FlexiBean out = super.createRootData();
     SecurityDocument doc = data().getSecurity();
-    FlexiBean out = getFreemarker().createRootData();
     out.put("securityDoc", doc);
     out.put("security", doc.getSecurity());
-    out.put("uris", new WebSecuritiesUris(data()));
     return out;
   }
 

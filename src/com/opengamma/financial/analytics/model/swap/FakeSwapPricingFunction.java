@@ -8,9 +8,6 @@ package com.opengamma.financial.analytics.model.swap;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -18,7 +15,6 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
-import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -36,7 +32,6 @@ import com.opengamma.util.time.DateUtil;
  *
  */
 public class FakeSwapPricingFunction extends AbstractFunction implements FunctionInvoker {
-  private static final Logger s_logger = LoggerFactory.getLogger(FakeSwapPricingFunction.class);
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
@@ -52,10 +47,6 @@ public class FakeSwapPricingFunction extends AbstractFunction implements Functio
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      final SwapSecurity swap = (SwapSecurity) target.getSecurity();
-      
-      SecuritySource secMaster = context.getSecuritySource();
-
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       requirements.add(getDiscountCurveMarketDataRequirement(Currency.getInstance("USD").getUniqueIdentifier()));
       return requirements;

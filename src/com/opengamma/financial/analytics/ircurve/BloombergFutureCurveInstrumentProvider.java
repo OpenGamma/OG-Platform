@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.ircurve;
 import javax.time.calendar.DateAdjuster;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
+import javax.time.calendar.Period;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -70,7 +71,12 @@ public class BloombergFutureCurveInstrumentProvider implements CurveInstrumentPr
     StringBuilder futureCode = new StringBuilder();
     futureCode.append(prefix);
     futureCode.append(s_monthCode.get(futureExpiryDate.getMonthOfYear()));
-    futureCode.append(Integer.toString(futureExpiryDate.getYear() % 10));
+    LocalDate today = LocalDate.nowSystemClock();
+    if (futureExpiryDate.isBefore(today)) {
+      futureCode.append(Integer.toString(futureExpiryDate.getYear() % 100));
+    } else {
+      futureCode.append(Integer.toString(futureExpiryDate.getYear() % 10));
+    }
     futureCode.append(postfix);
     return Identifier.of(SCHEME, futureCode.toString());
   }

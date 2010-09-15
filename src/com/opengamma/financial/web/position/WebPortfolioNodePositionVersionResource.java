@@ -45,11 +45,11 @@ public class WebPortfolioNodePositionVersionResource extends AbstractWebPortfoli
    * Creates the output root data.
    * @return the output root data, not null
    */
-  public FlexiBean createRootData() {
+  protected FlexiBean createRootData() {
+    FlexiBean out = super.createRootData();
     PortfolioTreeDocument treeDoc = data().getPortfolio();
     PositionDocument latestPositionDoc = data().getPosition();
     PositionDocument versionedPosition = (PositionDocument) data().getVersioned();
-    FlexiBean out = getFreemarker().createRootData();
     out.put("portfolioDoc", treeDoc);
     out.put("portfolio", treeDoc.getPortfolio());
     out.put("node", data().getNode());
@@ -57,7 +57,6 @@ public class WebPortfolioNodePositionVersionResource extends AbstractWebPortfoli
     out.put("latestPosition", latestPositionDoc.getPosition());
     out.put("positionDoc", versionedPosition);
     out.put("position", versionedPosition.getPosition());
-    out.put("uris", new WebPortfoliosUris(data()));
     return out;
   }
 

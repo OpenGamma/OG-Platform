@@ -54,21 +54,21 @@ public class WebPortfolioNodePositionResource extends AbstractWebPortfolioResour
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response put(
       @FormParam("quantity") String quantityStr,
-      @FormParam("scheme") String scheme,
-      @FormParam("schemevalue") String schemeValue) {
+      @FormParam("idscheme") String idScheme,
+      @FormParam("idvalue") String idValue) {
     quantityStr = StringUtils.trimToNull(quantityStr);
-    scheme = StringUtils.trimToNull(scheme);
-    schemeValue = StringUtils.trimToNull(schemeValue);
-    if (quantityStr == null || scheme == null || schemeValue == null) {
+    idScheme = StringUtils.trimToNull(idScheme);
+    idValue = StringUtils.trimToNull(idValue);
+    if (quantityStr == null || idScheme == null || idValue == null) {
       FlexiBean out = createRootData();
       if (quantityStr == null) {
         out.put("err_quantityMissing", true);
       }
-      if (scheme == null) {
-        out.put("err_schemeMissing", true);
+      if (idScheme == null) {
+        out.put("err_idschemeMissing", true);
       }
-      if (schemeValue == null) {
-        out.put("err_schemevalueMissing", true);
+      if (idValue == null) {
+        out.put("err_idvalueMissing", true);
       }
       String html = getFreemarker().build("portfolios/portfolionodeposition-update.ftl", out);
       return Response.ok(html).build();
@@ -76,7 +76,7 @@ public class WebPortfolioNodePositionResource extends AbstractWebPortfolioResour
     PositionDocument doc = data().getPosition();
     ManageablePosition position = doc.getPosition();
     position.setQuantity(new BigDecimal(quantityStr));
-    position.setSecurityKey(new IdentifierBundle(Identifier.of(scheme, schemeValue)));
+    position.setSecurityKey(new IdentifierBundle(Identifier.of(idScheme, idValue)));
     doc = data().getPositionMaster().updatePosition(doc);
     data().setPosition(doc);
     URI uri = WebPortfolioNodePositionResource.uri(data());
@@ -96,16 +96,15 @@ public class WebPortfolioNodePositionResource extends AbstractWebPortfolioResour
    * Creates the output root data.
    * @return the output root data, not null
    */
-  public FlexiBean createRootData() {
+  protected FlexiBean createRootData() {
+    FlexiBean out = super.createRootData();
     PortfolioTreeDocument treeDoc = data().getPortfolio();
     PositionDocument positionDoc = data().getPosition();
-    FlexiBean out = getFreemarker().createRootData();
     out.put("portfolioDoc", treeDoc);
     out.put("portfolio", treeDoc.getPortfolio());
     out.put("node", data().getNode());
     out.put("positionDoc", positionDoc);
     out.put("position", positionDoc.getPosition());
-    out.put("uris", new WebPortfoliosUris(data()));
     return out;
   }
 

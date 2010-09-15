@@ -87,6 +87,20 @@ public class WebPortfoliosData extends DirectBean {
   @PropertyDefinition
   private Object _versioned;
 
+  /**
+   * Creates an instance.
+   */
+  public WebPortfoliosData() {
+  }
+
+  /**
+   * Creates an instance.
+   * @param uriInfo  the URI information
+   */
+  public WebPortfoliosData(final UriInfo uriInfo) {
+    setUriInfo(uriInfo);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets the best available portfolio id.

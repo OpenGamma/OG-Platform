@@ -6,7 +6,7 @@
 package com.opengamma.financial.web.security;
 
 import java.net.URI;
-import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -16,17 +16,21 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.engine.security.DefaultSecurity;
-import com.opengamma.financial.security.SecurityDocument;
-import com.opengamma.financial.security.SecurityMaster;
-import com.opengamma.financial.security.SecuritySearchRequest;
-import com.opengamma.financial.security.SecuritySearchResult;
+import com.opengamma.financial.security.master.SecurityDocument;
+import com.opengamma.financial.security.master.SecurityMaster;
+import com.opengamma.financial.security.master.SecuritySearchRequest;
+import com.opengamma.financial.security.master.SecuritySearchResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -55,21 +59,24 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
       @QueryParam("name") String name,
-      @QueryParam("type") String type) {
+      @QueryParam("type") String type,
+      @Context UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     SecuritySearchRequest searchRequest = new SecuritySearchRequest();
     searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
     searchRequest.setName(StringUtils.trimToNull(name));
     searchRequest.setSecurityType(StringUtils.trimToNull(type));
-    searchRequest.setIdentifiers(IdentifierBundle.EMPTY);  // bug? in HibernateSecmaster
+    MultivaluedMap<String, String> query = uriInfo.getQueryParameters();
+    for (int i = 0; query.containsKey("idscheme." + i) && query.containsKey("idvalue." + i); i++) {
+      Identifier id = Identifier.of(query.getFirst("idscheme." + i), query.getFirst("idvalue." + i));
+      IdentifierBundle old = (searchRequest.getIdentityKey() != null ? searchRequest.getIdentityKey() : IdentifierBundle.EMPTY);
+      searchRequest.setIdentityKey(old.withIdentifier(id));
+    }
     out.put("searchRequest", searchRequest);
     
     if (data().getUriInfo().getQueryParameters().size() > 0) {
       SecuritySearchResult searchResult = data().getSecurityMaster().search(searchRequest);
-      if (searchResult.getDocument() == null) {  // bad spelling
-        searchResult.setDocument(new ArrayList<SecurityDocument>());  // horrid hack
-      }
       out.put("searchResult", searchResult);
     }
     return getFreemarker().build("securities/securities.ftl", out);
@@ -81,13 +88,13 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
   public Response post(
       @FormParam("name") String name,
       @FormParam("type") String type,
-      @FormParam("scheme") String scheme,
-      @FormParam("schemevalue") String schemeValue) {
+      @FormParam("idscheme") String idScheme,
+      @FormParam("idvalue") String idValue) {
     name = StringUtils.trimToNull(name);
     type = StringUtils.trimToNull(type);
-    scheme = StringUtils.trimToNull(scheme);
-    schemeValue = StringUtils.trimToNull(schemeValue);
-    if (name == null || type == null || scheme == null || schemeValue == null) {
+    idScheme = StringUtils.trimToNull(idScheme);
+    idValue = StringUtils.trimToNull(idValue);
+    if (name == null || type == null || idScheme == null || idValue == null) {
       FlexiBean out = createRootData();
       if (name == null) {
         out.put("err_nameMissing", true);
@@ -95,22 +102,22 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       if (type == null) {
         out.put("err_typeMissing", true);
       }
-      if (scheme == null) {
-        out.put("err_schemeMissing", true);
+      if (idScheme == null) {
+        out.put("err_idschemeMissing", true);
       }
-      if (schemeValue == null) {
-        out.put("err_schemevalueMissing", true);
+      if (idValue == null) {
+        out.put("err_idvalueMissing", true);
       }
       String html = getFreemarker().build("securities/securities-add.ftl", out);
       return Response.ok(html).build();
     }
     DefaultSecurity security = new DefaultSecurity(type);
     security.setName(name);
-    security.addIdentifier(Identifier.of(scheme, schemeValue));
+    security.addIdentifier(Identifier.of(idScheme, idValue));
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(security);
     SecurityDocument added = data().getSecurityMaster().add(doc);
-    URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueIdentifier().toLatest().toString()).build();
+    URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getSecurityId().toLatest().toString()).build();
     return Response.seeOther(uri).build();
   }
 
@@ -128,11 +135,10 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
-  public FlexiBean createRootData() {
+  protected FlexiBean createRootData() {
+    FlexiBean out = super.createRootData();
     SecuritySearchRequest searchRequest = new SecuritySearchRequest();
-    FlexiBean out = getFreemarker().createRootData();
     out.put("searchRequest", searchRequest);
-    out.put("uris", new WebSecuritiesUris(data()));
     return out;
   }
 
@@ -143,7 +149,26 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
    * @return the URI, not null
    */
   public static URI uri(WebSecuritiesData data) {
-    return data.getUriInfo().getBaseUriBuilder().path(WebSecuritiesResource.class).build();
+    return uri(data, null);
+  }
+
+  /**
+   * Builds a URI for securities.
+   * @param data  the data, not null
+   * @param identifiers  the identifiers to search for, may be null
+   * @return the URI, not null
+   */
+  public static URI uri(WebSecuritiesData data, IdentifierBundle identifiers) {
+    UriBuilder builder = data.getUriInfo().getBaseUriBuilder().path(WebSecuritiesResource.class);
+    if (identifiers != null) {
+      Iterator<Identifier> it = identifiers.iterator();
+      for (int i = 0; it.hasNext(); i++) {
+        Identifier id = it.next();
+        builder.queryParam("idscheme." + i, id.getScheme().getName());
+        builder.queryParam("idvalue." + i, id.getValue());
+      }
+    }
+    return builder.build();
   }
 
 }

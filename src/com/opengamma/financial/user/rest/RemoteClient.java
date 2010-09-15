@@ -9,7 +9,7 @@ import org.fudgemsg.FudgeContext;
 
 import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.financial.position.master.rest.RemotePositionMaster;
-import com.opengamma.financial.security.SecurityMaster;
+import com.opengamma.financial.security.master.SecurityMaster;
 import com.opengamma.financial.security.rest.RemoteSecurityMaster;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.rest.RemoteManagableViewDefinitionRepository;

@@ -24,7 +24,7 @@ import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.financial.world.region.InMemoryRegionRepository;
+import com.opengamma.financial.world.region.InMemoryRegionMaster;
 import com.opengamma.financial.world.region.Region;
 import com.opengamma.financial.world.region.RegionSource;
 import com.opengamma.id.Identifier;
@@ -111,7 +111,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
   
   private CashSecurity getCash(InterpolatedYieldCurveSpecification spec, FixedIncomeStripWithIdentifier strip) {
     //return (CashSecurity) _secSource.getSecurity(IdentifierBundle.of(cashIdentifier));
-    CashSecurity sec = new CashSecurity(spec.getCurrency(), Identifier.of(InMemoryRegionRepository.ISO_COUNTRY_2, "GB"));
+    CashSecurity sec = new CashSecurity(spec.getCurrency(), Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, "GB"));
     sec.setIdentifiers(IdentifierBundle.of(strip.getSecurity()));
     return sec;
   }
@@ -136,11 +136,11 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     DateTimeWithZone tradeDate = new DateTimeWithZone(curveDate.atTime(11, 00).atZone(TimeZone.UTC));
     DateTimeWithZone effectiveDate = new DateTimeWithZone(DateUtil.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC));
     DateTimeWithZone maturityDate = new DateTimeWithZone(curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC));
-    ConventionBundle convention = _conventionBundleSource.getCpnventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getISOCode() + "_SWAP"));
+    ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getISOCode() + "_SWAP"));
     String counterparty = "";
-    Identifier region = Identifier.of(InMemoryRegionRepository.ISO_COUNTRY_2, "GB");
+    Identifier region = Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, "GB");
     // REVIEW: jim 25-Aug-2010 -- change this to pass the identifier from the convention straight in instead of resolving and using a unique ID
-    ConventionBundle floatRateConvention = source.getCpnventionBundle(convention.getSwapFloatingLegInitialRate());
+    ConventionBundle floatRateConvention = source.getConventionBundle(convention.getSwapFloatingLegInitialRate());
     Double initialRate = null; 
     for (Identifier identifier :  floatRateConvention.getIdentifiers()) {
       if (marketValues.containsKey(identifier)) {

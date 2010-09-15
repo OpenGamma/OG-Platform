@@ -14,7 +14,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.security.SecurityDocument;
+import com.opengamma.financial.security.master.SecurityDocument;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -44,15 +44,14 @@ public class WebSecurityVersionResource extends AbstractWebSecurityResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
-  public FlexiBean createRootData() {
+  protected FlexiBean createRootData() {
+    FlexiBean out = super.createRootData();
     SecurityDocument latestSecDoc = data().getSecurity();
     SecurityDocument versionedSecurity = data().getVersioned();
-    FlexiBean out = getFreemarker().createRootData();
     out.put("latestSecurityDoc", latestSecDoc);
     out.put("latestSecurity", latestSecDoc.getSecurity());
     out.put("securityDoc", versionedSecurity);
     out.put("security", versionedSecurity.getSecurity());
-    out.put("uris", new WebSecuritiesUris(data()));
     return out;
   }
 

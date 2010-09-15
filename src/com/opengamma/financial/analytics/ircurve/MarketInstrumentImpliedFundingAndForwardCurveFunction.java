@@ -5,23 +5,11 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Set;
-
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -31,46 +19,9 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.Currency;
-import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.model.schedule.ScheduleCalculator;
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.HolidaySourceCalendarAdapter;
-import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.convention.frequency.PeriodFrequency;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
-import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
-import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
-import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
-import com.opengamma.financial.interestrate.ParRateDifferenceCalculator;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
-import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.libor.definition.Libor;
-import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
-import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.world.region.Region;
-import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
-import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
-import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
-import com.opengamma.math.linearalgebra.DecompositionFactory;
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
-import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
 
 /**
  * 
@@ -254,11 +205,6 @@ public class MarketInstrumentImpliedFundingAndForwardCurveFunction extends Abstr
       return _requirements;
     }
     return null;
-  }
-
-  @Override
-  public boolean buildsOwnSubGraph() {
-    return false;
   }
 
   @Override

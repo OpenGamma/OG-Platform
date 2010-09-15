@@ -15,9 +15,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 
+import com.opengamma.financial.master.db.DbMasterTestUtils;
 import com.opengamma.util.test.DBTest;
 
 /**
@@ -38,9 +38,8 @@ public class DbPositionMasterTest extends DBTest {
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    final String contextLocation =  "config/test-position-master-context.xml";
-    final ApplicationContext context = new FileSystemXmlApplicationContext(contextLocation);
-    _posMaster = (DbPositionMaster) context.getBean(getDatabaseType()+"DbPositionMaster");
+    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
+    _posMaster = (DbPositionMaster) context.getBean(getDatabaseType() + "DbPositionMaster");
   }
 
   @After
@@ -54,10 +53,8 @@ public class DbPositionMasterTest extends DBTest {
   public void test_basics() throws Exception {
     assertNotNull(_posMaster);
     assertEquals(true, _posMaster.getIdentifierScheme().equals("DbPos"));
-    assertNotNull(_posMaster.getJdbcTemplate());
+    assertNotNull(_posMaster.getDbSource());
     assertNotNull(_posMaster.getTimeSource());
-    assertNotNull(_posMaster.getDbHelper());
-    assertNotNull(_posMaster.getWorkers());
   }
 
   //-------------------------------------------------------------------------

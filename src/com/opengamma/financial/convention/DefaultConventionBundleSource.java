@@ -21,7 +21,7 @@ public class DefaultConventionBundleSource implements ConventionBundleSource {
     _referenceRateMaster = referenceRateMaster;
   }
   @Override
-  public ConventionBundle getCpnventionBundle(Identifier identifier) {
+  public ConventionBundle getConventionBundle(Identifier identifier) {
     ConventionBundleSearchResult result = _referenceRateMaster.searchConventionBundle(new ConventionBundleSearchRequest(identifier));
     final int size = result.getResults().size();
     switch (size) {

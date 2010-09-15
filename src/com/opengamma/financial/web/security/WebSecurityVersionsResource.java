@@ -15,9 +15,9 @@ import javax.ws.rs.core.MediaType;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.security.SecurityDocument;
-import com.opengamma.financial.security.SecuritySearchHistoricRequest;
-import com.opengamma.financial.security.SecuritySearchHistoricResult;
+import com.opengamma.financial.security.master.SecurityDocument;
+import com.opengamma.financial.security.master.SecuritySearchHistoricRequest;
+import com.opengamma.financial.security.master.SecuritySearchHistoricResult;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -39,7 +39,7 @@ public class WebSecurityVersionsResource extends AbstractWebSecurityResource {
   @GET
   public String get() {
     SecuritySearchHistoricRequest request = new SecuritySearchHistoricRequest();
-    request.setObjectIdentifier(data().getSecurity().getUniqueIdentifier());
+    request.setSecurityId(data().getSecurity().getSecurityId());
     SecuritySearchHistoricResult result = data().getSecurityMaster().searchHistoric(request);
     
     FlexiBean out = createRootData();
@@ -53,12 +53,11 @@ public class WebSecurityVersionsResource extends AbstractWebSecurityResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
-  public FlexiBean createRootData() {
+  protected FlexiBean createRootData() {
+    FlexiBean out = super.createRootData();
     SecurityDocument doc = data().getSecurity();
-    FlexiBean out = getFreemarker().createRootData();
     out.put("securityDoc", doc);
     out.put("security", doc.getSecurity());
-    out.put("uris", new WebSecuritiesUris(data()));
     return out;
   }
 
@@ -67,8 +66,8 @@ public class WebSecurityVersionsResource extends AbstractWebSecurityResource {
   public WebSecurityVersionResource findVersion(@PathParam("versionId") String idStr) {
     data().setUriVersionId(idStr);
     SecurityDocument doc = data().getSecurity();
-    UniqueIdentifier combined = doc.getUniqueIdentifier().withVersion(idStr);
-    if (doc.getUniqueIdentifier().equals(combined) == false) {
+    UniqueIdentifier combined = doc.getSecurityId().withVersion(idStr);
+    if (doc.getSecurityId().equals(combined) == false) {
       SecurityDocument versioned = data().getSecurityMaster().get(combined);
       data().setVersioned(versioned);
     } else {
