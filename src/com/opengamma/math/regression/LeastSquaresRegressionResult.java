@@ -7,6 +7,8 @@ package com.opengamma.math.regression;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang.Validate;
+
 /**
  * Contains the result of a least squares regression.
  */
@@ -23,9 +25,7 @@ public class LeastSquaresRegressionResult {
   private final boolean _hasIntercept;
 
   public LeastSquaresRegressionResult(final LeastSquaresRegressionResult result) {
-    if (result == null) {
-      throw new IllegalArgumentException("Regression result was null");
-    }
+    Validate.notNull(result, "regression result");
     _betas = result.getBetas();
     _residuals = result.getResiduals();
     _meanSquareError = result.getMeanSquareError();
@@ -87,9 +87,7 @@ public class LeastSquaresRegressionResult {
   }
 
   public double getPredictedValue(final double[] x) {
-    if (x == null) {
-      throw new IllegalArgumentException("x array was null");
-    }
+    Validate.notNull(x, "x");
     final double[] betas = getBetas();
     if (hasIntercept()) {
       if (x.length != betas.length - 1) {
@@ -115,11 +113,6 @@ public class LeastSquaresRegressionResult {
     return sum;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -140,11 +133,6 @@ public class LeastSquaresRegressionResult {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {
