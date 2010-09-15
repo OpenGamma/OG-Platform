@@ -5,15 +5,22 @@
  */
 package com.opengamma.timeseries.db;
 
+import static com.opengamma.timeseries.TimeSeriesConstant.BUNDLE_ID_COLUMN;
+import static com.opengamma.timeseries.TimeSeriesConstant.DATA_FIELD_COLUMN;
+import static com.opengamma.timeseries.TimeSeriesConstant.DATA_PROVIDER_COLUMN;
+import static com.opengamma.timeseries.TimeSeriesConstant.DATA_SOURCE_COLUMN;
+import static com.opengamma.timeseries.TimeSeriesConstant.EARLIEST_COLUMN;
+import static com.opengamma.timeseries.TimeSeriesConstant.LATEST_COLUMN;
+import static com.opengamma.timeseries.TimeSeriesConstant.OBSERVATION_TIME_COLUMN;
+import static com.opengamma.timeseries.TimeSeriesConstant.TS_ID_COLUMN;
+
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javax.time.calendar.LocalDate;
-
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
-import static com.opengamma.timeseries.TimeSeriesConstant.*;
+import com.opengamma.util.time.DateUtil;
 
 /**
  * TimeSeriesMetaDataRowMapper maps returned SQL row to TimeSeriesMetaData object 
@@ -42,8 +49,8 @@ import static com.opengamma.timeseries.TimeSeriesConstant.*;
     if (_loadDates) {
       Date earliestDate = rs.getDate(EARLIEST_COLUMN);
       Date latestDate = rs.getDate(LATEST_COLUMN);
-      result.setEarliestDate(LocalDate.ofEpochDays(earliestDate.getTime() / MSEC_IN_DAY));
-      result.setLatestDate(LocalDate.ofEpochDays(latestDate.getTime() / MSEC_IN_DAY));
+      result.setEarliestDate(DateUtil.fromSqlDate(earliestDate));
+      result.setLatestDate(DateUtil.fromSqlDate(latestDate));
     }
     return result;
   }
