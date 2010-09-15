@@ -54,7 +54,7 @@ public class DbSecurityMasterWorker {
 
   /**
    * Initializes the instance.
-   * @param master  the security master, non-null
+   * @param master  the security master, not null
    */
   protected void init(final DbSecurityMaster master) {
     _master = master;

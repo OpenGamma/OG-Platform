@@ -9,33 +9,9 @@
   <bean id="abstractDbSource" class="com.opengamma.util.db.DbSourceFactoryBean" abstract="true">
     <property name="transactionIsolationLevelName" value="ISOLATION_SERIALIZABLE" />
     <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
-    <property name="hibernateMappingResources">
+    <property name="hibernateMappingFiles">
       <list>
-        <value>com/opengamma/financial/security/master/db/hibernate/future/BondFutureTypeBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/bond/BondSecurityBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/BusinessDayConventionBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/future/CashRateTypeBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/future/CommodityFutureTypeBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/bond/CouponTypeBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/CurrencyBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/DayCountBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/equity/EquitySecurityBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/ExchangeBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/fra/FRASecurityBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/FrequencyBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/future/FutureBundleBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/future/FutureSecurityBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/equity/GICSCodeBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/bond/GuaranteeTypeBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/IdentifierAssociationBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/bond/IssuerTypeBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/bond/MarketBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/option/OptionSecurityBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/SecurityBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/future/UnitBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/bond/YieldConventionBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/swap/SwapSecurityBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/cash/CashSecurityBean.hbm.xml</value>
+        <bean class="com.opengamma.financial.security.master.db.hibernate.HibernateSecurityMasterFiles"/>
       </list>
     </property>
   </bean>
@@ -54,9 +30,6 @@
     <property name="dialect" value="com.opengamma.util.db.HSQLDbHelper"/>
   </bean>
 
-  <bean id="hsqldbDbSecurityMasterDetail" class="com.opengamma.financial.security.master.db.hibernate.HibernateSecurityMasterDetailProvider">
-  </bean>
-
   <bean id="hsqldbDbPositionMaster" class="com.opengamma.financial.position.master.db.DbPositionMaster">
     <constructor-arg ref="hsqldbDbSource" />
     <property name="identifierScheme" value="DbPos" />
@@ -64,7 +37,6 @@
 
   <bean id="hsqldbDbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
     <constructor-arg ref="hsqldbDbSource" />
-    <constructor-arg ref="hsqldbDbSecurityMasterDetail" />
     <property name="identifierScheme" value="DbSec" />
   </bean>
 
@@ -82,9 +54,6 @@
     <property name="dialect" value="com.opengamma.util.db.PostgreSQLDbHelper"/>
   </bean>
 
-  <bean id="postgresDbSecurityMasterDetail" class="com.opengamma.financial.security.master.db.hibernate.HibernateSecurityMasterDetailProvider">
-  </bean>
-
   <bean id="postgresDbPositionMaster" class="com.opengamma.financial.position.master.db.DbPositionMaster">
     <constructor-arg ref="postgresDbSource" />
     <property name="identifierScheme" value="DbPos" />
@@ -92,7 +61,6 @@
 
   <bean id="postgresDbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
     <constructor-arg ref="postgresDbSource" />
-    <constructor-arg ref="postgresDbSecurityMasterDetail" />
     <property name="identifierScheme" value="DbSec" />
   </bean>
 

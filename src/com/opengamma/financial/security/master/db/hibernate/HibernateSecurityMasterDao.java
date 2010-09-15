@@ -24,7 +24,7 @@ import com.opengamma.financial.security.master.db.hibernate.future.UnitBean;
 import com.opengamma.id.Identifier;
 
 /**
- * HibernateSecurityMaster session and utility methods
+ * HibernateSecurityMaster session and utility methods.
  */
 public interface HibernateSecurityMasterDao {
 

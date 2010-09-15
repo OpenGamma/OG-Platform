@@ -49,25 +49,16 @@ public class DbSecurityMaster implements SecurityMaster {
    * The workers.
    */
   private DbSecurityMasterWorkers _workers;
-  /**
-   * The detail provider, null if detail loaded/stored directly.
-   */
-  private SecurityMasterDetailProvider _detailProvider;
 
   /**
    * Creates an instance.
    * @param dbSource  the database source combining all configuration, not null
-   * @param detailProvider  the detail provider for loading/storing the security itself, may be null
    */
-  public DbSecurityMaster(DbSource dbSource, final SecurityMasterDetailProvider detailProvider) {
+  public DbSecurityMaster(DbSource dbSource) {
     ArgumentChecker.notNull(dbSource, "dbSource");
     s_logger.debug("installed DbSource: {}", dbSource);
     _dbSource = dbSource;
     setWorkers(new DbSecurityMasterWorkers());
-    _detailProvider = detailProvider;
-    if (detailProvider != null) {
-      detailProvider.init(dbSource);
-    }
   }
 
   //-------------------------------------------------------------------------
@@ -77,14 +68,6 @@ public class DbSecurityMaster implements SecurityMaster {
    */
   public DbSource getDbSource() {
     return _dbSource;
-  }
-
-  /**
-   * Gets the detail provider.
-   * @return the detail provider, non-null
-   */
-  public SecurityMasterDetailProvider getDetailProvider() {
-    return _detailProvider;
   }
 
   //-------------------------------------------------------------------------
