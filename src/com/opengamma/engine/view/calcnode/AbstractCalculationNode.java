@@ -125,6 +125,9 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     final List<CalculationJobResultItem> resultItems = new ArrayList<CalculationJobResultItem>();
     final String calculationConfiguration = spec.getCalcConfigName();
     for (CalculationJobItem jobItem : job.getJobItems()) {
+      if (job.isCancelled()) {
+        return null;
+      }
       CalculationJobResultItem resultItem;
       try {
         invoke(jobItem, cache, new DeferredInvocationStatistics(getFunctionInvocationStatistics(), calculationConfiguration));

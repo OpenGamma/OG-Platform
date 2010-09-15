@@ -237,7 +237,11 @@ public class DependencyNode {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("DependencyNode[");
-    sb.append(getFunction().getFunction().getShortName());
+    if (getFunction() != null) {
+      sb.append(getFunction().getFunction().getShortName());
+    } else {
+      sb.append("<null function>");
+    }
     sb.append(" on ");
     sb.append(getComputationTarget().toSpecification());
     sb.append("]");

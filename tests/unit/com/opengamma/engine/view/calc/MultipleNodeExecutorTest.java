@@ -6,7 +6,6 @@
 package com.opengamma.engine.view.calc;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -28,6 +27,7 @@ import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.engine.view.calcnode.stats.FunctionCost;
+import com.opengamma.util.Cancellable;
 
 /**
  * Tests the graph partitioning logic in MultipleNodeExecutor.
@@ -76,8 +76,14 @@ public class MultipleNodeExecutorTest {
       }
 
       @Override
-      protected void dispatchJob(final CalculationJob job, final JobResultReceiver jobResultReceiver) {
+      protected Cancellable dispatchJob(final CalculationJob job, final JobResultReceiver jobResultReceiver) {
         // No action - we're just testing graph construction
+        return new Cancellable () {
+          @Override
+          public boolean cancel (final boolean mayInterrupt) {
+            return false;
+          }
+        };
       }
 
     };

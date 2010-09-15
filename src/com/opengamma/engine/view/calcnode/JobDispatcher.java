@@ -18,12 +18,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -34,6 +32,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.calcnode.stats.CalculationNodeStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.stats.DiscardingNodeStatisticsGatherer;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.Cancellable;
 
 /**
  * Manages a set of JobInvokers and dispatches jobs to them for execution.
@@ -57,43 +56,56 @@ public class JobDispatcher implements JobInvokerRegister {
     return jobs;
   }
 
-  private static final Future<?> FINISHED = new Future<Object>() {
+  private static class Timeout implements Runnable {
 
-    @Override
-    public boolean cancel(boolean mayInterruptIfRunning) {
-      return false;
+    public static final Timeout FINISHED = new Timeout();
+    public static final Timeout CANCELLED = new Timeout();
+
+    private final DispatchJob _dispatchJob;
+    private final JobInvoker _jobInvoker;
+    private final Future<?> _future;
+
+    private Timeout() {
+      _dispatchJob = null;
+      _jobInvoker = null;
+      _future = null;
+    }
+
+    public Timeout(final DispatchJob dispatchJob, final JobInvoker jobInvoker, final ScheduledExecutorService executor, final long timeoutMillis) {
+      _dispatchJob = dispatchJob;
+      _jobInvoker = jobInvoker;
+      if (timeoutMillis > 0) {
+        _future = executor.schedule(this, timeoutMillis, TimeUnit.MILLISECONDS);
+      } else {
+        _future = null;
+      }
     }
 
     @Override
-    public Object get() throws InterruptedException, ExecutionException {
-      return null;
+    public void run() {
+      _dispatchJob.timeout(_jobInvoker);
     }
 
-    @Override
-    public Object get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-      return null;
+    public void cancel() {
+      if (_future != null) {
+        _future.cancel(false);
+      }
     }
 
-    @Override
-    public boolean isCancelled() {
-      return false;
+    public JobInvoker getInvoker() {
+      return _jobInvoker;
     }
 
-    @Override
-    public boolean isDone() {
-      return false;
-    }
+  }
 
-  };
-
-  private final class DispatchJob implements JobInvocationReceiver {
+  private final class DispatchJob implements JobInvocationReceiver, Cancellable {
 
     private final CalculationJob _rootJob;
     private final ConcurrentMap<CalculationJobSpecification, JobResultReceiver> _resultReceivers;
     private final AtomicBoolean _completed = new AtomicBoolean(false);
     private final long _jobCreationTime;
     private final CapabilityRequirements _capabilityRequirements;
-    private final AtomicReference<Future<?>> _timeout = new AtomicReference<Future<?>>();
+    private final AtomicReference<Timeout> _timeout = new AtomicReference<Timeout>();
     private Set<JobInvoker> _excludeJobInvoker;
     private int _rescheduled;
 
@@ -127,7 +139,7 @@ public class JobDispatcher implements JobInvokerRegister {
       if (_resultReceivers.isEmpty()) {
         // This is the last one to complete. Note that if the last few jobs complete concurrently, both may execute this code.
         _completed.set(true);
-        cancelTimeout(false);
+        cancelTimeout(Timeout.FINISHED);
       }
       s_logger.info("Job {} completed on node {}", result.getSpecification().getJobId(), result.getComputeNodeId());
       resultReceiver.resultReceived(result);
@@ -143,7 +155,7 @@ public class JobDispatcher implements JobInvokerRegister {
     public void jobFailed(final JobInvoker jobInvoker, final String computeNodeId, final Exception exception) {
       s_logger.warn("Job {} failed, {}", getJob().getSpecification().getJobId(), (exception != null) ? exception.getMessage() : "no exception passed");
       if (_completed.getAndSet(true) == false) {
-        cancelTimeout(true);
+        cancelTimeout(null);
         if ((_excludeJobInvoker != null) && _excludeJobInvoker.contains(jobInvoker)) {
           _completed.set(false);
           jobAbort(exception, "duplicate invoker failure from node " + computeNodeId);
@@ -193,7 +205,7 @@ public class JobDispatcher implements JobInvokerRegister {
     private void jobAbort(Exception exception, final String alternativeError) {
       s_logger.error("Aborted job {} after {} attempts", getJob().getSpecification().getJobId(), _rescheduled);
       if (_completed.getAndSet(true) == false) {
-        cancelTimeout(false);
+        cancelTimeout(Timeout.FINISHED);
         if (exception == null) {
           s_logger.error("Aborted job {} with {}", getJob().getSpecification().getJobId(), alternativeError);
           exception = new OpenGammaRuntimeException(alternativeError);
@@ -205,36 +217,43 @@ public class JobDispatcher implements JobInvokerRegister {
       }
     }
 
+    public void timeout(final JobInvoker jobInvoker) {
+      // TODO [ENG-178] Instead of immediate failure we should ask the invoker if the job is still running
+      jobFailed(jobInvoker, "node on " + jobInvoker.getInvokerId(), new OpenGammaRuntimeException("Invocation limit of " + _maxJobExecutionTime + "ms exceeded"));
+    }
+
     private void setTimeout(final JobInvoker jobInvoker) {
-      if (_maxJobExecutionTime > 0) {
-        // TODO [ENG-178] If the job has tails, the max execution time needs to be longer (how about the number of tails?)
-        final Future<?> timeout = _jobTimeoutExecutor.schedule(new Runnable() {
-          @Override
-          public void run() {
-            _timeout.set(FINISHED);
-            // TODO [ENG-178] Instead of immediate failure we should ask the node if the job is still running
-            jobFailed(jobInvoker, "node on " + jobInvoker.getInvokerId(), new OpenGammaRuntimeException("Invocation limit of " + _maxJobExecutionTime + "ms exceeded"));
-          }
-        }, _maxJobExecutionTime, TimeUnit.MILLISECONDS);
-        if (_timeout.compareAndSet(null, timeout)) {
-          s_logger.debug("Timeout set for job {}", getJob().getSpecification().getJobId());
+      // TODO [ENG-178] If the job has tails, the max execution time needs to be longer (how about the number of tails?)
+      Timeout timeout = new Timeout(this, jobInvoker, _jobTimeoutExecutor, _maxJobExecutionTime);
+      if (_timeout.compareAndSet(null, timeout)) {
+        s_logger.debug("Timeout set for job {}", getJob().getSpecification().getJobId());
+      } else {
+        timeout.cancel();
+        timeout = _timeout.get();
+        if (timeout == Timeout.FINISHED) {
+          s_logger.debug("Job {} already completed", getJob().getSpecification().getJobId());
+        } else if (timeout == Timeout.CANCELLED) {
+          s_logger.debug("Job {} cancelled", getJob().getSpecification().getJobId());
         } else {
-          s_logger.debug("Job {} completed or timeout already set", getJob().getSpecification().getJobId());
-          timeout.cancel(false);
+          s_logger.debug("Job {} timeout already set", getJob().getSpecification().getJobId());
         }
       }
     }
 
-    private void cancelTimeout(boolean allowRetry) {
-      Future<?> timeout = _timeout.getAndSet(allowRetry ? null : FINISHED);
+    private Timeout cancelTimeout(final Timeout flagState) {
+      Timeout timeout = _timeout.getAndSet(flagState);
       if (timeout == null) {
-        s_logger.debug("Cancel timeout {} for {} - no timeout set", allowRetry ? "with retry" : "at finish", getJob().getSpecification().getJobId());
-      } else if (timeout == FINISHED) {
-        s_logger.debug("Cancel timeout {} for {} - job finished", allowRetry ? "with retry" : "at finish", getJob().getSpecification().getJobId());
+        s_logger.debug("Cancel timeout for {} - no timeout set", getJob().getSpecification().getJobId());
+      } else if (timeout == Timeout.FINISHED) {
+        s_logger.debug("Cancel timeout for {} - job finished", getJob().getSpecification().getJobId());
+      } else if (timeout == Timeout.CANCELLED) {
+        s_logger.debug("Cancel timeout for {} - job cancelled", getJob().getSpecification().getJobId());
       } else {
-        s_logger.debug("Cancelling timeout {} for {}", allowRetry ? "with retry" : "at finish", getJob().getSpecification().getJobId());
-        timeout.cancel(false);
+        s_logger.debug("Cancelling timeout for {}", getJob().getSpecification().getJobId());
+        timeout.cancel();
+        return timeout;
       }
+      return null;
     }
 
     private CapabilityRequirements getRequirements() {
@@ -252,6 +271,29 @@ public class JobDispatcher implements JobInvokerRegister {
         }
       }
       return getRequirements().satisfiedBy(jobInvoker.getCapabilities());
+    }
+
+    @Override
+    public boolean cancel(boolean mayInterruptIfRunning) {
+      s_logger.info("Cancelling job {}", getJob().getSpecification().getJobId());
+      while (_completed.getAndSet(true) != false) {
+        Thread.yield();
+        if (_timeout.get() == Timeout.FINISHED) {
+          s_logger.warn("Can't cancel job {} - already finished", getJob().getSpecification().getJobId());
+          return false;
+        } else if (_timeout.get() == Timeout.CANCELLED) {
+          s_logger.info("Job {} already cancelled", getJob().getSpecification().getJobId());
+          return true;
+        } else {
+          s_logger.debug("Job {} - currently failing, cancelling or aborting", getJob().getSpecification().getJobId());
+        }
+      }
+      final Timeout timeout = cancelTimeout(Timeout.CANCELLED);
+      if (timeout != null) {
+        final JobInvoker invoker = timeout.getInvoker();
+        invoker.cancel(_resultReceivers.keySet());
+      }
+      return true;
     }
 
   }
@@ -387,6 +429,10 @@ public class JobDispatcher implements JobInvokerRegister {
 
   // caller must already own monitor
   private boolean invoke(final DispatchJob job) {
+    if (job._completed.get()) {
+      s_logger.info("Job {} cancelled", job.getJob().getSpecification().getJobId());
+      return true;
+    }
     Collection<JobInvoker> retry = null;
     do {
       final Iterator<JobInvoker> iterator = getInvokers().iterator();
@@ -435,11 +481,24 @@ public class JobDispatcher implements JobInvokerRegister {
     }
   }
 
-  public void dispatchJob(final CalculationJob job, final JobResultReceiver resultReceiver) {
+  /**
+   * Puts the job into the ready queue, sent to an invoker as soon as one is available. Completion (or timeout)
+   * of the job will result in one or more callbacks to the result receiver. There is always the callback for the
+   * main job. If the job had a tail, a callback will also occur for each tail job. The {@link Cancellable}
+   * callback returned may be used to abort operation. If operation is aborted, results may still be received
+   * if they were too far in the pipeline to be stopped.
+   * 
+   * @param job The job to dispatch
+   * @param resultReceiver callback to receive the results
+   * @return A {@link Cancellable} callback to attempt to abort the job
+   */
+  public Cancellable dispatchJob(final CalculationJob job, final JobResultReceiver resultReceiver) {
     ArgumentChecker.notNull(job, "job");
     ArgumentChecker.notNull(resultReceiver, "resultReceiver");
     s_logger.info("Dispatching job {}", job.getSpecification().getJobId());
-    dispatchJobImpl(new DispatchJob(job, resultReceiver));
+    final DispatchJob dispatchJob = new DispatchJob(job, resultReceiver);
+    dispatchJobImpl(dispatchJob);
+    return dispatchJob;
   }
 
   /**

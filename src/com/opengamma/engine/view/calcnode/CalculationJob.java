@@ -40,6 +40,11 @@ public class CalculationJob implements Serializable {
    */
   private Collection<CalculationJob> _tail;
 
+  /**
+   * The cancellation flag is used to abort a calculation mid-way if possible. It is not serialized.
+   */
+  private boolean _cancelled;
+
   public CalculationJob(String viewName, String calcConfigName, long iterationTimestamp, long jobId, List<CalculationJobItem> jobItems, final CacheSelectHint cacheSelect) {
     this(new CalculationJobSpecification(viewName, calcConfigName, iterationTimestamp, jobId), null, jobItems, cacheSelect);
   }
@@ -82,6 +87,14 @@ public class CalculationJob implements Serializable {
       _tail = new LinkedList<CalculationJob>();
     }
     _tail.add(tail);
+  }
+
+  public boolean isCancelled() {
+    return _cancelled;
+  }
+
+  public void cancel() {
+    _cancelled = true;
   }
 
   /**

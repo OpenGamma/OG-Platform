@@ -18,4 +18,9 @@ public class SingleNodeExecutorFactory implements DependencyGraphExecutorFactory
     return new SingleNodeExecutor(cycle);
   }
 
+  @Override
+  public String toString() {
+    return getClass().getSimpleName();
+  }
+
 }

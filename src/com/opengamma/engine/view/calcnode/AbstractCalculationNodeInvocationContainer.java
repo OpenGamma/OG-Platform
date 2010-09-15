@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Base class for objects that manage a set of AbstractCalculationNodes with the intention of
@@ -136,6 +137,7 @@ public abstract class AbstractCalculationNodeInvocationContainer {
     private final long _timestamp;
     private Status _status;
     private Set<JobEntry> _blocked;
+    private Pair<Thread, CalculationJob> _executor;
 
     public JobExecution(final long jobId) {
       _jobId = jobId;
@@ -157,6 +159,21 @@ public abstract class AbstractCalculationNodeInvocationContainer {
 
     public void setStatus(final Status status) {
       _status = status;
+    }
+
+    public synchronized Pair<Thread, CalculationJob> getAndSetExecutor(final Pair<Thread, CalculationJob> executor) {
+      final Pair<Thread, CalculationJob> previous = _executor;
+      _executor = executor;
+      return previous;
+    }
+
+    public synchronized boolean threadBusy(final CalculationJob job) {
+      assert _executor == null;
+      if (_status == Status.FAILED) {
+        return false;
+      }
+      _executor = Pair.of(Thread.currentThread(), job);
+      return true;
     }
 
     // Caller must own the monitor
@@ -333,7 +350,7 @@ public abstract class AbstractCalculationNodeInvocationContainer {
                 // We're blocked
                 jobEntry.incrementBlockCount();
                 required.blockJob(jobEntry);
-                s_logger.debug("Required job {} blocking us", requiredId);
+                s_logger.debug("Required job {} blocking {}", requiredId, jobExecution.getJobId());
                 break;
             }
           }
@@ -360,6 +377,27 @@ public abstract class AbstractCalculationNodeInvocationContainer {
     spawnOrQueueJob(jobEntry, node);
   }
 
+  private void threadFree(final JobExecution exec) {
+    do {
+      final Pair<Thread, CalculationJob> previous = exec.getAndSetExecutor(null);
+      if (previous != null) {
+        assert previous.getFirst() == Thread.currentThread();
+        return;
+      }
+      if (Thread.interrupted()) {
+        s_logger.debug("Interrupt status cleared");
+        return;
+      }
+      s_logger.debug("Waiting for interrupt");
+      try {
+        Thread.sleep(1);
+      } catch (InterruptedException e) {
+        s_logger.debug("Interrupt received");
+        return;
+      }
+    } while (true);
+  }
+
   /**
    * Executes jobs from the runnable queue until it is empty.
    * 
@@ -368,16 +406,22 @@ public abstract class AbstractCalculationNodeInvocationContainer {
    */
   private void executeJobs(final AbstractCalculationNode node, JobEntry jobexec) {
     do {
-      s_logger.info("Executing job {} on {}", jobexec.getJob().getSpecification().getJobId(), node.getNodeId());
+      s_logger.info("Executing job {} on {}", jobexec.getExecution().getJobId(), node.getNodeId());
       onJobStart(jobexec.getJob());
       CalculationJobResult result = null;
-      try {
-        result = node.executeJob(jobexec.getJob());
-      } catch (Exception e) {
-        // Any tail jobs will be abandoned
-        s_logger.warn("Job {} failed", jobexec.getExecution().getJobId());
-        failExecution(jobexec.getExecution());
-        jobexec.getReceiver().executionFailed(node, e);
+      if (jobexec.getExecution().threadBusy(jobexec.getJob())) {
+        try {
+          result = node.executeJob(jobexec.getJob());
+          threadFree(jobexec.getExecution());
+        } catch (Exception e) {
+          // Any tail jobs will be abandoned
+          threadFree(jobexec.getExecution());
+          s_logger.warn("Job {} failed", jobexec.getExecution().getJobId());
+          failExecution(jobexec.getExecution());
+          jobexec.getReceiver().executionFailed(node, e);
+        }
+      } else {
+        s_logger.debug("Job {} cancelled", jobexec.getExecution().getJobId());
       }
       if (result != null) {
         final Set<JobEntry> blocked;
@@ -434,4 +478,29 @@ public abstract class AbstractCalculationNodeInvocationContainer {
     }
     s_logger.debug("Failure map size = {}, execution map size = {}", _failures.size(), _executions.size());
   }
+
+  protected void cancelJob(final CalculationJobSpecification jobSpec) {
+    final JobExecution jobExec = getExecution(jobSpec.getJobId());
+    if (jobExec == null) {
+      s_logger.warn("Request to cancel job {} but already failed or completed", jobSpec.getJobId());
+      return;
+    }
+    s_logger.info("Cancelling job {}", jobSpec.getJobId());
+    failExecution(jobExec);
+    Pair<Thread, CalculationJob> executor = jobExec.getAndSetExecutor(null);
+    if (executor != null) {
+      s_logger.debug("Marking job {} cancelled", executor.getSecond().getSpecification().getJobId());
+      executor.getSecond().cancel();
+      s_logger.info("Interrupting thread {}", executor.getFirst().getName());
+      executor.getFirst().interrupt();
+      while (executor.getFirst().isInterrupted()) {
+        s_logger.debug("Waiting for thread {} to accept the interrupt", executor.getFirst().getName());
+        Thread.yield();
+      }
+      s_logger.debug("Thread {} interrupted", executor.getFirst().getName());
+      executor = jobExec.getAndSetExecutor(executor);
+      assert executor == null;
+    }
+  }
+
 }

@@ -123,7 +123,7 @@ public class SingleComputationCycle {
    * @return the viewName
    */
   public String getViewName() {
-    return getView().getDefinition().getName();
+    return getView().getName();
   }
 
   /**
@@ -352,10 +352,11 @@ public class SingleComputationCycle {
   }
 
   /**
+   * @param calcConfName configuration name
    * @return A dependency graph with nodes already executed stripped out.
    * See {@link #computeDelta} and how it calls {@link #markExecuted}.
    */
-  private DependencyGraph getExecutableDependencyGraph(String calcConfName) {
+  protected DependencyGraph getExecutableDependencyGraph(String calcConfName) {
     DependencyGraph originalDepGraph = getDependencyGraph(calcConfName);
 
     DependencyGraph dependencyGraph = originalDepGraph.subGraph(new DependencyNodeFilter() {

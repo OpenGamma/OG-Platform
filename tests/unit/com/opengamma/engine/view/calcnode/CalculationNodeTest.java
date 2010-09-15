@@ -24,7 +24,7 @@ import com.opengamma.engine.view.cache.ViewComputationCache;
 public class CalculationNodeTest {
   
   @Test
-  public void mockFunctionInvocationOneInputMissing() {
+  public void mockFunctionInvocationOneInputMissing() throws InterruptedException {
     
     MockFunction mockFunction = CalculationNodeUtils.getMockFunction();
     TestCalculationNode calcNode = CalculationNodeUtils.getTestCalcNode(mockFunction);
@@ -43,7 +43,7 @@ public class CalculationNodeTest {
   }
 
   @Test
-  public void mockFunctionInvocationOneInputOneOutput() {
+  public void mockFunctionInvocationOneInputOneOutput() throws InterruptedException {
     MockFunction mockFunction = CalculationNodeUtils.getMockFunction();
     TestCalculationNode calcNode = CalculationNodeUtils.getTestCalcNode(mockFunction);
     CalculationJob calcJob = CalculationNodeUtils.getCalculationJob(mockFunction);
