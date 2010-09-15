@@ -897,6 +897,7 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
     assertNotNull(actualDoc);
     assertEqualTimeSeriesDocument(tsDocument, actualDoc);
     
+    Thread.sleep(50); // assume system clock resolution < 50ms
     timeStampTSMap.put(Clock.system(javax.time.calendar.TimeZone.UTC).zonedDateTime(), timeSeries);
     
     //update a random datapoint 3 times
@@ -917,7 +918,7 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
       timeSeries = getTimeSeries(new ArrayList<T>(currentTimeSeriesMap.keySet()), new ArrayList<Double>(currentTimeSeriesMap.values()));
       assertEquals(timeSeries, tsDocument.getTimeSeries()); 
       
-      Thread.sleep(30); // assume system clock resolution < 30ms
+      Thread.sleep(50); // assume system clock resolution < 50ms
       timeStampTSMap.put(Clock.system(javax.time.calendar.TimeZone.UTC).zonedDateTime(), timeSeries);
     }
     
@@ -932,7 +933,7 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
     assertNotNull(tsDocument);
     timeSeries = getTimeSeries(new ArrayList<T>(currentTimeSeriesMap.keySet()), new ArrayList<Double>(currentTimeSeriesMap.values()));
     assertEquals(timeSeries, tsDocument.getTimeSeries()); 
-    Thread.sleep(30); // assume system clock resolution < 30ms
+    Thread.sleep(50); // assume system clock resolution < 50ms
     timeStampTSMap.put(Clock.system(javax.time.calendar.TimeZone.UTC).zonedDateTime(), timeSeries);
     
     //delete all datapoints
@@ -942,7 +943,7 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
     assertNotNull(tsDocument);
     timeSeries = getEmptyTimeSeries();
     assertEquals(timeSeries, tsDocument.getTimeSeries()); 
-    Thread.sleep(30); // assume system clock resolution < 30ms
+    Thread.sleep(50); // assume system clock resolution < 50ms
     timeStampTSMap.put(Clock.system(javax.time.calendar.TimeZone.UTC).zonedDateTime(), timeSeries);
     
     //add new datapoints
@@ -952,7 +953,7 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
     tsDocument = _tsMaster.getTimeSeries(tsDocument.getUniqueIdentifier());
     assertNotNull(tsDocument);
     assertEquals(timeSeries, tsDocument.getTimeSeries());
-    Thread.sleep(30); // assume system clock resolution < 30ms
+    Thread.sleep(50); // assume system clock resolution < 50ms
     timeStampTSMap.put(Clock.system(javax.time.calendar.TimeZone.UTC).zonedDateTime(), timeSeries);
     
     //assert datasnapshots
