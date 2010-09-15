@@ -187,8 +187,9 @@ public class ModifySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker
     document.getSecurity().setUniqueIdentifier(uid);
     document.setSecurityId(uid);
     // store the detail
-    if (getMaster().getDetailProvider() != null) {
-      getMaster().getDetailProvider().storeSecurityDetail(document.getSecurity());
+    SecurityMasterDetailProvider detailProvider = getMaster().getWorkers().getDetailProvider();
+    if (detailProvider != null) {
+      detailProvider.storeSecurityDetail(document.getSecurity());
     }
   }
 

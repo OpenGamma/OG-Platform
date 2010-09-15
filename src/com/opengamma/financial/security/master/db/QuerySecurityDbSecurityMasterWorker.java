@@ -272,7 +272,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
    * @param docs  the documents to load detail for, not null
    */
   protected void loadDetail(final List<SecurityDocument> docs) {
-    SecurityMasterDetailProvider detailProvider = getMaster().getDetailProvider();
+    SecurityMasterDetailProvider detailProvider = getMaster().getWorkers().getDetailProvider();
     if (detailProvider != null) {
       for (SecurityDocument doc : docs) {
         doc.setSecurity(detailProvider.loadSecurityDetail(doc.getSecurity()));

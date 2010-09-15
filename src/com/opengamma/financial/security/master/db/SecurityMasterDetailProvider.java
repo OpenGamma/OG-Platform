@@ -6,7 +6,6 @@
 package com.opengamma.financial.security.master.db;
 
 import com.opengamma.engine.security.DefaultSecurity;
-import com.opengamma.util.db.DbSource;
 
 /**
  * Provider allowing the detail of loading and storing a security to be separated
@@ -21,9 +20,9 @@ public interface SecurityMasterDetailProvider {
   /**
    * Initializes the detail provider with the same database source as the master.
    * 
-   * @param dbSource  the database source, not null
+   * @param master  the security master, not null
    */
-  void init(DbSource dbSource);
+  void init(DbSecurityMaster master);
 
   /**
    * Loads the security based on the supplied base.
