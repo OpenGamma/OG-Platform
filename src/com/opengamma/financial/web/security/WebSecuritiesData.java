@@ -60,6 +60,20 @@ public class WebSecuritiesData extends DirectBean {
   @PropertyDefinition
   private SecurityDocument _versioned;
 
+  /**
+   * Creates an instance.
+   */
+  public WebSecuritiesData() {
+  }
+
+  /**
+   * Creates an instance.
+   * @param uriInfo  the URI information
+   */
+  public WebSecuritiesData(final UriInfo uriInfo) {
+    setUriInfo(uriInfo);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets the best available security id.
