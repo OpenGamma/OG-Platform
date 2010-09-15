@@ -5,15 +5,10 @@
  */
 package com.opengamma.financial.position.master.db;
 
-import javax.sql.DataSource;
 import javax.time.TimeSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
@@ -34,7 +29,7 @@ import com.opengamma.financial.position.master.PositionSearchRequest;
 import com.opengamma.financial.position.master.PositionSearchResult;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.db.DbHelper;
+import com.opengamma.util.db.DbSource;
 
 /**
  * Low level SQL focused part of the database backed position master.
@@ -50,17 +45,9 @@ public class DbPositionMaster implements PositionMaster {
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbPos";
 
   /**
-   * The template for database operations.
+   * The database source.
    */
-  private final SimpleJdbcTemplate _jdbcTemplate;
-  /**
-   * The template for transactions.
-   */
-  private final TransactionTemplate _transactionTemplate;
-  /**
-   * The database specific helper.
-   */
-  private final DbHelper _dbHelper;
+  private final DbSource _dbSource;
   /**
    * The time-source to use.
    */
@@ -76,45 +63,22 @@ public class DbPositionMaster implements PositionMaster {
 
   /**
    * Creates an instance.
-   * @param transManager  the transaction manager, not null
-   * @param transDefinition  the transaction definition, not null
-   * @param dbHelper  the database specific helper, not null
+   * @param dbSource  the database source combining all configuration, not null
    */
-  public DbPositionMaster(final DataSourceTransactionManager transManager, final TransactionDefinition transDefinition, final DbHelper dbHelper) {
-    ArgumentChecker.notNull(transManager, "transManager");
-    ArgumentChecker.notNull(dbHelper, "dbHelper");
-    s_logger.debug("installed DataSourceTransactionManager: {}", transManager);
-    s_logger.debug("installed DbHelper: {}", dbHelper);
-    DataSource dataSource = transManager.getDataSource();
-    _jdbcTemplate = new SimpleJdbcTemplate(dataSource);
-    _transactionTemplate = new TransactionTemplate(transManager, transDefinition);
-    _dbHelper = dbHelper;
+  public DbPositionMaster(final DbSource dbSource) {
+    ArgumentChecker.notNull(dbSource, "dbSource");
+    s_logger.debug("installed DbSource: {}", dbSource);
+    _dbSource = dbSource;
     setWorkers(new DbPositionMasterWorkers());
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the database template.
-   * @return the database template, non-null
+   * Gets the database source.
+   * @return the database source, non-null
    */
-  public SimpleJdbcTemplate getJdbcTemplate() {
-    return _jdbcTemplate;
-  }
-
-  /**
-   * Gets the transaction template.
-   * @return the transaction template, non-null
-   */
-  public TransactionTemplate getTransactionTemplate() {
-    return _transactionTemplate;
-  }
-
-  /**
-   * Gets the database helper.
-   * @return the database helper, non-null
-   */
-  public DbHelper getDbHelper() {
-    return _dbHelper;
+  public DbSource getDbSource() {
+    return _dbSource;
   }
 
   //-------------------------------------------------------------------------

@@ -47,26 +47,26 @@ public class WebPortfolioNodePositionsResource extends AbstractWebPortfolioResou
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response post(
       @FormParam("quantity") String quantityStr,
-      @FormParam("scheme") String scheme,
-      @FormParam("schemevalue") String schemeValue) {
+      @FormParam("idscheme") String idScheme,
+      @FormParam("idvalue") String idValue) {
     quantityStr = StringUtils.trimToNull(quantityStr);
-    scheme = StringUtils.trimToNull(scheme);
-    schemeValue = StringUtils.trimToNull(schemeValue);
-    if (quantityStr == null || scheme == null || schemeValue == null) {
+    idScheme = StringUtils.trimToNull(idScheme);
+    idValue = StringUtils.trimToNull(idValue);
+    if (quantityStr == null || idScheme == null || idValue == null) {
       FlexiBean out = createRootData();
       if (quantityStr == null) {
         out.put("err_quantityMissing", true);
       }
-      if (scheme == null) {
-        out.put("err_schemeMissing", true);
+      if (idScheme == null) {
+        out.put("err_idschemeMissing", true);
       }
-      if (schemeValue == null) {
-        out.put("err_schemevalueMissing", true);
+      if (idValue == null) {
+        out.put("err_idvalueMissing", true);
       }
       String html = getFreemarker().build("portfolios/portfolionodepositions-add.ftl", out);
       return Response.ok(html).build();
     }
-    ManageablePosition position = new ManageablePosition(new BigDecimal(quantityStr), Identifier.of(scheme, schemeValue));
+    ManageablePosition position = new ManageablePosition(new BigDecimal(quantityStr), Identifier.of(idScheme, idValue));
     PositionDocument doc = new PositionDocument(position, data().getNode().getUniqueIdentifier());
     doc = data().getPositionMaster().addPosition(doc);
     data().setPosition(doc);

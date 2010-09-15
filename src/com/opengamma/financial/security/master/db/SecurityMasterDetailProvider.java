@@ -18,6 +18,13 @@ import com.opengamma.engine.security.DefaultSecurity;
 public interface SecurityMasterDetailProvider {
 
   /**
+   * Initializes the detail provider with the same database source as the master.
+   * 
+   * @param master  the security master, not null
+   */
+  void init(DbSecurityMaster master);
+
+  /**
    * Loads the security based on the supplied base.
    * <p>
    * The caller will already have loaded the contents of {@code DefaultSecurity}

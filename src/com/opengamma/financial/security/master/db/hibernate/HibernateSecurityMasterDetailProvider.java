@@ -13,7 +13,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -32,6 +31,7 @@ import com.opengamma.financial.security.master.db.hibernate.fra.FRASecurityBeanO
 import com.opengamma.financial.security.master.db.hibernate.future.FutureSecurityBeanOperation;
 import com.opengamma.financial.security.master.db.hibernate.option.OptionSecurityBeanOperation;
 import com.opengamma.financial.security.master.db.hibernate.swap.SwapSecurityBeanOperation;
+import com.opengamma.util.db.DbSource;
 
 /**
  * Provides access to persist the full bean structure of the security.
@@ -46,9 +46,9 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
   private static final ConcurrentMap<String, SecurityBeanOperation<?, ?>> BEAN_OPERATIONS_BY_TYPE = new ConcurrentHashMap<String, SecurityBeanOperation<?, ?>>();
 
   /**
-   * The Hibernate Spring template.
+   * The database access source.
    */
-  private HibernateTemplate _hibernateTemplate;
+  private DbSource _dbSource;
   /**
    * The operation context for management additional resources.
    */
@@ -120,6 +120,12 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public void init(DbSecurityMaster master) {
+    _dbSource = master.getDbSource();
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Gets the context for additional resources.
    * @return the context
@@ -129,19 +135,11 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
   }
 
   /**
-   * Sets the Hibernate session factory.
-   * @param sessionFactory  the session factory.
-   */
-  public void setSessionFactory(SessionFactory sessionFactory) {
-    _hibernateTemplate = new HibernateTemplate(sessionFactory);
-  }
-
-  /**
    * Gets the Hibernate Spring template.
    * @return the template
    */
   protected HibernateTemplate getHibernateTemplate() {
-    return _hibernateTemplate;
+    return _dbSource.getHibernateTemplate();
   }
 
   /**

@@ -10,6 +10,7 @@ import java.util.Collections;
 
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecuritySource;
+import com.opengamma.financial.security.master.MasterSecuritySource;
 import com.opengamma.financial.user.UserResourceDetails;
 import com.opengamma.financial.user.UserUniqueIdentifierUtils;
 import com.opengamma.financial.user.rest.ClientResource;
@@ -41,7 +42,7 @@ public class UserSecuritySource implements SecuritySource {
     if (clientResource == null) {
       return null;
     }
-    return clientResource.getSecurityMaster();
+    return new MasterSecuritySource(clientResource.getSecurityMaster());
   }
 
   @Override

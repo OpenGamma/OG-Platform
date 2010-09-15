@@ -9,8 +9,6 @@ import javax.time.TimeSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import com.opengamma.financial.security.master.SecurityDocument;
 import com.opengamma.financial.security.master.SecurityMaster;
@@ -20,7 +18,7 @@ import com.opengamma.financial.security.master.SecuritySearchRequest;
 import com.opengamma.financial.security.master.SecuritySearchResult;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.db.DbHelper;
+import com.opengamma.util.db.DbSource;
 
 /**
  * Low level SQL focused part of the database backed security master.
@@ -36,17 +34,9 @@ public class DbSecurityMaster implements SecurityMaster {
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbSec";
 
   /**
-   * The template for database operations.
+   * The database source.
    */
-  private final SimpleJdbcTemplate _jdbcTemplate;
-  /**
-   * The template for transactions.
-   */
-  private final TransactionTemplate _transactionTemplate;
-  /**
-   * The database specific helper.
-   */
-  private final DbHelper _dbHelper;
+  private final DbSource _dbSource;
   /**
    * The time-source to use.
    */
@@ -59,64 +49,25 @@ public class DbSecurityMaster implements SecurityMaster {
    * The workers.
    */
   private DbSecurityMasterWorkers _workers;
-  /**
-   * The detail provider, null if detail loaded/stored directly.
-   */
-  private SecurityMasterDetailProvider _detailProvider;
 
   /**
    * Creates an instance.
-   * @param transTemplate  the transaction template, not null
-   * @param jdbcTemplate  the JDBC template, not null
-   * @param dbHelper  the database specific helper, not null
-   * @param detailProvider  the detail provider for loading/storing the security itself, may be null
+   * @param dbSource  the database source combining all configuration, not null
    */
-  public DbSecurityMaster(
-      final TransactionTemplate transTemplate, final SimpleJdbcTemplate jdbcTemplate,
-      final DbHelper dbHelper, final SecurityMasterDetailProvider detailProvider) {
-    ArgumentChecker.notNull(transTemplate, "transTemplate");
-    ArgumentChecker.notNull(dbHelper, "dbHelper");
-    s_logger.debug("installed TransactionTemplate: {}", transTemplate);
-    s_logger.debug("installed SimpleJdbcTemplate: {}", jdbcTemplate);
-    s_logger.debug("installed DbHelper: {}", dbHelper);
-    _jdbcTemplate = jdbcTemplate;
-    _transactionTemplate = transTemplate;
-    _dbHelper = dbHelper;
+  public DbSecurityMaster(DbSource dbSource) {
+    ArgumentChecker.notNull(dbSource, "dbSource");
+    s_logger.debug("installed DbSource: {}", dbSource);
+    _dbSource = dbSource;
     setWorkers(new DbSecurityMasterWorkers());
-    _detailProvider = detailProvider;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the database template.
-   * @return the database template, non-null
+   * Gets the database source.
+   * @return the database source, non-null
    */
-  public SimpleJdbcTemplate getJdbcTemplate() {
-    return _jdbcTemplate;
-  }
-
-  /**
-   * Gets the transaction template.
-   * @return the transaction template, non-null
-   */
-  public TransactionTemplate getTransactionTemplate() {
-    return _transactionTemplate;
-  }
-
-  /**
-   * Gets the database helper.
-   * @return the database helper, non-null
-   */
-  public DbHelper getDbHelper() {
-    return _dbHelper;
-  }
-
-  /**
-   * Gets the detail provider.
-   * @return the detail provider, non-null
-   */
-  public SecurityMasterDetailProvider getDetailProvider() {
-    return _detailProvider;
+  public DbSource getDbSource() {
+    return _dbSource;
   }
 
   //-------------------------------------------------------------------------

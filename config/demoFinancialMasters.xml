@@ -12,41 +12,14 @@
     </property>
   </bean>
 
-  <bean id="abstractHibernateSessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean" abstract="true">
-    <property name="mappingResources">
+  <bean id="abstractDbSource" class="com.opengamma.util.db.DbSourceFactoryBean" abstract="true">
+    <property name="transactionIsolationLevelName" value="ISOLATION_SERIALIZABLE" />
+    <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
+    <property name="hibernateMappingFiles">
       <list>
-        <value>com/opengamma/financial/security/master/db/hibernate/future/BondFutureTypeBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/bond/BondSecurityBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/BusinessDayConventionBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/future/CashRateTypeBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/future/CommodityFutureTypeBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/bond/CouponTypeBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/CurrencyBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/DayCountBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/equity/EquitySecurityBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/ExchangeBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/fra/FRASecurityBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/FrequencyBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/future/FutureBundleBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/future/FutureSecurityBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/equity/GICSCodeBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/bond/GuaranteeTypeBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/IdentifierAssociationBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/bond/IssuerTypeBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/bond/MarketBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/option/OptionSecurityBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/SecurityBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/future/UnitBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/bond/YieldConventionBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/swap/SwapSecurityBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/master/db/hibernate/cash/CashSecurityBean.hbm.xml</value>
+        <bean class="com.opengamma.financial.security.master.db.hibernate.HibernateSecurityMasterFiles"/>
       </list>
     </property>
-  </bean>
-
-  <bean id="dbTransactionDefinition" class="org.springframework.transaction.support.DefaultTransactionDefinition">
-    <property name="isolationLevelName" value="ISOLATION_SERIALIZABLE" />
-    <property name="propagationBehaviorName" value="PROPAGATION_REQUIRED" />
   </bean>
 
   <bean id="finDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
@@ -56,63 +29,30 @@
     <property name="password" value="${opengamma.financial.jdbc.password}" />
   </bean>
 
-  <bean id="finDbHelper" class="${opengamma.financial.db.dbhelper}" />
-
-  <bean id="finJdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
-    <constructor-arg ref="finDataSource" />
-  </bean>
-
-  <bean id="finHibernateTransMgr" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-    <property name="sessionFactory" ref="finHibernateSessionFactory"/>
-  </bean>
-
-  <bean id="finHibernateSessionFactory" parent="abstractHibernateSessionFactory">
+  <bean id="finDbSource" parent="abstractDbSource">
+    <property name="name" value="Financial"/>
     <property name="dataSource" ref="finDataSource"/>
-    <property name="hibernateProperties">
-      <value>
-        hibernate.dialect=org.hibernate.dialect.DerbyDialect
-        hibernate.show_sql=false
-        hibernate.format_sql=false
-      </value>
-    </property>
-  </bean>
-
-  <bean id="finDbSecurityMasterDetail" class="com.opengamma.financial.security.master.db.hibernate.HibernateSecurityMasterDetailProvider">
-    <property name="sessionFactory" ref="finHibernateSessionFactory" />
-  </bean>
-
-  <bean id="finTransTemplate" class="org.springframework.transaction.support.TransactionTemplate">
-    <constructor-arg ref="finHibernateTransMgr" />
-    <constructor-arg ref="dbTransactionDefinition" />
+    <property name="dialect" value="${opengamma.financial.db.dbhelper}"/>
   </bean>
 
   <!-- SecurityMaster -->
   <bean id="dbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
-    <constructor-arg ref="finTransTemplate" />
-    <constructor-arg ref="finJdbcTemplate" />
-    <constructor-arg ref="finDbHelper" />
-    <constructor-arg ref="finDbSecurityMasterDetail" />
+    <constructor-arg ref="finDbSource" />
     <property name="identifierScheme" value="${opengamma.financial.db.securitymaster.scheme}" />
   </bean>
 
   <!-- SecuritySource -->
   <bean id="sharedSecuritySource" class="com.opengamma.engine.security.EHCachingSecuritySource">
     <constructor-arg>
-      <bean class="com.opengamma.financial.security.MasterSecuritySource">
+      <bean class="com.opengamma.financial.security.master.MasterSecuritySource">
         <constructor-arg ref="dbSecurityMaster" />
       </bean>
     </constructor-arg>
   </bean>
- 
+
   <!-- PositionMaster --> 
   <bean id="dbPositionMaster" class="com.opengamma.financial.position.master.db.DbPositionMaster">
-    <constructor-arg>
-      <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="finDataSource"/>
-      </bean>
-    </constructor-arg>
-    <constructor-arg ref="dbTransactionDefinition" />
-    <constructor-arg ref="finDbHelper" />
+    <constructor-arg ref="finDbSource" />
     <property name="identifierScheme" value="${opengamma.financial.db.positionmaster.scheme}" />
   </bean>
 
@@ -124,5 +64,5 @@
       </bean>
     </constructor-arg>
   </bean>
-  
+
 </beans>
