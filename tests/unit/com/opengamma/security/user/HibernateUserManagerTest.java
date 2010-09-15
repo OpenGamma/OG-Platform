@@ -16,28 +16,26 @@ import org.junit.Test;
 import com.opengamma.util.test.TransactionalHibernateTest;
 
 /**
- * 
- *
+ * Test HibernateUserManager.
  */
 public class HibernateUserManagerTest extends TransactionalHibernateTest {
-  
+
   private HibernateUserManager _userManager;
-  
+
   public HibernateUserManagerTest(String databaseType, final String databaseVersion) {
     super(databaseType, databaseVersion);
   }
-  
+
   @Override
   public Class<?>[] getHibernateMappingClasses() {
-    return HibernateUserManager.getHibernateMappingClasses();
+    return new HibernateUserManagerFiles().getHibernateMappingFiles();
   }
 
   @Before
   public void setUp() throws Exception {
     super.setUp();
     
-    _userManager = new HibernateUserManager();
-    _userManager.setSessionFactory(getSessionFactory());
+    _userManager = new HibernateUserManager(getSessionFactory());
     
     System.err.println("User Manager initialization complete:" + _userManager);
   }

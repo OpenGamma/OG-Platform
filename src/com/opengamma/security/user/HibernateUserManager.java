@@ -19,6 +19,7 @@ import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.db.DbSource;
 
 /**
  * A manager providing access to the security subsystem.
@@ -32,10 +33,21 @@ public class HibernateUserManager implements UserManager, UserDetailsService {
   private HibernateTemplate _hibernateTemplate;
 
   /**
-   * Sets the database access source.
-   * @param sessionFactory  the database access source, not null
+   * Creates an instance providing access to the database.
+   * @param dbSource  the database access source, not null
    */
-  public void setSessionFactory(SessionFactory sessionFactory) {
+  public HibernateUserManager(DbSource dbSource) {
+    _hibernateTemplate = dbSource.getHibernateTemplate();
+  }
+
+  /**
+   * Creates an instance providing access to the database.
+   * @param sessionFactory  the session factory, not null
+   * @deprecated use the DbSource constructor
+   */
+  @Deprecated
+  public HibernateUserManager(SessionFactory sessionFactory) {
+    // this constructor allows certain tests to exist
     _hibernateTemplate = new HibernateTemplate(sessionFactory);
   }
 
@@ -149,10 +161,4 @@ public class HibernateUserManager implements UserManager, UserDetailsService {
     _hibernateTemplate.update(authority);
   }
 
-  public static Class<?>[] getHibernateMappingClasses() {
-    return new Class[] {
-      User.class, 
-      UserGroup.class, 
-      Authority.class };
-  }
 }
