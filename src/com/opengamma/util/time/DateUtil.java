@@ -477,6 +477,15 @@ public class DateUtil {
     int nanos = timestamp.getNanos();
     return Instant.ofEpochSeconds(seconds, nanos);
   }
+  
+  /**
+   * Creates a LocalDate from a SQL date
+   * @param date  the date to convert, not null
+   * @return the LocalDate
+   */
+  public static LocalDate fromSqlDate(java.sql.Date date) {
+    return LocalDate.of(date.getYear() + 1900, date.getMonth() + 1, date.getDate());
+  }
 
   /**
    * Creates a SQL date from a LocalDate.
