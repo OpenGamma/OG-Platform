@@ -20,6 +20,16 @@ public class PostgreSQLDbHelperTest extends DbHelperTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_getJDBCDriver() {
+    assertEquals(org.postgresql.Driver.class, _helper.getJDBCDriverClass());
+  }
+
+  @Test
+  public void test_getHibernateDialect() {
+    assertEquals(org.hibernate.dialect.PostgreSQLDialect.class, _helper.getHibernateDialect().getClass());
+  }
+
+  @Test
   public void test_getName() {
     assertEquals("PostgreSQL", _helper.getName());
   }
