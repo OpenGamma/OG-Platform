@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.calc;
@@ -11,9 +11,9 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class BatchExecutorFactory implements DependencyGraphExecutorFactory<Object> {
-  
+
   private DependencyGraphExecutorFactory<?> _delegate;
-  
+
   public BatchExecutorFactory(DependencyGraphExecutorFactory<?> delegate) {
     ArgumentChecker.notNull(delegate, "Delegate executor factory");
     _delegate = delegate;
@@ -23,6 +23,11 @@ public class BatchExecutorFactory implements DependencyGraphExecutorFactory<Obje
   public BatchExecutor createExecutor(SingleComputationCycle cycle) {
     DependencyGraphExecutor<?> delegate = _delegate.createExecutor(cycle);
     return new BatchExecutor(delegate);
+  }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + " delegating to " + _delegate.toString();
   }
 
 }

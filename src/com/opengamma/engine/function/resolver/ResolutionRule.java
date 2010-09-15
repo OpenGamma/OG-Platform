@@ -75,7 +75,7 @@ public class ResolutionRule {
   public ValueSpecification getResult(ValueRequirement output, DependencyNode atNode, FunctionCompilationContext context) {
     FunctionDefinition function = _parameterizedFunction.getFunction();
     ComputationTarget target = atNode.getComputationTarget();
-
+    
     // First check that the function can produce the output 
     
     if (!function.canApplyTo(context, target)) {

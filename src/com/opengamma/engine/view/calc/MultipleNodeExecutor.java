@@ -27,6 +27,7 @@ import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.engine.view.calcnode.stats.FunctionCost;
+import com.opengamma.util.Cancellable;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -67,8 +68,8 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     getCycle().getProcessingContext().getViewProcessorQueryReceiver().addJob(jobSpec, graph);
   }
 
-  protected void dispatchJob(final CalculationJob job, final JobResultReceiver jobResultReceiver) {
-    getCycle().getProcessingContext().getComputationJobDispatcher().dispatchJob(job, jobResultReceiver);
+  protected Cancellable dispatchJob(final CalculationJob job, final JobResultReceiver jobResultReceiver) {
+    return getCycle().getProcessingContext().getComputationJobDispatcher().dispatchJob(job, jobResultReceiver);
   }
 
   protected void markExecuted(final DependencyNode node) {
@@ -143,7 +144,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
 
   @Override
   public Future<Object> execute(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
-    return executeImpl(graph, statistics).getFuture();
+    return executeImpl(graph, statistics);
   }
 
   public int getMinJobItems() {

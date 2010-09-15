@@ -18,7 +18,7 @@ public class MultipleNodeExecutorFactory implements DependencyGraphExecutorFacto
   private long _minimumJobCost = 1;
   private long _maximumJobCost = Long.MAX_VALUE;
   private int _maximumConcurrency = Integer.MAX_VALUE;
-  private FunctionCost _functionCost;
+  private FunctionCost _functionCost = new FunctionCost();
 
   public void setMinimumJobItems(final int minimumJobItems) {
     _minimumJobItems = minimumJobItems;
@@ -73,6 +73,11 @@ public class MultipleNodeExecutorFactory implements DependencyGraphExecutorFacto
   public MultipleNodeExecutor createExecutor(final SingleComputationCycle cycle) {
     ArgumentChecker.notNull(cycle, "cycle");
     return new MultipleNodeExecutor(cycle, getMinimumJobItems(), getMaximumJobItems(), getMinimumJobCost(), getMaximumJobCost(), getMaximumConcurrency(), getFunctionCost());
+  }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName();
   }
 
 }

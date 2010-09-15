@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.test;
@@ -25,24 +25,26 @@ import com.opengamma.engine.view.compilation.ViewEvaluationModel;
 import com.opengamma.livedata.msg.UserPrincipal;
 
 /**
- * Mock view providing some view behaviour for testing downstream components, without any engine dependencies.
+ * Mock view providing some view behavior for testing downstream components, without any engine dependencies.
  */
 public class MockView implements View {
 
   private final String _name;
-  
+
   private final Set<ComputationResultListener> _resultListeners = new CopyOnWriteArraySet<ComputationResultListener>();
   private final Set<DeltaComputationResultListener> _deltaListeners = new CopyOnWriteArraySet<DeltaComputationResultListener>();
-  
+
   private ReentrantLock _resultLock = new ReentrantLock();
   private ViewComputationResultModel _latestResult;
-  
+  private ViewProcessingContext _processingContext;
+  private ViewEvaluationModel _viewEvaluationModel;
+
   private boolean _isRunning;
-  
+
   public MockView(String name) {
     _name = name;
   }
-  
+
   public void newResult(ViewComputationResultModel result, ViewDeltaResultModel delta) {
     _resultLock.lock();
     try {
@@ -70,12 +72,12 @@ public class MockView implements View {
   public boolean addResultListener(ComputationResultListener resultListener) {
     return _resultListeners.add(resultListener);
   }
-  
+
   @Override
   public boolean removeResultListener(ComputationResultListener resultListener) {
     return _resultListeners.remove(resultListener);
   }
-  
+
   @Override
   public boolean addDeltaResultListener(DeltaComputationResultListener deltaListener) {
     return _deltaListeners.add(deltaListener);
@@ -94,6 +96,7 @@ public class MockView implements View {
   public Set<ValueRequirement> getRequiredLiveData() {
     return Collections.emptySet();
   }
+
   @Override
   public void start() {
     _isRunning = true;
@@ -103,7 +106,7 @@ public class MockView implements View {
   public void stop() {
     _isRunning = false;
   }
-  
+
   @Override
   public boolean isRunning() {
     return _isRunning;
@@ -154,13 +157,28 @@ public class MockView implements View {
 
   @Override
   public ViewProcessingContext getProcessingContext() {
-    throw new UnsupportedOperationException();
+    if (_processingContext != null) {
+      return _processingContext;
+    } else {
+      throw new UnsupportedOperationException();
+    }
   }
 
+  public void setProcessingContext(final ViewProcessingContext processingContext) {
+    _processingContext = processingContext;
+  }
 
   @Override
   public ViewEvaluationModel getViewEvaluationModel() {
-    throw new UnsupportedOperationException();
+    if (_viewEvaluationModel != null) {
+      return _viewEvaluationModel;
+    } else {
+      throw new UnsupportedOperationException();
+    }
   }
-  
+
+  public void setViewEvaluationModel(final ViewEvaluationModel viewEvaluationModel) {
+    _viewEvaluationModel = viewEvaluationModel;
+  }
+
 }

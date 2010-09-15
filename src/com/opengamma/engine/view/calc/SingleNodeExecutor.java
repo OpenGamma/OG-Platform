@@ -33,6 +33,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.Cancellable;
 
 /**
  * This DependencyGraphExecutor executes the given dependency graph
@@ -114,8 +115,9 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
     AtomicExecutorFuture future = new AtomicExecutorFuture(runnable, graph, item2Node, statistics);
     _executingSpecifications.put(jobSpec, future);
     _cycle.getProcessingContext().getViewProcessorQueryReceiver().addJob(jobSpec, graph);
-    _cycle.getProcessingContext().getComputationJobDispatcher().dispatchJob(new CalculationJob(jobSpec, null, items, cacheHint), this);
-
+    Cancellable cancel = _cycle.getProcessingContext().getComputationJobDispatcher().dispatchJob(new CalculationJob(jobSpec, null, items, cacheHint), this);
+    future.setCancel(cancel);
+    
     return future;
   }
 
@@ -166,6 +168,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
     private final Map<CalculationJobItem, DependencyNode> _item2Node;
     private final GraphExecutorStatisticsGatherer _statistics;
     private final long _startTime = System.nanoTime();
+    private Cancellable _cancel;
 
     public AtomicExecutorFuture(AtomicExecutorCallable callable, DependencyGraph graph, Map<CalculationJobItem, DependencyNode> item2Node, GraphExecutorStatisticsGatherer statistics) {
       super(callable);
@@ -178,6 +181,18 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
     @Override
     public String toString() {
       return "AtomicExecutorFuture[graph=" + _graph + "]";
+    }
+
+    public void setCancel(final Cancellable cancel) {
+      _cancel = cancel;
+    }
+
+    @Override
+    public boolean cancel(boolean mayInterruptIfRunning) {
+      if (!_cancel.cancel(mayInterruptIfRunning)) {
+        return false;
+      }
+      return super.cancel(mayInterruptIfRunning);
     }
 
   }

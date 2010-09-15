@@ -293,7 +293,7 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
       }
     }
   }
-
+  
   public CalculationJob createCalculationJob() {
     final CalculationJobSpecification jobSpec = getContext().getExecutor().createJobSpecification(getContext().getGraph());
     final List<CalculationJobItem> items = new ArrayList<CalculationJobItem>();
@@ -384,7 +384,7 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
   }
 
   public void executeImpl() {
-    getContext().getExecutor().dispatchJob(createCalculationJob(), getContext());
+    getContext().dispatchJob(createCalculationJob());
   }
 
   public void execute() {

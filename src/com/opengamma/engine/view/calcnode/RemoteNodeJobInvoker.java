@@ -151,6 +151,14 @@ import com.opengamma.util.monitor.OperationTimer;
   }
 
   @Override
+  public void cancel(final Collection<CalculationJobSpecification> jobs) {
+    for (CalculationJobSpecification job : jobs) {
+      s_logger.info("Cancelling job {}", job.getJobId());
+      // [ENG-231] Send the message to the client
+    }
+  }
+
+  @Override
   public boolean notifyWhenAvailable(final JobInvokerRegister callback) {
     _dispatchCallback.set(callback);
     if (_launched.get() < _capacity) {

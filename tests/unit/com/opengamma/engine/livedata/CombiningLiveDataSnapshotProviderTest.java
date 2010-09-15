@@ -185,6 +185,10 @@ public class CombiningLiveDataSnapshotProviderTest {
       return System.currentTimeMillis();
     }
     
+    public long snapshot(long snapshot) {
+      return snapshot;
+    }
+    
     public void awaitSubscriptionResponses() throws InterruptedException {
       _responseLatch.await();
     }

@@ -113,6 +113,13 @@ public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContai
   }
 
   @Override
+  public void cancel(final Collection<CalculationJobSpecification> jobs) {
+    for (CalculationJobSpecification job : jobs) {
+      cancelJob(job);
+    }
+  }
+
+  @Override
   protected void onJobExecutionComplete() {
     onNodeChange();
   }

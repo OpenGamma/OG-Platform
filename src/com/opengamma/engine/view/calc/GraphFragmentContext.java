@@ -6,7 +6,9 @@
 package com.opengamma.engine.view.calc;
 
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -14,6 +16,7 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
@@ -21,6 +24,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.engine.view.calcnode.stats.FunctionCost;
 import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
+import com.opengamma.util.Cancellable;
 
 /* package */class GraphFragmentContext implements JobResultReceiver {
 
@@ -32,7 +36,9 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
   private final Map<ValueSpecification, Boolean> _sharedCacheValues;
   private final AtomicInteger _maxConcurrency = new AtomicInteger();
   private final FunctionCost.ForConfiguration _functionCost;
+  private final Queue<Cancellable> _cancels = new ConcurrentLinkedQueue<Cancellable>();
   private Map<CalculationJobSpecification, GraphFragment> _job2fragment;
+  private volatile boolean _cancelled;
 
   public GraphFragmentContext(final MultipleNodeExecutor executor, final DependencyGraph graph) {
     _executor = executor;
@@ -116,6 +122,25 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
           getExecutor().markFailed(node);
         }
       }
+    }
+  }
+
+  public void dispatchJob(final CalculationJob job) {
+    if (!_cancelled) {
+      _cancels.add(getExecutor().dispatchJob(job, this));
+    }
+  }
+
+  public boolean isCancelled() {
+    return _cancelled;
+  }
+
+  public void cancelAll(final boolean mayInterrupt) {
+    _cancelled = true;
+    Cancellable cancel = _cancels.poll();
+    while (cancel != null) {
+      cancel.cancel(mayInterrupt);
+      cancel = _cancels.poll();
     }
   }
 
