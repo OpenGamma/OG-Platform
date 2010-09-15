@@ -6,40 +6,36 @@
 package com.opengamma.security.auditlog;
 
 /**
- * An <code>AuditLogger</code> logs messages to an audit log. Someone logging
- * into the system, viewing or modifying a portfolio or obtaining access to
- * market data would all be examples of events logged to an audit log.
- * 
- * @author pietari
+ * An <code>AuditLogger</code> logs messages to an audit log.
+ * <p>
+ * Most systems require some kind of audit log.
+ * Example events could be logging into the system, viewing or modifying a portfolio
+ * or obtaining access to market data.
  */
 public interface AuditLogger {
 
   /**
-   * Logs a message to an audit log.
+   * Logs a message to the audit log without a description.
    * 
-   * @param user
-   *          User name of the current user. May not be null.
-   * @param object
-   *          Object ID of the object the user tried to access, for example
-   *          /Portfolio/XYZ123. May not be null.
-   * @param operation
-   *          Operation the user tried to execute, for example View. May not be
-   *          null.
-   * @param description
-   *          A description of the operation. Optional: may be null.
-   * @param success
-   *          Whether the operation was successful.
-   * @throws NullPointerException
-   *           If any of the required parameters is null.
-   */
-  public void log(String user, String object, String operation,
-      String description, boolean success);
-
-  /**
-   * Convenience method to use if the log entry has no description.
-   * 
+   * @param user  the user name of the current user, not null
+   * @param object  the Object ID of the object the user tried to access,
+   *  for example /Portfolio/XYZ123, not null
+   * @param operation  the operation the user tried to execute, for example View, not null
+   * @param success  whether the operation was successful
    * @see #log(String, String, String, String, boolean)
    */
-  public void log(String user, String object, String operation, boolean success);
+  void log(String user, String object, String operation, boolean success);
+
+  /**
+   * Logs a message to the audit log with a description.
+   * 
+   * @param user  the user name of the current user, not null
+   * @param object  the Object ID of the object the user tried to access,
+   *  for example /Portfolio/XYZ123, not null
+   * @param operation  the operation the user tried to execute, for example View, not null
+   * @param description  a description of the operation, may be null
+   * @param success  whether the operation was successful
+   */
+  void log(String user, String object, String operation, String description, boolean success);
 
 }

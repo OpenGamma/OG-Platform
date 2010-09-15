@@ -22,8 +22,6 @@ import com.opengamma.util.ArgumentChecker;
  * We store the name of the system that emitted the log message in the database.
  * Hence, an originating system name can be given at construction time. If this
  * is not given, the host name of the local host is used.
- * 
- * @author pietari
  */
 public abstract class AbstractAuditLogger implements AuditLogger {
   

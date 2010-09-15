@@ -11,22 +11,30 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * This <code>AuditLogger</code> is mainly useful for testing.
- *
- * @author pietari
+ * An audit logger that stores messages in-memory.
+ * <p>
+ * This implementation is primarily for use in testing.
  */
 public class InMemoryAuditLogger extends AbstractAuditLogger {
-  
-  private final List<AuditLogEntry> logMessages = new ArrayList<AuditLogEntry>();
+
+  /**
+   * The collection of log messages.
+   */
+  private final List<AuditLogEntry> _logMessages = new ArrayList<AuditLogEntry>();
 
   @Override
   public void log(String user, String originatingSystem, String object, String operation,
       String description, boolean success) {
     AuditLogEntry auditLogEntry = new AuditLogEntry(user, originatingSystem, object, operation, description, success, new Date());
-    logMessages.add(auditLogEntry);
+    _logMessages.add(auditLogEntry);
   }
-  
+
+  /**
+   * Gets the in-memory list of log messages.
+   * @return the list of messages, not null
+   */
   public List<AuditLogEntry> getMessages() {
-    return Collections.unmodifiableList(logMessages);    
+    return Collections.unmodifiableList(_logMessages);    
   }
+
 }

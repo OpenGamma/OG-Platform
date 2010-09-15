@@ -21,8 +21,6 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * An audit log entry describes an operation a user attempted on an object. 
  * The entry is timestamped. Both successful and failed attempts are logged.
- *
- * @author pietari
  */
 public class AuditLogEntry {
   

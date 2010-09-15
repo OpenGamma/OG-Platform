@@ -13,11 +13,10 @@ import com.opengamma.util.ArgumentChecker;
  * In OpenGamma, permissions can be regular expressions, for example /MarketData/Bloomberg/&#42;/View.
  * This class provides support for evaluating these regular expressions.   
  *
- * @author pietari
  * @see Authority
  */
 public class PathMatcher {
-  
+
   /**
    * This method provides Ant-style regular expression matching for paths (/Foo/Bar/Baz). The only special 
    * regular expression characters are:
@@ -35,6 +34,7 @@ public class PathMatcher {
    * 
    * @param input The path to match
    * @param regex The regular expression to match against
+   * @return true if the input string matches the regex
    */
   public static boolean matches(String input, String regex) {
     ArgumentChecker.notNull(input, "Path to match");
@@ -69,4 +69,5 @@ public class PathMatcher {
     String quotedRegex = quotedRegexBuffer.toString();
     return input.matches(quotedRegex);
   }
+
 }

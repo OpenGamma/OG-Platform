@@ -17,8 +17,6 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * A Fudge message receiver that parses audit log messages from {@link DistributedAuditLogger}
  * and passes them onto a delegate audit logger for persisting into a database.  
- *
- * @author pietari
  */
 public class DistributedAuditLoggerServer implements FudgeMessageReceiver, BatchFudgeMessageReceiver {
   

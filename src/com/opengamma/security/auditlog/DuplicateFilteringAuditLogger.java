@@ -16,8 +16,6 @@ import com.opengamma.util.ArgumentChecker;
  * a given time period).
  * <p>
  * This implementation is thread-safe.
- * 
- * @author pietari
  */
 public class DuplicateFilteringAuditLogger extends AbstractAuditLogger {
 
@@ -49,12 +47,12 @@ public class DuplicateFilteringAuditLogger extends AbstractAuditLogger {
   }
   
   private static class CacheKey {
-    final String _user;
-    final String _originatingSystem;
-    final String _object;
-    final String _operation;
-    final String _description;
-    final boolean _success;
+    private final String _user;
+    private final String _originatingSystem;
+    private final String _object;
+    private final String _operation;
+    private final String _description;
+    private final boolean _success;
     
     CacheKey(String user, String originatingSystem,
         String object, String operation, String description, boolean success) {

@@ -18,18 +18,40 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.userdetails.UserDetails;
 
-
 /**
- * User of the OpenGamma system.
+ * A user of the OpenGamma system.
  */
 public class User implements UserDetails {
 
+  /**
+   * The database id.
+   */
   private Long _id;
+  /**
+   * The user name.
+   */
   private String _username;
+  /**
+   * The hash of the password.
+   */
   private String _passwordHash;
+  /**
+   * The groups the user belongs to.
+   */
   private Set<UserGroup> _userGroups = new HashSet<UserGroup>();
+  /**
+   * The instant of last logon.
+   */
   private Date _lastLogin;
 
+  /**
+   * Creates an instance of the user.
+   * @param id  the database id
+   * @param username  the user name
+   * @param password  the password, hashed internally
+   * @param userGroups  the set of groups
+   * @param lastLogin  the last logon instant
+   */
   public User(Long id, String username, String password, Set<UserGroup> userGroups, Date lastLogin) {
     _id = id;
     _username = username;
@@ -38,9 +60,13 @@ public class User implements UserDetails {
     _lastLogin = lastLogin;
   }
 
+  /**
+   * Restricted constructor for tools.
+   */
   protected User() {
   }
 
+  //-------------------------------------------------------------------------
   public Long getId() {
     return _id;
   }
@@ -57,17 +83,27 @@ public class User implements UserDetails {
     this._username = username;
   }
 
+  /**
+   * Throws an exception, as the password is not directly stored for security reasons.
+   * @return never
+   */
   @Override
   public String getPassword() {
-    throw new UnsupportedOperationException("For security reasons, " + "we don't store the password itself");
+    throw new UnsupportedOperationException("For security reasons, the password is not stored directly");
   }
 
+  /**
+   * Sets the password, which hashes the password internally.
+   * @param password  the password to set
+   */
   public void setPassword(String password) {
     // we don't store the actual password
     _passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
   }
 
   /**
+   * Checks if the password specified matches the stored password.
+   * @param password  the password to check
    * @return true if the password is OK, false otherwise
    */
   public boolean checkPassword(String password) {
@@ -152,11 +188,7 @@ public class User implements UserDetails {
     return false;
   }
 
-  @Override
-  public int hashCode() {
-    return new HashCodeBuilder().append(_id).toHashCode();
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == null) {
@@ -173,7 +205,13 @@ public class User implements UserDetails {
   }
 
   @Override
+  public int hashCode() {
+    return new HashCodeBuilder().append(_id).toHashCode();
+  }
+
+  @Override
   public String toString() {
     return _username;
   }
+
 }

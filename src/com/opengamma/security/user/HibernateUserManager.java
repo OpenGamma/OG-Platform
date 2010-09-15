@@ -21,19 +21,25 @@ import org.springframework.transaction.annotation.Transactional;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
- * 
- * @author pietari
+ * A manager providing access to the security subsystem.
  */
 @Transactional
 public class HibernateUserManager implements UserManager, UserDetailsService {
 
+  /**
+   * The Hibernate template.
+   */
   private HibernateTemplate _hibernateTemplate;
 
+  /**
+   * Sets the database access source.
+   * @param sessionFactory  the database access source, not null
+   */
   public void setSessionFactory(SessionFactory sessionFactory) {
     _hibernateTemplate = new HibernateTemplate(sessionFactory);
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public UserDetails loadUserByUsername(String username)
     throws UsernameNotFoundException {
@@ -58,7 +64,7 @@ public class HibernateUserManager implements UserManager, UserDetailsService {
       }
     });
   }
-  
+
   @Override
   public UserGroup getUserGroup(final String name) {
     ArgumentChecker.notNull(name, "Group name");
@@ -73,7 +79,7 @@ public class HibernateUserManager implements UserManager, UserDetailsService {
       }
     });
   }
-  
+
   @Override
   public Authority getAuthority(final String regex) {
     ArgumentChecker.notNull(regex, "Authority");
@@ -88,61 +94,61 @@ public class HibernateUserManager implements UserManager, UserDetailsService {
       }
     });
   }
-  
+
   @Override
   public void addUser(User user) {
     ArgumentChecker.notNull(user, "User");
     _hibernateTemplate.save(user);
   }
-  
+
   @Override
   public void deleteUser(User user) {
     ArgumentChecker.notNull(user, "User");
     _hibernateTemplate.delete(user);
   }
-  
+
   @Override
   public void updateUser(User user) {
     ArgumentChecker.notNull(user, "User");
     _hibernateTemplate.update(user);
   }
-  
+
   @Override
   public void addUserGroup(UserGroup group) {
     ArgumentChecker.notNull(group, "User group");
     _hibernateTemplate.save(group);
   }
-  
+
   @Override
   public void deleteUserGroup(UserGroup group) {
     ArgumentChecker.notNull(group, "User group");
     _hibernateTemplate.delete(group);
   }
-  
+
   @Override
   public void updateUserGroup(UserGroup group) {
     ArgumentChecker.notNull(group, "User group");
     _hibernateTemplate.update(group);
   }
-  
+
   @Override
   public void addAuthority(Authority authority) {
     ArgumentChecker.notNull(authority, "Authority");
     _hibernateTemplate.save(authority);
   }
-  
+
   @Override
   public void deleteAuthority(Authority authority) {
     ArgumentChecker.notNull(authority, "Authority");
     _hibernateTemplate.delete(authority);
   }
-  
+
   @Override
   public void updateAuthority(Authority authority) {
     ArgumentChecker.notNull(authority, "Authority");
     _hibernateTemplate.update(authority);
   }
-  
+
   public static Class<?>[] getHibernateMappingClasses() {
     return new Class[] {
       User.class, 
