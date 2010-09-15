@@ -169,6 +169,18 @@ public class CombiningLiveDataSnapshotProvider implements LiveDataSnapshotProvid
     return overallTimestamp;
   }
   
+  @Override
+  public long snapshot(long snapshot) {
+    Collection<Pair<Long, LiveDataSnapshotProvider>> providerSnapshots = new ArrayList<Pair<Long, LiveDataSnapshotProvider>>();
+    for (LiveDataSnapshotProvider provider : _providers) {
+      long snapshotTimestamp = provider.snapshot(snapshot);
+      providerSnapshots.add(Pair.of(snapshotTimestamp, provider));
+    }
+    long overallTimestamp = snapshot;
+    _providerSnapshots.put(overallTimestamp, providerSnapshots);
+    return overallTimestamp;
+  }
+  
   //--------------------------------------------------------------------------
   private void subscriptionSucceeded(ValueRequirement requirement) {
     for (LiveDataSnapshotListener listener : _listeners) {

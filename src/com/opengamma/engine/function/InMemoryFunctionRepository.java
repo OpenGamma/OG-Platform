@@ -46,6 +46,14 @@ public class InMemoryFunctionRepository implements FunctionRepository {
   public FunctionInvoker getInvoker(String uniqueIdentifier) {
     return _invokersByUniqueIdentifier.get(uniqueIdentifier);
   }
+  
+  /* Temporary method so we can swap in new versions of date-specific curve functions until the engine can do it */
+  public void replace(AbstractFunction originalFunction, AbstractFunction replacementFunction) {
+    _functions.remove(originalFunction);
+    _functions.add(replacementFunction);
+    replacementFunction.setUniqueIdentifier(originalFunction.getUniqueIdentifier());
+    _invokersByUniqueIdentifier.put(originalFunction.getUniqueIdentifier(), (FunctionInvoker) replacementFunction);
+  }
 
   /**
    * This method is primarily useful for testing, as otherwise it will be

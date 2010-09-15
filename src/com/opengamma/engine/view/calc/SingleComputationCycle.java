@@ -103,7 +103,10 @@ public class SingleComputationCycle {
 
     _resultModel = new ViewComputationResultModelImpl();
     _resultModel.setCalculationConfigurationNames(getViewEvaluationModel().getDependencyGraphsByConfiguration().keySet());
-    _resultModel.setPortfolio(getViewEvaluationModel().getPortfolio());
+    
+    if (getViewEvaluationModel().getPortfolio() != null) {
+      _resultModel.setPortfolio(getViewEvaluationModel().getPortfolio());
+    }
 
     _dependencyGraphExecutor = getProcessingContext().getDependencyGraphExecutorFactory().createExecutor(this);
     _statisticsGatherer = getProcessingContext().getGraphExecutorStatisticsGathererProvider().getStatisticsGatherer(view);
