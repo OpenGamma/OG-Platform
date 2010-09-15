@@ -1,6 +1,6 @@
 @echo off
 if "%1" == "" goto error:
-xcopy *.* "%1" /S /I /Y /EXCLUDE:\.git\
+xcopy *.* "%1" /S /I /Y
 GOTO:EOF
 
 :error
