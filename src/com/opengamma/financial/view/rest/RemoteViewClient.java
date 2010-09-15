@@ -5,294 +5,268 @@
  */
 package com.opengamma.financial.view.rest;
 
-import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_ALLSECURITYTYPES;
-import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_ALLVALUENAMES;
-import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_COMPUTATIONRESULT;
-import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_DELTARESULT;
-import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_LIVECOMPUTATIONRUNNING;
-import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_LIVE_DATA_INJECTOR;
-import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_LATESTRESULT;
-import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_PERFORMCOMPUTATION;
-import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_PORTFOLIO;
-import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_REQUIRED_LIVE_DATA;
-import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_REQUIREMENTNAMES;
-import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_RESULTAVAILABLE;
-import static com.opengamma.financial.view.rest.ViewProcessorServiceNames.VIEW_STATUS;
-
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.net.URI;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
+import javax.ws.rs.core.UriBuilder;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
-import com.opengamma.engine.livedata.LiveDataInjector;
-import com.opengamma.engine.position.Portfolio;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.DeltaComputationResultListener;
+import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.financial.livedata.rest.RemoteLiveDataInjector;
+import com.opengamma.engine.view.client.ViewClientState;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageReceiver;
-import com.opengamma.transport.jaxrs.RestClient;
-import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.rest.FudgeRestClient;
 
 /**
- * Implementation of a {@link ViewClient} for working with a remote engine. The {@link RemoteViewProcessorClient} will
- * only create a single instance of {@link RemoteViewClient} for each remote View.
- *
+ * Provides access to a remote {@link ViewClient}.
  */
-/*package*/ class RemoteViewClient implements ViewClient {
+public class RemoteViewClient implements ViewClient {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteViewClient.class);
   
-  private final RemoteViewProcessorClient _viewProcessorClient;
+  private final View _view;
+  private final URI _baseUri;
+  private final FudgeRestClient _client;
   
-  private final String _name;
-  private final UserPrincipal _user;
-  
-  private final RestTarget _targetAllSecurityTypes;
-  private final RestTarget _targetAllValueNames;
-  private final RestTarget _targetLatestResult;
-  private final RestTarget _targetPortfolio;
-  private final RestTarget _targetRequirementNames;
-  private final RestTarget _targetRequiredLiveData;
-  private final RestTarget _targetStatus;
-  private final RestTarget _targetPerformComputation;
-  private final RestTarget _targetComputationResult;
-  private final RestTarget _targetDeltaResult;
-  private final RestTarget _targetLiveDataInjector;
-  
-  private final Set<ComputationResultListener> _resultListeners = new CopyOnWriteArraySet<ComputationResultListener>();
-  private final Set<DeltaComputationResultListener> _deltaListeners = new CopyOnWriteArraySet<DeltaComputationResultListener>();
-  
-  private DefaultMessageListenerContainer _resultListenerContainer;
+  private final ReentrantLock _listenerLock = new ReentrantLock();
+  private DeltaComputationResultListener _deltaListener;
   private DefaultMessageListenerContainer _deltaListenerContainer;
+  private ComputationResultListener _resultListener;
+  private DefaultMessageListenerContainer _resultListenerContainer;
   
-  protected RemoteViewClient(RemoteViewProcessorClient viewProcessorClient, String name, RestTarget target, UserPrincipal user) {
-    _viewProcessorClient = viewProcessorClient;
-    _name = name;
-    _targetAllSecurityTypes = target.resolve(VIEW_ALLSECURITYTYPES);
-    _targetAllValueNames = target.resolve(VIEW_ALLVALUENAMES);
-    _targetLatestResult = target.resolve(VIEW_LATESTRESULT);
-    _targetPortfolio = target.resolve(VIEW_PORTFOLIO);
-    _targetRequirementNames = target.resolve(VIEW_REQUIREMENTNAMES);
-    _targetRequiredLiveData = target.resolve(VIEW_REQUIRED_LIVE_DATA);
-    _targetStatus = target.resolve(VIEW_STATUS);
-    _targetPerformComputation = target.resolve(VIEW_PERFORMCOMPUTATION);
-    _targetComputationResult = target.resolve(VIEW_COMPUTATIONRESULT);
-    _targetDeltaResult = target.resolve(VIEW_DELTARESULT);
-    _targetLiveDataInjector = target.resolveBase(VIEW_LIVE_DATA_INJECTOR);
-    _user = user;
-  }
+  private final FudgeContext _fudgeContext;
+  private final JmsTemplate _jmsTemplate;
   
-  protected RemoteViewProcessorClient getViewProcessorClient() {
-    return _viewProcessorClient;
-  }
-  
-  protected FudgeContext getFudgeContext() {
-    return getViewProcessorClient().getFudgeContext();
-  }
-  
-  protected RestClient getRestClient() {
-    return getViewProcessorClient().getRestClient();
-  }
-  
-  // TODO 2010-03-30 Andrew -- needs to detect failure of the server (e.g. a lack of messages for a timeout) and reconnect by re-requesting the URL.
-  // Failure of the MOM and/or the other server can be recovered from that way. 
-  
-  @Override
-  public void addComputationResultListener(ComputationResultListener listener) {
-    ArgumentChecker.notNull(listener, "listener");
-    synchronized (_resultListeners) {
-      if (_resultListeners.isEmpty()) {
-        final String topicName = getRestClient().getSingleValueNotNull(String.class, _targetComputationResult, VIEW_COMPUTATIONRESULT);
-        s_logger.info("Set up JMS subscription to {}", topicName);
-        _resultListenerContainer = new DefaultMessageListenerContainer();
-        _resultListenerContainer.setConnectionFactory(getViewProcessorClient().getJmsTemplate().getConnectionFactory());
-        _resultListenerContainer.setMessageListener(new JmsByteArrayMessageDispatcher(new ByteArrayFudgeMessageReceiver(new FudgeMessageReceiver() {
-          @Override
-          public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
-            s_logger.debug("Message received on {}", topicName);
-            try {
-              dispatchComputationResult(fudgeContext.fromFudgeMsg(ViewComputationResultModel.class, msgEnvelope.getMessage()));
-            } catch (RuntimeException e) {
-              s_logger.warn("Unable to deserialize ViewComputationResultModel", e);
-              throw e;
-            }
-          }
-        }, getFudgeContext())));
-        _resultListenerContainer.setDestinationName(topicName);
-        _resultListenerContainer.setPubSubDomain(true);
-        _resultListenerContainer.afterPropertiesSet();
-        _resultListenerContainer.start();
-      }
-      _resultListeners.add(listener);
-    }
+  public RemoteViewClient(View view, URI baseUri, FudgeContext fudgeContext, JmsTemplate jmsTemplate) {
+    _view = view;
+    _baseUri = baseUri;
+    _client = FudgeRestClient.create();
+    _fudgeContext = fudgeContext;
+    _jmsTemplate = jmsTemplate;
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public void addDeltaResultListener(DeltaComputationResultListener listener) {
-    ArgumentChecker.notNull(listener, "listener");
-    synchronized (_deltaListeners) {
-      if (_deltaListeners.isEmpty()) {
-        final String topicName = getRestClient().getSingleValueNotNull(String.class, _targetDeltaResult, VIEW_DELTARESULT);
-        s_logger.info("Set up Delta JMS subscription to {}", topicName);
-        _deltaListenerContainer = new DefaultMessageListenerContainer();
-        _deltaListenerContainer.setConnectionFactory(getViewProcessorClient().getJmsTemplate().getConnectionFactory());
-        _deltaListenerContainer.setMessageListener(new JmsByteArrayMessageDispatcher(new ByteArrayFudgeMessageReceiver(new FudgeMessageReceiver() {
-          @Override
-          public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
-            s_logger.debug("Delta message received on {}", topicName);
-            ViewDeltaResultModel resultModel = null;
-            try {
-              resultModel = fudgeContext.fromFudgeMsg(ViewDeltaResultModel.class, msgEnvelope.getMessage());
-            } catch (Exception e) {
-              s_logger.warn("Disregarding delta message because couldn't parse: {}", msgEnvelope.getMessage());
-              s_logger.warn("Underlying parse error", e);
-              return;
-            }
-            dispatchDeltaResult(resultModel);
-          }
-        }, getFudgeContext())));
-        _deltaListenerContainer.setDestinationName(topicName);
-        _deltaListenerContainer.setPubSubDomain(true);
-        _deltaListenerContainer.setExceptionListener(new ExceptionListener() {
-          @Override
-          public void onException(JMSException exception) {
-            s_logger.warn("Error in Delta receiver", exception);
-          }
-        });
-        _deltaListenerContainer.afterPropertiesSet();
-        _deltaListenerContainer.start();
-      }
-      _deltaListeners.add(listener);
-    }
-  }
-
-  @Override
-  public void removeComputationResultListener(ComputationResultListener listener) {
-    ArgumentChecker.notNull(listener, "listener");
-    synchronized (_resultListeners) {
-      _resultListeners.remove(listener);
-      if (_resultListeners.isEmpty() && _resultListenerContainer != null) {
-        s_logger.info("Stopping JMS subscription");
-        _resultListenerContainer.stop();
-        _resultListenerContainer.destroy();
-        _resultListenerContainer = null;
-      }
-    }
-  }
-
-  @Override
-  public void removeDeltaResultListener(DeltaComputationResultListener listener) {
-    ArgumentChecker.notNull(listener, "listener");
-    synchronized (_deltaListeners) {
-      _deltaListeners.remove(listener);
-      if (_deltaListeners.isEmpty()) {
-        s_logger.info("Stopping JMS subscription");
-        _deltaListenerContainer.stop();
-        _deltaListenerContainer.destroy();
-        _deltaListenerContainer = null;
-      }
-    }
-  }
-  
-  protected void dispatchComputationResult(ViewComputationResultModel resultModel) {
-    s_logger.debug("Received a result model {}", resultModel.getResultTimestamp());
-    for (ComputationResultListener listener : _resultListeners) {
-      listener.computationResultAvailable(resultModel);
-    }
-  }
-  
-  protected void dispatchDeltaResult(ViewDeltaResultModel deltaModel) {
-    for (DeltaComputationResultListener listener : _deltaListeners) {
-      try {
-        listener.deltaResultAvailable(deltaModel);
-      } catch (Exception e) {
-        s_logger.warn("Unable to dispatch delta result to {}", new Object[] {listener}, e);
-      }
-    }
-  }
-  
-  @SuppressWarnings("unchecked")
-  @Override
-  public Set<String> getAllSecurityTypes() {
-    return getRestClient().getSingleValueNotNull(Set.class, _targetAllSecurityTypes, VIEW_ALLSECURITYTYPES);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public Set<String> getAllPortfolioRequirementNames() {
-    return getRestClient().getSingleValueNotNull(Set.class, _targetAllValueNames, VIEW_ALLVALUENAMES);
-  }
-
-  @Override
-  public ViewComputationResultModel getLatestResult() {
-    return getRestClient().getSingleValue(ViewComputationResultModel.class, _targetLatestResult, VIEW_LATESTRESULT);
+  public UniqueIdentifier getUniqueIdentifier() {
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_UNIQUE_IDENTIFIER);
+    return _client.access(uri).get(UniqueIdentifier.class);
   }
   
   @Override
-  public String getName() {
-    return _name;
+  public View getView() {
+    return _view;
   }
   
   @Override
   public UserPrincipal getUser() {
-    return _user;
-  }
-
-  @Override
-  public Portfolio getPortfolio() {
-    return getRestClient().getSingleValueNotNull(Portfolio.class, _targetPortfolio, VIEW_PORTFOLIO);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public Set<String> getRequirementNames(String securityType) {
-    return getRestClient().getSingleValueNotNull(Set.class, _targetRequirementNames.resolve(securityType), VIEW_REQUIREMENTNAMES);
-  }
-  
-  @SuppressWarnings("unchecked")
-  @Override
-  public Set<ValueRequirement> getRequiredLiveData() {
-    return getRestClient().getSingleValueNotNull(Set.class, _targetRequiredLiveData, VIEW_REQUIRED_LIVE_DATA);
-  }
-
-  @Override
-  public boolean isLiveComputationRunning() {
-    return getRestClient().getSingleValueNotNull(Boolean.class, _targetStatus, VIEW_LIVECOMPUTATIONRUNNING);
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_USER);
+    return _client.access(uri).get(UserPrincipal.class);
   }
 
   @Override
   public boolean isResultAvailable() {
-    return getRestClient().getSingleValueNotNull(Boolean.class, _targetStatus, VIEW_RESULTAVAILABLE);
-  }
-
-  @Override
-  public void performComputation() {
-    getRestClient().post(_targetPerformComputation);
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_RESULT_AVAILABLE);
+    return _client.access(uri).get(boolean.class);
   }
   
   @Override
-  public void performComputation(long snapshotTime) {
-    getRestClient().post(_targetPerformComputation.resolve(Long.toString(snapshotTime)));
+  public ViewComputationResultModel getLatestResult() {
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_LATEST_RESULT);
+    return _client.access(uri).get(ViewComputationResultModel.class);
+  }
+  
+  @Override
+  public ViewClientState getState() {
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_STATE);
+    return _client.access(uri).get(ViewClientState.class);
   }
 
   @Override
-  public LiveDataInjector getLiveDataInjector() {
-    return new RemoteLiveDataInjector(getFudgeContext(), _targetLiveDataInjector);
+  public void runOneCycle() {
+    // TOOD: implement
+  }
+  
+  @Override
+  public void startLive() {
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_START);
+    _client.access(uri).post();
   }
 
+  @Override
+  public void pauseLive() {
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_PAUSE);
+    _client.access(uri).post();
+  }
+  
+  @Override
+  public void stopLive() {
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_STOP);
+    _client.access(uri).post();    
+  }
+  
+  @Override
+  public void shutdown() {
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_SHUTDOWN);
+    _client.access(uri).post();
+  }
+
+  @Override
+  public void setDeltaResultListener(DeltaComputationResultListener newListener) {
+    _listenerLock.lock();
+    try {
+      DeltaComputationResultListener oldListener = _deltaListener;
+      _deltaListener = newListener;
+      if (oldListener == null && newListener != null) {
+        // Set up subscription
+        URI uri = getUri(_baseUri, DataViewClientResource.PATH_START_JMS_RESULT_STREAM);
+        String topicName = _client.access(uri).post(String.class);
+        initDeltaListener(topicName);
+      } else if (oldListener != null && newListener == null) {
+        URI uri = getUri(_baseUri, DataViewClientResource.PATH_STOP_JMS_DELTA_STREAM);
+        _client.access(uri).post();
+        tearDownDeltaListener();
+      }
+    } finally {
+      _listenerLock.unlock();
+    }
+  }
+
+  private void initDeltaListener(final String topicName) {
+    s_logger.info("Set up Delta JMS subscription to {}", topicName);
+    _deltaListenerContainer = new DefaultMessageListenerContainer();
+    _deltaListenerContainer.setConnectionFactory(_jmsTemplate.getConnectionFactory());
+    _deltaListenerContainer.setMessageListener(new JmsByteArrayMessageDispatcher(new ByteArrayFudgeMessageReceiver(new FudgeMessageReceiver() {
+      @Override
+      public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
+        s_logger.debug("Delta message received on {}", topicName);
+        ViewDeltaResultModel resultModel = null;
+        try {
+          resultModel = fudgeContext.fromFudgeMsg(ViewDeltaResultModel.class, msgEnvelope.getMessage());
+        } catch (Exception e) {
+          s_logger.warn("Disregarding delta message because couldn't parse: {}", msgEnvelope.getMessage());
+          s_logger.warn("Underlying parse error", e);
+          return;
+        }
+        dispatchDeltaResult(resultModel);
+      }
+    }, _fudgeContext)));
+    _deltaListenerContainer.setDestinationName(topicName);
+    _deltaListenerContainer.setPubSubDomain(true);
+    _deltaListenerContainer.setExceptionListener(new ExceptionListener() {
+      @Override
+      public void onException(JMSException exception) {
+        s_logger.warn("Error in Delta receiver", exception);
+      }
+    });
+    _deltaListenerContainer.afterPropertiesSet();
+    _deltaListenerContainer.start();
+  }
+  
+  private void dispatchDeltaResult(ViewDeltaResultModel deltaResult) {
+    s_logger.debug("Received a delta result {}", deltaResult.getResultTimestamp());
+    DeltaComputationResultListener listener = _deltaListener;
+    if (listener != null) {
+      listener.deltaResultAvailable(deltaResult);
+    }
+  }
+  
+  private void tearDownDeltaListener() {
+    _deltaListenerContainer.stop();
+    _deltaListenerContainer.destroy();
+    _deltaListenerContainer = null;
+  }
+
+  @Override
+  public void setResultListener(ComputationResultListener newListener) {
+    _listenerLock.lock();
+    try {
+      ComputationResultListener oldListener = _resultListener;
+      _resultListener = newListener;
+      if (oldListener == null && newListener != null) {
+        // Set up subscription
+        URI uri = getUri(_baseUri, DataViewClientResource.PATH_START_JMS_RESULT_STREAM);
+        String topicName = _client.access(uri).post(String.class);
+        initResultListener(topicName);
+      } else if (oldListener != null && newListener == null) {
+        URI uri = getUri(_baseUri, DataViewClientResource.PATH_STOP_JMS_RESULT_STREAM);
+        _client.access(uri).post();
+        tearDownResultListener();
+      }
+    } finally {
+      _listenerLock.unlock();
+    }
+  }
+  
+  private void initResultListener(final String topicName) {
+    s_logger.info("Set up result JMS subscription to {}", topicName);
+    _resultListenerContainer = new DefaultMessageListenerContainer();
+    _resultListenerContainer.setConnectionFactory(_jmsTemplate.getConnectionFactory());
+    _resultListenerContainer.setMessageListener(new JmsByteArrayMessageDispatcher(new ByteArrayFudgeMessageReceiver(new FudgeMessageReceiver() {
+      @Override
+      public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
+        s_logger.debug("Result message received on {}", topicName);
+        ViewComputationResultModel resultModel = null;
+        try {
+          resultModel = fudgeContext.fromFudgeMsg(ViewComputationResultModel.class, msgEnvelope.getMessage());
+        } catch (Exception e) {
+          s_logger.warn("Disregarding result message because couldn't parse: {}", msgEnvelope.getMessage());
+          s_logger.warn("Underlying parse error", e);
+          return;
+        }
+        dispatchResult(resultModel);
+      }
+    }, _fudgeContext)));
+    _resultListenerContainer.setDestinationName(topicName);
+    _resultListenerContainer.setPubSubDomain(true);
+    _resultListenerContainer.setExceptionListener(new ExceptionListener() {
+      @Override
+      public void onException(JMSException exception) {
+        s_logger.warn("Error in result receiver", exception);
+      }
+    });
+    _resultListenerContainer.afterPropertiesSet();
+    _resultListenerContainer.start();
+  }
+  
+  private void dispatchResult(ViewComputationResultModel result) {
+    s_logger.debug("Received a computation result {}", result.getResultTimestamp());
+    ComputationResultListener listener = _resultListener;
+    if (listener != null) {
+      listener.computationResultAvailable(result);
+    }
+  }
+  
+  private void tearDownResultListener() {
+    _resultListenerContainer.stop();
+    _resultListenerContainer.destroy();
+    _resultListenerContainer = null;
+  }
+
+  @Override
+  public void setLiveUpdatePeriod(long periodMillis) {
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_UPDATE_PERIOD);
+    _client.access(uri).put(periodMillis);
+  }
+  
+  //-------------------------------------------------------------------------
+  private static URI getUri(URI baseUri, String path) {
+    return UriBuilder.fromUri(baseUri).build(path);
+  }
+  
 }

@@ -13,8 +13,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
+import com.opengamma.engine.view.ViewInternal;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
@@ -233,7 +233,7 @@ public class BatchJobRun {
     return getJob().getCalculationConfigurations();
   }
   
-  public View getView() {
+  public ViewInternal getView() {
     return getJob().getView();
   }
   
