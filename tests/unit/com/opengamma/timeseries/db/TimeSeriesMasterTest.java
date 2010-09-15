@@ -932,6 +932,7 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
     assertNotNull(tsDocument);
     timeSeries = getTimeSeries(new ArrayList<T>(currentTimeSeriesMap.keySet()), new ArrayList<Double>(currentTimeSeriesMap.values()));
     assertEquals(timeSeries, tsDocument.getTimeSeries()); 
+    Thread.sleep(30); // assume system clock resolution < 30ms
     timeStampTSMap.put(Clock.system(javax.time.calendar.TimeZone.UTC).zonedDateTime(), timeSeries);
     
     //delete all datapoints
@@ -941,6 +942,7 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
     assertNotNull(tsDocument);
     timeSeries = getEmptyTimeSeries();
     assertEquals(timeSeries, tsDocument.getTimeSeries()); 
+    Thread.sleep(30); // assume system clock resolution < 30ms
     timeStampTSMap.put(Clock.system(javax.time.calendar.TimeZone.UTC).zonedDateTime(), timeSeries);
     
     //add new datapoints
@@ -950,6 +952,7 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
     tsDocument = _tsMaster.getTimeSeries(tsDocument.getUniqueIdentifier());
     assertNotNull(tsDocument);
     assertEquals(timeSeries, tsDocument.getTimeSeries());
+    Thread.sleep(30); // assume system clock resolution < 30ms
     timeStampTSMap.put(Clock.system(javax.time.calendar.TimeZone.UTC).zonedDateTime(), timeSeries);
     
     //assert datasnapshots
@@ -958,8 +961,8 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
       DoubleTimeSeries<T> expectedTS = entry.getValue();
       TimeSeriesDocument<T> snapshotDoc = getTimeSeriesSnapShot(identifiers, timeStamp);
       assertNotNull(snapshotDoc);
-      assertEquals(expectedTS.timesArray(), snapshotDoc.getTimeSeries().timesArray());
-      assertEquals(expectedTS.valuesArray(), snapshotDoc.getTimeSeries().valuesArray());
+      assertEquals(expectedTS.times(), snapshotDoc.getTimeSeries().times());
+      assertEquals(expectedTS.values(), snapshotDoc.getTimeSeries().values());
     }
     
     //assert before and after last deltas
