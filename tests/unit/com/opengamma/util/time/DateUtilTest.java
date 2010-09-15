@@ -18,7 +18,10 @@ import javax.time.InstantProvider;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalTime;
 import javax.time.calendar.MonthOfYear;
+import javax.time.calendar.OffsetDateTime;
+import javax.time.calendar.OffsetTime;
 import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZoneOffset;
 import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
@@ -247,6 +250,11 @@ public class DateUtilTest {
   @Test
   public void testFromSqlTimestamp_max() {
     assertNull(DateUtil.fromSqlTimestamp(DateUtil.MAX_SQL_TIMESTAMP));
+  }
+  
+  @Test
+  public void testFromSqlDate() {
+    assertEquals(LocalDate.of(2005, 11, 12), DateUtil.fromSqlDate(new java.sql.Date(2005 - 1900, 10, 12)));
   }
 
 }
