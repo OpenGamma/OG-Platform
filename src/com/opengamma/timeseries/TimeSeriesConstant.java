@@ -20,6 +20,10 @@ public interface TimeSeriesConstant {
    */
   String DELETE_DATA_POINT = "deleteDataPoint";
   /**
+   * key name  for deleteDataPointsByDate SQL
+   */
+  String DELETE_DATA_POINTS_BY_DATE = "deleteDataPointsByDate";
+  /**
    * key name  for deleteTimeSeriesByID SQL
    */
   String DELETE_TIME_SERIES_BY_ID = "deleteTimeSeriesByID";

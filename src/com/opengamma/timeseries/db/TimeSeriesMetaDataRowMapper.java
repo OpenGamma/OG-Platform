@@ -14,20 +14,25 @@ import static com.opengamma.timeseries.TimeSeriesConstant.LATEST_COLUMN;
 import static com.opengamma.timeseries.TimeSeriesConstant.OBSERVATION_TIME_COLUMN;
 import static com.opengamma.timeseries.TimeSeriesConstant.TS_ID_COLUMN;
 
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * TimeSeriesMetaDataRowMapper maps returned SQL row to TimeSeriesMetaData object 
  */
-/*package*/ class TimeSeriesMetaDataRowMapper implements ParameterizedRowMapper<MetaData> {
+/*package*/ class TimeSeriesMetaDataRowMapper<T> implements ParameterizedRowMapper<MetaData<T>> {
   
+  private final RowStoreTimeSeriesMaster<T> _rowStoreMaster;
   private boolean _loadDates;
+  
+  public TimeSeriesMetaDataRowMapper(RowStoreTimeSeriesMaster<T> rowStoreMaster) {
+    ArgumentChecker.notNull(rowStoreMaster, "rowStoreMaster");
+    _rowStoreMaster = rowStoreMaster;    
+  }
   
   /**
    * Sets the loadDates field.
@@ -38,8 +43,8 @@ import com.opengamma.util.time.DateUtil;
   }
 
   @Override
-  public MetaData mapRow(ResultSet rs, int rowNum) throws SQLException {
-    MetaData result = new MetaData();
+  public MetaData<T> mapRow(ResultSet rs, int rowNum) throws SQLException {
+    MetaData<T> result = new MetaData<T>();
     result.setTimeSeriesId(rs.getLong(TS_ID_COLUMN));
     result.setDataSource(rs.getString(DATA_SOURCE_COLUMN));
     result.setDataProvider(rs.getString(DATA_PROVIDER_COLUMN));
@@ -47,10 +52,10 @@ import com.opengamma.util.time.DateUtil;
     result.setObservationTime(rs.getString(OBSERVATION_TIME_COLUMN));
     result.setIdentifierBundleId(rs.getLong(BUNDLE_ID_COLUMN));
     if (_loadDates) {
-      Date earliestDate = rs.getDate(EARLIEST_COLUMN);
-      Date latestDate = rs.getDate(LATEST_COLUMN);
-      result.setEarliestDate(DateUtil.fromSqlDate(earliestDate));
-      result.setLatestDate(DateUtil.fromSqlDate(latestDate));
+      T earliestDate = _rowStoreMaster.getDate(rs, EARLIEST_COLUMN);
+      T latestDate = _rowStoreMaster.getDate(rs, LATEST_COLUMN);
+      result.setEarliestDate(earliestDate);
+      result.setLatestDate(latestDate);
     }
     return result;
   }

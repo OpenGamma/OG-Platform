@@ -23,9 +23,11 @@ import com.opengamma.util.db.Paging;
 
 /**
  * Result from searching Timeseries.
+ * 
+ * @param <T> LocalDate/java.util.Date
  */
 @BeanDefinition
-public class TimeSeriesSearchResult extends DirectBean {
+public class TimeSeriesSearchResult<T> extends DirectBean {
   /**
    * The paging information.
    */
@@ -35,7 +37,7 @@ public class TimeSeriesSearchResult extends DirectBean {
    * The list of matched timeseries documents.
    */
   @PropertyDefinition
-  private final List<TimeSeriesDocument> _documents = new ArrayList<TimeSeriesDocument>();
+  private final List<TimeSeriesDocument<T>> _documents = new ArrayList<TimeSeriesDocument<T>>();
 
   /**
    * Creates an instance.
@@ -77,7 +79,7 @@ public class TimeSeriesSearchResult extends DirectBean {
         setPaging((Paging) newValue);
         return;
       case 943542968:  // documents
-        setDocuments((List<TimeSeriesDocument>) newValue);
+        setDocuments((List<TimeSeriesDocument<T>>) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -113,7 +115,7 @@ public class TimeSeriesSearchResult extends DirectBean {
    * Gets the list of matched timeseries documents.
    * @return the value of the property
    */
-  public List<TimeSeriesDocument> getDocuments() {
+  public List<TimeSeriesDocument<T>> getDocuments() {
     return _documents;
   }
 
@@ -121,7 +123,7 @@ public class TimeSeriesSearchResult extends DirectBean {
    * Sets the list of matched timeseries documents.
    * @param documents  the new value of the property
    */
-  public void setDocuments(List<TimeSeriesDocument> documents) {
+  public void setDocuments(List<TimeSeriesDocument<T>> documents) {
     this._documents.clear();
     this._documents.addAll(documents);
   }

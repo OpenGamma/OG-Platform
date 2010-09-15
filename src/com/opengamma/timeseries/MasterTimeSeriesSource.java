@@ -33,7 +33,7 @@ public class MasterTimeSeriesSource implements HistoricalDataSource {
   /**
    * The timeseries master.
    */
-  private final TimeSeriesMaster _timeSeriesMaster;
+  private final TimeSeriesMaster<LocalDate> _timeSeriesMaster;
   /**
    * The timeseries request resolver
    */
@@ -43,14 +43,14 @@ public class MasterTimeSeriesSource implements HistoricalDataSource {
    * @param timeSeriesMaster the timeseries master, not-null
    * @param tsResolver the _timeSeries resolver, not-null
    */
-  public MasterTimeSeriesSource(TimeSeriesMaster timeSeriesMaster, TimeSeriesMetaDataResolver tsResolver) {
+  public MasterTimeSeriesSource(TimeSeriesMaster<LocalDate> timeSeriesMaster, TimeSeriesMetaDataResolver tsResolver) {
     ArgumentChecker.notNull(timeSeriesMaster, "timeSeriesMaster");
     ArgumentChecker.notNull(tsResolver, "timeSeriesResolver");
     _timeSeriesMaster = timeSeriesMaster;
     _timeSeriesResolver = tsResolver;
   }
 
-  protected TimeSeriesMaster getTimeSeriesMaster() {
+  protected TimeSeriesMaster<LocalDate> getTimeSeriesMaster() {
     return _timeSeriesMaster;
   }
   
@@ -65,7 +65,7 @@ public class MasterTimeSeriesSource implements HistoricalDataSource {
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(field, "field");
     
-    TimeSeriesSearchRequest request = new TimeSeriesSearchRequest();
+    TimeSeriesSearchRequest<LocalDate> request = new TimeSeriesSearchRequest<LocalDate>();
     request.getIdentifiers().addAll(identifiers.getIdentifiers());
     request.setDataSource(dataSource);
     request.setDataProvider(dataProvider);
@@ -75,16 +75,16 @@ public class MasterTimeSeriesSource implements HistoricalDataSource {
     request.setLoadTimeSeries(true);
     
     LocalDateDoubleTimeSeries timeseries = new ArrayLocalDateDoubleTimeSeries();
-    TimeSeriesSearchResult searchResult = getTimeSeriesMaster().searchTimeSeries(request);
-    List<TimeSeriesDocument> documents = searchResult.getDocuments();
+    TimeSeriesSearchResult<LocalDate> searchResult = getTimeSeriesMaster().searchTimeSeries(request);
+    List<TimeSeriesDocument<LocalDate>> documents = searchResult.getDocuments();
     UniqueIdentifier uid = null;
     if (!documents.isEmpty()) {
       if (documents.size() > 1) {
         Object[] param = new Object[]{identifiers, dataSource, dataProvider, field, start, end};
         s_logger.warn("multiple timeseries return for identifiers={}, dataSource={}, dataProvider={}, dataField={}, start={} end={}", param);
       }
-      TimeSeriesDocument timeSeriesDocument = documents.get(0);
-      timeseries = timeSeriesDocument.getTimeSeries();
+      TimeSeriesDocument<LocalDate> timeSeriesDocument = documents.get(0);
+      timeseries = timeSeriesDocument.getTimeSeries().toLocalDateDoubleTimeSeries();
       uid = timeSeriesDocument.getUniqueIdentifier();
     }
     return new ObjectsPair<UniqueIdentifier, LocalDateDoubleTimeSeries>(uid, timeseries);
@@ -98,7 +98,7 @@ public class MasterTimeSeriesSource implements HistoricalDataSource {
   @Override
   public LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uid, LocalDate start, LocalDate end) {
     ArgumentChecker.notNull(uid, "Identifier");
-    TimeSeriesSearchRequest request = new TimeSeriesSearchRequest();
+    TimeSeriesSearchRequest<LocalDate> request = new TimeSeriesSearchRequest<LocalDate>();
     request.setLoadTimeSeries(true);
     request.setStart(start);
     request.setEnd(end);
@@ -106,13 +106,13 @@ public class MasterTimeSeriesSource implements HistoricalDataSource {
     request.setLoadTimeSeries(true);
     
     LocalDateDoubleTimeSeries result = new ArrayLocalDateDoubleTimeSeries();
-    TimeSeriesSearchResult searchResult = getTimeSeriesMaster().searchTimeSeries(request);
-    List<TimeSeriesDocument> documents = searchResult.getDocuments();
+    TimeSeriesSearchResult<LocalDate> searchResult = getTimeSeriesMaster().searchTimeSeries(request);
+    List<TimeSeriesDocument<LocalDate>> documents = searchResult.getDocuments();
     if (!documents.isEmpty()) {
       if (documents.size() > 1) {
         s_logger.warn("multiple timeseries return for uid={}", uid);
       }
-      result = documents.get(0).getTimeSeries();   
+      result = documents.get(0).getTimeSeries().toLocalDateDoubleTimeSeries();   
     }
     return result;
   }

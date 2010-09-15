@@ -22,13 +22,16 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * A document used to pass into and out of the Timeseries master.
+ * 
+ * @param <T> Type of time series 
  */
 @BeanDefinition
-public class TimeSeriesDocument extends DirectBean implements UniqueIdentifiable {
+public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifiable {
   /**
    * The Timeseries unique identifier.
    */
@@ -63,17 +66,17 @@ public class TimeSeriesDocument extends DirectBean implements UniqueIdentifiable
    * The start date of timeseries
    */
   @PropertyDefinition
-  private LocalDate _latest; 
+  private T _latest; 
   /**
    * The end date of timeseries
    */
   @PropertyDefinition
-  private LocalDate _earliest;
+  private T _earliest;
   /**
    * The Timeseries.
    */
   @PropertyDefinition
-  private LocalDateDoubleTimeSeries _timeSeries;
+  private DoubleTimeSeries<T> _timeSeries;
 
   /**
    * Creates an instance.
@@ -142,13 +145,13 @@ public class TimeSeriesDocument extends DirectBean implements UniqueIdentifiable
         setObservationTime((String) newValue);
         return;
       case -1109880953:  // latest
-        setLatest((LocalDate) newValue);
+        setLatest((T) newValue);
         return;
       case -809579181:  // earliest
-        setEarliest((LocalDate) newValue);
+        setEarliest((T) newValue);
         return;
       case 779431844:  // timeSeries
-        setTimeSeries((LocalDateDoubleTimeSeries) newValue);
+        setTimeSeries((DoubleTimeSeries<T>) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -309,7 +312,7 @@ public class TimeSeriesDocument extends DirectBean implements UniqueIdentifiable
    * Gets the start date of timeseries
    * @return the value of the property
    */
-  public LocalDate getLatest() {
+  public T getLatest() {
     return _latest;
   }
 
@@ -317,7 +320,7 @@ public class TimeSeriesDocument extends DirectBean implements UniqueIdentifiable
    * Sets the start date of timeseries
    * @param latest  the new value of the property
    */
-  public void setLatest(LocalDate latest) {
+  public void setLatest(T latest) {
     this._latest = latest;
   }
 
@@ -334,7 +337,7 @@ public class TimeSeriesDocument extends DirectBean implements UniqueIdentifiable
    * Gets the end date of timeseries
    * @return the value of the property
    */
-  public LocalDate getEarliest() {
+  public T getEarliest() {
     return _earliest;
   }
 
@@ -342,7 +345,7 @@ public class TimeSeriesDocument extends DirectBean implements UniqueIdentifiable
    * Sets the end date of timeseries
    * @param earliest  the new value of the property
    */
-  public void setEarliest(LocalDate earliest) {
+  public void setEarliest(T earliest) {
     this._earliest = earliest;
   }
 
@@ -359,7 +362,7 @@ public class TimeSeriesDocument extends DirectBean implements UniqueIdentifiable
    * Gets the Timeseries.
    * @return the value of the property
    */
-  public LocalDateDoubleTimeSeries getTimeSeries() {
+  public DoubleTimeSeries<T> getTimeSeries() {
     return _timeSeries;
   }
 
@@ -367,7 +370,7 @@ public class TimeSeriesDocument extends DirectBean implements UniqueIdentifiable
    * Sets the Timeseries.
    * @param timeSeries  the new value of the property
    */
-  public void setTimeSeries(LocalDateDoubleTimeSeries timeSeries) {
+  public void setTimeSeries(DoubleTimeSeries<T> timeSeries) {
     this._timeSeries = timeSeries;
   }
 
