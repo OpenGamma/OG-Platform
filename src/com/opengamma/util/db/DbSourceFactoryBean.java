@@ -5,7 +5,10 @@
  */
 package com.opengamma.util.db;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -45,6 +48,10 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
    * This can be used if more control is needed than the properties exposed on this factory bean.
    */
   private LocalSessionFactoryBean _hibernateFactoryBean;
+  /**
+   * The Hibernate mapping file configuration classes.
+   */
+  private HibernateMappingFiles[] _mappingConfigurations;
   /**
    * The Hibernate mapping resource locations.
    */
@@ -111,6 +118,14 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
 
   public void setHibernateFactoryBean(LocalSessionFactoryBean hibernateFactoryBean) {
     _hibernateFactoryBean = hibernateFactoryBean;
+  }
+
+  public HibernateMappingFiles[] getHibernateMappingFiles() {
+    return _mappingConfigurations;
+  }
+
+  public void setHibernateMappingFiles(HibernateMappingFiles[] mappingConfigurations) {
+    _mappingConfigurations = mappingConfigurations;
   }
 
   public String[] getHibernateMappingResources() {
@@ -200,11 +215,12 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
   protected SessionFactory createSessionFactory(DbHelper dialect) {
     LocalSessionFactoryBean factory = getHibernateFactoryBean();
     if (factory == null) {
-      if (getHibernateMappingResources() == null) {
+      String[] files = createHibernateFiles();
+      if (files.length == 0) {
         return null;  // Hibernate not required
       }
       factory = new LocalSessionFactoryBean();
-      factory.setMappingResources(getHibernateMappingResources());
+      factory.setMappingResources(files);
       factory.setDataSource(getDataSource());
       Properties props = new Properties();
       props.setProperty("hibernate.dialect", dialect.getHibernateDialect().getClass().getName());
@@ -217,6 +233,31 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
       throw new RuntimeException(ex);
     }
     return (SessionFactory) factory.getObject();
+  }
+
+  /**
+   * Creates the complete list of Hibernate configuration files.
+   * @return the set of Hibernate files, not null
+   */
+  protected String[] createHibernateFiles() {
+    String[] nameArray = getHibernateMappingResources();
+    HibernateMappingFiles[] filesArray = getHibernateMappingFiles();
+    if (nameArray == null && filesArray == null) {
+      return new String[0];
+    }
+    Set<String> config = new HashSet<String>();
+    if (nameArray != null) {
+      config.addAll(Arrays.asList(nameArray));
+    }
+    if (filesArray != null) {
+      for (HibernateMappingFiles files : filesArray) {
+        for (Class<?> cls : files.getHibernateMappingFiles()) {
+          String hbm = cls.getName().replace('.', '/') + ".hbm.xml";
+          config.add(hbm);
+        }
+      }
+    }
+    return (String[]) config.toArray(new String[config.size()]);
   }
 
   /**
