@@ -12,7 +12,7 @@ import org.fudgemsg.FudgeContext;
 
 import com.opengamma.financial.position.master.rest.DataPortfolioTreesResource;
 import com.opengamma.financial.position.master.rest.DataPositionsResource;
-import com.opengamma.financial.security.MasterSecuritySource;
+import com.opengamma.financial.security.master.SecurityMaster;
 import com.opengamma.financial.security.master.memory.InMemorySecurityMaster;
 import com.opengamma.financial.security.rest.SecurityMasterResource;
 import com.opengamma.financial.user.UserResourceDetails;
@@ -46,14 +46,14 @@ public class ClientResource {
   public static final String VIEW_DEFINITIONS_PATH = "viewDefinitions";
   
   private final ClientsResource _clientsResource;
-  private final MasterSecuritySource _securityMaster;
+  private final SecurityMaster _securityMaster;
   private final ManageableViewDefinitionRepository _viewDefinitionRepository;
   private final UsersResourceContext _usersResourceContext;
   
   public ClientResource(ClientsResource clientsResource, String clientName, UsersResourceContext context) {
     _clientsResource = clientsResource;
     String username = clientsResource.getUserResource().getUserName();
-    _securityMaster = new MasterSecuritySource(new InMemorySecurityMaster(getTemplate(username, clientName, SECURITIES_PATH).createSupplier()));
+    _securityMaster = new InMemorySecurityMaster(getTemplate(username, clientName, SECURITIES_PATH).createSupplier());
     _usersResourceContext = context;
     // [FIN-124] The user SecuritySource is done wrongly throughout
     _viewDefinitionRepository = new InMemoryViewDefinitionRepository();
@@ -64,7 +64,7 @@ public class ClientResource {
     return UserUniqueIdentifierUtils.getTemplate(resourceDetails);
   }
   
-  public MasterSecuritySource getSecurityMaster() {
+  public SecurityMaster getSecurityMaster() {
     return _securityMaster;
   }
 
