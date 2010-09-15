@@ -32,20 +32,11 @@ public class ViewDefinition implements Serializable {
   
   private final ResultModelDefinition _resultModelDefinition;
   
-  /** 
-   * A delta recomputation of the view should be performed at this interval. Milliseconds.
-   * 0 = can be performed as often as there is CPU resources for.
-   * Null = delta recomputation only needs to be performed if underlying market data changes.  
-   */
-  private Long _deltaRecalculationPeriod;
+  private Long _minDeltaCalculationPeriod;
+  private Long _maxDeltaCalculationPeriod;
   
-  /** 
-   * A full recomputation of the view should be performed at this interval (i.e. no delta vs. previous result should
-   * be used). Milliseconds.
-   * 0 = each computation should be a full recomputation.
-   * Null = no full recomputation needs to be performed - previous result can always be used
-   */ 
-  private Long _fullRecalculationPeriod;
+  private Long _minFullCalculationPeriod;
+  private Long _maxFullCalculationPeriod;
   
   private final Map<String, ViewCalculationConfiguration> _calculationConfigurationsByName =
     new TreeMap<String, ViewCalculationConfiguration>();
@@ -206,42 +197,113 @@ public class ViewDefinition implements Serializable {
     calcConfig.addPortfolioRequirement(securityType, requirementName);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @return A delta recomputation of the view should be performed at this interval.
-   * Milliseconds.
-   * 0 = can be performed as often as there is CPU resources for.
-   * Null = delta recomputation only needs to be performed if underlying
-   * market data changes.
+   * Gets the minimum period, in milliseconds, which must have elapsed since the start of the last delta calculation
+   * when live computations are running. Delta calculations involve only those nodes in the dependency graph whose
+   * inputs have changed since the previous calculation.
+   * 
+   * @return the minimum period between the start of two delta calculations, in milliseconds, or <code>null</code> to
+   *         indicate that no minimum period is required to elapse.
    */
-  public Long getDeltaRecalculationPeriod() {
-    return _deltaRecalculationPeriod;
+  public Long getMinDeltaCalculationPeriod() {
+    return _minDeltaCalculationPeriod;
   }
 
   /**
-   * @param minimumRecalculationPeriod the minimumRecalculationPeriod to set, milliseconds
+   * Sets the minimum period, in milliseconds, which must have elapsed since the start of the last delta calculation
+   * when live computations are running. Delta calculations involve only those nodes in the dependency graph whose
+   * inputs have changed since the previous calculation.
+   * 
+   * @param minDeltaCalculationPeriod  the minimum period between the start of two delta calculations, in milliseconds,
+   *                                   or <code>null</code> to indicate that no minimum period is required to elapse.
    */
-  public void setDeltaRecalculationPeriod(Long minimumRecalculationPeriod) {
-    _deltaRecalculationPeriod = minimumRecalculationPeriod;
+  public void setMinDeltaCalculationPeriod(Long minDeltaCalculationPeriod) {
+    _minDeltaCalculationPeriod = minDeltaCalculationPeriod;
   }
 
   /**
-   * @return A full recomputation of the view should be performed at this interval 
-   * (i.e., no delta vs. previous result should be used).
-   * Milliseconds.
-   * 0 = each computation should be a full recomputation.
-   * Null = no full recomputation needs to be performed - previous result can always be used
+   * Gets the maximum period, in milliseconds, which can elapse since the start of the last full or delta calculation
+   * before a delta recalculation is forced when live computations are running. In between the minimum and maximum
+   * period, any relevant live data changes will immediately trigger a recalculation. The maximum calculation period is
+   * therefore a fall-back which can be used to ensure that the view has always been calculated recently, even when no
+   * live data changes have occurred. 
+   * 
+   * @return the maximum period allowed since the start of the last full or delta calculation, in milliseconds, or
+   *         <code>null</code> if no maximum period is required.
    */
-  public Long getFullRecalculationPeriod() {
-    return _fullRecalculationPeriod;
+  public Long getMaxDeltaCalculationPeriod() {
+    return _maxDeltaCalculationPeriod;
   }
 
   /**
-   * @param fullRecalculationPeriod the fullRecalculationPeriod to set, milliseconds
+   * Sets the maximum period, in milliseconds, which can elapse since the start of the last full or delta calculation
+   * before a delta recalculation is forced when live computations are running. In between the minimum and maximum
+   * period, any relevant live data changes will immediately trigger a recalculation. The maximum calculation period is
+   * therefore a fall-back which can be used to ensure that the view has always been calculated recently, even when no
+   * live data changes have occurred. 
+   * 
+   * @param maxDeltaCalculationPeriod  the maximum period allowed since the start of the last full or delta
+   *                                   calculation, in milliseconds, or <code>null</code> if no maximum period is
+   *                                   required.
    */
-  public void setFullRecalculationPeriod(Long fullRecalculationPeriod) {
-    _fullRecalculationPeriod = fullRecalculationPeriod;
+  public void setMaxDeltaCalculationPeriod(Long maxDeltaCalculationPeriod) {
+    _maxDeltaCalculationPeriod = maxDeltaCalculationPeriod;
+  }
+
+  /**
+   * Gets the minimum period, in milliseconds, which must have elapsed since the start of the last full calculation
+   * when live computations are running. Full calculations involve recalculating every node in the dependency graph,
+   * regardless of whether their inputs have changed.
+   * 
+   * @return the minimum period between the start of two full calculations, in milliseconds, or <code>null</code> to
+   *         indicate that no minimum period is required to elapse.
+   */
+  public Long getMinFullCalculationPeriod() {
+    return _minFullCalculationPeriod;
+  }
+
+  /**
+   * Sets the minimum period, in milliseconds, which must have elapsed since the start of the last full calculation
+   * when live computations are running. Full calculations involve recalculating every node in the dependency graph,
+   * regardless of whether their inputs have changed.
+   * 
+   * @param minFullCalculationPeriod  the minimum period between the start of two full calculations, in milliseconds,
+   *                                  or <code>null</code> to indicate that no minimum period is required to elapse.
+   */
+  public void setMinFullCalculationPeriod(Long minFullCalculationPeriod) {
+    _minFullCalculationPeriod = minFullCalculationPeriod;
   }
   
+  /**
+   * Gets the maximum period, in milliseconds, which can elapse since the start of the last full calculation before a
+   * full recalculation is forced when live computations are running. In between the minimum and maximum period, any
+   * relevant live data changes will immediately trigger a recalculation. The maximum calculation period is therefore a
+   * fall-back which can be used to ensure that the view has always been calculated recently, even when no live data
+   * changes have occurred. 
+   * 
+   * @return the maximum period allowed since the start of the last full calculation, in milliseconds, or
+   *         <code>null</code> if no maximum period is required.
+   */
+  public Long getMaxFullCalculationPeriod() {
+    return _maxFullCalculationPeriod;
+  }
+
+  /**
+   * Sets the maximum period, in milliseconds, which can elapse since the start of the last full calculation before a
+   * full recalculation is forced when live computations are running. In between the minimum and maximum period, any
+   * relevant live data changes will immediately trigger a recalculation. The maximum calculation period is therefore a
+   * fall-back which can be used to ensure that the view has always been calculated recently, even when no live data
+   * changes have occurred. 
+   * 
+   * @param maxFullCalculationPeriod  the maximum period allowed since the start of the last full calculation, in
+   *                                  milliseconds, or <code>null</code> if no maximum period is required.
+   */
+  public void setMaxFullCalculationPeriod(Long maxFullCalculationPeriod) {
+    _maxFullCalculationPeriod = maxFullCalculationPeriod;
+  }
+
+  //-------------------------------------------------------------------------
   public ResultModelDefinition getResultModelDefinition() {
     return _resultModelDefinition;
   }
@@ -279,8 +341,10 @@ public class ViewDefinition implements Serializable {
       && ObjectUtils.equals(getPortfolioId(), other.getPortfolioId())
       && ObjectUtils.equals(getResultModelDefinition(), other.getResultModelDefinition())
       && ObjectUtils.equals(getLiveDataUser(), other.getLiveDataUser())
-      && ObjectUtils.equals(_deltaRecalculationPeriod, other._deltaRecalculationPeriod)
-      && ObjectUtils.equals(_fullRecalculationPeriod, other._fullRecalculationPeriod)
+      && ObjectUtils.equals(_minDeltaCalculationPeriod, other._minDeltaCalculationPeriod)
+      && ObjectUtils.equals(_maxDeltaCalculationPeriod, other._maxDeltaCalculationPeriod)
+      && ObjectUtils.equals(_minFullCalculationPeriod, other._minFullCalculationPeriod)
+      && ObjectUtils.equals(_maxFullCalculationPeriod, other._maxFullCalculationPeriod)
       && ObjectUtils.equals(_dumpComputationCacheToDisk, other._dumpComputationCacheToDisk)
       && ObjectUtils.equals(getAllCalculationConfigurationNames(), other.getAllCalculationConfigurationNames());
     if (!basicPropertiesEqual) {
