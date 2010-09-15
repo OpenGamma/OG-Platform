@@ -72,7 +72,7 @@ public class BloombergFutureCurveInstrumentProvider implements CurveInstrumentPr
     futureCode.append(prefix);
     futureCode.append(s_monthCode.get(futureExpiryDate.getMonthOfYear()));
     LocalDate today = LocalDate.nowSystemClock();
-    if (curveDate.isBefore(today)) {
+    if (futureExpiryDate.isBefore(today)) {
       futureCode.append(Integer.toString(futureExpiryDate.getYear() % 100));
     } else {
       futureCode.append(Integer.toString(futureExpiryDate.getYear() % 10));
