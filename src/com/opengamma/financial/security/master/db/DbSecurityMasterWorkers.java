@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.security.master.db;
 
+import com.opengamma.financial.security.master.db.hibernate.HibernateSecurityMasterDetailProvider;
+
 /**
  * Configuration object defining the workers in use for {@code DbSecurityMaster}.
  * <p>
@@ -26,6 +28,8 @@ public class DbSecurityMasterWorkers {
   private DbSecurityMasterWorker _searchHistoricWorker = new QuerySecurityDbSecurityMasterWorker();
   /** Worker. */
   private DbSecurityMasterWorker _correctWorker = new ModifySecurityDbSecurityMasterWorker();
+  /** The detail provider worker. */
+  private SecurityMasterDetailProvider _detailProvider = new HibernateSecurityMasterDetailProvider();
 
   /**
    * Creates an instance.
@@ -45,6 +49,7 @@ public class DbSecurityMasterWorkers {
     _removeWorker.init(master);
     _searchHistoricWorker.init(master);
     _correctWorker.init(master);
+    _detailProvider.init(master);
   }
 
   //-------------------------------------------------------------------------
@@ -164,6 +169,23 @@ public class DbSecurityMasterWorkers {
    */
   public void setCorrectWorker(DbSecurityMasterWorker correctWorker) {
     _correctWorker = correctWorker;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the detailProvider field.
+   * @return the detailProvider
+   */
+  public SecurityMasterDetailProvider getDetailProvider() {
+    return _detailProvider;
+  }
+
+  /**
+   * Sets the detailProvider field.
+   * @param detailProvider  the detailProvider
+   */
+  public void setDetailProvider(SecurityMasterDetailProvider detailProvider) {
+    _detailProvider = detailProvider;
   }
 
   //-------------------------------------------------------------------------

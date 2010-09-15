@@ -59,13 +59,9 @@
     <property name="dialect" value="${opengamma.financial.db.dbhelper}"/>
   </bean>
 
-  <bean id="finDbSecurityMasterDetail" class="com.opengamma.financial.security.master.db.hibernate.HibernateSecurityMasterDetailProvider">
-  </bean>
-
   <!-- SecurityMaster -->
   <bean id="dbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
     <constructor-arg ref="finDbSource" />
-    <constructor-arg ref="finDbSecurityMasterDetail" />
     <property name="identifierScheme" value="${opengamma.financial.db.securitymaster.scheme}" />
   </bean>
 
