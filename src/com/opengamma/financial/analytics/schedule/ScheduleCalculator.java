@@ -80,7 +80,9 @@ public class ScheduleCalculator {
     return result;
   }
   
-  public static ZonedDateTime[] getAdjustedResetDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime[] dates, final BusinessDayConvention convention, final Calendar calendar) {
+  public static ZonedDateTime[] getAdjustedResetDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime[] dates, 
+                                                             final BusinessDayConvention convention, final Calendar calendar, 
+                                                             final int settlementDays) {
     Validate.notNull(effectiveDate);
     Validate.notNull(dates);
     Validate.notEmpty(dates);
@@ -90,7 +92,7 @@ public class ScheduleCalculator {
     final ZonedDateTime[] result = new ZonedDateTime[n];
     result[0] = effectiveDate;
     for (int i = 1; i < n; i++) {
-      result[i] = dates[i - 1]; //TODO need to shift the dates by an actual convention
+      result[i] = dates[i - 1].plusDays(settlementDays); 
     }
     return result;
   }
