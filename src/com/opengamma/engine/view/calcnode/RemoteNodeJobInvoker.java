@@ -6,8 +6,6 @@
 package com.opengamma.engine.view.calcnode;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
@@ -16,21 +14,28 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.cache.IdentifierMap;
-import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeJobMessage;
+import com.opengamma.engine.view.calcnode.msg.Busy;
+import com.opengamma.engine.view.calcnode.msg.Execute;
+import com.opengamma.engine.view.calcnode.msg.Failure;
+import com.opengamma.engine.view.calcnode.msg.Invocations;
+import com.opengamma.engine.view.calcnode.msg.Ready;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
-import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeReadyMessage;
-import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeResultMessage;
+import com.opengamma.engine.view.calcnode.msg.Result;
+import com.opengamma.engine.view.calcnode.msg.Scaling;
+import com.opengamma.engine.view.calcnode.stats.FunctionCost;
+import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsReceiver;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionStateListener;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageSender;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
@@ -43,46 +48,38 @@ import com.opengamma.util.monitor.OperationTimer;
   private final ConcurrentMap<CalculationJobSpecification, JobInvocationReceiver> _jobCompletionCallbacks = new ConcurrentHashMap<CalculationJobSpecification, JobInvocationReceiver>();
   private final ExecutorService _executorService;
   private final FudgeMessageSender _fudgeMessageSender;
-  private final Set<Capability> _capabilities = new HashSet<Capability>();
+  private final CapabilitySet _capabilitySet = new CapabilitySet();
   private volatile int _capacity;
   private final AtomicInteger _launched = new AtomicInteger();
   private final AtomicReference<JobInvokerRegister> _dispatchCallback = new AtomicReference<JobInvokerRegister>();
   private final IdentifierMap _identifierMap;
+  private final FunctionCost _functionCost;
+  private volatile String _invokerId;
 
-  public RemoteNodeJobInvoker(final ExecutorService executorService, final RemoteCalcNodeReadyMessage initialMessage, final FudgeConnection fudgeConnection, final IdentifierMap identifierMap) {
+  public RemoteNodeJobInvoker(final ExecutorService executorService, final Ready initialMessage, final FudgeConnection fudgeConnection, final IdentifierMap identifierMap,
+      final FunctionCost functionCost) {
     _executorService = executorService;
     _fudgeMessageSender = fudgeConnection.getFudgeMessageSender();
     _identifierMap = identifierMap;
+    _invokerId = fudgeConnection.toString();
+    _functionCost = functionCost;
     fudgeConnection.setFudgeMessageReceiver(this);
     fudgeConnection.setConnectionStateListener(this);
     handleReadyMessage(initialMessage);
     s_logger.info("Remote node invoker created with capacity {}", _capacity);
   }
 
-  public void addCapability(final Capability capability) {
-    ArgumentChecker.notNull(capability, "capability");
-    getCapabilities().add(capability);
+  private CapabilitySet getCapabilitySet() {
+    return _capabilitySet;
   }
 
-  public void addCapabilities(final Collection<Capability> capabilities) {
-    ArgumentChecker.notNull(capabilities, "capabilities");
-    getCapabilities().addAll(capabilities);
-  }
-
-  public void removeCapabilities(final Collection<Capability> capabilities) {
-    ArgumentChecker.notNull(capabilities, "capabilities");
-    getCapabilities().removeAll(capabilities);
-  }
-
-  public void setCapabilities(final Collection<Capability> capabilities) {
-    ArgumentChecker.notNull(capabilities, "capabilities");
-    getCapabilities().clear();
-    getCapabilities().addAll(capabilities);
+  protected void addCapabilities(final Collection<Capability> capabilities) {
+    getCapabilitySet().addCapabilities(capabilities);
   }
 
   @Override
   public Collection<Capability> getCapabilities() {
-    return _capabilities;
+    return getCapabilitySet().getCapabilities();
   }
 
   private ConcurrentMap<CalculationJobSpecification, JobInvocationReceiver> getJobCompletionCallbacks() {
@@ -101,44 +98,84 @@ import com.opengamma.util.monitor.OperationTimer;
     return _identifierMap;
   }
 
+  private FunctionCost getFunctionCost() {
+    return _functionCost;
+  }
+
   @Override
-  public boolean invoke(final CalculationJob job, final JobInvocationReceiver receiver) {
+  public boolean invoke(final CalculationJob rootJob, final JobInvocationReceiver receiver) {
     if (_launched.incrementAndGet() > _capacity) {
       _launched.decrementAndGet();
       s_logger.debug("Capacity reached");
       return false;
     }
-    s_logger.info("Dispatching job {}", job.getSpecification());
-    // Don't block the dispatcher with outgoing serialisation and I/O
+    s_logger.info("Dispatching job {}", rootJob.getSpecification());
+    // Don't block the dispatcher with outgoing serialization and I/O
     getExecutorService().execute(new Runnable() {
+
+      private void sendJob(final CalculationJob job) {
+        try {
+          getJobCompletionCallbacks().put(job.getSpecification(), receiver);
+          final OperationTimer timer = new OperationTimer(s_logger, "Invocation serialisation and send of job {}", job.getSpecification().getJobId());
+          job.convertInputs(getIdentifierMap());
+          final Execute message = new Execute(job);
+          final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeMessageSender().getFudgeContext());
+          getFudgeMessageSender().send(FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(message), message.getClass(), RemoteCalcNodeMessage.class));
+          timer.finished();
+        } catch (Exception e) {
+          s_logger.warn("Error sending job {}", job.getSpecification().getJobId());
+          _launched.decrementAndGet();
+          receiver.jobFailed(RemoteNodeJobInvoker.this, "node on " + getInvokerId(), new OpenGammaRuntimeException("Error sending job", e));
+        }
+      }
+
+      private void sendJobTail(final CalculationJob job) {
+        if (job.getTail() != null) {
+          for (CalculationJob tail : job.getTail()) {
+            sendJob(tail);
+          }
+          for (CalculationJob tail : job.getTail()) {
+            sendJobTail(tail);
+          }
+        }
+      }
+
       @Override
       public void run() {
-        getJobCompletionCallbacks().put(job.getSpecification(), receiver);
-        final OperationTimer timer = new OperationTimer(s_logger, "Invocation serialisation and send of job {}", job.getSpecification().getJobId());
-        job.convertInputs(getIdentifierMap());
-        final RemoteCalcNodeJobMessage message = new RemoteCalcNodeJobMessage(job);
-        final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeMessageSender().getFudgeContext());
-        getFudgeMessageSender().send(FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(message), message.getClass(), RemoteCalcNodeMessage.class));
-        timer.finished();
+        // Breadth first sending of jobs, just in case some can start before we've sent everything
+        sendJob(rootJob);
+        sendJobTail(rootJob);
       }
     });
     return true;
   }
 
   @Override
-  public void notifyWhenAvailable(final JobInvokerRegister callback) {
-    _dispatchCallback.set(callback);
-    if (_launched.get() < _capacity) {
-      if (registerIfRequired()) {
-        s_logger.debug("Capacity available at notify");
-      }
+  public void cancel(final Collection<CalculationJobSpecification> jobs) {
+    for (CalculationJobSpecification job : jobs) {
+      s_logger.info("Cancelling job {}", job.getJobId());
+      // [ENG-231] Send the message to the client
     }
   }
 
-  private boolean registerIfRequired() {
+  @Override
+  public boolean notifyWhenAvailable(final JobInvokerRegister callback) {
+    _dispatchCallback.set(callback);
+    if (_launched.get() < _capacity) {
+      if (registerIfRequired(false)) {
+        s_logger.debug("Capacity available at notify");
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean registerIfRequired(final boolean invokeCallback) {
     final JobInvokerRegister callback = _dispatchCallback.getAndSet(null);
     if (callback != null) {
-      callback.registerJobInvoker(this);
+      if (invokeCallback) {
+        callback.registerJobInvoker(this);
+      }
       return true;
     } else {
       return false;
@@ -149,31 +186,34 @@ import com.opengamma.util.monitor.OperationTimer;
   public void messageReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope msgEnvelope) {
     final FudgeDeserializationContext context = new FudgeDeserializationContext(fudgeContext);
     final RemoteCalcNodeMessage message = context.fudgeMsgToObject(RemoteCalcNodeMessage.class, msgEnvelope.getMessage());
-    if (message instanceof RemoteCalcNodeResultMessage) {
-      handleResultMessage((RemoteCalcNodeResultMessage) message);
-    } else if (message instanceof RemoteCalcNodeReadyMessage) {
-      handleReadyMessage((RemoteCalcNodeReadyMessage) message);
+    if (message instanceof Result) {
+      handleResultMessage((Result) message);
+    } else if (message instanceof Busy) {
+      handleBusyMessage((Busy) message);
+    } else if (message instanceof Ready) {
+      handleReadyMessage((Ready) message);
+    } else if (message instanceof Failure) {
+      handleFailureMessage((Failure) message);
+    } else if (message instanceof Invocations) {
+      handleInvocationsMessage((Invocations) message);
     } else {
       s_logger.warn("Unexpected message - {}", message);
     }
   }
 
-  private void handleResultMessage(final RemoteCalcNodeResultMessage message) {
+  private void handleResultMessage(final Result message) {
     s_logger.info("Received result for job {}", message.getResult().getSpecification());
-    // We check for below capacity. We can get "equal" here, but that means there is an invoke taking place which will be dealt with
-    // by the notifyWhenAvailable that gets called to reschedule the invoker
     if (message.getReady() != null) {
       handleReadyMessage(message.getReady());
     }
+    // We check for below capacity. We can get "equal" here, but that means there is an invoke taking place which will be dealt with
+    // by the notifyWhenAvailable that gets called to reschedule the invoker
     if (_launched.decrementAndGet() < _capacity) {
-      if (registerIfRequired()) {
+      if (registerIfRequired(true)) {
         s_logger.debug("Notified dispatcher of capacity available");
       }
     }
-    // We decrement the count (and re-register) first as the remote node is already available if it's sent us its data. Note that
-    // we could split the messages and re-register before the node starts sending data so it's next job can be overlaid (assumes
-    // duplex network).
-
+    // We decrement the count (and re-register) before processing the data as the remote node is already available if it's sent us its data.
     final JobInvocationReceiver receiver = getJobCompletionCallbacks().remove(message.getResult().getSpecification());
     if (receiver != null) {
       final CalculationJobResult result = message.getResult();
@@ -184,13 +224,19 @@ import com.opengamma.util.monitor.OperationTimer;
     }
   }
 
-  private void handleReadyMessage(final RemoteCalcNodeReadyMessage message) {
+  private void handleBusyMessage(final Busy message) {
+    s_logger.debug("Remote calc node on {} started a tail job", this);
+    _launched.incrementAndGet();
+  }
+
+  private void handleReadyMessage(final Ready message) {
     s_logger.debug("Remote invoker ready message - {}", message);
-    // [ENG-42] this is where we'd detect capability changes
+    getCapabilitySet().setParameterCapability(PlatformCapabilities.NODE_COUNT, message.getCapacity());
+    // [ENG-42] this is where we'd detect any other capability changes
     _capacity = message.getCapacity();
     final int launched = _launched.get();
     if (launched < _capacity) {
-      if (registerIfRequired()) {
+      if (registerIfRequired(true)) {
         s_logger.info("Remote invoker ready for use by dispatcher, capacity {}", message.getCapacity());
       }
     } else {
@@ -198,16 +244,51 @@ import com.opengamma.util.monitor.OperationTimer;
     }
   }
 
+  private void handleFailureMessage(final Failure message) {
+    s_logger.info("Received failure for job {}", message.getJob());
+    if (message.getReady() != null) {
+      handleReadyMessage(message.getReady());
+    }
+    // We check for below capacity. We can get "equal" here, but that means there is an invoke taking place which will be dealt with
+    // by the notifyWhenAvailable that gets called to reschedule the invoker
+    if (_launched.decrementAndGet() < _capacity) {
+      if (registerIfRequired(true)) {
+        s_logger.debug("Notified dispatcher of capacity available");
+      }
+    }
+    // We decrement the count (and re-register) before processing the data as the remote node is already available if it's sent us its data.
+    final JobInvocationReceiver receiver = getJobCompletionCallbacks().remove(message.getJob());
+    if (receiver != null) {
+      s_logger.debug("Failed job on {} with message {}", message.getComputeNodeId(), message.getErrorMessage());
+      receiver.jobFailed(this, message.getComputeNodeId(), new OpenGammaRuntimeException(message.getErrorMessage()));
+    } else {
+      s_logger.warn("Duplicate or failure for cancelled callback {} received", message.getJob());
+    }
+  }
+
+  private void handleInvocationsMessage(final Invocations message) {
+    s_logger.info("Received invocation statistics");
+    final Scaling scaling = FunctionInvocationStatisticsReceiver.messageReceived(getFunctionCost(), message);
+    if (scaling != null) {
+      s_logger.debug("Sending scaling message ", scaling);
+      final MutableFudgeFieldContainer scalingMessage = getFudgeMessageSender().getFudgeContext().newMessage();
+      FudgeSerializationContext.addClassHeader(scalingMessage, scaling.getClass(), RemoteCalcNodeMessage.class);
+      scaling.toFudgeMsg(getFudgeMessageSender().getFudgeContext(), scalingMessage);
+      getFudgeMessageSender().send(scalingMessage);
+    }
+  }
+
   @Override
   public void connectionFailed(final FudgeConnection connection, final Exception cause) {
     s_logger.warn("Client connection {} dropped", connection, cause);
     _launched.addAndGet(_capacity);
+    _invokerId = null;
     for (CalculationJobSpecification jobSpec : getJobCompletionCallbacks().keySet()) {
       final JobInvocationReceiver callback = getJobCompletionCallbacks().remove(jobSpec);
       // There could still be late messages arriving from a buffer even though the connection has now failed
       if (callback != null) {
         s_logger.debug("Cancelling pending operation {}", jobSpec);
-        callback.jobFailed(this, "node on " + toString(), cause);
+        callback.jobFailed(this, "node on " + getInvokerId(), cause);
       }
     }
   }
@@ -221,6 +302,11 @@ import com.opengamma.util.monitor.OperationTimer;
   @Override
   public String toString() {
     return _fudgeMessageSender.toString();
+  }
+
+  @Override
+  public String getInvokerId() {
+    return _invokerId;
   }
 
 }

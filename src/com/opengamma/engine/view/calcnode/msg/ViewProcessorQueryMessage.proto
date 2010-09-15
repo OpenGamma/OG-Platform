@@ -4,21 +4,12 @@
  * Please see distribution for license.
  */
  
-namespace com.opengamma.engine.view.calcnode {
+namespace com.opengamma.engine.view.calcnode.msg {
 
-  extern message CalculationJobSpecification;
-
-  namespace msg {
-
-    message ViewProcessorQueryMessage {
-    
-      CalculationJobSpecification jobSpec;
-      
-      binding Java {
-        methods "toString";
-      }
-    }
+  message ViewProcessorQueryMessage {
+  
+    required long correlationId;
     
   }
-
+    
 }

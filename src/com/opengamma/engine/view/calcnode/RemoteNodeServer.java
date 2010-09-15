@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,12 +19,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.view.cache.IdentifierMap;
-import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeInitMessage;
+import com.opengamma.engine.view.calcnode.msg.Init;
+import com.opengamma.engine.view.calcnode.msg.Ready;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
-import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeReadyMessage;
+import com.opengamma.engine.view.calcnode.stats.FunctionCost;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionReceiver;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * Server end to RemoteNodeClient to receive requests from remote calculation nodes and marshal
@@ -37,80 +37,27 @@ public class RemoteNodeServer implements FudgeConnectionReceiver {
   private final JobInvokerRegister _jobInvokerRegister;
   private final IdentifierMap _identifierMap;
   private final ExecutorService _executorService = Executors.newCachedThreadPool();
-  private final Set<Capability> _capabilitiesToAdd = new HashSet<Capability>();
-  private final Set<Capability> _capabilitiesToRemove = new HashSet<Capability>();
-  private Set<Capability> _capabilitiesOverride;
+  private final FunctionCost _functionCost;
+  private Set<Capability> _capabilitiesToAdd;
 
-  public RemoteNodeServer(final JobInvokerRegister jobInvokerRegister, final IdentifierMap identifierMap) {
+  public RemoteNodeServer(final JobInvokerRegister jobInvokerRegister, final IdentifierMap identifierMap, final FunctionCost functionCost) {
     _jobInvokerRegister = jobInvokerRegister;
     _identifierMap = identifierMap;
+    _functionCost = functionCost;
   }
 
   /**
-   * Specify a capability to always add to those the remote node declares.
+   * Specify capabilities to add to those explicitly declared by the remote nodes. If the nodes declare these
+   * in the initial connection they will be overridden. After the initial connection any changes the node
+   * sends will take effect again.
    * 
-   * @param capability the capability to add, not {@code null}
+   * @param parameters Capabilities to add
    */
-  public void addCapability(final Capability capability) {
-    ArgumentChecker.notNull(capability, "capability");
-    if (_capabilitiesOverride != null) {
-      throw new IllegalStateException("Capability override already set");
+  public void setCapabilitiesToAdd(final Map<String, Double> parameters) {
+    _capabilitiesToAdd = new HashSet<Capability>();
+    for (Map.Entry<String, Double> parameter : parameters.entrySet()) {
+      _capabilitiesToAdd.add(Capability.parameterInstanceOf(parameter.getKey(), parameter.getValue()));
     }
-    _capabilitiesToAdd.add(capability);
-    _capabilitiesToRemove.remove(capability);
-  }
-
-  /**
-   * Specify a capability to remove from the remote node declaration if present.
-   * 
-   * @param capability the capability to remove, not {@code null}
-   */
-  public void removeCapability(final Capability capability) {
-    ArgumentChecker.notNull(capability, "capability");
-    if (_capabilitiesOverride != null) {
-      throw new IllegalStateException("Capability override already set");
-    }
-    _capabilitiesToAdd.remove(capability);
-    _capabilitiesToRemove.add(capability);
-  }
-
-  /**
-   * Specify capabilities to always add to those the remote node declares.
-   * 
-   * @param capabilities the capabilities to add, not {@code null}
-   */
-  public void addCapabilities(final Collection<Capability> capabilities) {
-    ArgumentChecker.notNull(capabilities, "capabilities");
-    if (_capabilitiesOverride != null) {
-      throw new IllegalStateException("Capability override already set");
-    }
-    _capabilitiesToAdd.addAll(capabilities);
-    _capabilitiesToRemove.removeAll(capabilities);
-  }
-
-  /**
-   * Specify capabilities to always remove from those the remote node declares.
-   * 
-   * @param capabilities the capabilities to remove, not {@code null}
-   */
-  public void removeCapabilities(final Collection<Capability> capabilities) {
-    ArgumentChecker.notNull(capabilities, "capabilities");
-    if (_capabilitiesOverride != null) {
-      throw new IllegalStateException("Capability override already set");
-    }
-    _capabilitiesToAdd.removeAll(capabilities);
-    _capabilitiesToRemove.addAll(capabilities);
-  }
-
-  /**
-   * Specify capabilities to override those the remote node declares.
-   * 
-   * @param capabilities the capabilities to use, or {@code null} to cancel the override.
-   */
-  public void setCapabilities(final Collection<Capability> capabilities) {
-    _capabilitiesToAdd.clear();
-    _capabilitiesToRemove.clear();
-    _capabilitiesOverride = new HashSet<Capability>(capabilities);
   }
 
   protected JobInvokerRegister getJobInvokerRegister() {
@@ -125,25 +72,27 @@ public class RemoteNodeServer implements FudgeConnectionReceiver {
     return _identifierMap;
   }
 
+  protected FunctionCost getFunctionCost() {
+    return _functionCost;
+  }
+
   @Override
   public void connectionReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope message, final FudgeConnection connection) {
     final FudgeDeserializationContext context = new FudgeDeserializationContext(fudgeContext);
     final RemoteCalcNodeMessage remoteCalcNodeMessage = context.fudgeMsgToObject(RemoteCalcNodeMessage.class, message.getMessage());
-    if (remoteCalcNodeMessage instanceof RemoteCalcNodeReadyMessage) {
+    if (remoteCalcNodeMessage instanceof Ready) {
       s_logger.info("Remote node connected - {}", connection);
       final FudgeSerializationContext scontext = new FudgeSerializationContext(fudgeContext);
-      final RemoteCalcNodeInitMessage response = new RemoteCalcNodeInitMessage();
-      connection.getFudgeMessageSender().send(FudgeSerializationContext.addClassHeader(scontext.objectToFudgeMsg(response), RemoteCalcNodeInitMessage.class, RemoteCalcNodeMessage.class));
-      final RemoteNodeJobInvoker invoker = new RemoteNodeJobInvoker(getExecutorService(), (RemoteCalcNodeReadyMessage) remoteCalcNodeMessage, connection, getIdentifierMap());
-      if (_capabilitiesOverride != null) {
-        invoker.setCapabilities(_capabilitiesOverride);
-      } else {
+      final Init response = new Init();
+      connection.getFudgeMessageSender().send(FudgeSerializationContext.addClassHeader(scontext.objectToFudgeMsg(response), Init.class, RemoteCalcNodeMessage.class));
+      final RemoteNodeJobInvoker invoker = new RemoteNodeJobInvoker(getExecutorService(), (Ready) remoteCalcNodeMessage, connection, getIdentifierMap(), getFunctionCost());
+      if (_capabilitiesToAdd != null) {
         invoker.addCapabilities(_capabilitiesToAdd);
-        invoker.removeCapabilities(_capabilitiesToRemove);
       }
       getJobInvokerRegister().registerJobInvoker(invoker);
     } else {
       s_logger.warn("Unexpected message {}", remoteCalcNodeMessage);
     }
   }
+
 }

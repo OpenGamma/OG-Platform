@@ -10,7 +10,7 @@ import java.util.Set;
 import com.opengamma.livedata.msg.UserPrincipal;
 
 /**
- * A view processor manages the computation of views, and is responsible for initialising the computation context of
+ * A view processor manages the computation of views, and is responsible for initializing the computation context of
  * these views. A view processor can manage only one instance of any view, but potentially there can be many view
  * processors responsible for possibly-overlapping sets of views.
  * <p>

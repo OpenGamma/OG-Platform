@@ -23,6 +23,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
+import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -63,7 +64,7 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
   }
   
   @Override
-  public Future<Object> execute(DependencyGraph graph) {
+  public Future<Object> execute(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
     // Partition graph into primitives, securities, positions, portfolios
     final Collection<DependencyNode> primitiveNodes = new HashSet<DependencyNode>();
     final List<Map<UniqueIdentifier, Collection<DependencyNode>>> passNumber2Target2SecurityAndPositionNodes = 
@@ -122,7 +123,7 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
     
     DependencyGraph primitiveGraph = graph.subGraph(primitiveNodes);
     try {
-      Future<?> future = _delegate.execute(primitiveGraph);
+      Future<?> future = _delegate.execute(primitiveGraph, statistics);
       future.get();
     } catch (InterruptedException e) {
       Thread.interrupted();
@@ -145,7 +146,7 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
       for (Collection<DependencyNode> nodesRelatedToSingleTarget : target2SecurityAndPositionNodes.values()) {
         DependencyGraph secAndPositionGraph = graph.subGraph(nodesRelatedToSingleTarget);
         nodeCount += nodesRelatedToSingleTarget.size();
-        Future<?> future = _delegate.execute(secAndPositionGraph);
+        Future<?> future = _delegate.execute(secAndPositionGraph, statistics);
         secAndPositionFutures.add(future);
       }
       
@@ -171,7 +172,7 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
     
     DependencyGraph portfolioGraph = graph.subGraph(portfolioNodes);
     try {
-      Future<?> future = _delegate.execute(portfolioGraph);
+      Future<?> future = _delegate.execute(portfolioGraph, statistics);
       future.get();
     } catch (InterruptedException e) {
       Thread.interrupted();

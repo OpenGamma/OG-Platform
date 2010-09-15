@@ -8,6 +8,7 @@ package com.opengamma.engine.view.calcnode;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.view.cache.CacheSelectHint;
+import com.opengamma.util.Cancellable;
 
 /**
  * 
@@ -46,7 +48,7 @@ public class JobDispatcherTest {
   }
 
   protected static CalculationJob createTestJob() {
-    return new CalculationJob(createTestJobSpec(), createTestJobItems(), CacheSelectHint.allPrivate());
+    return new CalculationJob(createTestJobSpec(), null, createTestJobItems(), CacheSelectHint.allPrivate());
   }
 
   protected static CalculationJobResult createTestJobResult(final CalculationJobSpecification jobSpec, final long time, final String nodeId) {
@@ -78,13 +80,25 @@ public class JobDispatcherTest {
     }
 
     @Override
-    public void notifyWhenAvailable(JobInvokerRegister callback) {
+    public void cancel(final Collection<CalculationJobSpecification> jobs) {
+      // Shouldn't get called
+      fail();
+    }
+
+    @Override
+    public boolean notifyWhenAvailable(JobInvokerRegister callback) {
       _callback = callback;
+      return false;
     }
 
     @Override
     public Collection<Capability> getCapabilities() {
       return Collections.emptySet();
+    }
+
+    @Override
+    public String getInvokerId() {
+      return "test";
     }
 
   }
@@ -201,22 +215,34 @@ public class JobDispatcherTest {
         }
 
         @Override
-        public void notifyWhenAvailable(final JobInvokerRegister callback) {
+        public void cancel(final Collection<CalculationJobSpecification> jobs) {
+          // Shouldn't get called
+          fail();
+        }
+
+        @Override
+        public boolean notifyWhenAvailable(final JobInvokerRegister callback) {
           synchronized (this) {
             if (_busy) {
               assertNull(_callback);
               s_logger.debug("invoker {} busy - storing callback", iid);
               _callback = callback;
+              return false;
             } else {
               s_logger.debug("invoker {} ready - immediate callback", iid);
-              callback.registerJobInvoker(this);
+              return true;
             }
           }
         }
 
         @Override
-        public String toString() {
+        public String getInvokerId() {
           return "invoker " + iid;
+        }
+
+        @Override
+        public String toString() {
+          return getInvokerId();
         }
 
         @Override
@@ -260,14 +286,26 @@ public class JobDispatcherTest {
     }
 
     @Override
-    public void notifyWhenAvailable(final JobInvokerRegister callback) {
+    public void cancel(final Collection<CalculationJobSpecification> jobs) {
+      // Shouldn't get called
+      fail();
+    }
+
+    @Override
+    public boolean notifyWhenAvailable(final JobInvokerRegister callback) {
       // shouldn't get called
       fail();
+      return true;
     }
 
     @Override
     public Collection<Capability> getCapabilities() {
       return Collections.emptySet();
+    }
+
+    @Override
+    public String getInvokerId() {
+      return "failing";
     }
 
   }
@@ -277,7 +315,7 @@ public class JobDispatcherTest {
     s_logger.info("testJobRetry");
     final JobDispatcher jobDispatcher = new JobDispatcher();
     final TestJobResultReceiver result = new TestJobResultReceiver();
-    final CalculationJob job = createTestJob ();
+    final CalculationJob job = createTestJob();
     jobDispatcher.dispatchJob(job, result);
     assertNull(result.getResult());
     final FailingJobInvoker failingInvoker = new FailingJobInvoker();
@@ -297,6 +335,7 @@ public class JobDispatcherTest {
   private class BlockingJobInvoker implements JobInvoker {
 
     private final long _waitFor;
+    private boolean _cancelled;
 
     private BlockingJobInvoker(final long waitFor) {
       _waitFor = waitFor;
@@ -323,7 +362,24 @@ public class JobDispatcherTest {
     }
 
     @Override
-    public void notifyWhenAvailable(JobInvokerRegister callback) {
+    public void cancel(final Collection<CalculationJobSpecification> jobs) {
+      _cancelled = true;
+    }
+
+    public boolean isCancelled() {
+      return _cancelled;
+    }
+
+    @Override
+    public boolean notifyWhenAvailable(JobInvokerRegister callback) {
+      // Shouldn't get called
+      fail();
+      return true;
+    }
+
+    @Override
+    public String getInvokerId() {
+      return "blocking";
     }
 
   }
@@ -335,7 +391,7 @@ public class JobDispatcherTest {
     jobDispatcher.setMaxJobExecutionTime(TIMEOUT);
     jobDispatcher.setMaxJobAttempts(1);
     final TestJobResultReceiver result = new TestJobResultReceiver();
-    jobDispatcher.dispatchJob(createTestJob (), result);
+    jobDispatcher.dispatchJob(createTestJob(), result);
     assertNull(result.getResult());
     final BlockingJobInvoker blockingInvoker = new BlockingJobInvoker(2 * TIMEOUT);
     jobDispatcher.registerJobInvoker(blockingInvoker);
@@ -351,13 +407,29 @@ public class JobDispatcherTest {
     jobDispatcher.setMaxJobExecutionTime(2 * TIMEOUT);
     jobDispatcher.setMaxJobAttempts(1);
     final TestJobResultReceiver result = new TestJobResultReceiver();
-    jobDispatcher.dispatchJob(createTestJob (), result);
+    jobDispatcher.dispatchJob(createTestJob(), result);
     assertNull(result.getResult());
     final BlockingJobInvoker blockingInvoker = new BlockingJobInvoker(TIMEOUT);
     jobDispatcher.registerJobInvoker(blockingInvoker);
     CalculationJobResult jobResult = result.waitForResult(2 * TIMEOUT);
     assertNotNull(jobResult);
     assertEquals("BlockingNode", jobResult.getComputeNodeId());
+  }
+
+  @Test
+  public void testJobCancel() {
+    s_logger.info("testJobCancel");
+    final JobDispatcher jobDispatcher = new JobDispatcher();
+    jobDispatcher.setMaxJobExecutionTime(2 * TIMEOUT);
+    jobDispatcher.setMaxJobAttempts(1);
+    final TestJobResultReceiver result = new TestJobResultReceiver();
+    Cancellable job = jobDispatcher.dispatchJob(createTestJob(), result);
+    assertNotNull(job);
+    assertNull(result.getResult());
+    final BlockingJobInvoker blockingInvoker = new BlockingJobInvoker(TIMEOUT);
+    jobDispatcher.registerJobInvoker(blockingInvoker);
+    assertTrue (job.cancel (false));
+    assertTrue (blockingInvoker.isCancelled ());
   }
 
 }

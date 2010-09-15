@@ -25,6 +25,7 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.CacheSelectHint;
+import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
@@ -32,6 +33,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.Cancellable;
 
 /**
  * This DependencyGraphExecutor executes the given dependency graph
@@ -55,7 +57,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
   }
 
   @Override
-  public Future<CalculationJobResult> execute(final DependencyGraph graph) {
+  public Future<CalculationJobResult> execute(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
     long jobId = JobIdSource.getId();
     CalculationJobSpecification jobSpec = new CalculationJobSpecification(_cycle.getViewName(), graph.getCalcConfName(), _cycle.getValuationTime().toEpochMillisLong(), jobId);
 
@@ -107,13 +109,15 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
     }
 
     s_logger.info("Enqueuing {} to invoke {} functions", new Object[] {jobSpec, items.size()});
+    statistics.graphProcessed(graph.getCalcConfName(), 1, items.size(), Double.NaN, Double.NaN);
 
     AtomicExecutorCallable runnable = new AtomicExecutorCallable();
-    AtomicExecutorFuture future = new AtomicExecutorFuture(runnable, graph, item2Node);
+    AtomicExecutorFuture future = new AtomicExecutorFuture(runnable, graph, item2Node, statistics);
     _executingSpecifications.put(jobSpec, future);
     _cycle.getProcessingContext().getViewProcessorQueryReceiver().addJob(jobSpec, graph);
-    _cycle.getProcessingContext().getComputationJobDispatcher().dispatchJob(new CalculationJob(jobSpec, items, cacheHint), this);
-
+    Cancellable cancel = _cycle.getProcessingContext().getComputationJobDispatcher().dispatchJob(new CalculationJob(jobSpec, null, items, cacheHint), this);
+    future.setCancel(cancel);
+    
     return future;
   }
 
@@ -153,24 +157,42 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
       future._callable._exception = e;
       future.run();
     }
+
+    future._statistics.graphExecuted(result.getSpecification().getCalcConfigName(), future._item2Node.size(), result.getDuration(), System.nanoTime() - future._startTime);
   }
 
   private class AtomicExecutorFuture extends FutureTask<CalculationJobResult> {
 
-    private AtomicExecutorCallable _callable;
-    private DependencyGraph _graph;
-    private Map<CalculationJobItem, DependencyNode> _item2Node;
+    private final AtomicExecutorCallable _callable;
+    private final DependencyGraph _graph;
+    private final Map<CalculationJobItem, DependencyNode> _item2Node;
+    private final GraphExecutorStatisticsGatherer _statistics;
+    private final long _startTime = System.nanoTime();
+    private Cancellable _cancel;
 
-    public AtomicExecutorFuture(AtomicExecutorCallable callable, DependencyGraph graph, Map<CalculationJobItem, DependencyNode> item2Node) {
+    public AtomicExecutorFuture(AtomicExecutorCallable callable, DependencyGraph graph, Map<CalculationJobItem, DependencyNode> item2Node, GraphExecutorStatisticsGatherer statistics) {
       super(callable);
       _callable = callable;
       _graph = graph;
       _item2Node = item2Node;
+      _statistics = statistics;
     }
 
     @Override
     public String toString() {
       return "AtomicExecutorFuture[graph=" + _graph + "]";
+    }
+
+    public void setCancel(final Cancellable cancel) {
+      _cancel = cancel;
+    }
+
+    @Override
+    public boolean cancel(boolean mayInterruptIfRunning) {
+      if (!_cancel.cancel(mayInterruptIfRunning)) {
+        return false;
+      }
+      return super.cancel(mayInterruptIfRunning);
     }
 
   }

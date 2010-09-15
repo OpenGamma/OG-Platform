@@ -28,7 +28,7 @@ public class LocalNodeJobInvokerTest implements JobInvokerRegister {
   public void addNodeWithCallbackPending() {
     final LocalNodeJobInvoker invoker = new LocalNodeJobInvoker();
     _invoker = null;
-    invoker.notifyWhenAvailable(this);
+    assertFalse (invoker.notifyWhenAvailable(this));
     assertNull(_invoker);
     invoker.addNode(new TestCalculationNode());
     assertEquals(invoker, _invoker);
@@ -39,8 +39,8 @@ public class LocalNodeJobInvokerTest implements JobInvokerRegister {
     final LocalNodeJobInvoker invoker = new LocalNodeJobInvoker();
     _invoker = null;
     invoker.addNode(new TestCalculationNode());
-    invoker.notifyWhenAvailable(this);
-    assertEquals(invoker, _invoker);
+    assertTrue (invoker.notifyWhenAvailable(this));
+    assertNull(_invoker);
   }
 
   @Override

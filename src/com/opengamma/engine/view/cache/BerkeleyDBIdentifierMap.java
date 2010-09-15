@@ -13,7 +13,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
@@ -216,8 +215,7 @@ public class BerkeleyDBIdentifierMap implements IdentifierMap, Lifecycle {
   }
 
   protected byte[] convertSpecificationToByteArray(ValueSpecification valueSpec) {
-    FudgeSerializationContext serContext = new FudgeSerializationContext(getFudgeContext());
-    FudgeFieldContainer msg = valueSpec.toFudgeMsg(serContext);
+    FudgeFieldContainer msg = getFudgeContext().toFudgeMsg(valueSpec).getMessage();
     byte[] specAsBytes = getFudgeContext().toByteArray(msg);
     return specAsBytes;
   }

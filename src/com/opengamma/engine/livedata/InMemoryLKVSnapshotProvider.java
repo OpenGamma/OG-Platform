@@ -61,9 +61,10 @@ public class InMemoryLKVSnapshotProvider extends AbstractLiveDataSnapshotProvide
    * 
    * @param snapshotTime the time of the snapshot
    */
-  public void snapshot(long snapshotTime) {
+  public long snapshot(long snapshotTime) {
     Map<ValueRequirement, Object> snapshotValues = new HashMap<ValueRequirement, Object>(_lastKnownValues);
     _snapshots.put(snapshotTime, snapshotValues);
+    return snapshotTime;
   }
 
   @Override

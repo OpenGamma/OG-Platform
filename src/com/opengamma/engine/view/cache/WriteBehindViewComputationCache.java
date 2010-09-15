@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.calcnode.DeferredInvocationStatistics;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -35,6 +36,7 @@ public class WriteBehindViewComputationCache extends FilteredViewComputationCach
   private final Map<ValueSpecification, Object> _pending = new ConcurrentHashMap<ValueSpecification, Object>();
 
   private final Queue<ComputedValue> _pendingValues = new ConcurrentLinkedQueue<ComputedValue>();
+  private final Queue<DeferredInvocationStatistics> _pendingStatistics = new ConcurrentLinkedQueue<DeferredInvocationStatistics>();
   private final AtomicReference<Runnable> _valueWriter = new AtomicReference<Runnable>();
   private final Runnable _valueWriterRunnable = new Runnable() {
 
@@ -54,6 +56,17 @@ public class WriteBehindViewComputationCache extends FilteredViewComputationCach
       return dest;
     }
 
+    private void valueWritten(final ComputedValue value) {
+      getPending().remove(value.getSpecification());
+      final DeferredInvocationStatistics statistics = _pendingStatistics.peek();
+      if (statistics != null) {
+        final Integer bytes = estimateValueSize(value);
+        if (statistics.addDataOutputBytes(bytes)) {
+          _pendingStatistics.poll();
+        }
+      }
+    }
+
     @Override
     public void run() {
       int count = 0;
@@ -64,14 +77,14 @@ public class WriteBehindViewComputationCache extends FilteredViewComputationCach
             final Collection<ComputedValue> values = drain(_pendingValues);
             WriteBehindViewComputationCache.super.putValues(values);
             for (ComputedValue value : values) {
-              getPending().remove(value.getSpecification());
+              valueWritten(value);
             }
             count += values.size();
           } else {
             ComputedValue value = _pendingValues.poll();
             while (value != null) {
               WriteBehindViewComputationCache.super.putValue(value);
-              getPending().remove(value.getSpecification());
+              valueWritten(value);
               value = _pendingValues.poll();
               count++;
             }
@@ -83,7 +96,7 @@ public class WriteBehindViewComputationCache extends FilteredViewComputationCach
       } while (!_pendingValues.isEmpty() && _valueWriter.compareAndSet(null, this));
       // Note that if there is a failure anywhere in here, the writer task will die and things will
       // accumulate on the list until synchronize is called at which point the exception gets
-      // propogated. Is this wasteful of compute cycles - should we fail the job sooner ?
+      // propagated. Is this wasteful of compute cycles - should we fail the job sooner ?
       s_logger.info("Write-behind thread terminated after {} operations", count);
     }
 
@@ -173,6 +186,11 @@ public class WriteBehindViewComputationCache extends FilteredViewComputationCach
     }
     _pendingValues.addAll(values);
     startWriterIfNotRunning();
+  }
+
+  public void putValues(final Collection<ComputedValue> values, final DeferredInvocationStatistics statistics) {
+    _pendingStatistics.add(statistics);
+    putValues(values);
   }
 
   /**

@@ -17,7 +17,9 @@ public interface JobInvoker {
 
   /**
    * Returns the exported capabilities of the node(s) this invoker is responsible for. These will
-   * be used to determine which jobs will get farmed to this invoker.
+   * be used to determine which jobs will get farmed to this invoker. It will not be modified by
+   * the job dispatcher. An iterator on the collection must return the capabilities in their natural
+   * order. It should have very efficient hashCode and equals operations.
    * 
    * @return the capabilities, not {@code null}
    */
@@ -40,8 +42,22 @@ public interface JobInvoker {
    * it becomes available again.
    * 
    * @param callback the object the invoker should register itself with when it is ready to
-   * receive {@link #invoke} calls again. 
+   * receive {@link #invoke} calls again. This must not be called inline from this method,
+   * if the invoker is ready it must return {@code true}.
+   * @return return {@code false} if the callback will be invoked in the future. If the
+   * invoker is ready now, {@code true}.  
    */
-  void notifyWhenAvailable(JobInvokerRegister callback);
+  boolean notifyWhenAvailable(JobInvokerRegister callback);
+
+  String getInvokerId();
+
+  /**
+   * Attempts to cancel the set of jobs previously started by a call to {@link invoke}. After
+   * cancellation the job should not generate a callback to the invocation receiver, but may
+   * do so if cancellation is not possible.
+   * 
+   * @param jobs jobs to cancel
+   */
+  void cancel(Collection<CalculationJobSpecification> jobs);
 
 }

@@ -9,13 +9,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
-import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,26 +25,36 @@ import com.opengamma.util.ArgumentChecker;
  * a Calculation Node.
  */
 public class CalculationJob implements Serializable {
-
-  private static final String ITEM_FIELD_NAME = "calculationJobItem";
-
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(CalculationJob.class);
 
   private final CalculationJobSpecification _specification;
+  private final Collection<Long> _required;
   private final List<CalculationJobItem> _jobItems;
 
   private final CacheSelectHint _cacheSelect;
 
+  /**
+   * The tail is a set of jobs that must execute at the same location. It is not however part of the job so is not
+   * serialized.
+   */
+  private Collection<CalculationJob> _tail;
+
+  /**
+   * The cancellation flag is used to abort a calculation mid-way if possible. It is not serialized.
+   */
+  private boolean _cancelled;
+
   public CalculationJob(String viewName, String calcConfigName, long iterationTimestamp, long jobId, List<CalculationJobItem> jobItems, final CacheSelectHint cacheSelect) {
-    this(new CalculationJobSpecification(viewName, calcConfigName, iterationTimestamp, jobId), jobItems, cacheSelect);
+    this(new CalculationJobSpecification(viewName, calcConfigName, iterationTimestamp, jobId), null, jobItems, cacheSelect);
   }
 
-  public CalculationJob(CalculationJobSpecification specification, List<CalculationJobItem> jobItems, final CacheSelectHint cacheSelect) {
+  public CalculationJob(CalculationJobSpecification specification, Collection<Long> requiredJobIds, List<CalculationJobItem> jobItems, final CacheSelectHint cacheSelect) {
     ArgumentChecker.notNull(specification, "specification");
     ArgumentChecker.notNull(jobItems, "jobItems");
     ArgumentChecker.notNull(cacheSelect, "cacheSelect");
     _specification = specification;
+    _required = (requiredJobIds != null) ? new ArrayList<Long>(requiredJobIds) : null;
     _jobItems = new ArrayList<CalculationJobItem>(jobItems);
     _cacheSelect = cacheSelect;
   }
@@ -60,12 +66,35 @@ public class CalculationJob implements Serializable {
     return _specification;
   }
 
+  public Collection<Long> getRequiredJobIds() {
+    return (_required != null) ? Collections.unmodifiableCollection(_required) : null;
+  }
+
   public CacheSelectHint getCacheSelectHint() {
     return _cacheSelect;
   }
 
   public List<CalculationJobItem> getJobItems() {
     return Collections.unmodifiableList(_jobItems);
+  }
+
+  public Collection<CalculationJob> getTail() {
+    return _tail;
+  }
+
+  public void addTail(final CalculationJob tail) {
+    if (_tail == null) {
+      _tail = new LinkedList<CalculationJob>();
+    }
+    _tail.add(tail);
+  }
+
+  public boolean isCancelled() {
+    return _cancelled;
+  }
+
+  public void cancel() {
+    _cancelled = true;
   }
 
   /**
@@ -97,25 +126,4 @@ public class CalculationJob implements Serializable {
     return "CalculationJob, spec = " + _specification.toString() + ", job item count = " + _jobItems.size();
   }
 
-  public FudgeFieldContainer toFudgeMsg(FudgeSerializationContext fudgeContext) {
-    MutableFudgeFieldContainer msg = fudgeContext.newMessage();
-    getSpecification().toFudgeMsg(msg);
-    for (CalculationJobItem item : getJobItems()) {
-      msg.add(ITEM_FIELD_NAME, item.toFudgeMsg(fudgeContext));
-    }
-    getCacheSelectHint().toFudgeMsg(msg);
-    return msg;
-  }
-
-  public static CalculationJob fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeFieldContainer msg) {
-    CalculationJobSpecification jobSpec = CalculationJobSpecification.fromFudgeMsg(msg);
-    final Collection<FudgeField> fields = msg.getAllByName(ITEM_FIELD_NAME);
-    final List<CalculationJobItem> jobItems = new ArrayList<CalculationJobItem>(fields.size());
-    for (FudgeField field : fields) {
-      CalculationJobItem jobItem = CalculationJobItem.fromFudgeMsg(fudgeContext, (FudgeFieldContainer) field.getValue());
-      jobItems.add(jobItem);
-    }
-    final CacheSelectHint cacheSelectFilter = CacheSelectHint.fromFudgeMsg(msg);
-    return new CalculationJob(jobSpec, jobItems, cacheSelectFilter);
-  }
 }

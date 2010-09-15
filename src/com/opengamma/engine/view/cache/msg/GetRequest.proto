@@ -8,6 +8,10 @@ namespace com.opengamma.engine.view.cache.msg {
 
   message GetRequest extends BinaryDataStoreRequest {
   
+    required string viewName;
+    required string calculationConfigurationName;
+    required long snapshotTimestamp;
+  
     required repeated long identifier;
   
   }

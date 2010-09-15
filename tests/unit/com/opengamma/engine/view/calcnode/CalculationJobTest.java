@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.junit.Test;
@@ -28,15 +29,16 @@ import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.cache.InMemoryIdentifierMap;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * 
  */
 public class CalculationJobTest {
+  private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
   @Test
   public void fudgeEncodingNoInputsOutputs() {
-    FudgeContext context = FudgeContext.GLOBAL_DEFAULT;
     IdentifierMap identifierMap = new InMemoryIdentifierMap();
     CalculationJobSpecification spec = new CalculationJobSpecification("view", "config", 1L, 1L);
     ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueIdentifier.of("Scheme", "Value"));
@@ -44,12 +46,15 @@ public class CalculationJobTest {
     List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Collections.<ValueSpecification> emptySet(), Collections
         .<ValueRequirement> emptySet()));
 
-    CalculationJob inputJob = new CalculationJob(spec, items, CacheSelectHint.allShared());
+    CalculationJob inputJob = new CalculationJob(spec, null, items, CacheSelectHint.allShared());
     inputJob.convertInputs(identifierMap);
 
-    FudgeFieldContainer msg = inputJob.toFudgeMsg(new FudgeSerializationContext(context));
-    msg = context.deserialize(context.toByteArray(msg)).getMessage();
-    CalculationJob outputJob = CalculationJob.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
+    FudgeSerializationContext serContext = new FudgeSerializationContext(s_fudgeContext);
+    MutableFudgeFieldContainer inputMsg = serContext.objectToFudgeMsg(inputJob);
+    
+    FudgeFieldContainer outputMsg = s_fudgeContext.deserialize(s_fudgeContext.toByteArray(inputMsg)).getMessage();
+    FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(s_fudgeContext);
+    CalculationJob outputJob = deserializationContext.fudgeMsgToObject(CalculationJob.class, outputMsg);
     assertNotNull(outputJob);
     outputJob.resolveInputs(identifierMap);
     assertEquals(inputJob.getSpecification(), outputJob.getSpecification());
@@ -67,7 +72,6 @@ public class CalculationJobTest {
 
   @Test
   public void fudgeEncodingOneInputOneOutput() {
-    FudgeContext context = FudgeContext.GLOBAL_DEFAULT;
     IdentifierMap identifierMap = new InMemoryIdentifierMap();
     CalculationJobSpecification spec = new CalculationJobSpecification("view", "config", 1L, 1L);
     ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueIdentifier.of("Scheme", "Value"));
@@ -77,12 +81,15 @@ public class CalculationJobTest {
 
     List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Sets.newHashSet(inputSpec), Sets.newHashSet(desiredValue)));
 
-    CalculationJob inputJob = new CalculationJob(spec, items, CacheSelectHint.allShared());
+    CalculationJob inputJob = new CalculationJob(spec, null, items, CacheSelectHint.allShared());
     inputJob.convertInputs(identifierMap);
 
-    FudgeFieldContainer msg = inputJob.toFudgeMsg(new FudgeSerializationContext(context));
-    msg = context.deserialize(context.toByteArray(msg)).getMessage();
-    CalculationJob outputJob = CalculationJob.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
+    FudgeSerializationContext serializationContext = new FudgeSerializationContext(s_fudgeContext);
+    MutableFudgeFieldContainer inputMsg = serializationContext.objectToFudgeMsg(inputJob);
+    FudgeFieldContainer outputMsg = s_fudgeContext.deserialize(s_fudgeContext.toByteArray(inputMsg)).getMessage();
+    FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(s_fudgeContext);
+    CalculationJob outputJob = deserializationContext.fudgeMsgToObject(CalculationJob.class, outputMsg);
+    
     assertNotNull(outputJob);
     outputJob.resolveInputs(identifierMap);
     assertEquals(inputJob.getSpecification(), outputJob.getSpecification());

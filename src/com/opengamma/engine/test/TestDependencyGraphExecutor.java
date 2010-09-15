@@ -10,6 +10,7 @@ import java.util.concurrent.FutureTask;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.view.calc.DependencyGraphExecutor;
+import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 
 /**
  * 
@@ -23,7 +24,7 @@ public class TestDependencyGraphExecutor<T> implements DependencyGraphExecutor<T
   }
   
   @Override
-  public Future<T> execute(DependencyGraph graph) {
+  public Future<T> execute(DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
     FutureTask<T> future = new FutureTask<T>(new Runnable() {
       @Override
       public void run() {

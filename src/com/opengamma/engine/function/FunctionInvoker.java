@@ -13,12 +13,24 @@ import com.opengamma.engine.value.ValueRequirement;
 
 
 /**
- * The interface through which an Analytic Function can actually be invoked.
- *
- * @author kirk
+ * The interface through which a Function will be invoked on a calculation node during
+ * view execution.
+ * This is separate from the metadata for the function (available through
+ * {@link FunctionDefinition} as it's entirely possible that certain functions may require
+ * native libraries that are not supported on every node.
  */
 public interface FunctionInvoker {
 
+  /**
+   * Execute on the specified target, producing the values desired.
+   * Exceptions thrown will result in a failure of this node.
+   * 
+   * @param executionContext The execution-time configuration for this invocation.
+   * @param inputs All required inputs pre-packaged for this function invocation.
+   * @param target The target on which calculation should be performed.
+   * @param desiredValues The only values that should be computed by this invocation.
+   * @return All values that were computed by this invocation.
+   */
   Set<ComputedValue> execute(
       FunctionExecutionContext executionContext,
       FunctionInputs inputs,

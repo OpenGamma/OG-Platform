@@ -44,13 +44,13 @@ public class ViewProcessorQueryReceiver implements FudgeRequestReceiver {
     Object message = context.fudgeMsgToObject(requestEnvelope.getMessage());
     if (message instanceof DependentValueSpecificationsRequest) {
       DependentValueSpecificationsRequest request = (DependentValueSpecificationsRequest) message;
-      DependencyGraph dependencyGraph = _jobToDepGraphMap.get(request.getJobSpec());
+      DependencyGraph dependencyGraph = _jobToDepGraphMap.get(request.getJob());
       Collection<ValueSpecification> valueSpecs = new HashSet<ValueSpecification>();
       for (DependencyNode root : dependencyGraph.getRootNodes()) {
         collectAllValueSpecifications(root, valueSpecs);
       }
       FudgeSerializationContext fudgeSerializationContext = new FudgeSerializationContext(context.getFudgeContext());
-      MutableFudgeFieldContainer msg = fudgeSerializationContext.objectToFudgeMsg(new DependentValueSpecificationsReply(request.getJobSpec(), valueSpecs));
+      MutableFudgeFieldContainer msg = fudgeSerializationContext.objectToFudgeMsg(new DependentValueSpecificationsReply(request.getCorrelationId(), valueSpecs));
       FudgeSerializationContext.addClassHeader(msg, DependentValueSpecificationsReply.class);
       return msg;
     } else {

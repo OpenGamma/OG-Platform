@@ -28,9 +28,10 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.transport.socket.ServerSocketFudgeRequestDispatcher;
-import com.opengamma.transport.socket.SocketFudgeRequestSender;
+import com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver;
+import com.opengamma.transport.socket.SocketFudgeConnection;
 import com.opengamma.util.ThreadUtil;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * A test of the remote View Computation Cache Source infrastucture operating
@@ -39,38 +40,39 @@ import com.opengamma.util.ThreadUtil;
  */
 public class ServerSocketRemoteViewComputationCacheTest {
   private static final Logger s_logger = LoggerFactory.getLogger(ServerSocketRemoteViewComputationCacheTest.class);
+  private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
   private static final int NUM_THREADS = 5;
   private static final int NUM_LOOKUPS = 1000;
   private ViewComputationCacheSource _cacheSource;
-  private ServerSocketFudgeRequestDispatcher _serverSocketDispatcher;
-  private SocketFudgeRequestSender _socketSender;
+  private ServerSocketFudgeConnectionReceiver _serverSocket;
+  private SocketFudgeConnection _socket;
   
   @Before
   public void setupCacheSource() throws UnknownHostException {
-    InMemoryViewComputationCacheSource cache = new InMemoryViewComputationCacheSource (FudgeContext.GLOBAL_DEFAULT);
+    InMemoryViewComputationCacheSource cache = new InMemoryViewComputationCacheSource (s_fudgeContext);
     ViewComputationCacheServer server = new ViewComputationCacheServer (cache);
-    _serverSocketDispatcher = new ServerSocketFudgeRequestDispatcher(server, cache.getFudgeContext ());
-    _serverSocketDispatcher.start();
+    _serverSocket = new ServerSocketFudgeConnectionReceiver(cache.getFudgeContext (), server);
+    _serverSocket.start();
     
-    _socketSender = new SocketFudgeRequestSender();
-    _socketSender.setInetAddress(InetAddress.getLocalHost());
-    _socketSender.setPortNumber(_serverSocketDispatcher.getPortNumber());
+    _socket = new SocketFudgeConnection (cache.getFudgeContext ());
+    _socket.setInetAddress(InetAddress.getLocalHost());
+    _socket.setPortNumber(_serverSocket.getPortNumber());
     
-    RemoteCacheClient client = new RemoteCacheClient(_socketSender);
+    RemoteCacheClient client = new RemoteCacheClient(_socket);
     _cacheSource = new RemoteViewComputationCacheSource (client, new InMemoryBinaryDataStoreFactory ());
   }
   
   @After
   public void shutDown() {
-    if(_socketSender != null) {
-      _socketSender.stop();
+    if(_socket != null) {
+      _socket.stop();
     }
-    if(_serverSocketDispatcher != null) {
-      _serverSocketDispatcher.stop();
+    if(_serverSocket != null) {
+      _serverSocket.stop();
     }
     _cacheSource = null;
-    _socketSender = null;
-    _serverSocketDispatcher = null;
+    _socket = null;
+    _serverSocket = null;
   }
   
   @Test

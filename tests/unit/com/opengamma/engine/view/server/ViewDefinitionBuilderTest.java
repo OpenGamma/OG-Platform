@@ -13,13 +13,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.fudgemsg.ViewDefinitionBuilder;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.NumberDeltaComparer;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * Tests ViewDefinitionBuilder, which is particularly complex.
@@ -30,8 +30,7 @@ public class ViewDefinitionBuilderTest {
   
   @Before
   public void setup() {
-    _fudgeContext = new FudgeContext();
-    _fudgeContext.getObjectDictionary().addBuilder(ViewDefinition.class, new ViewDefinitionBuilder());
+    _fudgeContext = OpenGammaFudgeContext.getInstance();
   }
   
   @Test

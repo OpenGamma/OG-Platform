@@ -29,6 +29,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 import com.opengamma.util.monitor.OperationTimer;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
@@ -88,7 +89,7 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
   public void simpleOperation() throws IOException {
     File dbDir = createDbDir("simpleOperation");
     Environment dbEnvironment = createDbEnvironment(dbDir);
-    FudgeContext fudgeContext = new FudgeContext();
+    FudgeContext fudgeContext = OpenGammaFudgeContext.getInstance();
     
     BerkeleyDBIdentifierMap idSource = new BerkeleyDBIdentifierMap(dbEnvironment, fudgeContext);
     idSource.start();

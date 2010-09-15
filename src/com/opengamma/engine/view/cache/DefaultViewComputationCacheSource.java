@@ -23,6 +23,16 @@ import com.opengamma.util.tuple.Pair;
  * {@link BinaryDataStoreFactory} instance.
  */
 public class DefaultViewComputationCacheSource implements ViewComputationCacheSource {
+
+  /**
+   * Callback to receive notification of the {@link #releaseCaches} method.
+   */
+  public static interface ReleaseCachesCallback {
+
+    void onReleaseCaches(String viewName, long timestamp);
+
+  }
+
   private final IdentifierMap _identifierMap;
   private final FudgeContext _fudgeContext;
 
@@ -31,6 +41,8 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
   private final ReentrantLock _cacheManagementLock = new ReentrantLock();
   private final BinaryDataStoreFactory _privateDataStoreFactory;
   private final BinaryDataStoreFactory _sharedDataStoreFactory;
+
+  private ReleaseCachesCallback _releaseCachesCallback;
 
   protected DefaultViewComputationCacheSource(final IdentifierMap identifierMap, final FudgeContext fudgeContext, final BinaryDataStoreFactory dataStoreFactory) {
     this(identifierMap, fudgeContext, dataStoreFactory, dataStoreFactory);
@@ -139,6 +151,9 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
   @Override
   public void releaseCaches(String viewName, long timestamp) {
     ArgumentChecker.notNull(viewName, "View name");
+    if (getReleaseCachesCallback() != null) {
+      getReleaseCachesCallback().onReleaseCaches(viewName, timestamp);
+    }
     Pair<String, Long> releaseKey = Pair.of(viewName, timestamp);
     Set<BinaryDataStore> dataStores = null;
     _cacheManagementLock.lock();
@@ -158,5 +173,13 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
   }
 
   // TODO 2010-08-18 There's a memory leak here; the _cachesByKey never gets emptied of things
+
+  public void setReleaseCachesCallback(final ReleaseCachesCallback releaseCachesCallback) {
+    _releaseCachesCallback = releaseCachesCallback;
+  }
+
+  public ReleaseCachesCallback getReleaseCachesCallback() {
+    return _releaseCachesCallback;
+  }
 
 }

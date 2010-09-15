@@ -6,7 +6,6 @@
 package com.opengamma.engine.view;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,6 +32,8 @@ import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
+import com.opengamma.engine.view.calc.stats.DiscardingGraphStatisticsGathererProvider;
+import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.permission.ViewPermission;
@@ -61,7 +62,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
   private ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
   private DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private ViewPermissionProvider _viewPermissionProvider;
-  private Map<String, Object> _configurationResource;
+  private GraphExecutorStatisticsGathererProvider _graphExecutionStatistics = new DiscardingGraphStatisticsGathererProvider();
   // State:
   private final ConcurrentMap<String, ViewImpl> _viewsByName = new ConcurrentHashMap<String, ViewImpl>();
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
@@ -226,15 +227,6 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
 
   public void setViewPermissionProvider(ViewPermissionProvider viewPermissionProvider) {
     _viewPermissionProvider = viewPermissionProvider;
-  }
-
-  public void setConfigurationResource(final Map<String, Object> configurationResource) {
-    _configurationResource = configurationResource;
-  }
-
-  // TODO DVI-101 -- this doesn't belong here, so has been excluded from the ViewProcessor interface
-  public Map<String, Object> getConfigurationResource() {
-    return _configurationResource;
   }
 
   @Override
@@ -410,6 +402,21 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
         getExecutorService(),
         getDependencyGraphExecutorFactory(),
         getViewPermissionProvider());
+
+  /**
+   * Sets the graphExecutionStatistics field.
+   * @param graphExecutionStatistics  the graphExecutionStatistics
+   */
+  public void setGraphExecutionStatistics(GraphExecutorStatisticsGathererProvider graphExecutionStatistics) {
+    _graphExecutionStatistics = graphExecutionStatistics;
+  }
+
+  /**
+   * Gets the graphExecutionStatistics field.
+   * @return the graphExecutionStatistics
+   */
+  public GraphExecutorStatisticsGathererProvider getGraphExecutionStatistics() {
+    return _graphExecutionStatistics;
   }
 
 }

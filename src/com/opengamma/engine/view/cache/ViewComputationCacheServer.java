@@ -6,7 +6,6 @@
 package com.opengamma.engine.view.cache;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -17,13 +16,16 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.view.cache.msg.BinaryDataStoreRequest;
 import com.opengamma.engine.view.cache.msg.CacheMessage;
 import com.opengamma.engine.view.cache.msg.IdentifierMapRequest;
-import com.opengamma.transport.FudgeRequestReceiver;
+import com.opengamma.transport.FudgeConnection;
+import com.opengamma.transport.FudgeConnectionReceiver;
+import com.opengamma.transport.FudgeConnectionStateListener;
+import com.opengamma.transport.FudgeMessageReceiver;
 
 /**
  * Composite server class for dispatching calls to a {@link IdentifierMapServer} and 
  * {@link BinaryDataStoreServer} within the same JVM.
  */
-public class ViewComputationCacheServer implements FudgeRequestReceiver {
+public class ViewComputationCacheServer implements FudgeConnectionReceiver, FudgeConnectionStateListener {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewComputationCacheServer.class);
 
@@ -51,12 +53,13 @@ public class ViewComputationCacheServer implements FudgeRequestReceiver {
    * Handles the message.
    * 
    * @param message the message
+   * @param connection the connection
    * @return the response, not {@code null}
    */
-  protected CacheMessage handleCacheMessage(final CacheMessage message) {
+  protected CacheMessage handleCacheMessage(final CacheMessage message, final FudgeConnection connection) {
     CacheMessage response = null;
     if (message instanceof BinaryDataStoreRequest) {
-      response = getBinaryDataStore().handleBinaryDataStoreRequest((BinaryDataStoreRequest) message);
+      response = getBinaryDataStore().handleBinaryDataStoreRequest((BinaryDataStoreRequest) message, connection);
     } else if (message instanceof IdentifierMapRequest) {
       response = getIdentifierMap().handleIdentifierMapRequest((IdentifierMapRequest) message);
     } else {
@@ -68,17 +71,43 @@ public class ViewComputationCacheServer implements FudgeRequestReceiver {
     return response;
   }
 
+  protected void handleMessage(final FudgeConnection connection, final FudgeContext fudgeContext, final FudgeMsgEnvelope message) {
+    final FudgeDeserializationContext dctx = new FudgeDeserializationContext(fudgeContext);
+    final CacheMessage request = dctx.fudgeMsgToObject(CacheMessage.class, message.getMessage());
+    final CacheMessage response = handleCacheMessage(request, connection);
+    if (response != null) {
+      response.setCorrelationId(request.getCorrelationId());
+      final FudgeSerializationContext sctx = new FudgeSerializationContext(fudgeContext);
+      final MutableFudgeFieldContainer responseMsg = sctx.objectToFudgeMsg(response);
+      // We have only one response type for each request, so don't really need the headers
+      // FudgeSerializationContext.addClassHeader(responseMsg, response.getClass(), CacheMessage.class);
+      connection.getFudgeMessageSender().send(responseMsg);
+    }
+  }
+
   @Override
-  public FudgeFieldContainer requestReceived(final FudgeDeserializationContext context, final FudgeMsgEnvelope requestEnvelope) {
-    final CacheMessage request = context.fudgeMsgToObject(CacheMessage.class, requestEnvelope.getMessage());
-    final FudgeContext fudgeContext = context.getFudgeContext();
-    final CacheMessage response = handleCacheMessage(request);
-    response.setCorrelationId(request.getCorrelationId());
-    final FudgeSerializationContext ctx = new FudgeSerializationContext(fudgeContext);
-    final MutableFudgeFieldContainer responseMsg = ctx.objectToFudgeMsg(response);
-    // We have only one response type for each request, so don't really need the headers
-    // FudgeSerializationContext.addClassHeader(responseMsg, response.getClass(), CacheMessage.class);
-    return responseMsg;
+  public void connectionReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope message, final FudgeConnection connection) {
+    connection.setConnectionStateListener(this);
+    handleMessage(connection, fudgeContext, message);
+    getBinaryDataStore().onNewConnection(connection);
+    connection.setFudgeMessageReceiver(new FudgeMessageReceiver() {
+
+      @Override
+      public void messageReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope message) {
+        handleMessage(connection, fudgeContext, message);
+      }
+
+    });
+  }
+
+  @Override
+  public void connectionFailed(final FudgeConnection connection, Exception cause) {
+    getBinaryDataStore().onDroppedConnection(connection);
+  }
+
+  @Override
+  public void connectionReset(final FudgeConnection connection) {
+    // Shouldn't happen
   }
 
 }
