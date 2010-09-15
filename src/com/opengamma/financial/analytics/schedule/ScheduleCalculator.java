@@ -88,14 +88,15 @@ public class ScheduleCalculator {
     Validate.notNull(calendar);
     final int n = dates.length;
     final ZonedDateTime[] result = new ZonedDateTime[n];
-    result[0]=effectiveDate;
+    result[0] = effectiveDate;
     for (int i = 1; i < n; i++) {
-      result[i] = dates[i-1]; //TODO need to shift the dates by an actual convention
-     }
+      result[i] = dates[i - 1]; //TODO need to shift the dates by an actual convention
+    }
     return result;
   }
   
-  public static ZonedDateTime[] getAdjustedMaturityDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime[] dates, final BusinessDayConvention convention, final Calendar calendar, final Frequency frequency) {
+  public static ZonedDateTime[] getAdjustedMaturityDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime[] dates,
+      final BusinessDayConvention convention, final Calendar calendar, final Frequency frequency) {
     Validate.notNull(dates);
     Validate.notEmpty(dates);
     Validate.notNull(convention);
@@ -113,9 +114,9 @@ public class ScheduleCalculator {
    
     int n = dates.length;
     ZonedDateTime[] results = new ZonedDateTime[n];
-    results[0]=effectiveDate.plus(period);
-    for(int i=1;i<n;i++){
-      results[i]=dates[i-1].plus(period); //TODO need to further shift these dates by a convention 
+    results[0] = effectiveDate.plus(period);
+    for (int i = 1; i < n; i++) {
+      results[i] = dates[i - 1].plus(period); //TODO need to further shift these dates by a convention 
     }
    
     return results;
