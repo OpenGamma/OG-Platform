@@ -27,22 +27,37 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
- * HibernateSecurityMaster session and utility methods implementation
+ * HibernateSecurityMaster session and utility methods implementation.
  * 
  */
 public class HibernateSecurityMasterSession implements HibernateSecurityMasterDao {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(HibernateSecurityMasterSession.class);
-  
+
+  /**
+   * The Hibernate session.
+   */
   private Session _session;
 
+  /**
+   * Creates an instance with a session.
+   * @param session  the session, not null
+   */
   public HibernateSecurityMasterSession(Session session) {
     _session = session;
   }
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the Hibernate session.
+   * @return the session, not null
+   */
   public Session getSession() {
     return _session;
   }
 
+  //-------------------------------------------------------------------------
   // UTILITY METHODS
   private <T extends EnumBean> T persistBean(T bean) {
     Long id = (Long) getSession().save(bean);
