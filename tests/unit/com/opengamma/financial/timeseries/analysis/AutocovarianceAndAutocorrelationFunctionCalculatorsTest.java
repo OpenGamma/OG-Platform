@@ -22,7 +22,7 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 /**
  * 
  */
-public class AutocovarianceAndAutoCorrelationFunctionCalculatorsTest {
+public class AutocovarianceAndAutocorrelationFunctionCalculatorsTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final Function1D<DoubleTimeSeries<?>, double[]> COVARIANCE = new AutocovarianceFunctionCalculator();
   private static final Function1D<DoubleTimeSeries<?>, double[]> CORRELATION = new AutocorrelationFunctionCalculator();
