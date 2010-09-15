@@ -158,10 +158,10 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
     // if either is -1, make it zero
     startPos = startPos >= 0 ? startPos : -startPos - 1;
     endPos = endPos >= 0 ? endPos : -endPos - 1;
+    final int length = endPos - startPos;
     if (endPos >= _times.length) {
       endPos--;
     }
-    final int length = endPos - startPos;
     final long[] resultTimes = new long[length];
     final double[] resultValues = new double[length];
     System.arraycopy(_times, startPos, resultTimes, 0, length);
