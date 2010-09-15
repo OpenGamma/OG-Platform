@@ -8,6 +8,8 @@ package com.opengamma.financial.web.security;
 import java.net.URI;
 
 import com.opengamma.engine.security.Security;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 
 /**
  * URIs for web-based securities.
@@ -30,6 +32,24 @@ public class WebSecuritiesUris {
    */
   public URI securities() {
     return WebSecuritiesResource.uri(_data);
+  }
+
+  /**
+   * Gets the URI.
+   * @param identifier  the identifier to search for, may be null
+   * @return the URI
+   */
+  public URI securities(final Identifier identifier) {
+    return WebSecuritiesResource.uri(_data, IdentifierBundle.of(identifier));
+  }
+
+  /**
+   * Gets the URI.
+   * @param identifiers  the identifiers to search for, may be null
+   * @return the URI
+   */
+  public URI securities(final IdentifierBundle identifiers) {
+    return WebSecuritiesResource.uri(_data, identifiers);
   }
 
   /**
