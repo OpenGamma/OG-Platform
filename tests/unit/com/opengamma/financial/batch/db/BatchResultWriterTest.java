@@ -45,8 +45,8 @@ import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.MissingInputException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.test.HibernateTest;
-import com.opengamma.util.time.DateUtil;
 
 /**
  * 
@@ -123,12 +123,12 @@ public class BatchResultWriterTest extends HibernateTest {
     _riskRun.setMasterProcessHost(_computeHost);
     _riskRun.setRunReason("BatchResultWriterTest");
     _riskRun.setRunTime(_observationDateTime);
-    _riskRun.setValuationTime(DateUtil.toSqlTimestamp(now));
+    _riskRun.setValuationTime(DbDateUtils.toSqlTimestamp(now));
     _riskRun.setViewOid("view-oid");
     _riskRun.setViewVersion(1);
     _riskRun.setLiveDataSnapshot(_liveDataSnapshot);
-    _riskRun.setCreateInstant(DateUtil.toSqlTimestamp(now));
-    _riskRun.setStartInstant(DateUtil.toSqlTimestamp(now));
+    _riskRun.setCreateInstant(DbDateUtils.toSqlTimestamp(now));
+    _riskRun.setStartInstant(DbDateUtils.toSqlTimestamp(now));
     _riskRun.setNumRestarts(0);
     _riskRun.setComplete(false);
     _hibernateTemplate.save(_riskRun);

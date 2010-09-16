@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.security.master.db;
 
+import static com.opengamma.util.db.DbDateUtils.MAX_SQL_TIMESTAMP;
+import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
+
 import java.util.TimeZone;
 
 import javax.time.Instant;
@@ -20,7 +23,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import com.opengamma.financial.master.db.DbMasterTestUtils;
 import com.opengamma.util.test.DBTest;
-import com.opengamma.util.time.DateUtil;
 
 /**
  * Base tests for DbSecurityMasterWorker via DbSecurityMaster.
@@ -63,13 +65,13 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
     s_logger.debug("test data later: {}", _version2Instant);
     final SimpleJdbcTemplate template = _secMaster.getDbSource().getJdbcTemplate();
     template.update("INSERT INTO sec_security VALUES (?,?,?,?,?, ?,?,?)",
-        101, 101, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, "TestSecurity101", "EQUITY");
+        101, 101, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "TestSecurity101", "EQUITY");
     template.update("INSERT INTO sec_security VALUES (?,?,?,?,?, ?,?,?)",
-        102, 102, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, "TestSecurity102", "EQUITY");
+        102, 102, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "TestSecurity102", "EQUITY");
     template.update("INSERT INTO sec_security VALUES (?,?,?,?,?, ?,?,?)",
-        201, 201, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.toSqlTimestamp(_version2Instant), DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, "TestSecurity201", "EQUITY");
+        201, 201, toSqlTimestamp(_version1Instant), toSqlTimestamp(_version2Instant), toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "TestSecurity201", "EQUITY");
     template.update("INSERT INTO sec_security VALUES (?,?,?,?,?, ?,?,?)",
-        202, 201, DateUtil.toSqlTimestamp(_version2Instant), DateUtil.MAX_SQL_TIMESTAMP, DateUtil.toSqlTimestamp(_version2Instant), DateUtil.MAX_SQL_TIMESTAMP, "TestSecurity202", "EQUITY");
+        202, 201, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, "TestSecurity202", "EQUITY");
     _totalSecurities = 3;
 //    id bigint not null,
 //    key_scheme varchar(255) not null,

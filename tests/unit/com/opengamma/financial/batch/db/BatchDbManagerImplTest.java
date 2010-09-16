@@ -34,8 +34,8 @@ import com.opengamma.financial.batch.BatchJobRun;
 import com.opengamma.financial.batch.LiveDataValue;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.test.TransactionalHibernateTest;
-import com.opengamma.util.time.DateUtil;
 
 /**
  * 
@@ -104,7 +104,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     // create
     ObservationDateTime datetime1 = _dbManager.getObservationDateTime(_batchJobRun);
     assertNotNull(datetime1);
-    assertEquals(DateUtil.toSqlDate(_batchJobRun.getObservationDate()), datetime1.getDate());
+    assertEquals(DbDateUtils.toSqlDate(_batchJobRun.getObservationDate()), datetime1.getDate());
     assertEquals(_batchJobRun.getObservationTime(), datetime1.getObservationTime().getLabel());
     
     // get
@@ -156,7 +156,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     
     LiveDataSnapshot snapshot = _dbManager.getLiveDataSnapshot(_batchJobRun);
     assertNotNull(snapshot);
-    assertEquals(DateUtil.toSqlDate(_batchJobRun.getSnapshotObservationDate()), 
+    assertEquals(DbDateUtils.toSqlDate(_batchJobRun.getSnapshotObservationDate()), 
         snapshot.getSnapshotTime().getDate());
     assertEquals(_batchJobRun.getSnapshotObservationTime(), 
         snapshot.getSnapshotTime().getObservationTime().getLabel());

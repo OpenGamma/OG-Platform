@@ -24,16 +24,16 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import com.google.common.base.Objects;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.position.master.ManageablePortfolio;
-import com.opengamma.financial.position.master.PortfolioTreeDocument;
 import com.opengamma.financial.position.master.ManageablePortfolioNode;
+import com.opengamma.financial.position.master.PortfolioTreeDocument;
 import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricRequest;
 import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricResult;
 import com.opengamma.financial.position.master.PortfolioTreeSearchRequest;
 import com.opengamma.financial.position.master.PortfolioTreeSearchResult;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.Paging;
-import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.tuple.LongObjectPair;
 
 /**
@@ -316,10 +316,10 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
       _portfolio = new ManageablePortfolio(name);
       _portfolio.setUniqueIdentifier(createUniqueIdentifier(portfolioOid, portfolioId, null));
       final PortfolioTreeDocument doc = new PortfolioTreeDocument(_portfolio);
-      doc.setVersionFromInstant(DateUtil.fromSqlTimestamp(versionFrom));
-      doc.setVersionToInstant(DateUtil.fromSqlTimestamp(versionTo));
-      doc.setCorrectionFromInstant(DateUtil.fromSqlTimestamp(correctionFrom));
-      doc.setCorrectionToInstant(DateUtil.fromSqlTimestamp(correctionTo));
+      doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
+      doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
+      doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
+      doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
       _documents.add(doc);
       _nodes.clear();
     }
