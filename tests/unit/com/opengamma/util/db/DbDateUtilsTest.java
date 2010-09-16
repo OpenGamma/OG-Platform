@@ -100,7 +100,7 @@ public class DbDateUtilsTest {
 
   @Test
   public void test_fromSqlDateTimeNullFarFuture() {
-    assertEquals(LocalDateTime.of(2005, 11, 7, 12, 34, 56, 7), DbDateUtils.fromSqlDateTime(new Timestamp(2005 - 1900, 11 - 1, 7, 12, 34, 56, 7)));
+    assertEquals(LocalDateTime.of(2005, 11, 7, 12, 34, 56, 7), DbDateUtils.fromSqlDateTimeNullFarFuture(new Timestamp(2005 - 1900, 11 - 1, 7, 12, 34, 56, 7)));
   }
 
   @Test
