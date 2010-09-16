@@ -204,7 +204,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         throw new NullPointerException("Could not get market data for " + strip);
       }
       if (strip.getInstrumentType() == StripInstrumentType.SWAP) {
-        derivative = swapConverter.getSwap((SwapSecurity) strip.getSecurity(), _name, _name, rate);
+        derivative = swapConverter.getSwap((SwapSecurity) strip.getSecurity(), _name, _name, rate, now);
       } else {
         throw new OpenGammaRuntimeException("Can only handle swaps at the moment");
       }
