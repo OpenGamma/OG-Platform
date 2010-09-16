@@ -43,6 +43,7 @@ import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.LastDateCalculator;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
@@ -84,6 +85,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private ValueSpecification _jacobianResult;
   private Set<ValueSpecification> _results;
   private InterpolatedYieldCurveSpecification _specification;
+  private static final LastDateCalculator LAST_DATE_CALCULATOR = new LastDateCalculator();
 
   public MarketInstrumentImpliedYieldCurveFunction(final LocalDate curveDate, final Currency currency, final String name) {
     Validate.notNull(curveDate, "curve date");
@@ -211,7 +213,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       }
       derivatives.add(derivative);
       initialRatesGuess[i] = 0.01;
-      //nodeTimes[i] = getLastTime(derivative); //TODO use the appropriate visitor
+      nodeTimes[i] = LAST_DATE_CALCULATOR.getValue(derivative); 
       i++;
     }
     final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
