@@ -12,11 +12,7 @@ import static com.opengamma.financial.security.master.db.hibernate.Converters.id
 import static com.opengamma.financial.security.master.db.hibernate.Converters.identifierToIdentifierBean;
 import static com.opengamma.financial.security.master.db.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
-import java.util.Currency;
-
 import org.apache.commons.lang.ObjectUtils;
-
-import sun.tools.java.IdentifierToken;
 
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.master.db.hibernate.AbstractSecurityBeanOperation;
