@@ -73,12 +73,20 @@ public class TridiagonalMatrixTest {
 
   @Test
   public void testHashCodeAndEquals() {
-    TridiagonalMatrix other = new TridiagonalMatrix(A, B, C);
+    final double[] a = Arrays.copyOf(A, A.length);
+    final double[] b = Arrays.copyOf(B, B.length);
+    final double[] c = Arrays.copyOf(C, C.length);
+    TridiagonalMatrix other = new TridiagonalMatrix(a, b, c);
     assertEquals(other, M);
     assertEquals(other.hashCode(), M.hashCode());
-    other = new TridiagonalMatrix(A, B, B);
+    a[1] = 1000;
+    other = new TridiagonalMatrix(a, B, C);
     assertFalse(other.equals(M));
-    other = new TridiagonalMatrix(A, C, C);
+    b[1] = 1000;
+    other = new TridiagonalMatrix(A, b, C);
+    assertFalse(other.equals(M));
+    c[1] = 1000;
+    other = new TridiagonalMatrix(A, B, c);
     assertFalse(other.equals(M));
   }
 }
