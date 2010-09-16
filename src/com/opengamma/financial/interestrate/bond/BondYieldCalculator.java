@@ -7,17 +7,16 @@ package com.opengamma.financial.interestrate.bond;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.annuity.definition.ContinouslyCompoundedYieldCalculator;
+import com.opengamma.financial.interestrate.annuity.definition.YieldSensitivityCalculator;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 
 /**
  * Continuously compounded 
  */
 public class BondYieldCalculator {
-  private final ContinouslyCompoundedYieldCalculator _ccyc = new ContinouslyCompoundedYieldCalculator();
-
   public double calculate(final Bond bond, final Double dirtyPrice) {
     Validate.notNull(bond, "bond");
-    return _ccyc.calculate(bond.getFixedAnnuity(), dirtyPrice);
+    Validate.isTrue(dirtyPrice > 0.0, "need dirtyPrice greater than zero");
+    return YieldSensitivityCalculator.getInstance().calculateYield(bond.getFixedAnnuity(), dirtyPrice);
   }
 }

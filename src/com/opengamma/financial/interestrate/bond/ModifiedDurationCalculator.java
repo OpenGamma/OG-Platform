@@ -3,11 +3,10 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.model.cashflow;
+package com.opengamma.financial.interestrate.bond;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.bond.BondYieldCalculator;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 
 /**
@@ -27,11 +26,8 @@ public class ModifiedDurationCalculator {
       throw new IllegalArgumentException("Compounding Frquency must be positive");
     }
 
-    double duration = _mdc.calculate(bond, dirtyPrice);
-    double yield = _byc.calculate(bond, dirtyPrice);
-    // NOTE this yield is continuously compounded - convert to compoundingFrquency
-    yield = compoundingFrquency * (Math.exp(yield / compoundingFrquency) - 1.0);
-
-    return duration / (1 + yield / compoundingFrquency);
+    double duration = _mdc.calculate(bond, dirtyPrice);// This is Macaulay Duration
+    double yield = _byc.calculate(bond, dirtyPrice);// NOTE this yield is continuously compounded
+    return duration * Math.exp(-yield / compoundingFrquency);
   }
 }
