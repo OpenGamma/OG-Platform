@@ -6,6 +6,7 @@
 package com.opengamma.engine.view.calcnode.stats;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -60,10 +61,12 @@ public class FunctionInvocationStatisticsSenderTest {
       } catch (InterruptedException e) {
       }
     }
-    t = (System.nanoTime () - t) / 1000000000;
     sender.functionInvoked ("A", "3", 300, 300 * 4.0, 300 * 5.0, 300 * 6.0);
+    t = (System.nanoTime () - t) / 1000000000;
     sender.flush ();
-    assertEquals (t + 1, messages.get ());
+    if ((messages.get () < t) || (messages.get () > t + 2)) {
+      fail ("Unexpected number of messages (" + messages.get () + ") from " + t + "s execution"); 
+    }
     assertEquals (2.0, _cost.getStatistics ("A", "1").getInvocationCost (), 1e-5);
     assertEquals (3.0, _cost.getStatistics ("A", "1").getDataInputCost (), 1e-5);
     assertEquals (4.0, _cost.getStatistics ("A", "1").getDataOutputCost (), 1e-5);
