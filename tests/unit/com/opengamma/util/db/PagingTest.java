@@ -17,7 +17,7 @@ import org.junit.Test;
 public final class PagingTest {
 
   @Test
-  public void test_factory_Collection_empty() {
+  public void test_factory_of_Collection_empty() {
     Paging test = Paging.of(Arrays.asList());
     assertEquals(1, test.getPage());
     assertEquals(Integer.MAX_VALUE, test.getPagingSize());
@@ -25,10 +25,29 @@ public final class PagingTest {
   }
 
   @Test
-  public void test_factory_Collection_sizeTwo() {
+  public void test_factory_of_Collection_sizeTwo() {
     Paging test = Paging.of(Arrays.asList("Hello", "There"));
     assertEquals(1, test.getPage());
     assertEquals(Integer.MAX_VALUE, test.getPagingSize());
+    assertEquals(2, test.getTotalItems());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_factory_of_Collection_PagingRequest_empty() {
+    PagingRequest request = new PagingRequest(1, 20);
+    Paging test = Paging.of(Arrays.asList(), request);
+    assertEquals(1, test.getPage());
+    assertEquals(20, test.getPagingSize());
+    assertEquals(0, test.getTotalItems());
+  }
+
+  @Test
+  public void test_factory_of_Collection_PagingRequest_sizeTwo() {
+    PagingRequest request = new PagingRequest(1, 20);
+    Paging test = Paging.of(Arrays.asList("Hello", "There"), request);
+    assertEquals(1, test.getPage());
+    assertEquals(20, test.getPagingSize());
     assertEquals(2, test.getTotalItems());
   }
 

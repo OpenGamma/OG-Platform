@@ -41,6 +41,21 @@ public final class Paging {
     return new Paging(1, Integer.MAX_VALUE, coll.size());
   }
 
+  /**
+   * Creates an instance that indicates a single page over the specified collection.
+   * @param coll  the collection to generate 
+   * @param pagingRequest  the paging request to base the result on, not null
+   * @return the created paging, not null
+   */
+  public static Paging of(Collection<?> coll, PagingRequest pagingRequest) {
+    ArgumentChecker.notNull(coll, "coll");
+    ArgumentChecker.notNull(pagingRequest, "pagingRequest");
+    if (pagingRequest.getFirstItemIndex() >= coll.size()) {
+      return new Paging(1, pagingRequest.getPagingSize(), coll.size());
+    }
+    return new Paging(pagingRequest.getPage(), pagingRequest.getPagingSize(), coll.size());
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Creates an instance.
