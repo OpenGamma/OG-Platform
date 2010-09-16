@@ -13,6 +13,7 @@ import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.master.db.hibernate.CurrencyBean;
 import com.opengamma.financial.security.master.db.hibernate.IdentifierBean;
 import com.opengamma.financial.security.master.db.hibernate.SecurityBean;
+import com.opengamma.financial.security.master.db.hibernate.ZonedDateTimeBean;
 
 /**
  * A bean representation of {@link CashSecurity}.
@@ -20,6 +21,7 @@ import com.opengamma.financial.security.master.db.hibernate.SecurityBean;
 public class CashSecurityBean extends SecurityBean {
   private CurrencyBean _currency;
   private IdentifierBean _region;
+  private ZonedDateTimeBean _maturity;
   
   public CashSecurityBean() {
     super();
@@ -52,6 +54,20 @@ public class CashSecurityBean extends SecurityBean {
     _currency = currency;
   }
   
+  /**
+   * @return the maturity
+   */
+  public ZonedDateTimeBean getMaturity() {
+    return _maturity;
+  }
+  
+  /**
+   * @param maturity the maturity to set 
+   */
+  public void setMaturity(ZonedDateTimeBean maturity) {
+    _maturity = maturity;
+  }
+  
   @Override
   public boolean equals(final Object other) {
     if (!(other instanceof CashSecurityBean)) {
@@ -61,7 +77,8 @@ public class CashSecurityBean extends SecurityBean {
     return new EqualsBuilder()
       .append(getId(), cash.getId())
       .append(getCurrency(), cash.getCurrency())
-      .append(getRegion(), cash.getRegion()).isEquals();
+      .append(getRegion(), cash.getRegion())
+      .append(getMaturity(), cash.getMaturity()).isEquals();
   }
   
   @Override
@@ -69,6 +86,7 @@ public class CashSecurityBean extends SecurityBean {
     return new HashCodeBuilder()
       .append(getCurrency())
       .append(getRegion())
+      .append(getMaturity())
       .toHashCode();
   }
 }

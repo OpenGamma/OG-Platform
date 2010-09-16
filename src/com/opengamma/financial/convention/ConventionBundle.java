@@ -51,6 +51,13 @@ public interface ConventionBundle {
    * @return the number of days
    */
   int getSettlementDays();
+  
+  /**
+   * Future point value, if applicable
+   * @return
+   */
+  Double getFuturePointValue();
+  
   /**
    * Gets the swapFixedLegDayCount field.
    * @return the swapFixedLegDayCount
