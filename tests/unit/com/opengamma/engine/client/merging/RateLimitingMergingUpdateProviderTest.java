@@ -95,24 +95,17 @@ public class RateLimitingMergingUpdateProviderTest {
   }
 
   private void testUpdateRate(RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider, TestMergingUpdateListener testListener, int period) throws InterruptedException {
-    long startTime = System.currentTimeMillis();
+    testListener.resetShortestDelay();
     for (int i = 0; i < 100; i++) {
       Thread.sleep(10);
       addResults(provider, 10);
     }
-    long endTime = System.currentTimeMillis();
-    int timeTaken = (int) (endTime - startTime);
-    int count = 0;
-    // Allow up to a few more periods for stragglers to come through
-    for (int i = 0; i < 10; i++) {
-      count += testListener.consumeResults().size();
-      //System.out.println("i=" + i + ", count=" + count + ", expected=" + timeTaken / period);
-      if (assertAcceptableResultCount(timeTaken / period, count, false)) {
-        return;
-      }
-      Thread.sleep(period);
-    }
-    assertAcceptableResultCount(timeTaken / period, count, true);
+    // Wait a couple of periods for any stragglers
+    Thread.sleep (2 * period);
+    // Check that the results didn't come any faster than we asked for (give or take), and not too slowly
+    assertTrue ("Expecting results no faster than " + period + "ms, got " + testListener.getShortestDelay (), testListener.getShortestDelay () >= (period - 1));
+    assertTrue ("Expecting results no slower than " + (period * 2) + "ms, got " + testListener.getShortestDelay (), testListener.getShortestDelay () <= (period * 2));
+    System.out.println ("size = " + testListener.consumeResults ().size ());
   }
 
   private void addResults(RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider, int count) {
@@ -121,27 +114,20 @@ public class RateLimitingMergingUpdateProviderTest {
     }
   }
 
-  private boolean assertAcceptableResultCount(int periodCount, int numberOfResults, boolean raiseError) {
-    // Timer delays could result in fewer results than the theoretical number of periods.
-    int lowerLimit = periodCount - 1;
-
-    // If we're unlucky, the timer could go off mid-burst, splitting a burst into two, and producing an extra result.
-    // Seem to need a bit of flexibility here.
-    int upperLimit = periodCount + 2;
-
-    boolean isAcceptable = numberOfResults >= lowerLimit && numberOfResults <= upperLimit;
-    if (raiseError) {
-      assertTrue("Expecting " + lowerLimit + " to " + upperLimit + " results, got " + numberOfResults, isAcceptable);
-    }
-    return isAcceptable;
-  }
-
   private class TestMergingUpdateListener implements MergedUpdateListener<ViewComputationResultModel> {
 
+    private long _lastResultReceived;
+    private long _shortestDelay;
     private List<ViewComputationResultModel> _resultsReceived = new ArrayList<ViewComputationResultModel>();
 
     @Override
     public synchronized void handleResult(ViewComputationResultModel result) {
+      long now = System.currentTimeMillis ();
+      long delay = now - _lastResultReceived;
+      _lastResultReceived = now;
+      if (delay < _shortestDelay) {
+        _shortestDelay = delay;
+      }
       _resultsReceived.add(result);
     }
 
@@ -149,6 +135,14 @@ public class RateLimitingMergingUpdateProviderTest {
       List<ViewComputationResultModel> results = _resultsReceived;
       _resultsReceived = new ArrayList<ViewComputationResultModel>();
       return results;
+    }
+    
+    public synchronized long getShortestDelay () {
+      return _shortestDelay;
+    }
+    
+    public synchronized void resetShortestDelay () {
+      _shortestDelay = Long.MAX_VALUE;
     }
 
   }
