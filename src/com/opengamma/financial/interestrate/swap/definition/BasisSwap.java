@@ -31,4 +31,9 @@ public class BasisSwap extends Swap {
   public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitBasisSwap(this, data);
   }
+
+  @Override
+  public BasisSwap withRate(double rate) {
+    return new BasisSwap(getPayLeg(), getReceiveLeg().withRate(rate));
+  }
 }

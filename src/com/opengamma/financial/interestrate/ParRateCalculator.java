@@ -48,7 +48,7 @@ public final class ParRateCalculator implements InterestRateDerivativeVisitor<Yi
   public Double visitCash(final Cash cash, final YieldCurveBundle curves) {
     final YieldAndDiscountCurve curve = curves.getCurve(cash.getYieldCurveName());
     final double ta = cash.getTradeTime();
-    final double tb = cash.getPaymentTime();
+    final double tb = cash.getMaturity();
     final double yearFrac = cash.getYearFraction();
     // TODO need a getForwardRate method on YieldAndDiscountCurve
     if (yearFrac == 0.0) {

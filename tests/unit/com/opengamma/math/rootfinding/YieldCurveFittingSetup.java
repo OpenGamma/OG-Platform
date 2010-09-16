@@ -218,40 +218,6 @@ public abstract class YieldCurveFittingSetup {
         .getUnknownCurveNodeSensitivityCalculators());
   }
 
-  protected static InterestRateDerivative updateRate(final InterestRateDerivative ird, final double rate) {
-    if (ird instanceof Cash) {
-      Cash cash = (Cash) ird;
-      return new Cash(cash.getPaymentTime(), rate, cash.getTradeTime(), cash.getYearFraction(), cash.getYieldCurveName());
-    } else if (ird instanceof Libor) {
-      Libor libor = (Libor) ird;
-      return new Libor(libor.getFixingDate(), libor.getMaturity(), libor.getForwardYearFraction(), rate, libor.getLiborCurveName());
-    } else if (ird instanceof ForwardRateAgreement) {
-      ForwardRateAgreement fra = (ForwardRateAgreement) ird;
-      return new ForwardRateAgreement(fra.getSettlementDate(), fra.getMaturity(), fra.getFixingDate(), fra.getForwardYearFraction(), fra.getDiscountingYearFraction(), rate, fra.getFundingCurveName(),
-          fra.getLiborCurveName());
-    } else if (ird instanceof InterestRateFuture) {
-      InterestRateFuture future = (InterestRateFuture) ird;
-      return new InterestRateFuture(future.getSettlementDate(), future.getFixingDate(), future.getMaturity(), future.getIndexYearFraction(), future.getValueYearFraction(), 100 * (1 - rate), future
-          .getCurveName());
-    } else if (ird instanceof FixedFloatSwap) {
-      FixedFloatSwap swap = (FixedFloatSwap) ird;
-      ConstantCouponAnnuity fixedLeg = swap.getFixedLeg();
-      ConstantCouponAnnuity newLeg = new ConstantCouponAnnuity(fixedLeg.getPaymentTimes(), fixedLeg.getNotional(), rate, fixedLeg.getYearFractions(), fixedLeg.getFundingCurveName());
-      return new FixedFloatSwap(newLeg, swap.getFloatingLeg());
-    } else if (ird instanceof BasisSwap) {
-      BasisSwap swap = (BasisSwap) ird;
-      VariableAnnuity receieveLeg = swap.getReceiveLeg();
-      double[] spreads = new double[receieveLeg.getPaymentTimes().length];
-      for (int i = 0; i < receieveLeg.getPaymentTimes().length; i++) {
-        spreads[i] = rate;
-      }
-      VariableAnnuity newLeg = new VariableAnnuity(receieveLeg.getPaymentTimes(), receieveLeg.getIndexFixingTimes(), receieveLeg.getIndexMaturityTimes(), receieveLeg.getYearFractions(), spreads,
-          receieveLeg.getNotional(), receieveLeg.getFundingCurveName(), receieveLeg.getLiborCurveName());
-      return new BasisSwap(swap.getPayLeg(), newLeg);
-    }
-    throw new IllegalArgumentException("unknown IRD type " + ird);
-  }
-
   protected static InterestRateDerivative makeIRD(String type, final double maturity, final String fundCurveName, final String indexCurveName, final double rate) {
     if ("cash".equals(type)) {
       return makeCash(maturity, fundCurveName, rate);

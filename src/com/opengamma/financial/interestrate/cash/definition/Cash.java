@@ -13,30 +13,45 @@ import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * A cash loan with a unit amount borrowed on some some trade date (which could be now), and an amount (1+r*t) paid at maturity, where r is the Libor rate and t is the time (in years) 
+ * between the trade date and the maturity in some day count convention.  
  */
 public class Cash implements InterestRateDerivative {
   private final double _tradeTime;
-  private final double _paymentTime;
+  private final double _maturity;
   private final double _yearFraction;
   private final double _rate;
   private final String _curveName;
 
-  public Cash(final double paymentTime, final double rate, final String yieldCurveName) {
-    checkInputs(paymentTime, rate, yieldCurveName);
-    _paymentTime = paymentTime;
+  /**
+   * A cash loan
+   * @param maturity Time from now (in years) when the loan matures (is repaid)
+   * @param rate The loan rate (continuously compounded)
+   * @param yieldCurveName Name of yield curve used to price loan
+   */
+  public Cash(final double maturity, final double rate, final String yieldCurveName) {
+    checkInputs(maturity, rate, yieldCurveName);
+    _maturity = maturity;
     _curveName = yieldCurveName;
     _tradeTime = 0.0;
-    _yearFraction = paymentTime;
+    _yearFraction = maturity;
     _rate = rate;
   }
 
-  public Cash(final double paymentTime, final double rate, final double tradeTime, final double yearFraction, final String yieldCurveName) {
-    checkInputs(paymentTime, rate, yieldCurveName);
+  /**
+   * A cash loan
+   * @param maturity Time from now (in years) when the loan matures (is repaid)
+   * @param rate Time from now (in years) when the loan matures (is repaid)
+   * @param tradeTime Time when the notional amount is borrowed (could be 0, i.e. now)
+   * @param yearFraction time (in years) between the trade date and the maturity in some day count convention.
+   * @param yieldCurveName Name of yield curve used to price loan
+   */
+  public Cash(final double maturity, final double rate, final double tradeTime, final double yearFraction, final String yieldCurveName) {
+    checkInputs(maturity, rate, yieldCurveName);
     ArgumentChecker.notNegative(tradeTime, "trade time");
     ArgumentChecker.notNegative(yearFraction, "year fraction");
-    Validate.isTrue(tradeTime < paymentTime, "Trade time must be less than payment time");
-    _paymentTime = paymentTime;
+    Validate.isTrue(tradeTime < maturity, "Trade time must be less than payment time");
+    _maturity = maturity;
     _curveName = yieldCurveName;
     _tradeTime = tradeTime;
     _yearFraction = yearFraction;
@@ -44,14 +59,14 @@ public class Cash implements InterestRateDerivative {
 
   }
 
-  private void checkInputs(final double paymentTime, final double rate, final String yieldCurveName) {
-    ArgumentChecker.notNegative(paymentTime, "payment time");
+  private void checkInputs(final double maturity, final double rate, final String yieldCurveName) {
+    ArgumentChecker.notNegative(maturity, "payment time");
     ArgumentChecker.notNegative(rate, "rate");
     Validate.notNull(yieldCurveName);
   }
 
-  public double getPaymentTime() {
-    return _paymentTime;
+  public double getMaturity() {
+    return _maturity;
   }
 
   public String getYieldCurveName() {
@@ -81,7 +96,7 @@ public class Cash implements InterestRateDerivative {
     int result = 1;
     result = prime * result + ((_curveName == null) ? 0 : _curveName.hashCode());
     long temp;
-    temp = Double.doubleToLongBits(_paymentTime);
+    temp = Double.doubleToLongBits(_maturity);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_rate);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -107,7 +122,7 @@ public class Cash implements InterestRateDerivative {
     if (!ObjectUtils.equals(_curveName, other._curveName)) {
       return false;
     }
-    if (Double.doubleToLongBits(_paymentTime) != Double.doubleToLongBits(other._paymentTime)) {
+    if (Double.doubleToLongBits(_maturity) != Double.doubleToLongBits(other._maturity)) {
       return false;
     }
     if (Double.doubleToLongBits(_rate) != Double.doubleToLongBits(other._rate)) {
@@ -120,5 +135,10 @@ public class Cash implements InterestRateDerivative {
       return false;
     }
     return true;
+  }
+
+  @Override
+  public Cash withRate(double rate) {
+    return new Cash(getMaturity(), rate, getTradeTime(), getYearFraction(), getYieldCurveName());
   }
 }

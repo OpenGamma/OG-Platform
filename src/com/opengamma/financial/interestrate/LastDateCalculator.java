@@ -46,7 +46,7 @@ public class LastDateCalculator implements InterestRateDerivativeVisitor<Object,
 
   @Override
   public Double visitCash(Cash cash, Object data) {
-    return cash.getPaymentTime();
+    return cash.getMaturity();
   }
 
   @Override

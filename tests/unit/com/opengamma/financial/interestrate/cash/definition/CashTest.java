@@ -60,7 +60,7 @@ public class CashTest {
     final double time = 1 / 52.;
     final double rate = 0.05;
     final Cash cash = new Cash(time, rate, CURVE_NAME);
-    assertEquals(cash.getPaymentTime(), time, 0);
+    assertEquals(cash.getMaturity(), time, 0);
     assertEquals(cash.getYearFraction(), time, 0);
     assertEquals(cash.getRate(), rate, 0);
     assertEquals(cash.getTradeTime(), 0, 0);

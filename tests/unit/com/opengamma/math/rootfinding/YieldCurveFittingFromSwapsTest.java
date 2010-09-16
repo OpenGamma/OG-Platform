@@ -213,8 +213,7 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
       for (int i = 0; i < n; i++) {
         instrument = makeSwap(curveKnots[i], curveName, curveName, 0.0);
         swapRates[i] = ParRateCalculator.getInstance().getValue(instrument, curveBundle);
-        instrument = updateRate(instrument, swapRates[i]);
-        instruments.add(instrument);
+        instruments.add(instrument.withRate(swapRates[i]));
       }
 
       dataBundle = updateInstruments(dataBundle, instruments);
@@ -328,7 +327,7 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
     for (int i = 0; i < n; i++) {
       instrument = makeSwap(swapMaturities[i], curve1, curve2, 0);
       swapValues[i] = ParRateCalculator.getInstance().getValue(instrument, curveBundle);
-      instruments.add(updateRate(instrument, swapValues[i]));
+      instruments.add(instrument.withRate(swapValues[i]));
     }
 
     YieldCurveBundle knowCurves = null;
@@ -349,5 +348,4 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
 
     return data;
   }
-
 }

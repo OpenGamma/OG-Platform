@@ -190,4 +190,9 @@ public class ForwardRateAgreement implements InterestRateDerivative {
     return visitor.visitForwardRateAgreement(this, data);
   }
 
+  @Override
+  public ForwardRateAgreement withRate(double rate) {
+    return new ForwardRateAgreement(getSettlementDate(), getMaturity(), getFixingDate(), getForwardYearFraction(), getDiscountingYearFraction(), rate, getFundingCurveName(), getLiborCurveName());
+  }
+
 }

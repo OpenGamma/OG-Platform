@@ -8,6 +8,8 @@ package com.opengamma.financial.interestrate.swap.definition;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.annuity.definition.Annuity;
@@ -63,6 +65,11 @@ public class Swap implements InterestRateDerivative {
     Swap other = (Swap) obj;
     return ObjectUtils.equals(this._payLeg, other._payLeg) && ObjectUtils.equals(this._receiveLeg, other._receiveLeg);
 
+  }
+
+  @Override
+  public InterestRateDerivative withRate(double rate) {
+    throw new NotImplementedException();
   }
 
 }

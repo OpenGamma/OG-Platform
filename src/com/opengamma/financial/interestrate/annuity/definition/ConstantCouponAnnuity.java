@@ -41,6 +41,11 @@ public class ConstantCouponAnnuity extends FixedAnnuity {
   }
 
   @Override
+  public ConstantCouponAnnuity withRate(double rate) {
+    return new ConstantCouponAnnuity(getPaymentTimes(), getNotional(), rate, getYearFractions(), getFundingCurveName());
+  }
+
+  @Override
   public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitConstantCouponAnnuity(this, data);
   }

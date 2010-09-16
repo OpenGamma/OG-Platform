@@ -10,7 +10,6 @@ import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
-
 /**
  * 
  */
@@ -38,20 +37,18 @@ public class LiborTest {
     final double time = 1;
     final Libor libor = new Libor(time, RATE, CURVE_NAME);
     assertEquals(libor.getMaturity(), time, 0);
-    assertEquals(libor.getFixingDate(), 0, 0);
-    assertEquals(libor.getSettlementDate(), 0, 0);
-    assertEquals(libor.getForwardYearFraction(), time, 0);
-    assertEquals(libor.getStrike(), RATE, 0);
-    assertEquals(libor.getLiborCurveName(), CURVE_NAME);
-    assertEquals(libor.getFundingCurveName(), CURVE_NAME);
+    assertEquals(libor.getTradeTime(), 0, 0);
+    assertEquals(libor.getYearFraction(), time, 0);
+    assertEquals(libor.getRate(), RATE, 0);
+    assertEquals(libor.getYieldCurveName(), CURVE_NAME);
     Libor other = new Libor(time, RATE, CURVE_NAME);
     assertEquals(other, libor);
     assertEquals(other.hashCode(), libor.hashCode());
-    ////
-    other = new Libor(0, time, time, RATE, CURVE_NAME);
+    // //
+    other = new Libor(time, RATE, 0, time, CURVE_NAME);
     assertEquals(other, libor);
     assertEquals(other.hashCode(), libor.hashCode());
-    ////
+    // //
     other = new Libor(time + 0.01, RATE, CURVE_NAME);
     assertFalse(other.equals(libor));
     other = new Libor(time, RATE + 0.01, CURVE_NAME);

@@ -58,7 +58,7 @@ public final class ParRateCurveSensitivityCalculator implements InterestRateDeri
     final String curveName = cash.getYieldCurveName();
     final YieldAndDiscountCurve curve = curves.getCurve(curveName);
     final double ta = cash.getTradeTime();
-    final double tb = cash.getPaymentTime();
+    final double tb = cash.getMaturity();
     final double yearFrac = cash.getYearFraction();
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> temp = new ArrayList<DoublesPair>();

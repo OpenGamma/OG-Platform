@@ -51,7 +51,7 @@ public final class PresentValueCouponSensitivityCalculator implements InterestRa
   @Override
   public Double visitCash(final Cash cash, final YieldCurveBundle curves) {
     final YieldAndDiscountCurve curve = curves.getCurve(cash.getYieldCurveName());
-    return curve.getDiscountFactor(cash.getPaymentTime()) * cash.getYearFraction();
+    return curve.getDiscountFactor(cash.getMaturity()) * cash.getYearFraction();
   }
 
   @Override

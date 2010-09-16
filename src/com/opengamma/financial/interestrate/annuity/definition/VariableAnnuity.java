@@ -223,6 +223,15 @@ public class VariableAnnuity implements Annuity {
   }
 
   @Override
+  public VariableAnnuity withRate(double rate) {
+    final double[] spreads = new double[getNumberOfPayments()];
+    for (int i = 0; i < getNumberOfPayments(); i++) {
+      spreads[i] = rate;
+    }
+    return new VariableAnnuity(getPaymentTimes(), getIndexFixingTimes(), getIndexMaturityTimes(), getYearFractions(), spreads, getNotional(), getFundingCurveName(), getLiborCurveName());
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;

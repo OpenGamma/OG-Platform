@@ -143,4 +143,9 @@ public class Bond implements InterestRateDerivative {
   public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitBond(this, data);
   }
+
+  @Override
+  public InterestRateDerivative withRate(double rate) {
+    return new Bond(getPayments(), rate, getFixedAnnuity().getYearFractions(), getCurveName());
+  }
 }

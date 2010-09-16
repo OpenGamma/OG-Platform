@@ -49,4 +49,9 @@ public class FixedFloatSwap extends Swap {
     return visitor.visitFixedFloatSwap(this, data);
   }
 
+  @Override
+  public FixedFloatSwap withRate(double rate) {
+    return new FixedFloatSwap(getFixedLeg().withRate(rate), getFloatingLeg());
+  }
+
 }

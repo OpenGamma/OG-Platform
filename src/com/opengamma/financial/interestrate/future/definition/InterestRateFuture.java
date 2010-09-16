@@ -191,4 +191,9 @@ public class InterestRateFuture implements InterestRateDerivative {
     return visitor.visitInterestRateFuture(this, data);
   }
 
+  @Override
+  public InterestRateFuture withRate(double rate) {
+    return new InterestRateFuture(getSettlementDate(), getFixingDate(), getMaturity(), getIndexYearFraction(), getValueYearFraction(), 100 * (1 - rate), getCurveName());
+  }
+
 }

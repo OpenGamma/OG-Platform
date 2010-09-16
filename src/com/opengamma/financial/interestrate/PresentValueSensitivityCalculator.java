@@ -48,7 +48,7 @@ public final class PresentValueSensitivityCalculator implements InterestRateDeri
     final String curveName = cash.getYieldCurveName();
     final YieldAndDiscountCurve curve = curves.getCurve(curveName);
     final double ta = cash.getTradeTime();
-    final double tb = cash.getPaymentTime();
+    final double tb = cash.getMaturity();
     final DoublesPair s1 = new DoublesPair(ta, ta * curve.getDiscountFactor(ta));
     final DoublesPair s2 = new DoublesPair(tb, -tb * curve.getDiscountFactor(tb) * (1 + cash.getYearFraction() * cash.getRate()));
     final List<DoublesPair> temp = new ArrayList<DoublesPair>();

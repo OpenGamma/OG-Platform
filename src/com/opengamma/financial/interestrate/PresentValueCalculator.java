@@ -71,7 +71,7 @@ public final class PresentValueCalculator implements InterestRateDerivativeVisit
   @Override
   public Double visitCash(final Cash cash, final YieldCurveBundle curves) {
     final double ta = cash.getTradeTime();
-    final double tb = cash.getPaymentTime();
+    final double tb = cash.getMaturity();
     final YieldAndDiscountCurve curve = curves.getCurve(cash.getYieldCurveName());
     return curve.getDiscountFactor(tb) * (1 + cash.getYearFraction() * cash.getRate()) - curve.getDiscountFactor(ta);
   }

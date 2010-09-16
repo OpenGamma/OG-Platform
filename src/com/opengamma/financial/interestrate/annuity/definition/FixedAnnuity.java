@@ -157,6 +157,14 @@ public class FixedAnnuity implements Annuity {
     return new FixedAnnuity(getPaymentTimes(), getNotional(), coupons, getYearFractions(), getFundingCurveName());
   }
 
+  public FixedAnnuity withRate(double rate) {
+    final double[] coupons = new double[getNumberOfPayments()];
+    for (int i = 0; i < getNumberOfPayments(); i++) {
+      coupons[i] = rate;
+    }
+    return new FixedAnnuity(getPaymentTimes(), getNotional(), coupons, getYearFractions(), getFundingCurveName());
+  }
+
   /**
    * fixed annuity does not have a spread
    * @return this
