@@ -6,7 +6,6 @@
 package com.opengamma.financial.interestrate.annuity.definition;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
 
 /**
  * 
@@ -42,8 +41,8 @@ public class ConstantCouponAnnuity extends FixedAnnuity {
   }
 
   @Override
-  public <T> T accept(final InterestRateDerivativeVisitor<T> visitor, final YieldCurveBundle curves) {
-    return visitor.visitConstantCouponAnnuity(this, curves);
+  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
+    return visitor.visitConstantCouponAnnuity(this, data);
   }
 
   @Override

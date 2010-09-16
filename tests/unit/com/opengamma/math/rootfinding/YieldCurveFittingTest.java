@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.rootfinding;
@@ -134,10 +134,10 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
     final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> extrapolatorWithSense = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
         .getSensitivityCalculator(interpolator, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, false);
 
-    final InterestRateDerivativeVisitor<Double> calculator = PresentValueCalculator.getInstance();
-    final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> sensitivityCalculator = PresentValueSensitivityCalculator.getInstance();
-    //final InterestRateDerivativeVisitor<Double> calculator = ParRateDifferenceCalculator.getInstance();
-    //final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
+    final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = PresentValueCalculator.getInstance();
+    final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = PresentValueSensitivityCalculator.getInstance();
+    // final InterestRateDerivativeVisitor<Double> calculator = ParRateDifferenceCalculator.getInstance();
+    // final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
 
     final HashMap<String, double[]> maturities = new LinkedHashMap<String, double[]>();
 
@@ -231,8 +231,8 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
     final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> extrapolatorWithSense = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
         .getSensitivityCalculator(interpolator, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, false);
 
-    final InterestRateDerivativeVisitor<Double> calculator = ParRateDifferenceCalculator.getInstance();
-    final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
+    final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = ParRateDifferenceCalculator.getInstance();
+    final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
 
     final HashMap<String, double[]> fundingMaturities = new LinkedHashMap<String, double[]>();
     final HashMap<String, double[]> liborMaturities = new LinkedHashMap<String, double[]>();

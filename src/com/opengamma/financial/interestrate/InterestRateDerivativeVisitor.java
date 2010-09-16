@@ -18,31 +18,32 @@ import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 
 /**
- * @param <T> Type of visitor
+ * @param <S> Type of additional data needed for the calculation (this can be a null object if not needed) 
+ *  @param <T> Type of visitor
  */
-public interface InterestRateDerivativeVisitor<T> {
+public interface InterestRateDerivativeVisitor<S, T> {
 
-  T getValue(InterestRateDerivative ird, YieldCurveBundle curves);
+  T getValue(InterestRateDerivative ird, S data);
 
-  T visitCash(Cash cash, YieldCurveBundle curves);
+  T visitCash(Cash cash, S data);
 
-  T visitForwardRateAgreement(ForwardRateAgreement fra, YieldCurveBundle curves);
+  T visitForwardRateAgreement(ForwardRateAgreement fra, S data);
 
-  T visitInterestRateFuture(InterestRateFuture future, YieldCurveBundle curves);
+  T visitInterestRateFuture(InterestRateFuture future, S data);
 
-  T visitSwap(final Swap swap, YieldCurveBundle curves);
+  T visitSwap(final Swap swap, S data);
 
-  T visitFixedFloatSwap(final FixedFloatSwap swap, YieldCurveBundle curves);
+  T visitFixedFloatSwap(final FixedFloatSwap swap, S data);
 
-  T visitBasisSwap(final BasisSwap swap, YieldCurveBundle curves);
+  T visitBasisSwap(final BasisSwap swap, S data);
 
-  T visitFloatingRateNote(final FloatingRateNote frn, YieldCurveBundle curves);
+  T visitFloatingRateNote(final FloatingRateNote frn, S data);
 
-  T visitBond(final Bond bond, YieldCurveBundle curves);
+  T visitBond(final Bond bond, S data);
 
-  T visitFixedAnnuity(final FixedAnnuity annuity, YieldCurveBundle curves);
+  T visitFixedAnnuity(final FixedAnnuity annuity, S data);
 
-  T visitConstantCouponAnnuity(final ConstantCouponAnnuity annuity, YieldCurveBundle curves);
+  T visitConstantCouponAnnuity(final ConstantCouponAnnuity annuity, S data);
 
-  T visitVariableAnnuity(final VariableAnnuity annuity, YieldCurveBundle curves);
+  T visitVariableAnnuity(final VariableAnnuity annuity, S data);
 }

@@ -25,11 +25,10 @@ import com.opengamma.util.tuple.DoublesPair;
  * 
  */
 public class MultipleYieldCurveFinderJacobian extends Function1D<DoubleMatrix1D, DoubleMatrix2D> {
-  private final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> _calculator;
+  private final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> _calculator;
   private final MultipleYieldCurveFinderDataBundle _data;
 
-  public MultipleYieldCurveFinderJacobian(final MultipleYieldCurveFinderDataBundle data,
-      final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> calculator) {
+  public MultipleYieldCurveFinderJacobian(final MultipleYieldCurveFinderDataBundle data, final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> calculator) {
     Validate.notNull(data, "data");
     Validate.notNull(calculator, "calculator");
     _data = data;
@@ -56,8 +55,7 @@ public class MultipleYieldCurveFinderJacobian extends Function1D<DoubleMatrix1D,
       numberOfNodes = unknownCurveNodePoints.length;
       final double[] yields = Arrays.copyOfRange(x.getData(), index, index + numberOfNodes);
       index += numberOfNodes;
-      final InterpolatedYieldAndDiscountCurve curve = new InterpolatedYieldCurve(unknownCurveNodePoints, yields,
-          interpolator);
+      final InterpolatedYieldAndDiscountCurve curve = new InterpolatedYieldCurve(unknownCurveNodePoints, yields, interpolator);
       curves.setCurve(name, curve);
     }
     final YieldCurveBundle knownCurves = _data.getKnownCurves();
@@ -74,8 +72,7 @@ public class MultipleYieldCurveFinderJacobian extends Function1D<DoubleMatrix1D,
         if (senseMap.containsKey(name)) {
           final InterpolatedYieldAndDiscountCurve curve = (InterpolatedYieldAndDiscountCurve) curves.getCurve(name);
           final Interpolator1DDataBundle data = curve.getDataBundles().values().iterator().next();
-          final Interpolator1DNodeSensitivityCalculator sensitivityCalculator = _data
-              .getSensitivityCalculatorForName(name);
+          final Interpolator1DNodeSensitivityCalculator sensitivityCalculator = _data.getSensitivityCalculatorForName(name);
           final List<DoublesPair> senseList = senseMap.get(name);
           final double[][] sensitivity = new double[senseList.size()][];
           int k = 0;

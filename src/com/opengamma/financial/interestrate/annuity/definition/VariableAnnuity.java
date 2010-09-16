@@ -10,7 +10,6 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -23,7 +22,7 @@ public class VariableAnnuity implements Annuity {
   private final double[] _indexFixingTimes;
   private final double[] _indexMaturityTimes;
   // private final double[] _deltaStart;
-  //private final double[] _deltaEnd;
+  // private final double[] _deltaEnd;
   private final double[] _spreads;
   private final double _notional;
   private final int _n;
@@ -48,8 +47,7 @@ public class VariableAnnuity implements Annuity {
    * @param fundingCurveName liborCurveName
    * @param liborCurveName Name of curve from which forward rates are calculated
    */
-  public VariableAnnuity(final double[] paymentTimes, final double notional, final String fundingCurveName,
-      final String liborCurveName) {
+  public VariableAnnuity(final double[] paymentTimes, final double notional, final String fundingCurveName, final String liborCurveName) {
     Validate.notNull(fundingCurveName);
     Validate.notNull(liborCurveName);
     Validate.notNull(paymentTimes);
@@ -82,14 +80,12 @@ public class VariableAnnuity implements Annuity {
    * @param fundingCurveName  Name of curve from which payments are discounted
    * @param liborCurveName Name of curve from which forward rates are calculated
    */
-  public VariableAnnuity(final double[] paymentTimes, final double[] indexFixingTimes,
-      final double[] indexMaturityTimes, final double[] yearFraction, final double notional,
+  public VariableAnnuity(final double[] paymentTimes, final double[] indexFixingTimes, final double[] indexMaturityTimes, final double[] yearFraction, final double notional,
       final String fundingCurveName, final String liborCurveName) {
 
     Validate.notNull(paymentTimes);
     double[] spreads = new double[paymentTimes.length];
-    argumentCheck(paymentTimes, indexFixingTimes, indexMaturityTimes, yearFraction, spreads, fundingCurveName,
-        liborCurveName);
+    argumentCheck(paymentTimes, indexFixingTimes, indexMaturityTimes, yearFraction, spreads, fundingCurveName, liborCurveName);
 
     _notional = notional;
     _n = paymentTimes.length;
@@ -114,12 +110,10 @@ public class VariableAnnuity implements Annuity {
    * @param fundingCurveName  Name of curve from which payments are discounted
    * @param liborCurveName Name of curve from which forward rates are calculated
    */
-  public VariableAnnuity(final double[] paymentTimes, final double[] indexFixingTimes,
-      final double[] indexMaturityTimes, final double[] yearFraction, final double[] spreads, final double notional,
+  public VariableAnnuity(final double[] paymentTimes, final double[] indexFixingTimes, final double[] indexMaturityTimes, final double[] yearFraction, final double[] spreads, final double notional,
       final String fundingCurveName, final String liborCurveName) {
 
-    argumentCheck(paymentTimes, indexFixingTimes, indexMaturityTimes, yearFraction, spreads, fundingCurveName,
-        liborCurveName);
+    argumentCheck(paymentTimes, indexFixingTimes, indexMaturityTimes, yearFraction, spreads, fundingCurveName, liborCurveName);
 
     _notional = notional;
     _n = paymentTimes.length;
@@ -132,8 +126,7 @@ public class VariableAnnuity implements Annuity {
     _liborCurveName = liborCurveName;
   }
 
-  private void argumentCheck(final double[] paymentTimes, final double[] indexFixingTimes,
-      final double[] indexMaturityTimes, final double[] yearFraction, final double[] spreads,
+  private void argumentCheck(final double[] paymentTimes, final double[] indexFixingTimes, final double[] indexMaturityTimes, final double[] yearFraction, final double[] spreads,
       final String fundingCurveName, final String liborCurveName) {
     Validate.notNull(fundingCurveName);
     Validate.notNull(liborCurveName);
@@ -154,7 +147,7 @@ public class VariableAnnuity implements Annuity {
     Validate.isTrue(yearFraction.length == n);
     Validate.isTrue(spreads.length == n);
 
-    //sanity checks
+    // sanity checks
     for (int i = 0; i < n; i++) {
       if (indexFixingTimes[i] >= indexMaturityTimes[i]) {
         throw new IllegalArgumentException("fixing times after maturity times");
@@ -216,8 +209,8 @@ public class VariableAnnuity implements Annuity {
 
   @Override
   public VariableAnnuity withZeroSpread() {
-    return new VariableAnnuity(getPaymentTimes(), getIndexFixingTimes(), getIndexMaturityTimes(), getYearFractions(),
-        new double[getNumberOfPayments()], getNotional(), getFundingCurveName(), getLiborCurveName());
+    return new VariableAnnuity(getPaymentTimes(), getIndexFixingTimes(), getIndexMaturityTimes(), getYearFractions(), new double[getNumberOfPayments()], getNotional(), getFundingCurveName(),
+        getLiborCurveName());
   }
 
   @Override
@@ -294,8 +287,8 @@ public class VariableAnnuity implements Annuity {
   }
 
   @Override
-  public <T> T accept(final InterestRateDerivativeVisitor<T> visitor, final YieldCurveBundle curves) {
-    return visitor.visitVariableAnnuity(this, curves);
+  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
+    return visitor.visitVariableAnnuity(this, data);
   }
 
 }

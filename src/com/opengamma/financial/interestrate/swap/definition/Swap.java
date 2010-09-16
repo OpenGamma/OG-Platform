@@ -10,7 +10,6 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.Annuity;
 
 /**
@@ -37,8 +36,8 @@ public class Swap implements InterestRateDerivative {
   }
 
   @Override
-  public <T> T accept(InterestRateDerivativeVisitor<T> visitor, YieldCurveBundle curves) {
-    return visitor.visitSwap(this, curves);
+  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+    return visitor.visitSwap(this, data);
   }
 
   @Override

@@ -10,7 +10,6 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -188,8 +187,8 @@ public class InterestRateFuture implements InterestRateDerivative {
   }
 
   @Override
-  public <T> T accept(final InterestRateDerivativeVisitor<T> visitor, final YieldCurveBundle curves) {
-    return visitor.visitInterestRateFuture(this, curves);
+  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
+    return visitor.visitInterestRateFuture(this, data);
   }
 
 }

@@ -23,7 +23,7 @@ import com.opengamma.financial.interestrate.swap.definition.Swap;
 /**
  * 
 **/
-public final class ParRateDifferenceCalculator implements InterestRateDerivativeVisitor<Double> {
+public final class ParRateDifferenceCalculator implements InterestRateDerivativeVisitor<YieldCurveBundle, Double> {
 
   private static final ParRateCalculator RATE_CAL = ParRateCalculator.getInstance();
   private static ParRateDifferenceCalculator s_instance = new ParRateDifferenceCalculator();

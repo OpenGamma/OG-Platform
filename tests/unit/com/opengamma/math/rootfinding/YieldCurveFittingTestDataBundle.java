@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.rootfinding;
@@ -31,8 +31,8 @@ public class YieldCurveFittingTestDataBundle extends MultipleYieldCurveFinderDat
     ANALYTIC_JACOBIAN, FD_JACOBIAN, FD_CURVE_SENITIVITY
   }
 
-  private InterestRateDerivativeVisitor<Double> _marketValueCalculator;
-  private InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> _marketValueSensitivityCalculator;
+  private InterestRateDerivativeVisitor<YieldCurveBundle, Double> _marketValueCalculator;
+  private InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> _marketValueSensitivityCalculator;
 
   private double[] _marketRates;
   private HashMap<String, double[]> _curveYields;
@@ -62,17 +62,12 @@ public class YieldCurveFittingTestDataBundle extends MultipleYieldCurveFinderDat
    * @param unknownCurveInterpolators
    * @param unknownCurveNodeSensitivityCalculators
    */
-  public YieldCurveFittingTestDataBundle(
-      List<InterestRateDerivative> derivatives,
-      YieldCurveBundle knownCurves,
-      LinkedHashMap<String, double[]> unknownCurveNodePoints,
+  public YieldCurveFittingTestDataBundle(List<InterestRateDerivative> derivatives, YieldCurveBundle knownCurves, LinkedHashMap<String, double[]> unknownCurveNodePoints,
       LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> unknownCurveInterpolators,
       LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators,
-      InterestRateDerivativeVisitor<Double> marketValueCalculator,
-      InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> marketValueSensitivityCalculator,
+      InterestRateDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator, InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator,
       double[] marketRates, DoubleMatrix1D startPosition) {
-    super(derivatives, knownCurves, unknownCurveNodePoints, unknownCurveInterpolators,
-        unknownCurveNodeSensitivityCalculators);
+    super(derivatives, knownCurves, unknownCurveNodePoints, unknownCurveInterpolators, unknownCurveNodeSensitivityCalculators);
     Validate.notNull(marketValueCalculator);
     Validate.notNull(marketValueSensitivityCalculator);
     Validate.notNull(marketRates);
@@ -102,17 +97,12 @@ public class YieldCurveFittingTestDataBundle extends MultipleYieldCurveFinderDat
     _curveYields = curveYields;
   }
 
-  public YieldCurveFittingTestDataBundle(
-      List<InterestRateDerivative> derivatives,
-      YieldCurveBundle knownCurves,
-      LinkedHashMap<String, double[]> unknownCurveNodePoints,
+  public YieldCurveFittingTestDataBundle(List<InterestRateDerivative> derivatives, YieldCurveBundle knownCurves, LinkedHashMap<String, double[]> unknownCurveNodePoints,
       LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> unknownCurveInterpolators,
       LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators,
-      InterestRateDerivativeVisitor<Double> marketValueCalculator,
-      InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> marketValueSensitivityCalculator,
+      InterestRateDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator, InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator,
       double[] marketRates, DoubleMatrix1D startPosition, HashMap<String, double[]> curveYields) {
-    super(derivatives, knownCurves, unknownCurveNodePoints, unknownCurveInterpolators,
-        unknownCurveNodeSensitivityCalculators);
+    super(derivatives, knownCurves, unknownCurveNodePoints, unknownCurveInterpolators, unknownCurveNodeSensitivityCalculators);
     Validate.notNull(marketValueCalculator);
     Validate.notNull(marketValueSensitivityCalculator);
     Validate.notNull(marketRates);
@@ -135,7 +125,7 @@ public class YieldCurveFittingTestDataBundle extends MultipleYieldCurveFinderDat
    * Gets the marketValueSensitivityCalculator field.
    * @return the marketValueSensitivityCalculator
    */
-  public InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> getMarketValueSensitivityCalculator() {
+  public InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> getMarketValueSensitivityCalculator() {
     return _marketValueSensitivityCalculator;
   }
 
@@ -143,8 +133,7 @@ public class YieldCurveFittingTestDataBundle extends MultipleYieldCurveFinderDat
    * Sets the marketValueSensitivityCalculator field.
    * @param marketValueSensitivityCalculator  the marketValueSensitivityCalculator
    */
-  public void setMarketValueSensitivityCalculator(
-      InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> marketValueSensitivityCalculator) {
+  public void setMarketValueSensitivityCalculator(InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator) {
     _marketValueSensitivityCalculator = marketValueSensitivityCalculator;
   }
 
@@ -184,7 +173,7 @@ public class YieldCurveFittingTestDataBundle extends MultipleYieldCurveFinderDat
    * Gets the marketValueCalculator field.
    * @return the marketValueCalculator
    */
-  public InterestRateDerivativeVisitor<Double> getMarketValueCalculator() {
+  public InterestRateDerivativeVisitor<YieldCurveBundle, Double> getMarketValueCalculator() {
     return _marketValueCalculator;
   }
 
@@ -192,7 +181,7 @@ public class YieldCurveFittingTestDataBundle extends MultipleYieldCurveFinderDat
    * Sets the marketValueCalculator field.
    * @param marketValueCalculator  the marketValueCalculator
    */
-  public void setMarketValueCalculator(InterestRateDerivativeVisitor<Double> marketValueCalculator) {
+  public void setMarketValueCalculator(InterestRateDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator) {
     _marketValueCalculator = marketValueCalculator;
   }
 

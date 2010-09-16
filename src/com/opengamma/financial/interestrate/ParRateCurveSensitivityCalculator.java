@@ -32,7 +32,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * 
  */
-public final class ParRateCurveSensitivityCalculator implements InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> {
+public final class ParRateCurveSensitivityCalculator implements InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> {
 
   private final PresentValueCalculator _pvCalculator = PresentValueCalculator.getInstance();
   private final PresentValueSensitivityCalculator _pvSenseCalculator = PresentValueSensitivityCalculator.getInstance();

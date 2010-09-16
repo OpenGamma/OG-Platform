@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.interestrate;
@@ -23,7 +23,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 /**
  * 
  */
-public final class PresentValueCouponSensitivityCalculator implements InterestRateDerivativeVisitor<Double> {
+public final class PresentValueCouponSensitivityCalculator implements InterestRateDerivativeVisitor<YieldCurveBundle, Double> {
 
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final PresentValueCouponSensitivityCalculator s_instance = new PresentValueCouponSensitivityCalculator();

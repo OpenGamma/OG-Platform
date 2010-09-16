@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.rootfinding;
@@ -80,10 +80,10 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
     }
     final DoubleMatrix1D startPosition = new DoubleMatrix1D(rates);
 
-    //   ParRateDifferenceCalculator calculator = ParRateDifferenceCalculator.getInstance();
+    // ParRateDifferenceCalculator calculator = ParRateDifferenceCalculator.getInstance();
     // ParRateCurveSensitivityCalculator sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
-    final InterestRateDerivativeVisitor<Double> calculator = PresentValueCalculator.getInstance();
-    final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> sensitivityCalculator = PresentValueSensitivityCalculator.getInstance();
+    final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = PresentValueCalculator.getInstance();
+    final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = PresentValueSensitivityCalculator.getInstance();
 
     return getSwapOnlySetup(payments, curveNames, null, curveKnots, yields, startPosition, interpolatorName, calculator, sensitivityCalculator);
   }
@@ -113,10 +113,10 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
 
     final DoubleMatrix1D startPosition = new DoubleMatrix1D(rates);
 
-    //final ParRateDifferenceCalculator calculator = ParRateDifferenceCalculator.getInstance();
-    //final ParRateCurveSensitivityCalculator sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
-    final InterestRateDerivativeVisitor<Double> calculator = PresentValueCalculator.getInstance();
-    final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> sensitivityCalculator = PresentValueSensitivityCalculator.getInstance();
+    // final ParRateDifferenceCalculator calculator = ParRateDifferenceCalculator.getInstance();
+    // final ParRateCurveSensitivityCalculator sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
+    final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = PresentValueCalculator.getInstance();
+    final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = PresentValueSensitivityCalculator.getInstance();
 
     return getSwapOnlySetup(payments, curveNames, null, curveKnots, yields, startPosition, interpolatorName, calculator, sensitivityCalculator);
   }
@@ -189,7 +189,7 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
     DoubleMatrix1D yieldCurveNodes = data.getStartPosition();
 
     for (int i = 0; i < n; i++) {
-      forwards[i] = 0.01 + curveKnots[i] * 0.002;//start with upward sloping forward curve 
+      forwards[i] = 0.01 + curveKnots[i] * 0.002;// start with upward sloping forward curve
     }
 
     MultipleYieldCurveFinderDataBundle dataBundle = data;
@@ -253,8 +253,8 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
 
     final DoubleMatrix1D startPosition = new DoubleMatrix1D(rates);
 
-    final InterestRateDerivativeVisitor<Double> calculator = PresentValueCalculator.getInstance();
-    final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> sensitivityCalculator = PresentValueSensitivityCalculator.getInstance();
+    final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = PresentValueCalculator.getInstance();
+    final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = PresentValueSensitivityCalculator.getInstance();
 
     final YieldCurveFittingTestDataBundle data = getSwapOnlySetup(payments, curveNames, knownCurves, curveKnots, yields, startPosition, interpolatorName, calculator, sensitivityCalculator);
 
@@ -287,8 +287,8 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
     }
     final DoubleMatrix1D startPosition = new DoubleMatrix1D(rates);
 
-    final InterestRateDerivativeVisitor<Double> calculator = PresentValueCalculator.getInstance();
-    final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> sensitivityCalculator = PresentValueSensitivityCalculator.getInstance();
+    final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = PresentValueCalculator.getInstance();
+    final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = PresentValueSensitivityCalculator.getInstance();
 
     final YieldCurveFittingTestDataBundle data = getSwapOnlySetup(payments, curveNames, knownCurves, curveKnots, yields, startPosition, interpolatorName, calculator, sensitivityCalculator);
 
@@ -297,8 +297,8 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
   }
 
   protected YieldCurveFittingTestDataBundle getSwapOnlySetup(final int[] swapMaturities, final List<String> curveNames, final List<String> fixedCurveNames, final List<double[]> curveKnots,
-      final List<double[]> yields, final DoubleMatrix1D startPosition, final String interpolator, final InterestRateDerivativeVisitor<Double> marketValueCalculator,
-      final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> marketValueSensitivityCalculator) {
+      final List<double[]> yields, final DoubleMatrix1D startPosition, final String interpolator, final InterestRateDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator,
+      final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator) {
 
     final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolator, LINEAR_EXTRAPOLATOR,
         FLAT_EXTRAPOLATOR);
@@ -336,7 +336,7 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
       knowCurves = new YieldCurveBundle();
       for (final String name : fixedCurveNames) {
         knowCurves.setCurve(name, curveBundle.getCurve(name));
-        //remove the know curves from the list to be fitted 
+        // remove the know curves from the list to be fitted
         final int index = curveNames.indexOf(name);
         curveNames.remove(index);
         curveKnots.remove(index);
