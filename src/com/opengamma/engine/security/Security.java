@@ -17,7 +17,7 @@ import com.opengamma.id.UniqueIdentifier;
 public interface Security extends UniqueIdentifiable {
 
   /**
-   * Gets the unique identifier of the node.
+   * Gets the unique identifier of the security.
    * @return the identifier, not null
    */
   UniqueIdentifier getUniqueIdentifier();
