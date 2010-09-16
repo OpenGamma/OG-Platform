@@ -132,4 +132,44 @@ public class MasterTimeSeriesSource implements HistoricalDataSource {
     } 
     return result;
   }
+
+  @Override
+  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String dataSource, String dataProvider, String field, LocalDate start,
+      boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    ArgumentChecker.notNull(start, "start date");
+    ArgumentChecker.notNull(end, "end date");
+    if (!inclusiveStart) {
+      start = start.plusDays(1);
+    }
+    if (exclusiveEnd) {
+      end = end.minusDays(1);
+    }
+    return getHistoricalData(identifiers, dataSource, dataProvider, field, start, end);
+  }
+
+  @Override
+  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    ArgumentChecker.notNull(start, "start date");
+    ArgumentChecker.notNull(end, "end date");
+    if (!inclusiveStart) {
+      start = start.plusDays(1);
+    }
+    if (exclusiveEnd) {
+      end = end.minusDays(1);
+    }
+    return getHistoricalData(identifiers, start, end);
+  }
+
+  @Override
+  public LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uid, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    ArgumentChecker.notNull(start, "start date");
+    ArgumentChecker.notNull(end, "end date");
+    if (!inclusiveStart) {
+      start = start.plusDays(1);
+    }
+    if (exclusiveEnd) {
+      end = end.minusDays(1);
+    }
+    return getHistoricalData(uid, start, end);
+  }
 }

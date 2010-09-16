@@ -5,12 +5,21 @@
  */
 package com.opengamma.timeseries.db;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.util.List;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 
+import org.junit.Test;
+
+import com.opengamma.id.IdentifierBundle;
+import com.opengamma.timeseries.TimeSeriesDocument;
 import com.opengamma.timeseries.TimeSeriesMaster;
+import com.opengamma.timeseries.TimeSeriesSearchRequest;
+import com.opengamma.timeseries.TimeSeriesSearchResult;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
@@ -56,6 +65,53 @@ public class LocalDateTimeSeriesMasterTest extends TimeSeriesMasterTest<LocalDat
   @Override
   protected String print(LocalDate date) {
     return DateUtil.printYYYYMMDD(date);
+  }
+  
+  @Test
+  public void getTimeSeriesWithDateRange() throws Exception {
+    List<TimeSeriesDocument<LocalDate>> tsList = addAndTestTimeSeries();
+    for (TimeSeriesDocument<LocalDate> tsDoc : tsList) {
+      DoubleTimeSeries<LocalDate> timeSeries = tsDoc.getTimeSeries();
+      
+      TimeSeriesDocument<LocalDate> searchDoc = getHistoricalTimeSeries(tsDoc.getIdentifiers(),  tsDoc.getDataSource(), tsDoc.getDataProvider(), tsDoc.getDataField(), null, null);
+      assertNotNull(searchDoc);
+      assertEquals(tsDoc.getUniqueIdentifier(), searchDoc.getUniqueIdentifier());
+      assertEquals(timeSeries, searchDoc.getTimeSeries());
+      
+      // test end dates
+      LocalDate earliestDate = timeSeries.getEarliestTime();
+      LocalDate latestDate = timeSeries.getLatestTime();
+      
+      searchDoc = getHistoricalTimeSeries(tsDoc.getIdentifiers(),  tsDoc.getDataSource(), tsDoc.getDataProvider(), tsDoc.getDataField(), earliestDate, latestDate);
+      assertNotNull(searchDoc);
+      assertEquals(tsDoc.getUniqueIdentifier(), searchDoc.getUniqueIdentifier());
+      assertEquals(timeSeries, searchDoc.getTimeSeries());
+
+      // test subSeries
+      LocalDate start = earliestDate.plusDays(1);
+      LocalDate end = latestDate.minusDays(1);
+      if (start.isBefore(end) || start.equals(end)) {
+        searchDoc = getHistoricalTimeSeries(tsDoc.getIdentifiers(),  tsDoc.getDataSource(), tsDoc.getDataProvider(), tsDoc.getDataField(), start, end);
+        assertNotNull(searchDoc);
+        assertEquals(tsDoc.getUniqueIdentifier(), searchDoc.getUniqueIdentifier());
+        assertEquals(start, searchDoc.getTimeSeries().getEarliestTime());
+        assertEquals(end, searchDoc.getTimeSeries().getLatestTime());
+      }
+    }
+  }
+  
+  private TimeSeriesDocument<LocalDate> getHistoricalTimeSeries(IdentifierBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate earliestDate, LocalDate latestDate) {
+    TimeSeriesSearchRequest<LocalDate> request = new TimeSeriesSearchRequest<LocalDate>();
+    request.getIdentifiers().addAll(identifierBundle.getIdentifiers());
+    request.setDataSource(dataSource);
+    request.setDataProvider(dataProvider);
+    request.setDataField(dataField);
+    request.setStart(earliestDate);
+    request.setEnd(latestDate);
+    request.setLoadTimeSeries(true);
+    
+    TimeSeriesSearchResult<LocalDate> searchResult = getTsMaster().searchTimeSeries(request);
+    return searchResult.getDocuments().get(0);
   }
   
 }
