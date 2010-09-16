@@ -50,6 +50,7 @@ public class FunctionInvocationStatisticsSenderTest {
       
     });
     sender.setUpdatePeriod(1);
+    long t = System.nanoTime ();
     for (int i = 0; i < 100; i++) {
       sender.functionInvoked("A", "1", 1, 2.0, 3.0, 4.0);
       sender.functionInvoked("A", "2", 1, 2.0, 3.0, 4.0);
@@ -59,9 +60,10 @@ public class FunctionInvocationStatisticsSenderTest {
       } catch (InterruptedException e) {
       }
     }
+    t = (System.nanoTime () - t) / 1000000000;
     sender.functionInvoked ("A", "3", 300, 300 * 4.0, 300 * 5.0, 300 * 6.0);
     sender.flush ();
-    assertEquals (3, messages.get ());
+    assertEquals (t + 1, messages.get ());
     assertEquals (2.0, _cost.getStatistics ("A", "1").getInvocationCost (), 1e-5);
     assertEquals (3.0, _cost.getStatistics ("A", "1").getDataInputCost (), 1e-5);
     assertEquals (4.0, _cost.getStatistics ("A", "1").getDataOutputCost (), 1e-5);
