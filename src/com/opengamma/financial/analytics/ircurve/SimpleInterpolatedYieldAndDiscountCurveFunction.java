@@ -81,16 +81,6 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     _result = null;
     _results = null;
   }
-  
-//  private void initImpl() {
-//    _interpolator = Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName());
-//    _requirements = Collections.unmodifiableSet(buildRequirements(_specification));
-//    _result = new ValueSpecification(new ValueRequirement(
-//        _isYieldCurve ? ValueRequirementNames.YIELD_CURVE : ValueRequirementNames.DISCOUNT_CURVE, 
-//         _definition.getCurrency()),
-//         getUniqueIdentifier());
-//    _results = Collections.singleton(_result);
-//  }
 
   @Override
   public void init(final FunctionCompilationContext context) {
@@ -113,9 +103,9 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     }
     ConventionBundleSource conventionBundleSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     // get the swap convention so we can find out the initial rate
-    ConventionBundle cpnventionBundle = conventionBundleSource
+    ConventionBundle conventionBundle = conventionBundleSource
         .getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, specification.getCurrency().getISOCode() + "_SWAP"));
-    ConventionBundle referenceRateConvention = conventionBundleSource.getConventionBundle(IdentifierBundle.of(cpnventionBundle.getSwapFloatingLegInitialRate()));
+    ConventionBundle referenceRateConvention = conventionBundleSource.getConventionBundle(IdentifierBundle.of(conventionBundle.getSwapFloatingLegInitialRate()));
     Identifier initialRefRateId = Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, referenceRateConvention.getIdentifiers().getIdentifier(IdentificationScheme.BLOOMBERG_TICKER));
     result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, initialRefRateId));
     return result;
@@ -223,36 +213,5 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     final ComputedValue resultValue = new ComputedValue(_result, curve);
     return Collections.singleton(resultValue);
   }
-
-//  private static final String DEFINITION_KEY = "definition";
-//  private static final String CURVE_CURRENCY_KEY = "curveCurrency";
-//  private static final String CURVE_DATE_KEY = "curveDate";
-//  private static final String CURVE_NAME_KEY = "curveName";
-//  private static final String IS_YIELD_CURVE_KEY = "yieldCurve";
-
-//  public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
-//    context.objectToFudgeMsgWithClassHeaders(message, DEFINITION_KEY, null, _definition, YieldCurveDefinition.class);
-//    context.objectToFudgeMsgWithClassHeaders(message, CURVE_CURRENCY_KEY, null, _curveCurrency, Currency.class);
-//    context.objectToFudgeMsgWithClassHeaders(message, CURVE_DATE_KEY, null, _curveDate, LocalDate.class);
-//    message.add(CURVE_NAME_KEY, _curveName);
-//    message.add(CURVE_DATE_KEY, _curveDate);
-//    message.add(IS_YIELD_CURVE_KEY, _isYieldCurve);
-//  }
-//
-//  public static SimpleInterpolatedYieldAndDiscountCurveFunction fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-//    final SimpleInterpolatedYieldAndDiscountCurveFunction object = new SimpleInterpolatedYieldAndDiscountCurveFunction(
-//        context.fieldValueToObject(LocalDate.class, message.getByName(CURVE_DATE_KEY)), 
-//        context.fieldValueToObject(Currency.class, message.getByName(CURVE_CURRENCY_KEY)), 
-//        message.getString(CURVE_NAME_KEY), message.getBoolean(IS_YIELD_CURVE_KEY));
-//    final FudgeField field = message.getByName(DEFINITION_KEY);
-//    if (field != null) {
-//      object._definition = context.fieldValueToObject(YieldCurveDefinition.class, field);
-//    }
-//    SimpleInterpolatedYieldAndDiscountCurveFunction function = fromFudgeMsg(object, message);
-//    if (field != null) {
-//      object.initImpl();
-//    }
-//    return function;
-//  }
 
 }
