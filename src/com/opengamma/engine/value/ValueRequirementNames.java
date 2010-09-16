@@ -186,6 +186,7 @@ public interface ValueRequirementNames {
   public static final String FUNDING_AND_FORWARD_JACOBIAN = "FundingAndForwardCurveJacobian";
   public static final String FUNDING_JACOBIAN = "FundingCurveJacobian";
   public static final String FORWARD_JACOBIAN = "ForwardCurveJacobian";  
+  public static final String YIELD_CURVE_JACOBIAN = "YieldCurveJacobian";
   
   // Fixed income analytics
   public static final String PRESENT_VALUE = "PresentValue";
