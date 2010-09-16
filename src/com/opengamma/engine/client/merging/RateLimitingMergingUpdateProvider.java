@@ -140,6 +140,7 @@ public class RateLimitingMergingUpdateProvider<T> extends MergingUpdateProvider<
   
   //-------------------------------------------------------------------------
   private boolean triggerUpdateIfRequired() {    
+    
     long currentTime = System.currentTimeMillis();
     long lastUpdateTime = _lastUpdateTimeMillis.get();
     long lastResultTime = getLastResultTimeMillis();
