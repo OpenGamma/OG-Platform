@@ -57,7 +57,7 @@ public class CurveDefinitionAndSpecifications {
     //final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     //final String rightExtrapolatorName = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
     //TODO need to be able to add interpolator + extrapolator + extrapolator (or even more than one interpolator for use in different regions of the curve) [FIN-149]
-    final YieldCurveDefinition definition = new YieldCurveDefinition(Currency.getInstance("USD"), "SWAP_ONLY", interpolatorName);
+    final YieldCurveDefinition definition = new YieldCurveDefinition(Currency.getInstance("USD"), "SWAP_ONLY", interpolatorName, strips);
     return definition;
   }
 

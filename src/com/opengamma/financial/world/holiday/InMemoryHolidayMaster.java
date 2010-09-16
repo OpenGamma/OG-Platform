@@ -8,6 +8,7 @@ package com.opengamma.financial.world.holiday;
 import java.util.Collection;
 import java.util.Collections;
 
+import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.Validate;
@@ -94,7 +95,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     }
     return processResults(searchHistoricRequest, holidays, searchHistoricRequest.getHolidayType());
   }
-    
+  
   public HolidaySearchResult processResults(HolidaySearchHistoricRequest searchHistoricRequest, Collection<HolidayImpl> holidays, HolidayType holidayType) {
     for (Holiday holiday : holidays) {
       if (holiday.getHolidayType().equals(holidayType)) {
