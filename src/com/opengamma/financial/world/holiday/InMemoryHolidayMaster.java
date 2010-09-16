@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.world.exchange.Exchange;
-import com.opengamma.financial.world.exchange.ExchangeSource;
+import com.opengamma.financial.world.exchange.master.ExchangeSource;
 import com.opengamma.financial.world.region.RegionSource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
