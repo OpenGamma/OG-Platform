@@ -40,7 +40,7 @@ public class WebSecuritiesData extends DirectBean {
   @PropertyDefinition
   private UriInfo _uriInfo;
   /**
-   * The portfolio id from the input URI.
+   * The security id from the input URI.
    */
   @PropertyDefinition
   private String _uriSecurityId;
@@ -198,7 +198,7 @@ public class WebSecuritiesData extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the portfolio id from the input URI.
+   * Gets the security id from the input URI.
    * @return the value of the property
    */
   public String getUriSecurityId() {
@@ -206,7 +206,7 @@ public class WebSecuritiesData extends DirectBean {
   }
 
   /**
-   * Sets the portfolio id from the input URI.
+   * Sets the security id from the input URI.
    * @param uriSecurityId  the new value of the property
    */
   public void setUriSecurityId(String uriSecurityId) {

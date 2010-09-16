@@ -27,7 +27,7 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * RESTful resource for a portfolio.
+ * RESTful resource for a security.
  */
 @Path("/securities/{securityId}")
 public class WebSecurityResource extends AbstractWebSecurityResource {

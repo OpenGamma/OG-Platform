@@ -21,6 +21,10 @@ public class WebSecuritiesUris {
    */
   private final WebSecuritiesData _data;
 
+  /**
+   * Creates an instance.
+   * @param data  the web data, not null
+   */
   public WebSecuritiesUris(WebSecuritiesData data) {
     _data = data;
   }
