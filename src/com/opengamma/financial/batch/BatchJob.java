@@ -69,7 +69,7 @@ import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGa
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.financial.position.master.MasterPositionSource;
 import com.opengamma.financial.position.master.PositionMaster;
-import com.opengamma.financial.security.HistoricallyFixedSecurityMaster;
+import com.opengamma.financial.security.master.MasterSecuritySource;
 import com.opengamma.financial.security.master.SecurityMaster;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.livedata.msg.UserPrincipal;
@@ -528,17 +528,16 @@ public class BatchJob {
 
   public void createView(BatchJobRun run) {
     InMemoryLKVSnapshotProvider snapshotProvider = getSnapshotProvider(run);
-
+    
     SecuritySource securitySource = getSecuritySource();
     if (securitySource == null) {
-      securitySource = new HistoricallyFixedSecurityMaster(getSecurityMaster(), getSecurityMasterTime(), getSecurityMasterAsViewedAtTime());
+      securitySource = new MasterSecuritySource(getSecurityMaster(), getSecurityMasterTime(), getSecurityMasterAsViewedAtTime());
     }
-
     PositionSource positionSource = getPositionSource();
     if (positionSource == null) {
       positionSource = new MasterPositionSource(getPositionMaster(), getPositionMasterTime(), getPositionMasterAsViewedAtTime());
     }
-
+    
     DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
     InMemoryViewComputationCacheSource cacheFactory = new InMemoryViewComputationCacheSource(OpenGammaFudgeContext.getInstance());
 

@@ -44,7 +44,7 @@
   <!-- SecuritySource -->
   <bean id="sharedSecuritySource" class="com.opengamma.engine.security.EHCachingSecuritySource">
     <constructor-arg>
-      <bean class="com.opengamma.financial.security.MasterSecuritySource">
+      <bean class="com.opengamma.financial.security.master.MasterSecuritySource">
         <constructor-arg ref="dbSecurityMaster" />
       </bean>
     </constructor-arg>
