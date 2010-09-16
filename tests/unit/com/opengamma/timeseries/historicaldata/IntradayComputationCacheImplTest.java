@@ -152,6 +152,8 @@ public class IntradayComputationCacheImplTest extends DBTest {
     // Try to get some non-existent histories
     assertNull(_intradayComputationCache.getValue("Default2", spec, resolution));
     assertNull(_intradayComputationCache.getValue("Default",  new ValueSpecification(new ValueRequirement("FV2", computationTarget), "1"), resolution));
+    
+    _intradayComputationCache.stop(); // important to stop populating the db, otherwise clearing the tables will fail
   }
 
 }
