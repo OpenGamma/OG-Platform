@@ -15,7 +15,7 @@ import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.ZoneOffset;
 
 import com.opengamma.timeseries.TimeSeriesMaster;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.date.time.ArrayDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
@@ -54,12 +54,12 @@ public class DateTimeTimeSeriesMasterTest extends TimeSeriesMasterTest<Date> {
   
   @Override
   protected LocalDate convert(Date date) {
-    return DateUtil.fromSqlDate(new java.sql.Date(date.getTime()));
+    return DbDateUtils.fromSqlDate(new java.sql.Date(date.getTime()));
   }
 
   @Override
   protected Date convert(LocalDate date) {
-    return DateUtil.toSqlDate(date);
+    return DbDateUtils.toSqlDate(date);
   }
 
   @Override

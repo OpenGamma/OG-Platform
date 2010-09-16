@@ -18,6 +18,7 @@ import javax.time.calendar.LocalDate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import com.opengamma.timeseries.LocalDateTimeSeriesMaster;
+import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.MutableDoubleTimeSeries;
@@ -58,7 +59,7 @@ public class LocalDateRowStoreTimeSeriesMaster extends RowStoreTimeSeriesMaster<
   @Override
   protected LocalDate getDate(ResultSet rs, String column) throws SQLException {
     java.sql.Date date = rs.getDate(column);
-    return DateUtil.fromSqlDate(date);
+    return DbDateUtils.fromSqlDate(date);
   }
 
   @Override
@@ -80,7 +81,5 @@ public class LocalDateRowStoreTimeSeriesMaster extends RowStoreTimeSeriesMaster<
   protected String printDate(LocalDate date) {
     return DateUtil.printYYYYMMDD(date);
   }
-  
-  
 
 }
