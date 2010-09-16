@@ -7,21 +7,14 @@ package com.opengamma.util.time;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.sql.Timestamp;
-
-import javax.time.Instant;
 import javax.time.InstantProvider;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalTime;
 import javax.time.calendar.MonthOfYear;
-import javax.time.calendar.OffsetDateTime;
-import javax.time.calendar.OffsetTime;
 import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZoneOffset;
 import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
@@ -227,34 +220,6 @@ public class DateUtilTest {
     LocalDate D20100328 = LocalDate.of(2010, MonthOfYear.MARCH, 28);
     LocalDate localDate = DateUtil.toLocalDate(20100328);
     assertEquals(D20100328, localDate);
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void testToSqlTimestamp() {
-    Instant instant = Instant.nowSystemClock();
-    Timestamp ts = DateUtil.toSqlTimestamp(instant);
-    assertEquals(instant.toEpochMillisLong(), ts.getTime());
-    assertEquals(instant.getNanoOfSecond(), ts.getNanos());
-  }
-
-  @Test
-  public void testFromSqlTimestamp() {
-    Timestamp ts = new Timestamp(123456789L);
-    ts.setNanos(789654321);
-    Instant instant = DateUtil.fromSqlTimestamp(ts);
-    assertEquals(ts.getTime(), instant.toEpochMillisLong());
-    assertEquals(ts.getNanos(), instant.getNanoOfSecond());
-  }
-
-  @Test
-  public void testFromSqlTimestamp_max() {
-    assertNull(DateUtil.fromSqlTimestamp(DateUtil.MAX_SQL_TIMESTAMP));
-  }
-  
-  @Test
-  public void testFromSqlDate() {
-    assertEquals(LocalDate.of(2005, 11, 12), DateUtil.fromSqlDate(new java.sql.Date(2005 - 1900, 10, 12)));
   }
 
 }

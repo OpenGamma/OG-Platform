@@ -14,7 +14,6 @@ import javax.time.calendar.TimeProvider;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.time.DateUtil;
 
 /**
  * Parameter source for Spring JDBC templating.
@@ -37,7 +36,7 @@ public class DbMapSqlParameterSource extends MapSqlParameterSource {
    */
   public DbMapSqlParameterSource addTimestamp(final String name, final InstantProvider instantProvider) {
     ArgumentChecker.notNull(name, "name");
-    addValue(name, DateUtil.toSqlTimestamp(instantProvider));
+    addValue(name, DbDateUtils.toSqlTimestamp(instantProvider));
     return this;
   }
 
@@ -50,9 +49,9 @@ public class DbMapSqlParameterSource extends MapSqlParameterSource {
   public DbMapSqlParameterSource addTimestampNullFuture(final String name, final InstantProvider instantProvider) {
     ArgumentChecker.notNull(name, "name");
     if (instantProvider == null) {
-      addValue(name, DateUtil.MAX_SQL_TIMESTAMP);
+      addValue(name, DbDateUtils.MAX_SQL_TIMESTAMP);
     } else {
-      addValue(name, DateUtil.toSqlTimestamp(instantProvider));
+      addValue(name, DbDateUtils.toSqlTimestamp(instantProvider));
     }
     return this;
   }
@@ -66,7 +65,7 @@ public class DbMapSqlParameterSource extends MapSqlParameterSource {
    */
   public DbMapSqlParameterSource addDate(final String name, final DateProvider dateProvider) {
     ArgumentChecker.notNull(name, "name");
-    addValue(name, DateUtil.toSqlDate(dateProvider));
+    addValue(name, DbDateUtils.toSqlDate(dateProvider));
     return this;
   }
 
@@ -78,7 +77,7 @@ public class DbMapSqlParameterSource extends MapSqlParameterSource {
    */
   public DbMapSqlParameterSource addTime(final String name, final TimeProvider timeProvider) {
     ArgumentChecker.notNull(name, "name");
-    addValue(name, DateUtil.toSqlTime(timeProvider));
+    addValue(name, DbDateUtils.toSqlTime(timeProvider));
     return this;
   }
 
