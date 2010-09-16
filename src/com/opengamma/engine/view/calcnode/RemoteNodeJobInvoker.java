@@ -159,6 +159,12 @@ import com.opengamma.util.monitor.OperationTimer;
   }
 
   @Override
+  public boolean isAlive(final Collection<CalculationJobSpecification> jobs) {
+    // TODO [ENG-178] Send a message to the client to see if it's still alive and running these jobs
+    return true;
+  }
+
+  @Override
   public boolean notifyWhenAvailable(final JobInvokerRegister callback) {
     _dispatchCallback.set(callback);
     if (_launched.get() < _capacity) {
