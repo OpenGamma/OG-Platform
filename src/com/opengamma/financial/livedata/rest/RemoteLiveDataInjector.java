@@ -41,10 +41,10 @@ public class RemoteLiveDataInjector implements LiveDataInjector {
   }
   
   private URI getValueRequirementUri(URI baseUri, ValueRequirement valueRequirement) {
-    return UriBuilder.fromUri(baseUri).build(
-        valueRequirement.getValueName(),
-        valueRequirement.getTargetSpecification().getType().name(),
-        valueRequirement.getTargetSpecification().getUniqueIdentifier().toString());
+    return UriBuilder.fromUri(baseUri)
+        .segment(valueRequirement.getValueName())
+        .segment(valueRequirement.getTargetSpecification().getType().name())
+        .segment(valueRequirement.getTargetSpecification().getUniqueIdentifier().toString()).build();
   }
 
 }

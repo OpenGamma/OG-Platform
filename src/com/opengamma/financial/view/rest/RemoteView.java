@@ -22,8 +22,10 @@ import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.financial.livedata.rest.RemoteLiveDataInjector;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 import com.opengamma.util.rest.FudgeRestClient;
+import com.sun.jersey.api.client.ClientResponse;
 
 /**
  * Provides access to a remote {@link View}.
@@ -44,13 +46,13 @@ public class RemoteView implements View {
   @Override
   public String getName() {
     URI uri = getUri(_baseUri, DataViewResource.PATH_NAME);
-    return _client.access(uri).get(String.class);
+    return _client.access(uri).accept(FudgeRest.MEDIA_TYPE).get(String.class);
   }
   
   @Override
   public ViewDefinition getDefinition() {
     URI uri = getUri(_baseUri, DataViewResource.PATH_DEFINITION);
-    return _client.access(uri).get(ViewDefinition.class);
+    return _client.access(uri).accept(FudgeRest.MEDIA_TYPE).get(ViewDefinition.class);
   }
   
   @Override
@@ -62,13 +64,14 @@ public class RemoteView implements View {
   @Override
   public Portfolio getPortfolio() {
     URI uri = getUri(_baseUri, DataViewResource.PATH_PORTFOLIO);
-    return _client.access(uri).get(Portfolio.class);
+    return _client.access(uri).accept(FudgeRest.MEDIA_TYPE).get(Portfolio.class);
   }
   
   @Override
   public ViewClient createClient(UserPrincipal credentials) {
-    UniqueIdentifier uid = _client.access(DataViewResource.uriClients(_baseUri)).post(UniqueIdentifier.class, credentials);
-    return new RemoteViewClient(this, DataViewResource.uriClient(_baseUri, uid), OpenGammaFudgeContext.getInstance(), _jmsTemplate);
+    ClientResponse response = _client.access(DataViewResource.uriClients(_baseUri)).post(ClientResponse.class, credentials);
+    URI clientLocation = response.getLocation();
+    return new RemoteViewClient(this, clientLocation, OpenGammaFudgeContext.getInstance(), _jmsTemplate);
   }
   
   @Override
@@ -82,27 +85,30 @@ public class RemoteView implements View {
     URI uri = getUri(_baseUri, DataViewResource.PATH_ACCESS_TO_LIVE_DATA);
     _client.access(uri)
         .queryParam(DataViewResource.PARAM_USER_IP, user.getIpAddress())
-        .queryParam(DataViewResource.PARAM_USER_NAME, user.getUserName()).post();
+        .queryParam(DataViewResource.PARAM_USER_NAME, user.getUserName())
+        .post();
   }
   
   @Override
   public ViewComputationResultModel getLatestResult() {
     URI uri = getUri(_baseUri, DataViewResource.PATH_LATEST_RESULT);
-    return _client.access(uri).get(ViewComputationResultModel.class);
+    return _client.access(uri)
+        .accept(FudgeRest.MEDIA_TYPE)
+        .get(ViewComputationResultModel.class);
   }
   
   @SuppressWarnings("unchecked")
   @Override
   public Set<ValueRequirement> getRequiredLiveData() {
     URI uri = getUri(_baseUri, DataViewResource.PATH_REQUIRED_LIVE_DATA);
-    return _client.access(uri).get(Set.class);
+    return _client.access(uri).accept(FudgeRest.MEDIA_TYPE).get(Set.class);
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public Set<String> getAllSecurityTypes() {
     URI uri = getUri(_baseUri, DataViewResource.PATH_ALL_SECURITY_TYPES);
-    return _client.access(uri).get(Set.class);
+    return _client.access(uri).accept(FudgeRest.MEDIA_TYPE).get(Set.class);
   }
   
   @Override
@@ -118,18 +124,18 @@ public class RemoteView implements View {
   @Override
   public boolean isLiveComputationRunning() {
     URI uri = getUri(_baseUri, DataViewResource.PATH_LIVE_COMPUTATION_RUNNING);
-    return _client.access(uri).get(boolean.class);
+    return _client.access(uri).accept(FudgeRest.MEDIA_TYPE).get(boolean.class);
   }
 
   @Override
-  public LiveDataInjector getLiveDataInjector() {
-    URI uri = getUri(_baseUri, DataViewResource.PATH_LIVE_DATA_INJECTOR);
+  public LiveDataInjector getLiveDataOverrideInjector() {
+    URI uri = getUri(_baseUri, DataViewResource.PATH_LIVE_DATA_OVERRIDE_INJECTOR);
     return new RemoteLiveDataInjector(uri);
   }
   
   //-------------------------------------------------------------------------
   private static URI getUri(URI baseUri, String path) {
-    return UriBuilder.fromUri(baseUri).build(path);
+    return UriBuilder.fromUri(baseUri).path(path).build();
   }
 
 }

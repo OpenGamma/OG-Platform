@@ -14,6 +14,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -45,7 +46,7 @@ public class DataViewResource {
   public static final String PATH_ALL_SECURITY_TYPES = "allSecurityTypes";
   public static final String PATH_ALL_PORTFOLIO_REQUIREMENT_NAMES = "allPortfolioRequirementNames";
   public static final String PATH_REQUIRED_LIVE_DATA = "requiredLiveData";
-  public static final String PATH_LIVE_DATA_INJECTOR = "liveDataInjector";
+  public static final String PATH_LIVE_DATA_OVERRIDE_INJECTOR = "liveDataOverrideInjector";
   public static final String PATH_LATEST_RESULT = "latestResult";
   public static final String PATH_LIVE_COMPUTATION_RUNNING = "liveComputationRunning";
   
@@ -71,7 +72,7 @@ public class DataViewResource {
   @GET
   @Path(PATH_NAME)
   public Response getName() {
-    return Response.ok(_view.getName()).build();
+    return Response.ok(_view.getName()).type(MediaType.TEXT_PLAIN).build();
   }
   
   @GET
@@ -94,14 +95,14 @@ public class DataViewResource {
   }
   
   @POST
-  @Path("/clients")
+  @Path("clients")
   @Consumes(FudgeRest.MEDIA)
   public Response createClient(@Context UriInfo uriInfo, UserPrincipal user) {
     ViewClient client = _view.createClient(user);
-    return Response.created(DataViewResource.uriClient(uriInfo.getBaseUri(), client.getUniqueIdentifier())).build();
+    return Response.created(DataViewResource.uriClient(uriInfo.getRequestUri(), client.getUniqueIdentifier())).build();
   }
   
-  @Path("/clients/{viewClientId}")
+  @Path("clients/{viewClientId}")
   public DataViewClientResource getClient(@PathParam("viewClientId") String idStr) {
     UniqueIdentifier id = UniqueIdentifier.parse(idStr);
     return new DataViewClientResource(_view.getClient(id), _jmsMessageSenderService, _jmsTopicPrefix);
@@ -139,18 +140,18 @@ public class DataViewResource {
     return Response.ok(_view.isLiveComputationRunning()).build();
   }
   
-  @Path(PATH_LIVE_DATA_INJECTOR)
-  public LiveDataInjectorResource getLiveDataInjector() {
-    return new LiveDataInjectorResource(_view.getLiveDataInjector());
+  @Path(PATH_LIVE_DATA_OVERRIDE_INJECTOR)
+  public LiveDataInjectorResource getLiveDataOverrideInjector() {
+    return new LiveDataInjectorResource(_view.getLiveDataOverrideInjector());
   }
   
   //-------------------------------------------------------------------------
   public static URI uriClient(URI baseUri, UniqueIdentifier uid) {
-    return UriBuilder.fromUri(baseUri).path("/clients/{uid}").build(uid.toLatest());
+    return UriBuilder.fromUri(baseUri).segment(uid.toLatest().toString()).build();
   }
   
   public static URI uriClients(URI baseUri) {
-    return UriBuilder.fromUri(baseUri).path("/clients").build();
+    return UriBuilder.fromUri(baseUri).path("clients").build();
   }
   
 }

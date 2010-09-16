@@ -266,7 +266,7 @@ public class RemoteViewClient implements ViewClient {
   
   //-------------------------------------------------------------------------
   private static URI getUri(URI baseUri, String path) {
-    return UriBuilder.fromUri(baseUri).build(path);
+    return UriBuilder.fromUri(baseUri).path(path).build();
   }
   
 }

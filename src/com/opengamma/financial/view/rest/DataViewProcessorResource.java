@@ -51,18 +51,24 @@ public class DataViewProcessorResource {
     return Response.ok(_viewProcessor.getViewNames()).build();
   }
   
-  @Path("/views/{viewName}")
+  @Path("views/{viewName}")
   public DataViewResource getView(@PathParam("viewName") String viewName) {
     // TODO: authentication of the remote user while still providing RESTful access.
     UserPrincipal user = UserPrincipal.getLocalUser();
     
     View view = _viewProcessor.getView(viewName, user);
+    if (view == null) {
+      return null;
+    }
     return new DataViewResource(view, _jmsMessageSenderService, _jmsTopicPrefix);
   }
   
   //-------------------------------------------------------------------------
   public static URI uriView(URI baseUri, String viewName) {
-    return UriBuilder.fromUri(baseUri).path("/views/{viewName}").build(viewName);
+    // WARNING: '/' characters could well appear in the view name
+    // There is a bug(?) in UriBuilder where, even though segment() is meant to treat the item as a single path segment
+    // and therefore encode '/' characters, it does not encode '/' characters which come from a variable substitution.
+    return UriBuilder.fromUri(baseUri).path("views").segment(viewName).build();
   }
   
 }

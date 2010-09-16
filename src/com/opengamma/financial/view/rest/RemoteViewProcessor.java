@@ -17,6 +17,7 @@ import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.rest.FudgeRestClient;
+import com.sun.jersey.api.client.UniformInterfaceException;
 
 /**
  * Provides access to a remote {@link ViewProcessor}.
@@ -38,7 +39,18 @@ public class RemoteViewProcessor implements ViewProcessor {
   
   @Override
   public View getView(String name, UserPrincipal credentials) {
-    return new RemoteView(DataViewProcessorResource.uriView(_baseUri, name), _jmsTemplate);
+    View view = new RemoteView(DataViewProcessorResource.uriView(_baseUri, name), _jmsTemplate);
+    try {
+      // Attempt to access something lightweight on the view to check it exists 
+      view.getName();
+    } catch (UniformInterfaceException e) {
+      if (e.getResponse().getStatus() == 404) {
+        // The method should return null if the view doesn't exist, not throw an exception
+        return null;
+      }
+      throw e;
+    }
+    return view;
   }
 
   @SuppressWarnings("unchecked")
@@ -49,8 +61,8 @@ public class RemoteViewProcessor implements ViewProcessor {
   }
   
   //-------------------------------------------------------------------------
-  private static URI getUri(URI baseUri, String path) {
-    return UriBuilder.fromUri(baseUri).build(path);
+  private static URI getUri(URI baseUri, String path) { 
+    return UriBuilder.fromUri(baseUri).path(path).build();
   }
 
 }
