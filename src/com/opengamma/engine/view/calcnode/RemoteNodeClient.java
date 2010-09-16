@@ -20,9 +20,11 @@ import org.springframework.context.Lifecycle;
 import com.opengamma.engine.function.FunctionCompilationService;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.calcnode.msg.Busy;
+import com.opengamma.engine.view.calcnode.msg.Cancel;
 import com.opengamma.engine.view.calcnode.msg.Execute;
 import com.opengamma.engine.view.calcnode.msg.Failure;
 import com.opengamma.engine.view.calcnode.msg.Init;
+import com.opengamma.engine.view.calcnode.msg.IsAlive;
 import com.opengamma.engine.view.calcnode.msg.Ready;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
 import com.opengamma.engine.view.calcnode.msg.Result;
@@ -123,6 +125,10 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
       handleJobMessage((Execute) message);
     } else if (message instanceof Scaling) {
       handleScalingMessage((Scaling) message);
+    } else if (message instanceof IsAlive) {
+      handleIsAliveMessage((IsAlive) message);
+    } else if (message instanceof Cancel) {
+      handleCancelMessage((Cancel) message);
     } else if (message instanceof Init) {
       handleInitMessage((Init) message);
     } else {
@@ -167,6 +173,20 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
 
   private void handleInitMessage(final Init message) {
     // TODO Did we want to force a particular seed value or other local state ?
+  }
+
+  private void handleIsAliveMessage(final IsAlive message) {
+    for (CalculationJobSpecification job : message.getJob()) {
+      if (!isJobAlive(job)) {
+        sendMessage(new Failure(job, "isAlive returned false", ""));
+      }
+    }
+  }
+
+  private void handleCancelMessage(final Cancel message) {
+    for (CalculationJobSpecification job : message.getJob()) {
+      cancelJob(job);
+    }
   }
 
   @Override

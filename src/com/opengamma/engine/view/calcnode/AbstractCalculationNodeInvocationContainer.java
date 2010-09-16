@@ -503,4 +503,13 @@ public abstract class AbstractCalculationNodeInvocationContainer {
     }
   }
 
+  protected boolean isJobAlive(final CalculationJobSpecification jobSpec) {
+    final JobExecution jobExec = getExecution(jobSpec.getJobId());
+    if (jobExec == null) {
+      // Completed or failed, not alive at any rate!
+      return false;
+    }
+    return true;
+  }
+
 }

@@ -23,9 +23,11 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.calcnode.msg.Busy;
+import com.opengamma.engine.view.calcnode.msg.Cancel;
 import com.opengamma.engine.view.calcnode.msg.Execute;
 import com.opengamma.engine.view.calcnode.msg.Failure;
 import com.opengamma.engine.view.calcnode.msg.Invocations;
+import com.opengamma.engine.view.calcnode.msg.IsAlive;
 import com.opengamma.engine.view.calcnode.msg.Ready;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
 import com.opengamma.engine.view.calcnode.msg.Result;
@@ -36,7 +38,6 @@ import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionStateListener;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageSender;
-import com.opengamma.util.monitor.OperationTimer;
 
 /**
  * A JobInvoker for invoking a job on a remote node connected by a FudgeConnection.
@@ -102,6 +103,11 @@ import com.opengamma.util.monitor.OperationTimer;
     return _functionCost;
   }
 
+  private void sendMessage(final RemoteCalcNodeMessage message) {
+    final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeMessageSender().getFudgeContext());
+    getFudgeMessageSender().send(FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(message), message.getClass(), RemoteCalcNodeMessage.class));
+  }
+
   @Override
   public boolean invoke(final CalculationJob rootJob, final JobInvocationReceiver receiver) {
     if (_launched.incrementAndGet() > _capacity) {
@@ -116,12 +122,8 @@ import com.opengamma.util.monitor.OperationTimer;
       private void sendJob(final CalculationJob job) {
         try {
           getJobCompletionCallbacks().put(job.getSpecification(), receiver);
-          final OperationTimer timer = new OperationTimer(s_logger, "Invocation serialisation and send of job {}", job.getSpecification().getJobId());
           job.convertInputs(getIdentifierMap());
-          final Execute message = new Execute(job);
-          final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeMessageSender().getFudgeContext());
-          getFudgeMessageSender().send(FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(message), message.getClass(), RemoteCalcNodeMessage.class));
-          timer.finished();
+          sendMessage(new Execute(job));
         } catch (Exception e) {
           s_logger.warn("Error sending job {}", job.getSpecification().getJobId());
           _launched.decrementAndGet();
@@ -152,15 +154,18 @@ import com.opengamma.util.monitor.OperationTimer;
 
   @Override
   public void cancel(final Collection<CalculationJobSpecification> jobs) {
-    for (CalculationJobSpecification job : jobs) {
-      s_logger.info("Cancelling job {}", job.getJobId());
-      // [ENG-231] Send the message to the client
-    }
+    s_logger.info("Cancelling {} jobs at {}", jobs.size(), getInvokerId());
+    sendMessage(new Cancel(jobs));
   }
 
+  /**
+   * Returns {@code true} with the remote client generating failure messages if anything is
+   * not alive. 
+   */
   @Override
   public boolean isAlive(final Collection<CalculationJobSpecification> jobs) {
-    // TODO [ENG-178] Send a message to the client to see if it's still alive and running these jobs
+    s_logger.info("Querying {} jobs at {}", jobs.size(), getInvokerId());
+    sendMessage(new IsAlive(jobs));
     return true;
   }
 

@@ -121,8 +121,12 @@ public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContai
 
   @Override
   public boolean isAlive(final Collection<CalculationJobSpecification> jobs) {
-    // TODO [ENG-178] actually check the status of these
-    return false;
+    for (CalculationJobSpecification job : jobs) {
+      if (!isJobAlive(job)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override
