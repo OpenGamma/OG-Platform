@@ -29,7 +29,7 @@ public interface ViewProcessor {
   Set<String> getViewNames();
   
   /**
-   * Obtain a {@link View} instance.
+   * Obtains a {@link View} instance.
    * 
    * @param name  the name of the view to obtain, not null
    * @param credentials  the user attempting to access the view, not null

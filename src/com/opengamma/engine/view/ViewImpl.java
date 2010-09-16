@@ -83,7 +83,6 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   
   private ViewCalculationState _calculationState = ViewCalculationState.NOT_INITIALIZED;
   private ViewProcessingContext _processingContext;
-  private LiveDataInjector _liveDataInjector;
   private ViewEvaluationModel _viewEvaluationModel;
   private volatile ViewRecalculationJob _recalcJob;
   private volatile Thread _recalcThread;
@@ -305,9 +304,8 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   }
   
   @Override
-  public LiveDataInjector getLiveDataInjector() {
-    assertInitialized();
-    return _liveDataInjector;
+  public LiveDataInjector getLiveDataOverrideInjector() {
+    return getProcessingContext().getLiveDataOverrideInjector();
   }
   
   @Override

@@ -18,6 +18,7 @@ import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.livedata.client.LiveDataClient;
+import com.opengamma.livedata.msg.UserPrincipal;
 
 /**
  * Exposes engine-level access to a view processor, including access to data structures which should not be available
@@ -25,6 +26,15 @@ import com.opengamma.livedata.client.LiveDataClient;
  */
 public interface ViewProcessorInternal extends ViewProcessor {
 
+  /**
+   * Obtains a {@link ViewInternal} instance.
+   * 
+   * @param name  the name of the view to obtain, not null
+   * @param credentials  the user attempting to access the view, not null
+   * @return  the view
+   */
+  ViewInternal getView(String name, UserPrincipal credentials);
+  
   /**
    * Gets the function compilation service
    * 

@@ -541,11 +541,13 @@ public class ViewClientTest {
       return snapshotTime;
     }
 
-    public void snapshot(long snapshotTime) {
+    @Override
+    public long snapshot(long snapshotTime) {
       synchronized (_lastKnownValues) {
         Map<ValueRequirement, Object> snapshotValues = new HashMap<ValueRequirement, Object>(_lastKnownValues);
         _snapshots.put(snapshotTime, snapshotValues);
-      }        
+      }
+      return snapshotTime;
     }
 
     @Override

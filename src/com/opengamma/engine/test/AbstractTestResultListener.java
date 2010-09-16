@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.view.client;
+package com.opengamma.engine.test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ public class AbstractTestResultListener<T> {
   }
   
   public void awaitExpectedResults() throws InterruptedException {
-    awaitExpectedResults(0);
+    awaitExpectedResults(Long.MAX_VALUE);
   }
   
   public List<T> popResults() {

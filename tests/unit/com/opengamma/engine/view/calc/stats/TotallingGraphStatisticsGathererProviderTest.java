@@ -5,26 +5,24 @@
  */
 package com.opengamma.engine.view.calc.stats;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
 import java.util.List;
 import java.util.Set;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.view.ComputationResultListener;
-import com.opengamma.engine.view.DeltaComputationResultListener;
 import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewProcessingContext;
-import com.opengamma.engine.view.calc.SingleComputationCycle;
-import com.opengamma.engine.view.calc.stats.GraphExecutionStatistics;
-import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider;
 import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider.Statistics;
-import com.opengamma.engine.view.compilation.ViewEvaluationModel;
+import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.msg.UserPrincipal;
 
 /**
@@ -41,22 +39,7 @@ public class TotallingGraphStatisticsGathererProviderTest {
     }
 
     @Override
-    public boolean addDeltaResultListener(DeltaComputationResultListener deltaListener) {
-      return false;
-    }
-
-    @Override
-    public boolean addResultListener(ComputationResultListener resultListener) {
-      return false;
-    }
-
-    @Override
     public void assertAccessToLiveDataRequirements(UserPrincipal user) {
-    }
-
-    @Override
-    public SingleComputationCycle createCycle(long valuationTime) {
-      return null;
     }
 
     @Override
@@ -70,7 +53,7 @@ public class TotallingGraphStatisticsGathererProviderTest {
     }
 
     @Override
-    public LiveDataInjector getLiveDataInjector() {
+    public LiveDataInjector getLiveDataOverrideInjector() {
       return null;
     }
 
@@ -85,36 +68,12 @@ public class TotallingGraphStatisticsGathererProviderTest {
     }
 
     @Override
-    public ViewProcessingContext getProcessingContext() {
-      return null;
-    }
-
-    @Override
     public Set<ValueRequirement> getRequiredLiveData() {
       return null;
     }
 
     @Override
-    public ViewEvaluationModel getViewEvaluationModel() {
-      return null;
-    }
-
-    @Override
-    public boolean isRunning() {
-      return false;
-    }
-
-    @Override
-    public void recalculationPerformed(ViewComputationResultModel result) {
-    }
-
-    @Override
-    public boolean removeDeltaResultLister(DeltaComputationResultListener deltaListener) {
-      return false;
-    }
-
-    @Override
-    public boolean removeResultListener(ComputationResultListener resultListener) {
+    public boolean isLiveComputationRunning() {
       return false;
     }
 
@@ -127,11 +86,22 @@ public class TotallingGraphStatisticsGathererProviderTest {
     }
 
     @Override
-    public void start() {
+    public ViewClient createClient(UserPrincipal credentials) {
+      return null;
     }
 
     @Override
-    public void stop() {
+    public Set<String> getAllSecurityTypes() {
+      return null;
+    }
+
+    @Override
+    public ViewClient getClient(UniqueIdentifier id) {
+      return null;
+    }
+
+    @Override
+    public void init() {
     }
   }
   

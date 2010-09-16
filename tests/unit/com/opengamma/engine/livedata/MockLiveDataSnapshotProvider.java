@@ -73,6 +73,12 @@ public class MockLiveDataSnapshotProvider extends AbstractLiveDataSnapshotProvid
     return System.currentTimeMillis();
   }
   
+  @Override
+  public long snapshot(long snapshot) {
+    _snapshotCount++;
+    return snapshot;
+  }
+  
   public void awaitSubscriptionResponses() throws InterruptedException {
     _responseLatch.await();
   }

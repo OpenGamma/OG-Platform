@@ -7,7 +7,6 @@ package com.opengamma.engine.test;
 
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.client.AbstractTestResultListener;
 import com.opengamma.livedata.msg.UserPrincipal;
 
 public class TestComputationResultListener extends AbstractTestResultListener<ViewComputationResultModel>
@@ -22,6 +21,5 @@ public class TestComputationResultListener extends AbstractTestResultListener<Vi
   public UserPrincipal getUser() {
     return UserPrincipal.getLocalUser();
   }
-  
   
 }

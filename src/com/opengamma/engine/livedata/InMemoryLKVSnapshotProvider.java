@@ -55,12 +55,7 @@ public class InMemoryLKVSnapshotProvider extends AbstractLiveDataSnapshotProvide
     return snapshotTime;
   }
 
-  /**
-   * This method can be called directly to populate a historical
-   * snapshot.
-   * 
-   * @param snapshotTime the time of the snapshot
-   */
+  @Override
   public long snapshot(long snapshotTime) {
     Map<ValueRequirement, Object> snapshotValues = new HashMap<ValueRequirement, Object>(_lastKnownValues);
     _snapshots.put(snapshotTime, snapshotValues);

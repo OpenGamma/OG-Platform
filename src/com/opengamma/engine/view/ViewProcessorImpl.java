@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.function.FunctionCompilationService;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
@@ -78,6 +77,31 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
     if (_isStarted) {
       throw new IllegalStateException("Cannot change injected properties once this ViewProcessor has been started.");
     }
+  }
+  
+  @Override
+  public Set<String> getViewNames() {
+    return getViewDefinitionRepository().getDefinitionNames();
+  }
+
+  @Override
+  public ViewInternal getView(String name, UserPrincipal credentials) {
+    ArgumentChecker.notNull(name, "View name");
+    ArgumentChecker.notNull(credentials, "User credentials");
+
+    ViewImpl view = _viewsByName.get(name);
+    if (view == null) {
+      ViewDefinition definition = getViewDefinitionRepository().getDefinition(name);
+      if (definition == null) {
+        return null;
+      }
+      
+      ViewProcessingContext viewProcessingContext = createViewProcessingContext();
+      view = new ViewImpl(definition, viewProcessingContext, _clientResultTimer);
+      _viewsByName.put(name, view);
+    }
+    getViewPermissionProvider().assertPermission(ViewPermission.ACCESS, credentials, view);
+    return view;
   }
 
   /**
@@ -256,30 +280,21 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
     assertNotStarted();
     _localExecutorService = localExecutorService;
   }
-
-  @Override
-  public Set<String> getViewNames() {
-    return getViewDefinitionRepository().getDefinitionNames();
+  
+  /**
+   * Sets the graphExecutionStatistics field.
+   * @param graphExecutionStatistics  the graphExecutionStatistics
+   */
+  public void setGraphExecutionStatistics(GraphExecutorStatisticsGathererProvider graphExecutionStatistics) {
+    _graphExecutionStatistics = graphExecutionStatistics;
   }
 
-  @Override
-  public View getView(String name, UserPrincipal credentials) {
-    ArgumentChecker.notNull(name, "View name");
-    ArgumentChecker.notNull(credentials, "User credentials");
-
-    ViewImpl view = _viewsByName.get(name);
-    if (view == null) {
-      ViewDefinition definition = getViewDefinitionRepository().getDefinition(name);
-      if (definition == null) {
-        throw new OpenGammaRuntimeException("No view definition with the name '" + name + "' could be found.");
-      }
-      
-      ViewProcessingContext viewProcessingContext = createViewProcessingContext();
-      view = new ViewImpl(definition, viewProcessingContext, _clientResultTimer);
-      _viewsByName.put(name, view);
-    }
-    getViewPermissionProvider().assertPermission(ViewPermission.ACCESS, credentials, view);
-    return view;
+  /**
+   * Gets the graphExecutionStatistics field.
+   * @return the graphExecutionStatistics
+   */
+  public GraphExecutorStatisticsGathererProvider getGraphExecutionStatistics() {
+    return _graphExecutionStatistics;
   }
 
   // --------------------------------------------------------------------------
@@ -401,22 +416,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
         getFunctionCompilationService().getFunctionCompilationContext(),
         getExecutorService(),
         getDependencyGraphExecutorFactory(),
-        getViewPermissionProvider());
-
-  /**
-   * Sets the graphExecutionStatistics field.
-   * @param graphExecutionStatistics  the graphExecutionStatistics
-   */
-  public void setGraphExecutionStatistics(GraphExecutorStatisticsGathererProvider graphExecutionStatistics) {
-    _graphExecutionStatistics = graphExecutionStatistics;
-  }
-
-  /**
-   * Gets the graphExecutionStatistics field.
-   * @return the graphExecutionStatistics
-   */
-  public GraphExecutorStatisticsGathererProvider getGraphExecutionStatistics() {
-    return _graphExecutionStatistics;
+        getViewPermissionProvider(),
+        getGraphExecutionStatistics());
   }
 
 }

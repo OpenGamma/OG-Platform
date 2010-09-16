@@ -13,7 +13,7 @@ import com.opengamma.engine.view.permission.ViewPermissionProvider;
  * Exposes engine-level access to a view, including access to data structures which should not be available externally.
  */
 public interface ViewInternal extends View {
-  
+    
   /**
    * Gets the view processing context
    * 

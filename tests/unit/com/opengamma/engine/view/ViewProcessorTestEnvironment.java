@@ -34,11 +34,14 @@ import com.opengamma.engine.view.calcnode.LocalCalculationNode;
 import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
+import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.livedata.test.TestLiveDataClient;
-import com.opengamma.transport.InMemoryRequestConduit;
+import com.opengamma.transport.ByteArrayFudgeRequestSender;
+import com.opengamma.transport.FudgeRequestDispatcher;
+import com.opengamma.transport.InMemoryByteArrayRequestConduit;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -113,6 +116,10 @@ public class ViewProcessorTestEnvironment {
     _viewProcessor.setViewPermissionProvider(new DefaultViewPermissionProvider());
     
     ViewProcessorQueryReceiver calcNodeQueryReceiver = new ViewProcessorQueryReceiver();
+    FudgeRequestDispatcher calcNodeQueryRequestDispatcher = new FudgeRequestDispatcher(calcNodeQueryReceiver);
+    InMemoryByteArrayRequestConduit calcNodeQueryRequestConduit = new InMemoryByteArrayRequestConduit(calcNodeQueryRequestDispatcher);
+    ByteArrayFudgeRequestSender calcNodeQueryRequestSender = new ByteArrayFudgeRequestSender(calcNodeQueryRequestConduit);
+    ViewProcessorQuerySender calcNodeQuerySender = new ViewProcessorQuerySender(calcNodeQueryRequestSender);
     _viewProcessor.setViewProcessorQueryReceiver(calcNodeQueryReceiver);
     assertEquals(calcNodeQueryReceiver, _viewProcessor.getViewProcessorQueryReceiver());
     
@@ -125,10 +132,9 @@ public class ViewProcessorTestEnvironment {
     FunctionExecutionContext functionExecutionContext = new FunctionExecutionContext();
     functionExecutionContext.setSecuritySource(securitySource);
     
-    ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
-    ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
-    
-    LocalCalculationNode localCalcNode = new LocalCalculationNode(cacheSource, functionRepository, functionExecutionContext, new DefaultComputationTargetResolver(securitySource, positionSource), viewProcessorQuerySender, Executors.newCachedThreadPool());
+    LocalCalculationNode localCalcNode = new LocalCalculationNode(cacheSource, functionRepository,
+        functionExecutionContext, new DefaultComputationTargetResolver(securitySource, positionSource),
+        calcNodeQuerySender, Executors.newCachedThreadPool(), new DiscardingInvocationStatisticsGatherer());
     LocalNodeJobInvoker jobInvoker = new LocalNodeJobInvoker(localCalcNode);
     _viewProcessor.setComputationJobDispatcher(new JobDispatcher(jobInvoker));
   }

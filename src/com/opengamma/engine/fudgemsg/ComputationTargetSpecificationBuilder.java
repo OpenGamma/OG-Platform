@@ -16,7 +16,6 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.FudgeFieldChecker;
 
 /**
  * 

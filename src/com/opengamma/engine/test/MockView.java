@@ -15,19 +15,22 @@ import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.DeltaComputationResultListener;
-import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.ViewInternal;
 import com.opengamma.engine.view.ViewProcessingContext;
 import com.opengamma.engine.view.calc.SingleComputationCycle;
+import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.ViewEvaluationModel;
+import com.opengamma.engine.view.permission.ViewPermissionProvider;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.msg.UserPrincipal;
 
 /**
  * Mock view providing some view behavior for testing downstream components, without any engine dependencies.
  */
-public class MockView implements View {
+public class MockView implements ViewInternal {
 
   private final String _name;
 
@@ -68,22 +71,18 @@ public class MockView implements View {
     return _name;
   }
 
-  @Override
   public boolean addResultListener(ComputationResultListener resultListener) {
     return _resultListeners.add(resultListener);
   }
 
-  @Override
   public boolean removeResultListener(ComputationResultListener resultListener) {
     return _resultListeners.remove(resultListener);
   }
 
-  @Override
   public boolean addDeltaResultListener(DeltaComputationResultListener deltaListener) {
     return _deltaListeners.add(deltaListener);
   }
 
-  @Override
   public boolean removeDeltaResultLister(DeltaComputationResultListener deltaListener) {
     return _deltaListeners.remove(deltaListener);
   }
@@ -98,17 +97,7 @@ public class MockView implements View {
   }
 
   @Override
-  public void start() {
-    _isRunning = true;
-  }
-
-  @Override
-  public void stop() {
-    _isRunning = false;
-  }
-
-  @Override
-  public boolean isRunning() {
+  public boolean isLiveComputationRunning() {
     return _isRunning;
   }
 
@@ -146,7 +135,7 @@ public class MockView implements View {
   }
 
   @Override
-  public LiveDataInjector getLiveDataInjector() {
+  public LiveDataInjector getLiveDataOverrideInjector() {
     throw new UnsupportedOperationException();
   }
 
@@ -179,6 +168,30 @@ public class MockView implements View {
 
   public void setViewEvaluationModel(final ViewEvaluationModel viewEvaluationModel) {
     _viewEvaluationModel = viewEvaluationModel;
+  }
+
+  @Override
+  public ViewClient createClient(UserPrincipal credentials) {
+    return null;
+  }
+
+  @Override
+  public Set<String> getAllSecurityTypes() {
+    return null;
+  }
+
+  @Override
+  public ViewClient getClient(UniqueIdentifier id) {
+    return null;
+  }
+
+  @Override
+  public void init() {
+  }
+
+  @Override
+  public ViewPermissionProvider getPermissionProvider() {
+    return null;
   }
 
 }

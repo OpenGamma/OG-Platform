@@ -126,10 +126,10 @@ public interface View {
   boolean isLiveComputationRunning();
   
   /**
-   * Gets the live data injector for storing arbitrary user live data for the view.
+   * Gets the live data injector for overriding arbitrary live data for the view.
    * 
    * @return the live data injector, not null
    */
-  LiveDataInjector getLiveDataInjector();
+  LiveDataInjector getLiveDataOverrideInjector();
   
 }
