@@ -154,17 +154,26 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
   @Override
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String dataSource, String dataProvider, String field, LocalDate start,
       boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    return null;
+    Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> pair = getHistoricalData(identifiers, dataSource, dataProvider, field, start, end);
+    LocalDateDoubleTimeSeries timeSeries = pair.getValue();
+    timeSeries.subSeries(start, inclusiveStart, end, exclusiveEnd);
+    pair.setValue(timeSeries);
+    return pair;
   }
 
   @Override
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    return null;
+    Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> pair = getHistoricalData(identifiers, start, end);
+    LocalDateDoubleTimeSeries timeSeries = pair.getValue();
+    timeSeries.subSeries(start, inclusiveStart, end, exclusiveEnd);
+    pair.setValue(timeSeries);
+    return pair;
   }
 
   @Override
   public LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uid, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    return null;
+    LocalDateDoubleTimeSeries timeseries = getHistoricalData(uid, start, end);
+    return (LocalDateDoubleTimeSeries) timeseries.subSeries(start, inclusiveStart, end, exclusiveEnd);
   }
 
 }
