@@ -24,7 +24,8 @@ public class HttpMethodFilter implements ContainerRequestFilter {
     if (request.getMethod().equalsIgnoreCase("POST") == false) {
       return request;
     }
-    if (request.getMediaType().equals(MediaType.APPLICATION_FORM_URLENCODED_TYPE) == false) {
+    MediaType mediaType = request.getMediaType();
+    if (mediaType != null && mediaType.equals(MediaType.APPLICATION_FORM_URLENCODED_TYPE) == false) {
       return request;
     }
     String methodFormParam = request.getFormParameters().getFirst("method");
