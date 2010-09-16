@@ -76,7 +76,6 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
   private static final String[] DATA_SOURCES = new String[] { BBG_DATA_SOURCE, "REUTERS", "JPM" };
 
   private static final LocalDate DEFAULT_START = DateUtil.previousWeekDay().minusDays(7);
-  private static final LocalDate DEFAULT_END = DateUtil.previousWeekDay();
 
   private Random _random = new Random();
   private TimeSeriesMaster<T> _tsMaster;
@@ -96,8 +95,17 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
   abstract protected String print(T date);
   
   /**
+   * Gets the tsMaster field.
+   * @return the tsMaster
+   */
+  protected TimeSeriesMaster<T> getTsMaster() {
+    return _tsMaster;
+  }
+
+  /**
    * @throws java.lang.Exception
    */
+  @SuppressWarnings("unchecked")
   @Before
   public void setUp() throws Exception {
     super.setUp();
@@ -361,7 +369,7 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
     addAndTestTimeSeries();    
   }
   
-  private List<TimeSeriesDocument<T>> addAndTestTimeSeries() {
+  protected List<TimeSeriesDocument<T>> addAndTestTimeSeries() {
     List<TimeSeriesDocument<T>> result = new ArrayList<TimeSeriesDocument<T>>(); 
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
       IdentifierBundle identifiers = IdentifierBundle.of(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "ticker" + i), Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "buid" + i));
