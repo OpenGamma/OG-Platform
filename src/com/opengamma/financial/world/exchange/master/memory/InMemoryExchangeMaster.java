@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.exchange;
+package com.opengamma.financial.world.exchange.master.memory;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,6 +15,13 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.financial.world.exchange.Exchange;
+import com.opengamma.financial.world.exchange.master.ExchangeDocument;
+import com.opengamma.financial.world.exchange.master.ExchangeMaster;
+import com.opengamma.financial.world.exchange.master.ExchangeSearchHistoricRequest;
+import com.opengamma.financial.world.exchange.master.ExchangeSearchHistoricResult;
+import com.opengamma.financial.world.exchange.master.ExchangeSearchRequest;
+import com.opengamma.financial.world.exchange.master.ExchangeSearchResult;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
 import com.opengamma.util.ArgumentChecker;

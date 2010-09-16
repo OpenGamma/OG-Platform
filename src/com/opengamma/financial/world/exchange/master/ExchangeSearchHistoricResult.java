@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.exchange;
+package com.opengamma.financial.world.exchange.master;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,6 +21,7 @@ import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.world.exchange.Exchange;
 import com.opengamma.util.db.Paging;
 
 /**

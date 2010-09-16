@@ -3,11 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.exchange;
+package com.opengamma.financial.world.exchange.master;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
+import com.opengamma.financial.world.exchange.Exchange;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.ArgumentChecker;
@@ -18,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
  * The {@link ExchangeSource} interface provides exchanges to the application via a narrow API.
  * This class provides the source on top of a standard {@link ExchangeMaster}.
  */
-public class DefaultExchangeSource implements ExchangeSource {
+public class MasterExchangeSource implements ExchangeSource {
 
   /**
    * The exchange master.
@@ -39,7 +40,7 @@ public class DefaultExchangeSource implements ExchangeSource {
    * Creates an instance with an underlying exchange master.
    * @param exchangeMaster  the exchange master, not null
    */
-  public DefaultExchangeSource(final ExchangeMaster exchangeMaster) {
+  public MasterExchangeSource(final ExchangeMaster exchangeMaster) {
     this(exchangeMaster, null, null);
   }
 
@@ -49,7 +50,7 @@ public class DefaultExchangeSource implements ExchangeSource {
    * @param exchangeMaster  the exchange master, not null
    * @param versionAsOfInstantProvider  the version instant to retrieve, null for latest version
    */
-  public DefaultExchangeSource(final ExchangeMaster exchangeMaster, InstantProvider versionAsOfInstantProvider) {
+  public MasterExchangeSource(final ExchangeMaster exchangeMaster, InstantProvider versionAsOfInstantProvider) {
     this(exchangeMaster, versionAsOfInstantProvider, null);
   }
 
@@ -60,7 +61,7 @@ public class DefaultExchangeSource implements ExchangeSource {
    * @param versionAsOfInstantProvider  the version instant to retrieve, null for latest version
    * @param correctedToInstantProvider  the instant that the data should be corrected to, null for latest correction
    */
-  public DefaultExchangeSource(final ExchangeMaster exchangeMaster, InstantProvider versionAsOfInstantProvider, InstantProvider correctedToInstantProvider) {
+  public MasterExchangeSource(final ExchangeMaster exchangeMaster, InstantProvider versionAsOfInstantProvider, InstantProvider correctedToInstantProvider) {
     ArgumentChecker.notNull(exchangeMaster, "exchangeMaster");
     _exchangeMaster = exchangeMaster;
     if (versionAsOfInstantProvider != null) {

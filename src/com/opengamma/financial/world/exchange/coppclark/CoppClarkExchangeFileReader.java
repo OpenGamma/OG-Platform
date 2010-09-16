@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.exchange;
+package com.opengamma.financial.world.exchange.coppclark;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -21,6 +21,14 @@ import org.apache.commons.lang.StringUtils;
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.world.exchange.Exchange;
+import com.opengamma.financial.world.exchange.ExchangeCalendarEntry;
+import com.opengamma.financial.world.exchange.ExchangeUtils;
+import com.opengamma.financial.world.exchange.master.MasterExchangeSource;
+import com.opengamma.financial.world.exchange.master.ExchangeDocument;
+import com.opengamma.financial.world.exchange.master.ExchangeMaster;
+import com.opengamma.financial.world.exchange.master.ExchangeSource;
+import com.opengamma.financial.world.exchange.master.memory.InMemoryExchangeMaster;
 import com.opengamma.financial.world.region.InMemoryRegionMaster;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -28,7 +36,7 @@ import com.opengamma.id.IdentifierBundle;
 /**
  * Reads the exchange data from the Copp-Clark data source.
  */
-public class ExchangeFileReader {
+public class CoppClarkExchangeFileReader {
 
   /**
    * The date format.
@@ -62,9 +70,9 @@ public class ExchangeFileReader {
    */
   public static ExchangeSource createPopulatedExchangeSource() {
     ExchangeMaster exchangeMaster = new InMemoryExchangeMaster();
-    ExchangeFileReader fileReader = new ExchangeFileReader(exchangeMaster);
+    CoppClarkExchangeFileReader fileReader = new CoppClarkExchangeFileReader(exchangeMaster);
     fileReader.readFile(fileReader.getClass().getResourceAsStream(EXCHANGE_HOLIDAYS_REPOST_RESOURCE));
-    return new DefaultExchangeSource(exchangeMaster);
+    return new MasterExchangeSource(exchangeMaster);
   }
 
   //-------------------------------------------------------------------------
@@ -72,9 +80,9 @@ public class ExchangeFileReader {
    * Creates an instance with the exchange master to populate.
    * @param exchangeMaster  the exchange master, not null
    */
-  public ExchangeFileReader(ExchangeMaster exchangeMaster) {
+  public CoppClarkExchangeFileReader(ExchangeMaster exchangeMaster) {
     _exchangeMaster = exchangeMaster;
-    _exchangeSource = new DefaultExchangeSource(exchangeMaster);
+    _exchangeSource = new MasterExchangeSource(exchangeMaster);
   }
 
   //-------------------------------------------------------------------------

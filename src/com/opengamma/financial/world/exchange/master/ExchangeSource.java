@@ -3,8 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.exchange;
+package com.opengamma.financial.world.exchange.master;
 
+import com.opengamma.financial.world.exchange.Exchange;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 

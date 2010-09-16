@@ -34,27 +34,27 @@ import com.opengamma.util.ArgumentChecker;
 public class Exchange extends DirectBean {
 
   /**
-   * Gets the unique identifier of the exchange.
+   * The unique identifier of the exchange.
    */
   @PropertyDefinition
   private UniqueIdentifier _uniqueIdentifier;
   /**
-   * Gets the name of the exchange intended for display purposes.
+   * The name of the exchange intended for display purposes.
    */
   @PropertyDefinition
   private String _name;
   /**
-   * Gets the bundle of identifiers that define the exchange.
+   * The bundle of identifiers that define the exchange.
    */
   @PropertyDefinition
   private IdentifierBundle _identifiers = IdentifierBundle.EMPTY;
   /**
-   * Gets the identifier of the region where the exchange is located.
+   * The identifier of the region where the exchange is located.
    */
   @PropertyDefinition
   private Identifier _regionId;
   /**
-   * Gets the detailed information about when an exchange is open or closed.
+   * The detailed information about when an exchange is open or closed.
    */
   @PropertyDefinition
   private final List<ExchangeCalendarEntry> _calendarEntries = new ArrayList<ExchangeCalendarEntry>();
@@ -151,7 +151,7 @@ public class Exchange extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets gets the unique identifier of the exchange.
+   * Gets the unique identifier of the exchange.
    * @return the value of the property
    */
   public UniqueIdentifier getUniqueIdentifier() {
@@ -159,7 +159,7 @@ public class Exchange extends DirectBean {
   }
 
   /**
-   * Sets gets the unique identifier of the exchange.
+   * Sets the unique identifier of the exchange.
    * @param uniqueIdentifier  the new value of the property
    */
   public void setUniqueIdentifier(UniqueIdentifier uniqueIdentifier) {
@@ -176,7 +176,7 @@ public class Exchange extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets gets the name of the exchange intended for display purposes.
+   * Gets the name of the exchange intended for display purposes.
    * @return the value of the property
    */
   public String getName() {
@@ -184,7 +184,7 @@ public class Exchange extends DirectBean {
   }
 
   /**
-   * Sets gets the name of the exchange intended for display purposes.
+   * Sets the name of the exchange intended for display purposes.
    * @param name  the new value of the property
    */
   public void setName(String name) {
@@ -201,7 +201,7 @@ public class Exchange extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets gets the bundle of identifiers that define the exchange.
+   * Gets the bundle of identifiers that define the exchange.
    * @return the value of the property
    */
   public IdentifierBundle getIdentifiers() {
@@ -209,7 +209,7 @@ public class Exchange extends DirectBean {
   }
 
   /**
-   * Sets gets the bundle of identifiers that define the exchange.
+   * Sets the bundle of identifiers that define the exchange.
    * @param identifiers  the new value of the property
    */
   public void setIdentifiers(IdentifierBundle identifiers) {
@@ -226,7 +226,7 @@ public class Exchange extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets gets the identifier of the region where the exchange is located.
+   * Gets the identifier of the region where the exchange is located.
    * @return the value of the property
    */
   public Identifier getRegionId() {
@@ -234,7 +234,7 @@ public class Exchange extends DirectBean {
   }
 
   /**
-   * Sets gets the identifier of the region where the exchange is located.
+   * Sets the identifier of the region where the exchange is located.
    * @param regionId  the new value of the property
    */
   public void setRegionId(Identifier regionId) {
@@ -251,7 +251,7 @@ public class Exchange extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets gets the detailed information about when an exchange is open or closed.
+   * Gets the detailed information about when an exchange is open or closed.
    * @return the value of the property
    */
   public List<ExchangeCalendarEntry> getCalendarEntries() {
@@ -259,7 +259,7 @@ public class Exchange extends DirectBean {
   }
 
   /**
-   * Sets gets the detailed information about when an exchange is open or closed.
+   * Sets the detailed information about when an exchange is open or closed.
    * @param calendarEntries  the new value of the property
    */
   public void setCalendarEntries(List<ExchangeCalendarEntry> calendarEntries) {

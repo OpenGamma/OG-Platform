@@ -16,13 +16,13 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import com.opengamma.financial.world.CoppClarkFileReader;
-import com.opengamma.financial.world.exchange.DefaultExchangeSource;
 import com.opengamma.financial.world.exchange.Exchange;
-import com.opengamma.financial.world.exchange.ExchangeDocument;
-import com.opengamma.financial.world.exchange.ExchangeFileReader;
-import com.opengamma.financial.world.exchange.ExchangeSource;
 import com.opengamma.financial.world.exchange.ExchangeUtils;
-import com.opengamma.financial.world.exchange.InMemoryExchangeMaster;
+import com.opengamma.financial.world.exchange.coppclark.CoppClarkExchangeFileReader;
+import com.opengamma.financial.world.exchange.master.MasterExchangeSource;
+import com.opengamma.financial.world.exchange.master.ExchangeDocument;
+import com.opengamma.financial.world.exchange.master.ExchangeSource;
+import com.opengamma.financial.world.exchange.master.memory.InMemoryExchangeMaster;
 import com.opengamma.financial.world.holiday.HolidaySource;
 import com.opengamma.financial.world.holiday.HolidayType;
 import com.opengamma.financial.world.holiday.InMemoryHolidayMaster;
@@ -46,7 +46,7 @@ public class InMemoryHolidayAndExchangeRespositoriesTest {
     RegionMaster regionMaster = RegionFileReader.createPopulatedRegionMaster();
     RegionSource regionSource = new DefaultRegionSource(regionMaster);
     InMemoryExchangeMaster exchangeRepo = new InMemoryExchangeMaster();
-    ExchangeSource exchangeSource = new DefaultExchangeSource(exchangeRepo);
+    ExchangeSource exchangeSource = new MasterExchangeSource(exchangeRepo);
     
     Region uk = regionSource.getHighestLevelRegion(Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, "GB"));
 
@@ -113,7 +113,7 @@ public class InMemoryHolidayAndExchangeRespositoriesTest {
     InMemoryRegionMaster regionRepo = new InMemoryRegionMaster();
     RegionFileReader.populateMaster(regionRepo, new File(RegionFileReader.REGIONS_FILE_PATH));
     RegionSource regionSource = new DefaultRegionSource(regionRepo);
-    ExchangeSource exchangeSource = ExchangeFileReader.createPopulatedExchangeSource();
+    ExchangeSource exchangeSource = CoppClarkExchangeFileReader.createPopulatedExchangeSource();
     HolidaySource holidaySource = CoppClarkFileReader.createPopulatedHolidaySource(new InMemoryHolidayMaster(regionSource, exchangeSource)); 
     Identifier euronextLiffeId = Identifier.of(ExchangeUtils.ISO_MIC, "XLIF");
     Exchange euronextLiffe = exchangeSource.getSingleExchange(euronextLiffeId);
