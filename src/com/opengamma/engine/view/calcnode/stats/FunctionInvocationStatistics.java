@@ -20,6 +20,7 @@ public class FunctionInvocationStatistics {
   private double _invocationTime;
   private double _dataInput;
   private double _dataOutput;
+  private long _lastUpdated;
 
   private int _cost = SNAPSHOT_SAMPLES - 1;
   private double _invocationCost = 1.0;
@@ -45,6 +46,7 @@ public class FunctionInvocationStatistics {
       _invocationTime *= 1 - DATA_DECAY;
       _dataInput *= 1 - DATA_DECAY;
       _dataOutput *= 1 - DATA_DECAY;
+      _lastUpdated = System.nanoTime();
     }
   }
 
@@ -77,6 +79,15 @@ public class FunctionInvocationStatistics {
    */
   public double getDataOutputCost() {
     return _dataOutputCost;
+  }
+
+  /**
+   * Returns the {@link System#nanoTime} timestamp of the last time the costs changed.
+   * 
+   * @return the value of {@link System#nanoTime} of the last sample update
+   */
+  public long getLastUpdateNanos() {
+    return _lastUpdated;
   }
 
 }
