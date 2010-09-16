@@ -34,7 +34,7 @@ import com.opengamma.id.Identifier;
  * 
  */
 public class FixedFloatSwapSecurityToSwapConverter {
-  //TODO there doesn't seem to be any mention of "now" in here - suspect that some of uses of the effective date should actually be now. 
+
   private final HolidaySource _holidaySource;
   private final RegionSource _regionSource;
   private final ConventionBundleSource _conventionSource;
@@ -45,9 +45,8 @@ public class FixedFloatSwapSecurityToSwapConverter {
     _conventionSource = conventionSource;
   }
 
-  public FixedFloatSwap getSwap(final SwapSecurity swapSecurity, final String fundingCurveName, final String liborCurveName, final double marketRate) {
+  public FixedFloatSwap getSwap(final SwapSecurity swapSecurity, final String fundingCurveName, final String liborCurveName, final double marketRate, final ZonedDateTime now) {
     Validate.notNull(swapSecurity, "swap security");
-    final ZonedDateTime tradeDate = swapSecurity.getTradeDate().toZonedDateTime();
     final ZonedDateTime effectiveDate = swapSecurity.getEffectiveDate().toZonedDateTime();
     final ZonedDateTime maturityDate = swapSecurity.getMaturityDate().toZonedDateTime();
     final SwapLeg payLeg = swapSecurity.getPayLeg();
@@ -70,20 +69,20 @@ public class FixedFloatSwapSecurityToSwapConverter {
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, payRegion);
     final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getISOCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_SWAP"));
-    return new FixedFloatSwap(getFixedLeg(fixedLeg, tradeDate, effectiveDate, maturityDate, marketRate, fundingCurveName, calendar), getFloatLeg(floatLeg, tradeDate, effectiveDate,
+    return new FixedFloatSwap(getFixedLeg(fixedLeg, now, effectiveDate, maturityDate, marketRate, fundingCurveName, calendar), getFloatLeg(floatLeg, now, effectiveDate,
         maturityDate, fundingCurveName, liborCurveName, calendar, conventions.getSwapFloatingLegSettlementDays()));
   }
 
-  public VariableAnnuity getFloatLeg(final FloatingInterestRateLeg floatLeg, final ZonedDateTime tradeDate, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate,
+  public VariableAnnuity getFloatLeg(final FloatingInterestRateLeg floatLeg, final ZonedDateTime now, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate,
       final String fundingCurveName, final String liborCurveName, final Calendar calendar, final int settlementDays) {
     final ZonedDateTime[] unadjustedDates = ScheduleCalculator.getUnadjustedDateSchedule(effectiveDate, maturityDate, floatLeg.getFrequency());
     final ZonedDateTime[] adjustedDates = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, floatLeg.getBusinessDayConvention(), calendar);
     final ZonedDateTime[] resetDates = ScheduleCalculator.getAdjustedResetDateSchedule(effectiveDate, unadjustedDates, floatLeg.getBusinessDayConvention(), calendar, settlementDays);
     final ZonedDateTime[] maturityDates = ScheduleCalculator.getAdjustedMaturityDateSchedule(effectiveDate, unadjustedDates, floatLeg.getBusinessDayConvention(), calendar, floatLeg.getFrequency());
 
-    final double[] paymentTimes = ScheduleCalculator.getTimes(adjustedDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), tradeDate);
-    final double[] resetTimes = ScheduleCalculator.getTimes(resetDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), tradeDate);
-    final double[] maturityTimes = ScheduleCalculator.getTimes(maturityDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), tradeDate);
+    final double[] paymentTimes = ScheduleCalculator.getTimes(adjustedDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), now);
+    final double[] resetTimes = ScheduleCalculator.getTimes(resetDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), now);
+    final double[] maturityTimes = ScheduleCalculator.getTimes(maturityDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), now);
     final double[] yearFractions = ScheduleCalculator.getYearFractions(adjustedDates, floatLeg.getDayCount(), effectiveDate);
     final double notional = ((InterestRateNotional) floatLeg.getNotional()).getAmount();
 
