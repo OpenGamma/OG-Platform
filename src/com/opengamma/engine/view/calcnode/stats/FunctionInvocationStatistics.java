@@ -25,9 +25,17 @@ public class FunctionInvocationStatistics {
   private double _invocationCost = 1.0;
   private double _dataInputCost = 1.0;
   private double _dataOutputCost = 1.0;
+  private long _lastUpdated;
 
   protected FunctionInvocationStatistics(final String functionIdentifier) {
     _functionIdentifier = functionIdentifier;
+  }
+
+  protected synchronized void setCosts(final double invocationCost, final double dataInputCost, final double dataOutputCost) {
+    _invocationCost = invocationCost;
+    _dataInputCost = dataInputCost;
+    _dataOutputCost = dataOutputCost;
+    _lastUpdated = System.nanoTime();
   }
 
   protected synchronized void recordInvocation(final int count, final double invocationTime, final double dataInput, final double dataOutput) {
@@ -38,9 +46,7 @@ public class FunctionInvocationStatistics {
     _cost += count;
     if (_cost >= SNAPSHOT_SAMPLES) {
       _cost = 0;
-      _invocationCost = _invocationTime / _invocations;
-      _dataInputCost = _dataInput / _invocations;
-      _dataOutputCost = _dataOutput / _invocations;
+      setCosts(_invocationTime / _invocations, _dataInput / _invocations, _dataOutput / _invocations);
       _invocations *= 1 - DATA_DECAY;
       _invocationTime *= 1 - DATA_DECAY;
       _dataInput *= 1 - DATA_DECAY;
@@ -77,6 +83,20 @@ public class FunctionInvocationStatistics {
    */
   public double getDataOutputCost() {
     return _dataOutputCost;
+  }
+
+  /**
+   * Returns the {@link System#nanoTime} timestamp of the last time the costs changed.
+   * 
+   * @return the value of {@link System#nanoTime} of the last sample update
+   */
+  public long getLastUpdateNanos() {
+    return _lastUpdated;
+  }
+
+  @Override
+  public String toString() {
+    return getFunctionIdentifier() + " = " + getInvocationCost() + "ns, " + getDataInputCost() + " bytes/input, " + getDataOutputCost() + " bytes/output, at " + getLastUpdateNanos();
   }
 
 }

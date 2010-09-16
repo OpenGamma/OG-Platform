@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.client.merging;
@@ -27,60 +27,61 @@ public class RateLimitingMergingUpdateProviderTest {
 
   @Test
   public void testPassThrough() {
-    RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider = new RateLimitingMergingUpdateProvider<ViewComputationResultModel>(new ViewComputationResultModelMerger(), new Timer("Custom timer"));
-    
+    RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider = new RateLimitingMergingUpdateProvider<ViewComputationResultModel>(new ViewComputationResultModelMerger(), new Timer(
+        "Custom timer"));
+
     TestMergingUpdateListener testListener = new TestMergingUpdateListener();
     provider.addUpdateListener(testListener);
-    
+
     // OK, it doesn't really test the 'synchronous' bit, but it at least checks that no merging has happened.
     addResults(provider, 1000);
     assertEquals(1000, testListener.consumeResults().size());
-    
+
     provider.setPaused(true);
     addResults(provider, 1000);
     assertEquals(0, testListener.consumeResults().size());
     provider.setPaused(false);
     assertEquals(1, testListener.consumeResults().size());
-    
+
     provider.setPaused(false);
     addResults(provider, 1000);
     assertEquals(1000, testListener.consumeResults().size());
-    
+
     provider.shutdown();
   }
-  
+
   @Test
   public void testMergingWhenRateLimiting() throws InterruptedException {
     RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider = new RateLimitingMergingUpdateProvider<ViewComputationResultModel>(new ViewComputationResultModelMerger(), 500);
-    
+
     TestMergingUpdateListener testListener = new TestMergingUpdateListener();
     provider.addUpdateListener(testListener);
-    
+
     addResults(provider, 1000);
     Thread.sleep(500);
     assertEquals(1, testListener.consumeResults().size());
-    
+
     provider.shutdown();
   }
-  
+
   @Test
   public void testModifiableUpdatePeriod() throws InterruptedException {
     RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider = new RateLimitingMergingUpdateProvider<ViewComputationResultModel>(new ViewComputationResultModelMerger(), 500);
-    
+
     TestMergingUpdateListener testListener = new TestMergingUpdateListener();
     provider.addUpdateListener(testListener);
-    
+
     assertCorrectUpdateRate(provider, testListener, 100);
     assertCorrectUpdateRate(provider, testListener, 400);
     assertCorrectUpdateRate(provider, testListener, 50);
-    
+
     provider.shutdown();
   }
 
   private void assertCorrectUpdateRate(RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider, TestMergingUpdateListener testListener, int period) throws InterruptedException {
     provider.setMinimumUpdatePeriodMillis(period);
     testUpdateRate(provider, testListener, period);
-    
+
     // If the provider is paused then all updates should be merged regardless of the time elapsed or the rate
     provider.setPaused(true);
     for (int i = 0; i < 3; i++) {
@@ -91,22 +92,23 @@ public class RateLimitingMergingUpdateProviderTest {
     provider.setPaused(false);
     Thread.sleep(2 * period);
     assertEquals(1, testListener.consumeResults().size());
-    
+
     // Once unpaused, everything should be back to normal
     testUpdateRate(provider, testListener, period);
   }
 
   private void testUpdateRate(RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider, TestMergingUpdateListener testListener, int period) throws InterruptedException {
-    long startTime = System.currentTimeMillis();
+    testListener.resetShortestDelay();
     for (int i = 0; i < 100; i++) {
-      addResults(provider, 10);
       Thread.sleep(10);
+      addResults(provider, 10);
     }
-    long endTime = System.currentTimeMillis();
-    int timeTaken = (int) (endTime - startTime);
-    // Allow an extra couple of periods to make sure there are no stragglers to come through
-    Thread.sleep(2 * period);
-    assertAcceptableResultCount(timeTaken / period, testListener.consumeResults().size());
+    // Wait a couple of periods for any stragglers
+    Thread.sleep (2 * period);
+    // Check that the results didn't come any faster than we asked for (give or take), and not too slowly
+    assertTrue ("Expecting results no faster than " + period + "ms, got " + testListener.getShortestDelay (), testListener.getShortestDelay () >= (period - 1));
+    assertTrue ("Expecting results no slower than " + (period * 2) + "ms, got " + testListener.getShortestDelay (), testListener.getShortestDelay () <= (period * 2));
+    System.out.println ("size = " + testListener.consumeResults ().size ());
   }
 
   private void addResults(RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider, int count) {
@@ -114,35 +116,38 @@ public class RateLimitingMergingUpdateProviderTest {
       provider.newResult(mock(ViewComputationResultModel.class));
     }
   }
-  
-  private void assertAcceptableResultCount(int periodCount, int numberOfResults) {
-    // Timer delays could result in fewer results than the theoretical number of periods.
-    int lowerLimit = periodCount - 1;
-    
-    // If we're unlucky, the timer could go off mid-burst, splitting a burst into two, and producing an extra result.
-    // Also we're using Thread.sleep which delays things for AT LEAST the specified time. This could cause an uneven
-    // stream of results which fall unevenly around the periods, creating more results than the theoretical number.
-    int upperLimit = periodCount + 2;
-    
-    boolean isAcceptable = numberOfResults >= lowerLimit && numberOfResults <= upperLimit;
-    assertTrue("Expecting " + lowerLimit + " to " + upperLimit + " results, got " + numberOfResults, isAcceptable);
-  }
-  
+
   private class TestMergingUpdateListener implements MergedUpdateListener<ViewComputationResultModel> {
 
-    private volatile List<ViewComputationResultModel> _resultsReceived = new ArrayList<ViewComputationResultModel>();
-    
+    private long _lastResultReceived;
+    private long _shortestDelay;
+    private List<ViewComputationResultModel> _resultsReceived = new ArrayList<ViewComputationResultModel>();
+
     @Override
-    public void handleResult(ViewComputationResultModel result) {
+    public synchronized void handleResult(ViewComputationResultModel result) {
+      long now = System.currentTimeMillis ();
+      long delay = now - _lastResultReceived;
+      _lastResultReceived = now;
+      if (delay < _shortestDelay) {
+        _shortestDelay = delay;
+      }
       _resultsReceived.add(result);
     }
-    
-    public List<ViewComputationResultModel> consumeResults() {
+
+    public synchronized List<ViewComputationResultModel> consumeResults() {
       List<ViewComputationResultModel> results = _resultsReceived;
       _resultsReceived = new ArrayList<ViewComputationResultModel>();
       return results;
     }
     
+    public synchronized long getShortestDelay () {
+      return _shortestDelay;
+    }
+    
+    public synchronized void resetShortestDelay () {
+      _shortestDelay = Long.MAX_VALUE;
+    }
+
   }
-  
+
 }

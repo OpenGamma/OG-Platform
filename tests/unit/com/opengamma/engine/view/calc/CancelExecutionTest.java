@@ -122,7 +122,7 @@ public class CancelExecutionTest {
       @Override
       public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
         try {
-          Thread.sleep((JOB_FINISH_TIME * 3) / (JOB_SIZE * 4));
+          Thread.sleep(JOB_FINISH_TIME / (JOB_SIZE * 2));
         } catch (InterruptedException e) {
           throw new OpenGammaRuntimeException("Function interrupted", e);
         }
