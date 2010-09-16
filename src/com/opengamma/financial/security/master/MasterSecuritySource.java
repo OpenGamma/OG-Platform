@@ -65,7 +65,7 @@ public class MasterSecuritySource implements SecuritySource {
    * @param correctedToInstantProvider  the instant that the data should be corrected to, null for latest correction
    */
   public MasterSecuritySource(final SecurityMaster securityMaster, InstantProvider versionAsOfInstantProvider, InstantProvider correctedToInstantProvider) {
-    ArgumentChecker.notNull(securityMaster, "positionMaster");
+    ArgumentChecker.notNull(securityMaster, "securityMaster");
     _securityMaster = securityMaster;
     if (versionAsOfInstantProvider != null) {
       _versionAsOfInstant = Instant.of(versionAsOfInstantProvider);
