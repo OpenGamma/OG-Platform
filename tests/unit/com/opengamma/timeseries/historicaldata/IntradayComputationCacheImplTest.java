@@ -20,6 +20,7 @@ import javax.time.Duration;
 import javax.time.Instant;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
@@ -83,6 +84,7 @@ public class IntradayComputationCacheImplTest extends DBTest {
   }
   
   @Test
+  @Ignore
   public void getValue() throws Exception {
     assertFalse(_intradayComputationCache.isRunning());    
     
