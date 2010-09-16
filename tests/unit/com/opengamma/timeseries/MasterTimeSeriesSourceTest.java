@@ -12,6 +12,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Map;
+
 import javax.time.calendar.LocalDate;
 
 import org.junit.After;
@@ -21,6 +23,8 @@ import org.junit.Test;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -105,9 +109,52 @@ public class MasterTimeSeriesSourceTest {
     assertEquals(UID, tsPair.getFirst());
     assertEquals(tsDoc.getTimeSeries().times(), tsPair.getSecond().times());
     assertEquals(tsDoc.getTimeSeries().values(), tsPair.getSecond().values());
-    
   }
   
+  @Test
+  public void getHistoricalWithInclusiveExclusiveDates() throws Exception {
+    
+    LocalDate end = DateUtil.previousWeekDay();
+    LocalDate start = end.minusDays(7);
+    
+    TimeSeriesSearchRequest<LocalDate> request = new TimeSeriesSearchRequest<LocalDate>();
+    request.getIdentifiers().addAll(IDENTIFIERS.getIdentifiers());
+    request.setDataSource(BBG_DATA_SOURCE);
+    request.setDataProvider(CMPL_DATA_PROVIDER);
+    request.setDataField(CLOSE_DATA_FIELD);
+    request.setLoadTimeSeries(true);
+    LocalDateDoubleTimeSeries timeSeries = randomTimeSeries();
+    
+    TimeSeriesSearchResult<LocalDate> searchResult = new TimeSeriesSearchResult<LocalDate>();
+    TimeSeriesDocument<LocalDate> tsDoc = new TimeSeriesDocument<LocalDate>();
+    tsDoc.setUniqueIdentifier(UID);
+    searchResult.getDocuments().add(tsDoc);
+    
+    for (boolean startIncluded : new boolean[]{true, false})  {
+      for (boolean endExcluded : new boolean[]{true, false}) {
+        if (startIncluded) {
+          request.setStart(start);
+        } else {
+          request.setStart(start.plusDays(1));
+        }
+        if (endExcluded) {
+          request.setEnd(end.minusDays(1));
+        } else {
+          request.setEnd(end);
+        }
+        DoubleTimeSeries<LocalDate> subSeries = timeSeries.subSeries(start, startIncluded, end, endExcluded);
+        tsDoc.setTimeSeries(subSeries);
+        when(_mockMaster.searchTimeSeries(request)).thenReturn(searchResult);
+        
+        Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = _tsSource.getHistoricalData(IDENTIFIERS, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, start, startIncluded, end, endExcluded);
+        verify(_mockMaster, times(1)).searchTimeSeries(request);
+        assertEquals(UID, tsPair.getFirst());
+        assertEquals(tsDoc.getTimeSeries(), tsPair.getSecond());
+      }
+    }
+    
+  }
+ 
   private LocalDateDoubleTimeSeries randomTimeSeries() {
     MutableLocalDateDoubleTimeSeries dts = new ListLocalDateDoubleTimeSeries();
     LocalDate start = LocalDate.of(2000, 1, 2);

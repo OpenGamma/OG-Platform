@@ -229,5 +229,5 @@ public interface TimeSeriesConstant {
   /**
    * Millisec in day
    */
-  long MSEC_IN_DAY = 86400000L;
+  long MILLIS_PER_DAY = 86400000L;
 }

@@ -581,7 +581,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
     }
     
     if (end != null) {
-      sql += " AND ts_date < :endDate";
+      sql += " AND ts_date <= :endDate";
       parameters.addValue("endDate", getSqlDate(end), getSqlDateType());
     }
     
@@ -1346,10 +1346,10 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
       
       // this may be rather slow if there are lots of points to be removed
       DoubleTimeSeries<T> timeSeries = loadTimeSeries(tsId, null, firstDateToRetain);
-      for (Map.Entry<T, Double> entry : timeSeries) {
-        removeDataPoint(tsId, entry.getKey());        
+      //the last datapoint is included so dont delete that
+      for (int i = 0; i < timeSeries.size() - 1; i++) {
+        removeDataPoint(tsId, timeSeries.getTime(i));   
       }
-      
     } else {
       
       String deleteSql = _namedSQLMap.get(DELETE_DATA_POINTS_BY_DATE);

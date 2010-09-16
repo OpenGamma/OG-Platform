@@ -5,8 +5,6 @@
  */
 package com.opengamma.timeseries.db;
 
-import static com.opengamma.timeseries.TimeSeriesConstant.MSEC_IN_DAY;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -53,7 +51,7 @@ public class LocalDateRowStoreTimeSeriesMaster extends RowStoreTimeSeriesMaster<
   
   @Override
   protected Object getSqlDate(LocalDate date) {
-    return new java.sql.Date(date.toEpochDays() * MSEC_IN_DAY);
+    return DbDateUtils.toSqlDate(date);
   }
     
   @Override
