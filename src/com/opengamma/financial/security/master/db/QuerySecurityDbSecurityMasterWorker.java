@@ -32,9 +32,9 @@ import com.opengamma.financial.security.master.SecuritySearchResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.Paging;
-import com.opengamma.util.time.DateUtil;
 
 /**
  * Security master worker to get the security.
@@ -319,10 +319,10 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
       UniqueIdentifier uid = createUniqueIdentifier(securityOid, securityId, _deduplicate);
       _security = new DefaultSecurity(uid, name, type, IdentifierBundle.EMPTY);
       SecurityDocument doc = new SecurityDocument(_security);
-      doc.setVersionFromInstant(DateUtil.fromSqlTimestamp(versionFrom));
-      doc.setVersionToInstant(DateUtil.fromSqlTimestamp(versionTo));
-      doc.setCorrectionFromInstant(DateUtil.fromSqlTimestamp(correctionFrom));
-      doc.setCorrectionToInstant(DateUtil.fromSqlTimestamp(correctionTo));
+      doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
+      doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
+      doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
+      doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
       doc.setSecurityId(uid);
       _documents.add(doc);
     }

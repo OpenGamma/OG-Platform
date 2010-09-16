@@ -5,15 +5,9 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import javax.time.calendar.LocalDate;
-
 import com.opengamma.config.ConfigMaster;
 import com.opengamma.config.DefaultConfigDocument;
 import com.opengamma.engine.config.MongoDBMasterConfigSource;
-import com.opengamma.financial.analytics.ircurve.CurveDefinitionAndSpecifications;
-import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
-import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -37,6 +31,10 @@ public class YieldCurveConfigPopulator {
     fundingUSD.setName("FUNDING_USD");
     fundingUSD.setValue(CurveDefinitionAndSpecifications.buildUSDFundingCurveDefinition());
     configRepo.add(fundingUSD);
+    DefaultConfigDocument<YieldCurveDefinition> swapOnlyUSD = new DefaultConfigDocument<YieldCurveDefinition>();
+    swapOnlyUSD.setName("SWAP_ONLY_USD");
+    swapOnlyUSD.setValue(CurveDefinitionAndSpecifications.buildUSDSwapOnlyCurveDefinition());
+    configRepo.add(swapOnlyUSD);
   }
   
   public static void populateCurveSpecificationBuilderConfigMaster(ConfigMaster<CurveSpecificationBuilderConfiguration> configMaster) {
@@ -45,6 +43,4 @@ public class YieldCurveConfigPopulator {
     doc.setValue(CurveDefinitionAndSpecifications.buildUSDCurveSpecificationBuilderConfiguration());
     configMaster.add(doc);
   }
-
-
 }

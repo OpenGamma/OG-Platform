@@ -34,7 +34,9 @@ public class ConventionBundleImpl implements ConventionBundle {
   private Frequency _swapFloatingLegFrequency;
   private Integer _swapFloatingLegSettlementDays;
   private Identifier _swapFloatingLegInitialRate;
+  private Double _pointValue;
   
+  // cash/general
   public ConventionBundleImpl(IdentifierBundle initialBundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Frequency frequency, int settlementDays) {
     _bundle = initialBundle;
     _name = name;
@@ -44,6 +46,18 @@ public class ConventionBundleImpl implements ConventionBundle {
     _settlementDays = settlementDays;
   }
   
+  // futures
+  public ConventionBundleImpl(IdentifierBundle initialBundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Frequency frequency, int settlementDays, double pointValue) {
+    _bundle = initialBundle;
+    _name = name;
+    _dayCount = dayCount;
+    _businessDayConvention = businessDayConvention;
+    _frequency = frequency;
+    _settlementDays = settlementDays;
+    _pointValue = pointValue;
+  }
+  
+  // swaps
   public ConventionBundleImpl(IdentifierBundle initialBundle, String name, 
                               DayCount swapFixedLegDayCount, BusinessDayConvention swapFixedLegBusinessDayConvention, 
                               Frequency swapFixedLegFrequency, Integer swapFixedLegSettlementDays, 
@@ -179,6 +193,14 @@ public class ConventionBundleImpl implements ConventionBundle {
    */
   public Identifier getSwapFloatingLegInitialRate() {
     return _swapFloatingLegInitialRate;
+  }
+
+  /**
+   * Gets the pointValue field.
+   * @return the pointValue
+   */
+  public Double getFuturePointValue() {
+    return _pointValue;
   }
   
   

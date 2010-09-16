@@ -10,7 +10,6 @@ import static com.opengamma.financial.world.region.InMemoryRegionMaster.ISO_COUN
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -23,14 +22,11 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.format.DateTimeFormatter;
 import javax.time.calendar.format.DateTimeFormatters;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.Currency;
-import com.opengamma.financial.world.exchange.ExchangeMaster;
+import com.opengamma.financial.world.exchange.ExchangeUtils;
 import com.opengamma.financial.world.holiday.DefaultHolidaySource;
 import com.opengamma.financial.world.holiday.HolidayDocument;
 import com.opengamma.financial.world.holiday.HolidayMaster;
@@ -41,12 +37,12 @@ import com.opengamma.financial.world.region.RegionFileReader;
 import com.opengamma.id.Identifier;
 
 /**
- * 
+ * Reads the holiday data from the Copp-Clark data source.
  */
 public class CoppClarkFileReader {
-  private static final Logger s_logger = LoggerFactory.getLogger(CoppClarkFileReader.class);
+
   /**
-   * Path to copp-clark holiday files
+   * Path to Copp-Clark holiday files
    */
   public static final String HOLIDAYS_DIR_PATH = RegionFileReader.WORLD_DATA_DIR_PATH + File.separator + "holiday-calendars" + File.separator + "copp-clark";
   /**
@@ -54,7 +50,7 @@ public class CoppClarkFileReader {
    */
   public static final String CURRENCY_HOLIDAYS_FILE_PATH = HOLIDAYS_DIR_PATH + File.separator + "Currencies_20100610.csv";
   /**
-   * Path to financial centres holiday calendars CSV file
+   * Path to financial center holiday calendars CSV file
    */
   public static final String FINANCIAL_CENTRES_HOLIDAYS_FILE_PATH = HOLIDAYS_DIR_PATH + File.separator + "FinancialCentres_20100610.csv";
   /**
@@ -66,7 +62,7 @@ public class CoppClarkFileReader {
    */
   public static final String EXCHANGE_TRADING_HOLIDAYS_FILE_PATH = HOLIDAYS_DIR_PATH + File.separator + "ExchangeTrading_20100610.csv";
   
-  public static final String EXCHANGE_HOLIDAYS_REPOST_FILE_PATH = RegionFileReader.WORLD_DATA_DIR_PATH + File.separator + "exchanges" + File.separator + "THR_20100630.csv.txt";
+//  private static final String EXCHANGE_HOLIDAYS_REPOST_FILE_PATH = RegionFileReader.WORLD_DATA_DIR_PATH + File.separator + "exchanges" + File.separator + "THR_20100630.csv.txt";
   private static final String VERSION = "20100610";
   private static final String CURRENCY_HOLIDAYS_RESOURCE = "/com/coppclark/holiday/Currencies_" + VERSION + ".csv";
   private static final String FINANCIAL_CENTERS_RESOURCE = "/com/coppclark/holiday/FinancialCentres_" + VERSION + ".csv";
@@ -195,7 +191,7 @@ public class CoppClarkFileReader {
       String eventDateStr = row[eventDateIdx];
       LocalDate eventDate =  formatter.parse(eventDateStr, LocalDate.rule());
       
-      Identifier micId = new Identifier(ExchangeMaster.ISO_MIC, isoMICCode);
+      Identifier micId = new Identifier(ExchangeUtils.ISO_MIC, isoMICCode);
       //Identifier coppClarkNameId = new Identifier(ExchangeRepository.COPP_CLARK_NAME, exchangeName);
       //Identifier coppClarkCenterId = new Identifier(ExchangeRepository.COPP_CLARK_CENTER_ID, centerId);
       //IdentifierBundle bundle = new IdentifierBundle(Arrays.asList(new Identifier[] {micId, coppClarkNameId, coppClarkCenterId }));
@@ -226,7 +222,7 @@ public class CoppClarkFileReader {
       String isoMICCode = row[isoMICCodeIdx];
       String eventDateStr = row[eventDateIdx];
       LocalDate eventDate =  formatter.parse(eventDateStr, LocalDate.rule());
-      Identifier micId = new Identifier(ExchangeMaster.ISO_MIC, isoMICCode);
+      Identifier micId = new Identifier(ExchangeUtils.ISO_MIC, isoMICCode);
       HolidaySearchRequest searchReq = new HolidaySearchRequest(micId, HolidayType.TRADING);
       Collection<HolidayDocument> docs = _holidayRepo.searchHolidays(searchReq).getResults();
       if (docs.size() == 0) {

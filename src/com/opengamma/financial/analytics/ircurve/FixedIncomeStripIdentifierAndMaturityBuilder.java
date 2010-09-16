@@ -110,17 +110,16 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
   }
   
   private CashSecurity getCash(InterpolatedYieldCurveSpecification spec, FixedIncomeStripWithIdentifier strip) {
-    //return (CashSecurity) _secSource.getSecurity(IdentifierBundle.of(cashIdentifier));
-    CashSecurity sec = new CashSecurity(spec.getCurrency(), Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, "GB"));
+    CashSecurity sec = new CashSecurity(spec.getCurrency(), Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, "US"), 
+                                        new DateTimeWithZone(spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(11, 00)));
     sec.setIdentifiers(IdentifierBundle.of(strip.getSecurity()));
     return sec;
   }
   
   private FRASecurity getFRA(InterpolatedYieldCurveSpecification spec, FixedIncomeStripWithIdentifier strip) {
-    //Identifier fraIdentifier = strip.getSecurity();
     LocalDate curveDate = spec.getCurveDate(); // quick hack
-    //FRASecurity fraSecurity = (FRASecurity) _secSource.getSecurity(IdentifierBundle.of(fraIdentifier));
-    return new FRASecurity(new DateTimeWithZone(curveDate.atTime(11, 00)), new DateTimeWithZone(curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00)));
+    return new FRASecurity(spec.getCurrency(), Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, "US"), 
+                           new DateTimeWithZone(curveDate.atTime(11, 00)), new DateTimeWithZone(curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00)));
   }
   
   private FutureSecurity getFuture(InterpolatedYieldCurveSpecification spec, FixedIncomeStripWithIdentifier strip) {
@@ -138,7 +137,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     DateTimeWithZone maturityDate = new DateTimeWithZone(curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC));
     ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getISOCode() + "_SWAP"));
     String counterparty = "";
-    Identifier region = Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, "GB");
+    Identifier region = Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, "US");
     // REVIEW: jim 25-Aug-2010 -- change this to pass the identifier from the convention straight in instead of resolving and using a unique ID
     ConventionBundle floatRateConvention = source.getConventionBundle(convention.getSwapFloatingLegInitialRate());
     Double initialRate = null; 

@@ -20,8 +20,8 @@ import com.opengamma.financial.security.master.SecurityDocument;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.time.DateUtil;
 
 /**
  * Security master worker to modify a security.
@@ -254,7 +254,7 @@ public class ModifySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("security_id", extractRowId(document.getSecurityId()))
       .addTimestamp("ver_to_instant", document.getVersionToInstant())
-      .addValue("max_instant", DateUtil.MAX_SQL_TIMESTAMP);
+      .addValue("max_instant", DbDateUtils.MAX_SQL_TIMESTAMP);
     int rowsUpdated = getJdbcTemplate().update(sqlUpdateVersionToInstant(), args);
     if (rowsUpdated != 1) {
       throw new IncorrectUpdateSemanticsDataAccessException("Update end version instant failed, rows updated: " + rowsUpdated);
@@ -294,7 +294,7 @@ public class ModifySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("security_id", extractRowId(document.getSecurityId()))
       .addTimestamp("corr_to_instant", document.getCorrectionToInstant())
-      .addValue("max_instant", DateUtil.MAX_SQL_TIMESTAMP);
+      .addValue("max_instant", DbDateUtils.MAX_SQL_TIMESTAMP);
     int rowsUpdated = getJdbcTemplate().update(sqlUpdateCorrectionToInstant(), args);
     if (rowsUpdated != 1) {
       throw new IncorrectUpdateSemanticsDataAccessException("Update end correction instant failed, rows updated: " + rowsUpdated);

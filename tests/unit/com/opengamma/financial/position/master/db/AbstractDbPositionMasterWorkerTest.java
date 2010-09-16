@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.position.master.db;
 
+import static com.opengamma.util.db.DbDateUtils.MAX_SQL_TIMESTAMP;
+import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
+
 import java.math.BigDecimal;
 import java.util.TimeZone;
 
@@ -21,7 +24,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import com.opengamma.financial.master.db.DbMasterTestUtils;
 import com.opengamma.util.test.DBTest;
-import com.opengamma.util.time.DateUtil;
 
 /**
  * Base tests for DbPositionMasterWorker via DbPositionMaster.
@@ -64,11 +66,11 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     s_logger.debug("test data later: {}", _version2Instant);
     final SimpleJdbcTemplate template = _posMaster.getDbSource().getJdbcTemplate();
     template.update("INSERT INTO pos_portfolio VALUES (?,?,?,?,?, ?,?)",
-        101, 101, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, "TestPortfolio101");
+        101, 101, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "TestPortfolio101");
     template.update("INSERT INTO pos_portfolio VALUES (?,?,?,?,?, ?,?)",
-        201, 201, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.toSqlTimestamp(_version2Instant), DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, "TestPortfolio201");
+        201, 201, toSqlTimestamp(_version1Instant), toSqlTimestamp(_version2Instant), toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "TestPortfolio201");
     template.update("INSERT INTO pos_portfolio VALUES (?,?,?,?,?, ?,?)",
-        202, 201, DateUtil.toSqlTimestamp(_version2Instant), DateUtil.MAX_SQL_TIMESTAMP, DateUtil.toSqlTimestamp(_version2Instant), DateUtil.MAX_SQL_TIMESTAMP, "TestPortfolio202");
+        202, 201, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, "TestPortfolio202");
     _totalPortfolios = 2;
 //    id bigint not null,
 //    oid bigint not null,
@@ -99,13 +101,13 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
 //    corr_to_instant timestamp not null,
 //    quantity decimal(31,8) not null,
     template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
-        121, 121, 101, 112, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, BigDecimal.valueOf(121.987));
+        121, 121, 101, 112, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, BigDecimal.valueOf(121.987));
     template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
-        122, 122, 101, 112, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, BigDecimal.valueOf(122.987));
+        122, 122, 101, 112, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, BigDecimal.valueOf(122.987));
     template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
-        221, 221, 201, 211, DateUtil.toSqlTimestamp(_version1Instant), DateUtil.toSqlTimestamp(_version2Instant), DateUtil.toSqlTimestamp(_version1Instant), DateUtil.MAX_SQL_TIMESTAMP, BigDecimal.valueOf(221.987));
+        221, 221, 201, 211, toSqlTimestamp(_version1Instant), toSqlTimestamp(_version2Instant), toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, BigDecimal.valueOf(221.987));
     template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
-        222, 221, 201, 211, DateUtil.toSqlTimestamp(_version2Instant), DateUtil.MAX_SQL_TIMESTAMP, DateUtil.toSqlTimestamp(_version2Instant), DateUtil.MAX_SQL_TIMESTAMP, BigDecimal.valueOf(222.987));
+        222, 221, 201, 211, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, BigDecimal.valueOf(222.987));
     _totalPositions = 3;
 //    id bigint not null,
 //    position_id bigint not null,

@@ -7,47 +7,36 @@ package com.opengamma.financial.analytics.cash;
 
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.financial.convention.ConventionBundle;
+import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.businessday.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.security.cash.CashSecurity;
-
-/**
- * 
- */
+import com.opengamma.financial.world.holiday.HolidaySource;
+ 
 public class CashSecurityToCashConverter {
-//TODO all of this
-  public static Cash getCash(CashSecurity security, String fundingCurveName, double marketRate, Calendar calendar, ZonedDateTime now) {
-    return null;
-//    ZonedDateTime startDate = security.getBusinessDayConvention().adjustDate(getStartDate(security, now)); 
-//    double tradeTime = getTradeTime(security);
-//    ZonedDateTime maturityDate = security.getBusinessDayConvention().adjustDate(security.getMaturity()); 
-//    double paymentTime = getMaturityTime(maturityDate, now); 
-//    double yearFraction = security.getDaycount().getDaycount(startDate, maturityDate);    
-//    return new Cash(tradeTime, marketRate, paymentTime, yearFraction, fundingCurveName);
+  
+  private HolidaySource _holidaySource;
+  private ConventionBundleSource _conventionSource;
+  
+  public CashSecurityToCashConverter(HolidaySource holidaySource, ConventionBundleSource conventionSource) {
+    _holidaySource = holidaySource;
+    _conventionSource = conventionSource;
   }
   
-  private static ZonedDateTime getStartDate(CashSecurity security, ZonedDateTime now) {
-    return null;
-//    if (security.getTenor() == "O/N" || security.getTenor() == "T/N") {
-//      return now;
-//    }
-//    return now.plusDays(security.getConvention().getSettlementDays());
-  }
-  
-  private static double getTradeTime(CashSecurity security, ZonedDateTime now) {
-    return 0;
-//    if (security.getTenor() == "O/N" || security.getTenor() == "T/N") {
-//      return 0;
-//    } 
-//    DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual");
-//    return actAct.getDayCountFraction(now, security.getRegion().getConvention().getSettlementDays());
-  }
-  
-  private static double getMaturityTime(ZonedDateTime maturity, ZonedDateTime now) {
-    return 0;
-//    DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual");
-//    return actAct.getDayCountFraction(now, maturity);    
+  public Cash getCash(CashSecurity security, String fundingCurveName, double marketRate, ZonedDateTime now) {
+    ConventionBundle conventions = _conventionSource.getConventionBundle(security.getIdentifiers());
+    Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCurrency());
+    ZonedDateTime startDate = conventions.getBusinessDayConvention().adjustDate(calendar, now.plusDays(conventions.getSettlementDays()));
+    DayCount dayCount = conventions.getDayCount();
+    double tradeTime = dayCount.getDayCountFraction(now, startDate);
+    ZonedDateTime maturityDate = security.getMaturity().toZonedDateTime();
+    DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual");
+    double paymentTime = actAct.getDayCountFraction(now, maturityDate); 
+    double yearFraction = dayCount.getDayCountFraction(startDate, maturityDate);    
+    return new Cash(tradeTime, marketRate, paymentTime, yearFraction, fundingCurveName);
   }
 }

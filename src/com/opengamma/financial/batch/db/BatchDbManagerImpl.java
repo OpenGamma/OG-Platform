@@ -49,8 +49,8 @@ import com.opengamma.financial.batch.LiveDataValue;
 import com.opengamma.financial.batch.SnapshotId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.InetAddressUtils;
+import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.test.DBTool;
-import com.opengamma.util.time.DateUtil;
 
 /**
  * This implementation uses Hibernate to write all static data, including LiveData snapshots.
@@ -190,14 +190,14 @@ public class BatchDbManagerImpl implements BatchDbManager {
       public Object doInHibernate(Session session) throws HibernateException,
           SQLException {
         Query query = session.getNamedQuery("ObservationDateTime.one.byDateAndTime");
-        query.setDate("date", DateUtil.toSqlDate(observationDate));
+        query.setDate("date", DbDateUtils.toSqlDate(observationDate));
         query.setString("time", observationTime);
         return query.uniqueResult();
       }
     });
     if (dateTime == null) {
       dateTime = new ObservationDateTime();
-      dateTime.setDate(DateUtil.toSqlDate(observationDate));
+      dateTime.setDate(DbDateUtils.toSqlDate(observationDate));
       dateTime.setObservationTime(getObservationTime(observationTime));
       _hibernateTemplate.save(dateTime);
     }
@@ -276,7 +276,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
       public Object doInHibernate(Session session) throws HibernateException,
           SQLException {
         Query query = session.getNamedQuery("LiveDataSnapshot.one.byDateAndTime");
-        query.setDate("date", DateUtil.toSqlDate(observationDate));
+        query.setDate("date", DbDateUtils.toSqlDate(observationDate));
         query.setString("time", observationTime);
         return query.uniqueResult();
       }
@@ -353,7 +353,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
           Query query = session.getNamedQuery("RiskRun.one.byViewAndRunTime");
           query.setString("viewOid", job.getViewOid());
           query.setInteger("viewVersion", job.getViewVersion());
-          query.setDate("runDate", DateUtil.toSqlDate(job.getObservationDate()));
+          query.setDate("runDate", DbDateUtils.toSqlDate(job.getObservationDate()));
           query.setString("runTime", job.getObservationTime());
           return query.uniqueResult();
         }
@@ -378,12 +378,12 @@ public class BatchDbManagerImpl implements BatchDbManager {
     riskRun.setMasterProcessHost(getLocalComputeHost());
     riskRun.setRunReason(job.getRunReason());
     riskRun.setRunTime(getObservationDateTime(job));
-    riskRun.setValuationTime(DateUtil.toSqlTimestamp(job.getValuationTime()));
+    riskRun.setValuationTime(DbDateUtils.toSqlTimestamp(job.getValuationTime()));
     riskRun.setViewOid(job.getViewOid());
     riskRun.setViewVersion(job.getViewVersion());
     riskRun.setLiveDataSnapshot(snapshot);
-    riskRun.setCreateInstant(DateUtil.toSqlTimestamp(now));
-    riskRun.setStartInstant(DateUtil.toSqlTimestamp(now));
+    riskRun.setCreateInstant(DbDateUtils.toSqlTimestamp(now));
+    riskRun.setStartInstant(DbDateUtils.toSqlTimestamp(now));
     riskRun.setNumRestarts(0);
     riskRun.setComplete(false);
     
@@ -399,7 +399,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
   /*package*/ void restartRun(RiskRun riskRun) {
     Instant now = Instant.nowSystemClock();
     
-    riskRun.setStartInstant(DateUtil.toSqlTimestamp(now));
+    riskRun.setStartInstant(DbDateUtils.toSqlTimestamp(now));
     riskRun.setNumRestarts(riskRun.getNumRestarts() + 1);
     riskRun.setComplete(false);
     
@@ -414,7 +414,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
   /*package*/ void endRun(RiskRun riskRun) {
     Instant now = Instant.nowSystemClock();
     
-    riskRun.setEndInstant(DateUtil.toSqlTimestamp(now));
+    riskRun.setEndInstant(DbDateUtils.toSqlTimestamp(now));
     riskRun.setComplete(true);
     
     _hibernateTemplate.update(riskRun);
@@ -565,7 +565,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
         throw new IllegalArgumentException("Snapshot " + snapshotId + " cannot be found");
       }
       
-      snapshot.getSnapshotTime().setTime(DateUtil.toSqlTime(fix));
+      snapshot.getSnapshotTime().setTime(DbDateUtils.toSqlTime(fix));
       _hibernateTemplate.save(snapshot);
       
       getSessionFactory().getCurrentSession().getTransaction().commit();

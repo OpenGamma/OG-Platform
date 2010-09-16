@@ -33,9 +33,9 @@ import com.opengamma.financial.position.master.PositionSearchResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.Paging;
-import com.opengamma.util.time.DateUtil;
 
 /**
  * Position master worker to get the position.
@@ -284,10 +284,10 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
       _position = new ManageablePosition(quantity, IdentifierBundle.EMPTY);
       _position.setUniqueIdentifier(createUniqueIdentifier(positionOid, positionId, _deduplicate));
       PositionDocument doc = new PositionDocument(_position);
-      doc.setVersionFromInstant(DateUtil.fromSqlTimestamp(versionFrom));
-      doc.setVersionToInstant(DateUtil.fromSqlTimestamp(versionTo));
-      doc.setCorrectionFromInstant(DateUtil.fromSqlTimestamp(correctionFrom));
-      doc.setCorrectionToInstant(DateUtil.fromSqlTimestamp(correctionTo));
+      doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
+      doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
+      doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
+      doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
       doc.setPortfolioId(createObjectIdentifier(portfolioOid, _deduplicate));
       doc.setParentNodeId(createObjectIdentifier(parentNodeOid, _deduplicate));
       doc.setPositionId(createUniqueIdentifier(positionOid, positionId, _deduplicate));

@@ -10,7 +10,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.HashSet;
 
-import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
 import org.junit.Test;
@@ -97,7 +96,6 @@ public class BatchJobTest {
     DefaultConfigDocument<ViewDefinition> configDocument = new DefaultConfigDocument<ViewDefinition>();
     configDocument.setName("MyView");
     configDocument.setValue(testView.getDefinition());
-    configDocument.setCreationInstant(Instant.EPOCH);
     configRepo.add(configDocument);
     
     SnapshotId snapshotId = new SnapshotId(LocalDate.of(9999, 9, 1), "AD_HOC_RUN");

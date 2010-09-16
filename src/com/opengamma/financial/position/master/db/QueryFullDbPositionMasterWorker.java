@@ -37,8 +37,8 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.CompareUtils;
+import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.tuple.LongObjectPair;
 
 /**
@@ -232,8 +232,8 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
           final Timestamp maxPosCorr = rs.getTimestamp("FIXED_CORR");
           final Timestamp maxPorVer = rs.getTimestamp("VER_FROM_INSTANT");
           final Timestamp maxPorCorr = rs.getTimestamp("CORR_FROM_INSTANT");
-          final Instant maxVer = CompareUtils.max(DateUtil.fromSqlTimestamp(maxPosVer), DateUtil.fromSqlTimestamp(maxPorVer));
-          final Instant maxCorr = CompareUtils.max(DateUtil.fromSqlTimestamp(maxPosCorr), DateUtil.fromSqlTimestamp(maxPorCorr));
+          final Instant maxVer = CompareUtils.max(DbDateUtils.fromSqlTimestamp(maxPosVer), DbDateUtils.fromSqlTimestamp(maxPorVer));
+          final Instant maxCorr = CompareUtils.max(DbDateUtils.fromSqlTimestamp(maxPosCorr), DbDateUtils.fromSqlTimestamp(maxPorCorr));
           fixedInstants = createFixedInstants(maxVer, maxCorr);
           final long portfolioOid = rs.getLong("PORTFOLIO_OID");
           final String name = StringUtils.defaultString(rs.getString("PORTFOLIO_NAME"));

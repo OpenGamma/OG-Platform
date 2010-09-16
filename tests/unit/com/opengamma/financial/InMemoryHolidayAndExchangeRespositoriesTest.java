@@ -8,7 +8,6 @@ package com.opengamma.financial;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.util.Arrays;
-import java.util.Set;
 
 import javax.time.calendar.LocalDate;
 
@@ -17,14 +16,13 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import com.opengamma.financial.world.CoppClarkFileReader;
-import com.opengamma.financial.world.exchange.DefaultExchangeSource;
 import com.opengamma.financial.world.exchange.Exchange;
-import com.opengamma.financial.world.exchange.ExchangeFileReader;
-import com.opengamma.financial.world.exchange.ExchangeMaster;
-import com.opengamma.financial.world.exchange.ExchangeSource;
-import com.opengamma.financial.world.exchange.InMemoryExchangeMaster;
-import com.opengamma.financial.world.holiday.DefaultHolidaySource;
-import com.opengamma.financial.world.holiday.HolidayMaster;
+import com.opengamma.financial.world.exchange.ExchangeUtils;
+import com.opengamma.financial.world.exchange.coppclark.CoppClarkExchangeFileReader;
+import com.opengamma.financial.world.exchange.master.MasterExchangeSource;
+import com.opengamma.financial.world.exchange.master.ExchangeDocument;
+import com.opengamma.financial.world.exchange.master.ExchangeSource;
+import com.opengamma.financial.world.exchange.master.memory.InMemoryExchangeMaster;
 import com.opengamma.financial.world.holiday.HolidaySource;
 import com.opengamma.financial.world.holiday.HolidayType;
 import com.opengamma.financial.world.holiday.InMemoryHolidayMaster;
@@ -41,50 +39,51 @@ import com.opengamma.id.IdentifierBundle;
  * Unit tests for {@see InMemoryHolidayRepository} and {@see InMemoryExchangeRepository}
  */
 public class InMemoryHolidayAndExchangeRespositoriesTest {
-  private static final String REGION_HIERARCHY = InMemoryRegionMaster.POLITICAL_HIERARCHY_NAME;
+//  private static final String REGION_HIERARCHY = InMemoryRegionMaster.POLITICAL_HIERARCHY_NAME;
   
   @Test
   public void testExchangeRepository() throws URISyntaxException {
     RegionMaster regionMaster = RegionFileReader.createPopulatedRegionMaster();
     RegionSource regionSource = new DefaultRegionSource(regionMaster);
     InMemoryExchangeMaster exchangeRepo = new InMemoryExchangeMaster();
-    ExchangeSource exchangeSource = new DefaultExchangeSource(exchangeRepo);
+    ExchangeSource exchangeSource = new MasterExchangeSource(exchangeRepo);
     
     Region uk = regionSource.getHighestLevelRegion(Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, "GB"));
 
-    Identifier euronextLiffeMIC = Identifier.of(ExchangeMaster.ISO_MIC, "XLIF");
-    Identifier euronextLiffeCCID = Identifier.of(ExchangeMaster.COPP_CLARK_CENTER_ID, "979");
-    Identifier euronextLiffeCCName = Identifier.of(ExchangeMaster.COPP_CLARK_NAME, "Euronext LIFFE (UK contracts)");
+    Identifier euronextLiffeMIC = Identifier.of(ExchangeUtils.ISO_MIC, "XLIF");
+    Identifier euronextLiffeCCID = Identifier.of(ExchangeUtils.COPP_CLARK_CENTER_ID, "979");
+    Identifier euronextLiffeCCName = Identifier.of(ExchangeUtils.COPP_CLARK_NAME, "Euronext LIFFE (UK contracts)");
     Identifier euronextLiffeExtra = Identifier.of("TEST_SCHEME", "EURONEXT LIFFE");
     IdentifierBundle euronextLiffeIDs = new IdentifierBundle(Arrays.asList(new Identifier[] { euronextLiffeMIC, euronextLiffeCCID, euronextLiffeCCName }));
     IdentifierBundle euronextLiffeIDsWithExtra = new IdentifierBundle(Arrays.asList(new Identifier[] { euronextLiffeExtra, euronextLiffeMIC, euronextLiffeCCName }));
     
-    Identifier gemmaMIC = Identifier.of(ExchangeMaster.ISO_MIC, "GEMX");
-    Identifier gemmaCCID = Identifier.of(ExchangeMaster.COPP_CLARK_CENTER_ID, "1063");
-    Identifier gemmaCCName = Identifier.of(ExchangeMaster.COPP_CLARK_CENTER_ID, "GEMMA Gilt Edged Market Makers Association");
-    IdentifierBundle gemmaIDs = new IdentifierBundle(Arrays.asList(new Identifier[] { gemmaMIC, gemmaCCID, gemmaCCName }));
+//    Identifier gemmaMIC = Identifier.of(ExchangeUtils.ISO_MIC, "GEMX");
+//    Identifier gemmaCCID = Identifier.of(ExchangeUtils.COPP_CLARK_CENTER_ID, "1063");
+//    Identifier gemmaCCName = Identifier.of(ExchangeUtils.COPP_CLARK_CENTER_ID, "GEMMA Gilt Edged Market Makers Association");
+//    IdentifierBundle gemmaIDs = new IdentifierBundle(Arrays.asList(new Identifier[] { gemmaMIC, gemmaCCID, gemmaCCName }));
     
-    Identifier americanStockExchangeMIC = Identifier.of(ExchangeMaster.ISO_MIC, "XASE");
-    Identifier americanStockExchangeCCID = Identifier.of(ExchangeMaster.COPP_CLARK_CENTER_ID, "784");
-    Identifier americanStockExchangeCCName = Identifier.of(ExchangeMaster.COPP_CLARK_NAME, "American Stock Exchange");
-    IdentifierBundle americanStockExchangeIDs = new IdentifierBundle(
-        Arrays.asList(new Identifier[] { americanStockExchangeMIC, americanStockExchangeCCID, americanStockExchangeCCName }));
+//    Identifier americanStockExchangeMIC = Identifier.of(ExchangeUtils.ISO_MIC, "XASE");
+//    Identifier americanStockExchangeCCID = Identifier.of(ExchangeUtils.COPP_CLARK_CENTER_ID, "784");
+//    Identifier americanStockExchangeCCName = Identifier.of(ExchangeUtils.COPP_CLARK_NAME, "American Stock Exchange");
+//    IdentifierBundle americanStockExchangeIDs = new IdentifierBundle(
+//        Arrays.asList(new Identifier[] { americanStockExchangeMIC, americanStockExchangeCCID, americanStockExchangeCCName }));
     
-    Identifier batsMIC = Identifier.of(ExchangeMaster.ISO_MIC, "BATO");
-    Identifier batsCCID = Identifier.of(ExchangeMaster.COPP_CLARK_CENTER_ID, "1331");
-    Identifier batsCCName = Identifier.of(ExchangeMaster.COPP_CLARK_NAME, "BATS Exchange Options Market");
-    IdentifierBundle batsIDs = new IdentifierBundle(Arrays.asList(new Identifier[] { batsMIC, batsCCID, batsCCName }));
+//    Identifier batsMIC = Identifier.of(ExchangeUtils.ISO_MIC, "BATO");
+//    Identifier batsCCID = Identifier.of(ExchangeUtils.COPP_CLARK_CENTER_ID, "1331");
+//    Identifier batsCCName = Identifier.of(ExchangeUtils.COPP_CLARK_NAME, "BATS Exchange Options Market");
+//    IdentifierBundle batsIDs = new IdentifierBundle(Arrays.asList(new Identifier[] { batsMIC, batsCCID, batsCCName }));
     
-    IdentifierBundle notRightIDs = new IdentifierBundle(Arrays.asList(new Identifier[] { batsMIC, gemmaMIC, euronextLiffeCCName }));
+//    IdentifierBundle notRightIDs = new IdentifierBundle(Arrays.asList(new Identifier[] { batsMIC, gemmaMIC, euronextLiffeCCName }));
     // store the euronext LIFFE bundle with it's name and region
     // REVIEW: jim 13-Aug-2010 -- change this to use a bundle rather than the first thing from a bundle
-    exchangeRepo.addExchange(euronextLiffeIDs, euronextLiffeCCName.getValue(), uk.getIdentifiers().iterator().next());
+    ExchangeDocument addDoc1 = new ExchangeDocument(new Exchange(euronextLiffeIDs, euronextLiffeCCName.getValue(), uk.getIdentifiers().iterator().next()));
+    exchangeRepo.addExchange(addDoc1);
     
     // try pulling it out with the first id in the bundle and check the fields of the returned object
     Exchange euronextLiffe = exchangeSource.getSingleExchange(euronextLiffeMIC);
     Assert.assertEquals(euronextLiffeCCName.getValue(), euronextLiffe.getName());
-    Assert.assertEquals(uk, regionSource.getHighestLevelRegion(euronextLiffe.getRegion()));
-    Assert.assertEquals(InMemoryExchangeMaster.EXCHANGE_SCHEME, euronextLiffe.getUniqueIdentifier().getScheme());
+    Assert.assertEquals(uk, regionSource.getHighestLevelRegion(euronextLiffe.getRegionId()));
+    Assert.assertEquals("Memory", euronextLiffe.getUniqueIdentifier().getScheme());
     Assert.assertEquals("1", euronextLiffe.getUniqueIdentifier().getValue());
     
     // try the other two ids in the bundle
@@ -102,8 +101,9 @@ public class InMemoryHolidayAndExchangeRespositoriesTest {
     
     // put it again with the extra/missing bundle
     // REVIEW: jim 13-Aug-2010 -- change this to use a bundle rather than the first thing from a bundle
-    exchangeRepo.addExchange(euronextLiffeIDsWithExtra, euronextLiffeCCName.getValue(), uk.getIdentifiers().iterator().next());
-   
+    ExchangeDocument addDoc2 = new ExchangeDocument(new Exchange(euronextLiffeIDsWithExtra, euronextLiffeCCName.getValue(), uk.getIdentifiers().iterator().next()));
+    exchangeRepo.addExchange(addDoc2);
+    
     // this needs fixing.  It should add the identifier to the bundle, but it can't, so we should probably not allow the above operation.
     Assert.assertEquals(3, exchangeSource.getSingleExchange(euronextLiffeExtra).getIdentifiers().size());
   }
@@ -113,18 +113,18 @@ public class InMemoryHolidayAndExchangeRespositoriesTest {
     InMemoryRegionMaster regionRepo = new InMemoryRegionMaster();
     RegionFileReader.populateMaster(regionRepo, new File(RegionFileReader.REGIONS_FILE_PATH));
     RegionSource regionSource = new DefaultRegionSource(regionRepo);
-    ExchangeSource exchangeSource = ExchangeFileReader.createPopulatedExchangeSource();
+    ExchangeSource exchangeSource = CoppClarkExchangeFileReader.createPopulatedExchangeSource();
     HolidaySource holidaySource = CoppClarkFileReader.createPopulatedHolidaySource(new InMemoryHolidayMaster(regionSource, exchangeSource)); 
-    Identifier euronextLiffeId = Identifier.of(ExchangeMaster.ISO_MIC, "XLIF");
+    Identifier euronextLiffeId = Identifier.of(ExchangeUtils.ISO_MIC, "XLIF");
     Exchange euronextLiffe = exchangeSource.getSingleExchange(euronextLiffeId);
     Assert.assertNotNull(euronextLiffe);
     Assert.assertTrue(holidaySource.isHoliday(euronextLiffeId, LocalDate.of(2012, 06, 05), HolidayType.SETTLEMENT));
     Assert.assertFalse(holidaySource.isHoliday(euronextLiffeId, LocalDate.of(2012, 06, 06), HolidayType.SETTLEMENT));
-    Assert.assertTrue(holidaySource.isHoliday(euronextLiffe.getRegion(), LocalDate.of(2012, 06, 05), HolidayType.BANK));
-    Assert.assertFalse(holidaySource.isHoliday(euronextLiffe.getRegion(), LocalDate.of(2012, 06, 06), HolidayType.BANK));
+    Assert.assertTrue(holidaySource.isHoliday(euronextLiffe.getRegionId(), LocalDate.of(2012, 06, 05), HolidayType.BANK));
+    Assert.assertFalse(holidaySource.isHoliday(euronextLiffe.getRegionId(), LocalDate.of(2012, 06, 06), HolidayType.BANK));
     Assert.assertTrue(holidaySource.isHoliday(euronextLiffeId, LocalDate.of(2012, 06, 05), HolidayType.TRADING));
     Assert.assertFalse(holidaySource.isHoliday(euronextLiffeId, LocalDate.of(2012, 06, 06), HolidayType.TRADING));
-    String curncy = regionSource.getHighestLevelRegion(euronextLiffe.getRegion()).getData().getString(InMemoryRegionMaster.ISO_CURRENCY_3);
+    String curncy = regionSource.getHighestLevelRegion(euronextLiffe.getRegionId()).getData().getString(InMemoryRegionMaster.ISO_CURRENCY_3);
     Currency currency = Currency.getInstance(curncy);
     Assert.assertTrue(holidaySource.isHoliday(currency, LocalDate.of(2012, 06, 05)));
     Assert.assertFalse(holidaySource.isHoliday(currency, LocalDate.of(2012, 06, 06)));
