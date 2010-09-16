@@ -10,9 +10,10 @@ import javax.time.calendar.LocalTime;
 import javax.time.calendar.TimeZone;
 
 /**
- * Represents an entry in the Copp-clark opening hours database.
+ * Detail about when an exchange opens and closes.
  */
 public class ExchangeCalendarEntry {
+
   private String _group; /* e.g. Certificates, Derivatives, Debt Market etc. */ // NULLABLE
   private String _product; /* e.g. Transferrable, Treasury Bond, Options on Wheat etc... */ // REQUIRED
   private String _type; /* e.g. Derivative, Cash, OTC/Block etc... */ // REQUIRED
@@ -31,28 +32,30 @@ public class ExchangeCalendarEntry {
   private LocalTime _randomEndMax; // NULLABLE
   private LocalDate _lastConfirmed; // NULLABLE
   private String _notes; // NULLABLE
-  private TimeZone _timeZone; // Time zone Olson // REQUIRED
-  
+  private TimeZone _timeZone; // Time zone // REQUIRED
+
   /**
-   * @param group the product group e.g. Main Market, Debt Market, Cash Markets, Foreign Currency etc. NULLABLE
-   * @param product the product type e.g. Trasury Bond, Options on Wheat, etc. REQUIRED
-   * @param type the type applies to e.g. Derivative, Cash, OTC/Block nearly required, but one example of blank, hence NULLABLE
-   * @param code optional code for type, can be null
-   * @param calendarStart start of period of validity, can be null
-   * @param calendarEnd end of period of validity, can be null
-   * @param dayStart day of week or 'Last trading day' REQUIRED
-   * @param rangeType 'though' for inclusive or 'to' for exclusive or null for not a range
-   * @param dayEnd day of the week if a range, null otherwise
-   * @param phase phase of trading e.g. Pre-openging, Trading, Closing, Electronic Trading, Night Trading, etc... NULLABLE (a couple are blank)
-   * @param phaseStarts start of a phase if relevant to phase type or null otherwise
-   * @param phaseEnds end of a phase if relevant to phase type or null otherwise
-   * @param randomStartMin can be null -- see Copp-Clark
-   * @param randomStartMax can be null -- see Copp-Clark
-   * @param randomEndMin can be null -- see Copp-Clark
-   * @param randomEndMax can be null -- see Copp-Clark
-   * @param lastConfirmed can be null -- see Copp-Clark
-   * @param notes can be null
-   * @param timeZone the JSR-310 timezone REQUIRED
+   * Creates an instance.
+   *
+   * @param group  the product group e.g. Main Market, Debt Market, Cash Markets, Foreign Currency etc. NULLABLE
+   * @param product  the product type e.g. Trasury Bond, Options on Wheat, etc. REQUIRED
+   * @param type  the type applies to e.g. Derivative, Cash, OTC/Block nearly required, but one example of blank, hence NULLABLE
+   * @param code  optional code for type, can be null
+   * @param calendarStart  start of period of validity, can be null
+   * @param calendarEnd  end of period of validity, can be null
+   * @param dayStart  day of week or 'Last trading day' REQUIRED
+   * @param rangeType  'though' for inclusive or 'to' for exclusive or null for not a range
+   * @param dayEnd  day of the week if a range, null otherwise
+   * @param phase  phase of trading e.g. Pre-openging, Trading, Closing, Electronic Trading, Night Trading, etc... NULLABLE (a couple are blank)
+   * @param phaseStarts  start of a phase if relevant to phase type or null otherwise
+   * @param phaseEnds  end of a phase if relevant to phase type or null otherwise
+   * @param randomStartMin  the minimum typical start, may be null
+   * @param randomStartMax  the maximum typical start, may be null
+   * @param randomEndMin  the minimum typical end, may be null
+   * @param randomEndMax  the minimum typical end, may be null
+   * @param lastConfirmed  the last confirmed date of the data, can be null
+   * @param notes  textual notes, may be null
+   * @param timeZone  the JSR-310 time-zone, not null
    */
   public ExchangeCalendarEntry(String group, String product, String type, String code, LocalDate calendarStart, LocalDate calendarEnd, 
                                String dayStart, String rangeType, String dayEnd, String phase, LocalTime phaseStarts, LocalTime phaseEnds, 
@@ -79,6 +82,7 @@ public class ExchangeCalendarEntry {
     _timeZone = timeZone;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Gets the group field.
    * @return the group
@@ -230,4 +234,5 @@ public class ExchangeCalendarEntry {
   public TimeZone getTimeZone() {
     return _timeZone;
   }
+
 }

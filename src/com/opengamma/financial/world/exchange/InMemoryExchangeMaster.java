@@ -6,63 +6,168 @@
 package com.opengamma.financial.world.exchange;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.IdentifierBundleMapper;
+import javax.time.Instant;
+
+import com.google.common.base.Predicate;
+import com.google.common.base.Supplier;
+import com.google.common.collect.Collections2;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.db.Paging;
 
 /**
- * In-memory implementation of ExchangeRepository.  Doesn't currently support versioning.
+ * A simple, in-memory implementation of {@code ExchangeMaster}.
+ * <p>
+ * This exchange master does not support versioning of exchanges.
  */
 public class InMemoryExchangeMaster implements ExchangeMaster {
+  // TODO: This is not hardened for production, as the data in the master can
+  // be altered from outside as it is the same object
+
   /**
-   * The unique id scheme name used.  Primarily exposed for unit testing. 
+   * The default scheme used for each {@link UniqueIdentifier}.
    */
-  public static final String EXCHANGE_SCHEME = "EXCHANGE_SCHEME";
-  
-  private IdentifierBundleMapper<Exchange> _idMapper = new IdentifierBundleMapper<Exchange>(EXCHANGE_SCHEME);
-  
+  public static final String DEFAULT_UID_SCHEME = "Memory";
+
+  /**
+   * A cache of exchanges by identifier.
+   */
+  private final ConcurrentMap<UniqueIdentifier, ExchangeDocument> _exchanges = new ConcurrentHashMap<UniqueIdentifier, ExchangeDocument>();
+  /**
+   * The supplied of identifiers.
+   */
+  private final Supplier<UniqueIdentifier> _uidSupplier;
+
+  /**
+   * Creates an empty exchange master using the default scheme for any {@link UniqueIdentifier}s created.
+   */
   public InMemoryExchangeMaster() {
+    this(new UniqueIdentifierSupplier(DEFAULT_UID_SCHEME));
   }
-  
-  private Set<ExchangeDocument> wrapExchangesWithDocuments(Collection<Exchange> exchanges) {
-    Set<ExchangeDocument> results = new HashSet<ExchangeDocument>();
-    for (Exchange exchange : exchanges) {
-      results.add(new ExchangeDocument(exchange));
+
+  /**
+   * Creates an instance specifying the supplier of unique identifiers.
+   * 
+   * @param uidSupplier  the supplier of unique identifiers, not null
+   */
+  public InMemoryExchangeMaster(final Supplier<UniqueIdentifier> uidSupplier) {
+    ArgumentChecker.notNull(uidSupplier, "uidSupplier");
+    _uidSupplier = uidSupplier;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ExchangeSearchResult searchExchanges(final ExchangeSearchRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    final ExchangeSearchResult result = new ExchangeSearchResult();
+    Collection<ExchangeDocument> docs = _exchanges.values();
+    if (request.getIdentityKey() != null) {
+      docs = Collections2.filter(docs, new Predicate<ExchangeDocument>() {
+        @Override
+        public boolean apply(final ExchangeDocument doc) {
+          return doc.getExchange().getIdentifiers().containsAny(request.getIdentityKey());
+        }
+      });
     }
-    return results;
+    if (request.getName() != null) {
+      docs = Collections2.filter(docs, new Predicate<ExchangeDocument>() {
+        @Override
+        public boolean apply(final ExchangeDocument doc) {
+          return request.getName().equals(doc.getExchange().getName());
+        }
+      });
+    }
+    result.getDocuments().addAll(docs);
+    result.setPaging(Paging.of(docs));
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ExchangeDocument getExchange(final UniqueIdentifier uid) {
+    ArgumentChecker.notNull(uid, "uid");
+    final ExchangeDocument document = _exchanges.get(uid);
+    if (document == null) {
+      throw new DataNotFoundException("Exchange not found: " + uid);
+    }
+    return document;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ExchangeDocument addExchange(final ExchangeDocument document) {
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getExchange(), "document.exchange");
+    
+    final UniqueIdentifier uid = _uidSupplier.get();
+    final Exchange exchange = document.getExchange().clone();
+    exchange.setUniqueIdentifier(uid);
+    final Instant now = Instant.nowSystemClock();
+    final ExchangeDocument doc = new ExchangeDocument();
+    doc.setExchange(exchange);
+    doc.setExchangeId(uid);
+    doc.setVersionFromInstant(now);
+    doc.setCorrectionFromInstant(now);
+    _exchanges.put(uid, doc);  // unique identifier should be unique
+    return doc;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ExchangeDocument updateExchange(final ExchangeDocument document) {
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getExchange(), "document.exchange");
+    ArgumentChecker.notNull(document.getExchangeId(), "document.exchangeId");
+    
+    final UniqueIdentifier uid = document.getExchangeId();
+    final Instant now = Instant.nowSystemClock();
+    final ExchangeDocument storedDocument = _exchanges.get(uid);
+    if (storedDocument == null) {
+      throw new DataNotFoundException("Exchange not found: " + uid);
+    }
+    document.setVersionFromInstant(now);
+    document.setVersionToInstant(null);
+    document.setCorrectionFromInstant(now);
+    document.setCorrectionToInstant(null);
+    if (_exchanges.replace(uid, storedDocument, document) == false) {
+      throw new IllegalArgumentException("Concurrent modification");
+    }
+    return document;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public void removeExchange(final UniqueIdentifier uid) {
+    ArgumentChecker.notNull(uid, "uid");
+    
+    if (_exchanges.remove(uid) == null) {
+      throw new DataNotFoundException("Exchange not found: " + uid);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ExchangeSearchHistoricResult searchHistoricExchange(final ExchangeSearchHistoricRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getExchangeId(), "request.exchangeId");
+    
+    final ExchangeSearchHistoricResult result = new ExchangeSearchHistoricResult();
+    final ExchangeDocument doc = getExchange(request.getExchangeId());
+    if (doc != null) {
+      result.getDocuments().add(doc);
+    }
+    result.setPaging(Paging.of(result.getDocuments()));
+    return result;
   }
 
   @Override
-  public ExchangeDocument getExchange(UniqueIdentifier uniqueIdentifier) {
-    return new ExchangeDocument(_idMapper.get(uniqueIdentifier));
+  public ExchangeDocument correctExchange(final ExchangeDocument document) {
+    return updateExchange(document);
   }
-    
-  @Override
-  public ExchangeSearchResult searchExchange(ExchangeSearchRequest search) {
-    Collection<Exchange> results = _idMapper.get(search.getIdentifiers());
-    return new ExchangeSearchResult(wrapExchangesWithDocuments(results));
-  }
-  
-  @Override
-  public ExchangeSearchResult searchHistoricExchange(ExchangeSearchHistoricRequest search) {
-    Collection<Exchange> results = _idMapper.get(search.getIdentifiers());
-    return new ExchangeSearchResult(wrapExchangesWithDocuments(results));
-  }
-  
-  public ExchangeDocument addExchange(IdentifierBundle identifiers, String name, Identifier regionIdentifier) {
-    Exchange exchange = new Exchange(identifiers, name, regionIdentifier);
-    UniqueIdentifier uid = _idMapper.add(identifiers, exchange);
-    exchange = _idMapper.get(uid);
-    exchange.setUniqueIdentifier(uid);
-    if (exchange == null) { // probably a bit over the top...
-      throw new OpenGammaRuntimeException("This should be impossible: problem adding exchange, add returned uid of " + uid + 
-                                          " but get(uid) returned null");
-    }
-    return new ExchangeDocument(exchange);
-  }
+
 }

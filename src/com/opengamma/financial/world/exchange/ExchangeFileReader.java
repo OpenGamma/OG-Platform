@@ -6,9 +6,6 @@
 package com.opengamma.financial.world.exchange;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -24,37 +21,67 @@ import org.apache.commons.lang.StringUtils;
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.world.CoppClarkFileReader;
 import com.opengamma.financial.world.region.InMemoryRegionMaster;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 
 /**
- * 
+ * Reads the exchange data from the Copp-Clark data source.
  */
 public class ExchangeFileReader {
-  private static final DateTimeFormatter s_timeFormat = DateTimeFormatters.pattern("HH:mm:ss");
+
+  /**
+   * The date format.
+   */
   private static final DateTimeFormatter s_dateFormat = DateTimeFormatters.pattern("dd-MMM-yyyy");
+  /**
+   * The time format.
+   */
+  private static final DateTimeFormatter s_timeFormat = DateTimeFormatters.pattern("HH:mm:ss");
+  /**
+   * The file version.
+   */
   private static final String VERSION = "20100630";
-  
+  /**
+   * The file location.
+   */
   private static final String EXCHANGE_HOLIDAYS_REPOST_RESOURCE = "/com/coppclark/exchange/THR_" + VERSION + ".csv.txt";
+
+  /**
+   * The exchange master to populate.
+   */
   private ExchangeMaster _exchangeMaster;
+  /**
+   * The exchange source to populate.
+   */
   private ExchangeSource _exchangeSource;
-  
-  public ExchangeFileReader(ExchangeMaster exchangeMaster) {
-    _exchangeMaster = exchangeMaster;
-    _exchangeSource = new DefaultExchangeSource(exchangeMaster);
-  }
-  
+
+  /**
+   * Creates a populated in-memory exchange source.
+   * @return the exchange source, not null
+   */
   public static ExchangeSource createPopulatedExchangeSource() {
     ExchangeMaster exchangeMaster = new InMemoryExchangeMaster();
     ExchangeFileReader fileReader = new ExchangeFileReader(exchangeMaster);
     fileReader.readFile(fileReader.getClass().getResourceAsStream(EXCHANGE_HOLIDAYS_REPOST_RESOURCE));
     return new DefaultExchangeSource(exchangeMaster);
   }
-  
-  
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates an instance with the exchange master to populate.
+   * @param exchangeMaster  the exchange master, not null
+   */
+  public ExchangeFileReader(ExchangeMaster exchangeMaster) {
+    _exchangeMaster = exchangeMaster;
+    _exchangeSource = new DefaultExchangeSource(exchangeMaster);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Reads the specified input stream, parsing the exchange data.
+   * @param inputStream  the input stream, not null
+   */
   public void readFile(InputStream inputStream) {
     try {
       CSVReader reader = new CSVReader(new InputStreamReader(new BufferedInputStream(inputStream)));
@@ -65,24 +92,26 @@ public class ExchangeFileReader {
         line = reader.readNext(); // deliberate
       }
     } catch (IOException ioe) {
-      throw new OpenGammaRuntimeException("Could not file or read exchange file, see chained exception", ioe);
+      throw new OpenGammaRuntimeException("Could not read exchange file, see chained exception", ioe);
     }
   }
-  
+
   private void readLine(String[]rawFields) {
     String countryISO = rawFields[2];
     Identifier region = Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, countryISO);
     String exchangeMIC = rawFields[3];
-    Identifier mic = Identifier.of(ExchangeMaster.ISO_MIC, exchangeMIC);
+    Identifier mic = Identifier.of(ExchangeUtils.ISO_MIC, exchangeMIC);
     String exchangeName = rawFields[4];
-    Identifier coppClarkName = Identifier.of(ExchangeMaster.COPP_CLARK_NAME, exchangeName);
+    Identifier coppClarkName = Identifier.of(ExchangeUtils.COPP_CLARK_NAME, exchangeName);
     IdentifierBundle identifiers = IdentifierBundle.of(mic, coppClarkName);
     Exchange exchange = _exchangeSource.getSingleExchange(identifiers);
     if (exchange == null) {
-      exchange = _exchangeMaster.addExchange(identifiers, exchangeName, region).getExchange();
+      ExchangeDocument addDoc = new ExchangeDocument(new Exchange(identifiers, exchangeName, region));
+      exchange = _exchangeMaster.addExchange(addDoc).getExchange();
     }
-    exchange.addCalendarEntry(readCalendarEntryLine(rawFields));    
+    exchange.getCalendarEntries().add(readCalendarEntryLine(rawFields));    
   }
+
   private ExchangeCalendarEntry readCalendarEntryLine(String[] rawFields) {
     String group = optionalStringField(rawFields[5]);
     String product = requiredStringField(rawFields[6]);
@@ -107,22 +136,22 @@ public class ExchangeFileReader {
                                      phase, phaseStarts, phaseEnds, randomStartMin, randomStartMax, 
                                      randomEndMin, randomEndMax, lastConfirmed, notes, timeZone);
   }
-  
+
   private static LocalTime parseTime(String time) {
     return time.isEmpty() ? null : LocalTime.parse(time, s_timeFormat);
   }
-  
+
   private static LocalDate parseDate(String date) {
     StringBuilder sb = new StringBuilder();
     sb.append(date);
     //sb.insert(7, "20"); // beacuse the parser won't cope with 2-digit years...
     return date.isEmpty() ? null : LocalDate.parse(sb.toString(), s_dateFormat);
   }
-  
+
   private static String optionalStringField(String field) {
     return StringUtils.defaultIfEmpty(field, null);
   }
-  
+
   private static String requiredStringField(String field) {
     if (field.isEmpty()) {
       throw new OpenGammaRuntimeException("required field is empty");

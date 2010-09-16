@@ -5,31 +5,111 @@
  */
 package com.opengamma.financial.world.exchange;
 
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * Interface for retrieving information about exchanges.
- * @author jim
+ * A general-purpose exchange master.
+ * <p>
+ * The exchange master provides a uniform view over a set of exchange definitions.
+ * This interface provides methods that allow the master to be searched and updated.
  */
 public interface ExchangeMaster {
+
   /**
-   * Identification scheme for the MIC exchange code ISO standard.
+   * Searches for exchanges matching the specified search criteria.
+   * 
+   * @param request  the search request, not null
+   * @return the search result, not null
+   * @throws IllegalArgumentException if the request is invalid
    */
-  IdentificationScheme ISO_MIC = new IdentificationScheme("ISO_MIC");
+  ExchangeSearchResult searchExchanges(ExchangeSearchRequest request);
+
   /**
-   * Identification scheme for the Copp-clark holiday data provider's 'name' field.
+   * Gets a exchange by unique identifier.
+   * <p>
+   * A full exchange master will store detailed historic information on exchanges,
+   * including a full version history.
+   * The version in the identifier allows access to these historic versions.
+   * 
+   * @param uid  the unique identifier, not null
+   * @return the exchange document, not null
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if there is no exchange with that unique identifier
    */
-  IdentificationScheme COPP_CLARK_NAME = new IdentificationScheme("COPP_CLARK_NAME");
+  ExchangeDocument getExchange(UniqueIdentifier uid);
+
   /**
-   * Identification scheme for the Copp-clark holiday data provider's 'centre id' field.
+   * Adds an exchange to the data store.
+   * <p>
+   * The specified document must contain the exchange.
+   * 
+   * @param document  the document, not null
+   * @return the updated exchange document, not null
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if there is no parent node with the specified identifier
    */
-  IdentificationScheme COPP_CLARK_CENTER_ID = new IdentificationScheme("COPP_CLARK_CENTER_ID");
-  
-  ExchangeDocument getExchange(UniqueIdentifier identifier);
-  ExchangeSearchResult searchExchange(ExchangeSearchRequest search);
-  ExchangeSearchResult searchHistoricExchange(ExchangeSearchHistoricRequest search);
-  ExchangeDocument addExchange(IdentifierBundle identifiers, String name, Identifier regionIdentifier);
+  ExchangeDocument addExchange(ExchangeDocument document);
+
+  /**
+   * Updates an exchange in the data store.
+   * <p>
+   * The specified document must contain the exchange and the unique identifier.
+   * If the identifier has a version it must be the latest version.
+   * <p>
+   * A full exchange master will store detailed historic information on exchanges,
+   * including a full version history.
+   * Older versions can be accessed using a versioned identifier or {@link #searchHistoric}.
+   * 
+   * @param document  the document, not null
+   * @return the updated exchange document, not null
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if there is no exchange with that unique identifier
+   */
+  ExchangeDocument updateExchange(ExchangeDocument document);
+
+  /**
+   * Removes an exchange from the data store.
+   * <p>
+   * A full exchange master will store detailed historic information on exchanges.
+   * Thus, a removal does not prevent retrieval or correction of an earlier version.
+   * <p>
+   * If the identifier has a version it must be the latest version.
+   * 
+   * @param uid  the exchange unique identifier to remove, not null
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if there is no exchange with that unique identifier
+   */
+  void removeExchange(final UniqueIdentifier uid);
+
+  /**
+   * Searches for exchanges matching the specified search criteria.
+   * <p>
+   * The request must contain an object identifier that must not have a version.
+   * 
+   * @param request  the search request, not null
+   * @return the search result, not null
+   * @throws IllegalArgumentException if the request is invalid
+   */
+  ExchangeSearchHistoricResult searchHistoricExchange(ExchangeSearchHistoricRequest request);
+
+  /**
+   * Corrects an exchange in the data store.
+   * <p>
+   * A full exchange master will store detailed historic information on exchanges
+   * and will support correction of each exchange.
+   * To update the exchange with a new version, use {@link #update}.
+   * To correct a previously stored version, use this method.
+   * Older versions and corrections can be accessed using a versioned identifier or {@link #searchHistoric}.
+   * <p>
+   * The specified document must contain the exchange and the unique identifier.
+   * The unique identifier must specify the last correction of a specific version of the exchange.
+   * 
+   * @param document  the document, not null
+   * @return the updated exchange document, not null
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if there is no exchange with that unique identifier
+   */
+  ExchangeDocument correctExchange(ExchangeDocument document);
+
 }

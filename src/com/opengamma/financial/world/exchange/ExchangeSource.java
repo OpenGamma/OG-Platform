@@ -9,21 +9,35 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 
 /**
- * Easy-to-use interface to the ExchangeMaster
+ * A source of exchanges as accessed by the main application.
+ * <p>
+ * This interface provides a simple view of exchanges as used by most parts of the application.
+ * This may be backed by a full-featured exchange master, or by a much simpler data structure.
  */
 public interface ExchangeSource {
-  /**
-   * This call should be used if you no that there will be a single result, e.g. if you're using a MIC 
-   * @param identifier
-   * @return
-   */
-  public Exchange getSingleExchange(Identifier identifier);
 
   /**
-   * This call should be used if you no that there will be a single result, e.g. if you're using a MIC and other unique Identifiers 
-   * (note I mean unique Identifiers, not UniqueIdentifiers) in a bundle
-   * @param identifier
-   * @return
+   * Finds a specific exchange by identifier.
+   * <p>
+   * This should only be used when you know there is a single result.
+   * For example, a search by MIC should return one result.
+   * 
+   * @param identifier  the identifier, null returns null
+   * @return the exchange, null if not found
+   * @throws IllegalArgumentException if the identifier is invalid
    */
-  public Exchange getSingleExchange(IdentifierBundle identifier);
+  Exchange getSingleExchange(Identifier identifier);
+
+  /**
+   * Finds a specific exchange by identifier bundle.
+   * <p>
+   * This should only be used when you know there is a single result.
+   * For example, a search by MIC should return one result.
+   * 
+   * @param identifierBundle  the identifier bundle, null returns null
+   * @return the exchange, null if not found
+   * @throws IllegalArgumentException if the identifier is invalid
+   */
+  Exchange getSingleExchange(IdentifierBundle identifierBundle);
+
 }
