@@ -10,34 +10,34 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 /**
- * Test DerbyDbHelper.
+ * Test HSQLDbHelper.
  */
-public class DerbyDbHelperTest extends DbHelperTest {
+public class HSQLDbHelperTest extends DbHelperTest {
 
-  public DerbyDbHelperTest() {
-    _helper = DerbyDbHelper.INSTANCE;
+  public HSQLDbHelperTest() {
+    _helper = HSQLDbHelper.INSTANCE;
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void test_getJDBCDriver() {
-    assertEquals(org.apache.derby.jdbc.EmbeddedDriver.class, _helper.getJDBCDriverClass());
+    assertEquals(org.hsqldb.jdbcDriver.class, _helper.getJDBCDriverClass());
   }
 
   @Test
   public void test_getHibernateDialect() {
-    assertEquals(org.hibernate.dialect.DerbyDialect.class, _helper.getHibernateDialect().getClass());
+    assertEquals(org.hibernate.dialect.HSQLDialect.class, _helper.getHibernateDialect().getClass());
   }
 
   @Test
   public void test_getName() {
-    assertEquals("Derby", _helper.getName());
+    assertEquals("HSQL", _helper.getName());
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void test_sqlNextSequenceValueSelect() {
-    assertEquals("SELECT NEXT VALUE FOR MySeq FROM sysibm.sysdummy1", _helper.sqlNextSequenceValueSelect("MySeq"));
+    assertEquals("CALL NEXT VALUE FOR MySeq", _helper.sqlNextSequenceValueSelect("MySeq"));
   }
 
 }
