@@ -308,9 +308,9 @@ public abstract class MongoDBConfigMasterTestCase<T extends Serializable> {
     addRandomDocs();
     
     Instant start = Instant.nowSystemClock();
-    Thread.sleep(1000);
+    Thread.sleep(100);
     ConfigDocument<T> doc1 = _configMaster.add(makeTestConfigDoc(1));
-    
+    Thread.sleep(100);
     Instant after1 = Instant.nowSystemClock();
     
     ConfigDocument<T> doc2 = makeTestConfigDoc(2);
@@ -319,9 +319,9 @@ public abstract class MongoDBConfigMasterTestCase<T extends Serializable> {
     configDoc.setVersion(doc1.getVersion());
     configDoc.setName(doc1.getName());
     
-    Thread.sleep(1000);
+    Thread.sleep(100);
     doc2 = _configMaster.update(doc2);
-    Thread.sleep(1000);
+    Thread.sleep(100);
     Instant after2 = Instant.nowSystemClock();
 
     ConfigDocument<T> doc3 = makeTestConfigDoc(3);
@@ -329,8 +329,9 @@ public abstract class MongoDBConfigMasterTestCase<T extends Serializable> {
     configDoc.setOid(doc2.getOid());
     configDoc.setVersion(doc2.getVersion());
     configDoc.setName(doc2.getName());
-    Thread.sleep(1000);
+    Thread.sleep(100);
     doc3 = _configMaster.update(doc3);
+    Thread.sleep(100);
     Instant after3 = Instant.nowSystemClock();
     
     ConfigSearchHistoricRequest historicRequest = new ConfigSearchHistoricRequest();
