@@ -277,12 +277,53 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
 
   @Override
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers) {
-    return null;
+    return getHistoricalData(identifiers, null, null, null);
   }
 
   @Override
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate start, LocalDate end) {
-    return null;
+    Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = getHistoricalData(identifiers);
+    if (tsPair != null) {
+      LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) tsPair.getSecond().subSeries(start, true, end, INCLUDE_LAST_DAY);
+      return Pair.of(tsPair.getKey(), timeSeries);
+    } else {
+      return null;
+    }
+  }
+  
+  @Override
+  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = getHistoricalData(identifiers);
+    if (tsPair != null) {
+      LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) tsPair.getSecond().subSeries(start, inclusiveStart, end, exclusiveEnd);
+      return Pair.of(tsPair.getKey(), timeSeries);
+    } else {
+      return null;
+    }
+  }
+
+  @Override
+  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String dataSource, String dataProvider, String field, LocalDate start,
+      boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = getHistoricalData(identifiers, dataSource, dataProvider, field);
+    if (tsPair != null) {
+      LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) tsPair.getSecond().subSeries(start, inclusiveStart, end, exclusiveEnd);
+      return Pair.of(tsPair.getKey(), timeSeries);
+    } else {
+      return null;
+    }
+  }
+
+ 
+
+  @Override
+  public LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uid, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    LocalDateDoubleTimeSeries timeseries = getHistoricalData(uid);
+    if (timeseries != null) {
+      return (LocalDateDoubleTimeSeries) timeseries.subSeries(start, inclusiveStart, end, exclusiveEnd);
+    } else {
+      return null;
+    }
   }
 
 }
