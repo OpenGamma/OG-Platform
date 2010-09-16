@@ -32,7 +32,7 @@ public class YieldCurveConfigPopulator {
     fundingUSD.setValue(CurveDefinitionAndSpecifications.buildUSDFundingCurveDefinition());
     configRepo.add(fundingUSD);
     DefaultConfigDocument<YieldCurveDefinition> swapOnlyUSD = new DefaultConfigDocument<YieldCurveDefinition>();
-    swapOnlyUSD.setName("USD_SWAP_ONLY");
+    swapOnlyUSD.setName("SWAP_ONLY_USD");
     swapOnlyUSD.setValue(CurveDefinitionAndSpecifications.buildUSDSwapOnlyCurveDefinition());
     configRepo.add(swapOnlyUSD);
   }
