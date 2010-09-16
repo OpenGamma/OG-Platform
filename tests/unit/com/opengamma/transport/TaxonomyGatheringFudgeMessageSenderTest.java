@@ -36,21 +36,21 @@ public class TaxonomyGatheringFudgeMessageSenderTest {
 
   @Test
   public void noTaxonomyFileAvailableYet() throws IOException {
-    File tmpFile = File.createTempFile("TaxonomyGatheringFudgeMessageSenderTest", ".properties");
-    tmpFile.delete();
+    _tmpFile.delete();
     
     FudgeContext context = new FudgeContext();
     CollectingFudgeMessageReceiver collectingReceiver = new CollectingFudgeMessageReceiver();
     ByteArrayFudgeMessageReceiver fudgeReceiver = new ByteArrayFudgeMessageReceiver(collectingReceiver);
     DirectInvocationByteArrayMessageSender byteArraySender = new DirectInvocationByteArrayMessageSender(fudgeReceiver);
     ByteArrayFudgeMessageSender fudgeSender = new ByteArrayFudgeMessageSender(byteArraySender, context);
-    TaxonomyGatheringFudgeMessageSender gatheringSender = new TaxonomyGatheringFudgeMessageSender(fudgeSender, tmpFile.getAbsolutePath());
+    TaxonomyGatheringFudgeMessageSender gatheringSender = new TaxonomyGatheringFudgeMessageSender(fudgeSender, _tmpFile.getAbsolutePath());
 
     assertTrue(gatheringSender.getCurrentTaxonomy().isEmpty());
   }
 
-  @Test
+  @Test(timeout = 10000)
   public void taxonomyGathering() throws IOException, InterruptedException {
+    _tmpFile.delete();
     FudgeContext context = new FudgeContext();
     CollectingFudgeMessageReceiver collectingReceiver = new CollectingFudgeMessageReceiver();
     ByteArrayFudgeMessageReceiver fudgeReceiver = new ByteArrayFudgeMessageReceiver(collectingReceiver);
@@ -77,8 +77,8 @@ public class TaxonomyGatheringFudgeMessageSenderTest {
     assertTrue(gatheringSender.getCurrentTaxonomy().containsKey("name5"));
     assertEquals(5, gatheringSender.getCurrentTaxonomy().size());
     
-    Thread.sleep(2000L);
     Properties props = new Properties();
+    gatheringSender.waitForNextWrite();
     InputStream is = new FileInputStream(_tmpFile);
     props.load(new BufferedInputStream(is));
     is.close();
@@ -90,8 +90,9 @@ public class TaxonomyGatheringFudgeMessageSenderTest {
     assertEquals(5, props.size());
   }
 
-  @Test
+  @Test(timeout = 10000)
   public void validFileLoadingOnStartup() throws IOException, InterruptedException {
+    _tmpFile.delete();
     FudgeContext context = new FudgeContext();
     CollectingFudgeMessageReceiver collectingReceiver = new CollectingFudgeMessageReceiver();
     ByteArrayFudgeMessageReceiver fudgeReceiver = new ByteArrayFudgeMessageReceiver(collectingReceiver);
@@ -110,7 +111,7 @@ public class TaxonomyGatheringFudgeMessageSenderTest {
     msg2.add("name5", "foo");
     
     gatheringSender.send(msg1);
-    Thread.sleep(2000L);
+    gatheringSender.waitForNextWrite();
     gatheringSender.getTimer().cancel();
 
     // Now reload the file.
