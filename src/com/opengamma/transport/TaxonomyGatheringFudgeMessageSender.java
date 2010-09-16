@@ -19,7 +19,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
@@ -43,6 +45,7 @@ public class TaxonomyGatheringFudgeMessageSender implements FudgeMessageSender {
   private final long _rewritePeriod;
   private final ConcurrentMap<String, Integer> _taxonomyValues = new ConcurrentHashMap<String, Integer>();
   private final AtomicInteger _nextOrdinal = new AtomicInteger(1);
+  private final AtomicReference<CountDownLatch> _waitForNextWrite = new AtomicReference<CountDownLatch>();
   /**
    * The next ordinal the last time that the file was written, to avoid writing when
    * there's been no changes.
@@ -173,43 +176,60 @@ public class TaxonomyGatheringFudgeMessageSender implements FudgeMessageSender {
     }
   }
 
+  protected void waitForNextWrite() throws InterruptedException {
+    CountDownLatch latch = new CountDownLatch(1);
+    if (!_waitForNextWrite.compareAndSet(null, latch)) {
+      latch = _waitForNextWrite.get();
+      // If latch is now null then a write must have happened, so don't need to block
+      if (latch == null) {
+        return;
+      }
+    }
+    latch.await();
+  }
+
   private class PropertyWritingTimerTask extends TimerTask {
 
     @Override
     public void run() {
       if (_lastMaxOrdinalWritten.get() >= _nextOrdinal.get()) {
         s_logger.debug("No reason to write taxonomy as no changes since last persist.");
-      }
-      s_logger.info("Writing current taxonomy of {} values to {}", _taxonomyValues.size(), _outputFile);
-      Properties props = new Properties();
-      for (Map.Entry<String, Integer> taxonomyEntry : _taxonomyValues.entrySet()) {
-        props.setProperty(taxonomyEntry.getValue().toString(), taxonomyEntry.getKey());
-      }
-      _lastMaxOrdinalWritten.set(_nextOrdinal.get());
-      FileOutputStream fos = null;
-      try {
-        fos = new FileOutputStream(_temporaryFile);
-        props.store(new BufferedOutputStream(fos), "Automatically generated, written " + new Date());
-      } catch (IOException ioe) {
-        s_logger.warn("Unable to write taxonomy to file {}", ioe, new Object[] {_temporaryFile});
-      } finally {
-        if (fos != null) {
-          try {
-            fos.close();
-            if (!_temporaryFile.renameTo(_outputFile)) {
-              boolean ok = false;
-              if (_outputFile.exists()) {
-                _outputFile.delete();
-                ok = _temporaryFile.renameTo(_outputFile);
+      } else {
+        s_logger.info("Writing current taxonomy of {} values to {}", _taxonomyValues.size(), _outputFile);
+        Properties props = new Properties();
+        for (Map.Entry<String, Integer> taxonomyEntry : _taxonomyValues.entrySet()) {
+          props.setProperty(taxonomyEntry.getValue().toString(), taxonomyEntry.getKey());
+        }
+        _lastMaxOrdinalWritten.set(_nextOrdinal.get());
+        FileOutputStream fos = null;
+        try {
+          fos = new FileOutputStream(_temporaryFile);
+          props.store(new BufferedOutputStream(fos), "Automatically generated, written " + new Date());
+        } catch (IOException ioe) {
+          s_logger.warn("Unable to write taxonomy to file {}", ioe, new Object[] {_temporaryFile});
+        } finally {
+          if (fos != null) {
+            try {
+              fos.close();
+              if (!_temporaryFile.renameTo(_outputFile)) {
+                boolean ok = false;
+                if (_outputFile.exists()) {
+                  _outputFile.delete();
+                  ok = _temporaryFile.renameTo(_outputFile);
+                }
+                if (!ok) {
+                  s_logger.warn("Unable to rename temporary file {} to {}", _temporaryFile, _outputFile);
+                }
               }
-              if (!ok) {
-                s_logger.warn("Unable to rename temporary file {} to {}", _temporaryFile, _outputFile);
-              }
+            } catch (IOException ioe) {
+              s_logger.warn("Unable to close output file {}", ioe, new Object[] {_temporaryFile});
             }
-          } catch (IOException ioe) {
-            s_logger.warn("Unable to close output file {}", ioe, new Object[] {_temporaryFile});
           }
         }
+      }
+      final CountDownLatch latch = _waitForNextWrite.getAndSet(null);
+      if (latch != null) {
+        latch.countDown();
       }
     }
     
