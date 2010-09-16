@@ -6,9 +6,7 @@
 --
 -- Please do not modify it - modify the originals and recreate this using 'ant create-db-sql'.
 
-
     create sequence hibernate_sequence start with 1 increment by 1;
-
 
 -- create-db-security.sql: Security Master
 
@@ -315,12 +313,16 @@ create table sec_cash (
 create table sec_fra (
     id bigint not null,
     security_id bigint not null,
+    currency_id bigint not null,
+    region_scheme varchar(255) not null,
+    region_identifier varchar(255) not null,
     start_date timestamp not null,
     start_zone varchar(50) not null,
     end_date timestamp not null,
     end_zone varchar(50) not null,
     primary key (id),
-    constraint sec_fk_fra2sec foreign key (security_id) references sec_security (id)
+    constraint sec_fk_fra2sec foreign key (security_id) references sec_security (id),
+    constraint sec_fk_fra2currency foreign key (currency_id) references sec_currency (id)
 );
 
 create table sec_swap (
@@ -369,7 +371,6 @@ create table sec_swap (
     primary key (id),
     constraint sec_fk_swap2sec foreign key (security_id) references sec_security (id)
 );
-
 -- create-db-position.sql: Position Master
 
 -- design has two documents
@@ -443,7 +444,6 @@ create table pos_securitykey (
     constraint pos_fk_securitykey2position foreign key (position_id) references pos_position (id)
 );
 -- pos_securitykey is fully dependent of pos_position
-
 -------------------------------------
 -- Static data
 -------------------------------------
@@ -754,5 +754,3 @@ create table rsk_failure_reason (
 
    unique (rsk_failure_id, compute_failure_id)
 );
-
-

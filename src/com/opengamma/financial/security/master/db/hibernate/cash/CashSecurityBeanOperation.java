@@ -6,6 +6,8 @@
 
 package com.opengamma.financial.security.master.db.hibernate.cash;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.master.db.hibernate.AbstractSecurityBeanOperation;
 import com.opengamma.financial.security.master.db.hibernate.CurrencyBean;
@@ -32,7 +34,9 @@ public final class CashSecurityBeanOperation extends AbstractSecurityBeanOperati
 
   @Override
   public boolean beanEquals(final OperationContext context, CashSecurityBean bean, CashSecurity security) {
-    return true;
+    return ObjectUtils.equals(currencyBeanToCurrency(bean.getCurrency()), security.getCurrency())
+        && ObjectUtils.equals(identifierBeanToIdentifier(bean.getRegion()), security.getRegion())
+        && ObjectUtils.equals(zonedDateTimeBeanToDateTimeWithZone(bean.getMaturity()), security.getMaturity());
   }
 
   @Override

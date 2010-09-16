@@ -7,28 +7,45 @@ package com.opengamma.financial.analytics.fra;
 
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.financial.convention.ConventionBundle;
+import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.security.fra.FRASecurity;
-
+import com.opengamma.financial.world.holiday.HolidaySource;
+import com.opengamma.id.Identifier;
 /**
  * 
  */
 public class FRASecuityToForwardRateAgreementConverter {
+  
+  private HolidaySource _holidaySource;
+  private ConventionBundleSource _conventionSource;
 
-  public static ForwardRateAgreement getFRA(FRASecurity security, String fundingCurveName, String indexCurveName, double marketRate, Calendar calendar, ZonedDateTime now){
+  public FRASecuityToForwardRateAgreementConverter(HolidaySource holidaySource, ConventionBundleSource conventionSource) {
+    _holidaySource = holidaySource;
+    _conventionSource = conventionSource;
+  }
+
+  public ForwardRateAgreement getFRA(FRASecurity security, String fundingCurveName, String indexCurveName, double marketRate, ZonedDateTime now){
+    String currency = security.getCurrency().getISOCode();
+    ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_FRA"));
+    Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCurrency()); // TODO: check we've got the right holiday calendar.
     
+    BusinessDayConvention businessDayConvention = conventions.getBusinessDayConvention();
+    ZonedDateTime fixingDate = businessDayConvention.adjustDate(calendar, security.getStartDate().toZonedDateTime()); // just in case
     
-   //TODO fixing date is normally two days before settlementDate - this needs to be in FRASecurity or have some logic to handle it
-    ZonedDateTime fixingDate = security.getStartDate().toZonedDateTime();
-    ZonedDateTime settlementDate = security.getStartDate().toZonedDateTime();
-    ZonedDateTime maturityDate = security.getEndDate().toZonedDateTime();
+    ZonedDateTime settlementDate = businessDayConvention.adjustDate(calendar, security.getStartDate().toZonedDateTime().plusDays(conventions.getSettlementDays()));
+    ZonedDateTime maturityDate = businessDayConvention.adjustDate(calendar, security.getEndDate().toZonedDateTime()); // just in case
     
-    DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/360"); //TODO security.getDaycount();
+    DayCount dayCount = conventions.getDayCount();
     
-  //all times on discount/yield/forward curves are measured ACT/ACT
+    // all times on discount/yield/forward curves are measured ACT/ACT
     double fixingTime = DayCountFactory.INSTANCE.getDayCount("Actual/Actual").getDayCountFraction(now, fixingDate);
     double settlementTime = DayCountFactory.INSTANCE.getDayCount("Actual/Actual").getDayCountFraction(now, settlementDate);
     double maturityTime = DayCountFactory.INSTANCE.getDayCount("Actual/Actual").getDayCountFraction(now, maturityDate);

@@ -7,9 +7,9 @@
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
-create sequence sec_security_seq as bigint
+create sequence sec_security_seq
     start with 1000 increment by 1 no cycle;
-create sequence sec_idkey_seq as bigint
+create sequence sec_idkey_seq
     start with 1000 increment by 1 no cycle;
 -- "as bigint" required by Derby/HSQL, not accepted by Postgresql
 

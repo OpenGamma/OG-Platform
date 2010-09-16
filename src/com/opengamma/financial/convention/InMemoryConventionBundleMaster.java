@@ -67,6 +67,10 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     Frequency semiAnnual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
     Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_SWAP")), "USD_SWAP", thirty360, following, semiAnnual, 2, act360, following, quarterly, 2, Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 3m") );
+    
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_FRA")), "USD_FRA", act360, following, null, 2);
+    
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_IRFUTURE")), "USD_IRFUTURE", act360, following, null, 2, 0.25);
   }
   
   @Override
@@ -74,6 +78,15 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
                                                            BusinessDayConvention businessDayConvention, Frequency frequency, 
                                                            int settlementDays) {
     ConventionBundleImpl refRate = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention, frequency, settlementDays);
+    UniqueIdentifier uid = _mapper.add(bundle, refRate);
+    refRate.setUniqueIdentifier(uid);
+    return uid;
+  }
+  
+  public synchronized UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, DayCount dayCount,
+                                                           BusinessDayConvention businessDayConvention, Frequency frequency, 
+                                                           int settlementDays, double pointValue) {
+    ConventionBundleImpl refRate = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention, frequency, settlementDays, pointValue);
     UniqueIdentifier uid = _mapper.add(bundle, refRate);
     refRate.setUniqueIdentifier(uid);
     return uid;

@@ -20,6 +20,8 @@ public interface ConventionBundleMaster {
   ConventionBundleSearchResult searchHistoricConventionBundle(ConventionBundleSearchHistoricRequest searchRequest);
   ConventionBundleDocument getConventionBundle(UniqueIdentifier uniqueIdentifier); 
   UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Frequency frequency, int settlementDays);
+  UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Frequency frequency, 
+                                       int settlementDays, double pointValue);
   UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name,
                                        DayCount swapFixedLegDayCount, BusinessDayConvention swapFixedLegBusinessDayConvention, 
                                        Frequency swapFixedLegFrequency, Integer swapFixedLegSettlementDays,

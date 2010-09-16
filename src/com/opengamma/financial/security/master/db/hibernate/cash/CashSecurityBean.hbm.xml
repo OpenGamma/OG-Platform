@@ -8,10 +8,10 @@
   	<component name="region" class="com.opengamma.financial.security.master.db.hibernate.IdentifierBean">
   	  <property name="scheme" column="region_scheme" type="string" />
   	  <property name="identifier" column="region_identifier" type="string" />
-      <component name="maturity" class="com.opengamma.financial.security.master.db.hibernate.ZonedDateTimeBean">
-		<property name="date" column="expiry_date" type="timestamp" not-null="true" />
-		<property name="zone" column="expiry_zone" type="string" not-null="true" />
-  	  </component>
+  	</component>
+  	<component name="maturity" class="com.opengamma.financial.security.master.db.hibernate.ZonedDateTimeBean">
+	  <property name="date" column="maturity_date" type="timestamp" not-null="true" />
+      <property name="zone" column="maturity_zone" type="string" not-null="true" />
   	</component>
   </union-subclass>
 

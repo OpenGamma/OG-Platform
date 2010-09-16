@@ -36,19 +36,19 @@ public class InMemoryReferenceRateRepositoryTest {
     ConventionBundle referenceRate = source.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "LIBOR O/N"));
     BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified");
     BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-    DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+    DayCount actact = DayCountFactory.INSTANCE.getDayCount("Actual/Actual");
     Assert.assertEquals("LIBOR O/N", referenceRate.getName());
     Assert.assertEquals(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US00O/N Index"), Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "LIBOR O/N")), referenceRate.getIdentifiers());
     Assert.assertEquals(UniqueIdentifier.of(InMemoryConventionBundleMaster.IN_MEMORY_UNIQUE_SCHEME.getName(), "1"), referenceRate.getUniqueIdentifier());
-    Assert.assertEquals(act360, referenceRate.getDayCount());
+    Assert.assertEquals(actact, referenceRate.getDayCount());
     Assert.assertEquals(following, referenceRate.getBusinessDayConvention());
-    Assert.assertEquals(2, referenceRate.getSettlementDays());
+    Assert.assertEquals(0, referenceRate.getSettlementDays());
     
     ConventionBundle referenceRate2 = source.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "LIBOR 3m"));
     Assert.assertEquals("LIBOR 3m", referenceRate2.getName());
     Assert.assertEquals(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0003M Index"), Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "LIBOR 3m")), referenceRate2.getIdentifiers());
-    Assert.assertEquals(UniqueIdentifier.of(InMemoryConventionBundleMaster.IN_MEMORY_UNIQUE_SCHEME.getName(), "6"), referenceRate2.getUniqueIdentifier());
-    Assert.assertEquals(act360, referenceRate2.getDayCount());
+    Assert.assertEquals(UniqueIdentifier.of(InMemoryConventionBundleMaster.IN_MEMORY_UNIQUE_SCHEME.getName(), "7"), referenceRate2.getUniqueIdentifier());
+    Assert.assertEquals(actact, referenceRate2.getDayCount());
     Assert.assertEquals(modified, referenceRate2.getBusinessDayConvention());
     Assert.assertEquals(2, referenceRate2.getSettlementDays());
   }
