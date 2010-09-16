@@ -12,6 +12,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.financial.security.master.SecurityDocument;
@@ -73,7 +74,7 @@ public class WebSecurityVersionResource extends AbstractWebSecurityResource {
    */
   public static URI uri(final WebSecuritiesData data, final UniqueIdentifier overrideVersionId) {
     String securityId = data.getBestSecurityUriId(null);
-    String versionId = (overrideVersionId != null ? overrideVersionId.getVersion() : data.getUriVersionId());
+    String versionId = StringUtils.defaultString(overrideVersionId != null ? overrideVersionId.getVersion() : data.getUriVersionId());
     return data.getUriInfo().getBaseUriBuilder().path(WebSecurityVersionResource.class).build(securityId, versionId);
   }
 
