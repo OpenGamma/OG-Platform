@@ -62,13 +62,13 @@ public class HolidaySourceCalendarAdapter implements Calendar {
   public boolean isWorkingDay(LocalDate date) {
     switch (_type) {
       case BANK:
-        return _holidaySource.isHoliday(_region.getIdentifiers(), date, _type);
+        return !_holidaySource.isHoliday(_region.getIdentifiers(), date, _type);
       case CURRENCY:
-        return _holidaySource.isHoliday(_currency, date);
+        return !_holidaySource.isHoliday(_currency, date);
       case SETTLEMENT:
-        return _holidaySource.isHoliday(_exchange.getIdentifiers(), date, _type);
+        return !_holidaySource.isHoliday(_exchange.getIdentifiers(), date, _type);
       case TRADING:
-        return _holidaySource.isHoliday(_exchange.getIdentifiers(), date, _type);
+        return !_holidaySource.isHoliday(_exchange.getIdentifiers(), date, _type);
     }
     throw new OpenGammaRuntimeException("switch doesn't support " + _type);
   }

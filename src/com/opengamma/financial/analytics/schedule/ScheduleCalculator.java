@@ -92,7 +92,7 @@ public class ScheduleCalculator {
     final ZonedDateTime[] result = new ZonedDateTime[n];
     result[0] = effectiveDate;
     for (int i = 1; i < n; i++) {
-      result[i] = dates[i - 1].plusDays(settlementDays); 
+      result[i] = convention.adjustDate(calendar, dates[i - 1].plusDays(settlementDays)); 
     }
     return result;
   }
@@ -118,7 +118,7 @@ public class ScheduleCalculator {
     ZonedDateTime[] results = new ZonedDateTime[n];
     results[0] = effectiveDate.plus(period);
     for (int i = 1; i < n; i++) {
-      results[i] = dates[i - 1].plus(period); //TODO need to further shift these dates by a convention 
+      results[i] = convention.adjustDate(calendar, dates[i - 1].plus(period)); //TODO need to further shift these dates by a convention 
     }
    
     return results;

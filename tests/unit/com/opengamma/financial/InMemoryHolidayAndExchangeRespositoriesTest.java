@@ -113,7 +113,7 @@ public class InMemoryHolidayAndExchangeRespositoriesTest {
     InMemoryRegionMaster regionRepo = new InMemoryRegionMaster();
     RegionFileReader.populateMaster(regionRepo, new File(RegionFileReader.REGIONS_FILE_PATH));
     RegionSource regionSource = new DefaultRegionSource(regionRepo);
-    ExchangeSource exchangeSource = CoppClarkExchangeFileReader.createPopulatedExchangeSource();
+    ExchangeSource exchangeSource = CoppClarkExchangeFileReader.createPopulated().getExchangeSource();
     HolidaySource holidaySource = CoppClarkFileReader.createPopulatedHolidaySource(new InMemoryHolidayMaster(regionSource, exchangeSource)); 
     Identifier euronextLiffeId = Identifier.of(ExchangeUtils.ISO_MIC, "XLIF");
     Exchange euronextLiffe = exchangeSource.getSingleExchange(euronextLiffeId);

@@ -16,6 +16,11 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
+import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
+import com.opengamma.math.interpolation.FlatExtrapolator1D;
+import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.math.interpolation.Interpolator1DFactory;
+import com.opengamma.math.interpolation.LinearExtrapolator1D;
 
 /**
  * Holds Fudge builders for the interest rate curve model.
@@ -51,6 +56,52 @@ import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
     }
   }
 
+  @FudgeBuilderFor(CombinedInterpolatorExtrapolator.class)
+  public static final class CombinedInterpolatorExtrapolatorBuilder extends FudgeBuilderBase<CombinedInterpolatorExtrapolator<?>> {
+    private static final String LEFT_EXTRAPOLATOR_FIELD_NAME = "leftExtrapolator";
+    private static final String RIGHT_EXTRAPOLATOR_FIELD_NAME = "rightExtrapolator";
+    private static final String INTERPOLATOR_FIELD_NAME = "interpolator";
+    @Override
+    protected void buildMessage(FudgeSerializationContext context, MutableFudgeFieldContainer message, CombinedInterpolatorExtrapolator<?> object) {
+      Interpolator1D<?> interpolator = object.getInterpolator();
+      message.add(INTERPOLATOR_FIELD_NAME, Interpolator1DFactory.getInterpolatorName(interpolator));
+      message.add(LEFT_EXTRAPOLATOR_FIELD_NAME, getExtrapolatorName(object.getLeftExtrapolator()));
+      message.add(RIGHT_EXTRAPOLATOR_FIELD_NAME, getExtrapolatorName(object.getRightExtrapolator()));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public CombinedInterpolatorExtrapolator<?> buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+      String interpolatorName = message.getString(INTERPOLATOR_FIELD_NAME);
+      String leftExtrapolatorName = message.getString(LEFT_EXTRAPOLATOR_FIELD_NAME);
+      String rightExtrapolatorName = message.getString(RIGHT_EXTRAPOLATOR_FIELD_NAME);
+      Interpolator1D<?> interpolator = Interpolator1DFactory.getInterpolator(interpolatorName);
+      Interpolator1D<?> leftExtrapolator = getExtrapolator(leftExtrapolatorName, interpolator);
+      Interpolator1D<?> rightExtrapolator = getExtrapolator(rightExtrapolatorName, interpolator);
+      return new CombinedInterpolatorExtrapolator(interpolator, leftExtrapolator, rightExtrapolator);
+    }
+   
+    private String getExtrapolatorName(Interpolator1D<?> extrapolator) {
+      if (extrapolator instanceof FlatExtrapolator1D<?>) {
+        return Interpolator1DFactory.FLAT_EXTRAPOLATOR;
+      }
+      if (extrapolator instanceof LinearExtrapolator1D<?>) {
+        return Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
+      }
+      return null;
+    }
+    
+    @SuppressWarnings("unchecked")
+    private Interpolator1D<?> getExtrapolator(String extrapolatorName, Interpolator1D<?> interpolator) {
+      if (extrapolatorName.equals(Interpolator1DFactory.FLAT_EXTRAPOLATOR)) {
+        return Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE;
+      }
+      if (extrapolatorName.equals(Interpolator1DFactory.LINEAR_EXTRAPOLATOR)) {
+        return new LinearExtrapolator1D(interpolator);
+      }
+      return null;
+    }
+  }
   /**
    * Fudge builder for {@code InterpolatedDiscountCurve}.
    */

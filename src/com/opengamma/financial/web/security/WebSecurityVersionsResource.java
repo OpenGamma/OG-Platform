@@ -21,7 +21,7 @@ import com.opengamma.financial.security.master.SecuritySearchHistoricResult;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * RESTful resource for all securities in a node.
+ * RESTful resource for all versions of a security.
  */
 @Path("/securities/{securityId}/versions")
 @Produces(MediaType.TEXT_HTML)
@@ -44,7 +44,7 @@ public class WebSecurityVersionsResource extends AbstractWebSecurityResource {
     
     FlexiBean out = createRootData();
     out.put("versionsResult", result);
-    //out.put("versions", result.getSecuritys());
+    out.put("versions", result.getSecurities());
     return getFreemarker().build("securities/securityversions.ftl", out);
   }
 

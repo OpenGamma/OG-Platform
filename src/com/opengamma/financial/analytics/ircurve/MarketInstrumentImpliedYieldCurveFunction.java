@@ -59,9 +59,11 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
 import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculatorFactory;
 import com.opengamma.math.linearalgebra.DecompositionFactory;
@@ -199,7 +201,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final FixedFloatSwapSecurityToSwapConverter swapConverter = new FixedFloatSwapSecurityToSwapConverter(holidaySource, regionSource, conventionSource);
     for (final FixedIncomeStripWithSecurity strip : specificationWithSecurities.getStrips()) {
       stripRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getSecurityIdentifier());
-      final Double rate = (Double) inputs.getValue(stripRequirement);
+      final Double rate = (Double) inputs.getValue(stripRequirement) / 100d;
       if (rate == null) {
         throw new NullPointerException("Could not get market data for " + strip);
       }
@@ -214,17 +216,20 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       derivatives.add(derivative);
       initialRatesGuess[i] = 0.01;
       nodeTimes[i] = LAST_DATE_CALCULATOR.getValue(derivative); 
+      System.err.println("LAST_DATE_CALCULATOR.getValue(derivative) = " + nodeTimes[i]);
       i++;
     }
     final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
     final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
     final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> sensitivityCalculators = 
       new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
-    final Interpolator1D interpolator = Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName());
+//    final Interpolator1D interpolator = Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName());
+    final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_definition.getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
     curveNodes.put(_name, nodeTimes);
     interpolators.put(_name, interpolator);
     //TODO have use finite difference or not as an input [FIN-147]
-    sensitivityCalculators.put(_name, Interpolator1DNodeSensitivityCalculatorFactory.getSensitivityCalculator(_definition.getInterpolatorName(), false));
+    Interpolator1DNodeSensitivityCalculator sensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(_definition.getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
+    sensitivityCalculators.put(_name, sensitivityCalculator);
     final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, null, curveNodes, interpolators, sensitivityCalculators);
     //TODO have the calculator and sensitivity calculators as an input [FIN-144], [FIN-145]
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data, ParRateDifferenceCalculator.getInstance());

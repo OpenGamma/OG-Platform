@@ -89,8 +89,8 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
         }
       });
     }
-    result.getDocuments().addAll(docs);
-    result.setPaging(Paging.of(docs));
+    result.setPaging(Paging.of(docs, request.getPagingRequest()));
+    result.getDocuments().addAll(request.getPagingRequest().select(docs));
     return result;
   }
 
