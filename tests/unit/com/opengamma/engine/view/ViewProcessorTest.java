@@ -7,13 +7,12 @@ package com.opengamma.engine.view;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 
 import org.junit.Test;
-
-import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * Tests ViewProcessor
@@ -64,15 +63,14 @@ public class ViewProcessorTest {
     vp.stop();
   }
   
-  @Test(expected = OpenGammaRuntimeException.class)
   public void testObtainUnknownView() {
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     env.init();
     ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
     
-    // Exception
-    vp.getView("Something random", ViewProcessorTestEnvironment.TEST_USER);
+    View view = vp.getView("Something random", ViewProcessorTestEnvironment.TEST_USER);
+    assertNull(view);
   }
 
 }
