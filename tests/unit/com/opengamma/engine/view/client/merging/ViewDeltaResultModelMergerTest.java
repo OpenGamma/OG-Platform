@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.client.merging;
+package com.opengamma.engine.view.client.merging;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
@@ -22,6 +22,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModelImpl;
 import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.engine.view.client.merging.ViewDeltaResultModelMerger;
 import com.opengamma.id.UniqueIdentifier;
 
 /**

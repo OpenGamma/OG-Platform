@@ -5,108 +5,56 @@
  */
 package com.opengamma.engine.view.client;
 
-import java.util.Set;
-
-import com.opengamma.engine.livedata.LiveDataInjector;
-import com.opengamma.engine.position.Portfolio;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.DeltaComputationResultListener;
+import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.msg.UserPrincipal;
 
 /**
- * Exposes a certain features of a {@link View} that are useful from a client perspective.
+ * Represents a managed client of a specific view. Provides access to properties of the view, and adds client-oriented
+ * functionality. This is the unit of external interaction for accessing computation results.
  * <p>
- * NOTE: The result listeners must be maintained as a set. It should be possible to add the same listener multiple times but
- * only have it receive one notification. After repeated calls to add, a single call to remove the listener should stop any
- * further notifications.
+ * Always call {@link #close()} to allow resources associated with the managed view to be released when the client is
+ * no longer required.
  */
 public interface ViewClient {
-  
+
   /**
-   * Gets the name of the view.
+   * Gets the unique identifier for the view client, to make it easier to refer to the view client externally.
    * 
-   * @return the name of the view, not null
+   * @return  the unique identifier, not null
    */
-  String getName();
+  UniqueIdentifier getUniqueIdentifier();
   
   /**
-   * Indicates whether the view has been started. A view in this state will perform a computation cycle when changes to
-   * its inputs are detected.  
+   * Gets the view which backs this view client.
    * 
-   * @return  <code>true</code> if the view has been started, <code>false</code> otherwise
+   * @return the view which backs this view client, not null
    */
-  boolean isLiveComputationRunning();
-  
+  View getView();
+    
   /**
-   * Gets the portfolio associated with the view, if set. Position and aggregate position requirements are implicitly
-   * made with reference to this portfolio.
+   * Gets the user for whom the view client was created. This user necessarily has sufficient permissions on the
+   * underlying view.
    * 
-   * @return  the portfolio associated with the view, or <code>null</code> if no reference portfolio exists for the
-   *          view
+   * @return the user, not null
    */
-  Portfolio getPortfolio();
+  UserPrincipal getUser();
   
   /**
-   * Gets a set of all security types present in the view's dependency graph; that is, all security types on which
-   * calculations must be performed.
+   * Indicates whether the result of a completed computation cycle is available yet. This is consistent with any data
+   * flow restrictions being applied through this view client, so does not necessarily reflect the live state of the
+   * view.
    * 
-   * @return  a set of all security types in the view's dependency graph, not null
-   */
-  Set<String> getAllSecurityTypes();
-  
-  /**
-   * Gets a set containing the name of every portfolio-level (i.e. position and/or aggregate position) requirement.
-   * These would form the columns of the output if the rows represented the portfolio hierarchy.
-   * 
-   * @return  a set containing the name of every portfolio-level requirement, not null
-   */
-  Set<String> getAllPortfolioRequirementNames();
-  
-  /**
-   * Gets a set containing the name of every value required for a particular type of security.
-   * 
-   * @param securityType  the type of security, not null
-   * @return  a set containing the name of every value required for the given security
-   */
-  Set<String> getRequirementNames(String securityType);
-  
-  /**
-   * Gets a set containing details of the live data required for successful computation of the view.
-   * 
-   * @return  a set containing a {@link ValueRequirement} for each item of live data required
-   */
-  Set<ValueRequirement> getRequiredLiveData();
-  
-  /**
-   * Indicates whether a computation cycle has completed yet
-   * 
-   * @return  <code>true</code> if a computation cycle has completed and the result is available, <code>false</code>
-   *          otherwise
+   * @return  <code>true</code> if a computation result is available, <code>false</code> otherwise
    */
   boolean isResultAvailable();
   
   /**
-   * Runs a single computation cycle. This cannot be used while live computation is running.
-   * 
-   * @throws IllegalStateException  if individual computation cycles cannot be performed because the view is in an
-   *                                incompatible state
-   */
-  void performComputation();
-  
-  /**
-   * Runs a single computation cycle, using live data snapshotted data at the given time.
-   * 
-   * @param snapshotTime  the time of an existing snapshot of live data, which should be used during the computation
-   *                      cycle
-   * @throws IllegalStateException  if individual computation cycles cannot be performed because the view is in an
-   *                                incompatible state  
-   */
-  void performComputation(long snapshotTime);
-  
-  /**
-   * Gets the result of the latest completed computation cycle.
+   * Gets the full result from the last computation cycle. This is consistent with any data flow restrictions being
+   * applied through this view client, so does not necessarily represent the live state of the view.
    *  
    * @return  the latest result, or <code>null</code> if no result yet exists
    * @see #isResultAvailable()
@@ -114,57 +62,63 @@ public interface ViewClient {
   ViewComputationResultModel getLatestResult();
   
   /**
-   * Adds a listener to receive notifications when new results are available.
-   * <p>
-   * Listeners are maintained with set semantics: they will receive no more than one notification for each event no
-   * matter how many times they are added, and it is sufficient to remove a listener only once.
-   *  
-   * @param listener  the listener to add, not null
+   * Sets (or replaces) the result listener.
+   * 
+   * @param resultListener  the result listener, or <code>null</code> to remove any existing listener.
    */
-  void addComputationResultListener(ComputationResultListener listener);
+  void setResultListener(ComputationResultListener resultListener);
   
   /**
-   * Stops a listener from receiving notifications when new results are available.
-   * <p>
-   * Listeners are maintained with set semantics: they will receive no more than one notification for each event no
-   * matter how many times they are added, and it is sufficient to remove a listener only once.
+   * Sets (or replaces) the delta result listener.
    * 
-   * @param listener  the listener to remove, not null
+   * @param deltaResultListener  the new listener, or <code>null</code> to remove any existing listener.
    */
-  void removeComputationResultListener(ComputationResultListener listener);
+  void setDeltaResultListener(DeltaComputationResultListener deltaResultListener);
   
   /**
-   * Adds a listener to receive notifications when new and different results are available. Only the changes are
-   * provided.
-   * <p>
-   * Listeners are maintained with set semantics: they will receive no more than one notification for each event no
-   * matter how many times they are added, and it is sufficient to remove a listener only once.
+   * Gets the state of this view client.
    * 
-   * @param listener  the listener to add, not null
+   * @return  the state of this view client, not null
    */
-  void addDeltaResultListener(DeltaComputationResultListener listener);
-
-  /**
-   * Stops a listener from receiving delta notifications.
-   * <p>
-   * Listeners are maintained with set semantics: they will receive no more than one notification for each event no
-   * matter how many times they are added, and it is sufficient to remove a listener only once.
-   * 
-   * @param listener  the listener to remove, not null
-   */
-  void removeDeltaResultListener(DeltaComputationResultListener listener);
+  ViewClientState getState();
   
   /**
-   * Gets the user under which this clients operates.
+   * Sets the minimum time between successive live update notifications to listeners, thus providing the ability to
+   * throttle the rate of updates. This is achieved by merging any updates which arrive in between the minimum period,
+   * and releasing only a single, merged update at the correct time. Set this to 0 to specify no minimum period between
+   * updates; this is the only setting for which updates may be passed straight through synchronously.
    * 
-   * @return the user, not null
+   * @param periodMillis  the minimum time between updates, or 0 to specify unlimited updates.
    */
-  UserPrincipal getUser();
+  void setLiveUpdatePeriod(long periodMillis);
   
   /**
-   * Gets the live data injector for storing arbitrary user live data for the view.
-   * 
-   * @return the live data injector, not null
+   * Starts or resumes the flow of live computation updates exposed through this client.
    */
-  LiveDataInjector getLiveDataInjector();
+  void startLive();
+  
+  /**
+   * Pauses the flow of live computation updates exposed through this client. Updates continue to be received
+   * internally, and these are delivered as a merged result when updates are resumed.
+   */
+  void pauseLive();
+  
+  /**
+   * Stops the flow of live computation updates exposed through this client. In this state, single results can be
+   * obtained on demand by calling {@link #runOneCycle()}.
+   */
+  void stopLive();
+  
+  /**
+   * Causes a single, on-demand calculation to be performed asynchronously. The result will be delivered through the
+   * listeners. This operation is only possible if live computation is stopped. 
+   */
+  void runOneCycle();
+  
+  /**
+   * Terminates this client, disconnecting it from any listeners and releasing any resources. This method <b>must</b>
+   * be called to avoid resource leaks. 
+   */
+  void shutdown();
+  
 }

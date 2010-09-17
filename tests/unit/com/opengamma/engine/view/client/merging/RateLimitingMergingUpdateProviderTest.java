@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.client.merging;
+package com.opengamma.engine.view.client.merging;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -16,6 +16,9 @@ import java.util.Timer;
 import org.junit.Test;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.client.merging.MergedUpdateListener;
+import com.opengamma.engine.view.client.merging.RateLimitingMergingUpdateProvider;
+import com.opengamma.engine.view.client.merging.ViewComputationResultModelMerger;
 
 /**
  * Tests RateLimitingMergingUpdateProvider
@@ -44,7 +47,7 @@ public class RateLimitingMergingUpdateProviderTest {
     addResults(provider, 1000);
     assertEquals(1000, testListener.consumeResults().size());
 
-    provider.destroy();
+    provider.shutdown();
   }
 
   @Test
@@ -58,7 +61,7 @@ public class RateLimitingMergingUpdateProviderTest {
     Thread.sleep(500);
     assertEquals(1, testListener.consumeResults().size());
 
-    provider.destroy();
+    provider.shutdown();
   }
 
   @Test
@@ -72,7 +75,7 @@ public class RateLimitingMergingUpdateProviderTest {
     assertCorrectUpdateRate(provider, testListener, 400);
     assertCorrectUpdateRate(provider, testListener, 50);
 
-    provider.destroy();
+    provider.shutdown();
   }
 
   private void assertCorrectUpdateRate(RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider, TestMergingUpdateListener testListener, int period) throws InterruptedException {

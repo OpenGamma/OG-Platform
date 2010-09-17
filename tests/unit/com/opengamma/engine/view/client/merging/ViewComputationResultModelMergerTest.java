@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.client.merging;
+package com.opengamma.engine.view.client.merging;
 
 import static org.mockito.Mockito.mock;
 import static org.junit.Assert.assertEquals;
@@ -11,6 +11,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.client.merging.ViewComputationResultModelMerger;
 
 /**
  * Tests ViewComputationResultModelMerger

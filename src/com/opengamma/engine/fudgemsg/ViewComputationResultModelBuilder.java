@@ -7,10 +7,7 @@ package com.opengamma.engine.fudgemsg;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.time.Instant;
 
@@ -22,12 +19,10 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.ViewTargetResultModel;
-import com.opengamma.engine.view.ViewTargetResultModelImpl;
 
 /**
  */

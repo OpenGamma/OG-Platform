@@ -10,209 +10,449 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
-import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
+import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.livedata.LiveDataSnapshotListener;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
-import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.position.Portfolio;
-import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.SingleComputationCycle;
 import com.opengamma.engine.view.calc.ViewRecalculationJob;
+import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.client.ViewClientImpl;
+import com.opengamma.engine.view.client.ViewDeltaResultCalculator;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
 import com.opengamma.engine.view.compilation.ViewEvaluationModel;
 import com.opengamma.engine.view.permission.ViewPermission;
 import com.opengamma.engine.view.permission.ViewPermissionException;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.ThreadUtil;
 import com.opengamma.util.monitor.OperationTimer;
 
+// REVIEW jonathan 2010-09-13 -- rather than throwing an exception if the view hasn't been initialised when attempting
+// an operation that needs it to be, should we just initialise it / tear it down automatically based on clients being
+// connected? This is much like kicking off live data processing automatically. One of the reasons for not initialising
+// all views immediately is the potential high memory requirement of an entire view processor's collection of
+// initialised views. Similarly, we should also tear down views when they are no longer used to avoid the same problem
+// occurring over time; this should be done automatically based on some heuristic (0 clients and possibly a timeout).
+
 /**
- * 
+ * A view represents a {@link ViewDefinition} in the context of a {@link ViewProcessor}; this is everything required
+ * to perform computations and listen to the output.
  */
-public class ViewImpl implements View, Lifecycle, LiveDataSnapshotListener {
+public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListener {
+  
   private static final Logger s_logger = LoggerFactory.getLogger(View.class);
-  // Injected dependencies:
+  
+  private static final String CLIENT_UID_PREFIX = "Client";
+   
   private final ViewDefinition _definition;
-  private final ViewProcessingContext _processingContext;
-  private final LiveDataInjector _liveDataInjector;
-  // Internal State:
-  private ViewEvaluationModel _viewEvaluationModel;
-  private Thread _recalculationThread;
+  private final Timer _clientResultTimer;
+  
+  private final String _uidScheme;
+  private final AtomicLong _uidCount = new AtomicLong();
+  
+  // REVIEW jonathan 2010-09-11 -- All the evidence seems to point to ReentrantLock being quite a bit more performant
+  // than synchronized, and I don't like synchronized(this), so I've moved to a ReentrantLock, despite the verbose
+  // blocks of code it requires.
+  private final ReentrantLock _viewLock = new ReentrantLock();
+  
+  // REVIEW jonathan 2010-09-11 -- using ConcurrentHashMap so that getClient doesn't need to acquire the lock. This
+  // will be a frequent call for remote processes where the only reference to the client is its ID. No harm in
+  // providing access to a client that's in the middle of shutting down or something; a reference could just as easily
+  // have been stored elsewhere for arbitrary access.  
+  private final Map<UniqueIdentifier, ViewClient> _clientMap = new ConcurrentHashMap<UniqueIdentifier, ViewClient>();
+  
+  private final Set<ViewClient> _liveComputationClients = new HashSet<ViewClient>();
+  
   private ViewCalculationState _calculationState = ViewCalculationState.NOT_INITIALIZED;
-  private ViewRecalculationJob _recalcJob;
-  private ViewComputationResultModel _latestResult;
+  private ViewProcessingContext _processingContext;
+  private ViewEvaluationModel _viewEvaluationModel;
+  private volatile ViewRecalculationJob _recalcJob;
+  private volatile Thread _recalcThread;
+  
+  // REVIEW jonathan 2010-09-11 -- Use an AtomicReference to prevent the need to acquire the lock just to query the
+  // latest result.
+  private final AtomicReference<ViewComputationResultModel> _latestResult = new AtomicReference<ViewComputationResultModel>();
   private final Set<ComputationResultListener> _resultListeners = new CopyOnWriteArraySet<ComputationResultListener>();
   private final Set<DeltaComputationResultListener> _deltaListeners = new CopyOnWriteArraySet<DeltaComputationResultListener>();
   private volatile boolean _populateResultModel = true;
- 
-  /**
-   * Constructs an instance. 
-   * 
-   * @param definition  the view definition, not null
-   * @param processingContext  the context from the view processor, not null 
-   */
-  public ViewImpl(ViewDefinition definition, ViewProcessingContext processingContext) {
-    this(definition, processingContext, null);
-  }
   
   /**
    * Constructs an instance.
    * 
    * @param definition  the view definition, not null
-   * @param processingContext  the context from the view processor, not null
-   * @param liveDataInjector  an optional live data injector to be used for inserting user-provided live data for this
-   *                          view. For this to have any effect, the values injected should be included by the snapshot
-   *                          provider that is part of the processing context.
+   * @param viewProcessingContext  the processing context, a wrapper around the data structures required by the view
+   *                               which allows a view to exist without a view processor
+   * @param clientResultTimer  a timer for use when rate-limiting is being applied to client results
    */
-  public ViewImpl(ViewDefinition definition, ViewProcessingContext processingContext, LiveDataInjector liveDataInjector) {
+  public ViewImpl(ViewDefinition definition, ViewProcessingContext viewProcessingContext, Timer clientResultTimer) {
     ArgumentChecker.notNull(definition, "definition");
-    ArgumentChecker.notNull(processingContext, "processingContext");
+    ArgumentChecker.notNull(viewProcessingContext, "viewProcessingContext");
+    ArgumentChecker.notNull(clientResultTimer, "clientResultTimer");
     
     _definition = definition;
-    _processingContext = processingContext;
-    _liveDataInjector = liveDataInjector;
+    _processingContext = viewProcessingContext;
+    _clientResultTimer = clientResultTimer;
+    _uidScheme = "View-" + definition.getName();
+  }
+  
+  //-------------------------------------------------------------------------
+  @Override
+  public void init() {
+    _viewLock.lock();
+    try {
+      if (getCalculationState() != ViewCalculationState.NOT_INITIALIZED) {
+        // Ignore the repeated call because users of the view might attempt initialization first, just in case it
+        // it hasn't already been initialized.
+        return;
+      }
+
+      // Set to the initialized state because we're holding the lock, so this change is not visible externally, and
+      // some steps below call methods which do a general initialization check. We carefully control the order here to
+      // ensure that such calls are valid.
+      setCalculationState(ViewCalculationState.STOPPED);
+      
+      OperationTimer timer = new OperationTimer(s_logger, "Initializing view {}", getDefinition().getName());
+      
+  
+      _viewEvaluationModel = ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices());
+      addLiveDataSubscriptions();
+      
+      timer.finished();
+    } catch (Throwable t) {
+      // Reset the state
+      setCalculationState(ViewCalculationState.NOT_INITIALIZED);
+      _processingContext = null;
+      _viewEvaluationModel = null;
+      throw new OpenGammaRuntimeException("The view failed to initialize", t);
+    } finally {
+      _viewLock.unlock();
+    }
   }
   
   /**
-   * @return the definition
+   * @deprecated a hack to support Jim's dynamic modifications of the function repository. View reinitialization is not
+   *             really supported, but this works in limited cases.
    */
+  @Deprecated
+  public void reinit() {
+    _viewLock.lock();
+    try {
+      setCalculationState(ViewCalculationState.STOPPED);
+      _viewEvaluationModel = ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices());
+      addLiveDataSubscriptions();
+    } catch (Throwable t) {
+      setCalculationState(ViewCalculationState.NOT_INITIALIZED);
+      _processingContext = null;
+      _viewEvaluationModel = null;
+      throw new OpenGammaRuntimeException("The view failed to initialize", t);      
+    } finally { 
+      _viewLock.unlock();
+    }
+  }
+  
+  // Lifecycle
+  // ------------------------------------------------------------------------
   @Override
-  public ViewDefinition getDefinition() {
-    return _definition;
+  public void start() {
+    // Lifecycle method - nothing to start
   }
 
   /**
-   * @return the processingContext
+   * Terminates the view, which shuts down any existing clients and stops new clients from being created, thus
+   * preventing live computations from ever restarting. This should be used only when the view has reached the end of
+   * its life, for example because the view processor is shutting down.
    */
   @Override
-  public ViewProcessingContext getProcessingContext() {
-    return _processingContext;
+  public void stop() {
+    // Lifecycle method - shut down all clients.
+    _viewLock.lock();
+    try {
+      Set<ViewClient> currentClients = new HashSet<ViewClient>(_clientMap.values());
+      for (ViewClient client : currentClients) {
+        client.shutdown();
+      }
+      // Shutting down every client should have removed all live computation clients and stopped live computation 
+      setCalculationState(ViewCalculationState.TERMINATED);
+    } finally {
+      _viewLock.unlock();
+    }
   }
   
   @Override
-  public LiveDataInjector getLiveDataInjector() {
-    return _liveDataInjector;
-  }
-
-  /**
-   * @return the recalculationThread
-   */
-  public Thread getRecalculationThread() {
-    return _recalculationThread;
-  }
-
-  /**
-   * @param recalculationThread the recalculationThread to set
-   */
-  protected void setRecalculationThread(Thread recalculationThread) {
-    _recalculationThread = recalculationThread;
-  }
-
-  /**
-   * @return the calculationState
-   */
-  public ViewCalculationState getCalculationState() {
-    return _calculationState;
-  }
-
-  /**
-   * @param calculationState the calculationState to set
-   */
-  protected void setCalculationState(ViewCalculationState calculationState) {
-    _calculationState = calculationState;
-  }
-
-  /**
-   * @return the recalcJob
-   */
-  public ViewRecalculationJob getRecalcJob() {
-    return _recalcJob;
-  }
-
-  /**
-   * @param recalcJob the recalcJob to set
-   */
-  protected void setRecalcJob(ViewRecalculationJob recalcJob) {
-    _recalcJob = recalcJob;
+  public boolean isRunning() {
+    return getCalculationState() != ViewCalculationState.TERMINATED;
   }
   
-  /**
-   * @return the latest view evaluation model
-   */
-  @Override
-  public ViewEvaluationModel getViewEvaluationModel() {
-    return _viewEvaluationModel;
-  }
-  
-  public ViewPermissionProvider getPermissionProvider() {
-    return getProcessingContext().getPermissionProvider();
-  }
-    
-  @Override
-  public boolean addResultListener(ComputationResultListener resultListener) {
-    ArgumentChecker.notNull(resultListener, "Result listener");
-    
-    getPermissionProvider().assertPermission(ViewPermission.READ_RESULTS, resultListener.getUser(), this);
-    return _resultListeners.add(resultListener);
-  }
-  
-  @Override
-  public boolean removeResultListener(ComputationResultListener resultListener) {
-    ArgumentChecker.notNull(resultListener, "Result listener");
-    return _resultListeners.remove(resultListener);
-  }
-  
-  @Override
-  public boolean addDeltaResultListener(DeltaComputationResultListener deltaListener) {
-    ArgumentChecker.notNull(deltaListener, "Delta listener");
-    
-    getPermissionProvider().assertPermission(ViewPermission.READ_RESULTS, deltaListener.getUser(), this);
-    return _deltaListeners.add(deltaListener);
-  }
-  
-  @Override
-  public boolean removeDeltaResultLister(DeltaComputationResultListener deltaListener) {
-    ArgumentChecker.notNull(deltaListener, "Delta listener");
-    return _deltaListeners.remove(deltaListener);
-  }
-  
+  // View
+  //-------------------------------------------------------------------------
   @Override
   public String getName() {
     return getDefinition().getName();
   }
   
-  public synchronized void init() {
-    OperationTimer timer = new OperationTimer(s_logger, "Initializing view {}", getDefinition().getName());
-    setCalculationState(ViewCalculationState.INITIALIZING);
+  @Override
+  public ViewDefinition getDefinition() {
+    // Injected - can access regardless of calculation state
+    return _definition;
+  }
+  
+  @Override
+  public Portfolio getPortfolio() {
+    assertInitialized();
+    return getViewEvaluationModel().getPortfolio();
+  }
+  
+  @Override
+  public ViewClient createClient(UserPrincipal credentials) {
+    ArgumentChecker.notNull(credentials, "credentials");
+    assertInitialized();
+    getProcessingContext().getPermissionProvider().assertPermission(ViewPermission.ACCESS, credentials, this);
 
-    _viewEvaluationModel = ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices());
-    addLiveDataSubscriptions();
-    
-    setCalculationState(ViewCalculationState.NOT_STARTED);
-    timer.finished();
+    _viewLock.lock();
+    try {
+      UniqueIdentifier id = generateClientIdentifier();
+      ViewClient client = new ViewClientImpl(id, this, credentials, _clientResultTimer);
+      _clientMap.put(id, client);
+      return client;
+    } finally {
+      _viewLock.unlock();
+    }
   }
 
+  @Override
+  public ViewClient getClient(UniqueIdentifier id) {
+    return _clientMap.get(id);
+  }
+  
   /**
-   * Adds live data subscriptions to the view.
+   * Checks that the given user has access to every market data line required to compute the results of the view, and
+   * throws an exception if this is not the case.
+   * 
+   * @param user  the user
+   * @throws ViewPermissionException  if any entitlement problems are found
+   */
+  @Override
+  public void assertAccessToLiveDataRequirements(UserPrincipal user) {
+    s_logger.info("Checking that {} is entitled to the results of {}", user, this);
+    assertInitialized();
+    Collection<LiveDataSpecification> requiredLiveData = getRequiredLiveDataSpecifications();
+    Map<LiveDataSpecification, Boolean> entitlements = getProcessingContext().getLiveDataEntitlementChecker().isEntitled(user, requiredLiveData);
+    ArrayList<LiveDataSpecification> failures = new ArrayList<LiveDataSpecification>();
+    for (Map.Entry<LiveDataSpecification, Boolean> entry : entitlements.entrySet()) {
+      if (entry.getValue().booleanValue() == false) {
+        failures.add(entry.getKey());
+      }
+    }
+    
+    if (!failures.isEmpty()) {
+      throw new ViewPermissionException(user + " is not entitled to the output of " + this + 
+          " because they do not have permissions to " + failures.get(0));
+    }
+  }
+  
+  @Override
+  public ViewComputationResultModel getLatestResult() {
+    return _latestResult.get();
+  }
+  
+  @Override
+  public Set<ValueRequirement> getRequiredLiveData() {
+    assertInitialized();
+    ViewEvaluationModel viewEvaluationModel = getViewEvaluationModel();
+    Set<ValueSpecification> requiredSpecs = viewEvaluationModel.getAllLiveDataRequirements();
+    
+    Set<ValueRequirement> returnValue = new HashSet<ValueRequirement>();
+    for (ValueSpecification requiredSpec : requiredSpecs) {
+      returnValue.add(requiredSpec.getRequirementSpecification());      
+    }
+    return returnValue;
+  }
+  
+  @Override
+  public Set<String> getAllSecurityTypes() {
+    assertInitialized();
+    return getViewEvaluationModel().getAllSecurityTypes();
+  }
+  
+  @Override
+  public void runOneCycle() {
+    _viewLock.lock();
+    try {
+      assertInitialized();
+      long snapshotTime = getProcessingContext().getLiveDataSnapshotProvider().snapshot();
+      runOneCycle(snapshotTime);
+    } finally {
+      _viewLock.unlock();
+    }
+  }
+  
+  @Override
+  public void runOneCycle(long valuationTime) {
+    _viewLock.lock();
+    try {
+      assertInitialized();
+      SingleComputationCycle cycle = createCycle(valuationTime);
+      cycle.prepareInputs();
+      cycle.executePlans();
+      
+      if (isPopulateResultModel()) {
+        cycle.populateResultModel();
+        recalculationPerformed(cycle.getResultModel());
+      }
+      
+      cycle.releaseResources();
+    } finally {
+      _viewLock.unlock();
+    }
+  }
+  
+  @Override
+  public LiveDataInjector getLiveDataOverrideInjector() {
+    return getProcessingContext().getLiveDataOverrideInjector();
+  }
+  
+  @Override
+  public boolean isLiveComputationRunning() {
+    return getCalculationState() == ViewCalculationState.RUNNING;
+  }
+  
+  // ViewInternal
+  //-------------------------------------------------------------------------  
+  @Override
+  public ViewProcessingContext getProcessingContext() {
+    // Injected - can access at any time
+    return _processingContext;
+  }
+  
+  @Override
+  public ViewEvaluationModel getViewEvaluationModel() {
+    assertInitialized();
+    return _viewEvaluationModel;
+  }
+
+  @Override
+  public void recalculationPerformed(ViewComputationResultModel result) {
+    s_logger.debug("Recalculation Performed called.");
+    
+    // REVIEW kirk 2009-09-24 -- We need to consider this method for background execution
+    // of some kind. It holds the lock and blocks the recalc thread, so a slow
+    // callback implementation (or just the cost of computing the delta model) will
+    // be an unnecessary burden. Have to factor in some type of win there.
+    _viewLock.lock();
+    try {      
+      // We swap these first so that in the callback the view is consistent.
+      ViewResultModel previousResult = _latestResult.get();
+      _latestResult.set(result);
+      for (ComputationResultListener resultListener : _resultListeners) {
+        resultListener.computationResultAvailable(result);
+      }
+      if (!_deltaListeners.isEmpty() && previousResult != null) {
+        // We only start deltas once the second result comes in. Clients must combine the delta stream with an initial
+        // call to getLatestResult() to obtain the full picture.
+        ViewDeltaResultModel deltaModel = ViewDeltaResultCalculator.computeDeltaModel(getDefinition(), previousResult, result);
+        for (DeltaComputationResultListener deltaListener : _deltaListeners) {
+          deltaListener.deltaResultAvailable(deltaModel);
+        }
+      }
+    } finally {
+      _viewLock.unlock();
+    }
+  }
+  
+  @Override
+  public SingleComputationCycle createCycle(long valuationTime) {
+    SingleComputationCycle cycle = new SingleComputationCycle(this, valuationTime);
+    return cycle;
+  }
+  
+  @Override
+  public ViewPermissionProvider getPermissionProvider() {
+    assertInitialized();
+    return getProcessingContext().getPermissionProvider();
+  }
+  
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return "View[" + getName() + "]";
+  }
+  
+  //-------------------------------------------------------------------------
+  /**
+   * Adds a listener to updates of the full set of computation results.
+   * 
+   * @param resultListener  the listener to add
+   * @return  <code>true</code> if the listener was newly added, or <code>false</code> if the listener was already
+   *          present. 
+   */
+  public boolean addResultListener(ComputationResultListener resultListener) {
+    ArgumentChecker.notNull(resultListener, "Result listener");
+    assertInitialized();
+    getProcessingContext().getPermissionProvider().assertPermission(ViewPermission.READ_RESULTS, resultListener.getUser(), this);
+    return _resultListeners.add(resultListener);
+  }
+  
+  /**
+   * Removes a listener from updates of the full set of computation results.
+   * 
+   * @param resultListener  the listener to remove
+   * @return  <code>true</code> if the listener was removed, or <code>false</code> if the listener was not known.
+   */
+  public boolean removeResultListener(ComputationResultListener resultListener) {
+    ArgumentChecker.notNull(resultListener, "Result listener");
+    return _resultListeners.remove(resultListener);
+  }
+  
+  /**
+   * Adds a listener to delta updates of the computation results.
+   * 
+   * @param deltaListener  the listener to add
+   * @return  <code>true</code> if the listener was newly added, or <code>false</code> if the listener was already
+   *          present. 
+   */
+  public boolean addDeltaResultListener(DeltaComputationResultListener deltaListener) {
+    ArgumentChecker.notNull(deltaListener, "Delta listener");
+    assertInitialized();
+    getProcessingContext().getPermissionProvider().assertPermission(ViewPermission.READ_RESULTS, deltaListener.getUser(), this);
+    return _deltaListeners.add(deltaListener);
+  }
+  
+  /**
+   * Removes a listener from delta updates of the computation results.
+   * 
+   * @param deltaListener  the listener to remove
+   * @return  <code>true</code> if the listener was removed, or <code>false</code> if the listener was not known.
+   */ 
+  public boolean removeDeltaResultListener(DeltaComputationResultListener deltaListener) {
+    ArgumentChecker.notNull(deltaListener, "Delta listener");
+    return _deltaListeners.remove(deltaListener);
+  }
+  
+  //------------------------------------------------------------------------- 
+  /**
+   * Part of initialization. Adds live data subscriptions to the view.
    */
   private void addLiveDataSubscriptions() {
     Set<ValueRequirement> liveDataRequirements = getRequiredLiveData();
-    
     OperationTimer timer = new OperationTimer(s_logger, "Adding {} live data subscriptions for portfolio {}", liveDataRequirements.size(), getDefinition().getPortfolioId());
-    
     LiveDataSnapshotProvider snapshotProvider = getProcessingContext().getLiveDataSnapshotProvider();
     snapshotProvider.addListener(this);
     snapshotProvider.addSubscription(getDefinition().getLiveDataUser(), liveDataRequirements);
@@ -240,123 +480,11 @@ public class ViewImpl implements View, Lifecycle, LiveDataSnapshotListener {
       recalcJob.liveDataChanged();  
     }
   }
-
-  @Override
-  public synchronized ViewComputationResultModel getLatestResult() {
-    return _latestResult;
-  }
-
-  @Override
-  public Portfolio getPortfolio() {
-    if (getViewEvaluationModel() == null) {
-      return null;
-    }
-    return getViewEvaluationModel().getPortfolio();
-  }
-
-  public PortfolioNode getPositionRoot() {
-    if (getViewEvaluationModel() == null) {
-      return null;
-    }
-    return getViewEvaluationModel().getPortfolio().getRootNode();
-  }
-
-  @Override
-  public synchronized void recalculationPerformed(ViewComputationResultModel result) {
-    // REVIEW kirk 2009-09-24 -- We need to consider this method for background execution
-    // of some kind. It's synchronized and blocks the recalc thread, so a slow
-    // callback implementation (or just the cost of computing the delta model) will
-    // be an unnecessary burden. Have to factor in some type of win there.
-    s_logger.debug("Recalculation Performed called.");
-    // We swap these first so that in the callback the view is consistent.
-    ViewResultModel previousResult = _latestResult;
-    _latestResult = result;
-    for (ComputationResultListener resultListener : _resultListeners) {
-      resultListener.computationResultAvailable(result);
-    }
-    if (!_deltaListeners.isEmpty() && (previousResult != null)) {
-      ViewDeltaResultModel deltaModel = computeDeltaModel(previousResult, result);
-      for (DeltaComputationResultListener deltaListener : _deltaListeners) {
-        deltaListener.deltaResultAvailable(deltaModel);
-      }
-    }
-  }
   
-  /**
-   * @param previousResult
-   * @param result
-   * @return
-   */
-  private ViewDeltaResultModel computeDeltaModel(ViewResultModel previousResult, ViewResultModel result) {
-    ViewDeltaResultModelImpl deltaModel = new ViewDeltaResultModelImpl();
-    deltaModel.setValuationTime(result.getValuationTime());
-    deltaModel.setResultTimestamp(result.getResultTimestamp());
-    deltaModel.setPreviousResultTimestamp(previousResult.getResultTimestamp());
-    deltaModel.setCalculationConfigurationNames(result.getCalculationConfigurationNames());
-    for (ComputationTargetSpecification targetSpec : result.getAllTargets()) {
-      computeDeltaModel(deltaModel, targetSpec, previousResult, result);
-    }
-    
-    return deltaModel;
-  }
+  //-------------------------------------------------------------------------
   
-  private void computeDeltaModel(ViewDeltaResultModelImpl deltaModel, ComputationTargetSpecification targetSpec,
-      ViewResultModel previousResult, ViewResultModel result) {
-    for (String calcConfigName : result.getCalculationConfigurationNames()) {
-      ViewCalculationResultModel resultCalcModel = result.getCalculationResult(calcConfigName);
-      ViewCalculationResultModel previousCalcModel = previousResult.getCalculationResult(calcConfigName);      
-      computeDeltaModel(deltaModel, targetSpec, calcConfigName, previousCalcModel, resultCalcModel);
-    }
-  }
-
-  private void computeDeltaModel(ViewDeltaResultModelImpl deltaModel, ComputationTargetSpecification targetSpec,
-      String calcConfigName, ViewCalculationResultModel previousCalcModel, ViewCalculationResultModel resultCalcModel) {
-    if (previousCalcModel == null) {
-      // Everything is new/delta because this is a new calculation context.
-      Map<String, ComputedValue> resultValues = resultCalcModel.getValues(targetSpec);
-      for (Map.Entry<String, ComputedValue> resultEntry : resultValues.entrySet()) {
-        deltaModel.addValue(calcConfigName, resultEntry.getValue());
-      }
-    } else {
-      Map<String, ComputedValue> resultValues = resultCalcModel.getValues(targetSpec);
-      Map<String, ComputedValue> previousValues = previousCalcModel.getValues(targetSpec);
-      
-      if (previousValues == null) {
-        // Everything is new/delta because this is a new target.
-        for (Map.Entry<String, ComputedValue> resultEntry : resultValues.entrySet()) {
-          deltaModel.addValue(calcConfigName, resultEntry.getValue());
-        }
-      } else {
-        // Have to individual delta.
-        DeltaDefinition deltaDefinition = getDefinition().getCalculationConfiguration(calcConfigName).getDeltaDefinition();
-        for (Map.Entry<String, ComputedValue> resultEntry : resultValues.entrySet()) {
-          ComputedValue resultValue = resultEntry.getValue();
-          ComputedValue previousValue = previousValues.get(resultEntry.getKey());
-          // REVIEW jonathan 2010-05-07 -- The previous value that we're comparing with is the value from the last
-          // computation cycle, not the value that we last emitted as a delta. It is therefore important that the
-          // DeltaComparers take this into account in their implementation of isDelta. E.g. they should compare the
-          // values after truncation to the required decimal place, rather than testing whether the difference of the
-          // full values is greater than some threshold; this way, there will always be a point beyond which a change
-          // is detected, even in the event of gradual creep.
-          if (deltaDefinition.isDelta(previousValue, resultValue)) {
-            deltaModel.addValue(calcConfigName, resultEntry.getValue());
-          }
-        }
-      }
-    }
-  }
-
-  // REVIEW kirk 2009-09-11 -- Need to resolve the synchronization on the lifecycle
-  // methods.
-
-  @Override
-  public synchronized boolean isRunning() {
-    return getCalculationState() == ViewCalculationState.RUNNING;
-  }
-  
-  public boolean hasListeners() {
-    return !_resultListeners.isEmpty() || !_deltaListeners.isEmpty();
-  }
+  // TODO jonathan 2010-09-11 -- populateResultModel doesn't feel right. Seems like it should be an optional argument
+  // to runOneCycle.
   
   public boolean isPopulateResultModel() {
     return _populateResultModel;
@@ -365,158 +493,185 @@ public class ViewImpl implements View, Lifecycle, LiveDataSnapshotListener {
   public void setPopulateResultModel(boolean populateResultModel) {
     _populateResultModel = populateResultModel;
   }
-
-  @Override
-  public synchronized void runOneCycle() {
-    long snapshotTime = getProcessingContext().getLiveDataSnapshotProvider().snapshot();
-    runOneCycle(snapshotTime);
-  }
   
-  @Override
-  public synchronized void runOneCycle(long valuationTime) {
-    SingleComputationCycle cycle = createCycle(valuationTime);
-    cycle.prepareInputs();
-    cycle.executePlans();
-    
-    if (isPopulateResultModel()) {
-      cycle.populateResultModel();
-      recalculationPerformed(cycle.getResultModel());
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the current calculation state.
+   * 
+   * @return the current calculation state
+   */
+  private ViewCalculationState getCalculationState() {
+    _viewLock.lock();
+    try {
+      return _calculationState;
+    } finally {
+      _viewLock.unlock();
     }
-    
-    cycle.releaseResources();
   }
 
-  @Override
-  public synchronized void start() {
-    s_logger.info("Starting...");
-    switch(getCalculationState()) {
-      case NOT_STARTED:
-      case TERMINATED:
-        // Normal state of play. Continue as normal.
-        break;
-      case TERMINATING:
-        // In the middle of termination. This is really bad, as we're now holding the lock
-        // that will allow termination to complete successfully. Therefore, we have to throw
-        // an exception rather than just waiting or something.
-        throw new IllegalStateException("Instructed to start while still terminating.");
-      case INITIALIZING:
-        // Must have thrown an exception in initialization. Can't start.
-        throw new IllegalStateException("Initialization didn't completely successfully. Can't start.");
-      case NOT_INITIALIZED:
-        throw new IllegalStateException("Must call init() before starting.");
-      case STARTING:
-        // Must have thrown an exception when start() called previously.
-        throw new IllegalStateException("start() already called, but failed to start. Cannot start again.");
-      case RUNNING:
-        throw new IllegalStateException("Already running.");
+  /**
+   * Sets the current calculation state.
+   * 
+   * @param calculationState  the new calculation state
+   */
+  private void setCalculationState(ViewCalculationState calculationState) {
+    _viewLock.lock();
+    try {
+      _calculationState = calculationState;
+    } finally {
+      _viewLock.unlock();
     }
-    
-    setCalculationState(ViewCalculationState.STARTING);
-    ViewRecalculationJob recalcJob = new ViewRecalculationJob(this);
-    Thread recalcThread = new Thread(recalcJob, "Recalc Thread for " + getDefinition().getName());
-    
-    setRecalcJob(recalcJob);
-    setRecalculationThread(recalcThread);
-    setCalculationState(ViewCalculationState.RUNNING);
-    recalcThread.start();
-    s_logger.info("Started.");
-  }
-
-  @Override
-  public void stop() {
-    s_logger.info("Stopping.....");
-    synchronized (this) {
-      switch(getCalculationState()) {
-        case STARTING:
-          // Something went horribly wrong during start, and it must have thrown an exception.
-          s_logger.warn("Instructed to stop the ViewImpl, but still starting. Starting must have failed. Doing nothing.");
-          break;
-        case RUNNING:
-          // This is the normal state of play. Do nothing.
-          break;
-        default:
-          throw new IllegalStateException("Cannot stop a ViewImpl that isn't running. State: " + getCalculationState());
-      }
-    }
-    
-    assert getRecalcJob() != null;
-    assert getRecalculationThread() != null;
-    
-    synchronized (this) {
-      if ((getCalculationState() == ViewCalculationState.TERMINATED)
-          || (getCalculationState() == ViewCalculationState.TERMINATING)) {
-        s_logger.info("Multiple requests to stop() made, this invocation will do nothing.");
-        return;
-      }
-      setCalculationState(ViewCalculationState.TERMINATING);
-    }
-    
-    getRecalcJob().terminate();
-    if (getRecalculationThread().getState() == Thread.State.TIMED_WAITING) {
-      // In this case it might be waiting on a recalculation pass. Interrupt it.
-      getRecalculationThread().interrupt();
-    }
-    
-    // TODO kirk 2009-09-11 -- Have a heuristic on when to set the timeout based on
-    // how long the job is currently taking to cycle.
-    long timeout = 100 * 1000L;
-    boolean successful = ThreadUtil.safeJoin(getRecalculationThread(), timeout);
-    if (!successful) {
-      s_logger.warn("Unable to shut down recalc thread in {}ms", timeout);
-    }
-    
-    synchronized (this) {
-      setCalculationState(ViewCalculationState.TERMINATED);
-      
-      setRecalcJob(null);
-      setRecalculationThread(null);
-    }
-    s_logger.info("Stopped.");
   }
   
   /**
-   * Checks that the given user has access to every market data line required to compute the results of the view, and
-   * throws an exception if this is not the case.
+   * Sets the current recalculation job.
    * 
-   * @param user  the user
-   * @throws ViewPermissionException  if any entitlement problems are found
+   * @return  the current recalculation job
    */
-  @Override
-  public void assertAccessToLiveDataRequirements(UserPrincipal user) {
-    s_logger.info("Checking that {} is entitled to the results of {}", user, this);
+  protected ViewRecalculationJob getRecalcJob() {
+    return _recalcJob;
+  }
+  
+  /**
+   * Sets the current recalculation job
+   * 
+   * @param recalcJob  the current recalculation job
+   */
+  private void setRecalcJob(ViewRecalculationJob recalcJob) {
+    _recalcJob = recalcJob;
+  }
+  
+  /**
+   * Gets the current recalculation thread
+   * 
+   * @return  the current recalculation thread
+   */
+  protected Thread getRecalcThread() {
+    return _recalcThread;
+  }
+  
+  /**
+   * Sets the current recalculation thread
+   * 
+   * @param recalcThread  the current recalculation thread
+   */
+  private void setRecalcThread(Thread recalcThread) {
+    _recalcThread = recalcThread;
+  }
 
-    Collection<LiveDataSpecification> requiredLiveData = getRequiredLiveDataSpecifications();
-    
-    Map<LiveDataSpecification, Boolean> entitlements = getProcessingContext().getLiveDataEntitlementChecker().isEntitled(user, requiredLiveData);
-    
-    ArrayList<LiveDataSpecification> failures = new ArrayList<LiveDataSpecification>();
-    for (Map.Entry<LiveDataSpecification, Boolean> entry : entitlements.entrySet()) {
-      if (entry.getValue().booleanValue() == false) {
-        failures.add(entry.getKey());
+  //-------------------------------------------------------------------------
+  /**
+   * Notifies the view that a client expects to receive live computation results. This method ensures that live
+   * processing has been started.
+   * <p>
+   * The method operates with set semantics, so duplicate notifications for the same client have no effect.
+   * 
+   * @param client  the client expecting to receive live computation results
+   */
+  public void addLiveComputationClient(ViewClient client) {
+    _viewLock.lock();
+    try {
+      assertInitialized();
+      if (_liveComputationClients.size() == 0) {
+        startLiveComputation();
       }
-    }
-    
-    if (!failures.isEmpty()) {
-      throw new ViewPermissionException(user + " is not entitled to the output of " + this + 
-          " because they do not have permissions to " + failures.get(0));
+      _liveComputationClients.add(client);
+    } finally {
+      _viewLock.unlock();
     }
   }
   
-  @Override
-  public Set<ValueRequirement> getRequiredLiveData() {
-    ViewEvaluationModel viewEvaluationModel = getViewEvaluationModel();
-    if (viewEvaluationModel == null) {
-      return null;
+  /**
+   * Notifies the view that a client no longer expects to receive live computation results. Removal of the last such
+   * client will cause live processing to stop.
+   * <p>
+   * The method operates with set semantics, so duplicate notifications for the same client have no effect.
+   * 
+   * @param client  the client no longer expecting live computation results 
+   */
+  public void removeLiveComputationClient(ViewClient client) {
+    _viewLock.lock();
+    try {
+      assertInitialized();
+      if (_liveComputationClients.remove(client) && _liveComputationClients.size() == 0) {
+        stopLiveComputation();
+      }
+    } finally {
+      _viewLock.unlock();
     }
-    Set<ValueSpecification> requiredSpecs = viewEvaluationModel.getAllLiveDataRequirements();
-    
-    Set<ValueRequirement> returnValue = new HashSet<ValueRequirement>();
-    for (ValueSpecification requiredSpec : requiredSpecs) {
-      returnValue.add(requiredSpec.getRequirementSpecification());      
-    }
-    return returnValue;
   }
   
+  /**
+   * Starts a background job which runs a computation cycle, waits for changes to the dependency graph's inputs, and
+   * repeats this task until live computation is stopped. With continuously-changing inputs, computation cycles will
+   * run continuously.
+   */
+  private void startLiveComputation() {
+    s_logger.info("Starting live computation on view {}...", this);
+    
+    _viewLock.lock();
+    try {
+      switch (getCalculationState()) {
+        case STOPPED:
+          // Normal state of play. Continue as normal.
+          break;
+        case NOT_INITIALIZED:
+          throw new IllegalStateException("Must call init() before starting.");
+        case RUNNING:
+          throw new IllegalStateException("Already running.");
+        case TERMINATED:
+          throw new IllegalStateException("A terminated view cannot be used.");
+      }
+      
+      ViewRecalculationJob recalcJob = new ViewRecalculationJob(this);
+      Thread recalcThread = new Thread(recalcJob, "Recalc Thread for " + getDefinition().getName());
+      
+      setRecalcJob(recalcJob);
+      setRecalcThread(recalcThread);
+      setCalculationState(ViewCalculationState.RUNNING);
+      recalcThread.start();
+    } finally {
+      _viewLock.unlock();
+    }
+    
+    s_logger.info("Started.");
+  }
+  
+  /**
+   * Instructs the background computation job to finish. The background job might actually terminate asynchronously,
+   * but any outstanding result will be discarded. Live computation may be started again immediately.
+   */
+  private void stopLiveComputation() {
+    s_logger.info("Stopping live computation on view {}...", this);
+    
+    _viewLock.lock();
+    try {
+      if (getCalculationState() != ViewCalculationState.RUNNING) {
+        throw new IllegalStateException("Cannot stop a view that is not running. Currently in state: " + getCalculationState());
+      }
+      
+      getRecalcJob().terminate();
+      if (getRecalcThread().getState() == Thread.State.TIMED_WAITING) {
+        // In this case it might be waiting on a recalculation pass. Interrupt it.
+        getRecalcThread().interrupt();
+      }
+      
+      // Let go of the job/thread and allow it to die on its own. A computation cycle might be taking place on this
+      // thread, but it will not update the view with its result because it has been terminated. As far as the view is
+      // concerned, live computation has now stopped, and it may be started again immediately in a new thread. There is
+      // no need to slow things down by waiting for the thread to die. 
+      setRecalcJob(null);
+      setRecalcThread(null);
+      
+      setCalculationState(ViewCalculationState.STOPPED);
+    } finally {
+      _viewLock.unlock();
+    }
+
+    s_logger.info("Stopped.");
+  }
+  
+  //-------------------------------------------------------------------------
   private Collection<LiveDataSpecification> getRequiredLiveDataSpecifications() {
     Set<LiveDataSpecification> returnValue = new HashSet<LiveDataSpecification>();
     for (ValueRequirement requirement : getRequiredLiveData()) {
@@ -525,16 +680,17 @@ public class ViewImpl implements View, Lifecycle, LiveDataSnapshotListener {
     }
     return returnValue;
   }
-
-  @Override
-  public String toString() {
-    return "View[" + getDefinition().getName() + "]";
+  
+  private void assertInitialized() {
+    ViewCalculationState state = getCalculationState();
+    boolean isInitialized = state != ViewCalculationState.NOT_INITIALIZED;
+    if (!isInitialized) {
+      throw new IllegalStateException("The view has not been initialized");
+    }
   }
   
-  @Override
-  public SingleComputationCycle createCycle(long valuationTime) {
-    SingleComputationCycle cycle = new SingleComputationCycle(this, valuationTime);
-    return cycle;
+  private UniqueIdentifier generateClientIdentifier() {
+    return UniqueIdentifier.of(_uidScheme, CLIENT_UID_PREFIX + "-" + _uidCount.getAndIncrement());
   }
 
 }

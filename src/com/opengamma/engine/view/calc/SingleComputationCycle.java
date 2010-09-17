@@ -35,9 +35,9 @@ import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewComputationResultModelImpl;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.ViewInternal;
 import com.opengamma.engine.view.ViewProcessingContext;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
@@ -62,7 +62,7 @@ import com.opengamma.util.ArgumentChecker;
 public class SingleComputationCycle {
   private static final Logger s_logger = LoggerFactory.getLogger(SingleComputationCycle.class);
   // Injected Inputs:
-  private final View _view;
+  private final ViewInternal _view;
   private final Instant _valuationTime;
 
   private final DependencyGraphExecutor<?> _dependencyGraphExecutor;
@@ -95,7 +95,7 @@ public class SingleComputationCycle {
   // Outputs:
   private final ViewComputationResultModelImpl _resultModel;
 
-  public SingleComputationCycle(View view, long valuationTime) {
+  public SingleComputationCycle(ViewInternal view, long valuationTime) {
     ArgumentChecker.notNull(view, "view");
 
     _view = view;
@@ -107,14 +107,14 @@ public class SingleComputationCycle {
     if (getViewEvaluationModel().getPortfolio() != null) {
       _resultModel.setPortfolio(getViewEvaluationModel().getPortfolio());
     }
-
+    
     _dependencyGraphExecutor = getProcessingContext().getDependencyGraphExecutorFactory().createExecutor(this);
     _statisticsGatherer = getProcessingContext().getGraphExecutorStatisticsGathererProvider().getStatisticsGatherer(view);
 
     _state = State.CREATED;
   }
 
-  public View getView() {
+  public ViewInternal getView() {
     return _view;
   }
 

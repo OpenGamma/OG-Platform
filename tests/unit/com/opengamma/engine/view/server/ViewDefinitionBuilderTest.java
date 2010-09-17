@@ -36,8 +36,8 @@ public class ViewDefinitionBuilderTest {
   @Test
   public void testSerializationCycle() {
     ViewDefinition viewDef = new ViewDefinition("Test View", UniqueIdentifier.of("Test Scheme", "Port1"), "someuser");
-    viewDef.setDeltaRecalculationPeriod(1000L);
-    viewDef.setFullRecalculationPeriod(60000L);
+    viewDef.setMaxDeltaCalculationPeriod(1000L);
+    viewDef.setMaxFullCalculationPeriod(60000L);
     viewDef.getResultModelDefinition().setAggregatePositionOutputMode(ResultOutputMode.ALL);
     
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDef, "Test config");
