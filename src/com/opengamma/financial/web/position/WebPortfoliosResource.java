@@ -28,6 +28,7 @@ import com.opengamma.financial.position.master.PortfolioTreeSearchResult;
 import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.rest.WebPaging;
 
 /**
  * RESTful resource for all portfolios.
@@ -62,6 +63,7 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
     if (data().getUriInfo().getQueryParameters().size() > 0) {
       PortfolioTreeSearchResult searchResult = data().getPositionMaster().searchPortfolioTrees(searchRequest);
       out.put("searchResult", searchResult);
+      out.put("paging", new WebPaging(searchResult.getPaging(), data().getUriInfo()));
     }
     return getFreemarker().build("portfolios/portfolios.ftl", out);
   }

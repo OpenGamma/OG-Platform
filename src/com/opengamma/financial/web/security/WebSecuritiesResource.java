@@ -35,6 +35,7 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.rest.WebPaging;
 
 /**
  * RESTful resource for all securities.
@@ -78,6 +79,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     if (data().getUriInfo().getQueryParameters().size() > 0) {
       SecuritySearchResult searchResult = data().getSecurityMaster().search(searchRequest);
       out.put("searchResult", searchResult);
+      out.put("paging", new WebPaging(searchResult.getPaging(), uriInfo));
     }
     return getFreemarker().build("securities/securities.ftl", out);
   }
