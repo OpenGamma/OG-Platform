@@ -32,13 +32,14 @@ public class ActualActualISDADayCount extends StatelessDayCount {
     if (dateTime1.getYear() == dateTime2.getYear()) {
       return DateUtil.getDaysBetween(dateTime1, false, dateTime2, true) / getBasis(dateTime1);
     }
-    if (DateUtil.isLeapYear(dateTime1) || DateUtil.isLeapYear(dateTime2)) {
-      final ZonedDateTime lastDayOfFirstYear = dateTime1.with(DateAdjusters.lastDayOfYear());
-      final ZonedDateTime firstDayOfSecondYear = dateTime2.with(DateAdjusters.firstDayOfYear());
-      return (1 + DateUtil.getDaysBetween(dateTime1, false, lastDayOfFirstYear, true)) / getBasis(dateTime1)
-          + DateUtil.getDaysBetween(firstDayOfSecondYear, false, dateTime2, true) / getBasis(dateTime2);
-    }
-    return DateUtil.getDaysBetween(dateTime1, false, dateTime2, true) / getBasis(dateTime1);
+    return DateUtil.getDaysBetween(dateTime1, false, dateTime2, true) / getBasis(dateTime1);    
+//    if (DateUtil.isLeapYear(dateTime1) || DateUtil.isLeapYear(dateTime2)) {
+//      final ZonedDateTime lastDayOfFirstYear = dateTime1.with(DateAdjusters.lastDayOfYear());
+//      final ZonedDateTime firstDayOfSecondYear = dateTime2.with(DateAdjusters.firstDayOfYear());
+//      return (1 + DateUtil.getDaysBetween(dateTime1, false, lastDayOfFirstYear, true)) / getBasis(dateTime1)
+//          + DateUtil.getDaysBetween(firstDayOfSecondYear, false, dateTime2, true) / getBasis(dateTime2);
+//    }
+    //return DateUtil.getDaysBetween(dateTime1, false, dateTime2, true) / getBasis(dateTime1);
   }
 
   @Override
