@@ -11,6 +11,8 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.time.Instant;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Collections2;
@@ -81,11 +83,16 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
         }
       });
     }
-    if (request.getName() != null) {
+    final String name = request.getName();
+    if (name != null) {
       docs = Collections2.filter(docs, new Predicate<ExchangeDocument>() {
         @Override
         public boolean apply(final ExchangeDocument doc) {
-          return request.getName().equals(doc.getExchange().getName());
+          if (name.endsWith("*")) {
+            return StringUtils.startsWith(doc.getExchange().getName(), name.substring(0, name.length() - 1));
+          } else {
+            return StringUtils.equals(doc.getExchange().getName(), name);
+          }
         }
       });
     }
