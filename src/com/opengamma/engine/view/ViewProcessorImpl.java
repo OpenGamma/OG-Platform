@@ -289,12 +289,6 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
     _graphExecutionStatistics = graphExecutionStatistics;
   }
   
-  @Override
-  public boolean isRunning(String viewName) {
-    ViewImpl view = getViewInternal(viewName);
-    return view.isRunning();
-  }
-
   /**
    * Gets the graphExecutionStatistics field.
    * @return the graphExecutionStatistics

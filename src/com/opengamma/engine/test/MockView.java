@@ -100,6 +100,14 @@ public class MockView implements ViewInternal {
   public boolean isLiveComputationRunning() {
     return _isRunning;
   }
+  
+  public boolean isRunning() {
+    return _isRunning;
+  }
+
+  public void setRunning(boolean isRunning) {
+    _isRunning = isRunning;
+  }
 
   @Override
   public ViewComputationResultModel getLatestResult() {
