@@ -147,6 +147,27 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     }
   }
   
+  /**
+   * @deprecated a hack to support Jim's dynamic modifications of the function repository. View reinitialization is not
+   *             really supported, but this works in limited cases.
+   */
+  @Deprecated
+  public void reinit() {
+    _viewLock.lock();
+    try {
+      setCalculationState(ViewCalculationState.STOPPED);
+      _viewEvaluationModel = ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices());
+      addLiveDataSubscriptions();
+    } catch (Throwable t) {
+      setCalculationState(ViewCalculationState.NOT_INITIALIZED);
+      _processingContext = null;
+      _viewEvaluationModel = null;
+      throw new OpenGammaRuntimeException("The view failed to initialize", t);      
+    } finally { 
+      _viewLock.unlock();
+    }
+  }
+  
   // Lifecycle
   // ------------------------------------------------------------------------
   @Override
