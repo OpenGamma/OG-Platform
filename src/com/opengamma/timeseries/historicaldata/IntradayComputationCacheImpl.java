@@ -7,6 +7,7 @@ package com.opengamma.timeseries.historicaldata;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -26,8 +27,10 @@ import com.opengamma.engine.historicaldata.IntradayComputationCache;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ComputationResultListener;
+import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.ViewTargetResultModel;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -47,8 +50,7 @@ import com.opengamma.util.timeseries.date.time.MutableDateTimeDoubleTimeSeries;
  * This implementation uses a {@link DateTimeTimeSeriesMaster} (i.e., a relational DB)
  * to store intraday time series. 
  * <p>
- * Right now you need to create one cache per view. There probably should be just
- * one globally.
+ * You need to create one cache per view processor.
  */
 public class IntradayComputationCacheImpl implements IntradayComputationCache, ComputationResultListener, Lifecycle {
   
@@ -65,7 +67,7 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
   private final UserPrincipal _user;
   
   /**
-   * Used to kick off cache DB update operations (e.g., for 1-minute bars once a minute)
+   * Used to kick off DB update operations (e.g., for 1-minute bars once a minute)
    */
   private ScheduledExecutorService _executorService;
   
@@ -80,14 +82,14 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
   private boolean _running; // = false
   
   /**
-   * This is the part that's fixed to a single view at the moment.
-   * 
-   * E.g., the last result might be just 2 seconds old
-   * - the db is NOT automatically updated after a result is
-   * received, instead this happens at a predefined interval,
-   * for example 1 minute 
+   * The view processor is used to query whether a given view is running.
    */
-  private ViewComputationResultModel _lastResult;
+  private final ViewProcessor _viewProcessor;
+  
+  /**
+   * This is the part that's fixed to a single view processor.
+   */
+  private ConcurrentHashMap<String, ViewComputationResultModel> _viewName2LastResult = new ConcurrentHashMap<String, ViewComputationResultModel>();
   
   /**
    * One resolution (e.g., 1 minute) at which history is being stored. There
@@ -106,10 +108,8 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
     private int _numPoints;
     
     /**
-     * E.g., 30 seconds ago
+     * Run at e.g. 1 minute interval
      */
-    private Instant _timeOfLastDbWrite;
-
     private ScheduledFuture<?> _saveTask; 
     
     private ResolutionRecord(
@@ -123,15 +123,6 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
       
       _duration = duration;
       _numPoints = numPoints;
-      _timeOfLastDbWrite = Instant.EPOCH;
-    }
-    
-    public synchronized Instant getTimeOfLastDbWrite() {
-      return _timeOfLastDbWrite;
-    }
-
-    public synchronized void setTimeOfLastDbWrite(Instant timeOfLastDbWrite) {
-      _timeOfLastDbWrite = timeOfLastDbWrite;
     }
     
     public synchronized int getNumPoints() {
@@ -142,14 +133,14 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
       _numPoints = numPoints;
     }
 
-    private synchronized Instant getFirstDateToRetain() {
+    private synchronized Instant getFirstDateToRetain(Instant now) {
       // e.g., current time = 1000 ms
       // duration = 50 ms
       // retain last 2 points
       // last point to retain must be 950 ms since a new point was written at 1000 ms
       // subtract 30 millis from the exact value to account for system clock wobbliness
       // so in practice retain points at 920 ms or greater
-      return getTimeOfLastDbWrite().minus(_duration.multipliedBy(getNumPoints() - 1)).minusMillis(30);      
+      return now.minus(_duration.multipliedBy(getNumPoints() - 1)).minusMillis(30);      
     }
     
     private void start() { // synchronization on parent object
@@ -171,10 +162,13 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
   // --------------------------------------------------------------------------
   
   public IntradayComputationCacheImpl(
+      ViewProcessor viewProcessor,
       DateTimeTimeSeriesMaster timeSeriesMaster, 
       UserPrincipal user) {
+    ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     ArgumentChecker.notNull(timeSeriesMaster, "timeSeriesMaster");
     ArgumentChecker.notNull(user, "user");
+    _viewProcessor = viewProcessor;
     _timeSeriesMaster = timeSeriesMaster;    
     _user = user;
   }
@@ -215,12 +209,12 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
   // --------------------------------------------------------------------------
 
   @Override
-  public DateTimeDoubleTimeSeries getValue(String calcConf, ValueSpecification specification, Duration resolution) {
+  public DateTimeDoubleTimeSeries getValue(String viewName, String calcConf, ValueSpecification specification, Duration resolution) {
     ResolutionRecord record = _resolution2ResolutionRecord.get(resolution);
     if (record == null) {
       throw new IllegalArgumentException("Resolution " + resolution + " has not been set up");
     }
-    ViewComputationResultModel lastResult = getLastResult();
+    ViewComputationResultModel lastResult = _viewName2LastResult.get(viewName);
     
     IdentifierBundle identifiers = getIdentifierBundle(specification);
     String fieldName = getFieldName(specification);
@@ -228,7 +222,7 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
     TimeSeriesSearchRequest<Date> searchRequest = new TimeSeriesSearchRequest<Date>();
     searchRequest.setIdentifiers(identifiers.getIdentifiers());
     searchRequest.setDataSource(getDataSource());
-    searchRequest.setDataProvider(calcConf);
+    searchRequest.setDataProvider(getDataProvider(viewName, calcConf));
     searchRequest.setDataField(fieldName);
     searchRequest.setLoadTimeSeries(true);
     
@@ -236,33 +230,35 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
     if (searchResult.getDocuments().isEmpty()) {
       return null;
     } else if (searchResult.getDocuments().size() > 1) {
-      throw new RuntimeException("Should only have returned 1 result for " + calcConf + "/" + specification);
+      throw new RuntimeException("Should only have returned 1 result for " + viewName + "/" + calcConf + "/" + specification);
     }
     
     TimeSeriesDocument<Date> dbTimeSeries = searchResult.getDocuments().get(0);
-    
-    // the last point of the series is not stored in db but floats in real time.
-    // for example, if you have 1-minute bars in the db, and the engine
-    // is able to re-compute every 5 seconds, the last point of the time series
-    // will change 12 times a minute although the db is written only once a minute.
-    
     MutableDateTimeDoubleTimeSeries timeSeries = dbTimeSeries.getTimeSeries().toMutableDateTimeDoubleTimeSeries();
     
-    Date latestDbTime = timeSeries.getLatestTime();
-    Date latestTime = new Date(lastResult.getResultTimestamp().toEpochMillisLong());
-    
-    if (latestTime.after(latestDbTime)) {
-      ViewTargetResultModel latestResult = lastResult.getTargetResult(specification.getRequirementSpecification().getTargetSpecification());
-      if (latestResult != null) {
-        Map<String, ComputedValue> latestValues = latestResult.getValues(calcConf);
-        ComputedValue latestValue = latestValues.get(specification.getRequirementSpecification().getValueName());
-        if (latestValue.getValue() instanceof Double) {
-          timeSeries.putDataPoint(latestTime, (Double) latestValue.getValue());
+    if (lastResult != null) {
+      // the last point of the series is not stored in db but floats in real time.
+      // for example, if you have 1-minute bars in the db, and the engine
+      // is able to re-compute every 5 seconds, the last point of the time series
+      // will change 12 times a minute although the db is written only once a minute.
+      
+      Date latestDbTime = timeSeries.getLatestTime();
+      Date latestTime = new Date(lastResult.getResultTimestamp().toEpochMillisLong());
+      
+      if (latestTime.after(latestDbTime)) {
+        ViewTargetResultModel latestResult = lastResult.getTargetResult(specification.getRequirementSpecification().getTargetSpecification());
+        if (latestResult != null) {
+          Map<String, ComputedValue> latestValues = latestResult.getValues(calcConf);
+          ComputedValue latestValue = latestValues.get(specification.getRequirementSpecification().getValueName());
+          if (latestValue.getValue() instanceof Double) {
+            timeSeries.putDataPoint(latestTime, (Double) latestValue.getValue());
+          }
+        } else {
+          s_logger.debug("No latest point found {} {}", calcConf, specification);
         }
-      } else {
-        s_logger.debug("No latest point found {} {}", calcConf, specification);
       }
     }
+    
     return timeSeries;
   }
 
@@ -275,17 +271,7 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
 
   @Override
   public void computationResultAvailable(ViewComputationResultModel resultModel) {
-    // this is the part that's fixed to a single view: there's no way currently
-    // to get view ID from resultModel
-    setLastResult(resultModel);
-  }
-  
-  public synchronized ViewComputationResultModel getLastResult() {
-    return _lastResult;
-  }
-
-  public synchronized void setLastResult(ViewComputationResultModel lastResult) {
-    _lastResult = lastResult;
+    _viewName2LastResult.put(resultModel.getViewName(), resultModel);
   }
   
   // --------------------------------------------------------------------------
@@ -296,6 +282,10 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
   
   private String getObservationTime() {
     return "Intraday";
+  }
+  
+  private String getDataProvider(String viewName, String calcConf) {
+    return viewName + "/" + calcConf;
   }
   
   private String getFieldName(ValueSpecification spec) {
@@ -328,18 +318,26 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
   }
   
   private void save(ResolutionRecord resolution) {
-    Instant now = Instant.nowSystemClock();
-    
-    // do this here, before DB write, to make it tick at X ms interval more accurately
-    // the duration of DB write can vary from one time to the next
-    resolution.setTimeOfLastDbWrite(now); 
-    
-    ViewComputationResultModel lastResult = getLastResult();
-    if (lastResult == null) {
-      s_logger.debug("No result for {}, not adding time series point", resolution);
-      return;
+    for (Iterator<Map.Entry<String, ViewComputationResultModel>> it = _viewName2LastResult.entrySet().iterator(); it.hasNext(); ) {
+      Map.Entry<String, ViewComputationResultModel> entry = it.next();
+      String viewName = entry.getKey();
+      ViewComputationResultModel lastResult = entry.getValue();
+      
+      View view = _viewProcessor.getView(viewName, getUser());
+      if (view == null || !view.isLiveComputationRunning()) {
+        s_logger.debug("View {} not running, not writing any history", viewName);
+        it.remove(); // help garbage-collect the ViewComputationResultModel
+        continue;
+      }
+      
+      save(resolution, lastResult);
     }
+  } 
+  
+  private void save(ResolutionRecord resolution, ViewComputationResultModel lastResult) {
     
+    Instant now = Instant.nowSystemClock();
+
     for (String calcConf : lastResult.getCalculationConfigurationNames()) {
       ViewCalculationResultModel result = lastResult.getCalculationResult(calcConf);
       
@@ -356,12 +354,13 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
           ValueSpecification valueSpecification = value.getSpecification();
           
           IdentifierBundle identifiers = getIdentifierBundle(valueSpecification);
+          String dataProvider = getDataProvider(lastResult.getViewName(), calcConf);
           String fieldName = getFieldName(valueSpecification);
 
           UniqueIdentifier seriesUid = _timeSeriesMaster.resolveIdentifier(
               identifiers,
               getDataSource(),
-              calcConf,
+              dataProvider,
               fieldName);
           
           if (seriesUid == null) {
@@ -369,7 +368,7 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
             TimeSeriesDocument<Date> timeSeries = new TimeSeriesDocument<Date>();
             timeSeries.setIdentifiers(identifiers);
             timeSeries.setDataSource(getDataSource());
-            timeSeries.setDataProvider(calcConf);
+            timeSeries.setDataProvider(getDataProvider(lastResult.getViewName(), calcConf));
             timeSeries.setDataField(fieldName);
             timeSeries.setObservationTime(getObservationTime());
             
@@ -389,7 +388,7 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
             
             _timeSeriesMaster.addDataPoint(dataPoint);
             
-            Date firstDateToRetain = new Date(resolution.getFirstDateToRetain().toEpochMillisLong());
+            Date firstDateToRetain = new Date(resolution.getFirstDateToRetain(now).toEpochMillisLong());
             _timeSeriesMaster.removeDataPoints(seriesUid, firstDateToRetain);
           }
           

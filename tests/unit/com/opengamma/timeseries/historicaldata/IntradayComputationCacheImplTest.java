@@ -20,13 +20,14 @@ import javax.time.Duration;
 import javax.time.Instant;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.test.MockView;
+import com.opengamma.engine.test.MockViewProcessor;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -60,7 +61,15 @@ public class IntradayComputationCacheImplTest extends DBTest {
         namedSQLMap,
         true);
     
-    _intradayComputationCache = new IntradayComputationCacheImpl(timeSeriesMaster, UserPrincipal.getTestUser());
+    MockViewProcessor viewProcessor = new MockViewProcessor();
+    MockView view = new MockView("MockView");
+    view.setRunning(true);
+    viewProcessor.addView(view);
+    
+    _intradayComputationCache = new IntradayComputationCacheImpl(
+        viewProcessor,
+        timeSeriesMaster, 
+        UserPrincipal.getTestUser());
   }
   
   @Test
@@ -93,6 +102,7 @@ public class IntradayComputationCacheImplTest extends DBTest {
     ValueSpecification spec = new ValueSpecification(new ValueRequirement("FV", computationTarget), "1");
     
     ViewComputationResultModelImpl result = new ViewComputationResultModelImpl();
+    result.setViewName("MockView");
     result.setCalculationConfigurationNames(Collections.singleton("Default"));
     
     result.setResultTimestamp(Instant.nowSystemClock());
@@ -103,7 +113,7 @@ public class IntradayComputationCacheImplTest extends DBTest {
     Duration resolution = Duration.ofMillis(50);
     
     try {
-      _intradayComputationCache.getValue("Default", spec, resolution);
+      _intradayComputationCache.getValue("MockView", "Default", spec, resolution);
       fail();
     } catch (IllegalArgumentException e) {
       // ok - resolution does not exist
@@ -116,13 +126,13 @@ public class IntradayComputationCacheImplTest extends DBTest {
     assertTrue(_intradayComputationCache.isRunning());
     
     Thread.sleep(200); // should not populate any points as no result available
-    assertNull(_intradayComputationCache.getValue("Default", spec, resolution));
+    assertNull(_intradayComputationCache.getValue("MockView", "Default", spec, resolution));
     
     _intradayComputationCache.computationResultAvailable(result);
     
     Thread.sleep(500); // should populate the entire 5-point history in about 250 ms, so 500 ms is generous
     
-    DateTimeDoubleTimeSeries timeSeries = _intradayComputationCache.getValue("Default", spec, resolution);
+    DateTimeDoubleTimeSeries timeSeries = _intradayComputationCache.getValue("MockView", "Default", spec, resolution);
     assertNotNull(timeSeries);
     
     assertEquals(5, timeSeries.size());
@@ -136,7 +146,7 @@ public class IntradayComputationCacheImplTest extends DBTest {
     assertFalse(_intradayComputationCache.isRunning());
     
     result.setResultTimestamp(Instant.nowSystemClock());
-    timeSeries = _intradayComputationCache.getValue("Default", spec, resolution);
+    timeSeries = _intradayComputationCache.getValue("MockView", "Default", spec, resolution);
     assertNotNull(timeSeries);
     // since result timestamp is now > timestamp of last point in DB, we get a new "real-time" point at the end
     assertEquals(6, timeSeries.size()); 
@@ -148,11 +158,12 @@ public class IntradayComputationCacheImplTest extends DBTest {
     _intradayComputationCache.addResolution(Duration.ofMillis(100000), 3); 
     _intradayComputationCache.addResolution(Duration.ofMillis(100000), 5);
     Thread.sleep(250);
-    assertNotNull(_intradayComputationCache.getValue("Default", spec, Duration.ofMillis(100000))); // first point should have been inserted immediately, not after 100 seconds
+    assertNotNull(_intradayComputationCache.getValue("MockView", "Default", spec, Duration.ofMillis(100000))); // first point should have been inserted immediately, not after 100 seconds
     
     // Try to get some non-existent histories
-    assertNull(_intradayComputationCache.getValue("Default2", spec, resolution));
-    assertNull(_intradayComputationCache.getValue("Default",  new ValueSpecification(new ValueRequirement("FV2", computationTarget), "1"), resolution));
+    assertNull(_intradayComputationCache.getValue("MockView2", "Default", spec, resolution));
+    assertNull(_intradayComputationCache.getValue("MockView", "Default2", spec, resolution));
+    assertNull(_intradayComputationCache.getValue("MockView", "Default",  new ValueSpecification(new ValueRequirement("FV2", computationTarget), "1"), resolution));
     
     _intradayComputationCache.stop(); // important to stop populating the db, otherwise clearing the tables will fail
   }
