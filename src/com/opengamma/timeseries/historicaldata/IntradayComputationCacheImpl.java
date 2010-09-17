@@ -8,9 +8,11 @@ package com.opengamma.timeseries.historicaldata;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import javax.time.Duration;
 import javax.time.Instant;
@@ -36,6 +38,7 @@ import com.opengamma.timeseries.TimeSeriesDocument;
 import com.opengamma.timeseries.TimeSeriesSearchRequest;
 import com.opengamma.timeseries.TimeSeriesSearchResult;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.timeseries.date.time.DateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.date.time.MapDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.date.time.MutableDateTimeDoubleTimeSeries;
@@ -64,7 +67,7 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
   /**
    * Used to kick off cache DB update operations (e.g., for 1-minute bars once a minute)
    */
-  private final Timer _timer;
+  private ScheduledExecutorService _executorService;
   
   /**
    * What resolutions are in use, e.g., "Store historical values at 1, 5, and 15 minute resolutions."
@@ -107,7 +110,7 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
      */
     private Instant _timeOfLastDbWrite;
 
-    private SaveTask _saveTask; 
+    private ScheduledFuture<?> _saveTask; 
     
     private ResolutionRecord(
         Duration duration,
@@ -149,16 +152,16 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
       return getTimeOfLastDbWrite().minus(_duration.multipliedBy(getNumPoints() - 1)).minusMillis(30);      
     }
     
-    private synchronized void start() {
+    private void start() { // synchronization on parent object
       if (_saveTask == null) {
-        _saveTask = new SaveTask(this);
-        _timer.scheduleAtFixedRate(_saveTask, 0, _duration.toMillisLong());
+        SaveTask saveTask = new SaveTask(this);
+        _saveTask = _executorService.scheduleAtFixedRate(saveTask, 0, _duration.toMillisLong(), TimeUnit.MILLISECONDS);
       }
     }
     
-    private synchronized void stop() {
+    private void stop() { // synchronization on parent object
       if (_saveTask != null) {
-        _saveTask.cancel();
+        _saveTask.cancel(false);
         _saveTask = null;
       }
     }
@@ -170,25 +173,16 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
   public IntradayComputationCacheImpl(
       DateTimeTimeSeriesMaster timeSeriesMaster, 
       UserPrincipal user) {
-    this(timeSeriesMaster, user, new Timer("IntradayComputationCache"));
-  }
-  
-  public IntradayComputationCacheImpl(
-      DateTimeTimeSeriesMaster timeSeriesMaster, 
-      UserPrincipal user,
-      Timer timer) {
     ArgumentChecker.notNull(timeSeriesMaster, "timeSeriesMaster");
     ArgumentChecker.notNull(user, "user");
-    ArgumentChecker.notNull(timer, "timer");
     _timeSeriesMaster = timeSeriesMaster;    
     _user = user;
-    _timer = timer;
   }
   
   // --------------------------------------------------------------------------
   
   @Override
-  public void addResolution(Duration resolution, int numPoints) {
+  public synchronized void addResolution(Duration resolution, int numPoints) {
     ResolutionRecord record = new ResolutionRecord(resolution, numPoints);
     ResolutionRecord previousValue = _resolution2ResolutionRecord.putIfAbsent(resolution, record);
     
@@ -202,7 +196,7 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
   }
 
   @Override
-  public void removeResolution(Duration resolution) {
+  public synchronized void removeResolution(Duration resolution) {
     ResolutionRecord record = _resolution2ResolutionRecord.remove(resolution);
     if (record != null) {
       record.stop();
@@ -315,7 +309,7 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
   
   // --------------------------------------------------------------------------
   
-  private class SaveTask extends TimerTask {
+  private class SaveTask implements Runnable {
     private ResolutionRecord _resolution;
     
     public SaveTask(ResolutionRecord resolution) {
@@ -416,6 +410,7 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
   public synchronized void start() {
     _running = true;
     
+    _executorService = Executors.newSingleThreadScheduledExecutor(new NamedThreadPoolFactory("IntradayComputationCache"));
     for (ResolutionRecord resolution : _resolution2ResolutionRecord.values()) {
       resolution.start();      
     }
@@ -428,6 +423,15 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
     for (ResolutionRecord resolution : _resolution2ResolutionRecord.values()) {
       resolution.stop();      
     }
+    
+    _executorService.shutdown();
+    try {
+      _executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+    } catch (InterruptedException e) {
+      Thread.interrupted();
+      throw new RuntimeException("Should not have been interrupted", e);
+    }
+    _executorService = null;
   }
   
 }

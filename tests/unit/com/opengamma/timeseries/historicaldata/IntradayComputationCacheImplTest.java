@@ -84,7 +84,6 @@ public class IntradayComputationCacheImplTest extends DBTest {
   }
   
   @Test
-  @Ignore
   public void getValue() throws Exception {
     assertFalse(_intradayComputationCache.isRunning());    
     
