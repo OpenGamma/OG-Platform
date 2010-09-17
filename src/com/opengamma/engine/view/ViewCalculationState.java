@@ -16,11 +16,24 @@ package com.opengamma.engine.view;
  * Specifies the current state of a {@link View}.
  */
 /*package*/ enum ViewCalculationState {
+  /**
+   * The view has not been initialized and cannot be used other than to access underlying data structures such as the
+   * view definition. 
+   */
   NOT_INITIALIZED,
-  INITIALIZING,
-  NOT_STARTED,
-  STARTING,
+  /**
+   * The view is initialized but live computations are not running because no clients require them. Clients can ask for
+   * one-off results.
+   */
+  STOPPED,
+  /**
+   * Live computations are running.
+   */
   RUNNING,
-  TERMINATING,
-  TERMINATED;
+  /**
+   * A terminated view has no clients, is not running live computations, and cannot create new clients. It is therefore
+   * useless and suitable only for discarding. It could be in this state, for example, because the parent view
+   * processor has been shut down.
+   */
+  TERMINATED
 }

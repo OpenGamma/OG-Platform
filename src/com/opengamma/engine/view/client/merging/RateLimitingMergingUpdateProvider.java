@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.client.merging;
+package com.opengamma.engine.view.client.merging;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -74,7 +74,7 @@ public class RateLimitingMergingUpdateProvider<T> extends MergingUpdateProvider<
     setMinimumUpdatePeriodMillis(minimumUpdatePeriodMillis);
   }
   
-  public void destroy() {
+  public void shutdown() {
     _taskSetupLock.lock();
     try {
       cancelTimerTask();
@@ -88,6 +88,13 @@ public class RateLimitingMergingUpdateProvider<T> extends MergingUpdateProvider<
     return _isPaused;
   }
   
+  /**
+   * Sets whether output from the provider is paused. While it is paused, updates are merged into a single update which
+   * is released when the provider is resumed.
+   * 
+   * @param isPaused  <code>true</code> to indicate that output should be paused, or <code>false</code> to indicate
+   *                  that output should flow normally according to the update rate.
+   */
   public void setPaused(boolean isPaused) {
     _taskSetupLock.lock();
     try {

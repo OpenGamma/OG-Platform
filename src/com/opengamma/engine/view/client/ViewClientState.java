@@ -3,12 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.client;
+package com.opengamma.engine.view.client;
 
 /**
  * 
  */
-public enum ClientState {
+public enum ViewClientState {
 
   /**
    * The client is started. Computation results from the reference view will be published to subscribers.

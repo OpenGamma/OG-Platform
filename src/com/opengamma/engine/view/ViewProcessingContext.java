@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view;
 
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 
 import com.opengamma.engine.CachingComputationTargetResolver;
@@ -13,7 +14,10 @@ import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.resolver.FunctionResolver;
+import com.opengamma.engine.livedata.CombiningLiveDataSnapshotProvider;
+import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
+import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.security.SecuritySource;
@@ -28,13 +32,15 @@ import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A collection for everything relating to processing a particular view.
+ * A collection for everything relating to processing a particular view. This separates {@link View} from
+ * {@link ViewProcessor}, allowing other types of processor to create and own a view.
  */
 public class ViewProcessingContext {
 
   private final LiveDataEntitlementChecker _liveDataEntitlementChecker;
   private final LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private final LiveDataSnapshotProvider _liveDataSnapshotProvider;
+  private final LiveDataInjector _liveDataOverrideInjector;
   private final FunctionRepository _functionRepository;
   private final FunctionResolver _functionResolver;
   private final PositionSource _positionSource;
@@ -71,7 +77,9 @@ public class ViewProcessingContext {
 
     _liveDataEntitlementChecker = liveDataEntitlementChecker;
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
-    _liveDataSnapshotProvider = liveDataSnapshotProvider;
+    InMemoryLKVSnapshotProvider liveDataOverrideSnapshotProvider = new InMemoryLKVSnapshotProvider();
+    _liveDataOverrideInjector = liveDataOverrideSnapshotProvider;
+    _liveDataSnapshotProvider = new CombiningLiveDataSnapshotProvider(Arrays.asList(liveDataOverrideSnapshotProvider, liveDataSnapshotProvider));
     _functionRepository = functionRepository;
     _functionResolver = functionResolver;
     _positionSource = positionSource;
@@ -92,6 +100,7 @@ public class ViewProcessingContext {
   // -------------------------------------------------------------------------
   /**
    * Gets the live data entitlement checker.
+   * 
    * @return the live data entitlement checker, not null
    */
   public LiveDataEntitlementChecker getLiveDataEntitlementChecker() {
@@ -100,6 +109,7 @@ public class ViewProcessingContext {
 
   /**
    * Gets the live data.
+   * 
    * @return the live data availability provider, not null
    */
   public LiveDataAvailabilityProvider getLiveDataAvailabilityProvider() {
@@ -108,14 +118,25 @@ public class ViewProcessingContext {
 
   /**
    * Gets the live data snapshot provider.
+   * 
    * @return the live data snapshot provider, not null
    */
   public LiveDataSnapshotProvider getLiveDataSnapshotProvider() {
     return _liveDataSnapshotProvider;
   }
+  
+  /**
+   * Gets the live data override injector.
+   * 
+   * @return the live data override injector, not null
+   */
+  public LiveDataInjector getLiveDataOverrideInjector() {
+    return _liveDataOverrideInjector;
+  }
 
   /**
    * Gets the function repository.
+   * 
    * @return the function repository, not null
    */
   public FunctionRepository getFunctionRepository() {
@@ -124,6 +145,7 @@ public class ViewProcessingContext {
 
   /**
    * Gets the function resolver.
+   * 
    * @return the function resolver, not null
    */
   public FunctionResolver getFunctionResolver() {
@@ -132,6 +154,7 @@ public class ViewProcessingContext {
 
   /**
    * Gets the source of positions.
+   * 
    * @return the source of positions, not null
    */
   public PositionSource getPositionSource() {
@@ -140,6 +163,7 @@ public class ViewProcessingContext {
 
   /**
    * Gets the source of securities.
+   * 
    * @return the source of securities, not null
    */
   public SecuritySource getSecuritySource() {
@@ -148,6 +172,7 @@ public class ViewProcessingContext {
 
   /**
    * Gets the computation cache source.
+   * 
    * @return the computation cache source, not null
    */
   public ViewComputationCacheSource getComputationCacheSource() {
@@ -156,6 +181,7 @@ public class ViewProcessingContext {
 
   /**
    * Gets the computation job dispatcher.
+   * 
    * @return the computation job dispatcher, not null
    */
   public JobDispatcher getComputationJobDispatcher() {
@@ -164,6 +190,7 @@ public class ViewProcessingContext {
 
   /**
    * Gets the view processor query receiver.
+   * 
    * @return the view processor query receiver, not null
    */
   public ViewProcessorQueryReceiver getViewProcessorQueryReceiver() {
@@ -183,6 +210,7 @@ public class ViewProcessingContext {
 
   /**
    * Gets the compilation context.
+   * 
    * @return the compilation context, not null
    */
   public FunctionCompilationContext getCompilationContext() {
@@ -191,6 +219,7 @@ public class ViewProcessingContext {
 
   /**
    * Gets the executor service.
+   * 
    * @return the executor service, not null
    */
   public ExecutorService getExecutorService() {
@@ -222,6 +251,7 @@ public class ViewProcessingContext {
   // -------------------------------------------------------------------------
   /**
    * Converts this context to a {@code ViewCompliationServices}.
+   * 
    * @return the services, not null
    */
   public ViewCompilationServices asCompilationServices() {

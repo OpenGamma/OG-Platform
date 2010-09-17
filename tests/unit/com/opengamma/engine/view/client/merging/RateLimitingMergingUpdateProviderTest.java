@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.client.merging;
+package com.opengamma.engine.view.client.merging;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -16,6 +16,9 @@ import java.util.Timer;
 import org.junit.Test;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.client.merging.MergedUpdateListener;
+import com.opengamma.engine.view.client.merging.RateLimitingMergingUpdateProvider;
+import com.opengamma.engine.view.client.merging.ViewComputationResultModelMerger;
 
 /**
  * Tests RateLimitingMergingUpdateProvider
@@ -44,7 +47,7 @@ public class RateLimitingMergingUpdateProviderTest {
     addResults(provider, 1000);
     assertEquals(1000, testListener.consumeResults().size());
 
-    provider.destroy();
+    provider.shutdown();
   }
 
   @Test
@@ -58,7 +61,7 @@ public class RateLimitingMergingUpdateProviderTest {
     Thread.sleep(500);
     assertEquals(1, testListener.consumeResults().size());
 
-    provider.destroy();
+    provider.shutdown();
   }
 
   @Test
@@ -72,7 +75,7 @@ public class RateLimitingMergingUpdateProviderTest {
     assertCorrectUpdateRate(provider, testListener, 400);
     assertCorrectUpdateRate(provider, testListener, 50);
 
-    provider.destroy();
+    provider.shutdown();
   }
 
   private void assertCorrectUpdateRate(RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider, TestMergingUpdateListener testListener, int period) throws InterruptedException {
@@ -102,8 +105,8 @@ public class RateLimitingMergingUpdateProviderTest {
     }
     // Wait a couple of periods for any stragglers
     Thread.sleep (2 * period);
-    // Check that the results didn't come any faster than we asked for (give or take), and not too slowly
-    assertTrue ("Expecting results no faster than " + period + "ms, got " + testListener.getShortestDelay (), testListener.getShortestDelay () >= (period - 1));
+    // Check that the results didn't come any faster than we asked for (give or take 10%), and not too slowly (allow up to twice)
+    assertTrue ("Expecting results no faster than " + period + "ms, got " + testListener.getShortestDelay (), testListener.getShortestDelay () >= (period - period / 10));
     assertTrue ("Expecting results no slower than " + (period * 2) + "ms, got " + testListener.getShortestDelay (), testListener.getShortestDelay () <= (period * 2));
     System.out.println ("size = " + testListener.consumeResults ().size ());
   }

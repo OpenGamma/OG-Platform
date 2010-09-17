@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.view;
 
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 import com.opengamma.livedata.msg.UserPrincipal;
@@ -30,51 +29,14 @@ public interface ViewProcessor {
   Set<String> getViewNames();
   
   /**
-   * Obtain an already-initialized {@link View} instance.
-   * <p/>
-   * This method will only return a view if it has already been initialized and if the given user has access to the
-   * view.
-   * <p/>
-   * If there is a view definition available, and the user has access to it, but this method returns {@code null}, the
-   * view needs to be initialized using {@link #initializeView(String)}.
+   * Obtains a {@link View} instance.
    * 
    * @param name  the name of the view to obtain, not null
    * @param credentials  the user attempting to access the view, not null
-   * @return  the initialized view, or {@code null}.
+   * @return  the view
    */
   View getView(String name, UserPrincipal credentials);
-  
-  /**
-  * Initializes the named view.
-  *
-  * @param viewName the name of the view to initialize
-  * @throws NoSuchElementException if a view with the name is not available
-  */
-  void initializeView(String viewName);
-  
-  /**
-   * Attempts to get a view by name, initializing it if necessary.
-   * 
-   * @param viewName  the name of the view to obtain, not null
-   * @param credentials  the user attempting to access the view, not null
-   * @return the view, not null
-   */
-  View getOrInitializeView(String viewName, UserPrincipal credentials);
-  
-  /**
-   * Causes processing to begin on the named view.
-   * 
-   * @param viewName  the name of the view
-   */
-  void startProcessing(String viewName);
-  
-  /**
-   * Causes processing to stop on the named view.
-   * 
-   * @param viewName  the name of the view
-   */
-  void stopProcessing(String viewName);
-  
+
   /**
    * Indicates whether the view has been started. A view in this state will perform a computation cycle when changes to
    * its inputs are detected.  

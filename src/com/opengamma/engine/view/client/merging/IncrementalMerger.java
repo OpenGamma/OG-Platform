@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.client.merging;
+package com.opengamma.engine.view.client.merging;
 
 /**
  * An interface for incremental merging of results. Access is synchronised externally, so the implementation does not

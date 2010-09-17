@@ -55,6 +55,7 @@ public interface LiveDataSnapshotProvider {
   /**
    * Takes a new snapshot, associating it with a specific snapshot time.  This allows for snapshot providers that don't run in real time.
    * 
+   * @param snapshot  the snapshot time with which to associate the new snapshot
    * @return  the time at which the snapshot was taken (provided).  This must be used subsequently to operate on the snapshot.
    */
   long snapshot(long snapshot);

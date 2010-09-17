@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.client.merging;
+package com.opengamma.engine.view.client.merging;
 
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -85,6 +85,18 @@ public class MergingUpdateProvider<T> {
     _mergerLock.lock();
     try {
       notifyListeners(_merger.consume());
+    } finally {
+      _mergerLock.unlock();
+    }
+  }
+  
+  /**
+   * Consumes any update waiting in the merger without notifying the listeners.
+   */
+  public void resetMerger() {
+    _mergerLock.lock();
+    try {
+      _merger.consume();
     } finally {
       _mergerLock.unlock();
     }

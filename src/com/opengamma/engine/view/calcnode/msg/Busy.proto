@@ -7,6 +7,11 @@
 namespace com.opengamma.engine.view.calcnode.msg {
 
   message Busy extends RemoteCalcNodeMessage {
+  
+    binding Java {
+      body "public void accept (RemoteCalcNodeMessageVisitor visitor) {  visitor.visitBusyMessage (this); }";
+    }
+  
   }
     
 }

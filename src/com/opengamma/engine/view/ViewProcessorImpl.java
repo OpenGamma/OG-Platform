@@ -5,10 +5,9 @@
  */
 package com.opengamma.engine.view;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
@@ -25,8 +24,7 @@ import org.springframework.context.Lifecycle;
 import com.opengamma.engine.function.FunctionCompilationService;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
-import com.opengamma.engine.livedata.CombiningLiveDataSnapshotProvider;
-import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
+import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PositionSource;
@@ -45,14 +43,10 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.monitor.OperationTimer;
 
-// REVIEW kirk 2010-03-02 -- View initialization is really slow, and right now there's no
-// asynchronous support in any type of RESTful call for a super-slow (1-2 minutes) call.
-// Should we pre-load all views? Have an option for pre-loaded ones? What?
-
 /**
  * Default implementation of {@link ViewProcessor}.
  */
-public class ViewProcessorImpl implements ViewProcessor, Lifecycle {
+public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
   private static final Logger s_logger = LoggerFactory.getLogger(ViewProcessor.class);
   // Injected Inputs:
   private ViewDefinitionRepository _viewDefinitionRepository;
@@ -71,6 +65,7 @@ public class ViewProcessorImpl implements ViewProcessor, Lifecycle {
   // State:
   private final ConcurrentMap<String, ViewImpl> _viewsByName = new ConcurrentHashMap<String, ViewImpl>();
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
+  private final Timer _clientResultTimer = new Timer("ViewProcessor client result timer");
   private boolean _isStarted /* = false */;
   private ExecutorService _executorService;
   private boolean _localExecutorService /* = false */;
@@ -82,6 +77,31 @@ public class ViewProcessorImpl implements ViewProcessor, Lifecycle {
     if (_isStarted) {
       throw new IllegalStateException("Cannot change injected properties once this ViewProcessor has been started.");
     }
+  }
+  
+  @Override
+  public Set<String> getViewNames() {
+    return getViewDefinitionRepository().getDefinitionNames();
+  }
+
+  @Override
+  public ViewInternal getView(String name, UserPrincipal credentials) {
+    ArgumentChecker.notNull(name, "View name");
+    ArgumentChecker.notNull(credentials, "User credentials");
+
+    ViewImpl view = _viewsByName.get(name);
+    if (view == null) {
+      ViewDefinition definition = getViewDefinitionRepository().getDefinition(name);
+      if (definition == null) {
+        return null;
+      }
+      
+      ViewProcessingContext viewProcessingContext = createViewProcessingContext();
+      view = new ViewImpl(definition, viewProcessingContext, _clientResultTimer);
+      _viewsByName.put(name, view);
+    }
+    getViewPermissionProvider().assertPermission(ViewPermission.ACCESS, credentials, view);
+    return view;
   }
 
   /**
@@ -99,11 +119,7 @@ public class ViewProcessorImpl implements ViewProcessor, Lifecycle {
     _viewDefinitionRepository = viewDefinitionRepository;
   }
 
-  /**
-   * Gets the function compilation service
-   * 
-   * @return  the function compilation service
-   */
+  @Override
   public FunctionCompilationService getFunctionCompilationService() {
     return _functionCompilationService;
   }
@@ -118,10 +134,7 @@ public class ViewProcessorImpl implements ViewProcessor, Lifecycle {
     _functionCompilationService = functionCompilationService;
   }
 
-  /**
-   * Gets the source of securities.
-   * @return the source of securities
-   */
+  @Override
   public SecuritySource getSecuritySource() {
     return _securitySource;
   }
@@ -135,10 +148,7 @@ public class ViewProcessorImpl implements ViewProcessor, Lifecycle {
     _securitySource = securitySource;
   }
 
-  /**
-   * Gets the source of positions.
-   * @return the source of positions
-   */
+  @Override
   public PositionSource getPositionSource() {
     return _positionSource;
   }
@@ -152,6 +162,7 @@ public class ViewProcessorImpl implements ViewProcessor, Lifecycle {
     _positionSource = positionSource;
   }
 
+  @Override
   public LiveDataClient getLiveDataClient() {
     return _liveDataClient;
   }
@@ -175,9 +186,7 @@ public class ViewProcessorImpl implements ViewProcessor, Lifecycle {
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
   }
 
-  /**
-   * @return the liveDataSnapshotProvider
-   */
+  @Override
   public LiveDataSnapshotProvider getLiveDataSnapshotProvider() {
     return _liveDataSnapshotProvider;
   }
@@ -190,9 +199,7 @@ public class ViewProcessorImpl implements ViewProcessor, Lifecycle {
     _liveDataSnapshotProvider = liveDataSnapshotProvider;
   }
 
-  /**
-   * @return the computationCacheSource
-   */
+  @Override
   public ViewComputationCacheSource getComputationCacheSource() {
     return _computationCacheSource;
   }
@@ -205,9 +212,7 @@ public class ViewProcessorImpl implements ViewProcessor, Lifecycle {
     _computationCacheSource = computationCacheSource;
   }
 
-  /**
-   * @return the computationJobDispatcher
-   */
+  @Override
   public JobDispatcher getComputationJobDispatcher() {
     return _computationJobDispatcher;
   }
@@ -220,9 +225,7 @@ public class ViewProcessorImpl implements ViewProcessor, Lifecycle {
     _computationJobDispatcher = computationJobDispatcher;
   }
 
-  /**
-   * @return the calculation node query receiver (for messages back from the calc node).
-   */
+  @Override
   public ViewProcessorQueryReceiver getViewProcessorQueryReceiver() {
     return _viewProcessorQueryReceiver;
   }
@@ -232,6 +235,7 @@ public class ViewProcessorImpl implements ViewProcessor, Lifecycle {
     _viewProcessorQueryReceiver = calcNodeQueryReceiver;
   }
 
+  @Override
   public DependencyGraphExecutorFactory<?> getDependencyGraphExecutorFactory() {
     return _dependencyGraphExecutorFactory;
   }
@@ -240,6 +244,7 @@ public class ViewProcessorImpl implements ViewProcessor, Lifecycle {
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
   }
 
+  @Override
   public ViewPermissionProvider getViewPermissionProvider() {
     return _viewPermissionProvider;
   }
@@ -248,9 +253,7 @@ public class ViewProcessorImpl implements ViewProcessor, Lifecycle {
     _viewPermissionProvider = viewPermissionProvider;
   }
 
-  /**
-   * @return the executorService
-   */
+  @Override
   public ExecutorService getExecutorService() {
     return _executorService;
   }
@@ -277,118 +280,13 @@ public class ViewProcessorImpl implements ViewProcessor, Lifecycle {
     assertNotStarted();
     _localExecutorService = localExecutorService;
   }
-
-  @Override
-  public Set<String> getViewNames() {
-    return getViewDefinitionRepository().getDefinitionNames();
-  }
-
-  @Override
-  public View getView(String name, UserPrincipal credentials) {
-    ArgumentChecker.notNull(name, "View name");
-    ArgumentChecker.notNull(credentials, "User credentials");
-
-    ViewImpl view = _viewsByName.get(name);
-    if (view == null) {
-      return null;
-    }
-    view.getPermissionProvider().assertPermission(ViewPermission.ACCESS, credentials, view);
-    return view;
-  }
-
-  @Override
-  public void initializeView(String viewName) {
-    ArgumentChecker.notNull(viewName, "View name");
-    if (_viewsByName.containsKey(viewName)) {
-      return;
-    }
-    ViewDefinition viewDefinition = getViewDefinitionRepository().getDefinition(viewName);
-    if (viewDefinition == null) {
-      throw new NoSuchElementException("No view available with name \"" + viewName + "\"");
-    }
-    // NOTE kirk 2010-03-02 -- We construct a bespoke ViewProcessingContext because the resolvers might be based on the
-    // view definition (particularly for functions and the like).
-    // NOTE jonathan 2010-08-18 -- Same thing as above for the permission provider. At the moment we're using the
-    // default for everything, but we could potentially customise this per view, perhaps based on some property of the
-    // view definition - it's easy to imagine that there might be different broad types of view permissioning.
-    FunctionRepository functionRepository = getFunctionCompilationService().getFunctionRepository();
-    InMemoryLKVSnapshotProvider viewLevelLiveData = new InMemoryLKVSnapshotProvider();
-    ViewProcessingContext vpc = new ViewProcessingContext(getLiveDataClient(), getLiveDataAvailabilityProvider(), new CombiningLiveDataSnapshotProvider(Arrays.asList(viewLevelLiveData,
-        getLiveDataSnapshotProvider())), functionRepository, new DefaultFunctionResolver(functionRepository), getPositionSource(), getSecuritySource(), getComputationCacheSource(),
-        getComputationJobDispatcher(), getViewProcessorQueryReceiver(), getFunctionCompilationService().getFunctionCompilationContext(), getExecutorService(), getDependencyGraphExecutorFactory(),
-        getViewPermissionProvider(), getGraphExecutionStatistics());
-    ViewImpl freshView = new ViewImpl(viewDefinition, vpc, viewLevelLiveData);
-    ViewImpl actualView = _viewsByName.putIfAbsent(viewName, freshView);
-    if (actualView == null) {
-      actualView = freshView;
-    }
-    switch (actualView.getCalculationState()) {
-      case INITIALIZING:
-        // Do nothing, another thread is taking care of this.
-        s_logger.debug("Not initializing {} as another thread already doing it.", viewName);
-        break;
-      case NOT_INITIALIZED:
-        // We want to initialize it.
-        actualView.init();
-        break;
-      default:
-        // REVIEW kirk 2010-03-02 -- Is this the right thing to do?
-        s_logger.warn("Asked to initialize view {} but in state {}. Doing nothing.", viewName, actualView.getCalculationState());
-    }
-  }
   
-  @Override
-  public View getOrInitializeView(String viewName, UserPrincipal credentials) {
-    View view = getView(viewName, credentials);
-    if (view == null) {
-      s_logger.debug("No view available with name {}, initializing", viewName);
-      initializeView(viewName);
-      view = getView(viewName, credentials);
-    }
-    return view;
-  }
-
-  @Override
-  public void startProcessing(String viewName) {
-    ViewImpl view = getViewInternal(viewName);
-    switch (view.getCalculationState()) {
-      case NOT_INITIALIZED:
-        throw new IllegalStateException("View constructed but not yet initialized.");
-      case INITIALIZING:
-        throw new IllegalStateException("View still initializing.");
-      case TERMINATED:
-      case TERMINATING:
-        throw new IllegalStateException("Restarts of Views not supported right now.");
-      case NOT_STARTED:
-        s_logger.info("Starting view {}", viewName);
-        view.start();
-        break;
-      case RUNNING:
-      case STARTING:
-        s_logger.info("Requested start of {} but either running or starting. No action taken.", viewName);
-    }
-  }
-
-  @Override
-  public void stopProcessing(String viewName) {
-    ViewImpl view = getViewInternal(viewName);
-    switch (view.getCalculationState()) {
-      case NOT_INITIALIZED:
-      case INITIALIZING:
-      case NOT_STARTED:
-        s_logger.info("View {} not started so not stopping.", viewName);
-        break;
-      case TERMINATED:
-      case TERMINATING:
-        s_logger.info("View {} requested termination, but already terminated or terminating", viewName);
-        break;
-      case STARTING:
-        throw new IllegalStateException("Attempted to terminate view \"" + viewName + "\" while starting.");
-      case RUNNING:
-        s_logger.info("Terminating view {}", viewName);
-        view.stop();
-        _viewsByName.remove(viewName);
-    }
+  /**
+   * Sets the graphExecutionStatistics field.
+   * @param graphExecutionStatistics  the graphExecutionStatistics
+   */
+  public void setGraphExecutionStatistics(GraphExecutorStatisticsGathererProvider graphExecutionStatistics) {
+    _graphExecutionStatistics = graphExecutionStatistics;
   }
   
   @Override
@@ -397,17 +295,12 @@ public class ViewProcessorImpl implements ViewProcessor, Lifecycle {
     return view.isRunning();
   }
 
-  protected ViewImpl getViewInternal(String viewName) {
-    ArgumentChecker.notNull(viewName, "View name");
-    ViewImpl view = _viewsByName.get(viewName);
-    if (view != null) {
-      return view;
-    }
-    ViewDefinition viewDefinition = getViewDefinitionRepository().getDefinition(viewName);
-    if (viewDefinition == null) {
-      throw new IllegalArgumentException("No view available with name \"" + viewName + "\"");
-    }
-    throw new IllegalStateException("View \"" + viewName + "\" available, but not initialized. Must be initialized first.");
+  /**
+   * Gets the graphExecutionStatistics field.
+   * @return the graphExecutionStatistics
+   */
+  public GraphExecutorStatisticsGathererProvider getGraphExecutionStatistics() {
+    return _graphExecutionStatistics;
   }
 
   // --------------------------------------------------------------------------
@@ -510,21 +403,27 @@ public class ViewProcessorImpl implements ViewProcessor, Lifecycle {
     ArgumentChecker.notNullInjected(getComputationCacheSource(), "computationCacheSource");
     ArgumentChecker.notNullInjected(getComputationJobDispatcher(), "computationJobRequestSender");
   }
-
-  /**
-   * Sets the graphExecutionStatistics field.
-   * @param graphExecutionStatistics  the graphExecutionStatistics
-   */
-  public void setGraphExecutionStatistics(GraphExecutorStatisticsGathererProvider graphExecutionStatistics) {
-    _graphExecutionStatistics = graphExecutionStatistics;
-  }
-
-  /**
-   * Gets the graphExecutionStatistics field.
-   * @return the graphExecutionStatistics
-   */
-  public GraphExecutorStatisticsGathererProvider getGraphExecutionStatistics() {
-    return _graphExecutionStatistics;
+  
+  private ViewProcessingContext createViewProcessingContext() {
+    FunctionRepository functionRepository = getFunctionCompilationService().getFunctionRepository();
+    FunctionResolver functionResolver = new DefaultFunctionResolver(functionRepository);
+    
+    return new ViewProcessingContext(
+        getLiveDataClient(),
+        getLiveDataAvailabilityProvider(),
+        getLiveDataSnapshotProvider(),
+        functionRepository,
+        functionResolver,
+        getPositionSource(),
+        getSecuritySource(),
+        getComputationCacheSource(),
+        getComputationJobDispatcher(),
+        getViewProcessorQueryReceiver(),
+        getFunctionCompilationService().getFunctionCompilationContext(),
+        getExecutorService(),
+        getDependencyGraphExecutorFactory(),
+        getViewPermissionProvider(),
+        getGraphExecutionStatistics());
   }
 
 }

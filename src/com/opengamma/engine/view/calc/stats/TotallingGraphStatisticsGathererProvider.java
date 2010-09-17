@@ -73,7 +73,7 @@ public class TotallingGraphStatisticsGathererProvider extends PerViewStatisticsG
       return _statistics.isEmpty();
     }
     
-    public String getViewName () {
+    public String getViewName() {
       return _viewName;
     }
 
