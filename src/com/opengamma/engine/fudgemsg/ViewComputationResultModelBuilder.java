@@ -42,7 +42,7 @@ public class ViewComputationResultModelBuilder extends ViewResultModelBuilder im
 
   @Override
   protected ViewResultModel constructImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message, final Instant inputDataTimestamp, final Instant resultTimestamp,
-      final Map<String, ViewCalculationResultModel> configurationMap, final Map<ComputationTargetSpecification, ViewTargetResultModel> targetMap) {
+      final Map<String, ViewCalculationResultModel> configurationMap, final Map<ComputationTargetSpecification, ViewTargetResultModel> targetMap, final String viewName) {
     return new ViewComputationResultModel() {
 
       @Override
@@ -79,6 +79,12 @@ public class ViewComputationResultModelBuilder extends ViewResultModelBuilder im
       public String toString() {
         return "ViewComputationResultModel, valuation time=" + getValuationTime() + ", result timestamp=" + getResultTimestamp();
       }
+
+      @Override
+      public String getViewName() {
+        return viewName;
+      }
+      
     };
   }
 

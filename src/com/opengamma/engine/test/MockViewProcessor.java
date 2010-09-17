@@ -26,11 +26,6 @@ public class MockViewProcessor implements ViewProcessor {
   }
   
   @Override
-  public View getOrInitializeView(String viewName, UserPrincipal credentials) {
-    return _viewsByName.get(viewName);
-  }
-
-  @Override
   public View getView(String name, UserPrincipal credentials) {
     return _viewsByName.get(name);
   }
@@ -40,23 +35,4 @@ public class MockViewProcessor implements ViewProcessor {
     return Collections.unmodifiableSet(_viewsByName.keySet());
   }
 
-  @Override
-  public void initializeView(String viewName) {
-  }
-
-  @Override
-  public void startProcessing(String viewName) {
-    _viewsByName.get(viewName).start();
-  }
-
-  @Override
-  public void stopProcessing(String viewName) {
-    _viewsByName.get(viewName).stop();
-  }
-
-  @Override
-  public boolean isRunning(String viewName) {
-    return _viewsByName.get(viewName).isRunning();
-  }
-  
 }

@@ -46,7 +46,7 @@ public class ViewDeltaResultModelBuilder extends ViewResultModelBuilder implemen
 
   @Override
   protected ViewResultModel constructImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message, final Instant inputDataTimestamp, final Instant resultTimestamp,
-      final Map<String, ViewCalculationResultModel> configurationMap, final Map<ComputationTargetSpecification, ViewTargetResultModel> targetMap) {
+      final Map<String, ViewCalculationResultModel> configurationMap, final Map<ComputationTargetSpecification, ViewTargetResultModel> targetMap, final String viewName) {
     final Instant parentResultTimestamp = message.getFieldValue(Instant.class, message.getByName(FIELD_PREVIOUSTS));
     return new ViewDeltaResultModel() {
 
@@ -84,6 +84,12 @@ public class ViewDeltaResultModelBuilder extends ViewResultModelBuilder implemen
       public Instant getResultTimestamp() {
         return resultTimestamp;
       }
+
+      @Override
+      public String getViewName() {
+        return viewName;
+      }
+      
     };
   }
 }
