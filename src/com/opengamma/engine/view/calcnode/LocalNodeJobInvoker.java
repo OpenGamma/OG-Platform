@@ -120,6 +120,16 @@ public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContai
   }
 
   @Override
+  public boolean isAlive(final Collection<CalculationJobSpecification> jobs) {
+    for (CalculationJobSpecification job : jobs) {
+      if (!isJobAlive(job)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @Override
   protected void onJobExecutionComplete() {
     onNodeChange();
   }

@@ -41,6 +41,7 @@ public class JobDispatcher implements JobInvokerRegister {
 
   private static final Logger s_logger = LoggerFactory.getLogger(JobDispatcher.class);
   /* package */static final int DEFAULT_MAX_JOB_ATTEMPTS = 3;
+  /* package */static final long DEFAULT_MAX_JOB_EXECUTION_QUERY_TIMEOUT = 5000;
   /* package */static final String DEFAULT_JOB_FAILURE_NODE_ID = "NOT EXECUTED";
 
   private static List<CalculationJob> getAllJobs(CalculationJob job, List<CalculationJob> jobs) {
@@ -63,17 +64,22 @@ public class JobDispatcher implements JobInvokerRegister {
 
     private final DispatchJob _dispatchJob;
     private final JobInvoker _jobInvoker;
-    private final Future<?> _future;
+    private Future<?> _future;
+    private long _timeAccrued;
 
     private Timeout() {
       _dispatchJob = null;
       _jobInvoker = null;
-      _future = null;
     }
 
     public Timeout(final DispatchJob dispatchJob, final JobInvoker jobInvoker, final ScheduledExecutorService executor, final long timeoutMillis) {
       _dispatchJob = dispatchJob;
       _jobInvoker = jobInvoker;
+      setTimeout(executor, timeoutMillis);
+      _timeAccrued = timeoutMillis;
+    }
+
+    private void setTimeout(final ScheduledExecutorService executor, final long timeoutMillis) {
       if (timeoutMillis > 0) {
         _future = executor.schedule(this, timeoutMillis, TimeUnit.MILLISECONDS);
       } else {
@@ -83,13 +89,23 @@ public class JobDispatcher implements JobInvokerRegister {
 
     @Override
     public void run() {
-      _dispatchJob.timeout(_jobInvoker);
+      _dispatchJob.timeout(_timeAccrued, _jobInvoker);
     }
 
     public void cancel() {
       if (_future != null) {
         _future.cancel(false);
       }
+    }
+
+    public void extend(final ScheduledExecutorService executor, final long timeoutMillis, final boolean resetAccruedTime) {
+      cancel();
+      if (resetAccruedTime) {
+        _timeAccrued = timeoutMillis;
+      } else {
+        _timeAccrued += timeoutMillis;
+      }
+      setTimeout(executor, timeoutMillis);
     }
 
     public JobInvoker getInvoker() {
@@ -133,13 +149,17 @@ public class JobDispatcher implements JobInvokerRegister {
       final JobResultReceiver resultReceiver = _resultReceivers.remove(result.getSpecification());
       if (resultReceiver == null) {
         s_logger.warn("Job {} completed on node {} but is not currently pending", result.getSpecification().getJobId(), result.getComputeNodeId());
-        // Note the above warning can happen if we've been retried and tail jobs are being re-executed
+        // Note the above warning can happen if we've been retried
+        extendTimeout(getMaxJobExecutionTime(), true);
         return;
       }
       if (_resultReceivers.isEmpty()) {
         // This is the last one to complete. Note that if the last few jobs complete concurrently, both may execute this code.
         _completed.set(true);
         cancelTimeout(Timeout.FINISHED);
+      } else {
+        // Others are still running, but we can extend the timeout period
+        extendTimeout(getMaxJobExecutionTime(), true);
       }
       s_logger.info("Job {} completed on node {}", result.getSpecification().getJobId(), result.getComputeNodeId());
       resultReceiver.resultReceived(result);
@@ -217,14 +237,25 @@ public class JobDispatcher implements JobInvokerRegister {
       }
     }
 
-    public void timeout(final JobInvoker jobInvoker) {
-      // TODO [ENG-178] Instead of immediate failure we should ask the invoker if the job is still running
-      jobFailed(jobInvoker, "node on " + jobInvoker.getInvokerId(), new OpenGammaRuntimeException("Invocation limit of " + _maxJobExecutionTime + "ms exceeded"));
+    public void timeout(final long timeAccrued, final JobInvoker jobInvoker) {
+      s_logger.debug("Timeout on {}, {}ms accrued", jobInvoker.getInvokerId(), timeAccrued);
+      final long remaining = getMaxJobExecutionTime() - timeAccrued;
+      if (remaining > 0) {
+        if (jobInvoker.isAlive(_resultReceivers.keySet())) {
+          s_logger.debug("Invoker {} reports job {} still alive", jobInvoker.getInvokerId(), getJob().getSpecification().getJobId());
+          extendTimeout(remaining, false);
+          return;
+        } else {
+          s_logger.warn("Invoker {} reports job {} failure", jobInvoker.getInvokerId(), getJob().getSpecification().getJobId());
+          jobFailed(jobInvoker, "node on " + jobInvoker.getInvokerId(), new OpenGammaRuntimeException("Node reported failure at " + timeAccrued + "ms keepalive"));
+        }
+      } else {
+        jobFailed(jobInvoker, "node on " + jobInvoker.getInvokerId(), new OpenGammaRuntimeException("Invocation limit of " + getMaxJobExecutionTime() + "ms exceeded"));
+      }
     }
 
     private void setTimeout(final JobInvoker jobInvoker) {
-      // TODO [ENG-178] If the job has tails, the max execution time needs to be longer (how about the number of tails?)
-      Timeout timeout = new Timeout(this, jobInvoker, _jobTimeoutExecutor, _maxJobExecutionTime);
+      Timeout timeout = new Timeout(this, jobInvoker, getJobTimeoutExecutor(), Math.min(getMaxJobExecutionTimeQuery(), getMaxJobExecutionTime()));
       if (_timeout.compareAndSet(null, timeout)) {
         s_logger.debug("Timeout set for job {}", getJob().getSpecification().getJobId());
       } else {
@@ -241,7 +272,7 @@ public class JobDispatcher implements JobInvokerRegister {
     }
 
     private Timeout cancelTimeout(final Timeout flagState) {
-      Timeout timeout = _timeout.getAndSet(flagState);
+      final Timeout timeout = _timeout.getAndSet(flagState);
       if (timeout == null) {
         s_logger.debug("Cancel timeout for {} - no timeout set", getJob().getSpecification().getJobId());
       } else if (timeout == Timeout.FINISHED) {
@@ -254,6 +285,14 @@ public class JobDispatcher implements JobInvokerRegister {
         return timeout;
       }
       return null;
+    }
+
+    private void extendTimeout(final long remainingMillis, final boolean resetTimeAccrued) {
+      final Timeout timeout = _timeout.get();
+      if ((timeout != null) && (timeout != Timeout.FINISHED) && (timeout != Timeout.CANCELLED)) {
+        s_logger.debug("Extending timeout on job {}", getJob().getSpecification().getJobId());
+        timeout.extend(getJobTimeoutExecutor(), Math.min(remainingMillis, getMaxJobExecutionTime()), resetTimeAccrued);
+      }
     }
 
     private CapabilityRequirements getRequirements() {
@@ -306,9 +345,13 @@ public class JobDispatcher implements JobInvokerRegister {
   private String _jobFailureNodeId = DEFAULT_JOB_FAILURE_NODE_ID;
   private CapabilityRequirementsProvider _capabilityRequirementsProvider = new StaticCapabilityRequirementsProvider();
   /**
-   * Maximum number of milliseconds a job can be with an invoker for before it is abandoned
+   * Maximum number of milliseconds a job can be with an invoker for before it is abandoned.
    */
   private long _maxJobExecutionTime;
+  /**
+   * How often to query an invoker that has outstanding jobs.
+   */
+  private long _maxJobExecutionTimeQuery = DEFAULT_MAX_JOB_EXECUTION_QUERY_TIMEOUT;
   private ScheduledExecutorService _jobTimeoutExecutor;
   private CalculationNodeStatisticsGatherer _statisticsGatherer = new DiscardingNodeStatisticsGatherer();
 
@@ -345,6 +388,10 @@ public class JobDispatcher implements JobInvokerRegister {
     return _maxJobExecutionTime;
   }
 
+  protected ScheduledExecutorService getJobTimeoutExecutor() {
+    return _jobTimeoutExecutor;
+  }
+
   /**
    * Sets the maximum time for a job to be with an invoker in milliseconds. To disable the upper limit,
    * pass 0 or negative. This doesn't affect jobs already launched; only ones that are invoked after
@@ -359,6 +406,17 @@ public class JobDispatcher implements JobInvokerRegister {
         _jobTimeoutExecutor = Executors.newSingleThreadScheduledExecutor();
       }
     }
+  }
+
+  public void setMaxJobExecutionTimeQuery(final long maxJobExecutionTimeQuery) {
+    if (maxJobExecutionTimeQuery <= 0) {
+      throw new IllegalArgumentException("maxJobExecutionTimeQuery must be greater than 0ms");
+    }
+    _maxJobExecutionTimeQuery = maxJobExecutionTimeQuery;
+  }
+
+  public long getMaxJobExecutionTimeQuery() {
+    return _maxJobExecutionTimeQuery;
   }
 
   public void setStatisticsGatherer(final CalculationNodeStatisticsGatherer statisticsGatherer) {

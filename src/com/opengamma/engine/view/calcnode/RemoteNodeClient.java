@@ -20,11 +20,14 @@ import org.springframework.context.Lifecycle;
 import com.opengamma.engine.function.FunctionCompilationService;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.calcnode.msg.Busy;
+import com.opengamma.engine.view.calcnode.msg.Cancel;
 import com.opengamma.engine.view.calcnode.msg.Execute;
 import com.opengamma.engine.view.calcnode.msg.Failure;
 import com.opengamma.engine.view.calcnode.msg.Init;
+import com.opengamma.engine.view.calcnode.msg.IsAlive;
 import com.opengamma.engine.view.calcnode.msg.Ready;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessageVisitor;
 import com.opengamma.engine.view.calcnode.msg.Result;
 import com.opengamma.engine.view.calcnode.msg.Scaling;
 import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsSender;
@@ -46,6 +49,62 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
   private final IdentifierMap _identifierMap;
   private final FunctionInvocationStatisticsSender _statistics;
   private boolean _started;
+  private final RemoteCalcNodeMessageVisitor _messageVisitor = new RemoteCalcNodeMessageVisitor() {
+
+    @Override
+    protected void visitUnexpectedMessage(final RemoteCalcNodeMessage message) {
+      s_logger.warn("Unexpected message - {}", message);
+    }
+
+    @Override
+    protected void visitCancelMessage(final Cancel message) {
+      for (CalculationJobSpecification job : message.getJob()) {
+        cancelJob(job);
+      }
+    }
+
+    @Override
+    protected void visitExecuteMessage(final Execute message) {
+      final CalculationJob job = message.getJob();
+      job.resolveInputs(getIdentifierMap());
+      addJob(job, new ExecutionReceiver() {
+
+        @Override
+        public void executionComplete(final CalculationJobResult result) {
+          result.convertInputs(getIdentifierMap());
+          sendMessage(new Result(result));
+        }
+
+        @Override
+        public void executionFailed(final AbstractCalculationNode node, final Exception exception) {
+          s_logger.warn("Exception thrown by job execution", exception);
+          sendMessage(new Failure(job.getSpecification(), exception.getMessage(), node.getNodeId()));
+        }
+
+      }, null);
+    }
+
+    @Override
+    protected void visitInitMessage(final Init message) {
+      // TODO Did we want to force a particular seed value or other local state ?
+    }
+
+    @Override
+    protected void visitIsAliveMessage(final IsAlive message) {
+      for (CalculationJobSpecification job : message.getJob()) {
+        if (!isJobAlive(job)) {
+          sendMessage(new Failure(job, "isAlive returned false", ""));
+        }
+      }
+    }
+
+    @Override
+    protected void visitScalingMessage(final Scaling message) {
+      s_logger.info("Scaling data received {}", message);
+      getStatistics().setScaling(message.getInvocation());
+    }
+
+  };
 
   public RemoteNodeClient(final FudgeConnection connection, final FunctionCompilationService functionCompilationService, final IdentifierMap identifierMap,
       final FunctionInvocationStatisticsSender statistics) {
@@ -119,15 +178,7 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
     s_logger.debug("Received ({} fields) from {}", msg.getNumFields(), _connection);
     final FudgeDeserializationContext context = new FudgeDeserializationContext(fudgeContext);
     final RemoteCalcNodeMessage message = context.fudgeMsgToObject(RemoteCalcNodeMessage.class, msgEnvelope.getMessage());
-    if (message instanceof Execute) {
-      handleJobMessage((Execute) message);
-    } else if (message instanceof Scaling) {
-      handleScalingMessage((Scaling) message);
-    } else if (message instanceof Init) {
-      handleInitMessage((Init) message);
-    } else {
-      s_logger.warn("Unexpected message - {}", message);
-    }
+    message.accept(_messageVisitor);
   }
 
   @Override
@@ -135,38 +186,6 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
     if (job.getRequiredJobIds() != null) {
       sendMessage(new Busy());
     }
-  }
-
-  /**
-   * Needs to run sequentially with jobs in the order they've arrived over the network.
-   */
-  private void handleJobMessage(final Execute message) {
-    final CalculationJob job = message.getJob();
-    job.resolveInputs(getIdentifierMap());
-    addJob(job, new ExecutionReceiver() {
-
-      @Override
-      public void executionComplete(final CalculationJobResult result) {
-        result.convertInputs(getIdentifierMap());
-        sendMessage(new Result(result));
-      }
-
-      @Override
-      public void executionFailed(final AbstractCalculationNode node, final Exception exception) {
-        s_logger.warn("Exception thrown by job execution", exception);
-        sendMessage(new Failure(job.getSpecification(), exception.getMessage(), node.getNodeId()));
-      }
-
-    }, null);
-  }
-
-  private void handleScalingMessage(final Scaling message) {
-    s_logger.info("Scaling data received {}", message);
-    getStatistics().setScaling(message.getInvocation());
-  }
-
-  private void handleInitMessage(final Init message) {
-    // TODO Did we want to force a particular seed value or other local state ?
   }
 
   @Override

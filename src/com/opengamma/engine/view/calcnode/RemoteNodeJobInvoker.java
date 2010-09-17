@@ -23,11 +23,14 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.calcnode.msg.Busy;
+import com.opengamma.engine.view.calcnode.msg.Cancel;
 import com.opengamma.engine.view.calcnode.msg.Execute;
 import com.opengamma.engine.view.calcnode.msg.Failure;
 import com.opengamma.engine.view.calcnode.msg.Invocations;
+import com.opengamma.engine.view.calcnode.msg.IsAlive;
 import com.opengamma.engine.view.calcnode.msg.Ready;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessageVisitor;
 import com.opengamma.engine.view.calcnode.msg.Result;
 import com.opengamma.engine.view.calcnode.msg.Scaling;
 import com.opengamma.engine.view.calcnode.stats.FunctionCost;
@@ -36,7 +39,6 @@ import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionStateListener;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageSender;
-import com.opengamma.util.monitor.OperationTimer;
 
 /**
  * A JobInvoker for invoking a job on a remote node connected by a FudgeConnection.
@@ -55,6 +57,96 @@ import com.opengamma.util.monitor.OperationTimer;
   private final IdentifierMap _identifierMap;
   private final FunctionCost _functionCost;
   private volatile String _invokerId;
+  private final RemoteCalcNodeMessageVisitor _messageVisitor = new RemoteCalcNodeMessageVisitor() {
+
+    @Override
+    protected void visitUnexpectedMessage(final RemoteCalcNodeMessage message) {
+      s_logger.warn("Unexpected message - {}", message);
+    }
+
+    @Override
+    protected void visitBusyMessage(final Busy message) {
+      s_logger.debug("Remote calc node on {} started a tail job", this);
+      _launched.incrementAndGet();
+    }
+
+    @Override
+    protected void visitFailureMessage(final Failure message) {
+      s_logger.info("Received failure for job {}", message.getJob());
+      if (message.getReady() != null) {
+        message.getReady().accept(this);
+      }
+      // We check for below capacity. We can get "equal" here, but that means there is an invoke taking place which will be dealt with
+      // by the notifyWhenAvailable that gets called to reschedule the invoker
+      if (_launched.decrementAndGet() < _capacity) {
+        if (registerIfRequired(true)) {
+          s_logger.debug("Notified dispatcher of capacity available");
+        }
+      }
+      // We decrement the count (and re-register) before processing the data as the remote node is already available if it's sent us its data.
+      final JobInvocationReceiver receiver = getJobCompletionCallbacks().remove(message.getJob());
+      if (receiver != null) {
+        s_logger.debug("Failed job on {} with message {}", message.getComputeNodeId(), message.getErrorMessage());
+        receiver.jobFailed(RemoteNodeJobInvoker.this, message.getComputeNodeId(), new OpenGammaRuntimeException(message.getErrorMessage()));
+      } else {
+        s_logger.warn("Duplicate or failure for cancelled callback {} received", message.getJob());
+      }
+    }
+
+    @Override
+    protected void visitInvocationsMessage(final Invocations message) {
+      s_logger.info("Received invocation statistics");
+      final Scaling scaling = FunctionInvocationStatisticsReceiver.messageReceived(getFunctionCost(), message);
+      if (scaling != null) {
+        s_logger.debug("Sending scaling message ", scaling);
+        final MutableFudgeFieldContainer scalingMessage = getFudgeMessageSender().getFudgeContext().newMessage();
+        FudgeSerializationContext.addClassHeader(scalingMessage, scaling.getClass(), RemoteCalcNodeMessage.class);
+        scaling.toFudgeMsg(getFudgeMessageSender().getFudgeContext(), scalingMessage);
+        getFudgeMessageSender().send(scalingMessage);
+      }
+    }
+
+    @Override
+    protected void visitReadyMessage(final Ready message) {
+      s_logger.debug("Remote invoker ready message - {}", message);
+      getCapabilitySet().setParameterCapability(PlatformCapabilities.NODE_COUNT, message.getCapacity());
+      // [ENG-42] this is where we'd detect any other capability changes
+      _capacity = message.getCapacity();
+      final int launched = _launched.get();
+      if (launched < _capacity) {
+        if (registerIfRequired(true)) {
+          s_logger.info("Remote invoker ready for use by dispatcher, capacity {}", message.getCapacity());
+        }
+      } else {
+        s_logger.info("Remote invoker over capacity {} with {} jobs", message.getCapacity(), launched);
+      }
+    }
+
+    @Override
+    protected void visitResultMessage(final Result message) {
+      s_logger.info("Received result for job {}", message.getResult().getSpecification());
+      if (message.getReady() != null) {
+        message.getReady().accept(this);
+      }
+      // We check for below capacity. We can get "equal" here, but that means there is an invoke taking place which will be dealt with
+      // by the notifyWhenAvailable that gets called to reschedule the invoker
+      if (_launched.decrementAndGet() < _capacity) {
+        if (registerIfRequired(true)) {
+          s_logger.debug("Notified dispatcher of capacity available");
+        }
+      }
+      // We decrement the count (and re-register) before processing the data as the remote node is already available if it's sent us its data.
+      final JobInvocationReceiver receiver = getJobCompletionCallbacks().remove(message.getResult().getSpecification());
+      if (receiver != null) {
+        final CalculationJobResult result = message.getResult();
+        result.resolveInputs(getIdentifierMap());
+        receiver.jobCompleted(result);
+      } else {
+        s_logger.warn("Duplicate or result for cancelled callback {} received", message.getResult().getSpecification());
+      }
+    }
+
+  };
 
   public RemoteNodeJobInvoker(final ExecutorService executorService, final Ready initialMessage, final FudgeConnection fudgeConnection, final IdentifierMap identifierMap,
       final FunctionCost functionCost) {
@@ -65,7 +157,7 @@ import com.opengamma.util.monitor.OperationTimer;
     _functionCost = functionCost;
     fudgeConnection.setFudgeMessageReceiver(this);
     fudgeConnection.setConnectionStateListener(this);
-    handleReadyMessage(initialMessage);
+    initialMessage.accept(_messageVisitor);
     s_logger.info("Remote node invoker created with capacity {}", _capacity);
   }
 
@@ -102,6 +194,11 @@ import com.opengamma.util.monitor.OperationTimer;
     return _functionCost;
   }
 
+  protected void sendMessage(final RemoteCalcNodeMessage message) {
+    final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeMessageSender().getFudgeContext());
+    getFudgeMessageSender().send(FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(message), message.getClass(), RemoteCalcNodeMessage.class));
+  }
+
   @Override
   public boolean invoke(final CalculationJob rootJob, final JobInvocationReceiver receiver) {
     if (_launched.incrementAndGet() > _capacity) {
@@ -116,12 +213,8 @@ import com.opengamma.util.monitor.OperationTimer;
       private void sendJob(final CalculationJob job) {
         try {
           getJobCompletionCallbacks().put(job.getSpecification(), receiver);
-          final OperationTimer timer = new OperationTimer(s_logger, "Invocation serialisation and send of job {}", job.getSpecification().getJobId());
           job.convertInputs(getIdentifierMap());
-          final Execute message = new Execute(job);
-          final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeMessageSender().getFudgeContext());
-          getFudgeMessageSender().send(FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(message), message.getClass(), RemoteCalcNodeMessage.class));
-          timer.finished();
+          sendMessage(new Execute(job));
         } catch (Exception e) {
           s_logger.warn("Error sending job {}", job.getSpecification().getJobId());
           _launched.decrementAndGet();
@@ -152,10 +245,19 @@ import com.opengamma.util.monitor.OperationTimer;
 
   @Override
   public void cancel(final Collection<CalculationJobSpecification> jobs) {
-    for (CalculationJobSpecification job : jobs) {
-      s_logger.info("Cancelling job {}", job.getJobId());
-      // [ENG-231] Send the message to the client
-    }
+    s_logger.info("Cancelling {} jobs at {}", jobs.size(), getInvokerId());
+    sendMessage(new Cancel(jobs));
+  }
+
+  /**
+   * Returns {@code true} with the remote client generating failure messages if anything is
+   * not alive. 
+   */
+  @Override
+  public boolean isAlive(final Collection<CalculationJobSpecification> jobs) {
+    s_logger.info("Querying {} jobs at {}", jobs.size(), getInvokerId());
+    sendMessage(new IsAlive(jobs));
+    return true;
   }
 
   @Override
@@ -186,96 +288,7 @@ import com.opengamma.util.monitor.OperationTimer;
   public void messageReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope msgEnvelope) {
     final FudgeDeserializationContext context = new FudgeDeserializationContext(fudgeContext);
     final RemoteCalcNodeMessage message = context.fudgeMsgToObject(RemoteCalcNodeMessage.class, msgEnvelope.getMessage());
-    if (message instanceof Result) {
-      handleResultMessage((Result) message);
-    } else if (message instanceof Busy) {
-      handleBusyMessage((Busy) message);
-    } else if (message instanceof Ready) {
-      handleReadyMessage((Ready) message);
-    } else if (message instanceof Failure) {
-      handleFailureMessage((Failure) message);
-    } else if (message instanceof Invocations) {
-      handleInvocationsMessage((Invocations) message);
-    } else {
-      s_logger.warn("Unexpected message - {}", message);
-    }
-  }
-
-  private void handleResultMessage(final Result message) {
-    s_logger.info("Received result for job {}", message.getResult().getSpecification());
-    if (message.getReady() != null) {
-      handleReadyMessage(message.getReady());
-    }
-    // We check for below capacity. We can get "equal" here, but that means there is an invoke taking place which will be dealt with
-    // by the notifyWhenAvailable that gets called to reschedule the invoker
-    if (_launched.decrementAndGet() < _capacity) {
-      if (registerIfRequired(true)) {
-        s_logger.debug("Notified dispatcher of capacity available");
-      }
-    }
-    // We decrement the count (and re-register) before processing the data as the remote node is already available if it's sent us its data.
-    final JobInvocationReceiver receiver = getJobCompletionCallbacks().remove(message.getResult().getSpecification());
-    if (receiver != null) {
-      final CalculationJobResult result = message.getResult();
-      result.resolveInputs(getIdentifierMap());
-      receiver.jobCompleted(result);
-    } else {
-      s_logger.warn("Duplicate or result for cancelled callback {} received", message.getResult().getSpecification());
-    }
-  }
-
-  private void handleBusyMessage(final Busy message) {
-    s_logger.debug("Remote calc node on {} started a tail job", this);
-    _launched.incrementAndGet();
-  }
-
-  private void handleReadyMessage(final Ready message) {
-    s_logger.debug("Remote invoker ready message - {}", message);
-    getCapabilitySet().setParameterCapability(PlatformCapabilities.NODE_COUNT, message.getCapacity());
-    // [ENG-42] this is where we'd detect any other capability changes
-    _capacity = message.getCapacity();
-    final int launched = _launched.get();
-    if (launched < _capacity) {
-      if (registerIfRequired(true)) {
-        s_logger.info("Remote invoker ready for use by dispatcher, capacity {}", message.getCapacity());
-      }
-    } else {
-      s_logger.info("Remote invoker over capacity {} with {} jobs", message.getCapacity(), launched);
-    }
-  }
-
-  private void handleFailureMessage(final Failure message) {
-    s_logger.info("Received failure for job {}", message.getJob());
-    if (message.getReady() != null) {
-      handleReadyMessage(message.getReady());
-    }
-    // We check for below capacity. We can get "equal" here, but that means there is an invoke taking place which will be dealt with
-    // by the notifyWhenAvailable that gets called to reschedule the invoker
-    if (_launched.decrementAndGet() < _capacity) {
-      if (registerIfRequired(true)) {
-        s_logger.debug("Notified dispatcher of capacity available");
-      }
-    }
-    // We decrement the count (and re-register) before processing the data as the remote node is already available if it's sent us its data.
-    final JobInvocationReceiver receiver = getJobCompletionCallbacks().remove(message.getJob());
-    if (receiver != null) {
-      s_logger.debug("Failed job on {} with message {}", message.getComputeNodeId(), message.getErrorMessage());
-      receiver.jobFailed(this, message.getComputeNodeId(), new OpenGammaRuntimeException(message.getErrorMessage()));
-    } else {
-      s_logger.warn("Duplicate or failure for cancelled callback {} received", message.getJob());
-    }
-  }
-
-  private void handleInvocationsMessage(final Invocations message) {
-    s_logger.info("Received invocation statistics");
-    final Scaling scaling = FunctionInvocationStatisticsReceiver.messageReceived(getFunctionCost(), message);
-    if (scaling != null) {
-      s_logger.debug("Sending scaling message ", scaling);
-      final MutableFudgeFieldContainer scalingMessage = getFudgeMessageSender().getFudgeContext().newMessage();
-      FudgeSerializationContext.addClassHeader(scalingMessage, scaling.getClass(), RemoteCalcNodeMessage.class);
-      scaling.toFudgeMsg(getFudgeMessageSender().getFudgeContext(), scalingMessage);
-      getFudgeMessageSender().send(scalingMessage);
-    }
+    message.accept(_messageVisitor);
   }
 
   @Override

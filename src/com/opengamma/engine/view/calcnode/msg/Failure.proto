@@ -23,6 +23,10 @@ namespace com.opengamma.engine.view.calcnode {
        */
       optional Ready ready;
       
+      binding Java {
+        body "public void accept (RemoteCalcNodeMessageVisitor visitor) { visitor.visitFailureMessage (this); }";
+      }
+      
     }
     
   }

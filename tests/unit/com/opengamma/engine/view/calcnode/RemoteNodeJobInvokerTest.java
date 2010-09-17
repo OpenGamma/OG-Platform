@@ -99,5 +99,5 @@ public class RemoteNodeJobInvokerTest {
       assertNotNull(resultReceivers[i].waitForResult(TIMEOUT));
     }
   }
-
+  
 }

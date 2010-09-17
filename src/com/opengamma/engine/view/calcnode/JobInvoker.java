@@ -60,4 +60,17 @@ public interface JobInvoker {
    */
   void cancel(Collection<CalculationJobSpecification> jobs);
 
+  /**
+   * Queries the status of jobs on the invoker. This can be used as a "hint" or nudge to help
+   * failed nodes abort sooner and allow calculation to resume elsewhere.
+   * 
+   * @param jobs outstanding jobs thought to be still running with this invoker
+   * @return {@code true} if the invoker is confident the jobs will complete, {@code false} if
+   * the jobs must be considered "timed-out" and re-dispatched. This method must not block or
+   * take long to complete. If determining status is costly, the node should return {@code true}
+   * and use {@link JobInvocationReceiver#jobFailed(JobInvoker, String, Exception)}
+   * asynchronously.
+   */
+  boolean isAlive(Collection<CalculationJobSpecification> jobs);
+
 }
