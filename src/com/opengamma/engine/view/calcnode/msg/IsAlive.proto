@@ -14,6 +14,10 @@ namespace com.opengamma.engine.view.calcnode {
     
       required repeated CalculationJobSpecification job;
       
+      binding Java {
+        body "public void accept (RemoteCalcNodeMessageVisitor visitor) { visitor.visitIsAliveMessage (this); }";
+      }
+      
     }
     
   }

@@ -19,6 +19,11 @@ namespace com.opengamma.engine.view.calcnode {
        * arbitrary ready message.
        */
       optional Ready ready;
+    
+      binding Java {
+        body "public void accept (RemoteCalcNodeMessageVisitor visitor) { visitor.visitResultMessage (this); }";
+      }
+    
     }
     
   }

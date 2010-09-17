@@ -14,7 +14,6 @@ import java.util.concurrent.Executors;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +21,7 @@ import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.calcnode.msg.Init;
 import com.opengamma.engine.view.calcnode.msg.Ready;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessageVisitor;
 import com.opengamma.engine.view.calcnode.stats.FunctionCost;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionReceiver;
@@ -80,19 +80,27 @@ public class RemoteNodeServer implements FudgeConnectionReceiver {
   public void connectionReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope message, final FudgeConnection connection) {
     final FudgeDeserializationContext context = new FudgeDeserializationContext(fudgeContext);
     final RemoteCalcNodeMessage remoteCalcNodeMessage = context.fudgeMsgToObject(RemoteCalcNodeMessage.class, message.getMessage());
-    if (remoteCalcNodeMessage instanceof Ready) {
-      s_logger.info("Remote node connected - {}", connection);
-      final FudgeSerializationContext scontext = new FudgeSerializationContext(fudgeContext);
-      final Init response = new Init();
-      connection.getFudgeMessageSender().send(FudgeSerializationContext.addClassHeader(scontext.objectToFudgeMsg(response), Init.class, RemoteCalcNodeMessage.class));
-      final RemoteNodeJobInvoker invoker = new RemoteNodeJobInvoker(getExecutorService(), (Ready) remoteCalcNodeMessage, connection, getIdentifierMap(), getFunctionCost());
-      if (_capabilitiesToAdd != null) {
-        invoker.addCapabilities(_capabilitiesToAdd);
+    remoteCalcNodeMessage.accept(new RemoteCalcNodeMessageVisitor() {
+
+      @Override
+      protected void visitUnexpectedMessage(final RemoteCalcNodeMessage message) {
+        s_logger.warn("Unexpected message {}", message);
       }
-      getJobInvokerRegister().registerJobInvoker(invoker);
-    } else {
-      s_logger.warn("Unexpected message {}", remoteCalcNodeMessage);
-    }
+
+      @Override
+      protected void visitReadyMessage(final Ready message) {
+        s_logger.info("Remote node connected - {}", connection);
+        final RemoteNodeJobInvoker invoker = new RemoteNodeJobInvoker(getExecutorService(), message, connection, getIdentifierMap(), getFunctionCost());
+        if (_capabilitiesToAdd != null) {
+          invoker.addCapabilities(_capabilitiesToAdd);
+        }
+        final Init init = new Init();
+        // TODO any parameters we need to send to initialise the node
+        invoker.sendMessage(init);
+        getJobInvokerRegister().registerJobInvoker(invoker);
+      }
+
+    });
   }
 
 }
