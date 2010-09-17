@@ -207,6 +207,7 @@ public class SingleComputationCycle {
 
     _startTime = System.nanoTime();
 
+    getResultModel().setViewName(getViewName());
     getResultModel().setValuationTime(getValuationTime());
 
     createAllCaches();

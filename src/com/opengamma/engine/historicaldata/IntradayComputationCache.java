@@ -58,6 +58,9 @@ public interface IntradayComputationCache {
    * point and the previous one can be something other than the
    * resolution interval.
    * 
+   * @param viewName Which view you want the results for
+   * (the computation cache runs within a ViewProcessor,
+   * so it may be handling multiple views)
    * @param calcConf Calculation configuration name, e.g., Default
    * @param specification E.g., FV on AAPL stock, not null
    * @param resolution E.g., 5-minute resolution, not null
@@ -67,6 +70,10 @@ public interface IntradayComputationCache {
    * @throws IllegalArgumentException If the given resolution
    * has not been set up.
    */
-  DateTimeDoubleTimeSeries getValue(String calcConf, ValueSpecification specification, Duration resolution);
+  DateTimeDoubleTimeSeries getValue(
+      String viewName, 
+      String calcConf, 
+      ValueSpecification specification, 
+      Duration resolution);
 
 }

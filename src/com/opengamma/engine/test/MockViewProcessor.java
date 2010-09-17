@@ -54,4 +54,9 @@ public class MockViewProcessor implements ViewProcessor {
     _viewsByName.get(viewName).stop();
   }
 
+  @Override
+  public boolean isRunning(String viewName) {
+    return _viewsByName.get(viewName).isRunning();
+  }
+  
 }

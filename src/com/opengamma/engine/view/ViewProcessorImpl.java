@@ -390,6 +390,12 @@ public class ViewProcessorImpl implements ViewProcessor, Lifecycle {
         _viewsByName.remove(viewName);
     }
   }
+  
+  @Override
+  public boolean isRunning(String viewName) {
+    ViewImpl view = getViewInternal(viewName);
+    return view.isRunning();
+  }
 
   protected ViewImpl getViewInternal(String viewName) {
     ArgumentChecker.notNull(viewName, "View name");

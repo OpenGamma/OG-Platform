@@ -75,4 +75,13 @@ public interface ViewProcessor {
    */
   void stopProcessing(String viewName);
   
+  /**
+   * Indicates whether the view has been started. A view in this state will perform a computation cycle when changes to
+   * its inputs are detected.  
+   * 
+   * @param viewName the name of the view
+   * @return  <code>true</code> if the view has been started, <code>false</code> otherwise
+   */
+  boolean isRunning(String viewName);
+  
 }

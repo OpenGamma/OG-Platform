@@ -23,10 +23,20 @@ import com.opengamma.engine.value.ComputedValue;
  * A simple in-memory implementation of {@link ViewResultModel}.
  */
 public abstract class ViewResultModelImpl implements ViewResultModel, Serializable {
+  private String _viewName;
   private Instant _valuationTime;
   private Instant _resultTimestamp;
   private final Map<String, ViewCalculationResultModelImpl> _resultsByConfiguration = new HashMap<String, ViewCalculationResultModelImpl>();
   private final Map<ComputationTargetSpecification, ViewTargetResultModelImpl> _resultsByTarget = new HashMap<ComputationTargetSpecification, ViewTargetResultModelImpl>();
+  
+  @Override
+  public String getViewName() {
+    return _viewName;
+  }
+
+  public void setViewName(String viewName) {
+    _viewName = viewName;
+  }
 
   @Override
   public Instant getValuationTime() {
@@ -38,11 +48,11 @@ public abstract class ViewResultModelImpl implements ViewResultModel, Serializab
   }
 
   @Override
-  public Instant getResultTimestamp() {
+  public synchronized Instant getResultTimestamp() {
     return _resultTimestamp;
   }
 
-  public void setResultTimestamp(Instant resultTimestamp) {
+  public synchronized void setResultTimestamp(Instant resultTimestamp) {
     _resultTimestamp = resultTimestamp;
   }
 

@@ -17,6 +17,8 @@ import com.opengamma.engine.ComputationTargetSpecification;
  * (giving a target/value space).
  */
 public interface ViewResultModel {
+  
+  String getViewName();
 
   Instant getValuationTime();
 
