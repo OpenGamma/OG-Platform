@@ -5,45 +5,37 @@
  */
 package com.opengamma.engine.test;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+
+import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * Provides generic result handing and waiting functionality.
  */
 public class AbstractTestResultListener<T> {
 
-  private List<T> _resultsReceived = new ArrayList<T>();
-  private volatile CountDownLatch _resultLatch;
+  private BlockingQueue<T> _resultsReceived = new LinkedBlockingQueue<T>();
 
   protected void resultReceived(T result) {
     _resultsReceived.add(result);
-    
-    CountDownLatch resultLatch = _resultLatch;
-    if (resultLatch != null) {
-      resultLatch.countDown();
+  }
+  
+  public T getResult(long timeoutMillis) throws InterruptedException {
+    T result = _resultsReceived.poll(timeoutMillis, TimeUnit.MILLISECONDS);
+    if (result == null) {
+      throw new OpenGammaRuntimeException("Timed out after " + timeoutMillis + " ms waiting for result");
     }
-  }
- 
-  public void setExpectedResultCount(int count) {
-    _resultLatch = new CountDownLatch(count);
+    return result;
   }
   
-  public void awaitExpectedResults(long timeoutMillis) throws InterruptedException {
-    _resultLatch.await(timeoutMillis, TimeUnit.MILLISECONDS);
-    _resultLatch = null;    
+  public boolean isEmpty() {
+    return _resultsReceived.isEmpty();
   }
   
-  public void awaitExpectedResults() throws InterruptedException {
-    awaitExpectedResults(Long.MAX_VALUE);
-  }
-  
-  public List<T> popResults() {
-    List<T> results = _resultsReceived;
-    _resultsReceived = new ArrayList<T>();
-    return results;
+  public void clear() {
+    _resultsReceived.clear();
   }
   
 }
