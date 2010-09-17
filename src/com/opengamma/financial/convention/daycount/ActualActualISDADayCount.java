@@ -29,17 +29,13 @@ public class ActualActualISDADayCount extends StatelessDayCount {
 
   @Override
   public double getDayCountFraction(final ZonedDateTime dateTime1, final ZonedDateTime dateTime2) {
-    if (dateTime1.getYear() == dateTime2.getYear()) {
+    final int year1 = dateTime1.getYear();
+    final int year2 = dateTime2.getYear();
+    if (year1 == year2) {
       return DateUtil.getDaysBetween(dateTime1, false, dateTime2, true) / getBasis(dateTime1);
     }
-    return DateUtil.getDaysBetween(dateTime1, false, dateTime2, true) / getBasis(dateTime1);    
-//    if (DateUtil.isLeapYear(dateTime1) || DateUtil.isLeapYear(dateTime2)) {
-//      final ZonedDateTime lastDayOfFirstYear = dateTime1.with(DateAdjusters.lastDayOfYear());
-//      final ZonedDateTime firstDayOfSecondYear = dateTime2.with(DateAdjusters.firstDayOfYear());
-//      return (1 + DateUtil.getDaysBetween(dateTime1, false, lastDayOfFirstYear, true)) / getBasis(dateTime1)
-//          + DateUtil.getDaysBetween(firstDayOfSecondYear, false, dateTime2, true) / getBasis(dateTime2);
-//    }
-    //return DateUtil.getDaysBetween(dateTime1, false, dateTime2, true) / getBasis(dateTime1);
+    return (double) DateUtil.getDaysBetween(dateTime1, true, dateTime1.with(DateAdjusters.lastDayOfYear()), true) / getBasis(dateTime1)
+        + (double) DateUtil.getDaysBetween(dateTime2.with(DateAdjusters.firstDayOfYear()), false, dateTime2, true) / getBasis(dateTime2) + (double) (year2 - year1 - 1);
   }
 
   @Override
