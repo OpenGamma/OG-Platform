@@ -102,8 +102,8 @@ public class RateLimitingMergingUpdateProviderTest {
     }
     // Wait a couple of periods for any stragglers
     Thread.sleep (2 * period);
-    // Check that the results didn't come any faster than we asked for (give or take), and not too slowly
-    assertTrue ("Expecting results no faster than " + period + "ms, got " + testListener.getShortestDelay (), testListener.getShortestDelay () >= (period - 1));
+    // Check that the results didn't come any faster than we asked for (give or take 10%), and not too slowly (allow up to twice)
+    assertTrue ("Expecting results no faster than " + period + "ms, got " + testListener.getShortestDelay (), testListener.getShortestDelay () >= (period - period / 10));
     assertTrue ("Expecting results no slower than " + (period * 2) + "ms, got " + testListener.getShortestDelay (), testListener.getShortestDelay () <= (period * 2));
     System.out.println ("size = " + testListener.consumeResults ().size ());
   }
