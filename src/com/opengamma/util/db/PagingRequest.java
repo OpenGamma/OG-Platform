@@ -5,6 +5,11 @@
  */
 package com.opengamma.util.db;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
@@ -128,6 +133,34 @@ public final class PagingRequest {
    */
   public int getLastItemIndex() {
     return getLastItem();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Selects the elements from the collection matching this request.
+   * @param <T> the collection type
+   * @param coll  the collection to select from, not null
+   * @return the selected collection, not linked to the original, not null
+   */
+  public <T> List<T> select(Collection<T> coll) {
+    int firstIndex = getFirstItemIndex();
+    int lastIndex = getLastItemIndex();
+    if (firstIndex >= coll.size()) {
+      firstIndex = 0;
+    }
+    if (lastIndex > coll.size()) {
+      lastIndex = coll.size();
+    }
+    List<T> list = new ArrayList<T>();
+    Iterator<T> it = coll.iterator();
+    for (int i = 0; i < lastIndex; i++) {
+      if (i >= firstIndex) {
+        list.add(it.next());
+      } else {
+        it.next();
+      }
+    }
+    return list;
   }
 
   //-------------------------------------------------------------------------
