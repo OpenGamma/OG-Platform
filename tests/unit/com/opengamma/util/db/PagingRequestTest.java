@@ -7,6 +7,10 @@ package com.opengamma.util.db;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
 import org.junit.Test;
 
 /**
@@ -135,6 +139,31 @@ public final class PagingRequestTest {
     assertEquals(20, test.getFirstItemIndex());
     assertEquals(40, test.getLastItem());
     assertEquals(40, test.getLastItemIndex());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_select_firstPage() {
+    PagingRequest test = new PagingRequest(1, 2);
+    Collection<String> coll = Arrays.asList("Hello", "World", "Test");
+    List<String> result = test.select(coll);
+    assertEquals(Arrays.asList("Hello", "World"), result);
+  }
+
+  @Test
+  public void test_select_lastPage() {
+    PagingRequest test = new PagingRequest(2, 2);
+    Collection<String> coll = Arrays.asList("Hello", "World", "Test");
+    List<String> result = test.select(coll);
+    assertEquals(Arrays.asList("Test"), result);
+  }
+
+  @Test
+  public void test_select_all() {
+    PagingRequest test = new PagingRequest(1, 20);
+    Collection<String> coll = Arrays.asList("Hello", "World", "Test");
+    List<String> result = test.select(coll);
+    assertEquals(coll, result);
   }
 
   //-------------------------------------------------------------------------
