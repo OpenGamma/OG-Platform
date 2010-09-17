@@ -260,8 +260,14 @@ public class SocketFudgeConnectionConduitTest {
     final int[] result = parallelSendTest(Executors.newCachedThreadPool(), null, concurrencyMax);
     assertEquals(2, concurrencyMax.get());
     assertEquals(1, result[0]);
-    assertEquals(2, result[1]);
-    assertEquals(1, result[2]);
+    // The server might send the messages in order, but the client can receive them out of order
+    if (result[1] == 2) {
+      assertEquals(1, result[2]);
+    } else if (result[1] == 1) {
+      assertEquals(2, result[2]);
+    } else {
+      fail();
+    }
     assertEquals(2, result[3]);
   }
 
