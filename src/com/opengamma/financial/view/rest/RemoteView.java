@@ -124,7 +124,7 @@ public class RemoteView implements View {
   @Override
   public boolean isLiveComputationRunning() {
     URI uri = getUri(_baseUri, DataViewResource.PATH_LIVE_COMPUTATION_RUNNING);
-    return _client.access(uri).accept(FudgeRest.MEDIA_TYPE).get(boolean.class);
+    return _client.access(uri).accept(FudgeRest.MEDIA_TYPE).get(Boolean.class);
   }
 
   @Override
