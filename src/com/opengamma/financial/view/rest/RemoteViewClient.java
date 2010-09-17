@@ -82,7 +82,7 @@ public class RemoteViewClient implements ViewClient {
   @Override
   public boolean isResultAvailable() {
     URI uri = getUri(_baseUri, DataViewClientResource.PATH_RESULT_AVAILABLE);
-    return _client.access(uri).get(boolean.class);
+    return _client.access(uri).get(Boolean.class);
   }
   
   @Override
@@ -134,7 +134,7 @@ public class RemoteViewClient implements ViewClient {
       _deltaListener = newListener;
       if (oldListener == null && newListener != null) {
         // Set up subscription
-        URI uri = getUri(_baseUri, DataViewClientResource.PATH_START_JMS_RESULT_STREAM);
+        URI uri = getUri(_baseUri, DataViewClientResource.PATH_START_JMS_DELTA_STREAM);
         String topicName = _client.access(uri).post(String.class);
         initDeltaListener(topicName);
       } else if (oldListener != null && newListener == null) {
