@@ -68,14 +68,37 @@ public class CoppClarkExchangeFileReader {
    * Creates a populated in-memory exchange source.
    * @return the exchange source, not null
    */
-  public static ExchangeSource createPopulatedExchangeSource() {
-    ExchangeMaster exchangeMaster = new InMemoryExchangeMaster();
-    CoppClarkExchangeFileReader fileReader = new CoppClarkExchangeFileReader(exchangeMaster);
+  public static CoppClarkExchangeFileReader createPopulated() {
+    CoppClarkExchangeFileReader fileReader = new CoppClarkExchangeFileReader();
     fileReader.readFile(fileReader.getClass().getResourceAsStream(EXCHANGE_HOLIDAYS_REPOST_RESOURCE));
-    return new MasterExchangeSource(exchangeMaster);
+    return fileReader;
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the exchange master.
+   * @return the exchange master, not null
+   */
+  public ExchangeMaster getExchangeMaster() {
+    return _exchangeMaster;
+  }
+
+  /**
+   * Gets the exchange source.
+   * @return the exchange source, not null
+   */
+  public ExchangeSource getExchangeSource() {
+    return _exchangeSource;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates an instance with an in-memory exchange master.
+   */
+  public CoppClarkExchangeFileReader() {
+    this(new InMemoryExchangeMaster());
+  }
+
   /**
    * Creates an instance with the exchange master to populate.
    * @param exchangeMaster  the exchange master, not null

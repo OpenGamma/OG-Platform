@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.web.security;
+package com.opengamma.financial.web.exchange;
 
 import java.net.URI;
 
@@ -15,21 +15,21 @@ import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.security.master.SecurityDocument;
+import com.opengamma.financial.world.exchange.master.ExchangeDocument;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * RESTful resource for a version of a security.
+ * RESTful resource for a version of a exchange.
  */
-@Path("/securities/{securityId}/versions/{versionId}")
+@Path("/exchanges/{exchangeId}/versions/{versionId}")
 @Produces(MediaType.TEXT_HTML)
-public class WebSecurityVersionResource extends AbstractWebSecurityResource {
+public class WebExchangeVersionResource extends AbstractWebExchangeResource {
 
   /**
    * Creates the resource.
    * @param parent  the parent resource, not null
    */
-  public WebSecurityVersionResource(final AbstractWebSecurityResource parent) {
+  public WebExchangeVersionResource(final AbstractWebExchangeResource parent) {
     super(parent);
   }
 
@@ -37,7 +37,7 @@ public class WebSecurityVersionResource extends AbstractWebSecurityResource {
   @GET
   public String get() {
     FlexiBean out = createRootData();
-    return getFreemarker().build("securities/securityversion.ftl", out);
+    return getFreemarker().build("exchanges/exchangeversion.ftl", out);
   }
 
   //-------------------------------------------------------------------------
@@ -47,12 +47,12 @@ public class WebSecurityVersionResource extends AbstractWebSecurityResource {
    */
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
-    SecurityDocument latestSecDoc = data().getSecurity();
-    SecurityDocument versionedSecurity = data().getVersioned();
-    out.put("latestSecurityDoc", latestSecDoc);
-    out.put("latestSecurity", latestSecDoc.getSecurity());
-    out.put("securityDoc", versionedSecurity);
-    out.put("security", versionedSecurity.getSecurity());
+    ExchangeDocument latestSecDoc = data().getExchange();
+    ExchangeDocument versionedExchange = data().getVersioned();
+    out.put("latestExchangeDoc", latestSecDoc);
+    out.put("latestExchange", latestSecDoc.getExchange());
+    out.put("exchangeDoc", versionedExchange);
+    out.put("exchange", versionedExchange.getExchange());
     return out;
   }
 
@@ -62,7 +62,7 @@ public class WebSecurityVersionResource extends AbstractWebSecurityResource {
    * @param data  the data, not null
    * @return the URI, not null
    */
-  public static URI uri(final WebSecuritiesData data) {
+  public static URI uri(final WebExchangeData data) {
     return uri(data, null);
   }
 
@@ -72,10 +72,10 @@ public class WebSecurityVersionResource extends AbstractWebSecurityResource {
    * @param overrideVersionId  the override version id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebSecuritiesData data, final UniqueIdentifier overrideVersionId) {
-    String securityId = data.getBestSecurityUriId(null);
+  public static URI uri(final WebExchangeData data, final UniqueIdentifier overrideVersionId) {
+    String exchangeId = data.getBestExchangeUriId(null);
     String versionId = StringUtils.defaultString(overrideVersionId != null ? overrideVersionId.getVersion() : data.getUriVersionId());
-    return data.getUriInfo().getBaseUriBuilder().path(WebSecurityVersionResource.class).build(securityId, versionId);
+    return data.getUriInfo().getBaseUriBuilder().path(WebExchangeVersionResource.class).build(exchangeId, versionId);
   }
 
 }

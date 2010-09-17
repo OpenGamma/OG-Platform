@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.web.security;
+package com.opengamma.financial.web.exchange;
 
 import java.net.URI;
 
@@ -20,23 +20,23 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.engine.security.DefaultSecurity;
-import com.opengamma.financial.security.master.SecurityDocument;
+import com.opengamma.financial.world.exchange.Exchange;
+import com.opengamma.financial.world.exchange.master.ExchangeDocument;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * RESTful resource for a security.
+ * RESTful resource for a exchange.
  */
-@Path("/securities/{securityId}")
-public class WebSecurityResource extends AbstractWebSecurityResource {
+@Path("/exchanges/{exchangeId}")
+public class WebExchangeResource extends AbstractWebExchangeResource {
 
   /**
    * Creates the resource.
    * @param parent  the parent resource, not null
    */
-  public WebSecurityResource(final AbstractWebSecurityResource parent) {
+  public WebExchangeResource(final AbstractWebExchangeResource parent) {
     super(parent);
   }
 
@@ -45,7 +45,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   @Produces(MediaType.TEXT_HTML)
   public String get() {
     FlexiBean out = createRootData();
-    return getFreemarker().build("securities/security.ftl", out);
+    return getFreemarker().build("exchanges/exchange.ftl", out);
   }
 
   @PUT
@@ -53,7 +53,9 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   public Response put(
       @FormParam("name") String name,
       @FormParam("idscheme") String idScheme,
-      @FormParam("idvalue") String idValue) {
+      @FormParam("idvalue") String idValue,
+      @FormParam("regionscheme") String regionScheme,
+      @FormParam("regionvalue") String regionValue) {
     name = StringUtils.trimToNull(name);
     idScheme = StringUtils.trimToNull(idScheme);
     idValue = StringUtils.trimToNull(idValue);
@@ -68,27 +70,31 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
       if (idValue == null) {
         out.put("err_idvalueMissing", true);
       }
-      String html = getFreemarker().build("securities/security-update.ftl", out);
+      if (regionScheme == null) {
+        out.put("err_regionschemeMissing", true);
+      }
+      if (regionValue == null) {
+        out.put("err_regionvalueMissing", true);
+      }
+      String html = getFreemarker().build("exchanges/exchange-update.ftl", out);
       return Response.ok(html).build();
     }
-    SecurityDocument doc = data().getSecurity();
-    if (doc.getSecurity() instanceof DefaultSecurity == false) {
-      throw new IllegalArgumentException("Unable to update as not an instance of DefaultSecurity");
-    }
-    DefaultSecurity ds = (DefaultSecurity) doc.getSecurity();
-    ds.setName(name);
-    ds.setIdentifiers(IdentifierBundle.of(Identifier.of(idScheme, idValue)));
-    doc = data().getSecurityMaster().update(doc);
-    data().setSecurity(doc);
-    URI uri = WebSecurityResource.uri(data());
+    Exchange exchange = data().getExchange().getExchange().clone();
+    exchange.setName(name);
+    exchange.setIdentifiers(IdentifierBundle.of(Identifier.of(idScheme, idValue)));
+    exchange.setRegionId(Identifier.of(regionScheme, regionValue));
+    ExchangeDocument doc = new ExchangeDocument(exchange);
+    doc = data().getExchangeMaster().updateExchange(doc);
+    data().setExchange(doc);
+    URI uri = WebExchangeResource.uri(data());
     return Response.seeOther(uri).build();
   }
 
   @DELETE
   public Response delete() {
-    SecurityDocument doc = data().getSecurity();
-    data().getSecurityMaster().remove(doc.getSecurityId());
-    URI uri = WebSecuritiesResource.uri(data());
+    ExchangeDocument doc = data().getExchange();
+    data().getExchangeMaster().removeExchange(doc.getExchangeId());
+    URI uri = WebExchangesResource.uri(data());
     return Response.seeOther(uri).build();
   }
 
@@ -99,16 +105,16 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
    */
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
-    SecurityDocument doc = data().getSecurity();
-    out.put("securityDoc", doc);
-    out.put("security", doc.getSecurity());
+    ExchangeDocument doc = data().getExchange();
+    out.put("exchangeDoc", doc);
+    out.put("exchange", doc.getExchange());
     return out;
   }
 
   //-------------------------------------------------------------------------
   @Path("versions")
-  public WebSecurityVersionsResource findVersions() {
-    return new WebSecurityVersionsResource(this);
+  public WebExchangeVersionsResource findVersions() {
+    return new WebExchangeVersionsResource(this);
   }
 
   //-------------------------------------------------------------------------
@@ -117,19 +123,19 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
    * @param data  the data, not null
    * @return the URI, not null
    */
-  public static URI uri(final WebSecuritiesData data) {
+  public static URI uri(final WebExchangeData data) {
     return uri(data, null);
   }
 
   /**
    * Builds a URI for this resource.
    * @param data  the data, not null
-   * @param overrideSecurityId  the override security id, null uses information from data
+   * @param overrideExchangeId  the override exchange id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebSecuritiesData data, final UniqueIdentifier overrideSecurityId) {
-    String portfolioId = data.getBestSecurityUriId(overrideSecurityId);
-    return data.getUriInfo().getBaseUriBuilder().path(WebSecurityResource.class).build(portfolioId);
+  public static URI uri(final WebExchangeData data, final UniqueIdentifier overrideExchangeId) {
+    String portfolioId = data.getBestExchangeUriId(overrideExchangeId);
+    return data.getUriInfo().getBaseUriBuilder().path(WebExchangeResource.class).build(portfolioId);
   }
 
 }
