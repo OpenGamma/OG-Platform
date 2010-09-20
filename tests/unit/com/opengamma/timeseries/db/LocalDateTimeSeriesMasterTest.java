@@ -88,8 +88,8 @@ public class LocalDateTimeSeriesMasterTest extends TimeSeriesMasterTest<LocalDat
       assertEquals(timeSeries, searchDoc.getTimeSeries());
 
       // test subSeries
-      LocalDate start = earliestDate.plusDays(1);
-      LocalDate end = latestDate.minusDays(1);
+      LocalDate start = DateUtil.nextWeekDay(earliestDate);
+      LocalDate end = DateUtil.previousWeekDay(latestDate);
       if (start.isBefore(end) || start.equals(end)) {
         searchDoc = getHistoricalTimeSeries(tsDoc.getIdentifiers(),  tsDoc.getDataSource(), tsDoc.getDataProvider(), tsDoc.getDataField(), start, end);
         assertNotNull(searchDoc);
