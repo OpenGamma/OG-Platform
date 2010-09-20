@@ -19,6 +19,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
+import com.opengamma.util.time.DateUtil;
 
 /**
  * 
@@ -60,14 +61,25 @@ public class ScheduleCalculator {
     final Period period = periodFrequency.getPeriod();
     final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
     ZonedDateTime date = effectiveDate; // TODO this is only correct if effective date = accrual date
-    while (date.isBefore(maturityDate)) { // REVIEW: could speed this up by working out how many periods between start and end date?
+    date = date.plus(period);
+    while (isWithinSwapLifetime(date, maturityDate)) { // REVIEW: could speed this up by working out how many periods between start and end date?
       dates.add(date);
       date = date.plus(period);
     }
-    //dates.remove(0);
     return dates.toArray(EMPTY_ARRAY);
   }
 
+  //TODO change me urgently
+  private static boolean isWithinSwapLifetime(ZonedDateTime date, ZonedDateTime maturity) {
+    if (date.isBefore(maturity)) {
+      return true;
+    }
+    if (DateUtil.getDaysBetween(date, maturity) < 7) {
+      return true;
+    }
+    return false;
+  }
+  
   public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime[] dates, final BusinessDayConvention convention, final Calendar calendar) {
     Validate.notNull(dates);
     Validate.notEmpty(dates);
