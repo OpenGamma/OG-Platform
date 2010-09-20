@@ -214,6 +214,26 @@ public class DateUtilTest {
     assertEquals(mon, DateUtil.previousWeekDay(tue));
     assertEquals(lastFri, DateUtil.previousWeekDay(mon));
   }
+  
+  @Test
+  public void testNextWeekDay() {
+    LocalDate sun = LocalDate.of(2009, 11, 8);
+    LocalDate sat = LocalDate.of(2009, 11, 7);
+    LocalDate fri = LocalDate.of(2009, 11, 6);
+    LocalDate thur = LocalDate.of(2009, 11, 5);
+    LocalDate wed = LocalDate.of(2009, 11, 4);
+    LocalDate tue = LocalDate.of(2009, 11, 3);
+    LocalDate mon = LocalDate.of(2009, 11, 2);
+    LocalDate nextMon = LocalDate.of(2009, 11, 9);
+    
+    assertEquals(nextMon, DateUtil.nextWeekDay(sun));
+    assertEquals(nextMon, DateUtil.nextWeekDay(sat));
+    assertEquals(nextMon, DateUtil.nextWeekDay(fri));
+    assertEquals(fri, DateUtil.nextWeekDay(thur));
+    assertEquals(thur, DateUtil.nextWeekDay(wed));
+    assertEquals(wed, DateUtil.nextWeekDay(tue));
+    assertEquals(tue, DateUtil.nextWeekDay(mon));
+  }
 
   @Test
   public void testToLocalDate() {

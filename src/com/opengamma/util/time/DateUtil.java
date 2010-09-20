@@ -335,6 +335,46 @@ public class DateUtil {
     Clock clock = Clock.system(TimeZone.UTC);
     return previousWeekDay(clock.today());
   }
+  
+  /**
+   * Gets the next Monday to Friday week-day after now.
+   * @return the date, not null
+   */
+  public static LocalDate nextWeekDay() {
+    Clock clock = Clock.system(TimeZone.UTC);
+    return nextWeekDay(clock.today());
+  }
+
+  /**
+   * Gets the next Monday to Friday week-day after now.
+   * @param startDate  the date to start from
+   * @return the date, not null
+   */
+  public static LocalDate nextWeekDay(LocalDate startDate) {
+    if (startDate == null) {
+      throw new IllegalArgumentException("date was null");
+    }
+    LocalDate next = null;
+    DayOfWeek dayOfWeek = startDate.getDayOfWeek();
+    switch(dayOfWeek)  {
+      case FRIDAY:
+        next = startDate.plusDays(3);
+        break;
+      case SATURDAY:
+        next = startDate.plusDays(2);
+        break;
+      case MONDAY:
+      case TUESDAY:
+      case WEDNESDAY:
+      case THURSDAY:
+      case SUNDAY:
+        next = startDate.plusDays(1);
+        break;
+      default :
+        throw new OpenGammaRuntimeException("Unrecognised day of the week");
+    }
+    return next;
+  }
 
   /**
    * Gets the previous Monday to Friday week-day before now.
