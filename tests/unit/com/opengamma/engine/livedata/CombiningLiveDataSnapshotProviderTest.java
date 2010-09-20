@@ -98,7 +98,7 @@ public class CombiningLiveDataSnapshotProviderTest {
     assertEquals(1, p1.getAndResetQueryCount());
     assertEquals(1, p2.getAndResetQueryCount());
     
-    assertNull(provider.querySnapshot(1234, req1));
+    assertEquals("value1", provider.querySnapshot(1234, req1));
   }
   
   @Test

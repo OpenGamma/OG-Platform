@@ -129,9 +129,17 @@ public class CombiningLiveDataSnapshotProvider implements LiveDataSnapshotProvid
   @Override
   public Object querySnapshot(long snapshot, ValueRequirement requirement) {
     Collection<Pair<Long, LiveDataSnapshotProvider>> providerSnapshots = _providerSnapshots.get(snapshot);
+    
     if (providerSnapshots == null) {
+      for (LiveDataSnapshotProvider provider : _providers) {
+        Object result = provider.querySnapshot(snapshot, requirement);
+        if (result != null) {
+          return result;
+        }
+      }
       return null;
     }
+    
     for (Pair<Long, LiveDataSnapshotProvider> providerSnapshot : providerSnapshots) {
       Long snapshotTimestamp = providerSnapshot.getFirst();
       LiveDataSnapshotProvider provider = providerSnapshot.getSecond();
