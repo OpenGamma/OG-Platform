@@ -61,9 +61,10 @@ public class ScheduleCalculator {
     final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
     ZonedDateTime date = effectiveDate; // TODO this is only correct if effective date = accrual date
     while (date.isBefore(maturityDate)) { // REVIEW: could speed this up by working out how many periods between start and end date?
-      date = date.plus(period);
       dates.add(date);
+      date = date.plus(period);
     }
+    //dates.remove(0);
     return dates.toArray(EMPTY_ARRAY);
   }
 
