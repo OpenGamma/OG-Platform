@@ -176,7 +176,7 @@
 		</copy>
 	</target>
 
-	<property name="test.database.type" value="all"/>  <!-- derby, postgres, all. -->
+	<property name="test.database.type" value="all"/>  <!-- hsqldb, postgres, all. -->
 	<property name="test.database.previousVersions" value="1"/>  <!-- number of previous versions to test upgrade scripts from -->
 	
 	<target name="tests" depends="junit-batch,junit-report" description="--> run unit tests and generate report"/>
