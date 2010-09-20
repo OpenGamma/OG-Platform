@@ -35,6 +35,7 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.rest.WebPaging;
 
 /**
  * RESTful resource for all exchanges.
@@ -76,6 +77,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
     if (data().getUriInfo().getQueryParameters().size() > 0) {
       ExchangeSearchResult searchResult = data().getExchangeMaster().searchExchanges(searchRequest);
       out.put("searchResult", searchResult);
+      out.put("paging", new WebPaging(searchResult.getPaging(), uriInfo));
     }
     return getFreemarker().build("exchanges/exchanges.ftl", out);
   }

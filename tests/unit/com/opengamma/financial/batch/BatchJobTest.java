@@ -19,8 +19,8 @@ import com.opengamma.config.db.MongoDBConfigMaster;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
-import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.ViewInternal;
 import com.opengamma.financial.ViewTestUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.MongoDBConnectionSettings;
@@ -89,7 +89,7 @@ public class BatchJobTest {
   
   @Test
   public void initViewFromMongo() {
-    View testView = ViewTestUtils.getMockView();
+    ViewInternal testView = ViewTestUtils.getMockView();
     
     MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings(null, false);
     MongoDBConfigMaster<ViewDefinition> configRepo = new MongoDBConfigMaster<ViewDefinition>(ViewDefinition.class, settings, true);
