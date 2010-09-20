@@ -16,6 +16,8 @@ import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.financial.web.exchange.WebExchangeData;
+import com.opengamma.financial.web.exchange.WebExchangeUris;
 import com.opengamma.financial.web.position.WebPortfoliosData;
 import com.opengamma.financial.web.position.WebPortfoliosUris;
 import com.opengamma.financial.web.security.WebSecuritiesData;
@@ -52,13 +54,17 @@ public class WebHomeResource extends AbstractWebResource {
     FlexiBean out = getFreemarker().createRootData();
     out.put("uris", new WebHomeUris(uriInfo));
     
-    WebPortfoliosData portfoliosData = new WebPortfoliosData();
-    portfoliosData.setUriInfo(uriInfo);
-    out.put("portfolioUris", new WebPortfoliosUris(portfoliosData));
+    WebPortfoliosData portfolioData = new WebPortfoliosData();
+    portfolioData.setUriInfo(uriInfo);
+    out.put("portfolioUris", new WebPortfoliosUris(portfolioData));
     
-    WebSecuritiesData securitiesData = new WebSecuritiesData();
-    securitiesData.setUriInfo(uriInfo);
-    out.put("securitiesUris", new WebSecuritiesUris(securitiesData));
+    WebSecuritiesData securityData = new WebSecuritiesData();
+    securityData.setUriInfo(uriInfo);
+    out.put("securityUris", new WebSecuritiesUris(securityData));
+    
+    WebExchangeData exchangeData = new WebExchangeData();
+    exchangeData.setUriInfo(uriInfo);
+    out.put("exchangeUris", new WebExchangeUris(exchangeData));
     return out;
   }
 

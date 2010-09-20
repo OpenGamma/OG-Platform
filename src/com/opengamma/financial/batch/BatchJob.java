@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Timer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
@@ -51,10 +52,10 @@ import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewImpl;
+import com.opengamma.engine.view.ViewInternal;
 import com.opengamma.engine.view.ViewProcessingContext;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
@@ -263,7 +264,7 @@ public class BatchJob {
    * many other properties - positions loaded from a position master, 
    * securities from security master, etc.
    */
-  private View _view;
+  private ViewInternal _view;
 
   // --------------------------------------------------------------------------
 
@@ -282,11 +283,11 @@ public class BatchJob {
     return "undefined";
   }
 
-  public View getView() {
+  public ViewInternal getView() {
     return _view;
   }
 
-  public void setView(View view) {
+  public void setView(ViewInternal view) {
     _view = view;
   }
 
@@ -556,7 +557,7 @@ public class BatchJob {
         getFunctionRepository()), positionSource, securitySource, cacheFactory, jobDispatcher, viewProcessorQueryReceiver, getFunctionCompilationContext(), executor, dependencyGraphExecutorFactory,
         new DefaultViewPermissionProvider(), new DiscardingGraphStatisticsGathererProvider());
 
-    ViewImpl view = new ViewImpl(_viewDefinitionConfig.getValue(), vpc);
+    ViewImpl view = new ViewImpl(_viewDefinitionConfig.getValue(), vpc, new Timer("Batch view timer"));
     view.setPopulateResultModel(false);
     view.init();
     _view = view;

@@ -57,7 +57,35 @@ public class CurveDefinitionAndSpecifications {
     //final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     //final String rightExtrapolatorName = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
     //TODO need to be able to add interpolator + extrapolator + extrapolator (or even more than one interpolator for use in different regions of the curve) [FIN-149]
-    final YieldCurveDefinition definition = new YieldCurveDefinition(Currency.getInstance("USD"), "SWAP_ONLY", interpolatorName);
+    final YieldCurveDefinition definition = new YieldCurveDefinition(Currency.getInstance("USD"), "SWAP_ONLY", interpolatorName, strips);
+    return definition;
+  }
+  
+  public static YieldCurveDefinition buildUSDSwapOnlyNo3YrCurveDefinition() {
+    final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
+    final int[] tenors = new int[] {1, 2, 4, 5, 6, 7, 10, 15, 20, 25, 30};
+    for (final int i : tenors) {
+      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, new Tenor(Period.ofYears(i)), "DEFAULT"));
+    }
+    final String interpolatorName = Interpolator1DFactory.DOUBLE_QUADRATIC;
+    //final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
+    //final String rightExtrapolatorName = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
+    //TODO need to be able to add interpolator + extrapolator + extrapolator (or even more than one interpolator for use in different regions of the curve) [FIN-149]
+    final YieldCurveDefinition definition = new YieldCurveDefinition(Currency.getInstance("USD"), "SWAP_ONLY_NO3YR", interpolatorName, strips);
+    return definition;
+  }
+  
+  public static YieldCurveDefinition buildUSDSwapOnly3YrCurveDefinition() {
+    final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
+    final int[] tenors = new int[] {3};
+    for (final int i : tenors) {
+      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, new Tenor(Period.ofYears(i)), "DEFAULT"));
+    }
+    final String interpolatorName = Interpolator1DFactory.DOUBLE_QUADRATIC;
+    //final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
+    //final String rightExtrapolatorName = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
+    //TODO need to be able to add interpolator + extrapolator + extrapolator (or even more than one interpolator for use in different regions of the curve) [FIN-149]
+    final YieldCurveDefinition definition = new YieldCurveDefinition(Currency.getInstance("USD"), "SWAP_ONLY_3YR", interpolatorName, strips);
     return definition;
   }
 

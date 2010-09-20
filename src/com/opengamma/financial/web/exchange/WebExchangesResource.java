@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.web.security;
+package com.opengamma.financial.web.exchange;
 
 import java.net.URI;
 import java.util.Iterator;
@@ -26,11 +26,11 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.engine.security.DefaultSecurity;
-import com.opengamma.financial.security.master.SecurityDocument;
-import com.opengamma.financial.security.master.SecurityMaster;
-import com.opengamma.financial.security.master.SecuritySearchRequest;
-import com.opengamma.financial.security.master.SecuritySearchResult;
+import com.opengamma.financial.world.exchange.Exchange;
+import com.opengamma.financial.world.exchange.master.ExchangeDocument;
+import com.opengamma.financial.world.exchange.master.ExchangeMaster;
+import com.opengamma.financial.world.exchange.master.ExchangeSearchRequest;
+import com.opengamma.financial.world.exchange.master.ExchangeSearchResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -38,19 +38,19 @@ import com.opengamma.util.db.PagingRequest;
 import com.opengamma.util.rest.WebPaging;
 
 /**
- * RESTful resource for all securities.
+ * RESTful resource for all exchanges.
  * <p>
- * The securities resource represents the whole of a security master.
+ * The exchanges resource represents the whole of a exchange master.
  */
-@Path("/securities")
-public class WebSecuritiesResource extends AbstractWebSecurityResource {
+@Path("/exchanges")
+public class WebExchangesResource extends AbstractWebExchangeResource {
 
   /**
    * Creates the resource.
-   * @param securityMaster  the security master, not null
+   * @param exchangeMaster  the exchange master, not null
    */
-  public WebSecuritiesResource(final SecurityMaster securityMaster) {
-    super(securityMaster);
+  public WebExchangesResource(final ExchangeMaster exchangeMaster) {
+    super(exchangeMaster);
   }
 
   //-------------------------------------------------------------------------
@@ -60,14 +60,12 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
       @QueryParam("name") String name,
-      @QueryParam("type") String type,
       @Context UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
-    SecuritySearchRequest searchRequest = new SecuritySearchRequest();
+    ExchangeSearchRequest searchRequest = new ExchangeSearchRequest();
     searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
     searchRequest.setName(StringUtils.trimToNull(name));
-    searchRequest.setSecurityType(StringUtils.trimToNull(type));
     MultivaluedMap<String, String> query = uriInfo.getQueryParameters();
     for (int i = 0; query.containsKey("idscheme." + i) && query.containsKey("idvalue." + i); i++) {
       Identifier id = Identifier.of(query.getFirst("idscheme." + i), query.getFirst("idvalue." + i));
@@ -77,11 +75,11 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     out.put("searchRequest", searchRequest);
     
     if (data().getUriInfo().getQueryParameters().size() > 0) {
-      SecuritySearchResult searchResult = data().getSecurityMaster().search(searchRequest);
+      ExchangeSearchResult searchResult = data().getExchangeMaster().searchExchanges(searchRequest);
       out.put("searchResult", searchResult);
       out.put("paging", new WebPaging(searchResult.getPaging(), uriInfo));
     }
-    return getFreemarker().build("securities/securities.ftl", out);
+    return getFreemarker().build("exchanges/exchanges.ftl", out);
   }
 
   //-------------------------------------------------------------------------
@@ -89,20 +87,19 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response post(
       @FormParam("name") String name,
-      @FormParam("type") String type,
       @FormParam("idscheme") String idScheme,
-      @FormParam("idvalue") String idValue) {
+      @FormParam("idvalue") String idValue,
+      @FormParam("regionscheme") String regionScheme,
+      @FormParam("regionvalue") String regionValue) {
     name = StringUtils.trimToNull(name);
-    type = StringUtils.trimToNull(type);
     idScheme = StringUtils.trimToNull(idScheme);
     idValue = StringUtils.trimToNull(idValue);
-    if (name == null || type == null || idScheme == null || idValue == null) {
+    regionScheme = StringUtils.trimToNull(regionScheme);
+    regionValue = StringUtils.trimToNull(regionValue);
+    if (name == null || idScheme == null || idValue == null) {
       FlexiBean out = createRootData();
       if (name == null) {
         out.put("err_nameMissing", true);
-      }
-      if (type == null) {
-        out.put("err_typeMissing", true);
       }
       if (idScheme == null) {
         out.put("err_idschemeMissing", true);
@@ -110,26 +107,31 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       if (idValue == null) {
         out.put("err_idvalueMissing", true);
       }
-      String html = getFreemarker().build("securities/securities-add.ftl", out);
+      if (regionScheme == null) {
+        out.put("err_regionschemeMissing", true);
+      }
+      if (regionValue == null) {
+        out.put("err_regionvalueMissing", true);
+      }
+      String html = getFreemarker().build("exchanges/exchanges-add.ftl", out);
       return Response.ok(html).build();
     }
-    DefaultSecurity security = new DefaultSecurity(type);
-    security.setName(name);
-    security.addIdentifier(Identifier.of(idScheme, idValue));
-    SecurityDocument doc = new SecurityDocument();
-    doc.setSecurity(security);
-    SecurityDocument added = data().getSecurityMaster().add(doc);
-    URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getSecurityId().toLatest().toString()).build();
+    Identifier id = Identifier.of(idScheme, idValue);
+    Identifier region = Identifier.of(regionScheme, regionValue);
+    Exchange exchange = new Exchange(IdentifierBundle.of(id), name, region);
+    ExchangeDocument doc = new ExchangeDocument(exchange);
+    ExchangeDocument added = data().getExchangeMaster().addExchange(doc);
+    URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getExchangeId().toLatest().toString()).build();
     return Response.seeOther(uri).build();
   }
 
   //-------------------------------------------------------------------------
-  @Path("{securityId}")
-  public WebSecurityResource findPortfolio(@PathParam("securityId") String idStr) {
-    data().setUriSecurityId(idStr);
-    SecurityDocument securityDoc = data().getSecurityMaster().get(UniqueIdentifier.parse(idStr));
-    data().setSecurity(securityDoc);
-    return new WebSecurityResource(this);
+  @Path("{exchangeId}")
+  public WebExchangeResource findPortfolio(@PathParam("exchangeId") String idStr) {
+    data().setUriExchangeId(idStr);
+    ExchangeDocument exchangeDoc = data().getExchangeMaster().getExchange(UniqueIdentifier.parse(idStr));
+    data().setExchange(exchangeDoc);
+    return new WebExchangeResource(this);
   }
 
   //-------------------------------------------------------------------------
@@ -139,29 +141,29 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
    */
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
-    SecuritySearchRequest searchRequest = new SecuritySearchRequest();
+    ExchangeSearchRequest searchRequest = new ExchangeSearchRequest();
     out.put("searchRequest", searchRequest);
     return out;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Builds a URI for securities.
+   * Builds a URI for exchanges.
    * @param data  the data, not null
    * @return the URI, not null
    */
-  public static URI uri(WebSecuritiesData data) {
+  public static URI uri(WebExchangeData data) {
     return uri(data, null);
   }
 
   /**
-   * Builds a URI for securities.
+   * Builds a URI for exchanges.
    * @param data  the data, not null
    * @param identifiers  the identifiers to search for, may be null
    * @return the URI, not null
    */
-  public static URI uri(WebSecuritiesData data, IdentifierBundle identifiers) {
-    UriBuilder builder = data.getUriInfo().getBaseUriBuilder().path(WebSecuritiesResource.class);
+  public static URI uri(WebExchangeData data, IdentifierBundle identifiers) {
+    UriBuilder builder = data.getUriInfo().getBaseUriBuilder().path(WebExchangesResource.class);
     if (identifiers != null) {
       Iterator<Identifier> it = identifiers.iterator();
       for (int i = 0; it.hasNext(); i++) {
