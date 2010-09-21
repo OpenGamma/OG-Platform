@@ -239,10 +239,10 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     try {
       //TODO have the decomposition as an optional input [FIN-146]
       rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, DecompositionFactory.getDecomposition(DecompositionFactory.LU_COMMONS_NAME));
-      yields = rootFinder.getRoot(curveCalculator, jacobianCalculator,new DoubleMatrix1D(initialRatesGuess)).getData();
+      yields = rootFinder.getRoot(curveCalculator, new DoubleMatrix1D(initialRatesGuess)).getData();
     } catch (final IllegalArgumentException e) {
       rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
-      yields = rootFinder.getRoot(curveCalculator, jacobianCalculator,new DoubleMatrix1D(initialRatesGuess)).getData();
+      yields = rootFinder.getRoot(curveCalculator, new DoubleMatrix1D(initialRatesGuess)).getData();
     }
     final YieldAndDiscountCurve curve = new InterpolatedYieldCurve(nodeTimes, yields, interpolator);
     final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(yields));
