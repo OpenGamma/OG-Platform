@@ -9,6 +9,7 @@
 
     create sequence hibernate_sequence start 1 increment 1;
 
+
 -- create-db-security.sql: Security Master
 
 -- design has one document
@@ -367,6 +368,7 @@ create table sec_swap (
     constraint sec_fk_swap2sec foreign key (security_id) references sec_security (id)
 );
 
+
 -- create-db-position.sql: Security Master
 
 -- design has two documents
@@ -459,10 +461,10 @@ create table rsk_observation_datetime (
 	
 	primary key (id),
 	
-	constraint fk_rsk_obs_datetime2obs_time
+	constraint rsk_fk_obs_datetime2obs_time
 	    foreign key (observation_time_id) references rsk_observation_time (id),
 	    
-	constraint chk_rsk_obs_datetime check 
+	constraint rsk_chk_obs_datetime check 
 	    (time_part is not null or observation_time_id is not null), 
 	
 	unique (date_part, observation_time_id)
@@ -486,7 +488,7 @@ create table rsk_compute_node (
 	
 	primary key (id),
 	
-	constraint fk_rsk_cmpt_node2cmpt_host
+	constraint rsk_fk_cmpt_node2cmpt_host
 	    foreign key (compute_host_id) references rsk_compute_host (id),
 	    
 	unique (config_oid, config_version)
@@ -509,7 +511,7 @@ create table rsk_computation_target_type (
     
     primary key (id),
     
-    constraint chk_rsk_cmpt_target_type check
+    constraint rsk_chk_cmpt_target_type check
         ((id = 0 and name = 'PORTFOLIO_NODE') or
          (id = 1 and name = 'POSITION') or 
          (id = 2 and name = 'SECURITY') or
@@ -529,7 +531,7 @@ create table rsk_computation_target (
 	
 	primary key (id),
 	
-	constraint fk_rsk_cmpt_target2tgt_type 
+	constraint rsk_fk_cmpt_target2tgt_type 
 	    foreign key (type_id) references rsk_computation_target_type (id),
 	    
 	unique (type_id, id_scheme, id_value)
@@ -555,7 +557,7 @@ create table rsk_live_data_snapshot (
 	
 	primary key (id),
 	
-	constraint fk_rsk_lv_data_snap2ob_dttime
+	constraint rsk_fk_lv_data_snap2ob_dttime
 	    foreign key (observation_datetime_id) references rsk_observation_datetime (id),
 	    
 	unique (observation_datetime_id)
@@ -570,9 +572,9 @@ create table rsk_live_data_snapshot_entry (
 	
 	primary key (id),
 	
-	constraint fk_rsk_snpsht_entry2snpsht
+	constraint rsk_fk_snpsht_entry2snpsht
 		foreign key (snapshot_id) references rsk_live_data_snapshot (id),
-	constraint fk_rsk_spsht_entry2cmp_target
+	constraint rsk_fk_spsht_entry2cmp_target
 	    foreign key (computation_target_id) references rsk_computation_target (id),
 	    
 	unique (snapshot_id, computation_target_id, field_id) 	
@@ -600,13 +602,13 @@ create table rsk_run (
     
     primary key (id),
     
-    constraint fk_rsk_run2opengamma_version
+    constraint rsk_fk_run2opengamma_version
         foreign key (opengamma_version_id) references rsk_opengamma_version (id),
-    constraint fk_rsk_run2compute_host
+    constraint rsk_fk_run2compute_host
         foreign key (master_process_host_id) references rsk_compute_host (id),
-    constraint fk_rsk_run2obs_datetime
+    constraint rsk_fk_run2obs_datetime
         foreign key (run_time_id) references rsk_observation_datetime (id),
-    constraint fk_rsk_run2live_data_snapshot
+    constraint rsk_fk_run2live_data_snapshot
         foreign key (live_data_snapshot_id) references rsk_live_data_snapshot (id)
 );
 
@@ -617,7 +619,7 @@ create table rsk_calculation_configuration (
 	
 	primary key (id),
 	
-	constraint fk_rsk_calc_conf2run
+	constraint rsk_fk_calc_conf2run
 	    foreign key (run_id) references rsk_run (id),
 	
 	unique (run_id, name)
@@ -636,7 +638,7 @@ create table rsk_run_property (
 	
 	primary key (id),
 
-	constraint fk_rsk_run_property2run 
+	constraint rsk_fk_run_property2run 
 	    foreign key (run_id) references rsk_run (id)
 );
 
@@ -646,9 +648,9 @@ create table rsk_run_status (
     computation_target_id int not null,
     status int not null,
 
-    constraint fk_rsk_run_status2calc_conf
+    constraint rsk_fk_run_status2calc_conf
         foreign key (calculation_configuration_id) references rsk_calculation_configuration (id),
-    constraint fk_rsk_run_status2comp_tgt
+    constraint rsk_fk_run_status2comp_tgt
         foreign key (computation_target_id) references rsk_computation_target (id),
 
     unique (calculation_configuration_id, computation_target_id)
@@ -680,15 +682,15 @@ create table rsk_value (
     primary key (id),
     
     -- performance implications of these constraints?
-    constraint fk_rsk_value2calc_conf
+    constraint rsk_fk_value2calc_conf
         foreign key (calculation_configuration_id) references rsk_calculation_configuration (id),
-    constraint fk_rsk_value2run 
+    constraint rsk_fk_value2run 
         foreign key (run_id) references rsk_run (id),
-    constraint fk_rsk_value2value_name
+    constraint rsk_fk_value2value_name
         foreign key (value_name_id) references rsk_value_name (id),
-    constraint fk_rsk_value2comp_target
+    constraint rsk_fk_value2comp_target
         foreign key (computation_target_id) references rsk_computation_target (id),
-    constraint fk_rsk_value2compute_node
+    constraint rsk_fk_value2compute_node
         foreign key (compute_node_id) references rsk_compute_node (id),
         
     unique (calculation_configuration_id, value_name_id, computation_target_id)
@@ -719,15 +721,15 @@ create table rsk_failure (
     
     primary key (id),
     
-    constraint fk_rsk_failure2calc_conf 
+    constraint rsk_fk_failure2calc_conf 
         foreign key (calculation_configuration_id) references rsk_calculation_configuration (id),
-    constraint fk_rsk_failure2run 
+    constraint rsk_fk_failure2run 
         foreign key (run_id) references rsk_run (id),
-    constraint fk_rsk_failure2value_name
+    constraint rsk_fk_failure2value_name
         foreign key (value_name_id) references rsk_value_name (id),
-    constraint fk_rsk_failure2com_target
+    constraint rsk_fk_failure2com_target
         foreign key (computation_target_id) references rsk_computation_target (id),
-   constraint fk_rsk_failure2node
+   constraint rsk_fk_failure2node
        foreign key (compute_node_id) references rsk_compute_node (id),
         
     unique (calculation_configuration_id, value_name_id, computation_target_id)
@@ -740,10 +742,10 @@ create table rsk_failure_reason (
    
    primary key (id),
    
-   constraint fk_rsk_fail_reason2failure
+   constraint rsk_fk_fail_reason2failure
        foreign key (rsk_failure_id) references rsk_failure (id)
        on delete cascade,
-   constraint fk_rsk_fail_reason2cmpt_fail
+   constraint rsk_fk_fail_reason2cmpt_fail
        foreign key (compute_failure_id) references rsk_compute_failure (id),
 
    unique (rsk_failure_id, compute_failure_id)
