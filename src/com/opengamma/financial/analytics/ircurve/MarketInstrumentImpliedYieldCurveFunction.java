@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.ircurve;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -58,6 +59,8 @@ import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
+import com.opengamma.math.ParallelArrayBinarySort;
+import com.opengamma.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -69,6 +72,7 @@ import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivit
 import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.rootfinding.RootNotFoundException;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
 
@@ -219,16 +223,19 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       System.err.println("LAST_DATE_CALCULATOR.getValue(derivative) = " + nodeTimes[i]);
       i++;
     }
+    ParallelArrayBinarySort.parallelBinarySort(nodeTimes, initialRatesGuess);
     final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
     final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
     final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> sensitivityCalculators = 
       new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
 //    final Interpolator1D interpolator = Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName());
-    final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_definition.getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_definition.getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR, 
+        Interpolator1DFactory.FLAT_EXTRAPOLATOR);
     curveNodes.put(_name, nodeTimes);
     interpolators.put(_name, interpolator);
     //TODO have use finite difference or not as an input [FIN-147]
-    Interpolator1DNodeSensitivityCalculator sensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(_definition.getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
+    Interpolator1DNodeSensitivityCalculator sensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(_definition.getInterpolatorName(),
+        Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
     sensitivityCalculators.put(_name, sensitivityCalculator);
     final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, null, curveNodes, interpolators, sensitivityCalculators);
     //TODO have the calculator and sensitivity calculators as an input [FIN-144], [FIN-145]
@@ -239,11 +246,12 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     try {
       //TODO have the decomposition as an optional input [FIN-146]
       rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, DecompositionFactory.getDecomposition(DecompositionFactory.LU_COMMONS_NAME));
-      yields = rootFinder.getRoot(curveCalculator, jacobianCalculator,new DoubleMatrix1D(initialRatesGuess)).getData();
-    } catch (final IllegalArgumentException e) {
+      yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess)).getData();
+    } catch (final RootNotFoundException e) {  
       rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
-      yields = rootFinder.getRoot(curveCalculator, jacobianCalculator,new DoubleMatrix1D(initialRatesGuess)).getData();
+      yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess)).getData();
     }
+    
     final YieldAndDiscountCurve curve = new InterpolatedYieldCurve(nodeTimes, yields, interpolator);
     final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(yields));
     return Sets.newHashSet(new ComputedValue(_curveResult, curve), new ComputedValue(_jacobianResult, jacobianMatrix.getData()));
