@@ -64,12 +64,8 @@ public class StandardEquityModelFunction extends AbstractFunction implements Fun
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
       final EquitySecurity equity = (EquitySecurity) target.getSecurity();
-      return Collections.<ValueSpecification>singleton(new ValueSpecification(
-          new ValueRequirement(
-              ValueRequirementNames.FAIR_VALUE, 
-              ComputationTargetType.SECURITY, 
-              equity.getUniqueIdentifier()),
-            getUniqueIdentifier()));
+      return Collections.<ValueSpecification>singleton(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity.getUniqueIdentifier()),
+          getUniqueIdentifier()));
     }
     return null;
   }
