@@ -250,6 +250,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     } catch (final RootNotFoundException e) {  
       rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
       yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess)).getData();
+
     }
     
     final YieldAndDiscountCurve curve = new InterpolatedYieldCurve(nodeTimes, yields, interpolator);
