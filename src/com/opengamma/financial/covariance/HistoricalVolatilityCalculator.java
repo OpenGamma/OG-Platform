@@ -5,8 +5,11 @@
  */
 package com.opengamma.financial.covariance;
 
+import static com.opengamma.financial.timeseries.util.TimeSeriesDataTestUtils.testNotNullOrEmpty;
+import static com.opengamma.financial.timeseries.util.TimeSeriesDataTestUtils.testTimeSeriesDates;
+import static com.opengamma.financial.timeseries.util.TimeSeriesDataTestUtils.testTimeSeriesSize;
+
 import java.util.Iterator;
-import java.util.List;
 
 import org.apache.commons.lang.Validate;
 
@@ -51,52 +54,15 @@ public abstract class HistoricalVolatilityCalculator implements VolatilityCalcul
     _percentBadDataPoints = percentBadDataPoints;
   }
 
-  /**
-   * Tests the array of time series 
-   * @param x An array of time series
-   * @throws IllegalArgumentException If the array is null; if the array is empty; if the first element of the array is null
-   */
-  protected void testInput(final DoubleTimeSeries<?>[] x) {
-    Validate.notNull(x);
-    ArgumentChecker.notEmpty(x, "x");
-    Validate.notNull(x[0], "first time series");
-  }
-
-  /**
-   * Tests that each time series has a minimum length
-   * @param x An array of time series 
-   * @param minLength The minimum allowed length of a time series
-   * @throws IllegalArgumentException If a time series is less than the minimum 
-   */
-  protected void testTimeSeries(final DoubleTimeSeries<?>[] x, final int minLength) {
-    for (final DoubleTimeSeries<?> ts : x) {
-      if (ts.size() < minLength) {
-        throw new IllegalArgumentException("Need at least two data points to calculate volatility");
-      }
-    }
-  }
-
-  /**
-   * Tests that each time series contains the same dates.
-   * @param x An array of time series
-   * @throws IllegalArgumentException If the time series are not all the same length; if the time series contain different dates
-   */
-  protected void testDatesCoincide(final DoubleTimeSeries<?>[] x) {
-    final int size = x[0].size();
-    for (int i = 1; i < x.length; i++) {
-      if (x[i].size() != size) {
-        throw new TimeSeriesException("Time series were not all the same length");
-      }
-    }
-    final List<?> times1 = x[0].times();
-    List<?> times2;
-    for (int i = 1; i < x.length; i++) {
-      times2 = x[i].times();
-      for (final Object t : times1) {
-        if (!times2.contains(t)) {
-          throw new TimeSeriesException("Time series did not all contain the same dates");
-        }
-      }
+  protected void testTimeSeries(final DoubleTimeSeries<?>[] tsArray, final int minLength) {
+    Validate.notNull(tsArray, "array of time series");
+    Validate.notEmpty(tsArray, "array of time series");
+    testNotNullOrEmpty(tsArray[0]);
+    final DoubleTimeSeries<?> ts = tsArray[0];
+    testTimeSeriesSize(ts, minLength);
+    for (int i = 1; i < tsArray.length; i++) {
+      testTimeSeriesSize(tsArray[i], minLength);
+      testTimeSeriesDates(ts, tsArray[i]);
     }
   }
 
