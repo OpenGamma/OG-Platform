@@ -8,6 +8,7 @@ package com.opengamma.financial.var.historical;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -15,9 +16,9 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  */
 public class PnLStatisticsCalculator extends Function1D<HistoricalVaRDataBundle, Double> {
-  private final Function1D<DoubleTimeSeries<?>, Double> _calculator;
+  private final Function<DoubleTimeSeries<?>, Double> _calculator;
 
-  public PnLStatisticsCalculator(final Function1D<DoubleTimeSeries<?>, Double> calculator) {
+  public PnLStatisticsCalculator(final Function<DoubleTimeSeries<?>, Double> calculator) {
     Validate.notNull(calculator, "calculator");
     _calculator = calculator;
   }

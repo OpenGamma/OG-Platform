@@ -8,7 +8,7 @@ package com.opengamma.financial.var;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.function.Function1D;
+import com.opengamma.math.function.Function;
 
 /**
  * @param <T> Type of the data
@@ -19,7 +19,7 @@ public class NormalStatistics<T> {
 
   // TODO data shouldn't go here - need to have ability to change and
   // recalculate
-  public NormalStatistics(final Function1D<T, Double> meanCalculator, final Function1D<T, Double> stdCalculator, final T data) {
+  public NormalStatistics(final Function<T, Double> meanCalculator, final Function<T, Double> stdCalculator, final T... data) {
     Validate.notNull(meanCalculator, "mean calculator");
     Validate.notNull(stdCalculator, "standard deviation calculator");
     Validate.notNull(data, "data");
@@ -47,7 +47,7 @@ public class NormalStatistics<T> {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -57,7 +57,7 @@ public class NormalStatistics<T> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    NormalStatistics<?> other = (NormalStatistics<?>) obj;
+    final NormalStatistics<?> other = (NormalStatistics<?>) obj;
     if (!ObjectUtils.equals(_mean, other._mean)) {
       return false;
     }

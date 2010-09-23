@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.timeseries.util;
 
-import java.util.List;
-
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -47,13 +45,14 @@ public class TimeSeriesDataTestUtils {
   public static void testTimeSeriesDates(final DoubleTimeSeries<?> ts1, final DoubleTimeSeries<?> ts2) {
     testNotNullOrEmpty(ts1);
     testNotNullOrEmpty(ts2);
-    if (ts1.size() != ts2.size()) {
+    final int n = ts1.size();
+    if (n != ts2.size()) {
       throw new IllegalArgumentException("Time series were not the same length; have " + ts1.size() + " and " + ts2.size());
     }
-    final List<?> times1 = ts1.times();
-    final List<?> times2 = ts2.times();
-    for (final Object t : times1) {
-      if (!times2.contains(t)) {
+    final Object[] times1 = ts1.timesArray();
+    final Object[] times2 = ts2.timesArray();
+    for (int i = 0; i < n; i++) {
+      if (!times1[i].equals(times2[i])) {
         throw new IllegalArgumentException("Time series did not contain the same dates");
       }
     }

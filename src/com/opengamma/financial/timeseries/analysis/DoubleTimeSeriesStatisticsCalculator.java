@@ -7,27 +7,32 @@ package com.opengamma.financial.timeseries.analysis;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.function.Function1D;
+import com.opengamma.math.function.Function;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
  */
-public class DoubleTimeSeriesStatisticsCalculator extends Function1D<DoubleTimeSeries<?>, Double> {
-  private final Function1D<double[], Double> _statistic;
+public class DoubleTimeSeriesStatisticsCalculator implements Function<DoubleTimeSeries<?>, Double> {
+  private final Function<double[], Double> _statistic;
 
-  public DoubleTimeSeriesStatisticsCalculator(final Function1D<double[], Double> statistic) {
+  public DoubleTimeSeriesStatisticsCalculator(final Function<double[], Double> statistic) {
     Validate.notNull(statistic, "statistic");
     _statistic = statistic;
   }
 
   @Override
-  public Double evaluate(final DoubleTimeSeries<?> x) {
+  public Double evaluate(final DoubleTimeSeries<?>... x) {
     Validate.notNull(x, "x");
-    if (x.isEmpty()) {
-      throw new IllegalArgumentException("Time series was empty");
+    Validate.isTrue(x.length > 0);
+    ArgumentChecker.noNulls(x, "x");
+    final int n = x.length;
+    final double[][] arrays = new double[n][];
+    for (int i = 0; i < n; i++) {
+      arrays[i] = x[i].toFastLongDoubleTimeSeries().valuesArrayFast();
     }
-    return _statistic.evaluate(x.toFastLongDoubleTimeSeries().valuesArrayFast());
+    return _statistic.evaluate(arrays);
   }
 
 }
