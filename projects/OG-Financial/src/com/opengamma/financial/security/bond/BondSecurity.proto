@@ -1,0 +1,52 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.financial.security.bond {
+
+  /**
+   * A {@code Security} used to model bonds.
+   */
+  abstract message BondSecurity extends FinancialSecurity {
+  
+    required string securityType [default="BOND"];
+    
+    required string issuerName;
+    required string issuerType;
+    required string issuerDomicile;
+    required string market;
+    required Currency currency;
+    required convention.yield.YieldConvention yieldConvention;
+    required string guaranteeType;
+    required util.time.Expiry maturity;
+    required string couponType;
+    required double couponRate;
+    required convention.frequency.Frequency couponFrequency;
+    required convention.daycount.DayCount dayCountConvention;
+    required convention.businessday.BusinessDayConvention businessDayConvention;
+    required DateTimeWithZone announcementDate;
+    required DateTimeWithZone interestAccrualDate;
+    required DateTimeWithZone settlementDate;
+    required DateTimeWithZone firstCouponDate;
+    required double issuancePrice;
+    required double totalAmountIssued;
+    required double minimumAmount;
+    required double minimumIncrement;
+    required double parAmount;
+    required double redemptionValue;
+    
+    binding Java {
+      body <<<JAVA
+        public abstract <T> T accept(BondSecurityVisitor<T> visitor);
+
+        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) {
+          return visitor.visitBondSecurity(this);
+        }
+JAVA;
+    }
+  
+  }
+
+}

@@ -1,0 +1,45 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.financial.security.equity {
+
+  /**
+   * A {@code Security} used to model equities.
+   */
+  message EquitySecurity extends FinancialSecurity {
+
+    required string securityType [default = "EQUITY"];
+    
+    optional string shortName;
+    required string exchange;
+    required string exchangeCode;
+    required string companyName;
+    required Currency currency;
+    optional GICSCode gicsCode;
+
+    binding Java {
+      body <<<JAVA
+        /**
+         * Override to use the company name as the display name.
+         * @return the display name, not null
+         */
+        @Override
+        protected String buildDefaultDisplayName() {
+          if (getCompanyName() != null) {
+            return getCompanyName();
+          } else {
+            return super.buildDefaultDisplayName();
+          }
+        }
+        
+        public <T> T accept(EquitySecurityVisitor<T> visitor) { return visitor.visitEquitySecurity(this); }
+        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitEquitySecurity(this); }
+JAVA;
+    }
+    
+  }
+
+}

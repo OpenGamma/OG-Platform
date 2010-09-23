@@ -1,0 +1,159 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.financial.analytics.volatility.surface;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.time.calendar.ZonedDateTime;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.function.AbstractFunction;
+import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.function.FunctionInvoker;
+import com.opengamma.engine.security.Security;
+import com.opengamma.engine.security.SecuritySource;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
+import com.opengamma.financial.model.option.definition.OptionDefinition;
+import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
+import com.opengamma.financial.model.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceModel;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.financial.security.option.OptionSecurity;
+import com.opengamma.financial.security.option.OptionType;
+import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
+import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.Expiry;
+
+/**
+ * 
+ */
+public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends AbstractFunction implements FunctionInvoker {
+  private static final Logger s_logger = LoggerFactory.getLogger(BlackScholesMertonImpliedVolatilitySurfaceFunction.class);
+  private final BlackScholesMertonImpliedVolatilitySurfaceModel _volatilitySurfaceModel;
+
+  public BlackScholesMertonImpliedVolatilitySurfaceFunction() {
+    _volatilitySurfaceModel = new BlackScholesMertonImpliedVolatilitySurfaceModel();
+  }
+
+  @Override
+  public String getShortName() {
+    return "BlackScholesMertonImpliedVolatilitySurface";
+  }
+
+  // NEW METHODS:
+  @Override
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (target.getType() != ComputationTargetType.SECURITY) {
+      return false;
+    }
+    if (target.getSecurity() instanceof OptionSecurity) {
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (!canApplyTo(context, target)) {
+      return null;
+    }
+    final OptionSecurity optionSec = (OptionSecurity) target.getSecurity();
+    SecuritySource securityMaster = context.getSecuritySource();
+    Security underlying = securityMaster.getSecurity(new IdentifierBundle(optionSec.getUnderlyingIdentifier()));
+    final ValueRequirement optionMarketDataReq = getPriceRequirement(optionSec.getUniqueIdentifier());
+    final ValueRequirement underlyingMarketDataReq = getPriceRequirement(underlying.getUniqueIdentifier());
+    final ValueRequirement discountCurveReq = getDiscountCurveMarketDataRequirement(optionSec.getCurrency().getUniqueIdentifier());
+    // TODO will need a cost-of-carry model as well
+    final Set<ValueRequirement> optionRequirements = new HashSet<ValueRequirement>();
+    optionRequirements.add(optionMarketDataReq);
+    optionRequirements.add(underlyingMarketDataReq);
+    optionRequirements.add(discountCurveReq);
+    return optionRequirements;
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (!canApplyTo(context, target)) {
+      return null;
+    }
+    return Collections.singleton(createResultSpecification(target.getSecurity()));
+  }
+
+  @Override
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues) {
+    final ZonedDateTime today = executionContext.getSnapshotClock().zonedDateTime();
+    final OptionSecurity optionSec = (OptionSecurity) target.getSecurity();
+    
+    SecuritySource secMaster = executionContext.getSecuritySource();
+    Security underlying = secMaster.getSecurity(new IdentifierBundle(optionSec.getUnderlyingIdentifier()));
+
+    // Get inputs:
+    final ValueRequirement optionPriceReq = getPriceRequirement(optionSec.getUniqueIdentifier());
+    final ValueRequirement underlyingPriceReq = getPriceRequirement(underlying.getUniqueIdentifier());
+    final ValueRequirement discountCurveReq = getDiscountCurveMarketDataRequirement(optionSec.getCurrency().getUniqueIdentifier());
+
+    final Double optionPrice = (Double) inputs.getValue(optionPriceReq);
+    final Double underlyingPrice = (Double) inputs.getValue(underlyingPriceReq);
+    final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(discountCurveReq);
+    // TODO cost-of-carry model
+    if (optionPrice == null) {
+      s_logger.warn("No market value for option price");
+    }
+    if (underlyingPrice == null) {
+      s_logger.warn("No market value for underlying price");
+    }
+
+    // Perform the calculation:
+    final Expiry expiry = optionSec.getExpiry();
+    final double years = DateUtil.getDifferenceInYears(today, expiry.getExpiry().toInstant());
+    final double b = discountCurve.getInterestRate(years); // TODO
+    final OptionDefinition europeanVanillaOptionDefinition = new EuropeanVanillaOptionDefinition(optionSec.getStrike(), expiry, (optionSec.getOptionType() == OptionType.CALL));
+    final Map<OptionDefinition, Double> prices = new HashMap<OptionDefinition, Double>();
+    prices.put(europeanVanillaOptionDefinition, optionPrice);
+    final VolatilitySurface volatilitySurface = _volatilitySurfaceModel.getSurface(prices, new StandardOptionDataBundle(discountCurve, b, null, underlyingPrice, today));
+
+    // Package the result
+    final ValueSpecification resultSpec = createResultSpecification(optionSec);
+    final ComputedValue resultValue = new ComputedValue(resultSpec, volatilitySurface);
+    return Collections.singleton(resultValue);
+  }
+
+  protected ValueSpecification createResultSpecification(final Security security) {
+    final ValueRequirement resultRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, security);
+    final ValueSpecification resultSpec = new ValueSpecification(resultRequirement, getUniqueIdentifier());
+    return resultSpec;
+  }
+
+  @Override
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.SECURITY;
+  }
+
+  private ValueRequirement getPriceRequirement(final UniqueIdentifier uid) {
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, uid);
+  }
+
+  private ValueRequirement getDiscountCurveMarketDataRequirement(final UniqueIdentifier uid) {
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, uid);
+  }
+}
