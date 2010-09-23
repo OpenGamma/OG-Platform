@@ -78,15 +78,13 @@ public class HistoricalVolatilityHighLowCalculator extends HistoricalVolatilityC
    */
   @Override
   public Double evaluate(final DoubleTimeSeries<?>... x) {
-    testInput(x);
+    testTimeSeries(x, 1);
     if (x.length < 2) {
       throw new IllegalArgumentException("Need high and low time series to calculate high-low volatility");
     }
     if (x.length > 2) {
       s_logger.info("Time series array contained more than two series; only using the first two");
     }
-    testTimeSeries(x, 1);
-    testDatesCoincide(x);
     final DoubleTimeSeries<?> high = x[0];
     final DoubleTimeSeries<?> low = x[1];
     testHighLow(high, low);

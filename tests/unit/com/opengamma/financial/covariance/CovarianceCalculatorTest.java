@@ -8,7 +8,6 @@ package com.opengamma.financial.covariance;
 import org.junit.Test;
 
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.TimeSeriesException;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
 
@@ -61,7 +60,7 @@ public class CovarianceCalculatorTest {
     CALCULATOR.testTimeSeries(TS2, TS4);
   }
 
-  @Test(expected = TimeSeriesException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testDifferentDates() {
     CALCULATOR.testTimeSeries(TS2, TS3);
   }

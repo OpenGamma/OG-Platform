@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -17,7 +18,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  */
 public class AutocovarianceFunctionCalculator extends Function1D<DoubleTimeSeries<?>, double[]> {
-  private final Function1D<DoubleTimeSeries<?>, Double> _meanCalculator = new DoubleTimeSeriesStatisticsCalculator(new MeanCalculator());
+  private final Function<DoubleTimeSeries<?>, Double> _meanCalculator = new DoubleTimeSeriesStatisticsCalculator(new MeanCalculator());
 
   @Override
   public double[] evaluate(final DoubleTimeSeries<?> x) {

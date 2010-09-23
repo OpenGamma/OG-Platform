@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.interestrate.swap.definition;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
-
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
@@ -38,7 +37,7 @@ public class Swap implements InterestRateDerivative {
   }
 
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitSwap(this, data);
   }
 
@@ -52,7 +51,7 @@ public class Swap implements InterestRateDerivative {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -62,13 +61,13 @@ public class Swap implements InterestRateDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    Swap other = (Swap) obj;
+    final Swap other = (Swap) obj;
     return ObjectUtils.equals(this._payLeg, other._payLeg) && ObjectUtils.equals(this._receiveLeg, other._receiveLeg);
 
   }
 
   @Override
-  public InterestRateDerivative withRate(double rate) {
+  public InterestRateDerivative withRate(final double rate) {
     throw new NotImplementedException();
   }
 

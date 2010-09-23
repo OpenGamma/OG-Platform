@@ -56,7 +56,7 @@ public abstract class LeastSquaresRegression {
       throw new IllegalArgumentException("No data in dependent variable array");
     }
     if (x.length != y.length) {
-      throw new IllegalArgumentException("Dependent and independent variable arrays are not the same length");
+      throw new IllegalArgumentException("Dependent and independent variable arrays are not the same length: have " + x.length + " and " + y.length);
     }
     final int n = x[0].length;
     for (final double[] x1 : x) {

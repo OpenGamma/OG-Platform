@@ -17,7 +17,7 @@ public class ModifiedDurationCalculator {
   private final BondYieldCalculator _byc = new BondYieldCalculator();
   private final MacaulayDurationCalculator _mdc = new MacaulayDurationCalculator();
 
-  public double calculate(final Bond bond, final double dirtyPrice, int compoundingFrquency) {
+  public double calculate(final Bond bond, final double dirtyPrice, final int compoundingFrquency) {
     Validate.notNull(bond, "bond");
     if (dirtyPrice <= 0) {
       throw new IllegalArgumentException("Price must be positive");
@@ -26,8 +26,8 @@ public class ModifiedDurationCalculator {
       throw new IllegalArgumentException("Compounding Frquency must be positive");
     }
 
-    double duration = _mdc.calculate(bond, dirtyPrice);// This is Macaulay Duration
-    double yield = _byc.calculate(bond, dirtyPrice);// NOTE this yield is continuously compounded
+    final double duration = _mdc.calculate(bond, dirtyPrice); // This is Macaulay Duration
+    final double yield = _byc.calculate(bond, dirtyPrice); // NOTE this yield is continuously compounded
     return duration * Math.exp(-yield / compoundingFrquency);
   }
 }

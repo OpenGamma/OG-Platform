@@ -33,13 +33,13 @@ public class OrdinaryLeastSquaresRegression extends LeastSquaresRegression {
 
   public LeastSquaresRegressionResult regress(final double[][] x, final double[] y, final boolean useIntercept) {
     checkData(x, y);
-    final double[][] dep = addInterceptVariable(x, useIntercept);
-    final double[] indep = new double[y.length];
+    final double[][] indep = addInterceptVariable(x, useIntercept);
+    final double[] dep = new double[y.length];
     for (int i = 0; i < y.length; i++) {
-      indep[i] = y[i];
+      dep[i] = y[i];
     }
-    final DoubleMatrix2D matrix = DoubleFactory2D.dense.make(dep);
-    final DoubleMatrix1D vector = DoubleFactory1D.dense.make(indep);
+    final DoubleMatrix2D matrix = DoubleFactory2D.dense.make(indep);
+    final DoubleMatrix1D vector = DoubleFactory1D.dense.make(dep);
     final DoubleMatrix2D transpose = _algebra.transpose(matrix);
     final DoubleMatrix1D betasVector = _algebra.mult(_algebra.mult(_algebra.inverse(_algebra.mult(transpose, matrix)), transpose), vector);
     final double[] yModel = convertArray(_algebra.mult(matrix, betasVector).toArray());
@@ -47,8 +47,8 @@ public class OrdinaryLeastSquaresRegression extends LeastSquaresRegression {
     return getResultWithStatistics(x, y, betas, yModel, transpose, matrix, useIntercept);
   }
 
-  private LeastSquaresRegressionResult getResultWithStatistics(final double[][] x, final double[] y, final double[] betas, final double[] yModel,
-      final DoubleMatrix2D transpose, final DoubleMatrix2D matrix, final boolean useIntercept) {
+  private LeastSquaresRegressionResult getResultWithStatistics(final double[][] x, final double[] y, final double[] betas, final double[] yModel, final DoubleMatrix2D transpose,
+      final DoubleMatrix2D matrix, final boolean useIntercept) {
     double yMean = 0.;
     for (final double y1 : y) {
       yMean += y1;

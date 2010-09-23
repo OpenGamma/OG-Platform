@@ -8,7 +8,7 @@ package com.opengamma.math.statistics.descriptive;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.math.function.Function1D;
+import com.opengamma.math.function.Function;
 
 /**
  * 
@@ -67,7 +67,7 @@ public final class StatisticsCalculatorFactory {
   /** Sample variance calculator */
   public static final SampleVarianceCalculator SAMPLE_VARIANCE_CALCULATOR = new SampleVarianceCalculator();
 
-  private static final Map<String, Function1D<double[], Double>> s_staticInstances = new HashMap<String, Function1D<double[], Double>>();
+  private static final Map<String, Function<double[], Double>> s_staticInstances = new HashMap<String, Function<double[], Double>>();
   private static final Map<Class<?>, String> s_instanceNames = new HashMap<Class<?>, String>();
 
   static {
@@ -102,15 +102,15 @@ public final class StatisticsCalculatorFactory {
   private StatisticsCalculatorFactory() {
   }
 
-  public static Function1D<double[], Double> getCalculator(final String name) {
-    final Function1D<double[], Double> calculator = s_staticInstances.get(name);
+  public static Function<double[], Double> getCalculator(final String name) {
+    final Function<double[], Double> calculator = s_staticInstances.get(name);
     if (calculator != null) {
       return calculator;
     }
     throw new IllegalArgumentException("Could not get calculator for " + name);
   }
 
-  public static String getCalculatorName(final Function1D<double[], Double> calculator) {
+  public static String getCalculatorName(final Function<double[], Double> calculator) {
     if (calculator == null) {
       return null;
     }

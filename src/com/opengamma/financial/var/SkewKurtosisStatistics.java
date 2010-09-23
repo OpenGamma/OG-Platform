@@ -16,6 +16,7 @@ public class SkewKurtosisStatistics<T> extends NormalStatistics<T> {
   private final double _skew;
   private final double _kurtosis;
 
+  @SuppressWarnings("unchecked")
   public SkewKurtosisStatistics(final Function1D<T, Double> meanCalculator, final Function1D<T, Double> stdCalculator, final Function1D<T, Double> skewCalculator,
       final Function1D<T, Double> kurtosisCalculator, final T data) {
     super(meanCalculator, stdCalculator, data);
@@ -47,7 +48,7 @@ public class SkewKurtosisStatistics<T> extends NormalStatistics<T> {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -57,7 +58,7 @@ public class SkewKurtosisStatistics<T> extends NormalStatistics<T> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    SkewKurtosisStatistics<?> other = (SkewKurtosisStatistics<?>) obj;
+    final SkewKurtosisStatistics<?> other = (SkewKurtosisStatistics<?>) obj;
     if (Double.doubleToLongBits(_kurtosis) != Double.doubleToLongBits(other._kurtosis)) {
       return false;
     }

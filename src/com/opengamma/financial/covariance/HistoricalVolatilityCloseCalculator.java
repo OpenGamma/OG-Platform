@@ -75,7 +75,7 @@ public class HistoricalVolatilityCloseCalculator extends HistoricalVolatilityCal
    */
   @Override
   public Double evaluate(final DoubleTimeSeries<?>... x) {
-    testInput(x);
+    testTimeSeries(x, 2);
     if (x.length > 1) {
       s_logger.info("Time series array contained more than one series; only using the first one");
     }

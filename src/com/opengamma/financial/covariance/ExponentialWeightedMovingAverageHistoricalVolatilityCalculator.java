@@ -91,9 +91,7 @@ public class ExponentialWeightedMovingAverageHistoricalVolatilityCalculator exte
    */
   @Override
   public Double evaluate(final DoubleTimeSeries<?>... x) {
-    testInput(x);
     testTimeSeries(x, 3);
-    testDatesCoincide(x);
     final DoubleTimeSeries<?> returnTS = _returnCalculator.evaluate(x);
     final Iterator<Double> iter = returnTS.valuesIterator();
     double returnValue = iter.next();
