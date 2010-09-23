@@ -6,6 +6,8 @@
 package com.opengamma.financial.analytics.schedule;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.time.calendar.Period;
@@ -138,31 +140,64 @@ public class ScheduleCalculator {
     
   }
   
-
-  public static double[] getTimes(final ZonedDateTime[] dates, final DayCount dayCount, final ZonedDateTime effectiveDate) {
+  /**
+   * converts a set of dates into time periods in years for a specified date and using a specified day count convention 
+   * @param dates A set of dates
+   * @param dayCount The day count convention 
+   * @param fromDate The date from which to measure the time period to the dates 
+   * @return A double array of time periods (in years) - if a date is <b>before</b> the fromDate as negative value is returned 
+   */
+  public static double[] getTimes(final ZonedDateTime[] dates, final DayCount dayCount, final ZonedDateTime fromDate) {
     Validate.notNull(dates);
     Validate.notEmpty(dates);
     Validate.notNull(dayCount);
-    Validate.notNull(effectiveDate);
+    Validate.notNull(fromDate);
     final int n = dates.length;
+   
+  
     final double[] result = new double[n];
-    for (int i = 0; i < n; i++) {
-      result[i] = dayCount.getDayCountFraction(effectiveDate, dates[i]);
+    double yearFrac;
+    for (int i = 0; i < (n); i++) {
+      if (dates[i].isAfter(fromDate)) {
+        yearFrac =  dayCount.getDayCountFraction(fromDate, dates[i]);
+      } else {
+        yearFrac = -dayCount.getDayCountFraction(dates[i], fromDate);
+
+      }
+      result[i] = yearFrac;
     }
+    
     return result;
   }
   
-  public static double[] getYearFractions(final ZonedDateTime[] dates, final DayCount dayCount, final ZonedDateTime effectiveDate) {
+  public static int numberOfNegativeValues(double[] periods) {
+    int count = 0;
+    for (int i = 0; i < periods.length; i++) { 
+      if (periods[i] < 0.0) {
+        count++;
+      }
+    }
+    return count;
+  }
+  
+  public static double[] removeFirstNValues(double[] data, int n) {
+    return Arrays.copyOfRange(data, n, data.length);
+  }
+  
+  public static double[] getYearFractions(final ZonedDateTime[] dates, final DayCount dayCount, final ZonedDateTime fromDate) {
     Validate.notNull(dates);
     Validate.notEmpty(dates);
     Validate.notNull(dayCount);
-    Validate.notNull(effectiveDate);
+    Validate.notNull(fromDate);
     final int n = dates.length;
+   
+  
     final double[] result = new double[n];
-    result[0] = dayCount.getDayCountFraction(effectiveDate, dates[0]);
+    result[0] = dayCount.getDayCountFraction(fromDate, dates[0]);
     for (int i = 1; i < n; i++) {
       result[i] = dayCount.getDayCountFraction(dates[i - 1], dates[i]);
     }
+   
     return result;
   }
 }

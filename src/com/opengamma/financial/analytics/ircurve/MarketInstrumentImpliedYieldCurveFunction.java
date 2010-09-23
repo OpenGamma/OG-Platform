@@ -50,6 +50,8 @@ import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.ParRateDifferenceCalculator;
+import com.opengamma.financial.interestrate.PresentValueCalculator;
+import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -210,7 +212,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         throw new NullPointerException("Could not get market data for " + strip);
       }
       if (strip.getInstrumentType() == StripInstrumentType.SWAP) {
-        derivative = swapConverter.getSwap((SwapSecurity) strip.getSecurity(), _name, _name, rate, now);
+        derivative = swapConverter.getSwap((SwapSecurity) strip.getSecurity(), _name, _name, rate, 0.0, now);
       } else {
         throw new OpenGammaRuntimeException("Can only handle swaps at the moment");
       }
@@ -239,8 +241,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     sensitivityCalculators.put(_name, sensitivityCalculator);
     final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, null, curveNodes, interpolators, sensitivityCalculators);
     //TODO have the calculator and sensitivity calculators as an input [FIN-144], [FIN-145]
-    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data, ParRateDifferenceCalculator.getInstance());
-    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderJacobian(data, ParRateCurveSensitivityCalculator.getInstance());
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data, PresentValueCalculator.getInstance());
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderJacobian(data, PresentValueSensitivityCalculator.getInstance());
     NewtonVectorRootFinder rootFinder;
     double[] yields = null;
     try {

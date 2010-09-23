@@ -49,9 +49,11 @@ public class FixedFloatSwapSecurityToSwapConverter {
     _holidaySource = holidaySource;
     _regionSource = regionSource;
     _conventionSource = conventionSource;
+   
   }
+  
 
-  public FixedFloatSwap getSwap(final SwapSecurity swapSecurity, final String fundingCurveName, final String liborCurveName, final double marketRate, final ZonedDateTime now) {
+  public FixedFloatSwap getSwap(final SwapSecurity swapSecurity, final String fundingCurveName, final String liborCurveName, final double marketRate, final double initialRate, final ZonedDateTime now) {
     Validate.notNull(swapSecurity, "swap security");
     final ZonedDateTime effectiveDate = swapSecurity.getEffectiveDate().toZonedDateTime();
     final ZonedDateTime maturityDate = swapSecurity.getMaturityDate().toZonedDateTime();
@@ -76,11 +78,11 @@ public class FixedFloatSwapSecurityToSwapConverter {
     final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getISOCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_SWAP"));
     return new FixedFloatSwap(getFixedLeg(fixedLeg, now, effectiveDate, maturityDate, marketRate, fundingCurveName, calendar), getFloatLeg(floatLeg, now, effectiveDate,
-        maturityDate, fundingCurveName, liborCurveName, calendar, conventions.getSwapFloatingLegSettlementDays()));
+        maturityDate, fundingCurveName, liborCurveName, calendar, initialRate, conventions.getSwapFloatingLegSettlementDays()));
   }
 
   public VariableAnnuity getFloatLeg(final FloatingInterestRateLeg floatLeg, final ZonedDateTime now, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate,
-      final String fundingCurveName, final String liborCurveName, final Calendar calendar, final int settlementDays) {
+      final String fundingCurveName, final String liborCurveName, final Calendar calendar, final double initialRate, final int settlementDays) {
     s_logger.warn("getFloatLeg(floatLeg=" + floatLeg + ", now=" + now + ", effectiveDate=" + effectiveDate + ", maturityDate=" + maturityDate + ", fundingCurveName=" + fundingCurveName + 
                   ", liborCurveName" + liborCurveName + ", calendar=" + calendar + ", settlementDays=" + settlementDays);
     final ZonedDateTime[] unadjustedDates = ScheduleCalculator.getUnadjustedDateSchedule(effectiveDate, maturityDate, floatLeg.getFrequency());
@@ -92,33 +94,59 @@ public class FixedFloatSwapSecurityToSwapConverter {
     final ZonedDateTime[] maturityDates = ScheduleCalculator.getAdjustedMaturityDateSchedule(effectiveDate, unadjustedDates, floatLeg.getBusinessDayConvention(), calendar, floatLeg.getFrequency());
     s_logger.warn("maturityDates=" + Arrays.asList(maturityDates));
 
-    final double[] paymentTimes = ScheduleCalculator.getTimes(adjustedDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), now);
+    double[] paymentTimes = ScheduleCalculator.getTimes(adjustedDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), now);
     s_logger.warn("paymentTimes=" + Doubles.asList(paymentTimes));
-    final double[] resetTimes = ScheduleCalculator.getTimes(resetDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), now);
+    double[] resetTimes = ScheduleCalculator.getTimes(resetDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), now);
     s_logger.warn("resetTimes=" + Doubles.asList(resetTimes));
-    final double[] maturityTimes = ScheduleCalculator.getTimes(maturityDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), now);
+    double[] maturityTimes = ScheduleCalculator.getTimes(maturityDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), now);
     s_logger.warn("maturityTimes=" + Doubles.asList(maturityTimes));
-    final double[] yearFractions = ScheduleCalculator.getYearFractions(adjustedDates, floatLeg.getDayCount(), effectiveDate);
+    double[] yearFractions = ScheduleCalculator.getYearFractions(adjustedDates, floatLeg.getDayCount(), effectiveDate);
     s_logger.warn("yearFractions=" + Doubles.asList(yearFractions));
     final double notional = ((InterestRateNotional) floatLeg.getNotional()).getAmount();
 
-    return new VariableAnnuity(paymentTimes, resetTimes, maturityTimes, yearFractions, notional, fundingCurveName, liborCurveName);
+    int n =  ScheduleCalculator.numberOfNegativeValues(paymentTimes);
+    if (n >= paymentTimes.length) {
+      //all payments are in the past - return a dummy annuity with zero notional a one payment (of zero) at zero 
+      //TODO may want to handle this case differently 
+      return new VariableAnnuity(new double[]{0.0}, new double[]{-1.0}, new double[]{0.0}, new double[]{1.0}, 0.0, 0.0, fundingCurveName, liborCurveName);
+    }
+    
+    if (n > 0) {
+      paymentTimes = ScheduleCalculator.removeFirstNValues(paymentTimes, n);
+      resetTimes = ScheduleCalculator.removeFirstNValues(resetTimes, n);
+      maturityTimes = ScheduleCalculator.removeFirstNValues(maturityTimes, n);
+      yearFractions = ScheduleCalculator.removeFirstNValues(yearFractions, n);
+    }
+    
+    //TODO need to set an initial rate 
+    return new VariableAnnuity(paymentTimes, resetTimes, maturityTimes, yearFractions, notional, initialRate, fundingCurveName, liborCurveName);
   }
 
-  public ConstantCouponAnnuity getFixedLeg(final FixedInterestRateLeg fixedLeg, final ZonedDateTime tradeDate, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate,
+  public ConstantCouponAnnuity getFixedLeg(final FixedInterestRateLeg fixedLeg, final ZonedDateTime now, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate,
       final double marketRate, final String fundingCurveName, final Calendar calendar) {
-    s_logger.warn("getFixedLeg(fixedLeg=" + fixedLeg + ", tradeDate=" + tradeDate + ", effectiveDate=" + effectiveDate + ", maturityDate=" + maturityDate + ", marketRate=" + marketRate + 
+    s_logger.warn("getFixedLeg(fixedLeg=" + fixedLeg + ", tradeDate=" + now + ", effectiveDate=" + effectiveDate + ", maturityDate=" + maturityDate + ", marketRate=" + marketRate + 
                   ", fundingCurveName=" + fundingCurveName + ", calendar=" + calendar);
     final ZonedDateTime[] unadjustedDates = ScheduleCalculator.getUnadjustedDateSchedule(effectiveDate, maturityDate, fixedLeg.getFrequency());
     s_logger.warn("unadjustedDates = " + Arrays.asList(unadjustedDates));
     final ZonedDateTime[] adjustedDates = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, fixedLeg.getBusinessDayConvention(), calendar);
     s_logger.warn("adjustedDates = " + Arrays.asList(adjustedDates));
-    final double[] paymentTimes = ScheduleCalculator.getTimes(adjustedDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), tradeDate);
+    double[] paymentTimes = ScheduleCalculator.getTimes(adjustedDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), now);
     s_logger.warn("paymentTimes = " + Doubles.asList(paymentTimes));
-    final double[] yearFractions = ScheduleCalculator.getYearFractions(adjustedDates, fixedLeg.getDayCount(), effectiveDate);
+    double[] yearFractions = ScheduleCalculator.getYearFractions(adjustedDates, fixedLeg.getDayCount(), effectiveDate);
     s_logger.warn("yearFractions = " + Doubles.asList(yearFractions));
     final double notional = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
     s_logger.warn("notional = " + Doubles.asList(notional));
+    
+    int n =  ScheduleCalculator.numberOfNegativeValues(paymentTimes);
+    if (n >= paymentTimes.length) {
+      return new ConstantCouponAnnuity(new double[]{0.0}, 0.0, 0.0, fundingCurveName);
+    }
+    if (n > 0) {
+      paymentTimes = ScheduleCalculator.removeFirstNValues(paymentTimes, n);
+      yearFractions = ScheduleCalculator.removeFirstNValues(yearFractions, n);
+    }
+    
+    
     return new ConstantCouponAnnuity(paymentTimes, notional, marketRate, yearFractions, fundingCurveName);
   }
 
