@@ -145,7 +145,7 @@ public class IntradayComputationCacheImplTest extends DBTest {
     _intradayComputationCache.stop();
     assertFalse(_intradayComputationCache.isRunning());
     
-    result.setResultTimestamp(Instant.nowSystemClock());
+    result.setResultTimestamp(Instant.nowSystemClock().plusMillis(1));
     timeSeries = _intradayComputationCache.getValue("MockView", "Default", spec, resolution);
     assertNotNull(timeSeries);
     // since result timestamp is now > timestamp of last point in DB, we get a new "real-time" point at the end
