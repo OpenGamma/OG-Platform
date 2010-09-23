@@ -5,8 +5,15 @@
  */
 package com.opengamma.financial.riskreward;
 
+import org.apache.commons.lang.Validate;
+
+import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
+import com.opengamma.financial.timeseries.util.TimeSeriesDataTestUtils;
+import com.opengamma.math.function.Function;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+
 /**
- * The Sharpe ratio is a measure of the excess return with respect to a benchmark per unit of risk in an asset or portfolio. It uses the standard deviation as the measure
+ * The Sharpe ratio is a measure of the excess return with respect to a benchmark per unit of risk of an asset or portfolio. It uses the standard deviation as the measure
  * of total risk. 
  * <p>
  * The Sharpe ratio is defined as:
@@ -17,16 +24,32 @@ package com.opengamma.financial.riskreward;
  * where {@latex.inline $R$} is the asset return, {@latex.inline $R_f$} is the return on the benchmark asset, {@latex.inline $E[R - R_f]$} is the expected value of the excess
  * of the asset return over the benchmark return and {@latex.inline $\\sigma$} is the standard deviation of the asset.
  */
-public class SharpeRatioCalculator {
+public class SharpeRatioCalculator implements Function<DoubleTimeSeries<?>, Double> {
+  private final DoubleTimeSeriesStatisticsCalculator _expectedExcessReturnCalculator;
+  private final DoubleTimeSeriesStatisticsCalculator _standardDeviationCalculator;
+
+  public SharpeRatioCalculator(final DoubleTimeSeriesStatisticsCalculator expectedExcessReturnCalculator, final DoubleTimeSeriesStatisticsCalculator standardDeviationCalculator) {
+    Validate.notNull(expectedExcessReturnCalculator, "expected excess return calculator");
+    Validate.notNull(standardDeviationCalculator, "standard deviation calculator");
+    _expectedExcessReturnCalculator = expectedExcessReturnCalculator;
+    _standardDeviationCalculator = standardDeviationCalculator;
+  }
 
   /**
    * Calculates the Sharpe ratio
-   * @param assetReturn The return of the asset
-   * @param benchmarkReturn The return of the benchmark asset
-   * @param standardDeviation The standard deviation of the return of the asset
+   * @param ts An array of time series where the first element is the return of the asset and the second is the return of the benchmark
    * @return The Sharpe ratio
+   * @throws IllegalArgumentException If the array is null, doesn't contain two elements or if either of the elements is null
    */
-  public double calculate(final double assetReturn, final double benchmarkReturn, final double standardDeviation) {
-    return (assetReturn - benchmarkReturn) / standardDeviation;
+  @Override
+  public Double evaluate(final DoubleTimeSeries<?>... ts) {
+    Validate.notNull(ts, "ts array");
+    TimeSeriesDataTestUtils.testNotNullOrEmpty(ts[0]);
+    TimeSeriesDataTestUtils.testNotNullOrEmpty(ts[1]);
+    final DoubleTimeSeries<?> excessReturn = ts[0].subtract(ts[1]);
+    final double assetExcessReturn = _expectedExcessReturnCalculator.evaluate(excessReturn);
+    final double standardDeviation = _standardDeviationCalculator.evaluate(excessReturn);
+    return assetExcessReturn / standardDeviation;
   }
+
 }

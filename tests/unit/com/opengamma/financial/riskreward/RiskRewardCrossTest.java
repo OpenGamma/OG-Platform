@@ -9,18 +9,53 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
+import com.opengamma.math.function.Function;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
+import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+
 /**
  * 
  */
 public class RiskRewardCrossTest {
+  private static final double ASSET_STANDARD_DEVIATION = 0.24;
+  private static final double MARKET_STANDARD_DEVIATION = 0.17;
+  private static final DoubleTimeSeriesStatisticsCalculator CALCULATOR = new DoubleTimeSeriesStatisticsCalculator(new Function<double[], Double>() {
+
+    @Override
+    public Double evaluate(final double[]... x) {
+      return x[0][0];
+    }
+
+  });
+  private static final DoubleTimeSeriesStatisticsCalculator STD_ASSET = new DoubleTimeSeriesStatisticsCalculator(new Function<double[], Double>() {
+
+    @Override
+    public Double evaluate(final double[]... x) {
+      return ASSET_STANDARD_DEVIATION;
+    }
+
+  });
+  private static final DoubleTimeSeriesStatisticsCalculator STD_MARKET = new DoubleTimeSeriesStatisticsCalculator(new Function<double[], Double>() {
+
+    @Override
+    public Double evaluate(final double[]... x) {
+      return MARKET_STANDARD_DEVIATION;
+    }
+
+  });
+  private static final long[] T = new long[] {1};
+  private static final DoubleTimeSeries<?> RISK_FREE_TS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, T, new double[] {0.03});
+  private static final DoubleTimeSeries<?> ASSET_RETURN_TS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, T, new double[] {0.174});
+  private static final DoubleTimeSeries<?> MARKET_RETURN_TS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, T, new double[] {0.11});
   private static final double RISK_FREE_RETURN = 0.03;
   private static final double ASSET_RETURN = 0.174;
   private static final double MARKET_RETURN = 0.11;
-  private static final double ASSET_STANDARD_DEVIATION = 0.24;
-  private static final double MARKET_STANDARD_DEVIATION = 0.17;
   private static final double BETA = 1.3;
   private static final TotalRiskAlphaCalculator TRA = new TotalRiskAlphaCalculator();
-  private static final SharpeRatioCalculator SHARPE = new SharpeRatioCalculator();
+  private static final SharpeRatioCalculator SHARPE_ASSET = new SharpeRatioCalculator(CALCULATOR, STD_ASSET);
+  private static final SharpeRatioCalculator SHARPE_MARKET = new SharpeRatioCalculator(CALCULATOR, STD_MARKET);
   private static final RiskAdjustedPerformanceCalculator RAP = new RiskAdjustedPerformanceCalculator();
   private static final MTwoPerformanceCalculator M2 = new MTwoPerformanceCalculator();
   private static final TreynorRatioCalculator TREYNOR = new TreynorRatioCalculator();
@@ -32,23 +67,23 @@ public class RiskRewardCrossTest {
   @Test
   public void testTRAAndSharpeRatio() {
     final double tra = TRA.calculate(ASSET_RETURN, RISK_FREE_RETURN, MARKET_RETURN, ASSET_STANDARD_DEVIATION, MARKET_STANDARD_DEVIATION);
-    final double srAsset = SHARPE.calculate(ASSET_RETURN, RISK_FREE_RETURN, ASSET_STANDARD_DEVIATION);
-    final double srMarket = SHARPE.calculate(MARKET_RETURN, RISK_FREE_RETURN, MARKET_STANDARD_DEVIATION);
+    final double srAsset = SHARPE_ASSET.evaluate(ASSET_RETURN_TS, RISK_FREE_TS);
+    final double srMarket = SHARPE_MARKET.evaluate(MARKET_RETURN_TS, RISK_FREE_TS);
     assertEquals(tra, ASSET_STANDARD_DEVIATION * (srAsset - srMarket), EPS);
   }
 
   @Test
   public void testRAPAndSharpeRatio() {
     final double rap = RAP.calculate(ASSET_RETURN, RISK_FREE_RETURN, ASSET_STANDARD_DEVIATION, MARKET_STANDARD_DEVIATION);
-    final double srAsset = SHARPE.calculate(ASSET_RETURN, RISK_FREE_RETURN, ASSET_STANDARD_DEVIATION);
+    final double srAsset = SHARPE_ASSET.evaluate(ASSET_RETURN_TS, RISK_FREE_TS);
     assertEquals(rap, MARKET_STANDARD_DEVIATION * srAsset + RISK_FREE_RETURN, EPS);
   }
 
   @Test
   public void testM2TRAAndSharpeRatio() {
     final double tra = TRA.calculate(ASSET_RETURN, RISK_FREE_RETURN, MARKET_RETURN, ASSET_STANDARD_DEVIATION, MARKET_STANDARD_DEVIATION);
-    final double srAsset = SHARPE.calculate(ASSET_RETURN, RISK_FREE_RETURN, ASSET_STANDARD_DEVIATION);
-    final double srMarket = SHARPE.calculate(MARKET_RETURN, RISK_FREE_RETURN, MARKET_STANDARD_DEVIATION);
+    final double srAsset = SHARPE_ASSET.evaluate(ASSET_RETURN_TS, RISK_FREE_TS);
+    final double srMarket = SHARPE_MARKET.evaluate(MARKET_RETURN_TS, RISK_FREE_TS);
     final double m2 = M2.calculate(ASSET_RETURN, RISK_FREE_RETURN, MARKET_RETURN, ASSET_STANDARD_DEVIATION, MARKET_STANDARD_DEVIATION);
     assertEquals(m2, tra * MARKET_STANDARD_DEVIATION / ASSET_STANDARD_DEVIATION, EPS);
     assertEquals(m2, MARKET_STANDARD_DEVIATION * (srAsset - srMarket), EPS);
