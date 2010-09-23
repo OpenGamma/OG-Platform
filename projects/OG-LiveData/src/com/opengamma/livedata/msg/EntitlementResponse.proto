@@ -1,0 +1,21 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.livedata.msg {
+
+  message EntitlementResponseMsg {
+    required repeated EntitlementResponse responses;    
+  }
+
+  message EntitlementResponse {
+    required LiveDataSpecification liveDataSpecification;
+    required boolean isEntitled;
+    
+    /** Will be populated if isEntitled == false */
+    string msg;
+  }
+  
+}
