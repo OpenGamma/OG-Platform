@@ -52,7 +52,7 @@ public class CAPMBetaCalculator implements Function<DoubleTimeSeries<?>, Double>
     testTimeSeriesDates(assetTS, marketTS);
     final DoubleTimeSeries<?> assetReturn = _returnCalculator.evaluate(assetTS);
     final DoubleTimeSeries<?> marketReturn = _returnCalculator.evaluate(marketTS);
-    return _covarianceCalculator.evaluate(assetReturn, marketReturn) / _varianceCalculator.evaluate(marketReturn, marketReturn);
+    return _covarianceCalculator.evaluate(assetReturn, marketReturn) / _varianceCalculator.evaluate(marketReturn);
   }
 
 }

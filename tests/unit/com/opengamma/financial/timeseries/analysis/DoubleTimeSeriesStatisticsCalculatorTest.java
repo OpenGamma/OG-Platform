@@ -40,6 +40,11 @@ public class DoubleTimeSeriesStatisticsCalculatorTest {
     CALC.evaluate(FastArrayIntDoubleTimeSeries.EMPTY_SERIES);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullTSInArray() {
+    CALC.evaluate(TS, null, TS);
+  }
+
   @Test
   public void test() {
     assertEquals(CALC.evaluate(TS), MEAN.evaluate(TS.toFastLongDoubleTimeSeries().valuesArrayFast()), 1e-15);

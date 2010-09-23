@@ -18,7 +18,7 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 /**
  * 
  */
-public class CAPMFromRegressionFunctionTest {
+public class CAPMFromRegressionCalculatorTest {
   private static final DoubleTimeSeries<?> MARKET;
   private static final DoubleTimeSeries<?> ASSET_1;
   private static final DoubleTimeSeries<?> ASSET_2;

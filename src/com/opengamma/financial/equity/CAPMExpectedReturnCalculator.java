@@ -18,23 +18,23 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 public class CAPMExpectedReturnCalculator {
   private final TimeSeriesReturnCalculator _marketReturnCalculator;
   private final DoubleTimeSeriesStatisticsCalculator _expectedMarketReturnCalculator;
-  private final DoubleTimeSeriesStatisticsCalculator _expectedRiskFreeRateCalculator;
+  private final DoubleTimeSeriesStatisticsCalculator _expectedRiskFreeReturnCalculator;
 
   public CAPMExpectedReturnCalculator(final TimeSeriesReturnCalculator marketReturnCalculator, final DoubleTimeSeriesStatisticsCalculator expectedMarketReturnCalculator,
-      final DoubleTimeSeriesStatisticsCalculator expectedRiskFreeRateCalculator) {
+      final DoubleTimeSeriesStatisticsCalculator expectedRiskFreeReturnCalculator) {
     Validate.notNull(marketReturnCalculator, "market return series calculator");
     Validate.notNull(expectedMarketReturnCalculator, "expected market return calculator");
-    Validate.notNull(expectedRiskFreeRateCalculator, "expected risk free rate calculator");
+    Validate.notNull(expectedRiskFreeReturnCalculator, "expected risk free return calculator");
     _marketReturnCalculator = marketReturnCalculator;
     _expectedMarketReturnCalculator = expectedMarketReturnCalculator;
-    _expectedRiskFreeRateCalculator = expectedRiskFreeRateCalculator;
+    _expectedRiskFreeReturnCalculator = expectedRiskFreeReturnCalculator;
   }
 
-  public Double evaluate(final DoubleTimeSeries<?> marketPriceTS, final DoubleTimeSeries<?> riskFreeRateTS, final double beta) {
+  public Double evaluate(final DoubleTimeSeries<?> marketPriceTS, final DoubleTimeSeries<?> riskFreeReturnTS, final double beta) {
     TimeSeriesDataTestUtils.testNotNullOrEmpty(marketPriceTS);
-    TimeSeriesDataTestUtils.testNotNullOrEmpty(riskFreeRateTS);
+    TimeSeriesDataTestUtils.testNotNullOrEmpty(riskFreeReturnTS);
     final Double expectedMarketReturn = _expectedMarketReturnCalculator.evaluate(_marketReturnCalculator.evaluate(marketPriceTS));
-    final Double expectedRiskFreeReturn = _expectedRiskFreeRateCalculator.evaluate(riskFreeRateTS);
+    final Double expectedRiskFreeReturn = _expectedRiskFreeReturnCalculator.evaluate(riskFreeReturnTS);
     return expectedRiskFreeReturn + beta * (expectedMarketReturn - expectedRiskFreeReturn);
   }
 

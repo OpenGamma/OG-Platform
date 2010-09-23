@@ -25,8 +25,7 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
  */
 public class NormalStatisticsTest {
   private static final Function1D<HistoricalVaRDataBundle, Double> MEAN = new PnLStatisticsCalculator(new DoubleTimeSeriesStatisticsCalculator(new MeanCalculator()));
-  private static final Function1D<HistoricalVaRDataBundle, Double> STD = new PnLStatisticsCalculator(new DoubleTimeSeriesStatisticsCalculator(
-      new SampleStandardDeviationCalculator()));
+  private static final Function1D<HistoricalVaRDataBundle, Double> STD = new PnLStatisticsCalculator(new DoubleTimeSeriesStatisticsCalculator(new SampleStandardDeviationCalculator()));
   private static final double X = 3;
   private static final DoubleTimeSeries<Long> PNL = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new long[] {1, 2}, new double[] {X, X});
   private static final HistoricalVaRDataBundle DATA = new HistoricalVaRDataBundle(PNL);
@@ -44,7 +43,7 @@ public class NormalStatisticsTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
-    new NormalStatistics<HistoricalVaRDataBundle>(null, STD, null);
+    new NormalStatistics<HistoricalVaRDataBundle>(null, STD, (HistoricalVaRDataBundle[]) null);
   }
 
   @Test
