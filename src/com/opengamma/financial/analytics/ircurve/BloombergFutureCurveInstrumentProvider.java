@@ -8,7 +8,6 @@ package com.opengamma.financial.analytics.ircurve;
 import javax.time.calendar.DateAdjuster;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
-import javax.time.calendar.Period;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;

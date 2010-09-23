@@ -21,7 +21,7 @@ class NextExpiryAdjuster implements DateAdjuster {
   
   private final Set<MonthOfYear> _futureQuarters = Sets.newHashSet(MonthOfYear.MARCH, MonthOfYear.JUNE, MonthOfYear.SEPTEMBER, MonthOfYear.DECEMBER);
   @Override
-  public LocalDate adjustDate(LocalDate date) {
+  public LocalDate adjustDate(final LocalDate date) {
     if (_futureQuarters.contains(date.getMonthOfYear()) &&
         date.with(s_thirdWedAdjuster).isAfter(date)) { // in a quarter
       return date.with(s_thirdWedAdjuster);

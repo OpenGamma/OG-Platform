@@ -26,8 +26,9 @@ public interface ConventionBundle {
    * @return the identifier bundle
    */
   IdentifierBundle getIdentifiers();
+
   /**
-   * Get the display name for the refernce rate - this should not be used for anything except display
+   * Get the display name for the reference rate - this should not be used for anything except display
    * @return the display name
    */
   String getName();
@@ -39,7 +40,7 @@ public interface ConventionBundle {
   /**
    * Get the business day convention (date adjust) for this reference rate
    * @return the business day convention
-   */   
+   */
   BusinessDayConvention getBusinessDayConvention();
   /**
    * Get the frequency
@@ -51,13 +52,13 @@ public interface ConventionBundle {
    * @return the number of days
    */
   int getSettlementDays();
-  
+
   /**
    * Future point value, if applicable
-   * @return
+   * @return The future point value
    */
   Double getFuturePointValue();
-  
+
   /**
    * Gets the swapFixedLegDayCount field.
    * @return the swapFixedLegDayCount

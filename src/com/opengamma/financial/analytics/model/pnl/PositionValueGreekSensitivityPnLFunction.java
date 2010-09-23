@@ -32,11 +32,12 @@ import com.opengamma.financial.pnl.PnLDataBundle;
 import com.opengamma.financial.pnl.SensitivityPnLCalculator;
 import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.riskfactor.RiskFactorResult;
+import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.sensitivity.Sensitivity;
 import com.opengamma.financial.sensitivity.ValueGreek;
 import com.opengamma.financial.sensitivity.ValueGreekSensitivity;
-import com.opengamma.financial.timeseries.returns.ContinuouslyCompoundedTimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
+import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -51,23 +52,28 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction implements FunctionInvoker {
   private final Set<ValueGreek> _valueGreeks;
   private final Set<String> _valueGreekRequirementNames;
-  private final TimeSeriesReturnCalculator _returnCalculator = new ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.LENIENT);
+  private final TimeSeriesReturnCalculator _returnCalculator;
 
   public PositionValueGreekSensitivityPnLFunction(final String valueGreekRequirementName) {
-    this(new String[] {valueGreekRequirementName});
+    this(TimeSeriesReturnCalculatorFactory.CONTINUOUS_STRICT, new String[] {valueGreekRequirementName});
   }
 
-  public PositionValueGreekSensitivityPnLFunction(final String valueGreekRequirementName1, final String valueGreekRequirementName2) {
-    this(new String[] {valueGreekRequirementName1, valueGreekRequirementName2});
+  public PositionValueGreekSensitivityPnLFunction(final String returnCalculatorName, final String valueGreekRequirementName) {
+    this(returnCalculatorName, new String[] {valueGreekRequirementName});
   }
 
-  public PositionValueGreekSensitivityPnLFunction(final String... valueGreekRequirementNames) {
+  public PositionValueGreekSensitivityPnLFunction(final String returnCalculatorName, final String valueGreekRequirementName1, final String valueGreekRequirementName2) {
+    this(returnCalculatorName, new String[] {valueGreekRequirementName1, valueGreekRequirementName2});
+  }
+
+  public PositionValueGreekSensitivityPnLFunction(final String returnCalculatorName, final String... valueGreekRequirementNames) {
     _valueGreeks = new HashSet<ValueGreek>();
     _valueGreekRequirementNames = new HashSet<String>();
     for (final String valueGreekRequirementName : valueGreekRequirementNames) {
       _valueGreekRequirementNames.add(valueGreekRequirementName);
       _valueGreeks.add(AvailableValueGreeks.getValueGreekForValueRequirementName(valueGreekRequirementName));
     }
+    _returnCalculator = TimeSeriesReturnCalculatorFactory.getReturnCalculator(returnCalculatorName, CalculationMode.STRICT);
   }
 
   @Override
@@ -75,10 +81,7 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction i
     final Position position = target.getPosition();
     final HistoricalDataSource historicalDataProvider = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
     final SecuritySource securitySource = executionContext.getSecuritySource();
-
-    final ValueSpecification resultSpecification = new ValueSpecification(
-        new ValueRequirement(ValueRequirementNames.PNL_SERIES, position),
-        getUniqueIdentifier());
+    final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position), getUniqueIdentifier());
     final Map<Sensitivity<?>, RiskFactorResult> sensitivities = new HashMap<Sensitivity<?>, RiskFactorResult>();
     final Map<Sensitivity<?>, Map<Object, DoubleTimeSeries<?>>> tsReturns = new HashMap<Sensitivity<?>, Map<Object, DoubleTimeSeries<?>>>();
     for (final String valueGreekRequirementName : _valueGreekRequirementNames) {
@@ -92,7 +95,6 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction i
         final Map<Object, DoubleTimeSeries<?>> underlyings = new HashMap<Object, DoubleTimeSeries<?>>();
         LocalDateDoubleTimeSeries intersection = null;
         for (final UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
-
           final LocalDateDoubleTimeSeries timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalDataProvider, securitySource, underlyingType, position.getSecurity());
           if (intersection == null) {
             intersection = timeSeries;
@@ -101,7 +103,6 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction i
           }
         }
         for (final UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
-
           LocalDateDoubleTimeSeries timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalDataProvider, securitySource, underlyingType, position.getSecurity());
           timeSeries = (LocalDateDoubleTimeSeries) timeSeries.intersectionFirstValue(intersection);
           underlyings.put(underlyingType, _returnCalculator.evaluate(timeSeries));
@@ -120,7 +121,7 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction i
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return (target.getType() == ComputationTargetType.POSITION);
+    return target.getType() == ComputationTargetType.POSITION && target.getPosition().getSecurity() instanceof OptionSecurity;
   }
 
   @Override
@@ -141,9 +142,7 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction i
       return null;
     }
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-    results.add(new ValueSpecification(
-        new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition()),
-        getUniqueIdentifier()));
+    results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition()), getUniqueIdentifier()));
     return results;
   }
 

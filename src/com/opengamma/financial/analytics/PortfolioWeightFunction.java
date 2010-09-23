@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.pnl;
+package com.opengamma.financial.analytics;
 
 import java.util.Set;
 
@@ -21,43 +21,31 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * 
  */
-public class PortfolioSensitivityPnLFunction extends AbstractFunction implements FunctionInvoker {
+public class PortfolioWeightFunction extends AbstractFunction implements FunctionInvoker {
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-      final Set<ValueRequirement> desiredValues) {
-    // TODO Auto-generated method stub
-
-    //1) for each trade in the portfolio, find the underlyings
-    //2) get the timeseries and make into vectors - have to check dates on this
-    //3) calculate the returns
-    //4) form the vector / matrix from the sensitivities
-    //5) form the PnLDataBundle
-    //7) calculate pnl series
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     return null;
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    // TODO Auto-generated method stub
-    return false;
+    return target.getType() == ComputationTargetType.PORTFOLIO_NODE;
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
-    // TODO Auto-generated method stub
     return null;
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    // TODO Auto-generated method stub
     return null;
   }
 
   @Override
   public String getShortName() {
-    return "PortfolioSensitivityPnLFunction";
+    return "PortfolioWeight";
   }
 
   @Override

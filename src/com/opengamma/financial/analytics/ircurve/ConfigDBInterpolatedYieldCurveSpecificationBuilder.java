@@ -12,13 +12,10 @@ import java.util.List;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.engine.config.ConfigSource;
-import com.opengamma.engine.security.SecuritySource;
-import com.opengamma.financial.world.region.RegionSource;
 import com.opengamma.id.Identifier;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;

@@ -8,7 +8,6 @@ package com.opengamma.financial;
 import com.opengamma.engine.config.ConfigSource;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
-import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.world.region.RegionSource;
 

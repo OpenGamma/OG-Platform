@@ -5,13 +5,10 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.opengamma.engine.security.Security;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.time.Tenor;
 
