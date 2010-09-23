@@ -5,8 +5,8 @@
  */
 package com.opengamma.transport.amqp;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Address;
+import org.springframework.amqp.core.ExchangeType;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageCreator;
 import org.springframework.amqp.core.MessageListener;
@@ -29,6 +30,9 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.transport.ByteArrayMessageReceiver;
 import com.opengamma.transport.ByteArrayRequestSender;
 import com.opengamma.util.ArgumentChecker;
+import com.rabbitmq.client.AMQP.Queue;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
 
 /**
  * This only works with RabbitMQ at the moment.
@@ -65,7 +69,19 @@ public class AmqpByteArrayRequestSender extends AbstractAmqpByteArraySender impl
     
     _executor = executor;
     
-    _replyToQueue = UUID.randomUUID().toString();
+    try {
+      Connection connection = connectionFactory.createConnection();
+      Channel channel = connection.createChannel();
+      
+      Queue.DeclareOk declareResult = channel.queueDeclare();
+      _replyToQueue = declareResult.getQueue();
+      
+      channel.queueBind(_replyToQueue, getExchange(), _replyToQueue);
+      
+      connection.close();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to create reply to queue", e);
+    }
     
     _container = new SimpleMessageListenerContainer(); 
     _container.setConnectionFactory(connectionFactory);
@@ -86,7 +102,8 @@ public class AmqpByteArrayRequestSender extends AbstractAmqpByteArraySender impl
     getAmqpTemplate().send(getExchange(), getRoutingKey(), new MessageCreator() {
       public Message createMessage() {
         SimpleMessageProperties properties = new SimpleMessageProperties();
-        properties.setReplyTo(new Address(getReplyToQueue()));
+        Address replyTo = new Address(ExchangeType.direct, getExchange(), getReplyToQueue());
+        properties.setReplyTo(replyTo);
         
         final String correlationId = getReplyToQueue() + "-" + _correlationIdGenerator.getAndIncrement();
         byte[] correlationIdBytes;
@@ -101,7 +118,8 @@ public class AmqpByteArrayRequestSender extends AbstractAmqpByteArraySender impl
         
         _correlationId2MessageReceiver.put(correlationId, responseReceiver);
         
-        // make sure the map stays clean if no response is received
+        // Make sure the map stays clean if no response is received before timeout occurs. 
+        // It would be nice if AmqpTemplate had a receive() method with a timeout parameter.
         _executor.schedule(new Runnable() {
           @Override
           public void run() {
@@ -134,9 +152,15 @@ public class AmqpByteArrayRequestSender extends AbstractAmqpByteArraySender impl
 
   @Override
   public void onMessage(Message message) {
+    byte[] correlationIdBytes = message.getMessageProperties().getCorrelationId();
+    if (correlationIdBytes == null) {
+      s_logger.error("Got reply with no correlation ID: {} ", message);
+      return;
+    }
+    
     String correlationId;
     try {
-      correlationId = new String(message.getMessageProperties().getCorrelationId(), "UTF-8");
+      correlationId = new String(correlationIdBytes, "UTF-8");
     } catch (UnsupportedEncodingException e) {
       throw new OpenGammaRuntimeException("This should never happen - UTF-8 should be supported", e);
     }
@@ -145,7 +169,7 @@ public class AmqpByteArrayRequestSender extends AbstractAmqpByteArraySender impl
     if (receiver != null) {
       receiver.messageReceived(message.getBody());      
     } else {
-      s_logger.warn("No receiver for correlation ID {}", correlationId);      
+      s_logger.warn("No receiver for message: {}", message);      
     }
   }
   
