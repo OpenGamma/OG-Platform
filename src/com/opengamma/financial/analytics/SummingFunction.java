@@ -41,8 +41,8 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  */
 public class SummingFunction extends AbstractFunction implements FunctionInvoker {
   private final String _requirementName;
-  
-  public SummingFunction(String requirementName) {
+
+  public SummingFunction(final String requirementName) {
     ArgumentChecker.notNull(requirementName, "Requirement name");
     _requirementName = requirementName;
   }
@@ -55,25 +55,25 @@ public class SummingFunction extends AbstractFunction implements FunctionInvoker
   }
 
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext,
-      FunctionInputs inputs, ComputationTarget target,
-      Set<ValueRequirement> desiredValues) {
-    PortfolioNode node = target.getPortfolioNode();
-    Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext,
+      final FunctionInputs inputs, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues) {
+    final PortfolioNode node = target.getPortfolioNode();
+    final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
     Object currentSum = null;
-    for (Position position : allPositions) {
-      Object positionValue = inputs.getValue(new ValueRequirement(_requirementName, ComputationTargetType.POSITION, position.getUniqueIdentifier()));
+    for (final Position position : allPositions) {
+      final Object positionValue = inputs.getValue(new ValueRequirement(_requirementName, ComputationTargetType.POSITION, position.getUniqueIdentifier()));
       currentSum = addValue(currentSum, positionValue);
     }
-    ComputedValue computedValue = new ComputedValue(
+    final ComputedValue computedValue = new ComputedValue(
         new ValueSpecification(
             new ValueRequirement(_requirementName, ComputationTargetType.PORTFOLIO_NODE, node.getUniqueIdentifier()),
             getUniqueIdentifier()),
-        currentSum);
+            currentSum);
     return Collections.singleton(computedValue);
   }
-  
-  protected Object addValue(Object previousSum, Object currentValue) {
+
+  protected Object addValue(final Object previousSum, final Object currentValue) {
     if (previousSum == null) {
       return currentValue;
     }
@@ -81,41 +81,39 @@ public class SummingFunction extends AbstractFunction implements FunctionInvoker
       throw new IllegalArgumentException("Inputs have different value types for requirement " + _requirementName);
     }
     if (currentValue instanceof Double) {
-      Double previousDouble = (Double) previousSum;
+      final Double previousDouble = (Double) previousSum;
       return previousDouble + (Double) currentValue;
     } else if (currentValue instanceof BigDecimal) {
-      BigDecimal previousDecimal = (BigDecimal) previousSum;
+      final BigDecimal previousDecimal = (BigDecimal) previousSum;
       return previousDecimal.add((BigDecimal) currentValue);
     } else if (currentValue instanceof DoubleTimeSeries<?>) {
-      DoubleTimeSeries<?> previousTS = (DoubleTimeSeries<?>) previousSum;
+      final DoubleTimeSeries<?> previousTS = (DoubleTimeSeries<?>) previousSum;
       return previousTS.add((DoubleTimeSeries<?>) currentValue);
     }
-    // REVIEW kirk 2010-05-13 -- When working on FIN-79, this needs to be extended
-    // to handle time series addition.
-    throw new IllegalArgumentException("Can only add Doubles and BigDecimal right now.");
+    throw new IllegalArgumentException("Can only add Doubles and BigDecimal and DoubleTimeSeries right now.");
   }
 
   @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     return target.getType() == ComputationTargetType.PORTFOLIO_NODE;
   }
-  
+
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
-    PortfolioNode node = target.getPortfolioNode();
-    Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
-    Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    for (Position position : allPositions) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
+    final PortfolioNode node = target.getPortfolioNode();
+    final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
+    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    for (final Position position : allPositions) {
       requirements.add(new ValueRequirement(_requirementName, ComputationTargetType.POSITION, position.getUniqueIdentifier()));
     }
     return requirements;
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context,
-      ComputationTarget target) {
-    PortfolioNode node = target.getPortfolioNode();
-    ValueSpecification result = new ValueSpecification(
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context,
+      final ComputationTarget target) {
+    final PortfolioNode node = target.getPortfolioNode();
+    final ValueSpecification result = new ValueSpecification(
         new ValueRequirement(_requirementName, ComputationTargetType.PORTFOLIO_NODE, node.getUniqueIdentifier()),
         getUniqueIdentifier());
     return Collections.singleton(result);

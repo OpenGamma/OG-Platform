@@ -42,7 +42,7 @@ public class FixedIncomeStripWithSecurity {
   /**
    * Gets the identifier that was used to resolve the security
    * This is available, just so the same identifier can be conveniently used to retrieve requested market data.
-   * @return
+   * @return The security identifier
    */
   public Identifier getSecurityIdentifier() {
     return _securityIdentifier;

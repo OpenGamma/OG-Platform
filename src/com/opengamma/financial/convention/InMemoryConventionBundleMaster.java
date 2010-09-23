@@ -12,7 +12,6 @@ import java.util.Collection;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.convention.daycount.ActualThreeSixtyDayCount;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -36,16 +35,16 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
    */
   public static final IdentificationScheme IN_MEMORY_UNIQUE_SCHEME = new IdentificationScheme("In-memory Reference Rate unique");
   
-  private IdentifierBundleMapper<ConventionBundle> _mapper = new IdentifierBundleMapper<ConventionBundle>(IN_MEMORY_UNIQUE_SCHEME.getName());
+  private final IdentifierBundleMapper<ConventionBundle> _mapper = new IdentifierBundleMapper<ConventionBundle>(IN_MEMORY_UNIQUE_SCHEME.getName());
   
   public InMemoryConventionBundleMaster() {
     //CSOFF
     // NOTE THESE ONLY APPLY TO US LIBOR RATES
-    BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified");
-    BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-    DayCount actact = DayCountFactory.INSTANCE.getDayCount("Actual/Actual");
-    DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-    Frequency freq = null;
+    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified");
+    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final DayCount actact = DayCountFactory.INSTANCE.getDayCount("Actual/Actual");
+    final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+    final Frequency freq = null;
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US00O/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR O/N")), "LIBOR O/N", actact, following, freq, 0);
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US00T/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR T/N")), "LIBOR T/N", actact, following, freq, 0);
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0001W Index"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 1w")), "LIBOR 1w", actact, following, freq, 2);
@@ -63,9 +62,9 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0011M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 11m")), "LIBOR 11m", actact, modified, freq, 2);
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0012M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 12m")), "LIBOR 12m", actact, modified, freq, 2);
     
-    DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
-    Frequency semiAnnual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
-    Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
+    final DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
+    final Frequency semiAnnual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
+    final Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_SWAP")), "USD_SWAP", thirty360, following, semiAnnual, 2, act360, following, quarterly, 2, Identifier.of(SIMPLE_NAME_SCHEME, "LIBOR 3m") );
     
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_FRA")), "USD_FRA", act360, following, null, 2);
@@ -74,56 +73,56 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
   
   @Override
-  public synchronized UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, DayCount dayCount,
-                                                           BusinessDayConvention businessDayConvention, Frequency frequency, 
-                                                           int settlementDays) {
-    ConventionBundleImpl refRate = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention, frequency, settlementDays);
-    UniqueIdentifier uid = _mapper.add(bundle, refRate);
+  public synchronized UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name, final DayCount dayCount,
+                                                           final BusinessDayConvention businessDayConvention, final Frequency frequency, 
+                                                           final int settlementDays) {
+    final ConventionBundleImpl refRate = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention, frequency, settlementDays);
+    final UniqueIdentifier uid = _mapper.add(bundle, refRate);
     refRate.setUniqueIdentifier(uid);
     return uid;
   }
   
-  public synchronized UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, DayCount dayCount,
-                                                           BusinessDayConvention businessDayConvention, Frequency frequency, 
-                                                           int settlementDays, double pointValue) {
-    ConventionBundleImpl refRate = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention, frequency, settlementDays, pointValue);
-    UniqueIdentifier uid = _mapper.add(bundle, refRate);
+  public synchronized UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name, final DayCount dayCount,
+                                                           final BusinessDayConvention businessDayConvention, final Frequency frequency, 
+                                                           final int settlementDays, final double pointValue) {
+    final ConventionBundleImpl refRate = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention, frequency, settlementDays, pointValue);
+    final UniqueIdentifier uid = _mapper.add(bundle, refRate);
     refRate.setUniqueIdentifier(uid);
     return uid;
   }
   
   @Override
-  public synchronized UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, 
-                                                           DayCount swapFixedLegDayCount, BusinessDayConvention swapFixedLegBusinessDayConvention, Frequency swapFixedLegFrequency, Integer swapFixedLegSettlementDays,
-                                                           DayCount swapFloatingLegDayCount, BusinessDayConvention swapFloatingLegBusinessDayConvention, Frequency swapFloatingLegFrequency, Integer swapFloatingLegSettlementDays,
-                                                           Identifier swapFloatingLegInitialRate) {
-    ConventionBundleImpl refRate = new ConventionBundleImpl(bundle, name, swapFixedLegDayCount, swapFixedLegBusinessDayConvention, swapFixedLegFrequency, swapFixedLegSettlementDays,
+  public synchronized UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name, 
+                                                           final DayCount swapFixedLegDayCount, final BusinessDayConvention swapFixedLegBusinessDayConvention, final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays,
+                                                           final DayCount swapFloatingLegDayCount, final BusinessDayConvention swapFloatingLegBusinessDayConvention, final Frequency swapFloatingLegFrequency, final Integer swapFloatingLegSettlementDays,
+                                                           final Identifier swapFloatingLegInitialRate) {
+    final ConventionBundleImpl refRate = new ConventionBundleImpl(bundle, name, swapFixedLegDayCount, swapFixedLegBusinessDayConvention, swapFixedLegFrequency, swapFixedLegSettlementDays,
                                                             swapFloatingLegDayCount, swapFloatingLegBusinessDayConvention, swapFloatingLegFrequency, swapFloatingLegSettlementDays, swapFloatingLegInitialRate);
-    UniqueIdentifier uid = _mapper.add(bundle, refRate);
+    final UniqueIdentifier uid = _mapper.add(bundle, refRate);
     refRate.setUniqueIdentifier(uid);
     return uid;
   }
 
   @Override
-  public ConventionBundleDocument getConventionBundle(UniqueIdentifier uniqueIdentifier) {
+  public ConventionBundleDocument getConventionBundle(final UniqueIdentifier uniqueIdentifier) {
     return new ConventionBundleDocument(_mapper.get(uniqueIdentifier));
   }
   
   @Override
-  public ConventionBundleSearchResult searchConventionBundle(ConventionBundleSearchRequest request) {
-    Collection<ConventionBundle> collection = _mapper.get(request.getIdentifiers());
+  public ConventionBundleSearchResult searchConventionBundle(final ConventionBundleSearchRequest request) {
+    final Collection<ConventionBundle> collection = _mapper.get(request.getIdentifiers());
     return new ConventionBundleSearchResult(wrapReferenceRatesWithDocuments(collection));
   }
   
   @Override
-  public ConventionBundleSearchResult searchHistoricConventionBundle(ConventionBundleSearchHistoricRequest request) {
-    Collection<ConventionBundle> collection = _mapper.get(request.getIdentifiers());
+  public ConventionBundleSearchResult searchHistoricConventionBundle(final ConventionBundleSearchHistoricRequest request) {
+    final Collection<ConventionBundle> collection = _mapper.get(request.getIdentifiers());
     return new ConventionBundleSearchResult(wrapReferenceRatesWithDocuments(collection));
   }
   
-  private Collection<ConventionBundleDocument> wrapReferenceRatesWithDocuments(Collection<ConventionBundle> referenceRates) {
-    Collection<ConventionBundleDocument> results = new ArrayList<ConventionBundleDocument>(referenceRates.size());
-    for (ConventionBundle referenceRate : referenceRates) {
+  private Collection<ConventionBundleDocument> wrapReferenceRatesWithDocuments(final Collection<ConventionBundle> referenceRates) {
+    final Collection<ConventionBundleDocument> results = new ArrayList<ConventionBundleDocument>(referenceRates.size());
+    for (final ConventionBundle referenceRate : referenceRates) {
       results.add(new ConventionBundleDocument(referenceRate));
     }
     return results;

@@ -16,8 +16,6 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.fudgemsg.FixedIncomeStripBuilder;
 import com.opengamma.util.time.Tenor;
@@ -26,11 +24,10 @@ import com.opengamma.util.time.Tenor;
  * A fixed income strip.
  */
 public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStrip> {
-  private final Logger s_logger = LoggerFactory.getLogger(this.getClass());
   private final StripInstrumentType _instrumentType;
   private final Tenor _curveNodePointTime;
   private final String _conventionName;
-  private int _nthFutureFromTenor = 0;
+  private int _nthFutureFromTenor;
 
   /**
    * Creates a strip for non-future instruments
@@ -91,7 +88,7 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
    */
   public int getNumberOfFuturesAfterTenor() {
     if (_instrumentType != StripInstrumentType.FUTURE) {
-      throw new IllegalStateException("Cannot get number of futures after tenor for a non future strip "+toString());
+      throw new IllegalStateException("Cannot get number of futures after tenor for a non future strip " + toString());
     }
     return _nthFutureFromTenor;
   }

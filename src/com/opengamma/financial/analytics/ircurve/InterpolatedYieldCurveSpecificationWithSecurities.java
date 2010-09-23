@@ -33,7 +33,8 @@ public class InterpolatedYieldCurveSpecificationWithSecurities implements Serial
   private final Interpolator1D<?> _interpolator;
   private final Set<FixedIncomeStripWithSecurity> _strips = new HashSet<FixedIncomeStripWithSecurity>();
   
-  public InterpolatedYieldCurveSpecificationWithSecurities(LocalDate curveDate, String name, Currency currency,  Interpolator1D<?> interpolator, Collection<FixedIncomeStripWithSecurity> resolvedStrips) {
+  public InterpolatedYieldCurveSpecificationWithSecurities(LocalDate curveDate, String name, Currency currency,  Interpolator1D<?> interpolator, 
+      Collection<FixedIncomeStripWithSecurity> resolvedStrips) {
     Validate.notNull(curveDate, "CurveDate");
     Validate.notNull(currency, "Currency");
     Validate.notNull(interpolator, "Interpolator1D");

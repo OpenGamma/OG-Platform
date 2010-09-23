@@ -24,8 +24,8 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.financial.var.NormalLinearVaRCalculator;
 import com.opengamma.financial.var.NormalStatistics;
-import com.opengamma.math.statistics.descriptive.MeanCalculator;
-import com.opengamma.math.statistics.descriptive.SampleStandardDeviationCalculator;
+import com.opengamma.math.function.Function;
+import com.opengamma.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -35,31 +35,33 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  *
  */
 public class PositionHistoricalVaRCalculatorFunction extends AbstractFunction implements FunctionInvoker {
-  private static final double CONFIDENCE_LEVEL = 0.99;
   private static final double ONE_YEAR = DateUtil.DAYS_PER_YEAR;
-  private static DoubleTimeSeriesStatisticsCalculator s_stdCalculator = new DoubleTimeSeriesStatisticsCalculator(new SampleStandardDeviationCalculator());
-  private static DoubleTimeSeriesStatisticsCalculator s_meanCalculator = new DoubleTimeSeriesStatisticsCalculator(new MeanCalculator());
+  private final DoubleTimeSeriesStatisticsCalculator _stdCalculator;
+  private final DoubleTimeSeriesStatisticsCalculator _meanCalculator;
+  private final double _confidenceLevel;
+
+  public PositionHistoricalVaRCalculatorFunction(final String meanCalculatorName, final String standardDeviationCalculatorName, final String confidenceLevel) {
+    final Function<double[], Double> meanCalculator = StatisticsCalculatorFactory.getCalculator(meanCalculatorName);
+    final Function<double[], Double> stdCalculator = StatisticsCalculatorFactory.getCalculator(standardDeviationCalculatorName);
+    _meanCalculator = new DoubleTimeSeriesStatisticsCalculator(meanCalculator);
+    _stdCalculator = new DoubleTimeSeriesStatisticsCalculator(stdCalculator);
+    _confidenceLevel = Double.valueOf(confidenceLevel);
+  }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    //TODO this doesn't appear to be calculating return series at all
     final Object pnlSeriesObj = inputs.getValue(ValueRequirementNames.PNL_SERIES);
-    // System.err.println("execute called");
     if (pnlSeriesObj instanceof DoubleTimeSeries<?>) {
       final DoubleTimeSeries<?> pnlSeries = (DoubleTimeSeries<?>) pnlSeriesObj;
       final LocalDateDoubleTimeSeries pnlSeriesLD = pnlSeries.toLocalDateDoubleTimeSeries();
       if (!pnlSeriesLD.isEmpty()) {
-        // System.err.println("PnL Series not empty");
         final LocalDate earliest = pnlSeriesLD.getEarliestTime();
-        final LocalDate latest = pnlSeriesLD.getLatestTime();
+        final LocalDate latest = pnlSeriesLD.getLatestTime(); //TODO should be using period of time
         final long days = latest.toEpochDays() - earliest.toEpochDays();
-        final NormalLinearVaRCalculator varCalculator = new NormalLinearVaRCalculator(1, (252 * days) / ONE_YEAR, CONFIDENCE_LEVEL);
-        final NormalStatistics<DoubleTimeSeries<?>> normalStats = new NormalStatistics<DoubleTimeSeries<?>>(s_meanCalculator, s_stdCalculator, pnlSeries);
+        final NormalLinearVaRCalculator varCalculator = new NormalLinearVaRCalculator(1, (252 * days) / ONE_YEAR, _confidenceLevel);
+        final NormalStatistics<DoubleTimeSeries<?>> normalStats = new NormalStatistics<DoubleTimeSeries<?>>(_meanCalculator, _stdCalculator, pnlSeries);
         final double var = varCalculator.evaluate(normalStats);
-        // System.err.println("VaR="+var);
-        return Sets.newHashSet(new ComputedValue(new ValueSpecification(
-            new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPosition()),
-            getUniqueIdentifier()), var));
+        return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPosition()), getUniqueIdentifier()), var));
       }
     }
     return null;
@@ -67,24 +69,23 @@ public class PositionHistoricalVaRCalculatorFunction extends AbstractFunction im
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    //if (target.getType() == ComputationTargetType.POSITION) {
-    //  System.err.println("canApplyTo returning true");
-    //}
     return target.getType() == ComputationTargetType.POSITION;
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
-    //System.err.println("getRequirements");
-    return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition()));
+    if (canApplyTo(context, target)) {
+      return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition()));
+    }
+    return null;
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    //System.err.println("getResults");
-    return Sets.newHashSet(new ValueSpecification(
-        new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPosition()),
-        getUniqueIdentifier()));
+    if (canApplyTo(context, target)) {
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPosition()), getUniqueIdentifier()));
+    }
+    return null;
   }
 
   @Override
