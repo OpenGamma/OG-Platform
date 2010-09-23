@@ -31,7 +31,7 @@ public class CAPMFromRegressionFunctionTest {
   private static final double ALPHA2 = -0.3;
   private static final double RF = 0.05;
   private static final double EPS = 1e-12;
-  private static final Function<DoubleTimeSeries<?>, LeastSquaresRegressionResult> CAPM = new CAPMFromRegressionFunction();
+  private static final Function<DoubleTimeSeries<?>, LeastSquaresRegressionResult> CAPM = new CAPMFromRegressionCalculator();
 
   static {
     final int n = 1000;

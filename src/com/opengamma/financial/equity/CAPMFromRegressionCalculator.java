@@ -21,8 +21,8 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 /**
  *
  */
-public class CAPMFromRegressionFunction implements Function<DoubleTimeSeries<?>, LeastSquaresRegressionResult> {
-  private static final Logger s_logger = LoggerFactory.getLogger(CAPMFromRegressionFunction.class);
+public class CAPMFromRegressionCalculator implements Function<DoubleTimeSeries<?>, LeastSquaresRegressionResult> {
+  private static final Logger s_logger = LoggerFactory.getLogger(CAPMFromRegressionCalculator.class);
   private static final OrdinaryLeastSquaresRegression OLS = new OrdinaryLeastSquaresRegression();
 
   /**
@@ -35,7 +35,7 @@ public class CAPMFromRegressionFunction implements Function<DoubleTimeSeries<?>,
     final int n = ts.length;
     Validate.isTrue(n > 1);
     if (n > 2) {
-      s_logger.warn("Found more than two time series; assuming the first is the equity return series and the second is the market return");
+      s_logger.warn("Found more than two time series; will only use the first two");
     }
     final DoubleTimeSeries<?> assetTS = ts[0];
     final DoubleTimeSeries<?> marketTS = ts[1];
