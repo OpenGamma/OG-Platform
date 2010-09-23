@@ -1,0 +1,5 @@
+namespace com.opengamma.util.time {
+
+  message Expiry;
+  
+}
