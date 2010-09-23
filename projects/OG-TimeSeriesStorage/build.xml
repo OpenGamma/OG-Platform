@@ -1,0 +1,66 @@
+<project name="og-timeseriesstorage" default="compile">
+	<property file="build.properties"/>
+	
+	<import file="${common.dir}/common.xml"/>
+	
+	<target name="create-hsqldb" description="--> run scripts to create database schema for Hyper SQL">
+		<sql
+		    driver="${hsqldb.driver}"
+		    url="${hsqldb.url}"
+		    userid="${hsqldb.user}"
+		    password="${hsqldb.pass}"
+		    src="db/hsqldb/drop-db.sql"
+			onerror="continue">
+			<classpath>
+				<path refid="lib.path.id" />
+			</classpath>
+		</sql>
+		<sql
+			driver="${hsqldb.driver}"
+			url="${hsqldb.url}"
+			userid="${hsqldb.user}"
+			password="${hsqldb.pass}"
+			src="db/hsqldb/create-db.sql"
+			onerror="stop">
+			<classpath>
+				<path refid="lib.path.id" />
+			</classpath>
+		</sql>
+	</target>
+	
+	<target name="create-postgres-tss" description="--> run scripts to create database/user/schema/tables for timeseries db">
+			<exec executable="${psql.path}"
+		        failonerror="true">
+		    	<arg value="--username"/>
+				<arg value="postgres"/>
+		    	<arg value="--host"/>
+		    	<arg value="postgresql-lx-1.hq.opengamma.com"/>
+		    	<arg value="--file"/>
+		    	<arg value="db/postgres/create-og-tss-db-users.sql"/>
+				<arg value="--dbname"/>
+				<arg value="postgres"/>
+		  	</exec>
+			<exec executable="${psql.path}"
+		        failonerror="true">
+		    	<arg value="--username"/>
+				<arg value="postgres"/>
+		    	<arg value="--host"/>
+		    	<arg value="postgresql-lx-1.hq.opengamma.com"/>
+		    	<arg value="--file"/>
+		    	<arg value="db/postgres/create-og-tss-schema.sql"/>
+				<arg value="--dbname"/>
+				<arg value="og_tss"/>
+		  	</exec>
+			<exec executable="${psql.path}" failonerror="true">
+				<arg value="--username"/>
+				<arg value="tssowner"/>
+		    	<arg value="--host"/>
+		    	<arg value="postgresql-lx-1.hq.opengamma.com"/>
+		    	<arg value="--file"/>
+		    	<arg value="db/postgres/create-og-tss-tables.sql"/>
+				<arg value="--dbname"/>
+				<arg value="og_tss"/>
+			</exec>
+	</target>
+
+</project>
