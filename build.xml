@@ -198,7 +198,7 @@
 	</target>
 
 	<target name="status" description="display the status of all projects from git">
-		<git-status dest="." displayName="OG-Build" />
+		<git-status dest="." displayName="OG-Platform" />
 		<git-status dest="projects/Fudge-Java" displayName="Fudge-Java" />
 		<git-status dest="projects/Fudge-Proto" displayName="Fudge-Proto" />
 		<git-status dest="projects/OG-Bloomberg" displayName="OG-Bloomberg" />
