@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>OG Build</name>
+	<name>OG Platform</name>
 	<comment></comment>
 	<projects>
 		<project>Fudge</project>
+		<project>Fudge-Proto</project>
 		<project>OG Analytics</project>
 		<project>OG Bloomberg</project>
+		<project>OG Config</project>
 		<project>OG Engine</project>
+		<project>OG Excel</project>
 		<project>OG Financial</project>
+		<project>OG Integration</project>
 		<project>OG LiveData</project>
+		<project>OG Reuters</project>
+		<project>OG Security</project>
+		<project>OG TimeSeries Storage</project>
 		<project>OG Util</project>
-		<project>OG-Integration</project>
 	</projects>
 	<buildSpec>
 	</buildSpec>

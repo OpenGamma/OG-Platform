@@ -181,17 +181,9 @@
 	<target name="clone-or-pull" depends="clean-src" description="clone or pull all projects from git">
 		<git-clone-pull repository="git@github.com:OpenGamma/Fudge-Java.git" dest="projects/Fudge-Java" />
 		<git-clone-pull repository="git@github.com:OpenGamma/Fudge-Proto.git" dest="projects/Fudge-Proto" />
-		<git-clone-pull repository="git@github.com:OpenGamma/OG-Analytics.git" dest="projects/OG-Analytics" />
 		<git-clone-pull repository="git@github.com:OpenGamma/OG-Bloomberg.git" dest="projects/OG-Bloomberg" />
-		<git-clone-pull repository="git@github.com:OpenGamma/OG-Engine.git" dest="projects/OG-Engine" />
-		<git-clone-pull repository="git@github.com:OpenGamma/OG-Financial.git" dest="projects/OG-Financial" />
-		<git-clone-pull repository="git@github.com:OpenGamma/OG-LiveData.git" dest="projects/OG-LiveData" />
-		<git-clone-pull repository="git@github.com:OpenGamma/OG-Util.git" dest="projects/OG-Util" />
 		<git-clone-pull repository="git@github.com:OpenGamma/OG-Integration.git" dest="projects/OG-Integration" />
-		<git-clone-pull repository="git@github.com:OpenGamma/OG-Security.git" dest="projects/OG-Security" />
-		<git-clone-pull repository="git@github.com:OpenGamma/OG-TimeSeriesStorage.git" dest="projects/OG-TimeSeriesStorage" />
 		<git-clone-pull repository="git@github.com:OpenGamma/OG-Reuters.git" dest="projects/OG-Reuters" />
-		<git-clone-pull repository="git@github.com:OpenGamma/OG-Config.git" dest="projects/OG-Config" />
 		<git-clone-pull repository="git@github.com:OpenGamma/OG-Excel.git" dest="projects/OG-Excel" />
 	</target>
 
@@ -199,17 +191,9 @@
 		<git-pull dest="." />
 		<git-pull dest="projects/Fudge-Java" />
 		<git-pull dest="projects/Fudge-Proto" />
-		<git-pull dest="projects/OG-Analytics" />
 		<git-pull dest="projects/OG-Bloomberg" />
-		<git-pull dest="projects/OG-Engine" />
-		<git-pull dest="projects/OG-Financial" />
-		<git-pull dest="projects/OG-LiveData" />
-		<git-pull dest="projects/OG-Util" />
 		<git-pull dest="projects/OG-Integration" />
-		<git-pull dest="projects/OG-Security" />
-		<git-pull dest="projects/OG-TimeSeriesStorage" />
 		<git-pull dest="projects/OG-Reuters" />
-		<git-pull dest="projects/OG-Config" />
 		<git-pull dest="projects/OG-Excel" />
 	</target>
 
@@ -217,17 +201,9 @@
 		<git-status dest="." displayName="OG-Build" />
 		<git-status dest="projects/Fudge-Java" displayName="Fudge-Java" />
 		<git-status dest="projects/Fudge-Proto" displayName="Fudge-Proto" />
-		<git-status dest="projects/OG-Analytics" displayName="OG-Analytics" />
 		<git-status dest="projects/OG-Bloomberg" displayName="OG-Bloomberg" />
-		<git-status dest="projects/OG-Engine" displayName="OG-Engine" />
-		<git-status dest="projects/OG-Financial" displayName="OG-Financial" />
-		<git-status dest="projects/OG-LiveData" displayName="OG-LiveData" />
-		<git-status dest="projects/OG-Util" displayName="OG-Util" />
 		<git-status dest="projects/OG-Integration" displayName="OG-Integration" />
-		<git-status dest="projects/OG-Security" displayName="OG-Security" />
-		<git-status dest="projects/OG-TimeSeriesStorage" displayName="OG-TimeSeriesStorage" />
 		<git-status dest="projects/OG-Reuters" displayName="OG-Reuters" />
-		<git-status dest="projects/OG-Config" displayName="OG-Config" />
 		<git-status dest="projects/OG-Excel" displayName="OG-Excel" />
 	</target>
 </project>
