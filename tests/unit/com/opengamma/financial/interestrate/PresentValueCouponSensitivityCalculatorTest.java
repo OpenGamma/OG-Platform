@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.interestrate;
@@ -25,8 +25,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
  */
 public class PresentValueCouponSensitivityCalculatorTest {
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
-  private static final PresentValueCouponSensitivityCalculator PVCSC = PresentValueCouponSensitivityCalculator
-      .getInstance();
+  private static final PresentValueCouponSensitivityCalculator PVCSC = PresentValueCouponSensitivityCalculator.getInstance();
   private static final String FIVE_PC_CURVE_NAME = "5%";
   private static final String ZERO_PC_CURVE_NAME = "0%";
   private static final YieldCurveBundle CURVES;
@@ -66,12 +65,9 @@ public class PresentValueCouponSensitivityCalculatorTest {
     final double forwardYearFrac = 31.0 / 365.0;
     final double discountYearFrac = 30.0 / 360;
 
-    ForwardRateAgreement fra = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac,
-        discountYearFrac, strike, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    ForwardRateAgreement fraUp = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac,
-        discountYearFrac, strike + DELTA, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    ForwardRateAgreement fraDown = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac,
-        discountYearFrac, strike - DELTA, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    ForwardRateAgreement fra = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, strike, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    ForwardRateAgreement fraUp = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, strike + DELTA, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    ForwardRateAgreement fraDown = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, strike - DELTA, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
 
     double pvUp = PVC.getValue(fraUp, CURVES);
     double pvDown = PVC.getValue(fraDown, CURVES);
@@ -88,12 +84,9 @@ public class PresentValueCouponSensitivityCalculatorTest {
     final double indexYearFraction = 0.267;
     final double valueYearFraction = 0.25;
     final double rate = 0.0356;
-    InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction,
-        valueYearFraction, 100 * (1 - rate), FIVE_PC_CURVE_NAME);
-    InterestRateFuture edfUp = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction,
-        valueYearFraction, 100 * (1 - rate - DELTA), FIVE_PC_CURVE_NAME);
-    InterestRateFuture edfDown = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction,
-        valueYearFraction, 100 * (1 - rate + DELTA), FIVE_PC_CURVE_NAME);
+    InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, 100 * (1 - rate), FIVE_PC_CURVE_NAME);
+    InterestRateFuture edfUp = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, 100 * (1 - rate - DELTA), FIVE_PC_CURVE_NAME);
+    InterestRateFuture edfDown = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, 100 * (1 - rate + DELTA), FIVE_PC_CURVE_NAME);
 
     double pvUp = PVC.getValue(edfUp, CURVES);
     double pvDown = PVC.getValue(edfDown, CURVES);
@@ -141,12 +134,9 @@ public class PresentValueCouponSensitivityCalculatorTest {
     }
     final double swapRate = 0.04;
 
-    final Swap swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, FIVE_PC_CURVE_NAME,
-        FIVE_PC_CURVE_NAME);
-    final Swap swapUp = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate + DELTA, FIVE_PC_CURVE_NAME,
-        FIVE_PC_CURVE_NAME);
-    final Swap swapDown = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate - DELTA,
-        FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final Swap swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final Swap swapUp = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate + DELTA, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final Swap swapDown = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate - DELTA, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
 
     double pvUp = PVC.getValue(swapUp, CURVES);
     double pvDown = PVC.getValue(swapDown, CURVES);
@@ -177,14 +167,10 @@ public class PresentValueCouponSensitivityCalculatorTest {
       yearFracs[i] = tau;
     }
 
-    final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0,
-        FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    final VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs,
-        spreads, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
-    final VariableAnnuity receiveLegUp = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs,
-        spreadsUp, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
-    final VariableAnnuity receiveLegDown = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs,
-        spreadsDown, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
+    final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, 0.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreads, 1.0, 0.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
+    final VariableAnnuity receiveLegUp = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreadsUp, 1.0, 0.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
+    final VariableAnnuity receiveLegDown = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreadsDown, 1.0, 0.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
 
     final Swap swap = new BasisSwap(payLeg, receiveLeg);
     final Swap swapUp = new BasisSwap(payLeg, receiveLegUp);

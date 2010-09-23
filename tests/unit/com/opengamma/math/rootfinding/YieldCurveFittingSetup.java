@@ -278,7 +278,7 @@ public abstract class YieldCurveFittingSetup {
       yearFracs[i] = 0.25;
     }
     final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, 1.0, fundCurveName, fundCurveName);
-    final VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreads, 1.0, fundCurveName, liborCurveName);
+    final VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreads, 1.0, 0.0, fundCurveName, liborCurveName);
     return new BasisSwap(payLeg, receiveLeg);
   }
 
@@ -297,7 +297,7 @@ public abstract class YieldCurveFittingSetup {
     final double[] indexMaturity = new double[2 * payments];
     final double[] yearFrac = new double[2 * payments];
 
-    final double sigma = 4.0 / 365.0;
+    final double sigma = 0.0 / 365.0;
 
     for (int i = 0; i < payments; i++) {
       fixed[i] = 0.5 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
@@ -313,7 +313,7 @@ public abstract class YieldCurveFittingSetup {
     }
     final ConstantCouponAnnuity fixedLeg = new ConstantCouponAnnuity(fixed, rate, fundingCurveName);
 
-    final VariableAnnuity floatingLeg = new VariableAnnuity(floating, indexFixing, indexMaturity, yearFrac, 1.0, fundingCurveName, liborCurveName);
+    final VariableAnnuity floatingLeg = new VariableAnnuity(floating, indexFixing, indexMaturity, yearFrac, 1.0, 0.0, fundingCurveName, liborCurveName);
     return new FixedFloatSwap(fixedLeg, floatingLeg);
   }
 

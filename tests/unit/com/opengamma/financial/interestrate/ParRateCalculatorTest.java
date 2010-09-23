@@ -58,11 +58,9 @@ public class ParRateCalculatorTest {
     final double forwardYearFrac = 31.0 / 365.0;
     final double discountYearFrac = 30.0 / 360;
 
-    ForwardRateAgreement fra = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac,
-        discountYearFrac, 0.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    ForwardRateAgreement fra = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, 0.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     final double rate = PRC.getValue(fra, CURVES);
-    fra = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, rate,
-        FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    fra = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, rate, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     assertEquals(0.0, PVC.getValue(fra, CURVES), 1e-12);
   }
 
@@ -73,12 +71,10 @@ public class ParRateCalculatorTest {
     final double maturity = 1.75;
     final double indexYearFraction = 0.267;
     final double valueYearFraction = 0.25;
-    InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction,
-        valueYearFraction, 100.0, FIVE_PC_CURVE_NAME);
+    InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, 100.0, FIVE_PC_CURVE_NAME);
     final double rate = PRC.getValue(edf, CURVES);
     final double price = 100 * (1 - rate);
-    edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, price,
-        FIVE_PC_CURVE_NAME);
+    edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, price, FIVE_PC_CURVE_NAME);
     assertEquals(0.0, PVC.getValue(edf, CURVES), 1e-12);
   }
 
@@ -134,10 +130,8 @@ public class ParRateCalculatorTest {
       yearFracs[i] = tau;
     }
 
-    final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0,
-        FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
-    VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0,
-        FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, 0.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
+    VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, 0.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
 
     Swap swap = new BasisSwap(payLeg, receiveLeg);
     final double rate = PRC.getValue(swap, CURVES);
@@ -145,8 +139,7 @@ public class ParRateCalculatorTest {
     for (int i = 0; i < n; i++) {
       spreads[i] = rate;
     }
-    receiveLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreads, 1.0,
-        FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    receiveLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreads, 1.0, 0.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     swap = new BasisSwap(payLeg, receiveLeg);
     assertEquals(0.0, PVC.getValue(swap, CURVES), 1e-12);
   }

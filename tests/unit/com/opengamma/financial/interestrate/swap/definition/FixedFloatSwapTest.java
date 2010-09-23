@@ -29,8 +29,7 @@ public class FixedFloatSwapTest {
   private static final double[] INDEX_MATURITY = new double[] {1.5, 2, 3., 4., 5., 6., 7., 8., 9, 10., 11., 12.};
   private static final double[] YEAR_FRACS = new double[] {1.5, 0.5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
-  private static final FixedFloatSwap SWAP = new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, COUPON_RATE,
-      FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+  private static final FixedFloatSwap SWAP = new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, COUPON_RATE, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullFixedPayments() {
@@ -64,15 +63,13 @@ public class FixedFloatSwapTest {
 
   @Test
   public void testHashCodeAndEquals() {
-    FixedFloatSwap other = new FixedFloatSwap(Arrays.copyOf(FIXED_PAYMENTS, FIXED_PAYMENTS.length), Arrays.copyOf(
-        FLOAT_PAYMENTS, FLOAT_PAYMENTS.length), COUPON_RATE, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    FixedFloatSwap other = new FixedFloatSwap(Arrays.copyOf(FIXED_PAYMENTS, FIXED_PAYMENTS.length), Arrays.copyOf(FLOAT_PAYMENTS, FLOAT_PAYMENTS.length), COUPON_RATE, FUNDING_CURVE_NAME,
+        LIBOR_CURVE_NAME);
     assertEquals(other, SWAP);
     assertEquals(other.hashCode(), SWAP.hashCode());
-    other = new FixedFloatSwap(new double[] {1, 2, 3, 4, 5, 6}, FLOAT_PAYMENTS, COUPON_RATE, FUNDING_CURVE_NAME,
-        LIBOR_CURVE_NAME);
+    other = new FixedFloatSwap(new double[] {1, 2, 3, 4, 5, 6}, FLOAT_PAYMENTS, COUPON_RATE, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
     assertFalse(other.equals(SWAP));
-    other = new FixedFloatSwap(FIXED_PAYMENTS, new double[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, COUPON_RATE,
-        FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    other = new FixedFloatSwap(FIXED_PAYMENTS, new double[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, COUPON_RATE, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
     assertFalse(other.equals(SWAP));
     other = new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, 0.03, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
     assertFalse(other.equals(SWAP));
@@ -82,8 +79,7 @@ public class FixedFloatSwapTest {
     assertFalse(other.equals(SWAP));
 
     ConstantCouponAnnuity fixed = new ConstantCouponAnnuity(FIXED_PAYMENTS, 1.0, COUPON_RATE, FUNDING_CURVE_NAME);
-    VariableAnnuity floating = new VariableAnnuity(FLOAT_PAYMENTS, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACS, 1.0,
-        FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    VariableAnnuity floating = new VariableAnnuity(FLOAT_PAYMENTS, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACS, 1.0, 0.0, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
     other = new FixedFloatSwap(fixed, floating);
     assertEquals(other, SWAP);
     assertEquals(other.hashCode(), SWAP.hashCode());
@@ -98,8 +94,7 @@ public class FixedFloatSwapTest {
     assertEquals(FIXED_PAYMENTS.length, SWAP.getFixedLeg().getNumberOfPayments());
     assertEquals(FLOAT_PAYMENTS.length, SWAP.getFloatingLeg().getNumberOfPayments());
 
-    assertArrayEquals(new double[] {1.5, 0.5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, SWAP.getFloatingLeg().getYearFractions(),
-        0);
+    assertArrayEquals(new double[] {1.5, 0.5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, SWAP.getFloatingLeg().getYearFractions(), 0);
   }
   // @Test
   // public void testUnsortedInputs() {

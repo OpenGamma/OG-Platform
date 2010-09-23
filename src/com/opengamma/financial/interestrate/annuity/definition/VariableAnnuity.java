@@ -21,8 +21,8 @@ public class VariableAnnuity implements Annuity {
   private final double[] _yearFractions;
   private final double[] _indexFixingTimes;
   private final double[] _indexMaturityTimes;
-  // private final double[] _deltaStart;
-  // private final double[] _deltaEnd;
+  private final double _initialRate; // when the value of the is know (i.e. the fixing times is <= 0) it is not dependent on the libor curve
+
   private final double[] _spreads;
   private final double _notional;
   private final int _n;
@@ -67,6 +67,7 @@ public class VariableAnnuity implements Annuity {
     }
     _fundingCurveName = fundingCurveName;
     _liborCurveName = liborCurveName;
+    _initialRate = 0.0;
   }
 
   /**
@@ -80,13 +81,14 @@ public class VariableAnnuity implements Annuity {
    * @param fundingCurveName  Name of curve from which payments are discounted
    * @param liborCurveName Name of curve from which forward rates are calculated
    */
-  public VariableAnnuity(final double[] paymentTimes, final double[] indexFixingTimes, final double[] indexMaturityTimes, final double[] yearFraction, final double notional,
+  public VariableAnnuity(final double[] paymentTimes, final double[] indexFixingTimes, final double[] indexMaturityTimes, final double[] yearFraction, final double notional, final double initialRate,
       final String fundingCurveName, final String liborCurveName) {
 
     Validate.notNull(paymentTimes);
     double[] spreads = new double[paymentTimes.length];
     argumentCheck(paymentTimes, indexFixingTimes, indexMaturityTimes, yearFraction, spreads, fundingCurveName, liborCurveName);
 
+    _initialRate = initialRate;
     _notional = notional;
     _n = paymentTimes.length;
     _paymentTimes = paymentTimes;
@@ -111,10 +113,11 @@ public class VariableAnnuity implements Annuity {
    * @param liborCurveName Name of curve from which forward rates are calculated
    */
   public VariableAnnuity(final double[] paymentTimes, final double[] indexFixingTimes, final double[] indexMaturityTimes, final double[] yearFraction, final double[] spreads, final double notional,
-      final String fundingCurveName, final String liborCurveName) {
+      final double initialRate, final String fundingCurveName, final String liborCurveName) {
 
     argumentCheck(paymentTimes, indexFixingTimes, indexMaturityTimes, yearFraction, spreads, fundingCurveName, liborCurveName);
 
+    _initialRate = initialRate;
     _notional = notional;
     _n = paymentTimes.length;
     _paymentTimes = paymentTimes;
@@ -178,6 +181,10 @@ public class VariableAnnuity implements Annuity {
     return _spreads;
   }
 
+  public double getInitialRate() {
+    return _initialRate;
+  }
+
   @Override
   public String getFundingCurveName() {
     return _fundingCurveName;
@@ -209,8 +216,8 @@ public class VariableAnnuity implements Annuity {
 
   @Override
   public VariableAnnuity withZeroSpread() {
-    return new VariableAnnuity(getPaymentTimes(), getIndexFixingTimes(), getIndexMaturityTimes(), getYearFractions(), new double[getNumberOfPayments()], getNotional(), getFundingCurveName(),
-        getLiborCurveName());
+    return new VariableAnnuity(getPaymentTimes(), getIndexFixingTimes(), getIndexMaturityTimes(), getYearFractions(), new double[getNumberOfPayments()], getNotional(), getInitialRate(),
+        getFundingCurveName(), getLiborCurveName());
   }
 
   @Override
@@ -228,7 +235,8 @@ public class VariableAnnuity implements Annuity {
     for (int i = 0; i < getNumberOfPayments(); i++) {
       spreads[i] = rate;
     }
-    return new VariableAnnuity(getPaymentTimes(), getIndexFixingTimes(), getIndexMaturityTimes(), getYearFractions(), spreads, getNotional(), getFundingCurveName(), getLiborCurveName());
+    return new VariableAnnuity(getPaymentTimes(), getIndexFixingTimes(), getIndexMaturityTimes(), getYearFractions(), spreads, getNotional(), getInitialRate(), getFundingCurveName(),
+        getLiborCurveName());
   }
 
   @Override
@@ -238,8 +246,10 @@ public class VariableAnnuity implements Annuity {
     result = prime * result + ((_fundingCurveName == null) ? 0 : _fundingCurveName.hashCode());
     result = prime * result + Arrays.hashCode(_indexFixingTimes);
     result = prime * result + Arrays.hashCode(_indexMaturityTimes);
-    result = prime * result + ((_liborCurveName == null) ? 0 : _liborCurveName.hashCode());
     long temp;
+    temp = Double.doubleToLongBits(_initialRate);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_liborCurveName == null) ? 0 : _liborCurveName.hashCode());
     temp = Double.doubleToLongBits(_notional);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + Arrays.hashCode(_paymentTimes);
@@ -271,6 +281,9 @@ public class VariableAnnuity implements Annuity {
       return false;
     }
     if (!Arrays.equals(_indexMaturityTimes, other._indexMaturityTimes)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_initialRate) != Double.doubleToLongBits(other._initialRate)) {
       return false;
     }
     if (_liborCurveName == null) {

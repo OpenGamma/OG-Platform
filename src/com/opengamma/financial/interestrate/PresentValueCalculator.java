@@ -7,6 +7,7 @@ package com.opengamma.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCalculations;
 import com.opengamma.financial.interestrate.annuity.definition.ConstantCouponAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
@@ -120,7 +121,7 @@ public final class PresentValueCalculator implements InterestRateDerivativeVisit
   public Double visitVariableAnnuity(final VariableAnnuity annuity, final YieldCurveBundle curves) {
 
     final YieldAndDiscountCurve fundCurve = curves.getCurve(annuity.getFundingCurveName());
-    final double[] libors = getLiborRates(annuity, curves);
+    final double[] libors = AnnuityCalculations.getLiborRates(annuity, curves);
     final double[] t = annuity.getPaymentTimes();
     final double[] spreads = annuity.getSpreads();
     final double[] alpha = annuity.getYearFractions();
@@ -130,20 +131,6 @@ public final class PresentValueCalculator implements InterestRateDerivativeVisit
       res += (libors[i] + spreads[i]) * alpha[i] * fundCurve.getDiscountFactor(t[i]);
     }
     return res * annuity.getNotional();
-  }
-
-  private double[] getLiborRates(final VariableAnnuity annuity, final YieldCurveBundle curves) {
-
-    final YieldAndDiscountCurve curve = curves.getCurve(annuity.getLiborCurveName());
-    final int n = annuity.getNumberOfPayments();
-    final double[] indexFixing = annuity.getIndexFixingTimes();
-    final double[] indexMaturity = annuity.getIndexMaturityTimes();
-    final double[] alpha = annuity.getYearFractions();
-    final double[] libors = new double[n];
-    for (int i = 0; i < n; i++) {
-      libors[i] = (curve.getDiscountFactor(indexFixing[i]) / curve.getDiscountFactor(indexMaturity[i]) - 1.0) / alpha[i];
-    }
-    return libors;
   }
 
 }
