@@ -205,4 +205,5 @@ public interface ValueRequirementNames {
   
   //Portfolio
   public static final String WEIGHT = "Weight";
+  public static final String SHARPE_RATIO = "Sharpe Ratio";
 }
