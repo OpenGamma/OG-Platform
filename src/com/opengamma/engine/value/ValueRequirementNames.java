@@ -171,8 +171,11 @@ public interface ValueRequirementNames {
   public static final String MEDIAN = "Median";
   
   // History
+  public static final String PRICE_SERIES = "Price Series";
+  public static final String RETURN_SERIES = "Return Series";
   public static final String PNL = "P&L";
   public static final String PNL_SERIES = "P&L Series";
+  public static final String UNDERLYING_RETURN_SERIES = "Underlying Return Series";
   
   // Risk Aggregates:
   public static final String HISTORICAL_VAR = "HistoricalVaR";
@@ -180,16 +183,26 @@ public interface ValueRequirementNames {
   public static final String INCREMENTAL_VAR = "IncrementalVaR";
 
   //Yield curve specifics
-  public static final String FUNDING_AND_FORWARD_CURVE = "FundingAndForwardCurve";
-  public static final String FUNDING_CURVE = "FundingCurve";
-  public static final String FORWARD_CURVE = "ForwardCurve";
-  public static final String FUNDING_AND_FORWARD_JACOBIAN = "FundingAndForwardCurveJacobian";
-  public static final String FUNDING_JACOBIAN = "FundingCurveJacobian";
-  public static final String FORWARD_JACOBIAN = "ForwardCurveJacobian";  
   public static final String YIELD_CURVE_JACOBIAN = "YieldCurveJacobian";
   
   // Fixed income analytics
   public static final String PRESENT_VALUE = "PresentValue";
   
-  // CSON: Because they're names that should be known by industry practitioners.
+  //CAPM equity model
+  public static final String CAPM_ALPHA = "CAPM Alpha";
+  public static final String CAPM_BETA = "CAPM Beta";
+  public static final String CAPM_ALPHA_RESIDUALS= "CAPM Alpha Residual";
+  public static final String CAPM_BETA_RESIDUALS= "CAPM Beta Residuals";
+  public static final String CAPM_ADJUSTED_R_SQUARED = "CAPM Adjusted R-Squared";
+  public static final String CAPM_ALPHA_TSTATS = "CAPM Alpha t-Stats";
+  public static final String CAPM_BETA_TSTATS = "CAPM Beta t-Stats";
+  public static final String CAPM_ALPHA_PVALUES = "CAPM Alpha p-Values";
+  public static final String CAPM_BETA_PVALUES = "CAPM Beta p-Values";
+  public static final String CAPM_MEAN_SQUARE_ERROR = "CAPM Mean Square Error";
+  public static final String CAPM_R_SQUARED = "CAPM R-Squared";
+  public static final String CAPM_STANDARD_ERROR_OF_ALPHA = "CAPM Standard Error Of Alpha";
+  public static final String CAPM_STANDARD_ERROR_OF_BETA = "CAPM Standard Error Of Beta";
+  
+  //Portfolio
+  public static final String WEIGHT = "Weight";
 }
