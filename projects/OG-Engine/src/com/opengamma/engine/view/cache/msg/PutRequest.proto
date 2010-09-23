@@ -1,0 +1,20 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.engine.view.cache.msg {
+
+  message PutRequest extends BinaryDataStoreRequest {
+  
+    required string viewName;
+    required string calculationConfigurationName;
+    required long snapshotTimestamp;
+  
+    required repeated long identifier;
+    required repeated byte[] data;
+  
+  }
+
+}

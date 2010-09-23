@@ -1,0 +1,24 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.engine.view.calcnode.msg {
+
+  message Ready extends RemoteCalcNodeMessage {
+    // TODO this is where published capabilities could go, but make them optional so they only go on the first and if they've changed (if changes are allowed)
+    
+    /**
+     * Capacity at the remote node. This is the number of jobs that could be sent for invocation
+     * without waiting for earlier ones to complete.
+     */
+    required int capacity;
+  
+    binding Java {
+      body "public void accept (RemoteCalcNodeMessageVisitor visitor) { visitor.visitReadyMessage (this); }";
+    }
+  
+  }
+  
+}
