@@ -1,0 +1,25 @@
+<project name="og-analytics" default="compile">
+  <property file="build.properties"/>
+
+  <import file="${common.dir}/common.xml"/>
+	
+  <target name="javadoc" depends="load-ivy"
+          description="--> build Javadocs (with LaTeX support) for the project">
+    <mkdir dir="${docs.dir}" />
+    <mkdir dir="${docs.dir}/javadoc" />
+    <javadoc
+          sourcepath="${src.dir}"
+          destdir="${docs.dir}/javadoc"
+          classpathref="lib.path.id"
+          author="false"
+          windowtitle="${javadocs.windowtitle}"
+          doctitle="${javadocs.doctitle}"
+          bottom="${javadocs.footer}"
+    > 
+      <taglet name="latexlet.InlineBlockLaTeXlet" path="${toString:lib.path.id}"/>
+      <taglet name="latexlet.BlockLaTeXlet" path="${toString:lib.path.id}"/>
+      <taglet name="latexlet.InlineLaTeXlet" path="${toString:lib.path.id}"/>
+      <group title="Analytics" packages="com.opengamma.analytics.*"/>
+  	</javadoc>
+  </target>
+</project>
