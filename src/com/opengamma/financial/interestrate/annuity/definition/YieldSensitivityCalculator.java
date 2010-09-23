@@ -15,7 +15,7 @@ import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
 /**
  * 
  */
-public class YieldSensitivityCalculator {
+public final class YieldSensitivityCalculator {
   private static BracketRoot s_bracketRoot = new BracketRoot();
   private static final RealSingleRootFinder s_root = new VanWijngaardenDekkerBrentSingleRootFinder();
   private static final YieldSensitivityCalculator s_instance = new YieldSensitivityCalculator();
@@ -46,7 +46,7 @@ public class YieldSensitivityCalculator {
 
     };
 
-    double[] range = s_bracketRoot.getBracketedPoints(f, 0.0, 0.2);
+    final double[] range = s_bracketRoot.getBracketedPoints(f, 0.0, 0.2);
     return s_root.getRoot(f, range[0], range[1]);
   }
 
@@ -59,9 +59,9 @@ public class YieldSensitivityCalculator {
   public double calculatePriceForYield(final FixedAnnuity annuity, final double yield) {
     Validate.notNull(annuity, "annuity");
     double sum = 0;
-    double[] payments = annuity.getPaymentAmounts();
-    double[] times = annuity.getPaymentTimes();
-    int n = payments.length;
+    final double[] payments = annuity.getPaymentAmounts();
+    final double[] times = annuity.getPaymentTimes();
+    final int n = payments.length;
     for (int i = 0; i < n; i++) {
       sum += payments[i] * Math.exp(-yield * times[i]);
     }
@@ -76,9 +76,9 @@ public class YieldSensitivityCalculator {
    *@param order The order of the derivative 
    * @return nth order yield sensitivity (times (-1)^n
    */
-  public double calculateNthOrderSensitivity(final FixedAnnuity annuity, final double pv, int order) {
+  public double calculateNthOrderSensitivity(final FixedAnnuity annuity, final double pv, final int order) {
     Validate.notNull(annuity, "annuity");
-    double yield = calculateYield(annuity, pv);
+    final double yield = calculateYield(annuity, pv);
     return calculateNthOrderSensitivityFromYield(annuity, yield, order);
   }
 
@@ -90,14 +90,14 @@ public class YieldSensitivityCalculator {
    * @param order The order of the derivative 
    * @return nth order yield sensitivity (times (-1)^n
    */
-  public double calculateNthOrderSensitivityFromYield(final FixedAnnuity annuity, final double yield, int order) {
+  public double calculateNthOrderSensitivityFromYield(final FixedAnnuity annuity, final double yield, final int order) {
     Validate.notNull(annuity, "annuity");
     double sum = 0;
-    double[] payments = annuity.getPaymentAmounts();
-    double[] times = annuity.getPaymentTimes();
+    final double[] payments = annuity.getPaymentAmounts();
+    final double[] times = annuity.getPaymentTimes();
     double t;
     double tPower;
-    int n = payments.length;
+    final int n = payments.length;
     for (int i = 0; i < n; i++) {
       t = times[i];
       tPower = Math.pow(t, order);
