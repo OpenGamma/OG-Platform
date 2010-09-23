@@ -19,7 +19,24 @@ public class FixedAnnuity implements Annuity {
   private double[] _paymentAmounts;
   private final double[] _yearFractions;
   private final double[] _paymentTimes;
-  private final double[] _coupons;
+  private double[] _coupons;
+
+  /**
+   * Gets the coupons field.
+   * @return the coupons
+   */
+  public double[] getCoupons() {
+    return _coupons;
+  }
+
+  /**
+   * Sets the coupons field.
+   * @param coupons  the coupons
+   */
+  public void setCoupons(double[] coupons) {
+    _coupons = coupons;
+  }
+
   private final double _notional;
   private final int _n;
   private final String _curveName;
