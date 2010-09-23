@@ -17,8 +17,6 @@ public class SampleCovarianceCalculatorTest {
   private static final double VAR0;
   private static final double[] X0;
   private static final double[] X1;
-  private static final double[] X2;
-  private static final double[] X3;
   private static final SampleCovarianceCalculator CALCULATOR = new SampleCovarianceCalculator();
   private static final double EPS = 1e-12;
 
