@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCalculations;
 import com.opengamma.financial.interestrate.annuity.definition.ConstantCouponAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
@@ -188,7 +189,7 @@ public final class PresentValueSensitivityCalculator implements InterestRateDeri
     final YieldAndDiscountCurve fundCurve = curves.getCurve(fundingCurveName);
     final YieldAndDiscountCurve liborCurve = curves.getCurve(liborCurveName);
     final double notional = annuity.getNotional();
-    final double[] libors = getLiborRates(annuity, curves);
+    final double[] libors = AnnuityCalculations.getLiborRates(annuity, curves);
     final double[] t = annuity.getPaymentTimes();
     final double[] spreads = annuity.getSpreads();
     final double[] yearFrac = annuity.getYearFractions();
@@ -210,7 +211,11 @@ public final class PresentValueSensitivityCalculator implements InterestRateDeri
     }
 
     double ta, tb, df, dfa, dfb, ratio;
+
     for (int i = 0; i < n; i++) {
+      if (i == 0 && indexFixing[0] < 0.0) {
+        continue; // in this case the first float payment is known, so there is no sensitivity to the curve
+      }
       ta = indexFixing[i];
       tb = indexMaturity[i];
       df = fundCurve.getDiscountFactor(t[i]);
@@ -226,20 +231,6 @@ public final class PresentValueSensitivityCalculator implements InterestRateDeri
     result.put(liborCurveName, temp);
 
     return result;
-  }
-
-  private double[] getLiborRates(final VariableAnnuity annuity, final YieldCurveBundle curves) {
-
-    final YieldAndDiscountCurve curve = curves.getCurve(annuity.getLiborCurveName());
-    final int n = annuity.getNumberOfPayments();
-    final double[] indexFixing = annuity.getIndexFixingTimes();
-    final double[] indexMaturity = annuity.getIndexMaturityTimes();
-    final double[] alpha = annuity.getYearFractions();
-    final double[] libors = new double[n];
-    for (int i = 0; i < n; i++) {
-      libors[i] = (curve.getDiscountFactor(indexFixing[i]) / curve.getDiscountFactor(indexMaturity[i]) - 1.0) / alpha[i];
-    }
-    return libors;
   }
 
 }

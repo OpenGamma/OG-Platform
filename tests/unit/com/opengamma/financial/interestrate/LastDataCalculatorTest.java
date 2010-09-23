@@ -82,7 +82,7 @@ public class LastDataCalculatorTest {
       yearFracs[i] = yearFrac;
       spreads[i] = spread;
     }
-    VariableAnnuity annuity = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreads, Math.E, "Bill", "Ben");
+    VariableAnnuity annuity = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreads, Math.E, 0.045, "Bill", "Ben");
     assertEquals(n * alpha + 0.1, LDC.getValue(annuity), 1e-12);
   }
 
@@ -142,8 +142,8 @@ public class LastDataCalculatorTest {
       yearFracs[i] = tau;
     }
 
-    final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, "", "");
-    final VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreads, 1.0, "", "");
+    final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, 0.0, "", "");
+    final VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreads, 1.0, 0.0, "", "");
 
     final Swap swap = new BasisSwap(payLeg, receiveLeg);
 

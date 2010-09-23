@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
+import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
+import com.opengamma.financial.interestrate.ParRateDifferenceCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -31,11 +31,8 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculator;
 import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.rootfinding.YieldCurveFittingTestDataBundle.TestType;
-import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.NewtonDefaultVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
-import com.opengamma.math.rootfinding.newton.ShermanMorrisonVectorRootFinder;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -54,30 +51,30 @@ public class YieldCurveFittingFromMarketDataTest extends YieldCurveFittingSetup 
     final NewtonVectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS);
     final YieldCurveFittingTestDataBundle data = getSingleCurveSetup();
     doHotSpot(rootFinder, data, "Single curve, market Data (Libor, FRA, swaps). Root finder: Newton");
-    data.setTestType(TestType.FD_JACOBIAN);
-    doHotSpot(rootFinder, data, "Single curve, market Data (Libor, FRA, swaps). Root finder: Newton (FD Jacobian)");
+    // data.setTestType(TestType.FD_JACOBIAN);
+    // doHotSpot(rootFinder, data, "Single curve, market Data (Libor, FRA, swaps). Root finder: Newton (FD Jacobian)");
 
   }
 
-  @Test
-  public void testShermanMorrison() {
-    final NewtonVectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS);
-    final YieldCurveFittingTestDataBundle data = getSingleCurveSetup();
-    doHotSpot(rootFinder, data, "Single curve, market Data (Libor, FRA, swaps). Root finder: ShermanMorrison");
-    data.setTestType(TestType.FD_JACOBIAN);
-    doHotSpot(rootFinder, data, "Single curve, market Data (Libor, FRA, swaps). Root finder:ShermanMorrison (FD Jacobian)");
-
-  }
-
-  @Test
-  public void testBroyden() {
-    final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
-    final YieldCurveFittingTestDataBundle data = getSingleCurveSetup();
-    doHotSpot(rootFinder, data, "Single curve, market Data (Libor, FRA, swaps). Root finder: Broyden");
-    data.setTestType(TestType.FD_JACOBIAN);
-    doHotSpot(rootFinder, data, "Single curve,market Data (Libor, FRA, swaps). Root finder: Broyden (FD Jacobian)");
-
-  }
+  // @Test
+  // public void testShermanMorrison() {
+  // final NewtonVectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS);
+  // final YieldCurveFittingTestDataBundle data = getSingleCurveSetup();
+  // doHotSpot(rootFinder, data, "Single curve, market Data (Libor, FRA, swaps). Root finder: ShermanMorrison");
+  // data.setTestType(TestType.FD_JACOBIAN);
+  // doHotSpot(rootFinder, data, "Single curve, market Data (Libor, FRA, swaps). Root finder:ShermanMorrison (FD Jacobian)");
+  //
+  // }
+  //
+  // @Test
+  // public void testBroyden() {
+  // final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
+  // final YieldCurveFittingTestDataBundle data = getSingleCurveSetup();
+  // doHotSpot(rootFinder, data, "Single curve, market Data (Libor, FRA, swaps). Root finder: Broyden");
+  // data.setTestType(TestType.FD_JACOBIAN);
+  // doHotSpot(rootFinder, data, "Single curve,market Data (Libor, FRA, swaps). Root finder: Broyden (FD Jacobian)");
+  //
+  // }
 
   private YieldCurveFittingTestDataBundle getSingleCurveSetup() {
 
@@ -90,21 +87,23 @@ public class YieldCurveFittingFromMarketDataTest extends YieldCurveFittingSetup 
     final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> extrapolatorWithSense = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
         .getSensitivityCalculator(interpolator, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, false);
 
-    // final InterestRateDerivativeVisitor<Double> calculator = ParRateDifferenceCalculator.getInstance();
-    // final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
-    final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = PresentValueCalculator.getInstance();
-    final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = PresentValueSensitivityCalculator.getInstance();
+    final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = ParRateDifferenceCalculator.getInstance();
+    final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
+    // final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = PresentValueCalculator.getInstance();
+    // final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = PresentValueSensitivityCalculator.getInstance();
 
     final HashMap<String, double[]> maturities = new LinkedHashMap<String, double[]>();
-    maturities.put("libor", new double[] {0.019164956, 0.038329911, 0.084873374, 0.169746749, 0.251882272, 0.336755647, 0.41889117, 0.503764545, 0.588637919, 0.665297741, 0.750171116, 0.832306639,
-        0.917180014, 0.999315537}); //
-    maturities.put("fra", new double[] {1.437371663, 1.686516085, 1.938398357});
-    maturities.put("swap", new double[] {/* 2.001368925, */3.000684463, 4, 4.999315537, 7.000684463, 10.00136893, 15.00068446, 20, 24.99931554, 30.00136893, 35.00068446, 50.00136893});
+    // maturities.put("libor", new double[] {0.019164956, 0.038329911, 0.084873374, 0.169746749, 0.251882272, 0.336755647, 0.41889117, 0.503764545, 0.588637919, 0.665297741, 0.750171116, 0.832306639,
+    // 0.917180014, 0.999315537}); //
+    // maturities.put("fra", new double[] {1.437371663, 1.686516085, 1.938398357});
+    // maturities.put("swap", new double[] {/* 2.001368925, */3.000684463, 4, 4.999315537, 7.000684463, 10.00136893, 15.00068446, 20, 24.99931554, 30.00136893, 35.00068446, 50.00136893});
+    maturities.put("swap", new double[] {1, 2, 3, 4, 5, 6, 7, 10, 15, 20, 25, 30});
 
     final HashMap<String, double[]> marketRates = new LinkedHashMap<String, double[]>();
-    marketRates.put("libor", new double[] {0.0506375, 0.05075, 0.0513, 0.0518625, 0.0523625, 0.0526125, 0.052925, 0.053175, 0.053375, 0.0535188, 0.0536375, 0.0537563, 0.0538438, 0.0539438}); //
-    marketRates.put("fra", new double[] {0.0566, 0.05705, 0.0572});
-    marketRates.put("swap", new double[] {/* 0.05412, */0.054135, 0.054295, 0.05457, 0.055075, 0.055715, 0.05652, 0.056865, 0.05695, 0.056925, 0.056885, 0.056725});
+    // marketRates.put("libor", new double[] {0.0506375, 0.05075, 0.0513, 0.0518625, 0.0523625, 0.0526125, 0.052925, 0.053175, 0.053375, 0.0535188, 0.0536375, 0.0537563, 0.0538438, 0.0539438}); //
+    // marketRates.put("fra", new double[] {0.0566, 0.05705, 0.0572});
+    // marketRates.put("swap", new double[] {/* 0.05412, */0.054135, 0.054295, 0.05457, 0.055075, 0.055715, 0.05652, 0.056865, 0.05695, 0.056925, 0.056885, 0.056725});
+    marketRates.put("swap", new double[] {0.04285, 0.03953, 0.03986, 0.040965, 0.042035, 0.04314, 0.044, 0.046045, 0.048085, 0.048925, 0.049155, 0.049195});
 
     int nNodes = 0;
     for (final double[] temp : maturities.values()) {

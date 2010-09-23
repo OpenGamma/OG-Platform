@@ -486,7 +486,7 @@ public class YieldCurveBootStrapTest {
       indexMaturity[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
     }
     final ConstantCouponAnnuity fixedLeg = new ConstantCouponAnnuity(fixed, 0.0, fundingCurveName);
-    final VariableAnnuity floatingLeg = new VariableAnnuity(floating, indexFixing, indexMaturity, yearFrac, 1.0, fundingCurveName, liborCurveName);
+    final VariableAnnuity floatingLeg = new VariableAnnuity(floating, indexFixing, indexMaturity, yearFrac, 1.0, 0.0, fundingCurveName, liborCurveName);
     return new FixedFloatSwap(fixedLeg, floatingLeg);
   }
 

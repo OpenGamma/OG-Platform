@@ -14,6 +14,7 @@ import java.util.Set;
 import org.apache.commons.lang.Validate;
 import org.junit.Test;
 
+import com.opengamma.financial.interestrate.annuity.definition.ConstantCouponAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
@@ -64,8 +65,7 @@ public class ParRateParallelSensitivityCalculatorTest {
     final double fixingDate = settlement - 2.0 / 365.0;
     final double forwardYearFrac = 31.0 / 365.0;
     final double discountYearFrac = 30.0 / 360;
-    final ForwardRateAgreement fra = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac,
-        discountYearFrac, strike, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    final ForwardRateAgreement fra = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, strike, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
     doTest(fra, CURVES);
   }
 
@@ -77,8 +77,7 @@ public class ParRateParallelSensitivityCalculatorTest {
     final double indexYearFraction = 0.267;
     final double valueYearFraction = 0.25;
     final double price = 97.3;
-    final InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction,
-        valueYearFraction, price, LIBOR_CURVE_NAME);
+    final InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, price, LIBOR_CURVE_NAME);
     doTest(edf, CURVES);
   }
 
@@ -106,17 +105,27 @@ public class ParRateParallelSensitivityCalculatorTest {
     final int n = 20;
     final double[] fixedPaymentTimes = new double[n];
     final double[] floatPaymentTimes = new double[2 * n];
+    final double[] indexFixingTimes = new double[2 * n];
+    final double[] indexMaturityTimes = new double[2 * n];
+    final double[] yearFrac = new double[2 * n];
 
     for (int i = 0; i < n * 2; i++) {
       if (i % 2 == 0) {
         fixedPaymentTimes[i / 2] = (i + 2) * 0.25;
       }
       floatPaymentTimes[i] = (i + 1) * 0.25;
+      indexFixingTimes[i] = i * 0.25 - 0.00001;
+      indexMaturityTimes[i] = floatPaymentTimes[i];
+      yearFrac[i] = 0.25;
     }
     final double swapRate = 0.04;
 
-    final Swap swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, FUNDING_CURVE_NAME,
-        LIBOR_CURVE_NAME);
+    Swap swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    doTest(swap, CURVES);
+
+    VariableAnnuity va = new VariableAnnuity(floatPaymentTimes, indexFixingTimes, indexMaturityTimes, yearFrac, new double[2 * n], 3.43, 0.0453, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    ConstantCouponAnnuity ca = new ConstantCouponAnnuity(fixedPaymentTimes, swapRate, FUNDING_CURVE_NAME);
+    swap = new FixedFloatSwap(ca, va);
     doTest(swap, CURVES);
   }
 
@@ -137,10 +146,8 @@ public class ParRateParallelSensitivityCalculatorTest {
       yearFracs[i] = tau;
     }
 
-    final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0,
-        FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
-    final VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs,
-        spreads, 1.0, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME);
+    final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, 0.0, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    final VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreads, 1.0, 0.0, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME);
 
     final Swap swap = new BasisSwap(payLeg, receiveLeg);
     doTest(swap, CURVES);
