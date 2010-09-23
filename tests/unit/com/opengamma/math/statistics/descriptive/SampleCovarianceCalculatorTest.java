@@ -24,8 +24,6 @@ public class SampleCovarianceCalculatorTest {
     final int n = 1000;
     X0 = new double[n];
     X1 = new double[n];
-    X2 = new double[n];
-    X3 = new double[n];
     for (int i = 0; i < n; i++) {
       X0[i] = Math.random() - 0.5;
       X1[i] = X0[i] * COV1;
