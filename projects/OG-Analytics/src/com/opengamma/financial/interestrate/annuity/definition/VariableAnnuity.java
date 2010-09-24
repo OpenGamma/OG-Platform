@@ -78,6 +78,7 @@ public class VariableAnnuity implements Annuity {
    * @param indexMaturityTimes time in years from now to the maturity of the reference rate  
    * @param yearFraction year fractions used to calculate payment amounts and reference rate
    * @param notional the notional amount (OK to set to 1.0) 
+   * @param initialRate the rate to use if the first floating payment has been fixed (i.e. the reset date has already passed)
    * @param fundingCurveName  Name of curve from which payments are discounted
    * @param liborCurveName Name of curve from which forward rates are calculated
    */
@@ -109,6 +110,7 @@ public class VariableAnnuity implements Annuity {
    * @param yearFraction year fractions used to calculate payment amounts and reference rate
    * @param spreads fixed payments on top of variable amounts (can be negative)
    * @param notional the notional amount (OK to set to 1.0) 
+   * @param initialRate the rate to use if the first floating payment has been fixed (i.e. the reset date has already passed)
    * @param fundingCurveName  Name of curve from which payments are discounted
    * @param liborCurveName Name of curve from which forward rates are calculated
    */

@@ -24,10 +24,12 @@ public class VariableAnnuityTest {
   private static final double INITIAL_RATE = 0.05;
   private static final String FUNDING = "Funding";
   private static final String LIBOR = "Libor";
-  private static final VariableAnnuity ANNUITY1 = new VariableAnnuity(T, FUNDING, LIBOR);
-  private static final VariableAnnuity ANNUITY2 = new VariableAnnuity(T, NOTIONAL, FUNDING, LIBOR);
-  private static final VariableAnnuity ANNUITY3 = new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, NOTIONAL, INITIAL_RATE, FUNDING, LIBOR);
-  private static final VariableAnnuity ANNUITY4 = new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, SPREADS, NOTIONAL, INITIAL_RATE, FUNDING, LIBOR);
+  //private static final VariableAnnuity ANNUITY1 = new VariableAnnuity(T, FUNDING, LIBOR);
+  //private static final VariableAnnuity ANNUITY2 = new VariableAnnuity(T, NOTIONAL, FUNDING, LIBOR);
+  private static final VariableAnnuity ANNUITY3 = new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS,
+      NOTIONAL, INITIAL_RATE, FUNDING, LIBOR);
+  private static final VariableAnnuity ANNUITY4 = new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS,
+      SPREADS, NOTIONAL, INITIAL_RATE, FUNDING, LIBOR);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullPaymentTimes1() {
@@ -46,7 +48,8 @@ public class VariableAnnuityTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullPaymentTimes4() {
-    new VariableAnnuity(null, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, SPREADS, NOTIONAL, INITIAL_RATE, FUNDING, LIBOR);
+    new VariableAnnuity(null, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, SPREADS, NOTIONAL, INITIAL_RATE, FUNDING,
+        LIBOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -101,12 +104,14 @@ public class VariableAnnuityTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyPaymentTimes3() {
-    new VariableAnnuity(new double[0], INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, NOTIONAL, INITIAL_RATE, FUNDING, LIBOR);
+    new VariableAnnuity(new double[0], INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, NOTIONAL, INITIAL_RATE, FUNDING,
+        LIBOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyPaymentTimes4() {
-    new VariableAnnuity(new double[0], INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, SPREADS, NOTIONAL, INITIAL_RATE, FUNDING, LIBOR);
+    new VariableAnnuity(new double[0], INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, SPREADS, NOTIONAL, INITIAL_RATE,
+        FUNDING, LIBOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -126,7 +131,8 @@ public class VariableAnnuityTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyIndexFixing2() {
-    new VariableAnnuity(T, new double[0], INDEX_MATURITY, YEAR_FRACTIONS, SPREADS, NOTIONAL, INITIAL_RATE, FUNDING, LIBOR);
+    new VariableAnnuity(T, new double[0], INDEX_MATURITY, YEAR_FRACTIONS, SPREADS, NOTIONAL, INITIAL_RATE, FUNDING,
+        LIBOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -156,12 +162,14 @@ public class VariableAnnuityTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongIndexFixing2() {
-    new VariableAnnuity(T, new double[] {1}, INDEX_MATURITY, YEAR_FRACTIONS, SPREADS, NOTIONAL, INITIAL_RATE, FUNDING, LIBOR);
+    new VariableAnnuity(T, new double[] {1}, INDEX_MATURITY, YEAR_FRACTIONS, SPREADS, NOTIONAL, INITIAL_RATE, FUNDING,
+        LIBOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongIndexFixing3() {
-    new VariableAnnuity(T, new double[] {1, 2, 3.1, 4}, INDEX_MATURITY, YEAR_FRACTIONS, SPREADS, NOTIONAL, INITIAL_RATE, FUNDING, LIBOR);
+    new VariableAnnuity(T, new double[] {1, 2, 3.1, 4}, INDEX_MATURITY, YEAR_FRACTIONS, SPREADS, NOTIONAL,
+        INITIAL_RATE, FUNDING, LIBOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -171,7 +179,8 @@ public class VariableAnnuityTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongIndexMaturity2() {
-    new VariableAnnuity(T, INDEX_FIXING, new double[] {1}, YEAR_FRACTIONS, SPREADS, NOTIONAL, INITIAL_RATE, FUNDING, LIBOR);
+    new VariableAnnuity(T, INDEX_FIXING, new double[] {1}, YEAR_FRACTIONS, SPREADS, NOTIONAL, INITIAL_RATE, FUNDING,
+        LIBOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -201,7 +210,8 @@ public class VariableAnnuityTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongYearFraction2() {
-    new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, new double[] {1}, SPREADS, NOTIONAL, INITIAL_RATE, FUNDING, LIBOR);
+    new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, new double[] {1}, SPREADS, NOTIONAL, INITIAL_RATE, FUNDING,
+        LIBOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -211,12 +221,14 @@ public class VariableAnnuityTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptySpreads() {
-    new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, new double[0], NOTIONAL, INITIAL_RATE, FUNDING, LIBOR);
+    new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, new double[0], NOTIONAL, INITIAL_RATE,
+        FUNDING, LIBOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongSpreads() {
-    new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, new double[] {1}, NOTIONAL, INITIAL_RATE, FUNDING, LIBOR);
+    new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, new double[] {1}, NOTIONAL, INITIAL_RATE,
+        FUNDING, LIBOR);
   }
 
   @Test
@@ -228,7 +240,8 @@ public class VariableAnnuityTest {
     final double[] yearFractions = new double[] {.5, .7, .5};
     final double[] spreads = new double[] {4, 6, 7};
     final double initialRate = 0.04;
-    final VariableAnnuity annuity = new VariableAnnuity(t, indexFixing, indexMaturity, yearFractions, spreads, notional, initialRate, FUNDING, LIBOR);
+    final VariableAnnuity annuity = new VariableAnnuity(t, indexFixing, indexMaturity, yearFractions, spreads,
+        notional, initialRate, FUNDING, LIBOR);
     assertArrayEquals(annuity.getIndexFixingTimes(), indexFixing, 0);
     assertArrayEquals(annuity.getIndexMaturityTimes(), indexMaturity, 0);
     assertEquals(annuity.getFundingCurveName(), FUNDING);
@@ -244,7 +257,8 @@ public class VariableAnnuityTest {
 
   @Test
   public void testHashCodeAndEquals() {
-    VariableAnnuity other = new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, SPREADS, NOTIONAL, INITIAL_RATE, FUNDING, LIBOR);
+    VariableAnnuity other = new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, SPREADS, NOTIONAL,
+        INITIAL_RATE, FUNDING, LIBOR);
     assertEquals(other, ANNUITY4);
     assertEquals(other.hashCode(), ANNUITY4.hashCode());
     // assertEquals(ANNUITY1, ANNUITY4);
@@ -252,33 +266,42 @@ public class VariableAnnuityTest {
     assertEquals(ANNUITY3, ANNUITY4);
 
     final double[] data = new double[] {100, 100, 100, 5};
-    other = new VariableAnnuity(data, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, SPREADS, NOTIONAL, INITIAL_RATE, FUNDING, LIBOR);
+    other = new VariableAnnuity(data, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, SPREADS, NOTIONAL, INITIAL_RATE,
+        FUNDING, LIBOR);
     assertFalse(other.equals(ANNUITY4));
-    other = new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, SPREADS, NOTIONAL + 1, INITIAL_RATE, FUNDING, LIBOR);
+    other = new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, SPREADS, NOTIONAL + 1, INITIAL_RATE,
+        FUNDING, LIBOR);
     assertFalse(other.equals(ANNUITY4));
-    other = new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, SPREADS, NOTIONAL, INITIAL_RATE + 0.01, FUNDING, LIBOR);
+    other = new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, SPREADS, NOTIONAL,
+        INITIAL_RATE + 0.01, FUNDING, LIBOR);
     assertFalse(other.equals(ANNUITY4));
-    other = new VariableAnnuity(T, new double[] {0.1, 1.1, 2.1, 3.1}, INDEX_MATURITY, YEAR_FRACTIONS, SPREADS, NOTIONAL, INITIAL_RATE, FUNDING, LIBOR);
+    other = new VariableAnnuity(T, new double[] {0.1, 1.1, 2.1, 3.1}, INDEX_MATURITY, YEAR_FRACTIONS, SPREADS,
+        NOTIONAL, INITIAL_RATE, FUNDING, LIBOR);
     assertFalse(other.equals(ANNUITY4));
     other = new VariableAnnuity(T, INDEX_FIXING, data, YEAR_FRACTIONS, SPREADS, NOTIONAL, INITIAL_RATE, FUNDING, LIBOR);
     assertFalse(other.equals(ANNUITY4));
     other = new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, data, SPREADS, NOTIONAL, INITIAL_RATE, FUNDING, LIBOR);
     assertFalse(other.equals(ANNUITY4));
-    other = new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, data, NOTIONAL, INITIAL_RATE, FUNDING, LIBOR);
+    other = new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, data, NOTIONAL, INITIAL_RATE, FUNDING,
+        LIBOR);
     assertFalse(other.equals(ANNUITY4));
-    other = new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, SPREADS, NOTIONAL, INITIAL_RATE, "X", LIBOR);
+    other = new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, SPREADS, NOTIONAL, INITIAL_RATE, "X",
+        LIBOR);
     assertFalse(other.equals(ANNUITY4));
     other = new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, NOTIONAL, INITIAL_RATE, "X", LIBOR);
     assertFalse(other.equals(ANNUITY4));
-    other = new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, SPREADS, NOTIONAL, INITIAL_RATE, FUNDING, "x");
+    other = new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, SPREADS, NOTIONAL, INITIAL_RATE,
+        FUNDING, "x");
     assertFalse(other.equals(ANNUITY4));
   }
 
   @Test
   public void testConversions() {
     final double[] spreads = new double[] {4, 6, 7, 8};
-    final VariableAnnuity annuity = new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, spreads, NOTIONAL, INITIAL_RATE, FUNDING, LIBOR);
+    final VariableAnnuity annuity = new VariableAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, spreads,
+        NOTIONAL, INITIAL_RATE, FUNDING, LIBOR);
     assertEquals(annuity.withZeroSpread(), ANNUITY4);
-    assertEquals(annuity.withUnitCoupons(), new FixedAnnuity(T, NOTIONAL, new double[] {1, 1, 1, 1}, YEAR_FRACTIONS, FUNDING));
+    assertEquals(annuity.withUnitCoupons(), new FixedAnnuity(T, NOTIONAL, new double[] {1, 1, 1, 1}, YEAR_FRACTIONS,
+        FUNDING));
   }
 }
