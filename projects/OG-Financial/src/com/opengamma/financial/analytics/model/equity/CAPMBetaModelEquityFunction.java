@@ -7,7 +7,12 @@ package com.opengamma.financial.analytics.model.equity;
 
 import java.util.Set;
 
+import javax.time.calendar.Clock;
+import javax.time.calendar.LocalDate;
+
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
@@ -42,24 +47,29 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class CAPMBetaModelEquityFunction extends AbstractFunction implements FunctionInvoker {
-  private final CAPMBetaCalculator _model;
+  private static final Logger s_logger = LoggerFactory.getLogger(CAPMBetaModelEquityFunction.class);
   private static final DoubleTimeSeriesStatisticsCalculator COVARIANCE_CALCULATOR = new DoubleTimeSeriesStatisticsCalculator(new SampleCovarianceCalculator());
   private static final DoubleTimeSeriesStatisticsCalculator VARIANCE_CALCULATOR = new DoubleTimeSeriesStatisticsCalculator(new SampleVarianceCalculator());
   private static final String MARKET_REFERENCE_TICKER = "IBM US Equity"; //TODO should not be hard-coded
+  private final CAPMBetaCalculator _model;
+  private final LocalDate _startDate;
 
   //TODO pass in covariance and variance calculator names
   //TODO need to use schedule for price series
-  public CAPMBetaModelEquityFunction(final String returnCalculatorName) {
+  public CAPMBetaModelEquityFunction(final String returnCalculatorName, final String startDate) {
     Validate.notNull(returnCalculatorName, "return calculator name");
     _model = new CAPMBetaCalculator(TimeSeriesReturnCalculatorFactory.getReturnCalculator(returnCalculatorName), COVARIANCE_CALCULATOR, VARIANCE_CALCULATOR);
+    _startDate = LocalDate.parse(startDate);
   }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
+    final Clock snapshotClock = executionContext.getSnapshotClock();
+    final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
     final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> marketTSObject = historicalDataSource.getHistoricalData(IdentifierBundle.of(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER,
-        MARKET_REFERENCE_TICKER)), "BLOOMBERG", null, "PX_LAST");
+        MARKET_REFERENCE_TICKER)), "BLOOMBERG", null, "PX_LAST", _startDate, now);
     final Object assetTSObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, target.getPosition().getSecurity()));
     if (marketTSObject != null && assetTSObject != null) {
       DoubleTimeSeries<?> marketTS = marketTSObject.getSecond();
@@ -67,9 +77,10 @@ public class CAPMBetaModelEquityFunction extends AbstractFunction implements Fun
       assetTS = assetTS.intersectionFirstValue(marketTS);
       marketTS = marketTS.intersectionFirstValue(assetTS);
       final double beta = _model.evaluate(assetTS, marketTS);
+      s_logger.warn("beta = " + beta);
       return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_BETA, position), getUniqueIdentifier()), beta));
     }
-    return null;
+    throw new NullPointerException("Could not get both market time series and asset time series");
   }
 
   @Override

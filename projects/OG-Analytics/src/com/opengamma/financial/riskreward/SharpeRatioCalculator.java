@@ -46,7 +46,7 @@ public class SharpeRatioCalculator implements Function<DoubleTimeSeries<?>, Doub
     Validate.notNull(ts, "ts array");
     TimeSeriesDataTestUtils.testNotNullOrEmpty(ts[0]);
     TimeSeriesDataTestUtils.testNotNullOrEmpty(ts[1]);
-    final DoubleTimeSeries<?> excessReturn = ts[0].subtract(ts[1]);
+    final DoubleTimeSeries<?> excessReturn = ts[0].subtract(ts[1]); //TODO change when we have proper excess return calculators
     final double assetExcessReturn = _expectedExcessReturnCalculator.evaluate(excessReturn);
     final double standardDeviation = _standardDeviationCalculator.evaluate(excessReturn);
     return assetExcessReturn / standardDeviation;
