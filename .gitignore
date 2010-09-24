@@ -1,6 +1,5 @@
 db/
 derby.log
-#projects/
 projects/Fudge-Java/
 projects/Fudge-Proto/
 projects/OG-Bloomberg/
@@ -10,4 +9,4 @@ projects/OG-Reuters/
 repository/
 ivy/
 bootstrap/
-tests/
+
