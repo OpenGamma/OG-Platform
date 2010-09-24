@@ -43,6 +43,10 @@ public class YieldCurveConfigPopulator {
     swapOnly3YrUSD.setName("SWAP_ONLY_3YR_USD");
     swapOnly3YrUSD.setValue(CurveDefinitionAndSpecifications.buildUSDSwapOnly3YrCurveDefinition());
     configRepo.add(swapOnly3YrUSD);
+    DefaultConfigDocument<YieldCurveDefinition> singleUSD = new DefaultConfigDocument<YieldCurveDefinition>();
+    singleUSD.setName("SINGLE_USD");
+    singleUSD.setValue(CurveDefinitionAndSpecifications.buildUSDSingleCurveDefinition());
+    configRepo.add(singleUSD);
   }
   
   public static void populateCurveSpecificationBuilderConfigMaster(ConfigMaster<CurveSpecificationBuilderConfiguration> configMaster) {

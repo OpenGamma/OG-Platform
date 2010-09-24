@@ -88,6 +88,23 @@ public class CurveDefinitionAndSpecifications {
     final YieldCurveDefinition definition = new YieldCurveDefinition(Currency.getInstance("USD"), "SWAP_ONLY_3YR", interpolatorName, strips);
     return definition;
   }
+  
+  public static YieldCurveDefinition buildUSDSingleCurveDefinition() {
+    final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
+    strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, new Tenor(Period.ofMonths(3)), "DEFAULT"));
+    for (final int i : new int[] {6, 9, 12}) {
+      strips.add(new FixedIncomeStrip(StripInstrumentType.FRA, new Tenor(Period.ofMonths(i)), "DEFAULT"));
+    }
+    strips.add(new FixedIncomeStrip(StripInstrumentType.FUTURE, new Tenor(Period.ofYears(1)), 1, "DEFAULT"));
+//    strips.add(new FixedIncomeStrip(StripInstrumentType.FUTURE, new Tenor(Period.ofMonths(15)), 1, "DEFAULT"));
+    final int[] tenors = new int[] {2, 3, 4, 5, 6, 7, 10, 15, 20, 25, 30};
+    for (final int i : tenors) {
+      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, new Tenor(Period.ofYears(i)), "DEFAULT"));
+    }
+    final String interpolatorName = Interpolator1DFactory.DOUBLE_QUADRATIC;
+    final YieldCurveDefinition definition = new YieldCurveDefinition(Currency.getInstance("USD"), "SINGLE", interpolatorName, strips);
+    return definition;
+  }
 
   public static YieldCurveDefinition buildUSDFundingCurveDefinition() {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();

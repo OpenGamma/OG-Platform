@@ -40,6 +40,6 @@ public class CashSecurityToCashConverter {
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual");
     final double paymentTime = actAct.getDayCountFraction(now, maturityDate);
     final double yearFraction = dayCount.getDayCountFraction(startDate, maturityDate);
-    return new Cash(tradeTime, marketRate, paymentTime, yearFraction, fundingCurveName);
+    return new Cash(paymentTime,marketRate,tradeTime,yearFraction,fundingCurveName);
   }
 }

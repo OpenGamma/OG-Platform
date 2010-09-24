@@ -38,6 +38,9 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.cash.CashSecurityToCashConverter;
+import com.opengamma.financial.analytics.fra.FRASecurityToForwardRateAgreementConverter;
+import com.opengamma.financial.analytics.interestratefuture.InterestRateFutureSecurityToInterestRateFutureConverter;
 import com.opengamma.financial.analytics.swap.FixedFloatSwapSecurityToSwapConverter;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -53,6 +56,9 @@ import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.world.holiday.HolidaySource;
 import com.opengamma.financial.world.region.RegionSource;
@@ -200,14 +206,24 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
     final FixedFloatSwapSecurityToSwapConverter swapConverter = new FixedFloatSwapSecurityToSwapConverter(holidaySource, regionSource, conventionSource);
+    final CashSecurityToCashConverter cashConverter = new CashSecurityToCashConverter(holidaySource, conventionSource);
+    final FRASecurityToForwardRateAgreementConverter fraConverter = new FRASecurityToForwardRateAgreementConverter(holidaySource, conventionSource);
+    final InterestRateFutureSecurityToInterestRateFutureConverter futureConverter = new InterestRateFutureSecurityToInterestRateFutureConverter(holidaySource, conventionSource);
+    
     for (final FixedIncomeStripWithSecurity strip : specificationWithSecurities.getStrips()) {
       stripRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getSecurityIdentifier());
-      final Double rate = (Double) inputs.getValue(stripRequirement) / 100d;
-      if (rate == null) {
+      final Double marketValue = (Double) inputs.getValue(stripRequirement);
+      if (marketValue == null) {
         throw new NullPointerException("Could not get market data for " + strip);
       }
       if (strip.getInstrumentType() == StripInstrumentType.SWAP) {
-        derivative = swapConverter.getSwap((SwapSecurity) strip.getSecurity(), _name, _name, rate, 0.0, now);
+        derivative = swapConverter.getSwap((SwapSecurity) strip.getSecurity(), _name, _name, marketValue / 100d, 0.0, now);
+      } else if (strip.getInstrumentType() == StripInstrumentType.CASH) {
+        derivative = cashConverter.getCash((CashSecurity) strip.getSecurity(), _name, marketValue / 100d, now);
+      } else if (strip.getInstrumentType() == StripInstrumentType.FRA) {
+        derivative = fraConverter.getFRA((FRASecurity) strip.getSecurity(), _name, _name, marketValue / 100d, now);
+      }  else if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
+        derivative = futureConverter.getInterestRateFuture((InterestRateFutureSecurity) strip.getSecurity(), _name, marketValue, now);
       } else {
         throw new OpenGammaRuntimeException("Can only handle swaps at the moment");
       }
