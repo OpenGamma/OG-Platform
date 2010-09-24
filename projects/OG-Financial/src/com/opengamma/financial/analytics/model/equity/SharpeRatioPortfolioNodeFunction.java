@@ -22,17 +22,18 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
+
 /**
  * 
  */
-public class CAPMBetaModelPortfolioNodeFunction extends AbstractFunction implements FunctionInvoker {
-  private static final Double NOT_CALCULATED = -99999999999999.;
+public class SharpeRatioPortfolioNodeFunction extends AbstractFunction implements FunctionInvoker {
+  private static final Double NOT_CALCULATED = -88888888888.;
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Set<ComputedValue> result = new HashSet<ComputedValue>();
     final PortfolioNode node = target.getPortfolioNode();
-    result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_BETA, node), getUniqueIdentifier()), NOT_CALCULATED));
+    result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SHARPE_RATIO, node), getUniqueIdentifier()), NOT_CALCULATED));
     return result;
   }
 
@@ -51,7 +52,7 @@ public class CAPMBetaModelPortfolioNodeFunction extends AbstractFunction impleme
     if (canApplyTo(context, target)) {
       final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
       final PortfolioNode node = target.getPortfolioNode();
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_BETA, node), getUniqueIdentifier()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SHARPE_RATIO, node), getUniqueIdentifier()));
       return results;
     }
     return null;
@@ -59,7 +60,7 @@ public class CAPMBetaModelPortfolioNodeFunction extends AbstractFunction impleme
 
   @Override
   public String getShortName() {
-    return "CAPM_BetaPortfolioNodeModel";
+    return "SharpeRatioPortfolioNodeModel";
   }
 
   @Override

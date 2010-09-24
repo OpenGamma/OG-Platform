@@ -73,7 +73,7 @@ public class SecurityPriceSeriesFunction extends AbstractFunction implements Fun
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.<ValueRequirement> emptySet();
+    return Collections.<ValueRequirement>emptySet();
   }
 
   @Override

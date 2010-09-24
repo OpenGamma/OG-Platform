@@ -7,6 +7,8 @@ package com.opengamma.financial.analytics.model.equity;
 
 import java.util.Set;
 
+import org.apache.commons.lang.Validate;
+
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -48,6 +50,7 @@ public class CAPMBetaModelEquityFunction extends AbstractFunction implements Fun
   //TODO pass in covariance and variance calculator names
   //TODO need to use schedule for price series
   public CAPMBetaModelEquityFunction(final String returnCalculatorName) {
+    Validate.notNull(returnCalculatorName, "return calculator name");
     _model = new CAPMBetaCalculator(TimeSeriesReturnCalculatorFactory.getReturnCalculator(returnCalculatorName), COVARIANCE_CALCULATOR, VARIANCE_CALCULATOR);
   }
 
