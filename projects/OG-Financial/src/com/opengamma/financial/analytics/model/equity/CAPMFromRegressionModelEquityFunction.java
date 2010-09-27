@@ -38,7 +38,7 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class CAPMFromRegressionModelEquityFunction extends AbstractFunction implements FunctionInvoker {
-  private static final CAPMFromRegressionCalculator CAPM_MODEL = new CAPMFromRegressionCalculator();
+  private static final CAPMFromRegressionCalculator CAPM_REGRESSION_MODEL = new CAPMFromRegressionCalculator();
   private static final String MARKET_REFERENCE_TICKER = "IBM US Equity"; //TODO should not be hard-coded
 
   //private static final String RISK_FREE_RATE_REFERENCE_TICKER = "US0003M Index"; //TODO should not be hard-coded
@@ -57,7 +57,7 @@ public class CAPMFromRegressionModelEquityFunction extends AbstractFunction impl
       DoubleTimeSeries<?> assetTS = ((DoubleTimeSeries<?>) assetPnLObject).divide(position.getQuantity().doubleValue());
       assetTS = assetTS.intersectionFirstValue(marketTS);
       marketTS = marketTS.intersectionFirstValue(assetTS);
-      final LeastSquaresRegressionResult regression = CAPM_MODEL.evaluate(assetTS, marketTS);
+      final LeastSquaresRegressionResult regression = CAPM_REGRESSION_MODEL.evaluate(assetTS, marketTS);
       final double alpha = regression.getBetas()[0];
       final double alphaPValue = regression.getPValues()[0];
       final double alphaTStat = regression.getTStatistics()[0];
@@ -65,20 +65,22 @@ public class CAPMFromRegressionModelEquityFunction extends AbstractFunction impl
       final double alphaStdError = regression.getStandardErrorOfBetas()[0];
       final Set<ComputedValue> result = new HashSet<ComputedValue>();
       //TODO need to find some way of getting {beta-label, beta-value} into the computed value and displayed
-      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_ADJUSTED_R_SQUARED, position), getUniqueIdentifier()), regression.getAdjustedRSquared()));
-      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_ALPHA, position), getUniqueIdentifier()), alpha));
-      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_BETA, position), getUniqueIdentifier()), regression.getBetas()[1]));
-      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_MEAN_SQUARE_ERROR, position), getUniqueIdentifier()), regression.getMeanSquareError()));
-      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_ALPHA_PVALUES, position), getUniqueIdentifier()), alphaPValue));
-      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_BETA_PVALUES, position), getUniqueIdentifier()), regression.getPValues()[1]));
-      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_R_SQUARED, position), getUniqueIdentifier()), regression.getRSquared()));
-      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_ALPHA_RESIDUALS, position), getUniqueIdentifier()), alphaResidual));
-      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_BETA_RESIDUALS, position), getUniqueIdentifier()), regression.getResiduals()[1]));
-      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_STANDARD_ERROR_OF_ALPHA, position), getUniqueIdentifier()), alphaStdError));
-      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_STANDARD_ERROR_OF_BETA, position), getUniqueIdentifier()), regression
+      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ADJUSTED_R_SQUARED, position), getUniqueIdentifier()), regression
+          .getAdjustedRSquared()));
+      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA, position), getUniqueIdentifier()), alpha));
+      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA, position), getUniqueIdentifier()), regression.getBetas()[1]));
+      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_MEAN_SQUARE_ERROR, position), getUniqueIdentifier()), regression
+          .getMeanSquareError()));
+      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA_PVALUES, position), getUniqueIdentifier()), alphaPValue));
+      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA_PVALUES, position), getUniqueIdentifier()), regression.getPValues()[1]));
+      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_R_SQUARED, position), getUniqueIdentifier()), regression.getRSquared()));
+      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA_RESIDUALS, position), getUniqueIdentifier()), alphaResidual));
+      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA_RESIDUALS, position), getUniqueIdentifier()), regression.getResiduals()[1]));
+      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_ALPHA, position), getUniqueIdentifier()), alphaStdError));
+      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_BETA, position), getUniqueIdentifier()), regression
           .getStandardErrorOfBetas()[1]));
-      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_ALPHA_TSTATS, position), getUniqueIdentifier()), alphaTStat));
-      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_BETA_TSTATS, position), getUniqueIdentifier()), regression.getTStatistics()[1]));
+      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA_TSTATS, position), getUniqueIdentifier()), alphaTStat));
+      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA_TSTATS, position), getUniqueIdentifier()), regression.getTStatistics()[1]));
       return result;
     }
     return null;
@@ -105,19 +107,19 @@ public class CAPMFromRegressionModelEquityFunction extends AbstractFunction impl
     if (canApplyTo(context, target)) {
       final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
       final Position position = target.getPosition();
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_ADJUSTED_R_SQUARED, position), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_ALPHA, position), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_BETA, position), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_MEAN_SQUARE_ERROR, position), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_ALPHA_PVALUES, position), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_BETA_PVALUES, position), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_R_SQUARED, position), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_ALPHA_RESIDUALS, position), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_BETA_RESIDUALS, position), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_STANDARD_ERROR_OF_ALPHA, position), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_STANDARD_ERROR_OF_BETA, position), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_ALPHA_TSTATS, position), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_BETA_TSTATS, position), getUniqueIdentifier()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ADJUSTED_R_SQUARED, position), getUniqueIdentifier()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA, position), getUniqueIdentifier()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA, position), getUniqueIdentifier()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_MEAN_SQUARE_ERROR, position), getUniqueIdentifier()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA_PVALUES, position), getUniqueIdentifier()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA_PVALUES, position), getUniqueIdentifier()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_R_SQUARED, position), getUniqueIdentifier()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA_RESIDUALS, position), getUniqueIdentifier()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA_RESIDUALS, position), getUniqueIdentifier()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_ALPHA, position), getUniqueIdentifier()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_BETA, position), getUniqueIdentifier()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA_TSTATS, position), getUniqueIdentifier()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA_TSTATS, position), getUniqueIdentifier()));
       return results;
     }
     return null;
