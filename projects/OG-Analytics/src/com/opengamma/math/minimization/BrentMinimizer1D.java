@@ -27,7 +27,7 @@ public class BrentMinimizer1D implements ScalarMinimizer {
   @Override
   public double minimize(Function1D<Double, Double> function, double startPosition, double lowerBound, double upperBound) {
     Validate.notNull(function, "function");
-    final UnivariateRealFunction commonsFunction = CommonsMathWrapper.wrap(function);
+    final UnivariateRealFunction commonsFunction = CommonsMathWrapper.wrapUnivariate(function);
     try {
       return OPTIMIZER.optimize(commonsFunction, MINIMIZE, lowerBound, upperBound, startPosition);
     } catch (final FunctionEvaluationException e) {
@@ -40,7 +40,7 @@ public class BrentMinimizer1D implements ScalarMinimizer {
   @Override
   public Double minimize(Function1D<Double, Double> function, Double startPosition) {
     Validate.notNull(function, "function");
-    final UnivariateRealFunction commonsFunction = CommonsMathWrapper.wrap(function);
+    final UnivariateRealFunction commonsFunction = CommonsMathWrapper.wrapUnivariate(function);
     try {
       return OPTIMIZER.optimize(commonsFunction, MINIMIZE, -Double.MAX_VALUE, Double.MAX_VALUE, startPosition);
     } catch (final FunctionEvaluationException e) {

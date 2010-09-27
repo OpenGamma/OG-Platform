@@ -166,15 +166,15 @@ public abstract class AbstractFastIntObjectTimeSeries<T>
   
 
   
-  @SuppressWarnings("unchecked")
-  public FastIntObjectTimeSeries<T> operate(final FastBackedObjectTimeSeries<?, T> other, final BinaryOperator operator) {
-    FastObjectTimeSeries<?, ?> fastSeries = other.getFastSeries();
-    if (fastSeries instanceof FastIntObjectTimeSeries<?>) {
-      return operate((FastIntObjectTimeSeries<T>) fastSeries, operator);
-    } else { // if (fastSeries instanceof FastLongDoubleTimeSeries
-      return operate((FastLongObjectTimeSeries<T>) fastSeries, operator);
-    }
-  }
+//  @SuppressWarnings("unchecked")
+//  public FastIntObjectTimeSeries<T> operate(final FastBackedObjectTimeSeries<?, T> other, final BinaryOperator operator) {
+//    FastObjectTimeSeries<?, ?> fastSeries = other.getFastSeries();
+//    if (fastSeries instanceof FastIntObjectTimeSeries<?>) {
+//      return operate((FastIntObjectTimeSeries<T>) fastSeries, operator);
+//    } else { // if (fastSeries instanceof FastLongDoubleTimeSeries
+//      return operate((FastLongObjectTimeSeries<T>) fastSeries, operator);
+//    }
+//  }
   
   @SuppressWarnings("unchecked")
   public FastIntObjectTimeSeries<T> operate(final FastLongObjectTimeSeries<T> other, final BinaryOperator<T> operator) { 

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.equity;
+package com.opengamma.financial.analytics;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -19,20 +19,25 @@ import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * 
  */
-public class CAPMBetaModelPortfolioNodeFunction extends AbstractFunction implements FunctionInvoker {
-  private static final Double NOT_CALCULATED = -99999999999999.;
+public class DummyPortfolioNodeFunction extends AbstractFunction implements FunctionInvoker {
+  private final String _valueRequirement;
+  private final Double _value;
+
+  public DummyPortfolioNodeFunction(final String valueRequirement, final String value) {
+    _valueRequirement = valueRequirement;
+    _value = Double.parseDouble(value);
+  }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Set<ComputedValue> result = new HashSet<ComputedValue>();
     final PortfolioNode node = target.getPortfolioNode();
-    result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_BETA, node), getUniqueIdentifier()), NOT_CALCULATED));
+    result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(_valueRequirement, node), getUniqueIdentifier()), _value));
     return result;
   }
 
@@ -51,7 +56,7 @@ public class CAPMBetaModelPortfolioNodeFunction extends AbstractFunction impleme
     if (canApplyTo(context, target)) {
       final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
       final PortfolioNode node = target.getPortfolioNode();
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_BETA, node), getUniqueIdentifier()));
+      results.add(new ValueSpecification(new ValueRequirement(_valueRequirement, node), getUniqueIdentifier()));
       return results;
     }
     return null;
@@ -59,7 +64,7 @@ public class CAPMBetaModelPortfolioNodeFunction extends AbstractFunction impleme
 
   @Override
   public String getShortName() {
-    return "CAPM_BetaPortfolioNodeModel";
+    return "DummyPortfolioNodeModel";
   }
 
   @Override

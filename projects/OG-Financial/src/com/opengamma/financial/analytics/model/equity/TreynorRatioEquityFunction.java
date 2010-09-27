@@ -29,16 +29,17 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.equity.CAPMBetaCalculator;
+import com.opengamma.financial.riskreward.TreynorRatioCalculator;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
+import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.math.statistics.descriptive.SampleCovarianceCalculator;
-import com.opengamma.math.statistics.descriptive.SampleVarianceCalculator;
+import com.opengamma.math.function.Function;
+import com.opengamma.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
@@ -46,19 +47,22 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class CAPMBetaModelEquityFunction extends AbstractFunction implements FunctionInvoker {
-  private static final Logger s_logger = LoggerFactory.getLogger(CAPMBetaModelEquityFunction.class);
-  private static final DoubleTimeSeriesStatisticsCalculator COVARIANCE_CALCULATOR = new DoubleTimeSeriesStatisticsCalculator(new SampleCovarianceCalculator());
-  private static final DoubleTimeSeriesStatisticsCalculator VARIANCE_CALCULATOR = new DoubleTimeSeriesStatisticsCalculator(new SampleVarianceCalculator());
-  private static final String MARKET_REFERENCE_TICKER = "IBM US Equity"; //TODO should not be hard-coded
-  private final CAPMBetaCalculator _model;
+public class TreynorRatioEquityFunction extends AbstractFunction implements FunctionInvoker {
+  private static final Logger s_logger = LoggerFactory.getLogger(TreynorRatioEquityFunction.class);
+  private static final String RISK_FREE_REFERENCE_TICKER = "IBM US Equity"; //TODO should not be hard-coded
+  private final TimeSeriesReturnCalculator _returnCalculator;
+  private final TreynorRatioCalculator _calculator;
   private final LocalDate _startDate;
 
-  //TODO pass in covariance and variance calculator names
-  //TODO need to use schedule for price series
-  public CAPMBetaModelEquityFunction(final String returnCalculatorName, final String startDate) {
+  public TreynorRatioEquityFunction(final String returnCalculatorName, final String expectedAssetReturnCalculatorName, final String expectedRiskFreeReturnCalculatorName, final String startDate) {
     Validate.notNull(returnCalculatorName, "return calculator name");
-    _model = new CAPMBetaCalculator(TimeSeriesReturnCalculatorFactory.getReturnCalculator(returnCalculatorName), COVARIANCE_CALCULATOR, VARIANCE_CALCULATOR);
+    Validate.notNull(expectedAssetReturnCalculatorName, "expected asset return calculator name");
+    Validate.notNull(expectedRiskFreeReturnCalculatorName, "expected risk-free return calculator name");
+    _returnCalculator = TimeSeriesReturnCalculatorFactory.getReturnCalculator(returnCalculatorName);
+    final Function<double[], Double> expectedAssetReturnCalculator = StatisticsCalculatorFactory.getCalculator(expectedAssetReturnCalculatorName);
+    final Function<double[], Double> expectedRiskFreeReturnCalculator = StatisticsCalculatorFactory.getCalculator(expectedRiskFreeReturnCalculatorName);
+    _calculator = new TreynorRatioCalculator(_returnCalculator, new DoubleTimeSeriesStatisticsCalculator(expectedAssetReturnCalculator), new DoubleTimeSeriesStatisticsCalculator(
+        expectedRiskFreeReturnCalculator));
     _startDate = LocalDate.parse(startDate);
   }
 
@@ -69,18 +73,20 @@ public class CAPMBetaModelEquityFunction extends AbstractFunction implements Fun
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
     final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> marketTSObject = historicalDataSource.getHistoricalData(IdentifierBundle.of(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER,
-        MARKET_REFERENCE_TICKER)), "BLOOMBERG", null, "PX_LAST", _startDate, now);
-    final Object assetTSObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, target.getPosition().getSecurity()));
-    if (marketTSObject != null && assetTSObject != null) {
-      DoubleTimeSeries<?> marketTS = marketTSObject.getSecond();
+        RISK_FREE_REFERENCE_TICKER)), "BLOOMBERG", null, "PX_LAST", _startDate, now);
+    final Object betaObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.CAPM_BETA, position));
+    final Object assetTSObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, position.getSecurity()));
+    if (marketTSObject != null && assetTSObject != null && betaObject != null) {
+      DoubleTimeSeries<?> riskFreeReturnTS = marketTSObject.getSecond();
       DoubleTimeSeries<?> assetTS = (DoubleTimeSeries<?>) assetTSObject;
-      assetTS = assetTS.intersectionFirstValue(marketTS);
-      marketTS = marketTS.intersectionFirstValue(assetTS);
-      final double beta = _model.evaluate(assetTS, marketTS);
-      s_logger.warn("beta = " + beta);
-      return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_BETA, position), getUniqueIdentifier()), beta));
+      final double beta = (Double) betaObject;
+      assetTS = assetTS.intersectionFirstValue(riskFreeReturnTS);
+      riskFreeReturnTS = riskFreeReturnTS.intersectionFirstValue(assetTS);
+      final double ratio = _calculator.evaluate(assetTS, riskFreeReturnTS.divide(3.65e8), beta);
+      s_logger.warn("Treynor ratio = " + ratio);
+      return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.TREYNOR_RATIO, position), getUniqueIdentifier()), ratio));
     }
-    throw new NullPointerException("Could not get both market time series and asset time series");
+    throw new NullPointerException("Could not get asset time series, risk-free series and beta");
   }
 
   @Override
@@ -91,7 +97,7 @@ public class CAPMBetaModelEquityFunction extends AbstractFunction implements Fun
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, target.getPosition().getSecurity()));
+      return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, target.getPosition().getSecurity()), new ValueRequirement(ValueRequirementNames.CAPM_BETA, target.getPosition()));
     }
     return null;
   }
@@ -99,14 +105,14 @@ public class CAPMBetaModelEquityFunction extends AbstractFunction implements Fun
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_BETA, target.getPosition()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.TREYNOR_RATIO, target.getPosition()), getUniqueIdentifier()));
     }
     return null;
   }
 
   @Override
   public String getShortName() {
-    return "CAPM_BetaEquityModel";
+    return "TreynorRatioModel";
   }
 
   @Override

@@ -188,22 +188,26 @@ public interface ValueRequirementNames {
   // Fixed income analytics
   public static final String PRESENT_VALUE = "PresentValue";
   
-  //CAPM equity model
-  public static final String CAPM_ALPHA = "CAPM Alpha";
+  //CAPM regression equity model
   public static final String CAPM_BETA = "CAPM Beta";
-  public static final String CAPM_ALPHA_RESIDUALS= "CAPM Alpha Residual";
-  public static final String CAPM_BETA_RESIDUALS= "CAPM Beta Residuals";
-  public static final String CAPM_ADJUSTED_R_SQUARED = "CAPM Adjusted R-Squared";
-  public static final String CAPM_ALPHA_TSTATS = "CAPM Alpha t-Stats";
-  public static final String CAPM_BETA_TSTATS = "CAPM Beta t-Stats";
-  public static final String CAPM_ALPHA_PVALUES = "CAPM Alpha p-Values";
-  public static final String CAPM_BETA_PVALUES = "CAPM Beta p-Values";
-  public static final String CAPM_MEAN_SQUARE_ERROR = "CAPM Mean Square Error";
-  public static final String CAPM_R_SQUARED = "CAPM R-Squared";
-  public static final String CAPM_STANDARD_ERROR_OF_ALPHA = "CAPM Standard Error Of Alpha";
-  public static final String CAPM_STANDARD_ERROR_OF_BETA = "CAPM Standard Error Of Beta";
+
+  //CAPM regression equity model
+  public static final String CAPM_REGRESSION_ALPHA = "CAPM Regression Alpha";
+  public static final String CAPM_REGRESSION_BETA = "CAPM Regression Regression Beta";
+  public static final String CAPM_REGRESSION_ALPHA_RESIDUALS= "CAPM Regression Regression Alpha Residual";
+  public static final String CAPM_REGRESSION_BETA_RESIDUALS= "CAPM Regression Regression Beta Residuals";
+  public static final String CAPM_REGRESSION_ADJUSTED_R_SQUARED = "CAPM Regression Regression Adjusted R-Squared";
+  public static final String CAPM_REGRESSION_ALPHA_TSTATS = "CAPM Regression Regression Alpha t-Stats";
+  public static final String CAPM_REGRESSION_BETA_TSTATS = "CAPM Regression Regression Beta t-Stats";
+  public static final String CAPM_REGRESSION_ALPHA_PVALUES = "CAPM Regression Regression Alpha p-Values";
+  public static final String CAPM_REGRESSION_BETA_PVALUES = "CAPM Regression Regression Beta p-Values";
+  public static final String CAPM_REGRESSION_MEAN_SQUARE_ERROR = "CAPM Regression Regression Mean Square Error";
+  public static final String CAPM_REGRESSION_R_SQUARED = "CAPM Regression Regression R-Squared";
+  public static final String CAPM_REGRESSION_STANDARD_ERROR_OF_ALPHA = "CAPM Regression Regression Standard Error Of Alpha";
+  public static final String CAPM_REGRESSION_STANDARD_ERROR_OF_BETA = "CAPM Regression Regression Standard Error Of Beta";
   
   //Portfolio
   public static final String WEIGHT = "Weight";
   public static final String SHARPE_RATIO = "Sharpe Ratio";
+  public static final String TREYNOR_RATIO = "Treynor Ratio";
 }

@@ -30,10 +30,10 @@ public class ExtendedTrapezoidIntegrator1D extends Integrator1D<Double, Function
     Validate.notNull(upper);
     try {
       if (lower < upper) {
-        return _integrator.integrate(CommonsMathWrapper.wrap(f), lower, upper);
+        return _integrator.integrate(CommonsMathWrapper.wrapUnivariate(f), lower, upper);
       }
       s_logger.info("Upper bound was less than lower bound; swapping bounds and negating result");
-      return -_integrator.integrate(CommonsMathWrapper.wrap(f), upper, lower);
+      return -_integrator.integrate(CommonsMathWrapper.wrapUnivariate(f), upper, lower);
     } catch (final FunctionEvaluationException e) {
       throw new MathException(e);
     } catch (final org.apache.commons.math.ConvergenceException e) {

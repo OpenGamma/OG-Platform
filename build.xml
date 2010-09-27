@@ -206,5 +206,12 @@
 		<git-status dest="projects/OG-Reuters" displayName="OG-Reuters" />
 		<git-status dest="projects/OG-Excel" displayName="OG-Excel" />
 	</target>
+
+	<target name="publish-common-dir" if="publish-common-dir" description="publish common files">
+		<echo message="Syncing common files to ${publish-common-dir}" />
+		<sync todir="${publish-common-dir}/common">
+			<fileset dir="common"/>
+		</sync>
+	</target>
 </project>
 

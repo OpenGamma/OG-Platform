@@ -30,7 +30,8 @@ import com.opengamma.math.number.ComplexNumber;
  */
 public class CommonsMathWrapperTest {
   private static final DoubleMatrix1D OG_VECTOR = new DoubleMatrix1D(new double[] {1, 2, 3});
-  private static final DoubleMatrix2D OG_MATRIX = new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}, new double[] {7, 8, 9}});
+  private static final DoubleMatrix2D OG_MATRIX = new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3},
+      new double[] {4, 5, 6}, new double[] {7, 8, 9}});
   private static final Function1D<Double, Double> OG_FUNCTION_1D = new Function1D<Double, Double>() {
 
     @Override
@@ -47,7 +48,8 @@ public class CommonsMathWrapperTest {
       return x[0] * x[0] + 2 * x[1] - 3 * x[2] + x[3];
     }
   };
-  private static final RealPolynomialFunction1D OG_POLYNOMIAL = new RealPolynomialFunction1D(new double[] {3, 4, -1, 5, -3});
+  private static final RealPolynomialFunction1D OG_POLYNOMIAL = new RealPolynomialFunction1D(new double[] {3, 4, -1, 5,
+      -3});
 
   @Test(expected = IllegalArgumentException.class)
   public void testNull1DMatrix() {
@@ -61,7 +63,7 @@ public class CommonsMathWrapperTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNull1DFunction() {
-    CommonsMathWrapper.wrap((Function1D<Double, Double>) null);
+    CommonsMathWrapper.wrapUnivariate((Function1D<Double, Double>) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -110,7 +112,7 @@ public class CommonsMathWrapperTest {
 
   @Test
   public void test1DFunction() throws FunctionEvaluationException {
-    final UnivariateRealFunction commons = CommonsMathWrapper.wrap(OG_FUNCTION_1D);
+    final UnivariateRealFunction commons = CommonsMathWrapper.wrapUnivariate(OG_FUNCTION_1D);
     for (int i = 0; i < 100; i++) {
       assertEquals(OG_FUNCTION_1D.evaluate((double) i), commons.value(i), 1e-15);
     }
