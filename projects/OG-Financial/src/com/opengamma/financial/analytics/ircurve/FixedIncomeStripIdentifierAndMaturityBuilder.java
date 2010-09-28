@@ -126,7 +126,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     LocalDate startDate = curveDate.plus(strip.getMaturity().getPeriod());
     LocalDate endDate = startDate.plusMonths(3); // quick hack, needs to be sorted.
     return new FRASecurity(spec.getCurrency(), Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, "US"), 
-                           new DateTimeWithZone(curveDate.atTime(11, 00)), new DateTimeWithZone(curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00)));
+                           new DateTimeWithZone(startDate.atTime(11, 00)), new DateTimeWithZone(endDate.atTime(11, 00)));
   }
   
   private FutureSecurity getFuture(InterpolatedYieldCurveSpecification spec, FixedIncomeStripWithIdentifier strip) {
