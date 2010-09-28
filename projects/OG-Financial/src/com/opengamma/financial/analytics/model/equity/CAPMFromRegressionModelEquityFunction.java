@@ -71,7 +71,7 @@ public class CAPMFromRegressionModelEquityFunction extends AbstractFunction impl
     if (marketTSObject != null && assetPnLObject != null && assetFairValueObject != null && riskFreeTSObject != null) {
       DoubleTimeSeries<?> marketTS = TimeSeriesReturnCalculatorFactory.getReturnCalculator(TimeSeriesReturnCalculatorFactory.CONTINUOUS_STRICT)
           .evaluate(marketTSObject.getSecond());
-      final DoubleTimeSeries<?> riskFreeTS = (DoubleTimeSeries<?>) riskFreeTSObject;
+      final DoubleTimeSeries<?> riskFreeTS = (DoubleTimeSeries<?>) riskFreeTSObject.getSecond();
       marketTS = marketTS.subtract(riskFreeTS.divide(100));
       DoubleTimeSeries<?> assetTS = ((DoubleTimeSeries<?>) assetPnLObject).divide(position.getQuantity().doubleValue());
       assetTS = assetTS.intersectionFirstValue(marketTS);
