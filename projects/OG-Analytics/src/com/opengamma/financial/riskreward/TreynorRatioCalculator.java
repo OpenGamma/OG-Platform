@@ -23,16 +23,13 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * where {@latex.inline $R_i$} is the asset return, {@latex.inline $R_f$} is the risk-free return and {@latex.inline $\\beta_i$} is the portfolio's beta.
  */
 public class TreynorRatioCalculator {
-  private final double _returnPeriodsPerYear;
   private final DoubleTimeSeriesStatisticsCalculator _expectedAssetReturnCalculator;
   private final DoubleTimeSeriesStatisticsCalculator _expectedRiskFreeReturnCalculator;
 
-  public TreynorRatioCalculator(final double returnPeriodsPerYear, final DoubleTimeSeriesStatisticsCalculator expectedAssetReturnCalculator,
+  public TreynorRatioCalculator(final DoubleTimeSeriesStatisticsCalculator expectedAssetReturnCalculator,
       final DoubleTimeSeriesStatisticsCalculator expectedRiskFreeReturnCalculator) {
-    Validate.isTrue(returnPeriodsPerYear > 0);
     Validate.notNull(expectedAssetReturnCalculator, "expected asset return calculator");
     Validate.notNull(expectedRiskFreeReturnCalculator, "expected risk free return calculator");
-    _returnPeriodsPerYear = returnPeriodsPerYear;
     _expectedAssetReturnCalculator = expectedAssetReturnCalculator;
     _expectedRiskFreeReturnCalculator = expectedRiskFreeReturnCalculator;
   }
@@ -47,8 +44,8 @@ public class TreynorRatioCalculator {
   public double evaluate(final DoubleTimeSeries<?> assetReturnTS, final DoubleTimeSeries<?> riskFreeReturnTS, final double beta) {
     TimeSeriesDataTestUtils.testNotNullOrEmpty(assetReturnTS);
     TimeSeriesDataTestUtils.testNotNullOrEmpty(riskFreeReturnTS);
-    final Double expectedAssetReturn = _expectedAssetReturnCalculator.evaluate(assetReturnTS) * _returnPeriodsPerYear;
-    final Double expectedRiskFreeReturn = _expectedRiskFreeReturnCalculator.evaluate(riskFreeReturnTS) * _returnPeriodsPerYear;
+    final Double expectedAssetReturn = _expectedAssetReturnCalculator.evaluate(assetReturnTS);
+    final Double expectedRiskFreeReturn = _expectedRiskFreeReturnCalculator.evaluate(riskFreeReturnTS);
     return (expectedAssetReturn - expectedRiskFreeReturn) / beta;
   }
 }

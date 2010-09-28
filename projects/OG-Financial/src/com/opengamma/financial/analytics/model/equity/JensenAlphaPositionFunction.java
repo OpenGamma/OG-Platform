@@ -12,10 +12,11 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 /**
  * 
  */
-public class TreynorRatioPositionFunction extends TreynorRatioFunction {
+public class JensenAlphaPositionFunction extends JensenAlphaFunction {
 
-  public TreynorRatioPositionFunction(final String expectedReturnCalculatorName, final String expectedRiskFreeReturnCalculatorName, final String startDate) {
-    super(expectedReturnCalculatorName, expectedRiskFreeReturnCalculatorName, startDate);
+  public JensenAlphaPositionFunction(final String returnCalculatorName, final String expectedAssetReturnCalculatorName, final String expectedRiskFreeReturnCalculatorName,
+      final String expectedMarketReturnCalculatorName, final String startDate) {
+    super(returnCalculatorName, expectedAssetReturnCalculatorName, expectedRiskFreeReturnCalculatorName, expectedMarketReturnCalculatorName, startDate);
   }
 
   @Override
@@ -30,7 +31,7 @@ public class TreynorRatioPositionFunction extends TreynorRatioFunction {
 
   @Override
   public String getShortName() {
-    return "TreynorRatioPositionFunction";
+    return "JensenAlphaPositionFunction";
   }
 
   @Override

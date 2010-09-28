@@ -19,7 +19,6 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
  * 
  */
 public class TreynorRatioCalculatorTest {
-  private static final double RETURN_PERIODS = 1;
   private static final long[] T = new long[] {1};
   private static final double BETA = 0.7;
   private static final DoubleTimeSeries<?> ASSET_RETURN = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, T, new double[] {0.12});
@@ -32,21 +31,16 @@ public class TreynorRatioCalculatorTest {
     }
 
   });
-  private static final TreynorRatioCalculator TREYNOR = new TreynorRatioCalculator(RETURN_PERIODS, EXPECTED_RETURN, EXPECTED_RETURN);
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testNegativeReturnPeriodsCalculator() {
-    new TreynorRatioCalculator(-RETURN_PERIODS, EXPECTED_RETURN, EXPECTED_RETURN);
-  }
+  private static final TreynorRatioCalculator TREYNOR = new TreynorRatioCalculator(EXPECTED_RETURN, EXPECTED_RETURN);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullAssetReturnCalculator() {
-    new TreynorRatioCalculator(RETURN_PERIODS, null, EXPECTED_RETURN);
+    new TreynorRatioCalculator(null, EXPECTED_RETURN);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullRiskFreeReturnCalculator() {
-    new TreynorRatioCalculator(RETURN_PERIODS, EXPECTED_RETURN, null);
+    new TreynorRatioCalculator(EXPECTED_RETURN, null);
   }
 
   @Test(expected = IllegalArgumentException.class)

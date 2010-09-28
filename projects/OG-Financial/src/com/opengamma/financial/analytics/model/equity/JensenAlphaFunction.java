@@ -29,8 +29,10 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.financial.riskreward.TreynorRatioCalculator;
+import com.opengamma.financial.riskreward.JensenAlphaCalculator;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
+import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
+import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -44,20 +46,26 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public abstract class TreynorRatioFunction extends AbstractFunction implements FunctionInvoker {
+public abstract class JensenAlphaFunction extends AbstractFunction implements FunctionInvoker {
   private static final double DAYS_PER_YEAR = 365.25; //TODO
-  private final TreynorRatioCalculator _treynorRatio;
+  private final JensenAlphaCalculator _jensenAlpha;
   private final LocalDate _startDate;
+  private final TimeSeriesReturnCalculator _returnCalculator;
 
-  public TreynorRatioFunction(final String expectedAssetReturnCalculatorName, final String expectedRiskFreeReturnCalculatorName, final String startDate) {
+  public JensenAlphaFunction(final String returnCalculatorName, final String expectedAssetReturnCalculatorName, final String expectedRiskFreeReturnCalculatorName,
+      final String expectedMarketReturnCalculatorName, final String startDate) {
+    Validate.notNull(returnCalculatorName, "return calculator name");
     Validate.notNull(expectedAssetReturnCalculatorName, "expected excess return calculator name");
-    Validate.notNull(expectedRiskFreeReturnCalculatorName, "standard deviation calculator name");
+    Validate.notNull(expectedRiskFreeReturnCalculatorName, "expected risk-free return calculator name");
+    Validate.notNull(expectedMarketReturnCalculatorName, "expected market return calculator name");
     Validate.notNull(startDate, "start date");
     final Function<double[], Double> expectedExcessReturnCalculator = StatisticsCalculatorFactory.getCalculator(expectedAssetReturnCalculatorName);
-    final Function<double[], Double> expectedRiskFreeReturnCalculator = StatisticsCalculatorFactory.getCalculator(expectedRiskFreeReturnCalculatorName);
-    _treynorRatio = new TreynorRatioCalculator(new DoubleTimeSeriesStatisticsCalculator(expectedExcessReturnCalculator), new DoubleTimeSeriesStatisticsCalculator(
-        expectedRiskFreeReturnCalculator));
+    final Function<double[], Double> standardDeviationCalculator = StatisticsCalculatorFactory.getCalculator(expectedRiskFreeReturnCalculatorName);
+    final Function<double[], Double> expectedMarketReturnCalculator = StatisticsCalculatorFactory.getCalculator(expectedMarketReturnCalculatorName);
+    _jensenAlpha = new JensenAlphaCalculator(new DoubleTimeSeriesStatisticsCalculator(expectedExcessReturnCalculator), new DoubleTimeSeriesStatisticsCalculator(
+        standardDeviationCalculator), new DoubleTimeSeriesStatisticsCalculator(expectedMarketReturnCalculator));
     _startDate = LocalDate.parse(startDate);
+    _returnCalculator = TimeSeriesReturnCalculatorFactory.getReturnCalculator(returnCalculatorName);
   }
 
   @Override
@@ -69,6 +77,11 @@ public abstract class TreynorRatioFunction extends AbstractFunction implements F
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
+    final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> marketTSObject = historicalDataSource.getHistoricalData(IdentifierBundle.of(Identifier.of(
+        IdentificationScheme.BLOOMBERG_TICKER, bundle.getCAPMMarketName())), "BLOOMBERG", null, "PX_LAST", _startDate, now);
+    if (marketTSObject == null) {
+      throw new NullPointerException("Market price series was null");
+    }
     final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> riskFreeRateTSObject = historicalDataSource.getHistoricalData(IdentifierBundle.of(Identifier.of(
         IdentificationScheme.BLOOMBERG_TICKER, bundle.getCAPMRiskFreeRateName())), "BLOOMBERG", "CMPL", "PX_LAST", _startDate, now);
     if (riskFreeRateTSObject == null) {
@@ -90,10 +103,11 @@ public abstract class TreynorRatioFunction extends AbstractFunction implements F
     final double fairValue = (Double) assetFairValueObject;
     DoubleTimeSeries<?> assetReturnTS = ((DoubleTimeSeries<?>) assetPnLObject).divide(fairValue);
     DoubleTimeSeries<?> riskFreeReturnTS = riskFreeRateTSObject.getSecond().divide(100 * DAYS_PER_YEAR);
+    final DoubleTimeSeries<?> marketReturnTS = _returnCalculator.evaluate(marketTSObject.getSecond());
     assetReturnTS = assetReturnTS.intersectionFirstValue(riskFreeReturnTS);
     riskFreeReturnTS = riskFreeReturnTS.intersectionFirstValue(assetReturnTS);
-    final double ratio = _treynorRatio.evaluate(assetReturnTS, riskFreeReturnTS, beta);
-    return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.TREYNOR_RATIO, positionOrNode), getUniqueIdentifier()), ratio));
+    final double ratio = _jensenAlpha.evaluate(assetReturnTS, riskFreeReturnTS, beta, marketReturnTS);
+    return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.JENSENS_ALPHA, positionOrNode), getUniqueIdentifier()), ratio));
   }
 
   @Override
@@ -113,7 +127,7 @@ public abstract class TreynorRatioFunction extends AbstractFunction implements F
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
       final Object positionOrNode = getTarget(target);
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.TREYNOR_RATIO, positionOrNode), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.JENSENS_ALPHA, positionOrNode), getUniqueIdentifier()));
     }
     return null;
   }

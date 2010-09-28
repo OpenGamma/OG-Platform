@@ -60,8 +60,8 @@ public class RiskRewardCrossTest {
   private static final SharpeRatioCalculator SHARPE_MARKET = new SharpeRatioCalculator(PERIODS_PER_YEAR, CALCULATOR, STD_MARKET);
   private static final RiskAdjustedPerformanceCalculator RAP = new RiskAdjustedPerformanceCalculator();
   private static final MTwoPerformanceCalculator M2 = new MTwoPerformanceCalculator();
-  private static final TreynorRatioCalculator TREYNOR = new TreynorRatioCalculator(PERIODS_PER_YEAR, CALCULATOR, CALCULATOR);
-  private static final JensenAlphaCalculator JENSEN = new JensenAlphaCalculator();
+  private static final TreynorRatioCalculator TREYNOR = new TreynorRatioCalculator(CALCULATOR, CALCULATOR);
+  private static final JensenAlphaCalculator JENSEN = new JensenAlphaCalculator(CALCULATOR, CALCULATOR, CALCULATOR);
   private static final MarketRiskAdjustedPerformanceCalculator MRAP = new MarketRiskAdjustedPerformanceCalculator();
   private static final TTwoPerformanceCalculator T2 = new TTwoPerformanceCalculator();
   private static final double EPS = 1e-15;
@@ -93,7 +93,7 @@ public class RiskRewardCrossTest {
 
   @Test
   public void testJensenAndTreynor() {
-    final double ja = JENSEN.calculate(ASSET_RETURN, RISK_FREE_RETURN, BETA, MARKET_RETURN);
+    final double ja = JENSEN.evaluate(ASSET_RETURN_TS, RISK_FREE_RETURN_TS, BETA, MARKET_RETURN_TS);
     final double trAsset = TREYNOR.evaluate(ASSET_RETURN_TS, RISK_FREE_RETURN_TS, BETA);
     final double trMarket = TREYNOR.evaluate(MARKET_RETURN_TS, RISK_FREE_RETURN_TS, 1);
     assertEquals(trAsset, ja / BETA + trMarket, EPS);
@@ -108,7 +108,7 @@ public class RiskRewardCrossTest {
 
   @Test
   public void testT2AndJensen() {
-    final double ja = JENSEN.calculate(ASSET_RETURN, RISK_FREE_RETURN, BETA, MARKET_RETURN);
+    final double ja = JENSEN.evaluate(ASSET_RETURN_TS, RISK_FREE_RETURN_TS, BETA, MARKET_RETURN_TS);
     final double t2 = T2.calculate(ASSET_RETURN, RISK_FREE_RETURN, MARKET_RETURN, BETA);
     assertEquals(t2, ja / BETA, EPS);
   }

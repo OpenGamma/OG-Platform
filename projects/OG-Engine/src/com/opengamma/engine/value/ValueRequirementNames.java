@@ -210,4 +210,5 @@ public interface ValueRequirementNames {
   public static final String WEIGHT = "Weight";
   public static final String SHARPE_RATIO = "Sharpe Ratio";
   public static final String TREYNOR_RATIO = "Treynor Ratio";
+  public static final String JENSENS_ALPHA = "Jensen's Alpha";
 }

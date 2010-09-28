@@ -9,17 +9,33 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
+import com.opengamma.math.function.Function;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
+import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+
 /**
  * 
  */
 public class JensenAlphaCalculatorTest {
+  private static final long[] T = new long[] {1};
+  private static final DoubleTimeSeries<?> ASSET_RETURN = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, T, new double[] {0.12});
+  private static final DoubleTimeSeries<?> RISK_FREE = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, T, new double[] {0.03});
+  private static final DoubleTimeSeries<?> MARKET_RETURN = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, T, new double[] {0.11});
+  private static final double BETA = 0.7;
+  private static final DoubleTimeSeriesStatisticsCalculator EXCESS_RETURN = new DoubleTimeSeriesStatisticsCalculator(new Function<double[], Double>() {
+
+    @Override
+    public Double evaluate(final double[]... x) {
+      return x[0][0];
+    }
+
+  });
+  private static final JensenAlphaCalculator CALCULATOR = new JensenAlphaCalculator(EXCESS_RETURN, EXCESS_RETURN, EXCESS_RETURN);
 
   @Test
   public void test() {
-    final double assetReturn = 0.12;
-    final double riskFreeReturn = 0.03;
-    final double beta = 0.7;
-    final double marketReturn = 0.11;
-    assertEquals(new JensenAlphaCalculator().calculate(assetReturn, riskFreeReturn, beta, marketReturn), 0.034, 1e-3);
+    assertEquals(CALCULATOR.evaluate(ASSET_RETURN, RISK_FREE, BETA, MARKET_RETURN), 0.034, 1e-3);
   }
 }
