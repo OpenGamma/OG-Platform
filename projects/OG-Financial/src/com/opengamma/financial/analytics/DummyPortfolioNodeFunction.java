@@ -34,10 +34,12 @@ public class DummyPortfolioNodeFunction extends AbstractFunction implements Func
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
+      final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Set<ComputedValue> result = new HashSet<ComputedValue>();
     final PortfolioNode node = target.getPortfolioNode();
-    result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(_valueRequirement, node), getUniqueIdentifier()), _value));
+    result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(_valueRequirement, node),
+        getUniqueIdentifier()), _value));
     return result;
   }
 

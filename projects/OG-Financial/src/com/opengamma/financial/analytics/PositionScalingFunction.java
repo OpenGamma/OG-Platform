@@ -27,7 +27,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class PositionScalingFunction extends AbstractFunction implements FunctionInvoker {
   private final String _requirementName;
-  
+
   public PositionScalingFunction(String requirementName) {
     ArgumentChecker.notNull(requirementName, "Requirement name");
     _requirementName = requirementName;
@@ -42,13 +42,13 @@ public class PositionScalingFunction extends AbstractFunction implements Functio
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
     Position position = target.getPosition();
     Security security = position.getSecurity();
-    ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, security.getUniqueIdentifier());
+    ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, security
+        .getUniqueIdentifier());
     return Collections.singleton(requirement);
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, 
-      ComputationTarget target) {
+  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     ValueRequirement requirement = new ValueRequirement(_requirementName, target.toSpecification());
     ValueSpecification specification = new ValueSpecification(requirement, getUniqueIdentifier());
     return Collections.singleton(specification);
@@ -65,10 +65,8 @@ public class PositionScalingFunction extends AbstractFunction implements Functio
   }
 
   @Override
-  public Set<ComputedValue> execute(
-      FunctionExecutionContext executionContext, FunctionInputs inputs,
-      ComputationTarget target,
-      Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs,
+      ComputationTarget target, Set<ValueRequirement> desiredValues) {
     Object value = inputs.getValue(_requirementName);
     ValueRequirement requirement = new ValueRequirement(_requirementName, target.toSpecification());
     ValueSpecification specification = new ValueSpecification(requirement, getUniqueIdentifier());

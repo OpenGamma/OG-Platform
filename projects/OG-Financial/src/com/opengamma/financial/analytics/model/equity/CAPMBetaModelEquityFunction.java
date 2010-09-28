@@ -11,8 +11,6 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
@@ -29,6 +27,9 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.convention.ConventionBundle;
+import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.equity.CAPMBetaCalculator;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
@@ -47,10 +48,8 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class CAPMBetaModelEquityFunction extends AbstractFunction implements FunctionInvoker {
-  private static final Logger s_logger = LoggerFactory.getLogger(CAPMBetaModelEquityFunction.class);
   private static final DoubleTimeSeriesStatisticsCalculator COVARIANCE_CALCULATOR = new DoubleTimeSeriesStatisticsCalculator(new SampleCovarianceCalculator());
   private static final DoubleTimeSeriesStatisticsCalculator VARIANCE_CALCULATOR = new DoubleTimeSeriesStatisticsCalculator(new SampleVarianceCalculator());
-  private static final String MARKET_REFERENCE_TICKER = "IBM US Equity"; //TODO should not be hard-coded
   private final CAPMBetaCalculator _model;
   private final LocalDate _startDate;
 
@@ -63,13 +62,16 @@ public class CAPMBetaModelEquityFunction extends AbstractFunction implements Fun
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
+    final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
+    final ConventionBundle bundle = conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_CAPM"));
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
-    final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> marketTSObject = historicalDataSource.getHistoricalData(IdentifierBundle.of(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER,
-        MARKET_REFERENCE_TICKER)), "BLOOMBERG", null, "PX_LAST", _startDate, now);
+    final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> marketTSObject = historicalDataSource.getHistoricalData(IdentifierBundle.of(Identifier.of(
+        IdentificationScheme.BLOOMBERG_TICKER, bundle.getCAPMMarketName())), "BLOOMBERG", null, "PX_LAST", _startDate, now);
     final Object assetTSObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, target.getPosition().getSecurity()));
     if (marketTSObject != null && assetTSObject != null) {
       DoubleTimeSeries<?> marketTS = marketTSObject.getSecond();
@@ -77,7 +79,6 @@ public class CAPMBetaModelEquityFunction extends AbstractFunction implements Fun
       assetTS = assetTS.intersectionFirstValue(marketTS);
       marketTS = marketTS.intersectionFirstValue(assetTS);
       final double beta = _model.evaluate(assetTS, marketTS);
-      s_logger.warn("beta = " + beta);
       return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_BETA, position), getUniqueIdentifier()), beta));
     }
     throw new NullPointerException("Could not get both market time series and asset time series");

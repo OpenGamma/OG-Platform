@@ -6,8 +6,6 @@
 package com.opengamma.financial.riskreward;
 
 import org.apache.commons.lang.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
@@ -26,7 +24,6 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * where {@latex.inline $R_i$} is the asset return, {@latex.inline $R_f$} is the risk-free return and {@latex.inline $\\beta_i$} is the portfolio's beta.
  */
 public class TreynorRatioCalculator {
-  private static final Logger s_logger = LoggerFactory.getLogger(TreynorRatioCalculator.class);
   private final TimeSeriesReturnCalculator _assetReturnCalculator;
   private final DoubleTimeSeriesStatisticsCalculator _expectedAssetReturnCalculator;
   private final DoubleTimeSeriesStatisticsCalculator _expectedRiskFreeReturnCalculator;
@@ -53,7 +50,6 @@ public class TreynorRatioCalculator {
     TimeSeriesDataTestUtils.testNotNullOrEmpty(riskFreeReturnTS);
     final Double expectedAssetReturn = _expectedAssetReturnCalculator.evaluate(_assetReturnCalculator.evaluate(assetPriceTS));
     final Double expectedRiskFreeReturn = _expectedRiskFreeReturnCalculator.evaluate(riskFreeReturnTS);
-    s_logger.warn(expectedAssetReturn + " " + expectedRiskFreeReturn + " " + beta);
     return (expectedAssetReturn - expectedRiskFreeReturn) / beta;
   }
 }
