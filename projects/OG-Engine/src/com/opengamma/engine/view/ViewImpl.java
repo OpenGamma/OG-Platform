@@ -405,6 +405,10 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
    */
   public boolean addResultListener(ComputationResultListener resultListener) {
     ArgumentChecker.notNull(resultListener, "Result listener");
+    if (_resultListeners.contains(resultListener)) {
+      // Avoid the permission check
+      return false;
+    }
     assertInitialized();
     getProcessingContext().getPermissionProvider().assertPermission(ViewPermission.READ_RESULTS, resultListener.getUser(), this);
     return _resultListeners.add(resultListener);
@@ -430,6 +434,10 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
    */
   public boolean addDeltaResultListener(DeltaComputationResultListener deltaListener) {
     ArgumentChecker.notNull(deltaListener, "Delta listener");
+    if (_deltaListeners.contains(deltaListener)) {
+      // Avoid the permission check
+      return false;
+    }
     assertInitialized();
     getProcessingContext().getPermissionProvider().assertPermission(ViewPermission.READ_RESULTS, deltaListener.getUser(), this);
     return _deltaListeners.add(deltaListener);
