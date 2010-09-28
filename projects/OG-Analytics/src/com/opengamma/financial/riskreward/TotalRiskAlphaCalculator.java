@@ -5,6 +5,11 @@
  */
 package com.opengamma.financial.riskreward;
 
+import org.apache.commons.lang.Validate;
+
+import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+
 /**
  * The total risk alpha measures the performance of an asset by comparing its returns with those of a benchmark portfolio. The benchmark portfolio represents the
  * market risk matched to the total risk of the fund.
@@ -18,17 +23,43 @@ package com.opengamma.financial.riskreward;
  * the standard deviation of market returns and {@latex.inline $\\sigma_i$} is the standard deviation of the asset returns.
  */
 public class TotalRiskAlphaCalculator {
+  private final DoubleTimeSeriesStatisticsCalculator _expectedAssetReturnCalculator;
+  private final DoubleTimeSeriesStatisticsCalculator _expectedRiskFreeReturnCalculator;
+  private final DoubleTimeSeriesStatisticsCalculator _expectedMarketReturnCalculator;
+  private final DoubleTimeSeriesStatisticsCalculator _marketStandardDeviationCalculator;
+  private final DoubleTimeSeriesStatisticsCalculator _assetStandardDeviationCalculator;
+
+  public TotalRiskAlphaCalculator(final DoubleTimeSeriesStatisticsCalculator expectedAssetReturnCalculator,
+      final DoubleTimeSeriesStatisticsCalculator expectedRiskFreeReturnCalculator, final DoubleTimeSeriesStatisticsCalculator expectedMarketReturnCalculator,
+      final DoubleTimeSeriesStatisticsCalculator assetStandardDeviationCalculator, final DoubleTimeSeriesStatisticsCalculator marketStandardDeviationCalculator) {
+    Validate.notNull(expectedAssetReturnCalculator, "expected asset return calculator");
+    Validate.notNull(expectedRiskFreeReturnCalculator, "expected risk-free return calculator");
+    Validate.notNull(expectedMarketReturnCalculator, "expected market return calculator");
+    Validate.notNull(assetStandardDeviationCalculator, "asset standard deviation calculator");
+    Validate.notNull(marketStandardDeviationCalculator, "market standard deviation calculator");
+    _expectedAssetReturnCalculator = expectedAssetReturnCalculator;
+    _expectedRiskFreeReturnCalculator = expectedRiskFreeReturnCalculator;
+    _expectedMarketReturnCalculator = expectedMarketReturnCalculator;
+    _assetStandardDeviationCalculator = assetStandardDeviationCalculator;
+    _marketStandardDeviationCalculator = marketStandardDeviationCalculator;
+  }
 
   /**
    * Calculates the total risk alpha.
-   * @param assetReturn The return of the asset
-   * @param riskFreeReturn The risk-free return
-   * @param marketReturn The return of the market
-   * @param assetStandardDeviation The standard deviation of the asset returns
-   * @param marketStandardDeviation The standard deviation of the market returns
+   * @param assetReturnTS The return series of the asset
+   * @param riskFreeReturnTS The risk-free return series 
+   * @param marketReturnTS The return series of the market 
    * @return The total risk alpha
    */
-  public double calculate(final double assetReturn, final double riskFreeReturn, final double marketReturn, final double assetStandardDeviation, final double marketStandardDeviation) {
+  public double evaluate(final DoubleTimeSeries<?> assetReturnTS, final DoubleTimeSeries<?> riskFreeReturnTS, final DoubleTimeSeries<?> marketReturnTS) {
+    Validate.notNull(assetReturnTS, "asset returns");
+    Validate.notNull(riskFreeReturnTS, "risk-free returns");
+    Validate.notNull(marketReturnTS, "market returns");
+    final double assetReturn = _expectedAssetReturnCalculator.evaluate(assetReturnTS);
+    final double marketReturn = _expectedMarketReturnCalculator.evaluate(marketReturnTS);
+    final double riskFreeReturn = _expectedRiskFreeReturnCalculator.evaluate(riskFreeReturnTS);
+    final double assetStandardDeviation = _assetStandardDeviationCalculator.evaluate(assetReturnTS);
+    final double marketStandardDeviation = _marketStandardDeviationCalculator.evaluate(marketReturnTS);
     return assetReturn - (riskFreeReturn + (marketReturn - riskFreeReturn) * assetStandardDeviation / marketStandardDeviation);
   }
 }

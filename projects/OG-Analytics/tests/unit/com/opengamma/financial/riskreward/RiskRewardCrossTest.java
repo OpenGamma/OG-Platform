@@ -55,7 +55,7 @@ public class RiskRewardCrossTest {
   private static final double ASSET_RETURN = 0.174;
   private static final double MARKET_RETURN = 0.11;
   private static final double BETA = 1.3;
-  private static final TotalRiskAlphaCalculator TRA = new TotalRiskAlphaCalculator();
+  private static final TotalRiskAlphaCalculator TRA = new TotalRiskAlphaCalculator(CALCULATOR, CALCULATOR, CALCULATOR, STD_ASSET, STD_MARKET);
   private static final SharpeRatioCalculator SHARPE_ASSET = new SharpeRatioCalculator(PERIODS_PER_YEAR, CALCULATOR, STD_ASSET);
   private static final SharpeRatioCalculator SHARPE_MARKET = new SharpeRatioCalculator(PERIODS_PER_YEAR, CALCULATOR, STD_MARKET);
   private static final RiskAdjustedPerformanceCalculator RAP = new RiskAdjustedPerformanceCalculator();
@@ -68,7 +68,7 @@ public class RiskRewardCrossTest {
 
   @Test
   public void testTRAAndSharpeRatio() {
-    final double tra = TRA.calculate(ASSET_RETURN, RISK_FREE_RETURN, MARKET_RETURN, ASSET_STANDARD_DEVIATION, MARKET_STANDARD_DEVIATION);
+    final double tra = TRA.evaluate(ASSET_RETURN_TS, RISK_FREE_RETURN_TS, MARKET_RETURN_TS);
     final double srAsset = SHARPE_ASSET.evaluate(ASSET_RETURN_TS, RISK_FREE_TS);
     final double srMarket = SHARPE_MARKET.evaluate(MARKET_RETURN_TS, RISK_FREE_TS);
     assertEquals(tra, ASSET_STANDARD_DEVIATION * (srAsset - srMarket), EPS);
@@ -83,7 +83,7 @@ public class RiskRewardCrossTest {
 
   @Test
   public void testM2TRAAndSharpeRatio() {
-    final double tra = TRA.calculate(ASSET_RETURN, RISK_FREE_RETURN, MARKET_RETURN, ASSET_STANDARD_DEVIATION, MARKET_STANDARD_DEVIATION);
+    final double tra = TRA.evaluate(ASSET_RETURN_TS, RISK_FREE_RETURN_TS, MARKET_RETURN_TS);
     final double srAsset = SHARPE_ASSET.evaluate(ASSET_RETURN_TS, RISK_FREE_TS);
     final double srMarket = SHARPE_MARKET.evaluate(MARKET_RETURN_TS, RISK_FREE_TS);
     final double m2 = M2.calculate(ASSET_RETURN, RISK_FREE_RETURN, MARKET_RETURN, ASSET_STANDARD_DEVIATION, MARKET_STANDARD_DEVIATION);
