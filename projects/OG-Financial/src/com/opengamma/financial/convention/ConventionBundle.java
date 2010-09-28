@@ -21,6 +21,7 @@ public interface ConventionBundle {
    * @return the unique id
    */
   UniqueIdentifier getUniqueIdentifier();
+
   /**
    * Get the identifier bundle for this reference rate
    * @return the identifier bundle
@@ -32,21 +33,25 @@ public interface ConventionBundle {
    * @return the display name
    */
   String getName();
+
   /**
    * Get the day count associated with this reference rate or NoDayCount if one isn't available
    * @return the day count
    */
   DayCount getDayCount();
+
   /**
    * Get the business day convention (date adjust) for this reference rate
    * @return the business day convention
    */
   BusinessDayConvention getBusinessDayConvention();
+
   /**
    * Get the frequency
    * @return the frequency
    */
   Frequency getFrequency();
+
   /**
    * The time from now to when the contract is settled, in days.
    * @return the number of days
@@ -64,44 +69,65 @@ public interface ConventionBundle {
    * @return the swapFixedLegDayCount
    */
   DayCount getSwapFixedLegDayCount();
+
   /**
    * Gets the swapFixedLegBusinessDayConvention field.
    * @return the swapFixedLegBusinessDayConvention
    */
   BusinessDayConvention getSwapFixedLegBusinessDayConvention();
+
   /**
    * Gets the swapFixedLegFrequency field.
    * @return the swapFixedLegFrequency
    */
   Frequency getSwapFixedLegFrequency();
+
   /**
    * Gets the swapFixedLegSettlementDays field
    * @return the swapFixedLegSettlementDays
    */
   Integer getSwapFixedLegSettlementDays();
+
   /**
    * Gets the swapFloatingLegDayCount field.
    * @return the swapFloatingLegDayCount
    */
   DayCount getSwapFloatingLegDayCount();
+
   /**
    * Gets the swapFloatingLegBusinessDayConvention field.
    * @return the swapFloatingLegBusinessDayConvention
    */
   BusinessDayConvention getSwapFloatingLegBusinessDayConvention();
+
   /**
    * Gets the swapFloatingLegFrequency field.
    * @return the swapFloatingLegFrequency
    */
   Frequency getSwapFloatingLegFrequency();
+
   /**
    * Gets the swapFloatingLegSettlementDays field.
    * @return the swapFloatingLegSettlementDays
    */
   Integer getSwapFloatingLegSettlementDays();
+
   /**
    * Get the swapFloatingLegInitialRate field.
    * @return the swapFloatingLegInitialRate
    */
   Identifier getSwapFloatingLegInitialRate();
+
+  /**
+   * Gets the name of the risk free rate for CAPM
+   * @return the name
+   */
+  String getCAPMRiskFreeRateName();
+
+  /**
+   * Gets the name of the market for CAPM
+   * @return the name
+   */
+  String getCAPMMarketName();
+
 }

@@ -7,7 +7,6 @@ package com.opengamma.financial.analytics.model.equity;
 
 import java.util.Set;
 
-import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.Validate;
@@ -22,34 +21,32 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
-import com.opengamma.engine.historicaldata.HistoricalDataSource;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.riskreward.TreynorRatioCalculator;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
+import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
+
+import edu.emory.mathcs.backport.java.util.Arrays;
 
 /**
  * 
  */
 public class TreynorRatioEquityFunction extends AbstractFunction implements FunctionInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(TreynorRatioEquityFunction.class);
-  private static final String RISK_FREE_REFERENCE_TICKER = "IBM US Equity"; //TODO should not be hard-coded
+  //private static final String RISK_FREE_REFERENCE_TICKER;
+  private static final double DAYS_PER_YEAR = 365.25;
   private final TimeSeriesReturnCalculator _returnCalculator;
   private final TreynorRatioCalculator _calculator;
   private final LocalDate _startDate;
@@ -69,24 +66,19 @@ public class TreynorRatioEquityFunction extends AbstractFunction implements Func
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
-    final Clock snapshotClock = executionContext.getSnapshotClock();
-    final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
-    final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
-    final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> marketTSObject = historicalDataSource.getHistoricalData(IdentifierBundle.of(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER,
-        RISK_FREE_REFERENCE_TICKER)), "BLOOMBERG", null, "PX_LAST", _startDate, now);
     final Object betaObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.CAPM_BETA, position));
     final Object assetTSObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, position.getSecurity()));
-    if (marketTSObject != null && assetTSObject != null && betaObject != null) {
-      DoubleTimeSeries<?> riskFreeReturnTS = marketTSObject.getSecond();
+    if (assetTSObject != null && betaObject != null) {
+      DoubleTimeSeries<?> riskFreeRateTS = getRiskFreeRateTS((DoubleTimeSeries<?>) assetTSObject);
       DoubleTimeSeries<?> assetTS = (DoubleTimeSeries<?>) assetTSObject;
       final double beta = (Double) betaObject;
-      assetTS = assetTS.intersectionFirstValue(riskFreeReturnTS);
-      riskFreeReturnTS = riskFreeReturnTS.intersectionFirstValue(assetTS);
-      final double ratio = _calculator.evaluate(assetTS, riskFreeReturnTS.divide(3.65e8), beta);
+      assetTS = assetTS.intersectionFirstValue(riskFreeRateTS);
+      riskFreeRateTS = riskFreeRateTS.intersectionFirstValue(assetTS);
+      final double ratio = _calculator.evaluate(assetTS, riskFreeRateTS, beta);
       s_logger.warn("Treynor ratio = " + ratio);
       return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.TREYNOR_RATIO, position), getUniqueIdentifier()), ratio));
     }
-    throw new NullPointerException("Could not get asset time series, risk-free series and beta");
+    throw new NullPointerException("Could not get asset time series and beta");
   }
 
   @Override
@@ -118,6 +110,16 @@ public class TreynorRatioEquityFunction extends AbstractFunction implements Func
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.POSITION;
+  }
+
+  private DoubleTimeSeries<?> getRiskFreeRateTS(final DoubleTimeSeries<?> assetPriceTS) {
+    final FastLongDoubleTimeSeries ts = assetPriceTS.toFastLongDoubleTimeSeries();
+    final long[] times = ts.timesArrayFast();
+    final DateTimeNumericEncoding encoding = ts.getEncoding();
+    final int n = times.length;
+    final double[] values = new double[n];
+    Arrays.fill(values, 0.01 / DAYS_PER_YEAR);
+    return new FastArrayLongDoubleTimeSeries(encoding, times, values);
   }
 
 }

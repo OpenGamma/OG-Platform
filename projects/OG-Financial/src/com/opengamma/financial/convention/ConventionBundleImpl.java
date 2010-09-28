@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.convention;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -19,7 +21,7 @@ import com.opengamma.id.UniqueIdentifier;
 public class ConventionBundleImpl implements ConventionBundle {
   private UniqueIdentifier _uniqueIdentifier;
   private IdentifierBundle _bundle;
-  private String _name;
+  private final String _name;
   private DayCount _dayCount;
   private BusinessDayConvention _businessDayConvention;
   private Integer _settlementDays;
@@ -35,9 +37,14 @@ public class ConventionBundleImpl implements ConventionBundle {
   private Integer _swapFloatingLegSettlementDays;
   private Identifier _swapFloatingLegInitialRate;
   private Double _pointValue;
-  
+
+  //Equity models
+  private String _capmRiskFreeRateName;
+  private String _capmMarketName;
+
   // cash/general
-  public ConventionBundleImpl(IdentifierBundle initialBundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Frequency frequency, int settlementDays) {
+  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
+      final Frequency frequency, final int settlementDays) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = dayCount;
@@ -45,9 +52,10 @@ public class ConventionBundleImpl implements ConventionBundle {
     _frequency = frequency;
     _settlementDays = settlementDays;
   }
-  
+
   // futures
-  public ConventionBundleImpl(IdentifierBundle initialBundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Frequency frequency, int settlementDays, double pointValue) {
+  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
+      final Frequency frequency, final int settlementDays, final double pointValue) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = dayCount;
@@ -56,13 +64,12 @@ public class ConventionBundleImpl implements ConventionBundle {
     _settlementDays = settlementDays;
     _pointValue = pointValue;
   }
-  
+
   // swaps
-  public ConventionBundleImpl(IdentifierBundle initialBundle, String name, 
-                              DayCount swapFixedLegDayCount, BusinessDayConvention swapFixedLegBusinessDayConvention, 
-                              Frequency swapFixedLegFrequency, Integer swapFixedLegSettlementDays, 
-                              DayCount swapFloatingLegDayCount, BusinessDayConvention swapFloatingLegBusinessDayConvention, 
-                              Frequency swapFloatingLegFrequency, Integer swapFloatingLegSettlementDays, Identifier swapFloatingLegInitialRate) {
+  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount swapFixedLegDayCount,
+      final BusinessDayConvention swapFixedLegBusinessDayConvention, final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays,
+      final DayCount swapFloatingLegDayCount, final BusinessDayConvention swapFloatingLegBusinessDayConvention, final Frequency swapFloatingLegFrequency,
+      final Integer swapFloatingLegSettlementDays, final Identifier swapFloatingLegInitialRate) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = null;
@@ -79,12 +86,22 @@ public class ConventionBundleImpl implements ConventionBundle {
     _swapFloatingLegSettlementDays = swapFloatingLegSettlementDays;
     _swapFloatingLegInitialRate = swapFloatingLegInitialRate;
   }
-  
+
+  //equity CAPM
+  public ConventionBundleImpl(final String name, final String capmRiskFreeRateName, final String capmMarketName) {
+    Validate.notNull(name, "name");
+    Validate.notNull(capmRiskFreeRateName, "CAPM risk free rate name");
+    Validate.notNull(capmMarketName, "CAPM market name");
+    _name = name;
+    _capmRiskFreeRateName = capmRiskFreeRateName;
+    _capmMarketName = capmMarketName;
+  }
+
   @Override
   public Frequency getFrequency() {
     return _frequency;
   }
-  
+
   @Override
   public BusinessDayConvention getBusinessDayConvention() {
     return _businessDayConvention;
@@ -104,13 +121,13 @@ public class ConventionBundleImpl implements ConventionBundle {
   public int getSettlementDays() {
     return _settlementDays;
   }
-    
+
   @Override
   public IdentifierBundle getIdentifiers() {
     return _bundle;
   }
-  
-  public void setIdentifiers(IdentifierBundle updatedBundle) {
+
+  public void setIdentifiers(final IdentifierBundle updatedBundle) {
     _bundle = updatedBundle;
   }
 
@@ -118,8 +135,8 @@ public class ConventionBundleImpl implements ConventionBundle {
   public UniqueIdentifier getUniqueIdentifier() {
     return _uniqueIdentifier;
   }
-  
-  public void setUniqueIdentifier(UniqueIdentifier uniqueIdentifier) {
+
+  public void setUniqueIdentifier(final UniqueIdentifier uniqueIdentifier) {
     _uniqueIdentifier = uniqueIdentifier;
   }
 
@@ -146,7 +163,7 @@ public class ConventionBundleImpl implements ConventionBundle {
   public Frequency getSwapFixedLegFrequency() {
     return _swapFixedLegFrequency;
   }
-  
+
   /**
    * Gets the swapFixedLegSettlementDays field.
    * @return the swapFixedLegSettlementDays
@@ -202,6 +219,20 @@ public class ConventionBundleImpl implements ConventionBundle {
   public Double getFuturePointValue() {
     return _pointValue;
   }
-  
-  
+
+  /**
+   * Gets the name of the risk free rate for CAPM
+   * @return the name
+   */
+  public String getCAPMRiskFreeRateName() {
+    return _capmRiskFreeRateName;
+  }
+
+  /**
+   * Gets the name of the market for CAPM
+   * @return the name
+   */
+  public String getCAPMMarketName() {
+    return _capmMarketName;
+  }
 }
