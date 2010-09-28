@@ -25,18 +25,22 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * of the asset return over the benchmark return and {@latex.inline $\\sigma$} is the standard deviation of the asset.
  */
 public class SharpeRatioCalculator implements Function<DoubleTimeSeries<?>, Double> {
+  private final double _returnPeriodsPerYear;
   private final DoubleTimeSeriesStatisticsCalculator _expectedExcessReturnCalculator;
   private final DoubleTimeSeriesStatisticsCalculator _standardDeviationCalculator;
 
-  public SharpeRatioCalculator(final DoubleTimeSeriesStatisticsCalculator expectedExcessReturnCalculator, final DoubleTimeSeriesStatisticsCalculator standardDeviationCalculator) {
+  public SharpeRatioCalculator(final double returnPeriodsPerYear, final DoubleTimeSeriesStatisticsCalculator expectedExcessReturnCalculator,
+      final DoubleTimeSeriesStatisticsCalculator standardDeviationCalculator) {
+    Validate.isTrue(returnPeriodsPerYear > 0);
     Validate.notNull(expectedExcessReturnCalculator, "expected excess return calculator");
     Validate.notNull(standardDeviationCalculator, "standard deviation calculator");
+    _returnPeriodsPerYear = returnPeriodsPerYear;
     _expectedExcessReturnCalculator = expectedExcessReturnCalculator;
     _standardDeviationCalculator = standardDeviationCalculator;
   }
 
   /**
-   * Calculates the Sharpe ratio
+   * Calculates the annualized Sharpe ratio
    * @param ts An array of time series where the first element is the return of the asset and the second is the return of the benchmark
    * @return The Sharpe ratio
    * @throws IllegalArgumentException If the array is null, doesn't contain two elements or if either of the elements is null
@@ -47,8 +51,8 @@ public class SharpeRatioCalculator implements Function<DoubleTimeSeries<?>, Doub
     TimeSeriesDataTestUtils.testNotNullOrEmpty(ts[0]);
     TimeSeriesDataTestUtils.testNotNullOrEmpty(ts[1]);
     final DoubleTimeSeries<?> excessReturn = ts[0].subtract(ts[1]); //TODO change when we have proper excess return calculators
-    final double assetExcessReturn = _expectedExcessReturnCalculator.evaluate(excessReturn);
-    final double standardDeviation = _standardDeviationCalculator.evaluate(excessReturn);
+    final double assetExcessReturn = _expectedExcessReturnCalculator.evaluate(excessReturn) * _returnPeriodsPerYear;
+    final double standardDeviation = _standardDeviationCalculator.evaluate(excessReturn) * Math.sqrt(_returnPeriodsPerYear);
     return assetExcessReturn / standardDeviation;
   }
 

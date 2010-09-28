@@ -7,8 +7,6 @@ package com.opengamma.financial.analytics.model.equity;
 
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,22 +47,22 @@ public class SharpeRatioEquityFunction extends AbstractFunction implements Funct
   private static final double DAYS_PER_YEAR = 365.25; //TODO this should not be hard-coded
   private final TimeSeriesReturnCalculator _returnCalculator;
   private final SharpeRatioCalculator _sharpeRatio;
-  private final LocalDate _startDate;
 
   //TODO consider schedule for market reference
-  public SharpeRatioEquityFunction(final String returnCalculatorName, final String expectedReturnCalculatorName, final String standardDeviationCalculatorName, final String startDate) {
+  public SharpeRatioEquityFunction(final String returnCalculatorName, final String expectedReturnCalculatorName, final String standardDeviationCalculatorName) {
     Validate.notNull(returnCalculatorName, "return calculator name");
     Validate.notNull(expectedReturnCalculatorName, "expected excess return calculator name");
     Validate.notNull(standardDeviationCalculatorName, "standard deviation calculator name");
     _returnCalculator = TimeSeriesReturnCalculatorFactory.getReturnCalculator(returnCalculatorName);
     final Function<double[], Double> expectedExcessReturnCalculator = StatisticsCalculatorFactory.getCalculator(expectedReturnCalculatorName);
     final Function<double[], Double> standardDeviationCalculator = StatisticsCalculatorFactory.getCalculator(standardDeviationCalculatorName);
-    _sharpeRatio = new SharpeRatioCalculator(new DoubleTimeSeriesStatisticsCalculator(expectedExcessReturnCalculator), new DoubleTimeSeriesStatisticsCalculator(standardDeviationCalculator));
-    _startDate = LocalDate.parse(startDate);
+    _sharpeRatio = new SharpeRatioCalculator(DAYS_PER_YEAR, new DoubleTimeSeriesStatisticsCalculator(expectedExcessReturnCalculator), new DoubleTimeSeriesStatisticsCalculator(
+        standardDeviationCalculator));
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
     final Object assetTSObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, target.getPosition().getSecurity()));
     if (assetTSObject != null) {
