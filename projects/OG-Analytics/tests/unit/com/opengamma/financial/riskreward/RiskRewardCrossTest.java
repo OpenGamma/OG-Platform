@@ -10,9 +10,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
-import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.math.function.Function;
-import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
@@ -23,13 +21,6 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 public class RiskRewardCrossTest {
   private static final double ASSET_STANDARD_DEVIATION = 0.24;
   private static final double MARKET_STANDARD_DEVIATION = 0.17;
-  private static final TimeSeriesReturnCalculator RETURN_CALCULATOR = new TimeSeriesReturnCalculator(CalculationMode.LENIENT) {
-
-    @Override
-    public DoubleTimeSeries<?> evaluate(final DoubleTimeSeries<?>... x) {
-      return x[0];
-    }
-  };
   private static final DoubleTimeSeriesStatisticsCalculator CALCULATOR = new DoubleTimeSeriesStatisticsCalculator(new Function<double[], Double>() {
 
     @Override
@@ -54,6 +45,7 @@ public class RiskRewardCrossTest {
     }
 
   });
+  private static final double PERIODS_PER_YEAR = 1;
   private static final long[] T = new long[] {1};
   private static final DoubleTimeSeries<?> RISK_FREE_TS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, T, new double[] {0.03});
   private static final DoubleTimeSeries<?> ASSET_RETURN_TS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, T, new double[] {0.174});
@@ -64,11 +56,11 @@ public class RiskRewardCrossTest {
   private static final double MARKET_RETURN = 0.11;
   private static final double BETA = 1.3;
   private static final TotalRiskAlphaCalculator TRA = new TotalRiskAlphaCalculator();
-  private static final SharpeRatioCalculator SHARPE_ASSET = new SharpeRatioCalculator(CALCULATOR, STD_ASSET);
-  private static final SharpeRatioCalculator SHARPE_MARKET = new SharpeRatioCalculator(CALCULATOR, STD_MARKET);
+  private static final SharpeRatioCalculator SHARPE_ASSET = new SharpeRatioCalculator(PERIODS_PER_YEAR, CALCULATOR, STD_ASSET);
+  private static final SharpeRatioCalculator SHARPE_MARKET = new SharpeRatioCalculator(PERIODS_PER_YEAR, CALCULATOR, STD_MARKET);
   private static final RiskAdjustedPerformanceCalculator RAP = new RiskAdjustedPerformanceCalculator();
   private static final MTwoPerformanceCalculator M2 = new MTwoPerformanceCalculator();
-  private static final TreynorRatioCalculator TREYNOR = new TreynorRatioCalculator(RETURN_CALCULATOR, CALCULATOR, CALCULATOR);
+  private static final TreynorRatioCalculator TREYNOR = new TreynorRatioCalculator(PERIODS_PER_YEAR, CALCULATOR, CALCULATOR);
   private static final JensenAlphaCalculator JENSEN = new JensenAlphaCalculator();
   private static final MarketRiskAdjustedPerformanceCalculator MRAP = new MarketRiskAdjustedPerformanceCalculator();
   private static final TTwoPerformanceCalculator T2 = new TTwoPerformanceCalculator();

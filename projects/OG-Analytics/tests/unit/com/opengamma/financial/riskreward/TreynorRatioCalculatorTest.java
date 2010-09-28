@@ -10,9 +10,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
-import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.math.function.Function;
-import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
@@ -21,6 +19,7 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
  * 
  */
 public class TreynorRatioCalculatorTest {
+  private static final double RETURN_PERIODS = 1;
   private static final long[] T = new long[] {1};
   private static final double BETA = 0.7;
   private static final DoubleTimeSeries<?> ASSET_RETURN = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, T, new double[] {0.12});
@@ -33,28 +32,21 @@ public class TreynorRatioCalculatorTest {
     }
 
   });
-  private static final TimeSeriesReturnCalculator RETURN = new TimeSeriesReturnCalculator(CalculationMode.LENIENT) {
-
-    @Override
-    public DoubleTimeSeries<?> evaluate(final DoubleTimeSeries<?>... x) {
-      return x[0];
-    }
-  };
-  private static final TreynorRatioCalculator TREYNOR = new TreynorRatioCalculator(RETURN, EXPECTED_RETURN, EXPECTED_RETURN);
+  private static final TreynorRatioCalculator TREYNOR = new TreynorRatioCalculator(RETURN_PERIODS, EXPECTED_RETURN, EXPECTED_RETURN);
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNullReturnCalculator() {
-    new TreynorRatioCalculator(null, EXPECTED_RETURN, EXPECTED_RETURN);
+  public void testNegativeReturnPeriodsCalculator() {
+    new TreynorRatioCalculator(-RETURN_PERIODS, EXPECTED_RETURN, EXPECTED_RETURN);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullAssetReturnCalculator() {
-    new TreynorRatioCalculator(RETURN, null, EXPECTED_RETURN);
+    new TreynorRatioCalculator(RETURN_PERIODS, null, EXPECTED_RETURN);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullRiskFreeReturnCalculator() {
-    new TreynorRatioCalculator(RETURN, EXPECTED_RETURN, null);
+    new TreynorRatioCalculator(RETURN_PERIODS, EXPECTED_RETURN, null);
   }
 
   @Test(expected = IllegalArgumentException.class)

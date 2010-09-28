@@ -161,7 +161,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
         LocalDateDoubleTimeSeries timeSeries = getHistoricalData(uid);
         return new ObjectsPair<UniqueIdentifier, LocalDateDoubleTimeSeries>(uid, timeSeries);
       } else {
-        s_logger.error("returned object {} from cache, not a UniqueIdentifier", value);
+        s_logger.warn("returned object {} from cache, not a UniqueIdentifier", value);
         return null;
       }
     } else {
@@ -294,8 +294,8 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
   @Override
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = getHistoricalData(identifiers);
-    if (tsPair != null) {
-      LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) tsPair.getSecond().subSeries(start, inclusiveStart, end, exclusiveEnd);
+    if (tsPair != null && tsPair.getValue() != null) {
+      LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) tsPair.getSecond().subSeries(start, inclusiveStart, end, !exclusiveEnd);
       return Pair.of(tsPair.getKey(), timeSeries);
     } else {
       return null;
@@ -306,8 +306,8 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String dataSource, String dataProvider, String field, LocalDate start,
       boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = getHistoricalData(identifiers, dataSource, dataProvider, field);
-    if (tsPair != null) {
-      LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) tsPair.getSecond().subSeries(start, inclusiveStart, end, exclusiveEnd);
+    if (tsPair != null && tsPair.getValue() != null) {
+      LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) tsPair.getSecond().subSeries(start, inclusiveStart, end, !exclusiveEnd);
       return Pair.of(tsPair.getKey(), timeSeries);
     } else {
       return null;
@@ -320,7 +320,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
   public LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uid, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     LocalDateDoubleTimeSeries timeseries = getHistoricalData(uid);
     if (timeseries != null) {
-      return (LocalDateDoubleTimeSeries) timeseries.subSeries(start, inclusiveStart, end, exclusiveEnd);
+      return (LocalDateDoubleTimeSeries) timeseries.subSeries(start, inclusiveStart, end, !exclusiveEnd);
     } else {
       return null;
     }
