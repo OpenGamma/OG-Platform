@@ -13,6 +13,7 @@ import java.util.Map;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCalculations;
 import com.opengamma.financial.interestrate.annuity.definition.ConstantCouponAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
@@ -231,6 +232,11 @@ public final class PresentValueSensitivityCalculator implements InterestRateDeri
     result.put(liborCurveName, temp);
 
     return result;
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitGenericAnnuity(GenericAnnuity annuity, YieldCurveBundle data) {
+    return null;
   }
 
 }

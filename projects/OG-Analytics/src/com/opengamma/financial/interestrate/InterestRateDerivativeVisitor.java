@@ -7,6 +7,7 @@ package com.opengamma.financial.interestrate;
 
 import com.opengamma.financial.interestrate.annuity.definition.ConstantCouponAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
@@ -46,4 +47,6 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visitConstantCouponAnnuity(final ConstantCouponAnnuity annuity, S data);
 
   T visitVariableAnnuity(final VariableAnnuity annuity, S data);
+
+  T visitGenericAnnuity(final GenericAnnuity annuity, S data);
 }
