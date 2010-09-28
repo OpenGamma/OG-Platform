@@ -239,7 +239,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       derivatives.add(derivative);
       initialRatesGuess[i] = 0.01;
       nodeTimes[i] = LAST_DATE_CALCULATOR.getValue(derivative); 
-      System.err.println("LAST_DATE_CALCULATOR.getValue(derivative) = " + nodeTimes[i]);
+      //System.err.println("LAST_DATE_CALCULATOR.getValue(derivative) = " + nodeTimes[i]);
       _identifierToNodeTimes.put(strip.getSecurityIdentifier(), nodeTimes[i]); // just for debugging.
       i++;
     }

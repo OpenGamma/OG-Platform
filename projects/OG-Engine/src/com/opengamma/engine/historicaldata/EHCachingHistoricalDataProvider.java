@@ -161,7 +161,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
         LocalDateDoubleTimeSeries timeSeries = getHistoricalData(uid);
         return new ObjectsPair<UniqueIdentifier, LocalDateDoubleTimeSeries>(uid, timeSeries);
       } else {
-        s_logger.error("returned object {} from cache, not a UniqueIdentifier", value);
+        s_logger.warn("returned object {} from cache, not a UniqueIdentifier", value);
         return null;
       }
     } else {
