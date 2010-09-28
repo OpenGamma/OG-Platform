@@ -103,8 +103,11 @@ public abstract class JensenAlphaFunction extends AbstractFunction implements Fu
     final double fairValue = (Double) assetFairValueObject;
     DoubleTimeSeries<?> assetReturnTS = ((DoubleTimeSeries<?>) assetPnLObject).divide(fairValue);
     DoubleTimeSeries<?> riskFreeReturnTS = riskFreeRateTSObject.getSecond().divide(100 * DAYS_PER_YEAR);
-    final DoubleTimeSeries<?> marketReturnTS = _returnCalculator.evaluate(marketTSObject.getSecond());
+    DoubleTimeSeries<?> marketReturnTS = _returnCalculator.evaluate(marketTSObject.getSecond());
     assetReturnTS = assetReturnTS.intersectionFirstValue(riskFreeReturnTS);
+    riskFreeReturnTS = riskFreeReturnTS.intersectionFirstValue(assetReturnTS);
+    assetReturnTS = assetReturnTS.intersectionFirstValue(marketReturnTS);
+    marketReturnTS = marketReturnTS.intersectionFirstValue(assetReturnTS);
     riskFreeReturnTS = riskFreeReturnTS.intersectionFirstValue(assetReturnTS);
     final double ratio = _jensenAlpha.evaluate(assetReturnTS, riskFreeReturnTS, beta, marketReturnTS);
     return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.JENSENS_ALPHA, positionOrNode), getUniqueIdentifier()), ratio));

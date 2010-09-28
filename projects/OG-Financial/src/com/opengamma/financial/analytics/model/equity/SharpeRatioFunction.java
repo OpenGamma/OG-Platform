@@ -75,18 +75,24 @@ public abstract class SharpeRatioFunction extends AbstractFunction implements Fu
     final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
     final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> benchmarkTSObject = historicalDataSource.getHistoricalData(IdentifierBundle.of(Identifier.of(
         IdentificationScheme.BLOOMBERG_TICKER, bundle.getCAPMMarketName())), "BLOOMBERG", null, "PX_LAST", _startDate, now);
-    final Object assetPnLObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode)); //TODO replace with return series when portfolio weights are in
-    final Object assetFairValueObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));
-    if (assetPnLObject != null && assetFairValueObject != null && benchmarkTSObject != null) {
-      final double fairValue = (Double) assetFairValueObject;
-      DoubleTimeSeries<?> assetReturnTS = ((DoubleTimeSeries<?>) assetPnLObject).divide(fairValue);
-      DoubleTimeSeries<?> benchmarkReturnTS = _returnCalculator.evaluate(benchmarkTSObject.getSecond());
-      assetReturnTS = assetReturnTS.intersectionFirstValue(benchmarkReturnTS);
-      benchmarkReturnTS = benchmarkReturnTS.intersectionFirstValue(assetReturnTS);
-      final double ratio = _sharpeRatio.evaluate(assetReturnTS, benchmarkReturnTS);
-      return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SHARPE_RATIO, positionOrNode), getUniqueIdentifier()), ratio));
+    if (benchmarkTSObject == null) {
+      throw new NullPointerException("Benchmark time series was null");
     }
-    throw new NullPointerException("Could not get both position return series and benchmark series");
+    final Object assetPnLObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode)); //TODO replace with return series when portfolio weights are in
+    if (assetPnLObject == null) {
+      throw new NullPointerException("Asset P&L series was null");
+    }
+    final Object assetFairValueObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));
+    if (assetFairValueObject == null) {
+      throw new NullPointerException("Asset fair value was null");
+    }
+    final double fairValue = (Double) assetFairValueObject;
+    DoubleTimeSeries<?> assetReturnTS = ((DoubleTimeSeries<?>) assetPnLObject).divide(fairValue);
+    DoubleTimeSeries<?> benchmarkReturnTS = _returnCalculator.evaluate(benchmarkTSObject.getSecond());
+    assetReturnTS = assetReturnTS.intersectionFirstValue(benchmarkReturnTS);
+    benchmarkReturnTS = benchmarkReturnTS.intersectionFirstValue(assetReturnTS);
+    final double ratio = _sharpeRatio.evaluate(assetReturnTS, benchmarkReturnTS);
+    return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SHARPE_RATIO, positionOrNode), getUniqueIdentifier()), ratio));
   }
 
   @Override
