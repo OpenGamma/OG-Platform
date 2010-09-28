@@ -54,6 +54,7 @@ public class RiskRewardCrossTest {
     }
 
   });
+  private static final double PERIODS_PER_YEAR = 1;
   private static final long[] T = new long[] {1};
   private static final DoubleTimeSeries<?> RISK_FREE_TS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, T, new double[] {0.03});
   private static final DoubleTimeSeries<?> ASSET_RETURN_TS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, T, new double[] {0.174});
@@ -64,8 +65,8 @@ public class RiskRewardCrossTest {
   private static final double MARKET_RETURN = 0.11;
   private static final double BETA = 1.3;
   private static final TotalRiskAlphaCalculator TRA = new TotalRiskAlphaCalculator();
-  private static final SharpeRatioCalculator SHARPE_ASSET = new SharpeRatioCalculator(CALCULATOR, STD_ASSET);
-  private static final SharpeRatioCalculator SHARPE_MARKET = new SharpeRatioCalculator(CALCULATOR, STD_MARKET);
+  private static final SharpeRatioCalculator SHARPE_ASSET = new SharpeRatioCalculator(PERIODS_PER_YEAR, CALCULATOR, STD_ASSET);
+  private static final SharpeRatioCalculator SHARPE_MARKET = new SharpeRatioCalculator(PERIODS_PER_YEAR, CALCULATOR, STD_MARKET);
   private static final RiskAdjustedPerformanceCalculator RAP = new RiskAdjustedPerformanceCalculator();
   private static final MTwoPerformanceCalculator M2 = new MTwoPerformanceCalculator();
   private static final TreynorRatioCalculator TREYNOR = new TreynorRatioCalculator(RETURN_CALCULATOR, CALCULATOR, CALCULATOR);

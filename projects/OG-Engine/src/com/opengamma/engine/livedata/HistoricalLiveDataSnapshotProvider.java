@@ -60,15 +60,15 @@ public class HistoricalLiveDataSnapshotProvider extends AbstractLiveDataSnapshot
     Identifier identifier = requirement.getTargetSpecification().getIdentifier();
     Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> historicalData = _historicalDataSource.getHistoricalData(IdentifierBundle.of(identifier), _dataSource, _dataProvider, _field, date, date);
     if ((historicalData == null) || (historicalData.getValue().isEmpty())) {
-      s_logger.warn("Couldn't find data for " + identifier + " on " + date + " where dataSource = " + _dataSource + ", dataProvider = " + _dataProvider + ", field = " + _field);
+      //s_logger.warn("Couldn't find data for " + identifier + " on " + date + " where dataSource = " + _dataSource + ", dataProvider = " + _dataProvider + ", field = " + _field);
       historicalData = _historicalDataSource.getHistoricalData(IdentifierBundle.of(identifier), _dataSource, "CMPL", _field, date, date);
     }
     if ((historicalData == null) || (historicalData.getValue().isEmpty())) {
-      s_logger.warn("  and couldn't find data for " + identifier + " on " + date + " where dataSource = " + _dataSource + ", dataProvider = CMPL, field = " + _field);
+      //s_logger.warn("  and couldn't find data for " + identifier + " on " + date + " where dataSource = " + _dataSource + ", dataProvider = CMPL, field = " + _field);
       historicalData = _historicalDataSource.getHistoricalData(IdentifierBundle.of(identifier), _dataSource, "EXCH_XCME", _field, date, date);
     }
     if ((historicalData == null) || (historicalData.getValue().isEmpty())) {
-      s_logger.warn(" and couldn't find data for " + identifier + " on " + date + " where dataSource = " + _dataSource + ", dataProvider = EXCH_XCME, field = " + _field);
+      //s_logger.warn(" and couldn't find data for " + identifier + " on " + date + " where dataSource = " + _dataSource + ", dataProvider = EXCH_XCME, field = " + _field);
       return null;
     }
     return historicalData.getValue().getValue(date);
@@ -99,10 +99,10 @@ public class HistoricalLiveDataSnapshotProvider extends AbstractLiveDataSnapshot
       historicalData = _historicalDataSource.getHistoricalData(IdentifierBundle.of(identifier), _dataSource, "EXCH_XCME", _field);
     }
     if (historicalData != null) {
-      System.err.println("isAvailable(" + identifier + ", " + _dataSource + ", " + _dataProvider + ", " + _field + ") = " + (historicalData.getKey() != null));
+      //System.err.println("isAvailable(" + identifier + ", " + _dataSource + ", " + _dataProvider + ", " + _field + ") = " + (historicalData.getKey() != null));
       return historicalData.getKey() != null;
     } else {
-      System.err.println("isAvailable(" + identifier + ", " + _dataSource + ", " + _dataProvider + ", " + _field + ") = false (no data at all)");
+      //System.err.println("isAvailable(" + identifier + ", " + _dataSource + ", " + _dataProvider + ", " + _field + ") = false (no data at all)");
       return false;
     }
     

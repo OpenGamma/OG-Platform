@@ -5,10 +5,11 @@
  */
 package com.opengamma.financial.analytics;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.Validate;
+
+import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -16,61 +17,65 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
-import com.opengamma.engine.position.PortfolioNode;
+import com.opengamma.engine.position.Position;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * 
  */
-public class DummyPortfolioNodeFunction extends AbstractFunction implements FunctionInvoker {
-  private final String _valueRequirement;
-  private final Double _value;
+public class PositionWeightFunction extends AbstractFunction implements FunctionInvoker {
+  private final double _nav;
 
-  public DummyPortfolioNodeFunction(final String valueRequirement, final String value) {
-    _valueRequirement = valueRequirement;
-    _value = Double.parseDouble(value);
+  public PositionWeightFunction(final String nav) {
+    Validate.notNull(nav, "nav");
+    _nav = Double.parseDouble(nav);
   }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
       final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final Set<ComputedValue> result = new HashSet<ComputedValue>();
-    final PortfolioNode node = target.getPortfolioNode();
-    result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(_valueRequirement, node),
-        getUniqueIdentifier()), _value));
-    return result;
+    final Position position = target.getPosition();
+    final Object fairValueObj = inputs.getValue(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, position));
+    if (fairValueObj != null) {
+      final double fairValue = (Double) fairValueObj;
+      return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(
+          ValueRequirementNames.WEIGHT, position), getUniqueIdentifier()), fairValue / _nav));
+    }
+    return null;
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.PORTFOLIO_NODE;
+    return target.getType() == ComputationTargetType.POSITION;
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.<ValueRequirement> emptySet();
+    if (canApplyTo(context, target)) {
+      return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, target.getPosition()));
+    }
+    return null;
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-      final PortfolioNode node = target.getPortfolioNode();
-      results.add(new ValueSpecification(new ValueRequirement(_valueRequirement, node), getUniqueIdentifier()));
-      return results;
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.WEIGHT, target
+          .getPosition()), getUniqueIdentifier()));
     }
     return null;
   }
 
   @Override
   public String getShortName() {
-    return "DummyPortfolioNodeModel";
+    return "PortfolioNodeWeight";
   }
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PORTFOLIO_NODE;
+    return ComputationTargetType.POSITION;
   }
 }

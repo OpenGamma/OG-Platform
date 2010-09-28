@@ -19,6 +19,7 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
  * 
  */
 public class SharpeRatioCalculatorTest {
+  private static final double RETURN_PERIODS_PER_YEAR = 1;
   private static final long[] T = new long[] {1};
   private static final double STD_DEV = 0.15;
   private static final DoubleTimeSeries<?> ASSET_RETURN = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, T, new double[] {0.12});
@@ -39,16 +40,21 @@ public class SharpeRatioCalculatorTest {
     }
 
   });
-  private static final SharpeRatioCalculator SHARPE = new SharpeRatioCalculator(EXCESS_RETURN, STD);
+  private static final SharpeRatioCalculator SHARPE = new SharpeRatioCalculator(RETURN_PERIODS_PER_YEAR, EXCESS_RETURN, STD);
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeReturnPeriodsCalculator() {
+    new SharpeRatioCalculator(-RETURN_PERIODS_PER_YEAR, EXCESS_RETURN, STD);
+  }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullExcessReturnCalculator() {
-    new SharpeRatioCalculator(null, EXCESS_RETURN);
+    new SharpeRatioCalculator(RETURN_PERIODS_PER_YEAR, null, EXCESS_RETURN);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullStdDevCalculator() {
-    new SharpeRatioCalculator(EXCESS_RETURN, null);
+    new SharpeRatioCalculator(RETURN_PERIODS_PER_YEAR, EXCESS_RETURN, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
