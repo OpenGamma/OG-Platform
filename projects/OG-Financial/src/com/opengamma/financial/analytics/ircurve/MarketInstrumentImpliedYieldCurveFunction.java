@@ -38,6 +38,9 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.cash.CashSecurityToCashConverter;
+import com.opengamma.financial.analytics.fra.FRASecurityToForwardRateAgreementConverter;
+import com.opengamma.financial.analytics.interestratefuture.InterestRateFutureSecurityToInterestRateFutureConverter;
 import com.opengamma.financial.analytics.swap.FixedFloatSwapSecurityToSwapConverter;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -53,6 +56,9 @@ import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.world.holiday.HolidaySource;
 import com.opengamma.financial.world.region.RegionSource;
@@ -90,6 +96,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private ValueSpecification _jacobianResult;
   private Set<ValueSpecification> _results;
   private InterpolatedYieldCurveSpecification _specification;
+  private Map<Identifier, Double> _identifierToNodeTimes = new HashMap<Identifier, Double>();
   private static final LastDateCalculator LAST_DATE_CALCULATOR = new LastDateCalculator();
 
   public MarketInstrumentImpliedYieldCurveFunction(final LocalDate curveDate, final Currency currency, final String name) {
@@ -133,6 +140,11 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
   public InterpolatedYieldCurveSpecification getSpecification() {
     return _specification;
+  }
+  
+  // just for debugging.
+  public Map<Identifier, Double> getIdentifierToNodeTimesMap() {
+    return _identifierToNodeTimes;
   }
 
   @Override
@@ -200,14 +212,24 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
     final FixedFloatSwapSecurityToSwapConverter swapConverter = new FixedFloatSwapSecurityToSwapConverter(holidaySource, regionSource, conventionSource);
+    final CashSecurityToCashConverter cashConverter = new CashSecurityToCashConverter(holidaySource, conventionSource);
+    final FRASecurityToForwardRateAgreementConverter fraConverter = new FRASecurityToForwardRateAgreementConverter(holidaySource, conventionSource);
+    final InterestRateFutureSecurityToInterestRateFutureConverter futureConverter = new InterestRateFutureSecurityToInterestRateFutureConverter(holidaySource, conventionSource);
+    _identifierToNodeTimes.clear(); // just for debugging.
     for (final FixedIncomeStripWithSecurity strip : specificationWithSecurities.getStrips()) {
       stripRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getSecurityIdentifier());
-      final Double rate = (Double) inputs.getValue(stripRequirement) / 100d;
-      if (rate == null) {
+      final Double marketValue = (Double) inputs.getValue(stripRequirement);
+      if (marketValue == null) {
         throw new NullPointerException("Could not get market data for " + strip);
       }
       if (strip.getInstrumentType() == StripInstrumentType.SWAP) {
-        derivative = swapConverter.getSwap((SwapSecurity) strip.getSecurity(), _name, _name, rate, 0.0, now);
+        derivative = swapConverter.getSwap((SwapSecurity) strip.getSecurity(), _name, _name, marketValue / 100d, 0.0, now);
+      } else if (strip.getInstrumentType() == StripInstrumentType.CASH) {
+        derivative = cashConverter.getCash((CashSecurity) strip.getSecurity(), _name, marketValue / 100d, now);
+      } else if (strip.getInstrumentType() == StripInstrumentType.FRA) {
+        derivative = fraConverter.getFRA((FRASecurity) strip.getSecurity(), _name, _name, marketValue / 100d, now);
+      }  else if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
+        derivative = futureConverter.getInterestRateFuture((InterestRateFutureSecurity) strip.getSecurity(), _name, marketValue, now);
       } else {
         throw new OpenGammaRuntimeException("Can only handle swaps at the moment");
       }
@@ -218,6 +240,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       initialRatesGuess[i] = 0.01;
       nodeTimes[i] = LAST_DATE_CALCULATOR.getValue(derivative); 
       System.err.println("LAST_DATE_CALCULATOR.getValue(derivative) = " + nodeTimes[i]);
+      _identifierToNodeTimes.put(strip.getSecurityIdentifier(), nodeTimes[i]); // just for debugging.
       i++;
     }
     ParallelArrayBinarySort.parallelBinarySort(nodeTimes, initialRatesGuess);

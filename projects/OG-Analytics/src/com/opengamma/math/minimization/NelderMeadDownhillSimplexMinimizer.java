@@ -28,10 +28,10 @@ public class NelderMeadDownhillSimplexMinimizer extends SimplexMinimizer {
   public DoubleMatrix1D minimize(Function1D<DoubleMatrix1D, Double> function, DoubleMatrix1D startPosition) {
     checkInputs(function, startPosition);
     final MultivariateRealOptimizer optimizer = new NelderMead();
-    final MultivariateRealFunction commonsFunction = CommonsMathWrapper.wrap(function);
+    final MultivariateRealFunction commonsFunction = CommonsMathWrapper.wrapMultivariate(function);
     try {
-      return new DoubleMatrix1D(CommonsMathWrapper.unwrap(optimizer.optimize(commonsFunction, MINIMIZER, startPosition
-          .getData())));
+      return new DoubleMatrix1D(CommonsMathWrapper.unwrap(optimizer.optimize(commonsFunction, MINIMIZER,
+          startPosition.getData())));
     } catch (final OptimizationException e) {
       throw new MathException(e);
     } catch (final FunctionEvaluationException e) {

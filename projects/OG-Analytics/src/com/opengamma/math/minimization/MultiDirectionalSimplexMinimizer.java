@@ -28,10 +28,10 @@ public class MultiDirectionalSimplexMinimizer extends SimplexMinimizer {
   public DoubleMatrix1D minimize(final Function1D<DoubleMatrix1D, Double> f, final DoubleMatrix1D initialPoint) {
     checkInputs(f, initialPoint);
     final MultivariateRealOptimizer optimizer = new MultiDirectional();
-    final MultivariateRealFunction commons = CommonsMathWrapper.wrap(f);
+    final MultivariateRealFunction commons = CommonsMathWrapper.wrapMultivariate(f);
     try {
-      return new DoubleMatrix1D(CommonsMathWrapper.unwrap(optimizer
-          .optimize(commons, MINIMIZER, initialPoint.getData())));
+      return new DoubleMatrix1D(
+          CommonsMathWrapper.unwrap(optimizer.optimize(commons, MINIMIZER, initialPoint.getData())));
     } catch (final OptimizationException e) {
       throw new MathException(e);
     } catch (final FunctionEvaluationException e) {

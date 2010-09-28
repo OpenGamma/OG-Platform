@@ -157,19 +157,19 @@
 		description="run all unit tests with Clover enabled and produce one merged report">
 		<og-subant target="tests-with-clover" buildpathref="build-path"/>
 		<clover-merge initstring="${clover.db.dir}">
-			<cloverDb span="30 mins"  initstring="projects/Fudge-Java/tests/output/clover.db" />
-			<cloverDb span="30 mins"  initstring="projects/Fudge-Proto/tests/output/clover.db" />
-			<cloverDb span="30 mins"  initstring="projects/OG-Analytics/tests/output/clover.db" />
-			<cloverDb span="30 mins"  initstring="projects/OG-Bloomberg/tests/output/clover.db" />
-			<cloverDb span="30 mins"  initstring="projects/OG-Engine/tests/output/clover.db" />
-			<cloverDb span="30 mins"  initstring="projects/OG-Financial/tests/output/clover.db" />
-			<cloverDb span="30 mins"  initstring="projects/OG-LiveData/tests/output/clover.db" />
-			<cloverDb span="30 mins"  initstring="projects/OG-Util/tests/output/clover.db" />
-			<cloverDb span="30 mins"  initstring="projects/OG-Integration/tests/output/clover.db" />
-			<cloverDb span="30 mins"  initstring="projects/OG-Security/tests/output/clover.db" />
-			<cloverDb span="30 mins"  initstring="projects/OG-TimeSeriesStorage/tests/output/clover.db" />
-			<cloverDb span="30 mins"  initstring="projects/OG-Reuters/tests/output/clover.db" />
-			<cloverDb span="30 mins"  initstring="projects/OG-Config/tests/output/clover.db" />
+			<cloverDb span="30 mins"  initstring="projects/Fudge-Java/tests/output/clover.db/clover-db-" />
+			<cloverDb span="30 mins"  initstring="projects/Fudge-Proto/tests/output/clover.db/clover-db-" />
+			<cloverDb span="30 mins"  initstring="projects/OG-Analytics/tests/output/clover.db/clover-db-" />
+			<cloverDb span="30 mins"  initstring="projects/OG-Bloomberg/tests/output/clover.db/clover-db-" />
+			<cloverDb span="30 mins"  initstring="projects/OG-Engine/tests/output/clover.db/clover-db-" />
+			<cloverDb span="30 mins"  initstring="projects/OG-Financial/tests/output/clover.db/clover-db-" />
+			<cloverDb span="30 mins"  initstring="projects/OG-LiveData/tests/output/clover.db/clover-db-" />
+			<cloverDb span="30 mins"  initstring="projects/OG-Util/tests/output/clover.db/clover-db-" />
+			<cloverDb span="30 mins"  initstring="projects/OG-Integration/tests/output/clover.db/clover-db-" />
+			<cloverDb span="30 mins"  initstring="projects/OG-Security/tests/output/clover.db/clover-db-" />
+			<cloverDb span="30 mins"  initstring="projects/OG-TimeSeriesStorage/tests/output/clover.db/clover-db-" />
+			<cloverDb span="30 mins"  initstring="projects/OG-Reuters/tests/output/clover.db/clover-db-" />
+			<cloverDb span="30 mins"  initstring="projects/OG-Config/tests/output/clover.db/clover-db-" />
 		</clover-merge>
 		<clover-html-report
 			initstring="${clover.db.dir}"

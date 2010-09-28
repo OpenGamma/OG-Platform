@@ -34,7 +34,7 @@ public final class CommonsMathWrapper {
   private CommonsMathWrapper() {
   }
 
-  public static UnivariateRealFunction wrap(final Function1D<Double, Double> f) {
+  public static UnivariateRealFunction wrapUnivariate(final Function1D<Double, Double> f) {
     Validate.notNull(f);
     return new UnivariateRealFunction() {
 
@@ -45,7 +45,7 @@ public final class CommonsMathWrapper {
     };
   }
 
-  public static MultivariateRealFunction wrap(final Function1D<DoubleMatrix1D, Double> f) {
+  public static MultivariateRealFunction wrapMultivariate(final Function1D<DoubleMatrix1D, Double> f) {
     Validate.notNull(f);
     return new MultivariateRealFunction() {
 
