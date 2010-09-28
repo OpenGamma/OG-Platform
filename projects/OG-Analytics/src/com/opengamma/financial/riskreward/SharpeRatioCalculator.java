@@ -55,5 +55,4 @@ public class SharpeRatioCalculator implements Function<DoubleTimeSeries<?>, Doub
     final double standardDeviation = _standardDeviationCalculator.evaluate(excessReturn) * Math.sqrt(_returnPeriodsPerYear);
     return assetExcessReturn / standardDeviation;
   }
-
 }
