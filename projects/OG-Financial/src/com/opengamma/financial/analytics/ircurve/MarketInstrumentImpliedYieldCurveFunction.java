@@ -96,6 +96,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private ValueSpecification _jacobianResult;
   private Set<ValueSpecification> _results;
   private InterpolatedYieldCurveSpecification _specification;
+  private Map<Identifier, Double> _identifierToNodeTimes = new HashMap<Identifier, Double>();
   private static final LastDateCalculator LAST_DATE_CALCULATOR = new LastDateCalculator();
 
   public MarketInstrumentImpliedYieldCurveFunction(final LocalDate curveDate, final Currency currency, final String name) {
@@ -139,6 +140,11 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
   public InterpolatedYieldCurveSpecification getSpecification() {
     return _specification;
+  }
+  
+  // just for debugging.
+  public Map<Identifier, Double> getIdentifierToNodeTimesMap() {
+    return _identifierToNodeTimes;
   }
 
   @Override
@@ -209,7 +215,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final CashSecurityToCashConverter cashConverter = new CashSecurityToCashConverter(holidaySource, conventionSource);
     final FRASecurityToForwardRateAgreementConverter fraConverter = new FRASecurityToForwardRateAgreementConverter(holidaySource, conventionSource);
     final InterestRateFutureSecurityToInterestRateFutureConverter futureConverter = new InterestRateFutureSecurityToInterestRateFutureConverter(holidaySource, conventionSource);
-    
+    _identifierToNodeTimes.clear(); // just for debugging.
     for (final FixedIncomeStripWithSecurity strip : specificationWithSecurities.getStrips()) {
       stripRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getSecurityIdentifier());
       final Double marketValue = (Double) inputs.getValue(stripRequirement);
@@ -234,6 +240,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       initialRatesGuess[i] = 0.01;
       nodeTimes[i] = LAST_DATE_CALCULATOR.getValue(derivative); 
       System.err.println("LAST_DATE_CALCULATOR.getValue(derivative) = " + nodeTimes[i]);
+      _identifierToNodeTimes.put(strip.getSecurityIdentifier(), nodeTimes[i]); // just for debugging.
       i++;
     }
     ParallelArrayBinarySort.parallelBinarySort(nodeTimes, initialRatesGuess);

@@ -118,10 +118,10 @@ public class InMemoryRegionMaster implements RegionMaster {
       identifiers.add(Identifier.of(ISO_CURRENCY_3, regionNode.getCurrencyISO3()));
     }
     regionNode.setIdentifiers(new IdentifierBundle(identifiers.toArray(new Identifier[] {})));
-    s_logger.info("ids = " + regionNode.getIdentifiers());
+    s_logger.debug("ids = " + regionNode.getIdentifiers());
     UniqueIdentifier uniqueId = bundleMapper.add(regionNode.getIdentifiers(), regionNode);
     regionNode.setUniqueIdentifier(uniqueId);
-    s_logger.info("ids = " + regionNode.getIdentifiers());
+    s_logger.debug("ids = " + regionNode.getIdentifiers());
     return regionNode;
   }
   

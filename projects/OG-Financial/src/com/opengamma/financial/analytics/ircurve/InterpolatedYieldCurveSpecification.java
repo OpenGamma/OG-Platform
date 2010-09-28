@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.time.calendar.LocalDate;
@@ -31,7 +32,7 @@ public class InterpolatedYieldCurveSpecification implements Serializable {
   private final Currency _currency;
   private final String _name;
   private final Interpolator1D<?> _interpolator;
-  private final Set<FixedIncomeStripWithIdentifier> _strips = new HashSet<FixedIncomeStripWithIdentifier>();
+  private final Set<FixedIncomeStripWithIdentifier> _strips = new LinkedHashSet<FixedIncomeStripWithIdentifier>();
   
   public InterpolatedYieldCurveSpecification(LocalDate curveDate, String name, Currency currency,  Interpolator1D<?> interpolator, Collection<FixedIncomeStripWithIdentifier> resolvedStrips) {
     Validate.notNull(curveDate, "CurveDate");
