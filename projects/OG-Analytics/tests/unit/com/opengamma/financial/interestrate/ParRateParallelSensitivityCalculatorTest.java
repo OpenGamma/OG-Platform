@@ -30,7 +30,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
  */
 public class ParRateParallelSensitivityCalculatorTest {
 
-  private final static ParRateParallelSensitivityCalculator PRPSC = new ParRateParallelSensitivityCalculator();
+  private final static ParRateParallelSensitivityCalculator PRPSC = ParRateParallelSensitivityCalculator.getInstance();
   private final static ParRateCalculator PRC = ParRateCalculator.getInstance();
 
   private final static YieldAndDiscountCurve FUNDING_CURVE = new DummyCurve(-0.04, 0.007, 0.1, 0.05);
@@ -123,8 +123,9 @@ public class ParRateParallelSensitivityCalculatorTest {
     Swap swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
     doTest(swap, CURVES);
 
-    VariableAnnuity va = new VariableAnnuity(floatPaymentTimes, indexFixingTimes, indexMaturityTimes, yearFrac, new double[2 * n], 3.43, 0.0453, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
-    ConstantCouponAnnuity ca = new ConstantCouponAnnuity(fixedPaymentTimes, swapRate, FUNDING_CURVE_NAME);
+    final VariableAnnuity va = new VariableAnnuity(floatPaymentTimes, indexFixingTimes, indexMaturityTimes, yearFrac, new double[2 * n], 3.43, 0.0453, FUNDING_CURVE_NAME,
+        LIBOR_CURVE_NAME);
+    final ConstantCouponAnnuity ca = new ConstantCouponAnnuity(fixedPaymentTimes, swapRate, FUNDING_CURVE_NAME);
     swap = new FixedFloatSwap(ca, va);
     doTest(swap, CURVES);
   }
