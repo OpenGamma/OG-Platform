@@ -7,14 +7,22 @@ package com.opengamma.financial.interestrate;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 
 import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
+import com.opengamma.financial.interestrate.payments.FixedPayment;
+import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
+import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.BasisSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
@@ -237,6 +245,33 @@ public class PresentValueCalculatorTest {
     final Swap swap = new BasisSwap(payLeg, receiveLeg);
     final double pv = PVC.getValue(swap, CURVES);
     assertEquals(0.0, pv, 1e-12);
+  }
+
+  @Test
+  public void testGenericAnnuity() {
+    double time = 3.4;
+    double amount = 34.3;
+    double coupon = 0.05;
+    double yearFrac = 0.5;
+    double resetTime = 2.9;
+    double notional = 56;
+
+    List<Payment> list = new ArrayList<Payment>();
+    double expected = 0.0;
+
+    Payment temp = new FixedPayment(time, amount, FIVE_PC_CURVE_NAME);
+    expected += amount * CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(time);
+    list.add(temp);
+    temp = new FixedCouponPayment(time, notional, yearFrac, coupon, FIVE_PC_CURVE_NAME);
+    expected += notional * yearFrac * coupon * CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(time);
+    list.add(temp);
+    temp = new ForwardLiborPayment(time, notional, resetTime, time, yearFrac, yearFrac, 0.0, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    expected += notional * (CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(resetTime) / CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(time) - 1);
+    list.add(temp);
+
+    GenericAnnuity annuity = new GenericAnnuity(list);
+    final double pv = PVC.getValue(annuity, CURVES);
+    assertEquals(expected, pv, 1e-12);
 
   }
 

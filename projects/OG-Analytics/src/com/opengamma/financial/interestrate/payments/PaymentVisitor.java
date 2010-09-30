@@ -11,11 +11,9 @@ package com.opengamma.financial.interestrate.payments;
  */
 public interface PaymentVisitor<S, T> {
 
-  T getValue(Payment p, S data);
+  T calculate(Payment p, S data);
 
-  T visitFixedAmountPayment(FixedAmountPayment payment, S data);
-
-  T visitFixedCouponPayment(FixedCouponPayment payment, S data);
+  T visitFixedPayment(FixedPayment payment, S data);
 
   T visitForwardLiborPayment(ForwardLiborPayment payment, S data);
 

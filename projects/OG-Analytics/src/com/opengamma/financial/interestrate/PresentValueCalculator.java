@@ -16,6 +16,8 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.interestrate.payments.PaymentPresentValueCalculator;
 import com.opengamma.financial.interestrate.swap.definition.BasisSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
@@ -136,8 +138,11 @@ public final class PresentValueCalculator implements InterestRateDerivativeVisit
 
   @Override
   public Double visitGenericAnnuity(GenericAnnuity annuity, YieldCurveBundle data) {
-    // YieldAndDiscountCurve fundingCurve = data.getCurve(annuity.)
-    return null;
+    double pv = 0;
+    for (Payment p : annuity.getPayments()) {
+      pv += PaymentPresentValueCalculator.getInstance().calculate(p, data);
+    }
+    return pv;
   }
 
 }

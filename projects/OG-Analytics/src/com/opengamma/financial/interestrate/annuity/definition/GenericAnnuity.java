@@ -5,38 +5,36 @@
  */
 package com.opengamma.financial.interestrate.annuity.definition;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.payments.Payment;
-import com.sun.tools.javac.util.List;
 
 /**
- * 
+ * A generic annuity is a set of payments (cash flows) at known future times. 
+ * There payments can be known in advance, or depend on the future value of  some (possibly several) indices, e.g. the future Libor 
  */
 public class GenericAnnuity implements InterestRateDerivative {
 
   private final Payment[] _payments;
-  private final double _notional;
 
   public GenericAnnuity(Payment[] payments) {
-    this(payments, 1.0);
-  }
-
-  public GenericAnnuity(Payment[] payments, double notional) {
     Validate.noNullElements(payments);
 
     _payments = payments;
-    _notional = notional;
+
   }
 
-  public GenericAnnuity(List<Payment> payments, double notional) {
+  public GenericAnnuity(List<Payment> payments) {
     Validate.noNullElements(payments);
 
     _payments = new Payment[payments.size()];
     payments.toArray(_payments);
-    _notional = notional;
   }
 
   public int getNumberOfpayments() {
@@ -55,17 +53,40 @@ public class GenericAnnuity implements InterestRateDerivative {
     return _payments;
   }
 
-  /**
-   * Gets the notional field.
-   * @return the notional
-   */
-  public double getNotional() {
-    return _notional;
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + Arrays.hashCode(_payments);
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    GenericAnnuity other = (GenericAnnuity) obj;
+    if (_payments.length != other._payments.length) {
+      return false;
+    }
+    for (int i = 0; i < _payments.length; i++) {
+      if (!ObjectUtils.equals(_payments[i], other._payments[i])) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override
   public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
-    return null;
+    return visitor.visitGenericAnnuity(this, data);
   }
 
   @Override

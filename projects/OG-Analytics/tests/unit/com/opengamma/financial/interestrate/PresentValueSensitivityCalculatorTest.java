@@ -17,10 +17,13 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.payments.FixedPayment;
+import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -230,6 +233,43 @@ public class PresentValueSensitivityCalculatorTest {
       assertEquals(paymentTimes[i], pair.getFirst(), 0.0);
       assertEquals(res, pair.getSecond(), 1e-6);
     }
+  }
+
+  @Test
+  public void testGenericAnnuity() {
+
+    int n = 5;
+    double[] times = new double[] {0.01, 0.5, 1, 3, 10};
+    double[] amounts = new double[] {100000, 1, 234, -452, 0.034};
+    String[] curveNames = new String[] {FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME};
+
+    Payment[] payments = new Payment[5];
+    for (int i = 0; i < n; i++) {
+      payments[i] = new FixedPayment(times[i], amounts[i], curveNames[i]);
+    }
+
+    GenericAnnuity annuity = new GenericAnnuity(payments);
+    final Map<String, List<DoublesPair>> sense = PVSC.getValue(annuity, CURVES);
+
+    int count0pc = 0;
+    int count5pc = 0;
+    assertEquals(sense.get(ZERO_PC_CURVE_NAME).size(), 1, 0);
+    assertEquals(sense.get(FIVE_PC_CURVE_NAME).size(), 4, 0);
+
+    for (int i = 0; i < n; i++) {
+      List<DoublesPair> list = sense.get(curveNames[i]);
+      if (curveNames[i] == ZERO_PC_CURVE_NAME) {
+        assertEquals(times[i], list.get(count0pc).first, 0.0);
+        assertEquals(-amounts[i] * times[i], list.get(count0pc).second, 0.0);
+        count0pc++;
+      } else {
+        assertEquals(times[i], list.get(count5pc).first, 0.0);
+        assertEquals(-amounts[i] * times[i] * CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(times[i]), list.get(count5pc).second, 0.0);
+        count5pc++;
+      }
+
+    }
+
   }
 
   List<DoublesPair> mergeSameTimes(final List<DoublesPair> old) {

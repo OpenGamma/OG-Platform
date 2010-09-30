@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 /**
  * 
  */
-public class ForwardLiborPayment implements IndexPayment {
+public class ForwardLiborPayment implements Payment {
 
   private final double _paymentTime;
   private final double _paymentYearFraction;
@@ -18,22 +18,31 @@ public class ForwardLiborPayment implements IndexPayment {
   private final double _liborFixingTime;
   private final double _liborMaturityTime;
   private final double _spread;
-  private final String _curveName;
+  private final double _notional;
+  private final String _fundingCurveName;
+  private final String _liborCurveName;
 
-  public ForwardLiborPayment(double paymentTime, double liborFixingTime, double liborMaturityTime, double paymentYearFraction, double forwardYearFraction, String curveName) {
-    this(paymentTime, liborFixingTime, liborMaturityTime, paymentYearFraction, forwardYearFraction, 0.0, curveName);
+  public ForwardLiborPayment(double paymentTime, double liborFixingTime, double liborMaturityTime, double paymentYearFraction, double forwardYearFraction, String fundingCurve, String liborCurve) {
+    this(paymentTime, 1.0, liborFixingTime, liborMaturityTime, paymentYearFraction, forwardYearFraction, 0.0, fundingCurve, liborCurve);
   }
 
-  public ForwardLiborPayment(double paymentTime, double liborFixingTime, double liborMaturityTime, double paymentYearFraction, double forwardYearFraction, double spread, String curveName) {
+  public ForwardLiborPayment(double paymentTime, double notional, double liborFixingTime, double liborMaturityTime, double paymentYearFraction, double forwardYearFraction, double spread,
+      String fundingCurve, String liborCurve) {
 
     Validate.isTrue(paymentTime >= 0.0, "payment time < 0");
     Validate.isTrue(liborFixingTime <= paymentTime, "libor Fixing > payement time");
+    Validate.isTrue(liborFixingTime >= 0.0, "libor Fixing < 0");
     Validate.isTrue(liborMaturityTime > liborFixingTime, "libor maturity < fixing time");
     Validate.isTrue(paymentYearFraction > 0, "payment year fraction <=0");
     Validate.isTrue(forwardYearFraction > 0, "forward year fraction <=0");
+    Validate.notNull(fundingCurve);
+    Validate.notNull(liborCurve);
+
     double actActYearFrac = liborMaturityTime - liborFixingTime;
     // TODO try to catch a wrongly entered year fraction with very lose bounds around the ACT/ACT value (i.e. maturity - fixing). Needs more thought as to whether this should be tightened or removed
-    Validate.isTrue(paymentYearFraction < 1.1 * paymentYearFraction + 0.1 && paymentYearFraction > 0.9 * paymentYearFraction - 0.1, "input year fraction is " + paymentYearFraction
+    Validate.isTrue(paymentYearFraction < 1.1 * actActYearFrac + 0.1 && paymentYearFraction > 0.9 * actActYearFrac - 0.1, "input payment year fraction is " + paymentYearFraction
+        + " but ACT/ACT value is " + actActYearFrac);
+    Validate.isTrue(forwardYearFraction < 1.1 * actActYearFrac + 0.1 && forwardYearFraction > 0.9 * actActYearFrac - 0.1, "input forward year fraction is " + forwardYearFraction
         + " but ACT/ACT value is " + actActYearFrac);
     _paymentTime = paymentTime;
     _liborFixingTime = liborFixingTime;
@@ -41,30 +50,25 @@ public class ForwardLiborPayment implements IndexPayment {
     _paymentYearFraction = paymentYearFraction;
     _forwardYearFraction = forwardYearFraction;
     _spread = spread;
-    _curveName = curveName;
-  }
-
-  @Override
-  public String getIndexCurveName() {
-    return _curveName;
-  }
-
-  @Override
-  public double getPaymentTime() {
-    return _paymentTime;
+    _notional = notional;
+    _fundingCurveName = fundingCurve;
+    _liborCurveName = liborCurve;
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_curveName == null) ? 0 : _curveName.hashCode());
     long temp;
     temp = Double.doubleToLongBits(_forwardYearFraction);
     result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_fundingCurveName == null) ? 0 : _fundingCurveName.hashCode());
+    result = prime * result + ((_liborCurveName == null) ? 0 : _liborCurveName.hashCode());
     temp = Double.doubleToLongBits(_liborFixingTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_liborMaturityTime);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_notional);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_paymentTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -87,20 +91,30 @@ public class ForwardLiborPayment implements IndexPayment {
       return false;
     }
     ForwardLiborPayment other = (ForwardLiborPayment) obj;
-    if (_curveName == null) {
-      if (other._curveName != null) {
-        return false;
-      }
-    } else if (!_curveName.equals(other._curveName)) {
+    if (Double.doubleToLongBits(_forwardYearFraction) != Double.doubleToLongBits(other._forwardYearFraction)) {
       return false;
     }
-    if (Double.doubleToLongBits(_forwardYearFraction) != Double.doubleToLongBits(other._forwardYearFraction)) {
+    if (_fundingCurveName == null) {
+      if (other._fundingCurveName != null) {
+        return false;
+      }
+    } else if (!_fundingCurveName.equals(other._fundingCurveName)) {
+      return false;
+    }
+    if (_liborCurveName == null) {
+      if (other._liborCurveName != null) {
+        return false;
+      }
+    } else if (!_liborCurveName.equals(other._liborCurveName)) {
       return false;
     }
     if (Double.doubleToLongBits(_liborFixingTime) != Double.doubleToLongBits(other._liborFixingTime)) {
       return false;
     }
     if (Double.doubleToLongBits(_liborMaturityTime) != Double.doubleToLongBits(other._liborMaturityTime)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_notional) != Double.doubleToLongBits(other._notional)) {
       return false;
     }
     if (Double.doubleToLongBits(_paymentTime) != Double.doubleToLongBits(other._paymentTime)) {
@@ -156,9 +170,27 @@ public class ForwardLiborPayment implements IndexPayment {
     return _spread;
   }
 
+  public double getNotional() {
+    return _notional;
+  }
+
   @Override
   public <S, T> T accept(PaymentVisitor<S, T> visitor, S data) {
     return visitor.visitForwardLiborPayment(this, data);
+  }
+
+  @Override
+  public String getFundingCurveName() {
+    return _fundingCurveName;
+  }
+
+  public String getLiborCurveName() {
+    return _liborCurveName;
+  }
+
+  @Override
+  public double getPaymentTime() {
+    return _paymentTime;
   }
 
 }

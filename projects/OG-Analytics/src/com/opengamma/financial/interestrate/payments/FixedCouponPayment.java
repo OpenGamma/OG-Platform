@@ -10,20 +10,24 @@ import org.apache.commons.lang.Validate;
 /**
  * 
  */
-public class FixedCouponPayment implements FixedPayment {
+public class FixedCouponPayment extends FixedPayment {
 
-  private final double _time;
   private final double _yearFraction;
   private final double _coupon;
+  private final double _notional;
 
-  public FixedCouponPayment(double paymentTime, double yearFraction, double coupon) {
+  public FixedCouponPayment(final double paymentTime, final double yearFraction, final double coupon, final String fundingCurve) {
+    this(paymentTime, 1.0, yearFraction, coupon, fundingCurve);
+  }
 
-    Validate.isTrue(paymentTime >= 0.0, "Payment time < 0");
+  public FixedCouponPayment(final double paymentTime, final double notional, final double yearFraction, final double coupon, final String fundingCurve) {
+    super(paymentTime, notional * yearFraction * coupon, fundingCurve);
+
     Validate.isTrue(yearFraction > 0.0, "year fraction < 0");
 
-    _time = paymentTime;
     _yearFraction = yearFraction;
     _coupon = coupon;
+    _notional = notional;
   }
 
   /**
@@ -42,24 +46,18 @@ public class FixedCouponPayment implements FixedPayment {
     return _coupon;
   }
 
-  @Override
-  public double getPaymentTime() {
-    return _time;
-  }
-
-  @Override
-  public double getAmount() {
-    return _yearFraction * _coupon;
+  public double getNotional() {
+    return _notional;
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
-    int result = 1;
+    int result = super.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_coupon);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_time);
+    temp = Double.doubleToLongBits(_notional);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_yearFraction);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -71,7 +69,7 @@ public class FixedCouponPayment implements FixedPayment {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
+    if (!super.equals(obj)) {
       return false;
     }
     if (getClass() != obj.getClass()) {
@@ -81,18 +79,13 @@ public class FixedCouponPayment implements FixedPayment {
     if (Double.doubleToLongBits(_coupon) != Double.doubleToLongBits(other._coupon)) {
       return false;
     }
-    if (Double.doubleToLongBits(_time) != Double.doubleToLongBits(other._time)) {
+    if (Double.doubleToLongBits(_notional) != Double.doubleToLongBits(other._notional)) {
       return false;
     }
     if (Double.doubleToLongBits(_yearFraction) != Double.doubleToLongBits(other._yearFraction)) {
       return false;
     }
     return true;
-  }
-
-  @Override
-  public <S, T> T accept(PaymentVisitor<S, T> visitor, S data) {
-    return visitor.visitFixedCouponPayment(this, data);
   }
 
 }

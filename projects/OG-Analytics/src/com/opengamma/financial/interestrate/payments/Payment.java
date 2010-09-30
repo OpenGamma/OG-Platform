@@ -5,13 +5,14 @@
  */
 package com.opengamma.financial.interestrate.payments;
 
-
 /**
  * 
  */
 public interface Payment {
 
   double getPaymentTime();
+
+  String getFundingCurveName();
 
   <S, T> T accept(PaymentVisitor<S, T> visitor, S data);
 
