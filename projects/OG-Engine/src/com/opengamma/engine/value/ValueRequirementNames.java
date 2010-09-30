@@ -186,7 +186,10 @@ public interface ValueRequirementNames {
   public static final String YIELD_CURVE_JACOBIAN = "YieldCurveJacobian";
   
   // Fixed income analytics
-  public static final String PRESENT_VALUE = "PresentValue";
+  public static final String PRESENT_VALUE = "Present Value";
+  public static final String PV01 = "PV01";
+  public static final String PAR_RATE = "Par Rate";
+  public static final String PAR_RATE_PARALLEL_CURVE_SHIFT= "Par Rate Parallel Shift Sensitivity";
   
   //CAPM equity model
   public static final String CAPM_BETA = "CAPM Beta";
@@ -206,8 +209,10 @@ public interface ValueRequirementNames {
   public static final String CAPM_REGRESSION_STANDARD_ERROR_OF_ALPHA = "CAPM Regression Alpha Standard Error";
   public static final String CAPM_REGRESSION_STANDARD_ERROR_OF_BETA = "CAPM Regression Beta Standard Error";
   
-  //Portfolio
+  //Risk/reward
   public static final String WEIGHT = "Weight";
   public static final String SHARPE_RATIO = "Sharpe Ratio";
   public static final String TREYNOR_RATIO = "Treynor Ratio";
+  public static final String JENSENS_ALPHA = "Jensen's Alpha";
+  public static final String TOTAL_RISK_ALPHA = "Total Risk Alpha";
 }

@@ -8,7 +8,6 @@ package com.opengamma.financial.riskreward;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
-import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.util.TimeSeriesDataTestUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -24,31 +23,28 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * where {@latex.inline $R_i$} is the asset return, {@latex.inline $R_f$} is the risk-free return and {@latex.inline $\\beta_i$} is the portfolio's beta.
  */
 public class TreynorRatioCalculator {
-  private final TimeSeriesReturnCalculator _assetReturnCalculator;
   private final DoubleTimeSeriesStatisticsCalculator _expectedAssetReturnCalculator;
   private final DoubleTimeSeriesStatisticsCalculator _expectedRiskFreeReturnCalculator;
 
-  public TreynorRatioCalculator(final TimeSeriesReturnCalculator assetReturnCalculator, final DoubleTimeSeriesStatisticsCalculator expectedAssetReturnCalculator,
+  public TreynorRatioCalculator(final DoubleTimeSeriesStatisticsCalculator expectedAssetReturnCalculator,
       final DoubleTimeSeriesStatisticsCalculator expectedRiskFreeReturnCalculator) {
-    Validate.notNull(assetReturnCalculator, "asset return series calculator");
     Validate.notNull(expectedAssetReturnCalculator, "expected asset return calculator");
     Validate.notNull(expectedRiskFreeReturnCalculator, "expected risk free return calculator");
-    _assetReturnCalculator = assetReturnCalculator;
     _expectedAssetReturnCalculator = expectedAssetReturnCalculator;
     _expectedRiskFreeReturnCalculator = expectedRiskFreeReturnCalculator;
   }
 
   /**
    * Calculates the Treynor ratio
-   * @param assetPriceTS The asset price time series 
+   * @param assetReturnTS The asset price time series 
    * @param riskFreeReturnTS The risk-free return time series
    * @param beta The beta of the asset
    * @return The Treynor ratio
    */
-  public double evaluate(final DoubleTimeSeries<?> assetPriceTS, final DoubleTimeSeries<?> riskFreeReturnTS, final double beta) {
-    TimeSeriesDataTestUtils.testNotNullOrEmpty(assetPriceTS);
+  public double evaluate(final DoubleTimeSeries<?> assetReturnTS, final DoubleTimeSeries<?> riskFreeReturnTS, final double beta) {
+    TimeSeriesDataTestUtils.testNotNullOrEmpty(assetReturnTS);
     TimeSeriesDataTestUtils.testNotNullOrEmpty(riskFreeReturnTS);
-    final Double expectedAssetReturn = _expectedAssetReturnCalculator.evaluate(_assetReturnCalculator.evaluate(assetPriceTS));
+    final Double expectedAssetReturn = _expectedAssetReturnCalculator.evaluate(assetReturnTS);
     final Double expectedRiskFreeReturn = _expectedRiskFreeReturnCalculator.evaluate(riskFreeReturnTS);
     return (expectedAssetReturn - expectedRiskFreeReturn) / beta;
   }

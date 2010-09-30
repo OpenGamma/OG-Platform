@@ -17,9 +17,16 @@ import com.opengamma.util.tuple.DoublesPair;
  * Returns the change in present value of an instrument due to a parallel move of the yield curve, scaled so that the move is 1bp.
  *  
  */
-public class PV01Calculator {
-
+public final class PV01Calculator {
+  private static final PV01Calculator s_instance = new PV01Calculator();
   private final PresentValueSensitivityCalculator _pvsc = PresentValueSensitivityCalculator.getInstance();
+
+  public static PV01Calculator getInstance() {
+    return s_instance;
+  }
+
+  private PV01Calculator() {
+  }
 
   /**
    * Calculates the change in present value of an instrument due to a parallel move of each yield curve the instrument is sensitive to, scaled so that the move is 1bp.

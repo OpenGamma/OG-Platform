@@ -10,9 +10,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
-import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.math.function.Function;
-import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
@@ -33,28 +31,16 @@ public class TreynorRatioCalculatorTest {
     }
 
   });
-  private static final TimeSeriesReturnCalculator RETURN = new TimeSeriesReturnCalculator(CalculationMode.LENIENT) {
-
-    @Override
-    public DoubleTimeSeries<?> evaluate(final DoubleTimeSeries<?>... x) {
-      return x[0];
-    }
-  };
-  private static final TreynorRatioCalculator TREYNOR = new TreynorRatioCalculator(RETURN, EXPECTED_RETURN, EXPECTED_RETURN);
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testNullReturnCalculator() {
-    new TreynorRatioCalculator(null, EXPECTED_RETURN, EXPECTED_RETURN);
-  }
+  private static final TreynorRatioCalculator TREYNOR = new TreynorRatioCalculator(EXPECTED_RETURN, EXPECTED_RETURN);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullAssetReturnCalculator() {
-    new TreynorRatioCalculator(RETURN, null, EXPECTED_RETURN);
+    new TreynorRatioCalculator(null, EXPECTED_RETURN);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullRiskFreeReturnCalculator() {
-    new TreynorRatioCalculator(RETURN, EXPECTED_RETURN, null);
+    new TreynorRatioCalculator(EXPECTED_RETURN, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
