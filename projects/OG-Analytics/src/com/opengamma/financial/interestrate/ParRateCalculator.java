@@ -9,6 +9,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.annuity.definition.ConstantCouponAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
@@ -179,6 +180,11 @@ public final class ParRateCalculator implements InterestRateDerivativeVisitor<Yi
   @Override
   public Double visitConstantCouponAnnuity(final ConstantCouponAnnuity annuity, final YieldCurveBundle curves) {
     return annuity.getCouponRate();
+  }
+
+  @Override
+  public Double visitGenericAnnuity(GenericAnnuity annuity, YieldCurveBundle data) {
+    return null;
   }
 
 }

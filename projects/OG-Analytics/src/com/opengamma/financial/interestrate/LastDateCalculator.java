@@ -9,6 +9,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.annuity.definition.ConstantCouponAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
@@ -90,5 +91,10 @@ public class LastDateCalculator implements InterestRateDerivativeVisitor<Object,
   public Double visitVariableAnnuity(VariableAnnuity annuity, Object data) {
     int nPay = annuity.getNumberOfPayments();
     return Math.max(annuity.getPaymentTimes()[nPay - 1], annuity.getIndexMaturityTimes()[nPay - 1]);
+  }
+
+  @Override
+  public Double visitGenericAnnuity(GenericAnnuity annuity, Object data) {
+    return null;
   }
 }

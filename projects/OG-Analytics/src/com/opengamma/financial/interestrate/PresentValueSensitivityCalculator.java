@@ -13,11 +13,14 @@ import java.util.Map;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCalculations;
 import com.opengamma.financial.interestrate.annuity.definition.ConstantCouponAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.interestrate.payments.PaymentPresentValueSensitivityCalculator;
 import com.opengamma.financial.interestrate.swap.definition.BasisSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
@@ -226,11 +229,28 @@ public final class PresentValueSensitivityCalculator implements InterestRateDeri
       temp.add(s);
       s = new DoublesPair(tb, tb * ratio);
       temp.add(s);
-
     }
     result.put(liborCurveName, temp);
 
     return result;
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitGenericAnnuity(GenericAnnuity annuity, YieldCurveBundle data) {
+    Map<String, List<DoublesPair>> map = new HashMap<String, List<DoublesPair>>();
+    for (Payment p : annuity.getPayments()) {
+      Map<String, List<DoublesPair>> tempMap = PaymentPresentValueSensitivityCalculator.getInstance().calculate(p, data);
+      for (String name : tempMap.keySet()) {
+        if (!map.containsKey(name)) {
+          map.put(name, tempMap.get(name));
+        } else {
+          List<DoublesPair> tempList = map.get(name);
+          tempList.addAll(tempMap.get(name));
+          map.put(name, tempList);
+        }
+      }
+    }
+    return map;
   }
 
 }

@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import com.opengamma.financial.interestrate.annuity.definition.ConstantCouponAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
@@ -92,6 +93,11 @@ public class InterestRateDerivativeVisitorTest {
     @Override
     public Class<?> visitFloatingRateNote(FloatingRateNote frn, Object anything) {
       return visit(frn, anything);
+    }
+
+    @Override
+    public Class<?> visitGenericAnnuity(GenericAnnuity annuity, Object data) {
+      return null;
     }
   };
 

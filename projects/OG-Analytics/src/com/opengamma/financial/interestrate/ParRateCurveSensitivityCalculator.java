@@ -16,6 +16,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.annuity.definition.Annuity;
 import com.opengamma.financial.interestrate.annuity.definition.ConstantCouponAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
@@ -244,6 +245,11 @@ public final class ParRateCurveSensitivityCalculator implements InterestRateDeri
   @Override
   public Map<String, List<DoublesPair>> visitConstantCouponAnnuity(final ConstantCouponAnnuity annuity, final YieldCurveBundle curves) {
     throw new NotImplementedException();
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitGenericAnnuity(GenericAnnuity annuity, YieldCurveBundle data) {
+    return null;
   }
 
 }

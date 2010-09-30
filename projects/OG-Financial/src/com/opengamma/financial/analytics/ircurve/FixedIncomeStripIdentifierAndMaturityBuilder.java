@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalTime;
+import javax.time.calendar.Period;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
@@ -123,7 +124,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
   
   private FRASecurity getFRA(InterpolatedYieldCurveSpecification spec, FixedIncomeStripWithIdentifier strip) {
     LocalDate curveDate = spec.getCurveDate(); // quick hack
-    LocalDate startDate = curveDate.plus(strip.getMaturity().getPeriod());
+    LocalDate startDate = curveDate.plus(strip.getMaturity().getPeriod()).minus(Period.ofMonths(3));
     LocalDate endDate = startDate.plusMonths(3); // quick hack, needs to be sorted.
     return new FRASecurity(spec.getCurrency(), Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, "US"), 
                            new DateTimeWithZone(startDate.atTime(11, 00)), new DateTimeWithZone(endDate.atTime(11, 00)));
