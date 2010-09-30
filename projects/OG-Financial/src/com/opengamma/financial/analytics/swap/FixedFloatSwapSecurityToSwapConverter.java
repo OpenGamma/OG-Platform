@@ -119,8 +119,7 @@ public class FixedFloatSwapSecurityToSwapConverter {
     }
     final double[] spreads = new double[paymentTimes.length];
     Arrays.fill(spreads, spread);
-    s_logger.warn("Spread = " + spread);
-    //TODO need to set an initial rate 
+    //TODO need to set an initial rate //REVIEW elaine 29-09-2010: this has been done now, hasn't it? 
     return new VariableAnnuity(paymentTimes, resetTimes, maturityTimes, yearFractions, spreads, notional, initialRate, fundingCurveName, liborCurveName);
   }
 

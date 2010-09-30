@@ -64,15 +64,15 @@ public final class FixedIncomeCalculatorFactory {
   private FixedIncomeCalculatorFactory() {
   }
 
-  public static Object getCalculator(final String name) {
-    final Object calculator = s_instances.get(name);
+  public static InterestRateDerivativeVisitor<?, ?> getCalculator(final String name) {
+    final InterestRateDerivativeVisitor<?, ?> calculator = s_instances.get(name);
     if (calculator != null) {
       return calculator;
     }
     throw new IllegalArgumentException("Could not get calculator for " + name);
   }
 
-  public static String getCalculatorName(final Object calculator) {
+  public static String getCalculatorName(final InterestRateDerivativeVisitor<?, ?> calculator) {
     if (calculator == null) {
       return null;
     }
