@@ -8,20 +8,23 @@ package com.opengamma.financial.analytics.timeseries;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.DateResolvers;
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.MonthOfYear;
 
 import org.apache.commons.lang.Validate;
 
 /**
  * 
  */
-public class MonthlyScheduleOnDayCalculator extends Schedule {
+public class YearlyScheduleOnDayAndMonthCalculator extends Schedule {
   private final int _dayOfMonth;
+  private final MonthOfYear _monthOfYear;
 
-  public MonthlyScheduleOnDayCalculator(final int dayOfMonth) {
-    Validate.isTrue(dayOfMonth > 0 && dayOfMonth < 32);
+  public YearlyScheduleOnDayAndMonthCalculator(final int dayOfMonth, final MonthOfYear monthOfYear) {
+    Validate.isTrue(dayOfMonth > 0);
+    Validate.isTrue(monthOfYear.maxLengthInDays() > dayOfMonth);
     _dayOfMonth = dayOfMonth;
+    _monthOfYear = monthOfYear;
   }
 
   @Override
@@ -30,33 +33,32 @@ public class MonthlyScheduleOnDayCalculator extends Schedule {
     Validate.notNull(endDate, "end date");
     Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
     if (startDate.equals(endDate)) {
-      if (startDate.getDayOfMonth() == _dayOfMonth) {
+      if (startDate.getDayOfMonth() == _dayOfMonth && startDate.getMonthOfYear() == _monthOfYear) {
         return new LocalDate[] {startDate};
       }
-      throw new IllegalArgumentException("Start date and end date were the same but their day of month was not the same as that required");
+      throw new IllegalArgumentException("Start date and end date were the same but the day of month and month of year were not those required");
     }
-    final List<LocalDate> dates = new ArrayList<LocalDate>();
     if (fromEnd) {
-      LocalDate date = endDate.withDayOfMonth(_dayOfMonth, DateResolvers.strict());
+      LocalDate date = endDate.with(_monthOfYear).withDayOfMonth(_dayOfMonth);
       if (date.isAfter(endDate)) {
-        date = date.minusMonths(1, DateResolvers.strict());
+        date = date.minusYears(1);
       }
+      final List<LocalDate> dates = new ArrayList<LocalDate>();
       while (!date.isBefore(startDate)) {
         dates.add(date);
-        date = date.minusMonths(1, DateResolvers.strict()); //TODO have to work out what to do for things like 31-2
+        date = date.minusYears(1);
       }
       return getReversedDates(dates);
     }
-    LocalDate date = startDate;
-    date = date.withDayOfMonth(_dayOfMonth, DateResolvers.strict());
+    LocalDate date = startDate.with(_monthOfYear).withDayOfMonth(_dayOfMonth);
     if (date.isBefore(startDate)) {
-      date = date.plusMonths(1, DateResolvers.strict());
+      date = date.plusYears(1);
     }
+    final List<LocalDate> dates = new ArrayList<LocalDate>();
     while (!date.isAfter(endDate)) {
       dates.add(date);
-      date = date.plusMonths(1, DateResolvers.strict());
+      date = date.plusYears(1);
     }
     return dates.toArray(EMPTY_ARRAY);
-  };
-
+  }
 }
