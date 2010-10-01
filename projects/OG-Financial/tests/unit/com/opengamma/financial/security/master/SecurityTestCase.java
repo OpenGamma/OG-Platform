@@ -123,7 +123,7 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
   private static interface TestDataProvider<T> {
     void getValues(Collection<T> values);
   }
-  
+
   private static class DefaultObjectPermute<T> implements TestDataProvider<T> {
     private final Class<T> _clazz;
 
@@ -141,7 +141,7 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
     }
   }
 
-  private static class DefaultCollection<T,C extends Collection<T>> implements TestDataProvider<C> {
+  private static class DefaultCollection<T, C extends Collection<T>> implements TestDataProvider<C> {
     private final Class<C> _collection;
     private final Class<T> _clazz;
 
@@ -150,12 +150,12 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
       _clazz = clazz;
     }
 
-    public static <T,C extends Collection<T>> DefaultCollection<T,C> of (final Class<C> collection, final Class<T> clazz) {
+    public static <T, C extends Collection<T>> DefaultCollection<T, C> of(final Class<C> collection, final Class<T> clazz) {
       return new DefaultCollection<T, C>(collection, clazz);
     }
 
     @Override
-    public void getValues(Collection<C> values) {
+    public void getValues(final Collection<C> values) {
       try {
         final C collection = _collection.newInstance();
         collection.addAll(permuteTestObjects(_clazz));
@@ -168,10 +168,10 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
           }
         }
         values.add(collection);
-      } catch (InstantiationException ex) {
+      } catch (final InstantiationException ex) {
         // TODO Auto-generated catch block
         ex.printStackTrace();
-      } catch (IllegalAccessException ex) {
+      } catch (final IllegalAccessException ex) {
         // TODO Auto-generated catch block
         ex.printStackTrace();
       }
@@ -180,18 +180,18 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
 
   private static Map<Object, TestDataProvider<?>> s_dataProviders = new HashMap<Object, TestDataProvider<?>>();
   private static Random s_random = new Random();
-  
+
   private static RegionSource s_regionSource;
   static {
-    RegionMaster regionMaster = new InMemoryRegionMaster();
+    final RegionMaster regionMaster = new InMemoryRegionMaster();
     RegionFileReader.populateMaster(regionMaster, new File(RegionFileReader.REGIONS_FILE_PATH));
     s_regionSource = new DefaultRegionSource(regionMaster);
   }
-  
+
   protected static RegionSource getRegionSource() {
     return s_regionSource;
   }
-  
+
   static {
     final long seed = s_random.nextLong();
     s_logger.info("Random seed = {}", seed);
@@ -200,7 +200,7 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
     s_dataProviders.put(String.class, new TestDataProvider<String>() {
       @Override
       public void getValues(final Collection<String> values) {
-        values.add ("");
+        values.add("");
         values.add(RandomStringUtils.randomAlphabetic(16));
         values.add(RandomStringUtils.randomNumeric(16));
         values.add(RandomStringUtils.randomAlphanumeric(16));
@@ -225,17 +225,17 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
         values.add(UniqueIdentifier.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)));
       }
     });
-    s_dataProviders.put(Identifier.class, new TestDataProvider<Identifier> () {
+    s_dataProviders.put(Identifier.class, new TestDataProvider<Identifier>() {
       @Override
-      public void getValues (final Collection<Identifier> values) {
-        values.add (Identifier.of (RandomStringUtils.randomAlphanumeric (8), RandomStringUtils.randomAlphanumeric (16)));
+      public void getValues(final Collection<Identifier> values) {
+        values.add(Identifier.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)));
       }
     });
-    s_dataProviders.put(IdentifierBundle.class, new TestDataProvider<IdentifierBundle> () {
+    s_dataProviders.put(IdentifierBundle.class, new TestDataProvider<IdentifierBundle>() {
       @Override
       public void getValues(final Collection<IdentifierBundle> values) {
-        values.add (IdentifierBundle.EMPTY);
-        values.add (new IdentifierBundle (Identifier.of (RandomStringUtils.randomAlphanumeric (8), RandomStringUtils.randomAlphanumeric (16))));
+        values.add(IdentifierBundle.EMPTY);
+        values.add(new IdentifierBundle(Identifier.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16))));
         values.add(new IdentifierBundle(Identifier.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)), Identifier.of(RandomStringUtils.randomAlphanumeric(8),
             RandomStringUtils.randomAlphanumeric(16))));
       }
@@ -246,7 +246,7 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
         values.add(Currency.getInstance(RandomStringUtils.randomAlphabetic(3)));
       }
     });
-    s_dataProviders.put(YieldConvention.class, new TestDataProvider<YieldConvention> () {
+    s_dataProviders.put(YieldConvention.class, new TestDataProvider<YieldConvention>() {
       @Override
       public void getValues(final Collection<YieldConvention> values) {
         values.add(SimpleYieldConvention.US_STREET);
@@ -260,7 +260,7 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
 
       @Override
       public void getValues(final Collection<ZonedDateTime> values) {
-        for (TimeZone timezone : _timezones) {
+        for (final TimeZone timezone : _timezones) {
           values.add(ZonedDateTime.now(Clock.system(timezone)).withNanoOfSecond(0));
           // TODO: random date in the past
           // TODO: random date in the future
@@ -271,7 +271,7 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
       @Override
       public void getValues(final Collection<DateTimeWithZone> values) {
         final Collection<ZonedDateTime> dates = getTestObjects(ZonedDateTime.class, null);
-        for (ZonedDateTime date : dates) {
+        for (final ZonedDateTime date : dates) {
           values.add(new DateTimeWithZone(date, date.getZone().getID()));
         }
       }
@@ -297,8 +297,8 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
       public void getValues(final Collection<DateTimeProvider> values) {
         final Collection<DateProvider> dates = getTestObjects(DateProvider.class, null);
         final Collection<TimeProvider> times = getTestObjects(TimeProvider.class, null);
-        for (DateProvider date : dates) {
-          for (TimeProvider time : times) {
+        for (final DateProvider date : dates) {
+          for (final TimeProvider time : times) {
             values.add(LocalDateTime.of(date, time));
           }
         }
@@ -314,17 +314,17 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
     });
     s_dataProviders.put(DayCount.class, new TestDataProvider<DayCount>() {
       @Override
-      public void getValues (final Collection<DayCount> values) {
-        values.add (DayCountFactory.INSTANCE.getDayCount("Act/Act"));
-        values.add (DayCountFactory.INSTANCE.getDayCount("1/1"));
+      public void getValues(final Collection<DayCount> values) {
+        values.add(DayCountFactory.INSTANCE.getDayCount("Act/Act"));
+        values.add(DayCountFactory.INSTANCE.getDayCount("1/1"));
         values.add(DayCountFactory.INSTANCE.getDayCount("Bond Basis"));
       }
     });
-    s_dataProviders.put(BusinessDayConvention.class, new TestDataProvider<BusinessDayConvention> () {
+    s_dataProviders.put(BusinessDayConvention.class, new TestDataProvider<BusinessDayConvention>() {
       @Override
       public void getValues(final Collection<BusinessDayConvention> values) {
         values.add(BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"));
-        values.add(BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified"));
+        values.add(BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"));
         values.add(BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding"));
       }
     });
@@ -338,26 +338,26 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
     s_dataProviders.put(ExerciseType.class, new TestDataProvider<ExerciseType>() {
       @Override
       public void getValues(final Collection<ExerciseType> values) {
-        for (OptionExerciseType exerciseType : OptionExerciseType.values ()) {
-          values.add (exerciseType.accept (new ExerciseTypeVisitor<ExerciseType> () {
+        for (final OptionExerciseType exerciseType : OptionExerciseType.values()) {
+          values.add(exerciseType.accept(new ExerciseTypeVisitor<ExerciseType>() {
 
             @Override
-            public ExerciseType visitAmericanExerciseType(AmericanExerciseType exerciseType) {
+            public ExerciseType visitAmericanExerciseType(final AmericanExerciseType exerciseType) {
               return new AmericanExerciseType();
             }
 
             @Override
-            public ExerciseType visitAsianExerciseType(AsianExerciseType exerciseType) {
+            public ExerciseType visitAsianExerciseType(final AsianExerciseType exerciseType) {
               return new AsianExerciseType();
             }
 
             @Override
-            public ExerciseType visitBermudanExerciseType(BermudanExerciseType exerciseType) {
+            public ExerciseType visitBermudanExerciseType(final BermudanExerciseType exerciseType) {
               return new BermudanExerciseType();
             }
 
             @Override
-            public ExerciseType visitEuropeanExerciseType(EuropeanExerciseType exerciseType) {
+            public ExerciseType visitEuropeanExerciseType(final EuropeanExerciseType exerciseType) {
               return new EuropeanExerciseType();
             }
           }));
@@ -367,79 +367,78 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
     s_dataProviders.put(PayoffStyle.class, new TestDataProvider<PayoffStyle>() {
       @Override
       public void getValues(final Collection<PayoffStyle> values) {
-        for (OptionPayoffStyle payoffStyle : OptionPayoffStyle.values()) {
+        for (final OptionPayoffStyle payoffStyle : OptionPayoffStyle.values()) {
           values.add(payoffStyle.accept(new PayoffStyleVisitor<PayoffStyle>() {
 
             @Override
-            public PayoffStyle visitAssetOrNothingPayoffStyle(AssetOrNothingPayoffStyle payoffStyle) {
+            public PayoffStyle visitAssetOrNothingPayoffStyle(final AssetOrNothingPayoffStyle payoffStyle) {
               return new AssetOrNothingPayoffStyle();
             }
 
             @Override
-            public PayoffStyle visitAsymmetricPoweredPayoffStyle(AsymmetricPoweredPayoffStyle payoffStyle) {
+            public PayoffStyle visitAsymmetricPoweredPayoffStyle(final AsymmetricPoweredPayoffStyle payoffStyle) {
               return new AsymmetricPoweredPayoffStyle(s_random.nextDouble());
             }
 
             @Override
-            public PayoffStyle visitBarrierPayoffStyle(BarrierPayoffStyle payoffStyle) {
+            public PayoffStyle visitBarrierPayoffStyle(final BarrierPayoffStyle payoffStyle) {
               return new BarrierPayoffStyle();
             }
 
             @Override
-            public PayoffStyle visitCappedPoweredPayoffStyle(CappedPoweredPayoffStyle payoffStyle) {
+            public PayoffStyle visitCappedPoweredPayoffStyle(final CappedPoweredPayoffStyle payoffStyle) {
               return new CappedPoweredPayoffStyle(s_random.nextDouble(), s_random.nextDouble());
             }
 
             @Override
-            public PayoffStyle visitCashOrNothingPayoffStyle(CashOrNothingPayoffStyle payoffStyle) {
+            public PayoffStyle visitCashOrNothingPayoffStyle(final CashOrNothingPayoffStyle payoffStyle) {
               return new CashOrNothingPayoffStyle(s_random.nextDouble());
             }
 
             @Override
-            public PayoffStyle visitFadeInPayoffStyle(FadeInPayoffStyle payoffStyle) {
+            public PayoffStyle visitFadeInPayoffStyle(final FadeInPayoffStyle payoffStyle) {
               return new FadeInPayoffStyle(s_random.nextDouble(), s_random.nextDouble());
             }
 
             @Override
-            public PayoffStyle visitFixedStrikeLookbackPayoffStyle(FixedStrikeLookbackPayoffStyle payoffStyle) {
+            public PayoffStyle visitFixedStrikeLookbackPayoffStyle(final FixedStrikeLookbackPayoffStyle payoffStyle) {
               return new FixedStrikeLookbackPayoffStyle();
             }
 
             @Override
-            public PayoffStyle visitFloatingStrikeLookbackPayoffStyle(FloatingStrikeLookbackPayoffStyle payoffStyle) {
+            public PayoffStyle visitFloatingStrikeLookbackPayoffStyle(final FloatingStrikeLookbackPayoffStyle payoffStyle) {
               return new FloatingStrikeLookbackPayoffStyle();
             }
 
             @Override
-            public PayoffStyle visitGapPayoffStyle(GapPayoffStyle payoffStyle) {
+            public PayoffStyle visitGapPayoffStyle(final GapPayoffStyle payoffStyle) {
               return new GapPayoffStyle(s_random.nextDouble());
             }
 
             @Override
-            public PayoffStyle visitPoweredPayoffStyle(PoweredPayoffStyle payoffStyle) {
+            public PayoffStyle visitPoweredPayoffStyle(final PoweredPayoffStyle payoffStyle) {
               return new PoweredPayoffStyle(s_random.nextDouble());
             }
 
             @Override
-            public PayoffStyle visitSupersharePayoffStyle(SupersharePayoffStyle payoffStyle) {
+            public PayoffStyle visitSupersharePayoffStyle(final SupersharePayoffStyle payoffStyle) {
               return new SupersharePayoffStyle(s_random.nextDouble(), s_random.nextDouble());
             }
 
             @Override
-            public PayoffStyle visitVanillaPayoffStyle(VanillaPayoffStyle payoffStyle) {
+            public PayoffStyle visitVanillaPayoffStyle(final VanillaPayoffStyle payoffStyle) {
               return new VanillaPayoffStyle();
             }
 
             @Override
-            public PayoffStyle visitExtremeSpreadPayoffStyle(ExtremeSpreadPayoffStyle payoffStyle) {
+            public PayoffStyle visitExtremeSpreadPayoffStyle(final ExtremeSpreadPayoffStyle payoffStyle) {
               return new ExtremeSpreadPayoffStyle(new DateTimeWithZone(ZonedDateTime.now(Clock.systemDefaultZone()).withNanoOfSecond(0)), s_random.nextBoolean());
             }
 
             @Override
-            public PayoffStyle visitSimpleChooserPayoffStyle(SimpleChooserPayoffStyle payoffStyle) {
+            public PayoffStyle visitSimpleChooserPayoffStyle(final SimpleChooserPayoffStyle payoffStyle) {
               return new SimpleChooserPayoffStyle(new DateTimeWithZone(ZonedDateTime.now(Clock.systemDefaultZone()).withNanoOfSecond(0)), s_random.nextDouble(), new Expiry(ZonedDateTime.now(Clock
-                  .systemDefaultZone()),
-                  ExpiryAccuracy.MONTH_YEAR));
+                  .systemDefaultZone()), ExpiryAccuracy.MONTH_YEAR));
             }
 
           }));
@@ -470,8 +469,8 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
     });
     s_dataProviders.put(Notional.class, new TestDataProvider<Notional>() {
       @Override
-      public void getValues (final Collection<Notional> values) {
-        values.add (new CommodityNotional ());
+      public void getValues(final Collection<Notional> values) {
+        values.add(new CommodityNotional());
         values.addAll(permuteTestObjects(InterestRateNotional.class));
         values.addAll(permuteTestObjects(SecurityNotional.class));
       }
@@ -481,7 +480,7 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
   protected static <T> List<T> getTestObjects(final Class<T> clazz, final Class<?> parent) {
     final List<T> objects = new ArrayList<T>();
     if (clazz.isEnum()) {
-      for (T value : clazz.getEnumConstants()) {
+      for (final T value : clazz.getEnumConstants()) {
         objects.add(value);
       }
     } else {
@@ -497,7 +496,7 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
       }
       provider.getValues(objects);
     }
-    Collections.shuffle (objects);
+    Collections.shuffle(objects);
     return objects;
   }
 
@@ -505,7 +504,7 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
     final Constructor<T>[] constructors = (Constructor<T>[]) clazz.getConstructors();
     int max = -1, bestIndex = -1;
     for (int i = 0; i < constructors.length; i++) {
-      final Class<?>[] parameters = constructors[i].getParameterTypes ();
+      final Class<?>[] parameters = constructors[i].getParameterTypes();
       if (parameters.length > max) {
         max = parameters.length;
         bestIndex = i;
@@ -513,8 +512,8 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
     }
     return constructors[bestIndex];
   }
-  
-  private static <T> Collection<T> permuteTestObjects (final Class<T> clazz, final Constructor<T> constructor) {
+
+  private static <T> Collection<T> permuteTestObjects(final Class<T> clazz, final Constructor<T> constructor) {
     final Collection<T> objects = new LinkedList<T>();
     final Class<?>[] parameters = constructor.getParameterTypes();
     final List<?>[] parameterValues = new List<?>[parameters.length];
@@ -537,25 +536,25 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
       }
       try {
         objects.add(constructor.newInstance(construct));
-      } catch (Throwable t) {
+      } catch (final Throwable t) {
         exceptions.add(t);
       }
     }
     if (objects.size() == 0) {
-      for (Throwable t : exceptions) {
+      for (final Throwable t : exceptions) {
         t.printStackTrace();
       }
       throw new IllegalArgumentException("couldn't create test objects");
     }
     s_logger.info("{} objects created for {}", objects.size(), clazz);
-    for (Object o : objects) {
+    for (final Object o : objects) {
       s_logger.debug("{}", o);
     }
     return objects;
   }
 
   private static <T> Collection<T> permuteTestObjects(final Class<T> clazz) {
-    return permuteTestObjects (clazz, getBiggestConstructor (clazz));
+    return permuteTestObjects(clazz, getBiggestConstructor(clazz));
   }
 
   protected abstract <T extends DefaultSecurity> void testSecurity(final Class<T> securityClass, final T security);
@@ -566,19 +565,19 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
     while (c != null) {
       try {
         securityType = (String) c.getDeclaredField("SECURITY_TYPE").get(null);
-      } catch (Throwable t) {
+      } catch (final Throwable t) {
         // Ignore
       }
       c = c.getSuperclass();
     }
     assertNotNull(securityType);
-    for (T security : securities) {
+    for (final T security : securities) {
       // Force the security type to be a valid string; they're random nonsense otherwise
       security.setSecurityType(securityType);
       testSecurity(securityClass, security);
     }
   }
-  
+
   public <T extends DefaultSecurity> void testSecurities(final Class<T> securityClass) {
     testSecurities(securityClass, permuteTestObjects(securityClass));
   }

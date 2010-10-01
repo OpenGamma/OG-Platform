@@ -18,7 +18,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
  * <p>
  * Also known as "Modified Following".
  */
-public class ModifiedBusinessDayConvention extends BusinessDayConvention {
+public class ModifiedFollowingBusinessDayConvention extends BusinessDayConvention {
 
   private static final BusinessDayConvention FOLLOWING = new FollowingBusinessDayConvention();
   private static final BusinessDayConvention PRECEDING = new PrecedingBusinessDayConvention();
@@ -34,7 +34,7 @@ public class ModifiedBusinessDayConvention extends BusinessDayConvention {
 
   @Override
   public String getConventionName() {
-    return "Modified";
+    return "Modified Following";
   }
 
 }

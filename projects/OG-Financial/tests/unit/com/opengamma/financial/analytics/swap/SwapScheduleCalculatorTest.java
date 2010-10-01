@@ -18,7 +18,7 @@ import org.fudgemsg.FudgeMessageFactory;
 import org.junit.Test;
 
 import com.opengamma.financial.analytics.swap.SwapScheduleCalculator;
-import com.opengamma.financial.convention.businessday.ModifiedBusinessDayConvention;
+import com.opengamma.financial.convention.businessday.ModifiedFollowingBusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
@@ -77,7 +77,7 @@ public class SwapScheduleCalculatorTest {
     }
 
   };
-  private static final SwapLeg PAY_LEG = new SwapLeg(DAY_COUNT, PeriodFrequency.SEMI_ANNUAL, REGION_ID, new ModifiedBusinessDayConvention(), NOTIONAL) {
+  private static final SwapLeg PAY_LEG = new SwapLeg(DAY_COUNT, PeriodFrequency.SEMI_ANNUAL, REGION_ID, new ModifiedFollowingBusinessDayConvention(), NOTIONAL) {
 
     @Override
     public <T> T accept(SwapLegVisitor<T> visitor) {
@@ -91,7 +91,7 @@ public class SwapScheduleCalculatorTest {
     }
 
   };
-  private static final SwapLeg RECEIVE_LEG = new SwapLeg(DAY_COUNT, PeriodFrequency.SEMI_ANNUAL, REGION_ID, new ModifiedBusinessDayConvention(), NOTIONAL) {
+  private static final SwapLeg RECEIVE_LEG = new SwapLeg(DAY_COUNT, PeriodFrequency.SEMI_ANNUAL, REGION_ID, new ModifiedFollowingBusinessDayConvention(), NOTIONAL) {
 
     @Override
     public <T> T accept(SwapLegVisitor<T> visitor) {
