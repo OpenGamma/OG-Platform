@@ -218,11 +218,11 @@ public class ViewRecalculationJob extends TerminatableJob {
   
   public void liveDataChanged() {
     s_logger.debug("Live Data changed");
-    _liveDataChanged = true;
-    if (!_wakeOnLiveDataChanged) {
-      return;
-    }
     synchronized (this) {
+      _liveDataChanged = true;
+      if (!_wakeOnLiveDataChanged) {
+        return;
+      }
       notifyAll();
     }
   }
