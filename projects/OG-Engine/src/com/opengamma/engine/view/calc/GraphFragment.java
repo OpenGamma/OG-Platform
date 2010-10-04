@@ -380,8 +380,6 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
       }
     }
     getContext().registerCallback(jobSpec, this);
-    // Don't need references to input fragments after construction of job - help out the GC
-    _inputFragments = null;
     return job;
   }
 
@@ -404,7 +402,8 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
     for (GraphFragment dependent : getOutputFragments()) {
       dependent.inputCompleted();
     }
-    // Don't need references to output fragments after completion of job - help out the GC
+    // Help out the GC by dropping references to other fragments after completion of job
+    _inputFragments = null;
     _outputFragments = null;
   }
 
