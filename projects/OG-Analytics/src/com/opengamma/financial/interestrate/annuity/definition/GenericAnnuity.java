@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.interestrate.annuity.definition;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,29 +20,29 @@ import com.opengamma.financial.interestrate.payments.Payment;
  * A generic annuity is a set of payments (cash flows) at known future times. 
  * There payments can be known in advance, or depend on the future value of  some (possibly several) indices, e.g. the future Libor 
  */
-public class GenericAnnuity implements InterestRateDerivative {
+public class GenericAnnuity<P extends Payment> implements InterestRateDerivative {
 
-  private final Payment[] _payments;
+  private final P[] _payments;
 
-  public GenericAnnuity(Payment[] payments) {
+  public GenericAnnuity(P[] payments) {
     Validate.noNullElements(payments);
 
     _payments = payments;
 
   }
 
-  public GenericAnnuity(List<Payment> payments) {
+  @SuppressWarnings("unchecked")
+  public GenericAnnuity(List<? extends P> payments, Class<P> pType) {
     Validate.noNullElements(payments);
+    _payments = payments.toArray((P[]) Array.newInstance(pType, 0));
 
-    _payments = new Payment[payments.size()];
-    payments.toArray(_payments);
   }
 
   public int getNumberOfpayments() {
     return _payments.length;
   }
 
-  public Payment getNthPayment(int n) {
+  public P getNthPayment(int n) {
     return _payments[n];
   }
 
@@ -49,7 +50,7 @@ public class GenericAnnuity implements InterestRateDerivative {
    * Gets the payments field.
    * @return the payments
    */
-  public Payment[] getPayments() {
+  public P[] getPayments() {
     return _payments;
   }
 
@@ -72,7 +73,7 @@ public class GenericAnnuity implements InterestRateDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    GenericAnnuity other = (GenericAnnuity) obj;
+    GenericAnnuity<?> other = (GenericAnnuity<?>) obj;
     if (_payments.length != other._payments.length) {
       return false;
     }

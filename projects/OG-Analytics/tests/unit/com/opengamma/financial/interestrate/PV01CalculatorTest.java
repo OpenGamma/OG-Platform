@@ -14,15 +14,15 @@ import java.util.Set;
 import org.apache.commons.lang.Validate;
 import org.junit.Test;
 
-import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.swap.definition.BasisSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
@@ -81,7 +81,7 @@ public class PV01CalculatorTest {
   }
 
   @Test
-  public void testFixedAnnuity() {
+  public void testFixedCouponAnnuity() {
     final int n = 15;
     final double alpha = 0.49;
     final double yearFrac = 0.51;
@@ -94,12 +94,12 @@ public class PV01CalculatorTest {
       yearFracs[i] = yearFrac;
     }
 
-    final FixedAnnuity annuity = new FixedAnnuity(paymentTimes, 31234.31231, coupon, yearFracs, FUNDING_CURVE_NAME);
+    final FixedCouponAnnuity annuity = new FixedCouponAnnuity(paymentTimes, 31234.31231, coupon, yearFracs, FUNDING_CURVE_NAME);
     doTest(annuity, CURVES);
   }
 
   @Test
-  public void testVariableAnnuity() {
+  public void testForwardLiborAnnuity() {
     final int n = 15;
     final double alpha = 0.245;
     final double yearFrac = 0.25;
@@ -107,17 +107,19 @@ public class PV01CalculatorTest {
     final double[] paymentTimes = new double[n];
     final double[] indexFixing = new double[n];
     final double[] indexMaturity = new double[n];
-    final double[] yearFracs = new double[n];
+    final double[] paymentYearFracs = new double[n];
+    final double[] forwardYearFracs = new double[n];
     final double[] spreads = new double[n];
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = (i + 1) * alpha - 0.001;
       indexFixing[i] = i * alpha + 0.1;
       indexMaturity[i] = paymentTimes[i] + 0.1;
-      yearFracs[i] = yearFrac;
-      spreads[i] = spread;
+      paymentYearFracs[i] = yearFrac;
+      forwardYearFracs[i] = alpha;
+      spreads[i] = spread + 0.001 * i;
     }
 
-    final VariableAnnuity annuity = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreads, Math.E, 0.05, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    final ForwardLiborAnnuity annuity = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, paymentYearFracs, forwardYearFracs, spreads, Math.E, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
     doTest(annuity, CURVES);
 
   }
@@ -155,12 +157,12 @@ public class PV01CalculatorTest {
     }
     final double swapRate = 0.04;
 
-    final Swap swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    final Swap<?, ?> swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
     doTest(swap, CURVES);
   }
 
   @Test
-  public void testBasisSwap() {
+  public void testTenorSwap() {
     final int n = 20;
     final double tau = 0.25;
     final double[] paymentTimes = new double[n];
@@ -176,10 +178,10 @@ public class PV01CalculatorTest {
       yearFracs[i] = tau;
     }
 
-    final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, 0.0, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
-    final VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreads, 1.0, 0.0, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME);
+    final ForwardLiborAnnuity payLeg = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    final ForwardLiborAnnuity receiveLeg = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME);
 
-    final Swap swap = new BasisSwap(payLeg, receiveLeg);
+    final Swap<?, ?> swap = new TenorSwap(payLeg, receiveLeg);
     doTest(swap, CURVES);
   }
 

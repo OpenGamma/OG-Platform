@@ -11,28 +11,31 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.annuity.definition.Annuity;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.payments.Payment;
 
 /**
  * 
+ * @param <P> The type of the payments in the payLeg
+ * @param <R> The type of the payments in the receiveLeg
  */
-public class Swap implements InterestRateDerivative {
+public class Swap<P extends Payment, R extends Payment> implements InterestRateDerivative {
 
-  private final Annuity _payLeg;
-  private final Annuity _receiveLeg;
+  private final GenericAnnuity<P> _payLeg;
+  private final GenericAnnuity<R> _receiveLeg;
 
-  public Swap(final Annuity payLeg, final Annuity receiveLeg) {
+  public Swap(final GenericAnnuity<P> payLeg, final GenericAnnuity<R> receiveLeg) {
     Validate.notNull(payLeg);
     Validate.notNull(receiveLeg);
     _payLeg = payLeg;
     _receiveLeg = receiveLeg;
   }
 
-  public Annuity getPayLeg() {
+  public GenericAnnuity<P> getPayLeg() {
     return _payLeg;
   }
 
-  public Annuity getReceiveLeg() {
+  public GenericAnnuity<R> getReceiveLeg() {
     return _receiveLeg;
   }
 
@@ -61,7 +64,7 @@ public class Swap implements InterestRateDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final Swap other = (Swap) obj;
+    final Swap<?, ?> other = (Swap<?, ?>) obj;
     return ObjectUtils.equals(this._payLeg, other._payLeg) && ObjectUtils.equals(this._receiveLeg, other._receiveLeg);
 
   }

@@ -17,6 +17,6 @@ public class BondYieldCalculator {
   public double calculate(final Bond bond, final Double dirtyPrice) {
     Validate.notNull(bond, "bond");
     Validate.isTrue(dirtyPrice > 0.0, "need dirtyPrice greater than zero");
-    return YieldSensitivityCalculator.getInstance().calculateYield(bond.getFixedAnnuity(), dirtyPrice);
+    return YieldSensitivityCalculator.getInstance().calculateYield(bond.getAnnuity(), dirtyPrice);
   }
 }

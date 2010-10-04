@@ -92,20 +92,23 @@ public class JobDispatcher implements JobInvokerRegister {
       _dispatchJob.timeout(_timeAccrued, _jobInvoker);
     }
 
-    public void cancel() {
+    public synchronized void cancel() {
       if (_future != null) {
         _future.cancel(false);
+        _future = null;
       }
     }
 
-    public void extend(final ScheduledExecutorService executor, final long timeoutMillis, final boolean resetAccruedTime) {
-      cancel();
-      if (resetAccruedTime) {
-        _timeAccrued = timeoutMillis;
-      } else {
-        _timeAccrued += timeoutMillis;
+    public synchronized void extend(final ScheduledExecutorService executor, final long timeoutMillis, final boolean resetAccruedTime) {
+      if (_future != null) {
+        _future.cancel(false);
+        if (resetAccruedTime) {
+          _timeAccrued = timeoutMillis;
+        } else {
+          _timeAccrued += timeoutMillis;
+        }
+        setTimeout(executor, timeoutMillis);
       }
-      setTimeout(executor, timeoutMillis);
     }
 
     public JobInvoker getInvoker() {

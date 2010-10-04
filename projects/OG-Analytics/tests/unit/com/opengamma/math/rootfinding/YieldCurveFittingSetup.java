@@ -26,14 +26,14 @@ import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.annuity.definition.ConstantCouponAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.libor.definition.Libor;
-import com.opengamma.financial.interestrate.swap.definition.BasisSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.differentiation.VectorFieldFirstOrderDifferentiator;
@@ -261,7 +261,7 @@ public abstract class YieldCurveFittingSetup {
     return makeSwap(index, fundCurveName, liborCurveName, rate);
   }
 
-  protected static BasisSwap makeBasisSwap(final double time, final String fundCurveName, final String liborCurveName, final double rate) {
+  protected static TenorSwap makeBasisSwap(final double time, final String fundCurveName, final String liborCurveName, final double rate) {
 
     final int index = (int) Math.round(4 * time);
     final double[] paymentTimes = new double[index];
@@ -277,9 +277,9 @@ public abstract class YieldCurveFittingSetup {
       spreads[i] = rate;
       yearFracs[i] = 0.25;
     }
-    final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, 1.0, fundCurveName, fundCurveName);
-    final VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreads, 1.0, 0.0, fundCurveName, liborCurveName);
-    return new BasisSwap(payLeg, receiveLeg);
+    final ForwardLiborAnnuity payLeg = new ForwardLiborAnnuity(paymentTimes, 1.0, fundCurveName, fundCurveName);
+    final ForwardLiborAnnuity receiveLeg = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, fundCurveName, liborCurveName);
+    return new TenorSwap(payLeg, receiveLeg);
   }
 
   /**
@@ -311,9 +311,9 @@ public abstract class YieldCurveFittingSetup {
       indexFixing[i] = 0.25 * i + sigma * (i == 0 ? RANDOM.nextDouble() / 2 : (RANDOM.nextDouble() - 0.5));
       indexMaturity[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
     }
-    final ConstantCouponAnnuity fixedLeg = new ConstantCouponAnnuity(fixed, rate, fundingCurveName);
+    final FixedCouponAnnuity fixedLeg = new FixedCouponAnnuity(fixed, rate, fundingCurveName);
 
-    final VariableAnnuity floatingLeg = new VariableAnnuity(floating, indexFixing, indexMaturity, yearFrac, 1.0, 0.0, fundingCurveName, liborCurveName);
+    final ForwardLiborAnnuity floatingLeg = new ForwardLiborAnnuity(floating, indexFixing, indexMaturity, yearFrac, 1.0, fundingCurveName, liborCurveName);
     return new FixedFloatSwap(fixedLeg, floatingLeg);
   }
 

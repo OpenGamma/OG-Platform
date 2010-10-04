@@ -21,8 +21,7 @@ public class MacaulayDurationCalculator {
       throw new IllegalArgumentException("Price must be positive");
     }
 
-    double dollarDuration = YieldSensitivityCalculator.getInstance().calculateNthOrderSensitivity(
-        bond.getFixedAnnuity(), dirtyPrice, 1);
+    double dollarDuration = YieldSensitivityCalculator.getInstance().calculateNthOrderSensitivity(bond.getAnnuity(), dirtyPrice, 1);
     return dollarDuration / dirtyPrice;
   }
 }

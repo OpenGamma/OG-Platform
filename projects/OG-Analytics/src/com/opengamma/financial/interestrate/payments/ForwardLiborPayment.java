@@ -7,6 +7,8 @@ package com.opengamma.financial.interestrate.payments;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+
 /**
  * 
  */
@@ -174,9 +176,22 @@ public class ForwardLiborPayment implements Payment {
     return _notional;
   }
 
+  public ForwardLiborPayment withZeroSpread() {
+    if (getSpread() == 0.0) {
+      return this;
+    } else {
+      return withRate(0.0);
+    }
+  }
+
   @Override
-  public <S, T> T accept(PaymentVisitor<S, T> visitor, S data) {
-    return visitor.visitForwardLiborPayment(this, data);
+  public ForwardLiborPayment withRate(double spread) {
+    return new ForwardLiborPayment(getPaymentTime(), getNotional(), getLiborFixingTime(), getLiborMaturityTime(), getPaymentYearFraction(), getForwardYearFraction(), spread, getFundingCurveName(),
+        getLiborCurveName());
+  }
+
+  public FixedCouponPayment withUnitCoupon() {
+    return new FixedCouponPayment(getPaymentTime(), getNotional(), getPaymentYearFraction(), 1.0, getFundingCurveName());
   }
 
   @Override
@@ -191,6 +206,11 @@ public class ForwardLiborPayment implements Payment {
   @Override
   public double getPaymentTime() {
     return _paymentTime;
+  }
+
+  @Override
+  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+    return visitor.visitForwardLiborPayment(this, data);
   }
 
 }

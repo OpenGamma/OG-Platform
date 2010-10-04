@@ -18,7 +18,7 @@ import com.opengamma.OpenGammaRuntimeException;
 /**
  * FactoryBean for creating File objects within Spring configuration files. 
  */
-public class FileFactoryBean implements FactoryBean {
+public class FileFactoryBean implements FactoryBean<File> {
 
   private File _file;
 
@@ -60,7 +60,7 @@ public class FileFactoryBean implements FactoryBean {
   }
 
   @Override
-  public Object getObject() throws Exception {
+  public File getObject() throws Exception {
     return getFile();
   }
 
