@@ -52,7 +52,8 @@ public class FixedFloatSwapSecurityToSwapConverter {
 
   }
 
-  public FixedFloatSwap getSwap(final SwapSecurity swapSecurity, final String fundingCurveName, final String liborCurveName, final double marketRate, final double initialRate, final ZonedDateTime now) {
+  public FixedFloatSwap getSwap(final SwapSecurity swapSecurity, final String fundingCurveName, final String liborCurveName, final double marketRate, 
+      final double initialRate, final ZonedDateTime now) {
     Validate.notNull(swapSecurity, "swap security");
     final ZonedDateTime effectiveDate = swapSecurity.getEffectiveDate().toZonedDateTime();
     final ZonedDateTime maturityDate = swapSecurity.getMaturityDate().toZonedDateTime();

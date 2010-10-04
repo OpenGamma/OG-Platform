@@ -68,7 +68,7 @@ public abstract class TotalRiskAlphaFunction extends AbstractFunction implements
     final Function<double[], Double> marketStandardDeviationCalculator = StatisticsCalculatorFactory.getCalculator(marketStandardDeviationCalculatorName);
     _totalRiskAlpha = new TotalRiskAlphaCalculator(new DoubleTimeSeriesStatisticsCalculator(expectedAssetReturnCalculator), new DoubleTimeSeriesStatisticsCalculator(
         expectedRiskFreeReturnCalculator), new DoubleTimeSeriesStatisticsCalculator(expectedMarketReturnCalculator), new DoubleTimeSeriesStatisticsCalculator(
-        assetStandardDeviationCalculator), new DoubleTimeSeriesStatisticsCalculator(marketStandardDeviationCalculator));
+          assetStandardDeviationCalculator), new DoubleTimeSeriesStatisticsCalculator(marketStandardDeviationCalculator));
     _startDate = LocalDate.parse(startDate);
   }
 

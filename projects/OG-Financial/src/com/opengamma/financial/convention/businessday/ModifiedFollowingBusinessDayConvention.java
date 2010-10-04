@@ -16,7 +16,6 @@ import com.opengamma.financial.convention.calendar.Calendar;
  * date is in a different month, in which case the date is adjusted to be the
  * preceding business day.
  * <p>
- * Also known as "Modified Following".
  */
 public class ModifiedFollowingBusinessDayConvention extends BusinessDayConvention {
 

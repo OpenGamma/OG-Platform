@@ -64,7 +64,7 @@ public class BusinessDayTest {
   }
 
   @Test
-  public void testModifiedDay() {
+  public void testModifiedFollowingDay() {
     final BusinessDayConvention convention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     assertNotNull(convention);
     final DateAdjuster adjuster = convention.getDateAdjuster(_calendar_UK);
@@ -79,6 +79,24 @@ public class BusinessDayTest {
     test(adjuster, LocalDate.of(2010, 5, 30), LocalDate.of(2010, 5, 28));
     test(adjuster, LocalDate.of(2010, 5, 31), LocalDate.of(2010, 5, 28));
     test(adjuster, LocalDate.of(2010, 6, 1), LocalDate.of(2010, 6, 1));
+  }
+
+  @Test
+  public void testModifiedPrecedingDay() {
+    final BusinessDayConvention convention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Preceding");
+    assertNotNull(convention);
+    final DateAdjuster adjuster = convention.getDateAdjuster(_calendar_UK);
+    assertNotNull(adjuster);
+    test(adjuster, LocalDate.of(2009, 12, 31), LocalDate.of(2009, 12, 31));
+    test(adjuster, LocalDate.of(2010, 1, 1), LocalDate.of(2010, 1, 4)); // Fri 1 Jan -> Mon 4 Jan
+    test(adjuster, LocalDate.of(2010, 1, 2), LocalDate.of(2010, 1, 4));
+    test(adjuster, LocalDate.of(2010, 1, 3), LocalDate.of(2010, 1, 4));
+    test(adjuster, LocalDate.of(2010, 1, 4), LocalDate.of(2010, 1, 4));
+    test(adjuster, LocalDate.of(2010, 5, 1), LocalDate.of(2010, 5, 4)); // Sat 1 May -> Tue 4 May
+    test(adjuster, LocalDate.of(2010, 5, 2), LocalDate.of(2010, 5, 4));
+    test(adjuster, LocalDate.of(2010, 5, 3), LocalDate.of(2010, 5, 4));
+    test(adjuster, LocalDate.of(2010, 5, 4), LocalDate.of(2010, 5, 4));
+    test(adjuster, LocalDate.of(2010, 5, 31), LocalDate.of(2010, 5, 28)); // Mon 1 May -> Fri 28 May 
   }
 
 }

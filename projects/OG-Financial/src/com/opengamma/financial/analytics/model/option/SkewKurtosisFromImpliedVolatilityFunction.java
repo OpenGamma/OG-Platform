@@ -33,15 +33,7 @@ import com.opengamma.util.tuple.Pair;
  * 
  *
  */
-public class SkewKurtosisFromImpliedVolatilityFunction extends OptionSkewKurtosisFunction {
-  /**
-   * Name of value requirement for Skew.
-   */
-  public static final String SKEW = "Skew";
-  /**
-   * Name of value requirement for Kurtosis.
-   */
-  public static final String KURTOSIS = "Kurtosis";
+public class SkewKurtosisFromImpliedVolatilityFunction extends HistoricalSkewKurtosisFunction {
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,

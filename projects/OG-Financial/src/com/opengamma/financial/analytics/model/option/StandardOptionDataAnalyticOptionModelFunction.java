@@ -27,7 +27,6 @@ import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
-import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
