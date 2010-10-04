@@ -47,7 +47,7 @@ import com.opengamma.livedata.msg.UserPrincipal;
  */
 public class ViewClientTest {
   
-  private static final int TIMEOUT = 10000;
+  private static final int TIMEOUT = 20000;
   
   @Test
   public void testSingleViewMultipleClients() {

@@ -37,11 +37,11 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
   private final int _graphFragmentIdentifier;
   private final GraphFragmentContext _context;
   private final LinkedList<DependencyNode> _nodes = new LinkedList<DependencyNode>();
-  private final Set<GraphFragment> _inputFragments = new HashSet<GraphFragment>();
-  private final Set<GraphFragment> _outputFragments = new HashSet<GraphFragment>();
   private final Map<ValueSpecification, Integer> _inputValues = new HashMap<ValueSpecification, Integer>();
   private final Map<ValueSpecification, Integer> _outputValues = new HashMap<ValueSpecification, Integer>();
   private final Set<ValueSpecification> _localPrivateValues = new HashSet<ValueSpecification>();
+  private Set<GraphFragment> _inputFragments = new HashSet<GraphFragment>();
+  private Set<GraphFragment> _outputFragments = new HashSet<GraphFragment>();
   private AtomicInteger _blockCount;
   private Collection<Long> _requiredJobs;
   private Collection<GraphFragment> _tail;
@@ -274,7 +274,7 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
 
   /**
    * Appends a fragment. A fragment can be appended if it does not require any input from this. If output from one
-   * feeds into the other, use the most expensive prepend operation. 
+   * feeds into the other, use the more expensive prepend operation. 
    */
   public void appendFragment(final GraphFragment fragment) {
     getNodes().addAll(fragment.getNodes());
@@ -402,6 +402,9 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
     for (GraphFragment dependent : getOutputFragments()) {
       dependent.inputCompleted();
     }
+    // Help out the GC by dropping references to other fragments after completion of job
+    _inputFragments = null;
+    _outputFragments = null;
   }
 
 }
