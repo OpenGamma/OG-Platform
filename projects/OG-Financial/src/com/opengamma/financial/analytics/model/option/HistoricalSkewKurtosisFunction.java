@@ -45,13 +45,14 @@ public class HistoricalSkewKurtosisFunction extends AbstractFunction implements 
   private final TimeSeriesReturnCalculator _returnCalculator;
   private final DoubleTimeSeriesStatisticsCalculator _skewCalculator;
   private final DoubleTimeSeriesStatisticsCalculator _kurtosisCalculator;
+  private final boolean _isPearson;
   private final LocalDate _startDate;
   private final String _dataSource;
   private final String _dataProvider;
   private final String _field;
 
-  public HistoricalSkewKurtosisFunction(final String returnCalculatorName, final String skewCalculatorName, final String kurtosisCalculatorName, final String startDate, final String dataSource,
-      final String dataProvider, final String field) {
+  public HistoricalSkewKurtosisFunction(final String returnCalculatorName, final String skewCalculatorName, final String kurtosisCalculatorName, final String isPearson, final String startDate,
+      final String dataSource, final String dataProvider, final String field) {
     Validate.notNull(returnCalculatorName, "return calculator name");
     Validate.notNull(skewCalculatorName, "skew calculator name");
     Validate.notNull(kurtosisCalculatorName, "kurtosis calculator name");
@@ -61,6 +62,7 @@ public class HistoricalSkewKurtosisFunction extends AbstractFunction implements 
     _returnCalculator = TimeSeriesReturnCalculatorFactory.getReturnCalculator(returnCalculatorName);
     _skewCalculator = new DoubleTimeSeriesStatisticsCalculator(StatisticsCalculatorFactory.getCalculator(skewCalculatorName));
     _kurtosisCalculator = new DoubleTimeSeriesStatisticsCalculator(StatisticsCalculatorFactory.getCalculator(kurtosisCalculatorName));
+    _isPearson = Boolean.parseBoolean(isPearson);
     _startDate = LocalDate.parse(startDate);
     _dataSource = dataSource;
     _dataProvider = dataProvider;
@@ -80,9 +82,18 @@ public class HistoricalSkewKurtosisFunction extends AbstractFunction implements 
     final DoubleTimeSeries<?> returnTS = _returnCalculator.evaluate(tsObject.getSecond());
     final double skew = _skewCalculator.evaluate(returnTS);
     final double kurtosis = _kurtosisCalculator.evaluate(returnTS);
+    double pearson, fisher;
+    if (_isPearson) {
+      pearson = kurtosis;
+      fisher = kurtosis - 3;
+    } else {
+      fisher = kurtosis;
+      pearson = fisher + 3;
+    }
     final Set<ComputedValue> results = new HashSet<ComputedValue>();
     results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SKEW, ComputationTargetType.SECURITY), getUniqueIdentifier()), skew));
-    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.KURTOSIS, ComputationTargetType.SECURITY), getUniqueIdentifier()), kurtosis));
+    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PEARSON_KURTOSIS, ComputationTargetType.SECURITY), getUniqueIdentifier()), pearson));
+    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FISHER_KURTOSIS, ComputationTargetType.SECURITY), getUniqueIdentifier()), fisher));
     return results;
   }
 
@@ -110,7 +121,8 @@ public class HistoricalSkewKurtosisFunction extends AbstractFunction implements 
       final UniqueIdentifier uid = target.getSecurity().getUniqueIdentifier();
       final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
       results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SKEW, ComputationTargetType.SECURITY, uid), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueIdentifier()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PEARSON_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueIdentifier()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FISHER_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueIdentifier()));
       return results;
     }
     return null;
