@@ -50,6 +50,14 @@ public class FixedCouponPayment extends FixedPayment {
     return _notional;
   }
 
+  public FixedCouponPayment withRate(double rate) {
+    return new FixedCouponPayment(getPaymentTime(), getYearFraction(), rate, getFundingCurveName());
+  }
+
+  public FixedCouponPayment withUnitCoupon() {
+    return withRate(1.0);
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;

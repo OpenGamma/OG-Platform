@@ -7,18 +7,20 @@ package com.opengamma.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.annuity.definition.ConstantCouponAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.swap.definition.BasisSwap;
+import com.opengamma.financial.interestrate.payments.FixedPayment;
+import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
+import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
@@ -45,7 +47,7 @@ public final class PresentValueCouponSensitivityCalculator implements InterestRa
 
   @Override
   public Double visitBond(final Bond bond, final YieldCurveBundle curves) {
-    final double pvann = PVC.getValue(bond.getFixedAnnuity().withUnitCoupons(), curves);
+    final double pvann = PVC.getValue(bond.getUnitCouponAnnuity(), curves);
     return pvann;
   }
 
@@ -53,28 +55,6 @@ public final class PresentValueCouponSensitivityCalculator implements InterestRa
   public Double visitCash(final Cash cash, final YieldCurveBundle curves) {
     final YieldAndDiscountCurve curve = curves.getCurve(cash.getYieldCurveName());
     return curve.getDiscountFactor(cash.getMaturity()) * cash.getYearFraction();
-  }
-
-  @Override
-  public Double visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle curves) {
-    final double pvFixed = PVC.getValue(swap.getFixedLeg().withUnitCoupons(), curves);
-    return -pvFixed;
-  }
-
-  @Override
-  public Double visitSwap(final Swap swap, final YieldCurveBundle curves) {
-    final double pvSpread = PVC.getValue(swap.getReceiveLeg().withUnitCoupons(), curves);
-    return pvSpread;
-  }
-
-  @Override
-  public Double visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
-    return visitSwap(frn, curves);
-  }
-
-  @Override
-  public Double visitBasisSwap(final BasisSwap swap, final YieldCurveBundle curves) {
-    return visitSwap(swap, curves);
   }
 
   @Override
@@ -94,25 +74,62 @@ public final class PresentValueCouponSensitivityCalculator implements InterestRa
   }
 
   @Override
-  public Double visitConstantCouponAnnuity(final ConstantCouponAnnuity annuity, final YieldCurveBundle curves) {
-    return visitFixedAnnuity(annuity, curves);
+  public Double visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle curves) {
+    final double pvFixed = PVC.getValue(swap.getFixedLeg().withRate(1.0), curves);
+    return -pvFixed;
   }
 
   @Override
-  public Double visitFixedAnnuity(final FixedAnnuity annuity, final YieldCurveBundle curves) {
-    final double res = PVC.getValue(annuity.withUnitCoupons(), curves);
-    return res;
+  public Double visitSwap(Swap<?, ?> swap, YieldCurveBundle data) {
+    final double pvSpread = PVC.getValue(swap.getReceiveLeg().withRate(1.0), data);
+    return pvSpread;
   }
 
   @Override
-  public Double visitVariableAnnuity(final VariableAnnuity annuity, final YieldCurveBundle curves) {
-    final double res = PVC.getValue(annuity.withUnitCoupons(), curves);
-    return res;
+  public Double visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
+    return visitSwap(frn, curves);
   }
 
   @Override
-  public Double visitGenericAnnuity(GenericAnnuity annuity, YieldCurveBundle data) {
-    return null;
+  public Double visitTenorSwap(final TenorSwap swap, final YieldCurveBundle curves) {
+    return visitSwap(swap, curves);
   }
+
+  @Override
+  public Double visitFixedPayment(FixedPayment payment, YieldCurveBundle data) {
+    return 0.0;
+  }
+
+  @Override
+  public Double visitForwardLiborPayment(ForwardLiborPayment payment, YieldCurveBundle data) {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public Double visitGenericAnnuity(GenericAnnuity<? extends Payment> annuity, YieldCurveBundle data) {
+    double sum = 0;
+    for (Payment p : annuity.getPayments()) {
+      sum += getValue(p, data);
+    }
+    return sum;
+  }
+
+  // @Override
+  // public Double visitConstantCouponAnnuity(final FixedCouponAnnuity annuity, final YieldCurveBundle curves) {
+  // return visitFixedAnnuity(annuity, curves);
+  // }
+  //
+  // @Override
+  // public Double visitFixedAnnuity(final FixedAnnuity annuity, final YieldCurveBundle curves) {
+  // final double res = PVC.getValue(annuity.withUnitCoupons(), curves);
+  // return res;
+  // }
+  //
+  // @Override
+  // public Double visitVariableAnnuity(final ForwardLiborAnnuity annuity, final YieldCurveBundle curves) {
+  // final double res = PVC.getValue(annuity.withUnitCoupons(), curves);
+  // return res;
+  // }
+  //  
 
 }

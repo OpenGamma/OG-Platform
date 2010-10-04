@@ -9,14 +9,14 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.swap.definition.BasisSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
@@ -109,7 +109,7 @@ public class ParRateCalculatorTest {
       floatPaymentTimes[i] = (i + 1) * 0.25;
     }
 
-    Swap swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, 0.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    Swap<?, ?> swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, 0.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     final double rate = PRC.getValue(swap, CURVES);
     swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, rate, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     assertEquals(0.0, PVC.getValue(swap, CURVES), 1e-12);
@@ -130,17 +130,17 @@ public class ParRateCalculatorTest {
       yearFracs[i] = tau;
     }
 
-    final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, 0.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
-    VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, 0.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final ForwardLiborAnnuity payLeg = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
+    ForwardLiborAnnuity receiveLeg = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
 
-    Swap swap = new BasisSwap(payLeg, receiveLeg);
+    Swap<?, ?> swap = new TenorSwap(payLeg, receiveLeg);
     final double rate = PRC.getValue(swap, CURVES);
     final double[] spreads = new double[n];
     for (int i = 0; i < n; i++) {
       spreads[i] = rate;
     }
-    receiveLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreads, 1.0, 0.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    swap = new BasisSwap(payLeg, receiveLeg);
+    receiveLeg = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    swap = new TenorSwap(payLeg, receiveLeg);
     assertEquals(0.0, PVC.getValue(swap, CURVES), 1e-12);
   }
 

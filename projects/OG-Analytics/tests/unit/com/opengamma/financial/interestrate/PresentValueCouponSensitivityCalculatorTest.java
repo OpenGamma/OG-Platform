@@ -9,14 +9,14 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.swap.definition.BasisSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
@@ -167,14 +167,14 @@ public class PresentValueCouponSensitivityCalculatorTest {
       yearFracs[i] = tau;
     }
 
-    final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, 0.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    final VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreads, 1.0, 0.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
-    final VariableAnnuity receiveLegUp = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreadsUp, 1.0, 0.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
-    final VariableAnnuity receiveLegDown = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreadsDown, 1.0, 0.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
+    final ForwardLiborAnnuity payLeg = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final ForwardLiborAnnuity receiveLeg = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
+    final ForwardLiborAnnuity receiveLegUp = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreadsUp, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
+    final ForwardLiborAnnuity receiveLegDown = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreadsDown, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
 
-    final Swap swap = new BasisSwap(payLeg, receiveLeg);
-    final Swap swapUp = new BasisSwap(payLeg, receiveLegUp);
-    final Swap swapDown = new BasisSwap(payLeg, receiveLegDown);
+    final Swap swap = new TenorSwap(payLeg, receiveLeg);
+    final Swap swapUp = new TenorSwap(payLeg, receiveLegUp);
+    final Swap swapDown = new TenorSwap(payLeg, receiveLegDown);
     double pvUp = PVC.getValue(swapUp, CURVES);
     double pvDown = PVC.getValue(swapDown, CURVES);
     double temp = (pvUp - pvDown) / 2 / DELTA;

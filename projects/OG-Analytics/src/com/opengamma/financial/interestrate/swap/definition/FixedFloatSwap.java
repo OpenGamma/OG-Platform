@@ -6,20 +6,23 @@
 package com.opengamma.financial.interestrate.swap.definition;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.annuity.definition.ConstantCouponAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
+import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
 
 /**
  * 
  */
-public class FixedFloatSwap extends Swap {
+public class FixedFloatSwap extends Swap<FixedCouponPayment, ForwardLiborPayment> {
 
   /**
    * This sets up a payer swap (i.e. pay the fixed leg and receive the floating leg)
    * @param fixedLeg a fixed annuity for the receive leg
    * @param floatingLeg a variable (floating) annuity for the pay leg
    */
-  public FixedFloatSwap(final ConstantCouponAnnuity fixedLeg, final VariableAnnuity floatingLeg) {
+  public FixedFloatSwap(final GenericAnnuity<FixedCouponPayment> fixedLeg, final GenericAnnuity<ForwardLiborPayment> floatingLeg) {
     super(fixedLeg, floatingLeg);
   }
 
@@ -30,18 +33,18 @@ public class FixedFloatSwap extends Swap {
    * @param couponRate fixed rate paid on the notional amount on fixed payment dates (amount paid is notional*rate*yearFraction)
    * @param fundingCurveName  Name of curve from which payments are discounted
    * @param liborCurveName Name of curve from which forward rates are calculated
-   * @see #FixedFloatSwap(ConstantCouponAnnuity,VariableAnnuity)
+   * @see #FixedFloatSwap(FixedCouponAnnuity,ForwardLiborAnnuity)
    */
   public FixedFloatSwap(final double[] fixedPaymentTimes, final double[] floatingPaymentTimes, double couponRate, String fundingCurveName, String liborCurveName) {
-    this(new ConstantCouponAnnuity(fixedPaymentTimes, couponRate, fundingCurveName), new VariableAnnuity(floatingPaymentTimes, fundingCurveName, liborCurveName));
+    this(new FixedCouponAnnuity(fixedPaymentTimes, couponRate, fundingCurveName), new ForwardLiborAnnuity(floatingPaymentTimes, fundingCurveName, liborCurveName));
   }
 
-  public ConstantCouponAnnuity getFixedLeg() {
-    return (ConstantCouponAnnuity) getPayLeg();
+  public GenericAnnuity<FixedCouponPayment> getFixedLeg() {
+    return getPayLeg();
   }
 
-  public VariableAnnuity getFloatingLeg() {
-    return (VariableAnnuity) getReceiveLeg();
+  public GenericAnnuity<ForwardLiborPayment> getFloatingLeg() {
+    return getReceiveLeg();
   }
 
   @Override
@@ -51,7 +54,13 @@ public class FixedFloatSwap extends Swap {
 
   @Override
   public FixedFloatSwap withRate(double rate) {
-    return new FixedFloatSwap(getFixedLeg().withRate(rate), getFloatingLeg());
+    FixedCouponPayment[] payments = getPayLeg().getPayments();
+    int n = payments.length;
+    FixedCouponPayment[] temp = new FixedCouponPayment[n];
+    for (int i = 0; i < n; i++) {
+      temp[i] = payments[i].withRate(rate);
+    }
+    return new FixedFloatSwap(new GenericAnnuity<FixedCouponPayment>(temp), getReceiveLeg());
   }
 
 }

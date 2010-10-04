@@ -152,6 +152,8 @@ public class ViewRecalculationJob extends TerminatableJob {
           // In this case, only liveDataChanged() will wake it up
           wait(sleepTime);
         } catch (InterruptedException e) {
+          // We support interruption as a signal that we have been terminated. If we're interrupted without having been
+          // terminated, we'll just return to this method and go back to sleep.
           Thread.interrupted();
           s_logger.info("Interrupted while delaying. Continuing operation.");
         }
@@ -176,7 +178,17 @@ public class ViewRecalculationJob extends TerminatableJob {
       cycle.computeDelta(_previousCycle);
     }
     
-    cycle.executePlans();
+    try {
+      cycle.executePlans();
+    } catch (InterruptedException e) {
+      Thread.interrupted();
+      // In reality this means that the job has been terminated, and it will end as soon as we return from this method.
+      // In case the thread has been interrupted without terminating the job, we tidy everything up as if the
+      // interrupted cycle never happened so that deltas will be calculated from the previous cycle. 
+      cycle.releaseResources();
+      s_logger.info("Interrupted while executing a computation cycle. No results will be output from this cycle.");
+      return;
+    }
     cycle.populateResultModel();
     
     long duration = cycle.getDurationNanos();
@@ -205,12 +217,17 @@ public class ViewRecalculationJob extends TerminatableJob {
   }
   
   public void liveDataChanged() {
+    // REVIEW jonathan 2010-10-04 -- this synchronisation is necessary, but it feels very heavyweight for
+    // high-frequency live data. See how it goes, but we could take into account the recalc periods and apply a
+    // heuristic (e.g. only wake up due to live data if max - min < e, for some e) which tries to see whether it's
+    // worth doing all this.
+    
     s_logger.debug("Live Data changed");
-    _liveDataChanged = true;
-    if (!_wakeOnLiveDataChanged) {
-      return;
-    }
     synchronized (this) {
+      _liveDataChanged = true;
+      if (!_wakeOnLiveDataChanged) {
+        return;
+      }
       notifyAll();
     }
   }
