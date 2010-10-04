@@ -9,15 +9,15 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.swap.definition.BasisSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 
 /**
  * 
@@ -59,13 +59,13 @@ public class LastDataCalculatorTest {
   }
 
   @Test
-  public void testFixedAnnuity() {
-    FixedAnnuity annuity = new FixedAnnuity(new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 1.0, new double[] {1., 1., 1., 1., 1., 1., 1., 1., 1., 1.}, "");
+  public void testFixedCouponAnnuity() {
+    FixedCouponAnnuity annuity = new FixedCouponAnnuity(new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 1.0, 1.0, "");
     assertEquals(10, LDC.getValue(annuity), 1e-12);
   }
 
   @Test
-  public void testVariableAnnuity() {
+  public void testForwardLiborAnnuity() {
     final int n = 15;
     final double alpha = 0.245;
     final double yearFrac = 0.25;
@@ -82,7 +82,7 @@ public class LastDataCalculatorTest {
       yearFracs[i] = yearFrac;
       spreads[i] = spread;
     }
-    VariableAnnuity annuity = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreads, Math.E, 0.045, "Bill", "Ben");
+    ForwardLiborAnnuity annuity = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, Math.E, "Bill", "Ben");
     assertEquals(n * alpha + 0.1, LDC.getValue(annuity), 1e-12);
   }
 
@@ -119,13 +119,13 @@ public class LastDataCalculatorTest {
     }
     final double swapRate = 0.045;
 
-    final Swap swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, "", "");
+    final Swap<?, ?> swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, "", "");
     assertEquals(n * 0.5, LDC.getValue(swap), 1e-12);
 
   }
 
   @Test
-  public void testBasisSwap() {
+  public void testTenorSwap() {
     final int n = 20;
     final double tau = 0.25;
     final double[] paymentTimes = new double[n];
@@ -142,10 +142,10 @@ public class LastDataCalculatorTest {
       yearFracs[i] = tau;
     }
 
-    final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, 0.0, "", "");
-    final VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreads, 1.0, 0.0, "", "");
+    final ForwardLiborAnnuity payLeg = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, "", "");
+    final ForwardLiborAnnuity receiveLeg = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, "", "");
 
-    final Swap swap = new BasisSwap(payLeg, receiveLeg);
+    final Swap<?, ?> swap = new TenorSwap(payLeg, receiveLeg);
 
     assertEquals(n * tau, LDC.getValue(swap, swap), 1e-12);// passing in swap twice is just to show that anything can be passed in -second case is it is ignored
 

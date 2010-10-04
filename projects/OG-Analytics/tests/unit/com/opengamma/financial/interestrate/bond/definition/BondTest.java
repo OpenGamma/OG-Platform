@@ -5,13 +5,10 @@
  */
 package com.opengamma.financial.interestrate.bond.definition;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
-
-import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
 
 /**
  * 
@@ -122,18 +119,16 @@ public class BondTest {
 
   @Test
   public void test() {
-    assertArrayEquals(BOND.getPaymentTimes(), TIMES, 0);
-    assertArrayEquals(BOND.getPayments(), PAYMENTS, 0);
-    assertEquals(BOND.getCurveName(), BOND_CURVE);
-    assertEquals(BOND.getFixedAnnuity(), new FixedAnnuity(TIMES, 1, PAYMENTS, BOND_CURVE));
+
+    assertEquals(BOND.getPrinciplePayment().getFundingCurveName(), BOND_CURVE);
     Bond other = new Bond(TIMES, COUPON, BOND_CURVE);
     assertEquals(other, BOND);
     assertEquals(other.hashCode(), BOND.hashCode());
-    other = new Bond(PAYMENTS, PAYMENTS, BOND_CURVE);
+    other = new Bond(new double[] {1, 2, 3, 4, 5, 6, 7, 8.1, 9, 10}, COUPON, BOND_CURVE);
     assertFalse(other.equals(BOND));
     other = new Bond(TIMES, TIMES, BOND_CURVE);
     assertFalse(other.equals(BOND));
-    other = new Bond(PAYMENTS, TIMES, "A different curve");
+    other = new Bond(TIMES, COUPON, "sfdfsdfs");
     assertFalse(other.equals(BOND));
     other = new Bond(TIMES, COUPONS, YEAR_FRACTIONS, BOND_CURVE);
     assertEquals(other, BOND); //

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.interestrate.bond;
@@ -26,8 +26,7 @@ public class ConvexityCalculator {
     if (dirtyPrice <= 0) {
       throw new IllegalArgumentException("Price must be positive");
     }
-    double secondOrder = YieldSensitivityCalculator.getInstance().calculateNthOrderSensitivity(bond.getFixedAnnuity(),
-        dirtyPrice, 2);
+    double secondOrder = YieldSensitivityCalculator.getInstance().calculateNthOrderSensitivity(bond.getAnnuity(), dirtyPrice, 2);
     return secondOrder / dirtyPrice;
   }
 

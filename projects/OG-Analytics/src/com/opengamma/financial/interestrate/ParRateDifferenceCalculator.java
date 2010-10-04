@@ -8,18 +8,18 @@ package com.opengamma.financial.interestrate;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.annuity.definition.ConstantCouponAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.swap.definition.BasisSwap;
+import com.opengamma.financial.interestrate.payments.FixedPayment;
+import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
+import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 
 /**
  * 
@@ -44,8 +44,8 @@ public final class ParRateDifferenceCalculator implements InterestRateDerivative
   }
 
   @Override
-  public Double visitBasisSwap(final BasisSwap swap, final YieldCurveBundle curves) {
-    final double spread = swap.getReceiveLeg().getSpreads()[0];
+  public Double visitTenorSwap(final TenorSwap swap, final YieldCurveBundle curves) {
+    final double spread = swap.getReceiveLeg().getNthPayment(0).getSpread();
     return RATE_CAL.getValue(swap, curves) - spread;
 
   }
@@ -61,11 +61,6 @@ public final class ParRateDifferenceCalculator implements InterestRateDerivative
   }
 
   @Override
-  public Double visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle curves) {
-    return RATE_CAL.getValue(swap, curves) - swap.getFixedLeg().getCouponRate();
-  }
-
-  @Override
   public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
     return RATE_CAL.getValue(fra, curves) - fra.getStrike();
   }
@@ -76,34 +71,49 @@ public final class ParRateDifferenceCalculator implements InterestRateDerivative
   }
 
   @Override
-  public Double visitSwap(final Swap swap, final YieldCurveBundle curves) {
-    throw new NotImplementedException();
-  }
-
-  @Override
   public Double visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
-    final double spread = frn.getReceiveLeg().getSpreads()[0];
+    final double spread = frn.getReceiveLeg().getNthPayment(0).getSpread();// assume constant spreads
     return RATE_CAL.getValue(frn, curves) - spread;
   }
 
   @Override
-  public Double visitFixedAnnuity(final FixedAnnuity annuity, final YieldCurveBundle curves) {
+  public Double visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle curves) {
+    return RATE_CAL.getValue(swap, curves) - swap.getFixedLeg().getNthPayment(0).getCoupon();
+  }
+
+  @Override
+  public Double visitFixedPayment(FixedPayment payment, YieldCurveBundle data) {
     throw new NotImplementedException();
   }
 
   @Override
-  public Double visitConstantCouponAnnuity(final ConstantCouponAnnuity annuity, final YieldCurveBundle curves) {
+  public Double visitForwardLiborPayment(ForwardLiborPayment payment, YieldCurveBundle data) {
     throw new NotImplementedException();
   }
 
   @Override
-  public Double visitVariableAnnuity(final VariableAnnuity annuity, final YieldCurveBundle curves) {
+  public Double visitGenericAnnuity(GenericAnnuity<? extends Payment> annuity, YieldCurveBundle data) {
     throw new NotImplementedException();
   }
 
   @Override
-  public Double visitGenericAnnuity(GenericAnnuity annuity, YieldCurveBundle data) {
-    return null;
+  public Double visitSwap(Swap<?, ?> swap, YieldCurveBundle data) {
+    throw new NotImplementedException();
   }
+
+  // @Override
+  // public Double visitFixedAnnuity(final FixedAnnuity annuity, final YieldCurveBundle curves) {
+  // throw new NotImplementedException();
+  // }
+  //
+  // @Override
+  // public Double visitConstantCouponAnnuity(final FixedCouponAnnuity annuity, final YieldCurveBundle curves) {
+  // throw new NotImplementedException();
+  // }
+  //
+  // @Override
+  // public Double visitVariableAnnuity(final ForwardLiborAnnuity annuity, final YieldCurveBundle curves) {
+  // throw new NotImplementedException();
+  // }
 
 }

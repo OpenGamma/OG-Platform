@@ -5,15 +5,15 @@
  */
 package com.opengamma.financial.interestrate.payments;
 
+import com.opengamma.financial.interestrate.InterestRateDerivative;
+
 /**
  * 
  */
-public interface Payment {
+public interface Payment extends InterestRateDerivative {
 
   double getPaymentTime();
 
   String getFundingCurveName();
-
-  <S, T> T accept(PaymentVisitor<S, T> visitor, S data);
 
 }
