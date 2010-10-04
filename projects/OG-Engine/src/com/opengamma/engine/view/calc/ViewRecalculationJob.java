@@ -152,6 +152,8 @@ public class ViewRecalculationJob extends TerminatableJob {
           // In this case, only liveDataChanged() will wake it up
           wait(sleepTime);
         } catch (InterruptedException e) {
+          // We support interruption as a signal that we have been terminated. If we're interrupted without having been
+          // terminated, we'll just return to this method and go back to sleep.
           Thread.interrupted();
           s_logger.info("Interrupted while delaying. Continuing operation.");
         }
@@ -176,7 +178,17 @@ public class ViewRecalculationJob extends TerminatableJob {
       cycle.computeDelta(_previousCycle);
     }
     
-    cycle.executePlans();
+    try {
+      cycle.executePlans();
+    } catch (InterruptedException e) {
+      Thread.interrupted();
+      // In reality this means that the job has been terminated, and it will end as soon as we return from this method.
+      // In case the thread has been interrupted without terminating the job, we tidy everything up as if the
+      // interrupted cycle never happened so that deltas will be calculated from the previous cycle. 
+      cycle.releaseResources();
+      s_logger.info("Interrupted while executing a computation cycle. No results will be output from this cycle.");
+      return;
+    }
     cycle.populateResultModel();
     
     long duration = cycle.getDurationNanos();

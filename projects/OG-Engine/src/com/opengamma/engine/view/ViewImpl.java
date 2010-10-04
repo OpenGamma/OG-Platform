@@ -311,7 +311,13 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       assertInitialized();
       SingleComputationCycle cycle = createCycle(valuationTime);
       cycle.prepareInputs();
-      cycle.executePlans();
+      
+      try {
+        cycle.executePlans();
+      } catch (InterruptedException e) {
+        s_logger.warn("Interrupted while attempting to run a single computation cycle. No results will be output.");
+        return;
+      }
       
       if (isPopulateResultModel()) {
         cycle.populateResultModel();
