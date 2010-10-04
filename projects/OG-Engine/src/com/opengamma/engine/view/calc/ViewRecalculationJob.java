@@ -217,6 +217,11 @@ public class ViewRecalculationJob extends TerminatableJob {
   }
   
   public void liveDataChanged() {
+    // REVIEW jonathan 2010-10-04 -- this synchronisation is necessary, but it feels very heavyweight for
+    // high-frequency live data. See how it goes, but we could take into account the recalc periods and apply a
+    // heuristic (e.g. only wake up due to live data if max - min < e, for some e) which tries to see whether it's
+    // worth doing all this.
+    
     s_logger.debug("Live Data changed");
     synchronized (this) {
       _liveDataChanged = true;
