@@ -31,9 +31,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class JmsByteArrayRequestSender
-    extends AbstractJmsByteArraySender
-    implements ByteArrayRequestSender {
+public class JmsByteArrayRequestSender extends AbstractJmsByteArraySender implements ByteArrayRequestSender {
   private static final Logger s_logger = LoggerFactory.getLogger(JmsByteArrayRequestSender.class);
   
   private final ExecutorService _executor;
@@ -60,7 +58,7 @@ public class JmsByteArrayRequestSender
     _executor.execute(new Runnable() {
       @Override
       public void run() {
-        getJmsTemplate().execute(new SessionCallback() {
+        getJmsTemplate().execute(new SessionCallback<Object>() {
           @Override
           public Object doInJms(Session session) throws JMSException {
             try {

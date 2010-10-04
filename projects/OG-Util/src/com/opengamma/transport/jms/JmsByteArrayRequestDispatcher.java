@@ -24,8 +24,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class JmsByteArrayRequestDispatcher implements
-    SessionAwareMessageListener {
+public class JmsByteArrayRequestDispatcher implements SessionAwareMessageListener<Message> {
   private static final Logger s_logger = LoggerFactory.getLogger(JmsByteArrayRequestDispatcher.class);
   private final ByteArrayRequestReceiver _underlying;
   
