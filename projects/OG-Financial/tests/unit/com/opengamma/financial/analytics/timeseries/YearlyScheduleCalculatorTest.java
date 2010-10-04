@@ -14,8 +14,8 @@ import org.junit.Test;
 /**
  * 
  */
-public class MonthlyScheduleCalculatorTest {
-  private static final Schedule CALCULATOR = new MonthlyScheduleCalculator();
+public class YearlyScheduleCalculatorTest {
+  private static final Schedule CALCULATOR = new YearlyScheduleCalculator();
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullStart() {
@@ -42,42 +42,31 @@ public class MonthlyScheduleCalculatorTest {
   @Test
   public void test() {
     LocalDate startDate = LocalDate.of(2000, 1, 1);
-    LocalDate endDate = LocalDate.of(2000, 1, 30);
+    LocalDate endDate = LocalDate.of(2000, 12, 30);
     LocalDate[] forward = CALCULATOR.getSchedule(startDate, endDate, false);
     LocalDate[] backward = CALCULATOR.getSchedule(startDate, endDate, true);
     assertEquals(forward.length, 1);
     assertEquals(backward.length, 1);
     assertEquals(forward[0], startDate);
     assertEquals(backward[0], endDate);
-    startDate = LocalDate.of(2002, 2, 1);
-    endDate = LocalDate.of(2002, 2, 9);
-    forward = CALCULATOR.getSchedule(startDate, endDate, false);
-    backward = CALCULATOR.getSchedule(startDate, endDate, true);
-    assertEquals(forward.length, 1);
-    assertEquals(backward.length, 1);
-    assertEquals(forward[0], startDate);
-    assertEquals(backward[0], endDate);
     startDate = LocalDate.of(2000, 1, 1);
-    endDate = LocalDate.of(2002, 2, 9);
-    final int months = 26;
+    endDate = LocalDate.of(2010, 2, 9);
+    final int years = 11;
     forward = CALCULATOR.getSchedule(startDate, endDate, false);
     backward = CALCULATOR.getSchedule(startDate, endDate, true);
-    assertEquals(forward.length, months);
-    assertEquals(backward.length, months);
+    assertEquals(forward.length, years);
+    assertEquals(backward.length, years);
     assertEquals(forward[0], startDate);
-    assertEquals(backward[0], LocalDate.of(2000, 1, 9));
-    assertEquals(forward[months - 1], LocalDate.of(2002, 2, 1));
-    assertEquals(backward[months - 1], endDate);
-    for (int i = 1; i < months; i++) {
-      if (forward[i].getYear() == forward[i - 1].getYear()) {
-        assertEquals(forward[i].getMonthOfYear().getValue() - forward[i - 1].getMonthOfYear().getValue(), 1);
-        assertEquals(backward[i].getMonthOfYear().getValue() - backward[i - 1].getMonthOfYear().getValue(), 1);
-      } else {
-        assertEquals(forward[i].getMonthOfYear().getValue() - forward[i - 1].getMonthOfYear().getValue(), -11);
-        assertEquals(backward[i].getMonthOfYear().getValue() - backward[i - 1].getMonthOfYear().getValue(), -11);
-      }
-      assertEquals(forward[i].getDayOfMonth(), 1);
-      assertEquals(backward[i].getDayOfMonth(), 9);
+    assertEquals(backward[0], LocalDate.of(2000, 2, 9));
+    assertEquals(forward[years - 1], LocalDate.of(2010, 1, 1));
+    assertEquals(backward[years - 1], endDate);
+    for (int i = 1; i < years; i++) {
+      assertEquals(forward[i].getYear() - forward[i - 1].getYear(), 1);
+      assertEquals(forward[i].getMonthOfYear(), startDate.getMonthOfYear());
+      assertEquals(forward[i].getDayOfMonth(), startDate.getDayOfMonth());
+      assertEquals(backward[i].getYear() - backward[i - 1].getYear(), 1);
+      assertEquals(backward[i].getMonthOfYear(), endDate.getMonthOfYear());
+      assertEquals(backward[i].getDayOfMonth(), endDate.getDayOfMonth());
     }
   }
 }

@@ -18,6 +18,16 @@ public class MonthlyScheduleOnDayCalculatorTest {
   private static final Schedule CALCULATOR = new MonthlyScheduleOnDayCalculator(15);
 
   @Test(expected = IllegalArgumentException.class)
+  public void testNegativeDays() {
+    new MonthlyScheduleOnDayCalculator(-10);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testHighDays() {
+    new MonthlyScheduleOnDayCalculator(36);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
   public void testNullStart() {
     CALCULATOR.getSchedule(null, LocalDate.of(2000, 1, 1), true);
   }

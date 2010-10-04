@@ -72,7 +72,7 @@ public class SingleComputationCycle {
 
   /** Current state of the cycle */
   private enum State {
-    CREATED, INPUTS_PREPARED, EXECUTING, FINISHED, CLEANED
+    CREATED, INPUTS_PREPARED, EXECUTING, EXECUTION_INTERRUPTED, FINISHED, CLEANED
   }
 
   private State _state;
@@ -311,7 +311,14 @@ public class SingleComputationCycle {
   }
 
   // REVIEW kirk 2009-11-03 -- This is a database kernel. Act accordingly.
-  public void executePlans() {
+  /**
+   * Synchronously runs the computation cycle.
+   * 
+   * @throws InterruptedException  if the thread is interrupted while waiting for the computation cycle to complete.
+   *                               Execution of any outstanding jobs will be cancelled, but {@link #releaseResources()}
+   *                               still must be called. 
+   */
+  public void executePlans() throws InterruptedException {
     if (_state != State.INPUTS_PREPARED) {
       throw new IllegalStateException("State must be " + State.INPUTS_PREPARED);
     }
@@ -338,8 +345,14 @@ public class SingleComputationCycle {
         futures.add(future);
       } catch (InterruptedException e) {
         Thread.interrupted();
-        s_logger.info("Interrupted while waiting for completion of " + future);
-        futures.add(future);
+        // Cancel all outstanding jobs to free up resources
+        future.cancel(true);
+        for (Future<?> incompleteFuture : futures) {
+          incompleteFuture.cancel(true);
+        }
+        _state = State.EXECUTION_INTERRUPTED;
+        s_logger.info("Execution interrupted before completion.");
+        throw e;
       } catch (ExecutionException e) {
         s_logger.error("Unable to execute dependency graph", e);
         // Should we be swallowing this or not?
@@ -404,8 +417,8 @@ public class SingleComputationCycle {
   }
 
   public void releaseResources() {
-    if (_state != State.FINISHED) {
-      throw new IllegalStateException("State must be " + State.FINISHED);
+    if (_state != State.FINISHED && _state != State.EXECUTION_INTERRUPTED) {
+      throw new IllegalStateException("State must be " + State.FINISHED + " or " + State.EXECUTION_INTERRUPTED);
     }
 
     if (getViewDefinition().isDumpComputationCacheToDisk()) {
