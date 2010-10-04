@@ -11,43 +11,51 @@ import java.util.Set;
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.greeks.AvailableGreeks;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.financial.security.option.FutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.id.IdentifierBundle;
 
 /**
- * 
+ * Function for the Black-Scholes stock option function (i.e. equity option, no dividends)
  */
-//TODO urgently needs a rename
-public abstract class StandardOptionDataAnalyticOptionModelFunction extends AnalyticOptionModelFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(StandardOptionDataAnalyticOptionModelFunction.class);
+public class AsayMarginedFutureOptionModelFunction extends BlackScholesMertonModelFunction {
 
-  @SuppressWarnings("unchecked")
   @Override
   protected StandardOptionDataBundle getDataBundle(final SecuritySource secMaster, final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
     final ZonedDateTime now = relevantTime.zonedDateTime();
     final Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
     final Double spotAsObject = (Double) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
     if (spotAsObject == null) {
-      s_logger.warn("Didn't have market value for {}", option.getUnderlyingIdentifier());
       throw new NullPointerException("No spot value for underlying instrument.");
     }
     final double spot = spotAsObject;
-    final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(getYieldCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
+    final YieldAndDiscountCurve curve = new ConstantYieldCurve(0.);
     final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
-    final double b = (Double) inputs.getValue(getCostOfCarryMarketDataRequirement(option.getUniqueIdentifier()));
-    return new StandardOptionDataBundle(discountCurve, b, volatilitySurface, spot, now);
+    final double b = 0;
+    return new StandardOptionDataBundle(curve, b, volatilitySurface, spot, now);
+  }
+
+  @Override
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (target.getType() == ComputationTargetType.SECURITY && target.getSecurity() instanceof OptionSecurity) {
+      if (target.getSecurity() instanceof FutureOptionSecurity) {
+        return ((FutureOptionSecurity) target.getSecurity()).getIsMargined();
+      }
+    }
+    return false;
   }
 
   @Override
@@ -58,12 +66,33 @@ public abstract class StandardOptionDataAnalyticOptionModelFunction extends Anal
       final Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
-      requirements.add(getYieldCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
       requirements.add(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
-      requirements.add(getCostOfCarryMarketDataRequirement(option.getUniqueIdentifier()));
       return requirements;
     }
     return null;
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (canApplyTo(context, target)) {
+      final OptionSecurity security = (OptionSecurity) target.getSecurity();
+      final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
+      for (final String valueName : AvailableGreeks.getAllGreekNames()) {
+        results.add(new ValueSpecification(new ValueRequirement(valueName, security), getUniqueIdentifier()));
+      }
+      return results;
+    }
+    return null;
+  }
+
+  @Override
+  public String getShortName() {
+    return "AsayMarginedFutureOptionModelFunction";
+  }
+
+  @Override
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.SECURITY;
   }
 
 }

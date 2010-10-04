@@ -86,13 +86,12 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction imple
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, uid);
   }
 
-  protected ValueRequirement getDiscountCurveMarketDataRequirement(final UniqueIdentifier uid) {
+  protected ValueRequirement getYieldCurveMarketDataRequirement(final UniqueIdentifier uid) {
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, uid);
   }
 
-  protected ValueRequirement getCostOfCarryMarketDataRequirement() {
-    // TODO
-    return null;
+  protected ValueRequirement getCostOfCarryMarketDataRequirement(final UniqueIdentifier uid) {
+    return new ValueRequirement(ValueRequirementNames.COST_OF_CARRY, ComputationTargetType.SECURITY, uid);
   }
 
   protected ValueRequirement getVolatilitySurfaceMarketDataRequirement(final UniqueIdentifier uid) {
