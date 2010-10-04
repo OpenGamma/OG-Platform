@@ -27,8 +27,10 @@ import com.opengamma.engine.security.MockSecuritySource;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
+import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
 import com.opengamma.engine.view.calc.ViewRecalculationJob;
+import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.LocalCalculationNode;
 import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
@@ -62,6 +64,7 @@ public class ViewProcessorTestEnvironment {
   // Environment
   private ViewProcessorImpl _viewProcessor;
   private InMemoryLKVSnapshotProvider _snapshotProvider;
+  private DependencyGraphExecutorFactory<CalculationJobResult> _dependencyGraphExecutorFactory;
   private ViewDefinition _testDefinition;
   private ViewCalculationConfiguration _calcConfig;
   private final ValueRequirement _primitive1 = new ValueRequirement("Value1", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "PrimitiveValue"));
@@ -89,7 +92,9 @@ public class ViewProcessorTestEnvironment {
     InMemoryViewComputationCacheSource cacheSource = new InMemoryViewComputationCacheSource(fudgeContext);
     _viewProcessor.setComputationCacheSource(cacheSource);
     
-    SingleNodeExecutorFactory dependencyGraphExecutorFactory = new SingleNodeExecutorFactory();
+    DependencyGraphExecutorFactory<CalculationJobResult> dependencyGraphExecutorFactory = getDependencyGraphExecutorFactory() != null
+                                                                                            ? getDependencyGraphExecutorFactory()
+                                                                                            : new SingleNodeExecutorFactory();
     _viewProcessor.setDependencyGraphExecutorFactory(dependencyGraphExecutorFactory);
     assertEquals(dependencyGraphExecutorFactory, _viewProcessor.getDependencyGraphExecutorFactory());
     
@@ -158,6 +163,14 @@ public class ViewProcessorTestEnvironment {
     ArgumentChecker.notNull(liveDataAvailabilityProvider, "liveDataAvailabilityProvider");
     _userSnapshotProvider = liveDataSnapshotProvider;
     _userAvailabilityProvider = liveDataAvailabilityProvider;
+  }
+  
+  public DependencyGraphExecutorFactory<CalculationJobResult> getDependencyGraphExecutorFactory() {
+    return _dependencyGraphExecutorFactory;
+  }
+  
+  public void setDependencyGraphExecutorFactory(DependencyGraphExecutorFactory<CalculationJobResult> dependencyGraphExecutorFactory) {
+    _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
   }
   
   // Environment accessors
