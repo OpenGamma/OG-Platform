@@ -50,7 +50,7 @@ public class DummyPortfolioNodeFunction extends AbstractFunction implements Func
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.<ValueRequirement> emptySet();
+    return Collections.<ValueRequirement>emptySet();
   }
 
   @Override

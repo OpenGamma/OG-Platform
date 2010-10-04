@@ -32,6 +32,8 @@ import com.opengamma.financial.analytics.swap.FixedFloatSwapSecurityToSwapConver
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
+import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
@@ -86,7 +88,8 @@ public class ParRateFixedFloatSwapFunction extends AbstractFunction implements F
       fixedRate = ((FixedInterestRateLeg) receiveLeg).getRate();
       initialFloatingRate = ((FloatingInterestRateLeg) payLeg).getInitialFloatingRate();
     }
-    final Swap swap = new FixedFloatSwapSecurityToSwapConverter(holidaySource, regionSource, conventionSource).getSwap(security, _name, _name, fixedRate, initialFloatingRate, now);
+    final Swap<FixedCouponPayment, Payment> swap = new FixedFloatSwapSecurityToSwapConverter(holidaySource, regionSource, conventionSource).getSwap(security, _name, _name, fixedRate,
+        initialFloatingRate, now);
     final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) yieldCurveObject;
     final YieldCurveBundle bundle = new YieldCurveBundle(new String[] {_name}, new YieldAndDiscountCurve[] {curve});
     final Double parRate = CALCULATOR.getValue(swap, bundle);
