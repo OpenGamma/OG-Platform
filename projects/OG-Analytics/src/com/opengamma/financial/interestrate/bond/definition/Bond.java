@@ -8,8 +8,8 @@ package com.opengamma.financial.interestrate.bond.definition;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
@@ -18,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class Bond implements InterestRateDerivative {
+public class Bond implements InterestRateDerivativeWithRate {
 
   private final GenericAnnuity<FixedCouponPayment> _coupons;
   private final FixedPayment _principle;
@@ -151,7 +151,7 @@ public class Bond implements InterestRateDerivative {
   }
 
   @Override
-  public InterestRateDerivative withRate(double rate) {
+  public InterestRateDerivativeWithRate withRate(double rate) {
     FixedCouponPayment[] payments = _coupons.getPayments();
     int n = payments.length;
     double[] times = new double[n];

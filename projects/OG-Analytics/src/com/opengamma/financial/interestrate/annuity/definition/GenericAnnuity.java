@@ -90,9 +90,4 @@ public class GenericAnnuity<P extends Payment> implements InterestRateDerivative
     return visitor.visitGenericAnnuity(this, data);
   }
 
-  @Override
-  public InterestRateDerivative withRate(double rate) {
-    return null;
-  }
-
 }

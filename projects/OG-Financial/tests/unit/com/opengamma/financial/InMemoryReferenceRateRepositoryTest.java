@@ -33,7 +33,7 @@ public class InMemoryReferenceRateRepositoryTest {
     final ConventionBundleMaster repo = new InMemoryConventionBundleMaster();
     final ConventionBundleSource source = new DefaultConventionBundleSource(repo);
     final ConventionBundle referenceRate = source.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD LIBOR O/N"));
-    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified");
+    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount actact = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     Assert.assertEquals("USD LIBOR O/N", referenceRate.getName());

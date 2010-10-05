@@ -180,12 +180,11 @@ public class ForwardLiborPayment implements Payment {
     if (getSpread() == 0.0) {
       return this;
     } else {
-      return withRate(0.0);
+      return withSpread(0.0);
     }
   }
 
-  @Override
-  public ForwardLiborPayment withRate(double spread) {
+  public ForwardLiborPayment withSpread(double spread) {
     return new ForwardLiborPayment(getPaymentTime(), getNotional(), getLiborFixingTime(), getLiborMaturityTime(), getPaymentYearFraction(), getForwardYearFraction(), spread, getFundingCurveName(),
         getLiborCurveName());
   }

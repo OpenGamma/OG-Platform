@@ -21,6 +21,7 @@ import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
@@ -223,7 +224,7 @@ public abstract class YieldCurveFittingSetup {
         .getUnknownCurveNodeSensitivityCalculators());
   }
 
-  protected static InterestRateDerivative makeIRD(String type, final double maturity, final String fundCurveName, final String indexCurveName, final double rate) {
+  protected static InterestRateDerivativeWithRate makeIRD(String type, final double maturity, final String fundCurveName, final String indexCurveName, final double rate) {
     if ("cash".equals(type)) {
       return makeCash(maturity, fundCurveName, rate);
     } else if ("libor".equals(type)) {
@@ -240,19 +241,19 @@ public abstract class YieldCurveFittingSetup {
     throw new IllegalArgumentException("unknown IRD type " + type);
   }
 
-  protected static InterestRateDerivative makeCash(final double time, final String fundCurveName, final double rate) {
+  protected static InterestRateDerivativeWithRate makeCash(final double time, final String fundCurveName, final double rate) {
     return new Cash(time, rate, fundCurveName);
   }
 
-  protected static InterestRateDerivative makeLibor(final double time, final String indexCurveName, final double rate) {
+  protected static InterestRateDerivativeWithRate makeLibor(final double time, final String indexCurveName, final double rate) {
     return new Libor(time, rate, indexCurveName);
   }
 
-  protected static InterestRateDerivative makeFRA(final double time, final String fundCurveName, final String indexCurveName, final double rate) {
+  protected static InterestRateDerivativeWithRate makeFRA(final double time, final String fundCurveName, final String indexCurveName, final double rate) {
     return new ForwardRateAgreement(time - 0.25, time, rate, fundCurveName, indexCurveName);
   }
 
-  protected static InterestRateDerivative makeFutrure(final double time, final String indexCurveName, final double rate) {
+  protected static InterestRateDerivativeWithRate makeFutrure(final double time, final String indexCurveName, final double rate) {
     return new InterestRateFuture(time, time + 0.25, 0.25, rate, indexCurveName);
   }
 

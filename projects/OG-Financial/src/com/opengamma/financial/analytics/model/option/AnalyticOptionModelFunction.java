@@ -39,8 +39,7 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 public abstract class AnalyticOptionModelFunction extends AbstractFunction implements FunctionInvoker {
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-      final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final OptionSecurity option = (OptionSecurity) target.getSecurity();
     final StandardOptionDataBundle data = getDataBundle(executionContext.getSecuritySource(), executionContext.getSnapshotClock(), option, inputs);
     final OptionDefinition definition = getOptionDefinition(option);
@@ -58,9 +57,7 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction imple
       final Greek greek = AvailableGreeks.getGreekForValueRequirement(dV);
       assert greek != null : "Should have thrown IllegalArgumentException above.";
       final Double greekResult = greeks.get(greek);
-      final ValueSpecification resultSpecification = new ValueSpecification(
-          new ValueRequirement(dV.getValueName(), option),
-          getUniqueIdentifier());
+      final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(dV.getValueName(), option), getUniqueIdentifier());
       final ComputedValue resultValue = new ComputedValue(resultSpecification, greekResult);
       results.add(resultValue);
     }
@@ -75,9 +72,7 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction imple
     final OptionSecurity security = (OptionSecurity) target.getSecurity();
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
     for (final String valueName : AvailableGreeks.getAllGreekNames()) {
-      results.add(new ValueSpecification(
-          new ValueRequirement(valueName, security),
-          getUniqueIdentifier()));
+      results.add(new ValueSpecification(new ValueRequirement(valueName, security), getUniqueIdentifier()));
     }
     return results;
   }
@@ -91,13 +86,12 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction imple
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, uid);
   }
 
-  protected ValueRequirement getDiscountCurveMarketDataRequirement(final UniqueIdentifier uid) {
+  protected ValueRequirement getYieldCurveMarketDataRequirement(final UniqueIdentifier uid) {
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, uid);
   }
 
-  protected ValueRequirement getCostOfCarryMarketDataRequirement() {
-    // TODO
-    return null;
+  protected ValueRequirement getCostOfCarryMarketDataRequirement(final UniqueIdentifier uid) {
+    return new ValueRequirement(ValueRequirementNames.COST_OF_CARRY, ComputationTargetType.SECURITY, uid);
   }
 
   protected ValueRequirement getVolatilitySurfaceMarketDataRequirement(final UniqueIdentifier uid) {
@@ -108,5 +102,5 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction imple
 
   protected abstract OptionDefinition getOptionDefinition(OptionSecurity option);
 
-  protected abstract StandardOptionDataBundle getDataBundle(SecuritySource secMaster, Clock relevantTime, OptionSecurity option, FunctionInputs inputs);
+  protected abstract <S extends StandardOptionDataBundle> S getDataBundle(SecuritySource secMaster, Clock relevantTime, OptionSecurity option, FunctionInputs inputs);
 }

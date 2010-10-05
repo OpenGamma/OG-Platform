@@ -7,13 +7,14 @@ package com.opengamma.financial.interestrate.annuity.definition;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
 import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * A wrapper class for a GenericAnnuity containing FixedCouponPayment
  */
-public class FixedCouponAnnuity extends GenericAnnuity<FixedCouponPayment> {
+public class FixedCouponAnnuity extends GenericAnnuity<FixedCouponPayment> implements InterestRateDerivativeWithRate {
 
   public FixedCouponAnnuity(final FixedCouponPayment[] payments) {
     super(payments);
@@ -24,7 +25,7 @@ public class FixedCouponAnnuity extends GenericAnnuity<FixedCouponPayment> {
   }
 
   public FixedCouponAnnuity(final double[] paymentTimes, final double notional, final double couponRate, final String yieldCurveName) {
-    this(paymentTimes, notional, couponRate, setupBasisyearFrac(paymentTimes), yieldCurveName);
+    this(paymentTimes, notional, couponRate, setupBasisYearFraction(paymentTimes), yieldCurveName);
   }
 
   public FixedCouponAnnuity(final double[] paymentTimes, final double notional, final double couponRate, final double[] yearFractions, final String yieldCurveName) {
@@ -51,7 +52,9 @@ public class FixedCouponAnnuity extends GenericAnnuity<FixedCouponPayment> {
     return temp;
   }
 
-  private static double[] setupBasisyearFrac(final double[] paymentTimes) {
+  private static double[] setupBasisYearFraction(final double[] paymentTimes) {
+    Validate.notNull(paymentTimes);
+    ArgumentChecker.notEmpty(paymentTimes, "payment times");
     int n = paymentTimes.length;
     double[] res = new double[n];
     for (int i = 0; i < n; i++) {
