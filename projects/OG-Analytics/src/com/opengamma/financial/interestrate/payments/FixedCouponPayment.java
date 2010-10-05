@@ -54,7 +54,7 @@ public class FixedCouponPayment extends FixedPayment implements InterestRateDeri
 
   @Override
   public FixedCouponPayment withRate(double rate) {
-    return new FixedCouponPayment(getPaymentTime(), getYearFraction(), rate, getFundingCurveName());
+    return new FixedCouponPayment(getPaymentTime(), getNotional(), getYearFraction(), rate, getFundingCurveName());
   }
 
   public FixedCouponPayment withUnitCoupon() {
