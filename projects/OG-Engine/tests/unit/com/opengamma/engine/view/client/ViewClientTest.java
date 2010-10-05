@@ -47,7 +47,7 @@ import com.opengamma.livedata.msg.UserPrincipal;
  */
 public class ViewClientTest {
   
-  private static final int TIMEOUT = 10000;
+  private static final int TIMEOUT = 20000;
   
   @Test
   public void testSingleViewMultipleClients() {
@@ -142,12 +142,12 @@ public class ViewClientTest {
     client.setResultListener(resultListener);
     
     // Client not started - should not have been listening to anything that might have been going on
-    assertTrue(resultListener.isEmpty());
+    assertEquals(0, resultListener.getQueueSize());
     
     snapshotProvider.addValue(env.getPrimitive1(), 1);
     snapshotProvider.addValue(env.getPrimitive2(), 2);
     
-    assertTrue(resultListener.isEmpty());
+    assertEquals(0, resultListener.getQueueSize());
     client.startLive();  // Performs an initial cycle
     
     ViewComputationResultModel result1 = resultListener.getResult(TIMEOUT);
@@ -199,12 +199,12 @@ public class ViewClientTest {
     client.setDeltaResultListener(deltaListener);
     
     // Client not started - should not have been listening to anything that might have been going on
-    assertTrue(deltaListener.isEmpty());
+    assertEquals(0, deltaListener.getQueueSize());
     
     snapshotProvider.addValue(env.getPrimitive1(), 1);
     snapshotProvider.addValue(env.getPrimitive2(), 2);
     
-    assertTrue(deltaListener.isEmpty());
+    assertEquals(0, deltaListener.getQueueSize());
     client.startLive();  // Performs an initial cycle
     
     ViewDeltaResultModel result1 = deltaListener.getResult(TIMEOUT);
@@ -218,7 +218,7 @@ public class ViewClientTest {
     // Just update one live data value, and only this one value should end up in the delta
     snapshotProvider.addValue(env.getPrimitive1(), 3);
     
-    assertTrue(deltaListener.isEmpty());
+    assertEquals(0, deltaListener.getQueueSize());
     env.getCurrentRecalcJob(view).liveDataChanged();  // Need to get it to perform another cycle
     
     // Should have been merging results received in the meantime
@@ -256,30 +256,30 @@ public class ViewClientTest {
     TestComputationResultListener viewResultListener = new TestComputationResultListener();
     view.addResultListener(viewResultListener);
     
-    assertTrue(viewResultListener.isEmpty());
+    assertEquals(0, viewResultListener.getQueueSize());
     
     // Start off paused. This should kick off an initial live computation cycle, which we'll consume
     client.pauseLive();
-    ViewComputationResultModel result1 = viewResultListener.getResult(TIMEOUT);
+    viewResultListener.getResult(TIMEOUT);
     
     // Now we're paused, so any changes should be batched.
     snapshotProvider.addValue(env.getPrimitive1(), 1);
     env.getCurrentRecalcJob(view).liveDataChanged();
     viewResultListener.getResult(TIMEOUT);
-    assertTrue(viewResultListener.isEmpty());
-    assertTrue(clientResultListener.isEmpty());
+    assertEquals(0, viewResultListener.getQueueSize());
+    assertEquals(0, clientResultListener.getQueueSize());
     
     snapshotProvider.addValue(env.getPrimitive1(), 2);
     env.getCurrentRecalcJob(view).liveDataChanged();
     viewResultListener.getResult(TIMEOUT);
-    assertTrue(viewResultListener.isEmpty());
-    assertTrue(clientResultListener.isEmpty());
+    assertEquals(0, viewResultListener.getQueueSize());
+    assertEquals(0, clientResultListener.getQueueSize());
     
     // Resuming should release the most recent result to the client
     client.startLive();
     ViewComputationResultModel result2 = clientResultListener.getResult(TIMEOUT);
-    assertTrue(viewResultListener.isEmpty());
-    assertTrue(clientResultListener.isEmpty());
+    assertEquals(0, viewResultListener.getQueueSize());
+    assertEquals(0, clientResultListener.getQueueSize());
     Map<ValueRequirement, Object> expected = new HashMap<ValueRequirement, Object>();
     expected.put(env.getPrimitive1(), (byte) 2);
     expected.put(env.getPrimitive2(), (byte) 0);
@@ -297,34 +297,34 @@ public class ViewClientTest {
 
     // Pause results again and we should be back to merging
     client.pauseLive();
-    assertTrue(viewResultListener.isEmpty());
-    assertTrue(clientResultListener.isEmpty());
+    assertEquals(0, viewResultListener.getQueueSize());
+    assertEquals(0, clientResultListener.getQueueSize());
 
     snapshotProvider.addValue(env.getPrimitive2(), 1);
     env.getCurrentRecalcJob(view).liveDataChanged();
     viewResultListener.getResult(TIMEOUT);
-    assertTrue(viewResultListener.isEmpty());
-    assertTrue(clientResultListener.isEmpty());
+    assertEquals(0, viewResultListener.getQueueSize());
+    assertEquals(0, clientResultListener.getQueueSize());
 
     snapshotProvider.addValue(env.getPrimitive2(), 2);
     env.getCurrentRecalcJob(view).liveDataChanged();
     viewResultListener.getResult(TIMEOUT);
-    assertTrue(viewResultListener.isEmpty());
-    assertTrue(clientResultListener.isEmpty());
+    assertEquals(0, viewResultListener.getQueueSize());
+    assertEquals(0, clientResultListener.getQueueSize());
     
     // Start results again
     client.startLive();
     ViewComputationResultModel result4 = clientResultListener.getResult(TIMEOUT);
-    assertTrue(viewResultListener.isEmpty());
-    assertTrue(clientResultListener.isEmpty());
+    assertEquals(0, viewResultListener.getQueueSize());
+    assertEquals(0, clientResultListener.getQueueSize());
     expected = new HashMap<ValueRequirement, Object>();
     expected.put(env.getPrimitive1(), (byte) 3);
     expected.put(env.getPrimitive2(), (byte) 2);
     assertComputationResult(expected, env.getCalculationResult(result4));
     
     client.stopLive();
-    assertTrue(viewResultListener.isEmpty());
-    assertTrue(clientResultListener.isEmpty());
+    assertEquals(0, viewResultListener.getQueueSize());
+    assertEquals(0, clientResultListener.getQueueSize());
     
     client.shutdown();
   }
@@ -378,15 +378,15 @@ public class ViewClientTest {
     ViewRecalculationJob recalcJob = env.getCurrentRecalcJob(view);
     assertTrue(view.isRunning());
     computationListener1.getResult(TIMEOUT);
-    assertTrue(computationListener1.isEmpty());
+    assertEquals(0, computationListener1.getQueueSize());
     
     // Push through a second result - should have a delta this time
     snapshotProvider.addValue(env.getPrimitive1(), 3);
     recalcJob.liveDataChanged();
     computationListener1.getResult(TIMEOUT);
     deltaListener1.getResult(TIMEOUT);
-    assertTrue(computationListener1.isEmpty());
-    assertTrue(deltaListener1.isEmpty());
+    assertEquals(0, computationListener1.getQueueSize());
+    assertEquals(0, deltaListener1.getQueueSize());
 
     // Change both listeners
     TestDeltaResultListener deltaListener2 = new TestDeltaResultListener();
@@ -399,10 +399,10 @@ public class ViewClientTest {
     recalcJob.liveDataChanged();
     computationListener2.getResult(TIMEOUT);
     deltaListener2.getResult(TIMEOUT);
-    assertTrue(computationListener1.isEmpty());
-    assertTrue(computationListener2.isEmpty());
-    assertTrue(deltaListener1.isEmpty());
-    assertTrue(deltaListener2.isEmpty());
+    assertEquals(0, computationListener1.getQueueSize());
+    assertEquals(0, computationListener2.getQueueSize());
+    assertEquals(0, deltaListener1.getQueueSize());
+    assertEquals(0, deltaListener2.getQueueSize());
 
     client.setResultListener(null);
     client.setDeltaResultListener(null);

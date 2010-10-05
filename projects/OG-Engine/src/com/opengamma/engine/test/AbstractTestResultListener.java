@@ -30,8 +30,8 @@ public class AbstractTestResultListener<T> {
     return result;
   }
   
-  public boolean isEmpty() {
-    return _resultsReceived.isEmpty();
+  public int getQueueSize() {
+    return _resultsReceived.size();
   }
   
   public void clear() {

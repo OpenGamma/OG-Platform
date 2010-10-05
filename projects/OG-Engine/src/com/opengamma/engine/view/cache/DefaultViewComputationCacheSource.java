@@ -5,8 +5,10 @@
  */
 package com.opengamma.engine.view.cache;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -37,7 +39,7 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
   private final FudgeContext _fudgeContext;
 
   private final ConcurrentMap<ViewComputationCacheKey, DefaultViewComputationCache> _cachesByKey = new ConcurrentHashMap<ViewComputationCacheKey, DefaultViewComputationCache>();
-  private final ConcurrentMap<Pair<String, Long>, Set<BinaryDataStore>> _activeStores = new ConcurrentHashMap<Pair<String, Long>, Set<BinaryDataStore>>();
+  private final Map<Pair<String, Long>, List<ViewComputationCacheKey>> _activeCaches = new HashMap<Pair<String, Long>, List<ViewComputationCacheKey>>();
   private final ReentrantLock _cacheManagementLock = new ReentrantLock();
   private final BinaryDataStoreFactory _privateDataStoreFactory;
   private final BinaryDataStoreFactory _sharedDataStoreFactory;
@@ -106,17 +108,16 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
       cache = _cachesByKey.get(key);
       if (cache == null) {
         final BinaryDataStore privateDataStore = _privateDataStoreFactory.createDataStore(key);
-        addDataStoreForRelease(key, privateDataStore);
-        final BinaryDataStore sharedDataStore;
-        if (_privateDataStoreFactory == _sharedDataStoreFactory) {
-          // If factories are the same, don't create another
-          sharedDataStore = privateDataStore;
-        } else {
-          sharedDataStore = _sharedDataStoreFactory.createDataStore(key);
-          addDataStoreForRelease(key, sharedDataStore);
-        }
+        final BinaryDataStore sharedDataStore = (_privateDataStoreFactory == _sharedDataStoreFactory) ? privateDataStore : _sharedDataStoreFactory.createDataStore(key);
         cache = createViewComputationCache(getIdentifierMap(), privateDataStore, sharedDataStore, getFudgeContext());
         _cachesByKey.put(key, cache);
+        final Pair<String, Long> releaseKey = Pair.of(key.getViewName(), key.getSnapshotTimestamp());
+        List<ViewComputationCacheKey> caches = _activeCaches.get(releaseKey);
+        if (caches == null) {
+          caches = new LinkedList<ViewComputationCacheKey>();
+          _activeCaches.put(releaseKey, caches);
+        }
+        caches.add(key);
       }
     } finally {
       _cacheManagementLock.unlock();
@@ -138,41 +139,31 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
     return new DefaultViewComputationCache(identifierMap, privateDataStore, sharedDataStore, fudgeContext);
   }
 
-  protected void addDataStoreForRelease(ViewComputationCacheKey key, BinaryDataStore dataStore) {
-    Pair<String, Long> releaseKey = Pair.of(key.getViewName(), key.getSnapshotTimestamp());
-    Set<BinaryDataStore> dataStores = _activeStores.get(releaseKey);
-    if (dataStores == null) {
-      dataStores = new HashSet<BinaryDataStore>();
-      _activeStores.put(releaseKey, dataStores);
-    }
-    dataStores.add(dataStore);
-  }
-
   @Override
   public void releaseCaches(String viewName, long timestamp) {
     ArgumentChecker.notNull(viewName, "View name");
     if (getReleaseCachesCallback() != null) {
       getReleaseCachesCallback().onReleaseCaches(viewName, timestamp);
     }
-    Pair<String, Long> releaseKey = Pair.of(viewName, timestamp);
-    Set<BinaryDataStore> dataStores = null;
+    DefaultViewComputationCache[] caches;
     _cacheManagementLock.lock();
     try {
-      dataStores = _activeStores.remove(releaseKey);
+      final List<ViewComputationCacheKey> cacheKeys = _activeCaches.remove(Pair.of(viewName, timestamp));
+      if (cacheKeys == null) {
+        return;
+      }
+      caches = new DefaultViewComputationCache[cacheKeys.size()];
+      int i = 0;
+      for (ViewComputationCacheKey key : cacheKeys) {
+        caches[i++] = _cachesByKey.remove(key);
+      }
     } finally {
       _cacheManagementLock.unlock();
     }
-
-    if (dataStores == null) {
-      return;
-    }
-
-    for (BinaryDataStore dataStore : dataStores) {
-      dataStore.delete();
+    for (DefaultViewComputationCache cache : caches) {
+      cache.delete();
     }
   }
-
-  // TODO 2010-08-18 There's a memory leak here; the _cachesByKey never gets emptied of things
 
   public void setReleaseCachesCallback(final ReleaseCachesCallback releaseCachesCallback) {
     _releaseCachesCallback = releaseCachesCallback;

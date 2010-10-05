@@ -248,7 +248,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     ParallelArrayBinarySort.parallelBinarySort(nodeTimes, initialRatesGuess);
     final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
     final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
-    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> sensitivityCalculators = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> sensitivityCalculators = 
+      new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
     //    final Interpolator1D interpolator = Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName());
     final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_definition.getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
         Interpolator1DFactory.FLAT_EXTRAPOLATOR);

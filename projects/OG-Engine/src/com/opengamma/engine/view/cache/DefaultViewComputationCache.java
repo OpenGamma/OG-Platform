@@ -324,4 +324,16 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Remove any underlying resources from the data stores and make the size cache available for garbage
+   * collection. 
+   */
+  public void delete() {
+    _valueSizeCache.clear();
+    getPrivateDataStore().delete();
+    if (getSharedDataStore() != getPrivateDataStore()) {
+      getSharedDataStore().delete();
+    }
+  }
+
 }

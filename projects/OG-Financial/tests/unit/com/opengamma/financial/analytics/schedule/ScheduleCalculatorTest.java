@@ -15,7 +15,7 @@ import org.junit.Test;
 
 import com.opengamma.financial.analytics.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.FollowingBusinessDayConvention;
-import com.opengamma.financial.convention.businessday.ModifiedBusinessDayConvention;
+import com.opengamma.financial.convention.businessday.ModifiedFollowingBusinessDayConvention;
 import com.opengamma.financial.convention.businessday.PrecedingBusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -98,7 +98,7 @@ public class ScheduleCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullDateArray1() {
-    ScheduleCalculator.getAdjustedDateSchedule(null, new ModifiedBusinessDayConvention(), ALL);
+    ScheduleCalculator.getAdjustedDateSchedule(null, new ModifiedFollowingBusinessDayConvention(), ALL);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -108,7 +108,7 @@ public class ScheduleCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyDateArray1() {
-    ScheduleCalculator.getAdjustedDateSchedule(new ZonedDateTime[0], new ModifiedBusinessDayConvention(), ALL);
+    ScheduleCalculator.getAdjustedDateSchedule(new ZonedDateTime[0], new ModifiedFollowingBusinessDayConvention(), ALL);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -123,7 +123,7 @@ public class ScheduleCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullCalendar() {
-    ScheduleCalculator.getAdjustedDateSchedule(new ZonedDateTime[] {DateUtil.getUTCDate(2010, 6, 1)}, new ModifiedBusinessDayConvention(), null);
+    ScheduleCalculator.getAdjustedDateSchedule(new ZonedDateTime[] {DateUtil.getUTCDate(2010, 6, 1)}, new ModifiedFollowingBusinessDayConvention(), null);
   }
 
   @Test(expected = IllegalArgumentException.class)
