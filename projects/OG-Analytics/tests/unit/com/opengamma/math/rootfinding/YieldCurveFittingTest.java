@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.ParRateDifferenceCalculator;
@@ -178,7 +179,7 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
     bundle.setCurve(curveNames.get(0), curve);
 
     final List<InterestRateDerivative> instruments = new ArrayList<InterestRateDerivative>();
-    InterestRateDerivative ird;
+    InterestRateDerivativeWithRate ird;
     index = 0;
     for (final String name : maturities.keySet()) {
       final double[] times = maturities.get(name);
@@ -280,7 +281,7 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
     }
 
     final List<InterestRateDerivative> instruments = new ArrayList<InterestRateDerivative>();
-    InterestRateDerivative ird;
+    InterestRateDerivativeWithRate ird;
     index = 0;
     for (final String name : maturities.keySet()) {
       for (final double t : maturities.get(name)) {

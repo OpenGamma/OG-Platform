@@ -48,4 +48,5 @@ public class BlackScholesMertonModelFunction extends StandardOptionDataAnalyticO
   protected OptionDefinition getOptionDefinition(final OptionSecurity option) {
     return new EuropeanVanillaOptionDefinition(option.getStrike(), option.getExpiry(), option.getOptionType() == OptionType.CALL);
   }
+
 }

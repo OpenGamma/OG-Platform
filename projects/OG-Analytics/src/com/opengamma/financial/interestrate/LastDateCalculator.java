@@ -12,10 +12,11 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
 import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
 import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
@@ -51,7 +52,7 @@ public class LastDateCalculator implements InterestRateDerivativeVisitor<Object,
   }
 
   @Override
-  public Double visitFixedFloatSwap(FixedFloatSwap swap, Object data) {
+  public Double visitFixedCouponSwap(FixedCouponSwap<?> swap, Object data) {
     return visitSwap(swap, data);
   }
 
@@ -90,6 +91,11 @@ public class LastDateCalculator implements InterestRateDerivativeVisitor<Object,
     double a = getValue(swap.getPayLeg(), data);
     double b = getValue(swap.getReceiveLeg(), data);
     return Math.max(a, b);
+  }
+
+  @Override
+  public Double visitContinuouslyMonitoredAverageRatePayment(ContinuouslyMonitoredAverageRatePayment payment, Object data) {
+    return payment.getPaymentTime();
   }
 
   // @Override
