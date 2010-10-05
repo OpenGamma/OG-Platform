@@ -10,5 +10,5 @@ package com.opengamma.financial.interestrate;
  */
 public interface InterestRateDerivativeWithRate extends InterestRateDerivative {
 
-  public InterestRateDerivativeWithRate withRate(double rate);
+  InterestRateDerivativeWithRate withRate(double rate);
 }

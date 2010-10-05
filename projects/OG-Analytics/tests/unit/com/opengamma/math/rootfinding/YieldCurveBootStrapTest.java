@@ -250,7 +250,7 @@ public class YieldCurveBootStrapTest {
   @Test
   public void testBroyden() {
     final VectorFieldFirstOrderDifferentiator fd_jac_calculator = new VectorFieldFirstOrderDifferentiator();
-    NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
+    final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
 
     doHotSpot(rootFinder, "Broyden, single curve", SINGLE_CURVE_FINDER, SINGLE_CURVE_JACOBIAN);
     doHotSpot(rootFinder, "Broyden, single curve, finite difference", SINGLE_CURVE_FINDER, fd_jac_calculator.derivative(SINGLE_CURVE_FINDER));
@@ -352,7 +352,7 @@ public class YieldCurveBootStrapTest {
       for (int i = 0; i < SWAP_VALUES.length; i++) {
         swapRates[i] *= Math.exp(-0.5 * sigma * sigma + sigma * normDist.nextRandom());
         final FixedFloatSwap swap = (FixedFloatSwap) SINGLE_CURVE_INSTRUMENTS.get(i);
-        final FixedCouponAnnuity fixedLeg = (FixedCouponAnnuity) swap.getFixedLeg();
+        final FixedCouponAnnuity fixedLeg = swap.getFixedLeg();
         final FixedCouponAnnuity newLeg = fixedLeg.withRate(swapRates[i]);
         final InterestRateDerivative ird = new FixedFloatSwap(newLeg, swap.getFloatingLeg());
         instruments.add(ird);
@@ -451,10 +451,10 @@ public class YieldCurveBootStrapTest {
     return new InterpolatedYieldCurve(times, yields, interpolator);
   }
 
-  protected static FixedFloatSwap setParSwapRate(FixedFloatSwap swap, double rate) {
-    ForwardLiborAnnuity floatingLeg = (ForwardLiborAnnuity) swap.getFloatingLeg();
-    FixedCouponAnnuity fixedLeg = (FixedCouponAnnuity) swap.getFixedLeg();
-    FixedCouponAnnuity newLeg = fixedLeg.withRate(rate);
+  protected static FixedFloatSwap setParSwapRate(final FixedFloatSwap swap, final double rate) {
+    final ForwardLiborAnnuity floatingLeg = swap.getFloatingLeg();
+    final FixedCouponAnnuity fixedLeg = swap.getFixedLeg();
+    final FixedCouponAnnuity newLeg = fixedLeg.withRate(rate);
     return new FixedFloatSwap(newLeg, floatingLeg);
   }
 
