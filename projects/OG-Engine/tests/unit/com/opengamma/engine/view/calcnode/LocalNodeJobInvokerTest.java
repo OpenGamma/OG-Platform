@@ -14,13 +14,14 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import com.opengamma.engine.test.TestCalculationNode;
+import com.opengamma.util.test.Timeout;
 
 /**
  * Tests the LocalNodeJobInvoker class
  */
 public class LocalNodeJobInvokerTest implements JobInvokerRegister {
 
-  private static final long TIMEOUT = 1000L;
+  private static final long TIMEOUT = Timeout.standardTimeoutMillis ();
 
   private JobInvoker _invoker;
 

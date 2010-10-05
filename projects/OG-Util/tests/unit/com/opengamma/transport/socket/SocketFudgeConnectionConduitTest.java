@@ -26,6 +26,7 @@ import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionReceiver;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageSender;
+import com.opengamma.util.test.Timeout;
 
 /**
  * Tests the SocketFudgeConnection and ServerSocketFudgeConnectionReceiver classes
@@ -64,7 +65,7 @@ public class SocketFudgeConnectionConduitTest {
     final CollectingFudgeMessageReceiver clientReceiver = new CollectingFudgeMessageReceiver();
     client.setFudgeMessageReceiver(clientReceiver);
     client.getFudgeMessageSender().send(testMessage1);
-    final FudgeMsgEnvelope envelope = clientReceiver.waitForMessage(1000L);
+    final FudgeMsgEnvelope envelope = clientReceiver.waitForMessage(Timeout.standardTimeoutMillis());
     assertNotNull(envelope);
     assertEquals(testMessage2, envelope.getMessage());
     client.stop();
@@ -112,7 +113,7 @@ public class SocketFudgeConnectionConduitTest {
     client.getFudgeMessageSender().send(testMessage2);
     assertTrue(message3Receiver.getMessages().isEmpty());
     client.getFudgeMessageSender().send(testMessage3);
-    final FudgeMsgEnvelope envelope = message3Receiver.waitForMessage(1000L);
+    final FudgeMsgEnvelope envelope = message3Receiver.waitForMessage(Timeout.standardTimeoutMillis());
     assertNotNull(envelope);
     assertEquals(testMessage3, envelope.getMessage());
     server.stop();
@@ -121,7 +122,6 @@ public class SocketFudgeConnectionConduitTest {
   
   private class MessageReadWrite extends Thread implements FudgeMessageReceiver {
 
-    private static final long TIMEOUT = 5000L;
     private static final int NUM_MESSAGES = 1000;
 
     private FudgeMessageSender _sender;
@@ -146,9 +146,10 @@ public class SocketFudgeConnectionConduitTest {
     }
 
     public synchronized boolean waitForMessages() throws InterruptedException {
-      final long timeout = System.currentTimeMillis() + TIMEOUT;
+      final long period = Timeout.standardTimeoutMillis();
+      final long timeout = System.currentTimeMillis() + period;
       while ((_received < NUM_MESSAGES) && (System.currentTimeMillis() < timeout)) {
-        wait(TIMEOUT);
+        wait(period);
       }
       return _received == NUM_MESSAGES;
     }
@@ -198,7 +199,7 @@ public class SocketFudgeConnectionConduitTest {
             message.add("foo", 1);
             connection.getFudgeMessageSender().send(message);
             try {
-              Thread.sleep(1000);
+              Thread.sleep(Timeout.standardTimeoutMillis());
             } catch (InterruptedException e) {
             }
             message = fudgeContext.newMessage();
@@ -223,7 +224,7 @@ public class SocketFudgeConnectionConduitTest {
           concurrencyMax.set (concurrency);
         }
         try {
-          Thread.sleep(500);
+          Thread.sleep(Timeout.standardTimeoutMillis() / 2L);
         } catch (InterruptedException e) {
         }
         _concurrency.decrementAndGet ();
@@ -236,7 +237,7 @@ public class SocketFudgeConnectionConduitTest {
     client.getFudgeMessageSender().send(FudgeContext.EMPTY_MESSAGE);
     final int[] result = new int[4];
     for (int i = 0; i < 4; i++) {
-      final FudgeMsgEnvelope envelope = responses.waitForMessage(2000L);
+      final FudgeMsgEnvelope envelope = responses.waitForMessage(Timeout.standardTimeoutMillis() * 2L);
       assertNotNull (envelope);
       result[i] = envelope.getMessage().getInt("foo");
     }

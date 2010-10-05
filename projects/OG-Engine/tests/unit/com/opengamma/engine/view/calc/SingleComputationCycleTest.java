@@ -23,13 +23,14 @@ import com.opengamma.engine.view.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.util.test.Timeout;
 
 /**
  * Tests SingleComputationCycle
  */
 public class SingleComputationCycleTest {
 
-  private static final long TIMEOUT = 10000;
+  private static final long TIMEOUT = 10L * Timeout.standardTimeoutMillis();
   
   @Test
   public void testInterruptCycle() throws InterruptedException {

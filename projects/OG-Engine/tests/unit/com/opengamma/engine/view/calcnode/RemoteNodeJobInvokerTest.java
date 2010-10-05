@@ -27,6 +27,7 @@ import com.opengamma.transport.DirectFudgeConnection;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.test.Timeout;
 
 /**
  * Tests the RemoteNodeJobInvoker
@@ -34,7 +35,7 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
 public class RemoteNodeJobInvokerTest {
 
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
-  private static final long TIMEOUT = 1000L;
+  private static final long TIMEOUT = Timeout.standardTimeoutMillis();
 
   @Test
   public void simpleInvocation() {

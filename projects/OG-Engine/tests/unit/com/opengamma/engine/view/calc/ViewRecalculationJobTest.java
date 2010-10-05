@@ -15,13 +15,14 @@ import com.opengamma.engine.view.ViewImpl;
 import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.util.test.Timeout;
 
 /**
  * Tests ViewRecalculationJob
  */
 public class ViewRecalculationJobTest {
 
-  private static final long TIMEOUT = 10000;
+  private static final long TIMEOUT = 10L * Timeout.standardTimeoutMillis();
   
   @Test
   public void testInterruptJobBetweenCycles() throws InterruptedException {
