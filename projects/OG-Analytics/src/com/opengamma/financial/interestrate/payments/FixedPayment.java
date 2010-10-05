@@ -7,7 +7,6 @@ package com.opengamma.financial.interestrate.payments;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 
 /**
@@ -85,11 +84,6 @@ public class FixedPayment implements Payment {
   @Override
   public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitFixedPayment(this, data);
-  }
-
-  @Override
-  public InterestRateDerivative withRate(double rate) {
-    return null;
   }
 
 }

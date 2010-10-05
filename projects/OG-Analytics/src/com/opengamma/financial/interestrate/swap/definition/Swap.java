@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.interestrate.swap.definition;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
@@ -67,11 +66,6 @@ public class Swap<P extends Payment, R extends Payment> implements InterestRateD
     final Swap<?, ?> other = (Swap<?, ?>) obj;
     return ObjectUtils.equals(this._payLeg, other._payLeg) && ObjectUtils.equals(this._receiveLeg, other._receiveLeg);
 
-  }
-
-  @Override
-  public InterestRateDerivative withRate(final double rate) {
-    throw new NotImplementedException();
   }
 
 }

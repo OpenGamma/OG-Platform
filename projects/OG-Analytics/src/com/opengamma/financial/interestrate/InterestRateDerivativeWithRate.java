@@ -8,8 +8,7 @@ package com.opengamma.financial.interestrate;
 /**
  * 
  */
-public interface InterestRateDerivative {
+public interface InterestRateDerivativeWithRate extends InterestRateDerivative {
 
-  <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data);
-
+  InterestRateDerivativeWithRate withRate(double rate);
 }

@@ -14,10 +14,11 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
 import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
 import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
@@ -107,14 +108,14 @@ public final class ParRateCalculator implements InterestRateDerivativeVisitor<Yi
    * 
    */
   @Override
-  public Double visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle curves) {
-    final double pvFloat = PVC.getValue(swap.getFloatingLeg(), curves);
+  public Double visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
+    final double pvRecieve = PVC.getValue(swap.getReceiveLeg(), curves);
     final double pvFixed = PVC.getValue(swap.getFixedLeg().withRate(1.0), curves);
-    return pvFloat / pvFixed;
+    return pvRecieve / pvFixed;
   }
 
   /**
-   *
+   * The assumption is that spread is received (i.e. the spread, if any, is on the received leg only)
    * If the spread is paid (i.e. on the pay leg), swap the legs around and take the negative of the returned value.
    *@param swap 
    * @param curves 
@@ -184,36 +185,12 @@ public final class ParRateCalculator implements InterestRateDerivativeVisitor<Yi
     throw new NotImplementedException();
   }
 
-  // /**
-  // * Returns the fixed coupon paid on the same dates (and with the same year fraction) as the floating payments, that gives the
-  // * same PV (for the given yield curves) as that expected from the floating payments. This is essentially a swap rate
-  // * @param annuity the variable annuity
-  // * @param curves the input curves
-  // * @return the par rate
-  // */
-  // @Override
-  // public Double visitVariableAnnuity(final ForwardLiborAnnuity annuity, final YieldCurveBundle curves) {
-  // final double pvFloat = PVC.getValue(annuity, curves);
-  // final double pvFixed = PVC.getValue(annuity.withUnitCoupons(), curves);
-  // return pvFloat / pvFixed;
-  // }
-  //
-  // /**
-  // * For non-constant fixed payments (i.e. payments are known at the outset), returns the fixed coupon paid on the same dates (and with the same year fraction)
-  // * that gives the same PV for a given funding curve
-  // * @param annuity the fixed annuity
-  // * @param curves the input curves
-  // * @return the par rate
-  // */
-  // @Override
-  // public Double visitFixedAnnuity(final FixedAnnuity annuity, final YieldCurveBundle curves) {
-  // final double pvFixed = PVC.getValue(annuity, curves);
-  // return pvFixed / PVC.getValue(annuity.withUnitCoupons(), curves);
-  // }
-  //
-  // @Override
-  // public Double visitConstantCouponAnnuity(final FixedCouponAnnuity annuity, final YieldCurveBundle curves) {
-  // return annuity.getCouponRate();
-  // }
+  @Override
+  public Double visitContinuouslyMonitoredAverageRatePayment(ContinuouslyMonitoredAverageRatePayment payment, YieldCurveBundle data) {
+    final YieldAndDiscountCurve indexCurve = data.getCurve(payment.getIndexCurveName());
+    final double ta = payment.getStartTime();
+    final double tb = payment.getEndTime();
+    return (indexCurve.getInterestRate(tb) * tb - indexCurve.getInterestRate(ta) * ta) / payment.getRateYearFraction();
+  }
 
 }

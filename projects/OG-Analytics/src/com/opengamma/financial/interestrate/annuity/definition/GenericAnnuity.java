@@ -18,13 +18,14 @@ import com.opengamma.financial.interestrate.payments.Payment;
 
 /**
  * A generic annuity is a set of payments (cash flows) at known future times. 
- * There payments can be known in advance, or depend on the future value of  some (possibly several) indices, e.g. the future Libor 
+ * There payments can be known in advance, or depend on the future value of  some (possibly several) indices, e.g. the future Libor
+ * @param <P> The payment type 
  */
 public class GenericAnnuity<P extends Payment> implements InterestRateDerivative {
 
   private final P[] _payments;
 
-  public GenericAnnuity(P[] payments) {
+  public GenericAnnuity(final P[] payments) {
     Validate.noNullElements(payments);
 
     _payments = payments;
@@ -32,7 +33,7 @@ public class GenericAnnuity<P extends Payment> implements InterestRateDerivative
   }
 
   @SuppressWarnings("unchecked")
-  public GenericAnnuity(List<? extends P> payments, Class<P> pType) {
+  public GenericAnnuity(final List<? extends P> payments, final Class<P> pType) {
     Validate.noNullElements(payments);
     _payments = payments.toArray((P[]) Array.newInstance(pType, 0));
 
@@ -42,7 +43,7 @@ public class GenericAnnuity<P extends Payment> implements InterestRateDerivative
     return _payments.length;
   }
 
-  public P getNthPayment(int n) {
+  public P getNthPayment(final int n) {
     return _payments[n];
   }
 
@@ -63,7 +64,7 @@ public class GenericAnnuity<P extends Payment> implements InterestRateDerivative
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -73,7 +74,7 @@ public class GenericAnnuity<P extends Payment> implements InterestRateDerivative
     if (getClass() != obj.getClass()) {
       return false;
     }
-    GenericAnnuity<?> other = (GenericAnnuity<?>) obj;
+    final GenericAnnuity<?> other = (GenericAnnuity<?>) obj;
     if (_payments.length != other._payments.length) {
       return false;
     }
@@ -86,13 +87,8 @@ public class GenericAnnuity<P extends Payment> implements InterestRateDerivative
   }
 
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitGenericAnnuity(this, data);
-  }
-
-  @Override
-  public InterestRateDerivative withRate(double rate) {
-    return null;
   }
 
 }

@@ -12,10 +12,11 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
 import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
 import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
@@ -78,7 +79,7 @@ public final class PresentValueCalculator implements InterestRateDerivativeVisit
   }
 
   @Override
-  public Double visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle curves) {
+  public Double visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
     return visitSwap(swap, curves);
   }
 
@@ -114,10 +115,20 @@ public final class PresentValueCalculator implements InterestRateDerivativeVisit
 
   @Override
   public Double visitForwardLiborPayment(ForwardLiborPayment payment, YieldCurveBundle data) {
-    YieldAndDiscountCurve fundingCurve = data.getCurve(payment.getFundingCurveName());
+    final YieldAndDiscountCurve fundingCurve = data.getCurve(payment.getFundingCurveName());
     final YieldAndDiscountCurve liborCurve = data.getCurve(payment.getLiborCurveName());
     double forward = (liborCurve.getDiscountFactor(payment.getLiborFixingTime()) / liborCurve.getDiscountFactor(payment.getLiborMaturityTime()) - 1) / payment.getForwardYearFraction();
     return payment.getNotional() * (forward + payment.getSpread()) * payment.getPaymentYearFraction() * fundingCurve.getDiscountFactor(payment.getPaymentTime());
+  }
+
+  @Override
+  public Double visitContinuouslyMonitoredAverageRatePayment(ContinuouslyMonitoredAverageRatePayment payment, YieldCurveBundle data) {
+    final YieldAndDiscountCurve fundingCurve = data.getCurve(payment.getFundingCurveName());
+    final YieldAndDiscountCurve indexCurve = data.getCurve(payment.getIndexCurveName());
+    final double ta = payment.getStartTime();
+    final double tb = payment.getEndTime();
+    final double avRate = (indexCurve.getInterestRate(tb) * tb - indexCurve.getInterestRate(ta) * ta) / payment.getRateYearFraction();
+    return fundingCurve.getDiscountFactor(payment.getPaymentTime()) * (avRate + payment.getSpread()) * payment.getPaymentYearFraction() * payment.getNotional();
   }
 
   // @Override

@@ -13,10 +13,11 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
 import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
 import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
@@ -72,32 +73,37 @@ public final class ParRateDifferenceCalculator implements InterestRateDerivative
 
   @Override
   public Double visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
-    final double spread = frn.getReceiveLeg().getNthPayment(0).getSpread();// assume constant spreads
+    final double spread = frn.getReceiveLeg().getNthPayment(0).getSpread(); // assume constant spreads
     return RATE_CAL.getValue(frn, curves) - spread;
   }
 
   @Override
-  public Double visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle curves) {
+  public Double visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
     return RATE_CAL.getValue(swap, curves) - swap.getFixedLeg().getNthPayment(0).getCoupon();
   }
 
   @Override
-  public Double visitFixedPayment(FixedPayment payment, YieldCurveBundle data) {
+  public Double visitFixedPayment(final FixedPayment payment, final YieldCurveBundle data) {
     throw new NotImplementedException();
   }
 
   @Override
-  public Double visitForwardLiborPayment(ForwardLiborPayment payment, YieldCurveBundle data) {
+  public Double visitForwardLiborPayment(final ForwardLiborPayment payment, final YieldCurveBundle data) {
     throw new NotImplementedException();
   }
 
   @Override
-  public Double visitGenericAnnuity(GenericAnnuity<? extends Payment> annuity, YieldCurveBundle data) {
+  public Double visitGenericAnnuity(final GenericAnnuity<? extends Payment> annuity, final YieldCurveBundle data) {
     throw new NotImplementedException();
   }
 
   @Override
-  public Double visitSwap(Swap<?, ?> swap, YieldCurveBundle data) {
+  public Double visitSwap(final Swap<?, ?> swap, final YieldCurveBundle data) {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public Double visitContinuouslyMonitoredAverageRatePayment(final ContinuouslyMonitoredAverageRatePayment payment, final YieldCurveBundle data) {
     throw new NotImplementedException();
   }
 

@@ -20,11 +20,12 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
 import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
 import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
@@ -115,13 +116,14 @@ public final class ParRateCurveSensitivityCalculator implements InterestRateDeri
   }
 
   @Override
-  public Map<String, List<DoublesPair>> visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle curves) {
-    final FixedCouponAnnuity tempAnnuity = ((FixedCouponAnnuity) swap.getFixedLeg()).withRate(1.0);
-    final double a = _pvCalculator.getValue(tempAnnuity, curves);
-    final double b = _pvCalculator.getValue(swap.getFloatingLeg(), curves);
+  public Map<String, List<DoublesPair>> visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
+    final FixedCouponAnnuity unitCouponAnnuity = swap.getFixedLeg().withRate(1.0);
+    final GenericAnnuity<?> recieveAnnuity = swap.getReceiveLeg();
+    final double a = _pvCalculator.getValue(unitCouponAnnuity, curves);
+    final double b = _pvCalculator.getValue(recieveAnnuity, curves);
     final double bOveraSq = b / a / a;
-    final Map<String, List<DoublesPair>> senseA = _pvSenseCalculator.getValue(tempAnnuity, curves);
-    final Map<String, List<DoublesPair>> senseB = _pvSenseCalculator.getValue(swap.getFloatingLeg(), curves);
+    final Map<String, List<DoublesPair>> senseA = _pvSenseCalculator.getValue(unitCouponAnnuity, curves);
+    final Map<String, List<DoublesPair>> senseB = _pvSenseCalculator.getValue(recieveAnnuity, curves);
 
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
     for (final String name : curves.getAllNames()) {
@@ -150,10 +152,17 @@ public final class ParRateCurveSensitivityCalculator implements InterestRateDeri
     return result;
   }
 
+  /**
+   * The assumption is that spread is received (i.e. the spread, if any, is on the received leg only)
+   * If the spread is paid (i.e. on the pay leg), swap the legs around and take the negative of the returned value.
+   *@param swap 
+   * @param curves 
+   *@return  The spread on the receive leg of a Tenor swap 
+   */
   @Override
   public Map<String, List<DoublesPair>> visitTenorSwap(final TenorSwap swap, final YieldCurveBundle curves) {
-    ForwardLiborAnnuity payLeg = (ForwardLiborAnnuity) swap.getPayLeg().withRate(0);
-    ForwardLiborAnnuity receiveLeg = (ForwardLiborAnnuity) swap.getReceiveLeg().withRate(0);
+    ForwardLiborAnnuity payLeg = ((ForwardLiborAnnuity) swap.getPayLeg()).withZeroSpread();
+    ForwardLiborAnnuity receiveLeg = ((ForwardLiborAnnuity) swap.getReceiveLeg()).withZeroSpread();
     FixedCouponAnnuity spreadLeg = receiveLeg.withUnitCoupons();
 
     final double a = _pvCalculator.getValue(receiveLeg, curves);
@@ -260,6 +269,21 @@ public final class ParRateCurveSensitivityCalculator implements InterestRateDeri
   @Override
   public Map<String, List<DoublesPair>> visitSwap(Swap<?, ?> swap, YieldCurveBundle data) {
     throw new NotImplementedException();
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitContinuouslyMonitoredAverageRatePayment(ContinuouslyMonitoredAverageRatePayment payment, YieldCurveBundle data) {
+    final double ta = payment.getStartTime();
+    final double tb = payment.getEndTime();
+
+    final DoublesPair s1 = new DoublesPair(ta, -ta / payment.getRateYearFraction());
+    final DoublesPair s2 = new DoublesPair(tb, tb / payment.getRateYearFraction());
+    final List<DoublesPair> temp = new ArrayList<DoublesPair>();
+    temp.add(s1);
+    temp.add(s2);
+    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    result.put(payment.getIndexCurveName(), temp);
+    return result;
   }
 
   // @Override

@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.interestrate.swap.definition;
 
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
@@ -15,7 +14,7 @@ import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
 /**
  * 
  */
-public class FixedFloatSwap extends Swap<FixedCouponPayment, ForwardLiborPayment> {
+public class FixedFloatSwap extends FixedCouponSwap<ForwardLiborPayment> {
 
   /**
    * This sets up a payer swap (i.e. pay the fixed leg and receive the floating leg)
@@ -39,28 +38,14 @@ public class FixedFloatSwap extends Swap<FixedCouponPayment, ForwardLiborPayment
     this(new FixedCouponAnnuity(fixedPaymentTimes, couponRate, fundingCurveName), new ForwardLiborAnnuity(floatingPaymentTimes, fundingCurveName, liborCurveName));
   }
 
-  public GenericAnnuity<FixedCouponPayment> getFixedLeg() {
-    return getPayLeg();
-  }
-
-  public GenericAnnuity<ForwardLiborPayment> getFloatingLeg() {
-    return getReceiveLeg();
-  }
-
-  @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
-    return visitor.visitFixedFloatSwap(this, data);
+  public ForwardLiborAnnuity getFloatingLeg() {
+    return (ForwardLiborAnnuity) getReceiveLeg();
+    // return new ForwardLiborAnnuity(getReceiveLeg().getPayments());
   }
 
   @Override
   public FixedFloatSwap withRate(double rate) {
-    FixedCouponPayment[] payments = getPayLeg().getPayments();
-    int n = payments.length;
-    FixedCouponPayment[] temp = new FixedCouponPayment[n];
-    for (int i = 0; i < n; i++) {
-      temp[i] = payments[i].withRate(rate);
-    }
-    return new FixedFloatSwap(new GenericAnnuity<FixedCouponPayment>(temp), getReceiveLeg());
+    return new FixedFloatSwap(getFixedLeg().withRate(rate), getReceiveLeg());
   }
 
 }
