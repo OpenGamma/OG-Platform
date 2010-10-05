@@ -31,9 +31,17 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
    * Fudge message key for the valid_to.
    */
   public static final String VALID_TO_FUDGE_FIELD_NAME = "ValidTo";
-  
+  /**
+   * The identifier
+   */
   private final Identifier _identifier;
+  /**
+   * The valid start date
+   */
   private final LocalDate _validFrom;
+  /**
+   * The valid end date
+   */
   private final LocalDate _validTo;
   
   /**
