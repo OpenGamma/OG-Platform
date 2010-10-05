@@ -141,6 +141,20 @@
 			classpathref="lib.path.id" author="false" windowtitle="${javadocs.windowtitle}"
 			doctitle="${javadocs.doctitle}" bottom="${javadocs.footer}" />
 	</target>
+	
+	<target name="javadoc-public" depends="load-ivy" description="--> build Javadocs for public APIs and SPIs of the project">
+		<mkdir dir="${docs.dir}" />
+		<mkdir dir="${docs.dir}/javadoc-public" />
+
+		<javadoc destdir="${docs.dir}/javadoc-public"
+			classpathref="lib.path.id" author="false" windowtitle="${javadocs.windowtitle}"
+			doctitle="${javadocs.doctitle}" bottom="${javadocs.footer}">
+		   <fileset dir="${src.dir}" includes="**/*.java">
+		       <contains text="@PublicAPI" casesensitive="yes"/>
+		       <contains text="@PublicSPI" casesensitive="yes"/>
+		   </fileset>
+	    </javadoc>
+	</target>
 
 	<target name="compile-tests-mkdir">
 		<mkdir dir="${tests.classes.dir}" />

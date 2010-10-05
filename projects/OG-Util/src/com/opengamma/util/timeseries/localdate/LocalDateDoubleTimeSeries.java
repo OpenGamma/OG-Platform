@@ -9,6 +9,7 @@ import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.ArrayUtils;
 
+import com.opengamma.util.PublicAPI;
 import com.opengamma.util.timeseries.AbstractIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.AbstractLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.DateTimeConverter;
@@ -22,6 +23,7 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  * @author jim
  * 
  */
+@PublicAPI
 public interface LocalDateDoubleTimeSeries extends DoubleTimeSeries<LocalDate>, FastBackedDoubleTimeSeries<LocalDate> {
 
   public abstract static class Integer extends AbstractIntDoubleTimeSeries<LocalDate> implements LocalDateDoubleTimeSeries {

@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
  *
  * @author kirk
  */
+
 /* package */abstract class AbstractFunctionContext {
   private final Map<String, Object> _backingMap = new ConcurrentSkipListMap<String, Object>();
 

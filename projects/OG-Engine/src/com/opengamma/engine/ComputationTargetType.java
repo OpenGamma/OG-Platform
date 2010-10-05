@@ -10,10 +10,12 @@ import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
+import com.opengamma.util.PublicAPI;
 
 /**
  * The type that computation will be base on.
  */
+@PublicAPI
 public enum ComputationTargetType {
 
   /**

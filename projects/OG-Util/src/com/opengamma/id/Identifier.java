@@ -13,6 +13,7 @@ import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
  * An immutable identifier for an item.
@@ -33,6 +34,7 @@ import com.opengamma.util.ArgumentChecker;
  *   <li>Trading system OTC trade ID</li>
  * </ul>
  */
+@PublicAPI
 public final class Identifier implements Identifiable, Comparable<Identifier>, Cloneable, Serializable {
 
   /**

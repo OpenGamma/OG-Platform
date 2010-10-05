@@ -13,6 +13,8 @@ import java.util.Map;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 
+import com.opengamma.util.PublicAPI;
+
 /**
  * An immutable pair consisting of two elements.
  * <p>
@@ -28,6 +30,7 @@ import org.apache.commons.lang.builder.CompareToBuilder;
  * @param <A> the first element type
  * @param <B> the second element type
  */
+@PublicAPI
 public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, B>>, Serializable {
 
   /**

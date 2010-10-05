@@ -8,12 +8,14 @@ package com.opengamma.engine.security;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A security that it may be possible to hold a position in.
  * <p>
  * A security generically defined as anything that a position can be held in.
  */
+@PublicSPI
 public interface Security extends UniqueIdentifiable {
 
   /**

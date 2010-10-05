@@ -11,6 +11,7 @@ import com.opengamma.engine.security.Security;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A position held within a portfolio.
@@ -22,6 +23,7 @@ import com.opengamma.id.UniqueIdentifier;
  * to the underlying security is held instead of the full data.
  * An unresolved position will return null when {@link #getSecurity()} is called.
  */
+@PublicSPI
 public interface Position extends UniqueIdentifiable {
 
   /**

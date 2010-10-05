@@ -5,9 +5,12 @@
  */
 package com.opengamma.engine.view.permission;
 
+import com.opengamma.util.PublicAPI;
+
 /**
  * Enumerates the permissions that apply to views.
  */
+@PublicAPI
 public enum ViewPermission {
   
   /**
