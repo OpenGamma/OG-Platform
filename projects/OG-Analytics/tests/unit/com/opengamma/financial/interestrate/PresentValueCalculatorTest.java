@@ -7,17 +7,25 @@ package com.opengamma.financial.interestrate;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 
-import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.swap.definition.BasisSwap;
+import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
+import com.opengamma.financial.interestrate.payments.FixedPayment;
+import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
+import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
@@ -100,8 +108,9 @@ public class PresentValueCalculatorTest {
   }
 
   @Test
-  public void testFixedAnnuity() {
-    FixedAnnuity annuity = new FixedAnnuity(new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 1.0, new double[] {1., 1., 1., 1., 1., 1., 1., 1., 1., 1.}, ZERO_PC_CURVE_NAME);
+  public void testFixedCouponAnnuity() {
+    FixedCouponAnnuity annuity = new FixedCouponAnnuity(new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 1.0, ZERO_PC_CURVE_NAME);
+
     double pv = PVC.getValue(annuity, CURVES);
     assertEquals(10.0, pv, 1e-12);
     final int n = 15;
@@ -117,17 +126,13 @@ public class PresentValueCalculatorTest {
       coupons[i] = Math.exp((i + 1) * rate * alpha);
       yearFracs[i] = yearFrac;
     }
-    annuity = new FixedAnnuity(paymentTimes, 1.0 / alpha, coupons, FIVE_PC_CURVE_NAME);
+    annuity = new FixedCouponAnnuity(paymentTimes, Math.PI, rate, yearFracs, ZERO_PC_CURVE_NAME);
     pv = PVC.getValue(annuity, CURVES);
-    assertEquals(n, pv, 1e-12);
-
-    annuity = new FixedAnnuity(paymentTimes, Math.PI, coupons, yearFracs, FIVE_PC_CURVE_NAME);
-    pv = PVC.getValue(annuity, CURVES);
-    assertEquals(Math.PI * yearFrac * n, pv, 1e-12);
+    assertEquals(n * yearFrac * rate * Math.PI, pv, 1e-12);
   }
 
   @Test
-  public void testVariableAnnuity() {
+  public void testForwardLiborAnnuity() {
     final int n = 15;
     final double alpha = 0.245;
     final double yearFrac = 0.25;
@@ -135,34 +140,30 @@ public class PresentValueCalculatorTest {
     final double[] paymentTimes = new double[n];
     final double[] indexFixing = new double[n];
     final double[] indexMaturity = new double[n];
-    final double[] yearFracs = new double[n];
+    final double[] paymentYearFracs = new double[n];
+    final double[] forwardYearFracs = new double[n];
     final double[] spreads = new double[n];
     for (int i = 0; i < n; i++) {
       indexFixing[i] = i * alpha + 0.1;
       paymentTimes[i] = (i + 1) * alpha;
       indexMaturity[i] = paymentTimes[i] + 0.1;
-      yearFracs[i] = yearFrac;
+      paymentYearFracs[i] = yearFrac;
+      forwardYearFracs[i] = alpha;
       spreads[i] = spread;
     }
-    VariableAnnuity annuity = new VariableAnnuity(paymentTimes, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
+    ForwardLiborAnnuity annuity = new ForwardLiborAnnuity(paymentTimes, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
     double pv = PVC.getValue(annuity, CURVES);
     assertEquals(0.0, pv, 1e-12);
 
-    annuity = new VariableAnnuity(paymentTimes, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    annuity = new ForwardLiborAnnuity(paymentTimes, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     double forward = 1 / alpha * (1 / CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(alpha) - 1);
     pv = PVC.getValue(annuity, CURVES);
     assertEquals(alpha * forward * n, pv, 1e-12);
 
-    forward = 1 / yearFrac * (1 / CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(alpha) - 1);
-    annuity = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreads, Math.E, 0.0, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    forward = 1 / alpha * (1 / CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(alpha) - 1);
+    annuity = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, paymentYearFracs, forwardYearFracs, spreads, Math.E, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     pv = PVC.getValue(annuity, CURVES);
     assertEquals(yearFrac * (spread + forward) * n * Math.E, pv, 1e-12);
-
-    indexFixing[0] = -0.001;
-    double intialRate = 0.08;
-    annuity = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreads, Math.E, intialRate, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    pv = PVC.getValue(annuity, CURVES);
-    assertEquals(yearFrac * (n * spread + forward * (n - 1) + intialRate) * Math.E, pv, 1e-12);
   }
 
   @Test
@@ -206,14 +207,14 @@ public class PresentValueCalculatorTest {
     }
     final double swapRate = (1 - curve.getDiscountFactor(10.0)) / 0.5 / sum;
 
-    final Swap swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final Swap<?, ?> swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     final double pv = PVC.getValue(swap, CURVES);
     assertEquals(0.0, pv, 1e-12);
 
   }
 
   @Test
-  public void testBasisSwap() {
+  public void testTenorSwap() {
     final int n = 20;
     final double tau = 0.25;
     final double[] paymentTimes = new double[n];
@@ -231,13 +232,85 @@ public class PresentValueCalculatorTest {
       yearFracs[i] = tau;
     }
 
-    final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, 0.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    final VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreads, 1.0, 0.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
+    final ForwardLiborAnnuity payLeg = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final ForwardLiborAnnuity receiveLeg = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
 
-    final Swap swap = new BasisSwap(payLeg, receiveLeg);
+    final Swap<?, ?> swap = new TenorSwap(payLeg, receiveLeg);
     final double pv = PVC.getValue(swap, CURVES);
     assertEquals(0.0, pv, 1e-12);
+  }
 
+  @Test
+  public void testGenericAnnuity() {
+    double time = 3.4;
+    double amount = 34.3;
+    double coupon = 0.05;
+    double yearFrac = 0.5;
+    double resetTime = 2.9;
+    double notional = 56;
+
+    List<Payment> list = new ArrayList<Payment>();
+    double expected = 0.0;
+
+    Payment temp = new FixedPayment(time, amount, FIVE_PC_CURVE_NAME);
+    expected += amount * CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(time);
+    list.add(temp);
+    temp = new FixedCouponPayment(time, notional, yearFrac, coupon, FIVE_PC_CURVE_NAME);
+    expected += notional * yearFrac * coupon * CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(time);
+    list.add(temp);
+    temp = new ForwardLiborPayment(time, notional, resetTime, time, yearFrac, yearFrac, 0.0, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    expected += notional * (CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(resetTime) / CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(time) - 1);
+    list.add(temp);
+
+    GenericAnnuity<Payment> annuity = new GenericAnnuity<Payment>(list, Payment.class);
+    final double pv = PVC.getValue(annuity, CURVES);
+    assertEquals(expected, pv, 1e-12);
+  }
+
+  @Test
+  public void testFixedPayment() {
+    double time = 1.23;
+    double amount = 4345.3;
+    FixedPayment payment = new FixedPayment(time, amount, FIVE_PC_CURVE_NAME);
+    double expected = amount * CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(time);
+    double pv = PVC.getValue(payment, CURVES);
+    assertEquals(expected, pv, 1e-8);
+  }
+
+  @Test
+  public void testFixedCouponPayment() {
+    double time = 1.23;
+    double yearFrac = 0.56;
+    double coupon = 0.07;
+    double notional = 1000;
+
+    FixedPayment payment = new FixedCouponPayment(time, notional, yearFrac, coupon, ZERO_PC_CURVE_NAME);
+    double expected = notional * yearFrac * coupon;
+    double pv = PVC.getValue(payment, CURVES);
+    assertEquals(expected, pv, 1e-8);
+  }
+
+  @Test
+  public void ForwardLiborPayment() {
+    double time = 2.45;
+    double resetTime = 2.0;
+    double maturity = 2.5;
+    double paymentYF = 0.48;
+    double forwardYF = 0.5;
+    double spread = 0.04;
+    double notional = 4.53;
+
+    ForwardLiborPayment payment = new ForwardLiborPayment(time, notional, resetTime, maturity, paymentYF, forwardYF, spread, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
+    double expected = notional * paymentYF * spread * CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(time);
+    double pv = PVC.getValue(payment, CURVES);
+    assertEquals(expected, pv, 1e-8);
+
+    payment = new ForwardLiborPayment(time, 1.0, resetTime, maturity, paymentYF, forwardYF, spread, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    double forward = (Math.exp(0.05 * (maturity - resetTime)) - 1) / forwardYF;
+
+    expected = paymentYF * (forward + spread);
+    pv = PVC.getValue(payment, CURVES);
+    assertEquals(expected, pv, 1e-8);
   }
 
 }

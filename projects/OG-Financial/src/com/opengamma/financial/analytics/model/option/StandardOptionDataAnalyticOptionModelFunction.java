@@ -25,9 +25,6 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.util.time.DateUtil;
-import com.opengamma.util.time.Expiry;
-import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
@@ -36,6 +33,7 @@ import com.opengamma.util.tuple.DoublesPair;
 public abstract class StandardOptionDataAnalyticOptionModelFunction extends AnalyticOptionModelFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(StandardOptionDataAnalyticOptionModelFunction.class);
 
+  @SuppressWarnings("unchecked")
   @Override
   protected StandardOptionDataBundle getDataBundle(final SecuritySource secMaster, final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
     final ZonedDateTime now = relevantTime.zonedDateTime();
@@ -46,19 +44,9 @@ public abstract class StandardOptionDataAnalyticOptionModelFunction extends Anal
       throw new NullPointerException("No spot value for underlying instrument.");
     }
     final double spot = spotAsObject;
-    final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
+    final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(getYieldCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
     final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
-    // TODO cost of carry model
-    final Expiry expiry = option.getExpiry();
-    final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
-    /*
-     * s_logger.debug("clock {}", Clock.systemDefaultZone().dateTime());
-     * s_logger.debug("now {}", now);
-     * s_logger.debug("T={}", t);
-     * s_logger.debug("R={}", discountCurve.getInterestRate(t));
-     * s_logger.debug("Sigma={}", volatilitySurface.getVolatility(DoublesPair.of(t, option.getStrike())));
-     */
-    final double b = discountCurve.getInterestRate(t); // TODO
+    final double b = (Double) inputs.getValue(getCostOfCarryMarketDataRequirement(option.getUniqueIdentifier()));
     return new StandardOptionDataBundle(discountCurve, b, volatilitySurface, spot, now);
   }
 
@@ -70,9 +58,9 @@ public abstract class StandardOptionDataAnalyticOptionModelFunction extends Anal
       final Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
-      requirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
+      requirements.add(getYieldCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
       requirements.add(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
-      // ValueRequirement costOfCarryRequirement = getCostOfCarryMarketDataRequirement();
+      requirements.add(getCostOfCarryMarketDataRequirement(option.getUniqueIdentifier()));
       return requirements;
     }
     return null;

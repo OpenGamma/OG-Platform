@@ -12,7 +12,7 @@ import org.springframework.beans.factory.InitializingBean;
  * Base class for building Spring factories for singleton objects.
  * @param <T> the type of the factory bean
  */
-public abstract class SingletonFactoryBean<T> implements FactoryBean, InitializingBean {
+public abstract class SingletonFactoryBean<T> implements FactoryBean<T>, InitializingBean {
 
   /**
    * The singleton instance.

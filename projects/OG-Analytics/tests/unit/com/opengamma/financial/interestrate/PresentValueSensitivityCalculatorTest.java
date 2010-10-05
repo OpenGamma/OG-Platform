@@ -13,20 +13,28 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.junit.Test;
 
-import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
+import com.opengamma.financial.interestrate.payments.FixedPayment;
+import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
+import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.util.tuple.FirstThenSecondDoublesPairComparator;
 
 /**
  * 
@@ -150,37 +158,36 @@ public class PresentValueSensitivityCalculatorTest {
   }
 
   @Test
-  public void testFixedAnnuity() {
+  public void testFixedCouponAnnuity() {
 
     final int n = 15;
     final double alpha = 0.49;
     final double yearFrac = 0.51;
     final double[] paymentTimes = new double[n];
-    final double[] paymentAmounts = new double[n];
     final double[] yearFracs = new double[n];
     final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
-    final double rate = curve.getInterestRate(0.0);
+    final double coupon = 0.07;
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = (i + 1) * alpha;
-      paymentAmounts[i] = Math.exp((i + 1) * alpha * rate);
       yearFracs[i] = yearFrac;
     }
 
-    final FixedAnnuity annuity = new FixedAnnuity(paymentTimes, Math.PI, paymentAmounts, yearFracs, FIVE_PC_CURVE_NAME);
+    final FixedCouponAnnuity annuity = new FixedCouponAnnuity(paymentTimes, Math.PI, coupon, yearFracs, FIVE_PC_CURVE_NAME);
     final Map<String, List<DoublesPair>> sense = PVSC.getValue(annuity, CURVES);
     final List<DoublesPair> temp = sense.get(FIVE_PC_CURVE_NAME);
     final Iterator<DoublesPair> iterator = temp.iterator();
     int index = 0;
     while (iterator.hasNext()) {
       final DoublesPair pair = iterator.next();
-      assertEquals(paymentTimes[index], pair.getFirst(), 0.0);
-      assertEquals(-paymentTimes[index] * yearFrac * Math.PI, pair.getSecond(), 1e-12);
+      double t = paymentTimes[index];
+      assertEquals(t, pair.getFirst(), 0.0);
+      assertEquals(-t * yearFrac * Math.PI * coupon * curve.getDiscountFactor(t), pair.getSecond(), 1e-12);
       index++;
     }
   }
 
   @Test
-  public void testVariableAnnuity() {
+  public void testForwardLiborAnnuity() {
     final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
     final double yield = curve.getInterestRate(0.0);
     final double eps = 1e-8;
@@ -197,37 +204,204 @@ public class PresentValueSensitivityCalculatorTest {
     final double[] yields = new double[n + 1];
 
     nodeTimes[0] = 0.0;
-    double offset = -0.0000001;// ensure the first libor rate is the known intitalValue
-    yields[0] = yield;
+
     for (int i = 0; i < n; i++) {
-      paymentTimes[i] = (i + 1) * alpha + offset;
-      indexFixing[i] = i * alpha + offset;
+      paymentTimes[i] = (i + 1) * alpha;
+      indexFixing[i] = i * alpha;
       indexMaturity[i] = paymentTimes[i];
       yearFracs[i] = yearFrac;
       nodeTimes[i + 1] = paymentTimes[i];
       yields[i + 1] = yield;
     }
-    double initialValue = 0.034;
 
     final YieldAndDiscountCurve tempCurve = new InterpolatedYieldCurve(nodeTimes, yields, new LinearInterpolator1D());
 
-    final VariableAnnuity annuity = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreads, Math.E, initialValue, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    final VariableAnnuity bumpedAnnuity = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreads, Math.E, initialValue, ZERO_PC_CURVE_NAME, "Bumped Curve");
+    final ForwardLiborAnnuity annuity = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, Math.E, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final ForwardLiborAnnuity bumpedAnnuity = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, Math.E, ZERO_PC_CURVE_NAME, "Bumped Curve");
     final double pv = PVC.getValue(annuity, CURVES);
     final Map<String, List<DoublesPair>> sense = PVSC.getValue(annuity, CURVES);
 
     List<DoublesPair> temp = sense.get(FIVE_PC_CURVE_NAME);
     temp = mergeSameTimes(temp);
 
-    for (int i = 0; i < n; i++) {
-      final YieldAndDiscountCurve bumpedCurve = tempCurve.withSingleShift(paymentTimes[i], eps);
+    for (int i = 0; i < n + 1; i++) {
+
+      final YieldAndDiscountCurve bumpedCurve = tempCurve.withSingleShift(nodeTimes[i], eps);
       final YieldCurveBundle curves = new YieldCurveBundle();
       curves.addAll(CURVES);
       curves.setCurve("Bumped Curve", bumpedCurve);
       final double bumpedpv = PVC.getValue(bumpedAnnuity, curves);
       final double res = (bumpedpv - pv) / eps;
       final DoublesPair pair = temp.get(i);
-      assertEquals(paymentTimes[i], pair.getFirst(), 0.0);
+      assertEquals(nodeTimes[i], pair.getFirst(), 0.0);
+      assertEquals(res, pair.getSecond(), 1e-6);
+    }
+  }
+
+  @Test
+  public void testGenericAnnuity() {
+
+    int n = 5;
+    double[] times = new double[] {0.01, 0.5, 1, 3, 10};
+    double[] amounts = new double[] {100000, 1, 234, -452, 0.034};
+    String[] curveNames = new String[] {FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME};
+
+    Payment[] payments = new Payment[5];
+    for (int i = 0; i < n; i++) {
+      payments[i] = new FixedPayment(times[i], amounts[i], curveNames[i]);
+    }
+
+    GenericAnnuity<Payment> annuity = new GenericAnnuity<Payment>(payments);
+    final Map<String, List<DoublesPair>> sense = PVSC.getValue(annuity, CURVES);
+
+    int count0pc = 0;
+    int count5pc = 0;
+    assertEquals(sense.get(ZERO_PC_CURVE_NAME).size(), 1, 0);
+    assertEquals(sense.get(FIVE_PC_CURVE_NAME).size(), 4, 0);
+
+    for (int i = 0; i < n; i++) {
+      List<DoublesPair> list = sense.get(curveNames[i]);
+      if (curveNames[i] == ZERO_PC_CURVE_NAME) {
+        assertEquals(times[i], list.get(count0pc).first, 0.0);
+        assertEquals(-amounts[i] * times[i], list.get(count0pc).second, 0.0);
+        count0pc++;
+      } else {
+        assertEquals(times[i], list.get(count5pc).first, 0.0);
+        assertEquals(-amounts[i] * times[i] * CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(times[i]), list.get(count5pc).second, 0.0);
+        count5pc++;
+      }
+
+    }
+  }
+
+  @Test
+  public void testFixedPayment() {
+    double time = 1.23;
+    double amount = 4345.3;
+    FixedPayment payment = new FixedPayment(time, amount, FIVE_PC_CURVE_NAME);
+
+    Map<String, List<DoublesPair>> sense = PVSC.getValue(payment, CURVES);
+
+    assertTrue(sense.containsKey(FIVE_PC_CURVE_NAME));
+    assertFalse(sense.containsKey(ZERO_PC_CURVE_NAME));
+
+    List<DoublesPair> temp = sense.get(FIVE_PC_CURVE_NAME);
+    assertEquals(1, temp.size(), 0);
+    assertEquals(time, temp.get(0).first, 0);
+    assertEquals(-CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(time) * time * amount, temp.get(0).second, 0);
+
+  }
+
+  @Test
+  public void testFixedCouponPayment() {
+    double time = 1.23;
+    double yearFrac = 0.56;
+    double coupon = 0.07;
+    double notional = 100;
+
+    FixedPayment payment = new FixedCouponPayment(time, notional, yearFrac, coupon, ZERO_PC_CURVE_NAME);
+
+    Map<String, List<DoublesPair>> sense = PVSC.getValue(payment, CURVES);
+
+    assertFalse(sense.containsKey(FIVE_PC_CURVE_NAME));
+    assertTrue(sense.containsKey(ZERO_PC_CURVE_NAME));
+
+    List<DoublesPair> temp = sense.get(ZERO_PC_CURVE_NAME);
+    assertEquals(1, temp.size(), 0);
+    assertEquals(time, temp.get(0).first, 0);
+    assertEquals(-time * notional * yearFrac * coupon, temp.get(0).second, 0);
+
+  }
+
+  @Test
+  public void testForwardLiborPayment() {
+    double time = 2.45;
+    double resetTime = 2.0;
+    double maturity = 2.5;
+    double paymentYF = 0.48;
+    double forwardYF = 0.5;
+    double spread = 0.04;
+    double notional = 100000000;
+
+    ForwardLiborPayment payment = new ForwardLiborPayment(time, notional, resetTime, maturity, paymentYF, forwardYF, spread, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+
+    double[] nodeTimes = new double[] {resetTime, maturity};
+    double[] yields = new double[] {0.05, 0.05};
+
+    YieldAndDiscountCurve tempCurve = new InterpolatedYieldCurve(nodeTimes, yields, new LinearInterpolator1D());
+
+    ForwardLiborPayment bumpedPayment = new ForwardLiborPayment(time, notional, resetTime, maturity, paymentYF, forwardYF, spread, ZERO_PC_CURVE_NAME, "Bumped Curve");
+
+    final double pv = PVC.getValue(payment, CURVES);
+    final Map<String, List<DoublesPair>> sense = PVSC.getValue(payment, CURVES);
+
+    List<DoublesPair> temp = sense.get(FIVE_PC_CURVE_NAME);
+
+    double eps = 1e-8;
+
+    for (int i = 0; i < 2; i++) {
+      final YieldAndDiscountCurve bumpedCurve = tempCurve.withSingleShift(nodeTimes[i], eps);
+      final YieldCurveBundle curves = new YieldCurveBundle();
+      curves.addAll(CURVES);
+      curves.setCurve("Bumped Curve", bumpedCurve);
+      final double bumpedpv = PVC.getValue(bumpedPayment, curves);
+      final double res = (bumpedpv - pv) / eps;
+      final DoublesPair pair = temp.get(i);
+      assertEquals(nodeTimes[i], pair.getFirst(), 0.0);
+      assertEquals(res, pair.getSecond(), notional * 1e-7);
+    }
+
+    bumpedPayment = new ForwardLiborPayment(time, notional, resetTime, maturity, paymentYF, forwardYF, spread, "Bumped Curve", FIVE_PC_CURVE_NAME);
+
+    temp = sense.get(ZERO_PC_CURVE_NAME);
+    final YieldAndDiscountCurve bumpedCurve = new ConstantYieldCurve(eps);
+    final YieldCurveBundle curves = new YieldCurveBundle();
+    curves.addAll(CURVES);
+    curves.setCurve("Bumped Curve", bumpedCurve);
+    final double bumpedpv = PVC.getValue(bumpedPayment, curves);
+    final double res = (bumpedpv - pv) / eps;
+    final DoublesPair pair = temp.get(0);
+    assertEquals(time, pair.getFirst(), 0.0);
+    assertEquals(res, pair.getSecond(), notional * 1e-7);
+  }
+
+  @Test
+  public void testForwardLiborPayment2() {
+    double time = 2.45;
+    double resetTime = 2.0;
+    double maturity = 2.5;
+    double paymentYF = 0.48;
+    double forwardYF = 0.5;
+    double spread = 0.04;
+
+    ForwardLiborPayment payment = new ForwardLiborPayment(time, 1.0, resetTime, maturity, paymentYF, forwardYF, spread, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+
+    double[] nodeTimes = new double[] {resetTime, time, maturity};
+    double[] yields = new double[] {0.05, 0.05, 0.05};
+
+    YieldAndDiscountCurve tempCurve = new InterpolatedYieldCurve(nodeTimes, yields, new LinearInterpolator1D());
+
+    ForwardLiborPayment bumpedPayment = new ForwardLiborPayment(time, 1.0, resetTime, maturity, paymentYF, forwardYF, spread, "Bumped Curve", "Bumped Curve");
+
+    final double pv = PVC.getValue(payment, CURVES);
+    final Map<String, List<DoublesPair>> sense = PVSC.getValue(payment, CURVES);
+
+    List<DoublesPair> temp = sense.get(FIVE_PC_CURVE_NAME);
+    Set<DoublesPair> sorted = new TreeSet<DoublesPair>(new FirstThenSecondDoublesPairComparator());
+    sorted.addAll(temp);
+
+    double eps = 1e-8;
+
+    Iterator<DoublesPair> interator = sorted.iterator();
+    for (int i = 0; i < 3; i++) {
+      final YieldAndDiscountCurve bumpedCurve = tempCurve.withSingleShift(nodeTimes[i], eps);
+      final YieldCurveBundle curves = new YieldCurveBundle();
+      curves.addAll(CURVES);
+      curves.setCurve("Bumped Curve", bumpedCurve);
+      final double bumpedpv = PVC.getValue(bumpedPayment, curves);
+      final double res = (bumpedpv - pv) / eps;
+      final DoublesPair pair = interator.next();
+      assertEquals(nodeTimes[i], pair.getFirst(), 0.0);
       assertEquals(res, pair.getSecond(), 1e-6);
     }
   }

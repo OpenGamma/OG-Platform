@@ -12,5 +12,4 @@ public interface InterestRateDerivative {
 
   <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data);
 
-  InterestRateDerivative withRate(double rate);
 }

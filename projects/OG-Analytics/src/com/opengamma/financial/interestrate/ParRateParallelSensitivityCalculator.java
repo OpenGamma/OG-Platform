@@ -16,9 +16,16 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * 
  */
-public class ParRateParallelSensitivityCalculator {
-
+public final class ParRateParallelSensitivityCalculator {
+  private static final ParRateParallelSensitivityCalculator s_instance = new ParRateParallelSensitivityCalculator();
   private final ParRateCurveSensitivityCalculator _prcsc = ParRateCurveSensitivityCalculator.getInstance();
+
+  public static ParRateParallelSensitivityCalculator getInstance() {
+    return s_instance;
+  }
+
+  private ParRateParallelSensitivityCalculator() {
+  }
 
   /**
    * Calculates the change in par rate of an instrument due to a parallel move of each yield curve the instrument is sensitive to

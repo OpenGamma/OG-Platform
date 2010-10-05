@@ -9,14 +9,13 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.swap.definition.BasisSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
-import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
@@ -42,15 +41,15 @@ public class PresentValueCouponSensitivityCalculatorTest {
   @Test
   public void testCash() {
     final double t = 7 / 365.0;
-    double r = 0.0456;
+    final double r = 0.0456;
     final double tradeTime = 2.0 / 365.0;
     final double yearFrac = 5.0 / 360.0;
-    Cash cash = new Cash(t, r, tradeTime, yearFrac, FIVE_PC_CURVE_NAME);
-    Cash cashUp = new Cash(t, r + DELTA, tradeTime, yearFrac, FIVE_PC_CURVE_NAME);
-    Cash cashDown = new Cash(t, r - DELTA, tradeTime, yearFrac, FIVE_PC_CURVE_NAME);
-    double pvUp = PVC.getValue(cashUp, CURVES);
-    double pvDown = PVC.getValue(cashDown, CURVES);
-    double temp = (pvUp - pvDown) / 2 / DELTA;
+    final Cash cash = new Cash(t, r, tradeTime, yearFrac, FIVE_PC_CURVE_NAME);
+    final Cash cashUp = new Cash(t, r + DELTA, tradeTime, yearFrac, FIVE_PC_CURVE_NAME);
+    final Cash cashDown = new Cash(t, r - DELTA, tradeTime, yearFrac, FIVE_PC_CURVE_NAME);
+    final double pvUp = PVC.getValue(cashUp, CURVES);
+    final double pvDown = PVC.getValue(cashDown, CURVES);
+    final double temp = (pvUp - pvDown) / 2 / DELTA;
     PVCSC.getValue(cash, CURVES);
 
     assertEquals(temp, PVCSC.getValue(cash, CURVES), 1e-10);
@@ -65,13 +64,13 @@ public class PresentValueCouponSensitivityCalculatorTest {
     final double forwardYearFrac = 31.0 / 365.0;
     final double discountYearFrac = 30.0 / 360;
 
-    ForwardRateAgreement fra = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, strike, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    ForwardRateAgreement fraUp = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, strike + DELTA, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    ForwardRateAgreement fraDown = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, strike - DELTA, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final ForwardRateAgreement fra = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, strike, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final ForwardRateAgreement fraUp = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, strike + DELTA, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final ForwardRateAgreement fraDown = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, strike - DELTA, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
 
-    double pvUp = PVC.getValue(fraUp, CURVES);
-    double pvDown = PVC.getValue(fraDown, CURVES);
-    double temp = (pvUp - pvDown) / 2 / DELTA;
+    final double pvUp = PVC.getValue(fraUp, CURVES);
+    final double pvDown = PVC.getValue(fraDown, CURVES);
+    final double temp = (pvUp - pvDown) / 2 / DELTA;
 
     assertEquals(temp, PVCSC.getValue(fra, CURVES), 1e-10);
   }
@@ -84,13 +83,13 @@ public class PresentValueCouponSensitivityCalculatorTest {
     final double indexYearFraction = 0.267;
     final double valueYearFraction = 0.25;
     final double rate = 0.0356;
-    InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, 100 * (1 - rate), FIVE_PC_CURVE_NAME);
-    InterestRateFuture edfUp = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, 100 * (1 - rate - DELTA), FIVE_PC_CURVE_NAME);
-    InterestRateFuture edfDown = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, 100 * (1 - rate + DELTA), FIVE_PC_CURVE_NAME);
+    final InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, 100 * (1 - rate), FIVE_PC_CURVE_NAME);
+    final InterestRateFuture edfUp = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, 100 * (1 - rate - DELTA), FIVE_PC_CURVE_NAME);
+    final InterestRateFuture edfDown = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, 100 * (1 - rate + DELTA), FIVE_PC_CURVE_NAME);
 
-    double pvUp = PVC.getValue(edfUp, CURVES);
-    double pvDown = PVC.getValue(edfDown, CURVES);
-    double temp = (pvUp - pvDown) / 2 / DELTA;
+    final double pvUp = PVC.getValue(edfUp, CURVES);
+    final double pvDown = PVC.getValue(edfDown, CURVES);
+    final double temp = (pvUp - pvDown) / 2 / DELTA;
 
     assertEquals(temp, PVCSC.getValue(edf, CURVES), 1e-10);
   }
@@ -109,13 +108,13 @@ public class PresentValueCouponSensitivityCalculatorTest {
       yearFracs[i] = yearFrac;
     }
 
-    Bond bond = new Bond(paymentTimes, coupon, yearFracs, FIVE_PC_CURVE_NAME);
-    Bond bondUp = new Bond(paymentTimes, coupon + DELTA, yearFracs, FIVE_PC_CURVE_NAME);
-    Bond bondDown = new Bond(paymentTimes, coupon - DELTA, yearFracs, FIVE_PC_CURVE_NAME);
+    final Bond bond = new Bond(paymentTimes, coupon, yearFracs, FIVE_PC_CURVE_NAME);
+    final Bond bondUp = new Bond(paymentTimes, coupon + DELTA, yearFracs, FIVE_PC_CURVE_NAME);
+    final Bond bondDown = new Bond(paymentTimes, coupon - DELTA, yearFracs, FIVE_PC_CURVE_NAME);
 
-    double pvUp = PVC.getValue(bondUp, CURVES);
-    double pvDown = PVC.getValue(bondDown, CURVES);
-    double temp = (pvUp - pvDown) / 2 / DELTA;
+    final double pvUp = PVC.getValue(bondUp, CURVES);
+    final double pvDown = PVC.getValue(bondDown, CURVES);
+    final double temp = (pvUp - pvDown) / 2 / DELTA;
 
     assertEquals(temp, PVCSC.getValue(bond, CURVES), 1e-10);
   }
@@ -134,13 +133,13 @@ public class PresentValueCouponSensitivityCalculatorTest {
     }
     final double swapRate = 0.04;
 
-    final Swap swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    final Swap swapUp = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate + DELTA, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    final Swap swapDown = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate - DELTA, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final FixedFloatSwap swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final FixedFloatSwap swapUp = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate + DELTA, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final FixedFloatSwap swapDown = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate - DELTA, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
 
-    double pvUp = PVC.getValue(swapUp, CURVES);
-    double pvDown = PVC.getValue(swapDown, CURVES);
-    double temp = (pvUp - pvDown) / 2 / DELTA;
+    final double pvUp = PVC.getValue(swapUp, CURVES);
+    final double pvDown = PVC.getValue(swapDown, CURVES);
+    final double temp = (pvUp - pvDown) / 2 / DELTA;
 
     assertEquals(temp, PVCSC.getValue(swap, CURVES), 1e-10);
   }
@@ -167,17 +166,17 @@ public class PresentValueCouponSensitivityCalculatorTest {
       yearFracs[i] = tau;
     }
 
-    final VariableAnnuity payLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, 0.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    final VariableAnnuity receiveLeg = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreads, 1.0, 0.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
-    final VariableAnnuity receiveLegUp = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreadsUp, 1.0, 0.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
-    final VariableAnnuity receiveLegDown = new VariableAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, spreadsDown, 1.0, 0.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
+    final ForwardLiborAnnuity payLeg = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final ForwardLiborAnnuity receiveLeg = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
+    final ForwardLiborAnnuity receiveLegUp = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreadsUp, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
+    final ForwardLiborAnnuity receiveLegDown = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreadsDown, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
 
-    final Swap swap = new BasisSwap(payLeg, receiveLeg);
-    final Swap swapUp = new BasisSwap(payLeg, receiveLegUp);
-    final Swap swapDown = new BasisSwap(payLeg, receiveLegDown);
-    double pvUp = PVC.getValue(swapUp, CURVES);
-    double pvDown = PVC.getValue(swapDown, CURVES);
-    double temp = (pvUp - pvDown) / 2 / DELTA;
+    final TenorSwap swap = new TenorSwap(payLeg, receiveLeg);
+    final TenorSwap swapUp = new TenorSwap(payLeg, receiveLegUp);
+    final TenorSwap swapDown = new TenorSwap(payLeg, receiveLegDown);
+    final double pvUp = PVC.getValue(swapUp, CURVES);
+    final double pvDown = PVC.getValue(swapDown, CURVES);
+    final double temp = (pvUp - pvDown) / 2 / DELTA;
 
     assertEquals(temp, PVCSC.getValue(swap, CURVES), 1e-10);
   }

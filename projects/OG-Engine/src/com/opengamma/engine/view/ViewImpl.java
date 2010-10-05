@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view;
@@ -57,43 +57,43 @@ import com.opengamma.util.monitor.OperationTimer;
  * to perform computations and listen to the output.
  */
 public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListener {
-  
+
   private static final Logger s_logger = LoggerFactory.getLogger(View.class);
-  
+
   private static final String CLIENT_UID_PREFIX = "Client";
-   
+
   private final ViewDefinition _definition;
   private final Timer _clientResultTimer;
-  
+
   private final String _uidScheme;
   private final AtomicLong _uidCount = new AtomicLong();
-  
+
   // REVIEW jonathan 2010-09-11 -- All the evidence seems to point to ReentrantLock being quite a bit more performant
   // than synchronized, and I don't like synchronized(this), so I've moved to a ReentrantLock, despite the verbose
   // blocks of code it requires.
   private final ReentrantLock _viewLock = new ReentrantLock();
-  
+
   // REVIEW jonathan 2010-09-11 -- using ConcurrentHashMap so that getClient doesn't need to acquire the lock. This
   // will be a frequent call for remote processes where the only reference to the client is its ID. No harm in
   // providing access to a client that's in the middle of shutting down or something; a reference could just as easily
-  // have been stored elsewhere for arbitrary access.  
+  // have been stored elsewhere for arbitrary access.
   private final Map<UniqueIdentifier, ViewClient> _clientMap = new ConcurrentHashMap<UniqueIdentifier, ViewClient>();
-  
+
   private final Set<ViewClient> _liveComputationClients = new HashSet<ViewClient>();
-  
+
   private ViewCalculationState _calculationState = ViewCalculationState.NOT_INITIALIZED;
   private ViewProcessingContext _processingContext;
   private ViewEvaluationModel _viewEvaluationModel;
   private volatile ViewRecalculationJob _recalcJob;
   private volatile Thread _recalcThread;
-  
+
   // REVIEW jonathan 2010-09-11 -- Use an AtomicReference to prevent the need to acquire the lock just to query the
   // latest result.
   private final AtomicReference<ViewComputationResultModel> _latestResult = new AtomicReference<ViewComputationResultModel>();
   private final Set<ComputationResultListener> _resultListeners = new CopyOnWriteArraySet<ComputationResultListener>();
   private final Set<DeltaComputationResultListener> _deltaListeners = new CopyOnWriteArraySet<DeltaComputationResultListener>();
   private volatile boolean _populateResultModel = true;
-  
+
   /**
    * Constructs an instance.
    * 
@@ -106,14 +106,14 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     ArgumentChecker.notNull(definition, "definition");
     ArgumentChecker.notNull(viewProcessingContext, "viewProcessingContext");
     ArgumentChecker.notNull(clientResultTimer, "clientResultTimer");
-    
+
     _definition = definition;
     _processingContext = viewProcessingContext;
     _clientResultTimer = clientResultTimer;
     _uidScheme = "View-" + definition.getName();
   }
-  
-  //-------------------------------------------------------------------------
+
+  // -------------------------------------------------------------------------
   @Override
   public void init() {
     _viewLock.lock();
@@ -128,13 +128,12 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       // some steps below call methods which do a general initialization check. We carefully control the order here to
       // ensure that such calls are valid.
       setCalculationState(ViewCalculationState.STOPPED);
-      
+
       OperationTimer timer = new OperationTimer(s_logger, "Initializing view {}", getDefinition().getName());
-      
-  
+
       _viewEvaluationModel = ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices());
       addLiveDataSubscriptions();
-      
+
       timer.finished();
     } catch (Throwable t) {
       // Reset the state
@@ -146,7 +145,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       _viewLock.unlock();
     }
   }
-  
+
   /**
    * @deprecated a hack to support Jim's dynamic modifications of the function repository. View reinitialization is not
    *             really supported, but this works in limited cases.
@@ -162,12 +161,12 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       setCalculationState(ViewCalculationState.NOT_INITIALIZED);
       _processingContext = null;
       _viewEvaluationModel = null;
-      throw new OpenGammaRuntimeException("The view failed to initialize", t);      
-    } finally { 
+      throw new OpenGammaRuntimeException("The view failed to initialize", t);
+    } finally {
       _viewLock.unlock();
     }
   }
-  
+
   // Lifecycle
   // ------------------------------------------------------------------------
   @Override
@@ -189,37 +188,37 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       for (ViewClient client : currentClients) {
         client.shutdown();
       }
-      // Shutting down every client should have removed all live computation clients and stopped live computation 
+      // Shutting down every client should have removed all live computation clients and stopped live computation
       setCalculationState(ViewCalculationState.TERMINATED);
     } finally {
       _viewLock.unlock();
     }
   }
-  
+
   @Override
   public boolean isRunning() {
     return getCalculationState() != ViewCalculationState.TERMINATED;
   }
-  
+
   // View
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   @Override
   public String getName() {
     return getDefinition().getName();
   }
-  
+
   @Override
   public ViewDefinition getDefinition() {
     // Injected - can access regardless of calculation state
     return _definition;
   }
-  
+
   @Override
   public Portfolio getPortfolio() {
     assertInitialized();
     return getViewEvaluationModel().getPortfolio();
   }
-  
+
   @Override
   public ViewClient createClient(UserPrincipal credentials) {
     ArgumentChecker.notNull(credentials, "credentials");
@@ -241,7 +240,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   public ViewClient getClient(UniqueIdentifier id) {
     return _clientMap.get(id);
   }
-  
+
   /**
    * Checks that the given user has access to every market data line required to compute the results of the view, and
    * throws an exception if this is not the case.
@@ -261,37 +260,36 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
         failures.add(entry.getKey());
       }
     }
-    
+
     if (!failures.isEmpty()) {
-      throw new ViewPermissionException(user + " is not entitled to the output of " + this + 
-          " because they do not have permissions to " + failures.get(0));
+      throw new ViewPermissionException(user + " is not entitled to the output of " + this + " because they do not have permissions to " + failures.get(0));
     }
   }
-  
+
   @Override
   public ViewComputationResultModel getLatestResult() {
     return _latestResult.get();
   }
-  
+
   @Override
   public Set<ValueRequirement> getRequiredLiveData() {
     assertInitialized();
     ViewEvaluationModel viewEvaluationModel = getViewEvaluationModel();
     Set<ValueSpecification> requiredSpecs = viewEvaluationModel.getAllLiveDataRequirements();
-    
+
     Set<ValueRequirement> returnValue = new HashSet<ValueRequirement>();
     for (ValueSpecification requiredSpec : requiredSpecs) {
-      returnValue.add(requiredSpec.getRequirementSpecification());      
+      returnValue.add(requiredSpec.getRequirementSpecification());
     }
     return returnValue;
   }
-  
+
   @Override
   public Set<String> getAllSecurityTypes() {
     assertInitialized();
     return getViewEvaluationModel().getAllSecurityTypes();
   }
-  
+
   @Override
   public void runOneCycle() {
     _viewLock.lock();
@@ -303,7 +301,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       _viewLock.unlock();
     }
   }
-  
+
   @Override
   public void runOneCycle(long valuationTime) {
     _viewLock.lock();
@@ -311,37 +309,44 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       assertInitialized();
       SingleComputationCycle cycle = createCycle(valuationTime);
       cycle.prepareInputs();
-      cycle.executePlans();
-      
+
+      try {
+        cycle.executePlans();
+      } catch (InterruptedException e) {
+        s_logger.warn("Interrupted while attempting to run a single computation cycle. No results will be output.");
+        cycle.releaseResources();
+        return;
+      }
+
       if (isPopulateResultModel()) {
         cycle.populateResultModel();
         recalculationPerformed(cycle.getResultModel());
       }
-      
+
       cycle.releaseResources();
     } finally {
       _viewLock.unlock();
     }
   }
-  
+
   @Override
   public LiveDataInjector getLiveDataOverrideInjector() {
     return getProcessingContext().getLiveDataOverrideInjector();
   }
-  
+
   @Override
   public boolean isLiveComputationRunning() {
     return getCalculationState() == ViewCalculationState.RUNNING;
   }
-  
+
   // ViewInternal
-  //-------------------------------------------------------------------------  
+  // -------------------------------------------------------------------------
   @Override
   public ViewProcessingContext getProcessingContext() {
     // Injected - can access at any time
     return _processingContext;
   }
-  
+
   @Override
   public ViewEvaluationModel getViewEvaluationModel() {
     assertInitialized();
@@ -351,13 +356,13 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   @Override
   public void recalculationPerformed(ViewComputationResultModel result) {
     s_logger.debug("Recalculation Performed called.");
-    
+
     // REVIEW kirk 2009-09-24 -- We need to consider this method for background execution
     // of some kind. It holds the lock and blocks the recalc thread, so a slow
     // callback implementation (or just the cost of computing the delta model) will
     // be an unnecessary burden. Have to factor in some type of win there.
     _viewLock.lock();
-    try {      
+    try {
       // We swap these first so that in the callback the view is consistent.
       ViewResultModel previousResult = _latestResult.get();
       _latestResult.set(result);
@@ -376,26 +381,26 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       _viewLock.unlock();
     }
   }
-  
+
   @Override
   public SingleComputationCycle createCycle(long valuationTime) {
     SingleComputationCycle cycle = new SingleComputationCycle(this, valuationTime);
     return cycle;
   }
-  
+
   @Override
   public ViewPermissionProvider getPermissionProvider() {
     assertInitialized();
     return getProcessingContext().getPermissionProvider();
   }
-  
-  //-------------------------------------------------------------------------
+
+  // -------------------------------------------------------------------------
   @Override
   public String toString() {
     return "View[" + getName() + "]";
   }
-  
-  //-------------------------------------------------------------------------
+
+  // -------------------------------------------------------------------------
   /**
    * Adds a listener to updates of the full set of computation results.
    * 
@@ -413,7 +418,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     getProcessingContext().getPermissionProvider().assertPermission(ViewPermission.READ_RESULTS, resultListener.getUser(), this);
     return _resultListeners.add(resultListener);
   }
-  
+
   /**
    * Removes a listener from updates of the full set of computation results.
    * 
@@ -424,7 +429,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     ArgumentChecker.notNull(resultListener, "Result listener");
     return _resultListeners.remove(resultListener);
   }
-  
+
   /**
    * Adds a listener to delta updates of the computation results.
    * 
@@ -442,19 +447,19 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     getProcessingContext().getPermissionProvider().assertPermission(ViewPermission.READ_RESULTS, deltaListener.getUser(), this);
     return _deltaListeners.add(deltaListener);
   }
-  
+
   /**
    * Removes a listener from delta updates of the computation results.
    * 
    * @param deltaListener  the listener to remove
    * @return  <code>true</code> if the listener was removed, or <code>false</code> if the listener was not known.
-   */ 
+   */
   public boolean removeDeltaResultListener(DeltaComputationResultListener deltaListener) {
     ArgumentChecker.notNull(deltaListener, "Delta listener");
     return _deltaListeners.remove(deltaListener);
   }
-  
-  //------------------------------------------------------------------------- 
+
+  // -------------------------------------------------------------------------
   /**
    * Part of initialization. Adds live data subscriptions to the view.
    */
@@ -466,7 +471,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     snapshotProvider.addSubscription(getDefinition().getLiveDataUser(), liveDataRequirements);
     timer.finished();
   }
-  
+
   @Override
   public void subscriptionFailed(ValueRequirement requirement, String msg) {
   }
@@ -485,15 +490,15 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     Set<ValueSpecification> liveDataRequirements = getViewEvaluationModel().getAllLiveDataRequirements();
     ViewRecalculationJob recalcJob = getRecalcJob();
     if (recalcJob != null && liveDataRequirements.contains(valueSpecification)) {
-      recalcJob.liveDataChanged();  
+      recalcJob.liveDataChanged();
     }
   }
-  
-  //-------------------------------------------------------------------------
-  
+
+  // -------------------------------------------------------------------------
+
   // TODO jonathan 2010-09-11 -- populateResultModel doesn't feel right. Seems like it should be an optional argument
   // to runOneCycle.
-  
+
   public boolean isPopulateResultModel() {
     return _populateResultModel;
   }
@@ -501,8 +506,8 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   public void setPopulateResultModel(boolean populateResultModel) {
     _populateResultModel = populateResultModel;
   }
-  
-  //-------------------------------------------------------------------------
+
+  // -------------------------------------------------------------------------
   /**
    * Gets the current calculation state.
    * 
@@ -530,7 +535,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       _viewLock.unlock();
     }
   }
-  
+
   /**
    * Sets the current recalculation job.
    * 
@@ -539,7 +544,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   protected ViewRecalculationJob getRecalcJob() {
     return _recalcJob;
   }
-  
+
   /**
    * Sets the current recalculation job
    * 
@@ -548,7 +553,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   private void setRecalcJob(ViewRecalculationJob recalcJob) {
     _recalcJob = recalcJob;
   }
-  
+
   /**
    * Gets the current recalculation thread
    * 
@@ -557,7 +562,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   protected Thread getRecalcThread() {
     return _recalcThread;
   }
-  
+
   /**
    * Sets the current recalculation thread
    * 
@@ -567,7 +572,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     _recalcThread = recalcThread;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Notifies the view that a client expects to receive live computation results. This method ensures that live
    * processing has been started.
@@ -588,7 +593,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       _viewLock.unlock();
     }
   }
-  
+
   /**
    * Notifies the view that a client no longer expects to receive live computation results. Removal of the last such
    * client will cause live processing to stop.
@@ -608,7 +613,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       _viewLock.unlock();
     }
   }
-  
+
   /**
    * Starts a background job which runs a computation cycle, waits for changes to the dependency graph's inputs, and
    * repeats this task until live computation is stopped. With continuously-changing inputs, computation cycles will
@@ -616,7 +621,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
    */
   private void startLiveComputation() {
     s_logger.info("Starting live computation on view {}...", this);
-    
+
     _viewLock.lock();
     try {
       switch (getCalculationState()) {
@@ -630,10 +635,10 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
         case TERMINATED:
           throw new IllegalStateException("A terminated view cannot be used.");
       }
-      
+
       ViewRecalculationJob recalcJob = new ViewRecalculationJob(this);
       Thread recalcThread = new Thread(recalcJob, "Recalc Thread for " + getDefinition().getName());
-      
+
       setRecalcJob(recalcJob);
       setRecalcThread(recalcThread);
       setCalculationState(ViewCalculationState.RUNNING);
@@ -641,36 +646,36 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     } finally {
       _viewLock.unlock();
     }
-    
+
     s_logger.info("Started.");
   }
-  
+
   /**
    * Instructs the background computation job to finish. The background job might actually terminate asynchronously,
    * but any outstanding result will be discarded. Live computation may be started again immediately.
    */
   private void stopLiveComputation() {
     s_logger.info("Stopping live computation on view {}...", this);
-    
+
     _viewLock.lock();
     try {
       if (getCalculationState() != ViewCalculationState.RUNNING) {
         throw new IllegalStateException("Cannot stop a view that is not running. Currently in state: " + getCalculationState());
       }
-      
+
       getRecalcJob().terminate();
       if (getRecalcThread().getState() == Thread.State.TIMED_WAITING) {
         // In this case it might be waiting on a recalculation pass. Interrupt it.
         getRecalcThread().interrupt();
       }
-      
+
       // Let go of the job/thread and allow it to die on its own. A computation cycle might be taking place on this
       // thread, but it will not update the view with its result because it has been terminated. As far as the view is
       // concerned, live computation has now stopped, and it may be started again immediately in a new thread. There is
-      // no need to slow things down by waiting for the thread to die. 
+      // no need to slow things down by waiting for the thread to die.
       setRecalcJob(null);
       setRecalcThread(null);
-      
+
       setCalculationState(ViewCalculationState.STOPPED);
     } finally {
       _viewLock.unlock();
@@ -678,17 +683,17 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
 
     s_logger.info("Stopped.");
   }
-  
-  //-------------------------------------------------------------------------
+
+  // -------------------------------------------------------------------------
   private Collection<LiveDataSpecification> getRequiredLiveDataSpecifications() {
     Set<LiveDataSpecification> returnValue = new HashSet<LiveDataSpecification>();
     for (ValueRequirement requirement : getRequiredLiveData()) {
       LiveDataSpecification liveDataSpec = requirement.getRequiredLiveData(getProcessingContext().getSecuritySource());
-      returnValue.add(liveDataSpec);      
+      returnValue.add(liveDataSpec);
     }
     return returnValue;
   }
-  
+
   private void assertInitialized() {
     ViewCalculationState state = getCalculationState();
     boolean isInitialized = state != ViewCalculationState.NOT_INITIALIZED;
@@ -696,7 +701,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       throw new IllegalStateException("The view has not been initialized");
     }
   }
-  
+
   private UniqueIdentifier generateClientIdentifier() {
     return UniqueIdentifier.of(_uidScheme, CLIENT_UID_PREFIX + "-" + _uidCount.getAndIncrement());
   }

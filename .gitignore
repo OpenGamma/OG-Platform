@@ -1,4 +1,4 @@
-db/
+/db/
 derby.log
 projects/Fudge-Java/
 projects/Fudge-Proto/
@@ -9,4 +9,4 @@ projects/OG-Reuters/
 repository/
 ivy/
 bootstrap/
-
+tests/output/

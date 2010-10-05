@@ -5,10 +5,12 @@
  */
 package com.opengamma.financial;
 
+import java.io.Serializable;
+
 /**
  * Representation of a GICS code.
  */
-public final class GICSCode {
+public final class GICSCode implements Serializable {
   
   private final int _code;
   

@@ -18,9 +18,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.RunnableScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -62,53 +61,57 @@ public class JobDispatcher implements JobInvokerRegister {
     public static final Timeout FINISHED = new Timeout();
     public static final Timeout CANCELLED = new Timeout();
 
-    private final DispatchJob _dispatchJob;
-    private final JobInvoker _jobInvoker;
-    private Future<?> _future;
+    private final ScheduledThreadPoolExecutor _executor;
+    private DispatchJob _dispatchJob;
+    private JobInvoker _jobInvoker;
+    private RunnableScheduledFuture<?> _future;
     private long _timeAccrued;
 
     private Timeout() {
-      _dispatchJob = null;
-      _jobInvoker = null;
+      _executor = null;
     }
 
-    public Timeout(final DispatchJob dispatchJob, final JobInvoker jobInvoker, final ScheduledExecutorService executor, final long timeoutMillis) {
+    public Timeout(final DispatchJob dispatchJob, final JobInvoker jobInvoker, final ScheduledThreadPoolExecutor executor, final long timeoutMillis) {
       _dispatchJob = dispatchJob;
       _jobInvoker = jobInvoker;
-      setTimeout(executor, timeoutMillis);
+      _executor = executor;
       _timeAccrued = timeoutMillis;
+      setTimeout(timeoutMillis);
     }
 
-    private void setTimeout(final ScheduledExecutorService executor, final long timeoutMillis) {
+    private void setTimeout(final long timeoutMillis) {
       if (timeoutMillis > 0) {
-        _future = executor.schedule(this, timeoutMillis, TimeUnit.MILLISECONDS);
+        _future = (RunnableScheduledFuture<?>) _executor.schedule(this, timeoutMillis, TimeUnit.MILLISECONDS);
       } else {
         _future = null;
       }
     }
 
     @Override
-    public void run() {
+    public synchronized void run() {
       _dispatchJob.timeout(_timeAccrued, _jobInvoker);
     }
 
-    public void cancel() {
+    public synchronized void cancel() {
       if (_future != null) {
-        _future.cancel(false);
+        _executor.remove(_future);
+        _future = null;
       }
     }
 
-    public void extend(final ScheduledExecutorService executor, final long timeoutMillis, final boolean resetAccruedTime) {
-      cancel();
-      if (resetAccruedTime) {
-        _timeAccrued = timeoutMillis;
-      } else {
-        _timeAccrued += timeoutMillis;
+    public synchronized void extend(final long timeoutMillis, final boolean resetAccruedTime) {
+      if (_future != null) {
+        _executor.remove(_future);
+        if (resetAccruedTime) {
+          _timeAccrued = timeoutMillis;
+        } else {
+          _timeAccrued += timeoutMillis;
+        }
+        setTimeout(timeoutMillis);
       }
-      setTimeout(executor, timeoutMillis);
     }
 
-    public JobInvoker getInvoker() {
+    public synchronized JobInvoker getInvoker() {
       return _jobInvoker;
     }
 
@@ -291,7 +294,7 @@ public class JobDispatcher implements JobInvokerRegister {
       final Timeout timeout = _timeout.get();
       if ((timeout != null) && (timeout != Timeout.FINISHED) && (timeout != Timeout.CANCELLED)) {
         s_logger.debug("Extending timeout on job {}", getJob().getSpecification().getJobId());
-        timeout.extend(getJobTimeoutExecutor(), Math.min(remainingMillis, getMaxJobExecutionTime()), resetTimeAccrued);
+        timeout.extend(Math.min(remainingMillis, getMaxJobExecutionTime()), resetTimeAccrued);
       }
     }
 
@@ -330,7 +333,9 @@ public class JobDispatcher implements JobInvokerRegister {
       final Timeout timeout = cancelTimeout(Timeout.CANCELLED);
       if (timeout != null) {
         final JobInvoker invoker = timeout.getInvoker();
-        invoker.cancel(_resultReceivers.keySet());
+        if (invoker != null) {
+          invoker.cancel(_resultReceivers.keySet());
+        }
       }
       return true;
     }
@@ -352,7 +357,7 @@ public class JobDispatcher implements JobInvokerRegister {
    * How often to query an invoker that has outstanding jobs.
    */
   private long _maxJobExecutionTimeQuery = DEFAULT_MAX_JOB_EXECUTION_QUERY_TIMEOUT;
-  private ScheduledExecutorService _jobTimeoutExecutor;
+  private ScheduledThreadPoolExecutor _jobTimeoutExecutor;
   private CalculationNodeStatisticsGatherer _statisticsGatherer = new DiscardingNodeStatisticsGatherer();
 
   public JobDispatcher() {
@@ -388,7 +393,7 @@ public class JobDispatcher implements JobInvokerRegister {
     return _maxJobExecutionTime;
   }
 
-  protected ScheduledExecutorService getJobTimeoutExecutor() {
+  protected ScheduledThreadPoolExecutor getJobTimeoutExecutor() {
     return _jobTimeoutExecutor;
   }
 
@@ -403,7 +408,8 @@ public class JobDispatcher implements JobInvokerRegister {
     _maxJobExecutionTime = maxJobExecutionTime;
     if (maxJobExecutionTime > 0) {
       if (_jobTimeoutExecutor == null) {
-        _jobTimeoutExecutor = Executors.newSingleThreadScheduledExecutor();
+        _jobTimeoutExecutor = new ScheduledThreadPoolExecutor(1);
+        _jobTimeoutExecutor.setMaximumPoolSize(1);
       }
     }
   }

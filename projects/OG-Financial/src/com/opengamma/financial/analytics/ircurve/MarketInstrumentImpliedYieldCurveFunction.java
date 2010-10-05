@@ -50,8 +50,6 @@ import com.opengamma.financial.interestrate.LastDateCalculator;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
-import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
-import com.opengamma.financial.interestrate.ParRateDifferenceCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
@@ -96,8 +94,12 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private ValueSpecification _jacobianResult;
   private Set<ValueSpecification> _results;
   private InterpolatedYieldCurveSpecification _specification;
-  private Map<Identifier, Double> _identifierToNodeTimes = new HashMap<Identifier, Double>();
+  private final Map<Identifier, Double> _identifierToNodeTimes = new HashMap<Identifier, Double>();
   private static final LastDateCalculator LAST_DATE_CALCULATOR = new LastDateCalculator();
+
+  public MarketInstrumentImpliedYieldCurveFunction(final String curveDate, final String currency, final String name) {
+    this(LocalDate.parse(curveDate), Currency.getInstance(currency), name);
+  }
 
   public MarketInstrumentImpliedYieldCurveFunction(final LocalDate curveDate, final Currency currency, final String name) {
     Validate.notNull(curveDate, "curve date");
@@ -141,7 +143,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   public InterpolatedYieldCurveSpecification getSpecification() {
     return _specification;
   }
-  
+
   // just for debugging.
   public Map<Identifier, Double> getIdentifierToNodeTimesMap() {
     return _identifierToNodeTimes;
@@ -228,17 +230,17 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         derivative = cashConverter.getCash((CashSecurity) strip.getSecurity(), _name, marketValue / 100d, now);
       } else if (strip.getInstrumentType() == StripInstrumentType.FRA) {
         derivative = fraConverter.getFRA((FRASecurity) strip.getSecurity(), _name, _name, marketValue / 100d, now);
-      }  else if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
+      } else if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
         derivative = futureConverter.getInterestRateFuture((InterestRateFutureSecurity) strip.getSecurity(), _name, marketValue, now);
       } else {
-        throw new OpenGammaRuntimeException("Can only handle swaps at the moment");
+        throw new OpenGammaRuntimeException("Can only handle swap, cash, FRA and IR futures at the moment");
       }
       if (derivative == null) {
         throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
       }
       derivatives.add(derivative);
       initialRatesGuess[i] = 0.01;
-      nodeTimes[i] = LAST_DATE_CALCULATOR.getValue(derivative); 
+      nodeTimes[i] = LAST_DATE_CALCULATOR.getValue(derivative);
       //System.err.println("LAST_DATE_CALCULATOR.getValue(derivative) = " + nodeTimes[i]);
       _identifierToNodeTimes.put(strip.getSecurityIdentifier(), nodeTimes[i]); // just for debugging.
       i++;
@@ -248,8 +250,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
     final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> sensitivityCalculators = 
       new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
-//    final Interpolator1D interpolator = Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName());
-    final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_definition.getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR, 
+    //    final Interpolator1D interpolator = Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName());
+    final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_definition.getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
         Interpolator1DFactory.FLAT_EXTRAPOLATOR);
     curveNodes.put(_name, nodeTimes);
     interpolators.put(_name, interpolator);
@@ -267,12 +269,12 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       //TODO have the decomposition as an optional input [FIN-146]
       rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, DecompositionFactory.getDecomposition(DecompositionFactory.LU_COMMONS_NAME));
       yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess)).getData();
-    } catch (final RootNotFoundException e) {  
+    } catch (final RootNotFoundException e) {
       rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
       yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess)).getData();
 
     }
-    
+
     final YieldAndDiscountCurve curve = new InterpolatedYieldCurve(nodeTimes, yields, interpolator);
     final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(yields));
     return Sets.newHashSet(new ComputedValue(_curveResult, curve), new ComputedValue(_jacobianResult, jacobianMatrix.getData()));

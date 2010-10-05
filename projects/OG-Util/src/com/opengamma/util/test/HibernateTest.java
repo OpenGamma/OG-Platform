@@ -9,7 +9,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.junit.After;
 import org.junit.Before;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 public abstract class HibernateTest extends DBTest {
   

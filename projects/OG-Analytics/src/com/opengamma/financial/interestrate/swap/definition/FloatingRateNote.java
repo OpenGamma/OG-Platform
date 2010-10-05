@@ -6,36 +6,28 @@
 package com.opengamma.financial.interestrate.swap.definition;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.annuity.definition.FixedAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.VariableAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.payments.FixedPayment;
+import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
 
 /**
  * 
  */
-public class FloatingRateNote extends Swap {
+public class FloatingRateNote extends Swap<FixedPayment, ForwardLiborPayment> {
 
-  public FloatingRateNote(final VariableAnnuity annuity) {
-    super(setUpFixedLeg(annuity), annuity);
+  public FloatingRateNote(final GenericAnnuity<ForwardLiborPayment> forwardLiborAnnuity) {
+    super(setUpFixedLeg(forwardLiborAnnuity), forwardLiborAnnuity);
   }
 
-  private static FixedAnnuity setUpFixedLeg(final VariableAnnuity annuity) {
-    String curveName = annuity.getFundingCurveName();
-    double notional = annuity.getNotional();
-    double[] paymentTimes = new double[2];
-    paymentTimes[0] = 0.0;
-    paymentTimes[1] = annuity.getPaymentTimes()[annuity.getNumberOfPayments() - 1];
+  private static GenericAnnuity<FixedPayment> setUpFixedLeg(final GenericAnnuity<ForwardLiborPayment> annuity) {
 
-    return new FixedAnnuity(paymentTimes, notional, new double[] {1, -1}, new double[] {1, 1}, curveName);
-  }
+    String curveName = annuity.getNthPayment(0).getFundingCurveName();
+    double notional = annuity.getNthPayment(0).getNotional();
+    FixedPayment[] fixedPayments = new FixedPayment[2];
+    fixedPayments[0] = new FixedPayment(0, notional, curveName);
+    fixedPayments[1] = new FixedPayment(annuity.getNthPayment(annuity.getNumberOfpayments() - 1).getPaymentTime(), -notional, curveName);
 
-  @Override
-  public FixedAnnuity getPayLeg() {
-    return (FixedAnnuity) super.getPayLeg();
-  }
-
-  @Override
-  public VariableAnnuity getReceiveLeg() {
-    return (VariableAnnuity) super.getReceiveLeg();
+    return new GenericAnnuity<FixedPayment>(fixedPayments);
   }
 
   @Override

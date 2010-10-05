@@ -213,7 +213,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
     }
   }
 
-  private class MetaDataKey implements Serializable {
+  private static class MetaDataKey implements Serializable {
     private final IdentifierBundle _dsids;
     private final String _dataSource;
     private final String _dataProvider;

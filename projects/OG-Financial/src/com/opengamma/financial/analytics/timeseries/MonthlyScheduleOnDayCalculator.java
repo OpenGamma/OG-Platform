@@ -20,6 +20,7 @@ public class MonthlyScheduleOnDayCalculator extends Schedule {
   private final int _dayOfMonth;
 
   public MonthlyScheduleOnDayCalculator(final int dayOfMonth) {
+    Validate.isTrue(dayOfMonth > 0 && dayOfMonth < 32);
     _dayOfMonth = dayOfMonth;
   }
 
@@ -32,8 +33,7 @@ public class MonthlyScheduleOnDayCalculator extends Schedule {
       if (startDate.getDayOfMonth() == _dayOfMonth) {
         return new LocalDate[] {startDate};
       }
-      throw new IllegalArgumentException(
-          "Start date and end date were the same but their day of month was not the same as that required");
+      throw new IllegalArgumentException("Start date and end date were the same but their day of month was not the same as that required");
     }
     final List<LocalDate> dates = new ArrayList<LocalDate>();
     if (fromEnd) {

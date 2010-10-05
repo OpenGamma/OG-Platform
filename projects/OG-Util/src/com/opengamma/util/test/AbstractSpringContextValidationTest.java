@@ -11,6 +11,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.StringReader;
+import java.net.MalformedURLException;
 
 import org.junit.After;
 import org.junit.Before;
@@ -19,7 +20,10 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.UrlResource;
 import org.xml.sax.InputSource;
+
+import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * Extend from this to verify that a Spring configuration is valid. This is to spot
@@ -42,7 +46,7 @@ public abstract class AbstractSpringContextValidationTest {
     xmlReader.loadBeanDefinitions(new ClassPathResource(name));
   }
 
-  protected void fileSystemResource(final String path) {
+  protected void loadFileSystemResource(final String path) {
     XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(getSpringContext());
     xmlReader.loadBeanDefinitions(new FileSystemResource(path));
   }
@@ -51,6 +55,15 @@ public abstract class AbstractSpringContextValidationTest {
     XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(getSpringContext());
     xmlReader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_NONE);
     xmlReader.loadBeanDefinitions(new InputSource(new StringReader(xml)));
+  }
+
+  protected void loadUrlResource(final String url) {
+    try {
+      XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(getSpringContext());
+      xmlReader.loadBeanDefinitions(new UrlResource(url));
+    } catch (MalformedURLException ex) {
+      throw new OpenGammaRuntimeException("Malformed URL - " + url, ex);
+    }
   }
 
   @Before

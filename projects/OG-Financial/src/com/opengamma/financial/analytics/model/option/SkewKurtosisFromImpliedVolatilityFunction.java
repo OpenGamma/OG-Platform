@@ -15,9 +15,11 @@ import javax.time.calendar.ZonedDateTime;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -25,6 +27,9 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.math.function.Function2D;
+import com.opengamma.math.statistics.descriptive.LognormalPearsonKurtosisFromVolatilityCalculator;
+import com.opengamma.math.statistics.descriptive.LognormalSkewnessFromVolatilityCalculator;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
@@ -33,19 +38,12 @@ import com.opengamma.util.tuple.Pair;
  * 
  *
  */
-public class SkewKurtosisFromImpliedVolatilityFunction extends OptionSkewKurtosisFunction {
-  /**
-   * Name of value requirement for Skew.
-   */
-  public static final String SKEW = "Skew";
-  /**
-   * Name of value requirement for Kurtosis.
-   */
-  public static final String KURTOSIS = "Kurtosis";
+public class SkewKurtosisFromImpliedVolatilityFunction extends AbstractFunction implements FunctionInvoker {
+  private static final Function2D<Double, Double> SKEW_CALCULATOR = new LognormalSkewnessFromVolatilityCalculator();
+  private static final Function2D<Double, Double> KURTOSIS_CALCULATOR = new LognormalPearsonKurtosisFromVolatilityCalculator();
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-      final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final OptionSecurity option = (OptionSecurity) target.getSecurity();
     final UniqueIdentifier uid = option.getUniqueIdentifier();
     final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
@@ -53,20 +51,22 @@ public class SkewKurtosisFromImpliedVolatilityFunction extends OptionSkewKurtosi
     final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
     final VolatilitySurface surface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceRequirement(option));
     final double volatility = surface.getVolatility(Pair.of(t, option.getStrike()));
-    final double y = Math.sqrt(Math.exp(volatility * volatility * t) - 1);
-    final double ySq = y * y;
-    final double skew = y * (3 + ySq);
-    final double kurtosis = 16 * ySq + 15 * ySq * ySq + 6 * ySq * ySq * ySq + ySq * ySq * ySq * ySq;
+    final double skew = SKEW_CALCULATOR.evaluate(volatility, t);
+    final double pearson = KURTOSIS_CALCULATOR.evaluate(volatility, t);
+    final double fisher = pearson - 3;
     final Set<ComputedValue> results = new HashSet<ComputedValue>();
-    results.add(new ComputedValue(new ValueSpecification(
-        new ValueRequirement(SKEW, ComputationTargetType.SECURITY, uid),
-        getUniqueIdentifier()), 
-      skew));
-    results.add(new ComputedValue(new ValueSpecification(
-        new ValueRequirement(KURTOSIS, ComputationTargetType.SECURITY, uid),
-        getUniqueIdentifier()), 
-      kurtosis));
+    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SKEW, ComputationTargetType.SECURITY, uid), getUniqueIdentifier()), skew));
+    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PEARSON_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueIdentifier()), pearson));
+    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FISHER_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueIdentifier()), fisher));
     return results;
+  }
+
+  @Override
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (target.getType() == ComputationTargetType.SECURITY && target.getSecurity() instanceof OptionSecurity) {
+      return true;
+    }
+    return false;
   }
 
   @Override
@@ -84,6 +84,24 @@ public class SkewKurtosisFromImpliedVolatilityFunction extends OptionSkewKurtosi
 
   private ValueRequirement getVolatilitySurfaceRequirement(final OptionSecurity option) {
     return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.SECURITY, option.getUniqueIdentifier());
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (canApplyTo(context, target)) {
+      final UniqueIdentifier uid = target.getSecurity().getUniqueIdentifier();
+      final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SKEW, ComputationTargetType.SECURITY, uid), getUniqueIdentifier()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PEARSON_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueIdentifier()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FISHER_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueIdentifier()));
+      return results;
+    }
+    return null;
+  }
+
+  @Override
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.SECURITY;
   }
 
 }

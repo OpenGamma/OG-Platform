@@ -38,7 +38,7 @@ public class FirstOfMonthScheduleCalculatorTest {
   }
 
   @Test
-  public void testMonthlyOnFirst() {
+  public void test() {
     LocalDate startDate = LocalDate.of(2000, 1, 1);
     LocalDate endDate = LocalDate.of(2000, 1, 30);
     LocalDate[] forward = CALCULATOR.getSchedule(startDate, endDate, false);
