@@ -8,15 +8,15 @@ package com.opengamma.financial.interestrate.cash.definition;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * A cash loan with a unit amount borrowed on some some trade date (which could be now), and an amount (1+r*t) paid at maturity, where r is the Libor rate and t is the time (in years) 
  * between the trade date and the maturity in some day count convention.  
  */
-public class Cash implements InterestRateDerivative {
+public class Cash implements InterestRateDerivativeWithRate {
   private final double _tradeTime;
   private final double _maturity;
   private final double _yearFraction;

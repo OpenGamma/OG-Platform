@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.ParRateCalculator;
@@ -208,7 +209,7 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
       final YieldAndDiscountCurve curve = makeYieldCurve(yields, curveKnots, data.getInterpolatorForCurve(curveName));
       curveBundle.setCurve(curveName, curve);
 
-      InterestRateDerivative instrument;
+      InterestRateDerivativeWithRate instrument;
       final double[] swapRates = new double[n];
       for (int i = 0; i < n; i++) {
         instrument = makeSwap(curveKnots[i], curveName, curveName, 0.0);

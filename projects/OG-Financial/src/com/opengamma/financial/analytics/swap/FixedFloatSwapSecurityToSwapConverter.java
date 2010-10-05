@@ -27,6 +27,7 @@ import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
 import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
 import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
@@ -58,7 +59,7 @@ public class FixedFloatSwapSecurityToSwapConverter {
 
   }
 
-  public Swap<FixedCouponPayment, Payment> getSwap(final SwapSecurity swapSecurity, final String fundingCurveName, final String liborCurveName, final double marketRate,  
+  public FixedCouponSwap<Payment> getSwap(final SwapSecurity swapSecurity, final String fundingCurveName, final String liborCurveName, final double marketRate,  
       final double initialRate, final ZonedDateTime now) {
     Validate.notNull(swapSecurity, "swap security");
     final ZonedDateTime effectiveDate = swapSecurity.getEffectiveDate().toZonedDateTime();
@@ -83,7 +84,7 @@ public class FixedFloatSwapSecurityToSwapConverter {
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, payRegion);
     final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getISOCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_SWAP"));
-    return new Swap<FixedCouponPayment, Payment>(getFixedLeg(fixedLeg, now, effectiveDate, maturityDate, marketRate, fundingCurveName, calendar), 
+    return new FixedCouponSwap<Payment>(getFixedLeg(fixedLeg, now, effectiveDate, maturityDate, marketRate, fundingCurveName, calendar), 
         getFloatLeg(floatLeg, now, effectiveDate, maturityDate,
         fundingCurveName, liborCurveName, calendar, initialRate, conventions.getSwapFloatingLegSettlementDays()));
   }

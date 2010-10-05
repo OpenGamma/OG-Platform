@@ -7,14 +7,14 @@ package com.opengamma.financial.interestrate.fra.definition;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
-public class ForwardRateAgreement implements InterestRateDerivative {
+public class ForwardRateAgreement implements InterestRateDerivativeWithRate {
   private final double _settlement;
   private final double _maturity;
   private final double _strike;

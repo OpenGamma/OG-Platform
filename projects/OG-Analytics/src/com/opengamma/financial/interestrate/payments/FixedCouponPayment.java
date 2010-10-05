@@ -7,10 +7,12 @@ package com.opengamma.financial.interestrate.payments;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
+
 /**
  * 
  */
-public class FixedCouponPayment extends FixedPayment {
+public class FixedCouponPayment extends FixedPayment implements InterestRateDerivativeWithRate {
 
   private final double _yearFraction;
   private final double _coupon;
@@ -50,6 +52,7 @@ public class FixedCouponPayment extends FixedPayment {
     return _notional;
   }
 
+  @Override
   public FixedCouponPayment withRate(double rate) {
     return new FixedCouponPayment(getPaymentTime(), getYearFraction(), rate, getFundingCurveName());
   }

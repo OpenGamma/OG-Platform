@@ -9,15 +9,17 @@ import org.apache.commons.lang.Validate;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
 import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
 import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
@@ -74,15 +76,14 @@ public final class PresentValueCouponSensitivityCalculator implements InterestRa
   }
 
   @Override
-  public Double visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle curves) {
-    final double pvFixed = PVC.getValue(swap.getFixedLeg().withRate(1.0), curves);
-    return -pvFixed;
+  public Double visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
+    return -PVC.getValue(swap.getFixedLeg().withRate(1.0), curves);
   }
 
   @Override
   public Double visitSwap(Swap<?, ?> swap, YieldCurveBundle data) {
-    final double pvSpread = PVC.getValue(swap.getReceiveLeg().withRate(1.0), data);
-    return pvSpread;
+    throw new NotImplementedException();
+
   }
 
   @Override
@@ -90,9 +91,16 @@ public final class PresentValueCouponSensitivityCalculator implements InterestRa
     return visitSwap(frn, curves);
   }
 
+  /**
+   * The assumption is that spread is received (i.e. the spread, if any, is on the received leg only)
+   * If the spread is paid (i.e. on the pay leg), swap the legs around and take the negative of the returned value.
+   *@param swap 
+   * @param curves 
+   *@return  The spread on the receive leg of a basis swap 
+   */
   @Override
   public Double visitTenorSwap(final TenorSwap swap, final YieldCurveBundle curves) {
-    return visitSwap(swap, curves);
+    return PVC.getValue(((ForwardLiborAnnuity) swap.getReceiveLeg()).withUnitCoupons(), curves);
   }
 
   @Override
@@ -112,6 +120,11 @@ public final class PresentValueCouponSensitivityCalculator implements InterestRa
       sum += getValue(p, data);
     }
     return sum;
+  }
+
+  @Override
+  public Double visitContinuouslyMonitoredAverageRatePayment(ContinuouslyMonitoredAverageRatePayment payment, YieldCurveBundle data) {
+    throw new NotImplementedException();
   }
 
   // @Override

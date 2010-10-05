@@ -8,14 +8,14 @@ package com.opengamma.financial.interestrate.future.definition;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
-public class InterestRateFuture implements InterestRateDerivative {
+public class InterestRateFuture implements InterestRateDerivativeWithRate {
   private final double _settlement;
   private final double _fixingDate;
   private final double _maturity;
