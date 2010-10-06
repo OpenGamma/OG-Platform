@@ -91,8 +91,8 @@ public class CurveDefinitionAndSpecifications {
   
   public static YieldCurveDefinition buildUSDSingleCurveDefinition() {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
-    strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, new Tenor(Period.ofDays(1)), "DEFAULT"));
-    strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, new Tenor(Period.ofMonths(3)), "DEFAULT"));
+    strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, new Tenor(Period.ofDays(1)), "DEFAULT"));
+    strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, new Tenor(Period.ofMonths(3)), "DEFAULT"));
     for (final int i : new int[] {6, 9, 12}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.FRA, new Tenor(Period.ofMonths(i)), "DEFAULT"));
     }
