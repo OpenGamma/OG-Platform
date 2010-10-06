@@ -28,6 +28,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
@@ -35,6 +36,8 @@ import com.opengamma.util.tuple.Pair;
  * A HistoricalDataSource implementation that connects to a remote one with REST calls.
  */
 public class RemoteHistoricalDataSource implements HistoricalDataSource {
+
+  private static final LocalDateDoubleTimeSeries EMPTY_TIMESERIES = new ArrayLocalDateDoubleTimeSeries();
 
   /**
    * The RESTful client instance.
@@ -75,10 +78,11 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
 
   private Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> decodePairMessage(final FudgeFieldContainer message) {
     if (message == null) {
-      return null;
+      return Pair.of(null, EMPTY_TIMESERIES);
     }
     final FudgeField uniqueIdentifierField = message.getByName(HISTORICALDATASOURCE_UNIQUEIDENTIFIER);
     if (uniqueIdentifierField == null) {
+      System.err.println(message);
       throw new IllegalArgumentException(HISTORICALDATASOURCE_UNIQUEIDENTIFIER + " not present in message");
     }
     final FudgeField timeSeriesField = message.getByName(HISTORICALDATASOURCE_TIMESERIES);
@@ -91,7 +95,7 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
 
   private LocalDateDoubleTimeSeries decodeTimeSeriesMessage(final FudgeFieldContainer message) {
     if (message == null) {
-      return null;
+      return EMPTY_TIMESERIES;
     }
     final FudgeField timeSeriesField = message.getByName(HISTORICALDATASOURCE_TIMESERIES);
     if (timeSeriesField == null) {
