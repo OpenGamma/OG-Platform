@@ -65,6 +65,11 @@ public class WebHomeResource extends AbstractWebResource {
     WebExchangeData exchangeData = new WebExchangeData();
     exchangeData.setUriInfo(uriInfo);
     out.put("exchangeUris", new WebExchangeUris(exchangeData));
+    
+    WebExchangeData timeseriesData = new WebExchangeData();
+    timeseriesData.setUriInfo(uriInfo);
+    out.put("timeseriesUris", new WebExchangeUris(timeseriesData));
+    
     return out;
   }
 

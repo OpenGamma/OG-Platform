@@ -9,8 +9,6 @@ import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 
 import com.opengamma.engine.CachingComputationTargetResolver;
-import com.opengamma.engine.DefaultCachingComputationTargetResolver;
-import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.resolver.FunctionResolver;
@@ -56,8 +54,9 @@ public class ViewProcessingContext {
   private final GraphExecutorStatisticsGathererProvider _graphExecutorStatisticsGathererProvider;
 
   public ViewProcessingContext(LiveDataEntitlementChecker liveDataEntitlementChecker, LiveDataAvailabilityProvider liveDataAvailabilityProvider, LiveDataSnapshotProvider liveDataSnapshotProvider,
-      FunctionRepository functionRepository, FunctionResolver functionResolver, PositionSource positionSource, SecuritySource securitySource, ViewComputationCacheSource computationCacheSource,
-      JobDispatcher computationJobDispatcher, ViewProcessorQueryReceiver viewProcessorQueryReceiver, FunctionCompilationContext compilationContext, ExecutorService executorService,
+      FunctionRepository functionRepository, FunctionResolver functionResolver, PositionSource positionSource, SecuritySource securitySource,
+      CachingComputationTargetResolver computationTargetResolver, ViewComputationCacheSource computationCacheSource, JobDispatcher computationJobDispatcher,
+      ViewProcessorQueryReceiver viewProcessorQueryReceiver, FunctionCompilationContext compilationContext, ExecutorService executorService,
       DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory, ViewPermissionProvider permissionProvider, GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider) {
     ArgumentChecker.notNull(liveDataEntitlementChecker, "liveDataEntitlementChecker");
     ArgumentChecker.notNull(liveDataAvailabilityProvider, "liveDataAvailabilityProvider");
@@ -84,6 +83,7 @@ public class ViewProcessingContext {
     _functionResolver = functionResolver;
     _positionSource = positionSource;
     _securitySource = securitySource;
+    _computationTargetResolver = computationTargetResolver;
     _computationCacheSource = computationCacheSource;
     _computationJobDispatcher = computationJobDispatcher;
     _viewProcessorQueryReceiver = viewProcessorQueryReceiver;
@@ -92,9 +92,6 @@ public class ViewProcessingContext {
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
     _permissionProvider = permissionProvider;
     _graphExecutorStatisticsGathererProvider = graphExecutorStatisticsProvider;
-
-    // REVIEW kirk 2010-05-22 -- This isn't the right place to wrap this.
-    _computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource));
   }
 
   // -------------------------------------------------------------------------
@@ -124,7 +121,7 @@ public class ViewProcessingContext {
   public LiveDataSnapshotProvider getLiveDataSnapshotProvider() {
     return _liveDataSnapshotProvider;
   }
-  
+
   /**
    * Gets the live data override injector.
    * 
@@ -198,9 +195,8 @@ public class ViewProcessingContext {
   }
 
   /**
-   * Returns a {@code ComputationTargetResolver} constructed from the position and security master. The
-   * target resolver is capable of returning fully constructed portfolio graphs with all security and
-   * internal references resolved.
+   * Gets the computation target resvoler. The target resolver is capable of returning fully
+   * constructed portfolio graphs with all security and internal references resolved.
    * 
    * @return the computationTargetResolver, not null
    */

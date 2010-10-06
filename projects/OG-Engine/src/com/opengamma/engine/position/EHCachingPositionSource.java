@@ -11,7 +11,7 @@ import net.sf.ehcache.Element;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.EHCacheUtils;
+import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
  * A cache decorating a {@code PositionSource}.
@@ -53,14 +53,6 @@ public class EHCachingPositionSource implements PositionSource {
    * The position cache.
    */
   private final Cache _position;
-
-  /**
-   * Creates the cache around an underlying position source.
-   * @param underlying  the underlying data, not null
-   */
-  public EHCachingPositionSource(final PositionSource underlying) {
-    this(underlying, EHCacheUtils.createCacheManager());
-  }
 
   /**
    * Creates the cache around an underlying position source.

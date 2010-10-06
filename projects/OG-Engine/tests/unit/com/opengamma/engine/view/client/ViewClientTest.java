@@ -40,6 +40,7 @@ import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.calc.ViewRecalculationJob;
 import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.util.test.Timeout;
 
 
 /**
@@ -47,7 +48,7 @@ import com.opengamma.livedata.msg.UserPrincipal;
  */
 public class ViewClientTest {
   
-  private static final int TIMEOUT = 20000;
+  private static final long TIMEOUT = Timeout.standardTimeoutMillis();
   
   @Test
   public void testSingleViewMultipleClients() {
@@ -261,24 +262,25 @@ public class ViewClientTest {
     // Start off paused. This should kick off an initial live computation cycle, which we'll consume
     client.pauseLive();
     viewResultListener.getResult(TIMEOUT);
+    clientResultListener.assertNoResult(TIMEOUT);
     
     // Now we're paused, so any changes should be batched.
     snapshotProvider.addValue(env.getPrimitive1(), 1);
     env.getCurrentRecalcJob(view).liveDataChanged();
     viewResultListener.getResult(TIMEOUT);
     assertEquals(0, viewResultListener.getQueueSize());
-    assertEquals(0, clientResultListener.getQueueSize());
+    clientResultListener.assertNoResult(TIMEOUT);
     
     snapshotProvider.addValue(env.getPrimitive1(), 2);
     env.getCurrentRecalcJob(view).liveDataChanged();
     viewResultListener.getResult(TIMEOUT);
     assertEquals(0, viewResultListener.getQueueSize());
-    assertEquals(0, clientResultListener.getQueueSize());
+    clientResultListener.assertNoResult(TIMEOUT);
     
     // Resuming should release the most recent result to the client
     client.startLive();
+    viewResultListener.assertNoResult(TIMEOUT);
     ViewComputationResultModel result2 = clientResultListener.getResult(TIMEOUT);
-    assertEquals(0, viewResultListener.getQueueSize());
     assertEquals(0, clientResultListener.getQueueSize());
     Map<ValueRequirement, Object> expected = new HashMap<ValueRequirement, Object>();
     expected.put(env.getPrimitive1(), (byte) 2);
@@ -297,34 +299,34 @@ public class ViewClientTest {
 
     // Pause results again and we should be back to merging
     client.pauseLive();
-    assertEquals(0, viewResultListener.getQueueSize());
-    assertEquals(0, clientResultListener.getQueueSize());
+    viewResultListener.assertNoResult(TIMEOUT);
+    clientResultListener.assertNoResult(TIMEOUT);
 
     snapshotProvider.addValue(env.getPrimitive2(), 1);
     env.getCurrentRecalcJob(view).liveDataChanged();
     viewResultListener.getResult(TIMEOUT);
     assertEquals(0, viewResultListener.getQueueSize());
-    assertEquals(0, clientResultListener.getQueueSize());
+    clientResultListener.assertNoResult(TIMEOUT);
 
     snapshotProvider.addValue(env.getPrimitive2(), 2);
     env.getCurrentRecalcJob(view).liveDataChanged();
     viewResultListener.getResult(TIMEOUT);
     assertEquals(0, viewResultListener.getQueueSize());
-    assertEquals(0, clientResultListener.getQueueSize());
+    clientResultListener.assertNoResult(TIMEOUT);
     
     // Start results again
     client.startLive();
     ViewComputationResultModel result4 = clientResultListener.getResult(TIMEOUT);
-    assertEquals(0, viewResultListener.getQueueSize());
     assertEquals(0, clientResultListener.getQueueSize());
+    viewResultListener.assertNoResult(TIMEOUT);
     expected = new HashMap<ValueRequirement, Object>();
     expected.put(env.getPrimitive1(), (byte) 3);
     expected.put(env.getPrimitive2(), (byte) 2);
     assertComputationResult(expected, env.getCalculationResult(result4));
     
     client.stopLive();
-    assertEquals(0, viewResultListener.getQueueSize());
-    assertEquals(0, clientResultListener.getQueueSize());
+    viewResultListener.assertNoResult(TIMEOUT);
+    clientResultListener.assertNoResult(TIMEOUT);
     
     client.shutdown();
   }

@@ -7,8 +7,6 @@ package com.opengamma.engine.view.cache;
 
 import net.sf.ehcache.CacheManager;
 
-import com.opengamma.util.EHCacheUtils;
-
 /**
  * A data store factory that wraps an underlying factory's generation with a local caching layer.
  */
@@ -18,14 +16,14 @@ public class CachingBinaryDataStoreFactory implements BinaryDataStoreFactory {
   private final int _maxLocalCachedElements;
   private final CacheManager _cacheManager;
 
-  public CachingBinaryDataStoreFactory(final BinaryDataStoreFactory underlying) {
-    this(underlying, DEFAULT_MAX_LOCAL_CACHED_ELEMENTS);
+  public CachingBinaryDataStoreFactory(final BinaryDataStoreFactory underlying, final CacheManager cacheManager) {
+    this(underlying, cacheManager, DEFAULT_MAX_LOCAL_CACHED_ELEMENTS);
   }
 
-  public CachingBinaryDataStoreFactory(final BinaryDataStoreFactory underlying, int maxLocalCachedElements) {
+  public CachingBinaryDataStoreFactory(final BinaryDataStoreFactory underlying, final CacheManager cacheManager, int maxLocalCachedElements) {
     _underlying = underlying;
     _maxLocalCachedElements = maxLocalCachedElements;
-    _cacheManager = EHCacheUtils.createCacheManager();
+    _cacheManager = cacheManager;
   }
 
   /**

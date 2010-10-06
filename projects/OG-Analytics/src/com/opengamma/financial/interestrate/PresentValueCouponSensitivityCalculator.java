@@ -5,9 +5,8 @@
  */
 package com.opengamma.financial.interestrate;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
-
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
@@ -81,7 +80,7 @@ public final class PresentValueCouponSensitivityCalculator implements InterestRa
   }
 
   @Override
-  public Double visitSwap(Swap<?, ?> swap, YieldCurveBundle data) {
+  public Double visitSwap(final Swap<?, ?> swap, final YieldCurveBundle data) {
     throw new NotImplementedException();
 
   }
@@ -104,26 +103,26 @@ public final class PresentValueCouponSensitivityCalculator implements InterestRa
   }
 
   @Override
-  public Double visitFixedPayment(FixedPayment payment, YieldCurveBundle data) {
+  public Double visitFixedPayment(final FixedPayment payment, final YieldCurveBundle data) {
     return 0.0;
   }
 
   @Override
-  public Double visitForwardLiborPayment(ForwardLiborPayment payment, YieldCurveBundle data) {
+  public Double visitForwardLiborPayment(final ForwardLiborPayment payment, final YieldCurveBundle data) {
     throw new NotImplementedException();
   }
 
   @Override
-  public Double visitGenericAnnuity(GenericAnnuity<? extends Payment> annuity, YieldCurveBundle data) {
+  public Double visitGenericAnnuity(final GenericAnnuity<? extends Payment> annuity, final YieldCurveBundle data) {
     double sum = 0;
-    for (Payment p : annuity.getPayments()) {
+    for (final Payment p : annuity.getPayments()) {
       sum += getValue(p, data);
     }
     return sum;
   }
 
   @Override
-  public Double visitContinuouslyMonitoredAverageRatePayment(ContinuouslyMonitoredAverageRatePayment payment, YieldCurveBundle data) {
+  public Double visitContinuouslyMonitoredAverageRatePayment(final ContinuouslyMonitoredAverageRatePayment payment, final YieldCurveBundle data) {
     throw new NotImplementedException();
   }
 

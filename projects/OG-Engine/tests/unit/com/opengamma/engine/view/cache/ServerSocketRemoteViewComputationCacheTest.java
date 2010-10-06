@@ -31,6 +31,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver;
 import com.opengamma.transport.socket.SocketFudgeConnection;
 import com.opengamma.util.ThreadUtil;
+import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
@@ -59,7 +60,7 @@ public class ServerSocketRemoteViewComputationCacheTest {
     _socket.setPortNumber(_serverSocket.getPortNumber());
     
     RemoteCacheClient client = new RemoteCacheClient(_socket);
-    _cacheSource = new RemoteViewComputationCacheSource (client, new InMemoryBinaryDataStoreFactory ());
+    _cacheSource = new RemoteViewComputationCacheSource (client, new InMemoryBinaryDataStoreFactory (), EHCacheUtils.createCacheManager ());
   }
   
   @After

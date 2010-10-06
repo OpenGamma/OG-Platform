@@ -21,6 +21,7 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import com.opengamma.transport.ByteArrayRequestReceiver;
 import com.opengamma.transport.CollectingByteArrayMessageReceiver;
 import com.opengamma.util.test.ActiveMQTestUtil;
+import com.opengamma.util.test.Timeout;
 
 /**
  * 
@@ -31,7 +32,7 @@ public class JmsByteArrayTransportTest {
   
   private static final Logger s_logger = LoggerFactory.getLogger(JmsByteArrayTransportTest.class);
   
-  private static final long TIMEOUT = 15000;
+  private static final long TIMEOUT = 10L * Timeout.standardTimeoutMillis();
   
   private void topicConduitImpl () throws Exception {
     String topicName = "JmsByteArrayTransportTest-topicConduit-" + System.getProperty("user.name") + "-" + System.currentTimeMillis();
