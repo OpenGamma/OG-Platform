@@ -67,6 +67,7 @@ public class DefaultCachingComputationTargetResolver extends ForwardingComputati
     switch (specification.getType()) {
       case POSITION :
       case PORTFOLIO_NODE :
+      case SECURITY :
         final Element e = _computationTarget.get(specification);
         if (e != null) {
           return (ComputationTarget) e.getValue();
