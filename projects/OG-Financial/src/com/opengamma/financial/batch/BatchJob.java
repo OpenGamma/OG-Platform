@@ -28,6 +28,8 @@ import javax.time.calendar.format.CalendricalParseException;
 import javax.time.calendar.format.DateTimeFormatter;
 import javax.time.calendar.format.DateTimeFormatterBuilder;
 
+import net.sf.ehcache.CacheManager;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -43,6 +45,7 @@ import com.opengamma.config.ConfigMaster;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.config.db.MongoDBConfigMaster;
+import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -78,6 +81,7 @@ import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.MongoDBConnectionSettings;
 import com.opengamma.util.NamedThreadPoolFactory;
+import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 import com.opengamma.util.time.DateUtil;
 
@@ -528,8 +532,9 @@ public class BatchJob {
   }
 
   public void createView(BatchJobRun run) {
+    final CacheManager cacheManager = EHCacheUtils.createCacheManager();
     InMemoryLKVSnapshotProvider snapshotProvider = getSnapshotProvider(run);
-    
+
     SecuritySource securitySource = getSecuritySource();
     if (securitySource == null) {
       securitySource = new MasterSecuritySource(getSecurityMaster(), getSecurityMasterTime(), getSecurityMasterAsViewedAtTime());
@@ -538,13 +543,13 @@ public class BatchJob {
     if (positionSource == null) {
       positionSource = new MasterPositionSource(getPositionMaster(), getPositionMasterTime(), getPositionMasterAsViewedAtTime());
     }
-    
+
     DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
-    InMemoryViewComputationCacheSource cacheFactory = new InMemoryViewComputationCacheSource(OpenGammaFudgeContext.getInstance());
+    InMemoryViewComputationCacheSource computationCache = new InMemoryViewComputationCacheSource(OpenGammaFudgeContext.getInstance());
 
     ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
-    AbstractCalculationNode localNode = new LocalCalculationNode(cacheFactory, getFunctionRepository(), getFunctionExecutionContext(), targetResolver, viewProcessorQuerySender, Executors
+    AbstractCalculationNode localNode = new LocalCalculationNode(computationCache, getFunctionRepository(), getFunctionExecutionContext(), targetResolver, viewProcessorQuerySender, Executors
         .newCachedThreadPool(), new DiscardingInvocationStatisticsGatherer());
     JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(localNode));
 
@@ -554,8 +559,9 @@ public class BatchJob {
     DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory = getBatchDbManager().createDependencyGraphExecutorFactory(run);
 
     ViewProcessingContext vpc = new ViewProcessingContext(new PermissiveLiveDataEntitlementChecker(), snapshotProvider, snapshotProvider, getFunctionRepository(), new DefaultFunctionResolver(
-        getFunctionRepository()), positionSource, securitySource, cacheFactory, jobDispatcher, viewProcessorQueryReceiver, getFunctionCompilationContext(), executor, dependencyGraphExecutorFactory,
-        new DefaultViewPermissionProvider(), new DiscardingGraphStatisticsGathererProvider());
+        getFunctionRepository()), positionSource, securitySource, new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), cacheManager),
+        computationCache, jobDispatcher, viewProcessorQueryReceiver, getFunctionCompilationContext(), executor, dependencyGraphExecutorFactory, new DefaultViewPermissionProvider(),
+        new DiscardingGraphStatisticsGathererProvider());
 
     ViewImpl view = new ViewImpl(_viewDefinitionConfig.getValue(), vpc, new Timer("Batch view timer"));
     view.setPopulateResultModel(false);

@@ -25,7 +25,6 @@ public class OperationTimer {
   public OperationTimer(Logger logger, String format, Object... arguments) {
     ArgumentChecker.notNull(logger, "logger");
     ArgumentChecker.notNull(format, "format");
-    
     _startTime = System.nanoTime();
     _logger = logger;
     _format = format;

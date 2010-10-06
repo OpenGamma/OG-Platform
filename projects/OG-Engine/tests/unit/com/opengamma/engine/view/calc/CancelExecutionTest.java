@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -67,6 +68,7 @@ import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.transport.InMemoryRequestConduit;
+import com.opengamma.util.ehcache.EHCacheUtils;
 
 @RunWith(Parameterized.class)
 public class CancelExecutionTest {
@@ -75,14 +77,14 @@ public class CancelExecutionTest {
   private static final int JOB_FINISH_TIME = 1000;
   private static final int SLEEP_TIME = JOB_FINISH_TIME / 10;
   private static final Logger s_logger = LoggerFactory.getLogger(CancelExecutionTest.class);
-  
-  private static MultipleNodeExecutorFactory multipleNodeExecutorFactoryOneJob () {
+
+  private static MultipleNodeExecutorFactory multipleNodeExecutorFactoryOneJob() {
     final MultipleNodeExecutorFactory factory = new MultipleNodeExecutorFactory();
     return factory;
   }
-  
-  private static MultipleNodeExecutorFactory multipleNodeExecutorFactoryManyJobs () {
-    final MultipleNodeExecutorFactory factory = multipleNodeExecutorFactoryOneJob ();
+
+  private static MultipleNodeExecutorFactory multipleNodeExecutorFactoryManyJobs() {
+    final MultipleNodeExecutorFactory factory = multipleNodeExecutorFactoryOneJob();
     factory.setMaximumJobItems(JOB_SIZE / 10);
     return factory;
   }
@@ -148,7 +150,8 @@ public class CancelExecutionTest {
     final ViewPermissionProvider viewPermissionProvider = new DefaultViewPermissionProvider();
     final GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider = new DiscardingGraphStatisticsGathererProvider();
     final ViewProcessingContext vpc = new ViewProcessingContext(liveDataEntitlementChecker, liveData, liveData, functionRepository, functionResolver, positionSource, securitySource,
-        computationCacheSource, jobDispatcher, viewProcessorQueryReceiver, compilationContext, executorService, _factory, viewPermissionProvider, graphExecutorStatisticsProvider);
+        new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils.createCacheManager()), computationCacheSource, jobDispatcher,
+        viewProcessorQueryReceiver, compilationContext, executorService, _factory, viewPermissionProvider, graphExecutorStatisticsProvider);
     final DependencyGraph graph = new DependencyGraph("Default");
     DependencyNode previous = null;
     for (int i = 0; i < JOB_SIZE; i++) {

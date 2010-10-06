@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
+import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationService;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
@@ -52,6 +53,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
   private ViewDefinitionRepository _viewDefinitionRepository;
   private SecuritySource _securitySource;
   private PositionSource _positionSource;
+  private CachingComputationTargetResolver _computationTargetResolver;
   private FunctionCompilationService _functionCompilationService;
   private LiveDataClient _liveDataClient;
   private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
@@ -78,7 +80,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
       throw new IllegalStateException("Cannot change injected properties once this ViewProcessor has been started.");
     }
   }
-  
+
   @Override
   public Set<String> getViewNames() {
     return getViewDefinitionRepository().getDefinitionNames();
@@ -95,7 +97,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
       if (definition == null) {
         return null;
       }
-      
+
       ViewProcessingContext viewProcessingContext = createViewProcessingContext();
       view = new ViewImpl(definition, viewProcessingContext, _clientResultTimer);
       _viewsByName.put(name, view);
@@ -160,6 +162,15 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
   public void setPositionSource(PositionSource positionSource) {
     assertNotStarted();
     _positionSource = positionSource;
+  }
+
+  public CachingComputationTargetResolver getComputationTargetResolver() {
+    return _computationTargetResolver;
+  }
+
+  public void setComputationTargetResolver(final CachingComputationTargetResolver computationTargetResolver) {
+    assertNotStarted();
+    _computationTargetResolver = computationTargetResolver;
   }
 
   @Override
@@ -280,7 +291,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
     assertNotStarted();
     _localExecutorService = localExecutorService;
   }
-  
+
   /**
    * Sets the graphExecutionStatistics field.
    * @param graphExecutionStatistics  the graphExecutionStatistics
@@ -288,7 +299,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
   public void setGraphExecutionStatistics(GraphExecutorStatisticsGathererProvider graphExecutionStatistics) {
     _graphExecutionStatistics = graphExecutionStatistics;
   }
-  
+
   /**
    * Gets the graphExecutionStatistics field.
    * @return the graphExecutionStatistics
@@ -392,32 +403,20 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
     ArgumentChecker.notNullInjected(getFunctionCompilationService(), "functionCompilationService");
     ArgumentChecker.notNullInjected(getSecuritySource(), "securitySource");
     ArgumentChecker.notNullInjected(getPositionSource(), "positionSource");
+    ArgumentChecker.notNullInjected(getComputationTargetResolver(), "computationTargetResolver");
     ArgumentChecker.notNullInjected(getLiveDataAvailabilityProvider(), "liveDataAvailabilityProvider");
     ArgumentChecker.notNullInjected(getLiveDataSnapshotProvider(), "liveDataSnapshotProvider");
     ArgumentChecker.notNullInjected(getComputationCacheSource(), "computationCacheSource");
     ArgumentChecker.notNullInjected(getComputationJobDispatcher(), "computationJobRequestSender");
   }
-  
+
   private ViewProcessingContext createViewProcessingContext() {
     FunctionRepository functionRepository = getFunctionCompilationService().getFunctionRepository();
     FunctionResolver functionResolver = new DefaultFunctionResolver(functionRepository);
-    
-    return new ViewProcessingContext(
-        getLiveDataClient(),
-        getLiveDataAvailabilityProvider(),
-        getLiveDataSnapshotProvider(),
-        functionRepository,
-        functionResolver,
-        getPositionSource(),
-        getSecuritySource(),
-        getComputationCacheSource(),
-        getComputationJobDispatcher(),
-        getViewProcessorQueryReceiver(),
-        getFunctionCompilationService().getFunctionCompilationContext(),
-        getExecutorService(),
-        getDependencyGraphExecutorFactory(),
-        getViewPermissionProvider(),
-        getGraphExecutionStatistics());
+
+    return new ViewProcessingContext(getLiveDataClient(), getLiveDataAvailabilityProvider(), getLiveDataSnapshotProvider(), functionRepository, functionResolver, getPositionSource(),
+        getSecuritySource(), getComputationTargetResolver(), getComputationCacheSource(), getComputationJobDispatcher(), getViewProcessorQueryReceiver(), getFunctionCompilationService()
+            .getFunctionCompilationContext(), getExecutorService(), getDependencyGraphExecutorFactory(), getViewPermissionProvider(), getGraphExecutionStatistics());
   }
 
 }

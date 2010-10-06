@@ -10,7 +10,6 @@ import java.io.Serializable;
 import javax.time.calendar.LocalDate;
 
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.RegisteredEventListeners;
@@ -19,10 +18,10 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
@@ -39,100 +38,25 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
   private final CacheManager _manager;
   private final Cache _cache;
 
-  public EHCachingHistoricalDataProvider(HistoricalDataSource underlying) {
+  public EHCachingHistoricalDataProvider(HistoricalDataSource underlying, CacheManager cacheManager, int maxElementsInMemory, MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
+      boolean overflowToDisk, String diskStorePath, boolean eternal, long timeToLiveSeconds, long timeToIdleSeconds, boolean diskPersistent, long diskExpiryThreadIntervalSeconds,
+      RegisteredEventListeners registeredEventListeners) {
     ArgumentChecker.notNull(underlying, "Underlying Historical Data Provider");
+    ArgumentChecker.notNull(cacheManager, "cacheManager");
     _underlying = underlying;
-    CacheManager manager = createCacheManager();
-    addCache(manager, CACHE_NAME);
-    _cache = getCacheFromManager(manager, CACHE_NAME);
-    _manager = manager;
-  }
-
-  public EHCachingHistoricalDataProvider(HistoricalDataSource underlying, int maxElementsInMemory, MemoryStoreEvictionPolicy memoryStoreEvictionPolicy, boolean overflowToDisk, String diskStorePath,
-      boolean eternal, long timeToLiveSeconds, long timeToIdleSeconds, boolean diskPersistent, long diskExpiryThreadIntervalSeconds, RegisteredEventListeners registeredEventListeners) {
-    ArgumentChecker.notNull(underlying, "Underlying Historical Data Provider");
-    _underlying = underlying;
-    CacheManager manager = createCacheManager();
-    addCache(manager, CACHE_NAME, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent,
+    _manager = cacheManager;
+    EHCacheUtils.addCache(_manager, CACHE_NAME, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent,
         diskExpiryThreadIntervalSeconds, registeredEventListeners);
-    _cache = getCacheFromManager(manager, CACHE_NAME);
-    _manager = manager;
+    _cache = EHCacheUtils.getCacheFromManager(_manager, CACHE_NAME);
   }
 
   public EHCachingHistoricalDataProvider(HistoricalDataSource underlying, CacheManager manager) {
     ArgumentChecker.notNull(underlying, "Underlying Historical Data Provider");
     ArgumentChecker.notNull(manager, "Cache Manager");
     _underlying = underlying;
-    addCache(manager, CACHE_NAME);
-    _cache = getCacheFromManager(manager, CACHE_NAME);
+    EHCacheUtils.addCache(manager, CACHE_NAME);
+    _cache = EHCacheUtils.getCacheFromManager(manager, CACHE_NAME);
     _manager = manager;
-  }
-
-  public EHCachingHistoricalDataProvider(HistoricalDataSource underlying, Cache cache) {
-    ArgumentChecker.notNull(underlying, "Underlying Historical Data Provider");
-    ArgumentChecker.notNull(cache, "Cache");
-    _underlying = underlying;
-    CacheManager manager = createCacheManager();
-    addCache(manager, cache);
-    _cache = getCacheFromManager(manager, cache.getName());
-    _manager = manager;
-  }
-
-  protected CacheManager createCacheManager() {
-    CacheManager manager = null;
-    try {
-      manager = CacheManager.create();
-    } catch (CacheException e) {
-      throw new OpenGammaRuntimeException("Unable to create CacheManager", e);
-    }
-    return manager;
-  }
-
-  protected void addCache(CacheManager manager, Cache cache) {
-    ArgumentChecker.notNull(manager, "CacheManager");
-    ArgumentChecker.notNull(cache, "Cache");
-    if (!manager.cacheExists(cache.getName())) {
-      try {
-        manager.addCache(cache);
-      } catch (Exception e) {
-        throw new OpenGammaRuntimeException("Unable to add cache " + cache.getName(), e);
-      }
-    }
-
-  }
-
-  protected void addCache(CacheManager manager, String name, int maxElementsInMemory, MemoryStoreEvictionPolicy memoryStoreEvictionPolicy, boolean overflowToDisk, String diskStorePath,
-      boolean eternal, long timeToLiveSeconds, long timeToIdleSeconds, boolean diskPersistent, long diskExpiryThreadIntervalSeconds, RegisteredEventListeners registeredEventListeners) {
-    ArgumentChecker.notNull(manager, "CacheManager");
-    ArgumentChecker.notNull(name, "CacheName");
-    if (!manager.cacheExists(name)) {
-      try {
-        manager.addCache(new Cache(name, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent,
-            diskExpiryThreadIntervalSeconds, registeredEventListeners));
-      } catch (Exception e) {
-        throw new OpenGammaRuntimeException("Unable to create cache " + name, e);
-      }
-    }
-  }
-
-  protected void addCache(final CacheManager manager, final String name) {
-    if (!manager.cacheExists(name)) {
-      try {
-        manager.addCache(name);
-      } catch (Exception e) {
-        throw new OpenGammaRuntimeException("Unable to create cache " + name, e);
-      }
-    }
-  }
-
-  protected Cache getCacheFromManager(CacheManager manager, String name) {
-    Cache cache = null;
-    try {
-      cache = manager.getCache(name);
-    } catch (Exception e) {
-      throw new OpenGammaRuntimeException("Unable to retrieve from CacheManager, cache: " + name, e);
-    }
-    return cache;
   }
 
   /**
@@ -290,7 +214,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
       return null;
     }
   }
-  
+
   @Override
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = getHistoricalData(identifiers);
@@ -313,8 +237,6 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
       return null;
     }
   }
-
- 
 
   @Override
   public LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uid, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
