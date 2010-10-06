@@ -35,6 +35,15 @@
     <property name="dialect" value="${opengamma.financial.db.dbhelper}"/>
   </bean>
 
+  <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+    <property name="shared" value="true"/>
+  </bean>
+  
+  <bean id="mongoDBConfigurationSettings" class="com.opengamma.util.MongoDBConnectionSettings">
+    <property name="host" value="${mongoDB.host}" />
+    <property name="database" value="${mongoDB.config.database}" />
+  </bean>
+  
   <!-- SecurityMaster -->
   <bean id="dbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
     <constructor-arg ref="finDbSource" />
@@ -48,6 +57,7 @@
         <constructor-arg ref="dbSecurityMaster" />
       </bean>
     </constructor-arg>
+    <constructor-arg ref="cacheManager" />
   </bean>
 
   <!-- PositionMaster --> 
@@ -63,6 +73,54 @@
         <constructor-arg ref="dbPositionMaster" />
       </bean>
     </constructor-arg>
+    <constructor-arg ref="cacheManager" />
   </bean>
 
+  <!-- TimeSeries database -->
+  <import resource="classpath:com/opengamma/financial/timeseries/db/tssQueries.xml" />
+  <bean id="timeseriesMaster" class="${opengamma.tss.dao}">
+    <constructor-arg>
+      <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource">
+          <bean class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+            <property name="driverClassName" value="${opengamma.tss.jdbc.driver}" />
+            <property name="url" value="${opengamma.tss.jdbc.url}" />
+            <property name="username" value="${opengamma.tss.jdbc.username}" />
+            <property name="password" value="${opengamma.tss.jdbc.password}" />
+          </bean>
+        </property>
+      </bean>
+    </constructor-arg>
+    <constructor-arg ref="tssNamedSQLMap"/>
+    <constructor-arg value="false"/>
+  </bean>
+  <bean id="timeseriesConfigMaster" class="com.opengamma.config.db.MongoDBConfigMaster">
+    <constructor-arg value="com.opengamma.financial.timeseries.config.TimeSeriesMetaDataConfiguration"/>
+    <constructor-arg ref="mongoDBConfigurationSettings" />
+  </bean> 
+  <bean id="timeseriesConfigSource" class="com.opengamma.engine.config.MongoDBMasterConfigSource">
+  <constructor-arg>
+      <map>
+        <entry key="com.opengamma.financial.timeseries.config.TimeSeriesMetaDataConfiguration" value-ref="timeseriesConfigMaster"/>
+      </map>
+  </constructor-arg>
+  </bean>
+  <bean id="sharedHistoricalDataProvider" class="com.opengamma.engine.historicaldata.EHCachingHistoricalDataProvider">
+    <constructor-arg>
+      <bean class="com.opengamma.financial.timeseries.MasterTimeSeriesSource">
+        <constructor-arg ref="timeseriesMaster"/>
+        <constructor-arg>
+          <bean class="com.opengamma.financial.timeseries.config.DefaultTimeSeriesResolver">
+            <constructor-arg ref="sharedSecuritySource"/>
+            <constructor-arg>
+              <bean class="com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider"/>
+            </constructor-arg>
+            <constructor-arg ref="timeseriesConfigSource"/>
+          </bean>
+        </constructor-arg>
+      </bean>
+    </constructor-arg>
+    <constructor-arg ref="cacheManager" />
+  </bean>
+  
 </beans>

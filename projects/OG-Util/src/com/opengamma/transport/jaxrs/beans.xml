@@ -9,28 +9,20 @@ http://cxf.apache.org/jaxrs
 http://cxf.apache.org/schemas/jaxrs.xsd">
 
   <bean id="jsonToFudge" class="com.opengamma.transport.jaxrs.FudgeJSONConsumer" scope="singleton">
-    <property name="fudgeContext" ref="fudgeContext" />
   </bean>
   <bean id="fudgeToJson" class="com.opengamma.transport.jaxrs.FudgeJSONProducer" scope="singleton">
-    <property name="fudgeContext" ref="fudgeContext" />
   </bean>
   <bean id="xmlToFudge" class="com.opengamma.transport.jaxrs.FudgeXMLConsumer" scope="singleton">
-    <property name="fudgeContext" ref="fudgeContext" />
   </bean>
   <bean id="fudgeToXml" class="com.opengamma.transport.jaxrs.FudgeXMLProducer" scope="singleton">
-    <property name="fudgeContext" ref="fudgeContext" />
   </bean>
   <bean id="fudgeInput" class="com.opengamma.transport.jaxrs.FudgeBinaryConsumer" scope="singleton">
-    <property name="fudgeContext" ref="fudgeContext" />
   </bean>
   <bean id="fudgeOutput" class="com.opengamma.transport.jaxrs.FudgeBinaryProducer" scope="singleton">
-    <property name="fudgeContext" ref="fudgeContext" />
   </bean>
   <bean id="fudgeObjectInput" class="com.opengamma.transport.jaxrs.FudgeObjectBinaryConsumer" scope="singleton">
-    <property name="fudgeContext" ref="fudgeContext" />
   </bean>
   <bean id="fudgeObjectOutput" class="com.opengamma.transport.jaxrs.FudgeObjectBinaryProducer" scope="singleton">
-    <property name="fudgeContext" ref="fudgeContext" />
   </bean>
 
   <bean id="dataNotFoundExceptionMapper" class="com.opengamma.util.rest.DataNotFoundExceptionMapper" scope="singleton">

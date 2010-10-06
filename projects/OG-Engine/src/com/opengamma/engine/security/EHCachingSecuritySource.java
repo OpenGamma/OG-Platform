@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.EHCacheUtils;
+import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
  * A cache decorating a {@code SecuritySource}.
@@ -53,14 +53,6 @@ public class EHCachingSecuritySource implements SecuritySource {
   private final Cache _bundleCache;
 
   /**
-   * Creates an instance over an underlying source using a default cache manager.
-   * @param underlying  the underlying security source, not null
-   */
-  public EHCachingSecuritySource(final SecuritySource underlying) {
-    this(underlying, EHCacheUtils.createCacheManager());
-  }
-
-  /**
    * Creates an instance over an underlying source specifying the cache manager.
    * @param underlying  the underlying security source, not null
    * @param cacheManager  the cache manager, not null
@@ -74,26 +66,6 @@ public class EHCachingSecuritySource implements SecuritySource {
     _uidCache = EHCacheUtils.getCacheFromManager(cacheManager, SINGLE_SECURITY_CACHE);
     _bundleCache = EHCacheUtils.getCacheFromManager(cacheManager, MULTI_SECURITIES_CACHE);
     _manager = cacheManager;
-  }
-
-  /**
-   * Creates an instance over an underlying source specifying the caches.
-   * @param underlying  the underlying security source, not null
-   * @param singleSecCache  the single security cache, not null
-   * @param multiSecCache  the multiple security cache, not null
-   */
-  public EHCachingSecuritySource(SecuritySource underlying,
-      Cache singleSecCache, Cache multiSecCache) {
-    ArgumentChecker.notNull(underlying, "Security Master");
-    ArgumentChecker.notNull(singleSecCache, "singleSecCache");
-    ArgumentChecker.notNull(multiSecCache, "multiSecCache");
-    _underlying = underlying;
-    CacheManager manager = EHCacheUtils.createCacheManager();
-    EHCacheUtils.addCache(manager, singleSecCache);
-    EHCacheUtils.addCache(manager, multiSecCache);
-    _uidCache = EHCacheUtils.getCacheFromManager(manager, singleSecCache.getName());
-    _bundleCache = EHCacheUtils.getCacheFromManager(manager, multiSecCache.getName());
-    _manager = manager;
   }
 
   //-------------------------------------------------------------------------

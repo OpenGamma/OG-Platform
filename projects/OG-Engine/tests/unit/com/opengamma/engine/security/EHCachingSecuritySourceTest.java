@@ -23,6 +23,7 @@ import org.junit.Test;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
  * Test EHCachingSecuritySource.
@@ -39,7 +40,7 @@ public class EHCachingSecuritySourceTest {
   @Before
   public void setUp() throws Exception {    
     _underlyingSecuritySource = new MockSecuritySource();
-    _cachingSecuritySource = new EHCachingSecuritySource(_underlyingSecuritySource);
+    _cachingSecuritySource = new EHCachingSecuritySource(_underlyingSecuritySource, EHCacheUtils.createCacheManager ());
     
     _security1.addIdentifier(_secId1);
     _security2.addIdentifier(_secId2);
