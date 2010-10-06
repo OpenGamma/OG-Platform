@@ -40,6 +40,7 @@ import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.calc.ViewRecalculationJob;
 import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.util.test.Timeout;
 
 
 /**
@@ -47,7 +48,7 @@ import com.opengamma.livedata.msg.UserPrincipal;
  */
 public class ViewClientTest {
   
-  private static final int TIMEOUT = 20000;
+  private static final long TIMEOUT = 10L * Timeout.standardTimeoutMillis();
   
   @Test
   public void testSingleViewMultipleClients() {
