@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.util.timeseries.fast.integer;
@@ -99,7 +99,7 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
     _times = dts.timesArrayFast();
     _values = dts.valuesArrayFast();
   }
-  
+
   public FastArrayIntDoubleTimeSeries(final DateTimeNumericEncoding encoding, final FastIntDoubleTimeSeries dts) {
     super(encoding);
     DateTimeNumericEncoding sourceEncoding = dts.getEncoding();
@@ -109,11 +109,11 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
     }
     _values = dts.valuesArrayFast();
   }
-  
+
   public FastArrayIntDoubleTimeSeries(final FastLongDoubleTimeSeries dts) {
     this(dts.getEncoding(), dts);
   }
-  
+
   public FastArrayIntDoubleTimeSeries(final DateTimeNumericEncoding encoding, final FastLongDoubleTimeSeries dts) {
     super(encoding);
     DateTimeNumericEncoding otherEncoding = dts.getEncoding();
@@ -147,7 +147,7 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
     }
     // throw new NoSuchElementException("Series is empty")
     int startPos = Arrays.binarySearch(_times, startTime);
-    int endPos = Arrays.binarySearch(_times, endTime);
+    int endPos = (endTime == Integer.MIN_VALUE) ? _times.length : Arrays.binarySearch(_times, endTime);
     // if either is -1, make it zero
     startPos = startPos >= 0 ? startPos : -(startPos + 1);
     endPos = endPos >= 0 ? endPos : -(endPos + 1);
@@ -155,7 +155,7 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
     if (endPos >= _times.length) {
       endPos--;
     }
-    
+
     final int[] resultTimes = new int[length];
     final double[] resultValues = new double[length];
     System.arraycopy(_times, startPos, resultTimes, 0, length);
