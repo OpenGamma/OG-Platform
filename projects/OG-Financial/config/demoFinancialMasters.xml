@@ -35,6 +35,10 @@
     <property name="dialect" value="${opengamma.financial.db.dbhelper}"/>
   </bean>
 
+  <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+    <property name="shared" value="true"/>
+  </bean>
+  
   <!-- SecurityMaster -->
   <bean id="dbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
     <constructor-arg ref="finDbSource" />
@@ -48,6 +52,7 @@
         <constructor-arg ref="dbSecurityMaster" />
       </bean>
     </constructor-arg>
+    <constructor-arg ref="cacheManager" />
   </bean>
 
   <!-- PositionMaster --> 
@@ -63,6 +68,7 @@
         <constructor-arg ref="dbPositionMaster" />
       </bean>
     </constructor-arg>
+    <constructor-arg ref="cacheManager" />
   </bean>
 
 </beans>
