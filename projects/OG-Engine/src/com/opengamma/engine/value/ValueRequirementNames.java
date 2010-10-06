@@ -33,7 +33,6 @@ public interface ValueRequirementNames {
   public static final String DELTA = "Delta";
   public static final String DELTA_BLEED = "DeltaBleed";
   public static final String STRIKE_DELTA = "StrikeDelta";
-  public static final String DRIFTLESS_DELTA = "DriftlessTheta";
   
   public static final String GAMMA = "Gamma";
   public static final String GAMMA_P = "GammaP";
@@ -47,7 +46,8 @@ public interface ValueRequirementNames {
   public static final String VEGA_BLEED = "VegaBleed";
   
   public static final String THETA = "Theta";
-  
+  public static final String DRIFTLESS_THETA = "DriftlessTheta";
+
   public static final String RHO = "Rho";
   public static final String CARRY_RHO = "CarryRho";
   

@@ -28,5 +28,9 @@ public enum StripInstrumentType {
   /**
    * Swap rate
    */
-  SWAP
+  SWAP,
+  /**
+   * Tenor swap
+   */
+  TENOR_SWAP
 }
