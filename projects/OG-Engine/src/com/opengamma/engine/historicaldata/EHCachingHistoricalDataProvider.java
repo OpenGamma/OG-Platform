@@ -152,7 +152,21 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
 
     @Override
     public int hashCode() {
-      return _dsids.hashCode() ^ _field.hashCode();
+      final int shift = 17;
+      int hc = _dsids.hashCode();
+      hc *= shift;
+      if (_dataSource != null) {
+        hc += _dataSource.hashCode();
+      }
+      hc *= shift;
+      if (_dataProvider != null) {
+        hc += _dataProvider.hashCode();
+      }
+      hc *= shift;
+      if (_field != null) {
+        hc += _field.hashCode();
+      }
+      return hc;
     }
 
     @Override
@@ -201,7 +215,25 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
 
   @Override
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers) {
-    return getHistoricalData(identifiers, null, null, null);
+    MetaDataKey key = new MetaDataKey(identifiers, null, null, null);
+    Element element = _cache.get(key);
+    if (element != null) {
+      Serializable value = element.getValue();
+      if (value instanceof UniqueIdentifier) {
+        UniqueIdentifier uid = (UniqueIdentifier) value;
+        s_logger.debug("retrieved UID: {} from cache", uid);
+        LocalDateDoubleTimeSeries timeSeries = getHistoricalData(uid);
+        return new ObjectsPair<UniqueIdentifier, LocalDateDoubleTimeSeries>(uid, timeSeries);
+      } else {
+        s_logger.warn("returned object {} from cache, not a UniqueIdentifier", value);
+        return null;
+      }
+    } else {
+      Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = _underlying.getHistoricalData(identifiers);
+      _cache.put(new Element(key, tsPair.getFirst()));
+      _cache.put(new Element(tsPair.getFirst(), tsPair.getSecond()));
+      return tsPair;
+    }
   }
 
   @Override

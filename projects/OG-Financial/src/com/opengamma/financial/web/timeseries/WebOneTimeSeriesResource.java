@@ -63,12 +63,6 @@ public class WebOneTimeSeriesResource extends AbstractWebTimeSeriesResource {
   }
 
   //-------------------------------------------------------------------------
-  @Path("versions")
-  public WebTimeSeriesVersionsResource findVersions() {
-    return new WebTimeSeriesVersionsResource(this);
-  }
-
-  //-------------------------------------------------------------------------
   /**
    * Builds a URI for this resource.
    * @param data  the data, not null
