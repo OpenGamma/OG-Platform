@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util;
+package com.opengamma.util.ehcache;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
@@ -12,6 +12,7 @@ import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Utilities for working with EHCache.

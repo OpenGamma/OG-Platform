@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view.cache;
 
+import net.sf.ehcache.CacheManager;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -22,12 +24,12 @@ public class RemoteViewComputationCacheSource extends DefaultViewComputationCach
 
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteViewComputationCacheSource.class);
 
-  public RemoteViewComputationCacheSource(final RemoteCacheClient client, final BinaryDataStoreFactory privateDataStoreFactory) {
-    this(client, privateDataStoreFactory, client.getFudgeContext());
+  public RemoteViewComputationCacheSource(final RemoteCacheClient client, final BinaryDataStoreFactory privateDataStoreFactory, final CacheManager cacheManager) {
+    this(client, privateDataStoreFactory, client.getFudgeContext(), cacheManager);
   }
 
-  public RemoteViewComputationCacheSource(final RemoteCacheClient client, final BinaryDataStoreFactory privateDataStoreFactory, final int maxLocalCachedElements) {
-    this(client, privateDataStoreFactory, client.getFudgeContext(), maxLocalCachedElements);
+  public RemoteViewComputationCacheSource(final RemoteCacheClient client, final BinaryDataStoreFactory privateDataStoreFactory, final CacheManager cacheManager, final int maxLocalCachedElements) {
+    this(client, privateDataStoreFactory, client.getFudgeContext(), cacheManager, maxLocalCachedElements);
   }
 
   /**
@@ -35,14 +37,16 @@ public class RemoteViewComputationCacheSource extends DefaultViewComputationCach
    * @param privateDataStoreFactory the private data store - the shared data store will be the remote one
    * @param fudgeContext the Fudge context the {@link DefaultViewComputationCache} will use for object encoding. This may be the same as the
    *                     one attached to the client's transport or different.
+   * @param cacheManager the EH cache manager to use for the remote binary data store
    */
-  public RemoteViewComputationCacheSource(final RemoteCacheClient client, final BinaryDataStoreFactory privateDataStoreFactory, final FudgeContext fudgeContext) {
-    super(createIdentifierMap(client), fudgeContext, privateDataStoreFactory, createDataStoreFactory(client, -1));
+  public RemoteViewComputationCacheSource(final RemoteCacheClient client, final BinaryDataStoreFactory privateDataStoreFactory, final FudgeContext fudgeContext, final CacheManager cacheManager) {
+    super(createIdentifierMap(client), fudgeContext, privateDataStoreFactory, createDataStoreFactory(client, cacheManager, -1));
     client.setAsynchronousMessageReceiver(this);
   }
 
-  public RemoteViewComputationCacheSource(final RemoteCacheClient client, final BinaryDataStoreFactory privateDataStoreFactory, final FudgeContext fudgeContext, final int maxLocalCachedElements) {
-    super(createIdentifierMap(client), fudgeContext, privateDataStoreFactory, createDataStoreFactory(client, maxLocalCachedElements));
+  public RemoteViewComputationCacheSource(final RemoteCacheClient client, final BinaryDataStoreFactory privateDataStoreFactory, final FudgeContext fudgeContext, final CacheManager cacheManager,
+      final int maxLocalCachedElements) {
+    super(createIdentifierMap(client), fudgeContext, privateDataStoreFactory, createDataStoreFactory(client, cacheManager, maxLocalCachedElements));
     client.setAsynchronousMessageReceiver(this);
   }
 
@@ -50,12 +54,12 @@ public class RemoteViewComputationCacheSource extends DefaultViewComputationCach
     return new CachingIdentifierMap(new RemoteIdentifierMap(client));
   }
 
-  private static BinaryDataStoreFactory createDataStoreFactory(final RemoteCacheClient client, final int maxLocalCachedElements) {
+  private static BinaryDataStoreFactory createDataStoreFactory(final RemoteCacheClient client, final CacheManager cacheManager, final int maxLocalCachedElements) {
     final RemoteBinaryDataStoreFactory remote = new RemoteBinaryDataStoreFactory(client);
     if (maxLocalCachedElements >= 0) {
-      return new CachingBinaryDataStoreFactory(remote, maxLocalCachedElements);
+      return new CachingBinaryDataStoreFactory(remote, cacheManager, maxLocalCachedElements);
     } else {
-      return new CachingBinaryDataStoreFactory(remote);
+      return new CachingBinaryDataStoreFactory(remote, cacheManager);
     }
   }
 

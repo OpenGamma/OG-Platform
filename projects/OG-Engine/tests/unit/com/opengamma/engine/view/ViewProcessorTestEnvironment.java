@@ -12,6 +12,7 @@ import java.util.concurrent.Executors;
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionCompilationService;
@@ -45,6 +46,7 @@ import com.opengamma.transport.ByteArrayFudgeRequestSender;
 import com.opengamma.transport.FudgeRequestDispatcher;
 import com.opengamma.transport.InMemoryByteArrayRequestConduit;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
  * Provides access to a ready-made and customisable view processing environment for testing.
@@ -117,6 +119,7 @@ public class ViewProcessorTestEnvironment {
     
     _viewProcessor.setPositionSource(positionSource);
     _viewProcessor.setSecuritySource(securitySource);
+    _viewProcessor.setComputationTargetResolver(new DefaultCachingComputationTargetResolver (new DefaultComputationTargetResolver (securitySource, positionSource), EHCacheUtils.createCacheManager ()));
     _viewProcessor.setViewDefinitionRepository(viewDefinitionRepository);
     _viewProcessor.setViewPermissionProvider(new DefaultViewPermissionProvider());
     

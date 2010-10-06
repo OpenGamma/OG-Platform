@@ -16,7 +16,7 @@ import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.EHCacheUtils;
+import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
  * A computation target resolver implementation that caches another implementation.
@@ -30,18 +30,11 @@ public class DefaultCachingComputationTargetResolver extends ForwardingComputati
    * The cache manager.
    */
   private final CacheManager _cacheManager;
+  
   /**
    * The cache.
    */
   private final Cache _computationTarget;
-
-  /**
-   * Creates an instance using the default cache manager.
-   * @param underlying  the underlying resolver, not null
-   */
-  public DefaultCachingComputationTargetResolver(final ComputationTargetResolver underlying) {
-    this (underlying, EHCacheUtils.createCacheManager());
-  }
 
   /**
    * Creates an instance using the specified cache manager.
@@ -74,6 +67,7 @@ public class DefaultCachingComputationTargetResolver extends ForwardingComputati
     switch (specification.getType()) {
       case POSITION :
       case PORTFOLIO_NODE :
+      case SECURITY :
         final Element e = _computationTarget.get(specification);
         if (e != null) {
           return (ComputationTarget) e.getValue();
