@@ -50,16 +50,6 @@ import com.opengamma.util.tuple.DoublesPair;
 public class InstrumentSensitivityCalculatorTest extends YieldCurveFittingSetup {
 
   @Test
-  public void testBroyden() {
-    final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
-    final YieldCurveFittingTestDataBundle data = getSingleCurveSetup();
-    doHotSpot(rootFinder, data, "Single curve, market Data (Libor, FRA, swaps). Root finder: Broyden");
-    data.setTestType(TestType.FD_JACOBIAN);
-    doHotSpot(rootFinder, data, "Single curve,market Data (Libor, FRA, swaps). Root finder: Broyden (FD Jacobian)");
-
-  }
-
-  @Test
   public void test() {
     final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
     final YieldCurveFittingTestDataBundle data = getSingleCurveSetup();
@@ -98,7 +88,7 @@ public class InstrumentSensitivityCalculatorTest extends YieldCurveFittingSetup 
       DoubleMatrix1D bunkedDelta = isc.calculateFromParRate(data.getDerivative(i), data.getKnownCurves(), curves, jacobian);
       double sense = PresentValueCouponSensitivityCalculator.getInstance().getValue(data.getDerivative(i), allCurves);
       // PresentValueCouponSensitivityCalculator is sensitivity to change in the coupon rate for that instrument - what we calculate here is the (hypothetical) change of PV of the
-      // instrument with a fixed coupon where its par-rate change this is exactly the negative of the coupon sensitivity
+      // instrument with a fixed coupon when its par-rate change - this is exactly the negative of the coupon sensitivity
       assertEquals(-sense, bunkedDelta.getEntry(i), 1e-8);
       for (int j = 0; j < data.getNumInstruments(); j++) {
         if (j != i) {
