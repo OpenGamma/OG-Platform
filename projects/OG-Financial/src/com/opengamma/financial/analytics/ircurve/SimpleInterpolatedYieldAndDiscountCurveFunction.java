@@ -82,6 +82,22 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     _results = null;
   }
 
+  public LocalDate getCurveDate() {
+    return _curveDate;
+  }
+
+  public Currency getCurveCurrency() {
+    return _curveCurrency;
+  }
+
+  public String getCurveName() {
+    return _curveName;
+  }
+
+  public boolean isYieldCurve() {
+    return _isYieldCurve;
+  }
+
   @Override
   public void init(final FunctionCompilationContext context) {
     ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);

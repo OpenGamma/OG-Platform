@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.depgraph;
@@ -37,13 +37,14 @@ public class DependencyGraphBuilder {
   private FunctionCompilationContext _compilationContext;
   // State:
   private DependencyGraph _graph;
-    
+
   /**
    * @return the calculationConfigurationName
    */
   public String getCalculationConfigurationName() {
     return _calculationConfigurationName;
   }
+
   /**
    * @param calculationConfigurationName the calculationConfigurationName to set
    */
@@ -51,87 +52,91 @@ public class DependencyGraphBuilder {
     _calculationConfigurationName = calculationConfigurationName;
     _graph = new DependencyGraph(_calculationConfigurationName);
   }
+
   /**
    * @return the liveDataAvailabilityProvider
    */
   public LiveDataAvailabilityProvider getLiveDataAvailabilityProvider() {
     return _liveDataAvailabilityProvider;
   }
+
   /**
    * @param liveDataAvailabilityProvider the liveDataAvailabilityProvider to set
    */
-  public void setLiveDataAvailabilityProvider(
-      LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
+  public void setLiveDataAvailabilityProvider(LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
   }
-  
+
   /**
    * @return the functionResolver
    */
   public FunctionResolver getFunctionResolver() {
     return _functionResolver;
   }
-  
+
   /**
    * @param functionResolver the functionResolver to set
    */
   public void setFunctionResolver(FunctionResolver functionResolver) {
     _functionResolver = functionResolver;
   }
+
   /**
    * @return the targetResolver
    */
   public ComputationTargetResolver getTargetResolver() {
     return _targetResolver;
   }
+
   /**
    * @param targetResolver the targetResolver to set
    */
   public void setTargetResolver(ComputationTargetResolver targetResolver) {
     _targetResolver = targetResolver;
   }
-  
+
   /**
    * @return the compilationContext
    */
   public FunctionCompilationContext getCompilationContext() {
     return _compilationContext;
   }
+
   /**
    * @param compilationContext the compilationContext to set
    */
   public void setCompilationContext(FunctionCompilationContext compilationContext) {
     _compilationContext = compilationContext;
   }
-  
+
   protected void checkInjectedInputs() {
     ArgumentChecker.notNullInjected(getLiveDataAvailabilityProvider(), "liveDataAvailabilityProvider");
     ArgumentChecker.notNullInjected(getFunctionResolver(), "functionResolver");
     ArgumentChecker.notNullInjected(getTargetResolver(), "targetResolver");
     ArgumentChecker.notNullInjected(getCalculationConfigurationName(), "calculationConfigurationName");
   }
-  
+
   public void addTarget(ComputationTarget target, ValueRequirement requirement) {
     addTarget(target, Collections.singleton(requirement));
   }
-  
+
   public void addTarget(ComputationTarget target, Set<ValueRequirement> requirements) {
     ArgumentChecker.notNull(target, "Computation Target");
     ArgumentChecker.notNull(requirements, "Value requirements");
     checkInjectedInputs();
-    
+
     for (ValueRequirement requirement : requirements) {
       Pair<DependencyNode, ValueSpecification> terminalNode = addTargetRequirement(requirement);
       _graph.addTerminalOutputValue(terminalNode.getSecond());
     }
   }
-  
+
   private Pair<DependencyNode, ValueSpecification> addTargetRequirement(ValueRequirement requirement) {
     ComputationTarget target = getTargetResolver().resolve(requirement.getTargetSpecification());
     if (target == null) {
       throw new UnsatisfiableDependencyGraphException("Unable to resolve target for " + requirement);
     }
-    
+
     s_logger.info("Adding target requirement for {} on {}", requirement, target);
 
     Pair<DependencyNode, ValueSpecification> existingNode = _graph.getNodeProducing(requirement);
@@ -139,43 +144,43 @@ public class DependencyGraphBuilder {
       s_logger.debug("Existing Node : {} on {}", requirement, target);
       return existingNode;
     }
-    
+
     DependencyNode node = new DependencyNode(target);
 
     Pair<ParameterizedFunction, ValueSpecification> resolvedFunction;
-    
+
     if (getLiveDataAvailabilityProvider().isAvailable(requirement)) {
-      
+
       // this code to be moved to FunctionResolver?
       s_logger.debug("Live Data : {} on {}", requirement, target);
       LiveDataSourcingFunction function = new LiveDataSourcingFunction(requirement);
       resolvedFunction = Pair.of(new ParameterizedFunction(function, function.getDefaultParameters()), function.getResult());
-    
+
     } else {
-      
+
       resolvedFunction = getFunctionResolver().resolveFunction(requirement, node, getCompilationContext());
-    
+
     }
-    
+
     node.setFunction(resolvedFunction.getFirst());
 
-    FunctionDefinition functionDefinition = resolvedFunction.getFirst().getFunction(); 
+    FunctionDefinition functionDefinition = resolvedFunction.getFirst().getFunction();
     Set<ValueSpecification> outputValues = functionDefinition.getResults(getCompilationContext(), target);
     node.addOutputValues(outputValues);
-    
+
     Set<ValueRequirement> inputRequirements = functionDefinition.getRequirements(getCompilationContext(), target);
     for (ValueRequirement inputRequirement : inputRequirements) {
       Pair<DependencyNode, ValueSpecification> input = addTargetRequirement(inputRequirement);
       node.addInputNode(input.getFirst());
       node.addInputValue(input.getSecond());
     }
-    
+
     _graph.addDependencyNode(node);
     return Pair.of(node, resolvedFunction.getSecond());
   }
-  
+
   public DependencyGraph getDependencyGraph() {
     return _graph;
   }
-  
+
 }
