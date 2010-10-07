@@ -34,7 +34,7 @@ public class YieldCurveBundle {
     }
   }
 
-  public YieldCurveBundle(final Map<String, YieldAndDiscountCurve> curvesMap) {
+  public YieldCurveBundle(final Map<String, ? extends YieldAndDiscountCurve> curvesMap) {
     this();
     if (curvesMap != null) {
       Validate.noNullElements(curvesMap.keySet());

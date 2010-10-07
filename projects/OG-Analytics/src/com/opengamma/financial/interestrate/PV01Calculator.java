@@ -34,7 +34,7 @@ public final class PV01Calculator {
    * @param curves bundle of relevant yield curves 
    * @return a Map between curve name and PV01 for that curve 
    */
-  public Map<String, Double> getValue(final InterestRateDerivative ird, final YieldCurveBundle curves) {
+  public Map<String, Double> calculate(final InterestRateDerivative ird, final YieldCurveBundle curves) {
 
     final Map<String, List<DoublesPair>> sense = _pvsc.getValue(ird, curves);
     final Map<String, Double> res = new HashMap<String, Double>();

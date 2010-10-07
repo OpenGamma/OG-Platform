@@ -94,6 +94,9 @@ public final class Interpolator1DFactory {
     final String interpolatorName = s_instanceNames.get(interpolator.getClass());
     // TODO kirk 2010-03-31 -- Deal with the more complicated rules for
     // Barycentric, Polynomial, and RationalFunction.
+    if (interpolator instanceof LinearExtrapolator1D) {
+      return LINEAR_EXTRAPOLATOR;
+    }
     return interpolatorName;
   }
 
