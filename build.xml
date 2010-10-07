@@ -41,16 +41,18 @@
 
 	<available file="${ivy.jar.file}" property="skip.download"/>
 
-	<target name="download-ivy" unless="skip.download">
-		<mkdir dir="${ivy.jar.dir}" />
+	<!--target name="download-ivy" unless="skip.download">
+		<mkdir dir="${ivy.jar.dir}" /-->
 		<!--
 			download Ivy from web site so that it can be used even without any
 			special installation
 		-->
-		<echo message="installing ivy..." />
+		<!--echo message="installing ivy..." />
 		<get src="http://ivyrepo.opengamma.com/org.apache.ant/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" dest="${ivy.jar.file}" username="opengamma" password="opengamma" usetimestamp="true" />
 
-	</target>
+	</target-->
+	
+	<import file="${common.dir}/common-ivy.xml"/>
 
 	<!--
 		================================= target: load-ivy this target is not
@@ -58,7 +60,7 @@
 		have ivy 1.4 in your ant lib, you can simply remove this target
 		=================================
 	-->
-	<target name="load-ivy" depends="download-ivy">
+	<!-- target name="load-ivy" depends="download-ivy"-->
 		<!--
 			try to load ivy here from home ivy dir, in case the user has not
 			already dropped it into ant's lib dir (note that the latter copy will
@@ -66,13 +68,13 @@
 			exists (it may be empty) and ivy is in at least one of ant's lib dir
 			or the ivy home lib dir.
 		-->
-		<path id="ivy.lib.path">
+		<!--path id="ivy.lib.path">
 			<fileset dir="${ivy.jar.dir}" includes="*.jar" />
 		</path>
 		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
 		<echo file="${common.dir}/ivy.shared.default.root">&lt;ivysettings&gt;&lt;property name="ivy.shared.default.root" value="${env.IVY_SHARED_DEFAULT_ROOT}" /&gt;&lt;/ivysettings&gt;</echo>
 		<ivy:settings file="${common.dir}/ivysettings.xml" />
-	</target>
+	</target-->
 
 	<target name="buildlist" depends="load-ivy">
 		<mkdir dir="projects" />
@@ -141,6 +143,11 @@
 	<target name="clean-src" depends="buildlist">
 		<og-subant target="clean-src" buildpathref="build-path" />
 	</target>
+	
+	<target name="clean-lib"
+		description="--> clean the project libraries directory (dependencies)">
+		<delete includeemptydirs="true" dir="${lib.dir}" />
+	</target>
 
 	<target name="fudge-proto" depends="clean-src">
 		<og-subant target="fudge-proto" buildpathref="build-path" />
@@ -176,6 +183,44 @@
 			outdir="${clover.html.report.dir}"
 		>
 		</clover-html-report>
+	</target>
+	
+	<target name="javadoc-public" depends="load-ivy, resolve" description="--> build Javadocs for public APIs and SPIs of the project">
+		<mkdir dir="${docs.dir}" />
+		<mkdir dir="${docs.dir}/javadoc-public" />
+		<mkdir dir="${docs.dir}/temp-src" />
+		<copy toDir="${docs.dir}/temp-src">
+			<fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java">
+		    	<contains text="@PublicAPI" casesensitive="yes"/>
+		   	</fileset>
+		   	<fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java">
+	 	   		<contains text="@PublicSPI" casesensitive="yes"/>
+		   </fileset>
+			<fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java">
+		    	<contains text="@PublicAPI" casesensitive="yes"/>
+		   	</fileset>
+		   	<fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java">
+	 	   		<contains text="@PublicSPI" casesensitive="yes"/>
+		   </fileset>
+			<fileset dir="${projects.dir}/OG-Config/src" includes="**/*.java">
+		    	<contains text="@PublicAPI" casesensitive="yes"/>
+		   	</fileset>
+		   	<fileset dir="${projects.dir}/OG-Config/src" includes="**/*.java">
+	 	   		<contains text="@PublicSPI" casesensitive="yes"/>
+		   </fileset>
+		</copy>
+		<javadoc sourcepath="${docs.dir}/temp-src" destdir="${docs.dir}/javadoc-public"
+			classpathref="lib.path.id" author="false" windowtitle="${javadocs.windowtitle}"
+			doctitle="${javadocs.doctitle}" bottom="${javadocs.footer}">
+	    </javadoc>
+		<delete dir="${docs.dir}/temp-src"/>
+	</target>
+	
+	<!-- we might need to do something with versioning here (like depends on 'version' from common.xml) -->
+	<target name="javadoc-public-jar" depends="javadoc-public"
+		description="--> make a javadoc jar file for this project">
+		<jar destfile="${javadocs.jar.file}" basedir="${docs.dir}/javadoc-public"
+			compress="${jar.compress}" />
 	</target>
 
 	<target name="clone-or-pull" depends="clean-src" description="clone or pull all projects from git">

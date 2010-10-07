@@ -28,55 +28,7 @@
 	<available file="${user.home}/.ssh/id_rsa" property="ssh.private.key" value="${user.home}/.ssh/id_rsa"/>
 	<available file="${user.home}/.ssh/id_dsa" property="ssh.private.key" value="${user.home}/.ssh/id_dsa"/>
 	 
-	<target name="download-ivy" unless="skip.download">
-		<mkdir dir="${ivy.jar.dir}" />
-		<!--
-			download Ivy from web site so that it can be used even without any
-			special installation
-		-->
-		<echo message="installing ivy..." />
-		<get src="http://ivyrepo.opengamma.com/org.apache.ant/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" 
-			 dest="${ivy.jar.file}" username="opengamma" password="opengamma" usetimestamp="true" />
-	</target>
-
-	<target name="taskdef-ivy" depends="download-ivy" unless="og.build.invoked">
-		<path id="ivy.lib.path">
-			<fileset dir="${ivy.jar.dir}" includes="*.jar" />
-		</path>
-		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
-		<echo file="${common.dir}/ivy.shared.default.root">&lt;ivysettings&gt;&lt;property name="ivy.shared.default.root" value="${env.IVY_SHARED_DEFAULT_ROOT}" /&gt;&lt;/ivysettings&gt;</echo>
-	</target>
-
-	<target name="load-ivy" depends="taskdef-ivy">
-		<mkdir dir="${lib.dir}" />
-		<ivy:settings file="${common.dir}/ivysettings.xml" />
-	</target>
-
-	<path id="lib.path.id">
-		<fileset dir="${lib.dir}/jar">
-			<exclude name="org.apache.ant/ant/*.jar" />
-		</fileset>
-	</path>
-	<path id="run.path.id">
-		<path refid="lib.path.id" />
-		<path location="${classes.dir}" />
-	</path>
-
-
-	<!-- setup ivy default configuration with some custom info -->
-	<property name="ivy.local.default.root" value="${repository.dir}/local" />
-	<property name="ivy.shared.default.root" value="${repository.dir}/shared" />
-
-	<target name="resolve" depends="clean-lib, load-ivy"
-		description="--> resolve and retrieve dependencies with ivy">
-		<!--
-			the call to resolve is not mandatory, retrieve makes an implicit call
-			if we don't
-		-->
-		<ivy:resolve file="${ivy.file}" />
-		<ivy:retrieve
-			pattern="${lib.dir}/[type]/[organization]/[module]/[artifact]-[revision].[ext]" />
-	</target>
+    <import file="common-ivy.xml"/>
 
 	<target name="report" depends="resolve"
 		description="--> generates a report of dependencies">
@@ -142,17 +94,24 @@
 			doctitle="${javadocs.doctitle}" bottom="${javadocs.footer}" />
 	</target>
 	
+	<target name="javadoc-copyup" depends="load-ivy" description="copies appropriate files up to top level"/>
+	
+	
 	<target name="javadoc-public" depends="load-ivy" description="--> build Javadocs for public APIs and SPIs of the project">
 		<mkdir dir="${docs.dir}" />
 		<mkdir dir="${docs.dir}/javadoc-public" />
-
-		<javadoc destdir="${docs.dir}/javadoc-public"
+		<mkdir dir="${docs.dir}/temp-src" />
+		<copy toDir="${docs.dir}/temp-src">
+			<fileset dir="${src.dir}" includes="**/*.java">
+		    	<contains text="@PublicAPI" casesensitive="yes"/>
+		   	</fileset>
+		   	<fileset dir="${src.dir}" includes="**/*.java">
+	 	   		<contains text="@PublicSPI" casesensitive="yes"/>
+		   </fileset>
+		</copy>
+		<javadoc sourcepath="${docs.dir}/temp-src" destdir="${docs.dir}/javadoc-public"
 			classpathref="lib.path.id" author="false" windowtitle="${javadocs.windowtitle}"
 			doctitle="${javadocs.doctitle}" bottom="${javadocs.footer}">
-		   <fileset dir="${src.dir}" includes="**/*.java">
-		       <contains text="@PublicAPI" casesensitive="yes"/>
-		       <contains text="@PublicSPI" casesensitive="yes"/>
-		   </fileset>
 	    </javadoc>
 	</target>
 
@@ -294,6 +253,12 @@
 	<target name="javadoc-jar" depends="version, javadoc"
 		description="--> make a javadoc jar file for this project">
 		<jar destfile="${javadocs.jar.file}" basedir="${docs.dir}/javadoc"
+			compress="${jar.compress}" />
+	</target>
+	
+	<target name="javadoc-public-jar" depends="version, javadoc-public"
+		description="--> make a javadoc jar file for this project">
+		<jar destfile="${javadocs.jar.file}" basedir="${docs.dir}/javadoc-public"
 			compress="${jar.compress}" />
 	</target>
 

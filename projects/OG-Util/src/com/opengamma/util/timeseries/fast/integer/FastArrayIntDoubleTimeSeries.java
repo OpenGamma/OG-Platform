@@ -163,7 +163,7 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
     return new FastArrayIntDoubleTimeSeries(getEncoding(), resultTimes, resultValues);
   }
 
-  public double getDataPointFast(final int time) {
+  public double getDataPointFast(final in`t time) {
     final int index = Arrays.binarySearch(_times, time);
     if (index >= 0) {
       return _values[index];

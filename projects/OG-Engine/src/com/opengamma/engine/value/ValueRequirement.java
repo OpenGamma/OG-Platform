@@ -18,6 +18,7 @@ import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
  * An immutable requirement to obtain a value needed to perform a calculation.
@@ -25,6 +26,7 @@ import com.opengamma.util.ArgumentChecker;
  * that are necessary to specify the user requirements.
  * The actual value which is computed is available as a matching {@link ValueSpecification}.
  */
+@PublicAPI
 public final class ValueRequirement implements Serializable {
   /**
    * The value being requested.
