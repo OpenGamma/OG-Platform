@@ -5,9 +5,12 @@
  */
 package com.opengamma.engine.view.client;
 
+import com.opengamma.util.PublicAPI;
+
 /**
- * 
+ * An Enum representing the current state of a view client.
  */
+@PublicAPI
 public enum ViewClientState {
 
   /**

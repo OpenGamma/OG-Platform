@@ -5,10 +5,13 @@
  */
 package com.opengamma.engine.position;
 
+import com.opengamma.util.PublicAPI;
+
 /**
  * An entity against which a trade was executed.
  * This entity might be an exchange where the final counterparty is unknown.
  */
+@PublicAPI
 public interface Counterparty {
 
 }

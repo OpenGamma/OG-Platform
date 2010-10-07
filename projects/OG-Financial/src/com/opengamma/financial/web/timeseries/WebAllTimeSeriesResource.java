@@ -51,6 +51,7 @@ public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
   public String get(
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
+      @QueryParam("identifier") String identifier,
       @QueryParam("dataSource") String dataSource,
       @QueryParam("dataProvider") String dataProvider,
       @QueryParam("dataField") String dataField,
@@ -60,6 +61,7 @@ public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
     
     TimeSeriesSearchRequest searchRequest = new TimeSeriesSearchRequest();
     searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
+    searchRequest.setIdentifierValue(StringUtils.trimToNull(identifier));
     searchRequest.setDataSource(StringUtils.trimToNull(dataSource));
     searchRequest.setDataProvider(StringUtils.trimToNull(dataProvider));
     searchRequest.setDataField(StringUtils.trimToNull(dataField));

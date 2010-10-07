@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.time.Duration;
 
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.PublicSPI;
 import com.opengamma.util.timeseries.date.time.DateTimeDoubleTimeSeries;
 
 /**
@@ -17,6 +18,7 @@ import com.opengamma.util.timeseries.date.time.DateTimeDoubleTimeSeries;
  * can be used for graphing, for example to show graphically the historical evolution 
  * of FV on AAPL stock for the past 24 hours, in 1-minute bars.
  */
+@PublicSPI
 public interface IntradayComputationCache {
   
   /**

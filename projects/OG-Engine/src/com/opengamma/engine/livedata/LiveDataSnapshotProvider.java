@@ -9,11 +9,13 @@ import java.util.Set;
 
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.util.PublicSPI;
 
 /**
  * Allows a view to create a snapshot of financial data, and subsequently query that snapshot. Snapshots must be
  * explicitly released through the snapshot provider once they are no longer required.
  */
+@PublicSPI
 public interface LiveDataSnapshotProvider {
   
   /**

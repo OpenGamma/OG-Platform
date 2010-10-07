@@ -9,6 +9,8 @@ import java.util.List;
 
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.PublicAPI;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A node within a portfolio tree.
@@ -17,6 +19,7 @@ import com.opengamma.id.UniqueIdentifier;
  * This interface represents a node in the tree holding a list of child nodes and positions.
  * Positions are the leaves in the tree and do not implement this interface.
  */
+@PublicSPI
 public interface PortfolioNode extends UniqueIdentifiable {
 
   /**

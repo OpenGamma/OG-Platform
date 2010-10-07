@@ -17,9 +17,8 @@ import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.ZoneOffset;
 
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-
 import com.opengamma.financial.timeseries.DateTimeTimeSeriesMaster;
+import com.opengamma.util.db.DbSource;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.MutableDoubleTimeSeries;
 import com.opengamma.util.timeseries.date.time.ArrayDateTimeDoubleTimeSeries;
@@ -30,10 +29,10 @@ import com.opengamma.util.timeseries.date.time.MapDateTimeDoubleTimeSeries;
  */
 public class DateTimeRowStoreTimeSeriesMaster extends RowStoreTimeSeriesMaster<Date> implements DateTimeTimeSeriesMaster {
   
-  public DateTimeRowStoreTimeSeriesMaster(DataSourceTransactionManager transactionManager, 
+  public DateTimeRowStoreTimeSeriesMaster(DbSource dbSource, 
       Map<String, String> namedSQLMap,
       boolean isTriggerSupported) {
-    super(transactionManager, namedSQLMap, isTriggerSupported);
+    super(dbSource, namedSQLMap, isTriggerSupported);
   }
   
   @Override

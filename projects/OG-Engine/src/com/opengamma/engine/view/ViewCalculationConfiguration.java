@@ -17,10 +17,12 @@ import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
  * The configuration for one set of calculations on a particular view.
  */
+@PublicAPI
 public class ViewCalculationConfiguration implements Serializable {
   
   private final ViewDefinition _viewDefinition;

@@ -13,12 +13,14 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.util.PublicAPI;
 
 /**
  * Encapsulates the logic for deciding whether the difference between any two {@link ComputedValue}s is sufficient to
  * be treated as a delta (in the context of a change). In the absence of a specific comparer, the implementation will
  * fall back onto {@link ObjectUtils.#equals(Object)}.
  */
+@PublicAPI
 public class DeltaDefinition {
   
   private static final String NUMBER_COMPARER_FIELD = "numberComparer";

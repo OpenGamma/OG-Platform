@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view;
 
+import com.opengamma.util.PublicAPI;
+
 
 /**
  * The data model represents the sum total of analytic functions applied to positions
@@ -13,5 +15,6 @@ package com.opengamma.engine.view;
  *
  * @author kirk
  */
+@PublicAPI
 public interface ViewComputationResultModel extends ViewResultModel {
 }

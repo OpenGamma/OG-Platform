@@ -13,10 +13,9 @@ import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-
 import com.opengamma.financial.timeseries.LocalDateTimeSeriesMaster;
 import com.opengamma.util.db.DbDateUtils;
+import com.opengamma.util.db.DbSource;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.MutableDoubleTimeSeries;
@@ -28,10 +27,10 @@ import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
  */
 public class LocalDateRowStoreTimeSeriesMaster extends RowStoreTimeSeriesMaster<LocalDate> implements LocalDateTimeSeriesMaster {
   
-  public LocalDateRowStoreTimeSeriesMaster(DataSourceTransactionManager transactionManager, 
+  public LocalDateRowStoreTimeSeriesMaster(DbSource dbSource, 
       Map<String, String> namedSQLMap,
       boolean isTriggerSupported) {
-    super(transactionManager, namedSQLMap, isTriggerSupported);
+    super(dbSource, namedSQLMap, isTriggerSupported);
   }
   
   @Override

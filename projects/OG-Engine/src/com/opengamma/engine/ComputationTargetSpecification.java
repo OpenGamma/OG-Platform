@@ -20,11 +20,13 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
  * An immutable specification of a particular computation target that will be resolved
  * later on in a computation process.
  */
+@PublicAPI
 public final class ComputationTargetSpecification implements Serializable {
 
   /**

@@ -19,6 +19,7 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
  * Encapsulates view-level configuration to describe the types of values required in the calculation results. This
@@ -28,6 +29,7 @@ import com.opengamma.util.ArgumentChecker;
  * This configuration acts as a filter on the outputs that have been requested through
  * {@link ViewCalculationConfiguration}. In a sense, it is a view-view.
  */
+@PublicAPI
 public class ResultModelDefinition implements Serializable {
   
   private static final String AGGREGATE_POSITION_OUTPUT_MODE_FIELD = "aggregatePositionOutputMode";

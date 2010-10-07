@@ -33,7 +33,7 @@ public class DateTimeTimeSeriesMasterTest extends TimeSeriesMasterTest<Date> {
   @Override
   protected TimeSeriesMaster<Date> getTimeSeriesMaster(Map<String, String> namedSQLMap) {
     return new DateTimeRowStoreTimeSeriesMaster(
-        getTransactionManager(), 
+        getDbSource(), 
         namedSQLMap,
         false);
   }
