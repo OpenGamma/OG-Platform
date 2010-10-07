@@ -30,7 +30,7 @@ public class CashSecurityToCashConverter {
     _conventionSource = conventionSource;
   }
 
-  public Cash getCash(final CashSecurity security, final String fundingCurveName, final double marketRate, final ZonedDateTime now) {
+  public Cash getCash(final CashSecurity security, final String curveName, final double marketRate, final ZonedDateTime now) {
     final ConventionBundle conventions = _conventionSource.getConventionBundle(security.getIdentifiers());
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCurrency());
     final ZonedDateTime startDate = conventions.getBusinessDayConvention().adjustDate(calendar, now.plusDays(conventions.getSettlementDays()));
@@ -40,6 +40,6 @@ public class CashSecurityToCashConverter {
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual");
     final double paymentTime = actAct.getDayCountFraction(now, maturityDate);
     final double yearFraction = dayCount.getDayCountFraction(startDate, maturityDate);
-    return new Cash(paymentTime, marketRate, tradeTime, yearFraction, fundingCurveName);
+    return new Cash(paymentTime, marketRate, tradeTime, yearFraction, curveName);
   }
 }

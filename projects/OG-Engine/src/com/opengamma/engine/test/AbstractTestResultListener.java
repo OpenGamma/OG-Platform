@@ -30,6 +30,14 @@ public class AbstractTestResultListener<T> {
     return result;
   }
   
+  public void assertNoResult (long timeoutMillis) throws InterruptedException {
+    long tNow = System.currentTimeMillis ();
+    T result = _resultsReceived.poll(timeoutMillis, TimeUnit.MILLISECONDS);
+    if (result != null) {
+      throw new OpenGammaRuntimeException ("Result received after " + (System.currentTimeMillis () - tNow) + "ms, during " + timeoutMillis + "ms wait");
+    }
+  }
+  
   public int getQueueSize() {
     return _resultsReceived.size();
   }

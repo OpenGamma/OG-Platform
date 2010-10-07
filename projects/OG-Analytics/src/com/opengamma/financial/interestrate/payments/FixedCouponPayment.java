@@ -53,8 +53,9 @@ public class FixedCouponPayment extends FixedPayment implements InterestRateDeri
   }
 
   @Override
-  public FixedCouponPayment withRate(double rate) {
-    return new FixedCouponPayment(getPaymentTime(), getYearFraction(), rate, getFundingCurveName());
+  public FixedCouponPayment withRate(final double rate) {
+
+    return new FixedCouponPayment(getPaymentTime(), getNotional(), getYearFraction(), rate, getFundingCurveName());
   }
 
   public FixedCouponPayment withUnitCoupon() {
@@ -76,7 +77,7 @@ public class FixedCouponPayment extends FixedPayment implements InterestRateDeri
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -86,7 +87,7 @@ public class FixedCouponPayment extends FixedPayment implements InterestRateDeri
     if (getClass() != obj.getClass()) {
       return false;
     }
-    FixedCouponPayment other = (FixedCouponPayment) obj;
+    final FixedCouponPayment other = (FixedCouponPayment) obj;
     if (Double.doubleToLongBits(_coupon) != Double.doubleToLongBits(other._coupon)) {
       return false;
     }

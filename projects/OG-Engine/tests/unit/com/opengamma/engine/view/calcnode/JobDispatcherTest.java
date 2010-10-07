@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.util.Cancellable;
+import com.opengamma.util.test.Timeout;
 
 /**
  * 
@@ -34,7 +35,7 @@ import com.opengamma.util.Cancellable;
 public class JobDispatcherTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(JobDispatcherTest.class);
-  private static final long TIMEOUT = 1000L;
+  private static final long TIMEOUT = Timeout.standardTimeoutMillis ();
 
   private final ExecutorService _executorService = Executors.newCachedThreadPool();
 

@@ -36,6 +36,7 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsSend
 import com.opengamma.transport.CollectingFudgeMessageReceiver;
 import com.opengamma.transport.DirectFudgeConnection;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.test.Timeout;
 
 /**
  * Tests RemoteNodeClient
@@ -43,7 +44,7 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
 public class RemoteNodeClientTest {
 
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
-  private static final long TIMEOUT = 1000L;
+  private static final long TIMEOUT = Timeout.standardTimeoutMillis();
 
   protected static CalculationJob createTestCalculationJob() {
     return new CalculationJob(JobDispatcherTest.createTestJobSpec(), null, JobDispatcherTest.createTestJobItems(), CacheSelectHint.allShared());

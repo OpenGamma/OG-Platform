@@ -134,12 +134,14 @@ public abstract class AbstractLongDoubleTimeSeries<DATE_TYPE> extends AbstractFa
 
   @Override
   public DoubleTimeSeries<DATE_TYPE> subSeries(final DATE_TYPE startTime, final DATE_TYPE endTime) {
-    return _converter.convertFromLong(this, getFastSeries().subSeriesFast(_converter.convertToLong(startTime), _converter.convertToLong(endTime)));
+    return _converter.convertFromLong(this, getFastSeries().subSeriesFast((startTime != null) ? _converter.convertToLong(startTime) : Long.MIN_VALUE,
+        (endTime != null) ? _converter.convertToLong(endTime) : Long.MAX_VALUE));
   }
   
   @Override
   public DoubleTimeSeries<DATE_TYPE> subSeries(final DATE_TYPE startTime, final boolean includeStart, final DATE_TYPE endTime, final boolean includeEnd) { 
-    return _converter.convertFromLong(this, getFastSeries().subSeriesFast(_converter.convertToLong(startTime), includeStart, _converter.convertToLong(endTime), includeEnd));
+    return _converter.convertFromLong(this, getFastSeries().subSeriesFast((startTime != null) ? _converter.convertToLong(startTime) : Long.MIN_VALUE, includeStart,
+        (endTime != null) ? _converter.convertToLong(endTime) : Long.MAX_VALUE, includeEnd));
   }
 
   @Override

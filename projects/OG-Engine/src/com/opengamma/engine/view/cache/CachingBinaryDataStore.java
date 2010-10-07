@@ -19,7 +19,7 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.util.EHCacheUtils;
+import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
  * Caches binary objects on top of another binary data store. This is an in-memory cache.

@@ -5,12 +5,14 @@
  */
 package com.opengamma.engine.view.cache;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.util.HashSet;
 import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +20,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.transport.DirectFudgeConnection;
+import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 public class ReleaseCacheMessageTest {
@@ -107,7 +110,7 @@ public class ReleaseCacheMessageTest {
     final ReportingBinaryDataStoreFactory privateClientStore = new ReportingBinaryDataStoreFactory("client private");
     final DirectFudgeConnection conduit = new DirectFudgeConnection(cacheSource.getFudgeContext());
     conduit.connectEnd1(server);
-    final RemoteViewComputationCacheSource remoteSource = new RemoteViewComputationCacheSource(new RemoteCacheClient(conduit.getEnd2()), privateClientStore);
+    final RemoteViewComputationCacheSource remoteSource = new RemoteViewComputationCacheSource(new RemoteCacheClient(conduit.getEnd2()), privateClientStore, EHCacheUtils.createCacheManager ());
     s_logger.info("Using server cache at remote client");
     putStuffIntoCache(remoteSource.getCache("Test View 1", "Config 1", 2L));
     assertEquals(8, privateServerStore._cachesCreated.size());

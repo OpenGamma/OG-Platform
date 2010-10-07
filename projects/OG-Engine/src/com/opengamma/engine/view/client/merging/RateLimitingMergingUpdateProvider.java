@@ -65,7 +65,7 @@ public class RateLimitingMergingUpdateProvider<T> extends MergingUpdateProvider<
    *                                   update is triggered, in milliseconds. If 0, updates will be passed to listeners
    *                                   immediately and synchronously (unless paused).
    * @param timer  the timer with which to schedule tasks, not null
-   */  
+   */ 
   public RateLimitingMergingUpdateProvider(IncrementalMerger<T> merger, long minimumUpdatePeriodMillis, Timer timer) {
     super(merger);
     ArgumentChecker.notNull(timer, "timer");
