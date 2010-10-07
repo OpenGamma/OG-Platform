@@ -63,11 +63,11 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
    * Obtains an identifier with dates from an identifier and the dates.
    * @param identifier  the identifier, not empty, not null
    * @param validFrom  the value of the identifier if applicable
-   * @param ValidTo the 
+   * @param validTo the 
    * @return the identifier, not null
    */
-  public static IdentifierWithDates of(Identifier identifier, LocalDate validFrom, LocalDate ValidTo) {
-    return new IdentifierWithDates(identifier, validFrom, ValidTo);
+  public static IdentifierWithDates of(Identifier identifier, LocalDate validFrom, LocalDate validTo) {
+    return new IdentifierWithDates(identifier, validFrom, validTo);
   }
   
   @Override
@@ -117,13 +117,7 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
 
   @Override
   public int compareTo(IdentifierWithDates other) {
-    if (_identifier.compareTo(other._identifier) != 0) {
-      return _identifier.compareTo(other._identifier);
-    }
-    if (_validFrom.compareTo(other._validFrom) != 0) {
-      return _validFrom.compareTo(other._validFrom);
-    }
-    return _validTo.compareTo(_validTo);
+    return _identifier.compareTo(other._identifier);
   }
   
   /**
