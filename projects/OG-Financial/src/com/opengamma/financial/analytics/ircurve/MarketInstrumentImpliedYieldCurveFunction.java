@@ -255,7 +255,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       double[] initialRatesGuess = new double[n];
       double[] nodeTimes = new double[n];
       _identifierToFundingNodeTimes.clear();
-      _identifierToFundingNodeTimes.clear();
+      _identifierToForwardNodeTimes.clear();
       int i = 0;
       for (FixedIncomeStripWithSecurity strip : specificationWithSecurities.getStrips()) {
         ValueRequirement stripRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getSecurityIdentifier());
