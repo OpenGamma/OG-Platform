@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.timeseries.db;
+package com.opengamma.financial.timeseries.db;
 
 import java.util.HashMap;
 import java.util.Map;

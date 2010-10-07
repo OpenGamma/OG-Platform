@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.timeseries;
+package com.opengamma.financial.timeseries;
 
 
 import static org.junit.Assert.assertEquals;

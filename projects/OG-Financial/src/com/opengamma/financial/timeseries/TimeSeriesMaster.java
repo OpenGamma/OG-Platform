@@ -7,8 +7,11 @@ package com.opengamma.financial.timeseries;
 
 import java.util.List;
 
+import javax.time.calendar.LocalDate;
+
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -46,7 +49,7 @@ public interface TimeSeriesMaster<T> {
   
   List<SchemeBean> getSchemes();
   
-  List<IdentifierBundle> getAllIdentifiers();
+  List<IdentifierBundleWithDates> getAllIdentifiers();
   
   /**
    * Searches for timeseries matching the specified search criteria.
@@ -177,6 +180,18 @@ public interface TimeSeriesMaster<T> {
    * @return the UID if found or null
    */
   UniqueIdentifier resolveIdentifier(IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField);
+  
+  /**
+   * Finds the Timeseries UID
+   * 
+   * @param identifiers the identifier bundle, not-null
+   * @param currentDate the current trade date if applicable
+   * @param dataSource the datasource, not-null
+   * @param dataProvider the dataprovider, not-null
+   * @param dataField the dataField, not-null
+   * @return the UID if found or null
+   */
+  UniqueIdentifier resolveIdentifier(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField);
   
   /**
    * Removes all data points before the given date.

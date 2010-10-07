@@ -3,10 +3,10 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.timeseries.config;
+package com.opengamma.financial.timeseries.config;
 
 
-import static com.opengamma.timeseries.config.TimeseriesMasterTestUtils.makeExpectedAAPLEquitySecurity;
+import static com.opengamma.financial.timeseries.config.TimeseriesMasterTestUtils.makeExpectedAAPLEquitySecurity;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;

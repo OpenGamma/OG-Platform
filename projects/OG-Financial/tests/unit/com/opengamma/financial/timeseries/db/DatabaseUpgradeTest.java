@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.timeseries.db;
+package com.opengamma.financial.timeseries.db;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
