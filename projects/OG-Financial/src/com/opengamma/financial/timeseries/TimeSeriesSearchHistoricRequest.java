@@ -54,6 +54,9 @@ public class TimeSeriesSearchHistoricRequest extends DirectBean {
   @PropertyDefinition
   private String _observationTime;
   
+  /**
+   * Regardless of what the time stamp is, you will get
+   */
   @PropertyDefinition
   private Instant _timeStamp;
   

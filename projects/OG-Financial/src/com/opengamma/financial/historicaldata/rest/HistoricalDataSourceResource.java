@@ -93,7 +93,7 @@ public class HistoricalDataSourceResource {
   }
 
   private FudgeMsgEnvelope encodePairMessage(final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> result) {
-    if (result == null) {
+    if (result.getKey() == null) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
     final FudgeSerializationContext context = getFudgeSerializationContext();

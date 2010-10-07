@@ -92,6 +92,7 @@ public class DefaultTimeSeriesResolver implements TimeSeriesMetaDataResolver {
     {"UF", "KANSAS_CLOSE"},
     {"PK", "NEWYORK_CLOSE"},
     {"LN", "LONDON_CLOSE"},
+      // Review 2010-10-06 Andrew -- Are these LONODNs mis-spelt? If correct, can we have a comment or reference to a doc so no-one makes the same mistake I have of thinking they need changing!
     {"LI", "LONODN_CLOSE"},
     {"PZ", "LONODN_CLOSE"},
     {"TQ", "LONODN_CLOSE"},

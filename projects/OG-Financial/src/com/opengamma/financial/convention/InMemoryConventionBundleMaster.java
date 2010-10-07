@@ -132,6 +132,42 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0011M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 11m")), "USD LIBOR 11m", act360, following, freq, 2);
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0012M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 12m")), "USD LIBOR 12m", act360, following, freq, 2);
 
+    //TODO need to check that these are right for deposit rates
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR1T Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 1d")), "USD DEPOSIT 1d", act360, following, freq, 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR2T Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2d")), "USD DEPOSIT 2d", act360, following, freq, 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR3T Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 3d")), "USD DEPOSIT 3d", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR7D Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 1w")), "USD DEPOSIT 1w", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRDZ Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2w")), "USD DEPOSIT 2w", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR3Z Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 3w")), "USD DEPOSIT 3w", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRA Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 1m")), "USD DEPOSIT 1m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRB Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2m")), "USD DEPOSIT 2m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRC Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 3m")), "USD DEPOSIT 3m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRD Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 4m")), "USD DEPOSIT 4m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRE Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 5m")), "USD DEPOSIT 5m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRF Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 6m")), "USD DEPOSIT 6m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRG Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 7m")), "USD DEPOSIT 7m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRH Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 8m")), "USD DEPOSIT 8m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRI Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 9m")), "USD DEPOSIT 9m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRJ Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 10m")), "USD DEPOSIT 10m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRK Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 11m")), "USD DEPOSIT 11m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRL Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 12m")), "USD DEPOSIT 12m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR1 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 1y")), "USD DEPOSIT 1y", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR2 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2y")), "USD DEPOSIT 2y", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR3 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 3y")), "USD DEPOSIT 3y", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR4 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 4y")), "USD DEPOSIT 4y", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR5 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 5y")), "USD DEPOSIT 5y", act360, following, freq, 2);
+    
+    
+    //TODO check that this is ok for FRA
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USFR00C Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 3x3")), "USD FRA 3x3", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USFR0CF Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 6x9")), "USD FRA 6x9", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USFR0FI Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 9x12")), "USD FRA 9x12", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USFR0I1 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 12x15")), "USD FRA 12x15", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USFR011C Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 15x18")), "USD FRA 15x18", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USFR1C1F Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 18x21")), "USD FRA 18x21", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USFR1F1I Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 21x24")), "USD FRA 21x24", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USFR1I2 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 24x27")), "USD FRA 24x27", act360, following, freq, 2);
+
     //TODO with improvement in settlement days definition (i.e. including holiday and adjustment) change this
     // should be 2, LON, following
     // holiday for swap should be NY+LON
