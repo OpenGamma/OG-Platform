@@ -28,6 +28,14 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class NodeSensitivityCalculator {
 
+  public DoubleMatrix1D presentValueCalculate(final InterestRateDerivative ird, final YieldCurveBundle fixedCurves, LinkedHashMap<String, InterpolatedYieldAndDiscountCurve> interpolatedCurves) {
+    return calculate(ird, PresentValueSensitivityCalculator.getInstance(), fixedCurves, interpolatedCurves);
+  }
+
+  public DoubleMatrix1D parRateCalculate(final InterestRateDerivative ird, final YieldCurveBundle fixedCurves, LinkedHashMap<String, InterpolatedYieldAndDiscountCurve> interpolatedCurves) {
+    return calculate(ird, ParRateCurveSensitivityCalculator.getInstance(), fixedCurves, interpolatedCurves);
+  }
+
   @SuppressWarnings("unchecked")
   public DoubleMatrix1D calculate(final InterestRateDerivative ird, final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> calculator,
       final YieldCurveBundle fixedCurves, LinkedHashMap<String, InterpolatedYieldAndDiscountCurve> interpolatedCurves) {
