@@ -35,6 +35,7 @@ import com.opengamma.financial.interestrate.future.definition.InterestRateFuture
 import com.opengamma.financial.interestrate.libor.definition.Libor;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
+import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.differentiation.VectorFieldFirstOrderDifferentiator;
@@ -166,10 +167,10 @@ public abstract class YieldCurveFittingSetup {
       assertEquals(data.getMarketRates()[i], ParRateCalculator.getInstance().getValue(data.getDerivative(i), bundle), EPS);
     }
 
-    //    for (int i = 0; i < 40; i++) {
-    //      double t = 0.25 * i;
-    //      System.out.println(bundle.getCurve(data.getCurveNames().get(0)).getInterestRate(t));
-    //    }
+    // for (int i = 0; i < 40; i++) {
+    // double t = 0.25 * i;
+    // System.out.println(bundle.getCurve(data.getCurveNames().get(0)).getInterestRate(t));
+    // }
 
     // this test cannot be performed when we don't know what the true yield curves are - i.e. we start from market data
     if (data.getCurveYields() != null) {
@@ -183,7 +184,7 @@ public abstract class YieldCurveFittingSetup {
     }
   }
 
-  private HashMap<String, double[]> unpackYieldVector(final YieldCurveFittingTestDataBundle data, final DoubleMatrix1D yieldCurveNodes) {
+  protected HashMap<String, double[]> unpackYieldVector(final YieldCurveFittingTestDataBundle data, final DoubleMatrix1D yieldCurveNodes) {
 
     final HashMap<String, double[]> res = new HashMap<String, double[]>();
     int start = 0;
@@ -212,7 +213,7 @@ public abstract class YieldCurveFittingSetup {
 
   }
 
-  protected static YieldAndDiscountCurve makeYieldCurve(final double[] yields, final double[] times, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+  protected static InterpolatedYieldAndDiscountCurve makeYieldCurve(final double[] yields, final double[] times, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
     final int n = yields.length;
     if (n != times.length) {
       throw new IllegalArgumentException("rates and times different lengths");

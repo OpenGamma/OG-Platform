@@ -41,7 +41,7 @@ public class PV01FixedFloatSwapFunction extends FixedFloatSwapFunction {
 
   @Override
   protected Set<ComputedValue> getComputedValues(final Security security, final Swap swap, final YieldCurveBundle bundle) {
-    final Map<String, Double> pv01ForCurve = CALCULATOR.getValue(swap, bundle);
+    final Map<String, Double> pv01ForCurve = CALCULATOR.calculate(swap, bundle);
     final String name = getName();
     if (pv01ForCurve.size() == 1 && pv01ForCurve.keySet().contains(name)) {
       final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PV01, security), getUniqueIdentifier());

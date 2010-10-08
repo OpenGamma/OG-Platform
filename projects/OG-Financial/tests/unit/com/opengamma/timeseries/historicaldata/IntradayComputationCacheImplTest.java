@@ -58,7 +58,7 @@ public class IntradayComputationCacheImplTest extends DBTest {
     Map<String, String> namedSQLMap = (Map<String, String>) context.getBean("tssNamedSQLMap");
     
     DateTimeRowStoreTimeSeriesMaster timeSeriesMaster = new DateTimeRowStoreTimeSeriesMaster(
-        getTransactionManager(),
+        getDbSource(),
         namedSQLMap,
         true);
     
