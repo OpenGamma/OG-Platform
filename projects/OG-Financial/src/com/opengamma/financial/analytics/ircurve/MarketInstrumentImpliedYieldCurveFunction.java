@@ -80,6 +80,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.RootNotFoundException;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
+import com.sun.org.apache.xalan.internal.xsltc.runtime.BasisLibrary;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 
@@ -274,6 +275,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
           derivative = futureConverter.getInterestRateFuture((InterestRateFutureSecurity) strip.getSecurity(), _fundingCurveDefinitionName, marketValue, now);
         } else if (strip.getInstrumentType() == StripInstrumentType.LIBOR) {
           derivative = cashConverter.getCash((CashSecurity) strip.getSecurity(), _fundingCurveDefinitionName, marketValue / 100., now);
+        //} else if (strip.getInstrumentType() == StripInstrumentType.BASIS_SWAP) {
+          //derivative = basisSwapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName, _fundingCurveDefinitionName, _fundingCurveDefinitionName, marketValue / 100., now);
         } else if (strip.getInstrumentType() == StripInstrumentType.TENOR_SWAP) {
           derivative = tenorSwapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName, _fundingCurveDefinitionName, _fundingCurveDefinitionName, marketValue / 100., now);
         } else {

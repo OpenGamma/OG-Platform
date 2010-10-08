@@ -145,8 +145,6 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     DateTimeWithZone maturityDate = new DateTimeWithZone(curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC));
     ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getISOCode() + "_SWAP"));
     String counterparty = "";
-    Identifier region = Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, "US");
-    // REVIEW: jim 25-Aug-2010 -- change this to pass the identifier from the convention straight in instead of resolving and using a unique ID
     ConventionBundle floatRateConvention = source.getConventionBundle(convention.getSwapFloatingLegInitialRate());
     Double initialRate = null; 
     for (Identifier identifier :  floatRateConvention.getIdentifiers()) {
@@ -168,7 +166,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
                                             new FloatingInterestRateLeg(
                                                 convention.getSwapFloatingLegDayCount(),
                                                 convention.getSwapFloatingLegFrequency(),
-                                                region,
+                                                convention.getSwapFloatingLegRegion(),
                                                 convention.getSwapFloatingLegBusinessDayConvention(),
                                                 new InterestRateNotional(spec.getCurrency(), 1),
                                                 floatRateConvention.getUniqueIdentifier(), 
@@ -177,10 +175,62 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
                                             new FixedInterestRateLeg(
                                                 convention.getSwapFixedLegDayCount(), 
                                                 convention.getSwapFixedLegFrequency(),
-                                                region, 
+                                                convention.getSwapFixedLegRegion(), 
                                                 convention.getSwapFixedLegBusinessDayConvention(),
                                                 new InterestRateNotional(spec.getCurrency(), 1),
                                                 fixedRate)
+                                          );
+    swap.setIdentifiers(IdentifierBundle.of(swapIdentifier));
+    return swap;
+  }
+  
+  private SwapSecurity getBasisSwap(InterpolatedYieldCurveSpecification spec, FixedIncomeStripWithIdentifier strip, Map<Identifier, Double> marketValues) {
+    Identifier swapIdentifier = strip.getSecurity();
+    Double rate = marketValues.get(swapIdentifier);
+    LocalDate curveDate = spec.getCurveDate();
+    InMemoryConventionBundleMaster refRateRepo = new InMemoryConventionBundleMaster();
+    ConventionBundleSource source = new DefaultConventionBundleSource(refRateRepo);
+    DateTimeWithZone tradeDate = new DateTimeWithZone(curveDate.atTime(11, 00).atZone(TimeZone.UTC));
+    DateTimeWithZone effectiveDate = new DateTimeWithZone(DateUtil.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC));
+    DateTimeWithZone maturityDate = new DateTimeWithZone(curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC));
+    ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getISOCode() + "_BASIS_SWAP"));
+    String counterparty = "";
+    ConventionBundle floatRateConvention = source.getConventionBundle(convention.getSwapFloatingLegInitialRate());
+    Double initialRate = null; 
+    for (Identifier identifier :  floatRateConvention.getIdentifiers()) {
+      if (marketValues.containsKey(identifier)) {
+        initialRate = marketValues.get(identifier); // get the initial rate.
+        break;
+      }
+    }
+    if (initialRate == null) {
+      throw new OpenGammaRuntimeException("Could not get initial rate");
+    }
+    double spread = 0;
+    double fixedRate = rate;
+    // REVIEW: jim 25-Aug-2010 -- we need to change the swap to take settlement days.
+    SwapSecurity swap =  new SwapSecurity(tradeDate, 
+                                          effectiveDate, 
+                                          maturityDate,
+                                          counterparty, 
+                                            new FloatingInterestRateLeg(
+                                                convention.getBasisSwapPayFloatingLegDayCount(),
+                                                convention.getBasisSwapPayFloatingLegFrequency(),
+                                                convention.getBasisSwapPayFloatingLegRegion(),
+                                                convention.getBasisSwapPayFloatingLegBusinessDayConvention(),
+                                                new InterestRateNotional(spec.getCurrency(), 1),
+                                                floatRateConvention.getUniqueIdentifier(), 
+                                                initialRate, 
+                                                spread),
+                                            new FloatingInterestRateLeg(
+                                                convention.getBasisSwapReceiveFloatingLegDayCount(),
+                                                convention.getBasisSwapReceiveFloatingLegFrequency(),
+                                                convention.getBasisSwapReceiveFloatingLegRegion(),
+                                                convention.getBasisSwapReceiveFloatingLegBusinessDayConvention(),
+                                                new InterestRateNotional(spec.getCurrency(), 1),
+                                                floatRateConvention.getUniqueIdentifier(), 
+                                                initialRate, 
+                                                spread)
                                           );
     swap.setIdentifiers(IdentifierBundle.of(swapIdentifier));
     return swap;

@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.analytics.swap;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
@@ -21,19 +24,14 @@ import com.opengamma.financial.convention.businessday.HolidaySourceCalendarAdapt
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
-import com.opengamma.financial.interestrate.payments.FixedPayment;
 import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
-import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
-import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.world.holiday.HolidaySource;
+import com.opengamma.financial.world.region.InMemoryRegionMaster;
 import com.opengamma.financial.world.region.Region;
 import com.opengamma.financial.world.region.RegionSource;
 import com.opengamma.id.Identifier;
@@ -56,7 +54,21 @@ public class TenorSwapSecurityToTenorSwapConverter {
     _conventionSource = conventionSource;
 
   }
-
+  
+  // REVIEW: jim 8-Oct-2010 -- we might want to move this logic inside the RegionMaster.
+  protected Calendar getCalendar(Identifier regionId) {
+    if (regionId.getScheme().equals(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2) && regionId.getValue().contains("+")) {
+      String[] regions = regionId.getValue().split("+");
+      Set<Region> resultRegions = new HashSet<Region>();
+      for (String region : regions) {
+        resultRegions.add(_regionSource.getHighestLevelRegion(Identifier.of(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2, region)));
+      }
+      return new HolidaySourceCalendarAdapter(_holidaySource, resultRegions);
+    } else {
+      final Region payRegion = _regionSource.getHighestLevelRegion(regionId); // we've checked that they are the same.
+      return new HolidaySourceCalendarAdapter(_holidaySource, payRegion);
+    }
+  }
 
   public TenorSwap getSwap(final SwapSecurity swapSecurity, final String fundingCurveName, final String payLegCurveName, final String recieveLegCurveName, final double marketRate,  
        final ZonedDateTime now) {
@@ -81,17 +93,16 @@ public class TenorSwapSecurityToTenorSwapConverter {
       throw new OpenGammaRuntimeException("Pay and receive legs must be from same region");
     }
     
-    
-    final Region payRegion = _regionSource.getHighestLevelRegion(payLeg.getRegionIdentifier()); // we've checked that they are the same.
-    final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, payRegion);
+    final Calendar calendar = getCalendar(payLeg.getRegionIdentifier());
+
     final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getISOCode();
-    final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_SWAP"));
+    final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_TENOR_SWAP"));
     
     ForwardLiborAnnuity pay = getFloatLeg(floatPayLeg, now, effectiveDate, maturityDate,
-        fundingCurveName, payLegCurveName, calendar, 0.0 /*spread is paid on receive leg*/, conventions.getSwapFloatingLegSettlementDays());
+        fundingCurveName, payLegCurveName, calendar, 0.0 /*spread is paid on receive leg*/, conventions.getBasisSwapPayFloatingLegSettlementDays());
    
     ForwardLiborAnnuity receive = getFloatLeg(floatReceiveLeg, now, effectiveDate, maturityDate,
-       fundingCurveName, recieveLegCurveName, calendar, marketRate, conventions.getSwapFloatingLegSettlementDays());
+       fundingCurveName, recieveLegCurveName, calendar, marketRate, conventions.getBasisSwapReceiveFloatingLegSettlementDays());
    
     return new TenorSwap(pay, receive);
   }

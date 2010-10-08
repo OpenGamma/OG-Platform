@@ -157,7 +157,7 @@ public class CurveDefinitionAndSpecifications {
     final Map<Tenor, CurveInstrumentProvider> fraInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     final Object[][] tenorsTickersFRAs = new Object[][] {
       {THREE_MONTHS, "USFR00C Curncy"}, {SIX_MONTHS, "USFR0CF Curncy"}, {NINE_MONTHS, "USFR0FI Curncy"},
-      {TWELVE_MONTHS, "USFR0I1 Curncy"}, {new Tenor(Period.ofMonths(15)), "USFR011C"}, {new Tenor(Period.ofMonths(18)), "USFR1C1F Curncy"},
+      {TWELVE_MONTHS, "USFR0I1 Curncy"}, {new Tenor(Period.ofMonths(15)), "USFR011C Curncy" }, {new Tenor(Period.ofMonths(18)), "USFR1C1F Curncy"},
       {new Tenor(Period.ofMonths(21)), "USFR1F1I Curncy"}, {new Tenor(Period.ofMonths(24)), "USFR1I2 Curncy"}
     };
     for (final Object[] tenorsTickersFRA : tenorsTickersFRAs) {
@@ -206,10 +206,18 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : availableYears) {
       swapInstrumentProviders.put(new Tenor(Period.ofYears(i)), new StaticCurveInstrumentProvider(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "USSW" + i + " Curncy")));
     }
+    
+    final Map<Tenor, CurveInstrumentProvider> basisSwapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
+    final Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
+    final int[] tenorAvailableYears = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30};
+    for (final int i : tenorAvailableYears) {
+      tenorSwapInstrumentProviders.put(new Tenor(Period.ofYears(i)), new StaticCurveInstrumentProvider(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "USBG" + i + " Curncy")));
+    }
 
     final CurveSpecificationBuilderConfiguration config = new CurveSpecificationBuilderConfiguration(depositCashInstrumentProviders, fraInstrumentProviders,
-        liborRateInstrumentProviders, futureInstrumentProviders,
-        swapInstrumentProviders);
+                                                                                                     liborRateInstrumentProviders, futureInstrumentProviders,
+                                                                                                     swapInstrumentProviders, basisSwapInstrumentProviders, 
+                                                                                                     tenorSwapInstrumentProviders);
     return config;
   }
 
@@ -245,10 +253,14 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : availableYears) {
       swapInstrumentProviders.put(new Tenor(Period.ofYears(i)), new StaticCurveInstrumentProvider(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "USSW" + i + " Curncy")));
     }
+    
+    final Map<Tenor, CurveInstrumentProvider> basisSwapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
+    final Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
 
     final CurveSpecificationBuilderConfiguration config = new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, fraInstrumentProviders,
-        rateInstrumentProviders, futureInstrumentProviders,
-        swapInstrumentProviders);
+                                                                                                     rateInstrumentProviders, futureInstrumentProviders,
+                                                                                                     swapInstrumentProviders, basisSwapInstrumentProviders,
+                                                                                                     tenorSwapInstrumentProviders);
     return config;
   }
 }
