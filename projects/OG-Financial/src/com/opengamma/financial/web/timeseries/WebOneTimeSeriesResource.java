@@ -5,7 +5,9 @@
  */
 package com.opengamma.financial.web.timeseries;
 
+import java.io.StringWriter;
 import java.net.URI;
+import java.util.Map;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -15,6 +17,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.joda.beans.impl.flexi.FlexiBean;
+
+import au.com.bytecode.opencsv.CSVWriter;
 
 import com.opengamma.financial.timeseries.TimeSeriesDocument;
 import com.opengamma.id.UniqueIdentifier;
@@ -39,6 +43,18 @@ public class WebOneTimeSeriesResource extends AbstractWebTimeSeriesResource {
   public String get() {
     FlexiBean out = createRootData();
     return getFreemarker().build("timeseries/onetimeseries.ftl", out);
+  }
+  
+  @GET
+  @Produces("text/csv")
+  public String getCsv() {
+    StringWriter stringWriter  = new StringWriter();
+    CSVWriter csvWriter = new CSVWriter(stringWriter);
+    csvWriter.writeNext(new String[] {"Time", "Value"});
+    for (Map.Entry<?, Double> entry : data().getTimeSeries().getTimeSeries()) {
+      csvWriter.writeNext(new String[] {entry.getKey().toString(), entry.getValue().toString()});
+    }
+    return stringWriter.toString();
   }
 
   @DELETE
