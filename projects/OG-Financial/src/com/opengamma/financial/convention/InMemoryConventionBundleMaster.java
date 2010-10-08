@@ -10,7 +10,6 @@ import static com.opengamma.id.IdentificationScheme.BLOOMBERG_TICKER;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import com.opengamma.financial.InMemoryRegionRepositoryTest;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -190,6 +189,9 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     Identifier usgb = Identifier.of(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2, "US+GB");
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_SWAP")), "USD_SWAP", thirty360, modified, semiAnnual, 2, usgb, act360, modified, quarterly, 2, Identifier.of(
         SIMPLE_NAME_SCHEME, "USD LIBOR 3m"), usgb);
+    
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_TENOR_SWAP")), "USD_TENOR_SWAP", act360, modified, quarterly, 2, Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 3m"), usgb, 
+                                                                                                                    act360, modified, quarterly, 2, Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 3m"), usgb);
 
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_FRA")), "USD_FRA", act360, following, null, 2);
 
