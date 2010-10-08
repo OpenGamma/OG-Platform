@@ -87,6 +87,12 @@ public interface ConventionBundle {
    * @return the swapFixedLegSettlementDays
    */
   Integer getSwapFixedLegSettlementDays();
+  
+  /**
+   * Gets the region identifier for the fixed leg
+   * @return the region identifier for the fixed leg
+   */
+  Identifier getSwapFixedLegRegion();
 
   /**
    * Gets the swapFloatingLegDayCount field.
@@ -117,6 +123,12 @@ public interface ConventionBundle {
    * @return the swapFloatingLegInitialRate
    */
   Identifier getSwapFloatingLegInitialRate();
+  
+  /**
+   * Gets the region identifier for the floating leg
+   * @return the region identifier for the floating leg
+   */
+  Identifier getSwapFloatingLegRegion();
 
   /**
    * Gets the name of the risk free rate for CAPM
@@ -129,5 +141,76 @@ public interface ConventionBundle {
    * @return the name
    */
   String getCAPMMarketName();
+  
+  /**
+   * Gets the basisSwapPayFloatingLegDayCount field.
+   * @return the basisSwapPayFloatingLegDayCount
+   */
+  DayCount getBasisSwapPayFloatingLegDayCount();
 
+  /**
+   * Gets the basisSwapPayFloatingLegBusinessDayConvention field.
+   * @return the basisSwapPayFloatingLegBusinessDayConvention
+   */
+  BusinessDayConvention getBasisSwapPayFloatingLegBusinessDayConvention();
+
+  /**
+   * Gets the basisSwapPayFloatingLegFrequency field.
+   * @return the basisSwapPayFloatingLegFrequency
+   */
+  Frequency getBasisSwapPayFloatingLegFrequency();
+
+  /**
+   * Gets the basisSwapPayFloatingLegSettlementDays field.
+   * @return the basisSwapPayFloatingLegSettlementDays
+   */
+  Integer getBasisSwapPayFloatingLegSettlementDays();
+
+  /**
+   * Get the basisSwapPayFloatingLegInitialRate field.
+   * @return the basisSwapPayFloatingLegInitialRate
+   */
+  Identifier getBasisSwapPayFloatingLegInitialRate();
+  
+  /**
+   * Gets the region identifier for the pay floating leg of the basis swap
+   * @return the region identifier for the fixed leg
+   */
+  Identifier getBasisSwapPayFloatingLegRegion();
+  
+  /**
+   * Gets the basisSwapReceiveFloatingLegDayCount field.
+   * @return the basisSwapReceiveFloatingLegDayCount
+   */
+  DayCount getBasisSwapReceiveFloatingLegDayCount();
+
+  /**
+   * Gets the basisSwapReceiveFloatingLegBusinessDayConvention field.
+   * @return the basisSwapReceiveFloatingLegBusinessDayConvention
+   */
+  BusinessDayConvention getBasisSwapReceiveFloatingLegBusinessDayConvention();
+
+  /**
+   * Gets the basisSwapReceiveFloatingLegFrequency field.
+   * @return the basisSwapReceiveFloatingLegFrequency
+   */
+  Frequency getBasisSwapReceiveFloatingLegFrequency();
+
+  /**
+   * Gets the basisSwapReceiveFloatingLegSettlementDays field.
+   * @return the basisSwapReceiveFloatingLegSettlementDays
+   */
+  Integer getBasisSwapReceiveFloatingLegSettlementDays();
+
+  /**
+   * Get the basisSwapReceiveFloatingLegInitialRate field.
+   * @return the basisSwapReceiveFloatingLegInitialRate
+   */
+  Identifier getBasisSwapReceiveFloatingLegInitialRate();
+  
+  /**
+   * Gets the region identifier for the receive floating leg of the basis swap
+   * @return the region identifier for the fixed leg
+   */
+  Identifier getBasisSwapReceiveFloatingLegRegion();
 }

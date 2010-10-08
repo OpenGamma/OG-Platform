@@ -206,10 +206,14 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : availableYears) {
       swapInstrumentProviders.put(new Tenor(Period.ofYears(i)), new StaticCurveInstrumentProvider(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "USSW" + i + " Curncy")));
     }
+    
+    final Map<Tenor, CurveInstrumentProvider> basisSwapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
+    final Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
 
     final CurveSpecificationBuilderConfiguration config = new CurveSpecificationBuilderConfiguration(depositCashInstrumentProviders, fraInstrumentProviders,
-        liborRateInstrumentProviders, futureInstrumentProviders,
-        swapInstrumentProviders);
+                                                                                                     liborRateInstrumentProviders, futureInstrumentProviders,
+                                                                                                     swapInstrumentProviders, basisSwapInstrumentProviders, 
+                                                                                                     tenorSwapInstrumentProviders);
     return config;
   }
 
@@ -245,10 +249,14 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : availableYears) {
       swapInstrumentProviders.put(new Tenor(Period.ofYears(i)), new StaticCurveInstrumentProvider(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "USSW" + i + " Curncy")));
     }
+    
+    final Map<Tenor, CurveInstrumentProvider> basisSwapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
+    final Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
 
     final CurveSpecificationBuilderConfiguration config = new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, fraInstrumentProviders,
-        rateInstrumentProviders, futureInstrumentProviders,
-        swapInstrumentProviders);
+                                                                                                     rateInstrumentProviders, futureInstrumentProviders,
+                                                                                                     swapInstrumentProviders, basisSwapInstrumentProviders,
+                                                                                                     tenorSwapInstrumentProviders);
     return config;
   }
 }
