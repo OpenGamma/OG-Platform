@@ -157,7 +157,7 @@ public class CurveDefinitionAndSpecifications {
     final Map<Tenor, CurveInstrumentProvider> fraInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     final Object[][] tenorsTickersFRAs = new Object[][] {
       {THREE_MONTHS, "USFR00C Curncy"}, {SIX_MONTHS, "USFR0CF Curncy"}, {NINE_MONTHS, "USFR0FI Curncy"},
-      {TWELVE_MONTHS, "USFR0I1 Curncy"}, {new Tenor(Period.ofMonths(15)), "USFR011C"}, {new Tenor(Period.ofMonths(18)), "USFR1C1F Curncy"},
+      {TWELVE_MONTHS, "USFR0I1 Curncy"}, {new Tenor(Period.ofMonths(15)), "USFR011C Curncy" }, {new Tenor(Period.ofMonths(18)), "USFR1C1F Curncy"},
       {new Tenor(Period.ofMonths(21)), "USFR1F1I Curncy"}, {new Tenor(Period.ofMonths(24)), "USFR1I2 Curncy"}
     };
     for (final Object[] tenorsTickersFRA : tenorsTickersFRAs) {
