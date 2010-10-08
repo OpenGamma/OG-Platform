@@ -334,8 +334,8 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
       for (Identifier identifier : identifiers) {
         if (currentDate != null) {
           bundleWhereCondition.append("(d.name = ? AND dsi.identifier_value = ? " +
-          		"AND (dsi.valid_from >= ?  OR dsi.valid_from IS NULL) " +
-          		"AND (dsi.valid_to <= ? OR dsi.valid_to IS NULL)");
+          		"AND (dsi.valid_from <= ?  OR dsi.valid_from IS NULL) " +
+          		"AND (dsi.valid_to >= ? OR dsi.valid_to IS NULL) )");
           parameters.add(identifier.getScheme().getName());
           parameters.add(identifier.getValue());
           parameters.add(currentDate);
@@ -600,14 +600,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
     }
     _simpleJdbcTemplate.update(deleteSql, parameters);
   }
-  
-  private void validateMetaData(IdentifierBundle identifiers, String dataSource, String dataProvider, String field) {
-    ArgumentChecker.notNull(identifiers, "identifiers");
-    ArgumentChecker.notNull(dataSource, "dataSource");
-    ArgumentChecker.notNull(dataProvider, "dataProvider");
-    ArgumentChecker.notNull(field, "field");
-  }
-  
+    
   private DoubleTimeSeries<T> getTimeSeriesSnapshot(Instant timeStamp, long tsID) {
     String selectDeltaSql = _namedSQLMap.get(LOAD_TIME_SERIES_DELTA);
     

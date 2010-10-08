@@ -912,5 +912,5 @@ CREATE TABLE tss_identifier (
 );
 
 ALTER SEQUENCE tss_identifier_id_seq OWNED BY tss_identifier.id;
-CREATE UNIQUE INDEX idx_identifier_scheme_value on tss_identifier (identification_scheme_id, identifier_value);
+CREATE INDEX idx_identifier_scheme_value on tss_identifier (identification_scheme_id, identifier_value);
 CREATE INDEX idx_identifier_value ON tss_identifier(identifier_value);
