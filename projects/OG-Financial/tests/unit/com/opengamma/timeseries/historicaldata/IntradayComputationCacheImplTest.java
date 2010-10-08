@@ -37,6 +37,7 @@ import com.opengamma.financial.timeseries.historicaldata.IntradayComputationCach
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.Timeout;
 import com.opengamma.util.timeseries.date.time.DateTimeDoubleTimeSeries;
 
 /**
@@ -126,12 +127,12 @@ public class IntradayComputationCacheImplTest extends DBTest {
     _intradayComputationCache.start();
     assertTrue(_intradayComputationCache.isRunning());
     
-    Thread.sleep(200); // should not populate any points as no result available
+    Thread.sleep(Timeout.standardTimeoutMillis()); // should not populate any points as no result available
     assertNull(_intradayComputationCache.getValue("MockView", "Default", spec, resolution));
     
     _intradayComputationCache.computationResultAvailable(result);
     
-    Thread.sleep(500); // should populate the entire 5-point history in about 250 ms, so 500 ms is generous
+    Thread.sleep(Timeout.standardTimeoutMillis()); // should be sufficient to populate full result
     
     DateTimeDoubleTimeSeries timeSeries = _intradayComputationCache.getValue("MockView", "Default", spec, resolution);
     assertNotNull(timeSeries);
@@ -158,7 +159,7 @@ public class IntradayComputationCacheImplTest extends DBTest {
     // A long duration (100 seconds):
     _intradayComputationCache.addResolution(Duration.ofMillis(100000), 3); 
     _intradayComputationCache.addResolution(Duration.ofMillis(100000), 5);
-    Thread.sleep(250);
+    Thread.sleep(Timeout.standardTimeoutMillis());
     assertNotNull(_intradayComputationCache.getValue("MockView", "Default", spec, Duration.ofMillis(100000))); // first point should have been inserted immediately, not after 100 seconds
     
     // Try to get some non-existent histories
