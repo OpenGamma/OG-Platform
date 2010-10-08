@@ -64,7 +64,7 @@ public class FixedFloatSwapSecurityToSwapConverter {
   // REVIEW: jim 8-Oct-2010 -- we might want to move this logic inside the RegionMaster.
   protected Calendar getCalendar(Identifier regionId) {
     if (regionId.getScheme().equals(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2) && regionId.getValue().contains("+")) {
-      String[] regions = regionId.getValue().split("+");
+      String[] regions = regionId.getValue().split("\\+");
       Set<Region> resultRegions = new HashSet<Region>();
       for (String region : regions) {
         resultRegions.add(_regionSource.getHighestLevelRegion(Identifier.of(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2, region)));

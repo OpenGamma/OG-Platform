@@ -107,7 +107,7 @@ public class ResultModelDefinition implements Serializable {
    * Sets the output mode that applies to individual position outputs. If only aggregate position calculations are
    * required, with respect to the hierarchy of the reference portfolio, then disabling outputs for individual
    * positions through this method could speed up the computation cycle significantly. This is beneficial for
-   * calculations, such as VaR, which are be performed at the aggregate level without requiring the complete result of
+   * calculations, such as VaR, which can be performed at the aggregate level without requiring the complete result of
    * the same calculation on its children. Aggregate calculations where this is not the case will be unaffected,
    * although disabling the individual position outputs will still hide them from the user even though they will be
    * calculated.
