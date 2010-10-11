@@ -107,6 +107,14 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
           maturity = swapSecurity.getMaturityDate().toZonedDateTime();
           security = swapSecurity;
           break;
+        case TENOR_SWAP:
+          SwapSecurity tenorSwapSecurity = getTenorSwap(curveSpecification, strip, marketValues);
+          if (tenorSwapSecurity == null) { 
+            throw new OpenGammaRuntimeException("Could not resolve swap curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification); 
+          }
+          maturity = tenorSwapSecurity.getMaturityDate().toZonedDateTime();
+          security = tenorSwapSecurity;
+          break;
         default:
           throw new OpenGammaRuntimeException("Unhandled type of instrument in curve definition " + strip.getInstrumentType());
       }
@@ -184,7 +192,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     return swap;
   }
   
-  private SwapSecurity getBasisSwap(InterpolatedYieldCurveSpecification spec, FixedIncomeStripWithIdentifier strip, Map<Identifier, Double> marketValues) {
+  private SwapSecurity getTenorSwap(InterpolatedYieldCurveSpecification spec, FixedIncomeStripWithIdentifier strip, Map<Identifier, Double> marketValues) {
     Identifier swapIdentifier = strip.getSecurity();
     Double rate = marketValues.get(swapIdentifier);
     LocalDate curveDate = spec.getCurveDate();
@@ -193,9 +201,9 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     DateTimeWithZone tradeDate = new DateTimeWithZone(curveDate.atTime(11, 00).atZone(TimeZone.UTC));
     DateTimeWithZone effectiveDate = new DateTimeWithZone(DateUtil.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC));
     DateTimeWithZone maturityDate = new DateTimeWithZone(curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC));
-    ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getISOCode() + "_BASIS_SWAP"));
+    ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getISOCode() + "_TENOR_SWAP"));
     String counterparty = "";
-    ConventionBundle floatRateConvention = source.getConventionBundle(convention.getSwapFloatingLegInitialRate());
+    ConventionBundle floatRateConvention = source.getConventionBundle(convention.getBasisSwapPayFloatingLegInitialRate());
     Double initialRate = null; 
     for (Identifier identifier :  floatRateConvention.getIdentifiers()) {
       if (marketValues.containsKey(identifier)) {

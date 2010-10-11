@@ -152,7 +152,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR2T Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2d")), "USD DEPOSIT 2d", act360, following, freq, 0);
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR3T Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 3d")), "USD DEPOSIT 3d", act360, following, freq, 2);
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR7D Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 1w")), "USD DEPOSIT 1w", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRDZ Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2w")), "USD DEPOSIT 2w", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR2Z Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2w")), "USD DEPOSIT 2w", act360, following, freq, 2);
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR3Z Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 3w")), "USD DEPOSIT 3w", act360, following, freq, 2);
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRA Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 1m")), "USD DEPOSIT 1m", act360, following, freq, 2);
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRB Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2m")), "USD DEPOSIT 2m", act360, following, freq, 2);

@@ -83,6 +83,7 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
           break;
         case TENOR_SWAP:
           identifier = builderConfig.getTenorSwapSecurity(curveDate, strip.getCurveNodePointTime());
+          break;
         default:
           throw new OpenGammaRuntimeException("Unhandled type of instrument in curve definition " + strip.getInstrumentType());
       }

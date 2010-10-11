@@ -33,13 +33,18 @@ public class CashSecurityToCashConverter {
   public Cash getCash(final CashSecurity security, final String curveName, final double marketRate, final ZonedDateTime now) {
     final ConventionBundle conventions = _conventionSource.getConventionBundle(security.getIdentifiers());
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCurrency());
-    final ZonedDateTime startDate = conventions.getBusinessDayConvention().adjustDate(calendar, now.plusDays(conventions.getSettlementDays()));
-    final DayCount dayCount = conventions.getDayCount();
-    final double tradeTime = dayCount.getDayCountFraction(now, startDate);
-    final ZonedDateTime maturityDate = security.getMaturity().toZonedDateTime();
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual");
-    final double paymentTime = actAct.getDayCountFraction(now, maturityDate);
-    final double yearFraction = dayCount.getDayCountFraction(startDate, maturityDate);
-    return new Cash(paymentTime, marketRate, tradeTime, yearFraction, curveName);
+    try {
+      final ZonedDateTime startDate = conventions.getBusinessDayConvention().adjustDate(calendar, now.plusDays(conventions.getSettlementDays()));
+      final DayCount dayCount = conventions.getDayCount();
+      final double tradeTime = dayCount.getDayCountFraction(now, startDate);
+      final ZonedDateTime maturityDate = security.getMaturity().toZonedDateTime();
+      final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual");
+      final double paymentTime = actAct.getDayCountFraction(now, maturityDate);
+      final double yearFraction = dayCount.getDayCountFraction(startDate, maturityDate);
+      return new Cash(paymentTime, marketRate, tradeTime, yearFraction, curveName);
+    } catch (Exception e) {
+      System.err.println("Hello");
+      return null;
+    }
   }
 }
