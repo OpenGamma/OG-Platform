@@ -172,6 +172,10 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   public InterpolatedYieldCurveSpecification getFundingCurveSpecification() {
     return _fundingCurveSpecification;
   }
+  
+  public InterpolatedYieldCurveSpecification getForwardCurveSpecification() {
+    return _forwardCurveSpecification;
+  }
 
   // just for debugging.
   public Map<Identifier, Double> getIdentifierToFundingNodeTimesMap() {
