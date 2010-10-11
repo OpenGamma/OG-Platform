@@ -58,6 +58,7 @@ public class ViewComputationCacheServer implements FudgeConnectionReceiver, Fudg
    */
   protected CacheMessage handleCacheMessage(final CacheMessage message, final FudgeConnection connection) {
     CacheMessage response = null;
+    // [ENG-242] Use a visitor for the cache messages
     if (message instanceof BinaryDataStoreRequest) {
       response = getBinaryDataStore().handleBinaryDataStoreRequest((BinaryDataStoreRequest) message, connection);
     } else if (message instanceof IdentifierMapRequest) {

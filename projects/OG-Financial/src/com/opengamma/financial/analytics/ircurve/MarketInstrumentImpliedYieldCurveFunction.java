@@ -80,7 +80,6 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.RootNotFoundException;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
-import com.sun.org.apache.xalan.internal.xsltc.runtime.BasisLibrary;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 
