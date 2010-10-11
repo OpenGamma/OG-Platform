@@ -93,7 +93,7 @@ abstract public class DBTest implements TableCreationCallback {
   protected static Collection<Object[]> getParameters (final int previousVersionCount) {
     String databaseType = System.getProperty("test.database.type");
     if (databaseType == null) {
-      databaseType = "hsqldb"; // If you run from Eclipse, use Derby only
+      databaseType = "all";
     }
     return getParameters (databaseType, previousVersionCount);
   }
