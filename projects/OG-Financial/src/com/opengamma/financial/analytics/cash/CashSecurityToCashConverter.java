@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.cash;
 
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.businessday.HolidaySourceCalendarAdapter;
@@ -33,18 +34,16 @@ public class CashSecurityToCashConverter {
   public Cash getCash(final CashSecurity security, final String curveName, final double marketRate, final ZonedDateTime now) {
     final ConventionBundle conventions = _conventionSource.getConventionBundle(security.getIdentifiers());
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCurrency());
-    try {
-      final ZonedDateTime startDate = conventions.getBusinessDayConvention().adjustDate(calendar, now.plusDays(conventions.getSettlementDays()));
-      final DayCount dayCount = conventions.getDayCount();
-      final double tradeTime = dayCount.getDayCountFraction(now, startDate);
-      final ZonedDateTime maturityDate = security.getMaturity().toZonedDateTime();
-      final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual");
-      final double paymentTime = actAct.getDayCountFraction(now, maturityDate);
-      final double yearFraction = dayCount.getDayCountFraction(startDate, maturityDate);
-      return new Cash(paymentTime, marketRate, tradeTime, yearFraction, curveName);
-    } catch (Exception e) {
-      System.err.println("Hello");
-      return null;
+    final ZonedDateTime startDate = conventions.getBusinessDayConvention().adjustDate(calendar, now.plusDays(conventions.getSettlementDays()));
+    final DayCount dayCount = conventions.getDayCount();
+    final double tradeTime = dayCount.getDayCountFraction(now, startDate);
+    final ZonedDateTime maturityDate = security.getMaturity().toZonedDateTime();
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual");
+    final double paymentTime = actAct.getDayCountFraction(now, maturityDate);
+    final double yearFraction = dayCount.getDayCountFraction(startDate, maturityDate);
+    if (startDate.isAfter(maturityDate)) {
+      throw new OpenGammaRuntimeException("startDate "+startDate+" is after maturity date "+maturityDate+" probably caused by market holiday, so no data anyway");
     }
+    return new Cash(paymentTime, marketRate, tradeTime, yearFraction, curveName);
   }
 }
