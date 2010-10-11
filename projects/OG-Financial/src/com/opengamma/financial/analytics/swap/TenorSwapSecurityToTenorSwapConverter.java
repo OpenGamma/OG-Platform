@@ -58,7 +58,7 @@ public class TenorSwapSecurityToTenorSwapConverter {
   // REVIEW: jim 8-Oct-2010 -- we might want to move this logic inside the RegionMaster.
   protected Calendar getCalendar(Identifier regionId) {
     if (regionId.getScheme().equals(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2) && regionId.getValue().contains("+")) {
-      String[] regions = regionId.getValue().split("+");
+      String[] regions = regionId.getValue().split("\\+");
       Set<Region> resultRegions = new HashSet<Region>();
       for (String region : regions) {
         resultRegions.add(_regionSource.getHighestLevelRegion(Identifier.of(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2, region)));
@@ -109,7 +109,7 @@ public class TenorSwapSecurityToTenorSwapConverter {
 
   
   public ForwardLiborAnnuity getFloatLeg(final FloatingInterestRateLeg floatLeg, final ZonedDateTime now, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate,
-      final String fundingCurveName, final String liborCurveName, final Calendar calendar, final double initialRate, final int settlementDays) {
+      final String fundingCurveName, final String liborCurveName, final Calendar calendar, final double marketRate, final int settlementDays) {
     s_logger.debug("getFloatLeg(floatLeg=" + floatLeg + ", now=" + now + ", effectiveDate=" + effectiveDate + ", maturityDate=" + maturityDate + ", fundingCurveName=" + fundingCurveName
         + ", liborCurveName" + liborCurveName + ", calendar=" + calendar + ", settlementDays=" + settlementDays);
     final ZonedDateTime[] unadjustedDates = ScheduleCalculator.getUnadjustedDateSchedule(effectiveDate, maturityDate, floatLeg.getFrequency());
@@ -129,12 +129,11 @@ public class TenorSwapSecurityToTenorSwapConverter {
     s_logger.debug("maturityTimes=" + Doubles.asList(maturityTimes));
     double[] yearFractions = ScheduleCalculator.getYearFractions(adjustedDates, floatLeg.getDayCount(), effectiveDate);
     s_logger.debug("yearFractions=" + Doubles.asList(yearFractions));
-    final double notional = ((InterestRateNotional) floatLeg.getNotional()).getAmount();
-    final double spread = floatLeg.getSpread();
+    final double notional = ((InterestRateNotional) floatLeg.getNotional()).getAmount();    
 
    
     final double[] spreads = new double[paymentTimes.length];
-    Arrays.fill(spreads, spread);
+    Arrays.fill(spreads, marketRate);
 
     final ForwardLiborPayment[] payments = new ForwardLiborPayment[paymentTimes.length];
     for (int i = 0; i < payments.length; i++) {

@@ -14,7 +14,7 @@ import com.opengamma.util.MongoDBConnectionSettings;
  * @author kirk
  */
 public final class MongoDBTestUtils {
-  public static final String TEST_DB_HOST = "mongodb-lx-1.hq.opengamma.com";
+  public static final String TEST_DB_HOST = "mongodb.hq.opengamma.com";
   //public static final String TEST_DB_HOST = "localhost";
   
   private MongoDBTestUtils() {
