@@ -136,7 +136,7 @@ public class RepositoryFactoryTest {
   @Test
   public void singleConfigurationNoArgs() {
     RepositoryConfiguration configuration = new RepositoryConfiguration();
-    configuration.addFunctions(new StaticFunctionConfiguration(MockEmptyFunction.class.getName(), MockEmptyFunction.class.getName()));
+    configuration.addFunctions(new StaticFunctionConfiguration(MockEmptyFunction.class.getName()));
     InMemoryFunctionRepository repo = RepositoryFactory.constructRepository(configuration);
     assertNotNull(repo);
 
@@ -158,11 +158,10 @@ public class RepositoryFactoryTest {
   @Test
   public void twoConfigurationsWithArgs() {
     RepositoryConfiguration configuration = new RepositoryConfiguration();
-    configuration.addFunctions(new ParameterizedFunctionConfiguration(MockSingleArgumentFunction.class.getName(), MockSingleArgumentFunction.class.getName(), Collections.singleton("foo")));
-    configuration.addFunctions(new ParameterizedFunctionConfiguration(MockMultiArgumentFunctionArrayForm.class.getName(), MockMultiArgumentFunctionArrayForm.class.getName(), Lists.newArrayList(
+    configuration.addFunctions(new ParameterizedFunctionConfiguration(MockSingleArgumentFunction.class.getName(), Collections.singleton("foo")));
+    configuration.addFunctions(new ParameterizedFunctionConfiguration(MockMultiArgumentFunctionArrayForm.class.getName(), Lists.newArrayList(
         "foo1", "foo2")));
-    configuration.addFunctions(new ParameterizedFunctionConfiguration(MockMultiArgumentFunctionIndividualParameterForm.class.getName(), MockMultiArgumentFunctionIndividualParameterForm.class
-        .getName(), Lists.newArrayList("bar1", "bar2")));
+    configuration.addFunctions(new ParameterizedFunctionConfiguration(MockMultiArgumentFunctionIndividualParameterForm.class.getName(), Lists.newArrayList("bar1", "bar2")));
     InMemoryFunctionRepository repo = RepositoryFactory.constructRepository(configuration);
     assertNotNull(repo);
 
@@ -184,29 +183,6 @@ public class RepositoryFactoryTest {
         fail("Unexpected type of definition " + definition);
       }
     }
-  }
-
-  @Test
-  public void differentInvokerFromDefinition() {
-    RepositoryConfiguration configuration = new RepositoryConfiguration();
-    configuration.addFunctions(new ParameterizedFunctionConfiguration(MockSingleArgumentFunction.class.getName(), MockEmptyFunction.class.getName(), Collections.singleton("foo")));
-    InMemoryFunctionRepository repo = RepositoryFactory.constructRepository(configuration);
-    assertNotNull(repo);
-
-    Collection<FunctionDefinition> definitions = repo.getAllFunctions();
-    assertNotNull(definitions);
-    assertEquals(1, definitions.size());
-    FunctionDefinition definition = definitions.iterator().next();
-    assertTrue(definition instanceof MockSingleArgumentFunction);
-    assertNotNull(definition.getUniqueIdentifier());
-
-    final CompiledFunctionRepository compiledRepo = new DefaultFunctionRepositoryCompiler().compile(new FunctionCompilationContext(), repo, Instant.nowSystemClock());
-    assertNotNull(compiledRepo.getDefinition(definition.getUniqueIdentifier()));
-    FunctionInvoker invoker = compiledRepo.getInvoker(definition.getUniqueIdentifier());
-    assertNotNull(invoker);
-    assertTrue(invoker instanceof MockEmptyFunction);
-    assertFalse(invoker instanceof MockSingleArgumentFunction);
-    assertNotSame(definition, invoker);
   }
 
 }
