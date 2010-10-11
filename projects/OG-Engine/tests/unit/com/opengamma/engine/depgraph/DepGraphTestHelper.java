@@ -25,6 +25,10 @@ import com.opengamma.id.UniqueIdentifier;
  * 
  */
 public class DepGraphTestHelper {
+  
+  private static final String FUNCTION_PRODUCING_1_AND_2 = "functionProducing1and2";
+  private static final String FUNCTION_REQUIRING_2_PRODUCING_1 = "functionRequiring2Producing1";
+  private static final String FUNCTION_PRODUCING_2 = "functionProducing2";
 
   private final ComputationTarget _target;
   private final ValueSpecification _spec1;
@@ -52,14 +56,14 @@ public class DepGraphTestHelper {
   }
 
   public MockFunction addFunctionProducing1and2() {
-    MockFunction function = new MockFunction(_target);
+    MockFunction function = new MockFunction(FUNCTION_PRODUCING_1_AND_2, _target);
     function.addResults(Sets.newHashSet(_value1, _value2));
     _functionRepo.addFunction(function);
     return function;
   }
 
   public MockFunction addFunctionRequiring2Producing1() {
-    MockFunction function = new MockFunction(_target);
+    MockFunction function = new MockFunction(FUNCTION_REQUIRING_2_PRODUCING_1, _target);
     function.addRequirement(_spec2);
     function.addResult(_value1);
     _functionRepo.addFunction(function);
@@ -67,7 +71,7 @@ public class DepGraphTestHelper {
   }
 
   public MockFunction addFunctionProducing2() {
-    MockFunction function = new MockFunction(_target);
+    MockFunction function = new MockFunction(FUNCTION_PRODUCING_2, _target);
     function.addResult(_value2);
     _functionRepo.addFunction(function);
     return function;
