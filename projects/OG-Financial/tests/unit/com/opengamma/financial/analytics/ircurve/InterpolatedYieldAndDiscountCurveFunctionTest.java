@@ -89,7 +89,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
       assertEquals(ComputationTargetType.PRIMITIVE, requirement.getTargetSpecification().getType());
       foundKeys.add(requirement.getTargetSpecification().getIdentifier());
     }
-    assertEquals(28, foundKeys.size());
+    assertEquals(18, foundKeys.size());
     
     ConfigDBInterpolatedYieldCurveDefinitionSource curveDefinitionSource = new ConfigDBInterpolatedYieldCurveDefinitionSource(_configHelper.getConfigSource());
     YieldCurveDefinition curveDefinition = curveDefinitionSource.getDefinition(Currency.getInstance("USD"),curveName);
