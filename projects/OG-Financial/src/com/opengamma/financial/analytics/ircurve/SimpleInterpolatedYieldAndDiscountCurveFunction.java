@@ -27,7 +27,6 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -53,7 +52,7 @@ import com.opengamma.util.time.DateUtil;
 /**
  * 
  */
-public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFunction implements FunctionInvoker {
+public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFunction.NonCompiledInvoker {
 
   @SuppressWarnings("unchecked")
   private Interpolator1D _interpolator;
@@ -66,6 +65,8 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
   private final boolean _isYieldCurve;
   private LocalDate _curveDate;
   private InterpolatedYieldCurveSpecification _specification;
+
+  // [ENG-247] the constructor shouldn't have the curve date - that should be a compiled part (i.e. don't inherit from non-compiled either)
 
   public SimpleInterpolatedYieldAndDiscountCurveFunction(final LocalDate curveDate, final Currency currency, final String name, final boolean isYieldCurve) {
     Validate.notNull(curveDate, "Curve Date");

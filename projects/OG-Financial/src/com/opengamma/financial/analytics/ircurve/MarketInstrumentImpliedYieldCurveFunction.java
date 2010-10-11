@@ -31,7 +31,6 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -80,14 +79,13 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.RootNotFoundException;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
-import com.sun.org.apache.xalan.internal.xsltc.runtime.BasisLibrary;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * 
  */
-public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction implements FunctionInvoker {
+public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInvoker {
   private final LocalDate _curveDate;
   private final Currency _currency;
   private final String _fundingCurveDefinitionName;
@@ -107,6 +105,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private final Map<Identifier, Double> _identifierToFundingNodeTimes = new HashMap<Identifier, Double>();
   private final Map<Identifier, Double> _identifierToForwardNodeTimes = new HashMap<Identifier, Double>();
   private static final LastDateCalculator LAST_DATE_CALCULATOR = new LastDateCalculator();
+
+  // [ENG-247] don't pass date into the constructor; compile properly
 
   public MarketInstrumentImpliedYieldCurveFunction(final String curveDate, final String currency, final String curveDefinitionName, 
       final String curveValueRequirementName) {

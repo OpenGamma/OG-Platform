@@ -9,13 +9,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.function.AbstractFunction;
-import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 
 /**
@@ -51,21 +49,7 @@ public class RepositoryFactory {
     try {
       Class<?> definitionClass = Class.forName(functionConfig.getDefinitionClassName());
       AbstractFunction functionDefinition = instantiateDefinition(definitionClass, functionConfig.getParameter());
-      FunctionInvoker invoker = null;
-      // Rule is:
-      // - Use the definition as the invoker
-      // - Unless an explicit invoker is given and it's different
-      if ((functionDefinition instanceof FunctionInvoker)
-          && (ObjectUtils.equals(definitionClass.getName(), functionConfig.getInvokerClassName())
-              || (functionConfig.getInvokerClassName() == null))) {
-        invoker = (FunctionInvoker) functionDefinition;
-      } else if (functionConfig.getInvokerClassName() != null) {
-        Class<?> invokerClass = Class.forName(functionConfig.getInvokerClassName());
-        invoker = (FunctionInvoker) invokerClass.newInstance();
-      } else {
-        throw new IllegalArgumentException("Function definition doesn't invoke, but no invoker class name provided.");
-      }
-      repository.addFunction(functionDefinition, invoker);
+      repository.addFunction(functionDefinition);
     } catch (ClassNotFoundException e) {
       throw new OpenGammaRuntimeException("Unable to resolve classes", e);
     } catch (InstantiationException e) {
@@ -122,16 +106,7 @@ public class RepositoryFactory {
     try {
       Class<?> definitionClass = Class.forName(functionConfig.getDefinitionClassName());
       AbstractFunction functionDefinition = (AbstractFunction) definitionClass.newInstance();
-      FunctionInvoker invoker = null;
-      if (functionDefinition instanceof FunctionInvoker) {
-        invoker = (FunctionInvoker) functionDefinition;
-      } else if (functionConfig.getInvokerClassName() != null) {
-        Class<?> invokerClass = Class.forName(functionConfig.getInvokerClassName());
-        invoker = (FunctionInvoker) invokerClass.newInstance();
-      } else {
-        throw new IllegalArgumentException("Function definition doesn't invoke, but no invoker class name provided.");
-      }
-      repository.addFunction(functionDefinition, invoker);
+      repository.addFunction(functionDefinition);
     } catch (ClassNotFoundException e) {
       throw new OpenGammaRuntimeException("Unable to resolve classes", e);
     } catch (InstantiationException e) {

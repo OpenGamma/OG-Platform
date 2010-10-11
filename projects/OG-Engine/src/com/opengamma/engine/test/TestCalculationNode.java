@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.test;
@@ -11,6 +11,9 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 
 import com.opengamma.engine.DefaultComputationTargetResolver;
+import com.opengamma.engine.function.DefaultFunctionRepositoryCompiler;
+import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionCompilationService;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.position.MockPositionSource;
@@ -25,13 +28,10 @@ import com.opengamma.util.InetAddressUtils;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 public class TestCalculationNode extends AbstractCalculationNode {
-  
+
   public TestCalculationNode() {
-    super(new InMemoryViewComputationCacheSource(OpenGammaFudgeContext.getInstance()),
-        new InMemoryFunctionRepository (),
-        new FunctionExecutionContext(), 
-        new DefaultComputationTargetResolver(new MockSecuritySource(), new MockPositionSource()), 
-        new ViewProcessorQuerySender(new FudgeRequestSender () {
+    super(new InMemoryViewComputationCacheSource(OpenGammaFudgeContext.getInstance()), new FunctionCompilationService(new InMemoryFunctionRepository(), new DefaultFunctionRepositoryCompiler(), new FunctionCompilationContext()), new FunctionExecutionContext(), new DefaultComputationTargetResolver(new MockSecuritySource(), new MockPositionSource()), new ViewProcessorQuerySender(
+        new FudgeRequestSender() {
 
           @Override
           public FudgeContext getFudgeContext() {
@@ -42,10 +42,7 @@ public class TestCalculationNode extends AbstractCalculationNode {
           public void sendRequest(FudgeFieldContainer request, FudgeMessageReceiver responseReceiver) {
             // No-op
           }
-          
-        }), 
-        InetAddressUtils.getLocalHostName(),
-        Executors.newCachedThreadPool (),
-        new DiscardingInvocationStatisticsGatherer ());
+
+        }), InetAddressUtils.getLocalHostName(), Executors.newCachedThreadPool(), new DiscardingInvocationStatisticsGatherer());
   }
 }

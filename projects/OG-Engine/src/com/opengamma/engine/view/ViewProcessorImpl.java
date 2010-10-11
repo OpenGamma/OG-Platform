@@ -412,11 +412,11 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
 
   private ViewProcessingContext createViewProcessingContext() {
     FunctionRepository functionRepository = getFunctionCompilationService().getFunctionRepository();
-    FunctionResolver functionResolver = new DefaultFunctionResolver(functionRepository);
+    FunctionResolver functionResolver = new DefaultFunctionResolver(functionRepository, getFunctionCompilationService().getFunctionRepositoryCompiler());
 
-    return new ViewProcessingContext(getLiveDataClient(), getLiveDataAvailabilityProvider(), getLiveDataSnapshotProvider(), functionRepository, functionResolver, getPositionSource(),
-        getSecuritySource(), getComputationTargetResolver(), getComputationCacheSource(), getComputationJobDispatcher(), getViewProcessorQueryReceiver(), getFunctionCompilationService()
-            .getFunctionCompilationContext(), getExecutorService(), getDependencyGraphExecutorFactory(), getViewPermissionProvider(), getGraphExecutionStatistics());
+    return new ViewProcessingContext(getLiveDataClient(), getLiveDataAvailabilityProvider(), getLiveDataSnapshotProvider(), getFunctionCompilationService(), functionResolver, getPositionSource(),
+        getSecuritySource(), getComputationTargetResolver(), getComputationCacheSource(), getComputationJobDispatcher(), getViewProcessorQueryReceiver(), getExecutorService(),
+        getDependencyGraphExecutorFactory(), getViewPermissionProvider(), getGraphExecutionStatistics());
   }
 
 }

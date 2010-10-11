@@ -12,7 +12,7 @@ import java.util.Set;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.function.FunctionDefinition;
+import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -162,8 +162,8 @@ public class DependencyNode {
    * Uses default parameters to invoke the function. Useful in tests.
    * @param function Function to be invoked
    */
-  public void setFunction(FunctionDefinition function) {
-    setFunction(new ParameterizedFunction(function, function.getDefaultParameters()));
+  public void setFunction(CompiledFunctionDefinition function) {
+    setFunction(new ParameterizedFunction(function, function.getFunctionDefinition().getDefaultParameters()));
   }
 
   public void setFunction(ParameterizedFunction function) {
@@ -240,7 +240,7 @@ public class DependencyNode {
     StringBuilder sb = new StringBuilder();
     sb.append("DependencyNode[");
     if (getFunction() != null) {
-      sb.append(getFunction().getFunction().getShortName());
+      sb.append(getFunction().getFunction().getFunctionDefinition().getShortName());
     } else {
       sb.append("<null function>");
     }

@@ -24,7 +24,7 @@ public class InMemoryFunctionParameterRepository implements FunctionParameterRep
   public InMemoryFunctionParameterRepository() {
   }
   
-  public InMemoryFunctionParameterRepository(FunctionRepository repository) {
+  public InMemoryFunctionParameterRepository(CompiledFunctionRepository repository) {
     addAllFunctions(repository);
   }
   
@@ -36,11 +36,11 @@ public class InMemoryFunctionParameterRepository implements FunctionParameterRep
     }
   }
   
-  public void addAllFunctions(FunctionRepository repository) {
-    for (FunctionDefinition function : repository.getAllFunctions()) {
+  public void addAllFunctions(CompiledFunctionRepository repository) {
+    for (CompiledFunctionDefinition function : repository.getAllFunctions()) {
       ParameterizedFunction parameterizedFunction = new ParameterizedFunction(
           function,
-          function.getDefaultParameters());
+          function.getFunctionDefinition().getDefaultParameters());
       addFunction(parameterizedFunction);
     }
   }

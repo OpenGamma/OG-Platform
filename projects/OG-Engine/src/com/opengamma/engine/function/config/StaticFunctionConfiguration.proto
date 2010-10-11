@@ -9,7 +9,6 @@ namespace com.opengamma.engine.function.config {
   message StaticFunctionConfiguration extends FunctionConfiguration {
   
     string definitionClassName;
-    string invokerClassName;
   
     binding Java {
       methods "toString";

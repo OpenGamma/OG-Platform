@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.function;
@@ -18,16 +18,15 @@ import com.opengamma.util.PublicAPI;
  */
 @PublicAPI
 public class ParameterizedFunction {
-  
+
   private String _uniqueId;
-  private final FunctionDefinition _function;
+  private final CompiledFunctionDefinition _function;
   private final FunctionParameters _parameters;
-  
-  public ParameterizedFunction(FunctionDefinition function,
-      FunctionParameters parameters) {
+
+  public ParameterizedFunction(CompiledFunctionDefinition function, FunctionParameters parameters) {
     ArgumentChecker.notNull(function, "function");
     ArgumentChecker.notNull(parameters, "parameters");
-    
+
     _function = function;
     _parameters = parameters;
   }
@@ -35,17 +34,17 @@ public class ParameterizedFunction {
   public String getUniqueId() {
     return _uniqueId;
   }
-  
+
   public void setUniqueId(String uniqueId) {
     _uniqueId = uniqueId;
   }
 
-  public FunctionDefinition getFunction() {
+  public CompiledFunctionDefinition getFunction() {
     return _function;
   }
 
   public FunctionParameters getParameters() {
     return _parameters;
   }
-  
+
 }

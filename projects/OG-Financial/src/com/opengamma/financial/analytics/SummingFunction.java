@@ -16,7 +16,6 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionAccumulator;
@@ -39,7 +38,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * In addition, it is an excellent demonstration of how to write portfolio-node-specific
  * functions.
  */
-public class SummingFunction extends AbstractFunction implements FunctionInvoker {
+public class SummingFunction extends AbstractFunction.NonCompiledInvoker {
   private final String _requirementName;
 
   public SummingFunction(final String requirementName) {

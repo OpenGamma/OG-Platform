@@ -19,7 +19,6 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.value.ComputedValue;
@@ -41,7 +40,8 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class OptionGreekToValueGreekConverterFunction extends AbstractFunction implements FunctionInvoker {
+public class OptionGreekToValueGreekConverterFunction extends AbstractFunction.NonCompiledInvoker {
+
   private static final Logger s_logger = LoggerFactory.getLogger(OptionGreekToValueGreekConverterFunction.class);
   private final Function1D<GreekDataBundle, Map<ValueGreek, Double>> _converter = new GreekToValueGreekConverter();
   private final String _requirementName;

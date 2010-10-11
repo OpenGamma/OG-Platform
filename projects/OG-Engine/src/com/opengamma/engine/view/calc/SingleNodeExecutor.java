@@ -70,8 +70,8 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
     final Set<ValueSpecification> sharedValues = new HashSet<ValueSpecification>(graph.getTerminalOutputValues());
     for (DependencyNode node : order) {
       final Set<ValueSpecification> inputs = node.getInputValues();
-      final CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getUniqueIdentifier(), node.getFunction().getParameters(), node.getComputationTarget()
-          .toSpecification(), inputs, node.getOutputRequirements());
+      final CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getFunctionDefinition().getUniqueIdentifier(), node.getFunction().getParameters(), node
+          .getComputationTarget().toSpecification(), inputs, node.getOutputRequirements());
       items.add(jobItem);
       item2Node.put(jobItem, node);
       // If node has dependencies which AREN'T in the graph, its outputs for those nodes are "shared" values
@@ -117,7 +117,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
     _cycle.getProcessingContext().getViewProcessorQueryReceiver().addJob(jobSpec, graph);
     Cancellable cancel = _cycle.getProcessingContext().getComputationJobDispatcher().dispatchJob(new CalculationJob(jobSpec, null, items, cacheHint), this);
     future.setCancel(cancel);
-    
+
     return future;
   }
 

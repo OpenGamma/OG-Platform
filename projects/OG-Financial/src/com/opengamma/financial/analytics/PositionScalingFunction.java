@@ -14,7 +14,6 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.value.ComputedValue;
@@ -25,7 +24,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Able to scale values produced by the rest of the OG-Financial package.
  */
-public class PositionScalingFunction extends AbstractFunction implements FunctionInvoker {
+public class PositionScalingFunction extends AbstractFunction.NonCompiledInvoker {
   private final String _requirementName;
 
   public PositionScalingFunction(String requirementName) {

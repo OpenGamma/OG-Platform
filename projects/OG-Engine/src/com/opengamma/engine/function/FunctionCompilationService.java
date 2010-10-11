@@ -9,6 +9,8 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import javax.time.Instant;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,20 +19,24 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
- * Initializes all function definitions. 
+ * Combines a function repository and repository to give access to compiled functions. 
  */
 public class FunctionCompilationService {
 
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionCompilationService.class);
 
   private final FunctionRepository _functionRepository;
+  private final FunctionRepositoryCompiler _functionRepositoryCompiler;
   private final FunctionCompilationContext _functionCompilationContext;
   private boolean _initialized;
 
-  public FunctionCompilationService(final FunctionRepository functionRepository, final FunctionCompilationContext functionCompilationContext) {
+  public FunctionCompilationService(final FunctionRepository functionRepository, final FunctionRepositoryCompiler functionRepositoryCompiler,
+      final FunctionCompilationContext functionCompilationContext) {
     ArgumentChecker.notNull(functionRepository, "functionRepository");
+    ArgumentChecker.notNull(functionRepositoryCompiler, "functionRepositoryCompiler");
     ArgumentChecker.notNull(functionCompilationContext, "functionCompilationContext");
     _functionRepository = functionRepository;
+    _functionRepositoryCompiler = functionRepositoryCompiler;
     _functionCompilationContext = functionCompilationContext;
   }
 
@@ -86,8 +92,16 @@ public class FunctionCompilationService {
     return _functionRepository;
   }
 
+  public FunctionRepositoryCompiler getFunctionRepositoryCompiler() {
+    return _functionRepositoryCompiler;
+  }
+
   public FunctionCompilationContext getFunctionCompilationContext() {
     return _functionCompilationContext;
+  }
+
+  public CompiledFunctionRepository compileFunctionRepository(final long timestamp) {
+    return getFunctionRepositoryCompiler().compile(getFunctionCompilationContext(), getFunctionRepository(), Instant.ofEpochMillis(timestamp));
   }
 
 }

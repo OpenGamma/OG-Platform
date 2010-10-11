@@ -16,6 +16,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.time.Instant;
+
 import org.junit.Test;
 
 import com.opengamma.engine.ComputationTarget;
@@ -24,6 +26,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.function.DefaultFunctionRepositoryCompiler;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
@@ -69,19 +72,18 @@ public class ViewDefinitionCompilerTest {
     
     InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
-    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionRepo);
+    FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
+    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionRepo, new DefaultFunctionRepositoryCompiler());
     
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils.createCacheManager ());
     
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     
-    FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
-    
     ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, computationTargetResolver, executorService, securitySource, positionSource);
     
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
     
-    ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, vcs);
+    ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.nowSystemClock());
     
     assertTrue(vem.getAllLiveDataRequirements().isEmpty());
     assertTrue(vem.getDependencyGraphsByConfiguration().isEmpty());
@@ -113,14 +115,14 @@ public class ViewDefinitionCompilerTest {
     MockFunction fn1 = MockFunction.getMockFunction(new ComputationTarget(pn), 14.2);
     
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
-    functionRepo.addFunction(fn1, fn1);
-    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionRepo);
+    functionRepo.addFunction(fn1);
+    FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
+    functionCompilationContext.setSecuritySource(securitySource);
+    
+    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionRepo, new DefaultFunctionRepositoryCompiler());
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils.createCacheManager ());
     
     ExecutorService executorService = Executors.newSingleThreadExecutor();
-    
-    FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
-    functionCompilationContext.setSecuritySource(securitySource);
     
     ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, computationTargetResolver, executorService, securitySource, positionSource);
     
@@ -133,7 +135,7 @@ public class ViewDefinitionCompilerTest {
     calcConfig.addPortfolioRequirement("My Sec", "OUTPUT");
     viewDefinition.addViewCalculationConfiguration(calcConfig);
     
-    ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, vcs);
+    ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.nowSystemClock());
     
     assertTrue(vem.getAllLiveDataRequirements().isEmpty());
     assertEquals(1, vem.getAllDependencyGraphs().size());
@@ -176,14 +178,13 @@ public class ViewDefinitionCompilerTest {
         fn2);
     
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
-    functionRepo.addFunction(fn1, fn1);
-    functionRepo.addFunction(fn2, fn2);
-    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionRepo);
+    functionRepo.addFunction(fn1);
+    functionRepo.addFunction(fn2);
+    FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();    
+    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionRepo, new DefaultFunctionRepositoryCompiler());
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils.createCacheManager ());
     
     ExecutorService executorService = Executors.newSingleThreadExecutor();
-    
-    FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
     
     ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, computationTargetResolver, executorService, securitySource, positionSource);
     
@@ -192,7 +193,7 @@ public class ViewDefinitionCompilerTest {
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Fibble");
     calcConfig.addPortfolioRequirement("My Sec", "OUTPUT");
     viewDefinition.addViewCalculationConfiguration(calcConfig);
-    ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, vcs);
+    ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.nowSystemClock());
     
     assertTrue(vem.getAllLiveDataRequirements().isEmpty());
     assertEquals(1, vem.getAllDependencyGraphs().size());
@@ -218,18 +219,18 @@ public class ViewDefinitionCompilerTest {
 
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
     MockFunction f1 = MockFunction.getMockFunction(new ComputationTarget(ComputationTargetType.PRIMITIVE, t1), 42);
-    functionRepo.addFunction(f1, f1);
+    functionRepo.addFunction(f1);
     
-    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionRepo);
+    FunctionCompilationContext compilationContext = new FunctionCompilationContext();
+    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionRepo, new DefaultFunctionRepositoryCompiler());
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(), EHCacheUtils.createCacheManager ());
     ExecutorService executorService = Executors.newSingleThreadExecutor();
-    FunctionCompilationContext compilationContext = new FunctionCompilationContext();
     ViewCompilationServices compilationServices = new ViewCompilationServices(snapshotProvider, functionResolver, compilationContext, computationTargetResolver, executorService);
     
     // We'll require r1 which can be satisfied by f1
     calcConfig.addSpecificRequirement(f1.getResultSpec().getRequirementSpecification());
     
-    ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, compilationServices);
+    ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.nowSystemClock());
     
     assertTrue(vem.getAllLiveDataRequirements().isEmpty());
     assertEquals(1, vem.getAllDependencyGraphs().size());
@@ -256,13 +257,13 @@ public class ViewDefinitionCompilerTest {
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
     MockFunction f1 = MockFunction.getMockFunction(new ComputationTarget(ComputationTargetType.PRIMITIVE, t1), 42);
     MockFunction f2 = MockFunction.getMockFunction(new ComputationTarget(ComputationTargetType.SECURITY, sec1), 60, f1);
-    functionRepo.addFunction(f1, f1);
-    functionRepo.addFunction(f2, f2);
+    functionRepo.addFunction(f1);
+    functionRepo.addFunction(f2);
 
-    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionRepo);
+    FunctionCompilationContext compilationContext = new FunctionCompilationContext();
+    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionRepo, new DefaultFunctionRepositoryCompiler());
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource), EHCacheUtils.createCacheManager ());
     ExecutorService executorService = Executors.newSingleThreadExecutor();
-    FunctionCompilationContext compilationContext = new FunctionCompilationContext();
     ViewCompilationServices compilationServices = new ViewCompilationServices(snapshotProvider, functionResolver, compilationContext, computationTargetResolver, executorService);
     
     // We'll require r2 which can be satisfied by f2, which in turn requires the output of f1
@@ -270,7 +271,7 @@ public class ViewDefinitionCompilerTest {
     // source.
     calcConfig.addSpecificRequirement(f2.getResultSpec().getRequirementSpecification());
     
-    ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, compilationServices);
+    ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.nowSystemClock());
     assertTrue(vem.getAllLiveDataRequirements().isEmpty());
     assertEquals(1, vem.getAllDependencyGraphs().size());
     assertNotNull(vem.getDependencyGraph("Config1"));
@@ -278,14 +279,14 @@ public class ViewDefinitionCompilerTest {
     
     // Turning off primitive outputs should not affect the dep graph since the primitive is needed for the security
     viewDefinition.getResultModelDefinition().setPrimitiveOutputMode(ResultOutputMode.NONE);
-    vem = ViewDefinitionCompiler.compile(viewDefinition, compilationServices);
+    vem = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.nowSystemClock());
     assertTargets(vem, sec1.getUniqueIdentifier(), t1);
     
     // Turning off security outputs, even if all primitive outputs are enabled, should allow the dep graph to be
     // pruned completely, since the only *terminal* output is the security output.
     viewDefinition.getResultModelDefinition().setPrimitiveOutputMode(ResultOutputMode.ALL);
     viewDefinition.getResultModelDefinition().setSecurityOutputMode(ResultOutputMode.NONE);
-    vem = ViewDefinitionCompiler.compile(viewDefinition, compilationServices);
+    vem = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.nowSystemClock());
     assertTargets(vem);
   }
 

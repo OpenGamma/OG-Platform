@@ -18,7 +18,6 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -41,7 +40,8 @@ import com.opengamma.financial.world.region.RegionSource;
 /**
  * 
  */
-public abstract class FixedFloatSwapFunction extends AbstractFunction implements FunctionInvoker {
+public abstract class FixedFloatSwapFunction extends AbstractFunction.NonCompiledInvoker {
+
   private final String _name;
   private final Currency _currency;
 

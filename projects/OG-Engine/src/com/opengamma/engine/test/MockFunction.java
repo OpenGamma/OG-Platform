@@ -18,7 +18,6 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -28,7 +27,7 @@ import com.opengamma.engine.value.ValueSpecification;
  * A function suitable for use in mock environments.
  *
  */
-public class MockFunction extends AbstractFunction implements FunctionInvoker {
+public class MockFunction extends AbstractFunction.NonCompiledInvoker {
   
   /**
    * default unique id

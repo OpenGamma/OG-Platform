@@ -17,6 +17,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.time.Instant;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
@@ -131,7 +133,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
 
       OperationTimer timer = new OperationTimer(s_logger, "Initializing view {}", getDefinition().getName());
 
-      _viewEvaluationModel = ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices());
+      _viewEvaluationModel = ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), Instant.nowSystemClock());
       addLiveDataSubscriptions();
 
       timer.finished();
@@ -146,24 +148,16 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     }
   }
 
-  /**
-   * @deprecated a hack to support Jim's dynamic modifications of the function repository. View reinitialization is not
-   *             really supported, but this works in limited cases.
-   */
-  @Deprecated
-  public void reinit() {
-    _viewLock.lock();
-    try {
+  // Caller must already hold viewLock
+  private void viewEvaluationModelValidFor(final long timestamp) {
+    if (!getViewEvaluationModel().isValidFor(timestamp)) {
       setCalculationState(ViewCalculationState.STOPPED);
-      _viewEvaluationModel = ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices());
+      final OperationTimer timer = new OperationTimer(s_logger, "Re-compiling view {}", getDefinition().getName());
+      // [ENG-247] Incremental compilation??
+      _viewEvaluationModel = ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), Instant.ofEpochMillis(timestamp));
+      // TODO instead of adding live data subscriptions we should remove ones no longer needed and only add new ones
       addLiveDataSubscriptions();
-    } catch (Throwable t) {
-      setCalculationState(ViewCalculationState.NOT_INITIALIZED);
-      _processingContext = null;
-      _viewEvaluationModel = null;
-      throw new OpenGammaRuntimeException("The view failed to initialize", t);
-    } finally {
-      _viewLock.unlock();
+      timer.finished();
     }
   }
 
@@ -262,6 +256,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     }
 
     if (!failures.isEmpty()) {
+      s_logger.warn("User {} is not entitled to the output of {} because they do not have permission to {}", new Object[] {user, this, failures.get(0)});
       throw new ViewPermissionException(user + " is not entitled to the output of " + this + " because they do not have permissions to " + failures.get(0));
     }
   }
@@ -307,6 +302,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     _viewLock.lock();
     try {
       assertInitialized();
+      viewEvaluationModelValidFor(valuationTime);
       SingleComputationCycle cycle = createCycle(valuationTime);
       cycle.prepareInputs();
 
