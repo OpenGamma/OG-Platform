@@ -32,6 +32,14 @@ public abstract class AbstractFunction implements FunctionDefinition {
     private Instant _earliestInvocationTime;
     private Instant _latestInvocationTime;
 
+    protected AbstractCompiledFunction() {
+    }
+
+    protected AbstractCompiledFunction(final InstantProvider earliestInvocation, final InstantProvider latestInvocation) {
+      setEarliestInvocationTime(earliestInvocation);
+      setLatestInvocationTime(latestInvocation);
+    }
+
     @Override
     public final FunctionDefinition getFunctionDefinition() {
       return AbstractFunction.this;
@@ -42,11 +50,11 @@ public abstract class AbstractFunction implements FunctionDefinition {
       return getRequiredLiveDataImpl();
     }
 
-    protected void setEarliestInvocationTime(final InstantProvider timestamp) {
+    public void setEarliestInvocationTime(final InstantProvider timestamp) {
       _earliestInvocationTime = (timestamp != null) ? timestamp.toInstant() : null;
     }
 
-    protected void setLatestInvocationTime(final InstantProvider timestamp) {
+    public void setLatestInvocationTime(final InstantProvider timestamp) {
       _latestInvocationTime = (timestamp != null) ? timestamp.toInstant() : null;
     }
 
@@ -67,6 +75,14 @@ public abstract class AbstractFunction implements FunctionDefinition {
    * interface for functions that can be invoked directly at the local node.
    */
   protected abstract class AbstractInvokingCompiledFunction extends AbstractCompiledFunction implements FunctionInvoker {
+
+    protected AbstractInvokingCompiledFunction() {
+      super();
+    }
+
+    protected AbstractInvokingCompiledFunction(final InstantProvider earliestInvocation, final InstantProvider latestInvocation) {
+      super(earliestInvocation, latestInvocation);
+    }
 
     @Override
     public final FunctionInvoker getFunctionInvoker() {

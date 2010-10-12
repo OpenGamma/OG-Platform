@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.time.Instant;
+import javax.time.InstantProvider;
 import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
@@ -24,6 +26,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.config.ConfigSource;
 import com.opengamma.engine.function.AbstractFunction;
+import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -40,6 +43,7 @@ import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -54,24 +58,21 @@ import com.opengamma.util.time.DateUtil;
 /**
  * 
  */
-public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFunction.NonCompiledInvoker {
+public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFunction {
 
   @SuppressWarnings("unchecked")
   private Interpolator1D _interpolator;
   private YieldCurveDefinition _definition;
-  private Set<ValueRequirement> _requirements;
   private ValueSpecification _result;
   private Set<ValueSpecification> _results;
+  private final LocalDate _curveDate;
   private final Currency _curveCurrency;
   private final String _curveName;
   private final boolean _isYieldCurve;
-  private LocalDate _curveDate;
-  private InterpolatedYieldCurveSpecification _specification;
-
-  // [ENG-247] the constructor shouldn't have the curve date - that should be a compiled part (i.e. don't inherit from non-compiled either)
+  private InterpolatedYieldCurveSpecificationBuilder _curveSpecificationBuilder;
 
   public SimpleInterpolatedYieldAndDiscountCurveFunction(final LocalDate curveDate, final Currency currency, final String name, final boolean isYieldCurve) {
-    Validate.notNull(curveDate, "Curve Date");
+    Validate.notNull(curveDate, "curveDate");
     Validate.notNull(currency, "Currency");
     Validate.notNull(name, "Name");
     _definition = null;
@@ -80,7 +81,6 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     _curveName = name;
     _isYieldCurve = isYieldCurve;
     _interpolator = null;
-    _requirements = null;
     _result = null;
     _results = null;
   }
@@ -101,18 +101,21 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     return _isYieldCurve;
   }
 
-  @SuppressWarnings("rawtypes")
+  @SuppressWarnings("unchecked")
   @Override
   public void init(final FunctionCompilationContext context) {
     ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     ConfigDBInterpolatedYieldCurveDefinitionSource curveDefinitionSource = new ConfigDBInterpolatedYieldCurveDefinitionSource(configSource);
     _definition = curveDefinitionSource.getDefinition(_curveCurrency, _curveName);
-    ConfigDBInterpolatedYieldCurveSpecificationBuilder curveSpecBuilder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
-    _specification = curveSpecBuilder.buildCurve(_curveDate, _definition);
+    _curveSpecificationBuilder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
     _interpolator = new CombinedInterpolatorExtrapolator(Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName()), new FlatExtrapolator1D());
-    _requirements = Collections.unmodifiableSet(buildRequirements(_specification, context));
     _result = new ValueSpecification(new ValueRequirement(_isYieldCurve ? ValueRequirementNames.YIELD_CURVE : ValueRequirementNames.DISCOUNT_CURVE, _definition.getCurrency()), getUniqueIdentifier());
     _results = Collections.singleton(_result);
+  }
+
+  @Override
+  public String getShortName() {
+    return _curveCurrency + "-" + _curveName + (_isYieldCurve ? " Yield Curve" : " Discount Curve");
   }
 
   public static Set<ValueRequirement> buildRequirements(final InterpolatedYieldCurveSpecification specification, final FunctionCompilationContext context) {
@@ -131,48 +134,6 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     return result;
   }
 
-  /**
-   * @return the specification
-   */
-  public InterpolatedYieldCurveSpecification getSpecification() {
-    return _specification;
-  }
-  
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
-      return false;
-    }
-    // REVIEW: jim 23-July-2010 is this enough?  Probably not, but I'm not entirely sure what the deal with the Ids is...
-    return ObjectUtils.equals(target.getUniqueIdentifier(), getSpecification().getCurrency().getUniqueIdentifier()); 
-  }
-
-  @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (canApplyTo(context, target)) {
-      return _requirements;
-    }
-    return null;
-  }
-
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (canApplyTo(context, target)) {
-      return _results;
-    }
-    return null;
-  }
-
-  @Override
-  public String getShortName() {
-    return _curveCurrency + "-" + _curveName + (_isYieldCurve ? " Yield Curve" : " Discount Curve");
-  }
-
-  @Override
-  public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
-  }
-  
   private Map<Identifier, Double> buildMarketDataMap(FunctionInputs inputs) {
     Map<Identifier, Double> marketDataMap = new HashMap<Identifier, Double>();
     for (ComputedValue value : inputs.getAllValues()) {
@@ -184,54 +145,112 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     return marketDataMap;
   }
 
-  @SuppressWarnings("unchecked")
+  protected InterpolatedYieldCurveSpecification createSpecification() {
+    return _curveSpecificationBuilder.buildCurve(_curveDate, _definition);
+  }
+
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    // Gather market data rates
-    // Note that this assumes that all strips are priced in decimal percent. We need to resolve
-    // that ultimately in OG-LiveData normalization and pull out the OGRate key rather than
-    // the crazy IndicativeValue name.
-    FixedIncomeStripIdentifierAndMaturityBuilder builder = new FixedIncomeStripIdentifierAndMaturityBuilder(OpenGammaExecutionContext.getRegionSource(executionContext),
-                                                                                                                        OpenGammaExecutionContext.getConventionBundleSource(executionContext),
-                                                                                                                        executionContext.getSecuritySource());
-    InterpolatedYieldCurveSpecificationWithSecurities specWithSecurities = builder.resolveToSecurity(getSpecification(), buildMarketDataMap(inputs));
-    final Clock snapshotClock = executionContext.getSnapshotClock();
-    final ZonedDateTime today = snapshotClock.zonedDateTime(); // TODO: change to times
-    final Map<Double, Double> timeInYearsToRates = new TreeMap<Double, Double>();
-    boolean isFirst = true;
-    for (final FixedIncomeStripWithSecurity strip : specWithSecurities.getStrips()) {
-      final ValueRequirement stripRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getSecurityIdentifier());
-      Double price = (Double) inputs.getValue(stripRequirement);
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
+    final InterpolatedYieldCurveSpecification specification = createSpecification();
+    final Set<ValueRequirement> requirements = Collections.unmodifiableSet(buildRequirements(specification, context));
+    Instant expiry = null;
+    for (FixedIncomeStripWithIdentifier strip : specification.getStrips()) {
       if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-        price = (100d - price);
-      }
-      price /= 100d;
-      if (_isYieldCurve) {
-        if (isFirst) {
-          // TODO This is here to avoid problems with instruments with expiry < 1 day
-          // At the moment, interpolators don't extrapolate, and so asking for the rate
-          // if t < 1 throws an exception. It doesn't actually matter in the case of discount curves,
-          // because df at t = 0 is 1 by definition, but for yield curves this should change when
-          // extrapolation is allowed
-          timeInYearsToRates.put(0., 0.);
-          isFirst = false;
+        final FutureSecurity future = (FutureSecurity) context.getSecuritySource().getSecurity(IdentifierBundle.of(strip.getSecurity()));
+        final Instant futureExpiry = future.getExpiry().toInstant();
+        System.err.println("Found security " + future + " with expiry " + futureExpiry);
+        if (expiry == null) {
+          expiry = futureExpiry;
+        } else {
+          if (futureExpiry.isBefore(expiry)) {
+            expiry = futureExpiry;
+          }
         }
-        final double years = DateUtil.getDifferenceInYears(today, strip.getMaturity()); 
-        timeInYearsToRates.put(years, price);
-      } else {
-        if (isFirst) {
-          timeInYearsToRates.put(0., 1.);
-          isFirst = false;
-        }
-        final double years = DateUtil.getDifferenceInYears(today, strip.getMaturity());
-        timeInYearsToRates.put(years, Math.exp(-price * years));
       }
     }
-    // System.err.println("Time in years to rates: " + timeInYearsToRates);
-    // Bootstrap the yield curve
-    final YieldAndDiscountCurve curve = _isYieldCurve ? new InterpolatedYieldCurve(timeInYearsToRates, _interpolator) : new InterpolatedDiscountCurve(timeInYearsToRates, _interpolator);
-    final ComputedValue resultValue = new ComputedValue(_result, curve);
-    return Collections.singleton(resultValue);
+    System.err.println("Compiling " + getShortName() + " with expiry " + expiry);
+    return new AbstractInvokingCompiledFunction(null, expiry) {
+
+      @Override
+      public ComputationTargetType getTargetType() {
+        return ComputationTargetType.PRIMITIVE;
+      }
+
+      @Override
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+        if (canApplyTo(context, target)) {
+          return _results;
+        }
+        return null;
+      }
+
+      @Override
+      public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
+        if (canApplyTo(context, target)) {
+          return requirements;
+        }
+        return null;
+      }
+
+      @Override
+      public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+        if (target.getType() != ComputationTargetType.PRIMITIVE) {
+          return false;
+        }
+        // REVIEW: jim 23-July-2010 is this enough? Probably not, but I'm not entirely sure what the deal with the Ids is...
+        return ObjectUtils.equals(target.getUniqueIdentifier(), specification.getCurrency().getUniqueIdentifier());
+      }
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
+        // Gather market data rates
+        // Note that this assumes that all strips are priced in decimal percent. We need to resolve
+        // that ultimately in OG-LiveData normalization and pull out the OGRate key rather than
+        // the crazy IndicativeValue name.
+        FixedIncomeStripIdentifierAndMaturityBuilder builder = new FixedIncomeStripIdentifierAndMaturityBuilder(OpenGammaExecutionContext.getRegionSource(executionContext), OpenGammaExecutionContext
+            .getConventionBundleSource(executionContext), executionContext.getSecuritySource());
+        InterpolatedYieldCurveSpecificationWithSecurities specWithSecurities = builder.resolveToSecurity(specification, buildMarketDataMap(inputs));
+        final Clock snapshotClock = executionContext.getSnapshotClock();
+        final ZonedDateTime today = snapshotClock.zonedDateTime(); // TODO: change to times
+        final Map<Double, Double> timeInYearsToRates = new TreeMap<Double, Double>();
+        boolean isFirst = true;
+        for (final FixedIncomeStripWithSecurity strip : specWithSecurities.getStrips()) {
+          final ValueRequirement stripRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getSecurityIdentifier());
+          Double price = (Double) inputs.getValue(stripRequirement);
+          if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
+            price = (100d - price);
+          }
+          price /= 100d;
+          if (_isYieldCurve) {
+            if (isFirst) {
+              // TODO This is here to avoid problems with instruments with expiry < 1 day
+              // At the moment, interpolators don't extrapolate, and so asking for the rate
+              // if t < 1 throws an exception. It doesn't actually matter in the case of discount curves,
+              // because df at t = 0 is 1 by definition, but for yield curves this should change when
+              // extrapolation is allowed
+              timeInYearsToRates.put(0., 0.);
+              isFirst = false;
+            }
+            final double years = DateUtil.getDifferenceInYears(today, strip.getMaturity());
+            timeInYearsToRates.put(years, price);
+          } else {
+            if (isFirst) {
+              timeInYearsToRates.put(0., 1.);
+              isFirst = false;
+            }
+            final double years = DateUtil.getDifferenceInYears(today, strip.getMaturity());
+            timeInYearsToRates.put(years, Math.exp(-price * years));
+          }
+        }
+        // System.err.println("Time in years to rates: " + timeInYearsToRates);
+        // Bootstrap the yield curve
+        final YieldAndDiscountCurve curve = _isYieldCurve ? new InterpolatedYieldCurve(timeInYearsToRates, _interpolator) : new InterpolatedDiscountCurve(timeInYearsToRates, _interpolator);
+        final ComputedValue resultValue = new ComputedValue(_result, curve);
+        return Collections.singleton(resultValue);
+      }
+
+    };
   }
 
 }

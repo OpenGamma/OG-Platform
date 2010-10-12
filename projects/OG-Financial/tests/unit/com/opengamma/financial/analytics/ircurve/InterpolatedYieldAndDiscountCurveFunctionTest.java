@@ -13,6 +13,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
 import org.junit.After;
@@ -24,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.config.MongoDBMasterConfigSource;
+import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.value.ValueRequirement;
@@ -75,9 +77,11 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     OpenGammaCompilationContext.setRegionSource(context, _configHelper.getRegionSource());
     OpenGammaCompilationContext.setConventionBundleSource(context, new DefaultConventionBundleSource(new InMemoryConventionBundleMaster()));
     context.setSecuritySource(_configHelper.getSecSource());
+
     function.init(context);
-    
-    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")));
+    CompiledFunctionDefinition compiledFunction = function.compile(context, Instant.nowSystemClock());
+
+    requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")));
     s_logger.info(requirements.toString());
     assertNotNull(requirements);
     assertEquals(28, requirements.size());
@@ -117,9 +121,11 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     FunctionCompilationContext context = new FunctionCompilationContext();
     OpenGammaCompilationContext.setConfigSource(context, _configHelper.getConfigSource());
     OpenGammaCompilationContext.setConventionBundleSource(context, new DefaultConventionBundleSource(new InMemoryConventionBundleMaster()));
-    function.init(context);
 
-    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency
+    function.init(context);
+    CompiledFunctionDefinition compiledFunction = function.compile(context, Instant.nowSystemClock());
+
+    requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency
         .getInstance("USD")));
     assertNotNull(requirements);
     assertEquals(28, requirements.size());
@@ -158,12 +164,14 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     OpenGammaCompilationContext.setConfigSource(context, _configHelper.getConfigSource());
     OpenGammaCompilationContext.setRegionSource(context, _configHelper.getRegionSource());
     OpenGammaCompilationContext.setConventionBundleSource(context, new DefaultConventionBundleSource(new InMemoryConventionBundleMaster()));
+
     function.init(context);
+    CompiledFunctionDefinition compiledFunction = function.compile(context, Instant.nowSystemClock());
     
-    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("EUR")));
+    requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("EUR")));
     assertNull(requirements);
     
-    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, new PortfolioNodeImpl()));
+    requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, new PortfolioNodeImpl()));
     assertNull(requirements);
   }
 
@@ -182,13 +190,15 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     OpenGammaCompilationContext.setConfigSource(context, _configHelper.getConfigSource());
     OpenGammaCompilationContext.setRegionSource(context, _configHelper.getRegionSource());
     OpenGammaCompilationContext.setConventionBundleSource(context, new DefaultConventionBundleSource(new InMemoryConventionBundleMaster()));
-    function.init(context);
 
-    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency
+    function.init(context);
+    CompiledFunctionDefinition compiledFunction = function.compile(context, Instant.nowSystemClock());
+
+    requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency
         .getInstance("EUR")));
     assertNull(requirements);
 
-    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE,
+    requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE,
         new PortfolioNodeImpl()));
     assertNull(requirements);
   }
