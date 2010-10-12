@@ -55,7 +55,8 @@ public class PV01FixedFloatSwapFunction extends FixedFloatSwapFunction {
       throw new NullPointerException("Could not get PV01 for " + getForwardCurveName() + " and " + getFundingCurveName());
     }
     for (final Map.Entry<String, Double> entry : pv01ForCurve.entrySet()) {
-      final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PV01 + "_" + entry.getKey(), security), getUniqueIdentifier());
+      final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PV01 + "_" + entry.getKey() + "_" + getCurrency().getISOCode(), security),
+          getUniqueIdentifier());
       result.add(new ComputedValue(specification, entry.getValue()));
     }
     return result;
@@ -65,10 +66,10 @@ public class PV01FixedFloatSwapFunction extends FixedFloatSwapFunction {
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
       if (getForwardCurveName().equals(getFundingCurveName())) {
-        return Sets.newHashSet(new ValueRequirement(getForwardValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueIdentifier()));
+        return Sets.newHashSet(new ValueRequirement(getForwardValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueIdentifier()));
       }
-      return Sets.newHashSet(new ValueRequirement(getForwardValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueIdentifier()),
-          new ValueRequirement(getFundingValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueRequirement(getForwardValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueIdentifier()),
+          new ValueRequirement(getFundingValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueIdentifier()));
     }
     return null;
   }
@@ -77,10 +78,13 @@ public class PV01FixedFloatSwapFunction extends FixedFloatSwapFunction {
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
       if (getForwardCurveName().equals(getFundingCurveName())) {
-        return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PV01 + "_" + getForwardCurveName(), target.getSecurity()), getUniqueIdentifier()));
+        return Sets.newHashSet(new ValueSpecification(
+            new ValueRequirement(ValueRequirementNames.PV01 + "_" + getForwardCurveName() + "_" + getCurrency().getISOCode(), target.getSecurity()), getUniqueIdentifier()));
       }
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PV01 + "_" + getForwardCurveName(), target.getSecurity()), getUniqueIdentifier()),
-          new ValueSpecification(new ValueRequirement(ValueRequirementNames.PV01 + "_" + getFundingCurveName(), target.getSecurity()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PV01 + "_" + getForwardCurveName() + "_" + getCurrency().getISOCode(), target.getSecurity()),
+          getUniqueIdentifier()),
+          new ValueSpecification(new ValueRequirement(ValueRequirementNames.PV01 + "_" + getFundingCurveName() + "_" + getCurrency().getISOCode(), target.getSecurity()),
+              getUniqueIdentifier()));
     }
     return null;
   }

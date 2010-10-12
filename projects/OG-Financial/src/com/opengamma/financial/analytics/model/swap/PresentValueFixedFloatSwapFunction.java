@@ -55,11 +55,11 @@ public class PresentValueFixedFloatSwapFunction extends FixedFloatSwapFunction {
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      if (getForwardCurveName().equals(getForwardCurveName())) {
-        return Sets.newHashSet(new ValueRequirement(getForwardCurveName(), ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueIdentifier()));
+      if (getForwardCurveName().equals(getFundingCurveName())) {
+        return Sets.newHashSet(new ValueRequirement(getForwardValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueIdentifier()));
       }
-      return Sets.newHashSet(new ValueRequirement(getForwardCurveName(), ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueIdentifier()),
-          new ValueRequirement(getFundingCurveName(), ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueRequirement(getForwardValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueIdentifier()),
+          new ValueRequirement(getFundingValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueIdentifier()));
     }
     return null;
   }

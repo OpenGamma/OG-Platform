@@ -77,14 +77,14 @@ public abstract class FixedFloatSwapFunction extends AbstractFunction implements
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final SwapSecurity security = (SwapSecurity) target.getSecurity();
-    final ValueRequirement forwardCurveRequirement = new ValueRequirement(_forwardValueRequirementName, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueIdentifier());
+    final ValueRequirement forwardCurveRequirement = new ValueRequirement(_forwardValueRequirementName, ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueIdentifier());
     final Object forwardCurveObject = inputs.getValue(forwardCurveRequirement);
     if (forwardCurveObject == null) {
       throw new NullPointerException("Could not get " + forwardCurveRequirement);
     }
     Object fundingCurveObject = null;
     if (!_forwardCurveName.equals(_fundingCurveName)) {
-      final ValueRequirement fundingCurveRequirement = new ValueRequirement(_fundingValueRequirementName, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueIdentifier());
+      final ValueRequirement fundingCurveRequirement = new ValueRequirement(_fundingValueRequirementName, ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueIdentifier());
       fundingCurveObject = inputs.getValue(fundingCurveRequirement);
       if (fundingCurveObject == null) {
         throw new NullPointerException("Could not get " + fundingCurveRequirement);
@@ -164,9 +164,13 @@ public abstract class FixedFloatSwapFunction extends AbstractFunction implements
     return _fundingValueRequirementName;
   }
 
-  protected Currency getCurrency(final ComputationTarget target) {
+  protected Currency getCurrencyForTarget(final ComputationTarget target) {
     final SwapSecurity swap = (SwapSecurity) target.getSecurity();
     final InterestRateLeg leg = (InterestRateLeg) swap.getPayLeg();
     return ((InterestRateNotional) leg.getNotional()).getCurrency();
+  }
+
+  protected Currency getCurrency() {
+    return _currency;
   }
 }
