@@ -43,7 +43,7 @@ import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.config.db.MongoDBConfigMaster;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
-import com.opengamma.engine.function.FunctionCompilationService;
+import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
@@ -159,7 +159,7 @@ public class BatchJob {
   /**
    * Used to load Functions (needed for building the dependency graph)
    */
-  private FunctionCompilationService _functionCompilationService;
+  private CompiledFunctionService _functionCompilationService;
 
   /**
    * Used to create the SecuritySource if none is explicitly specified. Use this
@@ -375,11 +375,11 @@ public class BatchJob {
     _configDbConnectionSettings = configDbConnectionSettings;
   }
 
-  public FunctionCompilationService getFunctionCompilationService() {
+  public CompiledFunctionService getFunctionCompilationService() {
     return _functionCompilationService;
   }
 
-  public void setFunctionCompilationService(FunctionCompilationService functionCompilationService) {
+  public void setFunctionCompilationService(CompiledFunctionService functionCompilationService) {
     _functionCompilationService = functionCompilationService;
   }
 

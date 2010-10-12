@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
-import com.opengamma.engine.function.FunctionCompilationService;
+import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.calcnode.msg.Busy;
 import com.opengamma.engine.view.calcnode.msg.Cancel;
@@ -45,7 +45,7 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteNodeClient.class);
 
   private final FudgeConnection _connection;
-  private final FunctionCompilationService _functionCompilationService;
+  private final CompiledFunctionService _functionCompilationService;
   private final IdentifierMap _identifierMap;
   private final FunctionInvocationStatisticsSender _statistics;
   private boolean _started;
@@ -106,7 +106,7 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
 
   };
 
-  public RemoteNodeClient(final FudgeConnection connection, final FunctionCompilationService functionCompilationService, final IdentifierMap identifierMap,
+  public RemoteNodeClient(final FudgeConnection connection, final CompiledFunctionService functionCompilationService, final IdentifierMap identifierMap,
       final FunctionInvocationStatisticsSender statistics) {
     _connection = connection;
     _functionCompilationService = functionCompilationService;
@@ -117,13 +117,13 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
     statistics.setFudgeMessageSender(connection.getFudgeMessageSender());
   }
 
-  public RemoteNodeClient(final FudgeConnection connection, final FunctionCompilationService functionCompilationService, final IdentifierMap identifierMap,
+  public RemoteNodeClient(final FudgeConnection connection, final CompiledFunctionService functionCompilationService, final IdentifierMap identifierMap,
       final FunctionInvocationStatisticsSender statistics, final AbstractCalculationNode node) {
     this(connection, functionCompilationService, identifierMap, statistics);
     setNode(node);
   }
 
-  public RemoteNodeClient(final FudgeConnection connection, final FunctionCompilationService functionCompilationService, final IdentifierMap identifierMap,
+  public RemoteNodeClient(final FudgeConnection connection, final CompiledFunctionService functionCompilationService, final IdentifierMap identifierMap,
       final FunctionInvocationStatisticsSender statistics, final Collection<AbstractCalculationNode> nodes) {
     this(connection, functionCompilationService, identifierMap, statistics);
     setNodes(nodes);
@@ -140,7 +140,7 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
     return _connection;
   }
 
-  protected FunctionCompilationService getFunctionCompilationService() {
+  protected CompiledFunctionService getFunctionCompilationService() {
     return _functionCompilationService;
   }
 

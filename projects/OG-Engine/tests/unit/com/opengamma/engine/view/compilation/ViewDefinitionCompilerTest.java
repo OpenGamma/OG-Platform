@@ -28,7 +28,7 @@ import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.function.DefaultFunctionRepositoryCompiler;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionCompilationService;
+import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
@@ -74,7 +74,7 @@ public class ViewDefinitionCompilerTest {
     InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
     FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
-    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(new FunctionCompilationService(functionRepo, new DefaultFunctionRepositoryCompiler(), functionCompilationContext));
+    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(new CompiledFunctionService(functionRepo, new DefaultFunctionRepositoryCompiler(), functionCompilationContext));
 
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils
         .createCacheManager());
@@ -122,7 +122,7 @@ public class ViewDefinitionCompilerTest {
     FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
     functionCompilationContext.setSecuritySource(securitySource);
 
-    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(new FunctionCompilationService (functionRepo, new DefaultFunctionRepositoryCompiler(), functionCompilationContext));
+    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(new CompiledFunctionService (functionRepo, new DefaultFunctionRepositoryCompiler(), functionCompilationContext));
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils
         .createCacheManager());
 
@@ -180,7 +180,7 @@ public class ViewDefinitionCompilerTest {
     functionRepo.addFunction(fn1);
     functionRepo.addFunction(fn2);
     FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
-    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(new FunctionCompilationService (functionRepo, new DefaultFunctionRepositoryCompiler(), functionCompilationContext));
+    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(new CompiledFunctionService (functionRepo, new DefaultFunctionRepositoryCompiler(), functionCompilationContext));
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils
         .createCacheManager());
 
@@ -223,7 +223,7 @@ public class ViewDefinitionCompilerTest {
     functionRepo.addFunction(f1);
 
     FunctionCompilationContext compilationContext = new FunctionCompilationContext();
-    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(new FunctionCompilationService (functionRepo, new DefaultFunctionRepositoryCompiler(), compilationContext));
+    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(new CompiledFunctionService (functionRepo, new DefaultFunctionRepositoryCompiler(), compilationContext));
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(), EHCacheUtils.createCacheManager());
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     ViewCompilationServices compilationServices = new ViewCompilationServices(snapshotProvider, functionResolver, compilationContext, computationTargetResolver, executorService);
@@ -262,7 +262,7 @@ public class ViewDefinitionCompilerTest {
     functionRepo.addFunction(f2);
 
     FunctionCompilationContext compilationContext = new FunctionCompilationContext();
-    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(new FunctionCompilationService (functionRepo, new DefaultFunctionRepositoryCompiler(), compilationContext));
+    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(new CompiledFunctionService (functionRepo, new DefaultFunctionRepositoryCompiler(), compilationContext));
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource), EHCacheUtils
         .createCacheManager());
     ExecutorService executorService = Executors.newSingleThreadExecutor();

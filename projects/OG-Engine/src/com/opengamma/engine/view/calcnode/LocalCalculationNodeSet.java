@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutorService;
 import org.springframework.beans.factory.InitializingBean;
 
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.function.FunctionCompilationService;
+import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
@@ -27,7 +27,7 @@ import com.opengamma.util.ArgumentChecker;
 public class LocalCalculationNodeSet extends AbstractCollection<LocalCalculationNode> implements InitializingBean {
 
   private ViewComputationCacheSource _viewComputationCache;
-  private FunctionCompilationService _functionCompilationService;
+  private CompiledFunctionService _functionCompilationService;
   private FunctionExecutionContext _functionExecutionContext;
   private ComputationTargetResolver _computationTargetResolver;
   private ViewProcessorQuerySender _viewProcessorQuery;
@@ -57,11 +57,11 @@ public class LocalCalculationNodeSet extends AbstractCollection<LocalCalculation
     _viewComputationCache = viewComputationCache;
   }
 
-  public FunctionCompilationService getFunctionCompilationService() {
+  public CompiledFunctionService getFunctionCompilationService() {
     return _functionCompilationService;
   }
 
-  public void setFunctionCompilationService(FunctionCompilationService functionCompilationService) {
+  public void setFunctionCompilationService(CompiledFunctionService functionCompilationService) {
     ArgumentChecker.notNull(functionCompilationService, "functionCompilationService");
     _functionCompilationService = functionCompilationService;
   }

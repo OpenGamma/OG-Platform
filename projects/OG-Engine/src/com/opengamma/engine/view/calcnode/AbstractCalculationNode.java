@@ -19,7 +19,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionRepository;
-import com.opengamma.engine.function.FunctionCompilationService;
+import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInputsImpl;
@@ -46,7 +46,7 @@ import com.opengamma.util.tuple.Pair;
 public abstract class AbstractCalculationNode implements CalculationNode {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractCalculationNode.class);
   private final ViewComputationCacheSource _cacheSource;
-  private final FunctionCompilationService _functionCompilationService;
+  private final CompiledFunctionService _functionCompilationService;
   private final FunctionExecutionContext _functionExecutionContext;
   private final ComputationTargetResolver _targetResolver;
   private final ViewProcessorQuerySender _viewProcessorQuerySender;
@@ -54,7 +54,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
   private String _nodeId;
   private final ExecutorService _writeBehindExecutorService;
 
-  protected AbstractCalculationNode(ViewComputationCacheSource cacheSource, FunctionCompilationService functionCompilationService,
+  protected AbstractCalculationNode(ViewComputationCacheSource cacheSource, CompiledFunctionService functionCompilationService,
       FunctionExecutionContext functionExecutionContext, ComputationTargetResolver targetResolver, ViewProcessorQuerySender calcNodeQuerySender, String nodeId,
       final ExecutorService writeBehindExecutorService, FunctionInvocationStatisticsGatherer functionInvocationStatistics) {
     ArgumentChecker.notNull(cacheSource, "Cache Source");
@@ -81,7 +81,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     return _cacheSource;
   }
 
-  public FunctionCompilationService getFunctionCompilationService() {
+  public CompiledFunctionService getFunctionCompilationService() {
     return _functionCompilationService;
   }
 

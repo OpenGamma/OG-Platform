@@ -8,7 +8,7 @@ package com.opengamma.engine.view;
 import java.util.Arrays;
 
 import com.opengamma.engine.CachingComputationTargetResolver;
-import com.opengamma.engine.function.FunctionCompilationService;
+import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.livedata.CombiningLiveDataSnapshotProvider;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
@@ -37,7 +37,7 @@ public class ViewProcessingContext {
   private final LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private final LiveDataSnapshotProvider _liveDataSnapshotProvider;
   private final LiveDataInjector _liveDataOverrideInjector;
-  private final FunctionCompilationService _functionCompilationService;
+  private final CompiledFunctionService _functionCompilationService;
   private final FunctionResolver _functionResolver;
   private final PositionSource _positionSource;
   private final SecuritySource _securitySource;
@@ -50,7 +50,7 @@ public class ViewProcessingContext {
   private final GraphExecutorStatisticsGathererProvider _graphExecutorStatisticsGathererProvider;
 
   public ViewProcessingContext(LiveDataEntitlementChecker liveDataEntitlementChecker, LiveDataAvailabilityProvider liveDataAvailabilityProvider, LiveDataSnapshotProvider liveDataSnapshotProvider,
-      FunctionCompilationService functionCompilationService, FunctionResolver functionResolver, PositionSource positionSource, SecuritySource securitySource,
+      CompiledFunctionService functionCompilationService, FunctionResolver functionResolver, PositionSource positionSource, SecuritySource securitySource,
       CachingComputationTargetResolver computationTargetResolver, ViewComputationCacheSource computationCacheSource, JobDispatcher computationJobDispatcher,
       ViewProcessorQueryReceiver viewProcessorQueryReceiver, DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory, ViewPermissionProvider permissionProvider,
       GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider) {
@@ -123,7 +123,7 @@ public class ViewProcessingContext {
     return _liveDataOverrideInjector;
   }
 
-  public FunctionCompilationService getFunctionCompilationService() {
+  public CompiledFunctionService getFunctionCompilationService() {
     return _functionCompilationService;
   }
 

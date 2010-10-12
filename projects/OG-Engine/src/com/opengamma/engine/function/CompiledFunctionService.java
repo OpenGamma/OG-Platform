@@ -25,18 +25,18 @@ import com.opengamma.util.monitor.OperationTimer;
 /**
  * Combines a function repository and repository to give access to compiled functions. 
  */
-// ENG-247 rename this to CompiledFunctionService as it is not the compiler but provider of compiled function definitions
-public class FunctionCompilationService {
+public class CompiledFunctionService {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(FunctionCompilationService.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(CompiledFunctionService.class);
 
   private final FunctionRepository _functionRepository;
   private final FunctionRepositoryCompiler _functionRepositoryCompiler;
   private final FunctionCompilationContext _functionCompilationContext;
+  private boolean _localExecutorService;
   private ExecutorService _executorService;
   private boolean _initialized;
 
-  public FunctionCompilationService(final FunctionRepository functionRepository, final FunctionRepositoryCompiler functionRepositoryCompiler,
+  public CompiledFunctionService(final FunctionRepository functionRepository, final FunctionRepositoryCompiler functionRepositoryCompiler,
       final FunctionCompilationContext functionCompilationContext) {
     ArgumentChecker.notNull(functionRepository, "functionRepository");
     ArgumentChecker.notNull(functionRepositoryCompiler, "functionRepositoryCompiler");
@@ -44,11 +44,25 @@ public class FunctionCompilationService {
     _functionRepository = functionRepository;
     _functionRepositoryCompiler = functionRepositoryCompiler;
     _functionCompilationContext = functionCompilationContext;
+    _localExecutorService = true;
+    _executorService = createDefaultExecutorService();
+  }
+
+  protected ExecutorService createDefaultExecutorService() {
+    return new ThreadPoolExecutor(1, Math.max(Runtime.getRuntime().availableProcessors() - 1, 1), 30, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
   }
 
   public void setExecutorService(final ExecutorService executorService) {
-    ArgumentChecker.notNull(executorService, "executorService");
-    _executorService = executorService;
+    if (_localExecutorService) {
+      _executorService.shutdown();
+    }
+    if (executorService == null) {
+      _localExecutorService = true;
+      _executorService = createDefaultExecutorService();
+    } else {
+      _localExecutorService = false;
+      _executorService = executorService;
+    }
   }
 
   protected void initializeImpl() {
@@ -86,9 +100,6 @@ public class FunctionCompilationService {
 
   public synchronized void initialize() {
     if (!_initialized) {
-      if (getExecutorService() == null) {
-        setExecutorService(new ThreadPoolExecutor(1, Math.max(Runtime.getRuntime().availableProcessors() - 1, 1), 30, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>()));
-      }
       initializeImpl();
       _initialized = true;
     } else {

@@ -38,7 +38,7 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.DefaultFunctionRepositoryCompiler;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionCompilationService;
+import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
@@ -137,7 +137,7 @@ public class CancelExecutionTest {
     };
     functionRepository.addFunction(mockFunction);
     final FunctionCompilationContext compilationContext = new FunctionCompilationContext();
-    final FunctionCompilationService compilationService = new FunctionCompilationService(functionRepository, new DefaultFunctionRepositoryCompiler(), compilationContext);
+    final CompiledFunctionService compilationService = new CompiledFunctionService(functionRepository, new DefaultFunctionRepositoryCompiler(), compilationContext);
     final FunctionResolver functionResolver = new DefaultFunctionResolver(compilationService);
     final MockSecuritySource securitySource = new MockSecuritySource();
     final MockPositionSource positionSource = new MockPositionSource();

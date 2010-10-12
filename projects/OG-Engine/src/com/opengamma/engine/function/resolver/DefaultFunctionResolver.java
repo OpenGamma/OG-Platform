@@ -12,7 +12,7 @@ import java.util.Set;
 
 import javax.time.InstantProvider;
 
-import com.opengamma.engine.function.FunctionCompilationService;
+import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -20,10 +20,10 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class DefaultFunctionResolver implements FunctionResolver {
 
-  private final FunctionCompilationService _functionCompilationService;
+  private final CompiledFunctionService _functionCompilationService;
   private Set<ResolutionRule> _defaultRules;
 
-  public DefaultFunctionResolver(final FunctionCompilationService functionCompilationService) {
+  public DefaultFunctionResolver(final CompiledFunctionService functionCompilationService) {
     ArgumentChecker.notNull(functionCompilationService, "functionCompilationService");
     _functionCompilationService = functionCompilationService;
   }

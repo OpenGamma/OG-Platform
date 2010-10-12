@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.view;
 
-import com.opengamma.engine.function.FunctionCompilationService;
+import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PositionSource;
@@ -38,7 +38,7 @@ public interface ViewProcessorInternal extends ViewProcessor {
    * 
    * @return the function compilation service
    */
-  FunctionCompilationService getFunctionCompilationService();
+  CompiledFunctionService getFunctionCompilationService();
   
   /**
    * Gets the live data client

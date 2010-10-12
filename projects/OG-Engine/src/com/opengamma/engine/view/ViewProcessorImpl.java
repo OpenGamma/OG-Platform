@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.engine.CachingComputationTargetResolver;
-import com.opengamma.engine.function.FunctionCompilationService;
+import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
@@ -46,7 +46,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
   private SecuritySource _securitySource;
   private PositionSource _positionSource;
   private CachingComputationTargetResolver _computationTargetResolver;
-  private FunctionCompilationService _functionCompilationService;
+  private CompiledFunctionService _functionCompilationService;
   private LiveDataClient _liveDataClient;
   private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private LiveDataSnapshotProvider _liveDataSnapshotProvider;
@@ -112,7 +112,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
   }
 
   @Override
-  public FunctionCompilationService getFunctionCompilationService() {
+  public CompiledFunctionService getFunctionCompilationService() {
     return _functionCompilationService;
   }
 
@@ -121,7 +121,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
    * 
    * @param functionCompilationService  the function compilation service
    */
-  public void setFunctionCompilationService(final FunctionCompilationService functionCompilationService) {
+  public void setFunctionCompilationService(final CompiledFunctionService functionCompilationService) {
     assertNotStarted();
     _functionCompilationService = functionCompilationService;
   }

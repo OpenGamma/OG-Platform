@@ -140,7 +140,7 @@ public class DefaultFunctionRepositoryCompiler implements FunctionRepositoryComp
   }
 
   @Override
-  public CompiledFunctionRepository compile(final FunctionCompilationService context, final InstantProvider atInstantProvider) {
+  public CompiledFunctionRepository compile(final CompiledFunctionService context, final InstantProvider atInstantProvider) {
     final Instant atInstant = Instant.of(atInstantProvider);
     final Pair<FunctionRepository, Instant> key = Pair.of(context.getFunctionRepository(), atInstant);
     CompiledFunctionRepository compiled = getCachedCompilation(key);

@@ -16,7 +16,7 @@ import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.DefaultFunctionRepositoryCompiler;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionCompilationService;
+import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
@@ -99,7 +99,7 @@ public class ViewProcessorTestEnvironment {
     _viewProcessor.setDependencyGraphExecutorFactory(dependencyGraphExecutorFactory);
     assertEquals(dependencyGraphExecutorFactory, _viewProcessor.getDependencyGraphExecutorFactory());
 
-    _viewProcessor.setFunctionCompilationService(new FunctionCompilationService(functionRepository, new DefaultFunctionRepositoryCompiler(), functionCompilationContext));
+    _viewProcessor.setFunctionCompilationService(new CompiledFunctionService(functionRepository, new DefaultFunctionRepositoryCompiler(), functionCompilationContext));
 
     TestLiveDataClient liveDataClient = new TestLiveDataClient();
     _viewProcessor.setLiveDataClient(liveDataClient);

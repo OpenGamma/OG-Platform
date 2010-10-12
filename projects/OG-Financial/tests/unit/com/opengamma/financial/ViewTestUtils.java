@@ -20,7 +20,7 @@ import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.DefaultFunctionRepositoryCompiler;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionCompilationService;
+import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
@@ -69,7 +69,7 @@ public class ViewTestUtils {
     InMemoryViewComputationCacheSource computationCache = new InMemoryViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT);
 
     FunctionExecutionContext executionContext = new FunctionExecutionContext();
-    FunctionCompilationService functionCompilation = new FunctionCompilationService(functionRepo, new DefaultFunctionRepositoryCompiler(), new FunctionCompilationContext());
+    CompiledFunctionService functionCompilation = new CompiledFunctionService(functionRepo, new DefaultFunctionRepositoryCompiler(), new FunctionCompilationContext());
 
     ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));

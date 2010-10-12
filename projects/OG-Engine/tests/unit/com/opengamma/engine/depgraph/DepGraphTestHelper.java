@@ -12,7 +12,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.MapComputationTargetResolver;
 import com.opengamma.engine.function.DefaultFunctionRepositoryCompiler;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionCompilationService;
+import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.livedata.FixedLiveDataAvailabilityProvider;
@@ -86,7 +86,7 @@ public class DepGraphTestHelper {
     if (_builder == null) {
       _builder = new DependencyGraphBuilder();
       _builder.setLiveDataAvailabilityProvider(_liveDataAvailabilityProvider);
-      _builder.setFunctionResolver(new DefaultFunctionResolver(new FunctionCompilationService (_functionRepo, new DefaultFunctionRepositoryCompiler(), new FunctionCompilationContext ())).compile(Instant.nowSystemClock()));
+      _builder.setFunctionResolver(new DefaultFunctionResolver(new CompiledFunctionService (_functionRepo, new DefaultFunctionRepositoryCompiler(), new FunctionCompilationContext ())).compile(Instant.nowSystemClock()));
       MapComputationTargetResolver targetResolver = new MapComputationTargetResolver();
       targetResolver.addTarget(_target);
       _builder.setTargetResolver(targetResolver);

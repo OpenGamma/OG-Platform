@@ -19,6 +19,6 @@ public interface FunctionRepositoryCompiler {
    * @param atInstant the snapshot time.
    * @return the repository of compiled functions.
    */
-  CompiledFunctionRepository compile(FunctionCompilationService context, InstantProvider atInstant);
+  CompiledFunctionRepository compile(CompiledFunctionService context, InstantProvider atInstant);
 
 }
